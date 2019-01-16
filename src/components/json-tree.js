@@ -16,7 +16,7 @@ export default class JsonTree extends LitElement {
           white-space: nowrap;
         }
         .left-bracket{
-          color:#333;
+          color:var(--fg);
           display:inline-block;
           padding: 0 20px 0 0;
           cursor:pointer;
@@ -24,19 +24,19 @@ export default class JsonTree extends LitElement {
           border-radius:3px;
         }
         .left-bracket:hover{
-          color:var(--primary-color, ${vars.color.primaryBg});
-          background-color:${vars.color.hoverBg};
-          border: 1px solid #ccc;
+          color:var(--primary-color);
+          background-color:var(--hover-color);
+          border: 1px solid var(--border-color);
         }
         .inside-bracket{
           padding-left:12px;
-          border-left:1px dotted #ccc;
+          border-left:1px dotted var(--border-color);
         }
         .string{color:#86b300;}
         .number{color:#47afe8;}
         .null{color:orangered;}
         .boolean{color:#A33AF2}
-        .object{color:#333}
+        .object{color:var(--fg)}
       </style>
       <div class="tree">
         ${this.generateTree(this.data)}

@@ -13,7 +13,7 @@ td, th {
 
 .m-table {
   border-collapse: separate;
-  border: 1px solid ${vars.color.border};
+  border: 1px solid var(--border-color);
   border-radius: ${vars.border.radius};
   color: ${vars.color.tableFg};
   margin: 0;
@@ -41,18 +41,18 @@ td, th {
     letter-spacing: normal;
     background-color: ${vars.color.tableHeaderBg};
     vertical-align: bottom;
-    border-bottom: 1px solid ${vars.color.border};
+    border-bottom: 1px solid var(--border-color);
 }
 
 .m-table > tbody >tr > td,
 .m-table > tr > td{
-    border-top: 1px solid ${vars.color.lightBorder};
+    border-top: 1px solid var(--light-border-color);
     text-overflow: ellipsis;
     overflow: hidden;
 }
 
 .m-table tr:hover{
-    background-color: ${vars.color.hoverBg};
+    background-color: var(--hover-color);
 }
 .table-title{
     font-size:${vars.font.tableTitleSize};

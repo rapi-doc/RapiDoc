@@ -19,7 +19,7 @@ export default class EndPoint extends LitElement {
         border-width:1px 1px 1px 5px;
         border-style:solid;
         border-color:transparent;
-        border-top-color:#eee;
+        border-top-color:var(--light-border-color);
         display:flex;
         padding:6px 16px;
         align-items: baseline;
@@ -27,28 +27,28 @@ export default class EndPoint extends LitElement {
       }
       .m-endpoint > .head.put:hover,
       .m-endpoint > .head.put.expanded{
-        border-color:${vars.color.put}; 
-        background-color:${vars.color.lightPut}; 
+        border-color:var(--put-color); 
+        background-color:var(--light-put-color); 
       }
       .m-endpoint > .head.post:hover,
       .m-endpoint > .head.post.expanded{
-        border-color:${vars.color.post}; 
-        background-color:${vars.color.lightPost}; 
+        border-color:var(--post-color); 
+        background-color:var(--light-post-color); 
       }
       .m-endpoint > .head.get:hover,
       .m-endpoint > .head.get.expanded{
-        border-color:${vars.color.get}; 
-        background-color:${vars.color.lightGet}; 
+        border-color:var(--get-color); 
+        background-color:var(--light-get-color); 
       }
       .m-endpoint > .head.delete:hover,
       .m-endpoint > .head.delete.expanded{
-        border-color:${vars.color.delete}; 
-        background-color:${vars.color.lightDelete}; 
+        border-color:var(--delete-color); 
+        background-color:var(--light-delete-color); 
       }
       .m-endpoint > .head.patch:hover,
       .m-endpoint > .head.patch.expanded{
-        border: 1px solid ${vars.color.patch}; 
-        background-color:${vars.color.lightPatch}; 
+        border: 1px solid var(--patch-color); 
+        background-color:var(--light-patch-color); 
       }
       .m-endpoint .body {
         flex-wrap:wrap;
@@ -57,11 +57,11 @@ export default class EndPoint extends LitElement {
         border-style:solid;
         box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.15);
       }
-      .m-endpoint .body.delete{ border-color:${vars.color.delete}; }
-      .m-endpoint .body.patch{ border-color:${vars.color.patch}; }
-      .m-endpoint .body.put{ border-color:${vars.color.put}; }
-      .m-endpoint .body.post{border-color:${vars.color.post};}
-      .m-endpoint .body.get{ border-color:${vars.color.get}; }
+      .m-endpoint .body.delete{ border-color:var(--delete-color); }
+      .m-endpoint .body.patch{ border-color:var(--patch-color); }
+      .m-endpoint .body.put{ border-color:var(--put-color); }
+      .m-endpoint .body.post{border-color:var(--post-color);}
+      .m-endpoint .body.get{ border-color:var(--get-color); }
 
       .head .path{
         display: inline-block;
@@ -73,10 +73,12 @@ export default class EndPoint extends LitElement {
 
       .head .descr{
         font-size: 12px;
+        color:var(--light-fg);
         font-weight:400;
         overflow: hidden;
         display: inline-block;
         align-items: center;
+
       }
 
       .body .summary{
@@ -86,7 +88,7 @@ export default class EndPoint extends LitElement {
         font-size:20px;
         margin-bottom: 6px;
         white-space:nowrap;
-        color:${vars.color.fg};
+        color:var(--fg);
         overflow: hidden;
         text-overflow: ellipsis;
       }
@@ -107,13 +109,13 @@ export default class EndPoint extends LitElement {
         font-weight: bold;
         text-transform:uppercase;
         margin-right:5px;
-        color:${vars.color.fg};
+        color:var(--fg);
       }
-      .method.delete{ border: 2px solid ${vars.color.delete};}
-      .method.patch{ border: 2px solid ${vars.color.patch}; }
-      .method.put{ border: 2px solid ${vars.color.put}; }
-      .method.post{ border: 2px solid ${vars.color.post}; }
-      .method.get{ border: 2px solid ${vars.color.get}; }
+      .method.delete{ border: 2px solid var(--delete-color);}
+      .method.patch{ border: 2px solid var(--patch-color); }
+      .method.put{ border: 2px solid var(--put-color); }
+      .method.post{ border: 2px solid var(--post-color); }
+      .method.get{ border: 2px solid var(--get-color); }
 
       .req-resp-container{
         display: flex;
@@ -121,29 +123,29 @@ export default class EndPoint extends LitElement {
         align-items: stretch;
         flex-wrap: wrap;
         flex-direction: var(--layout, row);
-        border-top:1px solid ${vars.color.lightBorder};
+        border-top:1px solid var(--light-border-color);
       }
       .request,
       .response{
         flex:1; 
         min-height:100px;
-        padding:8px;
+        padding:16px 24px;
         overflow:hidden;
       }
       ${this.layout==='row'?
       html`
-      .patch .request{ border-right: 1px solid ${vars.color.patch}; }
-      .put .request{ border-right: 1px solid ${vars.color.put}; }
-      .post .request{ border-right: 1px solid ${vars.color.post}; }
-      .get .request{ border-right: 1px solid ${vars.color.get}; }
-      .delete .request{ border-right: 1px solid ${vars.color.delete}; }
+      .patch .request{ border-right: 1px solid var(--patch-color); }
+      .put .request{ border-right: 1px solid var(--put-color); }
+      .post .request{ border-right: 1px solid var(--post-color); }
+      .get .request{ border-right: 1px solid var(--get-color); }
+      .delete .request{ border-right: 1px solid var(--delete-color); }
       `:
       html`
-      .patch .request{ border-bottom: 1px dashed ${vars.color.patch}; }
-      .put .request{ border-bottom: 1px dashed ${vars.color.put}; }
-      .post .request{ border-bottom: 1px dashed ${vars.color.post}; }
-      .get .request{ border-bottom: 1px dashed ${vars.color.get}; }
-      .delete .request{ border-bottom: 1px dashed ${vars.color.delete}; }
+      .patch .request{ border-bottom: 1px dashed var(--patch-color); }
+      .put .request{ border-bottom: 1px dashed var(--put-color); }
+      .post .request{ border-bottom: 1px dashed var(--post-color); }
+      .get .request{ border-bottom: 1px dashed var(--get-color); }
+      .delete .request{ border-bottom: 1px dashed var(--delete-color); }
       `
       }
 

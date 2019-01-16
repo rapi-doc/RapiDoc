@@ -19,9 +19,9 @@ input, select, button {
   line-height: 1;
   text-align: center;
   white-space: nowrap;
-  background-color:var(--primary-color, ${vars.color.primaryBg});
-  color:var(--primary-text, ${vars.color.primaryFg});
-  border: 1px solid var(--primary-color, ${vars.color.primaryBg});
+  background-color:var(--primary-color);
+  color:var(--primary-text);
+  border: 1px solid var(--primary-color);
   transition: background-color 0.2s;
   user-select: none;
   cursor: pointer;
@@ -30,23 +30,16 @@ input, select, button {
 .m-btn.large{padding:8px 14px;}
 .m-btn.small{padding:5px 12px;}
 .m-btn.circle{border-radius:50%;}
-.m-btn.plain{
-    background-color:${vars.color.plainBg};
-    border: 2px solid ${vars.color.plainBorder};
-    color:${vars.color.plainFg};
-}
-
-.m-btn:hover{ background-color: var(--primary-color, ${vars.color.primaryBg})}
-.m-btn.plain:hover{ border-color:var(--primary-color, ${vars.color.primaryBg});}
+.m-btn:hover{ background-color: var(--primary-color)}
 
 /* Form Inputs */
 textarea,
 input[type="text"],
 input[type="password"]{
   border-radius:${vars.border.radius};
-  border:1px solid ${vars.color.inputBorder};
-  background:${vars.color.inputBg};
-  color:${vars.color.inputFg};
+  border:1px solid var(--input-border-color);
+  background:var(--input-bg);
+  color:var(--fg);
   transition: border .2s;
   outline: none;
   font-size:14px;
@@ -71,7 +64,7 @@ input[type="password"].small {
 textarea::placeholder,
 input[type="text"]::placeholder,
 input[type="password"]::placeholder {
-    color: ${vars.color.placeHolder};
+    color: var(--placeholder-color);
 }
 
 textarea:focus,
@@ -80,7 +73,7 @@ input[type="password"]:focus,
 textarea:active,
 input[type="text"]:active,
 input[type="password"]:active {
-    border:1px solid var(--primary-color, ${vars.color.primaryBg});
+    border:1px solid var(--primary-color);
 }
 
 textarea.reverse,
@@ -88,7 +81,7 @@ input.reverse[type="text"],
 input.reverse[type="password"]{
   background:${vars.color.inputReverseBg};
   color:${vars.color.inputReverseFg};
-  border:1px solid var(--primary-color, ${vars.color.primaryBg}); 
+  border:1px solid var(--primary-color); 
 }
 
 textarea.reverse:focus,
@@ -97,7 +90,7 @@ input.reverse[type="password"]:focus,
 textarea.reverse:active,
 input.reverse[type="text"]:active,
 input.reverse[type="password"]:active{
-    border:1px solid var(--primary-color, ${vars.color.primaryBg});
+    border:1px solid var(--primary-color);
 }
 
 textarea.reverse::placeholder,

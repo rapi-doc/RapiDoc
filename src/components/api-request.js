@@ -23,7 +23,7 @@ export default class ApiRequest extends LitElement {
     ${CommonStyles}
     <style>
       .title{
-        color: ${vars.color.fg};
+        color: var(--fg);
         font-family:${vars.font.regular};
         font-size:${vars.font.titleSize};
         font-weight:bold;
@@ -36,15 +36,21 @@ export default class ApiRequest extends LitElement {
         line-height: 12px;
       }
       .param-name{
-        color: ${vars.color.fg}; 
+        color: var(--fg); 
         font-family: ${vars.font.mono};
       }
       .param-type{
-        color: ${vars.color.lightFg}; 
+        color: var(--light-fg); 
         font-family: ${vars.font.regular};
       }
       .top-gap{margin-top:24px;}
+      .tab-buttons{
+        height:30px;
+        border-bottom: 1px solid var(--light-border-color) ;
+        align-items: stretch;
+      }
       .tab-btn{
+        color:var(--fg);
         border:none;
         background-color:transparent;
         cursor:pointer;
@@ -54,13 +60,13 @@ export default class ApiRequest extends LitElement {
         margin-right:16px;
       }
       .tab-btn.active{
-        border-bottom: 3px solid var(--primary-color, ${vars.color.primaryBg}); 
+        border-bottom: 3px solid var(--primary-color); 
         font-weight:bold;
-        color:var(--primary-color, ${vars.color.primaryBg});
+        color:var(--primary-color);
       }
 
       .tab-btn:hover{
-        color:var(--primary-color, ${vars.color.primaryBg});
+        color:var(--primary-color);
       }
       .tab-content{
         margin:-1px 0 0 0;
@@ -165,7 +171,7 @@ export default class ApiRequest extends LitElement {
       <div class="m-text small gray"> ${this.request_body.description} </div>
     </div>
     <div id="tab_panel" class="tab-panel col" style="border-width:0; min-height:200px">
-      <div id="tab_buttons" class="tab-buttons row" style="height:30px;border-bottom: 1px solid #ccc ;align-items: stretch;" @click="${this.activateTab}">
+      <div id="tab_buttons" class="tab-buttons row" @click="${this.activateTab}">
         <button class="tab-btn active" content_id="content_a"> Example </button>
         <button class="tab-btn" content_id="content_b"> Model</button>
       </div>

@@ -1,4 +1,4 @@
-import { LitElement, html} from 'lit-element'; 
+import { LitElement, html, css} from 'lit-element'; 
 import {unsafeHTML} from 'lit-html/directives/unsafe-html.js';
 import MLogo from '@/components/m-logo'; 
 import EndPoints from '@/components/end-points'; 
@@ -18,41 +18,95 @@ class RapidocLayout extends LitElement {
       ${FontStyles}
       ${InputStyles}
       ${FlexStyles}
+      ${this.theme==='dark'?
+      html`<style>
+        :host{
+          --bg:#333;
+          --fg:#ccc;
+          --light-fg:#777;
+          --very-light-fg:#666;
+          --code-fg:#fff;
+          --reverse-code-fg:#ccc;
+          --reverse-code-bg:#263238;
+          --border-color:#666;
+          --input-bg:#303030;
+          --input-border-color:#297aa2;
+          --placeholder-color:#666;
+          --light-border-color:#444;
+          --light-get-color:#222;
+          --light-put-color:#222;
+          --light-post-color:#222;
+          --light-delete-color:#222;
+          --light-patch-color:#222;
+          --hover-color:#222;
+        }
+      </style>`
+      :html`<style>
+        :host{
+          --bg:#fff;
+          --fg:#333;
+          --light-fg:#999;
+          --very-light-fg:#bbb;
+          --code-fg:#666;
+          --reverse-code-fg:#ccc;
+          --reverse-code-bg:#263238;
+          --border-color:#ccc;
+          --input-bg:#fff;
+          --input-border-color:#C5D9E8;
+          --placeholder-color:#666;
+          --light-border-color:#eee;
+          --light-get-color:#eff8fd;
+          --light-put-color:#fff5e6;
+          --light-post-color:#fbfff0;
+          --light-delete-color:#fff0f0;
+          --light-patch-color:#fff5cc;
+          --hover-color:#f7f7f7;
+
+        }
+      </style>`
+      }
+      ${html`<style>
+        :host{
+          --hover-bg:#f7f7f7;
+          --get-color:#47AFE8;
+          --put-color:#FF9900;
+          --post-color:#99CC00;
+          --delete-color:#CC0000;
+          --patch-color:#fc0;
+          --primary-color:${this.primaryColor?html`${this.primaryColor}`:`#FF791A`};
+          --dark-primary-color:${vars.color.brightness(this.primaryColor?this.primaryColor:'#FF791A', -30)};
+          --primary-text:${this.primaryColor?html`${vars.color.invert(this.primaryColor)}`:`#ffffff`};
+          --header-bg:${this.headerColor?html`${this.headerColor}`:`#444`};
+          --header-fg:${this.headerColor?html`${vars.color.invert(this.headerColor)}`:`#ccc`};
+          --layout:${this.layout?html`${this.layout}`:`row`}
+        }
+      </style>`} 
+      
       <style>
         :host{
           display:block;
           min-width:750px;
-        }
-        :host{
-          ${this.primaryColor? html`--primary-color:${this.primaryColor};`:''}
-          ${this.primaryColor? html`--primary-text:${vars.color.invert(this.primaryColor)};`:''}
-          ${this.layout? html`--layout:${this.layout};`:'row'}
-          ${this.theme==='dark'?html`
-            --bg:#333;
-            --fg:#ccc;
-          `:
-          html`
-
-          `}
+          color:var(--fg);
+          background-color:var(--bg);
         }
         .header{
-          background-color:${this.headerColor?this.headerColor:vars.color.headerBg};
-          color:${this.headerColor?vars.color.invert(this.headerColor):vars.color.reverseFg};
+          background-color:var(--header-bg);
+          color:var(--header-fg);
         }
         input.header-input{
           background:${this.headerColor?vars.color.brightness(this.headerColor, -20):vars.color.inputReverseBg};
-          color:${this.headerColor?vars.color.invert(this.headerColor):vars.color.inputReverseFg};
-          border:1px solid var(--primary-color, ${this.primaryColor?vars.color.brightness(this.primaryColor, -20) :vars.color.primaryBg}); 
+          color:var(--header-fg);
+          border:1px solid var(--dark-primary-color); 
         }
         .m-tag-title{
           font-size: 18px;
-          color:${vars.color.fg};
+          color:var(--fg);
           margin: 28px 0px 4px;
           text-transform: uppercase;
         }
 
       </style>
-      ${this.showHeader==='true'?html`
+      ${this.showHeader==='false'?'':html`
       <div class="row header regular-font" style="padding:8px 4px 8px 4px;min-height:48px">
         <div style="display:flex; align-items: center;">
           <m-logo style="height:36px;width:36px;margin-left:5px"></m-logo>
@@ -65,15 +119,14 @@ class RapidocLayout extends LitElement {
         <div style="display:flex; flex-direction:column; margin-right:8px; align-items:flex-end;">
           <input class="header-input" style="width:100px;" type="text" placeholder="Search">
         </div> 
-      </div>
-      `:``}
-      ${this.resolvedSpec && this.resolvedSpec.tags ?html`
+      </div>`}
+      ${this.resolvedSpec && this.resolvedSpec.tags ?html`<div style="margin:0 16px">
         ${this.resolvedSpec.tags.map(tag => html`
           <div class="m-tag-title regular-font">${tag.name}</div>
           ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(tag.description?tag.description:'')}</div>`)}
           <end-points .paths="${tag.paths}" layout="${this.layout?this.layout:'row'}"></end-points>
         `)}
-      `
+        </div>`
       :''}
     `}
 
@@ -97,6 +150,7 @@ class RapidocLayout extends LitElement {
       };
     }
     attributeChangedCallback(name, oldVal, newVal) {
+      console.log("show header :", this.showHeader);
       if (name=='spec-url'){
         if (oldVal !== newVal){
           this.loadSpec(newVal);

@@ -30,12 +30,12 @@ export default class SchemaTree extends LitElement {
           min-width:100px;
         }
         .obj-descr{
-          color:${vars.color.veryLightFg};
+          color:var(--very-light-fg);
           font-family:${vars.font.regular};
           display:inline;
         }
         .item-descr{
-          color:${vars.color.lightFg};
+          color:var(--light-fg);
           display: table-cell;
           padding-left:24px;
           min-width: 200px;
@@ -47,7 +47,7 @@ export default class SchemaTree extends LitElement {
           color:orange;
         }
         .left-bracket{
-          color:#333;
+          color:var(--fg);
           display:inline-block;
           padding: 0 20px 0 0;
           cursor:pointer;
@@ -55,13 +55,13 @@ export default class SchemaTree extends LitElement {
           border-radius:3px;
         }
         .left-bracket:hover{
-          color:var(--primary-color, ${vars.color.primaryBg});
-          background-color:${vars.color.hoverBg};
-          border: 1px solid #ccc;
+          color:var(--primary-color);
+          background-color:var(--hover-color);
+          border: 1px solid var(--border-color);
         }
         .inside-bracket{
           padding-left:12px;
-          border-left:1px dotted ${vars.color.border};
+          border-left:1px dotted var(--border-color);
         }
         .m-markdown > p{
           margin-block-start:0;

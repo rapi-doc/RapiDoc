@@ -25,8 +25,8 @@ export default html`
     /* Text */
     .m-text{vertical-align: middle;}
     .m-text.small{font-size: 12px;line-height: 12px;}
-    .m-text.gray{color: ${vars.color.lightFg}}
-    .m-text.primary{color: ${vars.color.primaryFg}; }
+    .m-text.gray{color: var(--light-fg)}
+    .m-text.primary{color: var(--primary-color); }
     .m-text.bold{font-weight:bold;}
     .m-text.bottom-margin{ margin-bottom:4px}
     
@@ -58,7 +58,7 @@ export default html`
 
     /* Markdown */
     .m-markdown p:only-child{
-        color:${vars.color.lightFg};
+        color:var(--light-fg);
         font-size:12px;
         line-height:normal;
         margin-top:0;
@@ -69,16 +69,16 @@ export default html`
     .m-markdown code{
         background-color: rgba(0, 0, 0, 0.02);
         padding: 0px 6px;
-        border: 1px solid ${vars.color.lightBorder};
+        border: 1px solid var(--light-border-color);
         border-radius: 3px;
-        color: #666;
+        color: var(--code-fg);
         font-size: 12px;
     }
 
     .m-markdown pre{
         white-space: pre-wrap;
-        background-color: ${vars.color.codeBg};
-        color: ${vars.color.codeFg};
+        background-color: var(--reverse-code-bg);
+        color: var(--reverse-code-fg);
         padding: 12px 14px 15px 14px;
         overflow-x: auto;
         line-height: normal;
@@ -88,7 +88,7 @@ export default html`
     .m-markdown pre code {
         border:none;
         background-color:transparent;
-        color:#ccc;
+        color:var(--reverse-code-fg);
     }
     .m-markdown ul,
     .m-markdown ol{

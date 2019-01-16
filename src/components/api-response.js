@@ -17,7 +17,7 @@ export default class ApiResponse extends LitElement {
     ${InputStyles}
     <style>
       .title{
-        color: ${vars.color.fg};
+        color: var(--fg);
         font-family:${vars.font.regular};
         font-size:${vars.font.titleSize};
         font-weight:bold;
@@ -27,12 +27,18 @@ export default class ApiResponse extends LitElement {
         vertical-align: middle;
         padding:16px 0 8px;
       }
-      .resp-head.divider{border-top: 1px solid ${vars.color.border};}
+      .resp-head.divider{border-top: 1px solid var(--border-color);}
       .resp-status{ 
         font-weight:bold;
       }
       .top-gap{margin-top:16px;}
+      .tab-buttons{
+        height:30px;
+        border-bottom: 1px solid var(--light-border-color) ;
+        align-items: stretch;
+      }
       .tab-btn{
+        color:var(--fg);
         border:none;
         background-color:transparent;
         cursor:pointer;
@@ -42,13 +48,13 @@ export default class ApiResponse extends LitElement {
         margin-right:16px;
       }
       .tab-btn.active{
-        border-bottom: 3px solid var(--primary-color, ${vars.color.primaryBg});
+        border-bottom: 3px solid var(--primary-color);
         font-weight:bold;
-        color:var(--primary-color, ${vars.color.primaryBg});
+        color:var(--primary-color);
       }
 
       .tab-btn:hover{
-        color:var(--primary-color, ${vars.color.primaryBg});
+        color:var(--primary-color);
       }
       .tab-content{
         margin:-1px 0 0 0;
@@ -134,7 +140,7 @@ export default class ApiResponse extends LitElement {
         mimeType => html`
           <!-- TAB PANEL -->
           <div id="${status}_${mimeType}_tab-panel" @click="${this.activateTab}" class="tab-panel col" style="border-width:0; min-height:200px">
-            <div id="${status}_${mimeType}_tab-buttons" class="tab-buttons row" style="height:30px;border-bottom: 1px solid #eee ;align-items: stretch;" >
+            <div id="${status}_${mimeType}_tab-buttons" class="tab-buttons row" >
               <button class="tab-btn active" content_id="${status}_${mimeType}_content_a"> Example </button>
               <button class="tab-btn" content_id="${status}_${mimeType}_content_b"> Model</button>
               <div style="flex:1"></div>
