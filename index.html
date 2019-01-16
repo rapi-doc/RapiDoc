@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+  <title>
+    <%= htmlWebpackPlugin.options.title %>
+  </title>
+</head>
+
+<body>
+  <!-- 
+    https://api.apis.guru/v2/specs/github.com/v3/swagger.json
+    https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json
+  -->
+  <button onclick="changeAttr('heading-text')"> Change Heading Text </button>
+  <button onclick="changeLayout()"> Change Layout </button>
+  <button onclick="toggleHeader()"> Toggle Header </button>
+  <script>
+  function changeAttr(attr){
+    document.getElementById("thedoc").setAttribute(attr, attr+Math.floor(Math.random() * 100) );
+  }
+  function changeLayout(){
+    let currLayout = document.getElementById("thedoc").getAttribute('layout');
+    let newLayout = currLayout==="row"?"column":"row";
+    document.getElementById("thedoc").setAttribute('layout', newLayout );
+  }
+  function toggleHeader(){
+    if (document.getElementById("thedoc").getAttribute('show-header') === 'false'){
+      document.getElementById("thedoc").setAttribute('show-header',"true");
+    }
+    else{
+      document.getElementById("thedoc").setAttribute('show-header',"false");
+    }
+    
+  }
+  
+  </script>
+  <rapidoc-layout
+    id = "thedoc" 
+    heading-text="My Product"
+    spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json" 
+    primary-color="#ffff99"
+    header-color="#AA0000"
+    theme="dark"
+    layout="row"
+    show-header='false'
+    style="width:200px; border:1px solid #333; border-radius:4px;"
+
+  >
+  </rapidoc-layout>
+
+
+</body>
+
+</html>
