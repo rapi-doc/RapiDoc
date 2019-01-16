@@ -47,17 +47,15 @@ module.exports = {
         }
     },
     output: {
-        filename: 'rapidoc.js',
+        filename: 'rapidoc-min.js',
     },
     plugins: [
         new CleanWebpackPlugin(['dist']),
         new HtmlWebpackPlugin({title: 'RAPIDoc', template: 'index.html'}),
         new webpack.HotModuleReplacementPlugin(),
-        //new BundleAnalyzerPlugin({analyzerMode:'static'}),
-        /*
+        new BundleAnalyzerPlugin({analyzerMode:'static'}),
         new webpack.optimize.LimitChunkCountPlugin({
             maxChunks:1
         })
-        */
     ]
 }

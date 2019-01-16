@@ -1,8 +1,25 @@
 {
-  "name": "rapidoc-app",
-  "description": "Open API spec viewer with built in console",
-  "author": "Mrinmoy",
+  "name": "rapidoc",
+  "version": "1.0.0-rc.2",
+  "description": "RapiDoc - Open API spec viewer with built in console",
+  "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mrin9/RapiDoc.git"
+  },
   "license": "MIT",
+  "keywords": [
+    "OpenAPI",
+    "OpenAPI Specification",
+    "Swagger",
+    "JSON-Schema",
+    "API",
+    "REST",
+    "documentation",
+    "Custom Element",
+    "Web Component",
+    "rapidoc"
+  ],
   "dependencies": {
     "@webcomponents/webcomponentsjs": "^2.2.3",
     "axios": "^0.18.0",

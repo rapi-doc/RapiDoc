@@ -1,7 +1,7 @@
 // include lit-element in main webpack bundle (this is optional)
 import 'lit-element';
 import '@/styles/scss/main.scss';
-import('@/rapidoc-shell')
+import('@/rapidoc')
 
 // Note: this is just basic detection of web components support.
 // For more advanced feature detection, use @webcomponents/webcomponentsjs/webcomponents-loader.js

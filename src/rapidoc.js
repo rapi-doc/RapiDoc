@@ -11,7 +11,7 @@ import vars from '@/styles/vars';
 import ProcessSpec from '@/utils/parse-utils';
 import marked from 'marked';
 
-class RapidocLayout extends LitElement {
+class RapiDoc extends LitElement {
 
   render() {
     return html`
@@ -22,7 +22,7 @@ class RapidocLayout extends LitElement {
       html`<style>
         :host{
           --bg:#333;
-          --fg:#ccc;
+          --fg:#bbb;
           --light-fg:#777;
           --very-light-fg:#666;
           --pre-border-color:#666;
@@ -35,12 +35,12 @@ class RapidocLayout extends LitElement {
           --input-border-color:#297aa2;
           --placeholder-color:#666;
           --light-border-color:#444;
-          --light-get-color:#222;
-          --light-put-color:#222;
-          --light-post-color:#222;
-          --light-delete-color:#222;
-          --light-patch-color:#222;
-          --hover-color:#222;
+          --light-get-color:#2a2a2a;
+          --light-put-color:#2a2a2a;
+          --light-post-color:#2a2a2a;
+          --light-delete-color:#2a2a2a;
+          --light-patch-color:#2a2a2a;
+          --hover-color:#2a2a2a;
         }
       </style>`
       :html`<style>
@@ -106,7 +106,7 @@ class RapidocLayout extends LitElement {
         .m-tag-title{
           font-size: 18px;
           color:var(--fg);
-          margin: 28px 0px 4px;
+          padding: 28px 0px 4px 20px;
           text-transform: uppercase;
         }
 
@@ -125,10 +125,12 @@ class RapidocLayout extends LitElement {
           <input class="header-input" style="width:100px;" type="text" placeholder="Search">
         </div> 
       </div>`}
-      ${this.resolvedSpec && this.resolvedSpec.tags ?html`<div style="margin:0 16px">
+      ${this.resolvedSpec && this.resolvedSpec.tags ?html`<div style="margin:0 ${this.bodyPadding==='false'?0:'16px'} ">
         ${this.resolvedSpec.tags.map(tag => html`
           <div class="m-tag-title regular-font">${tag.name}</div>
-          ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(tag.description?tag.description:'')}</div>`)}
+          <div style="margin:4px 20px">
+            ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(tag.description?tag.description:'')}</div>`)}
+          </div>
           <end-points .paths="${tag.paths}" layout="${this.layout?this.layout:'row'}"></end-points>
         `)}
         </div>`
@@ -146,8 +148,9 @@ class RapidocLayout extends LitElement {
         primaryColor: {type: String, attribute: 'primary-color'},
         layout: {type: String},
         showHeader: {type: String, attribute: 'show-header'},
-
         theme: {type: String},
+        bodyPadding: {type: String, attribute: 'body-padding'},
+        
         logoUrl: {type: String, attribute: 'logo-url'},
         showTry: {type: Boolean, attribute: 'show-try'},
         showAuthentication: {type: Boolean, attribute: 'show-authentication'},
@@ -200,4 +203,4 @@ class RapidocLayout extends LitElement {
     }
 }
 
-customElements.define('rapidoc-layout', RapidocLayout);
+customElements.define('rapi-doc', RapiDoc);
