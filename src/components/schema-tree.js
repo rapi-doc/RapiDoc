@@ -47,7 +47,6 @@ export default class SchemaTree extends LitElement {
           color:orange;
         }
         .left-bracket{
-          color:var(--fg);
           display:inline-block;
           padding: 0 20px 0 0;
           cursor:pointer;
@@ -70,7 +69,7 @@ export default class SchemaTree extends LitElement {
         .stri, .string{color:#86b300;}
         .inte, .number{color:#47afe8;}
         .null {color:orangered;}
-        .bool, .boolean{color:#A33AF2}
+        .bool, .boolean{color:#b96ff1}
         .enum {color:orange}
       </style>
       <div class="tree">

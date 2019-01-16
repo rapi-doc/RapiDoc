@@ -17,7 +17,6 @@ export default class ApiResponse extends LitElement {
     ${InputStyles}
     <style>
       .title{
-        color: var(--fg);
         font-family:${vars.font.regular};
         font-size:${vars.font.titleSize};
         font-weight:bold;
@@ -44,7 +43,7 @@ export default class ApiResponse extends LitElement {
         cursor:pointer;
         border-bottom: 3px solid transparent;
         outline:none;
-        font-size:14px;
+        font-size:12px;
         margin-right:16px;
       }
       .tab-btn.active{

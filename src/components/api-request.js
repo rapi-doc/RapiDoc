@@ -23,7 +23,6 @@ export default class ApiRequest extends LitElement {
     ${CommonStyles}
     <style>
       .title{
-        color: var(--fg);
         font-family:${vars.font.regular};
         font-size:${vars.font.titleSize};
         font-weight:bold;
@@ -50,13 +49,12 @@ export default class ApiRequest extends LitElement {
         align-items: stretch;
       }
       .tab-btn{
-        color:var(--fg);
         border:none;
         background-color:transparent;
         cursor:pointer;
         border-bottom: 3px solid transparent;
         outline:none;
-        font-size:14px;
+        font-size:12px;
         margin-right:16px;
       }
       .tab-btn.active{

@@ -16,7 +16,6 @@ export default class JsonTree extends LitElement {
           white-space: nowrap;
         }
         .left-bracket{
-          color:var(--fg);
           display:inline-block;
           padding: 0 20px 0 0;
           cursor:pointer;
@@ -35,7 +34,7 @@ export default class JsonTree extends LitElement {
         .string{color:#86b300;}
         .number{color:#47afe8;}
         .null{color:orangered;}
-        .boolean{color:#A33AF2}
+        .boolean{color:#b96ff1}
         .object{color:var(--fg)}
       </style>
       <div class="tree">

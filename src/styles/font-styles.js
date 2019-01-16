@@ -71,24 +71,24 @@ export default html`
         padding: 0px 6px;
         border: 1px solid var(--light-border-color);
         border-radius: 3px;
-        color: var(--code-fg);
+        color: var(--fg);
         font-size: 12px;
     }
 
     .m-markdown pre{
         white-space: pre-wrap;
-        background-color: var(--reverse-code-bg);
-        color: var(--reverse-code-fg);
+        background-color: var(--pre-bg);
+        color:var(--pre-fg);
         padding: 12px 14px 15px 14px;
         overflow-x: auto;
         line-height: normal;
-        border-radius: 2px;
-        border: 1px solid rgba(38, 50, 56, 0.1);
+        border-radius: 4px;
+        border: 1px solid var(--pre-border-color);
     }
     .m-markdown pre code {
         border:none;
         background-color:transparent;
-        color:var(--reverse-code-fg);
+        color: var(--code-fg);
     }
     .m-markdown ul,
     .m-markdown ol{
@@ -97,4 +97,5 @@ export default html`
     .m-markdown li{
         line-height: 1.2em;
     }
+    .m-markdown a{color:var(--link-color)}
 </style>`

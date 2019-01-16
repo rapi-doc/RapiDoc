@@ -82,13 +82,12 @@ export default class EndPoint extends LitElement {
       }
 
       .body .summary{
-        padding:8px;
+        padding:8px 24px;
       }
       .body .summary .title{
         font-size:20px;
         margin-bottom: 6px;
         white-space:nowrap;
-        color:var(--fg);
         overflow: hidden;
         text-overflow: ellipsis;
       }
@@ -109,7 +108,6 @@ export default class EndPoint extends LitElement {
         font-weight: bold;
         text-transform:uppercase;
         margin-right:5px;
-        color:var(--fg);
       }
       .method.delete{ border: 2px solid var(--delete-color);}
       .method.patch{ border: 2px solid var(--patch-color); }

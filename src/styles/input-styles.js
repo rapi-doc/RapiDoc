@@ -6,6 +6,7 @@ export default html`
 input, select, button {
   font-family: ${vars.font.regular};
   font-weight:400;
+  color:var(--fg);
 }
 
 /* Button */
