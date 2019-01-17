@@ -10,6 +10,8 @@ import FlexStyles from '@/styles/flex-styles';
 import vars from '@/styles/vars';
 import ProcessSpec from '@/utils/parse-utils';
 import marked from 'marked';
+import clonedeep from 'lodash.clonedeep';
+
 
 class RapiDoc extends LitElement {
 
@@ -65,7 +67,6 @@ class RapiDoc extends LitElement {
           --light-delete-color:#fff0f0;
           --light-patch-color:#fff5cc;
           --hover-color:#f7f7f7;
-
         }
       </style>`
       }
@@ -93,41 +94,74 @@ class RapiDoc extends LitElement {
           min-width:750px;
           color:var(--fg);
           background-color:var(--bg);
+          font-family:${vars.font.regular};
         }
         .header{
           background-color:var(--header-bg);
           color:var(--header-fg);
+        }
+        .header .title{
+          font-size:24px;
         }
         input.header-input{
           background:${this.headerColor?vars.color.brightness(this.headerColor, -20):vars.color.inputReverseBg};
           color:var(--header-fg);
           border:1px solid var(--dark-primary-color); 
         }
-        .m-tag-title{
+        .tag{
           font-size: 18px;
           color:var(--fg);
           padding: 28px 0px 4px 20px;
           text-transform: uppercase;
         }
+        .doc-info{
+          padding:16px 20px;
+        }
+        .doc-info .title{
+          font-size:32px;
+        }
 
       </style>
+
       ${this.showHeader==='false'?'':html`
       <div class="row header regular-font" style="padding:8px 4px 8px 4px;min-height:48px">
         <div style="display:flex; align-items: center;">
           <m-logo style="height:36px;width:36px;margin-left:5px"></m-logo>
-          <div class="m-prod-title">${this.headingText}</div>
+          <div class="title">${this.headingText}</div>
         </div>  
         <div style="margin: 0px 8px;display:flex">
           <input id="spec-url" type="text" class="header-input" style="border-radius: 2px 0 0 2px;" placeholder="Spec URL" value="${this.specUrl}" @change="${this.onSepcUrlChange}">
+          <!--
+          <button class="m-btn" @click="${this.onFilter}"> Filter </button>
+          <button class="m-btn" @click="${this.onRestore}"> Restore </button>
+          -->
         </div>
         <div style="flex:1"></div>  
         <div style="display:flex; flex-direction:column; margin-right:8px; align-items:flex-end;">
           <input class="header-input" style="width:100px;" type="text" placeholder="Search">
         </div> 
       </div>`}
-      ${this.resolvedSpec && this.resolvedSpec.tags ?html`<div style="margin:0 ${this.bodyPadding==='false'?0:'16px'} ">
+
+      ${this.showInfo==='false' || !this.resolvedSpec || !this.resolvedSpec.info?'':html`
+        <div class="doc-info">
+          <div class="title">
+            ${this.resolvedSpec.info.title}
+            ${!this.resolvedSpec.info.version?"":html`
+              <span style="font-size:14px;font-weight:bold">
+                ${this.resolvedSpec.info.version}
+              </span>`
+            }
+          </div>
+          ${this.resolvedSpec.info.description?html`
+            ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(this.resolvedSpec.info.description)}</div>`)}
+          `
+          :``}
+        </div>  
+      `}
+
+      ${this.resolvedSpec && this.resolvedSpec.tags ?html`<div style="margin:0 ${this.bodyPadding==='false'?'0':'16px'} ">
         ${this.resolvedSpec.tags.map(tag => html`
-          <div class="m-tag-title regular-font">${tag.name}</div>
+          <div class="tag regular-font">${tag.name}</div>
           <div style="margin:4px 20px">
             ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(tag.description?tag.description:'')}</div>`)}
           </div>
@@ -158,13 +192,11 @@ class RapiDoc extends LitElement {
       };
     }
     attributeChangedCallback(name, oldVal, newVal) {
-      console.log("show header :", this.showHeader);
       if (name=='spec-url'){
         if (oldVal !== newVal){
           this.loadSpec(newVal);
         }
       }
-      console.log("%s change callback > %s::::%s", name, oldVal, newVal);
       super.attributeChangedCallback(name, oldVal, newVal);
     }
 
@@ -197,9 +229,22 @@ class RapiDoc extends LitElement {
     }
 
     afterSpecParsedAndValidated(spec, isReloadingSpec=false){
-      this.resolvedSpec=spec;
-      this.resolvedSpec=spec;
+      this.resolvedSpec = clonedeep(spec); //spec;
+      this.resolvedSpecMaster = clonedeep(spec);
       this.requestUpdate();
+    }
+
+    onFilter(){
+      this.resolvedSpec.tags[0].paths = this.resolvedSpec.tags[0].paths.slice(2);
+      this.requestUpdate();
+      console.log("filtered");
+    }
+
+    onRestore(){
+      this.resolvedSpec.tags[0].paths = this.resolvedSpecMaster.tags[0].paths.slice(0);
+      this.requestUpdate();
+      console.log("restore");
+      
     }
 }
 

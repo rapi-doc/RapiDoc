@@ -72,7 +72,7 @@ export default class ApiRequest extends LitElement {
 
     </style>
     <div class="col regular-font">
-    <div class="title">${'\u21E7'} REQUEST</div>
+    <div class="title">REQUEST</div>
     ${this.inputParametersTemplate('path')}
     ${this.inputParametersTemplate('query')}
     ${this.inputParametersTemplate('formData')}

@@ -60,7 +60,7 @@ export default class ApiResponse extends LitElement {
       }
     </style>
     <div class="col regular-font">
-    <div class="title">${'\u21E9'}RESPONSE</div>
+    <div class="title">RESPONSE</div>
     ${this.responseTemplate()}
     `
 

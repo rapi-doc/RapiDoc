@@ -52,8 +52,9 @@ module.exports = {
     plugins: [
         new CleanWebpackPlugin(['dist']),
         new HtmlWebpackPlugin({title: 'RAPIDoc', template: 'index.html'}),
+        new HtmlWebpackPlugin({filename: 'example.html',template: 'example.html'}),
         new webpack.HotModuleReplacementPlugin(),
-        new BundleAnalyzerPlugin({analyzerMode:'static'}),
+        //new BundleAnalyzerPlugin({analyzerMode:'static'}),
         new webpack.optimize.LimitChunkCountPlugin({
             maxChunks:1
         })

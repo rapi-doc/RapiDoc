@@ -84,7 +84,6 @@ let color={
 
         if (rgb.b > 255) rgb.b = 255;
         else if (rgb.b < 0) rgb.b = 0;
-        console.log(`#${rgb.r.toString(16).padStart(2, '0')}${rgb.g.toString(16).padStart(2, '0')}${rgb.b.toString(16).padStart(2, '0')}`)
         return `#${rgb.r.toString(16).padStart(2, '0')}${rgb.g.toString(16).padStart(2, '0')}${rgb.b.toString(16).padStart(2, '0')}`
     }
 };
@@ -96,7 +95,7 @@ let border={
 
 let font={
     path:"/public",
-    regular:'rapidoc, "Times New Roman", Helvetica, Arial',
+    regular:'rapidoc, Helvetica, Arial',
     mono:"Monaco, 'Andale Mono', 'Roboto Mono', Consolas",
     size:'14px',
     small:'12px',
