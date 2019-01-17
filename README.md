@@ -4,7 +4,7 @@
 Custom Eelement for Open-API spec viewing
 
 # Easy Usage
-- No Build steps, No Frameworks, Just include the script and use it in any html as an element
+No Build steps, No Frameworks, Just include the script and use it in any html as an element
 ```html
 <!doctype html>
   <head>
@@ -26,8 +26,8 @@ Style the element using standard `css`. You can apply borders, padding, width, h
 
 
 
-##Attributes
-| Attribute       | Purpose                                                  | Default      |
+## Attributes
+| Attribute  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;| Purpose                     | Default      |
 | -------------   |----------------------------------------------------------|------        |
 | `spec-url`      | url of the OpenAPI spec to view                          | `''` (empty) |
 | `heading-text`  | Heading Text on top-left corner                          | `''` (empty) |
@@ -36,6 +36,6 @@ Style the element using standard `css`. You can apply borders, padding, width, h
 | `theme`         | `light` or `dark`                                        | `light`      |
 | `show-header`   | `true` or `false` show/hide Header                       | `true`       |
 | `show-info`     | `true` or `false` show/hide Specs Info section such as Title, Version | `true`|
-| `layout`        | `row` or `column` This determines how the request and response info are placed `row`= side-by-side or `col`= one below the other| `row`      |
-| `body-padding`  | `true` or `false` (to fit the spec in compact places you may remove some padding ) | `true`      |
+| `layout`        | `row` or `column` request/response placement             | `row`      |
+| `body-padding`  | `true` or `false` you may remove some padding to make it compact | `true`      |
 
