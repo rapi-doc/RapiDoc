@@ -8,7 +8,9 @@ No Build steps!, No Frameworks!, Just include the script and use it in any html 
     <script type="text/javascript" src="rapidoc-min.js"></script>
   </head>
   <body>
-    <rapi-doc spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json" ></rapi-doc>
+    <rapi-doc 
+      spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json" 
+    ></rapi-doc>
   </body>  
 </html>
 ```
