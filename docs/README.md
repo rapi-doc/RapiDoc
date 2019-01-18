@@ -36,3 +36,4 @@ Style the element using standard `css`. You can apply borders, padding, width, h
 
 -  [Example1 ](example1.html)
 -  [Example2 (Dark Theme)](example2.html)
+-  [Example3 (Compact)](example3.html)

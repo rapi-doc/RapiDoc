@@ -57,7 +57,6 @@ module.exports = {
         }),
         new CleanWebpackPlugin(['dist']),
         new HtmlWebpackPlugin({title: 'RAPIDoc', template: 'index.html'}),
-        new HtmlWebpackPlugin({filename: './../docs/example1.html',template: './src/examples/example1.html'}),
         new BundleAnalyzerPlugin({analyzerMode:'static'}),
         new FileManagerPlugin({
             onEnd : {
