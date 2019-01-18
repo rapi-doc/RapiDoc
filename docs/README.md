@@ -33,4 +33,5 @@ Style the element using standard `css`. You can apply borders, padding, width, h
 </table>
 
 ## Examples
-[Example1](example1.html)
+[Example1 ](example1.html)
+[Example2 (Dark Theme)](example1.html)
