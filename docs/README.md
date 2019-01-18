@@ -35,10 +35,12 @@ Style the element using standard `css`. You can apply borders, padding, width, h
 
 - [Basic Example](example1.html)
 ```html
-  <rapi-doc spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"> </rapi-doc>
+  <rapi-doc 
+    spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
+  > </rapi-doc>
 ```
 
-[Dark Theme](example2.html)
+- [Dark Theme](example2.html)
 ```html
   <rapi-doc 
     spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
@@ -46,7 +48,7 @@ Style the element using standard `css`. You can apply borders, padding, width, h
   > </rapi-doc>
 ```
 
-[Change Header Color with Dark Theme](example3.html)
+- [Change Header Color with Dark Theme](example3.html)
 ```html
   <rapi-doc 
     spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
@@ -55,7 +57,7 @@ Style the element using standard `css`. You can apply borders, padding, width, h
   > </rapi-doc>
 ```
 
-[Compact Mode (Request/Response one below the other)](example4.html)
+- [Compact Mode (Request/Response one below the other)](example4.html)
 ```html
   <rapi-doc 
     spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
@@ -65,5 +67,5 @@ Style the element using standard `css`. You can apply borders, padding, width, h
   > </rapi-doc>
 ```
 
-[Change Attributes using JavaScript](example5.html)
+- [Change Attributes using JavaScript](example5.html)
 
