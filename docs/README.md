@@ -21,12 +21,12 @@ Style the element using standard `css`. You can apply borders, padding, width, h
 ## Attributes
 <table>
     <tr><th>Attribute</th> <th>Description </th> <th>Default</th></tr>
-    <tr><td>spec-url     </td> <td>url of the OpenAPI spec to view </td> <td>(empty)</td></tr>
-    <tr><td>heading-text </td> <td>Heading Text on top-left corner </td> <td>(empty)</td></tr>
+    <tr><td><code>spec-url</code></td> <td>url of the OpenAPI spec to view </td> <td>(empty)</td></tr>
+    <tr><td>'heading-text' </td> <td>Heading Text on top-left corner </td> <td>(empty)</td></tr>
     <tr><td>primary-color</td> <td>Hex color code on various controls such as buttons, tabs </td> <td>#FF791A</td></tr>
     <tr><td>theme        </td> <td>Hex color code for the Header </td> <td>#444444</td></tr>
     <tr><td>show-header  </td> <td>light, dark </td> <td>light</td></tr>
     <tr><td>show-info    </td> <td>show/hide Header (true, false) </td> <td>true</td></tr>
-    <tr><td>`layout`       </td> <td>request/response placement (row, column)</td> <td>row</td></tr>
-    <tr><td>```body-padding``` </td> <td>Padding arround content  </td> <td>true</td></tr>
+    <tr><td>layout       </td> <td>request/response placement (row, column)</td> <td>row</td></tr>
+    <tr><td>body-padding </td> <td>Padding arround content  </td> <td>true</td></tr>
 </table>
