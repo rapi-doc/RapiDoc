@@ -1,11 +1,3 @@
-<style>
-.tablelines table, 
-.tablelines td, 
-.tablelines th {
-    border: 1px solid black;
-}
-</style>
-
 ## Easy Usage
 No Build steps!, No Frameworks!, Just include the script and use it in any html as an element
 ```html
@@ -28,7 +20,8 @@ Style the element using standard `css`. You can apply borders, padding, width, h
 
 
 <table>
-    <tr><td>hello</td> <td>test</td></tr>
+    <tr><th>Attribute</th> <th>Description </th> <td>Default</td></tr>
+    <tr><td>`spec-url`</td> <td>url of the OpenAPI spec to view </td> <td>`''` (empty)</td></tr>
     <tr><td>hello</td> <td>test</td></tr>
 </table>
 
