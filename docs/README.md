@@ -27,6 +27,11 @@ No Build steps!, No Frameworks!, Just include the script and use it in any html 
 Style the element using standard `css`. You can apply borders, padding, width, height etc in accordance to your brand requierment. You can also use many attributes 
 
 
+<table>
+    <tr><td>hello</td> <td>test</td></tr>
+    <tr><td>hello</td> <td>test</td></tr>
+</table>
+
 ## Attributes
 | Attribute  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;| Purpose                     | Default      |
 | -------------   |----------------------------------------------------------|------        |
