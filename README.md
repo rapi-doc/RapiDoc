@@ -14,3 +14,9 @@ Custom Eelement for Open-API spec viewing
 
 ## Documentation
 [CHeck out the usage and examples](https://mrin9.github.io/RapiDoc/)
+
+
+## Roadmap
+- Allow replacing logo
+- Provide a console to try out the APIs
+- Enable OAuth, HTTP and Token based Authentication process
