@@ -1,3 +1,6 @@
+---
+title: RapiDoc Element
+---
 ## Easy Usage
 No Build steps!, No Frameworks!, Just include the script and use it in any html as an element
 ```html
@@ -21,8 +24,8 @@ Style the element using standard `css`. You can apply borders, padding, width, h
 ## Attributes
 <table>
     <tr><th>Attribute</th> <th>Description </th> <th>Default</th></tr>
-    <tr><td><code>spec-url</code></td> <td>url of the OpenAPI spec to view </td> <td>(empty)</td></tr>
-    <tr><td>'heading-text' </td> <td>Heading Text on top-left corner </td> <td>(empty)</td></tr>
+    <tr><td>spec-url     </td> <td>url of the OpenAPI spec to view </td> <td>(empty)</td></tr>
+    <tr><td>heading-text </td> <td>Heading Text on top-left corner </td> <td>(empty)</td></tr>
     <tr><td>primary-color</td> <td>Hex color code on various controls such as buttons, tabs </td> <td>#FF791A</td></tr>
     <tr><td>theme        </td> <td>Hex color code for the Header </td> <td>#444444</td></tr>
     <tr><td>show-header  </td> <td>light, dark </td> <td>light</td></tr>
