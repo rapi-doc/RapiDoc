@@ -72,7 +72,8 @@ class RapiDoc extends LitElement {
       }
       ${html`<style>
         :host{
-          overflow:scroll;
+          overflow-y: scroll;
+          overflow-x: auto;
           --hover-bg:#f7f7f7;
           --get-color:#47AFE8;
           --put-color:#FF9900;
@@ -103,6 +104,7 @@ class RapiDoc extends LitElement {
         }
         .header .title{
           font-size:24px;
+          padding: 0 8px;
         }
         input.header-input{
           background:${this.headerColor?vars.color.brightness(this.headerColor, -20):vars.color.inputReverseBg};
@@ -139,7 +141,7 @@ class RapiDoc extends LitElement {
         </div> 
       </div>`}
 
-      ${this.showInfo==='false' || !this.resolvedSpec || !this.resolvedSpec.info?'':html`
+      ${this.showInfo==='false' || !this.resolvedSpec || !this.resolvedSpec.info ?``:html`
         <div class="doc-info">
           <div class="title">
             ${this.resolvedSpec.info.title}
@@ -151,12 +153,11 @@ class RapiDoc extends LitElement {
           </div>
           ${this.resolvedSpec.info.description?html`
             ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(this.resolvedSpec.info.description)}</div>`)}
-          `
-          :``}
-        </div>  
-      `}
+          `:``}
+        </div>`
+      }
 
-      ${this.resolvedSpec && this.resolvedSpec.tags ?html`<div id="searchInput" style="margin:0 ${this.bodyPadding==='false'?'0':'16px'} ">
+      ${this.resolvedSpec && this.resolvedSpec.tags ?html`<div id="searchInput" style="margin:0 16px">
         ${this.resolvedSpec.tags.map(tag => html`
           <div class="tag regular-font">${tag.name}</div>
           <div style="margin:4px 20px">
@@ -180,8 +181,6 @@ class RapiDoc extends LitElement {
         layout: {type: String},
         showHeader: {type: String, attribute: 'show-header'},
         theme: {type: String},
-        bodyPadding: {type: String, attribute: 'body-padding'},
-        
         logoUrl: {type: String, attribute: 'logo-url'},
         showTry: {type: Boolean, attribute: 'show-try'},
         showAuthentication: {type: Boolean, attribute: 'show-authentication'},

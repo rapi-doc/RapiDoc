@@ -21,12 +21,12 @@
     "rapidoc"
   ],
   "dependencies": {
+    "json-schema-ref-parser": "^6.0.3",
     "lit-element": "latest",
     "lit-html": "latest",
     "lodash.clonedeep": "^4.5.0",
     "lodash.debounce": "^4.0.8",
     "marked": "^0.6.0",
-    "swagger-parser": "^6.0.3",
     "swagger2openapi": "^5.0.1"
   },
   "scripts": {
