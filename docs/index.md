@@ -1,2 +1,0 @@
-## Title
-List of Documents

@@ -11,7 +11,7 @@ import vars from '@/styles/vars';
 import ProcessSpec from '@/utils/parse-utils';
 import marked from 'marked';
 import clonedeep from 'lodash.clonedeep';
-
+import debounce  from 'lodash.debounce';
 
 class RapiDoc extends LitElement {
 
@@ -131,14 +131,10 @@ class RapiDoc extends LitElement {
         </div>  
         <div style="margin: 0px 8px;display:flex">
           <input id="spec-url" type="text" class="header-input" style="border-radius: 2px 0 0 2px;" placeholder="Spec URL" value="${this.specUrl}" @change="${this.onSepcUrlChange}">
-          <!--
-          <button class="m-btn" @click="${this.onFilter}"> Filter </button>
-          <button class="m-btn" @click="${this.onRestore}"> Restore </button>
-          -->
         </div>
         <div style="flex:1"></div>  
         <div style="display:flex; flex-direction:column; margin-right:8px; align-items:flex-end;">
-          <input class="header-input" style="width:100px;" type="text" placeholder="Search">
+          <input class="header-input" style="width:100px;" type="text" placeholder="Search" @keyup="${debounce(this.onSearch, 200)}">
         </div> 
       </div>`}
 
@@ -159,7 +155,7 @@ class RapiDoc extends LitElement {
         </div>  
       `}
 
-      ${this.resolvedSpec && this.resolvedSpec.tags ?html`<div style="margin:0 ${this.bodyPadding==='false'?'0':'16px'} ">
+      ${this.resolvedSpec && this.resolvedSpec.tags ?html`<div id="searchInput" style="margin:0 ${this.bodyPadding==='false'?'0':'16px'} ">
         ${this.resolvedSpec.tags.map(tag => html`
           <div class="tag regular-font">${tag.name}</div>
           <div style="margin:4px 20px">
@@ -245,6 +241,12 @@ class RapiDoc extends LitElement {
       this.requestUpdate();
       console.log("restore");
       
+    }
+
+    onSearch(e){
+      debounce(function(){
+        console.log("Hello", e.target.classList);
+      },200)
     }
 }
 
