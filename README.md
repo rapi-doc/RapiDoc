@@ -1,4 +1,4 @@
-<img alt="MrinDoc logo" src="https://github.com/mrin9/OpenAPI-Viewer/blob/master/public/images/leaves_logo1.svg" width="60px" />
+<img alt="MrinDoc logo" src="https://github.com/mrin9/RapiDoc/blob/master/src/examples/leaves_logo1.svg" width="60px" />
 
 # RapiDoc
 Custom Eelement for Open-API spec viewing

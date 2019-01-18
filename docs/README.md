@@ -1,3 +1,5 @@
+<img alt="MrinDoc logo" src="https://github.com/mrin9/RapiDoc/blob/master/src/examples/leaves_logo1.svg" width="60px" />
+
 ## Easy Usage
 No Build steps!, No Frameworks!, Just include the script and use it in any html as an element
 ```html
