@@ -1,6 +1,3 @@
----
-title: RapiDoc Element
----
 ## Easy Usage
 No Build steps!, No Frameworks!, Just include the script and use it in any html as an element
 ```html
