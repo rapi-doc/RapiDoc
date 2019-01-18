@@ -1,9 +1,13 @@
-# RapiDoc
-
-This is the documentation site for TapiDoc, Viewer for OpenAPI 2.0 and 3.0.x 
+<style>
+.tablelines table, 
+.tablelines td, 
+.tablelines th {
+    border: 1px solid black;
+}
+</style>
 
 ## Easy Usage
-No Build steps, No Frameworks, Just include the script and use it in any html as an element
+No Build steps!, No Frameworks!, Just include the script and use it in any html as an element
 ```html
 <!doctype html>
   <head>
