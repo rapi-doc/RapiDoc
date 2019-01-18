@@ -27,20 +27,6 @@ Style the element using standard `css`. You can apply borders, padding, width, h
     <tr><td>theme        </td> <td>Hex color code for the Header </td> <td>#444444</td></tr>
     <tr><td>show-header  </td> <td>light, dark </td> <td>light</td></tr>
     <tr><td>show-info    </td> <td>show/hide Header (true, false) </td> <td>true</td></tr>
-    <tr><td>layout       </td> <td>request/response placement (row, column)</td> <td>row</td></tr>
-    <tr><td>body-padding </td> <td>Padding arround content  </td> <td>true</td></tr>
+    <tr><td>`layout`       </td> <td>request/response placement (row, column)</td> <td>row</td></tr>
+    <tr><td>```body-padding``` </td> <td>Padding arround content  </td> <td>true</td></tr>
 </table>
-
-## Attributes
-| Attribute  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;| Purpose                     | Default      |
-| -------------   |----------------------------------------------------------|------        |
-| `spec-url`      | url of the OpenAPI spec to view                          | `''` (empty) |
-| `heading-text`  | Heading Text on top-left corner                          | `''` (empty) |
-| `primary-color` | Hex color code on various controls such as buttons, tabs | `#FF791A`    |
-| `header-color`  | Hex color code for the Header                            | `#444444`    |
-| `theme`         | `light` or `dark`                                        | `light`      |
-| `show-header`   | `true` or `false` show/hide Header                       | `true`       |
-| `show-info`     | `true` or `false` show/hide Specs Info section such as Title, Version | `true`|
-| `layout`        | `row` or `column` request/response placement             | `row`      |
-| `body-padding`  | `true` or `false` you may remove some padding to make it compact | `true`      |
-
