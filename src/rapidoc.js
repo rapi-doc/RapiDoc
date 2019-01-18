@@ -72,6 +72,7 @@ class RapiDoc extends LitElement {
       }
       ${html`<style>
         :host{
+          overflow:scroll;
           --hover-bg:#f7f7f7;
           --get-color:#47AFE8;
           --put-color:#FF9900;
