@@ -1,5 +1,4 @@
-<img alt="MrinDoc logo" src="https://github.com/mrin9/RapiDoc/blob/master/src/examples/logo.png" width="60px" />
-
+<span></span>
 ## Easy Usage
 No Build steps!, No Frameworks!, Just include the script and use it in any html as an element
 ```html

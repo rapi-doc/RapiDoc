@@ -27,7 +27,7 @@
     "lodash.debounce": "^4.0.8",
     "marked": "^0.6.0",
     "swagger-parser": "^6.0.3",
-    "swagger2openapi": "^4.0.1"
+    "swagger2openapi": "^5.0.1"
   },
   "scripts": {
     "build": "webpack --mode=${NODE_ENV:-production}",

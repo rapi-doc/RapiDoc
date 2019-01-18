@@ -54,7 +54,7 @@ module.exports = {
         new HtmlWebpackPlugin({title: 'RAPIDoc', template: 'index.html'}),
         new HtmlWebpackPlugin({filename: './../examples/example.html',template: './src/examples/example.html'}),
         new webpack.HotModuleReplacementPlugin(),
-        //new BundleAnalyzerPlugin({analyzerMode:'static'}),
+        new BundleAnalyzerPlugin({analyzerMode:'static'}),
         new webpack.optimize.LimitChunkCountPlugin({
             maxChunks:1
         })
