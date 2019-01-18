@@ -17,7 +17,7 @@ No Build steps!, No Frameworks!, Just include the script and use it in any html 
 
 ## Include from CDN
 ```html
-<script src="https://unpkg.com/rapidoc@<version>/dist/rapidoc-min.js"></script>
+<script src="https://unpkg.com/rapidoc@1.0.0/dist/rapidoc-min.js"></script>
 ```
 ## Branding, Styling and Personalization
 Style the element using standard `css`. You can apply borders, padding, width, height etc in accordance to your brand requierment. You can also use many attributes 
