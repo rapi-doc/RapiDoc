@@ -136,9 +136,6 @@ class RapiDoc extends LitElement {
           <input id="spec-url" type="text" class="header-input" style="border-radius: 2px 0 0 2px;" placeholder="Spec URL" value="${this.specUrl}" @change="${this.onSepcUrlChange}">
         </div>
         <div style="flex:1"></div>  
-        <div style="display:flex; flex-direction:column; margin-right:8px; align-items:flex-end;">
-          <input class="header-input" style="width:100px;" type="text" placeholder="Search" @keyup="${debounce(this.onSearch, 200)}">
-        </div> 
       </div>`}
 
       ${this.showInfo==='false' || !this.resolvedSpec || !this.resolvedSpec.info ?``:html`

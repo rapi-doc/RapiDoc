@@ -18,5 +18,6 @@ Custom Eelement for Open-API spec viewing
 
 ## Roadmap
 - Allow replacing logo
+- Search API Functionality
 - Provide a console to try out the APIs
 - Enable OAuth, HTTP and Token based Authentication process

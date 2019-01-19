@@ -5,7 +5,7 @@ No Build steps!, No Frameworks!, Just copy the below script in an html, and open
 <html>
   <head>
     <meta charset="utf-8"> <!-- Important: The Custom element uses utf8 charecters -->
-    <script src="https://unpkg.com/rapidoc@1.0.0/dist/rapidoc-min.js"></script>
+    <script src="https://unpkg.com/rapidoc@1.0.1/dist/rapidoc-min.js"></script>
   </head>
   <body>
     <rapi-doc 
@@ -15,10 +15,6 @@ No Build steps!, No Frameworks!, Just copy the below script in an html, and open
 </html>
 ```
 
-## Include from CDN
-```html
-<script src="https://unpkg.com/rapidoc@1.0.0/dist/rapidoc-min.js"></script>
-```
 ## Branding, Styling and Personalization
 Style the element using standard `css`. You can apply borders, padding, width, height etc in accordance to your brand requierment. You can also use many attributes 
 
