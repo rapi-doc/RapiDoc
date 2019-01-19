@@ -1,11 +1,11 @@
 <span></span>
 ## Easy Usage
-No Build steps!, No Frameworks!, Just include the script and use it in any html as an element
+No Build steps!, No Frameworks!, Just copy the below script in an html, and open it in a browser !!!
 ```html
 <html>
   <head>
     <meta charset="utf-8"> <!-- Important: The Custom element uses utf8 charecters -->
-    <script type="text/javascript" src="rapidoc-min.js"></script>
+    <script src="https://unpkg.com/rapidoc@1.0.0/dist/rapidoc-min.js"></script>
   </head>
   <body>
     <rapi-doc 
