@@ -109,7 +109,8 @@ class RapiDoc extends LitElement {
         input.header-input{
           background:${this.headerColor?vars.color.brightness(this.headerColor, -20):vars.color.inputReverseBg};
           color:var(--header-fg);
-          border:1px solid var(--dark-primary-color); 
+          border:1px solid var(--dark-primary-color);
+          width:450px; 
         }
         .tag{
           font-size: 18px;

@@ -47,7 +47,7 @@ export default class EndPoint extends LitElement {
       }
       .m-endpoint > .head.patch:hover,
       .m-endpoint > .head.patch.expanded{
-        border: 1px solid var(--patch-color); 
+        border-color:var(--patch-color); 
         background-color:var(--light-patch-color); 
       }
       .m-endpoint .body {

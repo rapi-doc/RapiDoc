@@ -1071,7 +1071,7 @@ commander@2.17.x, commander@~2.17.1:
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.17.1.tgz#bd77ab7de6de94205ceacc72f1716d29f20a77bf"
   integrity sha512-wPMUt6FnH2yzG95SA6mzjQOEKUU3aLaDEmzs1ti+1E9h+CsrZghRlqEM/EJ4KscsQVG8uNN4uVreUeT8+drlgg==
 
-commander@^2.18.0, commander@^2.7.1:
+commander@^2.18.0:
   version "2.19.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.19.0.tgz#f6198aa84e5b83c46054b94ddedbfed5ee9ff12a"
   integrity sha512-6tvAOO+D6OENvRAh524Dh9jcfKTYDQAqvqezbCW82xj5X0pSrcpxtvRKHLG0yBY6SD7PSDrJaj+0AiOcKVd1Xg==
@@ -3154,16 +3154,6 @@ jsonpointer@^4.0.1:
   resolved "https://registry.yarnpkg.com/jsonpointer/-/jsonpointer-4.0.1.tgz#4fd92cb34e0e9db3c89c8622ecf51f9b978c6cb9"
   integrity sha1-T9kss04OnbPInIYi7PUfm5eMbLk=
 
-jsonschema-draft4@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/jsonschema-draft4/-/jsonschema-draft4-1.0.0.tgz#f0af2005054f0f0ade7ea2118614b69dc512d865"
-  integrity sha1-8K8gBQVPDwrefqIRhhS2ncUS2GU=
-
-jsonschema@1.2.4:
-  version "1.2.4"
-  resolved "https://registry.yarnpkg.com/jsonschema/-/jsonschema-1.2.4.tgz#a46bac5d3506a254465bc548876e267c6d0d6464"
-  integrity sha512-lz1nOH69GbsVHeVgEdvyavc/33oymY1AZwtePMiMj4HZPMbP5OIKK3zT9INMWjwua/V4Z4yq7wSlBbSG+g4AEw==
-
 jsprim@^1.2.2:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/jsprim/-/jsprim-1.4.1.tgz#313e66bc1e5cc06e438bc1b7499c2e5c56acb6a2"
@@ -3234,14 +3224,14 @@ lightercollective@^0.1.0:
   resolved "https://registry.yarnpkg.com/lightercollective/-/lightercollective-0.1.0.tgz#70df102c530dcb8d0ccabfe6175a8d00d5f61300"
   integrity sha512-J9tg5uraYoQKaWbmrzDDexbG6hHnMcWS1qLYgJSWE+mpA3U5OCSeMUhb+K55otgZJ34oFdR0ECvdIb3xuO5JOQ==
 
-lit-element@latest:
-  version "2.0.0-rc.2"
-  resolved "https://registry.yarnpkg.com/lit-element/-/lit-element-2.0.0-rc.2.tgz#5975c3b282ce47937de861b48456036df71f422b"
-  integrity sha512-yP6mX23n8WUYXpS2RJUL87DSZYQY327YrnqFiSyPe9aSzjgJ5Jy3In3itzjeiFOT8Od4VKLM7u6bLG9tGFO1pw==
+lit-element@2.0.0-rc.3:
+  version "2.0.0-rc.3"
+  resolved "https://registry.yarnpkg.com/lit-element/-/lit-element-2.0.0-rc.3.tgz#03470c8f4f5616221c2a99378c8cfb0452b8d35f"
+  integrity sha512-A+lvXxq2xd4jkbbaNDkC4oXZXFHMSWhdAK2wrBTeMiTTcISEGm2F/zCcuxSYJEy2941fwWmEnPE9BPWqU/07Kg==
   dependencies:
     lit-html "^1.0.0-rc.2"
 
-lit-html@^1.0.0-rc.2, lit-html@latest:
+lit-html@1.0.0-rc.2, lit-html@^1.0.0-rc.2:
   version "1.0.0-rc.2"
   resolved "https://registry.yarnpkg.com/lit-html/-/lit-html-1.0.0-rc.2.tgz#b9c904520fe005d349aa737a86d83645d97d5a89"
   integrity sha512-4bq34lhVmwWly1zBXicOBJLOwaWfjOVbchEEmFnZLuztxjh5wRd2WqV0URX8Q47MQ7PaIjn/eXyTRKsYhSAeRw==
@@ -3318,16 +3308,6 @@ lodash.flatten@^4.4.0:
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/lodash.flatten/-/lodash.flatten-4.4.0.tgz#f31c22225a9632d2bbf8e4addbef240aa765a61f"
   integrity sha1-8xwiIlqWMtK7+OSt2+8kCqdlph8=
-
-lodash.get@^4.0.0:
-  version "4.4.2"
-  resolved "https://registry.yarnpkg.com/lodash.get/-/lodash.get-4.4.2.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
-  integrity sha1-LRd/ZS+jHpObRDjVNBSZ36OCXpk=
-
-lodash.isequal@^4.0.0:
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/lodash.isequal/-/lodash.isequal-4.5.0.tgz#415c4478f2bcc30120c22ce10ed3226f7d3e18e0"
-  integrity sha1-QVxEePK8wwEgwizhDtMib30+GOA=
 
 lodash.isplainobject@^4.0.6:
   version "4.0.6"
@@ -3963,10 +3943,10 @@ oas-schema-walker@^1.1.2:
   resolved "https://registry.yarnpkg.com/oas-schema-walker/-/oas-schema-walker-1.1.2.tgz#0ad6b78a01421cb9fda9dd820f23f5db51d51b86"
   integrity sha512-Q9xqeUtc17ccP/dpUfARci4kwFFszyJAgR/wbDhrRR/73GqsY5uSmKaIK+RmBqO8J4jVYrrDPjQKvt1IcpQdGw==
 
-oas-validator@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/oas-validator/-/oas-validator-3.0.0.tgz#a531514d0ca40118cbe138328332811622e8f290"
-  integrity sha512-0pHJtYyfuZKpWFLZGrIlA8IZUunJdgCJo1pn6Nc+S5CE7rNmfKflXs2NV0IwD0Ck3frg0r4TSJAUQxR8n0Yptw==
+oas-validator@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/oas-validator/-/oas-validator-3.0.1.tgz#f4da3e85d3ffb1d5c3785b5a96c2b6fd18735a7e"
+  integrity sha512-nujG/sQHQwTFSWVt43uMxAIShhgI25bVbPJaIyAkNliEOKSCUxiJcm9rs9s8BF/aKc8CHVFTAXCH1gD1VUP0sQ==
   dependencies:
     ajv "^5.5.2"
     better-ajv-errors "^0.5.2"
@@ -4063,15 +4043,6 @@ ono@^4.0.11:
   integrity sha512-jQ31cORBFE6td25deYeD80wxKBMj+zBmHTrVxnc6CKhx8gho6ipmWM5zj/oeoqioZ99yqBls9Z/9Nss7J26G2g==
   dependencies:
     format-util "^1.0.3"
-
-openapi-schema-validation@^0.4.2:
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/openapi-schema-validation/-/openapi-schema-validation-0.4.2.tgz#895c29021be02e000f71c51f859da52118eb1e21"
-  integrity sha512-K8LqLpkUf2S04p2Nphq9L+3bGFh/kJypxIG2NVGKX0ffzT4NQI9HirhiY6Iurfej9lCu7y4Ndm4tv+lm86Ck7w==
-  dependencies:
-    jsonschema "1.2.4"
-    jsonschema-draft4 "^1.0.0"
-    swagger-schema-official "2.0.0-bab6bed"
 
 opener@^1.5.1:
   version "1.5.1"
@@ -5437,33 +5408,10 @@ supports-color@^5.1.0, supports-color@^5.3.0, supports-color@^5.5.0:
   dependencies:
     has-flag "^3.0.0"
 
-swagger-methods@^1.0.8:
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/swagger-methods/-/swagger-methods-1.0.8.tgz#8baf37ee861d3c72ff7b2faad6d74c60b336e2ed"
-  integrity sha512-G6baCwuHA+C5jf4FNOrosE4XlmGsdjbOjdBK4yuiDDj/ro9uR4Srj3OR84oQMT8F3qKp00tYNv0YN730oTHPZA==
-
-swagger-parser@^6.0.3:
-  version "6.0.3"
-  resolved "https://registry.yarnpkg.com/swagger-parser/-/swagger-parser-6.0.3.tgz#d7fc881d98320666327173f9fdea6fe98a8174bd"
-  integrity sha512-rd1w4giVtgdWELAmxWXjVbb2+xnbkc4BjzsQHBLU8YDMBhmNbnQBHQc92BpspxBwkj0zhSpF7Htor9691NJfwA==
-  dependencies:
-    call-me-maybe "^1.0.1"
-    json-schema-ref-parser "^6.0.3"
-    ono "^4.0.11"
-    openapi-schema-validation "^0.4.2"
-    swagger-methods "^1.0.8"
-    swagger-schema-official "2.0.0-bab6bed"
-    z-schema "^3.24.2"
-
-swagger-schema-official@2.0.0-bab6bed:
-  version "2.0.0-bab6bed"
-  resolved "https://registry.yarnpkg.com/swagger-schema-official/-/swagger-schema-official-2.0.0-bab6bed.tgz#70070468d6d2977ca5237b2e519ca7d06a2ea3fd"
-  integrity sha1-cAcEaNbSl3ylI3suUZyn0Gouo/0=
-
-swagger2openapi@^5.0.1:
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/swagger2openapi/-/swagger2openapi-5.0.1.tgz#eb3984c5b2ac22809c0a67bc2a85d61a400e1d1a"
-  integrity sha512-oDaL+XrikC8Zgh5jMBkiPItMLZGu9SPKMFhQDQghmrhBZ2ID1w9djUTxHFLeQCzMwWXirGugCv6yoxPC4ouqvw==
+swagger2openapi@^5.0.2:
+  version "5.0.2"
+  resolved "https://registry.yarnpkg.com/swagger2openapi/-/swagger2openapi-5.0.2.tgz#365ca43e9b01bf13d8071cf7ad49debebfac2ede"
+  integrity sha512-WBZb3wysC+5M+7tn/etgr+4kIdNM5wL7iRE3KQfJetIvHga10pqDO00oi3dv14cNykU4zh9GLD0XPW5h0EkilQ==
   dependencies:
     better-ajv-errors "^0.6.1"
     call-me-maybe "^1.0.1"
@@ -5472,7 +5420,7 @@ swagger2openapi@^5.0.1:
     oas-kit-common "^1.0.7"
     oas-resolver "^2.0.0"
     oas-schema-walker "^1.1.2"
-    oas-validator "^3.0.0"
+    oas-validator "^3.0.1"
     reftools "^1.0.5"
     yaml "^1.2.0"
     yargs "^12.0.2"
@@ -5807,11 +5755,6 @@ validate-npm-package-license@^3.0.1:
   dependencies:
     spdx-correct "^3.0.0"
     spdx-expression-parse "^3.0.0"
-
-validator@^10.0.0:
-  version "10.10.0"
-  resolved "https://registry.yarnpkg.com/validator/-/validator-10.10.0.tgz#a69ac298149f063a44361cb52182edb52dab59a4"
-  integrity sha512-DyZyLJlMXM3CGdVaVHE/EDzCagMRoPI3mmGdxxNQbqkGqh56+M3d1i0ZAWd69En8U21DHbPTn12aOdhO+hfm5w==
 
 vary@~1.1.2:
   version "1.1.2"
@@ -6154,18 +6097,6 @@ yargs@^7.0.0:
     which-module "^1.0.0"
     y18n "^3.2.1"
     yargs-parser "^5.0.0"
-
-z-schema@^3.24.2:
-  version "3.24.2"
-  resolved "https://registry.yarnpkg.com/z-schema/-/z-schema-3.24.2.tgz#193560e718812d98fdc190c38871b634b92f2386"
-  integrity sha512-Zb2YLJ9g72MexBXKPRzoypd4OZfVkFghdy10eVbcMNLl9YQsPXtyMpiK7a3sG7IIERg1lEDjEMrG9Km9DPbWLw==
-  dependencies:
-    core-js "^2.5.7"
-    lodash.get "^4.0.0"
-    lodash.isequal "^4.0.0"
-    validator "^10.0.0"
-  optionalDependencies:
-    commander "^2.7.1"
 
 zip-stream@^2.0.1:
   version "2.0.1"
