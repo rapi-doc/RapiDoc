@@ -1,4 +1,4 @@
-theme: jekyll-theme-cayman
+theme: jekyll-theme-slate
 markdown: kramdown
 title: RapiDoc Custom Element
 google_analytics: UA-132775238-1
