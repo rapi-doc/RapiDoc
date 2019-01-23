@@ -10,6 +10,9 @@ module.exports = {
         app: './src/index.js'
     },
     node: {fs: 'empty'},
+    externals: {
+        esprima: 'esprima'
+    },
     optimization: {
         splitChunks: {
             chunks: 'all'

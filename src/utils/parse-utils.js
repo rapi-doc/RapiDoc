@@ -14,14 +14,6 @@ export default function ProcessSpec(specUrl){
     .then(function(api3Spec) {
         console.info("%c Convertion to OpenAPI 3.0 - Success !!! ","color:cornflowerblue");
         return $RefParser.dereference(api3Spec.openapi);
-       /*
-       return parser.bundle(
-        api3Spec.openapi, { 
-            validate: {spec: false, schema:false } 
-            }
-        );
-        */
-
     })
     .then(function(deReffedSpec) {
         console.info("%c OpenAPI 3.0 Dereferencing - Success !!! ","color:cornflowerblue");

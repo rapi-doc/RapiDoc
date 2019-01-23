@@ -1,6 +1,6 @@
 {
   "name": "rapidoc",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "RapiDoc - Open API spec viewer with built in console",
   "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
   "repository": {
@@ -27,14 +27,14 @@
     "lodash.clonedeep": "^4.5.0",
     "lodash.debounce": "^4.0.8",
     "marked": "^0.6.0",
-    "swagger2openapi": "^5.0.2"
+    "swagger2openapi": "^5.1.0"
   },
   "scripts": {
     "build": "webpack --mode=${NODE_ENV:-production}",
     "serve": "webpack-dev-server --mode=development"
   },
   "devDependencies": {
-    "clean-webpack-plugin": "^1.0.0",
+    "clean-webpack-plugin": "^1.0.1",
     "css-loader": "^2.1.0",
     "file-loader": "^3.0.1",
     "filemanager-webpack-plugin": "^2.0.5",
@@ -42,7 +42,7 @@
     "node-sass": "^4.11.0",
     "sass-loader": "^7.1.0",
     "style-loader": "^0.23.1",
-    "webpack": "^4.28.4",
+    "webpack": "^4.29.0",
     "webpack-bundle-analyzer": "^3.0.3",
     "webpack-cli": "^3.2.1",
     "webpack-dev-server": "^3.1.9"

@@ -5,7 +5,7 @@ No Build steps!, No Frameworks!, Just copy the below script in an html, and open
 <html>
   <head>
     <meta charset="utf-8"> <!-- Important: The Custom element uses utf8 charecters -->
-    <script src="https://unpkg.com/rapidoc@1.0.2/dist/rapidoc-min.js"></script>
+    <script src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
   </head>
   <body>
     <rapi-doc 
@@ -16,7 +16,10 @@ No Build steps!, No Frameworks!, Just copy the below script in an html, and open
 ```
 
 ## Branding, Styling and Personalization
-Style the element using standard `css`. You can apply borders, padding, width, height etc in accordance to your brand requierment. You can also use many attributes 
+Style the element using standard `css`. Apply borders, padding, width, height etc in accordance to your brand requierment. You can also use many attributes to effect the interface.
+
+## Typography
+To change the font style
 
 ## Attributes
 <table>
@@ -24,8 +27,8 @@ Style the element using standard `css`. You can apply borders, padding, width, h
     <tr><td>spec-url     </td> <td>url of the OpenAPI spec to view </td> <td>(empty)</td></tr>
     <tr><td>heading-text </td> <td>Heading Text on top-left corner </td> <td>(empty)</td></tr>
     <tr><td>primary-color</td> <td>Hex color code on various controls such as buttons, tabs </td> <td>#FF791A</td></tr>
-    <tr><td>theme        </td> <td>Hex color code for the Header </td> <td>#444444</td></tr>
-    <tr><td>show-header  </td> <td>light, dark </td> <td>light</td></tr>
+    <tr><td>theme        </td> <td>light, dark </td> <td>light</td></tr>
+    <tr><td>show-header  </td> <td>true, false </td> <td>true</td></tr>
     <tr><td>layout       </td> <td>request/response placement (row, column)</td> <td>row</td></tr>
 </table>
 
@@ -65,5 +68,16 @@ Style the element using standard `css`. You can apply borders, padding, width, h
   > </rapi-doc>
 ```
 
-- [Change Attributes using JavaScript](example5.html)
+- [Change Typography](example4.html)
+```html
+  <rapi-doc 
+    spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
+    theme='dark' 
+    show-header='false'
+    layout="column"
+  > </rapi-doc>
+```
+
+
+- [Change Attributes using JavaScript](example6.html)
 

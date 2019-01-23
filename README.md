@@ -13,10 +13,11 @@ Custom Eelement for Open-API spec viewing
 - Supported on Chrome, FireFox and Safari. (Not yet tested on Edge)
 
 ## Documentation
-[CHeck out the usage and examples](https://mrin9.github.io/RapiDoc/)
+[Check out the usage and examples](https://mrin9.github.io/RapiDoc/)
 
 
 ## Roadmap
+- Get the bundle size even smaller (~ 115 Kb gzipped)
 - Allow replacing logo
 - Search API Functionality
 - Provide a console to try out the APIs
