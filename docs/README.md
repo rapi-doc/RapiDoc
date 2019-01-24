@@ -5,7 +5,7 @@ No Build steps!, No Frameworks!, Just copy the below script in an html, and open
 <html>
   <head>
     <meta charset="utf-8"> <!-- Important: The Custom element uses utf8 charecters -->
-    <script src="https://unpkg.com/rapidoc@1.0.3/dist/rapidoc-min.js"></script>
+    <script src="https://unpkg.com/rapidoc@1.0.4/dist/rapidoc-min.js"></script>
   </head>
   <body>
     <rapi-doc 
