@@ -101,6 +101,7 @@ class RapiDoc extends LitElement {
         .header{
           background-color:var(--header-bg);
           color:var(--header-fg);
+          width:100%;
         }
         .header .title{
           font-size:24px;
