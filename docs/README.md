@@ -18,14 +18,12 @@ No Build steps!, No Frameworks!, Just copy the below script in an html, and open
 ## Branding, Styling and Personalization
 Style the element using standard `css`. Apply borders, padding, width, height etc in accordance to your brand requierment. You can also use many attributes to effect the interface.
 
-## Typography
-To change the font style
-
 ## Attributes
 <table>
     <tr><th>Attribute</th> <th>Description </th> <th>Default</th></tr>
     <tr><td>spec-url     </td> <td>url of the OpenAPI spec to view </td> <td>(empty)</td></tr>
     <tr><td>heading-text </td> <td>Heading Text on top-left corner </td> <td>(empty)</td></tr>
+    <tr><td>header-color</td> <td>Hex color code on various controls such as buttons, tabs </td>  <td>#444444</td></tr>
     <tr><td>primary-color</td> <td>Hex color code on various controls such as buttons, tabs </td> <td>#FF791A</td></tr>
     <tr><td>theme        </td> <td>light, dark </td> <td>light</td></tr>
     <tr><td>show-header  </td> <td>true, false </td> <td>true</td></tr>
@@ -67,29 +65,6 @@ To change the font style
     layout="column"
   > </rapi-doc>
 ```
-
-- [Change Typography](example5.html)
-```html
-  <head>
-    <style>
-      @font-face {
-        font-family: 'rapidoc';
-        src: local("Arial Rounded MT Bold", "Helvetica Rounded", Arial, sans-serif);
-        font-weight: 400;
-        font-style: normal;
-      }
-    </style>  
-  </head>
-  <body>
-    <rapi-doc 
-      spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
-      theme='dark' 
-      show-header='false'
-      layout="column"
-    > </rapi-doc>
-  </body>  
-```
-
 
 - [Change Attributes using JavaScript](example6.html)
 
