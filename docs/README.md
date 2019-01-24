@@ -68,14 +68,26 @@ To change the font style
   > </rapi-doc>
 ```
 
-- [Change Typography](example4.html)
+- [Change Typography](example5.html)
 ```html
-  <rapi-doc 
-    spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
-    theme='dark' 
-    show-header='false'
-    layout="column"
-  > </rapi-doc>
+  <head>
+    <style>
+      @font-face {
+        font-family: 'rapidoc';
+        src: local("Arial Rounded MT Bold", "Helvetica Rounded", Arial, sans-serif);
+        font-weight: 400;
+        font-style: normal;
+      }
+    </style>  
+  </head>
+  <body>
+    <rapi-doc 
+      spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
+      theme='dark' 
+      show-header='false'
+      layout="column"
+    > </rapi-doc>
+  </body>  
 ```
 
 
