@@ -60,7 +60,7 @@ module.exports = {
         }),
         new CleanWebpackPlugin(['dist']),
         new HtmlWebpackPlugin({title: 'RAPIDoc', template: 'index.html'}),
-        new BundleAnalyzerPlugin({analyzerMode:'static'}),
+        //new BundleAnalyzerPlugin({analyzerMode:'static'}),
         new FileManagerPlugin({
             onEnd : {
               copy: [

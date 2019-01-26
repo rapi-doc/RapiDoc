@@ -72,8 +72,12 @@ class RapiDoc extends LitElement {
       }
       ${html`<style>
         :host{
-          overflow-y: scroll;
-          overflow-x: auto;
+          width:100%;
+          height:100%;
+          margin:0;
+          padding:0;
+          overflow: auto;
+          letter-spacing:normal;
           --hover-bg:#f7f7f7;
           --get-color:#47AFE8;
           --put-color:#FF9900;
@@ -112,6 +116,8 @@ class RapiDoc extends LitElement {
           color:var(--header-fg);
           border:1px solid var(--dark-primary-color);
           width:450px; 
+          border-radius:3px;
+          padding:16px 8px;
         }
         .tag{
           font-size: 18px;
@@ -129,13 +135,13 @@ class RapiDoc extends LitElement {
       </style>
 
       ${this.showHeader==='false'?'':html`
-      <div class="row header regular-font" style="padding:8px 4px 8px 4px;min-height:48px">
+      <div class="row header regular-font" style="padding:8px 4px 8px 4px;min-height:48px;position:sticky;top:0;">
         <div style="display:flex; align-items: center;">
           <m-logo style="height:36px;width:36px;margin-left:5px"></m-logo>
           <div class="title">${this.headingText}</div>
         </div>  
         <div style="margin: 0px 8px;display:flex">
-          <input id="spec-url" type="text" class="header-input" style="border-radius: 2px 0 0 2px;" placeholder="Spec URL" value="${this.specUrl}" @change="${this.onSepcUrlChange}">
+          <input id="spec-url" type="text" class="header-input" placeholder="Spec URL" value="${this.specUrl}" @change="${this.onSepcUrlChange}">
         </div>
         <div style="flex:1"></div>  
       </div>`}

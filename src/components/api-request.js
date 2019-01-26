@@ -79,6 +79,7 @@ export default class ApiRequest extends LitElement {
     ${this.requestBodyTemplate()}
     ${this.inputParametersTemplate('header')}
     ${this.inputParametersTemplate('cookie')}
+    ${this.apiCallTemplate()}
     </div>
     `
   }
@@ -114,7 +115,7 @@ export default class ApiRequest extends LitElement {
           <div class="param-type">${unsafeHTML(getTypeInfo(param.schema))}</div>
         </td>  
         <td style="min-width:100px">
-          <input type="text" class="m-small" style="width:100%" value="${param.example?param["x-example"]:''}">
+          <input type="text" class="m-small input-param" data-pname="${param.name}" data-ptype="${paramType}" style="width:100%" value="${param.example?param["x-example"]:''}">
         </td>
         <td>
           ${param.description?html`<span class="m-markdown"> ${unsafeHTML(marked(param.description))} </span> `:``}
@@ -170,33 +171,48 @@ export default class ApiRequest extends LitElement {
     </div>
     <div id="tab_panel" class="tab-panel col" style="border-width:0; min-height:200px">
       <div id="tab_buttons" class="tab-buttons row" @click="${this.activateTab}">
-        <button class="tab-btn active" content_id="content_a"> Example </button>
-        <button class="tab-btn" content_id="content_b"> Model</button>
+        <button class="tab-btn active" content_id="content_a">EXAMPLE </button>
+        <button class="tab-btn" content_id="content_b">MODEL</button>
       </div>
       <div id="content_a" class="tab-content col" style="flex:1; ">
-        <textarea class="mono" style="min-height:180px; padding:16px">${mimeRequestTypes[selectedMimeReqKey].examples[0]?mimeRequestTypes[selectedMimeReqKey].examples[0].exampleValue:''}</textarea>
+        <textarea class="mono input-param" data-ptype="body" style="min-height:180px; padding:16px">${mimeRequestTypes[selectedMimeReqKey].examples[0]?mimeRequestTypes[selectedMimeReqKey].examples[0].exampleValue:''}</textarea>
       </div>
       <div id="content_b" class="tab-content col" style="flex:1;display:none">
         <schema-tree class="border" style="padding:16px;" .data="${mimeRequestTypes[selectedMimeReqKey].schemaTree? mimeRequestTypes[selectedMimeReqKey].schemaTree:''}"></schema-tree>
       </div>
+    </div>`
+  }
+
+  apiCallTemplate(){
+    return html`
+    <div class="row" style="align-items:flex-end; padding:16px 0px;">
+      <button class="m-btn" @click="${this.onTryClick}"> TRY </button>
     </div>
-
-
-    
-    `
+    <div id="tab_panel" class="tab-panel col" style="border-width:0; min-height:200px">
+      <div id="tab_buttons" class="tab-buttons row" @click="${this.activateTab}">
+        <button class="tab-btn active" content_id="content_aa"> RESPONSE </button>
+        <button class="tab-btn" content_id="content_bb"> RESPONSE HEADERS</button>
+      </div>
+      <div id="content_aa" class="tab-content col" style="flex:1; ">
+        <textarea class="mono" style="min-height:180px; padding:16px"> content a</textarea>
+      </div>
+      <div id="content_bb" class="tab-content col" style="flex:1;display:none">
+      <textarea class="mono" style="min-height:180px; padding:16px"> response headers</textarea>
+      </div>
+    </div>`
   }
 
   activateTab(e){
     if (e.target.classList.contains("active")  || e.target.classList.contains("tab-btn")===false){
       return;
     }
-    
-    let activeTabBtn = this.shadowRoot.querySelector('.tab-btn.active');
+
+    let activeTabBtn  = e.currentTarget.parentNode.querySelector('.tab-btn.active');
     let clickedTabBtn = e.target;
     activeTabBtn.classList.remove("active");
     e.target.classList.add("active");
     let showContentEl = this.shadowRoot.getElementById(clickedTabBtn.attributes.content_id.value);
-    let allContentEls = this.shadowRoot.querySelectorAll('.tab-content');
+    let allContentEls = e.currentTarget.parentNode.querySelectorAll('.tab-content');
     if (showContentEl){
       showContentEl.style.display="flex";
       allContentEls.forEach(function(v){
@@ -205,10 +221,12 @@ export default class ApiRequest extends LitElement {
         }
       })
     }
+  }
 
 
+  onTryClick(){
 
-    //console.log(e.target.classList);
+
 
   }
 

@@ -138,8 +138,8 @@ export default class ApiResponse extends LitElement {
       ${Object.keys(mimeResponsesForEachStatus[status]).map(
         mimeType => html`
           <!-- TAB PANEL -->
-          <div id="${status}_${mimeType}_tab-panel" @click="${this.activateTab}" class="tab-panel col" style="border-width:0; min-height:200px">
-            <div id="${status}_${mimeType}_tab-buttons" class="tab-buttons row" >
+          <div id="${status}_${mimeType}_tab-panel" class="tab-panel col" style="border-width:0; min-height:200px">
+            <div id="${status}_${mimeType}_tab-buttons" @click="${this.activateTab}" class="tab-buttons row" >
               <button class="tab-btn active" content_id="${status}_${mimeType}_content_a"> Example </button>
               <button class="tab-btn" content_id="${status}_${mimeType}_content_b"> Model</button>
               <div style="flex:1"></div>
@@ -160,11 +160,11 @@ export default class ApiResponse extends LitElement {
     if (e.target.classList.contains("active")  || e.target.classList.contains("tab-btn")===false){
       return;
     }
-    let activeTabBtn  = e.currentTarget.querySelector(":scope .tab-btn.active");
+    let activeTabBtn  = e.currentTarget.parentNode.querySelector(".tab-btn.active");
     activeTabBtn.classList.remove("active");
     e.target.classList.add("active");
     let showContentElsId = e.target.attributes.content_id.value;
-    let allContentEls = e.currentTarget.querySelectorAll(':scope > .tab-content');
+    let allContentEls = e.currentTarget.parentNode.querySelectorAll('.tab-content');
     if (showContentElsId){
       allContentEls.forEach(function(v){
         v.style.display =  v.attributes.id.value === showContentElsId?"flex":"none";
