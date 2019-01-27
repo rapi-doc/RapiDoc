@@ -78,6 +78,8 @@ class RapiDoc extends LitElement {
           padding:0;
           overflow: auto;
           letter-spacing:normal;
+          --error-color:#ff3333;
+          --success-color:#47AFE8;
           --hover-bg:#f7f7f7;
           --get-color:#47AFE8;
           --put-color:#FF9900;
@@ -117,7 +119,6 @@ class RapiDoc extends LitElement {
           border:1px solid var(--dark-primary-color);
           width:450px; 
           border-radius:3px;
-          padding:16px 8px;
         }
         .tag{
           font-size: 18px;
@@ -141,7 +142,7 @@ class RapiDoc extends LitElement {
           <div class="title">${this.headingText}</div>
         </div>  
         <div style="margin: 0px 8px;display:flex">
-          <input id="spec-url" type="text" class="header-input" placeholder="Spec URL" value="${this.specUrl}" @change="${this.onSepcUrlChange}">
+          <input id="spec-url" type="text" class="large header-input" placeholder="Spec URL" value="${this.specUrl}" @change="${this.onSepcUrlChange}">
         </div>
         <div style="flex:1"></div>  
       </div>`}
@@ -162,13 +163,26 @@ class RapiDoc extends LitElement {
         </div>`
       }
 
+
+      ${ (this.developerMode==='false' || !this.resolvedSpec || !this.resolvedSpec.servers || this.resolvedSpec.servers.length===0) ?``:html`
+        <div style="display:flex; align-items: center;margin:16px 36px;">
+          <div class="regular-font">API Server : &nbsp;</div>
+          <input  type="text" class="large" style="width:400px" readonly placeholder="API Server" value="${this.resolvedSpec.servers[0].url}">
+        </div>`
+      }
+
+
       ${this.resolvedSpec && this.resolvedSpec.tags ?html`<div id="searchInput" style="margin:0 16px">
         ${this.resolvedSpec.tags.map(tag => html`
           <div class="tag regular-font">${tag.name}</div>
           <div style="margin:4px 20px">
             ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(tag.description?tag.description:'')}</div>`)}
           </div>
-          <end-points .paths="${tag.paths}" layout="${this.layout?this.layout:'row'}"></end-points>
+          <end-points 
+            server = "${this.resolvedSpec.servers && this.resolvedSpec.servers[0] && this.resolvedSpec.servers[0].url?this.resolvedSpec.servers[0].url:''}"  
+            layout = "${this.layout?this.layout:'row'}"
+            .paths = "${tag.paths}" 
+          ></end-points>
         `)}
         </div>`
       :''}

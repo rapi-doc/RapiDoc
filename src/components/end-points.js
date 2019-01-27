@@ -5,14 +5,15 @@ export default class EndPoints extends LitElement {
   render() {
     return html`
     ${this.paths.map(
-      path => html`<end-point .path=${path} layout="${this.layout?this.layout:'row'}"> </end-point>`
+      path => html`<end-point server="${this.server}" layout="${this.layout}" .path=${path}> </end-point>`
     )}`
   }
 
   static get properties() {
     return {
-      paths:{type: Object},
-      layout: {type: String}
+      server: {type: String},
+      layout: {type: String},
+      paths : {type: Object}
     };
   }
 }

@@ -44,8 +44,7 @@ input[type="password"]{
   transition: border .2s;
   outline: none;
   font-size:14px;
-  height:26px;
-  padding: 0 5px;
+  padding:6px 5px;
   box-sizing: border-box;
 }
 
@@ -56,11 +55,12 @@ input[type="password"].mono{
   font-size:12px;
 }
 
-input[type="text"].small,
-input[type="password"].small {
-    height:26px;
-    font-size:12px;
+input[type="text"].large,
+input[type="password"].large {
+    padding:10px 8px;
+    font-size:13px;
 }
+
 
 textarea::placeholder,
 input[type="text"]::placeholder,

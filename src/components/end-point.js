@@ -22,7 +22,7 @@ export default class EndPoint extends LitElement {
         border-top-color:var(--light-border-color);
         display:flex;
         padding:6px 16px;
-        align-items: baseline;
+        align-items: center;
         cursor: pointer;
       }
       .m-endpoint > .head.put:hover,
@@ -174,7 +174,7 @@ export default class EndPoint extends LitElement {
           </div>`
         :``}
         <div class='req-resp-container'> 
-          <api-request  class="request"  .parameters="${this.path.parameters}" .request_body="${this.path.requestBody}"  ></api-request>
+          <api-request  class="request"  server="${this.server}" method="${this.path.method}", path="${this.path.path}" .parameters="${this.path.parameters}" .request_body="${this.path.requestBody}"  ></api-request>
           <api-response class="response" .responses="${this.path.responses}"></api-response>
         </div>
       </div>`
@@ -185,14 +185,14 @@ export default class EndPoint extends LitElement {
 
   static get properties() {
     return {
-      path:{type:Object},
-      layout:{type:String}
+      server: {type:String},
+      layout: {type:String},
+      path  : {type:Object}
     };
   }
 
   toggleExpand(){
     this.path.expanded = !this.path.expanded;
-    console.log(this.path);
     this.requestUpdate();
   }
 }

@@ -14,6 +14,7 @@ import {unsafeHTML} from 'lit-html/directives/unsafe-html.js';
 
 // Create your custom component
 export default class ApiRequest extends LitElement {
+  
   render() {
     return html`
     ${TableStyles}
@@ -69,6 +70,22 @@ export default class ApiRequest extends LitElement {
       .tab-content{
         margin:-1px 0 0 0;
       }
+      .response-url{
+        font-size:12px;
+        white-space:nowrap;
+        overflow:hidden;
+        color:var(--light-fg);
+        font-family:${vars.font.mono};
+        margin-bottom:2px;
+      }
+      .response-message.error{
+        color:var(--error-color);
+        font-weight:bold;
+      }
+      .response-message.success{
+        color:var(--success-color);
+        font-weight:bold;
+      }
 
     </style>
     <div class="col regular-font">
@@ -84,10 +101,27 @@ export default class ApiRequest extends LitElement {
     `
   }
 
+  constructor() {
+    super();
+    this.responseMessage = '';
+    this.responseStatus  = 'success';
+    this.responseHeaders = '';
+    this.responseText = '';
+    this.responseUrl = '';
+  }
+
   static get properties() {
     return {
+      server      :{type: String},
+      method      :{type: String},
+      path        :{type: String},
       parameters  :{type: Array},
-      request_body:{type: Object}
+      request_body:{type: Object},
+      responseMessage:{type: String, attribute:false},
+      responseText   : {type: String, attribute:false},
+      responseHeaders: {type: String, attribute:false},
+      responseStatus : {type: String, attribute:false},
+      responseUrl    : {type: String, attribute:false},
     };
   }
 
@@ -115,7 +149,7 @@ export default class ApiRequest extends LitElement {
           <div class="param-type">${unsafeHTML(getTypeInfo(param.schema))}</div>
         </td>  
         <td style="min-width:100px">
-          <input type="text" class="m-small input-param" data-pname="${param.name}" data-ptype="${paramType}" style="width:100%" value="${param.example?param["x-example"]:''}">
+          <input type="text" class="request-param" data-pname="${param.name}" data-ptype="${paramType}" style="width:100%" value="${param.example?param["x-example"]:''}">
         </td>
         <td>
           ${param.description?html`<span class="m-markdown"> ${unsafeHTML(marked(param.description))} </span> `:``}
@@ -175,7 +209,7 @@ export default class ApiRequest extends LitElement {
         <button class="tab-btn" content_id="content_b">MODEL</button>
       </div>
       <div id="content_a" class="tab-content col" style="flex:1; ">
-        <textarea class="mono input-param" data-ptype="body" style="min-height:180px; padding:16px">${mimeRequestTypes[selectedMimeReqKey].examples[0]?mimeRequestTypes[selectedMimeReqKey].examples[0].exampleValue:''}</textarea>
+        <textarea class="mono request-body-param" data-ptype="body" style="min-height:180px; padding:16px">${mimeRequestTypes[selectedMimeReqKey].examples[0]?mimeRequestTypes[selectedMimeReqKey].examples[0].exampleValue:''}</textarea>
       </div>
       <div id="content_b" class="tab-content col" style="flex:1;display:none">
         <schema-tree class="border" style="padding:16px;" .data="${mimeRequestTypes[selectedMimeReqKey].schemaTree? mimeRequestTypes[selectedMimeReqKey].schemaTree:''}"></schema-tree>
@@ -185,8 +219,12 @@ export default class ApiRequest extends LitElement {
 
   apiCallTemplate(){
     return html`
-    <div class="row" style="align-items:flex-end; padding:16px 0px;">
+    <div style="display:flex; align-items: center; margin:16px 0">
       <button class="m-btn" @click="${this.onTryClick}"> TRY </button>
+      <div style="font-size:12px; margin-left:5px;">
+        <div class='response-url'> ${this.responseUrl} </div>
+        <div class="response-message ${this.responseStatus}" >${this.responseMessage}</div>
+      </div>
     </div>
     <div id="tab_panel" class="tab-panel col" style="border-width:0; min-height:200px">
       <div id="tab_buttons" class="tab-buttons row" @click="${this.activateTab}">
@@ -194,10 +232,10 @@ export default class ApiRequest extends LitElement {
         <button class="tab-btn" content_id="content_bb"> RESPONSE HEADERS</button>
       </div>
       <div id="content_aa" class="tab-content col" style="flex:1; ">
-        <textarea class="mono" style="min-height:180px; padding:16px"> content a</textarea>
+        <textarea class="mono" style="min-height:180px; padding:16px; white-space:nowrap;"> ${this.responseText} </textarea>
       </div>
       <div id="content_bb" class="tab-content col" style="flex:1;display:none">
-      <textarea class="mono" style="min-height:180px; padding:16px"> response headers</textarea>
+        <textarea class="mono" style="min-height:180px; padding:16px; white-space:nowrap;"> ${this.responseHeaders} </textarea>
       </div>
     </div>`
   }
@@ -223,11 +261,75 @@ export default class ApiRequest extends LitElement {
     }
   }
 
-
   onTryClick(){
+    let me = this;
+    let pathParamEls   = [...this.shadowRoot.querySelectorAll(".request-param[data-ptype='path']")];
+    let queryParamEls  = [...this.shadowRoot.querySelectorAll(".request-param[data-ptype='query']")];
+    let headerParamEls = [...this.shadowRoot.querySelectorAll(".request-param[data-ptype='header']")];
+    let bodyParamEl = this.shadowRoot.querySelector(".request-body-param");
+    let url = me.path;
+    let headers = {'Content-Type': 'application/json'};
 
+    //Path Params
+    pathParamEls.map(function(el){
+      url = url.replace("{"+el.dataset.pname+"}", el.value);
+    });
+    //Query Params
+    if (queryParamEls.length>0){
+      let queryParam = new URLSearchParams("");
+      queryParamEls.map(function(el){
+        queryParam.append(el.dataset.pname, el.value);
+      })
+      url = `${url}?${queryParam.toString()}`;
+    }
+    url = `${this.server.replace(/\/$/, "")}${url}`;
 
+    //Header Params
+    headerParamEls.map(function(el){
+      if (el.value){
+        headers[el.dataset.pname] =  el.value;
+      }
+    });
 
+    let fetchOptions={
+      'mode': "cors",
+      'method': this.method.toUpperCase(),
+      'headers':headers
+    }
+
+    //Body Params
+    if (bodyParamEl){
+      fetchOptions.body=JSON.stringify(bodyParamEl.value) // data can be `string` or {object}!
+    }
+
+    fetch(url,fetchOptions)
+    .then(function(resp){
+      me.responseStatus = resp.ok ? 'success':'error';
+      me.responseMessage = `${resp.statusText}:${resp.status}`;
+      me.responseUrl = resp.url;
+      me.responseHeaders='';
+      resp.headers.forEach(function(hdrVal, hdr) {
+        me.responseHeaders = me.responseHeaders + `${hdr.trim()}: ${hdrVal}`+"\n";
+      });
+      let contentType = resp.headers.get("content-type");
+      if(contentType && contentType.includes("json")) {
+        resp.json().then(function(respObj) {
+          me.responseText = JSON.stringify(respObj,null,2);
+        })
+      }
+      else{
+        resp.text().then(function(respText) {
+          me.responseText = respText;
+        })
+      }
+    })
+    .catch(function(err){
+      me.responseMessage = err.message + " (CORS or Network Issue)";
+      me.responseStatus  = "error";
+      me.responseUrl     = '';
+      me.responseHeaders = '';
+      me.responseText    = '';
+    });
   }
 
 
