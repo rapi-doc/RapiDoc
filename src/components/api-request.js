@@ -91,14 +91,14 @@ export default class ApiRequest extends LitElement {
       }
 
     </style>
-    <div class="col regular-font">
-    <div class="title">REQUEST</div>
-    ${this.inputParametersTemplate('path')}
-    ${this.inputParametersTemplate('query')}
-    ${this.requestBodyTemplate()}
-    ${this.inputParametersTemplate('header')}
-    ${this.inputParametersTemplate('cookie')}
-    ${this.apiCallTemplate()}
+    <div class="col regular-font request-panel">
+      <div class="title">REQUEST</div>
+      ${this.inputParametersTemplate('path')}
+      ${this.inputParametersTemplate('query')}
+      ${this.requestBodyTemplate()}
+      ${this.inputParametersTemplate('header')}
+      ${this.inputParametersTemplate('cookie')}
+      ${this.apiCallTemplate()}
     </div>
     `
   }
@@ -172,21 +172,22 @@ export default class ApiRequest extends LitElement {
     let mimeReqCount=0;
     let shortMimeTypes={};
     let bodyDescrHtml = this.request_body.description? html`<div class="m-markdown"> ${unsafeHTML(marked(this.request_body.description))}</div>`:'';
-    let mimeTypeRadioHtml='';
     let textareaExampleHtml='';
     let formDataHtml='';
-    let isFormDataPresent= false;
+    let isFormDataPresent   = false;
     let reqSchemaTree="";
 
     let content = this.request_body.content;
     for(let mimeReq in content ) {
       if (mimeReq.includes('json')){shortMimeTypes[mimeReq]='json';}
       else if (mimeReq.includes('xml')){shortMimeTypes[mimeReq]='xml';}
-      else if (mimeReq.includes('form')){shortMimeTypes[mimeReq]='form';}
+      else if (mimeReq.includes('text/plain')){shortMimeTypes[mimeReq]='text';}
+      else if (mimeReq.includes('form-urlencoded')){shortMimeTypes[mimeReq]='form';}
+      else if (mimeReq.includes('multipart-form')){shortMimeTypes[mimeReq]='multipart-form';}
 
       let mimeReqObj = content[mimeReq];
       let reqExample="";
-      if (mimeReq.includes('json') || mimeReq.includes('xml')){
+      if (mimeReq.includes('json') || mimeReq.includes('xml') || mimeReq.includes('text/plain')){
         //Remove Circular references from RequestBody json-schema 
         try {
           mimeReqObj.schema = JSON.parse(JSON.stringify(mimeReqObj.schema, removeCircularReferences()));
@@ -197,51 +198,76 @@ export default class ApiRequest extends LitElement {
         }
         reqSchemaTree = schemaToModel(mimeReqObj.schema,{});
         reqExample    = generateExample(mimeReqObj.examples, mimeReqObj.example, mimeReqObj.schema, mimeReq, "text");
-        textareaExampleHtml = textareaExampleHtml +  `<textarea class="mono request-body-param ${shortMimeTypes[mimeReq]}" data-ptype="${shortMimeTypes[mimeReq]}" style="min-height:180px; padding:16px; display:${shortMimeTypes[mimeReq]==='json'?'block':'none'}; ">${reqExample[0].exampleValue}</textarea>`
+        textareaExampleHtml = textareaExampleHtml +  `
+          <textarea 
+            class="mono request-body-param ${shortMimeTypes[mimeReq]}" 
+            data-ptype="${mimeReq}" 
+            style="min-height:180px; padding:16px; display:${shortMimeTypes[mimeReq]==='json'?'block':'none'}; 
+          ">
+            ${reqExample[0].exampleValue}
+          </textarea>`
       }
-      else if (mimeReq.includes('form')){
+      else if (mimeReq.includes('form') || mimeReq.includes('multipart-form')){
         isFormDataPresent = true;
         for (let fieldName in mimeReqObj.schema.properties){
           formDataHtml = formDataHtml + `<tr> 
             <td style="min-width:80px">
               <div class="param-name">${fieldName}</div>
-              <div class="param-type">${mimeReqObj.schema.properties[fieldName].type}</div>
-            </td>  
+              <div class="param-type">
+                ${mimeReqObj.schema.properties[fieldName].type} 
+                ${mimeReqObj.schema.properties[fieldName].format?`(${mimeReqObj.schema.properties[fieldName].format})`:''}
+              </div>
+            </td>
             <td style="min-width:100px">
-              <input type="text" class="request-param" data-pname="${fieldName}" data-ptype="body-form" style="width:100%" value="">
+              <input 
+                type="${mimeReqObj.schema.properties[fieldName].format==='binary'?'file':'text'}" 
+                name="${fieldName}"
+                class="request-form-param"
+                style="width:100%"
+                data-pname="${fieldName}" 
+                data-ptype="body-form" 
+              />
             </td>
             <td>
-              ${mimeReqObj.schema.properties[fieldName].description ? marked(mimeReqObj.schema.properties[fieldName].description):''}
+              ${mimeReqObj.schema.properties[fieldName].description ?`<span class="m-markdown">${marked(mimeReqObj.schema.properties[fieldName].description)}</span>`:''}
             </td>  
           </tr>`
         }
-        formDataHtml = `<table style="width: 100%" class="m-table">${formDataHtml}</table>`;  
+        formDataHtml = `<form class="${shortMimeTypes[mimeReq]}"><table style="width: 100%" class="m-table">${formDataHtml}</table></form>`;  
       }
       mimeReqCount++;
     }
 
     return html`
-      <div class="table-title top-gap">BODY DATA ${this.request_body.required?'(required)':''} </div>
+      <div class="table-title top-gap ${isFormDataPresent?'form_data':'body_data'} "> ${isFormDataPresent?'FORM':'BODY'} DATA ${this.request_body.required?'(required)':''} </div>
       ${bodyDescrHtml}
       ${isFormDataPresent?html`${unsafeHTML(formDataHtml)}`
         :html`
         <div class="tab-panel col" style="border-width:0; min-height:200px">
           <div id="tab_buttons" class="tab-buttons row" @click="${this.activateTab}">
-            <button class="tab-btn active" content_id="json_example">EXAMPLE </button>
-            <button class="tab-btn" content_id="json_model">MODEL</button>
+            <button class="tab-btn active" content_id="tab_example">EXAMPLE </button>
+            <button class="tab-btn" content_id="tab_model">MODEL</button>
             <div style="flex:1"> </div>
-            ${mimeReqCount<=0?``:html`
-              <div style="color:var(--light-fg); align-self:center; font-size:12px; margin-top:8px;">
+            <div style="color:var(--light-fg); align-self:center; font-size:12px; margin-top:8px;">
+              ${mimeReqCount==1?`
+                ${Object.keys(shortMimeTypes)[0]}
+              `:html`
                 ${Object.keys(shortMimeTypes).map(k => html`
-                  <input type='radio' name='body_type' value='${shortMimeTypes[k]}' @change="${this.onMimeTypeChange}" style='margin:0 0 0 8px'/>  ${shortMimeTypes[k]}` 
+                  ${shortMimeTypes[k]==='json'?html`
+                    <input type='radio' name='request_body_type' value='${shortMimeTypes[k]}' @change="${this.onMimeTypeChange}" checked style='margin:0 0 0 8px'/>
+                  `
+                  :html`
+                    <input type='radio' name='request_body_type' value='${shortMimeTypes[k]}' @change="${this.onMimeTypeChange}" style='margin:0 0 0 8px'/>
+                  `}
+                  ${shortMimeTypes[k]}` 
                 )}
-              </div>
-            `}
+              `}
+            </div>
           </div>
-          <div id="json_example" class="tab-content col" style="flex:1; ">
+          <div id="tab_example" class="tab-content col" style="flex:1; ">
             ${unsafeHTML(textareaExampleHtml)}
           </div>
-          <div id="json_model" class="tab-content col" style="flex:1;display:none">
+          <div id="tab_model" class="tab-content col" style="flex:1;display:none">
             <schema-tree class="border" style="padding:16px;" .data="${reqSchemaTree}"></schema-tree>
           </div>
         </div>`
@@ -262,18 +288,19 @@ export default class ApiRequest extends LitElement {
     ${this.responseMessage===''?'':html`
     <div class="tab-panel col" style="border-width:0; min-height:200px">
       <div id="tab_buttons" class="tab-buttons row" @click="${this.activateTab}">
-        <button class="tab-btn active" content_id="content_aa"> RESPONSE </button>
-        <button class="tab-btn" content_id="content_bb"> RESPONSE HEADERS</button>
+        <button class="tab-btn active" content_id="tab_response_text"> RESPONSE </button>
+        <button class="tab-btn" content_id="tab_response_headers"> RESPONSE HEADERS</button>
         <div style="flex:1"></div>
         <button class="m-btn" style='margin-bottom:5px' @click="${this.clearResponseData}">CLEAR</button>
       </div>
-      <div id="content_aa" class="tab-content col" style="flex:1; ">
+      <div id="tab_response_text" class="tab-content col" style="flex:1; ">
         <textarea class="mono" style="min-height:180px; padding:16px; white-space:nowrap;"> ${this.responseText} </textarea>
       </div>
-      <div id="content_bb" class="tab-content col" style="flex:1;display:none">
+      <div id="tab_response_headers" class="tab-content col" style="flex:1;display:none">
         <textarea class="mono" style="min-height:180px; padding:16px; white-space:nowrap;"> ${this.responseHeaders} </textarea>
       </div>
-    </div>`}`
+    </div>`}
+    `
   }
 
   activateTab(e){
@@ -305,19 +332,27 @@ export default class ApiRequest extends LitElement {
     });
   }
 
-  onTryClick(){
+  onTryClick(e){
     let me = this;
-    let pathParamEls   = [...this.shadowRoot.querySelectorAll(".request-param[data-ptype='path']")];
-    let queryParamEls  = [...this.shadowRoot.querySelectorAll(".request-param[data-ptype='query']")];
-    let headerParamEls = [...this.shadowRoot.querySelectorAll(".request-param[data-ptype='header']")];
-    let bodyParamEl = this.shadowRoot.querySelector(".request-body-param");
+    let requestPanelEl = e.target.closest(".request-panel");
+    let pathParamEls   = [...requestPanelEl.querySelectorAll(".request-param[data-ptype='path']")];
+    let queryParamEls  = [...requestPanelEl.querySelectorAll(".request-param[data-ptype='query']")];
+    let headerParamEls = [...requestPanelEl.querySelectorAll(".request-param[data-ptype='header']")];
+    let formParamEls   = [...requestPanelEl.querySelectorAll(".request-form-param")];
+    let bodyParamEls   = [...requestPanelEl.querySelectorAll(".request-body-param")];
+
     let url = me.path;
-    let headers = {'Content-Type': 'application/json'};
+    let fetchOptions={
+      'mode'   : "cors",
+      'method' : this.method.toUpperCase(),
+      'headers':{},
+    }
 
     //Path Params
     pathParamEls.map(function(el){
       url = url.replace("{"+el.dataset.pname+"}", el.value);
     });
+
     //Query Params
     if (queryParamEls.length>0){
       let queryParam = new URLSearchParams("");
@@ -331,19 +366,48 @@ export default class ApiRequest extends LitElement {
     //Header Params
     headerParamEls.map(function(el){
       if (el.value){
-        headers[el.dataset.pname] =  el.value;
+        fetchOptions.headers[el.dataset.pname] =  el.value;
       }
     });
 
-    let fetchOptions={
-      'mode': "cors",
-      'method': this.method.toUpperCase(),
-      'headers':headers
+    //Form Params
+    if (formParamEls.length>=1){
+      let formEl = requestPanelEl.querySelector("form");
+      fetchOptions.body = new FormData(formEl);
+      if (formEl.classList.contains("form-urlencoded")){
+        fetchOptions.headers['Content-Type'] = 'application/x-www-form-urlencoded; charset=utf-8'
+      }
+      else{
+        fetchOptions.headers['Content-Type'] = 'multipart/form-data; charset=utf-8'
+      }
     }
 
-    //Body Params
-    if (bodyParamEl){
-      fetchOptions.body=JSON.stringify(bodyParamEl.value) // data can be `string` or {object}!
+    //Body Params (json/xml/text)
+    if (bodyParamEls.length>=1){
+      if (bodyParamEls.length===1){
+        fetchOptions.headers['Content-Type'] = bodyParamEls[0].dataset.ptype;
+        fetchOptions.body=bodyParamEls[0].value;
+      }
+      else{
+        let mimeTypeRadioEl = e.target.closest(".request-panel").querySelector("input[name='request_body_type']:checked");
+        let selectedBody = mimeTypeRadioEl===null?'json':mimeTypeRadioEl.value;
+        let bodyData='';
+        if (selectedBody === 'json'){
+          bodyData = requestPanelEl.querySelector(".request-body-param.json").value;
+          fetchOptions.headers['Content-Type'] = 'application/json; charset=utf-8'
+          fetchOptions.body=bodyData;
+        }
+        else if (selectedBody === 'xml'){
+          bodyData = requestPanelEl.querySelector(".request-body-param.xml").value;
+          fetchOptions.headers['Content-Type'] = 'application/xml; charset=utf-8'
+          fetchOptions.body=bodyData;
+        }
+        else if (selectedBody === 'text'){
+          bodyData = requestPanelEl.querySelector(".request-body-param.text").value;
+          fetchOptions.headers['Content-Type'] = 'text/plain; charset=utf-8'
+          fetchOptions.body=bodyData;
+        }
+      }
     }
 
     me.responseUrl     = '';

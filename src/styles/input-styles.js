@@ -35,6 +35,7 @@ input, select, button {
 
 /* Form Inputs */
 textarea,
+input[type="file"],
 input[type="text"],
 input[type="password"]{
   border-radius:${vars.border.radius};
