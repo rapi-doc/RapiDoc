@@ -164,38 +164,66 @@ function schemaToModel (schema, obj) {
 function generateExample(examples, example, schema, mimeType, outputType){
     let finalExamples = [];
     if (examples){
-      for (let eg in examples){
-        let egJson="";  
-            //TODO: in case the mimeType is XML then parse it as XML
-            //egJson = JSON.parse(examples[eg].value);
+        for (let eg in examples){
+            let egContent="";  
+            if (mimeType.toLowerCase().includes("json")){
+                if (outputType==="text"){
+                    egContent = JSON.stringify(examples[eg].value,undefined,2);
+                }
+                else{
+                    egContent = examples[eg].value;
+                }
+            }
+            else{
+                egContent = examples[eg].value;
+            }
+
             finalExamples.push({
-                "exampleType" : "json",
-                "exampleValue": outputType==="text"?JSON.stringify(examples[eg].value,undefined,2):examples[eg].value
+                "exampleType" : mimeType,
+                "exampleValue": egContent
             });
         } 
     }
     else if (example){
-        //TODO: in case the mimeType is XML then parse it as XML
+        let egContent="";  
+        if (mimeType.toLowerCase().includes("json")){
+            if (outputType==="text"){
+                egContent = JSON.stringify(example,undefined,2);
+            }
+            else{
+                egContent = example;
+            }
+        }
+        else{
+            egContent = example;
+        }
         finalExamples.push({
-            "exampleType" : "json",
-            "exampleValue": outputType==="text"?JSON.stringify(example,undefined,2):example
+            "exampleType" : mimeType,
+            "exampleValue": egContent
         });
     }
-
     if (finalExamples.length==0 ){
       // If schema examples are not provided then generate one from Schema (only JSON fomat)
       if (schema){
         //TODO: in case the mimeType is XML then parse it as XML
-        let egJson = schemaToObj(schema,{}, {includeReadOnly:true, includeWriteOnly:true, deprecated:true});
-        finalExamples.push({
-            "exampleType" : "json",
-            "exampleValue": outputType==="text"?JSON.stringify(egJson,undefined,2):egJson
-        });
+        if (mimeType.toLowerCase().includes("json")){
+            let egJson = schemaToObj(schema,{}, {includeReadOnly:true, includeWriteOnly:true, deprecated:true});
+            finalExamples.push({
+                "exampleType" : mimeType,
+                "exampleValue": outputType==="text"?JSON.stringify(egJson,undefined,2):egJson
+            });
+        }
+        else{
+            finalExamples.push({
+                "exampleType" : mimeType,
+                "exampleValue": "" 
+            });  
+        }
       }
       else{
         // No Example or Schema provided   
         finalExamples.push({
-            "exampleType" : "text",
+            "exampleType" : mimeType,
             "exampleValue": "" 
         });
       }

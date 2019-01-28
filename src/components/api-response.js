@@ -41,10 +41,11 @@ export default class ApiResponse extends LitElement {
         border:none;
         background-color:transparent;
         cursor:pointer;
-        border-bottom: 3px solid transparent;
+        padding:1px;
         outline:none;
         font-size:12px;
         margin-right:16px;
+        padding:1px;
       }
       .tab-btn.active{
         border-bottom: 3px solid var(--primary-color);
@@ -140,8 +141,8 @@ export default class ApiResponse extends LitElement {
           <!-- TAB PANEL -->
           <div id="${status}_${mimeType}_tab-panel" class="tab-panel col" style="border-width:0; min-height:200px">
             <div id="${status}_${mimeType}_tab-buttons" @click="${this.activateTab}" class="tab-buttons row" >
-              <button class="tab-btn active" content_id="${status}_${mimeType}_content_a"> Example </button>
-              <button class="tab-btn" content_id="${status}_${mimeType}_content_b"> Model</button>
+              <button class="tab-btn active" content_id="${status}_${mimeType}_content_a">EXAMPLE</button>
+              <button class="tab-btn" content_id="${status}_${mimeType}_content_b">MODEL</button>
               <div style="flex:1"></div>
               <div style="align-self:center;font-size:12px;"> ${mimeType} </div>
             </div>
