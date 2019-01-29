@@ -1,4 +1,6 @@
-<span></span>
+---
+# even an empty front matter
+---
 ## Easy Usage
 No Build steps!, No Frameworks!, Just copy the below script in an html, and open it in a browser !!!
 ```html
@@ -23,8 +25,10 @@ Style the element using standard `css`. Apply borders, padding, width, height et
     <tr><th>Attribute</th> <th>Description </th> <th>Default</th></tr>
     <tr><td>spec-url     </td> <td>url of the OpenAPI spec to view </td> <td>(empty)</td></tr>
     <tr><td>heading-text </td> <td>Heading Text on top-left corner </td> <td>(empty)</td></tr>
-    <tr><td>header-color</td> <td>Hex color code on various controls such as buttons, tabs </td>  <td>#444444</td></tr>
+    <tr><td>header-color </td> <td>Hex color code on various controls such as buttons, tabs </td>  <td>#444444</td></tr>
     <tr><td>primary-color</td> <td>Hex color code on various controls such as buttons, tabs </td> <td>#FF791A</td></tr>
+    <tr><td>regular-font </td> <td>Font Name(s) to be used for regular text </td> <td>rapidoc, Helvetica, Arial</td></tr>
+    <tr><td>mono-font    </td> <td>Font Name(s) to be used for monospaced text </td> <td>Monaco, 'Andale Mono', 'Roboto Mono'</td></tr>
     <tr><td>theme        </td> <td>light, dark </td> <td>light</td></tr>
     <tr><td>show-header  </td> <td>true, false </td> <td>true</td></tr>
     <tr><td>layout       </td> <td>request/response placement (row, column)</td> <td>row</td></tr>
@@ -65,6 +69,21 @@ Style the element using standard `css`. Apply borders, padding, width, height et
     layout="column"
   > </rapi-doc>
 ```
+
+- [Change Font (you may use local fonts or define your own font)](example5.html)
+```html
+  <head>
+    <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
+  </head>
+  <body>  
+    <rapi-doc 
+      spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
+      regular-font="'Varela Round', 'Arial Rounded MT Bold', 'Helvetica Rounded' "
+    > </rapi-doc>
+  </body>  
+```
+
+
 
 - [Change Attributes using JavaScript](example6.html)
 

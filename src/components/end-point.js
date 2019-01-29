@@ -55,7 +55,7 @@ export default class EndPoint extends LitElement {
         padding:16px 0px 0 0px;
         border-width:0px 1px 1px 5px;
         border-style:solid;
-        box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.15);
+        box-shadow: 0px 4px 3px -3px rgba(0, 0, 0, 0.15);
       }
       .m-endpoint .body.delete{ border-color:var(--delete-color); }
       .m-endpoint .body.patch{ border-color:var(--patch-color); }
@@ -65,7 +65,8 @@ export default class EndPoint extends LitElement {
 
       .head .path{
         display: inline-block;
-        font-family: monospace;
+        font-family:var(--font-mono);
+        font-size: 14px;
         align-items: center;
         word-wrap: break-word;
         min-width:400px;
@@ -78,7 +79,6 @@ export default class EndPoint extends LitElement {
         overflow: hidden;
         display: inline-block;
         align-items: center;
-
       }
 
       .body .summary{

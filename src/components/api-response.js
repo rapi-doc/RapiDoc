@@ -17,8 +17,8 @@ export default class ApiResponse extends LitElement {
     ${InputStyles}
     <style>
       .title{
-        font-family:${vars.font.regular};
-        font-size:${vars.font.titleSize};
+        font-family:var(--font-regular);
+        font-size:var(--title-font-size);
         font-weight:bold;
         margin-bottom:8px;
       }
@@ -115,7 +115,10 @@ export default class ApiResponse extends LitElement {
           "examples"  : respExample,
           "schemaTree": schemaTree,
         }
-        selectedMimeValue = mimeResp;
+        console.log(mimeResp);
+        if (mimeResp.includes("json")){
+          selectedMimeValue = mimeResp;
+        }
         selectedMimeValueForEachStatus[statusCode]= mimeResp;
         mimeRespCount++;
       }
@@ -125,12 +128,12 @@ export default class ApiResponse extends LitElement {
       for (let key in this.responses[statusCode].headers){
         tempHeaders.push ( { "name":key, ...this.responses[statusCode].headers[key]} );
       }
-      headersForEachRespStatus[statusCode] = tempHeaders;
+      headersForEachRespStatus[statusCode]   = tempHeaders;
       mimeResponsesForEachStatus[statusCode] = allMimeResp;
-      //mimeRespCountForEachStatus[statusCode] = mimeRespCount;
     }
-    return html`${Object.keys(this.responses).map(
 
+
+    return html`${Object.keys(this.responses).map(
       (status, index)  => html`
       <div class="resp-head ${index===0?'top-gap':'divider'}">
         <span class="resp-status">${status}:</span> 
@@ -138,23 +141,23 @@ export default class ApiResponse extends LitElement {
       </div>      
       ${Object.keys(mimeResponsesForEachStatus[status]).map(
         mimeType => html`
-          <!-- TAB PANEL -->
-          <div id="${status}_${mimeType}_tab-panel" class="tab-panel col" style="border-width:0; min-height:200px">
+          <div class="tab-panel col" style="border-width:0; min-height:200px">
             <div id="${status}_${mimeType}_tab-buttons" @click="${this.activateTab}" class="tab-buttons row" >
-              <button class="tab-btn active" content_id="${status}_${mimeType}_content_a">EXAMPLE</button>
-              <button class="tab-btn" content_id="${status}_${mimeType}_content_b">MODEL</button>
+              <button class="tab-btn active" content_id="${status}_${mimeType}_example">EXAMPLE</button>
+              <button class="tab-btn" content_id="${status}_${mimeType}_model">MODEL</button>
               <div style="flex:1"></div>
               <div style="align-self:center;font-size:12px;"> ${mimeType} </div>
             </div>
-            <div id="${status}_${mimeType}_content_a" class="tab-content col" style="flex:1; ">
+            <div id="${status}_${mimeType}_example" class="tab-content col" style="flex:1; ">
               <json-tree class="border" style="padding:16px;" .data="${mimeResponsesForEachStatus[status][mimeType].examples[0].exampleValue}"></json-tree>
             </div>
-            <div id="${status}_${mimeType}_content_b" class="tab-content col" style="flex:1;display:none">
+            <div id="${status}_${mimeType}_model" class="tab-content col" style="flex:1;display:none">
               <schema-tree class="border" style="padding:16px;" .data="${mimeResponsesForEachStatus[status][mimeType].schemaTree}"></schema-tree>
             </div>
           </div>`
       )}`
     )}`
+    
   }
 
   activateTab(e){

@@ -2,9 +2,10 @@ import { LitElement, html, css} from 'lit-element';
 import {unsafeHTML} from 'lit-html/directives/unsafe-html.js';
 import MLogo from '@/components/m-logo'; 
 import EndPoints from '@/components/end-points'; 
+
+
 import FontStyles from '@/styles/font-styles';
 import InputStyles from '@/styles/input-styles';
-import CommonStyles from '@/styles/common-styles';
 import FlexStyles from '@/styles/flex-styles';
 
 import vars from '@/styles/vars';
@@ -87,12 +88,16 @@ class RapiDoc extends LitElement {
           --delete-color:#F06560;
           --patch-color:#fc0;
           --link-color:#47AFE8;
-          --primary-color:${this.primaryColor?html`${this.primaryColor}`:`#FF791A`};
+          --primary-color:${this.primaryColor?`${this.primaryColor}`:`#FF791A`};
           --dark-primary-color:${vars.color.brightness(this.primaryColor?this.primaryColor:'#FF791A', -30)};
-          --primary-text:${this.primaryColor?html`${vars.color.invert(this.primaryColor)}`:`#ffffff`};
-          --header-bg:${this.headerColor?html`${this.headerColor}`:`#444`};
-          --header-fg:${this.headerColor?html`${vars.color.invert(this.headerColor)}`:`#ccc`};
-          --layout:${this.layout?html`${this.layout}`:`row`}
+          --primary-text:${this.primaryColor?`${vars.color.invert(this.primaryColor)}`:`#ffffff`};
+          --header-bg:${this.headerColor?`${this.headerColor}`:`#444`};
+          --header-fg:${this.headerColor?`${vars.color.invert(this.headerColor)}`:`#ccc`};
+          --layout:${this.layout?`${this.layout}`:`row`};
+          --font-mono:${this.monoFont?`${this.monoFont}`:`Monaco, 'Andale Mono', 'Roboto Mono', Consolas`}; 
+          --font-regular:${this.regularFont?`${this.regularFont}`:`rapidoc, Helvetica, Arial`};
+          --title-font-size:16px;
+          --border-radius:2px;
         }
       </style>`} 
       
@@ -102,7 +107,7 @@ class RapiDoc extends LitElement {
           min-width:750px;
           color:var(--fg);
           background-color:var(--bg);
-          font-family:${vars.font.regular};
+          font-family:var(--font-regular);
         }
         .header{
           background-color:var(--header-bg);
@@ -163,6 +168,7 @@ class RapiDoc extends LitElement {
         </div>`
       }
 
+      
 
       ${ (this.developerMode==='false' || !this.resolvedSpec || !this.resolvedSpec.servers || this.resolvedSpec.servers.length===0) ?``:html`
         <div style="display:flex; align-items: center;margin:16px 36px;">
@@ -194,16 +200,18 @@ class RapiDoc extends LitElement {
           type: String, 
           attribute: 'spec-url',
         },
-        headingText: {type: String, attribute: 'heading-text'},
-        headerColor: {type: String, attribute:  'header-color'},
+        headingText : {type: String, attribute: 'heading-text' },
+        headerColor : {type: String, attribute: 'header-color' },
         primaryColor: {type: String, attribute: 'primary-color'},
-        layout: {type: String},
-        showHeader: {type: String, attribute: 'show-header'},
-        theme: {type: String},
-        logoUrl: {type: String, attribute: 'logo-url'},
-        showTry: {type: Boolean, attribute: 'show-try'},
-        showAuthentication: {type: Boolean, attribute: 'show-authentication'},
+        regularFont : {type: String, attribute: 'regular-font' },
+        monoFont    : {type: String, attribute: 'mono-font'  },
+        showHeader  : {type: String, attribute: 'show-header'},
+        layout  : {type: String},
+        theme   : {type: String},
+        logoUrl : {type: String , attribute: 'logo-url'},
+        showTry : {type: Boolean, attribute: 'show-try'},
         showInfo: {type: Boolean, attribute: 'show-info'},
+        showAuthentication: {type: Boolean, attribute: 'show-authentication'},
       };
     }
     attributeChangedCallback(name, oldVal, newVal) {

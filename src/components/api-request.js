@@ -24,8 +24,8 @@ export default class ApiRequest extends LitElement {
     ${CommonStyles}
     <style>
       .title{
-        font-family:${vars.font.regular};
-        font-size:${vars.font.titleSize};
+        font-family:var(--font-regular);
+        font-size:var(--title-font-size);
         font-weight:bold;
         margin-bottom:16px;
       }
@@ -37,11 +37,11 @@ export default class ApiRequest extends LitElement {
       }
       .param-name{
         color: var(--fg); 
-        font-family: ${vars.font.mono};
+        font-family: var(--font-mono);
       }
       .param-type{
         color: var(--light-fg); 
-        font-family: ${vars.font.regular};
+        font-family: var(--font-regular);
       }
       .top-gap{margin-top:24px;}
       .tab-buttons{
@@ -75,7 +75,7 @@ export default class ApiRequest extends LitElement {
         white-space:nowrap;
         overflow:hidden;
         color:var(--light-fg);
-        font-family:${vars.font.mono};
+        font-family:var(--font-mono);
         margin-bottom:2px;
         text-overflow: ellipsis;
       }
@@ -203,9 +203,7 @@ export default class ApiRequest extends LitElement {
             class="mono request-body-param ${shortMimeTypes[mimeReq]}" 
             data-ptype="${mimeReq}" 
             style="min-height:180px; padding:16px; display:${shortMimeTypes[mimeReq]==='json'?'block':'none'}; 
-          ">
-            ${reqExample[0].exampleValue}
-          </textarea>`
+          ">${reqExample[0].exampleValue}</textarea>`
       }
       else if (mimeReq.includes('form') || mimeReq.includes('multipart-form')){
         isFormDataPresent = true;

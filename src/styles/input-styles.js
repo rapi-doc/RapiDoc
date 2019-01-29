@@ -4,14 +4,14 @@ import {html} from 'lit-element';
 export default html`
 <style>
 input, select, button {
-  font-family: ${vars.font.regular};
+  font-family: var(--font-regular);
   font-weight:400;
   color:var(--fg);
 }
 
 /* Button */
 .m-btn{
-  border-radius: ${vars.border.radius};
+  border-radius: var(--border-radius);
   font-weight: 600;
   display: inline-block;
   padding: 6px 16px;
@@ -38,7 +38,7 @@ textarea,
 input[type="file"],
 input[type="text"],
 input[type="password"]{
-  border-radius:${vars.border.radius};
+  border-radius:var(--border-radius);
   border:1px solid var(--input-border-color);
   background:var(--input-bg);
   color:var(--fg);
@@ -52,7 +52,7 @@ input[type="password"]{
 textarea.mono,
 input[type="text"].mono,
 input[type="password"].mono{
-  font-family: ${vars.font.mono}; 
+  font-family: var(--font-mono); 
   font-size:12px;
 }
 

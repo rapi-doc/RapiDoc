@@ -8,7 +8,7 @@ export default class SchemaTree extends LitElement {
     return html`
       <style>
         .tree{
-          font-family: ${vars.font.mono};
+          font-family: var(--font-mono);
           font-size:12px;
           display:inline-block;
           overflow:hidden;
@@ -31,7 +31,7 @@ export default class SchemaTree extends LitElement {
         }
         .obj-descr{
           color:var(--very-light-fg);
-          font-family:${vars.font.regular};
+          font-family:var(--font-regular);
           display:inline;
         }
         .item-descr{
@@ -39,7 +39,7 @@ export default class SchemaTree extends LitElement {
           display: table-cell;
           padding-left:24px;
           min-width: 200px;
-          font-family:${vars.font.regular};
+          font-family:var(--font-regular);
         }
         .descr-expander{
           display: table-cell;

@@ -14,7 +14,7 @@ td, th {
 .m-table {
   border-collapse: separate;
   border: 1px solid var(--border-color);
-  border-radius: ${vars.border.radius};
+  border-radius: var(--border-radius);
   color: ${vars.color.tableFg};
   margin: 0;
   max-width: 100%;
@@ -55,7 +55,7 @@ td, th {
     background-color: var(--hover-color);
 }
 .table-title{
-    font-size:${vars.font.tableTitleSize};
+    font-size:12px;
     color:${vars.color.tableTitleFg};
     font-weight:bold;
     vertical-align: middle;
