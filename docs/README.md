@@ -1,6 +1,3 @@
----
-# even an empty front matter
----
 ## Easy Usage
 No Build steps!, No Frameworks!, Just copy the below script in an html, and open it in a browser !!!
 ```html
