@@ -2,5 +2,3 @@ theme: jekyll-theme-cayman
 markdown: kramdown
 title: RapiDoc Custom Element
 google_analytics: UA-132775238-1
-plugins:
-  - jekyll-seo-tag
