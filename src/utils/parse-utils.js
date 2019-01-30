@@ -160,6 +160,7 @@ export default function ProcessSpec(specUrl){
         return Promise.resolve(parsedSpec);
     })
     .catch(function(err) {
+        alert(err);
         console.error(err);
     });
     

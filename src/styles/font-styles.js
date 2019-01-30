@@ -6,11 +6,11 @@ export default html`
     .regular-font{font-family:var(--font-regular);}
     .mono-font{font-family:var(--font-mono);}
 
-    h1{ font-family:var(--font-regular); font-size:26px; font-weight:200; letter-spacing:normal; }
-    h2{ font-family:var(--font-regular); font-size:24px; font-weight:200; letter-spacing:normal; }
-    h3{ font-family:var(--font-regular); font-size:22px; font-weight:200; letter-spacing:normal; }
-    h4{ font-family:var(--font-regular); font-size:18px; font-weight:200; letter-spacing:normal; }
-    h5{ font-family:var(--font-regular); font-size:16px; font-weight:200; letter-spacing:normal; }
+    h1{ font-family:var(--font-regular); font-size:20px; font-weight:200; letter-spacing:normal; }
+    h2{ font-family:var(--font-regular); font-size:18px; font-weight:200; letter-spacing:normal; }
+    h3{ font-family:var(--font-regular); font-size:16px; font-weight:200; letter-spacing:normal; }
+    h4{ font-family:var(--font-regular); font-size:15px; font-weight:200; letter-spacing:normal; }
+    h5{ font-family:var(--font-regular); font-size:14px; font-weight:200; letter-spacing:normal; }
     h6{ font-family:var(--font-regular); font-size:14px; font-weight:200; letter-spacing:normal; }
 
     h1,h2,h3,h4,h5,h5{
@@ -51,9 +51,9 @@ export default html`
     }
 
     .m-sub-title.m-3 {
-        font-size: 12px;
-        font-weight:bold;
-        margin: 12px 0 4px 0;
+      font-size: 12px;
+      font-weight:bold;
+      margin: 12px 0 4px 0;
     }
 
     /* Markdown */
@@ -64,7 +64,8 @@ export default html`
         margin-top:0;
     }
     .m-markdown p{
-        line-height: 16px;
+        line-height:16px;
+        font-size:14px;
     }
     .m-markdown code{
         background-color: rgba(0, 0, 0, 0.02);

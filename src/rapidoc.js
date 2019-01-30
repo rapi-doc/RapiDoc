@@ -148,6 +148,8 @@ class RapiDoc extends LitElement {
         </div>  
         <div style="margin: 0px 8px;display:flex">
           <input id="spec-url" type="text" class="large header-input" placeholder="Spec URL" value="${this.specUrl}" @change="${this.onSepcUrlChange}">
+          <input id="spec-file" type="file" style="display:none" value="${this.specFile}" @change="${this.onSepcFileChange}" >
+          <button class="m-btn" style="margin-left:10px;"  @click="${this.onFileLoadClick}"> LOCAL JSON FILE </button>
         </div>
         <div style="flex:1"></div>  
       </div>`}
@@ -196,10 +198,8 @@ class RapiDoc extends LitElement {
 
     static get properties() {
       return {
-        specUrl: {
-          type: String, 
-          attribute: 'spec-url',
-        },
+        specUrl : { type: String, attribute: 'spec-url',},
+        specFile: { type: String, attribute: false,},
         headingText : {type: String, attribute: 'heading-text' },
         headerColor : {type: String, attribute: 'header-color' },
         primaryColor: {type: String, attribute: 'primary-color'},
@@ -216,6 +216,7 @@ class RapiDoc extends LitElement {
     }
     attributeChangedCallback(name, oldVal, newVal) {
       if (name=='spec-url'){
+        console.log("url changed")
         if (oldVal !== newVal){
           this.loadSpec(newVal);
         }
@@ -223,14 +224,34 @@ class RapiDoc extends LitElement {
       super.attributeChangedCallback(name, oldVal, newVal);
     }
 
-    onOpenSpecClicked(e) {
-        this.setAttribute('spec-url', this.shadowRoot.getElementById('spec-url').value);
+    onSepcUrlChange(e){
+      this.setAttribute('spec-url', this.shadowRoot.getElementById('spec-url').value);
     }
 
-    onSepcUrlChange(e){
-      if (this.specUrl){
-        this.setAttribute('spec-url', this.shadowRoot.getElementById('spec-url').value);
+    onSepcFileChange(e){
+      let me = this;
+      this.setAttribute('spec-file', this.shadowRoot.getElementById('spec-file').value);
+      let specFile = e.target.files[0];
+      let reader = new FileReader();
+      reader.onload = function(e) {
+        try{
+          let specObj = JSON.parse(reader.result);
+          me.loadSpec(specObj);
+          me.shadowRoot.getElementById('spec-url').value="";
+        }
+        catch{
+          alert("Unable to read or parse json");
+          console.log("Unable to read or parse json")
+        }
+        
       }
+      // Read the Text file
+      reader.readAsText(specFile);	
+
+    }
+
+    onFileLoadClick(){
+      this.shadowRoot.getElementById('spec-file').click();
     }
 
     loadSpec(specUrl) {
@@ -247,6 +268,7 @@ class RapiDoc extends LitElement {
       })
       .catch(function(err) {
         me.loading=false;
+        alert("The API Spec is invalid or not readable ");
         console.error('Onoes! The API is invalid. ' + err.message);
       });
     }

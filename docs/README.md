@@ -80,7 +80,5 @@ Style the element using standard `css`. Apply borders, padding, width, height et
   </body>  
 ```
 
-
-
 - [Change Attributes using JavaScript](example6.html)
 
