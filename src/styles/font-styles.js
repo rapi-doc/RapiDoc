@@ -5,7 +5,8 @@ export default html`
 <style>
     .regular-font{font-family:var(--font-regular);}
     .mono-font{font-family:var(--font-mono);}
-
+    .title{font-size:32px;}
+    .sub-title{font-size: 18px;}
     h1{ font-family:var(--font-regular); font-size:20px; font-weight:200; letter-spacing:normal; }
     h2{ font-family:var(--font-regular); font-size:18px; font-weight:200; letter-spacing:normal; }
     h3{ font-family:var(--font-regular); font-size:16px; font-weight:200; letter-spacing:normal; }
@@ -20,40 +21,6 @@ export default html`
     code,
     pre{
       font-family: var(--font-mono);
-    }
-
-    /* Text */
-    .m-text{vertical-align: middle;}
-    .m-text.small{font-size: 12px;line-height: 12px;}
-    .m-text.gray{color: var(--light-fg)}
-    .m-text.primary{color: var(--primary-color); }
-    .m-text.bold{font-weight:bold;}
-    .m-text.bottom-margin{ margin-bottom:4px}
-    
-    /* Sub Title */
-    .m-sub-title {
-      font-size:20px;
-      white-space:nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .m-sub-title.m-1{
-      font-size: 16px;
-      font-weight:bold;
-      margin: 20px 0 4px 0;
-    }
-
-    .m-sub-title.m-2{
-      font-size: 14px;
-      font-weight:bold;
-      margin: 16px 0 4px 0;
-    }
-
-    .m-sub-title.m-3 {
-      font-size: 12px;
-      font-weight:bold;
-      margin: 12px 0 4px 0;
     }
 
     /* Markdown */

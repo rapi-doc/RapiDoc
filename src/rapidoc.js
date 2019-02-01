@@ -2,7 +2,7 @@ import { LitElement, html, css} from 'lit-element';
 import {unsafeHTML} from 'lit-html/directives/unsafe-html.js';
 import MLogo from '@/components/m-logo'; 
 import EndPoints from '@/components/end-points'; 
-
+import SecuritySchemes from '@/components/security-schemes'; 
 
 import FontStyles from '@/styles/font-styles';
 import InputStyles from '@/styles/input-styles';
@@ -109,15 +109,23 @@ class RapiDoc extends LitElement {
           background-color:var(--bg);
           font-family:var(--font-regular);
         }
+        .body-container{
+          margin:0 16px;
+        }
         .header{
           background-color:var(--header-bg);
           color:var(--header-fg);
           width:100%;
         }
-        .header .title{
+        .header-title{
           font-size:24px;
           padding: 0 8px;
         }
+
+        .section-gap{
+          padding: 28px 0px 4px 20px;
+        }
+
         input.header-input{
           background:${this.headerColor?vars.color.brightness(this.headerColor, -20):vars.color.inputReverseBg};
           color:var(--header-fg);
@@ -126,16 +134,10 @@ class RapiDoc extends LitElement {
           border-radius:3px;
         }
         .tag{
-          font-size: 18px;
-          color:var(--fg);
-          padding: 28px 0px 4px 20px;
           text-transform: uppercase;
         }
         .doc-info{
           padding:16px 20px;
-        }
-        .doc-info .title{
-          font-size:32px;
         }
 
       </style>
@@ -144,7 +146,7 @@ class RapiDoc extends LitElement {
       <div class="row header regular-font" style="padding:8px 4px 8px 4px;min-height:48px;position:sticky;top:0;">
         <div style="display:flex; align-items: center;">
           <m-logo style="height:36px;width:36px;margin-left:5px"></m-logo>
-          <div class="title">${this.headingText}</div>
+          <div class="header-title">${this.headingText}</div>
         </div>  
         <div style="margin: 0px 8px;display:flex">
           <input id="spec-url" type="text" class="large header-input" placeholder="Spec URL" value="${this.specUrl}" @change="${this.onSepcUrlChange}">
@@ -153,65 +155,82 @@ class RapiDoc extends LitElement {
         </div>
         <div style="flex:1"></div>  
       </div>`}
+      <div class="body-container regular-font">
+        ${this.showInfo==='false' || !this.resolvedSpec || !this.resolvedSpec.info ?``:html`
+          <div class="doc-info">
+            <div class="title">
+              ${this.resolvedSpec.info.title}
+              ${!this.resolvedSpec.info.version?"":html`
+                <span style="font-size:14px;font-weight:bold">
+                  ${this.resolvedSpec.info.version}
+                </span>`
+              }
+            </div>
+            ${this.resolvedSpec.info.description?html`
+              ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(this.resolvedSpec.info.description)}</div>`)}
+            `:``}
+          </div>`
+        }
 
-      ${this.showInfo==='false' || !this.resolvedSpec || !this.resolvedSpec.info ?``:html`
-        <div class="doc-info">
-          <div class="title">
-            ${this.resolvedSpec.info.title}
-            ${!this.resolvedSpec.info.version?"":html`
-              <span style="font-size:14px;font-weight:bold">
-                ${this.resolvedSpec.info.version}
-              </span>`
-            }
-          </div>
-          ${this.resolvedSpec.info.description?html`
-            ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(this.resolvedSpec.info.description)}</div>`)}
-          `:``}
-        </div>`
-      }
+        ${(this.developerMode==='false' || !this.resolvedSpec || !this.resolvedSpec.servers || this.resolvedSpec.servers.length===0) ?``:html`
+          <div class="sub-title regular-font section-gap">API SERVER:
+            <div style="margin: 8px 0; font-size:12px">
+              ${this.resolvedSpec.servers.map(server => html`
+                  <input type='radio' name='api_server' value='${server.url}' @change="${this.onApiServerChange}" checked style='margin:0 0 5px 8px'/>
+                  ${server.url}<br/>
+                `)} 
+            </div>
+          </div>  
+          `
+        }
+        <div class="section-gap">
+          <security-schemes> </security-schemes>
+        </div>
 
-      
-
-      ${ (this.developerMode==='false' || !this.resolvedSpec || !this.resolvedSpec.servers || this.resolvedSpec.servers.length===0) ?``:html`
-        <div style="display:flex; align-items: center;margin:16px 36px;">
-          <div class="regular-font">API Server : &nbsp;</div>
-          <input  type="text" class="large" style="width:400px" readonly placeholder="API Server" value="${this.resolvedSpec.servers[0].url}">
-        </div>`
-      }
-
-
-      ${this.resolvedSpec && this.resolvedSpec.tags ?html`<div id="searchInput" style="margin:0 16px">
-        ${this.resolvedSpec.tags.map(tag => html`
-          <div class="tag regular-font">${tag.name}</div>
-          <div style="margin:4px 20px">
-            ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(tag.description?tag.description:'')}</div>`)}
-          </div>
-          <end-points 
-            server = "${this.resolvedSpec.servers && this.resolvedSpec.servers[0] && this.resolvedSpec.servers[0].url?this.resolvedSpec.servers[0].url:''}"  
-            layout = "${this.layout?this.layout:'row'}"
-            .paths = "${tag.paths}" 
-          ></end-points>
-        `)}
-        </div>`
-      :''}
+        ${this.resolvedSpec && this.resolvedSpec.tags ?html`
+          ${this.resolvedSpec.tags.map(tag => html`
+            <div class="sub-title tag regular-font section-gap">${tag.name}</div>
+            <div style="margin:4px 20px">
+              ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(tag.description?tag.description:'')}</div>`)}
+            </div>
+            <end-points 
+              server = "${this.server?this.server:''}"  
+              layout = "${this.layout?this.layout:'row'}"
+              .paths = "${tag.paths}" 
+            ></end-points>
+          `)}`
+        :''}
+      </div>  
     `}
+
+    // Initialize the server property b
+    updated(changedProperties) {
+      if (!this.server){
+        let apiServerRadioEl = this.shadowRoot.querySelector("input[name='api_server']:checked");
+        if (apiServerRadioEl !== null){
+          //this.setAttribute('api-server', apiServerRadioEl.value);
+          this.server = apiServerRadioEl.value;
+        }
+      }
+    }
 
     static get properties() {
       return {
-        specUrl : { type: String, attribute: 'spec-url',},
-        specFile: { type: String, attribute: false,},
-        headingText : {type: String, attribute: 'heading-text' },
-        headerColor : {type: String, attribute: 'header-color' },
-        primaryColor: {type: String, attribute: 'primary-color'},
-        regularFont : {type: String, attribute: 'regular-font' },
-        monoFont    : {type: String, attribute: 'mono-font'  },
-        showHeader  : {type: String, attribute: 'show-header'},
-        layout  : {type: String},
-        theme   : {type: String},
-        logoUrl : {type: String , attribute: 'logo-url'},
-        showTry : {type: Boolean, attribute: 'show-try'},
-        showInfo: {type: Boolean, attribute: 'show-info'},
-        showAuthentication: {type: Boolean, attribute: 'show-authentication'},
+        specUrl : { type: String, attribute: 'spec-url' },
+        specFile: { type: String, attribute: false },
+        server   : { type: String},
+        headingText : { type: String, attribute: 'heading-text'  },
+        headerColor : { type: String, attribute: 'header-color'  },
+        primaryColor: { type: String, attribute: 'primary-color' },
+        regularFont : { type: String, attribute: 'regular-font'  },
+        monoFont    : { type: String, attribute: 'mono-font'   },
+        showHeader  : { type: String, attribute: 'show-header' },
+        layout  : { type: String },
+        theme   : { type: String },
+        logoUrl : { type: String , attribute: 'logo-url'  },
+        showTry : { type: Boolean, attribute: 'show-try'  },
+        showInfo: { type: Boolean, attribute: 'show-info' },
+        showAuthentication: { type: Boolean, attribute: 'show-authentication' },
       };
     }
     attributeChangedCallback(name, oldVal, newVal) {
@@ -253,6 +272,15 @@ class RapiDoc extends LitElement {
     onFileLoadClick(){
       this.shadowRoot.getElementById('spec-file').click();
     }
+
+    onApiServerChange(){
+      let apiServerRadioEl = this.shadowRoot.querySelector("input[name='api_server']:checked");
+      if (apiServerRadioEl !== null){
+        //this.setAttribute('api-server', apiServerRadioEl.value);
+        this.server = apiServerRadioEl.value;
+      }
+    }
+
 
     loadSpec(specUrl) {
       var me = this;

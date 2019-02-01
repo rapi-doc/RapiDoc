@@ -70,14 +70,13 @@ export default class ApiRequest extends LitElement {
       .tab-content{
         margin:-1px 0 0 0;
       }
-      .response-url{
+      .link{
         font-size:12px;
-        white-space:nowrap;
-        overflow:hidden;
-        color:var(--light-fg);
+        text-decoration: underline;
+        color:var(--link-color);
         font-family:var(--font-mono);
         margin-bottom:2px;
-        text-overflow: ellipsis;
+        
       }
       .response-message.error{
         color:var(--error-color);
@@ -277,11 +276,11 @@ export default class ApiRequest extends LitElement {
   apiCallTemplate(){
     return html`
     <div style="display:flex; align-items: center; margin:16px 0">
-      <button class="m-btn" @click="${this.onTryClick}">TRY</button>
       <div style="font-size:12px; margin:0 5px; width:calc(100% - 50px);">
-        <div class='response-url'> ${this.responseUrl} </div>
-        <div class="response-message ${this.responseStatus}" >${this.responseMessage}</div>
+        <span style="font-weight:bold;">API Server:</span>
+        <span class='link'> ${this.server?this.server:location.origin}</span>
       </div>
+      <button class="m-btn" @click="${this.onTryClick}">TRY</button>
     </div>
     ${this.responseMessage===''?'':html`
     <div class="tab-panel col" style="border-width:0; min-height:200px">
@@ -305,7 +304,6 @@ export default class ApiRequest extends LitElement {
     if (e.target.classList.contains("active")  || e.target.classList.contains("tab-btn")===false){
       return;
     }
-
     let activeTabBtn  = e.currentTarget.parentNode.querySelector('.tab-btn.active');
     let clickedTabBtn = e.target;
     activeTabBtn.classList.remove("active");
@@ -338,6 +336,8 @@ export default class ApiRequest extends LitElement {
     let headerParamEls = [...requestPanelEl.querySelectorAll(".request-param[data-ptype='header']")];
     let formParamEls   = [...requestPanelEl.querySelectorAll(".request-form-param")];
     let bodyParamEls   = [...requestPanelEl.querySelectorAll(".request-body-param")];
+
+    let apiServer = this.shadowRoot.querySelector("input[name='api_server']:checked");
 
     let url = me.path;
     let fetchOptions={
