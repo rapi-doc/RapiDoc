@@ -25,7 +25,9 @@ class RapiDoc extends LitElement {
       html`<style>
         :host{
           --bg:#333;
+          --bg2:#444;
           --fg:#bbb;
+          --fg2:#aaa;
           --light-fg:#777;
           --very-light-fg:#666;
           --pre-border-color:#666;
@@ -49,7 +51,9 @@ class RapiDoc extends LitElement {
       :html`<style>
         :host{
           --bg:#fff;
+          --bg2:#fafafa;
           --fg:#333;
+          --fg2:#565656;
           --light-fg:#999;
           --very-light-fg:#bbb;
           --pre-border-color:#000;
@@ -60,7 +64,7 @@ class RapiDoc extends LitElement {
           --border-color:#ccc;
           --input-bg:#fff;
           --input-border-color:#C5D9E8;
-          --placeholder-color:#666;
+          --placeholder-color:#dedede;
           --light-border-color:#eee;
           --light-get-color:#eff8fd;
           --light-put-color:#fff5e6;
@@ -109,21 +113,15 @@ class RapiDoc extends LitElement {
           background-color:var(--bg);
           font-family:var(--font-regular);
         }
-        .body-container{
-          margin:0 16px;
-        }
+
+        .body-container{margin:0 16px;}
+        .section-gap{padding: 28px 0px 4px 20px;}
+        .doc-info{padding:16px 20px;}
+        .header-title{font-size:24px; padding:0 8px;}
+        .tag{text-transform: uppercase;}
         .header{
           background-color:var(--header-bg);
           color:var(--header-fg);
-          width:100%;
-        }
-        .header-title{
-          font-size:24px;
-          padding: 0 8px;
-        }
-
-        .section-gap{
-          padding: 28px 0px 4px 20px;
         }
 
         input.header-input{
@@ -133,12 +131,7 @@ class RapiDoc extends LitElement {
           width:450px; 
           border-radius:3px;
         }
-        .tag{
-          text-transform: uppercase;
-        }
-        .doc-info{
-          padding:16px 20px;
-        }
+        input.header-input::placeholder {opacity:0.4;}
 
       </style>
 
@@ -149,7 +142,8 @@ class RapiDoc extends LitElement {
           <div class="header-title">${this.headingText}</div>
         </div>  
         <div style="margin: 0px 8px;display:flex">
-          <input id="spec-url" type="text" class="large header-input" placeholder="Spec URL" value="${this.specUrl}" @change="${this.onSepcUrlChange}">
+          <input id="spec-url" type="text" class="large header-input" style="padding-right:36px" placeholder="Spec URL" value="${this.specUrl}" @change="${this.onSepcUrlChange}">
+          <div style="margin: 6px 15px 0 -30px; font-size:24px; cursor:pointer;">&#x23ce;</div>
           <input id="spec-file" type="file" style="display:none" value="${this.specFile}" @change="${this.onSepcFileChange}" >
           <button class="m-btn" style="margin-left:10px;"  @click="${this.onFileLoadClick}"> LOCAL JSON FILE </button>
         </div>
@@ -157,35 +151,41 @@ class RapiDoc extends LitElement {
       </div>`}
       <div class="body-container regular-font">
         ${this.showInfo==='false' || !this.resolvedSpec || !this.resolvedSpec.info ?``:html`
-          <div class="doc-info">
-            <div class="title">
-              ${this.resolvedSpec.info.title}
-              ${!this.resolvedSpec.info.version?"":html`
-                <span style="font-size:14px;font-weight:bold">
-                  ${this.resolvedSpec.info.version}
-                </span>`
-              }
-            </div>
-            ${this.resolvedSpec.info.description?html`
-              ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(this.resolvedSpec.info.description)}</div>`)}
-            `:``}
-          </div>`
+        <div class="doc-info">
+          <div class="title">
+            ${this.resolvedSpec.info.title}
+            ${!this.resolvedSpec.info.version?"":html`
+              <span style="font-size:14px;font-weight:bold">
+                ${this.resolvedSpec.info.version}
+              </span>`
+            }
+          </div>
+          ${this.resolvedSpec.info.description?html`
+            ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(this.resolvedSpec.info.description)}</div>`)}
+          `:``}
+        </div>`
         }
 
         ${(this.developerMode==='false' || !this.resolvedSpec || !this.resolvedSpec.servers || this.resolvedSpec.servers.length===0) ?``:html`
-          <div class="sub-title regular-font section-gap">API SERVER:
-            <div style="margin: 8px 0; font-size:12px">
-              ${this.resolvedSpec.servers.map(server => html`
-                  <input type='radio' name='api_server' value='${server.url}' @change="${this.onApiServerChange}" checked style='margin:0 0 5px 8px'/>
-                  ${server.url}<br/>
-                `)} 
-            </div>
-          </div>  
-          `
-        }
-        <div class="section-gap">
-          <security-schemes> </security-schemes>
+        <div class="sub-title regular-font section-gap">
+          <a id="api_server_options"> API SERVER: </a>
+          <div style="margin: 8px 0; font-size:12px">
+            ${this.resolvedSpec.servers.map(server => html`
+                <input type='radio' name='api_server' value='${server.url}' @change="${this.onApiServerChange}" checked style='margin:0 0 5px 8px'/>
+                ${server.url}<br/>
+              `)} 
+          </div>
+        </div>  
+        `}
+
+        ${!this.resolvedSpec || !this.resolvedSpec.securitySchemes?'':html`
+        <div class="sub-title regular-font section-gap">
+          <security-schemes 
+            .schemes="${this.resolvedSpec.securitySchemes}" 
+            @change="${this.onSecurityChange}"
+          ></security-schemes>
         </div>
+        `}
 
         ${this.resolvedSpec && this.resolvedSpec.tags ?html`
           ${this.resolvedSpec.tags.map(tag => html`
@@ -194,25 +194,17 @@ class RapiDoc extends LitElement {
               ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(tag.description?tag.description:'')}</div>`)}
             </div>
             <end-points 
-              server = "${this.server?this.server:''}"  
-              layout = "${this.layout?this.layout:'row'}"
-              .paths = "${tag.paths}" 
+              server           = "${this.server?this.server:''}"  
+              api-key-name     = "${this.apiKeyName?this.apiKeyName:''}"
+              api-key-value    = "${this.apiKeyValue?this.apiKeyValue:''}"
+              api-key-location = "${this.apiKeyLocation?this.apiKeyLocation:''}"
+              layout           = "${this.layout?this.layout:'row'}"
+              .paths           = "${tag.paths}" 
             ></end-points>
           `)}`
         :''}
       </div>  
     `}
-
-    // Initialize the server property b
-    updated(changedProperties) {
-      if (!this.server){
-        let apiServerRadioEl = this.shadowRoot.querySelector("input[name='api_server']:checked");
-        if (apiServerRadioEl !== null){
-          //this.setAttribute('api-server', apiServerRadioEl.value);
-          this.server = apiServerRadioEl.value;
-        }
-      }
-    }
 
     static get properties() {
       return {
@@ -231,6 +223,9 @@ class RapiDoc extends LitElement {
         showTry : { type: Boolean, attribute: 'show-try'  },
         showInfo: { type: Boolean, attribute: 'show-info' },
         showAuthentication: { type: Boolean, attribute: 'show-authentication' },
+        apiKeyName    : { type: String, attribute: 'api-key-name' },
+        apiKeyValue   : { type: String, attribute: 'api-key-value' },
+        apiKeyLocation: { type: String, attribute: 'api-key-location' },
       };
     }
     attributeChangedCallback(name, oldVal, newVal) {
@@ -276,17 +271,26 @@ class RapiDoc extends LitElement {
     onApiServerChange(){
       let apiServerRadioEl = this.shadowRoot.querySelector("input[name='api_server']:checked");
       if (apiServerRadioEl !== null){
-        //this.setAttribute('api-server', apiServerRadioEl.value);
         this.server = apiServerRadioEl.value;
       }
     }
 
+    onSecurityChange(e){
+      this.apiKeyName = e.detail.keyName
+      this.apiKeyValue = e.detail.keyValue
+      this.apiKeyLocation= e.detail.keyLocation;
+    }
 
     loadSpec(specUrl) {
-      var me = this;
+      let me = this;
       if (!specUrl){
         return;
       }
+      this.apiKeyName     = "";
+      this.apiKeyValue    = "";
+      this.apiKeyLocation = "";
+      this.server         = ""
+
       ProcessSpec(specUrl).then(function(spec){
         if (spec===undefined || spec === null){
           console.error('Onoes! The API is invalid. ');
@@ -302,28 +306,14 @@ class RapiDoc extends LitElement {
     }
 
     afterSpecParsedAndValidated(spec, isReloadingSpec=false){
+      let me = this;
       this.resolvedSpec = clonedeep(spec); //spec;
       this.resolvedSpecMaster = clonedeep(spec);
       this.requestUpdate();
-    }
+      window.setTimeout(function(){
+        me.onApiServerChange()
+      },0);
 
-    onFilter(){
-      this.resolvedSpec.tags[0].paths = this.resolvedSpec.tags[0].paths.slice(2);
-      this.requestUpdate();
-      console.log("filtered");
-    }
-
-    onRestore(){
-      this.resolvedSpec.tags[0].paths = this.resolvedSpecMaster.tags[0].paths.slice(0);
-      this.requestUpdate();
-      console.log("restore");
-      
-    }
-
-    onSearch(e){
-      debounce(function(){
-        console.log("Hello", e.target.classList);
-      },200)
     }
 }
 

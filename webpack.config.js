@@ -2,6 +2,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const FileManagerPlugin = require('filemanager-webpack-plugin');
 const webpack = require('webpack');
+const CompressionPlugin = require('compression-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const path = require('path');
 
@@ -60,7 +61,8 @@ module.exports = {
         }),
         new CleanWebpackPlugin(['dist']),
         new HtmlWebpackPlugin({title: 'RAPIDoc', template: 'index.html'}),
-        //new BundleAnalyzerPlugin({analyzerMode:'static'}),
+        new BundleAnalyzerPlugin({analyzerMode:'static'}),
+        new CompressionPlugin(),
         new FileManagerPlugin({
             onEnd : {
               copy: [

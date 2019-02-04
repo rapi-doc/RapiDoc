@@ -1,7 +1,4 @@
 export default { color:{
-    tableFg:"#565656",
-    tableHeaderBg:"#fafafa",
-    tableTitleFg:"#999",
     inputReverseFg:"#fff",
     inputReverseBg:"#333",
     headerBg:"#444",

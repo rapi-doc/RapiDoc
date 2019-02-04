@@ -1,5 +1,10 @@
 <img alt="MrinDoc logo" src="https://github.com/mrin9/RapiDoc/blob/master/logo.png" width="60px" />
 
+<img src="https://badgen.net/badge/license/MIT/blue">
+[![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/rapidoc)
+
+
+
 # RapiDoc
 Custom Eelement for Open-API spec viewing
 
@@ -17,8 +22,9 @@ Custom Eelement for Open-API spec viewing
 
 
 ## Roadmap
-- Get the bundle size even smaller (~ 115 Kb gzipped)
-- Allow replacing logo
+- &#128077; Get the bundle size even smaller (~ 125 Kb gzipped)
+- &#128077; Provide a console to try out the APIs
+- &#128077; HTTP and Token based Authentication process
+- Enable OAuth
 - Search API Functionality
-- Provide a console to try out the APIs
-- Enable OAuth, HTTP and Token based Authentication process
+- Allow replacing logo

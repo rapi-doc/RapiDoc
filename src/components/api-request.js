@@ -114,16 +114,19 @@ export default class ApiRequest extends LitElement {
 
   static get properties() {
     return {
-      server      :{type: String},
-      method      :{type: String},
-      path        :{type: String},
-      parameters  :{type: Array},
-      request_body:{type: Object},
-      responseMessage:{type: String, attribute:false},
-      responseText   : {type: String, attribute:false},
-      responseHeaders: {type: String, attribute:false},
-      responseStatus : {type: String, attribute:false},
-      responseUrl    : {type: String, attribute:false},
+      server        : { type: String },
+      apiKeyName    : { type: String, attribute: 'api-key-name' },
+      apiKeyValue   : { type: String, attribute: 'api-key-value' },
+      apiKeyLocation: { type: String, attribute: 'api-key-location' },
+      method        : { type: String },
+      path          : { type: String },
+      parameters    : { type: Array },
+      request_body  : { type: Object },
+      responseMessage: { type: String, attribute:false },
+      responseText   : { type: String, attribute:false },
+      responseHeaders: { type: String, attribute:false },
+      responseStatus : { type: String, attribute:false },
+      responseUrl    : { type: String, attribute:false },
     };
   }
 
@@ -150,7 +153,7 @@ export default class ApiRequest extends LitElement {
           <div class="param-type">${unsafeHTML(getTypeInfo(param.schema))}</div>
         </td>  
         <td style="min-width:100px">
-          <input type="text" class="request-param" data-pname="${param.name}" data-ptype="${paramType}" style="width:100%" value="${param.example?param["x-example"]:''}">
+          <input type="text" class="request-param" data-pname="${param.name}" data-ptype="${paramType}" style="width:100%" value="${param.example?param.example:''}">
         </td>
         <td>
           ${param.description?html`<span class="m-markdown"> ${unsafeHTML(marked(param.description))} </span> `:``}
@@ -275,10 +278,20 @@ export default class ApiRequest extends LitElement {
 
   apiCallTemplate(){
     return html`
-    <div style="display:flex; align-items: center; margin:16px 0">
-      <div style="font-size:12px; margin:0 5px; width:calc(100% - 50px);">
-        <span style="font-weight:bold;">API Server:</span>
-        <span class='link'> ${this.server?this.server:location.origin}</span>
+    <div style="display:flex; align-items: center; margin:16px 0; font-size:12px;">
+      <div style="display:flex; flex-direction:column; margin:0 5px; width:calc(100% - 50px);">
+        <div style="display:flex;flex-direction:row;overflow:hidden;"> <div style="font-weight:bold;">API_Server: </div> 
+          ${this.server?html`${this.server}`
+          : html`<div style="font-weight:bold;color:var(--error-color)">Not Set</div>`}
+        </div>
+        <div style="display:flex;flex-direction:row;overflow:hidden;line-height:16px;color:var(--fg2)"> 
+          ${this.apiKeyValue && this.apiKeyName ? html`
+            <div style="font-weight:bold;color:var(--success-color)">Authentication: &nbsp; </div>
+            send <div style="font-family:var(--font-mono); color:var(--fg)"> '${this.apiKeyName}' </div>
+            in<div style="font-family:var(--font-mono); color:var(--fg)"> '${this.apiKeyLocation}' </div>
+            with value<div style="font-family:var(--font-mono); color:var(--fg)"> '${this.apiKeyValue.substring(0,3)+"***" }' </div>`
+          :html`<div style="font-weight:bold;color:var(--error-color)">No Authentication</div>`}
+        </div>
       </div>
       <button class="m-btn" @click="${this.onTryClick}">TRY</button>
     </div>
@@ -359,6 +372,11 @@ export default class ApiRequest extends LitElement {
       })
       url = `${url}?${queryParam.toString()}`;
     }
+    
+    // Add authentication Query if provided 
+    if (this.apiKeyValue && this.apiKeyName && this.apiKeyLocation==='query'){
+      url = `${url}&${this.apiKeyName}=${this.apiKeyValue}`;
+    }
     url = `${this.server.replace(/\/$/, "")}${url}`;
 
     //Header Params
@@ -367,6 +385,10 @@ export default class ApiRequest extends LitElement {
         fetchOptions.headers[el.dataset.pname] =  el.value;
       }
     });
+    // Add Authentication Header if provided
+    if (this.apiKeyValue && this.apiKeyName && this.apiKeyLocation==='header'){
+      fetchOptions.headers[this.apiKeyName] = this.apiKeyValue;
+    }
 
     //Form Params
     if (formParamEls.length>=1){

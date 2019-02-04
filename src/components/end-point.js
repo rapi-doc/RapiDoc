@@ -12,9 +12,7 @@ export default class EndPoint extends LitElement {
     return html`
      ${FontStyles}
     <style>
-      .m-endpoint.expanded{
-        margin-bottom:16px; 
-      }
+      .m-endpoint.expanded{margin-bottom:16px; }
       .m-endpoint > .head{
         border-width:1px 1px 1px 5px;
         border-style:solid;
@@ -174,7 +172,16 @@ export default class EndPoint extends LitElement {
           </div>`
         :``}
         <div class='req-resp-container'> 
-          <api-request  class="request"  server="${this.server}" method="${this.path.method}", path="${this.path.path}" .parameters="${this.path.parameters}" .request_body="${this.path.requestBody}"  ></api-request>
+          <api-request  class="request"  
+            server="${this.server}" 
+            method="${this.path.method}", 
+            path="${this.path.path}" 
+            api-key-name="${this.apiKeyName}" 
+            api-key-value="${this.apiKeyValue}" 
+            api-key-location="${this.apiKeyLocation}" 
+            .parameters="${this.path.parameters}" 
+            .request_body="${this.path.requestBody}"
+          ></api-request>
           <api-response class="response" .responses="${this.path.responses}"></api-response>
         </div>
       </div>`
@@ -185,7 +192,10 @@ export default class EndPoint extends LitElement {
 
   static get properties() {
     return {
-      server: {type:String},
+      server        : {type:String},
+      apiKeyName    : { type: String, attribute: 'api-key-name' },
+      apiKeyValue   : { type: String, attribute: 'api-key-value' },
+      apiKeyLocation: { type: String, attribute: 'api-key-location' },
       layout: {type:String},
       path  : {type:Object}
     };

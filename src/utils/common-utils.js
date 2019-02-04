@@ -102,7 +102,7 @@ function getTypeInfo(schema, overrideAttributes=null, inSingleLine=true){
     if (schema.format){
         html = html + ` ${lineBreak} (${schema.format})`;    
     }
-    if (schema.pattern){
+    if (schema.pattern && !schema.enum){
         html = html + ` ${lineBreak}(${schema.pattern})`;    
     }
     return html;
@@ -206,7 +206,7 @@ function generateExample(examples, example, schema, mimeType, outputType){
       // If schema examples are not provided then generate one from Schema (only JSON fomat)
       if (schema){
         //TODO: in case the mimeType is XML then parse it as XML
-        if (mimeType.toLowerCase().includes("json")){
+        if (mimeType.toLowerCase().includes("json") || mimeType.toLowerCase().includes("*/*")){
             let egJson = schemaToObj(schema,{}, {includeReadOnly:true, includeWriteOnly:true, deprecated:true});
             finalExamples.push({
                 "exampleType" : mimeType,

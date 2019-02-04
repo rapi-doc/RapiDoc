@@ -44,7 +44,7 @@ input[type="password"]{
   color:var(--fg);
   transition: border .2s;
   outline: none;
-  font-size:14px;
+  font-size:13px;
   padding:6px 5px;
   box-sizing: border-box;
 }
@@ -67,6 +67,7 @@ textarea::placeholder,
 input[type="text"]::placeholder,
 input[type="password"]::placeholder {
     color: var(--placeholder-color);
+    opacity:1;
 }
 
 textarea:focus,

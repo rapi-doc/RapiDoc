@@ -5,13 +5,23 @@ export default class EndPoints extends LitElement {
   render() {
     return html`
     ${this.paths.map(
-      path => html`<end-point server="${this.server}" layout="${this.layout}" .path=${path}> </end-point>`
+      path => html`<end-point 
+        server="${this.server}" 
+        api-key-name="${this.apiKeyName}" 
+        api-key-value="${this.apiKeyValue}" 
+        api-key-location="${this.apiKeyLocation}" 
+        layout="${this.layout}" 
+        .path=${path}
+      > </end-point>`
     )}`
   }
 
   static get properties() {
     return {
-      server: {type: String},
+      server        : { type: String },
+      apiKeyName    : { type: String, attribute: 'api-key-name' },
+      apiKeyValue   : { type: String, attribute: 'api-key-value' },
+      apiKeyLocation: { type: String, attribute: 'api-key-location' },
       layout: {type: String},
       paths : {type: Object}
     };
