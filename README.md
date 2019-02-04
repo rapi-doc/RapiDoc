@@ -18,7 +18,7 @@ Custom Eelement for Open-API spec viewing
 - Allows Personalization, Branding 
 - Dark and Light Theme
 - Easy to use. No build or framework needed
-- Lightweight and Fast (under 150 KB gzipped)
+- Lightweight and Fast (under 125 KB gzipped)
 - Works with React, Angular and Vue
 - Supported on Chrome, FireFox and Safari. (Not yet tested on Edge)
 
