@@ -1,9 +1,12 @@
 <img alt="MrinDoc logo" src="https://github.com/mrin9/RapiDoc/blob/master/logo.png" width="60px" />
 
-<img src="https://badgen.net/badge/license/MIT/blue">
-[![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/rapidoc)
 
-
+<p align="center">
+    <img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square"/>
+    <a href="https://www.webcomponents.org/element/rapidoc" alt="published on webcomponents.org">
+        <img src="https://img.shields.io/badge/webcomponents.org-rapidoc-blue.svg?style=flat-square"/>
+    </a>
+</p>        
 
 # RapiDoc
 Custom Eelement for Open-API spec viewing
