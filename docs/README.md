@@ -18,14 +18,16 @@ No Build steps!, No Frameworks!, Just copy the below script in an html, and open
 
 ### Use in a HTML/JS based project 
 
-1. In your project folder, install rapidoc from npm.
+- In your project folder, install rapidoc from npm.
 ```bash
 npm install --save rapidoc 
+
+#only needed you dont have a local webserver
 npm install http-server -g 
 ```  
 
-2. create an `index.html` file
-```bash
+- create an `index.html` file
+```html
 <html>
 <head>
     <meta charset="utf-8">
@@ -39,12 +41,12 @@ npm install http-server -g
 </html>
 ```
 
-3. serve the file in a local web server 
+- serve the file in a local web server 
 ```bash
   http-server -p 9000
 ```
 
-4. in your browser visit ```http://localhost:9000/index.html```
+- in your browser visit ```http://localhost:9000/index.html```
 
 
 ## Branding, Styling and Personalization
