@@ -1,5 +1,7 @@
 ## Easy Usage
 No Build steps!, No Frameworks!, Just copy the below script in an html, and open it in a browser !!!
+
+### Use from CDN
 ```html
 <html>
   <head>
@@ -13,6 +15,39 @@ No Build steps!, No Frameworks!, Just copy the below script in an html, and open
   </body>  
 </html>
 ```
+
+### Use in a HTML/JS based project 
+
+1. From your project folder, install the rapidoc from npm.
+```shell
+  npm install --save rapidoc 
+
+  # install a web-server (needed only if you dont have one)
+  npm install http-server -g 
+```  
+
+2. create an `index.html` file
+```html
+<html>
+<head>
+    <meta charset="utf-8">
+    <script type="module" src="./node_modules/rapidoc/dist/rapidoc-min.js"></script>
+</head>
+<body>
+    <rapi-doc 
+      spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json" 
+    ></rapi-doc>
+</body>
+</html>
+
+```
+3. serve the file in a local web server 
+```shell
+  http-server -p 9000
+```
+
+4. in your browser visit ```http://localhost:9000/index.html```
+
 
 ## Branding, Styling and Personalization
 Style the element using standard `css`. Apply borders, padding, width, height etc in accordance to your brand requierment. You can also use many attributes to effect the interface.

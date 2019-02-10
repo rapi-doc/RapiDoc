@@ -1,6 +1,6 @@
 {
   "name": "rapidoc",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "description": "RapiDoc - Open API spec viewer with built in console",
   "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
   "repository": {
@@ -20,7 +20,7 @@
     "Web Component",
     "rapidoc"
   ],
-  "main":"rapidoc.js",
+  "main": "rapidoc.js",
   "module": "rapidoc.js",
   "dependencies": {
     "json-schema-ref-parser": "^6.0.3",

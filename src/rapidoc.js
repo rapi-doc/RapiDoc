@@ -14,7 +14,7 @@ import marked from 'marked';
 import clonedeep from 'lodash.clonedeep';
 import debounce  from 'lodash.debounce';
 
-class RapiDoc extends LitElement {
+export default class RapiDoc extends LitElement {
 
   render() {
     return html`
@@ -316,5 +316,4 @@ class RapiDoc extends LitElement {
 
     }
 }
-
 customElements.define('rapi-doc', RapiDoc);
