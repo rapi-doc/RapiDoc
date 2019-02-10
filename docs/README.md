@@ -25,7 +25,7 @@ npm install http-server -g
 ```  
 
 2. create an `index.html` file
-```
+```bash
 <html>
 <head>
     <meta charset="utf-8">
