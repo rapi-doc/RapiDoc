@@ -19,6 +19,7 @@ No Build steps!, No Frameworks!, Just copy the below script in an html, and open
 ### Use in a HTML/JS based project 
 
 1. In your project folder, install rapidoc from npm.
+
 ```bash
 npm install --save rapidoc 
 
@@ -27,6 +28,7 @@ npm install http-server -g
 ```  
 
 2. create an `index.html` file
+
 ```html
 <html>
 <head>
@@ -42,6 +44,7 @@ npm install http-server -g
 ```
 
 3. serve the file in a local web server 
+
 ```bash
   http-server -p 9000
 ```
