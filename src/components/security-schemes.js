@@ -6,7 +6,7 @@ import FontStyles from '@/styles/font-styles';
 import TableStyles from '@/styles/table-styles';
 import InputStyles from '@/styles/input-styles';
 
-// Create your custom component
+
 export default class SecuritySchemes extends LitElement {
   render() {
     return html`

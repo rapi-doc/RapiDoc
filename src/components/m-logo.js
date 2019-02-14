@@ -1,6 +1,5 @@
 import { LitElement, html } from 'lit-element'; 
 
-// Create your custom component
 export default class MLogo extends LitElement {
   render() {
     return html`

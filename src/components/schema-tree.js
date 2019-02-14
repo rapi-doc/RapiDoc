@@ -2,7 +2,7 @@ import { LitElement, html } from 'lit-element';
 import vars from '@/styles/vars';
 import marked from 'marked';
 import {unsafeHTML} from 'lit-html/directives/unsafe-html.js';
-// Create your custom component
+
 export default class SchemaTree extends LitElement {
   render() {
     return html`

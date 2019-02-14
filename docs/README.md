@@ -130,12 +130,15 @@ Style the element using standard `css`. Apply borders, padding, width, height et
   > </rapi-doc>
 ```
 
-- [Compact Mode (Request/Response one below the other)](example4.html)
+- [Integrate with any HTML document (Request/Response one below the other)](example4.html)
 ```html
   <rapi-doc 
     spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
     theme='dark' 
     show-header='false'
+    show-info='false'
+    show-authentication='false'
+    theme='dark' 
     layout="column"
   > </rapi-doc>
 ```

@@ -1,6 +1,6 @@
 import { LitElement, html } from 'lit-element'; 
 import EndPoint from '@/components/end-point'; 
-// Create your custom component
+
 export default class EndPoints extends LitElement {
   render() {
     return html`

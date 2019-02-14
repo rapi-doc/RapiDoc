@@ -7,7 +7,6 @@ import TableStyles from '@/styles/table-styles';
 import InputStyles from '@/styles/input-styles';
 import SchemaTree from '@/components/schema-tree'; 
 
-// Create your custom component
 export default class ApiResponse extends LitElement {
   render() {
     return html`

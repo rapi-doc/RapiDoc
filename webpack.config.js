@@ -7,9 +7,7 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 const path = require('path');
 
 module.exports = {
-    entry: {
-        app: './src/index.js'
-    },
+    entry: './src/index.js',
     node: {fs: 'empty'},
     externals: {
         esprima: 'esprima'

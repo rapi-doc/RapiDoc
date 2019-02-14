@@ -47,23 +47,30 @@
         }
         else if(attr==="spec-url"){
           arr = [
-           "https://api.apis.guru/v2/specs/amazonaws.com/acm/2015-12-08/swagger.json"
-          ,"https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json", 
-          ,"https://api.apis.guru/v2/specs/appveyor.com/0.20181229.0/swagger.json"
-          ,"https://raw.githubusercontent.com/APIs-guru/unofficial_openapi_specs/master/github.com/v3/swagger.yaml"
-          ,"https://api.apis.guru/v2/specs/box.com/content/2.0/swagger.json"
-          ,"https://api.apis.guru/v2/specs/twilio.com/2010-04-01/swagger.json"
-          ,"https://raw.githubusercontent.com/OAI/OpenAPI-Specification/master/examples/v3.0/uspto.yaml"
-          ,"https://api.apis.guru/v2/specs/stackexchange.com/2.0/swagger.json"
-          ,"https://api.apis.guru/v2/specs/cisco.com/0.0.3/swagger.json"
-          ,"https://api.apis.guru/v2/specs/googleapis.com/drive/v3/swagger.json"
-          ,"https://api.apis.guru/v2/specs/azure.com/workloadmonitor-Microsoft.WorkloadMonitor/2018-08-31-preview/swagger.json"
-        ];
+             "https://petstore.swagger.io/v2/swagger.json" 
+            ,"https://api.apis.guru/v2/specs/amazonaws.com/acm/2015-12-08/swagger.json"
+            ,"https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json", 
+            ,"https://api.apis.guru/v2/specs/appveyor.com/0.20181229.0/swagger.json"
+            ,"https://api.apis.guru/v2/specs/github.com/v3/swagger.json"
+            ,"https://api.apis.guru/v2/specs/box.com/content/2.0/swagger.json"
+            ,"https://api.apis.guru/v2/specs/twilio.com/2010-04-01/swagger.json"
+            ,"https://api.apis.guru/v2/specs/amadeus.com/1.2/swagger.json"
+            ,"https://api.apis.guru/v2/specs/stackexchange.com/2.0/swagger.json"
+            ,"https://api.apis.guru/v2/specs/cisco.com/0.0.3/swagger.json"
+            ,"https://api.apis.guru/v2/specs/googleapis.com/drive/v3/swagger.json"
+            ,"https://api.apis.guru/v2/specs/azure.com/workloadmonitor-Microsoft.WorkloadMonitor/2018-08-31-preview/swagger.json"
+          ];
         }
         else{
           return;
         }
-        getRapiDoc().setAttribute(attr, arr[rand] );
+
+        if (arr[rand]){
+          getRapiDoc().setAttribute(attr, arr[rand] );
+        }
+        else{
+          getRapiDoc().setAttribute(attr, arr[0] );
+        }
       }
     
       function changeLayout(){
@@ -84,9 +91,11 @@
       function toggleTheme(){
         if (getRapiDoc().getAttribute('theme') === 'dark'){
           getRapiDoc().setAttribute('theme',"light");
+          document.getElementById("btnContainer").style.backgroundColor="#fff";
         }
         else{
           getRapiDoc().setAttribute('theme',"dark");
+          document.getElementById("btnContainer").style.backgroundColor="#333";
         }
       }
     
@@ -99,12 +108,14 @@
   <body>
 
     <div style="display:flex">
-      <div style="width:64px; background-color:#efefef">
+      <div id="btnContainer" style="width:64px; background-color:#fff">
         <button class="btn" onclick="changeAttr('header-color')">Change Header Color</button>
         <button class="btn" onclick="toggleAttr('show-header')">Toggle Header</button>
+        <button class="btn" onclick="toggleAttr('show-info')">Toggle Info Section</button>
+        <button class="btn" onclick="toggleAttr('show-authentication')">Toggle Auth Section</button>
+        <button class="btn" onclick="toggleAttr('show-try')">Toggle Try mode</button>
         <button class="btn" onclick="toggleTheme()">Change Theme</button>
         <button class="btn" onclick="changeAttr('heading-text')">Change Heading Text</button>
-        <button class="btn">Change Layout</button>
         <button class="btn" onclick="changeAttr('spec-url')">Change Spec URL</button>
       </div>
       <rapi-doc id="thedoc"

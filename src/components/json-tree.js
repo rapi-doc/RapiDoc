@@ -1,6 +1,6 @@
 import { LitElement, html } from 'lit-element'; 
 import vars from '@/styles/vars';
-// Create your custom component
+
 export default class JsonTree extends LitElement {
   render() {
     return html`

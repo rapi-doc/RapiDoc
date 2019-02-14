@@ -150,7 +150,7 @@ export default class RapiDoc extends LitElement {
         <div style="flex:1"></div>  
       </div>`}
       <div class="body-container regular-font">
-        ${this.showInfo==='false' || !this.resolvedSpec || !this.resolvedSpec.info ?``:html`
+        ${ (this.showInfo==='false' || !this.resolvedSpec || !this.resolvedSpec.info) ?``:html`
         <div class="doc-info">
           <div class="title">
             ${this.resolvedSpec.info.title}
@@ -166,7 +166,7 @@ export default class RapiDoc extends LitElement {
         </div>`
         }
 
-        ${(this.developerMode==='false' || !this.resolvedSpec || !this.resolvedSpec.servers || this.resolvedSpec.servers.length===0) ?``:html`
+        ${(this.showTry==='false' || !this.resolvedSpec || !this.resolvedSpec.servers || this.resolvedSpec.servers.length===0) ?``:html`
         <div class="sub-title regular-font section-gap">
           <a id="api_server_options"> API SERVER: </a>
           <div style="margin: 8px 0; font-size:12px">
@@ -178,7 +178,7 @@ export default class RapiDoc extends LitElement {
         </div>  
         `}
 
-        ${!this.resolvedSpec || !this.resolvedSpec.securitySchemes?'':html`
+        ${(this.showAuthentication==='false' || !this.resolvedSpec || !this.resolvedSpec.securitySchemes)?'':html`
         <div class="sub-title regular-font section-gap">
           <security-schemes 
             .schemes="${this.resolvedSpec.securitySchemes}" 
@@ -217,12 +217,12 @@ export default class RapiDoc extends LitElement {
         regularFont : { type: String, attribute: 'regular-font'  },
         monoFont    : { type: String, attribute: 'mono-font'   },
         showHeader  : { type: String, attribute: 'show-header' },
+        showTry : { type: String, attribute: 'show-try'  },
+        showInfo: { type: String, attribute: 'show-info' },
+        showAuthentication: { type: String, attribute: 'show-authentication' },
         layout  : { type: String },
         theme   : { type: String },
         logoUrl : { type: String , attribute: 'logo-url'  },
-        showTry : { type: Boolean, attribute: 'show-try'  },
-        showInfo: { type: Boolean, attribute: 'show-info' },
-        showAuthentication: { type: Boolean, attribute: 'show-authentication' },
         apiKeyName    : { type: String, attribute: 'api-key-name' },
         apiKeyValue   : { type: String, attribute: 'api-key-value' },
         apiKeyLocation: { type: String, attribute: 'api-key-location' },

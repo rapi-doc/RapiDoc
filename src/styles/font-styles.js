@@ -7,12 +7,12 @@ export default html`
     .mono-font{font-family:var(--font-mono);}
     .title{font-size:32px;}
     .sub-title{font-size: 18px;}
-    h1{ font-family:var(--font-regular); font-size:20px; font-weight:200; letter-spacing:normal; }
-    h2{ font-family:var(--font-regular); font-size:18px; font-weight:200; letter-spacing:normal; }
-    h3{ font-family:var(--font-regular); font-size:16px; font-weight:200; letter-spacing:normal; }
-    h4{ font-family:var(--font-regular); font-size:15px; font-weight:200; letter-spacing:normal; }
-    h5{ font-family:var(--font-regular); font-size:14px; font-weight:200; letter-spacing:normal; }
-    h6{ font-family:var(--font-regular); font-size:14px; font-weight:200; letter-spacing:normal; }
+    h1{ font-family:var(--font-regular); font-size:20px; letter-spacing:normal; }
+    h2{ font-family:var(--font-regular); font-size:18px; letter-spacing:normal; }
+    h3{ font-family:var(--font-regular); font-size:16px; letter-spacing:normal; }
+    h4{ font-family:var(--font-regular); font-size:15px; letter-spacing:normal; }
+    h5{ font-family:var(--font-regular); font-size:14px; letter-spacing:normal; }
+    h6{ font-family:var(--font-regular); font-size:14px; letter-spacing:normal; }
 
     h1,h2,h3,h4,h5,h5{
       margin-block-end: 0.2em;
@@ -30,6 +30,7 @@ export default html`
         line-height:normal;
         margin-top:0;
     }
+    .m-markdown li,
     .m-markdown p{
         line-height:16px;
         font-size:14px;

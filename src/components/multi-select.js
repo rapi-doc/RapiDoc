@@ -1,5 +1,5 @@
 import { LitElement, html } from 'lit-element'; 
-// Create your custom component
+
 export default class MultiSelect extends LitElement {
   render() {
     return html`

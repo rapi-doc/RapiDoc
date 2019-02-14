@@ -6,7 +6,6 @@ import ApiRequest from '@/components/api-request';
 import ApiResponse from '@/components/api-response'; 
 import FontStyles from '@/styles/font-styles';
 
-// Create your custom component
 export default class EndPoint extends LitElement {
   render() {
     return html`
