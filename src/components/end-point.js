@@ -88,7 +88,7 @@ export default class EndPoint extends LitElement {
         overflow: hidden;
         text-overflow: ellipsis;
       }
-      .head .depricated{
+      .head .deprecated{
         text-decoration: line-through red;
       }
 
@@ -151,8 +151,8 @@ export default class EndPoint extends LitElement {
       <!-- Endpoint Head -->
       <div @click="${this.toggleExpand}" class='head ${this.path.method} ${this.path.expanded?'expanded':'collapsed'}'>
         <div class="method ${this.path.method}" > ${this.path.method} </div> 
-        <div class="path ${this.path.depricated?'depricated':''}"> ${this.path.path} </div>
-          ${this.path.depricated?html`<span style="font-size:12px; text-transform:uppercase; font-weight:bold; color:orangered; margin:2px 0 0 5px;"> Depricated </span>`:''}
+        <div class="path ${this.path.deprecated?'deprecated':''}"> ${this.path.path} </div>
+          ${this.path.deprecated?html`<span style="font-size:12px; text-transform:uppercase; font-weight:bold; color:orangered; margin:2px 0 0 5px;"> deprecated </span>`:''}
         <div style="min-width:60px; flex:1"></div>
         <div class="descr"> ${this.path.summary} </div>
       </div>
