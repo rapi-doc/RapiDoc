@@ -217,7 +217,7 @@ npm install http-server -g
 ## Slots
 <table>
   <tr><th>Slot Name</th> <th>Description </th></tr>
-  <tr><td>(default)</td> <td>any content placed inside `<rapi-doc>` will be shown under the header </td> </tr>
+  <tr><td>(default)</td> <td>any content placed inside <`rapi-doc`> will be shown under the header </td> </tr>
   <tr><td>logo</td> <td>use this slot to replace the logo </td> </tr>
   <tr><td>footer</td> <td> The conents of this slot will appear at the bottom of the spec</td> </tr>
 </table>  
