@@ -124,7 +124,7 @@ export default function ProcessSpec(specUrl){
                         "parameters"  : finalParameters,
                         "servers"     : fullPath.servers ? commonPathProp.servers.concat(fullPath.servers):commonPathProp.servers,
                         "responses"   : fullPath.responses,
-                        "depricated"  : fullPath.deprecated,
+                        "deprecated"  : fullPath.deprecated,
                         "security"    : fullPath.security,
                         "commonSummary"     : commonPathProp.summary,
                         "commonDescription" : commonPathProp.description,

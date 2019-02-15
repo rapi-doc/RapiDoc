@@ -135,7 +135,7 @@ function schemaToModel (schema, obj) {
                 let overrideAttrib = { 
                     "readOnly":schema.readOnly, 
                     "writeOnly":schema.writeOnly, 
-                    "depricated":schema.deprecated
+                    "deprecated":schema.deprecated
                 };
                 return `${ getTypeInfo(schema.allOf[0],overrideAttrib) }~|~${schema.description?schema.description:''}`
             }
