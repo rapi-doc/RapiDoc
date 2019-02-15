@@ -49,6 +49,7 @@ Custom Eelement for Open-API spec viewing
 - &#128077; Get the bundle size even smaller (~ 125 Kb gzipped)
 - &#128077; Provide a console to try out the APIs
 - &#128077; HTTP and Token based Authentication process
+- &#128077; Allow replacing default logo
+- &#128077; Allow embeding custom HTML content 
 - Enable OAuth
 - Search API Functionality
-- Allow replacing logo
