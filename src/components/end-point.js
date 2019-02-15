@@ -180,6 +180,7 @@ export default class EndPoint extends LitElement {
             api-key-location="${this.apiKeyLocation}" 
             .parameters="${this.path.parameters}" 
             .request_body="${this.path.requestBody}"
+            show-try="${this.showTry}"
           ></api-request>
           <api-response class="response" .responses="${this.path.responses}"></api-response>
         </div>
@@ -191,12 +192,13 @@ export default class EndPoint extends LitElement {
 
   static get properties() {
     return {
-      server        : {type:String},
+      server        : { type:String },
       apiKeyName    : { type: String, attribute: 'api-key-name' },
       apiKeyValue   : { type: String, attribute: 'api-key-value' },
       apiKeyLocation: { type: String, attribute: 'api-key-location' },
-      layout: {type:String},
-      path  : {type:Object}
+      layout : { type:String },
+      path   : { type:Object },
+      showTry: { type: String, attribute: 'show-try' },
     };
   }
 

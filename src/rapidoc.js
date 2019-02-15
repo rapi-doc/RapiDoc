@@ -138,7 +138,9 @@ export default class RapiDoc extends LitElement {
       ${this.showHeader==='false'?'':html`
       <div class="row header regular-font" style="padding:8px 4px 8px 4px;min-height:48px;position:sticky;top:0;">
         <div style="display:flex; align-items: center;">
-          <m-logo style="height:36px;width:36px;margin-left:5px"></m-logo>
+          <slot name="logo" style="height:36px;width:36px;margin-left:5px">
+            <m-logo style="height:36px;width:36px;margin-left:5px"></m-logo>
+          </slot>  
           <div class="header-title">${this.headingText}</div>
         </div>  
         <div style="margin: 0px 8px;display:flex">
@@ -149,7 +151,9 @@ export default class RapiDoc extends LitElement {
         </div>
         <div style="flex:1"></div>  
       </div>`}
+
       <div class="body-container regular-font">
+        <slot></slot>
         ${ (this.showInfo==='false' || !this.resolvedSpec || !this.resolvedSpec.info) ?``:html`
         <div class="doc-info">
           <div class="title">
@@ -200,9 +204,11 @@ export default class RapiDoc extends LitElement {
               api-key-location = "${this.apiKeyLocation?this.apiKeyLocation:''}"
               layout           = "${this.layout?this.layout:'row'}"
               .paths           = "${tag.paths}" 
+              show-try         = "${this.showTry}"
             ></end-points>
           `)}`
         :''}
+        <slot name="footer"></slot>
       </div>  
     `}
 
@@ -217,8 +223,8 @@ export default class RapiDoc extends LitElement {
         regularFont : { type: String, attribute: 'regular-font'  },
         monoFont    : { type: String, attribute: 'mono-font'   },
         showHeader  : { type: String, attribute: 'show-header' },
-        showTry : { type: String, attribute: 'show-try'  },
-        showInfo: { type: String, attribute: 'show-info' },
+        showTry     : { type: String, attribute: 'show-try'  },
+        showInfo    : { type: String, attribute: 'show-info' },
         showAuthentication: { type: String, attribute: 'show-authentication' },
         layout  : { type: String },
         theme   : { type: String },

@@ -12,6 +12,7 @@ export default class EndPoints extends LitElement {
         api-key-location="${this.apiKeyLocation}" 
         layout="${this.layout}" 
         .path=${path}
+        show-try="${this.showTry}" 
       > </end-point>`
     )}`
   }
@@ -22,8 +23,9 @@ export default class EndPoints extends LitElement {
       apiKeyName    : { type: String, attribute: 'api-key-name' },
       apiKeyValue   : { type: String, attribute: 'api-key-value' },
       apiKeyLocation: { type: String, attribute: 'api-key-location' },
-      layout: {type: String},
-      paths : {type: Object}
+      layout : { type: String },
+      paths  : { type: Object },
+      showTry: { type: String, attribute: 'show-try' },
     };
   }
 }

@@ -96,7 +96,7 @@ export default class ApiRequest extends LitElement {
       ${this.requestBodyTemplate()}
       ${this.inputParametersTemplate('header')}
       ${this.inputParametersTemplate('cookie')}
-      ${this.apiCallTemplate()}
+      ${this.showTry==='false'?'':html`${this.apiCallTemplate()}`}
     </div>
     `
   }
@@ -126,6 +126,8 @@ export default class ApiRequest extends LitElement {
       responseHeaders: { type: String, attribute:false },
       responseStatus : { type: String, attribute:false },
       responseUrl    : { type: String, attribute:false },
+      showTry        : { type: String, attribute: 'show-try'  },
+
     };
   }
 
@@ -278,7 +280,7 @@ export default class ApiRequest extends LitElement {
   apiCallTemplate(){
     return html`
     <div style="display:flex; align-items: center; margin:16px 0; font-size:12px;">
-      <div style="display:flex; flex-direction:column; margin:0 5px; width:calc(100% - 50px);">
+      <div style="display:flex; flex-direction:column; margin:0; width:calc(100% - 60px);">
         <div style="display:flex;flex-direction:row;overflow:hidden;"> <div style="font-weight:bold;">API_Server: </div> 
           ${this.server?html`${this.server}`
           : html`<div style="font-weight:bold;color:var(--error-color)">Not Set</div>`}
@@ -289,18 +291,22 @@ export default class ApiRequest extends LitElement {
             send <div style="font-family:var(--font-mono); color:var(--fg)"> '${this.apiKeyName}' </div>
             in<div style="font-family:var(--font-mono); color:var(--fg)"> '${this.apiKeyLocation}' </div>
             with value<div style="font-family:var(--font-mono); color:var(--fg)"> '${this.apiKeyValue.substring(0,3)+"***" }' </div>`
-          :html`<div style="font-weight:bold;color:var(--error-color)">No Authentication</div>`}
+          :html`<div style="color:var(--light-fg)">No Authentication Token provided</div>`}
         </div>
       </div>
-      <button class="m-btn" @click="${this.onTryClick}">TRY</button>
+      <button class="m-btn" style="padding: 6px 0px;width:60px" @click="${this.onTryClick}">TRY</button>
     </div>
     ${this.responseMessage===''?'':html`
+    <div class="row" style="font-size:12px; margin:5px 0">
+      <div class="response-message ${this.responseStatus}">Response Status: ${this.responseMessage}</div>
+      <div style="flex:1"></div>
+      <button class="m-btn" style="padding: 6px 0px;width:60px" @click="${this.clearResponseData}">CLEAR</button>
+
+    </div>
     <div class="tab-panel col" style="border-width:0; min-height:200px">
       <div id="tab_buttons" class="tab-buttons row" @click="${this.activateTab}">
-        <button class="tab-btn active" content_id="tab_response_text"> RESPONSE </button>
+        <button class="tab-btn active" content_id="tab_response_text"> RESPONSE TEXT</button>
         <button class="tab-btn" content_id="tab_response_headers"> RESPONSE HEADERS</button>
-        <div style="flex:1"></div>
-        <button class="m-btn" style='margin-bottom:5px' @click="${this.clearResponseData}">CLEAR</button>
       </div>
       <div id="tab_response_text" class="tab-content col" style="flex:1; ">
         <textarea class="mono" style="min-height:180px; padding:16px; white-space:nowrap;"> ${this.responseText} </textarea>
@@ -349,9 +355,7 @@ export default class ApiRequest extends LitElement {
     let formParamEls   = [...requestPanelEl.querySelectorAll(".request-form-param")];
     let bodyParamEls   = [...requestPanelEl.querySelectorAll(".request-body-param")];
 
-    let apiServer = this.shadowRoot.querySelector("input[name='api_server']:checked");
-
-    let url = me.path;
+    let fetchUrl = me.path;
     let fetchOptions={
       'mode'   : "cors",
       'method' : this.method.toUpperCase(),
@@ -360,7 +364,7 @@ export default class ApiRequest extends LitElement {
 
     //Path Params
     pathParamEls.map(function(el){
-      url = url.replace("{"+el.dataset.pname+"}", el.value);
+      fetchUrl = fetchUrl.replace("{"+el.dataset.pname+"}", el.value);
     });
 
     //Query Params
@@ -369,14 +373,14 @@ export default class ApiRequest extends LitElement {
       queryParamEls.map(function(el){
         queryParam.append(el.dataset.pname, el.value);
       })
-      url = `${url}?${queryParam.toString()}`;
+      fetchUrl = `${fetchUrl}?${queryParam.toString()}`;
     }
     
     // Add authentication Query if provided 
     if (this.apiKeyValue && this.apiKeyName && this.apiKeyLocation==='query'){
-      url = `${url}&${this.apiKeyName}=${this.apiKeyValue}`;
+      fetchUrl = `${fetchUrl}&${this.apiKeyName}=${this.apiKeyValue}`;
     }
-    url = `${this.server.replace(/\/$/, "")}${url}`;
+    fetchUrl = `${this.server.replace(/\/$/, "")}${fetchUrl}`;
 
     //Header Params
     headerParamEls.map(function(el){
@@ -435,7 +439,7 @@ export default class ApiRequest extends LitElement {
     me.responseStatus  = 'success';
     me.responseMessage = ''
 
-    fetch(url,fetchOptions).then(function(resp){
+    fetch(fetchUrl,fetchOptions).then(function(resp){
       me.responseStatus  = resp.ok ? 'success':'error';
       me.responseMessage = `${resp.statusText}:${resp.status}`;
       me.responseUrl     = resp.url;

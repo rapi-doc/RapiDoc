@@ -1,0 +1,127 @@
+<!doctype html>
+  <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-132775238-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-132775238-1');
+    </script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+    <style>
+      .btn{
+        width: 60px;
+        height: 60px;
+        background-color: #ff6961;
+        color: #fff;
+        font-size: 12px;
+        display: block;
+        border: none;
+        margin: 2px;
+        border-radius: 2px;
+        cursor:pointer;
+        outline:none;
+      }
+      rapi-doc{
+        width:100%;
+      }
+    </style>
+    <script type="text/javascript" src="rapidoc-min.js"></script>
+    <script>
+      function getRapiDoc(){
+        return document.getElementById("thedoc");
+      }  
+      function changeAttr(attr){
+        let arr=[];
+        let rand = Math.floor(Math.random() * 10);
+
+        if (attr==="heading-text"){
+          arr = ['SPIDER-MAN', "IRON-MAN", "BLACK-PANTHER", "RapiDoc", "SUPER-MAN", "BAT-MAN", "JOKER", "WONDER-WOMAN", "SUPER-GIRL", "CAT-WOMAN", "LARA-CROFT"];
+        }
+        else if (attr==="header-color"){
+          arr = ['#2d87e2', "#ff6961", "#34A853", "#FBBC05", "#66757F", "#FFFFFF", "#3B5998", "#8B9DC3", "#7CBB00", "#7B0099", " #FF9900"];
+          getRapiDoc().setAttribute('primary-color', arr[rand] );
+        }
+        else if(attr==="spec-url"){
+          arr = [
+             "https://petstore.swagger.io/v2/swagger.json" 
+            ,"https://api.apis.guru/v2/specs/amazonaws.com/acm/2015-12-08/swagger.json"
+            ,"https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json", 
+            ,"https://api.apis.guru/v2/specs/appveyor.com/0.20181229.0/swagger.json"
+            ,"https://api.apis.guru/v2/specs/github.com/v3/swagger.json"
+            ,"https://api.apis.guru/v2/specs/box.com/content/2.0/swagger.json"
+            ,"https://api.apis.guru/v2/specs/twilio.com/2010-04-01/swagger.json"
+            ,"https://api.apis.guru/v2/specs/amadeus.com/1.2/swagger.json"
+            ,"https://api.apis.guru/v2/specs/stackexchange.com/2.0/swagger.json"
+            ,"https://api.apis.guru/v2/specs/cisco.com/0.0.3/swagger.json"
+            ,"https://api.apis.guru/v2/specs/googleapis.com/drive/v3/swagger.json"
+            ,"https://api.apis.guru/v2/specs/azure.com/workloadmonitor-Microsoft.WorkloadMonitor/2018-08-31-preview/swagger.json"
+          ];
+        }
+        else{
+          return;
+        }
+
+        if (arr[rand]){
+          getRapiDoc().setAttribute(attr, arr[rand] );
+        }
+        else{
+          getRapiDoc().setAttribute(attr, arr[0] );
+        }
+      }
+    
+      function changeLayout(){
+        let currLayout = getRapiDoc().getAttribute('layout');
+        let newLayout = currLayout==="row"?"column":"row";
+        getRapiDoc().setAttribute('layout', newLayout );
+      }
+
+      function toggleAttr(attr){
+        if (getRapiDoc().getAttribute(attr) === 'false'){
+          getRapiDoc().setAttribute(attr,"true");
+        }
+        else{
+          getRapiDoc().setAttribute(attr,"false");
+        }
+      }
+    
+      function toggleTheme(){
+        if (getRapiDoc().getAttribute('theme') === 'dark'){
+          getRapiDoc().setAttribute('theme',"light");
+          document.getElementById("btnContainer").style.backgroundColor="#fff";
+        }
+        else{
+          getRapiDoc().setAttribute('theme',"dark");
+          document.getElementById("btnContainer").style.backgroundColor="#333";
+        }
+      }
+    
+    
+      </script>
+    
+
+
+  </head>
+  <body>
+
+    <div style="display:flex">
+      <div id="btnContainer" style="width:64px; background-color:#fff">
+        <button class="btn" onclick="changeAttr('header-color')">Change Header Color</button>
+        <button class="btn" onclick="toggleAttr('show-header')">Toggle Header</button>
+        <button class="btn" onclick="toggleAttr('show-info')">Toggle Info Section</button>
+        <button class="btn" onclick="toggleAttr('show-authentication')">Toggle Auth Section</button>
+        <button class="btn" onclick="toggleAttr('show-try')">Toggle Try mode</button>
+        <button class="btn" onclick="toggleTheme()">Change Theme</button>
+        <button class="btn" onclick="changeAttr('heading-text')">Change Heading Text</button>
+        <button class="btn" onclick="changeAttr('spec-url')">Change Spec URL</button>
+      </div>
+      <rapi-doc id="thedoc"
+        spec-url="https://api.apis.guru/v2/specs/azure.com/workloadmonitor-Microsoft.WorkloadMonitor/2018-08-31-preview/swagger.json"
+        > 
+      </rapi-doc>
+    </div>
+  </body>
+</html>
