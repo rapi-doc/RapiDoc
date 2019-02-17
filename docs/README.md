@@ -128,6 +128,7 @@ Just copy the below script in an html, and open it in a browser !!!
 
 
 - [Change Attributes using JavaScript](example100.html)
+
 use javascript `Element.setAttribute()` to change the elements attributes and see it reacts to those changes
 
 ### Use in a HTML/JS based project 
