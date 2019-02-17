@@ -32,9 +32,9 @@ function getTypeInfo(schema, overrideAttributes=null, inSingleLine=true){
     if (schema.enum){
         let opt=""
         schema.enum.map(function(v){
-            opt = opt + v + ", "
+            opt = `${opt}${v}┃ `
         });
-        html = `enum:\u3014 ${opt.slice(0,-2)} \u3015`
+        html = `enum:(${opt.slice(0,-2)})`
     }
     else if (schema.type){
         html = html + schema.type ;
@@ -46,11 +46,11 @@ function getTypeInfo(schema, overrideAttributes=null, inSingleLine=true){
             //html = html+" ( " + (schema.exclusiveMinimum?"> ":"") + schema.minimum + " to " +  (schema.exclusiveMaximum?"< ":"") + schema.maximum + " )";
         }
         else if (schema.minimum!==undefined && schema.maximum===undefined){
-            html = `${html} (${schema.exclusiveMinimum?">":"\u2265"}${schema.minimum})`
+            html = `${html} (${schema.exclusiveMinimum?">":"≥"}${schema.minimum})`
             //html = html+" ( " + (schema.exclusiveMinimum?"> ":">=") + schema.minimum + " )";
         }
         else if (schema.minimum===undefined && schema.maximum!==undefined){
-            html = `(${schema.exclusiveMaximum?"<":"\u2264"}${schema.maximum})`
+            html = `(${schema.exclusiveMaximum?"<":"≤"}${schema.maximum})`
             //html = html+" ( " + (schema.exclusiveMaximum?"< ":"<=") + schema.maximum + " )";
         }
         if (schema.multipleOf!==undefined){

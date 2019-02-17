@@ -43,7 +43,12 @@
         }
         else if (attr==="header-color"){
           arr = ['#2d87e2', "#ff6961", "#34A853", "#FBBC05", "#66757F", "#FFFFFF", "#3B5998", "#8B9DC3", "#7CBB00", "#7B0099", " #FF9900"];
-          getRapiDoc().setAttribute('primary-color', arr[rand] );
+          if (arr[rand] !== '#FFFFFF'){
+            getRapiDoc().setAttribute('primary-color', arr[rand] );
+          }
+          else{
+            getRapiDoc().setAttribute('primary-color', '#FF3D00' );
+          }
         }
         else if(attr==="spec-url"){
           arr = [

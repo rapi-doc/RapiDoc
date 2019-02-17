@@ -93,11 +93,14 @@ export default class SchemaTree extends LitElement {
       if (Object.keys(data).length===0){
         return html`${ (Array.isArray(data)?'[ ]':'{ }') }`
       }
-      if (Object.keys(data).length===1 && Object.keys(data)[0]===':description'){
-        return html`${ (Array.isArray(data)?'[ ]':'{ }') } <span class='obj-descr'> ${data[':description']} </span>`
+      if ((Object.keys(data).length===1) && Object.keys(data)[0]===':description' ){
+        return html`{ } <span class='obj-descr'> ${data[':description']} </span>`
+      }
+      if (detailType==='array' && data[0]==='~|~' ){
+        return html`[ ]`
       }
       return html`
-      <div class="left-bracket expanded ${detailType==='array'?'array':'object'} " @click="${this.toggleExpand}" > ${detailType==='array'?'[':'{'}</div>
+      <div class="left-bracket expanded ${detailType==='array'?'array':'object'} " @click="${this.toggleExpand}" > ${detailType==='array'?`[`:'{'}</div>
         ${data[':description']?html`<span class='obj-descr obj-content-part'> ${data[':description']} </span>`:''}
         <div class="inside-bracket obj-content-part" >
         ${Object.keys(data).map(
