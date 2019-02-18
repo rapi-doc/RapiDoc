@@ -45,14 +45,14 @@ Just copy the below script in an html, and open it in a browser !!!
 
 ### Demo & Examples
 
-- [Basic Example](example1.html)
+- Basic Example [Demo](example1.html)
 ```html
   <rapi-doc 
     spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
   > </rapi-doc>
 ```
 
-- [Dark Theme](example2.html)
+- Dark Theme [Demo](example2.html)
 ```html
   <rapi-doc 
     spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
@@ -60,7 +60,7 @@ Just copy the below script in an html, and open it in a browser !!!
   > </rapi-doc>
 ```
 
-- [Change Header Color with Dark Theme](example3.html)
+- Change Header Color with Dark Theme [Demo](example3.html)
 ```html
   <rapi-doc 
     spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
@@ -69,7 +69,7 @@ Just copy the below script in an html, and open it in a browser !!!
   > </rapi-doc>
 ```
 
-- [Integrate with any HTML document (Request/Response one below the other)](example4.html)
+- Integrate with any HTML document (Request/Response one below the other) [Demo](example4.html)
 ```html
   <rapi-doc 
     spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
@@ -82,7 +82,7 @@ Just copy the below script in an html, and open it in a browser !!!
   > </rapi-doc>
 ```
 
-- [Change Font (you may use local fonts or define your own font)](example5.html)
+- Change Font (you may use local fonts or define your own font) [Demo](example5.html)
 ```html
   <head>
     <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
@@ -95,7 +95,7 @@ Just copy the below script in an html, and open it in a browser !!!
   </body>  
 ```
 
-- [Change Logo](example6.html)
+- Change Logo [Demo](example6.html)
 ```html
   <body>  
     <rapi-doc spec-url="https://api.apis.guru/v2/specs/googleapis.com/youtube/v3/swagger.json"> 
@@ -104,7 +104,7 @@ Just copy the below script in an html, and open it in a browser !!!
   </body>  
 ```
 
-- [Add HTML content inside the spec](example7.html)
+- Add HTML content inside the spec [Demo](example7.html)
 ```html
   <body>  
     <rapi-doc spec-url="https://api.apis.guru/v2/specs/googleapis.com/youtube/v3/swagger.json"> 
@@ -128,7 +128,7 @@ Just copy the below script in an html, and open it in a browser !!!
 
 
 
-- [Change Attributes using JavaScript](example100.html)
+- Change Attributes using JavaScript [Demo](example100.html)
 
 use javascript `Element.setAttribute()` to change the elements attributes and see it reacts to those changes
 
