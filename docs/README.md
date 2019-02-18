@@ -29,6 +29,7 @@
 ### Quickstart (Use from CDN)
 Just copy the below script in an html, and open it in a browser !!!
 ```html
+<!doctype html>
 <html>
   <head>
     <meta charset="utf-8"> <!-- Important: The Custom element uses utf8 charecters -->
@@ -145,6 +146,7 @@ npm install http-server -g
 - create an `index.html` file
 
 ```html
+<!doctype html>
 <html>
 <head>
     <meta charset="utf-8">
