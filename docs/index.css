@@ -33,7 +33,8 @@ a{
 .qstart,
 .feature-list,
 .examples,
-.api{
+.api,
+.footer {
   display:flex;
   flex-wrap:wrap;
   justify-content: center;
@@ -44,6 +45,19 @@ a{
 .qstart {
   background-color: lightsteelblue;
 }
+.footer{
+  background-color: #444;
+  color:#ccc;
+}
+
+
+.footer-item{
+  padding: 5px 16px;
+}
+.footer-item a{
+  color:#ccc;
+}
+
 .feature-list{
   text-align: left;
 }
