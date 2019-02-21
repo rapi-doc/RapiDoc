@@ -1,5 +1,5 @@
 body{
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'Varela Round', sans-serif;
   font-size: 14px;
   line-height: 24px;
   color: #333;
@@ -78,26 +78,6 @@ a{
 
 .feature-info .feature-title{ font-size:18px;}
 .feature-info .feature-descr{ font-size:14px;}
-
-.card{
-  display:flex;
-  flex-direction: column;
-  max-width:300px;
-  min-width:360px;
-  flex:1;
-  border:2px solid #333;
-  border-radius:4px;
-  padding:8px;
-  margin:20px;
-}
-.card-title {font-size:18px; text-align: center}
-.card-descr {
-  font-size:13px;
-}
-.card ul{
-  padding-inline-start:20px;
-}
-
 
 .screenshot{
   display:none;

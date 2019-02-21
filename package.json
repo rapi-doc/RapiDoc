@@ -23,13 +23,13 @@
   "main": "rapidoc.js",
   "module": "rapidoc.js",
   "dependencies": {
-    "json-schema-ref-parser": "^6.0.3",
+    "json-schema-ref-parser": "^6.1.0",
     "lit-element": "2.0.1",
     "lit-html": "1.0.0",
     "lodash.clonedeep": "^4.5.0",
     "lodash.debounce": "^4.0.8",
-    "marked": "^0.6.0",
-    "swagger2openapi": "^5.2.2"
+    "marked": "^0.6.1",
+    "swagger2openapi": "^5.2.3"
   },
   "scripts": {
     "build": "webpack --mode=${NODE_ENV:-production}",
@@ -45,9 +45,9 @@
     "node-sass": "^4.11.0",
     "sass-loader": "^7.1.0",
     "style-loader": "^0.23.1",
-    "webpack": "^4.29.4",
+    "webpack": "^4.29.5",
     "webpack-bundle-analyzer": "^3.0.4",
     "webpack-cli": "^3.2.3",
-    "webpack-dev-server": "^3.1.9"
+    "webpack-dev-server": "^3.2.0"
   }
 }
