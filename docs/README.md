@@ -3,28 +3,30 @@
 ### Features
 - Supports swagger 2.0 and OpenAPI 3.0 
 - Works with any framework
-- Allows to make API calls
+- Programmatically control using JavaScript - change its attributes, and it will react to those changes
+- Integrated console to make API calls from the spec
+- Allows to load JSON spec from URL and from Local Disk
 - Better Usability, 
-  - all Models and Examples are expanded by default, eliminates the need to click and reveal.
-  - Request fields are pre-populated with sample data
+  - All models and examples are expanded by default, eliminates the need to click and reveal.
+  - Requests and Responses are pre-populated with sample data
   - Takes only one click to make an API call
-  - Request and response can be placed side-by-side for easy comparison
+- Row and Column layout supported
+  - Row: request and response placed side-by-side for easy comparison
+  - Column: request and response placed one below the other for narrow screens such as tablets
 - Branding and Personalization features makes it easy to follow any style guide
   - Comes with 2 Themes (Dark and Light)
   - Replace default logo with yours
-  - Typography, allows changing fonts
+  - Allows changing fonts (Regular and monspaced)
   - Allows changing text-color, button-color, header-color and color of other UI elements
 - Plenty of customization options 
   - Add external contents at the top and bottom of the document, you may add tables, images, link, text, forms etc
-  - Allows disabling API calling feature
-  - Hide the header so the user cant load any other OpenAPI Spec
+  - You can disable API calling feature
+  - Stop user to load any other API spec by hiding Header
   - Hide Authentication and provide your own pre-generated api-key 
-  - Embed it inside another HTML document
+  - Embed it inside another HTML document (no iframes)
   - Use it inside another framework (react, vue, angular, lit-element)
-  - Programmatically control the element using JavaScript - change its attributes, and it will react to those changes
-  - Style the element with standard css (change padding, position, border, margin )
+  - Style the element with standard css (change padding, position, border, margin)
 - Lightweight and fast (under 125 KB gzipped)
-- Load local json spec from the disk
 
 ### Quickstart (Use from CDN)
 Just copy the below script in an html, and open it in a browser !!!
@@ -129,8 +131,7 @@ Just copy the below script in an html, and open it in a browser !!!
 
 
 - Change Attributes using JavaScript ([Demo](example100.html))
-
-use javascript `Element.setAttribute()` to change the elements attributes and see it reacts to those changes
+  use javascript `Element.setAttribute()` to change the elements attributes and see it reacts to those changes
 
 ### Use in a HTML/JS based project 
 
