@@ -35,9 +35,9 @@
 <body>
   <div class="banner container" id="banner">
     <div class="header">
-      <img src="./images/logo.png" style="width:48px;height:48px" />
+      <img class="logo" src="./images/logo.png" style="width:48px;height:48px;margin-right:10px;" />
       <div class="product-name">&lt;rapi-doc&gt;</div>
-      <div style="flex:1"></div>
+      <div class="menu" style="flex:1"></div>
       <nav class="menu" onclick="goToSection(event)">
         <a class="menu-item" href="#features"> Features </a>
         <a class="menu-item" href="#qstart"> Qiuck Start </a>
@@ -144,7 +144,7 @@
   <h2> Quickstart (<a style="font-size:16px" href="./example2.html">DEMO</a>)</h2> 
   Just copy the below code and save it in an html file. Then open it using a browser 
 
-  <pre class="shadow" style="width:730px"><code class="html" style="border-radius:4px">
+  <pre class="shadow code-block"><code class="html" style="border-radius:4px">
   &lt;!doctype html&gt; &lt;!-- Important: must specify --&gt;
   &lt;html&gt;
   &lt;head&gt;
@@ -166,135 +166,139 @@
   <div class="api container" id="api">
       <div style="display:flex; flex-direction: column; ">
         <h2> Attributes</h2> 
-        <table class="m-table" style="width:730px">
-          <tr>
-            <th style="min-width:175px; text-align:right">Attribute</th>
-            <th style="text-align:left">Description </th>
-            <th style="min-width:150px; text-align:left">Default</th>
-          </tr>
-          <tr>
-            <td class="mono-bold">spec-url </td>
-            <td class="gray">url of the OpenAPI spec to view </td>
-            <td>(empty)</td>
-          </tr>
-          <tr>
-            <td class="mono-bold">server</td>
-            <td class="gray">
-              OpenAPI spec has a provision for providing the server url. The UI will list all the server URLs provided in the spec. 
-              The user can then select one URL to which he or she intends to send API calls while trying out the apis. 
-              However, if you want to provide an API server of your own which is not listed in the spec, you can use this property to provide one. 
-              It is helpful in the cases where the same spec is shared between multiple environment say Dev and Test and each have their own API server.
-            </td>
-            <td>(empty)</td>
-          </tr>
-          <tr>
-              <td class="mono-bold">show-authentication</td>
+        <div class="table-block">
+          <table class="m-table">
+            <tr>
+              <th class="attr-col">Attribute</th>
+              <th style="text-align:left">Description </th>
+              <th class="default-col">Default</th>
+            </tr>
+            <tr>
+              <td class="mono-bold">spec-url </td>
+              <td class="gray">url of the OpenAPI spec to view </td>
+              <td>(empty)</td>
+            </tr>
+            <tr>
+              <td class="mono-bold">server</td>
               <td class="gray">
-                Authentication feature, allows the user to select one of the authentication mechanism thats available in the spec.
-                It can be http-basic, http-bearer or api-key. 
-                If you dont want your users to go through the authentication process, instead want them to use a pre-generated api-key 
-                then you may hide authentication section by setting this attribute to false
-                and provide the api-key details using various api-key-???? attributes.</td>
+                OpenAPI spec has a provision for providing the server url. The UI will list all the server URLs provided in the spec. 
+                The user can then select one URL to which he or she intends to send API calls while trying out the apis. 
+                However, if you want to provide an API server of your own which is not listed in the spec, you can use this property to provide one. 
+                It is helpful in the cases where the same spec is shared between multiple environment say Dev and Test and each have their own API server.
+              </td>
+              <td>(empty)</td>
+            </tr>
+            <tr>
+                <td class="mono-bold">show-authentication</td>
+                <td class="gray">
+                  Authentication feature, allows the user to select one of the authentication mechanism thats available in the spec.
+                  It can be http-basic, http-bearer or api-key. 
+                  If you dont want your users to go through the authentication process, instead want them to use a pre-generated api-key 
+                  then you may hide authentication section by setting this attribute to false
+                  and provide the api-key details using various api-key-???? attributes.</td>
+                <td>true</td>
+              </tr>
+            <tr>
+              <td class="mono-bold">api-key-name</td>
+              <td class="gray">Name of the API key that will be send while trying out the APIs</td>
+              <td>(empty)</td>
+            </tr>
+            <tr>
+              <td class="mono-bold">api-key-value</td>
+              <td class="gray">Value of the API key that will be send while trying out the APIs</td>
+              <td>Authorization</td>
+            </tr>
+            <tr>
+              <td class="mono-bold">api-key-location</td>
+              <td class="gray">
+                determines how you want to send the api-key.
+                allowed values are <code>header</code> or <code> query </code>
+              </td>
+              <td>header</td>
+            </tr>
+            <tr>
+              <td class="mono-bold">show-try</td>
+              <td class="gray">
+                'TRY' feature allows you to make REST calls to the API server. 
+                To disable this feature set it to false 
+              </td>
               <td>true</td>
             </tr>
-          <tr>
-            <td class="mono-bold">api-key-name</td>
-            <td class="gray">Name of the API key that will be send while trying out the APIs</td>
-            <td>(empty)</td>
-          </tr>
-          <tr>
-            <td class="mono-bold">api-key-value</td>
-            <td class="gray">Value of the API key that will be send while trying out the APIs</td>
-            <td>Authorization</td>
-          </tr>
-          <tr>
-            <td class="mono-bold">api-key-location</td>
-            <td class="gray">
-              determines how you want to send the api-key.
-              allowed values are <code>header</code> or <code> query </code>
-            </td>
-            <td>header</td>
-          </tr>
-          <tr>
-            <td class="mono-bold">show-try</td>
-            <td class="gray">
-              'TRY' feature allows you to make REST calls to the API server. 
-              To disable this feature set it to false 
-            </td>
-            <td>true</td>
-          </tr>
-          <tr>
-            <td class="mono-bold">show-info</td>
-            <td class="gray">
-              show/hide the documents info section<br/>
-              Info section contains information about the spec, such as the title and description of the spec, the version, terms of services etc.
-              In certain situation you may not need to show this section. For instance you are embedding this element inside a another help document. 
-              Chances are, the help doc may already have this info, in that case you may want to hide this section.
-            </td>
-            <td>true</td>
-          </tr>
-          <tr>
-            <td class="mono-bold">show-header </td>
-            <td class="gray">show/hide the header.<br/> 
-              If you dont want your user to open any other api spec, other than the current one, then set this attribute to false</td>
-            <td>true</td>
-          </tr>
-          <tr>
-            <td class="mono-bold">heading-text </td>
-            <td class="gray">Heading Text on top-left corner </td>
-            <td>(empty)</td>
-          </tr>
-          <tr>
-            <td class="mono-bold">header-color </td>
-            <td class="gray">Hex color code for the header's background</td>
-            <td>#444444</td>
-          </tr>
-          <tr>
-            <td class="mono-bold">primary-color</td>
-            <td class="gray">Hex color code on various controls such as buttons, tabs </td>
-            <td>#FF791A</td>
-          </tr>
-          <tr>
-            <td class="mono-bold">regular-font </td>
-            <td class="gray">Font Name(s) to be used for regular text </td>
-            <td>rapidoc, Helvetica, Arial</td>
-          </tr>
-          <tr>
-            <td class="mono-bold">mono-font </td>
-            <td class="gray">Font Name(s) to be used for monospaced text </td>
-            <td>Monaco, 'Andale Mono', 'Roboto Mono'</td>
-          </tr>
-          <tr>
-            <td class="mono-bold">theme </td>
-            <td class="gray">light, dark </td>
-            <td>light</td>
-          </tr>
-          <tr>
-            <td class="mono-bold"> layout </td>
-            <td class="gray">layout helps in placement of your request/response sections.  (row, column)</td>
-            <td>row</td>
-          </tr>
-        </table>
-    
+            <tr>
+              <td class="mono-bold">show-info</td>
+              <td class="gray">
+                show/hide the documents info section<br/>
+                Info section contains information about the spec, such as the title and description of the spec, the version, terms of services etc.
+                In certain situation you may not need to show this section. For instance you are embedding this element inside a another help document. 
+                Chances are, the help doc may already have this info, in that case you may want to hide this section.
+              </td>
+              <td>true</td>
+            </tr>
+            <tr>
+              <td class="mono-bold">show-header </td>
+              <td class="gray">show/hide the header.<br/> 
+                If you dont want your user to open any other api spec, other than the current one, then set this attribute to false</td>
+              <td>true</td>
+            </tr>
+            <tr>
+              <td class="mono-bold">heading-text </td>
+              <td class="gray">Heading Text on top-left corner </td>
+              <td>(empty)</td>
+            </tr>
+            <tr>
+              <td class="mono-bold">header-color </td>
+              <td class="gray">Hex color code for the header's background</td>
+              <td>#444444</td>
+            </tr>
+            <tr>
+              <td class="mono-bold">primary-color</td>
+              <td class="gray">Hex color code on various controls such as buttons, tabs </td>
+              <td>#FF791A</td>
+            </tr>
+            <tr>
+              <td class="mono-bold">regular-font </td>
+              <td class="gray">Font Name(s) to be used for regular text </td>
+              <td>rapidoc, Helvetica, Arial</td>
+            </tr>
+            <tr>
+              <td class="mono-bold">mono-font </td>
+              <td class="gray">Font Name(s) to be used for monospaced text </td>
+              <td>Monaco, 'Andale Mono', 'Roboto Mono'</td>
+            </tr>
+            <tr>
+              <td class="mono-bold">theme </td>
+              <td class="gray">light, dark </td>
+              <td>light</td>
+            </tr>
+            <tr>
+              <td class="mono-bold"> layout </td>
+              <td class="gray">layout helps in placement of your request/response sections.  (row, column)</td>
+              <td>row</td>
+            </tr>
+          </table>
+        </div>  
+
         <h2> Slots</h2>
-        <table class="m-table" style="width:730px">
-          <tr>
-            <th >Slot Name</th>
-            <th >Description </th>
-          </tr>
-          <tr>
-            <td class="mono-bold">(default)</td>
-            <td class="gray">any content placed inside <code>&lt;rapi-doc&gt;</code> tag, will be shown immidiately under the header and above the info section </td>
-          </tr>
-          <tr>
-            <td class="mono-bold">logo</td>
-            <td class="gray">use this slot to replace the logo </td>
-          </tr>
-          <tr>
-            <td class="mono-bold">footer</td>
-            <td class="gray"> The conents of this slot will appear at the bottom of the spec</td>
-          </tr>
-        </table>
+        <div class="table-block">
+          <table class="m-table">
+            <tr>
+              <th >Slot Name</th>
+              <th >Description </th>
+            </tr>
+            <tr>
+              <td class="mono-bold">(default)</td>
+              <td class="gray">any content placed inside <code>&lt;rapi-doc&gt;</code> tag, will be shown immidiately under the header and above the info section </td>
+            </tr>
+            <tr>
+              <td class="mono-bold">logo</td>
+              <td class="gray">use this slot to replace the logo </td>
+            </tr>
+            <tr>
+              <td class="mono-bold">footer</td>
+              <td class="gray"> The conents of this slot will appear at the bottom of the spec</td>
+            </tr>
+          </table>
+        </div>
       </div>  
     </div>
   <!-- End of API -->
@@ -305,7 +309,7 @@
       <h2> Examples & Demos</h2> 
 
 <b> Basic Example  ( <a href="./example1.html">DEMO</a> ) </b>
-<pre class="shadow" style="width:730px"><code class="html" style="border-radius:4px">
+<pre class="shadow code-block"><code class="html" style="border-radius:4px">
   &lt;rapi-doc 
     spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json" 
   &gt; 
@@ -314,7 +318,7 @@
 <br/>
 
 <b> Dark Theme ( <a href="./example2.html">DEMO</a> ) </b> 
-<pre class="shadow" style="width:730px"><code class="html" style="border-radius:4px">
+<pre class="shadow code-block" ><code class="html" style="border-radius:4px">
   &lt;rapi-doc 
     spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
     theme="dark"
@@ -324,7 +328,7 @@
 <br/>
 
 <b> Change Header Color with Dark Theme ( <a href="./example3.html">DEMO</a> ) </b> 
-<pre class="shadow" style="width:730px"><code class="html" style="border-radius:4px">
+<pre class="shadow code-block" ><code class="html" style="border-radius:4px">
   &lt;rapi-doc 
     spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
     header-color="#2d87e2"
@@ -336,7 +340,7 @@
 
 
 <b>Integrate with other HTML document - No &lt;iframe&gt; ( <a href="./example4.html">DEMO</a> ) </b>
-<pre class="shadow" style="width:730px"><code class="html" style="border-radius:4px">
+<pre class="shadow code-block"><code class="html" style="border-radius:4px">
   &lt;rapi-doc 
     spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
     theme='dark' 
@@ -351,7 +355,7 @@
 <br/>
   
 <b>Change Font ( <a href="./example5.html">DEMO</a> ) </b>
-<pre class="shadow" style="width:730px"><code class="html" style="border-radius:4px">
+<pre class="shadow code-block" ><code class="html" style="border-radius:4px">
   &lt;head&gt;
     &lt;link href="https://fonts.googleapis.com/css?family=Varela+Round" 
      rel="stylesheet" &gt;
@@ -368,7 +372,7 @@
 <br/>
 
 <b>Change Logo ( <a href="./example6.html">DEMO</a> ) </b>
-<pre class="shadow" style="width:730px"><code class="html" style="border-radius:4px">
+<pre class="shadow code-block"><code class="html" style="border-radius:4px">
   &lt;rapi-doc spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"&gt;
     &lt;img 
       slot="logo" 
@@ -381,7 +385,7 @@
 
 
 <b>Add HTML content inside the spec ( <a href="./example7.html">DEMO</a> ) </b>
-<pre class="shadow" style="width:730px"><code class="html" style="border-radius:4px">
+<pre class="shadow code-block" ><code class="html" style="border-radius:4px">
   &lt;rapi-doc spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"&gt;
 
     &lt;!-- content at the top --&gt;

@@ -8,13 +8,9 @@ body{
   margin: 0;
   display: block;
 }
-code{
-  font-family: 'Roboto Mono', monospace;
-}
-a{
-  color:navy;
+a{ color:navy;}
+code{ font-family: 'Roboto Mono', monospace;}
 
-}
 .banner {
   padding: 60px 16px;
   background: steelblue;
@@ -28,6 +24,43 @@ a{
   font-weight: 800;
   transition: .3s all;
 }
+.header {
+  display: flex;
+  align-items: center;
+  height: 60px;
+  justify-content: center;
+}
+
+.logo{display:none}
+.menu{display:none}
+.code-block{
+  font-size:12px;
+  width:320px;
+}
+.table-block{
+  font-size:12px;
+  width:350px;
+}
+
+.menu-item {
+  margin-right: 12px;
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  transition: .2s all;
+  position: relative;
+}
+
+.product-name {
+  font-family:"Roboto Mono";
+  font-weight: 800;
+  font-size: 36px;
+  line-height: 40px;
+  color: #fff;
+  transition: .3s all;
+  min-width: 225px;
+}
+
 
 .features,
 .qstart,
@@ -108,32 +141,6 @@ a{
   box-shadow: 0 12px 24px rgba(0,0,0,0.25), 0 6px 6px rgba(0,0,0,0.22);
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  height: 60px;
-  display: flex;
-}
-
-.menu-item {
-  margin-right: 12px;
-  color: #fff;
-  font-weight: 600;
-  text-decoration: none;
-  transition: .2s all;
-  position: relative;
-  display: inline-block;
-}
-.product-name {
-  font-family:"Roboto Mono";
-  font-weight: 800;
-  font-size: 36px;
-  line-height: 40px;
-  color: #fff;
-  transition: .3s all;
-  padding-left:10px;
-}
-
 .mono-bold{
   font-family:"Roboto Mono";
   font-weight:700;
@@ -141,6 +148,22 @@ a{
 }
 .gray{
   color:#777;
+}
+
+.m-table {
+  border-spacing: 0;
+  border-collapse: separate;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  margin: 0;
+}
+.attr-col{
+  width:100px;
+  text-align:right
+}
+.default-col{
+  width:70px;
+  text-align:left;
 }
 
 .m-table tr:first-child td, 
@@ -161,7 +184,6 @@ a{
 
 .m-table td, 
 .m-table th {
-  font-size: 14px;
   padding: 4px 5px 4px;
   vertical-align: top;
   border-bottom:1px solid #eee;
@@ -170,18 +192,24 @@ a{
   border-bottom:1px solid #aaa;
 }
 
-.m-table {
-  border-spacing: 0;
-  border-collapse: separate;
-  border: 1px solid #ccc;
-  border-radius: 2px;
-  margin: 0;
-  max-width: 100%;
-}
-
 @media only screen and (min-width: 768px){
+  .header { justify-content:left }
+  .menu   { display:inline-block; }
+  .logo   { display:block; }
+  .code-block{
+    font-size:12px;
+    width:650px;
+  }
+  .table-block{
+    font-size:12px;
+    width:650px;
+  }
+  .attr-col{ width:170px;}
+  .default-col{ width:100px;}
+  
+  
   .menu-item {
-    margin-left: 30px;
+    margin-left: 20px;
     margin-right: 0;
   }
   .banner {
@@ -203,6 +231,22 @@ a{
     display:block;
     border-radius: 4px;
   }
-    
+}
+
+@media only screen and (min-width: 800px){
+  .menu { display:inline-block; }
+  .logo { display:block; }
+  .code-block{
+    font-size:14px;
+    width:730px;
+  }
+  .table-block{
+    font-size:14px;
+    width:730px;
+  }
+  .menu-item {
+    margin-left: 24px;
+    margin-right: 0;
+  }
 }
 
