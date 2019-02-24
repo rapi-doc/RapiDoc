@@ -1,6 +1,6 @@
 {
   "name": "rapidoc",
-  "version": "3.2.1",
+  "version": "3.2.2",
   "description": "RapiDoc - Open API spec viewer with built in console",
   "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
   "repository": {
@@ -18,7 +18,9 @@
     "documentation",
     "Custom Element",
     "Web Component",
-    "rapidoc"
+    "rapidoc",
+    "swagger",
+    "swagger ui"
   ],
   "main": "rapidoc.js",
   "module": "rapidoc.js",
