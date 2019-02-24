@@ -157,7 +157,7 @@ export default class ApiRequest extends LitElement {
           <input type="text" class="request-param" data-pname="${param.name}" data-ptype="${paramType}" style="width:100%" value="${param.example?param.example:''}">
         </td>
         <td>
-          ${param.description?html`<span class="m-markdown"> ${unsafeHTML(marked(param.description))} </span> `:``}
+          ${param.description?html`<span class="m-markdown-small"> ${unsafeHTML(marked(param.description))} </span> `:``}
         </td>  
       </tr>`
       )}
@@ -230,7 +230,7 @@ export default class ApiRequest extends LitElement {
               />
             </td>
             <td>
-              ${mimeReqObj.schema.properties[fieldName].description ?`<span class="m-markdown">${marked(mimeReqObj.schema.properties[fieldName].description)}</span>`:''}
+              ${mimeReqObj.schema.properties[fieldName].description ?`<span class="m-markdown-small">${marked(mimeReqObj.schema.properties[fieldName].description)}</span>`:''}
             </td>  
           </tr>`
         }

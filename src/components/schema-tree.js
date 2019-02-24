@@ -1,11 +1,13 @@
 import { LitElement, html } from 'lit-element'; 
 import vars from '@/styles/vars';
+import FontStyles from '@/styles/font-styles';
 import marked from 'marked';
 import {unsafeHTML} from 'lit-html/directives/unsafe-html.js';
 
 export default class SchemaTree extends LitElement {
   render() {
     return html`
+      ${FontStyles}
       <style>
         .tree{
           font-family: var(--font-mono);
@@ -30,9 +32,10 @@ export default class SchemaTree extends LitElement {
           min-width:100px;
         }
         .obj-descr{
-          color:var(--very-light-fg);
+          color:var(--light-fg);
           font-family:var(--font-regular);
           display:inline;
+          white-space:normal;
         }
         .item-descr{
           color:var(--light-fg);
@@ -62,10 +65,12 @@ export default class SchemaTree extends LitElement {
           padding-left:12px;
           border-left:1px dotted var(--border-color);
         }
+        /*
         .m-markdown > p{
           margin-block-start:0;
           margin-block-end:5px;
         }
+        */
         .stri, .string{color:#86b300;}
         .inte, .number{color:#47afe8;}
         .null {color:orangered;}
@@ -119,7 +124,7 @@ export default class SchemaTree extends LitElement {
       return html`<span class="item-value">
         ${data.split("~|~").map(
           (item,idx) => html`
-            ${item? html`<div class='${idx==0?'item-type ' + item.substring(0,4):'m-markdown item-descr'}'>
+            ${item? html`<div class='${idx==0?'item-type ' + item.substring(0,4):'m-markdown-small item-descr'}'>
               ${idx==0?html`${item}`:html`${unsafeHTML(marked(item))}`
               }</div>`
             :``}`

@@ -7,6 +7,7 @@ import SecuritySchemes from '@/components/security-schemes';
 import FontStyles from '@/styles/font-styles';
 import InputStyles from '@/styles/input-styles';
 import FlexStyles from '@/styles/flex-styles';
+import TableStyles from '@/styles/table-styles';
 
 import vars from '@/styles/vars';
 import ProcessSpec from '@/utils/parse-utils';
@@ -21,6 +22,7 @@ export default class RapiDoc extends LitElement {
       ${FontStyles}
       ${InputStyles}
       ${FlexStyles}
+      ${TableStyles}
       ${this.theme==='dark'?
       html`<style>
         :host{

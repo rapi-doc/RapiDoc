@@ -1,9 +1,11 @@
 import { LitElement, html } from 'lit-element'; 
 import vars from '@/styles/vars';
+import FontStyles from '@/styles/font-styles';
 
 export default class JsonTree extends LitElement {
   render() {
     return html`
+      ${FontStyles}
       <style>
         .tree{
           font-family: var(--font-mono);

@@ -17,24 +17,42 @@ export default html`
     h1,h2,h3,h4,h5,h5{
       margin-block-end: 0.2em;
     }
-    p{margin-block-start: 0.5em;}
+    p { margin-block-start: 0.5em; }
     code,
     pre{
       font-family: var(--font-mono);
     }
 
     /* Markdown */
+    /*
     .m-markdown p:only-child{
         color:var(--light-fg);
         font-size:12px;
         line-height:normal;
         margin-top:0;
     }
+    */
     .m-markdown li,
-    .m-markdown p{
-        line-height:16px;
+    .m-markdown p,
+    .m-markdown span{
+        line-height:28px;
         font-size:14px;
     }
+    .m-markdown-small p,
+    .m-markdown-small span,
+    .m-markdown-small li{
+      color:var(--light-fg);
+      font-size:12px;
+      line-height:14px;
+      margin-top:0;
+    }
+    .m-markdown-small ul,
+    .m-markdown-small ol{
+      padding-inline-start: 20px;
+    }
+
+
+
     .m-markdown code{
         background-color: rgba(0, 0, 0, 0.02);
         padding: 0px 6px;
@@ -63,8 +81,41 @@ export default html`
     .m-markdown ol{
         padding-inline-start:30px
     }
-    .m-markdown li{
-        line-height: 1.2em;
-    }
     .m-markdown a{color:var(--link-color)}
+    .m-markdown img{max-width:100%}
+
+    /* Markdown table */
+
+    .m-markdown table {
+      border-spacing: 0;  
+      border-collapse: separate;
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      margin: 0;
+      max-width: 100%;
+    }
+    .m-markdown tr:first-child td,
+    .m-markdown tr:first-child th {
+        border-top: 0 none;
+    }
+    .m-markdown td, 
+    .m-markdown th{
+      font-size: 12px;
+      line-height: 16px;
+      padding: 4px 5px 4px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .m-markdown th {
+      color: var(--fg2);
+      font-size: 12px;
+      line-height:30px;
+      font-weight: 600;
+      letter-spacing: normal;
+      background-color: var(--bg2);
+      vertical-align: bottom;
+      border-bottom: 1px solid var(--border-color);
+    }
+
 </style>`
