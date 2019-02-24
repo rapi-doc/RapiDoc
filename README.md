@@ -51,5 +51,6 @@ Custom Eelement for Open-API spec viewing
 - &#128077; HTTP and Token based Authentication process
 - &#128077; Allow replacing default logo
 - &#128077; Allow embeding custom HTML content 
+- &#128077; Responsive design
 - Enable OAuth
 - Search API Functionality

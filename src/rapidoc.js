@@ -75,16 +75,9 @@ export default class RapiDoc extends LitElement {
           --light-patch-color:#fff5cc;
           --hover-color:#f7f7f7;
         }
-      </style>`
-      }
-      ${html`<style>
+      </style>`}      
+      <style>
         :host{
-          width:100%;
-          height:100%;
-          margin:0;
-          padding:0;
-          overflow: auto;
-          letter-spacing:normal;
           --error-color:#ff3333;
           --success-color:#47AFE8;
           --hover-bg:#f7f7f7;
@@ -104,23 +97,42 @@ export default class RapiDoc extends LitElement {
           --font-regular:${this.regularFont?`${this.regularFont}`:`rapidoc, Helvetica, Arial`};
           --title-font-size:16px;
           --border-radius:2px;
-        }
-      </style>`} 
-      
-      <style>
-        :host{
+
           display:block;
-          min-width:750px;
+          min-width:375px;
+          width:100%;
+          height:100%;
+          margin:0;
+          padding:0;
+          overflow: auto;
+          letter-spacing:normal;
           color:var(--fg);
           background-color:var(--bg);
           font-family:var(--font-regular);
         }
 
-        .body-container{margin:0 16px;}
-        .section-gap{padding: 28px 0px 4px 20px;}
-        .doc-info{padding:16px 20px;}
-        .header-title{font-size:24px; padding:0 8px;}
-        .tag{text-transform: uppercase;}
+        .body-container{ 
+          margin:0;
+        }
+        .section-gap { 
+          padding: 24px 8px 8px 8px; 
+        }
+
+        .logo { 
+          height:36px;
+          width:36px;
+          margin-left:5px; 
+        }
+        .only-large-screen-flex,
+        .only-large-screen{
+          display:none;
+        }
+        .header-title{
+          font-size:24px; padding:0 8px;
+        }
+        .tag{
+          text-transform: uppercase;
+        }
         .header{
           background-color:var(--header-bg);
           color:var(--header-fg);
@@ -130,34 +142,53 @@ export default class RapiDoc extends LitElement {
           background:${this.headerColor?vars.color.brightness(this.headerColor, -20):vars.color.inputReverseBg};
           color:var(--header-fg);
           border:1px solid var(--dark-primary-color);
-          width:450px; 
+          flex:1; 
+          padding-right:36px;
           border-radius:3px;
         }
-        input.header-input::placeholder {opacity:0.4;}
+        input.header-input::placeholder {
+          opacity:0.4;
+        }
+
+
+        @media only screen and (min-width: 768px){
+          .only-large-screen{
+            display:block;
+          }
+          .only-large-screen-flex{
+            display:flex;
+          }
+          .body-container{ 
+            margin:0 16px;
+          }
+          .section-gap { 
+            padding: 24px 24px 8px 24px; 
+          }
+        }
 
       </style>
 
       ${this.showHeader==='false'?'':html`
-      <div class="row header regular-font" style="padding:8px 4px 8px 4px;min-height:48px;position:sticky;top:0;">
-        <div style="display:flex; align-items: center;">
-          <slot name="logo" style="height:36px;width:36px;margin-left:5px">
+      <div class="row header regular-font" style="padding:8px 4px 8px 4px;min-height:48px;position:sticky;top:0;flex:1">
+        <div class="only-large-screen-flex" style="align-items: center;">
+          <slot name="logo" class="logo">
             <m-logo style="height:36px;width:36px;margin-left:5px"></m-logo>
           </slot>  
           <div class="header-title">${this.headingText}</div>
         </div>  
-        <div style="margin: 0px 8px;display:flex">
-          <input id="spec-url" type="text" class="large header-input" style="padding-right:36px" placeholder="Spec URL" value="${this.specUrl}" @change="${this.onSepcUrlChange}">
+        <div style="margin: 0px 8px;display:flex;flex:1">
+          <input id="spec-url" type="text" class="header-input" placeholder="Spec URL" value="${this.specUrl}" @change="${this.onSepcUrlChange}">
           <div style="margin: 6px 15px 0 -30px; font-size:24px; cursor:pointer;">&#x23ce;</div>
-          <input id="spec-file" type="file" style="display:none" value="${this.specFile}" @change="${this.onSepcFileChange}" >
-          <button class="m-btn" style="margin-left:10px;"  @click="${this.onFileLoadClick}"> LOCAL JSON FILE </button>
+          <input id="spec-file" type="file" style="display:none" value="${this.specFile?this.specFile:''}" @change="${this.onSepcFileChange}" >
+          <button class="m-btn only-large-screen" style="margin-left:10px;"  @click="${this.onFileLoadClick}"> LOCAL JSON FILE </button>
         </div>
-        <div style="flex:1"></div>  
+        <div class="only-large-screen" style="flex:1"></div>  
       </div>`}
 
       <div class="body-container regular-font">
         <slot></slot>
         ${ (this.showInfo==='false' || !this.resolvedSpec || !this.resolvedSpec.info) ?``:html`
-        <div class="doc-info">
+        <div class="section-gap">
           <div class="title">
             ${this.resolvedSpec.info.title}
             ${!this.resolvedSpec.info.version?"":html`

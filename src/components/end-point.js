@@ -11,6 +11,29 @@ export default class EndPoint extends LitElement {
     return html`
      ${FontStyles}
     <style>
+      .only-large-screen{
+        display:none;
+      }
+
+      .head .path{
+        display: flex;
+        font-family:var(--font-mono);
+        font-size: 12px;
+        align-items: center;
+        word-wrap: break-word;
+        word-break: break-all;
+      }
+
+      .head .descr{
+        font-size: 12px;
+        color:var(--light-fg);
+        font-weight:400;
+        align-items: center;
+        word-wrap: break-word;
+        word-break: break-all;
+        display:none;
+      }
+
       .m-endpoint.expanded{margin-bottom:16px; }
       .m-endpoint > .head{
         border-width:1px 1px 1px 5px;
@@ -60,36 +83,17 @@ export default class EndPoint extends LitElement {
       .m-endpoint .body.post{border-color:var(--post-color);}
       .m-endpoint .body.get{ border-color:var(--get-color); }
 
-      .head .path{
-        display: inline-block;
-        font-family:var(--font-mono);
-        font-size: 14px;
-        align-items: center;
-        word-wrap: break-word;
-        min-width:400px;
-      }
-
-      .head .descr{
-        font-size: 12px;
-        color:var(--light-fg);
-        font-weight:400;
-        overflow: hidden;
-        display: inline-block;
-        align-items: center;
-      }
-
-      .body .summary{
-        padding:8px 24px;
-      }
-      .body .summary .title{
-        font-size:20px;
-        margin-bottom: 6px;
-        white-space:nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
       .head .deprecated{
         text-decoration: line-through red;
+      }
+
+      .summary{
+        padding:8px 8px;
+      }
+      .summary .title{
+        font-size:18px;
+        margin-bottom: 6px;
+        word-break: break-all;
       }
 
       .method{
@@ -117,43 +121,85 @@ export default class EndPoint extends LitElement {
         margin-top:16px;
         align-items: stretch;
         flex-wrap: wrap;
-        flex-direction: var(--layout, row);
+        flex-direction: column;
         border-top:1px solid var(--light-border-color);
       }
       .request,
       .response{
         flex:1; 
         min-height:100px;
-        padding:16px 24px;
+        padding:16px 8px;
         overflow:hidden;
       }
-      ${this.layout==='row'?
-      html`
-      .patch .request{ border-right: 1px solid var(--patch-color); }
-      .put .request{ border-right: 1px solid var(--put-color); }
-      .post .request{ border-right: 1px solid var(--post-color); }
-      .get .request{ border-right: 1px solid var(--get-color); }
-      .delete .request{ border-right: 1px solid var(--delete-color); }
-      `:
-      html`
-      .patch .request{ border-bottom: 1px dashed var(--patch-color); }
-      .put .request{ border-bottom: 1px dashed var(--put-color); }
-      .post .request{ border-bottom: 1px dashed var(--post-color); }
-      .get .request{ border-bottom: 1px dashed var(--get-color); }
-      .delete .request{ border-bottom: 1px dashed var(--delete-color); }
-      `
+      .request{
+        border-width:0 0 1px 0;
+        border-style:dashed;
+      }
+      .patch .request{ 
+        border-color:var(--patch-color); 
+      }
+      .put .request{ 
+        border-color:var(--put-color); 
+      }
+      .post .request{ 
+        border-color:var(--post-color); 
+      }
+      .get .request{ 
+        border-color:var(--get-color); 
+      }
+      .delete .request{ 
+        border-color:var(--delete-color); 
       }
 
+
+      @media only screen and (min-width: 768px){
+        .head .path{
+          font-size: 14px;
+          min-width:400px;
+        }
+        .head .descr{
+          display: flex;
+        }
+        .only-large-screen{
+          display:block;
+        }
+        .req-resp-container{
+          flex-direction: var(--layout, row);
+        }
+        .request{
+          border-width:0 1px 0 0;
+          padding:16px 24px;
+        }
+        .response{
+          padding:16px 24px;
+        } 
+        .summary{
+          padding:8px 24px;
+        }
+
+        
+      }
     </style>
-      
+
+    ${window.innerWidth >= 768 ? html`${this.layout==='row' ?
+      html`
+      <style>
+        .request{ border-width: 0 1px 0 0; }
+      </style>`:
+      html`
+        <style>
+        .request{ border-width: 0 0 1px 0; }
+        </style>`
+      }`:''
+    }
+
     <div  class='m-endpoint regular-font ${this.path.method} ${this.path.expanded?'expanded':'collapsed'}'>
-      
       <!-- Endpoint Head -->
       <div @click="${this.toggleExpand}" class='head ${this.path.method} ${this.path.expanded?'expanded':'collapsed'}'>
         <div class="method ${this.path.method}" > ${this.path.method} </div> 
         <div class="path ${this.path.deprecated?'deprecated':''}"> ${this.path.path} </div>
-          ${this.path.deprecated?html`<span style="font-size:12px; text-transform:uppercase; font-weight:bold; color:orangered; margin:2px 0 0 5px;"> deprecated </span>`:''}
-        <div style="min-width:60px; flex:1"></div>
+        ${this.path.deprecated?html`<span style="font-size:12px; text-transform:uppercase; font-weight:bold; color:orangered; margin:2px 0 0 5px;"> deprecated </span>`:''}
+        <div class="only-large-screen" style="min-width:60px; flex:1"></div>
         <div class="descr"> ${this.path.summary} </div>
       </div>
       

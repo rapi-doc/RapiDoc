@@ -77,6 +77,11 @@ export default class ApiRequest extends LitElement {
         margin-bottom:2px;
         
       }
+      .textarea {
+        min-height:180px; 
+        padding:5px;
+      }
+
       .response-message.error{
         color:var(--error-color);
         font-weight:bold;
@@ -86,6 +91,12 @@ export default class ApiRequest extends LitElement {
         color:var(--success-color);
         font-weight:bold;
         text-overflow: ellipsis;
+      }
+
+      @media only screen and (min-width: 768px){
+        .textarea {
+          padding:16px;
+        }
       }
 
     </style>
@@ -145,23 +156,25 @@ export default class ApiRequest extends LitElement {
 
     return html`
     <div class="table-title top-gap">${title}</div>
-    <table style="width: 100%" class="m-table">
-      ${filteredParams.map(param => html`<tr> 
-        <td style="min-width:80px">
-          <div class="param-name">
-            ${param.required?html`<span style='color:orangered'>*</span>`:``}${param.name}
-          </div>
-          <div class="param-type">${unsafeHTML(getTypeInfo(param.schema))}</div>
-        </td>  
-        <td style="min-width:100px">
-          <input type="text" class="request-param" data-pname="${param.name}" data-ptype="${paramType}" style="width:100%" value="${param.example?param.example:''}">
-        </td>
-        <td>
-          ${param.description?html`<span class="m-markdown-small"> ${unsafeHTML(marked(param.description))} </span> `:``}
-        </td>  
-      </tr>`
-      )}
-    </table>`
+    <div style="display:block; overflow-x:auto; max-width:100%;">
+      <table class="m-table" style="width:100%; word-break:break-all;">
+        ${filteredParams.map(param => html`<tr> 
+          <td style="min-width:80px;">
+            <div class="param-name">
+              ${param.required?html`<span style='color:orangered'>*</span>`:``}${param.name}
+            </div>
+            <div class="param-type">${unsafeHTML(getTypeInfo(param.schema))}</div>
+          </td>  
+          <td style="min-width:100px">
+            <input type="text" class="request-param" data-pname="${param.name}" data-ptype="${paramType}" style="width:100%" value="${param.example?param.example:''}">
+          </td>
+          <td>
+            ${param.description?html`<span class="m-markdown-small"> ${unsafeHTML(marked(param.description))} </span> `:``}
+          </td>  
+        </tr>`
+        )}
+      </table>
+    </div>`
   }
 
   requestBodyTemplate(){
@@ -203,9 +216,9 @@ export default class ApiRequest extends LitElement {
         reqExample    = generateExample(mimeReqObj.examples, mimeReqObj.example, mimeReqObj.schema, mimeReq, "text");
         textareaExampleHtml = textareaExampleHtml +  `
           <textarea 
-            class="mono request-body-param ${shortMimeTypes[mimeReq]}" 
+            class="textarea mono request-body-param ${shortMimeTypes[mimeReq]}" 
             data-ptype="${mimeReq}" 
-            style="min-height:180px; padding:16px; display:${shortMimeTypes[mimeReq]==='json'?'block':'none'}; 
+            style="display:${shortMimeTypes[mimeReq]==='json'?'block':'none'}; 
           ">${reqExample[0].exampleValue}</textarea>`
       }
       else if (mimeReq.includes('form') || mimeReq.includes('multipart-form')){

@@ -29,7 +29,6 @@ export default class SchemaTree extends LitElement {
         }
         .item-type{
           display: table-cell;
-          min-width:100px;
         }
         .obj-descr{
           color:var(--light-fg);
@@ -40,8 +39,8 @@ export default class SchemaTree extends LitElement {
         .item-descr{
           color:var(--light-fg);
           display: table-cell;
-          padding-left:24px;
-          min-width: 200px;
+          padding-left:12px;
+          min-width: 125px;
           font-family:var(--font-regular);
         }
         .descr-expander{
@@ -76,6 +75,14 @@ export default class SchemaTree extends LitElement {
         .null {color:orangered;}
         .bool, .boolean{color:#b96ff1}
         .enum {color:orange}
+        @media only screen and (min-width: 768px){
+          .item-descr{
+            padding-left:24px;
+          }
+        }
+
+
+
       </style>
       <div class="tree">
         ${this.generateTree(this.data)}

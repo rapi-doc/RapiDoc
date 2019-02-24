@@ -58,9 +58,22 @@ export default class ApiResponse extends LitElement {
       .tab-content{
         margin:-1px 0 0 0;
       }
+      .tree{
+        padding:16px 2px;
+      }
+      @media only screen and (min-width: 768px){
+        .tree {
+          padding:16px;
+        }
+      }
+
     </style>
     <div class="col regular-font">
     <div class="title">RESPONSE</div>
+
+
+
+
     ${this.responseTemplate()}
     `
 
@@ -148,10 +161,10 @@ export default class ApiResponse extends LitElement {
               <div style="align-self:center;font-size:12px;"> ${mimeType} </div>
             </div>
             <div id="${status}_${mimeType}_example" class="tab-content col" style="flex:1; ">
-              <json-tree class="border" style="padding:16px;" .data="${mimeResponsesForEachStatus[status][mimeType].examples[0].exampleValue}"></json-tree>
+              <json-tree class="border tree" .data="${mimeResponsesForEachStatus[status][mimeType].examples[0].exampleValue}"></json-tree>
             </div>
             <div id="${status}_${mimeType}_model" class="tab-content col" style="flex:1;display:none">
-              <schema-tree class="border" style="padding:16px;" .data="${mimeResponsesForEachStatus[status][mimeType].schemaTree}"></schema-tree>
+              <schema-tree class="border tree" .data="${mimeResponsesForEachStatus[status][mimeType].schemaTree}"></schema-tree>
             </div>
           </div>`
       )}`
