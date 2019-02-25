@@ -20,7 +20,7 @@ export default class EndPoint extends LitElement {
         font-family:var(--font-mono);
         font-size: 12px;
         align-items: center;
-        word-wrap: break-word;
+        overflow-wrap: break-word;
         word-break: break-all;
       }
 
@@ -29,7 +29,7 @@ export default class EndPoint extends LitElement {
         color:var(--light-fg);
         font-weight:400;
         align-items: center;
-        word-wrap: break-word;
+        overflow-wrap: break-word;
         word-break: break-all;
         display:none;
       }

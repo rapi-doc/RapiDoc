@@ -12,10 +12,8 @@ export default class JsonTree extends LitElement {
           font-size:12px;
           display:inline-block;
           overflow:hidden;
+          word-break: break-all;
           width:100%;
-        }
-        .item{
-          white-space: nowrap;
         }
         .left-bracket{
           display:inline-block;
