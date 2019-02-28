@@ -127,7 +127,10 @@ code{ font-family: 'Roboto Mono', monospace;}
 .feature-info .feature-descr{ font-size:14px;}
 
 .screenshot{
-  display:none;
+  max-width:350px; 
+  border-radius: 4px;
+  height:auto; 
+  width:auto
 }
 
 .shadow1 {
@@ -228,8 +231,7 @@ code{ font-family: 'Roboto Mono', monospace;}
     padding-bottom: 80px;
   }
   .screenshot{
-    display:block;
-    border-radius: 4px;
+    max-width:750px;
   }
 }
 
