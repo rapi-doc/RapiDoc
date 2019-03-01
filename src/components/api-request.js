@@ -107,7 +107,7 @@ export default class ApiRequest extends LitElement {
       ${this.requestBodyTemplate()}
       ${this.inputParametersTemplate('header')}
       ${this.inputParametersTemplate('cookie')}
-      ${this.showTry==='false'?'':html`${this.apiCallTemplate()}`}
+      ${this.allowTry==='false'?'':html`${this.apiCallTemplate()}`}
     </div>
     `
   }
@@ -137,7 +137,7 @@ export default class ApiRequest extends LitElement {
       responseHeaders: { type: String, attribute:false },
       responseStatus : { type: String, attribute:false },
       responseUrl    : { type: String, attribute:false },
-      showTry        : { type: String, attribute: 'show-try'  },
+      allowTry        : { type: String, attribute: 'allow-try'  },
 
     };
   }

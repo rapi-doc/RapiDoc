@@ -175,11 +175,13 @@
               <th style="text-align:left">Description </th>
               <th class="default-col">Default</th>
             </tr>
+
             <tr>
               <td class="mono-bold">spec-url </td>
               <td class="gray">url of the OpenAPI spec to view </td>
               <td>(empty)</td>
             </tr>
+
             <tr>
               <td class="mono-bold">server</td>
               <td class="gray">
@@ -190,26 +192,30 @@
               </td>
               <td>(empty)</td>
             </tr>
+
             <tr>
-                <td class="mono-bold">show-authentication</td>
-                <td class="gray">
-                  Authentication feature, allows the user to select one of the authentication mechanism thats available in the spec.
-                  It can be http-basic, http-bearer or api-key. 
-                  If you dont want your users to go through the authentication process, instead want them to use a pre-generated api-key 
-                  then you may hide authentication section by setting this attribute to false
-                  and provide the api-key details using various api-key-???? attributes.</td>
-                <td>true</td>
-              </tr>
+              <td class="mono-bold">allow-authentication</td>
+              <td class="gray">
+                Authentication feature, allows the user to select one of the authentication mechanism thats available in the spec.
+                It can be http-basic, http-bearer or api-key. 
+                If you dont want your users to go through the authentication process, instead want them to use a pre-generated api-key 
+                then you may hide authentication section by setting this attribute to false
+                and provide the api-key details using various api-key-???? attributes.</td>
+              <td>true</td>
+            </tr>
+
             <tr>
               <td class="mono-bold">api-key-name</td>
               <td class="gray">Name of the API key that will be send while trying out the APIs</td>
               <td>(empty)</td>
             </tr>
+
             <tr>
               <td class="mono-bold">api-key-value</td>
               <td class="gray">Value of the API key that will be send while trying out the APIs</td>
               <td>Authorization</td>
             </tr>
+
             <tr>
               <td class="mono-bold">api-key-location</td>
               <td class="gray">
@@ -218,14 +224,41 @@
               </td>
               <td>header</td>
             </tr>
+
             <tr>
-              <td class="mono-bold">show-try</td>
+              <td class="mono-bold">allow-spec-url-load</td>
+              <td class="gray">
+                If set to 'false', user will not be able to load any spec url from the UI. 
+              </td>
+              <td>true</td>
+            </tr>
+
+            <tr>
+              <td class="mono-bold">allow-spec-file-load</td>
+              <td class="gray">
+                If set to 'false', user will not be able to load any spec file from the local drive. 
+                This attribute is applicable only when the device width is more than 768px, else this feature is not available
+              </td>
+              <td>true</td>
+            </tr>
+    
+            <tr>
+              <td class="mono-bold">allow-search</td>
+              <td class="gray">
+                  If set to 'false', user will not be able to search APIs. 
+              </td>
+              <td>true</td>
+            </tr>
+
+            <tr>
+              <td class="mono-bold">allow-try</td>
               <td class="gray">
                 'TRY' feature allows you to make REST calls to the API server. 
                 To disable this feature set it to false 
               </td>
               <td>true</td>
             </tr>
+
             <tr>
               <td class="mono-bold">show-info</td>
               <td class="gray">
@@ -236,52 +269,60 @@
               </td>
               <td>true</td>
             </tr>
+
             <tr>
               <td class="mono-bold">show-header </td>
               <td class="gray">show/hide the header.<br/> 
                 If you dont want your user to open any other api spec, other than the current one, then set this attribute to false</td>
               <td>true</td>
             </tr>
+
             <tr>
               <td class="mono-bold">heading-text </td>
               <td class="gray">Heading Text on top-left corner </td>
               <td>(empty)</td>
             </tr>
+
             <tr>
               <td class="mono-bold">header-color </td>
               <td class="gray">Hex color code for the header's background</td>
               <td>#444444</td>
             </tr>
+
             <tr>
               <td class="mono-bold">primary-color</td>
               <td class="gray">Hex color code on various controls such as buttons, tabs </td>
               <td>#FF791A</td>
             </tr>
+
             <tr>
               <td class="mono-bold">regular-font </td>
               <td class="gray">Font Name(s) to be used for regular text </td>
               <td>rapidoc, Helvetica, Arial</td>
             </tr>
+
             <tr>
               <td class="mono-bold">mono-font </td>
               <td class="gray">Font Name(s) to be used for monospaced text </td>
               <td>Monaco, 'Andale Mono', 'Roboto Mono'</td>
             </tr>
+
             <tr>
               <td class="mono-bold">theme </td>
               <td class="gray">light, dark </td>
               <td>light</td>
             </tr>
+
             <tr>
               <td class="mono-bold"> layout </td>
               <td class="gray">layout helps in placement of your request/response sections. The allowed values are 'row' or 'column'. 
                 In column layout, request & response sections are placed one below the other, 
                 In row layout request & response sections are placed side by side. 
                 This attribute is applicable only when the device width is more than 768px.
-              
               </td>
               <td>row</td>
             </tr>
+
           </table>
         </div>  
 

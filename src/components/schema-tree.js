@@ -71,7 +71,7 @@ export default class SchemaTree extends LitElement {
         }
         */
         .stri, .string{color:#86b300;}
-        .inte, .number{color:#47afe8;}
+        .inte, .numb, .number{color:#47afe8;}
         .null {color:orangered;}
         .bool, .boolean{color:#b96ff1}
         .enum {color:orange}
@@ -129,13 +129,18 @@ export default class SchemaTree extends LitElement {
     }
     else{
       return html`<span class="item-value">
-        ${data.split("~|~").map(
-          (item,idx) => html`
-            ${item? html`<div class='${idx==0?'item-type ' + item.substring(0,4):'m-markdown-small item-descr'}'>
-              ${idx==0?html`${item}`:html`${unsafeHTML(marked(item))}`
-              }</div>`
-            :``}`
-        )}</span>`
+        ${data ? html`
+          ${data.split("~|~").map(
+            (item,idx) => html`
+              ${item? html`<div class='${idx==0?'item-type ' + item.substring(0,4):'m-markdown-small item-descr'}'>
+                ${idx==0?html`${item}`:html`${unsafeHTML(marked(item))}`
+                }</div>`
+              :``}`
+          )}`:''
+        }
+      </span>`
+
+
     }
 
   }

@@ -143,7 +143,7 @@ export default class RapiDoc extends LitElement {
           color:var(--header-fg);
           border:1px solid var(--dark-primary-color);
           flex:1; 
-          padding-right:36px;
+          padding-right:24px;
           border-radius:3px;
         }
         input.header-input::placeholder {
@@ -177,12 +177,22 @@ export default class RapiDoc extends LitElement {
           <div class="header-title">${this.headingText}</div>
         </div>  
         <div style="margin: 0px 8px;display:flex;flex:1">
-          <input id="spec-url" type="text" class="header-input" placeholder="Spec URL" value="${this.specUrl}" @change="${this.onSepcUrlChange}">
-          <div style="margin: 6px 15px 0 -30px; font-size:24px; cursor:pointer;">&#x23ce;</div>
-          <input id="spec-file" type="file" style="display:none" value="${this.specFile?this.specFile:''}" @change="${this.onSepcFileChange}" >
-          <button class="m-btn only-large-screen" style="margin-left:10px;"  @click="${this.onFileLoadClick}"> LOCAL JSON FILE </button>
+
+          ${ (this.allowSpecUrlLoad==='false') ?``:html`
+            <input id="spec-url" type="text" class="header-input" placeholder="Spec URL" value="${this.specUrl?this.specUrl:''}" @change="${this.onSepcUrlChange}">
+            <div style="margin: 6px 5px 0 -24px; font-size:18px; cursor:pointer;">&#x23ce;</div>
+          `} 
+          
+          ${ (this.allowSpecFileLoad==='false') ?``:html`
+            <input id="spec-file" type="file" style="display:none" value="${this.specFile?this.specFile:''}" @change="${this.onSepcFileChange}" >
+            <button class="m-btn only-large-screen" style="margin-left:10px;"  @click="${this.onFileLoadClick}"> LOCAL JSON FILE </button>
+          `}
+
+          ${ (this.allowSearch==='false') ?``:html`  
+            <input id="search" class="header-input" type="text"  placeholder="search" @change="${this.onSearchChange}" style="max-width:130px;margin-left:10px;">
+            <div style="margin: 6px 5px 0 -24px; font-size:18px; cursor:pointer;">&#x23ce;</div>
+          `}
         </div>
-        <div class="only-large-screen" style="flex:1"></div>  
       </div>`}
 
       <div class="body-container regular-font">
@@ -203,7 +213,7 @@ export default class RapiDoc extends LitElement {
         </div>`
         }
 
-        ${(this.showTry==='false' || !this.resolvedSpec || !this.resolvedSpec.servers || this.resolvedSpec.servers.length===0) ?``:html`
+        ${(this.allowTry==='false' || !this.resolvedSpec || !this.resolvedSpec.servers || this.resolvedSpec.servers.length===0) ?``:html`
         <div class="sub-title regular-font section-gap">
           <a id="api_server_options"> API SERVER: </a>
           <div style="margin: 8px 0; font-size:12px">
@@ -215,7 +225,7 @@ export default class RapiDoc extends LitElement {
         </div>  
         `}
 
-        ${(this.showAuthentication==='false' || !this.resolvedSpec || !this.resolvedSpec.securitySchemes)?'':html`
+        ${(this.allowAuthentication==='false' || !this.resolvedSpec || !this.resolvedSpec.securitySchemes)?'':html`
         <div class="sub-title regular-font section-gap">
           <security-schemes 
             .schemes="${this.resolvedSpec.securitySchemes}" 
@@ -237,7 +247,8 @@ export default class RapiDoc extends LitElement {
               api-key-location = "${this.apiKeyLocation?this.apiKeyLocation:''}"
               layout           = "${this.layout?this.layout:'row'}"
               .paths           = "${tag.paths}" 
-              show-try         = "${this.showTry}"
+              allow-try        = "${this.allowTry}"
+              match-paths      = "${this.matchPaths}"
             ></end-points>
           `)}`
         :''}
@@ -249,19 +260,23 @@ export default class RapiDoc extends LitElement {
       return {
         specUrl : { type: String, attribute: 'spec-url' },
         specFile: { type: String, attribute: false },
-        server   : { type: String},
+        server  : { type: String },
+        matchPaths  : { type: String, attribute: 'match-paths' },        
         headingText : { type: String, attribute: 'heading-text'  },
         headerColor : { type: String, attribute: 'header-color'  },
         primaryColor: { type: String, attribute: 'primary-color' },
         regularFont : { type: String, attribute: 'regular-font'  },
         monoFont    : { type: String, attribute: 'mono-font'   },
         showHeader  : { type: String, attribute: 'show-header' },
-        showTry     : { type: String, attribute: 'show-try'  },
-        showInfo    : { type: String, attribute: 'show-info' },
-        showAuthentication: { type: String, attribute: 'show-authentication' },
+        showInfo    : { type: String, attribute: 'show-info'   },
+        allowAuthentication: { type: String, attribute: 'allow-authentication' },
+        allowTry    : { type: String, attribute: 'allow-try'    },
+        allowSpecUrlLoad: { type: String, attribute: 'allow-spec-url-load' },
+        allowSpecFileLoad: { type: String, attribute: 'allow-spec-file-load' },
+        allowSearch : { type: String, attribute: 'allow-search' },
         layout  : { type: String },
         theme   : { type: String },
-        logoUrl : { type: String , attribute: 'logo-url'  },
+        logoUrl : { type: String , attribute: 'logo-url' },
         apiKeyName    : { type: String, attribute: 'api-key-name' },
         apiKeyValue   : { type: String, attribute: 'api-key-value' },
         apiKeyLocation: { type: String, attribute: 'api-key-location' },
@@ -320,6 +335,10 @@ export default class RapiDoc extends LitElement {
       this.apiKeyLocation= e.detail.keyLocation;
     }
 
+    onSearchChange(e){
+      this.matchPaths = e.target.value;
+    }
+
     loadSpec(specUrl) {
       let me = this;
       if (!specUrl){
@@ -328,7 +347,8 @@ export default class RapiDoc extends LitElement {
       this.apiKeyName     = "";
       this.apiKeyValue    = "";
       this.apiKeyLocation = "";
-      this.server         = ""
+      this.server         = "";
+      this.matchPaths     = "";
 
       ProcessSpec(specUrl).then(function(spec){
         if (spec===undefined || spec === null){
