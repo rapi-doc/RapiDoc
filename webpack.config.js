@@ -64,9 +64,9 @@ module.exports = {
         new webpack.optimize.LimitChunkCountPlugin({
             maxChunks:1
         }),
-        new CleanWebpackPlugin(['dist']),
+        new CleanWebpackPlugin(),
         new HtmlWebpackPlugin({title: 'RAPIDoc', template: 'index.html'}),
-        //new BundleAnalyzerPlugin({analyzerMode:'static'}),
+        new BundleAnalyzerPlugin({analyzerMode:'static'}),
         new CompressionPlugin(),
         new FileManagerPlugin({
             onEnd : {

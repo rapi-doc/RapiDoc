@@ -32,7 +32,7 @@ function getTypeInfo(schema, overrideAttributes=null, inSingleLine=true){
     if (schema.enum){
         let opt=""
         schema.enum.map(function(v){
-            opt = `${opt}${v}┃ `
+            opt = `${opt}${v}, `
         });
         html = `enum:(${opt.slice(0,-2)})`
     }
@@ -42,68 +42,61 @@ function getTypeInfo(schema, overrideAttributes=null, inSingleLine=true){
     
     if (schema.type==="integer" || schema.type==="number"){
         if (schema.minimum !== undefined && schema.maximum!==undefined){
-            html = `${html} (${schema.exclusiveMinimum?">":""}${schema.minimum} \u22ef ${schema.exclusiveMaximum?"<":""} ${schema.maximum})`
-            //html = html+" ( " + (schema.exclusiveMinimum?"> ":"") + schema.minimum + " to " +  (schema.exclusiveMaximum?"< ":"") + schema.maximum + " )";
+            html = `${html}\u00a0${schema.exclusiveMinimum?">":""}${schema.minimum}\u00a0\u22ef\u00a0${schema.exclusiveMaximum?"<":""}\u00a0${schema.maximum}`
         }
         else if (schema.minimum!==undefined && schema.maximum===undefined){
-            html = `${html} (${schema.exclusiveMinimum?">":"≥"}${schema.minimum})`
-            //html = html+" ( " + (schema.exclusiveMinimum?"> ":">=") + schema.minimum + " )";
+            html = `${html}\u00a0${schema.exclusiveMinimum?">":"≥"}${schema.minimum}`
         }
         else if (schema.minimum===undefined && schema.maximum!==undefined){
-            html = `(${schema.exclusiveMaximum?"<":"≤"}${schema.maximum})`
-            //html = html+" ( " + (schema.exclusiveMaximum?"< ":"<=") + schema.maximum + " )";
+            html = `\u00a0${schema.exclusiveMaximum?"<":"≤"}${schema.maximum}`
         }
         if (schema.multipleOf!==undefined){
-            html = `(multiple of ${schema.multipleOf})`
-            //html = html+" ( multiple of:" + schema.multipleOf+ " )";
+            html = `\u00a0(multiple\u00a0of\u00a0${schema.multipleOf})`
         }
     }
 
     if (schema.type==="string"){
         if (schema.minLength !==undefined  && schema.maxLength !==undefined ){
-            html = `${html} (${schema.minLength} to ${schema.maxLength} chars)`;
-            //html = html+" ( length: " + schema.minLength + " to " + schema.maxLength +" )";
+            html = `${html}\u00a0(${schema.minLength}\u00a0to\u00a0${schema.maxLength}\u00a0chars)`;
         }
         else if (schema.minLength!==undefined  && schema.maxLength===undefined ){
-            html = `${html} (min:${schema.minLength})`;
-            //html = html+" ( min-length: " + schema.minLength + " )";
+            html = `${html}\u00a0(min:${schema.minLength})`;
         }
         else if (schema.minLength===undefined  && schema.maxLength!==undefined ){
-            html = `${html} (max:${schema.maxLength})`;
-            //html = html+" ( max-length: " + schema.maxLength +" )";
+            html = `${html}\u00a0(max:${schema.maxLength})`;
         }
     }
 
     if (overrideAttributes){
         if (overrideAttributes.readOnly){
-            html = `${html} 🆁`;
+            html = `${html}\u00a0🆁`;
         }
         if (overrideAttributes.writeOnly){
-            html = `${html} 🆆`;
+            html = `${html}\u00a0🆆`;
         }
         if (overrideAttributes.deprecated){
-            html = `${html} ❌`;
+            html = `${html}\u00a0❌`;
         }
     }
     else{
         if (schema.readOnly){
-            html = `${html} 🆁`;
+            html = `${html}\u00a0🆁`;
         }
         if (schema.writeOnly){
-            html = `${html} 🆆`;
+            html = `${html}\u00a0🆆`;
         }
         if (schema.deprecated){
-            html = `${html} ❌`;
+            html = `${html}\u00a0❌`;
         }
     }
 
 
     let lineBreak = inSingleLine?"":"<br/>";
     if (schema.format){
-        html = html + ` ${lineBreak} (${schema.format})`;    
+        html = html + `${lineBreak}\u00a0(${schema.format})`;    
     }
     if (schema.pattern && !schema.enum){
-        html = html + ` ${lineBreak}(${schema.pattern})`;    
+        html = html + `${lineBreak}\u00a0(${schema.pattern})`;    
     }
     return html;
 }
