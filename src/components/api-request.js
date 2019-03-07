@@ -119,6 +119,7 @@ export default class ApiRequest extends LitElement {
     this.responseHeaders = '';
     this.responseText    = '';
     this.responseUrl     = '';
+    this.curlSyntax      = '';
 
   }
 
@@ -198,8 +199,8 @@ export default class ApiRequest extends LitElement {
       if (mimeReq.includes('json')){shortMimeTypes[mimeReq]='json';}
       else if (mimeReq.includes('xml')){shortMimeTypes[mimeReq]='xml';}
       else if (mimeReq.includes('text/plain')){shortMimeTypes[mimeReq]='text';}
-      else if (mimeReq.includes('form-urlencoded')){shortMimeTypes[mimeReq]='form';}
-      else if (mimeReq.includes('multipart-form')){shortMimeTypes[mimeReq]='multipart-form';}
+      else if (mimeReq.includes('form-urlencoded')){shortMimeTypes[mimeReq]='form-urlencoded';}
+      else if (mimeReq.includes('multipart/form-data')){shortMimeTypes[mimeReq]='multipart-form-data';}
 
       let mimeReqObj = content[mimeReq];
       let reqExample="";
@@ -320,12 +321,16 @@ export default class ApiRequest extends LitElement {
       <div id="tab_buttons" class="tab-buttons row" @click="${this.activateTab}">
         <button class="tab-btn active" content_id="tab_response_text"> RESPONSE TEXT</button>
         <button class="tab-btn" content_id="tab_response_headers"> RESPONSE HEADERS</button>
+        <button class="tab-btn" content_id="tab_curl">CURL</button>
       </div>
       <div id="tab_response_text" class="tab-content col" style="flex:1; ">
-        <textarea class="mono" style="min-height:180px; padding:16px; white-space:nowrap;"> ${this.responseText} </textarea>
+        <textarea class="mono" style="min-height:180px; padding:16px; white-space:nowrap;">${this.responseText}</textarea>
       </div>
       <div id="tab_response_headers" class="tab-content col" style="flex:1;display:none">
-        <textarea class="mono" style="min-height:180px; padding:16px; white-space:nowrap;"> ${this.responseHeaders} </textarea>
+        <textarea class="mono" style="min-height:180px; padding:16px; white-space:nowrap;">${this.responseHeaders}</textarea>
+      </div>
+      <div id="tab_curl" class="tab-content col" style="flex:1;display:none">
+        <code style="min-height:180px; padding:16px;font-size:12px; border:1px solid var(--input-border-color);overflow: scroll;word-break: break-word;">${this.curlSyntax}</code>
       </div>
     </div>`}
     `
@@ -361,6 +366,7 @@ export default class ApiRequest extends LitElement {
 
   onTryClick(e){
     let me = this;
+    let curl="", curlHeaders="", curlData="", curlForm="";
     let requestPanelEl = e.target.closest(".request-panel");
     let pathParamEls   = [...requestPanelEl.querySelectorAll(".request-param[data-ptype='path']")];
     let queryParamEls  = [...requestPanelEl.querySelectorAll(".request-param[data-ptype='query']")];
@@ -374,7 +380,7 @@ export default class ApiRequest extends LitElement {
       'method' : this.method.toUpperCase(),
       'headers':{},
     }
-
+    
     //Path Params
     pathParamEls.map(function(el){
       fetchUrl = fetchUrl.replace("{"+el.dataset.pname+"}", el.value);
@@ -393,28 +399,42 @@ export default class ApiRequest extends LitElement {
     if (this.apiKeyValue && this.apiKeyName && this.apiKeyLocation==='query'){
       fetchUrl = `${fetchUrl}&${this.apiKeyName}=${this.apiKeyValue}`;
     }
+
+    //Final URL
     fetchUrl = `${this.server.replace(/\/$/, "")}${fetchUrl}`;
+    curl=`curl -X ${this.method.toUpperCase()} "${fetchUrl}" `;
 
     //Header Params
     headerParamEls.map(function(el){
       if (el.value){
         fetchOptions.headers[el.dataset.pname] =  el.value;
+        curlHeaders = curlHeaders + ` -H "${fetchOptions.headers[el.dataset.pname]}: ${el.value}"`;
       }
     });
     // Add Authentication Header if provided
     if (this.apiKeyValue && this.apiKeyName && this.apiKeyLocation==='header'){
       fetchOptions.headers[this.apiKeyName] = this.apiKeyValue;
+      curlHeaders = curlHeaders + ` -H "${this.apiKeyName}: ${this.apiKeyValue}"`;
     }
 
     //Form Params
     if (formParamEls.length>=1){
       let formEl = requestPanelEl.querySelector("form");
-      fetchOptions.body = new FormData(formEl);
       if (formEl.classList.contains("form-urlencoded")){
+        let formUrlParams = new URLSearchParams();
         fetchOptions.headers['Content-Type'] = 'application/x-www-form-urlencoded; charset=utf-8'
+        curlHeaders = curlHeaders + ` -H "Content-Type: application/x-www-form-urlencoded"`;
+        formParamEls.map(function(el){
+          if (el.value){
+            formUrlParams.append(el.dataset.pname,el.value);
+            curlForm = curlForm + ` -F "${el.dataset.pname}=${el.value}"`;
+          }
+        });
+        fetchOptions.body = formUrlParams;
       }
       else{
-        fetchOptions.headers['Content-Type'] = 'multipart/form-data; charset=utf-8'
+        //fetchOptions.headers['Content-Type'] = 'multipart/form-data; charset=utf-8'
+        fetchOptions.body = new FormData(formEl);
       }
     }
 
@@ -422,7 +442,9 @@ export default class ApiRequest extends LitElement {
     if (bodyParamEls.length>=1){
       if (bodyParamEls.length===1){
         fetchOptions.headers['Content-Type'] = bodyParamEls[0].dataset.ptype;
+        curlHeaders = curlHeaders + ` -H "Content-Type: ${bodyParamEls[0].dataset.ptype}"`;
         fetchOptions.body=bodyParamEls[0].value;
+        curlData = ` -d ${JSON.stringify(bodyParamEls[0].value.replace(/(\r\n|\n|\r)/gm,"") )}`;
       }
       else{
         let mimeTypeRadioEl = e.target.closest(".request-panel").querySelector("input[name='request_body_type']:checked");
@@ -430,29 +452,33 @@ export default class ApiRequest extends LitElement {
         let bodyData='';
         if (selectedBody === 'json'){
           bodyData = requestPanelEl.querySelector(".request-body-param.json").value;
-          fetchOptions.headers['Content-Type'] = 'application/json; charset=utf-8'
-          fetchOptions.body=bodyData;
+          fetchOptions.headers['Content-Type'] = 'application/json; charset=utf-8';
+          curlHeaders = curlHeaders + ` -H "Content-Type: application/json"`;
         }
         else if (selectedBody === 'xml'){
           bodyData = requestPanelEl.querySelector(".request-body-param.xml").value;
-          fetchOptions.headers['Content-Type'] = 'application/xml; charset=utf-8'
-          fetchOptions.body=bodyData;
+          fetchOptions.headers['Content-Type'] = 'application/xml; charset=utf-8';
+          curlHeaders = curlHeaders + ` -H "Content-Type: application/xml"`;
         }
         else if (selectedBody === 'text'){
           bodyData = requestPanelEl.querySelector(".request-body-param.text").value;
-          fetchOptions.headers['Content-Type'] = 'text/plain; charset=utf-8'
-          fetchOptions.body=bodyData;
+          fetchOptions.headers['Content-Type'] = 'text/plain; charset=utf-8';
+          curlHeaders = curlHeaders + ` -H "Content-Type: text/plain"`;
         }
+        fetchOptions.body=bodyData;
+        curlData = ` -d ${JSON.stringify(bodyData.replace(/(\r\n|\n|\r)/gm,""))}`;
       }
     }
 
     me.responseUrl     = '';
     me.responseHeaders = '';
     me.responseText    = '';
+    me.curlSyntax      = '';
     me.responseStatus  = 'success';
     me.responseMessage = ''
 
     fetch(fetchUrl,fetchOptions).then(function(resp){
+      me.curlSyntax = `${curl} ${curlHeaders} ${curlData} ${curlForm}`;
       me.responseStatus  = resp.ok ? 'success':'error';
       me.responseMessage = `${resp.statusText}:${resp.status}`;
       me.responseUrl     = resp.url;
