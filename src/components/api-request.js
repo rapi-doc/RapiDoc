@@ -419,23 +419,30 @@ export default class ApiRequest extends LitElement {
 
     //Form Params
     if (formParamEls.length>=1){
+
       let formEl = requestPanelEl.querySelector("form");
       if (formEl.classList.contains("form-urlencoded")){
         let formUrlParams = new URLSearchParams();
         fetchOptions.headers['Content-Type'] = 'application/x-www-form-urlencoded; charset=utf-8'
         curlHeaders = curlHeaders + ` -H "Content-Type: application/x-www-form-urlencoded"`;
-        formParamEls.map(function(el){
-          if (el.value){
-            formUrlParams.append(el.dataset.pname,el.value);
-            curlForm = curlForm + ` -F "${el.dataset.pname}=${el.value}"`;
-          }
-        });
         fetchOptions.body = formUrlParams;
       }
-      else{
-        //fetchOptions.headers['Content-Type'] = 'multipart/form-data; charset=utf-8'
+      else {
+        //fetchOptions.headers['Content-Type'] = 'multipart/form-data' // Dont set content type for fetch, coz the browser must auto-generate boundry value too 
+        curlHeaders = curlHeaders + ` -H "Content-Type: multipart/form-data"`;
         fetchOptions.body = new FormData(formEl);
       }
+
+      formParamEls.map(function(el){
+        if (el.value){
+          if (el.type !== 'file'){
+            curlForm = curlForm + ` -F "${el.dataset.pname}=${el.value}"`;
+          }
+          else{
+            curlForm = curlForm + ` -F "${el.dataset.pname}=@${el.value}"`;
+          }
+        }
+      });
     }
 
     //Body Params (json/xml/text)
