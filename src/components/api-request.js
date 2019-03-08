@@ -7,10 +7,10 @@ import FlexStyles from '@/styles/flex-styles';
 import InputStyles from '@/styles/input-styles';
 import FontStyles from '@/styles/font-styles';
 import CommonStyles from '@/styles/common-styles';
-import { schemaToModel, getTypeInfo, schemaToObj, generateExample, removeCircularReferences} from '@/utils/common-utils';
+import { schemaToModel, getTypeInfo, getParamTypeInfo, generateExample, removeCircularReferences} from '@/utils/common-utils';
 import marked from 'marked';
 import {unsafeHTML} from 'lit-html/directives/unsafe-html.js';
-
+import {repeat} from "lit-html/lib/repeat"
 
 export default class ApiRequest extends LitElement {
   
@@ -155,25 +155,60 @@ export default class ApiRequest extends LitElement {
     else if (paramType==='header'){ title = "REQUEST HEADERS"}
     else if (paramType==='cookie'){ title = "COOKIES"}
 
+    
+    const tableRows = [];
+    for (const param of filteredParams)  {
+      let paramSchema = getParamTypeInfo(param.schema);
+      let inputVal='';
+      if (param.example=='0'){
+        inputVal='0'
+      }
+      else{
+        inputVal = paramSchema.default;
+      }
+
+      tableRows.push(html`
+      <tr> 
+        <td style="min-width:100px;">
+          <div class="param-name">
+            ${param.required?html`<span style='color:orangered'>*</span>`:``}${param.name}
+          </div>
+          <div class="param-type">${paramSchema.type}${paramSchema.format?`\u00a0(${paramSchema.format})`:''}</div>
+        </td>  
+        <td style="min-width:100px">
+          <input type="text" class="request-param" data-pname="${param.name}" data-ptype="${paramType}" style="width:100%" value="${inputVal}">
+        </td>
+        <td>
+          ${paramSchema.constrain?html`${paramSchema.constrain}<br/>`:``}
+          ${paramSchema.allowedValues?html`${paramSchema.allowedValues}`:``}
+        </td>  
+      </tr>
+      ${param.description?html`
+        <tr>
+          <td style="border:none">  
+        
+          </td>
+          <td colspan="2" style="border:none; margin-top:0; padding:0 5px;"> 
+            <span class="m-markdown-small">${unsafeHTML(marked(param.description))}</span>
+          </td>
+        </tr>`
+        :``}
+    `)
+    }
+
+    /*
+    for (const i of items) {
+      tableRows.push(html`<li>${i}</li>`);
+    }
+    */
+    
+
+
     return html`
     <div class="table-title top-gap">${title}</div>
     <div style="display:block; overflow-x:auto; max-width:100%;">
-      <table class="m-table" style="width:100%; word-break:break-all;">
-        ${filteredParams.map(param => html`<tr> 
-          <td style="min-width:80px;">
-            <div class="param-name">
-              ${param.required?html`<span style='color:orangered'>*</span>`:``}${param.name}
-            </div>
-            <div class="param-type">${unsafeHTML(getTypeInfo(param.schema))}</div>
-          </td>  
-          <td style="min-width:100px">
-            <input type="text" class="request-param" data-pname="${param.name}" data-ptype="${paramType}" style="width:100%" value="${param.example?param.example:''}">
-          </td>
-          <td>
-            ${param.description?html`<span class="m-markdown-small"> ${unsafeHTML(marked(param.description))} </span> `:``}
-          </td>  
-        </tr>`
-        )}
+      <table class="m-table" style="width:100%; word-break:break-word;;">
+        ${tableRows}
       </table>
     </div>`
   }
@@ -196,6 +231,7 @@ export default class ApiRequest extends LitElement {
 
     let content = this.request_body.content;
     for(let mimeReq in content ) {
+      // do not change shortMimeTypes values, they are referenced in other places
       if (mimeReq.includes('json')){shortMimeTypes[mimeReq]='json';}
       else if (mimeReq.includes('xml')){shortMimeTypes[mimeReq]='xml';}
       else if (mimeReq.includes('text/plain')){shortMimeTypes[mimeReq]='text';}

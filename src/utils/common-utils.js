@@ -23,8 +23,116 @@ function copyToClipboard(elId) {
     return copyText.value;
 }
 
+function getParamTypeInfo(schema, overrideAttributes=null){
+  let returnObj = {
+    hasCircularRefs:schema.type==="circular",
+    format    : schema.format?schema.format:'',
+    pattern   : (schema.pattern && !schema.enum) ? schema.pattern:'',
+    readOnly  : schema.readOnly ? '🆁\u00a0' : '',
+    writeOnly : schema.writeOnly ? '🆆\u00a0' : '',
+    depricated: schema.deprecated ? '❌\u00a0' : '',
+    default   : schema.default==0 ? '0 ': (schema.default ? schema.default : ''),
+    type      : '',
+    allowedValues:'',
+    constrain : '',
+    html      : ''
+  };
+  if (returnObj.hasCircularRefs){
+    return returnObj;
+  }
+  // Set the Type
+  if (schema.enum) {
+    let opt=""
+    schema.enum.map(function(v){
+      opt = opt + `${v}, `
+    });
+    returnObj.type='enum';
+    returnObj.allowedValues = opt.slice(0,-2);
+  }
+  else if (schema.type) {
+    returnObj.type = schema.type;
+  }
+  
+  if (schema.type==="array" && schema.items){
+    let arraySchema = schema.items;
+    returnObj.type = `${schema.type} of ${arraySchema.type}`;
+    returnObj.default = arraySchema.default==0 ? '0 ': (arraySchema.default ? arraySchema.default : '');
+    if (arraySchema.enum){
+      let opt=""
+      arraySchema.enum.map(function(v){
+        opt = opt + `${v}, `
+      });
+      returnObj.allowedValues = opt.slice(0,-2);
+    }
+  }
+  else if (schema.type==="integer" || schema.type==="number"){
+    if (schema.minimum !== undefined && schema.maximum!==undefined){
+      returnObj.constrain = `${schema.exclusiveMinimum?">":""}${schema.minimum}\u00a0\u22ef\u00a0${schema.exclusiveMaximum?"<":""}\u00a0${schema.maximum}`
+    }
+    else if (schema.minimum!==undefined && schema.maximum===undefined){
+      returnObj.constrain = `${schema.exclusiveMinimum?">":"≥"}${schema.minimum}`
+    }
+    else if (schema.minimum===undefined && schema.maximum!==undefined){
+      returnObj.constrain = `${schema.exclusiveMaximum?"<":"≤"}${schema.maximum}`
+    }
+    if (schema.multipleOf!==undefined){
+      returnObj.constrain = `(multiple\u00a0of\u00a0${schema.multipleOf})`
+    }
+  }
+  else if (schema.type==="string"){
+    if (schema.minLength !==undefined  && schema.maxLength !==undefined ){
+      returnObj.constrain = `(${schema.minLength}\u00a0to\u00a0${schema.maxLength}\u00a0chars)`;
+    }
+    else if (schema.minLength!==undefined  && schema.maxLength===undefined ){
+      returnObj.constrain = `(min:${schema.minLength}\u00a0chars)`;
+    }
+    else if (schema.minLength===undefined  && schema.maxLength!==undefined ){
+      returnObj.constrain = `(max:${schema.maxLength}\u00a0chars)`;
+    }
+  }
+
+  if (overrideAttributes){
+    if (overrideAttributes.readOnly){
+      returnObj.readOnly = '🆁\u00a0';
+    }
+    if (overrideAttributes.writeOnly){
+      returnObj.writeOnly = '🆆\u00a0';
+    }
+    if (overrideAttributes.deprecated){
+      returnObj.deprecated = '❌\u00a0';
+    }
+  }
+
+  // ${returnObj.readOnly}${returnObj.writeOnly}${returnObj.deprecated}\u00a0
+  let html = `${returnObj.type}`;
+  if (returnObj.allowedValues){
+    html = html + `:(${returnObj.allowedValues})`;
+  }
+  if (returnObj.readOnly){
+    html = html + `\u00a0🆁`;
+  }
+  if (returnObj.writeOnly){
+    html = html + `\u00a0🆆`;
+  }
+  if (returnObj.deprecated){
+    html = html + `\u00a0❌`;
+  }
+
+  if (returnObj.constrain){
+    html = html + `\u00a0${returnObj.constrain}`;
+  }
+  if (returnObj.format){
+    html = html + `\u00a0${returnObj.format}`;
+  }
+  if (returnObj.pattern){
+    html = html + `\u00a0${returnObj.pattern}`;
+  }
+  returnObj.html = html;
+  return returnObj;
+}
+
 /* Generates an HTML string containing type and constraint info */
-function getTypeInfo(schema, overrideAttributes=null, inSingleLine=true){
+function getTypeInfo(schema, overrideAttributes=null){
     let html ="";
     if (schema.type==="circular"){
         return "circular-ref";
@@ -90,13 +198,11 @@ function getTypeInfo(schema, overrideAttributes=null, inSingleLine=true){
         }
     }
 
-
-    let lineBreak = inSingleLine?"":"<br/>";
     if (schema.format){
-        html = html + `${lineBreak}\u00a0(${schema.format})`;    
+        html = html + `\u00a0(${schema.format})`;    
     }
     if (schema.pattern && !schema.enum){
-        html = html + `${lineBreak}\u00a0(${schema.pattern})`;    
+        html = html + `\u00a0(${schema.pattern})`;    
     }
     return html;
 }
@@ -104,50 +210,51 @@ function getTypeInfo(schema, overrideAttributes=null, inSingleLine=true){
 
 /* For changing JSON-Schema to a Object Model that can be represnted in a tree-view */ 
 function schemaToModel (schema, obj) {
-    if (schema==null){
-        return;
+  if (schema==null){
+    return;
+  }
+  if (schema.type==="object" || schema.properties){
+    if (schema.description){
+      obj[":description"] = schema.description;
     }
-    if (schema.type==="object" || schema.properties){
-        if (schema.description){
-            obj[":description"] = schema.description;
-        }
-        for( let key in schema.properties ){
-            obj[key] = schemaToModel(schema.properties[key],{});
-        }
+    for( let key in schema.properties ){
+      obj[key] = schemaToModel(schema.properties[key],{});
     }
-    else if (schema.type==="array" || schema.items ){
-        //let temp = Object.assign({}, schema.items );
-        obj = [schemaToModel(schema.items,{})  ]
-    }
-    else if (schema.allOf ){
-        if (schema.allOf.length===1){
-            if (!schema.allOf[0]){
-                return `string~|~${schema.description?schema.description:''}`;
-            }
-            else{
-                let overrideAttrib = { 
-                    "readOnly":schema.readOnly, 
-                    "writeOnly":schema.writeOnly, 
-                    "deprecated":schema.deprecated
-                };
-                return `${ getTypeInfo(schema.allOf[0],overrideAttrib) }~|~${schema.description?schema.description:''}`
-            }
-        }
+  }
+  else if (schema.type==="array" || schema.items ){
+    //let temp = Object.assign({}, schema.items );
+    obj = [schemaToModel(schema.items,{})  ]
+  }
+  else if (schema.allOf ){
+    if (schema.allOf.length===1){
+      if (!schema.allOf[0]){
+        return `string~|~${schema.description?schema.description:''}`;
+      }
+      else{
+        let overrideAttrib = { 
+          "readOnly":schema.readOnly, 
+          "writeOnly":schema.writeOnly, 
+          "deprecated":schema.deprecated
+        };
 
-        // If allOf is an array of multiple elements, then they are the keys of an object
-        let objWithAllProps = {};
-        schema.allOf.map(function(v){
-            if (v && v.properties){
-                let partialObj = schemaToModel(v,{});
-                Object.assign(objWithAllProps, partialObj);
-            }
-        });
-        obj = objWithAllProps;
+        return `${ getParamTypeInfo(schema.allOf[0],overrideAttrib).html }~|~${schema.description?schema.description:''}`
+      }
     }
-    else{
-        return `${getTypeInfo(schema)}~|~${schema.description?schema.description:''}`;
-    }
-    return obj;
+
+    // If allOf is an array of multiple elements, then they are the keys of an object
+    let objWithAllProps = {};
+    schema.allOf.map(function(v){
+      if (v && v.properties){
+        let partialObj = schemaToModel(v,{});
+        Object.assign(objWithAllProps, partialObj);
+      }
+    });
+    obj = objWithAllProps;
+  }
+  else{
+    return `${getParamTypeInfo(schema).html}~|~${schema.description?schema.description:''}`;
+  }
+  return obj;
 }
 
 
@@ -428,4 +535,4 @@ function removeCircularReferences(level=0) {
   };
 
 
-export { debounce, schemaToModel, schemaToObj, schemaToElTree, generateExample, getTypeInfo, getBaseUrlFromUrl, removeCircularReferences }
+export { debounce, schemaToModel, schemaToObj, schemaToElTree, generateExample, getTypeInfo, getParamTypeInfo, getBaseUrlFromUrl, removeCircularReferences }
