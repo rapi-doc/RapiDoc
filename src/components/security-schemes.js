@@ -64,7 +64,7 @@ export default class SecuritySchemes extends LitElement {
               </div>
             `:``}
             ${this.schemes[s].type==='http' && this.schemes[s].scheme==='bearer'?html`
-              Send <code>'Authorization'</code> in header which will contains the word  <code>'Bearer'</code> ffollowed by a space and a Token String.
+              Send <code>'Authorization'</code> in header which will contains the word  <code>'Bearer'</code> followed by a space and a Token String.
               <div class="api-key" data-type="${this.schemes[s].type}" data-scheme="${this.schemes[s].scheme}" data-in="header" data-name="Authorization" style="margin:15px 0">
                 <input type="text" name="token" style="width:202px;" placeholder="api-token">
                 <button 
