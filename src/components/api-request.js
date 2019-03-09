@@ -1,13 +1,14 @@
 import { LitElement, html } from 'lit-element';
 import JsonTree from '@/components/json-tree'; 
-import SchemaTree from '@/components/schema-tree';  
+import SchemaTree from '@/components/schema-tree';
+import TagInput from '@/components/tag-input';   
 import vars from '@/styles/vars';
 import TableStyles from '@/styles/table-styles';
 import FlexStyles from '@/styles/flex-styles';
 import InputStyles from '@/styles/input-styles';
 import FontStyles from '@/styles/font-styles';
 import CommonStyles from '@/styles/common-styles';
-import { schemaToModel, getTypeInfo, getParamTypeInfo, generateExample, removeCircularReferences} from '@/utils/common-utils';
+import { schemaToModel, getTypeInfo,  generateExample, removeCircularReferences} from '@/utils/common-utils';
 import marked from 'marked';
 import {unsafeHTML} from 'lit-html/directives/unsafe-html.js';
 import {repeat} from "lit-html/lib/repeat"
@@ -41,6 +42,12 @@ export default class ApiRequest extends LitElement {
       .param-type{
         color: var(--light-fg); 
         font-family: var(--font-regular);
+      }
+      .param-constraint{
+        min-width:100px;
+      }
+      .param-constraint:empty{
+        display:none;
       }
       .top-gap{margin-top:24px;}
       .tab-buttons{
@@ -158,7 +165,7 @@ export default class ApiRequest extends LitElement {
     
     const tableRows = [];
     for (const param of filteredParams)  {
-      let paramSchema = getParamTypeInfo(param.schema);
+      let paramSchema = getTypeInfo(param.schema);
       let inputVal='';
       if (param.example=='0'){
         inputVal='0'
@@ -173,14 +180,32 @@ export default class ApiRequest extends LitElement {
           <div class="param-name">
             ${param.required?html`<span style='color:orangered'>*</span>`:``}${param.name}
           </div>
-          <div class="param-type">${paramSchema.type}${paramSchema.format?`\u00a0(${paramSchema.format})`:''}</div>
+          <div class="param-type">
+          ${paramSchema.type==='array' ? `${paramSchema.arrayType}` 
+          :`${paramSchema.type}${paramSchema.format?`\u00a0(${paramSchema.format})`:''}`}
+          </div>
         </td>  
-        <td style="min-width:100px">
-          <input type="text" class="request-param" data-pname="${param.name}" data-ptype="${paramType}" style="width:100%" value="${inputVal}">
+        <td style="min-width:100px;">
+          ${paramSchema.type === 'array'?html`
+          <tag-input class="request-param" style="width:100%;font-size:13px;background:var(--input-bg);line-height:13px;" 
+            data-ptype="${paramType}" 
+            data-pname="${param.name}"
+            data-array="true"
+            placeholder="add-multiple\u23ce"
+          ></tag-input>`
+          :html`<input type="text" style="width:100%" class="request-param" 
+            data-pname="${param.name}" 
+            data-ptype="${paramType}"  
+            data-array="false"
+            value="${inputVal}">`
+          }
+          
         </td>
         <td>
-          ${paramSchema.constrain?html`${paramSchema.constrain}<br/>`:``}
-          ${paramSchema.allowedValues?html`${paramSchema.allowedValues}`:``}
+          <div class="param-constraint">
+            ${paramSchema.constrain?html`${paramSchema.constrain}<br/>`:``}
+            ${paramSchema.allowedValues?html`${paramSchema.allowedValues}`:``}
+          </div>
         </td>  
       </tr>
       ${param.description?html`
@@ -195,14 +220,6 @@ export default class ApiRequest extends LitElement {
         :``}
     `)
     }
-
-    /*
-    for (const i of items) {
-      tableRows.push(html`<li>${i}</li>`);
-    }
-    */
-    
-
 
     return html`
     <div class="table-title top-gap">${title}</div>
@@ -226,6 +243,7 @@ export default class ApiRequest extends LitElement {
     let bodyDescrHtml = this.request_body.description? html`<div class="m-markdown"> ${unsafeHTML(marked(this.request_body.description))}</div>`:'';
     let textareaExampleHtml='';
     let formDataHtml='';
+    const formDataTableRows = [];
     let isFormDataPresent   = false;
     let reqSchemaTree="";
 
@@ -260,31 +278,57 @@ export default class ApiRequest extends LitElement {
       }
       else if (mimeReq.includes('form') || mimeReq.includes('multipart-form')){
         isFormDataPresent = true;
-        for (let fieldName in mimeReqObj.schema.properties){
-          formDataHtml = formDataHtml + `<tr> 
-            <td style="min-width:80px">
+        for (const fieldName in mimeReqObj.schema.properties)  {
+          const fieldSchema = mimeReqObj.schema.properties[fieldName];
+          const fieldType = fieldSchema.type;
+          const arrayType = fieldSchema.type==='array'?fieldSchema.items.type:'';
+          formDataTableRows.push(html`
+          <tr> 
+            <td style="min-width:100px;">
               <div class="param-name">${fieldName}</div>
               <div class="param-type">
-                ${mimeReqObj.schema.properties[fieldName].type} 
-                ${mimeReqObj.schema.properties[fieldName].format?`(${mimeReqObj.schema.properties[fieldName].format})`:''}
+              ${fieldType==='array' ? `${fieldType} of ${arrayType}` 
+              :`${fieldType} ${fieldSchema.format?`\u00a0(${fieldSchema.format})`:''}`}
               </div>
-            </td>
-            <td style="min-width:100px">
-              <input 
-                type="${mimeReqObj.schema.properties[fieldName].format==='binary'?'file':'text'}" 
-                name="${fieldName}"
-                class="request-form-param"
-                style="width:100%"
+            </td>  
+            <td style="min-width:100px;">
+              ${fieldType === 'array'?html`
+              <tag-input class="request-form-param" style="width:100%;font-size:13px;background:var(--input-bg);line-height:13px;" 
+                data-ptype="${fieldType}" 
+                data-pname="${fieldName}"
+                data-array="true"
+                placeholder="add-multiple\u23ce"
+              ></tag-input>`
+              :html`<input 
+                type="${fieldSchema.format==='binary'?'file':'text'}" 
+                style="width:100%" class="request-form-param" 
                 data-pname="${fieldName}" 
-                data-ptype="body-form" 
-              />
+                data-ptype="${fieldType}"  
+                data-array="false" />`
+              }
+              
             </td>
             <td>
-              ${mimeReqObj.schema.properties[fieldName].description ?`<span class="m-markdown-small">${marked(mimeReqObj.schema.properties[fieldName].description)}</span>`:''}
+              <div class="param-constraint"></div>
             </td>  
-          </tr>`
+          </tr>
+          ${fieldSchema.description?html`
+            <tr>
+              <td style="border:none"></td>
+              <td colspan="2" style="border:none; margin-top:0; padding:0 5px;"> 
+                <span class="m-markdown-small">${unsafeHTML(marked(fieldSchema.description))}</span>
+              </td>
+            </tr>`
+            :``}
+          `);
         }
-        formDataHtml = `<form class="${shortMimeTypes[mimeReq]}"><table style="width: 100%" class="m-table">${formDataHtml}</table></form>`;  
+
+        formDataHtml = html`
+        <form class="${shortMimeTypes[mimeReq]}" onsubmit="event.preventDefault();">
+          <table style="width: 100%" class="m-table">
+            ${formDataTableRows}
+          </table>
+        </form>`;  
       }
       mimeReqCount++;
     }
@@ -292,7 +336,7 @@ export default class ApiRequest extends LitElement {
     return html`
       <div class="table-title top-gap ${isFormDataPresent?'form_data':'body_data'} "> ${isFormDataPresent?'FORM':'BODY'} DATA ${this.request_body.required?'(required)':''} </div>
       ${bodyDescrHtml}
-      ${isFormDataPresent?html`${unsafeHTML(formDataHtml)}`
+      ${isFormDataPresent?html`${formDataHtml}`
         :html`
         <div class="tab-panel col" style="border-width:0; min-height:200px">
           <div id="tab_buttons" class="tab-buttons row" @click="${this.activateTab}">
@@ -360,7 +404,7 @@ export default class ApiRequest extends LitElement {
         <button class="tab-btn" content_id="tab_curl">CURL</button>
       </div>
       <div id="tab_response_text" class="tab-content col" style="flex:1; ">
-        <textarea class="mono" style="min-height:180px; padding:16px; white-space:nowrap;">${this.responseText}</textarea>
+        <textarea class="mono" style="min-height:180px; padding:16px;">${this.responseText}</textarea>
       </div>
       <div id="tab_response_headers" class="tab-content col" style="flex:1;display:none">
         <textarea class="mono" style="min-height:180px; padding:16px; white-space:nowrap;">${this.responseHeaders}</textarea>
@@ -414,33 +458,42 @@ export default class ApiRequest extends LitElement {
     let fetchOptions={
       'mode'   : "cors",
       'method' : this.method.toUpperCase(),
-      'headers':{},
+      'headers': {},
     }
-    
-    //Path Params
+    //Generate URL using Path Params
     pathParamEls.map(function(el){
       fetchUrl = fetchUrl.replace("{"+el.dataset.pname+"}", el.value);
     });
 
-    //Query Params
+    //Submit Query Params
     if (queryParamEls.length>0){
       let queryParam = new URLSearchParams("");
       queryParamEls.map(function(el){
-        queryParam.append(el.dataset.pname, el.value);
+        if (el.dataset.array==='false'){
+          if (el.value !== ''){
+            queryParam.append(el.dataset.pname, el.value);
+          }
+        }
+        else {
+          let vals = el.getValues();
+          for(let v of vals){
+            queryParam.append(el.dataset.pname, v);
+          }
+        }
       })
       fetchUrl = `${fetchUrl}?${queryParam.toString()}`;
     }
     
-    // Add authentication Query if provided 
+    // Add authentication Query-Param if provided 
     if (this.apiKeyValue && this.apiKeyName && this.apiKeyLocation==='query'){
       fetchUrl = `${fetchUrl}&${this.apiKeyName}=${this.apiKeyValue}`;
     }
 
-    //Final URL
+    //Final URL for API call
     fetchUrl = `${this.server.replace(/\/$/, "")}${fetchUrl}`;
     curl=`curl -X ${this.method.toUpperCase()} "${fetchUrl}" `;
 
-    //Header Params
+    //Submit Header Params
     headerParamEls.map(function(el){
       if (el.value){
         fetchOptions.headers[el.dataset.pname] =  el.value;
@@ -453,12 +506,39 @@ export default class ApiRequest extends LitElement {
       curlHeaders = curlHeaders + ` -H "${this.apiKeyName}: ${this.apiKeyValue}"`;
     }
 
-    //Form Params
+    //Submit Form Params (url-encoded or form-data)
     if (formParamEls.length>=1){
-
       let formEl = requestPanelEl.querySelector("form");
+      const formUrlParams = new URLSearchParams();
+      const formDataParams = new FormData();
+      formParamEls.map(function(el){
+        if (el.dataset.array==='false'){
+          if (el.type !== 'file'){
+            if (el.value !== ''){
+              formUrlParams.append(el.dataset.pname, el.value);
+              formDataParams.append(el.dataset.pname, el.value);
+              curlForm = curlForm + ` -F "${el.dataset.pname}=${el.value}"`;
+            }
+          }
+          else {
+            if (el.files[0]){
+              formUrlParams.append(el.dataset.pname, el.files[0]);
+              formDataParams.append(el.dataset.pname, el.files[0]);
+              curlForm = curlForm + ` -F "${el.dataset.pname}=@${el.value}"`;
+            }
+          }
+        }
+        else{
+          let vals = el.getValues();
+          for(let v of vals){
+            formUrlParams.append(el.dataset.pname, v);
+            formDataParams.append(el.dataset.pname, v);
+            curlForm = curlForm + ` -F "${el.dataset.pname}=${v}"`;
+          }
+        }
+      });
+
       if (formEl.classList.contains("form-urlencoded")){
-        let formUrlParams = new URLSearchParams();
         fetchOptions.headers['Content-Type'] = 'application/x-www-form-urlencoded; charset=utf-8'
         curlHeaders = curlHeaders + ` -H "Content-Type: application/x-www-form-urlencoded"`;
         fetchOptions.body = formUrlParams;
@@ -466,22 +546,11 @@ export default class ApiRequest extends LitElement {
       else {
         //fetchOptions.headers['Content-Type'] = 'multipart/form-data' // Dont set content type for fetch, coz the browser must auto-generate boundry value too 
         curlHeaders = curlHeaders + ` -H "Content-Type: multipart/form-data"`;
-        fetchOptions.body = new FormData(formEl);
+        fetchOptions.body = formDataParams;
       }
-
-      formParamEls.map(function(el){
-        if (el.value){
-          if (el.type !== 'file'){
-            curlForm = curlForm + ` -F "${el.dataset.pname}=${el.value}"`;
-          }
-          else{
-            curlForm = curlForm + ` -F "${el.dataset.pname}=@${el.value}"`;
-          }
-        }
-      });
     }
 
-    //Body Params (json/xml/text)
+    //Submit Body Params (json/xml/text)
     if (bodyParamEls.length>=1){
       if (bodyParamEls.length===1){
         fetchOptions.headers['Content-Type'] = bodyParamEls[0].dataset.ptype;
