@@ -4,18 +4,22 @@ const FileManagerPlugin = require('filemanager-webpack-plugin');
 const webpack = require('webpack');
 const CompressionPlugin = require('compression-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const { DuplicatesPlugin } = require("inspectpack/plugin");
+
 const path = require('path');
 
 module.exports = {
     entry: './src/index.js',
     node: {fs: 'empty'},
     externals: {
-        esprima: 'esprima'
+      esprima: 'esprima',
     },
     optimization: {
-        splitChunks: {
-            chunks: 'all'
-        }
+      runtimeChunk:'single',
+      removeAvailableModules: true,
+      splitChunks: {
+        chunks: 'all'
+      }
     },
     
     devtool: 'cheap-module-source-map',
@@ -65,8 +69,9 @@ module.exports = {
             maxChunks:1
         }),
         new CleanWebpackPlugin(),
-        new HtmlWebpackPlugin({title: 'RAPIDoc', template: 'index.html'}),
+        new HtmlWebpackPlugin({template: 'index.html'}),
         new BundleAnalyzerPlugin({analyzerMode:'static'}),
+        new DuplicatesPlugin({emitErrors: false, verbose: true}),
         new CompressionPlugin(),
         new FileManagerPlugin({
             onEnd : {

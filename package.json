@@ -31,7 +31,11 @@
     "lodash.clonedeep": "^4.5.0",
     "lodash.debounce": "^4.0.8",
     "marked": "^0.6.1",
-    "swagger2openapi": "^5.2.3"
+    "swagger2openapi": "^4.0.2"
+  },
+  "resolutions": {
+    "json-schema-ref-parser/**/js-yaml": "3.12.2",
+    "swagger2openapi/js-yaml": "3.12.2"
   },
   "scripts": {
     "build": "webpack --mode=${NODE_ENV:-production}",
@@ -48,6 +52,7 @@
     "file-loader": "^3.0.1",
     "filemanager-webpack-plugin": "^2.0.5",
     "html-webpack-plugin": "^3.2.0",
+    "inspectpack": "^4.1.2",
     "node-sass": "^4.11.0",
     "sass-loader": "^7.1.0",
     "style-loader": "^0.23.1",
