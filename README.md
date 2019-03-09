@@ -48,7 +48,7 @@ Custom Eelement for Open-API spec viewing
 ## Help RapiDoc grow
 If you like this project, and would like to help us raise awareness of RapiDoc, 
 I am looking for adding links to your design of RapiDoc. 
-I often find it's helpful to see use-cases "in the wild".
-Be it a new style, an integration project with another framework such as vue, 
-or be it just a Logo of your organization which would validate our commitment to quality.
+
+I often find it's helpful to see use-cases "in the wild". Be it a new style, an integration project with another framework such as vue, or be it just a Logo of your organization which would validate our commitment to quality.
+
 You can suggest your RapiDoc's Design by creating an issue and we will take it from there.
