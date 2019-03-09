@@ -15,8 +15,6 @@ module.exports = {
       esprima: 'esprima',
     },
     optimization: {
-      runtimeChunk:'single',
-      removeAvailableModules: true,
       splitChunks: {
         chunks: 'all'
       }
