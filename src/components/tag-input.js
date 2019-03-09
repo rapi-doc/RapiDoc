@@ -26,8 +26,9 @@ export default class TagInput extends LitElement {
         margin:2px;
       }
       .tag{
-        border:1px solid lightgray;
-        background-color:#fafafa;
+        border:1px solid var(--border-color);
+        background-color:var(--bg2);
+        color:var(--fg2);
         border-radius:var(--border-radius);
         word-break: break-all;
         cursor: none;
@@ -38,12 +39,13 @@ export default class TagInput extends LitElement {
       .editor{
         flex:1;
         border:1px solid transparent;
+        background:var(--input-bg);
+        color:var(--fg);
         min-width:60px;
         outline: none;
         line-height: inherit;
         font-family:inherit;
         font-size:inherit;
-        color:inherit;
       }
       .editor::placeholder {
         color: var(--placeholder-color);
