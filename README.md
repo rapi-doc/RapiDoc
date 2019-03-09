@@ -45,12 +45,10 @@ Custom Eelement for Open-API spec viewing
 [Check out the usage and examples](https://mrin9.github.io/RapiDoc/)
 
 
-## Roadmap
-- &#128077; Get the bundle size even smaller (~ 125 Kb gzipped)
-- &#128077; Provide a console to try out the APIs
-- &#128077; HTTP and Token based Authentication process
-- &#128077; Allow replacing default logo
-- &#128077; Allow embeding custom HTML content 
-- &#128077; Responsive design
-- &#128077; Search API Functionality
-- Enable OAuth
+## Help RapiDoc grow
+If you like this project, and would like to help us raise awareness of RapiDoc, 
+I am looking for adding links to your design of RapiDoc. 
+I often find it's helpful to see use-cases "in the wild".
+Be it a new style, an integration project with another framework such as vue, 
+or be it just a Logo of your organization which would validate our commitment to quality.
+You can suggest your RapiDoc's Design by creating an issue and we will take it from there.
