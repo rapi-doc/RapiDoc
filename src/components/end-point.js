@@ -33,7 +33,7 @@ export default class EndPoint extends LitElement {
         <div class="path ${this.path.deprecated?'deprecated':''}"> ${this.path.path} </div>
         ${this.path.deprecated?html`<span style="font-size:12px; text-transform:uppercase; font-weight:bold; color:orangered; margin:2px 0 0 5px;"> deprecated </span>`:''}
         <div class="only-large-screen" style="min-width:60px; flex:1"></div>
-        <div class="descr"> ${this.path.summary} </div>
+        <div class="m-markdown-small descr"> ${unsafeHTML(marked(this.path.summary))} </div>
       </div>
       
       <!-- Endpoint Body -->
@@ -41,7 +41,7 @@ export default class EndPoint extends LitElement {
       <div class='body ${this.path.method}'>
         ${this.path.summary || this.path.description?html`
           <div class="summary">
-            <div class="title">${this.path.summary}</div>
+            <div class="m-markdown title">${unsafeHTML(marked(this.path.summary))}</div>
             ${this.path.summary !== this.path.description?html`
               <div class="m-markdown"> 
                 ${unsafeHTML(marked(this.path.description?this.path.description:''))}
@@ -219,6 +219,10 @@ export default class EndPoint extends LitElement {
       }
       .head .descr{
         display: flex;
+      }
+      .head .m-markdown-small,
+      .descr .m-markdown-small{
+        display:block;
       }
       .only-large-screen{
         display:block;

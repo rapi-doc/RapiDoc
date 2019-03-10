@@ -45,6 +45,21 @@ Custom Eelement for Open-API spec viewing
 [Check out the usage and examples](https://mrin9.github.io/RapiDoc/)
 
 
+## Build Process
+We recommend `yarn` over `npm` as we use yarn [resolutions](https://yarnpkg.com/lang/en/docs/selective-version-resolutions/) to keep the bundle size smaller. As of this writing this feature is not supported in npm natively 
+```bash
+# Clone / Download the project then
+yarn install
+
+# build will generate rapidoc-min.js, this is the only file you will need.
+# use it in the script tag of your html <script type="text/javascript" src="rapidoc-min.js"></script></body>
+yarn build 
+
+# for developement use yarn serve (this will start an webserver at port 8080, then navigate to localhost:8080) 
+yarn serve
+```
+
+
 ## Help RapiDoc grow
 If you like this project, and would like to help us raise awareness of RapiDoc, 
 I am looking for adding links to your design of RapiDoc. 

@@ -32,6 +32,10 @@ export default html`
         margin-top:0;
     }
     */
+    .m-markdown,
+    .m-markdown-small{
+      display:block;
+    }
     .m-markdown li,
     .m-markdown p,
     .m-markdown span{
@@ -79,9 +83,12 @@ export default html`
     }
     .m-markdown ul,
     .m-markdown ol{
-        padding-inline-start:30px
+        padding-inline-start:30px;
     }
-    .m-markdown a{color:var(--link-color)}
+    .m-markdown-small a,
+    .m-markdown a{
+      color:var(--link-color);
+    }
     .m-markdown img{max-width:100%}
 
     /* Markdown table */
