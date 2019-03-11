@@ -167,7 +167,6 @@ export default class RapiDoc extends LitElement {
         }
 
       </style>
-
       ${this.showHeader==='false'?'':html`
       <div class="row header regular-font" style="padding:8px 4px 8px 4px;min-height:48px;position:sticky;top:0;flex:1">
         <div class="only-large-screen-flex" style="align-items: center;">
@@ -197,6 +196,7 @@ export default class RapiDoc extends LitElement {
 
       <div class="body-container regular-font">
         <slot></slot>
+        ${this.loading===true?html`<div style="text-align: center;margin: 16px;">Loading ... </div>`:''}
         ${ (this.showInfo==='false' || !this.resolvedSpec || !this.resolvedSpec.info) ?``:html`
         <div class="section-gap">
           <div class="title">
@@ -284,7 +284,6 @@ export default class RapiDoc extends LitElement {
     }
     attributeChangedCallback(name, oldVal, newVal) {
       if (name=='spec-url'){
-        console.log("url changed")
         if (oldVal !== newVal){
           this.loadSpec(newVal);
         }
@@ -344,6 +343,7 @@ export default class RapiDoc extends LitElement {
       if (!specUrl){
         return;
       }
+      this.loading        = true;
       this.apiKeyName     = "";
       this.apiKeyValue    = "";
       this.apiKeyLocation = "";
@@ -351,16 +351,16 @@ export default class RapiDoc extends LitElement {
       this.matchPaths     = "";
 
       ProcessSpec(specUrl).then(function(spec){
+        me.loading = false;
         if (spec===undefined || spec === null){
-          console.error('Onoes! The API is invalid. ');
+          console.error('Unable to resolve the API spec. ');
         }
         console.log(spec);
         me.afterSpecParsedAndValidated(spec);
       })
       .catch(function(err) {
         me.loading=false;
-        alert("The API Spec is invalid or not readable ");
-        console.error('Onoes! The API is invalid. ' + err.message);
+        console.error('Unable to resolve the API spec.. ' + err.message);
       });
     }
 

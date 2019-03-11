@@ -23,6 +23,7 @@ module.exports = {
     devtool: 'cheap-module-source-map',
     devServer: {
         contentBase: './dist',
+        port: 8080,
         hot: true
     },
     module: {
@@ -45,10 +46,10 @@ module.exports = {
           {
             test: /\.(woff|woff2|eot|ttf|otf)$/,
             use: [{
-                loader:"file-loader",
-                options:{
-                    name: '[name].[ext]'
-                }
+              loader:"file-loader",
+              options:{
+                  name: '[name].[ext]'
+              }
             }]
           }
         ]
@@ -72,12 +73,12 @@ module.exports = {
         new DuplicatesPlugin({emitErrors: false, verbose: true}),
         new CompressionPlugin(),
         new FileManagerPlugin({
-            onEnd : {
-              copy: [
-                {source: 'dist/*.js', destination: 'docs' },
-                {source: 'dist/*.woff2', destination: 'docs' }
-              ]
-            }
+          onEnd : {
+            copy: [
+              {source: 'dist/*.js', destination: 'docs' },
+              {source: 'dist/*.woff2', destination: 'docs' }
+            ]
+          }
         })
     ]
 }
