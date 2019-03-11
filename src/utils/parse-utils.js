@@ -12,7 +12,7 @@ export default async function ProcessSpec(specUrl){
     });
   }
   catch(err){
-    debugger;
+    console.info("%c There was an issue while parsing the spec %o ", "color:orangered", err);
     jsonParsedSpec = await parser.bundle(specUrl, {
       resolve: { http: { withCredentials: false } }
     });
