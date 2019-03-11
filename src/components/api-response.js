@@ -114,7 +114,9 @@ export default class ApiResponse extends LitElement {
           if (mimeRespObj.schema.$ref){
             mimeRespObj.schema = this.parser.$refs.get(mimeRespObj.schema.$ref);
           }
-          //mimeRespObj.schema = JSON.parse(JSON.stringify(mimeRespObj.schema, removeCircularReferences(0)));
+          else{
+            mimeRespObj.schema = JSON.parse(JSON.stringify(mimeRespObj.schema, removeCircularReferences(0)));
+          }
         }
         catch{
           console.error("Unable to resolve circular refs in schema", mimeRespObj.schema);

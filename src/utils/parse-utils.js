@@ -2,7 +2,7 @@
 import JsonSchemaRefParser from 'json-schema-ref-parser';
 import converter from 'swagger2openapi';
 
-export default async function ProcessSpec(specUrl){
+export default async function ProcessSpec(specUrl, resolveCircularRefs){
   const parser = new JsonSchemaRefParser();
   let jsonParsedSpec, convertedSpec;
   let convertOptions = { patch:true, warnOnly:true };
@@ -26,10 +26,16 @@ export default async function ProcessSpec(specUrl){
     else {
       convertedSpec = await converter.convertObj(specUrl, convertOptions);
     }
-    //jsonParsedSpec = await parser.dereference(convertedSpec.openapi);
-    jsonParsedSpec = await parser.bundle(convertedSpec.openapi);
+
+    if (resolveCircularRefs==='false'){
+      jsonParsedSpec = await parser.bundle(convertedSpec.openapi);
+    }
+    else{
+      jsonParsedSpec = await parser.dereference(convertedSpec.openapi);
+    }
   }
   catch(err){
+    debugger;    
     console.info("%c There was an issue while parsing the spec %o ", "color:orangered", err);
     jsonParsedSpec = await parser.bundle(specUrl, refParserOptions);
   }

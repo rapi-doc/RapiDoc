@@ -280,7 +280,8 @@ export default class RapiDoc extends LitElement {
         logoUrl : { type: String , attribute: 'logo-url' },
         apiKeyName    : { type: String, attribute: 'api-key-name' },
         apiKeyValue   : { type: String, attribute: 'api-key-value' },
-        apiKeyLocation: { type: String, attribute: 'api-key-location' },
+        apiKeyLocation: { type: String, attribute: 'api-key-location'},
+        resolveCircularRefs: { type: String, attribute: 'resolve-circular-refs' },
       };
     }
     attributeChangedCallback(name, oldVal, newVal) {
@@ -351,7 +352,7 @@ export default class RapiDoc extends LitElement {
       this.server         = "";
       this.matchPaths     = "";
 
-      ProcessSpec(specUrl).then(function(spec){
+      ProcessSpec(specUrl, this.resolveCircularRefs).then(function(spec){
         me.loading = false;
         if (spec===undefined || spec === null){
           console.error('Unable to resolve the API spec. ');
