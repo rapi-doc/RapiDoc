@@ -1,4 +1,5 @@
 import { LitElement, html } from 'lit-element';
+import JsonSchemaRefParser from 'json-schema-ref-parser';
 import JsonTree from '@/components/json-tree'; 
 import SchemaTree from '@/components/schema-tree';
 import TagInput from '@/components/tag-input';   
@@ -11,7 +12,6 @@ import CommonStyles from '@/styles/common-styles';
 import { schemaToModel, getTypeInfo,  generateExample, removeCircularReferences} from '@/utils/common-utils';
 import marked from 'marked';
 import {unsafeHTML} from 'lit-html/directives/unsafe-html.js';
-import {repeat} from "lit-html/lib/repeat"
 
 export default class ApiRequest extends LitElement {
   
@@ -140,6 +140,7 @@ export default class ApiRequest extends LitElement {
       path          : { type: String },
       parameters    : { type: Array },
       request_body  : { type: Object },
+      parser        : { type: Object },
       responseMessage: { type: String, attribute:false },
       responseText   : { type: String, attribute:false },
       responseHeaders: { type: String, attribute:false },
@@ -165,6 +166,12 @@ export default class ApiRequest extends LitElement {
     
     const tableRows = [];
     for (const param of filteredParams)  {
+      if (!param.schema){
+        continue;
+      }
+      if (param.schema.$ref){
+        param.schema = this.parser.$refs.get(param.schema.$ref);
+      }
       let paramSchema = getTypeInfo(param.schema);
       let inputVal='';
       if (param.example=='0'){
@@ -234,6 +241,10 @@ export default class ApiRequest extends LitElement {
     if(!this.request_body){
       return '';
     }
+    if (this.request_body.$ref){
+      this.request_body = this.parser.$refs.get(this.request_body.$ref);
+    }
+
     if (Object.keys(this.request_body).length == 0){
       return '';
     }
@@ -248,6 +259,7 @@ export default class ApiRequest extends LitElement {
     let reqSchemaTree="";
 
     let content = this.request_body.content;
+    
     for(let mimeReq in content ) {
       // do not change shortMimeTypes values, they are referenced in other places
       if (mimeReq.includes('json')){shortMimeTypes[mimeReq]='json';}
@@ -260,8 +272,12 @@ export default class ApiRequest extends LitElement {
       let reqExample="";
       if (mimeReq.includes('json') || mimeReq.includes('xml') || mimeReq.includes('text/plain')){
         //Remove Circular references from RequestBody json-schema 
+        
         try {
-          mimeReqObj.schema = JSON.parse(JSON.stringify(mimeReqObj.schema, removeCircularReferences()));
+          if (mimeReqObj.schema.$ref){
+            mimeReqObj.schema = this.parser.$refs.get(mimeReqObj.schema.$ref);
+          }
+          //mimeReqObj.schema = JSON.parse(JSON.stringify(mimeReqObj.schema, removeCircularReferences()));
         } 
         catch{
           console.error("Unable to resolve circular refs in schema", mimeReqObj.schema);

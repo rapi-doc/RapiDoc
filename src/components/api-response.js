@@ -91,7 +91,8 @@ export default class ApiResponse extends LitElement {
 */
   static get properties() {
     return {
-      responses:{type: Object}
+      responses: { type: Object },
+      parser   : { type: Object },
     };
   }
 
@@ -110,14 +111,14 @@ export default class ApiResponse extends LitElement {
         let mimeRespObj = this.responses[statusCode].content[mimeResp];
         //Remove Circular references from Response schema 
         try {
-            //mimeRespObj.schema = JSON.parse(JSON.stringify(mimeRespObj.schema, removeCircularReferences(0)));
-            if (mimeRespObj.schema){
-              mimeRespObj.schema = JSON.parse(JSON.stringify(mimeRespObj.schema, removeCircularReferences(0)));
-            }
+          if (mimeRespObj.schema.$ref){
+            mimeRespObj.schema = this.parser.$refs.get(mimeRespObj.schema.$ref);
+          }
+          //mimeRespObj.schema = JSON.parse(JSON.stringify(mimeRespObj.schema, removeCircularReferences(0)));
         }
         catch{
-            console.error("Unable to resolve circular refs in schema", mimeRespObj.schema);
-            return;
+          console.error("Unable to resolve circular refs in schema", mimeRespObj.schema);
+          return;
         }
         
         // Generate Schema

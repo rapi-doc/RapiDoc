@@ -247,6 +247,7 @@ export default class RapiDoc extends LitElement {
               api-key-location = "${this.apiKeyLocation?this.apiKeyLocation:''}"
               layout           = "${this.layout?this.layout:'row'}"
               .paths           = "${tag.paths}" 
+              .parser          = "${this.resolvedSpec.parser}"
               allow-try        = "${this.allowTry}"
               match-paths      = "${this.matchPaths}"
             ></end-points>
@@ -366,8 +367,7 @@ export default class RapiDoc extends LitElement {
 
     afterSpecParsedAndValidated(spec, isReloadingSpec=false){
       let me = this;
-      this.resolvedSpec = clonedeep(spec); //spec;
-      this.resolvedSpecMaster = clonedeep(spec);
+      this.resolvedSpec = spec;
       this.requestUpdate();
       window.setTimeout(function(){
         me.onApiServerChange()

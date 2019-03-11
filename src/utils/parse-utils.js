@@ -1,29 +1,41 @@
 //import converter from 'swagger2openapi';
 import JsonSchemaRefParser from 'json-schema-ref-parser';
-import { convertObj } from 'swagger2openapi';
+import converter from 'swagger2openapi';
 
 export default async function ProcessSpec(specUrl){
   const parser = new JsonSchemaRefParser();
-  let jsonParsedSpec;
+  let jsonParsedSpec, convertedSpec;
+  let convertOptions = { patch:true, warnOnly:true };
+  let derefOptions = {
+    dereference: {
+      circular: "ignore"
+    }
+  };
 
+  let refParserOptions = {
+    resolve: {
+      http: { 
+        withCredentials: false 
+      } 
+    }
+  };
   try {
-    jsonParsedSpec = await parser.dereference(specUrl, {
-      dereference: {circular: false}
-    });
+    if (typeof specUrl==="string") {
+      convertedSpec = await converter.convertUrl(specUrl, convertOptions);
+    }
+    else {
+      convertedSpec = await converter.convertObj(specUrl, convertOptions);
+    }
+    //jsonParsedSpec = await parser.dereference(convertedSpec.openapi);
+    jsonParsedSpec = await parser.bundle(convertedSpec.openapi);
   }
   catch(err){
     console.info("%c There was an issue while parsing the spec %o ", "color:orangered", err);
-    jsonParsedSpec = await parser.bundle(specUrl, {
-      resolve: { http: { withCredentials: false } }
-    });
+    jsonParsedSpec = await parser.bundle(specUrl, refParserOptions);
   }
 
-  let convertedSpec = await convertObj(jsonParsedSpec, { 
-    patch: true, warnOnly: true 
-  });
-
   console.info("%c Spec Conversion - Success !!! ","color:cornflowerblue");
-  let openApiSpec = convertedSpec.openapi;
+  let openApiSpec = jsonParsedSpec;
   let methods=['get','put','post','delete','patch','options','head'];
   let tags=[];
   let totalPathCount=0;
@@ -163,7 +175,8 @@ export default async function ProcessSpec(specUrl){
     "securitySchemes": securitySchemes, 
     "servers" : servers, // In swagger 2, its generated from schemes, host and basePath properties
     "basePath": openApiSpec.basePath, // Only available in swagger V2 
-    "totalPathCount" : totalPathCount
+    "totalPathCount" : totalPathCount,
+    "parser"  : parser // used for parsing json #ref pointers
   }
   return parsedSpec;
 }

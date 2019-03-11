@@ -59,9 +59,13 @@ export default class EndPoint extends LitElement {
             api-key-location="${this.apiKeyLocation}" 
             .parameters="${this.path.parameters}" 
             .request_body="${this.path.requestBody}"
+            .parser="${this.parser}"
             allow-try="${this.allowTry}"
           ></api-request>
-          <api-response class="response" .responses="${this.path.responses}"></api-response>
+          <api-response 
+            class="response" .responses="${this.path.responses}"
+            .parser="${this.parser}"
+          ></api-response>
         </div>
       </div>`
     :``}
@@ -252,6 +256,7 @@ export default class EndPoint extends LitElement {
       apiKeyLocation: { type: String, attribute: 'api-key-location' },
       layout  : { type:String },
       path    : { type:Object },
+      parser  : { type:Object },
       allowTry: { type: String, attribute: 'allow-try' },
     };
   }

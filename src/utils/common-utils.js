@@ -25,6 +25,9 @@ function copyToClipboard(elId) {
 
 /* Generates an schema object containing type and constraint info */
 function getTypeInfo(schema, overrideAttributes=null){
+  if (!schema){
+    return;
+  }
   let returnObj = {
     hasCircularRefs:schema.type==="circular",
     format    : schema.format?schema.format:'',
