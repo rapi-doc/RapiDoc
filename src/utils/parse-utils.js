@@ -22,11 +22,11 @@ export default async function ProcessSpec(specUrl, resolveCircularRefs){
   };
   try {
     if (typeof specUrl==="string") {
-      const resolvedSpec = await JsonRefs.resolveRefsAt(specUrl);
+      const resolvedSpec = await JsonRefs.resolveRefsAt(specUrl, {resolveCirculars: resolveCircularRefs==='true'});
       convertedSpec = await converter.convertObj(resolvedSpec.resolved, convertOptions);
     }
     else {
-      const resolvedSpec = await JsonRefs.resolveRefs(specUrl);
+      const resolvedSpec = await JsonRefs.resolveRefs(specUrl, {resolveCirculars: resolveCircularRefs==='true'});
       convertedSpec = await converter.convertObj(resolvedSpec.resolved, convertOptions);
     }
 
