@@ -25,6 +25,7 @@
   "main": "rapidoc.js",
   "module": "rapidoc.js",
   "dependencies": {
+    "json-refs": "^3.0.12",
     "json-schema-ref-parser": "^6.1.0",
     "lit-element": "2.0.1",
     "lit-html": "1.0.0",

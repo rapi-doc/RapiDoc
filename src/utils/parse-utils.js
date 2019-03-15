@@ -1,5 +1,6 @@
 //import converter from 'swagger2openapi';
 import JsonSchemaRefParser from 'json-schema-ref-parser';
+import JsonRefs from 'json-refs';
 import converter from 'swagger2openapi';
 
 export default async function ProcessSpec(specUrl, resolveCircularRefs){
@@ -14,17 +15,19 @@ export default async function ProcessSpec(specUrl, resolveCircularRefs){
 
   let refParserOptions = {
     resolve: {
-      http: { 
-        withCredentials: false 
-      } 
+      http: {
+        withCredentials: false
+      }
     }
   };
   try {
     if (typeof specUrl==="string") {
-      convertedSpec = await converter.convertUrl(specUrl, convertOptions);
+      const resolvedSpec = await JsonRefs.resolveRefsAt(specUrl);
+      convertedSpec = await converter.convertObj(resolvedSpec.resolved, convertOptions);
     }
     else {
-      convertedSpec = await converter.convertObj(specUrl, convertOptions);
+      const resolvedSpec = await JsonRefs.resolveRefs(specUrl);
+      convertedSpec = await converter.convertObj(resolvedSpec.resolved, convertOptions);
     }
 
     if (resolveCircularRefs==='false'){
@@ -35,7 +38,7 @@ export default async function ProcessSpec(specUrl, resolveCircularRefs){
     }
   }
   catch(err){
-    debugger;    
+    debugger;
     console.info("%c There was an issue while parsing the spec %o ", "color:orangered", err);
     jsonParsedSpec = await parser.bundle(specUrl, refParserOptions);
   }
@@ -59,7 +62,7 @@ export default async function ProcessSpec(specUrl, resolveCircularRefs){
       let tagObj;
       let tagText;
       let tagDescr;
-        
+
       if (openApiSpec.paths[path][methodName]){
         let fullPath = openApiSpec.paths[path][methodName];
         // If path.methods are tagged, else generate it from path 
@@ -84,7 +87,7 @@ export default async function ProcessSpec(specUrl, resolveCircularRefs){
         tagObj = tags.find(v => v.name == tagText);
 
         if (!tagObj){
-          tagObj = { 
+          tagObj = {
             show    : true,
             "name"  : tagText,
             "description" : tagDescr?tagDescr.description:"",
@@ -178,7 +181,7 @@ export default async function ProcessSpec(specUrl, resolveCircularRefs){
     "info"    : openApiSpec.info,
     "tags"    : tags,
     "externalDocs": openApiSpec.externalDocs,
-    "securitySchemes": securitySchemes, 
+    "securitySchemes": securitySchemes,
     "servers" : servers, // In swagger 2, its generated from schemes, host and basePath properties
     "basePath": openApiSpec.basePath, // Only available in swagger V2 
     "totalPathCount" : totalPathCount,
