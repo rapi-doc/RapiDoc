@@ -1,5 +1,5 @@
 /* For Delayed Event Handler Execution */
-function debounce (fn, delay) {
+export function debounce (fn, delay) {
     var timeoutID = null;
     return function () {
       clearTimeout(timeoutID)
@@ -11,7 +11,7 @@ function debounce (fn, delay) {
     }
 }
 
-function copyToClipboard(elId) {
+export function copyToClipboard(elId) {
     /* Get the text field */
     var copyText = document.getElementById(elId);
   
@@ -24,7 +24,7 @@ function copyToClipboard(elId) {
 }
 
 /* Generates an schema object containing type and constraint info */
-function getTypeInfo(schema, overrideAttributes=null){
+export function getTypeInfo(schema, overrideAttributes=null){
   if (!schema){
     return;
   }
@@ -137,7 +137,7 @@ function getTypeInfo(schema, overrideAttributes=null){
 }
 
 /* For changing JSON-Schema to a Object Model that can be represnted in a tree-view */ 
-function schemaToModel (schema, obj) {
+export function schemaToModel (schema, obj) {
   if (schema==null){
     return;
   }
@@ -189,278 +189,209 @@ function schemaToModel (schema, obj) {
 
 
 /* Create Example object */
-function generateExample(examples, example, schema, mimeType, outputType){
-    let finalExamples = [];
-    if (examples){
-        for (let eg in examples){
-            let egContent="";  
-            if (mimeType.toLowerCase().includes("json")){
-                if (outputType==="text"){
-                    egContent = JSON.stringify(examples[eg].value,undefined,2);
-                }
-                else{
-                    egContent = examples[eg].value;
-                }
-            }
-            else{
-                egContent = examples[eg].value;
-            }
-
-            finalExamples.push({
-                "exampleType" : mimeType,
-                "exampleValue": egContent
-            });
-        } 
-    }
-    else if (example){
-        let egContent="";  
-        if (mimeType.toLowerCase().includes("json")){
-            if (outputType==="text"){
-                egContent = JSON.stringify(example,undefined,2);
-            }
-            else{
-                egContent = example;
-            }
+export function generateExample(examples, example, schema, mimeType, outputType){
+  let finalExamples = [];
+  if (examples){
+    for (let eg in examples){
+      let egContent="";  
+      if (mimeType.toLowerCase().includes("json")){
+        if (outputType==="text"){
+          egContent = JSON.stringify(examples[eg].value,undefined,2);
         }
         else{
-            egContent = example;
-        }
-        finalExamples.push({
-            "exampleType" : mimeType,
-            "exampleValue": egContent
-        });
-    }
-    if (finalExamples.length==0 ){
-      // If schema examples are not provided then generate one from Schema (only JSON fomat)
-      if (schema){
-        //TODO: in case the mimeType is XML then parse it as XML
-        if (mimeType.toLowerCase().includes("json") || mimeType.toLowerCase().includes("*/*")){
-            let egJson = schemaToObj(schema,{}, {includeReadOnly:true, includeWriteOnly:true, deprecated:true});
-            finalExamples.push({
-                "exampleType" : mimeType,
-                "exampleValue": outputType==="text"?JSON.stringify(egJson,undefined,2):egJson
-            });
-        }
-        else{
-            finalExamples.push({
-                "exampleType" : mimeType,
-                "exampleValue": "" 
-            });  
+          egContent = examples[eg].value;
         }
       }
       else{
-        // No Example or Schema provided   
-        finalExamples.push({
-            "exampleType" : mimeType,
-            "exampleValue": "" 
-        });
+        egContent = examples[eg].value;
+      }
+
+      finalExamples.push({
+        "exampleType" : mimeType,
+        "exampleValue": egContent
+      });
+    } 
+  }
+  else if (example){
+    let egContent="";  
+    if (mimeType.toLowerCase().includes("json")){
+      if (outputType==="text"){
+        egContent = JSON.stringify(example,undefined,2);
+      }
+      else{
+        egContent = example;
       }
     }
-    return finalExamples;
+    else{
+      egContent = example;
+    }
+    finalExamples.push({
+      "exampleType" : mimeType,
+      "exampleValue": egContent
+    });
+  }
+  if (finalExamples.length==0 ){
+    // If schema examples are not provided then generate one from Schema (only JSON fomat)
+    if (schema){
+      //TODO: in case the mimeType is XML then parse it as XML
+      if (mimeType.toLowerCase().includes("json") || mimeType.toLowerCase().includes("*/*")){
+          let egJson = schemaToObj(schema,{}, {includeReadOnly:true, includeWriteOnly:true, deprecated:true});
+          finalExamples.push({
+            "exampleType" : mimeType,
+            "exampleValue": outputType==="text"?JSON.stringify(egJson,undefined,2):egJson
+          });
+      }
+      else{
+          finalExamples.push({
+            "exampleType" : mimeType,
+            "exampleValue": "" 
+          });  
+      }
+    }
+    else{
+      // No Example or Schema provided   
+      finalExamples.push({
+        "exampleType" : mimeType,
+        "exampleValue": "" 
+      });
+    }
+  }
+  return finalExamples;
 }
 
 /* For changing JSON-Schema to a Sample Object, as per the schema */ 
-function schemaToObj (schema, obj, config={}) {
+export function schemaToObj (schema, obj, config={}) {
     if (schema==null){
-        return;
+      return;
     }
     if (schema.type==="object" || schema.properties){
-        for( let key in schema.properties ){
-            if ( schema.properties[key].deprecated ) {
-                continue;
-            }
-            if ( schema.properties[key].readOnly && !config.includeReadOnly ) {
-                continue;
-            }
-            if ( schema.properties[key].writeOnly && !config.includeWriteOnly ) {
-                continue;
-            }
-            //let temp = Object.assign({}, schema.properties[key] );
-            obj[key] = schemaToObj(schema.properties[key],{}, config);
+      for( let key in schema.properties ){
+        if ( schema.properties[key].deprecated ) {
+          continue;
         }
+        if ( schema.properties[key].readOnly && !config.includeReadOnly ) {
+          continue;
+        }
+        if ( schema.properties[key].writeOnly && !config.includeWriteOnly ) {
+          continue;
+        }
+        //let temp = Object.assign({}, schema.properties[key] );
+        obj[key] = schemaToObj(schema.properties[key],{}, config);
+      }
     }
     else if (schema.type==="array" || schema.items ){
-        //let temp = Object.assign({}, schema.items );
-        obj = [schemaToObj(schema.items,{}, config)  ]
+      //let temp = Object.assign({}, schema.items );
+      obj = [schemaToObj(schema.items,{}, config)  ]
     }
     else if (schema.allOf ){
-
-        if (schema.allOf.length===1){
-            if (!schema.allOf[0]){
-                return "string";
-            }
-            else{
-                return getSampleValueByType(schema.allOf[0]);
-            }
+      if (schema.allOf.length===1){
+          if (!schema.allOf[0]){
+            return "string";
+          }
+          else{
+            return getSampleValueByType(schema.allOf[0]);
+          }
+      }
+      let objWithAllProps = {};
+      schema.allOf.map(function(v){
+        if (v && v.type){
+          let partialObj = schemaToObj(v,{}, config);
+          Object.assign(objWithAllProps, partialObj);
         }
-        let objWithAllProps = {};
-        schema.allOf.map(function(v){
-            if (v && v.type){
-                let partialObj = schemaToObj(v,{}, config);
-                Object.assign(objWithAllProps, partialObj);
-            }
-        });
-        obj = objWithAllProps;
+      });
+      obj = objWithAllProps;
     }
     else{
-        return getSampleValueByType(schema);
+      return getSampleValueByType(schema);
     }
     return obj;
 }
 
-function getSampleValueByType(schemaObj) {
+export function getSampleValueByType(schemaObj) {
     if (schemaObj.example) {
       return schemaObj.example;
     }
 
     if (Object.keys(schemaObj).length === 0) {
-        return null;
+      return null;
     }
 
     const typeValue = schemaObj.format || schemaObj.type || (schemaObj.enum ? 'enum' : null);
     switch (typeValue) {
-        case 'int32':
-        case 'int64':
-        case 'integer':
-            return 0;
-        case 'float':
-        case 'double':
-        case 'number':
-            return 0.5;
-        case 'string':
-            return (schemaObj.enum ? schemaObj.enum[0] : (schemaObj.pattern ? schemaObj.pattern : "string"))
-        case 'byte':
-            return btoa('string');
-        case 'binary':
-            return 'binary';
-        case 'boolean':
-            return false;
-        case 'date':
-            return (new Date(0)).toISOString().split('T')[0];
-        case 'date-time':
-            return (new Date(0)).toISOString();
-        case 'dateTime':
-            return (new Date(0)).toISOString();
-        case 'password':
-            return 'password';
-        case 'enum':
-            return schemaObj.enum[0];
-        case 'uri':
-            return 'http://example.com';
-        case 'uuid':
-            return '3fa85f64-5717-4562-b3fc-2c963f66afa6';
-        case 'email':
-            return 'user@example.com';
-        case 'hostname':
-            return 'example.com';
-        case 'ipv4':
-            return '198.51.100.42';
-        case 'ipv6':
-            return '2001:0db8:5b96:0000:0000:426f:8e17:642a';
-        case 'circular':
-            return 'CIRCULAR REF';
-        default:
-            if (schemaObj.nullable) {
-                return null;
-            }
-            else {
-                console.warn('Unknown schema value', schemaObj);
-                return '?';
-            }
+      case 'int32':
+      case 'int64':
+      case 'integer':
+        return 0;
+      case 'float':
+      case 'double':
+      case 'number':
+        return 0.5;
+      case 'string':
+        return (schemaObj.enum ? schemaObj.enum[0] : (schemaObj.pattern ? schemaObj.pattern : "string"))
+      case 'byte':
+        return btoa('string');
+      case 'binary':
+        return 'binary';
+      case 'boolean':
+        return false;
+      case 'date':
+        return (new Date(0)).toISOString().split('T')[0];
+      case 'date-time':
+        return (new Date(0)).toISOString();
+      case 'dateTime':
+        return (new Date(0)).toISOString();
+      case 'password':
+        return 'password';
+      case 'enum':
+        return schemaObj.enum[0];
+      case 'uri':
+        return 'http://example.com';
+      case 'uuid':
+        return '3fa85f64-5717-4562-b3fc-2c963f66afa6';
+      case 'email':
+        return 'user@example.com';
+      case 'hostname':
+        return 'example.com';
+      case 'ipv4':
+        return '198.51.100.42';
+      case 'ipv6':
+        return '2001:0db8:5b96:0000:0000:426f:8e17:642a';
+      case 'circular':
+        return 'CIRCULAR REF';
+      default:
+        if (schemaObj.nullable) {
+          return null;
+        }
+        else {
+          console.warn('Unknown schema value', schemaObj);
+          return '?';
+        }
     }
   }
 
-function schemaToElTree(schema, obj, name) {
-    if (schema.type==="object" || schema.properties){
-        for( let key in schema.properties ){
-            let temp = Object.assign({}, schema.properties[key] );
-            if (schema.properties[key].type==="object" || schema.properties[key].properties){
-                obj.push({
-                    "label": {label:key , type:schema.properties[key].type, descr:schema.properties[key].description},
-                    "children": schemaToElTree(temp, [], key)
-                });
-            }
-            else if (schema.properties[key].type==="array" || schema.properties[key].items){
-                let typeOfArr="";
-                if (schema.properties[key].items.properties){
-                    typeOfArr = "array of objects";
-                }
-                else {
-                    typeOfArr = "array of " + schema.properties[key].items.type;
-                }
-                obj.push({
-                    "label"   : {label:"[ "+key+" ]", type:typeOfArr, descr:schema.properties[key].description},
-                    "children": schemaToElTree(temp, [], key)
-                });
-            }
-            else{
-                let typeOfField="";
-                if (schema.properties[key].enum){
-                    typeOfField = "Enum: " + schema.properties[key].enum.join(" | ");
-                }
-                else{
-                    typeOfField = schema.properties[key].type;
-                }
-                obj.push({
-                    "label": {label:key, type:typeOfField, descr:schema.properties[key].description},
-                });
-            }
-        }
-    }
-    else if (schema.type==="array"){
-        if (schema.items.type==="object" || schema.items.properties){
-            let temp = Object.assign({}, schema.items);
-            return schemaToElTree(temp, []);
-        }
-        else if (schema.items.type==="array"){
-            obj.push({
-                "label": {label:"[ "+schema.items.type+" ]", type:schema.items.type, descr:schema.items.description }
-            });
+export function getBaseUrlFromUrl(url){
+  let pathArray = url.split( '/' );
+  return pathArray[0] + "//" + pathArray[2];
+}
+
+export function removeCircularReferences(level=0) {
+  const seen = new WeakSet();
+  return (key, value) => {
+    if (typeof value === "object" && value !== null) {
+      if (seen.has(value)) {
+        //let dupVal = Object.assign({}, value);
+        //return;
+        if (level > 0){
+          return {};
         }
         else{
-            return;
-            /*
-            obj.push({
-                "label": {label:"["+schema.items.type+" ]", type:schema.items.type, descr:schema.items.description}
-            });
-            */
+          let dupVal = JSON.parse(JSON.stringify(value, removeCircularReferences(level+1)));
+          seen.add(dupVal);
+          return dupVal;
         }
-    }
-    else{
-        obj.push({
-            "label" : {label:name, type:schema.type, descr:schema.description}
-        });
-    }
-    return obj;
-}
-
-function getBaseUrlFromUrl(url){
-    let pathArray = url.split( '/' );
-    return pathArray[0] + "//" + pathArray[2];
-}
-
-function removeCircularReferences(level=0) {
-    const seen = new WeakSet();
-    return (key, value) => {
-      if (typeof value === "object" && value !== null) {
-        if (seen.has(value)) {
-          //let dupVal = Object.assign({}, value);
-          //return;
-          if (level > 0){
-              return {};
-          }
-          else{
-            let dupVal = JSON.parse(JSON.stringify(value, removeCircularReferences(level+1)));
-            seen.add(dupVal);
-            return dupVal;
-          }
-          
-        }
-        seen.add(value);
       }
-      return value;
-    };
+      seen.add(value);
+    }
+    return value;
   };
-
-
-export { debounce, schemaToModel, schemaToObj, schemaToElTree, generateExample, getTypeInfo, getBaseUrlFromUrl, removeCircularReferences }
+};

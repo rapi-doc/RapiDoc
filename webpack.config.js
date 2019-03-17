@@ -12,7 +12,10 @@ module.exports = {
     entry: './src/index.js',
     node: {fs: 'empty'},
     externals: {
-      esprima: 'esprima',
+      'esprima': 'esprima',
+      'native-promise-only':'native-promise-only',
+      'commander':'commander',
+      'yargs':'yargs',
     },
     optimization: {
       splitChunks: {
@@ -22,7 +25,7 @@ module.exports = {
     
     devtool: 'cheap-module-source-map',
     devServer: {
-        contentBase: './dist',
+        contentBase: path.join(__dirname, 'docs'),
         port: 8080,
         hot: true
     },

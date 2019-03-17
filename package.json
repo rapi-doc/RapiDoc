@@ -1,6 +1,6 @@
 {
   "name": "rapidoc",
-  "version": "4.2.0",
+  "version": "4.2.1",
   "description": "RapiDoc - Open API spec viewer with built in console",
   "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
   "repository": {
@@ -26,17 +26,10 @@
   "module": "rapidoc.js",
   "dependencies": {
     "json-refs": "^3.0.12",
-    "json-schema-ref-parser": "^6.1.0",
     "lit-element": "2.0.1",
     "lit-html": "1.0.0",
-    "lodash.clonedeep": "^4.5.0",
-    "lodash.debounce": "^4.0.8",
     "marked": "^0.6.1",
     "swagger2openapi": "^4.0.2"
-  },
-  "resolutions": {
-    "json-schema-ref-parser/**/js-yaml": "3.12.2",
-    "swagger2openapi/js-yaml": "3.12.2"
   },
   "scripts": {
     "build": "webpack --mode=${NODE_ENV:-production}",

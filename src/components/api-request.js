@@ -1,5 +1,4 @@
 import { LitElement, html } from 'lit-element';
-import JsonSchemaRefParser from 'json-schema-ref-parser';
 import JsonTree from '@/components/json-tree'; 
 import SchemaTree from '@/components/schema-tree';
 import TagInput from '@/components/tag-input';   
@@ -169,9 +168,6 @@ export default class ApiRequest extends LitElement {
       if (!param.schema){
         continue;
       }
-      if (param.schema.$ref){
-        param.schema = this.parser.$refs.get(param.schema.$ref);
-      }
       let paramSchema = getTypeInfo(param.schema);
       let inputVal='';
       if (param.example=='0'){
@@ -241,10 +237,6 @@ export default class ApiRequest extends LitElement {
     if(!this.request_body){
       return '';
     }
-    if (this.request_body.$ref){
-      this.request_body = this.parser.$refs.get(this.request_body.$ref);
-    }
-
     if (Object.keys(this.request_body).length == 0){
       return '';
     }
@@ -271,15 +263,9 @@ export default class ApiRequest extends LitElement {
       let mimeReqObj = content[mimeReq];
       let reqExample="";
       if (mimeReq.includes('json') || mimeReq.includes('xml') || mimeReq.includes('text/plain')){
-        //Remove Circular references from RequestBody json-schema 
-        
         try {
-          if (mimeReqObj.schema.$ref){
-            mimeReqObj.schema = this.parser.$refs.get(mimeReqObj.schema.$ref);
-          }
-          else{
-            mimeReqObj.schema = JSON.parse(JSON.stringify(mimeReqObj.schema, removeCircularReferences()));
-          }
+          //Remove Circular references from RequestBody json-schema 
+          mimeReqObj.schema = JSON.parse(JSON.stringify(mimeReqObj.schema, removeCircularReferences()));
         } 
         catch{
           console.error("Unable to resolve circular refs in schema", mimeReqObj.schema);

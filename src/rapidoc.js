@@ -12,8 +12,6 @@ import TableStyles from '@/styles/table-styles';
 import vars from '@/styles/vars';
 import ProcessSpec from '@/utils/parse-utils';
 import marked from 'marked';
-import clonedeep from 'lodash.clonedeep';
-import debounce  from 'lodash.debounce';
 
 export default class RapiDoc extends LitElement {
 
@@ -247,7 +245,6 @@ export default class RapiDoc extends LitElement {
               api-key-location = "${this.apiKeyLocation?this.apiKeyLocation:''}"
               layout           = "${this.layout?this.layout:'row'}"
               .paths           = "${tag.paths}" 
-              .parser          = "${this.resolvedSpec.parser}"
               allow-try        = "${this.allowTry}"
               match-paths      = "${this.matchPaths}"
             ></end-points>

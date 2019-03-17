@@ -21,7 +21,6 @@ export default class EndPoints extends LitElement {
         api-key-location="${this.apiKeyLocation}" 
         layout="${this.layout}" 
         .path=${path}
-        .parser=${this.parser}
         allow-try="${this.allowTry}" 
       > </end-point>`
     )}`
@@ -35,7 +34,6 @@ export default class EndPoints extends LitElement {
       apiKeyLocation: { type: String, attribute: 'api-key-location' },
       layout        : { type: String },
       paths         : { type: Object },
-      parser        : { type: Object },
       matchPaths    : { type: String, attribute: 'match-paths' },
       allowTry      : { type: String, attribute: 'allow-try' },
     };

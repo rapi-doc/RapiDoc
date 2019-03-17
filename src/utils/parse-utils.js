@@ -1,46 +1,21 @@
-//import converter from 'swagger2openapi';
-import JsonSchemaRefParser from 'json-schema-ref-parser';
 import JsonRefs from 'json-refs';
 import converter from 'swagger2openapi';
 
 export default async function ProcessSpec(specUrl, resolveCircularRefs){
-  const parser = new JsonSchemaRefParser();
-  let jsonParsedSpec, convertedSpec;
+  let jsonParsedSpec, convertedSpec, resolvedRefSpec;
   let convertOptions = { patch:true, warnOnly:true };
-  let derefOptions = {
-    dereference: {
-      circular: "ignore"
-    }
-  };
-
-  let refParserOptions = {
-    resolve: {
-      http: {
-        withCredentials: false
-      }
-    }
-  };
   try {
     if (typeof specUrl==="string") {
-      const resolvedSpec = await JsonRefs.resolveRefsAt(specUrl, {resolveCirculars: resolveCircularRefs==='true'});
-      convertedSpec = await converter.convertObj(resolvedSpec.resolved, convertOptions);
+      convertedSpec = await converter.convertUrl(specUrl, convertOptions);
     }
     else {
-      const resolvedSpec = await JsonRefs.resolveRefs(specUrl, {resolveCirculars: resolveCircularRefs==='true'});
-      convertedSpec = await converter.convertObj(resolvedSpec.resolved, convertOptions);
+      convertedSpec = await converter.convertObj(specUrl, convertOptions);
     }
-
-    if (resolveCircularRefs==='false'){
-      jsonParsedSpec = await parser.bundle(convertedSpec.openapi);
-    }
-    else{
-      jsonParsedSpec = await parser.dereference(convertedSpec.openapi);
-    }
+    resolvedRefSpec = await JsonRefs.resolveRefs(convertedSpec.openapi, {resolveCirculars: resolveCircularRefs!=='false'});
+    jsonParsedSpec = resolvedRefSpec.resolved;
   }
   catch(err){
-    debugger;
     console.info("%c There was an issue while parsing the spec %o ", "color:orangered", err);
-    jsonParsedSpec = await parser.bundle(specUrl, refParserOptions);
   }
 
   console.info("%c Spec Conversion - Success !!! ","color:cornflowerblue");
@@ -184,8 +159,7 @@ export default async function ProcessSpec(specUrl, resolveCircularRefs){
     "securitySchemes": securitySchemes,
     "servers" : servers, // In swagger 2, its generated from schemes, host and basePath properties
     "basePath": openApiSpec.basePath, // Only available in swagger V2 
-    "totalPathCount" : totalPathCount,
-    "parser"  : parser // used for parsing json #ref pointers
+    "totalPathCount" : totalPathCount
   }
   return parsedSpec;
 }
