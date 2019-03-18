@@ -1,7 +1,7 @@
 import JsonRefs from 'json-refs';
 import converter from 'swagger2openapi';
 
-export default async function ProcessSpec(specUrl, resolveCircularRefs){
+export default async function ProcessSpec(specUrl){
   let jsonParsedSpec, convertedSpec, resolvedRefSpec;
   let convertOptions = { patch:true, warnOnly:true };
   try {
@@ -11,7 +11,7 @@ export default async function ProcessSpec(specUrl, resolveCircularRefs){
     else {
       convertedSpec = await converter.convertObj(specUrl, convertOptions);
     }
-    resolvedRefSpec = await JsonRefs.resolveRefs(convertedSpec.openapi, {resolveCirculars: resolveCircularRefs!=='false'});
+    resolvedRefSpec = await JsonRefs.resolveRefs(convertedSpec.openapi, {resolveCirculars:true});
     jsonParsedSpec = resolvedRefSpec.resolved;
   }
   catch(err){
