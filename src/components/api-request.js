@@ -466,7 +466,7 @@ export default class ApiRequest extends LitElement {
     }
     //Generate URL using Path Params
     pathParamEls.map(function(el){
-      fetchUrl = fetchUrl.replace("{"+el.dataset.pname+"}", el.value);
+	fetchUrl = fetchUrl.replace("{"+el.dataset.pname+"}", encodeURIComponent(el.value));
     });
 
     //Submit Query Params
@@ -475,13 +475,13 @@ export default class ApiRequest extends LitElement {
       queryParamEls.map(function(el){
         if (el.dataset.array==='false'){
           if (el.value !== ''){
-            queryParam.append(el.dataset.pname, el.value);
+            queryParam.append(el.dataset.pname, encodeURIComponent(el.value));
           }
         }
         else {
           let vals = el.getValues();
           for(let v of vals){
-            queryParam.append(el.dataset.pname, v);
+            queryParam.append(el.dataset.pname, encodeURIComponent(v));
           }
         }
       })
@@ -490,7 +490,7 @@ export default class ApiRequest extends LitElement {
     
     // Add authentication Query-Param if provided 
     if (this.apiKeyValue && this.apiKeyName && this.apiKeyLocation==='query'){
-      fetchUrl = `${fetchUrl}&${this.apiKeyName}=${this.apiKeyValue}`;
+      fetchUrl = `${fetchUrl}&${this.apiKeyName}=${encodeURIComponent(this.apiKeyValue)}`;
     }
 
     //Final URL for API call
