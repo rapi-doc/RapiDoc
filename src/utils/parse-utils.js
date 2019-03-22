@@ -3,9 +3,10 @@ import converter from 'swagger2openapi';
 
 export default async function ProcessSpec(specUrl){
   let jsonParsedSpec, convertedSpec, resolvedRefSpec;
-  let browserFolder = window.location.pathname.split('/').slice(0, -1).join('/');
+  let convertOptions, resolveOptions;
+  let specLocation = '', url;
   
-  let convertOptions = { patch:true, warnOnly:true};
+  convertOptions = { patch:true, warnOnly:true};
   try {
     // JsonRefs cant load yaml files, so first use converter 
     if (typeof specUrl==="string") {
@@ -17,9 +18,14 @@ export default async function ProcessSpec(specUrl){
       convertedSpec = await converter.convertObj(specUrl, convertOptions);
     }
     //convertedSpec = await converter.convertObj(resolvedRefSpec.resolved, convertOptions);
-    let resolveOptions = {
+    specLocation = convertedSpec.source.trim();
+    if (specLocation.startsWith('/')){
+      url = new URL('.' + specLocation, location.href);
+      specLocation = url.pathname;
+    }
+    resolveOptions = {
       resolveCirculars:false,
-      location: browserFolder+convertedSpec.source // location is important to specify to resolve relative external file references when using JsonRefs.resolveRefs() which takes an JSON object
+      location: specLocation// location is important to specify to resolve relative external file references when using JsonRefs.resolveRefs() which takes an JSON object
     };
     resolvedRefSpec = await JsonRefs.resolveRefs(convertedSpec.openapi, resolveOptions );
 

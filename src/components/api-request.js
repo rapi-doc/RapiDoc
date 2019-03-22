@@ -145,7 +145,7 @@ export default class ApiRequest extends LitElement {
       responseHeaders: { type: String, attribute:false },
       responseStatus : { type: String, attribute:false },
       responseUrl    : { type: String, attribute:false },
-      allowTry        : { type: String, attribute: 'allow-try'  },
+      allowTry       : { type: String, attribute: 'allow-try'  },
 
     };
   }
@@ -450,7 +450,7 @@ export default class ApiRequest extends LitElement {
 
   onTryClick(e){
     let me = this;
-    let curl="", curlHeaders="", curlData="", curlForm="";
+    let fetchUrl, fetchOptions, curlUrl, curl="", curlHeaders="", curlData="", curlForm="";
     let requestPanelEl = e.target.closest(".request-panel");
     let pathParamEls   = [...requestPanelEl.querySelectorAll(".request-param[data-ptype='path']")];
     let queryParamEls  = [...requestPanelEl.querySelectorAll(".request-param[data-ptype='query']")];
@@ -458,15 +458,15 @@ export default class ApiRequest extends LitElement {
     let formParamEls   = [...requestPanelEl.querySelectorAll(".request-form-param")];
     let bodyParamEls   = [...requestPanelEl.querySelectorAll(".request-body-param")];
 
-    let fetchUrl = me.path;
-    let fetchOptions={
+    fetchUrl = me.path;
+    fetchOptions={
       'mode'   : "cors",
       'method' : this.method.toUpperCase(),
       'headers': {},
     }
     //Generate URL using Path Params
     pathParamEls.map(function(el){
-	fetchUrl = fetchUrl.replace("{"+el.dataset.pname+"}", encodeURIComponent(el.value));
+	    fetchUrl = fetchUrl.replace("{"+el.dataset.pname+"}", encodeURIComponent(el.value));
     });
 
     //Submit Query Params
@@ -495,6 +495,10 @@ export default class ApiRequest extends LitElement {
 
     //Final URL for API call
     fetchUrl = `${this.server.replace(/\/$/, "")}${fetchUrl}`;
+    if (fetchUrl.startsWith('http') === false){
+      let url = new URL(fetchUrl, location.href);
+      curlUrl = url.href;
+    }
     curl=`curl -X ${this.method.toUpperCase()} "${fetchUrl}" `;
 
     //Submit Header Params
