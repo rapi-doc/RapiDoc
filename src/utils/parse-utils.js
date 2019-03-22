@@ -3,16 +3,29 @@ import converter from 'swagger2openapi';
 
 export default async function ProcessSpec(specUrl){
   let jsonParsedSpec, convertedSpec, resolvedRefSpec;
-  let convertOptions = { patch:true, warnOnly:true };
+  let browserFolder = window.location.pathname.split('/').slice(0, -1).join('/');
+  
+  let convertOptions = { patch:true, warnOnly:true};
   try {
+    // JsonRefs cant load yaml files, so first use converter 
     if (typeof specUrl==="string") {
+      //resolvedRefSpec = await JsonRefs.resolveRefsAt(specUrl, resolveOptions);
       convertedSpec = await converter.convertUrl(specUrl, convertOptions);
     }
     else {
+      //resolvedRefSpec = await JsonRefs.resolveRefs(specUrl, resolveOptions);
       convertedSpec = await converter.convertObj(specUrl, convertOptions);
     }
-    resolvedRefSpec = await JsonRefs.resolveRefs(convertedSpec.openapi, {resolveCirculars:true});
+    //convertedSpec = await converter.convertObj(resolvedRefSpec.resolved, convertOptions);
+    let resolveOptions = {
+      resolveCirculars:false,
+      location: browserFolder+convertedSpec.source // location is important to specify to resolve relative external file references when using JsonRefs.resolveRefs() which takes an JSON object
+    };
+    resolvedRefSpec = await JsonRefs.resolveRefs(convertedSpec.openapi, resolveOptions );
+
+    //jsonParsedSpec = convertedSpec.openapi;
     jsonParsedSpec = resolvedRefSpec.resolved;
+    
   }
   catch(err){
     console.info("%c There was an issue while parsing the spec %o ", "color:orangered", err);

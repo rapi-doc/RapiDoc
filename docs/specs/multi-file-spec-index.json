@@ -1,0 +1,10 @@
+{
+  "swagger": "2.0",
+  "info": {
+     "$ref": "partial-spec/info.json"
+  },
+  "another": {
+    "$ref": "partial-spec/info.json"
+ }
+
+}

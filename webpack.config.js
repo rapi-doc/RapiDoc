@@ -58,12 +58,12 @@ module.exports = {
         ]
     },
     resolve: {
-        alias: {
-          "@": path.resolve(__dirname, 'src')
-        }
+      alias: {
+        "@": path.resolve(__dirname, 'src')
+      }
     },
     output: {
-        filename: 'rapidoc-min.js',
+      filename: 'rapidoc-min.js',
     },
     plugins: [
         new webpack.HotModuleReplacementPlugin(),

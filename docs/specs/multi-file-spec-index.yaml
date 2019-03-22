@@ -1,0 +1,8 @@
+swagger: '2.0'
+info:
+  $ref: ./partial-spec/info.yaml
+what_is_dog: 
+  $ref: "#/dictionary/dog"
+dictionary:
+  dog: "dog is an animal "
+    
