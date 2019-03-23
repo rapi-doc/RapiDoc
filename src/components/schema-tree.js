@@ -163,9 +163,6 @@ export default class SchemaTree extends LitElement {
 
     //console.log(e.target.parentElement.querySelectorAll(":scope > .inside-bracket"));
   }
-  toggleDescr(){
-    console.log("descr")
-  }
 }
 // Register the element with the browser
 customElements.define('schema-tree', SchemaTree);

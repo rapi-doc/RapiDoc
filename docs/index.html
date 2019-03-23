@@ -475,7 +475,6 @@
     }
 
     e.preventDefault();
-    console.log(e.target.getAttribute('href').substring(1));
     var gotoEl = document.getElementById(e.target.getAttribute('href').substring(1));
     if (gotoEl){
       gotoEl.scrollIntoView({ block: 'start',  behavior: 'smooth' });

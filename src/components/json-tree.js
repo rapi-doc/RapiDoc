@@ -75,7 +75,6 @@ export default class JsonTree extends LitElement {
   }
 
   toggleExpand(e){
-    console.log(e.target.nextElementSibling);
     if (e.target.classList.contains("expanded")){
       e.target.classList.add("collapsed");
       e.target.classList.remove("expanded");

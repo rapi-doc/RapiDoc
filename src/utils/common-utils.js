@@ -362,6 +362,9 @@ export function getSampleValueByType(schemaObj) {
         if (schemaObj.nullable) {
           return null;
         }
+        else if (schemaObj.$ref){
+          return `data of type ${schemaObj.$ref}`;
+        }
         else {
           console.warn('Unknown schema value', schemaObj);
           return '?';

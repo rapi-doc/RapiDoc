@@ -272,7 +272,12 @@ export default class ApiRequest extends LitElement {
           return;
         }
         reqSchemaTree = schemaToModel(mimeReqObj.schema,{});
-        reqExample    = generateExample(mimeReqObj.examples, mimeReqObj.example, mimeReqObj.schema, mimeReq, "text");
+        reqExample    = generateExample(
+          mimeReqObj.schema? mimeReqObj.schema.examples:'', 
+          mimeReqObj.schema? mimeReqObj.schema.example:'', 
+          mimeReqObj.schema, 
+          mimeReq, "text"
+        );
         textareaExampleHtml = textareaExampleHtml +  `
           <textarea 
             class="textarea mono request-body-param ${shortMimeTypes[mimeReq]}" 
@@ -498,6 +503,9 @@ export default class ApiRequest extends LitElement {
     if (fetchUrl.startsWith('http') === false){
       let url = new URL(fetchUrl, location.href);
       curlUrl = url.href;
+    }
+    else{
+      curlUrl = fetchUrl;
     }
     curl=`curl -X ${this.method.toUpperCase()} "${curlUrl}" `;
 

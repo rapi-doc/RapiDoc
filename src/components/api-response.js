@@ -122,13 +122,18 @@ export default class ApiResponse extends LitElement {
         let schemaTree = schemaToModel(mimeRespObj.schema,{});
         
         // Generate Example
-        let respExample = generateExample(mimeRespObj.examples, mimeRespObj.example, mimeRespObj.schema, mimeResp, "json");
+        let respExample = generateExample(
+          mimeRespObj.schema? mimeRespObj.schema.examples:'', 
+          mimeRespObj.schema? mimeRespObj.schema.example:'', 
+          mimeRespObj.schema, 
+          mimeResp, 
+          "json"
+        );
         allMimeResp[mimeResp] = {
           "description":this.responses[statusCode].description,
           "examples"  : respExample,
           "schemaTree": schemaTree,
         }
-        console.log(mimeResp);
         if (mimeResp.includes("json")){
           selectedMimeValue = mimeResp;
         }

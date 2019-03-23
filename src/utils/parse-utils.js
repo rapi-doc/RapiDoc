@@ -28,7 +28,6 @@ export default async function ProcessSpec(specUrl){
       location: specLocation// location is important to specify to resolve relative external file references when using JsonRefs.resolveRefs() which takes an JSON object
     };
     resolvedRefSpec = await JsonRefs.resolveRefs(convertedSpec.openapi, resolveOptions );
-
     //jsonParsedSpec = convertedSpec.openapi;
     jsonParsedSpec = resolvedRefSpec.resolved;
     
