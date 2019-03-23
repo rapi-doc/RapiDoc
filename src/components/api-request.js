@@ -499,7 +499,7 @@ export default class ApiRequest extends LitElement {
       let url = new URL(fetchUrl, location.href);
       curlUrl = url.href;
     }
-    curl=`curl -X ${this.method.toUpperCase()} "${fetchUrl}" `;
+    curl=`curl -X ${this.method.toUpperCase()} "${curlUrl}" `;
 
     //Submit Header Params
     headerParamEls.map(function(el){
