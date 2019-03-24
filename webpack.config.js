@@ -24,6 +24,10 @@ module.exports = {
     },
     
     devtool: 'cheap-module-source-map',
+    output: {
+      path: path.join(__dirname, "dist"),
+      filename: 'rapidoc-min.js',
+    },
     devServer: {
         contentBase: path.join(__dirname, 'docs'),
         port: 8080,
@@ -61,9 +65,6 @@ module.exports = {
       alias: {
         "@": path.resolve(__dirname, 'src')
       }
-    },
-    output: {
-      filename: 'rapidoc-min.js',
     },
     plugins: [
         new webpack.HotModuleReplacementPlugin(),

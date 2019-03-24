@@ -1,0 +1,483 @@
+<!-- 
+  THIS FILE IS COPY OF index.html
+  webpack dev server do not recognize index.html from this folder, it uses the index.html from the root folder
+-->
+<!doctype html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+  <meta name="description" content="RapiDoc is Web Component based Swagger & OpenAPI Spec Viewer. Alternate for SwaggerUI or Redoc. It is fast, small and made with lit-element">
+  <meta name="keywords" content="RapiDoc,ReDoc,Swagger,SwaggerUI,Custom Element,Web Component,OpenAPI,REST">
+
+  <link rel="shortcut icon" type="image/png" href="./images/logo.png"/>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
+
+  <!-- Code Highlight -->
+  <link rel="stylesheet" href="./highlight/styles/zenburn.css">
+  <script src="./highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+  <link rel="stylesheet" href="index.css">
+
+  <title>RapiDoc - Web Component based Swagger & OpenAPI Spec Viewer</title>
+</head>
+
+<body>
+  <div class="banner container" id="banner">
+    <div class="header">
+      <img class="logo" src="./images/logo.png" style="width:48px;height:48px;margin-right:10px;" />
+      <div class="product-name">&lt;rapi-doc&gt;</div>
+      <div class="menu" style="flex:1"></div>
+      <nav class="menu" onclick="goToSection(event)">
+        <a class="menu-item" href="#features"> Features </a>
+        <a class="menu-item" href="#qstart"> Quick Start </a>
+        <a class="menu-item" href="#examples"> Examples </a>
+        <a class="menu-item" href="#api"> API </a>
+        <a class="menu-item" data-action="git" href="https://github.com/mrin9/RapiDoc"> GitHub </a>
+      </nav>
+    </div>
+    <div>
+      <div class="banner-content">
+        <h1 class="banner-title">Web Component for OpenAPI Spec Viewing</h1>
+        <div class="banner-content-inner">
+          <p style="font-size:18px">Create beautiful, customizable, interactive API documentation from your OpenAPI Specification</p>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex; justify-content: center;">
+      <div style="display:block">
+        <img class="screenshot shadow3" src="./images/dark_ss.png" />
+      </div>
+    </div>
+  </div>
+  <div class="features container" id="features">
+
+    <div class="feature">
+      <object type="image/svg+xml" data="./images/webcomponent.svg" style="width:64px; height:64px;"> </object>
+      <div class="feature-info">
+        <div class="feature-title"> Web Component Standard</div>
+        <div class="feature-descr"> 
+          Free of any frameworks, setups, configs, build steps or packaging.
+          Can be used with any framework or just with vanilla javascript
+        </div>
+      </div>
+    </div>
+
+    <div class="feature">
+      <object type="image/svg+xml" data="./images/easy.svg" style="width:64px; height:64px;"> </object>
+      <div class="feature-info">
+        <div class="feature-title"> Easy Usage</div>
+        <div class="feature-descr"> 
+          Use It just like any other HTML Tag, Change its attribute using JavaScript and see
+          it react to those changes. Basic knowledge of HTML is all that's required 
+        </div>
+      </div>
+    </div>
+
+    <div class="feature">
+      <object type="image/svg+xml" data="./images/mask.svg" style="width:64px; height:64px;"> </object>
+      <div class="feature-info">
+        <div class="feature-title"> Fully Customizable</div>
+        <div class="feature-descr"> 
+          Style it to your heart's content. Change font, logo, colors and theme. 
+          Inject external HTML or embed into another HTML document.
+        </div>
+      </div>
+    </div>
+    <div class="feature">
+      <object type="image/svg+xml" data="./images/fast.svg" style="width:64px; height:64px;"> </object>
+      <div class="feature-info">
+        <div class="feature-title"> Small And Fast</div>
+        <div class="feature-descr"> 
+          Minimal dependencies, no runtime and no virtual DOM ensures lowest memory consumption, 
+          Just native and raw speed of modern browser.
+        </div>
+      </div>
+    </div>
+
+    <div class="feature">
+      <object type="image/svg+xml" data="./images/gears.svg" style="width:64px; height:64px;"> </object>
+      <div class="feature-info">
+        <div class="feature-title"> Seamlessly interoperable</div>
+        <div class="feature-descr"> 
+          Loved by tech writers, designers, dev-ops, testers and developers alike, 
+          due to its simplicity, interoperability and powerful features.
+          No special build-steps, runtime or framework required
+        </div>
+      </div>
+    </div>
+
+    <div class="feature">
+      <object type="image/svg+xml" data="./images/console.svg" style="width:64px; height:64px;"> </object>
+      <div class="feature-info">
+        <div class="feature-title"> Integrated Console</div>
+        <div class="feature-descr"> 
+          Comes with built in console to Try out the APIs. Supports authentication mechanism. 
+          No validation ensures, you can test negative cases.
+        </div>
+      </div>
+    </div>
+
+    <div class="feature">
+      <object type="image/svg+xml" data="./images/mouse.svg" style="width:64px; height:64px;"> </object>
+      <div class="feature-info">
+        <div class="feature-title"> Better Usability</div>
+        <div class="feature-descr"> 
+            Browse the spec with minimal clicks. All models & examples are expanded by default, eliminates the need to click and reveal.
+            Requests and Responses are pre-populated with sample data.
+        </div>
+      </div>
+    </div>
+  
+  </div>
+
+  <div id="qstart" class="qstart container">
+  <div style="display:flex; flex-direction: column; ">
+  <h2> Quickstart (<a style="font-size:16px" href="./example2.html">DEMO</a>)</h2> 
+  Just copy the below code and save it in an html file. Then open it using a browser 
+
+  <pre class="shadow code-block"><code class="html" style="border-radius:4px">
+  &lt;!doctype html&gt; &lt;!-- Important: must specify --&gt;
+  &lt;html&gt;
+  &lt;head&gt;
+    &lt;meta charset="utf-8"&gt; &lt;!-- Important: rapi-doc uses utf8 charecters --&gt;
+    &lt;script src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"&gt;&lt;/script&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;rapi-doc 
+      spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json" 
+    &gt; &lt;/rapi-doc&gt;
+  &lt;/body&gt; 
+  &lt;/html&gt;
+  </code></pre>
+  </div>
+
+  </div>
+
+  <!-- Start of API -->
+  <div class="api container" id="api">
+      <div style="display:flex; flex-direction: column; ">
+        <h2> Attributes</h2> 
+        <div class="table-block">
+          <table class="m-table">
+            <tr>
+              <th class="attr-col">Attribute</th>
+              <th style="text-align:left">Description </th>
+              <th class="default-col">Default</th>
+            </tr>
+
+            <tr>
+              <td class="mono-bold">spec-url </td>
+              <td class="gray">url of the OpenAPI spec to view </td>
+              <td>(empty)</td>
+            </tr>
+
+            <tr>
+              <td class="mono-bold">server</td>
+              <td class="gray">
+                OpenAPI spec has a provision for providing the server url. The UI will list all the server URLs provided in the spec. 
+                The user can then select one URL to which he or she intends to send API calls while trying out the apis. 
+                However, if you want to provide an API server of your own which is not listed in the spec, you can use this property to provide one. 
+                It is helpful in the cases where the same spec is shared between multiple environment say Dev and Test and each have their own API server.
+              </td>
+              <td>(empty)</td>
+            </tr>
+
+            <tr>
+              <td class="mono-bold">allow-authentication</td>
+              <td class="gray">
+                Authentication feature, allows the user to select one of the authentication mechanism thats available in the spec.
+                It can be http-basic, http-bearer or api-key. 
+                If you dont want your users to go through the authentication process, instead want them to use a pre-generated api-key 
+                then you may hide authentication section by setting this attribute to false
+                and provide the api-key details using various api-key-???? attributes.</td>
+              <td>true</td>
+            </tr>
+
+            <tr>
+              <td class="mono-bold">api-key-name</td>
+              <td class="gray">Name of the API key that will be send while trying out the APIs</td>
+              <td>(empty)</td>
+            </tr>
+
+            <tr>
+              <td class="mono-bold">api-key-value</td>
+              <td class="gray">Value of the API key that will be send while trying out the APIs</td>
+              <td>Authorization</td>
+            </tr>
+
+            <tr>
+              <td class="mono-bold">api-key-location</td>
+              <td class="gray">
+                determines how you want to send the api-key.
+                allowed values are <code>header</code> or <code> query </code>
+              </td>
+              <td>header</td>
+            </tr>
+
+            <tr>
+              <td class="mono-bold">allow-spec-url-load</td>
+              <td class="gray">
+                If set to 'false', user will not be able to load any spec url from the UI. 
+              </td>
+              <td>true</td>
+            </tr>
+
+            <tr>
+              <td class="mono-bold">allow-spec-file-load</td>
+              <td class="gray">
+                If set to 'false', user will not be able to load any spec file from the local drive. 
+                This attribute is applicable only when the device width is more than 768px, else this feature is not available
+              </td>
+              <td>true</td>
+            </tr>
+    
+            <tr>
+              <td class="mono-bold">allow-search</td>
+              <td class="gray">
+                  If set to 'false', user will not be able to search APIs. 
+              </td>
+              <td>true</td>
+            </tr>
+
+            <tr>
+              <td class="mono-bold">allow-try</td>
+              <td class="gray">
+                'TRY' feature allows you to make REST calls to the API server. 
+                To disable this feature set it to false 
+              </td>
+              <td>true</td>
+            </tr>
+
+            <tr>
+              <td class="mono-bold">show-info</td>
+              <td class="gray">
+                show/hide the documents info section<br/>
+                Info section contains information about the spec, such as the title and description of the spec, the version, terms of services etc.
+                In certain situation you may not need to show this section. For instance you are embedding this element inside a another help document. 
+                Chances are, the help doc may already have this info, in that case you may want to hide this section.
+              </td>
+              <td>true</td>
+            </tr>
+
+            <tr>
+              <td class="mono-bold">show-header </td>
+              <td class="gray">show/hide the header.<br/> 
+                If you dont want your user to open any other api spec, other than the current one, then set this attribute to false</td>
+              <td>true</td>
+            </tr>
+
+            <tr>
+              <td class="mono-bold">heading-text </td>
+              <td class="gray">Heading Text on top-left corner </td>
+              <td>(empty)</td>
+            </tr>
+
+            <tr>
+              <td class="mono-bold">header-color </td>
+              <td class="gray">Hex color code for the header's background</td>
+              <td>#444444</td>
+            </tr>
+
+            <tr>
+              <td class="mono-bold">primary-color</td>
+              <td class="gray">Hex color code on various controls such as buttons, tabs </td>
+              <td>#FF791A</td>
+            </tr>
+
+            <tr>
+              <td class="mono-bold">regular-font </td>
+              <td class="gray">Font Name(s) to be used for regular text </td>
+              <td>rapidoc, Helvetica, Arial</td>
+            </tr>
+
+            <tr>
+              <td class="mono-bold">mono-font </td>
+              <td class="gray">Font Name(s) to be used for monospaced text </td>
+              <td>Monaco, 'Andale Mono', 'Roboto Mono'</td>
+            </tr>
+
+            <tr>
+              <td class="mono-bold">theme </td>
+              <td class="gray">light, dark </td>
+              <td>light</td>
+            </tr>
+
+            <tr>
+              <td class="mono-bold"> layout </td>
+              <td class="gray">layout helps in placement of your request/response sections. The allowed values are 'row' or 'column'. 
+                In column layout, request & response sections are placed one below the other, 
+                In row layout request & response sections are placed side by side. 
+                This attribute is applicable only when the device width is more than 768px.
+              </td>
+              <td>row</td>
+            </tr>
+          </table>
+        </div>  
+
+        <h2> Slots</h2>
+        <div class="table-block">
+          <table class="m-table">
+            <tr>
+              <th >Slot Name</th>
+              <th >Description </th>
+            </tr>
+            <tr>
+              <td class="mono-bold">(default)</td>
+              <td class="gray">any content placed inside <code>&lt;rapi-doc&gt;</code> tag, will be shown immidiately under the header and above the info section </td>
+            </tr>
+            <tr>
+              <td class="mono-bold">logo</td>
+              <td class="gray">use this slot to replace the logo </td>
+            </tr>
+            <tr>
+              <td class="mono-bold">footer</td>
+              <td class="gray"> The conents of this slot will appear at the bottom of the spec</td>
+            </tr>
+          </table>
+        </div>
+      </div>  
+    </div>
+  <!-- End of API -->
+
+<!-- Start of Examples -->
+  <div class="examples container" id="examples">
+    <div style="display:flex; flex-direction: column;">
+      <h2> Examples & Demos</h2> 
+
+<b> Basic Example  ( <a href="./example1.html">DEMO</a> ) </b>
+<pre class="shadow code-block"><code class="html" style="border-radius:4px">
+  &lt;rapi-doc 
+    spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json" 
+  &gt; 
+  &lt;/rapi-doc&gt;
+</code></pre>
+<br/>
+
+<b> Dark Theme ( <a href="./example2.html">DEMO</a> ) </b> 
+<pre class="shadow code-block" ><code class="html" style="border-radius:4px">
+  &lt;rapi-doc 
+    spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
+    theme="dark"
+  &gt; 
+  &lt;/rapi-doc&gt;
+</code></pre>
+<br/>
+
+<b> Change Header Color with Dark Theme ( <a href="./example3.html">DEMO</a> ) </b> 
+<pre class="shadow code-block" ><code class="html" style="border-radius:4px">
+  &lt;rapi-doc 
+    spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
+    header-color="#2d87e2"
+    theme="dark"
+  &gt; 
+  &lt;/rapi-doc&gt;
+</code></pre>
+<br/>
+
+
+<b>Integrate with other HTML document - No &lt;iframe&gt; ( <a href="./example4.html">DEMO</a> ) </b>
+<pre class="shadow code-block"><code class="html" style="border-radius:4px">
+  &lt;rapi-doc 
+    spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
+    theme='dark' 
+    show-header='false'
+    show-info='false'
+    allow-authentication='false'
+    theme='dark' 
+    layout="column"
+  &gt; 
+  &lt;/rapi-doc&gt;
+</code></pre>
+<br/>
+  
+<b>Change Font ( <a href="./example5.html">DEMO</a> ) </b>
+<pre class="shadow code-block" ><code class="html" style="border-radius:4px">
+  &lt;head&gt;
+    &lt;link href="https://fonts.googleapis.com/css?family=Varela+Round" 
+     rel="stylesheet" &gt;
+  &lt;/head&gt;
+
+  &lt;body&gt;
+    &lt;rapi-doc 
+      spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
+      regular-font="'Varela Round', 'Arial Rounded MT Bold' "
+    &gt; 
+    &lt;/rapi-doc&gt;
+  &lt;/body&gt;
+</code></pre>
+<br/>
+
+<b>Change Logo ( <a href="./example6.html">DEMO</a> ) </b>
+<pre class="shadow code-block"><code class="html" style="border-radius:4px">
+  &lt;rapi-doc spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"&gt;
+    &lt;img 
+      slot="logo" 
+      src="https://img.icons8.com/color/48/000000/youtube-play.png"
+    /&gt; 
+  &lt;/rapi-doc&gt;
+
+</code></pre>
+<br/>
+
+
+<b>Add HTML content inside the spec ( <a href="./example7.html">DEMO</a> ) </b>
+<pre class="shadow code-block" ><code class="html" style="border-radius:4px">
+  &lt;rapi-doc spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"&gt;
+
+    &lt;!-- content at the top --&gt;
+    &lt;p>This is an example to add external html content &lt;/li&gt;
+    &lt;p>Ypu may add &lt;/li&gt;
+    &lt;ul&gt;
+      &lt;li&gt; Table &lt;/li&gt;
+      &lt;li&gt; Text &lt;/li&gt;
+      &lt;li&gt; Images &lt;/li&gt;
+      &lt;li&gt; Links &lt;/li&gt;
+      &lt;li&gt; any HTML content &lt;/li&gt;
+    &lt;/ul&gt;  
+
+    &lt;!-- content at the bottom --&gt;
+    &lt;p slot="footer"&gt; This content will apear at the bottom &lt;/p&gt;
+
+  &lt;/rapi-doc&gt;
+</code></pre>
+<br/>
+
+<div style="font-size:20px"> Playground - change attributes using JavaScript &nbsp; <a href="./example100.html">DEMO</a> </div>
+
+    </div>  
+  </div> 
+<!-- End of Examples -->
+
+
+  <div id="footer" class="footer container">
+    <div class="footer-item"> MIT Licence</div>
+    <div class="footer-item"> <a href="https://github.com/mrin9/RapiDoc"> GitHub</a></div>
+    <div class="footer-item"> <a href="https://www.npmjs.com/package/rapidoc"> npm</a></div>
+  </div>
+
+
+  <script>
+  
+  function goToSection(e){
+    if (e.target.dataset.action==='git'){
+      return;
+    }
+
+    e.preventDefault();
+    var gotoEl = document.getElementById(e.target.getAttribute('href').substring(1));
+    if (gotoEl){
+      gotoEl.scrollIntoView({ block: 'start',  behavior: 'smooth' });
+    }
+  }
+  
+  
+  
+  </script>
+</body>
+
+</html>
