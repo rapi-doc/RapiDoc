@@ -170,6 +170,7 @@ export default async function ProcessSpec(specUrl){
     })
   }
   servers = openApiSpec.servers;
+  tags.sort((a, b) =>  (a.name < b.name ? -1 : (a.name > b.name ? 1: 0)) );
   let parsedSpec = {
     "info"    : openApiSpec.info,
     "tags"    : tags,
