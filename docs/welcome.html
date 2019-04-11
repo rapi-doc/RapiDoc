@@ -1,10 +1,16 @@
-<!-- 
-  THIS FILE IS COPY OF index.html
-  webpack dev server do not recognize index.html from this folder, it uses the index.html from the root folder
--->
 <!doctype html>
 
 <head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-132775238-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132775238-1');
+  </script>
+
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
   <meta name="description" content="RapiDoc is Web Component based Swagger & OpenAPI Spec Viewer. Alternate for SwaggerUI or Redoc. It is fast, small and made with lit-element">
@@ -37,7 +43,8 @@
         <a class="menu-item" href="#qstart"> Quick Start </a>
         <a class="menu-item" href="#examples"> Examples </a>
         <a class="menu-item" href="#api"> API </a>
-        <a class="menu-item" data-action="git" href="https://github.com/mrin9/RapiDoc"> GitHub </a>
+        <a class="menu-item" data-action="url" href="https://mrin9.github.io/RapiPdf/"> RapiPDF </a>
+        <a class="menu-item" data-action="url" href="https://github.com/mrin9/RapiDoc"> GitHub </a>
       </nav>
     </div>
     <div>
@@ -457,6 +464,7 @@
   <div id="footer" class="footer container">
     <div class="footer-item"> MIT Licence</div>
     <div class="footer-item"> <a href="https://github.com/mrin9/RapiDoc"> GitHub</a></div>
+    <div class="footer-item"> <a href="https://mrin9.github.io/RapiPdf/"> RapiPDF</a></div>
     <div class="footer-item"> <a href="https://www.npmjs.com/package/rapidoc"> npm</a></div>
   </div>
 
@@ -464,7 +472,7 @@
   <script>
   
   function goToSection(e){
-    if (e.target.dataset.action==='git'){
+    if (e.target.dataset.action==='url'){
       return;
     }
 

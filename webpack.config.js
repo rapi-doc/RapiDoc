@@ -7,6 +7,29 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 const { DuplicatesPlugin } = require("inspectpack/plugin");
 
 const path = require('path');
+const commonPlugins = [
+  new webpack.HotModuleReplacementPlugin(),
+  new webpack.optimize.LimitChunkCountPlugin({
+      maxChunks:1
+  }),
+  new CleanWebpackPlugin(),
+  new HtmlWebpackPlugin({template: 'index.html'}),
+  new CompressionPlugin(),
+  new FileManagerPlugin({
+    onEnd : {
+      copy: [
+        {source: 'dist/*.js', destination: 'docs' },
+        {source: 'dist/*.woff2', destination: 'docs' }
+      ]
+    }
+  })
+]
+
+if(process.env.NODE_ENV === 'production') {
+  console.log('BUILDING FOR PRODUCTION ... ')
+  commonPlugins.push(new BundleAnalyzerPlugin({analyzerMode:'static'}));
+  commonPlugins.push(new DuplicatesPlugin({emitErrors: false, verbose: true}));
+}
 
 module.exports = {
     entry: './src/index.js',
@@ -66,23 +89,5 @@ module.exports = {
         "@": path.resolve(__dirname, 'src')
       }
     },
-    plugins: [
-        new webpack.HotModuleReplacementPlugin(),
-        new webpack.optimize.LimitChunkCountPlugin({
-            maxChunks:1
-        }),
-        new CleanWebpackPlugin(),
-        new HtmlWebpackPlugin({template: 'index.html'}),
-        new BundleAnalyzerPlugin({analyzerMode:'static'}),
-        new DuplicatesPlugin({emitErrors: false, verbose: true}),
-        new CompressionPlugin(),
-        new FileManagerPlugin({
-          onEnd : {
-            copy: [
-              {source: 'dist/*.js', destination: 'docs' },
-              {source: 'dist/*.woff2', destination: 'docs' }
-            ]
-          }
-        })
-    ]
+    plugins: commonPlugins
 }
