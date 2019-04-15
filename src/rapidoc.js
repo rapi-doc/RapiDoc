@@ -177,17 +177,17 @@ export default class RapiDoc extends LitElement {
         <div style="margin: 0px 8px;display:flex;flex:1">
 
           ${ (this.allowSpecUrlLoad==='false') ?``:html`
-            <input id="spec-url" type="text" class="header-input" placeholder="Spec URL" value="${this.specUrl?this.specUrl:''}" @change="${this.onSepcUrlChange}">
-            <div style="margin: 6px 5px 0 -24px; font-size:18px; cursor:pointer;">&#x23ce;</div>
+            <input id="spec-url" type="text" class="header-input" placeholder="Spec URL" value="${this.specUrl?this.specUrl:''}" @change="${this.onSepcUrlChange}" spellcheck="false" >
+            <div style="margin: 6px 5px 0 -24px; font-size:18px; cursor:pointer;">&#x23ce;</div> 
           `} 
           
           ${ (this.allowSpecFileLoad==='false') ?``:html`
-            <input id="spec-file" type="file" style="display:none" value="${this.specFile?this.specFile:''}" @change="${this.onSepcFileChange}" >
+            <input id="spec-file" type="file" style="display:none" value="${this.specFile?this.specFile:''}" @change="${this.onSepcFileChange}" spellcheck="false" >
             <button class="m-btn only-large-screen" style="margin-left:10px;"  @click="${this.onFileLoadClick}"> LOCAL JSON FILE </button>
           `}
 
           ${ (this.allowSearch==='false') ?``:html`  
-            <input id="search" class="header-input" type="text"  placeholder="search" @change="${this.onSearchChange}" style="max-width:130px;margin-left:10px;">
+            <input id="search" class="header-input" type="text"  placeholder="search" @change="${this.onSearchChange}" style="max-width:130px;margin-left:10px;" spellcheck="false" >
             <div style="margin: 6px 5px 0 -24px; font-size:18px; cursor:pointer;">&#x23ce;</div>
           `}
         </div>

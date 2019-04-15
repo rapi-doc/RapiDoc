@@ -42,7 +42,7 @@ export default class SecuritySchemes extends LitElement {
           <td>
             ${this.schemes[s].type==='apiKey'?html`
               Send <code>'${this.schemes[s].name}'</code> in <code>'${this.schemes[s].in}'</code> with the given value
-              <div class="api-key" data-type="${this.schemes[s].type}" data-in="${this.schemes[s].in}" data-name="${this.schemes[s].name}" style="margin:5px 0">
+              <div class="api-key" data-type="${this.schemes[s].type}" data-in="${this.schemes[s].in}" data-name="${this.schemes[s].name}" style="margin:5px 0" spellcheck="false" >
                 <input type="text" name="token" style="width:202px;" placeholder="api-token" >
                 <button 
                   class="m-btn" 
@@ -54,8 +54,8 @@ export default class SecuritySchemes extends LitElement {
             ${this.schemes[s].type==='http' && this.schemes[s].scheme==='basic'?html`
               Send <code>'Authorization'</code> in header which will contains the word  <code>'Basic'</code> followed by a space and a base64-encoded string username:password.
               <div class="api-key " data-type="${this.schemes[s].type}" data-scheme="${this.schemes[s].scheme}" data-in="header" data-name="Authorization" style="margin:15px 0">
-                <input type="text" name="username" style="width:100px;" placeholder="username">
-                <input type="text" name="password" style="width:100px;" placeholder="password">
+                <input type="text" name="username" style="width:100px;" placeholder="username" spellcheck="false">
+                <input type="text" name="password" style="width:100px;" placeholder="password" spellcheck="false">
                 <button 
                   class="m-btn" 
                   data-action="${this.keyValue?'CLEAR':'SET'}" 
@@ -66,7 +66,7 @@ export default class SecuritySchemes extends LitElement {
             ${this.schemes[s].type==='http' && this.schemes[s].scheme==='bearer'?html`
               Send <code>'Authorization'</code> in header which will contains the word  <code>'Bearer'</code> followed by a space and a Token String.
               <div class="api-key" data-type="${this.schemes[s].type}" data-scheme="${this.schemes[s].scheme}" data-in="header" data-name="Authorization" style="margin:15px 0">
-                <input type="text" name="token" style="width:202px;" placeholder="api-token">
+                <input type="text" name="token" style="width:202px;" placeholder="api-token" spellcheck="false" >
                 <button 
                   class="m-btn" 
                   data-action="${this.keyValue?'CLEAR':'SET'}" 
@@ -81,8 +81,8 @@ export default class SecuritySchemes extends LitElement {
                 ${this.schemes[s].flows[f].tokenUrl?html`<div><b>Token URL:</b> <code class="url"> ${this.schemes[s].flows[f].tokenUrl}</code></div>`:``}
                 ${this.schemes[s].flows[f].refreshUrl?html`<div><b>Refresh URL:</b> <code class="url"> ${this.schemes[s].flows[f].refreshUrl}</code></div>`:``}
                 <div class="oauth" style="margin:5px 0">
-                  <input type="text" name="client" style="width:100px;" placeholder="client-id">
-                  <input type="text" name="secret" style="width:100px;" placeholder="client-secret">
+                  <input type="text" name="client" style="width:100px;" placeholder="client-id" spellcheck="false" >
+                  <input type="text" name="secret" style="width:100px;" placeholder="client-secret" spellcheck="false" >
                 </div>
               `)}
               </div>

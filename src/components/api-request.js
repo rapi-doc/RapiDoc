@@ -203,7 +203,7 @@ export default class ApiRequest extends LitElement {
             data-array="true"
             placeholder="add-multiple\u23ce"
           ></tag-input>`
-          :html`<input type="text" style="width:100%" class="request-param" 
+          :html`<input type="text" spellcheck="false" style="width:100%" class="request-param" 
             data-pname="${param.name}" 
             data-ptype="${paramType}"  
             data-array="false"
@@ -289,8 +289,9 @@ export default class ApiRequest extends LitElement {
         textareaExampleHtml = textareaExampleHtml +  `
           <textarea 
             class="textarea mono request-body-param ${shortMimeTypes[mimeReq]}" 
+            spellcheck="false"
             data-ptype="${mimeReq}" 
-            style="display:${shortMimeTypes[mimeReq]==='json'?'block':'none'}; 
+            style="resize:vertical;display:${shortMimeTypes[mimeReq]==='json'?'block':'none'}; 
           ">${reqExample[0].exampleValue}</textarea>`
       }
       else if (mimeReq.includes('form') || mimeReq.includes('multipart-form')){
@@ -317,6 +318,7 @@ export default class ApiRequest extends LitElement {
                 placeholder="add-multiple\u23ce"
               ></tag-input>`
               :html`<input 
+                spellcheck="false"
                 type="${fieldSchema.format==='binary'?'file':'text'}" 
                 style="width:100%" class="request-form-param" 
                 data-pname="${fieldName}" 
@@ -421,10 +423,10 @@ export default class ApiRequest extends LitElement {
         <button class="tab-btn" content_id="tab_curl">CURL</button>
       </div>
       <div id="tab_response_text" class="tab-content col" style="flex:1; ">
-        <textarea class="mono" style="min-height:180px; padding:16px;">${this.responseText}</textarea>
+        <textarea class="mono" spellcheck="false" style="resize:vertical;min-height:180px; padding:16px;">${this.responseText}</textarea>
       </div>
       <div id="tab_response_headers" class="tab-content col" style="flex:1;display:none">
-        <textarea class="mono" style="min-height:180px; padding:16px; white-space:nowrap;">${this.responseHeaders}</textarea>
+        <textarea class="mono" spellcheck="false" style="resize:vertical;min-height:180px; padding:16px; white-space:nowrap;">${this.responseHeaders}</textarea>
       </div>
       <div id="tab_curl" class="tab-content col" style="flex:1;display:none">
         <code style="min-height:180px; padding:16px;font-size:var(--font-mono-size); border:1px solid var(--input-border-color);overflow: scroll;word-break: break-word;">${this.curlSyntax}</code>
