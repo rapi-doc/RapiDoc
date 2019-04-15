@@ -9,7 +9,7 @@ export default class JsonTree extends LitElement {
       <style>
         .tree{
           font-family: var(--font-mono);
-          font-size:12px;
+          font-size:var(--font-mono-size);
           display:inline-block;
           overflow:hidden;
           word-break: break-all;

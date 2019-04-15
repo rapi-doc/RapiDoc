@@ -92,6 +92,7 @@ export default class RapiDoc extends LitElement {
           --header-fg:${this.headerColor?`${vars.color.invert(this.headerColor)}`:`#ccc`};
           --layout:${this.layout?`${this.layout}`:`row`};
           --font-mono:${this.monoFont?`${this.monoFont}`:`Monaco, 'Andale Mono', 'Roboto Mono', Consolas`}; 
+          --font-mono-size:14px; 
           --font-regular:${this.regularFont?`${this.regularFont}`:`rapidoc, Helvetica, Arial`};
           --title-font-size:16px;
           --border-radius:2px;

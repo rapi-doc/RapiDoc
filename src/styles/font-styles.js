@@ -55,15 +55,13 @@ export default html`
       padding-inline-start: 20px;
     }
 
-
-
     .m-markdown code{
         background-color: rgba(0, 0, 0, 0.02);
         padding: 0px 6px;
         border: 1px solid var(--light-border-color);
         border-radius: 3px;
         color: var(--fg);
-        font-size: 12px;
+        font-size: var(--font-mono-size);
     }
 
     .m-markdown pre{

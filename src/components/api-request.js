@@ -86,6 +86,8 @@ export default class ApiRequest extends LitElement {
       .textarea {
         min-height:180px; 
         padding:5px;
+        resize:vertical;
+        font-size:var(--font-mono-size);
       }
 
       .response-message.error{
@@ -288,7 +290,7 @@ export default class ApiRequest extends LitElement {
           <textarea 
             class="textarea mono request-body-param ${shortMimeTypes[mimeReq]}" 
             data-ptype="${mimeReq}" 
-            style="resize:vertical;display:${shortMimeTypes[mimeReq]==='json'?'block':'none'}; 
+            style="display:${shortMimeTypes[mimeReq]==='json'?'block':'none'}; 
           ">${reqExample[0].exampleValue}</textarea>`
       }
       else if (mimeReq.includes('form') || mimeReq.includes('multipart-form')){
@@ -419,13 +421,13 @@ export default class ApiRequest extends LitElement {
         <button class="tab-btn" content_id="tab_curl">CURL</button>
       </div>
       <div id="tab_response_text" class="tab-content col" style="flex:1; ">
-        <textarea class="mono" style="resize:vertical;min-height:180px; padding:16px;">${this.responseText}</textarea>
+        <textarea class="mono" style="min-height:180px; padding:16px;">${this.responseText}</textarea>
       </div>
       <div id="tab_response_headers" class="tab-content col" style="flex:1;display:none">
-        <textarea class="mono" style="resize:vertical;min-height:180px; padding:16px; white-space:nowrap;">${this.responseHeaders}</textarea>
+        <textarea class="mono" style="min-height:180px; padding:16px; white-space:nowrap;">${this.responseHeaders}</textarea>
       </div>
       <div id="tab_curl" class="tab-content col" style="flex:1;display:none">
-        <code style="min-height:180px; padding:16px;font-size:12px; border:1px solid var(--input-border-color);overflow: scroll;word-break: break-word;">${this.curlSyntax}</code>
+        <code style="min-height:180px; padding:16px;font-size:var(--font-mono-size); border:1px solid var(--input-border-color);overflow: scroll;word-break: break-word;">${this.curlSyntax}</code>
       </div>
     </div>`}
     `

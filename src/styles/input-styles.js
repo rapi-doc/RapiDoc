@@ -53,13 +53,13 @@ textarea.mono,
 input[type="text"].mono,
 input[type="password"].mono{
   font-family: var(--font-mono); 
-  font-size:12px;
+  font-size:var(--font-mono-size); 
 }
 
 input[type="text"].large,
 input[type="password"].large {
     padding:10px 8px;
-    font-size:13px;
+    font-size:(--font-mono-size); 
 }
 
 
