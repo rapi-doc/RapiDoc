@@ -139,8 +139,6 @@ export default class SchemaTree extends LitElement {
           )}`:''
         }
       </span>`
-
-
     }
 
   }
@@ -160,9 +158,6 @@ export default class SchemaTree extends LitElement {
       let els = e.target.parentNode.querySelectorAll(":scope > .obj-content-part");
       els.forEach( el =>  el.style.display=  el.classList.contains("obj-descr")?'inline':'block');
     }
-
-    //console.log(e.target.parentElement.querySelectorAll(":scope > .inside-bracket"));
   }
 }
-// Register the element with the browser
 customElements.define('schema-tree', SchemaTree);

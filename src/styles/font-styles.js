@@ -50,6 +50,12 @@ export default html`
       line-height:14px;
       margin-top:0;
     }
+
+    .m-markdown p,
+    .m-markdown-small p{
+      margin-block-end: 0
+    }
+
     .m-markdown-small ul,
     .m-markdown-small ol{
       padding-inline-start: 20px;

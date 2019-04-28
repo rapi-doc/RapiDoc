@@ -146,7 +146,12 @@ export function schemaToModel (schema, obj) {
       obj[":description"] = schema.description;
     }
     for( let key in schema.properties ){
-      obj[key] = schemaToModel(schema.properties[key],{});
+      if (schema.required && schema.required.includes(key)){
+        obj[key+'*'] = schemaToModel(schema.properties[key],{});
+      }
+      else{
+        obj[key] = schemaToModel(schema.properties[key],{});
+      }
     }
   }
   else if (schema.type==="array" || schema.items ){
