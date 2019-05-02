@@ -51,15 +51,16 @@ export default class EndPoint extends LitElement {
         :``}
         <div class='req-resp-container'> 
           <api-request  class="request"  
-            server="${this.server}" 
-            method="${this.path.method}", 
-            path="${this.path.path}" 
-            api-key-name="${this.apiKeyName}" 
-            api-key-value="${this.apiKeyValue}" 
-            api-key-location="${this.apiKeyLocation}" 
-            .parameters="${this.path.parameters}" 
-            .request_body="${this.path.requestBody}"
-            allow-try="${this.allowTry}"
+            server = "${this.server}" 
+            method = "${this.path.method}", 
+            path = "${this.path.path}" 
+            api-key-name = "${this.apiKeyName}" 
+            api-key-value = "${this.apiKeyValue}" 
+            api-key-location = "${this.apiKeyLocation}" 
+            .parameters = "${this.path.parameters}" 
+            .request_body = "${this.path.requestBody}"
+            allow-try = "${this.allowTry}"
+            accept ="${this.accept}"
           ></api-request>
           <api-response 
             class="response" .responses="${this.path.responses}"
@@ -246,6 +247,11 @@ export default class EndPoint extends LitElement {
   `];
   }
 
+  constructor() {
+    super();
+    this.accept = '';
+  }
+
   static get properties() {
     return {
       server        : { type:String },
@@ -259,7 +265,20 @@ export default class EndPoint extends LitElement {
   }
 
   toggleExpand(){
-    this.path.expanded = !this.path.expanded;
+    if (this.path.expanded){
+      this.path.expanded = false; // collapse
+    }
+    else { 
+      this.path.expanded = true;  // Expand
+      let accept ='';
+      for(let respStatus in this.path.responses){
+        for(let acceptContentType in (this.path.responses[respStatus]["content"])){
+          accept = accept + acceptContentType + ', '
+        }
+      }
+      accept = accept.replace(/,\s*$/, ""); // remove trailing comma
+      this.accept = accept;
+    }
     this.requestUpdate();
   }
 }

@@ -128,7 +128,6 @@ export default class ApiRequest extends LitElement {
     this.responseText    = '';
     this.responseUrl     = '';
     this.curlSyntax      = '';
-
   }
 
   static get properties() {
@@ -142,6 +141,7 @@ export default class ApiRequest extends LitElement {
       parameters    : { type: Array },
       request_body  : { type: Object },
       parser        : { type: Object },
+      accept        : { type: String },
       responseMessage: { type: String, attribute:false },
       responseText   : { type: String, attribute:false },
       responseHeaders: { type: String, attribute:false },
@@ -518,6 +518,12 @@ export default class ApiRequest extends LitElement {
       curlUrl = fetchUrl;
     }
     curl=`curl -X ${this.method.toUpperCase()} "${curlUrl}" `;
+
+    // 
+    if (this.accept){
+      fetchOptions.headers['accept'] = this.accept;
+      curlHeaders = curlHeaders + ` -H "accept: ${this.accept}"`;
+    }
 
     //Submit Header Params
     headerParamEls.map(function(el){

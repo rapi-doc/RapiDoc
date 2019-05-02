@@ -185,7 +185,7 @@ export default class RapiDoc extends LitElement {
             <input id="spec-file" type="file" style="display:none" value="${this.specFile?this.specFile:''}" @change="${this.onSepcFileChange}" spellcheck="false" >
             <button class="m-btn only-large-screen" style="margin-left:10px;"  @click="${this.onFileLoadClick}"> LOCAL JSON FILE </button>
           `}
-
+          <slot name="header"></slot>
           ${ (this.allowSearch==='false') ?``:html`  
             <input id="search" class="header-input" type="text"  placeholder="search" @change="${this.onSearchChange}" style="max-width:130px;margin-left:10px;" spellcheck="false" >
             <div style="margin: 6px 5px 0 -24px; font-size:18px; cursor:pointer;">&#x23ce;</div>
@@ -254,7 +254,6 @@ export default class RapiDoc extends LitElement {
         <slot name="footer"></slot>
       </div>  
     `}
-
     static get properties() {
       return {
         specUrl : { type: String, attribute: 'spec-url' },
