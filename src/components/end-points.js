@@ -15,29 +15,30 @@ export default class EndPoints extends LitElement {
     })
     .map(
       path => html`</span><end-point 
-        server="${this.server}" 
-        api-key-name="${this.apiKeyName}" 
-        api-key-value="${this.apiKeyValue}" 
+        selected-server="${this.selectedServer}" 
+        api-key-name="${this.apiKeyName?this.apiKeyName:''}" 
+        api-key-value="${this.apiKeyValue?this.apiKeyValue:''}" 
         api-key-location="${this.apiKeyLocation}" 
         layout="${this.layout}" 
         .path=${path}
-        allow-try="${this.allowTry}" 
+        allow-try="${this.allowTry?this.allowTry:'true'}" 
       > </end-point>`
     )}`
   }
 
   static get properties() {
     return {
-      server        : { type: String },
       apiKeyName    : { type: String, attribute: 'api-key-name' },
       apiKeyValue   : { type: String, attribute: 'api-key-value' },
-      apiKeyLocation: { type: String, attribute: 'api-key-location' },
+      apiKeyLocation: { type: String, attribute: 'api-key-location'},
+      selectedServer: { type: String, attribute: 'selected-server' },
       layout        : { type: String },
       paths         : { type: Object },
       matchPaths    : { type: String, attribute: 'match-paths' },
       allowTry      : { type: String, attribute: 'allow-try' },
     };
   }
+
 }
 // Register the element with the browser
 customElements.define('end-points', EndPoints);

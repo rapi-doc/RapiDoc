@@ -212,17 +212,27 @@ export default class RapiDoc extends LitElement {
         </div>`
         }
 
-        ${(this.allowTry==='false' || !this.resolvedSpec || !this.resolvedSpec.servers || this.resolvedSpec.servers.length===0) ?``:html`
+      ${(this.allowTry==='false' || !this.resolvedSpec)  ?``:html`
         <div class="sub-title regular-font section-gap">
           <a id="api_server_options"> API SERVER: </a>
-          <div style="margin: 8px 0; font-size:12px">
+          <div class="mono-font" style="margin: 12px 0; font-size:13px">
+          ${!this.resolvedSpec.servers || (this.resolvedSpec.servers.length===0)  ?``:html`
             ${this.resolvedSpec.servers.map(server => html`
-                <input type='radio' name='api_server' value='${server.url}' @change="${this.onApiServerChange}" checked style='margin:0 0 5px 8px'/>
+                <input type='radio' name='api_server' value='${server.url}' @change="${this.onApiServerChange}" checked style='margin:2px 0 5px 8px'/>
                 ${server.url}<br/>
-              `)} 
+              `
+            )}
+          `}
+
+          ${ (this.serverUrl) ?html`
+            <input type='radio' name='api_server' value='${this.serverUrl}' @change="${this.onApiServerChange}" checked style='margin:2px 0 5px 8px'/>
+                ${this.serverUrl}<br/>
+            `:''
+          }
           </div>
         </div>  
-        `}
+      `} 
+
 
         ${(this.allowAuthentication==='false' || !this.resolvedSpec || !this.resolvedSpec.securitySchemes)?'':html`
         <div class="sub-title regular-font section-gap">
@@ -240,13 +250,13 @@ export default class RapiDoc extends LitElement {
               ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(tag.description?tag.description:'')}</div>`)}
             </div>
             <end-points 
-              server           = "${this.server?this.server:''}"  
+              selected-server  = "${this.selectedServer?this.selectedServer:''}"  
               api-key-name     = "${this.apiKeyName?this.apiKeyName:''}"
               api-key-value    = "${this.apiKeyValue?this.apiKeyValue:''}"
               api-key-location = "${this.apiKeyLocation?this.apiKeyLocation:''}"
               layout           = "${this.layout?this.layout:'row'}"
               .paths           = "${tag.paths}" 
-              allow-try        = "${this.allowTry}"
+              allow-try        = "${this.allowTry?this.allowTry:'true'}"
               match-paths      = "${this.matchPaths}"
             ></end-points>
           `)}`
@@ -258,7 +268,7 @@ export default class RapiDoc extends LitElement {
       return {
         specUrl : { type: String, attribute: 'spec-url' },
         specFile: { type: String, attribute: false },
-        server  : { type: String },
+        serverUrl  : { type: String, attribute: 'server-url'  },
         matchPaths  : { type: String, attribute: 'match-paths' },        
         headingText : { type: String, attribute: 'heading-text'  },
         headerColor : { type: String, attribute: 'header-color'  },
@@ -322,7 +332,8 @@ export default class RapiDoc extends LitElement {
     onApiServerChange(){
       let apiServerRadioEl = this.shadowRoot.querySelector("input[name='api_server']:checked");
       if (apiServerRadioEl !== null){
-        this.server = apiServerRadioEl.value;
+        this.selectedServer = apiServerRadioEl.value;
+        this.requestUpdate();
       }
     }
 
@@ -345,7 +356,7 @@ export default class RapiDoc extends LitElement {
       this.apiKeyName     = "";
       this.apiKeyValue    = "";
       this.apiKeyLocation = "";
-      this.server         = "";
+      this.selectedServer = "";
       this.matchPaths     = "";
 
       ProcessSpec(specUrl).then(function(spec){
@@ -363,11 +374,10 @@ export default class RapiDoc extends LitElement {
     }
 
     afterSpecParsedAndValidated(spec, isReloadingSpec=false){
-      let me = this;
       this.resolvedSpec = spec;
       this.requestUpdate();
-      window.setTimeout(function(){
-        me.onApiServerChange()
+      window.setTimeout(()=>{
+        this.onApiServerChange()
       },0);
 
     }

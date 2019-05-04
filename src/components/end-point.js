@@ -51,12 +51,12 @@ export default class EndPoint extends LitElement {
         :``}
         <div class='req-resp-container'> 
           <api-request  class="request"  
-            server = "${this.server}" 
             method = "${this.path.method}", 
             path = "${this.path.path}" 
             api-key-name = "${this.apiKeyName}" 
             api-key-value = "${this.apiKeyValue}" 
             api-key-location = "${this.apiKeyLocation}" 
+            selected-server = "${this.selectedServer}" 
             .parameters = "${this.path.parameters}" 
             .request_body = "${this.path.requestBody}"
             allow-try = "${this.allowTry}"
@@ -254,10 +254,10 @@ export default class EndPoint extends LitElement {
 
   static get properties() {
     return {
-      server        : { type:String },
       apiKeyName    : { type: String, attribute: 'api-key-name' },
       apiKeyValue   : { type: String, attribute: 'api-key-value' },
       apiKeyLocation: { type: String, attribute: 'api-key-location' },
+      selectedServer: { type: String, attribute: 'selected-server'  },
       layout  : { type:String },
       path    : { type:Object },
       allowTry: { type: String, attribute: 'allow-try' },

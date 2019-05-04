@@ -110,6 +110,7 @@ export default class ApiResponse extends LitElement {
       for(let mimeResp in this.responses[statusCode].content ) {
         let mimeRespObj = this.responses[statusCode].content[mimeResp];
         //Remove Circular references from Response schema 
+        /*
         try {
           mimeRespObj.schema = JSON.parse(JSON.stringify(mimeRespObj.schema, removeCircularReferences(0)));
         }
@@ -117,6 +118,7 @@ export default class ApiResponse extends LitElement {
           console.error("Unable to resolve circular refs in schema", mimeRespObj.schema);
           return;
         }
+        */
         
         // Generate Schema
         let schemaTree = schemaToModel(mimeRespObj.schema,{});

@@ -132,10 +132,10 @@ export default class ApiRequest extends LitElement {
 
   static get properties() {
     return {
-      server        : { type: String },
       apiKeyName    : { type: String, attribute: 'api-key-name' },
       apiKeyValue   : { type: String, attribute: 'api-key-value' },
       apiKeyLocation: { type: String, attribute: 'api-key-location' },
+      selectedServer: { type: String, attribute: 'selected-server'  },
       method        : { type: String },
       path          : { type: String },
       parameters    : { type: Array },
@@ -395,7 +395,7 @@ export default class ApiRequest extends LitElement {
     <div style="display:flex; align-items: center; margin:16px 0; font-size:12px;">
       <div style="display:flex; flex-direction:column; margin:0; width:calc(100% - 60px);">
         <div style="display:flex;flex-direction:row;overflow:hidden;"> <div style="font-weight:bold;">API_Server: </div> 
-          ${this.server?html`${this.server}`
+          ${this.selectedServer?html`${this.selectedServer}`
           : html`<div style="font-weight:bold;color:var(--error-color)">Not Set</div>`}
         </div>
         <div style="display:flex;flex-direction:row;overflow:hidden;line-height:16px;color:var(--fg2)"> 
@@ -509,7 +509,7 @@ export default class ApiRequest extends LitElement {
     }
 
     //Final URL for API call
-    fetchUrl = `${this.server.replace(/\/$/, "")}${fetchUrl}`;
+    fetchUrl = `${this.selectedServer.replace(/\/$/, "")}${fetchUrl}`;
     if (fetchUrl.startsWith('http') === false){
       let url = new URL(fetchUrl, location.href);
       curlUrl = url.href;
