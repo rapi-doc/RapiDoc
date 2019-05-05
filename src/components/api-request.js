@@ -418,12 +418,18 @@ export default class ApiRequest extends LitElement {
     </div>
     <div class="tab-panel col" style="border-width:0; min-height:200px">
       <div id="tab_buttons" class="tab-buttons row" @click="${this.activateTab}">
-        <button class="tab-btn active" content_id="tab_response_text"> RESPONSE TEXT</button>
+        <button class="tab-btn active" content_id="tab_response_text"> RESPONSE</button>
         <button class="tab-btn" content_id="tab_response_headers"> RESPONSE HEADERS</button>
         <button class="tab-btn" content_id="tab_curl">CURL</button>
       </div>
       <div id="tab_response_text" class="tab-content col" style="flex:1; ">
-        <textarea class="mono" spellcheck="false" style="resize:vertical;min-height:180px; padding:16px;">${this.responseText}</textarea>
+        ${this.responseIsBlob?html`
+          <div style="margin:10px 2px"> 
+            <button class="m-btn" @click="${this.downloadResponseBlob}">DOWNLOAD</button>
+          </div>
+        `
+        :html`<textarea class="mono" spellcheck="false" style="resize:vertical;min-height:180px; padding:16px;">${this.responseText}</textarea>
+        `}
       </div>
       <div id="tab_response_headers" class="tab-content col" style="flex:1;display:none">
         <textarea class="mono" spellcheck="false" style="resize:vertical;min-height:180px; padding:16px; white-space:nowrap;">${this.responseHeaders}</textarea>
@@ -519,10 +525,9 @@ export default class ApiRequest extends LitElement {
     }
     curl=`curl -X ${this.method.toUpperCase()} "${curlUrl}" `;
 
-    // 
     if (this.accept){
-      fetchOptions.headers['accept'] = this.accept;
-      curlHeaders = curlHeaders + ` -H "accept: ${this.accept}"`;
+      fetchOptions.headers['Accept'] = this.accept;
+      curlHeaders = curlHeaders + ` -H "Accept: ${this.accept}"`;
     }
 
     //Submit Header Params
@@ -619,7 +624,13 @@ export default class ApiRequest extends LitElement {
     // me.responseText    = '';
     me.curlSyntax      = '';
     me.responseStatus  = 'success';
-    // me.responseMessage = ''
+    me.responseIsBlob  = false;
+    
+    me.respContentDisposition = '';
+    if (me.responseBlobUrl){
+      URL.revokeObjectURL(me.responseBlobUrl);
+      me.responseBlobUrl = '';
+    }
 
     fetch(fetchUrl,fetchOptions).then(function(resp){
       me.curlSyntax = `${curl} ${curlHeaders} ${curlData} ${curlForm}`;
@@ -629,11 +640,21 @@ export default class ApiRequest extends LitElement {
       resp.headers.forEach(function(hdrVal, hdr) {
         me.responseHeaders = me.responseHeaders + `${hdr.trim()}: ${hdrVal}`+"\n";
       });
-      let contentType = resp.headers.get("content-type");
-      if(contentType && contentType.includes("json")) {
-        resp.json().then(function(respObj) {
-          me.responseText = JSON.stringify(respObj,null,2);
-        })
+      let contentType = resp.headers.get('content-type');
+      if (contentType){
+        if(contentType.includes('json')) {
+          resp.json().then(function(respObj) {
+            me.responseText = JSON.stringify(respObj,null,2);
+          })
+        }
+        else if(contentType.includes('octet-stream')) {
+          me.responseIsBlob  = true;
+          let contentDisposition = resp.headers.get('content-disposition');
+          me.respContentDisposition = contentDisposition? contentDisposition.split('filename=')[1]:"filename";
+          resp.blob().then(function(respBlob) {
+            me.responseBlobUrl = URL.createObjectURL(respBlob);
+          })
+        }
       }
       else{
         resp.text().then(function(respText) {
@@ -646,12 +667,39 @@ export default class ApiRequest extends LitElement {
     });
   }
 
+  downloadResponseBlob(){
+    if (this.responseBlobUrl){
+      let a = document.createElement("a");
+      document.body.appendChild(a);
+      a.style = "display: none";
+      a.href = this.responseBlobUrl;
+      a.download = this.respContentDisposition;
+      a.click();
+      a.remove();
+    }
+  }
+
   clearResponseData(){
     this.responseUrl     = '';
     this.responseHeaders = '';
     this.responseText    = '';
     this.responseStatus  = 'success';
     this.responseMessage = ''
+    this.responseIsBlob  = false;
+    this.respContentDisposition = '';
+    if (this.responseBlobUrl){
+      URL.revokeObjectURL(this.responseBlobUrl);
+      this.responseBlobUrl = '';
+    }
+
+  }
+
+  disconnectedCallback() {
+    // Cleanup ObjectURL forthe blob data if this component created one
+    if (this.responseBlobUrl){
+      URL.revokeObjectURL(this.responseBlobUrl);
+      this.responseBlobUrl = '';
+    }
   }
 
 }

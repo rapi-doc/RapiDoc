@@ -160,7 +160,7 @@ export default class ApiResponse extends LitElement {
         <span class="resp-descr">${this.responses[status].description}</span> 
       </div>      
       ${Object.keys(mimeResponsesForEachStatus[status]).map(
-        mimeType => html`
+        mimeType => mimeType.includes('octet-stream')? html`<div> <span style='color:var(--primary-color)'> Content-Type: </span> ${mimeType} (Binary Data) </div>`: html`
           <div class="tab-panel col" style="border-width:0; min-height:200px">
             <div id="${status}_${mimeType}_tab-buttons" @click="${this.activateTab}" class="tab-buttons row" >
               <button class="tab-btn active" content_id="${status}_${mimeType}_example">EXAMPLE</button>
