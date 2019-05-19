@@ -432,7 +432,7 @@ export default class ApiRequest extends LitElement {
         `}
       </div>
       <div id="tab_response_headers" class="tab-content col" style="flex:1;display:none">
-        <textarea class="mono" spellcheck="false" style="resize:vertical;min-height:180px; padding:16px; white-space:nowrap;">${this.responseHeaders}</textarea>
+        <textarea class="mono" spellcheck="false" style="resize:vertical;min-height:180px; padding:16px; white-space:pre;">${this.responseHeaders}</textarea>
       </div>
       <div id="tab_curl" class="tab-content col" style="flex:1;display:none">
         <code style="min-height:180px; padding:16px;font-size:var(--font-mono-size); border:1px solid var(--input-border-color);overflow: scroll;word-break: break-word;">${this.curlSyntax}</code>
