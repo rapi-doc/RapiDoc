@@ -59,7 +59,7 @@ export default class ApiRequest extends LitElement {
         background-color:transparent;
         cursor:pointer;
         outline:none;
-        font-size:12px;
+        font-size:var(--small-font-size);
         margin-right:16px;
         padding:1px;
       }
@@ -76,7 +76,7 @@ export default class ApiRequest extends LitElement {
         margin:-1px 0 0 0;
       }
       .link{
-        font-size:12px;
+        font-size:var(--small-font-size);
         text-decoration: underline;
         color:var(--link-color);
         font-family:var(--font-mono);
@@ -197,7 +197,7 @@ export default class ApiRequest extends LitElement {
         </td>  
         <td style="min-width:100px;">
           ${paramSchema.type === 'array'?html`
-          <tag-input class="request-param" style="width:100%;font-size:13px;background:var(--input-bg);line-height:13px;" 
+          <tag-input class="request-param" style="width:100%;font-size:calc(var(--small-) + 1px); background:var(--input-bg);line-height:13px;" 
             data-ptype="${paramType}" 
             data-pname="${param.name}"
             data-array="true"
@@ -311,7 +311,7 @@ export default class ApiRequest extends LitElement {
             </td>  
             <td style="min-width:100px;">
               ${fieldType === 'array'?html`
-              <tag-input class="request-form-param" style="width:100%;font-size:13px;background:var(--input-bg);line-height:13px;" 
+              <tag-input class="request-form-param" style="width:100%; font-size:calc(var(--title-font-size) + 1px); background:var(--input-bg);line-height:13px;" 
                 data-ptype="${fieldType}" 
                 data-pname="${fieldName}"
                 data-array="true"
@@ -362,7 +362,7 @@ export default class ApiRequest extends LitElement {
             <button class="tab-btn active" content_id="tab_example">EXAMPLE </button>
             <button class="tab-btn" content_id="tab_model">MODEL</button>
             <div style="flex:1"> </div>
-            <div style="color:var(--light-fg); align-self:center; font-size:12px; margin-top:8px;">
+            <div style="color:var(--light-fg); align-self:center; font-size:var(--small-font-size); margin-top:8px;">
               ${mimeReqCount==1?`
                 ${Object.keys(shortMimeTypes)[0]}
               `:html`
@@ -392,7 +392,7 @@ export default class ApiRequest extends LitElement {
 
   apiCallTemplate(){
     return html`
-    <div style="display:flex; align-items: center; margin:16px 0; font-size:12px;">
+    <div style="display:flex; align-items: center; margin:16px 0; font-size:var(--small-font-size);">
       <div style="display:flex; flex-direction:column; margin:0; width:calc(100% - 60px);">
         <div style="display:flex;flex-direction:row;overflow:hidden;"> <div style="font-weight:bold;">API_Server: </div> 
           ${this.selectedServer?html`${this.selectedServer}`
@@ -410,7 +410,7 @@ export default class ApiRequest extends LitElement {
       <button class="m-btn" style="padding: 6px 0px;width:60px" @click="${this.onTryClick}">TRY</button>
     </div>
     ${this.responseMessage===''?'':html`
-    <div class="row" style="font-size:12px; margin:5px 0">
+    <div class="row" style="font-size:var(--small-font-size); margin:5px 0">
       <div class="response-message ${this.responseStatus}">Response Status: ${this.responseMessage}</div>
       <div style="flex:1"></div>
       <button class="m-btn" style="padding: 6px 0px;width:60px" @click="${this.clearResponseData}">CLEAR</button>

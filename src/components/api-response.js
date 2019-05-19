@@ -25,9 +25,17 @@ export default class ApiResponse extends LitElement {
         vertical-align: middle;
         padding:16px 0 8px;
       }
-      .resp-head.divider{border-top: 1px solid var(--border-color);}
+      .resp-head.divider{
+        border-top: 1px solid var(--border-color);
+        margin-top:10px;
+      }
       .resp-status{ 
         font-weight:bold;
+        font-size:calc(var(--small-font-size) + 1px);
+      }
+      .resp-descr{
+        font-size:calc(var(--small-font-size) + 1px);
+        color:var(--light-fg);
       }
       .top-gap{margin-top:16px;}
       .tab-buttons{
@@ -42,7 +50,7 @@ export default class ApiResponse extends LitElement {
         cursor:pointer;
         padding:1px;
         outline:none;
-        font-size:12px;
+        font-size:var(--small-font-size);
         margin-right:16px;
         padding:1px;
       }
@@ -57,6 +65,10 @@ export default class ApiResponse extends LitElement {
       }
       .tab-content{
         margin:-1px 0 0 0;
+      }
+      .descr-text{
+        color:var(--light-fg);
+        font-family:var(--font-regular);
       }
       .tree{
         padding:16px 2px;
@@ -158,6 +170,20 @@ export default class ApiResponse extends LitElement {
       <div class="resp-head ${index===0?'top-gap':'divider'}">
         <span class="resp-status">${status}:</span> 
         <span class="resp-descr">${this.responses[status].description}</span> 
+        ${ (headersForEachRespStatus[status] && headersForEachRespStatus[status].length > 0)?html`
+          <div style="padding:12px 0 5px 0" class="resp-status">Response Headers:</div> 
+          <table style="">
+            ${headersForEachRespStatus[status].map( v => html`
+              <tr>
+                <td style="padding:0 12px;vertical-align: top;" class="regular-font-size"> ${v.name}</td> 
+                <td style="padding:0 12px;vertical-align: top; line-height:14px" class="descr-text small-font-size">
+                  ${v.description} 
+                  ${ (v.schema && v.schema.example)? html`<br/><span style="font-weight:bold">EXAMPLE:</span> ${v.schema.example}`:`` }
+                </td>
+              </tr>
+            `)}
+          </table>
+        `:`` }
       </div>      
       ${Object.keys(mimeResponsesForEachStatus[status]).map(
         mimeType => mimeType.includes('octet-stream')? html`<div> <span style='color:var(--primary-color)'> Content-Type: </span> ${mimeType} (Binary Data) </div>`: html`
@@ -166,7 +192,7 @@ export default class ApiResponse extends LitElement {
               <button class="tab-btn active" content_id="${status}_${mimeType}_example">EXAMPLE</button>
               <button class="tab-btn" content_id="${status}_${mimeType}_model">MODEL</button>
               <div style="flex:1"></div>
-              <div style="align-self:center;font-size:12px;"> ${mimeType} </div>
+              <div style="align-self:center;font-size:var(--small-font-size);"> ${mimeType} </div>
             </div>
             <div id="${status}_${mimeType}_example" class="tab-content col" style="flex:1; ">
               <json-tree class="border tree" .data="${mimeResponsesForEachStatus[status][mimeType].examples[0].exampleValue}"></json-tree>

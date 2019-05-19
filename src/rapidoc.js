@@ -95,6 +95,8 @@ export default class RapiDoc extends LitElement {
           --font-mono-size:14px; 
           --font-regular:${this.regularFont?`${this.regularFont}`:`rapidoc, Helvetica, Arial`};
           --title-font-size:16px;
+          --regular-font-size:14px;
+          --small-font-size:12px;
           --border-radius:2px;
 
           display:block;
@@ -127,7 +129,7 @@ export default class RapiDoc extends LitElement {
           display:none;
         }
         .header-title{
-          font-size:24px; padding:0 8px;
+          font-size:calc(var(--title-font-size) + 8px); padding:0 8px;
         }
         .tag{
           text-transform: uppercase;
@@ -178,7 +180,7 @@ export default class RapiDoc extends LitElement {
 
           ${ (this.allowSpecUrlLoad==='false') ?``:html`
             <input id="spec-url" type="text" class="header-input" placeholder="Spec URL" value="${this.specUrl?this.specUrl:''}" @change="${this.onSepcUrlChange}" spellcheck="false" >
-            <div style="margin: 6px 5px 0 -24px; font-size:18px; cursor:pointer;">&#x23ce;</div> 
+            <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x23ce;</div> 
           `} 
           
           ${ (this.allowSpecFileLoad==='false') ?``:html`
@@ -188,7 +190,7 @@ export default class RapiDoc extends LitElement {
           <slot name="header"></slot>
           ${ (this.allowSearch==='false') ?``:html`  
             <input id="search" class="header-input" type="text"  placeholder="search" @change="${this.onSearchChange}" style="max-width:130px;margin-left:10px;" spellcheck="false" >
-            <div style="margin: 6px 5px 0 -24px; font-size:18px; cursor:pointer;">&#x23ce;</div>
+            <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x23ce;</div>
           `}
         </div>
       </div>`}
@@ -201,7 +203,7 @@ export default class RapiDoc extends LitElement {
           <div class="title">
             ${this.resolvedSpec.info.title}
             ${!this.resolvedSpec.info.version?"":html`
-              <span style="font-size:14px;font-weight:bold">
+              <span style="font-size:var(--small-font-size);font-weight:bold">
                 ${this.resolvedSpec.info.version}
               </span>`
             }
@@ -215,7 +217,7 @@ export default class RapiDoc extends LitElement {
       ${(this.allowTry==='false' || !this.resolvedSpec)  ?``:html`
         <div class="sub-title regular-font section-gap">
           <a id="api_server_options"> API SERVER: </a>
-          <div class="mono-font" style="margin: 12px 0; font-size:13px">
+          <div class="mono-font" style="margin: 12px 0; font-size:calc(var(--small-font-size) + 1px);">
           ${!this.resolvedSpec.servers || (this.resolvedSpec.servers.length===0)  ?``:html`
             ${this.resolvedSpec.servers.map(server => html`
                 <input type='radio' name='api_server' value='${server.url}' @change="${this.onApiServerChange}" checked style='margin:2px 0 5px 8px'/>

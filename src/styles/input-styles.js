@@ -15,7 +15,7 @@ input, select, button {
   font-weight: 600;
   display: inline-block;
   padding: 6px 16px;
-  font-size: 12px;
+  font-size: var(--small-font-size);
   outline: 0;
   line-height: 1;
   text-align: center;
@@ -44,7 +44,7 @@ input[type="password"]{
   color:var(--fg);
   transition: border .2s;
   outline: none;
-  font-size:13px;
+  font-size:calc(var(--small-font-size) + 1px);
   padding:6px 5px;
   box-sizing: border-box;
 }

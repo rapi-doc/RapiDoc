@@ -7,6 +7,8 @@ export default html`
     .mono-font{font-family:var(--font-mono);}
     .title{font-size:32px;}
     .sub-title{font-size: 18px;}
+    .regular-font-size{ font-size:var(--regular-font-size);}
+    .small-font-size{ font-size:var(--small-font-size);}
     h1{ font-family:var(--font-regular); font-size:20px; letter-spacing:normal; }
     h2{ font-family:var(--font-regular); font-size:18px; letter-spacing:normal; }
     h3{ font-family:var(--font-regular); font-size:16px; letter-spacing:normal; }

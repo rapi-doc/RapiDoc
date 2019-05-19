@@ -81,14 +81,14 @@ export default class EndPoint extends LitElement {
     .head .path{
       display: flex;
       font-family:var(--font-mono);
-      font-size: 12px;
+      font-size: var(--small-font-size);
       align-items: center;
       overflow-wrap: break-word;
       word-break: break-all;
     }
 
     .head .descr{
-      font-size: 12px;
+      font-size: var(--small-font-size);
       color:var(--light-fg);
       font-weight:400;
       align-items: center;
@@ -154,7 +154,7 @@ export default class EndPoint extends LitElement {
       padding:8px 8px;
     }
     .summary .title{
-      font-size:18px;
+      font-size:calc(var(--title-font-size) + 2px);
       margin-bottom: 6px;
       word-break: break-all;
     }
@@ -167,7 +167,7 @@ export default class EndPoint extends LitElement {
       min-width: 48px;
       border-radius: 2px;
       display:inline-block;
-      font-size:12px;
+      font-size:var(--small-font-size);
       text-align: center;
       font-weight: bold;
       text-transform:uppercase;
@@ -217,7 +217,7 @@ export default class EndPoint extends LitElement {
 
     @media only screen and (min-width: 768px){
       .head .path{
-        font-size: 14px;
+        font-size: var(--regular-font-size);
         min-width:400px;
       }
       .head .descr{
