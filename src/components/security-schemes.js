@@ -32,7 +32,7 @@ export default class SecuritySchemes extends LitElement {
         ${Object.keys(this.schemes).map(s => html`
           <tr>  
           <td>
-            <div style="font-weight:bold">${this.schemes[s].type}: ${this.schemes[s].scheme}</div>
+            <div style="font-weight:bold">${this.schemes[s].type}: ${this.schemes[s].scheme} 
             ${this.schemes[s].description?html`
               <div class="m-markdown"> 
                 ${unsafeHTML(marked(this.schemes[s].description))}
@@ -42,36 +42,43 @@ export default class SecuritySchemes extends LitElement {
           <td>
             ${this.schemes[s].type==='apiKey'?html`
               Send <code>'${this.schemes[s].name}'</code> in <code>'${this.schemes[s].in}'</code> with the given value
-              <div class="api-key" data-type="${this.schemes[s].type}" data-in="${this.schemes[s].in}" data-name="${this.schemes[s].name}" data-inputname="${s}" style="margin:5px 0" spellcheck="false" >
+              <div class="${s}-class" data-type="${this.schemes[s].type}" data-in="${this.schemes[s].in}" data-name="${this.schemes[s].name}" data-inputname="${s}" style="margin:5px 0" spellcheck="false" >
                 <input type="text" name="${s}-token" style="width:202px;" placeholder="api-token" >
+
                 <button 
-                  class="m-btn" 
-                  data-action="${this.keyValue?'CLEAR':'SET'}" 
+                  class="m-btn"
+                  name="${s}-button"
+                  data-class="${s}-class"
+                  data-action="${this.selectedApiKeyValue?'CLEAR':'SET'}" 
                   @click="${this.dispatchChange}"
-                >${this.keyValue?'CLEAR':'SET'}</button>
+                >${this.selectedApiKeyValue?'CLEAR':'SET'}</button>
               </div>
             `:``}
             ${this.schemes[s].type==='http' && this.schemes[s].scheme==='basic'?html`
               Send <code>'Authorization'</code> in header which will contains the word  <code>'Basic'</code> followed by a space and a base64-encoded string username:password.
-              <div class="api-key " data-type="${this.schemes[s].type}" data-scheme="${this.schemes[s].scheme}" data-in="header" data-name="Authorization" style="margin:15px 0">
+              <div class="${s}-class" data-type="${this.schemes[s].type}" data-scheme="${this.schemes[s].scheme}" data-in="header" data-name="Authorization" data-inputname="${s}" style="margin:15px 0">
                 <input type="text" name="${s}-username" style="width:100px;" placeholder="username" spellcheck="false">
                 <input type="text" name="${s}-password" style="width:100px;" placeholder="password" spellcheck="false">
                 <button 
-                  class="m-btn" 
-                  data-action="${this.keyValue?'CLEAR':'SET'}" 
+                  class="m-btn"
+                  name="${s}-button"
+                  data-class="${s}-class"
+                  data-action="${this.selectedApiKeyValue?'CLEAR':'SET'}" 
                   @click="${this.dispatchChange}"
-                >${this.keyValue?'CLEAR':'SET'}</button>
+                >${this.selectedApiKeyValue?'CLEAR':'SET'}</button>
               </div>
             `:``}
             ${this.schemes[s].type==='http' && this.schemes[s].scheme==='bearer'?html`
               Send <code>'Authorization'</code> in header which will contains the word  <code>'Bearer'</code> followed by a space and a Token String.
-              <div class="api-key" data-type="${this.schemes[s].type}" data-scheme="${this.schemes[s].scheme}" data-in="header" data-name="Authorization" style="margin:15px 0">
-                <input type="text" name="${s}-bearer-token" style="width:202px;" placeholder="api-token" spellcheck="false" >
+              <div class="${s}-class" data-type="${this.schemes[s].type}" data-scheme="${this.schemes[s].scheme}" data-in="header" data-name="Authorization" data-inputname="${s}" style="margin:15px 0">
+                <input type="text" name="${s}-bearer-token" style="width:202px;" placeholder="bearer-token" spellcheck="false" >
                 <button 
                   class="m-btn" 
-                  data-action="${this.keyValue?'CLEAR':'SET'}" 
+                  name="${s}-button"
+                  data-class="${s}-class"
+                  data-action="${this.selectedApiKeyValue?'CLEAR':'SET'}" 
                   @click="${this.dispatchChange}"
-                >${this.keyValue?'CLEAR':'SET'}</button>
+                >${this.selectedApiKeyValue?'CLEAR':'SET'}</button>
               </div>
             `:``}
             ${this.schemes[s].type==='oauth2'?html`
@@ -96,14 +103,14 @@ export default class SecuritySchemes extends LitElement {
   static get properties() {
     return {
       schemes: {type: Object},
-      keyValue:{type: String}
+      selectedApiKeyName  : { type: String, attribute: 'selected-api-key-name' },
+      selectedApiKeyValue : { type: String, attribute: 'selected-api-key-value' },
     };
 
   }
 
   dispatchChange(e){
-    let apiEl = e.target.closest(".api-key");
-    debugger
+    let apiEl = e.target.closest(`.${e.target.dataset.class}`);
     if (!apiEl){
       return;
     }
@@ -112,10 +119,11 @@ export default class SecuritySchemes extends LitElement {
     let keyLocation = apiEl.dataset.in;
     let keyName     = apiEl.dataset.name;
     let inputname   = apiEl.dataset.inputname;
+    let inputKeyValue="";
 
     
     if (e.target.dataset.action === "CLEAR"){
-      this.keyValue = "";
+      //this.keyValue = "";
       let tokenEl = apiEl.querySelector(`input[name=${inputname}-token]`);
 
       if (tokenEl){
@@ -127,7 +135,8 @@ export default class SecuritySchemes extends LitElement {
         // let tokenEl = apiEl.querySelector("input[name=token]");
         let tokenEl = apiEl.querySelector(`input[name=${inputname}-token]`);
         if (tokenEl){
-          this.keyValue = tokenEl.value;
+          inputKeyValue = tokenEl.value;
+          //this.keyValue = tokenEl.value;
         }
 
       }
@@ -140,7 +149,8 @@ export default class SecuritySchemes extends LitElement {
           let passwordEl = apiEl.querySelector(`input[name=${inputname}-password]`);
 
           if (userNameEl && passwordEl){
-            this.keyValue = 'Basic '+ btoa(userNameEl.value+":"+passwordEl.value);
+            inputKeyValue = 'Basic '+ btoa(userNameEl.value+":"+passwordEl.value);
+            // this.keyValue = 'Basic '+ btoa(userNameEl.value+":"+passwordEl.value);
           }
     
         }
@@ -148,7 +158,8 @@ export default class SecuritySchemes extends LitElement {
           // let tokenEl = apiEl.querySelector("input[name=token]");
           let tokenEl = apiEl.querySelector(`input[name=${inputname}-bearer-token]`);
           if (tokenEl){
-            this.keyValue = "Bearer " + tokenEl.value;
+             inputKeyValue = "Bearer " + tokenEl.value;
+            // this.keyValue = "Bearer " + tokenEl.value;
           }
         }
       }
@@ -159,7 +170,7 @@ export default class SecuritySchemes extends LitElement {
       detail: {
         keyType:keyType,
         keyName:keyName,
-        keyValue:this.keyValue,
+        keyValue:inputKeyValue,
         keyLocation:keyLocation,
       }
     });

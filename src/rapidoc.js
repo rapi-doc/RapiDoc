@@ -239,7 +239,9 @@ export default class RapiDoc extends LitElement {
         ${(this.allowAuthentication==='false' || !this.resolvedSpec || !this.resolvedSpec.securitySchemes)?'':html`
         <div class="sub-title regular-font section-gap">
           <security-schemes 
-            .schemes="${this.resolvedSpec.securitySchemes}" 
+            .schemes="${this.resolvedSpec.securitySchemes}"
+            selected-api-key-name  = "${this.apiKeyName?this.apiKeyName:''}"
+            selected-api-key-value = "${this.apiKeyValue?this.apiKeyValue:''}"
             @change="${this.onSecurityChange}"
           ></security-schemes>
         </div>

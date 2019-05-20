@@ -631,9 +631,8 @@ export default class ApiRequest extends LitElement {
       URL.revokeObjectURL(me.responseBlobUrl);
       me.responseBlobUrl = '';
     }
-
+    me.curlSyntax = `${curl} ${curlHeaders} ${curlData} ${curlForm}`;
     fetch(fetchUrl,fetchOptions).then(function(resp){
-      me.curlSyntax = `${curl} ${curlHeaders} ${curlData} ${curlForm}`;
       me.responseStatus  = resp.ok ? 'success':'error';
       me.responseMessage = `${resp.statusText}:${resp.status}`;
       me.responseUrl     = resp.url;
