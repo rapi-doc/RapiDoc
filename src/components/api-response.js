@@ -1,11 +1,13 @@
-import { LitElement, html } from 'lit-element'; 
+import { LitElement, html } from 'lit-element';
 import {schemaToModel, schemaToObj, generateExample, removeCircularReferences} from '@/utils/common-utils';
 import vars from '@/styles/vars';
 import FontStyles from '@/styles/font-styles';
 import FlexStyles from '@/styles/flex-styles';
 import TableStyles from '@/styles/table-styles';
 import InputStyles from '@/styles/input-styles';
-import SchemaTree from '@/components/schema-tree'; 
+import SchemaTree from '@/components/schema-tree';
+import marked from 'marked';
+import {unsafeHTML} from 'lit-html/directives/unsafe-html.js';
 
 export default class ApiResponse extends LitElement {
   render() {
@@ -121,7 +123,7 @@ export default class ApiResponse extends LitElement {
       let mimeRespCount=0;
       for(let mimeResp in this.responses[statusCode].content ) {
         let mimeRespObj = this.responses[statusCode].content[mimeResp];
-        //Remove Circular references from Response schema 
+        //Remove Circular references from Response schema
         /*
         try {
           mimeRespObj.schema = JSON.parse(JSON.stringify(mimeRespObj.schema, removeCircularReferences(0)));
@@ -131,16 +133,16 @@ export default class ApiResponse extends LitElement {
           return;
         }
         */
-        
+
         // Generate Schema
         let schemaTree = schemaToModel(mimeRespObj.schema,{});
-        
+
         // Generate Example
         let respExample = generateExample(
-          mimeRespObj.schema? mimeRespObj.schema.examples:'', 
-          mimeRespObj.schema? mimeRespObj.schema.example:'', 
-          mimeRespObj.schema, 
-          mimeResp, 
+          mimeRespObj.schema? mimeRespObj.schema.examples:'',
+          mimeRespObj.schema? mimeRespObj.schema.example:'',
+          mimeRespObj.schema,
+          mimeResp,
           "json"
         );
         allMimeResp[mimeResp] = {
@@ -177,7 +179,7 @@ export default class ApiResponse extends LitElement {
               <tr>
                 <td style="padding:0 12px;vertical-align: top;" class="regular-font-size"> ${v.name}</td> 
                 <td style="padding:0 12px;vertical-align: top; line-height:14px" class="descr-text small-font-size">
-                  ${v.description} 
+                  <span class="m-markdown-small">${unsafeHTML(marked(v.description))}</span>
                   ${ (v.schema && v.schema.example)? html`<br/><span style="font-weight:bold">EXAMPLE:</span> ${v.schema.example}`:`` }
                 </td>
               </tr>
@@ -203,7 +205,7 @@ export default class ApiResponse extends LitElement {
           </div>`
       )}`
     )}`
-    
+
   }
 
   activateTab(e){
