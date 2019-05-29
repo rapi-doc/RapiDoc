@@ -163,13 +163,22 @@ export default async function ProcessSpec(specUrl){
   securitySchemes = (openApiSpec.components? openApiSpec.components.securitySchemes:{});
   if (openApiSpec.servers){
     openApiSpec.servers.map(function(v){
-      if (v.url && v.url.substr(0,1) === "/"){
-        let paths = specUrl.split("/");
-        v.url = paths[0]+"//"+paths[2]+v.url;
+      let tempUrl = v.url.trim().toLowerCase();
+      if (v.url && tempUrl.substr(0,4) !== 'http') {
+        if (tempUrl.substr(0,2)=='//') {
+          v.url = location.protocol + v.url;
+        }
+        else{
+          v.url = location.origin + v.url;
+        }
       }
     })
   }
+  else{
+    openApiSpec.servers = [{'url':location.origin}];
+  }
   servers = openApiSpec.servers;
+  
   tags.sort((a, b) =>  (a.name < b.name ? -1 : (a.name > b.name ? 1: 0)) );
   let parsedSpec = {
     "info"    : openApiSpec.info,

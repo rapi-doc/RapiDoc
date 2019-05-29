@@ -654,6 +654,11 @@ export default class ApiRequest extends LitElement {
             me.responseBlobUrl = URL.createObjectURL(respBlob);
           })
         }
+        else {
+          resp.text().then(function(respText) {
+            me.responseText = respText;
+          })
+        }
       }
       else{
         resp.text().then(function(respText) {
