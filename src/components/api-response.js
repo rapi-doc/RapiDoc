@@ -179,7 +179,7 @@ export default class ApiResponse extends LitElement {
               <tr>
                 <td style="padding:0 12px;vertical-align: top;" class="regular-font-size"> ${v.name}</td> 
                 <td style="padding:0 12px;vertical-align: top; line-height:14px" class="descr-text small-font-size">
-                  <span class="m-markdown-small">${unsafeHTML(marked(v.description))}</span>
+                  <span class="m-markdown-small">${unsafeHTML(marked(v.description || "" ))}</span>
                   ${ (v.schema && v.schema.example)? html`<br/><span style="font-weight:bold">EXAMPLE:</span> ${v.schema.example}`:`` }
                 </td>
               </tr>

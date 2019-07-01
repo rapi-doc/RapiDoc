@@ -35,7 +35,7 @@ export default class SecuritySchemes extends LitElement {
             <div style="font-weight:bold">${this.schemes[s].type}: ${this.schemes[s].scheme} 
             ${this.schemes[s].description?html`
               <div class="m-markdown"> 
-                ${unsafeHTML(marked(this.schemes[s].description))}
+                ${unsafeHTML(marked(this.schemes[s].description || ""))}
               </div>`
             :''}
           </td>

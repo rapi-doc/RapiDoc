@@ -224,7 +224,7 @@ export default class ApiRequest extends LitElement {
         
           </td>
           <td colspan="2" style="border:none; margin-top:0; padding:0 5px;"> 
-            <span class="m-markdown-small">${unsafeHTML(marked(param.description))}</span>
+            <span class="m-markdown-small">${unsafeHTML(marked(param.description || ""))}</span>
           </td>
         </tr>`
         :``}
@@ -251,7 +251,7 @@ export default class ApiRequest extends LitElement {
     
     let mimeReqCount=0;
     let shortMimeTypes={};
-    let bodyDescrHtml = this.request_body.description? html`<div class="m-markdown"> ${unsafeHTML(marked(this.request_body.description))}</div>`:'';
+    let bodyDescrHtml = this.request_body.description? html`<div class="m-markdown"> ${unsafeHTML(marked(this.request_body.description || ""))}</div>`:'';
     let textareaExampleHtml='';
     let formDataHtml='';
     const formDataTableRows = [];
@@ -335,7 +335,7 @@ export default class ApiRequest extends LitElement {
             <tr>
               <td style="border:none"></td>
               <td colspan="2" style="border:none; margin-top:0; padding:0 5px;"> 
-                <span class="m-markdown-small">${unsafeHTML(marked(fieldSchema.description))}</span>
+                <span class="m-markdown-small">${unsafeHTML(marked(fieldSchema.description || ""))}</span>
               </td>
             </tr>`
             :``}
@@ -487,7 +487,7 @@ export default class ApiRequest extends LitElement {
     }
     //Generate URL using Path Params
     pathParamEls.map(function(el){
-	    fetchUrl = fetchUrl.replace("{"+el.dataset.pname+"}", encodeURIComponent(el.value));
+	    fetchUrl = fetchUrl.replace("{"+el.dataset.pname+"}", el.value);
     });
 
     //Submit Query Params
@@ -496,13 +496,13 @@ export default class ApiRequest extends LitElement {
       queryParamEls.map(function(el){
         if (el.dataset.array==='false'){
           if (el.value !== ''){
-            queryParam.append(el.dataset.pname, encodeURIComponent(el.value));
+            queryParam.append(el.dataset.pname, el.value);
           }
         }
         else {
           let vals = el.getValues();
           for(let v of vals){
-            queryParam.append(el.dataset.pname, encodeURIComponent(v));
+            queryParam.append(el.dataset.pname, v);
           }
         }
       })
@@ -511,7 +511,7 @@ export default class ApiRequest extends LitElement {
     
     // Add authentication Query-Param if provided 
     if (this.apiKeyValue && this.apiKeyName && this.apiKeyLocation==='query'){
-      fetchUrl = `${fetchUrl}&${this.apiKeyName}=${encodeURIComponent(this.apiKeyValue)}`;
+      fetchUrl = `${fetchUrl}${fetchUrl.includes("?")?'&':'?'}${this.apiKeyName}=${encodeURIComponent(this.apiKeyValue)}`;
     }
 
     //Final URL for API call
