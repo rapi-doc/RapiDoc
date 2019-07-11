@@ -92,7 +92,8 @@ export default class RapiDoc extends LitElement {
           --header-fg:${this.headerColor?`${vars.color.invert(this.headerColor)}`:`#ccc`};
           --layout:${this.layout?`${this.layout}`:`row`};
           --font-mono:${this.monoFont?`${this.monoFont}`:`Monaco, 'Andale Mono', 'Roboto Mono', Consolas`}; 
-          --font-mono-size:14px; 
+          --font-mono-size:13px; 
+          --font-mono-size:13px; 
           --font-regular:${this.regularFont?`${this.regularFont}`:`rapidoc, Helvetica, Arial`};
           --title-font-size:16px;
           --regular-font-size:14px;
@@ -151,7 +152,6 @@ export default class RapiDoc extends LitElement {
           opacity:0.4;
         }
 
-
         @media only screen and (min-width: 768px){
           .only-large-screen{
             display:block;
@@ -198,6 +198,7 @@ export default class RapiDoc extends LitElement {
       <div class="body-container regular-font">
         <slot></slot>
         ${this.loading===true?html`<div style="text-align: center;margin: 16px;">Loading ... </div>`:''}
+        ${this.loadFailed===true?html`<div style="text-align: center;margin: 16px;"> Unable to load the Spec</div>`:''}
         ${ (this.showInfo==='false' || !this.resolvedSpec || !this.resolvedSpec.info) ?``:html`
         <div class="section-gap">
           <div class="title">
@@ -322,7 +323,6 @@ export default class RapiDoc extends LitElement {
           alert("Unable to read or parse json");
           console.log("Unable to read or parse json")
         }
-        
       }
       // Read the Text file
       reader.readAsText(specFile);	
@@ -351,30 +351,33 @@ export default class RapiDoc extends LitElement {
       this.matchPaths = e.target.value;
     }
 
-    loadSpec(specUrl) {
-      let me = this;
+    async loadSpec(specUrl) {
       if (!specUrl){
         return;
       }
-      this.loading        = true;
       this.apiKeyName     = "";
       this.apiKeyValue    = "";
       this.apiKeyLocation = "";
       this.selectedServer = "";
       this.matchPaths     = "";
-
-      ProcessSpec(specUrl).then(function(spec){
-        me.loading = false;
-        if (spec===undefined || spec === null){
+      try {
+        this.loading = true;
+        this.loadFailed = false;
+        const spec = await ProcessSpec(specUrl);
+        this.loading = false;
+        if (spec === undefined || spec === null) {
           console.error('Unable to resolve the API spec. ');
         }
         console.log(spec);
-        me.afterSpecParsedAndValidated(spec);
-      })
-      .catch(function(err) {
-        me.loading=false;
+        this.afterSpecParsedAndValidated(spec);
+      }
+      catch (err) {
+        this.loading=false;
+        this.loadFailed = true;
+        this.resolvedSpec = null;
+        this.requestUpdate();
         console.error('Unable to resolve the API spec.. ' + err.message);
-      });
+      }
     }
 
     afterSpecParsedAndValidated(spec, isReloadingSpec=false){

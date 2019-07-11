@@ -70,6 +70,7 @@ export default html`
         border-radius: 3px;
         color: var(--fg);
         font-size: var(--font-mono-size);
+        line-height: var(--font-mono-line-height);
     }
 
     .m-markdown pre{
