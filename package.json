@@ -28,7 +28,7 @@
     "json-refs": "^3.0.13",
     "lit-element": "2.1.0",
     "lit-html": "1.0.0",
-    "marked": "^0.6.2",
+    "marked": "^0.7.0",
     "swagger2openapi": "^4.0.2"
   },
   "scripts": {
