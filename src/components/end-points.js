@@ -22,6 +22,7 @@ export default class EndPoints extends LitElement {
         layout="${this.layout}" 
         .path=${path}
         allow-try="${this.allowTry?this.allowTry:'true'}" 
+        security-specs="${this.securitySpecs}"
       > </end-point>`
     )}`
   }
@@ -36,6 +37,7 @@ export default class EndPoints extends LitElement {
       paths         : { type: Object },
       matchPaths    : { type: String, attribute: 'match-paths' },
       allowTry      : { type: String, attribute: 'allow-try' },
+      securitySpecs : { type: String, attribute: 'security-specs' },
     };
   }
 

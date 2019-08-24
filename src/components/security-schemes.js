@@ -6,7 +6,6 @@ import FontStyles from '@/styles/font-styles';
 import TableStyles from '@/styles/table-styles';
 import InputStyles from '@/styles/input-styles';
 
-
 export default class SecuritySchemes extends LitElement {
   render() {
     return html`
@@ -29,29 +28,31 @@ export default class SecuritySchemes extends LitElement {
         <th> Authentication Procedure </th>  
       </tr>
       
-        ${Object.keys(this.schemes).map(s => html`
-          <tr>  
-          <td>
-            <div style="font-weight:bold">${this.schemes[s].type}: ${this.schemes[s].scheme} 
-            ${this.schemes[s].description?html`
-              <div class="m-markdown"> 
-                ${unsafeHTML(marked(this.schemes[s].description || ""))}
-              </div>`
-            :''}
-          </td>
-          <td>
-            ${this.schemes[s].type==='apiKey'?html`
-              Send <code>'${this.schemes[s].name}'</code> in <code>'${this.schemes[s].in}'</code> with the given value
-              <div class="${s}-class" data-type="${this.schemes[s].type}" data-in="${this.schemes[s].in}" data-name="${this.schemes[s].name}" data-inputname="${s}" style="margin:5px 0" spellcheck="false" >
-                <input type="text" name="${s}-token" style="width:202px;" placeholder="api-token" >
+        ${Object.keys(this.schemes).map(s => {
+          const hasSecuritySpecValue = this.hasSecuritySpecValue(this.schemes[s].type, this.schemes[s].name, this.schemes[s].in);
+          return html`
+            <tr>  
+            <td>
+              <div style="font-weight:bold">${this.schemes[s].type}: ${this.schemes[s].scheme} 
+              ${this.schemes[s].description?html`
+                <div class="m-markdown"> 
+                  ${unsafeHTML(marked(this.schemes[s].description || ""))}
+                </div>`
+              :''}
+            </td>
+            <td>
+              ${this.schemes[s].type==='apiKey'?html`
+                Send <code>'${this.schemes[s].name}'</code> in <code>'${this.schemes[s].in}'</code> with the given value
+                <div class="${s}-class" data-type="${this.schemes[s].type}" data-in="${this.schemes[s].in}" data-name="${this.schemes[s].name}" data-inputname="${s}" style="margin:5px 0" spellcheck="false" >
+                  <input type="text" name="${s}-token" style="width:202px;" placeholder="api-token" >
 
                 <button 
                   class="m-btn"
                   name="${s}-button"
                   data-class="${s}-class"
-                  data-action="${this.selectedApiKeyValue?'CLEAR':'SET'}" 
+                  data-action="${hasSecuritySpecValue?'CLEAR':'SET'}" 
                   @click="${this.dispatchChange}"
-                >${this.selectedApiKeyValue?'CLEAR':'SET'}</button>
+                >${hasSecuritySpecValue?'CLEAR':'SET'}</button>
               </div>
             `:``}
             ${this.schemes[s].type==='http' && this.schemes[s].scheme==='basic'?html`
@@ -63,9 +64,9 @@ export default class SecuritySchemes extends LitElement {
                   class="m-btn"
                   name="${s}-button"
                   data-class="${s}-class"
-                  data-action="${this.selectedApiKeyValue?'CLEAR':'SET'}" 
+                  data-action="${hasSecuritySpecValue?'CLEAR':'SET'}" 
                   @click="${this.dispatchChange}"
-                >${this.selectedApiKeyValue?'CLEAR':'SET'}</button>
+                >${hasSecuritySpecValue?'CLEAR':'SET'}</button>
               </div>
             `:``}
             ${this.schemes[s].type==='http' && this.schemes[s].scheme==='bearer'?html`
@@ -76,9 +77,9 @@ export default class SecuritySchemes extends LitElement {
                   class="m-btn" 
                   name="${s}-button"
                   data-class="${s}-class"
-                  data-action="${this.selectedApiKeyValue?'CLEAR':'SET'}" 
+                  data-action="${hasSecuritySpecValue?'CLEAR':'SET'}" 
                   @click="${this.dispatchChange}"
-                >${this.selectedApiKeyValue?'CLEAR':'SET'}</button>
+                >${hasSecuritySpecValue?'CLEAR':'SET'}</button>
               </div>
             `:``}
             ${this.schemes[s].type==='oauth2'?html`
@@ -96,7 +97,8 @@ export default class SecuritySchemes extends LitElement {
             `:``}
           </td>
           </tr>`
-        )}
+        }
+      )}
     </table>`
   }
 
@@ -105,8 +107,18 @@ export default class SecuritySchemes extends LitElement {
       schemes: {type: Object},
       selectedApiKeyName  : { type: String, attribute: 'selected-api-key-name' },
       selectedApiKeyValue : { type: String, attribute: 'selected-api-key-value' },
+      securitySpecs: { type: Array, attribute: 'security-specs' }
     };
 
+  }
+
+  hasSecuritySpecValue(type, name, location) {
+    return this.securitySpecs.findIndex(s => 
+      s.keyLocation === location
+      && s.keyName === name
+      && s.keyType === type
+      && s.keyValue !== ''
+    ) > -1;
   }
 
   dispatchChange(e){

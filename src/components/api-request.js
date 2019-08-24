@@ -148,7 +148,7 @@ export default class ApiRequest extends LitElement {
       responseStatus : { type: String, attribute:false },
       responseUrl    : { type: String, attribute:false },
       allowTry       : { type: String, attribute: 'allow-try'  },
-
+      securitySpecs  : { type: Array, attribute: 'security-specs' },
     };
   }
 
@@ -398,16 +398,22 @@ export default class ApiRequest extends LitElement {
           ${this.selectedServer?html`${this.selectedServer}`
           : html`<div style="font-weight:bold;color:var(--error-color)">Not Set</div>`}
         </div>
-        <div style="display:flex;flex-direction:row;overflow:hidden;line-height:16px;color:var(--fg2)"> 
-          ${this.apiKeyValue && this.apiKeyName ? html`
+        <div style="display:flex;flex-direction:column;overflow:hidden;line-height:16px;color:var(--fg2)"> 
+          ${this.securitySpecs.length > 0 ? html`
             <div style="font-weight:bold;color:var(--success-color)">Authentication: &nbsp; </div>
-            send <div style="font-family:var(--font-mono); color:var(--fg)"> '${this.apiKeyName}' </div>
-            in<div style="font-family:var(--font-mono); color:var(--fg)"> '${this.apiKeyLocation}' </div>
-            with value<div style="font-family:var(--font-mono); color:var(--fg)"> '${this.apiKeyValue.substring(0,3)+"***" }' </div>`
+              <ul>
+                ${this.securitySpecs.map(s => html`
+                  <li>
+                    send <span style="font-family:var(--font-mono); color:var(--fg)"> '${s.keyName}' </span>
+                    in<span style="font-family:var(--font-mono); color:var(--fg)"> '${s.keyLocation}' </span>
+                    with value<span style="font-family:var(--font-mono); color:var(--fg)"> '${this.apiKeyValue.substring(0,3)+"***" }' </span>
+                  </li>`
+                )}
+              </ul>`
           :html`<div style="color:var(--light-fg)">No Authentication Token provided</div>`}
         </div>
       </div>
-      <button class="m-btn" style="padding: 6px 0px;width:60px" @click="${this.onTryClick}">TRY</button>
+      <button class="m-btn" style="padding: 6px 0px;width:60px;align-self:flex-start;" @click="${this.onTryClick}">TRY</button>
     </div>
     ${this.responseMessage===''?'':html`
     <div class="row" style="font-size:var(--small-font-size); margin:5px 0">
@@ -508,7 +514,14 @@ export default class ApiRequest extends LitElement {
       })
       fetchUrl = `${fetchUrl}?${queryParam.toString()}`;
     }
-    
+
+    // Add authentication Query-Param if provided 
+    this.securitySpecs
+      .filter(s => s.keyValue && s.keyLocation === 'query')
+      .forEach(s => {
+        fetchUrl = `${fetchUrl}${fetchUrl.includes("?")?'&':'?'}${s.keyName}=${encodeURIComponent(s.keyValue)}`;
+      })
+
     // Add authentication Query-Param if provided 
     if (this.apiKeyValue && this.apiKeyName && this.apiKeyLocation==='query'){
       fetchUrl = `${fetchUrl}${fetchUrl.includes("?")?'&':'?'}${this.apiKeyName}=${encodeURIComponent(this.apiKeyValue)}`;
@@ -537,6 +550,15 @@ export default class ApiRequest extends LitElement {
         curlHeaders = curlHeaders + ` -H "${fetchOptions.headers[el.dataset.pname]}: ${el.value}"`;
       }
     });
+
+    // Add Authentication Header if provided
+    this.securitySpecs
+      .filter(s => s.keyValue && s.keyLocation === 'header')
+      .forEach(s => {
+        fetchOptions.headers[s.keyName] = s.keyValue;
+        curlHeaders = curlHeaders + ` -H "${s.keyName}: ${s.keyValue}"`; 
+      })
+
     // Add Authentication Header if provided
     if (this.apiKeyValue && this.apiKeyName && this.apiKeyLocation==='header'){
       fetchOptions.headers[this.apiKeyName] = this.apiKeyValue;

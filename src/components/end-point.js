@@ -61,6 +61,7 @@ export default class EndPoint extends LitElement {
             .request_body = "${this.path.requestBody}"
             allow-try = "${this.allowTry}"
             accept ="${this.accept}"
+            security-specs = "${this.securitySpecs}"
           ></api-request>
           <api-response 
             class="response" .responses="${this.path.responses}"
@@ -261,6 +262,7 @@ export default class EndPoint extends LitElement {
       layout  : { type:String },
       path    : { type:Object },
       allowTry: { type: String, attribute: 'allow-try' },
+      securitySpecs : { type: String, attribute: 'security-specs' },
     };
   }
 

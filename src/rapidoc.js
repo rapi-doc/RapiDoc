@@ -15,6 +15,11 @@ import marked from 'marked';
 
 export default class RapiDoc extends LitElement {
 
+  constructor() {
+    super();
+    this.securitySpecs = [];
+  }
+
   render() {
     return html`
       ${FontStyles}
@@ -244,6 +249,7 @@ export default class RapiDoc extends LitElement {
             .schemes="${this.resolvedSpec.securitySchemes}"
             selected-api-key-name  = "${this.apiKeyName?this.apiKeyName:''}"
             selected-api-key-value = "${this.apiKeyValue?this.apiKeyValue:''}"
+            security-specs = "${JSON.stringify(this.securitySpecs)}"
             @change="${this.onSecurityChange}"
           ></security-schemes>
         </div>
@@ -264,6 +270,7 @@ export default class RapiDoc extends LitElement {
               .paths           = "${tag.paths}" 
               allow-try        = "${this.allowTry?this.allowTry:'true'}"
               match-paths      = "${this.matchPaths}"
+              security-specs   = "${JSON.stringify(this.securitySpecs)}"
             ></end-points>
           `)}`
         :''}
@@ -344,9 +351,12 @@ export default class RapiDoc extends LitElement {
     }
 
     onSecurityChange(e){
-      this.apiKeyName = e.detail.keyName
-      this.apiKeyValue = e.detail.keyValue
-      this.apiKeyLocation= e.detail.keyLocation;
+      const index = this.securitySpecs.findIndex(s => s.keyName === e.detail.keyName && s.keyLocation === e.detail.keyLocation);
+      if (index > -1) {
+        this.securitySpecs[index] = e.detail;
+      } else {
+        this.securitySpecs.push(e.detail);
+      }
     }
 
     onSearchChange(e){
