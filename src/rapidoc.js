@@ -222,7 +222,9 @@ export default class RapiDoc extends LitElement {
           ${!this.resolvedSpec.servers || (this.resolvedSpec.servers.length===0)  ?``:html`
             ${this.resolvedSpec.servers.map(server => html`
                 <input type='radio' name='api_server' value='${server.url}' @change="${this.onApiServerChange}" checked style='margin:2px 0 5px 8px'/>
-                ${server.url}<br/>
+                ${server.url}
+                ${server.description ? html`- ${server.description}` : ``}
+                <br/>
               `
             )}
           `}
