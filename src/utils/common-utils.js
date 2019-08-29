@@ -403,3 +403,9 @@ export function removeCircularReferences(level=0) {
     return value;
   };
 };
+
+export async function wait(ms) {
+  return new Promise(resolve => {
+    setTimeout(resolve, ms);
+  });
+}

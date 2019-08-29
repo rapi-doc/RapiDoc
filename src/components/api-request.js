@@ -8,7 +8,7 @@ import FlexStyles from '@/styles/flex-styles';
 import InputStyles from '@/styles/input-styles';
 import FontStyles from '@/styles/font-styles';
 import CommonStyles from '@/styles/common-styles';
-import { schemaToModel, getTypeInfo,  generateExample, removeCircularReferences} from '@/utils/common-utils';
+import { schemaToModel, getTypeInfo,  generateExample, removeCircularReferences, wait} from '@/utils/common-utils';
 import marked from 'marked';
 import {unsafeHTML} from 'lit-html/directives/unsafe-html.js';
 
@@ -407,7 +407,7 @@ export default class ApiRequest extends LitElement {
           :html`<div style="color:var(--light-fg)">No Authentication Token provided</div>`}
         </div>
       </div>
-      <button class="m-btn" style="padding: 6px 0px;width:60px" @click="${this.onTryClick}">TRY</button>
+      <button class="m-btn try-btn" style="padding: 6px 0px;width:60px" @click="${this.onTryClick}">TRY</button>
     </div>
     ${this.responseMessage===''?'':html`
     <div class="row" style="font-size:var(--small-font-size); margin:5px 0">
@@ -461,7 +461,6 @@ export default class ApiRequest extends LitElement {
     }
   }
 
-
   onMimeTypeChange(e){
     let textareaEls = e.target.closest('.tab-panel').querySelectorAll(`textarea.request-body-param`);
     [...textareaEls].map(function(el){
@@ -469,8 +468,9 @@ export default class ApiRequest extends LitElement {
     });
   }
 
-  onTryClick(e){
+  async onTryClick(e){
     let me = this;
+    let tryBtnEl = e.target;
     let fetchUrl, fetchOptions, curlUrl, curl="", curlHeaders="", curlData="", curlForm="";
     let requestPanelEl = e.target.closest(".request-panel");
     let pathParamEls   = [...requestPanelEl.querySelectorAll(".request-param[data-ptype='path']")];
@@ -632,7 +632,11 @@ export default class ApiRequest extends LitElement {
       me.responseBlobUrl = '';
     }
     me.curlSyntax = `${curl} ${curlHeaders} ${curlData} ${curlForm}`;
-    fetch(fetchUrl,fetchOptions).then(function(resp){
+    try {
+      tryBtnEl.disabled = true;
+      await wait(1000);
+      const resp = await fetch(fetchUrl,fetchOptions);
+      tryBtnEl.disabled = false;
       me.responseStatus  = resp.ok ? 'success':'error';
       me.responseMessage = `${resp.statusText}:${resp.status}`;
       me.responseUrl     = resp.url;
@@ -665,10 +669,11 @@ export default class ApiRequest extends LitElement {
           me.responseText = respText;
         })
       }
-    })
-    .catch(function(err){
+    }
+    catch(err){
+      tryBtnEl.disabled = false;
       me.responseMessage = err.message + " (CORS or Network Issue)";
-    });
+    }
   }
 
   downloadResponseBlob(){

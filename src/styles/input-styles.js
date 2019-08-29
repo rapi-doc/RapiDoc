@@ -32,6 +32,13 @@ input, select, button {
 .m-btn.small{padding:5px 12px;}
 .m-btn.circle{border-radius:50%;}
 .m-btn:hover{ background-color: var(--primary-color)}
+.m-btn:disabled{ 
+  background-color: var(--bg2);
+  color:var(--fg2);
+  border-color:var(--fg2);
+  cursor:not-allowed;
+  opacity:0.4;
+}
 
 /* Form Inputs */
 textarea,
