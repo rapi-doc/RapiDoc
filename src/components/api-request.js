@@ -634,7 +634,7 @@ export default class ApiRequest extends LitElement {
     me.curlSyntax = `${curl} ${curlHeaders} ${curlData} ${curlForm}`;
     try {
       tryBtnEl.disabled = true;
-      await wait(1000);
+      // await wait(1000);
       const resp = await fetch(fetchUrl,fetchOptions);
       tryBtnEl.disabled = false;
       me.responseStatus  = resp.ok ? 'success':'error';

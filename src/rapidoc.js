@@ -1,5 +1,5 @@
 import { LitElement, html, css} from 'lit-element'; 
-import {unsafeHTML} from 'lit-html/directives/unsafe-html.js';
+import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import MLogo from '@/components/m-logo'; 
 import EndPoints from '@/components/end-points'; 
 import SecuritySchemes from '@/components/security-schemes'; 
@@ -212,6 +212,34 @@ export default class RapiDoc extends LitElement {
           ${this.resolvedSpec.info.description?html`
             ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(this.resolvedSpec.info.description)}</div>`)}
           `:``}
+          ${this.resolvedSpec.info.termsOfService?html`
+            ${unsafeHTML(`<div class='tiny-title' style="margin-top:8px"> Terms: </div> <span class='m-markdown regular-font'>${marked(this.resolvedSpec.info.termsOfService)}</span>`)}
+          `:``}
+
+          ${this.resolvedSpec.info.contact?html`
+          <div style="font-size:13px; margin-top:8px; line-height: 18px;">
+            ${this.resolvedSpec.info.contact.email?html`
+              <div>
+                <span class='tiny-title' style="display:inline-block; width:50px"> Email: </span> 
+                <span class='regular-font'> ${this.resolvedSpec.info.contact.email}</span> 
+              </div>
+            `:``}
+            ${this.resolvedSpec.info.contact.name?html`
+              <div>
+                <span class='tiny-title' style="display:inline-block; width:50px"> Name: </span> 
+                <span class='regular-font'> ${this.resolvedSpec.info.contact.name}</span> 
+              </div>
+            `:``}
+            ${this.resolvedSpec.info.contact.url?html`
+              <div>
+                <span class='tiny-title' style="display:inline-block; width:50px"> URL: </span> 
+                <span class='regular-font'> ${this.resolvedSpec.info.contact.url}</span> 
+              </div>
+            `:``}
+          </div>  
+          `:``}
+
+
         </div>`
         }
 
