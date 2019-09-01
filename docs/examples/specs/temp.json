@@ -1,0 +1,53 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "example API",
+    "version": "TODO",
+    "description": "TODO"
+  },
+  "paths": {
+    "/groups/": {
+      "post": {
+        "operationId": "createGroup",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "required": [
+                  "members"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "readOnly": true
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 100
+                  },
+                  "members": {
+                    "type": "array",
+                    "items": {
+                      "required": [],
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "readOnly": true
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 100
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

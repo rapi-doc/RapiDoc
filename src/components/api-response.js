@@ -111,13 +111,14 @@ export default class ApiResponse extends LitElement {
   }
 
   responseTemplate(){
-
+    if (!this.responses){
+      return '';
+    }
     let selectedMimeValueForEachStatus={};
     let headersForEachRespStatus={};
     let selectedMimeValue="";
     let mimeResponsesForEachStatus={};
     let mimeRespCountForEachStatus=0;
-
     for(let statusCode in this.responses) {
       let allMimeResp={};
       let mimeRespCount=0;
@@ -143,6 +144,7 @@ export default class ApiResponse extends LitElement {
           mimeRespObj.schema? mimeRespObj.schema.example:'',
           mimeRespObj.schema,
           mimeResp,
+          false,
           "json"
         );
         allMimeResp[mimeResp] = {
@@ -165,7 +167,6 @@ export default class ApiResponse extends LitElement {
       headersForEachRespStatus[statusCode]   = tempHeaders;
       mimeResponsesForEachStatus[statusCode] = allMimeResp;
     }
-
 
     return html`${Object.keys(this.responses).map(
       (status, index)  => html`

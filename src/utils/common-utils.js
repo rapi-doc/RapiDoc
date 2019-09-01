@@ -194,7 +194,7 @@ export function schemaToModel (schema, obj) {
 
 
 /* Create Example object */
-export function generateExample(examples, example, schema, mimeType, outputType){
+export function generateExample(examples, example, schema, mimeType, includeReadOnly=true, outputType){
   let finalExamples = [];
   if (examples){
     for (let eg in examples){
@@ -240,7 +240,7 @@ export function generateExample(examples, example, schema, mimeType, outputType)
     if (schema){
       //TODO: in case the mimeType is XML then parse it as XML
       if (mimeType.toLowerCase().includes("json") || mimeType.toLowerCase().includes("*/*")){
-          let egJson = schemaToObj(schema,{}, {includeReadOnly:true, includeWriteOnly:true, deprecated:true});
+          let egJson = schemaToObj(schema,{}, {includeReadOnly:includeReadOnly, includeWriteOnly:true, deprecated:true});
           finalExamples.push({
             "exampleType" : mimeType,
             "exampleValue": outputType==="text"?JSON.stringify(egJson,undefined,2):egJson

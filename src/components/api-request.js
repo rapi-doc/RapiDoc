@@ -284,7 +284,10 @@ export default class ApiRequest extends LitElement {
           mimeReqObj.schema? mimeReqObj.schema.examples:'', 
           mimeReqObj.schema? mimeReqObj.schema.example:'', 
           mimeReqObj.schema, 
-          mimeReq, "text"
+          mimeReq, 
+          false ,
+          "text",
+          
         );
         textareaExampleHtml = textareaExampleHtml +  `
           <textarea 
