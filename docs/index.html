@@ -142,8 +142,8 @@
   
   </div>
 
-  <div id="qstart" class="qstart container">
-  <div style="display:flex; flex-direction: column; margin-bottom-24px">
+  <div id="qstart" class="qstart container" style="flex-direction: column;align-items: center;">
+  <div style="display:flex; flex-direction: column; margin-bottom:24px">
   <h2> Quickstart (<a style="font-size:16px" href="./example2.html">DEMO</a>)</h2> 
   Just copy the below code and save it in an html file. Then open it using a browser 
 
@@ -398,6 +398,27 @@
             </tr>
           </table>
         </div>  
+
+        <h2> Methods </h2> 
+        <div class="table-block">
+          <table class="m-table">
+            <tr>
+              <th class="attr-col">Method</th>
+              <th style="text-align:left">Description </th>
+              <th class="default-col"></th>
+            </tr>
+            <tr>
+              <td class="mono-bold">loadSpec() </td>
+              <td class="gray">To programatically load spec. The method takes  
+                <ul>
+                  <li> either a string containing the url of the specs</li>  
+                  <li> or a JSON object representing a valid spec</li>  
+                </ul>
+              </td>
+              <td> <a href="https://github.com/mrin9/RapiDoc/blob/master/docs/example9.html"> Example </a></td>
+            </tr>
+          </table>
+        </div>
 
         <h2> Slots</h2>
         <div class="table-block">

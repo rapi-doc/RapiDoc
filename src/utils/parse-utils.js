@@ -6,23 +6,25 @@ export default async function ProcessSpec(specUrl){
   let convertOptions, resolveOptions;
   let specLocation = '', url;
   
-  convertOptions = { patch:true, warnOnly:true};
+  convertOptions = { patch:true, warnOnly:true };
   try {
     // JsonRefs cant load yaml files, so first use converter 
     if (typeof specUrl==="string") {
       //resolvedRefSpec = await JsonRefs.resolveRefsAt(specUrl, resolveOptions);
       convertedSpec = await converter.convertUrl(specUrl, convertOptions);
+      specLocation = convertedSpec.source.trim();
+      if (specLocation.startsWith('/')){
+        url = new URL('.' + specLocation, location.href);
+        specLocation = url.pathname;
+      }
     }
     else {
       //resolvedRefSpec = await JsonRefs.resolveRefs(specUrl, resolveOptions);
       convertedSpec = await converter.convertObj(specUrl, convertOptions);
-    }
-    //convertedSpec = await converter.convertObj(resolvedRefSpec.resolved, convertOptions);
-    specLocation = convertedSpec.source.trim();
-    if (specLocation.startsWith('/')){
-      url = new URL('.' + specLocation, location.href);
+      url = new URL(location.href);
       specLocation = url.pathname;
     }
+    //convertedSpec = await converter.convertObj(resolvedRefSpec.resolved, convertOptions);
     resolveOptions = {
       resolveCirculars:false,
       location: specLocation// location is important to specify to resolve relative external file references when using JsonRefs.resolveRefs() which takes an JSON object
