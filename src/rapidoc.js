@@ -297,126 +297,127 @@ export default class RapiDoc extends LitElement {
           `)}`
         :''}
         <slot name="footer"></slot>
-      </div>  
-    `}
-    static get properties() {
-      return {
-        specUrl : { type: String, attribute: 'spec-url' },
-        specFile: { type: String, attribute: false },
-        serverUrl  : { type: String, attribute: 'server-url'  },
-        matchPaths  : { type: String, attribute: 'match-paths' },        
-        headingText : { type: String, attribute: 'heading-text'  },
-        headerColor : { type: String, attribute: 'header-color'  },
-        primaryColor: { type: String, attribute: 'primary-color' },
-        regularFont : { type: String, attribute: 'regular-font'  },
-        monoFont    : { type: String, attribute: 'mono-font'   },
-        showHeader  : { type: String, attribute: 'show-header' },
-        showInfo    : { type: String, attribute: 'show-info'   },
-        allowAuthentication: { type: String, attribute: 'allow-authentication' },
-        allowTry    : { type: String, attribute: 'allow-try'    },
-        allowSpecUrlLoad: { type: String, attribute: 'allow-spec-url-load' },
-        allowSpecFileLoad: { type: String, attribute: 'allow-spec-file-load' },
-        allowSearch : { type: String, attribute: 'allow-search' },
-        layout  : { type: String },
-        theme   : { type: String },
-        logoUrl : { type: String , attribute: 'logo-url' },
-        apiKeyName    : { type: String, attribute: 'api-key-name' },
-        apiKeyValue   : { type: String, attribute: 'api-key-value' },
-        apiKeyLocation: { type: String, attribute: 'api-key-location'},
-      };
-    }
-    attributeChangedCallback(name, oldVal, newVal) {
-      if (name=='spec-url'){
-        if (oldVal !== newVal){
-          this.loadSpec(newVal);
-        }
-      }
-      super.attributeChangedCallback(name, oldVal, newVal);
-    }
+      </div>`
+  }
 
-    onSepcUrlChange(e){
-      this.setAttribute('spec-url', this.shadowRoot.getElementById('spec-url').value);
-    }
+  static get properties() {
+    return {
+      specUrl : { type: String, attribute: 'spec-url' },
+      specFile: { type: String, attribute: false },
+      serverUrl  : { type: String, attribute: 'server-url'  },
+      matchPaths  : { type: String, attribute: 'match-paths' },        
+      headingText : { type: String, attribute: 'heading-text'  },
+      headerColor : { type: String, attribute: 'header-color'  },
+      primaryColor: { type: String, attribute: 'primary-color' },
+      regularFont : { type: String, attribute: 'regular-font'  },
+      monoFont    : { type: String, attribute: 'mono-font'   },
+      showHeader  : { type: String, attribute: 'show-header' },
+      showInfo    : { type: String, attribute: 'show-info'   },
+      allowAuthentication: { type: String, attribute: 'allow-authentication' },
+      allowTry    : { type: String, attribute: 'allow-try'    },
+      allowSpecUrlLoad: { type: String, attribute: 'allow-spec-url-load' },
+      allowSpecFileLoad: { type: String, attribute: 'allow-spec-file-load' },
+      allowSearch : { type: String, attribute: 'allow-search' },
+      layout  : { type: String },
+      theme   : { type: String },
+      logoUrl : { type: String , attribute: 'logo-url' },
+      apiKeyName    : { type: String, attribute: 'api-key-name' },
+      apiKeyValue   : { type: String, attribute: 'api-key-value' },
+      apiKeyLocation: { type: String, attribute: 'api-key-location'},
+    };
+  }
 
-    onSepcFileChange(e){
-      let me = this;
-      this.setAttribute('spec-file', this.shadowRoot.getElementById('spec-file').value);
-      let specFile = e.target.files[0];
-      let reader = new FileReader();
-      reader.onload = function(e) {
-        try{
-          let specObj = JSON.parse(reader.result);
-          me.loadSpec(specObj);
-          me.shadowRoot.getElementById('spec-url').value="";
-        }
-        catch{
-          alert("Unable to read or parse json");
-          console.log("Unable to read or parse json")
-        }
-      }
-      // Read the Text file
-      reader.readAsText(specFile);	
-
-    }
-
-    onFileLoadClick(){
-      this.shadowRoot.getElementById('spec-file').click();
-    }
-
-    onApiServerChange(){
-      let apiServerRadioEl = this.shadowRoot.querySelector("input[name='api_server']:checked");
-      if (apiServerRadioEl !== null){
-        this.selectedServer = apiServerRadioEl.value;
-        this.requestUpdate();
+  attributeChangedCallback(name, oldVal, newVal) {
+    if (name=='spec-url'){
+      if (oldVal !== newVal){
+        this.loadSpec(newVal);
       }
     }
+    super.attributeChangedCallback(name, oldVal, newVal);
+  }
 
-    onSecurityChange(e){
-      this.apiKeyName = e.detail.keyName
-      this.apiKeyValue = e.detail.keyValue
-      this.apiKeyLocation= e.detail.keyLocation;
-    }
+  onSepcUrlChange(e){
+    this.setAttribute('spec-url', this.shadowRoot.getElementById('spec-url').value);
+  }
 
-    onSearchChange(e){
-      this.matchPaths = e.target.value;
-    }
-
-    async loadSpec(specUrl) {
-      if (!specUrl){
-        return;
+  onSepcFileChange(e){
+    let me = this;
+    this.setAttribute('spec-file', this.shadowRoot.getElementById('spec-file').value);
+    let specFile = e.target.files[0];
+    let reader = new FileReader();
+    reader.onload = function(e) {
+      try{
+        let specObj = JSON.parse(reader.result);
+        me.loadSpec(specObj);
+        me.shadowRoot.getElementById('spec-url').value="";
       }
-      this.apiKeyName     = "";
-      this.apiKeyValue    = "";
-      this.apiKeyLocation = "";
-      this.selectedServer = "";
-      this.matchPaths     = "";
-      try {
-        this.loading = true;
-        this.loadFailed = false;
-        const spec = await ProcessSpec(specUrl);
-        this.loading = false;
-        if (spec === undefined || spec === null) {
-          console.error('Unable to resolve the API spec. ');
-        }
-        console.log(spec);
-        this.afterSpecParsedAndValidated(spec);
-      }
-      catch (err) {
-        this.loading=false;
-        this.loadFailed = true;
-        this.resolvedSpec = null;
-        this.requestUpdate();
-        console.error('Unable to resolve the API spec.. ' + err.message);
+      catch{
+        alert("Unable to read or parse json");
+        console.log("Unable to read or parse json")
       }
     }
+    // Read the Text file
+    reader.readAsText(specFile);	
+  }
 
-    afterSpecParsedAndValidated(spec, isReloadingSpec=false){
-      this.resolvedSpec = spec;
+  onFileLoadClick(){
+    this.shadowRoot.getElementById('spec-file').click();
+  }
+
+  onApiServerChange(){
+    let apiServerRadioEl = this.shadowRoot.querySelector("input[name='api_server']:checked");
+    if (apiServerRadioEl !== null){
+      this.selectedServer = apiServerRadioEl.value;
       this.requestUpdate();
-      window.setTimeout(()=>{
-        this.onApiServerChange()
-      },0);
-
     }
+  }
+
+  onSecurityChange(e){
+    this.apiKeyName = e.detail.keyName
+    this.apiKeyValue = e.detail.keyValue
+    this.apiKeyLocation= e.detail.keyLocation;
+  }
+
+  onSearchChange(e){
+    this.matchPaths = e.target.value;
+  }
+
+  async loadSpec(specUrl) {
+    if (!specUrl){
+      return;
+    }
+    this.apiKeyName     = "";
+    this.apiKeyValue    = "";
+    this.apiKeyLocation = "";
+    this.selectedServer = "";
+    this.matchPaths     = "";
+    try {
+      this.loading = true;
+      this.loadFailed = false;
+      const spec = await ProcessSpec(specUrl);
+      this.loading = false;
+      if (spec === undefined || spec === null) {
+        console.error('Unable to resolve the API spec. ');
+      }
+      console.log(spec);
+      this.afterSpecParsedAndValidated(spec);
+    }
+    catch (err) {
+      this.loading=false;
+      this.loadFailed = true;
+      this.resolvedSpec = null;
+      this.requestUpdate();
+      console.error('Unable to resolve the API spec.. ' + err.message);
+    }
+  }
+
+  afterSpecParsedAndValidated(spec, isReloadingSpec=false){
+    this.resolvedSpec = spec;
+    this.requestUpdate();
+    window.setTimeout(()=>{
+      this.onApiServerChange()
+    },0);
+
+  }
 }
 customElements.define('rapi-doc', RapiDoc);

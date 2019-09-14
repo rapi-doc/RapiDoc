@@ -1,0 +1,64 @@
+{
+	"swagger": "2.0",
+	"info": {
+		"title": "My Title", "description": "description", "version": "1.0.0"
+	},
+	"consumes": [ "application/json" ],
+	"produces": [ "application/json" ],
+	"paths": {
+		"/api/employee": {
+			"get": {
+				"tags": [ "Employee Details"],
+				"summary": "summary",
+				"operationId": "empDetails",
+				"responses": {
+					"200": {
+						"description": "description",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/Type0"
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"definitions": {
+		"Type0": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"Id": { "type": "string", "description": "Employee ID"},
+				"Employee": {
+					"description": "Employee Details (Nested)",
+					"anyOf": [
+						{ "$ref": "#/definitions/Type1"},
+            { "$ref": "#/definitions/Type2"}
+					]
+				}
+			}
+		},
+		"Type1": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+        "name": { "type": "string", "description": "Name of a Person" },
+        "age": { "type": "number", "description": "Age in Years" }
+			}
+    },
+    "Type2": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+        "department": { "type": "string", "description": "Department of the person" },
+        "salary": { "type": "number", "description": "Yearly Salary" }
+			}
+		}
+
+	},
+	"tags": [
+		{ "name": "Employee Details", "description": "Employee Details" }
+	]
+}
