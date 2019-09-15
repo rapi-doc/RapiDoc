@@ -38,6 +38,13 @@
             { "$ref": "#/definitions/Type2"},
             { "$ref": "#/definitions/primitiveType"}
 					]
+        },
+        "Phone": {
+					"description": "Phone in String or Number",
+					"anyOf": [
+						{ "type": "string"},
+            { "type": "number"}
+					]
 				}
 			}
 		},
@@ -56,9 +63,6 @@
         "department": { "type": "string", "description": "Department of the person" },
         "salary": { "type": "number", "description": "Yearly Salary" }
 			}
-    },
-    "primitiveType": {
-      "type": "string"
     }
 	},
 	"tags": [
