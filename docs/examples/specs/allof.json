@@ -35,7 +35,8 @@
 					"description": "Employee Details (Nested)",
 					"allOf": [
 						{ "$ref": "#/definitions/Type1"},
-            { "$ref": "#/definitions/Type2"}
+            { "$ref": "#/definitions/Type2"},
+            { "$ref": "#/definitions/primitiveType"}
 					]
 				}
 			}
@@ -55,8 +56,10 @@
         "department": { "type": "string", "description": "Department of the person" },
         "salary": { "type": "number", "description": "Yearly Salary" }
 			}
-		}
-
+    },
+    "primitiveType": {
+      "type": "string"
+    }
 	},
 	"tags": [
 		{ "name": "Employee Details", "description": "Employee Details" }
