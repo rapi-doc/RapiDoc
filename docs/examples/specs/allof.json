@@ -35,7 +35,7 @@
 					"description": "Employee Details (Nested)",
 					"allOf": [
 						{ "$ref": "#/definitions/Type1"},
-            { "$ref": "#/definitions/Type2"},
+            { "$ref": "#/definitions/Type2"}
 					]
         },
         "Phone": {
