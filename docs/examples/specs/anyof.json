@@ -9,7 +9,7 @@
 		"/api/employee": {
 			"get": {
 				"tags": [ "Employee Details"],
-				"summary": "summary",
+				"summary": "List of employees",
 				"operationId": "empDetails",
 				"responses": {
 					"200": {
@@ -17,7 +17,7 @@
 						"schema": {
 							"type": "array",
 							"items": {
-								"$ref": "#/definitions/Type0"
+								"$ref": "#/definitions/employee"
 							}
 						}
 					}
@@ -26,37 +26,36 @@
 		}
 	},
 	"definitions": {
-		"Type0": {
+		"employee": {
 			"type": "object",
 			"additionalProperties": false,
 			"properties": {
 				"Id": { "type": "string", "description": "Employee ID"},
 				"Employee": {
-					"description": "Employee Details (Nested)",
-					"anyOf": [
-						{ "$ref": "#/definitions/Type1"},
-            { "$ref": "#/definitions/Type2"}
+					"description": "Employee Details (Worker or Manager)",
+					"oneOf": [
+						{ "$ref": "#/definitions/manager"},
+            { "$ref": "#/definitions/worker"}
 					]
 				}
 			}
 		},
-		"Type1": {
+		"manager": {
 			"type": "object",
 			"additionalProperties": false,
 			"properties": {
-        "name": { "type": "string", "description": "Name of a Person" },
-        "age": { "type": "number", "description": "Age in Years" }
+        "name": { "type": "string", "description": "Name of employee" },
+        "directReports": { "type": "number", "description": "Count of direct reports" }
 			}
     },
-    "Type2": {
+    "worker": {
 			"type": "object",
 			"additionalProperties": false,
 			"properties": {
-        "department": { "type": "string", "description": "Department of the person" },
-        "salary": { "type": "number", "description": "Yearly Salary" }
+        "name": { "type": "string", "description": "Name of employee" },
+        "managerName": { "type": "string", "description": "Name of manager" }
 			}
-		}
-
+    }
 	},
 	"tags": [
 		{ "name": "Employee Details", "description": "Employee Details" }

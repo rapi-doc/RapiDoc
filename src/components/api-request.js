@@ -256,7 +256,10 @@ export default class ApiRequest extends LitElement {
     let formDataHtml='';
     const formDataTableRows = [];
     let isFormDataPresent   = false;
-    let reqSchemaTree="";
+    let reqSchemaTree = {
+      'json':'',
+      'xml':''
+    };
 
     let content = this.request_body.content;
     
@@ -267,6 +270,7 @@ export default class ApiRequest extends LitElement {
       else if (mimeReq.includes('text/plain')){shortMimeTypes[mimeReq]='text';}
       else if (mimeReq.includes('form-urlencoded')){shortMimeTypes[mimeReq]='form-urlencoded';}
       else if (mimeReq.includes('multipart/form-data')){shortMimeTypes[mimeReq]='multipart-form-data';}
+      else if (mimeReq.includes('application/octet-stream')){shortMimeTypes[mimeReq]='octet-stream';} //TODO: allow users to upload a file 
 
       let mimeReqObj = content[mimeReq];
       let reqExample="";
@@ -279,7 +283,12 @@ export default class ApiRequest extends LitElement {
           console.error("Unable to resolve circular refs in schema", mimeReqObj.schema);
           return;
         }
-        reqSchemaTree = schemaToModel(mimeReqObj.schema,{});
+        if (mimeReq.includes('json')) {
+          reqSchemaTree.json = schemaToModel(mimeReqObj.schema,{});
+        }
+        else if (mimeReq.includes('xml')) {
+          reqSchemaTree.xml = schemaToModel(mimeReqObj.schema,{});
+        }
         reqExample    = generateExample(
           mimeReqObj.schema? mimeReqObj.schema.examples:'', 
           mimeReqObj.schema? mimeReqObj.schema.example:'', 
@@ -366,26 +375,32 @@ export default class ApiRequest extends LitElement {
             <button class="tab-btn" content_id="tab_model">MODEL</button>
             <div style="flex:1"> </div>
             <div style="color:var(--light-fg); align-self:center; font-size:var(--small-font-size); margin-top:8px;">
-              ${mimeReqCount==1?`
-                ${Object.keys(shortMimeTypes)[0]}
-              `:html`
-                ${Object.keys(shortMimeTypes).map(k => html`
-                  ${shortMimeTypes[k]==='json'?html`
-                    <input type='radio' name='request_body_type' value='${shortMimeTypes[k]}' @change="${this.onMimeTypeChange}" checked style='margin:0 0 0 8px'/>
-                  `
-                  :html`
-                    <input type='radio' name='request_body_type' value='${shortMimeTypes[k]}' @change="${this.onMimeTypeChange}" style='margin:0 0 0 8px'/>
-                  `}
-                  ${shortMimeTypes[k]}` 
-                )}
-              `}
+              ${mimeReqCount === 1
+                ? `${Object.keys(shortMimeTypes)[0]}`
+                : html`
+                  ${Object.keys(shortMimeTypes).map(k => html`
+                    ${shortMimeTypes[k]==='json'
+                      ? html`<input type='radio' name='request_body_type' value='${shortMimeTypes[k]}' @change="${this.onMimeTypeChange}" checked style='margin:0 0 0 8px'/>`
+                      : html`<input type='radio' name='request_body_type' value='${shortMimeTypes[k]}' @change="${this.onMimeTypeChange}" style='margin:0 0 0 8px'/>`
+                    }
+                    ${shortMimeTypes[k]}` 
+                  )}
+                `
+              }
             </div>
           </div>
           <div id="tab_example" class="tab-content col" style="flex:1; ">
             ${unsafeHTML(textareaExampleHtml)}
           </div>
           <div id="tab_model" class="tab-content col" style="flex:1;display:none">
-            <schema-tree class="border" style="padding:16px;" .data="${reqSchemaTree}"></schema-tree>
+            ${Object.keys(shortMimeTypes).map(k => html`
+              <schema-tree 
+                class = "border ${shortMimeTypes[k]}" 
+                style = "padding:16px; display:${shortMimeTypes[k] === 'json'?'block':'none'};" 
+                .data="${reqSchemaTree[shortMimeTypes[k]]}"
+              > </schema-tree>
+              `
+            )}
           </div>
         </div>`
       }`
@@ -465,10 +480,16 @@ export default class ApiRequest extends LitElement {
   }
 
   onMimeTypeChange(e){
-    let textareaEls = e.target.closest('.tab-panel').querySelectorAll(`textarea.request-body-param`);
+    let textareaEls = e.target.closest('.tab-panel').querySelectorAll('textarea.request-body-param');
+    let schemaTreeEls = e.target.closest('.tab-panel').querySelectorAll('schema-tree');
     [...textareaEls].map(function(el){
       el.style.display = el.classList.contains(e.target.value)?"block":"none";
     });
+
+    [...schemaTreeEls].map(function(el){
+      el.style.display = el.classList.contains(e.target.value)?"block":"none";
+    });
+
   }
 
   async onTryClick(e){

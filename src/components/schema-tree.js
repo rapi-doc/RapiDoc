@@ -75,12 +75,21 @@ export default class SchemaTree extends LitElement {
         .null {color:orangered;}
         .bool, .boolean{color:#b96ff1}
         .enum {color:orange}
+        .any-of-one-of{
+          font-size:10px; 
+          font-weight:bold; 
+          background-color:var(--primary-color); 
+          color:var(--primary-text); 
+          border-radius:2px; 
+          padding:2px 4px; 
+          margin-bottom:1px; 
+          display:inline-block;
+        }
         @media only screen and (min-width: 768px){
           .item-descr{
             padding-left:24px;
           }
         }
-
 
 
       </style>
@@ -111,20 +120,42 @@ export default class SchemaTree extends LitElement {
       if (detailType==='array' && data[0]==='~|~' ){
         return html`[ ]`
       }
+
+      let openBracket, closeBracket;
+      if (Object.keys(data)[0].startsWith('OPTION')){
+        openBracket = '';
+        closeBracket = '';
+      }
+      else {
+        openBracket = html`<div class="left-bracket expanded ${detailType==='array'?'array':'object'} " @click="${this.toggleExpand}" > ${detailType==='array'?`[`:'{'}</div>`;
+        closeBracket = html`<div class="right-bracket obj-content-part">${detailType==='array'?']':'}'}</div>`;
+      }
       return html`
-      <div class="left-bracket expanded ${detailType==='array'?'array':'object'} " @click="${this.toggleExpand}" > ${detailType==='array'?`[`:'{'}</div>
+        ${openBracket}
         ${data[':description']?html`<span class='obj-descr obj-content-part'> ${data[':description']} </span>`:''}
         <div class="inside-bracket obj-content-part" >
         ${Object.keys(data).map(
           key => html`
-            ${key!==':description'? html`<div class="item"> <span class="item-key"> 
-              ${detailType==='pure_object'?html`${key}:`
-              :``} 
-            </span>${this.generateTree(data[key])}</div>`
-            :''}`
+            ${key !== ':description'
+              ? html`
+                <div class="item"> 
+                  <span class="item-key"> 
+                    ${detailType==='pure_object' 
+                        ? key === 'ANY_OF' ||  key === 'ONE_OF'
+                          ? html`<span class="any-of-one-of" >${key.replace('_',' ')}</span>` 
+                          : key.startsWith('OPTION') 
+                              ? html`<span class="any-of-one-of" >${key.replace('OPTION_',' ')}</span>` 
+                              :html`${key}:` 
+                        : '' 
+                      } 
+                  </span>
+                  ${this.generateTree(data[key])}
+                </div>`
+              : ''
+            }`
         )}
         </div>
-      <div class="right-bracket obj-content-part">${detailType==='array'?']':'}'}</div>
+        ${closeBracket}
       `
     }
     else{
@@ -140,8 +171,9 @@ export default class SchemaTree extends LitElement {
         }
       </span>`
     }
-
   }
+
+
 
   toggleExpand(e){
     if (e.target.classList.contains("expanded")){

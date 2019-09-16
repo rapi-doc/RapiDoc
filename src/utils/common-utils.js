@@ -29,7 +29,7 @@ export function getTypeInfo(schema, overrideAttributes=null){
     return;
   }
   let returnObj = {
-    hasCircularRefs:schema.type==="circular",
+    hasCircularRefs:schema.type === "circular",
     format    : schema.format?schema.format:'',
     pattern   : (schema.pattern && !schema.enum) ? schema.pattern:'',
     readOnly  : schema.readOnly ? '🆁\u00a0' : '',
@@ -154,38 +154,46 @@ export function schemaToModel (schema, obj) {
       }
     }
   }
-  else if (schema.type==="array" || schema.items ){
-    //let temp = Object.assign({}, schema.items );
+  else if (schema.type === "array" || schema.items ){
     obj = [schemaToModel(schema.items,{})  ]
   }
   else if (schema.allOf ){
-    if (schema.allOf.length===1){
-      if (!schema.allOf[0]){
-        return `string~|~${schema.description?schema.description:''}`;
-      }
-      else{
-        let overrideAttrib = { 
-          "readOnly":schema.readOnly, 
-          "writeOnly":schema.writeOnly, 
-          "deprecated":schema.deprecated
-        };
-
-        return `${ getTypeInfo(schema.allOf[0],overrideAttrib).html }~|~${schema.description?schema.description:''}`
-      }
+    // If allOf contains a single object with type attribute, then its a regular type
+    if (schema.allOf.length === 1 && schema.allOf[0].type ){
+      return `${schema.allOf[0].type}~|~${schema.description?schema.description:''}`;
     }
-
-    // If allOf is an array of multiple elements, then they are the keys of an object
-    let objWithAllProps = {};
-    schema.allOf.map(function(v){
-      if (v && v.properties){
+    else {
+      // If allOf is an array of multiple elements, then all the keys makes a single object
+      let objWithAllProps = {};
+      schema.allOf.map(function(v){
         let partialObj = schemaToModel(v,{});
         Object.assign(objWithAllProps, partialObj);
+      });
+      obj = objWithAllProps;
+    }
+  }
+  else if (schema.anyOf || schema.oneOf) {
+    let i = 1;
+    let objWithAnyOfProps = {};
+    let xxxOf =  schema.anyOf ? "anyOf":"oneOf"
+    schema[xxxOf].map(function(v){
+      if (v && v.properties){
+        let partialObj = schemaToModel(v,{});
+        objWithAnyOfProps["OPTION_"+i] = partialObj;
+        i++;
       }
     });
-    obj = objWithAllProps;
+    obj[(schema.anyOf ? "ANY_OF" : "ONE_OF" )] = objWithAnyOfProps ;
   }
-  else{
-    return `${getTypeInfo(schema).html}~|~${schema.description?schema.description:''}`;
+  else {
+    let typeHtml = getTypeInfo(schema).html;
+    if (typeHtml){
+      return `${getTypeInfo(schema).html}~|~${schema.description?schema.description:''}`;
+    }
+    else {
+      return '';
+    }
+    
   }
   return obj;
 }
@@ -321,7 +329,20 @@ export function getSampleValueByType(schemaObj) {
       return null;
     }
 
-    const typeValue = schemaObj.format || schemaObj.type || (schemaObj.enum ? 'enum' : null);
+    
+    let typeValue = schemaObj.format || schemaObj.type || (schemaObj.enum ? 'enum' : null) 
+    if (!typeValue){
+      if (schemaObj.enum){
+        typeValue = "enum";
+      }
+      else if (schemaObj.anyOf){
+        typeValue = "anyOf";
+      }
+      else if (schemaObj.oneOf){
+        typeValue = "oneOf";
+      }
+    }
+
     switch (typeValue) {
       case 'int32':
       case 'int64':

@@ -82,27 +82,14 @@ export default class ApiResponse extends LitElement {
       }
 
     </style>
-    <div class="col regular-font">
-    <div class="title">RESPONSE</div>
-
-
-
-
-    ${this.responseTemplate()}
+    <div class="col regular-font response-panel">
+      <div class="title">RESPONSE</div>
+      ${this.responseTemplate()}
+    </div>  
     `
 
   }
 
-  /*
-    ${this.mimeResponsesForEachStatus.map(
-      responsesByStatus => html`<end-point .path=${path}> </end-point>`
-    )}`
-    mimeResponsesForEachStatus
-    ${this.responseTemplate()}
-    <!-- schema-tree .data="${this.data}"></schema-tree -->
-    </div>
-    `
-*/
   static get properties() {
     return {
       responses: { type: Object },
@@ -137,7 +124,6 @@ export default class ApiResponse extends LitElement {
 
         // Generate Schema
         let schemaTree = schemaToModel(mimeRespObj.schema,{});
-
         // Generate Example
         let respExample = generateExample(
           mimeRespObj.schema? mimeRespObj.schema.examples:'',
@@ -175,7 +161,7 @@ export default class ApiResponse extends LitElement {
         <span class="resp-descr">${this.responses[status].description}</span> 
         ${ (headersForEachRespStatus[status] && headersForEachRespStatus[status].length > 0)?html`
           <div style="padding:12px 0 5px 0" class="resp-status">Response Headers:</div> 
-          <table style="">
+          <table>
             ${headersForEachRespStatus[status].map( v => html`
               <tr>
                 <td style="padding:0 12px;vertical-align: top;" class="regular-font-size"> ${v.name}</td> 

@@ -93,7 +93,6 @@ export default class RapiDoc extends LitElement {
           --layout:${this.layout?`${this.layout}`:`row`};
           --font-mono:${this.monoFont?`${this.monoFont}`:`Monaco, 'Andale Mono', 'Roboto Mono', Consolas`}; 
           --font-mono-size:13px; 
-          --font-mono-size:13px; 
           --font-regular:${this.regularFont?`${this.regularFont}`:`rapidoc, Helvetica, Arial`};
           --title-font-size:16px;
           --regular-font-size:14px;
