@@ -122,7 +122,7 @@ export default class SchemaTree extends LitElement {
       }
 
       let openBracket, closeBracket;
-      if (Object.keys(data)[0].startsWith('OPTION')){
+      if (Object.keys(data)[0].startsWith('OPTION') || Object.keys(data)[0] === 'ANY_OF' || Object.keys(data)[0] === 'ONE_OF' ){
         openBracket = '';
         closeBracket = '';
       }
@@ -133,7 +133,7 @@ export default class SchemaTree extends LitElement {
       return html`
         ${openBracket}
         ${data[':description']?html`<span class='obj-descr obj-content-part'> ${data[':description']} </span>`:''}
-        <div class="inside-bracket obj-content-part" >
+        <div class="${Object.keys(data)[0].startsWith('OPTION')?'':'inside-bracket'} obj-content-part" >
         ${Object.keys(data).map(
           key => html`
             ${key !== ':description'
