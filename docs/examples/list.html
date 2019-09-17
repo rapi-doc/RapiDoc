@@ -1,0 +1,121 @@
+<!doctype html>
+
+<head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-132775238-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132775238-1');
+  </script>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+  <meta name="description" content="RapiDoc is Web Component based Swagger & OpenAPI Spec Viewer. Alternate for SwaggerUI or Redoc. It is fast, small and made with lit-element">
+  <meta name="keywords" content="RapiDoc,ReDoc,Swagger,SwaggerUI,Custom Element,Web Component,OpenAPI,REST">
+
+  <link rel="shortcut icon" type="image/png" href="../images/logo.png"/>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
+
+  <link rel="stylesheet" href="../index.css">
+  <title>RapiDoc - Web Component based Swagger & OpenAPI Spec Viewer</title>
+</head>
+
+<body>
+  <div class="banner container" id="banner">
+    <div class="header">
+      <img class="logo" src="../images/logo.png" style="width:48px;height:48px;margin-right:10px;" />
+      <div class="product-name">&lt;rapi-doc&gt;</div>
+      <div class="menu" style="flex:1"></div>
+      <nav class="menu">
+        <a class="menu-item" data-action="url" href="https://mrin9.github.io/RapiDoc/"> RapiDoc </a>
+        <a class="menu-item" data-action="url" href="https://github.com/mrin9/RapiDoc"> GitHub </a>
+        <a class="menu-item" data-action="url" href="https://mrin9.github.io/RapiPdf/"> RapiPDF </a>
+      </nav>
+    </div>
+
+    <div>
+      <div class="banner-content">
+        <h1 class="banner-title">Web Component for OpenAPI Spec Viewing</h1>
+        <div class="banner-content-inner">
+          <p style="font-size:18px">List of all examples</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Start of API -->
+  <div class="api container" id="api">
+      <div style="display:flex; flex-direction: column; ">
+        <div class="table-block">
+          <table class="m-table">
+            <tr>
+              <th style="text-align:left">Link</th>
+              <th style="text-align:left">Description </th>
+            </tr>
+            <tr>
+              <td class="mono-bold"> <a href="./example100.html"> Playground </a> </td>
+              <td class="gray">Shows various things that can be controlled using script </td>
+            </tr>
+            <tr>
+              <td class="mono-bold"> <a href="./example1.html"> Example 1 </a> </td>
+              <td class="gray">Basic usage </td>
+            </tr>
+            <tr>
+              <td class="mono-bold"> <a href="./example2.html"> Example 2 </a> </td>
+              <td class="gray">Apply a dark theme </td>
+            </tr>
+            <tr>
+              <td class="mono-bold"> <a href="./example3.html"> Example 3 </a> </td>
+              <td class="gray">Change header color and primary color on a dark theme  </td>
+            </tr>
+            <tr>
+              <td class="mono-bold"> <a href="./example4.html"> Example 4 </a> </td>
+              <td class="gray">Embed it in another html </td>
+            </tr>
+            <tr>
+              <td class="mono-bold"> <a href="./example5.html"> Example 5 </a> </td>
+              <td class="gray">Change the font </td>
+            </tr>
+            <tr>
+              <td class="mono-bold"> <a href="./example6.html"> Example 6 </a> </td>
+              <td class="gray">Change the logo </td>
+            </tr>
+            <tr>
+              <td class="mono-bold"> <a href="./example7.html"> Example 7 </a> </td>
+              <td class="gray">Add your own html in various sections (slots) </td>
+            </tr>
+            <tr>
+              <td class="mono-bold"> <a href="./example8.html"> Example 8 </a> </td>
+              <td class="gray">Add custom html and functionality (like Authentication) <br/>
+                The example shows a text-box and a blue button is added on the header. Clicking on the button
+                will read authentication-token provided by the user in the text-box and apply it to rapi-doc web component
+              </td>    
+            </tr>
+            <tr>
+              <td class="mono-bold"> <a href="./example9.html"> Example 9 </a> </td>
+              <td class="gray">Instead of passing a spec-url, you can even pass a valid json object</td>
+            </tr>
+            <tr>
+              <td class="mono-bold"> 
+                <a href="./oneof.html"> one-of </a> 
+                <a href="./anyof.html"> any-of </a>
+                <a href="./allof.html"> all-of </a>
+              </td>
+              <td class="gray">Shows open-api spec contating model composition using all-off, one-of and any-of</td>
+            </tr>
+          </table>
+        </div>  
+      </div>  
+    </div>
+
+
+
+</body>
+
+</html>

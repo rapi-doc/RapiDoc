@@ -8,7 +8,14 @@ body{
   margin: 0;
   display: block;
 }
-a{ color:navy;}
+a{ 
+  color:#0055fd;
+  text-decoration: none;
+}
+a:hover{ 
+  text-decoration: underline;
+}
+
 code{ font-family: 'Roboto Mono', monospace;}
 
 .banner {
@@ -94,8 +101,6 @@ code{ font-family: 'Roboto Mono', monospace;}
 .feature-list{
   text-align: left;
 }
-
-
 .container{
   padding: 40px 64px;
   font-family: 'Varela Round', sans-serif;
@@ -138,15 +143,16 @@ code{ font-family: 'Roboto Mono', monospace;}
 }
 .shadow2{ 
  box-shadow: 0 2px 3px rgba(100,100,100,0.12), 0 2px 3px rgba(100,100,100,0.24);
-  
 }
 .shadow3 {
   box-shadow: 0 12px 24px rgba(0,0,0,0.25), 0 6px 6px rgba(0,0,0,0.22);
 }
 
-.mono-bold{
+.mono-bold {
   font-family:"Roboto Mono";
   font-weight:700;
+}
+.right{
   text-align: right;
 }
 .gray{

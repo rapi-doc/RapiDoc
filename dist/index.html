@@ -15,9 +15,11 @@
     https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json
     https://petstore.swagger.io/v2/swagger.json
     https://assets.zuora.com/zuora-documentation/swagger.yaml <<< Large spec with lot of markdown
+    ./examples/specs/petstore_anyof.yaml
   -->
-  <rapi-doc id="thedoc"> </rapi-doc>
+  <rapi-doc id="thedoc" spec-url="./examples/specs/petstore_anyof.yaml"> </rapi-doc>
 
+  <!--
   <script>
     document.addEventListener('DOMContentLoaded', (event) => {
       let docEl = document.getElementById("thedoc");
@@ -73,7 +75,7 @@
       docEl.loadSpec(objSpec);
     })
   </script>
-
+-->
 
 <script type="text/javascript" src="rapidoc-min.js"></script></body>
 
