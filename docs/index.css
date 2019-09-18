@@ -158,6 +158,12 @@ code{ font-family: 'Roboto Mono', monospace;}
 .gray{
   color:#777;
 }
+.descr {
+  font-family: 'Varela Round', sans-serif;
+  font-size:13px;
+  font-weight: normal;
+  margin-left:12px;
+}
 
 .m-table {
   border-spacing: 0;

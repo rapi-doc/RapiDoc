@@ -36,8 +36,7 @@
           "description": "Employee Details (Worker or Manager)",
           "anyOf": [
             { "$ref": "#/definitions/name"},
-            { "$ref": "#/definitions/job"},
-            { "$ref": "#/definitions/dob"}
+            { "$ref": "#/definitions/job"}
           ]
         }
       }
@@ -73,8 +72,7 @@
           "description": "Salary per annum"
         }
       }
-    },
-    "dob": { "type": "string", "format":"date" , "description": "Date of birth" }
+    }
             
   },
   "tags": [

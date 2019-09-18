@@ -1,6 +1,6 @@
 {
   "name": "rapidoc",
-  "version": "5.2.0",
+  "version": "5.2.1",
   "description": "RapiDoc - Open API spec viewer with built in console",
   "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
   "repository": {
@@ -20,7 +20,10 @@
     "Web Component",
     "rapidoc",
     "swagger",
-    "swagger ui"
+    "swagger ui",
+    "openapi ui",
+    "openapi themes",
+    "swagger themes"
   ],
   "main": "rapidoc.js",
   "module": "rapidoc.js",
@@ -29,15 +32,15 @@
     "lit-element": "2.2.1",
     "lit-html": "1.0.0",
     "marked": "^0.7.0",
-    "swagger2openapi": "^4.0.2"
+    "swagger2openapi": "^5.3.1"
   },
   "scripts": {
     "build": "NODE_ENV=production webpack",
     "serve": "webpack-dev-server --mode=development"
   },
   "devDependencies": {
-    "@babel/core": "^7.5.5",
-    "@babel/preset-env": "^7.5.5",
+    "@babel/core": "^7.6.0",
+    "@babel/preset-env": "^7.6.0",
     "babel-loader": "^8.0.6",
     "babel-plugin-template-html-minifier": "^3.1.0",
     "clean-webpack-plugin": "^3.0.0",
@@ -50,9 +53,9 @@
     "node-sass": "^4.12.0",
     "sass-loader": "^8.0.0",
     "style-loader": "^1.0.0",
-    "webpack": "^4.39.3",
-    "webpack-bundle-analyzer": "^3.4.1",
-    "webpack-cli": "^3.3.7",
-    "webpack-dev-server": "^3.8.0"
+    "webpack": "^4.40.2",
+    "webpack-bundle-analyzer": "^3.5.0",
+    "webpack-cli": "^3.3.9",
+    "webpack-dev-server": "^3.8.1"
   }
 }

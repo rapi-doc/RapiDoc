@@ -6,7 +6,7 @@ export default async function ProcessSpec(specUrl){
   let convertOptions, resolveOptions;
   let specLocation = '', url;
   
-  convertOptions = { patch:true, warnOnly:true };
+  convertOptions = { patch: true, warnOnly: true };
   try {
     // JsonRefs cant load yaml files, so first use converter 
     if (typeof specUrl==="string") {
@@ -17,6 +17,7 @@ export default async function ProcessSpec(specUrl){
         url = new URL('.' + specLocation, location.href);
         specLocation = url.pathname;
       }
+
     }
     else {
       //resolvedRefSpec = await JsonRefs.resolveRefs(specUrl, resolveOptions);

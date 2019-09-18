@@ -45,7 +45,9 @@
           "description": "Employee Details (Worker or Manager)",
           "allOf": [
             { "$ref": "#/definitions/name"},
-            { "$ref": "#/definitions/job"}
+            { "$ref": "#/definitions/job"},
+            { "$ref": "#/definitions/dob"},
+            { "$ref": "#/definitions/salary"}
           ]
         }
       }
@@ -63,10 +65,11 @@
       "additionalProperties": false,
       "properties": {
         "jobTitle": { "type": "string", "description": "Job title" },
-        "department": { "type": "string", "description": "Department name"},
-        "salary": {"type": "number", "description": "Salary per annum"}
+        "department": { "type": "string", "description": "Department name"}
       }
-    }
+    },
+    "dob": {"type": "string", "format": "date", "description": "Date of birth"},
+    "salary": {"type": "number", "description": "Salary per annum"}
   },
   "tags": [
     {

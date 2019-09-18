@@ -158,29 +158,43 @@ export function schemaToModel (schema, obj) {
     obj = [schemaToModel(schema.items,{})  ]
   }
   else if (schema.allOf ){
-    // If allOf contains a single object with type attribute, then its a regular type
-    if (schema.allOf.length === 1 && schema.allOf[0].type ){
-      return `${schema.allOf[0].type}~|~${schema.description?schema.description:''}`;
-    }
-    else {
-      // If allOf is an array of multiple elements, then all the keys makes a single object
-      let objWithAllProps = {};
-      schema.allOf.map(function(v){
+    // If allOf is an array of multiple elements, then all the keys makes a single object
+    let objWithAllProps = {};
+    schema.allOf.map(function(v){
+      if (v.type === 'object' || v.properties) {
         let partialObj = schemaToModel(v,{});
         Object.assign(objWithAllProps, partialObj);
-      });
-      obj = objWithAllProps;
-    }
+      }
+      else if (v.type === "array" || v.items){
+        let partialObj = [ schemaToModel(v, {})];
+        Object.assign(objWithAllProps, partialObj);
+      }
+      else {
+        let prop = 'prop'+ Object.keys(objWithAllProps).length;
+        objWithAllProps[prop] = `${getTypeInfo(v).html}~|~${v.description ? v.description : ''}`
+      }
+      
+    });
+    debugger;
+    obj = objWithAllProps;
   }
   else if (schema.anyOf || schema.oneOf) {
     let i = 1;
     let objWithAnyOfProps = {};
     let xxxOf =  schema.anyOf ? "anyOf":"oneOf"
     schema[xxxOf].map(function(v){
-      if (v && v.properties){
+      if (v.type === 'object' || v.properties) {
         let partialObj = schemaToModel(v,{});
         objWithAnyOfProps["OPTION_"+i] = partialObj;
         i++;
+      }
+      else if (v.type === "array" || v.items){
+        let partialObj = [ schemaToModel(v,{}) ];
+        Object.assign(objWithAnyOfProps, partialObj);
+      }
+      else{
+        let prop = 'prop'+ Object.keys(objWithAnyOfProps).length;
+        objWithAnyOfProps[prop] = `${getTypeInfo(v).html}~|~${v.description ? v.description : ''}`
       }
     });
     obj[(schema.anyOf ? "ANY_OF" : "ONE_OF" )] = objWithAnyOfProps ;
@@ -228,7 +242,7 @@ export function generateExample(examples, example, schema, mimeType, includeRead
   else if (example){
     let egContent="";  
     if (mimeType.toLowerCase().includes("json")){
-      if (outputType==="text"){
+      if (outputType === "text"){
         egContent = JSON.stringify(example,undefined,2);
       }
       else{
@@ -297,22 +311,32 @@ export function schemaToObj (schema, obj, config={}) {
       obj = [schemaToObj(schema.items,{}, config)  ]
     }
     else if (schema.allOf ){
-      if (schema.allOf.length===1){
-          if (!schema.allOf[0]){
-            return "string";
-          }
-          else{
-            return getSampleValueByType(schema.allOf[0]);
-          }
-      }
       let objWithAllProps = {};
       schema.allOf.map(function(v){
-        if (v && v.type){
-          let partialObj = schemaToObj(v,{}, config);
+        if (v.type === 'object' || v.properties) {
+          let partialObj = schemaToObj(v, {}, config);
           Object.assign(objWithAllProps, partialObj);
+        }
+        else if (v.type === "array" || v.items){
+          let partialObj = [ schemaToObj(v, {}, config) ];
+          Object.assign(objWithAllProps, partialObj);
+        }
+        else{
+          let prop = 'prop'+ Object.keys(objWithAllProps).length;
+          objWithAllProps[prop] = getSampleValueByType(v);
         }
       });
       obj = objWithAllProps;
+    }
+    else if (schema.oneOf) {
+      if (schema.oneOf.length > 0 ){
+        obj = schemaToObj(schema.oneOf[0], {}, config);
+      }
+    }
+    else if (schema.anyOf) {
+      if (schema.anyOf.length > 0) {
+        obj = schemaToObj(schema.anyOf[0], {}, config);
+      }
     }
     else{
       return getSampleValueByType(schema);
@@ -324,12 +348,9 @@ export function getSampleValueByType(schemaObj) {
     if (schemaObj.example) {
       return schemaObj.example;
     }
-
     if (Object.keys(schemaObj).length === 0) {
       return null;
     }
-
-    
     let typeValue = schemaObj.format || schemaObj.type || (schemaObj.enum ? 'enum' : null) 
     if (!typeValue){
       if (schemaObj.enum){
