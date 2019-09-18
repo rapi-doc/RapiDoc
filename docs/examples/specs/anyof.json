@@ -31,15 +31,13 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "Id": {
-          "type": "string",
-          "description": "Employee ID"
-        },
+        "Id": { "type": "string", "description": "Employee ID" },
         "Employee": {
           "description": "Employee Details (Worker or Manager)",
           "anyOf": [
             { "$ref": "#/definitions/name"},
-            { "$ref": "#/definitions/job"}
+            { "$ref": "#/definitions/job"},
+            { "$ref": "#/definitions/dob"}
           ]
         }
       }
@@ -75,7 +73,9 @@
           "description": "Salary per annum"
         }
       }
-    }
+    },
+    "dob": { "type": "string", "format":"date" , "description": "Date of birth" }
+            
   },
   "tags": [
     {

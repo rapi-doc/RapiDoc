@@ -46,7 +46,7 @@
 			"additionalProperties": false,
 			"properties": {
         "name": { "type": "string", "description": "Name of employee" },
-        "directReports": { "type": "number", "description": "Count of direct reports" }
+        "directReports": { "type": "integer", "description": "Count of direct reports" }
 			}
     },
     "worker": {
