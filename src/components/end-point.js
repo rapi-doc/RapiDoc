@@ -29,7 +29,7 @@ export default class EndPoint extends LitElement {
     <div  class='m-endpoint regular-font ${this.path.method} ${this.path.expanded?'expanded':'collapsed'}'>
       <!-- Endpoint Head -->
       <div @click="${this.toggleExpand}" class='head ${this.path.method} ${this.path.expanded?'expanded':'collapsed'}'>
-        <div class="method ${this.path.method}" > ${this.path.method} </div> 
+        <div class="method ${this.path.method}"> ${this.path.method} </div> 
         <div class="path ${this.path.deprecated?'deprecated':''}"> ${this.path.path} </div>
         ${this.path.deprecated?html`<span style="font-size:12px; text-transform:uppercase; font-weight:bold; color:orangered; margin:2px 0 0 5px;"> deprecated </span>`:''}
         <div class="only-large-screen" style="min-width:60px; flex:1"></div>

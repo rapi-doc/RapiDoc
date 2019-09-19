@@ -39,12 +39,18 @@ export default html`
     .m-markdown-small{
       display:block;
     }
-    .m-markdown li,
+
     .m-markdown p,
     .m-markdown span{
-        line-height:28px;
-        font-size:14px;
+      line-height:18px;
+      font-size:13px;
     }
+    
+    .m-markdown li{
+      line-height:22px;
+      font-size:13px;
+    }
+
     .m-markdown-small p,
     .m-markdown-small span,
     .m-markdown-small li{
@@ -53,11 +59,16 @@ export default html`
       line-height:14px;
       margin-top:0;
     }
+    .m-markdown-small p:not(:first-child),
+    .m-markdown p:not(:first-child) {
+      margin-block-start: 24px;
+    }
 
     .m-markdown p,
     .m-markdown-small p{
       margin-block-end: 0
     }
+
 
     .m-markdown-small ul,
     .m-markdown-small ol{
@@ -68,7 +79,7 @@ export default html`
         background-color: rgba(0, 0, 0, 0.02);
         padding: 0px 6px;
         border: 1px solid var(--light-border-color);
-        border-radius: 3px;
+        border-radius: 2px;
         color: var(--fg);
         font-size: var(--font-mono-size);
         line-height: var(--font-mono-line-height);
@@ -81,7 +92,7 @@ export default html`
         padding: 12px 14px 15px 14px;
         overflow-x: auto;
         line-height: normal;
-        border-radius: 4px;
+        border-radius: 2px;
         border: 1px solid var(--pre-border-color);
     }
     .m-markdown pre code {

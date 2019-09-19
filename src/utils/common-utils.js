@@ -1,3 +1,6 @@
+import { html } from 'lit-element'; 
+import {unsafeHTML} from 'lit-html/directives/unsafe-html.js';
+
 /* For Delayed Event Handler Execution */
 export function debounce (fn, delay) {
     var timeoutID = null;
@@ -27,6 +30,9 @@ export function copyToClipboard(elId) {
 export function getTypeInfo(schema, overrideAttributes=null){
   if (!schema){
     return;
+  }
+  if (schema.type === "circular"){
+    debugger;
   }
   let returnObj = {
     hasCircularRefs:schema.type === "circular",
@@ -149,7 +155,7 @@ export function schemaToModel (schema, obj) {
       if (schema.required && schema.required.includes(key)){
         obj[key+'*'] = schemaToModel(schema.properties[key],{});
       }
-      else{
+      else {
         obj[key] = schemaToModel(schema.properties[key],{});
       }
     }
@@ -158,24 +164,38 @@ export function schemaToModel (schema, obj) {
     obj = [schemaToModel(schema.items,{})  ]
   }
   else if (schema.allOf ){
-    // If allOf is an array of multiple elements, then all the keys makes a single object
     let objWithAllProps = {};
-    schema.allOf.map(function(v){
-      if (v.type === 'object' || v.properties) {
-        let partialObj = schemaToModel(v,{});
-        Object.assign(objWithAllProps, partialObj);
-      }
-      else if (v.type === "array" || v.items){
-        let partialObj = [ schemaToModel(v, {})];
-        Object.assign(objWithAllProps, partialObj);
+    if (schema.allOf.length === 1 && !schema.allOf[0].properties && !schema.allOf[0].items){
+      // If allOf has single item and the type is not an object or array, then its a primitive
+      if (schema.allOf[0].$ref){
+        return `{ ${schema.allOf[0].$ref} } ~|~ Recursive Object`; 
       }
       else {
-        let prop = 'prop'+ Object.keys(objWithAllProps).length;
-        objWithAllProps[prop] = `${getTypeInfo(v).html}~|~${v.description ? v.description : ''}`
+        let tempSchema = schema.allOf[0];
+        return `${getTypeInfo(tempSchema).html}~|~${tempSchema.description ? tempSchema.description : ''}`;
       }
-      
-    });
-    debugger;
+    }
+    else {
+      // If allOf is an array of multiple elements, then all the keys makes a single object
+      schema.allOf.map(function(v){
+        if (v.type === 'object' || v.properties) {
+          let partialObj = schemaToModel(v,{});
+          Object.assign(objWithAllProps, partialObj);
+        }
+        else if (v.type === "array" || v.items){
+          let partialObj = [ schemaToModel(v, {})];
+          Object.assign(objWithAllProps, partialObj);
+        }
+        else if (v.type) {
+          let prop = 'prop'+ Object.keys(objWithAllProps).length;
+          let typeObj = getTypeInfo(v);
+          objWithAllProps[prop] = `${typeObj.html}~|~${v.description ? v.description : ''}`
+        }
+        else {
+          return '';
+        }
+      });
+    }
     obj = objWithAllProps;
   }
   else if (schema.anyOf || schema.oneOf) {
@@ -200,9 +220,9 @@ export function schemaToModel (schema, obj) {
     obj[(schema.anyOf ? "ANY_OF" : "ONE_OF" )] = objWithAnyOfProps ;
   }
   else {
-    let typeHtml = getTypeInfo(schema).html;
-    if (typeHtml){
-      return `${getTypeInfo(schema).html}~|~${schema.description?schema.description:''}`;
+    let typeObj = getTypeInfo(schema);
+    if (typeObj.html){
+      return `${typeObj.html}~|~${schema.description?schema.description:''}`;
     }
     else {
       return '';
@@ -213,10 +233,8 @@ export function schemaToModel (schema, obj) {
 }
 
 
-
-
 /* Create Example object */
-export function generateExample(examples, example, schema, mimeType, includeReadOnly=true, outputType){
+export function generateExample(examples, example, schema, mimeType, includeReadOnly = false, outputType){
   let finalExamples = [];
   if (examples){
     for (let eg in examples){
@@ -288,10 +306,10 @@ export function generateExample(examples, example, schema, mimeType, includeRead
 
 /* For changing JSON-Schema to a Sample Object, as per the schema */ 
 export function schemaToObj (schema, obj, config={}) {
-    if (schema==null){
+    if (schema === null){
       return;
     }
-    if (schema.type==="object" || schema.properties){
+    if (schema.type === "object" || schema.properties){
       for( let key in schema.properties ){
         if ( schema.properties[key].deprecated ) {
           continue;
@@ -312,20 +330,44 @@ export function schemaToObj (schema, obj, config={}) {
     }
     else if (schema.allOf ){
       let objWithAllProps = {};
-      schema.allOf.map(function(v){
-        if (v.type === 'object' || v.properties) {
-          let partialObj = schemaToObj(v, {}, config);
-          Object.assign(objWithAllProps, partialObj);
+      
+      if (schema.allOf.length === 1 && !schema.allOf[0].properties && !schema.allOf[0].items){
+        // If allOf has single item and the type is not an object or array, then its a primitive
+        if (schema.allOf[0].$ref){
+          return '{  }'; 
         }
-        else if (v.type === "array" || v.items){
-          let partialObj = [ schemaToObj(v, {}, config) ];
-          Object.assign(objWithAllProps, partialObj);
+        else {
+          if (schema.allOf[0].readOnly && config.includeReadOnly ){
+            let tempSchema = schema.allOf[0];
+            return getSampleValueByType(tempSchema);
+          }
+          else {
+            return;
+          }
         }
-        else{
-          let prop = 'prop'+ Object.keys(objWithAllProps).length;
-          objWithAllProps[prop] = getSampleValueByType(v);
-        }
-      });
+      }
+      else {
+        schema.allOf.map(function(v){
+          if ( v.readOnly) {
+            return 'abcd';
+          }
+          else if (v.type === 'object' || v.properties) {
+            let partialObj = schemaToObj(v, {}, config);
+            Object.assign(objWithAllProps, partialObj);
+          }
+          else if (v.type === "array" || v.items){
+            let partialObj = [ schemaToObj(v, {}, config) ];
+            Object.assign(objWithAllProps, partialObj);
+          }
+          else if (v.type){
+            let prop = 'prop'+ Object.keys(objWithAllProps).length;
+            objWithAllProps[prop] = getSampleValueByType(v);
+          }
+          else {
+            return '';
+          }
+        });
+      }
       obj = objWithAllProps;
     }
     else if (schema.oneOf) {
