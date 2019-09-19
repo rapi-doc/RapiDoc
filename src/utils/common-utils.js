@@ -417,6 +417,8 @@ export function getSampleValueByType(schemaObj) {
         return 0.5;
       case 'string':
         return (schemaObj.enum ? schemaObj.enum[0] : (schemaObj.pattern ? schemaObj.pattern : "string"))
+      case 'url':
+        return 'http://example.com';
       case 'byte':
         return btoa('string');
       case 'binary':
