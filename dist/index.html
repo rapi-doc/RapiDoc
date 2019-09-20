@@ -15,9 +15,10 @@
     https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json
     https://petstore.swagger.io/v2/swagger.json
     https://assets.zuora.com/zuora-documentation/swagger.yaml <<< Large spec with lot of markdown
-    ./examples/specs/petstore_anyof.yaml
+    ./examples/specs/petstore_anyof.yaml <<< contains complex one-of with inline primitives and recursive objects
+    ./examples/specs/oneof1.yaml  <<< nested oneof
   -->
-  <rapi-doc id="thedoc" spec-url="./examples/specs/allof.json"> </rapi-doc>
+  <rapi-doc id="thedoc" spec-url="./examples/specs/petstore_anyof.yaml" theme="dark"> </rapi-doc>
 
   <!--
   <script>

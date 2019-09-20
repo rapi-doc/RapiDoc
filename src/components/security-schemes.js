@@ -32,7 +32,7 @@ export default class SecuritySchemes extends LitElement {
         ${Object.keys(this.schemes).map(s => html`
           <tr>  
           <td>
-            <div style="font-weight:bold">${this.schemes[s].type}: ${this.schemes[s].scheme} 
+            <div style="font-weight:bold">${this.schemes[s].type}: ${this.schemes[s].scheme} </div>
             ${this.schemes[s].description?html`
               <div class="m-markdown"> 
                 ${unsafeHTML(marked(this.schemes[s].description || ""))}

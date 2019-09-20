@@ -31,9 +31,6 @@ export function getTypeInfo(schema, overrideAttributes=null){
   if (!schema){
     return;
   }
-  if (schema.type === "circular"){
-    debugger;
-  }
   let returnObj = {
     hasCircularRefs:schema.type === "circular",
     format    : schema.format?schema.format:'',
@@ -178,11 +175,11 @@ export function schemaToModel (schema, obj) {
     else {
       // If allOf is an array of multiple elements, then all the keys makes a single object
       schema.allOf.map(function(v){
-        if (v.type === 'object' || v.properties) {
+        if ( v.type === 'object' || v.properties || v.allOf || v.anyOf || v.oneOf ) {
           let partialObj = schemaToModel(v,{});
           Object.assign(objWithAllProps, partialObj);
         }
-        else if (v.type === "array" || v.items){
+        else if ( v.type === "array" || v.items ){
           let partialObj = [ schemaToModel(v, {})];
           Object.assign(objWithAllProps, partialObj);
         }
@@ -201,9 +198,9 @@ export function schemaToModel (schema, obj) {
   else if (schema.anyOf || schema.oneOf) {
     let i = 1;
     let objWithAnyOfProps = {};
-    let xxxOf =  schema.anyOf ? "anyOf":"oneOf"
+    let xxxOf =  schema.anyOf ? "anyOf":"oneOf";
     schema[xxxOf].map(function(v){
-      if (v.type === 'object' || v.properties) {
+      if (v.type === 'object' || v.properties || v.allOf || v.anyOf || v.oneOf) {
         let partialObj = schemaToModel(v,{});
         objWithAnyOfProps["OPTION_"+i] = partialObj;
         i++;
@@ -351,7 +348,7 @@ export function schemaToObj (schema, obj, config={}) {
           if ( v.readOnly) {
             return 'abcd';
           }
-          else if (v.type === 'object' || v.properties) {
+          else if (v.type === 'object' || v.properties || v.allOf || v.anyOf || v.oneOf ) {
             let partialObj = schemaToObj(v, {}, config);
             Object.assign(objWithAllProps, partialObj);
           }

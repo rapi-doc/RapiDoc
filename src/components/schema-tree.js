@@ -123,8 +123,14 @@ export default class SchemaTree extends LitElement {
 
       let openBracket, closeBracket;
       if (Object.keys(data)[0].startsWith('OPTION') || Object.keys(data)[0] === 'ANY_OF' || Object.keys(data)[0] === 'ONE_OF' ){
-        openBracket = '';
-        closeBracket = '';
+        if (Object.keys(data)[0] === 'ANY_OF' || Object.keys(data)[0] === 'ONE_OF'){
+          openBracket = html`<div width="100%" style="border-bottom: 1px solid var(--primary-color); margin: 5px 0;"></div>`;
+          closeBracket = html`<div width="100%" style="border-bottom: 1px solid var(--primary-color); margin: 5px 0;"></div>`;
+        }
+        else {
+          closeBracket = '';
+          openBracket = '';
+        }
       }
       else {
         openBracket = html`<div class="left-bracket expanded ${detailType==='array'?'array':'object'} " @click="${this.toggleExpand}" > ${detailType==='array'?`[`:'{'}</div>`;

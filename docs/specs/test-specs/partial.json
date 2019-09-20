@@ -1,0 +1,17 @@
+{
+  "definitions": {
+    "employee": {
+      "description": "Employee Details",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "empId"     : { "type": "string", "description": "Employee ID"},
+        "firstName" : { "type": "string", "description": "First name" },
+        "lastName"  : { "type": "string", "description": "Last Name" },
+        "jobTitle"  : { "type": "string", "description": "Job title" },
+        "department": { "type": "string", "description": "Department name"},
+        "salary"    : { "type": "number", "description": "Salary per annum"}
+      }
+    }
+  }
+}

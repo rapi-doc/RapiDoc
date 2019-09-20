@@ -74,7 +74,8 @@ code{ font-family: 'Roboto Mono', monospace;}
 .feature-list,
 .examples,
 .api,
-.footer {
+.footer 
+.example-list {
   display:flex;
   flex-wrap:wrap;
   justify-content: center;

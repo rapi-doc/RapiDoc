@@ -42,7 +42,10 @@ Custom Eelement for Open-API spec viewing
 
 
 ## Documentation
-[Check out the usage and examples](https://mrin9.github.io/RapiDoc/)
+[Check out the usage and demos](https://mrin9.github.io/RapiDoc/)
+
+## Examples
+[Examples and Test cases](https://mrin9.github.io/RapiDoc/list.html)
 
 
 ## Build Process

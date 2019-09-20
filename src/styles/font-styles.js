@@ -136,7 +136,8 @@ export default html`
     .m-markdown th {
       color: var(--fg2);
       font-size: 12px;
-      line-height:30px;
+      line-height:16px;
+      height:32px;
       font-weight: 600;
       letter-spacing: normal;
       background-color: var(--bg2);

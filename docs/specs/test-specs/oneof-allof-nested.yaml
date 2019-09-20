@@ -1,0 +1,105 @@
+openapi: "3.0.2"
+info:
+  title: "API example"
+  description: "Sample desc."
+  version: "1"
+
+
+
+servers:
+# Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/leorush/testtw/1
+  - url: http://demo.example.com
+    description: Demo server
+
+    
+
+
+paths:
+  /registration/domains:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/domain_order_data'
+                - $ref: '#/components/schemas/domain_order_data_org'
+              discriminator:
+                propertyName: customer_type
+                mapping:
+                  person: '#/components/schemas/domain_order_data'
+                  org: '#/components/schemas/domain_order_data_org'
+              
+      responses:
+        200:
+          $ref: '#/components/responses/customer_reg'
+          
+ 
+components:
+  schemas:
+    common_data:
+      type: object
+      required: 
+        - customer_type
+      properties:
+        customer_type:
+          type: string
+          enum:
+            - "person"
+            - "org"
+          description: "client type"
+          example: "person"
+  
+    common_org_data:
+      type: object
+      required:
+            - org_address
+            - org_name
+      properties:
+
+        org_address:
+          type: string
+          example: "bbb"
+        org_name: 
+          type: string
+          example: "aaa"
+        
+    domain_order_data:
+      allOf:
+        - type: object
+          required:
+            - domains
+            - phone_number
+          properties:
+            domains:
+              type: array
+              items: 
+                type: string
+              example: ["tesrrrrrrr.com"]
+            phone_number:
+              type: string
+              example: "79219523621"
+        - $ref: '#/components/schemas/common_data'          
+            
+    domain_order_data_org:
+      allOf:
+        - $ref: '#/components/schemas/common_org_data'   
+        - $ref: '#/components/schemas/domain_order_data'   
+  
+  
+
+  responses:
+    customer_reg:
+      description: "sample"
+      content:
+         application/json:
+            schema: 
+              type: object
+              properties:
+                password:
+                  type: string
+                  description: "user password"
+                  example: "zOmjt68sej6S"
