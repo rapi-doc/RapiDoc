@@ -242,7 +242,7 @@ export default class RapiDoc extends LitElement {
         </div>`
         }
 
-      ${(this.allowTry==='false' || !this.resolvedSpec)  ?``:html`
+      ${(this.showServerSelect==='false' || this.allowTry==='false' || !this.resolvedSpec)  ?``:html`
         <div class="sub-title regular-font section-gap">
           <a id="api_server_options"> API SERVER: </a>
           <div class="mono-font" style="margin: 12px 0; font-size:calc(var(--small-font-size) + 1px);">
@@ -312,6 +312,7 @@ export default class RapiDoc extends LitElement {
       monoFont    : { type: String, attribute: 'mono-font'   },
       showHeader  : { type: String, attribute: 'show-header' },
       showInfo    : { type: String, attribute: 'show-info'   },
+      showServerSelect    : { type: String, attribute: 'show-server-select'   },
       allowAuthentication: { type: String, attribute: 'allow-authentication' },
       allowTry    : { type: String, attribute: 'allow-try'    },
       allowSpecUrlLoad: { type: String, attribute: 'allow-spec-url-load' },
@@ -412,6 +413,9 @@ export default class RapiDoc extends LitElement {
 
   afterSpecParsedAndValidated(spec, isReloadingSpec=false){
     this.resolvedSpec = spec;
+    if(this.showServerSelect==='false' && this.resolvedSpec && this.resolvedSpec.servers && this.resolvedSpec.servers.length>0) {
+      this.selectedServer = this.resolvedSpec.servers[0].url;
+    }
     this.requestUpdate();
     window.setTimeout(()=>{
       this.onApiServerChange()
