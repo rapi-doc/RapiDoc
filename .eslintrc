@@ -1,0 +1,28 @@
+{
+  "extends": "airbnb-base",
+  "settings": {
+    "import/resolver":{
+      "webpack":{
+        "config":"webpack.config.js"
+      }
+    }
+  },
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "rules": {
+    "max-len": [1, 300, 2, {"ignoreComments": true}],
+    "no-debugger": 0,
+    "no-plusplus": 0,
+    "no-param-reassign": 0,
+    "no-nested-ternary": 0,
+    "no-continue": 0,
+    "no-restricted-syntax" :0,
+    "guard-for-in": 0,
+    "no-loop-func": 0,
+    "consistent-return": 0,
+    "array-callback-return": 0,
+    "prefer-destructuring": 0
+  }
+}

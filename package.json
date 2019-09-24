@@ -36,7 +36,9 @@
   },
   "scripts": {
     "build": "NODE_ENV=production webpack",
-    "serve": "webpack-dev-server --mode=development"
+    "serve": "webpack-dev-server --mode=development",
+    "lint" : "./node_modules/eslint/bin/eslint.js ./src/**/*.js",
+    "lint-fix" : "./node_modules/eslint/bin/eslint.js --fix ./src/**/*.js"
   },
   "devDependencies": {
     "@babel/core": "^7.6.0",
@@ -46,6 +48,11 @@
     "clean-webpack-plugin": "^3.0.0",
     "compression-webpack-plugin": "^3.0.0",
     "css-loader": "^3.2.0",
+    "eslint": "^6.4.0",
+    "eslint-config-airbnb": "^18.0.1",
+    "eslint-loader": "^3.0.0",
+    "eslint-import-resolver-webpack":"^0.11.1",
+    "eslint-plugin-import": "^2.18.2",
     "file-loader": "^4.2.0",
     "filemanager-webpack-plugin": "^2.0.5",
     "html-webpack-plugin": "^3.2.0",

@@ -59,6 +59,23 @@ module.exports = {
     module: {
         rules: [
           {
+            enforce: 'pre',
+            test: /\.js$/,
+            exclude: /node_modules/,
+            loader: 'eslint-loader',
+            options: {
+              emitWarning: true,
+              // failOnWarning: true,
+              // failOnError: true,
+              fix: true,
+              configFile: './.eslintrc',
+              outputReport: {
+                filePath: './eslint_report.html',
+                formatter: 'html',
+              },
+            },
+          },
+          {
             test: /\.js$/,
             exclude: /node_modules/,
             use: [
