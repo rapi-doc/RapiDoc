@@ -1,5 +1,4 @@
-import vars from './vars';
-import {html} from 'lit-element'; 
+import { html } from 'lit-element';
 
 export default html`
 <style>
@@ -48,4 +47,4 @@ export default html`
   margin: 12px 0 4px 0;
 }
 
-</style>`
+</style>`;

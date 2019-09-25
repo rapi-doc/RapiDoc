@@ -1,0 +1,57 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Basic Spec",
+    "description": ""
+  },
+  "consumes": [ "application/json"],
+  "produces": [ "application/json"],
+  "paths": {
+    "/api/employee": {
+      "get": {
+        "tags": ["Employee Details"],
+        "summary": "List of employees",
+        "operationId": "empDetails",
+        "parameters": [
+          {
+            "description": "Set a limit to number of items returned",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "type": "integer",
+            "default": 100,
+            "example": 50,
+            "minimum": 1,
+            "maximum": 100
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Employee Schema",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/employee"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "employee": {
+      "description": "Employee Details",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "empId"     : { "type": "string", "description": "Employee ID"},
+        "firstName" : { "type": "string", "description": "First name" },
+        "lastName"  : { "type": "string", "description": "Last Name" },
+        "jobTitle"  : { "type": "string", "description": "Job title" },
+        "department": { "type": "string", "description": "Department name"},
+        "salary"    : { "type": "number", "description": "Salary per annum"}
+      }
+    }
+  }
+}

@@ -1,44 +1,47 @@
-import { LitElement, html } from 'lit-element'; 
-import EndPoint from '@/components/end-point'; 
+import { LitElement, html } from 'lit-element';
+/* eslint-disable no-unused-vars */
+import EndPoint from '@/components/end-point';
+/* eslint-enable no-unused-vars */
 
 export default class EndPoints extends LitElement {
+  /* eslint-disable indent */
   render() {
     return html`
-    ${this.paths
-    .filter( v => {
-      if (this.matchPaths){
-        return `${v.method} ${v.path}`.includes(this.matchPaths);
-      }
-      else{
+      ${this.paths.filter((v) => {
+        if (this.matchPaths) {
+          return `${v.method} ${v.path}`.includes(this.matchPaths);
+        }
         return true;
-      }
-    })
-    .map(
-      path => html`</span><end-point 
-        selected-server="${this.selectedServer}" 
-        api-key-name="${this.apiKeyName?this.apiKeyName:''}" 
-        api-key-value="${this.apiKeyValue?this.apiKeyValue:''}" 
-        api-key-location="${this.apiKeyLocation}" 
-        layout="${this.layout}" 
-        .path=${path}
-        allow-try="${this.allowTry?this.allowTry:'true'}" 
-      > </end-point>`
-    )}`
+      })
+      .map((path) => html`
+        </span>
+          <end-point
+            selected-server="${this.selectedServer}" 
+            api-key-name="${this.apiKeyName ? this.apiKeyName : ''}" 
+            api-key-value="${this.apiKeyValue ? this.apiKeyValue : ''}" 
+            api-key-location="${this.apiKeyLocation}" 
+            layout="${this.layout}" 
+            .path=${path}
+            allow-try="${this.allowTry ? this.allowTry : 'true'}" 
+          > 
+          </end-point>
+      `)
+    }`;
   }
+  /* eslint-enable indent */
 
   static get properties() {
     return {
-      apiKeyName    : { type: String, attribute: 'api-key-name' },
-      apiKeyValue   : { type: String, attribute: 'api-key-value' },
-      apiKeyLocation: { type: String, attribute: 'api-key-location'},
+      apiKeyName: { type: String, attribute: 'api-key-name' },
+      apiKeyValue: { type: String, attribute: 'api-key-value' },
+      apiKeyLocation: { type: String, attribute: 'api-key-location' },
       selectedServer: { type: String, attribute: 'selected-server' },
-      layout        : { type: String },
-      paths         : { type: Object },
-      matchPaths    : { type: String, attribute: 'match-paths' },
-      allowTry      : { type: String, attribute: 'allow-try' },
+      layout: { type: String },
+      paths: { type: Object },
+      matchPaths: { type: String, attribute: 'match-paths' },
+      allowTry: { type: String, attribute: 'allow-try' },
     };
   }
-
 }
 // Register the element with the browser
 customElements.define('end-points', EndPoints);

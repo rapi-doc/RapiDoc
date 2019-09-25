@@ -1,5 +1,4 @@
-import vars from './vars';
-import {html} from 'lit-element'; 
+import { html } from 'lit-element';
 
 export default html`
 <style>
@@ -145,4 +144,4 @@ export default html`
       border-bottom: 1px solid var(--border-color);
     }
 
-</style>`
+</style>`;

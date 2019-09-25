@@ -1,13 +1,14 @@
 import { LitElement, html } from 'lit-element';
-import {schemaToModel, schemaToObj, generateExample, removeCircularReferences} from '@/utils/common-utils';
-import vars from '@/styles/vars';
+import marked from 'marked';
+import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import { schemaToModel, generateExample } from '@/utils/common-utils';
 import FontStyles from '@/styles/font-styles';
 import FlexStyles from '@/styles/flex-styles';
 import TableStyles from '@/styles/table-styles';
 import InputStyles from '@/styles/input-styles';
+/* eslint-disable no-unused-vars */
 import SchemaTree from '@/components/schema-tree';
-import marked from 'marked';
-import {unsafeHTML} from 'lit-html/directives/unsafe-html.js';
+/* eslint-enable no-unused-vars */
 
 export default class ApiResponse extends LitElement {
   render() {
@@ -86,132 +87,129 @@ export default class ApiResponse extends LitElement {
       <div class="title">RESPONSE</div>
       ${this.responseTemplate()}
     </div>  
-    `
-
+    `;
   }
 
   static get properties() {
     return {
       responses: { type: Object },
-      parser   : { type: Object },
+      parser: { type: Object },
     };
   }
 
-  responseTemplate(){
-    if (!this.responses){
-      return '';
-    }
-    let selectedMimeValueForEachStatus={};
-    let headersForEachRespStatus={};
-    let selectedMimeValue="";
-    let mimeResponsesForEachStatus={};
-    let mimeRespCountForEachStatus=0;
-    for(let statusCode in this.responses) {
-      let allMimeResp={};
-      let mimeRespCount=0;
-      for(let mimeResp in this.responses[statusCode].content ) {
-        let mimeRespObj = this.responses[statusCode].content[mimeResp];
-        //Remove Circular references from Response schema
-        /*
-        try {
-          mimeRespObj.schema = JSON.parse(JSON.stringify(mimeRespObj.schema, removeCircularReferences(0)));
-        }
-        catch{
-          console.error("Unable to resolve circular refs in schema", mimeRespObj.schema);
-          return;
-        }
-        */
+  /* eslint-disable indent */
+  responseTemplate() {
+    if (!this.responses) { return ''; }
+    const selectedMimeValueForEachStatus = {};
+    const headersForEachRespStatus = {};
+    const mimeResponsesForEachStatus = {};
+    for (const statusCode in this.responses) {
+      const allMimeResp = {};
+      for (const mimeResp in this.responses[statusCode].content) {
+        const mimeRespObj = this.responses[statusCode].content[mimeResp];
 
         // Generate Schema
-        let schemaTree = schemaToModel(mimeRespObj.schema,{});
+        const schemaTree = schemaToModel(mimeRespObj.schema, {});
+
         // Generate Example
-        let respExample = generateExample(
-          mimeRespObj.schema? mimeRespObj.schema.examples:'',
-          mimeRespObj.schema? mimeRespObj.schema.example:'',
+        const respExample = generateExample(
+          mimeRespObj.schema ? mimeRespObj.schema.examples : '',
+          mimeRespObj.schema ? mimeRespObj.schema.example : '',
           mimeRespObj.schema,
           mimeResp,
           false,
-          "json"
+          'json',
         );
         allMimeResp[mimeResp] = {
-          "description":this.responses[statusCode].description,
-          "examples"  : respExample,
-          "schemaTree": schemaTree,
-        }
-        if (mimeResp.includes("json")){
-          selectedMimeValue = mimeResp;
-        }
-        selectedMimeValueForEachStatus[statusCode]= mimeResp;
-        mimeRespCount++;
+          description: this.responses[statusCode].description,
+          examples: respExample,
+          schemaTree,
+        };
+        selectedMimeValueForEachStatus[statusCode] = mimeResp;
       }
 
       // Headers for each response status
-      let tempHeaders=[];
-      for (let key in this.responses[statusCode].headers){
-        tempHeaders.push ( { "name":key, ...this.responses[statusCode].headers[key]} );
+      const tempHeaders = [];
+      for (const key in this.responses[statusCode].headers) {
+        tempHeaders.push({ name: key, ...this.responses[statusCode].headers[key] });
       }
-      headersForEachRespStatus[statusCode]   = tempHeaders;
+      headersForEachRespStatus[statusCode] = tempHeaders;
       mimeResponsesForEachStatus[statusCode] = allMimeResp;
     }
 
-    return html`${Object.keys(this.responses).map(
-      (status, index)  => html`
-      <div class="resp-head ${index===0?'top-gap':'divider'}">
+    return html`
+      ${Object.keys(this.responses).map((status, index) => html`
+      <div class="resp-head ${index === 0 ? 'top-gap' : 'divider'}">
         <span class="resp-status">${status}:</span> 
         <span class="resp-descr">${this.responses[status].description}</span> 
-        ${ (headersForEachRespStatus[status] && headersForEachRespStatus[status].length > 0)?html`
-          <div style="padding:12px 0 5px 0" class="resp-status">Response Headers:</div> 
-          <table>
-            ${headersForEachRespStatus[status].map( v => html`
-              <tr>
-                <td style="padding:0 12px;vertical-align: top;" class="regular-font-size"> ${v.name}</td> 
-                <td style="padding:0 12px;vertical-align: top; line-height:14px" class="descr-text small-font-size">
-                  <span class="m-markdown-small">${unsafeHTML(marked(v.description || "" ))}</span>
-                  ${ (v.schema && v.schema.example)? html`<br/><span style="font-weight:bold">EXAMPLE:</span> ${v.schema.example}`:`` }
-                </td>
-              </tr>
-            `)}
-          </table>
-        `:`` }
+        ${(headersForEachRespStatus[status] && headersForEachRespStatus[status].length > 0)
+          ? html`
+            <div style="padding:12px 0 5px 0" class="resp-status">Response Headers:</div> 
+            <table>
+              ${headersForEachRespStatus[status].map((v) => html`
+                <tr>
+                  <td style="padding:0 12px;vertical-align: top;" class="regular-font-size"> ${v.name}</td> 
+                  <td style="padding:0 12px;vertical-align: top; line-height:14px" class="descr-text small-font-size">
+                    <span class="m-markdown-small">${unsafeHTML(marked(v.description || ''))}</span>
+                    ${(v.schema && v.schema.example) ? html`<br/><span style="font-weight:bold">EXAMPLE:</span> ${v.schema.example}` : ''}
+                  </td>
+                </tr>
+              `)}
+            </table>`
+          : ''
+        }
       </div>      
       ${Object.keys(mimeResponsesForEachStatus[status]).map(
-        mimeType => mimeType.includes('octet-stream')? html`<div> <span style='color:var(--primary-color)'> Content-Type: </span> ${mimeType} (Binary Data) </div>`: html`
-          <div class="tab-panel col" style="border-width:0; min-height:200px">
-            <div id="${status}_${mimeType}_tab-buttons" @click="${this.activateTab}" class="tab-buttons row" >
-              <button class="tab-btn active" content_id="${status}_${mimeType}_example">EXAMPLE</button>
-              <button class="tab-btn" content_id="${status}_${mimeType}_model">MODEL</button>
-              <div style="flex:1"></div>
-              <div style="align-self:center;font-size:var(--small-font-size);"> ${mimeType} </div>
-            </div>
-            <div id="${status}_${mimeType}_example" class="tab-content col" style="flex:1; ">
-              <json-tree class="border tree" .data="${mimeResponsesForEachStatus[status][mimeType].examples[0].exampleValue}"></json-tree>
-            </div>
-            <div id="${status}_${mimeType}_model" class="tab-content col" style="flex:1;display:none">
-              <schema-tree class="border tree" .data="${mimeResponsesForEachStatus[status][mimeType].schemaTree}"></schema-tree>
-            </div>
-          </div>`
-      )}`
-    )}`
-
+        (mimeType) => (mimeType.includes('octet-stream')
+          ? html`
+            <div> 
+              <span style='color:var(--primary-color)'> Content-Type: </span> 
+              ${mimeType} (Binary Data) 
+            </div>`
+          : html`
+            <div class="tab-panel col" style="border-width:0; min-height:200px">
+              <div id="${status}_${mimeType}_tab-buttons" @click="${this.activateTab}" class="tab-buttons row" >
+                <button class="tab-btn active" content_id="${status}_${mimeType}_example">EXAMPLE</button>
+                <button class="tab-btn" content_id="${status}_${mimeType}_model">MODEL</button>
+                <div style="flex:1"></div>
+                <div style="align-self:center;font-size:var(--small-font-size);"> ${mimeType} </div>
+              </div>
+              <div id="${status}_${mimeType}_example" class="tab-content col" style="flex:1; ">
+                <json-tree 
+                  class="border tree" 
+                  .data="${mimeResponsesForEachStatus[status][mimeType].examples[0].exampleValue}"
+                ></json-tree>
+              </div>
+              <div id="${status}_${mimeType}_model" class="tab-content col" style="flex:1;display:none">
+                <schema-tree 
+                  class="border tree" 
+                  .data="${mimeResponsesForEachStatus[status][mimeType].schemaTree}"
+                ></schema-tree>
+              </div>
+            </div>`),
+          )
+        }`)
+      }
+    `;
   }
+  /* eslint-enable indent */
 
-  activateTab(e){
-    if (e.target.classList.contains("active")  || e.target.classList.contains("tab-btn")===false){
+  activateTab(e) {
+    if (e.target.classList.contains('active') || e.target.classList.contains('tab-btn') === false) {
       return;
     }
-    let activeTabBtn  = e.currentTarget.parentNode.querySelector(".tab-btn.active");
-    activeTabBtn.classList.remove("active");
-    e.target.classList.add("active");
-    let showContentElsId = e.target.attributes.content_id.value;
-    let allContentEls = e.currentTarget.parentNode.querySelectorAll('.tab-content');
-    if (showContentElsId){
-      allContentEls.forEach(function(v){
-        v.style.display =  v.attributes.id.value === showContentElsId?"flex":"none";
-      })
+    const activeTabBtn = e.currentTarget.parentNode.querySelector('.tab-btn.active');
+    activeTabBtn.classList.remove('active');
+    e.target.classList.add('active');
+    const showContentElsId = e.target.attributes.content_id.value;
+    const allContentEls = e.currentTarget.parentNode.querySelectorAll('.tab-content');
+    if (showContentElsId) {
+      allContentEls.forEach((v) => {
+        v.style.display = v.attributes.id.value === showContentElsId ? 'flex' : 'none';
+      });
     }
   }
-
-
 }
+
 // Register the element with the browser
 customElements.define('api-response', ApiResponse);

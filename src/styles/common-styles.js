@@ -1,5 +1,5 @@
-import {html} from 'lit-element'; 
-import vars from './vars';
+import { html } from 'lit-element';
+
 export default html`
 <style>
 a{ color: var(--link-color); }
@@ -11,4 +11,4 @@ a{ color: var(--link-color); }
   border:1px solid var(--light-border-color);
   border-radius: var(--border-radius);
 }
-</style>`
+</style>`;

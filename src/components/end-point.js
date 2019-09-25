@@ -1,79 +1,91 @@
-import { LitElement, html, css } from 'lit-element'; 
-import vars from '@/styles/vars';
-import {unsafeHTML} from 'lit-html/directives/unsafe-html.js';
+import { LitElement, html, css } from 'lit-element';
+import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import marked from 'marked';
-import ApiRequest from '@/components/api-request'; 
-import ApiResponse from '@/components/api-response'; 
 import FontStyles from '@/styles/font-styles';
+/* eslint-disable no-unused-vars */
+import ApiRequest from '@/components/api-request';
+import ApiResponse from '@/components/api-response';
+/* eslint-enable no-unused-vars */
 
 export default class EndPoint extends LitElement {
+  /* eslint-disable indent */
   render() {
     return html`
-     ${FontStyles}
-    <style>
+      ${FontStyles}
+      ${window.innerWidth >= 768
+        ? html` ${this.layout === 'row'
+          ? html`
+            <style>
+              .request{ border-width: 0 1px 0 0; }
+            </style>`
+          : html`
+            <style>
+              .request{ border-width: 0 0 1px 0; }
+            </style>
+          `}`
+        : ''
+      }
 
-    </style>
-
-    ${window.innerWidth >= 768 ? html`${this.layout==='row' ?
-      html`
-      <style>
-        .request{ border-width: 0 1px 0 0; }
-      </style>`:
-      html`
-        <style>
-        .request{ border-width: 0 0 1px 0; }
-        </style>`
-      }`:''
-    }
-
-    <div  class='m-endpoint regular-font ${this.path.method} ${this.path.expanded?'expanded':'collapsed'}'>
-      <!-- Endpoint Head -->
-      <div @click="${this.toggleExpand}" class='head ${this.path.method} ${this.path.expanded?'expanded':'collapsed'}'>
-        <div class="method ${this.path.method}"> ${this.path.method} </div> 
-        <div class="path ${this.path.deprecated?'deprecated':''}"> ${this.path.path} </div>
-        ${this.path.deprecated?html`<span style="font-size:12px; text-transform:uppercase; font-weight:bold; color:orangered; margin:2px 0 0 5px;"> deprecated </span>`:''}
-        <div class="only-large-screen" style="min-width:60px; flex:1"></div>
-        <div class="m-markdown-small descr"> ${unsafeHTML(marked(this.path.summary || ""))} </div>
-      </div>
-      
-      <!-- Endpoint Body -->
-      ${this.path.expanded?html`
-      <div class='body ${this.path.method}'>
-        ${this.path.summary || this.path.description?html`
-          <div class="summary">
-            <div class="m-markdown title">${unsafeHTML(marked(this.path.summary || ""))}</div>
-            ${this.path.summary !== this.path.description?html`
-              <div class="m-markdown"> 
-                ${unsafeHTML(marked(this.path.description || ""))}
-              </div>`
-            :''}  
-          </div>`
-        :``}
-        <div class='req-resp-container'> 
-          <api-request  class="request"  
-            method = "${this.path.method}", 
-            path = "${this.path.path}" 
-            api-key-name = "${this.apiKeyName}" 
-            api-key-value = "${this.apiKeyValue}" 
-            api-key-location = "${this.apiKeyLocation}" 
-            selected-server = "${this.selectedServer}" 
-            .parameters = "${this.path.parameters}" 
-            .request_body = "${this.path.requestBody}"
-            allow-try = "${this.allowTry}"
-            accept ="${this.accept}"
-          ></api-request>
-          <api-response 
-            class="response" .responses="${this.path.responses}"
-          ></api-response>
+      <div  class='m-endpoint regular-font ${this.path.method} ${this.path.expanded ? 'expanded' : 'collapsed'}'>
+        <!-- Endpoint Head -->
+        <div @click="${this.toggleExpand}" class='head ${this.path.method} ${this.path.expanded ? 'expanded' : 'collapsed'}'>
+          <div class="method ${this.path.method}"> ${this.path.method} </div> 
+          <div class="path ${this.path.deprecated ? 'deprecated' : ''}"> 
+            ${this.path.path} 
+          </div>
+          ${this.path.deprecated
+            ? html`
+              <span style="font-size:12px; text-transform:uppercase; font-weight:bold; color:orangered; margin:2px 0 0 5px;"> 
+                deprecated 
+              </span>`
+            : ''
+          }
+          <div class="only-large-screen" style="min-width:60px; flex:1"></div>
+          <div class="m-markdown-small descr"> ${unsafeHTML(marked(this.path.summary || ''))} </div>
         </div>
-      </div>`
-    :``}
+      
+        <!-- Endpoint Body -->
+        ${this.path.expanded
+          ? html`
+            <div class='body ${this.path.method}'>
+              ${this.path.summary || this.path.description
+                ? html`
+                  <div class="summary">
+                    <div class="m-markdown title">${unsafeHTML(marked(this.path.summary || ''))}</div>
+                    ${this.path.summary !== this.path.description
+                      ? html`
+                        <div class="m-markdown"> 
+                          ${unsafeHTML(marked(this.path.description || ''))}
+                        </div>`
+                      : ''
+                    }  
+                  </div>`
+                : ''
+              }
+              <div class='req-resp-container'> 
+                <api-request  class="request"  
+                  method = "${this.path.method}", 
+                  path = "${this.path.path}" 
+                  api-key-name = "${this.apiKeyName}" 
+                  api-key-value = "${this.apiKeyValue}" 
+                  api-key-location = "${this.apiKeyLocation}" 
+                  selected-server = "${this.selectedServer}" 
+                  .parameters = "${this.path.parameters}" 
+                  .request_body = "${this.path.requestBody}"
+                  allow-try = "${this.allowTry}"
+                  accept ="${this.accept}"> 
+                </api-request>
+                <api-response  class="response" .responses="${this.path.responses}"> </api-response>
+              </div>
+            </div>`
+          : ''
+        }
+      </div>`;
+    }
+    /* eslint-enable indent */
 
-    </div>`
-  }
-  
   static get styles() {
-    return [ css`
+    return [css`
     .only-large-screen {
       display:none;
     }
@@ -254,29 +266,28 @@ export default class EndPoint extends LitElement {
 
   static get properties() {
     return {
-      apiKeyName    : { type: String, attribute: 'api-key-name' },
-      apiKeyValue   : { type: String, attribute: 'api-key-value' },
+      apiKeyName: { type: String, attribute: 'api-key-name' },
+      apiKeyValue: { type: String, attribute: 'api-key-value' },
       apiKeyLocation: { type: String, attribute: 'api-key-location' },
-      selectedServer: { type: String, attribute: 'selected-server'  },
-      layout  : { type:String },
-      path    : { type:Object },
+      selectedServer: { type: String, attribute: 'selected-server' },
+      layout: { type: String },
+      path: { type: Object },
       allowTry: { type: String, attribute: 'allow-try' },
     };
   }
 
-  toggleExpand(){
-    if (this.path.expanded){
+  toggleExpand() {
+    if (this.path.expanded) {
       this.path.expanded = false; // collapse
-    }
-    else { 
-      this.path.expanded = true;  // Expand
-      let accept ='';
-      for(let respStatus in this.path.responses){
-        for(let acceptContentType in (this.path.responses[respStatus]["content"])){
-          accept = accept + acceptContentType + ', '
+    } else {
+      this.path.expanded = true; // Expand
+      let accept = '';
+      for (const respStatus in this.path.responses) {
+        for (const acceptContentType in (this.path.responses[respStatus].content)) {
+          accept = `${accept + acceptContentType}, `;
         }
       }
-      accept = accept.replace(/,\s*$/, ""); // remove trailing comma
+      accept = accept.replace(/,\s*$/, ''); // remove trailing comma
       this.accept = accept;
     }
     this.requestUpdate();

@@ -1,5 +1,4 @@
-import vars from './vars';
-import {html} from 'lit-element'; 
+import { html } from 'lit-element';
 
 export default html`
 <style>
@@ -14,4 +13,4 @@ export default html`
     align-items:stretch;
     flex-direction: column;
   }
-</style>`
+</style>`;

@@ -1,16 +1,16 @@
-import { LitElement, html, css } from 'lit-element'; 
+import { LitElement, html, css } from 'lit-element';
 
 export default class TagInput extends LitElement {
   render() {
     return html`
-    
     <div class='tags' tabindex="0" contenteditable="true">
       <input type="text" class='editor' @paste="${this.afterPaste}" @keydown="${this.afterKeyDown}" placeholder="${this.placeholder}"/>
     </div>
-  `
+  `;
   }
+
   static get styles() {
-    return [ css`
+    return [css`
       .tags{
         display:flex;
         flex-wrap: wrap;
@@ -51,45 +51,44 @@ export default class TagInput extends LitElement {
         color: var(--placeholder-color);
         opacity:1;
       }
-    `]
+    `];
   }
 
   static get properties() {
     return {
-      placeholder:{ type: String },
+      placeholder: { type: String },
     };
   }
 
-  afterPaste(e){
-    let clipboardData = e.clipboardData || window.clipboardData;
-    let pastedData = clipboardData.getData('Text');
-    console.log(pastedData);
+  afterPaste(e) {
+    const clipboardData = e.clipboardData || window.clipboardData;
+    const pastedData = clipboardData.getData('Text');
+    console.log(pastedData); // eslint-disable-line no-console
   }
 
-  afterKeyDown(e){
+  afterKeyDown(e) {
     if (e.keyCode === 13) {
       e.stopPropagation();
       e.preventDefault();
-      let spanEl = document.createElement('span');
-      if (e.target.value.trim()!==''){
+      const spanEl = document.createElement('span');
+      if (e.target.value.trim() !== '') {
         spanEl.innerText = e.target.value;
-        e.target.value='';
+        e.target.value = '';
         spanEl.classList.add('tag');
-        spanEl.setAttribute("contenteditable","false");
-        this.shadowRoot.querySelector(".tags").insertBefore(spanEl, e.target);
+        spanEl.setAttribute('contenteditable', 'false');
+        this.shadowRoot.querySelector('.tags').insertBefore(spanEl, e.target);
       }
-    }
-    else if (e.keyCode === 8){
-      if (e.target.selectionStart === 0 && e.target.previousSibling){
+    } else if (e.keyCode === 8) {
+      if (e.target.selectionStart === 0 && e.target.previousSibling) {
         e.target.previousSibling.remove();
       }
     }
   }
 
-  getValues(){
-    let vals = [];
-    let tags = this.shadowRoot.querySelectorAll(".tag");
-    for(let tagEl of tags){
+  getValues() {
+    const vals = [];
+    const tags = this.shadowRoot.querySelectorAll('.tag');
+    for (const tagEl of tags) {
       vals.push(tagEl.innerText);
     }
     return vals;

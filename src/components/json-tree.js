@@ -1,8 +1,8 @@
-import { LitElement, html } from 'lit-element'; 
-import vars from '@/styles/vars';
+import { LitElement, html } from 'lit-element';
 import FontStyles from '@/styles/font-styles';
 
 export default class JsonTree extends LitElement {
+  /* eslint-disable indent */
   render() {
     return html`
       ${FontStyles}
@@ -40,57 +40,53 @@ export default class JsonTree extends LitElement {
       <div class="tree">
         ${this.generateTree(this.data)}
       </div>  
-    `
+    `;
   }
+
+  generateTree(data) {
+    if (data === null) {
+      return html`<div class="null" style="display:inline;">null</div>`;
+    }
+    if (typeof data === 'object') {
+      const detailType = Array.isArray(data) ? 'array' : 'pure_object';
+      if (Object.keys(data).length === 0) {
+        return html`${(Array.isArray(data) ? '[ ]' : '{ }')}`;
+      }
+      return html`
+      <div class="left-bracket expanded ${detailType === 'array' ? 'array' : 'object'} " @click="${this.toggleExpand}" > ${detailType === 'array' ? '[' : '{'}</div>
+        <div class="inside-bracket">
+        ${Object.keys(data).map((key) => html`<div class="item"> ${detailType === 'pure_object' ? html`${key}:` : ''}${this.generateTree(data[key])}</div>`)}
+        </div>
+      <div class="right-bracket">${detailType === 'array' ? ']' : '}'}</div>
+      `;
+    }
+
+    return typeof data === 'string' ? html`<span class="${typeof data}">"${data}"</span>` : html`<span class="${typeof data}">${data}</span>`;
+  }
+  /* eslint-enable indent */
 
   static get properties() {
     return {
-      data:{type: Object}
+      data: { type: Object },
     };
   }
 
-  generateTree(data){
-    if (data===null){
-      return html`<div class="null" style="display:inline;">null</div>`
-    }
-    if (typeof data === 'object'){
-      let detailType = Array.isArray(data)?"array":"pure_object";
-      if (Object.keys(data).length===0){
-        return html`${ (Array.isArray(data)?'[ ]':'{ }') }`
-      }
-      return html`
-      <div class="left-bracket expanded ${detailType==='array'?'array':'object'} " @click="${this.toggleExpand}" > ${detailType==='array'?'[':'{'}</div>
-        <div class="inside-bracket">
-        ${Object.keys(data).map(key => 
-          html`<div class="item"> ${detailType==='pure_object'?html`${key}:`:``}${this.generateTree(data[key])}</div>`
-        )}
-        </div>
-      <div class="right-bracket">${detailType==='array'?']':'}'}</div>
-      `
-    }
-    else{
-      return typeof data==='string'?html`<span class="${typeof data}">"${data}"</span>`: html`<span class="${typeof data}">${data}</span>`;
+  toggleExpand(e) {
+    if (e.target.classList.contains('expanded')) {
+      e.target.classList.add('collapsed');
+      e.target.classList.remove('expanded');
+      e.target.innerHTML = e.target.classList.contains('array') ? '[...]' : '{...}';
+      e.target.nextElementSibling.style.display = 'none';
+      e.target.nextElementSibling.nextElementSibling.style.display = 'none';
+    } else {
+      e.target.classList.remove('collapsed');
+      e.target.classList.add('expanded');
+      e.target.innerHTML = e.target.classList.contains('array') ? '[' : '{';
+      e.target.nextElementSibling.style.display = 'block';
+      e.target.nextElementSibling.nextElementSibling.style.display = 'block';
     }
 
-  }
-
-  toggleExpand(e){
-    if (e.target.classList.contains("expanded")){
-      e.target.classList.add("collapsed");
-      e.target.classList.remove("expanded");
-      e.target.innerHTML = e.target.classList.contains("array")? "[...]":"{...}";
-      e.target.nextElementSibling.style.display = "none";
-      e.target.nextElementSibling.nextElementSibling.style.display= "none";
-    }
-    else{
-      e.target.classList.remove("collapsed");
-      e.target.classList.add("expanded");
-      e.target.innerHTML = e.target.classList.contains("array")? "[":"{";
-      e.target.nextElementSibling.style.display = "block";
-      e.target.nextElementSibling.nextElementSibling.style.display= "block";
-    }
-
-    //console.log(e.target.parentElement.querySelectorAll(":scope > .inside-bracket"));
+    // console.log(e.target.parentElement.querySelectorAll(":scope > .inside-bracket"));
   }
 }
 // Register the element with the browser

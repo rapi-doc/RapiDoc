@@ -37,8 +37,8 @@
   "scripts": {
     "build": "NODE_ENV=production webpack",
     "serve": "webpack-dev-server --mode=development",
-    "lint" : "./node_modules/eslint/bin/eslint.js ./src/**/*.js",
-    "lint-fix" : "./node_modules/eslint/bin/eslint.js --fix ./src/**/*.js"
+    "lint" : "./node_modules/eslint/bin/eslint.js ./src/**",
+    "lint-fix" : "./node_modules/eslint/bin/eslint.js --fix ./src/**"
   },
   "devDependencies": {
     "@babel/core": "^7.6.0",

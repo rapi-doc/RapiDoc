@@ -1,5 +1,5 @@
+import { html } from 'lit-element';
 import vars from './vars';
-import {html} from 'lit-element'; 
 
 export default html`
 <style>
@@ -121,4 +121,4 @@ textarea::-webkit-scrollbar{
 textarea::-webkit-scrollbar-thumb {
     background-color: rgba(50,50,50, .5);
 }
-</style>`
+</style>`;

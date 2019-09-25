@@ -1,6 +1,7 @@
-import { LitElement, html } from 'lit-element'; 
+import { LitElement, html } from 'lit-element';
 
 export default class MLogo extends LitElement {
+  /* eslint-disable max-len */
   render() {
     return html`
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="1 0 511 512">
