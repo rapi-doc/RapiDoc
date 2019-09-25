@@ -6,7 +6,7 @@ import FontStyles from '@/styles/font-styles';
 import InputStyles from '@/styles/input-styles';
 import FlexStyles from '@/styles/flex-styles';
 import TableStyles from '@/styles/table-styles';
-import vars from '@/styles/vars';
+import ColorUtils from '@/utils/color-utils';
 import ProcessSpec from '@/utils/parse-utils';
 
 /* eslint-disable no-unused-vars */
@@ -88,10 +88,10 @@ export default class RapiDoc extends LitElement {
           --patch-color:#fc0;
           --link-color:#47AFE8;
           --primary-color:${this.primaryColor ? `${this.primaryColor}` : '#FF791A'};
-          --dark-primary-color:${vars.color.brightness(this.primaryColor ? this.primaryColor : '#FF791A', -30)};
-          --primary-text:${this.primaryColor ? `${vars.color.invert(this.primaryColor)}` : '#ffffff'};
+          --dark-primary-color:${ColorUtils.color.brightness(this.primaryColor ? this.primaryColor : '#FF791A', -30)};
+          --primary-text:${this.primaryColor ? `${ColorUtils.color.invert(this.primaryColor)}` : '#ffffff'};
           --header-bg:${this.headerColor ? `${this.headerColor}` : '#444'};
-          --header-fg:${this.headerColor ? `${vars.color.invert(this.headerColor)}` : '#ccc'};
+          --header-fg:${this.headerColor ? `${ColorUtils.color.invert(this.headerColor)}` : '#ccc'};
           --layout:${this.layout ? `${this.layout}` : 'row'};
           --font-mono:${this.monoFont ? `${this.monoFont}` : 'Monaco, \'Andale Mono\', \'Roboto Mono\', Consolas'}; 
           --font-mono-size:13px; 
@@ -142,7 +142,7 @@ export default class RapiDoc extends LitElement {
         }
 
         input.header-input{
-          background:${this.headerColor ? vars.color.brightness(this.headerColor, -20) : vars.color.inputReverseBg};
+          background:${this.headerColor ? ColorUtils.color.brightness(this.headerColor, -20) : ColorUtils.color.inputReverseBg};
           color:var(--header-fg);
           border:1px solid var(--dark-primary-color);
           flex:1; 

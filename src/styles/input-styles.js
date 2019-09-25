@@ -1,5 +1,5 @@
 import { html } from 'lit-element';
-import vars from './vars';
+import ColorUtils from '@/utils/color-utils';
 
 export default html`
 <style>
@@ -89,8 +89,8 @@ input[type="password"]:active {
 textarea.reverse,
 input.reverse[type="text"],
 input.reverse[type="password"]{
-  background:${vars.color.inputReverseBg};
-  color:${vars.color.inputReverseFg};
+  background:${ColorUtils.color.inputReverseBg};
+  color:${ColorUtils.color.inputReverseFg};
   border:1px solid var(--primary-color); 
 }
 

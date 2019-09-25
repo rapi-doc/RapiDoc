@@ -70,8 +70,8 @@ export default class SchemaTree extends LitElement {
           margin-block-end:5px;
         }
         */
-        .stri, .string{color:#86b300;}
-        .inte, .numb, .number{color:#47afe8;}
+        .stri, .string, .uri, .url, .byte, .bina, .date, .pass, .ipv4, .ipv4, .uuid, .email {color:#86b300;}
+        .inte, .numb, .number, .int6, .int3, .floa, .doub  {color:#47afe8;}
         .null {color:orangered;}
         .bool, .boolean{color:#b96ff1}
         .enum {color:orange}

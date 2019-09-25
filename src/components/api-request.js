@@ -7,7 +7,7 @@ import InputStyles from '@/styles/input-styles';
 import FontStyles from '@/styles/font-styles';
 import CommonStyles from '@/styles/common-styles';
 import {
-  schemaToModel, getTypeInfo, generateExample, removeCircularReferences,
+  schemaToModel, getTypeInfo, generateExample,
 } from '@/utils/common-utils';
 
 /* eslint-disable no-unused-vars */
@@ -297,7 +297,7 @@ export default class ApiRequest extends LitElement {
       if (mimeReq.includes('json') || mimeReq.includes('xml') || mimeReq.includes('text/plain')) {
         try {
           // Remove Circular references from RequestBody json-schema
-          mimeReqObj.schema = JSON.parse(JSON.stringify(mimeReqObj.schema, removeCircularReferences()));
+          mimeReqObj.schema = JSON.parse(JSON.stringify(mimeReqObj.schema));
         } catch (err) {
           console.error('Unable to resolve circular refs in schema', mimeReqObj.schema); // eslint-disable-line no-console
           return;
@@ -527,7 +527,7 @@ export default class ApiRequest extends LitElement {
     }
   }
 
-  static onMimeTypeChange(e) {
+  onMimeTypeChange(e) {
     const textareaEls = e.target.closest('.tab-panel').querySelectorAll('textarea.request-body-param');
     const schemaTreeEls = e.target.closest('.tab-panel').querySelectorAll('schema-tree');
     [...textareaEls].map((el) => {

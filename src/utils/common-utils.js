@@ -32,12 +32,11 @@ export function getTypeInfo(schema, overrideAttributes = null) {
     return;
   }
   const returnObj = {
-    hasCircularRefs: schema.type === 'circular',
     format: schema.format ? schema.format : '',
     pattern: (schema.pattern && !schema.enum) ? schema.pattern : '',
-    readOnly: schema.readOnly ? '🆁\u00a0' : '',
-    writeOnly: schema.writeOnly ? '🆆\u00a0' : '',
-    depricated: schema.deprecated ? '❌\u00a0' : '',
+    readOnly: schema.readOnly ? '🆁' : '',
+    writeOnly: schema.writeOnly ? '🆆' : '',
+    depricated: schema.deprecated ? '❌' : '',
     default: schema.default === 0 ? '0 ' : (schema.default ? schema.default : ''),
     type: '',
     arrayType: '',
@@ -45,9 +44,6 @@ export function getTypeInfo(schema, overrideAttributes = null) {
     constrain: '',
     html: '',
   };
-  if (returnObj.hasCircularRefs) {
-    return returnObj;
-  }
   // Set the Type
   if (schema.enum) {
     let opt = '';
@@ -80,53 +76,50 @@ export function getTypeInfo(schema, overrideAttributes = null) {
       returnObj.constrain = `${schema.exclusiveMaximum ? '<' : '≤'}${schema.maximum}`;
     }
     if (schema.multipleOf !== undefined) {
-      returnObj.constrain = `(multiple\u00a0of\u00a0${schema.multipleOf})`;
+      returnObj.constrain = `(multiple of ${schema.multipleOf})`;
     }
   } else if (schema.type === 'string') {
     if (schema.minLength !== undefined && schema.maxLength !== undefined) {
-      returnObj.constrain = `(${schema.minLength}\u00a0to\u00a0${schema.maxLength}\u00a0chars)`;
+      returnObj.constrain = `(${schema.minLength} to ${schema.maxLength} chars)`;
     } else if (schema.minLength !== undefined && schema.maxLength === undefined) {
-      returnObj.constrain = `(min:${schema.minLength}\u00a0chars)`;
+      returnObj.constrain = `≥ ${schema.minLength} chars`;
     } else if (schema.minLength === undefined && schema.maxLength !== undefined) {
-      returnObj.constrain = `(max:${schema.maxLength}\u00a0chars)`;
+      returnObj.constrain = `≤${schema.maxLength} chars`;
     }
   }
 
   if (overrideAttributes) {
     if (overrideAttributes.readOnly) {
-      returnObj.readOnly = '🆁\u00a0';
+      returnObj.readOnly = '🆁';
     }
     if (overrideAttributes.writeOnly) {
-      returnObj.writeOnly = '🆆\u00a0';
+      returnObj.writeOnly = '🆆';
     }
     if (overrideAttributes.deprecated) {
-      returnObj.deprecated = '❌\u00a0';
+      returnObj.deprecated = '❌';
     }
   }
 
   // ${returnObj.readOnly}${returnObj.writeOnly}${returnObj.deprecated}\u00a0
-  let html = `${returnObj.type}`;
+  let html = `${returnObj.format ? returnObj.format : returnObj.type}`;
   if (returnObj.allowedValues) {
     html += `:(${returnObj.allowedValues})`;
   }
   if (returnObj.readOnly) {
-    html += '\u00a0🆁';
+    html += ' 🆁';
   }
   if (returnObj.writeOnly) {
-    html += '\u00a0🆆';
+    html += ' 🆆';
   }
   if (returnObj.deprecated) {
-    html += '\u00a0❌';
+    html += ' ❌';
   }
 
   if (returnObj.constrain) {
-    html += `\u00a0${returnObj.constrain}`;
-  }
-  if (returnObj.format) {
-    html += `\u00a0${returnObj.format}`;
+    html += ` ${returnObj.constrain}`;
   }
   if (returnObj.pattern) {
-    html += `\u00a0${returnObj.pattern}`;
+    html += ` ${returnObj.pattern}`;
   }
   returnObj.html = html;
   return returnObj;
@@ -191,8 +184,6 @@ export function getSampleValueByType(schemaObj) {
       return '198.51.100.42';
     case 'ipv6':
       return '2001:0db8:5b96:0000:0000:426f:8e17:642a';
-    case 'circular':
-      return 'CIRCULAR REF';
     default:
       if (schemaObj.nullable) {
         return null;
@@ -244,9 +235,6 @@ export function schemaToObj(schema, obj, config = {}) {
     }
 
     schema.allOf.map((v) => {
-      if (v.readOnly) {
-        return 'abcd';
-      }
       if (v.type === 'object' || v.properties || v.allOf || v.anyOf || v.oneOf) {
         const partialObj = schemaToObj(v, {}, config);
         Object.assign(objWithAllProps, partialObj);
@@ -300,7 +288,7 @@ export function schemaToModel(schema, obj) {
     if (schema.allOf.length === 1 && !schema.allOf[0].properties && !schema.allOf[0].items) {
       // If allOf has single item and the type is not an object or array, then its a primitive
       if (schema.allOf[0].$ref) {
-        return `{ ${schema.allOf[0].$ref} } ~|~ Recursive Object`;
+        return `{ ${schema.allOf[0].$ref.substring(schema.allOf[0].$ref.indexOf('/'))} } ~|~ Recursive Object`;
       }
 
       const tempSchema = schema.allOf[0];
@@ -423,27 +411,6 @@ export function generateExample(examples, example, schema, mimeType, includeRead
 export function getBaseUrlFromUrl(url) {
   const pathArray = url.split('/');
   return `${pathArray[0]}//${pathArray[2]}`;
-}
-
-export function removeCircularReferences(level = 0) {
-  const seen = new WeakSet();
-  return (key, value) => {
-    if (typeof value === 'object' && value !== null) {
-      if (seen.has(value)) {
-        // let dupVal = Object.assign({}, value);
-        // return;
-        if (level > 0) {
-          return {};
-        }
-
-        const dupVal = JSON.parse(JSON.stringify(value, removeCircularReferences(level + 1)));
-        seen.add(dupVal);
-        return dupVal;
-      }
-      seen.add(value);
-    }
-    return value;
-  };
 }
 
 export async function wait(ms) {
