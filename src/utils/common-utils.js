@@ -222,7 +222,6 @@ export function schemaToObj(schema, obj, config = {}) {
       if (schema.allOf[0].$ref) {
         return '{  }';
       }
-
       if (schema.allOf[0].readOnly && config.includeReadOnly) {
         const tempSchema = schema.allOf[0];
         return getSampleValueByType(tempSchema);
@@ -284,11 +283,6 @@ export function schemaToModel(schema, obj) {
     const objWithAllProps = {};
     if (schema.allOf.length === 1 && !schema.allOf[0].properties && !schema.allOf[0].items) {
       // If allOf has single item and the type is not an object or array, then its a primitive
-      /*
-      if (schema.allOf[0].$ref) {
-        return `{ ${schema.allOf[0].$ref.substring(schema.allOf[0].$ref.indexOf('/'))} }~|~ ~|~ Recursive Object`;
-      }
-      */
       const tempSchema = schema.allOf[0];
       return `${getTypeInfo(tempSchema).html}`;
     }
@@ -341,7 +335,7 @@ export function schemaToModel(schema, obj) {
 
 
 /* Create Example object */
-export function generateExample(examples, example, schema, mimeType, includeReadOnly = false, outputType) {
+export function generateExample(examples, example, schema, mimeType, includeReadOnly = true, outputType) {
   const finalExamples = [];
   if (examples) {
     for (const eg in examples) {

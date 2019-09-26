@@ -170,7 +170,7 @@ export default class SchemaTree extends LitElement {
       <span class="item-value">
         ${data
           ? html`
-            ${data.split('~|~').map((item, idx, arr) => html`
+            ${data.split('~|~').map((item, idx) => html`
               ${item
                   ? html`
                     <div class='${idx === 0

@@ -7,7 +7,7 @@ import InputStyles from '@/styles/input-styles';
 import FlexStyles from '@/styles/flex-styles';
 import TableStyles from '@/styles/table-styles';
 import ColorUtils from '@/utils/color-utils';
-import ProcessSpec from '@/utils/parse-utils';
+import ProcessSpec from '@/utils/spec-parser';
 
 /* eslint-disable no-unused-vars */
 import MLogo from '@/components/m-logo';

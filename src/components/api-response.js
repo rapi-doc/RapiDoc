@@ -117,7 +117,7 @@ export default class ApiResponse extends LitElement {
           mimeRespObj.schema ? mimeRespObj.schema.example : '',
           mimeRespObj.schema,
           mimeResp,
-          false,
+          true,
           'json',
         );
         allMimeResp[mimeResp] = {
