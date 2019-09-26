@@ -32,28 +32,34 @@ export function getTypeInfo(schema, overrideAttributes = null) {
     return;
   }
   const returnObj = {
+    type: schema.$ref
+      ? '{recursive}'
+      : schema.enum
+        ? 'enum'
+        : schema.type,
     format: schema.format ? schema.format : '',
+    constrain: '',
     pattern: (schema.pattern && !schema.enum) ? schema.pattern : '',
     readOnly: schema.readOnly ? '🆁' : '',
     writeOnly: schema.writeOnly ? '🆆' : '',
     depricated: schema.deprecated ? '❌' : '',
     default: schema.default === 0 ? '0 ' : (schema.default ? schema.default : ''),
-    type: '',
     arrayType: '',
     allowedValues: '',
-    constrain: '',
+    description: schema.description ? schema.description : '',
     html: '',
   };
-  // Set the Type
+  if (returnObj.type === '{recursive}') {
+    returnObj.description = schema.$ref.substring(schema.$ref.lastIndexOf('/') + 1);
+  }
+
+  // Set Allowed Values
   if (schema.enum) {
     let opt = '';
     schema.enum.map((v) => {
       opt += `${v}, `;
     });
-    returnObj.type = 'enum';
     returnObj.allowedValues = opt.slice(0, -2);
-  } else if (schema.type) {
-    returnObj.type = schema.type;
   }
 
   if (schema.type === 'array' && schema.items) {
@@ -102,9 +108,6 @@ export function getTypeInfo(schema, overrideAttributes = null) {
 
   // ${returnObj.readOnly}${returnObj.writeOnly}${returnObj.deprecated}\u00a0
   let html = `${returnObj.format ? returnObj.format : returnObj.type}`;
-  if (returnObj.allowedValues) {
-    html += `:(${returnObj.allowedValues})`;
-  }
   if (returnObj.readOnly) {
     html += ' 🆁';
   }
@@ -114,13 +117,7 @@ export function getTypeInfo(schema, overrideAttributes = null) {
   if (returnObj.deprecated) {
     html += ' ❌';
   }
-
-  if (returnObj.constrain) {
-    html += ` ${returnObj.constrain}`;
-  }
-  if (returnObj.pattern) {
-    html += ` ${returnObj.pattern}`;
-  }
+  html += `~|~${returnObj.constrain}~|~${(returnObj.type === 'enum' ? returnObj.allowedValues : returnObj.pattern)}~|~${returnObj.description}`;
   returnObj.html = html;
   return returnObj;
 }
@@ -287,12 +284,13 @@ export function schemaToModel(schema, obj) {
     const objWithAllProps = {};
     if (schema.allOf.length === 1 && !schema.allOf[0].properties && !schema.allOf[0].items) {
       // If allOf has single item and the type is not an object or array, then its a primitive
+      /*
       if (schema.allOf[0].$ref) {
-        return `{ ${schema.allOf[0].$ref.substring(schema.allOf[0].$ref.indexOf('/'))} } ~|~ Recursive Object`;
+        return `{ ${schema.allOf[0].$ref.substring(schema.allOf[0].$ref.indexOf('/'))} }~|~ ~|~ Recursive Object`;
       }
-
+      */
       const tempSchema = schema.allOf[0];
-      return `${getTypeInfo(tempSchema).html}~|~${tempSchema.description ? tempSchema.description : ''}`;
+      return `${getTypeInfo(tempSchema).html}`;
     }
 
     // If allOf is an array of multiple elements, then all the keys makes a single object
@@ -306,7 +304,7 @@ export function schemaToModel(schema, obj) {
       } else if (v.type) {
         const prop = `prop${Object.keys(objWithAllProps).length}`;
         const typeObj = getTypeInfo(v);
-        objWithAllProps[prop] = `${typeObj.html}~|~${v.description ? v.description : ''}`;
+        objWithAllProps[prop] = `${typeObj.html}`;
       } else {
         return '';
       }
@@ -327,16 +325,15 @@ export function schemaToModel(schema, obj) {
         Object.assign(objWithAnyOfProps, partialObj);
       } else {
         const prop = `prop${Object.keys(objWithAnyOfProps).length}`;
-        objWithAnyOfProps[prop] = `${getTypeInfo(v).html}~|~${v.description ? v.description : ''}`;
+        objWithAnyOfProps[prop] = `${getTypeInfo(v).html}`;
       }
     });
     obj[(schema.anyOf ? 'ANY_OF' : 'ONE_OF')] = objWithAnyOfProps;
   } else {
     const typeObj = getTypeInfo(schema);
     if (typeObj.html) {
-      return `${typeObj.html}~|~${schema.description ? schema.description : ''}`;
+      return `${typeObj.html}`;
     }
-
     return '';
   }
   return obj;

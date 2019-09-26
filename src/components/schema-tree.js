@@ -30,6 +30,13 @@ export default class SchemaTree extends LitElement {
         .item-type{
           display: table-cell;
         }
+        .item-constraints{
+          display: table-cell;
+          font-family:var(--font-regular);
+          color:var(--delete-color);
+          padding: 2px 2px 2px 10px;
+          margin-left:5px;
+        }
         .obj-descr{
           color:var(--light-fg);
           font-family:var(--font-regular);
@@ -70,11 +77,12 @@ export default class SchemaTree extends LitElement {
           margin-block-end:5px;
         }
         */
-        .stri, .string, .uri, .url, .byte, .bina, .date, .pass, .ipv4, .ipv4, .uuid, .email {color:#86b300;}
+        .stri, .string, .uri, .url, .byte, .bina, .date, .pass, .ipv4, .ipv4, .uuid, .emai, .host {color:#86b300;}
         .inte, .numb, .number, .int6, .int3, .floa, .doub  {color:#47afe8;}
         .null {color:orangered;}
         .bool, .boolean{color:#b96ff1}
         .enum {color:orange}
+        .recu {color:#D4AC0D} 
         .any-of-one-of{
           font-size:10px; 
           font-weight:bold; 
@@ -162,11 +170,16 @@ export default class SchemaTree extends LitElement {
       <span class="item-value">
         ${data
           ? html`
-            ${data.split('~|~').map((item, idx) => html`
+            ${data.split('~|~').map((item, idx, arr) => html`
               ${item
                   ? html`
-                    <div class='${idx === 0 ? `item-type ${item.substring(0, 4)}` : 'm-markdown-small item-descr'}'>
-                      ${idx === 0 ? html`${item}` : html`${unsafeHTML(marked(item))}`}
+                    <div class='${idx === 0
+                      ? `item-type ${item.replace('{', '').substring(0, 4)}`
+                      : idx === 1 || idx === 2
+                        ? 'item-constraints'
+                        : 'm-markdown-small item-descr'}'
+                    >
+                      ${idx === 3 ? html`${unsafeHTML(marked(item))}` : html`${item}`}
                     </div>`
                   : ''}
                 `)
