@@ -152,7 +152,9 @@ export default class SchemaTree extends LitElement {
                           <span class="any-of-one-of" >${key.replace('_', ' ')}</span>`
                         : key.startsWith('OPTION')
                           ? html`<span class="any-of-one-of" >${key.replace('OPTION_', ' ')}</span>`
-                          : html`${key}:`
+                          : key.endsWith('*')
+                            ? html`${key.substring(0, key.length - 1)}<span style='color:var(--delete-color)'>*</span>:`
+                            : html`${key}:`
                       : ''
                     } 
                   </span>

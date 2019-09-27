@@ -27,7 +27,7 @@ export function copyToClipboard(elId) {
 }
 
 /* Generates an schema object containing type and constraint info */
-export function getTypeInfo(schema, overrideAttributes = null) {
+export function getTypeInfo(schema) {
   if (!schema) {
     return;
   }
@@ -77,9 +77,9 @@ export function getTypeInfo(schema, overrideAttributes = null) {
     if (schema.minimum !== undefined && schema.maximum !== undefined) {
       returnObj.constrain = `${schema.exclusiveMinimum ? '>' : ''}${schema.minimum}\u00a0\u22ef\u00a0${schema.exclusiveMaximum ? '<' : ''}\u00a0${schema.maximum}`;
     } else if (schema.minimum !== undefined && schema.maximum === undefined) {
-      returnObj.constrain = `${schema.exclusiveMinimum ? '>' : '≥'}${schema.minimum}`;
+      returnObj.constrain = `${schema.exclusiveMinimum ? '>' : '>='}${schema.minimum}`;
     } else if (schema.minimum === undefined && schema.maximum !== undefined) {
-      returnObj.constrain = `${schema.exclusiveMaximum ? '<' : '≤'}${schema.maximum}`;
+      returnObj.constrain = `${schema.exclusiveMaximum ? '<' : '<='}${schema.maximum}`;
     }
     if (schema.multipleOf !== undefined) {
       returnObj.constrain = `(multiple of ${schema.multipleOf})`;
@@ -88,36 +88,25 @@ export function getTypeInfo(schema, overrideAttributes = null) {
     if (schema.minLength !== undefined && schema.maxLength !== undefined) {
       returnObj.constrain = `(${schema.minLength} to ${schema.maxLength} chars)`;
     } else if (schema.minLength !== undefined && schema.maxLength === undefined) {
-      returnObj.constrain = `≥ ${schema.minLength} chars`;
+      returnObj.constrain = `min ${schema.minLength} chars`;
     } else if (schema.minLength === undefined && schema.maxLength !== undefined) {
-      returnObj.constrain = `≤${schema.maxLength} chars`;
-    }
-  }
-
-  if (overrideAttributes) {
-    if (overrideAttributes.readOnly) {
-      returnObj.readOnly = '🆁';
-    }
-    if (overrideAttributes.writeOnly) {
-      returnObj.writeOnly = '🆆';
-    }
-    if (overrideAttributes.deprecated) {
-      returnObj.deprecated = '❌';
+      returnObj.constrain = `max ${schema.maxLength} chars`;
     }
   }
 
   // ${returnObj.readOnly}${returnObj.writeOnly}${returnObj.deprecated}\u00a0
   let html = `${returnObj.format ? returnObj.format : returnObj.type}`;
+  let readWriteConstraints = '';
   if (returnObj.readOnly) {
-    html += ' 🆁';
+    readWriteConstraints += '🆁';
   }
   if (returnObj.writeOnly) {
-    html += ' 🆆';
+    readWriteConstraints += '🆆';
   }
   if (returnObj.deprecated) {
-    html += ' ❌';
+    readWriteConstraints += '❌';
   }
-  html += `~|~${returnObj.constrain}~|~${(returnObj.type === 'enum' ? returnObj.allowedValues : returnObj.pattern)}~|~${returnObj.description}`;
+  html += `~|~${readWriteConstraints} ${returnObj.constrain}~|~${(returnObj.type === 'enum' ? returnObj.allowedValues : returnObj.pattern)}~|~${returnObj.description}`;
   returnObj.html = html;
   return returnObj;
 }
