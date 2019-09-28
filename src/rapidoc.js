@@ -198,7 +198,7 @@ export default class RapiDoc extends LitElement {
         </div>`
         }
 
-        ${(this.allowTry === 'false' || !this.resolvedSpec) ? '' : this.apiServerListTemplate()} 
+        ${(this.allowTry === 'false' || this.allowServerSelection === 'false' || !this.resolvedSpec) ? '' : this.apiServerListTemplate()} 
         ${(this.allowAuthentication === 'false' || !this.resolvedSpec || !this.resolvedSpec.securitySchemes) ? '' : this.securitySchemeTemplate()}
         ${this.resolvedSpec && this.resolvedSpec.tags ? this.endpointsGroupedByTagTemplate() : ''}
 
@@ -340,6 +340,7 @@ export default class RapiDoc extends LitElement {
       showInfo: { type: String, attribute: 'show-info' },
       allowAuthentication: { type: String, attribute: 'allow-authentication' },
       allowTry: { type: String, attribute: 'allow-try' },
+      allowServerSelection: { type: String, attribute: 'allow-server-selection' },
       allowSpecUrlLoad: { type: String, attribute: 'allow-spec-url-load' },
       allowSpecFileLoad: { type: String, attribute: 'allow-spec-file-load' },
       allowSearch: { type: String, attribute: 'allow-search' },
@@ -436,6 +437,13 @@ export default class RapiDoc extends LitElement {
 
   afterSpecParsedAndValidated(spec) {
     this.resolvedSpec = spec;
+    if (this.allowServerSelection === 'false') {
+      if (this.serverUrl) {
+        this.selectedServer = this.serverUrl;
+      } else if (this.resolvedSpec && this.resolvedSpec.servers && this.resolvedSpec.servers.length > 0) {
+        this.selectedServer = this.resolvedSpec.servers[0].url;
+      }
+    }
     this.requestUpdate();
     window.setTimeout(() => {
       this.onApiServerChange();
