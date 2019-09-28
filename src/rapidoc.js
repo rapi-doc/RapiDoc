@@ -169,32 +169,7 @@ export default class RapiDoc extends LitElement {
         }
 
       </style>
-      ${this.showHeader === 'false' ? '' : html`
-      <div class="row header regular-font" style="padding:8px 4px 8px 4px;min-height:48px;position:sticky;top:0;flex:1">
-        <div class="only-large-screen-flex" style="align-items: center;">
-          <slot name="logo" class="logo">
-            <m-logo style="height:36px;width:36px;margin-left:5px"></m-logo>
-          </slot>  
-          <div class="header-title">${this.headingText}</div>
-        </div>  
-        <div style="margin: 0px 8px;display:flex;flex:1">
-
-          ${(this.allowSpecUrlLoad === 'false') ? '' : html`
-            <input id="spec-url" type="text" class="header-input" placeholder="Spec URL" value="${this.specUrl ? this.specUrl : ''}" @change="${this.onSepcUrlChange}" spellcheck="false" >
-            <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x23ce;</div> 
-          `} 
-          
-          ${(this.allowSpecFileLoad === 'false') ? '' : html`
-            <input id="spec-file" type="file" style="display:none" value="${this.specFile ? this.specFile : ''}" @change="${this.onSepcFileChange}" spellcheck="false" >
-            <button class="m-btn only-large-screen" style="margin-left:10px;"  @click="${this.onFileLoadClick}"> LOCAL JSON FILE </button>
-          `}
-          <slot name="header"></slot>
-          ${(this.allowSearch === 'false') ? '' : html`  
-            <input id="search" class="header-input" type="text"  placeholder="search" @change="${this.onSearchChange}" style="max-width:130px;margin-left:10px;" spellcheck="false" >
-            <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x23ce;</div>
-          `}
-        </div>
-      </div>`}
+      ${this.showHeader === 'false' ? '' : this.headerTemplate()}
 
       <div class="body-container regular-font">
         <slot></slot>
@@ -210,95 +185,144 @@ export default class RapiDoc extends LitElement {
               </span>`
             }
           </div>
-          ${this.resolvedSpec.info.description ? html`
-            ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(this.resolvedSpec.info.description)}</div>`)}
-          ` : ''}
-          ${this.resolvedSpec.info.termsOfService ? html`
-            ${unsafeHTML(`<div class='tiny-title' style="margin-top:8px"> Terms: </div> <span class='m-markdown regular-font'>${marked(this.resolvedSpec.info.termsOfService)}</span>`)}
-          ` : ''}
 
-          ${this.resolvedSpec.info.contact ? html`
-          <div style="font-size:13px; margin-top:8px; line-height: 18px;">
-            ${this.resolvedSpec.info.contact.email ? html`
-              <div>
-                <span class='tiny-title' style="display:inline-block; width:50px"> Email: </span> 
-                <span class='regular-font'> ${this.resolvedSpec.info.contact.email}</span> 
-              </div>
-            ` : ''}
-            ${this.resolvedSpec.info.contact.name ? html`
-              <div>
-                <span class='tiny-title' style="display:inline-block; width:50px"> Name: </span> 
-                <span class='regular-font'> ${this.resolvedSpec.info.contact.name}</span> 
-              </div>
-            ` : ''}
-            ${this.resolvedSpec.info.contact.url ? html`
-              <div>
-                <span class='tiny-title' style="display:inline-block; width:50px"> URL: </span> 
-                <span class='regular-font'> ${this.resolvedSpec.info.contact.url}</span> 
-              </div>
-            ` : ''}
-          </div>  
-          ` : ''}
-
-
+          ${this.resolvedSpec.info.description
+            ? html`${unsafeHTML(`<div class='m-markdown regular-font'>${marked(this.resolvedSpec.info.description)}</div>`)}`
+            : ''
+          }
+          ${this.resolvedSpec.info.termsOfService
+            ? html`${unsafeHTML(`<div class='tiny-title' style="margin-top:8px"> Terms: </div> <span class='m-markdown regular-font'>${marked(this.resolvedSpec.info.termsOfService)}</span>`)}`
+            : ''
+          }
+          ${this.resolvedSpec.info.contact ? this.contactInfoTemplate() : ''}
         </div>`
         }
 
-      ${(this.allowTry === 'false' || !this.resolvedSpec) ? '' : html`
-        <div class="sub-title regular-font section-gap">
-          <a id="api_server_options"> API SERVER: </a>
-          <div class="mono-font" style="margin: 12px 0; font-size:calc(var(--small-font-size) + 1px);">
-          ${!this.resolvedSpec.servers || (this.resolvedSpec.servers.length === 0) ? '' : html`
-            ${this.resolvedSpec.servers.map((server) => html`
-                <input type='radio' name='api_server' value='${server.url}' @change="${this.onApiServerChange}" checked style='margin:2px 0 5px 8px'/>
-                ${server.url}
-                ${server.description ? html`- ${server.description}` : ''}
-                <br/>
-              `)}
-          `}
+        ${(this.allowTry === 'false' || !this.resolvedSpec) ? '' : this.apiServerListTemplate()} 
+        ${(this.allowAuthentication === 'false' || !this.resolvedSpec || !this.resolvedSpec.securitySchemes) ? '' : this.securitySchemeTemplate()}
+        ${this.resolvedSpec && this.resolvedSpec.tags ? this.endpointsGroupedByTagTemplate() : ''}
 
-          ${(this.serverUrl) ? html`
-            <input type='radio' name='api_server' value='${this.serverUrl}' @change="${this.onApiServerChange}" checked style='margin:2px 0 5px 8px'/>
-                ${this.serverUrl}<br/>
-            ` : ''
-          }
-          </div>
-        </div>  
-      `} 
-
-
-        ${(this.allowAuthentication === 'false' || !this.resolvedSpec || !this.resolvedSpec.securitySchemes) ? '' : html`
-        <div class="sub-title regular-font section-gap">
-          <security-schemes 
-            .schemes="${this.resolvedSpec.securitySchemes}"
-            selected-api-key-name  = "${this.apiKeyName ? this.apiKeyName : ''}"
-            selected-api-key-value = "${this.apiKeyValue ? this.apiKeyValue : ''}"
-            @change="${this.onSecurityChange}"
-          ></security-schemes>
-        </div>
-        `}
-
-        ${this.resolvedSpec && this.resolvedSpec.tags ? html`
-          ${this.resolvedSpec.tags.map((tag) => html`
-            <div class="sub-title tag regular-font section-gap">${tag.name}</div>
-            <div style="margin:4px 20px">
-              ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(tag.description ? tag.description : '')}</div>`)}
-            </div>
-            <end-points 
-              selected-server  = "${this.selectedServer ? this.selectedServer : ''}"  
-              api-key-name     = "${this.apiKeyName ? this.apiKeyName : ''}"
-              api-key-value    = "${this.apiKeyValue ? this.apiKeyValue : ''}"
-              api-key-location = "${this.apiKeyLocation ? this.apiKeyLocation : ''}"
-              layout           = "${this.layout ? this.layout : 'row'}"
-              .paths           = "${tag.paths}" 
-              allow-try        = "${this.allowTry ? this.allowTry : 'true'}"
-              match-paths      = "${this.matchPaths}"
-            ></end-points>
-          `)}`
-        : ''}
         <slot name="footer"></slot>
       </div>`;
   }
+
+  headerTemplate() {
+    return html`
+      <div class="row header regular-font" style="padding:8px 4px 8px 4px;min-height:48px;position:sticky;top:0;flex:1">
+        <div class="only-large-screen-flex" style="align-items: center;">
+          <slot name="logo" class="logo">
+            <m-logo style="height:36px;width:36px;margin-left:5px"></m-logo>
+          </slot>  
+          <div class="header-title">${this.headingText}</div>
+        </div>  
+        <div style="margin: 0px 8px;display:flex;flex:1">
+          ${(this.allowSpecUrlLoad === 'false') ? '' : html`
+            <input id="spec-url" type="text" class="header-input" placeholder="Spec URL" value="${this.specUrl ? this.specUrl : ''}" @change="${this.onSepcUrlChange}" spellcheck="false" >
+            <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x23ce;</div> 
+          `} 
+          
+          ${(this.allowSpecFileLoad === 'false') ? '' : html`
+            <input id="spec-file" type="file" style="display:none" value="${this.specFile ? this.specFile : ''}" @change="${this.onSepcFileChange}" spellcheck="false" >
+            <button class="m-btn only-large-screen" style="margin-left:10px;"  @click="${this.onFileLoadClick}"> LOCAL JSON FILE </button>
+          `}
+          <slot name="header"></slot>
+          ${(this.allowSearch === 'false') ? '' : html`  
+            <input id="search" class="header-input" type="text"  placeholder="search" @change="${this.onSearchChange}" style="max-width:130px;margin-left:10px;" spellcheck="false" >
+            <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x23ce;</div>
+          `}
+        </div>
+      </div>`;
+  }
+
+  contactInfoTemplate() {
+    return html`
+    <div style="font-size:13px; margin-top:8px; line-height: 18px;">
+      ${this.resolvedSpec.info.contact.email
+        ? html`
+          <div>
+            <span class='tiny-title' style="display:inline-block; width:50px"> Email: </span> 
+            <span class='regular-font'> ${this.resolvedSpec.info.contact.email}</span> 
+          </div>`
+        : ''
+      }
+      ${this.resolvedSpec.info.contact.name
+        ? html`
+          <div>
+            <span class='tiny-title' style="display:inline-block; width:50px"> Name: </span> 
+            <span class='regular-font'> ${this.resolvedSpec.info.contact.name}</span> 
+          </div>`
+        : ''
+      }
+      ${this.resolvedSpec.info.contact.url
+        ? html`
+          <div>
+            <span class='tiny-title' style="display:inline-block; width:50px"> URL: </span> 
+            <span class='regular-font'> ${this.resolvedSpec.info.contact.url}</span> 
+          </div>`
+        : ''
+      }
+    </div>`;
+  }
+
+  apiServerListTemplate() {
+    return html`
+    <div class="sub-title regular-font section-gap">
+      <a id="api_server_options"> API SERVER: </a>
+      <div class="mono-font" style="margin: 12px 0; font-size:calc(var(--small-font-size) + 1px);">
+      ${!this.resolvedSpec.servers || (this.resolvedSpec.servers.length === 0)
+        ? ''
+        : html`
+          ${this.resolvedSpec.servers.map((server) => html`
+            <input type='radio' name='api_server' value='${server.url}' @change="${this.onApiServerChange}" checked style='margin:2px 0 5px 8px'/>
+            ${server.url}
+            ${server.description ? html`- ${server.description}` : ''}
+            <br/>
+          `)}
+      `}
+
+      ${(this.serverUrl) ? html`
+        <input type='radio' name='api_server' value='${this.serverUrl}' @change="${this.onApiServerChange}" checked style='margin:2px 0 5px 8px'/>
+            ${this.serverUrl}<br/>
+        ` : ''
+      }
+      </div>
+    </div>`;
+  }
+
+  securitySchemeTemplate() {
+    return html`
+    <div class="sub-title regular-font section-gap">
+      <security-schemes 
+        .schemes="${this.resolvedSpec.securitySchemes}"
+        selected-api-key-name  = "${this.apiKeyName ? this.apiKeyName : ''}"
+        selected-api-key-value = "${this.apiKeyValue ? this.apiKeyValue : ''}"
+        @change="${this.onSecurityChange}"
+      ></security-schemes>
+    </div>`;
+  }
+
+  endpointsGroupedByTagTemplate() {
+    return html`
+      ${this.resolvedSpec.tags.map((tag) => html`
+        <div class="sub-title tag regular-font section-gap">${tag.name}</div>
+        <div style="margin:4px 20px">
+          ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(tag.description ? tag.description : '')}</div>`)}
+        </div>
+        <end-points 
+          selected-server  = "${this.selectedServer ? this.selectedServer : ''}"  
+          api-key-name     = "${this.apiKeyName ? this.apiKeyName : ''}"
+          api-key-value    = "${this.apiKeyValue ? this.apiKeyValue : ''}"
+          api-key-location = "${this.apiKeyLocation ? this.apiKeyLocation : ''}"
+          layout           = "${this.layout ? this.layout : 'row'}"
+          .paths           = "${tag.paths}" 
+          allow-try        = "${this.allowTry ? this.allowTry : 'true'}"
+          match-paths      = "${this.matchPaths}"
+        ></end-points>
+      `)
+      }`;
+  }
+
+
   /* eslint-enable indent */
 
   static get properties() {
@@ -325,6 +349,8 @@ export default class RapiDoc extends LitElement {
       apiKeyName: { type: String, attribute: 'api-key-name' },
       apiKeyValue: { type: String, attribute: 'api-key-value' },
       apiKeyLocation: { type: String, attribute: 'api-key-location' },
+      groupByTags: { type: String, attribute: 'group-by-tags' },
+
     };
   }
 
@@ -346,7 +372,7 @@ export default class RapiDoc extends LitElement {
     this.setAttribute('spec-file', this.shadowRoot.getElementById('spec-file').value);
     const specFile = e.target.files[0];
     const reader = new FileReader();
-    reader.onload = function () {
+    reader.onload = () => {
       try {
         const specObj = JSON.parse(reader.result);
         me.loadSpec(specObj);
