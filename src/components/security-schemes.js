@@ -23,8 +23,7 @@ export default class SecuritySchemes extends LitElement {
         word-break: break-all;
       }
     </style>
-    <div>AUTHENTICATION</div>
-    <table style="width:auto" class="m-table">
+    <table class="m-table" style="margin: 0 24px">
       <tr>
         <th >Type </th>  
         <th> Authentication Procedure </th>  

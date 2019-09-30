@@ -1,7 +1,5 @@
 import { LitElement, html } from 'lit-element';
-/* eslint-disable no-unused-vars */
-import EndPoint from '@/components/end-point';
-/* eslint-enable no-unused-vars */
+import '@/components/end-point';
 
 export default class EndPoints extends LitElement {
   /* eslint-disable indent */

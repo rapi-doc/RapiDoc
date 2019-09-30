@@ -3,14 +3,19 @@ import JsonRefs from 'json-refs';
 import converter from 'swagger2openapi';
 
 
-/*
-async function groupByPath(openApiSpec) {
-
+function groupByPaths(openApiSpec) {
+  const paths = [];
+  for (const p in openApiSpec.paths) {
+    openApiSpec.paths[p].path = p;
+    openApiSpec.paths[p].expanded = false;
+    openApiSpec.paths[p].activeMethod = 'no-active-method';
+    paths.push(openApiSpec.paths[p]);
+  }
+  return paths;
 }
-*/
 
 function groupByTags(openApiSpec) {
-  const methods = ['get', 'put', 'post', 'delete', 'patch', 'options', 'head'];
+  const methods = ['get', 'put', 'post', 'delete', 'patch', 'head'];
   const tags = [];
 
   // For each path find the tag and push it into the corrosponding tag
@@ -163,7 +168,7 @@ export default async function ProcessSpec(specUrl) {
   let securitySchemes = {};
   let servers = [];
   const tags = groupByTags(jsonParsedSpec);
-
+  const pathGroups = groupByPaths(jsonParsedSpec);
   securitySchemes = (jsonParsedSpec.components ? jsonParsedSpec.components.securitySchemes : {});
   if (jsonParsedSpec.servers) {
     jsonParsedSpec.servers.map((v) => {
@@ -183,6 +188,7 @@ export default async function ProcessSpec(specUrl) {
   const parsedSpec = {
     info: jsonParsedSpec.info,
     tags,
+    pathGroups,
     externalDocs: jsonParsedSpec.externalDocs,
     securitySchemes,
     servers, // In swagger 2, its generated from schemes, host and basePath properties

@@ -6,9 +6,7 @@ import FontStyles from '@/styles/font-styles';
 import FlexStyles from '@/styles/flex-styles';
 import TableStyles from '@/styles/table-styles';
 import InputStyles from '@/styles/input-styles';
-/* eslint-disable no-unused-vars */
-import SchemaTree from '@/components/schema-tree';
-/* eslint-enable no-unused-vars */
+import '@/components/schema-tree';
 
 export default class ApiResponse extends LitElement {
   render() {

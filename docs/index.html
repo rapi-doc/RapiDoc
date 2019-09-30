@@ -146,22 +146,20 @@
   <div style="display:flex; flex-direction: column; margin-bottom:24px">
   <h2> Quickstart (<a style="font-size:16px" href="./examples/example2.html">DEMO</a>)</h2> 
   Just copy the below code and save it in an html file. Then open it using a browser 
-
-  <pre class="shadow code-block"><code class="html" style="border-radius:4px">
-  &lt;!doctype html&gt; &lt;!-- Important: must specify --&gt;
-  &lt;html&gt;
-  &lt;head&gt;
-    &lt;meta charset="utf-8"&gt; &lt;!-- Important: rapi-doc uses utf8 charecters --&gt;
-    &lt;script src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"&gt;&lt;/script&gt;
-  &lt;/head&gt;
-  &lt;body&gt;
-    &lt;rapi-doc 
-      spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json" 
-    &gt; &lt;/rapi-doc&gt;
-  &lt;/body&gt; 
-  &lt;/html&gt;
-  </code></pre>
-  </div>
+<pre class="shadow code-block"><code class="html" style="border-radius:4px">&lt;!doctype html&gt; &lt;!-- Important: must specify --&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;meta charset="utf-8"&gt; &lt;!-- Important: rapi-doc uses utf8 charecters --&gt;
+  &lt;script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;rapi-doc 
+    spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json" 
+  &gt; &lt;/rapi-doc&gt;
+&lt;/body&gt; 
+&lt;/html&gt;
+</code></pre>
+</div>
 
 
   <div style="display:flex; flex-direction: column; ">
@@ -203,7 +201,7 @@
         }
       &lt;/style&gt;
 
-      &lt;script src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"&gt;&lt;/script&gt;
+      &lt;script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"&gt;&lt;/script&gt;
       &lt;script&gt;
         function setApiKey(){
           const docEl = document.getElementById('thedoc');
@@ -265,6 +263,15 @@
                 It is helpful in the cases where the same spec is shared between multiple environment say Dev and Test and each have their own API server.
               </td>
               <td>(empty)</td>
+            </tr>
+
+            <tr>
+              <td class="mono-bold right">api-list-style</td>
+              <td class="gray">
+                can be either <code>group-by-tag</code> or <code> group-by-path </code>. This controls how the API litings are grouped.
+                this can be changed from the UI too
+              </td>
+              <td>group-by-tag</td>
             </tr>
 
             <tr>
@@ -338,6 +345,14 @@
               <td class="gray">
                 If set to 'false', user will not be able to select API server.
                 The URL specified in the server-url attribute will be used if set, else the first server in the API specification file will be used.
+              </td>
+              <td>true</td>
+            </tr>
+
+            <tr>
+              <td class="mono-bold right">allow-api-list-style-selection</td>
+              <td class="gray">
+                If set to 'false', user will not be able to change api list style
               </td>
               <td>true</td>
             </tr>

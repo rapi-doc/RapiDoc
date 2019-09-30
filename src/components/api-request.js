@@ -9,12 +9,9 @@ import CommonStyles from '@/styles/common-styles';
 import {
   schemaToModel, getTypeInfo, generateExample,
 } from '@/utils/common-utils';
-
-/* eslint-disable no-unused-vars */
-import JsonTree from '@/components/json-tree';
-import SchemaTree from '@/components/schema-tree';
-import TagInput from '@/components/tag-input';
-/* eslint-enable no-unused-vars */
+import '@/components/json-tree';
+import '@/components/schema-tree';
+import '@/components/tag-input';
 
 export default class ApiRequest extends LitElement {
   render() {

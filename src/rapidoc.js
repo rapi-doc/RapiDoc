@@ -9,11 +9,10 @@ import TableStyles from '@/styles/table-styles';
 import ColorUtils from '@/utils/color-utils';
 import ProcessSpec from '@/utils/spec-parser';
 
-/* eslint-disable no-unused-vars */
-import MLogo from '@/components/m-logo';
-import EndPoints from '@/components/end-points';
-import SecuritySchemes from '@/components/security-schemes';
-/* eslint-enable no-unused-vars */
+import '@/components/m-logo';
+import '@/components/end-points';
+import '@/components/path-and-methods';
+import '@/components/security-schemes';
 
 export default class RapiDoc extends LitElement {
   /* eslint-disable indent */
@@ -131,7 +130,8 @@ export default class RapiDoc extends LitElement {
           display:none;
         }
         .header-title{
-          font-size:calc(var(--title-font-size) + 8px); padding:0 8px;
+          font-size:calc(var(--title-font-size) + 8px); 
+          padding:0 8px;
         }
         .tag{
           text-transform: uppercase;
@@ -198,10 +198,26 @@ export default class RapiDoc extends LitElement {
         </div>`
         }
 
-        ${(this.allowTry === 'false' || this.allowServerSelection === 'false' || !this.resolvedSpec) ? '' : this.apiServerListTemplate()} 
-        ${(this.allowAuthentication === 'false' || !this.resolvedSpec || !this.resolvedSpec.securitySchemes) ? '' : this.securitySchemeTemplate()}
-        ${this.resolvedSpec && this.resolvedSpec.tags ? this.endpointsGroupedByTagTemplate() : ''}
+        ${(this.allowTry === 'false' || this.allowServerSelection === 'false' || !this.resolvedSpec)
+          ? ''
+          : this.apiServerListTemplate()
+        } 
+        ${(this.allowAuthentication === 'false' || !this.resolvedSpec || !this.resolvedSpec.securitySchemes)
+          ? ''
+          : this.securitySchemeTemplate()
+        }
 
+        ${(this.allowApiListStyleSelection === 'false')
+          ? ''
+          : this.apiListingStyleSelectionTemplate()
+        }
+
+        ${this.resolvedSpec && this.resolvedSpec.tags && this.resolvedSpec.pathGroups
+          ? this.apiListStyle === 'group-by-path' || !this.resolvedSpec
+            ? this.endpointsGroupedByPathTemplate()
+            : this.endpointsGroupedByTagTemplate()
+          : ''
+        }
         <slot name="footer"></slot>
       </div>`;
   }
@@ -216,20 +232,28 @@ export default class RapiDoc extends LitElement {
           <div class="header-title">${this.headingText}</div>
         </div>  
         <div style="margin: 0px 8px;display:flex;flex:1">
-          ${(this.allowSpecUrlLoad === 'false') ? '' : html`
-            <input id="spec-url" type="text" class="header-input" placeholder="Spec URL" value="${this.specUrl ? this.specUrl : ''}" @change="${this.onSepcUrlChange}" spellcheck="false" >
-            <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x23ce;</div> 
-          `} 
-          
-          ${(this.allowSpecFileLoad === 'false') ? '' : html`
-            <input id="spec-file" type="file" style="display:none" value="${this.specFile ? this.specFile : ''}" @change="${this.onSepcFileChange}" spellcheck="false" >
-            <button class="m-btn only-large-screen" style="margin-left:10px;"  @click="${this.onFileLoadClick}"> LOCAL JSON FILE </button>
-          `}
+          ${(this.allowSpecUrlLoad === 'false')
+            ? ''
+            : html`
+              <input id="spec-url" type="text" class="header-input" placeholder="Spec URL" value="${this.specUrl ? this.specUrl : ''}" @change="${this.onSepcUrlChange}" spellcheck="false" >
+              <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x23ce;</div> 
+            `
+          } 
+          ${(this.allowSpecFileLoad === 'false')
+            ? ''
+            : html`
+              <input id="spec-file" type="file" style="display:none" value="${this.specFile ? this.specFile : ''}" @change="${this.onSepcFileChange}" spellcheck="false" >
+              <button class="m-btn only-large-screen" style="margin-left:10px;"  @click="${this.onFileLoadClick}"> LOCAL JSON FILE </button>
+            `
+          }
           <slot name="header"></slot>
-          ${(this.allowSearch === 'false') ? '' : html`  
-            <input id="search" class="header-input" type="text"  placeholder="search" @change="${this.onSearchChange}" style="max-width:130px;margin-left:10px;" spellcheck="false" >
-            <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x23ce;</div>
-          `}
+          ${(this.allowSearch === 'false')
+            ? ''
+            : html`  
+              <input id="search" class="header-input" type="text"  placeholder="search" @change="${this.onSearchChange}" style="max-width:130px;margin-left:10px;" spellcheck="false" >
+              <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x23ce;</div>
+            `
+          }
         </div>
       </div>`;
   }
@@ -269,36 +293,72 @@ export default class RapiDoc extends LitElement {
     <div class="sub-title regular-font section-gap">
       <a id="api_server_options"> API SERVER: </a>
       <div class="mono-font" style="margin: 12px 0; font-size:calc(var(--small-font-size) + 1px);">
-      ${!this.resolvedSpec.servers || (this.resolvedSpec.servers.length === 0)
-        ? ''
-        : html`
-          ${this.resolvedSpec.servers.map((server) => html`
-            <input type='radio' name='api_server' value='${server.url}' @change="${this.onApiServerChange}" checked style='margin:2px 0 5px 8px'/>
-            ${server.url}
-            ${server.description ? html`- ${server.description}` : ''}
-            <br/>
-          `)}
-      `}
+        ${!this.resolvedSpec.servers || (this.resolvedSpec.servers.length === 0)
+          ? ''
+          : html`
+            ${this.resolvedSpec.servers.map((server) => html`
+              <input type='radio' 
+                name='api_server' 
+                value='${server.url}' 
+                @change="${this.onApiServerChange}" 
+                checked 
+                style='margin:4px 0'/>
+              ${server.url}
+              ${server.description ? html`- ${server.description}` : ''}
+              <br/>
+            `)}
+        `}
 
-      ${(this.serverUrl) ? html`
-        <input type='radio' name='api_server' value='${this.serverUrl}' @change="${this.onApiServerChange}" checked style='margin:2px 0 5px 8px'/>
-            ${this.serverUrl}<br/>
-        ` : ''
-      }
+        ${(this.serverUrl)
+          ? html`
+            <input type='radio' 
+              name='api_server' 
+              value='${this.serverUrl}' 
+              @change="${this.onApiServerChange}" 
+              checked 
+              style='margin:4px 0'
+            />
+            ${this.serverUrl}<br/>`
+          : ''
+        }
       </div>
     </div>`;
   }
 
   securitySchemeTemplate() {
     return html`
-    <div class="sub-title regular-font section-gap">
+      <div class="sub-title regular-font section-gap">AUTHENTICATION</div>
       <security-schemes 
         .schemes="${this.resolvedSpec.securitySchemes}"
         selected-api-key-name  = "${this.apiKeyName ? this.apiKeyName : ''}"
         selected-api-key-value = "${this.apiKeyValue ? this.apiKeyValue : ''}"
         @change="${this.onSecurityChange}"
       ></security-schemes>
-    </div>`;
+    `;
+  }
+
+  apiListingStyleSelectionTemplate() {
+    return html`
+      <div class="sub-title regular-font section-gap">GROUP API BY: </div>
+      <div>
+        <input type='radio' 
+          name='apiListStyle' 
+          value='group-by-tag' 
+          @change="${() => this.onListStyleChange('group-by-tag')}" 
+          .checked = "${this.apiListStyle === 'group-by-tag'}"
+          style='margin:12px 0  0 24px' 
+        />
+        <span style='margin-right:10px'>Tag</span>  
+        <input type='radio' 
+          name='apiListStyle' 
+          value='group-by-path' 
+          @change="${() => this.onListStyleChange('group-by-path')}" 
+          .checked = "${this.apiListStyle === 'group-by-path'}"
+          style='margin:12px 0'
+        />
+        <span>Path</span>  
+      </div>
+    `;
   }
 
   endpointsGroupedByTagTemplate() {
@@ -317,11 +377,37 @@ export default class RapiDoc extends LitElement {
           .paths           = "${tag.paths}" 
           allow-try        = "${this.allowTry ? this.allowTry : 'true'}"
           match-paths      = "${this.matchPaths}"
-        ></end-points>
-      `)
-      }`;
+        ></end-points>`)
+      }
+    `;
   }
 
+  endpointsGroupedByPathTemplate() {
+    return html`
+      ${(this.allowApiListStyleSelection === 'false' || !this.resolvedSpec)
+        ? ''
+        : html`<div class="sub-title tag regular-font section-gap">PATHS</div>`
+      }
+
+      ${this.resolvedSpec.pathGroups.filter((pathObj) => {
+        if (this.matchPaths) {
+          return pathObj.path.includes(this.matchPaths);
+        }
+        return true;
+      })
+      .map((pathObj) => html`
+        <path-and-methods 
+          selected-server  = "${this.selectedServer ? this.selectedServer : ''}"  
+          api-key-name     = "${this.apiKeyName ? this.apiKeyName : ''}"
+          api-key-value    = "${this.apiKeyValue ? this.apiKeyValue : ''}"
+          api-key-location = "${this.apiKeyLocation ? this.apiKeyLocation : ''}"
+          layout           = "${this.layout ? this.layout : 'row'}"
+          .path            = "${pathObj}" 
+          allow-try        = "${this.allowTry ? this.allowTry : 'true'}"
+          match-paths      = "${this.matchPaths}"
+        ></path-and-methods>`)
+      }`;
+  }
 
   /* eslint-enable indent */
 
@@ -344,14 +430,14 @@ export default class RapiDoc extends LitElement {
       allowSpecUrlLoad: { type: String, attribute: 'allow-spec-url-load' },
       allowSpecFileLoad: { type: String, attribute: 'allow-spec-file-load' },
       allowSearch: { type: String, attribute: 'allow-search' },
+      allowApiListStyleSelection: { type: String, attribute: 'allow-api-list-style-selection' },
       layout: { type: String },
       theme: { type: String },
       logoUrl: { type: String, attribute: 'logo-url' },
       apiKeyName: { type: String, attribute: 'api-key-name' },
       apiKeyValue: { type: String, attribute: 'api-key-value' },
       apiKeyLocation: { type: String, attribute: 'api-key-location' },
-      groupByTags: { type: String, attribute: 'group-by-tags' },
-
+      apiListStyle: { type: String, attribute: 'api-list-style' },
     };
   }
 
@@ -369,15 +455,14 @@ export default class RapiDoc extends LitElement {
   }
 
   onSepcFileChange(e) {
-    const me = this;
     this.setAttribute('spec-file', this.shadowRoot.getElementById('spec-file').value);
     const specFile = e.target.files[0];
     const reader = new FileReader();
     reader.onload = () => {
       try {
         const specObj = JSON.parse(reader.result);
-        me.loadSpec(specObj);
-        me.shadowRoot.getElementById('spec-url').value = '';
+        this.loadSpec(specObj);
+        this.shadowRoot.getElementById('spec-url').value = '';
       } catch (err) {
         console.log('Unable to read or parse json'); // eslint-disable-line no-console
       }
@@ -396,6 +481,11 @@ export default class RapiDoc extends LitElement {
       this.selectedServer = apiServerRadioEl.value;
       this.requestUpdate();
     }
+  }
+
+  onListStyleChange(selectedValue) {
+    this.apiListStyle = selectedValue;
+    this.requestUpdate();
   }
 
   onSecurityChange(e) {
@@ -443,6 +533,9 @@ export default class RapiDoc extends LitElement {
       } else if (this.resolvedSpec && this.resolvedSpec.servers && this.resolvedSpec.servers.length > 0) {
         this.selectedServer = this.resolvedSpec.servers[0].url;
       }
+    }
+    if (!this.apiListStyle) {
+      this.apiListStyle = 'group-by-tag';
     }
     this.requestUpdate();
     window.setTimeout(() => {

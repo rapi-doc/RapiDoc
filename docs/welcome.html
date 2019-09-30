@@ -146,94 +146,91 @@
   <div style="display:flex; flex-direction: column; margin-bottom:24px">
   <h2> Quickstart (<a style="font-size:16px" href="./examples/example2.html">DEMO</a>)</h2> 
   Just copy the below code and save it in an html file. Then open it using a browser 
-
-  <pre class="shadow code-block"><code class="html" style="border-radius:4px">
-  &lt;!doctype html&gt; &lt;!-- Important: must specify --&gt;
-  &lt;html&gt;
-  &lt;head&gt;
-    &lt;meta charset="utf-8"&gt; &lt;!-- Important: rapi-doc uses utf8 charecters --&gt;
-    &lt;script src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"&gt;&lt;/script&gt;
-  &lt;/head&gt;
-  &lt;body&gt;
-    &lt;rapi-doc 
-      spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json" 
-    &gt; &lt;/rapi-doc&gt;
-  &lt;/body&gt; 
-  &lt;/html&gt;
-  </code></pre>
-  </div>
+<pre class="shadow code-block"><code class="html" style="border-radius:4px">&lt;!doctype html&gt; &lt;!-- Important: must specify --&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;meta charset="utf-8"&gt; &lt;!-- Important: rapi-doc uses utf8 charecters --&gt;
+  &lt;script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;rapi-doc 
+    spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json" 
+  &gt; &lt;/rapi-doc&gt;
+&lt;/body&gt; 
+&lt;/html&gt;
+</code></pre>
+</div>
 
 
   <div style="display:flex; flex-direction: column; ">
     <h2> Mix your own HTML (<a style="font-size:16px" href="./examples/example8.html">DEMO</a>)</h2> 
     The below example adds a single click authorization functionality to swagger's petstore spec
-    <pre class="shadow code-block"><code class="html" style="border-radius:4px">
-    &lt;!doctype html&gt;
-    &lt;html&gt;
-    &lt;head&gt;
-      &lt;meta charset="utf-8"&gt;
+<pre class="shadow code-block"><code class="html" style="border-radius:4px">&lt;!doctype html&gt;
+  &lt;html&gt;
+  &lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
 
-      &lt;style&gt;
-        .btn{
-          width: 90px;
-          height: 32px;
-          font-size:13px;
-          background-color: #47AFE8;
-          color: #fff;
-          border: none;
-          margin: 0 2px;
-          border-radius: 2px;
-          cursor:pointer;
-          outline:none;
-        }
-        .txt{
-          width: 100px;
-          height: 30px;
-          font-size:13px;
-          background-color: transparent;
-          border: 1px solid #47AFE8;
-          color: #fff;
-          padding:0 8px;
-          margin: 0 2px;
-          border-radius: 2px;
-          outline:none;
-        }
-        rapi-doc{
-          width:100%;
-        }
-      &lt;/style&gt;
+    &lt;style&gt;
+      .btn{
+        width: 90px;
+        height: 32px;
+        font-size:13px;
+        background-color: #47AFE8;
+        color: #fff;
+        border: none;
+        margin: 0 2px;
+        border-radius: 2px;
+        cursor:pointer;
+        outline:none;
+      }
+      .txt{
+        width: 100px;
+        height: 30px;
+        font-size:13px;
+        background-color: transparent;
+        border: 1px solid #47AFE8;
+        color: #fff;
+        padding:0 8px;
+        margin: 0 2px;
+        border-radius: 2px;
+        outline:none;
+      }
+      rapi-doc{
+        width:100%;
+      }
+    &lt;/style&gt;
 
-      &lt;script src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"&gt;&lt;/script&gt;
-      &lt;script&gt;
-        function setApiKey(){
-          const docEl = document.getElementById('thedoc');
-          const keyInputEl = document.getElementById('key-val-input');
-          docEl.setAttribute('api-key-name','api_key');
-          docEl.setAttribute('api-key-location','header');
-          docEl.setAttribute('api-key-value',keyInputEl.value);
-        }
-      &lt;/script&gt;
-    &lt;/head&gt;
-    &lt;body&gt;
+    &lt;script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"&gt;&lt;/script&gt;
+    &lt;script&gt;
+      function setApiKey(){
+        const docEl = document.getElementById('thedoc');
+        const keyInputEl = document.getElementById('key-val-input');
+        docEl.setAttribute('api-key-name','api_key');
+        docEl.setAttribute('api-key-location','header');
+        docEl.setAttribute('api-key-value',keyInputEl.value);
+      }
+    &lt;/script&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
 
-      &lt;rapi-doc 
-        spec-url="https://petstore.swagger.io/v2/swagger.json" 
-        allow-authentication ="false"
-      &gt;
-        &lt;!-- 
-         below html is custom html that adds an input field and a button in header
-         on clicking the button the 'api-key-value' is set to the value in input box
-        --&gt;
-        &lt;div slot='header' style='display:flex; margin:0 16px;'&gt; 
-          &lt;input class='txt' id='key' type='text' &gt;
-          &lt;button class='btn' onclick='setApiKey()' &gt; Login &lt;/button &gt;
-        &lt;/div>
-      &lt;/rapi-doc&gt;
+    &lt;rapi-doc 
+      spec-url="https://petstore.swagger.io/v2/swagger.json" 
+      allow-authentication ="false"
+    &gt;
+      &lt;!-- 
+        below html is custom html that adds an input field and a button in header
+        on clicking the button the 'api-key-value' is set to the value in input box
+      --&gt;
+      &lt;div slot='header' style='display:flex; margin:0 16px;'&gt; 
+        &lt;input class='txt' id='key' type='text' &gt;
+        &lt;button class='btn' onclick='setApiKey()' &gt; Login &lt;/button &gt;
+      &lt;/div>
+    &lt;/rapi-doc&gt;
 
-      &lt;/body&gt; 
-    &lt;/html&gt;
-    </code></pre>
-    </div>
+    &lt;/body&gt; 
+  &lt;/html&gt;
+</code></pre>
+</div>
   
 
 </div>
@@ -265,6 +262,15 @@
                 It is helpful in the cases where the same spec is shared between multiple environment say Dev and Test and each have their own API server.
               </td>
               <td>(empty)</td>
+            </tr>
+
+            <tr>
+              <td class="mono-bold right">api-list-style</td>
+              <td class="gray">
+                can be either <code>group-by-tag</code> or <code> group-by-path </code>. This controls how the API litings are grouped.
+                this can be changed from the UI too
+              </td>
+              <td>group-by-tag</td>
             </tr>
 
             <tr>
@@ -338,6 +344,14 @@
               <td class="gray">
                 If set to 'false', user will not be able to select API server.
                 The URL specified in the server-url attribute will be used if set, else the first server in the API specification file will be used.
+              </td>
+              <td>true</td>
+            </tr>
+
+            <tr>
+              <td class="mono-bold right">allow-api-list-style-selection</td>
+              <td class="gray">
+                If set to 'false', user will not be able to change api list style
               </td>
               <td>true</td>
             </tr>
@@ -484,7 +498,18 @@
 </code></pre>
 <br/>
 
-<b> Change Header Color with Dark Theme ( <a href="./examples/example3.html">DEMO</a> ) </b> 
+<b> Group List By Path ( <a href="./examples/group-by-path.html">DEMO</a> ) </b> 
+<pre class="shadow code-block" ><code class="html" style="border-radius:4px">
+  &lt;rapi-doc 
+    spec-url = "https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
+    api-list-style = "group-by-path"
+  &gt; 
+  &lt;/rapi-doc&gt;
+</code></pre>
+<br/>
+
+
+<b> Change Header Color With Dark Theme ( <a href="./examples/example3.html">DEMO</a> ) </b> 
 <pre class="shadow code-block" ><code class="html" style="border-radius:4px">
   &lt;rapi-doc 
     spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
