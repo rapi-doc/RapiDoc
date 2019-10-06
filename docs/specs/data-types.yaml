@@ -123,6 +123,16 @@ components:
           description: Categories this pet belongs to
           allOf:
             - $ref: '#/components/schemas/Category'
+        DependentIds:
+          type: array
+          description: IDs of Dependents .
+          items:
+            type: integer
+          example:
+            - 278
+            - 279
+            - 280
+            - 281
         name:
           description: Name of the person
           type: string

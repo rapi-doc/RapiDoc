@@ -57,11 +57,11 @@ export default class JsonTree extends LitElement {
         <div class="inside-bracket">
         ${Object.keys(data).map((key) => html`<div class="item"> ${detailType === 'pure_object' ? html`${key}:` : ''}${this.generateTree(data[key])}</div>`)}
         </div>
-      <div class="right-bracket">${detailType === 'array' ? ']' : '}'}</div>
+      <div class="right-bracket">${detailType === 'array' ? '],' : '},'}</div>
       `;
     }
 
-    return typeof data === 'string' ? html`<span class="${typeof data}">"${data}"</span>` : html`<span class="${typeof data}">${data}</span>`;
+    return typeof data === 'string' ? html`<span class="${typeof data}">"${data}"</span>,` : html`<span class="${typeof data}">${data}</span>,`;
   }
   /* eslint-enable indent */
 

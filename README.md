@@ -36,7 +36,7 @@ Custom Eelement for Open-API spec viewing
   - Use it inside another framework (react, vue, angular, lit-element)
   - Use JavaScript to change its attributes, and it will react to those changes
   - Style the element with standard css (change padding, position, border, margin )
-- Lightweight and fast (under 125 KB gzipped)
+- Lightweight and fast
 - Load local json spec from the disk
 - Supported on Chrome, FireFox and Safari. (Not yet tested on Edge)
 
@@ -49,7 +49,6 @@ Custom Eelement for Open-API spec viewing
 
 
 ## Build Process
-We recommend `yarn` over `npm` as we use yarn [resolutions](https://yarnpkg.com/lang/en/docs/selective-version-resolutions/) to keep the bundle size smaller. As of this writing this feature is not supported in npm natively 
 ```bash
 # Clone / Download the project then
 yarn install
@@ -61,3 +60,5 @@ yarn build
 # for developement use yarn serve (this will start an webserver at port 8080, then navigate to localhost:8080) 
 yarn serve
 ```
+
+## Contribution

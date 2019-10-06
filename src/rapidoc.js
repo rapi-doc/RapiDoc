@@ -92,9 +92,9 @@ export default class RapiDoc extends LitElement {
           --header-bg:${this.headerColor ? `${this.headerColor}` : '#444'};
           --header-fg:${this.headerColor ? `${ColorUtils.color.invert(this.headerColor)}` : '#ccc'};
           --layout:${this.layout ? `${this.layout}` : 'row'};
-          --font-mono:${this.monoFont ? `${this.monoFont}` : 'Monaco, \'Andale Mono\', \'Roboto Mono\', Consolas'}; 
+          --font-mono:${this.monoFont ? `${this.monoFont}` : 'Monaco, "Andale Mono", "Roboto Mono", Consolas'}; 
           --font-mono-size:13px; 
-          --font-regular:${this.regularFont ? `${this.regularFont}` : 'rapidoc, Helvetica, Arial'};
+          --font-regular:${this.regularFont ? `${this.regularFont}` : 'rapidoc, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" '};
           --title-font-size:16px;
           --regular-font-size:14px;
           --small-font-size:12px;

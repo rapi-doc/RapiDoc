@@ -1,7 +1,7 @@
 import { LitElement, html } from 'lit-element';
 import marked from 'marked';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
-import { schemaToModel, generateExample } from '@/utils/common-utils';
+import { schemaInObjectNotation, generateExample } from '@/utils/common-utils';
 import FontStyles from '@/styles/font-styles';
 import FlexStyles from '@/styles/flex-styles';
 import TableStyles from '@/styles/table-styles';
@@ -107,7 +107,7 @@ export default class ApiResponse extends LitElement {
         const mimeRespObj = this.responses[statusCode].content[mimeResp];
 
         // Generate Schema
-        const schemaTree = schemaToModel(mimeRespObj.schema, {});
+        const schemaTree = schemaInObjectNotation(mimeRespObj.schema, {});
 
         // Generate Example
         const respExample = generateExample(

@@ -7,7 +7,7 @@ import InputStyles from '@/styles/input-styles';
 import FontStyles from '@/styles/font-styles';
 import CommonStyles from '@/styles/common-styles';
 import {
-  schemaToModel, getTypeInfo, generateExample,
+  schemaInObjectNotation, getTypeInfo, generateExample,
 } from '@/utils/common-utils';
 import '@/components/json-tree';
 import '@/components/schema-tree';
@@ -224,6 +224,7 @@ export default class ApiRequest extends LitElement {
         </td>
         <td>
           <div class="param-constraint">
+            ${paramSchema.default ? html`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
             ${paramSchema.constrain ? html`${paramSchema.constrain}<br/>` : ''}
             ${paramSchema.allowedValues ? html`${paramSchema.allowedValues}` : ''}
           </div>
@@ -300,9 +301,9 @@ export default class ApiRequest extends LitElement {
           return;
         }
         if (mimeReq.includes('json')) {
-          reqSchemaTree.json = schemaToModel(mimeReqObj.schema, {});
+          reqSchemaTree.json = schemaInObjectNotation(mimeReqObj.schema, {});
         } else if (mimeReq.includes('xml')) {
-          reqSchemaTree.xml = schemaToModel(mimeReqObj.schema, {});
+          reqSchemaTree.xml = schemaInObjectNotation(mimeReqObj.schema, {});
         }
         reqExample = generateExample(
           mimeReqObj.schema ? mimeReqObj.schema.examples : '',
@@ -318,8 +319,8 @@ export default class ApiRequest extends LitElement {
             spellcheck = "false"
             data-ptype = "${mimeReq}" 
             style="resize:vertical;display:${shortMimeTypes[mimeReq] === 'json' ? 'block' : 'none'}; "
-          >${reqExample[0].exampleValue}
-          </textarea>`;
+          >${reqExample[0].exampleValue}</textarea>
+        `;
       } else if (mimeReq.includes('form') || mimeReq.includes('multipart-form')) {
         isFormDataPresent = true;
         for (const fieldName in mimeReqObj.schema.properties) {
@@ -486,9 +487,7 @@ export default class ApiRequest extends LitElement {
                   <button class="m-btn" @click="${this.downloadResponseBlob}">DOWNLOAD</button>
                 </div>`
               : html`
-                <textarea class="mono" spellcheck="false" style="resize:vertical;min-height:180px; padding:16px;">
-                  ${this.responseText}
-                </textarea>
+                <textarea class="mono" spellcheck="false" style="resize:vertical;min-height:180px; padding:16px;">${this.responseText}</textarea>
               `
             }
           </div>
