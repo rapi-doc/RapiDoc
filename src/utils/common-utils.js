@@ -111,6 +111,9 @@ export function getSampleValueByType(schemaObj) {
   if (Object.keys(schemaObj).length === 0) {
     return null;
   }
+  if (schemaObj.$ref) { // Indicates a Circular ref
+    return schemaObj.$ref;
+  }
   let typeValue = schemaObj.format || schemaObj.type || (schemaObj.enum ? 'enum' : null);
   if (!typeValue) {
     if (schemaObj.enum) {
