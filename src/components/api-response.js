@@ -99,15 +99,14 @@ export default class ApiResponse extends LitElement {
 
         // Generate Schema
         const schemaTree = schemaInObjectNotation(mimeRespObj.schema, {});
-
         // Generate Example
         const respExample = generateExample(
-          mimeRespObj.schema ? mimeRespObj.schema.examples : '',
+          mimeRespObj.examples ? mimeRespObj.examples : '',
           mimeRespObj.schema ? mimeRespObj.schema.example : '',
           mimeRespObj.schema,
           mimeResp,
           true,
-          'json',
+          mimeResp.includes('json') ? 'json' : 'text',
         );
         allMimeResp[mimeResp] = {
           description: this.responses[statusCode].description,
@@ -164,10 +163,16 @@ export default class ApiResponse extends LitElement {
                 <div style="align-self:center;font-size:var(--small-font-size);"> ${mimeType} </div>
               </div>
               <div id="${status}_${mimeType}_example" class="tab-content col" style="flex:1; ">
-                <json-tree 
-                  class="border tree" 
-                  .data="${mimeResponsesForEachStatus[status][mimeType].examples[0].exampleValue}"
-                ></json-tree>
+                ${mimeType.includes('JSON')
+                  ? html`
+                    <json-tree 
+                      class="border tree" 
+                      .data="${mimeResponsesForEachStatus[status][mimeType].examples[0].exampleValue}"
+                    ></json-tree>`
+                  : html`
+                    <pre style="font-size:var(--font-mono-size);">${mimeResponsesForEachStatus[status][mimeType].examples[0].exampleValue}</pre>
+                  `
+                }
               </div>
               <div id="${status}_${mimeType}_model" class="tab-content col" style="flex:1;display:none">
                 <schema-tree 

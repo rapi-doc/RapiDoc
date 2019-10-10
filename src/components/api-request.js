@@ -84,7 +84,7 @@ export default class ApiRequest extends LitElement {
         
       }
       .textarea {
-        min-height:180px; 
+        min-height:220px; 
         padding:5px;
         resize:vertical;
         font-size:var(--font-mono-size);
@@ -263,7 +263,7 @@ export default class ApiRequest extends LitElement {
     let mimeReqCount = 0;
     const shortMimeTypes = {};
     const bodyDescrHtml = this.request_body.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(this.request_body.description || ''))}</div>` : '';
-    let textareaExampleHtml = '';
+    let textareaExampleHtml;
     let formDataHtml = '';
     const formDataTableRows = [];
     let isFormDataPresent = false;
@@ -313,7 +313,8 @@ export default class ApiRequest extends LitElement {
           false,
           'text',
         );
-        textareaExampleHtml += `
+        textareaExampleHtml = html`
+          ${textareaExampleHtml}
           <textarea 
             class = "textarea mono request-body-param ${shortMimeTypes[mimeReq]}" 
             spellcheck = "false"
@@ -427,7 +428,7 @@ export default class ApiRequest extends LitElement {
             </div>
           </div>
           <div id="tab_example" class="tab-content col" style="flex:1; ">
-            ${unsafeHTML(textareaExampleHtml)}
+            ${textareaExampleHtml}
           </div>
           <div id="tab_model" class="tab-content col" style="flex:1;display:none">
             ${Object.keys(shortMimeTypes).map((k) => html`
