@@ -4,6 +4,71 @@ info:
   version: 1.0.0
   title: Testing different data-types
 paths:
+  /simple-nested-object:
+    get:
+      summary: response as containing nested object
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  age:
+                    description: Person Age
+                    type: integer
+                  fullName:
+                    description: Person Full name
+                    type: object
+                    properties:
+                      firstName:
+                        description: First name
+                        type: string
+                      lastName:
+                        description: Last name
+                        type: string
+                  dependentIds:
+                    type: array
+                    description: IDs of Dependents .
+                    items:
+                      type: integer
+                  dependentNames:
+                    type: array
+                    description: Full Name of Dependents .
+                    items:
+                      type: object
+                      properties:
+                        firstNameParts:
+                          description: First Name parts
+                          type: object
+                          properties:
+                            firstName:
+                              description: This is a very very long description to test how will it show up on a API spec renderer tool such as RapiDoc. This lable must be big enough to wrap into next line 
+                              type: string
+                            aVeryVeryLongFieldToForTestingHowThingsLookWhenInSchemaModelWhenItEncountersALongField:
+                              description: Dependent Last Name
+                              type: string
+                        dependentLastName:
+                          description: Dependent Last Name
+                          type: string
+  /simple:
+    get:
+      summary: response as a simple object containing primitive properties
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    description: Person Name
+                    type: string
+                  age:
+                    description: Person Age
+                    type: integer
   /person:
     post:
       summary: Contains parameters of various data-types and constraints in query, request-body and response

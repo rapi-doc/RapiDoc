@@ -309,7 +309,8 @@ export function schemaInObjectNotation(schema, obj, level = 0) {
     schema[xxxOf].map((v) => {
       if (v.type === 'object' || v.properties || v.allOf || v.anyOf || v.oneOf) {
         const partialObj = schemaInObjectNotation(v, {});
-        objWithAnyOfProps[`OPTION_${i}`] = partialObj;
+        objWithAnyOfProps[`::OPTION~${i}`] = partialObj;
+        objWithAnyOfProps['::type'] = 'xxx-of-option';
         i++;
       } else if (v.type === 'array' || v.items) {
         const partialObj = [schemaInObjectNotation(v, {})];
@@ -319,7 +320,8 @@ export function schemaInObjectNotation(schema, obj, level = 0) {
         objWithAnyOfProps[prop] = `${getTypeInfo(v).html}`;
       }
     });
-    obj[(schema.anyOf ? 'ANY_OF' : 'ONE_OF')] = objWithAnyOfProps;
+    obj[(schema.anyOf ? '::ANY~OF' : '::ONE~OF')] = objWithAnyOfProps;
+    obj['::type'] = 'xxx-of';
   } else {
     const typeObj = getTypeInfo(schema);
     if (typeObj.html) {

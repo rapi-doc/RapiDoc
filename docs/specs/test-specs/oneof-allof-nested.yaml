@@ -1,21 +1,7 @@
 openapi: "3.0.2"
 info:
   title: "API example"
-  description: "Sample desc."
-  version: "1"
-
-
-
-servers:
-# Added by API Auto Mocking Plugin
-  - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/leorush/testtw/1
-  - url: http://demo.example.com
-    description: Demo server
-
-    
-
-
+  description: "Contains all-of inside one-of"
 paths:
   /registration/domains:
     post:
@@ -32,12 +18,9 @@ paths:
                 mapping:
                   person: '#/components/schemas/domain_order_data'
                   org: '#/components/schemas/domain_order_data_org'
-              
       responses:
         200:
           $ref: '#/components/responses/customer_reg'
-          
- 
 components:
   schemas:
     common_data:
@@ -52,21 +35,18 @@ components:
             - "org"
           description: "client type"
           example: "person"
-  
     common_org_data:
       type: object
       required:
-            - org_address
-            - org_name
+        - org_address
+        - org_name
       properties:
-
         org_address:
           type: string
           example: "bbb"
         org_name: 
           type: string
           example: "aaa"
-        
     domain_order_data:
       allOf:
         - type: object
@@ -83,14 +63,10 @@ components:
               type: string
               example: "79219523621"
         - $ref: '#/components/schemas/common_data'          
-            
     domain_order_data_org:
       allOf:
         - $ref: '#/components/schemas/common_org_data'   
         - $ref: '#/components/schemas/domain_order_data'   
-  
-  
-
   responses:
     customer_reg:
       description: "sample"

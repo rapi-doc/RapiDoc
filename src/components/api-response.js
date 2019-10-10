@@ -71,15 +71,6 @@ export default class ApiResponse extends LitElement {
         color:var(--light-fg);
         font-family:var(--font-regular);
       }
-      .tree{
-        padding:16px 2px;
-      }
-      @media only screen and (min-width: 768px){
-        .tree {
-          padding:16px;
-        }
-      }
-
     </style>
     <div class="col regular-font response-panel">
       <div class="title">RESPONSE</div>

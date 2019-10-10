@@ -36,8 +36,14 @@ export default class JsonTree extends LitElement {
         .null{color:orangered;}
         .boolean{color:#b96ff1}
         .object{color:var(--fg)}
+        .toolbar{
+          width:100%;
+          min-height:20px;
+        }
       </style>
       <div class="tree">
+        <div class='toolbar'> 
+        </div> 
         ${this.generateTree(this.data)}
       </div>  
     `;

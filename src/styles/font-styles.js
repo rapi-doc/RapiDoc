@@ -9,6 +9,9 @@ export default html`
     .tiny-title {font-size:13px; font-weight:bold}
     .regular-font-size{ font-size:var(--regular-font-size);}
     .small-font-size{ font-size:var(--small-font-size);}
+    .primary-text{ color: var(--primary-color)}
+    .bold-text{ font-weight:bold}
+    .upper{text-transform: uppercase;}
     h1{ font-family:var(--font-regular); font-size:20px; letter-spacing:normal; }
     h2{ font-family:var(--font-regular); font-size:18px; letter-spacing:normal; }
     h3{ font-family:var(--font-regular); font-size:16px; letter-spacing:normal; }

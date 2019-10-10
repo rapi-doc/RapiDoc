@@ -432,8 +432,8 @@ export default class ApiRequest extends LitElement {
           <div id="tab_model" class="tab-content col" style="flex:1;display:none">
             ${Object.keys(shortMimeTypes).map((k) => html`
               <schema-tree 
-                class = "border ${shortMimeTypes[k]}"
-                style = "padding:16px; display: ${(shortMimeTypes[k] === 'json' ? 'block' : 'none')};"
+                class = "${shortMimeTypes[k]}"
+                style = "display: ${(shortMimeTypes[k] === 'json' ? 'block' : 'none')};"
                 .data = "${reqSchemaTree[shortMimeTypes[k]]}"
               > </schema-tree>
               `)}

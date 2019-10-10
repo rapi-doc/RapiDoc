@@ -9,199 +9,224 @@ export default class SchemaTree extends LitElement {
     return html`
       ${FontStyles}
       <style>
-        .tree {
-          font-family: var(--font-mono);
-          font-size:var(--font-mono-size);
-          display:inline-block;
-          overflow:hidden;
-          width:100%;
-        }
-        .item {
-          white-space: nowrap;
-          display: table;
-        }
-        .item__key {
-          display:inline;
-        }
-        .item__value {
-          display: table-cell;
-          white-space: nowrap;
-        }
-        .item__type {
-          display: table-cell;
-          white-space: nowrap;
-        }
-        .item__constraints {
-          display: table-cell;
-          font-family:var(--font-regular);
-          color:var(--delete-color);
-          padding: 2px 2px 2px 10px;
-          margin-left:5px;
-        }
-        .item__descr {
-          color:var(--light-fg);
-          display: table-cell;
-          padding-left:12px;
-          min-width: 125px;
-          font-family:var(--font-regular);
-          white-space:normal;
-        }
-        .obj-descr {
-          color:var(--light-fg);
-          font-family:var(--font-regular);
-          display:inline;
-          white-space:normal;
-        }
-        .left-bracket {
-          display:inline-block;
-          padding: 0 20px 0 0;
-          cursor:pointer;
-          border: 1px solid transparent;
-          border-radius:3px;
-        }
-        .left-bracket:hover {
-          color:var(--primary-color);
-          background-color:var(--hover-color);
-          border: 1px solid var(--border-color);
-        }
-        .inside-bracket {
-          padding-left:12px;
-          border-left:1px dotted var(--border-color);
-        }
-        .stri, .string, .uri, .url, .byte, .bina, .date, .pass, .ipv4, .ipv4, .uuid, .emai, .host {color:#86b300;}
-        .inte, .numb, .number, .int6, .int3, .floa, .doub, .deci .blue {color:#47afe8;}
-        .null {color:orangered;}
-        .bool, .boolean{color:#b96ff1}
-        .enum {color:orange}
-        .recu {color:#D4AC0D} 
-        .any-of-one-of{
-          font-size:10px; 
-          font-weight:bold; 
-          background-color:var(--primary-color); 
-          color:var(--primary-text); 
-          border-radius:2px; 
-          padding:2px 4px; 
-          margin-bottom:1px; 
-          display:inline-block;
-        }
-        .bold {font-weight:bold }
-        @media only screen and (min-width: 768px){
-          .item-descr{
-            padding-left:24px;
-          }
-        }
+      .tree {
+        font-size:12px;
+        text-align: left;
+        line-height:18px;
+      }
+      .tr {
+        display: flex;
+        flex: none;
+        width: 100%;
+        border-bottom: 1px dotted transparent;
+      }
+      .tr:hover{
+        background-color:rgba(128,128,128, 0.07);
+      }
+      .td {
+        display: block;
+        flex: 0 0 auto;
+        box-sizing: border-box;
+        background-color:transparent;
+      }
+      .key {
+        font-family: var(--font-mono);
+        white-space: normal;
+        word-break: break-all;
+        max-width: 300px;
+      }
+      .key-descr {
+        font-family:var(--font-regular);
+        color:var(--light-fg);
+        flex-shrink: 1;
+        text-overflow: ellipsis;
+        overflow: hidden;
+      }
+      .expanded-descr .key-descr{
+        max-height:auto;
+        overflow:hidden;
+      }
+      .collapsed-descr .tr {
+        max-height:20px;
+      }
+      .collapsed-descr .m-markdown-small p {
+        line-height:20px;
+      }
+
+      .open-bracket{
+        display:inline-block;
+        padding: 0 20px 0 0;
+        cursor:pointer;
+        border: 1px solid transparent;
+        border-radius:3px;
+      }
+      .open-bracket:hover {
+        color:var(--primary-color);
+        background-color:var(--hover-color);
+        border: 1px solid var(--border-color);
+      }
+      .close-bracket{
+        display:inline-block;
+        font-family: var(--font-mono);
+      }
+      .tr.collapsed + .inside-bracket,
+      .tr.collapsed + .inside-bracket + .close-bracket{
+        display:none;
+      }
+      .inside-bracket.object,
+      .inside-bracket.array {
+        border-left: 1px dotted var(--border-color);
+      }
+      .inside-bracket.xxx-of{
+        padding:5px 0px;
+        border-style: solid;
+        border-width: 1px 0;
+        border-color:var(--primary-color);
+      }
+      .xxx-of-key {
+        font-size:10px; 
+        font-weight:bold; 
+        background-color:var(--primary-color); 
+        color:var(--primary-text); 
+        border-radius:2px;
+        line-height:18px;
+        padding:0px 5px; 
+        margin-bottom:1px; 
+        display:inline-block;
+      }
+      .stri, .string, .uri, .url, .byte, .bina, .date, .pass, .ipv4, .ipv4, .uuid, .emai, .host {color:#86b300;}
+      .inte, .numb, .number, .int6, .int3, .floa, .doub, .deci .blue {color:#47afe8;}
+      .null {color:orangered;}
+      .bool, .boolean{color:#b96ff1}
+      .enum {color:orange}
+      .recu {color:#D4AC0D}
+      .descr-expander{
+        width:100%;
+        text-align:right;
+        cursor:pointer;
+        color:var(--primary-color);
+        text-decoration:underline;
+        padding:5px 0;
+      }
       </style>
-      <div class="tree">
-        ${this.generateTree(this.data['::type'] === 'array' ? this.data['::props'] : this.data, this.data['::type'])}
+      <div class="tree expanded-descr">
+        <div class='descr-expander' @click='${this.toggleDescrExpand}'> 
+          Collapse Descriptions
+        </div>
+        <div style='padding: 5px 0; color:var(--fg2)'> <span class='bold-text upper'> ${this.data['::type']}: </span> ${this.data['::description']}</div>
+        ${this.generateTree(
+          this.data['::type'] === 'array' ? this.data['::props'] : this.data,
+          this.data['::type'],
+          '',
+          '',
+        )}
       </div>  
     `;
   }
 
-  generateTree(data, prevDataType = 'object') {
+  generateTree(data, prevDataType = 'object', prevKey = '', prevDescr = '', level = 0) {
     if (!data) {
       return html`<div class="null" style="display:inline;">null</div>`;
     }
-    if (typeof data === 'object') {
-      const dataType = prevDataType === 'array' ? 'array' : 'object';
-      if (Object.keys(data).length === 0) {
-        return html`${(Array.isArray(data) ? '[ ]' : '{ }')}`;
-      }
-      if ((Object.keys(data).length === 1) && Object.keys(data)[0] === ':description') {
-        return html`{ } <span class='obj-descr'> ${data['::description']} </span>`;
-      }
-      if (dataType === 'array' && data[0] === '~|~') {
-        return html`[ ]`;
-      }
+    let newPrevKey = '';
+    if (['::ONE~OF', '::ONE~OF'].includes(prevKey)) {
+      newPrevKey = prevKey.replace('::', '').replace('~', ' ');
+    } else if (prevKey.startsWith('::OPTION')) {
+      newPrevKey = prevKey.replace('::OPTION~', '').replace('~', ' ');
+    } else {
+      newPrevKey = prevKey;
+    }
 
-      let openBracket;
-      let closeBracket;
-      if (Object.keys(data)[0].startsWith('OPTION') || Object.keys(data)[0] === 'ANY_OF' || Object.keys(data)[0] === 'ONE_OF') {
-        if (Object.keys(data)[0] === 'ANY_OF' || Object.keys(data)[0] === 'ONE_OF') {
-          openBracket = html`<div width="100%" style="border-bottom: 1px solid var(--primary-color); margin: 5px 0;"></div>`;
-          closeBracket = html`<div width="100%" style="border-bottom: 1px solid var(--primary-color); margin: 5px 0;"></div>`;
-        } else {
-          closeBracket = '';
-          openBracket = '';
-        }
+    const leftPadding = 12;
+    const minFieldColWidth = 300 - (level * leftPadding);
+
+    let openBracket = '';
+    let closeBracket = '';
+    if (data['::type'] === 'object') {
+      if (prevDataType === 'array') {
+        openBracket = html`<span class="open-bracket array" @click="${this.toggleObjectExpand}">[{</span>`;
+        closeBracket = '}]';
       } else {
-        openBracket = html`<div class="left-bracket expanded ${dataType === 'array' ? 'array' : 'object'} " @click="${this.toggleExpand}" > ${dataType === 'array' ? '[{' : '{'}</div>`;
-        closeBracket = html`<div class="right-bracket obj-content-part">${dataType === 'array' ? '}]' : '}'}</div>`;
+        openBracket = html`<span class="open-bracket object" @click="${this.toggleObjectExpand}">{</span>`;
+        closeBracket = '}';
       }
+    }
+
+    if (typeof data === 'object') {
       return html`
-        ${openBracket}
-        ${data['::description'] ? html`<span class='obj-descr obj-content-part'> ${data['::description']} </span>` : ''}
-        <div class="${Object.keys(data)[0].startsWith('OPTION') ? '' : 'inside-bracket'} obj-content-part" >
+        <div class="tr expanded ${data['::type']}">
+          <div class='td key' style='min-width:${minFieldColWidth}px'>
+            ${data['::type'] === 'xxx-of-option' || prevKey.startsWith('::OPTION')
+              ? html`<span class='xxx-of-key'>${newPrevKey}</span>`
+              : newPrevKey.endsWith('*')
+                ? html`<span style='color:var(--delete-color);margin-left:-6px'>*</span>${newPrevKey.substring(0, newPrevKey.length - 1)}`
+                : newPrevKey
+            }${level > 0 ? ':' : ''}${openBracket}
+          </div>
+          <div class='td key-descr'>${prevDescr}</div>
+        </div>
+        <div class='inside-bracket ${data['::type']}' style='padding-left:${data['::type'] !== 'xxx-of-option' ? leftPadding : 0}px;'>
           ${Object.keys(data).map((key) => html`
             ${['::description', '::type', '::props'].includes(key)
               ? ''
-              : html`
-                <div class="item"> 
-                  <span class="item__key"> 
-                    ${key === 'ANY_OF' || key === 'ONE_OF'
-                      ? html`
-                        <span class="any-of-one-of" >${key.replace('_', ' ')}</span>`
-                      : key.startsWith('OPTION')
-                        ? html`<span class="any-of-one-of" >${key.replace('OPTION_', ' ')}</span>`
-                        : key.endsWith('*')
-                          ? html`<span style='color:var(--delete-color)'>*</span>${key.substring(0, key.length - 1)}:`
-                          : html`${key}:`
-                    } 
-                  </span>
-                  ${this.generateTree(data[key]['::type'] === 'array' ? data[key]['::props'] : data[key], data[key]['::type'])}
-                </div>`
+              : html`${this.generateTree(
+                data[key]['::type'] === 'array' ? data[key]['::props'] : data[key],
+                data[key]['::type'],
+                key,
+                data[key]['::description'],
+                (level + 1),
+              )}`
             }
           `)}
         </div>
-        ${closeBracket}
+        ${data['::type'].includes('xxx-of')
+          ? ''
+          : html`<div class='close-bracket'> ${closeBracket} </div>`
+        }
       `;
     }
 
     // For Primitive Data types
     const itemParts = data.split('~|~');
     const dataTypeCss = itemParts[0].replace('{', '').substring(0, 4).toLowerCase();
-
     return html`
-      ${itemParts.length === 7
-        ? html`
-            <span class="item__value">
-              ${data
-                ? html`
-                  <div class="item__type ${dataTypeCss}"> 
-                    ${prevDataType === 'array' ? '[' : ''} 
-                    ${itemParts[0]} ${itemParts[1]}
-                    ${prevDataType === 'array' ? ']' : ''} 
-                  </div>
-                  ${itemParts[2]
-                    ? html`<div class="item__constraints"> ${itemParts[2]}</div>`
-                    : ''
-                  }
-                  <span class="item__descr"> 
-                    ${itemParts[3]
-                      ? html`<div style='color:#47afe8;'><span class='bold'>Default:</span> ${itemParts[3]}</div>`
-                      : ''
-                    }
-                    ${itemParts[4]
-                      ? html`<div style='color:#47afe8;'><span class='bold'>Allowed:</span>(${itemParts[4]})</div>`
-                      : ''
-                    }
-                    ${itemParts[5]
-                      ? html`<div style='color:#47afe8;'><span class='bold'>Pattern:</span> ${itemParts[5]}</div>`
-                      : ''
-                    }
-                    ${itemParts[6]
-                      ? html`<span class="m-markdown m-markdown-small">${unsafeHTML(marked(itemParts[6]))}</span>`
-                      : ''
-                    }
-                  </span>`
-                : ''
-              }
-            </span>
-          `
-        : html`<span class="item__value"> Must be 7 parts but found ${itemParts.length}</span>`
-      }
+      <div class = "tr primitive">
+        <div class='td key' style='min-width:${minFieldColWidth}px' >
+          ${newPrevKey.endsWith('*')
+            ? html`<span style='color:var(--delete-color); margin-left:-6px'>*</span>${newPrevKey.substring(0, newPrevKey.length - 1)}`
+            : newPrevKey
+          }:
+          <span class='${dataTypeCss}'> 
+            ${prevDataType === 'array' ? `[${itemParts[0]}]` : itemParts[0]}
+            <span>${itemParts[1]}</span>
+          </span>
+        </div>
+        <div class='td key-descr'>
+          ${prevDataType === 'array' ? prevDescr : ''}
+          ${itemParts[2]
+            ? html`<div style='color: var(--fg2)'>${itemParts[2]}</div>`
+            : ''
+          }
+          ${itemParts[3]
+            ? html`<div style='color: var(--fg2)'><span class='bold-text'>Default:</span> ${itemParts[3]}</div>`
+            : ''
+          }
+          ${itemParts[4]
+            ? html`<div style='color: var(--fg2)'><span class='bold-text'>Allowed:</span>(${itemParts[4]})</div>`
+            : ''
+          }
+          ${itemParts[5]
+            ? html`<div style='color: var(--fg2)'><span class='bold-text'>Pattern:</span> ${itemParts[5]}</div>`
+            : ''
+          }
+          ${itemParts[6]
+            ? html`<span class="m-markdown m-markdown-small">${unsafeHTML(marked(itemParts[6]))}</span>`
+            : ''
+          }
+        </div>
+      </div>
     `;
   }
-
   /* eslint-enable indent */
 
   static get properties() {
@@ -210,23 +235,29 @@ export default class SchemaTree extends LitElement {
     };
   }
 
-  toggleExpand(e) {
-    if (e.target.classList.contains('expanded')) {
-      e.target.classList.add('collapsed');
-      e.target.classList.remove('expanded');
+  toggleObjectExpand(e) {
+    const rowEl = e.target.closest('.tr');
+    if (rowEl.classList.contains('expanded')) {
+      rowEl.classList.add('collapsed');
+      rowEl.classList.remove('expanded');
       e.target.innerHTML = e.target.classList.contains('array') ? '[{...}]' : '{...}';
-      const els = e.target.parentNode.querySelectorAll(':scope > .obj-content-part');
-      els.forEach((el) => {
-        el.style.display = 'none';
-      });
     } else {
-      e.target.classList.remove('collapsed');
-      e.target.classList.add('expanded');
+      rowEl.classList.remove('collapsed');
+      rowEl.classList.add('expanded');
       e.target.innerHTML = e.target.classList.contains('array') ? '[{' : '{';
-      const els = e.target.parentNode.querySelectorAll(':scope > .obj-content-part');
-      els.forEach((el) => {
-        el.style.display = el.classList.contains('obj-descr') ? 'inline' : 'block';
-      });
+    }
+  }
+
+  toggleDescrExpand(e) {
+    const treeEl = e.target.closest('.tree');
+    if (treeEl.classList.contains('expanded-descr')) {
+      treeEl.classList.add('collapsed-descr');
+      treeEl.classList.remove('expanded-descr');
+      e.target.innerHTML = 'Expand Descriptions';
+    } else {
+      treeEl.classList.remove('collapsed-descr');
+      treeEl.classList.add('expanded-descr');
+      e.target.innerHTML = 'Collapse Descriptions';
     }
   }
 }
