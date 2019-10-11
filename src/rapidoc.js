@@ -153,6 +153,20 @@ export default class RapiDoc extends LitElement {
           opacity:0.4;
         }
 
+        .loader {
+          margin: 16px auto 16px auto; 
+          border: 4px solid var(--bg2);
+          border-radius: 50%;
+          border-top: 4px solid var(--primary-color);
+          width: 36px;
+          height: 36px;
+          animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
         @media only screen and (min-width: 768px){
           .only-large-screen{
             display:block;
@@ -173,7 +187,7 @@ export default class RapiDoc extends LitElement {
 
       <div class="body-container regular-font">
         <slot></slot>
-        ${this.loading === true ? html`<div style="text-align: center;margin: 16px;">Loading ... </div>` : ''}
+        ${this.loading === true ? html`<div class="loader" style=""></div>` : ''}
         ${this.loadFailed === true ? html`<div style="text-align: center;margin: 16px;"> Unable to load the Spec</div>` : ''}
         ${(this.showInfo === 'false' || !this.resolvedSpec || !this.resolvedSpec.info) ? '' : html`
         <div class="section-gap">
@@ -207,9 +221,9 @@ export default class RapiDoc extends LitElement {
           : this.securitySchemeTemplate()
         }
 
-        ${(this.allowApiListStyleSelection === 'false')
+        ${this.allowApiListStyleSelection === 'false'
           ? ''
-          : this.apiListingStyleSelectionTemplate()
+          : this.resolvedSpec ? this.apiListingStyleSelectionTemplate() : ''
         }
 
         ${this.resolvedSpec && this.resolvedSpec.tags && this.resolvedSpec.pathGroups
