@@ -100,19 +100,36 @@ export default class SchemaTree extends LitElement {
       .bool, .boolean{color:#b96ff1}
       .enum {color:orange}
       .recu {color:#D4AC0D}
-      .descr-expander{
+      .toolbar {
+        display:flex;
         width:100%;
-        text-align:right;
-        cursor:pointer;
+        padding: 2px 0;
         color:var(--primary-color);
-        text-decoration:underline;
+      }
+      .toolbar-item{
+        cursor:pointer;
         padding:5px 0;
+        margin:0 2px;
+      }
+      .seperator{
+        width:1px;
+        align-self:streatch;
+        border-left: 1px solid var(--border-color);
+        margin : 5px 5px;
       }
       </style>
       <div class="tree expanded-descr">
-        <div class='descr-expander' @click='${this.toggleDescrExpand}'> 
-          Collapse Descriptions
+        <div class='toolbar'> 
+          <div style="flex:1"></div>
+          <div class='toolbar-item' @click='${this.toggleDescrExpand}'> 
+            Copy
+          </div>
+          <div class='seperator'></div>
+          <div class='toolbar-item' @click='${this.toggleDescrExpand}'> 
+            Collapse Descriptions
+          </div>
         </div>
+
         <div style='padding: 5px 0; color:var(--fg2)'> <span class='bold-text upper'> ${this.data['::type']}: </span> ${this.data['::description']}</div>
         ${this.generateTree(
           this.data['::type'] === 'array' ? this.data['::props'] : this.data,

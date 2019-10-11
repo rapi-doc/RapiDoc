@@ -36,14 +36,31 @@ export default class JsonTree extends LitElement {
         .null{color:orangered;}
         .boolean{color:#b96ff1}
         .object{color:var(--fg)}
-        .toolbar{
+        .toolbar {
+          display:flex;
           width:100%;
-          min-height:20px;
+          padding: 2px 0;
+          color:var(--primary-color);
+        }
+        .toolbar-item{
+          cursor:pointer;
+          padding:5px 0;
+          margin:0 2px;
+        }
+        .seperator{
+          width:1px;
+          align-self:streatch;
+          border-left: 1px solid var(--border-color);
+          margin : 5px 5px;
         }
       </style>
       <div class="tree">
         <div class='toolbar'> 
-        </div> 
+          <div style="flex:1"></div>
+          <div class='toolbar-item' @click='${this.toggleDescrExpand}'> 
+            Copy
+          </div>
+        </div>
         ${this.generateTree(this.data)}
       </div>  
     `;

@@ -14,18 +14,6 @@ export function debounce(fn, delay) {
 }
 */
 
-export function copyToClipboard(elId) {
-  /* Get the text field */
-  const copyText = document.getElementById(elId);
-
-  /* Select the text field */
-  copyText.select();
-
-  /* Copy the text inside the text field */
-  document.execCommand('copy');
-  return copyText.value;
-}
-
 /* Generates an schema object containing type and constraint info */
 export function getTypeInfo(schema) {
   if (!schema) {
@@ -339,35 +327,61 @@ export function generateExample(examples, example, schema, mimeType, includeRead
   if (examples) {
     for (const eg in examples) {
       let egContent = '';
+      let egFormat = 'json';
       if (mimeType.toLowerCase().includes('json')) {
         if (outputType === 'text') {
           egContent = JSON.stringify(examples[eg].value, undefined, 2);
+          egFormat = 'text';
         } else {
           egContent = examples[eg].value;
+          if (typeof examples[eg].value === 'string') {
+            try {
+              egContent = JSON.parse(examples[eg].value);
+              egFormat = 'json';
+            } catch (err) {
+              egFormat = 'text';
+              // egContent = examples[eg].value;
+            }
+          }
         }
       } else {
         egContent = examples[eg].value;
+        egFormat = 'text';
       }
 
       finalExamples.push({
         exampleType: mimeType,
         exampleValue: egContent,
+        exampleFormat: egFormat,
       });
     }
   } else if (example) {
     let egContent = '';
+    let egFormat = 'json';
     if (mimeType.toLowerCase().includes('json')) {
       if (outputType === 'text') {
         egContent = JSON.stringify(example, undefined, 2);
+        egFormat = 'text';
       } else {
         egContent = example;
+        if (typeof example === 'string') {
+          try {
+            egContent = JSON.parse(example);
+            egFormat = 'json';
+          } catch (err) {
+            egFormat = 'text';
+            // egContent = examples[eg].value;
+          }
+        }
       }
     } else {
       egContent = example;
+      egFormat = 'text';
     }
     finalExamples.push({
       exampleType: mimeType,
       exampleValue: egContent,
+      exampleFormat: egFormat,
     });
   }
   if (finalExamples.length === 0) {
@@ -375,7 +389,8 @@ export function generateExample(examples, example, schema, mimeType, includeRead
     if (schema) {
       // TODO: in case the mimeType is XML then parse it as XML
       if (mimeType.toLowerCase().includes('json') || mimeType.toLowerCase().includes('*/*')) {
-        const egJson = schema.example || schemaToSampleObj(
+        let egFormat = 'json';
+        let egJson = schema.example || schemaToSampleObj(
           schema,
           {
             includeReadOnly,
@@ -384,14 +399,30 @@ export function generateExample(examples, example, schema, mimeType, includeRead
             examplesInJson: true,
           },
         );
+        if (outputType === 'text') {
+          egJson = typeof egJson === 'string' ? egJson : JSON.stringify(egJson, undefined, 2);
+          egFormat = 'text';
+        } else {
+          if (typeof egJson === 'string') {
+            try {
+              egJson = JSON.parse(egJson);
+              egFormat = 'json';
+            } catch (err) {
+              egFormat = 'text';
+            }
+          }
+          console.log('');
+        }
         finalExamples.push({
           exampleType: mimeType,
           exampleValue: outputType === 'text' ? JSON.stringify(egJson, undefined, 2) : egJson,
+          exampleFormat: egFormat,
         });
       } else {
         finalExamples.push({
           exampleType: mimeType,
           exampleValue: schema.example ? JSON.stringify(schema.example, undefined, 2) : '',
+          exampleFormat: 'text',
         });
       }
     } else {
@@ -399,6 +430,7 @@ export function generateExample(examples, example, schema, mimeType, includeRead
       finalExamples.push({
         exampleType: mimeType,
         exampleValue: '',
+        exampleFormat: 'text',
       });
     }
   }

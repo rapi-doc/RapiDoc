@@ -163,7 +163,7 @@ export default class ApiResponse extends LitElement {
                 <div style="align-self:center;font-size:var(--small-font-size);"> ${mimeType} </div>
               </div>
               <div id="${status}_${mimeType}_example" class="tab-content col" style="flex:1; ">
-                ${mimeType.includes('JSON')
+                ${mimeResponsesForEachStatus[status][mimeType].examples[0].exampleFormat === 'json'
                   ? html`
                     <json-tree 
                       class="border tree" 
