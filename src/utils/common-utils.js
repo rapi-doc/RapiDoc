@@ -330,7 +330,7 @@ export function generateExample(examples, example, schema, mimeType, includeRead
       let egFormat = 'json';
       if (mimeType.toLowerCase().includes('json')) {
         if (outputType === 'text') {
-          egContent = JSON.stringify(examples[eg].value, undefined, 2);
+          egContent = typeof examples[eg].value === 'string' ? examples[eg].value : JSON.stringify(examples[eg].value, undefined, 2);
           egFormat = 'text';
         } else {
           egContent = examples[eg].value;
@@ -360,7 +360,7 @@ export function generateExample(examples, example, schema, mimeType, includeRead
     let egFormat = 'json';
     if (mimeType.toLowerCase().includes('json')) {
       if (outputType === 'text') {
-        egContent = JSON.stringify(example, undefined, 2);
+        egContent = typeof example === 'string' ? example : JSON.stringify(example, undefined, 2);
         egFormat = 'text';
       } else {
         egContent = example;
@@ -399,23 +399,24 @@ export function generateExample(examples, example, schema, mimeType, includeRead
             examplesInJson: true,
           },
         );
+
+        if (typeof egJson === 'string') {
+          try {
+            egJson = JSON.parse(egJson);
+            egFormat = 'json';
+          } catch (err) {
+            egFormat = 'text';
+          }
+        }
+
         if (outputType === 'text') {
           egJson = typeof egJson === 'string' ? egJson : JSON.stringify(egJson, undefined, 2);
           egFormat = 'text';
-        } else {
-          // eslint-disable-next-line no-lonely-if
-          if (typeof egJson === 'string') {
-            try {
-              egJson = JSON.parse(egJson);
-              egFormat = 'json';
-            } catch (err) {
-              egFormat = 'text';
-            }
-          }
         }
+
         finalExamples.push({
           exampleType: mimeType,
-          exampleValue: outputType === 'text' ? JSON.stringify(egJson, undefined, 2) : egJson,
+          exampleValue: egJson,
           exampleFormat: egFormat,
         });
       } else {
