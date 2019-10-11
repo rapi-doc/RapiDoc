@@ -3,14 +3,15 @@ const FileManagerPlugin = require('filemanager-webpack-plugin');
 const webpack = require('webpack');
 const CompressionPlugin = require('compression-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-const { DuplicatesPlugin } = require("inspectpack/plugin");
+const { DuplicatesPlugin } = require('inspectpack/plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 const path = require('path');
+
 const commonPlugins = [
   new webpack.HotModuleReplacementPlugin(),
   new webpack.optimize.LimitChunkCountPlugin({
-      maxChunks:1
+    maxChunks: 1
   }),
   new CleanWebpackPlugin(),
   new HtmlWebpackPlugin({template: 'index.html'}),
@@ -18,10 +19,10 @@ const commonPlugins = [
   new FileManagerPlugin({
     onEnd : {
       copy: [
-        {source: 'dist/*.js', destination: 'docs' },
-        {source: 'dist/*.woff2', destination: 'docs' }
-      ]
-    }
+        { source: 'dist/*.js', destination: 'docs' },
+        { source: 'dist/*.woff2', destination: 'docs' },
+      ],
+    },
   })
 ]
 
@@ -52,9 +53,9 @@ module.exports = {
       filename: 'rapidoc-min.js',
     },
     devServer: {
-        contentBase: path.join(__dirname, 'docs'),
-        port: 8080,
-        hot: true
+      contentBase: path.join(__dirname, 'docs'),
+      port: 8080,
+      hot: true
     },
     module: {
         rules: [

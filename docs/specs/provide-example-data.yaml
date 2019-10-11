@@ -1,0 +1,220 @@
+openapi: 3.0.0
+info:
+  title: NetDGatewaAPI
+  version: 0.0.0
+  contact:
+    name: Jacob Miles
+paths:
+  /search/name:
+    get:
+      operationId: Search By Name
+      summary: Search by Name
+      description: Search by Name
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/lastName'
+        - $ref: '#/components/parameters/firstName'
+        - $ref: '#/components/parameters/dob'
+        - $ref: '#/components/parameters/fileDateStart'
+        - $ref: '#/components/parameters/fileDateEnd'
+        - $ref: '#/components/parameters/business'
+        - $ref: '#/components/parameters/attorney'
+      responses:
+        '200':
+          $ref: '#/components/responses/SearchCaseList'
+        '401':
+          $ref: '#/components/responses/UnAuthorized'
+        '406':
+          $ref: '#/components/responses/NotAcceptable'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+ 
+components:
+  responses:
+    SearchCaseList:
+      description: Search Case List
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SearchCaseList'
+          examples:
+            json:
+              value: > 
+                {
+                  "caseID": 64238,
+                  "caseNum": "C012040",
+                  "caseType": "Civil Miscellaneous",
+                  "caseTypeID": 8,
+                  "courtName": "0101",
+                  "courtType": "J",
+                  "citationNumber": "TX002733J8783",
+                  "name": "Doe,John M",
+                  "dateFiled": "1900-01-01",
+                  "charges": "",
+                  "status": "Pending",
+                  "judgeName": "Smith, James",
+                  "oriNumber": "TX034033J"
+                }
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/SearchCaseList'
+          example: > 
+                <SearchCaseListItem>
+                  <CaseId>64238</CaseId>
+                  <CaseNum>C012040</CaseNum>
+                  <CaseType>Civil Miscellaneous</CaseType>
+                  <CaseTypeID>8</CaseTypeID>
+                  <CourtName>0101</CourtName>
+                  <CourtType>J</CourtType>
+                  <CitationNumber>TX002733J8783</CitationNumber>
+                  <Name>Doe,John M</Name>
+                  <DateFiled>1900-01-01</DateFiled>
+                  <Charges></Charges>
+                  <Status>Pending</Status>
+                  <JudgeName>Smith, James</JudgeName>
+                  <OriNumber>TX034033J</OriNumber>
+                </SearchCaseListItem>
+    NotAcceptable:
+      description: Not Acceptable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ERROR'
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/ERROR'
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ERROR'
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/ERROR'
+    UnAuthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ERROR'
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/ERROR'
+  parameters:
+    lastName:
+      name: lastName
+      in: query
+      required: true
+      description: Last Name
+      schema:
+        type: string
+    firstName:
+      name: firstName
+      in: query
+      required: false
+      description: First Name
+      schema:
+        type: string
+    dob:
+      name: dob
+      in: query
+      required: false
+      description: Date of Birth
+      schema:
+        type: string
+    fileDateStart:
+      name: fileDateStart
+      in: query
+      required: false
+      description: File Date Start
+      schema:
+        type: string
+    fileDateEnd:
+      name: fileDateEnd
+      in: query
+      required: false
+      description: File Date End
+      schema:
+        type: string
+    business:
+      name: business
+      in: query
+      required: false
+      description: Is this a Business Name
+      schema:
+        type: boolean
+    attorney:
+      name: attorney
+      in: query
+      required: false
+      description: Is this an Attorney Name
+      schema:
+        type: boolean
+
+  schemas:
+    ERROR:
+      description: If an error occurred during process an error message will be returned with the following structure.
+      properties:
+        ERRORID:
+          type: string
+        ERRORORI:
+          type: string
+        ERRORSEV:
+          type: string
+        ERRORTEXT:
+          type: string
+      example: > 
+        ERRORID: 'DET106'
+        ERRORORI: 'TX034033J'
+        ERRORSEV: '100'
+        ERRORTEXT: 'No Details'
+    SearchCaseList:
+      type: object
+      properties:
+        CaseListItem:
+          type: array
+          items:
+            type: object
+            properties:
+              CaseID:
+                type: integer
+              CaseNum:
+                type: string
+              CaseType:
+                type: string
+              CaseTypeID:
+                type: integer
+              CourtName:
+                type: string
+              CourtType:
+                type: string
+              CitationNumber:
+                type: string
+              Name:
+                type: string
+              DateFiled:
+                type: string
+              Charges:
+                type: string
+              Status:
+                type: string
+              JudgeName:
+                type: string
+              OriNumber:
+                type: string
+      example:
+        CaseID: 64238
+        CaseNum: 'C012040'
+        CaseType: 'Civil Miscellaneous'
+        CaseTypeID: 8
+        CourtName: '0101'
+        CourtType: 'J'
+        CitationNumber: 'TX002733J8783'
+        Name: 'Doe,John M'
+        DateFiled: '1900-01-01'
+        Charges: ''
+        Status: 'Pending'
+        JudgeName: 'Smith, James'
+        OriNumber: 'TX034033J'

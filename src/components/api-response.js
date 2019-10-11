@@ -99,10 +99,11 @@ export default class ApiResponse extends LitElement {
 
         // Generate Schema
         const schemaTree = schemaInObjectNotation(mimeRespObj.schema, {});
+
         // Generate Example
         const respExample = generateExample(
           mimeRespObj.examples ? mimeRespObj.examples : '',
-          mimeRespObj.schema ? mimeRespObj.schema.example : '',
+          mimeRespObj.example ? mimeRespObj.example : '',
           mimeRespObj.schema,
           mimeResp,
           true,
@@ -115,7 +116,6 @@ export default class ApiResponse extends LitElement {
         };
         selectedMimeValueForEachStatus[statusCode] = mimeResp;
       }
-
       // Headers for each response status
       const tempHeaders = [];
       for (const key in this.responses[statusCode].headers) {
