@@ -239,14 +239,13 @@ export function schemaToSampleObj(schema, config = { }) {
   return obj;
 }
 
-
 /**
  * For changing OpenAPI-Schema to an Object Notation,
  * This Object would further be an input to UI Components to generate an Object-Tree
  * @param {object} schema - Schema object from OpenAPI spec
  * @param {object} obj - recursivly pass this object to generate object notation
  */
-export function schemaInObjectNotation(schema, obj, level = 0) {
+export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
   if (schema == null) {
     return;
   }
@@ -273,9 +272,10 @@ export function schemaInObjectNotation(schema, obj, level = 0) {
     }
 
     // If allOf is an array of multiple elements, then all the keys makes a single object
-    schema.allOf.map((v) => {
+    schema.allOf.map((v, i) => {
       if (v.type === 'object' || v.properties || v.allOf || v.anyOf || v.oneOf) {
-        const partialObj = schemaInObjectNotation(v, {}, (level + 1));
+        const propSuffix = (v.anyOf || v.oneOf) && i > 0 ? i : '';
+        const partialObj = schemaInObjectNotation(v, {}, (level + 1), propSuffix);
         Object.assign(objWithAllProps, partialObj);
       } else if (v.type === 'array' || v.items) {
         const partialObj = schemaInObjectNotation(v, {}, (level + 1));
@@ -308,7 +308,7 @@ export function schemaInObjectNotation(schema, obj, level = 0) {
         objWithAnyOfProps[prop] = `${getTypeInfo(v).html}`;
       }
     });
-    obj[(schema.anyOf ? '::ANY~OF' : '::ONE~OF')] = objWithAnyOfProps;
+    obj[(schema.anyOf ? `::ANY~OF ${suffix}` : `::ONE~OF ${suffix}`)] = objWithAnyOfProps;
     obj['::type'] = 'xxx-of';
   } else {
     const typeObj = getTypeInfo(schema);
@@ -403,6 +403,7 @@ export function generateExample(examples, example, schema, mimeType, includeRead
           egJson = typeof egJson === 'string' ? egJson : JSON.stringify(egJson, undefined, 2);
           egFormat = 'text';
         } else {
+          // eslint-disable-next-line no-lonely-if
           if (typeof egJson === 'string') {
             try {
               egJson = JSON.parse(egJson);
@@ -411,7 +412,6 @@ export function generateExample(examples, example, schema, mimeType, includeRead
               egFormat = 'text';
             }
           }
-          console.log('');
         }
         finalExamples.push({
           exampleType: mimeType,
