@@ -83,7 +83,7 @@ export default html`
         border: 1px solid var(--light-border-color);
         border-radius: 2px;
         color: var(--fg);
-        font-size: var(--font-mono-size);
+        font-size: calc(var(--font-mono-size) - 1px);
         line-height: var(--font-mono-line-height);
     }
 
@@ -101,6 +101,7 @@ export default html`
         border:none;
         background-color:transparent;
         color: var(--code-fg);
+        font-size: var(--font-mono-size);
     }
     .m-markdown ul,
     .m-markdown ol{
@@ -112,6 +113,10 @@ export default html`
     }
     .m-markdown img{max-width:100%}
 
+    .m-markdown.m-markdown-small code{
+      font-size:calc(var(--small-font-size) - 1px);
+      color:var(--light-fg);
+    }
     /* Markdown table */
 
     .m-markdown table {
@@ -137,8 +142,6 @@ export default html`
 
     .m-markdown th {
       color: var(--fg2);
-      font-size: 12px;
-      line-height:16px;
       height:32px;
       font-weight: 600;
       letter-spacing: normal;
@@ -146,5 +149,14 @@ export default html`
       vertical-align: bottom;
       border-bottom: 1px solid var(--border-color);
     }
-
+    .m-markdown table code {
+      font-size:calc(var(--small-font-size) - 1px);
+    }
+    .m-markdown blockquote,
+    .m-markdown-small blockquote {
+      margin-inline-start: 0;
+      margin-inline-end: 0;
+      border-left: 3px solid var(--border-color);
+      padding: 6px 0 6px 6px;
+    }
 </style>`;
