@@ -20,18 +20,22 @@ input, select, button {
   line-height: 1;
   text-align: center;
   white-space: nowrap;
-  background-color:var(--primary-color);
-  color:var(--primary-text);
-  border: 1px solid var(--primary-color);
+  border: 2px solid var(--primary-color);
   transition: background-color 0.2s;
   user-select: none;
   cursor: pointer;
 }
-
+.m-btn.primary{
+  background-color:var(--primary-color);
+  color:var(--primary-text);
+}
 .m-btn.large{padding:8px 14px;}
 .m-btn.small{padding:5px 12px;}
 .m-btn.circle{border-radius:50%;}
-.m-btn:hover{ background-color: var(--primary-color)}
+.m-btn:hover{ 
+  background-color: var(--primary-color);
+  color:var(--primary-text);
+}
 .m-btn:disabled{ 
   background-color: var(--bg2);
   color:var(--fg2);
@@ -113,8 +117,8 @@ textarea::-webkit-scrollbar-track{
 }
   
 textarea::-webkit-scrollbar{
-    width: 8px;
-    height: 8px;
+    width: 12px;
+    height: 12px;
     background-color: transparent;
 }
  

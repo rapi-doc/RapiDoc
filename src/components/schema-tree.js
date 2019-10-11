@@ -73,6 +73,10 @@ export default class SchemaTree extends LitElement {
       .tr.collapsed + .inside-bracket + .close-bracket{
         display:none;
       }
+      .tr.xxx-of{
+        color:var(--primary-color);
+        border-top: 1px solid var(--primary-color);
+      }
       .inside-bracket.object,
       .inside-bracket.array {
         border-left: 1px dotted var(--border-color);
@@ -80,7 +84,7 @@ export default class SchemaTree extends LitElement {
       .inside-bracket.xxx-of{
         padding:5px 0px;
         border-style: solid;
-        border-width: 1px 0;
+        border-width: 0 0 1px 0;
         border-color:var(--primary-color);
       }
       .xxx-of-key {
@@ -146,7 +150,7 @@ export default class SchemaTree extends LitElement {
       return html`<div class="null" style="display:inline;">null</div>`;
     }
     let newPrevKey = '';
-    if (['::ONE~OF', '::ONE~OF'].includes(prevKey)) {
+    if (prevKey.startsWith('::ONE~OF') || prevKey.startsWith('::ANY~OF')) {
       newPrevKey = prevKey.replace('::', '').replace('~', ' ');
     } else if (prevKey.startsWith('::OPTION')) {
       newPrevKey = prevKey.replace('::OPTION~', '').replace('~', ' ');

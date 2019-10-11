@@ -9,6 +9,13 @@ import InputStyles from '@/styles/input-styles';
 import '@/components/schema-tree';
 
 export default class ApiResponse extends LitElement {
+  constructor() {
+    super();
+    this.selectedStatus = '';
+    this.headersForEachRespStatus = {};
+    this.mimeResponsesForEachStatus = {};
+  }
+
   render() {
     return html`
     ${FontStyles}
@@ -89,10 +96,10 @@ export default class ApiResponse extends LitElement {
   /* eslint-disable indent */
   responseTemplate() {
     if (!this.responses) { return ''; }
-    const selectedMimeValueForEachStatus = {};
-    const headersForEachRespStatus = {};
-    const mimeResponsesForEachStatus = {};
     for (const statusCode in this.responses) {
+      if (!this.selectedStatus) {
+        this.selectedStatus = statusCode;
+      }
       const allMimeResp = {};
       for (const mimeResp in this.responses[statusCode].content) {
         const mimeRespObj = this.responses[statusCode].content[mimeResp];
@@ -114,79 +121,103 @@ export default class ApiResponse extends LitElement {
           examples: respExample,
           schemaTree,
         };
-        selectedMimeValueForEachStatus[statusCode] = mimeResp;
       }
       // Headers for each response status
       const tempHeaders = [];
       for (const key in this.responses[statusCode].headers) {
         tempHeaders.push({ name: key, ...this.responses[statusCode].headers[key] });
       }
-      headersForEachRespStatus[statusCode] = tempHeaders;
-      mimeResponsesForEachStatus[statusCode] = allMimeResp;
+      this.headersForEachRespStatus[statusCode] = tempHeaders;
+      this.mimeResponsesForEachStatus[statusCode] = allMimeResp;
     }
 
     return html`
+      ${Object.keys(this.responses).length > 1
+        ? html`<div class='row'>
+          ${Object.keys(this.responses).map((status, index) => html`
+          <button 
+            @click="${() => this.changeSelectedStatus(status)}}"
+            class='m-btn small ${this.selectedStatus === status ? 'primary' : ''}' 
+            style='margin: 8px 4px 0 0'> ${status} </button>
+          `)}`
+        : ''
+      }  
+      </div>
+
       ${Object.keys(this.responses).map((status, index) => html`
-      <div class="resp-head ${index === 0 ? 'top-gap' : 'divider'}">
-        <span class="resp-status">${status}:</span> 
-        <span class="resp-descr">${this.responses[status].description}</span> 
-        ${(headersForEachRespStatus[status] && headersForEachRespStatus[status].length > 0)
-          ? html`
-            <div style="padding:12px 0 5px 0" class="resp-status">Response Headers:</div> 
-            <table>
-              ${headersForEachRespStatus[status].map((v) => html`
-                <tr>
-                  <td style="padding:0 12px;vertical-align: top;" class="regular-font-size"> ${v.name}</td> 
-                  <td style="padding:0 12px;vertical-align: top; line-height:14px" class="descr-text small-font-size">
-                    <span class="m-markdown-small">${unsafeHTML(marked(v.description || ''))}</span>
-                    ${(v.schema && v.schema.example) ? html`<br/><span style="font-weight:bold">EXAMPLE:</span> ${v.schema.example}` : ''}
-                  </td>
-                </tr>
-              `)}
-            </table>`
-          : ''
-        }
-      </div>      
-      ${Object.keys(mimeResponsesForEachStatus[status]).map(
-        (mimeType) => (mimeType.includes('octet-stream')
-          ? html`
-            <div> 
-              <span style='color:var(--primary-color)'> Content-Type: </span> 
-              ${mimeType} (Binary Data) 
-            </div>`
-          : html`
-            <div class="tab-panel col" style="border-width:0; min-height:200px">
-              <div id="${status}_${mimeType}_tab-buttons" @click="${this.activateTab}" class="tab-buttons row" >
-                <button class="tab-btn active" content_id="${status}_${mimeType}_example">EXAMPLE</button>
-                <button class="tab-btn" content_id="${status}_${mimeType}_model">MODEL</button>
-                <div style="flex:1"></div>
-                <div style="align-self:center;font-size:var(--small-font-size);"> ${mimeType} </div>
-              </div>
-              <div id="${status}_${mimeType}_example" class="tab-content col" style="flex:1; ">
-                ${mimeResponsesForEachStatus[status][mimeType].examples[0].exampleFormat === 'json'
-                  ? html`
-                    <json-tree 
+        <div style = 'display: ${status === this.selectedStatus ? 'block' : 'none'}' >
+          <div class="resp-head ${index === 0 ? 'top-gap' : 'divider'}">
+            <span class="resp-status">${status}:</span> 
+            <span class="resp-descr">${this.responses[status].description}</span> 
+            ${(this.headersForEachRespStatus[status] && this.headersForEachRespStatus[status].length > 0)
+              ? html`
+                <div style="padding:12px 0 5px 0" class="resp-status">Response Headers:</div> 
+                <table>
+                  ${this.headersForEachRespStatus[status].map((v) => html`
+                    <tr>
+                      <td style="padding:0 12px;vertical-align: top;" class="regular-font-size"> ${v.name}</td> 
+                      <td style="padding:0 12px;vertical-align: top; line-height:14px" class="descr-text small-font-size">
+                        <span class="m-markdown-small">${unsafeHTML(marked(v.description || ''))}</span>
+                        ${(v.schema && v.schema.example) ? html`<br/><span style="font-weight:bold">EXAMPLE:</span> ${v.schema.example}` : ''}
+                      </td>
+                    </tr>
+                  `)}
+                </table>`
+              : ''
+            }
+          </div>
+
+          ${Object.keys(this.mimeResponsesForEachStatus[status]).map(
+            (mimeType) => (mimeType.includes('octet-stream')
+              ? html`
+                <div> 
+                  <span style='color:var(--primary-color)'> Content-Type: </span> 
+                  ${mimeType} (Binary Data) 
+                </div>`
+              : html`
+                <div class="tab-panel col" style="border-width:0; min-height:200px">
+                  <div id="${status}_${mimeType}_tab-buttons" @click="${this.activateTab}" class="tab-buttons row" >
+                    <button class="tab-btn active" content_id="${status}_${mimeType}_example">EXAMPLE</button>
+                    <button class="tab-btn" content_id="${status}_${mimeType}_model">MODEL</button>
+                    <div style="flex:1"></div>
+                    <div style="align-self:center;font-size:var(--small-font-size);"> ${mimeType} </div>
+                  </div>
+                  <div id="${status}_${mimeType}_example" class="tab-content col" style="flex:1; ">
+                    ${this.mimeResponsesForEachStatus[status][mimeType].examples[0].exampleFormat === 'json'
+                      ? html`
+                        <json-tree 
+                          class="border tree" 
+                          .data="${this.mimeResponsesForEachStatus[status][mimeType].examples[0].exampleValue}"
+                        ></json-tree>`
+                      : html`
+                        <pre style="font-size:var(--font-mono-size);">${this.mimeResponsesForEachStatus[status][mimeType].examples[0].exampleValue}</pre>
+                      `
+                    }
+                  </div>
+                  <div id="${status}_${mimeType}_model" class="tab-content col" style="flex:1;display:none">
+                    <schema-tree 
                       class="border tree" 
-                      .data="${mimeResponsesForEachStatus[status][mimeType].examples[0].exampleValue}"
-                    ></json-tree>`
-                  : html`
-                    <pre style="font-size:var(--font-mono-size);">${mimeResponsesForEachStatus[status][mimeType].examples[0].exampleValue}</pre>
-                  `
-                }
-              </div>
-              <div id="${status}_${mimeType}_model" class="tab-content col" style="flex:1;display:none">
-                <schema-tree 
-                  class="border tree" 
-                  .data="${mimeResponsesForEachStatus[status][mimeType].schemaTree}"
-                ></schema-tree>
-              </div>
-            </div>`),
-          )
-        }`)
-      }
+                      .data="${this.mimeResponsesForEachStatus[status][mimeType].schemaTree}"
+                    ></schema-tree>
+                  </div>
+                </div>
+              `),
+            )
+          }
+        </div>
+      `)}
     `;
   }
+
+  responseMimeTemplate() {
+
+  }
   /* eslint-enable indent */
+
+  changeSelectedStatus(status) {
+    this.selectedStatus = status;
+    this.requestUpdate();
+  }
 
   activateTab(e) {
     if (e.target.classList.contains('active') || e.target.classList.contains('tab-btn') === false) {
