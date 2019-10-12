@@ -5,7 +5,8 @@ import TableStyles from '@/styles/table-styles';
 import FlexStyles from '@/styles/flex-styles';
 import InputStyles from '@/styles/input-styles';
 import FontStyles from '@/styles/font-styles';
-import CommonStyles from '@/styles/common-styles';
+import BorderStyles from '@/styles/border-styles';
+import TabStyles from '@/styles/tab-styles';
 import {
   schemaInObjectNotation, getTypeInfo, generateExample,
 } from '@/utils/common-utils';
@@ -20,14 +21,9 @@ export default class ApiRequest extends LitElement {
     ${InputStyles}
     ${FontStyles}
     ${FlexStyles}
-    ${CommonStyles}
+    ${BorderStyles}
+    ${TabStyles}
     <style>
-      .title{
-        font-family:var(--font-regular);
-        font-size:var(--title-font-size);
-        font-weight:bold;
-        margin-bottom:16px;
-      }
       .param-name,
       .param-type{
         margin: 1px 0;
@@ -49,56 +45,22 @@ export default class ApiRequest extends LitElement {
         display:none;
       }
       .top-gap{margin-top:24px;}
-      .tab-buttons{
-        height:30px;
-        border-bottom: 1px solid var(--light-border-color) ;
-        align-items: stretch;
-      }
-      .tab-btn{
-        border:none;
-        background-color:transparent;
-        cursor:pointer;
-        outline:none;
-        font-size:var(--small-font-size);
-        margin-right:16px;
-        padding:1px;
-      }
-      .tab-btn.active{
-        border-bottom: 3px solid var(--primary-color); 
-        font-weight:bold;
-        color:var(--primary-color);
-      }
 
-      .tab-btn:hover{
-        color:var(--primary-color);
-      }
-      .tab-content{
-        margin:-1px 0 0 0;
-      }
-      .link{
-        font-size:var(--small-font-size);
-        text-decoration: underline;
-        color:var(--link-color);
-        font-family:var(--font-mono);
-        margin-bottom:2px;
-        
-      }
       .textarea {
         min-height:220px; 
         padding:5px;
         resize:vertical;
         font-size:var(--font-mono-size);
       }
-
-      .response-message.error{
-        color:var(--error-color);
+      .response-message{
         font-weight:bold;
         text-overflow: ellipsis;
       }
+      .response-message.error{
+        color:var(--error-color);
+      }
       .response-message.success{
         color:var(--success-color);
-        font-weight:bold;
-        text-overflow: ellipsis;
       }
 
       @media only screen and (min-width: 768px){
@@ -465,7 +427,7 @@ export default class ApiRequest extends LitElement {
           }
         </div>
       </div>
-      <button class="m-btn try-btn" style="padding: 6px 0px;width:60px" @click="${this.onTryClick}">TRY</button>
+      <button class="m-btn primary try-btn" style="padding: 6px 0px;width:60px" @click="${this.onTryClick}">TRY</button>
     </div>
     ${this.responseMessage === ''
       ? ''

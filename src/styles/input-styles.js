@@ -21,6 +21,7 @@ input, select, button {
   text-align: center;
   white-space: nowrap;
   border: 2px solid var(--primary-color);
+  background-color:transparent;
   transition: background-color 0.2s;
   user-select: none;
   cursor: pointer;
@@ -125,4 +126,12 @@ textarea::-webkit-scrollbar{
 textarea::-webkit-scrollbar-thumb {
     background-color: rgba(50,50,50, .5);
 }
+.link{
+  font-size:var(--small-font-size);
+  text-decoration: underline;
+  color:var(--link-color);
+  font-family:var(--font-mono);
+  margin-bottom:2px;
+}
+
 </style>`;

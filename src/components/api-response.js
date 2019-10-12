@@ -6,7 +6,9 @@ import FontStyles from '@/styles/font-styles';
 import FlexStyles from '@/styles/flex-styles';
 import TableStyles from '@/styles/table-styles';
 import InputStyles from '@/styles/input-styles';
+import TabStyles from '@/styles/tab-styles';
 import '@/components/schema-tree';
+import '@/components/schema-table';
 
 export default class ApiResponse extends LitElement {
   constructor() {
@@ -22,13 +24,8 @@ export default class ApiResponse extends LitElement {
     ${FlexStyles}
     ${TableStyles}
     ${InputStyles}
+    ${TabStyles}
     <style>
-      .title{
-        font-family:var(--font-regular);
-        font-size:var(--title-font-size);
-        font-weight:bold;
-        margin-bottom:8px;
-      }
       .resp-head{
         vertical-align: middle;
         padding:16px 0 8px;
@@ -46,34 +43,6 @@ export default class ApiResponse extends LitElement {
         color:var(--light-fg);
       }
       .top-gap{margin-top:16px;}
-      .tab-buttons{
-        height:30px;
-        border-bottom: 1px solid var(--light-border-color) ;
-        align-items: stretch;
-      }
-      .tab-btn{
-        color:var(--fg);
-        border:none;
-        background-color:transparent;
-        cursor:pointer;
-        padding:1px;
-        outline:none;
-        font-size:var(--small-font-size);
-        margin-right:16px;
-        padding:1px;
-      }
-      .tab-btn.active{
-        border-bottom: 3px solid var(--primary-color);
-        font-weight:bold;
-        color:var(--primary-color);
-      }
-
-      .tab-btn:hover{
-        color:var(--primary-color);
-      }
-      .tab-content{
-        margin:-1px 0 0 0;
-      }
       .descr-text{
         color:var(--light-fg);
         font-family:var(--font-regular);

@@ -76,7 +76,7 @@ export default class RapiDoc extends LitElement {
           }
       </style>`}      
       <style>
-        :host{
+        :host {
           --error-color:#ff3333;
           --success-color:#47AFE8;
           --hover-bg:#f7f7f7;
@@ -191,7 +191,7 @@ export default class RapiDoc extends LitElement {
         ${this.loadFailed === true ? html`<div style="text-align: center;margin: 16px;"> Unable to load the Spec</div>` : ''}
         ${(this.showInfo === 'false' || !this.resolvedSpec || !this.resolvedSpec.info) ? '' : html`
         <div class="section-gap">
-          <div class="title">
+          <div style="font-size:32px">
             ${this.resolvedSpec.info.title}
             ${!this.resolvedSpec.info.version ? '' : html`
               <span style="font-size:var(--small-font-size);font-weight:bold">
