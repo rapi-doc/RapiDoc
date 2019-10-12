@@ -391,6 +391,7 @@ export default class RapiDoc extends LitElement {
           .paths           = "${tag.paths}" 
           allow-try        = "${this.allowTry ? this.allowTry : 'true'}"
           match-paths      = "${this.matchPaths}"
+          schema-style     = "${this.schemaStyle}"
         ></end-points>`)
       }
     `;
@@ -419,6 +420,7 @@ export default class RapiDoc extends LitElement {
           .path            = "${pathObj}" 
           allow-try        = "${this.allowTry ? this.allowTry : 'true'}"
           match-paths      = "${this.matchPaths}"
+          schema-style     = "${this.schemaStyle}"
         ></path-and-methods>`)
       }`;
   }
@@ -446,6 +448,7 @@ export default class RapiDoc extends LitElement {
       allowSearch: { type: String, attribute: 'allow-search' },
       allowApiListStyleSelection: { type: String, attribute: 'allow-api-list-style-selection' },
       layout: { type: String },
+      schemaStyle: { type: String, attribute: 'schema-style' },
       theme: { type: String },
       logoUrl: { type: String, attribute: 'logo-url' },
       apiKeyName: { type: String, attribute: 'api-key-name' },

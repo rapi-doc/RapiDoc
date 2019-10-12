@@ -70,16 +70,15 @@ input[type="password"].mono{
 
 input[type="text"].large,
 input[type="password"].large {
-    padding:10px 8px;
-    font-size:(--font-mono-size); 
+  padding:10px 8px;
+  font-size:(--font-mono-size); 
 }
-
 
 textarea::placeholder,
 input[type="text"]::placeholder,
 input[type="password"]::placeholder {
-    color: var(--placeholder-color);
-    opacity:1;
+  color: var(--placeholder-color);
+  opacity:1;
 }
 
 textarea:focus,
@@ -88,7 +87,7 @@ input[type="password"]:focus,
 textarea:active,
 input[type="text"]:active,
 input[type="password"]:active {
-    border:1px solid var(--primary-color);
+  border:1px solid var(--primary-color);
 }
 
 textarea.reverse,
@@ -105,26 +104,26 @@ input.reverse[type="password"]:focus,
 textarea.reverse:active,
 input.reverse[type="text"]:active,
 input.reverse[type="password"]:active{
-    border:1px solid var(--primary-color);
+  border:1px solid var(--primary-color);
 }
 
 textarea.reverse::placeholder,
 input.reverse::placeholder{
-    color: #666;
+  color: #666;
 }
 
 textarea::-webkit-scrollbar-track{
-    background-color: transparent;
+  background-color: transparent;
 }
   
 textarea::-webkit-scrollbar{
-    width: 12px;
-    height: 12px;
-    background-color: transparent;
+  width: 12px;
+  height: 12px;
+  background-color: transparent;
 }
  
 textarea::-webkit-scrollbar-thumb {
-    background-color: rgba(50,50,50, .5);
+  background-color: rgba(50,50,50, .5);
 }
 .link{
   font-size:var(--small-font-size);

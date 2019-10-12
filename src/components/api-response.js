@@ -59,6 +59,7 @@ export default class ApiResponse extends LitElement {
     return {
       responses: { type: Object },
       parser: { type: Object },
+      schemaStyle: { type: String, attribute: 'schema-style' },
     };
   }
 
@@ -164,10 +165,18 @@ export default class ApiResponse extends LitElement {
                     }
                   </div>
                   <div id="${status}_${mimeType}_model" class="tab-content col" style="flex:1;display:none">
-                    <schema-tree 
-                      class="border tree" 
-                      .data="${this.mimeResponsesForEachStatus[status][mimeType].schemaTree}"
-                    ></schema-tree>
+                    ${this.schemaStyle === 'table'
+                      ? html`
+                        <schema-table
+                          class = 'border'
+                          .data = '${this.mimeResponsesForEachStatus[status][mimeType].schemaTree}'
+                        > </schema-tree> `
+                      : html`
+                        <schema-tree
+                          class = 'border'
+                          .data = '${this.mimeResponsesForEachStatus[status][mimeType].schemaTree}'
+                        > </schema-tree>`
+                    }
                   </div>
                 </div>
               `),

@@ -110,7 +110,7 @@ export default class ApiRequest extends LitElement {
       responseStatus: { type: String, attribute: false },
       responseUrl: { type: String, attribute: false },
       allowTry: { type: String, attribute: 'allow-try' },
-
+      schemaStyle: { type: String, attribute: 'schema-style' },
     };
   }
 
@@ -389,17 +389,26 @@ export default class ApiRequest extends LitElement {
                 }
             </div>
           </div>
-          <div id="tab_example" class="tab-content col" style="flex:1; ">
+          <div id = 'tab_example' class = 'tab-content col' style = 'flex:1;'>
             ${textareaExampleHtml}
           </div>
           <div id="tab_model" class="tab-content col" style="flex:1;display:none">
             ${Object.keys(shortMimeTypes).map((k) => html`
-              <schema-tree 
-                class = "${shortMimeTypes[k]}"
-                style = "display: ${(shortMimeTypes[k] === 'json' ? 'block' : 'none')};"
-                .data = "${reqSchemaTree[shortMimeTypes[k]]}"
-              > </schema-tree>
-              `)}
+              ${this.schemaStyle === 'table'
+                ? html`
+                  <schema-table
+                    class = '${shortMimeTypes[k]}'
+                    style = 'display: ${(shortMimeTypes[k] === 'json' ? 'block' : 'none')};'
+                    .data = '${reqSchemaTree[shortMimeTypes[k]]}'
+                  > </schema-table>`
+                : html`
+                  <schema-tree 
+                    class = '${shortMimeTypes[k]}'
+                    style = 'display: ${(shortMimeTypes[k] === 'json' ? 'block' : 'none')};'
+                    .data = '${reqSchemaTree[shortMimeTypes[k]]}'
+                  > </schema-tree>`
+              }
+            `)}
           </div>
         </div>`
       }`;

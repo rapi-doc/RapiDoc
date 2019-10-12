@@ -78,13 +78,54 @@ export default class EndPoint extends LitElement {
           .parameters = "${this.path.parameters}" 
           .request_body = "${this.path.requestBody}"
           allow-try = "${this.allowTry}"
-          accept ="${this.accept}"> 
-        </api-request>
-        <api-response  class="response" .responses="${this.path.responses}"> </api-response>
+          accept = "${this.accept}"
+          schema-style = "${this.schemaStyle}" 
+        > </api-request>
+
+        <api-response  
+          class="response" 
+          schema-style="${this.schemaStyle}"
+          .responses="${this.path.responses}"
+        > </api-response>
       </div>
     </div>`;
   }
   /* eslint-enable indent */
+
+  constructor() {
+    super();
+    this.accept = '';
+  }
+
+  static get properties() {
+    return {
+      apiKeyName: { type: String, attribute: 'api-key-name' },
+      apiKeyValue: { type: String, attribute: 'api-key-value' },
+      apiKeyLocation: { type: String, attribute: 'api-key-location' },
+      selectedServer: { type: String, attribute: 'selected-server' },
+      layout: { type: String },
+      path: { type: Object },
+      allowTry: { type: String, attribute: 'allow-try' },
+      schemaStyle: { type: String, attribute: 'schema-style' },
+    };
+  }
+
+  toggleExpand() {
+    if (this.path.expanded) {
+      this.path.expanded = false; // collapse
+    } else {
+      this.path.expanded = true; // Expand
+      let accept = '';
+      for (const respStatus in this.path.responses) {
+        for (const acceptContentType in (this.path.responses[respStatus].content)) {
+          accept = `${accept + acceptContentType}, `;
+        }
+      }
+      accept = accept.replace(/,\s*$/, ''); // remove trailing comma
+      this.accept = accept;
+    }
+    this.requestUpdate();
+  }
 
   static get styles() {
     return [css`
@@ -259,40 +300,6 @@ export default class EndPoint extends LitElement {
       }
     }
   `];
-  }
-
-  constructor() {
-    super();
-    this.accept = '';
-  }
-
-  static get properties() {
-    return {
-      apiKeyName: { type: String, attribute: 'api-key-name' },
-      apiKeyValue: { type: String, attribute: 'api-key-value' },
-      apiKeyLocation: { type: String, attribute: 'api-key-location' },
-      selectedServer: { type: String, attribute: 'selected-server' },
-      layout: { type: String },
-      path: { type: Object },
-      allowTry: { type: String, attribute: 'allow-try' },
-    };
-  }
-
-  toggleExpand() {
-    if (this.path.expanded) {
-      this.path.expanded = false; // collapse
-    } else {
-      this.path.expanded = true; // Expand
-      let accept = '';
-      for (const respStatus in this.path.responses) {
-        for (const acceptContentType in (this.path.responses[respStatus].content)) {
-          accept = `${accept + acceptContentType}, `;
-        }
-      }
-      accept = accept.replace(/,\s*$/, ''); // remove trailing comma
-      this.accept = accept;
-    }
-    this.requestUpdate();
   }
 }
 // Register the element with the browser

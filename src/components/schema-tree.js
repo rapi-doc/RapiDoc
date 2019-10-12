@@ -7,13 +7,13 @@ import SchemaStyles from '@/styles/schema-styles';
 export default class SchemaTree extends LitElement {
   constructor() {
     super();
-    this.expandedDescr = true;
+    this.expandedDetails = false;
   }
 
   static get properties() {
     return {
       data: { type: Object },
-      expandedDescr: { type: Boolean },
+      expandedDetails: { type: Boolean },
     };
   }
 
@@ -76,15 +76,11 @@ export default class SchemaTree extends LitElement {
         border-color:var(--primary-color);
       }
       </style>
-      <div class="tree expanded-descr">
+      <div class="tree ${this.expandedDetails ? 'expanded-descr' : 'collapsed-descr'}">
         <div class='toolbar'> 
           <div style="flex:1"></div>
-          <div class='toolbar-item' @click='${this.toggleDescrExpand}'> 
-            Copy
-          </div>
-          <div class='seperator'></div>
-          <div class='toolbar-item' @click='${this.toggleDescrExpand}'> 
-            Collapse Descriptions
+          <div class='toolbar-item' @click='${() => { this.expandedDetails = !this.expandedDetails; }}'> 
+            ${this.expandedDetails ? 'Collapse Details' : 'Expand Details'}
           </div>
         </div>
 
@@ -214,19 +210,6 @@ export default class SchemaTree extends LitElement {
       rowEl.classList.remove('collapsed');
       rowEl.classList.add('expanded');
       e.target.innerHTML = e.target.classList.contains('array') ? '[{' : '{';
-    }
-  }
-
-  toggleDescrExpand(e) {
-    const treeEl = e.target.closest('.tree');
-    if (treeEl.classList.contains('expanded-descr')) {
-      treeEl.classList.add('collapsed-descr');
-      treeEl.classList.remove('expanded-descr');
-      e.target.innerHTML = 'Expand Descriptions';
-    } else {
-      treeEl.classList.remove('collapsed-descr');
-      treeEl.classList.add('expanded-descr');
-      e.target.innerHTML = 'Collapse Descriptions';
     }
   }
 }

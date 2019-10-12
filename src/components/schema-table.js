@@ -7,13 +7,13 @@ import SchemaStyles from '@/styles/schema-styles';
 export default class SchemaTable extends LitElement {
   constructor() {
     super();
-    this.expandedDescr = true;
+    this.expandedDetails = false;
   }
 
   static get properties() {
     return {
       data: { type: Object },
-      expandedDescr: { type: Boolean },
+      expandedDetails: { type: Boolean },
     };
   }
 
@@ -67,13 +67,11 @@ export default class SchemaTable extends LitElement {
       }
 
       </style>
-      <div class="table ${this.expandedDescr ? 'expanded-descr' : 'collapsed-descr'}">
+      <div class="table ${this.expandedDetails ? 'expanded-descr' : 'collapsed-descr'}">
         <div class='toolbar'> 
           <div style="flex:1"></div>
-          <div class='toolbar-item' @click='${this.toggleDescrExpand}'>
-          </div>
-          <div class='toolbar-item' @click='${() => { this.expandedDescr = !this.expandedDescr; }}'> 
-            ${this.expandedDescr ? 'Collapse Descriptions' : 'Expand Descriptions'}
+          <div class='toolbar-item' @click='${() => { this.expandedDetails = !this.expandedDetails; }}'> 
+            ${this.expandedDetails ? 'Collapse Details' : 'Expand Details'}
           </div>
         </div>
 

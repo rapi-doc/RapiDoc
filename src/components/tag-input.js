@@ -9,6 +9,46 @@ export default class TagInput extends LitElement {
   `;
   }
 
+  static get properties() {
+    return {
+      placeholder: { type: String },
+    };
+  }
+
+  afterPaste(e) {
+    const clipboardData = e.clipboardData || window.clipboardData;
+    const pastedData = clipboardData.getData('Text');
+    console.log(pastedData); // eslint-disable-line no-console
+  }
+
+  afterKeyDown(e) {
+    if (e.keyCode === 13) {
+      e.stopPropagation();
+      e.preventDefault();
+      const spanEl = document.createElement('span');
+      if (e.target.value.trim() !== '') {
+        spanEl.innerText = e.target.value;
+        e.target.value = '';
+        spanEl.classList.add('tag');
+        spanEl.setAttribute('contenteditable', 'false');
+        this.shadowRoot.querySelector('.tags').insertBefore(spanEl, e.target);
+      }
+    } else if (e.keyCode === 8) {
+      if (e.target.selectionStart === 0 && e.target.previousSibling) {
+        e.target.previousSibling.remove();
+      }
+    }
+  }
+
+  getValues() {
+    const vals = [];
+    const tags = this.shadowRoot.querySelectorAll('.tag');
+    for (const tagEl of tags) {
+      vals.push(tagEl.innerText);
+    }
+    return vals;
+  }
+
   static get styles() {
     return [css`
       .tags{
@@ -52,46 +92,6 @@ export default class TagInput extends LitElement {
         opacity:1;
       }
     `];
-  }
-
-  static get properties() {
-    return {
-      placeholder: { type: String },
-    };
-  }
-
-  afterPaste(e) {
-    const clipboardData = e.clipboardData || window.clipboardData;
-    const pastedData = clipboardData.getData('Text');
-    console.log(pastedData); // eslint-disable-line no-console
-  }
-
-  afterKeyDown(e) {
-    if (e.keyCode === 13) {
-      e.stopPropagation();
-      e.preventDefault();
-      const spanEl = document.createElement('span');
-      if (e.target.value.trim() !== '') {
-        spanEl.innerText = e.target.value;
-        e.target.value = '';
-        spanEl.classList.add('tag');
-        spanEl.setAttribute('contenteditable', 'false');
-        this.shadowRoot.querySelector('.tags').insertBefore(spanEl, e.target);
-      }
-    } else if (e.keyCode === 8) {
-      if (e.target.selectionStart === 0 && e.target.previousSibling) {
-        e.target.previousSibling.remove();
-      }
-    }
-  }
-
-  getValues() {
-    const vals = [];
-    const tags = this.shadowRoot.querySelectorAll('.tag');
-    for (const tagEl of tags) {
-      vals.push(tagEl.innerText);
-    }
-    return vals;
   }
 }
 // Register the element with the browser
