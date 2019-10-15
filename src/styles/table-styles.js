@@ -16,7 +16,7 @@ export default html`
 }
 .m-table td, 
 .m-table th{
-  font-size: var(--small-font-size);
+  font-size: var(--font-size-small);
   line-height: 16px;
   padding: 4px 5px 4px;
   text-align: left;
@@ -25,7 +25,7 @@ export default html`
 
 .m-table th {
   color: var(--fg2);
-  font-size: var(--small-font-size);
+  font-size: var(--font-size-small);
   line-height:30px;
   font-weight: 600;
   letter-spacing: normal;
@@ -41,7 +41,7 @@ export default html`
   overflow: hidden;
 }
 .table-title{
-  font-size:var(--small-font-size);
+  font-size:var(--font-size-small);
   font-weight:bold;
   vertical-align: middle;
   margin: 12px 0 4px 0;

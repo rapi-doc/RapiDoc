@@ -1,6 +1,6 @@
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const FileManagerPlugin = require('filemanager-webpack-plugin');
-const webpack = require('webpack');
 const CompressionPlugin = require('compression-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const { DuplicatesPlugin } = require('inspectpack/plugin');
@@ -27,7 +27,7 @@ const commonPlugins = [
 ];
 
 if (process.env.NODE_ENV === 'production') {
-  console.log('BUILDING FOR PRODUCTION ... ');
+  console.log('BUILDING FOR PRODUCTION ... '); // eslint-disable-line no-console
   commonPlugins.push(new BundleAnalyzerPlugin({ analyzerMode: 'static' }));
   commonPlugins.push(new DuplicatesPlugin({ emitErrors: false, verbose: true }));
 }

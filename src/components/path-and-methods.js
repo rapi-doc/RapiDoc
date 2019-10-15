@@ -160,7 +160,7 @@ export default class PathAndMethods extends LitElement {
     .head .path{
       display: flex;
       font-family:var(--font-mono);
-      font-size: var(--small-font-size);
+      font-size: var(--font-size-small);
       align-items: center;
       overflow-wrap: break-word;
       word-break: break-all;
@@ -240,7 +240,7 @@ export default class PathAndMethods extends LitElement {
       min-width: 48px;
       border-radius: 2px;
       display:inline-block;
-      font-size:var(--small-font-size);
+      font-size:var(--font-size-small);
       text-align: center;
       font-weight: bold;
       text-transform:uppercase;
@@ -338,7 +338,7 @@ export default class PathAndMethods extends LitElement {
 
     @media only screen and (min-width: 768px){
       .head .path{
-        font-size: var(--regular-font-size);
+        font-size: var(--font-size-regular);
         min-width:400px;
       }
       .head .m-markdown-small,

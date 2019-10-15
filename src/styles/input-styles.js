@@ -15,7 +15,7 @@ input, select, button {
   font-weight: 600;
   display: inline-block;
   padding: 6px 16px;
-  font-size: var(--small-font-size);
+  font-size: var(--font-size-small);
   outline: 0;
   line-height: 1;
   text-align: center;
@@ -56,7 +56,7 @@ input[type="password"]{
   color:var(--fg);
   transition: border .2s;
   outline: none;
-  font-size:calc(var(--small-font-size) + 1px);
+  font-size:calc(var(--font-size-small) + 1px);
   padding:6px 5px;
   box-sizing: border-box;
 }
@@ -65,13 +65,13 @@ textarea.mono,
 input[type="text"].mono,
 input[type="password"].mono{
   font-family: var(--font-mono); 
-  font-size:var(--font-mono-size); 
+  font-size:var(--font-size-mono); 
 }
 
 input[type="text"].large,
 input[type="password"].large {
   padding:10px 8px;
-  font-size:(--font-mono-size); 
+  font-size:(--font-size-mono); 
 }
 
 textarea::placeholder,
@@ -126,7 +126,7 @@ textarea::-webkit-scrollbar-thumb {
   background-color: rgba(50,50,50, .5);
 }
 .link{
-  font-size:var(--small-font-size);
+  font-size:var(--font-size-small);
   text-decoration: underline;
   color:var(--link-color);
   font-family:var(--font-mono);

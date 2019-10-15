@@ -11,7 +11,7 @@ export default class SchemaTree2 extends LitElement {
       <style>
         .tree {
           font-family: var(--font-mono);
-          font-size:var(--font-mono-size);
+          font-size:var(--font-size-mono);
           display:inline-block;
           overflow:hidden;
           width:100%;

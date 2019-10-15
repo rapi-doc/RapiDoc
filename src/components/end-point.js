@@ -32,7 +32,7 @@ export default class EndPoint extends LitElement {
 
   endpointHeadTemplate() {
     return html`
-    <div @click="${this.toggleExpand}" class='head ${this.path.method} ${this.path.expanded ? 'expanded' : 'collapsed'}'>
+    <div @click="${this.toggleExpand}" class='endpoint-head ${this.path.method} ${this.path.expanded ? 'expanded' : 'collapsed'}'>
       <div class="method ${this.path.method}"> ${this.path.method} </div> 
       <div class="path ${this.path.deprecated ? 'deprecated' : ''}"> 
         ${this.path.path} 
@@ -52,7 +52,7 @@ export default class EndPoint extends LitElement {
 
   endpointBodyTemplate() {
     return html`
-    <div class='body ${this.path.method}'>
+    <div class='endpoint-body ${this.path.method}'>
       ${this.path.summary || this.path.description
         ? html`
           <div class="summary">
@@ -106,6 +106,7 @@ export default class EndPoint extends LitElement {
       layout: { type: String },
       path: { type: Object },
       allowTry: { type: String, attribute: 'allow-try' },
+      renderStyle: { type: String, attribute: 'render-style' },
       schemaStyle: { type: String, attribute: 'schema-style' },
     };
   }
@@ -133,17 +134,17 @@ export default class EndPoint extends LitElement {
       display:none;
     }
 
-    .head .path{
+    .endpoint-head .path{
       display: flex;
       font-family:var(--font-mono);
-      font-size: var(--small-font-size);
+      font-size: var(--font-size-small);
       align-items: center;
       overflow-wrap: break-word;
       word-break: break-all;
     }
 
-    .head .descr{
-      font-size: var(--small-font-size);
+    .endpoint-head .descr{
+      font-size: var(--font-size-small);
       color:var(--light-fg);
       font-weight:400;
       align-items: center;
@@ -153,7 +154,7 @@ export default class EndPoint extends LitElement {
     }
 
     .m-endpoint.expanded{margin-bottom:16px; }
-    .m-endpoint > .head{
+    .m-endpoint > .endpoint-head{
       border-width:1px 1px 1px 5px;
       border-style:solid;
       border-color:transparent;
@@ -163,45 +164,45 @@ export default class EndPoint extends LitElement {
       align-items: center;
       cursor: pointer;
     }
-    .m-endpoint > .head.put:hover,
-    .m-endpoint > .head.put.expanded{
+    .m-endpoint > .endpoint-head.put:hover,
+    .m-endpoint > .endpoint-head.put.expanded{
       border-color:var(--put-color); 
       background-color:var(--light-put-color); 
     }
-    .m-endpoint > .head.post:hover,
-    .m-endpoint > .head.post.expanded{
+    .m-endpoint > .endpoint-head.post:hover,
+    .m-endpoint > .endpoint-head.post.expanded{
       border-color:var(--post-color); 
       background-color:var(--light-post-color); 
     }
-    .m-endpoint > .head.get:hover,
-    .m-endpoint > .head.get.expanded{
+    .m-endpoint > .endpoint-head.get:hover,
+    .m-endpoint > .endpoint-head.get.expanded{
       border-color:var(--get-color); 
       background-color:var(--light-get-color); 
     }
-    .m-endpoint > .head.delete:hover,
-    .m-endpoint > .head.delete.expanded{
+    .m-endpoint > .endpoint-head.delete:hover,
+    .m-endpoint > .endpoint-head.delete.expanded{
       border-color:var(--delete-color); 
       background-color:var(--light-delete-color); 
     }
-    .m-endpoint > .head.patch:hover,
-    .m-endpoint > .head.patch.expanded{
+    .m-endpoint > .endpoint-head.patch:hover,
+    .m-endpoint > .endpoint-head.patch.expanded{
       border-color:var(--patch-color); 
       background-color:var(--light-patch-color); 
     }
-    .m-endpoint .body {
+    .m-endpoint .endpoint-body {
       flex-wrap:wrap;
       padding:16px 0px 0 0px;
       border-width:0px 1px 1px 5px;
       border-style:solid;
       box-shadow: 0px 4px 3px -3px rgba(0, 0, 0, 0.15);
     }
-    .m-endpoint .body.delete{ border-color:var(--delete-color); }
-    .m-endpoint .body.patch{ border-color:var(--patch-color); }
-    .m-endpoint .body.put{ border-color:var(--put-color); }
-    .m-endpoint .body.post{border-color:var(--post-color);}
-    .m-endpoint .body.get{ border-color:var(--get-color); }
+    .m-endpoint .endpoint-body.delete{ border-color:var(--delete-color); }
+    .m-endpoint .endpoint-body.patch{ border-color:var(--patch-color); }
+    .m-endpoint .endpoint-body.put{ border-color:var(--put-color); }
+    .m-endpoint .endpoint-body.post{border-color:var(--post-color);}
+    .m-endpoint .endpoint-body.get{ border-color:var(--get-color); }
 
-    .head .deprecated{
+    .endpoint-head .deprecated{
       text-decoration: line-through red;
     }
 
@@ -222,7 +223,7 @@ export default class EndPoint extends LitElement {
       min-width: 48px;
       border-radius: 2px;
       display:inline-block;
-      font-size:var(--small-font-size);
+      font-size:var(--font-size-small);
       text-align: center;
       font-weight: bold;
       text-transform:uppercase;
@@ -271,14 +272,14 @@ export default class EndPoint extends LitElement {
 
 
     @media only screen and (min-width: 768px){
-      .head .path{
-        font-size: var(--regular-font-size);
+      .endpoint-head .path{
+        font-size: var(--font-size-regular);
         min-width:400px;
       }
-      .head .descr{
+      .endpoint-head .descr{
         display: flex;
       }
-      .head .m-markdown-small,
+      .endpoint-head .m-markdown-small,
       .descr .m-markdown-small{
         display:block;
       }

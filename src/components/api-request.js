@@ -24,6 +24,9 @@ export default class ApiRequest extends LitElement {
     ${BorderStyles}
     ${TabStyles}
     <style>
+      .read-mode{
+        margin-top:24px;
+      }
       .param-name,
       .param-type{
         margin: 1px 0;
@@ -50,7 +53,7 @@ export default class ApiRequest extends LitElement {
         min-height:220px; 
         padding:5px;
         resize:vertical;
-        font-size:var(--font-mono-size);
+        font-size:var(--font-size-mono);
       }
       .response-message{
         font-weight:bold;
@@ -70,14 +73,16 @@ export default class ApiRequest extends LitElement {
       }
 
     </style>
-    <div class="col regular-font request-panel">
-      <div class="title">REQUEST</div>
-      ${this.inputParametersTemplate('path')}
-      ${this.inputParametersTemplate('query')}
-      ${this.requestBodyTemplate()}
-      ${this.inputParametersTemplate('header')}
-      ${this.inputParametersTemplate('cookie')}
-      ${this.allowTry === 'false' ? '' : html`${this.apiCallTemplate()}`}
+    <div class="col regular-font request-panel ${this.renderStyle === 'read' ? 'read-mode' : 'view-mode'}">
+      <div class="req-res-title">REQUEST</div>
+      <div style='padding-left:${this.renderStyle === 'read' ? '16px' : '0'};'>
+        ${this.inputParametersTemplate('path')}
+        ${this.inputParametersTemplate('query')}
+        ${this.requestBodyTemplate()}
+        ${this.inputParametersTemplate('header')}
+        ${this.inputParametersTemplate('cookie')}
+        ${this.allowTry === 'false' ? '' : html`${this.apiCallTemplate()}`}
+      </div>  
     </div>
     `;
   }
@@ -90,6 +95,8 @@ export default class ApiRequest extends LitElement {
     this.responseText = '';
     this.responseUrl = '';
     this.curlSyntax = '';
+    this.activeSchemaTab = this.defaultSchemaTab === 'model' ? 'model' : 'example';
+    this.activeResponseTab = 'response';
   }
 
   static get properties() {
@@ -110,7 +117,11 @@ export default class ApiRequest extends LitElement {
       responseStatus: { type: String, attribute: false },
       responseUrl: { type: String, attribute: false },
       allowTry: { type: String, attribute: 'allow-try' },
+      renderStyle: { type: String, attribute: 'render-style' },
       schemaStyle: { type: String, attribute: 'schema-style' },
+      defaultSchemaTab: { type: String, attribute: 'default-schema-tab' },
+      activeSchemaTab: { type: String }, // internal tracking of schema-tab not exposed as a attribute
+      activeResponseTab: { type: String }, // internal tracking of response-tab not exposed as a attribute
     };
   }
 
@@ -185,11 +196,15 @@ export default class ApiRequest extends LitElement {
             }
         </td>
         <td>
-          <div class="param-constraint">
-            ${paramSchema.default ? html`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
-            ${paramSchema.constrain ? html`${paramSchema.constrain}<br/>` : ''}
-            ${paramSchema.allowedValues ? html`${paramSchema.allowedValues}` : ''}
-          </div>
+          ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues
+            ? html`
+              <div class="param-constraint">
+                ${paramSchema.default ? html`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
+                ${paramSchema.constrain ? html`${paramSchema.constrain}<br/>` : ''}
+                ${paramSchema.allowedValues ? html`${paramSchema.allowedValues}` : ''}
+              </div>`
+            : ''
+          }
         </td>  
       </tr>
       ${param.description
@@ -356,12 +371,18 @@ export default class ApiRequest extends LitElement {
       ${isFormDataPresent
         ? html`${formDataHtml}`
         : html`
-        <div class="tab-panel col" style="border-width:0; min-height:200px">
-          <div id="tab_buttons" class="tab-buttons row" @click="${this.activateTab}">
-            <button class="tab-btn active" content_id="tab_example">EXAMPLE </button>
-            <button class="tab-btn" content_id="tab_model">MODEL</button>
+        <div class="tab-panel col" style="border-width:0 0 1px 0;">
+          <div id="tab_buttons" class="tab-buttons row" @click="${(e) => { this.activeSchemaTab = e.target.dataset.tab; }}">
+            ${this.defaultSchemaTab === 'model'
+              ? html`
+                <button class="tab-btn ${this.activeSchemaTab === 'model' ? 'active' : ''}"   data-tab = 'model'  >MODEL</button>
+                <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>`
+              : html`  
+                <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example' >EXAMPLE </button>
+                <button class="tab-btn ${this.activeSchemaTab === 'model' ? 'active' : ''}"   data-tab = 'model' >MODEL</button>`
+            }
             <div style="flex:1"> </div>
-            <div style="color:var(--light-fg); align-self:center; font-size:var(--small-font-size); margin-top:8px;">
+            <div style="color:var(--light-fg); align-self:center; font-size:var(--font-size-small); margin-top:8px;">
               ${mimeReqCount === 1
                 ? `${Object.keys(shortMimeTypes)[0]}`
                 : html`
@@ -389,22 +410,24 @@ export default class ApiRequest extends LitElement {
                 }
             </div>
           </div>
-          <div id = 'tab_example' class = 'tab-content col' style = 'flex:1;'>
+          <div id = 'tab_example' class = 'tab-content col' style = 'flex:1; display:${this.activeSchemaTab === 'example' ? 'flex' : 'none'};'>
             ${textareaExampleHtml}
           </div>
-          <div id="tab_model" class="tab-content col" style="flex:1;display:none">
+          <div id="tab_model" class="tab-content col" style="flex:1; display:${this.activeSchemaTab === 'model' ? 'flex' : 'none'};">
             ${Object.keys(shortMimeTypes).map((k) => html`
               ${this.schemaStyle === 'table'
                 ? html`
                   <schema-table
                     class = '${shortMimeTypes[k]}'
                     style = 'display: ${(shortMimeTypes[k] === 'json' ? 'block' : 'none')};'
+                    render-style = '${this.renderStyle}'
                     .data = '${reqSchemaTree[shortMimeTypes[k]]}'
                   > </schema-table>`
                 : html`
                   <schema-tree 
                     class = '${shortMimeTypes[k]}'
                     style = 'display: ${(shortMimeTypes[k] === 'json' ? 'block' : 'none')};'
+                    render-style = '${this.renderStyle}'
                     .data = '${reqSchemaTree[shortMimeTypes[k]]}'
                   > </schema-tree>`
               }
@@ -416,7 +439,7 @@ export default class ApiRequest extends LitElement {
 
   apiCallTemplate() {
     return html`
-    <div style="display:flex; align-items: center; margin:16px 0; font-size:var(--small-font-size);">
+    <div style="display:flex; align-items: center; margin:16px 0; font-size:var(--font-size-small);">
       <div style="display:flex; flex-direction:column; margin:0; width:calc(100% - 60px);">
         <div style="display:flex;flex-direction:row;overflow:hidden;"> <div style="font-weight:bold;">API_Server: </div> 
           ${this.selectedServer
@@ -441,59 +464,39 @@ export default class ApiRequest extends LitElement {
     ${this.responseMessage === ''
       ? ''
       : html`
-        <div class="row" style="font-size:var(--small-font-size); margin:5px 0">
+        <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
           <div class="response-message ${this.responseStatus}">Response Status: ${this.responseMessage}</div>
           <div style="flex:1"></div>
           <button class="m-btn" style="padding: 6px 0px;width:60px" @click="${this.clearResponseData}">CLEAR</button>
         </div>
-        <div class="tab-panel col" style="border-width:0; min-height:200px">
-          <div id="tab_buttons" class="tab-buttons row" @click="${this.activateTab}">
-            <button class="tab-btn active" content_id="tab_response_text"> RESPONSE</button>
-            <button class="tab-btn" content_id="tab_response_headers"> RESPONSE HEADERS</button>
-            <button class="tab-btn" content_id="tab_curl">CURL</button>
+        <div class="tab-panel col" style="border-width:0 0 1px 0;">
+          <div id="tab_buttons" class="tab-buttons row" @click="${(e) => { this.activeResponseTab = e.target.dataset.tab; }}">
+            <button class="tab-btn ${this.activeResponseTab === 'response' ? 'active' : ''}" data-tab = 'response' > RESPONSE</button>
+            <button class="tab-btn ${this.activeResponseTab === 'headers' ? 'active' : ''}"  data-tab = 'headers' > RESPONSE HEADERS</button>
+            <button class="tab-btn ${this.activeResponseTab === 'curl' ? 'active' : ''}" data-tab = 'curl'>CURL</button>
           </div>
-          <div id="tab_response_text" class="tab-content col" style="flex:1; ">
+          <div class="tab-content col" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};">
             ${this.responseIsBlob
               ? html`
                 <div style="margin:10px 2px"> 
                   <button class="m-btn" @click="${this.downloadResponseBlob}">DOWNLOAD</button>
                 </div>`
               : html`
-                <textarea class="mono" spellcheck="false" style="resize:vertical;min-height:180px; padding:16px;">${this.responseText}</textarea>
+                <pre class="multiline">${this.responseText}</pre>
               `
             }
           </div>
-          <div id="tab_response_headers" class="tab-content col" style="flex:1;display:none">
-            <textarea class="mono" spellcheck="false" style="resize:vertical;min-height:180px; padding:16px; white-space:pre;">${this.responseHeaders}</textarea>
+          <div class="tab-content col" style="flex:1;display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};" >
+            <pre class="multiline">${this.responseHeaders}</pre>
           </div>
-          <div id="tab_curl" class="tab-content col" style="flex:1;display:none">
-            <code style="min-height:180px; padding:16px;font-size:var(--font-mono-size); border:1px solid var(--input-border-color);overflow: scroll;word-break: break-word;">${this.curlSyntax}</code>
+          <div class="tab-content col" style="flex:1;display:${this.activeResponseTab === 'curl' ? 'flex' : 'none'};">
+            <pre class="multiline" style="white-space: normal;">${this.curlSyntax}</pre>
           </div>
         </div>`
       }
     `;
   }
   /* eslint-enable indent */
-
-  activateTab(e) {
-    if (e.target.classList.contains('active') || e.target.classList.contains('tab-btn') === false) {
-      return;
-    }
-    const activeTabBtn = e.currentTarget.parentNode.querySelector('.tab-btn.active');
-    const clickedTabBtn = e.target;
-    activeTabBtn.classList.remove('active');
-    e.target.classList.add('active');
-    const showContentEl = this.shadowRoot.getElementById(clickedTabBtn.attributes.content_id.value);
-    const allContentEls = e.currentTarget.parentNode.querySelectorAll('.tab-content');
-    if (showContentEl) {
-      showContentEl.style.display = 'flex';
-      allContentEls.forEach((v) => {
-        if (v.attributes.id.value !== clickedTabBtn.attributes.content_id.value) {
-          v.style.display = 'none';
-        }
-      });
-    }
-  }
 
   onMimeTypeChange(e) {
     const textareaEls = e.target.closest('.tab-panel').querySelectorAll('textarea.request-body-param');

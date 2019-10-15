@@ -2,6 +2,9 @@ import { html } from 'lit-element';
 
 export default html`
 <style>
+  .tab-panel{
+    border: none;
+  }
   .tab-buttons{
     height:30px;
     border-bottom: 1px solid var(--light-border-color) ;
@@ -12,7 +15,7 @@ export default html`
     background-color:transparent;
     cursor:pointer;
     outline:none;
-    font-size:var(--small-font-size);
+    font-size:var(--font-size-small);
     margin-right:16px;
     padding:1px;
   }

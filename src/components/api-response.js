@@ -36,10 +36,10 @@ export default class ApiResponse extends LitElement {
       }
       .resp-status{ 
         font-weight:bold;
-        font-size:calc(var(--small-font-size) + 1px);
+        font-size:calc(var(--font-size-small) + 1px);
       }
       .resp-descr{
-        font-size:calc(var(--small-font-size) + 1px);
+        font-size:calc(var(--font-size-small) + 1px);
         color:var(--light-fg);
       }
       .top-gap{margin-top:16px;}
@@ -48,9 +48,11 @@ export default class ApiResponse extends LitElement {
         font-family:var(--font-regular);
       }
     </style>
-    <div class="col regular-font response-panel">
-      <div class="title">RESPONSE</div>
-      ${this.responseTemplate()}
+    <div class="col regular-font response-panel ${this.renderStyle === 'read' ? 'read-mode' : 'view-mode'}">
+      <div class="req-res-title">RESPONSE</div>
+      <div style='padding-left:${this.renderStyle === 'read' ? '16px' : '0'};'>
+        ${this.responseTemplate()}
+      <div>  
     </div>  
     `;
   }
@@ -60,6 +62,7 @@ export default class ApiResponse extends LitElement {
       responses: { type: Object },
       parser: { type: Object },
       schemaStyle: { type: String, attribute: 'schema-style' },
+      renderStyle: { type: String, attribute: 'render-style' },
     };
   }
 
@@ -145,22 +148,23 @@ export default class ApiResponse extends LitElement {
                   ${mimeType} (Binary Data) 
                 </div>`
               : html`
-                <div class="tab-panel col" style="border-width:0; min-height:200px">
+                <div class="tab-panel col">
                   <div id="${status}_${mimeType}_tab-buttons" @click="${this.activateTab}" class="tab-buttons row" >
                     <button class="tab-btn active" content_id="${status}_${mimeType}_example">EXAMPLE</button>
                     <button class="tab-btn" content_id="${status}_${mimeType}_model">MODEL</button>
                     <div style="flex:1"></div>
-                    <div style="align-self:center;font-size:var(--small-font-size);"> ${mimeType} </div>
+                    <div style="align-self:center;font-size:var(--font-size-small);"> ${mimeType} </div>
                   </div>
                   <div id="${status}_${mimeType}_example" class="tab-content col" style="flex:1; ">
                     ${this.mimeResponsesForEachStatus[status][mimeType].examples[0].exampleFormat === 'json'
                       ? html`
                         <json-tree 
-                          class="border tree" 
+                          class="border tree"
+                          render-style = '${this.renderStyle}'
                           .data="${this.mimeResponsesForEachStatus[status][mimeType].examples[0].exampleValue}"
                         ></json-tree>`
                       : html`
-                        <pre style="font-size:var(--font-mono-size);">${this.mimeResponsesForEachStatus[status][mimeType].examples[0].exampleValue}</pre>
+                        <pre class='multiline'>${this.mimeResponsesForEachStatus[status][mimeType].examples[0].exampleValue}</pre>
                       `
                     }
                   </div>
@@ -169,11 +173,13 @@ export default class ApiResponse extends LitElement {
                       ? html`
                         <schema-table
                           class = 'border'
+                          render-style = '${this.renderStyle}'
                           .data = '${this.mimeResponsesForEachStatus[status][mimeType].schemaTree}'
                         > </schema-tree> `
                       : html`
                         <schema-tree
                           class = 'border'
+                          render-style = '${this.renderStyle}'
                           .data = '${this.mimeResponsesForEachStatus[status][mimeType].schemaTree}'
                         > </schema-tree>`
                     }

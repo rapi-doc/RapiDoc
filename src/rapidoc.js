@@ -10,7 +10,8 @@ import ColorUtils from '@/utils/color-utils';
 import ProcessSpec from '@/utils/spec-parser';
 
 import '@/components/m-logo';
-import '@/components/end-points';
+import '@/components/end-point';
+import '@/components/end-points-expanded';
 import '@/components/path-and-methods';
 import '@/components/security-schemes';
 
@@ -93,14 +94,14 @@ export default class RapiDoc extends LitElement {
           --header-fg:${this.headerColor ? `${ColorUtils.color.invert(this.headerColor)}` : '#ccc'};
           --layout:${this.layout ? `${this.layout}` : 'row'};
           --font-mono:${this.monoFont ? `${this.monoFont}` : 'Monaco, "Andale Mono", "Roboto Mono", Consolas'}; 
-          --font-mono-size:13px;
           --font-regular:${this.regularFont ? `${this.regularFont}` : 'rapidoc, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" '};
-          --title-font-size:16px;
-          --regular-font-size:14px;
-          --small-font-size:12px;
+          --font-size-mono:13px;
+          --font-size-regular:14px;
+          --font-size-small:12px;
           --border-radius:2px;
 
-          display:block;
+          display:flex;
+          flex-direction: column;
           min-width:375px;
           width:100%;
           height:100%;
@@ -112,9 +113,43 @@ export default class RapiDoc extends LitElement {
           background-color:var(--bg);
           font-family:var(--font-regular);
         }
+        .body{
+          display:flex;
+          height:100%;
+          width:100%;
+          box-sizing: border-box;
+          overflow:hidden;
+        }
+        .nav-bar {
+          width:270px;
+          height:100%;
+          overflow-y: scroll;
+          overflow-x: hidden;
+          border: 1px solid var(--delete-color);
+          box-sizing:border-box;
+          
+        }
+        .nav-bar-tag {
+          font-size: var(--font-size-regular);
+          font-weight:bold;
+          padding: 30px 10px 7px 10px;
+        }
+        .nav-bar-path {
+          font-size: var(--font-size-small);
+          padding: 8px 10px;
+        }
+        .nav-bar-path:hover {
+          background-color:var(--hover-color);
+        }
 
-        .body-container{ 
+        .main-content { 
           margin:0;
+          padding: 0; 
+          display:block;
+          flex:1;
+          height:100%;
+          overflow-y: scroll;
+          overflow-x: hidden;
         }
         .section-gap { 
           padding: 24px 8px 8px 8px; 
@@ -139,6 +174,8 @@ export default class RapiDoc extends LitElement {
         .header{
           background-color:var(--header-bg);
           color:var(--header-fg);
+          box-sizing:border-box;
+          width:100%;
         }
 
         input.header-input{
@@ -174,8 +211,8 @@ export default class RapiDoc extends LitElement {
           .only-large-screen-flex{
             display:flex;
           }
-          .body-container{ 
-            margin:0 16px;
+          .main-content { 
+            padding:0 16px;
           }
           .section-gap { 
             padding: 24px 24px 8px 24px; 
@@ -183,62 +220,73 @@ export default class RapiDoc extends LitElement {
         }
 
       </style>
+      
       ${this.showHeader === 'false' ? '' : this.headerTemplate()}
+      <div class="body">
+        ${this.renderStyle === 'read' ? this.navBarTemplate() : ''}
+        
+        <div class="main-content regular-font">
+          <slot></slot>
+          ${this.loading === true ? html`<div class="loader"></div>` : ''}
+          ${this.loadFailed === true ? html`<div style="text-align: center;margin: 16px;"> Unable to load the Spec</div>` : ''}
+          ${this.resolvedSpec
+            ? html`
+              ${(this.showInfo === 'false' || !this.resolvedSpec.info) ? '' : html`
+              <div class="section-gap">
+                <div style="font-size:32px">
+                  ${this.resolvedSpec.info.title}
+                  ${!this.resolvedSpec.info.version ? '' : html`
+                    <span style="font-size:var(--font-size-small);font-weight:bold">
+                      ${this.resolvedSpec.info.version}
+                    </span>`
+                  }
+                </div>
 
-      <div class="body-container regular-font">
-        <slot></slot>
-        ${this.loading === true ? html`<div class="loader" style=""></div>` : ''}
-        ${this.loadFailed === true ? html`<div style="text-align: center;margin: 16px;"> Unable to load the Spec</div>` : ''}
-        ${(this.showInfo === 'false' || !this.resolvedSpec || !this.resolvedSpec.info) ? '' : html`
-        <div class="section-gap">
-          <div style="font-size:32px">
-            ${this.resolvedSpec.info.title}
-            ${!this.resolvedSpec.info.version ? '' : html`
-              <span style="font-size:var(--small-font-size);font-weight:bold">
-                ${this.resolvedSpec.info.version}
-              </span>`
-            }
-          </div>
+                ${this.resolvedSpec.info.description
+                  ? html`${unsafeHTML(`<div class='m-markdown regular-font'>${marked(this.resolvedSpec.info.description)}</div>`)}`
+                  : ''
+                }
+                ${this.resolvedSpec.info.termsOfService
+                  ? html`${unsafeHTML(`<div class='tiny-title' style="margin-top:8px"> Terms: </div> <span class='m-markdown regular-font'>${marked(this.resolvedSpec.info.termsOfService)}</span>`)}`
+                  : ''
+                }
+                ${this.resolvedSpec.info.contact ? this.contactInfoTemplate() : ''}
+              </div>`
+              }
 
-          ${this.resolvedSpec.info.description
-            ? html`${unsafeHTML(`<div class='m-markdown regular-font'>${marked(this.resolvedSpec.info.description)}</div>`)}`
+              ${(this.allowTry === 'false' || this.allowServerSelection === 'false')
+                ? ''
+                : this.apiServerListTemplate()
+              } 
+              ${(this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes)
+                ? ''
+                : this.securitySchemeTemplate()
+              }
+
+              ${this.allowApiListStyleSelection === 'false'
+                ? ''
+                : this.apiListingStyleSelectionTemplate()
+              }
+              
+              ${this.resolvedSpec.tags && this.resolvedSpec.pathGroups
+                ? this.renderStyle === 'read'
+                  ? this.endpointsExpandedTemplate()
+                  : this.apiListStyle === 'group-by-path'
+                    ? this.endpointsGroupedByPathTemplate()
+                    : this.endpointsGroupedByTagTemplate()
+                : ''
+              }`
             : ''
           }
-          ${this.resolvedSpec.info.termsOfService
-            ? html`${unsafeHTML(`<div class='tiny-title' style="margin-top:8px"> Terms: </div> <span class='m-markdown regular-font'>${marked(this.resolvedSpec.info.termsOfService)}</span>`)}`
-            : ''
-          }
-          ${this.resolvedSpec.info.contact ? this.contactInfoTemplate() : ''}
-        </div>`
-        }
-
-        ${(this.allowTry === 'false' || this.allowServerSelection === 'false' || !this.resolvedSpec)
-          ? ''
-          : this.apiServerListTemplate()
-        } 
-        ${(this.allowAuthentication === 'false' || !this.resolvedSpec || !this.resolvedSpec.securitySchemes)
-          ? ''
-          : this.securitySchemeTemplate()
-        }
-
-        ${this.allowApiListStyleSelection === 'false'
-          ? ''
-          : this.resolvedSpec ? this.apiListingStyleSelectionTemplate() : ''
-        }
-
-        ${this.resolvedSpec && this.resolvedSpec.tags && this.resolvedSpec.pathGroups
-          ? this.apiListStyle === 'group-by-path' || !this.resolvedSpec
-            ? this.endpointsGroupedByPathTemplate()
-            : this.endpointsGroupedByTagTemplate()
-          : ''
-        }
-        <slot name="footer"></slot>
-      </div>`;
+          <slot name="footer"></slot>
+        </div>
+      </div>  
+    `;
   }
 
   headerTemplate() {
     return html`
-      <div class="row header regular-font" style="padding:8px 4px 8px 4px;min-height:48px;position:sticky;top:0;flex:1">
+      <div class="row header regular-font" style="padding:8px 4px 8px 4px;min-height:48px;">
         <div class="only-large-screen-flex" style="align-items: center;">
           <slot name="logo" class="logo">
             <m-logo style="height:36px;width:36px;margin-left:5px"></m-logo>
@@ -270,6 +318,17 @@ export default class RapiDoc extends LitElement {
           }
         </div>
       </div>`;
+  }
+
+  navBarTemplate() {
+    return html`
+      <div class='nav-bar'>
+        ${this.resolvedSpec.tags.map((tag) => html`
+          <div class='nav-bar-tag' > ${tag.name}</div>
+          ${tag.paths.map((p) => html`<div class='nav-bar-path'> ${p.summary} </div>`)}
+        `)}
+      </div>
+    `;
   }
 
   contactInfoTemplate() {
@@ -306,7 +365,7 @@ export default class RapiDoc extends LitElement {
     return html`
     <div class="sub-title regular-font section-gap">
       <a id="api_server_options"> API SERVER: </a>
-      <div class="mono-font" style="margin: 12px 0; font-size:calc(var(--small-font-size) + 1px);">
+      <div class="mono-font" style="margin: 12px 0; font-size:calc(var(--font-size-small) + 1px);">
         ${!this.resolvedSpec.servers || (this.resolvedSpec.servers.length === 0)
           ? ''
           : html`
@@ -378,23 +437,36 @@ export default class RapiDoc extends LitElement {
   endpointsGroupedByTagTemplate() {
     return html`
       ${this.resolvedSpec.tags.map((tag) => html`
-        <div class="sub-title tag regular-font section-gap">${tag.name}</div>
-        <div style="margin:4px 20px">
-          ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(tag.description ? tag.description : '')}</div>`)}
+        <div class='regular-font section-gap'> 
+          <div class="sub-title tag">${tag.name}</div>
+          <div class="regular-font-size">
+            ${tag.description
+              ? html`
+                ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(tag.description)}</div>`)}`
+              : ''
+            }
+          </div>
         </div>
-        <end-points 
-          selected-server  = "${this.selectedServer ? this.selectedServer : ''}"  
-          api-key-name     = "${this.apiKeyName ? this.apiKeyName : ''}"
-          api-key-value    = "${this.apiKeyValue ? this.apiKeyValue : ''}"
-          api-key-location = "${this.apiKeyLocation ? this.apiKeyLocation : ''}"
-          layout           = "${this.layout ? this.layout : 'row'}"
-          .paths           = "${tag.paths}" 
-          allow-try        = "${this.allowTry ? this.allowTry : 'true'}"
-          match-paths      = "${this.matchPaths}"
-          schema-style     = "${this.schemaStyle}"
-        ></end-points>`)
-      }
-    `;
+        ${tag.paths.filter((v) => {
+          if (this.matchPaths) {
+            return `${v.method} ${v.path}`.includes(this.matchPaths);
+          }
+          return true;
+        }).map((path) => html`
+          <end-point
+            selected-server="${this.selectedServer}" 
+            api-key-name="${this.apiKeyName ? this.apiKeyName : ''}" 
+            api-key-value="${this.apiKeyValue ? this.apiKeyValue : ''}" 
+            api-key-location="${this.apiKeyLocation}" 
+            layout="${this.layout}" 
+            .path=${path}
+            allow-try="${this.allowTry ? this.allowTry : 'true'}"
+            render-style="${this.renderStyle}" 
+            schema-style="${this.schemaStyle}" 
+          > 
+          </end-point>`)
+        }`)
+      }`;
   }
 
   endpointsGroupedByPathTemplate() {
@@ -423,6 +495,31 @@ export default class RapiDoc extends LitElement {
           schema-style     = "${this.schemaStyle}"
         ></path-and-methods>`)
       }`;
+  }
+
+  endpointsExpandedTemplate() {
+    return html`
+      ${this.resolvedSpec.tags.map((tag) => html`
+        <div class='regular-font section-gap' >
+          <div class="title tag">${tag.name} </div>
+          <div class="regular-font-size">
+            ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(tag.description ? tag.description : '')}</div>`)}
+          </div>
+        </div>
+        <end-points-expanded
+          selected-server  = "${this.selectedServer ? this.selectedServer : ''}"  
+          api-key-name     = "${this.apiKeyName ? this.apiKeyName : ''}"
+          api-key-value    = "${this.apiKeyValue ? this.apiKeyValue : ''}"
+          api-key-location = "${this.apiKeyLocation ? this.apiKeyLocation : ''}"
+          layout           = "${this.layout ? this.layout : 'row'}"
+          .paths           = "${tag.paths}" 
+          allow-try        = "${this.allowTry ? this.allowTry : 'true'}"
+          match-paths      = "${this.matchPaths}"
+          schema-style     = "${this.schemaStyle}"
+          render-style     = "${this.renderStyle}"
+        ></end-points-expanded>`)
+      }
+    `;
   }
 
   /* eslint-enable indent */
@@ -455,6 +552,7 @@ export default class RapiDoc extends LitElement {
       apiKeyValue: { type: String, attribute: 'api-key-value' },
       apiKeyLocation: { type: String, attribute: 'api-key-location' },
       apiListStyle: { type: String, attribute: 'api-list-style' },
+      renderStyle: { type: String, attribute: 'render-style' },
     };
   }
 

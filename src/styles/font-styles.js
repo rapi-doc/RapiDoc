@@ -4,25 +4,31 @@ export default html`
 <style>
   .regular-font{font-family:var(--font-regular);}
   .mono-font{font-family:var(--font-mono);}
-  .title {
+  .title{font-size: 30px;font-weight:normal}
+  .sub-title{font-size: 20px;}
+  .req-res-title {
       font-family:var(--font-regular);
-      font-size:var(--title-font-size);
+      font-size:16px;
       font-weight:bold;
       margin-bottom:8px;
     }
-  .sub-title{font-size: 18px;}
   .tiny-title {font-size:13px; font-weight:bold}
-  .regular-font-size{ font-size:var(--regular-font-size);}
-  .small-font-size{ font-size:var(--small-font-size);}
+  .regular-font-size{ font-size:var(--font-size-regular);}
+  .small-font-size{ font-size:var(--font-size-small);}
   .primary-text{ color: var(--primary-color)}
   .bold-text{ font-weight:bold}
   .upper{text-transform: uppercase;}
-  h1{ font-family:var(--font-regular); font-size:20px; letter-spacing:normal; }
-  h2{ font-family:var(--font-regular); font-size:18px; letter-spacing:normal; }
-  h3{ font-family:var(--font-regular); font-size:16px; letter-spacing:normal; }
-  h4{ font-family:var(--font-regular); font-size:15px; letter-spacing:normal; }
-  h5{ font-family:var(--font-regular); font-size:14px; letter-spacing:normal; }
-  h6{ font-family:var(--font-regular); font-size:14px; letter-spacing:normal; }
+  .multiline{
+    overflow: scroll;
+    max-height: 200px;
+    color: var(--fg2);  
+  }
+  h1{ font-family:var(--font-regular); font-size:24px; letter-spacing:normal; font-weight:normal}
+  h2{ font-family:var(--font-regular); font-size:20px; letter-spacing:normal; font-weight:normal}
+  h3{ font-family:var(--font-regular); font-size:18px; letter-spacing:normal; font-weight:normal}
+  h4{ font-family:var(--font-regular); font-size:16px; letter-spacing:normal; font-weight:normal}
+  h5{ font-family:var(--font-regular); font-size:14px; letter-spacing:normal; font-weight:normal}
+  h6{ font-family:var(--font-regular); font-size:14px; letter-spacing:normal; font-weight:normal}
 
   h1,h2,h3,h4,h5,h5{
     margin-block-end: 0.2em;
@@ -31,6 +37,7 @@ export default html`
   code,
   pre{
     font-family: var(--font-mono);
+    font-size:var(--font-size-mono);
   }
 
   .m-markdown,
@@ -79,7 +86,7 @@ export default html`
       border: 1px solid var(--light-border-color);
       border-radius: 2px;
       color: var(--fg);
-      font-size: calc(var(--font-mono-size) - 1px);
+      font-size: calc(var(--font-size-mono) - 1px);
       line-height: var(--font-mono-line-height);
   }
 
@@ -97,7 +104,7 @@ export default html`
       border:none;
       background-color:transparent;
       color: var(--code-fg);
-      font-size: var(--font-mono-size);
+      font-size: var(--font-size-mono);
   }
   .m-markdown ul,
   .m-markdown ol{
@@ -110,7 +117,7 @@ export default html`
   .m-markdown img{max-width:100%}
 
   .m-markdown.m-markdown-small code{
-    font-size:calc(var(--small-font-size) - 1px);
+    font-size:calc(var(--font-size-small) - 1px);
     color:var(--light-fg);
   }
   /* Markdown table */
@@ -146,7 +153,7 @@ export default html`
     border-bottom: 1px solid var(--border-color);
   }
   .m-markdown table code {
-    font-size:calc(var(--small-font-size) - 1px);
+    font-size:calc(var(--font-size-small) - 1px);
   }
   .m-markdown blockquote,
   .m-markdown-small blockquote {

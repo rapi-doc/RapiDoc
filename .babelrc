@@ -2,7 +2,10 @@
   "presets": [ 
     [
       "@babel/preset-env",
-      { "targets": {"esmodules": true}}
+      { 
+        "modules": false, // do not transform modules
+        "targets": {"esmodules": true }
+      }
     ]
   ],
   "plugins": [

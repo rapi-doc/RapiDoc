@@ -13,6 +13,7 @@ export default class SchemaTree extends LitElement {
   static get properties() {
     return {
       data: { type: Object },
+      renderStyle: { type: String, attribute: 'render-style' },
       expandedDetails: { type: Boolean },
     };
   }
@@ -27,6 +28,10 @@ export default class SchemaTree extends LitElement {
         font-size:12px;
         text-align: left;
         line-height:18px;
+      }
+      .tree-border{
+        border: 1px solid var(--border-color);
+        padding: 8px 16px 16px 16px;
       }
       .tree .tr:hover{
         background-color:rgba(128,128,128, 0.07);
@@ -76,15 +81,15 @@ export default class SchemaTree extends LitElement {
         border-color:var(--primary-color);
       }
       </style>
-      <div class="tree ${this.expandedDetails ? 'expanded-descr' : 'collapsed-descr'}">
-        <div class='toolbar'> 
+      <div class="tree ${this.renderStyle === 'read' ? 'tree-border' : ''} ${this.expandedDetails ? 'expanded-descr' : 'collapsed-descr'}">
+        <div class='toolbar'>
+          <div class='toolbar-item bold-text upper' style='cursor:auto; color:var(--fg2)'> ${this.data['::type']} </div>
           <div style="flex:1"></div>
           <div class='toolbar-item' @click='${() => { this.expandedDetails = !this.expandedDetails; }}'> 
             ${this.expandedDetails ? 'Collapse Details' : 'Expand Details'}
           </div>
         </div>
-
-        <div style='padding: 5px 0; color:var(--fg2)'> <span class='bold-text upper'> ${this.data['::type']}: </span> ${this.data['::description']}</div>
+        <div style='color:var(--fg2)'> ${this.data['::description']}</div>
         ${this.generateTree(
           this.data['::type'] === 'array' ? this.data['::props'] : this.data,
           this.data['::type'],
@@ -164,7 +169,7 @@ export default class SchemaTree extends LitElement {
       <div class = "tr primitive">
         <div class='td key' style='min-width:${minFieldColWidth}px' >
           ${newPrevKey.endsWith('*')
-            ? html`<span style='color:var(--delete-color); margin-left:-6px'>*</span>${newPrevKey.substring(0, newPrevKey.length - 1)}`
+            ? html`${newPrevKey.substring(0, newPrevKey.length - 1)}<span style='color:var(--delete-color);'>*</span>`
             : newPrevKey
           }:
           <span class='${dataTypeCss}'> 

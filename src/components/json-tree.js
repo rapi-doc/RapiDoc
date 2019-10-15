@@ -7,14 +7,22 @@ export default class JsonTree extends LitElement {
     return html`
       ${FontStyles}
       <style>
-        .tree{
+        :host{
+          display:flex;
+        }
+        .json-tree {
           font-family: var(--font-mono);
-          font-size:var(--font-mono-size);
+          font-size:var(--font-size-mono);
           display:inline-block;
           overflow:hidden;
           word-break: break-all;
-          width:100%;
+          flex:1;
         }
+        .tree-border{
+          border: 1px solid var(--border-color);
+          padding: 8px 16px 16px 16px;
+        }
+
         .left-bracket{
           display:inline-block;
           padding: 0 20px 0 0;
@@ -54,12 +62,10 @@ export default class JsonTree extends LitElement {
           margin : 5px 5px;
         }
       </style>
-      <div class="tree">
+      <div class="json-tree ${this.renderStyle === 'read' ? 'tree-border' : ''}" >
         <div class='toolbar'> 
           <div style="flex:1"></div>
-          <div class='toolbar-item' @click='${this.toggleDescrExpand}'> 
-            Copy
-          </div>
+          <div class='toolbar-item' @click='${this.toggleDescrExpand}'> </div>
         </div>
         ${this.generateTree(this.data)}
       </div>  
@@ -91,6 +97,7 @@ export default class JsonTree extends LitElement {
   static get properties() {
     return {
       data: { type: Object },
+      renderStyle: { type: String, attribute: 'render-style' },
     };
   }
 
