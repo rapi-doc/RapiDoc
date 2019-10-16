@@ -16,6 +16,7 @@ export default class ApiResponse extends LitElement {
     this.selectedStatus = '';
     this.headersForEachRespStatus = {};
     this.mimeResponsesForEachStatus = {};
+    this.activeSchemaTab = this.defaultSchemaTab === 'model' ? 'model' : 'example';
   }
 
   render() {
@@ -47,10 +48,22 @@ export default class ApiResponse extends LitElement {
         color:var(--light-fg);
         font-family:var(--font-regular);
       }
+      .text-example{
+        padding:16px;
+        font-size:var(--font-size-small);
+        margin:0;
+      }
+      .read.text-example{
+        border: 1px solid var(--border-color);
+      }
+      .read-mode{
+        padding-top:24px;
+        border-top: 1px dotted var(--border-color);
+      }
     </style>
     <div class="col regular-font response-panel ${this.renderStyle === 'read' ? 'read-mode' : 'view-mode'}">
       <div class="req-res-title">RESPONSE</div>
-      <div style='padding-left:${this.renderStyle === 'read' ? '16px' : '0'};'>
+      <div>
         ${this.responseTemplate()}
       <div>  
     </div>  
@@ -63,6 +76,10 @@ export default class ApiResponse extends LitElement {
       parser: { type: Object },
       schemaStyle: { type: String, attribute: 'schema-style' },
       renderStyle: { type: String, attribute: 'render-style' },
+      defaultSchemaTab: { type: String, attribute: 'default-schema-tab' },
+      selectedStatus: { type: String },
+      selectedMimeType: { type: String },
+      activeSchemaTab: { type: String },
     };
   }
 
@@ -76,7 +93,9 @@ export default class ApiResponse extends LitElement {
       const allMimeResp = {};
       for (const mimeResp in this.responses[statusCode].content) {
         const mimeRespObj = this.responses[statusCode].content[mimeResp];
-
+        if (!this.selectedMimeType) {
+          this.selectedMimeType = mimeResp;
+        }
         // Generate Schema
         const schemaTree = schemaInObjectNotation(mimeRespObj.schema, {});
 
@@ -107,117 +126,130 @@ export default class ApiResponse extends LitElement {
     return html`
       ${Object.keys(this.responses).length > 1
         ? html`<div class='row'>
-          ${Object.keys(this.responses).map((status, index) => html`
+          ${Object.keys(this.responses).map((respStatus) => html`
           <button 
-            @click="${() => this.changeSelectedStatus(status)}}"
-            class='m-btn small ${this.selectedStatus === status ? 'primary' : ''}' 
-            style='margin: 8px 4px 0 0'> ${status} </button>
+            @click="${() => { this.selectedStatus = respStatus; }}"
+            class='m-btn small ${this.selectedStatus === respStatus ? 'primary' : ''}' 
+            style='margin: 8px 4px 0 0'> ${respStatus} </button>
           `)}`
         : ''
       }  
       </div>
 
-      ${Object.keys(this.responses).map((status, index) => html`
+      ${Object.keys(this.responses).map((status) => html`
         <div style = 'display: ${status === this.selectedStatus ? 'block' : 'none'}' >
-          <div class="resp-head ${index === 0 ? 'top-gap' : 'divider'}">
+          <div class="top-gap ">
             <span class="resp-status">${status}:</span> 
             <span class="resp-descr">${this.responses[status].description}</span> 
             ${(this.headersForEachRespStatus[status] && this.headersForEachRespStatus[status].length > 0)
-              ? html`
-                <div style="padding:12px 0 5px 0" class="resp-status">Response Headers:</div> 
-                <table>
-                  ${this.headersForEachRespStatus[status].map((v) => html`
-                    <tr>
-                      <td style="padding:0 12px;vertical-align: top;" class="regular-font-size"> ${v.name}</td> 
-                      <td style="padding:0 12px;vertical-align: top; line-height:14px" class="descr-text small-font-size">
-                        <span class="m-markdown-small">${unsafeHTML(marked(v.description || ''))}</span>
-                        ${(v.schema && v.schema.example) ? html`<br/><span style="font-weight:bold">EXAMPLE:</span> ${v.schema.example}` : ''}
-                      </td>
-                    </tr>
-                  `)}
-                </table>`
+              ? html`${this.responseHeaderListTemplate(this.headersForEachRespStatus[status])}`
               : ''
             }
           </div>
-
-          ${Object.keys(this.mimeResponsesForEachStatus[status]).map(
-            (mimeType) => (mimeType.includes('octet-stream')
-              ? html`
-                <div> 
-                  <span style='color:var(--primary-color)'> Content-Type: </span> 
-                  ${mimeType} (Binary Data) 
-                </div>`
-              : html`
-                <div class="tab-panel col">
-                  <div id="${status}_${mimeType}_tab-buttons" @click="${this.activateTab}" class="tab-buttons row" >
-                    <button class="tab-btn active" content_id="${status}_${mimeType}_example">EXAMPLE</button>
-                    <button class="tab-btn" content_id="${status}_${mimeType}_model">MODEL</button>
-                    <div style="flex:1"></div>
-                    <div style="align-self:center;font-size:var(--font-size-small);"> ${mimeType} </div>
-                  </div>
-                  <div id="${status}_${mimeType}_example" class="tab-content col" style="flex:1; ">
-                    ${this.mimeResponsesForEachStatus[status][mimeType].examples[0].exampleFormat === 'json'
-                      ? html`
-                        <json-tree 
-                          class="border tree"
-                          render-style = '${this.renderStyle}'
-                          .data="${this.mimeResponsesForEachStatus[status][mimeType].examples[0].exampleValue}"
-                        ></json-tree>`
-                      : html`
-                        <pre class='multiline'>${this.mimeResponsesForEachStatus[status][mimeType].examples[0].exampleValue}</pre>
-                      `
-                    }
-                  </div>
-                  <div id="${status}_${mimeType}_model" class="tab-content col" style="flex:1;display:none">
-                    ${this.schemaStyle === 'table'
-                      ? html`
-                        <schema-table
-                          class = 'border'
-                          render-style = '${this.renderStyle}'
-                          .data = '${this.mimeResponsesForEachStatus[status][mimeType].schemaTree}'
-                        > </schema-tree> `
-                      : html`
-                        <schema-tree
-                          class = 'border'
-                          render-style = '${this.renderStyle}'
-                          .data = '${this.mimeResponsesForEachStatus[status][mimeType].schemaTree}'
-                        > </schema-tree>`
-                    }
-                  </div>
+          ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 0
+            ? ''
+            : html`  
+              <div class="tab-panel col">
+                <div class="tab-buttons row" >
+                  ${this.defaultSchemaTab === 'model'
+                    ? html`
+                      <button class="tab-btn ${this.activeSchemaTab === 'model' ? 'active' : ''}"   data-tab = 'model' @click="${(e) => { this.activeSchemaTab = e.target.dataset.tab; }}" >MODEL</button>
+                      <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example' @click="${(e) => { this.activeSchemaTab = e.target.dataset.tab; }}">EXAMPLE </button>`
+                    : html`  
+                      <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example' @click="${(e) => { this.activeSchemaTab = e.target.dataset.tab; }}" >EXAMPLE </button>
+                      <button class="tab-btn ${this.activeSchemaTab === 'model' ? 'active' : ''}"   data-tab = 'model' @click="${(e) => { this.activeSchemaTab = e.target.dataset.tab; }}">MODEL</button>`
+                  }
+                  <div style="flex:1"></div>
+                  ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1
+                    ? html`<span class='small-font-size gray-text' style='align-self:center; margin-top:8px;'> ${Object.keys(this.mimeResponsesForEachStatus[status])[0]} </span>`
+                    : html`${this.mimeTypeDropdownTemplate(Object.keys(this.mimeResponsesForEachStatus[status]))}`
+                  }
                 </div>
-              `),
-            )
-          }
-        </div>
-      `)}
+
+                <div class ='tab-content col' style = 'flex:1; display:${this.activeSchemaTab === 'example' ? 'flex' : 'none'};'>
+                  ${this.mimeExampleTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
+                </div>
+                <div class="tab-content col" style="flex:1; display:${this.activeSchemaTab === 'model' ? 'flex' : 'none'};">
+                  ${this.mimeSchemaTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
+                </div>
+
+              </div>
+            `
+          }`)
+        }
     `;
   }
 
-  responseMimeTemplate() {
-
+  responseHeaderListTemplate(respHeaders) {
+    return html`
+      <div style="padding:16px 0 8px 0" class="resp-headers small-font-size upper bold-text">Response Headers:</div> 
+      <table style="padding-bottom:16px;" class='small-font-size'>
+        ${respHeaders.map((v) => html`
+          <tr>
+            <td style="padding:0 12px;vertical-align: top;"> ${v.name}</td> 
+            <td style="padding:0 12px;vertical-align: top; line-height:14px" class="descr-text">
+              <span class="m-markdown-small">${unsafeHTML(marked(v.description || ''))}</span>
+              ${(v.schema && v.schema.example) ? html`<br/><span style="font-weight:bold">EXAMPLE:</span> ${v.schema.example}` : ''}
+            </td>
+          </tr>
+        `)}
+    </table>`;
   }
+
+
+  mimeTypeDropdownTemplate(mimeTypes) {
+    return html`
+      <select @change="${(e) => { this.selectedMimeType = e.target.value; }}">
+        ${mimeTypes.map((mimeType) => html`<option value='${mimeType}'> ${mimeType} </option>`)}
+      </select>`;
+  }
+
+  mimeExampleTemplate(mimeRespDetails) {
+    if (!mimeRespDetails) {
+      return html`
+        <pre style='color:var(--delete-color)' class = '${this.renderStyle === 'read' ? 'read text-example' : 'text-example'}'> No example provided </pre>
+      `;
+    }
+    return html`
+      ${mimeRespDetails.examples[0].exampleFormat === 'json'
+        ? html`
+          <json-tree 
+            class="border tree"
+            render-style = '${this.renderStyle}'
+            .data="${mimeRespDetails.examples[0].exampleValue}"
+          ></json-tree>`
+        : html`
+          <pre class = '${this.renderStyle === 'read' ? 'read text-example' : 'text-example'}'>${mimeRespDetails.examples[0].exampleValue}</pre>
+        `
+      }
+    `;
+  }
+
+  mimeSchemaTemplate(mimeRespDetails) {
+    if (!mimeRespDetails) {
+      return html`
+        <pre style='color:var(--delete-color)' class = '${this.renderStyle === 'read' ? 'read text-example' : 'text-example'}'> Schema not found</pre>
+      `;
+    }
+    return html`
+      ${this.schemaStyle === 'table'
+        ? html`
+          <schema-table
+            class = 'border'
+            render-style = '${this.renderStyle}'
+            .data = '${mimeRespDetails.schemaTree}'
+          > </schema-tree> `
+        : html`
+          <schema-tree
+            class = 'border'
+            render-style = '${this.renderStyle}'
+            .data = '${mimeRespDetails.schemaTree}'
+          > </schema-tree>`
+      }`;
+  }
+
+
   /* eslint-enable indent */
-
-  changeSelectedStatus(status) {
-    this.selectedStatus = status;
-    this.requestUpdate();
-  }
-
-  activateTab(e) {
-    if (e.target.classList.contains('active') || e.target.classList.contains('tab-btn') === false) {
-      return;
-    }
-    const activeTabBtn = e.currentTarget.parentNode.querySelector('.tab-btn.active');
-    activeTabBtn.classList.remove('active');
-    e.target.classList.add('active');
-    const showContentElsId = e.target.attributes.content_id.value;
-    const allContentEls = e.currentTarget.parentNode.querySelectorAll('.tab-content');
-    if (showContentElsId) {
-      allContentEls.forEach((v) => {
-        v.style.display = v.attributes.id.value === showContentElsId ? 'flex' : 'none';
-      });
-    }
-  }
 }
 
 // Register the element with the browser

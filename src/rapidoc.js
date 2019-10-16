@@ -16,6 +16,50 @@ import '@/components/path-and-methods';
 import '@/components/security-schemes';
 
 export default class RapiDoc extends LitElement {
+  constructor() {
+    super();
+    const intersectionObserverOptions = {
+      root: this.getRootNode().host,
+      rootMargin: '0px 0px -200px 0px', // when the element is visible 200px from bottom
+      threshold: 0,
+    };
+    this.intersectionObserver = new IntersectionObserver((entries) => { this.onIntersect(entries); }, intersectionObserverOptions);
+  }
+
+  static get properties() {
+    return {
+      specUrl: { type: String, attribute: 'spec-url' },
+      specFile: { type: String, attribute: false },
+      serverUrl: { type: String, attribute: 'server-url' },
+      matchPaths: { type: String, attribute: 'match-paths' },
+      headingText: { type: String, attribute: 'heading-text' },
+      headerColor: { type: String, attribute: 'header-color' },
+      primaryColor: { type: String, attribute: 'primary-color' },
+      regularFont: { type: String, attribute: 'regular-font' },
+      monoFont: { type: String, attribute: 'mono-font' },
+      showHeader: { type: String, attribute: 'show-header' },
+      showInfo: { type: String, attribute: 'show-info' },
+      allowAuthentication: { type: String, attribute: 'allow-authentication' },
+      allowTry: { type: String, attribute: 'allow-try' },
+      allowServerSelection: { type: String, attribute: 'allow-server-selection' },
+      allowSpecUrlLoad: { type: String, attribute: 'allow-spec-url-load' },
+      allowSpecFileLoad: { type: String, attribute: 'allow-spec-file-load' },
+      allowSearch: { type: String, attribute: 'allow-search' },
+      allowApiListStyleSelection: { type: String, attribute: 'allow-api-list-style-selection' },
+      layout: { type: String },
+      schemaStyle: { type: String, attribute: 'schema-style' },
+      theme: { type: String },
+      logoUrl: { type: String, attribute: 'logo-url' },
+      apiKeyName: { type: String, attribute: 'api-key-name' },
+      apiKeyValue: { type: String, attribute: 'api-key-value' },
+      apiKeyLocation: { type: String, attribute: 'api-key-location' },
+      apiListStyle: { type: String, attribute: 'api-list-style' },
+      renderStyle: { type: String, attribute: 'render-style' },
+      defaultSchemaTab: { type: String, attribute: 'default-schema-tab' },
+    };
+  }
+
+
   /* eslint-disable indent */
   render() {
     return html`
@@ -27,14 +71,15 @@ export default class RapiDoc extends LitElement {
         ? html`<style>
           :host{
             --bg:#333;
-            --bg2:#444;
+            --bg2:#383838;
+            --bg3:#444;
             --fg:#bbb;
-            --fg2:#aaa;
+            --fg3:#aaa;
             --light-fg:#777;
             --very-light-fg:#666;
             --pre-border-color:#666;
             --pre-fg:#fff;
-            --pre-bg:#222;
+            --pre-bg:#272727;
             --code-fg:#ccc;
             --code-bg:transparent;
             --border-color:#666;
@@ -48,14 +93,16 @@ export default class RapiDoc extends LitElement {
             --light-delete-color:#2a2a2a;
             --light-patch-color:#2a2a2a;
             --hover-color:#2a2a2a;
+            --post-color:#99CC00;
           }
           </style>`
         : html`<style>
           :host{
             --bg:#fff;
             --bg2:#fafafa;
+            --bg3:#fafafa;
             --fg:#333;
-            --fg2:#565656;
+            --fg3:#565656;
             --light-fg:#999;
             --very-light-fg:#bbb;
             --pre-border-color:#4e575e;
@@ -73,7 +120,8 @@ export default class RapiDoc extends LitElement {
             --light-post-color:#fbfff0;
             --light-delete-color:#fff0f0;
             --light-patch-color:#fff5cc;
-            --hover-color:#f7f7f7;
+            --hover-color:#f1f1f1;
+            --post-color:#1dae00;
           }
       </style>`}      
       <style>
@@ -83,7 +131,6 @@ export default class RapiDoc extends LitElement {
           --hover-bg:#f7f7f7;
           --get-color:#47AFE8;
           --put-color:#FF9900;
-          --post-color:#99CC00;
           --delete-color:#F06560;
           --patch-color:#fc0;
           --link-color:#47AFE8;
@@ -121,22 +168,32 @@ export default class RapiDoc extends LitElement {
           overflow:hidden;
         }
         .nav-bar {
-          width:270px;
+          width:300px;
           height:100%;
           overflow-y: scroll;
           overflow-x: hidden;
-          border: 1px solid var(--delete-color);
+          background-color: var(--bg2);
+          border-right: 1px solid var(--light-border-color);
           box-sizing:border-box;
-          
+          line-height: 16px;
         }
+
         .nav-bar-tag {
           font-size: var(--font-size-regular);
           font-weight:bold;
           padding: 30px 10px 7px 10px;
         }
         .nav-bar-path {
+          display:flex;
           font-size: var(--font-size-small);
+          cursor:pointer;
           padding: 8px 10px;
+          border-right:4px solid transparent;
+        }
+        .nav-bar-path.active{
+          font-weight:bold;
+          border-right:4px solid var(--primary-color);
+          background-color:var(--hover-color);
         }
         .nav-bar-path:hover {
           background-color:var(--hover-color);
@@ -192,7 +249,7 @@ export default class RapiDoc extends LitElement {
 
         .loader {
           margin: 16px auto 16px auto; 
-          border: 4px solid var(--bg2);
+          border: 4px solid var(--bg3);
           border-radius: 50%;
           border-top: 4px solid var(--primary-color);
           width: 36px;
@@ -223,9 +280,9 @@ export default class RapiDoc extends LitElement {
       
       ${this.showHeader === 'false' ? '' : this.headerTemplate()}
       <div class="body">
-        ${this.renderStyle === 'read' ? this.navBarTemplate() : ''}
+        ${this.renderStyle === 'read' && this.resolvedSpec ? this.navBarTemplate() : ''}
         
-        <div class="main-content regular-font">
+        <div class="main-content regular-font" style = "${this.renderStyle === 'read' ? 'padding:0' : ''}">
           <slot></slot>
           ${this.loading === true ? html`<div class="loader"></div>` : ''}
           ${this.loadFailed === true ? html`<div style="text-align: center;margin: 16px;"> Unable to load the Spec</div>` : ''}
@@ -325,11 +382,26 @@ export default class RapiDoc extends LitElement {
       <div class='nav-bar'>
         ${this.resolvedSpec.tags.map((tag) => html`
           <div class='nav-bar-tag' > ${tag.name}</div>
-          ${tag.paths.map((p) => html`<div class='nav-bar-path'> ${p.summary} </div>`)}
+          ${tag.paths.map((p) => html`
+          <div class='nav-bar-path' data-goto_container='${tag.name.replace(/\s/g, '')}' id='${p.method}${p.path.replace(/\//g, '')}' @click='${(e) => this.scrollToEl(e)}'> 
+            <span class="upper method-fg ${p.method}" style='display:inline-block; flex: 0 0 45px; font-size:10px'> ${p.method} </span>
+            <span> ${p.summary || p.path} </span>
+          </div>`)}
         `)}
       </div>
     `;
   }
+
+  observeExpandedContent() {
+    const containerEls = this.shadowRoot.querySelectorAll('end-points-expanded');
+    containerEls.forEach((el) => {
+      const observeTargetEls = el.shadowRoot.querySelectorAll('.endpoint-body');
+      observeTargetEls.forEach((targetEl) => {
+        this.intersectionObserver.observe(targetEl);
+      });
+    });
+  }
+
 
   contactInfoTemplate() {
     return html`
@@ -454,15 +526,16 @@ export default class RapiDoc extends LitElement {
           return true;
         }).map((path) => html`
           <end-point
-            selected-server="${this.selectedServer}" 
-            api-key-name="${this.apiKeyName ? this.apiKeyName : ''}" 
-            api-key-value="${this.apiKeyValue ? this.apiKeyValue : ''}" 
-            api-key-location="${this.apiKeyLocation}" 
-            layout="${this.layout}" 
-            .path=${path}
+            selected-server= "${this.selectedServer}" 
+            api-key-name = "${this.apiKeyName ? this.apiKeyName : ''}" 
+            api-key-value = "${this.apiKeyValue ? this.apiKeyValue : ''}" 
+            api-key-location = "${this.apiKeyLocation}" 
+            layout = "${this.layout}" 
+            .path = ${path}
             allow-try="${this.allowTry ? this.allowTry : 'true'}"
-            render-style="${this.renderStyle}" 
-            schema-style="${this.schemaStyle}" 
+            render-style = "${this.renderStyle}" 
+            schema-style = "${this.schemaStyle}" 
+            default-schema-tab = "${this.defaultSchemaTab}"
           > 
           </end-point>`)
         }`)
@@ -500,13 +573,14 @@ export default class RapiDoc extends LitElement {
   endpointsExpandedTemplate() {
     return html`
       ${this.resolvedSpec.tags.map((tag) => html`
-        <div class='regular-font section-gap' >
+        <div class='regular-font section-gap' style="border-top:1px solid var(--primary-color);">
           <div class="title tag">${tag.name} </div>
           <div class="regular-font-size">
             ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(tag.description ? tag.description : '')}</div>`)}
           </div>
         </div>
         <end-points-expanded
+          id = '${tag.name.replace(/\s/g, '')}'
           selected-server  = "${this.selectedServer ? this.selectedServer : ''}"  
           api-key-name     = "${this.apiKeyName ? this.apiKeyName : ''}"
           api-key-value    = "${this.apiKeyValue ? this.apiKeyValue : ''}"
@@ -517,6 +591,7 @@ export default class RapiDoc extends LitElement {
           match-paths      = "${this.matchPaths}"
           schema-style     = "${this.schemaStyle}"
           render-style     = "${this.renderStyle}"
+          default-schema-tab  = "${this.defaultSchemaTab}"
         ></end-points-expanded>`)
       }
     `;
@@ -524,42 +599,16 @@ export default class RapiDoc extends LitElement {
 
   /* eslint-enable indent */
 
-  static get properties() {
-    return {
-      specUrl: { type: String, attribute: 'spec-url' },
-      specFile: { type: String, attribute: false },
-      serverUrl: { type: String, attribute: 'server-url' },
-      matchPaths: { type: String, attribute: 'match-paths' },
-      headingText: { type: String, attribute: 'heading-text' },
-      headerColor: { type: String, attribute: 'header-color' },
-      primaryColor: { type: String, attribute: 'primary-color' },
-      regularFont: { type: String, attribute: 'regular-font' },
-      monoFont: { type: String, attribute: 'mono-font' },
-      showHeader: { type: String, attribute: 'show-header' },
-      showInfo: { type: String, attribute: 'show-info' },
-      allowAuthentication: { type: String, attribute: 'allow-authentication' },
-      allowTry: { type: String, attribute: 'allow-try' },
-      allowServerSelection: { type: String, attribute: 'allow-server-selection' },
-      allowSpecUrlLoad: { type: String, attribute: 'allow-spec-url-load' },
-      allowSpecFileLoad: { type: String, attribute: 'allow-spec-file-load' },
-      allowSearch: { type: String, attribute: 'allow-search' },
-      allowApiListStyleSelection: { type: String, attribute: 'allow-api-list-style-selection' },
-      layout: { type: String },
-      schemaStyle: { type: String, attribute: 'schema-style' },
-      theme: { type: String },
-      logoUrl: { type: String, attribute: 'logo-url' },
-      apiKeyName: { type: String, attribute: 'api-key-name' },
-      apiKeyValue: { type: String, attribute: 'api-key-value' },
-      apiKeyLocation: { type: String, attribute: 'api-key-location' },
-      apiListStyle: { type: String, attribute: 'api-list-style' },
-      renderStyle: { type: String, attribute: 'render-style' },
-    };
-  }
-
   attributeChangedCallback(name, oldVal, newVal) {
     if (name === 'spec-url') {
       if (oldVal !== newVal) {
         this.loadSpec(newVal);
+
+        // Delay observation to allow loading all the child custom-elements
+        this.intersectionObserver.disconnect();
+        window.setTimeout(() => {
+          this.observeExpandedContent();
+        }, 1000);
       }
     }
     super.attributeChangedCallback(name, oldVal, newVal);
@@ -656,6 +705,33 @@ export default class RapiDoc extends LitElement {
     window.setTimeout(() => {
       this.onApiServerChange();
     }, 0);
+  }
+
+  onIntersect(entries) {
+    entries.forEach((el) => {
+      if (el.isIntersecting) {
+        // Remove active class from previous element
+        const oldEl = this.shadowRoot.querySelector('.nav-bar-path.active');
+        if (oldEl) {
+          oldEl.classList.remove('active');
+        }
+        // Add active class in the new element
+        const newEl = this.shadowRoot.getElementById(el.target.id);
+        if (newEl) {
+          newEl.classList.add('active');
+        }
+      }
+    });
+  }
+
+  scrollToEl(e) {
+    const containerElId = e.currentTarget.dataset.goto_container;
+    const elId = e.currentTarget.id;
+    const containerEl = this.shadowRoot.getElementById(containerElId);
+    const el = containerEl.shadowRoot.getElementById(elId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+    }
   }
 }
 customElements.define('rapi-doc', RapiDoc);

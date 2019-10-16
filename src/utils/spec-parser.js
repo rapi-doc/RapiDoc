@@ -136,7 +136,7 @@ export default async function ProcessSpec(specUrl) {
   let specLocation = '';
   let url;
 
-  const convertOptions = { patch: true, warnOnly: true };
+  const convertOptions = { patch: false, warnOnly: true };
   try {
     // JsonRefs cant load yaml files, so first use converter
     if (typeof specUrl === 'string') {

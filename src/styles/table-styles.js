@@ -24,12 +24,12 @@ export default html`
 }
 
 .m-table th {
-  color: var(--fg2);
+  color: var(--fg3);
   font-size: var(--font-size-small);
   line-height:30px;
   font-weight: 600;
   letter-spacing: normal;
-  background-color: var(--bg2);
+  background-color: var(--bg3);
   vertical-align: bottom;
   border-bottom: 1px solid var(--border-color);
 }

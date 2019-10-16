@@ -75,9 +75,9 @@ export default class SchemaTable extends LitElement {
           </div>
         </div>
 
-        <div style='padding: 5px 0; color:var(--fg2)'> <span class='bold-text upper'> ${this.data['::type']}: </span> ${this.data['::description']}</div>
+        <div style='padding: 5px 0; color:var(--fg3)'> <span class='bold-text upper'> ${this.data['::type']}: </span> ${this.data['::description']}</div>
         <div style = "border:1px solid var(--border-color)">
-          <div style='display:flex; height:18px; background-color: var(--bg2); line-height:18px; padding:8px 2px; border-bottom:1px solid var(--border-color);'>
+          <div style='display:flex; height:18px; background-color: var(--bg3); line-height:18px; padding:8px 2px; border-bottom:1px solid var(--border-color);'>
             <div class='td key' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg)'> Field</div>
             <div class='td key-type' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg)'> Type </div>
             <div class='td key-descr' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg)'>Description</div>
@@ -165,19 +165,19 @@ export default class SchemaTable extends LitElement {
         <div class='td key-descr'>
           ${prevDataType === 'array' ? prevDescr : ''}
           ${itemParts[2]
-            ? html`<div style='color: var(--fg2)'>${itemParts[2]}</div>`
+            ? html`<div style='color: var()'>${itemParts[2]}</div>`
             : ''
           }
           ${itemParts[3]
-            ? html`<div style='color: var(--fg2)'><span class='bold-text'>Default:</span> ${itemParts[3]}</div>`
+            ? html`<div style='color: var(--fg3)'><span class='bold-text'>Default:</span> ${itemParts[3]}</div>`
             : ''
           }
           ${itemParts[4]
-            ? html`<div style='color: var(--fg2)'><span class='bold-text'>Allowed:</span>(${itemParts[4]})</div>`
+            ? html`<div style='color: var(--fg3)'><span class='bold-text'>Allowed:</span>(${itemParts[4]})</div>`
             : ''
           }
           ${itemParts[5]
-            ? html`<div style='color: var(--fg2)'><span class='bold-text'>Pattern:</span> ${itemParts[5]}</div>`
+            ? html`<div style='color: var(--fg3)'><span class='bold-text'>Pattern:</span> ${itemParts[5]}</div>`
             : ''
           }
           ${itemParts[6]

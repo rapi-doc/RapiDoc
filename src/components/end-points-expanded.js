@@ -11,21 +11,12 @@ export default class EndPointsExpanded extends LitElement {
     return html`
       ${FontStyles}
       <style>
-        .req-resp-container{
-          border-bottom: 1px solid var(--primary-color);
-          margin-bottom: 16px;
-          padding-bottom: 16px;
+        .endpoint-body{
+          border-top: 1px solid var(--light-border-color);
+          padding:36px 48px;
         }
-        .method {text-transform:uppercase;}
-        .method.put { color: var(--put-color); }
-        .method.post { color: var(--post-color); }
-        .method.get { color: var(--get-color); }
-        .method.delete { color: var(--delete-color); }
-        .method.patch { color: var(--patch-color); }
-        .method.head { color: var(--head-color); }
-
-        .endpoint-read-body{
-          padding: 12px 24px; 
+        .endpoint-body:nth-child(even){
+          background-color:var(--bg3);
         }
       </style>  
       ${this.paths.map((path) => this.endpointBodyTemplate(path))}
@@ -34,21 +25,29 @@ export default class EndPointsExpanded extends LitElement {
 
   endpointBodyTemplate(path) {
     return html`
-    <div class='endpoint-body ${path.method}' style='padding:16px 24px'>
+    <div class='endpoint-body ${path.method}' id='${path.method}${path.path.replace(/\//g, '')}'>
       ${html`
-        <h1> ${path.summary} </h1>
-  <div class='mono-font regular-font-size'> <span class='regular-font method ${path.method}'>${path.method}</span> ${path.path} </div>`
+        <h1> ${path.summary || html`<span class='upper method-fg ${path.method}'> ${path.method}</span> ${path.path}`} </h1>
+        ${path.summary
+          ? html`
+            <div class='mono-font regular-font-size' style='padding: 8px 0; color:var(--fg3)'> 
+              <span class='regular-font upper method-fg ${path.method}'>${path.method}</span> 
+              ${path.path} 
+            </div>`
+          : ''
+        }
+      `
       }
       ${path.description
           ? html`
-              <div class="m-markdown m-markdown-small"> 
+              <div class="m-markdown"> 
                 ${unsafeHTML(marked(path.description || ''))}
               </div>`
           : ''
       }
 
       <div class='req-resp-container'> 
-        <api-request  class="request"  
+        <api-request  class="request-panel"  
           method = "${path.method}", 
           path = "${path.path}" 
           api-key-name = "${this.apiKeyName}" 
@@ -61,20 +60,30 @@ export default class EndPointsExpanded extends LitElement {
           accept = "${this.accept}"
           render-style="${this.renderStyle}" 
           schema-style = "${this.schemaStyle}"
+          default-schema-tab = "${this.defaultSchemaTab}"
         > </api-request>
-
-        <api-response  
-          class="response" 
+        <api-response
+          class = 'response-panel'
           schema-style="${this.schemaStyle}"
-          render-style="${this.renderStyle}" 
+          render-style="${this.renderStyle}"
+          default-schema-tab = "${this.defaultSchemaTab}" 
           .responses="${path.responses}"
         > </api-response>
       </div>
     </div>`;
   }
-
-
   /* eslint-enable indent */
+
+  updated() {
+    const observeTargetEls = this.shadowRoot.querySelectorAll('.endpoint-body');
+    const added = new CustomEvent('added', {
+      detail: observeTargetEls,
+      bubbles: true,
+      composed: true,
+    });
+    this.dispatchEvent(added);
+  }
+
 
   static get properties() {
     return {
@@ -88,6 +97,7 @@ export default class EndPointsExpanded extends LitElement {
       allowTry: { type: String, attribute: 'allow-try' },
       renderStyle: { type: String, attribute: 'render-style' },
       schemaStyle: { type: String, attribute: 'schema-style' },
+      defaultSchemaTab: { type: String, attribute: 'default-schema-tab' },
     };
   }
 }

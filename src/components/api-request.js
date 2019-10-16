@@ -75,7 +75,7 @@ export default class ApiRequest extends LitElement {
     </style>
     <div class="col regular-font request-panel ${this.renderStyle === 'read' ? 'read-mode' : 'view-mode'}">
       <div class="req-res-title">REQUEST</div>
-      <div style='padding-left:${this.renderStyle === 'read' ? '16px' : '0'};'>
+      <div>
         ${this.inputParametersTemplate('path')}
         ${this.inputParametersTemplate('query')}
         ${this.requestBodyTemplate()}
@@ -95,7 +95,7 @@ export default class ApiRequest extends LitElement {
     this.responseText = '';
     this.responseUrl = '';
     this.curlSyntax = '';
-    this.activeSchemaTab = this.defaultSchemaTab === 'model' ? 'model' : 'example';
+    this.activeSchemaTab = this.defaultSchemaTab;
     this.activeResponseTab = 'response';
   }
 
@@ -161,7 +161,7 @@ export default class ApiRequest extends LitElement {
 
       tableRows.push(html`
       <tr> 
-        <td style="min-width:100px;">
+        <td style="width:160px; min-width:100px;">
           <div class="param-name">
             ${param.required ? html`<span style='color:orangered'>*</span>` : ''}${param.name}
           </div>
@@ -175,11 +175,11 @@ export default class ApiRequest extends LitElement {
             }
           </div>
         </td>  
-        <td style="min-width:100px;">
+        <td style="width:160px; min-width:100px;">
           ${paramSchema.type === 'array'
             ? html`
               <tag-input class="request-param" 
-                style = "width:100%;font-size:calc(var(--small-) + 1px); background:var(--input-bg);line-height:13px;" 
+                style = "width:160px; background:var(--input-bg);line-height:13px;" 
                 data-ptype = "${paramType}" 
                 data-pname = "${param.name}"
                 data-array = "true"
@@ -201,7 +201,7 @@ export default class ApiRequest extends LitElement {
               <div class="param-constraint">
                 ${paramSchema.default ? html`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
                 ${paramSchema.constrain ? html`${paramSchema.constrain}<br/>` : ''}
-                ${paramSchema.allowedValues ? html`${paramSchema.allowedValues}` : ''}
+                ${paramSchema.allowedValues ? html`<span style="font-weight:bold">Allowed: </span>${paramSchema.allowedValues}` : ''}
               </div>`
             : ''
           }
@@ -211,7 +211,7 @@ export default class ApiRequest extends LitElement {
         ? html`
           <tr>
             <td style="border:none">  </td>
-            <td colspan="2" style="border:none; margin-top:0; padding:0 5px;"> 
+            <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;"> 
               <span class="m-markdown-small">${unsafeHTML(marked(param.description || ''))}</span>
             </td>
           </tr>`
@@ -223,7 +223,7 @@ export default class ApiRequest extends LitElement {
     return html`
     <div class="table-title top-gap">${title}</div>
     <div style="display:block; overflow-x:auto; max-width:100%;">
-      <table class="m-table" style="width:100%; word-break:break-word;;">
+      <table class="m-table" style="width:100%; word-break:break-word;">
         ${tableRows}
       </table>
     </div>`;
@@ -307,7 +307,7 @@ export default class ApiRequest extends LitElement {
           const arrayType = fieldSchema.type === 'array' ? fieldSchema.items.type : '';
           formDataTableRows.push(html`
           <tr> 
-            <td style="min-width:100px;">
+            <td style="width:160px; min-width:100px;">
               <div class="param-name">${fieldName}</div>
               <div class="param-type">
                 ${fieldType === 'array'
@@ -316,11 +316,11 @@ export default class ApiRequest extends LitElement {
                 }
               </div>
             </td>  
-            <td style="min-width:100px;">
+            <td style="width:160px; min-width:100px;">
               ${fieldType === 'array'
                 ? html`
                   <tag-input class="request-form-param" 
-                    style="width:100%; font-size:calc(var(--title-font-size) + 1px); background:var(--input-bg);line-height:13px;" 
+                    style="width:160px; background:var(--input-bg);line-height:13px;" 
                     data-ptype="${fieldType}" 
                     data-pname="${fieldName}"
                     data-array="true"
@@ -330,7 +330,7 @@ export default class ApiRequest extends LitElement {
                 : html`<input 
                     spellcheck="false"
                     type="${fieldSchema.format === 'binary' ? 'file' : 'text'}" 
-                    style="width:100%" class="request-form-param" 
+                    style="width:160px" class="request-form-param" 
                     data-pname="${fieldName}" 
                     data-ptype="${fieldType}"  
                     data-array="false" 
@@ -345,7 +345,7 @@ export default class ApiRequest extends LitElement {
             ? html`
               <tr>
                 <td style="border:none"></td>
-                <td colspan="2" style="border:none; margin-top:0; padding:0 5px;"> 
+                <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;"> 
                   <span class="m-markdown-small">${unsafeHTML(marked(fieldSchema.description || ''))}</span>
                 </td>
               </tr>`
@@ -372,7 +372,7 @@ export default class ApiRequest extends LitElement {
         ? html`${formDataHtml}`
         : html`
         <div class="tab-panel col" style="border-width:0 0 1px 0;">
-          <div id="tab_buttons" class="tab-buttons row" @click="${(e) => { this.activeSchemaTab = e.target.dataset.tab; }}">
+          <div class="tab-buttons row" @click="${(e) => { this.activeSchemaTab = e.target.dataset.tab; }}">
             ${this.defaultSchemaTab === 'model'
               ? html`
                 <button class="tab-btn ${this.activeSchemaTab === 'model' ? 'active' : ''}"   data-tab = 'model'  >MODEL</button>
@@ -410,10 +410,10 @@ export default class ApiRequest extends LitElement {
                 }
             </div>
           </div>
-          <div id = 'tab_example' class = 'tab-content col' style = 'flex:1; display:${this.activeSchemaTab === 'example' ? 'flex' : 'none'};'>
+          <div class ='tab-content col' style = 'flex:1; display:${this.activeSchemaTab === 'example' ? 'flex' : 'none'};'>
             ${textareaExampleHtml}
           </div>
-          <div id="tab_model" class="tab-content col" style="flex:1; display:${this.activeSchemaTab === 'model' ? 'flex' : 'none'};">
+          <div class="tab-content col" style="flex:1; display:${this.activeSchemaTab === 'model' ? 'flex' : 'none'};">
             ${Object.keys(shortMimeTypes).map((k) => html`
               ${this.schemaStyle === 'table'
                 ? html`
@@ -441,13 +441,13 @@ export default class ApiRequest extends LitElement {
     return html`
     <div style="display:flex; align-items: center; margin:16px 0; font-size:var(--font-size-small);">
       <div style="display:flex; flex-direction:column; margin:0; width:calc(100% - 60px);">
-        <div style="display:flex;flex-direction:row;overflow:hidden;"> <div style="font-weight:bold;">API_Server: </div> 
+        <div style="display:flex;flex-direction:row;overflow:hidden;"> <div style="font-weight:bold;padding-right:5px;">API SERVER: </div> 
           ${this.selectedServer
             ? html`${this.selectedServer}`
             : html`<div style="font-weight:bold;color:var(--error-color)">Not Set</div>`
           }
         </div>
-        <div style="display:flex;flex-direction:row;overflow:hidden;line-height:16px;color:var(--fg2)"> 
+        <div style="display:flex;flex-direction:row;overflow:hidden;line-height:16px;color:var(--fg3)"> 
           ${this.apiKeyValue && this.apiKeyName
             ? html`
                 <div style="font-weight:bold;color:var(--success-color)">Authentication: &nbsp; </div>

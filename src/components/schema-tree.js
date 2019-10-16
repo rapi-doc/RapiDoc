@@ -29,7 +29,7 @@ export default class SchemaTree extends LitElement {
         text-align: left;
         line-height:18px;
       }
-      .tree-border{
+      .tree-border {
         border: 1px solid var(--border-color);
         padding: 8px 16px 16px 16px;
       }
@@ -83,19 +83,23 @@ export default class SchemaTree extends LitElement {
       </style>
       <div class="tree ${this.renderStyle === 'read' ? 'tree-border' : ''} ${this.expandedDetails ? 'expanded-descr' : 'collapsed-descr'}">
         <div class='toolbar'>
-          <div class='toolbar-item bold-text upper' style='cursor:auto; color:var(--fg2)'> ${this.data['::type']} </div>
+          <div class='toolbar-item bold-text upper' style='cursor:auto; color:var(--fg3)'> ${this.data ? this.data['::type'] : ''} </div>
           <div style="flex:1"></div>
           <div class='toolbar-item' @click='${() => { this.expandedDetails = !this.expandedDetails; }}'> 
             ${this.expandedDetails ? 'Collapse Details' : 'Expand Details'}
           </div>
         </div>
-        <div style='color:var(--fg2)'> ${this.data['::description']}</div>
-        ${this.generateTree(
-          this.data['::type'] === 'array' ? this.data['::props'] : this.data,
-          this.data['::type'],
-          '',
-          '',
-        )}
+        <div style='color:var(--fg3)'> ${this.data ? this.data['::description'] : ''}</div>
+        ${this.data
+          ? html`
+            ${this.generateTree(
+              this.data['::type'] === 'array' ? this.data['::props'] : this.data,
+              this.data['::type'],
+              '',
+              '',
+            )}`
+          : html`<span class='mono-font' style='color:var(--delete-color)'> Schema not found </span>`
+        }
       </div>  
     `;
   }
@@ -184,15 +188,15 @@ export default class SchemaTree extends LitElement {
             : ''
           }
           ${itemParts[3]
-            ? html`<div style='color: var(--fg2)'><span class='bold-text'>Default:</span> ${itemParts[3]}</div>`
+            ? html`<div style='color: var(--fg3)'><span class='bold-text'>Default:</span> ${itemParts[3]}</div>`
             : ''
           }
           ${itemParts[4]
-            ? html`<div style='color: var(--fg2)'><span class='bold-text'>Allowed:</span>(${itemParts[4]})</div>`
+            ? html`<div style='color: var(--fg3)'><span class='bold-text'>Allowed:</span>(${itemParts[4]})</div>`
             : ''
           }
           ${itemParts[5]
-            ? html`<div style='color: var(--fg2)'><span class='bold-text'>Pattern:</span> ${itemParts[5]}</div>`
+            ? html`<div style='color: var(--fg3)'><span class='bold-text'>Pattern:</span> ${itemParts[5]}</div>`
             : ''
           }
           ${itemParts[6]

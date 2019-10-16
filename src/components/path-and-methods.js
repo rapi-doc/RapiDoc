@@ -96,12 +96,14 @@ export default class PathAndMethods extends LitElement {
               .request_body = "${this.path[this.path.activeMethod].requestBody}"
               allow-try = "${this.allowTry}"
               accept = "${this.accept}"
-              schema-style= "${this.schemaStyle}" 
+              schema-style= "${this.schemaStyle}"
+              default-schema-tab  = "${this.defaultSchemaTab}"
             > </api-request>
             <api-response  
               class="response"
               schema-style = "${this.schemaStyle}" 
               .responses="${this.path[this.path.activeMethod].responses}"
+              default-schema-tab  = "${this.defaultSchemaTab}"
             > </api-response>
           </div>
         </div>`
@@ -125,6 +127,7 @@ export default class PathAndMethods extends LitElement {
       path: { type: Object },
       allowTry: { type: String, attribute: 'allow-try' },
       schemaStyle: { type: String, attribute: 'schema-style' },
+      defaultSchemaTab: { type: String, attribute: 'default-schema-tab' },
     };
   }
 

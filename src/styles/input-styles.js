@@ -38,9 +38,9 @@ input, select, button {
   color:var(--primary-text);
 }
 .m-btn:disabled{ 
-  background-color: var(--bg2);
-  color:var(--fg2);
-  border-color:var(--fg2);
+  background-color: var(--bg3);
+  color:var(--fg3);
+  border-color:var(--fg3);
   cursor:not-allowed;
   opacity:0.4;
 }

@@ -16,13 +16,21 @@ export default html`
   .regular-font-size{ font-size:var(--font-size-regular);}
   .small-font-size{ font-size:var(--font-size-small);}
   .primary-text{ color: var(--primary-color)}
-  .bold-text{ font-weight:bold}
+  .bold-text{ font-weight:bold }
+  .gray-text{ color: var(--light-fg) }
   .upper{text-transform: uppercase;}
   .multiline{
     overflow: scroll;
     max-height: 200px;
-    color: var(--fg2);  
+    color: var(--fg3);  
   }
+  .method-fg.put { color: var(--put-color); }
+  .method-fg.post { color: var(--post-color); }
+  .method-fg.get { color: var(--get-color); }
+  .method-fg.delete { color: var(--delete-color); }
+  .method-fg.patch { color: var(--patch-color); }
+  .method-fg.head { color: var(--head-color); }
+
   h1{ font-family:var(--font-regular); font-size:24px; letter-spacing:normal; font-weight:normal}
   h2{ font-family:var(--font-regular); font-size:20px; letter-spacing:normal; font-weight:normal}
   h3{ font-family:var(--font-regular); font-size:18px; letter-spacing:normal; font-weight:normal}
@@ -61,7 +69,7 @@ export default html`
   .m-markdown-small li{
     color:var(--light-fg);
     font-size:12px;
-    line-height:14px;
+    line-height:18px;
     margin-top:0;
   }
   .m-markdown-small p:not(:first-child),
@@ -144,11 +152,11 @@ export default html`
   }
 
   .m-markdown th {
-    color: var(--fg2);
+    color: var(--fg3);
     height:32px;
     font-weight: 600;
     letter-spacing: normal;
-    background-color: var(--bg2);
+    background-color: var(--bg3);
     vertical-align: bottom;
     border-bottom: 1px solid var(--border-color);
   }

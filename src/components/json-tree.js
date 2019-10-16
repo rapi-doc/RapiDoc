@@ -18,7 +18,7 @@ export default class JsonTree extends LitElement {
           word-break: break-all;
           flex:1;
         }
-        .tree-border{
+        .tree-border {
           border: 1px solid var(--border-color);
           padding: 8px 16px 16px 16px;
         }
