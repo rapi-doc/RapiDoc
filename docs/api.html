@@ -1,0 +1,321 @@
+<!doctype html>
+
+<head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-132775238-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132775238-1');
+  </script>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+  <meta name="description" content="RapiDoc is Web Component for viewing Swagger & OpenAPI Spec. Alternate for SwaggerUI or Redoc. It is fast, small and made with lit-element">
+  <meta name="keywords" content="RapiDoc,ReDoc,Swagger,SwaggerUI,Custom Element,Web Component,OpenAPI,REST">
+
+  <link rel="shortcut icon" type="image/png" href="./images/logo.png"/>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400&display=swap" rel="stylesheet">
+
+
+  <!-- Code Highlight -->
+  <link rel="stylesheet" href="./highlight/styles/zenburn.css">
+  <script src="./highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+  <link rel="stylesheet" href="index.css">
+
+  <title>RapiDoc - Web Component based Swagger & OpenAPI Spec Viewer</title>
+</head>
+
+<body>
+  <div class='topbar'>
+    <div class="header">
+      <a class="menu-item" data-action="url" href="./index.html">
+        <img class="logo" src="./images/logo.png" style="width:36px;height:36px;margin-right:10px;" href="./index.html"/>
+      </a>  
+      <div class="product-name">RapiDoc - API Reference</div>
+      <div class="menu" style="flex:1"></div>
+      <nav class="menu" onclick="goToSection(event)">
+        <a class="menu-item" data-action="url" href="./index.html"> Home </a>
+        <a class="menu-item" data-action="url" href="./examples.html"> Examples </a>
+        <a class="menu-item" data-action="url" href="https://mrin9.github.io/RapiPdf/"> RapiPDF </a>
+        <a class="menu-item" data-action="url" href="https://github.com/mrin9/RapiDoc"> GitHub </a>
+      </nav>
+    </div>
+  </div>
+  <div class="banner container" id="banner" style="max-height:255px; overflow:hidden">
+    <div style="display:flex; justify-content: center; margin-top:20px">
+      <div style="display:block">
+        <img class="screenshot shadow3" src="./images/light_ss.png" />
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Start of API -->
+  <div class="api container" id="api">
+    <div style="display:flex; flex-direction: column; ">
+      <h2> Attributes</h2> 
+      <div class="table-block">
+        <table class="m-table">
+          <tr>
+            <th class="attr-col">Attribute</th>
+            <th style="text-align:left">Description </th>
+            <th class="default-col">Default</th>
+          </tr>
+
+          <tr>
+            <td class="mono-bold right">spec-url </td>
+            <td class="gray">url of the OpenAPI spec to view </td>
+            <td>(empty)</td>
+          </tr>
+
+          <tr>
+            <td class="mono-bold right">server-url</td>
+            <td class="gray">
+              OpenAPI spec has a provision for providing the server url. The UI will list all the server URLs provided in the spec. 
+              The user can then select one URL to which he or she intends to send API calls while trying out the apis. 
+              However, if you want to provide an API server of your own which is not listed in the spec, you can use this property to provide one. 
+              It is helpful in the cases where the same spec is shared between multiple environment say Dev and Test and each have their own API server.
+            </td>
+            <td>(empty)</td>
+          </tr>
+
+          <tr>
+            <td class="mono-bold right">api-list-style</td>
+            <td class="gray">
+              can be either <code>group-by-tag</code> or <code> group-by-path </code>. This controls how the API litings are grouped.
+              this can be changed from the UI too
+            </td>
+            <td>group-by-tag</td>
+          </tr>
+
+          <tr>
+            <td class="mono-bold right">allow-authentication</td>
+            <td class="gray">
+              Authentication feature, allows the user to select one of the authentication mechanism thats available in the spec.
+              It can be http-basic, http-bearer or api-key. 
+              If you dont want your users to go through the authentication process, instead want them to use a pre-generated api-key 
+              then you may hide authentication section by setting this attribute to false
+              and provide the api-key details using various api-key-???? attributes.</td>
+            <td>true</td>
+          </tr>
+
+          <tr>
+            <td class="mono-bold right">api-key-name</td>
+            <td class="gray">Name of the API key that will be send while trying out the APIs</td>
+            <td>Authorization</td>
+          </tr>
+
+          <tr>
+            <td class="mono-bold right">api-key-value</td>
+            <td class="gray">Value of the API key that will be send while trying out the APIs</td>
+            <td>(empty)</td>
+          </tr>
+
+          <tr>
+            <td class="mono-bold right">api-key-location</td>
+            <td class="gray">
+              determines how you want to send the api-key.
+              allowed values are <code>header</code> or <code> query </code>
+            </td>
+            <td>header</td>
+          </tr>
+
+          <tr>
+            <td class="mono-bold right">allow-spec-url-load</td>
+            <td class="gray">
+              If set to 'false', user will not be able to load any spec url from the UI. 
+            </td>
+            <td>true</td>
+          </tr>
+
+          <tr>
+            <td class="mono-bold right">allow-spec-file-load</td>
+            <td class="gray">
+              If set to 'false', user will not be able to load any spec file from the local drive. 
+              This attribute is applicable only when the device width is more than 768px, else this feature is not available
+            </td>
+            <td>true</td>
+          </tr>
+  
+          <tr>
+            <td class="mono-bold right">allow-search</td>
+            <td class="gray">
+                If set to 'false', user will not be able to search APIs. 
+            </td>
+            <td>true</td>
+          </tr>
+
+          <tr>
+            <td class="mono-bold right">allow-try</td>
+            <td class="gray">
+              'TRY' feature allows you to make REST calls to the API server. 
+              To disable this feature set it to false 
+            </td>
+            <td>true</td>
+          </tr>
+
+          <tr>
+            <td class="mono-bold right">allow-server-selection</td>
+            <td class="gray">
+              If set to 'false', user will not be able to select API server.
+              The URL specified in the server-url attribute will be used if set, else the first server in the API specification file will be used.
+            </td>
+            <td>true</td>
+          </tr>
+
+          <tr>
+            <td class="mono-bold right">allow-api-list-style-selection</td>
+            <td class="gray">
+              If set to 'false', user will not be able to change api list style
+            </td>
+            <td>true</td>
+          </tr>
+
+          <tr>
+            <td class="mono-bold right">show-info</td>
+            <td class="gray">
+              show/hide the documents info section<br/>
+              Info section contains information about the spec, such as the title and description of the spec, the version, terms of services etc.
+              In certain situation you may not need to show this section. For instance you are embedding this element inside a another help document. 
+              Chances are, the help doc may already have this info, in that case you may want to hide this section.
+            </td>
+            <td>true</td>
+          </tr>
+
+          <tr>
+            <td class="mono-bold right">show-header </td>
+            <td class="gray">show/hide the header.<br/> 
+              If you dont want your user to open any other api spec, other than the current one, then set this attribute to false</td>
+            <td>true</td>
+          </tr>
+
+          <tr>
+            <td class="mono-bold right">heading-text </td>
+            <td class="gray">Heading Text on top-left corner </td>
+            <td>(empty)</td>
+          </tr>
+
+          <tr>
+            <td class="mono-bold right">header-color </td>
+            <td class="gray">Hex color code for the header's background</td>
+            <td>#444444</td>
+          </tr>
+
+          <tr>
+            <td class="mono-bold right">primary-color</td>
+            <td class="gray">Hex color code on various controls such as buttons, tabs </td>
+            <td>#FF791A</td>
+          </tr>
+
+          <tr>
+            <td class="mono-bold right">regular-font </td>
+            <td class="gray">Font Name(s) to be used for regular text </td>
+            <td>rapidoc, Helvetica, Arial</td>
+          </tr>
+
+          <tr>
+            <td class="mono-bold right">mono-font </td>
+            <td class="gray">Font Name(s) to be used for monospaced text </td>
+            <td>Monaco, 'Andale Mono', 'Roboto Mono'</td>
+          </tr>
+
+          <tr>
+            <td class="mono-bold right">theme </td>
+            <td class="gray">light, dark </td>
+            <td>light</td>
+          </tr>
+
+          <tr>
+            <td class="mono-bold right"> layout </td>
+            <td class="gray">layout helps in placement of your request/response sections. The allowed values are 'row' or 'column'. 
+              In column layout, request & response sections are placed one below the other, 
+              In row layout request & response sections are placed side by side. 
+              This attribute is applicable only when the device width is more than 768px.
+            </td>
+            <td>row</td>
+          </tr>
+        </table>
+      </div>  
+
+      <h2> Methods </h2> 
+      <div class="table-block">
+        <table class="m-table">
+          <tr>
+            <th class="attr-col">Method</th>
+            <th style="text-align:left">Description </th>
+            <th class="default-col"></th>
+          </tr>
+          <tr>
+            <td class="mono-bold right">loadSpec() </td>
+            <td class="gray">To programatically load spec. The method takes  
+              <ul>
+                <li> either a string containing the url of the specs</li>  
+                <li> or a JSON object representing a valid spec</li>  
+              </ul>
+            </td>
+            <td> <a href="https://github.com/mrin9/RapiDoc/blob/master/docs/examples/example9.html"> Example </a></td>
+          </tr>
+        </table>
+      </div>
+
+      <h2> Slots</h2>
+      <div class="table-block">
+        <table class="m-table">
+          <tr>
+            <th >Slot Name</th>
+            <th >Description </th>
+          </tr>
+          <tr>
+            <td class="mono-bold right">(default)</td>
+            <td class="gray">any content placed inside <code>&lt;rapi-doc&gt;</code> tag, will be shown immidiately under the header and above the info section </td>
+          </tr>
+          <tr>
+            <td class="mono-bold right">logo</td>
+            <td class="gray">use this slot to replace the logo </td>
+          </tr>
+          <tr>
+            <td class="mono-bold right">header</td>
+            <td class="gray"> The conents of this slot will appear at the header after the spec-url input</td>
+          </tr>
+          <tr>
+            <td class="mono-bold right">footer</td>
+            <td class="gray"> The conents of this slot will appear at the bottom of the spec</td>
+          </tr>
+        </table>
+      </div>
+    </div>  
+  </div>
+  <!-- End of API -->
+
+  <div id="footer" class="footer container">
+    <div class="footer-item"> MIT Licence</div>
+    <div class="footer-item"> <a href="https://github.com/mrin9/RapiDoc"> GitHub</a></div>
+    <div class="footer-item"> <a href="https://mrin9.github.io/RapiPdf/"> RapiPDF</a></div>
+    <div class="footer-item"> <a href="https://www.npmjs.com/package/rapidoc"> npm</a></div>
+  </div>
+
+
+  <script>
+  function goToSection(e){
+    if (e.target.dataset.action==='url'){
+      return;
+    }
+
+    e.preventDefault();
+    var gotoEl = document.getElementById(e.target.getAttribute('href').substring(1));
+    if (gotoEl){
+      gotoEl.scrollIntoView({ block: 'start',  behavior: 'smooth' });
+    }
+  }
+  </script>
+</body>
+
+</html>

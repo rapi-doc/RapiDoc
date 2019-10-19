@@ -1,5 +1,5 @@
 body{
-  font-family: 'Varela Round', sans-serif;
+  font-family: 'Lato', sans-serif;
   font-size: 14px;
   line-height: 24px;
   color: #333;
@@ -12,23 +12,30 @@ a{
   color:#0055fd;
   text-decoration: none;
 }
-a:hover{ 
+a:not(.menu-item):hover { 
   text-decoration: underline;
 }
-
+.mono-bold,
 code{ font-family: 'Roboto Mono', monospace;}
 
+.mono-bold{
+  font-weight:700;
+}
+.topbar{
+  background-color: #233446;
+  padding: 6px 24px;
+}
 .banner {
   padding: 60px 16px;
   background: steelblue;
   color: #fff;
   text-align: center;
-  font-family: 'Varela Round', sans-serif;
+  font-weight:300;
 }
 .banner-title {
   font-size: 38px;
   line-height: 48px;
-  font-weight: 800;
+  font-weight: 300;
   transition: .3s all;
 }
 .header {
@@ -51,17 +58,20 @@ code{ font-family: 'Roboto Mono', monospace;}
 
 .menu-item {
   margin-right: 12px;
-  color: #fff;
+  color: lightsteelblue;
   font-weight: 600;
   text-decoration: none;
   transition: .2s all;
   position: relative;
 }
+.menu-item:hover {
+  color:#fff;
+}
+
 
 .product-name {
-  font-family:"Roboto Mono";
-  font-weight: 800;
-  font-size: 36px;
+  font-weight: 300;
+  font-size: 32px;
   line-height: 40px;
   color: #fff;
   transition: .3s all;
@@ -74,7 +84,6 @@ code{ font-family: 'Roboto Mono', monospace;}
 .feature-list,
 .examples,
 .api,
-.footer 
 .example-list {
   display:flex;
   flex-wrap:wrap;
@@ -83,14 +92,22 @@ code{ font-family: 'Roboto Mono', monospace;}
 }
 
 .examples,
-.qstart {
-  background-color: lightsteelblue;
+.screenshot-section {
+  background-color: #f5f7f9;
 }
+.screenshot-section.container{
+  padding: 120px 64px;
+}
+.screenshot-section:nth-child(odd){
+  background-color: #fff;
+}
+
 .footer{
+  display:flex;
+  flex-direction: row;
   background-color: #444;
   color:#ccc;
 }
-
 
 .footer-item{
   padding: 5px 16px;
@@ -104,9 +121,7 @@ code{ font-family: 'Roboto Mono', monospace;}
 }
 .container{
   padding: 40px 64px;
-  font-family: 'Varela Round', sans-serif;
 }
-
 
 .feature{
   display:flex;
@@ -149,10 +164,6 @@ code{ font-family: 'Roboto Mono', monospace;}
   box-shadow: 0 12px 24px rgba(0,0,0,0.25), 0 6px 6px rgba(0,0,0,0.22);
 }
 
-.mono-bold {
-  font-family:"Roboto Mono";
-  font-weight:700;
-}
 .right{
   text-align: right;
 }
@@ -160,7 +171,6 @@ code{ font-family: 'Roboto Mono', monospace;}
   color:#777;
 }
 .descr {
-  font-family: 'Varela Round', sans-serif;
   font-size:13px;
   font-weight: normal;
   margin-left:12px;
@@ -229,7 +239,7 @@ code{ font-family: 'Roboto Mono', monospace;}
     margin-right: 0;
   }
   .banner {
-    padding: 80px 32px;
+    padding: 40px 32px 80px 32px;
   }    
   .features {
     padding: 80px 32px;
@@ -263,5 +273,9 @@ code{ font-family: 'Roboto Mono', monospace;}
     margin-left: 24px;
     margin-right: 0;
   }
+}
+
+h1,h2,h3{
+  font-weight:300;
 }
 
