@@ -13,10 +13,17 @@ export default class EndPointsExpanded extends LitElement {
       <style>
         .endpoint-body{
           border-top: 1px solid var(--light-border-color);
-          padding:36px 48px;
+          padding:24px 8px;
         }
         .endpoint-body:nth-child(even){
-          background-color:var(--bg3);
+          background-color:var(--bg2);
+        }
+
+        @media only screen and (min-width: 768px) {
+          .endpoint-body{
+            border-top: 1px solid var(--light-border-color);
+            padding:36px 48px;
+          }
         }
       </style>  
       ${this.paths.map((path) => this.endpointBodyTemplate(path))}

@@ -95,7 +95,8 @@ export default class ApiRequest extends LitElement {
     this.responseText = '';
     this.responseUrl = '';
     this.curlSyntax = '';
-    this.activeSchemaTab = this.defaultSchemaTab;
+    // this.activeSchemaTab = this.defaultSchemaTab;
+    this.activeSchemaTab = 'model';
     this.activeResponseTab = 'response';
   }
 

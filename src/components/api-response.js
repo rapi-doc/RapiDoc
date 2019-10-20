@@ -16,7 +16,8 @@ export default class ApiResponse extends LitElement {
     this.selectedStatus = '';
     this.headersForEachRespStatus = {};
     this.mimeResponsesForEachStatus = {};
-    this.activeSchemaTab = this.defaultSchemaTab === 'model' ? 'model' : 'example';
+    // this.activeSchemaTab = this.defaultSchemaTab === 'model' ? 'model' : 'example';
+    this.activeSchemaTab = 'model';
   }
 
   render() {
