@@ -176,24 +176,34 @@ export default class ApiRequest extends LitElement {
             }
           </div>
         </td>  
-        <td style="width:160px; min-width:100px;">
+        <td style="width:${paramSchema.type === 'array' || paramSchema.type === 'object' ? '220px' : '160px'}; min-width:100px;">
           ${paramSchema.type === 'array'
             ? html`
               <tag-input class="request-param" 
                 style = "width:160px; background:var(--input-bg);line-height:13px;" 
-                data-ptype = "${paramType}" 
+                data-ptype = "${paramType}"
                 data-pname = "${param.name}"
                 data-array = "true"
                 placeholder= "add-multiple\u23ce"
               >
               </tag-input>`
-            : html`
-              <input type="text" spellcheck="false" style="width:100%" class="request-param" 
-                data-pname="${param.name}" 
-                data-ptype="${paramType}"  
-                data-array="false"
-                value="${inputVal}"
-              />`
+            : paramSchema.type === 'object'
+              ? html`
+                <textarea 
+                  class = "mono request-param"
+                  data-ptype = "${paramType}-object"
+                  data-pname = "${param.name}"
+                  spellcheck = "false"
+                  style = "resize:vertical; width:100%; height:120px;"
+                ></textarea>
+              `
+              : html`
+                <input type="text" spellcheck="false" style="width:100%" class="request-param" 
+                  data-pname="${param.name}" 
+                  data-ptype="${paramType}"  
+                  data-array="false"
+                  value="${inputVal}"
+                />`
             }
         </td>
         <td>
@@ -499,7 +509,7 @@ export default class ApiRequest extends LitElement {
   }
   /* eslint-enable indent */
 
-  onMimeTypeChange(e) {
+  static onMimeTypeChange(e) {
     const textareaEls = e.target.closest('.tab-panel').querySelectorAll('textarea.request-body-param');
     const schemaTreeEls = e.target.closest('.tab-panel').querySelectorAll('schema-tree');
     [...textareaEls].map((el) => {
@@ -523,6 +533,7 @@ export default class ApiRequest extends LitElement {
     const requestPanelEl = e.target.closest('.request-panel');
     const pathParamEls = [...requestPanelEl.querySelectorAll(".request-param[data-ptype='path']")];
     const queryParamEls = [...requestPanelEl.querySelectorAll(".request-param[data-ptype='query']")];
+    const queryParamObjTypeEls = [...requestPanelEl.querySelectorAll(".request-param[data-ptype='query-object']")];
     const headerParamEls = [...requestPanelEl.querySelectorAll(".request-param[data-ptype='header']")];
     const formParamEls = [...requestPanelEl.querySelectorAll('.request-form-param')];
     const bodyParamEls = [...requestPanelEl.querySelectorAll('.request-body-param')];
@@ -538,23 +549,43 @@ export default class ApiRequest extends LitElement {
       fetchUrl = fetchUrl.replace(`{${el.dataset.pname}}`, el.value);
     });
 
-    // Submit Query Params
+    // Collect Query Params
+    const urlQueryParam = new URLSearchParams('');
     if (queryParamEls.length > 0) {
-      const queryParam = new URLSearchParams('');
       queryParamEls.map((el) => {
         if (el.dataset.array === 'false') {
           if (el.value !== '') {
-            queryParam.append(el.dataset.pname, el.value);
+            urlQueryParam.append(el.dataset.pname, el.value);
           }
         } else {
           const vals = el.getValues();
           for (const v of vals) {
-            queryParam.append(el.dataset.pname, v);
+            urlQueryParam.append(el.dataset.pname, v);
           }
         }
       });
-      fetchUrl = `${fetchUrl}?${queryParam.toString()}`;
     }
+
+    // Collect Query Params from Object
+    if (queryParamObjTypeEls.length > 0) {
+      let queryParamObj = {};
+      queryParamObjTypeEls.map((el) => {
+        try {
+          queryParamObj = Object.assign(queryParamObj, JSON.parse(el.value.replace(/\s+/g, ' ')));
+        } catch (err) {
+          console.log('unable to parse %s into object', el.value); // eslint-disable-line no-console
+        }
+      });
+      if (Object.keys(queryParamObj).length > 0) {
+        for (const key in queryParamObj) {
+          urlQueryParam.append(key, queryParamObj[key]);
+        }
+      }
+    }
+    if (urlQueryParam.toString().trim()) {
+      fetchUrl = `${fetchUrl}?${urlQueryParam.toString()}`;
+    }
+
 
     // Add authentication Query-Param if provided
     if (this.apiKeyValue && this.apiKeyName && this.apiKeyLocation === 'query') {

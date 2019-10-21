@@ -1,0 +1,45 @@
+openapi: 3.0.0
+info:
+  title:  Dynamic Query Params 
+  version: 1.0.0
+paths:
+  /dynamic-query-params:
+    get:
+      summary:  Responses and example as XML 
+      parameters:
+        - name: full-name
+          in: query
+          description: Name of a person
+          required: true
+          schema:
+            type: string
+            minimum: 3
+        - in: query
+          name: params
+          schema:
+            type: object
+            # If the parameter values are of specific type, e.g. string:
+            additionalProperties:
+              type: string
+            # If the parameter values can be of different types
+            # (e.g. string, number, boolean, ...)
+            # additionalProperties: true
+
+          # `style: form` and `explode: true` is the default serialization method
+          # for query parameters, so these keywords can be omitted
+          style: form
+          explode: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  age:
+                    description: Person's Age
+                    type: integer
+                  fullName:
+                    description: Person's name
+                    type: string
