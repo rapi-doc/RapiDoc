@@ -360,9 +360,9 @@ export default class RapiDoc extends LitElement {
                 : this.securitySchemeTemplate()
               }
 
-              ${this.allowApiListStyleSelection === 'false'
-                ? ''
-                : this.apiListingStyleSelectionTemplate()
+              ${this.allowApiListStyleSelection === 'true'
+                ? this.apiListingStyleSelectionTemplate()
+                : ''
               }
               
               ${this.resolvedSpec.tags && this.resolvedSpec.pathGroups
@@ -607,9 +607,9 @@ export default class RapiDoc extends LitElement {
 
   endpointsGroupedByPathTemplate() {
     return html`
-      ${(this.allowApiListStyleSelection === 'false' || !this.resolvedSpec)
-        ? ''
-        : html`<div class="sub-title tag regular-font section-gap">PATHS</div>`
+      ${(this.allowApiListStyleSelection === 'true' && this.resolvedSpec)
+        ? html`<div class="sub-title tag regular-font section-gap">PATHS</div>`
+        : ''
       }
 
       ${this.resolvedSpec.pathGroups.filter((pathObj) => {

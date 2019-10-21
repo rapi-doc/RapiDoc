@@ -150,12 +150,25 @@ export default class ApiRequest extends LitElement {
       }
       const paramSchema = getTypeInfo(param.schema);
       let inputVal = '';
+      let paramStyle = 'form';
+      let paramExplode = true;
+      if (paramType === 'query') {
+        if (param.style && 'form spaceDelimited pipeDelimited'.includes(param.style)) {
+          paramStyle = param.style;
+        }
+        if (typeof param.explode === 'boolean') {
+          paramExplode = param.explode;
+        }
+      }
+
       if (param.example) {
         if (param.example === '0' || param.example === 0) {
           inputVal = '0';
         } else {
           inputVal = param.example;
         }
+      } else if (param.examples && param.examples.length > 0) {
+        inputVal = param.examples[0];
       } else {
         inputVal = paramSchema.default;
       }
@@ -193,9 +206,11 @@ export default class ApiRequest extends LitElement {
                   class = "mono request-param"
                   data-ptype = "${paramType}-object"
                   data-pname = "${param.name}"
+                  data-param-serialize-style = "${paramStyle}"
+                  data-param-serialize-explode = "${paramExplode}"
                   spellcheck = "false"
                   style = "resize:vertical; width:100%; height:120px;"
-                ></textarea>
+                >${inputVal}</textarea>
               `
               : html`
                 <input type="text" spellcheck="false" style="width:100%" class="request-param" 
@@ -568,19 +583,37 @@ export default class ApiRequest extends LitElement {
 
     // Collect Query Params from Object
     if (queryParamObjTypeEls.length > 0) {
-      let queryParamObj = {};
       queryParamObjTypeEls.map((el) => {
         try {
+          let queryParamObj = {};
+          const paramSerializeStyle = el.dataset.paramSerializeStyle;
+          const paramSerializeExplode = el.dataset.paramSerializeExplode;
           queryParamObj = Object.assign(queryParamObj, JSON.parse(el.value.replace(/\s+/g, ' ')));
+          for (const key in queryParamObj) {
+            if (typeof queryParamObj[key] === 'object') {
+              if (Array.isArray(queryParamObj[key])) {
+                if (paramSerializeStyle === 'spaceDelimited') {
+                  urlQueryParam.append(key, queryParamObj[key].join(' '));
+                } else if (paramSerializeStyle === 'pipeDelimited') {
+                  urlQueryParam.append(key, queryParamObj[key].join('|'));
+                } else {
+                  if (paramSerializeExplode === 'true') { // eslint-disable-line no-lonely-if
+                    queryParamObj[key].forEach((v) => {
+                      urlQueryParam.append(key, v);
+                    });
+                  } else {
+                    urlQueryParam.append(key, queryParamObj[key]);
+                  }
+                }
+              }
+            } else {
+              urlQueryParam.append(key, queryParamObj[key]);
+            }
+          }
         } catch (err) {
           console.log('unable to parse %s into object', el.value); // eslint-disable-line no-console
         }
       });
-      if (Object.keys(queryParamObj).length > 0) {
-        for (const key in queryParamObj) {
-          urlQueryParam.append(key, queryParamObj[key]);
-        }
-      }
     }
     if (urlQueryParam.toString().trim()) {
       fetchUrl = `${fetchUrl}?${urlQueryParam.toString()}`;

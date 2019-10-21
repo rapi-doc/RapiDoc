@@ -1,16 +1,12 @@
 swagger: "2.0"
 info:
-  title: Swagger Sample
-  description: Sample API Playground.
+  title: Circular References
   version: 1.0.0
 basePath: /v1
-schemes:
-- http
 consumes:
-- application/vdn.sample.v1+json
+- application/json
 produces:
-- application/vdn.sample.v1+json
-
+- application/json
 paths:
   /books:
     get:
@@ -20,19 +16,11 @@ paths:
         - books
       responses:
         200:
-          headers:
-            Link:
-              type: string
           description: An array of books
           schema:
             type: array
             items:
               $ref: "#/definitions/Category"
-        default:
-          description: generic error response
-          schema:
-            $ref: "#/definitions/Error"
-
 definitions:
   # Store
   Store:
@@ -57,7 +45,6 @@ definitions:
         type: array
         items:
           $ref: "#/definitions/Book"
-
   # Book
   Book:
     type: object
@@ -76,19 +63,3 @@ definitions:
         type: array
         items:
           $ref: "#/definitions/Book"
-
-
-  # Error
-  Error:
-    type: object
-    readOnly: true
-    properties:
-      code:
-        type: integer
-        format: int64
-        example: 400
-      message:
-        type: string
-        example: Unexpected error
-    required:
-      - message

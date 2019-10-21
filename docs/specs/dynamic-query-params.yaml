@@ -5,30 +5,71 @@ info:
 paths:
   /dynamic-query-params:
     get:
-      summary:  Responses and example as XML 
+      summary:  Dynamic query param , submitted as object
       parameters:
-        - name: full-name
+        - name: phone
           in: query
           description: Name of a person
-          required: true
           schema:
             type: string
-            minimum: 3
+        - name: tags
+          in: query
+          description: Array of tags
+          schema:
+            type: array
+            items:
+              type: string
         - in: query
-          name: params
+          name: test1
+          description: >
+            Arrays are exploded, should be serialized as  <br />
+            `a=1&b=2&c=c1&c=c2&e=3`
           schema:
             type: object
-            # If the parameter values are of specific type, e.g. string:
             additionalProperties:
               type: string
-            # If the parameter values can be of different types
-            # (e.g. string, number, boolean, ...)
-            # additionalProperties: true
-
-          # `style: form` and `explode: true` is the default serialization method
-          # for query parameters, so these keywords can be omitted
+          example: >
+            {
+              "a":1,
+              "b":2,
+              "c":["c1", "c2"],
+              "d":{ "d1":1, "d2":2 },
+              "e":3
+            }
+        - in: query
+          name: test2
+          description: >
+            Arrays are not exploded, therefore comma sperated <br />
+            `f=1&g=2&h=h1,h2`
           style: form
-          explode: true
+          explode: false
+          schema:
+            type: object
+            additionalProperties:
+              type: string
+          example: >
+            {
+              "f":1,
+              "g":2,
+              "h":["h1", "h2"]
+            }
+        - in: query
+          name: test3
+          description: >
+            Arrays are not exploded, and pipe seperated <br />
+            `i=1&j=2&k=k1|k2`
+          style: pipeDelimited
+          explode: false
+          schema:
+            type: object
+            additionalProperties:
+              type: string
+          example: >
+            {
+              "i":1,
+              "j":2,
+              "k":["k1", "k2"]
+            }            
       responses:
         '200':
           description: successful operation

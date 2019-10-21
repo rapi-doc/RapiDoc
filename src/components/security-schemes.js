@@ -10,6 +10,9 @@ import InputStyles from '@/styles/input-styles';
 export default class SecuritySchemes extends LitElement {
   /* eslint-disable indent */
   render() {
+    if (Object.keys(this.schemes).length === 0) {
+      return html`<div style = 'padding:16px 0; color:var(--light-fg)'> No Authentication schemes available</div>`;
+    }
     return html`
     ${FontStyles}
     ${TableStyles}

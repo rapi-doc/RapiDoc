@@ -2,6 +2,7 @@
 	"swagger": "2.0",
 	"info": {
     "title": "one-of Models", 
+    "version": "1.0.0",
     "description": "Spec containing model composition using one-of. Checkout the model definition under the RESPONSE section"
 	},
 	"consumes": [ "application/json" ],

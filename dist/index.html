@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+  <title>RapiDoc</title>
+</head>
+
+<body>
+  <!-- 
+    Some sample spec to try
+    https://api.apis.guru/v2/specs/stripe.com/2019-02-19/swagger.json 
+    https://api.apis.guru/v2/specs/github.com/v3/swagger.json
+    https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json
+    https://petstore.swagger.io/v2/swagger.json
+    https://assets.zuora.com/zuora-documentation/swagger.yaml <<< Large spec with lot of markdown
+    ./specs/petstore_anyof.yaml <<< contains complex one-of with inline primitives and recursive objects
+    ./specs/oneof1.yaml  <<< nested oneof
+  -->
+  <rapi-doc 
+    id="thedoc" 
+    spec-url="./specs/petstore_extended.yaml" 
+    theme="light"
+    allow-api-list-style-selection = "false"
+    render-style = 'read'
+    default-schema-tab = "model"
+  > </rapi-doc>
+
+  <!--
+  <script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+      let docEl = document.getElementById("thedoc");
+      let strSpec = `
+      {
+        "swagger": "2.0",
+        "info": {
+          "description": "Sample to test"
+        },
+        "paths": {
+          "/pets": {
+            "get": {
+              "description": "Returns all pets from the system that the user has access to",
+              "produces": [ "application/json"],
+              "responses": {
+                "200": {
+                  "description": "A list of pets.",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/definitions/Pet"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "definitions": {
+          "Pet": {
+            "type": "object",
+            "required": [
+              "id",
+              "name"
+            ],
+            "properties": {
+              "id": {
+                "type": "integer",
+                "format": "int64"
+              },
+              "name": {
+                "type": "string"
+              },
+              "tag": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }  
+      `;
+      let objSpec = JSON.parse(strSpec);
+      docEl.loadSpec(objSpec);
+    })
+  </script>
+-->
+
+<script type="text/javascript" src="rapidoc-min.js"></script></body>
+
+</html>
