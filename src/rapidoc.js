@@ -752,10 +752,13 @@ export default class RapiDoc extends LitElement {
     if (!specUrl) {
       return;
     }
+
+    /*
     this.apiKeyName = '';
     this.apiKeyValue = '';
     this.apiKeyLocation = '';
     this.selectedServer = '';
+    */
     this.matchPaths = '';
     try {
       this.loading = true;
