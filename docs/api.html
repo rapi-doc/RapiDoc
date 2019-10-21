@@ -170,7 +170,13 @@
             </td>
             <td>true</td>
           </tr>
-
+          <tr>
+            <td class="mono-bold right">default-api-server</td>
+            <td class="gray">
+              Use this attribute, if you have defined multiple API-Servers defined in the sepc and want to set a default one which will be used while trying out the APIs 
+            </td>
+            <td>(empty)</td>
+          </tr>
           <tr>
             <td class="mono-bold right">allow-api-list-style-selection</td>
             <td class="gray">
@@ -226,16 +232,24 @@
             <td class="gray">Font Name(s) to be used for monospaced text </td>
             <td>Monaco, 'Andale Mono', 'Roboto Mono'</td>
           </tr>
-
           <tr>
             <td class="mono-bold right">theme </td>
             <td class="gray">light, dark </td>
             <td>light</td>
           </tr>
-
+          <tr>
+            <td class="mono-bold right">schema-style </td>
+            <td class="gray">tree, table (there are two different ways to display object-schemas in the responses and request bodies) </td>
+            <td>tree</td>
+          </tr>
+          <tr>
+            <td class="mono-bold right">render-style </td>
+            <td class="gray">read, view</td>
+            <td>view</td>
+          </tr>
           <tr>
             <td class="mono-bold right"> layout </td>
-            <td class="gray">layout helps in placement of your request/response sections. The allowed values are 'row' or 'column'. 
+            <td class="gray">Applicable only when render-style='view' layout helps in placement of your request/response sections. The allowed values are 'row' or 'column'. 
               In column layout, request & response sections are placed one below the other, 
               In row layout request & response sections are placed side by side. 
               This attribute is applicable only when the device width is more than 768px.
