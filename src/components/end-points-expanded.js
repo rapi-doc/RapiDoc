@@ -32,7 +32,7 @@ export default class EndPointsExpanded extends LitElement {
 
   endpointBodyTemplate(path) {
     return html`
-    <div class='endpoint-body ${path.method}' id='${path.method}${path.path.replace(/\//g, '')}'>
+    <div class='endpoint-body anchor ${path.method}' id='${path.method}${path.path.replace(/\//g, '')}' >
       ${html`
         <h1> ${path.summary || html`<span class='upper method-fg ${path.method}'> ${path.method}</span> ${path.path}`} </h1>
         ${path.summary

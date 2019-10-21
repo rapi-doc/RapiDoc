@@ -20,7 +20,7 @@ export default class RapiDoc extends LitElement {
     super();
     const intersectionObserverOptions = {
       root: this.getRootNode().host,
-      rootMargin: '0px 0px -100px 0px', // when the element is visible 100px from bottom
+      rootMargin: '-50px 0px -50px 0px', // when the element is visible 100px from bottom
       threshold: 0,
     };
     this.isIntersectionObserverActive = true;
@@ -451,7 +451,7 @@ export default class RapiDoc extends LitElement {
         <div class='nav-bar-tag' > ${tag.name}</div>
         ${tag.paths.filter((v) => {
           if (this.matchPaths) {
-            return `${v.method} ${v.path}`.includes(this.matchPaths);
+            return `${v.method} ${v.path} ${v.summary}`.toLowerCase().includes(this.matchPaths.toLowerCase());
           }
           return true;
         }).map((p) => html`
@@ -662,18 +662,22 @@ export default class RapiDoc extends LitElement {
 
   /* eslint-enable indent */
 
-  observeExpandedContent() {
-    const observeOverviewEls = this.shadowRoot.querySelectorAll('#content-overview, #content-api-servers, #content-authentication');
-    observeOverviewEls.forEach((targetEl) => {
-      this.intersectionObserver.observe(targetEl);
-    });
-
+  observeExpandedContent(tryCount = 0) {
     const containerEls = this.shadowRoot.querySelectorAll('end-points-expanded');
+    if (containerEls.length === 0 && tryCount < 20) {
+      setTimeout(() => { this.observeExpandedContent(tryCount + 1); }, 300);
+      return;
+    }
     containerEls.forEach((el) => {
-      const observeTargetEls = el.shadowRoot.querySelectorAll('.endpoint-body');
+      const observeTargetEls = el.shadowRoot.querySelectorAll('.anchor');
       observeTargetEls.forEach((targetEl) => {
         this.intersectionObserver.observe(targetEl);
       });
+    });
+
+    const observeOverviewEls = this.shadowRoot.querySelectorAll('#content-overview, #content-api-servers, #content-authentication');
+    observeOverviewEls.forEach((targetEl) => {
+      this.intersectionObserver.observe(targetEl);
     });
   }
 
@@ -686,7 +690,7 @@ export default class RapiDoc extends LitElement {
         this.intersectionObserver.disconnect();
         window.setTimeout(() => {
           this.observeExpandedContent();
-        }, 2000);
+        }, 300);
       }
     }
     super.attributeChangedCallback(name, oldVal, newVal);
@@ -808,7 +812,7 @@ export default class RapiDoc extends LitElement {
           newEl.classList.add('active');
         }
         // Remove active class from previous element
-        if (newEl && oldEl) {
+        if (oldEl) {
           oldEl.classList.remove('active');
         }
       }

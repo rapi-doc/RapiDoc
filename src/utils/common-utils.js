@@ -102,7 +102,7 @@ export function getSampleValueByType(schemaObj) {
   if (schemaObj.$ref) { // Indicates a Circular ref
     return schemaObj.$ref;
   }
-  let typeValue = schemaObj.format || schemaObj.type || (schemaObj.enum ? 'enum' : null);
+  let typeValue = schemaObj.format || schemaObj.type || (schemaObj.enum ? 'enum' : '');
   if (!typeValue) {
     if (schemaObj.enum) {
       typeValue = 'enum';
