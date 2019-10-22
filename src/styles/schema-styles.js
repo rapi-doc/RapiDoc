@@ -29,10 +29,12 @@ export default html`
       flex-shrink: 1;
       text-overflow: ellipsis;
       overflow: hidden;
+      display: none;
     }
     .expanded-descr .key-descr{
       max-height:auto;
       overflow:hidden;
+      display: none;
     }
     .collapsed-descr .tr {
       max-height:20px;
@@ -77,6 +79,15 @@ export default html`
       align-self:streatch;
       border-left: 1px solid var(--border-color);
       margin : 5px 5px;
+    }
+
+    @media only screen and (min-width: 500px) {
+      .key-descr {
+        display: block;
+      }
+      .expanded-descr .key-descr{
+        display: block;
+      }
     }
   </style>
 `;
