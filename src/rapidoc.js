@@ -780,10 +780,12 @@ export default class RapiDoc extends LitElement {
 
   afterSpecParsedAndValidated(spec) {
     this.resolvedSpec = spec;
-    if (this.serverUrl) {
-      this.selectedServer = this.serverUrl;
-    } else if (this.resolvedSpec && this.resolvedSpec.servers && this.resolvedSpec.servers.length > 0) {
-      this.selectedServer = this.resolvedSpec.servers[0].url;
+    if (!this.selectedServer) {
+      if (this.serverUrl) {
+        this.selectedServer = this.serverUrl;
+      } else if (this.resolvedSpec && this.resolvedSpec.servers && this.resolvedSpec.servers.length > 0) {
+        this.selectedServer = this.resolvedSpec.servers[0].url;
+      }
     }
     if (!this.apiListStyle) {
       this.apiListStyle = 'group-by-tag';
