@@ -667,15 +667,24 @@ export default class RapiDoc extends LitElement {
       }
     `;
   }
-
   /* eslint-enable indent */
 
-  observeExpandedContent(tryCount = 0) {
+  // Cleanup
+  disconnectedCallback() {
+    super.connectedCallback();
+    if (this.intersectionObserver) {
+      this.intersectionObserver.disconnect();
+    }
+  }
+
+  observeExpandedContent() {
     const containerEls = this.shadowRoot.querySelectorAll('end-points-expanded');
+    /*
     if (containerEls.length === 0 && tryCount < 20) {
       setTimeout(() => { this.observeExpandedContent(tryCount + 1); }, 300);
       return;
     }
+    */
     containerEls.forEach((el) => {
       const observeTargetEls = el.shadowRoot.querySelectorAll('.anchor');
       observeTargetEls.forEach((targetEl) => {
@@ -693,12 +702,6 @@ export default class RapiDoc extends LitElement {
     if (name === 'spec-url') {
       if (oldVal !== newVal) {
         this.loadSpec(newVal);
-
-        // Delay observation to allow loading all the child custom-elements
-        this.intersectionObserver.disconnect();
-        window.setTimeout(() => {
-          this.observeExpandedContent();
-        }, 300);
       }
     }
     super.attributeChangedCallback(name, oldVal, newVal);
@@ -788,7 +791,11 @@ export default class RapiDoc extends LitElement {
 
   afterSpecParsedAndValidated(spec) {
     this.resolvedSpec = spec;
-    if (this.allowServerSelection === 'false') {
+    let isSelectedServerValid = false;
+    if (this.selectedServer) {
+      isSelectedServerValid = (this.selectedServer === this.serverUrl || this.resolvedSpec.servers.find((v) => (v.url === this.selectedServer)));
+    }
+    if (!isSelectedServerValid) {
       if (this.serverUrl) {
         this.selectedServer = this.serverUrl;
       } else if (this.resolvedSpec && this.resolvedSpec.servers && this.resolvedSpec.servers.length > 0) {
@@ -798,6 +805,12 @@ export default class RapiDoc extends LitElement {
     if (!this.apiListStyle) {
       this.apiListStyle = 'group-by-tag';
     }
+
+    // Put it at the end of event loop, to allow loading all the child elements (must for larger specs)
+    this.intersectionObserver.disconnect();
+    window.setTimeout(() => {
+      this.observeExpandedContent();
+    }, 100);
     this.requestUpdate();
   }
 
