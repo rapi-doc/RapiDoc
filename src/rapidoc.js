@@ -780,7 +780,7 @@ export default class RapiDoc extends LitElement {
 
   afterSpecParsedAndValidated(spec) {
     this.resolvedSpec = spec;
-    if (this.allowServerSelection === 'false') {
+    if (!this.selectedServer) {
       if (this.serverUrl) {
         this.selectedServer = this.serverUrl;
       } else if (this.resolvedSpec && this.resolvedSpec.servers && this.resolvedSpec.servers.length > 0) {
@@ -791,9 +791,6 @@ export default class RapiDoc extends LitElement {
       this.apiListStyle = 'group-by-tag';
     }
     this.requestUpdate();
-    window.setTimeout(() => {
-      this.onApiServerChange();
-    }, 0);
   }
 
   onIntersect(entries) {
