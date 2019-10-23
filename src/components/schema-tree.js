@@ -74,9 +74,9 @@ export default class SchemaTree extends LitElement {
       .inside-bracket.array {
         border-left: 1px dotted var(--border-color);
       }
-      .inside-bracket.xxx-of{
+      .inside-bracket.xxx-of {
         padding:5px 0px;
-        border-style: solid;
+        border-style: dotted;
         border-width: 0 0 1px 0;
         border-color:var(--primary-color);
       }

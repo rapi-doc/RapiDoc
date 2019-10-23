@@ -95,9 +95,7 @@ export default class ApiRequest extends LitElement {
     this.responseText = '';
     this.responseUrl = '';
     this.curlSyntax = '';
-    // this.activeSchemaTab = this.defaultSchemaTab;
-    this.activeSchemaTab = 'model';
-    this.activeResponseTab = 'response';
+    this.activeResponseTab = 'response'; // allowed values: response, headers, curl
   }
 
   static get properties() {
@@ -120,8 +118,7 @@ export default class ApiRequest extends LitElement {
       allowTry: { type: String, attribute: 'allow-try' },
       renderStyle: { type: String, attribute: 'render-style' },
       schemaStyle: { type: String, attribute: 'schema-style' },
-      defaultSchemaTab: { type: String, attribute: 'default-schema-tab' },
-      activeSchemaTab: { type: String }, // internal tracking of schema-tab not exposed as a attribute
+      activeSchemaTab: { type: String, attribute: 'active-schema-tab' },
       activeResponseTab: { type: String }, // internal tracking of response-tab not exposed as a attribute
     };
   }
@@ -388,7 +385,6 @@ export default class ApiRequest extends LitElement {
       }
       mimeReqCount++;
     }
-
     return html`
       <div class="table-title top-gap ${isFormDataPresent ? 'form_data' : 'body_data'} "> 
         ${isFormDataPresent ? 'FORM' : 'BODY'} DATA ${this.request_body.required ? '(required)' : ''} 
@@ -399,14 +395,8 @@ export default class ApiRequest extends LitElement {
         : html`
         <div class="tab-panel col" style="border-width:0 0 1px 0;">
           <div class="tab-buttons row" @click="${(e) => { this.activeSchemaTab = e.target.dataset.tab; }}">
-            ${this.defaultSchemaTab === 'model'
-              ? html`
-                <button class="tab-btn ${this.activeSchemaTab === 'model' ? 'active' : ''}"   data-tab = 'model'  >MODEL</button>
-                <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>`
-              : html`  
-                <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example' >EXAMPLE </button>
-                <button class="tab-btn ${this.activeSchemaTab === 'model' ? 'active' : ''}"   data-tab = 'model' >MODEL</button>`
-            }
+            <button class="tab-btn ${this.activeSchemaTab === 'model' ? 'active' : ''}"   data-tab = 'model'  >MODEL</button>
+            <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
             <div style="flex:1"> </div>
             <div style="color:var(--light-fg); align-self:center; font-size:var(--font-size-small); margin-top:8px;">
               ${mimeReqCount === 1

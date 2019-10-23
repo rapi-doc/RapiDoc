@@ -12,17 +12,15 @@ export default class EndPointsExpanded extends LitElement {
       ${FontStyles}
       <style>
         .endpoint-body{
-          border-top: 1px solid var(--light-border-color);
-          padding:24px 8px;
+          padding:24px 0px;
         }
-        .endpoint-body:nth-child(even){
-          background-color:var(--bg2);
+        .divider {
+          border-top:2px solid var(--primary-color);
+          width:100%;
         }
-
         @media only screen and (min-width: 768px) {
-          .endpoint-body{
-            border-top: 1px solid var(--light-border-color);
-            padding:36px 48px;
+          .endpoint-body {
+            padding:36px 0 48px 0;
           }
         }
       </style>  
@@ -32,13 +30,14 @@ export default class EndPointsExpanded extends LitElement {
 
   endpointBodyTemplate(path) {
     return html`
+    <div class='divider'></div>
     <div class='endpoint-body anchor ${path.method}' id='${path.method}${path.path.replace(/\//g, '')}' >
       ${html`
         <h1> ${path.summary || html`<span class='upper method-fg ${path.method}'> ${path.method}</span> ${path.path}`} </h1>
         ${path.summary
           ? html`
             <div class='mono-font regular-font-size' style='padding: 8px 0; color:var(--fg3)'> 
-              <span class='regular-font upper method-fg ${path.method}'>${path.method}</span> 
+              <span class='regular-font upper bold-text method-fg ${path.method}'>${path.method}</span> 
               ${path.path} 
             </div>`
           : ''
@@ -52,7 +51,6 @@ export default class EndPointsExpanded extends LitElement {
               </div>`
           : ''
       }
-
       <div class='req-resp-container'> 
         <api-request  class="request-panel"  
           method = "${path.method}", 
@@ -67,17 +65,18 @@ export default class EndPointsExpanded extends LitElement {
           accept = "${this.accept}"
           render-style="${this.renderStyle}" 
           schema-style = "${this.schemaStyle}"
-          default-schema-tab = "${this.defaultSchemaTab}"
+          active-schema-tab = "${this.defaultSchemaTab}"
         > </api-request>
         <api-response
           class = 'response-panel'
           schema-style="${this.schemaStyle}"
           render-style="${this.renderStyle}"
-          default-schema-tab = "${this.defaultSchemaTab}" 
+          active-schema-tab = "${this.defaultSchemaTab}" 
           .responses="${path.responses}"
         > </api-response>
       </div>
-    </div>`;
+    </div>
+    `;
   }
   /* eslint-enable indent */
 

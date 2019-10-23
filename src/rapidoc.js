@@ -61,6 +61,22 @@ export default class RapiDoc extends LitElement {
     };
   }
 
+  // Startup
+  connectedCallback() {
+    super.connectedCallback();
+    if (!this.renderStyle || !'read view'.includes(this.renderStyle)) { this.renderStyle = 'view'; }
+    if (!this.schemaStyle || !'tree table'.includes(this.schemaStyle)) { this.schemaStyle = 'tree'; }
+    if (!this.theme || !'light dark'.includes(this.theme)) { this.theme = 'light'; }
+    if (!this.defaultSchemaTab || !'example model'.includes(this.defaultSchemaTab)) { this.defaultSchemaTab = 'model'; }
+  }
+
+  // Cleanup
+  disconnectedCallback() {
+    super.connectedCallback();
+    if (this.intersectionObserver) {
+      this.intersectionObserver.disconnect();
+    }
+  }
 
   /* eslint-disable indent */
   render() {
@@ -187,7 +203,25 @@ export default class RapiDoc extends LitElement {
         }
         .nav-scroll {
           overflow-x:hidden;
-          overflow-y:scroll
+          overflow-y:auto;
+        }
+        .nav-bar:hover .cover-scroll-bar {
+          opacity: 0;
+        }
+
+        .cover-scroll-bar {
+          position: absolute;
+          background: var(--bg3);
+          height: 100%;  
+          top: 0;
+          right: 0;
+          width: 16px;
+          transition: all .3s;
+          opacity: 1;
+        }
+
+        *:hover::-webkit-scrollbar {
+          width: 30px;
         }
 
         .nav-bar-tag {
@@ -201,7 +235,7 @@ export default class RapiDoc extends LitElement {
         .nav-bar-path {
           display:flex;
           cursor:pointer;
-          border-right:4px solid transparent;
+          border-left:4px solid transparent;
         }
 
         .nav-bar-path {
@@ -210,14 +244,14 @@ export default class RapiDoc extends LitElement {
         }
         .nav-bar-info {
           font-size: var(--font-size-regular);
-          padding: 16px;
+          padding: 16px 10px;
           font-weight:bold;
         }
 
         .nav-bar-info.active,
         .nav-bar-path.active {
           font-weight:bold;
-          border-right:4px solid var(--primary-color);
+          border-left:4px solid var(--primary-color);
           background-color:var(--hover-color);
         }
 
@@ -239,7 +273,7 @@ export default class RapiDoc extends LitElement {
           color: var(--fg3)
         }
         .section-gap,
-        .section-gap.section-gap--read-mode { 
+        .section-gap--read-mode { 
           padding: 24px 8px 12px 8px; 
         }
 
@@ -309,8 +343,8 @@ export default class RapiDoc extends LitElement {
           .section-gap { 
             padding: 24px 24px 8px 24px; 
           }
-          .section-gap.section-gap--read-mode { 
-            padding: 48px 48px 24px 48px; 
+          .section-gap--read-mode { 
+            padding: 48px 24px 24px 24px; 
           }
 
         }
@@ -320,6 +354,10 @@ export default class RapiDoc extends LitElement {
             width: 280px;
             display:flex;
           }
+          .section-gap--read-mode { 
+            padding: 48px 120px 24px 100px; 
+          }
+
         }
       </style>
       
@@ -334,7 +372,7 @@ export default class RapiDoc extends LitElement {
           ${this.resolvedSpec
             ? html`
               ${(this.showInfo === 'false' || !this.resolvedSpec.info) ? '' : html`
-              <div id = 'content-overview' class = 'section-gap ${this.renderStyle === 'read' ? 'section-gap--read-mode' : ''}'>
+              <div id = 'content-overview' class = '${this.renderStyle === 'read' ? 'section-gap--read-mode' : 'section-gap'}'>
                 <div style = 'font-size:32px'>
                   ${this.resolvedSpec.info.title}
                   ${!this.resolvedSpec.info.version ? '' : html`
@@ -428,7 +466,7 @@ export default class RapiDoc extends LitElement {
       ${(this.allowSearch === 'false')
         ? ''
         : html`
-          <div style="position:sticky; top:0; display:flex; align-items: center; padding:16px; background: var(--bg3);">  
+          <div style="position:sticky; top:0; display:flex; align-items: center; padding:16px 24px; background: var(--bg3);">  
             <input id="nav-bar-search" type="text" placeholder="search" @change="${this.onSearchChange}" style="flex:1" spellcheck="false" >
             <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x23ce;</div>
             ${this.matchPaths
@@ -468,6 +506,7 @@ export default class RapiDoc extends LitElement {
         `)}
         </div>`
       }
+      <div class="cover-scroll-bar"></div>
     </div>
   `;
 }
@@ -504,7 +543,7 @@ export default class RapiDoc extends LitElement {
 
   apiServerListTemplate() {
     return html`
-    <div id = 'content-api-servers' class='regular-font section-gap ${this.renderStyle === 'read' ? 'section-gap--read-mode' : ''}'>
+    <div id = 'content-api-servers' class='regular-font ${this.renderStyle === 'read' ? 'section-gap--read-mode' : 'section-gap'}'>
       <div class = 'sub-title'> API SERVER: </div>
       <div class = 'mono-font' style='margin: 12px 0; font-size:calc(var(--font-size-small) + 1px);'>
         ${!this.resolvedSpec.servers || (this.resolvedSpec.servers.length === 0)
@@ -541,7 +580,7 @@ export default class RapiDoc extends LitElement {
 
   securitySchemeTemplate() {
     return html`
-      <div id='content-authentication' class = 'section-gap ${this.renderStyle === 'read' ? 'section-gap--read-mode' : ''}'>
+      <div id='content-authentication' class = '${this.renderStyle === 'read' ? 'section-gap--read-mode' : 'section-gap '}'>
         <div class='sub-title regular-font'> AUTHENTICATION </div>
         <security-schemes 
           .schemes="${this.resolvedSpec.securitySchemes}"
@@ -644,38 +683,33 @@ export default class RapiDoc extends LitElement {
   endpointsExpandedTemplate() {
     return html`
       ${this.resolvedSpec.tags.map((tag) => html`
-        <div class='regular-font section-gap section-gap--read-mode' style="border-top:1px solid var(--primary-color);">
+        <div class='regular-font section-gap--read-mode' style="border-top:1px solid var(--primary-color);">
           <div class="title tag">${tag.name} </div>
           <div class="regular-font-size">
             ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(tag.description ? tag.description : '')}</div>`)}
           </div>
         </div>
-        <end-points-expanded
-          id = '${tag.name.replace(/\s/g, '')}'
-          selected-server  = "${this.selectedServer ? this.selectedServer : ''}"  
-          api-key-name     = "${this.apiKeyName ? this.apiKeyName : ''}"
-          api-key-value    = "${this.apiKeyValue ? this.apiKeyValue : ''}"
-          api-key-location = "${this.apiKeyLocation ? this.apiKeyLocation : ''}"
-          layout           = "${this.layout ? this.layout : 'row'}"
-          .paths           = "${tag.paths}" 
-          allow-try        = "${this.allowTry ? this.allowTry : 'true'}"
-          match-paths      = "${this.matchPaths}"
-          schema-style     = "${this.schemaStyle}"
-          render-style     = "${this.renderStyle}"
-          default-schema-tab  = "${this.defaultSchemaTab}"
-        ></end-points-expanded>`)
+        <div class='regular-font section-gap--read-mode'>
+          <end-points-expanded
+            id = '${tag.name.replace(/\s/g, '')}'
+            selected-server  = "${this.selectedServer ? this.selectedServer : ''}"  
+            api-key-name     = "${this.apiKeyName ? this.apiKeyName : ''}"
+            api-key-value    = "${this.apiKeyValue ? this.apiKeyValue : ''}"
+            api-key-location = "${this.apiKeyLocation ? this.apiKeyLocation : ''}"
+            layout           = "${this.layout ? this.layout : 'row'}"
+            .paths           = "${tag.paths}" 
+            allow-try        = "${this.allowTry ? this.allowTry : 'true'}"
+            match-paths      = "${this.matchPaths}"
+            schema-style     = "${this.schemaStyle}"
+            render-style     = "${this.renderStyle}"
+            default-schema-tab  = "${this.defaultSchemaTab}"
+          ></end-points-expanded>
+        </div>
+        `)
       }
     `;
   }
   /* eslint-enable indent */
-
-  // Cleanup
-  disconnectedCallback() {
-    super.connectedCallback();
-    if (this.intersectionObserver) {
-      this.intersectionObserver.disconnect();
-    }
-  }
 
   observeExpandedContent() {
     const containerEls = this.shadowRoot.querySelectorAll('end-points-expanded');
@@ -830,8 +864,8 @@ export default class RapiDoc extends LitElement {
 
         // Add active class in the new element
         if (newNavEl) {
-          newNavEl.classList.add('active');
           newNavEl.scrollIntoView({ behavior: 'auto', block: 'center' });
+          newNavEl.classList.add('active');
         }
         // Remove active class from previous element
         if (oldNavEl) {

@@ -16,7 +16,6 @@ export default class ApiResponse extends LitElement {
     this.selectedStatus = '';
     this.headersForEachRespStatus = {};
     this.mimeResponsesForEachStatus = {};
-    // this.activeSchemaTab = this.defaultSchemaTab === 'model' ? 'model' : 'example';
     this.activeSchemaTab = 'model';
   }
 
@@ -59,7 +58,9 @@ export default class ApiResponse extends LitElement {
       }
       .read-mode{
         padding-top:24px;
-        border-top: 1px dotted var(--border-color);
+        margin-top:12px;
+        border-top: 1px dashed var(--border-color);
+
       }
     </style>
     <div class="col regular-font response-panel ${this.renderStyle === 'read' ? 'read-mode' : 'view-mode'}">
@@ -77,10 +78,9 @@ export default class ApiResponse extends LitElement {
       parser: { type: Object },
       schemaStyle: { type: String, attribute: 'schema-style' },
       renderStyle: { type: String, attribute: 'render-style' },
-      defaultSchemaTab: { type: String, attribute: 'default-schema-tab' },
       selectedStatus: { type: String },
       selectedMimeType: { type: String },
-      activeSchemaTab: { type: String },
+      activeSchemaTab: { type: String, attribute: 'active-schema-tab' },
     };
   }
 
@@ -152,14 +152,8 @@ export default class ApiResponse extends LitElement {
             : html`  
               <div class="tab-panel col">
                 <div class="tab-buttons row" >
-                  ${this.defaultSchemaTab === 'model'
-                    ? html`
-                      <button class="tab-btn ${this.activeSchemaTab === 'model' ? 'active' : ''}"   data-tab = 'model' @click="${(e) => { this.activeSchemaTab = e.target.dataset.tab; }}" >MODEL</button>
-                      <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example' @click="${(e) => { this.activeSchemaTab = e.target.dataset.tab; }}">EXAMPLE </button>`
-                    : html`  
-                      <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example' @click="${(e) => { this.activeSchemaTab = e.target.dataset.tab; }}" >EXAMPLE </button>
-                      <button class="tab-btn ${this.activeSchemaTab === 'model' ? 'active' : ''}"   data-tab = 'model' @click="${(e) => { this.activeSchemaTab = e.target.dataset.tab; }}">MODEL</button>`
-                  }
+                  <button class="tab-btn ${this.activeSchemaTab === 'model' ? 'active' : ''}"   data-tab = 'model' @click="${(e) => { this.activeSchemaTab = e.target.dataset.tab; }}" >MODEL</button>
+                  <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example' @click="${(e) => { this.activeSchemaTab = e.target.dataset.tab; }}">EXAMPLE </button>
                   <div style="flex:1"></div>
                   ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1
                     ? html`<span class='small-font-size gray-text' style='align-self:center; margin-top:8px;'> ${Object.keys(this.mimeResponsesForEachStatus[status])[0]} </span>`

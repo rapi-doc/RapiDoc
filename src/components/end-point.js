@@ -77,6 +77,7 @@ export default class EndPoint extends LitElement {
           selected-server = "${this.selectedServer}" 
           .parameters = "${this.path.parameters}" 
           .request_body = "${this.path.requestBody}"
+          active-schema-tab = "${this.defaultSchemaTab}" 
           allow-try = "${this.allowTry}"
           accept = "${this.accept}"
           schema-style = "${this.schemaStyle}" 
@@ -84,6 +85,7 @@ export default class EndPoint extends LitElement {
 
         <api-response  
           class="response" 
+          active-schema-tab = "${this.defaultSchemaTab}" 
           schema-style="${this.schemaStyle}"
           .responses="${this.path.responses}"
         > </api-response>
@@ -108,6 +110,7 @@ export default class EndPoint extends LitElement {
       allowTry: { type: String, attribute: 'allow-try' },
       renderStyle: { type: String, attribute: 'render-style' },
       schemaStyle: { type: String, attribute: 'schema-style' },
+      defaultSchemaTab: { type: String, attribute: 'default-schema-tab' },
     };
   }
 
