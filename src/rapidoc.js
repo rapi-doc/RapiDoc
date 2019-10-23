@@ -15,6 +15,8 @@ import '@/components/end-points-expanded';
 import '@/components/path-and-methods';
 import '@/components/security-schemes';
 
+const DEFAULT_TAG_NAME = 'Other requests';
+
 export default class RapiDoc extends LitElement {
   constructor() {
     super();
@@ -491,19 +493,22 @@ export default class RapiDoc extends LitElement {
           : html`<div id = 'authentication'  class='nav-bar-info' @click = '${(e) => this.scrollToEl(e)}' > Authentication </div>`
         }
 
-        ${this.resolvedSpec.tags.map((tag) => html`
-          <div class='nav-bar-tag' > ${tag.name}</div>
-          ${tag.paths.filter((v) => {
-            if (this.matchPaths) {
-              return `${v.method} ${v.path} ${v.summary}`.toLowerCase().includes(this.matchPaths.toLowerCase());
-            }
-            return true;
-          }).map((p) => html`
-          <div class='nav-bar-path' data-goto_container='${tag.name.replace(/\s/g, '')}' id='${p.method}${p.path.replace(/\//g, '')}' @click='${(e) => this.scrollToEl(e)}'> 
-            <span class="upper method-fg ${p.method}" style='display:inline-block; flex: 0 0 45px; font-size:10px'> ${p.method} </span>
-            <span> ${p.summary || p.path} </span>
-          </div>`)}
-        `)}
+        ${this.resolvedSpec.tags.map((tag) => {
+          const tagName = tag.name || DEFAULT_TAG_NAME;
+          return html`
+            <div class='nav-bar-tag' > ${tagName}</div>
+            ${tag.paths.filter((v) => {
+              if (this.matchPaths) {
+                return `${v.method} ${v.path} ${v.summary}`.toLowerCase().includes(this.matchPaths.toLowerCase());
+              }
+              return true;
+            }).map((p) => html`
+            <div class='nav-bar-path' data-goto_container='${tagName.replace(/\s/g, '')}' id='${p.method}${(p.path || '').replace(/\//g, '')}' @click='${(e) => this.scrollToEl(e)}'> 
+              <span class="upper method-fg ${p.method}" style='display:inline-block; flex: 0 0 45px; font-size:10px'> ${p.method} </span>
+              <span> ${p.summary || p.path} </span>
+            </div>`)}
+          `;
+          })}
         </div>`
       }
       <div class="cover-scroll-bar"></div>
@@ -691,7 +696,7 @@ export default class RapiDoc extends LitElement {
         </div>
         <div class='regular-font section-gap--read-mode'>
           <end-points-expanded
-            id = '${tag.name.replace(/\s/g, '')}'
+            id = '${(tag.name || DEFAULT_TAG_NAME).replace(/\s/g, '')}'
             selected-server  = "${this.selectedServer ? this.selectedServer : ''}"  
             api-key-name     = "${this.apiKeyName ? this.apiKeyName : ''}"
             api-key-value    = "${this.apiKeyValue ? this.apiKeyValue : ''}"

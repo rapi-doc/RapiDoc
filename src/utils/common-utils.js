@@ -168,7 +168,7 @@ export function getSampleValueByType(schemaObj) {
 /* For changing JSON-Schema to a Sample Object, as per the schema */
 export function schemaToSampleObj(schema, config = { }) {
   let obj = {};
-  if (schema === null) {
+  if (schema === null || typeof (schema) === 'undefined') {
     return;
   }
 
