@@ -29,35 +29,56 @@ export default class RapiDoc extends LitElement {
 
   static get properties() {
     return {
+      // Logo & Heading
+      headingText: { type: String, attribute: 'heading-text' },
+      logoUrl: { type: String, attribute: 'logo-url' },
+
+      // Spec
       specUrl: { type: String, attribute: 'spec-url' },
       specFile: { type: String, attribute: false },
+
+      // UI Layouts
+      layout: { type: String },
+      schemaStyle: { type: String, attribute: 'schema-style' },
+      apiListStyle: { type: String, attribute: 'api-list-style' },
+      renderStyle: { type: String, attribute: 'render-style' },
+      defaultSchemaTab: { type: String, attribute: 'default-schema-tab' },
+
+      // API Server
+      apiKeyName: { type: String, attribute: 'api-key-name' },
+      apiKeyValue: { type: String, attribute: 'api-key-value' },
+      apiKeyLocation: { type: String, attribute: 'api-key-location' },
+      selectedServer: { type: String, attribute: 'default-api-server' },
       serverUrl: { type: String, attribute: 'server-url' },
-      matchPaths: { type: String, attribute: 'match-paths' },
-      headingText: { type: String, attribute: 'heading-text' },
-      headerColor: { type: String, attribute: 'header-color' },
-      primaryColor: { type: String, attribute: 'primary-color' },
-      regularFont: { type: String, attribute: 'regular-font' },
-      monoFont: { type: String, attribute: 'mono-font' },
+
+      // Hide/Show Sections & Enable Disable actions
       showHeader: { type: String, attribute: 'show-header' },
       showInfo: { type: String, attribute: 'show-info' },
       allowAuthentication: { type: String, attribute: 'allow-authentication' },
       allowTry: { type: String, attribute: 'allow-try' },
-      allowServerSelection: { type: String, attribute: 'allow-server-selection' },
       allowSpecUrlLoad: { type: String, attribute: 'allow-spec-url-load' },
       allowSpecFileLoad: { type: String, attribute: 'allow-spec-file-load' },
       allowSearch: { type: String, attribute: 'allow-search' },
       allowApiListStyleSelection: { type: String, attribute: 'allow-api-list-style-selection' },
-      layout: { type: String },
-      schemaStyle: { type: String, attribute: 'schema-style' },
+      allowServerSelection: { type: String, attribute: 'allow-server-selection' },
+
+      // Main Colors and Font
       theme: { type: String },
-      logoUrl: { type: String, attribute: 'logo-url' },
-      apiKeyName: { type: String, attribute: 'api-key-name' },
-      apiKeyValue: { type: String, attribute: 'api-key-value' },
-      apiKeyLocation: { type: String, attribute: 'api-key-location' },
-      apiListStyle: { type: String, attribute: 'api-list-style' },
-      renderStyle: { type: String, attribute: 'render-style' },
-      defaultSchemaTab: { type: String, attribute: 'default-schema-tab' },
-      selectedServer: { type: String, attribute: 'default-api-server' },
+      headerColor: { type: String, attribute: 'header-color' },
+      primaryColor: { type: String, attribute: 'primary-color' },
+      regularFont: { type: String, attribute: 'regular-font' },
+      monoFont: { type: String, attribute: 'mono-font' },
+
+      // Nav Bar Colors
+      navBgColor: { type: String, attribute: 'nav-bg-color' },
+      navTextColor: { type: String, attribute: 'nav-text-color' },
+      navHoverBgColor: { type: String, attribute: 'nav-hover-bg-color' },
+      navHoverTextColor: { type: String, attribute: 'nav-hover-text-color' },
+      navAccentColor: { type: String, attribute: 'nav-accent-color' },
+
+      // Filters
+      matchPaths: { type: String, attribute: 'match-paths' },
+
     };
   }
 
@@ -161,7 +182,14 @@ export default class RapiDoc extends LitElement {
           --header-fg:${this.headerColor ? `${ColorUtils.color.invert(this.headerColor)}` : '#ccc'};
           --layout:${this.layout ? `${this.layout}` : 'row'};
           --font-mono:${this.monoFont ? `${this.monoFont}` : 'Monaco, "Andale Mono", "Roboto Mono", Consolas'}; 
-          --font-regular:${this.regularFont ? `${this.regularFont}` : 'rapidoc, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" '};
+          --font-regular:${this.regularFont ? `${this.regularFont}` : 'rapidoc, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'};
+
+          --nav-bg-color:${this.navBgColor ? `${this.navBgColor}` : 'var(--bg3)'};
+          --nav-text-color:${this.navTextColor ? `${this.navTextColor}` : 'var(--fg3)'};
+          --nav-hover-bg-color:${this.navHoverBgColor ? `${this.navHoverBgColor}` : 'var(--hover-color)'};
+          --nav-hover-text-color:${this.navHoverTextColor ? `${this.navHoverTextColor}` : 'var(--fg3)'};
+          --nav-accent-color:${this.navAccentColor ? `${this.navAccentColor}` : 'var(--primary-color)'};
+
           --font-size-mono:13px;
           --font-size-regular:14px;
           --font-size-small:12px;
@@ -191,12 +219,12 @@ export default class RapiDoc extends LitElement {
           width:0;
           height:100%;
           overflow: hidden;
-          background-color: var(--bg3);
+          color:var(--nav-text-color);
+          background-color: var(--nav-bg-color);
           border-right: 1px solid var(--light-border-color);
           box-sizing:border-box;
           line-height: 16px;
           display:none;
-          color:var(--fg3);
           position:relative;
           flex-direction:column;
           flex-wrap:nowrap;
@@ -226,6 +254,7 @@ export default class RapiDoc extends LitElement {
 
         .nav-bar-tag {
           font-size: var(--font-size-regular);
+          border-left:4px solid transparent;
           font-weight:bold;
           padding: 30px 10px 7px 10px;
           text-transform: capitalize;
@@ -251,13 +280,15 @@ export default class RapiDoc extends LitElement {
         .nav-bar-info.active,
         .nav-bar-path.active {
           font-weight:bold;
-          border-left:4px solid var(--primary-color);
-          background-color:var(--hover-color);
+          border-left:4px solid var(--nav-accent-color);
+          color:var(--nav-hover-text-color);
+          background-color:var(--nav-hover-bg-color);
         }
 
         .nav-bar-info:hover,
         .nav-bar-path:hover {
-          background-color:var(--hover-color);
+          color:var(--nav-hover-text-color);
+          background-color:var(--nav-hover-bg-color);
         }
 
         .main-content { 
@@ -500,7 +531,6 @@ export default class RapiDoc extends LitElement {
             return true;
           }).map((p) => html`
           <div class='nav-bar-path' data-goto_container='${tag.name.replace(/\s/g, '')}' id='${p.method}${p.path.replace(/\//g, '')}' @click='${(e) => this.scrollToEl(e)}'> 
-            <span class="upper method-fg ${p.method}" style='display:inline-block; flex: 0 0 45px; font-size:10px'> ${p.method} </span>
             <span> ${p.summary || p.path} </span>
           </div>`)}
         `)}
