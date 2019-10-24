@@ -69,7 +69,7 @@
       <h2> Attributes</h2> 
       <div class='table-block' style="display:flex; flex-direction: column;">
 
-        <div class='table-title'> General </div>
+        <div class='table-title' id="general"> General </div>
         <table class="m-table">
           <tr>
             <td class="attr-col mono-bold right">spec-url </td>
@@ -83,7 +83,7 @@
           </tr>
         </table>
 
-        <div class='table-title'> UI Colors and Fonts </div>
+        <div class='table-title' id="colors"> UI Colors and Fonts </div>
         <table class="m-table">
           <tr>
             <td class=" attr-col mono-bold right">theme </td>
@@ -115,7 +115,7 @@
           </tr>
         </table>
 
-        <div class='table-title'> Navigation bar colors (only applicable in read-mode)</div>
+        <div class='table-title' id="nav-bar-colors"> Navigation bar colors (only applicable in read-mode)</div>
         <table class="m-table">
           <tr>
             <td class=" attr-col mono-bold right">nav-bg-color </td>
@@ -144,7 +144,7 @@
           </tr>          
         </table>
 
-        <div class='table-title'> UI Layout & Placement</div>
+        <div class='table-title' id='layout'> UI Layout & Placement</div>
         <table class="m-table">
           <tr>
             <td class="attr-col mono-bold right"> layout </td>
@@ -204,7 +204,7 @@
           </tr>
         </table>
 
-        <div class='table-title'> Hide/Show Sections </div>
+        <div class='table-title' id='toggle-sections'> Hide/Show Sections </div>
         <table class="m-table">
           <tr>
             <td class="attr-col mono-bold right">show-info</td>
@@ -279,7 +279,7 @@
           </tr>
         </table>
 
-        <div class='table-title'> API Server</div>
+        <div class='table-title' id='api-servers'> API Server</div>
         <table class="m-table">
           <tr>
             <td class="attr-col mono-bold right">api-key-name</td>
@@ -367,6 +367,10 @@
           <tr>
             <td class="mono-bold right">footer</td>
             <td class="gray"> The conents of this slot will appear at the bottom of the spec</td>
+          </tr>
+          <tr>
+            <td class="mono-bold right">nav-logo</td>
+            <td class="gray"> The conents of this slot will appear on Side navigation bar (only available in read-mode)</td>
           </tr>
         </table>
       </div>

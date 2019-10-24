@@ -501,9 +501,12 @@ export default class RapiDoc extends LitElement {
       ${(this.allowSearch === 'false')
         ? ''
         : html`
-          <div style="position:sticky; top:0; display:flex; align-items: center; padding:16px 24px; background: var(--bg3);">  
-            <input id="nav-bar-search" type="text" placeholder="search" @change="${this.onSearchChange}" style="flex:1" spellcheck="false" >
-            <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x23ce;</div>
+          <div style="position:sticky; top:0; display:flex; flex-direction:column; align-items: stretch; padding:16px 24px; background: var(--bg3);"> 
+            <slot name="nav-logo" class="logo"></slot>
+            <div style="display:flex;">
+              <input id="nav-bar-search" style="width:100%" type="text" placeholder="search" @change="${this.onSearchChange}"  spellcheck="false" >
+              <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x23ce;</div>
+            </div>  
             ${this.matchPaths
               ? html`
                 <div style='margin-left:10px; cursor:pointer;' @click = '${this.onClearSearch}'> Clear </div>`
