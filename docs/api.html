@@ -31,6 +31,11 @@
   <link rel="stylesheet" href="index.css">
 
   <title>RapiDoc - Web Component based Swagger & OpenAPI Spec Viewer</title>
+  <style>
+    .m-table{
+      width:100%;
+    }
+  </style>
 </head>
 
 <body>
@@ -62,153 +67,29 @@
   <div class="api container" id="api">
     <div style="display:flex; flex-direction: column; ">
       <h2> Attributes</h2> 
-      <div class="table-block">
+      <div class='table-block' style="display:flex; flex-direction: column;">
+
+        <div class='table-title'> General </div>
         <table class="m-table">
           <tr>
-            <th class="attr-col">Attribute</th>
-            <th style="text-align:left">Description </th>
-            <th class="default-col">Default</th>
-          </tr>
-
-          <tr>
-            <td class="mono-bold right">spec-url </td>
+            <td class="attr-col mono-bold right">spec-url </td>
             <td class="gray">url of the OpenAPI spec to view </td>
-            <td>(empty)</td>
+            <td class='default-col'>(empty)</td>
           </tr>
-
-          <tr>
-            <td class="mono-bold right">server-url</td>
-            <td class="gray">
-              OpenAPI spec has a provision for providing the server url. The UI will list all the server URLs provided in the spec. 
-              The user can then select one URL to which he or she intends to send API calls while trying out the apis. 
-              However, if you want to provide an API server of your own which is not listed in the spec, you can use this property to provide one. 
-              It is helpful in the cases where the same spec is shared between multiple environment say Dev and Test and each have their own API server.
-            </td>
-            <td>(empty)</td>
-          </tr>
-
-          <tr>
-            <td class="mono-bold right">api-list-style</td>
-            <td class="gray">
-              can be either <code>group-by-tag</code> or <code> group-by-path </code>. This controls how the API litings are grouped.
-              this can be changed from the UI too
-            </td>
-            <td>group-by-tag</td>
-          </tr>
-
-          <tr>
-            <td class="mono-bold right">allow-authentication</td>
-            <td class="gray">
-              Authentication feature, allows the user to select one of the authentication mechanism thats available in the spec.
-              It can be http-basic, http-bearer or api-key. 
-              If you dont want your users to go through the authentication process, instead want them to use a pre-generated api-key 
-              then you may hide authentication section by setting this attribute to false
-              and provide the api-key details using various api-key-???? attributes.</td>
-            <td>true</td>
-          </tr>
-
-          <tr>
-            <td class="mono-bold right">api-key-name</td>
-            <td class="gray">Name of the API key that will be send while trying out the APIs</td>
-            <td>Authorization</td>
-          </tr>
-
-          <tr>
-            <td class="mono-bold right">api-key-value</td>
-            <td class="gray">Value of the API key that will be send while trying out the APIs</td>
-            <td>(empty)</td>
-          </tr>
-
-          <tr>
-            <td class="mono-bold right">api-key-location</td>
-            <td class="gray">
-              determines how you want to send the api-key.
-              allowed values are <code>header</code> or <code> query </code>
-            </td>
-            <td>header</td>
-          </tr>
-
-          <tr>
-            <td class="mono-bold right">allow-spec-url-load</td>
-            <td class="gray">
-              If set to 'false', user will not be able to load any spec url from the UI. 
-            </td>
-            <td>true</td>
-          </tr>
-
-          <tr>
-            <td class="mono-bold right">allow-spec-file-load</td>
-            <td class="gray">
-              If set to 'false', user will not be able to load any spec file from the local drive. 
-              This attribute is applicable only when the device width is more than 768px, else this feature is not available
-            </td>
-            <td>true</td>
-          </tr>
-  
-          <tr>
-            <td class="mono-bold right">allow-search</td>
-            <td class="gray">
-                If set to 'false', user will not be able to search APIs. 
-            </td>
-            <td>true</td>
-          </tr>
-
-          <tr>
-            <td class="mono-bold right">allow-try</td>
-            <td class="gray">
-              'TRY' feature allows you to make REST calls to the API server. 
-              To disable this feature set it to false 
-            </td>
-            <td>true</td>
-          </tr>
-
-          <tr>
-            <td class="mono-bold right">allow-server-selection</td>
-            <td class="gray">
-              If set to 'false', user will not be able to select API server.
-              The URL specified in the server-url attribute will be used if set, else the first server in the API specification file will be used.
-            </td>
-            <td>true</td>
-          </tr>
-          <tr>
-            <td class="mono-bold right">default-api-server</td>
-            <td class="gray">
-              Use this attribute, if you have defined multiple API-Servers defined in the sepc and want to set a default one which will be used while trying out the APIs 
-            </td>
-            <td>(empty)</td>
-          </tr>
-          <tr>
-            <td class="mono-bold right">allow-api-list-style-selection</td>
-            <td class="gray">
-              If set to 'false', user will not be able to change api list style
-            </td>
-            <td>true</td>
-          </tr>
-
-          <tr>
-            <td class="mono-bold right">show-info</td>
-            <td class="gray">
-              show/hide the documents info section<br/>
-              Info section contains information about the spec, such as the title and description of the spec, the version, terms of services etc.
-              In certain situation you may not need to show this section. For instance you are embedding this element inside a another help document. 
-              Chances are, the help doc may already have this info, in that case you may want to hide this section.
-            </td>
-            <td>true</td>
-          </tr>
-
-          <tr>
-            <td class="mono-bold right">show-header </td>
-            <td class="gray">show/hide the header.<br/> 
-              If you dont want your user to open any other api spec, other than the current one, then set this attribute to false</td>
-            <td>true</td>
-          </tr>
-
           <tr>
             <td class="mono-bold right">heading-text </td>
             <td class="gray">Heading Text on top-left corner </td>
             <td>(empty)</td>
           </tr>
+        </table>
 
+        <div class='table-title'> UI Colors and Fonts </div>
+        <table class="m-table">
+          <tr>
+            <td class=" attr-col mono-bold right">theme </td>
+            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> light, dark</span></span> </td>
+            <td class='default-col'>light</td>
+          </tr>          
           <tr>
             <td class="mono-bold right">header-color </td>
             <td class="gray">Hex color code for the header's background</td>
@@ -224,39 +105,204 @@
           <tr>
             <td class="mono-bold right">regular-font </td>
             <td class="gray">Font Name(s) to be used for regular text </td>
-            <td>rapidoc, Helvetica, Arial</td>
+            <td>rapidoc, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif</td>
           </tr>
 
           <tr>
             <td class="mono-bold right">mono-font </td>
             <td class="gray">Font Name(s) to be used for monospaced text </td>
-            <td>Monaco, 'Andale Mono', 'Roboto Mono'</td>
+            <td>Monaco, 'Andale Mono', 'Roboto Mono', 'Consolas'</td>
           </tr>
+        </table>
+
+        <div class='table-title'> Navigation bar colors (only applicable in read-mode)</div>
+        <table class="m-table">
           <tr>
-            <td class="mono-bold right">theme </td>
-            <td class="gray">light, dark </td>
-            <td>light</td>
+            <td class=" attr-col mono-bold right">nav-bg-color </td>
+            <td class="gray"> <span class='bold dark-gray'>Navigation bar's background color</span></span> </td>
+            <td class='default-col'></td>
+          </tr>          
+          <tr>
+            <td class=" attr-col mono-bold right">nav-text-color </td>
+            <td class="gray"> <span class='bold dark-gray'>Navigation bar's Text color</span></span> </td>
+            <td class='default-col'></td>
+          </tr>          
+          <tr>
+            <td class=" attr-col mono-bold right">nav-hover-bg-color </td>
+            <td class="gray"> <span class='bold dark-gray'>background color of the navigation item on mouse-over</span></span> </td>
+            <td class='default-col'></td>
+          </tr>          
+          <tr>
+            <td class=" attr-col mono-bold right">nav-hover-text-color </td>
+            <td class="gray"> <span class='bold dark-gray'>text color of the navigation item on mouse-over</span></span> </td>
+            <td class='default-col'></td>
+          </tr>          
+          <tr>
+            <td class=" attr-col mono-bold right">nav-accent-color </td>
+            <td class="gray"> <span class='bold dark-gray'>Current selected item indicator</span></span> </td>
+            <td class='default-col'></td>
+          </tr>          
+        </table>
+
+        <div class='table-title'> UI Layout & Placement</div>
+        <table class="m-table">
+          <tr>
+            <td class="attr-col mono-bold right"> layout </td>
+            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> row, column</span></span> 
+              Layout helps in placement of request/response sections. In column layout, request & response sections are placed one below the other, 
+              In row layout they are placed side by side. 
+              This attribute is applicable only when the device width is more than 768px and the render-style  is 'view'.
+            </td>
+            <td class='default-col'>row</td>
           </tr>
           <tr>
             <td class="mono-bold right">schema-style </td>
-            <td class="gray">tree, table (there are two different ways to display object-schemas in the responses and request bodies) </td>
+            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> tree, table</span></span> - Two different ways to display object-schemas in the responses and request bodies </td>
             <td>tree</td>
           </tr>
           <tr>
             <td class="mono-bold right">render-style </td>
-            <td class="gray">read, view</td>
+            <td class="gray"><span class='bold dark-gray'>Allowed:<span class='blue'> read, view</span></span> - determines display of api-docs. Currently there are two modes supported. 
+              'read' - more suitable for reading and 'view' more frendly for quick exploring </td>
             <td>view</td>
           </tr>
           <tr>
-            <td class="mono-bold right"> layout </td>
-            <td class="gray">Applicable only when render-style='view' layout helps in placement of your request/response sections. The allowed values are 'row' or 'column'. 
-              In column layout, request & response sections are placed one below the other, 
-              In row layout request & response sections are placed side by side. 
-              This attribute is applicable only when the device width is more than 768px.
+            <td class="mono-bold right">api-list-style</td>
+            <td class="gray">
+              <span class='bold dark-gray'>Allowed:<span class='blue'> group-by-tag, group-by-path</span></span> -
+               This controls how the API litings are grouped. this can be changed from the UI too (applied only in view mode)
             </td>
-            <td>row</td>
+            <td>group-by-tag</td>
+          </tr>
+          <tr>
+            <td class="mono-bold right">default-schema-tab</td>
+            <td class="gray">
+              <span class='bold dark-gray'>Allowed:<span class='blue'> model, example</span></span> -
+              The schemas are displayed in two tabs - Model and Example. 
+              This option allows you to pick the default tab that you would like to be active
+            </td>
+            <td>model</td>
           </tr>
         </table>
+
+        <div class='table-title'> Hide/Show Sections </div>
+        <table class="m-table">
+          <tr>
+            <td class="attr-col mono-bold right">show-info</td>
+            <td class="gray">
+              show/hide the documents info section<br/>
+              Info section contains information about the spec, such as the title and description of the spec, the version, terms of services etc.
+              In certain situation you may not need to show this section. For instance you are embedding this element inside a another help document. 
+              Chances are, the help doc may already have this info, in that case you may want to hide this section.
+            </td>
+            <td>true</td>
+          </tr>
+          <tr>
+            <td class="mono-bold right">show-header </td>
+            <td class="gray">show/hide the header.<br/> 
+              If you dont want your user to open any other api spec, other than the current one, then set this attribute to false</td>
+            <td class='default-col'> true</td>
+          </tr>
+          <tr>
+            <td class="mono-bold right">allow-authentication</td>
+            <td class="gray">
+              Authentication feature, allows the user to select one of the authentication mechanism thats available in the spec.
+              It can be http-basic, http-bearer or api-key. 
+              If you dont want your users to go through the authentication process, instead want them to use a pre-generated api-key 
+              then you may hide authentication section by setting this attribute to false
+              and provide the api-key details using various api-key-???? attributes.</td>
+            <td>true</td>
+          </tr>
+          <tr>
+            <td class="mono-bold right">allow-spec-url-load</td>
+            <td class="gray">
+              If set to 'false', user will not be able to load any spec url from the UI. 
+            </td>
+            <td>true</td>
+          </tr>
+          <tr>
+            <td class="mono-bold right">allow-spec-file-load</td>
+            <td class="gray">
+              If set to 'false', user will not be able to load any spec file from the local drive. 
+              This attribute is applicable only when the device width is more than 768px, else this feature is not available
+            </td>
+            <td>true</td>
+          </tr>
+          <tr>
+            <td class="mono-bold right">allow-search</td>
+            <td class="gray">
+                If set to 'false', user will not be able to search APIs. 
+            </td>
+            <td>true</td>
+          </tr>
+          <tr>
+            <td class="mono-bold right">allow-try</td>
+            <td class="gray">
+              'TRY' feature allows you to make REST calls to the API server. 
+              To disable this feature set it to false 
+            </td>
+            <td>true</td>
+          </tr>
+          <tr>
+            <td class="mono-bold right">allow-server-selection</td>
+            <td class="gray">
+              If set to 'false', user will not be able to select API server.
+              The URL specified in the server-url attribute will be used if set, else the first server in the API specification file will be used.
+            </td>
+            <td>true</td>
+          </tr>
+          <tr>
+            <td class="mono-bold right">allow-api-list-style-selection</td>
+            <td class="gray">
+              If set to 'false', user will not be able to change api list style
+            </td>
+            <td>true</td>
+          </tr>
+        </table>
+
+        <div class='table-title'> API Server</div>
+        <table class="m-table">
+          <tr>
+            <td class="attr-col mono-bold right">api-key-name</td>
+            <td class="gray">Name of the API key that will be send while trying out the APIs</td>
+            <td class='default-col'>Authorization</td>
+          </tr>
+          <tr>
+            <td class="mono-bold right">api-key-value</td>
+            <td class="gray">
+              Value of the API key that will be send while trying out the APIs. 
+              This can also be provided/overwritted from UI.
+            </td>
+            <td>(empty)</td>
+          </tr>
+          <tr>
+            <td class="mono-bold right">api-key-location</td>
+            <td class="gray">
+              <span class='bold dark-gray'>Allowed:<span class='blue'> header, query</span></span> -
+              determines how you want to send the api-key.
+            </td>
+            <td>header</td>
+          </tr>
+          <tr>
+            <td class="mono-bold right">server-url</td>
+            <td class="gray">
+              OpenAPI spec has a provision for providing the server url. The UI will list all the server URLs provided in the spec. 
+              The user can then select one URL to which he or she intends to send API calls while trying out the apis. 
+              However, if you want to provide an API server of your own which is not listed in the spec, you can use this property to provide one. 
+              It is helpful in the cases where the same spec is shared between multiple environment say Dev and Test and each have their own API server.
+            </td>
+            <td>(empty)</td>
+          </tr>
+          <tr>
+            <td class="mono-bold right">default-api-server</td>
+            <td class="gray">
+              If you have multiple api-server listed in the spec, use this attribute to select the default API server, where all the API calls will goto.
+              This can be changed later from the UI
+            </td>
+            <td>(Empty)</td>
+          </tr>
+        </table>
+
       </div>  
 
       <h2> Methods </h2> 

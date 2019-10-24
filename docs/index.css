@@ -15,12 +15,19 @@ a{
 a:not(.menu-item):hover { 
   text-decoration: underline;
 }
+
+
+.mono,
 .mono-bold,
 code{ font-family: 'Roboto Mono', monospace;}
 
-.mono-bold{
+.bold{ font-weight:700; }
+
+.mono-bold {
   font-weight:700;
 }
+
+
 .topbar{
   background-color: #233446;
   padding: 6px 24px;
@@ -147,7 +154,7 @@ code{ font-family: 'Roboto Mono', monospace;}
 .feature-info .feature-title{ font-size:18px;}
 .feature-info .feature-descr{ font-size:14px;}
 
-.screenshot{
+.screenshot {
   max-width:350px; 
   border-radius: 4px;
   height:auto; 
@@ -164,17 +171,18 @@ code{ font-family: 'Roboto Mono', monospace;}
   box-shadow: 0 12px 24px rgba(0,0,0,0.25), 0 6px 6px rgba(0,0,0,0.22);
 }
 
-.right{
-  text-align: right;
-}
-.gray{
-  color:#777;
-}
+.right{ text-align: right;}
+.gray { color:#777; }
+.dark-gray { color:#444; }
+.blue { color:steelblue;}
+.table-title { margin: 12px 0 5px 0; font-weight:bold;}
+
 .descr {
   font-size:13px;
   font-weight: normal;
   margin-left:12px;
 }
+
 
 .m-table {
   border-spacing: 0;
