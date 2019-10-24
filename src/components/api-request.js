@@ -316,17 +316,6 @@ export default class ApiRequest extends LitElement {
           'text',
         );
 
-        /*
-        reqExample = generateExample(
-          mimeReqObj.examples ? mimeRespObj.examples : '',
-          mimeReqObj.example ? mimeRespObj.example : '',
-          mimeReqObj.schema,
-          mimeReqObj,
-          true,
-          mimeResp.includes('json') ? 'json' : 'text',
-        );
-        */
-
         textareaExampleHtml = html`
           ${textareaExampleHtml}
           <textarea 
