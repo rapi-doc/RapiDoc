@@ -252,7 +252,7 @@ export default class RapiDoc extends LitElement {
           opacity: 1;
         }
 
-        *:hover::-webkit-scrollbar {
+        .nav-scroll:hover::-webkit-scrollbar {
           width: 30px;
         }
 
