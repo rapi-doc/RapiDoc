@@ -2,6 +2,74 @@
 import JsonRefs from 'json-refs';
 import converter from 'swagger2openapi';
 
+export default async function ProcessSpec(specUrl) {
+  let jsonParsedSpec;
+  let convertedSpec;
+  let resolvedRefSpec;
+  let resolveOptions;
+  let specLocation = '';
+  let url;
+
+  const convertOptions = { patch: true, warnOnly: true };
+  try {
+    // JsonRefs cant load yaml files, so first use converter
+    if (typeof specUrl === 'string') {
+      // resolvedRefSpec = await JsonRefs.resolveRefsAt(specUrl, resolveOptions);
+      convertedSpec = await converter.convertUrl(specUrl, convertOptions);
+      specLocation = convertedSpec.source.trim();
+      if (specLocation.startsWith('/')) {
+        url = new URL(`.${specLocation}`, window.location.href);
+        specLocation = url.pathname;
+      }
+    } else {
+      // resolvedRefSpec = await JsonRefs.resolveRefs(specUrl, resolveOptions);
+      convertedSpec = await converter.convertObj(specUrl, convertOptions);
+      url = new URL(window.location.href);
+      specLocation = url.pathname;
+    }
+    // convertedSpec = await converter.convertObj(resolvedRefSpec.resolved, convertOptions);
+    resolveOptions = {
+      resolveCirculars: false,
+      location: specLocation, // location is important to specify to resolve relative external file references when using JsonRefs.resolveRefs() which takes an JSON object
+    };
+    resolvedRefSpec = await JsonRefs.resolveRefs(convertedSpec.openapi, resolveOptions);
+    // jsonParsedSpec = convertedSpec.openapi;
+    jsonParsedSpec = resolvedRefSpec.resolved;
+  } catch (err) {
+    console.info('%c There was an issue while parsing the spec %o ', 'color:orangered', err); // eslint-disable-line no-console
+  }
+
+  let securitySchemes = {};
+  let servers = [];
+  const tags = groupByTags(jsonParsedSpec);
+  const pathGroups = groupByPaths(jsonParsedSpec);
+  securitySchemes = (jsonParsedSpec.components ? jsonParsedSpec.components.securitySchemes : {});
+  if (jsonParsedSpec.servers) {
+    jsonParsedSpec.servers.map((v) => {
+      const tempUrl = v.url.trim().toLowerCase();
+      if (v.url && tempUrl.substr(0, 4) !== 'http') {
+        if (tempUrl.substr(0, 2) === '//') {
+          v.url = window.location.protocol + v.url;
+        } else {
+          v.url = window.location.origin + v.url;
+        }
+      }
+    });
+  } else {
+    jsonParsedSpec.servers = [{ url: window.location.origin }];
+  }
+  servers = jsonParsedSpec.servers;
+  const parsedSpec = {
+    info: jsonParsedSpec.info,
+    tags,
+    pathGroups,
+    externalDocs: jsonParsedSpec.externalDocs,
+    securitySchemes,
+    servers, // In swagger 2, its generated from schemes, host and basePath properties
+    basePath: jsonParsedSpec.basePath, // Only available in swagger V2
+  };
+  return parsedSpec;
+}
 
 function groupByPaths(openApiSpec) {
   const paths = [];
@@ -126,73 +194,4 @@ function groupByTags(openApiSpec) {
 
   tags.sort((a, b) => (a.name < b.name ? -1 : (a.name > b.name ? 1 : 0)));
   return tags;
-}
-
-export default async function ProcessSpec(specUrl) {
-  let jsonParsedSpec;
-  let convertedSpec;
-  let resolvedRefSpec;
-  let resolveOptions;
-  let specLocation = '';
-  let url;
-
-  const convertOptions = { patch: false, warnOnly: true };
-  try {
-    // JsonRefs cant load yaml files, so first use converter
-    if (typeof specUrl === 'string') {
-      // resolvedRefSpec = await JsonRefs.resolveRefsAt(specUrl, resolveOptions);
-      convertedSpec = await converter.convertUrl(specUrl, convertOptions);
-      specLocation = convertedSpec.source.trim();
-      if (specLocation.startsWith('/')) {
-        url = new URL(`.${specLocation}`, window.location.href);
-        specLocation = url.pathname;
-      }
-    } else {
-      // resolvedRefSpec = await JsonRefs.resolveRefs(specUrl, resolveOptions);
-      convertedSpec = await converter.convertObj(specUrl, convertOptions);
-      url = new URL(window.location.href);
-      specLocation = url.pathname;
-    }
-    // convertedSpec = await converter.convertObj(resolvedRefSpec.resolved, convertOptions);
-    resolveOptions = {
-      resolveCirculars: false,
-      location: specLocation, // location is important to specify to resolve relative external file references when using JsonRefs.resolveRefs() which takes an JSON object
-    };
-    resolvedRefSpec = await JsonRefs.resolveRefs(convertedSpec.openapi, resolveOptions);
-    // jsonParsedSpec = convertedSpec.openapi;
-    jsonParsedSpec = resolvedRefSpec.resolved;
-  } catch (err) {
-    console.info('%c There was an issue while parsing the spec %o ', 'color:orangered', err); // eslint-disable-line no-console
-  }
-
-  let securitySchemes = {};
-  let servers = [];
-  const tags = groupByTags(jsonParsedSpec);
-  const pathGroups = groupByPaths(jsonParsedSpec);
-  securitySchemes = (jsonParsedSpec.components ? jsonParsedSpec.components.securitySchemes : {});
-  if (jsonParsedSpec.servers) {
-    jsonParsedSpec.servers.map((v) => {
-      const tempUrl = v.url.trim().toLowerCase();
-      if (v.url && tempUrl.substr(0, 4) !== 'http') {
-        if (tempUrl.substr(0, 2) === '//') {
-          v.url = window.location.protocol + v.url;
-        } else {
-          v.url = window.location.origin + v.url;
-        }
-      }
-    });
-  } else {
-    jsonParsedSpec.servers = [{ url: window.location.origin }];
-  }
-  servers = jsonParsedSpec.servers;
-  const parsedSpec = {
-    info: jsonParsedSpec.info,
-    tags,
-    pathGroups,
-    externalDocs: jsonParsedSpec.externalDocs,
-    securitySchemes,
-    servers, // In swagger 2, its generated from schemes, host and basePath properties
-    basePath: jsonParsedSpec.basePath, // Only available in swagger V2
-  };
-  return parsedSpec;
 }
