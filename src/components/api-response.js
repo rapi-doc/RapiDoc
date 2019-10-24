@@ -19,6 +19,20 @@ export default class ApiResponse extends LitElement {
     this.activeSchemaTab = 'model';
   }
 
+  static get properties() {
+    return {
+      responses: { type: Object },
+      parser: { type: Object },
+      schemaStyle: { type: String, attribute: 'schema-style' },
+      renderStyle: { type: String, attribute: 'render-style' },
+      selectedStatus: { type: String },
+      selectedMimeType: { type: String },
+      activeSchemaTab: { type: String, attribute: 'active-schema-tab' },
+      schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
+      schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
+    };
+  }
+
   render() {
     return html`
     ${FontStyles}
@@ -70,18 +84,6 @@ export default class ApiResponse extends LitElement {
       <div>  
     </div>  
     `;
-  }
-
-  static get properties() {
-    return {
-      responses: { type: Object },
-      parser: { type: Object },
-      schemaStyle: { type: String, attribute: 'schema-style' },
-      renderStyle: { type: String, attribute: 'render-style' },
-      selectedStatus: { type: String },
-      selectedMimeType: { type: String },
-      activeSchemaTab: { type: String, attribute: 'active-schema-tab' },
-    };
   }
 
   /* eslint-disable indent */
@@ -233,12 +235,16 @@ export default class ApiResponse extends LitElement {
             class = 'border'
             render-style = '${this.renderStyle}'
             .data = '${mimeRespDetails.schemaTree}'
+            schema-expand-level = "${this.schemaExpandLevel}"
+            schema-description-expanded = "${this.schemaDescriptionExpanded}"
           > </schema-tree> `
         : html`
           <schema-tree
             class = 'border'
             render-style = '${this.renderStyle}'
             .data = '${mimeRespDetails.schemaTree}'
+            schema-expand-level = "${this.schemaExpandLevel}"
+            schema-description-expanded = "${this.schemaDescriptionExpanded}"
           > </schema-tree>`
       }`;
   }

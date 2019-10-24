@@ -6,6 +6,27 @@ import '@/components/api-request';
 import '@/components/api-response';
 
 export default class PathAndMethods extends LitElement {
+  constructor() {
+    super();
+    this.accept = '';
+  }
+
+  static get properties() {
+    return {
+      apiKeyName: { type: String, attribute: 'api-key-name' },
+      apiKeyValue: { type: String, attribute: 'api-key-value' },
+      apiKeyLocation: { type: String, attribute: 'api-key-location' },
+      selectedServer: { type: String, attribute: 'selected-server' },
+      layout: { type: String },
+      path: { type: Object },
+      allowTry: { type: String, attribute: 'allow-try' },
+      schemaStyle: { type: String, attribute: 'schema-style' },
+      defaultSchemaTab: { type: String, attribute: 'default-schema-tab' },
+      schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
+      schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
+    };
+  }
+
   /* eslint-disable indent */
   render() {
     return html`
@@ -98,12 +119,16 @@ export default class PathAndMethods extends LitElement {
               accept = "${this.accept}"
               schema-style= "${this.schemaStyle}"
               default-schema-tab  = "${this.defaultSchemaTab}"
+              schema-expand-level = "${this.schemaExpandLevel}"
+              schema-description-expanded = "${this.schemaDescriptionExpanded}"
             > </api-request>
             <api-response  
               class="response"
               schema-style = "${this.schemaStyle}" 
               .responses="${this.path[this.path.activeMethod].responses}"
               default-schema-tab  = "${this.defaultSchemaTab}"
+              schema-expand-level = "${this.schemaExpandLevel}"
+              schema-description-expanded = "${this.schemaDescriptionExpanded}"
             > </api-response>
           </div>
         </div>`
@@ -111,25 +136,6 @@ export default class PathAndMethods extends LitElement {
   }
 
   /* eslint-enable indent */
-
-  constructor() {
-    super();
-    this.accept = '';
-  }
-
-  static get properties() {
-    return {
-      apiKeyName: { type: String, attribute: 'api-key-name' },
-      apiKeyValue: { type: String, attribute: 'api-key-value' },
-      apiKeyLocation: { type: String, attribute: 'api-key-location' },
-      selectedServer: { type: String, attribute: 'selected-server' },
-      layout: { type: String },
-      path: { type: Object },
-      allowTry: { type: String, attribute: 'allow-try' },
-      schemaStyle: { type: String, attribute: 'schema-style' },
-      defaultSchemaTab: { type: String, attribute: 'default-schema-tab' },
-    };
-  }
 
   collapse() {
     if (this.path.expanded) {

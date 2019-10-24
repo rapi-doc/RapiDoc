@@ -119,27 +119,27 @@
         <table class="m-table">
           <tr>
             <td class=" attr-col mono-bold right">nav-bg-color </td>
-            <td class="gray"> <span class='bold dark-gray'>Navigation bar's background color</span></span> </td>
+            <td class="gray"> Navigation bar's background color </td>
             <td class='default-col'></td>
           </tr>          
           <tr>
             <td class=" attr-col mono-bold right">nav-text-color </td>
-            <td class="gray"> <span class='bold dark-gray'>Navigation bar's Text color</span></span> </td>
+            <td class="gray"> Navigation bar's Text color </td>
             <td class='default-col'></td>
           </tr>          
           <tr>
             <td class=" attr-col mono-bold right">nav-hover-bg-color </td>
-            <td class="gray"> <span class='bold dark-gray'>background color of the navigation item on mouse-over</span></span> </td>
+            <td class="gray">background color of the navigation item on mouse-over </td>
             <td class='default-col'></td>
           </tr>          
           <tr>
             <td class=" attr-col mono-bold right">nav-hover-text-color </td>
-            <td class="gray"> <span class='bold dark-gray'>text color of the navigation item on mouse-over</span></span> </td>
+            <td class="gray"> text color of the navigation item on mouse-over </td>
             <td class='default-col'></td>
           </tr>          
           <tr>
             <td class=" attr-col mono-bold right">nav-accent-color </td>
-            <td class="gray"> <span class='bold dark-gray'>Current selected item indicator</span></span> </td>
+            <td class="gray"> Current selected item indicator</td>
             <td class='default-col'></td>
           </tr>          
         </table>
@@ -156,24 +156,35 @@
             <td class='default-col'>row</td>
           </tr>
           <tr>
-            <td class="mono-bold right">schema-style </td>
-            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> tree, table</span></span> - Two different ways to display object-schemas in the responses and request bodies </td>
-            <td>tree</td>
-          </tr>
-          <tr>
             <td class="mono-bold right">render-style </td>
-            <td class="gray"><span class='bold dark-gray'>Allowed:<span class='blue'> read, view</span></span> - determines display of api-docs. Currently there are two modes supported. 
-              'read' - more suitable for reading and 'view' more frendly for quick exploring </td>
+            <td class="gray"><span class='bold dark-gray'>Allowed:<span class='blue'> read, view</span></span> - 
+              determines display of api-docs. Currently there are two modes supported. 
+              'read' - more suitable for reading and 'view' more frendly for quick exploring 
+            </td>
             <td>view</td>
           </tr>
           <tr>
-            <td class="mono-bold right">api-list-style</td>
-            <td class="gray">
-              <span class='bold dark-gray'>Allowed:<span class='blue'> group-by-tag, group-by-path</span></span> -
-               This controls how the API litings are grouped. this can be changed from the UI too (applied only in view mode)
+            <td class="mono-bold right">schema-style </td>
+            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> tree, table</span></span> - 
+              Two different ways to display object-schemas in the responses and request bodies 
             </td>
-            <td>group-by-tag</td>
+            <td>tree</td>
           </tr>
+          <tr>
+            <td class="mono-bold right">schema-expand-level </td>
+            <td class="gray">
+              Schema's are expanded by default, use this attribute to controll how many levels in the schema should be expanded
+            </td>
+            <td>999</td>
+          </tr>
+          <tr>
+            <td class="mono-bold right">schema-description-expanded </td>
+            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> true, false</span></span> - 
+              Constraint and descriptions information of fields in the schema are collapsed to show only the first line. 
+              Set it to true if you want them to fully expanded 
+            </td>
+            <td>false</td>
+          </tr>  
           <tr>
             <td class="mono-bold right">default-schema-tab</td>
             <td class="gray">
@@ -182,6 +193,14 @@
               This option allows you to pick the default tab that you would like to be active
             </td>
             <td>model</td>
+          </tr>
+          <tr>
+            <td class="mono-bold right">api-list-style</td>
+            <td class="gray">
+              <span class='bold dark-gray'>Allowed:<span class='blue'> group-by-tag, group-by-path</span></span> -
+               This controls how the API litings are grouped. this can be changed from the UI too (applied only in view mode)
+            </td>
+            <td>group-by-tag</td>
           </tr>
         </table>
 

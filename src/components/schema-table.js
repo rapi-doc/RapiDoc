@@ -5,16 +5,18 @@ import FontStyles from '@/styles/font-styles';
 import SchemaStyles from '@/styles/schema-styles';
 
 export default class SchemaTable extends LitElement {
-  constructor() {
-    super();
-    this.expandedDetails = false;
-  }
-
   static get properties() {
     return {
+      schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
+      schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
       data: { type: Object },
-      expandedDetails: { type: Boolean },
     };
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) { this.schemaExpandLevel = 99999; }
+    if (!this.schemaDescriptionExpanded || !'true false'.includes(this.schemaDescriptionExpanded)) { this.schemaDescriptionExpanded = 'false'; }
   }
 
   /* eslint-disable indent */
@@ -67,11 +69,11 @@ export default class SchemaTable extends LitElement {
       }
 
       </style>
-      <div class="table ${this.expandedDetails ? 'expanded-descr' : 'collapsed-descr'}">
+      <div class="table ${this.schemaDescriptionExpanded ? 'expanded-descr' : 'collapsed-descr'}">
         <div class='toolbar'> 
           <div style="flex:1"></div>
-          <div class='toolbar-item' @click='${() => { this.expandedDetails = !this.expandedDetails; }}'> 
-            ${this.expandedDetails ? 'Collapse Details' : 'Expand Details'}
+          <div class='toolbar-item' @click='${() => { this.schemaDescriptionExpanded = !this.schemaDescriptionExpanded; }}'> 
+            ${this.schemaDescriptionExpanded ? 'Collapse Details' : 'Expand Details'}
           </div>
         </div>
 

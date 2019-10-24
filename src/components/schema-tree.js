@@ -5,17 +5,19 @@ import FontStyles from '@/styles/font-styles';
 import SchemaStyles from '@/styles/schema-styles';
 
 export default class SchemaTree extends LitElement {
-  constructor() {
-    super();
-    this.expandedDetails = false;
-  }
-
   static get properties() {
     return {
       data: { type: Object },
       renderStyle: { type: String, attribute: 'render-style' },
-      expandedDetails: { type: Boolean },
+      schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
+      schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
     };
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) { this.schemaExpandLevel = 99999; }
+    if (!this.schemaDescriptionExpanded || !'true false'.includes(this.schemaDescriptionExpanded)) { this.schemaDescriptionExpanded = 'false'; }
   }
 
   /* eslint-disable indent */
@@ -81,12 +83,12 @@ export default class SchemaTree extends LitElement {
         border-color:var(--primary-color);
       }
       </style>
-      <div class="tree ${this.renderStyle === 'read' ? 'tree-border' : ''} ${this.expandedDetails ? 'expanded-descr' : 'collapsed-descr'}">
+      <div class="tree ${this.renderStyle === 'read' ? 'tree-border' : ''} ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : 'collapsed-descr'}">
         <div class='toolbar'>
           <div class='toolbar-item bold-text upper' style='cursor:auto; color:var(--fg3)'> ${this.data ? this.data['::type'] : ''} </div>
           <div style="flex:1"></div>
-          <div class='toolbar-item' @click='${() => { this.expandedDetails = !this.expandedDetails; }}'> 
-            ${this.expandedDetails ? 'Collapse Details' : 'Expand Details'}
+          <div class='toolbar-item' @click='${() => { this.schemaDescriptionExpanded = this.schemaDescriptionExpanded === 'true' ? 'false' : 'true'; }}'> 
+            ${this.schemaDescriptionExpanded === 'true' ? 'Collapse Details' : 'Expand Details'}
           </div>
         </div>
         <div style='color:var(--fg3)'> ${this.data ? this.data['::description'] : ''}</div>
@@ -124,17 +126,25 @@ export default class SchemaTree extends LitElement {
     let closeBracket = '';
     if (data['::type'] === 'object') {
       if (prevDataType === 'array') {
-        openBracket = html`<span class="open-bracket array" @click="${this.toggleObjectExpand}">[{</span>`;
+        if (level < this.schemaExpandLevel) {
+          openBracket = html`<span class="open-bracket array" @click="${this.toggleObjectExpand}">[{</span>`;
+        } else {
+          openBracket = html`<span class="open-bracket array" @click="${this.toggleObjectExpand}">[{...}]</span>`;
+        }
         closeBracket = '}]';
       } else {
-        openBracket = html`<span class="open-bracket object" @click="${this.toggleObjectExpand}">{</span>`;
+        if (level < this.schemaExpandLevel) {
+          openBracket = html`<span class="open-bracket object" @click="${this.toggleObjectExpand}">{</span>`;
+        } else {
+          openBracket = html`<span class="open-bracket object" @click="${this.toggleObjectExpand}">{...}</span>`;
+        }
         closeBracket = '}';
       }
     }
 
     if (typeof data === 'object') {
       return html`
-        <div class="tr expanded ${data['::type']}">
+        <div class="tr ${level < this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type']}">
           <div class='td key' style='min-width:${minFieldColWidth}px'>
             ${data['::type'] === 'xxx-of-option' || prevKey.startsWith('::OPTION')
               ? html`<span class='xxx-of-key'>${newPrevKey}</span>`

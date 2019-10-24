@@ -39,10 +39,12 @@ export default class RapiDoc extends LitElement {
 
       // UI Layouts
       layout: { type: String },
-      schemaStyle: { type: String, attribute: 'schema-style' },
-      apiListStyle: { type: String, attribute: 'api-list-style' },
       renderStyle: { type: String, attribute: 'render-style' },
+      schemaStyle: { type: String, attribute: 'schema-style' },
       defaultSchemaTab: { type: String, attribute: 'default-schema-tab' },
+      schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
+      schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
+      apiListStyle: { type: String, attribute: 'api-list-style' },
 
       // API Server
       apiKeyName: { type: String, attribute: 'api-key-name' },
@@ -89,6 +91,8 @@ export default class RapiDoc extends LitElement {
     if (!this.schemaStyle || !'tree table'.includes(this.schemaStyle)) { this.schemaStyle = 'tree'; }
     if (!this.theme || !'light dark'.includes(this.theme)) { this.theme = 'light'; }
     if (!this.defaultSchemaTab || !'example model'.includes(this.defaultSchemaTab)) { this.defaultSchemaTab = 'model'; }
+    if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) { this.schemaExpandLevel = 99999; }
+    if (!this.schemaDescriptionExpanded || !'true false'.includes(this.schemaDescriptionExpanded)) { this.schemaDescriptionExpanded = 'false'; }
   }
 
   // Cleanup
@@ -676,6 +680,8 @@ export default class RapiDoc extends LitElement {
             render-style = "${this.renderStyle}" 
             schema-style = "${this.schemaStyle}" 
             default-schema-tab = "${this.defaultSchemaTab}"
+            schema-expand-level = "${this.schemaExpandLevel}"
+            schema-description-expanded = "${this.schemaDescriptionExpanded}"
           > 
           </end-point>`)
         }`)
@@ -706,6 +712,8 @@ export default class RapiDoc extends LitElement {
           allow-try        = "${this.allowTry ? this.allowTry : 'true'}"
           match-paths      = "${this.matchPaths}"
           schema-style     = "${this.schemaStyle}"
+          schema-expand-level = "${this.schemaExpandLevel}"
+          schema-description-expanded = "${this.schemaDescriptionExpanded}"
         ></path-and-methods>`)
       }`;
   }
@@ -733,6 +741,8 @@ export default class RapiDoc extends LitElement {
             schema-style     = "${this.schemaStyle}"
             render-style     = "${this.renderStyle}"
             default-schema-tab  = "${this.defaultSchemaTab}"
+            schema-expand-level = "${this.schemaExpandLevel}"
+            schema-description-expanded = "${this.schemaDescriptionExpanded}"
           ></end-points-expanded>
         </div>
         `)

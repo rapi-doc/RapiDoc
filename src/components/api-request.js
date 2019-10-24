@@ -15,6 +15,44 @@ import '@/components/schema-tree';
 import '@/components/tag-input';
 
 export default class ApiRequest extends LitElement {
+  constructor() {
+    super();
+    this.responseMessage = '';
+    this.responseStatus = 'success';
+    this.responseHeaders = '';
+    this.responseText = '';
+    this.responseUrl = '';
+    this.curlSyntax = '';
+    this.activeResponseTab = 'response'; // allowed values: response, headers, curl
+  }
+
+  static get properties() {
+    return {
+      apiKeyName: { type: String, attribute: 'api-key-name' },
+      apiKeyValue: { type: String, attribute: 'api-key-value' },
+      apiKeyLocation: { type: String, attribute: 'api-key-location' },
+      selectedServer: { type: String, attribute: 'selected-server' },
+      method: { type: String },
+      path: { type: String },
+      parameters: { type: Array },
+      request_body: { type: Object },
+      parser: { type: Object },
+      accept: { type: String },
+      responseMessage: { type: String, attribute: false },
+      responseText: { type: String, attribute: false },
+      responseHeaders: { type: String, attribute: false },
+      responseStatus: { type: String, attribute: false },
+      responseUrl: { type: String, attribute: false },
+      allowTry: { type: String, attribute: 'allow-try' },
+      renderStyle: { type: String, attribute: 'render-style' },
+      schemaStyle: { type: String, attribute: 'schema-style' },
+      activeSchemaTab: { type: String, attribute: 'active-schema-tab' },
+      schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
+      schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
+      activeResponseTab: { type: String }, // internal tracking of response-tab not exposed as a attribute
+    };
+  }
+
   render() {
     return html`
     ${TableStyles}
@@ -85,42 +123,6 @@ export default class ApiRequest extends LitElement {
       </div>  
     </div>
     `;
-  }
-
-  constructor() {
-    super();
-    this.responseMessage = '';
-    this.responseStatus = 'success';
-    this.responseHeaders = '';
-    this.responseText = '';
-    this.responseUrl = '';
-    this.curlSyntax = '';
-    this.activeResponseTab = 'response'; // allowed values: response, headers, curl
-  }
-
-  static get properties() {
-    return {
-      apiKeyName: { type: String, attribute: 'api-key-name' },
-      apiKeyValue: { type: String, attribute: 'api-key-value' },
-      apiKeyLocation: { type: String, attribute: 'api-key-location' },
-      selectedServer: { type: String, attribute: 'selected-server' },
-      method: { type: String },
-      path: { type: String },
-      parameters: { type: Array },
-      request_body: { type: Object },
-      parser: { type: Object },
-      accept: { type: String },
-      responseMessage: { type: String, attribute: false },
-      responseText: { type: String, attribute: false },
-      responseHeaders: { type: String, attribute: false },
-      responseStatus: { type: String, attribute: false },
-      responseUrl: { type: String, attribute: false },
-      allowTry: { type: String, attribute: 'allow-try' },
-      renderStyle: { type: String, attribute: 'render-style' },
-      schemaStyle: { type: String, attribute: 'schema-style' },
-      activeSchemaTab: { type: String, attribute: 'active-schema-tab' },
-      activeResponseTab: { type: String }, // internal tracking of response-tab not exposed as a attribute
-    };
   }
 
   /* eslint-disable indent */
@@ -438,6 +440,8 @@ export default class ApiRequest extends LitElement {
                     style = 'display: ${(shortMimeTypes[k] === 'json' ? 'block' : 'none')};'
                     render-style = '${this.renderStyle}'
                     .data = '${reqSchemaTree[shortMimeTypes[k]]}'
+                    schema-expand-level = "${this.schemaExpandLevel}"
+                    schema-description-expanded = "${this.schemaDescriptionExpanded}"
                   > </schema-table>`
                 : html`
                   <schema-tree 
@@ -445,6 +449,8 @@ export default class ApiRequest extends LitElement {
                     style = 'display: ${(shortMimeTypes[k] === 'json' ? 'block' : 'none')};'
                     render-style = '${this.renderStyle}'
                     .data = '${reqSchemaTree[shortMimeTypes[k]]}'
+                    schema-expand-level = "${this.schemaExpandLevel}"
+                    schema-description-expanded = "${this.schemaDescriptionExpanded}"
                   > </schema-tree>`
               }
             `)}
