@@ -308,13 +308,25 @@ export default class ApiRequest extends LitElement {
           reqSchemaTree.xml = schemaInObjectNotation(mimeReqObj.schema, {});
         }
         reqExample = generateExample(
-          mimeReqObj.schema ? mimeReqObj.schema.examples : '',
-          mimeReqObj.schema ? mimeReqObj.schema.example : '',
+          mimeReqObj.examples ? mimeReqObj.examples : '',
+          mimeReqObj.example ? mimeReqObj.example : '',
           mimeReqObj.schema,
           mimeReq,
           false,
           'text',
         );
+
+        /*
+        reqExample = generateExample(
+          mimeReqObj.examples ? mimeRespObj.examples : '',
+          mimeReqObj.example ? mimeRespObj.example : '',
+          mimeReqObj.schema,
+          mimeReqObj,
+          true,
+          mimeResp.includes('json') ? 'json' : 'text',
+        );
+        */
+
         textareaExampleHtml = html`
           ${textareaExampleHtml}
           <textarea 

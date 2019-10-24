@@ -13,7 +13,7 @@ paths:
           content:
             application/xml:
               examples:
-                xml:
+                example-1:
                   summary: XML Example
                   value: |
                     <person> 
