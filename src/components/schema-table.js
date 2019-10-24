@@ -69,11 +69,11 @@ export default class SchemaTable extends LitElement {
       }
 
       </style>
-      <div class="table ${this.schemaDescriptionExpanded ? 'expanded-descr' : 'collapsed-descr'}">
+      <div class="table ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : 'collapsed-descr'}">
         <div class='toolbar'> 
           <div style="flex:1"></div>
-          <div class='toolbar-item' @click='${() => { this.schemaDescriptionExpanded = !this.schemaDescriptionExpanded; }}'> 
-            ${this.schemaDescriptionExpanded ? 'Collapse Details' : 'Expand Details'}
+          <div class='toolbar-item' @click='${() => { this.schemaDescriptionExpanded = (this.schemaDescriptionExpanded === 'true' ? 'false' : 'true'); }}'> 
+            ${this.schemaDescriptionExpanded === 'true' ? 'Collapse Details' : 'Expand Details'}
           </div>
         </div>
 
@@ -110,16 +110,16 @@ export default class SchemaTable extends LitElement {
       return html`
         ${level > 0
           ? html`
-            <div class='tr expanded ${data['::type']}' data-obj='${newPrevKey}'>
+            <div class='tr ${level < this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type']}' data-obj='${newPrevKey}'>
               <div class='td key' style='padding-left:${leftPadding}px'>
                 ${newPrevKey
                   ? html`
                     <span 
-                      class='obj-toggle expanded'
+                      class='obj-toggle ${level < this.schemaExpandLevel ? 'expanded' : 'collapsed'}'
                       data-obj='${newPrevKey}'
                       @click= ${(e) => this.toggleObjectExpand(e, newPrevKey)} 
                     >
-                    -
+                      ${level < this.schemaExpandLevel ? '-' : '+'}
                     </span>`
                   : ''
                 }

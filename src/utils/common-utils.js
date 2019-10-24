@@ -168,7 +168,7 @@ export function getSampleValueByType(schemaObj) {
 /* For changing JSON-Schema to a Sample Object, as per the schema */
 export function schemaToSampleObj(schema, config = { }) {
   let obj = {};
-  if (schema === null) {
+  if (!schema) {
     return;
   }
 
@@ -244,9 +244,11 @@ export function schemaToSampleObj(schema, config = { }) {
  * This Object would further be an input to UI Components to generate an Object-Tree
  * @param {object} schema - Schema object from OpenAPI spec
  * @param {object} obj - recursivly pass this object to generate object notation
+ * @param {number} level - recursion level
+ * @param {string} suffix - used for suffixing property names to avoid duplicate props during object composion
  */
 export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
-  if (schema == null) {
+  if (!schema) {
     return;
   }
   if (schema.type === 'object' || schema.properties) {

@@ -885,9 +885,11 @@ export default class RapiDoc extends LitElement {
 
     // Put it at the end of event loop, to allow loading all the child elements (must for larger specs)
     this.intersectionObserver.disconnect();
-    window.setTimeout(() => {
-      this.observeExpandedContent();
-    }, 100);
+    if (this.renderStyle === 'read') {
+      window.setTimeout(() => {
+        this.observeExpandedContent();
+      }, 100);
+    }
     this.requestUpdate();
   }
 
