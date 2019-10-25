@@ -28,7 +28,42 @@
   <script src="./highlight/highlight.pack.js"></script>
   <script>hljs.initHighlightingOnLoad();</script>
 
+
+  <!-- Before/After Slider -->
+  <link rel="stylesheet" href="./slider/BeerSlider.css">
+  <script src="./slider/BeerSlider.js"></script>
+
   <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="sections.css">
+  <style>
+
+  .beer-range:focus~.beer-handle,
+  .beer-handle { 
+    background: cornflowerblue 
+  };
+  
+  #main-img { width: 350px; }
+  #main-img { width: 350px; } /* Duplicate is needed- not sure why else it is not taking the effect while testing in responsive mode */
+  #slider { width: 350px; }
+  #schema-table-img { height:290px; margin:10px 0; }
+  #schema-tree-img  { height:290px; width:340px;}
+  
+  @media only screen and (min-width: 760px) {
+    #main-img { width: 750px; }
+    #slider { width: 750px; }
+    #schema-table-img { height:300px; margin: 0 5px 0 0 }
+    #schema-tree-img  { height:300px; width:auto;}
+  }
+
+  @media only screen and (min-width: 1000px) {
+    #main-img { width: 800px; }
+    #slider { width: 800px; }
+    #schema-table-img { height:340px; margin: 0 5px 0 0 }
+    #schema-tree-img  { height:340px; width:auto;}
+  }
+
+
+  </style>
 
   <title>RapiDoc - Web Component based Swagger & OpenAPI Spec Viewer</title>
 </head>
@@ -40,11 +75,11 @@
       <div class="product-name">RapiDoc</div>
       <div class="menu" style="flex:1"></div>
       <nav class="menu" onclick="goToSection(event)">
-        <a class="menu-item" href="#features"> Features </a>
-        <a class="menu-item" href="#qstart"> Quick Start </a>
+        <a class="menu-item hide-in-mobile" href="#features"> Features </a>
+        <a class="menu-item hide-in-mobile" href="#qstart"> Quick Start </a>
         <a class="menu-item" data-action="url" href="./examples.html"> Examples </a>
         <a class="menu-item" data-action="url" href="./api.html"> API </a>
-        <a class="menu-item" data-action="url" href="https://mrin9.github.io/RapiPdf/"> RapiPDF </a>
+        <a class="menu-item hide-in-mobile" data-action="url" href="https://mrin9.github.io/RapiPdf/"> RapiPDF </a>
         <a class="menu-item" data-action="url" href="https://github.com/mrin9/RapiDoc"> GitHub </a>
       </nav>
     </div>
@@ -60,7 +95,7 @@
     </div>
     <div style="display:flex; justify-content: center;">
       <div style="display:block">
-        <img class="screenshot shadow3" src="./images/dark_ss.png" />
+        <img id='main-img' class="shadow3" src="./images/dark_ss.png" />
       </div>
     </div>
   </div>
@@ -144,67 +179,63 @@
     </div>
   </div>
   
-  <div id="" class="screenshot-section container" style="flex-direction: column;align-items: center;">
+  <div class="section" style="flex-direction: column;align-items: center;">
     <h2 style="text-align: center;"> Comes with two themes - Dark and Light</h2>
+
     <div style="display:flex;justify-content: space-around;">
-      <img class="shadow3" src="./images/dark_ss.png" style="width:40%; height:40%"/>
-      <img class="shadow3" src="./images/light_ss.png" style="width:40%; height:40%"/>
+      <div id="slider" class="beer-slider shadow3" data-beer-label="">
+        <img src="./images/dark_ss.png" alt="">
+        <div class="beer-reveal" data-beer-label="">
+          <img src="./images/light_ss.png" alt="">
+        </div>
+      </div>
     </div>
   </div>
-  <div class="screenshot-section container" style="flex-direction: row;align-items: center; background-color:#fff">
-    <div style="display:flex;justify-content: space-around;">
-      <div style="padding: 16px 24px; width:350px">
+  <div class="section">
+      <div class="section-left section-text">
         <h2> Match Your Brand</h2>
         <div> Put your own Logo, Change Header Color, Fonts, Button and Text Colors to match your Brand, 
           in an extreemly easy way without writing any css/js/html. 
           You can also controll them using JavaScript to dynamically change 
         </div>
-  
       </div>
-      <img class="screenshot shadow3" src="./images/rapi-brand.png" style="width:50%; height:60%"/>
-    </div>
+      <img class="section-right section-img shadow3" src="./images/rapi-brand.png" />
   </div>
   
-  <div class="screenshot-section container" style="flex-direction: row;align-items: center;">
-    <div style="display:flex;justify-content: space-around;">
-      <img class="screenshot shadow3" src="./images/rapi-mode-read.png" style="width:50%; height:50%"/>
-      <div style="padding: 16px 24px; width:350px">
-        <h2> Multiple Rendering Styles</h2>
-        <div> While the default rendering style (view mode) is loved by programmers for quick exploration, 
-          RapiDoc also gives you an option to present API documentation to external audience which is more suitable to read like an Wiki
-        </div>
+  <div class="section">
+    <img class="section-left section-img shadow3" src="./images/rapi-mode-read.png" />
+    <div class="section-right section-text">
+      <h2> Multiple Rendering Styles</h2>
+      <div> While the default rendering style (view mode) is loved by programmers for quick exploration, 
+        RapiDoc also gives you an option to present API documentation to external audience which is more suitable to read like an Wiki
       </div>
     </div>
   </div>
   
-  <div class="screenshot-section container" style="flex-direction: row;align-items: center; background-color:#fff">
-    <div style="display:flex;justify-content: space-around;">
-      <div style="padding: 16px 24px;width:350px">
-        <h2> Supports Markdown</h2>
-        <div> Comes with a builtin markdown rendering engine, 
-          Enhance your API documentation even more by including markdown syntax. 
-          Add tables, lists, code-snippets, and many other formating options.
-        </div>
+  <div class="section" >
+    <div class="section-left section-text">
+      <h2> Supports Markdown</h2>
+      <div> Comes with a builtin markdown rendering engine, 
+        Enhance your API documentation even more by including markdown syntax. 
+        Add tables, lists, code-snippets, and many other formating options.
       </div>
-      <img class="screenshot shadow3" src="./images/rapi-markdown.png" style="width:50%; height:50%"/>
     </div>
+    <img class="section-right section-img shadow3" src="./images/rapi-markdown.png" />
   </div>
 
-  <div class="screenshot-section container" style="flex-direction: row;align-items: center;">
-    <div style="display:flex;justify-content: space-around;">
-      <img class="screenshot shadow3" src="./images/rapi-schema-table.png" style="height:320px"/>
-      <img class="screenshot shadow3" src="./images/rapi-schema-tree.png" style="height:320px; width:360px"/>
-      <div style="padding: 16px 24px;width:350px">
-        <h2> Two beautiful ways to show object models</h2>
-        <div> RapiDocs ability to show object models is loved by many. Allows two distictive styles, 
-          tabular and tree, both are suted for large and small schemas representation that
-          allows objec/array folding. 
-        </div>
+  <div class="section" style='flex-wrap: wrap;'>
+    <img id='schema-table-img' class="shadow3" src="./images/rapi-schema-table.png" />
+    <img id='schema-tree-img'class="shadow3" src="./images/rapi-schema-tree.png" />
+    <div class="section-right section-text">
+      <h2> Two beautiful ways to show object models</h2>
+      <div> RapiDocs ability to show object models is loved by many. Allows two distictive styles, 
+        tabular and tree, both are suted for large and small schemas representation that
+        allows objec/array folding. 
       </div>
     </div>
   </div>
     
-  <div id="qstart" class="qstart container" style="flex-direction: column;align-items: center;">
+  <div id="qstart" class="section" style="flex-direction: column;">
   <h2> Quickstart (<a style="font-size:16px" href="./examples/example2.html">DEMO</a>)</h2> 
   Just copy the below code and save it in an html file. Then open it using a browser 
 <pre class="shadow code-block"><code class="html" style="border-radius:4px">&lt;!doctype html&gt; &lt;!-- Important: must specify --&gt;
@@ -222,14 +253,20 @@
 </code></pre>
   </div>
 
-<div id="footer" class="footer container">
+<div id="footer" class="footer">
   <div class="footer-item"> MIT Licence</div>
   <div class="footer-item"> <a href="https://github.com/mrin9/RapiDoc"> GitHub</a></div>
   <div class="footer-item"> <a href="https://mrin9.github.io/RapiPdf/"> RapiPDF</a></div>
-  <div class="footer-item"> <a href="https://www.npmjs.com/package/rapidoc"> npm</a></div>
+  <div class="footer-item hide-in-mobile"> <a href="https://www.npmjs.com/package/rapidoc"> npm</a></div>
 </div>
 
   <script>
+    
+  window.addEventListener('DOMContentLoaded', (event) => {
+    let slider = new BeerSlider(document.getElementById('slider'));
+  });
+
+
   function goToSection(e){
     if (e.target.dataset.action==='url'){
       return;

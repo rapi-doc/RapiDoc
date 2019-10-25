@@ -29,12 +29,14 @@
   <script>hljs.initHighlightingOnLoad();</script>
 
   <link rel="stylesheet" href="index.css">
-
   <title>RapiDoc - Examples & Demo</title>
   <style>
     .section-heading{
       padding:36px 10px 10px 10px;
       margin:0;
+    }
+    #main-img{
+      width:740px;
     }
   </style>
 </head>
@@ -45,26 +47,27 @@
       <a class="menu-item" data-action="url" href="./index.html">
         <img class="logo" src="./images/logo.png" style="width:36px;height:36px;margin-right:10px;" href="./index.html"/>
       </a>  
-      <div class="product-name">RapiDoc - Examples & Demos</div>
+      <div class="product-name">RapiDoc</div>
       <div class="menu" style="flex:1"></div>
       <nav class="menu" onclick="goToSection(event)">
         <a class="menu-item" data-action="url" href="./index.html"> Home </a>
         <a class="menu-item" data-action="url" href="./api.html"> API </a>
-        <a class="menu-item" data-action="url" href="https://mrin9.github.io/RapiPdf/"> RapiPDF </a>
+        <a class="menu-item hide-in-mobile" data-action="url" href="https://mrin9.github.io/RapiPdf/"> RapiPDF </a>
         <a class="menu-item" data-action="url" href="https://github.com/mrin9/RapiDoc"> GitHub </a>
       </nav>
     </div>
   </div>
-  <div class="banner container" style="max-height:250px; overflow:hidden;">
+  <div class="banner hide-in-mobile" style="max-height:250px; overflow:hidden;">
     <div style="display:flex; justify-content: center;margin-top:20px">
       <div style="display:block">
-        <img class="screenshot shadow3" src="./images/rapi-mode-read.png" />
+        <img id='main-img' class="shadow3" src="./images/rapi-mode-read.png" />
       </div>
     </div>
   </div>
 
   <!-- Start of Examples -->
-  <div class="examples container" style="display:flex; flex-direction: column;align-items: center;" >
+  <div class="flex-col">
+   
     <h2 class="section-heading"> Examples & Demos</h2> 
     <h3><a href="./list.html">List of all examples</a></h3>
 
@@ -84,7 +87,7 @@
 &lt;/html&gt;
 </code></pre>
 
-
+    
 <h2 class="section-heading"> Dark Theme (<a style="font-size:16px" href="./examples/example2.html">DEMO</a>)</h2> 
 <pre class="shadow code-block" ><code class="html" style="border-radius:4px">
 &lt;rapi-doc 
@@ -105,8 +108,9 @@
 </code></pre>
 <br/>
 
+
 <h2 class="section-heading"> Schema in Tabular style (<a style="font-size:16px" href="./examples/schema-table.html">DEMO</a>)</h2> 
-<pre class="shadow code-block" ><code class="html" style="border-radius:4px">
+<pre class="shadow code-block" ><code class="html">
 &lt;rapi-doc 
   spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
   render-style = "read"
@@ -117,7 +121,7 @@
 <br/>
 
 <h2 class="section-heading"> Group List By Path  (<a style="font-size:16px" href="./examples/group-by-path.html">DEMO</a>)</h2> 
-<pre class="shadow code-block" ><code class="html" style="border-radius:4px">
+<pre class="shadow code-block" ><code class="html">
 &lt;rapi-doc 
   spec-url = "https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
   api-list-style = "group-by-path"
@@ -127,7 +131,7 @@
 <br/>
 
 <h2 class="section-heading"> Change Header Color With Dark Theme (<a style="font-size:16px" href="./examples/example3.html">DEMO</a>)</h2> 
-<pre class="shadow code-block" ><code class="html" style="border-radius:4px">
+<pre class="shadow code-block" ><code class="html">
 &lt;rapi-doc 
   spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
   header-color="#2d87e2"
@@ -138,7 +142,7 @@
 <br/>
 
 <h2 class="section-heading"> Integrate with other HTML document - No &lt;iframe&gt; (<a style="font-size:16px" href="./examples/example4.html">DEMO</a>)</h2> 
-<pre class="shadow code-block"><code class="html" style="border-radius:4px">
+<pre class="shadow code-block"><code class="html">
 &lt;rapi-doc 
   spec-url = "https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
   theme = 'dark' 
@@ -155,7 +159,7 @@
 <br/>
  
 <h2 class="section-heading"> Change Font  (<a style="font-size:16px" href="./examples/example5.html">DEMO</a>)</h2> 
-<pre class="shadow code-block" ><code class="html" style="border-radius:4px">
+<pre class="shadow code-block" ><code class="html">
 &lt;head&gt;
   &lt;link href="https://fonts.googleapis.com/css?family=Varela+Round" 
     rel="stylesheet" &gt;
@@ -172,7 +176,7 @@
 <br/>
 
 <h2 class="section-heading"> Change Logo (<a style="font-size:16px" href="./examples/example6.html">DEMO</a>)</h2> 
-<pre class="shadow code-block"><code class="html" style="border-radius:4px">
+<pre class="shadow code-block"><code class="html">
 &lt;rapi-doc spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"&gt;
   primary-color = "#CC0000"
   &lt;img 
@@ -184,7 +188,7 @@
 <br/>
 
 <h2 class="section-heading"> Add HTML content inside the spec (<a style="font-size:16px" href="./examples/example7.html">DEMO</a>)</h2> 
-<pre class="shadow code-block" ><code class="html" style="border-radius:4px">
+<pre class="shadow code-block" ><code class="html" >
 &lt;rapi-doc spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"&gt;
 
   &lt;!-- content at the top --&gt;
@@ -208,7 +212,7 @@
 <h2 class="section-heading"> Mix your own HTML (<a style="font-size:16px" href="./examples/example8.html">DEMO</a>)</h2> 
 The below example adds a single click authorization functionality to swagger's petstore spec. <br/>
 (Look for the blue button and the text-box on the header which is added by the below html)
-<pre class="shadow code-block"><code class="html" style="border-radius:4px">&lt;!doctype html&gt;
+<pre class="shadow code-block"><code class="html">&lt;!doctype html&gt;
 &lt;html&gt;
 &lt;head&gt;
 &lt;meta charset="utf-8"&gt;
@@ -277,8 +281,14 @@ The below example adds a single click authorization functionality to swagger's p
 
   <div style="font-size:20px"> Playground - change attributes using JavaScript &nbsp; <a href="./examples/example100.html">DEMO</a> </div>
 
-  </div>  
-</div> 
+</div>  
+<div id="footer" class="footer">
+  <div class="footer-item"> MIT Licence</div>
+  <div class="footer-item"> <a href="https://github.com/mrin9/RapiDoc"> GitHub</a></div>
+  <div class="footer-item"> <a href="https://mrin9.github.io/RapiPdf/"> RapiPDF</a></div>
+  <div class="footer-item hide-in-mobile"> <a href="https://www.npmjs.com/package/rapidoc"> npm</a></div>
+</div>
+
 <!-- End of Examples -->
 
 

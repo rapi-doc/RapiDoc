@@ -29,11 +29,15 @@
   <script>hljs.initHighlightingOnLoad();</script>
 
   <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="table.css">
 
   <title>RapiDoc - Web Component based Swagger & OpenAPI Spec Viewer</title>
   <style>
-    .m-table{
+    .m-table {
       width:100%;
+    }
+    #main-img{
+      width:740px;
     }
   </style>
 </head>
@@ -44,12 +48,12 @@
       <a class="menu-item" data-action="url" href="./index.html">
         <img class="logo" src="./images/logo.png" style="width:36px;height:36px;margin-right:10px;" href="./index.html"/>
       </a>  
-      <div class="product-name">RapiDoc - API Reference</div>
+      <div class="product-name">RapiDoc</div>
       <div class="menu" style="flex:1"></div>
       <nav class="menu" onclick="goToSection(event)">
         <a class="menu-item" data-action="url" href="./index.html"> Home </a>
         <a class="menu-item" data-action="url" href="./examples.html"> Examples </a>
-        <a class="menu-item" data-action="url" href="https://mrin9.github.io/RapiPdf/"> RapiPDF </a>
+        <a class="menu-item hide-in-mobile" data-action="url" href="https://mrin9.github.io/RapiPdf/"> RapiPDF </a>
         <a class="menu-item" data-action="url" href="https://github.com/mrin9/RapiDoc"> GitHub </a>
       </nav>
     </div>
@@ -57,14 +61,14 @@
   <div class="banner container" id="banner" style="max-height:255px; overflow:hidden">
     <div style="display:flex; justify-content: center; margin-top:20px">
       <div style="display:block">
-        <img class="screenshot shadow3" src="./images/light_ss.png" />
+        <img id="main-img" class="shadow3 hide-in-mobile" src="./images/light_ss.png" />
       </div>
     </div>
   </div>
 
 
   <!-- Start of API -->
-  <div class="api container" id="api">
+  <div class="flex-col" id="api">
     <div style="display:flex; flex-direction: column; ">
       <h2> Attributes</h2> 
       <div class='table-block' style="display:flex; flex-direction: column;">
@@ -72,12 +76,12 @@
         <div class='table-title' id="general"> General </div>
         <table class="m-table">
           <tr>
-            <td class="attr-col mono-bold right">spec-url </td>
+            <td class="attr-col mono bold right">spec-url </td>
             <td class="gray">url of the OpenAPI spec to view </td>
             <td class='default-col'>(empty)</td>
           </tr>
           <tr>
-            <td class="mono-bold right">heading-text </td>
+            <td class="mono bold right">heading-text </td>
             <td class="gray">Heading Text on top-left corner </td>
             <td>(empty)</td>
           </tr>
@@ -86,30 +90,30 @@
         <div class='table-title' id="colors"> UI Colors and Fonts </div>
         <table class="m-table">
           <tr>
-            <td class=" attr-col mono-bold right">theme </td>
+            <td class=" attr-col mono bold right">theme </td>
             <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> light, dark</span></span> </td>
             <td class='default-col'>light</td>
           </tr>          
           <tr>
-            <td class="mono-bold right">header-color </td>
+            <td class="mono bold right">header-color </td>
             <td class="gray">Hex color code for the header's background</td>
             <td>#444444</td>
           </tr>
 
           <tr>
-            <td class="mono-bold right">primary-color</td>
+            <td class="mono bold right">primary-color</td>
             <td class="gray">Hex color code on various controls such as buttons, tabs </td>
             <td>#FF791A</td>
           </tr>
 
           <tr>
-            <td class="mono-bold right">regular-font </td>
+            <td class="mono bold right">regular-font </td>
             <td class="gray">Font Name(s) to be used for regular text </td>
             <td>rapidoc, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif</td>
           </tr>
 
           <tr>
-            <td class="mono-bold right">mono-font </td>
+            <td class="mono bold right">mono-font </td>
             <td class="gray">Font Name(s) to be used for monospaced text </td>
             <td>Monaco, 'Andale Mono', 'Roboto Mono', 'Consolas'</td>
           </tr>
@@ -118,27 +122,27 @@
         <div class='table-title' id="nav-bar-colors"> Navigation bar colors (only applicable in read-mode)</div>
         <table class="m-table">
           <tr>
-            <td class=" attr-col mono-bold right">nav-bg-color </td>
+            <td class=" attr-col mono bold right">nav-bg-color </td>
             <td class="gray"> Navigation bar's background color </td>
             <td class='default-col'></td>
           </tr>          
           <tr>
-            <td class=" attr-col mono-bold right">nav-text-color </td>
+            <td class=" attr-col mono bold right">nav-text-color </td>
             <td class="gray"> Navigation bar's Text color </td>
             <td class='default-col'></td>
           </tr>          
           <tr>
-            <td class=" attr-col mono-bold right">nav-hover-bg-color </td>
+            <td class=" attr-col mono bold right">nav-hover-bg-color </td>
             <td class="gray">background color of the navigation item on mouse-over </td>
             <td class='default-col'></td>
           </tr>          
           <tr>
-            <td class=" attr-col mono-bold right">nav-hover-text-color </td>
+            <td class=" attr-col mono bold right">nav-hover-text-color </td>
             <td class="gray"> text color of the navigation item on mouse-over </td>
             <td class='default-col'></td>
           </tr>          
           <tr>
-            <td class=" attr-col mono-bold right">nav-accent-color </td>
+            <td class=" attr-col mono bold right">nav-accent-color </td>
             <td class="gray"> Current selected item indicator</td>
             <td class='default-col'></td>
           </tr>          
@@ -147,7 +151,7 @@
         <div class='table-title' id='layout'> UI Layout & Placement</div>
         <table class="m-table">
           <tr>
-            <td class="attr-col mono-bold right"> layout </td>
+            <td class="attr-col mono bold right"> layout </td>
             <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> row, column</span></span> 
               Layout helps in placement of request/response sections. In column layout, request & response sections are placed one below the other, 
               In row layout they are placed side by side. 
@@ -156,7 +160,7 @@
             <td class='default-col'>row</td>
           </tr>
           <tr>
-            <td class="mono-bold right">render-style </td>
+            <td class="mono bold right">render-style </td>
             <td class="gray"><span class='bold dark-gray'>Allowed:<span class='blue'> read, view</span></span> - 
               determines display of api-docs. Currently there are two modes supported. 
               'read' - more suitable for reading and 'view' more frendly for quick exploring 
@@ -164,21 +168,21 @@
             <td>view</td>
           </tr>
           <tr>
-            <td class="mono-bold right">schema-style </td>
+            <td class="mono bold right">schema-style </td>
             <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> tree, table</span></span> - 
               Two different ways to display object-schemas in the responses and request bodies 
             </td>
             <td>tree</td>
           </tr>
           <tr>
-            <td class="mono-bold right">schema-expand-level </td>
+            <td class="mono bold right">schema-expand-level </td>
             <td class="gray">
               Schema's are expanded by default, use this attribute to controll how many levels in the schema should be expanded
             </td>
             <td>999</td>
           </tr>
           <tr>
-            <td class="mono-bold right">schema-description-expanded </td>
+            <td class="mono bold right">schema-description-expanded </td>
             <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> true, false</span></span> - 
               Constraint and descriptions information of fields in the schema are collapsed to show only the first line. 
               Set it to true if you want them to fully expanded 
@@ -186,7 +190,7 @@
             <td>false</td>
           </tr>  
           <tr>
-            <td class="mono-bold right">default-schema-tab</td>
+            <td class="mono bold right">default-schema-tab</td>
             <td class="gray">
               <span class='bold dark-gray'>Allowed:<span class='blue'> model, example</span></span> -
               The schemas are displayed in two tabs - Model and Example. 
@@ -195,7 +199,7 @@
             <td>model</td>
           </tr>
           <tr>
-            <td class="mono-bold right">api-list-style</td>
+            <td class="mono bold right">api-list-style</td>
             <td class="gray">
               <span class='bold dark-gray'>Allowed:<span class='blue'> group-by-tag, group-by-path</span></span> -
                This controls how the API litings are grouped. this can be changed from the UI too (applied only in view mode)
@@ -207,7 +211,7 @@
         <div class='table-title' id='toggle-sections'> Hide/Show Sections </div>
         <table class="m-table">
           <tr>
-            <td class="attr-col mono-bold right">show-info</td>
+            <td class="attr-col mono bold right">show-info</td>
             <td class="gray">
               show/hide the documents info section<br/>
               Info section contains information about the spec, such as the title and description of the spec, the version, terms of services etc.
@@ -217,13 +221,13 @@
             <td>true</td>
           </tr>
           <tr>
-            <td class="mono-bold right">show-header </td>
+            <td class="mono bold right">show-header </td>
             <td class="gray">show/hide the header.<br/> 
               If you dont want your user to open any other api spec, other than the current one, then set this attribute to false</td>
             <td class='default-col'> true</td>
           </tr>
           <tr>
-            <td class="mono-bold right">allow-authentication</td>
+            <td class="mono bold right">allow-authentication</td>
             <td class="gray">
               Authentication feature, allows the user to select one of the authentication mechanism thats available in the spec.
               It can be http-basic, http-bearer or api-key. 
@@ -233,14 +237,14 @@
             <td>true</td>
           </tr>
           <tr>
-            <td class="mono-bold right">allow-spec-url-load</td>
+            <td class="mono bold right">allow-spec-url-load</td>
             <td class="gray">
               If set to 'false', user will not be able to load any spec url from the UI. 
             </td>
             <td>true</td>
           </tr>
           <tr>
-            <td class="mono-bold right">allow-spec-file-load</td>
+            <td class="mono bold right">allow-spec-file-load</td>
             <td class="gray">
               If set to 'false', user will not be able to load any spec file from the local drive. 
               This attribute is applicable only when the device width is more than 768px, else this feature is not available
@@ -248,14 +252,14 @@
             <td>true</td>
           </tr>
           <tr>
-            <td class="mono-bold right">allow-search</td>
+            <td class="mono bold right">allow-search</td>
             <td class="gray">
                 If set to 'false', user will not be able to search APIs. 
             </td>
             <td>true</td>
           </tr>
           <tr>
-            <td class="mono-bold right">allow-try</td>
+            <td class="mono bold right">allow-try</td>
             <td class="gray">
               'TRY' feature allows you to make REST calls to the API server. 
               To disable this feature set it to false 
@@ -263,7 +267,7 @@
             <td>true</td>
           </tr>
           <tr>
-            <td class="mono-bold right">allow-server-selection</td>
+            <td class="mono bold right">allow-server-selection</td>
             <td class="gray">
               If set to 'false', user will not be able to select API server.
               The URL specified in the server-url attribute will be used if set, else the first server in the API specification file will be used.
@@ -271,7 +275,7 @@
             <td>true</td>
           </tr>
           <tr>
-            <td class="mono-bold right">allow-api-list-style-selection</td>
+            <td class="mono bold right">allow-api-list-style-selection</td>
             <td class="gray">
               If set to 'false', user will not be able to change api list style
             </td>
@@ -282,12 +286,12 @@
         <div class='table-title' id='api-servers'> API Server</div>
         <table class="m-table">
           <tr>
-            <td class="attr-col mono-bold right">api-key-name</td>
+            <td class="attr-col mono bold right">api-key-name</td>
             <td class="gray">Name of the API key that will be send while trying out the APIs</td>
             <td class='default-col'>Authorization</td>
           </tr>
           <tr>
-            <td class="mono-bold right">api-key-value</td>
+            <td class="mono bold right">api-key-value</td>
             <td class="gray">
               Value of the API key that will be send while trying out the APIs. 
               This can also be provided/overwritted from UI.
@@ -295,7 +299,7 @@
             <td>(empty)</td>
           </tr>
           <tr>
-            <td class="mono-bold right">api-key-location</td>
+            <td class="mono bold right">api-key-location</td>
             <td class="gray">
               <span class='bold dark-gray'>Allowed:<span class='blue'> header, query</span></span> -
               determines how you want to send the api-key.
@@ -303,7 +307,7 @@
             <td>header</td>
           </tr>
           <tr>
-            <td class="mono-bold right">server-url</td>
+            <td class="mono bold right">server-url</td>
             <td class="gray">
               OpenAPI spec has a provision for providing the server url. The UI will list all the server URLs provided in the spec. 
               The user can then select one URL to which he or she intends to send API calls while trying out the apis. 
@@ -313,7 +317,7 @@
             <td>(empty)</td>
           </tr>
           <tr>
-            <td class="mono-bold right">default-api-server</td>
+            <td class="mono bold right">default-api-server</td>
             <td class="gray">
               If you have multiple api-server listed in the spec, use this attribute to select the default API server, where all the API calls will goto.
               This can be changed later from the UI
@@ -333,7 +337,7 @@
             <th class="default-col"></th>
           </tr>
           <tr>
-            <td class="mono-bold right">loadSpec() </td>
+            <td class="mono bold right">loadSpec() </td>
             <td class="gray">To programatically load spec. The method takes  
               <ul>
                 <li> either a string containing the url of the specs</li>  
@@ -353,23 +357,23 @@
             <th >Description </th>
           </tr>
           <tr>
-            <td class="mono-bold right">(default)</td>
+            <td class="mono bold right">(default)</td>
             <td class="gray">any content placed inside <code>&lt;rapi-doc&gt;</code> tag, will be shown immidiately under the header and above the info section </td>
           </tr>
           <tr>
-            <td class="mono-bold right">logo</td>
+            <td class="mono bold right">logo</td>
             <td class="gray">use this slot to replace the logo </td>
           </tr>
           <tr>
-            <td class="mono-bold right">header</td>
+            <td class="mono bold right">header</td>
             <td class="gray"> The conents of this slot will appear at the header after the spec-url input</td>
           </tr>
           <tr>
-            <td class="mono-bold right">footer</td>
+            <td class="mono bold right">footer</td>
             <td class="gray"> The conents of this slot will appear at the bottom of the spec</td>
           </tr>
           <tr>
-            <td class="mono-bold right">nav-logo</td>
+            <td class="mono bold right">nav-logo</td>
             <td class="gray"> The conents of this slot will appear on Side navigation bar (only available in read-mode)</td>
           </tr>
         </table>
@@ -378,11 +382,11 @@
   </div>
   <!-- End of API -->
 
-  <div id="footer" class="footer container">
+  <div id="footer" class="footer">
     <div class="footer-item"> MIT Licence</div>
     <div class="footer-item"> <a href="https://github.com/mrin9/RapiDoc"> GitHub</a></div>
     <div class="footer-item"> <a href="https://mrin9.github.io/RapiPdf/"> RapiPDF</a></div>
-    <div class="footer-item"> <a href="https://www.npmjs.com/package/rapidoc"> npm</a></div>
+    <div class="footer-item hide-in-mobile"> <a href="https://www.npmjs.com/package/rapidoc"> npm</a></div>
   </div>
 
 
