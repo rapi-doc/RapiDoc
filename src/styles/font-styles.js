@@ -156,7 +156,7 @@ export default html`
     height:32px;
     font-weight: 600;
     letter-spacing: normal;
-    background-color: var(--bg3);
+    background-color: var(--bg2);
     vertical-align: bottom;
     border-bottom: 1px solid var(--border-color);
   }

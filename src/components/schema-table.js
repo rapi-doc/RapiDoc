@@ -33,7 +33,7 @@ export default class SchemaTable extends LitElement {
       .table .tr {
         width: calc(100% - 5px);
         padding: 0 0 0 5px;
-        border-bottom: 1px dotted var(--border-color);
+        border-bottom: 1px dotted var(--light-border-color);
       }
       .table .td {
         padding: 4px 0;
@@ -78,8 +78,8 @@ export default class SchemaTable extends LitElement {
         </div>
 
         <div style='padding: 5px 0; color:var(--fg3)'> <span class='bold-text upper'> ${this.data['::type']}: </span> ${this.data['::description']}</div>
-        <div style = "border:1px solid var(--border-color)">
-          <div style='display:flex; height:18px; background-color: var(--bg3); line-height:18px; padding:8px 2px; border-bottom:1px solid var(--border-color);'>
+        <div style = "border:1px solid var(--light-border-color)">
+          <div style='display:flex; height:18px; background-color: var(--bg2); line-height:18px; padding:8px 2px; border-bottom:1px solid var(--light-border-color);'>
             <div class='td key' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg)'> Field</div>
             <div class='td key-type' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg)'> Type </div>
             <div class='td key-descr' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg)'>Description</div>

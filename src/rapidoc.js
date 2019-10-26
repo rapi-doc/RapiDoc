@@ -121,16 +121,16 @@ export default class RapiDoc extends LitElement {
             --fg3:#aaa;
             --light-fg:#777;
             --very-light-fg:#666;
+            --border-color:#666;
+            --light-border-color:#444;
             --pre-border-color:#666;
             --pre-fg:#fff;
             --pre-bg:#272727;
             --code-fg:#ccc;
             --code-bg:transparent;
-            --border-color:#666;
             --input-bg:#303030;
             --input-border-color:#297aa2;
             --placeholder-color:#666;
-            --light-border-color:#444;
             --light-get-color:#2a2a2a;
             --light-put-color:#2a2a2a;
             --light-post-color:#2a2a2a;
@@ -143,23 +143,23 @@ export default class RapiDoc extends LitElement {
         : html`<style>
           :host{
             --bg:#fff;
-            --bg2:#fefefe;
-            --bg3:#fafafa;
-            --fg:#333;
-            --fg2:#444;
-            --fg3:#565656;
+            --bg2:#fafafa;
+            --bg3:#f6f6f6;
+            --fg:#444;
+            --fg2:#555;
+            --fg3:#666;
             --light-fg:#999;
             --very-light-fg:#bbb;
+            --border-color:#ccc;
+            --light-border-color:#eee;
             --pre-border-color:#4e575e;
             --pre-fg:#ccc;
             --pre-bg:#4e575e;
             --code-fg:#ccc;
             --code-bg:transparent;
-            --border-color:#ccc;
             --input-bg:#fff;
             --input-border-color:#C5D9E8;
             --placeholder-color:#dedede;
-            --light-border-color:#eee;
             --light-get-color:#eff8fd;
             --light-put-color:#fff5e6;
             --light-post-color:#fbfff0;
@@ -188,7 +188,7 @@ export default class RapiDoc extends LitElement {
           --font-mono:${this.monoFont ? `${this.monoFont}` : 'Monaco, "Andale Mono", "Roboto Mono", Consolas'}; 
           --font-regular:${this.regularFont ? `${this.regularFont}` : 'rapidoc, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'};
 
-          --nav-bg-color:${this.navBgColor ? `${this.navBgColor}` : 'var(--bg3)'};
+          --nav-bg-color:${this.navBgColor ? `${this.navBgColor}` : 'var(--bg2)'};
           --nav-text-color:${this.navTextColor ? `${this.navTextColor}` : 'var(--fg3)'};
           --nav-hover-bg-color:${this.navHoverBgColor ? `${this.navHoverBgColor}` : 'var(--hover-color)'};
           --nav-hover-text-color:${this.navHoverTextColor ? `${this.navHoverTextColor}` : 'var(--fg3)'};
@@ -232,6 +232,7 @@ export default class RapiDoc extends LitElement {
           position:relative;
           flex-direction:column;
           flex-wrap:nowrap;
+          word-break:break-word;
         }
         .nav-scroll {
           overflow-x:hidden;
@@ -243,11 +244,11 @@ export default class RapiDoc extends LitElement {
 
         .cover-scroll-bar {
           position: absolute;
-          background: var(--bg3);
+          background: var(--nav-bg-color);
           height: 100%;  
           top: 0;
           right: 0;
-          width: 16px;
+          width: 20px;
           transition: all .3s;
           opacity: 1;
         }
@@ -260,7 +261,7 @@ export default class RapiDoc extends LitElement {
           font-size: var(--font-size-regular);
           border-left:4px solid transparent;
           font-weight:bold;
-          padding: 30px 10px 7px 10px;
+          padding: 30px 30px 5px 10px;
           text-transform: capitalize;
         }
 
@@ -273,7 +274,7 @@ export default class RapiDoc extends LitElement {
 
         .nav-bar-path {
           font-size: var(--font-size-small);
-          padding: 10px;
+          padding: 10px 30px 10px 10px;
         }
         .nav-bar-info {
           font-size: var(--font-size-regular);
@@ -392,8 +393,8 @@ export default class RapiDoc extends LitElement {
           .section-gap--read-mode { 
             padding: 48px 120px 24px 100px; 
           }
-
         }
+        
       </style>
       
       ${this.showHeader === 'false' ? '' : this.headerTemplate()}
@@ -501,15 +502,15 @@ export default class RapiDoc extends LitElement {
       ${(this.allowSearch === 'false')
         ? ''
         : html`
-          <div style="position:sticky; top:0; display:flex; flex-direction:column; align-items: stretch; padding:16px 24px; background: var(--bg3);"> 
+          <div style="position:sticky; top:0; display:flex; flex-direction:row; align-items: stretch; padding:16px 30px 16px 16px; background: var(--nav-bg-color);"> 
             <slot name="nav-logo" class="logo"></slot>
-            <div style="display:flex;">
-              <input id="nav-bar-search" style="width:100%" type="text" placeholder="search" @change="${this.onSearchChange}"  spellcheck="false" >
+            <div style="display:flex; flex:1">
+              <input id="nav-bar-search" style="width:100%; padding-right:20px;" type="text" placeholder="search" @change="${this.onSearchChange}"  spellcheck="false" >
               <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x23ce;</div>
             </div>  
             ${this.matchPaths
               ? html`
-                <div style='margin-left:10px; cursor:pointer;' @click = '${this.onClearSearch}'> Clear </div>`
+                <div style='margin-left:5px; cursor:pointer; align-self:center;' class='small-font-size primary-text bold-text' @click = '${this.onClearSearch}'> CLEAR </div>`
               : ''
             }
           </div>

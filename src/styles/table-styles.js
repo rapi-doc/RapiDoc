@@ -5,7 +5,7 @@ export default html`
 .m-table {
   border-spacing: 0;  
   border-collapse: separate;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--light-border-color);
   border-radius: var(--border-radius);
   margin: 0;
   max-width: 100%;
@@ -29,9 +29,9 @@ export default html`
   line-height:30px;
   font-weight: 600;
   letter-spacing: normal;
-  background-color: var(--bg3);
+  background-color: var(--bg2);
   vertical-align: bottom;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--light-border-color);
 }
 
 .m-table > tbody >tr > td,
