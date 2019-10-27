@@ -121,7 +121,7 @@ export default class RapiDoc extends LitElement {
             --fg3:#aaa;
             --light-fg:#777;
             --very-light-fg:#666;
-            --border-color:#666;
+            --border-color:#555;
             --light-border-color:#444;
             --pre-border-color:#666;
             --pre-fg:#fff;
@@ -150,7 +150,7 @@ export default class RapiDoc extends LitElement {
             --fg3:#666;
             --light-fg:#999;
             --very-light-fg:#bbb;
-            --border-color:#ccc;
+            --border-color:#ddd;
             --light-border-color:#eee;
             --pre-border-color:#4e575e;
             --pre-fg:#ccc;
@@ -212,7 +212,7 @@ export default class RapiDoc extends LitElement {
           background-color:var(--bg);
           font-family:var(--font-regular);
         }
-        .body{
+        .body {
           display:flex;
           height:100%;
           width:100%;
@@ -225,7 +225,6 @@ export default class RapiDoc extends LitElement {
           overflow: hidden;
           color:var(--nav-text-color);
           background-color: var(--nav-bg-color);
-          border-right: 1px solid var(--light-border-color);
           box-sizing:border-box;
           line-height: 16px;
           display:none;
@@ -505,7 +504,7 @@ export default class RapiDoc extends LitElement {
           <div style="position:sticky; top:0; display:flex; flex-direction:row; align-items: stretch; padding:16px 30px 16px 16px; background: var(--nav-bg-color);"> 
             <slot name="nav-logo" class="logo"></slot>
             <div style="display:flex; flex:1">
-              <input id="nav-bar-search" style="width:100%; padding-right:20px;" type="text" placeholder="search" @change="${this.onSearchChange}"  spellcheck="false" >
+              <input id="nav-bar-search" style="width:100%; padding-right:20px; color:var(--nav-accent-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" type="text" placeholder="search" @change="${this.onSearchChange}"  spellcheck="false" >
               <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x23ce;</div>
             </div>  
             ${this.matchPaths

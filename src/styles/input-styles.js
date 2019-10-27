@@ -8,7 +8,6 @@ input, select, button {
   font-weight:400;
   color:var(--fg);
 }
-
 /* Button */
 .m-btn{
   border-radius: var(--border-radius);
@@ -46,6 +45,7 @@ input, select, button {
 }
 
 /* Form Inputs */
+select,
 textarea,
 input[type="file"],
 input[type="text"],
