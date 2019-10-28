@@ -9,7 +9,11 @@ paths:
         - Query Params
       summary:  Various ways to pass query params
       description: >
-        Following OpenAPI spec demnstrate various ways to pass query params. It os also possible to create dynamic query params from the keys of an object
+        Following OpenAPI spec demonstrate various ways to pass query params.
+          - you may pass predefined query params
+          - you may create dynamic query params by defining a query-param as an object, 
+            in that case each key of the object will be treated as a seperate param
+          - Array serialization depends on `style` and `explode` property
 
         ```
          openapi: 3.0.0
