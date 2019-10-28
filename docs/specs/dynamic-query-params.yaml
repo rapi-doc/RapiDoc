@@ -5,25 +5,43 @@ info:
 paths:
   /dynamic-query-params:
     get:
-      summary:  Dynamic query param , submitted as object
+      tags:
+        - Query Params
+      summary:  Dynamic Query params - 
       parameters:
-        - name: phone
+        - name: furits
           in: query
-          description: Name of a person
+          example: 
+            - apple
+            - banana
+            - grape
+          description: >
+            not-exploded array, should be serialized as <br />
+            `fruits=apple,banana,grape` 
+          style: form
+          explode: false
           schema:
-            type: string
-        - name: tags
+            type: array
+            items:
+              type: string
+        - name: colors
           in: query
-          description: Array of tags
+          example: 
+            - red
+            - black
+            - white
+          description: >
+            exploded array, should be serialized as <br />
+            `colors=red&colors=black&colors=white` 
           schema:
             type: array
             items:
               type: string
         - in: query
-          name: test1
+          name: dynamic-query-params1
           description: >
             Arrays are exploded, should be serialized as  <br />
-            `a=1&b=2&c=c1&c=c2&e=3`
+            `a=1&b=2&colors=red&colors=black&e=3`
           schema:
             type: object
             additionalProperties:
@@ -32,15 +50,18 @@ paths:
             {
               "a":1,
               "b":2,
-              "c":["c1", "c2"],
+              "colors":[
+                "red", 
+                "black"
+              ],
               "d":{ "d1":1, "d2":2 },
               "e":3
             }
         - in: query
-          name: test2
+          name: dynamic-query-params2
           description: >
-            Arrays are not exploded, therefore comma sperated <br />
-            `f=1&g=2&h=h1,h2`
+            Arrays are not-exploded, therefore comma sperated <br />
+            `f=1&g=2&hobbies=music,dance`
           style: form
           explode: false
           schema:
@@ -51,13 +72,16 @@ paths:
             {
               "f":1,
               "g":2,
-              "h":["h1", "h2"]
+              "hobbies":[
+                "music", 
+                "dance"
+              ]
             }
         - in: query
-          name: test3
+          name: dynamic-query-params3
           description: >
             Arrays are not exploded, and pipe seperated <br />
-            `i=1&j=2&k=k1|k2`
+            `i=1&j=2&keys=public|private`
           style: pipeDelimited
           explode: false
           schema:
@@ -68,19 +92,8 @@ paths:
             {
               "i":1,
               "j":2,
-              "k":["k1", "k2"]
+              "keys":["public", "private"]
             }            
       responses:
         '200':
           description: successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  age:
-                    description: Person's Age
-                    type: integer
-                  fullName:
-                    description: Person's name
-                    type: string

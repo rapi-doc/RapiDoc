@@ -19,18 +19,36 @@
     ./specs/petstore_anyof.yaml <<< contains complex one-of with inline primitives and recursive objects
     ./specs/oneof1.yaml  <<< nested oneof
   -->
+
   <rapi-doc 
     id="thedoc" 
-    spec-url="./specs/temp.yaml" 
+    spec-url="./specs/petstore_extended.yaml" 
     theme="dark"
-    allow-api-list-style-selection = "false"
-    render-style = 'read'
+    render-style = "read"   
     regular-font = 'Open Sans'
-    schema-style = 'table'
-    schema-expand-level = "3"
-    default-schema-tab = "model"
+    schema-style = 'tree'
   > </rapi-doc>
 
+
+<!--
+  <rapi-doc 
+    id="thedoc" 
+    spec-url="./specs/petstore_extended.yaml" 
+    theme="dark"
+    allow-api-list-style-selection = "false"
+    render-style = "read"   
+    regular-font = 'Open Sans'
+    schema-style = 'tree'
+    schema-expand-level = "3"
+    default-schema-tab = "model"
+    primary-color = "#AA8144"
+    nav-bg-color = "#383F46"
+    nav-text-color = "#839999"
+    nav-hover-bg-color = "#282D3F"
+    nav-hover-text-color = "#AA8144"
+    nav-accent-color = "#AA8144"
+  > </rapi-doc>
+-->
   <!--
   <script>
     document.addEventListener('DOMContentLoaded', (event) => {

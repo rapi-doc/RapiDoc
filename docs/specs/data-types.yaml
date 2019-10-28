@@ -135,8 +135,9 @@ paths:
               default: hiking   
         - name: tags
           in: query
-          description: Add tags to the person
+          description: Add tags to the person (not-exploded)
           style: form
+          explode: false
           schema:
             type: array
             items:

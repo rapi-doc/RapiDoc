@@ -23,7 +23,17 @@
   <link href="https://fonts.googleapis.com/css?family=Lato:300,400&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="./index.css">
+  <link rel="stylesheet" href="table.css">
+
   <title>RapiDoc - Web Component based Swagger & OpenAPI Spec Viewer</title>
+  <style>
+    .m-table {
+      width:100%;
+    }
+    #main-img{
+      width:740px;
+    }
+  </style>
 </head>
 
 <body>
@@ -32,21 +42,21 @@
       <a class="menu-item" data-action="url" href="./index.html">
         <img class="logo" src="./images/logo.png" style="width:36px;height:36px;margin-right:10px;" href="./index.html"/>
       </a>  
-      <div class="product-name">RapiDoc - Examples & Test Cases</div>
+      <div class="product-name">RapiDoc</div>
       <div class="menu" style="flex:1"></div>
       <nav class="menu" onclick="goToSection(event)">
         <a class="menu-item" data-action="url" href="./index.html"> Home </a>
         <a class="menu-item" data-action="url" href="./examples.html"> Examples </a>
         <a class="menu-item" data-action="url" href="./api.html"> API </a>
-        <a class="menu-item" data-action="url" href="https://mrin9.github.io/RapiPdf/"> RapiPDF </a>
+        <a class="menu-item hide-in-mobile" data-action="url" href="https://mrin9.github.io/RapiPdf/"> RapiPDF </a>
         <a class="menu-item" data-action="url" href="https://github.com/mrin9/RapiDoc"> GitHub </a>
       </nav>
     </div>
   </div>
-  <div class="banner container" id="banner" style="max-height:255px; overflow:hidden">
+  <div class="banner" id="banner" style="max-height:255px; overflow:hidden">
     <div style="display:flex; justify-content: center; margin-top:20px">
       <div style="display:block">
-        <img class="screenshot shadow3" src="./images/rapi-markdown.png" />
+        <img id="main-img" class="shadow3" src="./images/rapi-markdown.png" />
       </div>
     </div>
   </div>

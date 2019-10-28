@@ -1,17 +1,26 @@
 import { LitElement, html, css } from 'lit-element';
 
 export default class TagInput extends LitElement {
+  /* eslint-disable indent */
   render() {
     return html`
     <div class='tags' tabindex="0" contenteditable="true">
-      <input type="text" class='editor' @paste="${this.afterPaste}" @keydown="${this.afterKeyDown}" placeholder="${this.placeholder}"/>
+      ${Array.isArray(this.value) && this.value.length > 0
+        ? html`${this.value.map((v) => html`
+          <span contenteditable="false" class='tag'> ${v} </span>
+        `)}`
+        : ''
+      }
+      <input type="text" class='editor' @paste="${this.afterPaste}" @keydown="${this.afterKeyDown}" placeholder="${this.placeholder}">
     </div>
   `;
   }
+  /* eslint-enable indent */
 
   static get properties() {
     return {
       placeholder: { type: String },
+      value: { type: Array, attribute: 'value' },
     };
   }
 
@@ -25,28 +34,18 @@ export default class TagInput extends LitElement {
     if (e.keyCode === 13) {
       e.stopPropagation();
       e.preventDefault();
-      const spanEl = document.createElement('span');
-      if (e.target.value.trim() !== '') {
-        spanEl.innerText = e.target.value;
-        e.target.value = '';
-        spanEl.classList.add('tag');
-        spanEl.setAttribute('contenteditable', 'false');
-        this.shadowRoot.querySelector('.tags').insertBefore(spanEl, e.target);
+      if (e.target.value) {
+        if (Array.isArray(this.value)) {
+          this.value = [...this.value, e.target.value];
+          e.target.value = '';
+        }
       }
     } else if (e.keyCode === 8) {
-      if (e.target.selectionStart === 0 && e.target.previousSibling) {
-        e.target.previousSibling.remove();
+      if (Array.isArray(this.value) && this.value.length > 0) {
+        this.value.splice(-1);
+        this.value = [...this.value];
       }
     }
-  }
-
-  getValues() {
-    const vals = [];
-    const tags = this.shadowRoot.querySelectorAll('.tag');
-    for (const tagEl of tags) {
-      vals.push(tagEl.innerText);
-    }
-    return vals;
   }
 
   static get styles() {

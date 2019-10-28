@@ -171,7 +171,6 @@ export default class ApiRequest extends LitElement {
       } else {
         inputVal = paramSchema.default;
       }
-
       tableRows.push(html`
       <tr> 
         <td style="width:160px; min-width:100px;">
@@ -188,15 +187,18 @@ export default class ApiRequest extends LitElement {
             }
           </div>
         </td>  
-        <td style="width:${paramSchema.type === 'array' || paramSchema.type === 'object' ? '220px' : '160px'}; min-width:100px;">
+        <td style="width:${paramSchema.type === 'array' || paramSchema.type === 'object' ? (this.renderStyle === 'read' ? '300px' : '220px') : '160px'}; min-width:100px;">
           ${paramSchema.type === 'array'
             ? html`
               <tag-input class="request-param" 
                 style = "width:160px; background:var(--input-bg);line-height:13px;" 
                 data-ptype = "${paramType}"
                 data-pname = "${param.name}"
+                data-param-serialize-style = "${paramStyle}"
+                data-param-serialize-explode = "${paramExplode}"
                 data-array = "true"
                 placeholder= "add-multiple\u23ce"
+                .value = "${inputVal}"
               >
               </tag-input>`
             : paramSchema.type === 'object'
@@ -208,7 +210,7 @@ export default class ApiRequest extends LitElement {
                   data-param-serialize-style = "${paramStyle}"
                   data-param-serialize-explode = "${paramExplode}"
                   spellcheck = "false"
-                  style = "resize:vertical; width:100%; height:120px;"
+                  style = "resize:vertical; width:100%; height: ${this.renderStyle === 'read' ? '180px' : '120px'};"
                 >${inputVal}</textarea>
               `
               : html`
@@ -570,9 +572,19 @@ export default class ApiRequest extends LitElement {
             urlQueryParam.append(el.dataset.pname, el.value);
           }
         } else {
-          const vals = el.getValues();
-          for (const v of vals) {
-            urlQueryParam.append(el.dataset.pname, v);
+          const paramSerializeStyle = el.dataset.paramSerializeStyle;
+          const paramSerializeExplode = el.dataset.paramSerializeExplode;
+          const vals = (el.value && Array.isArray(el.value)) ? el.value : [];
+          if (paramSerializeStyle === 'spaceDelimited') {
+            urlQueryParam.append(el.dataset.pname, vals.join(' '));
+          } else if (paramSerializeStyle === 'pipeDelimited') {
+            urlQueryParam.append(el.dataset.pname, vals.join('|'));
+          } else {
+            if (paramSerializeExplode === 'true') { // eslint-disable-line no-lonely-if
+              vals.forEach((v) => { urlQueryParam.append(el.dataset.pname, v); });
+            } else {
+              urlQueryParam.append(el.dataset.pname, vals.join(','));
+            }
           }
         }
       });
@@ -669,12 +681,12 @@ export default class ApiRequest extends LitElement {
             curlForm = `${curlForm} -F "${el.dataset.pname}=@${el.value}"`;
           }
         } else {
-          const vals = el.getValues();
-          for (const v of vals) {
+          const vals = (el.value && Array.isArray(el.value)) ? el.value : [];
+          vals.forEach((v) => {
             formUrlParams.append(el.dataset.pname, v);
             formDataParams.append(el.dataset.pname, v);
             curlForm += ` -F "${el.dataset.pname}=${v}"`;
-          }
+          });
         }
       });
 
@@ -770,6 +782,7 @@ export default class ApiRequest extends LitElement {
       me.responseMessage = `${err.message} (CORS or Network Issue)`;
     }
   }
+
 
   downloadResponseBlob() {
     if (this.responseBlobUrl) {
