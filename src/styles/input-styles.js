@@ -49,9 +49,9 @@ select,
 textarea,
 input[type="file"],
 input[type="text"],
-input[type="password"]{
+input[type="password"] {
   border-radius:var(--border-radius);
-  border:1px solid var(--input-border-color);
+  border:1px solid var(--border-color);
   background:var(--input-bg);
   color:var(--fg);
   transition: border .2s;
@@ -128,7 +128,7 @@ textarea::-webkit-scrollbar-thumb {
 .link{
   font-size:var(--font-size-small);
   text-decoration: underline;
-  color:var(--link-color);
+  color:var(--blue);
   font-family:var(--font-mono);
   margin-bottom:2px;
 }

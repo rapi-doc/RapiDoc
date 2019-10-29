@@ -2,7 +2,7 @@ import { html } from 'lit-element';
 
 export default html`
 <style>
-a{ color: var(--link-color); }
+a{ color: var(--blue); }
 .border{
   border:1px solid var(--border-color);
   border-radius: var(--border-radius);

@@ -98,10 +98,10 @@ export default class ApiRequest extends LitElement {
         text-overflow: ellipsis;
       }
       .response-message.error{
-        color:var(--error-color);
+        color:var(--red);
       }
       .response-message.success{
-        color:var(--success-color);
+        color:var(--blue);
       }
 
       @media only screen and (min-width: 768px){
@@ -175,7 +175,7 @@ export default class ApiRequest extends LitElement {
       <tr> 
         <td style="width:160px; min-width:100px;">
           <div class="param-name">
-            ${param.required ? html`<span style='color:orangered'>*</span>` : ''}${param.name}
+            ${param.required ? html`<span style='color:var(--red)'>*</span>` : ''}${param.name}
           </div>
           <div class="param-type">
             ${paramSchema.type === 'array'
@@ -469,13 +469,13 @@ export default class ApiRequest extends LitElement {
         <div style="display:flex;flex-direction:row;overflow:hidden;"> <div style="font-weight:bold;padding-right:5px;">API SERVER: </div> 
           ${this.selectedServer
             ? html`${this.selectedServer}`
-            : html`<div style="font-weight:bold;color:var(--error-color)">Not Set</div>`
+            : html`<div style="font-weight:bold;color:var(--red)">Not Set</div>`
           }
         </div>
         <div style="display:flex;flex-direction:row;overflow:hidden;line-height:16px;color:var(--fg3)"> 
           ${this.apiKeyValue && this.apiKeyName
             ? html`
-                <div style="font-weight:bold;color:var(--success-color)">Authentication: &nbsp; </div>
+                <div style="font-weight:bold;color:var(--blue)">Authentication: &nbsp; </div>
                 send <div style="font-family:var(--font-mono); color:var(--fg)"> '${this.apiKeyName}' </div>
                 in<div style="font-family:var(--font-mono); color:var(--fg)"> '${this.apiKeyLocation}' </div>
                 with value<div style="font-family:var(--font-mono); color:var(--fg)"> '${`${this.apiKeyValue.substring(0, 3)}***`}' </div>

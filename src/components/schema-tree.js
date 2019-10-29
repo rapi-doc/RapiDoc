@@ -100,7 +100,7 @@ export default class SchemaTree extends LitElement {
               '',
               '',
             )}`
-          : html`<span class='mono-font' style='color:var(--delete-color)'> Schema not found </span>`
+          : html`<span class='mono-font' style='color:var(--red)'> Schema not found </span>`
         }
       </div>  
     `;
@@ -149,7 +149,7 @@ export default class SchemaTree extends LitElement {
             ${data['::type'] === 'xxx-of-option' || prevKey.startsWith('::OPTION')
               ? html`<span class='xxx-of-key'>${newPrevKey}</span>`
               : newPrevKey.endsWith('*')
-                ? html`<span style='color:var(--delete-color);margin-left:-6px'>*</span>${newPrevKey.substring(0, newPrevKey.length - 1)}`
+                ? html`${newPrevKey.substring(0, newPrevKey.length - 1)}<span style='color:var(--red);margin-left:-6px'>*</span>`
                 : newPrevKey
             }${level > 0 ? ':' : ''}${openBracket}
           </div>
@@ -183,7 +183,7 @@ export default class SchemaTree extends LitElement {
       <div class = "tr primitive">
         <div class='td key' style='min-width:${minFieldColWidth}px' >
           ${newPrevKey.endsWith('*')
-            ? html`${newPrevKey.substring(0, newPrevKey.length - 1)}<span style='color:var(--delete-color);'>*</span>`
+            ? html`${newPrevKey.substring(0, newPrevKey.length - 1)}<span style='color:var(--red);'>*</span>`
             : newPrevKey
           }:
           <span class='${dataTypeCss}'> 

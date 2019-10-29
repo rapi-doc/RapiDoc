@@ -6,13 +6,13 @@ import FontStyles from '@/styles/font-styles';
 import InputStyles from '@/styles/input-styles';
 import FlexStyles from '@/styles/flex-styles';
 import TableStyles from '@/styles/table-styles';
+import setTheme from '@/utils/theme';
 import ColorUtils from '@/utils/color-utils';
 import ProcessSpec from '@/utils/spec-parser';
 
 import '@/components/m-logo';
 import '@/components/end-point';
 import '@/components/end-points-expanded';
-import '@/components/path-and-methods';
 import '@/components/security-schemes';
 
 export default class RapiDoc extends LitElement {
@@ -44,7 +44,6 @@ export default class RapiDoc extends LitElement {
       defaultSchemaTab: { type: String, attribute: 'default-schema-tab' },
       schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
       schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
-      apiListStyle: { type: String, attribute: 'api-list-style' },
 
       // API Server
       apiKeyName: { type: String, attribute: 'api-key-name' },
@@ -61,7 +60,6 @@ export default class RapiDoc extends LitElement {
       allowSpecUrlLoad: { type: String, attribute: 'allow-spec-url-load' },
       allowSpecFileLoad: { type: String, attribute: 'allow-spec-file-load' },
       allowSearch: { type: String, attribute: 'allow-search' },
-      allowApiListStyleSelection: { type: String, attribute: 'allow-api-list-style-selection' },
       allowServerSelection: { type: String, attribute: 'allow-server-selection' },
 
       // Main Colors and Font
@@ -110,89 +108,28 @@ export default class RapiDoc extends LitElement {
       ${InputStyles}
       ${FlexStyles}
       ${TableStyles}
-      ${this.theme === 'dark'
-        ? html`<style>
-          :host{
-            --bg:#333;
-            --bg2:#383838;
-            --bg3:#444;
-            --fg:#bbb;
-            --fg2:#ababab;
-            --fg3:#aaa;
-            --light-fg:#777;
-            --very-light-fg:#666;
-            --border-color:#555;
-            --light-border-color:#444;
-            --pre-border-color:#666;
-            --pre-fg:#fff;
-            --pre-bg:#272727;
-            --code-fg:#ccc;
-            --code-bg:transparent;
-            --input-bg:#303030;
-            --input-border-color:#297aa2;
-            --placeholder-color:#666;
-            --light-get-color:#2a2a2a;
-            --light-put-color:#2a2a2a;
-            --light-post-color:#2a2a2a;
-            --light-delete-color:#2a2a2a;
-            --light-patch-color:#2a2a2a;
-            --hover-color:#2a2a2a;
-            --post-color:#99CC00;
-          }
-          </style>`
-        : html`<style>
-          :host{
-            --bg:#fff;
-            --bg2:#fafafa;
-            --bg3:#f6f6f6;
-            --fg:#444;
-            --fg2:#555;
-            --fg3:#666;
-            --light-fg:#999;
-            --very-light-fg:#bbb;
-            --border-color:#ddd;
-            --light-border-color:#eee;
-            --pre-border-color:#4e575e;
-            --pre-fg:#ccc;
-            --pre-bg:#4e575e;
-            --code-fg:#ccc;
-            --code-bg:transparent;
-            --input-bg:#fff;
-            --input-border-color:#C5D9E8;
-            --placeholder-color:#dedede;
-            --light-get-color:#eff8fd;
-            --light-put-color:#fff5e6;
-            --light-post-color:#fbfff0;
-            --light-delete-color:#fff0f0;
-            --light-patch-color:#fff5cc;
-            --hover-color:#f1f1f1;
-            --post-color:#1dae00;
-          }
-      </style>`}      
+      ${this.theme === 'dark' ? setTheme('dark', {
+        bg1: '#36312C',
+        fg1: '#EBD1B7',
+        lightFg: '#7A7267',
+      }) : setTheme('light')}
       <style>
         :host {
-          --error-color:#ff3333;
-          --success-color:#47AFE8;
-          --hover-bg:#f7f7f7;
-          --get-color:#47AFE8;
-          --put-color:#FF9900;
-          --delete-color:#F06560;
-          --patch-color:#fc0;
-          --link-color:#47AFE8;
           --primary-color:${this.primaryColor ? `${this.primaryColor}` : '#FF791A'};
           --dark-primary-color:${ColorUtils.color.brightness(this.primaryColor ? this.primaryColor : '#FF791A', -30)};
           --primary-text:${this.primaryColor ? `${ColorUtils.color.invert(this.primaryColor)}` : '#ffffff'};
           --header-bg:${this.headerColor ? `${this.headerColor}` : '#444'};
           --header-fg:${this.headerColor ? `${ColorUtils.color.invert(this.headerColor)}` : '#ccc'};
-          --layout:${this.layout ? `${this.layout}` : 'row'};
-          --font-mono:${this.monoFont ? `${this.monoFont}` : 'Monaco, "Andale Mono", "Roboto Mono", Consolas'}; 
-          --font-regular:${this.regularFont ? `${this.regularFont}` : 'rapidoc, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'};
 
           --nav-bg-color:${this.navBgColor ? `${this.navBgColor}` : 'var(--bg2)'};
           --nav-text-color:${this.navTextColor ? `${this.navTextColor}` : 'var(--fg3)'};
           --nav-hover-bg-color:${this.navHoverBgColor ? `${this.navHoverBgColor}` : 'var(--hover-color)'};
           --nav-hover-text-color:${this.navHoverTextColor ? `${this.navHoverTextColor}` : 'var(--fg3)'};
           --nav-accent-color:${this.navAccentColor ? `${this.navAccentColor}` : 'var(--primary-color)'};
+
+          --layout:${this.layout ? `${this.layout}` : 'row'};
+          --font-mono:${this.monoFont ? `${this.monoFont}` : 'Monaco, "Andale Mono", "Roboto Mono", Consolas'}; 
+          --font-regular:${this.regularFont ? `${this.regularFont}` : 'rapidoc, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'};
 
           --font-size-mono:13px;
           --font-size-regular:14px;
@@ -438,17 +375,10 @@ export default class RapiDoc extends LitElement {
                 : this.securitySchemeTemplate()
               }
 
-              ${this.allowApiListStyleSelection === 'true'
-                ? this.apiListingStyleSelectionTemplate()
-                : ''
-              }
-              
-              ${this.resolvedSpec.tags && this.resolvedSpec.pathGroups
+              ${this.resolvedSpec.tags
                 ? this.renderStyle === 'read'
                   ? this.endpointsExpandedTemplate()
-                  : this.apiListStyle === 'group-by-path'
-                    ? this.endpointsGroupedByPathTemplate()
-                    : this.endpointsGroupedByTagTemplate()
+                  : this.endpointsGroupedByTagTemplate()
                 : ''
               }`
             : ''
@@ -629,30 +559,6 @@ export default class RapiDoc extends LitElement {
     `;
   }
 
-  apiListingStyleSelectionTemplate() {
-    return html`
-      <div class="sub-title regular-font section-gap">GROUP API BY: </div>
-      <div>
-        <input type = 'radio' 
-          name = 'apiListStyle' 
-          value = 'group-by-tag' 
-          @change = '${() => this.onListStyleChange('group-by-tag')}'
-          .checked = "${this.apiListStyle === 'group-by-tag'}"
-          style='margin:12px 0  0 24px' 
-        />
-        <span style='margin-right:10px'>Tag</span>  
-        <input type='radio' 
-          name = 'apiListStyle' 
-          value = 'group-by-path' 
-          @change = '${() => this.onListStyleChange('group-by-path')}'
-          .checked = '${this.apiListStyle === 'group-by-path'}'
-          style='margin:12px 0'
-        />
-        <span>Path</span>  
-      </div>
-    `;
-  }
-
   endpointsGroupedByTagTemplate() {
     return html`
       ${this.resolvedSpec.tags.map((tag) => html`
@@ -688,36 +594,6 @@ export default class RapiDoc extends LitElement {
           > 
           </end-point>`)
         }`)
-      }`;
-  }
-
-  endpointsGroupedByPathTemplate() {
-    return html`
-      ${(this.allowApiListStyleSelection === 'true' && this.resolvedSpec)
-        ? html`<div class="sub-title tag regular-font section-gap">PATHS</div>`
-        : ''
-      }
-
-      ${this.resolvedSpec.pathGroups.filter((pathObj) => {
-        if (this.matchPaths) {
-          return pathObj.path.includes(this.matchPaths);
-        }
-        return true;
-      })
-      .map((pathObj) => html`
-        <path-and-methods 
-          selected-server  = "${this.selectedServer ? this.selectedServer : ''}"  
-          api-key-name     = "${this.apiKeyName ? this.apiKeyName : ''}"
-          api-key-value    = "${this.apiKeyValue ? this.apiKeyValue : ''}"
-          api-key-location = "${this.apiKeyLocation ? this.apiKeyLocation : ''}"
-          layout           = "${this.layout ? this.layout : 'row'}"
-          .path            = "${pathObj}" 
-          allow-try        = "${this.allowTry ? this.allowTry : 'true'}"
-          match-paths      = "${this.matchPaths}"
-          schema-style     = "${this.schemaStyle}"
-          schema-expand-level = "${this.schemaExpandLevel}"
-          schema-description-expanded = "${this.schemaDescriptionExpanded}"
-        ></path-and-methods>`)
       }`;
   }
 
@@ -815,11 +691,6 @@ export default class RapiDoc extends LitElement {
     }
   }
 
-  onListStyleChange(selectedValue) {
-    this.apiListStyle = selectedValue;
-    this.requestUpdate();
-  }
-
   onSecurityChange(e) {
     this.apiKeyName = e.detail.keyName;
     this.apiKeyValue = e.detail.keyValue;
@@ -879,10 +750,6 @@ export default class RapiDoc extends LitElement {
         this.selectedServer = this.resolvedSpec.servers[0].url;
       }
     }
-    if (!this.apiListStyle) {
-      this.apiListStyle = 'group-by-tag';
-    }
-
     // Put it at the end of event loop, to allow loading all the child elements (must for larger specs)
     this.intersectionObserver.disconnect();
     if (this.renderStyle === 'read') {

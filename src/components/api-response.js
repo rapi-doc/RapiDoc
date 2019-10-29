@@ -204,7 +204,7 @@ export default class ApiResponse extends LitElement {
   mimeExampleTemplate(mimeRespDetails) {
     if (!mimeRespDetails) {
       return html`
-        <pre style='color:var(--delete-color)' class = '${this.renderStyle === 'read' ? 'read text-example' : 'text-example'}'> No example provided </pre>
+        <pre style='color:var(--red)' class = '${this.renderStyle === 'read' ? 'read text-example' : 'text-example'}'> No example provided </pre>
       `;
     }
     return html`
@@ -225,7 +225,7 @@ export default class ApiResponse extends LitElement {
   mimeSchemaTemplate(mimeRespDetails) {
     if (!mimeRespDetails) {
       return html`
-        <pre style='color:var(--delete-color)' class = '${this.renderStyle === 'read' ? 'read text-example' : 'text-example'}'> Schema not found</pre>
+        <pre style='color:var(--red)' class = '${this.renderStyle === 'read' ? 'read text-example' : 'text-example'}'> Schema not found</pre>
       `;
     }
     return html`

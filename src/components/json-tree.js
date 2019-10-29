@@ -39,10 +39,10 @@ export default class JsonTree extends LitElement {
           padding-left:12px;
           border-left:1px dotted var(--border-color);
         }
-        .string{color:#86b300;}
-        .number{color:#47afe8;}
-        .null{color:orangered;}
-        .boolean{color:#b96ff1}
+        .string{color:var(--green);}
+        .number{color:var(--blue);}
+        .null{color:var(--red);}
+        .boolean{color:var(--purple);}
         .object{color:var(--fg)}
         .toolbar {
           display:flex;
@@ -54,12 +54,6 @@ export default class JsonTree extends LitElement {
           cursor:pointer;
           padding:5px 0;
           margin:0 2px;
-        }
-        .seperator{
-          width:1px;
-          align-self:streatch;
-          border-left: 1px solid var(--border-color);
-          margin : 5px 5px;
         }
       </style>
       <div class="json-tree ${this.renderStyle === 'read' ? 'tree-border' : ''}" >

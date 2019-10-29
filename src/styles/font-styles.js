@@ -2,41 +2,41 @@ import { html } from 'lit-element';
 
 export default html`
 <style>
-  .regular-font{font-family:var(--font-regular);}
-  .mono-font{font-family:var(--font-mono);}
-  .title{font-size: 30px;font-weight:normal}
-  .sub-title{font-size: 20px;}
+  .regular-font{ font-family:var(--font-regular); }
+  .mono-font{ font-family:var(--font-mono); }
+  .title{ font-size: 30px;font-weight:normal }
+  .sub-title{ font-size: 20px;}
   .req-res-title {
-      font-family:var(--font-regular);
-      font-size:16px;
-      font-weight:bold;
-      margin-bottom:8px;
-    }
-  .tiny-title {font-size:13px; font-weight:bold}
-  .regular-font-size{ font-size:var(--font-size-regular);}
-  .small-font-size{ font-size:var(--font-size-small);}
-  .primary-text{ color: var(--primary-color)}
-  .bold-text{ font-weight:bold }
-  .gray-text{ color: var(--light-fg) }
-  .upper{text-transform: uppercase;}
-  .multiline{
+    font-family:var(--font-regular);
+    font-size:16px;
+    font-weight:bold;
+    margin-bottom:8px;
+  }
+  
+  .tiny-title { font-size:13px; font-weight:bold; }
+  .regular-font-size { font-size:var(--font-size-regular); }
+  .small-font-size { font-size:var(--font-size-small); }
+  .primary-text{ color: var(--primary-color); }
+  .bold-text { font-weight:bold; }
+  .gray-text { color: var(--light-fg); }
+  .upper { text-transform: uppercase; }
+  .multiline {
     overflow: scroll;
     max-height: 200px;
     color: var(--fg3);  
   }
-  .method-fg.put { color: var(--put-color); }
-  .method-fg.post { color: var(--post-color); }
-  .method-fg.get { color: var(--get-color); }
-  .method-fg.delete { color: var(--delete-color); }
-  .method-fg.patch { color: var(--patch-color); }
-  .method-fg.head { color: var(--head-color); }
+  .method-fg.put { color: var(--orange); }
+  .method-fg.post { color: var(--green); }
+  .method-fg.get { color: var(--blue); }
+  .method-fg.delete { color: var(--red); }
+  .method-fg.patch { color: var(--yellow); }
 
-  h1{ font-family:var(--font-regular); font-size:24px; letter-spacing:normal; font-weight:normal}
-  h2{ font-family:var(--font-regular); font-size:20px; letter-spacing:normal; font-weight:normal}
-  h3{ font-family:var(--font-regular); font-size:18px; letter-spacing:normal; font-weight:normal}
-  h4{ font-family:var(--font-regular); font-size:16px; letter-spacing:normal; font-weight:normal}
-  h5{ font-family:var(--font-regular); font-size:14px; letter-spacing:normal; font-weight:normal}
-  h6{ font-family:var(--font-regular); font-size:14px; letter-spacing:normal; font-weight:normal}
+  h1{ font-family:var(--font-regular); font-size:24px; letter-spacing:normal; font-weight:normal; }
+  h2{ font-family:var(--font-regular); font-size:20px; letter-spacing:normal; font-weight:normal; }
+  h3{ font-family:var(--font-regular); font-size:18px; letter-spacing:normal; font-weight:normal; }
+  h4{ font-family:var(--font-regular); font-size:16px; letter-spacing:normal; font-weight:normal; }
+  h5{ font-family:var(--font-regular); font-size:14px; letter-spacing:normal; font-weight:normal; }
+  h6{ font-family:var(--font-regular); font-size:14px; letter-spacing:normal; font-weight:normal; }
 
   h1,h2,h3,h4,h5,h5{
     margin-block-end: 0.2em;
@@ -82,47 +82,45 @@ export default html`
     margin-block-end: 0
   }
 
-
   .m-markdown-small ul,
   .m-markdown-small ol{
     padding-inline-start: 20px;
   }
 
-  .m-markdown code{
-      background-color: rgba(0, 0, 0, 0.02);
-      padding: 0px 6px;
-      border: 1px solid var(--light-border-color);
-      border-radius: 2px;
-      color: var(--fg);
-      font-size: calc(var(--font-size-mono) - 1px);
-      line-height: var(--font-mono-line-height);
+  .m-markdown code {
+    background-color: var(--bg3);
+    padding: 1px 6px;
+    border-radius: 2px;
+    color: var(--green);
+    font-size: calc(var(--font-size-mono) - 1px);
+    line-height: var(--font-mono-line-height);
   }
 
-  .m-markdown pre{
-      white-space: pre-wrap;
-      background-color: var(--pre-bg);
-      color:var(--pre-fg);
-      padding: 12px 14px 15px 14px;
-      overflow-x: auto;
-      line-height: normal;
-      border-radius: 2px;
-      border: 1px solid var(--pre-border-color);
+  .m-markdown pre {
+    white-space: pre-wrap;
+    background-color: var(--code-bg);
+    color:var(--code-fg);
+    padding: 12px 14px 15px 14px;
+    overflow-x: auto;
+    line-height: normal;
+    border-radius: 2px;
+    border: 1px solid var(--code-border-color);
   }
   .m-markdown pre code {
-      border:none;
-      background-color:transparent;
-      color: var(--code-fg);
-      font-size: var(--font-size-mono);
+    border:none;
+    background-color:transparent;
+    color: var(--code-fg);
+    font-size: var(--font-size-mono);
   }
   .m-markdown ul,
   .m-markdown ol{
-      padding-inline-start:30px;
+    padding-inline-start:30px;
   }
   .m-markdown-small a,
   .m-markdown a{
-    color:var(--link-color);
+    color:var(--blue);
   }
-  .m-markdown img{max-width:100%}
+  .m-markdown img{ max-width:100%; }
 
   .m-markdown.m-markdown-small code{
     font-size:calc(var(--font-size-small) - 1px);

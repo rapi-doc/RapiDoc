@@ -20,8 +20,7 @@ export default class SecuritySchemes extends LitElement {
     <style>
       .url{
         display: inline-flex;
-        color: #999;
-        max-width: 220px;
+        color: var(--blue);
         overflow-wrap: break-word;
         word-break: break-all;
       }

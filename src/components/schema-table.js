@@ -126,7 +126,7 @@ export default class SchemaTable extends LitElement {
                 ${data['::type'] === 'xxx-of-option' || prevKey.startsWith('::OPTION')
                   ? html`<span class='xxx-of-key'>${newPrevKey}</span>`
                   : newPrevKey.endsWith('*')
-                    ? html`${newPrevKey.substring(0, newPrevKey.length - 1)}<span style='color:var(--delete-color);'>*</span>`
+                    ? html`${newPrevKey.substring(0, newPrevKey.length - 1)}<span style='color:var(--red);'>*</span>`
                     : `${newPrevKey}`
                 }
               </div>
@@ -159,7 +159,7 @@ export default class SchemaTable extends LitElement {
       <div class = "tr primitive">
         <div class='td key' style='padding-left:${leftPadding}px' >
           ${newPrevKey.endsWith('*')
-            ? html`${newPrevKey.substring(0, newPrevKey.length - 1)}<span style='color:var(--delete-color);'>*</span>`
+            ? html`${newPrevKey.substring(0, newPrevKey.length - 1)}<span style='color:var(--red);'>*</span>`
             : newPrevKey
           }
         </div>

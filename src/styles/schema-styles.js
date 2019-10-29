@@ -57,12 +57,12 @@ export default html`
       display:inline-block;
     }
 
-    .stri, .string, .uri, .url, .byte, .bina, .date, .pass, .ipv4, .ipv4, .uuid, .emai, .host {color:#86b300;}
-    .inte, .numb, .number, .int6, .int3, .floa, .doub, .deci .blue {color:#47afe8;}
-    .null {color:orangered;}
-    .bool, .boolean{color:#b96ff1}
-    .enum {color:orange}
-    .recu {color:#D4AC0D}
+    .stri, .string, .uri, .url, .byte, .bina, .date, .pass, .ipv4, .ipv4, .uuid, .emai, .host {color:var(--green);}
+    .inte, .numb, .number, .int6, .int3, .floa, .doub, .deci .blue {color:var(--blue);}
+    .null {color:var(--red);}
+    .bool, .boolean{color:var(--purple)}
+    .enum {color:var(--orange)}
+    .recu {color:var(--brown)}
     .toolbar {
       display:flex;
       width:100%;
@@ -73,12 +73,6 @@ export default html`
       cursor:pointer;
       padding:5px 0;
       margin:0 2px;
-    }
-    .seperator{
-      width:1px;
-      align-self:streatch;
-      border-left: 1px solid var(--border-color);
-      margin : 5px 5px;
     }
 
     @media only screen and (min-width: 500px) {

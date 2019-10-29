@@ -56,7 +56,7 @@ export default class TagInput extends LitElement {
         outline: none;
         padding:0;
         border-radius:var(--border-radius);
-        border:1px solid var(--input-border-color);
+        border:1px solid var(--border-color);
         cursor:text;
         overflow:hidden;
       }
