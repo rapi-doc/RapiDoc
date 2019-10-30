@@ -9,7 +9,7 @@ input, select, button {
   color:var(--fg);
 }
 /* Button */
-.m-btn{
+.m-btn {
   border-radius: var(--border-radius);
   font-weight: 600;
   display: inline-block;
@@ -25,16 +25,16 @@ input, select, button {
   user-select: none;
   cursor: pointer;
 }
-.m-btn.primary{
+.m-btn.primary {
   background-color:var(--primary-color);
-  color:var(--primary-text);
+  color:var(--primary-color-invert);
 }
-.m-btn.large{padding:8px 14px;}
-.m-btn.small{padding:5px 12px;}
-.m-btn.circle{border-radius:50%;}
-.m-btn:hover{ 
+.m-btn.large { padding:8px 14px;}
+.m-btn.small { padding:5px 12px;}
+.m-btn.circle { border-radius:50%;}
+.m-btn:hover { 
   background-color: var(--primary-color);
-  color:var(--primary-text);
+  color:var(--primary-color-invert);
 }
 .m-btn:disabled{ 
   background-color: var(--bg3);

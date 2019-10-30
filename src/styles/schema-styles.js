@@ -49,7 +49,7 @@ export default html`
       font-size:10px; 
       font-weight:bold; 
       background-color:var(--primary-color); 
-      color:var(--primary-text); 
+      color:var(--primary-color-invert); 
       border-radius:2px;
       line-height:18px;
       padding:0px 5px; 

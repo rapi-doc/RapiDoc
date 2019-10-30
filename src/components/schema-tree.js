@@ -36,7 +36,7 @@ export default class SchemaTree extends LitElement {
         padding: 8px 16px 16px 16px;
       }
       .tree .tr:hover{
-        background-color:rgba(128,128,128, 0.07);
+        background-color:var(--hover-color);
       }
       .collapsed-descr .tr {
         max-height:20px;

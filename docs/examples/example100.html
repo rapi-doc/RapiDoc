@@ -83,6 +83,12 @@
         getRapiDoc().setAttribute('layout', newLayout );
       }
 
+      function changeRenderStyle() {
+        let currRender = getRapiDoc().getAttribute('render-style');
+        let newRender = currRender === "read" ? "view" : "read";
+        getRapiDoc().setAttribute('render-style', newRender );
+      }
+
       function toggleAttr(attr){
         if (getRapiDoc().getAttribute(attr) === 'false'){
           getRapiDoc().setAttribute(attr,"true");
@@ -131,6 +137,7 @@
     <rapi-doc id="thedoc" spec-url="https://petstore.swagger.io/v2/swagger.json"> 
       <div style="display:flex; margin:10px; justify-content:center;flex-wrap: wrap;">
         <button class="btn" onclick="changeAttr('header-color')">Change Header Color</button>
+        <button class="btn" onclick="changeRenderStyle()">Render Style</button>
         <button class="btn" onclick="changeAttr('heading-text')">Change Heading Text</button>
         <button class="btn" onclick="changeLogo()">Change Logo</button>
         <button class="btn" onclick="changeFont()">Change Font</button>

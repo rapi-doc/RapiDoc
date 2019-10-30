@@ -6,8 +6,7 @@ import FontStyles from '@/styles/font-styles';
 import InputStyles from '@/styles/input-styles';
 import FlexStyles from '@/styles/flex-styles';
 import TableStyles from '@/styles/table-styles';
-import setTheme from '@/utils/theme';
-import ColorUtils from '@/utils/color-utils';
+import SetTheme from '@/utils/theme';
 import ProcessSpec from '@/utils/spec-parser';
 
 import '@/components/m-logo';
@@ -64,6 +63,8 @@ export default class RapiDoc extends LitElement {
 
       // Main Colors and Font
       theme: { type: String },
+      bgColor: { type: String, attribute: 'bg-color' },
+      textColor: { type: String, attribute: 'text-color' },
       headerColor: { type: String, attribute: 'header-color' },
       primaryColor: { type: String, attribute: 'primary-color' },
       regularFont: { type: String, attribute: 'regular-font' },
@@ -103,30 +104,26 @@ export default class RapiDoc extends LitElement {
 
   /* eslint-disable indent */
   render() {
+    const newTheme = {
+      bg1: this.bgColor,
+      fg1: this.textColor,
+      headerColor: this.headerColor,
+      primaryColor: this.primaryColor,
+      navBgColor: this.navBgColor,
+      navTextColor: this.navTextColor,
+      navHoverBgColor: this.navHoverBgColor,
+      navHoverTextColor: this.navHoverTextColor,
+      navAccentColor: this.navAccentColor,
+    };
     return html`
       ${FontStyles}
       ${InputStyles}
       ${FlexStyles}
       ${TableStyles}
-      ${this.theme === 'dark' ? setTheme('dark', {
-        bg1: '#36312C',
-        fg1: '#EBD1B7',
-        lightFg: '#7A7267',
-      }) : setTheme('light')}
+
+      ${this.theme === 'dark' ? SetTheme('dark', newTheme) : SetTheme('light', newTheme)}
       <style>
         :host {
-          --primary-color:${this.primaryColor ? `${this.primaryColor}` : '#FF791A'};
-          --dark-primary-color:${ColorUtils.color.brightness(this.primaryColor ? this.primaryColor : '#FF791A', -30)};
-          --primary-text:${this.primaryColor ? `${ColorUtils.color.invert(this.primaryColor)}` : '#ffffff'};
-          --header-bg:${this.headerColor ? `${this.headerColor}` : '#444'};
-          --header-fg:${this.headerColor ? `${ColorUtils.color.invert(this.headerColor)}` : '#ccc'};
-
-          --nav-bg-color:${this.navBgColor ? `${this.navBgColor}` : 'var(--bg2)'};
-          --nav-text-color:${this.navTextColor ? `${this.navTextColor}` : 'var(--fg3)'};
-          --nav-hover-bg-color:${this.navHoverBgColor ? `${this.navHoverBgColor}` : 'var(--hover-color)'};
-          --nav-hover-text-color:${this.navHoverTextColor ? `${this.navHoverTextColor}` : 'var(--fg3)'};
-          --nav-accent-color:${this.navAccentColor ? `${this.navAccentColor}` : 'var(--primary-color)'};
-
           --layout:${this.layout ? `${this.layout}` : 'row'};
           --font-mono:${this.monoFont ? `${this.monoFont}` : 'Monaco, "Andale Mono", "Roboto Mono", Consolas'}; 
           --font-regular:${this.regularFont ? `${this.regularFont}` : 'rapidoc, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'};
@@ -190,7 +187,7 @@ export default class RapiDoc extends LitElement {
         }
 
         .nav-scroll:hover::-webkit-scrollbar {
-          width: 30px;
+          width: 24px;
         }
 
         .nav-bar-tag {
@@ -273,9 +270,9 @@ export default class RapiDoc extends LitElement {
         }
 
         input.header-input{
-          background:${this.headerColor ? ColorUtils.color.brightness(this.headerColor, -20) : ColorUtils.color.inputReverseBg};
+          background:var(--header-color-darker);
           color:var(--header-fg);
-          border:1px solid var(--dark-primary-color);
+          border:1px solid var(--header-color-border);
           flex:1; 
           padding-right:24px;
           border-radius:3px;
@@ -657,6 +654,15 @@ export default class RapiDoc extends LitElement {
         this.loadSpec(newVal);
       }
     }
+    if (name === 'render-style') {
+      if (newVal === 'read') {
+        window.setTimeout(() => {
+          this.observeExpandedContent();
+        }, 100);
+      } else {
+        this.intersectionObserver.disconnect();
+      }
+    }
     super.attributeChangedCallback(name, oldVal, newVal);
   }
 
@@ -707,6 +713,12 @@ export default class RapiDoc extends LitElement {
     this.matchPaths = '';
   }
 
+  // Public Method
+  updateTheme(baseTheme, objTheme = {}) {
+    SetTheme(baseTheme, objTheme);
+  }
+
+  // Public Method
   async loadSpec(specUrl) {
     if (!specUrl) {
       return;
@@ -750,6 +762,8 @@ export default class RapiDoc extends LitElement {
         this.selectedServer = this.resolvedSpec.servers[0].url;
       }
     }
+
+    this.requestUpdate();
     // Put it at the end of event loop, to allow loading all the child elements (must for larger specs)
     this.intersectionObserver.disconnect();
     if (this.renderStyle === 'read') {
@@ -757,7 +771,6 @@ export default class RapiDoc extends LitElement {
         this.observeExpandedContent();
       }, 100);
     }
-    this.requestUpdate();
   }
 
   onIntersect(entries) {
