@@ -37,8 +37,10 @@ export default class TagInput extends LitElement {
       if (e.target.value) {
         if (Array.isArray(this.value)) {
           this.value = [...this.value, e.target.value];
-          e.target.value = '';
+        } else {
+          this.value = [e.target.value];
         }
+        e.target.value = '';
       }
     } else if (e.keyCode === 8) {
       if (Array.isArray(this.value) && this.value.length > 0) {
