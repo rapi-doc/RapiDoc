@@ -25,7 +25,9 @@ h1,h2,h3 { font-weight:300; }
 .right{ text-align: right; }
 .gray { color:#777; }
 .dark-gray { color:#444; }
+.light-gray { color:#aaa; }
 .blue { color:steelblue; }
+.small-font {font-size:12px;}
 .table-title { margin: 12px 0 5px 0; font-weight:bold; }
 .descr {
   font-size:13px;

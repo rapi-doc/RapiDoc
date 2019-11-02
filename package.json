@@ -25,8 +25,8 @@
     "openapi themes",
     "swagger themes"
   ],
-  "main": ".src/rapidoc.js",
-  "module": ".src/rapidoc.js",
+  "main": "dist/rapidoc-min.js",
+  "module": "dist/rapidoc-min.js",
   "dependencies": {
     "json-refs": "^3.0.13",
     "lit-element": "2.2.1",
@@ -48,7 +48,7 @@
     "clean-webpack-plugin": "^3.0.0",
     "compression-webpack-plugin": "^3.0.0",
     "css-loader": "^3.2.0",
-    "eslint": "^6.5.1",
+    "eslint": "^6.6.0",
     "eslint-config-airbnb": "^18.0.1",
     "eslint-loader": "^3.0.2",
     "eslint-import-resolver-webpack":"^0.11.1",
@@ -63,6 +63,6 @@
     "webpack": "^4.41.2",
     "webpack-bundle-analyzer": "^3.6.0",
     "webpack-cli": "^3.3.9",
-    "webpack-dev-server": "^3.8.2"
+    "webpack-dev-server": "^3.9.0"
   }
 }

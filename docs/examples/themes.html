@@ -1,0 +1,151 @@
+<!doctype html>
+  <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-132775238-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-132775238-1');
+    </script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+    <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
+    <style>
+      .btn{
+        width: 70px;
+        height: 70px;
+        background-color: #47AFE8;
+        color: #fff;
+        font-size: 12px;
+        display: block;
+        border: none;
+        margin: 2px;
+        border-radius: 2px;
+        cursor:pointer;
+        outline:none;
+      }
+      rapi-doc{
+        width:100%;
+      }
+    </style>
+    <script type="text/javascript" src="../rapidoc-min.js"></script>
+    <script>
+      function getRapiDoc(){
+        return document.getElementById("thedoc");
+      }  
+
+      function changeSchemaStyle() {
+        let docEl = getRapiDoc();
+        if (docEl.getAttribute('schema-style') === 'table'){
+          docEl.setAttribute('schema-style',"tree");
+        }
+        else{
+          docEl.setAttribute('schema-style',"table");
+        }
+      }
+
+      function changeTheme(themeName){
+        let docEl = getRapiDoc();
+        if (themeName === 'dark'){
+          docEl.setAttribute('theme','dark');
+          docEl.setAttribute('bg-color','#333');
+          docEl.setAttribute('text-color','#BBB');
+        } else if (themeName === 'light'){
+          docEl.setAttribute('theme','light');
+          docEl.setAttribute('bg-color','#FFF');
+          docEl.setAttribute('text-color','#444');
+        } else if (themeName === 'night') {
+          docEl.setAttribute('theme','dark');
+          docEl.setAttribute('bg-color','#14191f');
+          docEl.setAttribute('text-color','#aec2e0');
+        } else if (themeName === 'mud') {
+          docEl.setAttribute('theme','dark');
+          docEl.setAttribute('bg-color','#403635');
+          docEl.setAttribute('text-color','#c3b8b7');
+        } else if (themeName === 'cofee') {
+          docEl.setAttribute('theme','dark');
+          docEl.setAttribute('bg-color','#36312C');
+          docEl.setAttribute('text-color','#ceb8a0');
+        } else if (themeName === 'forest') {
+          docEl.setAttribute('theme','dark');
+          docEl.setAttribute('bg-color','#323b3d');
+          docEl.setAttribute('text-color','#BDD6DB');
+        } else if (themeName === 'olive') {
+          docEl.setAttribute('theme','dark');
+          docEl.setAttribute('bg-color','#2a2f31');
+          docEl.setAttribute('text-color','#acc7c8');
+        } else if (themeName === 'outerspace') {
+          docEl.setAttribute('theme','dark');
+          docEl.setAttribute('bg-color','#2D3133');
+          docEl.setAttribute('text-color','#CAD9E3');
+        } else if (themeName === 'ebony') {
+          docEl.setAttribute('theme','dark');
+          docEl.setAttribute('bg-color','#2B303B');
+          docEl.setAttribute('text-color','#dee3ec');
+        } else if (themeName === 'snow') {
+          docEl.setAttribute('theme','light');
+          docEl.setAttribute('bg-color','#FAFAFA');
+          docEl.setAttribute('text-color','#555');
+        } else if (themeName === 'green') {
+          docEl.setAttribute('theme','light');
+          docEl.setAttribute('bg-color','#f9fdf7');
+          docEl.setAttribute('text-color','#375F1B');
+        } else if (themeName === 'blue') {
+          docEl.setAttribute('theme','light');
+          docEl.setAttribute('bg-color','#ecf1f7');
+          docEl.setAttribute('text-color','#133863');
+        } else if (themeName === 'beige') {
+          docEl.setAttribute('theme','light');
+          docEl.setAttribute('bg-color','#fdf8ed');
+          docEl.setAttribute('text-color','#342809');
+        } 
+        
+      }
+
+      function changeSpec(){
+        let docEl = getRapiDoc();
+        if (docEl.getAttribute('spec-url').includes('bitbucket')){
+          docEl.setAttribute('spec-url',"../specs/petstore_extended.yaml");
+        }
+        else{
+          docEl.setAttribute('spec-url',"../specs/bitbucket.json");
+        }
+      }
+
+      function changeRenderStyle() {
+        let currRender = getRapiDoc().getAttribute('render-style');
+        let newRender = currRender === "read" ? "view" : "read";
+        getRapiDoc().setAttribute('render-style', newRender );
+      }
+
+    </script>
+  </head>
+  <body>
+    <rapi-doc id="thedoc" spec-url="https://petstore.swagger.io/v2/swagger.json"> 
+      <div style="display:flex; margin:10px; justify-content:center;flex-wrap: wrap;">
+        <button class="btn" onclick="changeSpec()">API Spec</button>
+        <button class="btn" onclick="changeRenderStyle()">Render Style</button>
+        <button class="btn" onclick="changeSchemaStyle()">Schema Style</button>
+        
+        <div style="width:40px;"> </div>
+        <button class="btn" onclick="changeTheme('dark')">Dark</button>
+        <button class="btn" onclick="changeTheme('night')">Night</button>
+        <button class="btn" onclick="changeTheme('mud')">Mud</button>
+        <button class="btn" onclick="changeTheme('cofee')">Cofee</button>
+        <button class="btn" onclick="changeTheme('forest')">Forest</button>
+        <button class="btn" onclick="changeTheme('olive')">Olive</button>
+        <button class="btn" onclick="changeTheme('outerspace')">Outer Space</button>
+        <button class="btn" onclick="changeTheme('ebony')">Ebony</button>
+        
+        <div style="width:40px;"> </div>
+        <button class="btn" onclick="changeTheme('light')">Light</button>
+        <button class="btn" onclick="changeTheme('snow')">Snow</button>
+        <button class="btn" onclick="changeTheme('green')"> Green</button>
+        <button class="btn" onclick="changeTheme('blue')"> Blue</button>
+        <button class="btn" onclick="changeTheme('beige')"> Beige</button>
+
+      </div>
+    </rapi-doc>
+  </body>
+</html>
