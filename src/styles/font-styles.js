@@ -2,6 +2,7 @@ import { html } from 'lit-element';
 
 export default html`
 <style>
+  ::selection { background: var(--bg3); }
   .regular-font{ font-family:var(--font-regular); }
   .mono-font{ font-family:var(--font-mono); }
   .title{ font-size: 30px;font-weight:normal }
@@ -91,7 +92,7 @@ export default html`
     background-color: var(--bg3);
     padding: 1px 6px;
     border-radius: 2px;
-    color: var(--green);
+    color: var(--red);
     font-size: calc(var(--font-size-mono) - 1px);
     line-height: var(--font-mono-line-height);
   }

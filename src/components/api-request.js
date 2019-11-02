@@ -266,7 +266,7 @@ export default class ApiRequest extends LitElement {
 
     let mimeReqCount = 0;
     const shortMimeTypes = {};
-    const bodyDescrHtml = this.request_body.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(this.request_body.description || ''))}</div>` : '';
+    const bodyDescrHtml = this.request_body.description ? html`<div class="m-markdown">${unsafeHTML(marked(this.request_body.description || ''))}</div>` : '';
     let textareaExampleHtml;
     let formDataHtml = '';
     const formDataTableRows = [];
@@ -554,7 +554,6 @@ export default class ApiRequest extends LitElement {
 
     fetchUrl = me.path;
     const fetchOptions = {
-      mode: 'cors',
       method: this.method.toUpperCase(),
       headers: {},
     };

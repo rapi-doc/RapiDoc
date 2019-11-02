@@ -5,17 +5,15 @@ import ColorUtils from '@/utils/color-utils';
 export default function setTheme(baseTheme, theme = {}) {
   let newTheme = {};
   const primaryColor = theme.primaryColor ? theme.primaryColor : '#FF791A';
-  const primaryColorInvert = ColorUtils.color.invert(primaryColor);
-
   if (baseTheme === 'dark') {
     const bg1 = theme.bg1 ? theme.bg1 : '#333';
     const fg1 = theme.fg1 ? theme.fg1 : '#bbb';
 
     const bg2 = theme.bg2 ? theme.bg2 : ColorUtils.color.brightness(bg1, 5); // or #383838;
-    const bg3 = theme.bg3 ? theme.bg3 : ColorUtils.color.brightness(bg1, 10); // or #444;
-    const fg2 = theme.fg2 ? theme.fg2 : ColorUtils.color.brightness(fg1, -5); // or #ababab
-    const fg3 = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, -10); // or #aaa
-    const lightFg = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, -30); // or #777
+    const bg3 = theme.bg3 ? theme.bg3 : ColorUtils.color.brightness(bg1, 15); // or #444;
+    const fg2 = theme.fg2 ? theme.fg2 : ColorUtils.color.brightness(fg1, -15); // or #ababab
+    const fg3 = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, -20); // or #aaa
+    const lightFg = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, -80); // or #777
     const headerColor = theme.headerColor ? theme.headerColor : ColorUtils.color.brightness(bg1, 10);
 
     const navBgColor = theme.navBgColor ? theme.navBgColor : ColorUtils.color.brightness(bg1, 10);
@@ -32,6 +30,7 @@ export default function setTheme(baseTheme, theme = {}) {
       fg2,
       fg3,
       lightFg,
+      primaryColor,
 
       navBgColor,
       navTextColor,
@@ -78,11 +77,11 @@ export default function setTheme(baseTheme, theme = {}) {
     const fg1 = theme.fg1 ? theme.fg1 : '#444';
 
     const bg2 = theme.bg2 ? theme.bg2 : ColorUtils.color.brightness(bg1, -5); // or '#fafafa'
-    const bg3 = theme.bg3 ? theme.bg3 : ColorUtils.color.brightness(bg2, -10); // or '#f6f6f6'
+    const bg3 = theme.bg3 ? theme.bg3 : ColorUtils.color.brightness(bg1, -15); // or '#f6f6f6'
 
-    const fg2 = theme.fg2 ? theme.fg2 : ColorUtils.color.brightness(fg1, 5); // or '#555'
-    const fg3 = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, 10); // or #666
-    const lightFg = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, 30); // or #999
+    const fg2 = theme.fg2 ? theme.fg2 : ColorUtils.color.brightness(fg1, 17); // or '#555'
+    const fg3 = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, 30); // or #666
+    const lightFg = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, 80); // or #999
     const headerColor = theme.headerColor ? theme.headerColor : ColorUtils.color.brightness(bg1, -180);
 
     const navBgColor = theme.navBgColor ? theme.navBgColor : ColorUtils.color.brightness(bg1, -10);
@@ -99,6 +98,7 @@ export default function setTheme(baseTheme, theme = {}) {
       fg2,
       fg3,
       lightFg,
+      primaryColor,
 
       navBgColor,
       navTextColor,
@@ -189,9 +189,8 @@ export default function setTheme(baseTheme, theme = {}) {
     --nav-accent-color:${newTheme.navAccentColor};
 
     /* Primary Colors */  
-    --primary-color:${primaryColor};
-    --primary-color-invert:${primaryColorInvert};
-
+    --primary-color:${newTheme.primaryColor};
+    --primary-color-invert:${ColorUtils.color.invert(newTheme.primaryColor)};
   }
   </style>`;
 }

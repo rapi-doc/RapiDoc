@@ -8,6 +8,14 @@ import InputStyles from '@/styles/input-styles';
 
 
 export default class SecuritySchemes extends LitElement {
+  static get properties() {
+    return {
+      schemes: { type: Object },
+      selectedApiKeyName: { type: String, attribute: 'selected-api-key-name' },
+      selectedApiKeyValue: { type: String, attribute: 'selected-api-key-value' },
+    };
+  }
+
   /* eslint-disable indent */
   render() {
     if (Object.keys(this.schemes).length === 0) {
@@ -28,7 +36,7 @@ export default class SecuritySchemes extends LitElement {
     <table class="m-table">
       <tr>
         <th >Type </th>  
-        <th> Authentication Procedure </th>  
+        <th> Authentication Procedure</th>  
       </tr>
       
       ${Object.keys(this.schemes).map((s) => html`
@@ -55,7 +63,14 @@ export default class SecuritySchemes extends LitElement {
                   data-inputname="${s}" 
                   style="margin:5px 0" spellcheck="false" 
                 >
-                  <input type="text" name="${s}-token" style="width:202px;" placeholder="api-token" >
+                  <input 
+                    type = "text" 
+                    name = "${s}-token" 
+                    value = "${this.selectedApiKeyValue}"
+                    style = "width:200px;" 
+                    placeholder = "api-token" 
+                    spellcheck = "false" 
+                  >
                   <button class="m-btn" name="${s}-button" data-class="${s}-class"
                     data-action="${this.selectedApiKeyValue ? 'CLEAR' : 'SET'}" 
                     @click="${this.dispatchChange}"
@@ -84,7 +99,14 @@ export default class SecuritySchemes extends LitElement {
               ? html`
                 Send <code>'Authorization'</code> in header which will contains the word  <code>'Bearer'</code> followed by a space and a Token String.
                 <div class="${s}-class" data-type="${this.schemes[s].type}" data-scheme="${this.schemes[s].scheme}" data-in="header" data-name="Authorization" data-inputname="${s}" style="margin:15px 0">
-                  <input type="text" name="${s}-bearer-token" style="width:202px;" placeholder="bearer-token" spellcheck="false" >
+                  <input 
+                    type = "text"
+                    name = "${s}-bearer-token" 
+                    value = "${this.selectedApiKeyValue}"
+                    style = "width:202px;" 
+                    placeholder = "bearer-token" 
+                    spellcheck = "false" 
+                  >
                   <button class="m-btn" name="${s}-button" data-class="${s}-class"
                     data-action="${this.selectedApiKeyValue ? 'CLEAR' : 'SET'}" 
                     @click="${this.dispatchChange}"
@@ -124,14 +146,6 @@ export default class SecuritySchemes extends LitElement {
     </table>`;
   }
   /* eslint-enable indent */
-
-  static get properties() {
-    return {
-      schemes: { type: Object },
-      selectedApiKeyName: { type: String, attribute: 'selected-api-key-name' },
-      selectedApiKeyValue: { type: String, attribute: 'selected-api-key-value' },
-    };
-  }
 
   dispatchChange(e) {
     const apiEl = e.target.closest(`.${e.target.dataset.class}`);

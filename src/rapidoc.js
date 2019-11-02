@@ -120,8 +120,8 @@ export default class RapiDoc extends LitElement {
       ${InputStyles}
       ${FlexStyles}
       ${TableStyles}
-
       ${this.theme === 'dark' ? SetTheme('dark', newTheme) : SetTheme('light', newTheme)}
+
       <style>
         :host {
           --layout:${this.layout ? `${this.layout}` : 'row'};
@@ -146,6 +146,7 @@ export default class RapiDoc extends LitElement {
           background-color:var(--bg);
           font-family:var(--font-regular);
         }
+        ::selection { background: var(--bg3); }
         .body {
           display:flex;
           height:100%;
@@ -716,6 +717,7 @@ export default class RapiDoc extends LitElement {
   // Public Method
   updateTheme(baseTheme, objTheme = {}) {
     SetTheme(baseTheme, objTheme);
+    this.render();
   }
 
   // Public Method
