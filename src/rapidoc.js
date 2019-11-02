@@ -432,12 +432,12 @@ export default class RapiDoc extends LitElement {
           <div style="position:sticky; top:0; display:flex; flex-direction:row; align-items: stretch; padding:16px 30px 16px 16px; background: var(--nav-bg-color);"> 
             <slot name="nav-logo" class="logo"></slot>
             <div style="display:flex; flex:1">
-              <input id="nav-bar-search" style="width:100%; padding-right:20px; color:var(--nav-accent-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" type="text" placeholder="search" @change="${this.onSearchChange}"  spellcheck="false" >
+              <input id="nav-bar-search" style="width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" type="text" placeholder="search" @change="${this.onSearchChange}"  spellcheck="false" >
               <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x23ce;</div>
             </div>  
             ${this.matchPaths
               ? html`
-                <div style='margin-left:5px; cursor:pointer; align-self:center;' class='small-font-size primary-text bold-text' @click = '${this.onClearSearch}'> CLEAR </div>`
+                <div style='margin-left:5px; cursor:pointer; align-self:center; color:var(--nav-text-color)' class='small-font-size primary-text bold-text' @click = '${this.onClearSearch}'> CLEAR </div>`
               : ''
             }
           </div>
@@ -780,7 +780,7 @@ export default class RapiDoc extends LitElement {
       return;
     }
     entries.forEach((entry) => {
-      if (entry.isIntersecting) {
+      if (entry.isIntersecting && entry.intersectionRatio > 0) {
         const oldNavEl = this.shadowRoot.querySelector('.nav-bar-path.active, .nav-bar-info.active');
         let newNavEl;
         if (entry.target.id.startsWith('content-')) {
