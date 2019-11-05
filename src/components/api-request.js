@@ -180,10 +180,7 @@ export default class ApiRequest extends LitElement {
           <div class="param-type">
             ${paramSchema.type === 'array'
               ? `${paramSchema.arrayType}`
-              : `${paramSchema.type}${paramSchema.format
-                  ? `\u00a0(${paramSchema.format})`
-                  : ''
-                }`
+              : `${paramSchema.format ? paramSchema.format : paramSchema.type}`
             }
           </div>
         </td>  
