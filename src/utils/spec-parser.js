@@ -2,7 +2,7 @@
 import JsonRefs from 'json-refs';
 import converter from 'swagger2openapi';
 
-export default async function ProcessSpec(specUrl) {
+export default async function ProcessSpec(specUrl, sortTags = false) {
   let jsonParsedSpec;
   let convertedSpec;
   let resolvedRefSpec;
@@ -41,8 +41,8 @@ export default async function ProcessSpec(specUrl) {
 
   let securitySchemes = {};
   let servers = [];
-  const tags = groupByTags(jsonParsedSpec);
-  const pathGroups = groupByPaths(jsonParsedSpec);
+  const tags = groupByTags(jsonParsedSpec, sortTags);
+  // const pathGroups = groupByPaths(jsonParsedSpec);
   securitySchemes = (jsonParsedSpec.components ? jsonParsedSpec.components.securitySchemes : {});
   if (jsonParsedSpec.servers) {
     jsonParsedSpec.servers.map((v) => {
@@ -62,7 +62,7 @@ export default async function ProcessSpec(specUrl) {
   const parsedSpec = {
     info: jsonParsedSpec.info,
     tags,
-    pathGroups,
+    // pathGroups,
     externalDocs: jsonParsedSpec.externalDocs,
     securitySchemes,
     servers, // In swagger 2, its generated from schemes, host and basePath properties
@@ -71,6 +71,7 @@ export default async function ProcessSpec(specUrl) {
   return parsedSpec;
 }
 
+/*
 function groupByPaths(openApiSpec) {
   const paths = [];
   for (const p in openApiSpec.paths) {
@@ -81,11 +82,18 @@ function groupByPaths(openApiSpec) {
   }
   return paths;
 }
+*/
 
-function groupByTags(openApiSpec) {
+function groupByTags(openApiSpec, sortTags = false) {
   const methods = ['get', 'put', 'post', 'delete', 'patch', 'head'];
-  const tags = [];
-
+  const tags = openApiSpec.tags && Array.isArray(openApiSpec.tags)
+    ? openApiSpec.tags.map((v) => ({
+      show: true,
+      name: v.name,
+      description: v.description,
+      paths: [],
+    }))
+    : [];
   // For each path find the tag and push it into the corrosponding tag
   for (const path in openApiSpec.paths) {
     const commonParams = openApiSpec.paths[path].parameters;
@@ -191,7 +199,7 @@ function groupByTags(openApiSpec) {
       }
     }); // End of Methods
   }
-
-  tags.sort((a, b) => (a.name < b.name ? -1 : (a.name > b.name ? 1 : 0)));
-  return tags;
+  // tags.sort((a, b) => (a.name < b.name ? -1 : (a.name > b.name ? 1 : 0)));
+  const tagsContainingPath = tags.filter((v) => v.paths && v.paths.length > 0);
+  return sortTags ? tagsContainingPath.sort((a, b) => (a.name < b.name ? -1 : (a.name > b.name ? 1 : 0))) : tagsContainingPath;
 }

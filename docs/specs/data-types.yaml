@@ -7,6 +7,8 @@ paths:
   /simple-nested-object:
     get:
       summary: response as containing nested object
+      tags:
+        - A
       responses:
         '200':
           description: successful operation
@@ -55,6 +57,8 @@ paths:
   /simple:
     get:
       summary: response as a simple object containing primitive properties
+      tags:
+        - B
       responses:
         '200':
           description: successful operation
@@ -72,7 +76,6 @@ paths:
   /person:
     post:
       summary: Contains parameters of various data-types and constraints in query, request-body and response
-      operationId: samplePost
       parameters:
         - name: height
           in: query
@@ -158,6 +161,13 @@ paths:
               $ref: '#/components/schemas/Category'
         description: order placed for purchasing the pet
         required: true
+tags:
+  - name: B
+    description: Nested Datatype
+  - name: A
+    description: Person Datatype
+  - name: C
+    description: Simple Datatype
 components:
   schemas:
     Category:

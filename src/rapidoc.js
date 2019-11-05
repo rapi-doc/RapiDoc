@@ -34,6 +34,7 @@ export default class RapiDoc extends LitElement {
 
       // Spec
       specUrl: { type: String, attribute: 'spec-url' },
+      sortTags: { type: String, attribute: 'sort-tags' },
       specFile: { type: String, attribute: false },
 
       // UI Layouts
@@ -92,6 +93,7 @@ export default class RapiDoc extends LitElement {
     if (!this.defaultSchemaTab || !'example model'.includes(this.defaultSchemaTab)) { this.defaultSchemaTab = 'model'; }
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) { this.schemaExpandLevel = 99999; }
     if (!this.schemaDescriptionExpanded || !'true false'.includes(this.schemaDescriptionExpanded)) { this.schemaDescriptionExpanded = 'false'; }
+    if (!this.sortTags || !'true false'.includes(this.sortTags)) { this.sortTags = 'false'; }
   }
 
   // Cleanup
@@ -650,9 +652,13 @@ export default class RapiDoc extends LitElement {
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
+    super.attributeChangedCallback(name, oldVal, newVal);
     if (name === 'spec-url') {
       if (oldVal !== newVal) {
-        this.loadSpec(newVal);
+        // put it at the end of event-loop to load all the attributes
+        window.setTimeout(() => {
+          this.loadSpec(newVal);
+        }, 0);
       }
     }
     if (name === 'render-style') {
@@ -664,7 +670,6 @@ export default class RapiDoc extends LitElement {
         this.intersectionObserver.disconnect();
       }
     }
-    super.attributeChangedCallback(name, oldVal, newVal);
   }
 
   onSepcUrlChange() {
@@ -736,7 +741,7 @@ export default class RapiDoc extends LitElement {
     try {
       this.loading = true;
       this.loadFailed = false;
-      const spec = await ProcessSpec(specUrl);
+      const spec = await ProcessSpec(specUrl, this.sortTags === 'true');
       this.loading = false;
       if (spec === undefined || spec === null) {
         console.error('Unable to resolve the API spec. '); // eslint-disable-line no-console
