@@ -199,7 +199,13 @@ function groupByTags(openApiSpec, sortTags = false) {
       }
     }); // End of Methods
   }
-  // tags.sort((a, b) => (a.name < b.name ? -1 : (a.name > b.name ? 1 : 0)));
-  const tagsContainingPath = tags.filter((v) => v.paths && v.paths.length > 0);
-  return sortTags ? tagsContainingPath.sort((a, b) => (a.name < b.name ? -1 : (a.name > b.name ? 1 : 0))) : tagsContainingPath;
+
+  // sort paths within each tags;
+  const tagsWithSortedPaths = tags.filter((v) => v.paths && v.paths.length > 0);
+  tagsWithSortedPaths.forEach((v) => {
+    if (v.paths) {
+      v.paths.sort((a, b) => (a.path < b.path ? -1 : (a.path > b.path ? 1 : 0)));
+    }
+  });
+  return sortTags ? tagsWithSortedPaths.sort((a, b) => (a.name < b.name ? -1 : (a.name > b.name ? 1 : 0))) : tagsWithSortedPaths;
 }
