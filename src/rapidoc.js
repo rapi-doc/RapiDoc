@@ -17,7 +17,6 @@ import '@/components/m-logo';
 import '@/components/security-schemes';
 import '@/components/api-request';
 import '@/components/api-response';
-// import '@/components/end-point';
 
 
 export default class RapiDoc extends LitElement {
@@ -444,65 +443,65 @@ export default class RapiDoc extends LitElement {
       </div>`;
   }
 
- navBarTemplate() {
-  return html`
-    <div class='nav-bar'>
-      ${(this.allowSearch === 'false')
-        ? ''
-        : html`
-          <div style="position:sticky; top:0; display:flex; flex-direction:row; align-items: stretch; padding:16px 30px 16px 16px; background: var(--nav-bg-color);"> 
-            <slot name="nav-logo" class="logo"></slot>
-            <div style="display:flex; flex:1">
-              <input id="nav-bar-search" 
-                style="width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" 
-                type="text" placeholder="search" 
-                @change="${this.onSearchChange}"  
-                spellcheck="false" 
-              >
-              <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x23ce;</div>
-            </div>  
-            ${this.matchPaths
-              ? html`
-                <div style='margin-left:5px; cursor:pointer; align-self:center; color:var(--nav-text-color)' class='small-font-size primary-text bold-text' @click = '${this.onClearSearch}'> CLEAR </div>`
-              : ''
-            }
-          </div>
-        `
-      }
-      ${html`<div class='nav-scroll'>
-        ${(this.showInfo === 'false' || !this.resolvedSpec.info)
+  navBarTemplate() {
+    return html`
+      <div class='nav-bar'>
+        ${(this.allowSearch === 'false')
           ? ''
-          : html`<div id='link-overview' class='nav-bar-info'  @click = '${(e) => this.scrollToEl(e)}' > Overview </div>`
+          : html`
+            <div style="position:sticky; top:0; display:flex; flex-direction:row; align-items: stretch; padding:16px 30px 16px 16px; background: var(--nav-bg-color);"> 
+              <slot name="nav-logo" class="logo"></slot>
+              <div style="display:flex; flex:1">
+                <input id="nav-bar-search" 
+                  style="width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" 
+                  type="text" placeholder="search" 
+                  @change="${this.onSearchChange}"  
+                  spellcheck="false" 
+                >
+                <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x23ce;</div>
+              </div>  
+              ${this.matchPaths
+                ? html`
+                  <div style='margin-left:5px; cursor:pointer; align-self:center; color:var(--nav-text-color)' class='small-font-size primary-text bold-text' @click = '${this.onClearSearch}'> CLEAR </div>`
+                : ''
+              }
+            </div>
+          `
         }
-        ${(this.allowTry === 'false' || this.allowServerSelection === 'false')
-          ? ''
-          : html`<div id='link-api-servers' class='nav-bar-info' @click = '${(e) => this.scrollToEl(e)}' > API Servers </div>`
-        }
-        ${(this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes)
-          ? ''
-          : html`<div id='link-authentication'  class='nav-bar-info' @click = '${(e) => this.scrollToEl(e)}' > Authentication </div>`
-        }
+        ${html`<div class='nav-scroll'>
+          ${(this.showInfo === 'false' || !this.resolvedSpec.info)
+            ? ''
+            : html`<div id='link-overview' class='nav-bar-info'  @click = '${(e) => this.scrollToEl(e)}' > Overview </div>`
+          }
+          ${(this.allowTry === 'false' || this.allowServerSelection === 'false')
+            ? ''
+            : html`<div id='link-api-servers' class='nav-bar-info' @click = '${(e) => this.scrollToEl(e)}' > API Servers </div>`
+          }
+          ${(this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes)
+            ? ''
+            : html`<div id='link-authentication'  class='nav-bar-info' @click = '${(e) => this.scrollToEl(e)}' > Authentication </div>`
+          }
 
-        ${this.resolvedSpec.tags.map((tag) => html`
-          <div class='nav-bar-tag' id="link-${tag.name.replace(/[\s#:]/g, '-')}" @click='${(e) => this.scrollToEl(e)}'>
-            ${tag.name}
-          </div>
-          ${tag.paths.filter((v) => {
-            if (this.matchPaths) {
-              return `${v.method} ${v.path} ${v.summary}`.toLowerCase().includes(this.matchPaths.toLowerCase());
-            }
-            return true;
-          }).map((p) => html`
-          <div class='nav-bar-path' id='link-${p.method}-${p.path.replace(/[\s#:]/g, '-')}' @click='${(e) => this.scrollToEl(e)}'> 
-            <span> ${p.summary || p.path} </span>
-          </div>`)}
-        `)}
-        </div>`
-      }
-      <div class="cover-scroll-bar"></div>
-    </div>
-  `;
-}
+          ${this.resolvedSpec.tags.map((tag) => html`
+            <div class='nav-bar-tag' id="link-${tag.name.replace(/[\s#:]/g, '-')}" @click='${(e) => this.scrollToEl(e)}'>
+              ${tag.name}
+            </div>
+            ${tag.paths.filter((v) => {
+              if (this.matchPaths) {
+                return `${v.method} ${v.path} ${v.summary}`.toLowerCase().includes(this.matchPaths.toLowerCase());
+              }
+              return true;
+            }).map((p) => html`
+            <div class='nav-bar-path' id='link-${p.method}-${p.path.replace(/[\s#:]/g, '-')}' @click='${(e) => this.scrollToEl(e)}'> 
+              <span> ${p.summary || p.path} </span>
+            </div>`)}
+          `)}
+          </div>`
+        }
+        <div class="cover-scroll-bar"></div>
+      </div>
+    `;
+  }
 
   contactInfoTemplate() {
     return html`
@@ -584,46 +583,6 @@ export default class RapiDoc extends LitElement {
       </div>  
     `;
   }
-
-/*
-  endpointTemplate() {
-    return html`
-      ${this.resolvedSpec.tags.map((tag) => html`
-        <div class='regular-font section-gap'>
-          <div class="sub-title tag">${tag.name}</div>
-          <div class="regular-font-size">
-            ${tag.description
-              ? html`
-                ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(tag.description)}</div>`)}`
-              : ''
-            }
-          </div>
-        </div>
-        ${tag.paths.filter((v) => {
-          if (this.matchPaths) {
-            return `${v.method} ${v.path}`.includes(this.matchPaths);
-          }
-          return true;
-        }).map((path) => html`
-          <end-point
-            selected-server= "${this.selectedServer}"
-            api-key-name = "${this.apiKeyName ? this.apiKeyName : ''}"
-            api-key-value = "${this.apiKeyValue ? this.apiKeyValue : ''}"
-            api-key-location = "${this.apiKeyLocation}"
-            layout = "${this.layout}"
-            .path = ${path}
-            allow-try="${this.allowTry ? this.allowTry : 'true'}"
-            render-style = "${this.renderStyle}"
-            schema-style = "${this.schemaStyle}"
-            default-schema-tab = "${this.defaultSchemaTab}"
-            schema-expand-level = "${this.schemaExpandLevel}"
-            schema-description-expanded = "${this.schemaDescriptionExpanded}"
-          >
-          </end-point>`)
-        }`)
-      }`;
-  }
-*/
 
   expandedEndpointTemplate() {
     return expandedEndpointTemplate.call(this);
