@@ -4,9 +4,10 @@ info:
   version: 1.0.0
   title: Testing different data-types
 paths:
-  /simple-nested-object:
+  /nested-object:
     get:
       summary: response as containing nested object
+      description: check out [simple object](#get-/simple-object)
       tags:
         - A
       responses:
@@ -54,9 +55,10 @@ paths:
                         dependentLastName:
                           description: Dependent Last Name
                           type: string
-  /simple:
+  /simple-object:
     get:
-      summary: response as a simple object containing primitive properties
+      summary: response as a simple object containing primitive properties. 
+      description: check out [nested object](#get-/nested-object)
       tags:
         - B
       responses:
@@ -163,11 +165,11 @@ paths:
         required: true
 tags:
   - name: B
-    description: Nested Datatype
-  - name: A
-    description: Person Datatype
-  - name: C
     description: Simple Datatype
+  - name: A
+    description: Nested Datatype
+  - name: C
+    description: Person Datatype
 components:
   schemas:
     Category:

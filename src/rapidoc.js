@@ -6,13 +6,19 @@ import FontStyles from '@/styles/font-styles';
 import InputStyles from '@/styles/input-styles';
 import FlexStyles from '@/styles/flex-styles';
 import TableStyles from '@/styles/table-styles';
+import EndpointStyles from '@/styles/endpoint-styles';
+
 import SetTheme from '@/utils/theme';
 import ProcessSpec from '@/utils/spec-parser';
+import expandedEndpointTemplate from '@/templates/expanded-endpoint-template';
+import endpointTemplate from '@/templates/endpoint-template';
 
 import '@/components/m-logo';
-import '@/components/end-point';
-import '@/components/end-points-expanded';
 import '@/components/security-schemes';
+import '@/components/api-request';
+import '@/components/api-response';
+// import '@/components/end-point';
+
 
 export default class RapiDoc extends LitElement {
   constructor() {
@@ -93,6 +99,9 @@ export default class RapiDoc extends LitElement {
     if (!this.defaultSchemaTab || !'example model'.includes(this.defaultSchemaTab)) { this.defaultSchemaTab = 'model'; }
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) { this.schemaExpandLevel = 99999; }
     if (!this.schemaDescriptionExpanded || !'true false'.includes(this.schemaDescriptionExpanded)) { this.schemaDescriptionExpanded = 'false'; }
+    if (!this.allowTry || !'true false'.includes(this.allowTry)) { this.allowTry = 'true'; }
+    if (!this.apiKeyName) { this.apiKeyName = ''; }
+    if (!this.apiKeyValue) { this.apiKeyValue = ''; }
     if (!this.sortTags || !'true false'.includes(this.sortTags)) { this.sortTags = 'false'; }
   }
 
@@ -122,6 +131,7 @@ export default class RapiDoc extends LitElement {
       ${InputStyles}
       ${FlexStyles}
       ${TableStyles}
+      ${EndpointStyles}
       ${this.theme === 'dark' ? SetTheme('dark', newTheme) : SetTheme('light', newTheme)}
 
       <style>
@@ -296,6 +306,9 @@ export default class RapiDoc extends LitElement {
           height: 36px;
           animation: spin 2s linear infinite;
         }
+        .endpoint-body{ padding:24px 0px;}
+        .divider { border-top:2px solid var(--primary-color); width:100%; }
+
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
@@ -321,7 +334,9 @@ export default class RapiDoc extends LitElement {
           .section-gap--read-mode { 
             padding: 48px 24px 24px 24px; 
           }
-
+          .endpoint-body {
+            padding:36px 0 48px 0;
+          }
         }
 
         @media only screen and (min-width: 1000px) {
@@ -347,7 +362,7 @@ export default class RapiDoc extends LitElement {
           ${this.resolvedSpec
             ? html`
               ${(this.showInfo === 'false' || !this.resolvedSpec.info) ? '' : html`
-              <div id = 'content-overview' class = 'anchor ${this.renderStyle === 'read' ? 'section-gap--read-mode' : 'section-gap'}'>
+              <div id = 'overview' class = 'observe-me ${this.renderStyle === 'read' ? 'section-gap--read-mode' : 'section-gap'}'>
                 <div style = 'font-size:32px'>
                   ${this.resolvedSpec.info.title}
                   ${!this.resolvedSpec.info.version ? '' : html`
@@ -377,13 +392,14 @@ export default class RapiDoc extends LitElement {
                 ? ''
                 : this.securitySchemeTemplate()
               }
-
-              ${this.resolvedSpec.tags
-                ? this.renderStyle === 'read'
-                  ? this.endpointsExpandedTemplate()
-                  : this.endpointsGroupedByTagTemplate()
-                : ''
-              }`
+              <div @click="${(e) => { this.handleHref(e); }}">
+                ${this.resolvedSpec.tags
+                  ? this.renderStyle === 'read'
+                    ? this.expandedEndpointTemplate()
+                    : this.endpointTemplate()
+                  : ''
+                }
+              </div>`
             : ''
           }
           <slot name="footer"></slot>
@@ -437,7 +453,12 @@ export default class RapiDoc extends LitElement {
           <div style="position:sticky; top:0; display:flex; flex-direction:row; align-items: stretch; padding:16px 30px 16px 16px; background: var(--nav-bg-color);"> 
             <slot name="nav-logo" class="logo"></slot>
             <div style="display:flex; flex:1">
-              <input id="nav-bar-search" style="width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" type="text" placeholder="search" @change="${this.onSearchChange}"  spellcheck="false" >
+              <input id="nav-bar-search" 
+                style="width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" 
+                type="text" placeholder="search" 
+                @change="${this.onSearchChange}"  
+                spellcheck="false" 
+              >
               <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x23ce;</div>
             </div>  
             ${this.matchPaths
@@ -451,19 +472,19 @@ export default class RapiDoc extends LitElement {
       ${html`<div class='nav-scroll'>
         ${(this.showInfo === 'false' || !this.resolvedSpec.info)
           ? ''
-          : html`<div id = 'overview' class = 'nav-bar-info'  @click = '${(e) => this.scrollToEl(e)}' > Overview </div>`
+          : html`<div id='link-overview' class='nav-bar-info'  @click = '${(e) => this.scrollToEl(e)}' > Overview </div>`
         }
         ${(this.allowTry === 'false' || this.allowServerSelection === 'false')
           ? ''
-          : html`<div id = 'api-servers' class='nav-bar-info' @click = '${(e) => this.scrollToEl(e)}' > API Servers </div>`
+          : html`<div id='link-api-servers' class='nav-bar-info' @click = '${(e) => this.scrollToEl(e)}' > API Servers </div>`
         }
         ${(this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes)
           ? ''
-          : html`<div id = 'authentication'  class='nav-bar-info' @click = '${(e) => this.scrollToEl(e)}' > Authentication </div>`
+          : html`<div id='link-authentication'  class='nav-bar-info' @click = '${(e) => this.scrollToEl(e)}' > Authentication </div>`
         }
 
         ${this.resolvedSpec.tags.map((tag) => html`
-          <div class='nav-bar-tag' id="${tag.name.replace(/\s/g, '')}" @click='${(e) => this.scrollToEl(e)}'>
+          <div class='nav-bar-tag' id="link-${tag.name.replace(/[\s#:]/g, '-')}" @click='${(e) => this.scrollToEl(e)}'>
             ${tag.name}
           </div>
           ${tag.paths.filter((v) => {
@@ -472,7 +493,7 @@ export default class RapiDoc extends LitElement {
             }
             return true;
           }).map((p) => html`
-          <div class='nav-bar-path' data-goto_container='element-${tag.name.replace(/\s/g, '')}' id='${p.method}${p.path.replace(/\//g, '')}' @click='${(e) => this.scrollToEl(e)}'> 
+          <div class='nav-bar-path' id='link-${p.method}-${p.path.replace(/[\s#:]/g, '-')}' @click='${(e) => this.scrollToEl(e)}'> 
             <span> ${p.summary || p.path} </span>
           </div>`)}
         `)}
@@ -515,7 +536,7 @@ export default class RapiDoc extends LitElement {
 
   apiServerListTemplate() {
     return html`
-    <div id = 'content-api-servers' class='regular-font anchor ${this.renderStyle === 'read' ? 'section-gap--read-mode' : 'section-gap'}'>
+    <div id = 'api-servers' class='regular-font observe-me ${this.renderStyle === 'read' ? 'section-gap--read-mode' : 'section-gap'}'>
       <div class = 'sub-title'> API SERVER: </div>
       <div class = 'mono-font' style='margin: 12px 0; font-size:calc(var(--font-size-small) + 1px);'>
         ${!this.resolvedSpec.servers || (this.resolvedSpec.servers.length === 0)
@@ -552,7 +573,7 @@ export default class RapiDoc extends LitElement {
 
   securitySchemeTemplate() {
     return html`
-      <div id='content-authentication' class = 'anchor ${this.renderStyle === 'read' ? 'section-gap--read-mode' : 'section-gap '}'>
+      <div id='authentication' class = 'observe-me ${this.renderStyle === 'read' ? 'section-gap--read-mode' : 'section-gap '}'>
         <div class='sub-title regular-font'> AUTHENTICATION </div>
         <security-schemes 
           .schemes="${this.resolvedSpec.securitySchemes}"
@@ -564,10 +585,11 @@ export default class RapiDoc extends LitElement {
     `;
   }
 
-  endpointsGroupedByTagTemplate() {
+/*
+  endpointTemplate() {
     return html`
       ${this.resolvedSpec.tags.map((tag) => html`
-        <div class='regular-font section-gap'> 
+        <div class='regular-font section-gap'>
           <div class="sub-title tag">${tag.name}</div>
           <div class="regular-font-size">
             ${tag.description
@@ -584,71 +606,40 @@ export default class RapiDoc extends LitElement {
           return true;
         }).map((path) => html`
           <end-point
-            selected-server= "${this.selectedServer}" 
-            api-key-name = "${this.apiKeyName ? this.apiKeyName : ''}" 
-            api-key-value = "${this.apiKeyValue ? this.apiKeyValue : ''}" 
-            api-key-location = "${this.apiKeyLocation}" 
-            layout = "${this.layout}" 
+            selected-server= "${this.selectedServer}"
+            api-key-name = "${this.apiKeyName ? this.apiKeyName : ''}"
+            api-key-value = "${this.apiKeyValue ? this.apiKeyValue : ''}"
+            api-key-location = "${this.apiKeyLocation}"
+            layout = "${this.layout}"
             .path = ${path}
             allow-try="${this.allowTry ? this.allowTry : 'true'}"
-            render-style = "${this.renderStyle}" 
-            schema-style = "${this.schemaStyle}" 
+            render-style = "${this.renderStyle}"
+            schema-style = "${this.schemaStyle}"
             default-schema-tab = "${this.defaultSchemaTab}"
             schema-expand-level = "${this.schemaExpandLevel}"
             schema-description-expanded = "${this.schemaDescriptionExpanded}"
-          > 
+          >
           </end-point>`)
         }`)
       }`;
   }
+*/
 
-  endpointsExpandedTemplate() {
-    return html`
-      ${this.resolvedSpec.tags.map((tag) => html`
-        <div id="tag-${tag.name.replace(/\s/g, '')}" class='regular-font section-gap--read-mode anchor' style="border-top:1px solid var(--primary-color);">
-          <div class="title tag">${tag.name}</div>
-          <div class="regular-font-size">
-            ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(tag.description ? tag.description : '')}</div>`)}
-          </div>
-        </div>
-        <div class='regular-font section-gap--read-mode'>
-          <end-points-expanded
-            id = 'element-${tag.name.replace(/\s/g, '')}'
-            selected-server  = "${this.selectedServer ? this.selectedServer : ''}"  
-            api-key-name     = "${this.apiKeyName ? this.apiKeyName : ''}"
-            api-key-value    = "${this.apiKeyValue ? this.apiKeyValue : ''}"
-            api-key-location = "${this.apiKeyLocation ? this.apiKeyLocation : ''}"
-            layout           = "${this.layout ? this.layout : 'row'}"
-            .paths           = "${tag.paths}" 
-            allow-try        = "${this.allowTry ? this.allowTry : 'true'}"
-            match-paths      = "${this.matchPaths}"
-            schema-style     = "${this.schemaStyle}"
-            render-style     = "${this.renderStyle}"
-            default-schema-tab  = "${this.defaultSchemaTab}"
-            schema-expand-level = "${this.schemaExpandLevel}"
-            schema-description-expanded = "${this.schemaDescriptionExpanded}"
-          ></end-points-expanded>
-        </div>
-        `)
-      }
-    `;
+  expandedEndpointTemplate() {
+    return expandedEndpointTemplate.call(this);
   }
+
+  endpointTemplate() {
+    return endpointTemplate.call(this);
+  }
+
   /* eslint-enable indent */
 
   observeExpandedContent() {
     // Main Container
-    const observeOverviewEls = this.shadowRoot.querySelectorAll('.anchor');
+    const observeOverviewEls = this.shadowRoot.querySelectorAll('.observe-me');
     observeOverviewEls.forEach((targetEl) => {
       this.intersectionObserver.observe(targetEl);
-    });
-
-    // For each shadowroot
-    const containerEls = this.shadowRoot.querySelectorAll('end-points-expanded');
-    containerEls.forEach((el) => {
-      const observeTargetEls = el.shadowRoot.querySelectorAll('.anchor');
-      observeTargetEls.forEach((targetEl) => {
-        this.intersectionObserver.observe(targetEl);
-      });
     });
   }
 
@@ -788,14 +779,7 @@ export default class RapiDoc extends LitElement {
     entries.forEach((entry) => {
       if (entry.isIntersecting && entry.intersectionRatio > 0) {
         const oldNavEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active');
-        let newNavEl;
-        if (entry.target.id.startsWith('content-')) {
-          newNavEl = this.shadowRoot.getElementById(entry.target.id.replace('content-', ''));
-        } else if (entry.target.id.startsWith('tag-')) {
-          newNavEl = this.shadowRoot.getElementById(entry.target.id.replace('tag-', ''));
-        } else {
-          newNavEl = this.shadowRoot.getElementById(entry.target.id);
-        }
+        const newNavEl = this.shadowRoot.getElementById(`link-${entry.target.id}`);
 
         // Add active class in the new element
         if (newNavEl) {
@@ -811,17 +795,8 @@ export default class RapiDoc extends LitElement {
   }
 
   scrollToEl(e) {
-    const containerElId = e.currentTarget.dataset.goto_container;
     const navEl = e.currentTarget;
-    let contentEl;
-    if (['overview', 'api-servers', 'authentication'].includes(navEl.id)) {
-      contentEl = this.shadowRoot.getElementById(`content-${navEl.id}`);
-    } else if (navEl.classList.contains('nav-bar-tag')) {
-      contentEl = this.shadowRoot.getElementById(`tag-${navEl.id}`);
-    } else {
-      const containerEl = this.shadowRoot.getElementById(containerElId);
-      contentEl = containerEl.shadowRoot.getElementById(navEl.id);
-    }
+    const contentEl = this.shadowRoot.getElementById(`${navEl.id.replace('link-', '')}`);
 
     if (contentEl) {
       this.isIntersectionObserverActive = false;
@@ -834,6 +809,17 @@ export default class RapiDoc extends LitElement {
       setTimeout(() => {
         this.isIntersectionObserverActive = true;
       }, 300);
+    }
+  }
+
+  handleHref(e) {
+    if (e.target.tagName.toLowerCase() === 'a') {
+      if (e.target.getAttribute('href').startsWith('#')) {
+        const gotoEl = this.shadowRoot.getElementById(e.target.getAttribute('href').replace('#', ''));
+        if (gotoEl) {
+          gotoEl.scrollIntoView({ behavior: 'auto', block: 'start' });
+        }
+      }
     }
   }
 }
