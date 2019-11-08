@@ -396,7 +396,7 @@ export default class ApiRequest extends LitElement {
         ? html`${formDataHtml}`
         : html`
         <div class="tab-panel col" style="border-width:0 0 1px 0;">
-          <div class="tab-buttons row" @click="${(e) => { this.activeSchemaTab = e.target.dataset.tab; }}">
+          <div class="tab-buttons row" @click="${(e) => { if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; } }}">
             <button class="tab-btn ${this.activeSchemaTab === 'model' ? 'active' : ''}"   data-tab = 'model'  >MODEL</button>
             <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
             <div style="flex:1"> </div>
