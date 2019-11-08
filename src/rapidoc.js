@@ -723,7 +723,6 @@ export default class RapiDoc extends LitElement {
         this.selectedServer = this.resolvedSpec.servers[0].url;
       }
     }
-
     this.requestUpdate();
     // Put it at the end of event loop, to allow loading all the child elements (must for larger specs)
     this.intersectionObserver.disconnect();

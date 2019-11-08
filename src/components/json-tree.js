@@ -2,6 +2,15 @@ import { LitElement, html } from 'lit-element';
 import FontStyles from '@/styles/font-styles';
 
 export default class JsonTree extends LitElement {
+  static get properties() {
+    return {
+      isCopied: { type: Boolean },
+      data: { type: Object },
+      renderStyle: { type: String, attribute: 'render-style' },
+    };
+  }
+
+
   /* eslint-disable indent */
   render() {
     return html`
@@ -49,17 +58,25 @@ export default class JsonTree extends LitElement {
           width:100%;
           padding: 2px 0;
           color:var(--primary-color);
+          font-family: var(--font-regular);
+          margin-bottom:4px;
+          align-items: center;
+          font-size: calc(var(--font-size-small) - 1px);
         }
-        .toolbar-item{
+        .toolbar-btn{
           cursor:pointer;
-          padding:5px 0;
+          padding:4px 6px;
           margin:0 2px;
+          color:var(--primary-color-invert);
+          background-color: var(--primary-color);
+          border-radius:2px;
+          border:none;
         }
       </style>
       <div class="json-tree ${this.renderStyle === 'read' ? 'tree-border' : ''}" >
         <div class='toolbar'> 
-          <div style="flex:1"></div>
-          <div class='toolbar-item' @click='${this.toggleDescrExpand}'> </div>
+          <button  class="toolbar-btn" @click='${(e) => { this.copyExample(this.data, e); }}'> COPY </button>
+          <span style="margin-left:8px; color:var(--green)"> ${this.isCopied ? 'Copied' : ''} </span>
         </div>
         ${this.generateTree(this.data)}
       </div>  
@@ -95,29 +112,23 @@ export default class JsonTree extends LitElement {
   }
   /* eslint-enable indent */
 
-  static get properties() {
-    return {
-      data: { type: Object },
-      renderStyle: { type: String, attribute: 'render-style' },
-    };
-  }
-
-  toggleExpand(e) {
-    if (e.target.classList.contains('expanded')) {
-      e.target.classList.add('collapsed');
-      e.target.classList.remove('expanded');
-      e.target.innerHTML = e.target.classList.contains('array') ? '[...]' : '{...}';
-      e.target.nextElementSibling.style.display = 'none';
-      e.target.nextElementSibling.nextElementSibling.style.display = 'none';
-    } else {
-      e.target.classList.remove('collapsed');
-      e.target.classList.add('expanded');
-      e.target.innerHTML = e.target.classList.contains('array') ? '[' : '{';
-      e.target.nextElementSibling.style.display = 'block';
-      e.target.nextElementSibling.nextElementSibling.style.display = 'block';
+  copyExample(data) {
+    const textArea = document.createElement('textarea');
+    textArea.value = JSON.stringify(data, null, 2);
+    textArea.style.position = 'fixed'; // avoid scrolling to bottom
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      this.isCopied = true;
+      setTimeout(() => {
+        this.isCopied = false;
+      }, 3000);
+    } catch (err) {
+      console.error('Unable to copy', err); // eslint-disable-line no-console
     }
-
-    // console.log(e.target.parentElement.querySelectorAll(":scope > .inside-bracket"));
+    document.body.removeChild(textArea);
   }
 }
 // Register the element with the browser
