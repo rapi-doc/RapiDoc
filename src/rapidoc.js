@@ -306,7 +306,7 @@ export default class RapiDoc extends LitElement {
           height: 36px;
           animation: spin 2s linear infinite;
         }
-        .endpoint-body{ padding:24px 0px;}
+        .expanded-endpoint-body{ padding:24px 0px;}
         .divider { border-top:2px solid var(--primary-color); width:100%; }
 
         @keyframes spin {

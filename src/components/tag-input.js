@@ -61,8 +61,9 @@ export default class TagInput extends LitElement {
         border:1px solid var(--border-color);
         cursor:text;
         overflow:hidden;
+        background:var(--input-bg);
       }
-      .tag, .editor{
+      .tag, .editor {
         padding:3px;
         margin:2px;
       }
@@ -72,7 +73,7 @@ export default class TagInput extends LitElement {
         color:var(--fg3);
         border-radius:var(--border-radius);
         word-break: break-all;
-        cursor: none;
+        font-size: calc(var(--font-size-small) + 1px);
       }
       .tag:hover ~ #cursor {
         display: block;
@@ -80,13 +81,13 @@ export default class TagInput extends LitElement {
       .editor{
         flex:1;
         border:1px solid transparent;
-        background:var(--input-bg);
         color:var(--fg);
         min-width:60px;
         outline: none;
         line-height: inherit;
         font-family:inherit;
-        font-size:inherit;
+        background:transparent;
+        font-size: calc(var(--font-size-small) + 1px);
       }
       .editor::placeholder {
         color: var(--placeholder-color);

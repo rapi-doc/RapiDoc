@@ -10,10 +10,10 @@ export default function setTheme(baseTheme, theme = {}) {
     const fg1 = theme.fg1 ? theme.fg1 : '#bbb';
 
     const bg2 = theme.bg2 ? theme.bg2 : ColorUtils.color.brightness(bg1, 5); // or #383838;
-    const bg3 = theme.bg3 ? theme.bg3 : ColorUtils.color.brightness(bg1, 15); // or #444;
+    const bg3 = theme.bg3 ? theme.bg3 : ColorUtils.color.brightness(bg1, 17); // or #444;
     const fg2 = theme.fg2 ? theme.fg2 : ColorUtils.color.brightness(fg1, -15); // or #ababab
     const fg3 = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, -20); // or #aaa
-    const lightFg = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, -80); // or #777
+    const lightFg = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, -65); // or #777
     const headerColor = theme.headerColor ? theme.headerColor : ColorUtils.color.brightness(bg1, 10);
 
     const navBgColor = theme.navBgColor ? theme.navBgColor : ColorUtils.color.brightness(bg1, 10);
@@ -81,7 +81,7 @@ export default function setTheme(baseTheme, theme = {}) {
 
     const fg2 = theme.fg2 ? theme.fg2 : ColorUtils.color.brightness(fg1, 17); // or '#555'
     const fg3 = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, 30); // or #666
-    const lightFg = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, 80); // or #999
+    const lightFg = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, 70); // or #999
     const headerColor = theme.headerColor ? theme.headerColor : ColorUtils.color.brightness(bg1, -180);
 
     const navBgColor = theme.navBgColor ? theme.navBgColor : ColorUtils.color.brightness(bg1, -10);

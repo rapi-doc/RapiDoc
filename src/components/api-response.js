@@ -141,7 +141,7 @@ export default class ApiResponse extends LitElement {
 
       ${Object.keys(this.responses).map((status) => html`
         <div style = 'display: ${status === this.selectedStatus ? 'block' : 'none'}' >
-          <div class="top-gap ">
+          <div class="top-gap">
             <span class="resp-status">${status}:</span> 
             <span class="resp-descr">${this.responses[status].description}</span> 
             ${(this.headersForEachRespStatus[status] && this.headersForEachRespStatus[status].length > 0)
