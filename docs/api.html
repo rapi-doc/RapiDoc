@@ -90,6 +90,18 @@
             <td class="gray">Heading Text on top-left corner </td>
             <td>(empty)</td>
           </tr>
+          <tr>
+            <td class="mono bold right">goto-path</td>
+            <td class="gray"> 
+              Initial location on the document(identified by method and path) where you want to go after the spec is loaded.
+              <br/>
+              <span class='mono blue bold'>goto-path</span> should be in the form of {method}-{path}
+              <br/>
+              for instance you want to scrollTo <span class = "mono"> GET /user/login </span> 
+              you should provide the location as <span class="mono dark-gray"> get-/user/login</span>              
+            </td>
+            <td>(empty)</td>
+          </tr>
         </table>
 
         <div class='table-title' id="colors"> UI Colors and Fonts </div>
@@ -358,7 +370,7 @@
             <th class="default-col"></th>
           </tr>
           <tr>
-            <td class="attr-col mono bold right">loadSpec() </td>
+            <td class="mono bold right">loadSpec() </td>
             <td class="gray">To programatically load spec. The method takes  
               <ul>
                 <li> either a string containing the url of the specs</li>  
@@ -366,6 +378,16 @@
               </ul>
             </td>
             <td> <a href="https://github.com/mrin9/RapiDoc/blob/master/docs/examples/example9.html"> Example </a></td>
+          </tr>
+          <tr>
+            <td class="mono bold right">scrollTo(path) </td>
+            <td class="gray" colspan="2">
+              To programatically scroll to a section (identified by combination method and path). 
+              <br/>
+              <span class='mono blue'>path</span> shoud be provided in the format of {method}-{path}
+              for instance you want to scrollTo <span class = "mono">GET /user/login</span> 
+              you should provide the location as <span class="dark-gray"> get-/user/login</span>
+            </td>
           </tr>
         </table>
       </div>

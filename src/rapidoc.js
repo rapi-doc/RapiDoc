@@ -36,6 +36,7 @@ export default class RapiDoc extends LitElement {
       // Logo & Heading
       headingText: { type: String, attribute: 'heading-text' },
       logoUrl: { type: String, attribute: 'logo-url' },
+      gotoPath: { type: String, attribute: 'goto-path' },
 
       // Spec
       specUrl: { type: String, attribute: 'spec-url' },
@@ -610,6 +611,14 @@ export default class RapiDoc extends LitElement {
         window.setTimeout(() => {
           this.loadSpec(newVal);
         }, 0);
+
+        // If goto-path is provided then try to scroll there
+        window.setTimeout(() => {
+          if (this.gotoPath) {
+            this.scrollTo(this.gotoPath);
+          }
+          this.loadSpec(newVal);
+        }, 100);
       }
     }
     if (name === 'render-style') {
@@ -668,12 +677,6 @@ export default class RapiDoc extends LitElement {
     const searchEl = this.shadowRoot.getElementById('nav-bar-search');
     searchEl.value = '';
     this.matchPaths = '';
-  }
-
-  // Public Method
-  updateTheme(baseTheme, objTheme = {}) {
-    SetTheme(baseTheme, objTheme);
-    this.render();
   }
 
   // Public Method
@@ -779,6 +782,14 @@ export default class RapiDoc extends LitElement {
           gotoEl.scrollIntoView({ behavior: 'auto', block: 'start' });
         }
       }
+    }
+  }
+
+  // Public Method
+  scrollTo(path) {
+    const gotoEl = this.shadowRoot.getElementById(path);
+    if (gotoEl) {
+      gotoEl.scrollIntoView({ behavior: 'auto', block: 'start' });
     }
   }
 }
