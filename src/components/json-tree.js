@@ -66,25 +66,32 @@ export default class JsonTree extends LitElement {
     `;
   }
 
-  generateTree(data) {
+  generateTree(data, isLast = false) {
     if (data === null) {
       return html`<div class="null" style="display:inline;">null</div>`;
     }
     if (typeof data === 'object') {
       const detailType = Array.isArray(data) ? 'array' : 'pure_object';
       if (Object.keys(data).length === 0) {
-        return html`${(Array.isArray(data) ? '[ ]' : '{ }')}`;
+        return html`${(Array.isArray(data) ? '[ ],' : '{ },')}`;
       }
       return html`
       <div class="left-bracket expanded ${detailType === 'array' ? 'array' : 'object'} " @click="${this.toggleExpand}" > ${detailType === 'array' ? '[' : '{'}</div>
         <div class="inside-bracket">
-        ${Object.keys(data).map((key) => html`<div class="item"> ${detailType === 'pure_object' ? html`${key}:` : ''}${this.generateTree(data[key])}</div>`)}
+        ${Object.keys(data).map((key, i, a) => html`
+          <div class="item"> 
+            ${detailType === 'pure_object' ? html`${key}:` : ''}
+            ${this.generateTree(data[key], i === (a.length - 1))}
+          </div>`)
+        }
         </div>
-      <div class="right-bracket">${detailType === 'array' ? '],' : '},'}</div>
+      <div class="right-bracket">${detailType === 'array' ? ']' : '}'}${isLast ? '' : ','}</div>
       `;
     }
 
-    return typeof data === 'string' ? html`<span class="${typeof data}">"${data}"</span>,` : html`<span class="${typeof data}">${data}</span>,`;
+    return typeof data === 'string'
+      ? html`<span class="${typeof data}">"${data}"</span>${isLast ? '' : ','}`
+      : html`<span class="${typeof data}">${data}</span>${isLast ? '' : ','}`;
   }
   /* eslint-enable indent */
 

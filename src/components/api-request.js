@@ -743,7 +743,6 @@ export default class ApiRequest extends LitElement {
       tryBtnEl.disabled = true;
       // await wait(1000);
       const resp = await fetch(fetchUrl, fetchOptions);
-      debugger;
       tryBtnEl.disabled = false;
       me.responseStatus = resp.ok ? 'success' : 'error';
       me.responseMessage = `${resp.statusText}:${resp.status}`;
