@@ -1,0 +1,23 @@
+id:
+  type: integer
+  example: 1
+title:
+  type: string
+  example: Google
+link:
+  type: string
+  example: https://google.com
+descrition:
+  type: string
+  example: Online search tool
+createdAt:
+  type: string
+  format: date-time
+updatedAt:
+  type: string
+  format: date-time
+tags:
+  type: array
+  items:
+    properties:
+      $ref: ../../../../specs/partial-spec/tag-schema.yml

@@ -64,7 +64,7 @@
       window.addEventListener('DOMContentLoaded', (event) => {
         const urlParams = new URLSearchParams(window.location.search);
 
-        const specUrl = urlParams.get('spec');
+        let specUrl = urlParams.get('spec');
         const baseTheme = urlParams.get('theme');
         const renderStyle = urlParams.get('render-style');
         const bgColor = urlParams.get('bg-color');
@@ -72,8 +72,16 @@
         const navBg = urlParams.get('nav-bg');
         const primaryColor = urlParams.get('primary-color');
         const goto = urlParams.get('goto');
-        
         const rapidocEl = getRapiDoc();
+        
+        if(!specUrl) {
+          specUrl = '../specs/petstore.json'
+        }
+        rapidocEl.setAttribute('render-style', 'read');
+        console.log('render-style must be read , actually value is %s', rapidocEl.getAttribute('render-style'));
+        rapidocEl.setAttribute('render-style', 'view');
+        console.log('render-style must be view , actually value is %s', rapidocEl.getAttribute('render-style'));
+
         if (baseTheme) {
           rapidocEl.setAttribute('theme', baseTheme);
         }
@@ -81,13 +89,13 @@
           rapidocEl.setAttribute('render-style', renderStyle);
         }
         if (bgColor) {
-          rapidocEl.setAttribute('bg-color', bgColor);
+          rapidocEl.setAttribute('bg-color', `#${bgColor}`);
         }
         if (textColor) {
-          rapidocEl.setAttribute('text-color', textColor);
+          rapidocEl.setAttribute('text-color', `#${textColor}`);
         }
         if (navBg) {
-          rapidocEl.setAttribute('nav-bg-color', navBg);
+          rapidocEl.setAttribute('nav-bg-color', `#${navBg}`);
         }
         if (goto) {
           rapidocEl.setAttribute('goto-path', goto);

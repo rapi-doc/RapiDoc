@@ -8,6 +8,7 @@ import FlexStyles from '@/styles/flex-styles';
 import TableStyles from '@/styles/table-styles';
 import EndpointStyles from '@/styles/endpoint-styles';
 
+import { isValidHexColor } from '@/utils/color-utils';
 import SetTheme from '@/utils/theme';
 import ProcessSpec from '@/utils/spec-parser';
 import expandedEndpointTemplate from '@/templates/expanded-endpoint-template';
@@ -116,15 +117,15 @@ export default class RapiDoc extends LitElement {
   /* eslint-disable indent */
   render() {
     const newTheme = {
-      bg1: this.bgColor,
-      fg1: this.textColor,
-      headerColor: this.headerColor,
-      primaryColor: this.primaryColor,
-      navBgColor: this.navBgColor,
-      navTextColor: this.navTextColor,
-      navHoverBgColor: this.navHoverBgColor,
-      navHoverTextColor: this.navHoverTextColor,
-      navAccentColor: this.navAccentColor,
+      bg1: isValidHexColor(this.bgColor) ? this.bgColor : '',
+      fg1: isValidHexColor(this.textColor) ? this.textColor : '',
+      headerColor: isValidHexColor(this.headerColor) ? this.headerColor : '',
+      primaryColor: isValidHexColor(this.primaryColor) ? this.primaryColor : '',
+      navBgColor: isValidHexColor(this.navBgColor) ? this.navBgColor : '',
+      navTextColor: isValidHexColor(this.navTextColor) ? this.navTextColor : '',
+      navHoverBgColor: isValidHexColor(this.navHoverBgColor) ? this.navHoverBgColor : '',
+      navHoverTextColor: isValidHexColor(this.navHoverTextColor) ? this.navHoverTextColor : '',
+      navAccentColor: isValidHexColor(this.navAccentColor) ? this.navAccentColor : '',
     };
     return html`
       ${FontStyles}
@@ -484,7 +485,7 @@ export default class RapiDoc extends LitElement {
           }
 
           ${this.resolvedSpec.tags.map((tag) => html`
-            <div class='nav-bar-tag' id="link-${tag.name.replace(/[\s#:]/g, '-')}" @click='${(e) => this.scrollToEl(e)}'>
+            <div class='nav-bar-tag' id="link-${tag.name.replace(/[\s#:?&=]/g, '-')}" @click='${(e) => this.scrollToEl(e)}'>
               ${tag.name}
             </div>
             ${tag.paths.filter((v) => {
@@ -493,7 +494,7 @@ export default class RapiDoc extends LitElement {
               }
               return true;
             }).map((p) => html`
-            <div class='nav-bar-path' id='link-${p.method}-${p.path.replace(/[\s#:]/g, '-')}' @click='${(e) => this.scrollToEl(e)}'> 
+            <div class='nav-bar-path' id='link-${p.method}-${p.path.replace(/[\s#:?&=]/g, '-')}' @click='${(e) => this.scrollToEl(e)}'> 
               <span> ${p.summary || p.path} </span>
             </div>`)}
           `)}
@@ -604,21 +605,16 @@ export default class RapiDoc extends LitElement {
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
-    super.attributeChangedCallback(name, oldVal, newVal);
     if (name === 'spec-url') {
       if (oldVal !== newVal) {
         // put it at the end of event-loop to load all the attributes
-        window.setTimeout(() => {
-          this.loadSpec(newVal);
-        }, 0);
-
-        // If goto-path is provided then try to scroll there
-        window.setTimeout(() => {
+        window.setTimeout(async () => {
+          await this.loadSpec(newVal);
+          // If goto-path is provided then try to scroll there
           if (this.gotoPath) {
             this.scrollTo(this.gotoPath);
           }
-          this.loadSpec(newVal);
-        }, 100);
+        }, 0);
       }
     }
     if (name === 'render-style') {
@@ -630,6 +626,7 @@ export default class RapiDoc extends LitElement {
         this.intersectionObserver.disconnect();
       }
     }
+    super.attributeChangedCallback(name, oldVal, newVal);
   }
 
   onSepcUrlChange() {

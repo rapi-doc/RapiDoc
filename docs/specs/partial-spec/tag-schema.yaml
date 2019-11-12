@@ -1,0 +1,12 @@
+id:
+  type: integer
+  example: 1
+title:
+  type: string
+  example: Backend
+createdAt:
+  type: string
+  format: date-time
+updatedAt:
+  type: string
+  format: date-time

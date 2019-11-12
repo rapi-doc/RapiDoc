@@ -93,7 +93,7 @@ export default function endpointTemplate() {
   return html`
     ${this.resolvedSpec.tags.map((tag) => html`
     <div class='regular-font section-gap'> 
-      <div class="sub-title tag">${tag.name}</div>
+      <div id='${tag.name.replace(/[\s#:?&=]/g, '-')}' class="sub-title tag">${tag.name}</div>
       <div class="regular-font-size">
         ${tag.description
           ? html`
@@ -108,7 +108,7 @@ export default function endpointTemplate() {
       }
       return true;
     }).map((path) => html`
-      <div id='${path.method}-${path.path.replace(/[\s#:]/g, '-')}' class='m-endpoint regular-font ${path.method} ${path.expanded ? 'expanded' : 'collapsed'}'>
+      <div id='${path.method}-${path.path.replace(/[\s#:?&=]/g, '-')}' class='m-endpoint regular-font ${path.method} ${path.expanded ? 'expanded' : 'collapsed'}'>
         ${endpointHeadTemplate.call(this, path)}      
         ${path.expanded ? endpointBodyTemplate.call(this, path) : ''}
       </div>
