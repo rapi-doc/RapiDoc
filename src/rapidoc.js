@@ -448,11 +448,13 @@ export default class RapiDoc extends LitElement {
   navBarTemplate() {
     return html`
       <div class='nav-bar'>
+        <div style="padding:16px 30px 0 16px;">
+          <slot name="nav-logo" class="logo"></slot>
+        </div>
         ${(this.allowSearch === 'false')
           ? ''
           : html`
-            <div style="position:sticky; top:0; display:flex; flex-direction:row; align-items: stretch; padding:16px 30px 16px 16px; background: var(--nav-bg-color);"> 
-              <slot name="nav-logo" class="logo"></slot>
+            <div style="position:sticky; top:0; display:flex; flex-direction:row; align-items: stretch; padding:16px 30px 16px 16px; background: var(--nav-bg-color);">
               <div style="display:flex; flex:1">
                 <input id="nav-bar-search" 
                   style="width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" 
