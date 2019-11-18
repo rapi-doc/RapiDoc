@@ -13,9 +13,10 @@ import SetTheme from '@/utils/theme';
 import ProcessSpec from '@/utils/spec-parser';
 import expandedEndpointTemplate from '@/templates/expanded-endpoint-template';
 import endpointTemplate from '@/templates/endpoint-template';
+import serverTemplate from '@/templates/server-template';
+import securitySchemeTemplate from '@/templates/security-scheme-template';
 
 import '@/components/m-logo';
-import '@/components/security-schemes';
 import '@/components/api-request';
 import '@/components/api-response';
 
@@ -54,8 +55,8 @@ export default class RapiDoc extends LitElement {
 
       // API Server
       apiKeyName: { type: String, attribute: 'api-key-name' },
-      apiKeyValue: { type: String, attribute: 'api-key-value' },
       apiKeyLocation: { type: String, attribute: 'api-key-location' },
+      apiKeyValue: { type: String, attribute: 'api-key-value' },
       selectedServer: { type: String, attribute: 'default-api-server' },
       serverUrl: { type: String, attribute: 'server-url' },
 
@@ -387,7 +388,7 @@ export default class RapiDoc extends LitElement {
 
               ${(this.allowTry === 'false' || this.allowServerSelection === 'false')
                 ? ''
-                : this.apiServerListTemplate()
+                : this.serverTemplate()
               } 
               ${(this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes)
                 ? ''
@@ -537,55 +538,28 @@ export default class RapiDoc extends LitElement {
     </div>`;
   }
 
-  apiServerListTemplate() {
-    return html`
-    <div id = 'api-servers' class='regular-font observe-me ${this.renderStyle === 'read' ? 'section-gap--read-mode' : 'section-gap'}'>
-      <div class = 'sub-title'> API SERVER: </div>
-      <div class = 'mono-font' style='margin: 12px 0; font-size:calc(var(--font-size-small) + 1px);'>
-        ${!this.resolvedSpec.servers || (this.resolvedSpec.servers.length === 0)
-          ? ''
-          : html`
-            ${this.resolvedSpec.servers.map((server) => html`
-              <input type = 'radio' 
-                name = 'api_server' 
-                value = '${server.url}' 
-                @change = '${(e) => this.onApiServerChange(e, server.url)}'
-                .checked = '${this.selectedServer === server.url}'
-                style = 'margin:4px 0'
-              />
-                ${server.url} ${server.description ? html`- ${server.description}` : ''}
-              <br/>
-            `)}
-        `}
-        ${(this.serverUrl)
-          ? html`
-            <input type='radio' 
-              name = 'api_server' 
-              value = '${this.serverUrl}' 
-              @change = '${(e) => this.onApiServerChange(e, this.serverUrl)}'
-              .checked = '${this.selectedServer === this.serverUrl}'
-              style = 'margin:4px 0'
-            />
-              ${this.serverUrl}
-            <br/>`
-          : ''
-        }
-      </div>
-    </div>`;
-  }
-
+  /*
   securitySchemeTemplate() {
     return html`
       <div id='authentication' class = 'observe-me ${this.renderStyle === 'read' ? 'section-gap--read-mode' : 'section-gap '}'>
         <div class='sub-title regular-font'> AUTHENTICATION </div>
-        <security-schemes 
+        <security-schemes
           .schemes="${this.resolvedSpec.securitySchemes}"
           selected-api-key-name  = "${this.apiKeyName ? this.apiKeyName : ''}"
           selected-api-key-value = "${this.apiKeyValue ? this.apiKeyValue : ''}"
           @change="${this.onSecurityChange}"
         ></security-schemes>
-      </div>  
+      </div>
     `;
+  }
+  */
+
+  serverTemplate() {
+    return serverTemplate.call(this);
+  }
+
+  securitySchemeTemplate() {
+    return securitySchemeTemplate.call(this);
   }
 
   expandedEndpointTemplate() {
@@ -662,11 +636,13 @@ export default class RapiDoc extends LitElement {
     }
   }
 
+  /*
   onSecurityChange(e) {
     this.apiKeyName = e.detail.keyName;
     this.apiKeyValue = e.detail.keyValue;
     this.apiKeyLocation = e.detail.keyLocation;
   }
+  */
 
   onSearchChange(e) {
     this.matchPaths = e.target.value;
@@ -684,17 +660,17 @@ export default class RapiDoc extends LitElement {
       return;
     }
 
-    /*
-    this.apiKeyName = '';
-    this.apiKeyValue = '';
-    this.apiKeyLocation = '';
-    this.selectedServer = '';
-    */
     this.matchPaths = '';
     try {
       this.loading = true;
       this.loadFailed = false;
-      const spec = await ProcessSpec(specUrl, this.sortTags === 'true');
+      const spec = await ProcessSpec(
+        specUrl,
+        this.sortTags === 'true',
+        this.getAttribute('api-key-name'),
+        this.getAttribute('api-key-location'),
+        this.getAttribute('api-key-value'),
+      );
       this.loading = false;
       if (spec === undefined || spec === null) {
         console.error('Unable to resolve the API spec. '); // eslint-disable-line no-console
@@ -711,6 +687,16 @@ export default class RapiDoc extends LitElement {
 
   afterSpecParsedAndValidated(spec) {
     this.resolvedSpec = spec;
+
+    if (this.getAttribute('api-key-name') && this.getAttribute('api-key-location') && this.getAttribute('api-key-value')) {
+      this.selected_api_keys = [{
+        apiKeyId: '_rapidoc_key_',
+        apiKeyName: this.getAttribute('api-key-name'),
+        apiKeyLocation: this.getAttribute('api-key-location'),
+        apiKeyValue: this.getAttribute('api-key-value'),
+      }];
+    }
+
     let isSelectedServerValid = false;
     if (this.selectedServer) {
       isSelectedServerValid = (this.selectedServer === this.serverUrl || this.resolvedSpec.servers.find((v) => (v.url === this.selectedServer)));

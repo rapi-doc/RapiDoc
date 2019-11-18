@@ -11,6 +11,7 @@ input, select, button {
 /* Button */
 .m-btn {
   border-radius: var(--border-radius);
+  box-sizing: border-box;
   font-weight: 600;
   display: inline-block;
   padding: 6px 16px;
@@ -29,6 +30,7 @@ input, select, button {
   background-color:var(--primary-color);
   color:var(--primary-color-invert);
 }
+.m-btn.thin-border { border-width: 1px;}
 .m-btn.large { padding:8px 14px;}
 .m-btn.small { padding:5px 12px;}
 .m-btn.circle { border-radius:50%;}

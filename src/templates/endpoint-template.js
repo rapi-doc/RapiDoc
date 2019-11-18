@@ -42,7 +42,7 @@ function endpointBodyTemplate(path) {
     }
   }
   accept = accept.replace(/,\s*$/, ''); // remove trailing comma
-
+  const nonEmptyApiKeys = this.resolvedSpec.securitySchemes.filter((v) => (v.finalKeyValue)) || [];
   return html`
   <div class='endpoint-body ${path.method}'>
     ${path.summary || path.description
@@ -63,11 +63,9 @@ function endpointBodyTemplate(path) {
       <api-request  class="request"  
         method = "${path.method}", 
         path = "${path.path}" 
-        .parameters = "${path.parameters}" 
+        .parameters = "${path.parameters}"
         .request_body = "${path.requestBody}"
-        api-key-name = "${this.apiKeyName ? this.apiKeyName : ''}" 
-        api-key-value = "${this.apiKeyValue ? this.apiKeyValue : ''}" 
-        api-key-location = "${this.apiKeyLocation ? this.apiKeyLocation : ''}" 
+        .api_keys = "${nonEmptyApiKeys}"
         selected-server = "${this.selectedServer}" 
         active-schema-tab = "${this.defaultSchemaTab}" 
         allow-try = "${this.allowTry}"

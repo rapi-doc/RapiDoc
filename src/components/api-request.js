@@ -28,14 +28,12 @@ export default class ApiRequest extends LitElement {
 
   static get properties() {
     return {
-      apiKeyName: { type: String, attribute: 'api-key-name' },
-      apiKeyValue: { type: String, attribute: 'api-key-value' },
-      apiKeyLocation: { type: String, attribute: 'api-key-location' },
       selectedServer: { type: String, attribute: 'selected-server' },
       method: { type: String },
       path: { type: String },
       parameters: { type: Array },
       request_body: { type: Object },
+      api_keys: { type: Array },
       parser: { type: Object },
       accept: { type: String },
       responseMessage: { type: String, attribute: false },
@@ -104,7 +102,7 @@ export default class ApiRequest extends LitElement {
         color:var(--blue);
       }
 
-      @media only screen and (min-width: 768px){
+      @media only screen and (min-width: 768px) {
         .textarea {
           padding:16px;
         }
@@ -463,21 +461,23 @@ export default class ApiRequest extends LitElement {
     return html`
     <div style="display:flex; align-items: center; margin:16px 0; font-size:var(--font-size-small);">
       <div style="display:flex; flex-direction:column; margin:0; width:calc(100% - 60px);">
-        <div style="display:flex;flex-direction:row;overflow:hidden;"> <div style="font-weight:bold;padding-right:5px;">API SERVER: </div> 
+        <div style="display:flex;flex-direction:row;overflow:hidden;"> 
+          <div style="font-weight:bold;padding-right:5px;">API SERVER: </div> 
           ${this.selectedServer
             ? html`${this.selectedServer}`
             : html`<div style="font-weight:bold;color:var(--red)">Not Set</div>`
           }
         </div>
-        <div style="display:flex;flex-direction:row;overflow:hidden;line-height:16px;color:var(--fg3)"> 
-          ${this.apiKeyValue && this.apiKeyName
-            ? html`
-                <div style="font-weight:bold;color:var(--blue)">Authentication: &nbsp; </div>
-                send <div style="font-family:var(--font-mono); color:var(--fg)"> '${this.apiKeyName}' </div>
-                in<div style="font-family:var(--font-mono); color:var(--fg)"> '${this.apiKeyLocation}' </div>
-                with value<div style="font-family:var(--font-mono); color:var(--fg)"> '${`${this.apiKeyValue.substring(0, 3)}***`}' </div>
-              `
-            : html`<div style="color:var(--light-fg)">No Authentication Token provided</div>`
+        <div style="display:flex;">
+          <div style="padding-right:5px;">Authentication: </div>
+          ${this.api_keys.length > 0
+            ? html`<div style="font-weight:bold;color:var(--blue); overflow:hidden;"> 
+                ${this.api_keys.length === 1
+                  ? `API Key '${this.api_keys[0].name}' in ${this.api_keys[0].in}`
+                  : `${this.api_keys.length} API keys applied`
+                } 
+              </div>`
+            : html`<div style="font-weight:bold; color:var(--red)">No API key applied</div>`
           }
         </div>
       </div>
@@ -626,9 +626,11 @@ export default class ApiRequest extends LitElement {
 
 
     // Add authentication Query-Param if provided
-    if (this.apiKeyValue && this.apiKeyName && this.apiKeyLocation === 'query') {
-      fetchUrl = `${fetchUrl}${fetchUrl.includes('?') ? '&' : '?'}${this.apiKeyName}=${encodeURIComponent(this.apiKeyValue)}`;
-    }
+    this.api_keys
+      .filter((v) => (v.in === 'query'))
+      .forEach((v) => {
+        fetchUrl = `${fetchUrl}${fetchUrl.includes('?') ? '&' : '?'}${v.name}=${encodeURIComponent(v.finalKeyValue)}`;
+      });
 
     // Final URL for API call
     fetchUrl = `${this.selectedServer.replace(/\/$/, '')}${fetchUrl}`;
@@ -653,10 +655,12 @@ export default class ApiRequest extends LitElement {
       }
     });
     // Add Authentication Header if provided
-    if (this.apiKeyValue && this.apiKeyName && this.apiKeyLocation === 'header') {
-      fetchOptions.headers[this.apiKeyName] = this.apiKeyValue;
-      curlHeaders += ` -H "${this.apiKeyName}: ${this.apiKeyValue}"`;
-    }
+    this.api_keys
+      .filter((v) => (v.in === 'header'))
+      .forEach((v) => {
+        fetchOptions.headers[v.name] = v.finalKeyValue;
+        curlHeaders += ` -H "${v.name}: ${v.finalKeyValue}"`;
+      });
 
     // Submit Form Params (url-encoded or form-data)
     if (formParamEls.length >= 1) {

@@ -5,6 +5,21 @@ import '@/components/api-request';
 import '@/components/api-response';
 
 /* eslint-disable indent */
+function callbackTemplate(callbacks) {
+  const callbackPaths = [];
+  Object.keys(callbacks).forEach((cb) => {
+    Object.keys(callbacks[cb]).forEach((p) => {
+      callbackPaths.push({
+        path: p,
+      });
+    });
+  });
+
+  return html`
+    <div class="req-res-title">CALLBACKS</div>
+  `;
+}
+
 function endpointBodyTemplate(path) {
   let accept = '';
   for (const respStatus in path.responses) {
@@ -13,7 +28,7 @@ function endpointBodyTemplate(path) {
     }
   }
   accept = accept.replace(/,\s*$/, ''); // remove trailing comma
-
+  const nonEmptyApiKeys = this.resolvedSpec.securitySchemes.filter((v) => (v.finalKeyValue)) || [];
   return html`
   <div class='divider'></div>
   <div class='expanded-endpoint-body observe-me ${path.method}' id='${path.method}-${path.path.replace(/[\s#:?&=]/g, '-')}' >
@@ -40,12 +55,10 @@ function endpointBodyTemplate(path) {
       <api-request  class="request-panel"  
         method = "${path.method}", 
         path = "${path.path}" 
-        api-key-name = "${this.apiKeyName ? this.apiKeyName : ''}" 
-        api-key-value = "${this.apiKeyValue ? this.apiKeyValue : ''}" 
-        api-key-location = "${this.apiKeyLocation ? this.apiKeyLocation : ''}" 
-        selected-server = "${this.selectedServer}" 
         .parameters = "${path.parameters}" 
         .request_body = "${path.requestBody}"
+        .api_keys = "${nonEmptyApiKeys}"
+        selected-server = "${this.selectedServer}" 
         allow-try = "${this.allowTry}"
         accept = "${accept}"
         render-style="${this.renderStyle}" 
@@ -54,6 +67,9 @@ function endpointBodyTemplate(path) {
         schema-expand-level = "${this.schemaExpandLevel}"
         schema-description-expanded = "${this.schemaDescriptionExpanded}"
       > </api-request>
+
+      ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
+
       <api-response
         class = 'response-panel'
         .responses="${path.responses}"
@@ -72,7 +88,7 @@ export default function expandedEndpointTemplate() {
   return html`
   ${this.resolvedSpec.tags.map((tag) => html`
     <div id="${tag.name.replace(/[\s#:?&=]/g, '-')}" class='regular-font section-gap--read-mode observe-me' style="border-top:1px solid var(--primary-color);">
-      <div class="title tag">${tag.name}</div>Í
+      <div class="title tag">${tag.name}</div>
       <div class="regular-font-size">
         ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(tag.description ? tag.description : '')}</div>`)}
       </div>

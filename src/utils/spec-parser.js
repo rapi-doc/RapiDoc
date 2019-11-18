@@ -2,7 +2,7 @@
 import JsonRefs from 'json-refs';
 import converter from 'swagger2openapi';
 
-export default async function ProcessSpec(specUrl, sortTags = false) {
+export default async function ProcessSpec(specUrl, sortTags = false, attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '') {
   let jsonParsedSpec;
   let convertedSpec;
   let resolvedRefSpec;
@@ -39,13 +39,44 @@ export default async function ProcessSpec(specUrl, sortTags = false) {
     console.info('%c There was an issue while parsing the spec %o ', 'color:orangered', err); // eslint-disable-line no-console
   }
 
-  let securitySchemes = {};
-  let servers = [];
-  const tags = groupByTags(jsonParsedSpec, sortTags);
   // const pathGroups = groupByPaths(jsonParsedSpec);
-  securitySchemes = (jsonParsedSpec.components ? jsonParsedSpec.components.securitySchemes : {});
+
+  // Tags
+  const tags = groupByTags(jsonParsedSpec, sortTags);
+
+  // Security Scheme
+  const securitySchemes = [];
+  if (jsonParsedSpec.components && jsonParsedSpec.components.securitySchemes) {
+    Object.entries(jsonParsedSpec.components.securitySchemes).forEach((kv) => {
+      const securityObj = { apiKeyId: kv[0], ...kv[1] };
+      if (kv[1].type === 'apiKey' || kv[1].type === 'http') {
+        securityObj.in = kv[1].in || 'header';
+        securityObj.name = kv[1].name || 'Authorization';
+        securityObj.user = '';
+        securityObj.password = '';
+        securityObj.value = '';
+        securityObj.finalKeyValue = '';
+      }
+      securitySchemes.push(securityObj);
+    });
+  }
+
+  if (attrApiKey && attrApiKeyLocation && attrApiKeyValue) {
+    securitySchemes.push({
+      apiKeyId: '_rapidoc_api_key',
+      description: 'api-key provided in rapidoc element attributes',
+      type: 'apiKey',
+      name: attrApiKey,
+      in: attrApiKeyLocation,
+      value: attrApiKeyValue,
+      finalKeyValue: attrApiKeyValue,
+    });
+  }
+
+  // Servers
+  let servers = [];
   if (jsonParsedSpec.servers) {
-    jsonParsedSpec.servers.map((v) => {
+    jsonParsedSpec.servers.forEach((v) => {
       const tempUrl = v.url.trim().toLowerCase();
       if (v.url && tempUrl.substr(0, 4) !== 'http') {
         if (tempUrl.substr(0, 2) === '//') {
@@ -187,10 +218,11 @@ function groupByTags(openApiSpec, sortTags = false) {
           description: fullPath.description,
           path,
           operationId: fullPath.operationId,
-          requestBody: fullPath.requestBody,
-          parameters: finalParameters,
           servers: fullPath.servers ? commonPathProp.servers.concat(fullPath.servers) : commonPathProp.servers,
+          parameters: finalParameters,
+          requestBody: fullPath.requestBody,
           responses: fullPath.responses,
+          callbacks: fullPath.callbacks,
           deprecated: fullPath.deprecated,
           security: fullPath.security,
           commonSummary: commonPathProp.summary,
