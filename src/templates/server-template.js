@@ -7,12 +7,16 @@ function onApiServerChange(e, server) {
   }
 }
 
-function onApiServerVarChange(e, variableKey, serverObj) {
-  const regex = new RegExp(`{${variableKey}}`, 'g');
-  serverObj.computedUrl = serverObj.url.replace(regex, e.currentTarget.value);
+function onApiServerVarChange(e, serverObj) {
+  const inputEls = [...e.currentTarget.closest('table').querySelectorAll('input')];
+  let tempUrl = serverObj.url;
+  inputEls.forEach((v) => {
+    const regex = new RegExp(`{${v.dataset.var}}`, 'g');
+    tempUrl = tempUrl.replace(regex, v.value);
+  });
+  serverObj.computedUrl = tempUrl;
   this.requestUpdate();
 }
-
 
 function serverVarsTemplate() {
   // const selectedServerObj = this.resolvedSpec.servers.find((v) => (v.url === this.selectedServer));
@@ -27,9 +31,10 @@ function serverVarsTemplate() {
             <input 
               type = "text" 
               spellcheck = "false" 
-              style = "width:100%" 
+              style = "width:100%"
+              data-var = "${kv[0]}"
               value = "${kv[1].default}"
-              @input = ${(e) => { onApiServerVarChange.call(this, e, kv[0], this.selectedServer); }}
+              @input = ${(e) => { onApiServerVarChange.call(this, e, this.selectedServer); }}
             />
           </td>
         </tr>  
