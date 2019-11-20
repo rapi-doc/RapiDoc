@@ -32,13 +32,17 @@ function endpointBodyTemplate(path) {
   return html`
   <div class='divider'></div>
   <div class='expanded-endpoint-body observe-me ${path.method}' id='${path.method}-${path.path.replace(/[\s#:?&=]/g, '-')}' >
+    
+    ${path.deprecated ? html`<div class="bold-text red-text" > DEPRECATED </div>` : ''}
     ${html`
-      <h1> ${path.summary || html`<span class='upper method-fg ${path.method}'> ${path.method}</span> ${path.path}`} </h1>
+      <h1 class = "${path.deprecated ? 'gray-text' : ''}"> 
+        ${path.summary || html`<span class='upper ${path.deprecated ? ' method-fg gray-text' : path.method}  '> ${path.method}</span> ${path.path}`} 
+      </h1>
       ${path.summary
         ? html`
           <div class='mono-font regular-font-size' style='padding: 8px 0; color:var(--fg3)'> 
-            <span class='regular-font upper bold-text method-fg ${path.method}'>${path.method}</span> 
-            ${path.path} 
+            <span class='regular-font upper method-fg  ${path.deprecated ? ' gray-text' : ` bold-text ${path.method}`} '>${path.method}</span> 
+            <span class = '${path.deprecated ? 'gray-text' : ''}'> ${path.path} </span>
           </div>`
         : ''
       }

@@ -21,6 +21,7 @@ export default html`
   .bold-text { font-weight:bold; }
   .gray-text { color: var(--light-fg); }
   .upper { text-transform: uppercase; }
+  .red-text {color: var(--red)}
   .multiline {
     overflow: scroll;
     max-height: 200px;
