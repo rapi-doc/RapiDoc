@@ -28,7 +28,7 @@ export default class ApiRequest extends LitElement {
 
   static get properties() {
     return {
-      selectedServer: { type: String, attribute: 'selected-server' },
+      serverUrl: { type: String, attribute: 'server-url' },
       method: { type: String },
       path: { type: String },
       parameters: { type: Array },
@@ -463,8 +463,8 @@ export default class ApiRequest extends LitElement {
       <div style="display:flex; flex-direction:column; margin:0; width:calc(100% - 60px);">
         <div style="display:flex;flex-direction:row;overflow:hidden;"> 
           <div style="font-weight:bold;padding-right:5px;">API SERVER: </div> 
-          ${this.selectedServer
-            ? html`${this.selectedServer}`
+          ${this.serverUrl
+            ? html`${this.serverUrl}`
             : html`<div style="font-weight:bold;color:var(--red)">Not Set</div>`
           }
         </div>
@@ -633,7 +633,7 @@ export default class ApiRequest extends LitElement {
       });
 
     // Final URL for API call
-    fetchUrl = `${this.selectedServer.replace(/\/$/, '')}${fetchUrl}`;
+    fetchUrl = `${this.serverUrl.replace(/\/$/, '')}${fetchUrl}`;
     if (fetchUrl.startsWith('http') === false) {
       const url = new URL(fetchUrl, window.location.href);
       curlUrl = url.href;

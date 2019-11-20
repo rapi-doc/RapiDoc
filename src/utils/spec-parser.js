@@ -77,17 +77,24 @@ export default async function ProcessSpec(specUrl, sortTags = false, attrApiKey 
   let servers = [];
   if (jsonParsedSpec.servers) {
     jsonParsedSpec.servers.forEach((v) => {
-      const tempUrl = v.url.trim().toLowerCase();
-      if (v.url && tempUrl.substr(0, 4) !== 'http') {
-        if (tempUrl.substr(0, 2) === '//') {
-          v.url = window.location.protocol + v.url;
-        } else {
-          v.url = window.location.origin + v.url;
-        }
+      let computedUrl = v.url.trim().toLowerCase();
+      if (!(computedUrl.startsWith('http') || computedUrl.startsWith('{'))) {
+        v.url = window.location.origin + v.url;
+        computedUrl = v.url;
       }
+
+      // Apply server-variables to generate final computed-url
+      if (v.variables) {
+        Object.entries(v.variables).forEach((kv) => {
+          const regex = new RegExp(`{${kv[0]}}`, 'g');
+          computedUrl = computedUrl.replace(regex, kv[1].default || '');
+          kv[1].value = kv[1].default || '';
+        });
+      }
+      v.computedUrl = computedUrl;
     });
   } else {
-    jsonParsedSpec.servers = [{ url: window.location.origin }];
+    jsonParsedSpec.servers = [{ url: window.location.origin, computedUrl: window.location.origin }];
   }
   servers = jsonParsedSpec.servers;
   const parsedSpec = {

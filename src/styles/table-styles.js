@@ -40,7 +40,7 @@ export default html`
   text-overflow: ellipsis;
   overflow: hidden;
 }
-.table-title{
+.table-title {
   font-size:var(--font-size-small);
   font-weight:bold;
   vertical-align: middle;

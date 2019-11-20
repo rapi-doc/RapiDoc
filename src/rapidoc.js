@@ -16,11 +16,6 @@ import endpointTemplate from '@/templates/endpoint-template';
 import serverTemplate from '@/templates/server-template';
 import securitySchemeTemplate from '@/templates/security-scheme-template';
 
-import '@/components/m-logo';
-import '@/components/api-request';
-import '@/components/api-response';
-
-
 export default class RapiDoc extends LitElement {
   constructor() {
     super();
@@ -57,7 +52,7 @@ export default class RapiDoc extends LitElement {
       apiKeyName: { type: String, attribute: 'api-key-name' },
       apiKeyLocation: { type: String, attribute: 'api-key-location' },
       apiKeyValue: { type: String, attribute: 'api-key-value' },
-      selectedServer: { type: String, attribute: 'default-api-server' },
+      defaultApiServerUrl: { type: String, attribute: 'default-api-server' },
       serverUrl: { type: String, attribute: 'server-url' },
 
       // Hide/Show Sections & Enable Disable actions
@@ -415,7 +410,8 @@ export default class RapiDoc extends LitElement {
       <div class="row header regular-font" style="padding:8px 4px 8px 4px;min-height:48px;">
         <div class="only-large-screen-flex" style="align-items: center;">
           <slot name="logo" class="logo">
-            <m-logo style="height:36px;width:36px;margin-left:5px"></m-logo>
+            ${this.logoTemplate('height:36px;width:36px;margin-left:5px')}
+            <!-- m-logo style="height:36px;width:36px;margin-left:5px"></m-logo -->
           </slot>  
           <div class="header-title">${this.headingText}</div>
         </div>  
@@ -538,22 +534,6 @@ export default class RapiDoc extends LitElement {
     </div>`;
   }
 
-  /*
-  securitySchemeTemplate() {
-    return html`
-      <div id='authentication' class = 'observe-me ${this.renderStyle === 'read' ? 'section-gap--read-mode' : 'section-gap '}'>
-        <div class='sub-title regular-font'> AUTHENTICATION </div>
-        <security-schemes
-          .schemes="${this.resolvedSpec.securitySchemes}"
-          selected-api-key-name  = "${this.apiKeyName ? this.apiKeyName : ''}"
-          selected-api-key-value = "${this.apiKeyValue ? this.apiKeyValue : ''}"
-          @change="${this.onSecurityChange}"
-        ></security-schemes>
-      </div>
-    `;
-  }
-  */
-
   serverTemplate() {
     return serverTemplate.call(this);
   }
@@ -630,20 +610,6 @@ export default class RapiDoc extends LitElement {
     this.shadowRoot.getElementById('spec-file').click();
   }
 
-  onApiServerChange(e, selectedServer) {
-    if (e && e.target.checked) {
-      this.selectedServer = selectedServer;
-    }
-  }
-
-  /*
-  onSecurityChange(e) {
-    this.apiKeyName = e.detail.keyName;
-    this.apiKeyValue = e.detail.keyValue;
-    this.apiKeyLocation = e.detail.keyLocation;
-  }
-  */
-
   onSearchChange(e) {
     this.matchPaths = e.target.value;
   }
@@ -697,15 +663,19 @@ export default class RapiDoc extends LitElement {
       }];
     }
 
-    let isSelectedServerValid = false;
-    if (this.selectedServer) {
-      isSelectedServerValid = (this.selectedServer === this.serverUrl || this.resolvedSpec.servers.find((v) => (v.url === this.selectedServer)));
+    if (this.defaultApiServerUrl) {
+      if (this.defaultApiServerUrl === this.serverUrl) {
+        this.selectedServer = {
+          url: this.serverUrl,
+          computedUrl: this.serverUrl,
+        };
+      } else if (this.resolvedSpec.servers) {
+        this.selectedServer = this.resolvedSpec.servers.find((v) => (v.url === this.defaultApiServerUrl));
+      }
     }
-    if (!isSelectedServerValid) {
-      if (this.serverUrl) {
-        this.selectedServer = this.serverUrl;
-      } else if (this.resolvedSpec && this.resolvedSpec.servers && this.resolvedSpec.servers.length > 0) {
-        this.selectedServer = this.resolvedSpec.servers[0].url;
+    if (!this.selectedServer) {
+      if (this.resolvedSpec.servers) {
+        this.selectedServer = this.resolvedSpec.servers[0];
       }
     }
     this.requestUpdate();
@@ -775,6 +745,22 @@ export default class RapiDoc extends LitElement {
     if (gotoEl) {
       gotoEl.scrollIntoView({ behavior: 'auto', block: 'start' });
     }
+  }
+
+
+  logoTemplate(style) {
+    return html`
+    <div style=${style}>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="1 0 511 512">
+        <path d="M351 411a202 202 0 01-350 0 203 203 0 01333-24 203 203 0 0117 24zm0 0" fill="#adc165"/>
+        <path d="M334 387a202 202 0 01-216-69 202 202 0 01216 69zm78 32H85a8 8 0 01-8-8 8 8 0 018-8h327a8 8 0 017 8 8 8 0 01-7 8zm0 0" fill="#99aa52"/>
+        <path d="M374 338l-5 30a202 202 0 01-248-248 203 203 0 01253 218zm0 0" fill="#ffc73b"/>
+        <path d="M374 338a202 202 0 01-100-197 203 203 0 01100 197zm38 81l-6-2-231-231a8 8 0 0111-11l231 230a8 8 0 01-5 14zm0 0" fill="#efb025"/>
+        <path d="M311 175c0 75 40 140 101 175a202 202 0 000-350 202 202 0 00-101 175zm0 0" fill="#ff903e"/>
+        <path d="M412 419a8 8 0 01-8-8V85a8 8 0 0115 0v326a8 8 0 01-7 8zm0 0" fill="#e87425"/>
+      </svg>
+    </div>    
+    `;
   }
 }
 customElements.define('rapi-doc', RapiDoc);

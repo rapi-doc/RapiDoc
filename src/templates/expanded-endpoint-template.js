@@ -58,7 +58,7 @@ function endpointBodyTemplate(path) {
         .parameters = "${path.parameters}" 
         .request_body = "${path.requestBody}"
         .api_keys = "${nonEmptyApiKeys}"
-        selected-server = "${this.selectedServer}" 
+        server-url = "${this.selectedServer.computedUrl}" 
         allow-try = "${this.allowTry}"
         accept = "${accept}"
         render-style="${this.renderStyle}" 

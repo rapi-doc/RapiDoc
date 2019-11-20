@@ -56,74 +56,76 @@ export default function securitySchemeTemplate() {
         : html`<div style="font-weight:bold; color:var(--red)">No API key applied</div>`
       }
     </div>
-
-    <table class='m-table' >
-      <tr> <th >Type </th> <th> Authentication Procedure</th>  </tr>
-      ${this.resolvedSpec.securitySchemes.map((v) => html`
-        <tr>  
-          <td>
-            <div style="font-weight:bold">${v.type}: ${v.scheme} </div>
-            ${v.description
-              ? html`
-                <div class="m-markdown"> 
-                  ${unsafeHTML(marked(v.description || ''))}
-                </div>`
-              : ''
-            }
-          </td>
-          <td>
-            ${v.type === 'apiKey' || (v.type === 'http' && v.scheme === 'bearer')
-              ? html`
-                ${v.type === 'apiKey'
-                  ? html`Send <code>'${v.name}'</code> in <code>'${v.in}'</code> with the given value`
-                  : html`Send <code>'Authorization'</code> in header which will contains the word  <code>'Bearer'</code> followed by a space and a Token String.`
+    ${this.resolvedSpec.securitySchemes && this.resolvedSpec.securitySchemes.length > 0
+      ? html`  
+        <table class='m-table' style = "width:100%">
+        <tr> <th >Type </th> <th> Authentication Procedure</th>  </tr>
+          ${this.resolvedSpec.securitySchemes.map((v) => html`
+            <tr>  
+              <td>
+                <div style="font-weight:bold">${v.type}: ${v.scheme} </div>
+                ${v.description
+                  ? html`
+                    <div class="m-markdown"> 
+                      ${unsafeHTML(marked(v.description || ''))}
+                    </div>`
+                  : ''
                 }
-                <div style="display:flex;max-height:28px;">
-                  <input type = "text" value = "${v.value}" class="api-key-input" placeholder = "api-token" spellcheck = "false">
-                  <button class="m-btn thin-border" style = "margin-left:5px;"
-                    @click="${(e) => { onApiKeyChange.call(this, v.apiKeyId, e); }}"> 
-                    ${v.finalKeyValue ? 'UPDATE' : 'SET'}
-                  </button>
-                </div>`
-              : ''
-            }
-            ${v.type === 'http' && v.scheme === 'basic'
-              ? html`
-                Send <code>'Authorization'</code> in header which will contains the word  <code>'Basic'</code> followed by a space and a base64-encoded string username:password.
-                <div style="display:flex; max-height:28px;">
-                  <input type="text" value = "${v.user}" placeholder="username" spellcheck="false" class="api-key-user">
-                  <input type="text" value = "${v.password}" placeholder="password" spellcheck="false" class="api-key-password">
-                  <button class="m-btn thin-border" style = "margin-left:5px;"
-                    @click="${(e) => { onApiKeyChange.call(this, v.apiKeyId, e); }}"> 
-                    ${v.finalKeyValue ? 'UPDATE' : 'SET'}
-                  </button>
-                </div>`
-              : ''
-            }
-            ${v.type === 'oauth2'
-              ? html`
-                <div>
-                  ${Object.keys(v.flows).map((f) => html`
-                    ${v.flows[f].authorizationUrl
-                      ? html`<div><b>Auth URL:</b> <code class="url"> ${v.flows[f].authorizationUrl}</code></div>`
-                      : ''
+              </td>
+              <td>
+                ${v.type === 'apiKey' || (v.type === 'http' && v.scheme === 'bearer')
+                  ? html`
+                    ${v.type === 'apiKey'
+                      ? html`Send <code>'${v.name}'</code> in <code>'${v.in}'</code> with the given value`
+                      : html`Send <code>'Authorization'</code> in header which will contains the word  <code>'Bearer'</code> followed by a space and a Token String.`
                     }
-                    ${v.flows[f].tokenUrl
-                      ? html`<div><b>Token URL:</b> <code class="url"> ${v.flows[f].tokenUrl}</code></div>`
-                      : ''
-                    }
-                    ${v.flows[f].refreshUrl
-                      ? html`<div><b>Refresh URL:</b> <code class="url"> ${v.flows[f].refreshUrl}</code></div>`
-                      : ''
-                    }
-                  `)}
-                </div>`
-              : ''
-            }
-          </td>
-        </tr>
-      `)}
-    </table>
+                    <div style="display:flex;max-height:28px;">
+                      <input type = "text" value = "${v.value}" class="api-key-input" placeholder = "api-token" spellcheck = "false">
+                      <button class="m-btn thin-border" style = "margin-left:5px;"
+                        @click="${(e) => { onApiKeyChange.call(this, v.apiKeyId, e); }}"> 
+                        ${v.finalKeyValue ? 'UPDATE' : 'SET'}
+                      </button>
+                    </div>`
+                  : ''
+                }
+                ${v.type === 'http' && v.scheme === 'basic'
+                  ? html`
+                    Send <code>'Authorization'</code> in header which will contains the word  <code>'Basic'</code> followed by a space and a base64-encoded string username:password.
+                    <div style="display:flex; max-height:28px;">
+                      <input type="text" value = "${v.user}" placeholder="username" spellcheck="false" class="api-key-user">
+                      <input type="text" value = "${v.password}" placeholder="password" spellcheck="false" class="api-key-password">
+                      <button class="m-btn thin-border" style = "margin-left:5px;"
+                        @click="${(e) => { onApiKeyChange.call(this, v.apiKeyId, e); }}"> 
+                        ${v.finalKeyValue ? 'UPDATE' : 'SET'}
+                      </button>
+                    </div>`
+                  : ''
+                }
+                ${v.type === 'oauth2'
+                  ? html`
+                    <div>
+                      ${Object.keys(v.flows).map((f) => html`
+                        ${v.flows[f].authorizationUrl
+                          ? html`<div><b>Auth URL:</b> <code class="url"> ${v.flows[f].authorizationUrl}</code></div>`
+                          : ''
+                        }
+                        ${v.flows[f].tokenUrl
+                          ? html`<div><b>Token URL:</b> <code class="url"> ${v.flows[f].tokenUrl}</code></div>`
+                          : ''
+                        }
+                        ${v.flows[f].refreshUrl
+                          ? html`<div><b>Refresh URL:</b> <code class="url"> ${v.flows[f].refreshUrl}</code></div>`
+                          : ''
+                        }
+                      `)}
+                    </div>`
+                  : ''
+                }
+              </td>
+            </tr>
+          `)}
+        </table>`
+      : ''}
   </div>
 `;
 }

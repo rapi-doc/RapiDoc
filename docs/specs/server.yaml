@@ -1,0 +1,51 @@
+openapi: 3.0.2
+info:
+  version: '1.0'
+  title: Server Variables
+  description: For testing Server variables
+servers:
+  - url: 'http://example.com/api'
+  - url: '/api'
+  - url: '{protocol}://dev.com/api'
+    variables:
+      protocol:
+        default: https          
+        enum:
+          - http
+          - https
+  - url: '{protocol}://{environment}.example.com/{version}'
+    variables:
+      environment:
+        default: api    # Production server
+        enum:
+          - api         # Production server
+          - api.dev     # Development server
+          - api.staging # Staging server
+      protocol:
+        default: https          
+        enum:
+          - http
+          - https
+      version:
+        default: v2          
+        enum:
+          - v1
+          - v2
+paths:
+  /simple:
+    get:
+      summary: Sample to test if computed server url is passed properly to operations. 
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    description: Person Name
+                    type: string
+                  age:
+                    description: Person Age
+                    type: integer
