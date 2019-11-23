@@ -1,6 +1,6 @@
 {
   "name": "rapidoc",
-  "version": "7.0.1",
+  "version": "7.0.2",
   "description": "RapiDoc - Open API spec viewer with built in console",
   "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
   "repository": {
@@ -37,8 +37,8 @@
   "scripts": {
     "build": "NODE_ENV=production webpack",
     "serve": "webpack-dev-server --mode=development",
-    "lint" : "./node_modules/eslint/bin/eslint.js ./src/**",
-    "lint-fix" : "./node_modules/eslint/bin/eslint.js --fix ./src/**"
+    "lint": "./node_modules/eslint/bin/eslint.js ./src/**",
+    "lint-fix": "./node_modules/eslint/bin/eslint.js --fix ./src/**"
   },
   "devDependencies": {
     "@babel/core": "^7.7.4",
@@ -50,8 +50,8 @@
     "css-loader": "^3.2.0",
     "eslint": "^6.7.0",
     "eslint-config-airbnb": "^18.0.1",
+    "eslint-import-resolver-webpack": "^0.11.1",
     "eslint-loader": "^3.0.2",
-    "eslint-import-resolver-webpack":"^0.11.1",
     "eslint-plugin-import": "^2.18.2",
     "file-loader": "^4.3.0",
     "filemanager-webpack-plugin": "^2.0.5",
