@@ -21,6 +21,7 @@ export default class ApiResponse extends LitElement {
 
   static get properties() {
     return {
+      callback: { type: String },
       responses: { type: Object },
       parser: { type: Object },
       schemaStyle: { type: String, attribute: 'schema-style' },
@@ -78,7 +79,9 @@ export default class ApiResponse extends LitElement {
       }
     </style>
     <div class="col regular-font response-panel ${this.renderStyle === 'read' ? 'read-mode' : 'view-mode'}">
-      <div class="req-res-title">RESPONSE</div>
+      <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} "> 
+        ${this.callback === 'true' ? 'CALLBACK RESPONSE' : 'RESPONSE'}
+      </div>
       <div>
         ${this.responseTemplate()}
       <div>  

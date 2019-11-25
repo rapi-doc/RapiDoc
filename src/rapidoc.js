@@ -420,7 +420,7 @@ export default class RapiDoc extends LitElement {
             ? ''
             : html`
               <input id="spec-url" type="text" class="header-input" placeholder="Spec URL" value="${this.specUrl ? this.specUrl : ''}" @change="${this.onSepcUrlChange}" spellcheck="false" >
-              <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x23ce;</div> 
+              <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x2b90;</div> 
             `
           } 
           ${(this.allowSpecFileLoad === 'false')
@@ -435,7 +435,7 @@ export default class RapiDoc extends LitElement {
             ? ''
             : html`  
               <input id="search" class="header-input" type="text"  placeholder="search" @change="${this.onSearchChange}" style="max-width:130px;margin-left:10px;" spellcheck="false" >
-              <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x23ce;</div>
+              <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x2b90;</div>
             `
           }
         </div>
@@ -459,7 +459,7 @@ export default class RapiDoc extends LitElement {
                   @change="${this.onSearchChange}"  
                   spellcheck="false" 
                 >
-                <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x23ce;</div>
+                <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x2b90;</div>
               </div>  
               ${this.matchPaths
                 ? html`

@@ -36,6 +36,7 @@ export default class ApiRequest extends LitElement {
       api_keys: { type: Array },
       parser: { type: Object },
       accept: { type: String },
+      callback: { type: String },
       responseMessage: { type: String, attribute: false },
       responseText: { type: String, attribute: false },
       responseHeaders: { type: String, attribute: false },
@@ -109,8 +110,10 @@ export default class ApiRequest extends LitElement {
       }
 
     </style>
-    <div class="col regular-font request-panel ${this.renderStyle === 'read' ? 'read-mode' : 'view-mode'}">
-      <div class="req-res-title">REQUEST</div>
+    <div class="col regular-font request-panel ${this.renderStyle === 'read' || this.callback === 'true' ? 'read-mode' : 'view-mode'}">
+      <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} "> 
+        ${this.callback === 'true' ? 'CALLBACK REQUEST' : 'REQUEST'}
+      </div>
       <div>
         ${this.inputParametersTemplate('path')}
         ${this.inputParametersTemplate('query')}
@@ -516,6 +519,7 @@ export default class ApiRequest extends LitElement {
           </div>
         </div>`
       }
+      <slot style="display:block"></slot>
     `;
   }
   /* eslint-enable indent */

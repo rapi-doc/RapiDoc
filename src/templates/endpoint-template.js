@@ -3,6 +3,7 @@ import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import marked from 'marked';
 import '@/components/api-request';
 import '@/components/api-response';
+import { callbackTemplate } from '@/templates/expanded-endpoint-template';
 
 /* eslint-disable indent */
 function toggleExpand(path) {
@@ -73,8 +74,9 @@ function endpointBodyTemplate(path) {
         schema-style = "${this.schemaStyle}" 
         schema-expand-level = "${this.schemaExpandLevel}"
         schema-description-expanded = "${this.schemaDescriptionExpanded}"
-      > </api-request>
-
+      > 
+        ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
+      </api-request>
       <api-response  
         class="response" 
         .responses="${path.responses}"
