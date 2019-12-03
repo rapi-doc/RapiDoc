@@ -653,7 +653,6 @@ export default class RapiDoc extends LitElement {
 
   afterSpecParsedAndValidated(spec) {
     this.resolvedSpec = spec;
-
     if (this.getAttribute('api-key-name') && this.getAttribute('api-key-location') && this.getAttribute('api-key-value')) {
       this.selected_api_keys = [{
         apiKeyId: '_rapidoc_key_',

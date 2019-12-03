@@ -172,29 +172,7 @@ export function schemaToSampleObj(schema, config = { }) {
     return;
   }
 
-  if (schema.type === 'object' || schema.properties) {
-    for (const key in schema.properties) {
-      if (schema.properties[key].deprecated && !config.includeDeprecated) { continue; }
-      if (schema.properties[key].readOnly && !config.includeReadOnly) { continue; }
-      if (schema.properties[key].writeOnly && !config.includeWriteOnly) { continue; }
-
-      if (schema.example) {
-        obj[key] = schema.example;
-      } else if (schema.examples && schema.example.length > 0) {
-        obj[key] = schema.examples[0];
-      } else {
-        obj[key] = schemaToSampleObj(schema.properties[key], config);
-      }
-    }
-  } else if (schema.type === 'array' || schema.items) {
-    if (schema.example) {
-      obj = schema.example;
-    } else if (schema.examples && schema.example.length > 0) {
-      obj = schema.examples[0];
-    } else {
-      obj = [schemaToSampleObj(schema.items, config)];
-    }
-  } else if (schema.allOf) {
+  if (schema.allOf) {
     const objWithAllProps = {};
 
     if (schema.allOf.length === 1 && !schema.allOf[0].properties && !schema.allOf[0].items) {
@@ -233,6 +211,28 @@ export function schemaToSampleObj(schema, config = { }) {
     if (schema.anyOf.length > 0) {
       obj = schemaToSampleObj(schema.anyOf[0], config);
     }
+  } else if (schema.type === 'object' || schema.properties) {
+    for (const key in schema.properties) {
+      if (schema.properties[key].deprecated && !config.includeDeprecated) { continue; }
+      if (schema.properties[key].readOnly && !config.includeReadOnly) { continue; }
+      if (schema.properties[key].writeOnly && !config.includeWriteOnly) { continue; }
+
+      if (schema.example) {
+        obj[key] = schema.example;
+      } else if (schema.examples && schema.example.length > 0) {
+        obj[key] = schema.examples[0];
+      } else {
+        obj[key] = schemaToSampleObj(schema.properties[key], config);
+      }
+    }
+  } else if (schema.type === 'array' || schema.items) {
+    if (schema.example) {
+      obj = schema.example;
+    } else if (schema.examples && schema.example.length > 0) {
+      obj = schema.examples[0];
+    } else {
+      obj = [schemaToSampleObj(schema.items, config)];
+    }
   } else {
     return getSampleValueByType(schema);
   }
@@ -251,28 +251,13 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
   if (!schema) {
     return;
   }
-  if (schema.type === 'object' || schema.properties) {
-    obj['::description'] = schema.description ? schema.description : '';
-    obj['::type'] = 'object';
-    for (const key in schema.properties) {
-      if (schema.required && schema.required.includes(key)) {
-        obj[`${key}*`] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
-      } else {
-        obj[key] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
-      }
-    }
-  } else if (schema.items) { // If Array
-    obj['::description'] = schema.description ? schema.description : '';
-    obj['::type'] = 'array';
-    obj['::props'] = schemaInObjectNotation(schema.items, {}, (level + 1));
-  } else if (schema.allOf) {
+  if (schema.allOf) {
     const objWithAllProps = {};
     if (schema.allOf.length === 1 && !schema.allOf[0].properties && !schema.allOf[0].items) {
       // If allOf has single item and the type is not an object or array, then its a primitive
       const tempSchema = schema.allOf[0];
       return `${getTypeInfo(tempSchema).html}`;
     }
-
     // If allOf is an array of multiple elements, then all the keys makes a single object
     schema.allOf.map((v, i) => {
       if (v.type === 'object' || v.properties || v.allOf || v.anyOf || v.oneOf) {
@@ -290,7 +275,6 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
         return '';
       }
     });
-
     obj = objWithAllProps;
   } else if (schema.anyOf || schema.oneOf) {
     let i = 1;
@@ -312,6 +296,20 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     });
     obj[(schema.anyOf ? `::ANY~OF ${suffix}` : `::ONE~OF ${suffix}`)] = objWithAnyOfProps;
     obj['::type'] = 'xxx-of';
+  } else if (schema.type === 'object' || schema.properties) {
+    obj['::description'] = schema.description ? schema.description : '';
+    obj['::type'] = 'object';
+    for (const key in schema.properties) {
+      if (schema.required && schema.required.includes(key)) {
+        obj[`${key}*`] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
+      } else {
+        obj[key] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
+      }
+    }
+  } else if (schema.items) { // If Array
+    obj['::description'] = schema.description ? schema.description : '';
+    obj['::type'] = 'array';
+    obj['::props'] = schemaInObjectNotation(schema.items, {}, (level + 1));
   } else {
     const typeObj = getTypeInfo(schema);
     if (typeObj.html) {

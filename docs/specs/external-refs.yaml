@@ -1,0 +1,32 @@
+openapi: 3.0.2
+servers:
+  - url: https//example/system
+paths:
+  /sample/login:
+    post:
+      summary: Login
+      operationId: userLogin
+      description: Login.
+      parameters:
+        - $ref: '../../specs/partial.json#/components/parameters/accept' # This path is relative to the html which shows the spec (not to the spec itself)
+        - $ref: '#/components/parameters/acceptLanguageHeader'   
+        - $ref: '#/components/parameters/contentType'
+# Components
+components:
+  parameters:
+    acceptLanguageHeader:
+      name: Accept-Language
+      in: header
+      description: Language locale accepted by client (used for locale specific fields in resource representation and in error responses). 
+      required: true
+      schema:
+        type: string
+        enum: [en-US, es-ES, fr-FR]
+    contentType:
+      name: Content-Type
+      in: header
+      description: Media type sent by the client
+      required: true
+      schema:
+        type: string
+        enum: [application/xml, application/json]

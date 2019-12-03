@@ -40,6 +40,14 @@
         "Employee": {
           "description": "Employee Details (Worker or Manager)",
           "allOf": [
+            {
+              "properties": {
+                "address": {
+                  "type": "string",
+                  "description": "Employee Address"
+                }
+              }
+            },
             { "$ref": "#/definitions/name"},
             { "$ref": "#/definitions/job"}
           ]

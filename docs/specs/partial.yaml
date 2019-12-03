@@ -1,0 +1,13 @@
+openapi: 3.0.2
+components:
+  parameters:
+    accept:
+      name: Accept
+      in: header
+      description: Content type accepted by client.
+      required: true
+      schema:
+        type: string
+        enum:
+        - application/xml
+        - application/json
