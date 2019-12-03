@@ -14,7 +14,7 @@ paths:
             application/json:
               schema:
                 type: object
-                $ref: "#/components/schemas/emp2"
+                $ref: "#/components/schemas/emp1"
 components:
   schemas:
     emp1:
