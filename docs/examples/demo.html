@@ -73,6 +73,7 @@
         const primaryColor = urlParams.get('primary-color');
         const goto = urlParams.get('goto');
         const rapidocEl = getRapiDoc();
+        rapidocEl.addEventListener('spec-loaded', e => console.log(e.detail));
         
         if(!specUrl) {
           specUrl = '../specs/petstore.json'

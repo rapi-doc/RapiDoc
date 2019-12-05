@@ -365,8 +365,8 @@
       <div class="table-block">
         <table class="m-table">
           <tr>
-            <th>Method</th>
-            <th style="text-align:left">Description </th>
+            <th class="right">Method</th>
+            <th class="left">Description </th>
             <th class="default-col"></th>
           </tr>
           <tr>
@@ -392,7 +392,39 @@
         </table>
       </div>
 
-      <h2> Slots</h2>
+      <h2> Events</h2>
+      <div class="table-block">
+        <table class="m-table">
+          <tr>
+            <th class="right" >Event</th>
+            <th class="left">Description </th>
+          </tr>
+          <tr>
+            <td class="mono bold right">spec-loaded</td>
+            <td class="gray">
+              called after the spec is parsed, and rendered. Provides you with a object representing the spec.
+
+<pre class="shadow code-block" style="width:550px"><code class="html">&lt;rapi-doc 
+  id = "doc"
+  spec-url = "https://petstore.swagger.io/v2/swagger.json"
+&gt; 
+&lt;/rapi-doc&gt;
+</code></pre>
+<br/>
+
+This is how you can listen to the event.
+<pre class="shadow code-block" style="width:550px"><code class="html">el = document.getElementById("doc");
+el.addEventListener('spec-loaded', e => console.log(e.detail));
+</code></pre>
+<br/>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+
+
+      <h2> Slots</h2>`
       <div class="table-block">
         <table class="m-table">
           <tr>

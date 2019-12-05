@@ -678,6 +678,8 @@ export default class RapiDoc extends LitElement {
       }
     }
     this.requestUpdate();
+    const specLoadedEvent = new CustomEvent('spec-loaded', { detail: spec });
+    this.dispatchEvent(specLoadedEvent);
     // Put it at the end of event loop, to allow loading all the child elements (must for larger specs)
     this.intersectionObserver.disconnect();
     if (this.renderStyle === 'read') {

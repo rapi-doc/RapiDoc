@@ -1,50 +1,29 @@
-openapi: 3.0.2
+openapi: "3.0.2"
 info:
-  version: '1.0'
-  title: My OpenAPI
-  description: OpenAPI with examples
-servers:
-  - url: /api
+  title: Recursive
+  version: 0.0.1
+
 paths:
-  /dogs:
-    post:
-      tags:
-        - dog
-      summary: Create a Dog
-      requestBody:
-        description: A Dog
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Dog'
-            examples:
-              example-1:
-                value:
-                  name: Fido
-              example-2:
-                value:
-                  name: Dido
+  /somepath:
+    get:
       responses:
-        '201':
-          description: Created
+        '200':
+          description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Dog'
-              examples:
-                example-1:
-                  value:
-                    name: Fido
-                example-2:
-                  value:
-                    name: Dido
+                allOf:
+                  - $ref: '#/components/schemas/Article'
+                  - required: [ foo ]
 components:
   schemas:
-    Dog:
+    Article:
       type: object
       properties:
-        name:
-          type: string
-          pattern: '^[A-Za-z]+'
-      required:
-        - name
+        similar:
+          allOf:
+            - $ref: '#/components/schemas/Article'
+            - required: [ bar ]
+      anyOf:
+        - required: [ foo ]
+        - required: [ bar ]
