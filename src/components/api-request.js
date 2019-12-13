@@ -655,7 +655,7 @@ export default class ApiRequest extends LitElement {
     headerParamEls.map((el) => {
       if (el.value) {
         fetchOptions.headers[el.dataset.pname] = el.value;
-        curlHeaders += ` -H "${fetchOptions.headers[el.dataset.pname]}: ${el.value}"`;
+        curlHeaders += ` -H "${el.dataset.pname}: ${el.value}"`;
       }
     });
     // Add Authentication Header if provided
