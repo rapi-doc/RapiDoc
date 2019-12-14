@@ -32,14 +32,14 @@ export default class JsonTree extends LitElement {
           padding: 8px 16px 16px 16px;
         }
 
-        .left-bracket{
+        .open-bracket{
           display:inline-block;
           padding: 0 20px 0 0;
           cursor:pointer;
           border: 1px solid transparent;
           border-radius:3px;
         }
-        .left-bracket:hover{
+        .open-bracket:hover{
           color:var(--primary-color);
           background-color:var(--hover-color);
           border: 1px solid var(--border-color);
@@ -48,6 +48,12 @@ export default class JsonTree extends LitElement {
           padding-left:12px;
           border-left:1px dotted var(--border-color);
         }
+        .open-bracket.collapsed + .inside-bracket,
+        .open-bracket.collapsed + .inside-bracket + .close-bracket {
+          display:none;
+        }
+
+
         .string{color:var(--green);}
         .number{color:var(--blue);}
         .null{color:var(--red);}
@@ -93,16 +99,16 @@ export default class JsonTree extends LitElement {
         return html`${(Array.isArray(data) ? '[ ],' : '{ },')}`;
       }
       return html`
-      <div class="left-bracket expanded ${detailType === 'array' ? 'array' : 'object'} " @click="${this.toggleExpand}" > ${detailType === 'array' ? '[' : '{'}</div>
-        <div class="inside-bracket">
+      <div class="open-bracket expanded ${detailType === 'array' ? 'array' : 'object'} " @click="${this.toggleExpand}" > ${detailType === 'array' ? '[' : '{'}</div>
+      <div class="inside-bracket">
         ${Object.keys(data).map((key, i, a) => html`
           <div class="item"> 
             ${detailType === 'pure_object' ? html`${key}:` : ''}
             ${this.generateTree(data[key], i === (a.length - 1))}
           </div>`)
         }
-        </div>
-      <div class="right-bracket">${detailType === 'array' ? ']' : '}'}${isLast ? '' : ','}</div>
+      </div>
+      <div class="close-bracket">${detailType === 'array' ? ']' : '}'}${isLast ? '' : ','}</div>
       `;
     }
 
@@ -129,6 +135,18 @@ export default class JsonTree extends LitElement {
       console.error('Unable to copy', err); // eslint-disable-line no-console
     }
     document.body.removeChild(textArea);
+  }
+
+  toggleExpand(e) {
+    const openBracketEl = e.target;
+    const closeBacketText = openBracketEl.nextSibling.nextSibling.innerHTML;
+    if (openBracketEl.classList.contains('expanded')) {
+      openBracketEl.classList.replace('expanded', 'collapsed');
+      e.target.innerHTML = e.target.classList.contains('array') ? `[...${closeBacketText}` : `{...${closeBacketText}`;
+    } else {
+      openBracketEl.classList.replace('collapsed', 'expanded');
+      e.target.innerHTML = e.target.classList.contains('array') ? '[' : '{';
+    }
   }
 }
 // Register the element with the browser

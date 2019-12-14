@@ -222,12 +222,10 @@ export default class SchemaTree extends LitElement {
   toggleObjectExpand(e) {
     const rowEl = e.target.closest('.tr');
     if (rowEl.classList.contains('expanded')) {
-      rowEl.classList.add('collapsed');
-      rowEl.classList.remove('expanded');
+      rowEl.classList.replace('expanded', 'collapsed');
       e.target.innerHTML = e.target.classList.contains('array') ? '[{...}]' : '{...}';
     } else {
-      rowEl.classList.remove('collapsed');
-      rowEl.classList.add('expanded');
+      rowEl.classList.replace('collapsed', 'expanded');
       e.target.innerHTML = e.target.classList.contains('array') ? '[{' : '{';
     }
   }
