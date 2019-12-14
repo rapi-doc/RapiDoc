@@ -146,8 +146,7 @@ export default html`
   .m-markdown th{
     font-size: 12px;
     line-height: 16px;
-    padding: 4px 5px 4px;
-    text-align: left;
+    padding: 6px;
     vertical-align: top;
   }
 
@@ -157,7 +156,7 @@ export default html`
     font-weight: 600;
     letter-spacing: normal;
     background-color: var(--bg2);
-    vertical-align: bottom;
+    vertical-align: middle;
     border-bottom: 1px solid var(--border-color);
   }
   .m-markdown table code {
