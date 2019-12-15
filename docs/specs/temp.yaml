@@ -1,29 +1,78 @@
-openapi: "3.0.2"
-info:
-  title: Recursive
-  version: 0.0.1
+openapi: 3.0.0
+
+tags:
+  - name: bugreport
 
 paths:
-  /somepath:
+  "/this/isBroken":
     get:
+      operationId: thisIsBrokenGet
+      tags:
+        - bugreport
+      summary: thisIsBroken example
       responses:
-        '200':
-          description: OK
+        200:
+          description: successful operation
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/Article'
-                  - required: [ foo ]
+                $ref: "#/components/schemas/BrokenClass"
+  "/this/isFine":
+    get:
+      operationId: thisIsFineGet
+      tags:
+        - bugreport
+      summary: thisIsFine example
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FineClass"
+
 components:
   schemas:
-    Article:
+    BrokenNestedObject:
       type: object
       properties:
-        similar:
-          allOf:
-            - $ref: '#/components/schemas/Article'
-            - required: [ bar ]
-      anyOf:
-        - required: [ foo ]
-        - required: [ bar ]
+        first:
+          type: integer
+          format: int32
+        second:
+          type: integer
+          format: int32
+      required:
+        - first
+        - second
+      example:
+        first: 123
+        second: 456
+    BrokenClass:
+      type: object
+      properties:
+        brokenNestedObject:
+          $ref: '#/components/schemas/BrokenNestedObject'
+      required:
+        - brokenNestedObject
+    FineNestedObject:
+      type: object
+      properties:
+        first:
+          type: integer
+          format: int32
+          example: 123
+        second:
+          type: integer
+          format: int32
+          example: 456
+      required:
+        - first
+        - second
+    FineClass:
+      type: object
+      properties:
+        fineNestedObject:
+          $ref: '#/components/schemas/FineNestedObject'
+      required:
+        - fineNestedObject
