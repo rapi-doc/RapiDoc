@@ -1,5 +1,8 @@
 openapi: 3.0.0
-
+info:
+  description:  Nested examples 
+  version: 1.0.0
+  title:  Nested examples 
 tags:
   - name: bugreport
 
