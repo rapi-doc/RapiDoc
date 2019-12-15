@@ -114,6 +114,7 @@ export default class ApiResponse extends LitElement {
           true,
           mimeResp.includes('json') ? 'json' : 'text',
         );
+
         allMimeResp[mimeResp] = {
           description: this.responses[statusCode].description,
           examples: respExample,
@@ -165,14 +166,14 @@ export default class ApiResponse extends LitElement {
                     : html`${this.mimeTypeDropdownTemplate(Object.keys(this.mimeResponsesForEachStatus[status]))}`
                   }
                 </div>
-
-                <div class ='tab-content col' style = 'flex:1; display:${this.activeSchemaTab === 'example' ? 'flex' : 'none'};'>
-                  ${this.mimeExampleTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
-                </div>
-                <div class="tab-content col" style="flex:1; display:${this.activeSchemaTab === 'model' ? 'flex' : 'none'};">
-                  ${this.mimeSchemaTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
-                </div>
-
+                ${this.activeSchemaTab === 'example'
+                  ? html`<div class ='tab-content col' style = 'flex:1;'>
+                      ${this.mimeExampleTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
+                    </div>`
+                  : html`<div class ='tab-content col' style = 'flex:1;'>
+                      ${this.mimeSchemaTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
+                    </div>`
+                }
               </div>
             `
           }`)

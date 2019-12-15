@@ -149,7 +149,7 @@ export default class SchemaTree extends LitElement {
             ${data['::type'] === 'xxx-of-option' || prevKey.startsWith('::OPTION')
               ? html`<span class='xxx-of-key'>${newPrevKey}</span>`
               : newPrevKey.endsWith('*')
-                ? html`${newPrevKey.substring(0, newPrevKey.length - 1)}<span style='color:var(--red);margin-left:-6px'>*</span>`
+                ? html`${newPrevKey.substring(0, newPrevKey.length - 1)}<span style='color:var(--red);'>*</span>`
                 : newPrevKey
             }${level > 0 ? ':' : ''}${openBracket}
           </div>
