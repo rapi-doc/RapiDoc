@@ -582,6 +582,57 @@ export default class RapiDoc extends LitElement {
         this.intersectionObserver.disconnect();
       }
     }
+    if (name === 'api-key-name' || name === 'api-key-location' || name === 'api-key-value') {
+      let updateSelectedApiKey = false;
+      let apiKeyName = '';
+      let apiKeyLocation = '';
+      let apiKeyValue = '';
+
+      if (name === 'api-key-name') {
+        if (this.getAttribute('api-key-location') && this.getAttribute('api-key-value')) {
+          apiKeyName = newVal;
+          apiKeyLocation = this.getAttribute('api-key-location');
+          apiKeyValue = this.getAttribute('api-key-value');
+          updateSelectedApiKey = true;
+        }
+      } else if (name === 'api-key-location') {
+        if (this.getAttribute('api-key-name') && this.getAttribute('api-key-value')) {
+          apiKeyLocation = newVal;
+          apiKeyName = this.getAttribute('api-key-name');
+          apiKeyValue = this.getAttribute('api-key-value');
+          updateSelectedApiKey = true;
+        }
+      } else if (name === 'api-key-value') {
+        if (this.getAttribute('api-key-name') && this.getAttribute('api-key-location')) {
+          apiKeyValue = newVal;
+          apiKeyLocation = this.getAttribute('api-key-location');
+          apiKeyName = this.getAttribute('api-key-name');
+          updateSelectedApiKey = true;
+        }
+      }
+      if (updateSelectedApiKey) {
+        if (this.resolvedSpec) {
+          const rapiDocApiKey = this.resolvedSpec.securitySchemes.find((v) => v.apiKeyId === '_rapidoc_api_key');
+          if (!rapiDocApiKey) {
+            this.resolvedSpec.securitySchemes.push({
+              apiKeyId: '_rapidoc_api_key',
+              description: 'api-key provided in rapidoc element attributes',
+              type: 'apiKey',
+              name: apiKeyName,
+              in: apiKeyLocation,
+              value: apiKeyValue,
+              finalKeyValue: apiKeyValue,
+            });
+          } else {
+            rapiDocApiKey.name = apiKeyName;
+            rapiDocApiKey.in = apiKeyLocation;
+            rapiDocApiKey.value = apiKeyValue;
+            rapiDocApiKey.finalKeyValue = apiKeyValue;
+          }
+          this.requestUpdate();
+        }
+      }
+    }
     super.attributeChangedCallback(name, oldVal, newVal);
   }
 
@@ -653,15 +704,6 @@ export default class RapiDoc extends LitElement {
 
   afterSpecParsedAndValidated(spec) {
     this.resolvedSpec = spec;
-    if (this.getAttribute('api-key-name') && this.getAttribute('api-key-location') && this.getAttribute('api-key-value')) {
-      this.selected_api_keys = [{
-        apiKeyId: '_rapidoc_key_',
-        apiKeyName: this.getAttribute('api-key-name'),
-        apiKeyLocation: this.getAttribute('api-key-location'),
-        apiKeyValue: this.getAttribute('api-key-value'),
-      }];
-    }
-
     if (this.defaultApiServerUrl) {
       if (this.defaultApiServerUrl === this.serverUrl) {
         this.selectedServer = {
