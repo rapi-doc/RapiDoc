@@ -77,8 +77,6 @@ paths:
           description: >
             not-exploded array, should be serialized as <br />
             `fruits=apple,banana,grape` 
-          style: form
-          explode: false
           schema:
             type: array
             items:

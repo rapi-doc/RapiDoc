@@ -294,28 +294,28 @@ export default class ApiRequest extends LitElement {
 
       const mimeReqObj = content[mimeReq];
       let reqExample = '';
-      if (mimeReq.includes('json') || mimeReq.includes('xml') || mimeReq.includes('text/plain')) {
-        try {
-          // Remove Circular references from RequestBody json-schema
-          mimeReqObj.schema = JSON.parse(JSON.stringify(mimeReqObj.schema));
-        } catch (err) {
-          console.error('Unable to resolve circular refs in schema', mimeReqObj.schema); // eslint-disable-line no-console
-          return;
-        }
-        if (mimeReq.includes('json')) {
-          reqSchemaTree.json = schemaInObjectNotation(mimeReqObj.schema, {});
-        } else if (mimeReq.includes('xml')) {
-          reqSchemaTree.xml = schemaInObjectNotation(mimeReqObj.schema, {});
-        }
-        reqExample = generateExample(
-          mimeReqObj.examples ? mimeReqObj.examples : '',
-          mimeReqObj.example ? mimeReqObj.example : '',
-          mimeReqObj.schema,
-          mimeReq,
-          false,
-          'text',
-        );
+      try {
+        // Remove Circular references from RequestBody json-schema
+        mimeReqObj.schema = JSON.parse(JSON.stringify(mimeReqObj.schema));
+      } catch (err) {
+        console.error('Unable to resolve circular refs in schema', mimeReqObj.schema); // eslint-disable-line no-console
+        return;
+      }
+      if (mimeReq.includes('json')) {
+        reqSchemaTree.json = schemaInObjectNotation(mimeReqObj.schema, {});
+      } else if (mimeReq.includes('xml')) {
+        reqSchemaTree.xml = schemaInObjectNotation(mimeReqObj.schema, {});
+      }
+      reqExample = generateExample(
+        mimeReqObj.examples ? mimeReqObj.examples : '',
+        mimeReqObj.example ? mimeReqObj.example : '',
+        mimeReqObj.schema,
+        mimeReq,
+        false,
+        'text',
+      );
 
+      if (mimeReq.includes('json') || mimeReq.includes('xml') || mimeReq.includes('text/plain')) {
         textareaExampleHtml = html`
           ${textareaExampleHtml}
           <textarea 
@@ -327,64 +327,74 @@ export default class ApiRequest extends LitElement {
         `;
       } else if (mimeReq.includes('form') || mimeReq.includes('multipart-form')) {
         isFormDataPresent = true;
-        for (const fieldName in mimeReqObj.schema.properties) {
-          const fieldSchema = mimeReqObj.schema.properties[fieldName];
-          const fieldType = fieldSchema.type;
-          const arrayType = fieldSchema.type === 'array' ? fieldSchema.items.type : '';
-          formDataTableRows.push(html`
-          <tr> 
-            <td style="width:160px; min-width:100px;">
-              <div class="param-name">${fieldName}</div>
-              <div class="param-type">
+        if (mimeReqObj.schema.properties) {
+          for (const fieldName in mimeReqObj.schema.properties) {
+            const fieldSchema = mimeReqObj.schema.properties[fieldName];
+            const fieldType = fieldSchema.type;
+            const arrayType = fieldSchema.type === 'array' ? fieldSchema.items.type : '';
+            formDataTableRows.push(html`
+            <tr> 
+              <td style="width:160px; min-width:100px;">
+                <div class="param-name">${fieldName}</div>
+                <div class="param-type">
+                  ${fieldType === 'array'
+                    ? `${fieldType} of ${arrayType}`
+                    : `${fieldType} ${fieldSchema.format ? `\u00a0(${fieldSchema.format})` : ''}`
+                  }
+                </div>
+              </td>  
+              <td style="width:160px; min-width:100px;">
                 ${fieldType === 'array'
-                  ? `${fieldType} of ${arrayType}`
-                  : `${fieldType} ${fieldSchema.format ? `\u00a0(${fieldSchema.format})` : ''}`
-                }
-              </div>
-            </td>  
-            <td style="width:160px; min-width:100px;">
-              ${fieldType === 'array'
-                ? html`
-                  <tag-input class="request-form-param" 
-                    style="width:160px; background:var(--input-bg);line-height:13px;" 
-                    data-ptype="${fieldType}" 
-                    data-pname="${fieldName}"
-                    data-array="true"
-                    placeholder="add-multiple\u23ce"
-                  >
-                  </tag-input>`
-                : html`<input 
-                    spellcheck="false"
-                    type="${fieldSchema.format === 'binary' ? 'file' : 'text'}" 
-                    style="width:160px" class="request-form-param" 
-                    data-pname="${fieldName}" 
-                    data-ptype="${fieldType}"  
-                    data-array="false" 
-                  />`
-                }
-            </td>
-            <td>
-              <div class="param-constraint"></div>
-            </td>  
-          </tr>
-          ${fieldSchema.description
-            ? html`
-              <tr>
-                <td style="border:none"></td>
-                <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;"> 
-                  <span class="m-markdown-small">${unsafeHTML(marked(fieldSchema.description || ''))}</span>
-                </td>
-              </tr>`
-            : ''
-          }`);
+                  ? html`
+                    <tag-input class="request-form-param" 
+                      style="width:160px; background:var(--input-bg);line-height:13px;" 
+                      data-ptype="${fieldType}" 
+                      data-pname="${fieldName}"
+                      data-array="true"
+                      placeholder="add-multiple\u23ce"
+                    >
+                    </tag-input>`
+                  : html`<input 
+                      spellcheck="false"
+                      type="${fieldSchema.format === 'binary' ? 'file' : 'text'}" 
+                      style="width:160px" class="request-form-param" 
+                      data-pname="${fieldName}" 
+                      data-ptype="${fieldType}"  
+                      data-array="false" 
+                    />`
+                  }
+              </td>
+              <td>
+                <div class="param-constraint"></div>
+              </td>  
+            </tr>
+            ${fieldSchema.description
+              ? html`
+                <tr>
+                  <td style="border:none"></td>
+                  <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;"> 
+                    <span class="m-markdown-small">${unsafeHTML(marked(fieldSchema.description || ''))}</span>
+                  </td>
+                </tr>`
+              : ''
+            }`);
+          }
+          formDataHtml = html`
+          <form class="${shortMimeTypes[mimeReq]}" onsubmit="event.preventDefault();">
+            <table style="width: 100%" class="m-table">
+              ${formDataTableRows}
+            </table>
+          </form>`;
+        } else {
+          formDataHtml = html`<textarea 
+            class = "textarea mono dynamic-form-param ${shortMimeTypes[mimeReq]}" 
+            spellcheck = "false"
+            data-ptype = "${mimeReq}"
+            style="resize:vertical;display:block; width:100%"
+          >${reqExample[0].exampleValue}</textarea>
+          <span class="m-markdown-small">${unsafeHTML(marked(mimeReqObj.schema.description || ''))}</span>
+        `;
         }
-
-        formDataHtml = html`
-        <form class="${shortMimeTypes[mimeReq]}" onsubmit="event.preventDefault();">
-          <table style="width: 100%" class="m-table">
-            ${formDataTableRows}
-          </table>
-        </form>`;
       }
       mimeReqCount++;
     }
@@ -551,6 +561,7 @@ export default class ApiRequest extends LitElement {
     const queryParamObjTypeEls = [...requestPanelEl.querySelectorAll(".request-param[data-ptype='query-object']")];
     const headerParamEls = [...requestPanelEl.querySelectorAll(".request-param[data-ptype='header']")];
     const formParamEls = [...requestPanelEl.querySelectorAll('.request-form-param')];
+    const dynFormParamEls = [...requestPanelEl.querySelectorAll('.dynamic-form-param')];
     const bodyParamEls = [...requestPanelEl.querySelectorAll('.request-body-param')];
 
     fetchUrl = me.path;
@@ -695,6 +706,40 @@ export default class ApiRequest extends LitElement {
       });
 
       if (formEl.classList.contains('form-urlencoded')) {
+        fetchOptions.headers['Content-Type'] = 'application/x-www-form-urlencoded; charset=utf-8';
+        curlHeaders += ' -H "Content-Type: application/x-www-form-urlencoded"';
+        fetchOptions.body = formUrlParams;
+      } else {
+        // fetchOptions.headers['Content-Type'] = 'multipart/form-data' // Dont set content type for fetch, coz the browser must auto-generate boundry value too
+        curlHeaders += ' -H "Content-Type: multipart/form-data"';
+        fetchOptions.body = formDataParams;
+      }
+    } else if (dynFormParamEls.length === 1) {
+      // Submit Dynamic Form Params (url-encoded or form-data)
+      const val = dynFormParamEls[0].value;
+      const formUrlParams = new URLSearchParams();
+      const formDataParams = new FormData();
+
+      let proceed = true;
+      let tmpObj;
+      if (val) {
+        try {
+          tmpObj = JSON.parse(val);
+        } catch (err) {
+          proceed = false;
+          console.warn('Invalid JSON provided', err);
+        }
+      } else {
+        proceed = false;
+      }
+      if (proceed) {
+        for (const prop in tmpObj) {
+          formUrlParams.append(prop, JSON.stringify(tmpObj[prop]));
+          formDataParams.append(prop, JSON.stringify(tmpObj[prop]));
+          curlForm += ` -F "${prop}=${JSON.stringify(tmpObj[prop])}"`;
+        }
+      }
+      if (dynFormParamEls[0].classList.contains('form-urlencoded')) {
         fetchOptions.headers['Content-Type'] = 'application/x-www-form-urlencoded; charset=utf-8';
         curlHeaders += ' -H "Content-Type: application/x-www-form-urlencoded"';
         fetchOptions.body = formUrlParams;

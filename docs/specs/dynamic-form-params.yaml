@@ -1,0 +1,102 @@
+openapi: 3.0.0
+info:
+  title:  Dynamic Form Params 
+  version: 1.0.0
+  description: >
+    Following OpenAPI spec demonstrate various ways to pass form params.
+      - you may pass predefined form params
+      - you may create dynamic form params by defining a form-param as an object, 
+        in that case each key of the object will be treated as a seperate param
+
+        ```
+         openapi: 3.0.0
+          info:
+            title:  Dynamic Form Params 
+            version: 1.0.0
+          paths:
+            /submit-1:
+              post:
+                summary: Dynamic Params
+                requestBody:
+                  content:
+                    application/x-www-form-urlencoded:
+                      schema:
+                        type: object
+                responses:
+                  '200':
+                    description: successful operation
+            
+            /submit-2:
+              post:
+                summary: Fixed Params
+                requestBody:
+                  content:
+                    application/x-www-form-urlencoded:
+                      schema:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                          age:
+                            type: integer
+                responses:
+                  '200':
+                    description: successful operation
+        ```        
+paths:
+  /submit-1:
+    post:
+      tags:
+        - Form Params
+      summary: Dynamic Params
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              description: >
+                This param is defined as a dynamic param, this accepts data in a strict object notation (JSON)
+                and its each `key`, `value` pairs is treated as a seperate form parameter. In this case the example will send 5 form parameters as shown below 
+
+                ```
+                 a = 1
+                 b = 2
+                 c = [ "red", "black" ]
+                 d = { "d1":1, "d2":2 }
+                 e = 3
+                ```
+            example: >
+              {
+                "a":1,
+                "b":2,
+                "c":[
+                  "red",
+                  "black"
+                ],
+                "d":{ "d1":1, "d2":2 },
+                "e":3
+              }
+      responses:
+        '200':
+          description: OK                    
+  /submit-2:
+    post:
+      tags:
+        - Form Params
+      summary: Fixed Params  
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              description: name and age are fixed form params
+              properties:
+                name:
+                  type: string
+                  description: name of person
+                age:
+                  type: integer
+                  description: age of person
+      responses:
+        '200':
+          description: OK
