@@ -267,8 +267,9 @@ export default class ApiRequest extends LitElement {
     const bodyDescrHtml = this.request_body.description ? html`<div class="m-markdown">${unsafeHTML(marked(this.request_body.description || ''))}</div>` : '';
     let textareaExampleHtml;
     let formDataHtml = '';
+    let fileInputHtml = '';
     const formDataTableRows = [];
-    let isFormDataPresent = false;
+    let contentDataType = ''; // form-data, body-data, octet-body-data
     const reqSchemaTree = {
       json: '',
       xml: '',
@@ -315,7 +316,16 @@ export default class ApiRequest extends LitElement {
         'text',
       );
 
-      if (mimeReq.includes('json') || mimeReq.includes('xml') || mimeReq.includes('text/plain')) {
+      if (mimeReq.includes('octet-stream')) {
+        contentDataType = 'octet-body-data';
+        fileInputHtml = html`
+          <input spellcheck="false" type="file"  style="width:200px" 
+              class="request-body-param-file" 
+              data-ptype="${mimeReq}" 
+          />
+        `;
+      } else if (mimeReq.includes('json') || mimeReq.includes('xml') || mimeReq.includes('text/plain')) {
+        contentDataType = 'body-data';
         textareaExampleHtml = html`
           ${textareaExampleHtml}
           <textarea 
@@ -326,7 +336,7 @@ export default class ApiRequest extends LitElement {
           >${reqExample[0].exampleValue}</textarea>
         `;
       } else if (mimeReq.includes('form') || mimeReq.includes('multipart-form')) {
-        isFormDataPresent = true;
+        contentDataType = 'form-data';
         if (mimeReqObj.schema.properties) {
           for (const fieldName in mimeReqObj.schema.properties) {
             const fieldSchema = mimeReqObj.schema.properties[fieldName];
@@ -345,19 +355,38 @@ export default class ApiRequest extends LitElement {
               </td>  
               <td style="width:160px; min-width:100px;">
                 ${fieldType === 'array'
-                  ? html`
-                    <tag-input class="request-form-param" 
-                      style="width:160px; background:var(--input-bg);line-height:13px;" 
-                      data-ptype="${fieldType}" 
-                      data-pname="${fieldName}"
-                      data-array="true"
-                      placeholder="add-multiple\u23ce"
-                    >
-                    </tag-input>`
+                  ? fieldSchema.items.format === 'binary'
+                    ? html`
+                    <div class="file-input-container">
+                      <div class='input-set'>
+                        <input 
+                          spellcheck = 'false'
+                          type = 'file'
+                          style = "width:200px" 
+                          class="request-form-param" 
+                          data-pname="${fieldName}" 
+                          data-ptype="${fieldType}"  
+                          data-array="true" 
+                        />
+                      </div>  
+                      <button class="m-btn primary try-btn" style="padding:4px 0px;width:50px; margin-top:5px" @click="${(e) => this.onAddFileInput(e, fieldName, fieldType)}">ADD</button>
+                    </div>  
+                    `
+                    : html`
+                      <tag-input class="request-form-param" 
+                        style="width:160px; background:var(--input-bg);line-height:13px;" 
+                        data-ptype="${fieldType}" 
+                        data-pname="${fieldName}"
+                        data-array="true"
+                        placeholder="add-multiple\u23ce"
+                      >
+                      </tag-input>
+                    `
                   : html`<input 
                       spellcheck="false"
                       type="${fieldSchema.format === 'binary' ? 'file' : 'text'}" 
-                      style="width:160px" class="request-form-param" 
+                      style="width:160px" 
+                      class="request-form-param" 
                       data-pname="${fieldName}" 
                       data-ptype="${fieldType}"  
                       data-array="false" 
@@ -399,74 +428,77 @@ export default class ApiRequest extends LitElement {
       mimeReqCount++;
     }
     return html`
-      <div class="table-title top-gap ${isFormDataPresent ? 'form_data' : 'body_data'} "> 
-        ${isFormDataPresent ? 'FORM' : 'BODY'} DATA ${this.request_body.required ? '(required)' : ''} 
+      <div class="table-title top-gap ${contentDataType === 'form-data' ? 'form_data' : 'body_data'} "> 
+        ${contentDataType === 'form-data' ? 'FORM' : 'BODY'} DATA ${this.request_body.required ? '(required)' : ''} 
       </div>
       ${bodyDescrHtml}
-      ${isFormDataPresent
+      ${contentDataType === 'form-data'
         ? html`${formDataHtml}`
-        : html`
-        <div class="tab-panel col" style="border-width:0 0 1px 0;">
-          <div class="tab-buttons row" @click="${(e) => { if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; } }}">
-            <button class="tab-btn ${this.activeSchemaTab === 'model' ? 'active' : ''}"   data-tab = 'model'  >MODEL</button>
-            <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
-            <div style="flex:1"> </div>
-            <div style="color:var(--light-fg); align-self:center; font-size:var(--font-size-small); margin-top:8px;">
-              ${mimeReqCount === 1
-                ? `${Object.keys(shortMimeTypes)[0]}`
-                : html`
-                  ${Object.keys(shortMimeTypes).map((k) => html`
-                    ${shortMimeTypes[k] === 'json'
-                      ? html`
-                        <input type='radio' 
-                          name='request_body_type' 
-                          value='${shortMimeTypes[k]}' 
-                          @change="${this.onMimeTypeChange}" 
-                          checked 
-                          style='margin:0 0 0 8px'
-                        />`
-                      : html`
-                        <input type='radio' 
-                          name='request_body_type' 
-                          value='${shortMimeTypes[k]}' 
-                          @change="${this.onMimeTypeChange}" 
-                          style='margin:0 0 0 8px'
-                        />`
-                      }
-                      ${shortMimeTypes[k]}
-                    `)
-                  }`
-                }
+        : contentDataType === 'octet-body-data'
+          ? html`${fileInputHtml}`
+          : html`
+            <div class="tab-panel col" style="border-width:0 0 1px 0;">
+              <div class="tab-buttons row" @click="${(e) => { if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; } }}">
+                <button class="tab-btn ${this.activeSchemaTab === 'model' ? 'active' : ''}"   data-tab = 'model'  >MODEL</button>
+                <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
+                <div style="flex:1"> </div>
+                <div style="color:var(--light-fg); align-self:center; font-size:var(--font-size-small); margin-top:8px;">
+                  ${mimeReqCount === 1
+                    ? `${Object.keys(shortMimeTypes)[0]}`
+                    : html`
+                      ${Object.keys(shortMimeTypes).map((k) => html`
+                        ${shortMimeTypes[k] === 'json'
+                          ? html`
+                            <input type='radio' 
+                              name='request_body_type' 
+                              value='${shortMimeTypes[k]}' 
+                              @change="${this.onMimeTypeChange}" 
+                              checked 
+                              style='margin:0 0 0 8px'
+                            />`
+                          : html`
+                            <input type='radio' 
+                              name='request_body_type' 
+                              value='${shortMimeTypes[k]}' 
+                              @change="${this.onMimeTypeChange}" 
+                              style='margin:0 0 0 8px'
+                            />`
+                          }
+                          ${shortMimeTypes[k]}
+                        `)
+                      }`
+                    }
+                </div>
+              </div>
+              <div class ='tab-content col' style = 'flex:1; display:${this.activeSchemaTab === 'example' ? 'flex' : 'none'};'>
+                ${textareaExampleHtml}
+              </div>
+              <div class="tab-content col" style="flex:1; display:${this.activeSchemaTab === 'model' ? 'flex' : 'none'};">
+                ${Object.keys(shortMimeTypes).map((k) => html`
+                  ${this.schemaStyle === 'table'
+                    ? html`
+                      <schema-table
+                        class = '${shortMimeTypes[k]}'
+                        style = 'display: ${(shortMimeTypes[k] === 'json' ? 'block' : 'none')};'
+                        render-style = '${this.renderStyle}'
+                        .data = '${reqSchemaTree[shortMimeTypes[k]]}'
+                        schema-expand-level = "${this.schemaExpandLevel}"
+                        schema-description-expanded = "${this.schemaDescriptionExpanded}"
+                      > </schema-table>`
+                    : html`
+                      <schema-tree 
+                        class = '${shortMimeTypes[k]}'
+                        style = 'display: ${(shortMimeTypes[k] === 'json' ? 'block' : 'none')};'
+                        render-style = '${this.renderStyle}'
+                        .data = '${reqSchemaTree[shortMimeTypes[k]]}'
+                        schema-expand-level = "${this.schemaExpandLevel}"
+                        schema-description-expanded = "${this.schemaDescriptionExpanded}"
+                      > </schema-tree>`
+                  }
+                `)}
+              </div>
             </div>
-          </div>
-          <div class ='tab-content col' style = 'flex:1; display:${this.activeSchemaTab === 'example' ? 'flex' : 'none'};'>
-            ${textareaExampleHtml}
-          </div>
-          <div class="tab-content col" style="flex:1; display:${this.activeSchemaTab === 'model' ? 'flex' : 'none'};">
-            ${Object.keys(shortMimeTypes).map((k) => html`
-              ${this.schemaStyle === 'table'
-                ? html`
-                  <schema-table
-                    class = '${shortMimeTypes[k]}'
-                    style = 'display: ${(shortMimeTypes[k] === 'json' ? 'block' : 'none')};'
-                    render-style = '${this.renderStyle}'
-                    .data = '${reqSchemaTree[shortMimeTypes[k]]}'
-                    schema-expand-level = "${this.schemaExpandLevel}"
-                    schema-description-expanded = "${this.schemaDescriptionExpanded}"
-                  > </schema-table>`
-                : html`
-                  <schema-tree 
-                    class = '${shortMimeTypes[k]}'
-                    style = 'display: ${(shortMimeTypes[k] === 'json' ? 'block' : 'none')};'
-                    render-style = '${this.renderStyle}'
-                    .data = '${reqSchemaTree[shortMimeTypes[k]]}'
-                    schema-expand-level = "${this.schemaExpandLevel}"
-                    schema-description-expanded = "${this.schemaDescriptionExpanded}"
-                  > </schema-tree>`
-              }
-            `)}
-          </div>
-        </div>`
+          `
       }`;
   }
 
@@ -563,6 +595,7 @@ export default class ApiRequest extends LitElement {
     const formParamEls = [...requestPanelEl.querySelectorAll('.request-form-param')];
     const dynFormParamEls = [...requestPanelEl.querySelectorAll('.dynamic-form-param')];
     const bodyParamEls = [...requestPanelEl.querySelectorAll('.request-body-param')];
+    const bodyParamFileEls = [...requestPanelEl.querySelectorAll('.request-body-param-file')];
 
     fetchUrl = me.path;
     const fetchOptions = {
@@ -682,7 +715,7 @@ export default class ApiRequest extends LitElement {
       const formEl = requestPanelEl.querySelector('form');
       const formUrlParams = new URLSearchParams();
       const formDataParams = new FormData();
-      formParamEls.map((el) => {
+      formParamEls.forEach((el) => {
         if (el.dataset.array === 'false') {
           if (el.type !== 'file') {
             if (el.value !== '') {
@@ -696,12 +729,19 @@ export default class ApiRequest extends LitElement {
             curlForm = `${curlForm} -F "${el.dataset.pname}=@${el.value}"`;
           }
         } else {
-          const vals = (el.value && Array.isArray(el.value)) ? el.value : [];
-          vals.forEach((v) => {
-            formUrlParams.append(el.dataset.pname, v);
-            formDataParams.append(el.dataset.pname, v);
-            curlForm += ` -F "${el.dataset.pname}=${v}"`;
-          });
+          // eslint-disable-next-line no-lonely-if
+          if (el.type === 'file') {
+            formUrlParams.append(el.dataset.pname, el.files[0]);
+            formDataParams.append(`${el.dataset.pname}[]`, el.files[0]);
+            curlForm = `${curlForm} -F "${el.dataset.pname}[]=@${el.value}"`;
+          } else {
+            const vals = (el.value && Array.isArray(el.value)) ? el.value : [];
+            vals.forEach((v) => {
+              formUrlParams.append(el.dataset.pname, v);
+              formDataParams.append(el.dataset.pname, v);
+              curlForm += ` -F "${el.dataset.pname}=${v}"`;
+            });
+          }
         }
       });
 
@@ -750,8 +790,12 @@ export default class ApiRequest extends LitElement {
       }
     }
 
-    // Submit Body Params (json/xml/text)
-    if (bodyParamEls.length >= 1) {
+    if (bodyParamFileEls.length >= 1) { // Submit Body Params (file)
+      fetchOptions.headers['Content-Type'] = bodyParamFileEls[0].dataset.ptype;
+      curlHeaders += ` -H "Content-Type: ${bodyParamFileEls[0].dataset.ptype}"`;
+      fetchOptions.body = bodyParamFileEls[0].files[0];
+      curlData = ` -d ${bodyParamFileEls[0].files[0]}`;
+    } else if (bodyParamEls.length >= 1) { // Submit Body Params (json/xml/text)
       if (bodyParamEls.length === 1) {
         fetchOptions.headers['Content-Type'] = bodyParamEls[0].dataset.ptype;
         curlHeaders += ` -H "Content-Type: ${bodyParamEls[0].dataset.ptype}"`;
@@ -832,6 +876,17 @@ export default class ApiRequest extends LitElement {
     }
   }
 
+  onAddFileInput(e, pname, ptype) {
+    const el = e.currentTarget.closest('.file-input-container').querySelector('.input-set');
+    const newInputEl = document.createElement('input');
+    newInputEl.type = 'file';
+    newInputEl.style = 'width:200px; margin-top:2px;';
+    newInputEl.classList.add('request-form-param');
+    newInputEl.setAttribute('data-pname', pname);
+    newInputEl.setAttribute('data-ptype', ptype);
+    newInputEl.setAttribute('data-array', 'true');
+    el.appendChild(newInputEl);
+  }
 
   downloadResponseBlob() {
     if (this.responseBlobUrl) {

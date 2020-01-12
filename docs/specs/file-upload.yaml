@@ -1,0 +1,119 @@
+openapi: 3.0.0
+info:
+  title:  Various ways to upload files (binary content)
+  version: 1.0.0
+  description: |
+    
+    ```
+    openapi: 3.0.0
+    info:
+      title:  Various ways to upload files (binary content)
+      version: 1.0.0
+    paths:
+      /upload-1-file:
+        post:
+          tags:
+            - File Upload
+          summary: uploads single file using form-data
+          requestBody:
+            content:
+              application/x-www-form-urlencoded:
+                schema:
+                  type: object
+                  properties:
+                    filename:
+                      type: string
+                      format: binary      
+          responses:
+            '200':
+              description: OK                    
+
+      /upload-multiple-file:
+        post:
+          tags:
+            - File Upload
+          summary: uploads multiple file using form-data and type as 'array'
+          requestBody:
+            content:
+              application/x-www-form-urlencoded:
+                schema:
+                  type: object
+                  properties:
+                    filename:
+                      type: array
+                      items:
+                        type: string
+                        format: binary      
+          responses:
+            '200':
+              description: OK                    
+
+      /upload-using-request-body:  
+        post:
+          tags:
+            - File Upload
+          summary: uploads single file using request-body content-type as application/octet-stream
+          requestBody:
+            content:
+              application/octet-stream:
+                schema:
+                  type: string
+                  format: binary
+          responses:
+            '200':
+              description: successful operation
+      ```      
+
+paths:
+  /upload-1-file:
+    post:
+      tags:
+        - File Upload
+      summary: uploads single file using form-data
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                filename:
+                  type: string
+                  format: binary      
+      responses:
+        '200':
+          description: OK                    
+
+  /upload-multiple-file:
+    post:
+      tags:
+        - File Upload
+      summary: uploads multiple file using form-data and type as 'array'
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                filename:
+                  type: array
+                  items:
+                    type: string
+                    format: binary      
+      responses:
+        '200':
+          description: OK                    
+
+  /upload-using-request-body:  
+    post:
+      tags:
+        - File Upload
+      summary: uploads single file using request-body content-type as application/octet-stream
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: successful operation
