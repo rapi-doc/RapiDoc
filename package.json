@@ -32,21 +32,13 @@
     "lit-element": "2.2.1",
     "lit-html": "1.0.0",
     "marked": "^0.8.0",
-<<<<<<< HEAD
-    "snyk": "^1.278.0",
     "swagger2openapi": "^5.3.2"
-=======
-    "swagger2openapi": "^5.3.2",
-    "snyk": "^1.278.2"
->>>>>>> 8e79a50b5783960d72b314a10590f8bd5e97908e
   },
   "scripts": {
     "build": "NODE_ENV=production webpack",
     "serve": "webpack-dev-server --mode=development",
     "lint": "./node_modules/eslint/bin/eslint.js ./src/**",
-    "lint-fix": "./node_modules/eslint/bin/eslint.js --fix ./src/**",
-    "snyk-protect": "snyk protect",
-    "prepare": "yarn run snyk-protect"
+    "lint-fix": "./node_modules/eslint/bin/eslint.js --fix ./src/**"
   },
   "devDependencies": {
     "@babel/core": "^7.8.0",
@@ -73,5 +65,5 @@
     "webpack-cli": "^3.3.10",
     "webpack-dev-server": "^3.10.1"
   },
-  "snyk": true
+  "snyk": false
 }

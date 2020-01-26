@@ -2,7 +2,7 @@
 import JsonRefs from 'json-refs';
 import converter from 'swagger2openapi';
 
-export default async function ProcessSpec(specUrl, sortTags = false, attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '') {
+export default async function ProcessSpec(specUrl, sortTags = false, sortEndpointsBy, attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '') {
   let jsonParsedSpec;
   let convertedSpec;
   let resolvedRefSpec;
@@ -42,7 +42,7 @@ export default async function ProcessSpec(specUrl, sortTags = false, attrApiKey 
   // const pathGroups = groupByPaths(jsonParsedSpec);
 
   // Tags
-  const tags = groupByTags(jsonParsedSpec, sortTags);
+  const tags = groupByTags(jsonParsedSpec, sortTags, sortEndpointsBy);
 
   // Security Scheme
   const securitySchemes = [];
@@ -125,8 +125,8 @@ function groupByPaths(openApiSpec) {
 }
 */
 
-function groupByTags(openApiSpec, sortTags = false) {
-  const methods = ['get', 'put', 'post', 'delete', 'patch', 'head'];
+function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
+  const methods = ['get', 'put', 'post', 'delete', 'patch', 'head']; // this is also used for ordering endpoints by methods
   const tags = openApiSpec.tags && Array.isArray(openApiSpec.tags)
     ? openApiSpec.tags.map((v) => ({
       show: true,
@@ -242,12 +242,21 @@ function groupByTags(openApiSpec, sortTags = false) {
     }); // End of Methods
   }
 
-  // sort paths within each tags;
+  // sort paths by methods or path within each tags;
   const tagsWithSortedPaths = tags.filter((v) => v.paths && v.paths.length > 0);
-  tagsWithSortedPaths.forEach((v) => {
-    if (v.paths) {
-      v.paths.sort((a, b) => (a.path < b.path ? -1 : (a.path > b.path ? 1 : 0)));
-    }
-  });
-  return sortTags ? tagsWithSortedPaths.sort((a, b) => (a.name < b.name ? -1 : (a.name > b.name ? 1 : 0))) : tagsWithSortedPaths;
+  if (sortEndpointsBy === 'method') {
+    tagsWithSortedPaths.forEach((v) => {
+      if (v.paths) {
+        // v.paths.sort((a, b) => a.method.localeCompare(b.method));
+        v.paths.sort((a, b) => methods.indexOf(a.method).toString().localeCompare(methods.indexOf(b.method)));
+      }
+    });
+  } else {
+    tagsWithSortedPaths.forEach((v) => {
+      if (v.paths) {
+        v.paths.sort((a, b) => a.path.localeCompare(b.path));
+      }
+    });
+  }
+  return sortTags ? tagsWithSortedPaths.sort((a, b) => a.name.localeCompare(b.name)) : tagsWithSortedPaths;
 }

@@ -38,6 +38,7 @@ export default class RapiDoc extends LitElement {
       // Spec
       specUrl: { type: String, attribute: 'spec-url' },
       sortTags: { type: String, attribute: 'sort-tags' },
+      sortEndpointsBy: { type: String, attribute: 'sort-endpoints-by' },
       specFile: { type: String, attribute: false },
 
       // UI Layouts
@@ -100,6 +101,7 @@ export default class RapiDoc extends LitElement {
     if (!this.apiKeyName) { this.apiKeyName = ''; }
     if (!this.apiKeyValue) { this.apiKeyValue = ''; }
     if (!this.sortTags || !'true false'.includes(this.sortTags)) { this.sortTags = 'false'; }
+    if (!this.sortEndpointsBy || !'method path'.includes(this.sortEndpointsBy)) { this.sortEndpointsBy = 'path'; }
   }
 
   // Cleanup
@@ -684,6 +686,7 @@ export default class RapiDoc extends LitElement {
       const spec = await ProcessSpec(
         specUrl,
         this.sortTags === 'true',
+        this.getAttribute('sort-endpoints-by'),
         this.getAttribute('api-key-name'),
         this.getAttribute('api-key-location'),
         this.getAttribute('api-key-value'),
