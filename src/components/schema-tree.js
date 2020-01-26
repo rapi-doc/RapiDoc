@@ -110,11 +110,14 @@ export default class SchemaTree extends LitElement {
     if (!data) {
       return html`<div class="null" style="display:inline;">null</div>`;
     }
+    if (Object.keys(data).length === 0) {
+      return html`<span class="key object">${prevKey}:{ }</span>`;
+    }
     let newPrevKey = '';
     if (prevKey.startsWith('::ONE~OF') || prevKey.startsWith('::ANY~OF')) {
       newPrevKey = prevKey.replace('::', '').replace('~', ' ');
     } else if (prevKey.startsWith('::OPTION')) {
-      newPrevKey = prevKey.replace('::OPTION~', '').replace('~', ' ');
+      newPrevKey = prevKey.replace('::OPTION~', '');
     } else {
       newPrevKey = prevKey;
     }
@@ -169,7 +172,7 @@ export default class SchemaTree extends LitElement {
             }
           `)}
         </div>
-        ${data['::type'].includes('xxx-of')
+        ${data['::type'] && data['::type'].includes('xxx-of')
           ? ''
           : html`<div class='close-bracket'> ${closeBracket} </div>`
         }

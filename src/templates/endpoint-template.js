@@ -116,3 +116,4 @@ export default function endpointTemplate() {
     }`)
   }`;
 }
+/* eslint-enable indent */

@@ -129,3 +129,4 @@ export default function securitySchemeTemplate() {
   </div>
 `;
 }
+/* eslint-enable indent */

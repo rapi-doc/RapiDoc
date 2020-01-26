@@ -142,3 +142,4 @@ export default function expandedEndpointTemplate() {
   }
 `;
 }
+/* eslint-enable indent */

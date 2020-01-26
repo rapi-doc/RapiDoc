@@ -767,7 +767,7 @@ export default class ApiRequest extends LitElement {
           tmpObj = JSON.parse(val);
         } catch (err) {
           proceed = false;
-          console.warn('Invalid JSON provided', err);
+          console.warn('Invalid JSON provided', err); // eslint-disable-line no-console
         }
       } else {
         proceed = false;

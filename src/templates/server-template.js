@@ -18,6 +18,7 @@ function onApiServerVarChange(e, serverObj) {
   this.requestUpdate();
 }
 
+/* eslint-disable indent */
 function serverVarsTemplate() {
   // const selectedServerObj = this.resolvedSpec.servers.find((v) => (v.url === this.selectedServer));
   return this.selectedServer && this.selectedServer.variables
@@ -44,7 +45,6 @@ function serverVarsTemplate() {
     : '';
 }
 
-/* eslint-disable indent */
 export default function serverTemplate() {
   return html`
   <div id = 'api-servers' class='regular-font observe-me ${this.renderStyle === 'read' ? 'section-gap--read-mode' : 'section-gap'}'>
@@ -83,3 +83,4 @@ export default function serverTemplate() {
     ${serverVarsTemplate.call(this)}
   </div>`;
 }
+/* eslint-enable indent */

@@ -94,18 +94,21 @@ export default class SchemaTable extends LitElement {
   }
 
   generateTree(data, prevDataType = 'object', prevKey = '', prevDescr = '', level = 0) {
+    const leftPadding = 16 * level;
     if (!data) {
       return html`<div class="null" style="display:inline;">null</div>`;
+    }
+    if (Object.keys(data).length === 0) {
+      return html`<span class="td key object" style='padding-left:${leftPadding}px'>${prevKey}</span>`;
     }
     let newPrevKey = '';
     if (prevKey.startsWith('::ONE~OF') || prevKey.startsWith('::ANY~OF')) {
       newPrevKey = prevKey.replace('::', '').replace('~', ' ');
     } else if (prevKey.startsWith('::OPTION')) {
-      newPrevKey = prevKey.replace('::OPTION~', '').replace('~', ' ');
+      newPrevKey = prevKey.replace('::OPTION~', '');
     } else {
       newPrevKey = prevKey;
     }
-    const leftPadding = 16 * level;
     if (typeof data === 'object') {
       return html`
         ${level > 0

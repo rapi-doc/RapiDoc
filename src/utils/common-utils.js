@@ -26,7 +26,9 @@ export function getTypeInfo(schema) {
         ? 'enum'
         : schema.format
           ? schema.format
-          : schema.type,
+          : schema.type
+            ? schema.type
+            : '{missing-type-info}',
     format: schema.format ? schema.format : '',
     pattern: (schema.pattern && !schema.enum) ? schema.pattern : '',
     readOrWriteOnly: schema.readOnly
@@ -42,8 +44,11 @@ export function getTypeInfo(schema) {
     arrayType: '',
     html: '',
   };
+
   if (info.type === '{recursive}') {
     info.description = schema.$ref.substring(schema.$ref.lastIndexOf('/') + 1);
+  } else if (info.type === '{missing-type-info}') {
+    info.description = 'No schema details found in the spec';
   }
 
   // Set Allowed Values
@@ -86,7 +91,6 @@ export function getTypeInfo(schema) {
       info.constrain = `max ${schema.maxLength} chars`;
     }
   }
-
   info.html = `${info.type}~|~${info.readOrWriteOnly} ${info.deprecated}~|~${info.constrain}~|~${info.default}~|~${info.allowedValues}~|~${info.pattern}~|~${info.description}`;
   return info;
 }
@@ -165,7 +169,7 @@ export function getSampleValueByType(schemaObj) {
   }
 }
 
-/* For changing JSON-Schema to a Sample Object, as per the schema */
+/* For changing JSON-Schema to a Sample Object, as per the schema (to generate examples based on schema) */
 export function schemaToSampleObj(schema, config = { }) {
   let obj = {};
   if (!schema) {
@@ -208,8 +212,26 @@ export function schemaToSampleObj(schema, config = { }) {
       obj = schemaToSampleObj(schema.oneOf[0], config);
     }
   } else if (schema.anyOf) {
+    // First generate values for regular properties
+    if (schema.type === 'object' || schema.properties) {
+      for (const key in schema.properties) {
+        if (schema.properties[key].deprecated && !config.includeDeprecated) { continue; }
+        if (schema.properties[key].readOnly && !config.includeReadOnly) { continue; }
+        if (schema.properties[key].writeOnly && !config.includeWriteOnly) { continue; }
+
+        if (schema.example) {
+          obj[key] = schema.example;
+        } else if (schema.examples && schema.example.length > 0) {
+          obj[key] = schema.examples[0];
+        } else {
+          obj[key] = schemaToSampleObj(schema.properties[key], config);
+        }
+      }
+    }
+    let i = 1;
     if (schema.anyOf.length > 0) {
-      obj = schemaToSampleObj(schema.anyOf[0], config);
+      obj[`prop${i}`] = schemaToSampleObj(schema.anyOf[0], config);
+      i++;
     }
   } else if (schema.type === 'object' || schema.properties) {
     for (const key in schema.properties) {
@@ -277,10 +299,23 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     });
     obj = objWithAllProps;
   } else if (schema.anyOf || schema.oneOf) {
+    // 1. First iterate the regular properties
+    if (schema.type === 'object' || schema.properties) {
+      obj['::description'] = schema.description ? schema.description : '';
+      obj['::type'] = 'object';
+      for (const key in schema.properties) {
+        if (schema.required && schema.required.includes(key)) {
+          obj[`${key}*`] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
+        } else {
+          obj[key] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
+        }
+      }
+    }
+    // 2. Then show allof/anyof objects
     let i = 1;
     const objWithAnyOfProps = {};
     const xxxOf = schema.anyOf ? 'anyOf' : 'oneOf';
-    schema[xxxOf].map((v) => {
+    schema[xxxOf].forEach((v) => {
       if (v.type === 'object' || v.properties || v.allOf || v.anyOf || v.oneOf) {
         const partialObj = schemaInObjectNotation(v, {});
         objWithAnyOfProps[`::OPTION~${i}`] = partialObj;
