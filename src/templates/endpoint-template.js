@@ -7,6 +7,7 @@ import { callbackTemplate } from '@/templates/expanded-endpoint-template';
 
 /* eslint-disable indent */
 function toggleExpand(path) {
+  window.location.href = `${window.location.href.split('#')[0]}#${path.method}-${path.path.replace(/[\s#:?&=]/g, '-')}`;
   if (path.expanded) {
     path.expanded = false; // collapse
   } else {

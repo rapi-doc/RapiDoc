@@ -98,7 +98,6 @@ export default class RapiDoc extends LitElement {
     if (!this.defaultSchemaTab || !'example model'.includes(this.defaultSchemaTab)) { this.defaultSchemaTab = 'model'; }
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) { this.schemaExpandLevel = 99999; }
     if (!this.schemaDescriptionExpanded || !'true false'.includes(this.schemaDescriptionExpanded)) { this.schemaDescriptionExpanded = 'false'; }
-    debugger;
     if (!this.responseAreaHeight) {
       this.responseAreaHeight = '300px';
     }
