@@ -1,81 +1,32 @@
-openapi: 3.0.0
+openapi: "3.0.2"
 info:
-  description:  Nested examples 
-  version: 1.0.0
-  title:  Nested examples 
-tags:
-  - name: bugreport
+  title: Recursive
+  version: 0.0.1
 
 paths:
-  "/this/isBroken":
+  /name:
     get:
-      operationId: thisIsBrokenGet
-      tags:
-        - bugreport
-      summary: thisIsBroken example
       responses:
-        200:
-          description: successful operation
+        '200':
+          description: OK
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/BrokenClass"
-  "/this/isFine":
-    get:
-      operationId: thisIsFineGet
-      tags:
-        - bugreport
-      summary: thisIsFine example
-      responses:
-        200:
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/FineClass"
-
 components:
   schemas:
-    BrokenNestedObject:
+    Article:
       type: object
       properties:
-        first:
-          type: integer
-          format: int32
-        second:
-          type: integer
-          format: int32
-      required:
-        - first
-        - second
-      example:
-        first: 123
-        second: 456
-    BrokenClass:
+        similar:
+          anyOf:
+            - $ref: '#/components/schemas/foo'
+            - $ref: '#/components/schemas/bar'
+    foo:
       type: object
       properties:
-        brokenNestedObject:
-          $ref: '#/components/schemas/BrokenNestedObject'
-      required:
-        - brokenNestedObject
-    FineNestedObject:
+        name:
+          type: string
+    bar:
       type: object
       properties:
-        first:
-          type: integer
-          format: int32
-          example: 123
-        second:
-          type: integer
-          format: int32
-          example: 456
-      required:
-        - first
-        - second
-    FineClass:
-      type: object
-      properties:
-        fineNestedObject:
-          $ref: '#/components/schemas/FineNestedObject'
-      required:
-        - fineNestedObject
+        location:
+          type: string      

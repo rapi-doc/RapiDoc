@@ -19,21 +19,18 @@
     ./specs/petstore_anyof.yaml <<< contains complex one-of with inline primitives and recursive objects
     ./specs/oneof1.yaml  <<< nested oneof
   
-
+-->
   <rapi-doc 
     id = "thedoc" 
-    spec-url = "./specs/basic.json" 
+    spec-url = "https://petstore.swagger.io/v2/swagger.json" 
     theme = "dark"
-    render-style = "read"
+    render-style = "view"
     schema-style = 'tree'
-    api-key-name = "my-key"
-    api-key-location = "header"
-    api-key-value = "my-password"
-    server-url="http://192.168.7.32:8080"
+    sort-endpoints-by = "method"
+    response-area-height = "900px"
   > </rapi-doc>
--->
 
-<rapi-doc spec-url="./specs/file-upload.yaml" render-style='read' allow-server-selection="false" allow-authentication="false"> </rapi-doc>
+
 
 <!--
   <rapi-doc 
