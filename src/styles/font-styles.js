@@ -24,7 +24,7 @@ export default html`
   .red-text {color: var(--red)}
   .multiline {
     overflow: scroll;
-    max-height: 200px;
+    max-height: var(--resp-area-height, 300px);
     color: var(--fg3);  
   }
   .method-fg.put { color: var(--orange); }

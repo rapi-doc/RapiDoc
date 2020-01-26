@@ -48,6 +48,7 @@ export default class RapiDoc extends LitElement {
       defaultSchemaTab: { type: String, attribute: 'default-schema-tab' },
       schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
       schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
+      responseAreaHeight: { type: String, attribute: 'response-area-height' },
 
       // API Server
       apiKeyName: { type: String, attribute: 'api-key-name' },
@@ -97,6 +98,10 @@ export default class RapiDoc extends LitElement {
     if (!this.defaultSchemaTab || !'example model'.includes(this.defaultSchemaTab)) { this.defaultSchemaTab = 'model'; }
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) { this.schemaExpandLevel = 99999; }
     if (!this.schemaDescriptionExpanded || !'true false'.includes(this.schemaDescriptionExpanded)) { this.schemaDescriptionExpanded = 'false'; }
+    debugger;
+    if (!this.responseAreaHeight) {
+      this.responseAreaHeight = '300px';
+    }
     if (!this.allowTry || !'true false'.includes(this.allowTry)) { this.allowTry = 'true'; }
     if (!this.apiKeyName) { this.apiKeyName = ''; }
     if (!this.apiKeyValue) { this.apiKeyValue = ''; }
@@ -139,10 +144,11 @@ export default class RapiDoc extends LitElement {
           --font-mono:${this.monoFont ? `${this.monoFont}` : 'Monaco, "Andale Mono", "Roboto Mono", Consolas'}; 
           --font-regular:${this.regularFont ? `${this.regularFont}` : 'rapidoc, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'};
 
-          --font-size-mono:13px;
-          --font-size-regular:14px;
-          --font-size-small:12px;
-          --border-radius:2px;
+          --font-size-mono: 13px;
+          --font-size-regular: 14px;
+          --font-size-small: 12px;
+          --border-radius: 2px;
+          --resp-area-height: ${this.responseAreaHeight};
 
           display:flex;
           flex-direction: column;
