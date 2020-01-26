@@ -32,8 +32,13 @@
     "lit-element": "2.2.1",
     "lit-html": "1.0.0",
     "marked": "^0.8.0",
+<<<<<<< HEAD
     "snyk": "^1.278.0",
     "swagger2openapi": "^5.3.2"
+=======
+    "swagger2openapi": "^5.3.2",
+    "snyk": "^1.278.2"
+>>>>>>> 8e79a50b5783960d72b314a10590f8bd5e97908e
   },
   "scripts": {
     "build": "NODE_ENV=production webpack",
