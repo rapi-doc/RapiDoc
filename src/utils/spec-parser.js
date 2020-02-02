@@ -1,17 +1,30 @@
 /* eslint-disable no-use-before-define */
-import JsonRefs from 'json-refs';
+// import JsonRefs from 'json-refs';
 import converter from 'swagger2openapi';
+import Swagger from 'swagger-client';
 
 export default async function ProcessSpec(specUrl, sortTags = false, sortEndpointsBy, attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '') {
   let jsonParsedSpec;
   let convertedSpec;
-  let resolvedRefSpec;
-  let resolveOptions;
-  let specLocation = '';
-  let url;
+  // let resolvedRefSpec;
+  // let resolveOptions;
+  // const specLocation = '';
+  // let url;
 
   const convertOptions = { patch: true, warnOnly: true };
   try {
+    let specObj;
+    if (typeof specUrl === 'string') {
+      specObj = await Swagger(specUrl);
+    } else {
+      specObj = { spec: specUrl };
+    }
+    if (specObj.spec.swagger) {
+      convertedSpec = await converter.convertObj(specObj.spec, convertOptions);
+      jsonParsedSpec = convertedSpec.openapi;
+    }
+    jsonParsedSpec = specObj.spec;
+    /*
     // JsonRefs cant load yaml files, so first use converter
     if (typeof specUrl === 'string') {
       // resolvedRefSpec = await JsonRefs.resolveRefsAt(specUrl, resolveOptions);
@@ -35,6 +48,7 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
     resolvedRefSpec = await JsonRefs.resolveRefs(convertedSpec.openapi, resolveOptions);
     // jsonParsedSpec = convertedSpec.openapi;
     jsonParsedSpec = resolvedRefSpec.resolved;
+    */
   } catch (err) {
     console.info('%c There was an issue while parsing the spec %o ', 'color:orangered', err); // eslint-disable-line no-console
   }

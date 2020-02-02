@@ -1,32 +1,61 @@
 openapi: 3.0.2
-servers:
-  - url: https//example/system
+info:
+  version: '1.0'
+  title: External refs (json-pointers)
+  description: >
+    Following OpenAPI spec demonstrate how to use external reference
+
+
+    below is the main spec, but the schema used in the response is defined in a sepaerate file named - schema.yaml
+    
+    ```
+
+    openapi: 3.0.0
+    info:
+      title:  Dynamic Form Params 
+      version: 1.0.0
+    paths:
+      /user1:
+        get:
+          description: List User
+          summary: List User
+          responses:
+            '200':
+              description: The response
+              content:
+                application/json:
+                  schema: 
+                    $ref:'./schema.yaml#/components/schemas/user' <<< relative to html where rapidoc element is defined
+    ```          
+    
+    schema.yaml
+
+    ```
+
+    openapi: 3.0.2
+    info:
+      title: Partial spec for schema
+      version: 1.0.0
+    components:
+      schemas:
+        user:
+          properties:
+            id:
+              type: integer
+            name:
+              type: string    
+    ```          
+    
+ 
 paths:
-  /sample/login:
-    post:
-      summary: Login
-      operationId: userLogin
-      description: Login.
-      parameters:
-        - $ref: '../../specs/partial.json#/components/parameters/accept' # This path is relative to the html which shows the spec (not to the spec itself)
-        - $ref: '#/components/parameters/acceptLanguageHeader'   
-        - $ref: '#/components/parameters/contentType'
-# Components
-components:
-  parameters:
-    acceptLanguageHeader:
-      name: Accept-Language
-      in: header
-      description: Language locale accepted by client (used for locale specific fields in resource representation and in error responses). 
-      required: true
-      schema:
-        type: string
-        enum: [en-US, es-ES, fr-FR]
-    contentType:
-      name: Content-Type
-      in: header
-      description: Media type sent by the client
-      required: true
-      schema:
-        type: string
-        enum: [application/xml, application/json]
+  /user1:
+    get:
+      description: List User
+      summary: List User
+      responses:
+        '200':
+          description: The response
+          content:
+            application/json:
+              schema: 
+                $ref: '../../specs/partial.yaml#/components/schemas/user'
