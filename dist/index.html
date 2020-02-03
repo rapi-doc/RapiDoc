@@ -20,6 +20,8 @@
     ./specs/oneof1.yaml  <<< nested oneof
   
 -->
+
+<!--
   <rapi-doc 
     id = "thedoc" 
     spec-url = "https://petstore.swagger.io/v2/swagger.json" 
@@ -29,13 +31,12 @@
     sort-endpoints-by = "method"
     response-area-height = "900px"
   > </rapi-doc>
+-->
 
 
-
-<!--
   <rapi-doc 
     id="thedoc" 
-    spec-url="./specs/petstore_extended.yaml" 
+    spec-url="./specs/basic.json" 
     theme="dark"
     allow-api-list-style-selection = "false"
     render-style = "read"   
@@ -50,8 +51,9 @@
     nav-hover-text-color = "#AA8144"
     nav-accent-color = "#AA8144"
   > </rapi-doc>
--->
-  <!--
+
+<!-- 
+  <rapi-doc id = "thedoc" ></rapi-doc>
   <script>
     document.addEventListener('DOMContentLoaded', (event) => {
       let docEl = document.getElementById("thedoc");
@@ -108,7 +110,6 @@
     })
   </script>
 -->
-
 <script type="text/javascript" src="rapidoc-min.js"></script></body>
 
 </html>

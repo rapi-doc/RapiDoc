@@ -4,29 +4,26 @@ info:
   version: 0.0.1
 
 paths:
-  /name:
+  /somepath:
     get:
       responses:
         '200':
           description: OK
           content:
             application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Article'
+                  - required: [ foo ]
 components:
   schemas:
     Article:
       type: object
       properties:
         similar:
-          anyOf:
-            - $ref: '#/components/schemas/foo'
-            - $ref: '#/components/schemas/bar'
-    foo:
-      type: object
-      properties:
-        name:
-          type: string
-    bar:
-      type: object
-      properties:
-        location:
-          type: string      
+          allOf:
+            - $ref: '#/components/schemas/Article'
+            - required: [ bar ]
+      anyOf:
+        - required: [ foo ]
+        - required: [ bar ]

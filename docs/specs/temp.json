@@ -1,51 +1,86 @@
 {
-  "openapi": "3.0.2",
+  "openapi": "3.0.0",
   "info": {
-    "title": "example API",
-    "version": "TODO",
-    "description": "TODO"
+    "title": "Bug API",
+    "version": "1.0.0"
   },
   "paths": {
-    "/groups/": {
+    "/": {
       "post": {
-        "operationId": "createGroup",
-        "parameters": [],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "required": [
-                  "members"
-                ],
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "readOnly": true
-                  },
-                  "name": {
-                    "type": "string",
-                    "maxLength": 100
-                  },
-                  "members": {
-                    "type": "array",
-                    "items": {
-                      "required": [],
-                      "properties": {
-                        "id": {
-                          "type": "integer",
-                          "readOnly": true
-                        },
-                        "name": {
-                          "type": "string",
-                          "maxLength": 100
-                        }
+                "type": "object",
+                "title": "Schema",
+                "allOf": [
+                  {
+                    "properties": {
+                      "allOfParam1": {
+                        "type": "string"
                       }
                     }
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "required": [
+                          "anyOf1Param1"
+                        ],
+                        "title": "anyOf1Param1",
+                        "properties": {
+                          "anyOf1Param1": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      {
+                        "required": [
+                          "anyOf1Param2"
+                        ],
+                        "title": "anyOf1Param2",
+                        "properties": {
+                          "anyOf1Param2": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "required": [
+                          "anyOf2Param1"
+                        ],
+                        "title": "anyOf2Param1",
+                        "properties": {
+                          "anyOf2Param1": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      {
+                        "required": [
+                          "anyOf2Param2"
+                        ],
+                        "title": "anyOf2Param2",
+                        "properties": {
+                          "anyOf2Param2": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    ]
                   }
-                }
+                ]
               }
             }
           }
+        },
+        "responses": {
+
         }
       }
     }
