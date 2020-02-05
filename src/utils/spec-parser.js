@@ -92,7 +92,7 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
   if (jsonParsedSpec.servers) {
     jsonParsedSpec.servers.forEach((v) => {
       let computedUrl = v.url.trim().toLowerCase();
-      if (!(computedUrl.startsWith('http') || computedUrl.startsWith('{'))) {
+      if (!(computedUrl.startsWith('http') || computedUrl.startsWith('//') || computedUrl.startsWith('{'))) {
         if (window.location.origin.startsWith('http')) {
           v.url = window.location.origin + v.url;
           computedUrl = v.url;
