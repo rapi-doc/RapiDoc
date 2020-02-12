@@ -191,6 +191,16 @@ export default class RapiDoc extends LitElement {
         .nav-bar:hover .cover-scroll-bar {
           opacity: 0;
         }
+        .nav-scroll::-webkit-scrollbar-track{
+          background:transparent;
+        }
+        .nav-scroll::-webkit-scrollbar{
+          width: 10px;
+          background-color: transparent;
+        }
+        .nav-scroll::-webkit-scrollbar-thumb {
+          background-color: var(--nav-hover-bg-color);
+        }
 
         .cover-scroll-bar {
           position: absolute;
@@ -261,6 +271,18 @@ export default class RapiDoc extends LitElement {
         .main-content--read-mode{
           color: var(--fg3)
         }
+        .main-content::-webkit-scrollbar-track{
+          background:transparent;
+        }
+        .main-content::-webkit-scrollbar{
+          width: 8px;
+          height: 8px;
+          background-color: transparent;
+        }
+        .main-content::-webkit-scrollbar-thumb {
+          background-color: var(--border-color);
+        }
+
         .section-gap,
         .section-gap--read-mode { 
           padding: 24px 8px 12px 8px; 

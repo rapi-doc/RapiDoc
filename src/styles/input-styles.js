@@ -114,19 +114,24 @@ input.reverse::placeholder{
   color: #666;
 }
 
+pre::-webkit-scrollbar-track,
 textarea::-webkit-scrollbar-track{
-  background-color: transparent;
+  background:var(--input-bg);
 }
   
+pre::-webkit-scrollbar,
 textarea::-webkit-scrollbar{
-  width: 12px;
-  height: 12px;
+  width: 8px;
+  height: 8px;
   background-color: transparent;
 }
  
+pre::-webkit-scrollbar-thumb,
 textarea::-webkit-scrollbar-thumb {
-  background-color: rgba(50,50,50, .5);
+  border-radius:2px;
+  background-color: var(--primary-color)
 }
+
 .link{
   font-size:var(--font-size-small);
   text-decoration: underline;
