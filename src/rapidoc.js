@@ -213,10 +213,6 @@ export default class RapiDoc extends LitElement {
           opacity: 1;
         }
 
-        .nav-scroll:hover::-webkit-scrollbar {
-          width: 24px;
-        }
-
         .nav-bar-tag {
           font-size: var(--font-size-regular);
           border-left:4px solid transparent;
