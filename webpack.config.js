@@ -1,7 +1,6 @@
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const FileManagerPlugin = require('filemanager-webpack-plugin');
-const CompressionPlugin = require('compression-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const { DuplicatesPlugin } = require('inspectpack/plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
@@ -10,12 +9,8 @@ const path = require('path');
 
 const commonPlugins = [
   new webpack.HotModuleReplacementPlugin(),
-  new webpack.optimize.LimitChunkCountPlugin({
-    maxChunks: 1,
-  }),
   new CleanWebpackPlugin(),
   new HtmlWebpackPlugin({ template: 'index.html' }),
-  new CompressionPlugin(),
   new FileManagerPlugin({
     onEnd: {
       copy: [
@@ -40,13 +35,13 @@ module.exports = {
     'native-promise-only': 'native-promise-only',
     commander: 'commander',
     yargs: 'yargs',
+    'node-fetch': 'null',
+    'node-fetch-h2': 'null',
+    yaml: 'null',
   },
   optimization: {
-    splitChunks: {
-      chunks: 'all',
-    },
+    minimize: true,
   },
-
   devtool: 'cheap-module-source-map',
   output: {
     path: path.join(__dirname, 'dist'),
@@ -84,11 +79,10 @@ module.exports = {
         ],
       },
       {
-        test: /\.scss$/,
+        test: /\.css$/,
         use: [
           { loader: 'style-loader' }, // creates style nodes in HTML from CommonJS strings
           { loader: 'css-loader' }, // translates CSS into CommonJS
-          { loader: 'sass-loader' }, // compiles Sass to CSS
         ],
       },
       {
@@ -108,4 +102,4 @@ module.exports = {
     },
   },
   plugins: commonPlugins,
-}
+};
