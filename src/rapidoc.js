@@ -713,6 +713,7 @@ export default class RapiDoc extends LitElement {
         this.getAttribute('api-key-name'),
         this.getAttribute('api-key-location'),
         this.getAttribute('api-key-value'),
+        this.getAttribute('server-url'),
       );
       this.loading = false;
       if (spec === undefined || spec === null) {
