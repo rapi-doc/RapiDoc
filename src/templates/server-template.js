@@ -32,13 +32,16 @@ function serverVarsTemplate() {
             <input 
               type = "text" 
               spellcheck = "false" 
-              style = "width:100%"
               data-var = "${kv[0]}"
               value = "${kv[1].default}"
               @input = ${(e) => { onApiServerVarChange.call(this, e, this.selectedServer); }}
             />
+            ${kv[1].description
+              ? html`<span class="gray-text"> ${kv[1].description} </span>`
+              : ''
+            }
           </td>
-        </tr>  
+        </tr>
       `)}
     </table>
     `
