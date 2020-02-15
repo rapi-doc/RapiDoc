@@ -1,9 +1,8 @@
 import { html } from 'lit-element';
-import ColorUtils from '@/utils/color-utils';
 
 export default html`
 <style>
-input, select, button {
+.m-select, input, select, button {
   font-family: var(--font-regular);
   font-weight:400;
   color:var(--fg);
@@ -90,28 +89,6 @@ textarea:active,
 input[type="text"]:active,
 input[type="password"]:active {
   border:1px solid var(--primary-color);
-}
-
-textarea.reverse,
-input.reverse[type="text"],
-input.reverse[type="password"]{
-  background:${ColorUtils.color.inputReverseBg};
-  color:${ColorUtils.color.inputReverseFg};
-  border:1px solid var(--primary-color); 
-}
-
-textarea.reverse:focus,
-input.reverse[type="text"]:focus,
-input.reverse[type="password"]:focus,
-textarea.reverse:active,
-input.reverse[type="text"]:active,
-input.reverse[type="password"]:active{
-  border:1px solid var(--primary-color);
-}
-
-textarea.reverse::placeholder,
-input.reverse::placeholder{
-  color: #666;
 }
 
 pre::-webkit-scrollbar-track,

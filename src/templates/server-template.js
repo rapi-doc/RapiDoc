@@ -65,19 +65,6 @@ export default function serverTemplate() {
             <br/>
           `)}
       `}
-      ${(this.serverUrl)
-        ? html`
-          <input type='radio' 
-            name = 'api_server' 
-            value = '${this.serverUrl}' 
-            @change = ${(e) => { onApiServerChange.call(this, e, { url: this.serverUrl, computedUrl: this.serverUrl }); }}
-            .checked = '${this.selectedServer.url === this.serverUrl}'
-            style = 'margin:4px 0'
-          />
-            ${this.serverUrl}
-          <br/>`
-        : ''
-      }
       <div class="table-title primary-text"> SELECTED: ${this.selectedServer.computedUrl}</div>
     </div>
     ${serverVarsTemplate.call(this)}

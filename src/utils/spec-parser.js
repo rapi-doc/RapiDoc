@@ -3,7 +3,7 @@
 import converter from 'swagger2openapi';
 import Swagger from 'swagger-client';
 
-export default async function ProcessSpec(specUrl, sortTags = false, sortEndpointsBy, attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '') {
+export default async function ProcessSpec(specUrl, sortTags = false, sortEndpointsBy, attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '') {
   let jsonParsedSpec;
   let convertedSpec;
   // let resolvedRefSpec;
@@ -89,7 +89,7 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
 
   // Servers
   let servers = [];
-  if (jsonParsedSpec.servers) {
+  if (jsonParsedSpec.servers && Array.isArray(jsonParsedSpec.servers)) {
     jsonParsedSpec.servers.forEach((v) => {
       let computedUrl = v.url.trim().toLowerCase();
       if (!(computedUrl.startsWith('http') || computedUrl.startsWith('//') || computedUrl.startsWith('{'))) {
@@ -108,6 +108,11 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
       }
       v.computedUrl = computedUrl;
     });
+    if (serverUrl) {
+      jsonParsedSpec.servers.push({ url: serverUrl, computedUrl: serverUrl });
+    }
+  } else if (serverUrl) {
+    jsonParsedSpec.servers = [{ url: serverUrl, computedUrl: serverUrl }];
   } else if (window.location.origin.startsWith('http')) {
     jsonParsedSpec.servers = [{ url: window.location.origin, computedUrl: window.location.origin }];
   } else {
