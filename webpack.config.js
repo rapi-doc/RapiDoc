@@ -4,13 +4,21 @@ const FileManagerPlugin = require('filemanager-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const { DuplicatesPlugin } = require('inspectpack/plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const VERSION = JSON.stringify(require('./package.json').version).replace(/"/g, '');
 
 const path = require('path');
+
+const BANNER = `RapiDoc ${VERSION.replace()} - WebComponent to View OpenAPI docs
+License: MIT
+Repo   : https://github.com/mrin9/RapiDoc
+Author : Mrinmoy Majumdar`;
 
 const commonPlugins = [
   new webpack.HotModuleReplacementPlugin(),
   new CleanWebpackPlugin(),
   new HtmlWebpackPlugin({ template: 'index.html' }),
+  new webpack.BannerPlugin(BANNER),
+  new webpack.DefinePlugin({ VERSION }),
   new FileManagerPlugin({
     onEnd: {
       copy: [
@@ -37,7 +45,8 @@ module.exports = {
     yargs: 'yargs',
     'node-fetch': 'null',
     'node-fetch-h2': 'null',
-    yaml: 'null',
+    'cross-fetch': 'null',
+    qs: 'null',
   },
   optimization: {
     minimize: true,

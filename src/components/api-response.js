@@ -252,8 +252,6 @@ export default class ApiResponse extends LitElement {
           > </schema-tree>`
       }`;
   }
-
-
   /* eslint-enable indent */
 }
 
