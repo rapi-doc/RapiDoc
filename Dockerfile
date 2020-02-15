@@ -6,15 +6,15 @@
 
 # To Run the Docker image  with custom RapiDoc options such as dark theme
 
-# Example 1
+# Example 1 (dark mode)
 # docker run -it --rm -p 80:80 -e SPEC_URL="http://petstore.swagger.io/v2/swagger.json" -e RAPIDOC_OPTIONS="theme='dark' " rapidoc
 
-# Example 2
-# docker run -it --rm -p 80:80 -e SPEC_URL="http://petstore.swagger.io/v2/swagger.json" -e RAPIDOC_OPTIONS="theme='dark' render-style='read'" rapidoc
+# Example 2 (provide your own api server) 
+# docker run -it --rm -p 80:80 -e SPEC_URL="http://petstore.swagger.io/v2/swagger.json" -e RAPIDOC_OPTIONS="theme='dark' server-url='http://localhost:8080/api'" rapidoc
 
 FROM node:alpine
 
-RUN apk update && apk add --no-cache git 
+RUN apk update
 
 # Copy files needed for building
 WORKDIR /build
@@ -24,7 +24,7 @@ COPY package.json yarn.lock webpack.config.js .babelrc .eslintrc jsconfig.json i
 COPY src /build/src
 
 # Install Dependencies
-RUN yarn install --frozen-lockfile --ignore-optional --ignore-scripts
+RUN yarn install --frozen-lockfile --silent
 
 # Build
 RUN yarn build

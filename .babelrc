@@ -1,25 +1,26 @@
 {
   "presets": [ 
     [
-      "@babel/preset-env",
-      { 
+      "@babel/preset-env",{ 
         "modules": false, // do not transform modules
-        "targets": {"esmodules": true }
+        "targets": {"esmodules": true },
       }
     ]
   ],
   "plugins": [
-    ["template-html-minifier", {
-      "modules": {
-        "lit-html": ["html"],
-        "lit-element": [
-          "html",
-          {"name": "css", "encapsulation": "style"}
-        ],
-      },
-      "htmlMinifier": {
-        "collapseWhitespace": true
+    [
+      "template-html-minifier", {
+        "modules": {
+          "lit-html": ["html"],
+          "lit-element": [
+            "html",
+            {"name": "css", "encapsulation": "style"}
+          ],
+        },
+        "htmlMinifier": {
+          "collapseWhitespace": true
+        }
       }
-    }]
+    ]
   ]
 }
