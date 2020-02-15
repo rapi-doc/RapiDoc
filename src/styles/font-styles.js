@@ -88,7 +88,7 @@ export default html`
   .m-markdown-small ol{
     padding-inline-start: 20px;
   }
-
+  .m-markdown-small code,
   .m-markdown code {
     background-color: var(--bg3);
     padding: 1px 6px;

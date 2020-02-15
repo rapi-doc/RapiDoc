@@ -1,4 +1,6 @@
 import { html } from 'lit-element';
+import marked from 'marked';
+import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 
 function onApiServerChange(e, server) {
   if (e && e.target.checked) {
@@ -36,12 +38,12 @@ function serverVarsTemplate() {
               value = "${kv[1].default}"
               @input = ${(e) => { onApiServerVarChange.call(this, e, this.selectedServer); }}
             />
-            ${kv[1].description
-              ? html`<span class="gray-text"> ${kv[1].description} </span>`
-              : ''
-            }
           </td>
         </tr>
+        ${kv[1].description
+          ? html`<tr><td colspan="2" style="border:none"><span class="m-markdown-small"> ${unsafeHTML(marked(kv[1].description))} </span></td></tr>`
+          : ''
+        }
       `)}
     </table>
     `

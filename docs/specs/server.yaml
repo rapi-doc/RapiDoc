@@ -5,6 +5,7 @@ info:
   description: For testing Server variables
 servers:
   - url: 'http://example.com/api'
+    description: Test server (just for example)
   - url: '/api'
   - url: '{protocol}://dev.com/api'
     variables:
@@ -17,10 +18,15 @@ servers:
     variables:
       environment:
         default: api    # Production server
+        description: >
+          Server choices:
+           * `api` Production (this is the default).
+           * `api.qa` QA server.
+           * `api.dev` Development server.
         enum:
-          - api         # Production server
-          - api.dev     # Development server
-          - api.staging # Staging server
+          - api      # Production server
+          - api.dev  # Development server
+          - api.qa   # Testing server
       protocol:
         default: https          
         enum:
