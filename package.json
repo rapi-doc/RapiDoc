@@ -1,12 +1,13 @@
 {
   "name": "rapidoc",
-  "version": "7.3.0",
+  "version": "7.3.1",
   "description": "RapiDoc - Open API spec viewer with built in console",
   "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
   "repository": {
     "type": "git",
     "url": "https://github.com/mrin9/RapiDoc.git"
   },
+  "sideEffects": false,
   "license": "MIT",
   "keywords": [
     "OpenAPI",
