@@ -141,7 +141,7 @@ export default class RapiDoc extends LitElement {
         :host {
           --layout:${this.layout ? `${this.layout}` : 'row'};
           --font-mono:${this.monoFont ? `${this.monoFont}` : 'Monaco, "Andale Mono", "Roboto Mono", Consolas'}; 
-          --font-regular:${this.regularFont ? `${this.regularFont}` : 'rapidoc, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'};
+          --font-regular:${this.regularFont ? `${this.regularFont}` : 'rapidoc, "Open Sans", BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif'};
 
           --font-size-mono: 13px;
           --font-size-regular: 14px;
@@ -186,7 +186,7 @@ export default class RapiDoc extends LitElement {
         }
         .nav-scroll {
           overflow-x:hidden;
-          overflow-y:auto;
+          overflow-y: auto;
         }
         .nav-bar:hover .cover-scroll-bar {
           opacity: 0;
@@ -195,20 +195,21 @@ export default class RapiDoc extends LitElement {
           background:transparent;
         }
         .nav-scroll::-webkit-scrollbar{
-          width: 10px;
+          width: 12px;
           background-color: transparent;
         }
         .nav-scroll::-webkit-scrollbar-thumb {
+          border: 3px solid var(--nav-bg-color);
           background-color: var(--nav-hover-bg-color);
         }
 
         .cover-scroll-bar {
           position: absolute;
           background: var(--nav-bg-color);
-          height: 100%;  
+          height: 100%;
           top: 0;
           right: 0;
-          width: 20px;
+          width: 10px;
           transition: all .3s;
           opacity: 1;
         }
@@ -242,7 +243,6 @@ export default class RapiDoc extends LitElement {
         .nav-bar-info.active,
         .nav-bar-tag.active,
         .nav-bar-path.active {
-          font-weight:bold;
           border-left:4px solid var(--nav-accent-color);
           color:var(--nav-hover-text-color);
           background-color:var(--nav-hover-bg-color);
@@ -524,7 +524,7 @@ export default class RapiDoc extends LitElement {
           `)}
           </div>`
         }
-        <div class="cover-scroll-bar"></div>
+        <!-- div class="cover-scroll-bar"></div -->
       </div>
     `;
   }

@@ -45,6 +45,19 @@
   border-bottom:1px solid #aaa;
 }
 
+.no-border-table td, 
+.no-border-table th {
+  padding: 2px;
+  vertical-align: top;
+  border:none;
+}
+
+.color-box {
+  height:16px;
+  width: 16px;
+  border: 1px solid black;
+  display: inline-block;
+}
 @media only screen and (min-width: 768px){
   .table-block{
     font-size:12px;
@@ -59,5 +72,4 @@
     font-size:14px;
     width:730px;
   }
-  
 }
