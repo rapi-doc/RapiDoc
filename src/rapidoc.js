@@ -162,7 +162,6 @@ export default class RapiDoc extends LitElement {
           background-color:var(--bg);
           font-family:var(--font-regular);
         }
-        ::selection { background: var(--bg3); }
         .body {
           display:flex;
           height:100%;

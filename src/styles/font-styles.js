@@ -2,7 +2,10 @@ import { html } from 'lit-element';
 
 export default html`
 <style>
-  ::selection { background: var(--bg3); }
+  ::selection {
+    background: var(--selection-bg);
+    color: var(--selection-fg);
+  }
   .regular-font{ font-family:var(--font-regular); }
   .mono-font{ font-family:var(--font-mono); }
   .title{ font-size: 30px;font-weight:normal }

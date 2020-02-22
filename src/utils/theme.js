@@ -14,6 +14,9 @@ export default function setTheme(baseTheme, theme = {}) {
     const fg2 = theme.fg2 ? theme.fg2 : ColorUtils.color.brightness(fg1, -15); // or #ababab
     const fg3 = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, -20); // or #aaa
     const lightFg = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, -65); // or #777
+    const selectionBg = '#bbb';
+    const selectionFg = '#eee';
+
     const headerColor = theme.headerColor ? theme.headerColor : ColorUtils.color.brightness(bg1, 10);
 
     const navBgColor = theme.navBgColor ? theme.navBgColor : ColorUtils.color.brightness(bg1, 10);
@@ -31,6 +34,8 @@ export default function setTheme(baseTheme, theme = {}) {
       fg3,
       lightFg,
       primaryColor,
+      selectionBg,
+      selectionFg,
 
       navBgColor,
       navTextColor,
@@ -82,6 +87,9 @@ export default function setTheme(baseTheme, theme = {}) {
     const fg2 = theme.fg2 ? theme.fg2 : ColorUtils.color.brightness(fg1, 17); // or '#555'
     const fg3 = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, 30); // or #666
     const lightFg = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, 70); // or #999
+    const selectionBg = '#444';
+    const selectionFg = '#eee';
+
     const headerColor = theme.headerColor ? theme.headerColor : ColorUtils.color.brightness(bg1, -180);
 
     /*
@@ -106,6 +114,8 @@ export default function setTheme(baseTheme, theme = {}) {
       fg3,
       lightFg,
       primaryColor,
+      selectionBg,
+      selectionFg,
 
       navBgColor,
       navTextColor,
@@ -158,6 +168,8 @@ export default function setTheme(baseTheme, theme = {}) {
     --fg2:${newTheme.fg2};
     --fg3:${newTheme.fg3};
     --light-fg:${newTheme.lightFg};
+    --selection-bg:${newTheme.selectionBg};
+    --selection-fg:${newTheme.selectionFg};
     
     /* Border Colors */
     --border-color:${newTheme.borderColor};
