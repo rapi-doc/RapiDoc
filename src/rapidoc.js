@@ -185,39 +185,30 @@ export default class RapiDoc extends LitElement {
         }
         .nav-scroll {
           overflow-x:hidden;
-          overflow-y: auto;
-        }
-        .nav-bar:hover .cover-scroll-bar {
-          opacity: 0;
+          overflow-y: overlay;
         }
         .nav-scroll::-webkit-scrollbar-track{
           background:transparent;
         }
         .nav-scroll::-webkit-scrollbar{
+          display:none;
           width: 12px;
           background-color: transparent;
+        }
+        .nav-scroll:hover::-webkit-scrollbar{
+          display:block;
         }
         .nav-scroll::-webkit-scrollbar-thumb {
           border: 3px solid var(--nav-bg-color);
           background-color: var(--nav-hover-bg-color);
         }
 
-        .cover-scroll-bar {
-          position: absolute;
-          background: var(--nav-bg-color);
-          height: 100%;
-          top: 0;
-          right: 0;
-          width: 10px;
-          transition: all .3s;
-          opacity: 1;
-        }
-
         .nav-bar-tag {
           font-size: var(--font-size-regular);
           border-left:4px solid transparent;
+          border-top: 1px solid var(--nav-hover-bg-color);
           font-weight:bold;
-          padding: 30px 30px 5px 10px;
+          padding: 15px 30px 15px 10px;
           text-transform: capitalize;
         }
 
@@ -475,7 +466,7 @@ export default class RapiDoc extends LitElement {
         ${(this.allowSearch === 'false')
           ? ''
           : html`
-            <div style="position:sticky; top:0; display:flex; flex-direction:row; align-items: stretch; padding:16px 30px 16px 16px; background: var(--nav-bg-color);">
+            <div style="position:sticky; top:0; display:flex; flex-direction:row; align-items: stretch; padding:24px; background: var(--nav-bg-color); box-shadow: 0 2px 2px rgba(0, 0, 0, 0.3);">
               <div style="display:flex; flex:1">
                 <input id="nav-bar-search" 
                   style="width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" 
