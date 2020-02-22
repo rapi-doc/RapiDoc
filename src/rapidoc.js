@@ -200,6 +200,7 @@ export default class RapiDoc extends LitElement {
         }
         .nav-scroll::-webkit-scrollbar-thumb {
           border: 3px solid var(--nav-bg-color);
+          border-width: 0 3px;
           background-color: var(--nav-hover-bg-color);
         }
 

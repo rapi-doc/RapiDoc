@@ -1,26 +1,59 @@
-openapi: 3.0.2
+openapi: 3.0.0
 info:
-  title: Test
-  version: "0.0.1"
+  version: 1.0.0
+  title: Additional Properties
 paths:
-  /example:
+  /additional-props/primitive:
     get:
-      summary: Example operation
+      summary: Only addtional props
       responses:
         '200':
-          description: ok
+          description: successful operation
           content:
             application/json:
               schema:
-                allOf:
-                  - type: object
-                    description: dynamic fields, expect to see `prop1` and `prop2` as required field names here
-                    additionalProperties:
+                type: object
+                additionalProperties:
+                  type: integer
+  /additional-props/multiple:
+    get:
+      summary: Defined Props and additional props
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  defined-prop:
+                    type: integer
+                additionalProperties:
+                  type: object
+                  properties:
+                    additional-prop1:
+                      type: integer
+                    additional-prop2:
                       type: string
-                  - required:
-                    - prop1
-                    - prop2
-              example:
-                prop1: required prop
-                prop2: required prop
-                prop3: optional prop
+  /additional-props/schema:
+    get:
+      summary: additional props as $ref
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  $ref: '#/components/schemas/Person'
+components:
+  schemas:
+    Person:
+      type: object
+      properties:
+        Name:
+          type: string
+        Age:
+          description: Estimated ship date
+          type: integer
