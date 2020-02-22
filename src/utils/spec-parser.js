@@ -172,7 +172,7 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
       if (openApiSpec.paths[path][methodName]) {
         const fullPath = openApiSpec.paths[path][methodName];
         // If path.methods are tagged, else generate it from path
-        if (fullPath.tags) {
+        if (fullPath.tags && fullPath.tags[0]) {
           tagText = fullPath.tags[0];
           if (openApiSpec.tags) {
             tagDescr = openApiSpec.tags.find((v) => (v.name === tagText));
