@@ -30,9 +30,8 @@ export default class RapiDoc extends LitElement {
 
   static get properties() {
     return {
-      // Logo & Heading
+      // Heading
       headingText: { type: String, attribute: 'heading-text' },
-      logoUrl: { type: String, attribute: 'logo-url' },
       gotoPath: { type: String, attribute: 'goto-path' },
 
       // Spec
