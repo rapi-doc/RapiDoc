@@ -341,6 +341,9 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
         obj[key] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
       }
     }
+    if (schema.additionalProperties) {
+      obj['<any-key>'] = schemaInObjectNotation(schema.additionalProperties, {});
+    }
   } else if (schema.items) { // If Array
     obj['::description'] = schema.description ? schema.description : '';
     obj['::type'] = 'array';
