@@ -55,5 +55,7 @@ components:
         Name:
           type: string
         Age:
-          description: Estimated ship date
           type: integer
+      additionalProperties:
+        type: string
+    
