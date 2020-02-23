@@ -4,6 +4,7 @@ const FileManagerPlugin = require('filemanager-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const { DuplicatesPlugin } = require('inspectpack/plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const CompressionPlugin = require('compression-webpack-plugin');
 const VERSION = JSON.stringify(require('./package.json').version).replace(/"/g, '');
 
 const path = require('path');
@@ -16,9 +17,11 @@ Author : Mrinmoy Majumdar`;
 const commonPlugins = [
   new webpack.HotModuleReplacementPlugin(),
   new CleanWebpackPlugin(),
+  new webpack.optimize.LimitChunkCountPlugin({
+    maxChunks: 1,
+  }),
   new HtmlWebpackPlugin({ template: 'index.html' }),
-  new webpack.BannerPlugin(BANNER),
-  new webpack.DefinePlugin({ VERSION }),
+  new CompressionPlugin(),
   new FileManagerPlugin({
     onEnd: {
       copy: [
@@ -33,6 +36,16 @@ if (process.env.NODE_ENV === 'production') {
   console.log('BUILDING FOR PRODUCTION ... '); // eslint-disable-line no-console
   commonPlugins.push(new BundleAnalyzerPlugin({ analyzerMode: 'static' }));
   commonPlugins.push(new DuplicatesPlugin({ emitErrors: false, verbose: true }));
+  commonPlugins.push(new webpack.BannerPlugin(BANNER));
+  commonPlugins.push(new webpack.DefinePlugin({ VERSION }));
+  commonPlugins.push(new FileManagerPlugin({
+    onEnd: {
+      copy: [
+        { source: 'dist/*.js', destination: 'docs' },
+        { source: 'dist/*.woff2', destination: 'docs' },
+      ],
+    },
+  }));
 }
 
 module.exports = {
@@ -49,7 +62,9 @@ module.exports = {
     qs: 'null',
   },
   optimization: {
-    minimize: true,
+    splitChunks: {
+      chunks: 'all',
+    },
   },
   devtool: 'cheap-module-source-map',
   output: {
