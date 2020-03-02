@@ -19,17 +19,18 @@ paths:
                 type: object
                 properties:
                   age:
-                    description: Person Age
+                    description: Person's **Age** (age must be bold)
                     type: integer
                   fullName:
-                    description: Person Full name
+                    description: Person's Full name
                     type: object
                     properties:
                       firstName:
-                        description: First name
+                        description: _First name_ (First name should be italics)
                         type: string
                       lastName:
-                        description: Last name
+                        description: |
+                          `Last name` (last name must be monospaced)
                         type: string
                   dependentIds:
                     type: array
