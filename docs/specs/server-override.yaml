@@ -2,7 +2,7 @@ openapi: 3.0.2
 info:
   version: '1.0'
   title: Server Override
-  description: For testing operation server override
+  description: For testing operation server override. Possible to list servers for specific operation that overrides default list.
 servers:
   - url: http://www.defaultserver.com
 paths:
