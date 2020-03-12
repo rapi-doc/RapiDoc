@@ -1,0 +1,31 @@
+openapi: 3.0.2
+info:
+  version: '1.0'
+  title: Server Override
+  description: For testing operation server override
+servers:
+  - url: http://www.defaultserver.com
+paths:
+  /simple:
+    get:
+      summary: Test override servers
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: string
+  /simple-override:
+    get:
+      summary: Test override servers
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: string
+    servers:
+      - url: 'https://www.customserver1.com'
+      - url: 'https://www.customserver2.com'
