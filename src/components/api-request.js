@@ -385,7 +385,7 @@ export default class ApiRequest extends LitElement {
                     `
                   : html`<input 
                       spellcheck="false"
-                      type="${fieldSchema.format === 'binary' ? 'file' : 'text'}" 
+                      type="${fieldSchema.format === 'binary' ? 'file' : fieldSchema.format === 'password' ? 'password' : 'text'}"
                       style="width:160px" 
                       class="request-form-param" 
                       data-pname="${fieldName}" 
