@@ -29,6 +29,7 @@ export default class ApiRequest extends LitElement {
   static get properties() {
     return {
       serverUrl: { type: String, attribute: 'server-url' },
+      servers: { type: Array },
       method: { type: String },
       path: { type: String },
       parameters: { type: Array },
@@ -503,15 +504,20 @@ export default class ApiRequest extends LitElement {
   }
 
   apiCallTemplate() {
+    // use default server url, if multiple overrides exists show select
+    let containerServer = this.serverUrl
+      ? html`${this.serverUrl}`
+      : html`<div style="font-weight:bold;color:var(--red)">Not Set</div>`;
+    if (this.servers && this.servers.length > 0) {
+      const opts = this.servers.map((value) => html`<option value="${value.url}" selected="${value.url === this.serverUrl}" >${value.url}</option>`);
+      containerServer = html`<select @change='${(e) => { this.serverUrl = e.target.value; }}'>${opts}</select>`;
+    }
     return html`
     <div style="display:flex; align-items: center; margin:16px 0; font-size:var(--font-size-small);">
       <div style="display:flex; flex-direction:column; margin:0; width:calc(100% - 60px);">
         <div style="display:flex;flex-direction:row;overflow:hidden;"> 
           <div style="font-weight:bold;padding-right:5px;">API SERVER: </div> 
-          ${this.serverUrl
-            ? html`${this.serverUrl}`
-            : html`<div style="font-weight:bold;color:var(--red)">Not Set</div>`
-          }
+          ${containerServer}
         </div>
         <div style="display:flex;">
           <div style="padding-right:5px;">Authentication: </div>
