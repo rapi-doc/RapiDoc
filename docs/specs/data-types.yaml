@@ -11,12 +11,21 @@ paths:
       tags:
         - A
       responses:
+        '400':
+          description: |
+            Test1
+    
+            | Tables        | Are           | Cool  |
+            | ------------- |:-------------:| -----:|
+            | col 3 is      | right-aligned | $1600 |
+            | col 2 is      | centered      |   $12 |
         '200':
           description: successful operation
           content:
             application/json:
               schema:
                 type: object
+                description: Description of **Person** object (Person must be bold)
                 properties:
                   age:
                     description: Person's **Age** (age must be bold)
@@ -39,23 +48,24 @@ paths:
                       type: integer
                   dependentNames:
                     type: array
-                    description: Full Name of Dependents .
+                    description: Full Name of **Dependents** (Dependents must be bold).
                     items:
                       type: object
                       properties:
                         firstNameParts:
-                          description: First Name parts
+                          description: Parts of **First Name** (First Name must be bold)
                           type: object
                           properties:
                             firstName:
                               description: This is a very very long description to test how will it show up on a API spec renderer tool such as RapiDoc. This lable must be big enough to wrap into next line 
                               type: string
-                            aVeryVeryLongFieldToForTestingHowThingsLookWhenInSchemaModelWhenItEncountersALongField:
+                            aLongFieldForTestingHowItShowsUpInSchemaModelWhenItEncountersLongField:
                               description: Dependent Last Name
                               type: string
                         dependentLastName:
                           description: Dependent Last Name
                           type: string
+                          
   /simple-object:
     get:
       summary: response as a simple object containing primitive properties. 
