@@ -45,7 +45,6 @@ function endpointBodyTemplate(path) {
   }
   accept = accept.replace(/,\s*$/, ''); // remove trailing comma
   const nonEmptyApiKeys = this.resolvedSpec.securitySchemes.filter((v) => (v.finalKeyValue)) || [];
-  const selectedServer = path.servers && path.servers.length > 0 ? path.servers[0].uri : this.selectedServer.computedUrl;
   return html`
   <div class='endpoint-body ${path.method}'>
     ${path.summary || path.description
@@ -70,7 +69,7 @@ function endpointBodyTemplate(path) {
         .request_body = "${path.requestBody}"
         .api_keys = "${nonEmptyApiKeys}"
         .servers = "${path.servers}" 
-        server-url = "${selectedServer}" 
+        server-url = "${path.servers && path.servers.length > 0 ? path.servers[0].url : this.selectedServer.computedUrl}" 
         active-schema-tab = "${this.defaultSchemaTab}" 
         allow-try = "${this.allowTry}"
         accept = "${accept}"
