@@ -515,7 +515,7 @@ export default class ApiRequest extends LitElement {
     return html`
     <div style="display:flex; align-items: center; margin:16px 0; font-size:var(--font-size-small);">
       <div style="display:flex; flex-direction:column; margin:0; width:calc(100% - 60px);">
-        <div style="display:flex;flex-direction:row;overflow:hidden;"> 
+        <div style="display:flex; flex-direction:row; align-items:center; overflow:hidden;"> 
           <div style="font-weight:bold;padding-right:5px;">API SERVER: </div> 
           ${containerServer}
         </div>
@@ -532,7 +532,7 @@ export default class ApiRequest extends LitElement {
           }
         </div>
       </div>
-      <button class="m-btn primary try-btn" style="padding: 6px 0px;width:60px" @click="${this.onTryClick}">TRY</button>
+      <button class="m-btn primary try-btn" style="padding: 6px 0px;width:60px; align-self:flex-end;" @click="${this.onTryClick}">TRY</button>
     </div>
     ${this.responseMessage === ''
       ? ''
