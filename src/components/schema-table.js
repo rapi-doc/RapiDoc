@@ -77,7 +77,10 @@ export default class SchemaTable extends LitElement {
           </div>
         </div>
 
-        <div style='padding: 5px 0; color:var(--fg3)'> <span class='bold-text upper'> ${this.data['::type']}: </span> ${this.data['::description']}</div>
+        <div style='padding: 5px 0; color:var(--fg3)'> 
+          <span class='bold-text upper'> ${this.data['::type']}</span> 
+          <span>${unsafeHTML(marked(this.data['::description'] || ''))}</span>
+        </div>
         <div style = "border:1px solid var(--light-border-color)">
           <div style='display:flex; height:18px; background-color: var(--bg2); line-height:18px; padding:8px 2px; border-bottom:1px solid var(--light-border-color);'>
             <div class='td key' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg)'> Field</div>
@@ -134,7 +137,7 @@ export default class SchemaTable extends LitElement {
                 }
               </div>
               <div class='td key-type'>${prevDataType.startsWith('xxx-') ? '' : prevDataType}</div>
-              <div class='td key-descr'>${prevDescr}</div>
+              <div class='td key-descr'>${unsafeHTML(marked(prevDescr || ''))}   </div>
             </div>`
           : ''
         }

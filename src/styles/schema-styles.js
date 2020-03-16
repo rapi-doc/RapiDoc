@@ -74,6 +74,7 @@ export default html`
       padding:5px 0;
       margin:0 2px;
     }
+    .toolbar-item:first-of-type { margin:0 2px 0 0;}
 
     @media only screen and (min-width: 500px) {
       .key-descr {

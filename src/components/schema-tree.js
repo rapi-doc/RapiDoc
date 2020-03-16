@@ -91,7 +91,7 @@ export default class SchemaTree extends LitElement {
             ${this.schemaDescriptionExpanded === 'true' ? 'Collapse Details' : 'Expand Details'}
           </div>
         </div>
-        <div style='color:var(--fg3)'> ${this.data ? this.data['::description'] : ''}</div>
+        <span style='color:var(--fg3)'> ${this.data ? unsafeHTML(marked(this.data['::description'] || '')) : ''}</span>
         ${this.data
           ? html`
             ${this.generateTree(
@@ -156,7 +156,7 @@ export default class SchemaTree extends LitElement {
                 : newPrevKey
             }${level > 0 ? ':' : ''}${openBracket}
           </div>
-          <div class='td key-descr'>${prevDescr}</div>
+          <div class='td key-descr'>${unsafeHTML(marked(prevDescr || ''))}</div>
         </div>
         <div class='inside-bracket ${data['::type']}' style='padding-left:${data['::type'] !== 'xxx-of-option' ? leftPadding : 0}px;'>
           ${Object.keys(data).map((key) => html`

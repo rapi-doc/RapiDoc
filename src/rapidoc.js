@@ -235,7 +235,6 @@ export default class RapiDoc extends LitElement {
         .nav-bar-path.active {
           border-left:4px solid var(--nav-accent-color);
           color:var(--nav-hover-text-color);
-          background-color:var(--nav-hover-bg-color);
         }
 
         .nav-bar-info:hover,
@@ -466,7 +465,7 @@ export default class RapiDoc extends LitElement {
         ${(this.allowSearch === 'false')
           ? ''
           : html`
-            <div style="position:sticky; top:0; display:flex; flex-direction:row; align-items: stretch; padding:24px; background: var(--nav-bg-color); box-shadow: 0 2px 2px rgba(0, 0, 0, 0.3);">
+            <div style="position:sticky; top:0; display:flex; flex-direction:row; align-items: stretch; padding:24px; background: var(--nav-bg-color); border-bottom: 1px solid var(--nav-hover-bg-color)">
               <div style="display:flex; flex:1">
                 <input id="nav-bar-search" 
                   style="width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" 

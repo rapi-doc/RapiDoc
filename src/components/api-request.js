@@ -29,6 +29,7 @@ export default class ApiRequest extends LitElement {
   static get properties() {
     return {
       serverUrl: { type: String, attribute: 'server-url' },
+      servers: { type: Array },
       method: { type: String },
       path: { type: String },
       parameters: { type: Array },
@@ -503,15 +504,32 @@ export default class ApiRequest extends LitElement {
   }
 
   apiCallTemplate() {
+    // use default server url, if multiple overrides exists show select
+    let selectedServerHtml = this.serverUrl
+      ? html`<div style="font-weight:bold;padding-right:5px;">API SERVER: </div> ${this.serverUrl}`
+      : html`<div style="font-weight:bold;color:var(--red)">NO API Server Selected</div>`;
+
+    if (this.servers && this.servers.length > 0) {
+      // this.serverUrl = this.servers[0].url;
+      selectedServerHtml = html`
+      <div style="display:flex; flex-direction:column;">
+        <select style="min-width:100px;" @change='${(e) => { this.serverUrl = e.target.value; }}'>
+          ${this.servers.map((v) => html`<option value="${v.url}">${v.url} - ${v.description}</option>`)}
+        </select>
+        
+        <div style="display:flex; flex-direction:row; align-items:center; margin-top:10px;">
+          <div style="font-weight:bold;padding-right:5px;">API SERVER: </div>
+          <div> ${this.serverUrl ? this.serverUrl : html`<div style="font-weight:bold;color:var(--red)">NO API Server Selected</div>`}</div>
+        </div>
+      </div>
+      `;
+    }
+
     return html`
     <div style="display:flex; align-items: center; margin:16px 0; font-size:var(--font-size-small);">
       <div style="display:flex; flex-direction:column; margin:0; width:calc(100% - 60px);">
-        <div style="display:flex;flex-direction:row;overflow:hidden;"> 
-          <div style="font-weight:bold;padding-right:5px;">API SERVER: </div> 
-          ${this.serverUrl
-            ? html`${this.serverUrl}`
-            : html`<div style="font-weight:bold;color:var(--red)">Not Set</div>`
-          }
+        <div style="display:flex; flex-direction:row; align-items:center; overflow:hidden;"> 
+          ${selectedServerHtml}
         </div>
         <div style="display:flex;">
           <div style="padding-right:5px;">Authentication: </div>
@@ -526,7 +544,7 @@ export default class ApiRequest extends LitElement {
           }
         </div>
       </div>
-      <button class="m-btn primary try-btn" style="padding: 6px 0px;width:60px" @click="${this.onTryClick}">TRY</button>
+      <button class="m-btn primary try-btn" style="padding: 6px 0px;width:60px; align-self:flex-start; margin:1px 0 0 5px;" @click="${this.onTryClick}">TRY</button>
     </div>
     ${this.responseMessage === ''
       ? ''

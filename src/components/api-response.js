@@ -146,8 +146,7 @@ export default class ApiResponse extends LitElement {
       ${Object.keys(this.responses).map((status) => html`
         <div style = 'display: ${status === this.selectedStatus ? 'block' : 'none'}' >
           <div class="top-gap">
-            <span class="resp-status">${status}:</span> 
-            <span class="resp-descr">${this.responses[status].description}</span> 
+            <span class="resp-descr m-markdown m-markdown-small">${unsafeHTML(marked(this.responses[status].description || ''))}</span>
             ${(this.headersForEachRespStatus[status] && this.headersForEachRespStatus[status].length > 0)
               ? html`${this.responseHeaderListTemplate(this.headersForEachRespStatus[status])}`
               : ''
