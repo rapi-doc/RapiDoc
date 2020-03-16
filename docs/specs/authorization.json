@@ -25,15 +25,15 @@
 				  }
 				}
 			  }
-			},
-			"security": [
-			  {
-				"OAuth2Server": [
-				  "admin.read"
-				]
-			  }
-			]
-		  }
+			}
+		  },
+		  "security": [
+			{
+			  "OAuth2Server": [
+				"admin.read"
+			  ]
+			}
+		  ]
 		}
 	  }
 	},
@@ -79,19 +79,5 @@
 		  "scheme": "basic"
 		}
 	  }
-	},
-	"security": [
-	  {
-		"OAuth2Server": [
-		  "admin.read",
-		  "admin.write"
-		]
-	  },
-	  {
-		"OAuth2Client": [
-		  "user.read",
-		  "user.write"
-		]
-	  }
-	]
+	}
   }
