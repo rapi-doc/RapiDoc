@@ -11,7 +11,13 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
   // const specLocation = '';
   // let url;
 
-  const convertOptions = { patch: true, warnOnly: true };
+  const convertOptions = {
+    patch: true,
+    warnOnly: true,
+    resolveInternal: true,
+    resolve: true,
+  };
+
   try {
     let specObj;
     if (typeof specUrl === 'string') {
@@ -24,6 +30,7 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
       convertedSpec = await converter.convertObj(specObj.spec, convertOptions);
       jsonParsedSpec = convertedSpec.openapi;
     }
+
     /*
     // JsonRefs cant load yaml files, so first use converter
     if (typeof specUrl === 'string') {
