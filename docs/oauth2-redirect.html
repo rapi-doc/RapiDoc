@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en-US">
+<title>RapiDoc: OAuth2 Redirect</title>
+<body onload="run()">
+</body>
+</html>
+<script>
+    'use strict';
+    function run () {
+        var oauth2 = window.opener.OAuthLoginRedirect;
+        var sentState = oauth2.state;
+        var isValid, qp, arr;
+        var redirectUrl = window.location.search;
+        
+
+        if (/code|token|error/.test(window.location.hash)) {
+            qp = window.location.hash.substring(1);
+        } else {
+            qp = location.search.substring(1);
+        }
+
+        arr = qp.split("&")
+        arr.forEach(function (v,i,_arr) { _arr[i] = '"' + v.replace('=', '":"') + '"';})
+        qp = qp ? JSON.parse('{' + arr.join() + '}',
+                function (key, value) {
+                    return key === "" ? value : decodeURIComponent(value)
+                }
+        ) : {}
+
+        isValid = qp.state === sentState
+
+        oauth2.callback({token: qp, isValid: isValid, redirectUrl: redirectUrl});
+        window.close();
+    }
+</script>

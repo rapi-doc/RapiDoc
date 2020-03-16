@@ -11,7 +11,11 @@
     "browser": true,
     "node": true
   },
+  "globals": {
+    "window": true
+  },
   "rules": {
+    "no-alert": "off",
     "max-len": [1, 300, 2, {"ignoreComments": true}],
     "no-debugger": 0,
     "no-plusplus": 0,

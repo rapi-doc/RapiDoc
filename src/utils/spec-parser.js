@@ -63,14 +63,37 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
   if (jsonParsedSpec.components && jsonParsedSpec.components.securitySchemes) {
     Object.entries(jsonParsedSpec.components.securitySchemes).forEach((kv) => {
       const securityObj = { apiKeyId: kv[0], ...kv[1] };
-      if (kv[1].type === 'apiKey' || kv[1].type === 'http') {
-        securityObj.in = kv[1].in || 'header';
-        securityObj.name = kv[1].name || 'Authorization';
-        securityObj.user = '';
-        securityObj.password = '';
-        securityObj.value = '';
-        securityObj.finalKeyValue = '';
+      let typeOfAuthentication = kv[1].type;
+      if (kv[1].type === 'http') {
+        if (kv[1].scheme === 'bearer') {
+          typeOfAuthentication = kv[1].scheme;
+        } else if (kv[1].scheme === 'basic') {
+          typeOfAuthentication = kv[1].scheme;
+        }
+      } else if (kv[1].type === 'oauth2') {
+        securityObj.oauthType = 'unsupported';
+        if (securityObj.flows.clientCredentials) {
+          securityObj.oauthType = 'clientCredentials';
+          securityObj.oauth = securityObj.flows.clientCredentials;
+        } else if (securityObj.flows.authorizationCode) {
+          securityObj.oauthType = 'authorizationCode';
+          securityObj.oauth = securityObj.flows.authorizationCode;
+          if (!securityObj.oauth.redirectUrl) securityObj.oauth.redirectUrl = (window.location.href.indexOf('examples') === -1) ? window.location.href : `${window.location.protocol}//${window.location.hostname}:${window.location.port}/oauth2-redirect.html`;
+        }
+        typeOfAuthentication = `${kv[1].type}: ${securityObj.oauthType}`;
+        if (securityObj.oauth) {
+          const scopes = [];
+          Object.keys(securityObj.oauth.scopes).forEach((key) => { scopes.push(key); });
+          securityObj.oauth.scopesParsed = scopes;
+        }
       }
+      securityObj.in = kv[1].in || 'header';
+      securityObj.name = kv[1].name || 'Authorization';
+      securityObj.user = '';
+      securityObj.password = '';
+      securityObj.value = '';
+      securityObj.finalKeyValue = '';
+      securityObj.typeOfAuthentication = typeOfAuthentication;
       securitySchemes.push(securityObj);
     });
   }

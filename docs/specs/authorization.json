@@ -1,0 +1,97 @@
+{
+	"openapi": "3.0.1",
+	"info": {
+	  "title": "Authentication",
+	  "description": "Testing different Authentication .",
+	  "version": "1.0"
+	},
+	"servers": [
+	  {
+		"url": "http://www.testserver.com"
+	  }
+	],
+	"paths": {
+	  "/Something": {
+		"get": {
+		  "summary": "Test calls",
+		  "description": "Running a call with authentication.",
+		  "responses": {
+			"200": {
+			  "description": "Success",
+			  "content": {
+				"text/plain": {
+				  "schema": {
+					"type": "string"
+				  }
+				}
+			  }
+			},
+			"security": [
+			  {
+				"OAuth2Server": [
+				  "admin.read"
+				]
+			  }
+			]
+		  }
+		}
+	  }
+	},
+	"components": {
+	  "securitySchemes": {
+		"OAuth2Server": {
+		  "type": "oauth2",
+		  "flows": {
+			"clientCredentials": {
+			  "tokenUrl": "https://www.oauthserver.com/connect/token",
+			  "scopes": {
+				"admin.read": "Admin Read",
+				"admin.write": "Admin Write"
+			  }
+			}
+		  }
+		},
+		"OAuth2Client": {
+		  "type": "oauth2",
+		  "flows": {
+			"authorizationCode": {
+			  "authorizationUrl": "https://www.oauthserver.com/connect/authorize",
+			  "tokenUrl": "https://www.oauthserver.com/connect/token",
+			  "scopes": {
+				"user.read": "User Read",
+				"user.write": "User Write"
+			  }
+			}
+		  }
+		},
+		"ApiKeyClient": {
+		  "type": "apiKey",
+		  "in": "query",
+		  "name": "X-API-KEY",
+		  "description": "Used for special purposed"
+		},
+		"BearerClient": {
+		  "type": "http",
+		  "scheme": "bearer"
+		},
+		"BasicClient": {
+		  "type": "http",
+		  "scheme": "basic"
+		}
+	  }
+	},
+	"security": [
+	  {
+		"OAuth2Server": [
+		  "admin.read",
+		  "admin.write"
+		]
+	  },
+	  {
+		"OAuth2Client": [
+		  "user.read",
+		  "user.write"
+		]
+	  }
+	]
+  }

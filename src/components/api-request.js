@@ -33,6 +33,7 @@ export default class ApiRequest extends LitElement {
       method: { type: String },
       path: { type: String },
       parameters: { type: Array },
+      security: { type: Array },
       request_body: { type: Object },
       api_keys: { type: Array },
       parser: { type: Object },
@@ -504,48 +505,36 @@ export default class ApiRequest extends LitElement {
   }
 
   apiCallTemplate() {
-    // use default server url, if multiple overrides exists show select
-    let selectedServerHtml = this.serverUrl
-      ? html`<div style="font-weight:bold;padding-right:5px;">API SERVER: </div> ${this.serverUrl}`
-      : html`<div style="font-weight:bold;color:var(--red)">NO API Server Selected</div>`;
-
-    if (this.servers && this.servers.length > 0) {
-      // this.serverUrl = this.servers[0].url;
-      selectedServerHtml = html`
-      <div style="display:flex; flex-direction:column;">
-        <select style="min-width:100px;" @change='${(e) => { this.serverUrl = e.target.value; }}'>
-          ${this.servers.map((v) => html`<option value="${v.url}">${v.url} - ${v.description}</option>`)}
-        </select>
-        
-        <div style="display:flex; flex-direction:row; align-items:center; margin-top:10px;">
-          <div style="font-weight:bold;padding-right:5px;">API SERVER: </div>
-          <div> ${this.serverUrl ? this.serverUrl : html`<div style="font-weight:bold;color:var(--red)">NO API Server Selected</div>`}</div>
-        </div>
-      </div>
-      `;
-    }
-
+    const containerCallsInfo = this.api_keys.length === 0 ? html`<div style="font-weight:bold; color:var(--red);">No API keys</div>` : html`<div style="font-weight:bold; color:var(--green);">${this.api_keys.length} API keys to use</div>`;
     return html`
-    <div style="display:flex; align-items: center; margin:16px 0; font-size:var(--font-size-small);">
-      <div style="display:flex; flex-direction:column; margin:0; width:calc(100% - 60px);">
-        <div style="display:flex; flex-direction:row; align-items:center; overflow:hidden;"> 
-          ${selectedServerHtml}
-        </div>
-        <div style="display:flex;">
-          <div style="padding-right:5px;">Authentication: </div>
-          ${this.api_keys.length > 0
-            ? html`<div style="font-weight:bold;color:var(--blue); overflow:hidden;"> 
-                ${this.api_keys.length === 1
-                  ? `API Key '${this.api_keys[0].name}' in ${this.api_keys[0].in}`
-                  : `${this.api_keys.length} API keys applied`
-                } 
-              </div>`
-            : html`<div style="font-weight:bold; color:var(--red)">No API key applied</div>`
-          }
-        </div>
+      <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
+        <div style="font-weight:bold;padding-right:5px;">Authentication: </div>
+        ${containerCallsInfo}
+      </div>  
+      <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
+        <div style="font-weight:bold;padding-right:5px;">Server Url: </div> 
+        ${this.serverUrl
+          ? html`${this.serverUrl}`
+          : html`<div style="font-weight:bold;color:var(--red)">Not Set</div>`
+        }
       </div>
-      <button class="m-btn primary try-btn" style="padding: 6px 0px;width:60px; align-self:flex-start; margin:1px 0 0 5px;" @click="${this.onTryClick}">TRY</button>
-    </div>
+      ${!this.security || this.security.length === 0 ? '' : html`<div class="row" style="font-size:var(--font-size-small); margin:5px 0"><div style="font-weight:bold;padding-right:5px;align-self: flex-start;">Required Security: </div><div>${this.security.map((securityDictionary) => {
+        const security = [];
+        Object.keys(securityDictionary).forEach((key) => {
+            security.push(html`<div><code>'${key}'</code> with scopes <code>'${securityDictionary[key]}'</code></div>`);
+        });
+        return security;
+      })}</div></div>`}
+      ${this.api_keys.map((v) => html`<div class="row" style="font-size:var(--font-size-small); margin:5px 0">
+          <div><span style="font-weight:bold">${v.apiKeyId}</span> (${v.typeOfAuthentication})</div>
+          <div style="flex:1"></div>
+          <div style="text-align: right;"><button class="m-btn secodary try-btn" style="padding: 6px 0px;width:60px" @click="${(e) => this.onTryClick(e, v)}">TRY</button></div>
+        </div>`)}
+      <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
+          <div>No Authentication</div>
+          <div style="flex:1"></div>
+          <div style="text-align: right;"><button class="m-btn primary try-btn" style="padding: 6px 0px;width:60px" @click="${(e) => this.onTryClick(e, null)}">TRY</button></div>
+      </div>
     ${this.responseMessage === ''
       ? ''
       : html`
@@ -596,7 +585,7 @@ export default class ApiRequest extends LitElement {
     });
   }
 
-  async onTryClick(e) {
+  async onTryClick(e, securitySchema) {
     const me = this;
     const tryBtnEl = e.target;
     let fetchUrl;
@@ -690,13 +679,10 @@ export default class ApiRequest extends LitElement {
       fetchUrl = `${fetchUrl}?${urlQueryParam.toString()}`;
     }
 
-
     // Add authentication Query-Param if provided
-    this.api_keys
-      .filter((v) => (v.in === 'query'))
-      .forEach((v) => {
-        fetchUrl = `${fetchUrl}${fetchUrl.includes('?') ? '&' : '?'}${v.name}=${encodeURIComponent(v.finalKeyValue)}`;
-      });
+    if (securitySchema != null && securitySchema.in === 'query') {
+      fetchUrl = `${fetchUrl}${fetchUrl.includes('?') ? '&' : '?'}${securitySchema.name}=${encodeURIComponent(securitySchema.finalKeyValue)}`;
+    }
 
     // Final URL for API call
     fetchUrl = `${this.serverUrl.replace(/\/$/, '')}${fetchUrl}`;
@@ -720,13 +706,12 @@ export default class ApiRequest extends LitElement {
         curlHeaders += ` -H "${el.dataset.pname}: ${el.value}"`;
       }
     });
+
     // Add Authentication Header if provided
-    this.api_keys
-      .filter((v) => (v.in === 'header'))
-      .forEach((v) => {
-        fetchOptions.headers[v.name] = v.finalKeyValue;
-        curlHeaders += ` -H "${v.name}: ${v.finalKeyValue}"`;
-      });
+    if (securitySchema && securitySchema.in === 'header') {
+      fetchOptions.headers[securitySchema.name] = securitySchema.finalKeyValue;
+      curlHeaders += ` -H "${securitySchema.name}: ${securitySchema.finalKeyValue}"`;
+    }
 
     // Submit Form Params (url-encoded or form-data)
     if (formParamEls.length >= 1) {
@@ -857,10 +842,12 @@ export default class ApiRequest extends LitElement {
     try {
       tryBtnEl.disabled = true;
       // await wait(1000);
-      const resp = await fetch(fetchUrl, fetchOptions);
+      const resp = await fetch(fetchUrl, fetchOptions).catch(() => {
+        // need to catch, somehow parent try,catch doesn't work else for cors.
+      });
       tryBtnEl.disabled = false;
       me.responseStatus = resp.ok ? 'success' : 'error';
-      me.responseMessage = `${resp.statusText}:${resp.status}`;
+      me.responseMessage = `${resp.statusText}: ${resp.status}`;
       me.responseUrl = resp.url;
       resp.headers.forEach((hdrVal, hdr) => {
         me.responseHeaders = `${me.responseHeaders}${hdr.trim()}: ${hdrVal}\n`;
@@ -890,6 +877,7 @@ export default class ApiRequest extends LitElement {
       }
     } catch (err) {
       tryBtnEl.disabled = false;
+      me.responseStatus = 'error';
       me.responseMessage = `${err.message} (CORS or Network Issue)`;
     }
   }

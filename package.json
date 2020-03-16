@@ -28,6 +28,7 @@
   "main": "dist/rapidoc-min.js",
   "module": "dist/rapidoc-min.js",
   "dependencies": {
+    "client-oauth2": "^4.2.5",
     "lit-element": "2.2.1",
     "lit-html": "1.0.0",
     "marked": "^0.8.0",
