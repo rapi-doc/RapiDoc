@@ -15,7 +15,6 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
     patch: true,
     warnOnly: true,
     resolveInternal: true,
-    resolve: true,
   };
 
   try {
