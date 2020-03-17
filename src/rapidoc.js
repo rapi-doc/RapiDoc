@@ -105,6 +105,10 @@ export default class RapiDoc extends LitElement {
     if (!this.apiKeyValue) { this.apiKeyValue = ''; }
     if (!this.sortTags || !'true false'.includes(this.sortTags)) { this.sortTags = 'false'; }
     if (!this.sortEndpointsBy || !'method path'.includes(this.sortEndpointsBy)) { this.sortEndpointsBy = 'path'; }
+
+    window.addEventListener('hashchange', () => {
+      this.scrollTo(window.location.hash.substring(1));
+    }, true);
   }
 
   // Cleanup
@@ -582,7 +586,7 @@ export default class RapiDoc extends LitElement {
           await this.loadSpec(newVal);
           // If goto-path is provided then try to scroll there
           if (this.gotoPath) {
-            this.scrollTo(this.gotoPath);
+            this.scrollTo(this.gotoPath.replace(/[\s#:?&=]/g, '-').toLowerCase());
           }
         }, 0);
       }
@@ -738,12 +742,21 @@ export default class RapiDoc extends LitElement {
     this.requestUpdate();
     const specLoadedEvent = new CustomEvent('spec-loaded', { detail: spec });
     this.dispatchEvent(specLoadedEvent);
-    // Put it at the end of event loop, to allow loading all the child elements (must for larger specs)
+
+    // Initiate ItersectionObserver and put it at the end of event loop, to allow loading all the child elements (must for larger specs)
     this.intersectionObserver.disconnect();
     if (this.renderStyle === 'read') {
       window.setTimeout(() => {
         this.observeExpandedContent();
       }, 100);
+    }
+    // On first time Spec load, try to navigate to location hash if provided
+    if (window.location.hash) {
+      if (!this.gotoPath) {
+        window.setTimeout(() => {
+          this.scrollTo(window.location.hash.substring(1));
+        }, 150);
+      }
     }
   }
 
@@ -758,6 +771,7 @@ export default class RapiDoc extends LitElement {
 
         // Add active class in the new element
         if (newNavEl) {
+          window.history.replaceState(null, null, `${window.location.href.split('#')[0]}#${entry.target.id}`);
           newNavEl.scrollIntoView({ behavior: 'auto', block: 'center' });
           newNavEl.classList.add('active');
         }
@@ -769,11 +783,17 @@ export default class RapiDoc extends LitElement {
     });
   }
 
+  // Called by onClick of Left-Navigation Bar items
   scrollToEl(e) {
     const navEl = e.currentTarget;
-    const contentEl = this.shadowRoot.getElementById(`${navEl.id.replace('link-', '')}`);
+    if (!navEl.id || !navEl.id.startsWith('link-')) {
+      return;
+    }
+    const locationHash = `${navEl.id.replace('link-', '')}`;
+    const contentEl = this.shadowRoot.getElementById(locationHash);
 
     if (contentEl) {
+      // Disable IntersectionObserver before scrolling into the view, else it will try to scroll the navbar which is not needed here
       this.isIntersectionObserverActive = false;
       contentEl.scrollIntoView({ behavior: 'auto', block: 'start' });
       const oldEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active');
@@ -781,12 +801,14 @@ export default class RapiDoc extends LitElement {
         oldEl.classList.remove('active');
       }
       e.currentTarget.classList.add('active');
+      window.history.replaceState(null, null, `${window.location.href.split('#')[0]}#${locationHash}`);
       setTimeout(() => {
         this.isIntersectionObserverActive = true;
       }, 300);
     }
   }
 
+  // Called by anchor tags created using markdown
   handleHref(e) {
     if (e.target.tagName.toLowerCase() === 'a') {
       if (e.target.getAttribute('href').startsWith('#')) {
@@ -799,9 +821,15 @@ export default class RapiDoc extends LitElement {
   }
 
   // Public Method
-  scrollTo(path) {
+  scrollTo(path, expandPath = true) {
     const gotoEl = this.shadowRoot.getElementById(path);
     if (gotoEl) {
+      if (expandPath) {
+        const endpointHeadEl = gotoEl.querySelector('.endpoint-head.collapsed');
+        if (endpointHeadEl) {
+          endpointHeadEl.click();
+        }
+      }
       gotoEl.scrollIntoView({ behavior: 'auto', block: 'start' });
     }
   }
