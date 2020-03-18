@@ -55,6 +55,7 @@ export default class RapiDoc extends LitElement {
       apiKeyValue: { type: String, attribute: 'api-key-value' },
       defaultApiServerUrl: { type: String, attribute: 'default-api-server' },
       serverUrl: { type: String, attribute: 'server-url' },
+      oauthReceiver: { type: String, attribute: 'oauth-receiver' },
 
       // Hide/Show Sections & Enable Disable actions
       showHeader: { type: String, attribute: 'show-header' },
@@ -103,6 +104,7 @@ export default class RapiDoc extends LitElement {
     if (!this.allowTry || !'true false'.includes(this.allowTry)) { this.allowTry = 'true'; }
     if (!this.apiKeyName) { this.apiKeyName = ''; }
     if (!this.apiKeyValue) { this.apiKeyValue = ''; }
+    if (!this.oauthReceiver) { this.oauthReceiver = 'oauth-receiver.html'; }
     if (!this.sortTags || !'true false'.includes(this.sortTags)) { this.sortTags = 'false'; }
     if (!this.sortEndpointsBy || !'method path'.includes(this.sortEndpointsBy)) { this.sortEndpointsBy = 'path'; }
 
