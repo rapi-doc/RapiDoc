@@ -39,15 +39,15 @@ function onClearAllApiKeys() {
 function onInvokeOAuth(authUrl, scopes, e) {
   const authFlowDivEl = e.target.closest('.oauth-flow');
   const clientId = authFlowDivEl.querySelector('.oauth-client-id').value.trim();
-  const clientSecret = authFlowDivEl.querySelector('.oauth-client-secret').value.trim();
+  // const clientSecret = authFlowDivEl.querySelector('.oauth-client-secret').value.trim();
 
   const state = (`${Math.random().toString(36)}random`).slice(2, 9);
   const authUrlObj = new URL(authUrl);
-  // const receiveUrlObj = new URL(`${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/${this.oauthReceiver}}`);
+  const receiveUrlObj = new URL(`${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/${this.oauthReceiver}}`);
   const params = new URLSearchParams(authUrl.search);
   params.set('client_id', clientId);
-  params.set('redirect_uri', clientSecret);
-  params.set('response_type', 'code');
+  params.set('redirect_uri', receiveUrlObj.toString());
+  params.set('response_type', 'code'); // can be token (for implicit grant)
   params.set('scope', Object.keys(scopes).join(' '));
   params.set('state', state);
   params.set('show_dialog', true);
@@ -84,6 +84,9 @@ function onInvokeOAuth(authUrl, scopes, e) {
       // eslint-disable-next-line no-console
       console.warn('RapiDoc: Error while receving data');
     }
+
+    // eslint-disable-next-line no-console
+    console.log(`RapiDoc: AUTH CODE RECEIVED - ${ev.data.code}`);
     // return res(ev.data.code);
   };
 
@@ -191,6 +194,10 @@ export default function securitySchemeTemplate() {
                                       <li> During registration, Specify callback/redirect url pointing to <b>${this.oauthReceiver}</b> </li>
                                       <li> Create <b>${this.oauthReceiver}</b> which will receive auth-code from oAuth provider</li>
                                       <li> <b>${this.oauthReceiver}</b> should contain custom-element <span class="mono-font"> &lt;oauth-receiver&gt; </span>, this element receives the auth-code and passes it to this document </li>
+                                      <li> After receiving auth-code, it will request for an access-token using 
+                                        <span class="mono-font"> POST ${v.flows[f].authorizationUrl}</span> and providing 
+                                        <span class="mono-font"> grant_type='authorization_code', code={auth-code}, client_id={client-id}, client_secret={client-secret} and redirect_uri={redirect-url} <span>
+                                      </li>
                                     `
                                     : ''
                                   }
