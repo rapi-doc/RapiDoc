@@ -36,10 +36,11 @@ function onClearAllApiKeys() {
   this.requestUpdate();
 }
 
-function onInvokeOAuth(authUrl, scopes, e) {
+function onInvokeOAuth(apiKeyId, authUrl, tokenUrl, scopes, e) {
+  const securityObj = this.resolvedSpec.securitySchemes.find((v) => (v.apiKeyId === apiKeyId));
   const authFlowDivEl = e.target.closest('.oauth-flow');
   const clientId = authFlowDivEl.querySelector('.oauth-client-id').value.trim();
-  // const clientSecret = authFlowDivEl.querySelector('.oauth-client-secret').value.trim();
+  const clientSecret = authFlowDivEl.querySelector('.oauth-client-secret').value.trim();
 
   const state = (`${Math.random().toString(36)}random`).slice(2, 9);
   const authUrlObj = new URL(authUrl);
@@ -58,19 +59,16 @@ function onInvokeOAuth(authUrl, scopes, e) {
     console.error(`RapiDoc: Unable to open ${authUrlObj.toString()} in a new window`);
   }
 
-  const removeMessageEventListenerFn = () => {
-    // eslint-disable-next-line no-use-before-define
-    window.removeEventListener('message', handleMessageEventFn);
-  };
-
-  const handleMessageEventFn = (ev) => {
+  const handleMessageEventFn = async (ev) => {
     /*
     if (ev.origin !== receiveUrlObj.origin) {
       console.warn(`Received message from invalid domain ${ev.origin}.`);
       return;
     }
     */
-    removeMessageEventListenerFn();
+
+    // After handeling, remove this listener
+    window.removeEventListener('message', handleMessageEventFn, true);
     w.close();
     if (!ev.data) {
       // eslint-disable-next-line no-console
@@ -84,13 +82,26 @@ function onInvokeOAuth(authUrl, scopes, e) {
       // eslint-disable-next-line no-console
       console.warn('RapiDoc: Error while receving data');
     }
-
-    // eslint-disable-next-line no-console
-    console.log(`RapiDoc: AUTH CODE RECEIVED - ${ev.data.code}`);
-    // return res(ev.data.code);
+    if (ev.data && ev.data.code) {
+      // eslint-disable-next-line no-console
+      console.log(`RapiDoc: AUTH CODE RECEIVED - ${ev.data.code}`);
+      // return res(ev.data.code);
+      const formData = new FormData();
+      formData.append('grant_type', 'grant_type');
+      formData.append('code', ev.data.code);
+      formData.append('client_id', clientId);
+      formData.append('client_secret', clientSecret);
+      formData.append('redirect_uri', receiveUrlObj.toString());
+      const resp = await fetch(tokenUrl, { method: 'POST', body: formData });
+      // eslint-disable-next-line no-console
+      console.log('OAUth Token Response: %o', resp);
+      if (resp.access_token) {
+        securityObj.finalKeyValue = `${resp.token_type} ${resp.access_token}`;
+      }
+    }
   };
 
-  window.addEventListener('message', handleMessageEventFn);
+  window.addEventListener('message', handleMessageEventFn, true);
 }
 
 /* eslint-disable indent */
@@ -182,7 +193,7 @@ export default function securitySchemeTemplate() {
                                 <input type="text" value = "${v.clientId}" placeholder="client-id" spellcheck="false" class="oauth-client-id">
                                 <input type="password" value = "${v.clientSecret}" placeholder="client-secret" spellcheck="false" class="oauth-client-secret" style = "margin:0 5px;">
                                 <button class="m-btn thin-border"
-                                  @click="${(e) => { onInvokeOAuth.call(this, v.flows[f].authorizationUrl, v.flows[f].scopes, e); }}"> 
+                                  @click="${(e) => { onInvokeOAuth.call(this, v.apiKeyId, v.flows[f].authorizationUrl, v.flows[f].tokenUrl, v.flows[f].scopes, e); }}"> 
                                   AUTHORIZE
                                 </button>
                               </div>
@@ -194,9 +205,14 @@ export default function securitySchemeTemplate() {
                                       <li> During registration, Specify callback/redirect url pointing to <b>${this.oauthReceiver}</b> </li>
                                       <li> Create <b>${this.oauthReceiver}</b> which will receive auth-code from oAuth provider</li>
                                       <li> <b>${this.oauthReceiver}</b> should contain custom-element <span class="mono-font"> &lt;oauth-receiver&gt; </span>, this element receives the auth-code and passes it to this document </li>
-                                      <li> After receiving auth-code, it will request for an access-token using 
-                                        <span class="mono-font"> POST ${v.flows[f].authorizationUrl}</span> and providing 
-                                        <span class="mono-font"> grant_type='authorization_code', code={auth-code}, client_id={client-id}, client_secret={client-secret} and redirect_uri={redirect-url} <span>
+                                      <li> After receiving auth-code, it will request access-token at <span class="mono-font"> POST ${v.flows[f].tokenUrl}</span>
+                                          <ul>
+                                            <li> grant_type = 'authorization_code'</li>
+                                            <li> code = {auth-code}</li>
+                                            <li> client_id = {client-id}</li>
+                                            <li> client_secret = {client-secret}</li>
+                                            <li> redirect_uri = {redirect-url}</li>
+                                          </ul>
                                       </li>
                                     `
                                     : ''

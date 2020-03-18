@@ -69,13 +69,13 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
   if (jsonParsedSpec.components && jsonParsedSpec.components.securitySchemes) {
     Object.entries(jsonParsedSpec.components.securitySchemes).forEach((kv) => {
       const securityObj = { apiKeyId: kv[0], ...kv[1] };
+      securityObj.value = '';
+      securityObj.finalKeyValue = '';
       if (kv[1].type === 'apiKey' || kv[1].type === 'http') {
         securityObj.in = kv[1].in || 'header';
         securityObj.name = kv[1].name || 'Authorization';
         securityObj.user = '';
         securityObj.password = '';
-        securityObj.value = '';
-        securityObj.finalKeyValue = '';
       } else if (kv[1].type === 'oauth2') {
         securityObj.clientId = '';
         securityObj.clientSecret = '';
