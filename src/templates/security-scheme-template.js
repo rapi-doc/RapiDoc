@@ -86,8 +86,8 @@ function onInvokeOAuth(apiKeyId, authUrl, tokenUrl, scopes, e) {
       // eslint-disable-next-line no-console
       console.log(`RapiDoc: AUTH CODE RECEIVED - ${ev.data.code}`);
       // return res(ev.data.code);
-      const formData = new URLSearchParams();
-      formData.append('grant_type', 'grant_type');
+      const formData = new FormData();
+      formData.append('grant_type', 'authorization_code');
       formData.append('code', ev.data.code);
       formData.append('client_id', clientId);
       formData.append('client_secret', clientSecret);
