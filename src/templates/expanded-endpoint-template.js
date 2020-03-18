@@ -100,6 +100,7 @@ function endpointBodyTemplate(path) {
         .parameters = "${path.parameters}" 
         .request_body = "${path.requestBody}"
         .api_keys = "${nonEmptyApiKeys}"
+        .security = "${path.security}"
         .servers = "${path.servers}" 
         server-url = "${path.servers && path.servers.length > 0 ? path.servers[0].url : this.selectedServer.computedUrl}" 
         allow-try = "${this.allowTry}"

@@ -24,7 +24,11 @@
           }
         },
         "security": [
-          { "OAuth2Server": [ "admin.read"] }
+          {
+            "OAuth2Server": [
+              "admin.read"
+            ]
+          }
         ]
       }
 	  }
@@ -57,6 +61,7 @@
           "authorizationCode": {
             "authorizationUrl": "https://www.oauthserver.com/connect/authorize",
             "tokenUrl": "https://www.oauthserver.com/connect/token",
+            "redirectUrl": "https://www.mysite.com/custompath/oauth-receiver.html",
             "scopes": {
               "user.read": "User Read",
               "user.write": "User Write"
