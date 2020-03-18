@@ -1,6 +1,11 @@
 import { html } from 'lit-element';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import marked from 'marked';
+import { sanitizeUrl } from '@braintree/sanitize-url';
+import crypto from 'crypto';
+import {
+  authorizePassword, authorizeApplication, preAuthorizeImplicit, authorizeAccessCodeWithBasicAuthentication, authorizeAccessCodeWithFormParams,
+} from '../utils/security-actions';
 
 function onApiKeyChange(apiKeyId, e) {
   let apiKeyValue = '';
@@ -36,62 +41,164 @@ function onClearAllApiKeys() {
   this.requestUpdate();
 }
 
-function onInvokeOAuth(authUrl, scopes, e) {
-  const authFlowDivEl = e.target.closest('.oauth-flow');
-  const clientId = authFlowDivEl.querySelector('.oauth-client-id').value.trim();
-  const clientSecret = authFlowDivEl.querySelector('.oauth-client-secret').value.trim();
+function toBase64UrlEncoded(str) {
+  return str
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
+}
 
-  const state = (`${Math.random().toString(36)}random`).slice(2, 9);
-  const authUrlObj = new URL(authUrl);
-  // const receiveUrlObj = new URL(`${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/${this.oauthReceiver}}`);
-  const params = new URLSearchParams(authUrl.search);
-  params.set('client_id', clientId);
-  params.set('redirect_uri', clientSecret);
-  params.set('response_type', 'code');
-  params.set('scope', Object.keys(scopes).join(' '));
-  params.set('state', state);
-  params.set('show_dialog', true);
-  authUrlObj.search = params.toString();
-  const w = window.open(authUrlObj.toString());
-  if (!w) {
-    // eslint-disable-next-line no-console
-    console.error(`RapiDoc: Unable to open ${authUrlObj.toString()} in a new window`);
+function generateCodeVerifier() {
+  return toBase64UrlEncoded(
+    crypto.randomBytes(32)
+      .toString('base64'),
+  );
+}
+
+function createCodeChallenge(codeVerifier) {
+  return toBase64UrlEncoded(
+    crypto.createHash('sha256')
+      .update(codeVerifier, 'ascii')
+      .digest('base64'),
+  );
+}
+
+function onInvokeOAuth(apiKeyId, flow, authConfigs, e) {
+  const securityObj = this.resolvedSpec.securitySchemes.find((v) => (v.apiKeyId === apiKeyId));
+  if (!securityObj) {
+    console.error(`Cant find api key ${apiKeyId} in security schemes`);
+    return;
   }
 
-  const removeMessageEventListenerFn = () => {
-    // eslint-disable-next-line no-use-before-define
-    window.removeEventListener('message', handleMessageEventFn);
-  };
+  const authFlowDivEl = e.target.closest('.oauth-flow');
 
-  const handleMessageEventFn = (ev) => {
-    /*
-    if (ev.origin !== receiveUrlObj.origin) {
-      console.warn(`Received message from invalid domain ${ev.origin}.`);
+  const scopesEl = authFlowDivEl.querySelectorAll('input[type="checkbox"]:checked');
+  authConfigs.scopesSelected = [];
+  scopesEl.forEach((scopesElement) => authConfigs.scopesSelected.push(scopesElement.value));
+
+  authConfigs.clientId = authFlowDivEl.querySelector('.oauth-client-id').value.trim();
+  authConfigs.clientSecret = authFlowDivEl.querySelector('.oauth-client-secret').value.trim();
+
+  const query = [];
+
+  switch (flow) {
+    case 'password':
+      // @todo, not built
+      authorizePassword(authConfigs);
       return;
+
+    case 'application':
+      // @todo, not tested
+      authorizeApplication(authConfigs).then((token) => {
+        securityObj.finalKeyValue = `Bearer ${token.access_token}`;
+        this.requestUpdate();
+      });
+      return;
+
+    case 'accessCode':
+      query.push('response_type=code');
+      break;
+
+    case 'implicit':
+      query.push('response_type=token');
+      break;
+
+    case 'clientCredentials':
+      authorizeApplication(authConfigs).then((token) => {
+        securityObj.finalKeyValue = `Bearer ${token.access_token}`;
+        this.requestUpdate();
+      });
+      return;
+
+    case 'authorizationCode':
+      query.push('response_type=code');
+      break;
+
+    default:
+      console.error(`Warning, can not handle authentication type ${flow}`);
+      return;
+  }
+
+  if (typeof authConfigs.clientId === 'string') {
+    query.push(`client_id=${encodeURIComponent(authConfigs.clientId)}`);
+  }
+
+  let redirectUrl = authConfigs.redirectUrl;
+  if (!redirectUrl) {
+    redirectUrl = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/examples/oauth-receiver.html`;
+  }
+
+  query.push(`redirect_uri=${encodeURIComponent(redirectUrl)}`);
+
+  if (authConfigs.scopesSelected.length) {
+    query.push(`scope=${encodeURIComponent(authConfigs.scopesSelected.join(' '))}`);
+  }
+
+  const state = (`${Math.random().toString(36)}random`).slice(2, 9);
+  query.push(`state=${encodeURIComponent(state)}`);
+
+  if (typeof authConfigs.realm !== 'undefined') {
+    query.push(`realm=${encodeURIComponent(authConfigs.realm)}`);
+  }
+
+  if (flow === 'authorizationCode' && authConfigs.usePkceWithAuthorizationCodeGrant) {
+    const codeVerifier = generateCodeVerifier();
+    const codeChallenge = createCodeChallenge(codeVerifier);
+
+    query.push(`code_challenge=${codeChallenge}`);
+    query.push('code_challenge_method=S256');
+
+    // storing the Code Verifier so it can be sent to the token endpoint
+    // when exchanging the Authorization Code for an Access Token
+    authConfigs.codeVerifier = codeVerifier;
+  }
+
+  const { additionalQueryStringParams } = authConfigs;
+  for (const key in additionalQueryStringParams) {
+    if (typeof additionalQueryStringParams[key] !== 'undefined') {
+      query.push([key, additionalQueryStringParams[key]].map(encodeURIComponent).join('='));
     }
-    */
-    removeMessageEventListenerFn();
-    w.close();
-    if (!ev.data) {
-      // eslint-disable-next-line no-console
-      console.warn('RapiDoc: Received no data with authorization message');
-    }
-    if (ev.data.state !== state) {
-      // eslint-disable-next-line no-console
-      console.warn('RapiDoc: State value did not match.');
-    }
-    if (ev.data.error) {
-      // eslint-disable-next-line no-console
-      console.warn('RapiDoc: Error while receving data');
-    }
-    // return res(ev.data.code);
+  }
+
+  const authorizationUrl = authConfigs.authorizationUrl;
+  const sanitizedAuthorizationUrl = sanitizeUrl(authorizationUrl);
+  const url = [sanitizedAuthorizationUrl, query.join('&')].join(authorizationUrl.indexOf('?') === -1 ? '?' : '&');
+
+  // pass action authorizeOauth2 and authentication data through window
+  // to authorize with oauth2
+
+  let callback;
+  if (flow === 'implicit') {
+    callback = (payload) => preAuthorizeImplicit(payload).then((token) => {
+      // @todo not built yet
+      console.log('Missing functionality to handle token', token);
+    });
+  } else if (authConfigs.useBasicAuthenticationWithAccessCodeGrant) {
+    callback = (payload) => authorizeAccessCodeWithBasicAuthentication(payload).then((token) => {
+      // @todo not built yet
+      console.log('Missing functionality to handle token', token);
+    });
+  } else {
+    callback = (payload) => authorizeAccessCodeWithFormParams(payload).then((token) => {
+      securityObj.finalKeyValue = `Bearer ${token.access_token}`;
+      this.requestUpdate();
+    });
+  }
+
+  window.Oauth2UIRedirect = {
+    flow,
+    state,
+    redirectUrl,
+    callback,
+    authConfigs,
+    error: (err) => console.error(err),
   };
 
-  window.addEventListener('message', handleMessageEventFn);
+  window.open(url);
 }
 
 /* eslint-disable indent */
-export default function securitySchemeTemplate() {
+export default function securitySchemeTemplate(showAuthenticationInfo) {
   const providedApiKeys = this.resolvedSpec.securitySchemes.filter((v) => (v.finalKeyValue));
   return html`
   <div id='authentication' class = 'observe-me ${this.renderStyle === 'read' ? 'section-gap--read-mode' : 'section-gap '}'>
@@ -173,30 +280,43 @@ export default function securitySchemeTemplate() {
                             ? html`<div><b style="width:75px; display: inline-block;">Refresh URL:</b> <span class="mono-font gray-text">${v.flows[f].refreshUrl}</span></div>`
                             : ''
                           }
-                          ${f.toLowerCase() === 'authorizationcode'
+                          ${v.flows[f].redirectUrl
+                            ? html`<div><b style="width:75px; display: inline-block;">Redirect URL:</b> <span class="mono-font gray-text">${v.flows[f].redirectUrl}</span></div>`
+                            : ''
+                          }
+                          ${f === 'authorizationCode' || f === 'clientCredentials'
                             ? html`
                               <div style="display:flex; max-height:28px;">
                                 <input type="text" value = "${v.clientId}" placeholder="client-id" spellcheck="false" class="oauth-client-id">
                                 <input type="password" value = "${v.clientSecret}" placeholder="client-secret" spellcheck="false" class="oauth-client-secret" style = "margin:0 5px;">
+                              </div>
+                              <div>
+                                ${Object.keys(v.flows[f].scopes).map((s) => {
+                                  const itemId = `${f}_${s}`;
+                                  const d = v.flows[f].scopes[s];
+                                  return html`<input style="margin: 6px" id="${itemId}" type="checkbox" value="${s}" />
+                                    <label style="margin-right: 5px" class="mono-font" for="${itemId}">${s}: <span class="gray-text">${d}</span></label>`;
+                                })}
+                              </div>
+                              <div style="margin-top:8px">
                                 <button class="m-btn thin-border"
-                                  @click="${(e) => { onInvokeOAuth.call(this, v.flows[f].authorizationUrl, v.flows[f].scopes, e); }}"> 
+                                  @click="${(e) => { onInvokeOAuth.call(this, v.apiKeyId, f, v.flows[f], e); }}"> 
                                   AUTHORIZE
                                 </button>
                               </div>
-                              <div style="margin-top:8px">
-                                <ul>
-                                  ${v.flows[f].authorizationUrl
-                                    ? html`
+                              ${v.flows[f].authorizationUrl && showAuthenticationInfo
+                                ? html`
+                                  <div style="margin-top:8px">
+                                    <ul>
                                       <li> Register this client (${window.location.origin}) with ${v.flows[f].authorizationUrl} </li>
                                       <li> During registration, Specify callback/redirect url pointing to <b>${this.oauthReceiver}</b> </li>
                                       <li> Create <b>${this.oauthReceiver}</b> which will receive auth-code from oAuth provider</li>
                                       <li> <b>${this.oauthReceiver}</b> should contain custom-element <span class="mono-font"> &lt;oauth-receiver&gt; </span>, this element receives the auth-code and passes it to this document </li>
-                                    `
-                                    : ''
-                                  }
-                                </ul>
-                              </div>`
-                            : ''
+                                    </ul>
+                                  </div>
+                                ` : ''
+                              }
+                            ` : ''
                           }
                         </div>  
                       `)}

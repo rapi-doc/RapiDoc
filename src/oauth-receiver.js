@@ -1,38 +1,59 @@
 export default class OauthReceiver extends HTMLElement {
-  connectedCallback() {
-    this.receiveAuthParms();
-    window.addEventListener('storage', (e) => this.receiveStorage(e), true);
-  }
+  constructor() {
+    super();
+    console.log('loaded me here');
 
-  /**
-   * Read OAuth2 parameters and sends them off
-   * to the window opener through `window.postMessage`.
-   */
-  receiveAuthParms() {
-    const params = new URLSearchParams(document.location.search);
-    const code = params.get('code');
-    const error = params.get('error');
-    const state = params.get('state');
-    if (!code) {
-      return;
+    const oauth2 = window.opener.Oauth2UIRedirect;
+    const sentState = oauth2.state;
+    let qp;
+
+    if (/code|token|error/.test(window.location.hash)) {
+      qp = window.location.hash.substring(1);
+    } else {
+      qp = window.location.search.substring(1);
     }
 
-    const authData = { code, error, state };
-    if (window.opener) {
-      window.opener.postMessage(authData, this.target);
-      return;
-    }
-    // Fallback to session storage if window.opener dont exist
-    sessionStorage.setItem('rapidoc-oauth-data', JSON.stringify(authData));
-  }
+    const arr = qp.split('&');
+    arr.forEach((v, i, _arr) => { _arr[i] = `"${v.replace('=', '":"')}"`; });
+    qp = qp ? JSON.parse(`{${arr.join()}}`,
+      (key, value) => (key === '' ? value : decodeURIComponent(value))) : {};
 
-  relayAuthParams(e) {
-    if (window.parent) {
-      if (e.key === 'rapidoc-oauth-data') {
-        const authData = JSON.parse(e.newValue);
-        window.parent.postMessage(authData, this.target);
+    const isValid = qp.state === sentState;
+
+    if ((
+      oauth2.flow === 'accessCode'
+      || oauth2.flow === 'authorizationCode'
+    ) && !oauth2.authConfigs.code) {
+      if (!isValid) {
+        oauth2.error("Authorization may be unsafe, passed state was changed in server Passed state wasn't returned from auth server");
       }
+
+      if (qp.code) {
+        delete oauth2.state;
+        oauth2.authConfigs.code = qp.code;
+        oauth2.callback({
+          authConfigs: oauth2.authConfigs,
+          redirectUrl: oauth2.redirectUrl,
+        });
+      } else {
+        let oauthErrorMsg;
+        if (qp.error) {
+          oauthErrorMsg = `[${qp.error}]: ${
+            qp.error_description ? `${qp.error_description}. ` : 'no accessCode received from the server. '
+          }${qp.error_uri ? `More info: ${qp.error_uri}` : ''}`;
+        }
+
+        oauth2.error(oauthErrorMsg || '[Authorization failed]: no accessCode received from the server');
+      }
+    } else {
+      oauth2.callback({
+        authConfigs: oauth2.authConfigs,
+        redirectUrl: oauth2.redirectUrl,
+        token: qp,
+        isValid,
+      });
     }
+    window.close();
   }
 }
 customElements.define('oauth-receiver', OauthReceiver);

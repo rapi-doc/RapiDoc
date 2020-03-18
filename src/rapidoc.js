@@ -60,7 +60,11 @@ export default class RapiDoc extends LitElement {
       // Hide/Show Sections & Enable Disable actions
       showHeader: { type: String, attribute: 'show-header' },
       showInfo: { type: String, attribute: 'show-info' },
+      showAuthenticationRedirectInfo: { type: String, attribute: 'show-authentication-redirect-info' },
+      showAuthenticationOperationInfo: { type: String, attribute: 'show-authentication-operation-info' },
       allowAuthentication: { type: String, attribute: 'allow-authentication' },
+      allowAuthenticationMultipleCall: { type: String, attribute: 'allow-authentication-multiple-call' },
+      allowAuthenticationSingleCall: { type: String, attribute: 'allow-authentication-single-call' },
       allowTry: { type: String, attribute: 'allow-try' },
       allowSpecUrlLoad: { type: String, attribute: 'allow-spec-url-load' },
       allowSpecFileLoad: { type: String, attribute: 'allow-spec-file-load' },
@@ -559,7 +563,8 @@ export default class RapiDoc extends LitElement {
   }
 
   securitySchemeTemplate() {
-    return securitySchemeTemplate.call(this);
+    const showAuthenticationRedirectInfo1 = !(this.showAuthenticationRedirectInfo === 'false');
+    return securitySchemeTemplate.call(this, showAuthenticationRedirectInfo1);
   }
 
   expandedEndpointTemplate() {
@@ -567,7 +572,7 @@ export default class RapiDoc extends LitElement {
   }
 
   endpointTemplate() {
-    return endpointTemplate.call(this);
+    return endpointTemplate.call(this, this.showAuthenticationOperationInfo, this.allowAuthenticationMultipleCall, this.allowAuthenticationSingleCall);
   }
 
   /* eslint-enable indent */
