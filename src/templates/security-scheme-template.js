@@ -43,7 +43,7 @@ function onInvokeOAuth(authUrl, scopes, e) {
 
   const state = (`${Math.random().toString(36)}random`).slice(2, 9);
   const authUrlObj = new URL(authUrl);
-  const receiveUrlObj = new URL(`${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/${this.oauthReceiver}}`);
+  const receiveUrlObj = new URL(`${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/${this.oauthReceiver}`);
   const params = new URLSearchParams(authUrl.search);
   params.set('client_id', clientId);
   params.set('redirect_uri', receiveUrlObj.toString());
