@@ -36,11 +36,18 @@ function onClearAllApiKeys() {
   this.requestUpdate();
 }
 
+function onClearOAuthKey(apiKeyId, e) {
+  const securityObj = this.resolvedSpec.securitySchemes.find((v) => (v.apiKeyId === apiKeyId));
+  const authFlowDivEl = e.target.closest('.oauth-flow');
+  authFlowDivEl.querySelector('.oauth-client-id').value = '';
+  authFlowDivEl.querySelector('.oauth-client-secret').value = '';
+  securityObj.finalKeyValue = '';
+  this.requestUpdate();
+}
+
 /* eslint-disable no-console */
 function onInvokeOAuth(apiKeyId, flowType, authUrl, tokenUrl, scopes, e) {
   const securityObj = this.resolvedSpec.securitySchemes.find((v) => (v.apiKeyId === apiKeyId));
-  console.log('Selected SecurityScheme: %s >>> %o', apiKeyId, securityObj);
-  debugger;
   const authFlowDivEl = e.target.closest('.oauth-flow');
   const clientId = authFlowDivEl.querySelector('.oauth-client-id').value.trim();
   const clientSecret = authFlowDivEl.querySelector('.oauth-client-secret').value.trim();
@@ -104,7 +111,6 @@ function onInvokeOAuth(apiKeyId, flowType, authUrl, tokenUrl, scopes, e) {
           const respObj = await resp.json();
           console.log('Access Token Response: %o', respObj);
           if (respObj.access_token) {
-            debugger;
             securityObj.finalKeyValue = `${respObj.token_type} ${respObj.access_token}`;
             this.requestUpdate();
           }
@@ -209,10 +215,14 @@ export default function securitySchemeTemplate() {
                               <div style="display:flex; max-height:28px;">
                                 <input type="text" value = "${v.clientId}" placeholder="client-id" spellcheck="false" class="oauth-client-id">
                                 <input type="password" value = "${v.clientSecret}" placeholder="client-secret" spellcheck="false" class="oauth-client-secret" style = "margin:0 5px;">
-                                <button class="m-btn thin-border"
-                                  @click="${(e) => { onInvokeOAuth.call(this, v.apiKeyId, f, v.flows[f].authorizationUrl, v.flows[f].tokenUrl, v.flows[f].scopes, e); }}"> 
-                                  AUTHORIZE
-                                </button>
+                                ${v.finalKeyValue
+                                  ? html`<button class="m-btn thin-border"
+                                    @click="${(e) => { onInvokeOAuth.call(this, v.apiKeyId, f, v.flows[f].authorizationUrl, v.flows[f].tokenUrl, v.flows[f].scopes, e); }}"
+                                    > AUTHORIZE </button>`
+                                  : html`
+                                    <button class="m-btn thin-border" @click="${(e) => { onClearOAuthKey.call(this, v.apiKeyId, e); }}"> CLEAR </button>
+                                  `
+                                }
                               </div>
                               <div style="margin-top:8px">
                                 <ul>
