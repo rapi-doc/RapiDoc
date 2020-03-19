@@ -7,7 +7,8 @@ export const buildFormData = (data) => {
   for (const name in data) {
     const val = data[name];
     if (val !== undefined && val !== '') {
-      formArr.push([name, '=', encodeURIComponent(val).replace(/%20/g, '+')].join(''));
+      // formArr.push([name, '=', encodeURIComponent(val).replace(/%20/g, '+')].join(''));
+      formArr.push([name, '=', encodeURIComponent(val)].join(''));
     }
   }
   return formArr.join('&');
@@ -43,11 +44,10 @@ const authorizeRequest = (payload) => {
     body,
   })
     .then((response) => {
-      if (!response.ok) {
-        console.error(response.statusText);
-        return;
+      if (response.ok) {
+        return response.json();
       }
-      return response.json();
+      console.error(response.statusText);
     })
     .then((json) => json)
     .catch((e) => {

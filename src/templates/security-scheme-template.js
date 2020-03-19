@@ -90,6 +90,7 @@ function onInvokeOAuth(apiKeyId, flow, authConfigs, e) {
     case 'application':
       // @todo, not tested
       authorizeApplication(authConfigs).then((token) => {
+        if (!token) return;
         securityObj.finalKeyValue = `Bearer ${token.access_token}`;
         this.requestUpdate();
       });
@@ -105,6 +106,7 @@ function onInvokeOAuth(apiKeyId, flow, authConfigs, e) {
 
     case 'clientCredentials':
       authorizeApplication(authConfigs).then((token) => {
+        if (!token) return;
         securityObj.finalKeyValue = `Bearer ${token.access_token}`;
         this.requestUpdate();
       });
@@ -180,6 +182,7 @@ function onInvokeOAuth(apiKeyId, flow, authConfigs, e) {
     });
   } else {
     callback = (payload) => authorizeAccessCodeWithFormParams(payload).then((token) => {
+      if (!token) return;
       securityObj.finalKeyValue = `Bearer ${token.access_token}`;
       this.requestUpdate();
     });
