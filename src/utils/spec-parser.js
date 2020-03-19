@@ -77,6 +77,8 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
         securityObj.user = '';
         securityObj.password = '';
       } else if (kv[1].type === 'oauth2') {
+        securityObj.in = 'header';
+        securityObj.name = 'Authorization';
         securityObj.clientId = '';
         securityObj.clientSecret = '';
       }

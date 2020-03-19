@@ -220,13 +220,13 @@ export default function securitySchemeTemplate() {
                                       <li> Create <b>${this.oauthReceiver}</b> which will receive auth-code from oAuth provider</li>
                                       <li> <b>${this.oauthReceiver}</b> should contain custom-element <span class="mono-font"> &lt;oauth-receiver&gt; </span>, this element receives the auth-code and passes it to this document </li>
                                       <li> After receiving auth-code, it will request access-token at <span class="mono-font"> POST ${v.flows[f].tokenUrl}</span>
-                                          <ul>
-                                            <li> grant_type = 'authorization_code'</li>
-                                            <li> code = {auth-code}</li>
-                                            <li> client_id = {client-id}</li>
-                                            <li> client_secret = {client-secret}</li>
-                                            <li> redirect_uri = {redirect-url}</li>
-                                          </ul>
+                                        <ul>
+                                          <li> grant_type = 'authorization_code'</li>
+                                          <li> code = {auth-code}</li>
+                                          <li> client_id = {client-id}</li>
+                                          <li> client_secret = {client-secret}</li>
+                                          <li> redirect_uri = {redirect-url}</li>
+                                        </ul>
                                       </li>
                                     `
                                     : ''
