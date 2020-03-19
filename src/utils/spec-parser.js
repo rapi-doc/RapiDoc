@@ -210,26 +210,12 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
         }
 
         // Generate Path summary and Description if it is missing for a method
-        let summary = fullPath.summary ? fullPath.summary : '';
-        const description = fullPath.description ? fullPath.description : '';
-        if (!summary && description) {
-          if (description.length > 100) {
-            let charIndex = -1;
-            charIndex = description.indexOf('\n');
-            if (charIndex === -1 || charIndex > 100) {
-              charIndex = description.indexOf('. ');
-            }
-            if (charIndex === -1 || charIndex > 100) {
-              charIndex = description.indexOf('.');
-            }
-            if (charIndex === -1 || charIndex > 100) {
-              summary = description;
-            } else {
-              summary = description.substr(0, charIndex);
-            }
-          } else {
-            summary = description;
-          }
+        let summary = (fullPath.summary || '').trim() ? fullPath.summary.trim() : (fullPath.description || '-').trim().split('/n')[0];
+        if (summary.length > 100) {
+          summary = summary.split('.')[0];
+        }
+        if (!(fullPath.description || '').trim()) {
+          fullPath.description = ((fullPath.summary || '-').trim());
         }
 
         // Merge Common Parameters with This methods parameters
