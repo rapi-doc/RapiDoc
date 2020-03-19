@@ -300,7 +300,7 @@ export default class ApiRequest extends LitElement {
         // Remove Circular references from RequestBody json-schema
         mimeReqObj.schema = JSON.parse(JSON.stringify(mimeReqObj.schema));
       } catch (err) {
-        console.error('Unable to resolve circular refs in schema', mimeReqObj.schema); // eslint-disable-line no-console
+        console.error('RapiDoc: Unable to resolve circular refs in schema', mimeReqObj.schema); // eslint-disable-line no-console
         return;
       }
       if (mimeReq.includes('json')) {
@@ -682,7 +682,7 @@ export default class ApiRequest extends LitElement {
             }
           }
         } catch (err) {
-          console.log('unable to parse %s into object', el.value); // eslint-disable-line no-console
+          console.log('RapiDoc: unable to parse %s into object', el.value); // eslint-disable-line no-console
         }
       });
     }
@@ -785,7 +785,7 @@ export default class ApiRequest extends LitElement {
           tmpObj = JSON.parse(val);
         } catch (err) {
           proceed = false;
-          console.warn('Invalid JSON provided', err); // eslint-disable-line no-console
+          console.warn('RapiDoc: Invalid JSON provided', err); // eslint-disable-line no-console
         }
       } else {
         proceed = false;

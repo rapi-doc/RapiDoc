@@ -92,16 +92,19 @@ function onInvokeOAuth(apiKeyId, authUrl, tokenUrl, scopes, e) {
       formData.append('client_id', clientId);
       formData.append('client_secret', clientSecret);
       formData.append('redirect_uri', receiveUrlObj.toString());
-      const resp = await fetch(tokenUrl, { method: 'POST', body: formData });
-      // eslint-disable-next-line no-console
-      console.log(`OAUth Token Response Status: ${resp.statusText}:${resp.status}`);
-      resp.json().then((respObj) => {
+      try {
+        const resp = await fetch(tokenUrl, { method: 'POST', body: formData });
         // eslint-disable-next-line no-console
-        console.log('OAUth Token Response: %o', respObj);
+        console.log(`OAUth Token Response Status: ${resp.statusText}:${resp.status}`);
+        const respObj = await resp.json();
         if (respObj.access_token) {
           securityObj.finalKeyValue = `${respObj.token_type} ${respObj.access_token}`;
+          this.requestUpdate();
         }
-      });
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('RapiDoc: Unable to get access token');
+      }
     }
   };
 

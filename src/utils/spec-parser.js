@@ -56,7 +56,7 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
     jsonParsedSpec = resolvedRefSpec.resolved;
     */
   } catch (err) {
-    console.info('%c There was an issue while parsing the spec %o ', 'color:orangered', err); // eslint-disable-line no-console
+    console.info('RapiDoc: %c There was an issue while parsing the spec %o ', 'color:orangered', err); // eslint-disable-line no-console
   }
 
   // const pathGroups = groupByPaths(jsonParsedSpec);

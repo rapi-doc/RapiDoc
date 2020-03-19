@@ -670,7 +670,7 @@ export default class RapiDoc extends LitElement {
         this.loadSpec(specObj);
         this.shadowRoot.getElementById('spec-url').value = '';
       } catch (err) {
-        console.log('Unable to read or parse json'); // eslint-disable-line no-console
+        console.error('RapiDoc: Unable to read or parse json'); // eslint-disable-line no-console
       }
     };
     // Read the Text file
@@ -720,7 +720,7 @@ export default class RapiDoc extends LitElement {
       this.loadFailed = true;
       this.resolvedSpec = null;
       this.requestUpdate();
-      console.error(`Unable to resolve the API spec..  ${err.message}`); // eslint-disable-line no-console
+      console.error(`RapiDoc: Unable to resolve the API spec..  ${err.message}`); // eslint-disable-line no-console
     }
   }
 
