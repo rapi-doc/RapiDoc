@@ -37,8 +37,10 @@ function onClearAllApiKeys() {
 }
 
 /* eslint-disable no-console */
-function onInvokeOAuth(flowType, apiKeyId, authUrl, tokenUrl, scopes, e) {
+function onInvokeOAuth(apiKeyId, flowType, authUrl, tokenUrl, scopes, e) {
   const securityObj = this.resolvedSpec.securitySchemes.find((v) => (v.apiKeyId === apiKeyId));
+  console.log('Selected SecurityScheme: %s >>> %o', apiKeyId, securityObj);
+  debugger;
   const authFlowDivEl = e.target.closest('.oauth-flow');
   const clientId = authFlowDivEl.querySelector('.oauth-client-id').value.trim();
   const clientSecret = authFlowDivEl.querySelector('.oauth-client-secret').value.trim();
@@ -102,6 +104,7 @@ function onInvokeOAuth(flowType, apiKeyId, authUrl, tokenUrl, scopes, e) {
           const respObj = await resp.json();
           console.log('Access Token Response: %o', respObj);
           if (respObj.access_token) {
+            debugger;
             securityObj.finalKeyValue = `${respObj.token_type} ${respObj.access_token}`;
             this.requestUpdate();
           }
@@ -207,7 +210,7 @@ export default function securitySchemeTemplate() {
                                 <input type="text" value = "${v.clientId}" placeholder="client-id" spellcheck="false" class="oauth-client-id">
                                 <input type="password" value = "${v.clientSecret}" placeholder="client-secret" spellcheck="false" class="oauth-client-secret" style = "margin:0 5px;">
                                 <button class="m-btn thin-border"
-                                  @click="${(e) => { onInvokeOAuth.call(this, f, v.apiKeyId, v.flows[f].authorizationUrl, v.flows[f].tokenUrl, v.flows[f].scopes, e); }}"> 
+                                  @click="${(e) => { onInvokeOAuth.call(this, v.apiKeyId, f, v.flows[f].authorizationUrl, v.flows[f].tokenUrl, v.flows[f].scopes, e); }}"> 
                                   AUTHORIZE
                                 </button>
                               </div>
