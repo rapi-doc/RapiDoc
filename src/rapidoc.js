@@ -65,6 +65,7 @@ export default class RapiDoc extends LitElement {
       allowSpecUrlLoad: { type: String, attribute: 'allow-spec-url-load' },
       allowSpecFileLoad: { type: String, attribute: 'allow-spec-file-load' },
       allowSearch: { type: String, attribute: 'allow-search' },
+      allowQuickSearch: { type: String, attribute: 'allow-quick-search' },
       allowServerSelection: { type: String, attribute: 'allow-server-selection' },
 
       // Main Colors and Font
@@ -473,12 +474,23 @@ export default class RapiDoc extends LitElement {
           : html`
             <div style="position:sticky; top:0; display:flex; flex-direction:row; align-items: stretch; padding:24px; background: var(--nav-bg-color); border-bottom: 1px solid var(--nav-hover-bg-color)">
               <div style="display:flex; flex:1">
+              ${(this.allowQuickSearch === 'true')
+                ? html`
+                  <input id="nav-bar-search" 
+                    style="width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" 
+                    type="text" placeholder="search" 
+                    @input="${this.onSearchChange}"
+                    spellcheck="false" >
+                `
+                : html`
                 <input id="nav-bar-search" 
                   style="width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" 
                   type="text" placeholder="search" 
-                  @change="${this.onSearchChange}"  
-                  spellcheck="false" 
-                >
+                  @change="${this.onSearchChange}"                
+                  spellcheck="false">
+                `
+            }
+
                 <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x2b90;</div>
               </div>  
               ${this.matchPaths
