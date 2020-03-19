@@ -216,11 +216,13 @@ export default function securitySchemeTemplate() {
                                 <input type="text" value = "${v.clientId}" placeholder="client-id" spellcheck="false" class="oauth-client-id">
                                 <input type="password" value = "${v.clientSecret}" placeholder="client-secret" spellcheck="false" class="oauth-client-secret" style = "margin:0 5px;">
                                 ${v.finalKeyValue
-                                  ? html`<button class="m-btn thin-border"
-                                    @click="${(e) => { onInvokeOAuth.call(this, v.apiKeyId, f, v.flows[f].authorizationUrl, v.flows[f].tokenUrl, v.flows[f].scopes, e); }}"
-                                    > AUTHORIZE </button>`
-                                  : html`
+                                  ? html`
                                     <button class="m-btn thin-border" @click="${(e) => { onClearOAuthKey.call(this, v.apiKeyId, e); }}"> CLEAR </button>
+                                  `
+                                  : html`
+                                    <button class="m-btn thin-border"
+                                    @click="${(e) => { onInvokeOAuth.call(this, v.apiKeyId, f, v.flows[f].authorizationUrl, v.flows[f].tokenUrl, v.flows[f].scopes, e); }}"
+                                    > AUTHORIZE </button>                                    
                                   `
                                 }
                               </div>
