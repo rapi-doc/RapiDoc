@@ -36,7 +36,8 @@ function onClearAllApiKeys() {
   this.requestUpdate();
 }
 
-function onInvokeOAuth(apiKeyId, authUrl, tokenUrl, scopes, e) {
+/* eslint-disable no-console */
+function onInvokeOAuth(flowType, apiKeyId, authUrl, tokenUrl, scopes, e) {
   const securityObj = this.resolvedSpec.securitySchemes.find((v) => (v.apiKeyId === apiKeyId));
   const authFlowDivEl = e.target.closest('.oauth-flow');
   const clientId = authFlowDivEl.querySelector('.oauth-client-id').value.trim();
@@ -45,17 +46,23 @@ function onInvokeOAuth(apiKeyId, authUrl, tokenUrl, scopes, e) {
   const state = (`${Math.random().toString(36)}random`).slice(2, 9);
   const authUrlObj = new URL(authUrl);
   const receiveUrlObj = new URL(`${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/${this.oauthReceiver}`);
+  let oAuthRespType = 'code';
+  if (flowType === 'authorizationCode') {
+    oAuthRespType = 'code';
+  } else if (flowType === 'implicit') {
+    oAuthRespType = 'token';
+  }
+
   const params = new URLSearchParams(authUrl.search);
   params.set('client_id', clientId);
   params.set('redirect_uri', receiveUrlObj.toString());
-  params.set('response_type', 'code'); // can be token (for implicit grant)
+  params.set('response_type', oAuthRespType);
   params.set('scope', Object.keys(scopes).join(' '));
   params.set('state', state);
   params.set('show_dialog', true);
   authUrlObj.search = params.toString();
   const w = window.open(authUrlObj.toString());
   if (!w) {
-    // eslint-disable-next-line no-console
     console.error(`RapiDoc: Unable to open ${authUrlObj.toString()} in a new window`);
   }
 
@@ -71,45 +78,45 @@ function onInvokeOAuth(apiKeyId, authUrl, tokenUrl, scopes, e) {
     window.removeEventListener('message', handleMessageEventFn, true);
     w.close();
     if (!ev.data) {
-      // eslint-disable-next-line no-console
-      console.warn('RapiDoc: Received no data with authorization message');
+      console.error('RapiDoc: Received no data with authorization message');
     }
     if (ev.data.state !== state) {
-      // eslint-disable-next-line no-console
       console.warn('RapiDoc: State value did not match.');
     }
     if (ev.data.error) {
-      // eslint-disable-next-line no-console
       console.warn('RapiDoc: Error while receving data');
     }
-    if (ev.data && ev.data.code) {
-      // eslint-disable-next-line no-console
-      console.log(`RapiDoc: AUTH CODE RECEIVED - ${ev.data.code}`);
-      // return res(ev.data.code);
-      const formData = new FormData();
-      formData.append('grant_type', 'authorization_code');
-      formData.append('code', ev.data.code);
-      formData.append('client_id', clientId);
-      formData.append('client_secret', clientSecret);
-      formData.append('redirect_uri', receiveUrlObj.toString());
-      try {
-        const resp = await fetch(tokenUrl, { method: 'POST', body: formData });
-        // eslint-disable-next-line no-console
-        console.log(`OAUth Token Response Status: ${resp.statusText}:${resp.status}`);
-        const respObj = await resp.json();
-        if (respObj.access_token) {
-          securityObj.finalKeyValue = `${respObj.token_type} ${respObj.access_token}`;
-          this.requestUpdate();
+    if (ev.data) {
+      if (ev.data.responseType === 'code') {
+        console.log(`RapiDoc: AUTH CODE RECEIVED - ${ev.data.code}`);
+        // return res(ev.data.code);
+        const formData = new FormData();
+        formData.append('grant_type', 'authorization_code');
+        formData.append('code', ev.data.code);
+        formData.append('client_id', clientId);
+        formData.append('client_secret', clientSecret);
+        formData.append('redirect_uri', receiveUrlObj.toString());
+        try {
+          const resp = await fetch(tokenUrl, { method: 'POST', body: formData });
+          console.log(`OAUth Token Response Status: ${resp.statusText}:${resp.status}`);
+          const respObj = await resp.json();
+          console.log('Access Token Response: %o', respObj);
+          if (respObj.access_token) {
+            securityObj.finalKeyValue = `${respObj.token_type} ${respObj.access_token}`;
+            this.requestUpdate();
+          }
+        } catch (err) {
+          console.error('RapiDoc: Unable to get access token');
         }
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        console.error('RapiDoc: Unable to get access token');
+      } else if (ev.data.responseType === 'token') {
+        securityObj.finalKeyValue = `${ev.data.token_type} ${ev.data.access_token}`;
+        this.requestUpdate();
       }
     }
   };
-
   window.addEventListener('message', handleMessageEventFn, true);
 }
+/* eslint-enable no-console */
 
 /* eslint-disable indent */
 export default function securitySchemeTemplate() {
@@ -200,7 +207,7 @@ export default function securitySchemeTemplate() {
                                 <input type="text" value = "${v.clientId}" placeholder="client-id" spellcheck="false" class="oauth-client-id">
                                 <input type="password" value = "${v.clientSecret}" placeholder="client-secret" spellcheck="false" class="oauth-client-secret" style = "margin:0 5px;">
                                 <button class="m-btn thin-border"
-                                  @click="${(e) => { onInvokeOAuth.call(this, v.apiKeyId, v.flows[f].authorizationUrl, v.flows[f].tokenUrl, v.flows[f].scopes, e); }}"> 
+                                  @click="${(e) => { onInvokeOAuth.call(this, f, v.apiKeyId, v.flows[f].authorizationUrl, v.flows[f].tokenUrl, v.flows[f].scopes, e); }}"> 
                                   AUTHORIZE
                                 </button>
                               </div>

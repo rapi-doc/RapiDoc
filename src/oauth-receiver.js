@@ -9,21 +9,29 @@ export default class OauthReceiver extends HTMLElement {
    * to the window opener through `window.postMessage`.
    */
   receiveAuthParms() {
-    const params = new URLSearchParams(document.location.search);
-    const code = params.get('code');
-    const error = params.get('error');
-    const state = params.get('state');
-    if (!code) {
-      return;
+    let authData = {};
+    if (document.location.search) { // Applies to authorizationCode flow
+      const params = new URLSearchParams(document.location.search);
+      const code = params.get('code');
+      const error = params.get('error');
+      const state = params.get('state');
+      authData = {
+        code,
+        error,
+        state,
+        responseType: 'code',
+      };
+    } else if (window.location.hash) { // Applies to Implicit flow
+      const accessToken = this.parseQueryString(window.location.hash.substring(1), 'access_token');
+      const tokenType = this.parseQueryString(window.location.hash.substring(1), 'token_type');
+      authData = { accessToken, tokenType, responseType: 'token' };
     }
 
-    const authData = { code, error, state };
     if (window.opener) {
       window.opener.postMessage(authData, this.target);
       return;
     }
-    // Fallback to session storage if window.opener dont exist
-    sessionStorage.setItem('rapidoc-oauth-data', JSON.stringify(authData));
+    sessionStorage.setItem('rapidoc-oauth-data', JSON.stringify(authData)); // Fallback to session storage if window.opener dont exist
   }
 
   relayAuthParams(e) {
@@ -31,6 +39,16 @@ export default class OauthReceiver extends HTMLElement {
       if (e.key === 'rapidoc-oauth-data') {
         const authData = JSON.parse(e.newValue);
         window.parent.postMessage(authData, this.target);
+      }
+    }
+  }
+
+  parseQueryString(queryString, key) {
+    const vars = queryString.split('&');
+    for (let i = 0; i < vars.length; i++) {
+      const pair = vars[i].split('=');
+      if (decodeURIComponent(pair[0]) === key) {
+        return decodeURIComponent(pair[1]);
       }
     }
   }
