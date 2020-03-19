@@ -2,6 +2,7 @@ swagger: "2.0"
 info:
   title: Markdown Content
   version: 1.0.0
+  description: Test case to show markdown support. For more info check specification (http://spec.openapis.org/oas/v3.0.3)
 basePath: /v1
 consumes:
 - application/json
