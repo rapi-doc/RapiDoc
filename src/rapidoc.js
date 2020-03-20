@@ -15,6 +15,7 @@ import expandedEndpointTemplate from '@/templates/expanded-endpoint-template';
 import endpointTemplate from '@/templates/endpoint-template';
 import serverTemplate from '@/templates/server-template';
 import securitySchemeTemplate from '@/templates/security-scheme-template';
+import componentsTemplate from '@/templates/components-template';
 
 export default class RapiDoc extends LitElement {
   constructor() {
@@ -66,6 +67,7 @@ export default class RapiDoc extends LitElement {
       allowSpecFileLoad: { type: String, attribute: 'allow-spec-file-load' },
       allowSearch: { type: String, attribute: 'allow-search' },
       allowServerSelection: { type: String, attribute: 'allow-server-selection' },
+      showComponents: { type: String, attribute: 'show-components' },
 
       // Main Colors and Font
       theme: { type: String },
@@ -122,19 +124,19 @@ export default class RapiDoc extends LitElement {
   }
 
   /* eslint-disable indent */
-  render() {
-    const newTheme = {
-      bg1: isValidHexColor(this.bgColor) ? this.bgColor : '',
-      fg1: isValidHexColor(this.textColor) ? this.textColor : '',
-      headerColor: isValidHexColor(this.headerColor) ? this.headerColor : '',
-      primaryColor: isValidHexColor(this.primaryColor) ? this.primaryColor : '',
-      navBgColor: isValidHexColor(this.navBgColor) ? this.navBgColor : '',
-      navTextColor: isValidHexColor(this.navTextColor) ? this.navTextColor : '',
-      navHoverBgColor: isValidHexColor(this.navHoverBgColor) ? this.navHoverBgColor : '',
-      navHoverTextColor: isValidHexColor(this.navHoverTextColor) ? this.navHoverTextColor : '',
-      navAccentColor: isValidHexColor(this.navAccentColor) ? this.navAccentColor : '',
-    };
-    return html`
+    render() {
+            const newTheme = {
+                bg1: isValidHexColor(this.bgColor) ? this.bgColor : '',
+                fg1: isValidHexColor(this.textColor) ? this.textColor : '',
+                headerColor: isValidHexColor(this.headerColor) ? this.headerColor : '',
+                primaryColor: isValidHexColor(this.primaryColor) ? this.primaryColor : '',
+                navBgColor: isValidHexColor(this.navBgColor) ? this.navBgColor : '',
+                navTextColor: isValidHexColor(this.navTextColor) ? this.navTextColor : '',
+                navHoverBgColor: isValidHexColor(this.navHoverBgColor) ? this.navHoverBgColor : '',
+                navHoverTextColor: isValidHexColor(this.navHoverTextColor) ? this.navHoverTextColor : '',
+                navAccentColor: isValidHexColor(this.navAccentColor) ? this.navAccentColor : '',
+            };
+            return html`
       ${FontStyles}
       ${InputStyles}
       ${FlexStyles}
@@ -218,6 +220,7 @@ export default class RapiDoc extends LitElement {
           text-transform: capitalize;
         }
 
+        .nav-bar-components,
         .nav-bar-info,
         .nav-bar-tag,
         .nav-bar-path {
@@ -234,6 +237,15 @@ export default class RapiDoc extends LitElement {
           font-size: var(--font-size-regular);
           padding: 16px 10px;
           font-weight:bold;
+        }
+        .nav-bar-header {
+          border-top: 1px solid var(--nav-hover-bg-color);
+          font-size: var(--font-size-regular);
+          padding: 10px 7px;
+          font-weight:bold;
+          background-color: var(--nav-text-color);
+          color: var(--nav-bg-color);
+          text-transform: uppercase;
         }
 
         .nav-bar-info.active,
@@ -405,6 +417,7 @@ export default class RapiDoc extends LitElement {
                 ? ''
                 : this.serverTemplate()
               } 
+
               ${(this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes)
                 ? ''
                 : this.securitySchemeTemplate()
@@ -416,7 +429,14 @@ export default class RapiDoc extends LitElement {
                     : this.endpointTemplate()
                   : ''
                 }
-              </div>`
+              </div>
+
+              ${(this.showComponents === 'false')
+                  ? ''
+                  : this.componentsTemplate()
+              }
+
+              `
             : ''
           }
           <slot name="footer"></slot>
@@ -490,6 +510,7 @@ export default class RapiDoc extends LitElement {
           `
         }
         ${html`<div class='nav-scroll'>
+          <div id='link-general' class='nav-bar-header' @click='${(e) => this.scrollToEl(e)}'>General</div>
           ${(this.showInfo === 'false' || !this.resolvedSpec.info)
             ? ''
             : html`<div id='link-overview' class='nav-bar-info'  @click = '${(e) => this.scrollToEl(e)}' > Overview </div>`
@@ -503,7 +524,9 @@ export default class RapiDoc extends LitElement {
             : html`<div id='link-authentication'  class='nav-bar-info' @click = '${(e) => this.scrollToEl(e)}' > Authentication </div>`
           }
 
+          <div id='link-paths' class='nav-bar-header' @click='${(e) => this.scrollToEl(e)}'>Paths</div>
           ${this.resolvedSpec.tags.map((tag) => html`
+          
             <div class='nav-bar-tag' id="link-${tag.name.replace(/[\s#:?&=]/g, '-')}" @click='${(e) => this.scrollToEl(e)}'>
               ${tag.name}
             </div>
@@ -517,6 +540,25 @@ export default class RapiDoc extends LitElement {
               <span> ${p.summary || p.path} </span>
             </div>`)}
           `)}
+
+          ${(this.showComponents === 'false' || !this.resolvedSpec.components)
+        ? ''
+      : html`<div id='link-components' class='nav-bar-header' @click='${(e) => this.scrollToEl(e)}'>Components</div>
+        
+      ${this.resolvedSpec.components.map((component) => html`
+            <div class='nav-bar-tag' id="link-cmp-${component.name.replace(/[\s#:?&=]/g, '-')}" @click='${(e) => this.scrollToEl(e)}'>
+              ${component.name}
+            </div>
+            ${component.subComponents.map((p) => html`
+            <div class='nav-bar-path' id='link-cmp-${p.name.replace(/[\s#:?&=]/g, '-')}' @click='${(e) => this.scrollToEl(e)}'> 
+              <span> ${p.name} </span>
+            </div>`)}
+          `)}
+
+           
+          `}
+
+          
           </div>`
         }
         <!-- div class="cover-scroll-bar"></div -->
@@ -568,6 +610,10 @@ export default class RapiDoc extends LitElement {
 
   endpointTemplate() {
     return endpointTemplate.call(this);
+  }
+
+  componentsTemplate() {
+    return componentsTemplate.call(this);
   }
 
   /* eslint-enable indent */
