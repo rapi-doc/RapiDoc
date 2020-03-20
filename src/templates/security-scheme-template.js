@@ -199,6 +199,7 @@ function onInvokeOAuth(apiKeyId, flow, authConfigs, e) {
 
   window.open(url);
 }
+/* eslint-enable no-console */
 
 /* eslint-disable indent */
 export default function securitySchemeTemplate(showAuthenticationInfo) {
@@ -315,9 +316,14 @@ export default function securitySchemeTemplate(showAuthenticationInfo) {
                                       <li> During registration, Specify callback/redirect url pointing to <b>${this.oauthReceiver}</b> </li>
                                       <li> Create <b>${this.oauthReceiver}</b> which will receive auth-code from oAuth provider</li>
                                       <li> <b>${this.oauthReceiver}</b> should contain custom-element <span class="mono-font"> &lt;oauth-receiver&gt; </span>, this element receives the auth-code and passes it to this document </li>
-                                      <li> After receiving auth-code, it will request for an access-token using 
-                                        <span class="mono-font"> POST ${v.flows[f].authorizationUrl}</span> and providing 
-                                        <span class="mono-font"> grant_type='authorization_code', code={auth-code}, client_id={client-id}, client_secret={client-secret} and redirect_uri={redirect-url} <span>
+                                      <li> After receiving auth-code, it will request access-token at <span class="mono-font"> POST ${v.flows[f].tokenUrl}</span>
+                                        <ul>
+                                          <li> grant_type = 'authorization_code'</li>
+                                          <li> code = {auth-code}</li>
+                                          <li> client_id = {client-id}</li>
+                                          <li> client_secret = {client-secret}</li>
+                                          <li> redirect_uri = {redirect-url}</li>
+                                        </ul>
                                       </li>
                                     </ul>
                                   </div>

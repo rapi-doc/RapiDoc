@@ -4,7 +4,7 @@ info:
   description: Model composition using all-of
   version: 1.0.0
 paths:
-  /api/employee:
+  /all-of/employee:
     get:
       summary: List of employees
       responses:

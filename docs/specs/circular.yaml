@@ -10,10 +10,10 @@ produces:
 paths:
   /books:
     get:
-      summary: List all books
-      operationId: listBooks
+      summary: List all books 
+      description: here the `related_books` schema is same as `books` schema, creating a circular reference, it should show `recursive` in the model
       tags:
-        - books
+        - Circular References
       responses:
         200:
           description: An array of books

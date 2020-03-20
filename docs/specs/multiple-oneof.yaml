@@ -1,11 +1,12 @@
 openapi: 3.0.0
 info:
-  title: oneOf Test
+  title: Multiple One-Of Test
   version: 1.0.0
 paths:
-  "/test":
+  "/multiple-one-of":
     get:
-      summary: Test
+      summary: Multiple One of
+      description: Schema composition using multiple `one-of` 
       responses:
         '200':
           description: Success

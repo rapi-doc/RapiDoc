@@ -321,14 +321,15 @@
             <td class="mono bold right">allow-try</td>
             <td class="gray">
               'TRY' feature allows you to make REST calls to the API server. 
-              To disable this feature set it to false 
+              To disable this feature set it to false<br/>
+              Setting it to false will also hide API-Servers if specified in the spec
             </td>
             <td>true</td>
           </tr>
           <tr>
             <td class="mono bold right">allow-server-selection</td>
             <td class="gray">
-              If set to 'false', user will not be able to select API server.
+              If set to 'false', user will not be able to see or select API server (Server List will be hidden, however users will be able to see the server url near the 'TRY' button, to know in advance where the TRY will send the request). 
               The URL specified in the server-url attribute will be used if set, else the first server in the API specification file will be used.
             </td>
             <td>true</td>

@@ -14,7 +14,7 @@ info:
         post:
           tags:
             - File Upload
-          summary: uploads single file using form-data
+          summary: Uploads single file using form-data
           requestBody:
             content:
               application/x-www-form-urlencoded:
@@ -32,7 +32,7 @@ info:
         post:
           tags:
             - File Upload
-          summary: uploads multiple file using form-data and type as 'array'
+          summary: Uploads multiple file using form-data and type as 'array'
           requestBody:
             content:
               application/x-www-form-urlencoded:
@@ -52,7 +52,7 @@ info:
         post:
           tags:
             - File Upload
-          summary: uploads single file using request-body content-type as application/octet-stream
+          summary: Uploads single file using request-body content-type as application/octet-stream
           requestBody:
             content:
               application/octet-stream:
@@ -69,7 +69,7 @@ paths:
     post:
       tags:
         - File Upload
-      summary: uploads single file using form-data
+      summary: Uploads single file using form-data
       requestBody:
         content:
           application/x-www-form-urlencoded:
@@ -87,7 +87,7 @@ paths:
     post:
       tags:
         - File Upload
-      summary: uploads multiple file using form-data and type as 'array'
+      summary: Uploads multiple file using form-data and type as 'array'
       requestBody:
         content:
           application/x-www-form-urlencoded:
@@ -107,7 +107,7 @@ paths:
     post:
       tags:
         - File Upload
-      summary: uploads single file using request-body content-type as application/octet-stream
+      summary: Uploads single file using request-body content-type as application/octet-stream
       requestBody:
         content:
           application/octet-stream:

@@ -2,6 +2,7 @@ swagger: "2.0"
 info:
   title: Markdown Content
   version: 1.0.0
+  description: Test case to show markdown support. For more info check specification (http://spec.openapis.org/oas/v3.0.3)
 basePath: /v1
 consumes:
 - application/json
@@ -58,17 +59,55 @@ paths:
           }
 
         ```
-
-        
       summary: Some markdown content
       operationId: pipelines
       responses:
-        200:
-          description: Created pipelines
-          schema:
-            type: array
-            items:
-              $ref: "#/definitions/Pipeline"
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Description of **Person** object (Person must be bold)
+                properties:
+                  age:
+                    description: Person's **Age** (age must be bold)
+                    type: integer
+                  fullName:
+                    description: Person's Full name
+                    type: object
+                    properties:
+                      firstName:
+                        description: _First name_ (First name should be italics)
+                        type: string
+                      lastName:
+                        description: |
+                          `Last name` (last name must be monospaced)
+                        type: string
+                  dependentIds:
+                    type: array
+                    description: IDs of Dependents .
+                    items:
+                      type: integer
+                  dependentNames:
+                    type: array
+                    description: Full Name of **Dependents** (Dependents must be bold).
+                    items:
+                      type: object
+                      properties:
+                        firstNameParts:
+                          description: Parts of **First Name** (First Name must be bold)
+                          type: object
+                          properties:
+                            firstNamePrefix:
+                              description: Prefix to be used for the First Name
+                              type: string
+                            firstName:
+                              description: Actual First Name
+                              type: string
+                        dependentLastName:
+                          description: Dependent Last Name
+                          type: string
 definitions:
   # Book
   Pipeline:

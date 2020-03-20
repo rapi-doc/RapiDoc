@@ -33,6 +33,17 @@
     #main-img{
       width:740px;
     }
+    .container {
+      border:1px solid #555;
+      border-radius: 2px;
+      margin:5px;
+      padding:8px;
+      width: 200px;
+      display:flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
   </style>
 </head>
 
@@ -53,122 +64,143 @@
       </nav>
     </div>
   </div>
-  <div class="banner" id="banner" style="max-height:255px; overflow:hidden">
-    <div style="display:flex; justify-content: center; margin-top:20px">
-      <div style="display:block">
-        <img id="main-img" class="shadow3" src="./images/rapi-markdown.png" />
+  <div style="display:flex; width:100%; flex-wrap:wrap; justify-content:center;">
+    <div class = "container" >
+      <a href="./examples/example1.html"> Basic Usage </a>
+      <img style="width:32px" src="./images/dog.png"/>
+      <div class = "c-description" >
+        Petstore
       </div>
-    </div>
-  </div>
+    </div>  
+
+    <div class = "container" >
+      <a href="./examples/read-mode.html"> Render Style = READ </a>
+      <img style="width:32px" src="./images/read-style.png"/>
+      <div class = "c-description" >
+        More suitable for reading
+      </div>
+    </div>  
+
+    <div class = "container" >
+      <a href="./examples/example2.html"> Dark Theme </a>
+      <a href="./examples/read-mode-dark.html"> Dark Read Mode </a> 
+      <img style="width:32px" src="./images/dark-theme.png"/>
+      <div class = "c-description" >
+      </div>
+    </div>  
+
+    <div class = "container">
+      <a href="./examples/example5.html"> Change Font </a>
+      <img style="width:32px" src="./images/font.png"/>
+      <div class = "c-description" >
+      </div>
+    </div>  
+
+    <div class = "container">
+      <a href="./examples/example6.html"> Change Logo  </a>
+      <div class = "c-description" >
+        <img style="width:32px" src="./images/logo-outline.png"/>
+      </div>
+    </div>  
   
-  <div style="display:flex; flex-direction: column; margin:20px 32px">
-    <table class="m-table">
-      <tr> <th style="text-align:left">List of Examples</th></tr>
-      <tr>
-        <td class="mono-bold"> 
-          <a href="./examples/example1.html"> Basic Usage </a> </td>
-        </td>
-      </tr>
-      <tr>
-        <td class="mono-bold"> 
-          <a href="./examples/example2.html"> Dark Theme </a> 
-        </td>
-      </tr>
-      <tr>
-        <td class="mono-bold"> 
-          <a href="./examples/read-mode.html"> Read Mode </a> 
-        </td>
-      </tr>
-      <tr>
-        <td class="mono-bold"> 
-          <a href="./examples/example100.html"> Playground </a> 
-          <span class="gray descr"> Shows various things that can be controlled using script </span>  
-        </td>
-      </tr>
-      <tr>
-        <td class="mono-bold"> 
-          <a href="./examples/themes.html"> Theme Playground </a> 
-          <span class="gray descr"> Play with various color schemes </span>  
-        </td>
-      </tr>
-      <tr> <td class="mono-bold"> 
-        <a href="./examples/markdown.html"> Markdown </a> 
-      </td></tr>
-      <tr>
-        <td class="mono-bold"> 
-          <a href="./examples/additional-props.html"> Additional Properties </a> 
-        </td>
-      </tr>
-      <tr>
-        <td class="mono-bold"> 
-          <a href="./examples/example3.html"> Change Header Color </a> 
-        </td>
-      </tr>
-      <tr>
-        <td class="mono-bold"> 
-          <a href="./examples/example4.html"> Embeded  </a> 
-          <span class="gray descr">  Shows how rapi-doc element can be embeded into a different html document </span>  
-        </td>
-      </tr>
-      <tr>
-        <td class="mono-bold"> 
-          <a href="./examples/example5.html"> Apply Custom Font </a> 
-        </td>
-      </tr>
-      <tr>
-        <td class="mono-bold"> 
-          <a href="./examples/example6.html"> Change Logo </a> 
-        </td>
-      </tr>
-      <tr>
-        <td class="mono-bold"> 
-          <a href="./examples/example7.html"> Add your own HTML</a> 
-          <div class="gray descr"> Show how to add custom HTML elements such as paragraphs, buttons textboxes etc in various sections (slots)  </div>  
-        </td>
-      </tr>
-      <tr>
-        <td class="mono-bold"> 
-          <a href="./examples/example8.html"> Add custom functionality  </a> 
-          <div class="gray descr"> 
-            The example shows a text-box and a blue button is added on the header. Clicking on the button
-            will read authentication-token provided by the user in the text-box and apply it to rapi-doc web component
-          </div>  
-        </td>
-      </tr>
-      <tr>
-        <td class="mono-bold"> 
-          <a href="./examples/example9.html"> JSON Object as OpenAPI-spec </a> 
-        </td>
-      </tr>
-      <tr>
-        <td class="mono-bold"> 
-          <a href="./examples/server-vars.html"> Server Variables </a> 
-        </td>
-      </tr>
-      <tr>
-        <td class="mono-bold"> 
-          <a href="./examples/swagger-v2.html"> Swagger v2 spec </a> 
-        </td>
-      </tr>
-      <tr>
-        <td class="mono-bold"> 
-          <a href="./examples/callback.html"> Callbacks </a> 
-        </td>
-      </tr>
-      <tr> 
-        <td class="mono-bold"> 
-          <a href="./examples/external-refs.html"> Spec split into multiple files </a> 
-        </td>
-      </tr>
-      <tr>
-        <td class="mono-bold"> 
-          <a href="./examples/oneof.html"> one-of </a>,
-          <a href="./examples/anyof.html"> any-of </a> and 
-          <a href="./examples/allof.html"> all-of </a>
-        </td>
-      </tr>
-    </table>
+    <div class = "container" >
+      <a href="./examples/themes.html"> Theme </a>
+      <img style="width:32px" src="./images/paint.png"/>
+      <div class = "c-description" >
+        Play with various color schemes
+      </div>
+    </div>  
+
+    <div class = "container">
+      <a href="./examples/markdown.html"> Markdown </a>
+      <img style="width:32px" src="./images/markdown.png"/>
+      <div class = "c-description" >
+      </div>
+    </div>  
+
+    <div class = "container">
+      <a href="./examples/example3.html"> Change Header Color </a>
+      <div class = "c-description" >
+      </div>
+    </div>  
+
+    <div class = "container">
+      <a href="./examples/additional-props.html"> Additional Properties </a>
+      <div class = "c-description" >
+        Apart from fixed predefined properties, schema can contain additional properties
+      </div>
+    </div>  
+
+    <div class = "container">
+      <a href="./examples/example4.html"> Embed RapiDoc In HTML  </a>
+      <div class = "c-description" >
+        rapi-doc element can exist with other html content
+      </div>
+    </div>  
+
+    <div class = "container">
+      <a href="./examples/example7.html"> Embed HTML In RapiDoc  </a>
+      <div class = "c-description" >
+        Custom HTML content can be inserted in various sections of RapiDoc
+      </div>
+    </div>  
+
+    <div class = "container" >
+      <a href="./examples/example8.html"> Plugin Custom functionality  </a>
+      <img style="width:32px" src="./images/plugin.png"/>
+      <div class = "c-description" >
+        A text-box & button is added on the header for the Petstore Spec. Which helps is authorization
+      </div>
+    </div>  
+
+    <div class = "container" >
+      <a href="./examples/example9.html"> JSON Object as OpenAPI Spec </a>
+      <div class = "c-description" >
+        A text-box & button is added on the header for the Petstore Spec. Which helps is authorization
+      </div>
+    </div>  
+
+    <div class = "container" >
+      <a href="./examples/server-vars.html"> API Server using variables </a>
+      <div class = "c-description" >
+        Define API server using varables, which enables yor to dynamically connect to different servers
+      </div>
+    </div>  
+
+    <div class = "container" >
+      <a href="./examples/callback.html"> Callbacks </a>
+      <img style="width:32px" src="./images/callback.png"/>
+      <div class = "c-description" >
+        Specs with Callback (webhooks) Info
+      </div>
+    </div>  
+
+    <div class = "container" >
+      <a href="./examples/external-refs.html"> Spec split into multiple files </a>
+      <img style="width:32px" src="./images/files.png"/>
+      <div class = "c-description" >
+        Large Specs can be split into multiple files and can refer each other with JSON refs
+      </div>
+    </div>  
+
+    <div class = "container" >
+      <div>Schema Composition</div>
+      <img style="width:32px" src="./images/org.png"/>
+      <a href="./examples/oneof.html"> ONE OF </a>
+      <a href="./examples/anyof.html"> ANY OF </a>
+      <a href="./examples/allof.html"> ALL OF </a>
+    </div>  
+
+    <div class = "container" >
+      <a href="./examples/example100.html"> Play Ground </a>
+      <img style="width:32px" src="./images/playground.png"/>
+      <div class = "c-description" >
+        Shows various things that can be controlled using script
+      </div>
+    </div>  
+
   </div>  
+
 
   <div style="display:flex; flex-direction: column; margin:20px 32px">
     <table class="m-table">
@@ -187,16 +219,6 @@
       <tr>
         <td class="mono-bold"> 
           <a href="./examples/circular.html"> Circular references </a> 
-        </td>
-      </tr>
-      <tr>
-        <td class="mono-bold"> 
-          <a href="./tests/simple-oneof.html"> Simple one-of </a> 
-        </td>
-      </tr>
-      <tr>
-        <td class="mono-bold"> 
-          <a href="./tests/simple-allof.html"> Simple all-of </a> 
         </td>
       </tr>
       <tr><td class="mono-bold"> 
@@ -226,9 +248,6 @@
       <tr> <td class="mono-bold"> 
         <a href="./examples/file-upload.html"> File upload </a> 
       </td></tr>
-      <tr> <td class="mono-bold"> 
-        <a href="./examples/read-mode-dark.html"> Dark Read Mode </a> 
-      </td></tr>
       <tr><td class="mono-bold"> 
         <a href="./tests/xxx-of-recursive.html"> Various cases </a> 
         <span class="gray descr"> Spec containing one-of, all-of with primitive types, recursive models and readonly-attributes  </span>  
@@ -242,8 +261,6 @@
   
     </table>
   </div>  
-  
-
 </body>
 
 </html>

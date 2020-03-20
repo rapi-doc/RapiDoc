@@ -48,13 +48,21 @@ info:
     
  
 paths:
-  /user1:
+  /external-refs:
     get:
-      description: List User
-      summary: List User
+      summary: External Refs
+      description: Using external refs in spec
       responses:
         '200':
-          description: The response
+          description: >
+            The response schema is defined in a sepearte file. If external refs are resolved properly then it should display the below schema
+
+            ```
+              {
+                id: integer
+                name: string
+              }
+            ``` 
           content:
             application/json:
               schema: 

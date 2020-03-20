@@ -55,5 +55,15 @@ export default class OauthReceiver extends HTMLElement {
     }
     window.close();
   }
+
+  parseQueryString(queryString, key) {
+    const vars = queryString.split('&');
+    for (let i = 0; i < vars.length; i++) {
+      const pair = vars[i].split('=');
+      if (decodeURIComponent(pair[0]) === key) {
+        return decodeURIComponent(pair[1]);
+      }
+    }
+  }
 }
 customElements.define('oauth-receiver', OauthReceiver);

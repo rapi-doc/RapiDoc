@@ -56,7 +56,7 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
     jsonParsedSpec = resolvedRefSpec.resolved;
     */
   } catch (err) {
-    console.info('%c There was an issue while parsing the spec %o ', 'color:orangered', err); // eslint-disable-line no-console
+    console.info('RapiDoc: %c There was an issue while parsing the spec %o ', 'color:orangered', err); // eslint-disable-line no-console
   }
 
   // const pathGroups = groupByPaths(jsonParsedSpec);
@@ -69,13 +69,13 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
   if (jsonParsedSpec.components && jsonParsedSpec.components.securitySchemes) {
     Object.entries(jsonParsedSpec.components.securitySchemes).forEach((kv) => {
       const securityObj = { apiKeyId: kv[0], ...kv[1] };
+      securityObj.value = '';
+      securityObj.finalKeyValue = '';
       if (kv[1].type === 'apiKey' || kv[1].type === 'http') {
         securityObj.in = kv[1].in || 'header';
         securityObj.name = kv[1].name || 'Authorization';
         securityObj.user = '';
         securityObj.password = '';
-        securityObj.value = '';
-        securityObj.finalKeyValue = '';
       } else if (kv[1].type === 'oauth2') {
         securityObj.in = 'header';
         securityObj.name = 'Authorization';
@@ -210,26 +210,12 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
         }
 
         // Generate Path summary and Description if it is missing for a method
-        let summary = fullPath.summary ? fullPath.summary : '';
-        const description = fullPath.description ? fullPath.description : '';
-        if (!summary && description) {
-          if (description.length > 100) {
-            let charIndex = -1;
-            charIndex = description.indexOf('\n');
-            if (charIndex === -1 || charIndex > 100) {
-              charIndex = description.indexOf('. ');
-            }
-            if (charIndex === -1 || charIndex > 100) {
-              charIndex = description.indexOf('.');
-            }
-            if (charIndex === -1 || charIndex > 100) {
-              summary = description;
-            } else {
-              summary = description.substr(0, charIndex);
-            }
-          } else {
-            summary = description;
-          }
+        let summary = (fullPath.summary || '').trim() ? fullPath.summary.trim() : (fullPath.description || '-').trim().split('/n')[0];
+        if (summary.length > 100) {
+          summary = summary.split('.')[0];
+        }
+        if (!(fullPath.description || '').trim()) {
+          fullPath.description = ((fullPath.summary || '-').trim());
         }
 
         // Merge Common Parameters with This methods parameters
