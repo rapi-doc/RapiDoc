@@ -32,7 +32,7 @@
   <title>RapiDoc - Examples & Demo</title>
   <style>
     .section-heading{
-      padding:36px 10px 10px 10px;
+      padding:36px 10px 5px 10px;
       margin:0;
     }
     #main-img{
@@ -71,7 +71,7 @@
     <h2 class="section-heading"> Examples & Demos</h2> 
     <h3><a href="./list.html">List of all examples</a></h3>
 
-    <h2> Basic (<a style="font-size:16px" href="./examples/example2.html">DEMO</a>)</h2> 
+    <h2> Basic (<a style="font-size:16px" href="./examples/example1.html">DEMO</a>)</h2> 
       Just copy the below code and save it in an html file. Then open it using a browser 
 <pre class="shadow code-block"><code class="html" style="border-radius:4px">&lt;!doctype html&gt; &lt;!-- Important: must specify --&gt;
 &lt;html&gt;
@@ -81,7 +81,7 @@
 &lt;/head&gt;
 &lt;body&gt;
   &lt;rapi-doc 
-    spec-url = "https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json" 
+    spec-url = "https://petstore.swagger.io/v2/swagger.json" 
   &gt; &lt;/rapi-doc&gt;
 &lt;/body&gt; 
 &lt;/html&gt;
@@ -91,7 +91,7 @@
 <h2 class="section-heading"> Dark Theme (<a style="font-size:16px" href="./examples/example2.html">DEMO</a>)</h2> 
 <pre class="shadow code-block" ><code class="html" style="border-radius:4px">
 &lt;rapi-doc 
-  spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
   theme = "dark"
 &gt; 
 &lt;/rapi-doc&gt;
@@ -101,7 +101,7 @@
 <h2 class="section-heading"> Read Mode (<a style="font-size:16px" href="./examples/read-mode.html">DEMO</a>)</h2> 
 <pre class="shadow code-block" ><code class="html" style="border-radius:4px">
 &lt;rapi-doc 
-  spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
   render-style = "read"
 &gt; 
 &lt;/rapi-doc&gt;
@@ -109,22 +109,12 @@
 <br/>
 
 
-<h2 class="section-heading"> Schema in Tabular style (<a style="font-size:16px" href="./examples/schema-table.html">DEMO</a>)</h2> 
+<h2 class="section-heading"> Schema Style: Tabular and Tree (<a style="font-size:16px" href="./examples/schema-table.html">DEMO</a>)</h2> 
 <pre class="shadow code-block" ><code class="html">
 &lt;rapi-doc 
-  spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
   render-style = "read"
   theme = "dark"
-&gt; 
-&lt;/rapi-doc&gt;
-</code></pre>
-<br/>
-
-<h2 class="section-heading"> Group List By Path  (<a style="font-size:16px" href="./examples/group-by-path.html">DEMO</a>)</h2> 
-<pre class="shadow code-block" ><code class="html">
-&lt;rapi-doc 
-  spec-url = "https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
-  api-list-style = "group-by-path"
 &gt; 
 &lt;/rapi-doc&gt;
 </code></pre>
@@ -133,7 +123,7 @@
 <h2 class="section-heading"> Change Header Color With Dark Theme (<a style="font-size:16px" href="./examples/example3.html">DEMO</a>)</h2> 
 <pre class="shadow code-block" ><code class="html">
 &lt;rapi-doc 
-  spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
   header-color="#2d87e2"
   theme = "dark"
 &gt; 
@@ -144,7 +134,7 @@
 <h2 class="section-heading"> Integrate with other HTML document - No &lt;iframe&gt; (<a style="font-size:16px" href="./examples/example4.html">DEMO</a>)</h2> 
 <pre class="shadow code-block"><code class="html">
 &lt;rapi-doc 
-  spec-url = "https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
+  spec-url = "https://petstore.swagger.io/v2/swagger.json"
   theme = 'dark' 
   show-header = 'false'
   show-info = 'false'
@@ -152,7 +142,7 @@
   allow-server-selection = 'false'
   allow-api-list-style-selection ='false'
   theme = 'dark' 
-  layout = 'column'
+  render-style = "read"
 &gt; 
 &lt;/rapi-doc&gt;
 </code></pre>
@@ -167,8 +157,9 @@
 
 &lt;body&gt;
   &lt;rapi-doc 
-    spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"
-    regular-font="'Varela Round', 'Arial Rounded MT Bold' "
+    spec-url = "https://petstore.swagger.io/v2/swagger.json"
+    regular-font = "'Varela Round', 'Arial Rounded MT Bold' "
+    render-style = "read"
   &gt; 
   &lt;/rapi-doc&gt;
 &lt;/body&gt;
@@ -177,10 +168,11 @@
 
 <h2 class="section-heading"> Change Logo (<a style="font-size:16px" href="./examples/example6.html">DEMO</a>)</h2> 
 <pre class="shadow code-block"><code class="html">
-&lt;rapi-doc spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"&gt;
+&lt;rapi-doc spec-url="https://api.apis.guru/v2/specs/googleapis.com/youtube/v3/openapi.yaml;
   primary-color = "#CC0000"
+  render-style = "read"
   &lt;img 
-    slot="logo" 
+    slot="nav-logo" 
     src="https://img.icons8.com/color/48/000000/youtube-play.png"
   /&gt; 
 &lt;/rapi-doc&gt;
@@ -189,7 +181,7 @@
 
 <h2 class="section-heading"> Add HTML content inside the spec (<a style="font-size:16px" href="./examples/example7.html">DEMO</a>)</h2> 
 <pre class="shadow code-block" ><code class="html" >
-&lt;rapi-doc spec-url="https://api.apis.guru/v2/specs/bitbucket.org/2.0/swagger.json"&gt;
+&lt;rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json"&gt;
 
   &lt;!-- content at the top --&gt;
   &lt;p>This is an example to add external html content &lt;/li&gt;
