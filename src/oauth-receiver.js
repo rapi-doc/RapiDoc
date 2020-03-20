@@ -1,7 +1,6 @@
 export default class OauthReceiver extends HTMLElement {
   constructor() {
     super();
-    console.log('loaded me here');
 
     const oauth2 = window.opener.Oauth2UIRedirect;
     const sentState = oauth2.state;
