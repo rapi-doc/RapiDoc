@@ -8,10 +8,10 @@
 	"consumes": [ "application/json" ],
 	"produces": [ "application/json" ],
 	"paths": {
-		"/api/employee": {
+		"/one-of/employee": {
 			"get": {
-				"tags": [ "Employee Details"],
-				"summary": "List of employees",
+				"tags": ["One Of Schema Model"],
+				"summary": "Schema defined using one-of",
 				"operationId": "empDetails",
 				"responses": {
 					"200": {

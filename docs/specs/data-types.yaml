@@ -6,19 +6,11 @@ info:
 paths:
   /nested-object:
     get:
-      summary: response as containing nested object
-      description: check out [simple object](#get-/simple-object)
+      summary: Response schema made of nested objects. 
+      description: Response schema is made up of multiple nested object, For simple schema check out [simple object](#get-/simple-object)
       tags:
-        - A
+        - Nested Object
       responses:
-        '400':
-          description: |
-            Test1
-    
-            | Tables        | Are           | Cool  |
-            | ------------- |:-------------:| -----:|
-            | col 3 is      | right-aligned | $1600 |
-            | col 2 is      | centered      |   $12 |
         '200':
           description: successful operation
           content:
@@ -68,10 +60,10 @@ paths:
                           
   /simple-object:
     get:
-      summary: response as a simple object containing primitive properties. 
-      description: check out [nested object](#get-/nested-object)
+      summary: Response is a simple object. 
+      description: Response schema is a simple object, which contains only primitive properties. For complex schema check out [nested object](#get-/nested-object)
       tags:
-        - B
+        - Simple Object
       responses:
         '200':
           description: successful operation
@@ -88,7 +80,8 @@ paths:
                     type: integer
   /person:
     post:
-      summary: Contains parameters of various data-types and constraints in query, request-body and response
+      summary: Demonstrates data-types and constraints
+      description: Request-Parameters and Response-Schema contains various data types and constrains. Check out how is it desplayed below
       parameters:
         - name: height
           in: query
@@ -167,19 +160,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Person'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Category'
-        description: order placed for purchasing the pet
-        required: true
 tags:
-  - name: B
+  - name: Simple Object
     description: Simple Datatype
-  - name: A
+  - name: Nested Object
     description: Nested Datatype
-  - name: C
+  - name: Person
     description: Person Datatype
 components:
   schemas:

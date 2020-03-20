@@ -9,10 +9,12 @@ paths:
   /dogs:
     post:
       tags:
-        - dog
-      summary: Create a Dog
+        - User provided Example
+      summary: User provided example
+      description: Demonstrate how user provided examples in schema are displayed
       requestBody:
-        description: A Dog
+        summary: Dog Schema
+        description: This schema contains a user supplied example value for the dog as `Fido`
         content:
           application/json:
             schema:

@@ -1,15 +1,16 @@
 openapi: 3.0.0
 info:
-  description:  Responses and example as XML 
+  description:  Responses as XML 
   version: 1.0.0
-  title: Responses and example as XML 
+  title: Responses as XML 
 paths:
   /xml-response:
     get:
-      summary:  Responses and example as XML 
+      summary: XML Responses
+      description: When response is returned as `xml`, you can provide your own example as `xml - content`
       responses:
         '200':
-          description: successful operation
+          description: Successful operation
           content:
             application/xml:
               examples:

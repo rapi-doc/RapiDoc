@@ -1,0 +1,90 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Aranging Endpoints by Tags
+  description: >
+    Following OpenAPI spec demonstrates how to arrange order your tags. (even though the paths are defined in random order in the spec but the tags are ordered based on the `tags` section)
+
+      - If there are multiple paths inside a tag they can be further sorted use `sort-endpoints-by` propert which accepts `path` or `method`
+      - If you do not want to specify tag order, but follow certain naming conventions for tags in the spec you may use `sort-tags` property in RapiDoc element to sort tags alphabatically
+
+    ```
+      openapi: 3.0.0
+      info:
+        title: Aranging by Tags
+        version: 1.0.0
+      paths:
+        /last-path:
+          get:
+            summary: This path belongs to third tag
+            tags:
+              - Third Tag
+            responses:
+              '200':
+                description: successful operation
+        /initial-path:
+          get:
+            summary: This path belongs to first tag
+            tags:
+              - First Tag
+            responses:
+              '200':
+                description: successful operation
+        /another-path-1:
+          get:
+            summary: first path of 2nd Tag
+            tags:
+              - Second Tag
+            responses:
+              '200':
+                description: successful operation
+        /another-path-2:
+          get:
+            summary: Second path of 2nd Tag
+            tags:
+              - Second Tag
+            responses:
+              '200':
+                description: successful operation
+      tags:
+        - name: First Tag
+        - name: Second Tag
+        - name: Third Tag
+    ```       
+paths:
+  /last-path:
+    get:
+      summary: This path belongs to third tag
+      tags:
+        - Third Tag
+      responses:
+        '200':
+          description: successful operation
+  /initial-path:
+    get:
+      summary: This path belongs to first tag
+      tags:
+        - First Tag
+      responses:
+        '200':
+          description: successful operation
+  /another-path-1:
+    get:
+      summary: First path of 2nd Tag
+      tags:
+        - Second Tag
+      responses:
+        '200':
+          description: successful operation
+  /another-path-2:
+    get:
+      summary: Second path of 2nd Tag
+      tags:
+        - Second Tag
+      responses:
+        '200':
+          description: successful operation
+tags:
+  - name: First Tag
+  - name: Second Tag
+  - name: Third Tag
