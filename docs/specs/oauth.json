@@ -6,7 +6,7 @@
 	  "version": "1.0"
 	},
 	"servers": [
-	  { "url": "http://www.testserver.com" }
+	  { "url": "https://api.github.com" }
 	],
 	"paths": {
 	  "/Something": {

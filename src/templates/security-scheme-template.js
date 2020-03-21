@@ -66,7 +66,9 @@ function onInvokeOAuth(apiKeyId, flowType, authUrl, tokenUrl, scopes, e) {
   params.set('client_id', clientId);
   params.set('redirect_uri', receiveUrlObj.toString());
   params.set('response_type', oAuthRespType);
-  params.set('scope', Object.keys(scopes).join(' '));
+  if (scopes) {
+    params.set('scope', Object.keys(scopes).join(' '));
+  }
   params.set('state', state);
   params.set('show_dialog', true);
   authUrlObj.search = params.toString();
@@ -106,7 +108,7 @@ function onInvokeOAuth(apiKeyId, flowType, authUrl, tokenUrl, scopes, e) {
         formData.append('client_secret', clientSecret);
         formData.append('redirect_uri', receiveUrlObj.toString());
         try {
-          const resp = await fetch(tokenUrl, { method: 'POST', body: formData });
+          const resp = await fetch(tokenUrl, { method: 'POST', mode: 'no-cors', body: formData });
           console.log(`OAUth Token Response Status: ${resp.statusText}:${resp.status}`);
           const respObj = await resp.json();
           console.log('Access Token Response: %o', respObj);
