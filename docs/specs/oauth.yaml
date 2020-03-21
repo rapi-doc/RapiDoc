@@ -13,6 +13,8 @@ components:
         authorizationCode:
           authorizationUrl: https://github.com/login/oauth/authorize
           tokenUrl: https://github.com/login/oauth/access_token
+          scopes:
+            - repo: full repo access
 paths:
   '/repos/{owner}/{repo}/subscribers':
     get:
