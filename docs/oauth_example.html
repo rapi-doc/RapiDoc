@@ -1,0 +1,78 @@
+<!doctype html>
+
+<head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-132775238-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132775238-1');
+  </script>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+  <meta name="description" content="RapiDoc is Web Component based Swagger & OpenAPI Spec Viewer. Alternate for SwaggerUI or Redoc. It is fast, small and made with lit-element">
+  <meta name="keywords" content="RapiDoc,ReDoc,Swagger,SwaggerUI,Custom Element,Web Component,OpenAPI,REST">
+
+  <link rel="shortcut icon" type="image/png" href="./images/logo.png"/>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./index.css">
+  <link rel="stylesheet" href="table.css">
+
+  <title>RapiDoc - Web Component based Swagger & OpenAPI Spec Viewer</title>
+  <style>
+    .m-table {
+      width:100%;
+    }
+    #main-img{
+      width:740px;
+    }
+    .container {
+      border:1px solid #555;
+      border-radius: 2px;
+      margin:5px;
+      padding:8px;
+      width: 200px;
+      display:flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class='topbar'>
+    <div class="header">
+      <a class="menu-item" data-action="url" href="./index.html">
+        <img class="logo" src="./images/logo.png" style="width:36px;height:36px;margin-right:10px;" href="./index.html"/>
+      </a>  
+      <div class="product-name">RapiDoc - OAuth Example</div>
+      <div class="menu" style="flex:1"></div>
+      <nav class="menu" onclick="goToSection(event)">
+        <a class="menu-item" data-action="url" href="./index.html"> Home </a>
+        <a class="menu-item" data-action="url" href="./examples.html"> Examples </a>
+        <a class="menu-item" data-action="url" href="./api.html"> API </a>
+        <a class="menu-item hide-in-mobile" data-action="url" href="https://mrin9.github.io/RapiPdf/"> RapiPDF </a>
+        <a class="menu-item" data-action="url" href="https://github.com/mrin9/RapiDoc"> GitHub </a>
+      </nav>
+    </div>
+  </div>
+  <div style="margin:16px 24px; max-width:730px">
+    <h1> How OAuth works in RapiDoc</h1>
+    <p> To understand better pick an Open API spec that contains oAuth security scheme. For 
+
+      
+
+    </p>
+    <img style="width:720px" src="./images/rapidoc_oauth_process.png"/>
+  </div>  
+</body>
+
+</html>

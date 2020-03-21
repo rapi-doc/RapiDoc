@@ -1,0 +1,89 @@
+openapi: 3.0.1
+info:
+  title: Github OAuth Demo
+  description: Testing Github OAuth Demo
+  version: '1.0'
+servers:
+  - url: https://api.github.com
+components:
+  securitySchemes:
+    githubOAuthClient:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://github.com/login/oauth/authorize
+          tokenUrl: https://github.com/login/oauth/access_token
+paths:
+  '/repos/{owner}/{repo}/subscribers':
+    get:
+      summary: List watchers
+      description: 'View Repository subscribers'
+      parameters:
+        - description: owner parameter
+          in: path
+          name: owner
+          required: true
+          schema:
+            type: string
+        - description: repo parameter
+          in: path
+          name: repo
+          required: true
+          schema:
+            type: string
+        - description: Results per page (max 100)
+          in: query
+          name: per_page
+          schema:
+            default: 30
+            type: integer
+        - description: Page number of the results to fetch.
+          in: query
+          name: page
+          schema:
+            default: 1
+            type: integer
+      responses:
+        '200':
+          description: response
+          content:
+            application/json:
+              schema:
+                items:
+                  properties:
+                    avatar_url:
+                      type: string
+                    events_url:
+                      type: string
+                    followers_url:
+                      type: string
+                    following_url:
+                      type: string
+                    gists_url:
+                      type: string
+                    gravatar_id:
+                      type: string
+                    html_url:
+                      type: string
+                    id:
+                      type: number
+                    login:
+                      type: string
+                    node_id:
+                      type: string
+                    organizations_url:
+                      type: string
+                    received_events_url:
+                      type: string
+                    repos_url:
+                      type: string
+                    site_admin:
+                      type: boolean
+                    starred_url:
+                      type: string
+                    subscriptions_url:
+                      type: string
+                    type:
+                      type: string
+                    url:
+                      type: string
