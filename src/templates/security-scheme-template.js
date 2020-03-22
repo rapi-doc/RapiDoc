@@ -109,7 +109,7 @@ function onInvokeOAuth(apiKeyId, flowType, authUrl, tokenUrl, e) {
         formData.append('client_secret', clientSecret);
         formData.append('redirect_uri', receiveUrlObj.toString());
         try {
-          const resp = await fetch(tokenUrl, { method: 'POST', mode: 'no-cors', body: formData });
+          const resp = await fetch(tokenUrl, { method: 'POST', body: formData });
           console.log(`OAUth Token Response Status: ${resp.statusText}:${resp.status}`);
           const respObj = await resp.json();
           console.log('Access Token Response: %o', respObj);
