@@ -132,86 +132,86 @@ function onInvokeOAuth(apiKeyId, flowType, authUrl, tokenUrl, e) {
 
 /* eslint-disable indent */
 
-function oAuthTemplate(v) {
+function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, finalKeyValue, authFlow) {
+  let authSite = '';
+  try {
+    authSite = new URL(authFlow.authorizationUrl).origin;
+  } catch (e) {
+    authSite = authFlow.authorizationUrl;
+  }
   return html`
-  <tr>
-    <td colspan="2" style="border:none; padding-left:48px">
-      ${Object.keys(v.flows).map((f) => html`
-        <div class="oauth-flow" style="padding: 10px 0; margin-bottom:10px; border-bottom:1px dashed var(--border-color)"> 
-          <b style="width:75px; display: inline-block;">FLOW</b> ${f}
-          ${v.flows[f].authorizationUrl
-            ? html`<div><b style="width:75px; display: inline-block;">AUTH URL</b> <span class="mono-font"> ${v.flows[f].authorizationUrl} </span></div>`
-            : ''
-          }
-          ${v.flows[f].tokenUrl
-            ? html`<div><b style="width:75px; display: inline-block;">TOKEN URL</b> <span class="mono-font">${v.flows[f].tokenUrl}</span></div>`
-            : ''
-          }
-          ${v.flows[f].refreshUrl
-            ? html`<div><b style="width:75px; display: inline-block;">REFRESH URL</b> <span class="mono-font">${v.flows[f].refreshUrl}</span></div>`
-            : ''
-          }
-          ${f.toLowerCase() === 'authorizationcode'
+    <div class="oauth-flow" style="padding: 10px 0; margin-bottom:10px; border-bottom:1px dashed var(--border-color)"> 
+      <b style="width:75px; display: inline-block;">FLOW</b> ${flowName}
+      ${authFlow.authorizationUrl
+        ? html`<div><b style="width:75px; display: inline-block;">AUTH URL</b> <span class="mono-font"> ${authFlow.authorizationUrl} </span></div>`
+        : ''
+      }
+      ${authFlow.tokenUrl
+        ? html`<div><b style="width:75px; display: inline-block;">TOKEN URL</b> <span class="mono-font">${authFlow.tokenUrl}</span></div>`
+        : ''
+      }
+      ${authFlow.refreshUrl
+        ? html`<div><b style="width:75px; display: inline-block;">REFRESH URL</b> <span class="mono-font">${authFlow.refreshUrl}</span></div>`
+        : ''
+      }
+      ${flowName.toLowerCase() === 'authorizationcode'
+        ? html`
+          ${authFlow.scopes
             ? html`
-              ${v.flows[f].scopes
-                ? html`
-                  <b> SCOPES </b>
-                  <div class= "oauth-scopes" style = "width:100%; display:flex; flex-direction:column; flex-wrap:wrap; margin:0 0 10px 24px">
-                    ${Object.entries(v.flows[f].scopes).map((scopeAndDescr, index) => html`
-                      <div class="m-checkbox" style="display:inline-block">
-                        <input type="checkbox" id="${f}${index}" value="${scopeAndDescr[0]}">
-                        <label for="${f}${index}">
-                          <span class="mono-font">${scopeAndDescr[0]}</span>
-                            ${scopeAndDescr[0] !== scopeAndDescr[1] ? ` - ${scopeAndDescr[1] || ''}` : ''}
-                        </label>
-                      </div>
-                    `)}
+              <b> SCOPES </b>
+              <div class= "oauth-scopes" style = "width:100%; display:flex; flex-direction:column; flex-wrap:wrap; margin:0 0 10px 24px">
+                ${Object.entries(authFlow.scopes).map((scopeAndDescr, index) => html`
+                  <div class="m-checkbox" style="display:inline-block">
+                    <input type="checkbox" id="${flowName}${index}" value="${scopeAndDescr[0]}">
+                    <label for="${flowName}${index}">
+                      <span class="mono-font">${scopeAndDescr[0]}</span>
+                        ${scopeAndDescr[0] !== scopeAndDescr[1] ? ` - ${scopeAndDescr[1] || ''}` : ''}
+                    </label>
                   </div>
+                `)}
+              </div>
+            `
+            : ''
+          }
+          <div style="display:flex; max-height:28px;">
+            <input type="text" value = "${clientId}" placeholder="client-id" spellcheck="false" class="oauth-client-id">
+            <input type="password" value = "${clientSecret}" placeholder="client-secret" spellcheck="false" class="oauth-client-secret" style = "margin:0 5px;">
+            ${finalKeyValue
+              ? html`
+                <button class="m-btn thin-border" @click="${(e) => { onClearOAuthKey.call(this, apiKeyId, e); }}"> CLEAR </button>
+              `
+              : html`
+                <button class="m-btn thin-border"
+                  @click="${(e) => { onInvokeOAuth.call(this, apiKeyId, flowName, authFlow.authorizationUrl, authFlow.tokenUrl, e); }}"
+                > AUTHORIZE </button>                                    
+              `
+            }
+          </div>
+          <div style="margin-top:8px">
+            <ul>
+              ${authFlow.authorizationUrl
+                ? html`
+                  <li> Register this client (<span class="mono-font">${window.location.origin}</span>) with <span class="mono-font">${authSite}<span class="mono-font"> </li>
+              <li> During registration, Specify redirect url pointing to <span class="mono-font">${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/${this.oauthReceiver}</span> </li>
+                  <li> Create <b>${this.oauthReceiver}</b> which will receive auth-code from oAuth provider</li>
+                  <li> <b>${this.oauthReceiver}</b> should contain custom-element <span class="mono-font"> &lt;oauth-receiver&gt; </span>, this element receives the auth-code and passes it to this document </li>
+                  <li> After receiving auth-code, it will request access-token using <span class="mono-font"> POST ${authFlow.tokenUrl}</span>
+                    <ul>
+                      <li> grant_type = 'authorization_code'</li>
+                      <li> code = {auth-code}</li>
+                      <li> client_id = {client-id}</li>
+                      <li> client_secret = {client-secret}</li>
+                      <li> redirect_uri = {redirect-url}</li>
+                    </ul>
+                  </li>
                 `
                 : ''
               }
-              <div style="display:flex; max-height:28px;">
-                <input type="text" value = "${v.clientId}" placeholder="client-id" spellcheck="false" class="oauth-client-id">
-                <input type="password" value = "${v.clientSecret}" placeholder="client-secret" spellcheck="false" class="oauth-client-secret" style = "margin:0 5px;">
-                ${v.finalKeyValue
-                  ? html`
-                    <button class="m-btn thin-border" @click="${(e) => { onClearOAuthKey.call(this, v.apiKeyId, e); }}"> CLEAR </button>
-                  `
-                  : html`
-                    <button class="m-btn thin-border"
-                    @click="${(e) => { onInvokeOAuth.call(this, v.apiKeyId, f, v.flows[f].authorizationUrl, v.flows[f].tokenUrl, e); }}"
-                    > AUTHORIZE </button>                                    
-                  `
-                }
-              </div>
-              <div style="margin-top:8px">
-                <ul>
-                  ${v.flows[f].authorizationUrl
-                    ? html`
-                      <li> Register this client (${window.location.origin}) with ${v.flows[f].authorizationUrl} </li>
-                      <li> During registration, Specify callback/redirect url pointing to <b>${this.oauthReceiver}</b> </li>
-                      <li> Create <b>${this.oauthReceiver}</b> which will receive auth-code from oAuth provider</li>
-                      <li> <b>${this.oauthReceiver}</b> should contain custom-element <span class="mono-font"> &lt;oauth-receiver&gt; </span>, this element receives the auth-code and passes it to this document </li>
-                      <li> After receiving auth-code, it will request access-token at <span class="mono-font"> POST ${v.flows[f].tokenUrl}</span>
-                        <ul>
-                          <li> grant_type = 'authorization_code'</li>
-                          <li> code = {auth-code}</li>
-                          <li> client_id = {client-id}</li>
-                          <li> client_secret = {client-secret}</li>
-                          <li> redirect_uri = {redirect-url}</li>
-                        </ul>
-                      </li>
-                    `
-                    : ''
-                  }
-                </ul>
-              </div>`
-            : ''
-          }
-        </div>  
-      `)}
-    </td>
-    </tr>  
+            </ul>
+          </div>`
+        : ''
+      }
+    </div>  
   `;
 }
 
@@ -237,7 +237,7 @@ export default function securitySchemeTemplate() {
     ${this.resolvedSpec.securitySchemes && this.resolvedSpec.securitySchemes.length > 0
       ? html`  
         <table class='m-table' style = "width:100%">
-        <tr> <th >Type </th> <th> Authentication Procedure</th>  </tr>
+          <tr> <th >Type </th> <th> Authentication Procedure</th>  </tr>
           ${this.resolvedSpec.securitySchemes.map((v) => html`
             <tr>  
               <td>
@@ -281,10 +281,20 @@ export default function securitySchemeTemplate() {
                 }
               </td>
             </tr>
-            ${v.type === 'oauth2' ? oAuthTemplate.call(this, v) : ''}
+            ${v.type === 'oauth2'
+              ? html`
+                <tr>
+                  <td colspan="2" style="border:none; padding-left:48px">
+                    ${Object.keys(v.flows).map((f) => oAuthFlowTemplate.call(this, f, v.clientId, v.clientSecret, v.apiKeyId, v.finalKeyValue, v.flows[f]))} 
+                  </td>
+                </tr>    
+                `
+              : ''
+            }    
           `)}
         </table>`
-      : ''}
+      : ''
+    }
   </div>
 `;
 }
