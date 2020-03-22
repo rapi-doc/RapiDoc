@@ -94,7 +94,7 @@ export default html`
   .m-markdown-small code,
   .m-markdown code {
     background-color: var(--bg3);
-    padding: 1px 6px;
+    padding: 1px;
     border-radius: 2px;
     color: var(--red);
     font-size: calc(var(--font-size-mono) - 1px);
