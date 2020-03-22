@@ -44,21 +44,35 @@ paths:
 
         ### Code
         ```
-          $ curl -X POST -is -u username:password 
-            -H "Content-Type: application/json" https://example.com
-            -d '{
-            "target": {
-              "ref_type": "branch", 
-              "type": "pipeline_ref_target", 
-              "ref_name": "master"
-            }'
-          }
-
+        $ curl -X POST -is -u username:password 
+          -H "Content-Type: application/json" https://example.com
+          -d '{
+          "target": {
+            "ref_type": "branch", 
+            "type": "pipeline_ref_target", 
+            "ref_name": "master"
+          }'
+        }
         ```
+        ### Multiline mono-spaced text gets converted to single line 
+
+        `First line
+         second line
+         third line
+        `
+
       parameters:
         - name: full-name
           in: query
-          description: Field descriptions can contain `Markdown` (Markdown must be monospaced)
+          description: |
+           Field descriptions can contain `Markdown` (Markdown must be monospaced)
+           Must be 
+           ```
+            - At least 3 characters long
+            - Cannot have space
+            - Cannot contain only alphabets
+            - First Letter must be capital
+           ```
           required: true
           schema:
             type: string
