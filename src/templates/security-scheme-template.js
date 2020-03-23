@@ -259,38 +259,10 @@ function onInvokeOAuth(apiKeyId, flowType, authFlow, e) {
       console.warn('RapiDoc: Error while receving data');
       return;
     }
-    // client_id, client_secret,redirectUrl
     if (ev.data) {
       callback({
         ...ev.data, isValid, clientId, clientSecret, tokenUrl, redirectUrl: authFlow.redirectUrl,
       });
-      /*
-      if (ev.data.responseType === 'code') {
-        console.log(`RapiDoc: AUTH CODE RECEIVED - ${ev.data.code}`);
-        // return res(ev.data.code);
-        const formData = new FormData();
-        formData.append('grant_type', 'authorization_code');
-        formData.append('code', ev.data.code);
-        formData.append('client_id', clientId);
-        formData.append('client_secret', clientSecret);
-        formData.append('redirect_uri', receiveUrlObj.toString());
-        try {
-          const resp = await fetch(tokenUrl, { method: 'POST', body: formData });
-          console.log(`OAUth Token Response Status: ${resp.statusText}:${resp.status}`);
-          const respObj = await resp.json();
-          console.log('Access Token Response: %o', respObj);
-          if (respObj.access_token) {
-            securityObj.finalKeyValue = `${respObj.token_type} ${respObj.access_token}`;
-            this.requestUpdate();
-          }
-        } catch (err) {
-          console.error('RapiDoc: Unable to get access token');
-        }
-      } else if (ev.data.responseType === 'token') {
-        securityObj.finalKeyValue = `${ev.data.token_type} ${ev.data.access_token}`;
-        this.requestUpdate();
-      }
-      */
     }
   };
   window.addEventListener('message', handleMessageEventFn, true);
