@@ -31,6 +31,7 @@ export function callbackTemplate(callbacks) {
                       .parameters = "${method[1].parameters}" 
                       .request_body = "${method[1].requestBody}"
                       allow-try = "false"
+                      allow-authentication-separated-calls = "${this.allowAuthenticationSeperatedCalls}"
                       render-style="${this.renderStyle}" 
                       schema-style = "${this.schemaStyle}"
                       active-schema-tab = "${this.defaultSchemaTab}"
@@ -58,7 +59,7 @@ export function callbackTemplate(callbacks) {
   `;
 }
 
-function endpointBodyTemplate(path) {
+function endpointBodyTemplate(path, allowAuthenticationSeperatedCalls, showOperationRequirements) {
   let accept = '';
   for (const respStatus in path.responses) {
     for (const acceptContentType in (path.responses[respStatus].content)) {
@@ -100,15 +101,18 @@ function endpointBodyTemplate(path) {
         .parameters = "${path.parameters}" 
         .request_body = "${path.requestBody}"
         .api_keys = "${nonEmptyApiKeys}"
+        .security = "${path.security}" 
         .servers = "${path.servers}" 
         server-url = "${path.servers && path.servers.length > 0 ? path.servers[0].url : this.selectedServer.computedUrl}" 
         allow-try = "${this.allowTry}"
+        allow-authentication-separated-calls = "${allowAuthenticationSeperatedCalls}"
         accept = "${accept}"
         render-style="${this.renderStyle}" 
         schema-style = "${this.schemaStyle}"
         active-schema-tab = "${this.defaultSchemaTab}"
         schema-expand-level = "${this.schemaExpandLevel}"
         schema-description-expanded = "${this.schemaDescriptionExpanded}"
+        show-operation-requirements = "${showOperationRequirements}"
       > </api-request>
 
       ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
@@ -127,7 +131,7 @@ function endpointBodyTemplate(path) {
   `;
 }
 
-export default function expandedEndpointTemplate() {
+export default function expandedEndpointTemplate(allowAuthenticationSeperatedCalls, showOperationRequirements) {
   return html`
   ${this.resolvedSpec.tags.map((tag) => html`
     <div id="${tag.name.replace(/[\s#:?&=]/g, '-')}" class='regular-font section-gap--read-mode observe-me' style="border-top:1px solid var(--primary-color);">
@@ -137,7 +141,7 @@ export default function expandedEndpointTemplate() {
       </div>
     </div>
     <div class='regular-font section-gap--read-mode'>
-      ${tag.paths.map((path) => endpointBodyTemplate.call(this, path))}
+      ${tag.paths.map((path) => endpointBodyTemplate.call(this, path, allowAuthenticationSeperatedCalls, showOperationRequirements))}
     </div>
     `)
   }

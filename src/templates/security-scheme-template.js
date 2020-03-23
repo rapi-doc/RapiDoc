@@ -1,6 +1,9 @@
 import { html } from 'lit-element';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import marked from 'marked';
+import {
+  authorizePassword, authorizeApplication, preAuthorizeImplicit, authorizeAccessCodeWithBasicAuthentication, authorizeAccessCodeWithFormParams,
+} from '../utils/security-actions';
 
 function onApiKeyChange(apiKeyId, e) {
   let apiKeyValue = '';
@@ -45,37 +48,192 @@ function onClearOAuthKey(apiKeyId, e) {
   this.requestUpdate();
 }
 
+/*
+NOTE: PCKE needs crypto or similar
+function toBase64UrlEncoded(str) {
+  return str
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
+}
+
+function generateCodeVerifier() {
+  return toBase64UrlEncoded(
+    crypto.randomBytes(32)
+      .toString('base64'),
+  );
+}
+
+function createCodeChallenge(codeVerifier) {
+  return toBase64UrlEncoded(
+    crypto.createHash('sha256')
+      .update(codeVerifier, 'ascii')
+      .digest('base64'),
+  );
+}
+*/
+
 /* eslint-disable no-console */
-function onInvokeOAuth(apiKeyId, flowType, authUrl, tokenUrl, e) {
+function onInvokeOAuth(apiKeyId, flowType, authFlow, e) {
   const securityObj = this.resolvedSpec.securitySchemes.find((v) => (v.apiKeyId === apiKeyId));
   const authFlowDivEl = e.target.closest('.oauth-flow');
   const clientId = authFlowDivEl.querySelector('.oauth-client-id').value.trim();
   const clientSecret = authFlowDivEl.querySelector('.oauth-client-secret').value.trim();
   const checkedScopeEls = [...authFlowDivEl.querySelectorAll('input[type="checkbox"]:checked')];
   const state = (`${Math.random().toString(36)}random`).slice(2, 9);
-  const authUrlObj = new URL(authUrl);
-  const receiveUrlObj = new URL(`${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/${this.oauthReceiver}`);
-  let oAuthRespType = 'code';
-  if (flowType === 'authorizationCode') {
-    oAuthRespType = 'code';
-  } else if (flowType === 'implicit') {
-    oAuthRespType = 'token';
+  const selectedScopes = checkedScopeEls.map((v) => v.value).join(' ');
+  // const receiveUrlObj = new URL(`${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/${this.oauthReceiver}`);
+
+  const tokenUrl = authFlow.tokenUrl ? new URL(authFlow.tokenUrl) : null;
+  const authorizationUrl = authFlow.authorizationUrl ? new URL(authFlow.authorizationUrl) : null;
+  const params = authorizationUrl ? new URLSearchParams(authorizationUrl.search) : null;
+
+  // @todo, how can we show console.errors on gui?
+
+  switch (flowType) {
+    case 'password':
+      // @todo, not tested
+      authorizePassword({
+        scope: selectedScopes,
+        username: authFlow.username,
+        password: authFlow.password,
+        passwordType: authFlow.passwordType,
+        clientId,
+        clientSecret,
+        tokenUrl,
+      }).catch((err) => {
+        console.error(err);
+      });
+      return;
+
+    case 'application':
+      // @todo, not tested
+      authorizeApplication({
+        scope: selectedScopes,
+        clientId,
+        clientSecret,
+        tokenUrl,
+      }).then((token) => {
+        if (!token) return;
+        securityObj.finalKeyValue = `Bearer ${token.access_token}`;
+        this.requestUpdate();
+      }).catch((err) => {
+        console.error(err);
+      });
+      return;
+
+    case 'clientCredentials':
+      authorizeApplication({
+        scope: selectedScopes,
+        clientId,
+        clientSecret,
+        tokenUrl,
+      }).then((token) => {
+        if (!token) return;
+        securityObj.finalKeyValue = `Bearer ${token.access_token}`;
+        this.requestUpdate();
+      }).catch((err) => {
+        console.error(err);
+      });
+      return;
+
+    case 'accessCode':
+      params.set('response_type', 'code');
+      break;
+
+    case 'implicit':
+      params.set('response_type', 'token');
+      break;
+
+    case 'authorizationCode':
+      params.set('response_type', 'code');
+      break;
+
+    default:
+      console.error(`Warning, can not handle authentication type ${flowType}`);
+      return;
   }
 
-  const selectedScopes = checkedScopeEls.map((v) => v.value).join(' ');
-  const params = new URLSearchParams(authUrl.search);
-  params.set('client_id', clientId);
-  params.set('redirect_uri', receiveUrlObj.toString());
-  params.set('response_type', oAuthRespType);
-  if (selectedScopes) {
+  params.set('redirect_uri', authFlow.redirectUrl);
+  params.set('state', state);
+
+  if (clientId) {
+    params.set('client_id', clientId);
+  }
+
+  if (clientSecret) {
+    params.set('client_secret', clientSecret);
+  }
+
+  if (selectedScopes.length > 0) {
     params.set('scope', selectedScopes);
   }
-  params.set('state', state);
-  params.set('show_dialog', true);
-  authUrlObj.search = params.toString();
-  const w = window.open(authUrlObj.toString());
+
+  /*
+  let redirectUrl = authFlow.redirectUrl ? new URL(authFlow.redirectUrl) : null;
+  if (!redirectUrl) {
+    redirectUrl = new URL(`${window.location.protocol}//${window.location.hostname}:${window.location.port}/examples/oauth-receiver.html`);
+  }
+  */
+
+  /*
+  NOTE doesn't support this yet
+  if (flowType === 'authorizationCode' && authFlow.usePkceWithAuthorizationCodeGrant) {
+    const codeVerifier = generateCodeVerifier();
+    const codeChallenge = createCodeChallenge(codeVerifier);
+
+    params.set('code_challenge', codeChallenge);
+    params.set('code_challenge_method', "S256");
+
+    // storing the Code Verifier so it can be sent to the token endpoint
+    // when exchanging the Authorization Code for an Access Token
+    authFlow.codeVerifier = codeVerifier;
+  }
+  */
+
+  const { additionalQueryStringParams } = authFlow;
+  for (const key in additionalQueryStringParams) {
+    if (typeof additionalQueryStringParams[key] !== 'undefined') {
+      params.set(key, additionalQueryStringParams[key]);
+      // query.push([key, additionalQueryStringParams[key]].map(encodeURIComponent).join('='));
+    }
+  }
+
+
+  // pass action authorizeOauth2 and authentication data through window
+  // to authorize with oauth2
+
+  let callback;
+  if (flowType === 'implicit') {
+    callback = (payload) => preAuthorizeImplicit(payload).then((token) => {
+      // @todo not tested yet
+      console.log('Missing functionality to handle token', token);
+    }).catch((err) => {
+      console.error(err);
+    });
+  } else if (authFlow.useBasicAuthenticationWithAccessCodeGrant) {
+    callback = (payload) => authorizeAccessCodeWithBasicAuthentication(payload).then((token) => {
+      // @todo not tested yet
+      console.log('Missing functionality to handle token', token);
+    }).catch((err) => {
+      console.error(err);
+    });
+  } else {
+    params.set('show_dialog', true);
+    callback = (payload) => authorizeAccessCodeWithFormParams(payload).then((token) => {
+      if (!token) return;
+      securityObj.finalKeyValue = `Bearer ${token.access_token}`;
+      this.requestUpdate();
+    }).catch((err) => {
+      console.error(err);
+    });
+  }
+
+  authorizationUrl.search = params.toString();
+
+  const w = window.open(authorizationUrl.toString());
   if (!w) {
-    console.error(`RapiDoc: Unable to open ${authUrlObj.toString()} in a new window`);
+    console.error(`RapiDoc: Unable to open ${authorizationUrl.toString()} in a new window`);
   }
 
   const handleMessageEventFn = async (ev) => {
@@ -92,13 +250,21 @@ function onInvokeOAuth(apiKeyId, flowType, authUrl, tokenUrl, e) {
     if (!ev.data) {
       console.error('RapiDoc: Received no data with authorization message');
     }
-    if (ev.data.state !== state) {
+    const isValid = (ev.data.state === state);
+    if (!isValid) {
       console.warn('RapiDoc: State value did not match.');
+      return;
     }
     if (ev.data.error) {
       console.warn('RapiDoc: Error while receving data');
+      return;
     }
+    // client_id, client_secret,redirectUrl
     if (ev.data) {
+      callback({
+        ...ev.data, isValid, clientId, clientSecret, tokenUrl, redirectUrl: authFlow.redirectUrl,
+      });
+      /*
       if (ev.data.responseType === 'code') {
         console.log(`RapiDoc: AUTH CODE RECEIVED - ${ev.data.code}`);
         // return res(ev.data.code);
@@ -124,6 +290,7 @@ function onInvokeOAuth(apiKeyId, flowType, authUrl, tokenUrl, e) {
         securityObj.finalKeyValue = `${ev.data.token_type} ${ev.data.access_token}`;
         this.requestUpdate();
       }
+      */
     }
   };
   window.addEventListener('message', handleMessageEventFn, true);
@@ -154,68 +321,65 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, finalKeyV
         ? html`<div><b style="width:75px; display: inline-block;">REFRESH URL</b> <span class="mono-font">${authFlow.refreshUrl}</span></div>`
         : ''
       }
-      ${flowName.toLowerCase() === 'authorizationcode'
+      ${authFlow.scopes
         ? html`
-          ${authFlow.scopes
-            ? html`
-              <b> SCOPES </b>
-              <div class= "oauth-scopes" style = "width:100%; display:flex; flex-direction:column; flex-wrap:wrap; margin:0 0 10px 24px">
-                ${Object.entries(authFlow.scopes).map((scopeAndDescr, index) => html`
-                  <div class="m-checkbox" style="display:inline-block">
-                    <input type="checkbox" id="${flowName}${index}" value="${scopeAndDescr[0]}">
-                    <label for="${flowName}${index}">
-                      <span class="mono-font">${scopeAndDescr[0]}</span>
-                        ${scopeAndDescr[0] !== scopeAndDescr[1] ? ` - ${scopeAndDescr[1] || ''}` : ''}
-                    </label>
-                  </div>
-                `)}
+          <b> SCOPES </b>
+          <div class= "oauth-scopes" style = "width:100%; display:flex; flex-direction:column; flex-wrap:wrap; margin:0 0 10px 24px">
+            ${Object.entries(authFlow.scopes).map((scopeAndDescr, index) => html`
+              <div class="m-checkbox" style="display:inline-block">
+                <input type="checkbox" id="${flowName}${index}" value="${scopeAndDescr[0]}">
+                <label for="${flowName}${index}">
+                  <span class="mono-font">${scopeAndDescr[0]}</span>
+                    ${scopeAndDescr[0] !== scopeAndDescr[1] ? ` - ${scopeAndDescr[1] || ''}` : ''}
+                </label>
               </div>
+            `)}
+          </div>
+        `
+        : ''
+      }
+      <div style="display:flex; max-height:28px;">
+        <input type="text" value = "${clientId}" placeholder="client-id" spellcheck="false" class="oauth-client-id">
+        <input type="password" value = "${clientSecret}" placeholder="client-secret" spellcheck="false" class="oauth-client-secret" style = "margin:0 5px;">
+        ${finalKeyValue
+          ? html`
+            <button class="m-btn thin-border" @click="${(e) => { onClearOAuthKey.call(this, apiKeyId, e); }}"> CLEAR </button>
+          `
+          : html`
+            <button class="m-btn thin-border"
+              @click="${(e) => { onInvokeOAuth.call(this, apiKeyId, flowName, authFlow, e); }}"
+            > AUTHORIZE </button>                                    
+          `
+        }
+      </div>
+      <div style="margin-top:8px">
+        <ul>
+          ${authFlow.authorizationUrl && !this.hideAuthenticationRedirectInfo
+            ? html`
+              <li> Register this client (<span class="mono-font">${window.location.origin}</span>) with <span class="mono-font">${authSite}<span class="mono-font"> </li>
+          <li> During registration, Specify redirect url pointing to <span class="mono-font">${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/${this.oauthReceiver}</span> </li>
+              <li> Create <b>${this.oauthReceiver}</b> which will receive auth-code from oAuth provider</li>
+              <li> <b>${this.oauthReceiver}</b> should contain custom-element <span class="mono-font"> &lt;oauth-receiver&gt; </span>, this element receives the auth-code and passes it to this document </li>
+              <li> After receiving auth-code, it will request access-token using <span class="mono-font"> POST ${authFlow.tokenUrl}</span>
+                <ul>
+                  <li> grant_type = 'authorization_code'</li>
+                  <li> code = {auth-code}</li>
+                  <li> client_id = {client-id}</li>
+                  <li> client_secret = {client-secret}</li>
+                  <li> redirect_uri = {redirect-url}</li>
+                </ul>
+              </li>
             `
             : ''
           }
-          <div style="display:flex; max-height:28px;">
-            <input type="text" value = "${clientId}" placeholder="client-id" spellcheck="false" class="oauth-client-id">
-            <input type="password" value = "${clientSecret}" placeholder="client-secret" spellcheck="false" class="oauth-client-secret" style = "margin:0 5px;">
-            ${finalKeyValue
-              ? html`
-                <button class="m-btn thin-border" @click="${(e) => { onClearOAuthKey.call(this, apiKeyId, e); }}"> CLEAR </button>
-              `
-              : html`
-                <button class="m-btn thin-border"
-                  @click="${(e) => { onInvokeOAuth.call(this, apiKeyId, flowName, authFlow.authorizationUrl, authFlow.tokenUrl, e); }}"
-                > AUTHORIZE </button>                                    
-              `
-            }
-          </div>
-          <div style="margin-top:8px">
-            <ul>
-              ${authFlow.authorizationUrl
-                ? html`
-                  <li> Register this client (<span class="mono-font">${window.location.origin}</span>) with <span class="mono-font">${authSite}<span class="mono-font"> </li>
-              <li> During registration, Specify redirect url pointing to <span class="mono-font">${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/${this.oauthReceiver}</span> </li>
-                  <li> Create <b>${this.oauthReceiver}</b> which will receive auth-code from oAuth provider</li>
-                  <li> <b>${this.oauthReceiver}</b> should contain custom-element <span class="mono-font"> &lt;oauth-receiver&gt; </span>, this element receives the auth-code and passes it to this document </li>
-                  <li> After receiving auth-code, it will request access-token using <span class="mono-font"> POST ${authFlow.tokenUrl}</span>
-                    <ul>
-                      <li> grant_type = 'authorization_code'</li>
-                      <li> code = {auth-code}</li>
-                      <li> client_id = {client-id}</li>
-                      <li> client_secret = {client-secret}</li>
-                      <li> redirect_uri = {redirect-url}</li>
-                    </ul>
-                  </li>
-                `
-                : ''
-              }
-            </ul>
-          </div>`
-        : ''
-      }
+        </ul>
+      </div>
     </div>  
   `;
 }
 
-export default function securitySchemeTemplate() {
+export default function securitySchemeTemplate(hideAuthenticationRedirectInfo) {
+  this.hideAuthenticationRedirectInfo = hideAuthenticationRedirectInfo;
   const providedApiKeys = this.resolvedSpec.securitySchemes.filter((v) => (v.finalKeyValue));
   return html`
   <div id='authentication' class = 'observe-me ${this.renderStyle === 'read' ? 'section-gap--read-mode' : 'section-gap '}'>

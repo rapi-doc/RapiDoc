@@ -44,11 +44,14 @@ export default class ApiRequest extends LitElement {
       responseStatus: { type: String, attribute: false },
       responseUrl: { type: String, attribute: false },
       allowTry: { type: String, attribute: 'allow-try' },
+      allowAuthenticationSeperatedCalls: { type: String, attribute: 'allow-authentication-separated-calls' },
       renderStyle: { type: String, attribute: 'render-style' },
       schemaStyle: { type: String, attribute: 'schema-style' },
       activeSchemaTab: { type: String, attribute: 'active-schema-tab' },
       schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
       schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
+      security: { type: Array },
+      showOperationRequirements: { type: String, attribute: 'show-operation-requirements' },
       activeResponseTab: { type: String }, // internal tracking of response-tab not exposed as a attribute
     };
   }
@@ -525,26 +528,48 @@ export default class ApiRequest extends LitElement {
       `;
     }
 
+    // better handling of custom options from html?
+    const allowSeperatedCalls = (this.allowAuthenticationSeperatedCalls === 'true');
+    const showOpReq = (this.showOperationRequirements === 'true');
+
     return html`
-    <div style="display:flex; align-items: center; margin:16px 0; font-size:var(--font-size-small);">
+    <div style="margin:16px 0; font-size:var(--font-size-small);">
       <div style="display:flex; flex-direction:column; margin:0; width:calc(100% - 60px);">
+        
         <div style="display:flex; flex-direction:row; align-items:center; overflow:hidden;"> 
           ${selectedServerHtml}
         </div>
-        <div style="display:flex;">
-          <div style="padding-right:5px;">Authentication: </div>
-          ${this.api_keys.length > 0
-            ? html`<div style="font-weight:bold;color:var(--blue); overflow:hidden;"> 
-                ${this.api_keys.length === 1
-                  ? `API Key '${this.api_keys[0].name}' in ${this.api_keys[0].in}`
-                  : `${this.api_keys.length} API keys applied`
-                } 
-              </div>`
-            : html`<div style="font-weight:bold; color:var(--red)">No API key applied</div>`
-          }
-        </div>
+
+        ${showOpReq && this.security && this.security.length > 0 ? html`<div class="row" style="font-size:var(--font-size-small); margin:5px 0">
+            <div style="font-weight:bold;padding-right:5px;align-self: flex-start;">Required Security: </div>
+            <div>${this.security.map((securityDictionary) => {
+            const security = [];
+            Object.keys(securityDictionary).forEach((key) => {
+                security.push(html`<div><code>'${key}'</code> with scopes <code>'${securityDictionary[key]}'</code></div>`);
+            });
+            return security;
+          })}</div>
+        </div>` : ''}
       </div>
-      <button class="m-btn primary try-btn" style="padding: 6px 0px;width:60px; align-self:flex-start; margin:1px 0 0 5px;" @click="${this.onTryClick}">TRY</button>
+
+      ${this.api_keys.length > 0 && !allowSeperatedCalls ? html`<div class="row" style="margin:5px 0">
+        <div><span style="font-weight:bold">${this.api_keys.length} API keys applied</span></div>
+        <div style="flex:1"></div>
+        <div style="text-align: right;"><button class="m-btn secodary try-btn" style="padding: 6px 0px;width:60px" @click="${(e) => this.onTryClick(e, null, true)}">TRY</button></div>
+      </div>` : ''}
+
+      ${this.api_keys.length > 0 && allowSeperatedCalls ? this.api_keys.map((v) => html`<div class="row" style="margin:5px 0">
+        <div><span style="font-weight:bold">${v.apiKeyId}</span></div>
+        <div style="flex:1"></div>
+        <div style="text-align: right;"><button class="m-btn secodary try-btn" style="padding: 6px 0px;width:60px" @click="${(e) => this.onTryClick(e, v, false)}">TRY</button></div>
+      </div>`) : ''}
+
+      <div class="row" style="margin:5px 0">
+          <div>No Authentication</div>
+          <div style="flex:1"></div>
+          <div style="text-align: right;"><button class="m-btn primary try-btn" style="padding: 6px 0px;width:60px" @click="${(e) => this.onTryClick(e, null, false)}">TRY</button></div>
+      </div>
+
     </div>
     ${this.responseMessage === ''
       ? ''
@@ -596,7 +621,7 @@ export default class ApiRequest extends LitElement {
     });
   }
 
-  async onTryClick(e) {
+  async onTryClick(e, securitySchema, useAllApiKeys) {
     const me = this;
     const tryBtnEl = e.target;
     let fetchUrl;
@@ -692,11 +717,16 @@ export default class ApiRequest extends LitElement {
 
 
     // Add authentication Query-Param if provided
-    this.api_keys
-      .filter((v) => (v.in === 'query'))
-      .forEach((v) => {
-        fetchUrl = `${fetchUrl}${fetchUrl.includes('?') ? '&' : '?'}${v.name}=${encodeURIComponent(v.finalKeyValue)}`;
-      });
+    if (securitySchema != null && securitySchema.in === 'query') {
+      fetchUrl = `${fetchUrl}${fetchUrl.includes('?') ? '&' : '?'}${securitySchema.name}=${encodeURIComponent(securitySchema.finalKeyValue)}`;
+    }
+    if (useAllApiKeys) {
+      this.api_keys
+        .filter((v) => (v.in === 'query'))
+        .forEach((v) => {
+          fetchUrl = `${fetchUrl}${fetchUrl.includes('?') ? '&' : '?'}${v.name}=${encodeURIComponent(v.finalKeyValue)}`;
+        });
+    }
 
     // Final URL for API call
     fetchUrl = `${this.serverUrl.replace(/\/$/, '')}${fetchUrl}`;
@@ -720,13 +750,20 @@ export default class ApiRequest extends LitElement {
         curlHeaders += ` -H "${el.dataset.pname}: ${el.value}"`;
       }
     });
+
     // Add Authentication Header if provided
-    this.api_keys
-      .filter((v) => (v.in === 'header'))
-      .forEach((v) => {
-        fetchOptions.headers[v.name] = v.finalKeyValue;
-        curlHeaders += ` -H "${v.name}: ${v.finalKeyValue}"`;
-      });
+    if (securitySchema && securitySchema.in === 'header') {
+      fetchOptions.headers[securitySchema.name] = securitySchema.finalKeyValue;
+      curlHeaders += ` -H "${securitySchema.name}: ${securitySchema.finalKeyValue}"`;
+    }
+    if (useAllApiKeys) {
+      this.api_keys
+        .filter((v) => (v.in === 'header'))
+        .forEach((v) => {
+          fetchOptions.headers[v.name] = v.finalKeyValue;
+          curlHeaders += ` -H "${v.name}: ${v.finalKeyValue}"`;
+        });
+    }
 
     // Submit Form Params (url-encoded or form-data)
     if (formParamEls.length >= 1) {
@@ -857,10 +894,12 @@ export default class ApiRequest extends LitElement {
     try {
       tryBtnEl.disabled = true;
       // await wait(1000);
-      const resp = await fetch(fetchUrl, fetchOptions);
+      const resp = await fetch(fetchUrl, fetchOptions).catch(() => {
+        // need to catch, somehow parent try,catch doesn't work else for cors.
+      });
       tryBtnEl.disabled = false;
       me.responseStatus = resp.ok ? 'success' : 'error';
-      me.responseMessage = `${resp.statusText}:${resp.status}`;
+      me.responseMessage = `${resp.statusText}: ${resp.status}`;
       me.responseUrl = resp.url;
       resp.headers.forEach((hdrVal, hdr) => {
         me.responseHeaders = `${me.responseHeaders}${hdr.trim()}: ${hdrVal}\n`;

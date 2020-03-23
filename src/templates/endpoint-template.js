@@ -40,7 +40,7 @@ function endpointHeadTemplate(path) {
   `;
 }
 
-function endpointBodyTemplate(path) {
+function endpointBodyTemplate(path, allowAuthenticationSeperatedCalls, showOperationRequirements) {
   let accept = '';
   for (const respStatus in path.responses) {
     for (const acceptContentType in (path.responses[respStatus].content)) {
@@ -72,14 +72,17 @@ function endpointBodyTemplate(path) {
         .parameters = "${path.parameters}"
         .request_body = "${path.requestBody}"
         .api_keys = "${nonEmptyApiKeys}"
+        .security = "${path.security}" 
         .servers = "${path.servers}" 
         server-url = "${path.servers && path.servers.length > 0 ? path.servers[0].url : this.selectedServer.computedUrl}" 
         active-schema-tab = "${this.defaultSchemaTab}" 
+        allow-authentication-separated-calls = "${allowAuthenticationSeperatedCalls}"
         allow-try = "${this.allowTry}"
         accept = "${accept}"
         schema-style = "${this.schemaStyle}" 
         schema-expand-level = "${this.schemaExpandLevel}"
         schema-description-expanded = "${this.schemaDescriptionExpanded}"
+        show-operation-requirements = "${showOperationRequirements}"
       > 
         ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
       </api-request>
@@ -95,7 +98,7 @@ function endpointBodyTemplate(path) {
   </div>`;
 }
 
-export default function endpointTemplate() {
+export default function endpointTemplate(allowAuthenticationSeperatedCalls, showOperationRequirements) {
   return html`
     ${this.resolvedSpec.tags.map((tag) => html`
     <div class='regular-font section-gap'> 
@@ -116,7 +119,7 @@ export default function endpointTemplate() {
     }).map((path) => html`
       <div id='${path.method}-${path.path.replace(/[\s#:?&=]/g, '-')}' class='m-endpoint regular-font ${path.method} ${path.expanded ? 'expanded' : 'collapsed'}'>
         ${endpointHeadTemplate.call(this, path)}      
-        ${path.expanded ? endpointBodyTemplate.call(this, path) : ''}
+        ${path.expanded ? endpointBodyTemplate.call(this, path, allowAuthenticationSeperatedCalls, showOperationRequirements) : ''}
       </div>
     `)
     }`)
