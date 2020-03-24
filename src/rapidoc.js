@@ -439,7 +439,7 @@ export default class RapiDoc extends LitElement {
           ${(this.allowSpecUrlLoad === 'false')
             ? ''
             : html`
-              <input id="spec-url" type="text" class="header-input" placeholder="Spec URL" value="${this.specUrl ? this.specUrl : ''}" @change="${this.onSepcUrlChange}" spellcheck="false" >
+              <input id="spec-url" type="text" style="font-size:var(--font-size-small)" class="header-input mono-font" placeholder="Spec URL" value="${this.specUrl ? this.specUrl : ''}" @change="${this.onSepcUrlChange}" spellcheck="false" >
               <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x2b90;</div> 
             `
           } 
@@ -526,7 +526,7 @@ export default class RapiDoc extends LitElement {
 
   contactInfoTemplate() {
     return html`
-    <div style="font-size:13px; margin-top:8px; line-height: 18px;">
+    <div style="font-size:calc(var(--font-size-regular) - 1px); margin-top:8px; line-height: 18px;">
       ${this.resolvedSpec.info.contact.email
         ? html`
           <div>

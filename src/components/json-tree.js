@@ -1,5 +1,7 @@
 import { LitElement, html } from 'lit-element';
 import FontStyles from '@/styles/font-styles';
+import BorderStyles from '@/styles/border-styles';
+
 
 export default class JsonTree extends LitElement {
   static get properties() {
@@ -15,21 +17,19 @@ export default class JsonTree extends LitElement {
   render() {
     return html`
       ${FontStyles}
+      ${BorderStyles}
       <style>
         :host{
           display:flex;
         }
         .json-tree {
           font-family: var(--font-mono);
-          font-size:var(--font-size-mono);
+          font-size: var(--font-size-small);
           display:inline-block;
           overflow:hidden;
           word-break: break-all;
           flex:1;
-        }
-        .tree-border {
-          border: 1px solid var(--border-color);
-          padding: 8px 16px 16px 16px;
+          line-height: 18px;
         }
 
         .open-bracket{
@@ -52,7 +52,6 @@ export default class JsonTree extends LitElement {
         .open-bracket.collapsed + .inside-bracket + .close-bracket {
           display:none;
         }
-
 
         .string{color:var(--green);}
         .number{color:var(--blue);}
@@ -79,7 +78,7 @@ export default class JsonTree extends LitElement {
           border:none;
         }
       </style>
-      <div class="json-tree ${this.renderStyle === 'read' ? 'tree-border' : ''}" >
+      <div class = "json-tree" >
         <div class='toolbar'> 
           <button  class="toolbar-btn" @click='${(e) => { this.copyExample(this.data, e); }}'> COPY </button>
           <span style="margin-left:8px; color:var(--green)"> ${this.isCopied ? 'Copied' : ''} </span>

@@ -17,7 +17,7 @@ export default html`
     margin-bottom:8px;
   }
   
-  .tiny-title { font-size:13px; font-weight:bold; }
+  .tiny-title { font-size:calc(var(--font-size-small) + 1px); font-weight:bold; }
   .regular-font-size { font-size:var(--font-size-regular); }
   .small-font-size { font-size:var(--font-size-small); }
   .primary-text{ color: var(--primary-color); }
@@ -63,19 +63,19 @@ export default html`
   .m-markdown p,
   .m-markdown span{
     line-height:18px;
-    font-size:13px;
+    font-size:calc(var(--font-size-regular) - 1px);
   }
   
   .m-markdown li{
     line-height:22px;
-    font-size:13px;
+    font-size:calc(var(--font-size-regular) - 1px);
   }
 
   .m-markdown-small p,
   .m-markdown-small span,
   .m-markdown-small li{
     color:var(--light-fg);
-    font-size:12px;
+    font-size:var(--font-size-small);
     line-height:18px;
     margin-top:0;
   }
@@ -171,7 +171,7 @@ export default html`
   }
   .m-markdown td, 
   .m-markdown th{
-    font-size: 12px;
+    font-size: var(--font-size-small);
     line-height: 16px;
     padding: 6px;
     vertical-align: top;

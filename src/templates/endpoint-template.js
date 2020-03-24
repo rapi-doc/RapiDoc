@@ -29,7 +29,7 @@ function endpointHeadTemplate(path) {
     </div>
     ${path.deprecated
       ? html`
-        <span style="font-size:12px; text-transform:uppercase; font-weight:bold; color:var(--red); margin:2px 0 0 5px;"> 
+        <span style="font-size:var(--font-size-small); text-transform:uppercase; font-weight:bold; color:var(--red); margin:2px 0 0 5px;"> 
           deprecated 
         </span>`
       : ''
@@ -51,20 +51,10 @@ function endpointBodyTemplate(path) {
   const nonEmptyApiKeys = this.resolvedSpec.securitySchemes.filter((v) => (v.finalKeyValue)) || [];
   return html`
   <div class='endpoint-body ${path.method}'>
-    ${path.summary || path.description
-      ? html`
-        <div class="summary">
-          <div class="title">${path.summary}</div>
-          ${path.summary !== path.description
-            ? html`
-              <div class="m-markdown"> 
-                ${unsafeHTML(marked(path.description || ''))}
-              </div>`
-            : ''
-          }  
-        </div>`
-      : ''
-    }
+    <div class="summary">
+      ${path.summary && path.summary !== path.description ? html`<div class="title">${path.summary}</div>` : ''}
+      ${path.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(path.description))}</div>` : ''}
+    </div>  
     <div class='req-resp-container'> 
       <api-request  class="request"  
         method = "${path.method}", 
@@ -77,6 +67,7 @@ function endpointBodyTemplate(path) {
         active-schema-tab = "${this.defaultSchemaTab}" 
         allow-try = "${this.allowTry}"
         accept = "${accept}"
+        render-style="${this.renderStyle}" 
         schema-style = "${this.schemaStyle}" 
         schema-expand-level = "${this.schemaExpandLevel}"
         schema-description-expanded = "${this.schemaDescriptionExpanded}"
@@ -87,6 +78,7 @@ function endpointBodyTemplate(path) {
         class="response" 
         .responses="${path.responses}"
         active-schema-tab = "${this.defaultSchemaTab}" 
+        render-style="${this.renderStyle}" 
         schema-style="${this.schemaStyle}"
         schema-expand-level = "${this.schemaExpandLevel}"
         schema-description-expanded = "${this.schemaDescriptionExpanded}"

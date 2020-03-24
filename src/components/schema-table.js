@@ -26,7 +26,7 @@ export default class SchemaTable extends LitElement {
       ${SchemaStyles}
       <style>
       .table {
-        font-size:12px;
+        font-size:var(--font-size-small);
         text-align: left;
         line-height:18px;
       }
@@ -97,7 +97,7 @@ export default class SchemaTable extends LitElement {
   }
 
   generateTree(data, prevDataType = 'object', prevKey = '', prevDescr = '', level = 0) {
-    const leftPadding = 16 * level;
+    const leftPadding = 16 * level; // 2 space indentation at each level
     if (!data) {
       return html`<div class="null" style="display:inline;">null</div>`;
     }

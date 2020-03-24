@@ -2,15 +2,15 @@ import { html } from 'lit-element';
 
 export default html`
 <style>
-  .tab-panel{
+  .tab-panel {
     border: none;
   }
-  .tab-buttons{
+  .tab-buttons {
     height:30px;
     border-bottom: 1px solid var(--light-border-color) ;
     align-items: stretch;
   }
-  .tab-btn{
+  .tab-btn {
     border:none;
     background-color:transparent;
     cursor:pointer;
@@ -19,16 +19,16 @@ export default html`
     margin-right:16px;
     padding:1px;
   }
-  .tab-btn.active{
+  .tab-btn.active {
     border-bottom: 3px solid var(--primary-color); 
     font-weight:bold;
     color:var(--primary-color);
   }
 
-  .tab-btn:hover{
+  .tab-btn:hover {
     color:var(--primary-color);
   }
-  .tab-content{
+  .tab-content {
     margin:-1px 0 0 0;
   }
 </style>`;

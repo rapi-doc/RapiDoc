@@ -91,7 +91,8 @@ export default class ApiRequest extends LitElement {
         min-height:220px; 
         padding:5px;
         resize:vertical;
-        font-size:var(--font-size-mono);
+        font-family:var(--font-mono);
+        font-size:var(--font-size-small);
       }
       .response-message{
         font-weight:bold;
@@ -106,7 +107,7 @@ export default class ApiRequest extends LitElement {
 
       @media only screen and (min-width: 768px) {
         .textarea {
-          padding:16px;
+          padding:8px;
         }
       }
 
@@ -196,14 +197,14 @@ export default class ApiRequest extends LitElement {
                 data-param-serialize-style = "${paramStyle}"
                 data-param-serialize-explode = "${paramExplode}"
                 data-array = "true"
-                placeholder= "add-multiple\u23ce"
+                placeholder= "add-multiple &#x2b90;"
                 .value = "${inputVal}"
               >
               </tag-input>`
             : paramSchema.type === 'object'
               ? html`
                 <textarea 
-                  class = "mono request-param"
+                  class = "textarea request-param"
                   data-ptype = "${paramType}-object"
                   data-pname = "${param.name}"
                   data-param-serialize-style = "${paramStyle}"
@@ -255,6 +256,21 @@ export default class ApiRequest extends LitElement {
     </div>`;
   }
 
+  onSelectExample(e) {
+    const exampleContainerEl = e.target.closest('.example-panel');
+    const exampleEls = [...exampleContainerEl.querySelectorAll('.example')];
+
+    exampleEls.forEach((v) => {
+      if (v.dataset.example === e.target.value) {
+        v.style.display = 'block';
+        v.classList.add('example-selected'); // dont change class-name used for selection
+      } else {
+        v.style.display = 'none';
+        v.classList.remove('example-selected');
+      }
+    });
+  }
+
   requestBodyTemplate() {
     if (!this.request_body) {
       return '';
@@ -293,9 +309,8 @@ export default class ApiRequest extends LitElement {
       } else if (mimeReq.includes('application/octet-stream')) {
         shortMimeTypes[mimeReq] = 'octet-stream'; // TODO: allow users to upload a file
       }
-
       const mimeReqObj = content[mimeReq];
-      let reqExample = '';
+      let reqExamples = '';
       try {
         // Remove Circular references from RequestBody json-schema
         mimeReqObj.schema = JSON.parse(JSON.stringify(mimeReqObj.schema));
@@ -308,7 +323,7 @@ export default class ApiRequest extends LitElement {
       } else if (mimeReq.includes('xml')) {
         reqSchemaTree.xml = schemaInObjectNotation(mimeReqObj.schema, {});
       }
-      reqExample = generateExample(
+      reqExamples = generateExample(
         mimeReqObj.examples ? mimeReqObj.examples : '',
         mimeReqObj.example ? mimeReqObj.example : '',
         mimeReqObj.schema,
@@ -316,6 +331,7 @@ export default class ApiRequest extends LitElement {
         false,
         'text',
       );
+      mimeReqObj.selectedExample = reqExamples[0] ? reqExamples[0].exampleId : '';
 
       if (mimeReq.includes('octet-stream')) {
         contentDataType = 'octet-body-data';
@@ -329,12 +345,27 @@ export default class ApiRequest extends LitElement {
         contentDataType = 'body-data';
         textareaExampleHtml = html`
           ${textareaExampleHtml}
-          <textarea 
-            class = "textarea mono request-body-param ${shortMimeTypes[mimeReq]}" 
-            spellcheck = "false"
-            data-ptype = "${mimeReq}" 
-            style="resize:vertical;display:${shortMimeTypes[mimeReq] === 'json' ? 'block' : 'none'}; "
-          >${reqExample[0].exampleValue}</textarea>
+
+          <span class = 'example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}'>
+            <select style="min-width:100px; max-width:100%" @change='${(e) => this.onSelectExample(e)}'>
+              ${reqExamples.map((v) => html`<option value="${v.exampleId}"?selected=${v.exampleId === mimeReqObj.selectedExample} > 
+                ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary} 
+              </option>`)}
+            </select>
+            ${reqExamples.map((v) => html`
+              <div class="example ${v.exampleId === mimeReqObj.selectedExample ? 'example-selected' : ''}" data-example = '${v.exampleId}' style = "display: ${v.exampleId === mimeReqObj.selectedExample ? 'block' : 'none'}">
+                ${v.exampleSummary && v.exampleSummary.length > 80 ? html`<div style="padding: 4px 0"> ${v.exampleSummary} </div>` : ''}
+                ${v.exampleDescription ? html`<div class="m-markdown-small" style="padding: 4px 0"> ${unsafeHTML(marked(v.exampleDescription || ''))} </div>` : ''}
+                <textarea 
+                  class = "textarea request-body-param ${shortMimeTypes[mimeReq]}" 
+                  spellcheck = "false"
+                  data-ptype = "${mimeReq}" 
+                  style="width:100%; resize:vertical;display:${shortMimeTypes[mimeReq] === 'json' ? 'block' : 'none'};"
+                >${v.exampleValue}</textarea>
+              </div>  
+            `)}
+          </span>  
+
         `;
       } else if (mimeReq.includes('form') || mimeReq.includes('multipart-form')) {
         contentDataType = 'form-data';
@@ -417,11 +448,11 @@ export default class ApiRequest extends LitElement {
           </form>`;
         } else {
           formDataHtml = html`<textarea 
-            class = "textarea mono dynamic-form-param ${shortMimeTypes[mimeReq]}" 
+            class = "textarea dynamic-form-param ${shortMimeTypes[mimeReq]}" 
             spellcheck = "false"
             data-ptype = "${mimeReq}"
             style="resize:vertical;display:block; width:100%"
-          >${reqExample[0].exampleValue}</textarea>
+          >${reqExamples[0].exampleValue}</textarea>
           <span class="m-markdown-small">${unsafeHTML(marked(mimeReqObj.schema.description || ''))}</span>
         `;
         }
@@ -612,7 +643,7 @@ export default class ApiRequest extends LitElement {
     const headerParamEls = [...requestPanelEl.querySelectorAll(".request-param[data-ptype='header']")];
     const formParamEls = [...requestPanelEl.querySelectorAll('.request-form-param')];
     const dynFormParamEls = [...requestPanelEl.querySelectorAll('.dynamic-form-param')];
-    const bodyParamEls = [...requestPanelEl.querySelectorAll('.request-body-param')];
+    const bodyParamEls = [...requestPanelEl.querySelectorAll('.example-selected .request-body-param')];
     const bodyParamFileEls = [...requestPanelEl.querySelectorAll('.request-body-param-file')];
 
     fetchUrl = me.path;

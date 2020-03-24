@@ -3,6 +3,7 @@ import marked from 'marked';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import FontStyles from '@/styles/font-styles';
 import SchemaStyles from '@/styles/schema-styles';
+import BorderStyles from '@/styles/border-styles';
 
 export default class SchemaTree extends LitElement {
   static get properties() {
@@ -25,15 +26,12 @@ export default class SchemaTree extends LitElement {
     return html`
       ${FontStyles}
       ${SchemaStyles}
+      ${BorderStyles}
       <style>
       .tree {
-        font-size:12px;
+        font-size:var(--font-size-small);
         text-align: left;
         line-height:18px;
-      }
-      .tree-border {
-        border: 1px solid var(--border-color);
-        padding: 8px 16px 16px 16px;
       }
       .tree .tr:hover{
         background-color:var(--hover-color);
@@ -45,7 +43,7 @@ export default class SchemaTree extends LitElement {
         max-height:20px;
       }
       .collapsed-descr .m-markdown-small p {
-        line-height:20px;
+        line-height:18px;
       }
 
       .tree .key {
@@ -83,7 +81,7 @@ export default class SchemaTree extends LitElement {
         border-color:var(--primary-color);
       }
       </style>
-      <div class="tree ${this.renderStyle === 'read' ? 'tree-border' : ''} ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : 'collapsed-descr'}">
+      <div class="tree ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : 'collapsed-descr'}">
         <div class='toolbar'>
           <div class='toolbar-item bold-text upper' style='cursor:auto; color:var(--fg3)'> ${this.data ? this.data['::type'] : ''} </div>
           <div style="flex:1"></div>
