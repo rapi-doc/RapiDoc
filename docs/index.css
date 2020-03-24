@@ -153,6 +153,7 @@ h1,h2,h3 { font-weight:300; }
 .btn {
   width: 90px;
   height: 32px;
+  padding:2px;
   font-size:13px;
   background-color: #47AFE8;
   color: #fff;
@@ -162,6 +163,15 @@ h1,h2,h3 { font-weight:300; }
   cursor:pointer;
   outline:none;
 }
+.btn.medium {
+  width: 75px;
+  height: 24px
+}
+.btn.small {
+  width: 60px;
+  height: 24px
+}
+
 .txt{
   width: 100px;
   height: 30px;

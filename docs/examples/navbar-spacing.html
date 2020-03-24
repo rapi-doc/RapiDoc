@@ -15,29 +15,28 @@
     <script type='text/javascript' src='../rapidoc-min.js'></script>
   </head>
   <body>
-    <rapi-doc spec-url="../specs/schema.yaml"
+    <rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json"
       id = "thedoc"
       allow-authentication = "false" 
-      allow-search = "false"
       show-info = "false"
       show-header = "false"
       render-style = "read"
-      allow-try = "false" 
+      allow-try = "false"
+      allow-search = "false"
       regular-font = 'Open Sans'
-      theme = "dark"
+      theme = "light"
       schema-style='table'
     > 
-
+    
       <div slot="nav-logo">
-        <div style="text-align: center; padding: 0 0 12px 0; color:#47AFE8"> Schema Display Style </div>
+        <div style="text-align: center; padding: 0 0 12px 0; color:#47AFE8"> Navigation Item Spacing </div>
         <div style="width:100%; display: flex;justify-content: center;">
-          <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('schema-style', 'table')" >Table</button>
-          <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('schema-style', 'tree')" >Tree</button>
-          </div>
+          <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('nav-item-spacing', 'compact')" >Compact</button>
+          <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('nav-item-spacing', 'default')" >Default</button>
+          <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('nav-item-spacing', 'relaxed')" >Relaxed</button>
+        </div>
       </div>
 
-      <div slot="nav-logo" style="width:100%; display: flex;justify-content: center;">
-      </div>
   </rapi-doc>
   </body>
 </html>
