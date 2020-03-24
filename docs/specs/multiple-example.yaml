@@ -1,0 +1,269 @@
+openapi: 3.0.0
+info:
+  title: Providing Examples
+  description:  Providing Examples
+  version: 1.0.0
+paths:
+  /multiple-examples-by-response-type:
+    get:
+      description: Multiple Examples provide for each media-type (`application/json` or `application/json`) 
+      tags:
+        - Providing Examples
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  age:
+                    description: Person Age
+                    type: integer
+                  fullName:
+                    description: Person Full name
+                    type: object
+                    properties:
+                      firstName:
+                        description: First name
+                        type: string
+                      lastName:
+                        description: Last name
+                        type: string
+              examples:
+                valid-json:
+                  summary: Example with Valid JSON
+                  description: If valid JSON is provided in the example, It will be displayed in JSON tree form. Allowing copy/expand/collapse functionality
+                  value: |
+                    {
+                      "person": {
+                        "fullName": {
+                          "firstName": "Mickey",
+                          "lastName": "Mouse"
+                        },
+                        "age": "9"
+                      }
+                    }
+                invalid-json:
+                  summary: Example with Invalid JSON
+                  description: Invalid JSON is displayed in text-area as is
+                  value: |
+                    {
+                      person: {
+                        fullName: {
+                          firstName: Donald,
+                          lastName: Duck
+                        },
+                        age: 10
+                      }
+                    }
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  age:
+                    description: Person Age
+                    type: integer
+                  fullName:
+                    description: Person Full name
+                    type: object
+                    properties:
+                      firstName:
+                        description: First name
+                        type: string
+                      lastName:
+                        description: Last name
+                        type: string
+              examples:
+                example-1:
+                  value: |
+                    <root>
+                      <person>
+                        <fullName>
+                          <firstName> Mickey </firstName>
+                          <lastName> Mouse </lastName>
+                        </fullName>
+                        <age> 9 </age>
+                      </person>
+                    </root>
+                example-2:
+                  value: |
+                    <root>
+                      <person>
+                        <fullName>
+                          <firstName> Pluto </firstName>
+                        </fullName>
+                        <age> 4 </age>
+                      </person>
+                    </root>
+
+  /single-example-by-response-type:
+    get:
+      summary: Single Example at schema Level
+      tags:
+        - Providing Examples
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  age:
+                    description: Person Age
+                    type: integer
+                  fullName:
+                    description: Person Full name
+                    type: object
+                    properties:
+                      firstName:
+                        description: First name
+                        type: string
+                      lastName:
+                        description: Last name
+                        type: string
+              example: |
+                {
+                  person: {
+                    fullName: {
+                      firstName: Donald,
+                      lastName: Duck
+                    },
+                    age: 10
+                  }
+                }
+  /single-example-for-a-schema:
+    get:
+      summary: Single Example Under a Schema
+      tags:
+        - Providing Examples
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  age:
+                    description: Person Age
+                    type: integer
+                  fullName:
+                    description: Person Full name
+                    type: object
+                    properties:
+                      firstName:
+                        description: First name
+                        type: string
+                      lastName:
+                        description: Last name
+                        type: string
+                example: |
+                  {
+                    person: {
+                      fullName: {
+                        firstName: Donald,
+                        lastName: Duck
+                      },
+                      age: 10
+                    }
+                  }                                
+  /per-field-example:
+    get:
+      summary: Field Level example
+      tags:
+        - Providing Examples
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  age:
+                    description: Person Age
+                    type: integer
+                    example: 8
+                  fullName:
+                    description: Person Full name
+                    type: object
+                    properties:
+                      firstName:
+                        description: First name
+                        type: string
+                        example: 'Daisy'
+                      lastName:
+                        description: Last name
+                        type: string
+                        example: 'Duck'
+  '/example-with-refs':
+    get:
+      summary: When a Schema defination is provided as a ref (provide the example at schema-level)
+      tags:
+        - Providing Examples
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/cost'
+              examples:
+                USD:
+                  description: Cost in `US Dollars`
+                  value: |
+                    {
+                      amount: 10,
+                      currency: USD
+                    }
+                INR:
+                  description: Cost in `Indian Rupees`
+                  value: |
+                    {
+                      amount: 10,
+                      currency: USD
+                    }
+  /multiple-example-in-request-body:
+    post:
+      summary: Request body with multiple examples
+      tags:
+        - Providing Examples
+      requestBody:
+        description: Request body containig **multiple** examples
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/cost'
+            examples:
+              USD:
+                description: Cost in `US Dollars`
+                value: |
+                  {
+                    amount: 10,
+                    currency: USD
+                  }
+              INR:
+                description: Cost in `Indian Rupees`
+                value: |
+                  {
+                    amount: 700,
+                    currency: INR
+                  }
+components:
+  schemas:
+    cost:
+      type: object
+      properties:
+        amount:
+          type: integer
+          description: Amount
+        currency:
+          description: Currency Code
+          type: string
