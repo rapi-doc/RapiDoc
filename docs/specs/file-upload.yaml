@@ -17,7 +17,7 @@ info:
           summary: Uploads single file using form-data
           requestBody:
             content:
-              application/x-www-form-urlencoded:
+              multipart/form-data:
                 schema:
                   type: object
                   properties:
@@ -35,7 +35,7 @@ info:
           summary: Uploads multiple file using form-data and type as 'array'
           requestBody:
             content:
-              application/x-www-form-urlencoded:
+              multipart/form-data:
                 schema:
                   type: object
                   properties:
@@ -72,7 +72,7 @@ paths:
       summary: Uploads single file using form-data
       requestBody:
         content:
-          application/x-www-form-urlencoded:
+          multipart/form-data:
             schema:
               type: object
               properties:
@@ -92,7 +92,7 @@ paths:
       summary: Uploads multiple file using form-data and type as 'array'
       requestBody:
         content:
-          application/x-www-form-urlencoded:
+          multipart/form-data:
             schema:
               type: object
               properties:
