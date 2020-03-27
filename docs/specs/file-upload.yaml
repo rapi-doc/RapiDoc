@@ -76,7 +76,9 @@ paths:
             schema:
               type: object
               properties:
-                filename:
+                name:
+                  type: string
+                photo:
                   type: string
                   format: binary      
       responses:
@@ -94,7 +96,9 @@ paths:
             schema:
               type: object
               properties:
-                filename:
+                name:
+                  type: string
+                picture:
                   type: array
                   items:
                     type: string

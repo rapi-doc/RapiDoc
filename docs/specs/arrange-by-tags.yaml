@@ -3,9 +3,9 @@ info:
   version: 1.0.0
   title: Aranging Endpoints by Tags
   description: >
-    Following OpenAPI spec demonstrates how to arrange order your tags. (even though the paths are defined in random order in the spec but the tags are ordered based on the `tags` section)
+    Following OpenAPI spec demonstrates how to arrange the paths using tags. (even though the paths are defined in random order in the spec but they are shown in the order as they are defined under `tags` section)
 
-      - If there are multiple paths inside a tag they can be further sorted use `sort-endpoints-by` propert which accepts `path` or `method`
+      - If there are multiple paths inside a tag, they can be further sorted. Use `sort-endpoints-by` property which can accept `path` or `method`
       - If you do not want to specify tag order, but follow certain naming conventions for tags in the spec you may use `sort-tags` property in RapiDoc element to sort tags alphabatically
 
     ```
