@@ -28,9 +28,9 @@
   "main": "dist/rapidoc-min.js",
   "module": "dist/rapidoc-min.js",
   "dependencies": {
-    "lit-element": "2.2.1",
-    "lit-html": "1.0.0",
-    "marked": "^0.8.0",
+    "lit-element": "2.3.1",
+    "lit-html": "1.2.1",
+    "marked": "^0.8.2",
     "swagger-client": "^3.10.0",
     "swagger2openapi": "^5.3.4"
   },
@@ -45,9 +45,9 @@
     "lint-fix": "./node_modules/eslint/bin/eslint.js --fix ./src/**"
   },
   "devDependencies": {
-    "@babel/core": "^7.8.7",
-    "@babel/preset-env": "^7.8.7",
-    "babel-loader": "^8.0.6",
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.0",
+    "babel-loader": "^8.1.0",
     "babel-plugin-template-html-minifier": "^4.0.0",
     "clean-webpack-plugin": "^3.0.0",
     "compression-webpack-plugin": "^3.1.0",
@@ -57,12 +57,12 @@
     "eslint-import-resolver-webpack": "^0.12.1",
     "eslint-loader": "^3.0.3",
     "eslint-plugin-import": "^2.20.1",
-    "file-loader": "^5.1.0",
+    "file-loader": "^6.0.0",
     "filemanager-webpack-plugin": "^2.0.5",
-    "html-webpack-plugin": "^3.2.0",
+    "html-webpack-plugin": "^4.0.2",
     "inspectpack": "^4.4.0",
     "style-loader": "^1.1.3",
-    "webpack": "^4.42.0",
+    "webpack": "^4.42.1",
     "webpack-bundle-analyzer": "^3.6.1",
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.10.3"
