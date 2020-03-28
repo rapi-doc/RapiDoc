@@ -3,11 +3,6 @@ import { html } from 'lit-element';
 /* eslint-disable max-len */
 export default html`
 <style>
-.m-select, input, select, button {
-  font-family: var(--font-regular);
-  font-weight:400;
-  color:var(--fg);
-}
 /* Button */
 .m-btn {
   border-radius: var(--border-radius);
@@ -45,25 +40,31 @@ export default html`
   cursor:not-allowed;
   opacity:0.4;
 }
+input, textarea, select, button, pre {
+  color:var(--fg);
+  outline: none;
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+}
 
 /* Form Inputs */
+pre,
 select,
 textarea,
 input[type="file"],
 input[type="text"],
 input[type="password"] {
-  border-radius:var(--border-radius);
-  border:1px solid var(--border-color);
-  background:var(--input-bg);
-  color:var(--fg);
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: var(--font-size-small);
   transition: border .2s;
-  outline: none;
-  font-size:calc(var(--font-size-small) + 1px);
-  padding:6px 5px;
+  padding: 6px 5px;
   box-sizing: border-box;
 }
 
 select {
+  font-family: var(--font-regular);
   padding: 6px 35px 6px 5px;
   background-image: url("data:image/svg+xml;charset=utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%3E%3Cpath%20d%3D%22M10.3%203.3L6%207.6%201.7%203.3A1%201%200%2000.3%204.7l5%205a1%201%200%20001.4%200l5-5a1%201%200%2010-1.4-1.4z%22%20fill%3D%22%23777777%22%2F%3E%3C%2Fsvg%3E"); 
   background-position: calc(100% - 5px) center;
@@ -72,19 +73,10 @@ select {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
+  cursor: pointer;
 }
-
-textarea.mono,
-input[type="text"].mono,
-input[type="password"].mono{
-  font-family: var(--font-mono); 
-  font-size:var(--font-size-mono); 
-}
-
-input[type="text"].large,
-input[type="password"].large {
-  padding:10px 8px;
-  font-size:(--font-size-mono); 
+select:hover {
+  border-color: var(--primary-color);
 }
 
 textarea::placeholder,
@@ -94,6 +86,7 @@ input[type="password"]::placeholder {
   opacity:1;
 }
 
+select:focus,
 textarea:focus,
 input[type="text"]:focus,
 input[type="password"]:focus,
@@ -103,11 +96,31 @@ input[type="password"]:active {
   border:1px solid var(--primary-color);
 }
 
+input[type="file"]{
+  font-family: var(--font-regular);
+  padding:2px;
+  cursor:pointer;
+  border: 1px solid var(--primary-color);
+  min-height: 30px;
+}
+input[type="file"]::-webkit-file-upload-button {
+  font-family: var(--font-regular);
+  font-size: var(--font-size-small);
+  outline: none;
+  cursor:pointer;
+  padding: 3px 8px;
+  border: 1px solid var(--primary-color);
+  background-color: var(--primary-color);
+  color: var(--primary-color-invert);
+  border-radius: var(--border-radius);;
+  -webkit-appearance: none;
+}
+
 pre::-webkit-scrollbar-track,
 textarea::-webkit-scrollbar-track{
   background:var(--input-bg);
 }
-  
+
 pre::-webkit-scrollbar,
 textarea::-webkit-scrollbar{
   width: 8px;
@@ -117,11 +130,11 @@ textarea::-webkit-scrollbar{
  
 pre::-webkit-scrollbar-thumb,
 textarea::-webkit-scrollbar-thumb {
-  border-radius:2px;
+  border-radius: 2px;
   background-color: var(--primary-color)
 }
 
-.link{
+.link {
   font-size:var(--font-size-small);
   text-decoration: underline;
   color:var(--blue);

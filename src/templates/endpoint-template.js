@@ -22,8 +22,8 @@ function toggleExpand(path) {
 
 function endpointHeadTemplate(path) {
   return html`
-  <div @click="${(e) => { toggleExpand.call(this, path, e); }}" class='endpoint-head ${path.method} ${path.expanded ? 'expanded' : 'collapsed'}'>
-    <div class="method ${path.method}"> ${path.method} </div> 
+  <div @click="${(e) => { toggleExpand.call(this, path, e); }}" class='endpoint-head ${path.method} ${path.deprecated ? 'deprecated' : ''} ${path.expanded ? 'expanded' : 'collapsed'}'>
+    <div class="method ${path.method} ${path.deprecated ? 'deprecated' : ''}"> ${path.method} </div> 
     <div class="path ${path.deprecated ? 'deprecated' : ''}"> 
       ${path.path} 
     </div>
@@ -50,7 +50,7 @@ function endpointBodyTemplate(path) {
   accept = accept.replace(/,\s*$/, ''); // remove trailing comma
   const nonEmptyApiKeys = this.resolvedSpec.securitySchemes.filter((v) => (v.finalKeyValue)) || [];
   return html`
-  <div class='endpoint-body ${path.method}'>
+  <div class='endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}'>
     <div class="summary">
       ${path.summary && path.summary !== path.description ? html`<div class="title">${path.summary}</div>` : ''}
       ${path.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(path.description))}</div>` : ''}

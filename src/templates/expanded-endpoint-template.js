@@ -69,7 +69,7 @@ function endpointBodyTemplate(path) {
   const nonEmptyApiKeys = this.resolvedSpec.securitySchemes.filter((v) => (v.finalKeyValue)) || [];
   return html`
   <div class='divider'></div>
-  <div class='expanded-endpoint-body observe-me ${path.method}' id='${path.method}-${path.path.replace(/[\s#:?&=]/g, '-')}' >
+  <div class='expanded-endpoint-body observe-me ${path.method} ${path.deprecated ? 'deprecated' : ''} ' id='${path.method}-${path.path.replace(/[\s#:?&=]/g, '-')}' >
     
     ${path.deprecated ? html`<div class="bold-text red-text" > DEPRECATED </div>` : ''}
     ${html`

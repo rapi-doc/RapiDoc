@@ -169,6 +169,48 @@ export function getSampleValueByType(schemaObj) {
   }
 }
 
+/*
+  {
+    'prop1' : 'one',
+    'prop2' : 'two',
+    'prop3' : [ 'a', 'b', 'c' ],
+    'prop4' : {
+      'ob1' : 'val-1',
+      'ob2' : 'val-2'
+    }
+  }
+  <root>
+    <prop1>simple</prop1>
+    <prop2>
+      <0> a </0>
+      <1> b </1>
+      <2> c </2>
+    </prop2>
+    <prop3>
+      <ob1>val-1</ob1>
+      <ob2>val-2</ob2>
+    </prop3>
+  </root>
+*/
+
+export function json2xml(obj, level = 1) {
+  const indent = '  '.repeat(level);
+  let xmlText = '';
+  if (level === 1 && typeof obj !== 'object') {
+    return `\n${indent}${obj.toString()}`;
+  }
+  for (const prop in obj) {
+    if (Array.isArray(obj[prop])) {
+      xmlText = `${xmlText}\n${indent}<${prop}> ${json2xml(obj[prop], level + 1)}\n${indent}</${prop}>`;
+    } else if (typeof obj[prop] === 'object') {
+      xmlText = `${xmlText}\n${indent}<${prop}> ${json2xml(obj[prop], level + 1)}\n${indent}</${prop}>`;
+    } else {
+      xmlText = `${xmlText}\n${indent}<${prop}> ${obj[prop].toString()} </${prop}>`;
+    }
+  }
+  return xmlText;
+}
+
 /* For changing JSON-Schema to a Sample Object, as per the schema (to generate examples based on schema) */
 export function schemaToSampleObj(schema, config = { }) {
   let obj = {};
@@ -364,6 +406,8 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
 /* Create Example object */
 export function generateExample(examples, example, schema, mimeType, includeReadOnly = true, outputType) {
   const finalExamples = [];
+
+  // First check if examples is provided
   if (examples) {
     for (const eg in examples) {
       let egContent = '';
@@ -420,7 +464,7 @@ export function generateExample(examples, example, schema, mimeType, includeRead
       egFormat = 'text';
     }
     finalExamples.push({
-      exampleId: '_default',
+      exampleId: 'Example',
       exampleSummary: '',
       exampleDescription: '',
       exampleType: mimeType,
@@ -433,14 +477,14 @@ export function generateExample(examples, example, schema, mimeType, includeRead
     if (schema) {
       if (schema.example) { // Note: schema.examples (plurals) is not allowed as per spec
         finalExamples.push({
-          exampleId: '_default',
+          exampleId: 'Example',
           exampleSummary: '',
           exampleDescription: '',
           exampleType: mimeType,
           exampleValue: schema.example,
           exampleFormat: 'text',
         });
-      } else if (mimeType.toLowerCase().includes('json') || mimeType.toLowerCase().includes('*/*')) {
+      } else if (mimeType.toLowerCase().includes('json') || mimeType.toLowerCase().includes('text') || mimeType.toLowerCase().includes('*/*')) {
         const egJson = schemaToSampleObj(
           schema,
           {
@@ -451,7 +495,7 @@ export function generateExample(examples, example, schema, mimeType, includeRead
         );
 
         finalExamples.push({
-          exampleId: '_default',
+          exampleId: 'Example',
           exampleSummary: '',
           exampleDescription: '',
           exampleType: mimeType,
@@ -459,18 +503,27 @@ export function generateExample(examples, example, schema, mimeType, includeRead
           exampleValue: outputType === 'text' ? JSON.stringify(egJson, null, 2) : egJson,
         });
       } else if (mimeType.toLowerCase().includes('xml')) {
-        // TODO: in case the mimeType is XML then generate an XML example
+        const xmlRootStart = (schema.xml && schema.xml.name) ? `<${schema.xml.name}>` : '<root>';
+        const xmlRootEnd = (schema.xml && schema.xml.name) ? `</${schema.xml.name}>` : '</root>';
+        const egJson = schemaToSampleObj(
+          schema,
+          {
+            includeReadOnly,
+            includeWriteOnly: true,
+            deprecated: true,
+          },
+        );
         finalExamples.push({
-          exampleId: '_default',
+          exampleId: 'Example',
           exampleSummary: '',
           exampleDescription: '',
           exampleType: mimeType,
-          exampleValue: '',
+          exampleValue: `${xmlRootStart}${json2xml(egJson)}\n${xmlRootEnd}`,
           exampleFormat: 'text',
         });
       } else {
         finalExamples.push({
-          exampleId: '_default',
+          exampleId: 'Example',
           exampleSummary: '',
           exampleDescription: '',
           exampleType: mimeType,
@@ -481,7 +534,7 @@ export function generateExample(examples, example, schema, mimeType, includeRead
     } else {
       // No Example or Schema provided (should never reach here)
       finalExamples.push({
-        exampleId: '_default',
+        exampleId: 'Example',
         exampleSummary: '',
         exampleDescription: '',
         exampleType: mimeType,
@@ -492,7 +545,6 @@ export function generateExample(examples, example, schema, mimeType, includeRead
   }
   return finalExamples;
 }
-
 
 export function getBaseUrlFromUrl(url) {
   const pathArray = url.split('/');

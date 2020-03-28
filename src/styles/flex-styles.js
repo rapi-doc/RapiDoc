@@ -5,11 +5,11 @@ export default html`
   .row, .col{
     display:flex;
   } 
-  .row{
+  .row {
     align-items:center;
     flex-direction: row;
   }
-  .col{
+  .col {
     align-items:stretch;
     flex-direction: column;
   }

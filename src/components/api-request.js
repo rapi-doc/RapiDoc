@@ -24,6 +24,8 @@ export default class ApiRequest extends LitElement {
     this.responseUrl = '';
     this.curlSyntax = '';
     this.activeResponseTab = 'response'; // allowed values: response, headers, curl
+    this.selectedRequestBodyType = '';
+    this.selectedRequestBodyExample = '';
   }
 
   static get properties() {
@@ -50,6 +52,8 @@ export default class ApiRequest extends LitElement {
       schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
       schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
       activeResponseTab: { type: String }, // internal tracking of response-tab not exposed as a attribute
+      selectedRequestBodyType: { type: String, attribute: 'selected-request-body-type' }, // internal tracking of selected request-body type
+      selectedRequestBodyExample: { type: String, attribute: 'selected-request-body-example' }, // internal tracking of selected request-body example
     };
   }
 
@@ -98,11 +102,27 @@ export default class ApiRequest extends LitElement {
         font-weight:bold;
         text-overflow: ellipsis;
       }
-      .response-message.error{
+      .response-message.error {
         color:var(--red);
       }
-      .response-message.success{
+      .response-message.success {
         color:var(--blue);
+      }
+
+      .file-input-container {
+        align-items:flex-end;
+      }
+      .file-input-container .input-set:first-child .file-input-remove-btn{
+        visibility:hidden;
+      }
+
+      .file-input-remove-btn{
+        font-size:16px;
+        color:var(--red);
+        outline: none;
+        border: none;
+        background:none;
+        cursor:pointer;
       }
 
       @media only screen and (min-width: 768px) {
@@ -191,7 +211,7 @@ export default class ApiRequest extends LitElement {
           ${paramSchema.type === 'array'
             ? html`
               <tag-input class="request-param" 
-                style = "width:160px; background:var(--input-bg);line-height:13px;" 
+                style = "width:160px; background:var(--input-bg);" 
                 data-ptype = "${paramType}"
                 data-pname = "${param.name}"
                 data-param-serialize-style = "${paramStyle}"
@@ -256,19 +276,14 @@ export default class ApiRequest extends LitElement {
     </div>`;
   }
 
+  // Request-Body Event Handlers
   onSelectExample(e) {
-    const exampleContainerEl = e.target.closest('.example-panel');
-    const exampleEls = [...exampleContainerEl.querySelectorAll('.example')];
+    this.selectedRequestBodyExample = e.target.value;
+  }
 
-    exampleEls.forEach((v) => {
-      if (v.dataset.example === e.target.value) {
-        v.style.display = 'block';
-        v.classList.add('example-selected'); // dont change class-name used for selection
-      } else {
-        v.style.display = 'none';
-        v.classList.remove('example-selected');
-      }
-    });
+  onMimeTypeChange(e) {
+    this.selectedRequestBodyType = e.target.value;
+    this.selectedRequestBodyExample = '';
   }
 
   requestBodyTemplate() {
@@ -279,303 +294,309 @@ export default class ApiRequest extends LitElement {
       return '';
     }
 
-    let mimeReqCount = 0;
-    const shortMimeTypes = {};
-    const bodyDescrHtml = this.request_body.description ? html`<div class="m-markdown">${unsafeHTML(marked(this.request_body.description || ''))}</div>` : '';
-    let textareaExampleHtml;
-    let formDataHtml = '';
-    let fileInputHtml = '';
-    const formDataTableRows = [];
-    let contentDataType = ''; // form-data, body-data, octet-body-data
-    const reqSchemaTree = {
-      json: '',
-      xml: '',
-    };
+    // Variable to store partial HTMLs
+    let reqBodyTypeSelectorHtml = '';
+    let reqBodyFileInputHtml = '';
+    let reqBodyFormHtml = '';
+    let reqBodySchemaHtml = '';
+    let reqBodyExampleHtml = '';
 
+    const requestBodyTypes = [];
     const content = this.request_body.content;
 
-    for (const mimeReq in content) {
-      // do not change shortMimeTypes values, they are referenced in other places
-      if (mimeReq.includes('json')) {
-        shortMimeTypes[mimeReq] = 'json';
-      } else if (mimeReq.includes('xml')) {
-        shortMimeTypes[mimeReq] = 'xml';
-      } else if (mimeReq.includes('text/plain')) {
-        shortMimeTypes[mimeReq] = 'text';
-      } else if (mimeReq.includes('form-urlencoded')) {
-        shortMimeTypes[mimeReq] = 'form-urlencoded';
-      } else if (mimeReq.includes('multipart/form-data')) {
-        shortMimeTypes[mimeReq] = 'multipart-form-data';
-      } else if (mimeReq.includes('application/octet-stream')) {
-        shortMimeTypes[mimeReq] = 'octet-stream'; // TODO: allow users to upload a file
+    for (const mimeType in content) {
+      requestBodyTypes.push({
+        mimeType,
+        schema: content[mimeType].schema,
+        example: content[mimeType].example,
+        examples: content[mimeType].examples,
+      });
+      if (!this.selectedRequestBodyType) {
+        this.selectedRequestBodyType = mimeType;
       }
-      const mimeReqObj = content[mimeReq];
-      let reqExamples = '';
-      try {
-        // Remove Circular references from RequestBody json-schema
-        mimeReqObj.schema = JSON.parse(JSON.stringify(mimeReqObj.schema));
-      } catch (err) {
-        console.error('RapiDoc: Unable to resolve circular refs in schema', mimeReqObj.schema); // eslint-disable-line no-console
-        return;
-      }
-      if (mimeReq.includes('json')) {
-        reqSchemaTree.json = schemaInObjectNotation(mimeReqObj.schema, {});
-      } else if (mimeReq.includes('xml')) {
-        reqSchemaTree.xml = schemaInObjectNotation(mimeReqObj.schema, {});
-      }
-      reqExamples = generateExample(
-        mimeReqObj.examples ? mimeReqObj.examples : '',
-        mimeReqObj.example ? mimeReqObj.example : '',
-        mimeReqObj.schema,
-        mimeReq,
-        false,
-        'text',
-      );
-      mimeReqObj.selectedExample = reqExamples[0] ? reqExamples[0].exampleId : '';
+    }
 
-      if (mimeReq.includes('octet-stream')) {
-        contentDataType = 'octet-body-data';
-        fileInputHtml = html`
-          <input spellcheck="false" type="file"  style="width:200px" 
-              class="request-body-param-file" 
-              data-ptype="${mimeReq}" 
-          />
-        `;
-      } else if (mimeReq.includes('json') || mimeReq.includes('xml') || mimeReq.includes('text/plain')) {
-        contentDataType = 'body-data';
-        textareaExampleHtml = html`
-          ${textareaExampleHtml}
-
-          <span class = 'example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}'>
-            <select style="min-width:100px; max-width:100%" @change='${(e) => this.onSelectExample(e)}'>
-              ${reqExamples.map((v) => html`<option value="${v.exampleId}"?selected=${v.exampleId === mimeReqObj.selectedExample} > 
-                ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary} 
-              </option>`)}
-            </select>
-            ${reqExamples.map((v) => html`
-              <div class="example ${v.exampleId === mimeReqObj.selectedExample ? 'example-selected' : ''}" data-example = '${v.exampleId}' style = "display: ${v.exampleId === mimeReqObj.selectedExample ? 'block' : 'none'}">
-                ${v.exampleSummary && v.exampleSummary.length > 80 ? html`<div style="padding: 4px 0"> ${v.exampleSummary} </div>` : ''}
-                ${v.exampleDescription ? html`<div class="m-markdown-small" style="padding: 4px 0"> ${unsafeHTML(marked(v.exampleDescription || ''))} </div>` : ''}
-                <textarea 
-                  class = "textarea request-body-param ${shortMimeTypes[mimeReq]}" 
-                  spellcheck = "false"
-                  data-ptype = "${mimeReq}" 
-                  style="width:100%; resize:vertical;display:${shortMimeTypes[mimeReq] === 'json' ? 'block' : 'none'};"
-                >${v.exampleValue}</textarea>
-              </div>  
-            `)}
-          </span>  
-
-        `;
-      } else if (mimeReq.includes('form') || mimeReq.includes('multipart-form')) {
-        contentDataType = 'form-data';
-        if (mimeReqObj.schema.properties) {
-          for (const fieldName in mimeReqObj.schema.properties) {
-            const fieldSchema = mimeReqObj.schema.properties[fieldName];
-            const fieldType = fieldSchema.type;
-            const arrayType = fieldSchema.type === 'array' ? fieldSchema.items.type : '';
-            formDataTableRows.push(html`
-            <tr> 
-              <td style="width:160px; min-width:100px;">
-                <div class="param-name">${fieldName}</div>
-                <div class="param-type">
-                  ${fieldType === 'array'
-                    ? `${fieldType} of ${arrayType}`
-                    : `${fieldType} ${fieldSchema.format ? `\u00a0(${fieldSchema.format})` : ''}`
-                  }
-                </div>
-              </td>  
-              <td style="width:160px; min-width:100px;">
-                ${fieldType === 'array'
-                  ? fieldSchema.items.format === 'binary'
-                    ? html`
-                    <div class="file-input-container">
-                      <div class='input-set'>
-                        <input 
-                          spellcheck = 'false'
-                          type = 'file'
-                          style = "width:200px" 
-                          class="request-form-param" 
-                          data-pname="${fieldName}" 
-                          data-ptype="${fieldType}"  
-                          data-array="true" 
-                        />
-                      </div>  
-                      <button class="m-btn primary try-btn" style="padding:4px 0px;width:50px; margin-top:5px" @click="${(e) => this.onAddFileInput(e, fieldName, fieldType)}">ADD</button>
-                    </div>  
-                    `
-                    : html`
-                      <tag-input class="request-form-param" 
-                        style="width:160px; background:var(--input-bg);line-height:13px;" 
-                        data-ptype="${fieldType}" 
-                        data-pname="${fieldName}"
-                        data-array="true"
-                        placeholder="add-multiple\u23ce"
-                      >
-                      </tag-input>
-                    `
-                  : html`<input 
-                      spellcheck="false"
-                      type="${fieldSchema.format === 'binary' ? 'file' : fieldSchema.format === 'password' ? 'password' : 'text'}"
-                      style="width:160px" 
-                      class="request-form-param" 
-                      data-pname="${fieldName}" 
-                      data-ptype="${fieldType}"  
-                      data-array="false" 
-                    />`
-                  }
-              </td>
-              <td>
-                <div class="param-constraint"></div>
-              </td>  
-            </tr>
-            ${fieldSchema.description
-              ? html`
-                <tr>
-                  <td style="border:none"></td>
-                  <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;"> 
-                    <span class="m-markdown-small">${unsafeHTML(marked(fieldSchema.description || ''))}</span>
-                  </td>
-                </tr>`
-              : ''
-            }`);
+    // MIME Type selecter
+    reqBodyTypeSelectorHtml = requestBodyTypes.length === 1
+      ? ''
+      : html`
+        <select style="min-width:100px; max-width:100%;  margin-bottom:-1px;" @change = '${(e) => this.onMimeTypeChange(e)}'>
+          ${requestBodyTypes.map((reqBody) => html`
+            <option value = '${reqBody.mimeType}' ?selected = '${reqBody.mimeType === this.selectedRequestBodyType}'>
+              ${reqBody.mimeType}
+            </option> `)
           }
-          formDataHtml = html`
-          <form class="${shortMimeTypes[mimeReq]}" onsubmit="event.preventDefault();">
-            <table style="width: 100%" class="m-table">
-              ${formDataTableRows}
-            </table>
-          </form>`;
-        } else {
-          formDataHtml = html`<textarea 
-            class = "textarea dynamic-form-param ${shortMimeTypes[mimeReq]}" 
-            spellcheck = "false"
-            data-ptype = "${mimeReq}"
-            style="resize:vertical;display:block; width:100%"
-          >${reqExamples[0].exampleValue}</textarea>
-          <span class="m-markdown-small">${unsafeHTML(marked(mimeReqObj.schema.description || ''))}</span>
-        `;
+        </select>
+      `;
+
+    // For Loop - Main
+    requestBodyTypes.forEach((reqBody) => {
+      let schemaAsObj;
+      let reqBodyExamples = [];
+
+      if (this.selectedRequestBodyType.includes('json') || this.selectedRequestBodyType.includes('xml') || this.selectedRequestBodyType.includes('text')) {
+        // Generate Example
+        if (reqBody.mimeType === this.selectedRequestBodyType) {
+          reqBodyExamples = generateExample(
+            reqBody.examples ? reqBody.examples : '',
+            reqBody.example ? reqBody.example : '',
+            reqBody.schema,
+            reqBody.mimeType,
+            false,
+            'text',
+          );
+          if (!this.selectedRequestBodyExample) {
+            this.selectedRequestBodyExample = (reqBodyExamples.length > 0 ? reqBodyExamples[0].exampleId : '');
+          }
+          reqBodyExampleHtml = html`
+            ${reqBodyExampleHtml}
+            <div class = 'example-panel border-top pad-top-8'>
+              ${reqBodyExamples.length === 1
+                ? ''
+                : html`
+                  <select style="min-width:100px; max-width:100%;  margin-bottom:-1px;" @change='${(e) => this.onSelectExample(e)}'>
+                    ${reqBodyExamples.map((v) => html`<option value="${v.exampleId}" ?selected=${v.exampleId === this.selectedRequestBodyExample} > 
+                      ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary ? v.exampleSummary : v.exampleId} 
+                    </option>`)}
+                  </select>
+                `
+              }
+              ${reqBodyExamples
+                .filter((v) => v.exampleId === this.selectedRequestBodyExample)
+                .map((v) => html`
+                <div class="example ${v.exampleId === this.selectedRequestBodyExample ? 'example-selected' : ''}" data-example = '${v.exampleId}'>
+                  ${v.exampleSummary && v.exampleSummary.length > 80 ? html`<div style="padding: 4px 0"> ${v.exampleSummary} </div>` : ''}
+                  ${v.exampleDescription ? html`<div class="m-markdown-small" style="padding: 4px 0"> ${unsafeHTML(marked(v.exampleDescription || ''))} </div>` : ''}
+                  <textarea 
+                    class = "textarea request-body-param ${reqBody.mimeType.substring(reqBody.mimeType.indexOf('/') + 1)}" 
+                    spellcheck = "false"
+                    data-ptype = "${reqBody.mimeType}" 
+                    style="width:100%; resize:vertical;"
+                  >${v.exampleValue}</textarea>
+                </div>  
+              `)}
+            </div>
+          `;
+        }
+      } else if (this.selectedRequestBodyType.includes('form-urlencoded') || this.selectedRequestBodyType.includes('form-data')) {
+        if (reqBody.mimeType === this.selectedRequestBodyType) {
+          const ex = generateExample(
+            reqBody.examples ? reqBody.examples : '',
+            reqBody.example ? reqBody.example : '',
+            reqBody.schema,
+            reqBody.mimeType,
+            false,
+            'text',
+          );
+          if (reqBody.schema) {
+            reqBodyFormHtml = this.formDataTemplate(reqBody.schema, reqBody.mimeType, (ex[0] ? ex[0].exampleValue : ''));
+          }
+        }
+      } else if (this.selectedRequestBodyType.includes('octet-stream')) {
+        if (reqBody.mimeType === this.selectedRequestBodyType) {
+          reqBodyFileInputHtml = html`
+            <div class = "small-font-size bold-text row">
+              <input type="file" style="max-width:100%" class="request-body-param-file" data-ptype="${reqBody.mimeType}" spellcheck="false" />
+            </div>  
+          `;
         }
       }
-      mimeReqCount++;
-    }
+
+      // Generate Schema
+      if (reqBody.mimeType.includes('json') || reqBody.mimeType.includes('xml') || reqBody.mimeType.includes('text')) {
+        schemaAsObj = schemaInObjectNotation(reqBody.schema, {});
+        if (this.schemaStyle === 'table') {
+          reqBodySchemaHtml = html`
+            ${reqBodySchemaHtml}
+            <schema-table
+              class = '${reqBody.mimeType.substring(reqBody.mimeType.indexOf('/') + 1)}'
+              style = 'display: ${this.selectedRequestBodyType === reqBody.mimeType ? 'block' : 'none'};'
+              render-style = '${this.renderStyle}'
+              .data = '${schemaAsObj}'
+              schema-expand-level = "${this.schemaExpandLevel}"
+              schema-description-expanded = "${this.schemaDescriptionExpanded}"
+            > </schema-table>
+          `;
+        } else if (this.schemaStyle === 'tree') {
+          reqBodySchemaHtml = html`
+            ${reqBodySchemaHtml}
+            <schema-tree
+              class = '${reqBody.mimeType.substring(reqBody.mimeType.indexOf('/') + 1)}'
+              style = 'display: ${this.selectedRequestBodyType === reqBody.mimeType ? 'block' : 'none'};'
+              render-style = '${this.renderStyle}'
+              .data = '${schemaAsObj}'
+              schema-expand-level = "${this.schemaExpandLevel}"
+              schema-description-expanded = "${this.schemaDescriptionExpanded}"
+            > </schema-tree>
+          `;
+        }
+      }
+    });
+
     return html`
-      <div class="table-title top-gap ${contentDataType === 'form-data' ? 'form_data' : 'body_data'} "> 
-        ${contentDataType === 'form-data' ? 'FORM' : 'BODY'} DATA ${this.request_body.required ? '(required)' : ''} 
-      </div>
-      ${bodyDescrHtml}
-      ${contentDataType === 'form-data'
-        ? html`${formDataHtml}`
-        : contentDataType === 'octet-body-data'
-          ? html`${fileInputHtml}`
-          : html`
+      <div class='request-body-container' data-selected-request-body-type="${this.selectedRequestBodyType}">
+        <div class="table-title top-gap row">
+          REQUEST BODY ${this.request_body.required ? html`<span class="mono-font" style='color:var(--red)'>*</span>` : ''} 
+          <span style = "font-weight:normal; margin-left:5px"> ${this.selectedRequestBodyType}</span>
+          <span style="flex:1"></span>
+          ${reqBodyTypeSelectorHtml}
+        </div>
+        ${this.request_body.description ? html`<div class="m-markdown" style="margin-bottom:12px">${unsafeHTML(marked(this.request_body.description))}</div>` : ''}
+        
+        ${(this.selectedRequestBodyType.includes('json') || this.selectedRequestBodyType.includes('xml') || this.selectedRequestBodyType.includes('text'))
+          ? html`
             <div class="tab-panel col" style="border-width:0 0 1px 0;">
               <div class="tab-buttons row" @click="${(e) => { if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; } }}">
                 <button class="tab-btn ${this.activeSchemaTab === 'model' ? 'active' : ''}"   data-tab = 'model'  >MODEL</button>
                 <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
-                <div style="flex:1"> </div>
-                <div style="color:var(--light-fg); align-self:center; font-size:var(--font-size-small); margin-top:8px;">
-                  ${mimeReqCount === 1
-                    ? `${Object.keys(shortMimeTypes)[0]}`
-                    : html`
-                      ${Object.keys(shortMimeTypes).map((k) => html`
-                        ${shortMimeTypes[k] === 'json'
-                          ? html`
-                            <input type='radio' 
-                              name='request_body_type' 
-                              value='${shortMimeTypes[k]}' 
-                              @change="${this.onMimeTypeChange}" 
-                              checked 
-                              style='margin:0 0 0 8px'
-                            />`
-                          : html`
-                            <input type='radio' 
-                              name='request_body_type' 
-                              value='${shortMimeTypes[k]}' 
-                              @change="${this.onMimeTypeChange}" 
-                              style='margin:0 0 0 8px'
-                            />`
-                          }
-                          ${shortMimeTypes[k]}
-                        `)
-                      }`
-                    }
-                </div>
               </div>
-              <div class ='tab-content col' style = 'flex:1; display:${this.activeSchemaTab === 'example' ? 'flex' : 'none'};'>
-                ${textareaExampleHtml}
-              </div>
-              <div class="tab-content col" style="flex:1; display:${this.activeSchemaTab === 'model' ? 'flex' : 'none'};">
-                ${Object.keys(shortMimeTypes).map((k) => html`
-                  ${this.schemaStyle === 'table'
-                    ? html`
-                      <schema-table
-                        class = '${shortMimeTypes[k]}'
-                        style = 'display: ${(shortMimeTypes[k] === 'json' ? 'block' : 'none')};'
-                        render-style = '${this.renderStyle}'
-                        .data = '${reqSchemaTree[shortMimeTypes[k]]}'
-                        schema-expand-level = "${this.schemaExpandLevel}"
-                        schema-description-expanded = "${this.schemaDescriptionExpanded}"
-                      > </schema-table>`
-                    : html`
-                      <schema-tree 
-                        class = '${shortMimeTypes[k]}'
-                        style = 'display: ${(shortMimeTypes[k] === 'json' ? 'block' : 'none')};'
-                        render-style = '${this.renderStyle}'
-                        .data = '${reqSchemaTree[shortMimeTypes[k]]}'
-                        schema-expand-level = "${this.schemaExpandLevel}"
-                        schema-description-expanded = "${this.schemaDescriptionExpanded}"
-                      > </schema-tree>`
-                  }
-                `)}
-              </div>
-            </div>
-          `
-      }`;
+              ${html`<div class="tab-content col" style="display: ${this.activeSchemaTab === 'model' ? 'block' : 'none'}"> ${reqBodySchemaHtml}</div>`}
+              ${html`<div class="tab-content col" style="display: ${this.activeSchemaTab === 'model' ? 'none' : 'block'}"> ${reqBodyExampleHtml}</div>`}
+            </div>`
+          : html`  
+            ${reqBodyFileInputHtml}
+            ${reqBodyFormHtml}`
+        }
+      </div>  
+    `;
   }
 
-  apiCallTemplate() {
-    // use default server url, if multiple overrides exists show select
-    let selectedServerHtml = this.serverUrl
-      ? html`<div style="font-weight:bold;padding-right:5px;">API SERVER: </div> ${this.serverUrl}`
-      : html`<div style="font-weight:bold;color:var(--red)">NO API Server Selected</div>`;
-
-    if (this.servers && this.servers.length > 0) {
-      // this.serverUrl = this.servers[0].url;
-      selectedServerHtml = html`
-      <div style="display:flex; flex-direction:column;">
-        <select style="min-width:100px;" @change='${(e) => { this.serverUrl = e.target.value; }}'>
-          ${this.servers.map((v) => html`<option value="${v.url}">${v.url} - ${v.description}</option>`)}
-        </select>
-        
-        <div style="display:flex; flex-direction:row; align-items:center; margin-top:10px;">
-          <div style="font-weight:bold;padding-right:5px;">API SERVER: </div>
-          <div> ${this.serverUrl ? this.serverUrl : html`<div style="font-weight:bold;color:var(--red)">NO API Server Selected</div>`}</div>
-        </div>
-      </div>
+  formDataTemplate(schema, mimeType, exampleValue = '') {
+    const formDataTableRows = [];
+    if (schema.properties) {
+      for (const fieldName in schema.properties) {
+        const fieldSchema = schema.properties[fieldName];
+        const fieldType = fieldSchema.type;
+        const arrayType = fieldSchema.type === 'array' ? fieldSchema.items.type : '';
+        formDataTableRows.push(html`
+        <tr> 
+          <td style="width:160px; min-width:100px;">
+            <div class="param-name">${fieldName}</div>
+            <div class="param-type">
+              ${fieldType === 'array'
+                ? `${fieldType} of ${arrayType}`
+                : `${fieldType} ${fieldSchema.format ? `\u00a0(${fieldSchema.format})` : ''}`
+              }
+            </div>
+          </td>  
+          <td style="width:160px; min-width:100px;">
+            ${fieldType === 'array'
+              ? fieldSchema.items.format === 'binary'
+                ? html`
+                <div class="file-input-container col" style='align-items:flex-end;' @click="${(e) => this.onAddRemoveFileInput(e, fieldName, mimeType)}">
+                  <div class='input-set row'>
+                    <input 
+                      type = 'file'
+                      style = "width:200px" 
+                      data-pname = "${fieldName}" 
+                      data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
+                      data-array = "false" 
+                      data-file-array = "true" 
+                    />
+                    <button class="file-input-remove-btn"> &#x2715; </button>
+                  </div>  
+                  <button class="m-btn primary file-input-add-btn" style="margin:2px 25px 0 0; padding:2px 6px;">ADD</button>
+                </div>  
+                `
+                : html`
+                  <tag-input
+                    style = "width:160px; background:var(--input-bg);" 
+                    data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
+                    data-pname = "${fieldName}"
+                    data-array = "true"
+                    placeholder = "add-multiple &#x2b90;"
+                  >
+                  </tag-input>
+                `
+              : html`<input 
+                  spellcheck = "false"
+                  type = "${fieldSchema.format === 'binary' ? 'file' : fieldSchema.format === 'password' ? 'password' : 'text'}"
+                  style = "width:200px" 
+                  data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
+                  data-pname = "${fieldName}" 
+                  data-array = "false" 
+                />`
+              }
+          </td>
+          <td>
+            <div class="param-constraint"></div>
+          </td>  
+        </tr>
+        ${fieldSchema.description
+          ? html`
+            <tr>
+              <td style="border:none"></td>
+              <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;"> 
+                <span class="m-markdown-small">${unsafeHTML(marked(fieldSchema.description || ''))}</span>
+              </td>
+            </tr>`
+          : ''
+        }`);
+      }
+      return html`
+        <table style="width:100%;" class="m-table">
+          ${formDataTableRows}
+        </table>
       `;
     }
 
     return html`
-    <div style="display:flex; align-items: center; margin:16px 0; font-size:var(--font-size-small);">
+      <textarea
+        class = "textarea dynamic-form-param ${mimeType}" 
+        spellcheck = "false"
+        data-pname="dynamic-form" 
+        data-ptype="${mimeType}"  
+        style="width:100%"
+      >${exampleValue}</textarea>
+      ${schema.description ? html`<span class="m-markdown-small">${unsafeHTML(marked(schema.description))}</span>` : ''}
+    `;
+  }
+
+  apiCallTemplate() {
+    let selectServerDropdownHtml = '';
+
+    if (this.servers && this.servers.length > 0) {
+      selectServerDropdownHtml = html`
+        <select style="min-width:100px;" @change='${(e) => { this.serverUrl = e.target.value; }}'>
+          ${this.servers.map((v) => html`<option value = "${v.url}"> ${v.url} - ${v.description} </option>`)}
+        </select>
+      `;
+    }
+    const selectedServerHtml = html`
+      <div style="display:flex; flex-direction:column;">
+        ${selectServerDropdownHtml}
+        ${this.serverUrl
+          ? html`
+            <div style="display:flex; align-items:baseline;">
+              <div style="font-weight:bold; padding-right:5px;">API Server</div> 
+              <span class = "gray-text"> ${this.serverUrl} </span>
+            </div>
+          `
+          : ''
+        }
+      </div>  
+    `;
+
+    return html`
+    <div style="display:flex; align-items:flex-end; margin:16px 0; font-size:var(--font-size-small);">
       <div style="display:flex; flex-direction:column; margin:0; width:calc(100% - 60px);">
         <div style="display:flex; flex-direction:row; align-items:center; overflow:hidden;"> 
           ${selectedServerHtml}
         </div>
         <div style="display:flex;">
-          <div style="padding-right:5px;">Authentication: </div>
+          <div style="font-weight:bold; padding-right:5px;">Authentication</div>
           ${this.api_keys.length > 0
-            ? html`<div style="font-weight:bold;color:var(--blue); overflow:hidden;"> 
+            ? html`<div style="color:var(--blue); overflow:hidden;"> 
                 ${this.api_keys.length === 1
                   ? `API Key '${this.api_keys[0].name}' in ${this.api_keys[0].in}`
                   : `${this.api_keys.length} API keys applied`
                 } 
               </div>`
-            : html`<div style="font-weight:bold; color:var(--red)">No API key applied</div>`
+            : html`<div style="color:var(--red)">No API key applied</div>`
           }
         </div>
       </div>
-      <button class="m-btn primary try-btn" style="padding: 6px 0px;width:60px; align-self:flex-start; margin:1px 0 0 5px;" @click="${this.onTryClick}">TRY</button>
+      <button class="m-btn primary" @click="${this.onTryClick}">TRY</button>
     </div>
     ${this.responseMessage === ''
       ? ''
@@ -615,18 +636,6 @@ export default class ApiRequest extends LitElement {
   }
   /* eslint-enable indent */
 
-  static onMimeTypeChange(e) {
-    const textareaEls = e.target.closest('.tab-panel').querySelectorAll('textarea.request-body-param');
-    const schemaTreeEls = e.target.closest('.tab-panel').querySelectorAll('schema-tree');
-    [...textareaEls].map((el) => {
-      el.style.display = el.classList.contains(e.target.value) ? 'block' : 'none';
-    });
-
-    [...schemaTreeEls].map((el) => {
-      el.style.display = el.classList.contains(e.target.value) ? 'block' : 'none';
-    });
-  }
-
   async onTryClick(e) {
     const me = this;
     const tryBtnEl = e.target;
@@ -637,14 +646,11 @@ export default class ApiRequest extends LitElement {
     let curlData = '';
     let curlForm = '';
     const requestPanelEl = e.target.closest('.request-panel');
-    const pathParamEls = [...requestPanelEl.querySelectorAll(".request-param[data-ptype='path']")];
-    const queryParamEls = [...requestPanelEl.querySelectorAll(".request-param[data-ptype='query']")];
-    const queryParamObjTypeEls = [...requestPanelEl.querySelectorAll(".request-param[data-ptype='query-object']")];
-    const headerParamEls = [...requestPanelEl.querySelectorAll(".request-param[data-ptype='header']")];
-    const formParamEls = [...requestPanelEl.querySelectorAll('.request-form-param')];
-    const dynFormParamEls = [...requestPanelEl.querySelectorAll('.dynamic-form-param')];
-    const bodyParamEls = [...requestPanelEl.querySelectorAll('.example-selected .request-body-param')];
-    const bodyParamFileEls = [...requestPanelEl.querySelectorAll('.request-body-param-file')];
+    const pathParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='path']")];
+    const queryParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='query']")];
+    const queryParamObjTypeEls = [...requestPanelEl.querySelectorAll("[data-ptype='query-object']")];
+    const headerParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='header']")];
+    const requestBodyContainerEl = requestPanelEl.querySelector('.request-body-container');
 
     fetchUrl = me.path;
     const fetchOptions = {
@@ -656,10 +662,10 @@ export default class ApiRequest extends LitElement {
       fetchUrl = fetchUrl.replace(`{${el.dataset.pname}}`, encodeURIComponent(el.value));
     });
 
-    // Collect Query Params
-    const urlQueryParam = new URLSearchParams('');
+    // Query Params
     if (queryParamEls.length > 0) {
-      queryParamEls.map((el) => {
+      const urlQueryParam = new URLSearchParams();
+      queryParamEls.forEach((el) => {
         if (el.dataset.array === 'false') {
           if (el.value !== '') {
             urlQueryParam.append(el.dataset.pname, el.value);
@@ -681,10 +687,12 @@ export default class ApiRequest extends LitElement {
           }
         }
       });
+      fetchUrl = `${fetchUrl}?${urlQueryParam.toString()}`;
     }
 
-    // Collect Query Params from Object
+    // Query Params (Dynamic - create from JSON)
     if (queryParamObjTypeEls.length > 0) {
+      const urlDynQueryParam = new URLSearchParams();
       queryParamObjTypeEls.map((el) => {
         try {
           let queryParamObj = {};
@@ -695,32 +703,29 @@ export default class ApiRequest extends LitElement {
             if (typeof queryParamObj[key] === 'object') {
               if (Array.isArray(queryParamObj[key])) {
                 if (paramSerializeStyle === 'spaceDelimited') {
-                  urlQueryParam.append(key, queryParamObj[key].join(' '));
+                  urlDynQueryParam.append(key, queryParamObj[key].join(' '));
                 } else if (paramSerializeStyle === 'pipeDelimited') {
-                  urlQueryParam.append(key, queryParamObj[key].join('|'));
+                  urlDynQueryParam.append(key, queryParamObj[key].join('|'));
                 } else {
                   if (paramSerializeExplode === 'true') { // eslint-disable-line no-lonely-if
                     queryParamObj[key].forEach((v) => {
-                      urlQueryParam.append(key, v);
+                      urlDynQueryParam.append(key, v);
                     });
                   } else {
-                    urlQueryParam.append(key, queryParamObj[key]);
+                    urlDynQueryParam.append(key, queryParamObj[key]);
                   }
                 }
               }
             } else {
-              urlQueryParam.append(key, queryParamObj[key]);
+              urlDynQueryParam.append(key, queryParamObj[key]);
             }
           }
+          fetchUrl = `${fetchUrl}?${urlDynQueryParam.toString()}`;
         } catch (err) {
           console.log('RapiDoc: unable to parse %s into object', el.value); // eslint-disable-line no-console
         }
       });
     }
-    if (urlQueryParam.toString().trim()) {
-      fetchUrl = `${fetchUrl}?${urlQueryParam.toString()}`;
-    }
-
 
     // Add authentication Query-Param if provided
     this.api_keys
@@ -744,13 +749,14 @@ export default class ApiRequest extends LitElement {
       curlHeaders += ` -H "Accept: ${this.accept}"`;
     }
 
-    // Submit Header Params
+    // Add Header Params
     headerParamEls.map((el) => {
       if (el.value) {
         fetchOptions.headers[el.dataset.pname] = el.value;
         curlHeaders += ` -H "${el.dataset.pname}: ${el.value}"`;
       }
     });
+
     // Add Authentication Header if provided
     this.api_keys
       .filter((v) => (v.in === 'header'))
@@ -759,117 +765,89 @@ export default class ApiRequest extends LitElement {
         curlHeaders += ` -H "${v.name}: ${v.finalKeyValue}"`;
       });
 
-    // Submit Form Params (url-encoded or form-data)
-    if (formParamEls.length >= 1) {
-      const formEl = requestPanelEl.querySelector('form');
-      const formUrlParams = new URLSearchParams();
-      const formDataParams = new FormData();
-      formParamEls.forEach((el) => {
-        if (el.dataset.array === 'false') {
-          if (el.type !== 'file') {
-            if (el.value !== '') {
-              formUrlParams.append(el.dataset.pname, el.value);
+    // Request Body Params
+    if (requestBodyContainerEl) {
+      const requestBodyType = requestBodyContainerEl.dataset.selectedRequestBodyType;
+      if (requestBodyType.includes('form-urlencoded')) {
+        // url-encoded Form Params (dynamic) - Parse JSON and generate Params
+        const formUrlDynamicTextAreaEl = requestPanelEl.querySelector("[data-ptype='dynamic-form']");
+        if (formUrlDynamicTextAreaEl) {
+          const val = formUrlDynamicTextAreaEl.value;
+          const formUrlDynParams = new URLSearchParams();
+          let proceed = true;
+          let tmpObj;
+          if (val) {
+            try {
+              tmpObj = JSON.parse(val);
+            } catch (err) {
+              proceed = false;
+              console.warn('RapiDoc: Invalid JSON provided', err); // eslint-disable-line no-console
+            }
+          } else {
+            proceed = false;
+          }
+          if (proceed) {
+            for (const prop in tmpObj) {
+              formUrlDynParams.append(prop, JSON.stringify(tmpObj[prop]));
+            }
+            fetchOptions.body = formUrlDynParams;
+            curlData = ` -d ${formUrlDynParams.toString()}`;
+          }
+        } else {
+          // url-encoded Form Params (regular)
+          const formUrlEls = [...requestPanelEl.querySelectorAll("[data-ptype='form-urlencode']")];
+          const formUrlParams = new URLSearchParams();
+          formUrlEls
+            .filter((v) => (v.type !== 'file'))
+            .forEach((el) => {
+              if (el.dataset.array === 'false') {
+                if (el.value) {
+                  formUrlParams.append(el.dataset.pname, el.value);
+                }
+              } else {
+                const vals = (el.value && Array.isArray(el.value)) ? el.value.join(',') : '';
+                formUrlParams.append(el.dataset.pname, vals);
+              }
+            });
+          fetchOptions.body = formUrlParams;
+          curlData = ` -d ${formUrlParams.toString()}`;
+        }
+      } else if (requestBodyType.includes('form-data')) {
+        const formDataParams = new FormData();
+        const formDataEls = [...requestPanelEl.querySelectorAll("[data-ptype='form-data']")];
+        formDataEls.forEach((el) => {
+          if (el.dataset.array === 'false') {
+            if (el.type === 'file' && el.files[0]) {
+              formDataParams.append(el.dataset.pname, el.files[0], el.files[0].name);
+              curlForm += ` -F "${el.dataset.pname}=@${el.files[0].name}"`;
+            } else if (el.value) {
               formDataParams.append(el.dataset.pname, el.value);
               curlForm += ` -F "${el.dataset.pname}=${el.value}"`;
             }
-          } else if (el.files[0]) {
-            formUrlParams.append(el.dataset.pname, el.files[0]);
-            formDataParams.append(el.dataset.pname, el.files[0]);
-            curlForm = `${curlForm} -F "${el.dataset.pname}=@${el.value}"`;
-          }
-        } else {
-          // eslint-disable-next-line no-lonely-if
-          if (el.type === 'file') {
-            formUrlParams.append(el.dataset.pname, el.files[0]);
-            formDataParams.append(`${el.dataset.pname}[]`, el.files[0]);
-            curlForm = `${curlForm} -F "${el.dataset.pname}[]=@${el.value}"`;
-          } else {
-            const vals = (el.value && Array.isArray(el.value)) ? el.value : [];
-            vals.forEach((v) => {
-              formUrlParams.append(el.dataset.pname, v);
-              formDataParams.append(el.dataset.pname, v);
-              curlForm += ` -F "${el.dataset.pname}=${v}"`;
+          } else if (el.value && Array.isArray(el.value)) {
+            el.value.forEach((v) => {
+              curlForm = `${curlForm} -F "${el.dataset.pname}[]=${v}"`;
             });
+            formDataParams.append(el.dataset.pname, el.value.join(','));
           }
-        }
-      });
-
-      if (formEl.classList.contains('form-urlencoded')) {
-        fetchOptions.headers['Content-Type'] = 'application/x-www-form-urlencoded; charset=utf-8';
-        curlHeaders += ' -H "Content-Type: application/x-www-form-urlencoded"';
-        fetchOptions.body = formUrlParams;
-      } else {
-        // fetchOptions.headers['Content-Type'] = 'multipart/form-data' // Dont set content type for fetch, coz the browser must auto-generate boundry value too
-        curlHeaders += ' -H "Content-Type: multipart/form-data"';
+        });
         fetchOptions.body = formDataParams;
-      }
-    } else if (dynFormParamEls.length === 1) {
-      // Submit Dynamic Form Params (url-encoded or form-data)
-      const val = dynFormParamEls[0].value;
-      const formUrlParams = new URLSearchParams();
-      const formDataParams = new FormData();
-
-      let proceed = true;
-      let tmpObj;
-      if (val) {
-        try {
-          tmpObj = JSON.parse(val);
-        } catch (err) {
-          proceed = false;
-          console.warn('RapiDoc: Invalid JSON provided', err); // eslint-disable-line no-console
+      } else if (requestBodyType.includes('octet-stream')) {
+        const bodyParamFileEl = requestPanelEl.querySelector('.request-body-param-file');
+        if (bodyParamFileEl && bodyParamFileEl.files[0]) {
+          fetchOptions.body = bodyParamFileEl.files[0];
+          curlData = ` --data-binary @${bodyParamFileEl.files[0].name}`;
         }
-      } else {
-        proceed = false;
-      }
-      if (proceed) {
-        for (const prop in tmpObj) {
-          formUrlParams.append(prop, JSON.stringify(tmpObj[prop]));
-          formDataParams.append(prop, JSON.stringify(tmpObj[prop]));
-          curlForm += ` -F "${prop}=${JSON.stringify(tmpObj[prop])}"`;
+      } else if (requestBodyType.includes('json') || requestBodyType.includes('xml') || requestBodyType.includes('text')) {
+        const exampleTextAreaEl = requestPanelEl.querySelector('.example-selected textarea');
+        if (exampleTextAreaEl && exampleTextAreaEl.value) {
+          fetchOptions.body = exampleTextAreaEl.value;
+          curlData = ` -d ${JSON.stringify(exampleTextAreaEl.value.replace(/(\r\n|\n|\r)/gm, ''))}`;
         }
       }
-      if (dynFormParamEls[0].classList.contains('form-urlencoded')) {
-        fetchOptions.headers['Content-Type'] = 'application/x-www-form-urlencoded; charset=utf-8';
-        curlHeaders += ' -H "Content-Type: application/x-www-form-urlencoded"';
-        fetchOptions.body = formUrlParams;
-      } else {
-        // fetchOptions.headers['Content-Type'] = 'multipart/form-data' // Dont set content type for fetch, coz the browser must auto-generate boundry value too
-        curlHeaders += ' -H "Content-Type: multipart/form-data"';
-        fetchOptions.body = formDataParams;
-      }
-    }
-
-    if (bodyParamFileEls.length >= 1) { // Submit Body Params (file)
-      fetchOptions.headers['Content-Type'] = bodyParamFileEls[0].dataset.ptype;
-      curlHeaders += ` -H "Content-Type: ${bodyParamFileEls[0].dataset.ptype}"`;
-      fetchOptions.body = bodyParamFileEls[0].files[0];
-      curlData = ` -d ${bodyParamFileEls[0].files[0]}`;
-    } else if (bodyParamEls.length >= 1) { // Submit Body Params (json/xml/text)
-      if (bodyParamEls.length === 1) {
-        fetchOptions.headers['Content-Type'] = bodyParamEls[0].dataset.ptype;
-        curlHeaders += ` -H "Content-Type: ${bodyParamEls[0].dataset.ptype}"`;
-        fetchOptions.body = bodyParamEls[0].value;
-        curlData = ` -d ${JSON.stringify(bodyParamEls[0].value.replace(/(\r\n|\n|\r)/gm, ''))}`;
-      } else {
-        const mimeTypeRadioEl = e.target.closest('.request-panel').querySelector("input[name='request_body_type']:checked");
-        const selectedBody = mimeTypeRadioEl === null ? 'json' : mimeTypeRadioEl.value;
-        let bodyData = '';
-        if (selectedBody === 'json') {
-          bodyData = requestPanelEl.querySelector('.request-body-param.json').value;
-          fetchOptions.headers['Content-Type'] = 'application/json; charset=utf-8';
-          curlHeaders += ' -H "Content-Type: application/json"';
-        } else if (selectedBody === 'xml') {
-          bodyData = requestPanelEl.querySelector('.request-body-param.xml').value;
-          fetchOptions.headers['Content-Type'] = 'application/xml; charset=utf-8';
-          curlHeaders += ' -H "Content-Type: application/xml"';
-        } else if (selectedBody === 'text') {
-          bodyData = requestPanelEl.querySelector('.request-body-param.text').value;
-          fetchOptions.headers['Content-Type'] = 'text/plain; charset=utf-8';
-          curlHeaders += ' -H "Content-Type: text/plain"';
-        }
-        fetchOptions.body = bodyData;
-        curlData = ` -d ${JSON.stringify(bodyData.replace(/(\r\n|\n|\r)/gm, ''))}`;
-      }
+      // Common for all request-body
+      fetchOptions.headers['Content-Type'] = `${requestBodyType}; charset=utf-8; boundary=RAPIDOC`;
+      curlHeaders += ` -H "Content-Type: ${requestBodyType}"`;
     }
 
     me.responseUrl = '';
@@ -925,16 +903,44 @@ export default class ApiRequest extends LitElement {
     }
   }
 
-  onAddFileInput(e, pname, ptype) {
-    const el = e.currentTarget.closest('.file-input-container').querySelector('.input-set');
+
+  onAddRemoveFileInput(e, pname, ptype) {
+    if (e.target.tagName.toLowerCase() !== 'button') {
+      return;
+    }
+
+    if (e.target.classList.contains('file-input-remove-btn')) {
+      // Remove File Input Set
+      const el = e.target.closest('.input-set');
+      el.remove();
+      return;
+    }
+    const el = e.target.closest('.file-input-container');
+
+    // Add File Input Set
+
+    // Container
+    const newInputContainerEl = document.createElement('div');
+    newInputContainerEl.setAttribute('class', 'input-set row');
+
+    // File Input
     const newInputEl = document.createElement('input');
     newInputEl.type = 'file';
     newInputEl.style = 'width:200px; margin-top:2px;';
-    newInputEl.classList.add('request-form-param');
     newInputEl.setAttribute('data-pname', pname);
-    newInputEl.setAttribute('data-ptype', ptype);
-    newInputEl.setAttribute('data-array', 'true');
-    el.appendChild(newInputEl);
+    newInputEl.setAttribute('data-ptype', ptype.includes('form-urlencode') ? 'form-urlencode' : 'form-data');
+    newInputEl.setAttribute('data-array', 'false');
+    newInputEl.setAttribute('data-file-array', 'true');
+
+    // Remover Button
+    const newRemoveBtnEl = document.createElement('button');
+    newRemoveBtnEl.setAttribute('class', 'file-input-remove-btn');
+    newRemoveBtnEl.innerHTML = '&#x2715;';
+
+    newInputContainerEl.appendChild(newInputEl);
+    newInputContainerEl.appendChild(newRemoveBtnEl);
+    el.insertBefore(newInputContainerEl, e.target);
+    // el.appendChild(newInputContainerEl);
   }
 
   downloadResponseBlob() {
@@ -971,5 +977,6 @@ export default class ApiRequest extends LitElement {
     }
   }
 }
+
 // Register the element with the browser
 customElements.define('api-request', ApiRequest);
