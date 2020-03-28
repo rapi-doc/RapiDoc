@@ -4,54 +4,31 @@ info:
   version: 1.0.0
   description: >
     Following OpenAPI spec demonstrate various ways to pass form params.
-      - you may pass predefined form params
-      - you may create dynamic form params by defining a form-param as an object, 
-        in that case each key of the object will be treated as a seperate param
-
-        ```
-         openapi: 3.0.0
-          info:
-            title:  Dynamic Form Params 
-            version: 1.0.0
-          paths:
-            /submit-1:
-              post:
-                summary: Dynamic Params
-                requestBody:
-                  content:
-                    application/x-www-form-urlencoded:
-                      schema:
-                        type: object
-                responses:
-                  '200':
-                    description: successful operation
-            
-            /submit-2:
-              post:
-                summary: Fixed Params
-                requestBody:
-                  content:
-                    application/x-www-form-urlencoded:
-                      schema:
-                        type: object
-                        properties:
-                          name:
-                            type: string
-                          age:
-                            type: integer
-                responses:
-                  '200':
-                    description: successful operation
-        ```        
+      - You may pass predefined form params
+      - You may create dynamic form params by defining a form-param as an object, 
 paths:
-  /submit-1:
+  /dynamic-form-parameters:
     post:
       tags:
         - Form Params
       summary: Dynamic Params
+      description: |
+        ```
+        /dynamic-form-parameters:
+          post:
+            summary: Dynamic Params
+            requestBody:
+              content:
+                multipart/form-data:
+                  schema:
+                    type: object
+            responses:
+              '200':
+                description: successful operation
+        ```
       requestBody:
         content:
-          application/x-www-form-urlencoded:
+          multipart/form-data:
             schema:
               type: object
               description: >
@@ -79,14 +56,14 @@ paths:
       responses:
         '200':
           description: OK                    
-  /submit-2:
+  /fixed-form-parameters:
     post:
       tags:
         - Form Params
       summary: Fixed Params  
       requestBody:
         content:
-          application/x-www-form-urlencoded:
+          multipart/form-data:
             schema:
               type: object
               description: name and age are fixed form params
