@@ -61,10 +61,6 @@ export default class ApiResponse extends LitElement {
         color:var(--light-fg);
       }
       .top-gap{margin-top:16px;}
-      .descr-text{
-        color:var(--light-fg);
-        font-family:var(--font-regular);
-      }
       .example-panel{
         font-size:var(--font-size-small);
         margin:0;
@@ -179,13 +175,18 @@ export default class ApiResponse extends LitElement {
   responseHeaderListTemplate(respHeaders) {
     return html`
       <div style="padding:16px 0 8px 0" class="resp-headers small-font-size upper bold-text">Response Headers:</div> 
-      <table style="padding-bottom:16px;" class='small-font-size'>
+      <table style="padding-bottom:16px;" class='small-font-size mono-font'>
         ${respHeaders.map((v) => html`
           <tr>
-            <td style="padding:0 12px;vertical-align: top;"> ${v.name}</td> 
-            <td style="padding:0 12px;vertical-align: top; line-height:14px" class="descr-text">
-              <span class="m-markdown">${unsafeHTML(marked(v.description || ''))}</span>
-              ${(v.schema && v.schema.example) ? html`<br/><span style="font-weight:bold">EXAMPLE:</span> ${v.schema.example}` : ''}
+            <td style="vertical-align: top;"> ${v.name}</td> 
+            <td style="vertical-align: top; padding:0 5px;"> 
+              ${v.schema.type ? v.schema.type : ''}
+            </td> 
+            <td style="vertical-align: top;">
+              <div class="regular-font m-markdown m-markdown-small">${unsafeHTML(marked(v.description || ''))}</div>
+            </td>
+            <td style="vertical-align: top;">
+              ${v.schema.example ? v.schema.example : ''}
             </td>
           </tr>
         `)}
@@ -194,7 +195,7 @@ export default class ApiResponse extends LitElement {
 
   mimeTypeDropdownTemplate(mimeTypes) {
     return html`
-      <select @change="${(e) => { this.selectedMimeType = e.target.value; }}">
+      <select @change="${(e) => { this.selectedMimeType = e.target.value; }}" style='margin-bottom: -1px; z-index:1'>
         ${mimeTypes.map((mimeType) => html`<option value='${mimeType}'> ${mimeType} </option>`)}
       </select>`;
   }
