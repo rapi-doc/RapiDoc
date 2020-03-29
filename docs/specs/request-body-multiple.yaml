@@ -4,7 +4,7 @@ info:
   description:  Request Body
   version: 1.0.0
 paths:
-  /cost:
+  /item-price:
     post:
       summary: Multiple Request body
       description: Request body with multiple `media types` 
@@ -13,7 +13,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Cost"
+              $ref: "#/components/schemas/Price"
             examples:
               USD:
                 description: Cost in `US Dollars`
@@ -23,7 +23,7 @@ paths:
                     currency: USD
                   }
               INR:
-                description: Cost in `Indian Rupees`
+                description: Cost in `Indian Price`
                 value: |
                   {
                     amount: 700,
@@ -31,53 +31,34 @@ paths:
                   }
           application/xml:
             schema:
-              $ref: "#/components/schemas/Person"
+              $ref: "#/components/schemas/Price"
           application/text:
             schema:
-              $ref: "#/components/schemas/Person"
+              $ref: "#/components/schemas/Price"
             examples:
-              example-1:
+              price-in-indian-rupee:
                 value: |
-                  Person:
-                    fullName:
-                      firstName: Mickey
-                      lastName: Mouse
-                    age: 9
-                    hobbies: music, movies
-              example-2:
+                  amount: 700,
+                  currency: INR
+              price-in-us-dollars:
                 value: |
-                  Person:
-                    fullName:
-                      firstName: Donald
-                      lastName: Duck
-                    age: 9
-                    hobbies: swiming, fishing
+                  amount: 10,
+                  currency: USD
           multipart/form-data: 
             schema:         
-              $ref: "#/components/schemas/Person"
+              $ref: "#/components/schemas/Price"
           application/x-www-form-urlencoded:
             schema:         
-              $ref: "#/components/schemas/Person"
+              $ref: "#/components/schemas/Price"
           application/octet-stream:
             schema:
-              $ref: "#/components/schemas/Person"
+              $ref: "#/components/schemas/Price"
       responses:
         200:
           description: Register response
 components:
   schemas:
-    Person:
-      type: object
-      properties:
-        Name:
-          type: string
-        Age:
-          type: integer
-        hobbies:
-          type: array
-          items:
-            type: string
-    Cost:
+    Price:
       type: object
       properties:
         amount:
