@@ -1,0 +1,68 @@
+openapi: 3.0.0
+info:
+  title: Request Body
+  description:  Request Body
+  version: 1.0.0
+paths:
+  /item-price:
+    post:
+      summary: Multiple Request body
+      description: Request body with multiple `media types` 
+      requestBody:
+        description: Even though you can define multiple request bodies, but only one can be submitted 
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Price"
+            examples:
+              USD:
+                description: Cost in `US Dollars`
+                value: |
+                  {
+                    amount: 10,
+                    currency: USD
+                  }
+              INR:
+                description: Cost in `Indian Price`
+                value: |
+                  {
+                    amount: 700,
+                    currency: INR
+                  }
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/Price"
+          application/text:
+            schema:
+              $ref: "#/components/schemas/Price"
+            examples:
+              price-in-indian-rupee:
+                value: |
+                  amount: 700,
+                  currency: INR
+              price-in-us-dollars:
+                value: |
+                  amount: 10,
+                  currency: USD
+          multipart/form-data: 
+            schema:         
+              $ref: "#/components/schemas/Price"
+          application/x-www-form-urlencoded:
+            schema:         
+              $ref: "#/components/schemas/Price"
+          application/octet-stream:
+            schema:
+              $ref: "#/components/schemas/Price"
+      responses:
+        200:
+          description: Register response
+components:
+  schemas:
+    Price:
+      type: object
+      properties:
+        amount:
+          type: integer
+        currency:
+          type: string
+        

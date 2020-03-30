@@ -61,7 +61,7 @@
   <div class="banner" id="banner" style="max-height:255px; overflow:hidden">
     <div style="display:flex; justify-content: center; margin-top:20px">
       <div style="display:block">
-        <img id="main-img" class="shadow3 hide-in-mobile" src="./images/light_ss.png" />
+        <img id="main-img" class="shadow3 hide-in-mobile" style="filter:opacity(0.85)"src="./images/light_ss.png" />
       </div>
     </div>
   </div>
@@ -72,8 +72,16 @@
     <div style="display:flex; flex-direction: column; ">
       <a id="att"></a>
       <h2> Attributes</h2> 
-      <div class='table-block' style="display:flex; flex-direction: column;">
+      <div style="display:flex">
+        <a href="#att-general"> General</a> &nbsp; |  &nbsp; 
+        <a href="#att-colors">  Colors & Fonts</a> &nbsp; |  &nbsp; 
+        <a href="#att-nav"> Navigation Bar</a> &nbsp; |  &nbsp; 
+        <a href="#att-layout"> Layout</a> &nbsp; |  &nbsp; 
+        <a href="#att-sections"> Sections</a> &nbsp; |  &nbsp; 
+        <a href="#att-server"> API Server</a>
+      </div>
 
+      <div class='table-block' style="display:flex; flex-direction: column;">
         <a id="att-general"></a>
         <div class='table-title' id="general"> General </div>
         <table class="m-table">
@@ -170,12 +178,12 @@
           <tr>
             <td class="mono bold right">mono-font </td>
             <td class="gray">Font Name(s) to be used for monospaced text </td>
-            <td class='small-font'>Monaco, 'Andale Mono', 'Roboto Mono', 'Consolas'</td>
+            <td class='small-font'>Monaco, 'Andale Mono', 'Roboto Mono', 'Consolas' monospace</td>
           </tr>
         </table>
 
         <a id="att-nav"></a>
-        <div class='table-title' id="nav-bar-colors"> Navigation bar colors (only applicable in read-mode)</div>
+        <div class='table-title' id="nav-bar-colors"> Navigation bar settings (only applicable in read-mode)</div>
         <table class="m-table">
           <tr>
             <td class=" attr-col mono bold right">nav-bg-color </td>
@@ -201,7 +209,15 @@
             <td class=" attr-col mono bold right">nav-accent-color </td>
             <td class="gray"> Current selected item indicator</td>
             <td class='default-col'></td>
+          </tr> 
+          <tr>
+            <td class=" attr-col mono bold right">nav-item-spacing </td>
+            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> default, compact, relaxed</span></span> 
+              Controls navigation item spacing 
+            </td>
+            <td class='default-col'>default</td>
           </tr>          
+
         </table>
 
         <a id="att-layout"></a>

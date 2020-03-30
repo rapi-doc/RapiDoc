@@ -85,6 +85,7 @@ export default class RapiDoc extends LitElement {
       navHoverBgColor: { type: String, attribute: 'nav-hover-bg-color' },
       navHoverTextColor: { type: String, attribute: 'nav-hover-text-color' },
       navAccentColor: { type: String, attribute: 'nav-accent-color' },
+      navItemSpacing: { type: String, attribute: 'nav-item-spacing' },
 
       // Filters
       matchPaths: { type: String, attribute: 'match-paths' },
@@ -95,21 +96,22 @@ export default class RapiDoc extends LitElement {
   // Startup
   connectedCallback() {
     super.connectedCallback();
-    if (!this.renderStyle || !'read view'.includes(this.renderStyle)) { this.renderStyle = 'view'; }
-    if (!this.schemaStyle || !'tree table'.includes(this.schemaStyle)) { this.schemaStyle = 'tree'; }
-    if (!this.theme || !'light dark'.includes(this.theme)) { this.theme = 'light'; }
-    if (!this.defaultSchemaTab || !'example model'.includes(this.defaultSchemaTab)) { this.defaultSchemaTab = 'model'; }
+    if (!this.renderStyle || !'read, view,'.includes(`${this.renderStyle},`)) { this.renderStyle = 'view'; }
+    if (!this.schemaStyle || !'tree, table,'.includes(`${this.schemaStyle},`)) { this.schemaStyle = 'tree'; }
+    if (!this.theme || !'light, dark,'.includes(`${this.theme},`)) { this.theme = 'light'; }
+    if (!this.defaultSchemaTab || !'example, model,'.includes(`${this.defaultSchemaTab},`)) { this.defaultSchemaTab = 'model'; }
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) { this.schemaExpandLevel = 99999; }
-    if (!this.schemaDescriptionExpanded || !'true false'.includes(this.schemaDescriptionExpanded)) { this.schemaDescriptionExpanded = 'false'; }
+    if (!this.schemaDescriptionExpanded || !'true, false,'.includes(`${this.schemaDescriptionExpanded},`)) { this.schemaDescriptionExpanded = 'false'; }
     if (!this.responseAreaHeight) {
       this.responseAreaHeight = '300px';
     }
-    if (!this.allowTry || !'true false'.includes(this.allowTry)) { this.allowTry = 'true'; }
+    if (!this.allowTry || !'true, false,'.includes(`${this.allowTry},`)) { this.allowTry = 'true'; }
     if (!this.apiKeyName) { this.apiKeyName = ''; }
     if (!this.apiKeyValue) { this.apiKeyValue = ''; }
     if (!this.oauthReceiver) { this.oauthReceiver = 'oauth-receiver.html'; }
-    if (!this.sortTags || !'true false'.includes(this.sortTags)) { this.sortTags = 'false'; }
-    if (!this.sortEndpointsBy || !'method path'.includes(this.sortEndpointsBy)) { this.sortEndpointsBy = 'path'; }
+    if (!this.sortTags || !'true, false,'.includes(`${this.sortTags},`)) { this.sortTags = 'false'; }
+    if (!this.sortEndpointsBy || !'method, path,'.includes(`${this.sortEndpointsBy},`)) { this.sortEndpointsBy = 'path'; }
+    if (!this.navItemSpacing || !'compact, relaxed, default,'.includes(`${this.navItemSpacing},`)) { this.navItemSpacing = 'default'; }
 
     if (!this.showComponents || !'true false'.includes(this.showComponents)) { this.showComponents = 'false'; }
     if (!this.showExtraInfo || !'true false'.includes(this.showExtraInfo)) { this.showExtraInfo = 'false'; }
@@ -151,7 +153,7 @@ export default class RapiDoc extends LitElement {
       <style>
         :host {
           --layout:${this.layout ? `${this.layout}` : 'row'};
-          --font-mono:${this.monoFont ? `${this.monoFont}` : 'Monaco, "Andale Mono", "Roboto Mono", Consolas'}; 
+          --font-mono:${this.monoFont ? `${this.monoFont}` : 'Monaco, "Andale Mono", "Roboto Mono", Consolas, monospace'}; 
           --font-regular:${this.regularFont ? `${this.regularFont}` : 'rapidoc, "Open Sans", BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif'};
 
           --font-size-mono: 13px;
@@ -159,6 +161,7 @@ export default class RapiDoc extends LitElement {
           --font-size-small: 12px;
           --border-radius: 2px;
           --resp-area-height: ${this.responseAreaHeight};
+          --nav-item-padding: ${this.navItemSpacing === 'relaxed' ? '10px' : this.navItemSpacing === 'compact' ? '3px 10px' : '6px 10px'};
 
           display:flex;
           flex-direction: column;
@@ -234,7 +237,7 @@ export default class RapiDoc extends LitElement {
 
         .nav-bar-path {
           font-size: var(--font-size-small);
-          padding: 10px 30px 10px 10px;
+          padding: var(--nav-item-padding);
         }
         .nav-bar-info {
           font-size: var(--font-size-regular);
@@ -341,6 +344,7 @@ export default class RapiDoc extends LitElement {
           animation: spin 2s linear infinite;
         }
         .expanded-endpoint-body{ padding:24px 0px;}
+        .expanded-endpoint-body.deprecated{ filter:opacity(0.6); }
         .divider { border-top:2px solid var(--primary-color); width:100%; }
 
         @keyframes spin {
@@ -464,7 +468,7 @@ export default class RapiDoc extends LitElement {
           ${(this.allowSpecUrlLoad === 'false')
             ? ''
             : html`
-              <input id="spec-url" type="text" class="header-input" placeholder="Spec URL" value="${this.specUrl ? this.specUrl : ''}" @change="${this.onSepcUrlChange}" spellcheck="false" >
+              <input id="spec-url" type="text" style="font-size:var(--font-size-small)" class="header-input mono-font" placeholder="Spec URL" value="${this.specUrl ? this.specUrl : ''}" @change="${this.onSepcUrlChange}" spellcheck="false" >
               <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x2b90;</div> 
             `
           } 
@@ -581,7 +585,7 @@ export default class RapiDoc extends LitElement {
 
   contactInfoTemplate() {
     return html`
-    <div style="font-size:13px; margin-top:8px; line-height: 18px;">
+    <div style="font-size:calc(var(--font-size-regular) - 1px); margin-top:8px; line-height: 18px;">
       ${this.resolvedSpec.info.contact.email
         ? html`
           <div>

@@ -58,6 +58,13 @@ export default html`
     border-color:var(--yellow); 
     background-color:var(--light-yellow); 
   }
+
+  .m-endpoint > .endpoint-head.deprecated:hover,
+  .m-endpoint > .endpoint-head.deprecated.expanded {
+    border-color:var(--border-color); 
+    filter:opacity(0.6);
+  }
+
   .m-endpoint .endpoint-body {
     flex-wrap:wrap;
     padding:16px 0px 0 0px;
@@ -70,9 +77,14 @@ export default html`
   .m-endpoint .endpoint-body.put{ border-color:var(--orange); }
   .m-endpoint .endpoint-body.post{border-color:var(--green);}
   .m-endpoint .endpoint-body.get{ border-color:var(--blue); }
+  .m-endpoint .endpoint-body.deprecated{ 
+    border-color:var(--border-color);
+    filter:opacity(0.6);
+  }
 
   .endpoint-head .deprecated{
-    text-decoration: line-through red;
+    color: var(--light-fg);
+    filter:opacity(0.6);
   }
 
   .summary{
@@ -103,7 +115,8 @@ export default html`
   .method.put{ border: 2px solid var(--orange); }
   .method.post{ border: 2px solid var(--green); }
   .method.get{ border: 2px solid var(--blue); }
-
+  .method.get.deprecated{ border: 2px solid var(--border-color); }
+  
   .req-resp-container{
     display: flex;
     margin-top:16px;

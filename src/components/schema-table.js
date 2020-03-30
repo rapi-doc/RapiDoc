@@ -26,7 +26,7 @@ export default class SchemaTable extends LitElement {
       ${SchemaStyles}
       <style>
       .table {
-        font-size:12px;
+        font-size:var(--font-size-small);
         text-align: left;
         line-height:18px;
       }
@@ -79,7 +79,7 @@ export default class SchemaTable extends LitElement {
 
         <div style='padding: 5px 0; color:var(--fg3)'> 
           <span class='bold-text upper'> ${this.data['::type']}</span> 
-          <span>${unsafeHTML(marked(this.data['::description'] || ''))}</span>
+          <span class='m-markdown' >${unsafeHTML(marked(this.data['::description'] || ''))}</span>
         </div>
         <div style = "border:1px solid var(--light-border-color)">
           <div style='display:flex; height:18px; background-color: var(--bg2); line-height:18px; padding:8px 2px; border-bottom:1px solid var(--light-border-color);'>
@@ -97,7 +97,7 @@ export default class SchemaTable extends LitElement {
   }
 
   generateTree(data, prevDataType = 'object', prevKey = '', prevDescr = '', level = 0) {
-    const leftPadding = 16 * level;
+    const leftPadding = 16 * level; // 2 space indentation at each level
     if (!data) {
       return html`<div class="null" style="display:inline;">null</div>`;
     }
@@ -137,7 +137,7 @@ export default class SchemaTable extends LitElement {
                 }
               </div>
               <div class='td key-type'>${prevDataType.startsWith('xxx-') ? '' : prevDataType}</div>
-              <div class='td key-descr'>${unsafeHTML(marked(prevDescr || ''))}   </div>
+              <div class='td key-descr m-markdown m-markdown-small'>${unsafeHTML(marked(prevDescr || ''))}   </div>
             </div>`
           : ''
         }

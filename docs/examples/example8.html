@@ -48,18 +48,25 @@
 
         docEl.setAttribute('api-key-name','api_key');
         docEl.setAttribute('api-key-location','header');
-        docEl.setAttribute('api-key-value',keyInputEl.value);
+        docEl.setAttribute('api-key-value', keyInputEl.value);
+        if (keyInputEl.value.trim()) {
+          document.getElementById('header-msg').innerHTML = "<span style='color:lime'>Auth Key Applied</span>";
+        } else {
+          document.getElementById('header-msg').innerHTML = "<span style='color:orangered'>Removed Key</span>"
+        }
       }
     </script>
   </head>
   <body>
     <rapi-doc id='thedoc' 
       spec-url='https://petstore.swagger.io/v2/swagger.json'
-      allow-authentication ="false"
+      allow-authentication = "false"
+      regular-font = "Varela Round"
     > 
-        <div slot='header' style='display:flex; margin:0 16px;'> 
+        <div slot='header' > 
           <input class='txt' id='key-val-input' type='text' placeholder='API Key' value='special-key' spellcheck='false' >
-          <button class='btn' onclick='setApiKey()'>Authorize</button>
+          <button class='btn' onclick='setApiKey()'>UPDATE KEY</button>
+          <span id="header-msg"></span>
         </div>
     </rapi-doc>
   </body>

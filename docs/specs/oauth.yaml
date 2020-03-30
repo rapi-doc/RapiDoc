@@ -241,10 +241,8 @@ components:
           scopes:
             wiki: Read and modify your repositories' wikis
             pullrequest:write: Read and modify your repositories and their pull requests
-            pipeline:variable: Access your repositories' build pipelines and configure
-              their variables
-            project:write: Read and modify your workspace's project settings, and
-              read and transfer repositories within your workspace's projects
+            pipeline:variable: Access your repositories' build pipelines and configure their variables
+            project:write: Read and modify your workspace's project settings, and read and transfer repositories within your workspace's projects
             pipeline:write: Access and rerun your repositories' build pipelines
             snippet: Read your snippets
             repository:delete: Delete your repositories
@@ -259,8 +257,7 @@ components:
             account: Read your account information
             repository:admin: Administer your repositories
             pullrequest: Read your repositories and their pull requests
-            project: Read your workspace's project settings and read repositories
-              contained within your workspace's projects
+            project: Read your workspace's project settings and read repositories contained within your workspace's projects
             team: Read your team membership information
             team:write: Read and modify your team membership information
             account:write: Read and modify your account information

@@ -4,11 +4,9 @@ export default class TagInput extends LitElement {
   /* eslint-disable indent */
   render() {
     return html`
-    <div class='tags' tabindex="0" contenteditable="true">
+    <div class='tags' tabindex="0">
       ${Array.isArray(this.value) && this.value.length > 0
-        ? html`${this.value.map((v) => html`
-          <span contenteditable="false" class='tag'> ${v} </span>
-        `)}`
+        ? html`${this.value.map((v) => html`<span class='tag'> ${v} </span>`)}`
         : ''
       }
       <input type="text" class='editor' @paste="${this.afterPaste}" @keydown="${this.afterKeyDown}" placeholder="${this.placeholder}">
@@ -43,9 +41,11 @@ export default class TagInput extends LitElement {
         e.target.value = '';
       }
     } else if (e.keyCode === 8) {
-      if (Array.isArray(this.value) && this.value.length > 0) {
-        this.value.splice(-1);
-        this.value = [...this.value];
+      if (e.target.value.length === 0) {
+        if (Array.isArray(this.value) && this.value.length > 0) {
+          this.value.splice(-1);
+          this.value = [...this.value];
+        }
       }
     }
   }
@@ -73,7 +73,7 @@ export default class TagInput extends LitElement {
         color:var(--fg3);
         border-radius:var(--border-radius);
         word-break: break-all;
-        font-size: calc(var(--font-size-small) + 1px);
+        font-size: var(--font-size-small);
       }
       .tag:hover ~ #cursor {
         display: block;

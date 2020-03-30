@@ -6,11 +6,6 @@ info:
     Various ways to define API servers in the spec including variables
     
     ```
-      openapi: 3.0.2
-      info:
-        version: '1.0'
-        title: Server Variables
-        description: For testing Server variables
       servers:
         - url: 'http://example.com/api'
           description: Test server (just for example)
@@ -45,25 +40,6 @@ info:
               enum:
                 - v1
                 - v2
-      paths:
-        /server-variables:
-          get:
-            summary: Server Variable. 
-            discription: Computed server url should be shown against `API SERVER`. 
-            responses:
-              '200':
-                description: successful operation
-                content:
-                  application/json:
-                    schema:
-                      type: object
-                      properties:
-                        name:
-                          description: Person Name
-                          type: string
-                        age:
-                          description: Person Age
-                          type: integer
     ```                     
 servers:
   - url: 'http://example.com/api'

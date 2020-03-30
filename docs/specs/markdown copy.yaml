@@ -1,12 +1,17 @@
-openapi: 3.0.0
+swagger: "2.0"
 info:
   title: Markdown Content
-  description: Test case to show markdown support. For more info check specification (http://spec.openapis.org/oas/v3.0.3)
   version: 1.0.0
+  description: Test case to show markdown support. For more info check specification (http://spec.openapis.org/oas/v3.0.3)
+basePath: /v1
+consumes:
+- application/json
+produces:
+- application/json
 paths:
   /markdown:
-    get:
-      summary: Markdown in Description. 
+    post:
+      summary: Markdown Content      
       description: |
         Endpoint to create and initiate a pipeline. 
 
@@ -44,52 +49,61 @@ paths:
 
         ### Code
         ```
-        $ curl -X POST -is -u username:password 
-          -H "Content-Type: application/json" https://example.com
-          -d '{
-          "target": {
-            "ref_type": "branch", 
-            "type": "pipeline_ref_target", 
-            "ref_name": "master"
-          }'
-        }
+          $ curl -X POST -is -u username:password 
+            -H "Content-Type: application/json" https://example.com
+            -d '{
+            "target": {
+              "ref_type": "branch", 
+              "type": "pipeline_ref_target", 
+              "ref_name": "master"
+            }'
+          }
+
         ```
-        ### Multiline mono-spaced text gets converted to single line 
-
-        `First line
-         second line
-         third line
-        `
-
       parameters:
-        - name: full-name
-          in: query
-          description: |
-           Field descriptions can contain `Markdown` (Markdown must be monospaced)
-           Must be 
-           ```
-            - At least 3 characters long
-            - Cannot have space
-            - Cannot contain only alphabets
-            - First Letter must be capital
-           ```
-          required: true
-          schema:
-            type: string
-            minimum: 3
         - name: height
           in: query
-          description: Height in `inches` (inches must be monospaced)
+          description: height in inches
           required: true
           schema:
             type: integer
             format: int32
             minimum: 12
             maximum: 120
+        - name: full-name
+          in: query
+          description: Name of a person
+          required: true
+          schema:
+            type: string
+            minimum: 3
+        - name: social-connection
+          in: query
+          description: facebook, linkedin, github, instagram, twitter etc 
+          schema:
+            type: string
+            format: url
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+            format: email
+        - name: email-password
+          in: query
+          required: true
+          schema:
+            type: string
+            format: password
+        - name: date-of-birth
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
         - name: interests
           in: query
           required: true
-          description: Default is `hiking` (hiking must be monospaced)
           schema:
             type: array
             minItems: 1
@@ -100,19 +114,35 @@ paths:
                 - computers
                 - hiking
                 - swiming
-              default: hiking 
-
+                - movies
+                - music
+                - dancing
+                - reading
+                - painting
+              default: hiking   
+        - name: tags
+          in: query
+          description: Add tags to the person (not-exploded)
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
       responses:
         '200':
-          description: Response Schema field contains `Markdown` contents  (Markdown must be monospaced)
+          description: Markdown used in schema field description
           content:
             application/json:
               schema:
                 type: object
-                description: Description of `Person` object (Person must be monospaced)
+                description: Description of **Person** object (Person must be bold)
                 properties:
+                  age:
+                    description: Person's **Age** (age must be bold)
+                    type: integer
                   fullName:
-                    description: Person's Full name is made up of `firstName` and `lastName` (firstName and lastName must be mono-spaced).
+                    description: Person's Full name
                     type: object
                     properties:
                       firstName:
@@ -122,20 +152,27 @@ paths:
                         description: |
                           `Last name` (last name must be monospaced)
                         type: string
+                  dependentIds:
+                    type: array
+                    description: IDs of Dependents .
+                    items:
+                      type: integer
                   dependentNames:
                     type: array
-                    description: Array of **Dependents** (Dependents must be bold).
+                    description: Full Name of **Dependents** (Dependents must be bold).
                     items:
                       type: object
-                      description: Full Name Object is made up of `firstName` and `lastName` (firstName and lastName must be mono-spaced).
                       properties:
-                        fullName:
+                        firstNameParts:
                           description: Parts of **First Name** (First Name must be bold)
                           type: object
                           properties:
+                            firstNamePrefix:
+                              description: Prefix to be used for the First Name
+                              type: string
                             firstName:
-                              description: Dependent First Name
+                              description: Actual First Name
                               type: string
-                            lastName:
-                              description: Dependent Last Name
-                              type: string
+                        dependentLastName:
+                          description: Dependent Last Name
+                          type: string

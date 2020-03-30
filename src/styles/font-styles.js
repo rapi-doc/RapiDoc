@@ -17,7 +17,7 @@ export default html`
     margin-bottom:8px;
   }
   
-  .tiny-title { font-size:13px; font-weight:bold; }
+  .tiny-title { font-size:calc(var(--font-size-small) + 1px); font-weight:bold; }
   .regular-font-size { font-size:var(--font-size-regular); }
   .small-font-size { font-size:var(--font-size-small); }
   .primary-text{ color: var(--primary-color); }
@@ -47,10 +47,12 @@ export default html`
     margin-block-end: 0.2em;
   }
   p { margin-block-start: 0.5em; }
+
   code,
-  pre{
+  pre {
+    margin: 0px;
     font-family: var(--font-mono);
-    font-size:var(--font-size-mono);
+    font-size: calc(var(--font-size-mono) - 1px);
   }
 
   .m-markdown,
@@ -61,19 +63,19 @@ export default html`
   .m-markdown p,
   .m-markdown span{
     line-height:18px;
-    font-size:13px;
+    font-size:calc(var(--font-size-regular) - 1px);
   }
   
   .m-markdown li{
     line-height:22px;
-    font-size:13px;
+    font-size:calc(var(--font-size-regular) - 1px);
   }
 
   .m-markdown-small p,
   .m-markdown-small span,
   .m-markdown-small li{
     color:var(--light-fg);
-    font-size:12px;
+    font-size:var(--font-size-small);
     line-height:18px;
     margin-top:0;
   }
@@ -93,32 +95,58 @@ export default html`
   }
   .m-markdown-small code,
   .m-markdown code {
-    background-color: var(--bg3);
     padding: 1px 6px;
     border-radius: 2px;
     color: var(--red);
+    background-color: var(--bg3);
     font-size: calc(var(--font-size-mono) - 1px);
     line-height: var(--font-mono-line-height);
   }
 
+  .m-markdown-small code {
+    font-size: calc(var(--font-size-mono) - 2px);
+  }
+
+  .m-markdown-small pre,
   .m-markdown pre {
     white-space: pre-wrap;
-    background-color: var(--code-bg);
-    color:var(--code-fg);
-    padding: 12px 14px 15px 14px;
     overflow-x: auto;
     line-height: normal;
     border-radius: 2px;
     border: 1px solid var(--code-border-color);
   }
+
+  .m-markdown pre {
+    padding: 12px;
+    background-color: var(--code-bg);
+    color:var(--code-fg);
+  }
+
+  .m-markdown-small pre {
+    padding: 2px 4px;
+    background-color: var(--bg3);
+    color: var(--fg3);
+  }
+
+  .m-markdown-small pre code,
   .m-markdown pre code {
     border:none;
-    background-color:transparent;
-    color: var(--code-fg);
-    font-size: var(--font-size-mono);
+    padding:0;
   }
+
+  .m-markdown pre code {
+    color: var(--code-fg);
+    background-color: var(--code-bg);
+  }
+
+  .m-markdown-small pre code {
+    color:var(--fg2);
+    background-color: var(--bg3);
+  }
+
+
   .m-markdown ul,
-  .m-markdown ol{
+  .m-markdown ol {
     padding-inline-start:30px;
   }
   .m-markdown-small a,
@@ -127,10 +155,6 @@ export default html`
   }
   .m-markdown img{ max-width:100%; }
 
-  .m-markdown.m-markdown-small code{
-    font-size:calc(var(--font-size-small) - 1px);
-    color:var(--light-fg);
-  }
   /* Markdown table */
 
   .m-markdown table {
@@ -147,7 +171,7 @@ export default html`
   }
   .m-markdown td, 
   .m-markdown th{
-    font-size: 12px;
+    font-size: var(--font-size-small);
     line-height: 16px;
     padding: 6px;
     vertical-align: top;
