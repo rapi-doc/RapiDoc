@@ -2,6 +2,7 @@
 // import JsonRefs from 'json-refs';
 import converter from 'swagger2openapi';
 import Swagger from 'swagger-client';
+import marked from 'marked';
 
 export default async function ProcessSpec(specUrl, sortTags = false, sortEndpointsBy, attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '') {
   let jsonParsedSpec;
@@ -31,30 +32,30 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
     }
 
     /*
-                                                    // JsonRefs cant load yaml files, so first use converter
-                                                    if (typeof specUrl === 'string') {
-                                                      // resolvedRefSpec = await JsonRefs.resolveRefsAt(specUrl, resolveOptions);
-                                                      convertedSpec = await converter.convertUrl(specUrl, convertOptions);
-                                                      specLocation = convertedSpec.source.trim();
-                                                      if (specLocation.startsWith('/')) {
-                                                        url = new URL(`.${specLocation}`, window.location.href);
-                                                        specLocation = url.pathname;
-                                                      }
-                                                    } else {
-                                                      // resolvedRefSpec = await JsonRefs.resolveRefs(specUrl, resolveOptions);
-                                                      convertedSpec = await converter.convertObj(specUrl, convertOptions);
-                                                      url = new URL(window.location.href);
-                                                      specLocation = url.pathname;
-                                                    }
-                                                    // convertedSpec = await converter.convertObj(resolvedRefSpec.resolved, convertOptions);
-                                                    resolveOptions = {
-                                                      resolveCirculars: false,
-                                                      location: specLocation, // location is important to specify to resolve relative external file references when using JsonRefs.resolveRefs() which takes an JSON object
-                                                    };
-                                                    resolvedRefSpec = await JsonRefs.resolveRefs(convertedSpec.openapi, resolveOptions);
-                                                    // jsonParsedSpec = convertedSpec.openapi;
-                                                    jsonParsedSpec = resolvedRefSpec.resolved;
-                                                    */
+      // JsonRefs cant load yaml files, so first use converter
+      if (typeof specUrl === 'string') {
+        // resolvedRefSpec = await JsonRefs.resolveRefsAt(specUrl, resolveOptions);
+        convertedSpec = await converter.convertUrl(specUrl, convertOptions);
+        specLocation = convertedSpec.source.trim();
+        if (specLocation.startsWith('/')) {
+          url = new URL(`.${specLocation}`, window.location.href);
+          specLocation = url.pathname;
+        }
+      } else {
+        // resolvedRefSpec = await JsonRefs.resolveRefs(specUrl, resolveOptions);
+        convertedSpec = await converter.convertObj(specUrl, convertOptions);
+        url = new URL(window.location.href);
+        specLocation = url.pathname;
+      }
+      // convertedSpec = await converter.convertObj(resolvedRefSpec.resolved, convertOptions);
+      resolveOptions = {
+        resolveCirculars: false,
+        location: specLocation, // location is important to specify to resolve relative external file references when using JsonRefs.resolveRefs() which takes an JSON object
+      };
+      resolvedRefSpec = await JsonRefs.resolveRefs(convertedSpec.openapi, resolveOptions);
+      // jsonParsedSpec = convertedSpec.openapi;
+      jsonParsedSpec = resolvedRefSpec.resolved;
+    */
   } catch (err) {
     console.info('RapiDoc: %c There was an issue while parsing the spec %o ', 'color:orangered', err); // eslint-disable-line no-console
   }
@@ -65,6 +66,8 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
   const tags = groupByTags(jsonParsedSpec, sortTags, sortEndpointsBy);
 
   const components = getComponents(jsonParsedSpec);
+
+  const extraInfo = getInfoHeaders(jsonParsedSpec);
 
   // Security Scheme
   const securitySchemes = [];
@@ -134,6 +137,7 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
   servers = jsonParsedSpec.servers;
   const parsedSpec = {
     info: jsonParsedSpec.info,
+    extraInfo,
     tags,
     components,
     // pathGroups,
@@ -157,6 +161,33 @@ function groupByPaths(openApiSpec) {
   return paths;
 }
 */
+function getInfoHeaders(openApiSpec) {
+  const headers = [];
+  const arr = marked(openApiSpec.info.description).match(/[^\r\n]+/g);
+  for (let i = 0; i < arr.length; i++) {
+    if (!arr[i]) {
+      break;
+    }
+
+    if (arr[i].startsWith('<h1') || arr[i].startsWith('<h2') || arr[i].startsWith('<h3')) {
+      let level = 1;
+      if (arr[i].startsWith('<h2')) {
+        level = 2;
+      } else if (arr[i].startsWith('<h3')) {
+        level = 3;
+      }
+
+      const id = strip(arr[i]).replace(' ', '-').replace('.', '').toLowerCase();
+      headers.push({ level, name: strip(arr[i]), id });
+    }
+  }
+  return headers || [];
+}
+
+function strip(html) {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  return doc.body.textContent || '';
+}
 
 function getComponents(openApiSpec) {
   const components = [];
@@ -226,7 +257,7 @@ function getComponents(openApiSpec) {
     components.push(cmp);
   }
 
-  return components;
+  return components || [];
 }
 
 function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {

@@ -61,6 +61,7 @@ export default class RapiDoc extends LitElement {
       // Hide/Show Sections & Enable Disable actions
       showHeader: { type: String, attribute: 'show-header' },
       showInfo: { type: String, attribute: 'show-info' },
+      showExtraInfo: { type: String, attribute: 'show-extra-info' },
       allowAuthentication: { type: String, attribute: 'allow-authentication' },
       allowTry: { type: String, attribute: 'allow-try' },
       allowSpecUrlLoad: { type: String, attribute: 'allow-spec-url-load' },
@@ -110,6 +111,9 @@ export default class RapiDoc extends LitElement {
     if (!this.sortTags || !'true false'.includes(this.sortTags)) { this.sortTags = 'false'; }
     if (!this.sortEndpointsBy || !'method path'.includes(this.sortEndpointsBy)) { this.sortEndpointsBy = 'path'; }
 
+    if (!this.showComponents || !'true false'.includes(this.showComponents)) { this.showComponents = 'false'; }
+    if (!this.showExtraInfo || !'true false'.includes(this.showExtraInfo)) { this.showExtraInfo = 'false'; }
+
     window.addEventListener('hashchange', () => {
       this.scrollTo(window.location.hash.substring(1));
     }, true);
@@ -124,325 +128,326 @@ export default class RapiDoc extends LitElement {
   }
 
   /* eslint-disable indent */
-    render() {
-            const newTheme = {
-                bg1: isValidHexColor(this.bgColor) ? this.bgColor : '',
-                fg1: isValidHexColor(this.textColor) ? this.textColor : '',
-                headerColor: isValidHexColor(this.headerColor) ? this.headerColor : '',
-                primaryColor: isValidHexColor(this.primaryColor) ? this.primaryColor : '',
-                navBgColor: isValidHexColor(this.navBgColor) ? this.navBgColor : '',
-                navTextColor: isValidHexColor(this.navTextColor) ? this.navTextColor : '',
-                navHoverBgColor: isValidHexColor(this.navHoverBgColor) ? this.navHoverBgColor : '',
-                navHoverTextColor: isValidHexColor(this.navHoverTextColor) ? this.navHoverTextColor : '',
-                navAccentColor: isValidHexColor(this.navAccentColor) ? this.navAccentColor : '',
-            };
-            return html`
-      ${FontStyles}
-      ${InputStyles}
-      ${FlexStyles}
-      ${TableStyles}
-      ${EndpointStyles}
-      ${this.theme === 'dark' ? SetTheme('dark', newTheme) : SetTheme('light', newTheme)}
+  render() {
+    const newTheme = {
+      bg1: isValidHexColor(this.bgColor) ? this.bgColor : '',
+      fg1: isValidHexColor(this.textColor) ? this.textColor : '',
+      headerColor: isValidHexColor(this.headerColor) ? this.headerColor : '',
+      primaryColor: isValidHexColor(this.primaryColor) ? this.primaryColor : '',
+      navBgColor: isValidHexColor(this.navBgColor) ? this.navBgColor : '',
+      navTextColor: isValidHexColor(this.navTextColor) ? this.navTextColor : '',
+      navHoverBgColor: isValidHexColor(this.navHoverBgColor) ? this.navHoverBgColor : '',
+      navHoverTextColor: isValidHexColor(this.navHoverTextColor) ? this.navHoverTextColor : '',
+      navAccentColor: isValidHexColor(this.navAccentColor) ? this.navAccentColor : '',
+    };
+    return html`
+    ${FontStyles}
+    ${InputStyles}
+    ${FlexStyles}
+    ${TableStyles}
+    ${EndpointStyles}
+    ${this.theme === 'dark' ? SetTheme('dark', newTheme) : SetTheme('light', newTheme)}
 
-      <style>
-        :host {
-          --layout:${this.layout ? `${this.layout}` : 'row'};
-          --font-mono:${this.monoFont ? `${this.monoFont}` : 'Monaco, "Andale Mono", "Roboto Mono", Consolas'}; 
-          --font-regular:${this.regularFont ? `${this.regularFont}` : 'rapidoc, "Open Sans", BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif'};
+    <style>
+      :host {
+        --layout:${this.layout ? `${this.layout}` : 'row'};
+        --font-mono:${this.monoFont ? `${this.monoFont}` : 'Monaco, "Andale Mono", "Roboto Mono", Consolas'}; 
+        --font-regular:${this.regularFont ? `${this.regularFont}` : 'rapidoc, "Open Sans", BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif'};
 
-          --font-size-mono: 13px;
-          --font-size-regular: 14px;
-          --font-size-small: 12px;
-          --border-radius: 2px;
-          --resp-area-height: ${this.responseAreaHeight};
+        --font-size-mono: 13px;
+        --font-size-regular: 14px;
+        --font-size-small: 12px;
+        --border-radius: 2px;
+        --resp-area-height: ${this.responseAreaHeight};
 
-          display:flex;
-          flex-direction: column;
-          min-width:360px;
-          width:100%;
-          height:100%;
-          margin:0;
-          padding:0;
-          overflow: hidden;
-          letter-spacing:normal;
-          color:var(--fg);
-          background-color:var(--bg);
-          font-family:var(--font-regular);
-        }
-        .body {
-          display:flex;
-          height:100%;
-          width:100%;
-          box-sizing: border-box;
-          overflow:hidden;
-        }
+        display:flex;
+        flex-direction: column;
+        min-width:360px;
+        width:100%;
+        height:100%;
+        margin:0;
+        padding:0;
+        overflow: hidden;
+        letter-spacing:normal;
+        color:var(--fg);
+        background-color:var(--bg);
+        font-family:var(--font-regular);
+      }
+      .body {
+        display:flex;
+        height:100%;
+        width:100%;
+        box-sizing: border-box;
+        overflow:hidden;
+      }
+      .nav-bar {
+        width:0;
+        height:100%;
+        overflow: hidden;
+        color:var(--nav-text-color);
+        background-color: var(--nav-bg-color);
+        box-sizing:border-box;
+        line-height: 16px;
+        display:none;
+        position:relative;
+        flex-direction:column;
+        flex-wrap:nowrap;
+        word-break:break-word;
+      }
+      .nav-scroll {
+        overflow-x:hidden;
+        overflow-y: overlay;
+      }
+      .nav-scroll::-webkit-scrollbar-track{
+        background:transparent;
+      }
+      .nav-scroll::-webkit-scrollbar{
+        display:none;
+        width: 12px;
+        background-color: transparent;
+      }
+      .nav-scroll:hover::-webkit-scrollbar{
+        display:block;
+      }
+      .nav-scroll::-webkit-scrollbar-thumb {
+        border: 3px solid var(--nav-bg-color);
+        border-width: 0 3px;
+        background-color: var(--nav-hover-bg-color);
+      }
+      .nav-bar-tag {
+        font-size: var(--font-size-regular);
+        border-left:4px solid transparent;
+        border-top: 1px solid var(--nav-hover-bg-color);
+        font-weight:bold;
+        padding: 15px 30px 15px 10px;
+        text-transform: capitalize;
+      }
+
+      .nav-bar-components,
+      .nav-bar-info,
+      .nav-bar-tag,
+      .nav-bar-path {
+        display:flex;
+        cursor:pointer;
+        border-left:4px solid transparent;
+      }
+
+      .nav-bar-path {
+        font-size: var(--font-size-small);
+        padding: 10px 30px 10px 10px;
+      }
+      .nav-bar-info {
+        font-size: var(--font-size-regular);
+        padding: 16px 10px;
+        font-weight:bold;
+      }
+      .nav-bar-header {
+        border: 1px solid var(--nav-text-color);
+        font-size: var(--font-size-regular + 1);
+        padding: 15px 7px;
+        font-weight: bold;
+        background-color: transparent;
+        color: var(--nav-text-color);
+        text-transform: uppercase;
+        border-radius: 5px;
+        margin: 10px 20px 10px 5px;
+      }
+
+      .nav-bar-info.active,
+      .nav-bar-tag.active,
+      .nav-bar-path.active {
+        border-left:4px solid var(--nav-accent-color);
+        color:var(--nav-hover-text-color);
+      }
+
+      .nav-bar-info:hover,
+      .nav-bar-tag:hover,
+      .nav-bar-path:hover {
+        color:var(--nav-hover-text-color);
+        background-color:var(--nav-hover-bg-color);
+      }
+
+      .main-content { 
+        margin:0;
+        padding: 0; 
+        display:block;
+        flex:1;
+        height:100%;
+        overflow-y: scroll;
+        overflow-x: hidden;
+      }
+      .main-content--read-mode{
+        color: var(--fg3)
+      }
+      .main-content::-webkit-scrollbar-track{
+        background:transparent;
+      }
+      .main-content::-webkit-scrollbar{
+        width: 8px;
+        height: 8px;
+        background-color: transparent;
+      }
+      .main-content::-webkit-scrollbar-thumb {
+        background-color: var(--border-color);
+      }
+
+      .section-gap,
+      .section-gap--read-mode { 
+        padding: 24px 8px 12px 8px; 
+      }
+
+      .logo { 
+        height:36px;
+        width:36px;
+        margin-left:5px; 
+      }
+      .only-large-screen-flex,
+      .only-large-screen{
+        display:none;
+      }
+      .header-title{
+        font-size:calc(var(--title-font-size) + 8px); 
+        padding:0 8px;
+      }
+      .tag{
+        text-transform: uppercase;
+      }
+      .header{
+        background-color:var(--header-bg);
+        color:var(--header-fg);
+        box-sizing:border-box;
+        width:100%;
+      }
+
+      input.header-input{
+        background:var(--header-color-darker);
+        color:var(--header-fg);
+        border:1px solid var(--header-color-border);
+        flex:1; 
+        padding-right:24px;
+        border-radius:3px;
+      }
+      input.header-input::placeholder {
+        opacity:0.4;
+      }
+
+      .loader {
+        margin: 16px auto 16px auto; 
+        border: 4px solid var(--bg3);
+        border-radius: 50%;
+        border-top: 4px solid var(--primary-color);
+        width: 36px;
+        height: 36px;
+        animation: spin 2s linear infinite;
+      }
+      .expanded-endpoint-body{ padding:24px 0px;}
+      .divider { border-top:2px solid var(--primary-color); width:100%; }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      @media only screen and (min-width: 768px) {
         .nav-bar {
-          width:0;
-          height:100%;
-          overflow: hidden;
-          color:var(--nav-text-color);
-          background-color: var(--nav-bg-color);
-          box-sizing:border-box;
-          line-height: 16px;
-          display:none;
-          position:relative;
-          flex-direction:column;
-          flex-wrap:nowrap;
-          word-break:break-word;
-        }
-        .nav-scroll {
-          overflow-x:hidden;
-          overflow-y: overlay;
-        }
-        .nav-scroll::-webkit-scrollbar-track{
-          background:transparent;
-        }
-        .nav-scroll::-webkit-scrollbar{
-          display:none;
-          width: 12px;
-          background-color: transparent;
-        }
-        .nav-scroll:hover::-webkit-scrollbar{
-          display:block;
-        }
-        .nav-scroll::-webkit-scrollbar-thumb {
-          border: 3px solid var(--nav-bg-color);
-          border-width: 0 3px;
-          background-color: var(--nav-hover-bg-color);
-        }
-
-        .nav-bar-tag {
-          font-size: var(--font-size-regular);
-          border-left:4px solid transparent;
-          border-top: 1px solid var(--nav-hover-bg-color);
-          font-weight:bold;
-          padding: 15px 30px 15px 10px;
-          text-transform: capitalize;
-        }
-
-        .nav-bar-components,
-        .nav-bar-info,
-        .nav-bar-tag,
-        .nav-bar-path {
+          width: 260px;
           display:flex;
-          cursor:pointer;
-          border-left:4px solid transparent;
         }
-
-        .nav-bar-path {
-          font-size: var(--font-size-small);
-          padding: 10px 30px 10px 10px;
-        }
-        .nav-bar-info {
-          font-size: var(--font-size-regular);
-          padding: 16px 10px;
-          font-weight:bold;
-        }
-        .nav-bar-header {
-          border-top: 1px solid var(--nav-hover-bg-color);
-          font-size: var(--font-size-regular);
-          padding: 10px 7px;
-          font-weight:bold;
-          background-color: var(--nav-text-color);
-          color: var(--nav-bg-color);
-          text-transform: uppercase;
-        }
-
-        .nav-bar-info.active,
-        .nav-bar-tag.active,
-        .nav-bar-path.active {
-          border-left:4px solid var(--nav-accent-color);
-          color:var(--nav-hover-text-color);
-        }
-
-        .nav-bar-info:hover,
-        .nav-bar-tag:hover,
-        .nav-bar-path:hover {
-          color:var(--nav-hover-text-color);
-          background-color:var(--nav-hover-bg-color);
-        }
-
-        .main-content { 
-          margin:0;
-          padding: 0; 
-          display:block;
-          flex:1;
-          height:100%;
-          overflow-y: scroll;
-          overflow-x: hidden;
-        }
-        .main-content--read-mode{
-          color: var(--fg3)
-        }
-        .main-content::-webkit-scrollbar-track{
-          background:transparent;
-        }
-        .main-content::-webkit-scrollbar{
-          width: 8px;
-          height: 8px;
-          background-color: transparent;
-        }
-        .main-content::-webkit-scrollbar-thumb {
-          background-color: var(--border-color);
-        }
-
-        .section-gap,
-        .section-gap--read-mode { 
-          padding: 24px 8px 12px 8px; 
-        }
-
-        .logo { 
-          height:36px;
-          width:36px;
-          margin-left:5px; 
-        }
-        .only-large-screen-flex,
         .only-large-screen{
-          display:none;
+          display:block;
         }
-        .header-title{
-          font-size:calc(var(--title-font-size) + 8px); 
-          padding:0 8px;
+        .only-large-screen-flex{
+          display:flex;
         }
-        .tag{
-          text-transform: uppercase;
+        .main-content { 
+          padding:0 16px;
         }
-        .header{
-          background-color:var(--header-bg);
-          color:var(--header-fg);
-          box-sizing:border-box;
-          width:100%;
+        .section-gap { 
+          padding: 24px 24px 8px 24px; 
         }
+        .section-gap--read-mode { 
+          padding: 48px 24px 24px 24px; 
+        }
+        .endpoint-body {
+          padding:36px 0 48px 0;
+        }
+      }
 
-        input.header-input{
-          background:var(--header-color-darker);
-          color:var(--header-fg);
-          border:1px solid var(--header-color-border);
-          flex:1; 
-          padding-right:24px;
-          border-radius:3px;
+      @media only screen and (min-width: 1000px) {
+        .nav-bar {
+          width: 280px;
+          display:flex;
         }
-        input.header-input::placeholder {
-          opacity:0.4;
+        .section-gap--read-mode { 
+          padding: 48px 120px 24px 100px; 
         }
-
-        .loader {
-          margin: 16px auto 16px auto; 
-          border: 4px solid var(--bg3);
-          border-radius: 50%;
-          border-top: 4px solid var(--primary-color);
-          width: 36px;
-          height: 36px;
-          animation: spin 2s linear infinite;
-        }
-        .expanded-endpoint-body{ padding:24px 0px;}
-        .divider { border-top:2px solid var(--primary-color); width:100%; }
-
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-
-        @media only screen and (min-width: 768px) {
-          .nav-bar {
-            width: 260px;
-            display:flex;
-          }
-          .only-large-screen{
-            display:block;
-          }
-          .only-large-screen-flex{
-            display:flex;
-          }
-          .main-content { 
-            padding:0 16px;
-          }
-          .section-gap { 
-            padding: 24px 24px 8px 24px; 
-          }
-          .section-gap--read-mode { 
-            padding: 48px 24px 24px 24px; 
-          }
-          .endpoint-body {
-            padding:36px 0 48px 0;
-          }
-        }
-
-        @media only screen and (min-width: 1000px) {
-          .nav-bar {
-            width: 280px;
-            display:flex;
-          }
-          .section-gap--read-mode { 
-            padding: 48px 120px 24px 100px; 
-          }
-        }
-        
-      </style>
+      }
       
-      ${this.showHeader === 'false' ? '' : this.headerTemplate()}
-      <div class="body">
-        ${this.renderStyle === 'read' && this.resolvedSpec ? this.navBarTemplate() : ''}
-        
-        <div class="main-content regular-font ${this.renderStyle === 'read' ? 'main-content--read-mode' : ''} " style = "${this.renderStyle === 'read' ? 'padding:0' : ''}">
-          <slot></slot>
-          ${this.loading === true ? html`<div class="loader"></div>` : ''}
-          ${this.loadFailed === true ? html`<div style="text-align: center;margin: 16px;"> Unable to load the Spec</div>` : ''}
-          ${this.resolvedSpec
-            ? html`
-              ${(this.showInfo === 'false' || !this.resolvedSpec.info) ? '' : html`
-              <div id = 'overview' class = 'observe-me ${this.renderStyle === 'read' ? 'section-gap--read-mode' : 'section-gap'}'>
-                <div style = 'font-size:32px'>
-                  ${this.resolvedSpec.info.title}
-                  ${!this.resolvedSpec.info.version ? '' : html`
-                    <span style = 'font-size:var(--font-size-small);font-weight:bold'>
-                      ${this.resolvedSpec.info.version}
-                    </span>`
-                  }
-                </div>
-
-                ${this.resolvedSpec.info.description
-                  ? html`${unsafeHTML(`<div class='m-markdown regular-font'>${marked(this.resolvedSpec.info.description)}</div>`)}`
-                  : ''
-                }
-                ${this.resolvedSpec.info.termsOfService
-                  ? html`${unsafeHTML(`<div class='tiny-title' style="margin-top:8px"> Terms: </div> <span class='m-markdown regular-font'>${marked(this.resolvedSpec.info.termsOfService)}</span>`)}`
-                  : ''
-                }
-                ${this.resolvedSpec.info.contact ? this.contactInfoTemplate() : ''}
-              </div>`
-              }
-
-              ${(this.allowTry === 'false' || this.allowServerSelection === 'false')
-                ? ''
-                : this.serverTemplate()
-              } 
-
-              ${(this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes)
-                ? ''
-                : this.securitySchemeTemplate()
-              }
-              <div @click="${(e) => { this.handleHref(e); }}">
-                ${this.resolvedSpec.tags
-                  ? this.renderStyle === 'read'
-                    ? this.expandedEndpointTemplate()
-                    : this.endpointTemplate()
-                  : ''
+    </style>
+      
+    ${this.showHeader === 'false' ? '' : this.headerTemplate()}
+    <div class="body">
+      ${this.renderStyle === 'read' && this.resolvedSpec ? this.navBarTemplate() : ''}
+      
+      <div class="main-content regular-font ${this.renderStyle === 'read' ? 'main-content--read-mode' : ''} " style = "${this.renderStyle === 'read' ? 'padding:0' : ''}">
+        <slot></slot>
+        ${this.loading === true ? html`<div class="loader"></div>` : ''}
+        ${this.loadFailed === true ? html`<div style="text-align: center;margin: 16px;"> Unable to load the Spec</div>` : ''}
+        ${this.resolvedSpec
+          ? html`
+            ${(this.showInfo === 'false' || !this.resolvedSpec.info) ? '' : html`
+            <div id = 'overview' class = 'observe-me ${this.renderStyle === 'read' ? 'section-gap--read-mode' : 'section-gap'}'>
+              <div style = 'font-size:32px'>
+                ${this.resolvedSpec.info.title}
+                ${!this.resolvedSpec.info.version ? '' : html`
+                  <span style = 'font-size:var(--font-size-small);font-weight:bold'>
+                    ${this.resolvedSpec.info.version}
+                  </span>`
                 }
               </div>
 
-              ${(this.showComponents === 'false')
-                  ? ''
-                  : this.componentsTemplate()
+              ${this.resolvedSpec.info.description
+                ? html`${unsafeHTML(`<div class='m-markdown regular-font'>${marked(this.resolvedSpec.info.description)}</div>`)}`
+                : ''
               }
+              ${this.resolvedSpec.info.termsOfService
+                ? html`${unsafeHTML(`<div class='tiny-title' style="margin-top:8px"> Terms: </div> <span class='m-markdown regular-font'>${marked(this.resolvedSpec.info.termsOfService)}</span>`)}`
+                : ''
+              }
+              ${this.resolvedSpec.info.contact ? this.contactInfoTemplate() : ''}
+            </div>`
+            }
 
-              `
-            : ''
-          }
-          <slot name="footer"></slot>
-        </div>
-      </div>  
-    `;
+            ${(this.allowTry === 'false' || this.allowServerSelection === 'false')
+              ? ''
+              : this.serverTemplate()
+            } 
+
+            ${(this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes)
+              ? ''
+              : this.securitySchemeTemplate()
+            }
+            <div @click="${(e) => { this.handleHref(e); }}">
+              ${this.resolvedSpec.tags
+                ? this.renderStyle === 'read'
+                  ? this.expandedEndpointTemplate()
+                  : this.endpointTemplate()
+                : ''
+              }
+            </div>
+
+            ${(this.showComponents === 'false')
+                ? ''
+                : this.componentsTemplate()
+            }
+
+            `
+          : ''
+        }
+        <slot name="footer"></slot>
+      </div>
+    </div>  
+  `;
   }
 
   headerTemplate() {
@@ -510,56 +515,64 @@ export default class RapiDoc extends LitElement {
           `
         }
         ${html`<div class='nav-scroll'>
-          <div id='link-general' class='nav-bar-header' @click='${(e) => this.scrollToEl(e)}'>General</div>
           ${(this.showInfo === 'false' || !this.resolvedSpec.info)
             ? ''
-            : html`<div id='link-overview' class='nav-bar-info'  @click = '${(e) => this.scrollToEl(e)}' > Overview </div>`
-          }
-          ${(this.allowTry === 'false' || this.allowServerSelection === 'false')
-            ? ''
-            : html`<div id='link-api-servers' class='nav-bar-info' @click = '${(e) => this.scrollToEl(e)}' > API Servers </div>`
-          }
-          ${(this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes)
-            ? ''
-            : html`<div id='link-authentication'  class='nav-bar-info' @click = '${(e) => this.scrollToEl(e)}' > Authentication </div>`
-          }
+            : html`
+              <div id='link-general' class='nav-bar-header' @click='${(e) => this.scrollToEl(e)}'>General</div>
+              <div id='link-overview' class='nav-bar-info'  @click = '${(e) => this.scrollToEl(e)}' > Overview </div>
+            `
+        }
+        ${(this.showExtraInfo === 'false' || !this.resolvedSpec.info || !this.resolvedSpec.info.description)
+          ? ''
+          : html`          
+          ${this.resolvedSpec.extraInfo.map((header) => html`
+          <div class='nav-bar-${header.level === 1 ? 'info' : 'path'}' id="link-${header.id.replace(/[\s#:?&=]/g, '-')}" @click='${(e) => this.scrollToEl(e)}'>
+            ${header.name}
+          </div>`)}
+        `}
+        ${(this.allowTry === 'false' || this.allowServerSelection === 'false')
+          ? ''
+          : html`<div id='link-api-servers' class='nav-bar-info' @click = '${(e) => this.scrollToEl(e)}' > API Servers </div>`
+        }
+        ${(this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes)
+          ? ''
+          : html`<div id='link-authentication'  class='nav-bar-info' @click = '${(e) => this.scrollToEl(e)}' > Authentication </div>`
+        }
 
-          <div id='link-paths' class='nav-bar-header' @click='${(e) => this.scrollToEl(e)}'>Paths</div>
-          ${this.resolvedSpec.tags.map((tag) => html`
-          
-            <div class='nav-bar-tag' id="link-${tag.name.replace(/[\s#:?&=]/g, '-')}" @click='${(e) => this.scrollToEl(e)}'>
-              ${tag.name}
-            </div>
-            ${tag.paths.filter((v) => {
-              if (this.matchPaths) {
-                return `${v.method} ${v.path} ${v.summary}`.toLowerCase().includes(this.matchPaths.toLowerCase());
-              }
-              return true;
-            }).map((p) => html`
-            <div class='nav-bar-path' id='link-${p.method}-${p.path.replace(/[\s#:?&=]/g, '-')}' @click='${(e) => this.scrollToEl(e)}'> 
-              <span> ${p.summary || p.path} </span>
-            </div>`)}
-          `)}
-
-          ${(this.showComponents === 'false' || !this.resolvedSpec.components)
-        ? ''
-      : html`<div id='link-components' class='nav-bar-header' @click='${(e) => this.scrollToEl(e)}'>Components</div>
+        <div id='link-paths' class='nav-bar-header' @click='${(e) => this.scrollToEl(e)}'>Paths</div>
+        ${this.resolvedSpec.tags.map((tag) => html`
         
-      ${this.resolvedSpec.components.map((component) => html`
-            <div class='nav-bar-tag' id="link-cmp-${component.name.replace(/[\s#:?&=]/g, '-')}" @click='${(e) => this.scrollToEl(e)}'>
-              ${component.name}
-            </div>
-            ${component.subComponents.map((p) => html`
-            <div class='nav-bar-path' id='link-cmp-${p.name.replace(/[\s#:?&=]/g, '-')}' @click='${(e) => this.scrollToEl(e)}'> 
-              <span> ${p.name} </span>
-            </div>`)}
-          `)}
+          <div class='nav-bar-tag' id="link-${tag.name.replace(/[\s#:?&=]/g, '-')}" @click='${(e) => this.scrollToEl(e)}'>
+            ${tag.name}
+          </div>
+          ${tag.paths.filter((v) => {
+            if (this.matchPaths) {
+              return `${v.method} ${v.path} ${v.summary}`.toLowerCase().includes(this.matchPaths.toLowerCase());
+            }
+            return true;
+          }).map((p) => html`
+          <div class='nav-bar-path' id='link-${p.method}-${p.path.replace(/[\s#:?&=]/g, '-')}' @click='${(e) => this.scrollToEl(e)}'> 
+            <span> ${p.summary || p.path} </span>
+          </div>`)}
+        `)}
 
-           
-          `}
+        ${(this.showComponents === 'false' || !this.resolvedSpec.components)
+        ? ''
+        : html`<div id='link-components' class='nav-bar-header' @click='${(e) => this.scrollToEl(e)}'>Components</div>
+        
+        ${this.resolvedSpec.components.map((component) => html`
+          <div class='nav-bar-tag' id="link-cmp-${component.name.replace(/[\s#:?&=]/g, '-')}" @click='${(e) => this.scrollToEl(e)}'>
+            ${component.name}
+          </div>
+          ${component.subComponents.map((p) => html`
+          <div class='nav-bar-path' id='link-cmp-${p.name.replace(/[\s#:?&=]/g, '-')}' @click='${(e) => this.scrollToEl(e)}'> 
+            <span> ${p.name} </span>
+          </div>`)}
+        `)}
 
-          
-          </div>`
+        `}
+        
+        </div>`
         }
         <!-- div class="cover-scroll-bar"></div -->
       </div>

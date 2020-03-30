@@ -20,16 +20,14 @@ function componentBodyTemplate(sComponent) {
            
           <json-tree
             class="border tree"
-            render-style = '${this.renderStyle}'
+            render-style='${this.renderStyle}'
             .data="${sComponent.component}"
+            isLast="true"
           ></json-tree>
-
             
           </div>`
-    : ''
-}
-    `
-}
+    : ''}
+    `}
     
   </div>
   `;
