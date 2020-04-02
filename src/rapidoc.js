@@ -281,6 +281,21 @@ export default class RapiDoc extends LitElement {
         .section-gap--read-mode { 
           padding: 24px 8px 12px 8px; 
         }
+        .section-tag-header {
+          cursor: pointer;
+          padding: 5px;
+        }
+        .section-tag-header:hover {
+          border-color:var(--orange); 
+          background-color:var(--light-orange); 
+        }
+        .section-tag.collapsed {
+          color: var(--light-fg);
+          filter: opacity(0.6);
+        }
+        .section-tag.collapsed > .m-endpoint {
+          display: none;
+        }
 
         .logo { 
           height:36px;
@@ -315,6 +330,24 @@ export default class RapiDoc extends LitElement {
         }
         input.header-input::placeholder {
           opacity:0.4;
+        }
+
+        i.arrow {
+          border: solid black;
+          border-width: 0 3px 3px 0;
+          display: inline-block;
+          padding: 4px;
+          opacity: 0.4;
+        }
+        
+        .up {
+          transform: rotate(-135deg);
+          -webkit-transform: rotate(-135deg);
+        }
+        
+        .down {
+          transform: rotate(45deg);
+          -webkit-transform: rotate(45deg);
         }
 
         .loader {
@@ -687,6 +720,19 @@ export default class RapiDoc extends LitElement {
 
   onSearchChange(e) {
     this.matchPaths = e.target.value;
+
+    let didFindAnything = false;
+    this.resolvedSpec.tags.map((tag) => tag.paths.filter((v) => {
+      if (this.matchPaths) {
+        const isMatch = `${v.method} ${v.path} ${v.summary}`.toLowerCase().includes(this.matchPaths.toLowerCase());
+        v.expanded = false;
+        if (isMatch) {
+          didFindAnything = true;
+          tag.expanded = true;
+        }
+      }
+    }));
+    if (didFindAnything) this.requestUpdate();
   }
 
   onClearSearch() {

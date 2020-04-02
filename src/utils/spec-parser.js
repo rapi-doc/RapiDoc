@@ -163,6 +163,7 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
       name: v.name,
       description: v.description,
       paths: [],
+      expanded: true,
     }))
     : [];
   // For each path find the tag and push it into the corrosponding tag
@@ -205,6 +206,7 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
             name: tagText,
             description: tagDescr ? tagDescr.description : '',
             paths: [],
+            expanded: true,
           };
           tags.push(tagObj);
         }
