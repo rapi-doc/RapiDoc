@@ -9,6 +9,7 @@ import TableStyles from '@/styles/table-styles';
 import EndpointStyles from '@/styles/endpoint-styles';
 
 import { isValidHexColor } from '@/utils/color-utils';
+import { pathIsInSearch } from '@/utils/common-utils';
 import SetTheme from '@/utils/theme';
 import ProcessSpec from '@/utils/spec-parser';
 import expandedEndpointTemplate from '@/templates/expanded-endpoint-template';
@@ -546,7 +547,7 @@ export default class RapiDoc extends LitElement {
             </div>
             ${tag.paths.filter((v) => {
               if (this.matchPaths) {
-                return `${v.method} ${v.path} ${v.summary}`.toLowerCase().includes(this.matchPaths.toLowerCase());
+                return pathIsInSearch(this.matchPaths, v);
               }
               return true;
             }).map((p) => html`
@@ -719,14 +720,13 @@ export default class RapiDoc extends LitElement {
   }
 
   onSearchChange(e) {
-    this.matchPaths = e.target.value;
+    this.matchPaths = e.target.value.toLowerCase();
 
     let didFindAnything = false;
     this.resolvedSpec.tags.map((tag) => tag.paths.filter((v) => {
       if (this.matchPaths) {
-        const isMatch = `${v.method} ${v.path} ${v.summary}`.toLowerCase().includes(this.matchPaths.toLowerCase());
         v.expanded = false;
-        if (isMatch) {
+        if (pathIsInSearch(this.matchPaths, v)) {
           didFindAnything = true;
           tag.expanded = true;
         }

@@ -3,6 +3,7 @@ import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import marked from 'marked';
 import '@/components/api-request';
 import '@/components/api-response';
+import { pathIsInSearch } from '@/utils/common-utils';
 import { callbackTemplate } from '@/templates/expanded-endpoint-template';
 
 /* eslint-disable indent */
@@ -112,7 +113,7 @@ export default function endpointTemplate() {
 
       ${tag.paths.filter((v) => {
         if (this.matchPaths) {
-          return `${v.method} ${v.path}`.includes(this.matchPaths);
+          return pathIsInSearch(this.matchPaths, v);
         }
         return true;
       }).map((path) => html`
