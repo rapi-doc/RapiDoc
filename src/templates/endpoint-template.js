@@ -7,15 +7,16 @@ import { callbackTemplate } from '@/templates/expanded-endpoint-template';
 
 /* eslint-disable indent */
 function toggleExpand(path) {
-  const newHash = `#${path.method}-${path.path.replace(/[\s#:?&=]/g, '-')}`;
-  const currentHash = window.location.hash;
-  if (currentHash !== newHash) {
-    window.history.replaceState(null, null, `${window.location.href.split('#')[0]}${newHash}`);
-  }
   if (path.expanded) {
     path.expanded = false; // collapse
+    window.history.replaceState(null, null, `${window.location.href.split('#')[0]}`);
   } else {
     path.expanded = true; // Expand
+    const newHash = `#${path.method}-${path.path.replace(/[\s#:?&=]/g, '-')}`;
+    const currentHash = window.location.hash;
+    if (currentHash !== newHash) {
+      window.history.replaceState(null, null, `${window.location.href.split('#')[0]}${newHash}`);
+    }
   }
   this.requestUpdate();
 }
