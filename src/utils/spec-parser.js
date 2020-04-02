@@ -3,7 +3,7 @@
 import converter from 'swagger2openapi';
 import Swagger from 'swagger-client';
 
-export default async function ProcessSpec(specUrl, sortTags = false, sortEndpointsBy, attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '') {
+export default async function ProcessSpec(specUrl, sortTags = false, sortEndpointsBy, attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '', allowDuplicatedPathsByTag = false) {
   let jsonParsedSpec;
   let convertedSpec;
   // let resolvedRefSpec;
@@ -62,7 +62,7 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
   // const pathGroups = groupByPaths(jsonParsedSpec);
 
   // Tags
-  const tags = groupByTags(jsonParsedSpec, sortTags, sortEndpointsBy);
+  const tags = groupByTags(jsonParsedSpec, sortTags, sortEndpointsBy, allowDuplicatedPathsByTag);
 
   // Security Scheme
   const securitySchemes = [];
@@ -155,7 +155,7 @@ function groupByPaths(openApiSpec) {
 }
 */
 
-function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
+function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy, allowDuplicatedPathsByTag) {
   const methods = ['get', 'put', 'post', 'delete', 'patch', 'head']; // this is also used for ordering endpoints by methods
   const tags = openApiSpec.tags && Array.isArray(openApiSpec.tags)
     ? openApiSpec.tags.map((v) => ({
@@ -177,83 +177,92 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
 
     methods.forEach((methodName) => {
       let tagObj;
-      let tagText;
       let tagDescr;
 
       if (openApiSpec.paths[path][methodName]) {
         const fullPath = openApiSpec.paths[path][methodName];
+
         // If path.methods are tagged, else generate it from path
-        if (fullPath.tags && fullPath.tags[0]) {
-          tagText = fullPath.tags[0];
-          if (openApiSpec.tags) {
-            tagDescr = openApiSpec.tags.find((v) => (v.name === tagText));
-          }
-        } else {
+        const pathTags = fullPath.tags ? fullPath.tags : [];
+        if (pathTags.length === 0) {
           let firstWordEndIndex = path.indexOf('/', 1);
           if (firstWordEndIndex === -1) {
             firstWordEndIndex = (path.length - 1);
           } else {
             firstWordEndIndex -= 1;
           }
-          tagText = path.substr(1, firstWordEndIndex);
-        }
-        tagObj = tags.find((v) => v.name === tagText);
-
-        if (!tagObj) {
-          tagObj = {
-            show: true,
-            name: tagText,
-            description: tagDescr ? tagDescr.description : '',
-            paths: [],
-          };
-          tags.push(tagObj);
+          pathTags.push(path.substr(1, firstWordEndIndex));
         }
 
-        // Generate Path summary and Description if it is missing for a method
-        let summary = (fullPath.summary || '').trim() ? fullPath.summary.trim() : (fullPath.description || '-').trim().split('/n')[0];
-        if (summary.length > 100) {
-          summary = summary.split('.')[0];
-        }
-        if (!(fullPath.description || '').trim()) {
-          fullPath.description = ((fullPath.summary || '-').trim());
-        }
+        pathTags.forEach((tag, index) => {
+          // if multiple tags when can stop or continue to show
+          // path on multiple tag locations
+          if (!allowDuplicatedPathsByTag && index > 0) return;
 
-        // Merge Common Parameters with This methods parameters
-        let finalParameters = [];
-        if (commonParams) {
-          if (fullPath.parameters) {
-            finalParameters = commonParams.filter((commonParam) => {
-              if (!fullPath.parameters.some((param) => (commonParam.name === param.name && commonParam.in === param.in))) {
-                return commonParam;
-              }
-            }).concat(fullPath.parameters);
-          } else {
-            finalParameters = commonParams.slice(0);
+          tag = tag.toLowerCase();
+
+          if (openApiSpec.tags) {
+            tagDescr = openApiSpec.tags.find((v) => (v.name.toLowerCase() === tag));
           }
-        } else {
-          finalParameters = fullPath.parameters ? fullPath.parameters.slice(0) : [];
-        }
 
-        // Update Responses
-        tagObj.paths.push({
-          show: true,
-          expanded: false,
-          expandedAtLeastOnce: false,
-          summary,
-          method: methodName,
-          description: fullPath.description,
-          path,
-          operationId: fullPath.operationId,
-          servers: fullPath.servers ? commonPathProp.servers.concat(fullPath.servers) : commonPathProp.servers,
-          parameters: finalParameters,
-          requestBody: fullPath.requestBody,
-          responses: fullPath.responses,
-          callbacks: fullPath.callbacks,
-          deprecated: fullPath.deprecated,
-          security: fullPath.security,
-          commonSummary: commonPathProp.summary,
-          commonDescription: commonPathProp.description,
-        });
+          tagObj = tags.find((v) => v.name === tag);
+          if (!tagObj) {
+            tagObj = {
+              show: true,
+              name: tag,
+              description: tagDescr ? tagDescr.description : '',
+              paths: [],
+            };
+            tags.push(tagObj);
+          }
+
+
+          // Generate Path summary and Description if it is missing for a method
+          let summary = (fullPath.summary || '').trim() ? fullPath.summary.trim() : (fullPath.description || '-').trim().split('/n')[0];
+          if (summary.length > 100) {
+            summary = summary.split('.')[0];
+          }
+          if (!(fullPath.description || '').trim()) {
+            fullPath.description = ((fullPath.summary || '-').trim());
+          }
+
+          // Merge Common Parameters with This methods parameters
+          let finalParameters = [];
+          if (commonParams) {
+            if (fullPath.parameters) {
+              finalParameters = commonParams.filter((commonParam) => {
+                if (!fullPath.parameters.some((param) => (commonParam.name === param.name && commonParam.in === param.in))) {
+                  return commonParam;
+                }
+              }).concat(fullPath.parameters);
+            } else {
+              finalParameters = commonParams.slice(0);
+            }
+          } else {
+            finalParameters = fullPath.parameters ? fullPath.parameters.slice(0) : [];
+          }
+
+          // Update Responses
+          tagObj.paths.push({
+            show: true,
+            expanded: false,
+            expandedAtLeastOnce: false,
+            summary,
+            method: methodName,
+            description: fullPath.description,
+            path,
+            operationId: fullPath.operationId,
+            servers: fullPath.servers ? commonPathProp.servers.concat(fullPath.servers) : commonPathProp.servers,
+            parameters: finalParameters,
+            requestBody: fullPath.requestBody,
+            responses: fullPath.responses,
+            callbacks: fullPath.callbacks,
+            deprecated: fullPath.deprecated,
+            security: fullPath.security,
+            commonSummary: commonPathProp.summary,
+            commonDescription: commonPathProp.description,
+          });
+        });// End of tag path create
       }
     }); // End of Methods
   }

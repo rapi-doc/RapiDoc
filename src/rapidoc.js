@@ -66,6 +66,7 @@ export default class RapiDoc extends LitElement {
       allowSpecFileLoad: { type: String, attribute: 'allow-spec-file-load' },
       allowSearch: { type: String, attribute: 'allow-search' },
       allowServerSelection: { type: String, attribute: 'allow-server-selection' },
+      allowDuplicatedPathsByTag: { type: String, attribute: 'allow-duplicated-paths-by-tag' },
 
       // Main Colors and Font
       theme: { type: String },
@@ -713,6 +714,7 @@ export default class RapiDoc extends LitElement {
         this.getAttribute('api-key-location'),
         this.getAttribute('api-key-value'),
         this.getAttribute('server-url'),
+        this.allowDuplicatedPathsByTag ? this.allowDuplicatedPathsByTag === 'true' : false,
       );
       this.loading = false;
       if (spec === undefined || spec === null) {
