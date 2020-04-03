@@ -1,0 +1,152 @@
+<!doctype html>
+
+<head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-132775238-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132775238-1');
+  </script>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+  <meta name="description"
+    content="RapiDoc is Web Component based Swagger & OpenAPI Spec Viewer. Alternate for SwaggerUI or Redoc. It is fast, small and made with lit-element">
+  <meta name="keywords" content="RapiDoc,ReDoc,Swagger,SwaggerUI,Custom Element,Web Component,OpenAPI,REST">
+
+  <link rel="shortcut icon" type="image/png" href="./images/logo.png" />
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./index.css">
+  <link rel="stylesheet" href="table.css">
+
+  <!-- Code Highlight -->
+  <link rel="stylesheet" href="./highlight/styles/zenburn.css">
+  <script src="./highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+  <title>RapiDoc - Web Component based Swagger & OpenAPI Spec Viewer</title>
+  <style>
+    .m-table {
+      width: 100%;
+    }
+
+    #main-img {
+      width: 740px;
+    }
+
+    .container {
+      border: 1px solid #555;
+      border-radius: 2px;
+      margin: 5px;
+      padding: 8px;
+      width: 200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+  </style>
+</head>
+
+<body>
+  <div class='topbar'>
+    <div class="header">
+      <a class="menu-item" data-action="url" href="./index.html">
+        <img class="logo" src="./images/logo.png" style="width:36px;height:36px;margin-right:10px;"
+          href="./index.html" />
+      </a>
+      <div class="product-name">RapiDoc - OAuth Example</div>
+      <div class="menu" style="flex:1"></div>
+      <nav class="menu" onclick="goToSection(event)">
+        <a class="menu-item" data-action="url" href="./index.html"> Home </a>
+        <a class="menu-item" data-action="url" href="./examples.html"> Examples </a>
+        <a class="menu-item" data-action="url" href="./api.html"> API </a>
+        <a class="menu-item hide-in-mobile" data-action="url" href="https://mrin9.github.io/RapiPdf/"> RapiPDF </a>
+        <a class="menu-item" data-action="url" href="https://github.com/mrin9/RapiDoc"> GitHub </a>
+      </nav>
+    </div>
+  </div>
+  <div style="margin:24px 48px; max-width:730px; width:850px">
+    <h1> Setting up OAuth with RapiDoc</h1>
+    <h2> Demo </h2>
+      <ul>
+        <li> Here is a minimal sample spec containing OAuth Authentication schemes (<a href="https://github.com/mrin9/RapiDoc/blob/master/docs/specs/oauth.yaml" target="_blank"> view </a> )</li>
+        <li> Here is how it is rendered in RapiDoc (<a href="./examples/oauth.html"> view </a>)</li>
+      </ul>  
+    <h2> Short Version </h2>
+    <ul>
+      <li> Register your app with an Authorization Provider such as https://bitbucket.org </li>
+      <li> Create <span class='mono orange'> index.html </span>containing <span class='mono orange'> &lt;rapi-doc&gt;</span> element (<a href="#index-html"> view </a>)</li> 
+      <li> Create another html and name it <span class='mono orange'> oauth-receiver.html </span> containing <span class='mono orange'> &lt;oauth-receiver&gt;</span> element (<a href="#auth-receiver-html"> view </a>)</li>
+    </ul>
+    You are all set !!!
+    <h2> The Long story </h2>
+
+    <h3> Overall flow  (Authorization Code)</h3>
+    <img style="width:720px" src="./images/oauth-auth-code.png" />
+
+    <h3>Register client with Authorization Server</h3>
+    <p>
+      <ul>
+        <li>
+          For this demo I am going to use <b>BitBucket</b> as the OAuth provider, so SignUp with https://bitbucket.org/ if you dont have an account
+        </li>
+        <li>
+          <b>Register OAuth Client in Bitbucket: </b> In my case the client is https://mrin9.github.io. <br/>
+          In your case it could be localhost:{port} or the domain from where you are hosting your html containing RapiDoc element
+          <ul>
+            <li>
+              While registering provide the <span class="blue">Redirect URL</span> as the url of <span class="blue mono"> oauth-receiver.html </span> that you created above
+            </li>
+            <li>
+              Upon successful registration, you should be provided with a client_id and client_secret 
+            </li>
+          </ul>  
+        </li>
+      </ul>
+    </p>
+
+    <h3> Setup Client </h3>
+    <b>Client: </b> This is the app's domain that host the html containing <span class='mono'> &lt;rapi-doc&gt;</span>
+    element.<br/>
+    In case of RapiDoc OAuth demo, since we host it from Github pages, it is https://mrin9.github.io<br/><br/>
+    Below are the two files that our server must have<br/><br/>
+
+    <a id='index-html' class="blue mono">index.html</a> (This is our main file that contains the  <span class='mono'> &lt;rapi-doc&gt;</span>  element )
+<pre><code class="shadow3 code-block">&lt;!doctype html&gt;
+&lt;head&gt;
+  &lt;script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;rapi-doc spec-url = "https://mrin9.github.io/RapiDoc/specs/oauth.yaml" &gt; 
+  &lt;/rapi-doc&gt;
+&lt;/body&gt;
+</code></pre>
+      <br/>
+
+  <a id='auth-receiver-html' class="blue mono"> oauth-receiver.html </a><br/>
+  the <span class='mono orange'> &lt;oauth-receiver&gt;</span> custom element in this file, 
+  requests for an Authorization Code from Authorization Server by providing client_id and redirect URL. 
+  Upon receiving a valid auth-code, it passes to <span class='mono orange'> &lt;rapi-doc&gt;</span> element.
+  RapiDoc, then uses this Auth-Code to request for the <span class="orange">Access Token </span>. 
+<pre><code class="shadow3 code-block">&lt;!doctype html&gt;
+&lt;head&gt;
+  &lt;script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"&gt;&lt;/script&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+  &lt;oauth-receiver&gt; &lt;/oauth-receiver&gt;
+&lt;/body&gt;
+</code></pre>
+    </p>
+  </div>
+</body>
+
+</html>

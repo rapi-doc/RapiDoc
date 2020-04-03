@@ -11,8 +11,7 @@ paths:
   /users/{username}/repositories:
     get:
       tags:
-      - users
-      - teams
+      - Repo
       description: |-
         All repositories owned by a user/team. This includes private
         repositories, but filtered down to the ones that the calling user has
@@ -35,229 +34,40 @@ paths:
         - repository
       - basic: []
       - api_key: []
-  /users/{username}:
-    get:
-      tags:
-      - users
-      description: |-
-        Gets the public information associated with a user account.
-
-        If the user's profile is private, `location`, `website` and
-        `created_on` elements are omitted.
-
-        Note that the user object returned by this operation is changing significantly, due to privacy changes.
-        See the [announcement](https://developer.atlassian.com/cloud/bitbucket/bitbucket-api-changes-gdpr/#changes-to-bitbucket-user-objects) for details.
-      parameters:
-      - name: username
-        in: path
-        description: The account's UUID, account_id, or username. Note that username
-          has been deprecated due to [privacy changes](https://developer.atlassian.com/cloud/bitbucket/bitbucket-api-changes-gdpr/#removal-of-usernames-from-user-referencing-apis).
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          description: The user object
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/user'
-              example:
-                username: example-username
-                display_name: Example Username
-                account_id: 123456:daffbc08-1a80-4bd0-98bf-7997de0a3d10
-                links:
-                  self:
-                    href: https://api.bitbucket.org/2.0/users/example-username
-                  html:
-                    href: https://bitbucket.org/example-username/
-                  avatar:
-                    href: https://bitbucket.org/account/example-username/avatar/
-                type: user
-                uuid: '{58021780-82b6-4517-b153-0ae73ce3e4b4}'
-        404:
-          description: If no user exists for the specified name or UUID, or if the
-            specified account is a team account, not a personal account.
-      security:
-      - oauth2: []
-      - basic: []
-      - api_key: []
-  /user/emails/{email}:
-    get:
-      tags:
-      - users
-      description: |-
-        Returns details about a specific one of the authenticated user's
-        email addresses.
-
-        Details describe whether the address has been confirmed by the user and
-        whether it is the user's primary address or not.
-      parameters:
-      - name: email
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        default:
-          description: Unexpected error.
-      security:
-      - oauth2:
-        - email
-      - basic: []
-      - api_key: []
-  /user/emails:
-    get:
-      tags:
-      - users
-      description: |-
-        Returns all the authenticated user's email addresses. Both
-        confirmed and unconfirmed.
-      responses:
-        default:
-          description: Unexpected error.
-      security:
-      - oauth2:
-        - email
-      - basic: []
-      - api_key: []
 components:
-  schemas:
-    account:
-      allOf:
-      - type: object
-        properties:
-          links:
-            type: object
-            properties:
-              self:
-                type: object
-                properties:
-                  href:
-                    type: string
-                    format: uri
-                  name:
-                    type: string
-              html:
-                type: object
-                properties:
-                  href:
-                    type: string
-                    format: uri
-                  name:
-                    type: string
-              avatar:
-                type: object
-                properties:
-                  href:
-                    type: string
-                    format: uri
-                  name:
-                    type: string
-              followers:
-                type: object
-                properties:
-                  href:
-                    type: string
-                    format: uri
-                  name:
-                    type: string
-              following:
-                type: object
-                properties:
-                  href:
-                    type: string
-                    format: uri
-                  name:
-                    type: string
-              repositories:
-                type: object
-                properties:
-                  href:
-                    type: string
-                    format: uri
-                  name:
-                    type: string
-          username:
-            pattern: ^[a-zA-Z0-9_\-]+$
-            type: string
-          nickname:
-            type: string
-            description: Account name defined by the owner. Should be used instead
-              of the "username" field. Note that "nickname" cannot be used in place
-              of "username" in URLs and queries, as "nickname" is not guaranteed to
-              be unique.
-          account_status:
-            type: string
-            description: The status of the account. Currently the only possible value
-              is "active", but more values may be added in the future.
-          display_name:
-            type: string
-          website:
-            type: string
-          created_on:
-            type: string
-            format: date-time
-          uuid:
-            type: string
-          has_2fa_enabled:
-            type: boolean
-        description: An account object.
-    user:
-      allOf:
-      - $ref: '#/components/schemas/account'
-      - type: object
-        properties:
-          is_staff:
-            type: boolean
-          account_id:
-            type: string
-            description: The user's Atlassian account ID.
-        description: A user object.
   securitySchemes:
     basic:
       type: http
-      description: Basic HTTP Authentication as per [RFC-2617](https://tools.ietf.org/html/rfc2617)
-        (Digest not supported). Note that Basic Auth with username and password as
-        credentials is only available on accounts that have 2-factor-auth / 2-step-verification
-        disabled. If you use 2fa, you should authenticate using OAuth2 instead.
       scheme: basic
     api_key:
       type: apiKey
-      description: API Keys can be used as Basic HTTP Authentication credentials and
-        provide a substitute for the account's actual username and password. API Keys
-        are only available to team accounts and there is only 1 key per account. API
-        Keys do not support scopes and have therefore access to all contents of the
-        account.
       name: Authorization
       in: header
-    oauth2:
+    BitBucketsOAuthFlows:
       type: oauth2
-      description: OAuth 2 as per [RFC-6749](https://tools.ietf.org/html/rfc6749).
       flows:
         authorizationCode:
           authorizationUrl: https://bitbucket.org/site/oauth2/authorize
           tokenUrl: https://bitbucket.org/site/oauth2/access_token
           scopes:
-            wiki: Read and modify your repositories' wikis
-            pullrequest:write: Read and modify your repositories and their pull requests
-            pipeline:variable: Access your repositories' build pipelines and configure their variables
-            project:write: Read and modify your workspace's project settings, and read and transfer repositories within your workspace's projects
-            pipeline:write: Access and rerun your repositories' build pipelines
-            snippet: Read your snippets
+            repository:admin: Administer your repositories
+            repository: Read your repositories
             repository:delete: Delete your repositories
             repository:write: Read and modify your repositories
-            issue: Read your repositories' issues
-            email: Read your account's primary email address
-            repository: Read your repositories
-            issue:write: Read and modify your repositories' issues
-            webhook: Read and modify your repositories' webhooks
-            pipeline: Access your repositories' build pipelines
-            snippet:write: Read and modify your snippets
-            account: Read your account information
+        clientCredentials:
+          tokenUrl: https://bitbucket.org/site/oauth2/access_token
+        implicit:
+          authorizationUrl: https://bitbucket.org/site/oauth2/authorize
+          scopes:        
             repository:admin: Administer your repositories
-            pullrequest: Read your repositories and their pull requests
-            project: Read your workspace's project settings and read repositories contained within your workspace's projects
-            team: Read your team membership information
-            team:write: Read and modify your team membership information
-            account:write: Read and modify your account information
+            repository: Read your repositories
+            repository:delete: Delete your repositories
+            repository:write: Read and modify your repositories
+        password:
+          tokenUrl: https://bitbucket.org/site/oauth2/access_token
+          scopes:        
+            repository:admin: Administer your repositories
+            repository: Read your repositories
+            repository:delete: Delete your repositories
+            repository:write: Read and modify your repositories
+    

@@ -20,11 +20,12 @@ export default html`
   .tiny-title { font-size:calc(var(--font-size-small) + 1px); font-weight:bold; }
   .regular-font-size { font-size:var(--font-size-regular); }
   .small-font-size { font-size:var(--font-size-small); }
+  .upper { text-transform: uppercase; }
   .primary-text{ color: var(--primary-color); }
   .bold-text { font-weight:bold; }
   .gray-text { color: var(--light-fg); }
-  .upper { text-transform: uppercase; }
   .red-text {color: var(--red)}
+  .blue-text {color: var(--blue)}
   .multiline {
     overflow: scroll;
     max-height: var(--resp-area-height, 300px);

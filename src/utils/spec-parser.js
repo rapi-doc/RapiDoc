@@ -22,7 +22,7 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
     if (typeof specUrl === 'string') {
       specObj = await Swagger(specUrl);
     } else {
-      specObj = { spec: specUrl };
+      specObj = await Swagger({ spec: specUrl });
     }
     jsonParsedSpec = specObj.spec;
     if (specObj.spec.swagger) {
