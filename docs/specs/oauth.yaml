@@ -38,18 +38,9 @@ components:
   securitySchemes:
     basic:
       type: http
-      description: Basic HTTP Authentication as per [RFC-2617](https://tools.ietf.org/html/rfc2617)
-        (Digest not supported). Note that Basic Auth with username and password as
-        credentials is only available on accounts that have 2-factor-auth / 2-step-verification
-        disabled. If you use 2fa, you should authenticate using OAuth2 instead.
       scheme: basic
     api_key:
       type: apiKey
-      description: API Keys can be used as Basic HTTP Authentication credentials and
-        provide a substitute for the account's actual username and password. API Keys
-        are only available to team accounts and there is only 1 key per account. API
-        Keys do not support scopes and have therefore access to all contents of the
-        account.
       name: Authorization
       in: header
     BitBucketsOAuthFlows:
@@ -64,9 +55,6 @@ components:
             repository: Read your repositories
             repository:delete: Delete your repositories
             repository:write: Read and modify your repositories
-            email: Read your account's primary email address
-            account: Read your account information
-            account:write: Read and modify your account information
         clientCredentials:
           tokenUrl: https://bitbucket.org/site/oauth2/access_token
         implicit:
