@@ -45,7 +45,6 @@ components:
       in: header
     BitBucketsOAuthFlows:
       type: oauth2
-      description: OAuth 2 as per [RFC-6749](https://tools.ietf.org/html/rfc6749).
       flows:
         authorizationCode:
           authorizationUrl: https://bitbucket.org/site/oauth2/authorize
