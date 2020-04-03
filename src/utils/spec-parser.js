@@ -204,9 +204,9 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
           tagObj = {
             show: true,
             name: tagText,
-            description: tagDescr ? tagDescr.description : '',
             paths: [],
-            expanded: true,
+            description: tagDescr ? tagDescr.description : '',
+            expanded: tagDescr ? tagDescr.expanded : true,
           };
           tags.push(tagObj);
         }

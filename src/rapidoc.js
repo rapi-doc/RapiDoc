@@ -805,11 +805,27 @@ export default class RapiDoc extends LitElement {
     // On first time Spec load, try to navigate to location hash if provided
     if (window.location.hash) {
       if (!this.gotoPath) {
-        window.setTimeout(() => {
-          this.scrollTo(window.location.hash.substring(1));
-        }, 150);
+        this.expandTreeToPath(window.location.hash);
       }
     }
+  }
+
+  expandTreeToPath(hash) {
+    // Expand full operation and tag
+    this.resolvedSpec.tags.map((tag) => tag.paths.filter((v) => {
+      const method = hash.match(new RegExp('\#(.*?)\-'));
+      const methodType = (method && method.length === 2) ? method[1] : null;
+      const path = hash.match(new RegExp('\/([^\/]+)\/?$'));
+      const pathValue = (path && path.length === 2) ? path[0] : null;
+
+      if (methodType && pathValue && methodType === v.method && pathValue === v.path) {
+        v.expanded = true;
+        tag.expanded = true;
+      }
+    }));
+    window.setTimeout(() => {
+      this.scrollTo(hash.substring(1));
+    }, 150);
   }
 
   onIntersect(entries) {

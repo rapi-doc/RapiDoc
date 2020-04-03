@@ -1,0 +1,41 @@
+openapi: 3.0.0
+info:
+  title: Collapsable Tags
+  description: | 
+    Test case for collapsable groups
+    Lets open closed get with default closed group
+    Link to internal
+    [internal linking](#get-/closed "Open it")
+
+  version: 1.0.0
+paths:
+  /open:
+    get:
+      summary: Its opened.
+      description: |
+        Endpoint to create and initiate a pipeline. 
+
+        Link to internal
+        [internal linking](#get-/closed "Open it")
+      
+      tags: 
+        - open
+      responses:
+        '200':
+          description: Happy response
+  
+  /closed:
+    get:
+      summary: Its closed. 
+      description: closed by default
+      tags: 
+        - closed
+      responses:
+        '200':
+          description: Happy response
+  
+tags:
+  - name: open
+    expanded: true
+  - name: closed
+    expanded: false
