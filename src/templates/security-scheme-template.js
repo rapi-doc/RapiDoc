@@ -36,129 +36,174 @@ function onClearAllApiKeys() {
   this.requestUpdate();
 }
 
-function onClearOAuthKey(apiKeyId, e) {
+// Updates the OAuth Access Token (API key), so it reflects in UI and gets used in TRY calls
+function updateOAuthKey(apiKeyId, tokenType = 'Bearer', accessToken) {
   const securityObj = this.resolvedSpec.securitySchemes.find((v) => (v.apiKeyId === apiKeyId));
-  const authFlowDivEl = e.target.closest('.oauth-flow');
-  authFlowDivEl.querySelector('.oauth-client-id').value = '';
-  authFlowDivEl.querySelector('.oauth-client-secret').value = '';
-  securityObj.finalKeyValue = '';
+  securityObj.finalKeyValue = `${tokenType} ${accessToken}`;
   this.requestUpdate();
 }
 
 /* eslint-disable no-console */
-function onInvokeOAuth(apiKeyId, flowType, authUrl, tokenUrl, e) {
-  const securityObj = this.resolvedSpec.securitySchemes.find((v) => (v.apiKeyId === apiKeyId));
+// Gets Access-Token in exchange of Authorization Code
+async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, grantType, authCode, apiKeyId) {
+  const formData = new FormData();
+  formData.append('grant_type', grantType);
+  if (authCode) {
+    formData.append('code', authCode);
+  }
+  formData.append('client_id', clientId);
+  formData.append('client_secret', clientSecret);
+  formData.append('redirect_uri', redirectUrl);
+  try {
+    const resp = await fetch(tokenUrl, { method: 'POST', body: formData });
+    if (resp.ok) {
+      const tokenResp = await resp.json();
+      if (tokenResp.token_type && tokenResp.access_token) {
+        updateOAuthKey.call(this, apiKeyId, tokenResp.token_type, tokenResp.access_token);
+        return true;
+      }
+    } else {
+      console.error('RapiDoc: Unable to get access token');
+    }
+    return false;
+  } catch (err) {
+    console.error('RapiDoc: Unable to get access token');
+    return false;
+  }
+}
+
+// Gets invoked when it receives the Authorization Code from the other window via message-event
+async function onWindowMessageEvent(msgEvent, winObj, tokenUrl, clientId, clientSecret, redirectUrl, grantType, apiKeyId, authFlowDivEl) {
+  sessionStorage.removeItem('winMessageEventActive');
+  winObj.close();
+  if (msgEvent.data.fake) {
+    return;
+  }
+  if (!msgEvent.data) {
+    console.warn('RapiDoc: Received no data with authorization message');
+  }
+  if (msgEvent.data.error) {
+    console.warn('RapiDoc: Error while receiving data');
+  }
+  if (msgEvent.data) {
+    if (msgEvent.data.responseType === 'code') {
+      // Authorization Code flow
+      const gotAccessToken = await fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrl, grantType, msgEvent.data.code, apiKeyId);
+      const resultEl = authFlowDivEl.querySelector('.oauth-err');
+      if (resultEl) {
+        if (gotAccessToken === false) {
+          resultEl.innerHTML = 'Failed to get Access Token';
+        } else {
+          resultEl.innerHTML = '<span style="color:var(--green)">Access Token Received</span>';
+        }
+      }
+    } else if (msgEvent.data.responseType === 'token') {
+      // Implicit flow
+      updateOAuthKey.call(this, apiKeyId, msgEvent.data.token_type, msgEvent.data.access_token);
+    }
+  }
+}
+
+
+async function onInvokeOAuthFlow(apiKeyId, flowType, authUrl, tokenUrl, e) {
   const authFlowDivEl = e.target.closest('.oauth-flow');
-  const clientId = authFlowDivEl.querySelector('.oauth-client-id').value.trim();
-  const clientSecret = authFlowDivEl.querySelector('.oauth-client-secret').value.trim();
+  const clientId = authFlowDivEl.querySelector('.oauth-client-id') ? authFlowDivEl.querySelector('.oauth-client-id').value.trim() : '';
+  const clientSecret = authFlowDivEl.querySelector('.oauth-client-secret') ? authFlowDivEl.querySelector('.oauth-client-secret').value.trim() : '';
   const checkedScopeEls = [...authFlowDivEl.querySelectorAll('input[type="checkbox"]:checked')];
   const state = (`${Math.random().toString(36)}random`).slice(2, 9);
-  const authUrlObj = new URL(authUrl);
-  const receiveUrlObj = new URL(`${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/${this.oauthReceiver}`);
-  let oAuthRespType = 'code';
-  if (flowType === 'authorizationCode') {
-    oAuthRespType = 'code';
-  } else if (flowType === 'implicit') {
-    oAuthRespType = 'token';
-  }
+  const redirectUrlObj = new URL(`${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/${this.oauthReceiver}`);
+  let grantType = '';
+  let responseType = '';
+  let newWindow;
 
-  const selectedScopes = checkedScopeEls.map((v) => v.value).join(' ');
-  const params = new URLSearchParams(authUrl.search);
-  params.set('client_id', clientId);
-  params.set('redirect_uri', receiveUrlObj.toString());
-  params.set('response_type', oAuthRespType);
-  if (selectedScopes) {
-    params.set('scope', selectedScopes);
-  }
-  params.set('state', state);
-  params.set('show_dialog', true);
-  authUrlObj.search = params.toString();
-  const w = window.open(authUrlObj.toString());
-  if (!w) {
-    console.error(`RapiDoc: Unable to open ${authUrlObj.toString()} in a new window`);
-  }
+  // clear previous error messages
+  const errEls = [...authFlowDivEl.parentNode.querySelectorAll('.oauth-err')];
+  errEls.forEach((v) => { v.innerHTML = ''; });
 
-  const handleMessageEventFn = async (ev) => {
-    /*
-    if (ev.origin !== receiveUrlObj.origin) {
-      console.warn(`Received message from invalid domain ${ev.origin}.`);
-      return;
+  if (flowType === 'authorizationCode' || flowType === 'implicit') {
+    const authUrlObj = new URL(authUrl);
+    if (flowType === 'authorizationCode') {
+      grantType = 'authorization_code';
+      responseType = 'code';
+    } else if (flowType === 'implicit') {
+      responseType = 'token';
     }
-    */
-
-    // After handeling, remove this listener
-    window.removeEventListener('message', handleMessageEventFn, true);
-    w.close();
-    if (!ev.data) {
-      console.error('RapiDoc: Received no data with authorization message');
+    const authCodeParams = new URLSearchParams(authUrl.search);
+    const selectedScopes = checkedScopeEls.map((v) => v.value).join(' ');
+    if (selectedScopes) {
+      authCodeParams.set('scope', selectedScopes);
     }
-    if (ev.data.state !== state) {
-      console.warn('RapiDoc: State value did not match.');
+    authCodeParams.set('client_id', clientId);
+    authCodeParams.set('redirect_uri', redirectUrlObj.toString());
+    authCodeParams.set('response_type', responseType);
+    authCodeParams.set('state', state);
+    authCodeParams.set('show_dialog', true);
+    authUrlObj.search = authCodeParams.toString();
+    // If any older message-event-listener is active then fire a fake message to remove it (these are single time listeners)
+    if (sessionStorage.getItem('winMessageEventActive') === 'true') {
+      window.postMessage({ fake: true }, this);
     }
-    if (ev.data.error) {
-      console.warn('RapiDoc: Error while receving data');
-    }
-    if (ev.data) {
-      if (ev.data.responseType === 'code') {
-        console.log(`RapiDoc: AUTH CODE RECEIVED - ${ev.data.code}`);
-        // return res(ev.data.code);
-        const formData = new FormData();
-        formData.append('grant_type', 'authorization_code');
-        formData.append('code', ev.data.code);
-        formData.append('client_id', clientId);
-        formData.append('client_secret', clientSecret);
-        formData.append('redirect_uri', receiveUrlObj.toString());
-        try {
-          const resp = await fetch(tokenUrl, { method: 'POST', body: formData });
-          console.log(`OAUth Token Response Status: ${resp.statusText}:${resp.status}`);
-          const respObj = await resp.json();
-          console.log('Access Token Response: %o', respObj);
-          if (respObj.access_token) {
-            securityObj.finalKeyValue = `${respObj.token_type} ${respObj.access_token}`;
-            this.requestUpdate();
-          }
-        } catch (err) {
-          console.error('RapiDoc: Unable to get access token');
-        }
-      } else if (ev.data.responseType === 'token') {
-        securityObj.finalKeyValue = `${ev.data.token_type} ${ev.data.access_token}`;
-        this.requestUpdate();
+    setTimeout(() => {
+      newWindow = window.open(authUrlObj.toString());
+      if (!newWindow) {
+        console.error(`RapiDoc: Unable to open ${authUrlObj.toString()} in a new window`);
+      } else {
+        sessionStorage.setItem('winMessageEventActive', 'true');
+        window.addEventListener(
+          'message',
+          (msgEvent) => onWindowMessageEvent.call(this, msgEvent, newWindow, tokenUrl, clientId, clientSecret, redirectUrlObj.toString(), grantType, apiKeyId, authFlowDivEl),
+          { once: true },
+        );
       }
-    }
-  };
-  window.addEventListener('message', handleMessageEventFn, true);
+    }, 10);
+  } else if (flowType === 'clientCredentials') {
+    grantType = 'client_credentials';
+    fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrlObj.toString(), grantType, '', apiKeyId);
+  }
 }
 /* eslint-enable no-console */
 
 /* eslint-disable indent */
 
-function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, finalKeyValue, authFlow) {
+function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow) {
   let authSite = '';
+  let flowNameDisplay;
+  if (flowName === 'authorizationCode') {
+    flowNameDisplay = 'Authorization Code Flow';
+  } else if (flowName === 'clientCredentials') {
+    flowNameDisplay = 'Client Credentials Flow';
+  } else if (flowName === 'implicit') {
+    flowNameDisplay = 'Implicit Flow';
+  } else if (flowName === 'password') {
+    flowNameDisplay = 'Password Flow';
+  } else {
+    flowNameDisplay = flowName;
+  }
   try {
     authSite = new URL(authFlow.authorizationUrl).origin;
   } catch (e) {
     authSite = authFlow.authorizationUrl;
   }
   return html`
-    <div class="oauth-flow" style="padding: 10px 0; margin-bottom:10px; border-bottom:1px dashed var(--border-color)"> 
-      <b style="width:75px; display: inline-block;">FLOW</b> ${flowName}
+    <div class="oauth-flow" style="padding: 10px 0; margin-bottom:10px;"> 
+      <div class="tiny-title upper" style="margin-bottom:5px;">${flowNameDisplay}</div> 
       ${authFlow.authorizationUrl
-        ? html`<div><b style="width:75px; display: inline-block;">AUTH URL</b> <span class="mono-font"> ${authFlow.authorizationUrl} </span></div>`
+        ? html`<div><span style="width:75px; display: inline-block;">Auth URL</span> <span class="mono-font"> ${authFlow.authorizationUrl} </span></div>`
         : ''
       }
       ${authFlow.tokenUrl
-        ? html`<div><b style="width:75px; display: inline-block;">TOKEN URL</b> <span class="mono-font">${authFlow.tokenUrl}</span></div>`
+        ? html`<div><span style="width:75px; display: inline-block;">Token URL</span> <span class="mono-font">${authFlow.tokenUrl}</span></div>`
         : ''
       }
       ${authFlow.refreshUrl
-        ? html`<div><b style="width:75px; display: inline-block;">REFRESH URL</b> <span class="mono-font">${authFlow.refreshUrl}</span></div>`
+        ? html`<div><span style="width:75px; display: inline-block;">Refresh URL</span> <span class="mono-font">${authFlow.refreshUrl}</span></div>`
         : ''
       }
-      ${flowName.toLowerCase() === 'authorizationcode'
+      ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit' || flowName === 'password'
         ? html`
           ${authFlow.scopes
             ? html`
-              <b> SCOPES </b>
+              <span> Scopes </span>
               <div class= "oauth-scopes" style = "width:100%; display:flex; flex-direction:column; flex-wrap:wrap; margin:0 0 10px 24px">
                 ${Object.entries(authFlow.scopes).map((scopeAndDescr, index) => html`
                   <div class="m-checkbox" style="display:inline-block">
@@ -175,18 +220,29 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, finalKeyV
           }
           <div style="display:flex; max-height:28px;">
             <input type="text" value = "${clientId}" placeholder="client-id" spellcheck="false" class="oauth-client-id">
-            <input type="password" value = "${clientSecret}" placeholder="client-secret" spellcheck="false" class="oauth-client-secret" style = "margin:0 5px;">
-            ${finalKeyValue
+            ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password'
               ? html`
-                <button class="m-btn thin-border" @click="${(e) => { onClearOAuthKey.call(this, apiKeyId, e); }}"> CLEAR </button>
-              `
-              : html`
+                <input type="password" value = "${clientSecret}" placeholder="client-secret" spellcheck="false" class="oauth-client-secret" style = "margin:0 5px;">`
+              : html`<div style='width:5px'></div>`
+            }
+            ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit'
+              ? html`
                 <button class="m-btn thin-border"
-                  @click="${(e) => { onInvokeOAuth.call(this, apiKeyId, flowName, authFlow.authorizationUrl, authFlow.tokenUrl, e); }}"
-                > AUTHORIZE </button>                                    
-              `
+                  @click="${(e) => { onInvokeOAuthFlow.call(this, apiKeyId, flowName, authFlow.authorizationUrl, authFlow.tokenUrl, e); }}"
+                > AUTHORIZE </button>`
+              : ''
             }
           </div>
+          ${flowName === 'password'
+            ? html`
+              <div style="display:flex; max-height:28px; margin-top:2px">
+                <input type="text" value = "" placeholder="username" spellcheck="false" class="api-key-user">
+                <input type="password" value = "" placeholder="password" spellcheck="false" class="api-key-password" style = "margin:0 5px;">
+              </div>`
+            : ''
+          }  
+          <div class="oauth-err red-text small-font-size"></div>
+          <!--
           <div style="margin-top:8px">
             <ul>
               ${authFlow.authorizationUrl
@@ -208,7 +264,9 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, finalKeyV
                 : ''
               }
             </ul>
-          </div>`
+          </div>
+          -->
+          `
         : ''
       }
     </div>  
@@ -221,27 +279,32 @@ export default function securitySchemeTemplate() {
   <div id='authentication' class = 'observe-me ${this.renderStyle === 'read' ? 'section-gap--read-mode' : 'section-gap '}'>
     <div class='sub-title regular-font'> AUTHENTICATION </div>
 
-    <div class="regular-font-size" style="display:flex;margin: 16px 0 4px 0; align-items: center;">
+    <div class="small-font-size" style="display:flex; align-items: center; min-height:30px">
       ${providedApiKeys.length > 0
-        ? html`<div style="font-weight:bold;color:var(--blue); overflow:hidden;"> 
-            ${providedApiKeys.length === 1
-              ? `API Key '${providedApiKeys[0].name}' in ${providedApiKeys[0].in}`
-              : `${providedApiKeys.length} API keys applied`
-            } 
-          </div>
+        ? html`
+          <div class="blue-text"> ${providedApiKeys.length} API key applied </div>
           <div style="flex:1"></div>
           <button class="m-btn thin-border" @click=${() => { onClearAllApiKeys.call(this); }}>CLEAR ALL API KEYS</button>`
-        : html`<div style="font-weight:bold; color:var(--red)">No API key applied</div>`
+        : html`<div class="red-text">No API key applied</div>`
       }
     </div>
     ${this.resolvedSpec.securitySchemes && this.resolvedSpec.securitySchemes.length > 0
       ? html`  
         <table class='m-table' style = "width:100%">
-          <tr> <th >Type </th> <th> Authentication Procedure</th>  </tr>
+          <tr> <th >Type </th> <th style="width:325px"> Authentication Procedure</th>  </tr>
           ${this.resolvedSpec.securitySchemes.map((v) => html`
             <tr>  
               <td>
-                <div style="font-weight:bold">${v.type}: ${v.scheme} </div>
+                <div style="min-height:24px"> 
+                  <span style="font-weight:bold">${v.type}: ${v.scheme} </span> 
+                  ${v.finalKeyValue
+                    ? html`
+                      <span class='blue-text'>  ${v.finalKeyValue ? 'Key Applied' : ''} </span> 
+                      <button class="m-btn thin-border small" @click=${() => { v.finalKeyValue = ''; this.requestUpdate(); }}>REMOVE</button>
+                      `
+                    : ''
+                  }
+                </div>
                 ${v.description
                   ? html`
                     <div class="m-markdown"> 
@@ -254,8 +317,8 @@ export default function securitySchemeTemplate() {
                 ${v.type === 'apiKey' || (v.type === 'http' && v.scheme === 'bearer')
                   ? html`
                     ${v.type === 'apiKey'
-                      ? html`Send <code>'${v.name}'</code> in <code>'${v.in}'</code> with the given value`
-                      : html`Send <code>'Authorization'</code> in header which will contains the word  <code>'Bearer'</code> followed by a space and a Token String.`
+                      ? html`Send <code>${v.name}</code> in <code>${v.in}</code> with the given value`
+                      : html`Send <code>Authorization</code> in <code>header</code> containing the word <code>Bearer</code> followed by a space and a Token String.`
                     }
                     <div style="display:flex;max-height:28px;">
                       <input type = "text" value = "${v.value}" class="api-key-input" placeholder = "api-token" spellcheck = "false">
@@ -268,10 +331,10 @@ export default function securitySchemeTemplate() {
                 }
                 ${v.type === 'http' && v.scheme === 'basic'
                   ? html`
-                    Send <code>'Authorization'</code> in header which will contains the word  <code>'Basic'</code> followed by a space and a base64-encoded string username:password.
+                    Send <code>Authorization</code> in <code>header</code> containing the word <code>Basic</code> followed by a space and a base64 encoded string of <code>username:password</code>.
                     <div style="display:flex; max-height:28px;">
-                      <input type="text" value = "${v.user}" placeholder="username" spellcheck="false" class="api-key-user">
-                      <input type="password" value = "${v.password}" placeholder="password" spellcheck="false" class="api-key-password" style = "margin:0 5px;">
+                      <input type="text" value = "${v.user}" placeholder="username" spellcheck="false" class="api-key-user" style="width:100px">
+                      <input type="password" value = "${v.password}" placeholder="password" spellcheck="false" class="api-key-password" style = "width:100px; margin:0 5px;">
                       <button class="m-btn thin-border"
                         @click="${(e) => { onApiKeyChange.call(this, v.apiKeyId, e); }}"> 
                         ${v.finalKeyValue ? 'UPDATE' : 'SET'}
@@ -285,7 +348,7 @@ export default function securitySchemeTemplate() {
               ? html`
                 <tr>
                   <td colspan="2" style="border:none; padding-left:48px">
-                    ${Object.keys(v.flows).map((f) => oAuthFlowTemplate.call(this, f, v.clientId, v.clientSecret, v.apiKeyId, v.finalKeyValue, v.flows[f]))} 
+                    ${Object.keys(v.flows).map((f) => oAuthFlowTemplate.call(this, f, v.clientId, v.clientSecret, v.apiKeyId, v.flows[f]))} 
                   </td>
                 </tr>    
                 `
