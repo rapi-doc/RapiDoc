@@ -11,11 +11,11 @@
   - Add relevant documentation in `./docs/api.html`
   
   **NICE TO HAVE**
-  - If adding new dependency, be considerate of the bundle size since we bundle everything in a single file `rapidoc-min.js` and like to keep its size down
+  - If adding new dependency, be considerate of the bundle size since we bundle everything in a single file (`rapidoc-min.js`), like to keep its size down
   - It is a good idea to show case it using an example  
-  - add the example under `./docs/examples` folder
-  - if your example is using a new spec then add in under `./docs/specs` folder
-  - include a reference to the example  in `./docs/list.html`
+    - examples go under `./docs/examples` folder
+    - if your example is using a new spec then add in `./docs/specs` folder
+    - include a reference to the example  in `./docs/list.html` file
 
 ## Prerequisites
 `Node 10.15.3+` and `yarn 1.22.4+` and `npm 6.14.4+` are required. Note: we use yarn to lock dependency versions, so you should install dependencies using `yarn` instead of `npm`.
