@@ -4,14 +4,15 @@
 - **DO NOT** include files inside `dist` directory.
 - Rebase before creating a PR to keep commit history clear.
 - Make sure that running `yarn build` output do not emit any warnings or errors
-- Be considerate of the bundle size, we bundle everything in a single bundle `rapidoc-min.js`.
 
-**IMPORTANT**
-- If you are adding/modifying/renaming any attribute method or event then 
-  - First creating an issue and provide little description about it, including the name, allowed values, defaults etc
-  - If you are trying to include any new dependency then mention before and after size of `rapidoc-min.js`
-  - In you PR add relevant documentation in `./docs/api.html`
-  - It is a good idea to show case it using an example 
+### When adding/modifying/renaming any attribute method or event 
+  **MUST HAVE**
+  - Must be supported with an issue and provide little description about it, including the name, allowed values, defaults etc
+  - Add relevant documentation in `./docs/api.html`
+  
+  **NICE TO HAVE**
+  - If adding new dependency, be considerate of the bundle size since we bundle everything in a single file `rapidoc-min.js` and like to keep its size down
+  - It is a good idea to show case it using an example  
   - add the example under `./docs/examples` folder
   - if your example is using a new spec then add in under `./docs/specs` folder
   - include a reference to the example  in `./docs/list.html`
