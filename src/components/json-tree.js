@@ -9,6 +9,7 @@ export default class JsonTree extends LitElement {
       isCopied: { type: Boolean },
       data: { type: Object },
       renderStyle: { type: String, attribute: 'render-style' },
+      isLast: { type: Boolean },
     };
   }
 
@@ -83,7 +84,7 @@ export default class JsonTree extends LitElement {
           <button  class="toolbar-btn" @click='${(e) => { this.copyExample(this.data, e); }}'> COPY </button>
           <span style="margin-left:8px; color:var(--green)"> ${this.isCopied ? 'Copied' : ''} </span>
         </div>
-        ${this.generateTree(this.data)}
+        ${this.generateTree(this.data, this.isLast)}
       </div>  
     `;
   }

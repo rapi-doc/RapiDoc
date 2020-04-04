@@ -1,0 +1,258 @@
+{
+	"openapi": "3.0.2",
+	"info": {
+		"title": "My API Sample",
+		"version": "0.1",
+		"description": "# Welcome to the My API v2 documentation.\n\nThe My API lets you tap into Vehicle data and build your own My-powered applications for the web, mobile and desktop.\n\n## Get up to speed with the My API \n1. Learn about common formats of API requests, responses and errors.\n2. Get familiar with the My API authentication powered by industry-standard OAuth 2.0 and JWT.\n3. Make your first call to the My API.\n4. Get productive with client libraries for Ruby, Java, Python and PHP.\n5. Check out pricing and rate limits for the My API.\n6. Browse through collection of available data types and operations in Resources section.\n\n## Feedback\nYour feedback does matter. [Let us](https://www.My.com/contact) know what you want to see from the My API.",
+		"contact": {
+			"name": "John Doe"
+		},
+		"license": {
+			"name": "GNU AGPLv3",
+			"url": "https://www.gnu.org/licenses/agpl.txt"
+		},
+		"x-logo": {
+			"url": "data:image/png;base64,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"
+		}
+	},
+	"servers": [{
+		"url": "https://api.example.io",
+		"description": "Cloud Url"
+	}],
+	"paths": {
+		"/iot": {
+			"summary": "IOT Search and Create",
+			"description": "IOT Search and Create\n\n### Search for an IOT\n\n\n### Create an IOT\n",
+			"get": {
+				"tags": ["IOT"],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"required": "Plate, Model",
+									"type": "object",
+									"properties": {
+										"results": {
+											"type": "array",
+											"items": {
+												"required": [],
+												"type": "object",
+												"properties": {
+													"Plate": {
+														"type": "string"
+													},
+													"VIN": {
+														"type": "string"
+													},
+													"Model": {
+														"type": "string"
+													},
+													"BodyType": {
+														"type": "string"
+													},
+													"Make": {
+														"type": "string"
+													},
+													"Year": {
+														"type": "string"
+													},
+													"Color": {
+														"type": "string"
+													}
+												}
+											}
+										}
+									},
+									"example": {
+										"results": [{
+											"Plate": "varchar-30-!null",
+											"VIN": "varchar-30-!null",
+											"Model": "varchar-50-!null",
+											"BodyType": "varchar-50-!null",
+											"Make": "varchar-170-!null",
+											"Year": "varchar-20-!null",
+											"Color": "varchar-50-!null"
+										}, {
+											"Plate": "varchar-30-!null",
+											"VIN": "varchar-30-!null",
+											"Model": "varchar-50-!null",
+											"BodyType": "varchar-50-!null",
+											"Make": "varchar-170-!null",
+											"Year": "varchar-20-!null",
+											"Color": "varchar-50-!null"
+										}]
+									}
+								},
+								"example": {
+									"results": [{
+										"Plate": "varchar-30-!null",
+										"VIN": "varchar-30-!null",
+										"Model": "varchar-50-!null",
+										"BodyType": "varchar-50-!null",
+										"Make": "varchar-170-!null",
+										"Year": "varchar-20-!null",
+										"Color": "varchar-50-!null"
+									}, {
+										"Plate": "varchar-30-!null",
+										"VIN": "varchar-30-!null",
+										"Model": "varchar-50-!null",
+										"BodyType": "varchar-50-!null",
+										"Make": "varchar-170-!null",
+										"Year": "varchar-20-!null",
+										"Color": "varchar-50-!null"
+									}]
+								},
+								"encoding": {
+								},
+								"properties": {
+									"results": {
+										"type": "array",
+										"items": {
+											"required": [],
+											"type": "object",
+											"properties": {
+												"Plate": {
+													"type": "string"
+												},
+												"VIN": {
+													"type": "string"
+												},
+												"Model": {
+													"type": "string"
+												},
+												"BodyType": {
+													"type": "string"
+												},
+												"Make": {
+													"type": "string"
+												},
+												"Year": {
+													"type": "string"
+												},
+												"Color": {
+													"type": "string"
+												}
+											}
+										}
+									}
+								},
+								"type": "object",
+								"format": "",
+								"pattern": "",
+								"required": "Plate, Model"
+							}
+						},
+						"description": "Success",
+						"type": ""
+					}
+				},
+				"operationId": "AllIOTs",
+				"summary": "Search for all IOTs",
+				"description": "Search for all IOTs meta-data"
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"Errors": {
+				"type": "array",
+				"properties": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"code": {
+								"type": "number"
+							},
+							"message": {
+								"type": "string"
+							}
+						}
+					}
+				},
+				"example": [{
+					"code": 400,
+					"message": "wrong input"
+				}, {
+					"code": 401,
+					"message": "unauthorized"
+				}]
+			},
+			"Datetime": {
+				"example": "2012-01-01T12:00:00",
+				"properties": "{\r\n    \"type\": \"string\",\r\n    \"format\": \"datetime\"\r\n}",
+				"type": "string",
+				"format": "datetime"
+			}
+		},
+		"responses": {
+			"400": {
+				"content": {
+					"application/json": {
+						"schema": {
+							"$ref": "#/components/schemas/Errors"
+						}
+					}
+				},
+				"description": "Client Error"
+			},
+			"401": {
+				"content": {
+					"application/json": {
+						"schema": {
+							"$ref": "#/components/schemas/Errors"
+						}
+					}
+				},
+				"description": "Unauthorized"
+			}
+		},
+		"parameters": {
+			"StartDate": {
+				"name": "",
+				"in": "query",
+				"example": "?startdate=2012-01-01T12:00:00",
+				"required": true,
+				"deprecated": false,
+				"allowEmptyValue": false,
+				"description": "Start datetime of the request",
+				"schema": {
+					"$ref": "#/components/schemas/Datetime"
+				}
+			},
+			"EndDate": {
+				"name": "",
+				"in": "query",
+				"example": "?enddate=2012-01-01T19:00:00",
+				"required": true,
+				"deprecated": false,
+				"allowEmptyValue": false,
+				"description": "End datetime",
+				"schema": {
+					"$ref": "#/components/schemas/Datetime"
+				}
+			}
+		},
+		"securitySchemes": {
+			"JWTAuth": {
+				"scheme": "bearer",
+				"bearerFormat": "JWT",
+				"type": "http",
+				"description": "Example: \n> Authorization: Bearer <JWT-Token>\n\nExample for the JWT ([click here](https://jwt.io/#debugger-io?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c)):\neyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c\n\t\n"
+			}
+		}
+	},
+	"security": [{
+		"JWTAuth": []
+	}],
+	"tags": [{
+		"name": "My",
+		"description": "My is a global company dealing with IOT's"
+	}, {
+		"name": "IOT",
+		"description": "IOT devices that control everything"
+	}],
+	"responses": {},
+	"externalDocs": null
+}

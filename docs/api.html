@@ -298,6 +298,26 @@
             <td>true</td>
           </tr>
           <tr>
+            <td class="attr-col mono bold right">show-extra-info</td>
+            <td class="gray">
+              show/hide the headers from info -> description in the left menu (read mode)
+              <br/>
+              Will get the headers from the markdown in info - description (h1 and h2) into the menu on the left (in read mode) along with links to them.
+              This option will allow users to add more detailed documentation.
+            </td>
+            <td>false</td>
+          </tr>
+          <tr>
+            <td class="attr-col mono bold right">show-components</td>
+            <td class="gray">
+              show/hide the components section both in document and menu
+              <br/>
+              Will show the components section along with schemas, responses, examples, requestBodies, headers, securitySchemes, links and callbacks
+              Also will be shown in the menu on the left (in read mode)
+            </td>
+            <td>false</td>
+          </tr>
+          <tr>
             <td class="mono bold right">show-header </td>
             <td class="gray">show/hide the header.<br/> 
               If you dont want your user to open any other api spec, other than the current one, then set this attribute to false</td>
