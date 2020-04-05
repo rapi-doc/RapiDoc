@@ -55,7 +55,7 @@
     "eslint": "^6.8.0",
     "eslint-config-airbnb": "^18.1.0",
     "eslint-import-resolver-webpack": "^0.12.1",
-    "eslint-loader": "^3.0.4",
+    "eslint-loader": "^4.0.0",
     "eslint-plugin-import": "^2.20.2",
     "file-loader": "^6.0.0",
     "filemanager-webpack-plugin": "^2.0.5",
