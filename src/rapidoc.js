@@ -61,7 +61,6 @@ export default class RapiDoc extends LitElement {
       // Hide/Show Sections & Enable Disable actions
       showHeader: { type: String, attribute: 'show-header' },
       showInfo: { type: String, attribute: 'show-info' },
-      showExtraInfo: { type: String, attribute: 'show-extra-info' },
       allowAuthentication: { type: String, attribute: 'allow-authentication' },
       allowTry: { type: String, attribute: 'allow-try' },
       allowSpecUrlLoad: { type: String, attribute: 'allow-spec-url-load' },
@@ -86,6 +85,7 @@ export default class RapiDoc extends LitElement {
       navHoverTextColor: { type: String, attribute: 'nav-hover-text-color' },
       navAccentColor: { type: String, attribute: 'nav-accent-color' },
       navItemSpacing: { type: String, attribute: 'nav-item-spacing' },
+      infoDescriptionHeadingsInNavBar: { type: String, attribute: 'info-description-headings-in-navbar' },
 
       // Filters
       matchPaths: { type: String, attribute: 'match-paths' },
@@ -114,8 +114,7 @@ export default class RapiDoc extends LitElement {
     if (!this.navItemSpacing || !'compact, relaxed, default,'.includes(`${this.navItemSpacing},`)) { this.navItemSpacing = 'default'; }
 
     if (!this.showComponents || !'true false'.includes(this.showComponents)) { this.showComponents = 'false'; }
-    if (!this.showExtraInfo || !'true false'.includes(this.showExtraInfo)) { this.showExtraInfo = 'false'; }
-
+    if (!this.infoDescriptionHeadingsInNavBar || !'true, false,'.includes(`${this.infoDescriptionHeadingsInNavBar},`)) { this.infoDescriptionHeadingsInNavBar = 'false'; }
     window.addEventListener('hashchange', () => {
       this.scrollTo(window.location.hash.substring(1));
     }, true);
@@ -127,6 +126,12 @@ export default class RapiDoc extends LitElement {
     if (this.intersectionObserver) {
       this.intersectionObserver.disconnect();
     }
+  }
+
+  infoDescriptionHeadingRenderer() {
+    const renderer = new marked.Renderer();
+    renderer.heading = (text, level, raw, slugger) => `<h${level} class="observe-me" id="${slugger.slug(text)}">${text}</h${level}>`;
+    return renderer;
   }
 
   /* eslint-disable indent */
@@ -220,13 +225,17 @@ export default class RapiDoc extends LitElement {
         .nav-bar-tag {
           font-size: var(--font-size-regular);
           border-left:4px solid transparent;
-          border-top: 1px solid var(--nav-hover-bg-color);
           font-weight:bold;
           padding: 15px 30px 15px 10px;
           text-transform: capitalize;
         }
+        .nav-bar-tag:not(:first-of-type){
+          border-top: 1px solid var(--nav-hover-bg-color);
+        }
 
         .nav-bar-components,
+        .nav-bar-h1,
+        .nav-bar-h2,
         .nav-bar-info,
         .nav-bar-tag,
         .nav-bar-path {
@@ -235,6 +244,8 @@ export default class RapiDoc extends LitElement {
           border-left:4px solid transparent;
         }
 
+        .nav-bar-h1,
+        .nav-bar-h2,
         .nav-bar-path {
           font-size: var(--font-size-small);
           padding: var(--nav-item-padding);
@@ -244,18 +255,23 @@ export default class RapiDoc extends LitElement {
           padding: 16px 10px;
           font-weight:bold;
         }
-        .nav-bar-header {
-          border: 1px solid var(--nav-text-color);
-          font-size: var(--font-size-regular + 1);
-          padding: 15px 7px;
-          font-weight: bold;
-          background-color: transparent;
+        .nav-bar-section {
+          display: block;
+          font-size: var(--font-size-small);
           color: var(--nav-text-color);
           text-transform: uppercase;
-          border-radius: 5px;
-          margin: 10px 20px 10px 5px;
+          margin: 15px 15px 5px 5px;
+          text-align: right;
+          filter:opacity(0.5);
+          font-weight:bold;
         }
+        .nav-bar-section:first-child {
+          display: none;
+        }
+        .nav-bar-h2 {margin-left:12px;}
 
+        .nav-bar-h1.active,
+        .nav-bar-h2.active,
         .nav-bar-info.active,
         .nav-bar-tag.active,
         .nav-bar-path.active {
@@ -263,6 +279,8 @@ export default class RapiDoc extends LitElement {
           color:var(--nav-hover-text-color);
         }
 
+        .nav-bar-h1:hover,
+        .nav-bar-h2:hover,
         .nav-bar-info:hover,
         .nav-bar-tag:hover,
         .nav-bar-path:hover {
@@ -299,7 +317,7 @@ export default class RapiDoc extends LitElement {
           padding: 24px 8px 12px 8px; 
         }
 
-        .logo { 
+        .logo {
           height:36px;
           width:36px;
           margin-left:5px; 
@@ -411,7 +429,7 @@ export default class RapiDoc extends LitElement {
               </div>
 
               ${this.resolvedSpec.info.description
-                ? html`${unsafeHTML(`<div class='m-markdown regular-font'>${marked(this.resolvedSpec.info.description)}</div>`)}`
+                ? html`${unsafeHTML(`<div class='m-markdown regular-font'>${marked(this.resolvedSpec.info.description, { renderer: this.infoDescriptionHeadingRenderer() })}</div>`)}`
                 : ''
               }
               ${this.resolvedSpec.info.termsOfService
@@ -440,12 +458,8 @@ export default class RapiDoc extends LitElement {
               }
             </div>
 
-            ${(this.showComponents === 'false')
-                ? ''
-                : this.componentsTemplate()
-            }
-
-            `
+            ${this.showComponents === 'true' ? this.componentsTemplate() : ''}
+          `
           : ''
         }
         <slot name="footer"></slot>
@@ -522,18 +536,21 @@ export default class RapiDoc extends LitElement {
           ${(this.showInfo === 'false' || !this.resolvedSpec.info)
             ? ''
             : html`
-              <div id='link-general' class='nav-bar-header' @click='${(e) => this.scrollToEl(e)}'>General</div>
-              <div id='link-overview' class='nav-bar-info'  @click = '${(e) => this.scrollToEl(e)}' > Overview </div>
+              ${(this.infoDescriptionHeadingsInNavBar === 'true')
+                ? html`
+                  ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? html`<div id='link-overview' class='nav-bar-info'  @click = '${(e) => this.scrollToEl(e)}' > Overview </div>` : ''}          
+                  ${this.resolvedSpec.infoDescriptionHeaders.map((header) => html`
+                    <div class='nav-bar-h${header.depth}' id="link-${new marked.Slugger().slug(header.text)}" @click='${(e) => this.scrollToEl(e)}'>
+                      ${header.text}
+                    </div>`)
+                  }
+                  ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? html`<hr style='border-top: 1px solid var(--nav-hover-bg-color); border-width:1px 0 0 0; margin: 15px 0 0 0'/>` : ''}
+                `
+                : html`<div id='link-overview' class='nav-bar-info'  @click = '${(e) => this.scrollToEl(e)}' > Overview </div>`
+              }
             `
-        }
-        ${(this.showExtraInfo === 'false' || !this.resolvedSpec.info || !this.resolvedSpec.info.description)
-          ? ''
-          : html`          
-          ${this.resolvedSpec.extraInfo.map((header) => html`
-          <div class='nav-bar-${header.level === 1 ? 'info' : 'path'}' id="link-${header.id.replace(/[\s#:?&=]/g, '-')}" @click='${(e) => this.scrollToEl(e)}'>
-            ${header.name}
-          </div>`)}
-        `}
+          }
+        
         ${(this.allowTry === 'false' || this.allowServerSelection === 'false')
           ? ''
           : html`<div id='link-api-servers' class='nav-bar-info' @click = '${(e) => this.scrollToEl(e)}' > API Servers </div>`
@@ -543,7 +560,7 @@ export default class RapiDoc extends LitElement {
           : html`<div id='link-authentication'  class='nav-bar-info' @click = '${(e) => this.scrollToEl(e)}' > Authentication </div>`
         }
 
-        <div id='link-paths' class='nav-bar-header' @click='${(e) => this.scrollToEl(e)}'>Paths</div>
+        <span id='link-paths' class='nav-bar-section'>Operations</span>
         ${this.resolvedSpec.tags.map((tag) => html`
         
           <div class='nav-bar-tag' id="link-${tag.name.replace(/[\s#:?&=]/g, '-')}" @click='${(e) => this.scrollToEl(e)}'>
@@ -562,18 +579,16 @@ export default class RapiDoc extends LitElement {
 
         ${(this.showComponents === 'false' || !this.resolvedSpec.components)
         ? ''
-        : html`<div id='link-components' class='nav-bar-header' @click='${(e) => this.scrollToEl(e)}'>Components</div>
-        
-        ${this.resolvedSpec.components.map((component) => html`
-          <div class='nav-bar-tag' id="link-cmp-${component.name.replace(/[\s#:?&=]/g, '-')}" @click='${(e) => this.scrollToEl(e)}'>
-            ${component.name}
-          </div>
-          ${component.subComponents.map((p) => html`
-          <div class='nav-bar-path' id='link-cmp-${p.name.replace(/[\s#:?&=]/g, '-')}' @click='${(e) => this.scrollToEl(e)}'> 
-            <span> ${p.name} </span>
-          </div>`)}
-        `)}
-
+        : html`<div id='link-components' class='nav-bar-section' >Components</div>
+          ${this.resolvedSpec.components.map((component) => html`
+            <div class='nav-bar-tag' id="link-cmp-${component.name.toLowerCase()}" @click='${(e) => this.scrollToEl(e)}'>
+              ${component.name}
+            </div>
+            ${component.subComponents.map((p) => html`
+            <div class='nav-bar-path' id='link-cmp-${p.id}' @click='${(e) => this.scrollToEl(e)}'> 
+              <span> ${p.name} </span>
+            </div>`)}
+          `)}
         `}
         
         </div>`
@@ -808,7 +823,7 @@ export default class RapiDoc extends LitElement {
     const specLoadedEvent = new CustomEvent('spec-loaded', { detail: spec });
     this.dispatchEvent(specLoadedEvent);
 
-    // Initiate ItersectionObserver and put it at the end of event loop, to allow loading all the child elements (must for larger specs)
+    // Initiate IntersectionObserver and put it at the end of event loop, to allow loading all the child elements (must for larger specs)
     this.intersectionObserver.disconnect();
     if (this.renderStyle === 'read') {
       window.setTimeout(() => {
@@ -831,7 +846,7 @@ export default class RapiDoc extends LitElement {
     }
     entries.forEach((entry) => {
       if (entry.isIntersecting && entry.intersectionRatio > 0) {
-        const oldNavEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active');
+        const oldNavEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active');
         const newNavEl = this.shadowRoot.getElementById(`link-${entry.target.id}`);
 
         // Add active class in the new element
@@ -861,7 +876,7 @@ export default class RapiDoc extends LitElement {
       // Disable IntersectionObserver before scrolling into the view, else it will try to scroll the navbar which is not needed here
       this.isIntersectionObserverActive = false;
       contentEl.scrollIntoView({ behavior: 'auto', block: 'start' });
-      const oldEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active');
+      const oldEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active');
       if (oldEl) {
         oldEl.classList.remove('active');
       }

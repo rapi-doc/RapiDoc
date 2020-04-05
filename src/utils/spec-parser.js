@@ -66,8 +66,7 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
   const tags = groupByTags(jsonParsedSpec, sortTags, sortEndpointsBy);
 
   const components = getComponents(jsonParsedSpec);
-
-  const extraInfo = getInfoHeaders(jsonParsedSpec);
+  const infoDescriptionHeaders = getInfoDescriptionHeaders(jsonParsedSpec);
 
   // Security Scheme
   const securitySchemes = [];
@@ -137,13 +136,13 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
   servers = jsonParsedSpec.servers;
   const parsedSpec = {
     info: jsonParsedSpec.info,
-    extraInfo,
+    infoDescriptionHeaders,
     tags,
     components,
     // pathGroups,
     externalDocs: jsonParsedSpec.externalDocs,
     securitySchemes,
-    servers, // In swagger 2, its generated from schemes, host and basePath properties
+    servers,
     basePath: jsonParsedSpec.basePath, // Only available in swagger V2
   };
   return parsedSpec;
@@ -161,41 +160,26 @@ function groupByPaths(openApiSpec) {
   return paths;
 }
 */
-function getInfoHeaders(openApiSpec) {
-  const headers = [];
-  const arr = marked(openApiSpec.info.description).match(/[^\r\n]+/g);
-  for (let i = 0; i < arr.length; i++) {
-    if (!arr[i]) {
-      break;
-    }
-
-    if (arr[i].startsWith('<h1') || arr[i].startsWith('<h2') || arr[i].startsWith('<h3')) {
-      let level = 1;
-      if (arr[i].startsWith('<h2')) {
-        level = 2;
-      } else if (arr[i].startsWith('<h3')) {
-        level = 3;
-      }
-
-      const id = strip(arr[i]).replace(' ', '-').replace('.', '').toLowerCase();
-      headers.push({ level, name: strip(arr[i]), id });
-    }
+function getInfoDescriptionHeaders(openApiSpec) {
+  if (openApiSpec && openApiSpec.info && openApiSpec.info.description) {
+    const tokens = marked.lexer(openApiSpec.info.description);
+    const headers = tokens.filter((v) => v.type === 'heading' && v.depth <= 2);
+    return headers || [];
   }
-  return headers || [];
-}
-
-function strip(html) {
-  const doc = new DOMParser().parseFromString(html, 'text/html');
-  return doc.body.textContent || '';
+  return [];
 }
 
 function getComponents(openApiSpec) {
+  if (!openApiSpec.components) {
+    return [];
+  }
   const components = [];
   for (const component in openApiSpec.components) {
     const subComponents = [];
     for (const sComponent in openApiSpec.components[component]) {
       const scmp = {
         show: true,
+        id: `${component.toLowerCase()}-${sComponent.toLowerCase()}`.replace(/[\s#:?&=]/g, '-'),
         name: sComponent,
         component: openApiSpec.components[component][sComponent],
       };
@@ -224,7 +208,7 @@ function getComponents(openApiSpec) {
         break;
       case 'requestBodies':
         cmpName = 'Request Bodies';
-        cmpDescription = 'Describes common request bodies that are used accross the API operations.';
+        cmpDescription = 'Describes common request bodies that are used across the API operations.';
         break;
       case 'headers':
         cmpName = 'Headers';
@@ -232,6 +216,7 @@ function getComponents(openApiSpec) {
         break;
       case 'securitySchemes':
         cmpName = 'Security Schemes';
+        // eslint-disable-next-line max-len
         cmpDescription = 'Defines a security scheme that can be used by the operations. Supported schemes are HTTP authentication, an API key (either as a header, a cookie parameter or as a query parameter), OAuth2\'s common flows(implicit, password, client credentials and authorization code) as defined in RFC6749, and OpenID Connect Discovery.';
         break;
       case 'links':
@@ -240,6 +225,7 @@ function getComponents(openApiSpec) {
         break;
       case 'callbacks':
         cmpName = 'Callbacks';
+        // eslint-disable-next-line max-len
         cmpDescription = 'A map of possible out-of band callbacks related to the parent operation. Each value in the map is a Path Item Object that describes a set of requests that may be initiated by the API provider and the expected responses. The key value used to identify the path item object is an expression, evaluated at runtime, that identifies a URL to use for the callback operation.';
         break;
       default:
@@ -270,7 +256,7 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
       paths: [],
     }))
     : [];
-    // For each path find the tag and push it into the corrosponding tag
+    // For each path find the tag and push it into the corresponding tag
   for (const path in openApiSpec.paths) {
     const commonParams = openApiSpec.paths[path].parameters;
     const commonPathProp = {

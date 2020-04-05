@@ -291,10 +291,10 @@ export default function securitySchemeTemplate() {
     ${this.resolvedSpec.securitySchemes && this.resolvedSpec.securitySchemes.length > 0
       ? html`  
         <table class='m-table' style = "width:100%">
-          <tr> <th >Type </th> <th style="width:325px"> Authentication Procedure</th>  </tr>
+          <tr> <th> Authentication Procedure</th>  </tr>
           ${this.resolvedSpec.securitySchemes.map((v) => html`
             <tr>  
-              <td>
+              <td style="max-width:500px; overflow-wrap: break-word;">
                 <div style="min-height:24px"> 
                   <span style="font-weight:bold">${v.type}: ${v.scheme} </span> 
                   ${v.finalKeyValue

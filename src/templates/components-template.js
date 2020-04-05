@@ -8,8 +8,7 @@ import '@/components/schema-tree';
 function componentBodyTemplate(sComponent) {
   return html`
   <div class='divider'></div>
-  <div class='expanded-endpoint-body observe-me ${sComponent.name}' id='cmp-${sComponent.name.replace(/[\s#:?&=]/g, '-')}' >
-    
+  <div class='expanded-endpoint-body observe-me ${sComponent.name}' id='cmp-${sComponent.id}' >
     ${html`
       <h1> 
         ${sComponent.name || html`<span class='upper ${sComponent.name}'> ${sComponent.name}</span> ${sComponent.component}`} 
@@ -36,7 +35,7 @@ function componentBodyTemplate(sComponent) {
 export default function componentsTemplate() {
   return html`
   ${this.resolvedSpec.components.map((component) => html`
-    <div id="cmp-${component.name.replace(/[\s#:?&=]/g, '-')}" class='regular-font section-gap--read-mode observe-me' style="border-top:1px solid var(--primary-color);">
+    <div id="cmp-${component.name.toLowerCase()}" class='regular-font section-gap--read-mode observe-me' style="border-top:1px solid var(--primary-color);">
       <div class="title tag">${component.name}</div>
       <div class="regular-font-size">
         ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(component.description ? component.description : '')}</div>`)}
