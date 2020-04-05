@@ -5,54 +5,91 @@ servers:
   - url: //petstore.swagger.io/sandbox
     description: Sandbox server
 info:
-  description: |
-    This is a sample server Petstore server.
-    You can find out more about Swagger at
-    [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).
-    For this sample, you can use the api key `special-key` to test the authorization filters.
-
+  title: Pet Store
+  version: 1.0.0
+  description: >
     # Introduction
-    This API is documented in **OpenAPI format** and is based on
-    [Petstore sample](http://petstore.swagger.io/) provided by [swagger.io](http://swagger.io) team.
-    It was **extended** to illustrate features of [generator-openapi-repo](https://github.com/Rebilly/generator-openapi-repo)
-    tool and [ReDoc](https://github.com/Redocly/redoc) documentation. In addition to standard
-    OpenAPI syntax we use a few [vendor extensions](https://github.com/Redocly/redoc/blob/master/docs/redoc-vendor-extensions.md).
+    
+    Petstore illustrate the typical design decisions and tradeoffs a developer makes when building an enterprise application. 
+    The demo shows how to document REST API services **OpenAPI format** and is based on
+    [Petstore sample](http://petstore.swagger.io/) by [swagger.io](http://swagger.io) team.
+    It was further **extended** by [ReDoc](https://github.com/Redocly/redoc) Team.
+    
+    ## API Categories
+    
+    The APIs are divided in 3 separate categories, to make things easy to discover. 
+    In RapiDoc OpenAPI renderer these catagories are organized into Tags. each of these tags will contain their respective APIs
+    In case you are viewing RapiDoc in `read-mode` then the Tags and their operation will be organized in Left Navigation bar.
+  
+    Below is how these APIs are arranged
+    
+      - Pet
+      - Store
+      - Users
+  
+    ## API Operations
 
-    # OpenAPI Specification
-    This API is documented in **OpenAPI format** and is based on
-    [Petstore sample](http://petstore.swagger.io/) provided by [swagger.io](http://swagger.io) team.
-    It was **extended** to illustrate features of [generator-openapi-repo](https://github.com/Rebilly/generator-openapi-repo)
-    tool and [ReDoc](https://github.com/Redocly/redoc) documentation. In addition to standard
-    OpenAPI syntax we use a few [vendor extensions](https://github.com/Redocly/redoc/blob/master/docs/redoc-vendor-extensions.md).
+    ### Pet Operations
+    
+    Below is the list of supported operations
 
-    # Cross-Origin Resource Sharing
-    This API features Cross-Origin Resource Sharing (CORS) implemented in compliance with  [W3C spec](https://www.w3.org/TR/cors/).
-    And that allows cross-domain communication from the browser.
-    All responses have a wildcard same-origin which makes them completely public and accessible to everyone, including any code on any site.
+      - Update an existing pet
+      - Add a new pet to the store
+      - Find Pet by ID
+      - Updates a pet in the store
+      - Deletes a pet
+      - Upload an pet image
+      - Finds Pets by status
+      - Finds Pets by tags
+
+    ### Store Operations
+  
+    Below is the list of supported operations
+
+      - Get pet inventory by status
+      - Place an order for a pet
+      - Find purchase order by ID
+      - Delete purchase order
+
+    ### User Operations
+
+    Below is the list of supported operations
+
+      - Create User
+      - Login and Logout of user
+      - Get user by user name
+      - Update user
+      - Delete user
+
+    # Example
+
+    Below is a small code sample how to sender this OpenAPI spec using RapiDoc
+
+    ```html
+      <!doctype html> <!-- Important: must specify -->
+      <html>
+      <head>
+        <meta charset="utf-8"> <!-- Important: rapi-doc uses utf8 charecters -->
+        <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+      </head>
+      <body>
+        <rapi-doc 
+          spec-url = "https://petstore.swagger.io/v2/swagger.json" 
+        > </rapi-doc>
+      </body> 
+      </html>
+
+    ```
 
     # Authentication
-
+  
     Petstore offers two forms of authentication:
+      
       - API Key
       - OAuth2
+
     OAuth2 - an open protocol to allow secure authorization in a simple
     and standard method from web, mobile and desktop applications.
-
-    <SecurityDefinitions />
-
-  version: 1.0.0
-  title: Swagger Petstore
-  termsOfService: 'http://swagger.io/terms/'
-  contact:
-    name: API Support
-    email: apiteam@swagger.io
-    url: https://github.com/Redocly/redoc
-  x-logo:
-    url: 'https://redocly.github.io/redoc/petstore-logo.png'
-    altText: Petstore logo
-  license:
-    name: Apache 2.0
-    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 externalDocs:
   description: Find out how to create Github repo for your OpenAPI spec.
   url: 'https://github.com/Rebilly/generator-openapi-repo'
@@ -71,18 +108,6 @@ tags:
     x-displayName: The Order Model
     description: |
       <SchemaDefinition schemaRef="#/components/schemas/Order" exampleRef="#/components/examples/Order" showReadOnly={true} showWriteOnly={true} />
-x-tagGroups:
-  - name: General
-    tags:
-      - pet
-      - store
-  - name: User Management
-    tags:
-      - user
-  - name: Models
-    tags:
-      - pet_model
-      - store_model
 paths:
   /pet:
     parameters:
