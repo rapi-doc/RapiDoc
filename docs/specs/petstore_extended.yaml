@@ -78,7 +78,18 @@ info:
         > </rapi-doc>
       </body> 
       </html>
+    ```
 
+    # OpenAPI Version
+
+    You can find the version of OpenAPI spec from the `version` object
+
+    ```yaml
+      openapi: 3.0.2
+      info:
+        version: '1.0'
+        title: Server Variables
+      ...  
     ```
 
     # Authentication
