@@ -1,5 +1,6 @@
 import { LitElement, html } from 'lit-element';
 import marked from 'marked';
+
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import TableStyles from '@/styles/table-styles';
 import FlexStyles from '@/styles/flex-styles';
@@ -978,6 +979,7 @@ export default class ApiRequest extends LitElement {
       URL.revokeObjectURL(this.responseBlobUrl);
       this.responseBlobUrl = '';
     }
+    super.disconnectedCallback();
   }
 }
 

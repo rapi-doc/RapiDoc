@@ -132,7 +132,7 @@ export default function setTheme(baseTheme, theme = {}) {
       lightBorderColor: theme.lightBorderColor ? theme.lightBorderColor : ColorUtils.color.brightness(bg1, -15), // #eee
       codeBorderColor: theme.codeBorderColor ? theme.codeBorderColor : '#transparent',
 
-      codeBg: theme.codeBg ? theme.codeBg : '#4e575e',
+      codeBg: theme.codeBg ? theme.codeBg : '#404040',
       codeFg: theme.codeFg ? theme.codeFg : '#ccc',
 
       inputBg: theme.inputBg ? theme.inputBg : ColorUtils.color.brightness(bg1, 10), // #fff

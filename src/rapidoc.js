@@ -1,12 +1,21 @@
 import { LitElement, html } from 'lit-element';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import marked from 'marked';
+import Prism from 'prismjs';
+import 'prismjs/components/prism-css';
+import 'prismjs/components/prism-yaml';
+import 'prismjs/components/prism-go';
+import 'prismjs/components/prism-java';
+import 'prismjs/components/prism-json';
+import 'prismjs/components/prism-bash';
+import 'prismjs/components/prism-python';
 
 import FontStyles from '@/styles/font-styles';
 import InputStyles from '@/styles/input-styles';
 import FlexStyles from '@/styles/flex-styles';
 import TableStyles from '@/styles/table-styles';
 import EndpointStyles from '@/styles/endpoint-styles';
+import PrismStyles from '@/styles/prism-styles';
 
 import { isValidHexColor } from '@/utils/color-utils';
 import SetTheme from '@/utils/theme';
@@ -115,6 +124,16 @@ export default class RapiDoc extends LitElement {
 
     if (!this.showComponents || !'true false'.includes(this.showComponents)) { this.showComponents = 'false'; }
     if (!this.infoDescriptionHeadingsInNavBar || !'true, false,'.includes(`${this.infoDescriptionHeadingsInNavBar},`)) { this.infoDescriptionHeadingsInNavBar = 'false'; }
+
+    marked.setOptions({
+      highlight: (code, lang) => {
+        if (Prism.languages[lang]) {
+          return Prism.highlight(code, Prism.languages[lang], lang);
+        }
+        return code;
+      },
+    });
+
     window.addEventListener('hashchange', () => {
       this.scrollTo(window.location.hash.substring(1));
     }, true);
@@ -122,10 +141,10 @@ export default class RapiDoc extends LitElement {
 
   // Cleanup
   disconnectedCallback() {
-    super.connectedCallback();
     if (this.intersectionObserver) {
       this.intersectionObserver.disconnect();
     }
+    super.disconnectedCallback();
   }
 
   infoDescriptionHeadingRenderer() {
@@ -153,6 +172,7 @@ export default class RapiDoc extends LitElement {
       ${FlexStyles}
       ${TableStyles}
       ${EndpointStyles}
+      ${PrismStyles}
       ${this.theme === 'dark' ? SetTheme('dark', newTheme) : SetTheme('light', newTheme)}
 
       <style>
@@ -330,7 +350,7 @@ export default class RapiDoc extends LitElement {
           font-size:calc(var(--title-font-size) + 8px); 
           padding:0 8px;
         }
-        .tag{
+        .tag.title {
           text-transform: uppercase;
         }
         .header{
