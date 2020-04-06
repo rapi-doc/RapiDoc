@@ -10,6 +10,17 @@
       gtag('config', 'UA-132775238-1');
     </script>
 
+    <script>
+      function getRapiDoc(){
+        return document.getElementById("thedoc");
+      }  
+
+      function scrollWithAPI() {
+        let docEl = getRapiDoc();
+        docEl.scrollTo("get-/closed");
+      }
+    </script>
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
     <script type="text/javascript" src="../rapidoc-min.js"></script>
@@ -18,11 +29,13 @@
   </head>
   <body>
     <rapi-doc 
+      id="thedoc"
       spec-url="../specs/collapsable.yaml" 
       show-header = "false"
       allow-try = "false" 
       allow-authentication = "false"
     > 
+    <p style="background-color:lavender;">External button using API to scroll to target <button class="btn normal" onclick="scrollWithAPI()">Scroll with api</button></p>
   </rapi-doc>
   </body>
 </html>
