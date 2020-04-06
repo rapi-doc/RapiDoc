@@ -805,27 +805,38 @@ export default class RapiDoc extends LitElement {
     // On first time Spec load, try to navigate to location hash if provided
     if (window.location.hash) {
       if (!this.gotoPath) {
-        this.expandTreeToPath(window.location.hash);
+        this.expandTreeToPath(window.location.hash, true, true);
       }
     }
   }
 
-  expandTreeToPath(hash) {
+  expandTreeToPath(pathInput, expandOperation = true, scrollToElement = true) {
     // Expand full operation and tag
+    if (pathInput.indexOf('#') === 0) pathInput = pathInput.substring(1);
+    let path;
+
     this.resolvedSpec.tags.map((tag) => tag.paths.filter((v) => {
-      const method = hash.match(new RegExp('\#(.*?)\-'));
+      const method = pathInput.match(new RegExp('(.*?)-'));
       const methodType = (method && method.length === 2) ? method[1] : null;
-      const path = hash.match(new RegExp('\/([^\/]+)\/?$'));
+      path = pathInput.match(new RegExp('/([^/]+)/?$'));
       const pathValue = (path && path.length === 2) ? path[0] : null;
 
       if (methodType && pathValue && methodType === v.method && pathValue === v.path) {
-        v.expanded = true;
+        v.expanded = expandOperation;
         tag.expanded = true;
       }
     }));
-    window.setTimeout(() => {
-      this.scrollTo(hash.substring(1));
-    }, 150);
+    this.requestUpdate();
+
+    if (scrollToElement) {
+      // delay required, else we cant find element
+      window.setTimeout(() => {
+        const gotoEl = this.shadowRoot.getElementById(pathInput);
+        if (gotoEl) {
+          gotoEl.scrollIntoView({ behavior: 'auto', block: 'start' });
+        }
+      }, 150);
+    }
   }
 
   onIntersect(entries) {
@@ -892,13 +903,7 @@ export default class RapiDoc extends LitElement {
   scrollTo(path, expandPath = true) {
     const gotoEl = this.shadowRoot.getElementById(path);
     if (gotoEl) {
-      if (expandPath) {
-        const endpointHeadEl = gotoEl.querySelector('.endpoint-head.collapsed');
-        if (endpointHeadEl) {
-          endpointHeadEl.click();
-        }
-      }
-      gotoEl.scrollIntoView({ behavior: 'auto', block: 'start' });
+      this.expandTreeToPath(path, expandPath, true);
     }
   }
 

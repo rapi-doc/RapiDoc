@@ -206,9 +206,11 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
             name: tagText,
             paths: [],
             description: tagDescr ? tagDescr.description : '',
-            expanded: tagDescr ? tagDescr.expanded : true,
+            expanded: (tagDescr && typeof tagDescr.expanded === 'boolean') ? tagDescr.expanded : true,
           };
           tags.push(tagObj);
+        } else {
+          tagObj.expanded = (tagDescr && typeof tagDescr.expanded === 'boolean') ? tagDescr.expanded : true;
         }
 
         // Generate Path summary and Description if it is missing for a method
