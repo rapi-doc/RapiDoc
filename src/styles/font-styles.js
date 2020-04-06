@@ -20,11 +20,12 @@ export default html`
   .tiny-title { font-size:calc(var(--font-size-small) + 1px); font-weight:bold; }
   .regular-font-size { font-size:var(--font-size-regular); }
   .small-font-size { font-size:var(--font-size-small); }
+  .upper { text-transform: uppercase; }
   .primary-text{ color: var(--primary-color); }
   .bold-text { font-weight:bold; }
   .gray-text { color: var(--light-fg); }
-  .upper { text-transform: uppercase; }
   .red-text {color: var(--red)}
+  .blue-text {color: var(--blue)}
   .multiline {
     overflow: scroll;
     max-height: var(--resp-area-height, 300px);
@@ -36,12 +37,12 @@ export default html`
   .method-fg.delete { color: var(--red); }
   .method-fg.patch { color: var(--yellow); }
 
-  h1{ font-family:var(--font-regular); font-size:24px; letter-spacing:normal; font-weight:normal; }
-  h2{ font-family:var(--font-regular); font-size:20px; letter-spacing:normal; font-weight:normal; }
-  h3{ font-family:var(--font-regular); font-size:18px; letter-spacing:normal; font-weight:normal; }
-  h4{ font-family:var(--font-regular); font-size:16px; letter-spacing:normal; font-weight:normal; }
-  h5{ font-family:var(--font-regular); font-size:14px; letter-spacing:normal; font-weight:normal; }
-  h6{ font-family:var(--font-regular); font-size:14px; letter-spacing:normal; font-weight:normal; }
+  h1{ font-family:var(--font-regular); font-size:28px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
+  h2{ font-family:var(--font-regular); font-size:24px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
+  h3{ font-family:var(--font-regular); font-size:18px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
+  h4{ font-family:var(--font-regular); font-size:16px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
+  h5{ font-family:var(--font-regular); font-size:14px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
+  h6{ font-family:var(--font-regular); font-size:14px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
 
   h1,h2,h3,h4,h5,h5{
     margin-block-end: 0.2em;

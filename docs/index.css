@@ -28,6 +28,7 @@ h1,h2,h3 { font-weight:300; }
 .dark-gray { color:#444; }
 .light-gray { color:#aaa; }
 .blue { color:steelblue; }
+.orange { color:orangered; }
 .small-font {font-size:12px;}
 .table-title { margin: 12px 0 5px 0; font-weight:bold; }
 .descr {
@@ -85,7 +86,17 @@ h1,h2,h3 { font-weight:300; }
   line-height: 40px;
   color: #fff;
 }
-
+.row{
+  display:flex;
+  flex-direction: row;
+  width:100%;
+  justify-content: space-evenly;
+}
+.col{
+  display:flex;
+  flex-direction: column;
+  align-items: center;
+}
 .footer{
   display:flex;
   flex-direction: row;

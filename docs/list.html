@@ -66,26 +66,37 @@
   </div>
   <div style="display:flex; width:100%; flex-wrap:wrap; justify-content:center;">
     <div class = "container" >
-      <a href="./examples/example1.html"> Basic Usage </a>
+      Petstore
       <img style="width:32px" src="./images/dog.png"/>
-      <div class = "c-description" >
-        Petstore
+      <a href="./examples/example1.html"> Basic Petstore </a>
+      <a href="./examples/petstore-extended.html"> Extended Petstore </a>
+    </div>  
+
+    <div class = "container" >
+      <div style="padding: 0 0 10px 0">Render Style</div>
+      <div class="row">
+        <div class="col">
+          <img style="width:32px" src="./images/view-mode.png"/>
+          <a href="./examples/example1.html"> View </a>
+        </div>
+        <div class="col">
+          <img style="width:32px" src="./images/read-mode.png"/>
+          <a href="./examples/read-mode.html"> Read </a>
+        </div>
       </div>
     </div>  
 
     <div class = "container" >
-      <a href="./examples/read-mode.html"> Render Style = READ </a>
-      <img style="width:32px" src="./images/read-style.png"/>
-      <div class = "c-description" >
-        More suitable for reading
-      </div>
-    </div>  
-
-    <div class = "container" >
-      <a href="./examples/example2.html"> Dark Theme </a>
-      <a href="./examples/read-mode-dark.html"> Dark Read Mode </a> 
-      <img style="width:32px" src="./images/dark-theme.png"/>
-      <div class = "c-description" >
+      <div style="padding: 0 0 10px 0">Dark Theme</div>
+      <div class="row">
+        <div class="col">
+          <img style="width:32px" src="./images/dark-theme.png"/>
+          <a href="./examples/example2.html"> Dark View </a>
+        </div>
+        <div class="col">
+          <img style="width:32px;filter:brightness(0.6)" src="./images/read-mode.png"/>
+          <a href="./examples/read-mode-dark.html"> Dark Read </a>
+        </div>
       </div>
     </div>  
 
@@ -112,16 +123,23 @@
     </div>  
 
     <div class = "container" >
-      <a href="./examples/schema-table.html">Schema Style </a>
-      <div class = "c-description" >
-        Table / Tree
+      <div style="padding: 0 0 10px 0">Schema Style</div>
+      <div class="row">
+        <div class="col">
+          <img style="width:32px" src="./images/schema-tree.png"/>
+        </div>
+        <div class="col">
+          <img style="width:32px" src="./images/schema-table.png"/>
+        </div>
       </div>
+      <a href="./examples/schema-table.html"> Tree / Table </a>
     </div>  
 
+
     <div class = "container" >
-      <a href="./examples/default-schema-tab.html"> Schema View </a>
+      <a href="./examples/schema-tab-default.html"> Default Schema View </a>
       <div class = "c-description" >
-        Set the default tab in Schema to EXAMPLE insted on MODEL
+        Set the default tab in Schema to EXAMPLE instead on MODEL
       </div>
     </div>  
 
@@ -162,7 +180,14 @@
 
     <div class = "container">
       <a href="./examples/request-body-multiple.html"> Multiple Request Body  </a>
-      <img style="width:32px" src="./images/multiple-layer.png"/>
+      <img style="width:32px" src="./images/multiple.png"/>
+      <div class = "c-description" >
+      </div>
+    </div>  
+
+    <div class = "container">
+      <a href="./examples/arrange-by-tags.html"> Arranging Tags  </a>
+      <img style="width:32px" src="./images/sort.png"/>
       <div class = "c-description" >
       </div>
     </div>  
@@ -173,6 +198,13 @@
       <a href="./examples/dynamic-form-params.html"> Form Parameters - Dynamic </a>
     </div>  
 
+    <div class = "container">
+      <div> OAUTH</div>
+      <img style="width:32px" src="./images/oauth.png"/>
+      <a href="./oauth_instructions.html"> OAuth Instructions</a>
+      <a href="./examples/oauth.html"> OAuth Demo </a>
+
+    </div>  
 
     <div class = "container">
       <a href="./examples/additional-props.html"> Additional Properties </a>
@@ -207,7 +239,7 @@
     <div class = "container" >
       <a href="./examples/example9.html"> JSON Object as OpenAPI Spec </a>
       <div class = "c-description" >
-        A text-box & button is added on the header for the Petstore Spec. Which helps is authorization
+        programmatically load a JSON object (should not contain external JSON refs)
       </div>
     </div>  
 
@@ -228,7 +260,7 @@
 
     <div class = "container" >
       <a href="./examples/external-refs.html"> Spec split into multiple files </a>
-      <img style="width:32px" src="./images/files.png"/>
+      <img style="width:32px" src="./images/refs.png"/>
       <div class = "c-description" >
         Large Specs can be split into multiple files and can refer each other with JSON refs
       </div>
@@ -248,6 +280,7 @@
       <div class = "c-description" >
         Shows various things that can be controlled using script
       </div>
+
     </div>  
 
   </div>  

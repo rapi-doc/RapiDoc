@@ -92,7 +92,9 @@
           </tr>
           <tr>
             <td class="attr-col mono bold right">sort-tags </td>
-            <td class="gray"><span class='bold dark-gray'>Allowed:<span class='blue'> true, false</span></span> To list APIs sorted by tags</td>
+            <td class="gray"><span class='bold dark-gray'>Allowed:<span class='blue'> true, false</span></span> To list tags in alphabetic order, 
+              otherwise tags will be ordered based on how it is specified under the <span class = "mono blue bold">tags</span> section in the spec. 
+            </td>
             <td class='default-col'>false</td>
           </tr>
           <tr>
@@ -294,6 +296,26 @@
               Chances are, the help doc may already have this info, in that case you may want to hide this section.
             </td>
             <td>true</td>
+          </tr>
+          <tr>
+            <td class="attr-col mono bold right">add-info-headings-to-navbar</td>
+            <td class="gray">
+              Include headers from info -> description section to the Navigation bar (applies to read mode only)
+              <br/>
+              Will get the headers from the markdown in info - description (h1 and h2) into the menu on the left (in read mode) along with links to them.
+              This option allows users to add navigation bar items using Markdown
+            </td>
+            <td>false</td>
+          </tr>
+          <tr>
+            <td class="attr-col mono bold right">show-components</td>
+            <td class="gray">
+              show/hide the components section both in document and menu
+              <br/>
+              Will show the components section along with schemas, responses, examples, requestBodies, headers, securitySchemes, links and callbacks
+              Also will be shown in the menu on the left (in read mode)
+            </td>
+            <td>false</td>
           </tr>
           <tr>
             <td class="mono bold right">show-header </td>

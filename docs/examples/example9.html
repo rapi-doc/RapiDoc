@@ -12,7 +12,7 @@
     </style>
   </head>
   <body>
-    <rapi-doc id="thedoc" render-style = "read" allow-try="false" regular-font="Open Sans"> </rapi-doc>
+    <rapi-doc id="thedoc" render-style = "read" allow-try="false" allow-authentication = "false" regular-font="Open Sans"> </rapi-doc>
     
     <script>
       document.addEventListener('DOMContentLoaded', (event) => {
@@ -20,11 +20,13 @@
         let strSpec = `
         {
           "swagger": "2.0",
-          "info": { "description": "Sample to test" },
+          "info": { 
+          },
           "paths": {
-            "/pets": {
+            "/JSON": {
               "get": {
-                "description": "Returns all pets from the system that the user has access to",
+                "summary": "Creating spec from JSON Object",
+                "description": "This spec is created dynamically from a JSON object For code refer https://github.com/mrin9/RapiDoc/blob/master/docs/examples/example9.html",
                 "produces": [ "application/json"],
                 "responses": {
                   "200": {
@@ -56,7 +58,6 @@
         docEl.loadSpec(objSpec);
       })
     </script>
-    
   </body>
 
 
