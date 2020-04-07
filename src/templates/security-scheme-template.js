@@ -45,8 +45,9 @@ function updateOAuthKey(apiKeyId, tokenType = 'Bearer', accessToken) {
 
 /* eslint-disable no-console */
 // Gets Access-Token in exchange of Authorization Code
-async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, grantType, authCode, apiKeyId) {
+async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, grantType, authCode, apiKeyId, authFlowDivEl) {
   const formData = new FormData();
+  const respDisplayEl = authFlowDivEl ? authFlowDivEl.querySelector('.oauth-resp-display') : undefined;
   formData.append('grant_type', grantType);
   if (authCode) {
     formData.append('code', authCode);
@@ -60,14 +61,21 @@ async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, g
       const tokenResp = await resp.json();
       if (tokenResp.token_type && tokenResp.access_token) {
         updateOAuthKey.call(this, apiKeyId, tokenResp.token_type, tokenResp.access_token);
+        if (respDisplayEl) {
+          respDisplayEl.innerHTML = '<span style="color:var(--green)">Access Token Received</span>';
+        }
         return true;
       }
     } else {
-      console.error('RapiDoc: Unable to get access token');
+      if (respDisplayEl) {
+        respDisplayEl.innerHTML = '<span style="color:var(--red)">Unable to get access token</span>';
+      }
+      return false;
     }
-    return false;
   } catch (err) {
-    console.error('RapiDoc: Unable to get access token');
+    if (respDisplayEl) {
+      respDisplayEl.innerHTML = '<span style="color:var(--red)">Failed to get access token</span>';
+    }
     return false;
   }
 }
@@ -88,15 +96,7 @@ async function onWindowMessageEvent(msgEvent, winObj, tokenUrl, clientId, client
   if (msgEvent.data) {
     if (msgEvent.data.responseType === 'code') {
       // Authorization Code flow
-      const gotAccessToken = await fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrl, grantType, msgEvent.data.code, apiKeyId);
-      const resultEl = authFlowDivEl.querySelector('.oauth-err');
-      if (resultEl) {
-        if (gotAccessToken === false) {
-          resultEl.innerHTML = 'Failed to get Access Token';
-        } else {
-          resultEl.innerHTML = '<span style="color:var(--green)">Access Token Received</span>';
-        }
-      }
+      fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrl, grantType, msgEvent.data.code, apiKeyId, authFlowDivEl);
     } else if (msgEvent.data.responseType === 'token') {
       // Implicit flow
       updateOAuthKey.call(this, apiKeyId, msgEvent.data.token_type, msgEvent.data.access_token);
@@ -117,7 +117,7 @@ async function onInvokeOAuthFlow(apiKeyId, flowType, authUrl, tokenUrl, e) {
   let newWindow;
 
   // clear previous error messages
-  const errEls = [...authFlowDivEl.parentNode.querySelectorAll('.oauth-err')];
+  const errEls = [...authFlowDivEl.parentNode.querySelectorAll('.oauth-resp-display')];
   errEls.forEach((v) => { v.innerHTML = ''; });
 
   if (flowType === 'authorizationCode' || flowType === 'implicit') {
@@ -158,7 +158,7 @@ async function onInvokeOAuthFlow(apiKeyId, flowType, authUrl, tokenUrl, e) {
     }, 10);
   } else if (flowType === 'clientCredentials') {
     grantType = 'client_credentials';
-    fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrlObj.toString(), grantType, '', apiKeyId);
+    fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrlObj.toString(), grantType, '', apiKeyId, authFlowDivEl);
   }
 }
 /* eslint-enable no-console */
@@ -241,7 +241,7 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow)
               </div>`
             : ''
           }  
-          <div class="oauth-err red-text small-font-size"></div>
+          <div class="oauth-resp-display red-text small-font-size"></div>
           <!--
           <div style="margin-top:8px">
             <ul>
@@ -291,7 +291,6 @@ export default function securitySchemeTemplate() {
     ${this.resolvedSpec.securitySchemes && this.resolvedSpec.securitySchemes.length > 0
       ? html`  
         <table class='m-table' style = "width:100%">
-          <tr> <th> Authentication Procedure</th>  </tr>
           ${this.resolvedSpec.securitySchemes.map((v) => html`
             <tr>  
               <td style="max-width:500px; overflow-wrap: break-word;">
