@@ -1,5 +1,6 @@
 import { LitElement, html } from 'lit-element';
 import marked from 'marked';
+
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import TableStyles from '@/styles/table-styles';
 import FlexStyles from '@/styles/flex-styles';
@@ -846,7 +847,10 @@ export default class ApiRequest extends LitElement {
         }
       }
       // Common for all request-body
-      fetchOptions.headers['Content-Type'] = `${requestBodyType}; charset=utf-8; boundary=RAPIDOC`;
+      if (!requestBodyType.includes('form-data')) {
+        // For multipart/form-data dont set the content-type to allow creation of browser generated part boundaries
+        fetchOptions.headers['Content-Type'] = `${requestBodyType}; charset=utf-8;`;
+      }
       curlHeaders += ` -H "Content-Type: ${requestBodyType}"`;
     }
 
@@ -975,6 +979,7 @@ export default class ApiRequest extends LitElement {
       URL.revokeObjectURL(this.responseBlobUrl);
       this.responseBlobUrl = '';
     }
+    super.disconnectedCallback();
   }
 }
 

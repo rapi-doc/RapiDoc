@@ -1,12 +1,21 @@
 import { LitElement, html } from 'lit-element';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import marked from 'marked';
+import Prism from 'prismjs';
+import 'prismjs/components/prism-css';
+import 'prismjs/components/prism-yaml';
+import 'prismjs/components/prism-go';
+import 'prismjs/components/prism-java';
+import 'prismjs/components/prism-json';
+import 'prismjs/components/prism-bash';
+import 'prismjs/components/prism-python';
 
 import FontStyles from '@/styles/font-styles';
 import InputStyles from '@/styles/input-styles';
 import FlexStyles from '@/styles/flex-styles';
 import TableStyles from '@/styles/table-styles';
 import EndpointStyles from '@/styles/endpoint-styles';
+import PrismStyles from '@/styles/prism-styles';
 
 import { isValidHexColor } from '@/utils/color-utils';
 import { pathIsInSearch } from '@/utils/common-utils';
@@ -16,6 +25,7 @@ import expandedEndpointTemplate from '@/templates/expanded-endpoint-template';
 import endpointTemplate from '@/templates/endpoint-template';
 import serverTemplate from '@/templates/server-template';
 import securitySchemeTemplate from '@/templates/security-scheme-template';
+import componentsTemplate from '@/templates/components-template';
 
 export default class RapiDoc extends LitElement {
   constructor() {
@@ -67,6 +77,7 @@ export default class RapiDoc extends LitElement {
       allowSpecFileLoad: { type: String, attribute: 'allow-spec-file-load' },
       allowSearch: { type: String, attribute: 'allow-search' },
       allowServerSelection: { type: String, attribute: 'allow-server-selection' },
+      showComponents: { type: String, attribute: 'show-components' },
 
       // Main Colors and Font
       theme: { type: String },
@@ -84,6 +95,7 @@ export default class RapiDoc extends LitElement {
       navHoverTextColor: { type: String, attribute: 'nav-hover-text-color' },
       navAccentColor: { type: String, attribute: 'nav-accent-color' },
       navItemSpacing: { type: String, attribute: 'nav-item-spacing' },
+      infoDescriptionHeadingsInNavBar: { type: String, attribute: 'info-description-headings-in-navbar' },
 
       // Filters
       matchPaths: { type: String, attribute: 'match-paths' },
@@ -111,6 +123,18 @@ export default class RapiDoc extends LitElement {
     if (!this.sortEndpointsBy || !'method, path,'.includes(`${this.sortEndpointsBy},`)) { this.sortEndpointsBy = 'path'; }
     if (!this.navItemSpacing || !'compact, relaxed, default,'.includes(`${this.navItemSpacing},`)) { this.navItemSpacing = 'default'; }
 
+    if (!this.showComponents || !'true false'.includes(this.showComponents)) { this.showComponents = 'false'; }
+    if (!this.infoDescriptionHeadingsInNavBar || !'true, false,'.includes(`${this.infoDescriptionHeadingsInNavBar},`)) { this.infoDescriptionHeadingsInNavBar = 'false'; }
+
+    marked.setOptions({
+      highlight: (code, lang) => {
+        if (Prism.languages[lang]) {
+          return Prism.highlight(code, Prism.languages[lang], lang);
+        }
+        return code;
+      },
+    });
+
     window.addEventListener('hashchange', () => {
       this.scrollTo(window.location.hash.substring(1));
     }, true);
@@ -118,10 +142,16 @@ export default class RapiDoc extends LitElement {
 
   // Cleanup
   disconnectedCallback() {
-    super.connectedCallback();
     if (this.intersectionObserver) {
       this.intersectionObserver.disconnect();
     }
+    super.disconnectedCallback();
+  }
+
+  infoDescriptionHeadingRenderer() {
+    const renderer = new marked.Renderer();
+    renderer.heading = (text, level, raw, slugger) => `<h${level} class="observe-me" id="${slugger.slug(text)}">${text}</h${level}>`;
+    return renderer;
   }
 
   /* eslint-disable indent */
@@ -143,6 +173,7 @@ export default class RapiDoc extends LitElement {
       ${FlexStyles}
       ${TableStyles}
       ${EndpointStyles}
+      ${PrismStyles}
       ${this.theme === 'dark' ? SetTheme('dark', newTheme) : SetTheme('light', newTheme)}
 
       <style>
@@ -212,16 +243,20 @@ export default class RapiDoc extends LitElement {
           border-width: 0 3px;
           background-color: var(--nav-hover-bg-color);
         }
-
         .nav-bar-tag {
           font-size: var(--font-size-regular);
           border-left:4px solid transparent;
-          border-top: 1px solid var(--nav-hover-bg-color);
           font-weight:bold;
           padding: 15px 30px 15px 10px;
           text-transform: capitalize;
         }
+        .nav-bar-tag:not(:first-of-type){
+          border-top: 1px solid var(--nav-hover-bg-color);
+        }
 
+        .nav-bar-components,
+        .nav-bar-h1,
+        .nav-bar-h2,
         .nav-bar-info,
         .nav-bar-tag,
         .nav-bar-path {
@@ -230,6 +265,8 @@ export default class RapiDoc extends LitElement {
           border-left:4px solid transparent;
         }
 
+        .nav-bar-h1,
+        .nav-bar-h2,
         .nav-bar-path {
           font-size: var(--font-size-small);
           padding: var(--nav-item-padding);
@@ -239,7 +276,23 @@ export default class RapiDoc extends LitElement {
           padding: 16px 10px;
           font-weight:bold;
         }
+        .nav-bar-section {
+          display: block;
+          font-size: var(--font-size-small);
+          color: var(--nav-text-color);
+          text-transform: uppercase;
+          margin: 15px 15px 5px 5px;
+          text-align: right;
+          filter:opacity(0.5);
+          font-weight:bold;
+        }
+        .nav-bar-section:first-child {
+          display: none;
+        }
+        .nav-bar-h2 {margin-left:12px;}
 
+        .nav-bar-h1.active,
+        .nav-bar-h2.active,
         .nav-bar-info.active,
         .nav-bar-tag.active,
         .nav-bar-path.active {
@@ -247,6 +300,8 @@ export default class RapiDoc extends LitElement {
           color:var(--nav-hover-text-color);
         }
 
+        .nav-bar-h1:hover,
+        .nav-bar-h2:hover,
         .nav-bar-info:hover,
         .nav-bar-tag:hover,
         .nav-bar-path:hover {
@@ -298,7 +353,7 @@ export default class RapiDoc extends LitElement {
           display: none;
         }
 
-        .logo { 
+        .logo {
           height:36px;
           width:36px;
           margin-left:5px; 
@@ -311,7 +366,7 @@ export default class RapiDoc extends LitElement {
           font-size:calc(var(--title-font-size) + 8px); 
           padding:0 8px;
         }
-        .tag{
+        .tag.title {
           text-transform: uppercase;
         }
         .header{
@@ -406,61 +461,65 @@ export default class RapiDoc extends LitElement {
         
       </style>
       
-      ${this.showHeader === 'false' ? '' : this.headerTemplate()}
-      <div class="body">
-        ${this.renderStyle === 'read' && this.resolvedSpec ? this.navBarTemplate() : ''}
-        
-        <div class="main-content regular-font ${this.renderStyle === 'read' ? 'main-content--read-mode' : ''} " style = "${this.renderStyle === 'read' ? 'padding:0' : ''}">
-          <slot></slot>
-          ${this.loading === true ? html`<div class="loader"></div>` : ''}
-          ${this.loadFailed === true ? html`<div style="text-align: center;margin: 16px;"> Unable to load the Spec</div>` : ''}
-          ${this.resolvedSpec
-            ? html`
-              ${(this.showInfo === 'false' || !this.resolvedSpec.info) ? '' : html`
-              <div id = 'overview' class = 'observe-me ${this.renderStyle === 'read' ? 'section-gap--read-mode' : 'section-gap'}'>
-                <div style = 'font-size:32px'>
-                  ${this.resolvedSpec.info.title}
-                  ${!this.resolvedSpec.info.version ? '' : html`
-                    <span style = 'font-size:var(--font-size-small);font-weight:bold'>
-                      ${this.resolvedSpec.info.version}
-                    </span>`
-                  }
-                </div>
+    ${this.showHeader === 'false' ? '' : this.headerTemplate()}
+    <div class="body">
+      ${this.renderStyle === 'read' && this.resolvedSpec ? this.navBarTemplate() : ''}
+      
+      <div class="main-content regular-font ${this.renderStyle === 'read' ? 'main-content--read-mode' : ''} " style = "${this.renderStyle === 'read' ? 'padding:0' : ''}">
+        <slot></slot>
+        ${this.loading === true ? html`<div class="loader"></div>` : ''}
+        ${this.loadFailed === true ? html`<div style="text-align: center;margin: 16px;"> Unable to load the Spec</div>` : ''}
+        ${this.resolvedSpec
+          ? html`
+            ${(this.showInfo === 'false' || !this.resolvedSpec.info) ? '' : html`
+            <div id = 'overview' class = 'observe-me ${this.renderStyle === 'read' ? 'section-gap--read-mode' : 'section-gap'}'>
+              <div style = 'font-size:32px'>
+                ${this.resolvedSpec.info.title}
+                ${!this.resolvedSpec.info.version ? '' : html`
+                  <span style = 'font-size:var(--font-size-small);font-weight:bold'>
+                    ${this.resolvedSpec.info.version}
+                  </span>`
+                }
+              </div>
 
-                ${this.resolvedSpec.info.description
-                  ? html`${unsafeHTML(`<div class='m-markdown regular-font'>${marked(this.resolvedSpec.info.description)}</div>`)}`
-                  : ''
-                }
-                ${this.resolvedSpec.info.termsOfService
-                  ? html`${unsafeHTML(`<div class='tiny-title' style="margin-top:8px"> Terms: </div> <span class='m-markdown regular-font'>${marked(this.resolvedSpec.info.termsOfService)}</span>`)}`
-                  : ''
-                }
-                ${this.resolvedSpec.info.contact ? this.contactInfoTemplate() : ''}
-              </div>`
+              ${this.resolvedSpec.info.description
+                ? html`${unsafeHTML(`<div class='m-markdown regular-font'>${marked(this.resolvedSpec.info.description, { renderer: this.infoDescriptionHeadingRenderer() })}</div>`)}`
+                : ''
               }
+              ${this.resolvedSpec.info.termsOfService
+                ? html`${unsafeHTML(`<div class='tiny-title' style="margin-top:8px"> Terms: </div> <span class='m-markdown regular-font'>${marked(this.resolvedSpec.info.termsOfService)}</span>`)}`
+                : ''
+              }
+              ${this.resolvedSpec.info.contact ? this.contactInfoTemplate() : ''}
+            </div>`
+            }
 
-              ${(this.allowTry === 'false' || this.allowServerSelection === 'false')
-                ? ''
-                : this.serverTemplate()
-              } 
-              ${(this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes)
-                ? ''
-                : this.securitySchemeTemplate()
+            ${(this.allowTry === 'false' || this.allowServerSelection === 'false')
+              ? ''
+              : this.serverTemplate()
+            } 
+
+            ${(this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes)
+              ? ''
+              : this.securitySchemeTemplate()
+            }
+            <div @click="${(e) => { this.handleHref(e); }}">
+              ${this.resolvedSpec.tags
+                ? this.renderStyle === 'read'
+                  ? this.expandedEndpointTemplate()
+                  : this.endpointTemplate()
+                : ''
               }
-              <div @click="${(e) => { this.handleHref(e); }}">
-                ${this.resolvedSpec.tags
-                  ? this.renderStyle === 'read'
-                    ? this.expandedEndpointTemplate()
-                    : this.endpointTemplate()
-                  : ''
-                }
-              </div>`
-            : ''
-          }
-          <slot name="footer"></slot>
-        </div>
-      </div>  
-    `;
+            </div>
+
+            ${this.showComponents === 'true' ? this.componentsTemplate() : ''}
+          `
+          : ''
+        }
+        <slot name="footer"></slot>
+      </div>
+    </div>  
+  `;
   }
 
   headerTemplate() {
@@ -530,32 +589,63 @@ export default class RapiDoc extends LitElement {
         ${html`<div class='nav-scroll'>
           ${(this.showInfo === 'false' || !this.resolvedSpec.info)
             ? ''
-            : html`<div id='link-overview' class='nav-bar-info'  @click = '${(e) => this.scrollToEl(e)}' > Overview </div>`
-          }
-          ${(this.allowTry === 'false' || this.allowServerSelection === 'false')
-            ? ''
-            : html`<div id='link-api-servers' class='nav-bar-info' @click = '${(e) => this.scrollToEl(e)}' > API Servers </div>`
-          }
-          ${(this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes)
-            ? ''
-            : html`<div id='link-authentication'  class='nav-bar-info' @click = '${(e) => this.scrollToEl(e)}' > Authentication </div>`
-          }
-
-          ${this.resolvedSpec.tags.map((tag) => html`
-            <div class='nav-bar-tag' id="link-${tag.name.replace(/[\s#:?&=]/g, '-')}" @click='${(e) => this.scrollToEl(e)}'>
-              ${tag.name}
-            </div>
-            ${tag.paths.filter((v) => {
-              if (this.matchPaths) {
-                return pathIsInSearch(this.matchPaths, v);
+            : html`
+              ${(this.infoDescriptionHeadingsInNavBar === 'true')
+                ? html`
+                  ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? html`<div id='link-overview' class='nav-bar-info'  @click = '${(e) => this.scrollToEl(e)}' > Overview </div>` : ''}          
+                  ${this.resolvedSpec.infoDescriptionHeaders.map((header) => html`
+                    <div class='nav-bar-h${header.depth}' id="link-${new marked.Slugger().slug(header.text)}" @click='${(e) => this.scrollToEl(e)}'>
+                      ${header.text}
+                    </div>`)
+                  }
+                  ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? html`<hr style='border-top: 1px solid var(--nav-hover-bg-color); border-width:1px 0 0 0; margin: 15px 0 0 0'/>` : ''}
+                `
+                : html`<div id='link-overview' class='nav-bar-info'  @click = '${(e) => this.scrollToEl(e)}' > Overview </div>`
               }
-              return true;
-            }).map((p) => html`
-            <div class='nav-bar-path' id='link-${p.method}-${p.path.replace(/[\s#:?&=]/g, '-')}' @click='${(e) => this.scrollToEl(e)}'> 
-              <span> ${p.summary || p.path} </span>
+            `
+          }
+        
+        ${(this.allowTry === 'false' || this.allowServerSelection === 'false')
+          ? ''
+          : html`<div id='link-api-servers' class='nav-bar-info' @click = '${(e) => this.scrollToEl(e)}' > API Servers </div>`
+        }
+        ${(this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes)
+          ? ''
+          : html`<div id='link-authentication'  class='nav-bar-info' @click = '${(e) => this.scrollToEl(e)}' > Authentication </div>`
+        }
+
+        <span id='link-paths' class='nav-bar-section'>Operations</span>
+        ${this.resolvedSpec.tags.map((tag) => html`
+        
+          <div class='nav-bar-tag' id="link-${tag.name.replace(/[\s#:?&=]/g, '-')}" @click='${(e) => this.scrollToEl(e)}'>
+            ${tag.name}
+          </div>
+          ${tag.paths.filter((v) => {
+            if (this.matchPaths) {
+              return `${v.method} ${v.path} ${v.summary}`.toLowerCase().includes(this.matchPaths.toLowerCase());
+            }
+            return true;
+          }).map((p) => html`
+          <div class='nav-bar-path' id='link-${p.method}-${p.path.replace(/[\s#:?&=]/g, '-')}' @click='${(e) => this.scrollToEl(e)}'> 
+            <span> ${p.summary || p.path} </span>
+          </div>`)}
+        `)}
+
+        ${(this.showComponents === 'false' || !this.resolvedSpec.components)
+        ? ''
+        : html`<div id='link-components' class='nav-bar-section' >Components</div>
+          ${this.resolvedSpec.components.map((component) => html`
+            <div class='nav-bar-tag' id="link-cmp-${component.name.toLowerCase()}" @click='${(e) => this.scrollToEl(e)}'>
+              ${component.name}
+            </div>
+            ${component.subComponents.map((p) => html`
+            <div class='nav-bar-path' id='link-cmp-${p.id}' @click='${(e) => this.scrollToEl(e)}'> 
+              <span> ${p.name} </span>
             </div>`)}
           `)}
-          </div>`
+        `}
+        
+        </div>`
         }
         <!-- div class="cover-scroll-bar"></div -->
       </div>
@@ -606,6 +696,10 @@ export default class RapiDoc extends LitElement {
 
   endpointTemplate() {
     return endpointTemplate.call(this);
+  }
+
+  componentsTemplate() {
+    return componentsTemplate.call(this);
   }
 
   /* eslint-enable indent */
@@ -795,7 +889,7 @@ export default class RapiDoc extends LitElement {
     const specLoadedEvent = new CustomEvent('spec-loaded', { detail: spec });
     this.dispatchEvent(specLoadedEvent);
 
-    // Initiate ItersectionObserver and put it at the end of event loop, to allow loading all the child elements (must for larger specs)
+    // Initiate IntersectionObserver and put it at the end of event loop, to allow loading all the child elements (must for larger specs)
     this.intersectionObserver.disconnect();
     if (this.renderStyle === 'read') {
       window.setTimeout(() => {
@@ -845,7 +939,7 @@ export default class RapiDoc extends LitElement {
     }
     entries.forEach((entry) => {
       if (entry.isIntersecting && entry.intersectionRatio > 0) {
-        const oldNavEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active');
+        const oldNavEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active');
         const newNavEl = this.shadowRoot.getElementById(`link-${entry.target.id}`);
 
         // Add active class in the new element
@@ -875,7 +969,7 @@ export default class RapiDoc extends LitElement {
       // Disable IntersectionObserver before scrolling into the view, else it will try to scroll the navbar which is not needed here
       this.isIntersectionObserverActive = false;
       contentEl.scrollIntoView({ behavior: 'auto', block: 'start' });
-      const oldEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active');
+      const oldEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active');
       if (oldEl) {
         oldEl.classList.remove('active');
       }

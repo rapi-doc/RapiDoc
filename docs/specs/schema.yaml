@@ -57,9 +57,22 @@ components:
             - 281
         name:
           description: Name of the person
-          type: string
-          minLength: 4
-          example: Guru
+          type: object
+          properties:
+            firstName:
+              description: First name and prefix
+              type: object
+              properties:
+                prefix:
+                  description: Prefix
+                  type: string
+                name:
+                  description: First name only
+                  type: string
+            lastName:
+              description: Last name
+              type: string
+              minLength: 3
         photoUrls:
           description: The list of URL to a cute photos featuring pet
           type: array

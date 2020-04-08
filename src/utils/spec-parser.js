@@ -2,6 +2,7 @@
 // import JsonRefs from 'json-refs';
 import converter from 'swagger2openapi';
 import Swagger from 'swagger-client';
+import marked from 'marked';
 
 export default async function ProcessSpec(specUrl, sortTags = false, sortEndpointsBy, attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '') {
   let jsonParsedSpec;
@@ -31,29 +32,29 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
     }
 
     /*
-    // JsonRefs cant load yaml files, so first use converter
-    if (typeof specUrl === 'string') {
-      // resolvedRefSpec = await JsonRefs.resolveRefsAt(specUrl, resolveOptions);
-      convertedSpec = await converter.convertUrl(specUrl, convertOptions);
-      specLocation = convertedSpec.source.trim();
-      if (specLocation.startsWith('/')) {
-        url = new URL(`.${specLocation}`, window.location.href);
+      // JsonRefs cant load yaml files, so first use converter
+      if (typeof specUrl === 'string') {
+        // resolvedRefSpec = await JsonRefs.resolveRefsAt(specUrl, resolveOptions);
+        convertedSpec = await converter.convertUrl(specUrl, convertOptions);
+        specLocation = convertedSpec.source.trim();
+        if (specLocation.startsWith('/')) {
+          url = new URL(`.${specLocation}`, window.location.href);
+          specLocation = url.pathname;
+        }
+      } else {
+        // resolvedRefSpec = await JsonRefs.resolveRefs(specUrl, resolveOptions);
+        convertedSpec = await converter.convertObj(specUrl, convertOptions);
+        url = new URL(window.location.href);
         specLocation = url.pathname;
       }
-    } else {
-      // resolvedRefSpec = await JsonRefs.resolveRefs(specUrl, resolveOptions);
-      convertedSpec = await converter.convertObj(specUrl, convertOptions);
-      url = new URL(window.location.href);
-      specLocation = url.pathname;
-    }
-    // convertedSpec = await converter.convertObj(resolvedRefSpec.resolved, convertOptions);
-    resolveOptions = {
-      resolveCirculars: false,
-      location: specLocation, // location is important to specify to resolve relative external file references when using JsonRefs.resolveRefs() which takes an JSON object
-    };
-    resolvedRefSpec = await JsonRefs.resolveRefs(convertedSpec.openapi, resolveOptions);
-    // jsonParsedSpec = convertedSpec.openapi;
-    jsonParsedSpec = resolvedRefSpec.resolved;
+      // convertedSpec = await converter.convertObj(resolvedRefSpec.resolved, convertOptions);
+      resolveOptions = {
+        resolveCirculars: false,
+        location: specLocation, // location is important to specify to resolve relative external file references when using JsonRefs.resolveRefs() which takes an JSON object
+      };
+      resolvedRefSpec = await JsonRefs.resolveRefs(convertedSpec.openapi, resolveOptions);
+      // jsonParsedSpec = convertedSpec.openapi;
+      jsonParsedSpec = resolvedRefSpec.resolved;
     */
   } catch (err) {
     console.info('RapiDoc: %c There was an issue while parsing the spec %o ', 'color:orangered', err); // eslint-disable-line no-console
@@ -63,6 +64,9 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
 
   // Tags
   const tags = groupByTags(jsonParsedSpec, sortTags, sortEndpointsBy);
+
+  const components = getComponents(jsonParsedSpec);
+  const infoDescriptionHeaders = getInfoDescriptionHeaders(jsonParsedSpec);
 
   // Security Scheme
   const securitySchemes = [];
@@ -132,11 +136,13 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
   servers = jsonParsedSpec.servers;
   const parsedSpec = {
     info: jsonParsedSpec.info,
+    infoDescriptionHeaders,
     tags,
+    components,
     // pathGroups,
     externalDocs: jsonParsedSpec.externalDocs,
     securitySchemes,
-    servers, // In swagger 2, its generated from schemes, host and basePath properties
+    servers,
     basePath: jsonParsedSpec.basePath, // Only available in swagger V2
   };
   return parsedSpec;
@@ -154,6 +160,91 @@ function groupByPaths(openApiSpec) {
   return paths;
 }
 */
+function getInfoDescriptionHeaders(openApiSpec) {
+  if (openApiSpec && openApiSpec.info && openApiSpec.info.description) {
+    const tokens = marked.lexer(openApiSpec.info.description);
+    const headers = tokens.filter((v) => v.type === 'heading' && v.depth <= 2);
+    return headers || [];
+  }
+  return [];
+}
+
+function getComponents(openApiSpec) {
+  if (!openApiSpec.components) {
+    return [];
+  }
+  const components = [];
+  for (const component in openApiSpec.components) {
+    const subComponents = [];
+    for (const sComponent in openApiSpec.components[component]) {
+      const scmp = {
+        show: true,
+        id: `${component.toLowerCase()}-${sComponent.toLowerCase()}`.replace(/[\s#:?&=]/g, '-'),
+        name: sComponent,
+        component: openApiSpec.components[component][sComponent],
+      };
+      subComponents.push(scmp);
+    }
+
+    let cmpDescription = component;
+    let cmpName = component;
+
+    switch (component) {
+      case 'schemas':
+        cmpName = 'Schemas';
+        cmpDescription = 'Schemas allows the definition of input and output data types. These types can be objects, but also primitives and arrays.';
+        break;
+      case 'responses':
+        cmpName = 'Responses';
+        cmpDescription = 'Describes responses from an API Operation, including design-time, static links to operations based on the response.';
+        break;
+      case 'parameters':
+        cmpName = 'Parameters';
+        cmpDescription = 'Describes operation parameters. A unique parameter is defined by a combination of a name and location.';
+        break;
+      case 'examples':
+        cmpName = 'Examples';
+        cmpDescription = 'List of Examples for operations, can be requests, responses and objects examples.';
+        break;
+      case 'requestBodies':
+        cmpName = 'Request Bodies';
+        cmpDescription = 'Describes common request bodies that are used across the API operations.';
+        break;
+      case 'headers':
+        cmpName = 'Headers';
+        cmpDescription = 'Headers follows the structure of the Parameters but they are explicitly in "header"';
+        break;
+      case 'securitySchemes':
+        cmpName = 'Security Schemes';
+        // eslint-disable-next-line max-len
+        cmpDescription = 'Defines a security scheme that can be used by the operations. Supported schemes are HTTP authentication, an API key (either as a header, a cookie parameter or as a query parameter), OAuth2\'s common flows(implicit, password, client credentials and authorization code) as defined in RFC6749, and OpenID Connect Discovery.';
+        break;
+      case 'links':
+        cmpName = 'Links';
+        cmpDescription = 'Links represent a possible design-time link for a response. The presence of a link does not guarantee the caller\'s ability to successfully invoke it, rather it provides a known relationship and traversal mechanism between responses and other operations.';
+        break;
+      case 'callbacks':
+        cmpName = 'Callbacks';
+        // eslint-disable-next-line max-len
+        cmpDescription = 'A map of possible out-of band callbacks related to the parent operation. Each value in the map is a Path Item Object that describes a set of requests that may be initiated by the API provider and the expected responses. The key value used to identify the path item object is an expression, evaluated at runtime, that identifies a URL to use for the callback operation.';
+        break;
+      default:
+        cmpName = component;
+        cmpDescription = component;
+        break;
+    }
+
+    const cmp = {
+      show: true,
+      name: cmpName,
+      description: cmpDescription,
+      subComponents,
+    };
+    components.push(cmp);
+  }
+
+  return components || [];
+}
 
 function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
   const methods = ['get', 'put', 'post', 'delete', 'patch', 'head']; // this is also used for ordering endpoints by methods
@@ -166,7 +257,7 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
       expanded: true,
     }))
     : [];
-  // For each path find the tag and push it into the corrosponding tag
+    // For each path find the tag and push it into the corresponding tag
   for (const path in openApiSpec.paths) {
     const commonParams = openApiSpec.paths[path].parameters;
     const commonPathProp = {

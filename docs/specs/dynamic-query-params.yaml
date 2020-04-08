@@ -15,7 +15,7 @@ paths:
             in that case each key of the object will be treated as a seperate param
           - Array serialization depends on `style` and `explode` property
 
-        ```
+        ```yaml
          openapi: 3.0.0
           info:
             title:  Dynamic Query Params 
@@ -137,7 +137,7 @@ paths:
         - in: query
           name: dynamic-query-params3
           description: >
-            Arrays are not exploded, and pipe seperated <br />
+            Arrays are not exploded, and pipe separated <br />
             `i=1&j=2&keys=public|private`
           style: pipeDelimited
           explode: false

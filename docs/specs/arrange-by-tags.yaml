@@ -1,24 +1,24 @@
 openapi: 3.0.0
 info:
   version: 1.0.0
-  title: Aranging Endpoints by Tags
+  title: Arranging Endpoints by Tags
   description: >
     Following OpenAPI spec demonstrates how to arrange the paths using tags. (even though the paths are defined in random order in the spec but they are shown in the order as they are defined under `tags` section)
 
       - If there are multiple paths inside a tag, they can be further sorted. Use `sort-endpoints-by` property which can accept `path` or `method`
-      - If you do not want to specify tag order, but follow certain naming conventions for tags in the spec you may use `sort-tags` property in RapiDoc element to sort tags alphabatically
+      - If you do not want to specify tag order, but follow certain naming conventions for tags in the spec you may use `sort-tags` property in RapiDoc element to sort tags alphabetically
 
-    ```
+    ```yaml
       openapi: 3.0.0
       info:
-        title: Aranging by Tags
+        title: Arranging by Tags
         version: 1.0.0
       paths:
         /last-path:
           get:
             summary: This path belongs to third tag
             tags:
-              - Third Tag
+              - Last Tag
             responses:
               '200':
                 description: successful operation
@@ -26,7 +26,7 @@ info:
           get:
             summary: This path belongs to first tag
             tags:
-              - First Tag
+              - The First Tag
             responses:
               '200':
                 description: successful operation
@@ -34,7 +34,7 @@ info:
           get:
             summary: first path of 2nd Tag
             tags:
-              - Second Tag
+              - And Second Tag
             responses:
               '200':
                 description: successful operation
@@ -42,21 +42,21 @@ info:
           get:
             summary: Second path of 2nd Tag
             tags:
-              - Second Tag
+              - And Second Tag
             responses:
               '200':
                 description: successful operation
       tags:
-        - name: First Tag
-        - name: Second Tag
-        - name: Third Tag
+        - name: The First Tag
+        - name: And Second Tag
+        - name: Last Tag
     ```       
 paths:
   /last-path:
     get:
       summary: This path belongs to third tag
       tags:
-        - Third Tag
+        - Last Tag
       responses:
         '200':
           description: successful operation
@@ -64,7 +64,7 @@ paths:
     get:
       summary: This path belongs to first tag
       tags:
-        - First Tag
+        - The First Tag
       responses:
         '200':
           description: successful operation
@@ -72,7 +72,7 @@ paths:
     get:
       summary: First path of 2nd Tag
       tags:
-        - Second Tag
+        - And Second Tag
       responses:
         '200':
           description: successful operation
@@ -80,11 +80,11 @@ paths:
     get:
       summary: Second path of 2nd Tag
       tags:
-        - Second Tag
+        - And Second Tag
       responses:
         '200':
           description: successful operation
 tags:
-  - name: First Tag
-  - name: Second Tag
-  - name: Third Tag
+  - name: The First Tag
+  - name: And Second Tag
+  - name: Last Tag

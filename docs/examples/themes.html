@@ -11,8 +11,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,600&display=swap" rel="stylesheet">
-    <style>
 
+    <style>
       .btn{
         width: 48px;
         height: 48px;
@@ -25,10 +25,6 @@
         outline:none;
         font-size:30px;
       }
-      .btn.normal {
-        font-size:12px;
-        width: 64px;
-      }
       .side-nav{
         display:flex;
         margin: 2px;
@@ -38,6 +34,7 @@
         border-radius:2px; 
         background: #fff;
       }
+      .normal{ background-color: orange; color :#333; border: 2px solid #444; width:64px;font-size:12px;}
       .dark{ background-color: #424242; color :#BBB; border: 2px solid #BBB;}
       .night{ background-color: #23282e; color :#aec2e0; border: 2px solid #aec2e0;}
       .mud{ background-color: #4f4544; color :#c3b8b7; border: 2px solid #c3b8b7;}
@@ -134,30 +131,39 @@
           docEl.setAttribute('theme','light');
           docEl.setAttribute('bg-color','#fdf8ed');
           docEl.setAttribute('text-color','#342809');
-        } else if (themeName === 'purplenav') {
+        } else if (themeName === 'graynav') {
           getRapiDoc().setAttribute('render-style', 'read' );
           docEl.setAttribute('show-header','false');
           docEl.setAttribute('theme','light');
-          docEl.setAttribute('bg-color','');
-          docEl.setAttribute('text-color','');
-          docEl.setAttribute('nav-bg-color','#4130c5');
-          docEl.setAttribute('nav-text-color','#b3ace7');
-          docEl.setAttribute('nav-hover-bg-color','#5444ca');
-          docEl.setAttribute('nav-hover-text-color','#fff');
-          docEl.setAttribute('nav-accent-color','#d9d5f3');
-          docEl.setAttribute('primary-color','#5444ca');
-        }  else if (themeName === 'graynav') {
+          docEl.setAttribute('nav-bg-color','#3e4b54');
+          docEl.setAttribute('nav-accent-color','#fd6964');
+          docEl.setAttribute('primary-color','#ea526f');
+        }  else if (themeName === 'purplenav') {
           getRapiDoc().setAttribute('render-style', 'read' );
           docEl.setAttribute('show-header','false');
           docEl.setAttribute('theme','light');
-          docEl.setAttribute('bg-color','');
-          docEl.setAttribute('text-color','');
+          docEl.setAttribute('nav-accent-color','#ffd8e7');
+          docEl.setAttribute('nav-bg-color','#666699');
+          docEl.setAttribute('primary-color','#ea526f');
+          docEl.setAttribute('bg-color','#fff9fb');
+        } else if (themeName === 'greennav') {
+          getRapiDoc().setAttribute('render-style', 'read' );
+          docEl.setAttribute('show-header','false');
+          docEl.setAttribute('theme','light');
+          docEl.setAttribute('nav-bg-color','#b9e0d9');
+          docEl.setAttribute('primary-color','#4e9e99');
+          docEl.setAttribute('bg-color','#f2f9f8');
+        } else if (themeName === 'darkbluenav') {
+          getRapiDoc().setAttribute('render-style', 'read' );
+          docEl.setAttribute('show-header','false');
+          docEl.setAttribute('theme','light');
+          docEl.setAttribute('bg-color','#f9f9fa');
           docEl.setAttribute('nav-bg-color','#3f4d67');
           docEl.setAttribute('nav-text-color','#a9b7d0');
           docEl.setAttribute('nav-hover-bg-color','#333f54');
           docEl.setAttribute('nav-hover-text-color','#fff');
           docEl.setAttribute('nav-accent-color','#f44236');
-          docEl.setAttribute('primary-color','#3f4d67');
+          docEl.setAttribute('primary-color','#5c7096');
         }
         
       }
@@ -181,10 +187,9 @@
     </script>
   </head>
   <body>
-    <rapi-doc id="thedoc" spec-url="https://petstore.swagger.io/v2/swagger.json" regular-font="Open Sans" show-header="false"> 
+    <rapi-doc id="thedoc" spec-url="../specs/petstore_extended.yaml" regular-font="Open Sans" show-header="false"> 
       <div style="display:flex; margin:10px; justify-content:center;flex-wrap: wrap;background-color:rgba(128, 128, 128, 0.1); flex:1; padding:30px;">
         <button class="btn normal" onclick="changeRenderStyle()">Render Style</button>
-        <button class="btn normal" onclick="changeSchemaStyle()">Schema Style</button>
         <button class="btn dark" onclick="changeTheme('dark')">&#9782; </button>
         <button class="btn night" onclick="changeTheme('night')"> &#9782; </button>
         <button class="btn mud" onclick="changeTheme('mud')"> &#9782; </button>
@@ -199,11 +204,19 @@
         <button class="btn green" onclick="changeTheme('green')"> &#9782; </button>
         <button class="btn blue" onclick="changeTheme('blue')"> &#9782; </button>
         <button class="btn beige" onclick="changeTheme('beige')"> &#9782; </button>
-        <div class = 'side-nav'  style="background:#4130c5" onclick="changeTheme('purplenav')" >
+        <div class = 'side-nav'  style="background:#3f4d67" onclick="changeTheme('darkbluenav')" >
           <div style='width:20px;'></div>
-          <div style='background: #fff; padding:0px 4px; font-size:30px; color:#444'> &#9782;</div>
+          <div style='background: #f9f9fa; padding:0px 4px; font-size:30px; color:#5c7096'> &#9782;</div>
         </div>
-        <div class = 'side-nav'  style="background:#3f4d67" onclick="changeTheme('graynav')" >
+        <div class = 'side-nav'  style="background:#666699" onclick="changeTheme('purplenav')" >
+          <div style='width:20px;'></div>
+          <div style='background: #fff9fb; padding:0px 4px; font-size:30px; color:#ea526f'> &#9782;</div>
+        </div>
+        <div class = 'side-nav'  style="background:#b9e0d9" onclick="changeTheme('greennav')" >
+          <div style='width:20px;'></div>
+          <div style='background: #f2f9f8; padding:0px 4px; font-size:30px; color:#4e9e99'> &#9782;</div>
+        </div>
+        <div class = 'side-nav'  style="background:#3e4b54" onclick="changeTheme('graynav')" >
           <div style='width:20px;'></div>
           <div style='background: #fff; padding:0px 4px; font-size:30px; color:#444'> &#9782;</div>
         </div>
