@@ -16,7 +16,6 @@ info:
           "ref_name": "master"
         }
       }'
-    
     ```
 
     ### bash
@@ -37,20 +36,17 @@ info:
     ### json
 
     ```json
-
     {
       "firstName": "Mickey",
       "lastName": "Mouse",
       "age": 9,
       "married": false,
     }
-
     ```
 
     ### yaml
 
     ```yaml
-
     openapi: 3.0.0
       info:
       title: Syntax Highlighting
@@ -58,13 +54,11 @@ info:
       discription: >
         Example of 
         Syntax highlighting
-    
     ```
 
     ### html / xml
 
     ```html
-
     <!doctype html> <!-- Important: must specify -->
 
     <html>
@@ -76,13 +70,11 @@ info:
         <rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json"> </rapi-doc>
       </body> 
     </html>
-    
     ```
 
     ### js
 
-    ```javascript
-
+    ```js
       function add(x, y) {
         const answer = x + y;
         return answer;
@@ -91,13 +83,11 @@ info:
       for (let i = 0; i < 10; i++){
         console.log(3, i); // prints in console
       }
-  
     ```
 
     ### java
 
     ```java
-
     BufferedWriter out = null;
     try {
       out = new BufferedWriter(new FileWriter(”filename”, true));
@@ -109,13 +99,11 @@ info:
         out.close();
       }
     }
-
     ```
 
     ### go
 
     ```go
-
     func readFileAsLines(path string) ([]string, error) {
       d, err := ioutil.ReadFile(path)
       if err != nil {
@@ -125,13 +113,11 @@ info:
       res := strings.Split(s, "\n")
       return res, nil
     }
-    
     ```
 
     ### python
 
     ```python
-
     # define the function
     def unique(list):
       if len(list) == len(set(list)):
@@ -142,7 +128,6 @@ info:
     # call the function
 
     unique([1,2,3,4,5]) 
-      
     ```
 
 paths:
