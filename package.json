@@ -33,7 +33,8 @@
     "marked": "^0.8.2",
     "swagger-client": "^3.10.0",
     "swagger2openapi": "^5.3.4",
-    "prismjs": "^1.20.0"
+    "prismjs": "^1.20.0",
+    "js-sha256": "^0.9.0"
   },
   "peerDependencies": {
     "core-js": "^3.5.0"
