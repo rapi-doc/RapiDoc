@@ -50,13 +50,13 @@ export default function setTheme(baseTheme, theme = {}) {
 
       borderColor: theme.borderColor ? theme.borderColor : ColorUtils.color.brightness(bg1, 20), // #555
       lightBorderColor: theme.lightBorderColor ? theme.lightBorderColor : ColorUtils.color.brightness(bg1, 15), // #444
-      codeBorderColor: theme.codeBorderColor ? theme.codeBorderColor : '#666',
+      codeBorderColor: theme.codeBorderColor ? theme.codeBorderColor : ColorUtils.color.brightness(bg1, 30),
 
-      codeBg: theme.codeBg ? theme.codeBg : '#272727',
+      codeBg: theme.codeBg ? theme.codeBg : ColorUtils.color.brightness(bg1, -10),
       codeFg: theme.codeFg ? theme.codeFg : '#999',
 
       inputBg: theme.inputBg ? theme.inputBg : ColorUtils.color.brightness(bg1, -5), // #2f2f2f
-      placeHolder: theme.placeHolder ? theme.placeHolder : '#666',
+      placeHolder: theme.placeHolder ? theme.placeHolder : ColorUtils.color.opacity(fg1, '0.3'),
       hoverColor: theme.hoverColor ? theme.hoverColor : ColorUtils.color.brightness(bg1, -10), // #2a2a2a
 
       red: theme.red ? theme.red : '#F06560',
@@ -132,7 +132,7 @@ export default function setTheme(baseTheme, theme = {}) {
       lightBorderColor: theme.lightBorderColor ? theme.lightBorderColor : ColorUtils.color.brightness(bg1, -15), // #eee
       codeBorderColor: theme.codeBorderColor ? theme.codeBorderColor : '#transparent',
 
-      codeBg: theme.codeBg ? theme.codeBg : '#404040',
+      codeBg: theme.codeBg ? theme.codeBg : '#454545',
       codeFg: theme.codeFg ? theme.codeFg : '#ccc',
 
       inputBg: theme.inputBg ? theme.inputBg : ColorUtils.color.brightness(bg1, 10), // #fff
