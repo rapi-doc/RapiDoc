@@ -6,9 +6,10 @@ info:
     Following OpenAPI spec demonstrate how to use external reference
 
 
-    below is the main spec, but the schema used in the response is defined in a sepaerate file named - schema.yaml
+    below is the main spec, but the schema used in the response is defined in a separate file named - schema.yaml
     
     ```yaml
+
     openapi: 3.0.0
     info:
       title:  Dynamic Form Params 
@@ -30,6 +31,7 @@ info:
     schema.yaml
 
     ```yaml
+
     openapi: 3.0.2
     info:
       title: Partial spec for schema
@@ -53,9 +55,9 @@ paths:
       responses:
         '200':
           description: >
-            The response schema is defined in a sepearte file. If external refs are resolved properly then it should display the below schema
+            The response schema is defined in a separate file. If external refs are resolved properly then it should display the below schema
 
-            ```
+            ```json
               {
                 id: integer
                 name: string
