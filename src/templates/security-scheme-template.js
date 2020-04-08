@@ -57,8 +57,8 @@ async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, g
   formData.append('redirect_uri', redirectUrl);
   try {
     const resp = await fetch(tokenUrl, { method: 'POST', body: formData });
+    const tokenResp = await resp.json();
     if (resp.ok) {
-      const tokenResp = await resp.json();
       if (tokenResp.token_type && tokenResp.access_token) {
         updateOAuthKey.call(this, apiKeyId, tokenResp.token_type, tokenResp.access_token);
         if (respDisplayEl) {
@@ -68,7 +68,7 @@ async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, g
       }
     } else {
       if (respDisplayEl) {
-        respDisplayEl.innerHTML = '<span style="color:var(--red)">Unable to get access token</span>';
+        respDisplayEl.innerHTML = `<span style="color:var(--red)">${tokenResp.error_description || tokenResp.error_description || 'Unable to get access token'}</span>`;
       }
       return false;
     }
