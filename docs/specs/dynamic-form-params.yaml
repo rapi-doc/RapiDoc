@@ -13,7 +13,7 @@ paths:
         - Form Params
       summary: Dynamic Params
       description: |
-        ```
+        ```yaml
         /dynamic-form-parameters:
           post:
             summary: Dynamic Params

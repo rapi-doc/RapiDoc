@@ -5,7 +5,7 @@ info:
   description: >
     Various ways to define API servers in the spec including variables
     
-    ```
+    ```yaml
       servers:
         - url: 'http://example.com/api'
           description: Test server (just for example)

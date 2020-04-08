@@ -8,8 +8,7 @@ info:
 
     below is the main spec, but the schema used in the response is defined in a sepaerate file named - schema.yaml
     
-    ```
-
+    ```yaml
     openapi: 3.0.0
     info:
       title:  Dynamic Form Params 
@@ -30,8 +29,7 @@ info:
     
     schema.yaml
 
-    ```
-
+    ```yaml
     openapi: 3.0.2
     info:
       title: Partial spec for schema
