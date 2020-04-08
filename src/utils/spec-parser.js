@@ -344,6 +344,7 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
           security: fullPath.security,
           commonSummary: commonPathProp.summary,
           commonDescription: commonPathProp.description,
+          xCodeSamples: fullPath['x-code-samples'],
         });
       }
     }); // End of Methods
