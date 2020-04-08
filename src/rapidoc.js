@@ -622,7 +622,7 @@ export default class RapiDoc extends LitElement {
           </div>
           ${tag.paths.filter((v) => {
             if (this.matchPaths) {
-              return `${v.method} ${v.path} ${v.summary}`.toLowerCase().includes(this.matchPaths.toLowerCase());
+              return pathIsInSearch(this.matchPaths, v);
             }
             return true;
           }).map((p) => html`

@@ -57,6 +57,16 @@ paths:
         '200':
           description: Happy response
   
+  /generic:
+    get:
+      summary: Generic. 
+      description: Generic no setupp
+      tags: 
+        - generic
+      responses:
+        '200':
+          description: Happy response
+          
 tags:
   - name: open
     expanded: true
