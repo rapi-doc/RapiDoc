@@ -254,6 +254,7 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy, allowDuplic
       name: v.name,
       description: v.description,
       paths: [],
+      expanded: true,
     }))
     : [];
     // For each path find the tag and push it into the corresponding tag
@@ -301,10 +302,13 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy, allowDuplic
             tagObj = {
               show: true,
               name: tag,
-              description: tagDescr ? tagDescr.description : '',
               paths: [],
+              description: tagDescr ? tagDescr.description : '',
+              expanded: (tagDescr && typeof tagDescr.expanded === 'boolean') ? tagDescr.expanded : true,
             };
             tags.push(tagObj);
+          } else {
+            tagObj.expanded = (tagDescr && typeof tagDescr.expanded === 'boolean') ? tagDescr.expanded : true;
           }
 
 

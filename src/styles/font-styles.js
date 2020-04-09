@@ -118,12 +118,14 @@ export default html`
   }
 
   .m-markdown pre {
+    margin-top: 8px;
     padding: 12px;
     background-color: var(--code-bg);
     color:var(--code-fg);
   }
 
   .m-markdown-small pre {
+    margin-top: 4px;
     padding: 2px 4px;
     background-color: var(--bg3);
     color: var(--fg3);

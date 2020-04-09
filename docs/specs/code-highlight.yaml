@@ -1,0 +1,177 @@
+openapi: 3.0.0
+info:
+  title: Syntax Highlighting
+  version: 1.0.0
+  description: |
+
+    ### No Highlight 
+
+    ```
+    $ curl -X POST -is -u username:password 
+      -H "Content-Type: application/json" https://example.com
+      -d '{
+        "target": {
+          "ref_type": "branch", 
+          "type": "pipeline_ref_target", 
+          "ref_name": "master"
+        }
+      }'
+    ```
+
+    ### bash
+
+    ```bash
+    $ curl -X POST -is -u username:password 
+      -H "Content-Type: application/json" https://example.com
+      -d '{
+        "target": {
+          "ref_type": "branch", 
+          "type": "pipeline_ref_target", 
+          "ref_name": "master"
+        }
+      }'
+    
+    ```
+
+    ### json
+
+    ```json
+    {
+      "firstName": "Mickey",
+      "lastName": "Mouse",
+      "age": 9,
+      "married": false,
+    }
+    ```
+
+    ### yaml
+
+    ```yaml
+    openapi: 3.0.0
+      info:
+      title: Syntax Highlighting
+      version: 1.0.0
+      discription: >
+        Example of 
+        Syntax highlighting
+    ```
+
+    ### html / xml
+
+    ```html
+    <!doctype html> <!-- Important: must specify -->
+
+    <html>
+      <head>
+        <meta charset="utf-8"> <!-- Important: rapi-doc uses utf8 charecters -->
+        <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+      </head>
+      <body>
+        <rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json"> </rapi-doc>
+      </body> 
+    </html>
+    ```
+
+    ### js
+
+    ```js
+      function add(x, y) {
+        const answer = x + y;
+        return answer;
+      }
+
+      for (let i = 0; i < 10; i++){
+        console.log(3, i); // prints in console
+      }
+    ```
+
+    ### java
+
+    ```java
+    BufferedWriter out = null;
+    try {
+      out = new BufferedWriter(new FileWriter(”filename”, true));
+      out.write(”aString”);
+    } catch (IOException e) {
+      // error processing code
+    } finally {
+      if (out != null) {
+        out.close();
+      }
+    }
+    ```
+
+    ### go
+
+    ```go
+    func readFileAsLines(path string) ([]string, error) {
+      d, err := ioutil.ReadFile(path)
+      if err != nil {
+        return nil, err
+      }
+      s := string(d)
+      res := strings.Split(s, "\n")
+      return res, nil
+    }
+    ```
+
+    ### python
+
+    ```python
+    # define the function
+    def unique(list):
+      if len(list) == len(set(list)):
+        print("All elements are unique")
+      else:
+        print("List has duplicates")
+
+    # call the function
+
+    unique([1,2,3,4,5]) 
+    ```
+
+paths:
+  /code:
+    get:
+      summary: Syntax Highlighting in Markdown
+      description: >
+        ### java
+
+        ```java
+    
+          BufferedWriter out = null;
+          try {
+            out = new BufferedWriter(new FileWriter(”filename”, true));
+            out.write(”aString”);
+          } catch (IOException e) {
+            // error processing code
+          } finally {
+            if (out != null) {
+                out.close();
+            }
+          }
+
+        ```
+    post:
+      summary: Request body
+      requestBody:
+        description: request body description
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Price"
+    
+      responses:
+        '200':
+          description: Successful
+
+components:
+  schemas:
+    Price:
+      type: object
+      properties:
+        amount:
+          type: integer
+        currency:
+          type: string
+          

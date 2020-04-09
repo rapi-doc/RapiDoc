@@ -1,14 +1,24 @@
 import { LitElement, html } from 'lit-element';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import marked from 'marked';
+import Prism from 'prismjs';
+import 'prismjs/components/prism-css';
+import 'prismjs/components/prism-yaml';
+import 'prismjs/components/prism-go';
+import 'prismjs/components/prism-java';
+import 'prismjs/components/prism-json';
+import 'prismjs/components/prism-bash';
+import 'prismjs/components/prism-python';
 
 import FontStyles from '@/styles/font-styles';
 import InputStyles from '@/styles/input-styles';
 import FlexStyles from '@/styles/flex-styles';
 import TableStyles from '@/styles/table-styles';
 import EndpointStyles from '@/styles/endpoint-styles';
+import PrismStyles from '@/styles/prism-styles';
 
 import { isValidHexColor } from '@/utils/color-utils';
+import { pathIsInSearch } from '@/utils/common-utils';
 import SetTheme from '@/utils/theme';
 import ProcessSpec from '@/utils/spec-parser';
 import expandedEndpointTemplate from '@/templates/expanded-endpoint-template';
@@ -116,6 +126,16 @@ export default class RapiDoc extends LitElement {
 
     if (!this.showComponents || !'true false'.includes(this.showComponents)) { this.showComponents = 'false'; }
     if (!this.infoDescriptionHeadingsInNavBar || !'true, false,'.includes(`${this.infoDescriptionHeadingsInNavBar},`)) { this.infoDescriptionHeadingsInNavBar = 'false'; }
+
+    marked.setOptions({
+      highlight: (code, lang) => {
+        if (Prism.languages[lang]) {
+          return Prism.highlight(code, Prism.languages[lang], lang);
+        }
+        return code;
+      },
+    });
+
     window.addEventListener('hashchange', () => {
       this.scrollTo(window.location.hash.substring(1));
     }, true);
@@ -123,10 +143,10 @@ export default class RapiDoc extends LitElement {
 
   // Cleanup
   disconnectedCallback() {
-    super.connectedCallback();
     if (this.intersectionObserver) {
       this.intersectionObserver.disconnect();
     }
+    super.disconnectedCallback();
   }
 
   infoDescriptionHeadingRenderer() {
@@ -154,6 +174,7 @@ export default class RapiDoc extends LitElement {
       ${FlexStyles}
       ${TableStyles}
       ${EndpointStyles}
+      ${PrismStyles}
       ${this.theme === 'dark' ? SetTheme('dark', newTheme) : SetTheme('light', newTheme)}
 
       <style>
@@ -317,6 +338,21 @@ export default class RapiDoc extends LitElement {
         .section-gap--read-mode { 
           padding: 24px 8px 12px 8px; 
         }
+        .section-tag-header {
+          cursor: pointer;
+          padding: 5px;
+        }
+        .section-tag-header:hover {
+          border-color:var(--orange); 
+          background-color:var(--light-orange); 
+        }
+        .section-tag.collapsed {
+          color: var(--light-fg);
+          filter: opacity(0.6);
+        }
+        .section-tag.collapsed > .m-endpoint {
+          display: none;
+        }
 
         .logo {
           height:36px;
@@ -331,7 +367,7 @@ export default class RapiDoc extends LitElement {
           font-size:calc(var(--title-font-size) + 8px); 
           padding:0 8px;
         }
-        .tag{
+        .tag.title {
           text-transform: uppercase;
         }
         .header{
@@ -351,6 +387,24 @@ export default class RapiDoc extends LitElement {
         }
         input.header-input::placeholder {
           opacity:0.4;
+        }
+
+        i.arrow {
+          border: solid black;
+          border-width: 0 3px 3px 0;
+          display: inline-block;
+          padding: 4px;
+          opacity: 0.4;
+        }
+        
+        .up {
+          transform: rotate(-135deg);
+          -webkit-transform: rotate(-135deg);
+        }
+        
+        .down {
+          transform: rotate(45deg);
+          -webkit-transform: rotate(45deg);
         }
 
         .loader {
@@ -569,7 +623,7 @@ export default class RapiDoc extends LitElement {
           </div>
           ${tag.paths.filter((v) => {
             if (this.matchPaths) {
-              return `${v.method} ${v.path} ${v.summary}`.toLowerCase().includes(this.matchPaths.toLowerCase());
+              return pathIsInSearch(this.matchPaths, v);
             }
             return true;
           }).map((p) => html`
@@ -761,7 +815,19 @@ export default class RapiDoc extends LitElement {
   }
 
   onSearchChange(e) {
-    this.matchPaths = e.target.value;
+    this.matchPaths = e.target.value.toLowerCase();
+
+    let didFindAnything = false;
+    this.resolvedSpec.tags.map((tag) => tag.paths.filter((v) => {
+      if (this.matchPaths) {
+        v.expanded = false;
+        if (pathIsInSearch(this.matchPaths, v)) {
+          didFindAnything = true;
+          tag.expanded = true;
+        }
+      }
+    }));
+    if (didFindAnything) this.requestUpdate();
   }
 
   onClearSearch() {
@@ -835,10 +901,37 @@ export default class RapiDoc extends LitElement {
     // On first time Spec load, try to navigate to location hash if provided
     if (window.location.hash) {
       if (!this.gotoPath) {
-        window.setTimeout(() => {
-          this.scrollTo(window.location.hash.substring(1));
-        }, 150);
+        this.expandTreeToPath(window.location.hash, true, true);
       }
+    }
+  }
+
+  expandTreeToPath(pathInput, expandOperation = true, scrollToElement = true) {
+    // Expand full operation and tag
+    if (pathInput.indexOf('#') === 0) pathInput = pathInput.substring(1);
+    let path;
+
+    this.resolvedSpec.tags.map((tag) => tag.paths.filter((v) => {
+      const method = pathInput.match(new RegExp('(.*?)-'));
+      const methodType = (method && method.length === 2) ? method[1] : null;
+      path = pathInput.match(new RegExp('/([^/]+)/?$'));
+      const pathValue = (path && path.length === 2) ? path[0] : null;
+
+      if (methodType && pathValue && methodType === v.method && pathValue === v.path) {
+        v.expanded = expandOperation;
+        tag.expanded = true;
+      }
+    }));
+    this.requestUpdate();
+
+    if (scrollToElement) {
+      // delay required, else we cant find element
+      window.setTimeout(() => {
+        const gotoEl = this.shadowRoot.getElementById(pathInput);
+        if (gotoEl) {
+          gotoEl.scrollIntoView({ behavior: 'auto', block: 'start' });
+        }
+      }, 150);
     }
   }
 
@@ -906,13 +999,7 @@ export default class RapiDoc extends LitElement {
   scrollTo(path, expandPath = true) {
     const gotoEl = this.shadowRoot.getElementById(path);
     if (gotoEl) {
-      if (expandPath) {
-        const endpointHeadEl = gotoEl.querySelector('.endpoint-head.collapsed');
-        if (endpointHeadEl) {
-          endpointHeadEl.click();
-        }
-      }
-      gotoEl.scrollIntoView({ behavior: 'auto', block: 'start' });
+      this.expandTreeToPath(path, expandPath, true);
     }
   }
 

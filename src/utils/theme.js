@@ -20,9 +20,9 @@ export default function setTheme(baseTheme, theme = {}) {
     const headerColor = theme.headerColor ? theme.headerColor : ColorUtils.color.brightness(bg1, 10);
 
     const navBgColor = theme.navBgColor ? theme.navBgColor : ColorUtils.color.brightness(bg1, 10);
-    const navTextColor = theme.navTextColor ? theme.navTextColor : ColorUtils.color.brightness(fg1, -5);
-    const navHoverBgColor = theme.navHoverBgColor ? theme.navHoverBgColor : bg1;
-    const navHoverTextColor = theme.navHoverTextColor ? theme.navHoverTextColor : primaryColor;
+    const navTextColor = theme.navTextColor ? theme.navTextColor : ColorUtils.color.opacity(ColorUtils.color.invert(navBgColor), '0.65');
+    const navHoverBgColor = theme.navHoverBgColor ? theme.navHoverBgColor : ColorUtils.color.brightness(navBgColor, -15);
+    const navHoverTextColor = theme.navHoverTextColor ? theme.navHoverTextColor : ColorUtils.color.invert(navBgColor);
     const navAccentColor = theme.navAccentColor ? theme.navAccentColor : primaryColor;
 
     newTheme = {
@@ -50,13 +50,13 @@ export default function setTheme(baseTheme, theme = {}) {
 
       borderColor: theme.borderColor ? theme.borderColor : ColorUtils.color.brightness(bg1, 20), // #555
       lightBorderColor: theme.lightBorderColor ? theme.lightBorderColor : ColorUtils.color.brightness(bg1, 15), // #444
-      codeBorderColor: theme.codeBorderColor ? theme.codeBorderColor : '#666',
+      codeBorderColor: theme.codeBorderColor ? theme.codeBorderColor : ColorUtils.color.brightness(bg1, 30),
 
-      codeBg: theme.codeBg ? theme.codeBg : '#272727',
+      codeBg: theme.codeBg ? theme.codeBg : ColorUtils.color.brightness(bg1, -10),
       codeFg: theme.codeFg ? theme.codeFg : '#999',
 
       inputBg: theme.inputBg ? theme.inputBg : ColorUtils.color.brightness(bg1, -5), // #2f2f2f
-      placeHolder: theme.placeHolder ? theme.placeHolder : '#666',
+      placeHolder: theme.placeHolder ? theme.placeHolder : ColorUtils.color.opacity(fg1, '0.3'),
       hoverColor: theme.hoverColor ? theme.hoverColor : ColorUtils.color.brightness(bg1, -10), // #2a2a2a
 
       red: theme.red ? theme.red : '#F06560',
@@ -78,9 +78,8 @@ export default function setTheme(baseTheme, theme = {}) {
       brown: theme.brown ? theme.brown : '#D4AC0D',
     };
   } else {
-    const bg1 = theme.bg1 ? theme.bg1 : '#fff';
-    const fg1 = theme.fg1 ? theme.fg1 : '#444';
-
+    const bg1 = (theme.bg1 ? theme.bg1 : '#ffffff');
+    const fg1 = (theme.fg1 ? theme.fg1 : '#444444');
     const bg2 = theme.bg2 ? theme.bg2 : ColorUtils.color.brightness(bg1, -5); // or '#fafafa'
     const bg3 = theme.bg3 ? theme.bg3 : ColorUtils.color.brightness(bg1, -15); // or '#f6f6f6'
 
@@ -100,9 +99,9 @@ export default function setTheme(baseTheme, theme = {}) {
     const navAccentColor = theme.navAccentColor ? theme.navAccentColor : primaryColor;
     */
     const navBgColor = theme.navBgColor ? theme.navBgColor : ColorUtils.color.brightness(bg1, -180);
-    const navTextColor = theme.navTextColor ? theme.navTextColor : ColorUtils.color.brightness(bg1, -25);
-    const navHoverBgColor = theme.navHoverBgColor ? theme.navHoverBgColor : ColorUtils.color.brightness(bg1, -200);
-    const navHoverTextColor = theme.navHoverTextColor ? theme.navHoverTextColor : primaryColor;
+    const navTextColor = theme.navTextColor ? theme.navTextColor : ColorUtils.color.opacity(ColorUtils.color.invert(navBgColor), '0.65');
+    const navHoverBgColor = theme.navHoverBgColor ? theme.navHoverBgColor : ColorUtils.color.brightness(navBgColor, -15);
+    const navHoverTextColor = theme.navHoverTextColor ? theme.navHoverTextColor : ColorUtils.color.invert(navBgColor);
     const navAccentColor = theme.navAccentColor ? theme.navAccentColor : primaryColor;
 
     newTheme = {
@@ -132,7 +131,7 @@ export default function setTheme(baseTheme, theme = {}) {
       lightBorderColor: theme.lightBorderColor ? theme.lightBorderColor : ColorUtils.color.brightness(bg1, -15), // #eee
       codeBorderColor: theme.codeBorderColor ? theme.codeBorderColor : '#transparent',
 
-      codeBg: theme.codeBg ? theme.codeBg : '#4e575e',
+      codeBg: theme.codeBg ? theme.codeBg : '#454545',
       codeFg: theme.codeFg ? theme.codeFg : '#ccc',
 
       inputBg: theme.inputBg ? theme.inputBg : ColorUtils.color.brightness(bg1, 10), // #fff

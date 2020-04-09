@@ -556,3 +556,14 @@ export async function wait(ms) {
     setTimeout(resolve, ms);
   });
 }
+
+export function pathIsInSearch(matchPattern, path) {
+  const searchElements = [path.method, path.path];
+  if (path.summary) searchElements.push(path.summary);
+  if (path.description) searchElements.push(path.description);
+  if (path.operationId) searchElements.push(path.operationId);
+
+  const searchString = searchElements.join(' ').toLowerCase();
+  const isMatch = searchString.includes(matchPattern);
+  return isMatch;
+}

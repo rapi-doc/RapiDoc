@@ -9,7 +9,7 @@ paths:
         - File Upload
       summary: Uploads single file using form-data
       description: |
-        ```
+        ```yaml
         /upload-single-file:
           post:
             summary: Uploads single file using form-data
@@ -44,7 +44,7 @@ paths:
         - File Upload
       summary: Uploads multiple file using form-data and type as 'array'
       description: |
-        ```
+        ```yaml
         /upload-multiple-file:
           post:
             summary: Uploads multiple file using form-data and type as 'array'
@@ -83,7 +83,7 @@ paths:
         - File Upload
       summary: Uploads single file using request-body content-type as application/octet-stream
       description: |
-        ```
+        ```yaml
         /upload-using-request-body:
           post:
             summary: Uploads single file using request-body content-type as application/octet-stream
