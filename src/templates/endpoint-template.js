@@ -3,19 +3,21 @@ import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import marked from 'marked';
 import '@/components/api-request';
 import '@/components/api-response';
+import { pathIsInSearch } from '@/utils/common-utils';
 import { callbackTemplate } from '@/templates/expanded-endpoint-template';
 
 /* eslint-disable indent */
 function toggleExpand(path) {
-  const newHash = `#${path.method}-${path.path.replace(/[\s#:?&=]/g, '-')}`;
-  const currentHash = window.location.hash;
-  if (currentHash !== newHash) {
-    window.history.replaceState(null, null, `${window.location.href.split('#')[0]}${newHash}`);
-  }
   if (path.expanded) {
     path.expanded = false; // collapse
+    window.history.replaceState(null, null, `${window.location.href.split('#')[0]}`);
   } else {
     path.expanded = true; // Expand
+    const newHash = `#${path.method}-${path.path.replace(/[\s#:?&=]/g, '-')}`;
+    const currentHash = window.location.hash;
+    if (currentHash !== newHash) {
+      window.history.replaceState(null, null, `${window.location.href.split('#')[0]}${newHash}`);
+    }
   }
   this.requestUpdate();
 }
@@ -90,28 +92,38 @@ function endpointBodyTemplate(path) {
 export default function endpointTemplate() {
   return html`
     ${this.resolvedSpec.tags.map((tag) => html`
-    <div class='regular-font section-gap'> 
-      <div id='${tag.name.replace(/[\s#:?&=]/g, '-')}' class="sub-title tag">${tag.name}</div>
-      <div class="regular-font-size">
-        ${tag.description
-          ? html`
-            ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(tag.description)}</div>`)}`
-          : ''
+    <div class='regular-font section-gap section-tag ${tag.expanded ? 'expanded' : 'collapsed'}' > 
+    
+      <div class='section-tag-header' @click="${() => {
+        tag.expanded = !tag.expanded;
+        this.requestUpdate();
+      }}">
+        <div style='display: flex; justify-content: space-between; width: 100%;'>
+          <div id='${tag.name.replace(/[\s#:?&=]/g, '-')}' class="sub-title tag">${tag.name}</div>
+          <div style='margin-right: 5px;'><i class="arrow ${tag.expanded ? 'down' : 'up'}"></i></div>
+        </div>
+        <div class="regular-font-size">
+          ${tag.description
+            ? html`
+              ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(tag.description)}</div>`)}`
+            : ''
+          }
+        </div>
+      </div>
+
+      ${tag.paths.filter((v) => {
+        if (this.matchPaths) {
+          return pathIsInSearch(this.matchPaths, v);
         }
-      </div>
-    </div>
-    ${tag.paths.filter((v) => {
-      if (this.matchPaths) {
-        return `${v.method} ${v.path}`.includes(this.matchPaths);
-      }
-      return true;
-    }).map((path) => html`
-      <div id='${path.method}-${path.path.replace(/[\s#:?&=]/g, '-')}' class='m-endpoint regular-font ${path.method} ${path.expanded ? 'expanded' : 'collapsed'}'>
-        ${endpointHeadTemplate.call(this, path)}      
-        ${path.expanded ? endpointBodyTemplate.call(this, path) : ''}
-      </div>
-    `)
-    }`)
+        return true;
+      }).map((path) => html`
+        <div id='${path.method}-${path.path.replace(/[\s#:?&=]/g, '-')}' class='m-endpoint regular-font ${path.method} ${path.expanded ? 'expanded' : 'collapsed'}'>
+          ${endpointHeadTemplate.call(this, path)}      
+          ${path.expanded ? endpointBodyTemplate.call(this, path) : ''}
+        </div>
+      `)
+    }
+    </div>`)
   }`;
 }
 /* eslint-enable indent */

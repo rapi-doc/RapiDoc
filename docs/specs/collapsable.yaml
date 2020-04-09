@@ -1,0 +1,74 @@
+openapi: 3.0.0
+info:
+  title: Collapsable Tags
+  description: | 
+    Test case for collapsable groups
+    Lets open closed get with default closed group
+    Link to internal
+    [internal linking](#get-/closed "Open it")
+
+    ## Fill with space to show scrolling 
+
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras malesuada a leo id porttitor. Ut quis dui id nulla bibendum bibendum non sit amet metus. Nullam condimentum eros ex, ac aliquam nulla vestibulum et. Nunc quis mi velit. Quisque neque enim, efficitur nec tincidunt ac, dapibus a leo. Proin vitae arcu eu eros facilisis semper in id lectus. Aliquam ligula mauris, feugiat at enim eget, consectetur vulputate magna.
+
+    Donec blandit purus metus, ut hendrerit ante consectetur eget. Etiam bibendum imperdiet velit, ac malesuada risus lacinia ac. Donec magna risus, convallis quis ligula vel, congue blandit odio. Nunc ac felis vitae elit pretium vestibulum pellentesque sed urna. Suspendisse pretium libero quis est dapibus, tincidunt luctus urna commodo. Donec tincidunt diam sit amet ante auctor, vitae consectetur enim maximus. In ut libero sed elit semper interdum. Donec molestie dui id orci volutpat tincidunt. Etiam tincidunt purus nec lectus viverra scelerisque. Quisque dui tellus, ultrices non diam sit amet, finibus venenatis lectus. Donec congue mollis est, ut eleifend sem tempor non. Cras vestibulum ultricies leo. Etiam facilisis sapien et lacus blandit, sed suscipit massa iaculis.
+
+    Curabitur ut laoreet nunc. Aliquam non pulvinar elit. Duis et dui a urna facilisis fringilla. Morbi fringilla euismod enim eget malesuada. Vestibulum vel semper nibh, in consectetur nulla. Suspendisse laoreet id eros et imperdiet. Aliquam enim justo, feugiat id dapibus vitae, eleifend eu eros. Sed mattis lacus ac dui tempus ullamcorper sed non arcu.
+
+    Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Morbi ornare ante in lorem porttitor egestas. Praesent feugiat posuere neque, id pellentesque arcu suscipit eget. Maecenas auctor lorem vel convallis pretium. Ut aliquam auctor ante, eu tincidunt lorem fringilla ac. Donec ullamcorper urna placerat arcu viverra, a finibus ipsum ultrices. Nam lacus libero, vulputate non finibus et, condimentum in lectus. Quisque eu lorem ut ipsum iaculis mattis a vitae felis. Proin quis tristique felis.
+
+    Quisque elementum tortor at est tristique, vitae iaculis ex commodo. Maecenas rhoncus orci sed felis porttitor interdum. Praesent id nibh et justo rutrum pharetra ac eu orci. Ut eu tellus erat. Cras quis rhoncus est. Nunc sit amet lectus id turpis egestas posuere. Etiam facilisis tellus at erat auctor accumsan. Maecenas dui augue, faucibus sed lectus in, gravida cursus orci.
+
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras malesuada a leo id porttitor. Ut quis dui id nulla bibendum bibendum non sit amet metus. Nullam condimentum eros ex, ac aliquam nulla vestibulum et. Nunc quis mi velit. Quisque neque enim, efficitur nec tincidunt ac, dapibus a leo. Proin vitae arcu eu eros facilisis semper in id lectus. Aliquam ligula mauris, feugiat at enim eget, consectetur vulputate magna.
+
+    Donec blandit purus metus, ut hendrerit ante consectetur eget. Etiam bibendum imperdiet velit, ac malesuada risus lacinia ac. Donec magna risus, convallis quis ligula vel, congue blandit odio. Nunc ac felis vitae elit pretium vestibulum pellentesque sed urna. Suspendisse pretium libero quis est dapibus, tincidunt luctus urna commodo. Donec tincidunt diam sit amet ante auctor, vitae consectetur enim maximus. In ut libero sed elit semper interdum. Donec molestie dui id orci volutpat tincidunt. Etiam tincidunt purus nec lectus viverra scelerisque. Quisque dui tellus, ultrices non diam sit amet, finibus venenatis lectus. Donec congue mollis est, ut eleifend sem tempor non. Cras vestibulum ultricies leo. Etiam facilisis sapien et lacus blandit, sed suscipit massa iaculis.
+
+    Curabitur ut laoreet nunc. Aliquam non pulvinar elit. Duis et dui a urna facilisis fringilla. Morbi fringilla euismod enim eget malesuada. Vestibulum vel semper nibh, in consectetur nulla. Suspendisse laoreet id eros et imperdiet. Aliquam enim justo, feugiat id dapibus vitae, eleifend eu eros. Sed mattis lacus ac dui tempus ullamcorper sed non arcu.
+
+    Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Morbi ornare ante in lorem porttitor egestas. Praesent feugiat posuere neque, id pellentesque arcu suscipit eget. Maecenas auctor lorem vel convallis pretium. Ut aliquam auctor ante, eu tincidunt lorem fringilla ac. Donec ullamcorper urna placerat arcu viverra, a finibus ipsum ultrices. Nam lacus libero, vulputate non finibus et, condimentum in lectus. Quisque eu lorem ut ipsum iaculis mattis a vitae felis. Proin quis tristique felis.
+
+    Quisque elementum tortor at est tristique, vitae iaculis ex commodo. Maecenas rhoncus orci sed felis porttitor interdum. Praesent id nibh et justo rutrum pharetra ac eu orci. Ut eu tellus erat. Cras quis rhoncus est. Nunc sit amet lectus id turpis egestas posuere. Etiam facilisis tellus at erat auctor accumsan. Maecenas dui augue, faucibus sed lectus in, gravida cursus orci.
+
+
+  version: 1.0.0
+paths:
+  /open:
+    get:
+      summary: Its opened.
+      description: |
+        Open by default 
+
+        Link to internal
+        [internal linking](#get-/closed "Open it")
+      
+      tags: 
+        - open
+      responses:
+        '200':
+          description: Happy response
+  
+  /closed:
+    get:
+      summary: Its closed. 
+      description: closed by default
+      tags: 
+        - closed
+      responses:
+        '200':
+          description: Happy response
+  
+  /generic:
+    get:
+      summary: Generic. 
+      description: Generic no setupp
+      tags: 
+        - generic
+      responses:
+        '200':
+          description: Happy response
+          
+tags:
+  - name: open
+    expanded: true
+  - name: closed
+    expanded: false

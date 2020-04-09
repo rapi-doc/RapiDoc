@@ -254,6 +254,7 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
       name: v.name,
       description: v.description,
       paths: [],
+      expanded: true,
     }))
     : [];
     // For each path find the tag and push it into the corresponding tag
@@ -294,10 +295,13 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
           tagObj = {
             show: true,
             name: tagText,
-            description: tagDescr ? tagDescr.description : '',
             paths: [],
+            description: tagDescr ? tagDescr.description : '',
+            expanded: (tagDescr && typeof tagDescr.expanded === 'boolean') ? tagDescr.expanded : true,
           };
           tags.push(tagObj);
+        } else {
+          tagObj.expanded = (tagDescr && typeof tagDescr.expanded === 'boolean') ? tagDescr.expanded : true;
         }
 
         // Generate Path summary and Description if it is missing for a method
