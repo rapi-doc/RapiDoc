@@ -63,7 +63,7 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
   // const pathGroups = groupByPaths(jsonParsedSpec);
 
   // Tags
-  const tags = groupByTags(jsonParsedSpec, sortTags, sortEndpointsBy, allowDuplicatedPathsByTag);
+  const tags = groupByTags(jsonParsedSpec, sortEndpointsBy, allowDuplicatedPathsByTag, sortTags);
 
   const components = getComponents(jsonParsedSpec);
   const infoDescriptionHeaders = getInfoDescriptionHeaders(jsonParsedSpec);
@@ -246,14 +246,14 @@ function getComponents(openApiSpec) {
   return components || [];
 }
 
-function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy, allowDuplicatedPathsByTag) {
+function groupByTags(openApiSpec, sortEndpointsBy, allowDuplicatedPathsByTag, sortTags = false) {
   const methods = ['get', 'put', 'post', 'delete', 'patch', 'head']; // this is also used for ordering endpoints by methods
   const tags = openApiSpec.tags && Array.isArray(openApiSpec.tags)
     ? openApiSpec.tags.map((v) => ({
       show: true,
-      name: v.name,
-      description: v.description,
+      name: v.name.toLowerCase(),
       paths: [],
+      description: v.description,
       expanded: (v.expanded && typeof v.expanded === 'boolean') ? v.expanded : true,
     }))
     : [];
