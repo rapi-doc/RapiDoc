@@ -254,7 +254,7 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy, allowDuplic
       name: v.name,
       description: v.description,
       paths: [],
-      expanded: true,
+      expanded: (v.expanded && typeof v.expanded === 'boolean') ? v.expanded : true,
     }))
     : [];
     // For each path find the tag and push it into the corresponding tag
@@ -307,10 +307,7 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy, allowDuplic
               expanded: (tagDescr && typeof tagDescr.expanded === 'boolean') ? tagDescr.expanded : true,
             };
             tags.push(tagObj);
-          } else {
-            tagObj.expanded = (tagDescr && typeof tagDescr.expanded === 'boolean') ? tagDescr.expanded : true;
           }
-
 
           // Generate Path summary and Description if it is missing for a method
           let summary = (fullPath.summary || '').trim() ? fullPath.summary.trim() : (fullPath.description || '-').trim().split('/n')[0];
