@@ -1,74 +1,83 @@
 openapi: 3.0.0
 info:
-  title: Collapsable Tags
-  description: | 
-    Test case for collapsable groups
-    Lets open closed get with default closed group
-    Link to internal
-    [internal linking](#get-/closed "Open it")
-
-    ## Fill with space to show scrolling 
-
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras malesuada a leo id porttitor. Ut quis dui id nulla bibendum bibendum non sit amet metus. Nullam condimentum eros ex, ac aliquam nulla vestibulum et. Nunc quis mi velit. Quisque neque enim, efficitur nec tincidunt ac, dapibus a leo. Proin vitae arcu eu eros facilisis semper in id lectus. Aliquam ligula mauris, feugiat at enim eget, consectetur vulputate magna.
-
-    Donec blandit purus metus, ut hendrerit ante consectetur eget. Etiam bibendum imperdiet velit, ac malesuada risus lacinia ac. Donec magna risus, convallis quis ligula vel, congue blandit odio. Nunc ac felis vitae elit pretium vestibulum pellentesque sed urna. Suspendisse pretium libero quis est dapibus, tincidunt luctus urna commodo. Donec tincidunt diam sit amet ante auctor, vitae consectetur enim maximus. In ut libero sed elit semper interdum. Donec molestie dui id orci volutpat tincidunt. Etiam tincidunt purus nec lectus viverra scelerisque. Quisque dui tellus, ultrices non diam sit amet, finibus venenatis lectus. Donec congue mollis est, ut eleifend sem tempor non. Cras vestibulum ultricies leo. Etiam facilisis sapien et lacus blandit, sed suscipit massa iaculis.
-
-    Curabitur ut laoreet nunc. Aliquam non pulvinar elit. Duis et dui a urna facilisis fringilla. Morbi fringilla euismod enim eget malesuada. Vestibulum vel semper nibh, in consectetur nulla. Suspendisse laoreet id eros et imperdiet. Aliquam enim justo, feugiat id dapibus vitae, eleifend eu eros. Sed mattis lacus ac dui tempus ullamcorper sed non arcu.
-
-    Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Morbi ornare ante in lorem porttitor egestas. Praesent feugiat posuere neque, id pellentesque arcu suscipit eget. Maecenas auctor lorem vel convallis pretium. Ut aliquam auctor ante, eu tincidunt lorem fringilla ac. Donec ullamcorper urna placerat arcu viverra, a finibus ipsum ultrices. Nam lacus libero, vulputate non finibus et, condimentum in lectus. Quisque eu lorem ut ipsum iaculis mattis a vitae felis. Proin quis tristique felis.
-
-    Quisque elementum tortor at est tristique, vitae iaculis ex commodo. Maecenas rhoncus orci sed felis porttitor interdum. Praesent id nibh et justo rutrum pharetra ac eu orci. Ut eu tellus erat. Cras quis rhoncus est. Nunc sit amet lectus id turpis egestas posuere. Etiam facilisis tellus at erat auctor accumsan. Maecenas dui augue, faucibus sed lectus in, gravida cursus orci.
-
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras malesuada a leo id porttitor. Ut quis dui id nulla bibendum bibendum non sit amet metus. Nullam condimentum eros ex, ac aliquam nulla vestibulum et. Nunc quis mi velit. Quisque neque enim, efficitur nec tincidunt ac, dapibus a leo. Proin vitae arcu eu eros facilisis semper in id lectus. Aliquam ligula mauris, feugiat at enim eget, consectetur vulputate magna.
-
-    Donec blandit purus metus, ut hendrerit ante consectetur eget. Etiam bibendum imperdiet velit, ac malesuada risus lacinia ac. Donec magna risus, convallis quis ligula vel, congue blandit odio. Nunc ac felis vitae elit pretium vestibulum pellentesque sed urna. Suspendisse pretium libero quis est dapibus, tincidunt luctus urna commodo. Donec tincidunt diam sit amet ante auctor, vitae consectetur enim maximus. In ut libero sed elit semper interdum. Donec molestie dui id orci volutpat tincidunt. Etiam tincidunt purus nec lectus viverra scelerisque. Quisque dui tellus, ultrices non diam sit amet, finibus venenatis lectus. Donec congue mollis est, ut eleifend sem tempor non. Cras vestibulum ultricies leo. Etiam facilisis sapien et lacus blandit, sed suscipit massa iaculis.
-
-    Curabitur ut laoreet nunc. Aliquam non pulvinar elit. Duis et dui a urna facilisis fringilla. Morbi fringilla euismod enim eget malesuada. Vestibulum vel semper nibh, in consectetur nulla. Suspendisse laoreet id eros et imperdiet. Aliquam enim justo, feugiat id dapibus vitae, eleifend eu eros. Sed mattis lacus ac dui tempus ullamcorper sed non arcu.
-
-    Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Morbi ornare ante in lorem porttitor egestas. Praesent feugiat posuere neque, id pellentesque arcu suscipit eget. Maecenas auctor lorem vel convallis pretium. Ut aliquam auctor ante, eu tincidunt lorem fringilla ac. Donec ullamcorper urna placerat arcu viverra, a finibus ipsum ultrices. Nam lacus libero, vulputate non finibus et, condimentum in lectus. Quisque eu lorem ut ipsum iaculis mattis a vitae felis. Proin quis tristique felis.
-
-    Quisque elementum tortor at est tristique, vitae iaculis ex commodo. Maecenas rhoncus orci sed felis porttitor interdum. Praesent id nibh et justo rutrum pharetra ac eu orci. Ut eu tellus erat. Cras quis rhoncus est. Nunc sit amet lectus id turpis egestas posuere. Etiam facilisis tellus at erat auctor accumsan. Maecenas dui augue, faucibus sed lectus in, gravida cursus orci.
-
-
+  title: Collapsible Tags
   version: 1.0.0
-paths:
-  /open:
-    get:
-      summary: Its opened.
-      description: |
-        Open by default 
+  description: | 
 
-        Link to internal
-        [internal linking](#get-/closed "Open it")
-      
+    Tags in openapi are used for grouping and ordering operations.<br/>
+    In RapiDoc's `view` mode these tags acts like an accordions, which you can expand or collapse.
+
+    By default all the tags are expanded, but if you wish to collapse certain tags at the beginning when the spec is loaded,<br/>
+    you may do so by using `x-tag-expanded` extension under `tags` section which can contain `true` or `false`
+
+    below is an example how to achieve it
+
+    ```yaml
+      openapi: 3.0.0
+      info:
+        version: 1.0.0
+        title: Collapsible Tags
+      paths:
+        ...
+        ...
+      tags:
+        - name: My Tag 1
+        - name: My Tag 2
+          x-tag-expanded: false # <-- extension to control expand collapse tags in RapiDoc
+        - name: My Tag 3
+        - name: My Tag 4
+    ```
+    Even if a tag is closed, you can create links to operations inside them.<br/> 
+    Upon clicking the link, it will open the tag if it is closed and navigate to operation's location 
+    
+    _Example: **[Link](#get-/path1-in-closed-tag "Open it")** for `path1-in-closed-tag`_
+
+
+paths:
+  /path1-in-open-tag:
+    get:
+      summary: Path 1 under open tag 
       tags: 
-        - open
+        - Open
       responses:
         '200':
           description: Happy response
-  
-  /closed:
+  /path2-in-open-tag:
     get:
-      summary: Its closed. 
-      description: closed by default
+      summary: Path 2 under open tag 
       tags: 
-        - closed
+        - Open
       responses:
         '200':
           description: Happy response
-  
-  /generic:
+          
+  /path1-in-closed-tag:
     get:
-      summary: Generic. 
-      description: Generic no setupp
+      summary: Path 1 under closed tag 
       tags: 
-        - generic
+        - Closed
+      responses:
+        '200':
+          description: Happy response
+  /path2-in-closed-tag:
+    get:
+      summary: Path 2 under closed tag 
+      tags: 
+        - Closed
+      responses:
+        '200':
+          description: Happy response
+          
+  /No-Tags:
+    get:
+      summary: This path dont have any tag associated with it. (It gets created from the path) 
       responses:
         '200':
           description: Happy response
           
 tags:
-  - name: open
-    expanded: true
-  - name: closed
-    expanded: false
+  - name: Open
+    description: This tag is **open** by default, and it contains 2 paths inside it. 
+  - name: Closed
+    description: This tag is **closed** in the begining when the spec loads. It achieved by using `x-tag-expanded` extension 
+    x-tag-expanded: false

@@ -109,16 +109,13 @@ tags:
     description: Everything about your Pets
   - name: store
     description: Access to Petstore orders
+    x-tag-expanded: false
   - name: user
     description: Operations about user
   - name: pet_model
-    x-displayName: The Pet Model
-    description: |
-      <SchemaDefinition schemaRef="#/components/schemas/Pet" />
+    description: The Pet Model
   - name: store_model
-    x-displayName: The Order Model
-    description: |
-      <SchemaDefinition schemaRef="#/components/schemas/Order" exampleRef="#/components/examples/Order" showReadOnly={true} showWriteOnly={true} />
+    description: The Order Model
 paths:
   /pet:
     parameters:
