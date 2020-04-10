@@ -254,10 +254,11 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
       name: v.name,
       description: v.description,
       paths: [],
-      expanded: true,
+      expanded: v['x-tag-expanded'] !== false,
     }))
     : [];
-    // For each path find the tag and push it into the corresponding tag
+
+  // For each path find the tag and push it into the corresponding tag
   for (const path in openApiSpec.paths) {
     const commonParams = openApiSpec.paths[path].parameters;
     const commonPathProp = {
@@ -270,7 +271,7 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
     methods.forEach((methodName) => {
       let tagObj;
       let tagText;
-      let tagDescr;
+      let specTagsObj;
 
       if (openApiSpec.paths[path][methodName]) {
         const fullPath = openApiSpec.paths[path][methodName];
@@ -278,7 +279,7 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
         if (fullPath.tags && fullPath.tags[0]) {
           tagText = fullPath.tags[0];
           if (openApiSpec.tags) {
-            tagDescr = openApiSpec.tags.find((v) => (v.name === tagText));
+            specTagsObj = openApiSpec.tags.find((v) => (v.name === tagText));
           }
         } else {
           let firstWordEndIndex = path.indexOf('/', 1);
@@ -290,18 +291,15 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
           tagText = path.substr(1, firstWordEndIndex);
         }
         tagObj = tags.find((v) => v.name === tagText);
-
         if (!tagObj) {
           tagObj = {
             show: true,
             name: tagText,
             paths: [],
-            description: tagDescr ? tagDescr.description : '',
-            expanded: (tagDescr && typeof tagDescr.expanded === 'boolean') ? tagDescr.expanded : true,
+            description: specTagsObj ? specTagsObj.description : '',
+            expanded: (specTagsObj ? specTagsObj['x-tag-expanded'] !== false : true),
           };
           tags.push(tagObj);
-        } else {
-          tagObj.expanded = (tagDescr && typeof tagDescr.expanded === 'boolean') ? tagDescr.expanded : true;
         }
 
         // Generate Path summary and Description if it is missing for a method
@@ -328,7 +326,6 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
         } else {
           finalParameters = fullPath.parameters ? fullPath.parameters.slice(0) : [];
         }
-
         // Update Responses
         tagObj.paths.push({
           show: true,
@@ -352,7 +349,6 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
       }
     }); // End of Methods
   }
-
   // sort paths by methods or path within each tags;
   const tagsWithSortedPaths = tags.filter((v) => v.paths && v.paths.length > 0);
   if (sortEndpointsBy === 'method') {

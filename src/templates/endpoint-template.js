@@ -94,36 +94,27 @@ export default function endpointTemplate() {
     ${this.resolvedSpec.tags.map((tag) => html`
     <div class='regular-font section-gap section-tag ${tag.expanded ? 'expanded' : 'collapsed'}' > 
     
-      <div class='section-tag-header' @click="${() => {
-        tag.expanded = !tag.expanded;
-        this.requestUpdate();
-      }}">
-        <div style='display: flex; justify-content: space-between; width: 100%;'>
-          <div id='${tag.name.replace(/[\s#:?&=]/g, '-')}' class="sub-title tag">${tag.name}</div>
-          <div style='margin-right: 5px;'><i class="arrow ${tag.expanded ? 'down' : 'up'}"></i></div>
-        </div>
-        <div class="regular-font-size">
-          ${tag.description
-            ? html`
-              ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(tag.description)}</div>`)}`
-            : ''
-          }
-        </div>
+      <div class='section-tag-header' @click="${() => { tag.expanded = !tag.expanded; this.requestUpdate(); }}">
+        <div id='${tag.name.replace(/[\s#:?&=]/g, '-')}' class="sub-title tag">${tag.name}</div>
       </div>
-
-      ${tag.paths.filter((v) => {
-        if (this.matchPaths) {
-          return pathIsInSearch(this.matchPaths, v);
-        }
-        return true;
-      }).map((path) => html`
-        <div id='${path.method}-${path.path.replace(/[\s#:?&=]/g, '-')}' class='m-endpoint regular-font ${path.method} ${path.expanded ? 'expanded' : 'collapsed'}'>
-          ${endpointHeadTemplate.call(this, path)}      
-          ${path.expanded ? endpointBodyTemplate.call(this, path) : ''}
+      <div class='section-tag-body'>
+        <div class="regular-font regular-font-size m-markdown" style="padding-bottom:12px">
+          ${unsafeHTML(marked(tag.description || ''))}
         </div>
-      `)
-    }
-    </div>`)
+        ${tag.paths.filter((v) => {
+          if (this.matchPaths) {
+            return pathIsInSearch(this.matchPaths, v);
+          }
+          return true;
+          }).map((path) => html`
+          <div id='${path.method}-${path.path.replace(/[\s#:?&=]/g, '-')}' class='m-endpoint regular-font ${path.method} ${path.expanded ? 'expanded' : 'collapsed'}'>
+            ${endpointHeadTemplate.call(this, path)}      
+            ${path.expanded ? endpointBodyTemplate.call(this, path) : ''}
+          </div>`)
+        }
+      </div>
+    </div>
+  `)
   }`;
 }
 /* eslint-enable indent */

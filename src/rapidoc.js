@@ -333,24 +333,46 @@ export default class RapiDoc extends LitElement {
           background-color: var(--border-color);
         }
 
+        .section-gap.section-tag {
+          border-bottom:1px solid var(--border-color);
+        }
         .section-gap,
         .section-gap--read-mode { 
           padding: 24px 8px 12px 8px; 
         }
         .section-tag-header {
+          position:relative;
           cursor: pointer;
-          padding: 5px;
+          padding: 12px 0;
         }
-        .section-tag-header:hover {
-          border-color:var(--orange); 
-          background-color:var(--light-orange); 
+        .section-tag-header:hover{
+          background-image: linear-gradient(to right, rgba(0,0,0,0), var(--border-color), rgba(0,0,0,0));
+          // background-color: var(--hover-color);
         }
-        .section-tag.collapsed {
-          color: var(--light-fg);
-          filter: opacity(0.6);
+
+        .section-tag-header:hover::after {
+          position:absolute;
+          margin-left:-24px;
+          font-size:20px;
+          top: calc(50% - 14px);
+          color:var(--primary-color);
+          content: '⬆'; 
         }
-        .section-tag.collapsed > .m-endpoint {
-          display: none;
+
+        .collapsed .section-tag-header::after {
+          position:absolute;
+          margin-left:-24px;
+          font-size:20px;
+          top: calc(50% - 14px);
+          color: var(--border-color);
+          content: '⬇'; 
+        }
+        .collapsed .section-tag-header:hover::after {
+          color:var(--primary-color);
+        }
+
+        .collapsed .section-tag-body {
+          display:none;
         }
 
         .logo {
@@ -387,25 +409,6 @@ export default class RapiDoc extends LitElement {
         input.header-input::placeholder {
           opacity:0.4;
         }
-
-        i.arrow {
-          border: solid black;
-          border-width: 0 3px 3px 0;
-          display: inline-block;
-          padding: 4px;
-          opacity: 0.4;
-        }
-        
-        .up {
-          transform: rotate(-135deg);
-          -webkit-transform: rotate(-135deg);
-        }
-        
-        .down {
-          transform: rotate(45deg);
-          -webkit-transform: rotate(45deg);
-        }
-
         .loader {
           margin: 16px auto 16px auto; 
           border: 4px solid var(--bg3);
@@ -439,7 +442,7 @@ export default class RapiDoc extends LitElement {
             padding:0 16px;
           }
           .section-gap { 
-            padding: 24px 24px 8px 24px; 
+            padding: 0 24px; 
           }
           .section-gap--read-mode { 
             padding: 48px 24px 24px 24px; 
@@ -458,7 +461,6 @@ export default class RapiDoc extends LitElement {
             padding: 48px 120px 24px 100px; 
           }
         }
-        
       </style>
       
     ${this.showHeader === 'false' ? '' : this.headerTemplate()}
@@ -817,7 +819,7 @@ export default class RapiDoc extends LitElement {
     this.matchPaths = e.target.value.toLowerCase();
 
     let didFindAnything = false;
-    this.resolvedSpec.tags.map((tag) => tag.paths.filter((v) => {
+    this.resolvedSpec.tags.forEach((tag) => tag.paths.filter((v) => {
       if (this.matchPaths) {
         v.expanded = false;
         if (pathIsInSearch(this.matchPaths, v)) {
