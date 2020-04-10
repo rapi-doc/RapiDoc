@@ -46,17 +46,18 @@ function updateOAuthKey(apiKeyId, tokenType = 'Bearer', accessToken) {
 /* eslint-disable no-console */
 // Gets Access-Token in exchange of Authorization Code
 async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, grantType, authCode, apiKeyId, authFlowDivEl) {
-  const formData = new FormData();
   const respDisplayEl = authFlowDivEl ? authFlowDivEl.querySelector('.oauth-resp-display') : undefined;
-  formData.append('grant_type', grantType);
+  const urlFormParams = new URLSearchParams();
+  urlFormParams.append('grant_type', grantType);
   if (authCode) {
-    formData.append('code', authCode);
+    urlFormParams.append('code', authCode);
   }
-  formData.append('client_id', clientId);
-  formData.append('client_secret', clientSecret);
-  formData.append('redirect_uri', redirectUrl);
+  urlFormParams.append('client_id', clientId);
+  urlFormParams.append('client_secret', clientSecret);
+  urlFormParams.append('redirect_uri', redirectUrl);
+
   try {
-    const resp = await fetch(tokenUrl, { method: 'POST', body: formData });
+    const resp = await fetch(tokenUrl, { method: 'POST', body: urlFormParams });
     const tokenResp = await resp.json();
     if (resp.ok) {
       if (tokenResp.token_type && tokenResp.access_token) {
