@@ -341,11 +341,24 @@
       </td></tr>
       <tr>
         <td class="mono-bold"> 
-          <a href="./tests/performance.html"> Performance </a> 
-          <span class="gray descr"> (CAUTION - Browser May become unresponsive) - Loading a large spec with lots of markdown </span>  
+          <a href="./tests/perf-v2.html"> Large Swagger 2.0 Spec Performance (Bad - browser may become unresponsive ) </a> 
+          <span class="gray descr"> Most of the time is taken by swagger 2 to OpenAPI conversion</span>  
         </td>
       </tr>
-  
+      <tr>
+        <td class="mono-bold"> 
+          <a href="./tests/perf-v3.html">Large OpenAPI 3.0 Spec Performance - Read Mode (Okay - browser dont hang)</a> 
+          <span class="gray descr"> The above spec pre-converted to OpenAPI 3</span>  
+        </td>
+      </tr>
+
+      <tr>
+        <td class="mono-bold"> 
+          <a href="./tests/perf-v3-view.html">Large OpenAPI 3.0 Spec Performance - View Mode (Fastest)</a> 
+          <span class="gray descr"> The above spec pre-converted to OpenAPI 3 in view mode (Fast enough, wont make the browser hang)</span>  
+        </td>
+      </tr>
+
     </table>
   </div>  
 </body>
