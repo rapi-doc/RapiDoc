@@ -9,6 +9,8 @@ import 'prismjs/components/prism-java';
 import 'prismjs/components/prism-json';
 import 'prismjs/components/prism-bash';
 import 'prismjs/components/prism-python';
+import 'prismjs/components/prism-http';
+
 
 import FontStyles from '@/styles/font-styles';
 import InputStyles from '@/styles/input-styles';
@@ -16,6 +18,7 @@ import FlexStyles from '@/styles/flex-styles';
 import TableStyles from '@/styles/table-styles';
 import EndpointStyles from '@/styles/endpoint-styles';
 import PrismStyles from '@/styles/prism-styles';
+import TabStyles from '@/styles/tab-styles';
 
 import { isValidHexColor } from '@/utils/color-utils';
 import { pathIsInSearch } from '@/utils/common-utils';
@@ -174,6 +177,7 @@ export default class RapiDoc extends LitElement {
       ${TableStyles}
       ${EndpointStyles}
       ${PrismStyles}
+      ${TabStyles}
       ${this.theme === 'dark' ? SetTheme('dark', newTheme) : SetTheme('light', newTheme)}
 
       <style>

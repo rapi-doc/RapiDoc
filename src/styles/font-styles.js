@@ -98,7 +98,7 @@ export default html`
   .m-markdown code {
     padding: 1px 6px;
     border-radius: 2px;
-    color: var(--red);
+    color: var(--inline-code-fg);
     background-color: var(--bg3);
     font-size: calc(var(--font-size-mono) - 1px);
     line-height: var(--font-mono-line-height);

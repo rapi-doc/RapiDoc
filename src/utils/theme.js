@@ -14,6 +14,8 @@ export default function setTheme(baseTheme, theme = {}) {
     const fg2 = theme.fg2 ? theme.fg2 : ColorUtils.color.brightness(fg1, -15); // or #ababab
     const fg3 = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, -20); // or #aaa
     const lightFg = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, -65); // or #777
+    // const inlineCodeFg = theme.inlineCodeFg ? theme.inlineCodeFg : ColorUtils.color.brightness(fg1, 10);
+    const inlineCodeFg = theme.inlineCodeFg ? theme.inlineCodeFg : '#cdcdcd';
     const selectionBg = '#bbb';
     const selectionFg = '#eee';
 
@@ -33,6 +35,7 @@ export default function setTheme(baseTheme, theme = {}) {
       fg2,
       fg3,
       lightFg,
+      inlineCodeFg,
       primaryColor,
       selectionBg,
       selectionFg,
@@ -86,6 +89,9 @@ export default function setTheme(baseTheme, theme = {}) {
     const fg2 = theme.fg2 ? theme.fg2 : ColorUtils.color.brightness(fg1, 17); // or '#555'
     const fg3 = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, 30); // or #666
     const lightFg = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, 70); // or #999
+    // const inlineCodeFg = theme.inlineCodeFg ? theme.inlineCodeFg : ColorUtils.color.brightness(fg1, -10);
+    const inlineCodeFg = theme.inlineCodeFg ? theme.inlineCodeFg : 'brown';
+
     const selectionBg = '#444';
     const selectionFg = '#eee';
 
@@ -112,6 +118,7 @@ export default function setTheme(baseTheme, theme = {}) {
       fg2,
       fg3,
       lightFg,
+      inlineCodeFg,
       primaryColor,
       selectionBg,
       selectionFg,
@@ -131,7 +138,7 @@ export default function setTheme(baseTheme, theme = {}) {
       lightBorderColor: theme.lightBorderColor ? theme.lightBorderColor : ColorUtils.color.brightness(bg1, -15), // #eee
       codeBorderColor: theme.codeBorderColor ? theme.codeBorderColor : '#transparent',
 
-      codeBg: theme.codeBg ? theme.codeBg : '#454545',
+      codeBg: theme.codeBg ? theme.codeBg : '#555',
       codeFg: theme.codeFg ? theme.codeFg : '#ccc',
 
       inputBg: theme.inputBg ? theme.inputBg : ColorUtils.color.brightness(bg1, 10), // #fff
@@ -177,6 +184,7 @@ export default function setTheme(baseTheme, theme = {}) {
 
     --code-bg:${newTheme.codeBg};
     --code-fg:${newTheme.codeFg};
+    --inline-code-fg:${newTheme.inlineCodeFg};
     --input-bg:${newTheme.inputBg};
     --placeholder-color:${newTheme.placeHolder};
     --hover-color:${newTheme.hoverColor};

@@ -3,6 +3,7 @@ import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import marked from 'marked';
 import '@/components/api-request';
 import '@/components/api-response';
+import codeSamplesTemplate from '@/templates/code-samples-template';
 import { pathIsInSearch } from '@/utils/common-utils';
 import { callbackTemplate } from '@/templates/expanded-endpoint-template';
 
@@ -50,12 +51,15 @@ function endpointBodyTemplate(path) {
     }
   }
   accept = accept.replace(/,\s*$/, ''); // remove trailing comma
+  const codeSampleTabPanel = path.xCodeSamples ? codeSamplesTemplate(path.xCodeSamples) : '';
+
   const nonEmptyApiKeys = this.resolvedSpec.securitySchemes.filter((v) => (v.finalKeyValue)) || [];
   return html`
   <div class='endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}'>
     <div class="summary">
       ${path.summary && path.summary !== path.description ? html`<div class="title">${path.summary}</div>` : ''}
       ${path.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(path.description))}</div>` : ''}
+      ${codeSampleTabPanel}
     </div>  
     <div class='req-resp-container'> 
       <api-request  class="request"  
