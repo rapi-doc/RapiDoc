@@ -1,6 +1,7 @@
 import { html } from 'lit-element';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import marked from 'marked';
+import codeSamplesTemplate from '@/templates/code-samples-template';
 import '@/components/api-request';
 import '@/components/api-response';
 
@@ -67,6 +68,8 @@ function endpointBodyTemplate(path) {
   }
   accept = accept.replace(/,\s*$/, ''); // remove trailing comma
   const nonEmptyApiKeys = this.resolvedSpec.securitySchemes.filter((v) => (v.finalKeyValue)) || [];
+  const codeSampleTabPanel = path.xCodeSamples ? codeSamplesTemplate(path.xCodeSamples) : '';
+
   return html`
   <div class='divider'></div>
   <div class='expanded-endpoint-body observe-me ${path.method} ${path.deprecated ? 'deprecated' : ''} ' id='${path.method}-${path.path.replace(/[\s#:?&=]/g, '-')}' >
@@ -83,16 +86,10 @@ function endpointBodyTemplate(path) {
             <span class = '${path.deprecated ? 'gray-text' : ''}'> ${path.path} </span>
           </div>`
         : ''
-      }
-    `
+      }`
     }
-    ${path.description
-      ? html`
-          <div class="m-markdown"> 
-            ${unsafeHTML(marked(path.description || ''))}
-          </div>`
-      : ''
-    }
+    ${path.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(path.description || ''))}</div>` : ''}
+    ${codeSampleTabPanel}
     <div class='expanded-req-resp-container'>
       <api-request  class="request-panel"  
         method = "${path.method}", 

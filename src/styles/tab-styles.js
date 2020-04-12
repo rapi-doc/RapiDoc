@@ -9,9 +9,18 @@ export default html`
     height:30px;
     border-bottom: 1px solid var(--light-border-color) ;
     align-items: stretch;
+    overflow-y: hidden;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+  .tab-buttons::-webkit-scrollbar{
+    height: 1px;
+    background-color: var(--border-color);
   }
   .tab-btn {
-    border:none;
+    border: none;
+    border-bottom: 3px solid transparent; 
+    white-space: nowrap;
     background-color:transparent;
     cursor:pointer;
     outline:none;

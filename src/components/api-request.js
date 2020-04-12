@@ -1,5 +1,6 @@
 import { LitElement, html } from 'lit-element';
 import marked from 'marked';
+import Prism from 'prismjs';
 
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import TableStyles from '@/styles/table-styles';
@@ -8,6 +9,7 @@ import InputStyles from '@/styles/input-styles';
 import FontStyles from '@/styles/font-styles';
 import BorderStyles from '@/styles/border-styles';
 import TabStyles from '@/styles/tab-styles';
+import PrismStyles from '@/styles/prism-styles';
 import {
   schemaInObjectNotation, getTypeInfo, generateExample,
 } from '@/utils/common-utils';
@@ -66,6 +68,7 @@ export default class ApiRequest extends LitElement {
     ${FlexStyles}
     ${BorderStyles}
     ${TabStyles}
+    ${PrismStyles}
     <style>
       .read-mode{
         margin-top:24px;
@@ -620,15 +623,21 @@ export default class ApiRequest extends LitElement {
                   <button class="m-btn" @click="${this.downloadResponseBlob}">DOWNLOAD</button>
                 </div>`
               : html`
-                <pre class="multiline">${this.responseText}</pre>
-              `
+                <div class="m-markdown">
+                  ${this.responseHeaders.includes('application/json')
+                    ? html`<pre style="white-space:pre; max-height:400px; overflow:scroll"><code class = "language-json">${unsafeHTML(Prism.highlight(this.responseText, Prism.languages.json, 'json'))}</code></pre>`
+                    : this.responseHeaders.includes('application/xml')
+                      ? html`<pre style="white-space:pre; max-height:400px; overflow:scroll"><code class = "language-xml">${unsafeHTML(Prism.highlight(this.responseText, Prism.languages.xml, 'xml'))}</code></pre>`
+                      : html`<pre style="white-space:pre; max-height:400px; overflow:scroll">${this.responseText}</pre>`
+                  }
+                </div>`
             }
           </div>
-          <div class="tab-content col" style="flex:1;display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};" >
-            <pre class="multiline">${this.responseHeaders}</pre>
+          <div class="tab-content col m-markdown" style="flex:1;display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};" >
+            <pre style="white-space:pre"><code lang="shell"> ${unsafeHTML(Prism.highlight(this.responseHeaders, Prism.languages.yaml, 'yaml'))}</code></pre>
           </div>
-          <div class="tab-content col" style="flex:1;display:${this.activeResponseTab === 'curl' ? 'flex' : 'none'};">
-            <pre class="multiline" style="white-space: normal;">${this.curlSyntax}</pre>
+          <div class="tab-content col m-markdown" style="flex:1;display:${this.activeResponseTab === 'curl' ? 'flex' : 'none'};">
+            <pre style="white-space:pre" ><code lang="shell"> ${unsafeHTML(Prism.highlight(this.curlSyntax.trim().replace(/\\$/, ''), Prism.languages.shell, 'shell'))}</code></pre>
           </div>
         </div>`
       }
@@ -743,28 +752,29 @@ export default class ApiRequest extends LitElement {
     } else {
       curlUrl = fetchUrl;
     }
-    curl = `curl -X ${this.method.toUpperCase()} "${curlUrl}" `;
+    curl = `curl -X ${this.method.toUpperCase()} "${curlUrl}" \\ \n`;
 
     if (this.accept) {
       fetchOptions.headers.Accept = this.accept;
-      curlHeaders += ` -H "Accept: ${this.accept}"`;
+      curlHeaders += ` -H "Accept: ${this.accept}" \\ \n`;
     }
-
-    // Add Header Params
-    headerParamEls.map((el) => {
-      if (el.value) {
-        fetchOptions.headers[el.dataset.pname] = el.value;
-        curlHeaders += ` -H "${el.dataset.pname}: ${el.value}"`;
-      }
-    });
 
     // Add Authentication Header if provided
     this.api_keys
       .filter((v) => (v.in === 'header'))
       .forEach((v) => {
         fetchOptions.headers[v.name] = v.finalKeyValue;
-        curlHeaders += ` -H "${v.name}: ${v.finalKeyValue}"`;
+        curlHeaders += ` -H "${v.name}: ${v.finalKeyValue}" \\ \n`;
       });
+
+    // Add Header Params
+    headerParamEls.map((el) => {
+      if (el.value) {
+        fetchOptions.headers[el.dataset.pname] = el.value;
+        curlHeaders += ` -H "${el.dataset.pname}: ${el.value}" \\ \n`;
+      }
+    });
+
 
     // Request Body Params
     if (requestBodyContainerEl) {
@@ -792,7 +802,7 @@ export default class ApiRequest extends LitElement {
               formUrlDynParams.append(prop, JSON.stringify(tmpObj[prop]));
             }
             fetchOptions.body = formUrlDynParams;
-            curlData = ` -d ${formUrlDynParams.toString()}`;
+            curlData = ` -d ${formUrlDynParams.toString()} \\ \n`;
           }
         } else {
           // url-encoded Form Params (regular)
@@ -811,7 +821,7 @@ export default class ApiRequest extends LitElement {
               }
             });
           fetchOptions.body = formUrlParams;
-          curlData = ` -d ${formUrlParams.toString()}`;
+          curlData = ` -d ${formUrlParams.toString()} \\ \n`;
         }
       } else if (requestBodyType.includes('form-data')) {
         const formDataParams = new FormData();
@@ -820,14 +830,14 @@ export default class ApiRequest extends LitElement {
           if (el.dataset.array === 'false') {
             if (el.type === 'file' && el.files[0]) {
               formDataParams.append(el.dataset.pname, el.files[0], el.files[0].name);
-              curlForm += ` -F "${el.dataset.pname}=@${el.files[0].name}"`;
+              curlForm += ` -F "${el.dataset.pname}=@${el.files[0].name}" \\ \n`;
             } else if (el.value) {
               formDataParams.append(el.dataset.pname, el.value);
-              curlForm += ` -F "${el.dataset.pname}=${el.value}"`;
+              curlForm += ` -F "${el.dataset.pname}=${el.value}" \\ \n`;
             }
           } else if (el.value && Array.isArray(el.value)) {
             el.value.forEach((v) => {
-              curlForm = `${curlForm} -F "${el.dataset.pname}[]=${v}"`;
+              curlForm = `${curlForm} -F "${el.dataset.pname}[]=${v}" \\ \n`;
             });
             formDataParams.append(el.dataset.pname, el.value.join(','));
           }
@@ -837,13 +847,13 @@ export default class ApiRequest extends LitElement {
         const bodyParamFileEl = requestPanelEl.querySelector('.request-body-param-file');
         if (bodyParamFileEl && bodyParamFileEl.files[0]) {
           fetchOptions.body = bodyParamFileEl.files[0];
-          curlData = ` --data-binary @${bodyParamFileEl.files[0].name}`;
+          curlData = ` --data-binary @${bodyParamFileEl.files[0].name} \\ \n`;
         }
       } else if (requestBodyType.includes('json') || requestBodyType.includes('xml') || requestBodyType.includes('text')) {
         const exampleTextAreaEl = requestPanelEl.querySelector('.example-selected textarea');
         if (exampleTextAreaEl && exampleTextAreaEl.value) {
           fetchOptions.body = exampleTextAreaEl.value;
-          curlData = ` -d ${JSON.stringify(exampleTextAreaEl.value.replace(/(\r\n|\n|\r)/gm, ''))}`;
+          curlData = ` -d ${JSON.stringify(exampleTextAreaEl.value.replace(/(\r\n|\n|\r)/gm, '')).replace(/\\"/g, "'")} \\ \n`;
         }
       }
       // Common for all request-body
@@ -851,7 +861,7 @@ export default class ApiRequest extends LitElement {
         // For multipart/form-data dont set the content-type to allow creation of browser generated part boundaries
         fetchOptions.headers['Content-Type'] = `${requestBodyType}; charset=utf-8;`;
       }
-      curlHeaders += ` -H "Content-Type: ${requestBodyType}"`;
+      curlHeaders += ` -H "Content-Type: ${requestBodyType}" \\ \n`;
     }
 
     me.responseUrl = '';

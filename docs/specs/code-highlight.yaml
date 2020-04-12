@@ -58,7 +58,7 @@ info:
 
     ### html / xml
 
-    ```html
+    ```xml
     <!doctype html> <!-- Important: must specify -->
 
     <html>
@@ -74,7 +74,7 @@ info:
 
     ### js
 
-    ```js
+    ```javascript
       function add(x, y) {
         const answer = x + y;
         return answer;
@@ -98,6 +98,27 @@ info:
       if (out != null) {
         out.close();
       }
+    }
+    ```
+
+    ### cs
+
+    ```cs
+    using System.IO.Compression;
+
+    #pragma warning disable 414, 3021
+    
+    namespace MyApplication
+    {
+        [Obsolete("...")]
+        class Program : IInterface
+        {
+            public static List<int> JustDoIt(int count)
+            {
+                Console.WriteLine($"Hello {Name}!");
+                return new List<int>(new int[] { 1, 2, 3 })
+            }
+        }
     }
     ```
 
@@ -135,10 +156,9 @@ paths:
     get:
       summary: Syntax Highlighting in Markdown
       description: >
-        ### java
+        `Syntax Highlighting` for operation description
 
         ```java
-    
           BufferedWriter out = null;
           try {
             out = new BufferedWriter(new FileWriter(”filename”, true));
@@ -155,7 +175,22 @@ paths:
     post:
       summary: Request body
       requestBody:
-        description: request body description
+        description: |
+          `Syntax Highlighting` for request body
+
+          ```java
+            BufferedWriter out = null;
+            try {
+              out = new BufferedWriter(new FileWriter(”filename”, true));
+              out.write(”aString”);
+            } catch (IOException e) {
+              // error processing code
+            } finally {
+              if (out != null) {
+                  out.close();
+              }
+            }
+          ```
         content:
           application/json:
             schema:
