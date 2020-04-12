@@ -2,11 +2,6 @@ swagger: "2.0"
 info:
   title: Circular References
   version: 1.0.0
-basePath: /v1
-consumes:
-- application/json
-produces:
-- application/json
 paths:
   /books:
     get:

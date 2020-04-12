@@ -140,33 +140,32 @@ paths:
             - 'write:pets'
             - 'read:pets'
       x-code-samples:
-        - lang: 'C#'
+        - lang: 'HTTP'
+          label: 'HTTP Request'
           source: |
-            PetStore.v1.Pet pet = new PetStore.v1.Pet();
-            pet.setApiKey("your api key");
-            pet.petType = PetStore.v1.Pet.TYPE_DOG;
-            pet.name = "Rex";
-            // set other fields
-            PetStoreResponse response = pet.create();
-            if (response.statusCode == HttpStatusCode.Created)
+            POST /pet HTTP/1.1
+            Host: example.org
+            Content-Type: application/json; charset=utf-8
+            Content-Length: 137
+
             {
-              // Successfully created
+              "status": "ok",
+              "extended": true,
+              "results": [
+                {"value": 0, "type": "int64"},
+                {"value": 1.0e+3, "type": "decimal"}
+              ]
             }
-            else
-            {
-              // Something wrong -- check response for errors
-              Console.WriteLine(response.getRawResponse());
-            }
-        - lang: PHP
+        - lang: java
+          label: 'JAVA'
           source: |
-            $form = new \PetStore\Entities\Pet();
-            $form->setPetType("Dog");
-            $form->setName("Rex");
-            // set other fields
-            try {
-                $pet = $client->pets()->create($form);
-            } catch (UnprocessableEntityException $e) {
-                var_dump($e->getErrors());
+            private String createPet() throws JsonProcessingException {
+              Pet pet = new Pet();
+              pet.setId(1l);
+              pet.setName("Wuffy");
+              Category category = new Category(1l, "Hund");
+              pet.setCategory(category);
+              return new ObjectMapper().writeValueAsString(pet);
             }
       requestBody:
         $ref: '#/components/requestBodies/Pet'
