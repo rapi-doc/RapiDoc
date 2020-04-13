@@ -55,7 +55,22 @@ paths:
               $ref: "#/components/schemas/Price"
       responses:
         200:
-          description: Register response
+          description: Updated with provided values
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Price"
+            text/html:
+              schema:
+                description: Updated 
+                type: string
+                example: Successfully updated 
+        400:
+          description: Internal server error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Price"
 components:
   schemas:
     Price:

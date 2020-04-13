@@ -1,72 +1,48 @@
-openapi: 3.0.1
+openapi: 3.0.0
 info:
-  title: Bitbucket API
-  description: Code against the Bitbucket API to automate simple tasks, embed Bitbucket
-    data into your own site, build mobile or desktop apps, or even add custom UI add-ons
-    into Bitbucket itself using the Connect framework.
-  version: "2.0"
-servers:
-- url: https://api.bitbucket.org/2.0
+  version: 1.0.0
+  title: "Flask-Security External API"
 paths:
-  /users/{username}/repositories:
-    get:
-      tags:
-      - Repo
-      description: |-
-        All repositories owned by a user/team. This includes private
-        repositories, but filtered down to the ones that the calling user has
-        access to.
+  /update-price:
+    post:
+      summary: Unified Sign In.
       parameters:
-      - name: username
-        in: path
-        description: |
-          This can either be the username or the UUID of the account,
-          surrounded by curly-braces, for example: `{account UUID}`. An account
-          is either a team or user.
+        - $ref: '#/components/parameters/include_auth_token'
+      requestBody:
         required: true
-        schema:
-          type: string
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Price"
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/Price"
       responses:
-        default:
-          description: Unexpected error.
-      security:
-      - oauth2:
-        - repository
-      - basic: []
-      - api_key: []
+        200:
+          description: Unified Sign In response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Price"
+            text/html:
+              schema:
+                description: Unsuccessful sign in
+                type: string
+                example: render_template(SECURITY_US_SIGNIN_TEMPLATE) with error values
+        400:
+          description: Errors while validating attributes, or caller already authenticated/logged in.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Price"
+
 components:
-  securitySchemes:
-    basic:
-      type: http
-      scheme: basic
-    api_key:
-      type: apiKey
-      name: Authorization
-      in: header
-    BitBucketsOAuthFlows:
-      type: oauth2
-      flows:
-        authorizationCode:
-          authorizationUrl: https://bitbucket.org/site/oauth2/authorize
-          tokenUrl: https://bitbucket.org/site/oauth2/access_token
-          scopes:
-            repository:admin: Administer your repositories
-            repository: Read your repositories
-            repository:delete: Delete your repositories
-            repository:write: Read and modify your repositories
-        clientCredentials:
-          tokenUrl: https://bitbucket.org/site/oauth2/access_token
-        implicit:
-          authorizationUrl: https://bitbucket.org/site/oauth2/authorize
-          scopes:        
-            repository:admin: Administer your repositories
-            repository: Read your repositories
-            repository:delete: Delete your repositories
-            repository:write: Read and modify your repositories
-        password:
-          tokenUrl: https://bitbucket.org/site/oauth2/access_token
-          scopes:        
-            repository:admin: Administer your repositories
-            repository: Read your repositories
-            repository:delete: Delete your repositories
-            repository:write: Read and modify your repositories
+  schemas:
+    Price:
+      type: object
+      properties:
+        amount:
+          type: integer
+        currency:
+          type: string
+                
