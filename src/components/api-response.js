@@ -126,13 +126,23 @@ export default class ApiResponse extends LitElement {
       ${Object.keys(this.responses).length > 1
         ? html`<div class='row'>
           ${Object.keys(this.responses).map((respStatus) => html`
-          <button 
-            @click="${() => { this.selectedStatus = respStatus; }}"
-            class='m-btn small ${this.selectedStatus === respStatus ? 'primary' : ''}' 
-            style='margin: 8px 4px 0 0'> ${respStatus} </button>
-          `)}`
+            <button 
+              @click="${() => {
+                this.selectedStatus = respStatus;
+                if (this.responses[respStatus].content && Object.keys(this.responses[respStatus].content)[0]) {
+                  this.selectedMimeType = Object.keys(this.responses[respStatus].content)[0];
+                } else {
+                  this.selectedMimeType = undefined;
+                }
+              }}"
+              class='m-btn small ${this.selectedStatus === respStatus ? 'primary' : ''}'
+              style='margin: 8px 4px 0 0'
+            > 
+              ${respStatus} 
+            </button>`)
+          }`
         : html`<span>${Object.keys(this.responses)[0]}</span>`
-      }  
+      }
       </div>
 
       ${Object.keys(this.responses).map((status) => html`
@@ -196,7 +206,7 @@ export default class ApiResponse extends LitElement {
   mimeTypeDropdownTemplate(mimeTypes) {
     return html`
       <select @change="${(e) => { this.selectedMimeType = e.target.value; }}" style='margin-bottom: -1px; z-index:1'>
-        ${mimeTypes.map((mimeType) => html`<option value='${mimeType}'> ${mimeType} </option>`)}
+        ${mimeTypes.map((mimeType) => html`<option value='${mimeType}' ?selected = '${mimeType === this.selectedMimeType}'> ${mimeType} </option>`)}
       </select>`;
   }
 
