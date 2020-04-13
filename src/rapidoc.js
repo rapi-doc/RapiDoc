@@ -10,7 +10,7 @@ import 'prismjs/components/prism-json';
 import 'prismjs/components/prism-bash';
 import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-http';
-
+import 'prismjs/components/prism-csharp';
 
 import FontStyles from '@/styles/font-styles';
 import InputStyles from '@/styles/input-styles';
@@ -21,7 +21,7 @@ import PrismStyles from '@/styles/prism-styles';
 import TabStyles from '@/styles/tab-styles';
 
 import { isValidHexColor } from '@/utils/color-utils';
-import { pathIsInSearch } from '@/utils/common-utils';
+import { pathIsInSearch, invalidCharsRegEx } from '@/utils/common-utils';
 import SetTheme from '@/utils/theme';
 import ProcessSpec from '@/utils/spec-parser';
 import expandedEndpointTemplate from '@/templates/expanded-endpoint-template';
@@ -422,7 +422,7 @@ export default class RapiDoc extends LitElement {
           height: 36px;
           animation: spin 2s linear infinite;
         }
-        .expanded-endpoint-body{ padding:24px 0px;}
+        .expanded-endpoint-body{ padding:6px 0px;}
         .expanded-endpoint-body.deprecated{ filter:opacity(0.6); }
         .divider { border-top:2px solid var(--primary-color); width:100%; }
 
@@ -462,7 +462,7 @@ export default class RapiDoc extends LitElement {
             display:flex;
           }
           .section-gap--read-mode { 
-            padding: 48px 120px 24px 100px; 
+            padding: 24px 100px 12px 100px; 
           }
         }
       </style>
@@ -623,7 +623,7 @@ export default class RapiDoc extends LitElement {
         <span id='link-paths' class='nav-bar-section'>Operations</span>
         ${this.resolvedSpec.tags.map((tag) => html`
         
-          <div class='nav-bar-tag' id="link-${tag.name.replace(/[\s#:?&=]/g, '-')}" @click='${(e) => this.scrollToEl(e)}'>
+          <div class='nav-bar-tag' id="link-${tag.name.replace(invalidCharsRegEx, '-')}" @click='${(e) => this.scrollToEl(e)}'>
             ${tag.name}
           </div>
           ${tag.paths.filter((v) => {
@@ -632,7 +632,7 @@ export default class RapiDoc extends LitElement {
             }
             return true;
           }).map((p) => html`
-          <div class='nav-bar-path' id='link-${p.method}-${p.path.replace(/[\s#:?&=]/g, '-')}' @click='${(e) => this.scrollToEl(e)}'> 
+          <div class='nav-bar-path' id='link-${p.method}-${p.path.replace(invalidCharsRegEx, '-')}' @click='${(e) => this.scrollToEl(e)}'> 
             <span> ${p.summary || p.path} </span>
           </div>`)}
         `)}
@@ -726,7 +726,7 @@ export default class RapiDoc extends LitElement {
           await this.loadSpec(newVal);
           // If goto-path is provided then try to scroll there
           if (this.gotoPath) {
-            this.scrollTo(this.gotoPath.replace(/[\s#:?&=]/g, '-').toLowerCase());
+            this.scrollTo(this.gotoPath.replace(invalidCharsRegEx, '-').toLowerCase());
           }
         }, 0);
       }

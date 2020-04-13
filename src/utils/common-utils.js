@@ -14,6 +14,8 @@ export function debounce(fn, delay) {
 }
 */
 
+export const invalidCharsRegEx = new RegExp(/[\s#:?&=]/, 'g');
+
 /* Generates an schema object containing type and constraint info */
 export function getTypeInfo(schema) {
   if (!schema) {
@@ -558,12 +560,6 @@ export async function wait(ms) {
 }
 
 export function pathIsInSearch(matchPattern, path) {
-  const searchElements = [path.method, path.path];
-  if (path.summary) searchElements.push(path.summary);
-  if (path.description) searchElements.push(path.description);
-  if (path.operationId) searchElements.push(path.operationId);
-
-  const searchString = searchElements.join(' ').toLowerCase();
-  const isMatch = searchString.includes(matchPattern);
-  return isMatch;
+  const searchString = `${path.method} ${path.path} ${path.summary || path.description || ''} ${path.operationId || ''}`.toLowerCase();
+  return searchString.includes(matchPattern);
 }

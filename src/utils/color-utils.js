@@ -22,7 +22,7 @@ export default {
     },
     invert(hex) {
       const rgb = this.getRgb(hex);
-      return (rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114) >= 128 ? '#000' : '#fff';
+      return (rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114) >= 135 ? '#000' : '#fff'; // compare with `>=128`, but giving little more preference to white over black
     },
     opacity(hex, opacity) {
       const rgb = this.getRgb(hex);

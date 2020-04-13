@@ -13,7 +13,7 @@ pre[class*="language-"] {
   word-wrap: normal;
   line-height: 1.5;
 
-  tab-size: 4;
+  tab-size: 2;
 
   -webkit-hyphens: none;
   -moz-hyphens: none;

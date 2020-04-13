@@ -64,7 +64,7 @@ export default html`
   .m-markdown p,
   .m-markdown span{
     line-height:18px;
-    font-size:calc(var(--font-size-regular) - 1px);
+    font-size:calc(var(--font-size-small));
   }
   
   .m-markdown li{

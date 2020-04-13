@@ -3,6 +3,7 @@
 import converter from 'swagger2openapi';
 import Swagger from 'swagger-client';
 import marked from 'marked';
+import { invalidCharsRegEx } from '@/utils/common-utils';
 
 export default async function ProcessSpec(specUrl, sortTags = false, sortEndpointsBy, attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '') {
   let jsonParsedSpec;
@@ -179,7 +180,7 @@ function getComponents(openApiSpec) {
     for (const sComponent in openApiSpec.components[component]) {
       const scmp = {
         show: true,
-        id: `${component.toLowerCase()}-${sComponent.toLowerCase()}`.replace(/[\s#:?&=]/g, '-'),
+        id: `${component.toLowerCase()}-${sComponent.toLowerCase()}`.replace(invalidCharsRegEx, '-'),
         name: sComponent,
         component: openApiSpec.components[component][sComponent],
       };
