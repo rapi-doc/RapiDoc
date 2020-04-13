@@ -4,8 +4,30 @@ info:
   version: 1.0.0
   description: |
 
-    ### No Highlight 
+    You may provide little snippets of code using markdown syntax and they will be color coded based on the language you specified as shown below
+    ```
+        ```java
+          some code...
+          ...
+          ...
+        ```
+    ```
 
+    Following are the supported language codes that you may use for syntax highlighting
+
+    - `bash` `shell`
+    - `markup` `html` `xml` `svg`
+    - `json`
+    - `yaml` `yml`
+    - `go`
+    - `javascript` `js`
+    - `java`
+    - `python` `py`
+    - `csharp` `cs`
+    - `http`
+    - `css`
+
+    **No Highlight**
     ```
     $ curl -X POST -is -u username:password 
       -H "Content-Type: application/json" https://example.com
@@ -18,8 +40,7 @@ info:
       }'
     ```
 
-    ### bash
-
+    **SHELL** `shell` `bash` 
     ```bash
     $ curl -X POST -is -u username:password 
       -H "Content-Type: application/json" https://example.com
@@ -33,33 +54,9 @@ info:
     
     ```
 
-    ### json
-
-    ```json
-    {
-      "firstName": "Mickey",
-      "lastName": "Mouse",
-      "age": 9,
-      "married": false,
-    }
-    ```
-
-    ### yaml
-
-    ```yaml
-    openapi: 3.0.0
-      info:
-      title: Syntax Highlighting
-      version: 1.0.0
-      discription: >
-        Example of 
-        Syntax highlighting
-    ```
-
-    ### html / xml
-
-    ```xml
-    <!doctype html> <!-- Important: must specify -->
+    **MARKUP** `markup` `html` `xml` `svg` 
+    ```markup
+    <!doctype html>
 
     <html>
       <head>
@@ -72,8 +69,41 @@ info:
     </html>
     ```
 
-    ### js
+    **JSON** `json`
+    ```json
+    {
+      "firstName": "Mickey",
+      "lastName": "Mouse",
+      "age": 9,
+      "married": false,
+    }
+    ```
 
+    **YAML** `yaml` `yml` 
+    ```yaml
+    openapi: 3.0.0
+    info:
+      title: Syntax Highlighting
+      version: 1.0.0
+      description: >
+        Example of 
+        Syntax highlighting
+    ```
+
+    **GO** `go`
+    ```go
+    func readFileAsLines(path string) ([]string, error) {
+      d, err := ioutil.ReadFile(path)
+      if err != nil {
+        return nil, err
+      }
+      s := string(d)
+      res := strings.Split(s, "\n")
+      return res, nil
+    }
+    ```
+
+    **JAVA SCRIPT** `javascript` `js`
     ```javascript
       function add(x, y) {
         const answer = x + y;
@@ -85,8 +115,7 @@ info:
       }
     ```
 
-    ### java
-
+    **JAVA** `java`
     ```java
     BufferedWriter out = null;
     try {
@@ -101,96 +130,92 @@ info:
     }
     ```
 
-    ### cs
+    **PYTHON** `python` `py`
+    ```python
+    @app.route('/parse_data', methods=['GET', 'POST'])
+    # define the function
+    def parse_data():
+      if request.method == 'POST':
+        search = request.get_json()
+        return jsonify(search)
+      return render_template('index.html')
+    ```
 
-    ```cs
+    **C SHARP** `chsarp` `cs`
+    ```csharp
     using System.IO.Compression;
 
-    #pragma warning disable 414, 3021
-    
-    namespace MyApplication
-    {
-        [Obsolete("...")]
-        class Program : IInterface
-        {
-            public static List<int> JustDoIt(int count)
-            {
-                Console.WriteLine($"Hello {Name}!");
-                return new List<int>(new int[] { 1, 2, 3 })
-            }
+    namespace MyApplication {
+      [Obsolete("...")]
+      class Program : IInterface {
+        public static List<int> JustDoIt(int count) {
+          Console.WriteLine($"Hello {Name}!");
+          return new List<int>(new int[] { 1, 2, 3 })
         }
-    }
-    ```
-
-    ### go
-
-    ```go
-    func readFileAsLines(path string) ([]string, error) {
-      d, err := ioutil.ReadFile(path)
-      if err != nil {
-        return nil, err
       }
-      s := string(d)
-      res := strings.Split(s, "\n")
-      return res, nil
     }
     ```
 
-    ### python
+    **HTTP** `http`
+    ```http
+    POST /pet HTTP/1.1
+    Host: example.org
+    Content-Type: application/json; charset=utf-8
+    Content-Length: 137
 
-    ```python
-    # define the function
-    def unique(list):
-      if len(list) == len(set(list)):
-        print("All elements are unique")
-      else:
-        print("List has duplicates")
-
-    # call the function
-
-    unique([1,2,3,4,5]) 
+    {
+      "status": "ok",
+      "extended": true,
+      "results": [
+        {"value": 0, "type": "int64"},
+        {"value": 1.0e+3, "type": "decimal"}
+      ]
+    }
     ```
 
 paths:
   /code:
     get:
       summary: Syntax Highlighting in Markdown
-      description: >
-        `Syntax Highlighting` for operation description
-
-        ```java
-          BufferedWriter out = null;
-          try {
-            out = new BufferedWriter(new FileWriter(”filename”, true));
-            out.write(”aString”);
-          } catch (IOException e) {
-            // error processing code
-          } finally {
-            if (out != null) {
-                out.close();
-            }
+      description: |
+        Syntax Highlighting in **OPERATION DESCRIPTION**
+        ```http
+          POST /pet HTTP/1.1
+          Host: example.org
+          Content-Type: application/json; charset=utf-8
+          Content-Length: 137
+      
+          {
+            "status": "ok",
+            "extended": true,
+            "results": [
+              {"value": 0, "type": "int64"},
+              {"value": 1.0e+3, "type": "decimal"}
+            ]
           }
-
         ```
+
     post:
       summary: Request body
       requestBody:
         description: |
-          `Syntax Highlighting` for request body
-
-          ```java
-            BufferedWriter out = null;
-            try {
-              out = new BufferedWriter(new FileWriter(”filename”, true));
-              out.write(”aString”);
-            } catch (IOException e) {
-              // error processing code
-            } finally {
-              if (out != null) {
-                  out.close();
-              }
+          Syntax Highlighting in **REQUEST BODY**
+          ```http
+            POST /pet HTTP/1.1
+            Host: example.org
+            Content-Type: application/json; charset=utf-8
+            Content-Length: 137
+        
+            {
+              "status": "ok",
+              "extended": true,
+              "results": [
+                {"value": 0, "type": "int64"},
+                {"value": 1.0e+3, "type": "decimal"}
+              ]
             }
           ```
+
         content:
           application/json:
             schema:

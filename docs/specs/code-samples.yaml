@@ -13,31 +13,30 @@ paths:
         Below OpenAPI spec shows how to use this extension 
 
         ```yaml
-          openapi: 3.0.0
-          info:
-            title: Code Samples
-            version: 1.0.0
-          paths:
-            /my-endpoint-1:
-              get:
-                summary: ...
-                description: ...
-                x-code-samples:   # <<< Extension
-                  - lang: js
-                    label: 'JS - Node'
-                    source: |
-                      var request = require("request");
-                      ...
-                      ...
-                  - lang: js
-                    label: 'JS - JQuery'
-                    source: |
-                      $.ajax(settings).done(function (response) {
-                        console.log(response);
-                      });
-              ...
-              ...
-
+        openapi: 3.0.0
+        info:
+          title: Code Samples
+          version: 1.0.0
+        paths:
+          /my-endpoint-1:
+            get:
+              summary: ...
+              description: ...
+              x-code-samples:   # <<< Extension
+                - lang: js
+                  label: 'JS - Node'
+                  source: |
+                    var request = require("request");
+                    ...
+                    ...
+                - lang: js
+                  label: 'JS - JQuery'
+                  source: |
+                    $.ajax(settings).done(function (response) {
+                      console.log(response);
+                    });
+            ...
+            ...
         ```
 
 

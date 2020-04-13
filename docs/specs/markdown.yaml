@@ -54,23 +54,29 @@ paths:
           }'
         }
         ```
-        ### Multiline mono-spaced text gets converted to single line 
-
-        `First line
-         second line
-         third line
-        `
+        ### Code (with syntax highlight)
+        ```bash
+        $ curl -X POST -is -u username:password 
+          -H "Content-Type: application/json" https://example.com
+          -d '{
+          "target": {
+            "ref_type": "branch", 
+            "type": "pipeline_ref_target", 
+            "ref_name": "master"
+          }'
+        }
+        ```
 
       parameters:
         - name: full-name
           in: query
           description: |
-           Field descriptions can contain `Markdown` (Markdown must be monospaced)
-           Must be 
+           Field descriptions can contain `Markdown` (Markdown must be monospaced)<br/>
+           **CONSTRAINTS** 
            ```
-            - At least 3 characters long
+            - At least 3 characters
             - Cannot have space
-            - Cannot contain only alphabets
+            - Cannot have number
             - First Letter must be capital
            ```
           required: true
