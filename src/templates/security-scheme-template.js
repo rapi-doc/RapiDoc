@@ -52,12 +52,17 @@ async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, g
   if (authCode) {
     urlFormParams.append('code', authCode);
   }
-  urlFormParams.append('client_id', clientId);
-  urlFormParams.append('client_secret', clientSecret);
+  const headers = new Headers();
+  if (grantType === 'client_credentials') {
+    headers.set('Authorization', `Basic ${btoa(`${clientId}:${clientSecret}`)}`);
+  } else {
+    urlFormParams.append('client_id', clientId);
+    urlFormParams.append('client_secret', clientSecret);
+  }
   urlFormParams.append('redirect_uri', redirectUrl);
 
   try {
-    const resp = await fetch(tokenUrl, { method: 'POST', body: urlFormParams });
+    const resp = await fetch(tokenUrl, { method: 'POST', headers, body: urlFormParams });
     const tokenResp = await resp.json();
     if (resp.ok) {
       if (tokenResp.token_type && tokenResp.access_token) {
