@@ -342,17 +342,21 @@ export default class RapiDoc extends LitElement {
         }
         .section-gap,
         .section-gap--read-mode { 
-          padding: 24px 8px 12px 8px; 
+          padding: 0px 4px; 
         }
         .section-tag-header {
           position:relative;
-          cursor: pointer;
+          cursor: n-resize;
           padding: 12px 0;
         }
+        .collapsed .section-tag-header:hover{
+          cursor: s-resize;
+        }
+
         .section-tag-header:hover{
           background-image: linear-gradient(to right, rgba(0,0,0,0), var(--border-color), rgba(0,0,0,0));
-          // background-color: var(--hover-color);
         }
+
 
         .section-tag-header:hover::after {
           position:absolute;
