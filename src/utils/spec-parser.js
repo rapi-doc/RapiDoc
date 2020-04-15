@@ -270,87 +270,91 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
     };
 
     methods.forEach((methodName) => {
-      let tagObj;
-      let tagText;
-      let specTagsObj;
-
       if (openApiSpec.paths[path][methodName]) {
         const fullPath = openApiSpec.paths[path][methodName];
+
         // If path.methods are tagged, else generate it from path
-        if (fullPath.tags && fullPath.tags[0]) {
-          tagText = fullPath.tags[0];
-          if (openApiSpec.tags) {
-            specTagsObj = openApiSpec.tags.find((v) => (v.name === tagText));
-          }
-        } else {
+        const pathTags = fullPath.tags ? fullPath.tags : [];
+        if (pathTags.length === 0) {
           let firstWordEndIndex = path.indexOf('/', 1);
           if (firstWordEndIndex === -1) {
             firstWordEndIndex = (path.length - 1);
           } else {
             firstWordEndIndex -= 1;
           }
-          tagText = path.substr(1, firstWordEndIndex);
-        }
-        tagObj = tags.find((v) => v.name === tagText);
-        if (!tagObj) {
-          tagObj = {
-            show: true,
-            name: tagText,
-            paths: [],
-            description: specTagsObj ? specTagsObj.description : '',
-            expanded: (specTagsObj ? specTagsObj['x-tag-expanded'] !== false : true),
-          };
-          tags.push(tagObj);
+          pathTags.push(path.substr(1, firstWordEndIndex));
         }
 
-        // Generate Path summary and Description if it is missing for a method
-        let summary = (fullPath.summary || '').trim() ? fullPath.summary.trim() : (fullPath.description || '-').trim().split('/n')[0];
-        if (summary.length > 100) {
-          summary = summary.split('.')[0];
-        }
-        if (!(fullPath.description || '').trim()) {
-          fullPath.description = ((fullPath.summary || '-').trim());
-        }
+        pathTags.forEach((tag) => {
+          let tagObj;
+          let specTagsItem;
 
-        // Merge Common Parameters with This methods parameters
-        let finalParameters = [];
-        if (commonParams) {
-          if (fullPath.parameters) {
-            finalParameters = commonParams.filter((commonParam) => {
-              if (!fullPath.parameters.some((param) => (commonParam.name === param.name && commonParam.in === param.in))) {
-                return commonParam;
-              }
-            }).concat(fullPath.parameters);
-          } else {
-            finalParameters = commonParams.slice(0);
+          if (openApiSpec.tags) {
+            specTagsItem = openApiSpec.tags.find((v) => (v.name.toLowerCase() === tag.toLowerCase()));
           }
-        } else {
-          finalParameters = fullPath.parameters ? fullPath.parameters.slice(0) : [];
-        }
-        // Update Responses
-        tagObj.paths.push({
-          show: true,
-          expanded: false,
-          expandedAtLeastOnce: false,
-          summary,
-          method: methodName,
-          description: fullPath.description,
-          path,
-          operationId: fullPath.operationId,
-          servers: fullPath.servers ? commonPathProp.servers.concat(fullPath.servers) : commonPathProp.servers,
-          parameters: finalParameters,
-          requestBody: fullPath.requestBody,
-          responses: fullPath.responses,
-          callbacks: fullPath.callbacks,
-          deprecated: fullPath.deprecated,
-          security: fullPath.security,
-          commonSummary: commonPathProp.summary,
-          commonDescription: commonPathProp.description,
-          xCodeSamples: fullPath['x-code-samples'],
-        });
+
+          tagObj = tags.find((v) => v.name === tag);
+          if (!tagObj) {
+            tagObj = {
+              show: true,
+              name: tag,
+              paths: [],
+              description: specTagsItem ? specTagsItem.description : '',
+              expanded: (specTagsItem ? specTagsItem['x-tag-expanded'] !== false : true),
+            };
+            tags.push(tagObj);
+          }
+
+          // Generate Path summary and Description if it is missing for a method
+          let summary = (fullPath.summary || '').trim() ? fullPath.summary.trim() : (fullPath.description || '-').trim().split('/n')[0];
+          if (summary.length > 100) {
+            summary = summary.split('.')[0];
+          }
+          if (!(fullPath.description || '').trim()) {
+            fullPath.description = ((fullPath.summary || '-').trim());
+          }
+
+          // Merge Common Parameters with This methods parameters
+          let finalParameters = [];
+          if (commonParams) {
+            if (fullPath.parameters) {
+              finalParameters = commonParams.filter((commonParam) => {
+                if (!fullPath.parameters.some((param) => (commonParam.name === param.name && commonParam.in === param.in))) {
+                  return commonParam;
+                }
+              }).concat(fullPath.parameters);
+            } else {
+              finalParameters = commonParams.slice(0);
+            }
+          } else {
+            finalParameters = fullPath.parameters ? fullPath.parameters.slice(0) : [];
+          }
+
+          // Update Responses
+          tagObj.paths.push({
+            show: true,
+            expanded: false,
+            expandedAtLeastOnce: false,
+            summary,
+            method: methodName,
+            description: fullPath.description,
+            path,
+            operationId: fullPath.operationId,
+            servers: fullPath.servers ? commonPathProp.servers.concat(fullPath.servers) : commonPathProp.servers,
+            parameters: finalParameters,
+            requestBody: fullPath.requestBody,
+            responses: fullPath.responses,
+            callbacks: fullPath.callbacks,
+            deprecated: fullPath.deprecated,
+            security: fullPath.security,
+            commonSummary: commonPathProp.summary,
+            commonDescription: commonPathProp.description,
+          });
+        });// End of tag path create
       }
     }); // End of Methods
   }
+
   // sort paths by methods or path within each tags;
   const tagsWithSortedPaths = tags.filter((v) => v.paths && v.paths.length > 0);
   if (sortEndpointsBy === 'method') {
