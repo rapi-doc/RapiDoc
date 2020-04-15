@@ -84,6 +84,22 @@ paths:
       responses:
         '200':
           description: successful operation
+  /path-in-first-and-third-tag:
+    get:
+      summary: Path belongs to First and Third Tag
+      tags:
+        - The First Tag
+        - Last Tag
+      responses:
+        '200':
+          description: successful operation
+  /no-tag/path:
+    get:
+      summary: This path do not have any tag
+      responses:
+        '200':
+          description: successful operation
+                
 tags:
   - name: The First Tag
   - name: And Second Tag
