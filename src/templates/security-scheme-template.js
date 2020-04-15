@@ -48,17 +48,16 @@ function updateOAuthKey(apiKeyId, tokenType = 'Bearer', accessToken) {
 async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, grantType, authCode, apiKeyId, authFlowDivEl) {
   const respDisplayEl = authFlowDivEl ? authFlowDivEl.querySelector('.oauth-resp-display') : undefined;
   const urlFormParams = new URLSearchParams();
+  const headers = new Headers();
+
+  headers.set('Authorization', `Basic ${btoa(`${clientId}:${clientSecret}`)}`);
+
   urlFormParams.append('grant_type', grantType);
   if (authCode) {
     urlFormParams.append('code', authCode);
   }
-  const headers = new Headers();
-  if (grantType === 'client_credentials') {
-    headers.set('Authorization', `Basic ${btoa(`${clientId}:${clientSecret}`)}`);
-  } else {
-    urlFormParams.append('client_id', clientId);
-    urlFormParams.append('client_secret', clientSecret);
-  }
+  urlFormParams.append('client_id', clientId);
+  urlFormParams.append('client_secret', clientSecret);
   urlFormParams.append('redirect_uri', redirectUrl);
 
   try {

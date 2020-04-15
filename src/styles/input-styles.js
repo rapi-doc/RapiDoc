@@ -131,7 +131,7 @@ textarea::-webkit-scrollbar{
 pre::-webkit-scrollbar-thumb,
 textarea::-webkit-scrollbar-thumb {
   border-radius: 2px;
-  background-color: var(--primary-color)
+  background-color: var(--border-color)
 }
 
 .link {

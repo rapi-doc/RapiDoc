@@ -4,7 +4,7 @@ import ColorUtils from '@/utils/color-utils';
 /* Generates an schema object containing type and constraint info */
 export default function setTheme(baseTheme, theme = {}) {
   let newTheme = {};
-  const primaryColor = theme.primaryColor ? theme.primaryColor : '#FF791A';
+  const primaryColor = theme.primaryColor ? theme.primaryColor : '#F4550F';
   if (baseTheme === 'dark') {
     const bg1 = theme.bg1 ? theme.bg1 : '#333';
     const fg1 = theme.fg1 ? theme.fg1 : '#bbb';
