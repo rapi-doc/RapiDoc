@@ -99,8 +99,8 @@ async function onWindowMessageEvent(msgEvent, winObj, tokenUrl, clientId, client
       // Authorization Code flow
       fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrl, grantType, msgEvent.data.code, apiKeyId, authFlowDivEl);
     } else if (msgEvent.data.responseType === 'token') {
-      // Implicit flow
-      updateOAuthKey.call(this, apiKeyId, msgEvent.data.token_type, msgEvent.data.access_token);
+      // Implicit
+      await this.refreshSpecWithToken(apiKeyId, msgEvent);
     }
   }
 }
@@ -285,7 +285,7 @@ export default function securitySchemeTemplate() {
         ? html`
           <div class="blue-text"> ${providedApiKeys.length} API key applied </div>
           <div style="flex:1"></div>
-          <button class="m-btn thin-border" @click=${() => { onClearAllApiKeys.call(this); }}>CLEAR ALL API KEYS</button>`
+          <button class="m-btn thin-border" @click=${() => { onClearAllApiKeys.call(this); this.loadSpec(this.specUrl); }}>CLEAR ALL API KEYS</button>`
         : html`<div class="red-text">No API key applied</div>`
       }
     </div>
@@ -300,7 +300,7 @@ export default function securitySchemeTemplate() {
                   ${v.finalKeyValue
                     ? html`
                       <span class='blue-text'>  ${v.finalKeyValue ? 'Key Applied' : ''} </span> 
-                      <button class="m-btn thin-border small" @click=${() => { v.finalKeyValue = ''; this.requestUpdate(); }}>REMOVE</button>
+                      <button class="m-btn thin-border small" @click=${() => { v.finalKeyValue = ''; this.requestUpdate(); this.loadSpec(this.specUrl); }}>REMOVE</button>
                       `
                     : ''
                   }

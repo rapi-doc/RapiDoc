@@ -5,13 +5,14 @@ import Swagger from 'swagger-client';
 import marked from 'marked';
 import { invalidCharsRegEx } from '@/utils/common-utils';
 
-export default async function ProcessSpec(specUrl, sortTags = false, sortEndpointsBy, attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '') {
+export default async function ProcessSpec(specUrl, sortTags = false, sortEndpointsBy, attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '', token) {
   let jsonParsedSpec;
   let convertedSpec;
   // let resolvedRefSpec;
   // let resolveOptions;
   // const specLocation = '';
   // let url;
+  console.log(`Key Value: ${attrApiKeyValue}`);
 
   const convertOptions = {
     patch: true,
@@ -22,7 +23,14 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
   try {
     let specObj;
     if (typeof specUrl === 'string') {
-      specObj = await Swagger(specUrl);
+      specObj = await Swagger({
+        url: specUrl,
+        requestInterceptor: (req) => {
+          if (!req.headers.Authorization && token) {
+            req.headers.Authorization = `Bearer ${token}`;
+          }
+        },
+      });
     } else {
       specObj = await Swagger({ spec: specUrl });
     }

@@ -841,8 +841,15 @@ export default class RapiDoc extends LitElement {
     this.matchPaths = '';
   }
 
+  async refreshSpecWithToken(apiKeyId, msgEvent) {
+    await this.loadSpec(this.specUrl, msgEvent.data.access_token);
+    const securityObj = this.resolvedSpec.securitySchemes.find((v) => (v.apiKeyId === apiKeyId));
+    securityObj.finalKeyValue = `Bearer ${msgEvent.data.access_token}`;
+    this.requestUpdate();
+  }
+
   // Public Method
-  async loadSpec(specUrl) {
+  async loadSpec(specUrl, token) {
     if (!specUrl) {
       return;
     }
@@ -859,6 +866,7 @@ export default class RapiDoc extends LitElement {
         this.getAttribute('api-key-location'),
         this.getAttribute('api-key-value'),
         this.getAttribute('server-url'),
+        token,
       );
       this.loading = false;
       if (spec === undefined || spec === null) {
