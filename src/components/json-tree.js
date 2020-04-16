@@ -1,24 +1,25 @@
 import { LitElement, html } from 'lit-element';
+import { copyToClipboard } from '@/utils/common-utils';
 import FontStyles from '@/styles/font-styles';
 import BorderStyles from '@/styles/border-styles';
+import InputStyles from '@/styles/input-styles';
 
 
 export default class JsonTree extends LitElement {
   static get properties() {
     return {
-      isCopied: { type: Boolean },
       data: { type: Object },
       renderStyle: { type: String, attribute: 'render-style' },
       isLast: { type: Boolean },
     };
   }
 
-
   /* eslint-disable indent */
   render() {
     return html`
       ${FontStyles}
       ${BorderStyles}
+      ${InputStyles}
       <style>
         :host{
           display:flex;
@@ -69,20 +70,10 @@ export default class JsonTree extends LitElement {
           align-items: center;
           font-size: calc(var(--font-size-small) - 1px);
         }
-        .toolbar-btn{
-          cursor:pointer;
-          padding:4px 6px;
-          margin:0 2px;
-          color:var(--primary-color-invert);
-          background-color: var(--primary-color);
-          border-radius:2px;
-          border:none;
-        }
       </style>
       <div class = "json-tree" >
         <div class='toolbar'> 
-          <button  class="toolbar-btn" @click='${(e) => { this.copyExample(this.data, e); }}'> COPY </button>
-          <span style="margin-left:8px; color:var(--green)"> ${this.isCopied ? 'Copied' : ''} </span>
+          <button  class="toolbar-btn" @click='${(e) => { copyToClipboard(JSON.stringify(this.data, null, 2), e); }}'> Copy </button>
         </div>
         ${this.generateTree(this.data, this.isLast)}
       </div>  
@@ -117,25 +108,6 @@ export default class JsonTree extends LitElement {
       : html`<span class="${typeof data}">${data}</span>${isLast ? '' : ','}`;
   }
   /* eslint-enable indent */
-
-  copyExample(data) {
-    const textArea = document.createElement('textarea');
-    textArea.value = JSON.stringify(data, null, 2);
-    textArea.style.position = 'fixed'; // avoid scrolling to bottom
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-    try {
-      document.execCommand('copy');
-      this.isCopied = true;
-      setTimeout(() => {
-        this.isCopied = false;
-      }, 3000);
-    } catch (err) {
-      console.error('Unable to copy', err); // eslint-disable-line no-console
-    }
-    document.body.removeChild(textArea);
-  }
 
   toggleExpand(e) {
     const openBracketEl = e.target;

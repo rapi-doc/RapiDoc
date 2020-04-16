@@ -40,6 +40,17 @@ export default html`
   cursor:not-allowed;
   opacity:0.4;
 }
+.toolbar-btn{
+  cursor:pointer;
+  padding:2px 0 4px;
+  margin:0 2px;
+  min-width:50px;
+  color:var(--primary-color-invert);
+  border-radius:2px;
+  border:none;
+  background-color: var(--primary-color);
+}
+
 input, textarea, select, button, pre {
   color:var(--fg);
   outline: none;

@@ -5,7 +5,12 @@ import ColorUtils from '@/utils/color-utils';
 export default function setTheme(baseTheme, theme = {}) {
   let newTheme = {};
 
+  // Common Theme colors
   const primaryColor = theme.primaryColor ? theme.primaryColor : '#ff591e';
+  const primaryColorInvert = ColorUtils.color.invert(primaryColor);
+  const primaryColorTrans = ColorUtils.color.opacity(primaryColor, '0.8');
+
+  // Dark and Light Theme colors
   if (baseTheme === 'dark') {
     const bg1 = theme.bg1 ? theme.bg1 : '#333';
     const fg1 = theme.fg1 ? theme.fg1 : '#bbb';
@@ -38,6 +43,8 @@ export default function setTheme(baseTheme, theme = {}) {
       lightFg,
       inlineCodeFg,
       primaryColor,
+      primaryColorTrans,
+      primaryColorInvert,
       selectionBg,
       selectionFg,
 
@@ -110,7 +117,6 @@ export default function setTheme(baseTheme, theme = {}) {
     const navHoverBgColor = theme.navHoverBgColor ? theme.navHoverBgColor : ColorUtils.color.brightness(navBgColor, -15);
     const navHoverTextColor = theme.navHoverTextColor ? theme.navHoverTextColor : ColorUtils.color.invert(navBgColor);
     const navAccentColor = theme.navAccentColor ? theme.navAccentColor : primaryColor;
-
     newTheme = {
       bg1,
       bg2,
@@ -121,6 +127,8 @@ export default function setTheme(baseTheme, theme = {}) {
       lightFg,
       inlineCodeFg,
       primaryColor,
+      primaryColorTrans,
+      primaryColorInvert,
       selectionBg,
       selectionFg,
 
@@ -149,7 +157,7 @@ export default function setTheme(baseTheme, theme = {}) {
       red: theme.red ? theme.red : '#F06560',
       lightRed: theme.lightRed ? theme.lightRed : '#fff0f0',
 
-      green: theme.green ? theme.green : '#7ec699',
+      green: theme.green ? theme.green : '#48AD1A',
       lightGreen: theme.lightGreen ? theme.lightGreen : '#fbfff0',
 
       blue: theme.blue ? theme.blue : '#47AFE8',
@@ -217,7 +225,8 @@ export default function setTheme(baseTheme, theme = {}) {
 
     /* Primary Colors */  
     --primary-color:${newTheme.primaryColor};
-    --primary-color-invert:${ColorUtils.color.invert(newTheme.primaryColor)};
+    --primary-color-invert:${newTheme.primaryColorInvert};
+    --primary-color-trans:${newTheme.primaryColorTrans};
   }
   </style>`;
 }

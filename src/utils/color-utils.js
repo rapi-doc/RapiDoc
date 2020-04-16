@@ -26,7 +26,7 @@ export default {
     },
     opacity(hex, opacity) {
       const rgb = this.getRgb(hex);
-      return `rgba(${rgb.r}, ${rgb.r}, ${rgb.r}, ${opacity})`;
+      return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity})`;
     },
     brightness(hex, amt) {
       const rgb = this.getRgb(hex);

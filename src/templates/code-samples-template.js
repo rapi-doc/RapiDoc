@@ -1,6 +1,7 @@
 import { html } from 'lit-element';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import Prism from 'prismjs';
+import { copyToClipboard } from '@/utils/common-utils';
 
 /* eslint-disable indent */
 export default function codeSamplesTemplate(xCodeSamples) {
@@ -22,7 +23,8 @@ export default function codeSamplesTemplate(xCodeSamples) {
       ${xCodeSamples.map((v, i) => html`<button class="tab-btn ${i === 0 ? 'active' : ''}" data-tab = '${v.lang}${i}'> ${v.label || v.lang} </button>`)}
     </div>
     ${xCodeSamples.map((v, i) => html`
-      <div class="tab-content m-markdown" style= "display:${i === 0 ? 'block' : 'none'}" data-tab = '${v.lang}${i}'> 
+      <div class="tab-content m-markdown" style= "display:${i === 0 ? 'block' : 'none'}" data-tab = '${v.lang}${i}'>
+        <button class="toolbar-btn" style = "position:absolute; top:12px; right:2px" @click='${(e) => { copyToClipboard(v.source, e); }}'> Copy </button>
         <pre><code class="language">${Prism.languages[v.lang.toLowerCase()] ? unsafeHTML(Prism.highlight(v.source, Prism.languages[v.lang.toLowerCase()], v.lang.toLowerCase())) : v.source}</code></pre>
       </div>`)
     }
