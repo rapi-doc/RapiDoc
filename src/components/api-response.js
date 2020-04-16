@@ -1,7 +1,7 @@
 import { LitElement, html } from 'lit-element';
 import marked from 'marked';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
-import { schemaInObjectNotation, generateExample } from '@/utils/common-utils';
+import { schemaInObjectNotation, generateExample } from '@/utils/schema-utils';
 import FontStyles from '@/styles/font-styles';
 import FlexStyles from '@/styles/flex-styles';
 import TableStyles from '@/styles/table-styles';

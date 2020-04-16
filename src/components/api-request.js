@@ -10,9 +10,8 @@ import FontStyles from '@/styles/font-styles';
 import BorderStyles from '@/styles/border-styles';
 import TabStyles from '@/styles/tab-styles';
 import PrismStyles from '@/styles/prism-styles';
-import {
-  schemaInObjectNotation, getTypeInfo, generateExample, copyToClipboard,
-} from '@/utils/common-utils';
+import { copyToClipboard } from '@/utils/common-utils';
+import { schemaInObjectNotation, getTypeInfo, generateExample } from '@/utils/schema-utils';
 import '@/components/json-tree';
 import '@/components/schema-tree';
 import '@/components/tag-input';
