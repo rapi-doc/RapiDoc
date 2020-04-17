@@ -4,6 +4,7 @@ import marked from 'marked';
 import '@/components/api-request';
 import '@/components/api-response';
 import codeSamplesTemplate from '@/templates/code-samples-template';
+import { pathSecurityTemplate } from '@/templates/security-scheme-template';
 import { pathIsInSearch, invalidCharsRegEx } from '@/utils/common-utils';
 import { callbackTemplate } from '@/templates/expanded-endpoint-template';
 
@@ -59,6 +60,7 @@ function endpointBodyTemplate(path) {
     <div class="summary">
       ${path.summary && path.summary !== path.description ? html`<div class="title">${path.summary}</div>` : ''}
       ${path.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(path.description))}</div>` : ''}
+      ${pathSecurityTemplate.call(this, path.security)}
       ${codeSampleTabPanel}
     </div>  
     <div class='req-resp-container'> 

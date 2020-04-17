@@ -2,6 +2,7 @@ import { html } from 'lit-element';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import marked from 'marked';
 import { invalidCharsRegEx } from '@/utils/common-utils';
+import { pathSecurityTemplate } from '@/templates/security-scheme-template';
 import codeSamplesTemplate from '@/templates/code-samples-template';
 import '@/components/api-request';
 import '@/components/api-response';
@@ -90,6 +91,7 @@ function endpointBodyTemplate(path) {
       }`
     }
     ${path.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(path.description || ''))}</div>` : ''}
+    ${pathSecurityTemplate.call(this, path.security)}
     ${codeSampleTabPanel}
     <div class='expanded-req-resp-container'>
       <api-request  class="request-panel"  

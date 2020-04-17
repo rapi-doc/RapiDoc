@@ -300,7 +300,7 @@ export default function securitySchemeTemplate() {
             <tr>  
               <td style="max-width:500px; overflow-wrap: break-word;">
                 <div style="min-height:24px"> 
-                  <span style="font-weight:bold">${v.type}: ${v.scheme} </span> 
+                  <span style="font-weight:bold">${v.typeDisplay} </span> 
                   ${v.finalKeyValue
                     ? html`
                       <span class='blue-text'>  ${v.finalKeyValue ? 'Key Applied' : ''} </span> 
@@ -365,4 +365,41 @@ export default function securitySchemeTemplate() {
   </div>
 `;
 }
+
+export function pathSecurityTemplate(pathSecurity) {
+  if (this.resolvedSpec.securitySchemes && pathSecurity) {
+    const pathSecurityDefs = [];
+    pathSecurity.forEach((pSecurity) => {
+      Object.keys(pSecurity).forEach((securityKeyId) => {
+        const s = this.resolvedSpec.securitySchemes.find((ss) => ss.apiKeyId === securityKeyId);
+        if (s) {
+          pathSecurityDefs.push({
+            securityScheme: s,
+            scopes: pSecurity[securityKeyId],
+          });
+        }
+      });
+    });
+    return html`<div style="position:absolute; top:3px; right:2px; font-size: calc(var(--font-size-small));">
+      <div style="position:relative; display:flex;">
+        <div style="font-size: calc(var(--font-size-small) + 2px)"> &#128274; </div>
+          ${pathSecurityDefs.map((v) => html`
+          <div class="${v.securityScheme.type === 'oauth2' ? 'path-security-type tooltip' : 'path-security-type'}">
+            <div style = "padding:2px 4px; margin:2px 0 0 2px; border-left-width:4px;"> ${v.securityScheme.typeDisplay} </div>
+            ${v.securityScheme.type === 'oauth2'
+              ? html`
+                <div class="tooltip-text" style="position:absolute; color: var(--fg); top:28px; right:0; border:1px solid var(--border-color);padding:2px 4px; min-width:250px; display:inline-flex;"> 
+                  <b>Scopes:</b> &nbsp; ${v.scopes.join(', ')}
+                </div>`
+              : ''
+            }
+          </div>  
+        `)
+        }
+      </div>
+    `;
+  }
+  return '';
+}
+
 /* eslint-enable indent */
