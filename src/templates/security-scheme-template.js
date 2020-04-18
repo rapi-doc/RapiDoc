@@ -171,7 +171,6 @@ async function onInvokeOAuthFlow(apiKeyId, flowType, authUrl, tokenUrl, e) {
 /* eslint-disable indent */
 
 function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow) {
-  let authSite = '';
   let flowNameDisplay;
   if (flowName === 'authorizationCode') {
     flowNameDisplay = 'Authorization Code Flow';
@@ -183,11 +182,6 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow)
     flowNameDisplay = 'Password Flow';
   } else {
     flowNameDisplay = flowName;
-  }
-  try {
-    authSite = new URL(authFlow.authorizationUrl).origin;
-  } catch (e) {
-    authSite = authFlow.authorizationUrl;
   }
   return html`
     <div class="oauth-flow" style="padding: 10px 0; margin-bottom:10px;"> 
@@ -247,30 +241,6 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow)
             : ''
           }  
           <div class="oauth-resp-display red-text small-font-size"></div>
-          <!--
-          <div style="margin-top:8px">
-            <ul>
-              ${authFlow.authorizationUrl
-                ? html`
-                  <li> Register this client (<span class="mono-font">${window.location.origin}</span>) with <span class="mono-font">${authSite}<span class="mono-font"> </li>
-              <li> During registration, Specify redirect url pointing to <span class="mono-font">${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/${this.oauthReceiver}</span> </li>
-                  <li> Create <b>${this.oauthReceiver}</b> which will receive auth-code from oAuth provider</li>
-                  <li> <b>${this.oauthReceiver}</b> should contain custom-element <span class="mono-font"> &lt;oauth-receiver&gt; </span>, this element receives the auth-code and passes it to this document </li>
-                  <li> After receiving auth-code, it will request access-token using <span class="mono-font"> POST ${authFlow.tokenUrl}</span>
-                    <ul>
-                      <li> grant_type = 'authorization_code'</li>
-                      <li> code = {auth-code}</li>
-                      <li> client_id = {client-id}</li>
-                      <li> client_secret = {client-secret}</li>
-                      <li> redirect_uri = {redirect-url}</li>
-                    </ul>
-                  </li>
-                `
-                : ''
-              }
-            </ul>
-          </div>
-          -->
           `
         : ''
       }
@@ -368,36 +338,84 @@ export default function securitySchemeTemplate() {
 
 export function pathSecurityTemplate(pathSecurity) {
   if (this.resolvedSpec.securitySchemes && pathSecurity) {
-    const pathSecurityDefs = [];
+    const andSecurityKeys = [];
     pathSecurity.forEach((pSecurity) => {
-      Object.keys(pSecurity).forEach((securityKeyId) => {
-        const s = this.resolvedSpec.securitySchemes.find((ss) => ss.apiKeyId === securityKeyId);
-        if (s) {
-          pathSecurityDefs.push({
-            securityScheme: s,
-            scopes: pSecurity[securityKeyId],
-          });
+      const orSecurityKeys = [];
+      const orKeyTypes = [];
+      let pathScopes = '';
+      Object.keys(pSecurity).forEach((pathSecurityKey) => {
+        const s = this.resolvedSpec.securitySchemes.find((ss) => ss.apiKeyId === pathSecurityKey);
+        if (!pathScopes) {
+          pathScopes = pSecurity[pathSecurityKey].join(', ');
         }
+        if (s) {
+          orKeyTypes.push(s.typeDisplay);
+          orSecurityKeys.push(s);
+        }
+      });
+      andSecurityKeys.push({
+        pathScopes,
+        securityTypes: orKeyTypes.join(' or '),
+        securityDefs: orSecurityKeys,
       });
     });
     return html`<div style="position:absolute; top:3px; right:2px; font-size: calc(var(--font-size-small));">
-      <div style="position:relative; display:flex;">
+      <div style="position:relative; display:flex; min-width:350px; max-width:700px; justify-content: flex-end;">
         <div style="font-size: calc(var(--font-size-small) + 2px)"> &#128274; </div>
-          ${pathSecurityDefs.map((v) => html`
-          <div class="${v.securityScheme.type === 'oauth2' ? 'path-security-type tooltip' : 'path-security-type'}">
-            <div style = "padding:2px 4px; margin:2px 0 0 2px; border-left-width:4px;"> ${v.securityScheme.typeDisplay} </div>
-            ${v.securityScheme.type === 'oauth2'
-              ? html`
-                <div class="tooltip-text" style="position:absolute; color: var(--fg); top:28px; right:0; border:1px solid var(--border-color);padding:2px 4px; min-width:250px; display:inline-flex;"> 
-                  <b>Scopes:</b> &nbsp; ${v.scopes.join(', ')}
-                </div>`
-              : ''
-            }
+          ${andSecurityKeys.map((andSecurityItem) => html`
+          <div class="tooltip">
+            <div style = "padding:2px 4px;"> ${andSecurityItem.securityTypes} </div>
+            <div class="tooltip-text" style="position:absolute; color: var(--fg); top:26px; right:0; border:1px solid var(--border-color);padding:2px 4px; display:block;">
+              ${andSecurityItem.securityDefs.length > 1 ? html`<div>Requires <b>any one</b> of the following </div>` : ''}
+              <div style="padding-left: 8px">
+                ${andSecurityItem.securityDefs.map((orSecurityItem, i) => html`
+                  ${orSecurityItem.type === 'oauth2'
+                    ? html`
+                      <div>
+                        ${andSecurityItem.securityDefs.length > 1 ? html`<b>${i + 1}.</b> &nbsp;` : html`Requires`}
+                        OAuth Access Token in <b>Authorization header</b> with <b>Scopes:</b> ${andSecurityItem.pathScopes}
+                      </div>`
+                    : orSecurityItem.type === 'http'
+                      ? html`
+                        <div>
+                          ${andSecurityItem.securityDefs.length > 1 ? html`<b>${i + 1}.</b> &nbsp;` : html`Requires`} 
+                          ${orSecurityItem.scheme === 'basic' ? 'Base 64 encoded username:password' : 'Bearer Token'} in <b>Authorization header</b>
+                        </div>`
+                      : html`
+                        <div>
+                          ${andSecurityItem.securityDefs.length > 1 ? html`<b>${i + 1}.</b> &nbsp;` : html`Requires`} 
+                          Token in <b>${orSecurityItem.name} ${orSecurityItem.in}</b>
+                        </div>`
+                  }
+                `)}
+              </div>  
+            </div>
           </div>  
         `)
         }
       </div>
     `;
+
+    /*
+    return html`<div style="position:absolute; top:3px; right:2px; font-size: calc(var(--font-size-small));">
+      <div style="position:relative; display:flex;">
+        <div style="font-size: calc(var(--font-size-small) + 2px)"> &#128274; </div>
+          ${pathSecurityDefs.map((v) => html`
+          <div class="tooltip">
+            <div style = "padding:2px 4px;"> ${v.securityScheme.typeDisplay} </div>
+            ${v.securityScheme.type === 'oauth2'
+              ? html`
+                <div class="tooltip-text" style="position:absolute; color: var(--fg); top:28px; right:0; border:1px solid var(--border-color);padding:2px 4px; min-width:100px; max-width:400px; display:inline-flex;">
+                  <b>Scopes:</b> &nbsp; ${v.scopes.join(', ')}
+                </div>`
+              : ''
+            }
+          </div>
+        `)
+        }
+      </div>
+      `;
+    */
   }
   return '';
 }

@@ -108,7 +108,7 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
     if (v.type === 'http') {
       v.typeDisplay = v.scheme === 'basic' ? 'HTTP Basic' : 'HTTP Bearer';
     } else if (v.type === 'apiKey') {
-      v.typeDisplay = 'API Key';
+      v.typeDisplay = `API Key (${v.name})`;
     } else if (v.type === 'oauth2') {
       v.typeDisplay = 'OAuth 2';
     } else {
