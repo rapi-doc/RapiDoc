@@ -30,18 +30,106 @@ paths:
         default:
           description: Unexpected error.
       security:
-      - oauth2:
+      - BitBucketsOAuthFlows:
         - repository
+        - repository:admin
       - basic: []
-      - api_key: []
+      - api_key1: []
+
+  /users/{username}/repositories-2:
+    get:
+      tags:
+      - Repo
+      description: |-
+        All repositories owned by a user/team. This includes private
+        repositories, but filtered down to the ones that the calling user has
+        access to.
+      parameters:
+      - name: username
+        in: path
+        description: |
+          This can either be the username or the UUID of the account,
+          surrounded by curly-braces, for example: `{account UUID}`. An account
+          is either a team or user.
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: Unexpected error.
+      security:
+      - BitBucketsOAuthFlows:
+        - repository
+        - repository:admin
+      - api_key1: []
+        api_key2: []
+
+  /users/{username}/repositories-3:
+    get:
+      tags:
+      - Repo
+      description: |-
+        All repositories owned by a user/team. This includes private
+        repositories, but filtered down to the ones that the calling user has
+        access to.
+      parameters:
+      - name: username
+        in: path
+        description: |
+          This can either be the username or the UUID of the account,
+          surrounded by curly-braces, for example: `{account UUID}`. An account
+          is either a team or user.
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: Unexpected error.
+      security:
+      - BitBucketsOAuthFlows:
+        - repository
+        - repository:admin
+        api_key1: []
+      - api_key2: []
+
+  /users/{username}/repositories-4:
+    get:
+      tags:
+      - Repo
+      description: |-
+        All repositories owned by a user/team. This includes private
+        repositories, but filtered down to the ones that the calling user has
+        access to.
+      parameters:
+      - name: username
+        in: path
+        description: |
+          This can either be the username or the UUID of the account,
+          surrounded by curly-braces, for example: `{account UUID}`. An account
+          is either a team or user.
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: Unexpected error.
+      security:
+      - BitBucketsOAuthFlows:
+        - repository
+        - repository:admin
+    
 components:
   securitySchemes:
     basic:
       type: http
       scheme: basic
-    api_key:
+    api_key1:
       type: apiKey
       name: Authorization
+      in: header
+    api_key2:
+      type: apiKey
+      name: specialKey
       in: header
     BitBucketsOAuthFlows:
       type: oauth2
