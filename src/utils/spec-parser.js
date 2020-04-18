@@ -110,7 +110,7 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
     } else if (v.type === 'apiKey') {
       v.typeDisplay = `API Key (${v.name})`;
     } else if (v.type === 'oauth2') {
-      v.typeDisplay = 'OAuth 2';
+      v.typeDisplay = 'OAuth';
     } else {
       v.typeDisplay = v.type;
     }

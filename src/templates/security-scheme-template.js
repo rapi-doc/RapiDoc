@@ -45,20 +45,22 @@ function updateOAuthKey(apiKeyId, tokenType = 'Bearer', accessToken) {
 
 /* eslint-disable no-console */
 // Gets Access-Token in exchange of Authorization Code
-async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, grantType, authCode, apiKeyId, authFlowDivEl) {
+async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, grantType, authCode, sendClientSecretIn = 'header', apiKeyId, authFlowDivEl) {
   const respDisplayEl = authFlowDivEl ? authFlowDivEl.querySelector('.oauth-resp-display') : undefined;
   const urlFormParams = new URLSearchParams();
   const headers = new Headers();
 
-  headers.set('Authorization', `Basic ${btoa(`${clientId}:${clientSecret}`)}`);
-
+  urlFormParams.append('redirect_uri', redirectUrl);
   urlFormParams.append('grant_type', grantType);
   if (authCode) {
     urlFormParams.append('code', authCode);
   }
-  urlFormParams.append('client_id', clientId);
-  urlFormParams.append('client_secret', clientSecret);
-  urlFormParams.append('redirect_uri', redirectUrl);
+  if (sendClientSecretIn === 'header') {
+    headers.set('Authorization', `Basic ${btoa(`${clientId}:${clientSecret}`)}`);
+  } else {
+    urlFormParams.append('client_id', clientId);
+    urlFormParams.append('client_secret', clientSecret);
+  }
 
   try {
     const resp = await fetch(tokenUrl, { method: 'POST', headers, body: urlFormParams });
@@ -86,7 +88,7 @@ async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, g
 }
 
 // Gets invoked when it receives the Authorization Code from the other window via message-event
-async function onWindowMessageEvent(msgEvent, winObj, tokenUrl, clientId, clientSecret, redirectUrl, grantType, apiKeyId, authFlowDivEl) {
+async function onWindowMessageEvent(msgEvent, winObj, tokenUrl, clientId, clientSecret, redirectUrl, grantType, sendClientSecretIn, apiKeyId, authFlowDivEl) {
   sessionStorage.removeItem('winMessageEventActive');
   winObj.close();
   if (msgEvent.data.fake) {
@@ -101,7 +103,7 @@ async function onWindowMessageEvent(msgEvent, winObj, tokenUrl, clientId, client
   if (msgEvent.data) {
     if (msgEvent.data.responseType === 'code') {
       // Authorization Code flow
-      fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrl, grantType, msgEvent.data.code, apiKeyId, authFlowDivEl);
+      fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrl, grantType, msgEvent.data.code, sendClientSecretIn, apiKeyId, authFlowDivEl);
     } else if (msgEvent.data.responseType === 'token') {
       // Implicit flow
       updateOAuthKey.call(this, apiKeyId, msgEvent.data.token_type, msgEvent.data.access_token);
@@ -114,6 +116,8 @@ async function onInvokeOAuthFlow(apiKeyId, flowType, authUrl, tokenUrl, e) {
   const authFlowDivEl = e.target.closest('.oauth-flow');
   const clientId = authFlowDivEl.querySelector('.oauth-client-id') ? authFlowDivEl.querySelector('.oauth-client-id').value.trim() : '';
   const clientSecret = authFlowDivEl.querySelector('.oauth-client-secret') ? authFlowDivEl.querySelector('.oauth-client-secret').value.trim() : '';
+  const sendClientSecretIn = authFlowDivEl.querySelector('.oauth-send-client-secret-in') ? authFlowDivEl.querySelector('.oauth-send-client-secret-in').value.trim() : 'header';
+
   const checkedScopeEls = [...authFlowDivEl.querySelectorAll('input[type="checkbox"]:checked')];
   const state = (`${Math.random().toString(36)}random`).slice(2, 9);
   const redirectUrlObj = new URL(`${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/${this.oauthReceiver}`);
@@ -156,14 +160,14 @@ async function onInvokeOAuthFlow(apiKeyId, flowType, authUrl, tokenUrl, e) {
         sessionStorage.setItem('winMessageEventActive', 'true');
         window.addEventListener(
           'message',
-          (msgEvent) => onWindowMessageEvent.call(this, msgEvent, newWindow, tokenUrl, clientId, clientSecret, redirectUrlObj.toString(), grantType, apiKeyId, authFlowDivEl),
+          (msgEvent) => onWindowMessageEvent.call(this, msgEvent, newWindow, tokenUrl, clientId, clientSecret, redirectUrlObj.toString(), grantType, sendClientSecretIn, apiKeyId, authFlowDivEl),
           { once: true },
         );
       }
     }, 10);
   } else if (flowType === 'clientCredentials') {
     grantType = 'client_credentials';
-    fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrlObj.toString(), grantType, '', apiKeyId, authFlowDivEl);
+    fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrlObj.toString(), grantType, '', sendClientSecretIn, apiKeyId, authFlowDivEl);
   }
 }
 /* eslint-enable no-console */
@@ -221,14 +225,22 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow)
             <input type="text" value = "${clientId}" placeholder="client-id" spellcheck="false" class="oauth-client-id">
             ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password'
               ? html`
-                <input type="password" value = "${clientSecret}" placeholder="client-secret" spellcheck="false" class="oauth-client-secret" style = "margin:0 5px;">`
+                <input type="password" value = "${clientSecret}" placeholder="client-secret" spellcheck="false" class="oauth-client-secret" style = "margin:0 5px;">
+                ${flowName === 'authorizationCode' || flowName === 'clientCredentials'
+                  ? html`
+                    <select style="margin-right:5px;" class="oauth-send-client-secret-in">
+                      <option value = 'header' selected> Authorization Header </option> 
+                      <option value = 'request-body'> Request Body </option> 
+                    </select>`
+                  : ''
+                }`
               : html`<div style='width:5px'></div>`
             }
             ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit'
               ? html`
                 <button class="m-btn thin-border"
                   @click="${(e) => { onInvokeOAuthFlow.call(this, apiKeyId, flowName, authFlow.authorizationUrl, authFlow.tokenUrl, e); }}"
-                > AUTHORIZE </button>`
+                > GET TOKEN </button>`
               : ''
             }
           </div>
