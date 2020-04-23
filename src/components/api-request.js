@@ -755,11 +755,11 @@ export default class ApiRequest extends LitElement {
     } else {
       curlUrl = fetchUrl;
     }
-    curl = `curl -X ${this.method.toUpperCase()} "${curlUrl}" \\ \n`;
+    curl = `curl -X ${this.method.toUpperCase()} "${curlUrl}" \\\n`;
 
     if (this.accept) {
       fetchOptions.headers.Accept = this.accept;
-      curlHeaders += ` -H "Accept: ${this.accept}" \\ \n`;
+      curlHeaders += ` -H "Accept: ${this.accept}" \\\n`;
     }
 
     // Add Authentication Header if provided
@@ -767,14 +767,14 @@ export default class ApiRequest extends LitElement {
       .filter((v) => (v.in === 'header'))
       .forEach((v) => {
         fetchOptions.headers[v.name] = v.finalKeyValue;
-        curlHeaders += ` -H "${v.name}: ${v.finalKeyValue}" \\ \n`;
+        curlHeaders += ` -H "${v.name}: ${v.finalKeyValue}" \\\n`;
       });
 
     // Add Header Params
     headerParamEls.map((el) => {
       if (el.value) {
         fetchOptions.headers[el.dataset.pname] = el.value;
-        curlHeaders += ` -H "${el.dataset.pname}: ${el.value}" \\ \n`;
+        curlHeaders += ` -H "${el.dataset.pname}: ${el.value}" \\\n`;
       }
     });
 
@@ -805,7 +805,7 @@ export default class ApiRequest extends LitElement {
               formUrlDynParams.append(prop, JSON.stringify(tmpObj[prop]));
             }
             fetchOptions.body = formUrlDynParams;
-            curlData = ` -d ${formUrlDynParams.toString()} \\ \n`;
+            curlData = ` -d ${formUrlDynParams.toString()} \\\n`;
           }
         } else {
           // url-encoded Form Params (regular)
@@ -824,7 +824,7 @@ export default class ApiRequest extends LitElement {
               }
             });
           fetchOptions.body = formUrlParams;
-          curlData = ` -d ${formUrlParams.toString()} \\ \n`;
+          curlData = ` -d ${formUrlParams.toString()} \\\n`;
         }
       } else if (requestBodyType.includes('form-data')) {
         const formDataParams = new FormData();
@@ -833,14 +833,14 @@ export default class ApiRequest extends LitElement {
           if (el.dataset.array === 'false') {
             if (el.type === 'file' && el.files[0]) {
               formDataParams.append(el.dataset.pname, el.files[0], el.files[0].name);
-              curlForm += ` -F "${el.dataset.pname}=@${el.files[0].name}" \\ \n`;
+              curlForm += ` -F "${el.dataset.pname}=@${el.files[0].name}" \\\n`;
             } else if (el.value) {
               formDataParams.append(el.dataset.pname, el.value);
-              curlForm += ` -F "${el.dataset.pname}=${el.value}" \\ \n`;
+              curlForm += ` -F "${el.dataset.pname}=${el.value}" \\\n`;
             }
           } else if (el.value && Array.isArray(el.value)) {
             el.value.forEach((v) => {
-              curlForm = `${curlForm} -F "${el.dataset.pname}[]=${v}" \\ \n`;
+              curlForm = `${curlForm} -F "${el.dataset.pname}[]=${v}" \\\n`;
             });
             formDataParams.append(el.dataset.pname, el.value.join(','));
           }
@@ -850,7 +850,7 @@ export default class ApiRequest extends LitElement {
         const bodyParamFileEl = requestPanelEl.querySelector('.request-body-param-file');
         if (bodyParamFileEl && bodyParamFileEl.files[0]) {
           fetchOptions.body = bodyParamFileEl.files[0];
-          curlData = ` --data-binary @${bodyParamFileEl.files[0].name} \\ \n`;
+          curlData = ` --data-binary @${bodyParamFileEl.files[0].name} \\\n`;
         }
       } else if (requestBodyType.includes('json') || requestBodyType.includes('xml') || requestBodyType.includes('text')) {
         const exampleTextAreaEl = requestPanelEl.querySelector('.example-selected textarea');
@@ -858,9 +858,9 @@ export default class ApiRequest extends LitElement {
           fetchOptions.body = exampleTextAreaEl.value;
           // curlData = ` -d ${JSON.stringify(exampleTextAreaEl.value.replace(/(\r\n|\n|\r)/gm, '')).replace(/\\"/g, "'")} \\ \n`;
           try {
-            curlData = ` -d '${JSON.stringify(JSON.parse(exampleTextAreaEl.value))}' \\ \n`;
+            curlData = ` -d '${JSON.stringify(JSON.parse(exampleTextAreaEl.value))}' \\\n`;
           } catch (err) {
-            curlData = ` -d '${exampleTextAreaEl.value.replace(/(\r\n|\n|\r)/gm, '')}' \\ \n`;
+            curlData = ` -d '${exampleTextAreaEl.value.replace(/(\r\n|\n|\r)/gm, '')}' \\\n`;
           }
         }
       }
@@ -869,7 +869,7 @@ export default class ApiRequest extends LitElement {
         // For multipart/form-data dont set the content-type to allow creation of browser generated part boundaries
         fetchOptions.headers['Content-Type'] = `${requestBodyType}; charset=utf-8`;
       }
-      curlHeaders += ` -H "Content-Type: ${requestBodyType}" \\ \n`;
+      curlHeaders += ` -H "Content-Type: ${requestBodyType}" \\\n`;
     }
 
     me.responseUrl = '';
