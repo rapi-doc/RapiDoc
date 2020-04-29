@@ -133,9 +133,9 @@ paths:
                     age: 10
                   }
                 }
-  /single-example-for-a-schema:
+  /object-example-for-a-schema:
     get:
-      summary: Single Example Under a Schema
+      summary: Single example having invalid JSON, under a Schema
       tags:
         - Providing Examples
       responses:
@@ -168,7 +168,20 @@ paths:
                       },
                       age: 10
                     }
-                  }                                
+                  }
+  /array-example-for-a-schema:
+    get:
+      summary: Single Example of Type Array Under a Schema
+      tags:
+        - Providing Examples
+      responses:
+        '200':
+          description: An array of events
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/currencies"
+                  
   /per-field-example:
     get:
       summary: Field Level example
@@ -198,9 +211,9 @@ paths:
                         description: Last name
                         type: string
                         example: 'Duck'
-  '/example-with-refs':
+  /example-with-refs:
     get:
-      summary: When a Schema defination is provided as a ref (provide the example at schema-level)
+      summary: When a Schema definition is provided as a ref (provide the example at schema-level)
       tags:
         - Providing Examples
       responses:
@@ -233,7 +246,7 @@ paths:
       tags:
         - Providing Examples
       requestBody:
-        description: Request body containig **multiple** examples
+        description: Request body containing **multiple** examples
         required: true
         content:
           application/json:
@@ -267,3 +280,14 @@ components:
         currency:
           description: Currency Code
           type: string
+    currencies:
+      type: array
+      items:
+        type: object
+        properties:
+          currencyCode:
+            type: string
+            example: USD
+      example:
+        - currencyCode: USD
+        - currencyCode: INR

@@ -390,7 +390,6 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
 /* Create Example object */
 export function generateExample(examples, example, schema, mimeType, includeReadOnly = true, outputType) {
   const finalExamples = [];
-
   // First check if examples is provided
   if (examples) {
     for (const eg in examples) {
@@ -466,7 +465,7 @@ export function generateExample(examples, example, schema, mimeType, includeRead
           exampleDescription: '',
           exampleType: mimeType,
           exampleValue: schema.example,
-          exampleFormat: 'text',
+          exampleFormat: ((mimeType.toLowerCase().includes('json') && typeof schema.example === 'object') ? 'json' : 'text'),
         });
       } else if (mimeType.toLowerCase().includes('json') || mimeType.toLowerCase().includes('text') || mimeType.toLowerCase().includes('*/*')) {
         const egJson = schemaToSampleObj(
