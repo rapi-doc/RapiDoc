@@ -1,48 +1,30 @@
-openapi: 3.0.0
+openapi: '3.0.5'
 info:
-  version: 1.0.0
-  title: "Flask-Security External API"
+  title: Test
+  version: 0.0.1
+servers:
+  - url: https://test.lcl
 paths:
-  /update-price:
+  /events:
     post:
-      summary: Unified Sign In.
-      parameters:
-        - $ref: '#/components/parameters/include_auth_token'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Price"
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: "#/components/schemas/Price"
+      operationId: getEvents
       responses:
-        200:
-          description: Unified Sign In response
+        '200':
+          description: An array of events
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Price"
-            text/html:
-              schema:
-                description: Unsuccessful sign in
-                type: string
-                example: render_template(SECURITY_US_SIGNIN_TEMPLATE) with error values
-        400:
-          description: Errors while validating attributes, or caller already authenticated/logged in.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Price"
-
+                $ref: "#/components/schemas/Events"
 components:
   schemas:
-    Price:
-      type: object
-      properties:
-        amount:
-          type: integer
-        currency:
-          type: string
-                
+    Events:
+      type: array
+      items:
+        type: object
+        properties:
+          fileName:
+            type: string
+            example: file.txt
+      example:
+        - fileName: fileA.txt
+        - fileName: fileB.txt
