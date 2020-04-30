@@ -25,6 +25,7 @@ export default class ApiRequest extends LitElement {
     this.responseHeaders = '';
     this.responseText = '';
     this.responseUrl = '';
+    this.base64Image = '';
     this.curlSyntax = '';
     this.activeResponseTab = 'response'; // allowed values: response, headers, curl
     this.selectedRequestBodyType = '';
@@ -48,6 +49,7 @@ export default class ApiRequest extends LitElement {
       responseHeaders: { type: String, attribute: false },
       responseStatus: { type: String, attribute: false },
       responseUrl: { type: String, attribute: false },
+      base64Image: { type: String, attribute: false },
       allowTry: { type: String, attribute: 'allow-try' },
       renderStyle: { type: String, attribute: 'render-style' },
       schemaStyle: { type: String, attribute: 'schema-style' },
@@ -624,12 +626,14 @@ export default class ApiRequest extends LitElement {
                 </div>`
               : html`
                 <div class="m-markdown">
-                  ${this.responseHeaders.includes('application/json')
-                    ? html`<pre style="white-space:pre; max-height:400px; overflow:scroll"><code class = "language-json">${unsafeHTML(Prism.highlight(this.responseText, Prism.languages.json, 'json'))}</code></pre>`
-                    : this.responseHeaders.includes('application/xml')
-                      ? html`<pre style="white-space:pre; max-height:400px; overflow:scroll"><code class = "language-xml">${unsafeHTML(Prism.highlight(this.responseText, Prism.languages.xml, 'xml'))}</code></pre>`
-                      : html`<pre style="white-space:pre; max-height:400px; overflow:scroll">${this.responseText}</pre>`
-                  }
+                  ${this.responseHeaders.includes('image/png')
+                  ? html`<img style="margin:10px 2px" src="data:image/png;base64,${this.base64Image}" />`
+                    : this.responseHeaders.includes('application/json')
+                      ? html`<pre style="white-space:pre; max-height:400px; overflow:scroll"><code class = "language-json">${unsafeHTML(Prism.highlight(this.responseText, Prism.languages.json, 'json'))}</code></pre>`
+                      : this.responseHeaders.includes('application/xml')
+                        ? html`<pre style="white-space:pre; max-height:400px; overflow:scroll"><code class = "language-xml">${unsafeHTML(Prism.highlight(this.responseText, Prism.languages.xml, 'xml'))}</code></pre>`
+                        : html`<pre style="white-space:pre; max-height:400px; overflow:scroll">${this.responseText}</pre>`
+                    }
                 </div>`
             }
           </div>
@@ -893,6 +897,16 @@ export default class ApiRequest extends LitElement {
         if (contentType.includes('json')) {
           resp.json().then((respObj) => {
             me.responseText = JSON.stringify(respObj, null, 2);
+          });
+        } else if (contentType.includes('image')) {
+          resp.arrayBuffer().then((respArrayBuffer) => {
+            let binary = '';
+            const bytes = new Uint8Array(respArrayBuffer);
+            const len = bytes.byteLength;
+            for (let i = 0; i < len; i++) {
+              binary += String.fromCharCode(bytes[i]);
+            }
+            me.base64Image = btoa(binary);
           });
         } else if (contentType.includes('octet-stream')) {
           me.responseIsBlob = true;
