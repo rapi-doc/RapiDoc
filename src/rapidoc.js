@@ -674,8 +674,8 @@ export default class RapiDoc extends LitElement {
     this.resolvedSpec.tags.map((tag) => tag.paths.filter((v) => {
       const method = pathInput.match(new RegExp('(.*?)-'));
       const methodType = (method && method.length === 2) ? method[1] : null;
-      path = pathInput.match(new RegExp('/([^/]+)/?$'));
-      const pathValue = (path && path.length === 2) ? path[0] : null;
+      path = pathInput.match(new RegExp('/.*$'));
+      const pathValue = (path && path.length === 1) ? path[0] : null;
 
       if (methodType && pathValue && methodType === v.method && pathValue === v.path) {
         v.expanded = expandOperation;
