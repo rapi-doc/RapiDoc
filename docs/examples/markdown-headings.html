@@ -1,0 +1,34 @@
+<!doctype html>
+  <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-132775238-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-132775238-1');
+    </script>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+    <script type="text/javascript" src="../rapidoc-min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,600&display=swap" rel="stylesheet">
+    <link href='../index.css' rel='stylesheet'>
+  </head>
+  <body>
+    <rapi-doc 
+      id="thedoc" 
+      spec-url="../specs/markdown-headings.yaml"
+      server-url = "http://dummy.restapiexample.com/api/v1"
+      theme="light"
+      allow-api-list-style-selection = "false"
+      render-style = "read"
+      regular-font = 'Open Sans'
+      schema-style = 'tree'
+      schema-expand-level = "3"
+      default-schema-tab = "model"
+      info-description-headings-in-navbar = "true"
+    > </rapi-doc>
+  </body>
+</html>

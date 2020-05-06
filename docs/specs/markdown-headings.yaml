@@ -1,0 +1,54 @@
+openapi: 3.0.0
+info:
+  title: Markdown Headings in Navigation Bar
+  description: |
+    # Documentation
+    So our API apparently uses JSON and shit. Which I don't know anything about, 
+    **I'm not even a developer!** The other guy goes by the name **mrin9** who made it is, but he's not the kind of guy who writes documentations.
+
+    He also thinks I'm slacking off and make him do all the work. Which is definitely not the case. But i guess this one is on me.
+
+    # Our Story
+
+    Well I am into literature, and this mrin9 guy approaches me and asks me do write some documentation for his tool. 
+    Now he made few cool things for me in the past, and call it a `return the favor` pressure, I reluctantly agreed for it.
+
+    ## What is RapiDoc
+
+    I asked him what shit the tool does ? and he goes and tells me that next time, if I have a story to publish, 
+    I should consider publishing it as an **API**. Fuck what? an API ?, 
+    why ...I mean why not publish it as a book so that people like Barack Obama can read it during his retirement days?
+
+    And he says if I do it that way, I can print a book out of it, or people can listen it through smart-speakers like Amazon's Alexa 
+
+    **me:** So RapiDoc does that ? <BR/>
+    **mrin9:** No it will show how to use my story API and show it as a JSON, 
+
+    which apparently only the nerds can understand. <br/>
+    So, first you convert your simple plain english that everyone understand to a nerdy language and then you make a tool to show how to use and understand it.
+    **FUCK LOGIC**
+
+    Anyways, not the time to argue, I kept my thoughts to myself just wanna do away with the return favor thingy and went ahead with the documentation. 
+
+    ## How to use APIs
+    Just do a fucking GET request on `http://dummy.restapiexample.com/api/v1/employees`. You can add some extra parameters to 
+    specify the various criteria  
+    
+    ## Be Cool
+    Lemme tell you that the API is provide for free by some generous dude, I just documented it using **RapiDoc** for for the nerds to play around,
+    Just because you have this power, its not cool to bang her, I mean the API all day long. 
+
+    # Purpose
+    In case you are wondering whats the purpose of writing this shit? then all of it is not about the fucking API. 
+    
+    ### It is about the ability of RapiDoc to show the markdown headings on the left navigation bar
+
+
+  version: 1.0.0
+paths:
+  /employees:
+    get:
+      summary: Get list of employees
+      responses:
+        '200':
+          description: List of employees
