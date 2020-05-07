@@ -3,7 +3,7 @@ info:
   title: Markdown Headings in Navigation Bar
   description: |
     # Documentation
-    So our API apparently uses JSON and shit. Which I don't know anything about, 
+    So an API apparently uses JSON and shit. Which I don't know anything about, 
     **I'm not even a developer!** The other guy goes by the name **mrin9** who made it is, but he's not the kind of guy who writes documentations.
 
     He also thinks I'm slacking off and make him do all the work. Which is definitely not the case. But i guess this one is on me.
@@ -19,7 +19,7 @@ info:
     I should consider publishing it as an **API**. Fuck what? an API ?, 
     why ...I mean why not publish it as a book so that people like Barack Obama can read it during his retirement days?
 
-    And he says if I do it that way, I can print a book out of it, or people can listen it through smart-speakers like Amazon's Alexa 
+    And he says if I do it that way, I have a choice of printing a book out of it, or people can listen it through smart-speakers like Amazon's Alexa 
 
     **me:** So RapiDoc does that ? <BR/>
     **mrin9:** No it will show how to use my story API and show it as a JSON, 
@@ -28,20 +28,23 @@ info:
     So, first you convert your simple plain english that everyone understand to a nerdy language and then you make a tool to show how to use and understand it.
     **FUCK LOGIC**
 
-    Anyways, not the time to argue, I kept my thoughts to myself just wanna do away with the return favor thingy and went ahead with the documentation. 
+    Anyways, not the time to argue, I kept my thoughts to myself just wanna do away with the return favor thingy. Anyways, hang on for some more time, lets finish up with this shit. 
 
     ## How to use APIs
     Just do a fucking GET request on `http://dummy.restapiexample.com/api/v1/employees`. You can add some extra parameters to 
-    specify the various criteria  
+    specify the various criteria. Now do not ask me anything more than that, for the money I am being paid to write this, thats all that you can get.
+
+    By the way, if you are looking for some interesting API documentation, do contact me. (_@mrin9: do not even think of editing this line- thats my PR talk_)
     
     ## Be Cool
-    Lemme tell you that the API is provide for free by some generous dude, I just documented it using **RapiDoc** for for the nerds to play around,
-    Just because you have this power, its not cool to bang her, I mean the API all day long. 
+    Lemme tell you that the API link in this sample doc is provided for free by some generous dude, I just documented it using **RapiDoc** for the nerds to poke it,
+    Now, just because you got this power of making the API calls using RapiDos's built in console, its not cool to bang her(I mean the API) all day long. 
+    I do get how the nerd community take APIs being their personal GF's, but seriously dude, you need to checkout some real interfaces in life.
 
     # Purpose
-    In case you are wondering whats the purpose of writing this shit? then all of it is not about the fucking API. 
+    In case you are wondering whats the purpose of writing this shit? then none of it is about the **FUCKING API**. 
     
-    ### It is about the ability of RapiDoc to show the markdown headings on the left navigation bar
+    ### It is about the ability of RapiDoc to show the markdown headings on the left navigation bar. So checkout the headings on the left nav bar and see all those headings I put in the markdown are added there
 
 
   version: 1.0.0
