@@ -176,7 +176,7 @@ paths:
         - Providing Examples
       responses:
         '200':
-          description: An array of events
+          description: An array of currency codes
           content:
             application/json:
               schema:
@@ -287,7 +287,11 @@ components:
         properties:
           currencyCode:
             type: string
-            example: USD
+          evaluationDate:
+            type: string
+            format: date-time
       example:
         - currencyCode: USD
+          evaluationDate: '2017-07-21T17:32:28Z'
         - currencyCode: INR
+          evaluationDate: '2017-07-21T17:32:28Z'

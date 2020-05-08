@@ -84,7 +84,7 @@ export default class JsonTree extends LitElement {
     if (data === null) {
       return html`<div class="null" style="display:inline;">null</div>`;
     }
-    if (typeof data === 'object') {
+    if (typeof data === 'object' && (data instanceof Date === false)) {
       const detailType = Array.isArray(data) ? 'array' : 'pure_object';
       if (Object.keys(data).length === 0) {
         return html`${(Array.isArray(data) ? '[ ],' : '{ },')}`;
@@ -103,7 +103,7 @@ export default class JsonTree extends LitElement {
       `;
     }
 
-    return typeof data === 'string'
+    return (typeof data === 'string' || data instanceof Date)
       ? html`<span class="${typeof data}">"${data}"</span>${isLast ? '' : ','}`
       : html`<span class="${typeof data}">${data}</span>${isLast ? '' : ','}`;
   }
