@@ -282,11 +282,23 @@ export default class ApiRequest extends LitElement {
   // Request-Body Event Handlers
   onSelectExample(e) {
     this.selectedRequestBodyExample = e.target.value;
+    const exampleDropdownEl = e.target;
+    window.setTimeout((selectEl) => {
+      const exampleTextareaEl = selectEl.closest('.example-panel').querySelector('.request-body-param');
+      const userInputExampleTextareaEl = selectEl.closest('.example-panel').querySelector('.request-body-param-user-input');
+      userInputExampleTextareaEl.value = exampleTextareaEl.value;
+    }, 0, exampleDropdownEl);
   }
 
   onMimeTypeChange(e) {
     this.selectedRequestBodyType = e.target.value;
+    const mimeDropdownEl = e.target;
     this.selectedRequestBodyExample = '';
+    window.setTimeout((selectEl) => {
+      const exampleTextareaEl = selectEl.closest('.request-body-container').querySelector('.request-body-param');
+      const userInputExampleTextareaEl = selectEl.closest('.request-body-container').querySelector('.request-body-param-user-input');
+      userInputExampleTextareaEl.value = exampleTextareaEl.value;
+    }, 0, mimeDropdownEl);
   }
 
   requestBodyTemplate() {
@@ -374,10 +386,18 @@ export default class ApiRequest extends LitElement {
                     class = "textarea request-body-param ${reqBody.mimeType.substring(reqBody.mimeType.indexOf('/') + 1)}" 
                     spellcheck = "false"
                     data-ptype = "${reqBody.mimeType}" 
-                    style="width:100%; resize:vertical;"
+                    style="width:100%; resize:vertical; display:none"
+                    @change=${(e) => { v.exampleValue = e.target.value; }}
                   >${v.exampleValue}</textarea>
+                  <textarea 
+                    class = "textarea request-body-param-user-input" 
+                    spellcheck = "false"
+                    data-ptype = "${reqBody.mimeType}" 
+                    style="width:100%; resize:vertical;"
+                  > ${v.exampleValue} </textarea>
                 </div>  
               `)}
+
             </div>
           `;
         }
@@ -853,7 +873,7 @@ export default class ApiRequest extends LitElement {
           curlData = ` --data-binary @${bodyParamFileEl.files[0].name} \\\n`;
         }
       } else if (requestBodyType.includes('json') || requestBodyType.includes('xml') || requestBodyType.includes('text')) {
-        const exampleTextAreaEl = requestPanelEl.querySelector('.example-selected textarea');
+        const exampleTextAreaEl = requestPanelEl.querySelector('.request-body-param-user-input');
         if (exampleTextAreaEl && exampleTextAreaEl.value) {
           fetchOptions.body = exampleTextAreaEl.value;
           // curlData = ` -d ${JSON.stringify(exampleTextAreaEl.value.replace(/(\r\n|\n|\r)/gm, '')).replace(/\\"/g, "'")} \\ \n`;
