@@ -44,7 +44,7 @@ function endpointHeadTemplate(path) {
   `;
 }
 
-function endpointBodyTemplate(path) {
+function endpointBodyTemplate(data, path) {
   let accept = '';
   for (const respStatus in path.responses) {
     for (const acceptContentType in (path.responses[respStatus].content)) {
@@ -54,13 +54,13 @@ function endpointBodyTemplate(path) {
   accept = accept.replace(/,\s*$/, ''); // remove trailing comma
   const codeSampleTabPanel = path.xCodeSamples ? codeSamplesTemplate(path.xCodeSamples) : '';
 
-  const nonEmptyApiKeys = this.resolvedSpec.securitySchemes.filter((v) => (v.finalKeyValue)) || [];
+  const nonEmptyApiKeys = data.resolvedSpec.securitySchemes.filter((v) => (v.finalKeyValue)) || [];
   return html`
   <div class='endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}'>
     <div class="summary">
       ${path.summary && path.summary !== path.description ? html`<div class="title">${path.summary}</div>` : ''}
       ${path.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(path.description))}</div>` : ''}
-      ${pathSecurityTemplate.call(this, path.security)}
+      ${pathSecurityTemplate(data, path.security)}
       ${codeSampleTabPanel}
     </div>  
     <div class='req-resp-container'> 
@@ -71,33 +71,33 @@ function endpointBodyTemplate(path) {
         .request_body = "${path.requestBody}"
         .api_keys = "${nonEmptyApiKeys}"
         .servers = "${path.servers}" 
-        server-url = "${path.servers && path.servers.length > 0 ? path.servers[0].url : this.selectedServer.computedUrl}" 
-        active-schema-tab = "${this.defaultSchemaTab}" 
-        allow-try = "${this.allowTry}"
+        server-url = "${path.servers && path.servers.length > 0 ? path.servers[0].url : data.selectedServer.computedUrl}" 
+        active-schema-tab = "${data.defaultSchemaTab}" 
+        allow-try = "${data.allowTry}"
         accept = "${accept}"
-        render-style="${this.renderStyle}" 
-        schema-style = "${this.schemaStyle}" 
-        schema-expand-level = "${this.schemaExpandLevel}"
-        schema-description-expanded = "${this.schemaDescriptionExpanded}"
+        render-style="${data.renderStyle}" 
+        schema-style = "${data.schemaStyle}" 
+        schema-expand-level = "${data.schemaExpandLevel}"
+        schema-description-expanded = "${data.schemaDescriptionExpanded}"
       > 
-        ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
+        ${path.callbacks ? callbackTemplate(data, path.callbacks) : ''}
       </api-request>
       <api-response  
         class="response" 
         .responses="${path.responses}"
-        active-schema-tab = "${this.defaultSchemaTab}" 
-        render-style="${this.renderStyle}" 
-        schema-style="${this.schemaStyle}"
-        schema-expand-level = "${this.schemaExpandLevel}"
-        schema-description-expanded = "${this.schemaDescriptionExpanded}"
+        active-schema-tab = "${data.defaultSchemaTab}" 
+        render-style="${data.renderStyle}" 
+        schema-style="${data.schemaStyle}"
+        schema-expand-level = "${data.schemaExpandLevel}"
+        schema-description-expanded = "${data.schemaDescriptionExpanded}"
       > </api-response>
     </div>
   </div>`;
 }
 
-export default function endpointTemplate() {
+export default function endpointTemplate(data) {
   return html`
-    ${this.resolvedSpec.tags.map((tag) => html`
+    ${data.resolvedSpec.tags.map((tag) => html`
     <div class='regular-font section-gap section-tag ${tag.expanded ? 'expanded' : 'collapsed'}' > 
     
       <div class='section-tag-header' @click="${() => { tag.expanded = !tag.expanded; this.requestUpdate(); }}">
@@ -108,14 +108,14 @@ export default function endpointTemplate() {
           ${unsafeHTML(marked(tag.description || ''))}
         </div>
         ${tag.paths.filter((v) => {
-          if (this.matchPaths) {
-            return pathIsInSearch(this.matchPaths, v);
+          if (data.matchPaths) {
+            return pathIsInSearch(data.matchPaths, v);
           }
           return true;
           }).map((path) => html`
           <div id='${path.method}-${path.path.replace(invalidCharsRegEx, '-')}' class='m-endpoint regular-font ${path.method} ${path.expanded ? 'expanded' : 'collapsed'}'>
             ${endpointHeadTemplate.call(this, path)}      
-            ${path.expanded ? endpointBodyTemplate.call(this, path) : ''}
+            ${path.expanded ? endpointBodyTemplate(data, path) : ''}
           </div>`)
         }
       </div>

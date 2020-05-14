@@ -8,7 +8,7 @@ import '@/components/api-request';
 import '@/components/api-response';
 
 /* eslint-disable indent */
-export function callbackTemplate(callbacks) {
+export function callbackTemplate(data, callbacks) {
   return html`
     <div class="req-res-title" style="margin-top:12px">CALLBACKS</div>
     ${Object.entries(callbacks).map((kv) => html`
@@ -34,21 +34,21 @@ export function callbackTemplate(callbacks) {
                       .parameters = "${method[1].parameters}" 
                       .request_body = "${method[1].requestBody}"
                       allow-try = "false"
-                      render-style="${this.renderStyle}" 
-                      schema-style = "${this.schemaStyle}"
-                      active-schema-tab = "${this.defaultSchemaTab}"
-                      schema-expand-level = "${this.schemaExpandLevel}"
-                      schema-description-expanded = "${this.schemaDescriptionExpanded}"
+                      render-style="${data.renderStyle}" 
+                      schema-style = "${data.schemaStyle}"
+                      active-schema-tab = "${data.defaultSchemaTab}"
+                      schema-expand-level = "${data.schemaExpandLevel}"
+                      schema-description-expanded = "${data.schemaDescriptionExpanded}"
                     > </api-request>
 
                     <api-response
                       callback = "true"
                       .responses="${method[1].responses}"
-                      render-style="${this.renderStyle}"
-                      schema-style="${this.schemaStyle}"
-                      active-schema-tab = "${this.defaultSchemaTab}"
-                      schema-expand-level = "${this.schemaExpandLevel}"
-                      schema-description-expanded = "${this.schemaDescriptionExpanded}"
+                      render-style="${data.renderStyle}"
+                      schema-style="${data.schemaStyle}"
+                      active-schema-tab = "${data.defaultSchemaTab}"
+                      schema-expand-level = "${data.schemaExpandLevel}"
+                      schema-description-expanded = "${data.schemaDescriptionExpanded}"
                     > </api-response>
                   </div>
                 </div>  
@@ -61,7 +61,7 @@ export function callbackTemplate(callbacks) {
   `;
 }
 
-function endpointBodyTemplate(path) {
+function endpointBodyTemplate(data, path) {
   let accept = '';
   for (const respStatus in path.responses) {
     for (const acceptContentType in (path.responses[respStatus].content)) {
@@ -69,7 +69,7 @@ function endpointBodyTemplate(path) {
     }
   }
   accept = accept.replace(/,\s*$/, ''); // remove trailing comma
-  const nonEmptyApiKeys = this.resolvedSpec.securitySchemes.filter((v) => (v.finalKeyValue)) || [];
+  const nonEmptyApiKeys = data.resolvedSpec.securitySchemes.filter((v) => (v.finalKeyValue)) || [];
   const codeSampleTabPanel = path.xCodeSamples ? codeSamplesTemplate(path.xCodeSamples) : '';
 
   return html`
@@ -91,7 +91,7 @@ function endpointBodyTemplate(path) {
       }`
     }
     ${path.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(path.description || ''))}</div>` : ''}
-    ${pathSecurityTemplate.call(this, path.security)}
+    ${pathSecurityTemplate(data, path.security)}
     ${codeSampleTabPanel}
     <div class='expanded-req-resp-container'>
       <api-request  class="request-panel"  
@@ -101,35 +101,35 @@ function endpointBodyTemplate(path) {
         .request_body = "${path.requestBody}"
         .api_keys = "${nonEmptyApiKeys}"
         .servers = "${path.servers}" 
-        server-url = "${path.servers && path.servers.length > 0 ? path.servers[0].url : this.selectedServer.computedUrl}" 
-        allow-try = "${this.allowTry}"
+        server-url = "${path.servers && path.servers.length > 0 ? path.servers[0].url : data.selectedServer.computedUrl}" 
+        allow-try = "${data.allowTry}"
         accept = "${accept}"
-        render-style="${this.renderStyle}" 
-        schema-style = "${this.schemaStyle}"
-        active-schema-tab = "${this.defaultSchemaTab}"
-        schema-expand-level = "${this.schemaExpandLevel}"
-        schema-description-expanded = "${this.schemaDescriptionExpanded}"
+        render-style="${data.renderStyle}" 
+        schema-style = "${data.schemaStyle}"
+        active-schema-tab = "${data.defaultSchemaTab}"
+        schema-expand-level = "${data.schemaExpandLevel}"
+        schema-description-expanded = "${data.schemaDescriptionExpanded}"
       > </api-request>
 
-      ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
+      ${path.callbacks ? callbackTemplate(data, path.callbacks) : ''}
 
       <api-response
         class = 'response-panel'
         .responses="${path.responses}"
-        render-style="${this.renderStyle}"
-        schema-style="${this.schemaStyle}"
-        active-schema-tab = "${this.defaultSchemaTab}"
-        schema-expand-level = "${this.schemaExpandLevel}"
-        schema-description-expanded = "${this.schemaDescriptionExpanded}"
+        render-style="${data.renderStyle}"
+        schema-style="${data.schemaStyle}"
+        active-schema-tab = "${data.defaultSchemaTab}"
+        schema-expand-level = "${data.schemaExpandLevel}"
+        schema-description-expanded = "${data.schemaDescriptionExpanded}"
       > </api-response>
     </div>
   </div>
   `;
 }
 
-export default function expandedEndpointTemplate() {
+export default function expandedEndpointTemplate(data) {
   return html`
-  ${this.resolvedSpec.tags.map((tag) => html`
+  ${data.resolvedSpec.tags.map((tag) => html`
     <div id="${tag.name.replace(invalidCharsRegEx, '-')}" class='regular-font section-gap--read-mode observe-me' style="border-top:1px solid var(--primary-color);">
       <div class="title tag">${tag.name}</div>
       <div class="regular-font-size">
@@ -137,7 +137,7 @@ export default function expandedEndpointTemplate() {
       </div>
     </div>
     <div class='regular-font section-gap--read-mode'>
-      ${tag.paths.map((path) => endpointBodyTemplate.call(this, path))}
+      ${tag.paths.map((path) => endpointBodyTemplate(data, path))}
     </div>
     `)
   }

@@ -2,9 +2,9 @@ import { html } from 'lit-element';
 import marked from 'marked';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 
-function onApiServerChange(e, server) {
+function onApiServerChange(e, data, server) {
   if (e && e.target.checked) {
-    this.selectedServer = server;
+    data.selectedServer = server;
     this.requestUpdate();
   }
 }
@@ -21,13 +21,13 @@ function onApiServerVarChange(e, serverObj) {
 }
 
 /* eslint-disable indent */
-function serverVarsTemplate() {
+function serverVarsTemplate(data) {
   // const selectedServerObj = this.resolvedSpec.servers.find((v) => (v.url === this.selectedServer));
-  return this.selectedServer && this.selectedServer.variables
+  return data.selectedServer && data.selectedServer.variables
     ? html`
     <div class="table-title"> SERVER VARIABLES</div>
     <table class='m-table'>
-      ${Object.entries(this.selectedServer.variables).map((kv) => html`
+      ${Object.entries(data.selectedServer.variables).map((kv) => html`
         <tr>
           <td style="vertical-align: middle;" >${kv[0]}</td>
           <td>
@@ -36,7 +36,7 @@ function serverVarsTemplate() {
               spellcheck = "false" 
               data-var = "${kv[0]}"
               value = "${kv[1].default}"
-              @input = ${(e) => { onApiServerVarChange.call(this, e, this.selectedServer); }}
+              @input = ${(e) => { onApiServerVarChange.call(this, e, data.selectedServer); }}
             />
           </td>
         </tr>
@@ -50,29 +50,29 @@ function serverVarsTemplate() {
     : '';
 }
 
-export default function serverTemplate() {
+export default function serverTemplate(data) {
   return html`
-  <div id = 'api-servers' style="margin-top:24px; margin-bottom:24px;" class='regular-font observe-me ${this.renderStyle === 'read' ? 'section-gap--read-mode' : 'section-gap'}'>
+  <div id = 'api-servers' style="margin-top:24px; margin-bottom:24px;" class='regular-font observe-me ${data.renderStyle === 'read' ? 'section-gap--read-mode' : 'section-gap'}'>
     <div class = 'sub-title'> API SERVER: </div>
     <div class = 'mono-font' style='margin: 12px 0; font-size:calc(var(--font-size-small) + 1px);'>
-      ${!this.resolvedSpec.servers || (this.resolvedSpec.servers.length === 0)
+      ${!data.resolvedSpec.servers || (data.resolvedSpec.servers.length === 0)
         ? ''
         : html`
-          ${this.resolvedSpec.servers.map((server) => html`
+          ${data.resolvedSpec.servers.map((server) => html`
             <input type = 'radio' 
               name = 'api_server' 
               value = '${server.url}' 
-              @change = ${(e) => { onApiServerChange.call(this, e, server); }}
-              .checked = '${this.selectedServer.url === server.url}'
+              @change = ${(e) => { onApiServerChange.call(this, e, data, server); }}
+              .checked = '${data.selectedServer.url === server.url}'
               style = 'margin:4px 0'
             />
               ${server.url} ${server.description ? html`- ${server.description}` : ''}
             <br/>
           `)}
       `}
-      <div class="table-title primary-text"> SELECTED: ${this.selectedServer.computedUrl}</div>
+      <div class="table-title primary-text"> SELECTED: ${data.selectedServer.computedUrl}</div>
     </div>
-    ${serverVarsTemplate.call(this)}
+    ${serverVarsTemplate.call(this, data)}
   </div>`;
 }
 /* eslint-enable indent */
