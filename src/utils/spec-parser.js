@@ -5,7 +5,7 @@ import Swagger from 'swagger-client';
 import marked from 'marked';
 import { invalidCharsRegEx } from '@/utils/common-utils';
 
-export default async function ProcessSpec(specUrl, sortTags = false, sortEndpointsBy, attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '') {
+export default async function ProcessSpec(specUrl, sortTags = false, sortEndpointsBy = '', attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '') {
   let jsonParsedSpec;
   let convertedSpec;
   // let resolvedRefSpec;
