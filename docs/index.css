@@ -38,21 +38,79 @@ h1,h2,h3 { font-weight:300; }
 }
 .hide-in-mobile { display:none; }
 .topbar{
-  background-color: #233446;
   padding: 6px 24px;
 }
+
 .banner {
-  padding: 60px 16px;
-  background: steelblue;
-  color: #fff;
+  position:relative;
+  text-align:center;
+  background: linear-gradient(60deg, rgba(84,58,183,1) 0%, rgba(0,172,193,1) 100%);
+  color:white;
+}
+
+.flex { /*Flexbox for containers*/
+  display: flex;
+  justify-content: center;
+  align-items: center;
   text-align: center;
-  font-weight:300;
+}
+
+.waves {
+  position:relative;
+  width: 100%;
+  height:15vh;
+  margin-bottom:-7px; /*Fix for safari gap*/
+  min-height:100px;
+  max-height:150px;
+}
+
+.parallax > use {
+  animation: animate-wave 25s cubic-bezier(.55,.5,.45,.5) 120s;
+}
+.parallax > use:nth-child(1) {
+  animation-delay: -2s;
+  animation-duration: 45s;
+}
+.parallax > use:nth-child(2) {
+  animation-delay: -3s;
+  animation-duration: 55s;
+}
+.parallax > use:nth-child(3) {
+  animation-delay: -4s;
+  animation-duration: 65s;
+}
+@keyframes animate-wave {
+  0% {
+    transform: translate3d(-90px,0,0);
+  }
+  100% { 
+    transform: translate3d(85px,0,0);
+  }
+}
+
+.section-text{
+  background: url('./images/bg-shape1.svg') right top no-repeat;;
+}
+/*Shrinking for mobile*/
+@media (max-width: 768px) {
+  .waves {
+    height:40px;
+    min-height:40px;
+  }
+  .content {
+    height:30vh;
+  }
+  h1 {
+    font-size:24px;
+  }
+}
+
+.banner-content{
+  font-weight: 300;
 }
 .banner-title {
   font-size: 38px;
   line-height: 48px;
-  font-weight: 300;
-  transition: .3s all;
 }
 .header {
   display: flex;
@@ -71,8 +129,8 @@ h1,h2,h3 { font-weight:300; }
 
 .menu-item {
   margin-right: 12px;
-  color: lightsteelblue;
-  font-weight: 600;
+  color: #caecff;
+  font-weight: 300;
   text-decoration: none;
   position: relative;
 }
@@ -122,6 +180,7 @@ h1,h2,h3 { font-weight:300; }
   display:flex;
   flex-wrap:wrap;
   justify-content: center;
+  padding:60px 0 24px 0;
   min-height:150px;
 }
 
@@ -210,17 +269,13 @@ h1,h2,h3 { font-weight:300; }
     margin-left: 20px;
     margin-right: 0;
   }
-  .banner {
+  .banner-1 {
     padding: 40px 32px 80px 32px;
   }    
   .features {
-    padding: 80px 32px;
+    padding:175px 32px 24px 32px;
   }
   
-  .features {
-    padding-top: 80px;
-    padding-bottom: 80px;
-  }
   .demo {
     padding-top: 80px;
     padding-bottom: 80px;

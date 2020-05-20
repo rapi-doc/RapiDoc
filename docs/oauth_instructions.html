@@ -55,22 +55,40 @@
 </head>
 
 <body>
-  <div class='topbar'>
-    <div class="header">
-      <a class="menu-item" data-action="url" href="./index.html">
-        <img class="logo" src="./images/logo.png" style="width:36px;height:36px;margin-right:10px;"
-          href="./index.html" />
-      </a>
-      <div class="product-name">RapiDoc - OAuth Example</div>
-      <div class="menu" style="flex:1"></div>
-      <nav class="menu" onclick="goToSection(event)">
-        <a class="menu-item" data-action="url" href="./index.html"> Home </a>
-        <a class="menu-item" data-action="url" href="./examples.html"> Examples </a>
-        <a class="menu-item" data-action="url" href="./api.html"> API </a>
-        <a class="menu-item hide-in-mobile" data-action="url" href="https://mrin9.github.io/RapiPdf/"> RapiPDF </a>
-        <a class="menu-item" data-action="url" href="https://github.com/mrin9/RapiDoc"> GitHub </a>
-      </nav>
+
+  <div class="banner" style="max-height:400px; overflow:hidden;">
+    <div class="topbar">
+      <div class="header">
+        <a class="menu-item" data-action="url" href="./index.html">
+          <img class="logo" src="./images/logo.png" style="width:36px;height:36px;margin-right:10px;"
+            href="./index.html" />
+        </a>
+        <div class="product-name">RapiDoc - OAuth Example</div>
+        <div class="menu" style="flex:1"></div>
+        <nav class="menu" onclick="goToSection(event)">
+          <a class="menu-item" data-action="url" href="./index.html"> Home </a>
+          <a class="menu-item" data-action="url" href="./quickstart.html"> Quick Start </a>
+          <a class="menu-item" data-action="url" href="./examples.html"> Examples </a>
+          <a class="menu-item" data-action="url" href="./api.html"> API </a>
+          <a class="menu-item" data-action="url" href="https://github.com/mrin9/RapiDoc"> GitHub </a>
+        </nav>
+      </div>  
     </div>
+    <!--Waves Container-->
+    <div>
+      <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
+        <defs>
+          <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+        </defs>
+        <g class="parallax">
+          <use xlink:href="#gentle-wave" x="48" y="0" fill="rgba(255,255,255,0.7" />
+          <use xlink:href="#gentle-wave" x="48" y="3" fill="rgba(255,255,255,0.5)" />
+          <use xlink:href="#gentle-wave" x="48" y="7" fill="#fff" />
+        </g>
+      </svg>
+    </div>
+    <!--Waves end-->
+
   </div>
   <div style="margin:24px 48px; max-width:730px; width:850px">
     <h1> Setting up OAuth with RapiDoc</h1>

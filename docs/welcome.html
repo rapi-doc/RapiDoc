@@ -69,38 +69,58 @@
 </head>
 
 <body>
-  <div class='topbar'>
-    <div class="header">
-      <img class="logo" src="./images/logo.png" style="width:36px;height:36px;margin-right:10px;" />  
-      <div class="product-name">RapiDoc</div>
-      <div class="menu" style="flex:1"></div>
-      <nav class="menu" onclick="goToSection(event)">
-        <a class="menu-item hide-in-mobile" href="#features"> Features </a>
-        <a class="menu-item hide-in-mobile" href="#qstart"> Quick Start </a>
-        <a class="menu-item" data-action="url" href="./examples.html"> Examples </a>
-        <a class="menu-item" data-action="url" href="./api.html"> API </a>
-        <a class="menu-item hide-in-mobile" data-action="url" href="https://mrin9.github.io/RapiPdf/"> RapiPDF </a>
-        <a class="menu-item" data-action="url" href="https://github.com/mrin9/RapiDoc"> GitHub </a>
-      </nav>
-    </div>
-  </div>
-  <div class="banner container" id="banner">
-    <div>
-      <div class="banner-content">
-        <h1 class="banner-title">Web Component for OpenAPI Spec Viewing</h1>
-        <div class="banner-content-inner">
-          <p style="font-size:18px">Create beautiful, customizable, interactive API documentation from your OpenAPI Specification</p>
-        </div>
+  <!--Banner Starts-->
+  <div class="banner">
+    <div class='topbar' style="height:500px">
+      <div class="header">
+        <img class="logo" src="./images/logo.png" style="width:36px;height:36px;margin-right:10px;" />  
+        <div class="product-name">RapiDoc</div>
+        <div class="menu" style="flex:1"></div>
+        <nav class="menu" onclick="goToSection(event)">
+          <a class="menu-item hide-in-mobile" href="#features"> Features </a>
+          <a class="menu-item" data-action="url" href="./quickstart.html"> Quick Start </a>
+          <a class="menu-item" data-action="url" href="./examples.html"> Examples </a>
+          <a class="menu-item" data-action="url" href="./api.html"> API </a>
+          <a class="menu-item hide-in-mobile" data-action="url" href="https://mrin9.github.io/RapiPdf/"> RapiPDF </a>
+          <a class="menu-item" data-action="url" href="https://github.com/mrin9/RapiDoc"> GitHub </a>
+        </nav>
       </div>
     </div>
-    <div style="display:flex; justify-content: center;">
-      <div style="display:block">
+
+    <!-- Banner Image (absolute positioned)-->
+    <div style="position:absolute; top:64px; width:100vw; z-index:10">
+      <div>
+        <div class="banner-content">
+          <h1 class="banner-title">OpenAPI Spec Viewing</h1>
+          <div class="banner-content-inner">
+            <p style="font-size:20px; color:#caecff;">Create beautiful, customizable, interactive API documentation from OpenAPI Specification</p>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex; justify-content: center;">
         <img id='main-img' class="shadow3" src="./images/dark_ss.png" />
       </div>
     </div>
-  </div>
-  <div class="features container" id="features">
+    <!-- End of Banner Image -->
 
+    <!--Waves Container-->
+    <div>
+      <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
+        <defs>
+          <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+        </defs>
+        <g class="parallax">
+          <use xlink:href="#gentle-wave" x="48" y="0" fill="rgba(255,255,255,0.6" />
+          <use xlink:href="#gentle-wave" x="48" y="3" fill="rgba(255,255,255,0.4)" />
+          <use xlink:href="#gentle-wave" x="48" y="7" fill="#fff" />
+        </g>
+      </svg>
+    </div>
+    <!--Waves end-->
+  </div>
+  <!--Header ends-->
+
+  <div class="features" id="features" >
     <div class="feature">
       <object type="image/svg+xml" data="./images/webcomponent.svg" style="width:64px; height:64px;"> </object>
       <div class="feature-info">
@@ -180,7 +200,7 @@
   </div>
   
   <div class="section" style="flex-direction: column;align-items: center;">
-    <h2 style="text-align: center;"> Crteate your own themes with simplicity </h2>
+    <h2 style="text-align: center;"> Create your own themes with simplicity </h2>
 
     <div style="display:flex;justify-content: space-around;">
       <div id="slider" class="beer-slider shadow3" data-beer-label="">
@@ -196,7 +216,7 @@
     
   </div>
   <div class="section">
-      <div class="section-left section-text">
+      <div class="section-left section-text" style="filter: brightness(0.9) sepia(1) hue-rotate(-5deg) saturate(2);">
         <h2> Match Your Brand</h2>
         <div> Put your own Logo, Change Header Color, Fonts, Button and Text Colors to match your Brand, 
           in an extremely easy way without writing any css/js/html. 
@@ -206,7 +226,7 @@
       <img class="section-right section-img shadow3" src="./images/rapi-brand.png" />
   </div>
   
-  <div class="section">
+  <div class="section" style="background-color: #88ACE0;">
     <img class="section-left section-img shadow3" src="./images/rapi-mode-read.png" />
     <div class="section-right section-text">
       <h2> Multiple Rendering Styles</h2>
@@ -216,7 +236,7 @@
     </div>
   </div>
   
-  <div class="section" >
+  <div class="section" style="background-color: lavender;">
     <div class="section-left section-text">
       <h2> Supports Markdown</h2>
       <div> Comes with a builtin markdown rendering engine, 
