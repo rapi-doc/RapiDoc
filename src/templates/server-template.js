@@ -52,7 +52,7 @@ function serverVarsTemplate(data) {
 
 export default function serverTemplate(data) {
   return html`
-  <div id = 'api-servers' style="margin-top:24px; margin-bottom:24px;" class='regular-font observe-me ${data.renderStyle === 'read' ? 'section-gap--read-mode' : 'section-gap'}'>
+  <div id = 'api-servers' style="margin-top:24px; margin-bottom:24px;" class='regular-font observe-me ${'read focused'.includes(data.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
     <div class = 'sub-title'> API SERVER: </div>
     <div class = 'mono-font' style='margin: 12px 0; font-size:calc(var(--font-size-small) + 1px);'>
       ${!data.resolvedSpec.servers || (data.resolvedSpec.servers.length === 0)

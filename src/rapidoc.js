@@ -88,13 +88,16 @@ export default class RapiDoc extends LitElement {
       // Filters
       matchPaths: { type: String, attribute: 'match-paths' },
 
+      // Internal Attributes
+      selectedNavItem: { type: String },
+
     };
   }
 
   // Startup
   connectedCallback() {
     super.connectedCallback();
-    if (!this.renderStyle || !'read, view,'.includes(`${this.renderStyle},`)) { this.renderStyle = 'view'; }
+    if (!this.renderStyle || !'read, view, focused,'.includes(`${this.renderStyle},`)) { this.renderStyle = 'view'; }
     if (!this.schemaStyle || !'tree, table,'.includes(`${this.schemaStyle},`)) { this.schemaStyle = 'tree'; }
     if (!this.theme || !'light, dark,'.includes(`${this.theme},`)) { this.theme = 'light'; }
     if (!this.defaultSchemaTab || !'example, model,'.includes(`${this.defaultSchemaTab},`)) { this.defaultSchemaTab = 'model'; }
@@ -272,7 +275,9 @@ export default class RapiDoc extends LitElement {
         }
       }
     }));
-    if (didFindAnything) this.requestUpdate();
+    if (didFindAnything) {
+      this.requestUpdate();
+    }
   }
 
   onClearSearch() {
@@ -354,7 +359,6 @@ export default class RapiDoc extends LitElement {
     // Expand full operation and tag
     if (pathInput.indexOf('#') === 0) pathInput = pathInput.substring(1);
     let path;
-
     this.resolvedSpec.tags.map((tag) => tag.paths.filter((v) => {
       const method = pathInput.match(new RegExp('(.*?)-'));
       const methodType = (method && method.length === 2) ? method[1] : null;
@@ -408,22 +412,25 @@ export default class RapiDoc extends LitElement {
     if (!navEl.id || !navEl.id.startsWith('link-')) {
       return;
     }
-    const locationHash = `${navEl.id.replace('link-', '')}`;
-    const contentEl = this.shadowRoot.getElementById(locationHash);
+    this.selectedNavItem = navEl.dataset.item;
+    if (this.renderStyle === 'read') {
+      const locationHash = `${navEl.id.replace('link-', '')}`;
+      const contentEl = this.shadowRoot.getElementById(locationHash);
 
-    if (contentEl) {
-      // Disable IntersectionObserver before scrolling into the view, else it will try to scroll the navbar which is not needed here
-      this.isIntersectionObserverActive = false;
-      contentEl.scrollIntoView({ behavior: 'auto', block: 'start' });
-      const oldEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active');
-      if (oldEl) {
-        oldEl.classList.remove('active');
+      if (contentEl) {
+        // Disable IntersectionObserver before scrolling into the view, else it will try to scroll the navbar which is not needed here
+        this.isIntersectionObserverActive = false;
+        contentEl.scrollIntoView({ behavior: 'auto', block: 'start' });
+        const oldEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active');
+        if (oldEl) {
+          oldEl.classList.remove('active');
+        }
+        e.currentTarget.classList.add('active');
+        window.history.replaceState(null, null, `${window.location.href.split('#')[0]}#${locationHash}`);
+        setTimeout(() => {
+          this.isIntersectionObserverActive = true;
+        }, 300);
       }
-      e.currentTarget.classList.add('active');
-      window.history.replaceState(null, null, `${window.location.href.split('#')[0]}#${locationHash}`);
-      setTimeout(() => {
-        this.isIntersectionObserverActive = true;
-      }, 300);
     }
   }
 

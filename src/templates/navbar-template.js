@@ -24,7 +24,7 @@ export default function navbarTemplate(data) {
           </div>  
           ${data.matchPaths
             ? html`
-              <div style='margin-left:5px; cursor:pointer; align-self:center; color:var(--nav-text-color)' class='small-font-size primary-text bold-text' @click = '${data.onClearSearch}'> CLEAR </div>`
+              <div @click = '${data.onClearSearch}' style='margin-left:5px; cursor:pointer; align-self:center; color:var(--nav-text-color)' class='small-font-size primary-text bold-text'> CLEAR </div>`
             : ''
           }
         </div>
@@ -36,7 +36,7 @@ export default function navbarTemplate(data) {
         : html`
           ${(data.infoDescriptionHeadingsInNavBar === 'true')
             ? html`
-              ${data.resolvedSpec.infoDescriptionHeaders.length > 0 ? html`<div id='link-overview' class='nav-bar-info'  @click = '${(e) => data.scrollToEl(e)}' > Overview </div>` : ''}          
+              ${data.resolvedSpec.infoDescriptionHeaders.length > 0 ? html`<div id='link-overview' class='nav-bar-info'  data-item='_overview' @click = '${(e) => data.scrollToEl(e)}' > Overview </div>` : ''}          
               ${data.resolvedSpec.infoDescriptionHeaders.map((header) => html`
                 <div class='nav-bar-h${header.depth}' id="link-${new marked.Slugger().slug(header.text)}" @click='${(e) => data.scrollToEl(e)}'>
                   ${header.text}
@@ -44,24 +44,24 @@ export default function navbarTemplate(data) {
               }
               ${data.resolvedSpec.infoDescriptionHeaders.length > 0 ? html`<hr style='border-top: 1px solid var(--nav-hover-bg-color); border-width:1px 0 0 0; margin: 15px 0 0 0'/>` : ''}
             `
-            : html`<div id='link-overview' class='nav-bar-info'  @click = '${(e) => data.scrollToEl(e)}' > Overview </div>`
+            : html`<div id='link-overview' class='nav-bar-info' data-item='_overview' @click = '${(e) => data.scrollToEl(e)}' > Overview </div>`
           }
         `
       }
     
     ${(data.allowTry === 'false' || data.allowServerSelection === 'false')
       ? ''
-      : html`<div id='link-api-servers' class='nav-bar-info' @click = '${(e) => data.scrollToEl(e)}' > API Servers </div>`
+      : html`<div id='link-api-servers' class='nav-bar-info' data-item='_servers' @click = '${(e) => data.scrollToEl(e)}' > API Servers </div>`
     }
     ${(data.allowAuthentication === 'false' || !data.resolvedSpec.securitySchemes)
       ? ''
-      : html`<div id='link-authentication'  class='nav-bar-info' @click = '${(e) => data.scrollToEl(e)}' > Authentication </div>`
+      : html`<div id='link-authentication' class='nav-bar-info' data-item='_authentication' @click = '${(e) => data.scrollToEl(e)}' > Authentication </div>`
     }
 
     <span id='link-paths' class='nav-bar-section'>Operations</span>
     ${data.resolvedSpec.tags.map((tag) => html`
     
-      <div class='nav-bar-tag' id="link-${tag.name.replace(invalidCharsRegEx, '-')}" @click='${(e) => data.scrollToEl(e)}'>
+      <div class='nav-bar-tag' data-item='_tag:${tag.name}' id="link-${tag.name.replace(invalidCharsRegEx, '-')}" @click='${(e) => data.scrollToEl(e)}'>
         ${tag.name}
       </div>
       ${tag.paths.filter((v) => {
@@ -70,8 +70,8 @@ export default function navbarTemplate(data) {
         }
         return true;
       }).map((p) => html`
-      <div class='nav-bar-path' id='link-${p.method}-${p.path.replace(invalidCharsRegEx, '-')}' @click='${(e) => data.scrollToEl(e)}'> 
-        <span> ${p.summary || p.path} </span>
+      <div class='nav-bar-path' data-item='${p.method}-${p.path}' id='link-${p.method}-${p.path.replace(invalidCharsRegEx, '-')}' @click='${(e) => data.scrollToEl(e)}'> 
+    <span style = "${p.deprecated ? 'filter:opacity(0.5)' : ''}"> ${p.summary || p.path} </span>
       </div>`)}
     `)}
 

@@ -5,6 +5,7 @@ import marked from 'marked';
 
 // Templates
 import expandedEndpointTemplate from '@/templates/expanded-endpoint-template';
+import focusedEndpointTemplate from '@/templates/focused-endpoint-template';
 import endpointTemplate from '@/templates/endpoint-template';
 import serverTemplate from '@/templates/server-template';
 import securitySchemeTemplate from '@/templates/security-scheme-template';
@@ -32,6 +33,32 @@ function infoDescriptionHeadingRenderer() {
   return renderer;
 }
 
+/* eslint-disable indent */
+
+function overviewTemplate(data) {
+  return html`
+    <div id = 'overview' class = 'observe-me ${data.renderStyle === 'read' ? 'section-gap--read-mode' : (data.renderStyle === 'focused' ? 'section-gap--read-mode' : 'section-gap')}'>
+      <div style = 'font-size:32px'>
+        ${data.resolvedSpec.info.title}
+        ${!data.resolvedSpec.info.version ? '' : html`
+          <span style = 'font-size:var(--font-size-small);font-weight:bold'>
+            ${data.resolvedSpec.info.version}
+          </span>`
+        }
+      </div>
+
+      ${data.resolvedSpec.info.description
+        ? html`${unsafeHTML(`<div class='m-markdown regular-font'>${marked(data.resolvedSpec.info.description, { renderer: infoDescriptionHeadingRenderer() })}</div>`)}`
+        : ''
+      }
+      ${data.resolvedSpec.info.termsOfService
+        ? html`${unsafeHTML(`<div class='tiny-title' style="margin-top:8px"> Terms: </div> <span class='m-markdown regular-font'>${marked(data.resolvedSpec.info.termsOfService)}</span>`)}`
+        : ''
+      }
+      ${data.resolvedSpec.info.contact ? contactInfoTemplate(data) : ''}
+    </div>
+  `;
+}
 
 export default function mainBodyTemplate(data) {
   const newTheme = {
@@ -46,7 +73,6 @@ export default function mainBodyTemplate(data) {
     navAccentColor: isValidHexColor(data.navAccentColor) ? data.navAccentColor : '',
   };
 
-  /* eslint-disable indent */
   return html`
     ${FontStyles}
     ${InputStyles}
@@ -101,7 +127,8 @@ export default function mainBodyTemplate(data) {
         overflow-y: scroll;
         overflow-x: hidden;
       }
-      .main-content--read-mode{
+      .main-content--focused-mode,
+      .main-content--read-mode {
         color: var(--fg3)
       }
       .main-content::-webkit-scrollbar-track{
@@ -120,6 +147,7 @@ export default function mainBodyTemplate(data) {
         border-bottom:1px solid var(--border-color);
       }
       .section-gap,
+      .section-gap--focused-mode,
       .section-gap--read-mode { 
         padding: 0px 4px; 
       }
@@ -255,6 +283,9 @@ export default function mainBodyTemplate(data) {
         .section-gap { 
           padding: 0 24px; 
         }
+        .section-gap--focused-mode {
+          padding: 24px; 
+        }
         .section-gap--read-mode { 
           padding: 48px 24px 24px 24px; 
         }
@@ -269,6 +300,9 @@ export default function mainBodyTemplate(data) {
           width: 280px;
           display:flex;
         }
+        .section-gap--focused-mode { 
+          padding: 12px 100px 12px 100px; 
+        }
         .section-gap--read-mode { 
           padding: 24px 100px 12px 100px; 
         }
@@ -277,35 +311,19 @@ export default function mainBodyTemplate(data) {
 
     ${data.showHeader === 'false' ? '' : headerTemplate(data)}
     <div class="body">
-      ${data.renderStyle === 'read' && data.resolvedSpec ? navbarTemplate(data) : ''}
+      ${((data.renderStyle === 'read' || data.renderStyle === 'focused') && data.resolvedSpec) ? navbarTemplate(data) : ''}
       
-      <div class="main-content regular-font ${data.renderStyle === 'read' ? 'main-content--read-mode' : ''} " style = "${data.renderStyle === 'read' ? 'padding:0' : ''}">
+      <div class="main-content regular-font ${data.renderStyle === 'read' ? 'main-content--read-mode' : (data.renderStyle === 'focused' ? 'main-content--focused-mode' : '')} " style = "${data.renderStyle === 'read' ? 'padding:0' : ''}">
         <slot></slot>
         ${data.loading === true ? html`<div class="loader"></div>` : ''}
         ${data.loadFailed === true ? html`<div style="text-align: center;margin: 16px;"> Unable to load the Spec</div>` : ''}
         ${data.resolvedSpec
           ? html`
-            ${(data.showInfo === 'false' || !data.resolvedSpec.info) ? '' : html`
-            <div id = 'overview' class = 'observe-me ${data.renderStyle === 'read' ? 'section-gap--read-mode' : 'section-gap'}'>
-              <div style = 'font-size:32px'>
-                ${data.resolvedSpec.info.title}
-                ${!data.resolvedSpec.info.version ? '' : html`
-                  <span style = 'font-size:var(--font-size-small);font-weight:bold'>
-                    ${data.resolvedSpec.info.version}
-                  </span>`
-                }
-              </div>
-
-              ${data.resolvedSpec.info.description
-                ? html`${unsafeHTML(`<div class='m-markdown regular-font'>${marked(data.resolvedSpec.info.description, { renderer: infoDescriptionHeadingRenderer() })}</div>`)}`
-                : ''
-              }
-              ${data.resolvedSpec.info.termsOfService
-                ? html`${unsafeHTML(`<div class='tiny-title' style="margin-top:8px"> Terms: </div> <span class='m-markdown regular-font'>${marked(data.resolvedSpec.info.termsOfService)}</span>`)}`
-                : ''
-              }
-              ${data.resolvedSpec.info.contact ? contactInfoTemplate(data) : ''}
-            </div>`
+            ${(data.showInfo === 'false' || !data.resolvedSpec.info)
+              ? ''
+              : data.renderStyle === 'focused'
+                ? (data.selectedNavItem === '_overview' ? overviewTemplate(data) : '')
+                : overviewTemplate(data)
             }
 
             ${(data.allowTry === 'false' || data.allowServerSelection === 'false')
@@ -315,13 +333,17 @@ export default function mainBodyTemplate(data) {
 
             ${(data.allowAuthentication === 'false' || !data.resolvedSpec.securitySchemes)
               ? ''
-              : securitySchemeTemplate.call(this, data)
+              : data.renderStyle === 'focused'
+                ? (data.selectedNavItem === '_authentication' ? securitySchemeTemplate.call(this, data) : '')
+                : securitySchemeTemplate.call(this, data)
             }
             <div @click="${(e) => { data.handleHref(e); }}">
               ${data.resolvedSpec.tags
                 ? data.renderStyle === 'read'
-                  ? expandedEndpointTemplate.call(this, data)
-                  : endpointTemplate.call(this, data)
+                  ? expandedEndpointTemplate(data)
+                  : data.renderStyle === 'focused'
+                    ? focusedEndpointTemplate(data)
+                    : endpointTemplate.call(this, data)
                 : ''
               }
             </div>

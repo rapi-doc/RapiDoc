@@ -28,7 +28,7 @@ export default function headerTemplate(data) {
         `
       }
       <slot name="header"></slot>
-      ${(data.allowSearch === 'false' || data.renderStyle === 'read')
+      ${(data.allowSearch === 'false' || 'read focused'.includes(data.renderStyle))
         ? ''
         : html`  
           <input id="search" class="header-input" type="text"  placeholder="search" @change="${data.onSearchChange}" style="max-width:130px;margin-left:10px;" spellcheck="false" >
