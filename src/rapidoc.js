@@ -11,7 +11,7 @@ import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-http';
 import 'prismjs/components/prism-csharp';
 
-import { pathIsInSearch, invalidCharsRegEx } from '@/utils/common-utils';
+import { pathIsInSearch, invalidCharsRegEx, sleep } from '@/utils/common-utils';
 import ProcessSpec from '@/utils/spec-parser';
 import mainBodyTemplate from '@/templates/main-body-template';
 
@@ -89,7 +89,7 @@ export default class RapiDoc extends LitElement {
       matchPaths: { type: String, attribute: 'match-paths' },
 
       // Internal Attributes
-      selectedNavItem: { type: String },
+      selectedContentId: { type: String },
 
     };
   }
@@ -127,7 +127,11 @@ export default class RapiDoc extends LitElement {
     });
 
     window.addEventListener('hashchange', () => {
-      this.scrollTo(window.location.hash.substring(1));
+      if (this.renderStyle === 'focused') {
+        this.scrollTo(window.location.hash.substring(1));
+      } else {
+        this.scrollTo(window.location.hash.substring(1));
+      }
     }, true);
   }
 
@@ -366,12 +370,12 @@ export default class RapiDoc extends LitElement {
       const pathValue = (path && path.length === 1) ? path[0] : null;
 
       if (methodType && pathValue && methodType === v.method && pathValue === v.path) {
+        this.selectedContentId = `${methodType}-${pathValue}`;
         v.expanded = expandOperation;
         tag.expanded = true;
       }
     }));
     this.requestUpdate();
-
     if (scrollToElement) {
       // delay required, else we cant find element
       window.setTimeout(() => {
@@ -407,30 +411,28 @@ export default class RapiDoc extends LitElement {
   }
 
   // Called by onClick of Left-Navigation Bar items
-  scrollToEl(e) {
+  async scrollToEl(e) {
     const navEl = e.currentTarget;
-    if (!navEl.id || !navEl.id.startsWith('link-')) {
+    if (!navEl.id || !navEl.dataset.contentId || !navEl.id.startsWith('link-')) {
       return;
     }
-    this.selectedNavItem = navEl.dataset.item;
-    if (this.renderStyle === 'read') {
-      const locationHash = `${navEl.id.replace('link-', '')}`;
-      const contentEl = this.shadowRoot.getElementById(locationHash);
-
-      if (contentEl) {
-        // Disable IntersectionObserver before scrolling into the view, else it will try to scroll the navbar which is not needed here
-        this.isIntersectionObserverActive = false;
-        contentEl.scrollIntoView({ behavior: 'auto', block: 'start' });
-        const oldEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active');
-        if (oldEl) {
-          oldEl.classList.remove('active');
-        }
-        e.currentTarget.classList.add('active');
-        window.history.replaceState(null, null, `${window.location.href.split('#')[0]}#${locationHash}`);
-        setTimeout(() => {
-          this.isIntersectionObserverActive = true;
-        }, 300);
+    this.selectedContentId = navEl.dataset.contentId.startsWith('overview--') ? 'overview' : navEl.dataset.contentId;
+    const targetElId = navEl.dataset.contentId;
+    await sleep(0); // important - else contentEl will be null
+    const contentEl = this.shadowRoot.getElementById(targetElId);
+    if (contentEl) {
+      // Disable IntersectionObserver before scrolling into the view, else it will try to scroll the navbar which is not needed here
+      this.isIntersectionObserverActive = false;
+      contentEl.scrollIntoView({ behavior: 'auto', block: 'start' });
+      const oldNavEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active');
+      if (oldNavEl) {
+        oldNavEl.classList.remove('active');
       }
+      navEl.classList.add('active');
+      window.history.replaceState(null, null, `${window.location.href.split('#')[0]}#${targetElId}`);
+      setTimeout(() => {
+        this.isIntersectionObserverActive = true;
+      }, 300);
     }
   }
 
@@ -447,10 +449,18 @@ export default class RapiDoc extends LitElement {
   }
 
   // Public Method
-  scrollTo(path, expandPath = true) {
+  async scrollTo(path, expandPath = true) {
+    this.selectedContentId = path.startsWith('overview--') ? 'overview' : path;
+    await sleep(0);
     const gotoEl = this.shadowRoot.getElementById(path);
     if (gotoEl) {
       this.expandTreeToPath(path, expandPath, true);
+      const oldNavEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active');
+      const newNavEl = this.shadowRoot.getElementById(`link-${path}`);
+      if (oldNavEl && newNavEl) {
+        oldNavEl.classList.remove('active');
+        newNavEl.classList.add('active');
+      }
     }
   }
 }

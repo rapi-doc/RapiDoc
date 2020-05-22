@@ -16,6 +16,10 @@ export function debounce(fn, delay) {
 
 export const invalidCharsRegEx = new RegExp(/[\s#:?&=]/, 'g');
 
+export function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export function copyToClipboard(data, e) {
   const btnEl = e.currentTarget;
   const textArea = document.createElement('textarea');

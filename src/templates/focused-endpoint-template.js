@@ -12,7 +12,7 @@ import '@/components/api-response';
 /* eslint-disable indent */
 function focusedTagBodyTemplate(data, tag) {
   return html`
-    <h1>${tag.name}</h1>
+    <h1 id="tag-${tag.name}">${tag.name}</h1>
     ${tag.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(tag.description || ''))}</div>` : ''}
   `;
 }
@@ -87,16 +87,16 @@ export default function focusedEndpointTemplate(data) {
   let selectedPathObj = {};
   let selectedTagObj = {};
   let i = 0;
-  if (data.selectedNavItem) {
-    itemToFocus = data.selectedNavItem;
+  if (data.selectedContentId) {
+    itemToFocus = data.selectedContentId;
   } else {
-    itemToFocus = '_overview';
+    itemToFocus = 'overview';
   }
-  if (itemToFocus === '_overview' || itemToFocus === '_authentication' || itemToFocus === '_servers') {
+  if (itemToFocus === 'overview' || itemToFocus === 'authentication' || itemToFocus === 'api-servers') {
     selectedPathObj = {};
     selectedTagObj = {};
-  } else if (itemToFocus.startsWith('_tag:')) {
-    const tag = itemToFocus.replace('_tag:', '');
+  } else if (itemToFocus.startsWith('tag-')) {
+    const tag = itemToFocus.replace('tag-', '');
     selectedTagObj = data.resolvedSpec.tags.find((v) => v.name === tag);
   } else {
     for (i = 0; i < data.resolvedSpec.tags.length; i += 1) {
@@ -109,9 +109,9 @@ export default function focusedEndpointTemplate(data) {
   }
 
   return html`
-    ${itemToFocus === '_overview' || itemToFocus === '_authentication' || itemToFocus === '_servers'
+    ${itemToFocus === 'overview' || itemToFocus === 'authentication' || itemToFocus === 'api-servers'
       ? html``
-      : itemToFocus.startsWith('_tag:')
+      : itemToFocus.startsWith('tag-')
         ? html`
           <div class='regular-font section-gap--focused-mode'>
             ${focusedTagBodyTemplate(data, selectedTagObj)}

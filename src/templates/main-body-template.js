@@ -29,7 +29,7 @@ import { isValidHexColor } from '@/utils/color-utils';
 
 function infoDescriptionHeadingRenderer() {
   const renderer = new marked.Renderer();
-  renderer.heading = ((text, level, raw, slugger) => `<h${level} class="observe-me" id="${slugger.slug(raw)}">${text}</h${level}>`);
+  renderer.heading = ((text, level, raw, slugger) => `<h${level} class="observe-me" id="overview--${slugger.slug(raw)}">${text}</h${level}>`);
   return renderer;
 }
 
@@ -322,19 +322,21 @@ export default function mainBodyTemplate(data) {
             ${(data.showInfo === 'false' || !data.resolvedSpec.info)
               ? ''
               : data.renderStyle === 'focused'
-                ? (data.selectedNavItem === '_overview' ? overviewTemplate(data) : '')
+                ? (data.selectedContentId === 'overview' ? overviewTemplate(data) : '')
                 : overviewTemplate(data)
             }
 
             ${(data.allowTry === 'false' || data.allowServerSelection === 'false')
               ? ''
-              : serverTemplate.call(this, data)
+              : data.renderStyle === 'focused'
+                ? (data.selectedContentId === 'api-servers' ? serverTemplate.call(this, data) : '')
+                : serverTemplate.call(this, data)
             } 
 
             ${(data.allowAuthentication === 'false' || !data.resolvedSpec.securitySchemes)
               ? ''
               : data.renderStyle === 'focused'
-                ? (data.selectedNavItem === '_authentication' ? securitySchemeTemplate.call(this, data) : '')
+                ? (data.selectedContentId === 'authentication' ? securitySchemeTemplate.call(this, data) : '')
                 : securitySchemeTemplate.call(this, data)
             }
             <div @click="${(e) => { data.handleHref(e); }}">
