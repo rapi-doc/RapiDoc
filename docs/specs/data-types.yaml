@@ -85,8 +85,9 @@ paths:
       parameters:
         - name: height
           in: query
-          description: height in inches
+          description: height (in inches)
           required: true
+          example: 70
           schema:
             type: integer
             format: int32
