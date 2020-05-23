@@ -4,80 +4,6 @@ info:
   version: 1.0.0
   title: Testing different data-types
 paths:
-  /nested-object:
-    get:
-      summary: Response schema made of nested objects. 
-      description: Response schema is made up of multiple nested object, For simple schema check out [simple object](#get-/simple-object)
-      tags:
-        - Nested Object
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                description: Description of **Person** object (Person must be bold)
-                properties:
-                  age:
-                    description: Person's **Age** (age must be bold)
-                    type: integer
-                  fullName:
-                    description: Person's Full name
-                    type: object
-                    properties:
-                      firstName:
-                        description: _First name_ (First name should be italics)
-                        type: string
-                      lastName:
-                        description: |
-                          `Last name` (last name must be monospaced)
-                        type: string
-                  dependentIds:
-                    type: array
-                    description: IDs of Dependents .
-                    items:
-                      type: integer
-                  dependentNames:
-                    type: array
-                    description: Full Name of **Dependents** (Dependents must be bold).
-                    items:
-                      type: object
-                      properties:
-                        firstNameParts:
-                          description: Parts of **First Name** (First Name must be bold)
-                          type: object
-                          properties:
-                            firstName:
-                              description: This is a very very long description to test how will it show up on a API spec renderer tool such as RapiDoc. This lable must be big enough to wrap into next line 
-                              type: string
-                            aLongFieldForTestingHowItShowsUpInSchemaModelWhenItEncountersLongField:
-                              description: Dependent Last Name
-                              type: string
-                        dependentLastName:
-                          description: Dependent Last Name
-                          type: string
-                          
-  /simple-object:
-    get:
-      summary: Response is a simple object. 
-      description: Response schema is a simple object, which contains only primitive properties. For complex schema check out [nested object](#get-/nested-object)
-      tags:
-        - Simple Object
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  name:
-                    description: Person Name
-                    type: string
-                  age:
-                    description: Person Age
-                    type: integer
   /person:
     post:
       summary: Demonstrates data-types and constraints
@@ -162,10 +88,6 @@ paths:
                 items:
                   $ref: '#/components/schemas/Person'
 tags:
-  - name: Simple Object
-    description: Simple Datatype
-  - name: Nested Object
-    description: Nested Datatype
   - name: Person
     description: Person Datatype
 components:
