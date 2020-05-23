@@ -35,42 +35,42 @@ function infoDescriptionHeadingRenderer() {
 
 /* eslint-disable indent */
 
-function overviewTemplate(data) {
+function overviewTemplate() {
   return html`
-    <div id = 'overview' class = 'observe-me ${data.renderStyle === 'read' ? 'section-gap--read-mode' : (data.renderStyle === 'focused' ? 'section-gap--read-mode' : 'section-gap')}'>
+    <div id = 'overview' class = 'observe-me ${this.renderStyle === 'read' ? 'section-gap--read-mode' : (this.renderStyle === 'focused' ? 'section-gap--read-mode' : 'section-gap')}'>
       <div style = 'font-size:32px'>
-        ${data.resolvedSpec.info.title}
-        ${!data.resolvedSpec.info.version ? '' : html`
+        ${this.resolvedSpec.info.title}
+        ${!this.resolvedSpec.info.version ? '' : html`
           <span style = 'font-size:var(--font-size-small);font-weight:bold'>
-            ${data.resolvedSpec.info.version}
+            ${this.resolvedSpec.info.version}
           </span>`
         }
       </div>
 
-      ${data.resolvedSpec.info.description
-        ? html`${unsafeHTML(`<div class='m-markdown regular-font'>${marked(data.resolvedSpec.info.description, { renderer: infoDescriptionHeadingRenderer() })}</div>`)}`
+      ${this.resolvedSpec.info.description
+        ? html`${unsafeHTML(`<div class='m-markdown regular-font'>${marked(this.resolvedSpec.info.description, { renderer: infoDescriptionHeadingRenderer() })}</div>`)}`
         : ''
       }
-      ${data.resolvedSpec.info.termsOfService
-        ? html`${unsafeHTML(`<div class='tiny-title' style="margin-top:8px"> Terms: </div> <span class='m-markdown regular-font'>${marked(data.resolvedSpec.info.termsOfService)}</span>`)}`
+      ${this.resolvedSpec.info.termsOfService
+        ? html`${unsafeHTML(`<div class='tiny-title' style="margin-top:8px"> Terms: </div> <span class='m-markdown regular-font'>${marked(this.resolvedSpec.info.termsOfService)}</span>`)}`
         : ''
       }
-      ${data.resolvedSpec.info.contact ? contactInfoTemplate(data) : ''}
+      ${this.resolvedSpec.info.contact ? contactInfoTemplate.call(this) : ''}
     </div>
   `;
 }
 
-export default function mainBodyTemplate(data) {
+export default function mainBodyTemplate() {
   const newTheme = {
-    bg1: isValidHexColor(data.bgColor) ? data.bgColor : '',
-    fg1: isValidHexColor(data.textColor) ? data.textColor : '',
-    headerColor: isValidHexColor(data.headerColor) ? data.headerColor : '',
-    primaryColor: isValidHexColor(data.primaryColor) ? data.primaryColor : '',
-    navBgColor: isValidHexColor(data.navBgColor) ? data.navBgColor : '',
-    navTextColor: isValidHexColor(data.navTextColor) ? data.navTextColor : '',
-    navHoverBgColor: isValidHexColor(data.navHoverBgColor) ? data.navHoverBgColor : '',
-    navHoverTextColor: isValidHexColor(data.navHoverTextColor) ? data.navHoverTextColor : '',
-    navAccentColor: isValidHexColor(data.navAccentColor) ? data.navAccentColor : '',
+    bg1: isValidHexColor(this.bgColor) ? this.bgColor : '',
+    fg1: isValidHexColor(this.textColor) ? this.textColor : '',
+    headerColor: isValidHexColor(this.headerColor) ? this.headerColor : '',
+    primaryColor: isValidHexColor(this.primaryColor) ? this.primaryColor : '',
+    navBgColor: isValidHexColor(this.navBgColor) ? this.navBgColor : '',
+    navTextColor: isValidHexColor(this.navTextColor) ? this.navTextColor : '',
+    navHoverBgColor: isValidHexColor(this.navHoverBgColor) ? this.navHoverBgColor : '',
+    navHoverTextColor: isValidHexColor(this.navHoverTextColor) ? this.navHoverTextColor : '',
+    navAccentColor: isValidHexColor(this.navAccentColor) ? this.navAccentColor : '',
   };
 
   return html`
@@ -82,20 +82,20 @@ export default function mainBodyTemplate(data) {
     ${PrismStyles}
     ${TabStyles}
     ${NavStyles}
-    ${data.theme === 'dark' ? SetTheme('dark', newTheme) : SetTheme('light', newTheme)}
+    ${this.theme === 'dark' ? SetTheme('dark', newTheme) : SetTheme('light', newTheme)}
 
     <style>
       :host {
-        --layout:${data.layout ? `${data.layout}` : 'row'};
-        --font-mono:${data.monoFont ? `${data.monoFont}` : 'Monaco, "Andale Mono", "Roboto Mono", Consolas, monospace'}; 
-        --font-regular:${data.regularFont ? `${data.regularFont}` : 'rapidoc, "Open Sans", BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif'};
+        --layout:${this.layout || 'row'};
+        --font-mono:${this.monoFont || 'Monaco, "Andale Mono", "Roboto Mono", Consolas, monospace'}; 
+        --font-regular:${this.regularFont || 'rapidoc, "Open Sans", BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif'};
 
         --font-size-mono: 13px;
         --font-size-regular: 14px;
         --font-size-small: 12px;
         --border-radius: 2px;
-        --resp-area-height: ${data.responseAreaHeight};
-        --nav-item-padding: ${data.navItemSpacing === 'relaxed' ? '10px' : data.navItemSpacing === 'compact' ? '3px 10px' : '6px 10px'};
+        --resp-area-height: ${this.responseAreaHeight};
+        --nav-item-padding: ${this.navItemSpacing === 'relaxed' ? '10px' : this.navItemSpacing === 'compact' ? '3px 10px' : '6px 10px'};
 
         display:flex;
         flex-direction: column;
@@ -305,49 +305,49 @@ export default function mainBodyTemplate(data) {
       }
     </style>
 
-    ${data.showHeader === 'false' ? '' : headerTemplate(data)}
+    ${this.showHeader === 'false' ? '' : headerTemplate.call(this)}
     <div class="body">
-      ${((data.renderStyle === 'read' || data.renderStyle === 'focused') && data.resolvedSpec) ? navbarTemplate(data) : ''}
+      ${((this.renderStyle === 'read' || this.renderStyle === 'focused') && this.resolvedSpec) ? navbarTemplate.call(this) : ''}
       
       <div class="main-content regular-font">
         <slot></slot>
-        <div class="main-content-inner--${data.renderStyle}-mode">
-          ${data.loading === true ? html`<div class="loader"></div>` : ''}
-          ${data.loadFailed === true ? html`<div style="text-align: center;margin: 16px;"> Unable to load the Spec</div>` : ''}
-          ${data.resolvedSpec
+        <div class="main-content-inner--${this.renderStyle}-mode">
+          ${this.loading === true ? html`<div class="loader"></div>` : ''}
+          ${this.loadFailed === true ? html`<div style="text-align: center;margin: 16px;"> Unable to load the Spec</div>` : ''}
+          ${this.resolvedSpec
             ? html`
-              ${(data.showInfo === 'false' || !data.resolvedSpec.info)
+              ${(this.showInfo === 'false' || !this.resolvedSpec.info)
                 ? ''
-                : data.renderStyle === 'focused'
-                  ? (data.selectedContentId === 'overview' ? overviewTemplate(data) : '')
-                  : overviewTemplate(data)
+                : this.renderStyle === 'focused'
+                  ? (this.selectedContentId === 'overview' ? overviewTemplate.call(this) : '')
+                  : overviewTemplate.call(this)
               }
 
-              ${(data.allowTry === 'false' || data.allowServerSelection === 'false')
+              ${(this.allowTry === 'false' || this.allowServerSelection === 'false')
                 ? ''
-                : data.renderStyle === 'focused'
-                  ? (data.selectedContentId === 'api-servers' ? serverTemplate.call(this, data) : '')
-                  : serverTemplate.call(this, data)
+                : this.renderStyle === 'focused'
+                  ? (this.selectedContentId === 'api-servers' ? serverTemplate.call(this) : '')
+                  : serverTemplate.call(this)
               } 
 
-              ${(data.allowAuthentication === 'false' || !data.resolvedSpec.securitySchemes)
+              ${(this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes)
                 ? ''
-                : data.renderStyle === 'focused'
-                  ? (data.selectedContentId === 'authentication' ? securitySchemeTemplate.call(this, data) : '')
-                  : securitySchemeTemplate.call(this, data)
+                : this.renderStyle === 'focused'
+                  ? (this.selectedContentId === 'authentication' ? securitySchemeTemplate.call(this) : '')
+                  : securitySchemeTemplate.call(this)
               }
-              <div @click="${(e) => { data.handleHref(e); }}">
-                ${data.resolvedSpec.tags
-                  ? data.renderStyle === 'read'
-                    ? expandedEndpointTemplate(data)
-                    : data.renderStyle === 'focused'
-                      ? focusedEndpointTemplate(data)
-                      : endpointTemplate.call(this, data)
+              <div @click="${(e) => { this.handleHref(e); }}">
+                ${this.resolvedSpec.tags
+                  ? this.renderStyle === 'read'
+                    ? expandedEndpointTemplate.call(this)
+                    : this.renderStyle === 'focused'
+                      ? focusedEndpointTemplate.call(this)
+                      : endpointTemplate.call(this)
                   : ''
                 }
               </div>
 
-              ${data.showComponents === 'true' ? componentsTemplate(data) : ''}
+              ${this.showComponents === 'true' ? componentsTemplate.call(this) : ''}
             `
             : ''
           }

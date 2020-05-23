@@ -153,7 +153,7 @@ export default class RapiDoc extends LitElement {
   /* eslint-disable indent */
   render() {
     // return render(mainBodyTemplate(this), this.shadowRoot, { eventContext: this });
-    return mainBodyTemplate.call(this, this);
+    return mainBodyTemplate.call(this);
   }
 
   /* eslint-enable indent */

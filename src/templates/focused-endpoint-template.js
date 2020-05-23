@@ -6,20 +6,20 @@ import '@/components/api-request';
 import '@/components/api-response';
 
 /* eslint-disable indent */
-function focusedTagBodyTemplate(data, tag) {
+function focusedTagBodyTemplate(tag) {
   return html`
     <h1 id="tag-${tag.name}">${tag.name}</h1>
     ${tag.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(tag.description || ''))}</div>` : ''}
   `;
 }
 
-export default function focusedEndpointTemplate(data) {
+export default function focusedEndpointTemplate() {
   let itemToFocus = '';
   let selectedPathObj = {};
   let selectedTagObj = {};
   let i = 0;
-  if (data.selectedContentId) {
-    itemToFocus = data.selectedContentId;
+  if (this.selectedContentId) {
+    itemToFocus = this.selectedContentId;
   } else {
     itemToFocus = 'overview';
   }
@@ -28,18 +28,18 @@ export default function focusedEndpointTemplate(data) {
     selectedTagObj = {};
   } else if (itemToFocus.startsWith('tag-')) {
     const tag = itemToFocus.replace('tag-', '');
-    selectedTagObj = data.resolvedSpec.tags.find((v) => v.name === tag);
+    selectedTagObj = this.resolvedSpec.tags.find((v) => v.name === tag);
   } else {
-    for (i = 0; i < data.resolvedSpec.tags.length; i += 1) {
-      selectedTagObj = data.resolvedSpec.tags[i];
-      selectedPathObj = data.resolvedSpec.tags[i].paths.find((v) => `${v.method}-${v.path}` === itemToFocus);
+    for (i = 0; i < this.resolvedSpec.tags.length; i += 1) {
+      selectedTagObj = this.resolvedSpec.tags[i];
+      selectedPathObj = this.resolvedSpec.tags[i].paths.find((v) => `${v.method}-${v.path}` === itemToFocus);
       if (selectedPathObj) {
         break;
       }
     }
     if (!selectedPathObj) {
-      selectedTagObj = data.resolvedSpec.tags[0];
-      selectedPathObj = data.resolvedSpec.tags[0]?.paths[0];
+      selectedTagObj = this.resolvedSpec.tags[0];
+      selectedPathObj = this.resolvedSpec.tags[0]?.paths[0];
     }
   }
 
@@ -49,11 +49,11 @@ export default function focusedEndpointTemplate(data) {
       : itemToFocus.startsWith('tag-')
         ? html`
           <div class='regular-font section-gap--focused-mode'>
-            ${focusedTagBodyTemplate(data, selectedTagObj)}
+            ${focusedTagBodyTemplate.call(this, selectedTagObj)}
           </div>`
         : html`
           <div class='regular-font section-gap--focused-mode'>
-            ${expandedEndpointBodyTemplate(data, selectedPathObj)}
+            ${expandedEndpointBodyTemplate.call(this, selectedPathObj)}
           </div>
         `
     }

@@ -1,7 +1,7 @@
 import { html } from 'lit-element';
 
 /* eslint-disable indent */
-export default function callbackTemplate(data, callbacks) {
+export default function callbackTemplate(callbacks) {
   return html`
     <div class="req-res-title" style="margin-top:12px">CALLBACKS</div>
     ${Object.entries(callbacks).map((kv) => html`
@@ -22,26 +22,26 @@ export default function callbackTemplate(data, callbacks) {
                   <div class='expanded-req-resp-container'>
                     <api-request  class="request-panel"
                       callback = "true"
-                      method = "${method[0]}", 
-                      path = "${pathObj[0]}" 
-                      .parameters = "${method[1].parameters}" 
-                      .request_body = "${method[1].requestBody}"
+                      method = "${method[0] || ''}", 
+                      path = "${pathObj[0] || ''}" 
+                      .parameters = "${method[1]?.parameters || ''}" 
+                      .request_body = "${method[1]?.requestBody || ''}"
                       allow-try = "false"
-                      render-style="${data.renderStyle}" 
-                      schema-style = "${data.schemaStyle}"
-                      active-schema-tab = "${data.defaultSchemaTab}"
-                      schema-expand-level = "${data.schemaExpandLevel}"
-                      schema-description-expanded = "${data.schemaDescriptionExpanded}"
+                      render-style="${this.renderStyle}" 
+                      schema-style = "${this.schemaStyle}"
+                      active-schema-tab = "${this.defaultSchemaTab}"
+                      schema-expand-level = "${this.schemaExpandLevel}"
+                      schema-description-expanded = "${this.schemaDescriptionExpanded}"
                     > </api-request>
 
                     <api-response
                       callback = "true"
-                      .responses="${method[1].responses}"
-                      render-style="${data.renderStyle}"
-                      schema-style="${data.schemaStyle}"
-                      active-schema-tab = "${data.defaultSchemaTab}"
-                      schema-expand-level = "${data.schemaExpandLevel}"
-                      schema-description-expanded = "${data.schemaDescriptionExpanded}"
+                      .responses="${method[1]?.responses}"
+                      render-style="${this.renderStyle}"
+                      schema-style="${this.schemaStyle}"
+                      active-schema-tab = "${this.defaultSchemaTab}"
+                      schema-expand-level = "${this.schemaExpandLevel}"
+                      schema-description-expanded = "${this.schemaDescriptionExpanded}"
                     > </api-response>
                   </div>
                 </div>  

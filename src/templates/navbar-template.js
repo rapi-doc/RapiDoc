@@ -3,13 +3,13 @@ import { pathIsInSearch, invalidCharsRegEx } from '@/utils/common-utils';
 import marked from 'marked';
 
 /* eslint-disable indent */
-export default function navbarTemplate(data) {
+export default function navbarTemplate() {
   return html`
   <div class='nav-bar'>
     <div style="padding:16px 30px 0 16px;">
       <slot name="nav-logo" class="logo"></slot>
     </div>
-    ${(data.allowSearch === 'false')
+    ${(this.allowSearch === 'false')
       ? ''
       : html`
         <div style="position:sticky; top:0; display:flex; flex-direction:row; align-items: stretch; padding:24px; background: var(--nav-bg-color); border-bottom: 1px solid var(--nav-hover-bg-color)">
@@ -17,76 +17,76 @@ export default function navbarTemplate(data) {
             <input id="nav-bar-search" 
               style="width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" 
               type="text" placeholder="search" 
-              @change="${data.onSearchChange}"  
+              @change="${this.onSearchChange}"  
               spellcheck="false" 
             >
             <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x2b90;</div>
           </div>  
-          ${data.matchPaths
+          ${this.matchPaths
             ? html`
-              <div @click = '${data.onClearSearch}' style='margin-left:5px; cursor:pointer; align-self:center; color:var(--nav-text-color)' class='small-font-size primary-text bold-text'> CLEAR </div>`
+              <div @click = '${this.onClearSearch}' style='margin-left:5px; cursor:pointer; align-self:center; color:var(--nav-text-color)' class='small-font-size primary-text bold-text'> CLEAR </div>`
             : ''
           }
         </div>
       `
     }
     ${html`<div class='nav-scroll'>
-      ${(data.showInfo === 'false' || !data.resolvedSpec.info)
+      ${(this.showInfo === 'false' || !this.resolvedSpec.info)
         ? ''
         : html`
-          ${(data.infoDescriptionHeadingsInNavBar === 'true')
+          ${(this.infoDescriptionHeadingsInNavBar === 'true')
             ? html`
-              ${data.resolvedSpec.infoDescriptionHeaders.length > 0 ? html`<div class='nav-bar-info' id='link-overview' data-content-id='overview' @click = '${(e) => data.scrollToEl(e)}' > Overview </div>` : ''}          
-              ${data.resolvedSpec.infoDescriptionHeaders.map((header) => html`
-                <div class='nav-bar-h${header.depth}' id="link-overview--${new marked.Slugger().slug(header.text)}"  data-content-id='overview--${new marked.Slugger().slug(header.text)}' @click='${(e) => data.scrollToEl(e)}'>
+              ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? html`<div class='nav-bar-info' id='link-overview' data-content-id='overview' @click = '${(e) => this.scrollToEl(e)}' > Overview </div>` : ''}          
+              ${this.resolvedSpec.infoDescriptionHeaders.map((header) => html`
+                <div class='nav-bar-h${header.depth}' id="link-overview--${new marked.Slugger().slug(header.text)}"  data-content-id='overview--${new marked.Slugger().slug(header.text)}' @click='${(e) => this.scrollToEl(e)}'>
                   ${header.text}
                 </div>`)
               }
-              ${data.resolvedSpec.infoDescriptionHeaders.length > 0 ? html`<hr style='border-top: 1px solid var(--nav-hover-bg-color); border-width:1px 0 0 0; margin: 15px 0 0 0'/>` : ''}
+              ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? html`<hr style='border-top: 1px solid var(--nav-hover-bg-color); border-width:1px 0 0 0; margin: 15px 0 0 0'/>` : ''}
             `
-            : html`<div class='nav-bar-info'  id='link-overview' data-content-id='overview' @click = '${(e) => data.scrollToEl(e)}' > Overview </div>`
+            : html`<div class='nav-bar-info'  id='link-overview' data-content-id='overview' @click = '${(e) => this.scrollToEl(e)}' > Overview </div>`
           }
         `
       }
     
-    ${(data.allowTry === 'false' || data.allowServerSelection === 'false')
+    ${(this.allowTry === 'false' || this.allowServerSelection === 'false')
       ? ''
-      : html`<div class='nav-bar-info' id='link-api-servers' data-content-id='api-servers' @click = '${(e) => data.scrollToEl(e)}' > API Servers </div>`
+      : html`<div class='nav-bar-info' id='link-api-servers' data-content-id='api-servers' @click = '${(e) => this.scrollToEl(e)}' > API Servers </div>`
     }
-    ${(data.allowAuthentication === 'false' || !data.resolvedSpec.securitySchemes)
+    ${(this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes)
       ? ''
-      : html`<div class='nav-bar-info' id='link-authentication' data-content-id='authentication' @click = '${(e) => data.scrollToEl(e)}' > Authentication </div>`
+      : html`<div class='nav-bar-info' id='link-authentication' data-content-id='authentication' @click = '${(e) => this.scrollToEl(e)}' > Authentication </div>`
     }
 
     <span id='link-paths' class='nav-bar-section'>Operations</span>
-    ${data.resolvedSpec.tags.map((tag) => html`
+    ${this.resolvedSpec.tags.map((tag) => html`
       <!-- Tag -->
-      <div class='nav-bar-tag' id="link-${tag.name.replace(invalidCharsRegEx, '-')}" data-content-id='tag-${tag.name}' @click='${(e) => data.scrollToEl(e)}'>
+      <div class='nav-bar-tag' id="link-${tag.name.replace(invalidCharsRegEx, '-')}" data-content-id='tag-${tag.name}' @click='${(e) => this.scrollToEl(e)}'>
         ${tag.name}
       </div>
 
       <!-- Path (endpoints) -->
       ${tag.paths.filter((v) => {
-        if (data.matchPaths) {
-          return pathIsInSearch(data.matchPaths, v);
+        if (this.matchPaths) {
+          return pathIsInSearch(this.matchPaths, v);
         }
         return true;
       }).map((p) => html`
-      <div class='nav-bar-path' data-content-id='${p.method}-${p.path}' id='link-${p.method}-${p.path.replace(invalidCharsRegEx, '-')}' @click='${(e) => data.scrollToEl(e)}'> 
+      <div class='nav-bar-path' data-content-id='${p.method}-${p.path}' id='link-${p.method}-${p.path.replace(invalidCharsRegEx, '-')}' @click='${(e) => this.scrollToEl(e)}'> 
         <span style = "${p.deprecated ? 'filter:opacity(0.5)' : ''}"> ${p.summary || p.path} </span>
       </div>`)}
     `)}
 
     <!-- Components -->
-    ${(data.showComponents === 'false' || !data.resolvedSpec.components)
+    ${(this.showComponents === 'false' || !this.resolvedSpec.components)
     ? ''
     : html`<div id='link-components' class='nav-bar-section' >Components</div>
-      ${data.resolvedSpec.components.map((component) => html`
-        <div class='nav-bar-tag' id="link-cmp-${component.name.toLowerCase()}" @click='${(e) => data.scrollToEl(e)}'>
+      ${this.resolvedSpec.components.map((component) => html`
+        <div class='nav-bar-tag' id="link-cmp-${component.name.toLowerCase()}" @click='${(e) => this.scrollToEl(e)}'>
           ${component.name}
         </div>
         ${component.subComponents.map((p) => html`
-        <div class='nav-bar-path' id='link-cmp-${p.id}' @click='${(e) => data.scrollToEl(e)}'> 
+        <div class='nav-bar-path' id='link-cmp-${p.id}' @click='${(e) => this.scrollToEl(e)}'> 
           <span> ${p.name} </span>
         </div>`)}
       `)}
