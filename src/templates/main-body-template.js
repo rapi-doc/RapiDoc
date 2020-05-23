@@ -124,12 +124,11 @@ export default function mainBodyTemplate(data) {
         display:block;
         flex:1;
         height:100%;
-        overflow-y: scroll;
+        overflow-y: auto;
         overflow-x: hidden;
       }
-      .main-content--focused-mode,
-      .main-content--read-mode {
-        color: var(--fg3)
+      .main-content-inner--view-mode{
+        padding: 0 16px;
       }
       .main-content::-webkit-scrollbar-track{
         background:transparent;
@@ -277,9 +276,6 @@ export default function mainBodyTemplate(data) {
         .only-large-screen-flex{
           display:flex;
         }
-        .main-content { 
-          padding:0 16px;
-        }
         .section-gap { 
           padding: 0 24px; 
         }
@@ -313,47 +309,49 @@ export default function mainBodyTemplate(data) {
     <div class="body">
       ${((data.renderStyle === 'read' || data.renderStyle === 'focused') && data.resolvedSpec) ? navbarTemplate(data) : ''}
       
-      <div class="main-content regular-font ${data.renderStyle === 'read' ? 'main-content--read-mode' : (data.renderStyle === 'focused' ? 'main-content--focused-mode' : '')} " style = "${data.renderStyle === 'read' ? 'padding:0' : ''}">
+      <div class="main-content regular-font">
         <slot></slot>
-        ${data.loading === true ? html`<div class="loader"></div>` : ''}
-        ${data.loadFailed === true ? html`<div style="text-align: center;margin: 16px;"> Unable to load the Spec</div>` : ''}
-        ${data.resolvedSpec
-          ? html`
-            ${(data.showInfo === 'false' || !data.resolvedSpec.info)
-              ? ''
-              : data.renderStyle === 'focused'
-                ? (data.selectedContentId === 'overview' ? overviewTemplate(data) : '')
-                : overviewTemplate(data)
-            }
-
-            ${(data.allowTry === 'false' || data.allowServerSelection === 'false')
-              ? ''
-              : data.renderStyle === 'focused'
-                ? (data.selectedContentId === 'api-servers' ? serverTemplate.call(this, data) : '')
-                : serverTemplate.call(this, data)
-            } 
-
-            ${(data.allowAuthentication === 'false' || !data.resolvedSpec.securitySchemes)
-              ? ''
-              : data.renderStyle === 'focused'
-                ? (data.selectedContentId === 'authentication' ? securitySchemeTemplate.call(this, data) : '')
-                : securitySchemeTemplate.call(this, data)
-            }
-            <div @click="${(e) => { data.handleHref(e); }}">
-              ${data.resolvedSpec.tags
-                ? data.renderStyle === 'read'
-                  ? expandedEndpointTemplate(data)
-                  : data.renderStyle === 'focused'
-                    ? focusedEndpointTemplate(data)
-                    : endpointTemplate.call(this, data)
-                : ''
+        <div class="main-content-inner--${data.renderStyle}-mode">
+          ${data.loading === true ? html`<div class="loader"></div>` : ''}
+          ${data.loadFailed === true ? html`<div style="text-align: center;margin: 16px;"> Unable to load the Spec</div>` : ''}
+          ${data.resolvedSpec
+            ? html`
+              ${(data.showInfo === 'false' || !data.resolvedSpec.info)
+                ? ''
+                : data.renderStyle === 'focused'
+                  ? (data.selectedContentId === 'overview' ? overviewTemplate(data) : '')
+                  : overviewTemplate(data)
               }
-            </div>
 
-            ${data.showComponents === 'true' ? componentsTemplate(data) : ''}
-          `
-          : ''
-        }
+              ${(data.allowTry === 'false' || data.allowServerSelection === 'false')
+                ? ''
+                : data.renderStyle === 'focused'
+                  ? (data.selectedContentId === 'api-servers' ? serverTemplate.call(this, data) : '')
+                  : serverTemplate.call(this, data)
+              } 
+
+              ${(data.allowAuthentication === 'false' || !data.resolvedSpec.securitySchemes)
+                ? ''
+                : data.renderStyle === 'focused'
+                  ? (data.selectedContentId === 'authentication' ? securitySchemeTemplate.call(this, data) : '')
+                  : securitySchemeTemplate.call(this, data)
+              }
+              <div @click="${(e) => { data.handleHref(e); }}">
+                ${data.resolvedSpec.tags
+                  ? data.renderStyle === 'read'
+                    ? expandedEndpointTemplate(data)
+                    : data.renderStyle === 'focused'
+                      ? focusedEndpointTemplate(data)
+                      : endpointTemplate.call(this, data)
+                  : ''
+                }
+              </div>
+
+              ${data.showComponents === 'true' ? componentsTemplate(data) : ''}
+            `
+            : ''
+          }
+        </div>  
         <slot name="footer"></slot>
       </div>
     </div>  

@@ -27,7 +27,7 @@ export default class ApiResponse extends LitElement {
       parser: { type: Object },
       schemaStyle: { type: String, attribute: 'schema-style' },
       renderStyle: { type: String, attribute: 'render-style' },
-      selectedStatus: { type: String },
+      selectedStatus: { type: String, attribute: 'selected-status' },
       selectedMimeType: { type: String },
       activeSchemaTab: { type: String, attribute: 'active-schema-tab' },
       schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
@@ -65,14 +65,14 @@ export default class ApiResponse extends LitElement {
         font-size:var(--font-size-small);
         margin:0;
       }
+      .focused-mode,
       .read-mode {
         padding-top:24px;
         margin-top:12px;
         border-top: 1px dashed var(--border-color);
-
       }
     </style>
-    <div class="col regular-font response-panel ${this.renderStyle === 'read' ? 'read-mode' : 'view-mode'}">
+    <div class="col regular-font response-panel ${this.renderStyle}-mode">
       <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} "> 
         ${this.callback === 'true' ? 'CALLBACK RESPONSE' : 'RESPONSE'}
       </div>

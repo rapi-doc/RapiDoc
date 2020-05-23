@@ -60,10 +60,12 @@ export default function navbarTemplate(data) {
 
     <span id='link-paths' class='nav-bar-section'>Operations</span>
     ${data.resolvedSpec.tags.map((tag) => html`
-    
+      <!-- Tag -->
       <div class='nav-bar-tag' id="link-${tag.name.replace(invalidCharsRegEx, '-')}" data-content-id='tag-${tag.name}' @click='${(e) => data.scrollToEl(e)}'>
         ${tag.name}
       </div>
+
+      <!-- Path (endpoints) -->
       ${tag.paths.filter((v) => {
         if (data.matchPaths) {
           return pathIsInSearch(data.matchPaths, v);
@@ -71,10 +73,11 @@ export default function navbarTemplate(data) {
         return true;
       }).map((p) => html`
       <div class='nav-bar-path' data-content-id='${p.method}-${p.path}' id='link-${p.method}-${p.path.replace(invalidCharsRegEx, '-')}' @click='${(e) => data.scrollToEl(e)}'> 
-    <span style = "${p.deprecated ? 'filter:opacity(0.5)' : ''}"> ${p.summary || p.path} </span>
+        <span style = "${p.deprecated ? 'filter:opacity(0.5)' : ''}"> ${p.summary || p.path} </span>
       </div>`)}
     `)}
 
+    <!-- Components -->
     ${(data.showComponents === 'false' || !data.resolvedSpec.components)
     ? ''
     : html`<div id='link-components' class='nav-bar-section' >Components</div>

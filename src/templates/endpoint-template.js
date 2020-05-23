@@ -4,9 +4,10 @@ import marked from 'marked';
 import '@/components/api-request';
 import '@/components/api-response';
 import codeSamplesTemplate from '@/templates/code-samples-template';
+import callbackTemplate from '@/templates/callback-template';
 import { pathSecurityTemplate } from '@/templates/security-scheme-template';
 import { pathIsInSearch, invalidCharsRegEx } from '@/utils/common-utils';
-import { callbackTemplate } from '@/templates/expanded-endpoint-template';
+
 
 /* eslint-disable indent */
 function toggleExpand(path) {
@@ -90,6 +91,7 @@ function endpointBodyTemplate(data, path) {
         schema-style="${data.schemaStyle}"
         schema-expand-level = "${data.schemaExpandLevel}"
         schema-description-expanded = "${data.schemaDescriptionExpanded}"
+        selected-status = "${Object.keys(path.responses)[0]}"
       > </api-response>
     </div>
   </div>`;
