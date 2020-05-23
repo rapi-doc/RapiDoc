@@ -190,12 +190,14 @@ export default class ApiRequest extends LitElement {
         if (param.example === '0' || param.example === 0) {
           inputVal = '0';
         } else {
-          inputVal = param.example;
+          inputVal = paramSchema.type === 'array' ? [param.example] : param.example;
         }
       } else if (param.examples && param.examples.length > 0) {
-        inputVal = param.examples[0];
+        inputVal = paramSchema.type === 'array' ? [param.examples[0]] : param.examples[0];
       } else {
-        inputVal = paramSchema.default;
+        inputVal = paramSchema.type === 'array'
+          ? (paramSchema.default ? [paramSchema.default] : '')
+          : (paramSchema.default ? paramSchema.default : '');
       }
       tableRows.push(html`
       <tr> 
@@ -210,42 +212,45 @@ export default class ApiRequest extends LitElement {
             }
           </div>
         </td>  
-        <td style="width:${paramSchema.type === 'array' || paramSchema.type === 'object' ? ('read focused'.includes(this.renderStyle) ? '300px' : '220px') : '160px'}; min-width:100px;">
-          ${paramSchema.type === 'array'
-            ? html`
-              <tag-input class="request-param" 
-                style = "width:160px; background:var(--input-bg);" 
-                data-ptype = "${paramType}"
-                data-pname = "${param.name}"
-                data-param-serialize-style = "${paramStyle}"
-                data-param-serialize-explode = "${paramExplode}"
-                data-array = "true"
-                placeholder= "add-multiple &#x2b90;"
-                .value = "${inputVal}"
-              >
-              </tag-input>`
-            : paramSchema.type === 'object'
-              ? html`
-                <textarea 
-                  class = "textarea request-param"
-                  data-ptype = "${paramType}-object"
-                  data-pname = "${param.name}"
-                  data-param-serialize-style = "${paramStyle}"
-                  data-param-serialize-explode = "${paramExplode}"
-                  spellcheck = "false"
-                  style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
-                >${inputVal}</textarea>
-              `
-              : html`
-                <input type="text" spellcheck="false" style="width:100%" class="request-param" 
-                  data-pname="${param.name}" 
-                  data-ptype="${paramType}"  
-                  data-array="false"
-                  value="${inputVal}"
-                />`
-            }
-        </td>
-        <td>
+        ${this.allowTry === 'true' || inputVal !== ''
+          ? html`
+            <td style="width:${paramSchema.type === 'array' || paramSchema.type === 'object' ? ('read focused'.includes(this.renderStyle) ? '300px' : '220px') : '160px'}; min-width:100px;">
+              ${paramSchema.type === 'array'
+                ? html`
+                  <tag-input class="request-param" 
+                    style = "width:160px; background:var(--input-bg);" 
+                    data-ptype = "${paramType}"
+                    data-pname = "${param.name}"
+                    data-param-serialize-style = "${paramStyle}"
+                    data-param-serialize-explode = "${paramExplode}"
+                    data-array = "true"
+                    placeholder= "add-multiple &#x2b90;"
+                    .value = "${inputVal}"
+                  >
+                  </tag-input>`
+                : paramSchema.type === 'object'
+                  ? html`
+                    <textarea 
+                      class = "textarea request-param"
+                      data-ptype = "${paramType}-object"
+                      data-pname = "${param.name}"
+                      data-param-serialize-style = "${paramStyle}"
+                      data-param-serialize-explode = "${paramExplode}"
+                      spellcheck = "false"
+                      style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
+                    >${inputVal}</textarea>`
+                  : html`
+                    <input type="text" spellcheck="false" style="width:100%" class="request-param" 
+                      data-pname="${param.name}" 
+                      data-ptype="${paramType}"  
+                      data-array="false"
+                      value="${inputVal}"
+                    />`
+                }
+            </td>`
+          : ''
+        }
+        <td colspan="${(this.allowTry === 'true' || inputVal !== '') ? '1' : '2'}">
           ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues
             ? html`
               <div class="param-constraint">
