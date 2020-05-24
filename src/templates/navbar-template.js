@@ -5,7 +5,7 @@ import marked from 'marked';
 /* eslint-disable indent */
 export default function navbarTemplate() {
   return html`
-  <div class='nav-bar'>
+  <aside class='nav-bar'>
     <div style="padding:16px 30px 0 16px;">
       <slot name="nav-logo" class="logo"></slot>
     </div>
@@ -30,7 +30,7 @@ export default function navbarTemplate() {
         </div>
       `
     }
-    ${html`<div class='nav-scroll'>
+    ${html`<nav class='nav-scroll'>
       ${(this.showInfo === 'false' || !this.resolvedSpec.info)
         ? ''
         : html`
@@ -91,9 +91,9 @@ export default function navbarTemplate() {
         </div>`)}
       `)}
     `}
-    </div>`
+    </nav>`
     }
-  </div>
+  </aside>
 `;
 }
 /* eslint-enable indent */

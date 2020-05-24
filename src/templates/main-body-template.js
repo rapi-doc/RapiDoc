@@ -305,11 +305,15 @@ export default function mainBodyTemplate() {
       }
     </style>
 
+    <!-- Header -->
     ${this.showHeader === 'false' ? '' : headerTemplate.call(this)}
+    
     <div class="body">
+      <!-- Side Nav -->
       ${((this.renderStyle === 'read' || this.renderStyle === 'focused') && this.resolvedSpec) ? navbarTemplate.call(this) : ''}
       
-      <div class="main-content regular-font">
+      <!-- Main Content -->
+      <main class="main-content regular-font">
         <slot></slot>
         <div class="main-content-inner--${this.renderStyle}-mode">
           ${this.loading === true ? html`<div class="loader"></div>` : ''}
@@ -353,7 +357,7 @@ export default function mainBodyTemplate() {
           }
         </div>  
         <slot name="footer"></slot>
-      </div>
+      </main>
     </div>  
   `;
 }

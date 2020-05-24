@@ -54,17 +54,24 @@ export default class SchemaTable extends LitElement {
       }
 
       .obj-toggle {
+        padding: 0 2px;
+        border-radius:2px;
+        border: 1px solid transparent;
         display: inline-block;
         margin-left: -16px;
         color:var(--primary-color);
         cursor:pointer;
-        font-size:16px;
+        font-size: 16px;
         font-family: var(--font-mono);
+        background-clip: border-box;
       }
-      .tr.expanded + .object-body{
+      .obj-toggle:hover {
+        border-color: var(--primary-color);
+      }
+      .tr.expanded + .object-body {
         display:block;
       }
-      .tr.collapsed + .object-body{
+      .tr.collapsed + .object-body {
         display:none;
       }
 
@@ -132,8 +139,8 @@ export default class SchemaTable extends LitElement {
                 ${data['::type'] === 'xxx-of-option' || prevKey.startsWith('::OPTION')
                   ? html`<span class='xxx-of-key'>${newPrevKey}</span>`
                   : newPrevKey.endsWith('*')
-                    ? html`${newPrevKey.substring(0, newPrevKey.length - 1)}<span style='color:var(--red);'>*</span>`
-                    : `${newPrevKey}`
+                    ? html`<span style="display:inline-block; margin-left:-6px;"> ${newPrevKey.substring(0, newPrevKey.length - 1)}</span><span style='color:var(--red);'>*</span>`
+                    : html`<span style="display:inline-block; margin-left:-6px;">${newPrevKey}</span>`
                 }
               </div>
               <div class='td key-type'>${prevDataType.startsWith('xxx-') ? '' : prevDataType}</div>
