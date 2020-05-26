@@ -282,7 +282,7 @@ export default function securitySchemeTemplate() {
             <tr>  
               <td style="max-width:500px; overflow-wrap: break-word;">
                 <div style="min-height:24px"> 
-                  <span style="font-weight:bold">${v.typeDisplay} </span> 
+                  <span style="font-weight:bold">${v.typeDisplay} ${v.type === 'oauth2' ? `(${v.apiKeyId})` : ''}</span> 
                   ${v.finalKeyValue
                     ? html`
                       <span class='blue-text'>  ${v.finalKeyValue ? 'Key Applied' : ''} </span> 
@@ -385,7 +385,7 @@ export function pathSecurityTemplate(pathSecurity) {
                     ? html`
                       <div>
                         ${andSecurityItem.securityDefs.length > 1 ? html`<b>${i + 1}.</b> &nbsp;` : html`Requires`}
-                        OAuth Access Token in <b>Authorization header</b> with <b>Scopes:</b> ${andSecurityItem.pathScopes}
+                        OAuth Token (${orSecurityItem.apiKeyId}) in <b>Authorization header</b>
                       </div>`
                     : orSecurityItem.type === 'http'
                       ? html`
