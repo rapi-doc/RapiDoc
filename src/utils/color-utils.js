@@ -5,10 +5,10 @@ export default {
     headerBg: '#444',
     getRgb(hex) {
       if (hex.indexOf('#') === 0) {
-        hex = hex.slice(1);
+        hex = hex.slice(1, 7);
       }
       // convert 3-digit hex to 6-digits.
-      if (hex.length === 3) {
+      if (hex.length === 3 || hex.length === 4) {
         hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
       }
       if (hex.length !== 6) {
@@ -47,5 +47,5 @@ export default {
 };
 
 export function isValidHexColor(colorCode) {
-  return /^#([0-9A-F]{3}){1,2}$/i.test(colorCode);
+  return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3}|[A-Fa-f0-9]{8}|[A-Fa-f0-9]{4})$/i.test(colorCode);
 }

@@ -12,10 +12,10 @@ export default function navbarTemplate() {
     ${(this.allowSearch === 'false')
       ? ''
       : html`
-        <div style="position:sticky; top:0; display:flex; flex-direction:row; align-items: stretch; padding:24px; background: var(--nav-bg-color); border-bottom: 1px solid var(--nav-hover-bg-color)">
+        <div style="position:sticky; top:0; display:flex; flex-direction:row; align-items: stretch; padding:24px; border-bottom: 1px solid var(--nav-hover-bg-color)">
           <div style="display:flex; flex:1">
             <input id="nav-bar-search" 
-              style="width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" 
+              style="width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color);" 
               type="text" placeholder="search" 
               @change="${this.onSearchChange}"  
               spellcheck="false" 

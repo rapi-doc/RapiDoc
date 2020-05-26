@@ -8,6 +8,10 @@ export default html`
   overflow: hidden;
   color:var(--nav-text-color);
   background-color: var(--nav-bg-color);
+  background-image: var(--nav-bg-image);
+  background-size: var(--nav-bg-image-size);
+  background-repeat: var(--nav-bg-image-repeat, 'no-repeat');
+  background-blend-mode: multiply;
   box-sizing:border-box;
   line-height: 16px;
   display:none;
