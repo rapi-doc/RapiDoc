@@ -67,6 +67,16 @@ paths:
         }
         ```
 
+        ### Images 
+        Inline Images no-gap - ![appspot image filler](http://ipsumimage.appspot.com/100)![appspot image filler](http://ipsumimage.appspot.com/100)
+
+        Inline Images Single space gap - ![appspot image filler](http://ipsumimage.appspot.com/100)
+        ![appspot image filler](http://ipsumimage.appspot.com/100)
+
+        Next Line Image
+        
+        ![appspot image filler](http://ipsumimage.appspot.com/140x100.png)
+
       parameters:
         - name: full-name
           in: query
