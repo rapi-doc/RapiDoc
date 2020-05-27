@@ -27,14 +27,6 @@ export default html`
 .nav-scroll::-webkit-scrollbar-track {
   background:transparent;
 }
-.nav-scroll::-webkit-scrollbar {
-  display:none;
-  width: 12px;
-  background-color: transparent;
-}
-.nav-scroll:hover::-webkit-scrollbar {
-  display:block;
-}
 .nav-scroll::-webkit-scrollbar-thumb {
   border: 3px solid var(--nav-bg-color);
   border-width: 0 3px;

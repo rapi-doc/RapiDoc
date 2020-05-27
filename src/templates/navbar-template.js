@@ -61,7 +61,7 @@ export default function navbarTemplate() {
     <span id='link-paths' class='nav-bar-section'>Operations</span>
     ${this.resolvedSpec.tags.map((tag) => html`
       <!-- Tag -->
-      <div class='nav-bar-tag' id="link-${tag.name.replace(invalidCharsRegEx, '-')}" data-content-id='tag-${tag.name}' @click='${(e) => this.scrollToEl(e)}'>
+      <div class='nav-bar-tag' id="link-tag--${tag.name.replace(invalidCharsRegEx, '-')}" data-content-id='tag--${tag.name}' @click='${(e) => this.scrollToEl(e)}'>
         ${tag.name}
       </div>
 
