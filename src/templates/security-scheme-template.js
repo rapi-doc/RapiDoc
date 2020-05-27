@@ -137,7 +137,7 @@ async function onInvokeOAuthFlow(apiKeyId, flowType, authUrl, tokenUrl, e) {
     } else if (flowType === 'implicit') {
       responseType = 'token';
     }
-    const authCodeParams = new URLSearchParams(authUrl.search);
+    const authCodeParams = new URLSearchParams(authUrlObj.search);
     const selectedScopes = checkedScopeEls.map((v) => v.value).join(' ');
     if (selectedScopes) {
       authCodeParams.set('scope', selectedScopes);
