@@ -416,7 +416,6 @@ export default class RapiDoc extends LitElement {
         // Add active class in the new element
         if (newNavEl) {
           window.history.replaceState(null, null, `${window.location.href.split('#')[0]}#${entry.target.id}`);
-          newNavEl.scrollIntoView({ behavior: 'auto', block: 'center' });
           newNavEl.classList.add('active');
         }
         // Remove active class from previous element
