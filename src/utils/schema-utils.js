@@ -81,9 +81,11 @@ export function getTypeInfo(schema) {
 }
 
 export function getSampleValueByType(schemaObj) {
-  if (schemaObj.example) {
-    return schemaObj.example;
-  }
+  if (schemaObj.example === '') { return ''; }
+  if (schemaObj.example === null) { return null; }
+  if (schemaObj.example === 0) { return 0; }
+  if (schemaObj.example) { return schemaObj.example; }
+
   if (Object.keys(schemaObj).length === 0) {
     return null;
   }
@@ -476,7 +478,6 @@ export function generateExample(examples, example, schema, mimeType, includeRead
             deprecated: true,
           },
         );
-
         finalExamples.push({
           exampleId: 'Example',
           exampleSummary: '',
