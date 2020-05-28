@@ -1,4 +1,4 @@
-import { LitElement, html } from 'lit-element';
+import { LitElement, html, css } from 'lit-element';
 import marked from 'marked';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import { schemaInObjectNotation, generateExample } from '@/utils/schema-utils';
@@ -35,15 +35,15 @@ export default class ApiResponse extends LitElement {
     };
   }
 
-  render() {
-    return html`
-    ${FontStyles}
-    ${FlexStyles}
-    ${TableStyles}
-    ${InputStyles}
-    ${TabStyles}
-    ${BorderStyles}
-    <style>
+  static get styles() {
+    return [
+      FontStyles,
+      FlexStyles,
+      TabStyles,
+      TableStyles,
+      InputStyles,
+      BorderStyles,
+      css`
       .resp-head{
         vertical-align: middle;
         padding:16px 0 8px;
@@ -70,8 +70,12 @@ export default class ApiResponse extends LitElement {
         padding-top:24px;
         margin-top:12px;
         border-top: 1px dashed var(--border-color);
-      }
-    </style>
+      }`,
+    ];
+  }
+
+  render() {
+    return html`
     <div class="col regular-font response-panel ${this.renderStyle}-mode">
       <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} "> 
         ${this.callback === 'true' ? 'CALLBACK RESPONSE' : 'RESPONSE'}

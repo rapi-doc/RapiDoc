@@ -1,4 +1,4 @@
-import { LitElement, html } from 'lit-element';
+import { LitElement, html, css } from 'lit-element';
 import { copyToClipboard } from '@/utils/common-utils';
 import FontStyles from '@/styles/font-styles';
 import BorderStyles from '@/styles/border-styles';
@@ -14,63 +14,67 @@ export default class JsonTree extends LitElement {
     };
   }
 
+  static get styles() {
+    return [
+      FontStyles,
+      BorderStyles,
+      InputStyles,
+      css`
+      :host{
+        display:flex;
+      }
+      .json-tree {
+        font-family: var(--font-mono);
+        font-size: var(--font-size-small);
+        display:inline-block;
+        overflow:hidden;
+        word-break: break-all;
+        flex:1;
+        line-height: 18px;
+      }
+
+      .open-bracket{
+        display:inline-block;
+        padding: 0 20px 0 0;
+        cursor:pointer;
+        border: 1px solid transparent;
+        border-radius:3px;
+      }
+      .open-bracket:hover{
+        color:var(--primary-color);
+        background-color:var(--hover-color);
+        border: 1px solid var(--border-color);
+      }
+      .inside-bracket{
+        padding-left:12px;
+        border-left:1px dotted var(--border-color);
+      }
+      .open-bracket.collapsed + .inside-bracket,
+      .open-bracket.collapsed + .inside-bracket + .close-bracket {
+        display:none;
+      }
+
+      .string{color:var(--green);}
+      .number{color:var(--blue);}
+      .null{color:var(--red);}
+      .boolean{color:var(--purple);}
+      .object{color:var(--fg)}
+      .toolbar {
+        display:flex;
+        width:100%;
+        padding: 2px 0;
+        color:var(--primary-color);
+        font-family: var(--font-regular);
+        margin-bottom:4px;
+        align-items: center;
+        font-size: calc(var(--font-size-small) - 1px);
+      }`,
+    ];
+  }
+
   /* eslint-disable indent */
   render() {
     return html`
-      ${FontStyles}
-      ${BorderStyles}
-      ${InputStyles}
-      <style>
-        :host{
-          display:flex;
-        }
-        .json-tree {
-          font-family: var(--font-mono);
-          font-size: var(--font-size-small);
-          display:inline-block;
-          overflow:hidden;
-          word-break: break-all;
-          flex:1;
-          line-height: 18px;
-        }
-
-        .open-bracket{
-          display:inline-block;
-          padding: 0 20px 0 0;
-          cursor:pointer;
-          border: 1px solid transparent;
-          border-radius:3px;
-        }
-        .open-bracket:hover{
-          color:var(--primary-color);
-          background-color:var(--hover-color);
-          border: 1px solid var(--border-color);
-        }
-        .inside-bracket{
-          padding-left:12px;
-          border-left:1px dotted var(--border-color);
-        }
-        .open-bracket.collapsed + .inside-bracket,
-        .open-bracket.collapsed + .inside-bracket + .close-bracket {
-          display:none;
-        }
-
-        .string{color:var(--green);}
-        .number{color:var(--blue);}
-        .null{color:var(--red);}
-        .boolean{color:var(--purple);}
-        .object{color:var(--fg)}
-        .toolbar {
-          display:flex;
-          width:100%;
-          padding: 2px 0;
-          color:var(--primary-color);
-          font-family: var(--font-regular);
-          margin-bottom:4px;
-          align-items: center;
-          font-size: calc(var(--font-size-small) - 1px);
-        }
-      </style>
       <div class = "json-tree" >
         <div class='toolbar'> 
           <button  class="toolbar-btn" @click='${(e) => { copyToClipboard(JSON.stringify(this.data, null, 2), e); }}'> Copy </button>

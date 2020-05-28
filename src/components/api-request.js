@@ -1,4 +1,4 @@
-import { LitElement, html } from 'lit-element';
+import { LitElement, html, css } from 'lit-element';
 import marked from 'marked';
 import Prism from 'prismjs';
 
@@ -59,82 +59,86 @@ export default class ApiRequest extends LitElement {
     };
   }
 
+  static get styles() {
+    return [
+      TableStyles,
+      InputStyles,
+      FontStyles,
+      FlexStyles,
+      BorderStyles,
+      TabStyles,
+      PrismStyles,
+      css`
+        .read-mode{
+          margin-top:24px;
+        }
+        .param-name,
+        .param-type{
+          margin: 1px 0;
+          text-align: right;
+          line-height: 12px;
+        }
+        .param-name{
+          color: var(--fg); 
+          font-family: var(--font-mono);
+        }
+        .param-type{
+          color: var(--light-fg); 
+          font-family: var(--font-regular);
+        }
+        .param-constraint{
+          min-width:100px;
+        }
+        .param-constraint:empty{
+          display:none;
+        }
+        .top-gap{margin-top:24px;}
+
+        .textarea {
+          min-height:220px; 
+          padding:5px;
+          resize:vertical;
+          font-family:var(--font-mono);
+          font-size:var(--font-size-small);
+        }
+        .response-message{
+          font-weight:bold;
+          text-overflow: ellipsis;
+        }
+        .response-message.error {
+          color:var(--red);
+        }
+        .response-message.success {
+          color:var(--blue);
+        }
+
+        .file-input-container {
+          align-items:flex-end;
+        }
+        .file-input-container .input-set:first-child .file-input-remove-btn{
+          visibility:hidden;
+        }
+
+        .file-input-remove-btn{
+          font-size:16px;
+          color:var(--red);
+          outline: none;
+          border: none;
+          background:none;
+          cursor:pointer;
+        }
+
+        @media only screen and (min-width: 768px) {
+          .textarea {
+            padding:8px;
+          }
+        }
+      `,
+    ];
+  }
+
   render() {
     return html`
-    ${TableStyles}
-    ${InputStyles}
-    ${FontStyles}
-    ${FlexStyles}
-    ${BorderStyles}
-    ${TabStyles}
-    ${PrismStyles}
-    <style>
-      .read-mode{
-        margin-top:24px;
-      }
-      .param-name,
-      .param-type{
-        margin: 1px 0;
-        text-align: right;
-        line-height: 12px;
-      }
-      .param-name{
-        color: var(--fg); 
-        font-family: var(--font-mono);
-      }
-      .param-type{
-        color: var(--light-fg); 
-        font-family: var(--font-regular);
-      }
-      .param-constraint{
-        min-width:100px;
-      }
-      .param-constraint:empty{
-        display:none;
-      }
-      .top-gap{margin-top:24px;}
-
-      .textarea {
-        min-height:220px; 
-        padding:5px;
-        resize:vertical;
-        font-family:var(--font-mono);
-        font-size:var(--font-size-small);
-      }
-      .response-message{
-        font-weight:bold;
-        text-overflow: ellipsis;
-      }
-      .response-message.error {
-        color:var(--red);
-      }
-      .response-message.success {
-        color:var(--blue);
-      }
-
-      .file-input-container {
-        align-items:flex-end;
-      }
-      .file-input-container .input-set:first-child .file-input-remove-btn{
-        visibility:hidden;
-      }
-
-      .file-input-remove-btn{
-        font-size:16px;
-        color:var(--red);
-        outline: none;
-        border: none;
-        background:none;
-        cursor:pointer;
-      }
-
-      @media only screen and (min-width: 768px) {
-        .textarea {
-          padding:8px;
-        }
-      }
-
-    </style>
     <div class="col regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'}">
       <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} "> 
         ${this.callback === 'true' ? 'CALLBACK REQUEST' : 'REQUEST'}

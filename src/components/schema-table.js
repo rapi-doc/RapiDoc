@@ -1,4 +1,4 @@
-import { LitElement, html } from 'lit-element';
+import { LitElement, html, css } from 'lit-element';
 import marked from 'marked';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import FontStyles from '@/styles/font-styles';
@@ -19,12 +19,11 @@ export default class SchemaTable extends LitElement {
     if (!this.schemaDescriptionExpanded || !'true false'.includes(this.schemaDescriptionExpanded)) { this.schemaDescriptionExpanded = 'false'; }
   }
 
-  /* eslint-disable indent */
-  render() {
-    return html`
-      ${FontStyles}
-      ${SchemaStyles}
-      <style>
+  static get styles() {
+    return [
+      FontStyles,
+      SchemaStyles,
+      css`
       .table {
         font-size:var(--font-size-small);
         text-align: left;
@@ -73,9 +72,13 @@ export default class SchemaTable extends LitElement {
       }
       .tr.collapsed + .object-body {
         display:none;
-      }
+      }`,
+    ];
+  }
 
-      </style>
+  /* eslint-disable indent */
+  render() {
+    return html`
       <div class="table ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : 'collapsed-descr'}">
         <div class='toolbar'> 
           <div style="flex:1"></div>

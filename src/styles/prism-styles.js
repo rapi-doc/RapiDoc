@@ -1,18 +1,15 @@
 
-import { html } from 'lit-element';
+import { css } from 'lit-element';
 
-export default html`
-<style>
+export default css`
 code[class*="language-"],
 pre[class*="language-"] {
-  color: #ccc;
   text-align: left;
   white-space: pre;
   word-spacing: normal;
   word-break: normal;
   word-wrap: normal;
   line-height: 1.5;
-
   tab-size: 2;
 
   -webkit-hyphens: none;
@@ -26,11 +23,6 @@ pre[class*="language-"] {
   padding: 1em;
   margin: .5em 0;
   overflow: auto;
-}
-
-:not(pre) > code[class*="language-"],
-pre[class*="language-"] {
-  background: #2d2d2d;
 }
 
 /* Inline code */
@@ -111,4 +103,4 @@ pre[class*="language-"] {
 .token.inserted {
   color: green;
 }
-</style>`;
+`;

@@ -1,7 +1,6 @@
-import { html } from 'lit-element';
+import { css } from 'lit-element';
 
-export default html`
-<style>
+export default css`
   ::selection {
     background: var(--selection-bg);
     color: var(--selection-fg);
@@ -66,6 +65,9 @@ export default html`
     line-height:22px;
     font-size:calc(var(--font-size-regular));
   }
+  .m-markdown code span{
+    font-size:calc(var(--font-size-mono));
+  }
   
   .m-markdown li{
     line-height:22px;
@@ -80,6 +82,7 @@ export default html`
     line-height:18px;
     margin-top:0;
   }
+  
   .m-markdown-small p:not(:first-child),
   .m-markdown p:not(:first-child) {
     margin-block-start: 24px;
@@ -100,7 +103,7 @@ export default html`
     border-radius: 2px;
     color: var(--inline-code-fg);
     background-color: var(--bg3);
-    font-size: calc(var(--font-size-mono) - 1px);
+    font-size: calc(var(--font-size-mono));
     line-height: var(--font-mono-line-height);
   }
 
@@ -199,4 +202,4 @@ export default html`
     border-left: 3px solid var(--border-color);
     padding: 6px 0 6px 6px;
   }
-</style>`;
+`;

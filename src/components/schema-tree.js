@@ -1,4 +1,4 @@
-import { LitElement, html } from 'lit-element';
+import { LitElement, html, css } from 'lit-element';
 import marked from 'marked';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import FontStyles from '@/styles/font-styles';
@@ -21,13 +21,12 @@ export default class SchemaTree extends LitElement {
     if (!this.schemaDescriptionExpanded || !'true false'.includes(this.schemaDescriptionExpanded)) { this.schemaDescriptionExpanded = 'false'; }
   }
 
-  /* eslint-disable indent */
-  render() {
-    return html`
-      ${FontStyles}
-      ${SchemaStyles}
-      ${BorderStyles}
-      <style>
+  static get styles() {
+    return [
+      FontStyles,
+      SchemaStyles,
+      BorderStyles,
+      css`
       .tree {
         font-size:var(--font-size-small);
         text-align: left;
@@ -79,8 +78,13 @@ export default class SchemaTree extends LitElement {
         border-style: dotted;
         border-width: 0 0 1px 0;
         border-color:var(--primary-color);
-      }
-      </style>
+      }`,
+    ];
+  }
+
+  /* eslint-disable indent */
+  render() {
+    return html`
       <div class="tree ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : 'collapsed-descr'}">
         <div class='toolbar'>
           <div class='toolbar-item bold-text upper' style='cursor:auto; color:var(--fg3)'> ${this.data ? this.data['::type'] : ''} </div>

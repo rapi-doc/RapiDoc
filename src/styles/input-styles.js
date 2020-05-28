@@ -1,8 +1,7 @@
-import { html } from 'lit-element';
+import { css } from 'lit-element';
 
 /* eslint-disable max-len */
-export default html`
-<style>
+export default css`
 /* Button */
 .m-btn {
   border-radius: var(--border-radius);
@@ -152,5 +151,4 @@ textarea::-webkit-scrollbar-thumb {
   font-family:var(--font-mono);
   margin-bottom:2px;
 }
-
-</style>`;
+`;

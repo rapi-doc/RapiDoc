@@ -1,7 +1,6 @@
-import { html } from 'lit-element';
+import { css } from 'lit-element';
 
-export default html`
-<style>
+export default css`
 .nav-bar {
   width:0;
   height:100%;
@@ -39,9 +38,6 @@ export default html`
   padding: 15px 30px 15px 10px;
   text-transform: capitalize;
 }
-.nav-bar-tag:not(:first-of-type) {
-  border-top: 1px solid var(--nav-hover-bg-color);
-}
 
 .nav-bar-components,
 .nav-bar-h1,
@@ -70,10 +66,11 @@ export default html`
   font-size: var(--font-size-small);
   color: var(--nav-text-color);
   text-transform: uppercase;
-  margin: 15px 15px 5px 5px;
+  padding: 15px 15px 5px 5px;
   text-align: right;
   filter:opacity(0.5);
   font-weight:bold;
+  border-bottom: 1px solid var(--nav-text-color);
 }
 .nav-bar-section:first-child {
   display: none;
@@ -97,4 +94,4 @@ export default html`
   color:var(--nav-hover-text-color);
   background-color:var(--nav-hover-bg-color);
 }
-</style>`;
+`;

@@ -1,7 +1,6 @@
-import { html } from 'lit-element';
+import { css } from 'lit-element';
 
-export default html`
-<style>
+export default css`
 a { color: var(--blue); }
 .border-top {
   border-top:1px solid var(--border-color);
@@ -21,5 +20,4 @@ a { color: var(--blue); }
 .pad-top-8{
   padding-top: 8px;
 }
-
-</style>`;
+`;

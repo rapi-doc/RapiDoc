@@ -1,7 +1,6 @@
-import { html } from 'lit-element';
+import { css } from 'lit-element';
 
-export default html`
-<style>
+export default css`
 .m-table {
   border-spacing: 0;  
   border-collapse: separate;
@@ -46,5 +45,4 @@ export default html`
   vertical-align: middle;
   margin: 12px 0 4px 0;
 }
-
-</style>`;
+`;
