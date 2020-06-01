@@ -1,6 +1,6 @@
 {
   "name": "rapidoc",
-  "version": "8.0.0",
+  "version": "8.1.0",
   "description": "RapiDoc - Open API spec viewer with built in console",
   "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
   "repository": {
