@@ -34,16 +34,37 @@
       width:740px;
     }
     .container {
-      border:1px solid #555;
-      border-radius: 2px;
-      margin:5px;
+      border:1px solid #aaa;
+      border-radius: 4px;
+      margin:12px;
       padding:8px;
       width: 200px;
       display:flex;
       flex-direction: column;
       align-items: center;
+      box-shadow: 0 1px 2.94px 0.06px rgba(4,26,55,0.16);
     }
-
+    .container.blue{
+      color: #fff;
+      border-color:#4099ff;
+      background: linear-gradient(45deg,#4099ff,#73b4ff);
+    }
+    .container.red{
+      color: #fff;
+      border-color:#FF5370;
+      background: linear-gradient(45deg,#FF5370,#ff869a);
+    }
+    .container.green{
+      color: #fff;
+      border-color:#2ed8b6;
+      background: linear-gradient(45deg,#2ed8b6,#59e0c5);
+    }
+    .container.green a,
+    .container.blue a,
+    .container.red a {
+      font-weight:300;
+      color: #ffffffee;
+    }
   </style>
 </head>
 
@@ -82,8 +103,9 @@
     <!--Waves end-->
   </div>
   <div style="display:flex; width:100%; flex-wrap:wrap; justify-content:center;">
-    <div class = "container">
-      <h2> <a href="./quickstart.html"> How To Use </a> </h2>
+    
+    <div class = "container blue" style="cursor: pointer;" onclick="window.location='./quickstart.html';"> 
+      <h2 style="font-weight:700">  How To Use </h2>
       <div class="row">
         <img style="width:32px" src="./images/html5-logo.png"/>
         <img style="width:32px" src="./images/react-logo.png"/>
@@ -151,6 +173,10 @@
       <div class = "c-description" >
         Play with various color schemes
       </div>
+    </div>
+
+    <div class = "container red" style="cursor: pointer;" onclick="window.location='./list-branding.html';"> 
+      <h2 style="font-weight:700"> Branding Ideas </h2>
     </div>
 
     <div class = "container" >
@@ -266,12 +292,14 @@
       <a href="./examples/dynamic-form-params.html"> Form Parameters - Dynamic </a>
     </div>
 
+    <div class = "container green" style="cursor: pointer;" onclick="window.location='./oauth_instructions.html';"> 
+      <h2 style="font-weight:700"> OAuth Setup </h2>
+    </div>
+
     <div class = "container">
       <div> OAUTH</div>
       <img style="width:32px" src="./images/oauth.png"/>
-      <a href="./oauth_instructions.html"> OAuth Instructions</a>
       <a href="./examples/oauth.html"> OAuth Demo </a>
-
     </div>
 
     <div class = "container">
@@ -281,7 +309,6 @@
       </div>
     </div>
 
-
     <div class = "container">
       <a href="./examples/example4.html"> Embed RapiDoc In HTML  </a>
       <div class = "c-description" >
@@ -290,18 +317,14 @@
     </div>
 
     <div class = "container">
-      <a href="./examples/example7.html"> Embed HTML In RapiDoc  </a>
+      <a href="./examples/mix-html.html"> Embed HTML In RapiDoc  </a>
       <div class = "c-description" >
         Custom HTML content can be inserted in various sections of RapiDoc
       </div>
     </div>
 
-    <div class = "container" >
-      <a href="./examples/example8.html"> Plugin Custom functionality  </a>
-      <img style="width:32px" src="./images/plugin.png"/>
-      <div class = "c-description" >
-        A text-box & button is added on the header for the Petstore Spec. Which helps is authorization
-      </div>
+    <div class = "container red" style="cursor: pointer;" onclick="window.location='./list-performance.html';"> 
+      <h2 style="font-weight:700"> Performance Tips </h2>
     </div>
 
     <div class = "container" >
@@ -314,8 +337,12 @@
     <div class = "container" >
       <a href="./examples/server-vars.html"> API Server using variables </a>
       <div class = "c-description" >
-        Define API server using varables, which enables yor to dynamically connect to different servers
+        Define API server using variables, to dynamically connect to different servers
       </div>
+    </div>
+
+    <div class = "container blue" style="cursor: pointer;" onclick="window.location='./list-html-content.html';"> 
+      <h2 style="font-weight:700"> Mix HTML content </h2>
     </div>
 
     <div class = "container" >
@@ -330,9 +357,10 @@
       <a href="./examples/external-refs.html"> Spec split into multiple files </a>
       <img style="width:32px" src="./images/refs.png"/>
       <div class = "c-description" >
-        Large Specs can be split into multiple files and can refer each other with JSON refs
+        Large Specs split into multiple files referring each other with JSON refs
       </div>
     </div>
+
 
     <div class = "container" >
       <div>Schema Composition</div>
@@ -400,15 +428,21 @@
       </tr>
       <tr>
         <td class="mono-bold"> 
-          <a href="./tests/perf-v3.html">Large OpenAPI 3.0 Spec Performance - Read Mode (Okay - browser dont hang)</a> 
-          <span class="gray descr"> The above spec pre-converted to OpenAPI 3</span>  
+          <a href="./tests/perf-v3-read.html">Large OpenAPI 3.0 Spec Performance - Read Mode (Okay - browser wont hang)</a> 
+          <span class="gray descr"> The above spec pre-converted to OpenAPI 3 - (read-mode renders everything in one large page, resulting into very large DOM, the user interactions like expand collapse are not much snappier)</span>  
         </td>
       </tr>
 
       <tr>
         <td class="mono-bold"> 
-          <a href="./tests/perf-v3-view.html">Large OpenAPI 3.0 Spec Performance - View Mode (Fastest)</a> 
-          <span class="gray descr"> The above spec pre-converted to OpenAPI 3 in view mode (Fast enough, wont make the browser hang)</span>  
+          <a href="./tests/perf-v3-view.html">Large OpenAPI 3.0 Spec Performance - View Mode (Fast)</a> 
+          <span class="gray descr"> view mode - Fast (initial load is quick and user interaction is snappy, DOM is a bit larger than focused mode but very small compared to read mode)</span>  
+        </td>
+      </tr>
+      <tr>
+        <td class="mono-bold"> 
+          <a href="./tests/perf-v3-focused.html">Large OpenAPI 3.0 Spec Performance - Focused Mode (Fastest)</a> 
+          <span class="gray descr"> focused mode - Fastest (focused mode loads only the section that user is viewing, resulting into a small DOM footprint and snappier interactions)</span>  
         </td>
       </tr>
     </table>

@@ -1,0 +1,103 @@
+<!doctype html>
+
+<head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-132775238-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132775238-1');
+  </script>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+  <meta name="description" content="RapiDoc is Web Component for viewing Swagger & OpenAPI Spec. Supports themes, styling and various rendering styles">
+  <meta name="keywords" content="RapiDoc, ReDoc, Swagger, SwaggerUI, Custom Element, async-api, Web Component, web-hooks, OpenAPI, REST, themes, dark mode, markdown, API documentation">
+
+  <link rel="shortcut icon" type="image/png" href="./images/logo.png"/>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./index.css">
+  <link rel="stylesheet" href="table.css">
+
+  <title>RapiDoc - Web Component based Swagger & OpenAPI Spec Viewer</title>
+  <style>
+    .m-table {
+      width:100%;
+    }
+    #main-img{
+      width:740px;
+    }
+    .container {
+      border:1px solid #aaa;
+      border-radius: 4px;
+      padding:2px;
+      margin:12px;
+      display:flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 1px 2.94px 0.06px rgba(4,26,55,0.16);
+    }
+  </style>
+</head>
+
+<body>
+  <div  class="banner" style="max-height:400px; overflow:hidden;">
+    <div class="topbar">
+      <div class="header">
+        <a class="menu-item" data-action="url" href="./index.html">
+          <img class="logo" src="./images/logo.png" style="width:36px;height:36px;margin-right:10px;" href="./index.html"/>
+        </a>
+        <div class="product-name">RapiDoc</div>
+        <div class="menu" style="flex:1"></div>
+        <nav class="menu" onclick="goToSection(event)">
+          <a class="menu-item" data-action="url" href="./index.html"> Home </a>
+          <a class="menu-item" data-action="url" href="./quickstart.html"> Quick Start </a>
+          <a class="menu-item" data-action="url" href="./examples.html"> Examples </a>
+          <a class="menu-item" data-action="url" href="./api.html"> API </a>
+          <a class="menu-item hide-in-mobile" data-action="url" href="https://github.com/mrin9/RapiDoc"> GitHub </a>
+        </nav>
+      </div>
+    </div>
+
+    <!--Waves Container-->
+    <div>
+      <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
+        <defs>
+          <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+        </defs>
+        <g class="parallax">
+          <use xlink:href="#gentle-wave" x="48" y="0" fill="rgba(255,255,255,0.7" />
+          <use xlink:href="#gentle-wave" x="48" y="3" fill="rgba(255,255,255,0.5)" />
+          <use xlink:href="#gentle-wave" x="48" y="7" fill="#fff" />
+        </g>
+      </svg>
+    </div>
+    <!--Waves end-->
+  </div>
+
+  <div style="display:flex; width:100%; flex-wrap:wrap; justify-content:center;">
+    <div class = "container shadow1" style="cursor: pointer;" onclick="window.location='./examples/branding-idea1.html';">
+      <img style="width:400px" src="./images/example-ss-brand1.png"/>
+    </div>
+    <div class = "container shadow1" style="cursor: pointer;" onclick="window.location='./examples/mix-html.html';" >
+      <img style="width:400px" src="./images/example-ss-brand2.png"/>
+    </div>
+
+    <div class = "container shadow1" style="cursor: pointer;" onclick="window.location='./examples/branding-nav1.html';">
+      <img style="width:400px" src="./images/example-ss-nav1.png"/>
+    </div>
+
+    <div class = "container shadow1" style="cursor: pointer;" onclick="window.location='./examples/branding-nav2.html';">
+      <img style="width:400px" src="./images/example-ss-nav2.png"/>
+    </div>
+
+  </div>
+</body>
+
+</html>

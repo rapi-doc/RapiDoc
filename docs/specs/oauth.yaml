@@ -145,7 +145,7 @@ components:
         clientCredentials:
           tokenUrl: https://bitbucket.org/site/oauth2/access_token
         implicit:
-          authorizationUrl: https://bitbucket.org/site/oauth2/authorize
+          authorizationUrl: https://bitbucket.org/site/oauth2/authorize?audience=abcd
           scopes:        
             repository:admin: Administer your repositories
             repository: Read your repositories

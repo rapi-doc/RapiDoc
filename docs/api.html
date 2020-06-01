@@ -90,14 +90,14 @@
           </tr>
           <tr>
             <td class="attr-col mono bold right">sort-tags </td>
-            <td class="gray"><span class='bold dark-gray'>Allowed:<span class='blue'> true, false</span></span> To list tags in alphabetic order, 
+            <td class="gray"><span class='bold dark-gray'>Allowed:<span class='blue'> true | false</span></span> To list tags in alphabetic order, 
               otherwise tags will be ordered based on how it is specified under the <span class = "mono blue bold">tags</span> section in the spec. 
             </td>
             <td class='default-col'>false</td>
           </tr>
           <tr>
             <td class="attr-col mono bold right">sort-endpoints-by </td>
-            <td class="gray"><span class='bold dark-gray'>Allowed:<span class='blue'> path, method</span></span> Sort endpoints within each tags by path or method </td>
+            <td class="gray"><span class='bold dark-gray'>Allowed:<span class='blue'> path | method</span></span> Sort endpoints within each tags by path or method </td>
             <td class='default-col'>path</td>
           </tr>
           <tr>
@@ -124,7 +124,7 @@
         <table class="m-table">
           <tr>
             <td class=" attr-col mono bold right">theme </td>
-            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> light, dark</span></span> 
+            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> light | dark</span></span> 
               <br/> Is the base theme, which is used for calculating colors for various UI components.
               'theme', 'bg-color' and 'text-color' are the base attributes for generating a custom theme
             </td>
@@ -177,7 +177,7 @@
 
           <tr>
             <td class="mono bold right">mono-font </td>
-            <td class="gray">Font Name(s) to be used for monospaced text </td>
+            <td class="gray">Font Name(s) to be used for mono-spaced text </td>
             <td class='small-font'>Monaco, 'Andale Mono', 'Roboto Mono', 'Consolas' monospace</td>
           </tr>
         </table>
@@ -190,6 +190,25 @@
             <td class="gray"> Navigation bar's background color </td>
             <td class='default-col'></td>
           </tr>          
+
+          <tr>
+            <td class=" attr-col mono bold right">nav-bg-image </td>
+            <td class="gray">URL of navigation bar's background image</td>
+            <td class='default-col'>(empty)</td>
+          </tr>          
+          <tr>
+            <td class=" attr-col mono bold right">nav-bg-image-size </td>
+            <td class="gray">navigation bar's background image size (same as css background-size property) allowed values are <br><span class='blue'>
+              auto | length | cover | contain | initial | inherit </span></td>
+            <td class='default-col'></td>
+          </tr>          
+          <tr>
+            <td class=" attr-col mono bold right">nav-bg-image-repeat </td>
+            <td class="gray"> navigation bar's background image repeat (same as css background-repeat property) allowed values are <br><span class='blue'>
+              repeat | repeat-x | repeat-y | no-repeat | initial | inherit </span> </td>
+            <td class='default-col'></td>
+          </tr>          
+
           <tr>
             <td class=" attr-col mono bold right">nav-text-color </td>
             <td class="gray"> Navigation bar's Text color </td>
@@ -212,7 +231,7 @@
           </tr> 
           <tr>
             <td class=" attr-col mono bold right">nav-item-spacing </td>
-            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> default, compact, relaxed</span></span> 
+            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> default | compact | relaxed</span></span> 
               Controls navigation item spacing 
             </td>
             <td class='default-col'>default</td>
@@ -225,7 +244,7 @@
         <table class="m-table">
           <tr>
             <td class="attr-col mono bold right"> layout </td>
-            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> row, column</span></span> 
+            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> row | column</span></span> 
               Layout helps in placement of request/response sections. In column layout, request & response sections are placed one below the other, 
               In row layout they are placed side by side. 
               This attribute is applicable only when the device width is more than 768px and the render-style  is 'view'.
@@ -234,15 +253,15 @@
           </tr>
           <tr>
             <td class="mono bold right">render-style </td>
-            <td class="gray"><span class='bold dark-gray'>Allowed:<span class='blue'> read, view</span></span> - 
+            <td class="gray"><span class='bold dark-gray'>Allowed:<span class='blue'> read | view</span></span> - 
               determines display of api-docs. Currently there are two modes supported. 
-              'read' - more suitable for reading and 'view' more frendly for quick exploring 
+              'read' - more suitable for reading and 'view' more friendly for quick exploring 
             </td>
             <td>view</td>
           </tr>
           <tr>
             <td class="mono bold right">schema-style </td>
-            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> tree, table</span></span> - 
+            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> tree | table</span></span> - 
               Two different ways to display object-schemas in the responses and request bodies 
             </td>
             <td>tree</td>
@@ -250,13 +269,13 @@
           <tr>
             <td class="mono bold right">schema-expand-level </td>
             <td class="gray">
-              Schema's are expanded by default, use this attribute to controll how many levels in the schema should be expanded
+              Schemas are expanded by default, use this attribute to control how many levels in the schema should be expanded
             </td>
             <td>999</td>
           </tr>
           <tr>
             <td class="mono bold right">schema-description-expanded </td>
-            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> true, false</span></span> - 
+            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> true | false</span></span> - 
               Constraint and descriptions information of fields in the schema are collapsed to show only the first line. 
               Set it to true if you want them to fully expanded 
             </td>
@@ -265,7 +284,7 @@
           <tr>
             <td class="mono bold right">default-schema-tab</td>
             <td class="gray">
-              <span class='bold dark-gray'>Allowed:<span class='blue'> model, example</span></span> -
+              <span class='bold dark-gray'>Allowed:<span class='blue'> model | example</span></span> -
               The schemas are displayed in two tabs - Model and Example. 
               This option allows you to pick the default tab that you would like to be active
             </td>
@@ -318,7 +337,7 @@
           <tr>
             <td class="mono bold right">show-header </td>
             <td class="gray">show/hide the header.<br/> 
-              If you dont want your user to open any other api spec, other than the current one, then set this attribute to false</td>
+              If you do not want your user to open any other api spec, other than the current one, then set this attribute to false</td>
             <td class='default-col'> true</td>
           </tr>
           <tr>
@@ -326,7 +345,7 @@
             <td class="gray">
               Authentication feature, allows the user to select one of the authentication mechanism thats available in the spec.
               It can be http-basic, http-bearer or api-key. 
-              If you dont want your users to go through the authentication process, instead want them to use a pre-generated api-key 
+              If you do not want your users to go through the authentication process, instead want them to use a pre-generated api-key 
               then you may hide authentication section by setting this attribute to false
               and provide the api-key details using various api-key-???? attributes.</td>
             <td>true</td>
@@ -384,7 +403,7 @@
             <td class="mono bold right">api-key-value</td>
             <td class="gray">
               Value of the API key that will be send while trying out the APIs. 
-              This can also be provided/overwritted from UI.
+              This can also be provided/overwritten from UI.
             </td>
             <td>(empty)</td>
           </tr>
@@ -412,7 +431,7 @@
               If you have multiple api-server listed in the spec, use this attribute to select the default API server, where all the API calls will goto.
               This can be changed later from the UI
             </td>
-            <td>(Empty)</td>
+            <td>(empty)</td>
           </tr>
         </table>
 
@@ -429,7 +448,7 @@
           </tr>
           <tr>
             <td class="mono bold right">loadSpec() </td>
-            <td class="gray">To programatically load spec. The method takes  
+            <td class="gray">To programmatically load spec. The method takes  
               <ul>
                 <li> either a string containing the url of the specs</li>  
                 <li> or a JSON object representing a valid spec</li>  
@@ -440,9 +459,9 @@
           <tr>
             <td class="mono bold right">scrollTo(path) </td>
             <td class="gray" colspan="2">
-              To programatically scroll to a section (identified by combination method and path). 
+              To programmatically scroll to a section (identified by combination method and path). 
               <br/>
-              <span class='mono blue'>path</span> shoud be provided in the format of {method}-{path}
+              <span class='mono blue'>path</span> should be provided in the format of {method}-{path}
               for instance you want to scrollTo <span class = "mono">GET /user/login</span> 
               you should provide the location as <span class="dark-gray"> get-/user/login</span>
             </td>
@@ -463,7 +482,7 @@
             <td class="gray">
               called after the spec is parsed, and rendered. Provides you with a object representing the spec.
 
-<pre class="shadow code-block" style="width:550px"><code class="html">&lt;rapi-doc 
+<pre class="shadow1 code-block" style="width:550px"><code class="html">&lt;rapi-doc 
   id = "doc"
   spec-url = "https://petstore.swagger.io/v2/swagger.json"
 &gt; 
@@ -472,7 +491,7 @@
 <br/>
 
 This is how you can listen to the event.
-<pre class="shadow code-block" style="width:550px"><code class="html">el = document.getElementById("doc");
+<pre class="shadow1 code-block" style="width:550px"><code class="html">el = document.getElementById("doc");
 el.addEventListener('spec-loaded', e => console.log(e.detail));
 </code></pre>
 <br/>
@@ -482,7 +501,7 @@ el.addEventListener('spec-loaded', e => console.log(e.detail));
       </div>
 
       <a id="slots"></a>
-      <h2> Slots</h2>`
+      <h2> Slots</h2>
       <div class="table-block">
         <table class="m-table">
           <tr>
@@ -491,7 +510,7 @@ el.addEventListener('spec-loaded', e => console.log(e.detail));
           </tr>
           <tr>
             <td class="mono bold right">(default)</td>
-            <td class="gray">any content placed inside <code>&lt;rapi-doc&gt;</code> tag, will be shown immidiately under the header and above the info section </td>
+            <td class="gray">any content placed inside <code>&lt;rapi-doc&gt;</code> tag, will be shown immediately under the header and above the info section </td>
           </tr>
           <tr>
             <td class="mono bold right">logo</td>

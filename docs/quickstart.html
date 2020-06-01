@@ -81,6 +81,7 @@
   <div class="flex-col">
     <h2> Vanila HTML</h2>  
     Just copy the below code and save it in an html file. Then open it using a browser (you do not need any server)
+    <a href="https://codesandbox.io/s/vanilla-js-template-98gc2?file=/index.html"> https://codesandbox.io/s/vanilla-js-template-98gc2?file=/index.html </a>
 <pre class="shadow code-block"><code class="html" style="border-radius:4px">&lt;!doctype html&gt; &lt;!-- Important: must specify --&gt;
 &lt;html&gt;
 &lt;head&gt;
@@ -109,6 +110,7 @@
 <img src="./images/divider1.png" style="width:300px">
 
 <h3> Usage in React</h3>
+<a href="https://codesandbox.io/s/upbeat-sea-4tfo7?file=/src/App.js"> https://codesandbox.io/s/upbeat-sea-4tfo7?file=/src/App.js </a>
 <pre class="shadow code-block" ><code class="js" style="border-radius:4px">
   import React, { Component } from 'react';
   import 'rapidoc'; // <-- import rapidoc
@@ -118,6 +120,7 @@
       return &lt;rapi-doc 
         spec-url = "https://petstore.swagger.io/v2/swagger.json" 
         render-style = "read"
+        style = {{ height: "100vh", width: "100%" }}
       &gt;
       &lt;/rapi-doc&gt;
     }
@@ -127,21 +130,19 @@
 <img src="./images/divider1.png" style="width:300px">
 
 <h3> Usage in Vue (Single File Component)</h3>
+<a href="https://codesandbox.io/s/nostalgic-sky-jlts7?file=/src/App.vue"> https://codesandbox.io/s/nostalgic-sky-jlts7?file=/src/App.vue </a>
+
 <pre class="shadow code-block" ><code class="js" style="border-radius:4px">
   &lt;template&gt;
-    &lt;rapi-doc :spec-url = "mySpecUrl" render-style = "read" &gt; &lt;/rapi-doc&gt;
+    &lt;rapi-doc 
+      spec-url = "https://petstore.swagger.io/v2/swagger.json" 
+      render-style = "read" 
+      style = "height:100vh; width:100%"
+    &gt; &lt;/rapi-doc&gt;
   &lt;/template&gt;
 
   &lt;script&gt;
-    import 'rapidoc';  // <-- import rapidoc
-
-    export default {
-      data() {
-        return {
-          mySpecUrl : 'https://petstore.swagger.io/v2/swagger.json'
-        };
-      },
-    };
+    import 'rapidoc';
   &lt;/script&gt;
 </code></pre>
 <br/>
