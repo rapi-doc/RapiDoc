@@ -39,7 +39,7 @@ function onClearAllApiKeys() {
 // Updates the OAuth Access Token (API key), so it reflects in UI and gets used in TRY calls
 function updateOAuthKey(apiKeyId, tokenType = 'Bearer', accessToken) {
   const securityObj = this.resolvedSpec.securitySchemes.find((v) => (v.apiKeyId === apiKeyId));
-  securityObj.finalKeyValue = `${tokenType} ${accessToken}`;
+  securityObj.finalKeyValue = `${(tokenType.toLowerCase() === 'bearer' ? 'Bearer' : (tokenType.toLowerCase() === 'mac' ? 'MAC' : tokenType))} ${accessToken}`;
   this.requestUpdate();
 }
 
