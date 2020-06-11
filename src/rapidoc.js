@@ -124,12 +124,12 @@ export default class RapiDoc extends LitElement {
         --font-mono:${unsafeCSS(this.monoFont || 'Monaco, "Andale Mono", "Roboto Mono", Consolas, monospace')}; 
         --font-regular:${unsafeCSS(this.regularFont || 'rapidoc, "Open Sans", BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif')};
 
+        --font-size-small: 12px;
         --font-size-mono: 13px;
         --font-size-regular: 14px;
-        --font-size-small: 12px;
         --border-radius: 2px;
         --resp-area-height: ${unsafeCSS(this.responseAreaHeight)};
-        --nav-item-padding: ${unsafeCSS(this.navItemSpacing === 'relaxed' ? '10px' : this.navItemSpacing === 'compact' ? '3px 10px' : '6px 10px')};
+        --nav-item-padding: ${unsafeCSS(this.navItemSpacing === 'relaxed' ? '10px' : this.navItemSpacing === 'compact' ? '5px 10px' : '7px 10px')};
 
         display:flex;
         flex-direction: column;
@@ -327,7 +327,7 @@ export default class RapiDoc extends LitElement {
 
       @media only screen and (min-width: 1000px) {
         .nav-bar {
-          width: 280px;
+          width: 300px;
           display:flex;
         }
         .section-gap--focused-mode { 
