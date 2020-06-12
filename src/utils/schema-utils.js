@@ -249,8 +249,6 @@ export function schemaToSampleObj(schema, config = { }) {
 
         if (schema.example) {
           obj[key] = schema.example;
-        } else if (schema.examples && schema.example.length > 0) {
-          obj[key] = schema.examples[0];
         } else {
           obj[key] = schemaToSampleObj(schema.properties[key], config);
         }
@@ -268,7 +266,7 @@ export function schemaToSampleObj(schema, config = { }) {
       if (schema.properties[key].readOnly && !config.includeReadOnly) { continue; }
       if (schema.properties[key].writeOnly && !config.includeWriteOnly) { continue; }
       if (schema.properties[key].type === 'array' || schema.properties[key].items) {
-        if (schema.properties[key].items.example) {
+        if (schema.properties[key]?.items?.example) { // schemas and properties support single example but not multiple examples.
           obj[key] = [schema.properties[key].items.example];
         } else {
           obj[key] = [schemaToSampleObj(schema.properties[key].items, config)];
@@ -278,9 +276,6 @@ export function schemaToSampleObj(schema, config = { }) {
       if (schema.example) {
         obj[key] = schema.example;
         break;
-      } else if (schema.examples && schema.example.length > 0) {
-        obj[key] = schema.examples[0];
-        break;
       } else {
         obj[key] = schemaToSampleObj(schema.properties[key], config);
       }
@@ -288,8 +283,8 @@ export function schemaToSampleObj(schema, config = { }) {
   } else if (schema.type === 'array' || schema.items) {
     if (schema.example) {
       obj = schema.example;
-    } else if (schema.examples && schema.example.length > 0) {
-      obj = schema.examples[0];
+    } else if (schema.items?.example) { // schemas and properties support single example but not multiple examples.
+      obj = [schema.items.example];
     } else {
       obj = [schemaToSampleObj(schema.items, config)];
     }
