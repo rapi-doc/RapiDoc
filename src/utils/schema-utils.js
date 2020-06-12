@@ -263,10 +263,18 @@ export function schemaToSampleObj(schema, config = { }) {
     }
   } else if (schema.type === 'object' || schema.properties) {
     for (const key in schema.properties) {
+      // console.log(schema.properties[key]);
       if (schema.properties[key].deprecated && !config.includeDeprecated) { continue; }
       if (schema.properties[key].readOnly && !config.includeReadOnly) { continue; }
       if (schema.properties[key].writeOnly && !config.includeWriteOnly) { continue; }
-
+      if (schema.properties[key].type === 'array' || schema.properties[key].items) {
+        if (schema.properties[key].items.example) {
+          obj[key] = [schema.properties[key].items.example];
+        } else {
+          obj[key] = [schemaToSampleObj(schema.properties[key].items, config)];
+        }
+        break;
+      }
       if (schema.example) {
         obj[key] = schema.example;
         break;

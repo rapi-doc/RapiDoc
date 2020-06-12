@@ -31,7 +31,6 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
       convertedSpec = await converter.convertObj(specObj.spec, convertOptions);
       jsonParsedSpec = convertedSpec.openapi;
     }
-
     /*
       // JsonRefs cant load yaml files, so first use converter
       if (typeof specUrl === 'string') {
