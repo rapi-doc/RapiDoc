@@ -392,10 +392,14 @@
   <div style="display:flex; flex-direction: column; margin:20px 32px">
     <table class="m-table">
       <tr> <th style="text-align:left">List of Test cases</th></tr>
-
       <tr>
         <td class="mono-bold">
           <a href="./examples/data-types.html"> Data types </a>
+        </td>
+      </tr>
+      <tr>
+        <td class="mono-bold">
+          <a href="./examples/example-with-nested-refs.html"> Provide Examples with nested refs </a>
         </td>
       </tr>
       <tr>
@@ -419,32 +423,6 @@
         <a href="./tests/xxx-of-recursive.html"> Various cases </a>
         <span class="gray descr"> Spec containing one-of, all-of with primitive types, recursive models and readonly-attributes  </span>
       </td></tr>
-
-      <tr>
-        <td class="mono-bold"> 
-          <a href="./tests/perf-v2.html"> Large Swagger 2.0 Spec Performance (Bad - browser may become unresponsive ) </a> 
-          <span class="gray descr"> Most of the time is taken by swagger 2 to OpenAPI conversion</span>  
-        </td>
-      </tr>
-      <tr>
-        <td class="mono-bold"> 
-          <a href="./tests/perf-v3-read.html">Large OpenAPI 3.0 Spec Performance - Read Mode (Okay - browser wont hang)</a> 
-          <span class="gray descr"> The above spec pre-converted to OpenAPI 3 - (read-mode renders everything in one large page, resulting into very large DOM, the user interactions like expand collapse are not much snappier)</span>  
-        </td>
-      </tr>
-
-      <tr>
-        <td class="mono-bold"> 
-          <a href="./tests/perf-v3-view.html">Large OpenAPI 3.0 Spec Performance - View Mode (Fast)</a> 
-          <span class="gray descr"> view mode - Fast (initial load is quick and user interaction is snappy, DOM is a bit larger than focused mode but very small compared to read mode)</span>  
-        </td>
-      </tr>
-      <tr>
-        <td class="mono-bold"> 
-          <a href="./tests/perf-v3-focused.html">Large OpenAPI 3.0 Spec Performance - Focused Mode (Fastest)</a> 
-          <span class="gray descr"> focused mode - Fastest (focused mode loads only the section that user is viewing, resulting into a small DOM footprint and snappier interactions)</span>  
-        </td>
-      </tr>
     </table>
   </div>
 </body>
