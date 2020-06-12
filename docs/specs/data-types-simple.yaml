@@ -92,26 +92,16 @@ tags:
     description: Person Datatype
 components:
   schemas:
-    Category:
-      type: object
-      properties:
-        id:
-          description: Category ID
-          allOf:
-            - $ref: '#/components/schemas/Id'
-        name:
-          description: Category name
-          type: string
-          minLength: 1
-    Id:
-      type: integer
-      format: int64
-      readOnly: true
     Person:
       type: object
       required:
         - name
         - photoUrls
+      example:
+        name: 'account-name'
+        type: StandardBankAccount
+        url: 'https://api.freeagent.com/v2/bank_accounts/4093'
+        current_balance: 28742
       properties:
         id:
           description: Pet ID
@@ -162,6 +152,22 @@ components:
           pattern: '/^\+(?:[0-9]-?){6,14}[0-9]$/'
           example: +1-202-555-0192
           nullable: true
+
+    Category:
+      type: object
+      properties:
+        id:
+          description: Category ID
+          allOf:
+            - $ref: '#/components/schemas/Id'
+        name:
+          description: Category name
+          type: string
+          minLength: 1
+    Id:
+      type: integer
+      format: int64
+      readOnly: true
     Tag:
       type: object
       properties:

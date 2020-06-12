@@ -125,14 +125,37 @@ paths:
                         type: string
               example: |
                 {
-                  person: {
-                    fullName: {
-                      firstName: Donald,
-                      lastName: Duck
-                    },
-                    age: 10
+                  age: 10,
+                  fullName: {
+                    firstName: Donald,
+                    lastName: Duck
                   }
                 }
+  /example-with-array-1:
+    get:
+      summary: Single Example at schema Level
+      tags:
+        - Providing Examples
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArrayOfInt-1"
+  /example-with-array-2:
+    get:
+      summary: Single Example at schema Level
+      tags:
+        - Providing Examples
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArrayOfInt-2"
+
   /object-example-for-a-schema:
     get:
       summary: Single example having invalid JSON, under a Schema
@@ -181,8 +204,19 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/currencies"
-                  
-  /per-field-example:
+  /example-with-simple-object:
+    get:
+      summary: Single Example of Type Array Under a Schema
+      tags:
+        - Providing Examples
+      responses:
+        '200':
+          description: An array of currency codes
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PersonObject"
+  /per-field-example-with-root-as-object:
     get:
       summary: Field Level example
       tags:
@@ -211,6 +245,42 @@ paths:
                         description: Last name
                         type: string
                         example: 'Duck'
+                  dependents:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        dependentName:
+                          type: string
+                        relation:
+                          type: string
+                        age:
+                          type: number
+  /per-field-example-with-root-as-array:
+    get:
+      summary: Field Level example
+      tags:
+        - Providing Examples
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    dependentName:
+                      type: string
+                    relation:
+                      type: string
+                    age:
+                      type: number
+                  example:
+                    dependentName: Natasha
+                    relation: wife
+                    age: 28    
   /example-with-refs:
     get:
       summary: When a Schema definition is provided as a ref (provide the example at schema-level)
@@ -237,8 +307,8 @@ paths:
                   description: Cost in `Indian Rupees`
                   value: |
                     {
-                      amount: 10,
-                      currency: USD
+                      amount: 700,
+                      currency: INR
                     }
   /multiple-example-in-request-body:
     post:
@@ -295,3 +365,25 @@ components:
           evaluationDate: '2017-07-21T17:32:28Z'
         - currencyCode: INR
           evaluationDate: '2017-07-21T17:32:28Z'
+    ArrayOfInt-1:
+      type: array
+      items:
+        type: integer
+        format: int64
+      example: [1, 2, 3]
+    ArrayOfInt-2:
+      type: array
+      items:
+        type: integer
+        format: int64
+        example: 1
+    PersonObject:
+      type: object
+      properties:
+        name:
+          type: string
+        age:
+          type: integer
+      example:
+        name: name-1
+        age: 1
