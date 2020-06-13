@@ -15,36 +15,29 @@
     <script type='text/javascript' src='../rapidoc-min.js'></script>
   </head>
   <body>
-    <rapi-doc spec-url="../specs/schema.yaml"
+    <rapi-doc spec-url="../specs/petstore_extended.yaml"
       id = "thedoc"
-      allow-authentication = "false" 
-      allow-search = "false"
-      show-info = "false"
       show-header = "false"
       render-style = "read"
-      allow-try = "false" 
       regular-font = 'Open Sans'
-      theme = "dark"
-      schema-style='table'
+      theme = 'light'
+      bg-color = '#ecf1f7'
+      text-color = '#133863'
+      nav-bg-color = '#3f4d67'
+      nav-text-color = '#a9b7d0'
+      nav-hover-bg-color = '#333f54'
+      nav-hover-text-color = '#fff'
+      nav-accent-color = '#f44236'
+      primary-color = '#5c7096'
     > 
       <div slot="nav-logo">
-
         <div slot="nav-logo" style="width:100%; display: flex; flex-direction:column;">
-
-          <div style="text-align: center; padding: 0 0 12px 0; color:#47AFE8"> Schema Display Style </div>
-          <div style="display: flex;justify-content: center; margin: 2px 0">
-            <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('schema-style', 'tree')" >Tree</button>
-            <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('schema-style', 'table')" >Table</button>
-          </div>
-
           <div style="text-align: center; padding: 20px 0 12px 0; color:#47AFE8"> Font Size </div>
-          <div style="display: flex;justify-content: center; margin: 2px 0"">
+          <div style="display: flex;justify-content: center; margin: 2px 0">
             <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('font-size', 'default')" >Default</button>
             <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('font-size', 'large')" >Large</button>
             <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('font-size', 'largest')" >Largest</button>
           </div>
-        </div>
-  
         </div>
       </div>
   </rapi-doc>
