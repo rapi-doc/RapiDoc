@@ -187,6 +187,17 @@ export default function setTheme(baseTheme, theme = {}) {
   }
   return html`<style>
     :host {
+    /* Common Styles - irrespective of themes */  
+    --layout: ${this.layout || 'row'};
+    --font-mono: ${this.monoFont || 'Monaco, "Andale Mono", "Roboto Mono", Consolas, monospace'};
+    --font-regular: ${this.regularFont || 'rapidoc, "Open Sans", BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif'};
+    --nav-item-padding: ${this.navItemSpacing === 'relaxed' ? '10px' : (this.navItemSpacing === 'compact' ? '5px 10px' : '7px 10px')};
+    --resp-area-height: ${this.responseAreaHeight};
+    --font-size-small:  ${this.fontSize === 'default' ? '12px' : (this.fontSize === 'large' ? '13px' : '14px')};
+    --font-size-mono:   ${this.fontSize === 'default' ? '13px' : (this.fontSize === 'large' ? '14px' : '15px')};
+    --font-size-regular: ${this.fontSize === 'default' ? '14px' : (this.fontSize === 'large' ? '15px' : '16px')};
+
+    /* Theme specific styles */  
     --bg:${newTheme.bg1};
     --bg2:${newTheme.bg2};
     --bg3:${newTheme.bg3};

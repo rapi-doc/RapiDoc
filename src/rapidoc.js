@@ -84,6 +84,7 @@ export default class RapiDoc extends LitElement {
       textColor: { type: String, attribute: 'text-color' },
       headerColor: { type: String, attribute: 'header-color' },
       primaryColor: { type: String, attribute: 'primary-color' },
+      fontSize: { type: String, attribute: 'font-size' },
       regularFont: { type: String, attribute: 'regular-font' },
       monoFont: { type: String, attribute: 'mono-font' },
 
@@ -120,16 +121,7 @@ export default class RapiDoc extends LitElement {
       NavStyles,
       css`
       :host {
-        --layout:${unsafeCSS(this.layout || 'row')};
-        --font-mono:${unsafeCSS(this.monoFont || 'Monaco, "Andale Mono", "Roboto Mono", Consolas, monospace')}; 
-        --font-regular:${unsafeCSS(this.regularFont || 'rapidoc, "Open Sans", BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif')};
-
-        --font-size-small: 12px;
-        --font-size-mono: 13px;
-        --font-size-regular: 14px;
         --border-radius: 2px;
-        --resp-area-height: ${unsafeCSS(this.responseAreaHeight)};
-        --nav-item-padding: ${unsafeCSS(this.navItemSpacing === 'relaxed' ? '10px' : this.navItemSpacing === 'compact' ? '5px 10px' : '7px 10px')};
 
         display:flex;
         flex-direction: column;
@@ -327,7 +319,7 @@ export default class RapiDoc extends LitElement {
 
       @media only screen and (min-width: 1000px) {
         .nav-bar {
-          width: 300px;
+          width: ${unsafeCSS(this.fontSize === 'default' ? '300px' : this.fontSize === 'large' ? '315px' : '330px')};
           display:flex;
         }
         .section-gap--focused-mode { 
@@ -359,6 +351,7 @@ export default class RapiDoc extends LitElement {
     if (!this.sortTags || !'true, false,'.includes(`${this.sortTags},`)) { this.sortTags = 'false'; }
     if (!this.sortEndpointsBy || !'method, path,'.includes(`${this.sortEndpointsBy},`)) { this.sortEndpointsBy = 'path'; }
     if (!this.navItemSpacing || !'compact, relaxed, default,'.includes(`${this.navItemSpacing},`)) { this.navItemSpacing = 'default'; }
+    if (!this.fontSize || !'default, large, largest,'.includes(`${this.fontSize},`)) { this.fontSize = 'default'; }
 
     if (!this.showInfo || !'true, false,'.includes(`${this.showInfo},`)) { this.showInfo = 'true'; }
     if (!this.showComponents || !'true false'.includes(this.showComponents)) { this.showComponents = 'false'; }

@@ -45,12 +45,12 @@ export default css`
 }
 
 .xxx-of-key {
-  font-size:10px; 
+  font-size: calc(var(--font-size-small) - 2px); 
   font-weight:bold; 
   background-color:var(--primary-color); 
   color:var(--primary-color-invert); 
   border-radius:2px;
-  line-height:18px;
+  line-height:calc(var(--font-size-small) + 6px);
   padding:0px 5px; 
   margin-bottom:1px; 
   display:inline-block;

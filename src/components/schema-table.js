@@ -25,9 +25,9 @@ export default class SchemaTable extends LitElement {
       SchemaStyles,
       css`
       .table {
-        font-size:var(--font-size-small);
+        font-size: var(--font-size-small);
         text-align: left;
-        line-height:18px;
+        line-height: calc(var(--font-size-small) + 6px);
       }
       .table .tr {
         width: calc(100% - 5px);
@@ -46,10 +46,10 @@ export default class SchemaTable extends LitElement {
       }
 
       .collapsed-descr .tr {
-        max-height:26px;
+        max-height: calc(var(--font-size-small) + 14px);
       }
       .collapsed-descr .m-markdown-small p {
-        line-height:26px;
+        line-height: calc(var(--font-size-small) + 14px);
       }
 
       .obj-toggle {
@@ -60,7 +60,7 @@ export default class SchemaTable extends LitElement {
         margin-left: -16px;
         color:var(--primary-color);
         cursor:pointer;
-        font-size: 16px;
+        font-size: calc(var(--font-size-small) + 4px);
         font-family: var(--font-mono);
         background-clip: border-box;
       }
@@ -86,22 +86,25 @@ export default class SchemaTable extends LitElement {
             ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'}
           </div>
         </div>
-
-        <div style='padding: 5px 0; color:var(--fg3)'> 
-          <span class='bold-text upper'> ${this.data['::type']}</span> 
-          <span class='m-markdown' >${unsafeHTML(marked(this.data['::description'] || ''))}</span>
-        </div>
-        <div style = "border:1px solid var(--light-border-color)">
-          <div style='display:flex; height:18px; background-color: var(--bg2); line-height:18px; padding:8px 2px; border-bottom:1px solid var(--light-border-color);'>
-            <div class='td key' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg)'> Field</div>
-            <div class='td key-type' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg)'> Type </div>
-            <div class='td key-descr' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg)'>Description</div>
-          </div>  
-          ${this.generateTree(
-            this.data['::type'] === 'array' ? this.data['::props'] : this.data,
-            this.data['::type'],
-          )}
-        </div>  
+          <div style='padding: 5px 0; color:var(--fg3)'> 
+            <span class='bold-text upper'> ${this.data ? this.data['::type'] : ''}</span> 
+            <span class='m-markdown' >${this.data ? unsafeHTML(marked(this.data['::description'] || '')) : ''}</span>
+          </div>
+          <div style = "border:1px solid var(--light-border-color)">
+            <div style='display:flex; height:calc(var(--font-size-small) + 6px); background-color: var(--bg2); line-height:calc(var(--font-size-small) + 6px); padding:8px 2px; border-bottom:1px solid var(--light-border-color);'>
+              <div class='td key' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg)'> Field</div>
+              <div class='td key-type' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg)'> Type </div>
+              <div class='td key-descr' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg)'>Description</div>
+            </div>
+            ${this.data
+              ? html`
+                ${this.generateTree(
+                  this.data['::type'] === 'array' ? this.data['::props'] : this.data,
+                  this.data['::type'],
+                )}`
+              : ''
+            }  
+          </div>
       </div>  
     `;
   }

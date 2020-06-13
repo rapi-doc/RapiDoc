@@ -98,12 +98,12 @@ export default css`
 .method{
   padding:2px 5px;
   vertical-align: middle;
-  height: 20px;
-  line-height: 20px;
+  font-size:var(--font-size-small);
+  height: calc(var(--font-size-small) + 8px);
+  line-height: calc(var(--font-size-small) + 8px);
   min-width: 48px;
   border-radius: 2px;
   display:inline-block;
-  font-size:var(--font-size-small);
   text-align: center;
   font-weight: bold;
   text-transform:uppercase;

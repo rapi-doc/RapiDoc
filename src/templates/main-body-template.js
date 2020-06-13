@@ -66,9 +66,8 @@ export default function mainBodyTemplate() {
     navAccentColor: isValidHexColor(this.navAccentColor) ? this.navAccentColor : '',
   };
 
-
   return html`
-    ${this.theme === 'dark' ? SetTheme('dark', newTheme) : SetTheme('light', newTheme)}
+    ${this.theme === 'dark' ? SetTheme.call(this, 'dark', newTheme) : SetTheme.call(this, 'light', newTheme)}
 
     <!-- Header -->
     ${this.showHeader === 'false' ? '' : headerTemplate.call(this)}

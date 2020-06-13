@@ -111,7 +111,7 @@ input[type="file"]{
   padding:2px;
   cursor:pointer;
   border: 1px solid var(--primary-color);
-  min-height: 30px;
+  min-height: calc(var(--font-size-small) + 18px);
 }
 input[type="file"]::-webkit-file-upload-button {
   font-family: var(--font-regular);
@@ -132,7 +132,7 @@ textarea::-webkit-scrollbar-track{
 }
 
 pre::-webkit-scrollbar,
-textarea::-webkit-scrollbar{
+textarea::-webkit-scrollbar {
   width: 8px;
   height: 8px;
   background-color: transparent;

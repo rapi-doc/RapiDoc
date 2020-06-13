@@ -16,7 +16,7 @@ export default css`
 .m-table td, 
 .m-table th{
   font-size: var(--font-size-small);
-  line-height: 16px;
+  line-height: calc(var(--font-size-small) + 4px);
   padding: 4px 5px 4px;
   text-align: left;
   vertical-align: top;
@@ -25,7 +25,7 @@ export default css`
 .m-table th {
   color: var(--fg3);
   font-size: var(--font-size-small);
-  line-height:30px;
+  line-height: calc(var(--font-size-small) + 18px);
   font-weight: 600;
   letter-spacing: normal;
   background-color: var(--bg2);

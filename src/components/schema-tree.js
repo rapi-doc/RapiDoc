@@ -30,19 +30,16 @@ export default class SchemaTree extends LitElement {
       .tree {
         font-size:var(--font-size-small);
         text-align: left;
-        line-height:18px;
+        line-height:calc(var(--font-size-small) + 6px);
       }
       .tree .tr:hover{
         background-color:var(--hover-color);
       }
       .collapsed-descr .tr {
-        max-height:20px;
-      }
-      .collapsed-descr .tr {
-        max-height:20px;
+        max-height:calc(var(--font-size-small) + 8px);
       }
       .collapsed-descr .m-markdown-small p {
-        line-height:18px;
+        line-height:calc(var(--font-size-small) + 6px);
       }
 
       .tree .key {

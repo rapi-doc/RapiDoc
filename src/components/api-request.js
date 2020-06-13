@@ -73,10 +73,10 @@ export default class ApiRequest extends LitElement {
           margin-top:24px;
         }
         .param-name,
-        .param-type{
+        .param-type {
           margin: 1px 0;
           text-align: right;
-          line-height: 12px;
+          line-height: var(--font-size-small);
         }
         .param-name{
           color: var(--fg); 

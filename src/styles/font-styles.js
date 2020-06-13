@@ -5,20 +5,29 @@ export default css`
     background: var(--selection-bg);
     color: var(--selection-fg);
   }
-  .regular-font{ font-family:var(--font-regular); }
-  .mono-font{ font-family:var(--font-mono); }
-  .title{ font-size: 30px;font-weight:normal }
+  .regular-font{ 
+    font-family:var(--font-regular); 
+  }
+  .mono-font { 
+    font-family:var(--font-mono); 
+  }
+  .title { 
+    font-size: calc(var(--font-size-small) + 18px);
+    font-weight: normal 
+  }
   .sub-title{ font-size: 20px;}
   .req-res-title {
-    font-family:var(--font-regular);
-    font-size:16px;
+    font-family: var(--font-regular);
+    font-size: calc(var(--font-size-small) + 4px);
     font-weight:bold;
     margin-bottom:8px;
   }
-  
-  .tiny-title { font-size:calc(var(--font-size-small) + 1px); font-weight:bold; }
-  .regular-font-size { font-size:var(--font-size-regular); }
-  .small-font-size { font-size:var(--font-size-small); }
+  .tiny-title { 
+    font-size:calc(var(--font-size-small) + 1px); 
+    font-weight:bold; 
+  }
+  .regular-font-size { font-size: var(--font-size-regular); }
+  .small-font-size { font-size: var(--font-size-small); }
   .upper { text-transform: uppercase; }
   .primary-text{ color: var(--primary-color); }
   .bold-text { font-weight:bold; }
@@ -61,26 +70,26 @@ export default css`
   }
 
   .m-markdown p,
-  .m-markdown span{
-    line-height:22px;
-    font-size:calc(var(--font-size-regular));
+  .m-markdown span {
+    line-height:calc(var(--font-size-regular) + 8px);
+    font-size: var(--font-size-regular);
   }
   .m-markdown code span{
-    font-size:calc(var(--font-size-mono));
+    font-size:var(--font-size-mono);
   }
   
   .m-markdown li{
-    line-height:22px;
+    line-height:calc(var(--font-size-regular) + 8px);
     font-size:calc(var(--font-size-regular) - 1px);
   }
 
   .m-markdown-small p,
   .m-markdown-small span,
   .m-markdown-small li{
-    color:var(--light-fg);
-    font-size:var(--font-size-small);
-    line-height:18px;
-    margin-top:0;
+    color: var(--light-fg);
+    font-size: var(--font-size-small);
+    line-height: calc(var(--font-size-small) + 6px);
+    margin-top: 0;
   }
   
   .m-markdown-small p:not(:first-child),
@@ -104,7 +113,7 @@ export default css`
     color: var(--inline-code-fg);
     background-color: var(--bg3);
     font-size: calc(var(--font-size-mono));
-    line-height: var(--font-mono-line-height);
+    line-height: 1.2;
   }
 
   .m-markdown-small code {
@@ -178,7 +187,7 @@ export default css`
   .m-markdown td, 
   .m-markdown th{
     font-size: var(--font-size-small);
-    line-height: 16px;
+    line-height: calc(var(--font-size-small) + 4px);
     padding: 6px;
     vertical-align: top;
   }

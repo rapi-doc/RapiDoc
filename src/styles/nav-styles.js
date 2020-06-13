@@ -12,7 +12,7 @@ export default css`
   background-repeat: var(--nav-bg-image-repeat, 'no-repeat');
   background-blend-mode: multiply;
   box-sizing:border-box;
-  line-height: 16px;
+  line-height: calc(var(--font-size-small) + 4px);
   display:none;
   position:relative;
   flex-direction:column;
