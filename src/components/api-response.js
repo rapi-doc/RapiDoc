@@ -197,7 +197,7 @@ export default class ApiResponse extends LitElement {
               ${v.schema.type ? v.schema.type : ''}
             </td> 
             <td style="vertical-align: top;">
-              <div class="m-markdown-small">${unsafeHTML(marked(v.description || ''))}</div>
+              <div class="m-markdown regular-font" style="margin-top:-7px">${unsafeHTML(marked(v.description || ''))}</div>
             </td>
             <td style="vertical-align: top;">
               ${v.schema.example ? v.schema.example : ''}
