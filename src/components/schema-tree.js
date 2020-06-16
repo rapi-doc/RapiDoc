@@ -9,7 +9,6 @@ export default class SchemaTree extends LitElement {
   static get properties() {
     return {
       data: { type: Object },
-      renderStyle: { type: String, attribute: 'render-style' },
       schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
       schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
     };

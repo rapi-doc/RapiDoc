@@ -403,7 +403,7 @@ export default class ApiRequest extends LitElement {
                     spellcheck = "false"
                     data-ptype = "${reqBody.mimeType}" 
                     style="width:100%; resize:vertical;"
-                  > ${v.exampleValue} </textarea>
+                  >${v.exampleValue}</textarea>
                 </div>  
               `)}
 
@@ -443,7 +443,6 @@ export default class ApiRequest extends LitElement {
             <schema-table
               class = '${reqBody.mimeType.substring(reqBody.mimeType.indexOf('/') + 1)}'
               style = 'display: ${this.selectedRequestBodyType === reqBody.mimeType ? 'block' : 'none'};'
-              render-style = '${this.renderStyle}'
               .data = '${schemaAsObj}'
               schema-expand-level = "${this.schemaExpandLevel}"
               schema-description-expanded = "${this.schemaDescriptionExpanded}"
@@ -455,7 +454,6 @@ export default class ApiRequest extends LitElement {
             <schema-tree
               class = '${reqBody.mimeType.substring(reqBody.mimeType.indexOf('/') + 1)}'
               style = 'display: ${this.selectedRequestBodyType === reqBody.mimeType ? 'block' : 'none'};'
-              render-style = '${this.renderStyle}'
               .data = '${schemaAsObj}'
               schema-expand-level = "${this.schemaExpandLevel}"
               schema-description-expanded = "${this.schemaDescriptionExpanded}"
@@ -500,6 +498,17 @@ export default class ApiRequest extends LitElement {
         const fieldSchema = schema.properties[fieldName];
         const fieldType = fieldSchema.type;
         const arrayType = fieldSchema.type === 'array' ? fieldSchema.items.type : '';
+        const formdataPartSchema = schemaInObjectNotation(fieldSchema, {});
+        const formdataPartExample = generateExample(
+          '',
+          fieldSchema.example ? fieldSchema.example : '',
+          fieldSchema,
+          'json',
+          false,
+          'text',
+        );
+
+
         formDataTableRows.push(html`
         <tr> 
           <td style="width:160px; min-width:100px;">
@@ -511,7 +520,7 @@ export default class ApiRequest extends LitElement {
               }
             </div>
           </td>  
-          <td style="width:160px; min-width:100px;">
+          <td style="width:${fieldType === 'object' ? '100%' : '160px'}; min-width:100px;">
             ${fieldType === 'array'
               ? fieldSchema.items.format === 'binary'
                 ? html`
@@ -540,14 +549,60 @@ export default class ApiRequest extends LitElement {
                   >
                   </tag-input>
                 `
-              : html`<input 
-                  spellcheck = "false"
-                  type = "${fieldSchema.format === 'binary' ? 'file' : fieldSchema.format === 'password' ? 'password' : 'text'}"
-                  style = "width:200px" 
-                  data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
-                  data-pname = "${fieldName}" 
-                  data-array = "false" 
-                />`
+              : html`
+                ${fieldType === 'object'
+                  ? html`
+                  <div class="tab-panel col" style="border-width:0 0 1px 0;">
+                    <div class="tab-buttons row"  @click="${(e) => {
+                      if (e.target.classList.contains('tab-btn')) {
+                        const tab = e.target.dataset.tab;
+                        if (tab) {
+                          const tabPanelEl = e.target.closest('.tab-panel');
+                          const selectedTabBtnEl = tabPanelEl.querySelector(`.tab-btn[data-tab="${tab}"]`);
+                          const otherTabBtnEl = [...tabPanelEl.querySelectorAll(`.tab-btn:not([data-tab="${tab}"])`)];
+                          const selectedTabContentEl = tabPanelEl.querySelector(`.tab-content[data-tab="${tab}"]`);
+                          const otherTabContentEl = [...tabPanelEl.querySelectorAll(`.tab-content:not([data-tab="${tab}"])`)];
+                          selectedTabBtnEl.classList.add('active');
+                          selectedTabContentEl.style.display = 'block';
+                          otherTabBtnEl.forEach((el) => { el.classList.remove('active'); });
+                          otherTabContentEl.forEach((el) => { el.style.display = 'none'; });
+                        }
+                      }
+                      if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; }
+                    }}">
+                      <button class="tab-btn active" data-tab = 'model'  >MODEL</button>
+                      <button class="tab-btn" data-tab = 'example'>EXAMPLE </button>
+                    </div>
+                    ${html`
+                      <div class="tab-content col" data-tab = 'model' style="display:block"> 
+                        <schema-tree
+                          .data = '${formdataPartSchema}'
+                          schema-expand-level = "${this.schemaExpandLevel}"
+                          schema-description-expanded = "${this.schemaDescriptionExpanded}"
+                        > </schema-tree>
+                      </div>`
+                    }
+                    ${html`
+                      <div class="tab-content col" data-tab = 'example' style="display:none"> 
+                        <textarea class = "textarea"
+                          data-array = "false" 
+                          data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
+                          data-pname = "${fieldName}"
+                          spellcheck = "false"
+                          style="width:100%; resize:vertical;"
+                        >${formdataPartExample[0].exampleValue}</textarea>
+                      </div>`
+                    }
+                  </div>`
+                  : html`<input 
+                    spellcheck = "false"
+                    type = "${fieldSchema.format === 'binary' ? 'file' : fieldSchema.format === 'password' ? 'password' : 'text'}"
+                    style = "width:200px" 
+                    data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
+                    data-pname = "${fieldName}" 
+                    data-array = "false" 
+                  />`
+                }`
               }
           </td>
           <td>
