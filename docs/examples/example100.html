@@ -11,6 +11,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
     <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;600&family=Roboto+Mono&display=swap" rel="stylesheet">
     <style>
       .btn{
         width: 70px;
@@ -109,7 +110,7 @@
 
       function changeFont(){
         if (getRapiDoc().getAttribute('regular-font') === "'Varela Round'"){
-          getRapiDoc().setAttribute('regular-font',"'rapidoc'");
+          getRapiDoc().setAttribute('regular-font',"'Open Sans'");
         }
         else{
           getRapiDoc().setAttribute('regular-font',"'Varela Round'");
@@ -134,7 +135,7 @@
     </script>
   </head>
   <body>
-    <rapi-doc id="thedoc" spec-url="https://petstore.swagger.io/v2/swagger.json"> 
+    <rapi-doc id="thedoc" spec-url="https://petstore.swagger.io/v2/swagger.json" mono-font = "Roboto Mono"> 
       <div style="display:flex; margin:10px; justify-content:center;flex-wrap: wrap;">
         <button class="btn" onclick="changeAttr('header-color')">Change Header Color</button>
         <button class="btn" onclick="changeRenderStyle()">Render Style</button>

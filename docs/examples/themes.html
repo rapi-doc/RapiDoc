@@ -10,7 +10,7 @@
     </script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;600&family=Roboto+Mono&display=swap" rel="stylesheet">
 
     <style>
       .btn{
@@ -187,7 +187,9 @@
     </script>
   </head>
   <body>
-    <rapi-doc id="thedoc" spec-url="../specs/petstore_extended.yaml" regular-font="Open Sans" show-header="false"> 
+    <rapi-doc id="thedoc" spec-url="../specs/petstore_extended.yaml" regular-font="Open Sans" mono-font = "Roboto Mono" show-header="false">
+      
+
       <div style="display:flex; justify-content:center;flex-wrap: wrap;background-color:rgba(128, 128, 128, 0.1); flex:1; padding:22px;">
         <button class="btn normal" onclick="changeRenderStyle()">Render Style</button>
         <button class="btn dark" onclick="changeTheme('dark')">&#9782; </button>
