@@ -128,6 +128,19 @@ export default class ApiRequest extends LitElement {
           cursor:pointer;
         }
 
+        .v-tab-btn {
+          height:24px; 
+          border:none; 
+          background:none; 
+          opacity: 0.3;
+          cursor: pointer;
+        }
+        .v-tab-btn.active {
+          font-weight:bold;
+          background: var(--bg);
+          opacity: 1;
+        }
+
         @media only screen and (min-width: 768px) {
           .textarea {
             padding:8px;
@@ -520,7 +533,7 @@ export default class ApiRequest extends LitElement {
               }
             </div>
           </td>  
-          <td style="width:${fieldType === 'object' ? '100%' : '160px'}; min-width:100px;">
+          <td style="${fieldType === 'object' ? 'width:100%; padding:0;' : 'width:160px;'} min-width:100px;">
             ${fieldType === 'array'
               ? fieldSchema.items.format === 'binary'
                 ? html`
@@ -552,29 +565,31 @@ export default class ApiRequest extends LitElement {
               : html`
                 ${fieldType === 'object'
                   ? html`
-                  <div class="tab-panel col" style="border-width:0 0 1px 0;">
-                    <div class="tab-buttons row"  @click="${(e) => {
-                      if (e.target.classList.contains('tab-btn')) {
-                        const tab = e.target.dataset.tab;
-                        if (tab) {
-                          const tabPanelEl = e.target.closest('.tab-panel');
-                          const selectedTabBtnEl = tabPanelEl.querySelector(`.tab-btn[data-tab="${tab}"]`);
-                          const otherTabBtnEl = [...tabPanelEl.querySelectorAll(`.tab-btn:not([data-tab="${tab}"])`)];
-                          const selectedTabContentEl = tabPanelEl.querySelector(`.tab-content[data-tab="${tab}"]`);
-                          const otherTabContentEl = [...tabPanelEl.querySelectorAll(`.tab-content:not([data-tab="${tab}"])`)];
-                          selectedTabBtnEl.classList.add('active');
-                          selectedTabContentEl.style.display = 'block';
-                          otherTabBtnEl.forEach((el) => { el.classList.remove('active'); });
-                          otherTabContentEl.forEach((el) => { el.style.display = 'none'; });
+                  <div class="tab-panel row" style="min-height:220px; border-left: 6px solid var(--border-color); align-items: stretch;">
+                    <div style="width:24px; background-color:var(--border-color)">
+                      <div class="row" style="flex-direction:row-reverse; width:160px; height:24px; transform:rotate(270deg) translateX(-160px); transform-origin:top left; display:block;" @click="${(e) => {
+                        if (e.target.classList.contains('v-tab-btn')) {
+                          const tab = e.target.dataset.tab;
+                          if (tab) {
+                            const tabPanelEl = e.target.closest('.tab-panel');
+                            const selectedTabBtnEl = tabPanelEl.querySelector(`.v-tab-btn[data-tab="${tab}"]`);
+                            const otherTabBtnEl = [...tabPanelEl.querySelectorAll(`.v-tab-btn:not([data-tab="${tab}"])`)];
+                            const selectedTabContentEl = tabPanelEl.querySelector(`.tab-content[data-tab="${tab}"]`);
+                            const otherTabContentEl = [...tabPanelEl.querySelectorAll(`.tab-content:not([data-tab="${tab}"])`)];
+                            selectedTabBtnEl.classList.add('active');
+                            selectedTabContentEl.style.display = 'block';
+                            otherTabBtnEl.forEach((el) => { el.classList.remove('active'); });
+                            otherTabContentEl.forEach((el) => { el.style.display = 'none'; });
+                          }
                         }
-                      }
-                      if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; }
-                    }}">
-                      <button class="tab-btn active" data-tab = 'model'  >MODEL</button>
-                      <button class="tab-btn" data-tab = 'example'>EXAMPLE </button>
-                    </div>
+                        if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; }
+                      }}">
+                        <button class="v-tab-btn" data-tab = 'model'>MODEL</button>
+                        <button class="v-tab-btn active" data-tab = 'example'>EXAMPLE </button>
+                      </div>
+                    </div>  
                     ${html`
-                      <div class="tab-content col" data-tab = 'model' style="display:block"> 
+                      <div class="tab-content col" data-tab = 'model' style="display:none; padding:0 10px; width:100%;"> 
                         <schema-tree
                           .data = '${formdataPartSchema}'
                           schema-expand-level = "${this.schemaExpandLevel}"
@@ -583,13 +598,13 @@ export default class ApiRequest extends LitElement {
                       </div>`
                     }
                     ${html`
-                      <div class="tab-content col" data-tab = 'example' style="display:none"> 
+                      <div class="tab-content col" data-tab = 'example' style="display:block; padding:0 10px; width:100%"> 
                         <textarea class = "textarea"
+                          style = "width:100%; border:none; resize:vertical;" 
                           data-array = "false" 
                           data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
                           data-pname = "${fieldName}"
                           spellcheck = "false"
-                          style="width:100%; resize:vertical;"
                         >${formdataPartExample[0].exampleValue}</textarea>
                       </div>`
                     }
