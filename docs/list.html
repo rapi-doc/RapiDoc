@@ -43,25 +43,29 @@
       flex-direction: column;
       align-items: center;
       box-shadow: 0 1px 2.94px 0.06px rgba(4,26,55,0.16);
+      transition: box-shadow 0.2s, transform 0.2s, color 0.2s;
     }
-    .container.blue{
-      color: #fff;
-      border-color:#4099ff;
-      background: linear-gradient(45deg,#4099ff,#73b4ff);
+    .container.solid-light{
+      border-width: 0;
+      box-shadow: 0 3px 0 0 #b7c3d1, 0 4px 4px -1px rgba(0, 0, 0, 0.6), 0 4px 6px 1px rgba(0, 0, 0, 0.3), 0 1px 2px 1px rgba(0, 0, 0, 0) inset, 0 18px 32px -2px rgba(255, 255, 255, 0.1) inset;
+      background-color: #EFEFEF;
+      background-image: linear-gradient(-45deg, #E6EAEF, #e4edf1);
+      color: #252730;
     }
-    .container.red{
-      color: #fff;
-      border-color:#FF5370;
-      background: linear-gradient(45deg,#FF5370,#ff869a);
+    .container.solid-light:hover {
+      box-shadow: 0 3px 0 0 #b7c3d1, 0 6px 4px -1px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.5), 0 1px 2px 1px rgba(0, 0, 0, 0) inset, 0 18px 32px -2px rgba(255, 255, 255, 0.14) inset;
     }
-    .container.green{
-      color: #fff;
-      border-color:#2ed8b6;
-      background: linear-gradient(45deg,#2ed8b6,#59e0c5);
+    .container.solid-dark {
+      border-width: 0;
+      box-shadow: 0 3px 0 0 #1e1f26, 0 4px 4px -1px rgba(0, 0, 0, 0.6), 0 4px 6px 1px rgba(0, 0, 0, 0.3), 0 1px 2px 1px rgba(0, 0, 0, 0) inset, 0 18px 32px -2px rgba(255, 255, 255, 0.1) inset;
+      background-color: #3F4351;
+      background-image: linear-gradient(-45deg, #3F4351, #384758);
+      color: #E6EAEF;
     }
-    .container.green a,
-    .container.blue a,
-    .container.red a {
+    .container.solid-dark:hover {
+      box-shadow: 0 3px 0 0 #1e1f26, 0 6px 4px -1px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.5), 0 1px 2px 1px rgba(0, 0, 0, 0) inset, 0 18px 32px -2px rgba(255, 255, 255, 0.14) inset;
+    }
+    .container.solid-dark a {
       font-weight:300;
       color: #ffffffee;
     }
@@ -104,7 +108,7 @@
   </div>
   <div style="display:flex; width:100%; flex-wrap:wrap; justify-content:center;">
     
-    <div class = "container blue" style="cursor: pointer;" onclick="window.location='./quickstart.html';"> 
+    <div class = "container solid-dark" style="cursor: pointer;" onclick="window.location='./quickstart.html';"> 
       <h2 style="font-weight:700">  How To Use </h2>
       <div class="row">
         <img style="width:32px" src="./images/html5-logo.png"/>
@@ -177,7 +181,7 @@
       </div>
     </div>
 
-    <div class = "container red" style="cursor: pointer;" onclick="window.location='./list-branding.html';"> 
+    <div class = "container solid-dark" style="cursor: pointer;" onclick="window.location='./list-branding.html';"> 
       <h2 style="font-weight:700"> Branding Ideas </h2>
     </div>
 
@@ -294,7 +298,7 @@
       <a href="./examples/dynamic-form-params.html"> Form Parameters - Dynamic </a>
     </div>
 
-    <div class = "container green" style="cursor: pointer;" onclick="window.location='./oauth_instructions.html';"> 
+    <div class = "container solid-dark" style="cursor: pointer;" onclick="window.location='./oauth_instructions.html';"> 
       <h2 style="font-weight:700"> OAuth Setup </h2>
     </div>
 
@@ -325,7 +329,7 @@
       </div>
     </div>
 
-    <div class = "container red" style="cursor: pointer;" onclick="window.location='./list-performance.html';"> 
+    <div class = "container solid-dark" style="cursor: pointer;" onclick="window.location='./list-performance.html';"> 
       <h2 style="font-weight:700"> Performance Tips </h2>
     </div>
 
@@ -343,7 +347,7 @@
       </div>
     </div>
 
-    <div class = "container blue" style="cursor: pointer;" onclick="window.location='./list-html-content.html';"> 
+    <div class = "container solid-dark" style="cursor: pointer;" onclick="window.location='./list-html-content.html';"> 
       <h2 style="font-weight:700"> Mix HTML content </h2>
     </div>
 

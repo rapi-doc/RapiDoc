@@ -4,8 +4,31 @@ info:
   version: 0.0.1
 paths:
   /employees:
-    get:
-      operationId: getEvents
-      responses:
-        '200':
-          description: List of employees
+    post:
+      summary: some POST endpoint
+      description: some POST endpoint description
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                photoPart:
+                  type: string
+                  format: binary
+                namePart:
+                  type: object
+                  properties:
+                    firstName:
+                      type: string
+                    lastName:
+                      type: string
+                agePart:
+                  type: integer
+                contactPart:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                    phone:
+                      type: string

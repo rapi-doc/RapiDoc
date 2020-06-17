@@ -155,3 +155,19 @@ paths:
                             lastName:
                               description: Dependent Last Name
                               type: string
+          headers:                  
+            Link:
+              required: true
+              schema:
+                type: string
+              description: |
+                Pagination links are included in the Link header of responses.
+                It is important to follow these Link header values instead of constructing your own URLs as query parameters or cursor formats may change without notice.
+
+                | Link Relation | Description                                         |
+                |:--------------|:----------------------------------------------------|
+                | first         | The URL of the immediate first page of results      |
+                | last          | The URL of the immediate last page of results       |
+                | next          | The URL of the immediate next page of results       |
+                | prev          | The URL of the immediate previous page of results   |
+                | self          | The URL of the immediate current page of results    |
