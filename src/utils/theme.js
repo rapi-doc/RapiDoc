@@ -155,8 +155,8 @@ export default function setTheme(baseTheme, theme = {}) {
       headerColorDarker: ColorUtils.color.brightness(headerColor, -20),
       headerColorBorder: ColorUtils.color.brightness(headerColor, 10),
 
-      borderColor: theme.borderColor ? theme.borderColor : ColorUtils.color.brightness(bg1, -25), // #ddd
-      lightBorderColor: theme.lightBorderColor ? theme.lightBorderColor : ColorUtils.color.brightness(bg1, -15), // #eee
+      borderColor: theme.borderColor ? theme.borderColor : ColorUtils.color.brightness(bg1, -38),
+      lightBorderColor: theme.lightBorderColor ? theme.lightBorderColor : ColorUtils.color.brightness(bg1, -23),
       codeBorderColor: theme.codeBorderColor ? theme.codeBorderColor : '#transparent',
 
       codeBg: theme.codeBg ? theme.codeBg : '#555',

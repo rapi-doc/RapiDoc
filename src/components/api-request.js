@@ -129,14 +129,16 @@ export default class ApiRequest extends LitElement {
         }
 
         .v-tab-btn {
+          font-size: var(--smal-font-size);
           height:24px; 
           border:none; 
           background:none; 
           opacity: 0.3;
           cursor: pointer;
+          padding: 4px 8px;
         }
         .v-tab-btn.active {
-          font-weight:bold;
+          font-weight: bold;
           background: var(--bg);
           opacity: 1;
         }
@@ -565,8 +567,8 @@ export default class ApiRequest extends LitElement {
               : html`
                 ${fieldType === 'object'
                   ? html`
-                  <div class="tab-panel row" style="min-height:220px; border-left: 6px solid var(--border-color); align-items: stretch;">
-                    <div style="width:24px; background-color:var(--border-color)">
+                  <div class="tab-panel row" style="min-height:220px; border-left: 6px solid var(--light-border-color); align-items: stretch;">
+                    <div style="width:24px; background-color:var(--light-border-color)">
                       <div class="row" style="flex-direction:row-reverse; width:160px; height:24px; transform:rotate(270deg) translateX(-160px); transform-origin:top left; display:block;" @click="${(e) => {
                         if (e.target.classList.contains('v-tab-btn')) {
                           const tab = e.target.dataset.tab;

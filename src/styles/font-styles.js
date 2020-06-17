@@ -172,35 +172,52 @@ export default css`
 
   /* Markdown table */
 
+  .m-markdown-small table,
   .m-markdown table {
-    border-spacing: 0;  
+    border-spacing: 0;
+    margin: 10px 0;
     border-collapse: separate;
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
-    margin: 0;
+    font-size: calc(var(--font-size-small) + 1px);
+    line-height: calc(var(--font-size-small) + 4px);
     max-width: 100%;
   }
-  .m-markdown tr:first-child td,
-  .m-markdown tr:first-child th {
-      border-top: 0 none;
-  }
-  .m-markdown td, 
-  .m-markdown th{
+
+  .m-markdown-small table {
     font-size: var(--font-size-small);
-    line-height: calc(var(--font-size-small) + 4px);
-    padding: 6px;
+    line-height: calc(var(--font-size-small) + 2px);
+    margin: 8px 0;
+  }
+
+  .m-markdown-small tr:first-child th,
+  .m-markdown tr:first-child th {
+    border-top: 0 none;
+  }
+
+  .m-markdown-small td, 
+  .m-markdown-small th, 
+  .m-markdown td, 
+  .m-markdown th {
+    padding: 8px;
     vertical-align: top;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .m-markdown-small td,
+  .m-markdown-small th {
+    line-height: calc(var(--font-size-small) + 4px);
   }
 
   .m-markdown th {
     color: var(--fg3);
-    height:32px;
     font-weight: 600;
+    padding: 10px 8px;
     letter-spacing: normal;
     background-color: var(--bg2);
     vertical-align: middle;
-    border-bottom: 1px solid var(--border-color);
   }
+
   .m-markdown table code {
     font-size:calc(var(--font-size-small) - 1px);
   }

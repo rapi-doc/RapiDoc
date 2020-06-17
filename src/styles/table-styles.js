@@ -14,12 +14,16 @@ export default css`
     border-top: 0 none;
 }
 .m-table td, 
-.m-table th{
+.m-table th {
   font-size: var(--font-size-small);
   line-height: calc(var(--font-size-small) + 4px);
   padding: 4px 5px 4px;
-  text-align: left;
   vertical-align: top;
+}
+
+.m-table td:not([align]), 
+.m-table th:not([align]) {
+  text-align: left;
 }
 
 .m-table th {
@@ -33,8 +37,8 @@ export default css`
   border-bottom: 1px solid var(--light-border-color);
 }
 
-.m-table > tbody >tr > td,
-.m-table > tr > td{
+.m-table > tbody > tr > td,
+.m-table > tr > td {
   border-top: 1px solid var(--light-border-color);
   text-overflow: ellipsis;
   overflow: hidden;

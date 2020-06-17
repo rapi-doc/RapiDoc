@@ -20,15 +20,17 @@ export default css`
   word-break:break-word;
 }
 .nav-scroll {
-  overflow-x:hidden;
+  overflow-x: hidden;
   overflow-y: overlay;
+}
+
+.nav-scroll::-webkit-scrollbar {
+  width: 10px;
 }
 .nav-scroll::-webkit-scrollbar-track {
   background:transparent;
 }
 .nav-scroll::-webkit-scrollbar-thumb {
-  border: 3px solid var(--nav-bg-color);
-  border-width: 0 3px;
   background-color: var(--nav-hover-bg-color);
 }
 .nav-bar-tag {
