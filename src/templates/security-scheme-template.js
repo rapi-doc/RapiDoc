@@ -282,7 +282,7 @@ export default function securitySchemeTemplate() {
             <tr>  
               <td style="max-width:500px; overflow-wrap: break-word;">
                 <div style="min-height:24px"> 
-                  <span style="font-weight:bold">${v.typeDisplay} ${v.type === 'oauth2' ? `(${v.apiKeyId})` : ''}</span> 
+                  <span style="font-weight:bold">${v.typeDisplay}</span> 
                   ${v.finalKeyValue
                     ? html`
                       <span class='blue-text'>  ${v.finalKeyValue ? 'Key Applied' : ''} </span> 

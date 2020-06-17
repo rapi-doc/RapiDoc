@@ -95,6 +95,7 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
       apiKeyId: '_rapidoc_api_key',
       description: 'api-key provided in rapidoc element attributes',
       type: 'apiKey',
+      oAuthFlow: '',
       name: attrApiKey,
       in: attrApiKeyLocation,
       value: attrApiKeyValue,
@@ -109,7 +110,7 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
     } else if (v.type === 'apiKey') {
       v.typeDisplay = `API Key (${v.name})`;
     } else if (v.type === 'oauth2') {
-      v.typeDisplay = 'OAuth';
+      v.typeDisplay = `OAuth (${v.apiKeyId})`;
     } else {
       v.typeDisplay = v.type;
     }

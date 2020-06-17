@@ -53,9 +53,8 @@ function endpointBodyTemplate(path) {
     }
   }
   accept = accept.replace(/,\s*$/, ''); // remove trailing comma
-  const codeSampleTabPanel = path.xCodeSamples ? codeSamplesTemplate(path.xCodeSamples) : '';
-
   const nonEmptyApiKeys = this.resolvedSpec.securitySchemes.filter((v) => (v.finalKeyValue)) || [];
+  const codeSampleTabPanel = path.xCodeSamples ? codeSamplesTemplate(path.xCodeSamples) : '';
   return html`
   <div class='endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}'>
     <div class="summary">
