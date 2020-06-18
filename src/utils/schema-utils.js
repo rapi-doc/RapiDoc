@@ -33,7 +33,7 @@ export function getTypeInfo(schema) {
   if (info.type === '{recursive}') {
     info.description = schema.$ref.substring(schema.$ref.lastIndexOf('/') + 1);
   } else if (info.type === '{missing-type-info}') {
-    info.description = 'No schema details found in the spec';
+    info.description = info.description || '';
   }
 
   // Set Allowed Values
