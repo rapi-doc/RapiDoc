@@ -105,7 +105,15 @@ paths:
         - name: interests
           in: query
           required: true
-          description: Default is `hiking` (hiking must be monospaced)
+          description: |
+            Default is `hiking` (hiking must be monospaced)
+            
+            | Heading 1 | Left-Justified | Centered | Right-Justified |
+            | --------- | :------------- | :------: | --------------: |
+            | text | text | text | text |
+            | text | text | text | text |
+            | text | text | text | text |
+
           schema:
             type: array
             minItems: 1
