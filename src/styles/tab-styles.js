@@ -12,7 +12,7 @@ export default css`
   overflow-x: auto;
   scrollbar-width: thin;
 }
-.tab-buttons::-webkit-scrollbar{
+.tab-buttons::-webkit-scrollbar {
   height: 1px;
   background-color: var(--border-color);
 }

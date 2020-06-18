@@ -371,7 +371,7 @@ export function pathSecurityTemplate(pathSecurity) {
         securityDefs: orSecurityKeys,
       });
     });
-    return html`<div style="position:absolute; top:3px; right:2px; font-size: calc(var(--font-size-small));">
+    return html`<div style="position:absolute; top:3px; right:2px; font-size:var(--font-size-small); line-height: 1.5;">
       <div style="position:relative; display:flex; min-width:350px; max-width:700px; justify-content: flex-end;">
         <div style="font-size: calc(var(--font-size-small) + 2px)"> &#128274; </div>
           ${andSecurityKeys.map((andSecurityItem) => html`

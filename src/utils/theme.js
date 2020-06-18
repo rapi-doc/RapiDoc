@@ -187,6 +187,7 @@ export default function setTheme(baseTheme, theme = {}) {
   }
   return html`<style>
     :host {
+
     /* Common Styles - irrespective of themes */  
     --layout: ${this.layout || 'row'};
     --font-mono: ${this.monoFont || 'Monaco, "Andale Mono", "Roboto Mono", Consolas, monospace'};

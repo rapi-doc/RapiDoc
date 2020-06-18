@@ -21,7 +21,10 @@ export default css`
 }
 .nav-scroll {
   overflow-x: hidden;
+  overflow-y: auto;
   overflow-y: overlay;
+  scrollbar-width: thin;
+  scrollbar-color: var(--nav-hover-bg-color) transparent;
 }
 
 .nav-scroll::-webkit-scrollbar {
@@ -33,6 +36,7 @@ export default css`
 .nav-scroll::-webkit-scrollbar-thumb {
   background-color: var(--nav-hover-bg-color);
 }
+
 .nav-bar-tag {
   font-size: var(--font-size-regular);
   border-left:4px solid transparent;

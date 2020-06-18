@@ -65,47 +65,44 @@ export default css`
   }
 
   .m-markdown,
-  .m-markdown-small{
+  .m-markdown-small {
     display:block;
   }
 
   .m-markdown p,
-  .m-markdown span {
-    line-height:calc(var(--font-size-regular) + 8px);
+  .m-markdown span,
+  .m-markdown li {
     font-size: var(--font-size-regular);
-  }
-  .m-markdown code span{
-    font-size:var(--font-size-mono);
+    line-height:calc(var(--font-size-regular) + 8px);
   }
   
-  .m-markdown li{
-    line-height:calc(var(--font-size-regular) + 8px);
-    font-size:calc(var(--font-size-regular) - 1px);
-  }
-
   .m-markdown-small p,
   .m-markdown-small span,
-  .m-markdown-small li{
-    color: var(--light-fg);
+  .m-markdown-small li {
     font-size: var(--font-size-small);
     line-height: calc(var(--font-size-small) + 6px);
-    margin-top: 0;
   }
   
-  .m-markdown-small p:not(:first-child),
   .m-markdown p:not(:first-child) {
     margin-block-start: 24px;
   }
 
+  .m-markdown-small p:not(:first-child) {
+    margin-block-start: 12px;
+  }
+  .m-markdown-small p:first-child {
+    margin-block-start: 0;
+  }
+
   .m-markdown p,
-  .m-markdown-small p{
+  .m-markdown-small p {
     margin-block-end: 0
   }
 
-  .m-markdown-small ul,
-  .m-markdown-small ol{
-    padding-inline-start: 20px;
+  .m-markdown code span {
+    font-size:var(--font-size-mono);
   }
+
   .m-markdown-small code,
   .m-markdown code {
     padding: 1px 6px;
@@ -117,7 +114,7 @@ export default css`
   }
 
   .m-markdown-small code {
-    font-size: calc(var(--font-size-mono) - 2px);
+    font-size: calc(var(--font-size-mono) - 1px);
   }
 
   .m-markdown-small pre,
@@ -159,16 +156,25 @@ export default css`
     background-color: var(--bg3);
   }
 
-
   .m-markdown ul,
   .m-markdown ol {
-    padding-inline-start:30px;
+    padding-inline-start: 30px;
   }
+
+  .m-markdown-small ul,
+  .m-markdown-small ol {
+    padding-inline-start: 20px;
+  }
+
   .m-markdown-small a,
-  .m-markdown a{
+  .m-markdown a {
     color:var(--blue);
   }
-  .m-markdown img{ max-width:100%; }
+
+  .m-markdown-small img,
+  .m-markdown img { 
+    max-width:100%; 
+  }
 
   /* Markdown table */
 
@@ -190,37 +196,44 @@ export default css`
     margin: 8px 0;
   }
 
+  .m-markdown-small td, 
+  .m-markdown-small th,
+  .m-markdown td, 
+  .m-markdown th {
+    vertical-align: top;
+    border-top: 1px solid var(--border-color);
+  }
+
   .m-markdown-small tr:first-child th,
   .m-markdown tr:first-child th {
     border-top: 0 none;
   }
 
-  .m-markdown-small td, 
-  .m-markdown-small th, 
-  .m-markdown td, 
-  .m-markdown th {
-    padding: 8px;
-    vertical-align: top;
-    border-top: 1px solid var(--border-color);
+  .m-markdown th, 
+  .m-markdown td { 
+    padding: 10px 12px; 
   }
 
-  .m-markdown-small td,
+  .m-markdown-small th,
+  .m-markdown-small td { 
+    padding: 8px 8px; 
+  }
+
+  .m-markdown th,
   .m-markdown-small th {
-    line-height: calc(var(--font-size-small) + 4px);
-  }
-
-  .m-markdown th {
-    color: var(--fg3);
     font-weight: 600;
-    padding: 10px 8px;
-    letter-spacing: normal;
     background-color: var(--bg2);
     vertical-align: middle;
   }
 
-  .m-markdown table code {
-    font-size:calc(var(--font-size-small) - 1px);
+  .m-markdown-small table code {
+    font-size: calc(var(--font-size-mono) - 2px);
   }
+
+  .m-markdown table code {
+    font-size: calc(var(--font-size-mono) - 1px);
+  }
+
   .m-markdown blockquote,
   .m-markdown-small blockquote {
     margin-inline-start: 0;

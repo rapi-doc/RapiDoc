@@ -21,32 +21,32 @@ export default css`
   cursor: pointer;
 }
 .m-btn.primary {
-  background-color:var(--primary-color);
-  color:var(--primary-color-invert);
+  background-color: var(--primary-color);
+  color: var(--primary-color-invert);
 }
-.m-btn.thin-border { border-width: 1px;}
-.m-btn.large { padding:8px 14px;}
-.m-btn.small { padding:5px 12px;}
-.m-btn.circle { border-radius:50%;}
+.m-btn.thin-border { border-width: 1px; }
+.m-btn.large { padding:8px 14px; }
+.m-btn.small { padding:5px 12px; }
+.m-btn.circle { border-radius: 50%; }
 .m-btn:hover { 
   background-color: var(--primary-color);
-  color:var(--primary-color-invert);
+  color: var(--primary-color-invert);
 }
 .m-btn:disabled{ 
   background-color: var(--bg3);
-  color:var(--fg3);
-  border-color:var(--fg3);
-  cursor:not-allowed;
-  opacity:0.4;
+  color: var(--fg3);
+  border-color: var(--fg3);
+  cursor: not-allowed;
+  opacity: 0.4;
 }
 .toolbar-btn{
-  cursor:pointer;
-  padding:2px 0 4px;
+  cursor: pointer;
+  padding: 2px 0 4px;
   margin:0 2px;
-  min-width:50px;
-  color:var(--primary-color-invert);
-  border-radius:2px;
-  border:none;
+  min-width: 50px;
+  color: var(--primary-color-invert);
+  border-radius: 2px;
+  border: none;
   background-color: var(--primary-color);
 }
 
@@ -126,22 +126,27 @@ input[type="file"]::-webkit-file-upload-button {
   -webkit-appearance: none;
 }
 
-pre::-webkit-scrollbar-track,
-textarea::-webkit-scrollbar-track{
-  background:var(--input-bg);
+pre,
+textarea {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) var(--input-bg);
 }
 
 pre::-webkit-scrollbar,
 textarea::-webkit-scrollbar {
   width: 8px;
   height: 8px;
-  background-color: transparent;
+}
+
+pre::-webkit-scrollbar-track,
+textarea::-webkit-scrollbar-track {
+  background:var(--input-bg);
 }
  
 pre::-webkit-scrollbar-thumb,
 textarea::-webkit-scrollbar-thumb {
   border-radius: 2px;
-  background-color: var(--border-color)
+  background-color: var(--border-color);
 }
 
 .link {

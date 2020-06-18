@@ -152,17 +152,19 @@ export default class RapiDoc extends LitElement {
         height:100%;
         overflow-y: auto;
         overflow-x: hidden;
+        scrollbar-width: thin;
+        scrollbar-color: var(--border-color) transparent;
       }
-      .main-content-inner--view-mode{
+
+      .main-content-inner--view-mode {
         padding: 0 16px;
       }
-      .main-content::-webkit-scrollbar-track{
-        background:transparent;
-      }
-      .main-content::-webkit-scrollbar{
+      .main-content::-webkit-scrollbar {
         width: 8px;
         height: 8px;
-        background-color: transparent;
+      }
+      .main-content::-webkit-scrollbar-track {
+        background:transparent;
       }
       .main-content::-webkit-scrollbar-thumb {
         background-color: var(--border-color);
