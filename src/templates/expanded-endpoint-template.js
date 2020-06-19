@@ -23,9 +23,9 @@ export function expandedEndpointBodyTemplate(path) {
   return html`
     ${this.renderStyle === 'read' ? html` <div class='divider'></div>` : ''}
     <div class='expanded-endpoint-body observe-me ${path.method} ${path.deprecated ? 'deprecated' : ''} ' id='${path.method}-${path.path.replace(invalidCharsRegEx, '-')}'>
-    ${path.deprecated ? html`<div class="bold-text red-text" > DEPRECATED </div>` : ''}
+    ${path.deprecated ? html`<div class="bold-text red-text" > DEPRECATED </div>` : html`<div class="bold-text red-text" > &nbsp; </div>`}
     ${html`
-      <h2 class = "${path.deprecated ? 'gray-text' : ''}"> 
+      <h2 class = "${path.deprecated ? 'gray-text' : ''} endpoint-summary"> 
         ${path.summary || html`<span class='upper ${path.deprecated ? ' method-fg gray-text' : path.method}  '> ${path.method}</span> ${path.path}`} 
       </h2>
       ${path.summary
@@ -38,7 +38,7 @@ export function expandedEndpointBodyTemplate(path) {
       }`
     }
     ${path.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(path.description || ''))}</div>` : ''}
-    ${pathSecurityTemplate.call(this, path.security)}
+    ${pathSecurityTemplate.call(this, path.security, nonEmptyApiKeys)}
     ${codeSampleTabPanel}
     <div class='expanded-req-resp-container'>
       <api-request  class="request-panel"  
@@ -48,6 +48,7 @@ export function expandedEndpointBodyTemplate(path) {
         .request_body = "${path.requestBody}"
         .api_keys = "${nonEmptyApiKeys}"
         .servers = "${path.servers}" 
+        .security = "${path.security}"
         server-url = "${path.servers?.[0]?.url || this.selectedServer.computedUrl}" 
         allow-try = "${this.allowTry}"
         accept = "${accept}"

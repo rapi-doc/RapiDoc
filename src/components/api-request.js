@@ -10,6 +10,7 @@ import FontStyles from '@/styles/font-styles';
 import BorderStyles from '@/styles/border-styles';
 import TabStyles from '@/styles/tab-styles';
 import PrismStyles from '@/styles/prism-styles';
+import CustomStyles from '@/styles/custom-styles';
 import { copyToClipboard } from '@/utils/common-utils';
 import { schemaInObjectNotation, getTypeInfo, generateExample } from '@/utils/schema-utils';
 import '@/components/json-tree';
@@ -39,6 +40,7 @@ export default class ApiRequest extends LitElement {
       parameters: { type: Array },
       request_body: { type: Object },
       api_keys: { type: Array },
+      security: { type: Array },
       parser: { type: Object },
       accept: { type: String },
       callback: { type: String },
@@ -149,6 +151,7 @@ export default class ApiRequest extends LitElement {
           }
         }
       `,
+      CustomStyles,
     ];
   }
 
@@ -681,7 +684,7 @@ export default class ApiRequest extends LitElement {
           : html`
             <div class="tab-content col m-markdown" style="flex:1;display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};" >
               <button class="toolbar-btn" style = "position:absolute; top:12px; right:2px" @click='${(e) => { copyToClipboard(this.responseText, e); }}'> Copy </button>
-              <pre style="white-space:pre; max-height:400px; overflow:auto">${responseFormat
+              <pre class="response-box">${responseFormat
                 ? html`<code>${unsafeHTML(Prism.highlight(this.responseText, Prism.languages[responseFormat], responseFormat))}</code>`
                 : `${this.responseText}`
               }
@@ -715,8 +718,8 @@ export default class ApiRequest extends LitElement {
         ${this.serverUrl
           ? html`
             <div style="display:flex; align-items:baseline;">
-              <div style="font-weight:bold; padding-right:5px;">API Server</div> 
-              <span class = "gray-text"> ${this.serverUrl} </span>
+              <div style="font-weight:bold; padding-right:5px;">Try against API server:</div>
+              <span class = "gray-text"> ${this.serverUrl} </span>&nbsp;-&nbsp;<a href="#api-servers">change</a>
             </div>
           `
           : ''
@@ -726,20 +729,22 @@ export default class ApiRequest extends LitElement {
 
     return html`
     <div style="display:flex; align-items:flex-end; margin:16px 0; font-size:var(--font-size-small);">
-      <div style="display:flex; flex-direction:column; margin:0; width:calc(100% - 60px);">
+      <div class="try-target" style="display:flex; flex-direction:column; margin:0; width:calc(100% - 60px);">
         <div style="display:flex; flex-direction:row; align-items:center; overflow:hidden;"> 
           ${selectedServerHtml}
         </div>
         <div style="display:flex;">
-          <div style="font-weight:bold; padding-right:5px;">Authentication</div>
-          ${this.api_keys.length > 0
-            ? html`<div style="color:var(--blue); overflow:hidden;"> 
+          <div style="font-weight:bold; padding-right:5px;">Authentication:</div>
+          ${this.security.length === 0
+            ? html`<div class="authentication-text">No authentication required</div>`
+            : this.api_keys.length > 0
+              ? html`<div class="authentication-text">
                 ${this.api_keys.length === 1
-                  ? `${this.api_keys[0].typeDisplay}' in ${this.api_keys[0].in}`
+                  ? `${this.api_keys[0].typeDisplay} set in ${this.api_keys[0].in}`
                   : `${this.api_keys.length} API keys applied`
                 } 
-              </div>`
-            : html`<div style="color:var(--red)">No API key applied</div>`
+                </div>`
+              : html`<div style="color:var(--red)">No API key applied</div>&nbsp;-&nbsp;<a href="#authentication">add here</a>`
           }
         </div>
       </div>

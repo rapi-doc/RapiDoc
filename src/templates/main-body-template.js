@@ -28,10 +28,10 @@ function infoDescriptionHeadingRenderer() {
 function overviewTemplate() {
   return html`
     <div id = 'overview' class = 'observe-me ${this.renderStyle === 'read' ? 'section-gap--read-mode' : (this.renderStyle === 'focused' ? 'section-gap--read-mode' : 'section-gap')}'>
-      <div style = 'font-size:32px'>
+      <div class='api-title'>
         ${this.resolvedSpec.info.title}
         ${!this.resolvedSpec.info.version ? '' : html`
-          <span style = 'font-size:var(--font-size-small);font-weight:bold'>
+          <span class='api-version'>
             ${this.resolvedSpec.info.version}
           </span>`
         }
@@ -53,7 +53,9 @@ function overviewTemplate() {
 export default function mainBodyTemplate() {
   const newTheme = {
     bg1: isValidHexColor(this.bgColor) ? this.bgColor : '',
+    codeBg: isValidHexColor(this.codeBg) ? this.codeBg : '',
     fg1: isValidHexColor(this.textColor) ? this.textColor : '',
+    fg3: isValidHexColor(this.fgColor3) ? this.fgColor3 : '',
     headerColor: isValidHexColor(this.headerColor) ? this.headerColor : '',
     primaryColor: isValidHexColor(this.primaryColor) ? this.primaryColor : '',
     navBgColor: isValidHexColor(this.navBgColor) ? this.navBgColor : '',
@@ -64,6 +66,9 @@ export default function mainBodyTemplate() {
     navHoverBgColor: isValidHexColor(this.navHoverBgColor) ? this.navHoverBgColor : '',
     navHoverTextColor: isValidHexColor(this.navHoverTextColor) ? this.navHoverTextColor : '',
     navAccentColor: isValidHexColor(this.navAccentColor) ? this.navAccentColor : '',
+    green: isValidHexColor(this.colorGreen) ? this.colorGreen : '',
+    blue: isValidHexColor(this.colorBlue) ? this.colorBlue : '',
+    purple: isValidHexColor(this.colorPurple) ? this.colorPurple : '',
   };
 
   return html`

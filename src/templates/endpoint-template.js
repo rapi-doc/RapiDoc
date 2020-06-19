@@ -60,7 +60,7 @@ function endpointBodyTemplate(path) {
     <div class="summary">
       ${path.summary && path.summary !== path.description ? html`<div class="title">${path.summary}</div>` : ''}
       ${path.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(path.description))}</div>` : ''}
-      ${pathSecurityTemplate.call(this, path.security)}
+      ${pathSecurityTemplate.call(this, path.security, nonEmptyApiKeys)}
       ${codeSampleTabPanel}
     </div>  
     <div class='req-resp-container'> 
@@ -71,6 +71,7 @@ function endpointBodyTemplate(path) {
         .request_body = "${path.requestBody}"
         .api_keys = "${nonEmptyApiKeys}"
         .servers = "${path.servers}" 
+        .security = "${path.security}" 
         server-url = "${path.servers && path.servers.length > 0 ? path.servers[0].url : this.selectedServer.computedUrl}" 
         active-schema-tab = "${this.defaultSchemaTab}" 
         allow-try = "${this.allowTry}"

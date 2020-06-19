@@ -20,6 +20,7 @@ import EndpointStyles from '@/styles/endpoint-styles';
 import PrismStyles from '@/styles/prism-styles';
 import TabStyles from '@/styles/tab-styles';
 import NavStyles from '@/styles/nav-styles';
+import CustomStyles from '@/styles/custom-styles';
 
 import { pathIsInSearch, invalidCharsRegEx, sleep } from '@/utils/common-utils';
 import ProcessSpec from '@/utils/spec-parser';
@@ -87,6 +88,8 @@ export default class RapiDoc extends LitElement {
       fontSize: { type: String, attribute: 'font-size' },
       regularFont: { type: String, attribute: 'regular-font' },
       monoFont: { type: String, attribute: 'mono-font' },
+      fgColor3: { type: String, attribute: 'fg-color-3' },
+      codeBg: { type: String, attribute: 'code-bg-color' },
 
       // Nav Bar Colors
       navBgColor: { type: String, attribute: 'nav-bg-color' },
@@ -99,6 +102,11 @@ export default class RapiDoc extends LitElement {
       navAccentColor: { type: String, attribute: 'nav-accent-color' },
       navItemSpacing: { type: String, attribute: 'nav-item-spacing' },
       infoDescriptionHeadingsInNavBar: { type: String, attribute: 'info-description-headings-in-navbar' },
+
+      // Color overrides
+      colorGreen: { type: String, attribute: 'color-green' },
+      colorBlue: { type: String, attribute: 'color-blue' },
+      colorPurple: { type: String, attribute: 'color-purple' },
 
       // Filters
       matchPaths: { type: String, attribute: 'match-paths' },
@@ -331,6 +339,7 @@ export default class RapiDoc extends LitElement {
           padding: 24px 100px 12px 100px; 
         }
       }`,
+      CustomStyles,
     ];
   }
 

@@ -348,7 +348,7 @@ export default function securitySchemeTemplate() {
 `;
 }
 
-export function pathSecurityTemplate(pathSecurity) {
+export function pathSecurityTemplate(pathSecurity, nonEmptyApiKeys) {
   if (this.resolvedSpec.securitySchemes && pathSecurity) {
     const andSecurityKeys = [];
     pathSecurity.forEach((pSecurity) => {
@@ -371,11 +371,23 @@ export function pathSecurityTemplate(pathSecurity) {
         securityDefs: orSecurityKeys,
       });
     });
+    let authenticatedClass = 'not-authenticated';
+    if (!andSecurityKeys.length) {
+      authenticatedClass = 'authenticated';
+      andSecurityKeys.push({
+        pathScopes: '',
+        securityTypes: 'No authentication required',
+        securityDefs: [],
+      });
+    }
+    if (nonEmptyApiKeys.length) {
+      authenticatedClass = 'authenticated';
+    }
     return html`<div style="position:absolute; top:3px; right:2px; font-size:var(--font-size-small); line-height: 1.5;">
       <div style="position:relative; display:flex; min-width:350px; max-width:700px; justify-content: flex-end;">
-        <div style="font-size: calc(var(--font-size-small) + 2px)"> &#128274; </div>
+        <div style="font-size: calc(var(--font-size-small) + 2px);"> &#128274; </span></div>
           ${andSecurityKeys.map((andSecurityItem) => html`
-          <div class="tooltip">
+          <div class="tooltip ${authenticatedClass}">
             <div style = "padding:2px 4px;"> ${andSecurityItem.securityTypes} </div>
             <div class="tooltip-text" style="position:absolute; color: var(--fg); top:26px; right:0; border:1px solid var(--border-color);padding:2px 4px; display:block;">
               ${andSecurityItem.securityDefs.length > 1 ? html`<div>Requires <b>any one</b> of the following </div>` : ''}
@@ -390,12 +402,11 @@ export function pathSecurityTemplate(pathSecurity) {
                     : orSecurityItem.type === 'http'
                       ? html`
                         <div>
-                          ${andSecurityItem.securityDefs.length > 1 ? html`<b>${i + 1}.</b> &nbsp;` : html`Requires`} 
+                          ${andSecurityItem.securityDefs.length > 1 ? html`<b>${i + 1}.</b>&nbsp;` : html`Requires`} 
                           ${orSecurityItem.scheme === 'basic' ? 'Base 64 encoded username:password' : 'Bearer Token'} in <b>Authorization header</b>
                         </div>`
                       : html`
-                        <div>
-                          ${andSecurityItem.securityDefs.length > 1 ? html`<b>${i + 1}.</b> &nbsp;` : html`Requires`} 
+                        <div>${andSecurityItem.securityDefs.length > 1 ? html`<b>${i + 1}.</b>` : html`Requires`}
                           Token in <b>${orSecurityItem.name} ${orSecurityItem.in}</b>
                         </div>`
                   }
