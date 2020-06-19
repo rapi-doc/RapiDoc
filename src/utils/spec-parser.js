@@ -375,7 +375,7 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
     tagsWithSortedPaths.forEach((v) => {
       if (v.paths) {
         // v.paths.sort((a, b) => a.method.localeCompare(b.method));
-        v.paths.sort((a, b) => a.summary.localeCompare(b.summary));
+        v.paths.sort((a, b) => methods.indexOf(a.method).toString().localeCompare(methods.indexOf(b.method)));
       }
     });
   } else if (sortEndpointsBy === 'label') {
