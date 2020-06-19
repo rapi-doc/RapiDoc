@@ -375,7 +375,17 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
     tagsWithSortedPaths.forEach((v) => {
       if (v.paths) {
         // v.paths.sort((a, b) => a.method.localeCompare(b.method));
-        v.paths.sort((a, b) => methods.indexOf(a.method).toString().localeCompare(methods.indexOf(b.method)));
+        v.paths.sort((a, b) => a.summary.localeCompare(b.summary));
+      }
+    });
+  } else if (sortEndpointsBy === 'label') {
+    tagsWithSortedPaths.forEach((v) => {
+      if (v.paths) {
+        v.paths.sort((a, b) => {
+          if (a.summary < b.summary) return -1;
+          if (a.summary > b.summary) return 1;
+          return 0;
+        });
       }
     });
   } else {

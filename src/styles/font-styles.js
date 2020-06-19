@@ -241,4 +241,33 @@ export default css`
     border-left: 3px solid var(--border-color);
     padding: 6px 0 6px 6px;
   }
+
+  .api-title {
+    font-size: 32px;
+  }
+
+  .api-version {
+    font-size: var(--font-size-small);
+    font-weight: bold;
+  }
+
+  #nav-bar-search {
+    width:100%; 
+    padding-right:20px; 
+    color:var(--nav-hover-text-color); 
+    border-color:var(--nav-accent-color); 
+    background-color:var(--nav-hover-bg-color)
+  }
+
+  .response-box {
+    white-space:pre; 
+    max-height:400px; 
+    overflow:auto;
+  }
+
+  .authentication-text {
+    color: var(--blue); 
+    overflow: hidden;
+  }
+
 `;
