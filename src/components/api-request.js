@@ -968,8 +968,17 @@ export default class ApiRequest extends LitElement {
       // Common for all request-body
       if (!requestBodyType.includes('form-data')) {
         // For multipart/form-data dont set the content-type to allow creation of browser generated part boundaries
-        fetchOptions.headers['Content-Type'] = `${requestBodyType}; charset=utf-8`;
+        switch (requestBodyType) {
+          // https://www.iana.org/assignments/media-types/application/json
+          case "application/json":
+            fetchOptions.headers['Content-Type'] = "application/json";
+            break;
+          default:
+            fetchOptions.headers['Content-Type'] = `${requestBodyType}; charset=utf-8`;
+            break;
+        }
       }
+      
       curlHeaders += ` -H "Content-Type: ${requestBodyType}" \\\n`;
     }
 
