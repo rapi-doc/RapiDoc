@@ -968,7 +968,7 @@ export default class ApiRequest extends LitElement {
       // Common for all request-body
       if (!requestBodyType.includes('form-data')) {
         // For multipart/form-data dont set the content-type to allow creation of browser generated part boundaries
-        fetchOptions.headers['Content-Type'] = `${requestBodyType}; charset=utf-8`;
+        fetchOptions.headers['Content-Type'] = requestBodyType;
       }
       curlHeaders += ` -H "Content-Type: ${requestBodyType}" \\\n`;
     }
