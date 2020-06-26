@@ -53,7 +53,7 @@ export default css`
 input, textarea, select, button, pre {
   color:var(--fg);
   outline: none;
-  background: var(--input-bg);
+  background-color: var(--input-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
 }

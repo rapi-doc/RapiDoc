@@ -406,18 +406,20 @@ export default class ApiRequest extends LitElement {
                 <div class="example ${v.exampleId === this.selectedRequestBodyExample ? 'example-selected' : ''}" data-example = '${v.exampleId}'>
                   ${v.exampleSummary && v.exampleSummary.length > 80 ? html`<div style="padding: 4px 0"> ${v.exampleSummary} </div>` : ''}
                   ${v.exampleDescription ? html`<div class="m-markdown-small" style="padding: 4px 0"> ${unsafeHTML(marked(v.exampleDescription || ''))} </div>` : ''}
+                  <!-- This textarea(hidden) is to store the original example value, this will remain unchanged when users switches from one example to another, its is used to populate the editable textarea -->
                   <textarea 
                     class = "textarea request-body-param ${reqBody.mimeType.substring(reqBody.mimeType.indexOf('/') + 1)}" 
                     spellcheck = "false"
                     data-ptype = "${reqBody.mimeType}" 
                     style="width:100%; resize:vertical; display:none"
-                    @change=${(e) => { v.exampleValue = e.target.value; }}
                   >${v.exampleValue}</textarea>
+
+                  <!-- this textarea is for user to edit the example -->
                   <textarea 
                     class = "textarea request-body-param-user-input" 
                     spellcheck = "false"
                     data-ptype = "${reqBody.mimeType}" 
-                    style="width:100%; resize:vertical;"
+                    style="width:100%; resize:vertical; margin-top: -9px"
                   >${v.exampleValue}</textarea>
                 </div>  
               `)}
