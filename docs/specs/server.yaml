@@ -4,19 +4,23 @@ info:
   title: Server Variables
   description: >
     Various ways to define API servers in the spec including variables
-    
+
     ```yaml
       servers:
         - url: 'http://example.com/api'
           description: Test server (just for example)
         - url: '/api'
-        - url: '{protocol}://dev.com/api'
+        - url: '{protocol}://dev.com/api/{version}'
           variables:
             protocol:
-              default: https          
+              description: Protocol (with enum)
+              default: https
               enum:
                 - http
                 - https
+            version:
+              description: API Version (without enum)
+              default: v1
         - url: '{protocol}://{environment}.example.com/{version}'
           variables:
             environment:
@@ -31,27 +35,31 @@ info:
                 - api.dev  # Development server
                 - api.qa   # Testing server
             protocol:
-              default: https          
+              default: https
               enum:
                 - http
                 - https
             version:
-              default: v2          
+              default: v2
               enum:
                 - v1
                 - v2
-    ```                     
+    ```
 servers:
   - url: 'http://example.com/api'
     description: Test server (just for example)
   - url: '/api'
-  - url: '{protocol}://dev.com/api'
+  - url: '{protocol}://dev.com/api/{version}'
     variables:
       protocol:
-        default: https          
+        description: Protocol (with enum)
+        default: https
         enum:
           - http
           - https
+      version:
+        description: API Version (without enum)
+        default: v1
   - url: '{protocol}://{environment}.example.com/{version}'
     variables:
       environment:
@@ -66,20 +74,20 @@ servers:
           - api.dev  # Development server
           - api.qa   # Testing server
       protocol:
-        default: https          
+        default: https
         enum:
           - http
           - https
       version:
-        default: v2          
+        default: v2
         enum:
           - v1
           - v2
 paths:
   /server-variables:
     get:
-      summary: Server Variable. 
-      discription: Computed server url should be shown against `API SERVER`. 
+      summary: Server Variable.
+      discription: Computed server url should be shown against `API SERVER`.
       responses:
         '200':
           description: successful operation
