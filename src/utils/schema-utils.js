@@ -1,4 +1,3 @@
-
 /* Generates an schema object containing type and constraint info */
 export function getTypeInfo(schema) {
   if (!schema) {
@@ -390,7 +389,6 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
   }
   return obj;
 }
-
 
 /* Create Example object */
 export function generateExample(examples, example, schema, mimeType, includeReadOnly = true, outputType) {

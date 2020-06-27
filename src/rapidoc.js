@@ -25,7 +25,6 @@ import { pathIsInSearch, invalidCharsRegEx, sleep } from '@/utils/common-utils';
 import ProcessSpec from '@/utils/spec-parser';
 import mainBodyTemplate from '@/templates/main-body-template';
 
-
 export default class RapiDoc extends LitElement {
   constructor() {
     super();

@@ -4,7 +4,6 @@ import FontStyles from '@/styles/font-styles';
 import BorderStyles from '@/styles/border-styles';
 import InputStyles from '@/styles/input-styles';
 
-
 export default class JsonTree extends LitElement {
   static get properties() {
     return {

@@ -8,7 +8,6 @@ import callbackTemplate from '@/templates/callback-template';
 import { pathSecurityTemplate } from '@/templates/security-scheme-template';
 import { pathIsInSearch, invalidCharsRegEx } from '@/utils/common-utils';
 
-
 /* eslint-disable indent */
 function toggleExpand(path) {
   if (path.expanded) {

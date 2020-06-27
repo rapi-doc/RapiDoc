@@ -111,7 +111,6 @@ async function onWindowMessageEvent(msgEvent, winObj, tokenUrl, clientId, client
   }
 }
 
-
 async function onInvokeOAuthFlow(apiKeyId, flowType, authUrl, tokenUrl, e) {
   const authFlowDivEl = e.target.closest('.oauth-flow');
   const clientId = authFlowDivEl.querySelector('.oauth-client-id') ? authFlowDivEl.querySelector('.oauth-client-id').value.trim() : '';

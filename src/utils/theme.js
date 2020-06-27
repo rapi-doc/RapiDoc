@@ -1,4 +1,3 @@
-
 import { html } from 'lit-element';
 import ColorUtils from '@/utils/color-utils';
 /* Generates an schema object containing type and constraint info */

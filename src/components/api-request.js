@@ -524,7 +524,6 @@ export default class ApiRequest extends LitElement {
           'text',
         );
 
-
         formDataTableRows.push(html`
         <tr> 
           <td rowspan="${this.allowTry === 'true' ? '1' : '2'}" style="width:160px; min-width:100px;">
@@ -881,7 +880,6 @@ export default class ApiRequest extends LitElement {
       }
     });
 
-
     // Request Body Params
     if (requestBodyContainerEl) {
       const requestBodyType = requestBodyContainerEl.dataset.selectedRequestBodyType;
@@ -1027,7 +1025,6 @@ export default class ApiRequest extends LitElement {
       me.responseMessage = `${err.message} (CORS or Network Issue)`;
     }
   }
-
 
   onAddRemoveFileInput(e, pname, ptype) {
     if (e.target.tagName.toLowerCase() !== 'button') {
