@@ -1,31 +1,26 @@
 openapi: 3.0.0
 info:
-  title: ''
-  description: ''
-  version: 0.1.0
-servers:
-- url: "/api"
+  version: 1.0.0
+  title: Slack Incoming Webhook
 paths:
-  "/count":
-    get:
-      description: ''
-      operationId: get_count
-      parameters: []
+  /test:
+    post:
+      summary: Post a message to Slack
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:          # <!--- form field name
+                  type: string
+                  description: Provide full name
+                age:    # <!--- form field name
+                  type: integer
+            example: 
+              name: approved
+              age: 20
+              
       responses:
         '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/ApiItemCount"
-components:
-  schemas:
-    ApiItemCount:
-      description: ''
-      type: object
-      required:
-      - value
-      properties:
-        value:
-          description: This is my real descriptionyarn serve
-          
+          description: OK
