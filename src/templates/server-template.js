@@ -10,7 +10,7 @@ function onApiServerChange(e, server) {
 }
 
 function onApiServerVarChange(e, serverObj) {
-  const inputEls = [...e.currentTarget.closest('table').querySelectorAll('input')];
+  const inputEls = [...e.currentTarget.closest('table').querySelectorAll('input, select')];
   let tempUrl = serverObj.url;
   inputEls.forEach((v) => {
     const regex = new RegExp(`{${v.dataset.var}}`, 'g');
@@ -31,13 +31,34 @@ function serverVarsTemplate() {
         <tr>
           <td style="vertical-align: middle;" >${kv[0]}</td>
           <td>
-            <input 
-              type = "text" 
-              spellcheck = "false" 
+            ${kv[1].enum
+            ? html`
+            <select
+              data-var = "${kv[0]}"
+              @input = ${(e) => { onApiServerVarChange.call(this, e, this.selectedServer); }}
+            >
+            ${Object.entries(kv[1].enum).map((e) => (kv[1].default === e[1]
+              ? html`
+              <option
+                selected
+                label = ${e[1]}
+                value = ${e[1]}
+              />`
+              : html`
+              <option
+                label = ${e[1]}
+                value = ${e[1]}
+              />`
+            ))}
+            </select>`
+            : html`
+            <input
+              type = "text"
+              spellcheck = "false"
               data-var = "${kv[0]}"
               value = "${kv[1].default}"
               @input = ${(e) => { onApiServerVarChange.call(this, e, this.selectedServer); }}
-            />
+            />`}
           </td>
         </tr>
         ${kv[1].description
@@ -59,9 +80,9 @@ export default function serverTemplate() {
         ? ''
         : html`
           ${this.resolvedSpec.servers.map((server) => html`
-            <input type = 'radio' 
-              name = 'api_server' 
-              value = '${server.url}' 
+            <input type = 'radio'
+              name = 'api_server'
+              value = '${server.url}'
               @change = ${(e) => { onApiServerChange.call(this, e, server); }}
               .checked = '${this.selectedServer.url === server.url}'
               style = 'margin:4px 0'
