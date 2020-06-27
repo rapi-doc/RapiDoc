@@ -82,7 +82,10 @@ export default css`
     font-size: var(--font-size-small);
     line-height: calc(var(--font-size-small) + 6px);
   }
-  
+  .m-markdown-small li {
+    line-height: calc(var(--font-size-small) + 8px);
+  }
+
   .m-markdown p:not(:first-child) {
     margin-block-start: 24px;
   }
@@ -152,7 +155,7 @@ export default css`
   }
 
   .m-markdown-small pre code {
-    color:var(--fg2);
+    color: var(--fg2);
     background-color: var(--bg3);
   }
 
@@ -173,7 +176,7 @@ export default css`
 
   .m-markdown-small img,
   .m-markdown img { 
-    max-width:100%; 
+    max-width: 100%; 
   }
 
   /* Markdown table */

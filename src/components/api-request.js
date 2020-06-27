@@ -98,9 +98,11 @@ export default class ApiRequest extends LitElement {
           min-height:220px; 
           padding:5px;
           resize:vertical;
-          font-family:var(--font-mono);
-          font-size:var(--font-size-small);
         }
+        .example:first-child {
+          margin-top: -9px;
+        }
+
         .response-message{
           font-weight:bold;
           text-overflow: ellipsis;
@@ -220,7 +222,7 @@ export default class ApiRequest extends LitElement {
       }
       tableRows.push(html`
       <tr> 
-        <td style="width:160px; min-width:100px;">
+        <td rowspan="${this.allowTry === 'true' || inputVal !== '' ? '1' : '2'}" style="width:160px; min-width:100px;">
           <div class="param-name">
             ${param.required ? html`<span style='color:var(--red)'>*</span>` : ''}${param.name}
           </div>
@@ -281,16 +283,12 @@ export default class ApiRequest extends LitElement {
           }
         </td>  
       </tr>
-      ${param.description
-        ? html`
-          <tr>
-            <td style="border:none">  </td>
-            <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;"> 
-              <span class="m-markdown-small">${unsafeHTML(marked(param.description || ''))}</span>
-            </td>
-          </tr>`
-        : ''
-      }
+      <tr>
+        ${this.allowTry === 'true' || inputVal !== '' ? html`<td style="border:none"> </td>` : ''}
+        <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;"> 
+          <span class="m-markdown-small">${unsafeHTML(marked(param.description || ''))}</span>
+        </td>
+      </tr>
     `);
     }
 
@@ -320,8 +318,10 @@ export default class ApiRequest extends LitElement {
     this.selectedRequestBodyExample = '';
     window.setTimeout((selectEl) => {
       const exampleTextareaEl = selectEl.closest('.request-body-container').querySelector('.request-body-param');
-      const userInputExampleTextareaEl = selectEl.closest('.request-body-container').querySelector('.request-body-param-user-input');
-      userInputExampleTextareaEl.value = exampleTextareaEl.value;
+      if (exampleTextareaEl) {
+        const userInputExampleTextareaEl = selectEl.closest('.request-body-container').querySelector('.request-body-param-user-input');
+        userInputExampleTextareaEl.value = exampleTextareaEl.value;
+      }
     }, 0, mimeDropdownEl);
   }
 
@@ -406,20 +406,19 @@ export default class ApiRequest extends LitElement {
                 <div class="example ${v.exampleId === this.selectedRequestBodyExample ? 'example-selected' : ''}" data-example = '${v.exampleId}'>
                   ${v.exampleSummary && v.exampleSummary.length > 80 ? html`<div style="padding: 4px 0"> ${v.exampleSummary} </div>` : ''}
                   ${v.exampleDescription ? html`<div class="m-markdown-small" style="padding: 4px 0"> ${unsafeHTML(marked(v.exampleDescription || ''))} </div>` : ''}
+                  <!-- this textarea is for user to edit the example -->
+                  <textarea 
+                    class = "textarea request-body-param-user-input" 
+                    spellcheck = "false"
+                    data-ptype = "${reqBody.mimeType}" 
+                    style="width:100%; resize:vertical;"
+                  >${v.exampleValue}</textarea>
                   <!-- This textarea(hidden) is to store the original example value, this will remain unchanged when users switches from one example to another, its is used to populate the editable textarea -->
                   <textarea 
                     class = "textarea request-body-param ${reqBody.mimeType.substring(reqBody.mimeType.indexOf('/') + 1)}" 
                     spellcheck = "false"
                     data-ptype = "${reqBody.mimeType}" 
                     style="width:100%; resize:vertical; display:none"
-                  >${v.exampleValue}</textarea>
-
-                  <!-- this textarea is for user to edit the example -->
-                  <textarea 
-                    class = "textarea request-body-param-user-input" 
-                    spellcheck = "false"
-                    data-ptype = "${reqBody.mimeType}" 
-                    style="width:100%; resize:vertical; margin-top: -9px"
                   >${v.exampleValue}</textarea>
                 </div>  
               `)}
@@ -528,7 +527,7 @@ export default class ApiRequest extends LitElement {
 
         formDataTableRows.push(html`
         <tr> 
-          <td style="width:160px; min-width:100px;">
+          <td rowspan="${this.allowTry === 'true' ? '1' : '2'}" style="width:160px; min-width:100px;">
             <div class="param-name">${fieldName}</div>
             <div class="param-type">
               ${fieldType === 'array'
@@ -613,14 +612,18 @@ export default class ApiRequest extends LitElement {
                       </div>`
                     }
                   </div>`
-                  : html`<input 
-                    spellcheck = "false"
-                    type = "${fieldSchema.format === 'binary' ? 'file' : fieldSchema.format === 'password' ? 'password' : 'text'}"
-                    style = "width:200px" 
-                    data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
-                    data-pname = "${fieldName}" 
-                    data-array = "false" 
-                  />`
+                  : html`
+                    ${this.allowTry === 'true'
+                    ? html`<input
+                        spellcheck = "false"
+                        type = "${fieldSchema.format === 'binary' ? 'file' : fieldSchema.format === 'password' ? 'password' : 'text'}"
+                        style = "width:200px"
+                        data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
+                        data-pname = "${fieldName}"
+                        data-array = "false"
+                      />`
+                    : ''
+                  }`
                 }`
               }
           </td>
@@ -628,16 +631,13 @@ export default class ApiRequest extends LitElement {
             <div class="param-constraint"></div>
           </td>  
         </tr>
-        ${fieldSchema.description
-          ? html`
-            <tr>
-              <td style="border:none"></td>
-              <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;"> 
-                <span class="m-markdown-small">${unsafeHTML(marked(fieldSchema.description || ''))}</span>
-              </td>
-            </tr>`
-          : ''
-        }`);
+        <tr>
+          ${this.allowTry === 'true' ? html`<td style="border:none"> </td>` : ''}
+          <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;"> 
+            <span class="m-markdown-small">${unsafeHTML(marked(fieldSchema.description || ''))}</span>
+          </td>
+        </tr>
+        `);
       }
       return html`
         <table style="width:100%;" class="m-table">
