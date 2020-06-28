@@ -677,7 +677,7 @@ export default class ApiRequest extends LitElement {
         ${this.responseIsBlob
           ? html`
             <div class="tab-content col" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};">
-              <button class="m-btn" @click="${this.downloadResponseBlob}">DOWNLOAD</button>
+              <button class="m-btn" @click="${this.downloadResponseBlob}">${this.responseBlobType.toUpperCase()}</button>
             </div>`
           : html`
             <div class="tab-content col m-markdown" style="flex:1;display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};" >
@@ -1003,16 +1003,22 @@ export default class ApiRequest extends LitElement {
           resp.json().then((respObj) => {
             me.responseText = JSON.stringify(respObj, null, 2);
           });
-        } else if (contentType.includes('octet-stream')) {
+        } else if (RegExp('7z|octet-stream|pdf|tar|zip').test(contentType)) {
           me.responseIsBlob = true;
+          me.responseBlobType = 'download';
           const contentDisposition = resp.headers.get('content-disposition');
           me.respContentDisposition = contentDisposition ? contentDisposition.split('filename=')[1] : 'filename';
-          resp.blob().then((respBlob) => {
-            me.responseBlobUrl = URL.createObjectURL(respBlob);
-          });
+        } else if (RegExp('^audio|^image|^video').test(contentType)) {
+          me.responseIsBlob = true;
+          me.responseBlobType = 'show';
         } else {
           resp.text().then((respText) => {
             me.responseText = respText;
+          });
+        }
+        if (me.responseIsBlob) {
+          resp.blob().then((respBlob) => {
+            me.responseBlobUrl = URL.createObjectURL(respBlob);
           });
         }
       } else {
@@ -1071,7 +1077,11 @@ export default class ApiRequest extends LitElement {
       document.body.appendChild(a);
       a.style = 'display: none';
       a.href = this.responseBlobUrl;
-      a.download = this.respContentDisposition;
+      if (this.responseBlobType === 'show') {
+        a.target = '_blank';
+      } else {
+        a.download = this.respContentDisposition;
+      }
       a.click();
       a.remove();
     }
@@ -1084,6 +1094,7 @@ export default class ApiRequest extends LitElement {
     this.responseStatus = 'success';
     this.responseMessage = '';
     this.responseIsBlob = false;
+    this.responseBlobType = '';
     this.respContentDisposition = '';
     if (this.responseBlobUrl) {
       URL.revokeObjectURL(this.responseBlobUrl);
