@@ -27,7 +27,7 @@ export default css`
 }
 
 .m-table th {
-  color: var(--fg3);
+  color: var(--fg2);
   font-size: var(--font-size-small);
   line-height: calc(var(--font-size-small) + 18px);
   font-weight: 600;

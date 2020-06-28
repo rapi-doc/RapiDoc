@@ -82,7 +82,7 @@ export default class SchemaTable extends LitElement {
             ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'}
           </div>
         </div>
-          <div style='padding: 5px 0; color:var(--fg3)'> 
+          <div style='padding: 5px 0; color:var(--fg2)'> 
             <span class='bold-text upper'> ${this.data ? this.data['::type'] : ''}</span> 
             <span class='m-markdown' >${this.data ? unsafeHTML(marked(this.data['::description'] || '')) : ''}</span>
           </div>

@@ -140,7 +140,7 @@ export default css`
     margin-top: 4px;
     padding: 2px 4px;
     background-color: var(--bg3);
-    color: var(--fg3);
+    color: var(--fg2);
   }
 
   .m-markdown-small pre code,
@@ -205,6 +205,7 @@ export default css`
   .m-markdown th {
     vertical-align: top;
     border-top: 1px solid var(--border-color);
+    line-height: calc(var(--font-size-small) + 4px);
   }
 
   .m-markdown-small tr:first-child th,

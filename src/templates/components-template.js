@@ -13,7 +13,7 @@ function componentBodyTemplate(sComponent) {
       <h1> ${sComponent.name} </h1>
       ${sComponent.component
     ? html`
-      <div class='mono-font regular-font-size' style='padding: 8px 0; color:var(--fg3)'> 
+      <div class='mono-font regular-font-size' style='padding: 8px 0; color:var(--fg2)'> 
         
       <json-tree
         class="border tree"
