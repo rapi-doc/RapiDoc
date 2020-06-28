@@ -154,7 +154,7 @@ export default class SchemaTree extends LitElement {
                 : newPrevKey
             }${level > 0 ? ':' : ''}${openBracket}
           </div>
-          <div class='td key-descr m-markdown m-markdown-small'>${unsafeHTML(marked(prevDescr || ''))}</div>
+          <div class='td key-descr m-markdown-small'>${unsafeHTML(marked(prevDescr || ''))}</div>
         </div>
         <div class='inside-bracket ${data['::type']}' style='padding-left:${data['::type'] !== 'xxx-of-option' ? leftPadding : 0}px;'>
           ${Object.keys(data).map((key) => html`
@@ -199,19 +199,19 @@ export default class SchemaTree extends LitElement {
             : ''
           }
           ${itemParts[3]
-            ? html`<div style='color: var(--fg3)'><span class='bold-text'>Default:</span> ${itemParts[3]}</div>`
+            ? html`<div style='color: var(--fg2)'><span class='bold-text'>Default:</span> ${itemParts[3]}</div>`
             : ''
           }
           ${itemParts[4]
-            ? html`<div style='color: var(--fg3)'><span class='bold-text'>Allowed:</span>(${itemParts[4]})</div>`
+            ? html`<div style='color: var(--fg2)'><span class='bold-text'>Allowed:</span> &nbsp; ${itemParts[4]}</div>`
             : ''
           }
           ${itemParts[5]
-            ? html`<div style='color: var(--fg3)'><span class='bold-text'>Pattern:</span> ${itemParts[5]}</div>`
+            ? html`<div style='color: var(--fg2)'><span class='bold-text'>Pattern:</span> ${itemParts[5]}</div>`
             : ''
           }
           ${itemParts[6]
-            ? html`<span class="m-markdown m-markdown-small">${unsafeHTML(marked(itemParts[6]))}</span>`
+            ? html`<span class="m-markdown-small">${unsafeHTML(marked(itemParts[6]))}</span>`
             : ''
           }
         </div>

@@ -44,7 +44,6 @@ export default class SchemaTable extends LitElement {
         white-space: normal;
         width: 70px;
       }
-
       .collapsed-descr .tr {
         max-height: calc(var(--font-size-small) + var(--font-size-small) + 4px);
       }
@@ -147,7 +146,7 @@ export default class SchemaTable extends LitElement {
                 }
               </div>
               <div class='td key-type'>${prevDataType.startsWith('xxx-') ? '' : prevDataType}</div>
-              <div class='td key-descr m-markdown m-markdown-small'>${unsafeHTML(marked(prevDescr || ''))}   </div>
+              <div class='td key-descr m-markdown-small' style='line-height:1.7'>${unsafeHTML(marked(prevDescr || ''))}</div>
             </div>`
           : ''
         }
@@ -183,23 +182,23 @@ export default class SchemaTable extends LitElement {
         <div class='td key-descr'>
           ${prevDataType === 'array' ? prevDescr : ''}
           ${itemParts[2]
-            ? html`<div style='color: var()'>${itemParts[2]}</div>`
+            ? html`<div style='color: var(--fg2); padding-bottom:3px;'>${itemParts[2]}</div>`
             : ''
           }
           ${itemParts[3]
-            ? html`<div style='color: var(--fg3)'><span class='bold-text'>Default:</span> ${itemParts[3]}</div>`
+            ? html`<div style='color: var(--fg2); padding-bottom:3px;' ><span class='bold-text'>Default:</span> ${itemParts[3]}</div>`
             : ''
           }
           ${itemParts[4]
-            ? html`<div style='color: var(--fg3)'><span class='bold-text'>Allowed:</span>(${itemParts[4]})</div>`
+            ? html`<div style='color: var(--fg2); padding-bottom:3px;'><span class='bold-text'>Allowed: </span> &nbsp; ${itemParts[4]}</div>`
             : ''
           }
           ${itemParts[5]
-            ? html`<div style='color: var(--fg3)'><span class='bold-text'>Pattern:</span> ${itemParts[5]}</div>`
+            ? html`<div style='color: var(--fg2); padding-bottom:3px;'><span class='bold-text'>Pattern:</span>  &nbsp; ${itemParts[5]}</div>`
             : ''
           }
           ${itemParts[6]
-            ? html`<span class="m-markdown m-markdown-small">${unsafeHTML(marked(itemParts[6]))}</span>`
+            ? html`<span class="m-markdown-small">${unsafeHTML(marked(itemParts[6]))}</span>`
             : ''
           }
         </div>
