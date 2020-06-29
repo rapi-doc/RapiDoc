@@ -1,0 +1,45 @@
+{
+  "openapi" : "3.0.0",
+  "info" : {
+    "title" : "photos API",
+    "description" : "picsum",
+    "version" : "1.0.0"
+  },
+  "servers" : [ {
+    "url" : "https://picsum.photos/",
+    "description" : "picsum photos"
+  } ],
+  "paths" : {
+    "/{width}/{height}" : {
+      "get" : {
+        "description" : "Return a photo",
+        "parameters" : [ {
+          "name" : "width",
+          "in" : "path",
+          "description" : "photo width",
+          "required" : true,
+          "schema" : {
+            "minimum" : 100,
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "height",
+          "in" : "path",
+          "description" : "photo height",
+          "required" : true,
+          "schema" : {
+            "minimum" : 100,
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Default response"
+          }
+        }
+      }
+    }
+  }
+}
