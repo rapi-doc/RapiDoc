@@ -677,9 +677,9 @@ export default class ApiRequest extends LitElement {
         ${this.responseIsBlob
           ? html`
             <div class="tab-content col" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};">
-              <button class="m-btn" @click="${this.downloadResponseBlob}">DOWNLOAD</button>
+              <button class="m-btn thin-border mar-top-8" style="width:135px" @click="${this.downloadResponseBlob}">DOWNLOAD</button>
               ${this.responseBlobType === 'view'
-                ? html`<button class="m-btn" @click="${this.viewResponseBlob}">VIEW (NEW TAB)</button>`
+                ? html`<button class="m-btn thin-border mar-top-8" style="width:135px" @click="${this.viewResponseBlob}">VIEW (NEW TAB)</button>`
                 : ''
               }
             </div>`

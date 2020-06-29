@@ -20,4 +20,8 @@ a { color: var(--blue); }
 .pad-top-8{
   padding-top: 8px;
 }
+.mar-top-8{
+  margin-top: 8px;
+}
+
 `;
