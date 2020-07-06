@@ -269,6 +269,51 @@ The below example adds a single click authorization functionality to swagger's p
 </code></pre>
 <br/>
 
+<h2 class="section-heading"> Render inline JSON schema (Tabular) (<a style="font-size:16px" href="./examples/json-schema-table.html">DEMO</a>)</h2> 
+<pre class="shadow code-block" ><code class="html" >
+&lt;schema-table&gt;
+   &lt;pre&gt;
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/product.schema.json",
+  "title": "Product",
+  "description": "A product from Acme's catalog",
+  "type": "object",
+  "properties": {
+    "productId": {
+      "description": "The unique identifier for a product",
+      "type": "integer"
+    }
+  },
+  "required": [ "productId" ]
+}
+   &lt;/pre&gt;
+&lt;/schema-table&gt;
+</code></pre>
+<br/>
+
+<h2 class="section-heading"> Render inline JSON schema (Tree) (<a style="font-size:16px" href="./examples/json-schema-tree.html">DEMO</a>)</h2> 
+<pre class="shadow code-block" ><code class="html" >
+&lt;schema-tree&gt;
+   &lt;pre&gt;
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/product.schema.json",
+  "title": "Product",
+  "description": "A product from Acme's catalog",
+  "type": "object",
+  "properties": {
+    "productId": {
+      "description": "The unique identifier for a product",
+      "type": "integer"
+    }
+  },
+  "required": [ "productId" ]
+}
+   &lt;/pre&gt;
+&lt;/schema-tree&gt;
+</code></pre>
+
   <div style="font-size:20px"> Playground - change attributes using JavaScript &nbsp; <a href="./examples/example100.html">DEMO</a> </div>
 
 </div>  
