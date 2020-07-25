@@ -52,8 +52,11 @@ export default css`
   border-color:var(--red); 
   background-color:var(--light-red); 
 }
+
+.m-endpoint > .endpoint-head.head:hover,
+.m-endpoint > .endpoint-head.head.expanded,
 .m-endpoint > .endpoint-head.patch:hover,
-.m-endpoint > .endpoint-head.patch.expanded{
+.m-endpoint > .endpoint-head.patch.expanded {
   border-color:var(--yellow); 
   background-color:var(--light-yellow); 
 }
@@ -72,10 +75,14 @@ export default css`
   box-shadow: 0px 4px 3px -3px rgba(0, 0, 0, 0.15);
 }
 .m-endpoint .endpoint-body.delete{ border-color:var(--red); }
-.m-endpoint .endpoint-body.patch{ border-color:var(--yellow); }
 .m-endpoint .endpoint-body.put{ border-color:var(--orange); }
 .m-endpoint .endpoint-body.post{border-color:var(--green);}
 .m-endpoint .endpoint-body.get{ border-color:var(--blue); }
+.m-endpoint .endpoint-body.head,
+.m-endpoint .endpoint-body.patch { 
+  border-color:var(--yellow); 
+}
+
 .m-endpoint .endpoint-body.deprecated{ 
   border-color:var(--border-color);
   filter:opacity(0.6);
@@ -110,11 +117,14 @@ export default css`
   margin-right:5px;
 }
 .method.delete{ border: 2px solid var(--red);}
-.method.patch{ border: 2px solid var(--yellow); }
 .method.put{ border: 2px solid var(--orange); }
 .method.post{ border: 2px solid var(--green); }
 .method.get{ border: 2px solid var(--blue); }
 .method.get.deprecated{ border: 2px solid var(--border-color); }
+.method.head,
+.method.patch { 
+  border: 2px solid var(--yellow); 
+}
 
 .req-resp-container{
   display: flex;
@@ -135,7 +145,9 @@ export default css`
   border-width:0 0 1px 0;
   border-style:dashed;
 }
-.patch .request{ 
+
+.head .request,
+.patch .request { 
   border-color:var(--yellow); 
 }
 .put .request{ 
@@ -150,7 +162,6 @@ export default css`
 .delete .request{ 
   border-color:var(--red); 
 }
-
 
 @media only screen and (min-width: 768px) {
   .only-large-screen { display:block; }
