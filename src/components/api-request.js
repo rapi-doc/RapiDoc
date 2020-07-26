@@ -513,8 +513,8 @@ export default class ApiRequest extends LitElement {
       for (const fieldName in schema.properties) {
         const fieldSchema = schema.properties[fieldName];
         const fieldType = fieldSchema.type;
-        const arrayType = fieldSchema.type === 'array' ? fieldSchema.items.type : '';
         const formdataPartSchema = schemaInObjectNotation(fieldSchema, {});
+        const paramSchema = getTypeInfo(fieldSchema);
         const formdataPartExample = generateExample(
           '',
           fieldSchema.example ? fieldSchema.example : '',
@@ -527,13 +527,13 @@ export default class ApiRequest extends LitElement {
         formDataTableRows.push(html`
         <tr> 
           <td rowspan="${this.allowTry === 'true' ? '1' : '2'}" style="width:160px; min-width:100px;">
-            <div class="param-name">${fieldName}</div>
-            <div class="param-type">
-              ${fieldType === 'array'
-                ? `${fieldType} of ${arrayType}`
-                : `${fieldType} ${fieldSchema.format ? `\u00a0(${fieldSchema.format})` : ''}`
+            <div class="param-name">
+              ${fieldSchema.required
+                ? html`<span style='color:var(--red);'>*</span>${fieldName}`
+                : html`${fieldName}`
               }
             </div>
+            <div class="param-type">${paramSchema.type}</div>
           </td>  
           <td style="${fieldType === 'object' ? 'width:100%; padding:0;' : 'width:160px;'} min-width:100px;">
             ${fieldType === 'array'
@@ -612,22 +612,34 @@ export default class ApiRequest extends LitElement {
                     }
                   </div>`
                   : html`
-                    ${this.allowTry === 'true'
-                    ? html`<input
-                        spellcheck = "false"
-                        type = "${fieldSchema.format === 'binary' ? 'file' : fieldSchema.format === 'password' ? 'password' : 'text'}"
-                        style = "width:200px"
-                        data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
-                        data-pname = "${fieldName}"
-                        data-array = "false"
-                      />`
-                    : ''
+                    ${this.allowTry === 'true' || fieldSchema.example
+                      ? html`<input
+                          value = "${fieldSchema.example || ''}"
+                          spellcheck = "false"
+                          type = "${fieldSchema.format === 'binary' ? 'file' : fieldSchema.format === 'password' ? 'password' : 'text'}"
+                          style = "width:200px"
+                          data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
+                          data-pname = "${fieldName}"
+                          data-array = "false"
+                        />`
+                      : ''
+                    }
+                    `
                   }`
-                }`
               }
           </td>
           <td>
-            <div class="param-constraint"></div>
+            <div class="param-constraint">
+              ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues
+                ? html`
+                  <div class="param-constraint">
+                    ${paramSchema.default ? html`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
+                    ${paramSchema.constrain ? html`${paramSchema.constrain}<br/>` : ''}
+                    ${paramSchema.allowedValues ? html`<span style="font-weight:bold">Allowed: </span>${paramSchema.allowedValues}` : ''}
+                  </div>`
+                : ''
+              }
+            </div>
           </td>  
         </tr>
         <tr>
