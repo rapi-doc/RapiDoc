@@ -24,6 +24,7 @@ paths:
                       type: string
                 agePart:
                   type: integer
+                  default: 21
                 contactPart:
                   type: object
                   properties:
