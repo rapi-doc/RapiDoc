@@ -73,7 +73,7 @@ export default function navbarTemplate() {
         return true;
       }).map((p) => html`
       <div class='nav-bar-path' data-content-id='${p.method}-${p.path}' id='link-${p.method}-${p.path.replace(invalidCharsRegEx, '-')}' @click='${(e) => this.scrollToEl(e)}'> 
-        <span style = "${p.deprecated ? 'filter:opacity(0.5)' : ''}"> ${p.summary || p.path} </span>
+        <span style = "${p.deprecated ? 'filter:opacity(0.5)' : ''}"> ${this.showNavItemAs === 'path' ? p.path : p.summary} </span>
       </div>`)}
     `)}
 
