@@ -72,8 +72,8 @@ export default function navbarTemplate() {
         }
         return true;
       }).map((p) => html`
-      <div class='nav-bar-path' data-content-id='${p.method}-${p.path}' id='link-${p.method}-${p.path.replace(invalidCharsRegEx, '-')}' @click='${(e) => this.scrollToEl(e)}'> 
-        <span style = "${p.deprecated ? 'filter:opacity(0.5)' : ''}"> ${this.showNavItemAs === 'path' ? p.path : p.summary} </span>
+      <div class='nav-bar-path ${this.usePathInNavBar === 'true' ? 'small-font' : ''}' data-content-id='${p.method}-${p.path}' id='link-${p.method}-${p.path.replace(invalidCharsRegEx, '-')}' @click='${(e) => this.scrollToEl(e)}'> 
+        <span style = "${p.deprecated ? 'filter:opacity(0.5)' : ''}"> ${this.usePathInNavBar === 'true' ? html`<span class='mono-font'>${p.method.toUpperCase()} ${p.path}</span>` : p.summary} </span>
       </div>`)}
     `)}
 
