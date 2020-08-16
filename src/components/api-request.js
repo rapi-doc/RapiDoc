@@ -206,15 +206,15 @@ export default class ApiRequest extends LitElement {
           paramExplode = param.explode;
         }
       }
-
       if (param.example) {
         if (param.example === '0' || param.example === 0) {
           inputVal = '0';
         } else {
           inputVal = paramSchema.type === 'array' ? [param.example] : param.example;
         }
-      } else if (param.examples && param.examples.length > 0) {
-        inputVal = paramSchema.type === 'array' ? [param.examples[0]] : param.examples[0];
+      } else if (param.examples && Object.values(param.examples).length > 0) {
+        const firstExample = Object.values(param.examples)[0].value || '';
+        inputVal = paramSchema.type === 'array' ? [firstExample] : firstExample;
       } else {
         inputVal = paramSchema.type === 'array'
           ? (paramSchema.default ? [paramSchema.default] : '')
@@ -287,6 +287,20 @@ export default class ApiRequest extends LitElement {
         ${this.allowTry === 'true' || inputVal !== '' ? html`<td style="border:none"> </td>` : ''}
         <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;"> 
           <span class="m-markdown-small">${unsafeHTML(marked(param.description || ''))}</span>
+          ${(param.examples && Object.values(param.examples).length > 1)
+            ? html`<span> Examples: 
+              ${Object.entries(param.examples).map((ex, i, a) => html`
+                <a style="cursor:pointer" data-example="${ex[1].value}" @click="${(e) => {
+                  const inputEl = e.target.closest('table').querySelector(`input[data-pname="${param.name}"]`);
+                  if (inputEl) {
+                    inputEl.value = e.target.dataset.example;
+                  }
+                }}">
+                  ${ex[1].summary || ex[1].value || ex[0]}
+                </a> ${i <= (a.length - 2) ? '| ' : ''}`)
+              }`
+            : ''
+          }
         </td>
       </tr>
     `);

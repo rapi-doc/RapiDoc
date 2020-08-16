@@ -4,6 +4,27 @@ info:
   description:  Providing Examples
   version: 1.0.0
 paths:
+  /multiple-examples-in-query-param:
+    get:
+      tags:
+        - Providing Examples
+      description: Multiple Examples for querystring parameters
+      parameters:  
+      - name: 'country-code'
+        required: true
+        description: Multiple examples. Notice `us` do not have a summary
+        in: 'query'
+        schema:
+          type: 'string'
+        examples:
+          example1: 
+            value: "uk"
+            summary: "United Kingdom"
+          example2:
+            value: "us"
+          example3:
+            value: "ch"
+            summary: "China"
   /multiple-examples-by-response-type:
     get:
       description: Multiple Examples provide for each media-type (`application/json` or `application/json`) 
