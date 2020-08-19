@@ -1,52 +1,89 @@
-openapi: 3.0.3
-info:
-  title: Sample API
-  description: Retrieves user by country and city
-  version: 0.1.9
-servers:
-  - url: http://api.example.com/v1
-components:
-  examples:
-    example1:
-      value: "ua"
-      summary: "example $ref ua"
-    example2:
-      value: "pl"
-      summary: "example $ref pl"
-    example3:
-      value: 0
-paths:
-  /users/{country}/{city}:
-    get:
-      summary: Returns a list of users.
-      parameters:
-      - name: 'country'
-        required: true
-        in: 'path'
-        schema:
-          type: 'string'
-        examples:
-          example1:
-            $ref: '#/components/examples/example1'
-          example2: 
-            $ref: '#/components/examples/example2'
-          example3: 
-            $ref: '#/components/examples/example3'
-      - name: 'city'
-        required: true
-        in: 'path'
-        schema:
-          type: 'string'
-        examples:
-          example1: 
-           value: "uk"
-           summary: "example inline uk"
-      responses:
-        '200':    # status code
-          description: A JSON array of user names
-          content:
-            application/json:
-              schema: 
-                type: array
-                items: 
-                  type: string
+{
+"openapi": "3.0.0",
+    "info": {
+        "title": "Example API",
+        "version": "1.1",
+        "description": "Test Schema"
+    },
+    "paths": {
+        "/token": {
+            "summary": "Generate Token",
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "parameters": [
+                    {
+                        "name": "username",
+                        "description": "Enter your login username.",
+                        "schema": {
+                            "type": "string",
+                            "example": "user1"
+                        },
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "name": "password",
+                        "description": "Enter your login password.",
+                        "schema": {
+                            "type": "string",
+                            "format": "password",
+                            "example": "pp"
+                        },
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "name": "tokenLifeTime",
+                        "description": "Enter the number of days for the token life time. By default, it will expire after 1 day. Maximum is 30 days.",
+                        "schema": {
+                            "type": "integer",
+                            "example": 0
+                        },
+                        "in": "query",
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "success": {
+                                        "value": "message: { Token created successfully}"
+                                    }
+                                }
+                            }
+                        },
+                        "description": "If token is created successfully, check the response Headers."
+                    }
+                },
+                "operationId": "getToken",
+                "summary": "Generate Access Token",
+                "description": "Using the endpoint & parameters below, you can create an API request that can be used in a number of different ways to generate your authentication token.  Most importantly, this method is useful for setting up an automated token renewal process. Your token will be supplied via the Authorization header using the Bearer Token schema. For security reasons, tokens are only valid for a limited period. Use the <i>tokenLifeTime</i> parameter to indicate the desired life time of your token (By default, token will expire after 1 day. Maximum is 30 days).\r\n\r\n\r\n\r\nThese are the supported parameters:"
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "JWT": {
+                "scheme": "bearer",
+                "type": "http",
+                "description": "This API uses JWT authentication tokens (JSON Web Tokens) to validate all endpoints. The first step for accessing these endpoints is to generate a JWT authentication token, since all API endpoints require a valid token. For security reasons, tokens are only valid for a limited period (By default, tokens will expire after 1 day. Maximum is 30 days)."
+            }
+        }
+    },
+    "security": [
+        {
+            "JWT": [
+            ]
+        }
+    ],
+    "tags": [
+        {
+            "name": "User",
+            "description": ""
+        }
+    ]
+}

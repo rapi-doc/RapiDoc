@@ -49,7 +49,7 @@
     "babel-loader": "^8.1.0",
     "babel-plugin-template-html-minifier": "^4.1.0",
     "clean-webpack-plugin": "^3.0.0",
-    "compression-webpack-plugin": "^4.0.1",
+    "compression-webpack-plugin": "^5.0.0",
     "css-loader": "^4.2.1",
     "eslint": "^7.7.0",
     "eslint-config-airbnb": "^18.2.0",
