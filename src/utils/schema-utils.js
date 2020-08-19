@@ -22,7 +22,7 @@ export function getTypeInfo(schema) {
         : '',
     deprecated: schema.deprecated ? '❌' : '',
     example: typeof schema.example === 'undefined' ? '' : `${schema.example}`,
-    default: schema.default === 0 ? '0' : (schema.default ? schema.default : ''),
+    default: typeof schema.default === 'undefined' ? '' : `${schema.default}`,
     description: schema.description ? schema.description : '',
     constrain: '',
     allowedValues: '',
