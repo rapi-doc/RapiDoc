@@ -206,12 +206,12 @@ export default class ApiRequest extends LitElement {
           paramExplode = param.explode;
         }
       }
+
+      param.example = typeof param.example === 'undefined' ? '' : `${param.example}`;
       if (param.example) {
-        if (param.example === '0' || param.example === 0) {
-          inputVal = '0';
-        } else {
-          inputVal = paramSchema.type === 'array' ? [param.example] : param.example;
-        }
+        inputVal = paramSchema.type === 'array' ? [param.example] : `${param.example}`;
+      } else if (paramSchema.example) {
+        inputVal = paramSchema.type === 'array' ? [paramSchema.example] : paramSchema.example;
       } else if (param.examples && Object.values(param.examples).length > 0) {
         const firstExample = Object.values(param.examples)[0].value || '';
         inputVal = paramSchema.type === 'array' ? [firstExample] : firstExample;
@@ -261,7 +261,7 @@ export default class ApiRequest extends LitElement {
                       style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
                     >${inputVal}</textarea>`
                   : html`
-                    <input type="text" spellcheck="false" style="width:100%" class="request-param" 
+                    <input type="${paramSchema.format === 'password' ? 'password' : 'text'}" spellcheck="false" style="width:100%" class="request-param" 
                       data-pname="${param.name}" 
                       data-ptype="${paramType}"  
                       data-array="false"
