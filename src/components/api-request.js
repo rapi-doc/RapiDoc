@@ -549,7 +549,7 @@ export default class ApiRequest extends LitElement {
             </div>
             <div class="param-type">${paramSchema.type}</div>
           </td>  
-          <td style="${fieldType === 'object' ? 'width:100%; padding:0;' : 'width:160px;'} min-width:100px;">
+          <td style="${fieldType === 'object' ? 'width:100%; padding:0;' : 'width:160px;'} min-width:100px;" colspan="${fieldType === 'object' ? 2 : 1}">
             ${fieldType === 'array'
               ? fieldSchema.items.format === 'binary'
                 ? html`
@@ -605,7 +605,7 @@ export default class ApiRequest extends LitElement {
                       </div>
                     </div>  
                     ${html`
-                      <div class="tab-content col" data-tab = 'model' style="display:none; padding:0 10px; width:100%;"> 
+                      <div class="tab-content col" data-tab = 'model' style="display:${this.activeSchemaTab === 'model' ? 'block' : 'none'}; padding-left:5px; width:100%;"> 
                         <schema-tree
                           .data = '${formdataPartSchema}'
                           schema-expand-level = "${this.schemaExpandLevel}"
@@ -614,7 +614,7 @@ export default class ApiRequest extends LitElement {
                       </div>`
                     }
                     ${html`
-                      <div class="tab-content col" data-tab = 'example' style="display:block; padding:0 10px; width:100%"> 
+                      <div class="tab-content col" data-tab = 'example' style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'}; padding-left:5px; width:100%"> 
                         <textarea 
                           class = "textarea"
                           style = "width:100%; border:none; resize:vertical;" 
@@ -643,27 +643,35 @@ export default class ApiRequest extends LitElement {
                   }`
               }
           </td>
-          <td>
-            <div class="param-constraint">
-              ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues
-                ? html`
-                  <div class="param-constraint">
-                    ${paramSchema.default ? html`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
-                    ${paramSchema.constrain ? html`${paramSchema.constrain}<br/>` : ''}
-                    ${paramSchema.allowedValues ? html`<span style="font-weight:bold">Allowed: </span>${paramSchema.allowedValues}` : ''}
-                  </div>`
-                : ''
-              }
-            </div>
-          </td>  
+          ${fieldType === 'object'
+            ? ''
+            : html`
+              <td>
+                <div class="param-constraint">
+                  ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues
+                    ? html`
+                      <div class="param-constraint">
+                        ${paramSchema.default ? html`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
+                        ${paramSchema.constrain ? html`${paramSchema.constrain}<br/>` : ''}
+                        ${paramSchema.allowedValues ? html`<span style="font-weight:bold">Allowed: </span>${paramSchema.allowedValues}` : ''}
+                      </div>`
+                    : ''
+                  }
+                </div>
+              </td>`
+          }
         </tr>
-        <tr>
-          ${this.allowTry === 'true' ? html`<td style="border:none"> </td>` : ''}
-          <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;"> 
-            <span class="m-markdown-small">${unsafeHTML(marked(fieldSchema.description || ''))}</span>
-          </td>
-        </tr>
-        `);
+        ${fieldType === 'object'
+          ? ''
+          : html`
+            <tr>
+              ${this.allowTry === 'true' ? html`<td style="border:none"> </td>` : ''}
+              <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;"> 
+                <span class="m-markdown-small">${unsafeHTML(marked(fieldSchema.description || ''))}</span>
+              </td>
+            </tr>
+          `
+        }`);
       }
       return html`
         <table style="width:100%;" class="m-table">
