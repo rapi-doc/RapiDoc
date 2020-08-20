@@ -1,89 +1,101 @@
-{
-"openapi": "3.0.0",
-    "info": {
-        "title": "Example API",
-        "version": "1.1",
-        "description": "Test Schema"
-    },
-    "paths": {
-        "/token": {
-            "summary": "Generate Token",
-            "post": {
-                "tags": [
-                    "User"
-                ],
-                "parameters": [
-                    {
-                        "name": "username",
-                        "description": "Enter your login username.",
-                        "schema": {
-                            "type": "string",
-                            "example": "user1"
-                        },
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "name": "password",
-                        "description": "Enter your login password.",
-                        "schema": {
-                            "type": "string",
-                            "format": "password",
-                            "example": "pp"
-                        },
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "name": "tokenLifeTime",
-                        "description": "Enter the number of days for the token life time. By default, it will expire after 1 day. Maximum is 30 days.",
-                        "schema": {
-                            "type": "integer",
-                            "example": 0
-                        },
-                        "in": "query",
-                        "required": false
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "examples": {
-                                    "success": {
-                                        "value": "message: { Token created successfully}"
-                                    }
-                                }
-                            }
-                        },
-                        "description": "If token is created successfully, check the response Headers."
-                    }
-                },
-                "operationId": "getToken",
-                "summary": "Generate Access Token",
-                "description": "Using the endpoint & parameters below, you can create an API request that can be used in a number of different ways to generate your authentication token.  Most importantly, this method is useful for setting up an automated token renewal process. Your token will be supplied via the Authorization header using the Bearer Token schema. For security reasons, tokens are only valid for a limited period. Use the <i>tokenLifeTime</i> parameter to indicate the desired life time of your token (By default, token will expire after 1 day. Maximum is 30 days).\r\n\r\n\r\n\r\nThese are the supported parameters:"
-            }
-        }
-    },
-    "components": {
-        "securitySchemes": {
-            "JWT": {
-                "scheme": "bearer",
-                "type": "http",
-                "description": "This API uses JWT authentication tokens (JSON Web Tokens) to validate all endpoints. The first step for accessing these endpoints is to generate a JWT authentication token, since all API endpoints require a valid token. For security reasons, tokens are only valid for a limited period (By default, tokens will expire after 1 day. Maximum is 30 days)."
-            }
-        }
-    },
-    "security": [
-        {
-            "JWT": [
-            ]
-        }
-    ],
-    "tags": [
-        {
-            "name": "User",
-            "description": ""
-        }
-    ]
-}
+openapi: 3.0.0
+info:
+  version: v1
+  title: Users
+paths:
+  /users:
+    get:
+      operationId: listUsers
+      description: List all users.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/x.users+json:
+              schema:
+                $ref: '#/components/schemas/ListUsersResponse'
+        default:
+          description: Error
+          content:
+            application/x.error+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    ListUsersResponse:
+      type: object
+      properties:
+        links:
+          type: array
+          xml:
+            name: link
+          items:
+            $ref: '#/components/schemas/Link'
+        users:
+          type: array
+          xml:
+            name: feature
+          items:
+            type: string
+            xml:
+              name: feature
+      xml:
+        name: response
+    Link:
+      type: object
+      properties:
+        rel:
+          type: string
+          xml:
+            attribute: true
+        href:
+          type: string
+          format: uri
+          xml:
+            attribute: true
+        title:
+          type: string
+          xml:
+            attribute: true
+        type:
+          type: string
+          xml:
+            attribute: true
+    ErrorDetail:
+      type: object
+      properties:
+        links:
+          type: array
+          xml:
+            name: link
+          items:
+            $ref: '#/components/schemas/Link'
+        code:
+          type: string
+        message:
+          type: string
+        location:
+          type: string
+    ErrorResponse:
+      type: object
+      properties:
+        links:
+          type: array
+          xml:
+            name: link
+          items:
+            $ref: '#/components/schemas/Link'
+        status:
+          type: integer
+          format: int32
+        message:
+          type: string
+        errors:
+          type: array
+          xml:
+            name: error
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+      xml:
+        name: response
+
