@@ -211,7 +211,7 @@ export default class ApiRequest extends LitElement {
       if (param.example) {
         inputVal = paramSchema.type === 'array' ? [param.example] : `${param.example}`;
       } else if (paramSchema.example) {
-        inputVal = paramSchema.type === 'array' ? [paramSchema.example] : paramSchema.example;
+        inputVal = paramSchema.type === 'array' ? [paramSchema.example] : `${paramSchema.example}`;
       } else if (param.examples && Object.values(param.examples).length > 0) {
         const firstExample = Object.values(param.examples)[0].value || '';
         inputVal = paramSchema.type === 'array' ? [firstExample] : firstExample;
@@ -600,8 +600,8 @@ export default class ApiRequest extends LitElement {
                         }
                         if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; }
                       }}">
-                        <button class="v-tab-btn" data-tab = 'model'>MODEL</button>
-                        <button class="v-tab-btn active" data-tab = 'example'>EXAMPLE </button>
+                        <button class="v-tab-btn ${this.activeSchemaTab === 'model' ? 'active' : ''}" data-tab = 'model'>MODEL</button>
+                        <button class="v-tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
                       </div>
                     </div>  
                     ${html`
@@ -615,7 +615,8 @@ export default class ApiRequest extends LitElement {
                     }
                     ${html`
                       <div class="tab-content col" data-tab = 'example' style="display:block; padding:0 10px; width:100%"> 
-                        <textarea class = "textarea"
+                        <textarea 
+                          class = "textarea"
                           style = "width:100%; border:none; resize:vertical;" 
                           data-array = "false" 
                           data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
