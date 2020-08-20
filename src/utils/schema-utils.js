@@ -271,11 +271,11 @@ export function schemaToSampleObj(schema, config = { }) {
         } else {
           obj[key] = [schemaToSampleObj(schema.properties[key].items, config)];
         }
-        break;
+        continue;
       }
       if (schema.example) {
         obj[key] = schema.example;
-        break;
+        continue;
       } else {
         obj[key] = schemaToSampleObj(schema.properties[key], config);
       }

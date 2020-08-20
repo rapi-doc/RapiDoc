@@ -63,7 +63,8 @@ function endpointBodyTemplate(path) {
       ${codeSampleTabPanel}
     </div>  
     <div class='req-resp-container'> 
-      <api-request  class="request"  
+      <api-request 
+        class="request"  
         method = "${path.method}", 
         path = "${path.path}" 
         .parameters = "${path.parameters}"
