@@ -3,6 +3,7 @@ import marked from 'marked';
 import Prism from 'prismjs';
 
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import { live } from 'lit-html/directives/live';
 import TableStyles from '@/styles/table-styles';
 import FlexStyles from '@/styles/flex-styles';
 import InputStyles from '@/styles/input-styles';
@@ -172,6 +173,24 @@ export default class ApiRequest extends LitElement {
     `;
   }
 
+  updated(changedProperties) {
+    // In focused mode after navbar click, update the textareas(which contains examples) with the original values
+    // as user may update the dom by editing the textarea's which will not trigger any futher dom-change events
+    if (this.renderStyle === 'focused') {
+      if (changedProperties.size === 1 && changedProperties.has('activeSchemaTab')) {
+        // dont update example as only tabs is switched
+      } else {
+        const exampleTextAreaEls = [...this.shadowRoot.querySelectorAll('textarea[data-ptype="form-data"]')];
+        exampleTextAreaEls.forEach((el) => {
+          const origExampleEl = this.shadowRoot.querySelector(`textarea[data-pname='hidden-${el.dataset.pname}']`);
+          if (origExampleEl) {
+            el.value = origExampleEl.value;
+          }
+        });
+      }
+    }
+  }
+
   /* eslint-disable indent */
   inputParametersTemplate(paramType) {
     let title = '';
@@ -246,7 +265,7 @@ export default class ApiRequest extends LitElement {
                     data-param-serialize-explode = "${paramExplode}"
                     data-array = "true"
                     placeholder= "add-multiple &#x2b90;"
-                    .value = "${inputVal}"
+                    .value = "${live(inputVal)}"
                   >
                   </tag-input>`
                 : paramSchema.type === 'object'
@@ -265,7 +284,7 @@ export default class ApiRequest extends LitElement {
                       data-pname="${param.name}" 
                       data-ptype="${paramType}"  
                       data-array="false"
-                      value="${inputVal}"
+                      .value="${live(inputVal)}"
                     />`
                 }
             </td>`
@@ -623,13 +642,15 @@ export default class ApiRequest extends LitElement {
                           data-pname = "${fieldName}"
                           spellcheck = "false"
                         >${formdataPartExample[0].exampleValue}</textarea>
+                        <!-- This textarea(hidden) is to store the original example value, in focused mode on navbar change it is used to update the example text -->
+                        <textarea data-pname = "hidden-${fieldName}" data-ptype = "${mimeType.includes('form-urlencode') ? 'hidden-form-urlencode' : 'hidden-form-data'}" style="display:none">${formdataPartExample[0].exampleValue}</textarea>
                       </div>`
                     }
                   </div>`
                   : html`
                     ${this.allowTry === 'true' || fieldSchema.example
                       ? html`<input
-                          value = "${fieldSchema.example || ''}"
+                          .value = "${live(fieldSchema.example || '')}"
                           spellcheck = "false"
                           type = "${fieldSchema.format === 'binary' ? 'file' : fieldSchema.format === 'password' ? 'password' : 'text'}"
                           style = "width:200px"
