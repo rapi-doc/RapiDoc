@@ -174,8 +174,9 @@ export default class ApiRequest extends LitElement {
   }
 
   updated(changedProperties) {
-    // In focused mode after navbar click, update the textareas(which contains examples) with the original values
-    // as user may update the dom by editing the textarea's which will not trigger any futher dom-change events
+    // In focused mode after rendering the request component, update the text-areas(which contains examples) using
+    // the original values from hidden textareas
+    // This is done coz, user may update the dom by editing the textarea's and once the DOM is updated externally change detection wont happen, therefore update the values manually
     if (this.renderStyle === 'focused') {
       if (changedProperties.size === 1 && changedProperties.has('activeSchemaTab')) {
         // dont update example as only tabs is switched
