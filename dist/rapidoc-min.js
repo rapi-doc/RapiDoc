@@ -1,5 +1,5 @@
 /*!
- * RapiDoc 8.1.2 - WebComponent to View OpenAPI docs
+ * RapiDoc 8.2.0 - WebComponent to View OpenAPI docs
  * License: MIT
  * Repo   : https://github.com/mrin9/RapiDoc
  * Author : Mrinmoy Majumdar
