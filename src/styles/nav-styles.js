@@ -62,6 +62,10 @@ export default css`
   font-size: calc(var(--font-size-small) + 1px);
   padding: var(--nav-item-padding);
 }
+.nav-bar-path.small-font {
+  font-size: var(--font-size-small);
+}
+
 .nav-bar-info {
   font-size: var(--font-size-regular);
   padding: 16px 10px;

@@ -319,11 +319,11 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
           }
 
           // Generate Path summary and Description if it is missing for a method
-          let summary = (fullPath.summary || '').trim() ? fullPath.summary.trim() : (fullPath.description || '-').trim().split('/n')[0];
+          let summary = (fullPath.summary || fullPath.description || `${methodName} ${path}`).trim().split('/\r?\n/')[0];
           if (summary.length > 100) {
             summary = summary.split('.')[0];
           }
-          if (!(fullPath.description || '').trim()) {
+          if (!fullPath.description) {
             fullPath.description = ((fullPath.summary || '-').trim());
           }
 

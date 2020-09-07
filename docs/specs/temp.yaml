@@ -1,26 +1,100 @@
 openapi: 3.0.0
 info:
-  version: 1.0.0
-  title: Slack Incoming Webhook
+  version: v1
+  title: Users
 paths:
-  /test:
-    post:
-      summary: Post a message to Slack
-      requestBody:
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                name:          # <!--- form field name
-                  type: string
-                  description: Provide full name
-                age:    # <!--- form field name
-                  type: integer
-            example: 
-              name: approved
-              age: 20
-              
+  /users:
+    get:
+      operationId: listUsers
+      description: List all users.
       responses:
-        '200':
-          description: OK
+        "200":
+          description: Success
+          content:
+            application/x.users+json:
+              schema:
+                $ref: '#/components/schemas/ListUsersResponse'
+        default:
+          description: Error
+          content:
+            application/x.error+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    ListUsersResponse:
+      type: object
+      properties:
+        links:
+          type: array
+          xml:
+            name: link
+          items:
+            $ref: '#/components/schemas/Link'
+        users:
+          type: array
+          xml:
+            name: feature
+          items:
+            type: string
+            xml:
+              name: feature
+      xml:
+        name: response
+    Link:
+      type: object
+      properties:
+        rel:
+          type: string
+          xml:
+            attribute: true
+        href:
+          type: string
+          format: uri
+          xml:
+            attribute: true
+        title:
+          type: string
+          xml:
+            attribute: true
+        type:
+          type: string
+          xml:
+            attribute: true
+    ErrorDetail:
+      type: object
+      properties:
+        links:
+          type: array
+          xml:
+            name: link
+          items:
+            $ref: '#/components/schemas/Link'
+        code:
+          type: string
+        message:
+          type: string
+        location:
+          type: string
+    ErrorResponse:
+      type: object
+      properties:
+        links:
+          type: array
+          xml:
+            name: link
+          items:
+            $ref: '#/components/schemas/Link'
+        status:
+          type: integer
+          format: int32
+        message:
+          type: string
+        errors:
+          type: array
+          xml:
+            name: error
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+      xml:
+        name: response
