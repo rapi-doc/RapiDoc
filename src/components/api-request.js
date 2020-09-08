@@ -297,7 +297,17 @@ export default class ApiRequest extends LitElement {
               <div class="param-constraint">
                 ${paramSchema.default ? html`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
                 ${paramSchema.constrain ? html`${paramSchema.constrain}<br/>` : ''}
-                ${paramSchema.allowedValues ? html`<span style="font-weight:bold">Allowed: </span>${paramSchema.allowedValues}` : ''}
+                ${param.schema.enum
+                  ? param.schema.enum.map((v, i) => html`
+                    ${i > 0 ? ' | ' : ''}
+                    <a style="cursor:pointer" data-enum="${v}" @click="${(e) => {
+                      const inputEl = e.target.closest('table').querySelector(`input[data-pname="${param.name}"]`);
+                      if (inputEl) {
+                        inputEl.value = e.target.dataset.enum;
+                      }
+                    }}"> ${v} </a>`)
+                  : ''
+                }
               </div>`
             : ''
           }
@@ -1034,8 +1044,8 @@ export default class ApiRequest extends LitElement {
       curlHeaders += ` -H "Content-Type: ${requestBodyType}" \\\n`;
     }
 
-    fetchOptions.headers['Cache-Control'] = "no-cache";
-    curlHeaders += ` -H "Cache-Control: no-cache" \\\n`;
+    fetchOptions.headers['Cache-Control'] = 'no-cache';
+    curlHeaders += ' -H "Cache-Control: no-cache" \\\n';
 
     me.responseUrl = '';
     me.responseHeaders = '';

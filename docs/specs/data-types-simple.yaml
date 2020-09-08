@@ -78,6 +78,15 @@ paths:
             type: array
             items:
               type: string
+        - name: maritalStatus
+          in: query
+          description: marital status
+          schema:
+            type: string
+            enum:
+              - married
+              - unmarried
+              - widowed              
       responses:
         '200':
           description: successful operation
