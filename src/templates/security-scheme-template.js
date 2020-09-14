@@ -45,7 +45,7 @@ function updateOAuthKey(apiKeyId, tokenType = 'Bearer', accessToken) {
 
 /* eslint-disable no-console */
 // Gets Access-Token in exchange of Authorization Code
-async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, grantType, authCode, sendClientSecretIn = 'header', apiKeyId, authFlowDivEl) {
+async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, grantType, authCode, sendClientSecretIn = 'header', apiKeyId, authFlowDivEl, scopes = null) {
   const respDisplayEl = authFlowDivEl ? authFlowDivEl.querySelector('.oauth-resp-display') : undefined;
   const urlFormParams = new URLSearchParams();
   const headers = new Headers();
@@ -60,6 +60,9 @@ async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, g
   } else {
     urlFormParams.append('client_id', clientId);
     urlFormParams.append('client_secret', clientSecret);
+  }
+  if (scopes) {
+    urlFormParams.append('scope', scopes);
   }
 
   try {
@@ -166,7 +169,8 @@ async function onInvokeOAuthFlow(apiKeyId, flowType, authUrl, tokenUrl, e) {
     }, 10);
   } else if (flowType === 'clientCredentials') {
     grantType = 'client_credentials';
-    fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrlObj.toString(), grantType, '', sendClientSecretIn, apiKeyId, authFlowDivEl);
+    const selectedScopes = checkedScopeEls.map((v) => v.value).join(' ');
+    fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrlObj.toString(), grantType, '', sendClientSecretIn, apiKeyId, authFlowDivEl, selectedScopes);
   }
 }
 /* eslint-enable no-console */
