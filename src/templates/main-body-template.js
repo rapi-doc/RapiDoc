@@ -13,6 +13,7 @@ import componentsTemplate from '@/templates/components-template';
 import contactInfoTemplate from '@/templates/contact-info-template';
 import headerTemplate from '@/templates/header-template';
 import navbarTemplate from '@/templates/navbar-template';
+import searchByPropertiesModalTemplate from '@/templates/search-by-properties-modal-template';
 
 import SetTheme from '@/utils/theme';
 import { isValidHexColor } from '@/utils/color-utils';
@@ -119,8 +120,10 @@ export default function mainBodyTemplate() {
             `
             : ''
           }
-        </div>  
+        </div>
         <slot name="footer"></slot>
+        
+        ${this.allowSearchByParams === 'true' ? searchByPropertiesModalTemplate.call(this) : ''}
       </main>
     </div>  
   `;
