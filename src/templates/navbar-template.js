@@ -92,7 +92,7 @@ export default function navbarTemplate() {
     ${(this.showComponents === 'false' || !this.resolvedSpec.components)
     ? ''
     : html`<div id='link-components' class='nav-bar-section' >Components</div>
-      ${this.resolvedSpec.components.map((component) => html`
+      ${this.resolvedSpec.components.map((component) => (component.subComponents.length ? html`
         <div class='nav-bar-tag' data-content-id='cmp-${component.name.toLowerCase()}' id='link-cmp-${component.name.toLowerCase()}' @click='${(e) => this.scrollToEl(e)}'>
           ${component.name}
         </div>
@@ -100,7 +100,7 @@ export default function navbarTemplate() {
         <div class='nav-bar-path' data-content-id='cmp-${p.id}' id='link-cmp-${p.id}' @click='${(e) => this.scrollToEl(e)}'>
           <span> ${p.name} </span>
         </div>`)}
-      `)}
+      ` : ''))}
     `}
     </nav>`
     }
