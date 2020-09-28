@@ -6,7 +6,7 @@ import '@/components/api-response';
 import codeSamplesTemplate from '@/templates/code-samples-template';
 import callbackTemplate from '@/templates/callback-template';
 import { pathSecurityTemplate } from '@/templates/security-scheme-template';
-import { pathIsInSearch, invalidCharsRegEx } from '@/utils/common-utils';
+import { pathIsInSearch, invalidCharsRegEx, rapidocApiKey } from '@/utils/common-utils';
 
 /* eslint-disable indent */
 function toggleExpand(path) {
@@ -52,7 +52,16 @@ function endpointBodyTemplate(path) {
     }
   }
   accept = accept.replace(/,\s*$/, ''); // remove trailing comma
-  const nonEmptyApiKeys = this.resolvedSpec.securitySchemes.filter((v) => (v.finalKeyValue && path.security.some((ps) => (v.apiKeyId in ps)))) || [];
+
+  // Filter API Keys that are non-empty and are applicable to the the path
+  const nonEmptyApiKeys = this.resolvedSpec.securitySchemes.filter((v) => (v.finalKeyValue && path.security?.some((ps) => (v.apiKeyId in ps)))) || [];
+
+  // If a RapiDoc API Key is specified on the element and its value is not hyphen(-) then include it for all paths
+  const rapiDocApiKey = this.resolvedSpec.securitySchemes.find((v) => (v.apiKeyId === rapidocApiKey && v.value !== '-'));
+  if (rapiDocApiKey) {
+    nonEmptyApiKeys.push(rapiDocApiKey);
+  }
+
   const codeSampleTabPanel = path.xCodeSamples ? codeSamplesTemplate(path.xCodeSamples) : '';
   return html`
   <div class='endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}'>

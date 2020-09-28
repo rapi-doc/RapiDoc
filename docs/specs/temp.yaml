@@ -3,23 +3,36 @@ info:
   version: v1
   title: Users
 paths:
-  /users:
+  /users-1:
     get:
-      operationId: listUsers
       description: List all users.
       responses:
         "200":
           description: Success
-          content:
-            application/x.users+json:
-              schema:
-                $ref: '#/components/schemas/ListUsersResponse'
-        default:
-          description: Error
-          content:
-            application/x.error+json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+  /users-2:
+    put:
+      description: List all users.
+      responses:
+        "200":
+          description: Success
+  /users-3:
+    post:
+      description: List all users.
+      responses:
+        "200":
+          description: Success
+  /users-4:
+    delete:
+      description: List all users.
+      responses:
+        "200":
+          description: Success
+  /users-5:
+    options:
+      description: List all users.
+      responses:
+        "200":
+          description: Success
 components:
   schemas:
     ListUsersResponse:

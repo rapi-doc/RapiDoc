@@ -3,7 +3,7 @@
 import converter from 'swagger2openapi';
 import Swagger from 'swagger-client';
 import marked from 'marked';
-import { invalidCharsRegEx } from '@/utils/common-utils';
+import { invalidCharsRegEx, rapidocApiKey } from '@/utils/common-utils';
 
 export default async function ProcessSpec(specUrl, sortTags = false, sortEndpointsBy = '', attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '') {
   let jsonParsedSpec;
@@ -92,7 +92,7 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
 
   if (attrApiKey && attrApiKeyLocation && attrApiKeyValue) {
     securitySchemes.push({
-      apiKeyId: '_rapidoc_api_key',
+      apiKeyId: rapidocApiKey,
       description: 'api-key provided in rapidoc element attributes',
       type: 'apiKey',
       oAuthFlow: '',

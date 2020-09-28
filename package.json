@@ -32,7 +32,7 @@
     "lit-html": "1.2.1",
     "marked": "^1.1.1",
     "prismjs": "^1.20.0",
-    "swagger-client": "^3.10.12",
+    "swagger-client": "^3.11.0",
     "swagger2openapi": "^5.4.0"
   },
   "scripts": {
