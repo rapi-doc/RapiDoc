@@ -261,7 +261,7 @@ function getComponents(openApiSpec) {
 }
 
 function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
-  const methods = ['get', 'put', 'post', 'delete', 'patch', 'head']; // this is also used for ordering endpoints by methods
+  const methods = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options']; // this is also used for ordering endpoints by methods
   const tags = openApiSpec.tags && Array.isArray(openApiSpec.tags)
     ? openApiSpec.tags.map((v) => ({
       show: true,

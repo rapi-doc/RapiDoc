@@ -43,6 +43,7 @@ export default css`
   .method-fg.post { color: var(--green); }
   .method-fg.get { color: var(--blue); }
   .method-fg.delete { color: var(--red); }
+  .method-fg.options, 
   .method-fg.head, 
   .method-fg.patch { 
     color: var(--yellow); 

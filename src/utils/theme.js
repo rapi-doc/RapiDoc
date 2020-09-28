@@ -87,7 +87,7 @@ export default function setTheme(baseTheme, theme = {}) {
       orange: theme.orange ? theme.orange : '#FF9900',
       lightOrange: theme.lightOrange ? theme.lightOrange : ColorUtils.color.brightness(bg1, -10), // #2a2a2a
 
-      yellow: theme.yellow ? theme.yellow : '#fc0',
+      yellow: theme.yellow ? theme.yellow : '#827717',
       lightYellow: theme.lightYellow ? theme.lightYellow : ColorUtils.color.brightness(bg1, -10), // #2a2a2a
 
       purple: theme.purple ? theme.purple : '#786FF1',
@@ -177,7 +177,7 @@ export default function setTheme(baseTheme, theme = {}) {
       orange: theme.orange ? theme.orange : '#FF9900',
       lightOrange: theme.lightOrange ? theme.lightOrange : '#fff5e6',
 
-      yellow: theme.yellow ? theme.yellow : '#fc0',
+      yellow: theme.yellow ? theme.yellow : '#827717',
       lightYellow: theme.lightYellow ? theme.lightYellow : '#fff5cc',
 
       purple: theme.purple ? theme.purple : '#786FF1',

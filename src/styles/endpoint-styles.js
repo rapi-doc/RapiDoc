@@ -38,17 +38,17 @@ export default css`
   background-color:var(--light-orange); 
 }
 .m-endpoint > .endpoint-head.post:hover,
-.m-endpoint > .endpoint-head.post.expanded{
+.m-endpoint > .endpoint-head.post.expanded {
   border-color:var(--green); 
   background-color:var(--light-green); 
 }
 .m-endpoint > .endpoint-head.get:hover,
-.m-endpoint > .endpoint-head.get.expanded{
+.m-endpoint > .endpoint-head.get.expanded {
   border-color:var(--blue); 
   background-color:var(--light-blue); 
 }
 .m-endpoint > .endpoint-head.delete:hover,
-.m-endpoint > .endpoint-head.delete.expanded{
+.m-endpoint > .endpoint-head.delete.expanded {
   border-color:var(--red); 
   background-color:var(--light-red); 
 }
@@ -56,7 +56,9 @@ export default css`
 .m-endpoint > .endpoint-head.head:hover,
 .m-endpoint > .endpoint-head.head.expanded,
 .m-endpoint > .endpoint-head.patch:hover,
-.m-endpoint > .endpoint-head.patch.expanded {
+.m-endpoint > .endpoint-head.patch.expanded,
+.m-endpoint > .endpoint-head.options:hover,
+.m-endpoint > .endpoint-head.options.expanded {
   border-color:var(--yellow); 
   background-color:var(--light-yellow); 
 }
@@ -79,7 +81,8 @@ export default css`
 .m-endpoint .endpoint-body.post{border-color:var(--green);}
 .m-endpoint .endpoint-body.get{ border-color:var(--blue); }
 .m-endpoint .endpoint-body.head,
-.m-endpoint .endpoint-body.patch { 
+.m-endpoint .endpoint-body.patch,
+.m-endpoint .endpoint-body.options { 
   border-color:var(--yellow); 
 }
 
@@ -122,7 +125,8 @@ export default css`
 .method.get{ border: 2px solid var(--blue); }
 .method.get.deprecated{ border: 2px solid var(--border-color); }
 .method.head,
-.method.patch { 
+.method.patch,
+.method.options { 
   border: 2px solid var(--yellow); 
 }
 
@@ -147,7 +151,8 @@ export default css`
 }
 
 .head .request,
-.patch .request { 
+.patch .request,
+.options .request { 
   border-color:var(--yellow); 
 }
 .put .request{ 
