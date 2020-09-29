@@ -303,7 +303,7 @@ export default function securitySchemeTemplate() {
                 }
               </td>
               <td>
-                ${v.type === 'apiKey' || (v.type === 'http' && v.scheme === 'bearer')
+                ${v.type.toLowerCase() === 'apiKey' || (v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'bearer')
                   ? html`
                     ${v.type === 'apiKey'
                       ? html`Send <code>${v.name}</code> in <code>${v.in}</code> with the given value`
@@ -318,7 +318,7 @@ export default function securitySchemeTemplate() {
                     </div>`
                   : ''
                 }
-                ${v.type === 'http' && v.scheme === 'basic'
+                ${v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'basic'
                   ? html`
                     Send <code>Authorization</code> in <code>header</code> containing the word <code>Basic</code> followed by a space and a base64 encoded string of <code>username:password</code>.
                     <div style="display:flex; max-height:28px;">
@@ -333,7 +333,7 @@ export default function securitySchemeTemplate() {
                 }
               </td>
             </tr>
-            ${v.type === 'oauth2'
+            ${v.type.toLowerCase() === 'oauth2'
               ? html`
                 <tr>
                   <td colspan="2" style="border:none; padding-left:48px">
