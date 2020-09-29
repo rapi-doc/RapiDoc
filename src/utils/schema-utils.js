@@ -437,6 +437,9 @@ export function generateExample(examples, example, schema, mimeType, includeRead
       if (outputType === 'text') {
         egContent = typeof example === 'string' ? example : JSON.stringify(example, undefined, 2);
         egFormat = 'text';
+      } else if (typeof example === 'object') {
+        egContent = example;
+        egFormat = 'json';
       } else if (typeof example === 'string') {
         try {
           egContent = JSON.parse(example);

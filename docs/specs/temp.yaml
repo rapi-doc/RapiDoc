@@ -1,113 +1,115 @@
 openapi: 3.0.0
 info:
-  version: v1
-  title: Users
+  title: Providing Examples
+  description:  Providing Examples
+  version: 1.0.0
 paths:
-  /users-1:
+  /single-example-by-response-type:
     get:
-      description: List all users.
+      summary: Single Example at schema Level
       responses:
-        "200":
-          description: Success
-  /users-2:
-    put:
-      description: List all users.
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  age:
+                    description: Person Age
+                    type: integer
+                  fullName:
+                    description: Person Full name
+                    type: object
+                    properties:
+                      firstName:
+                        description: First name
+                        type: string
+                      lastName:
+                        description: Last name
+                        type: string
+              example: |
+                {
+                  age: 10,
+                  fullName: {
+                    firstName: Donald,
+                    lastName: Duck
+                  }
+                }
+  /single-example-by-response-type2:
+    get:
+      summary: Single Example at schema Level
       responses:
-        "200":
-          description: Success
-  /users-3:
-    post:
-      description: List all users.
-      responses:
-        "200":
-          description: Success
-  /users-4:
-    delete:
-      description: List all users.
-      responses:
-        "200":
-          description: Success
-  /users-5:
-    options:
-      description: List all users.
-      responses:
-        "200":
-          description: Success
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  age:
+                    description: Person Age
+                    type: integer
+                  fullName:
+                    description: Person Full name
+                    type: object
+                    properties:
+                      firstName:
+                        description: First name
+                        type: string
+                      lastName:
+                        description: Last name
+                        type: string
+              example:
+                age: 10
+                fullName:
+                  firstName: Donald
+                  lastName: Duck                
 components:
   schemas:
-    ListUsersResponse:
+    cost:
       type: object
       properties:
-        links:
-          type: array
-          xml:
-            name: link
-          items:
-            $ref: '#/components/schemas/Link'
-        users:
-          type: array
-          xml:
-            name: feature
-          items:
-            type: string
-            xml:
-              name: feature
-      xml:
-        name: response
-    Link:
-      type: object
-      properties:
-        rel:
-          type: string
-          xml:
-            attribute: true
-        href:
-          type: string
-          format: uri
-          xml:
-            attribute: true
-        title:
-          type: string
-          xml:
-            attribute: true
-        type:
-          type: string
-          xml:
-            attribute: true
-    ErrorDetail:
-      type: object
-      properties:
-        links:
-          type: array
-          xml:
-            name: link
-          items:
-            $ref: '#/components/schemas/Link'
-        code:
-          type: string
-        message:
-          type: string
-        location:
-          type: string
-    ErrorResponse:
-      type: object
-      properties:
-        links:
-          type: array
-          xml:
-            name: link
-          items:
-            $ref: '#/components/schemas/Link'
-        status:
+        amount:
           type: integer
-          format: int32
-        message:
+          description: Amount
+        currency:
+          description: Currency Code
           type: string
-        errors:
-          type: array
-          xml:
-            name: error
-          items:
-            $ref: '#/components/schemas/ErrorDetail'
-      xml:
-        name: response
+    currencies:
+      type: array
+      items:
+        type: object
+        properties:
+          currencyCode:
+            type: string
+          evaluationDate:
+            type: string
+            format: date-time
+      example:
+        - currencyCode: USD
+          evaluationDate: '2017-07-21T17:32:28Z'
+        - currencyCode: INR
+          evaluationDate: '2017-07-21T17:32:28Z'
+    ArrayOfInt-1:
+      type: array
+      items:
+        type: integer
+        format: int64
+      example: [1, 2, 3]
+    ArrayOfInt-2:
+      type: array
+      items:
+        type: integer
+        format: int64
+        example: 1
+    PersonObject:
+      type: object
+      properties:
+        name:
+          type: string
+        age:
+          type: integer
+      example:
+        name: name-1
+        age: 1

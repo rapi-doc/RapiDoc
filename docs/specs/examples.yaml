@@ -53,7 +53,7 @@ paths:
                         type: string
               examples:
                 valid-json:
-                  summary: Example with Valid JSON
+                  summary: Example with Valid JSON String
                   description: If valid JSON is provided in the example, It will be displayed in JSON tree form. Allowing copy/expand/collapse functionality
                   value: |
                     {
@@ -66,7 +66,7 @@ paths:
                       }
                     }
                 invalid-json:
-                  summary: Example with Invalid JSON
+                  summary: Example with Invalid JSON String
                   description: Invalid JSON is displayed in text-area as is
                   value: |
                     {
@@ -78,6 +78,13 @@ paths:
                         age: 10
                       }
                     }
+                as-object:    
+                  summary: Example specified as object
+                  value:
+                    fullName:
+                      firstName: Donald
+                      lastName: Duck       
+                    age: 10
             application/xml:
               schema:
                 type: object
@@ -239,7 +246,7 @@ paths:
                 $ref: "#/components/schemas/PersonObject"
   /per-field-example-with-root-as-object:
     get:
-      summary: Field Level example
+      summary: Root node of the example is an object. and the object is constituted using field level example
       tags:
         - Providing Examples
       responses:
@@ -279,7 +286,7 @@ paths:
                           type: number
   /per-field-example-with-root-as-array:
     get:
-      summary: Field Level example
+      summary: Root node of the example is an array. and the object is constituted using field level example
       tags:
         - Providing Examples
       responses:
