@@ -72,8 +72,19 @@ export default function navbarTemplate() {
         }
         return true;
       }).map((p) => html`
-      <div class='nav-bar-path' data-content-id='${p.method}-${p.path}' id='link-${p.method}-${p.path.replace(invalidCharsRegEx, '-')}' @click='${(e) => this.scrollToEl(e)}'> 
-        <span style = "${p.deprecated ? 'filter:opacity(0.5)' : ''}"> ${p.summary || p.path} </span>
+      <div 
+        class='nav-bar-path 
+        ${this.usePathInNavBar === 'true' ? 'small-font' : ''}' 
+        data-content-id='${p.method}-${p.path}' 
+        id='link-${p.method}-${p.path.replace(invalidCharsRegEx, '-')}' 
+        @click = '${(e) => this.scrollToEl(e)}'
+      > 
+        <span style = "${p.deprecated ? 'filter:opacity(0.5)' : ''}"> 
+          ${this.usePathInNavBar === 'true'
+            ? html`<span class='mono-font'>${p.method.toUpperCase()} ${p.path}</span>`
+            : p.summary
+          } 
+        </span>
       </div>`)}
     `)}
 
@@ -81,7 +92,7 @@ export default function navbarTemplate() {
     ${(this.showComponents === 'false' || !this.resolvedSpec.components)
     ? ''
     : html`<div id='link-components' class='nav-bar-section' >Components</div>
-      ${this.resolvedSpec.components.map((component) => html`
+      ${this.resolvedSpec.components.map((component) => (component.subComponents.length ? html`
         <div class='nav-bar-tag' data-content-id='cmp-${component.name.toLowerCase()}' id='link-cmp-${component.name.toLowerCase()}' @click='${(e) => this.scrollToEl(e)}'>
           ${component.name}
         </div>
@@ -89,7 +100,7 @@ export default function navbarTemplate() {
         <div class='nav-bar-path' data-content-id='cmp-${p.id}' id='link-cmp-${p.id}' @click='${(e) => this.scrollToEl(e)}'>
           <span> ${p.name} </span>
         </div>`)}
-      `)}
+      ` : ''))}
     `}
     </nav>`
     }

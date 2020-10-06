@@ -45,7 +45,7 @@ function updateOAuthKey(apiKeyId, tokenType = 'Bearer', accessToken) {
 
 /* eslint-disable no-console */
 // Gets Access-Token in exchange of Authorization Code
-async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, grantType, authCode, sendClientSecretIn = 'header', apiKeyId, authFlowDivEl) {
+async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, grantType, authCode, sendClientSecretIn = 'header', apiKeyId, authFlowDivEl, scopes = null) {
   const respDisplayEl = authFlowDivEl ? authFlowDivEl.querySelector('.oauth-resp-display') : undefined;
   const urlFormParams = new URLSearchParams();
   const headers = new Headers();
@@ -60,6 +60,9 @@ async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, g
   } else {
     urlFormParams.append('client_id', clientId);
     urlFormParams.append('client_secret', clientSecret);
+  }
+  if (scopes) {
+    urlFormParams.append('scope', scopes);
   }
 
   try {
@@ -166,7 +169,8 @@ async function onInvokeOAuthFlow(apiKeyId, flowType, authUrl, tokenUrl, e) {
     }, 10);
   } else if (flowType === 'clientCredentials') {
     grantType = 'client_credentials';
-    fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrlObj.toString(), grantType, '', sendClientSecretIn, apiKeyId, authFlowDivEl);
+    const selectedScopes = checkedScopeEls.map((v) => v.value).join(' ');
+    fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrlObj.toString(), grantType, '', sendClientSecretIn, apiKeyId, authFlowDivEl, selectedScopes);
   }
 }
 /* eslint-enable no-console */
@@ -299,7 +303,7 @@ export default function securitySchemeTemplate() {
                 }
               </td>
               <td>
-                ${v.type === 'apiKey' || (v.type === 'http' && v.scheme === 'bearer')
+                ${v.type.toLowerCase() === 'apiKey' || (v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'bearer')
                   ? html`
                     ${v.type === 'apiKey'
                       ? html`Send <code>${v.name}</code> in <code>${v.in}</code> with the given value`
@@ -314,7 +318,7 @@ export default function securitySchemeTemplate() {
                     </div>`
                   : ''
                 }
-                ${v.type === 'http' && v.scheme === 'basic'
+                ${v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'basic'
                   ? html`
                     Send <code>Authorization</code> in <code>header</code> containing the word <code>Basic</code> followed by a space and a base64 encoded string of <code>username:password</code>.
                     <div style="display:flex; max-height:28px;">
@@ -329,7 +333,7 @@ export default function securitySchemeTemplate() {
                 }
               </td>
             </tr>
-            ${v.type === 'oauth2'
+            ${v.type.toLowerCase() === 'oauth2'
               ? html`
                 <tr>
                   <td colspan="2" style="border:none; padding-left:48px">
@@ -349,10 +353,10 @@ export default function securitySchemeTemplate() {
 
 export function pathSecurityTemplate(pathSecurity) {
   if (this.resolvedSpec.securitySchemes && pathSecurity) {
-    const andSecurityKeys = [];
+    const orSecurityKeys1 = [];
     pathSecurity.forEach((pSecurity) => {
-      const orSecurityKeys = [];
-      const orKeyTypes = [];
+      const andSecurityKeys1 = [];
+      const andKeyTypes = [];
       let pathScopes = '';
       Object.keys(pSecurity).forEach((pathSecurityKey) => {
         const s = this.resolvedSpec.securitySchemes.find((ss) => ss.apiKeyId === pathSecurityKey);
@@ -360,42 +364,42 @@ export function pathSecurityTemplate(pathSecurity) {
           pathScopes = pSecurity[pathSecurityKey].join(', ');
         }
         if (s) {
-          orKeyTypes.push(s.typeDisplay);
-          orSecurityKeys.push(s);
+          andKeyTypes.push(s.typeDisplay);
+          andSecurityKeys1.push(s);
         }
       });
-      andSecurityKeys.push({
+      orSecurityKeys1.push({
         pathScopes,
-        securityTypes: orKeyTypes.join(' or '),
-        securityDefs: orSecurityKeys,
+        securityTypes: andKeyTypes.length > 1 ? `${andKeyTypes[0]} + ${andKeyTypes.length - 1} more` : andKeyTypes[0],
+        securityDefs: andSecurityKeys1,
       });
     });
     return html`<div style="position:absolute; top:3px; right:2px; font-size:var(--font-size-small); line-height: 1.5;">
       <div style="position:relative; display:flex; min-width:350px; max-width:700px; justify-content: flex-end;">
         <div style="font-size: calc(var(--font-size-small) + 2px)"> &#128274; </div>
-          ${andSecurityKeys.map((andSecurityItem) => html`
+          ${orSecurityKeys1.map((orSecurityItem1) => html`
           <div class="tooltip">
-            <div style = "padding:2px 4px;"> ${andSecurityItem.securityTypes} </div>
+            <div style = "padding:2px 4px; white-space:nowrap; text-overflow:ellipsis;max-width:150px; overflow:hidden;"> ${orSecurityItem1.securityTypes} </div>
             <div class="tooltip-text" style="position:absolute; color: var(--fg); top:26px; right:0; border:1px solid var(--border-color);padding:2px 4px; display:block;">
-              ${andSecurityItem.securityDefs.length > 1 ? html`<div>Requires <b>any one</b> of the following </div>` : ''}
+              ${orSecurityItem1.securityDefs.length > 1 ? html`<div>Requires <b>all</b> of the following </div>` : ''}
               <div style="padding-left: 8px">
-                ${andSecurityItem.securityDefs.map((orSecurityItem, i) => html`
-                  ${orSecurityItem.type === 'oauth2'
+                ${orSecurityItem1.securityDefs.map((andSecurityItem, i) => html`
+                  ${andSecurityItem.type === 'oauth2'
                     ? html`
                       <div>
-                        ${andSecurityItem.securityDefs.length > 1 ? html`<b>${i + 1}.</b> &nbsp;` : html`Requires`}
-                        OAuth Token (${orSecurityItem.apiKeyId}) in <b>Authorization header</b>
+                        ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${i + 1}.</b> &nbsp;` : html`Requires`}
+                        OAuth Token (${andSecurityItem.apiKeyId}) in <b>Authorization header</b>
                       </div>`
-                    : orSecurityItem.type === 'http'
+                    : andSecurityItem.type === 'http'
                       ? html`
                         <div>
-                          ${andSecurityItem.securityDefs.length > 1 ? html`<b>${i + 1}.</b> &nbsp;` : html`Requires`} 
-                          ${orSecurityItem.scheme === 'basic' ? 'Base 64 encoded username:password' : 'Bearer Token'} in <b>Authorization header</b>
+                          ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${i + 1}.</b> &nbsp;` : html`Requires`} 
+                          ${andSecurityItem.scheme === 'basic' ? 'Base 64 encoded username:password' : 'Bearer Token'} in <b>Authorization header</b>
                         </div>`
                       : html`
                         <div>
-                          ${andSecurityItem.securityDefs.length > 1 ? html`<b>${i + 1}.</b> &nbsp;` : html`Requires`} 
-                          Token in <b>${orSecurityItem.name} ${orSecurityItem.in}</b>
+                          ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${i + 1}.</b> &nbsp;` : html`Requires`} 
+                          Token in <b>${andSecurityItem.name} ${andSecurityItem.in}</b>
                         </div>`
                   }
                 `)}

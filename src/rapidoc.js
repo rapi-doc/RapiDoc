@@ -21,7 +21,9 @@ import PrismStyles from '@/styles/prism-styles';
 import TabStyles from '@/styles/tab-styles';
 import NavStyles from '@/styles/nav-styles';
 
-import { pathIsInSearch, invalidCharsRegEx, sleep } from '@/utils/common-utils';
+import {
+  pathIsInSearch, invalidCharsRegEx, sleep, rapidocApiKey,
+} from '@/utils/common-utils';
 import ProcessSpec from '@/utils/spec-parser';
 import mainBodyTemplate from '@/templates/main-body-template';
 
@@ -97,6 +99,7 @@ export default class RapiDoc extends LitElement {
       navHoverTextColor: { type: String, attribute: 'nav-hover-text-color' },
       navAccentColor: { type: String, attribute: 'nav-accent-color' },
       navItemSpacing: { type: String, attribute: 'nav-item-spacing' },
+      usePathInNavBar: { type: String, attribute: 'use-path-in-nav-bar' },
       infoDescriptionHeadingsInNavBar: { type: String, attribute: 'info-description-headings-in-navbar' },
 
       // Filters
@@ -346,12 +349,15 @@ export default class RapiDoc extends LitElement {
       this.responseAreaHeight = '300px';
     }
     if (!this.allowTry || !'true, false,'.includes(`${this.allowTry},`)) { this.allowTry = 'true'; }
+    if (!this.apiKeyValue) { this.apiKeyValue = '-'; }
+    if (!this.apiKeyLocation) { this.apiKeyLocation = 'header'; }
     if (!this.apiKeyName) { this.apiKeyName = ''; }
-    if (!this.apiKeyValue) { this.apiKeyValue = ''; }
+
     if (!this.oauthReceiver) { this.oauthReceiver = 'oauth-receiver.html'; }
     if (!this.sortTags || !'true, false,'.includes(`${this.sortTags},`)) { this.sortTags = 'false'; }
     if (!this.sortEndpointsBy || !'method, path,'.includes(`${this.sortEndpointsBy},`)) { this.sortEndpointsBy = 'path'; }
     if (!this.navItemSpacing || !'compact, relaxed, default,'.includes(`${this.navItemSpacing},`)) { this.navItemSpacing = 'default'; }
+    if (!this.usePathInNavBar || !'true, false,'.includes(`${this.usePathInNavBar},`)) { this.usePathInNavBar = 'false'; }
     if (!this.fontSize || !'default, large, largest,'.includes(`${this.fontSize},`)) { this.fontSize = 'default'; }
 
     if (!this.showInfo || !'true, false,'.includes(`${this.showInfo},`)) { this.showInfo = 'true'; }
@@ -456,12 +462,13 @@ export default class RapiDoc extends LitElement {
           updateSelectedApiKey = true;
         }
       }
+
       if (updateSelectedApiKey) {
         if (this.resolvedSpec) {
-          const rapiDocApiKey = this.resolvedSpec.securitySchemes.find((v) => v.apiKeyId === '_rapidoc_api_key');
+          const rapiDocApiKey = this.resolvedSpec.securitySchemes.find((v) => v.apiKeyId === rapidocApiKey);
           if (!rapiDocApiKey) {
             this.resolvedSpec.securitySchemes.push({
-              apiKeyId: '_rapidoc_api_key',
+              apiKeyId: rapidocApiKey,
               description: 'api-key provided in rapidoc element attributes',
               type: 'apiKey',
               name: apiKeyName,

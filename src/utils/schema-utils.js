@@ -21,7 +21,8 @@ export function getTypeInfo(schema) {
         ? '🆆'
         : '',
     deprecated: schema.deprecated ? '❌' : '',
-    default: schema.default === 0 ? '0' : (schema.default ? schema.default : ''),
+    example: typeof schema.example === 'undefined' ? '' : `${schema.example}`,
+    default: typeof schema.default === 'undefined' ? '' : `${schema.default}`,
     description: schema.description ? schema.description : '',
     constrain: '',
     allowedValues: '',
@@ -270,11 +271,11 @@ export function schemaToSampleObj(schema, config = { }) {
         } else {
           obj[key] = [schemaToSampleObj(schema.properties[key].items, config)];
         }
-        break;
+        continue;
       }
       if (schema.example) {
         obj[key] = schema.example;
-        break;
+        continue;
       } else {
         obj[key] = schemaToSampleObj(schema.properties[key], config);
       }
@@ -436,6 +437,9 @@ export function generateExample(examples, example, schema, mimeType, includeRead
       if (outputType === 'text') {
         egContent = typeof example === 'string' ? example : JSON.stringify(example, undefined, 2);
         egFormat = 'text';
+      } else if (typeof example === 'object') {
+        egContent = example;
+        egFormat = 'json';
       } else if (typeof example === 'string') {
         try {
           egContent = JSON.parse(example);

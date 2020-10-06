@@ -195,6 +195,15 @@
         <div class='table-title' id="nav-bar-colors"> Navigation bar settings (only applicable in read-mode)</div>
         <table class="m-table">
           <tr>
+            <td class=" attr-col mono bold right">use-path-in-nav-bar </td>
+            <td class="gray">
+              <span class='bold dark-gray'>Allowed:<span class='blue'> true | false</span></span> 
+              set true to show API paths in the navigation bar instead of summary/description
+            </td>
+            <td class='default-col'>false</td>
+          </tr>          
+
+          <tr>
             <td class=" attr-col mono bold right">nav-bg-color </td>
             <td class="gray"> Navigation bar's background color </td>
             <td class='default-col'></td>
@@ -404,27 +413,6 @@
         <div class='table-title' id='api-servers'> API Server</div>
         <table class="m-table">
           <tr>
-            <td class="attr-col mono bold right">api-key-name</td>
-            <td class="gray">Name of the API key that will be send while trying out the APIs</td>
-            <td class='default-col'>Authorization</td>
-          </tr>
-          <tr>
-            <td class="mono bold right">api-key-value</td>
-            <td class="gray">
-              Value of the API key that will be send while trying out the APIs. 
-              This can also be provided/overwritten from UI.
-            </td>
-            <td>(empty)</td>
-          </tr>
-          <tr>
-            <td class="mono bold right">api-key-location</td>
-            <td class="gray">
-              <span class='bold dark-gray'>Allowed:<span class='blue'> header, query</span></span> -
-              determines how you want to send the api-key.
-            </td>
-            <td>header</td>
-          </tr>
-          <tr>
             <td class="mono bold right">server-url</td>
             <td class="gray">
               OpenAPI spec has a provision for providing the server url. The UI will list all the server URLs provided in the spec. 
@@ -442,6 +430,41 @@
             </td>
             <td>(empty)</td>
           </tr>
+          <tr>
+            <td colspan="3" style="border-bottom-style:dashed; text-align: center;">
+              <br/>
+              When providing API key using RapiDoc element, make sure that you provide all the 3 attributes with some default values
+              <span class="mono blue">api-key-name, api-key-location & api-key-value</span>
+              <br/>
+              Set <span class="mono blue">api-key-value</span> to "<span class="mono blue">-</span>"
+              if you are unsure of its value, and like to fill in later using JavaScript
+              <br/><br/>
+            </td>
+
+          </tr>  
+          <tr>
+            <td class="attr-col mono bold right">api-key-name</td>
+            <td class="gray">Name of the API key that will be send while trying out the APIs</td>
+            <td class='default-col'>(empty)</td>
+          </tr>
+          <tr>
+            <td class="mono bold right">api-key-location</td>
+            <td class="gray">
+              <span class='bold dark-gray'>Allowed:<span class='blue'> header, query</span></span> -
+              determines how you want to send the api-key.
+            </td>
+            <td>(empty)</td>
+          </tr>
+          <tr>
+            <td class="mono bold right">api-key-value</td>
+            <td class="gray">
+              Value of the API key that will be send while trying out the APIs. 
+              This can also be provided/overwritten from UI.
+            </td>
+            <td>(empty)</td>
+          </tr>
+
+
         </table>
 
       </div>  

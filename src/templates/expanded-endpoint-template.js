@@ -1,7 +1,7 @@
 import { html } from 'lit-element';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import marked from 'marked';
-import { invalidCharsRegEx } from '@/utils/common-utils';
+import { invalidCharsRegEx, rapidocApiKey } from '@/utils/common-utils';
 import { pathSecurityTemplate } from '@/templates/security-scheme-template';
 import codeSamplesTemplate from '@/templates/code-samples-template';
 import callbackTemplate from '@/templates/callback-template';
@@ -18,7 +18,15 @@ export function expandedEndpointBodyTemplate(path) {
     }
   }
   accept = accept.replace(/,\s*$/, ''); // remove trailing comma
-  const nonEmptyApiKeys = this.resolvedSpec.securitySchemes.filter((v) => (v.finalKeyValue)) || [];
+  // Filter API Keys that are non-empty and are applicable to the the path
+  const nonEmptyApiKeys = this.resolvedSpec.securitySchemes.filter((v) => (v.finalKeyValue && path.security?.some((ps) => (v.apiKeyId in ps)))) || [];
+
+  // If a RapiDoc API Key is specified on the element and its value is not hyphen(-) then include it for all paths
+  const rapiDocApiKey = this.resolvedSpec.securitySchemes.find((v) => (v.apiKeyId === rapidocApiKey && v.value !== '-'));
+  if (rapiDocApiKey) {
+    nonEmptyApiKeys.push(rapiDocApiKey);
+  }
+
   const codeSampleTabPanel = path.xCodeSamples ? codeSamplesTemplate.call(this, path.xCodeSamples) : '';
   return html`
     ${this.renderStyle === 'read' ? html` <div class='divider'></div>` : ''}

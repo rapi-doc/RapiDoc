@@ -91,7 +91,7 @@ export default function mainBodyTemplate() {
                   : overviewTemplate.call(this)
               }
 
-              ${(this.allowTry === 'false' || this.allowServerSelection === 'false')
+              ${this.allowServerSelection === 'false'
                 ? ''
                 : this.renderStyle === 'focused'
                   ? (this.selectedContentId === 'api-servers' ? serverTemplate.call(this) : '')

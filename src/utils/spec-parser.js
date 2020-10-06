@@ -3,7 +3,7 @@
 import converter from 'swagger2openapi';
 import Swagger from 'swagger-client';
 import marked from 'marked';
-import { invalidCharsRegEx } from '@/utils/common-utils';
+import { invalidCharsRegEx, rapidocApiKey } from '@/utils/common-utils';
 
 export default async function ProcessSpec(specUrl, sortTags = false, sortEndpointsBy = '', attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '') {
   let jsonParsedSpec;
@@ -92,7 +92,7 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
 
   if (attrApiKey && attrApiKeyLocation && attrApiKeyValue) {
     securitySchemes.push({
-      apiKeyId: '_rapidoc_api_key',
+      apiKeyId: rapidocApiKey,
       description: 'api-key provided in rapidoc element attributes',
       type: 'apiKey',
       oAuthFlow: '',
@@ -261,7 +261,7 @@ function getComponents(openApiSpec) {
 }
 
 function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
-  const methods = ['get', 'put', 'post', 'delete', 'patch', 'head']; // this is also used for ordering endpoints by methods
+  const methods = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options']; // this is also used for ordering endpoints by methods
   const tags = openApiSpec.tags && Array.isArray(openApiSpec.tags)
     ? openApiSpec.tags.map((v) => ({
       show: true,
@@ -319,11 +319,11 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
           }
 
           // Generate Path summary and Description if it is missing for a method
-          let summary = (fullPath.summary || '').trim() ? fullPath.summary.trim() : (fullPath.description || '-').trim().split('/n')[0];
+          let summary = (fullPath.summary || fullPath.description || `${methodName} ${path}`).trim().split('/\r?\n/')[0];
           if (summary.length > 100) {
             summary = summary.split('.')[0];
           }
-          if (!(fullPath.description || '').trim()) {
+          if (!fullPath.description) {
             fullPath.description = ((fullPath.summary || '-').trim());
           }
 

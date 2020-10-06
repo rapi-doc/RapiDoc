@@ -17,6 +17,8 @@ paths:
                   format: binary
                 namePart:
                   type: object
+                  description: |
+                    `firstName` and `lastName` of the person
                   properties:
                     firstName:
                       type: string
@@ -25,6 +27,38 @@ paths:
                 agePart:
                   type: integer
                   default: 21
+                  description: 'Age of the person'
+                contactPart:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                    phone:
+                      type: string
+  /person2:
+    post:
+      description: Sending data using `multipart/form-data`
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                photoPart:
+                  type: string
+                  format: binary
+                namePart:
+                  type: object
+                  description: |
+                    `firstName` and `lastName` of the person
+                  properties:
+                    firstName:
+                      type: string
+                    lastName:
+                      type: string
+                hobbyPart:
+                  type: string
+                  description: 'Hobby of the person'
                 contactPart:
                   type: object
                   properties:

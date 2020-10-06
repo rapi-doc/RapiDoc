@@ -3,6 +3,7 @@ import marked from 'marked';
 import Prism from 'prismjs';
 
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import { live } from 'lit-html/directives/live';
 import TableStyles from '@/styles/table-styles';
 import FlexStyles from '@/styles/flex-styles';
 import InputStyles from '@/styles/input-styles';
@@ -172,6 +173,25 @@ export default class ApiRequest extends LitElement {
     `;
   }
 
+  updated(changedProperties) {
+    // In focused mode after rendering the request component, update the text-areas(which contains examples) using
+    // the original values from hidden textareas
+    // This is done coz, user may update the dom by editing the textarea's and once the DOM is updated externally change detection wont happen, therefore update the values manually
+    if (this.renderStyle === 'focused') {
+      if (changedProperties.size === 1 && changedProperties.has('activeSchemaTab')) {
+        // dont update example as only tabs is switched
+      } else {
+        const exampleTextAreaEls = [...this.shadowRoot.querySelectorAll('textarea[data-ptype="form-data"]')];
+        exampleTextAreaEls.forEach((el) => {
+          const origExampleEl = this.shadowRoot.querySelector(`textarea[data-pname='hidden-${el.dataset.pname}']`);
+          if (origExampleEl) {
+            el.value = origExampleEl.value;
+          }
+        });
+      }
+    }
+  }
+
   /* eslint-disable indent */
   inputParametersTemplate(paramType) {
     let title = '';
@@ -207,14 +227,14 @@ export default class ApiRequest extends LitElement {
         }
       }
 
+      param.example = typeof param.example === 'undefined' ? '' : `${param.example}`;
       if (param.example) {
-        if (param.example === '0' || param.example === 0) {
-          inputVal = '0';
-        } else {
-          inputVal = paramSchema.type === 'array' ? [param.example] : param.example;
-        }
-      } else if (param.examples && param.examples.length > 0) {
-        inputVal = paramSchema.type === 'array' ? [param.examples[0]] : param.examples[0];
+        inputVal = paramSchema.type === 'array' ? [param.example] : `${param.example}`;
+      } else if (paramSchema.example) {
+        inputVal = paramSchema.type === 'array' ? [paramSchema.example] : `${paramSchema.example}`;
+      } else if (param.examples && Object.values(param.examples).length > 0) {
+        const firstExample = Object.values(param.examples)[0].value || '';
+        inputVal = paramSchema.type === 'array' ? [firstExample] : firstExample;
       } else {
         inputVal = paramSchema.type === 'array'
           ? (paramSchema.default ? [paramSchema.default] : '')
@@ -246,7 +266,7 @@ export default class ApiRequest extends LitElement {
                     data-param-serialize-explode = "${paramExplode}"
                     data-array = "true"
                     placeholder= "add-multiple &#x2b90;"
-                    .value = "${inputVal}"
+                    .value = "${live(inputVal)}"
                   >
                   </tag-input>`
                 : paramSchema.type === 'object'
@@ -261,11 +281,11 @@ export default class ApiRequest extends LitElement {
                       style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
                     >${inputVal}</textarea>`
                   : html`
-                    <input type="text" spellcheck="false" style="width:100%" class="request-param" 
+                    <input type="${paramSchema.format === 'password' ? 'password' : 'text'}" spellcheck="false" style="width:100%" class="request-param" 
                       data-pname="${param.name}" 
                       data-ptype="${paramType}"  
                       data-array="false"
-                      value="${inputVal}"
+                      .value="${live(inputVal)}"
                     />`
                 }
             </td>`
@@ -277,7 +297,17 @@ export default class ApiRequest extends LitElement {
               <div class="param-constraint">
                 ${paramSchema.default ? html`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
                 ${paramSchema.constrain ? html`${paramSchema.constrain}<br/>` : ''}
-                ${paramSchema.allowedValues ? html`<span style="font-weight:bold">Allowed: </span>${paramSchema.allowedValues}` : ''}
+                ${param.schema.enum
+                  ? param.schema.enum.map((v, i) => html`
+                    ${i > 0 ? ' | ' : ''}
+                    <a style="cursor:pointer" data-enum="${v}" @click="${(e) => {
+                      const inputEl = e.target.closest('table').querySelector(`input[data-pname="${param.name}"]`);
+                      if (inputEl) {
+                        inputEl.value = e.target.dataset.enum;
+                      }
+                    }}"> ${v} </a>`)
+                  : ''
+                }
               </div>`
             : ''
           }
@@ -287,6 +317,20 @@ export default class ApiRequest extends LitElement {
         ${this.allowTry === 'true' || inputVal !== '' ? html`<td style="border:none"> </td>` : ''}
         <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;"> 
           <span class="m-markdown-small">${unsafeHTML(marked(param.description || ''))}</span>
+          ${(param.examples && Object.values(param.examples).length > 1)
+            ? html`<span> Examples: 
+              ${Object.entries(param.examples).map((ex, i, a) => html`
+                <a style="cursor:pointer" data-example="${ex[1].value}" @click="${(e) => {
+                  const inputEl = e.target.closest('table').querySelector(`input[data-pname="${param.name}"]`);
+                  if (inputEl) {
+                    inputEl.value = e.target.dataset.example;
+                  }
+                }}">
+                  ${ex[1].summary || ex[1].value || ex[0]}
+                </a> ${i <= (a.length - 2) ? '| ' : ''}`)
+              }`
+            : ''
+          }
         </td>
       </tr>
     `);
@@ -535,7 +579,7 @@ export default class ApiRequest extends LitElement {
             </div>
             <div class="param-type">${paramSchema.type}</div>
           </td>  
-          <td style="${fieldType === 'object' ? 'width:100%; padding:0;' : 'width:160px;'} min-width:100px;">
+          <td style="${fieldType === 'object' ? 'width:100%; padding:0;' : 'width:160px;'} min-width:100px;" colspan="${fieldType === 'object' ? 2 : 1}">
             ${fieldType === 'array'
               ? fieldSchema.items.format === 'binary'
                 ? html`
@@ -586,12 +630,12 @@ export default class ApiRequest extends LitElement {
                         }
                         if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; }
                       }}">
-                        <button class="v-tab-btn" data-tab = 'model'>MODEL</button>
-                        <button class="v-tab-btn active" data-tab = 'example'>EXAMPLE </button>
+                        <button class="v-tab-btn ${this.activeSchemaTab === 'model' ? 'active' : ''}" data-tab = 'model'>MODEL</button>
+                        <button class="v-tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
                       </div>
                     </div>  
                     ${html`
-                      <div class="tab-content col" data-tab = 'model' style="display:none; padding:0 10px; width:100%;"> 
+                      <div class="tab-content col" data-tab = 'model' style="display:${this.activeSchemaTab === 'model' ? 'block' : 'none'}; padding-left:5px; width:100%;"> 
                         <schema-tree
                           .data = '${formdataPartSchema}'
                           schema-expand-level = "${this.schemaExpandLevel}"
@@ -600,21 +644,24 @@ export default class ApiRequest extends LitElement {
                       </div>`
                     }
                     ${html`
-                      <div class="tab-content col" data-tab = 'example' style="display:block; padding:0 10px; width:100%"> 
-                        <textarea class = "textarea"
+                      <div class="tab-content col" data-tab = 'example' style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'}; padding-left:5px; width:100%"> 
+                        <textarea 
+                          class = "textarea"
                           style = "width:100%; border:none; resize:vertical;" 
                           data-array = "false" 
                           data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
                           data-pname = "${fieldName}"
                           spellcheck = "false"
                         >${formdataPartExample[0].exampleValue}</textarea>
+                        <!-- This textarea(hidden) is to store the original example value, in focused mode on navbar change it is used to update the example text -->
+                        <textarea data-pname = "hidden-${fieldName}" data-ptype = "${mimeType.includes('form-urlencode') ? 'hidden-form-urlencode' : 'hidden-form-data'}" style="display:none">${formdataPartExample[0].exampleValue}</textarea>
                       </div>`
                     }
                   </div>`
                   : html`
                     ${this.allowTry === 'true' || fieldSchema.example
                       ? html`<input
-                          value = "${fieldSchema.example || ''}"
+                          .value = "${live(fieldSchema.example || '')}"
                           spellcheck = "false"
                           type = "${fieldSchema.format === 'binary' ? 'file' : fieldSchema.format === 'password' ? 'password' : 'text'}"
                           style = "width:200px"
@@ -628,27 +675,35 @@ export default class ApiRequest extends LitElement {
                   }`
               }
           </td>
-          <td>
-            <div class="param-constraint">
-              ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues
-                ? html`
-                  <div class="param-constraint">
-                    ${paramSchema.default ? html`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
-                    ${paramSchema.constrain ? html`${paramSchema.constrain}<br/>` : ''}
-                    ${paramSchema.allowedValues ? html`<span style="font-weight:bold">Allowed: </span>${paramSchema.allowedValues}` : ''}
-                  </div>`
-                : ''
-              }
-            </div>
-          </td>  
+          ${fieldType === 'object'
+            ? ''
+            : html`
+              <td>
+                <div class="param-constraint">
+                  ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues
+                    ? html`
+                      <div class="param-constraint">
+                        ${paramSchema.default ? html`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
+                        ${paramSchema.constrain ? html`${paramSchema.constrain}<br/>` : ''}
+                        ${paramSchema.allowedValues ? html`<span style="font-weight:bold">Allowed: </span>${paramSchema.allowedValues}` : ''}
+                      </div>`
+                    : ''
+                  }
+                </div>
+              </td>`
+          }
         </tr>
-        <tr>
-          ${this.allowTry === 'true' ? html`<td style="border:none"> </td>` : ''}
-          <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;"> 
-            <span class="m-markdown-small">${unsafeHTML(marked(fieldSchema.description || ''))}</span>
-          </td>
-        </tr>
-        `);
+        ${fieldType === 'object'
+          ? ''
+          : html`
+            <tr>
+              ${this.allowTry === 'true' ? html`<td style="border:none"> </td>` : ''}
+              <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;"> 
+                <span class="m-markdown-small">${unsafeHTML(marked(fieldSchema.description || ''))}</span>
+              </td>
+            </tr>
+          `
+        }`);
       }
       return html`
         <table style="width:100%;" class="m-table">
@@ -988,6 +1043,9 @@ export default class ApiRequest extends LitElement {
       }
       curlHeaders += ` -H "Content-Type: ${requestBodyType}" \\\n`;
     }
+
+    fetchOptions.headers['Cache-Control'] = 'no-cache';
+    curlHeaders += ' -H "Cache-Control: no-cache" \\\n';
 
     me.responseUrl = '';
     me.responseHeaders = '';

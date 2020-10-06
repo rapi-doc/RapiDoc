@@ -1,88 +1,1463 @@
 {
-  "openapi": "3.0.0",
-  "info": {
-    "title": "Bug API",
-    "version": "1.0.0"
+  "info" : {
+     "version" : "0.0.1",
+     "title" : "PortaBilling JSON API Reference Guide",
+     "description" : "This document provides information for developers who want to interface their applications with PortaBilling via JSON API"
   },
-  "paths": {
-    "/": {
-      "post": {
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "title": "Schema",
-                "allOf": [
-                  {
-                    "properties": {
-                      "allOfParam1": {
-                        "type": "string"
-                      }
-                    }
-                  },
-                  {
-                    "anyOf": [
-                      {
-                        "required": [
-                          "anyOf1Param1"
-                        ],
-                        "title": "anyOf1Param1",
-                        "properties": {
-                          "anyOf1Param1": {
-                            "type": "string"
-                          }
-                        }
-                      },
-                      {
-                        "required": [
-                          "anyOf1Param2"
-                        ],
-                        "title": "anyOf1Param2",
-                        "properties": {
-                          "anyOf1Param2": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    ]
-                  },
-                  {
-                    "anyOf": [
-                      {
-                        "required": [
-                          "anyOf2Param1"
-                        ],
-                        "title": "anyOf2Param1",
-                        "properties": {
-                          "anyOf2Param1": {
-                            "type": "string"
-                          }
-                        }
-                      },
-                      {
-                        "required": [
-                          "anyOf2Param2"
-                        ],
-                        "title": "anyOf2Param2",
-                        "properties": {
-                          "anyOf2Param2": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    ]
-                  }
-                ]
+  "x-tagGroups" : [
+     {
+        "name" : "Customer",
+        "tags" : [
+           "Customer management"
+        ]
+     },
+     {
+        "name" : "Session",
+        "tags" : [
+           "Authenticated session management"
+        ]
+     }
+  ],
+  "components" : {
+     "schemas" : {
+        "PaymentMethodInfo" : {
+           "type" : "object",
+           "properties" : {
+              "iso_3166_1_a2" : {
+                 "type" : "string",
+                 "description" : "ISO 3166 two-letter country code"
+              },
+              "number" : {
+                 "type" : "string",
+                 "description" : "Credit card number without spaces, e.g. 4444333322221111"
+              },
+              "account_number" : {
+                 "type" : "string",
+                 "description" : "Bank account number. Applicable to the Check and DirectDebitNL methods"
+              },
+              "processing_type" : {
+                 "type" : "string",
+                 "description" : "Processing type of the payment method"
+              },
+              "refnum" : {
+                 "type" : "string",
+                 "description" : "Reference number (custom field)"
+              },
+              "city" : {
+                 "type" : "string",
+                 "description" : "Name of the city of the cardholder"
+              },
+              "i_country_subdivision" : {
+                 "type" : "integer",
+                 "description" : "ID for cardholder's state; refers to Country_Subdivision table"
+              },
+              "i_payment_method" : {
+                 "type" : "integer",
+                 "description" : "Unique ID of the payment method"
+              },
+              "address" : {
+                 "type" : "string",
+                 "description" : "Address of the cardholder"
+              },
+              "start_date" : {
+                 "type" : "string",
+                 "description" : "Card activation date. Applicable to the Switch method"
+              },
+              "token" : {
+                 "type" : "string",
+                 "description" : "A reference to the payment information (which is stored by the Payment Processor only)"
+              },
+              "bank_number" : {
+                 "type" : "string",
+                 "description" : "Bank routing number. Applicable to the Check method"
+              },
+              "available_for_refund" : {
+                 "type" : "number",
+                 "description" : "The amount available for refund"
+              },
+              "exp_date" : {
+                 "type" : "string",
+                 "description" : "Card expiration date. Applicable to all credit card methods"
+              },
+              "issue_no" : {
+                 "type" : "string",
+                 "description" : "Card issue number. Applicable to the Switch method"
+              },
+              "name" : {
+                 "type" : "string",
+                 "description" : "Name of the cardholder (owner of a bank account, etc.)"
+              },
+              "phone_number" : {
+                 "type" : "string",
+                 "description" : "Phone number in E.164 format for validating the Credit Card"
+              },
+              "number_hash" : {
+                 "type" : "string",
+                 "description" : "A crypted hexadecimal code of the credit card number"
+              },
+              "payment_method" : {
+                 "type" : "string",
+                 "description" : "Name of the payment method, one of the following: Cash, Cheque, American Express, Discover, MasterCard, VISA, Maestro, Check, DirectDebitNL. Pass undefined value in order to dismiss payment method"
+              },
+              "zip" : {
+                 "type" : "string",
+                 "description" : "Postal code of the cardholder. Possible length: 2–10 symbols. You can use letters, digits and symbols ' ' (space) and '-' (dash)"
+              },
+              "csc_required" : {
+                 "type" : "integer",
+                 "description" : "Shows whether card security code is required or not"
+              },
+              "cvv" : {
+                 "type" : "string",
+                 "description" : "Card security code (CVV, CVS, etc.). Applicable to all credit card methods"
               }
-            }
-          }
+           }
         },
-        "responses": {
-
+        "ServiceAttributeInfo" : {
+           "required" : [
+              "name"
+           ],
+           "type" : "object",
+           "properties" : {
+              "effective_values" : {
+                 "$ref" : "#/components/schemas/ArrayOfString"
+              },
+              "name" : {
+                 "type" : "string",
+                 "description" : "Name of the service feature"
+              },
+              "values" : {
+                 "$ref" : "#/components/schemas/ArrayOfString"
+              }
+           }
+        },
+        "ArrayOfString" : {
+           "type" : "array",
+           "items" : {
+              "type" : "string"
+           }
+        },
+        "ArrayOfCustomerAuxFieldInfo" : {
+           "type" : "array",
+           "items" : {
+              "$ref" : "#/components/schemas/CustomerAuxFieldInfo"
+           }
+        },
+        "ArrayOfServiceAttributeInfo" : {
+           "type" : "array",
+           "items" : {
+              "$ref" : "#/components/schemas/ServiceAttributeInfo"
+           }
+        },
+        "CustomerAuxFieldInfo" : {
+           "required" : [
+              "name"
+           ],
+           "type" : "object",
+           "properties" : {
+              "value" : {
+                 "type" : "string",
+                 "description" : "The field value"
+              },
+              "name" : {
+                 "type" : "string",
+                 "description" : "The field name"
+              }
+           }
+        },
+        "RTAuthInfo" : {
+           "type" : "object",
+           "properties" : {
+              "rt_login" : {
+                 "type" : "string",
+                 "description" : "Customer RT login"
+              },
+              "rt_pass" : {
+                 "type" : "string",
+                 "description" : "Customer RT password"
+              },
+              "rt_server_url" : {
+                 "type" : "string",
+                 "description" : "RT Server URL"
+              },
+              "queue" : {
+                 "type" : "string",
+                 "description" : "RT queue name"
+              },
+              "requestor" : {
+                 "type" : "string",
+                 "description" : "RT requestor name"
+              }
+           }
+        },
+        "ArrayOfAuxFieldNames" : {
+           "type" : "array",
+           "items" : {
+              "type" : "string"
+           }
+        },
+        "ArrayOfBalanceWarningThresholds" : {
+           "type" : "array",
+           "items" : {
+              "$ref" : "#/components/schemas/BalanceWarningThreshold"
+           }
+        },
+        "ScheduledCustomerStatusChangeInfo" : {
+           "required" : [
+              "time_stamp",
+              "status_name",
+              "generate_invoice_earlier",
+              "i_status"
+           ],
+           "type" : "object",
+           "properties" : {
+              "time_stamp" : {
+                 "type" : "string",
+                 "description" : "The timestamp when the status will be applied to the customer"
+              },
+              "status_name" : {
+                 "type" : "string",
+                 "description" : "The human-readable name of the status"
+              },
+              "generate_invoice_earlier" : {
+                 "type" : "string",
+                 "description" : "Defines whether an invoice will be generated before the end of the billing period"
+              },
+              "i_status" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the scheduled customer status change"
+              }
+           }
+        },
+        "CustomFieldsValuesInfo" : {
+           "required" : [
+              "name",
+              "db_value"
+           ],
+           "type" : "object",
+           "properties" : {
+              "i_custom_field" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the custom field. Either the 'i_custom_field' or the 'name' is required for the 'update_custom_fields_values' method"
+              },
+              "text_value" : {
+                 "type" : "string",
+                 "description" : "Custom field value"
+              },
+              "i_custom_field_value" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the custom field value. The field is ignored in the 'update_custom_fields_values' method request"
+              },
+              "name" : {
+                 "type" : "string",
+                 "description" : "Custom field name"
+              },
+              "db_value" : {
+                 "type" : "string",
+                 "description" : "Database value of the custom field"
+              }
+           }
+        },
+        "LoginRequest" : {
+           "required" : [
+              "login"
+           ],
+           "type" : "object",
+           "properties" : {
+              "password" : {
+                 "type" : "string",
+                 "description" : "Password, as specified on web interface"
+              },
+              "ca_token" : {
+                 "type" : "string",
+                 "description" : "The captcha token"
+              },
+              "enable_csrf_protection" : {
+                 "type" : "integer",
+                 "description" : "The flag shows whether to permanently enable CSRF protection for the session"
+              },
+              "ca_code" : {
+                 "type" : "string",
+                 "description" : "The captcha code"
+              },
+              "token" : {
+                 "type" : "string",
+                 "description" : "The API access token of a user"
+              },
+              "login" : {
+                 "type" : "string",
+                 "description" : "User Name, as specified on web interface"
+              }
+           }
+        },
+        "ArrayOfCustomFieldsValuesInfo" : {
+           "type" : "array",
+           "items" : {
+              "$ref" : "#/components/schemas/CustomFieldsValuesInfo"
+           }
+        },
+        "BalanceWarningThreshold" : {
+           "required" : [
+              "warning_threshold",
+              "type"
+           ],
+           "type" : "object",
+           "properties" : {
+              "warning_threshold" : {
+                 "type" : "number",
+                 "description" : "Warning threshold value. NOTE: For postpaid customers, balance warning thresholds can be defined either as amounts or as percentages of a positive Permanent Credit Limit value. For prepaid customers, balance warning thresholds can be defined only as an amount of an Available Funds value"
+              },
+              "type" : {
+                 "type" : "string",
+                 "description" : "Type of the warning threshold. Possible values: A - absolute amount, P - percent"
+              }
+           }
+        },
+        "GetCustomerInfoResponse" : {
+           "type" : "object",
+           "properties" : {
+              "customer_info" : {
+                 "$ref" : "#/components/schemas/CustomerInfo"
+              },
+              "main_office_info" : {
+                 "$ref" : "#/components/schemas/CustomerInfo"
+              },
+              "reseller_info" : {
+                 "$ref" : "#/components/schemas/CustomerInfo"
+              }
+           }
+        },
+        "AuthInfoStructure" : {
+           "type" : "object",
+           "properties" : {
+              "password" : {
+                 "type" : "string",
+                 "description" : "The user password for the PortaBilling web interface"
+              },
+              "session_id" : {
+                 "type" : "string",
+                 "description" : "The unique ID of a previously opened SOAP session (used without a login)"
+              },
+              "token" : {
+                 "type" : "string",
+                 "description" : "The API access token of a user. Сan be used instead of a password to set up the session"
+              },
+              "login" : {
+                 "type" : "string",
+                 "description" : "The user login for the PortaBilling web interface. Should be used together with one of the following: password, token"
+              },
+              "csrf_token" : {
+                 "type" : "string",
+                 "description" : "The CSRF token"
+              }
+           }
+        },
+        "LoginResponse" : {
+           "required" : [
+              "session_id"
+           ],
+           "type" : "object",
+           "properties" : {
+              "session_id" : {
+                 "type" : "string",
+                 "description" : "The unique ID of the newly opened session"
+              }
+           }
+        },
+        "ServiceFeatureInfo" : {
+           "required" : [
+              "flag_value",
+              "name"
+           ],
+           "type" : "object",
+           "properties" : {
+              "locked" : {
+                 "type" : "integer",
+                 "description" : "Specifies whether the feature is locked for editing for current user or not. If absent in response, then the feature can’t be locked"
+              },
+              "flag_value" : {
+                 "type" : "string",
+                 "description" : "Value of the corresponding service_flag item. Note that for the cli_trust and permitted_sip_proxies service features the flag_value property is not mandatory"
+              },
+              "defined" : {
+                 "type" : "integer",
+                 "description" : "Shows whether the service feature is defined on the object's service features level or not. If absent in the response, it means that the feature is always defined on the object's service features level"
+              },
+              "effective_flag_value" : {
+                 "type" : "string",
+                 "description" : "A value of the service feature. It can be received in one of the two ways: inherited by the account from the customer, customer site or the product; inherited by the customer site from the customer"
+              },
+              "name" : {
+                 "type" : "string",
+                 "description" : "Service feature name"
+              },
+              "attributes" : {
+                 "$ref" : "#/components/schemas/ArrayOfServiceAttributeInfo"
+              },
+              "locks" : {
+                 "$ref" : "#/components/schemas/ArrayOfString"
+              }
+           }
+        },
+        "ArrayOfScheduledCustomerStatusChangeInfo" : {
+           "type" : "array",
+           "items" : {
+              "$ref" : "#/components/schemas/ScheduledCustomerStatusChangeInfo"
+           }
+        },
+        "CustomerInfo" : {
+           "type" : "object",
+           "properties" : {
+              "inclusive_taxation" : {
+                 "type" : "string",
+                 "description" : "Identifies that taxes are included in rates for a Customer (Y, N)"
+              },
+              "commission_plan_effective_from" : {
+                 "type" : "string",
+                 "description" : "The date and time when the commission plan was assigned"
+              },
+              "i_parent" : {
+                 "type" : "integer",
+                 "description" : "Omit for a direct customer; i_customer of the reseller for a subcustomer"
+              },
+              "out_date_format" : {
+                 "type" : "string",
+                 "description" : "Output format for date indication on customer's self-care interface"
+              },
+              "i_template" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the customer's regular invoice template; refers to the Templates table. If undefined, the template defined in the customer class is used; if 0, invoices are not created"
+              },
+              "email" : {
+                 "type" : "string",
+                 "description" : "Email address"
+              },
+              "password" : {
+                 "type" : "string",
+                 "description" : "Customer's password for self-care web interface"
+              },
+              "onetime_invoice_generation_enabled" : {
+                 "type" : "integer",
+                 "description" : "Specfies whether out-ofturn invoice generation is enabled. Possible values: 1 - Out-of-turn invoice generation is enabled; 0 - Out-of-turn invoice generation is disabled"
+              },
+              "send_invoices" : {
+                 "type" : "string",
+                 "description" : "Defines whether a regular invoice should be automatically sent to the customer as soon as it is created. Possible values: Y - Send invoice; N - Do not send invoice. If undefined, the settings defined in the customer class are applied"
+              },
+              "aux_fields" : {
+                 "$ref" : "#/components/schemas/ArrayOfCustomerAuxFieldInfo"
+              },
+              "billed_to" : {
+                 "type" : "string",
+                 "description" : "The customer's \"billed to\" date"
+              },
+              "blocked" : {
+                 "type" : "string",
+                 "description" : "Block customer's calls"
+              },
+              "i_commission_plan" : {
+                 "type" : "integer",
+                 "description" : "The ID of the overridden commission plan for this customer"
+              },
+              "is_used" : {
+                 "type" : "integer",
+                 "description" : "Shows whether the customer has entities assigned"
+              },
+              "bill_status" : {
+                 "type" : "string",
+                 "description" : "O - the customer is open, S - the customer is suspended due to an overdue invoice, C - the customer is closed due to an unpaid invoice, E - the customer is exported"
+              },
+              "name" : {
+                 "type" : "string",
+                 "description" : "The ID of the customer on the PortaBilling® interface, unique in the billing environment"
+              },
+              "scheduled_status_change_list" : {
+                 "$ref" : "#/components/schemas/ArrayOfScheduledCustomerStatusChangeInfo"
+              },
+              "i_tariff" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the customer's tariff; refers to Tariffs table; applies to resellers only"
+              },
+              "i_role" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the customer's access role; refers to the Roles table"
+              },
+              "login" : {
+                 "type" : "string",
+                 "description" : "Customer's login for self-care web interface"
+              },
+              "max_abbreviated_length" : {
+                 "type" : "integer",
+                 "description" : "Maximum allowed length of customer's abbreviated numbers; applies to retail customers only"
+              },
+              "pdf_generation_mode" : {
+                 "type" : "string",
+                 "description" : "Generate Invoice PDF: C - At the end of the billing period; R - Postponed, based on resource availability; D - On demand"
+              },
+              "creation_date" : {
+                 "type" : "string",
+                 "description" : "Date and time when the customer was created"
+              },
+              "in_date_format" : {
+                 "type" : "string",
+                 "description" : "Input format for date indication"
+              },
+              "phone1" : {
+                 "type" : "string",
+                 "description" : "Main phone number"
+              },
+              "ui_time_zone_name" : {
+                 "type" : "string",
+                 "description" : "The unique ID of the customer's user interface time zone; refers to the Time_Zones table"
+              },
+              "i_time_zone" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the customer's time zone; refers to Time_Zones table"
+              },
+              "i_number_scope_reseller" : {
+                 "type" : "integer",
+                 "description" : "The identifier of the invoice sequence numbers scope for the reseller"
+              },
+              "i_balance_control_type" : {
+                 "type" : "integer",
+                 "description" : "Customer balance control type. Possible values: 1 - Postpaid (default); 2 - Prepaid"
+              },
+              "phone2" : {
+                 "type" : "string",
+                 "description" : "Alternative phone number"
+              },
+              "credit_exceed" : {
+                 "type" : "integer",
+                 "description" : "Specifies if customer's credit limit has been exceeded"
+              },
+              "salutation" : {
+                 "type" : "string",
+                 "description" : "Customer's salutation"
+              },
+              "ot_send_invoices" : {
+                 "type" : "string",
+                 "description" : "Defines whether an out-of-turn invoice should be automatically sent to the customer as soon as it is created. Possible values: Y – Send invoice, N – Do not send invoice. The default value is Y"
+              },
+              "send_statistics" : {
+                 "type" : "string",
+                 "description" : "Defines what kind of xDR statistics should be delivered to the customer by email: F - send full statistics to customer; S - send short statistics; N - do not send statistics. If undefined, the settings defined in the customer class are applied"
+              },
+              "i_tariff_incoming" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the customer's incoming tariff; refers to Tariffs table; applies to resellers only"
+              },
+              "login_allowed_ip_list" : {
+                 "$ref" : "#/components/schemas/ArrayOfString"
+              },
+              "i_customer_type" : {
+                 "type" : "integer",
+                 "description" : "Customer type: 1 (retail customer or subcustomer), 2 (reseller), 3 (distributor)"
+              },
+              "i_billing_processor" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the taxation method. If blank then the taxation method defined for the customer class is used. 0 means that taxes are included in the rate"
+              },
+              "refnum" : {
+                 "type" : "string",
+                 "description" : "Reference number (custom field)"
+              },
+              "callshop_enabled" : {
+                 "type" : "string",
+                 "description" : "Enable callshop features on customer's self-care interface"
+              },
+              "deactivate_on" : {
+                 "type" : "string",
+                 "description" : "The date when the customer will be deactivated"
+              },
+              "country" : {
+                 "type" : "string",
+                 "description" : "The code of the country in the ISO 3166-1 alpha-2 format"
+              },
+              "i_do_batch" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the Owner DID Batch used for DID numbers auto-provisioning"
+              },
+              "i_distributor" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the distributor record associated with the customer"
+              },
+              "generate_invoice_earlier" : {
+                 "type" : "string",
+                 "description" : "Defines whether an invoice will be generated before the end of the billing period (Y, N)"
+              },
+              "payment_method_info" : {
+                 "$ref" : "#/components/schemas/PaymentMethodInfo"
+              },
+              "tax_info" : {
+                 "type" : "string",
+                 "description" : "The configured taxation method options. For example: vat_exempt=no;vat_percen t=20;vat_cdr_per_service= 0"
+              },
+              "invoice_generation_enabled" : {
+                 "type" : "integer",
+                 "description" : "Specifies whether invoice generation is enabled"
+              },
+              "notepad" : {
+                 "type" : "string",
+                 "description" : "When making changes in the customer record, the administrator can use the Notepad tab to provide a comment detailing the reason for these changes (for example, \"product changed, credited $50\")"
+              },
+              "credit_limit_until" : {
+                 "type" : "string",
+                 "description" : "Date and time when the temporarily extended credit limit will be automatically reverted to the original value"
+              },
+              "tax_id" : {
+                 "type" : "string",
+                 "description" : "Tax ID"
+              },
+              "shifted_billing_date" : {
+                 "type" : "string",
+                 "description" : "This is applicable only for \"monthly anniversary\" and 30-day billing periods; allows you to set the billing date to a different day of the month in the future (used only in requests)"
+              },
+              "firstname" : {
+                 "type" : "string",
+                 "description" : "Customer's first name"
+              },
+              "credit_limit_warning" : {
+                 "$ref" : "#/components/schemas/ArrayOfBalanceWarningThresholds"
+              },
+              "bp_closure_delayed_info" : {
+                 "$ref" : "#/components/schemas/BillingPeriodClosureDelayedInfo"
+              },
+              "new_i_billing_period" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the customer's future billing period; refers to the Billing_Period table"
+              },
+              "baddr2" : {
+                 "type" : "string",
+                 "description" : "2nd line of customer's address"
+              },
+              "iso_4217" : {
+                 "type" : "string",
+                 "description" : "ISO4217 code for currency in which the customer is billed"
+              },
+              "suspension_delay_date" : {
+                 "type" : "string",
+                 "description" : "The date when the customer will be suspended"
+              },
+              "i_customer_class" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the customer class; refers to Customer_Classes table"
+              },
+              "state" : {
+                 "type" : "string",
+                 "description" : "Province or state"
+              },
+              "opening_balance" : {
+                 "type" : "number",
+                 "description" : "Customer's initial balance"
+              },
+              "has_custom_fields" : {
+                 "type" : "integer",
+                 "description" : "Shows that the customer has additional information stored in custom fields"
+              },
+              "baddr4" : {
+                 "type" : "string",
+                 "description" : "4th line of customer's address"
+              },
+              "out_date_time_format" : {
+                 "type" : "string",
+                 "description" : "Output format for full date/time indication"
+              },
+              "temp_credit_limit" : {
+                 "type" : "integer",
+                 "description" : "Value by which the customer's credit limit will be temporarily increased. Allows to extend the customer’s credit limit until a certain date"
+              },
+              "rt_auth_info" : {
+                 "$ref" : "#/components/schemas/RTAuthInfo"
+              },
+              "ip_filter" : {
+                 "type" : "string",
+                 "description" : "The list of IP addresses the customer can log into PortaBilling from"
+              },
+              "time_zone_name" : {
+                 "type" : "string",
+                 "description" : "The name of the customer's time zone"
+              },
+              "i_lang" : {
+                 "type" : "string",
+                 "description" : "Code for customer's web language; refers to Languages table"
+              },
+              "baddr3" : {
+                 "type" : "string",
+                 "description" : "3rd line of customer's address"
+              },
+              "bill_suspension_delayed" : {
+                 "type" : "integer",
+                 "description" : "Shows whether suspension of customer's services has been delayed"
+              },
+              "i_traffic_profile" : {
+                 "type" : "integer",
+                 "description" : "The identifier of the traffic profile"
+              },
+              "bp_charge_cc" : {
+                 "type" : "string",
+                 "description" : "Automatically charge customer's credit card when billing period is closed. \"As defined by the Customer Class\" is used if empty"
+              },
+              "address_line_2" : {
+                 "type" : "string",
+                 "description" : "The 2nd line of the customer's address. It will contain all baddr2, baddr3, baddr4 and baddr5 fields separated by the '\\n' symbol"
+              },
+              "baddr5" : {
+                 "type" : "string",
+                 "description" : "5th line of customer's address"
+              },
+              "zip" : {
+                 "type" : "string",
+                 "description" : "Postal (zip) code. Possible length: 2–10 symbols. You can use letters, digits and symbols ' ' (space) and '-' (dash)"
+              },
+              "balance" : {
+                 "type" : "number",
+                 "description" : "Customer's balance"
+              },
+              "subreseller_status" : {
+                 "type" : "integer",
+                 "description" : "Current Subreseller status"
+              },
+              "discount_rate" : {
+                 "type" : "number",
+                 "description" : "The value of customer's subscription discount; a percentage"
+              },
+              "estimate_taxes" : {
+                 "type" : "integer",
+                 "description" : "Marks that Customer configured taxes to apply at the moment of payment"
+              },
+              "cont1" : {
+                 "type" : "string",
+                 "description" : "Main contact person"
+              },
+              "midinit" : {
+                 "type" : "string",
+                 "description" : "Customer's middle initial(s)"
+              },
+              "ot_i_template" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the template for the out-of-turn invoice"
+              },
+              "sale_commission_rate" : {
+                 "type" : "number",
+                 "description" : "The commission that is applied when an account is created or a distributor is assigned (only applicable to distributor)"
+              },
+              "balance_transfer_allowed" : {
+                 "type" : "string",
+                 "description" : "Defines if balance transfer is enabled for a Customer (Y, N)"
+              },
+              "status" : {
+                 "type" : "string",
+                 "description" : "The status of the customer"
+              },
+              "scheduled_billing_change" : {
+                 "type" : "string",
+                 "description" : "A date when the billing period will close and a new billing period and a new time zone will be applied"
+              },
+              "terminate_on" : {
+                 "type" : "string",
+                 "description" : "The date when the customer will be terminated"
+              },
+              "lastname" : {
+                 "type" : "string",
+                 "description" : "Customer's last name"
+              },
+              "unallocated_payments" : {
+                 "type" : "number",
+                 "description" : "The customer's unallocated payments"
+              },
+              "perm_credit_limit" : {
+                 "type" : "number",
+                 "description" : "Customer's original credit limit"
+              },
+              "i_main_office" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the main office (customer record with office type 3)"
+              },
+              "city" : {
+                 "type" : "string",
+                 "description" : "City of customer's address"
+              },
+              "restore_on" : {
+                 "type" : "string",
+                 "description" : "The date when the customer status will be returned to Open"
+              },
+              "i_ui_time_zone" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the the customer's user interface time zone; refers to the Time_Zones table"
+              },
+              "cont2" : {
+                 "type" : "string",
+                 "description" : "Alternative contact person"
+              },
+              "out_time_format" : {
+                 "type" : "string",
+                 "description" : "Output format for time indication"
+              },
+              "i_vd_plan" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the customer's discount plan; refers to Volume_Discount_Plans table"
+              },
+              "email_from" : {
+                 "type" : "string",
+                 "description" : "Email Address for Reseller to use as Sender Email for Customer Notifications"
+              },
+              "new_i_time_zone" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the customer's future time zone; refers to the Time_Zones table"
+              },
+              "password_lifetime" : {
+                 "type" : "integer",
+                 "description" : "Customer's self-care WI password life time (in seconds)"
+              },
+              "service_features" : {
+                 "$ref" : "#/components/schemas/ArrayOfServiceFeatureInfo"
+              },
+              "euuid" : {
+                 "type" : "string",
+                 "description" : "The unique identifier of the environment"
+              },
+              "override_tariffs_enabled" : {
+                 "type" : "string",
+                 "description" : "Specifies whether the Override Tariffs feature is enabled: Y - enabled, N - disabled"
+              },
+              "suspend_on_insuff_funds" : {
+                 "type" : "string",
+                 "description" : "Specifies whether to suspend the customer on insufficient funds for charging subscriptions: Y - automatically suspend prepaid customers whose funds are not sufficient to cover pending subscription charges; N - do not suspend customers; Empty - the settings defined in the customer class are applied"
+              },
+              "in_time_format" : {
+                 "type" : "string",
+                 "description" : "Input format for time indication"
+              },
+              "i_rep" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the customer's representative; refers to Representatives table "
+              },
+              "password_timestamp" : {
+                 "type" : "string",
+                 "description" : "Date when the password was changed"
+              },
+              "i_number_scope" : {
+                 "type" : "integer",
+                 "description" : "PortaBilling can generate invoices for all customers with sequential invoice numbering distributed throughout the environment. In some cases, you may want to have more than one sequence of numbers. One of the following: 1 – Individual for Environment, 2 – Individual for Reseller, 3 – Individual for Customer"
+              },
+              "service_flags" : {
+                 "type" : "string",
+                 "description" : "Customer's service features settings. Note that this property is read-only (the add_customer and update_customer methods ignore it) and it is used in the get_customer_info and get_customer_list responses as informative. To change customer's service features use the service_features property"
+              },
+              "i_office_type" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the Office_Types record. Possible values: 1 – none; 2 – branch_office; 3 – main_office"
+              },
+              "next_billed_to" : {
+                 "type" : "string",
+                 "description" : "The date of the end of the current billing period for the customer"
+              },
+              "note" : {
+                 "type" : "string",
+                 "description" : "Short note (description)"
+              },
+              "i_billing_period" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the customer's billing period; refers to Billing_Period table"
+              },
+              "bcc" : {
+                 "type" : "string",
+                 "description" : "BCC email address"
+              },
+              "purge_after_months" : {
+                 "type" : "integer",
+                 "description" : "Shows when customer personal data will be deleted. -1 - functionality is disabled, 0 - immediately, N - delete in N months, NULL - inherited from the customer class"
+              },
+              "faxnum" : {
+                 "type" : "string",
+                 "description" : "Fax number"
+              },
+              "payment_commission_rate" : {
+                 "type" : "number",
+                 "description" : "The commition applied when payment is entered (only applicable to distributor)"
+              },
+              "api_token" : {
+                 "type" : "string",
+                 "description" : "The API token of the customer. You can use tokens instead of the standard login-password pairs for authenticating your applications integrated with PortaBilling via API"
+              },
+              "i_customer" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the customer record"
+              },
+              "i_acl" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the customer's access level; refers to the Access_Levels table"
+              },
+              "bundle_billed_to" : {
+                 "type" : "string",
+                 "description" : "Any bundles earlier than this date and time are already calculated"
+              },
+              "baddr1" : {
+                 "type" : "string",
+                 "description" : "1st line of customer's address"
+              },
+              "companyname" : {
+                 "type" : "string",
+                 "description" : "Customer's company name"
+              },
+              "credit_limit" : {
+                 "type" : "number",
+                 "description" : "Customer's credit limit value. Note that this property may be used with the nil attribute set to true, in which case the credit limit will not be enforced"
+              }
+           }
+        },
+        "GetCustomerListRequest" : {
+           "required" : [
+              "limit",
+              "offset"
+           ],
+           "type" : "object",
+           "properties" : {
+              "firstname" : {
+                 "type" : "string",
+                 "description" : "Customer's first name"
+              },
+              "skip_exported" : {
+                 "type" : "integer",
+                 "description" : "Specifies whether the customers with 'bill_status'='E' should be excluded from the response"
+              },
+              "invoicing_enabled" : {
+                 "type" : "integer",
+                 "description" : "Filters customer list by their invoicing status. Possible values: 1 - Invoicing enabled; 0 - Invoicing disabled"
+              },
+              "iso_4217" : {
+                 "type" : "string",
+                 "description" : "ISO4217 code for currency in which the customer is billed"
+              },
+              "i_parent" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the reseller who manages the customer"
+              },
+              "i_customer_class" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the customer class; refers to Customer_Classes table"
+              },
+              "state" : {
+                 "type" : "string",
+                 "description" : "Province or state"
+              },
+              "email" : {
+                 "type" : "string",
+                 "description" : "Email address"
+              },
+              "get_statuses" : {
+                 "type" : "integer",
+                 "description" : "Get the statuses of the customers"
+              },
+              "bill_status" : {
+                 "type" : "string",
+                 "description" : "The billing status of the customer to search by.\nPossible values: O, S, C, E, D.\n O – The customer is open.\n S – The customer is suspended due to an overdue invoice.\n C – The customer is closed due to an unpaid invoice.\n E – The customer is exported.\n D – The customer is deactivated due to provisional termination.\n"
+              },
+              "i_main_customer" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the \"main\" customer (Main Office (HQ) customer) record within one linked customers' group"
+              },
+              "name" : {
+                 "type" : "string",
+                 "description" : "The customer name pattern"
+              },
+              "login" : {
+                 "type" : "string",
+                 "description" : "Customer's login for self-care web interface"
+              },
+              "get_auth_info" : {
+                 "type" : "integer",
+                 "description" : "If set to '1', the information about the customer's authorization parameters will be provided in the response"
+              },
+              "zip" : {
+                 "type" : "string",
+                 "description" : "Postal (zip) code"
+              },
+              "phone1" : {
+                 "type" : "string",
+                 "description" : "Main phone number"
+              },
+              "phone2" : {
+                 "type" : "string",
+                 "description" : "Alternative phone number"
+              },
+              "midinit" : {
+                 "type" : "string",
+                 "description" : "Customer's middle initial(s)"
+              },
+              "cont1" : {
+                 "type" : "string",
+                 "description" : "Main contact person"
+              },
+              "salutation" : {
+                 "type" : "string",
+                 "description" : "Customer's salutation"
+              },
+              "detailed_info" : {
+                 "type" : "integer",
+                 "description" : "Specifies whether detailed information will be returned in the response"
+              },
+              "lastname" : {
+                 "type" : "string",
+                 "description" : "Customer's last name"
+              },
+              "with_terminated" : {
+                 "type" : "integer",
+                 "description" : "Specifies whether to include terminated customers into the list. Possible values: 1 - Include terminated customers into the list; 0 - Do not include terminated customers into the list"
+              },
+              "i_customer_type" : {
+                 "type" : "integer",
+                 "description" : "The type of the customer. Possible values: 1 - Retail customer or subcustomer, 2 - Reseller, 3 - Distributor"
+              },
+              "city" : {
+                 "type" : "string",
+                 "description" : "City of customer's address"
+              },
+              "check_usage" : {
+                 "type" : "integer",
+                 "description" : "Check whether the customer has entities assigned"
+              },
+              "callshop_enabled" : {
+                 "type" : "string",
+                 "description" : "Filter the customer list by the 'callshop_enabled' field"
+              },
+              "get_total" : {
+                 "type" : "integer",
+                 "description" : "Get the total number of the retrieved customers"
+              },
+              "with_subresellers" : {
+                 "type" : "integer",
+                 "description" : "Specifies whether to include subresellers into the list. Possible values: 1 - Include subresellers into the list; 0 - Do not include subresellers into the list"
+              },
+              "limit" : {
+                 "type" : "integer",
+                 "description" : "The number of rows to retrieve"
+              },
+              "cont2" : {
+                 "type" : "string",
+                 "description" : "Alternative contact person"
+              },
+              "offset" : {
+                 "type" : "integer",
+                 "description" : "The number of rows to skip at the beginning of the list"
+              },
+              "country" : {
+                 "type" : "string",
+                 "description" : "The code of the country"
+              },
+              "i_distributor" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the distributor whose subdistributors you want to retrieve"
+              },
+              "i_rep" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the customer's representative; refers to Representatives table"
+              },
+              "custom_fields_values" : {
+                 "$ref" : "#/components/schemas/ArrayOfCustomFieldsValuesInfo"
+              },
+              "get_notepad" : {
+                 "type" : "integer",
+                 "description" : "Specifies whether to include the notes into the info. Possible values: 1 - Include the notes into the info; 0 - Do not include the notes into the info"
+              },
+              "i_office_type" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the Office_Types record. Possible values: 1 – none; 2 – branch_office; 3 – main_office"
+              },
+              "note" : {
+                 "type" : "string",
+                 "description" : "Short note (description)"
+              },
+              "bcc" : {
+                 "type" : "string",
+                 "description" : "BCC email address"
+              },
+              "has_invoices" : {
+                 "type" : "integer",
+                 "description" : "Filters customer list by invoice presence. Possible values: 1 - Return customers with at least one invoice present; 0 - Return customers with no invoices"
+              },
+              "faxnum" : {
+                 "type" : "string",
+                 "description" : "Fax number"
+              },
+              "tax_id" : {
+                 "type" : "string",
+                 "description" : "Tax ID"
+              },
+              "companyname" : {
+                 "type" : "string",
+                 "description" : "Customer's company name"
+              }
+           }
+        },
+        "ArrayOfServiceFeatureInfo" : {
+           "type" : "array",
+           "items" : {
+              "$ref" : "#/components/schemas/ServiceFeatureInfo"
+           }
+        },
+        "BillingPeriodClosureDelayedInfo" : {
+           "required" : [
+              "auto_close_on",
+              "is_closing_scheduled"
+           ],
+           "type" : "object",
+           "properties" : {
+              "auto_close_on" : {
+                 "type" : "string",
+                 "description" : "The timestamp when the customer's billing period will be automatically closed"
+              },
+              "is_closing_scheduled" : {
+                 "type" : "string",
+                 "description" : "Shows whether the customer's billing period is scheduled to be closed"
+              }
+           }
+        },
+        "GetCustomerInfoRequest" : {
+           "type" : "object",
+           "properties" : {
+              "effective_values" : {
+                 "type" : "integer",
+                 "description" : "Get customer info (including the values that were overridden or inherited from other entities)"
+              },
+              "detailed_info" : {
+                 "type" : "integer",
+                 "description" : "Specifies whether detailed information will be returned in the response"
+              },
+              "name" : {
+                 "type" : "string",
+                 "description" : "The ID of the customer on the PortaBilling interface, unique in the environment"
+              },
+              "get_main_office_info" : {
+                 "type" : "integer",
+                 "description" : "If set to '1', information will be provided for the requested Branch Office (site) customer about the Main Office (HQ) customer which is linked with it"
+              },
+              "with_reseller_info" : {
+                 "type" : "integer",
+                 "description" : "If with_reseller_info == 1 then return information about reseller"
+              },
+              "login" : {
+                 "type" : "string",
+                 "description" : "User Name, as specified on web interface"
+              },
+              "get_auth_info" : {
+                 "type" : "integer",
+                 "description" : "If set to '1', the information about the customer's authorization parameters will be provided in the response"
+              },
+              "refnum" : {
+                 "type" : "string",
+                 "description" : "Reference number (custom field)"
+              },
+              "get_time_zone_name" : {
+                 "type" : "integer",
+                 "description" : "If set to '1', the customer's time zone will be provided in the response; refers to Time_Zones table"
+              },
+              "i_customer" : {
+                 "type" : "integer",
+                 "description" : "The unique ID of the customer record"
+              },
+              "get_rt_auth_info" : {
+                 "type" : "integer",
+                 "description" : "If set to '1', the customer's RT information will be provided in the response"
+              },
+              "aux_field_names" : {
+                 "$ref" : "#/components/schemas/ArrayOfAuxFieldNames"
+              }
+           }
+        },
+        "ArrayOfCustomerInfo" : {
+           "type" : "array",
+           "items" : {
+              "$ref" : "#/components/schemas/CustomerInfo"
+           }
+        },
+        "GetCustomerListResponse" : {
+           "type" : "object",
+           "properties" : {
+              "customer_list" : {
+                 "$ref" : "#/components/schemas/ArrayOfCustomerInfo"
+              },
+              "total" : {
+                 "type" : "integer",
+                 "description" : "The total number of the retrieved customers"
+              }
+           }
         }
-      }
-    }
-  }
+     }
+  },
+  "openapi" : "3.0.0",
+  "servers" : [
+     {
+        "url" : "https://porta-billing-web/rest",
+        "description" : "The PortaBilling server"
+     }
+  ],
+  "paths" : {
+     "/Session/login" : {
+        "post" : {
+           "operationId" : "Session:login",
+           "summary" : "login - This method checks the validity of login and password or token and returns the session_id on success. API Fault is thrown on failure",
+           "responses" : {
+              "200" : {
+                 "content" : {
+                    "application/json" : {
+                       "schema" : {
+                          "$ref" : "#/components/schemas/LoginResponse"
+                       }
+                    }
+                 },
+                 "description" : "Successful response of the API method"
+              },
+              "500" : {
+                 "content" : {
+                    "application/json" : {
+                       "schema" : {
+                          "type" : "object",
+                          "properties" : {
+                             "faultcode" : {
+                                "type" : "string",
+                                "description" : "The error code"
+                             },
+                             "faultstring" : {
+                                "type" : "string",
+                                "description" : "Text description of the error"
+                             }
+                          }
+                       }
+                    }
+                 },
+                 "description" : "Failed response of the API method"
+              }
+           },
+           "requestBody" : {
+              "content" : {
+                 "multipart/form-data" : {
+                    "schema" : {
+                       "type" : "object",
+                       "properties" : {
+                          "params" : {
+                             "$ref" : "#/components/schemas/LoginRequest"
+                          }
+                       }
+                    },
+                    "encoding" : {
+                       "params" : {
+                          "contentType" : "application/json"
+                       }
+                    }
+                 },
+                 "application/x-www-form-urlencoded" : {
+                    "schema" : {
+                       "type" : "object",
+                       "properties" : {
+                          "params" : {
+                             "$ref" : "#/components/schemas/LoginRequest"
+                          }
+                       }
+                    },
+                    "encoding" : {
+                       "params" : {
+                          "contentType" : "application/json"
+                       }
+                    }
+                 }
+              }
+           },
+           "tags" : [
+              "Session",
+              "Authenticated session management"
+           ]
+        }
+     },
+     "/Customer/get_customer_list" : {
+        "post" : {
+           "operationId" : "Customer:get_customer_list",
+           "summary" : "get_customer_list - This method allows an API user to get a list of customer records. The customer must be viewable (or owned) by the user making the request",
+           "responses" : {
+              "200" : {
+                 "content" : {
+                    "application/json" : {
+                       "schema" : {
+                          "$ref" : "#/components/schemas/GetCustomerListResponse"
+                       }
+                    }
+                 },
+                 "description" : "Successful response of the API method"
+              },
+              "500" : {
+                 "content" : {
+                    "application/json" : {
+                       "schema" : {
+                          "type" : "object",
+                          "properties" : {
+                             "faultcode" : {
+                                "type" : "string",
+                                "description" : "The error code"
+                             },
+                             "faultstring" : {
+                                "type" : "string",
+                                "description" : "Text description of the error"
+                             }
+                          }
+                       }
+                    }
+                 },
+                 "description" : "Failed response of the API method"
+              }
+           },
+           "requestBody" : {
+              "content" : {
+                 "multipart/form-data" : {
+                    "schema" : {
+                       "type" : "object",
+                       "properties" : {
+                          "params" : {
+                             "$ref" : "#/components/schemas/GetCustomerListRequest"
+                          },
+                          "auth_info" : {
+                             "$ref" : "#/components/schemas/AuthInfoStructure"
+                          }
+                       }
+                    },
+                    "encoding" : {
+                       "params" : {
+                          "contentType" : "application/json"
+                       },
+                       "auth_info" : {
+                          "contentType" : "application/json"
+                       }
+                    }
+                 },
+                 "application/x-www-form-urlencoded" : {
+                    "schema" : {
+                       "type" : "object",
+                       "properties" : {
+                          "params" : {
+                             "$ref" : "#/components/schemas/GetCustomerListRequest"
+                          },
+                          "auth_info" : {
+                             "$ref" : "#/components/schemas/AuthInfoStructure"
+                          }
+                       }
+                    },
+                    "encoding" : {
+                       "params" : {
+                          "contentType" : "application/json"
+                       },
+                       "auth_info" : {
+                          "contentType" : "application/json"
+                       }
+                    }
+                 }
+              }
+           },
+           "tags" : [
+              "Customer",
+              "Customer management"
+           ]
+        }
+     },
+     "/Customer/get_customer_info" : {
+        "post" : {
+           "operationId" : "Customer:get_customer_info",
+           "summary" : "get_customer_info - This method allows an API user to get a customer record from the database. The customer must be viewable (owned) by the user making the request",
+           "responses" : {
+              "200" : {
+                 "content" : {
+                    "application/json" : {
+                       "schema" : {
+                          "$ref" : "#/components/schemas/GetCustomerInfoResponse"
+                       }
+                    }
+                 },
+                 "description" : "Successful response of the API method"
+              },
+              "500" : {
+                 "content" : {
+                    "application/json" : {
+                       "schema" : {
+                          "type" : "object",
+                          "properties" : {
+                             "faultcode" : {
+                                "type" : "string",
+                                "description" : "The error code"
+                             },
+                             "faultstring" : {
+                                "type" : "string",
+                                "description" : "Text description of the error"
+                             }
+                          }
+                       }
+                    }
+                 },
+                 "description" : "Failed response of the API method"
+              }
+           },
+           "requestBody" : {
+              "content" : {
+                 "multipart/form-data" : {
+                    "schema" : {
+                       "type" : "object",
+                       "properties" : {
+                          "params" : {
+                             "$ref" : "#/components/schemas/GetCustomerInfoRequest"
+                          },
+                          "auth_info" : {
+                             "$ref" : "#/components/schemas/AuthInfoStructure"
+                          }
+                       }
+                    },
+                    "encoding" : {
+                       "params" : {
+                          "contentType" : "application/json"
+                       },
+                       "auth_info" : {
+                          "contentType" : "application/json"
+                       }
+                    }
+                 },
+                 "application/x-www-form-urlencoded" : {
+                    "schema" : {
+                       "type" : "object",
+                       "properties" : {
+                          "params" : {
+                             "$ref" : "#/components/schemas/GetCustomerInfoRequest"
+                          },
+                          "auth_info" : {
+                             "$ref" : "#/components/schemas/AuthInfoStructure"
+                          }
+                       }
+                    },
+                    "encoding" : {
+                       "params" : {
+                          "contentType" : "application/json"
+                       },
+                       "auth_info" : {
+                          "contentType" : "application/json"
+                       }
+                    }
+                 }
+              }
+           },
+           "tags" : [
+              "Customer",
+              "Customer management"
+           ]
+        }
+     }
+  },
+  "tags" : [
+     {
+        "name" : "Authenticated session management"
+     },
+     {
+        "name" : "Customer"
+     },
+     {
+        "name" : "Customer management"
+     },
+     {
+        "name" : "Session"
+     }
+  ]
 }

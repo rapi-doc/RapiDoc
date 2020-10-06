@@ -1,26 +1,115 @@
 openapi: 3.0.0
 info:
+  title: Providing Examples
+  description:  Providing Examples
   version: 1.0.0
-  title: Slack Incoming Webhook
 paths:
-  /test:
-    post:
-      summary: Post a message to Slack
-      requestBody:
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                name:          # <!--- form field name
-                  type: string
-                  description: Provide full name
-                age:    # <!--- form field name
-                  type: integer
-            example: 
-              name: approved
-              age: 20
-              
+  /single-example-by-response-type:
+    get:
+      summary: Single Example at schema Level
       responses:
         '200':
-          description: OK
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  age:
+                    description: Person Age
+                    type: integer
+                  fullName:
+                    description: Person Full name
+                    type: object
+                    properties:
+                      firstName:
+                        description: First name
+                        type: string
+                      lastName:
+                        description: Last name
+                        type: string
+              example: |
+                {
+                  age: 10,
+                  fullName: {
+                    firstName: Donald,
+                    lastName: Duck
+                  }
+                }
+  /single-example-by-response-type2:
+    get:
+      summary: Single Example at schema Level
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  age:
+                    description: Person Age
+                    type: integer
+                  fullName:
+                    description: Person Full name
+                    type: object
+                    properties:
+                      firstName:
+                        description: First name
+                        type: string
+                      lastName:
+                        description: Last name
+                        type: string
+              example:
+                age: 10
+                fullName:
+                  firstName: Donald
+                  lastName: Duck                
+components:
+  schemas:
+    cost:
+      type: object
+      properties:
+        amount:
+          type: integer
+          description: Amount
+        currency:
+          description: Currency Code
+          type: string
+    currencies:
+      type: array
+      items:
+        type: object
+        properties:
+          currencyCode:
+            type: string
+          evaluationDate:
+            type: string
+            format: date-time
+      example:
+        - currencyCode: USD
+          evaluationDate: '2017-07-21T17:32:28Z'
+        - currencyCode: INR
+          evaluationDate: '2017-07-21T17:32:28Z'
+    ArrayOfInt-1:
+      type: array
+      items:
+        type: integer
+        format: int64
+      example: [1, 2, 3]
+    ArrayOfInt-2:
+      type: array
+      items:
+        type: integer
+        format: int64
+        example: 1
+    PersonObject:
+      type: object
+      properties:
+        name:
+          type: string
+        age:
+          type: integer
+      example:
+        name: name-1
+        age: 1
