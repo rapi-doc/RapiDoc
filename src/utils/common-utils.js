@@ -55,3 +55,101 @@ export function pathIsInSearch(matchPattern, path) {
   const searchString = `${path.method} ${path.path} ${path.summary || path.description || ''} ${path.operationId || ''}`.toLowerCase();
   return searchString.includes(matchPattern);
 }
+
+function processProperties(properties, pattern, tag, path, searchedProperties) {
+  for (const property in properties) {
+    if (property.includes(pattern) || (properties[property].description !== undefined && properties[property].description.includes(pattern))) {
+      // eslint-disable-next-line no-prototype-builtins
+      if (searchedProperties.hasOwnProperty(property)) {
+        searchedProperties[property].paths.set(path.description, path);
+      } else {
+        const paths = new Map();
+        paths.set(path.description, path);
+        searchedProperties[property] = {
+          description: properties[property].description,
+          paths,
+        };
+      }
+    }
+
+    // eslint-disable-next-line no-prototype-builtins
+    if (properties[property].hasOwnProperty('properties')) {
+      processProperties(
+        properties[property].properties,
+        pattern,
+        tag,
+        path,
+        searchedProperties,
+      );
+    }
+
+    // eslint-disable-next-line no-prototype-builtins
+    if (properties[property].hasOwnProperty('items') && properties[property].items.hasOwnProperty('properties')) {
+      processProperties(
+        properties[property].items.properties,
+        pattern,
+        tag,
+        path,
+        searchedProperties,
+      );
+    }
+  }
+
+  // eslint-disable-next-line no-prototype-builtins
+  if (properties && properties.hasOwnProperty('properties')) {
+    processProperties(
+      properties.properties,
+      pattern,
+      tag,
+      path,
+      searchedProperties,
+    );
+  }
+}
+
+export function findProperties(matchPattern, tags) {
+  const searchedProperties = {};
+
+  if (!matchPattern) {
+    return searchedProperties;
+  }
+
+  tags.forEach((tag) => {
+    tag.paths.forEach((path) => {
+      // eslint-disable-next-line no-prototype-builtins
+      if (path.hasOwnProperty('parameters')) {
+        for (const parameter of path.parameters) {
+          if (parameter.name.includes(matchPattern) || (parameter.description !== undefined && parameter.description.includes(matchPattern))) {
+            // eslint-disable-next-line no-prototype-builtins
+            if (searchedProperties.hasOwnProperty(parameter.name)) {
+              searchedProperties[parameter.name].paths.set(path.description, path);
+            } else {
+              const paths = new Map();
+              paths.set(path.description, path);
+              searchedProperties[parameter.name] = {
+                description: parameter.description,
+                paths,
+              };
+            }
+          }
+        }
+      }
+
+      // eslint-disable-next-line no-prototype-builtins
+      if (path.hasOwnProperty('requestBody') && path.requestBody !== undefined) {
+        const contentTypes = path.requestBody.content;
+        for (const contentType in contentTypes) {
+          processProperties(
+            path.requestBody.content[contentType].schema.properties,
+            matchPattern,
+            tag,
+            path,
+            searchedProperties,
+          );
+        }
+      }
+    });
+  });
+
+  return searchedProperties;
+}

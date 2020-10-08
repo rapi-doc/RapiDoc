@@ -27,10 +27,15 @@ export default css`
 .m-btn.thin-border { border-width: 1px; }
 .m-btn.large { padding:8px 14px; }
 .m-btn.small { padding:5px 12px; }
+.m-btn.tiny { padding:5px 6px; }
 .m-btn.circle { border-radius: 50%; }
 .m-btn:hover { 
   background-color: var(--primary-color);
   color: var(--primary-color-invert);
+}
+.m-btn.nav { border: 2px solid var(--nav-accent-color); }
+.m-btn.nav:hover { 
+  background-color: var(--nav-accent-color);
 }
 .m-btn:disabled{ 
   background-color: var(--bg3);
