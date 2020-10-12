@@ -2,61 +2,73 @@ import { css } from 'lit-element';
 
 export default css`
   .dialog-box-overlay {
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: var(--overlay-bg);
     position: fixed;
-    z-index: 999;
     left: 0;
     top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    z-index: var(--dialog-z-index);
   }
   
   .dialog-box {
-    background-color: white;
-    margin: 5% auto;
-    border: 1px solid #888;
-    width: 60vw;
-    border-radius: 5px;
+    position: fixed;
+    top: 100px;
+    left: 50%;
+    transform: translate(-50%, 0%);
+    display: flex;
+    flex-direction: column;
+    width: 70vw;
+    background-color: var(--bg2);
+    color: var(--fg2);
+    border-radius: 4px;
+    max-height: 500px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
   }
   
   .dialog-box-header {
+    position: sticky;
+    top: 0;
+    align-self: stretch;
     display: flex;
     align-items: center;
-    border-bottom: 1px solid #e4e4e4;
-    padding: 1rem;
+    padding: 20px 16px;
+    box-sizing: border-box;
+    min-height: 60px;
+    max-height: 60px;
+    border-bottom: 1px solid var(--light-border-color);
+    overflow: hidden;
   }
   
   .dialog-box-header button {
     font-size: 1.5rem;
     font-weight: 700;
     line-height: 1;
-    color: #000;
-    text-shadow: 0 1px 0 #fff;
-    opacity: .5;
+    color: var(--fg);
     border: none;
-    background-color: white;
-    transition: all .2s;
-    border-radius: 2px;
+    outline: none;
+    background-color: transparent;
+    cursor:pointer;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    margin-right: -8px;
   }
-  
   .dialog-box-header button:hover {
-    color: white;
-    background-color: var(--primary-color);
+    border-color: var(--primary-color);
   }
-  
+
+  .dialog-box-content {
+    padding: 16px;
+    display:block;
+    overflow: auto;
+    height: 100%;
+  }
+
   .dialog-box-title {
     flex-grow: 1;
-  }
-  
-  h4.dialog-box-title {
-    margin: 0;
-    padding: 0;
-  }
-  
-  .dialog-box-content {
-    padding: 1rem;
-    max-height: 80vh;
-    overflow: auto;
+    font-size:24px;
   }
 `;

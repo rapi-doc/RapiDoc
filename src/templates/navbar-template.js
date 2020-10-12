@@ -9,34 +9,39 @@ export default function navbarTemplate() {
     <div style="padding:16px 30px 0 16px;">
       <slot name="nav-logo" class="logo"></slot>
     </div>
-    ${(this.allowSearch === 'false')
+    ${(this.allowSearch === 'false' && this.allowAdvanceSearch === 'false')
       ? ''
       : html`
-        <div style="position:sticky; top:0; display:flex; flex-direction:row; align-items: stretch; padding:24px; ${this.allowSearchByParams === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}">
-          <div style="display:flex; flex:1">
-            <input id="nav-bar-search" 
-              style="width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" 
-              type="text" placeholder="search" 
-              @change="${this.onSearchChange}"  
-              spellcheck="false" 
-            >
-            <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x2b90;</div>
-          </div>  
-          ${this.matchPaths
-            ? html`
-              <div @click = '${this.onClearSearch}' style='margin-left:5px; cursor:pointer; align-self:center; color:var(--nav-text-color)' class='small-font-size primary-text bold-text'> CLEAR </div>`
-            : ''
+        <div style="position:sticky; top:0; display:flex; flex-direction:row; align-items: stretch; padding:24px; ${this.allowAdvanceSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}">
+          ${this.allowSearch === 'false'
+            ? ''
+            : html`
+              <div style="display:flex; flex:1">
+                <input id="nav-bar-search" 
+                  style = "width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" 
+                  type = "text"
+                  placeholder = "Quick Search" 
+                  @change = "${this.onSearchChange}"  
+                  spellcheck = "false" 
+                >
+                <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x2b90;</div>
+              </div>  
+              ${this.matchPaths
+                ? html`
+                  <div @click = '${this.onClearSearch}' style='margin-left:5px; cursor:pointer; align-self:center; color:var(--nav-text-color)' class='small-font-size primary-text bold-text'> CLEAR </div>`
+                : ''
+              }
+            `
           }
-        </div>
-      `
-    }
-    ${this.allowSearchByParams === 'false'
-      ? ''
-      : html`
-        <div style="position: sticky; top: 0; display: flex; flex-direction: row; align-items: stretch; padding: 0 24px 24px 24px; border-bottom: 1px solid var(--nav-hover-bg-color)">
-          <button class="m-btn nav thin-border" style="width: 100%; color: white;" @click="${this.showSearchModal}">
-            Search by parameters
-          </button>
+          ${this.allowAdvanceSearch === 'false' || this.matchPaths
+            ? ''
+            : html`
+              <button class="m-btn primary" style="margin-left:5px;" @click="${this.onShowSearchModalClicked}">
+                Adv. Search
+              </button>
+            `
+          }
+    
         </div>
       `
     }

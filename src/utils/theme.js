@@ -16,6 +16,7 @@ export default function setTheme(baseTheme, theme = {}) {
 
     const bg2 = theme.bg2 ? theme.bg2 : ColorUtils.color.brightness(bg1, 5); // or #383838;
     const bg3 = theme.bg3 ? theme.bg3 : ColorUtils.color.brightness(bg1, 17); // or #444;
+    const lightBg = theme.bg3 ? theme.bg3 : ColorUtils.color.brightness(bg1, 35);
     const fg2 = theme.fg2 ? theme.fg2 : ColorUtils.color.brightness(fg1, -15); // or #ababab
     const fg3 = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, -20); // or #aaa
     const lightFg = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, -65); // or #777
@@ -34,11 +35,13 @@ export default function setTheme(baseTheme, theme = {}) {
     const navHoverBgColor = theme.navHoverBgColor ? theme.navHoverBgColor : ColorUtils.color.brightness(navBgColor, -15);
     const navHoverTextColor = theme.navHoverTextColor ? theme.navHoverTextColor : ColorUtils.color.invert(navBgColor);
     const navAccentColor = theme.navAccentColor ? theme.navAccentColor : primaryColor;
+    const overlayBg = 'rgba(80, 80, 80, 0.4)';
 
     newTheme = {
       bg1,
       bg2,
       bg3,
+      lightBg,
       fg1,
       fg2,
       fg3,
@@ -49,7 +52,7 @@ export default function setTheme(baseTheme, theme = {}) {
       primaryColorInvert,
       selectionBg,
       selectionFg,
-
+      overlayBg,
       navBgColor,
       navBgImage,
       navBgImageSize,
@@ -98,7 +101,7 @@ export default function setTheme(baseTheme, theme = {}) {
     const fg1 = (theme.fg1 ? theme.fg1 : '#444444');
     const bg2 = theme.bg2 ? theme.bg2 : ColorUtils.color.brightness(bg1, -5); // or '#fafafa'
     const bg3 = theme.bg3 ? theme.bg3 : ColorUtils.color.brightness(bg1, -15); // or '#f6f6f6'
-
+    const lightBg = theme.bg3 ? theme.bg3 : ColorUtils.color.brightness(bg1, -45);
     const fg2 = theme.fg2 ? theme.fg2 : ColorUtils.color.brightness(fg1, 17); // or '#555'
     const fg3 = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, 30); // or #666
     const lightFg = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, 70); // or #999
@@ -125,10 +128,13 @@ export default function setTheme(baseTheme, theme = {}) {
     const navHoverBgColor = theme.navHoverBgColor ? theme.navHoverBgColor : ColorUtils.color.brightness(navBgColor, -15);
     const navHoverTextColor = theme.navHoverTextColor ? theme.navHoverTextColor : ColorUtils.color.invert(navBgColor);
     const navAccentColor = theme.navAccentColor ? theme.navAccentColor : primaryColor;
+    const overlayBg = 'rgba(0, 0, 0, 0.4)';
+
     newTheme = {
       bg1,
       bg2,
       bg3,
+      lightBg,
       fg1,
       fg2,
       fg3,
@@ -139,7 +145,7 @@ export default function setTheme(baseTheme, theme = {}) {
       primaryColorInvert,
       selectionBg,
       selectionFg,
-
+      overlayBg,
       navBgColor,
       navBgImage,
       navBgImageSize,
@@ -196,17 +202,20 @@ export default function setTheme(baseTheme, theme = {}) {
     --font-size-small:  ${this.fontSize === 'default' ? '12px' : (this.fontSize === 'large' ? '13px' : '14px')};
     --font-size-mono:   ${this.fontSize === 'default' ? '13px' : (this.fontSize === 'large' ? '14px' : '15px')};
     --font-size-regular: ${this.fontSize === 'default' ? '14px' : (this.fontSize === 'large' ? '15px' : '16px')};
+    --dialog-z-index: 1000;
 
     /* Theme specific styles */  
     --bg:${newTheme.bg1};
     --bg2:${newTheme.bg2};
     --bg3:${newTheme.bg3};
+    --light-bg:${newTheme.lightBg};
     --fg:${newTheme.fg1};
     --fg2:${newTheme.fg2};
     --fg3:${newTheme.fg3};
     --light-fg:${newTheme.lightFg};
     --selection-bg:${newTheme.selectionBg};
     --selection-fg:${newTheme.selectionFg};
+    --overlay-bg:${newTheme.overlayBg};
     
     /* Border Colors */
     --border-color:${newTheme.borderColor};

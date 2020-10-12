@@ -20,9 +20,8 @@ import EndpointStyles from '@/styles/endpoint-styles';
 import PrismStyles from '@/styles/prism-styles';
 import TabStyles from '@/styles/tab-styles';
 import NavStyles from '@/styles/nav-styles';
-
 import {
-  pathIsInSearch, findProperties, invalidCharsRegEx, sleep, rapidocApiKey,
+  pathIsInSearch, invalidCharsRegEx, sleep, rapidocApiKey, advanceSearch,
 } from '@/utils/common-utils';
 import ProcessSpec from '@/utils/spec-parser';
 import mainBodyTemplate from '@/templates/main-body-template';
@@ -76,7 +75,7 @@ export default class RapiDoc extends LitElement {
       allowSpecUrlLoad: { type: String, attribute: 'allow-spec-url-load' },
       allowSpecFileLoad: { type: String, attribute: 'allow-spec-file-load' },
       allowSearch: { type: String, attribute: 'allow-search' },
-      allowSearchByParams: { type: String, attribute: 'allow-search-by-params' },
+      allowAdvanceSearch: { type: String, attribute: 'allow-advance-search' },
       allowServerSelection: { type: String, attribute: 'allow-server-selection' },
       showComponents: { type: String, attribute: 'show-components' },
 
@@ -106,10 +105,10 @@ export default class RapiDoc extends LitElement {
       // Filters
       matchPaths: { type: String, attribute: 'match-paths' },
 
-      // Internal Attributes
+      // Internal Properties
       selectedContentId: { type: String },
-
-      isSearchByPropertiesModalShow: { type: Boolean },
+      showAdvanceSearchDialog: { type: Boolean },
+      advanceSearchMatches: { type: Object },
     };
   }
 
@@ -350,8 +349,11 @@ export default class RapiDoc extends LitElement {
     if (!this.responseAreaHeight) {
       this.responseAreaHeight = '300px';
     }
+
+    if (!this.allowSearch || !'true, false,'.includes(`${this.allowSearch},`)) { this.allowSearch = 'true'; }
+    if (!this.allowAdvanceSearch || !'true, false,'.includes(`${this.allowAdvanceSearch},`)) { this.allowAdvanceSearch = 'true'; }
+
     if (!this.allowTry || !'true, false,'.includes(`${this.allowTry},`)) { this.allowTry = 'true'; }
-    if (!this.allowSearchByParams || !'true, false,'.includes(`${this.allowSearchByParams},`)) { this.allowSearchByParams = 'false'; }
     if (!this.apiKeyValue) { this.apiKeyValue = '-'; }
     if (!this.apiKeyLocation) { this.apiKeyLocation = 'header'; }
     if (!this.apiKeyName) { this.apiKeyName = ''; }
@@ -366,7 +368,7 @@ export default class RapiDoc extends LitElement {
     if (!this.showInfo || !'true, false,'.includes(`${this.showInfo},`)) { this.showInfo = 'true'; }
     if (!this.showComponents || !'true false'.includes(this.showComponents)) { this.showComponents = 'false'; }
     if (!this.infoDescriptionHeadingsInNavBar || !'true, false,'.includes(`${this.infoDescriptionHeadingsInNavBar},`)) { this.infoDescriptionHeadingsInNavBar = 'false'; }
-    if (!this.isSearchByPropertiesModalShow) { this.isSearchByPropertiesModalShow = false; }
+    if (!this.showAdvanceSearchDialog) { this.showAdvanceSearchDialog = false; }
 
     marked.setOptions({
       highlight: (code, lang) => {
@@ -520,20 +522,15 @@ export default class RapiDoc extends LitElement {
 
   onSearchChange(e) {
     this.matchPaths = e.target.value.toLowerCase();
-
-    let didFindAnything = false;
     this.resolvedSpec.tags.forEach((tag) => tag.paths.filter((v) => {
       if (this.matchPaths) {
         v.expanded = false;
         if (pathIsInSearch(this.matchPaths, v)) {
-          didFindAnything = true;
           tag.expanded = true;
         }
       }
     }));
-    if (didFindAnything) {
-      this.requestUpdate();
-    }
+    this.requestUpdate();
   }
 
   onClearSearch() {
@@ -542,21 +539,19 @@ export default class RapiDoc extends LitElement {
     this.matchPaths = '';
   }
 
-  onSearchByPropertiesChange(e) {
-    this.matchProperties = findProperties(e.target.value.toLowerCase(), this.resolvedSpec.tags);
-    if (this.matchProperties) {
-      this.requestUpdate();
+  onShowSearchModalClicked() {
+    this.showAdvanceSearchDialog = true;
+    this.requestUpdate();
+  }
+
+  // Event Handler on Dialog-Box is opened
+  async onOpenSearchDialog(e) {
+    // Set focus to text input
+    const inputEl = e.detail.querySelector('input');
+    await sleep(0);
+    if (inputEl) {
+      inputEl.focus();
     }
-  }
-
-  showSearchModal() {
-    this.isSearchByPropertiesModalShow = true;
-    this.requestUpdate();
-  }
-
-  hideSearchModal() {
-    this.isSearchByPropertiesModalShow = false;
-    this.requestUpdate();
   }
 
   // Public Method
@@ -712,7 +707,6 @@ export default class RapiDoc extends LitElement {
       }
       navEl.classList.add('active');
       window.history.replaceState(null, null, `${window.location.href.split('#')[0]}#${targetElId}`);
-      this.hideSearchModal();
       setTimeout(() => {
         this.isIntersectionObserverActive = true;
       }, 300);
@@ -731,7 +725,7 @@ export default class RapiDoc extends LitElement {
     }
   }
 
-  // Public Method
+  // Public Method (scrolls to a given path and highlights the left-nav selection)
   async scrollTo(path, expandPath = true) {
     this.selectedContentId = path.startsWith('overview--') ? 'overview' : path;
     await sleep(0);
@@ -746,8 +740,27 @@ export default class RapiDoc extends LitElement {
       if (newNavEl) {
         newNavEl.classList.add('active');
         newNavEl.scrollIntoView({ behavior: 'auto', block: 'center' });
+        this.requestUpdate();
       }
     }
+  }
+
+  // Event handler for Advance Search text-inputs and checkboxes
+  onAdvanceSearch(ev, delay) {
+    const eventTargetEl = ev.target;
+    clearTimeout(this.timeoutId);
+    this.timeoutId = setTimeout(() => {
+      let searchInputEl;
+      if (eventTargetEl.type === 'text') {
+        searchInputEl = eventTargetEl;
+      } else {
+        searchInputEl = eventTargetEl.closest('.advance-search-options').querySelector('input[type=text]');
+      }
+      const searcOptions = [...eventTargetEl.closest('.advance-search-options').querySelectorAll('input:checked')].map((v) => v.id);
+      this.advanceSearchMatches = advanceSearch(searchInputEl.value, this.resolvedSpec.tags, searcOptions);
+      this.requestUpdate();
+      // console.log('the ptint %o', targetEl);
+    }, delay);
   }
 }
 customElements.define('rapi-doc', RapiDoc);

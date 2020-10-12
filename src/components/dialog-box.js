@@ -6,8 +6,8 @@ import DialogBoxStyles from '@/styles/dialog-box-styles';
 export default class DialogBox extends LitElement {
   static get properties() {
     return {
-      title: { type: String, attribute: 'title' },
-      show: { type: Boolean, attribute: 'show' },
+      heading: { type: String, attribute: 'heading' },
+      show: { type: String, attribute: 'show' },
     };
   }
 
@@ -17,8 +17,6 @@ export default class DialogBox extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-    if (!this.title) { this.title = 'Modal title'; }
-
     document.addEventListener('keydown', (e) => {
       if (e.code === 'Escape') {
         this.onClose();
@@ -28,34 +26,45 @@ export default class DialogBox extends LitElement {
 
   attributeChangedCallback(name, oldVal, newVal) {
     if (oldVal !== newVal) {
-      if (name === 'title') {
-        this.title = newVal;
+      if (name === 'heading') {
+        this.heading = newVal;
       }
-
       if (name === 'show') {
         this.show = newVal;
+        if (newVal === 'true') {
+          document.dispatchEvent(new CustomEvent('open', {
+            bubbles: true,
+            composed: true,
+            detail: this,
+          }));
+        }
       }
     }
   }
 
+  /* eslint-disable indent */
   render() {
     return html`
-      <div class="dialog-box-overlay" style="display: ${this.show === 'true' ? 'block' : 'none'};">
-        <div class="dialog-box">
-          <header class="dialog-box-header">
-            <h4 class="dialog-box-title">${this.title}</h4>
-            <button type="button" @click="${this.onClose}">&times;</button>
-          </header>
-          <div class="dialog-box-content">
-            <slot></slot>
+    ${this.show === 'true'
+      ? html`
+        <div class="dialog-box-overlay">
+          <div class="dialog-box">
+            <header class="dialog-box-header">
+              <span class="dialog-box-title">${this.heading}</span>
+              <button type="button" @click="${this.onClose}">&times;</button>
+            </header>
+            <div class="dialog-box-content">
+              <slot></slot>
+            </div>
           </div>
-        </div>
-      </div>
-    `;
+        </div>`
+      : ''
+    }`;
   }
+  /* eslint-enable indent */
 
   onClose() {
-    document.dispatchEvent(new CustomEvent('ondialogboxclose', {
+    document.dispatchEvent(new CustomEvent('close', {
       bubbles: true,
       composed: true,
     }));

@@ -1,6 +1,9 @@
 import { css } from 'lit-element';
 
 export default css`
+  .hover-bg:hover{
+    background: var(--bg3);
+  }
   ::selection {
     background: var(--selection-bg);
     color: var(--selection-fg);

@@ -161,4 +161,51 @@ textarea::-webkit-scrollbar-thumb {
   font-family:var(--font-mono);
   margin-bottom:2px;
 }
+
+input[type="checkbox"]:focus{
+  outline:0;
+}
+
+/* Toggle Body */
+input[type="checkbox"] {
+  appearance: none;
+  display: inline-block;
+  background-color: var(--light-bg);
+  border: 1px solid var(--light-bg);
+  border-radius: 10px;
+  cursor: pointer;
+  height: 20px;
+  position: relative;
+  transition: border .25s .15s, box-shadow .25s .3s, padding .25s;
+  min-width: 36px;
+  width: 36px;
+  vertical-align: top;
+}
+/* Toggle Thumb */
+input[type="checkbox"]:after {
+  position: absolute;
+  background-color: var(--bg);
+  border: 1px solid var(--light-bg);
+  border-radius: 8px;
+  content: '';
+  top: 0px;
+  left: 0px;
+  right: 16px;
+  display: block;
+  height: 16px;
+  transition: border .25s .15s, left .25s .1s, right .15s .175s;
+}
+
+/* Toggle Body - Checked */
+input[type="checkbox"]:checked {
+  box-shadow: inset 0 0 0 13px var(--green);
+  border-color: var(--green);
+}
+/* Toggle Thumb - Checked*/
+input[type="checkbox"]:checked:after {
+  border: 1px solid var(--green);
+  left: 16px;
+  right: 1px;
+  transition: border .25s, left .15s .25s, right .25s .175s;
+}
 `;

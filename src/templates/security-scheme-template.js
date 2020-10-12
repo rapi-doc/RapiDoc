@@ -212,9 +212,9 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow)
               <span> Scopes </span>
               <div class= "oauth-scopes" style = "width:100%; display:flex; flex-direction:column; flex-wrap:wrap; margin:0 0 10px 24px">
                 ${Object.entries(authFlow.scopes).map((scopeAndDescr, index) => html`
-                  <div class="m-checkbox" style="display:inline-block">
+                  <div class="m-checkbox" style="display:inline-flex; align-items:center">
                     <input type="checkbox" id="${flowName}${index}" value="${scopeAndDescr[0]}">
-                    <label for="${flowName}${index}">
+                    <label for="${flowName}${index}" style="margin-left:5px">
                       <span class="mono-font">${scopeAndDescr[0]}</span>
                         ${scopeAndDescr[0] !== scopeAndDescr[1] ? ` - ${scopeAndDescr[1] || ''}` : ''}
                     </label>
@@ -303,9 +303,9 @@ export default function securitySchemeTemplate() {
                 }
               </td>
               <td>
-                ${v.type.toLowerCase() === 'apikey' || (v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'bearer')
+                ${v.type.toLowerCase() === 'apiKey' || (v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'bearer')
                   ? html`
-                    ${v.type.toLowerCase() === 'apikey'
+                    ${v.type === 'apiKey'
                       ? html`Send <code>${v.name}</code> in <code>${v.in}</code> with the given value`
                       : html`Send <code>Authorization</code> in <code>header</code> containing the word <code>Bearer</code> followed by a space and a Token String.`
                     }

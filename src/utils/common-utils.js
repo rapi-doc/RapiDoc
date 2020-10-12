@@ -1,17 +1,14 @@
 /* For Delayed Event Handler Execution */
-/*
 export function debounce(fn, delay) {
   let timeoutID = null;
-  return function () {
+  return (...args) => {
     clearTimeout(timeoutID);
-    const args = arguments;
     const that = this;
     timeoutID = setTimeout(() => {
       fn.apply(that, args);
     }, delay);
   };
 }
-*/
 
 export const invalidCharsRegEx = new RegExp(/[\s#:?&=]/, 'g');
 export const rapidocApiKey = '_rapidoc_api_key';
@@ -51,105 +48,49 @@ export async function wait(ms) {
   });
 }
 
-export function pathIsInSearch(matchPattern, path) {
-  const searchString = `${path.method} ${path.path} ${path.summary || path.description || ''} ${path.operationId || ''}`.toLowerCase();
-  return searchString.includes(matchPattern);
+export function pathIsInSearch(searchVal, path) {
+  const stringToSearch = `${path.method} ${path.path} ${path.summary || path.description || ''} ${path.operationId || ''}`.toLowerCase();
+  return stringToSearch.includes(searchVal);
 }
 
-function processProperties(properties, pattern, tag, path, searchedProperties) {
-  for (const property in properties) {
-    if (property.includes(pattern) || (properties[property].description !== undefined && properties[property].description.includes(pattern))) {
-      // eslint-disable-next-line no-prototype-builtins
-      if (searchedProperties.hasOwnProperty(property)) {
-        searchedProperties[property].paths.set(path.description, path);
-      } else {
-        const paths = new Map();
-        paths.set(path.description, path);
-        searchedProperties[property] = {
-          description: properties[property].description,
-          paths,
-        };
-      }
-    }
-
-    // eslint-disable-next-line no-prototype-builtins
-    if (properties[property].hasOwnProperty('properties')) {
-      processProperties(
-        properties[property].properties,
-        pattern,
-        tag,
-        path,
-        searchedProperties,
-      );
-    }
-
-    // eslint-disable-next-line no-prototype-builtins
-    if (properties[property].hasOwnProperty('items') && properties[property].items.hasOwnProperty('properties')) {
-      processProperties(
-        properties[property].items.properties,
-        pattern,
-        tag,
-        path,
-        searchedProperties,
-      );
-    }
+export function advanceSearch(searchVal, allSpecTags, searchOptions = []) {
+  if (!searchVal.trim() || searchOptions.length === 0) {
+    return;
   }
 
-  // eslint-disable-next-line no-prototype-builtins
-  if (properties && properties.hasOwnProperty('properties')) {
-    processProperties(
-      properties.properties,
-      pattern,
-      tag,
-      path,
-      searchedProperties,
-    );
-  }
-}
-
-export function findProperties(matchPattern, tags) {
-  const searchedProperties = {};
-
-  if (!matchPattern) {
-    return searchedProperties;
-  }
-
-  tags.forEach((tag) => {
+  let stringToSearch = '';
+  const pathsMatched = [];
+  allSpecTags.forEach((tag) => {
     tag.paths.forEach((path) => {
-      // eslint-disable-next-line no-prototype-builtins
-      if (path.hasOwnProperty('parameters')) {
-        for (const parameter of path.parameters) {
-          if (parameter.name.includes(matchPattern) || (parameter.description !== undefined && parameter.description.includes(matchPattern))) {
-            // eslint-disable-next-line no-prototype-builtins
-            if (searchedProperties.hasOwnProperty(parameter.name)) {
-              searchedProperties[parameter.name].paths.set(path.description, path);
-            } else {
-              const paths = new Map();
-              paths.set(path.description, path);
-              searchedProperties[parameter.name] = {
-                description: parameter.description,
-                paths,
-              };
-            }
-          }
+      if (searchOptions.includes('search-api-path')) {
+        stringToSearch = path.path;
+      }
+      if (searchOptions.includes('search-api-descr')) {
+        stringToSearch = `${stringToSearch} ${path.summary || path.description || ''}`;
+      }
+      if (searchOptions.includes('search-api-params')) {
+        stringToSearch = `${stringToSearch} ${path.parameters?.map((v) => v.name).join(' ') || ''}`;
+      }
+
+      if (searchOptions.includes('search-api-request-body') && path.requestBody) {
+        for (const contentType in path.requestBody.content) {
+          stringToSearch = `${stringToSearch} ${Object.keys(path.requestBody.content[contentType].schema?.properties || '').join(' ')}`;
         }
       }
 
-      // eslint-disable-next-line no-prototype-builtins
-      if (path.hasOwnProperty('requestBody') && path.requestBody !== undefined) {
-        const contentTypes = path.requestBody.content;
-        for (const contentType in contentTypes) {
-          processProperties(
-            path.requestBody.content[contentType].schema.properties,
-            matchPattern,
-            tag,
-            path,
-            searchedProperties,
-          );
-        }
+      if (searchOptions.includes('search-api-resp-descr')) {
+        stringToSearch = `${stringToSearch} ${Object.values(path.responses).map((v) => v.description || '').join(' ')}`;
+      }
+
+      if (stringToSearch.toLowerCase().includes(searchVal.trim().toLowerCase())) {
+        pathsMatched.push({
+          method: path.method,
+          path: path.path,
+          summary: path.summary || path.description || '',
+          deprecated: path.deprecated,
+        });
       }
     });
   });
-
-  return searchedProperties;
+  return pathsMatched;
 }
