@@ -22,7 +22,7 @@ import TabStyles from '@/styles/tab-styles';
 import NavStyles from '@/styles/nav-styles';
 
 import {
-  pathIsInSearch, invalidCharsRegEx, sleep, rapidocApiKey,
+  pathIsInSearch, findProperties, invalidCharsRegEx, sleep, rapidocApiKey,
 } from '@/utils/common-utils';
 import ProcessSpec from '@/utils/spec-parser';
 import mainBodyTemplate from '@/templates/main-body-template';
@@ -76,6 +76,7 @@ export default class RapiDoc extends LitElement {
       allowSpecUrlLoad: { type: String, attribute: 'allow-spec-url-load' },
       allowSpecFileLoad: { type: String, attribute: 'allow-spec-file-load' },
       allowSearch: { type: String, attribute: 'allow-search' },
+      allowSearchByParams: { type: String, attribute: 'allow-search-by-params' },
       allowServerSelection: { type: String, attribute: 'allow-server-selection' },
       showComponents: { type: String, attribute: 'show-components' },
 
@@ -108,6 +109,7 @@ export default class RapiDoc extends LitElement {
       // Internal Attributes
       selectedContentId: { type: String },
 
+      isSearchByPropertiesModalShow: { type: Boolean },
     };
   }
 
@@ -349,6 +351,7 @@ export default class RapiDoc extends LitElement {
       this.responseAreaHeight = '300px';
     }
     if (!this.allowTry || !'true, false,'.includes(`${this.allowTry},`)) { this.allowTry = 'true'; }
+    if (!this.allowSearchByParams || !'true, false,'.includes(`${this.allowSearchByParams},`)) { this.allowSearchByParams = 'false'; }
     if (!this.apiKeyValue) { this.apiKeyValue = '-'; }
     if (!this.apiKeyLocation) { this.apiKeyLocation = 'header'; }
     if (!this.apiKeyName) { this.apiKeyName = ''; }
@@ -363,6 +366,7 @@ export default class RapiDoc extends LitElement {
     if (!this.showInfo || !'true, false,'.includes(`${this.showInfo},`)) { this.showInfo = 'true'; }
     if (!this.showComponents || !'true false'.includes(this.showComponents)) { this.showComponents = 'false'; }
     if (!this.infoDescriptionHeadingsInNavBar || !'true, false,'.includes(`${this.infoDescriptionHeadingsInNavBar},`)) { this.infoDescriptionHeadingsInNavBar = 'false'; }
+    if (!this.isSearchByPropertiesModalShow) { this.isSearchByPropertiesModalShow = false; }
 
     marked.setOptions({
       highlight: (code, lang) => {
@@ -538,6 +542,23 @@ export default class RapiDoc extends LitElement {
     this.matchPaths = '';
   }
 
+  onSearchByPropertiesChange(e) {
+    this.matchProperties = findProperties(e.target.value.toLowerCase(), this.resolvedSpec.tags);
+    if (this.matchProperties) {
+      this.requestUpdate();
+    }
+  }
+
+  showSearchModal() {
+    this.isSearchByPropertiesModalShow = true;
+    this.requestUpdate();
+  }
+
+  hideSearchModal() {
+    this.isSearchByPropertiesModalShow = false;
+    this.requestUpdate();
+  }
+
   // Public Method
   async loadSpec(specUrl) {
     if (!specUrl) {
@@ -691,6 +712,7 @@ export default class RapiDoc extends LitElement {
       }
       navEl.classList.add('active');
       window.history.replaceState(null, null, `${window.location.href.split('#')[0]}#${targetElId}`);
+      this.hideSearchModal();
       setTimeout(() => {
         this.isIntersectionObserverActive = true;
       }, 300);

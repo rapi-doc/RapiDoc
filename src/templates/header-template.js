@@ -49,6 +49,15 @@ export default function headerTemplate() {
           <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x2b90;</div>
         `
       }
+      
+      ${(this.allowSearch === 'false' || this.allowSearchByParams === 'false' || 'read focused'.includes(this.renderStyle))
+        ? ''
+        : html`
+          <button class="m-btn" style="color: white; margin-left: 10px;" @click="${this.showSearchModal}">
+            Search by parameters
+          </button>
+        `
+      }
     </div>
     </header>`;
   }
