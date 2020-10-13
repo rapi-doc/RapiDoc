@@ -53,6 +53,27 @@ export function pathIsInSearch(searchVal, path) {
   return stringToSearch.includes(searchVal);
 }
 
+export function joinObjectKeys(obj, resultStr = '') {
+  if (!obj.properties) {
+    return '';
+  }
+
+  // We should use a separated string variable in order to exclude next error 'Uncaught RangeError: Invalid string length'
+  let recursiveresultStr = '';
+  resultStr = `${resultStr} ${Object.keys(obj.properties || '').join(' ')}`;
+
+  Object.keys(obj.properties).forEach((propertyName) => {
+    if (obj.properties[propertyName].properties) {
+      recursiveresultStr = `${recursiveresultStr} ${joinObjectKeys(obj.properties[propertyName], resultStr)}`;
+    }
+    if (obj.properties[propertyName].type === 'array') {
+      recursiveresultStr = `${recursiveresultStr} ${joinObjectKeys(obj.properties[propertyName].items, resultStr)}`;
+    }
+  });
+
+  return `${resultStr} ${recursiveresultStr}`;
+}
+
 export function advanceSearch(searchVal, allSpecTags, searchOptions = []) {
   if (!searchVal.trim() || searchOptions.length === 0) {
     return;
@@ -74,7 +95,7 @@ export function advanceSearch(searchVal, allSpecTags, searchOptions = []) {
 
       if (searchOptions.includes('search-api-request-body') && path.requestBody) {
         for (const contentType in path.requestBody.content) {
-          stringToSearch = `${stringToSearch} ${Object.keys(path.requestBody.content[contentType].schema?.properties || '').join(' ')}`;
+          stringToSearch = `${stringToSearch} ${joinObjectKeys(path.requestBody.content[contentType].schema, stringToSearch)}`;
         }
       }
 
