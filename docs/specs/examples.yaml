@@ -369,6 +369,18 @@ paths:
                     amount: 700,
                     currency: INR
                   }
+  /object-containg-array-property-with-example:
+    get:
+      summary: Object schema with array type property containing example
+      tags:
+        - Providing Examples
+      responses:
+        200:
+          description: Object with array type property containing example
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectWithArrayPropExample"
 components:
   schemas:
     cost:
@@ -417,3 +429,17 @@ components:
       example:
         name: name-1
         age: 1
+    ObjectWithArrayPropExample:
+      type: object
+      properties:
+        numberProp:
+          type: number
+          example: 1000
+        stringProp:
+          type: string
+          enum: [value0, value1]
+        arrayProp:
+          type: array
+          items:
+            type: number
+          example: [0, 1, 2]

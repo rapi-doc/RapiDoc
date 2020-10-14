@@ -266,7 +266,9 @@ export function schemaToSampleObj(schema, config = { }) {
       if (schema.properties[key].readOnly && !config.includeReadOnly) { continue; }
       if (schema.properties[key].writeOnly && !config.includeWriteOnly) { continue; }
       if (schema.properties[key].type === 'array' || schema.properties[key].items) {
-        if (schema.properties[key]?.items?.example) { // schemas and properties support single example but not multiple examples.
+        if (schema.properties[key].example) {
+          obj[key] = schema.properties[key].example;
+        } else if (schema.properties[key]?.items?.example) { // schemas and properties support single example but not multiple examples.
           obj[key] = [schema.properties[key].items.example];
         } else {
           obj[key] = [schemaToSampleObj(schema.properties[key].items, config)];
