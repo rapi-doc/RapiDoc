@@ -113,13 +113,17 @@ export default function mainBodyTemplate() {
                   ? this.renderStyle === 'read'
                     ? expandedEndpointTemplate.call(this)
                     : this.renderStyle === 'focused'
-                      ? focusedEndpointTemplate.call(this)
+                      ? this.selectedContentId.startsWith('cmp-')
+                        ? componentsTemplate.call(this)
+                        : focusedEndpointTemplate.call(this)
                       : endpointTemplate.call(this)
                   : ''
                 }
               </div>
 
-              ${this.showComponents === 'true' ? componentsTemplate.call(this) : ''}
+              ${this.showComponents === 'true' && this.renderStyle !== 'focused'
+                  ? componentsTemplate.call(this)
+                  : ''}
             `
             : ''
           }
