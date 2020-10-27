@@ -303,9 +303,9 @@ export default function securitySchemeTemplate() {
                 }
               </td>
               <td>
-                ${v.type.toLowerCase() === 'apiKey' || (v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'bearer')
+                ${v.type.toLowerCase() === 'apikey' || (v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'bearer')
                   ? html`
-                    ${v.type === 'apiKey'
+                    ${v.type.toLowerCase() === 'apikey'
                       ? html`Send <code>${v.name}</code> in <code>${v.in}</code> with the given value`
                       : html`Send <code>Authorization</code> in <code>header</code> containing the word <code>Bearer</code> followed by a space and a Token String.`
                     }

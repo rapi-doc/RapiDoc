@@ -957,6 +957,9 @@ components:
       description: List of user object
       required: true
   securitySchemes:
+    basic:
+      type: http
+      scheme: basic
     petstore_auth:
       description: |
         Get access to data while protecting your account credentials.
