@@ -347,20 +347,18 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
       }
     }
     // 2. Then show allof/anyof objects
-    let i = 1;
     const objWithAnyOfProps = {};
     const xxxOf = schema.anyOf ? 'anyOf' : 'oneOf';
-    schema[xxxOf].forEach((v) => {
+    schema[xxxOf].forEach((v, index) => {
       if (v.type === 'object' || v.properties || v.allOf || v.anyOf || v.oneOf) {
         const partialObj = schemaInObjectNotation(v, {});
-        objWithAnyOfProps[`::OPTION~${i}`] = partialObj;
+        objWithAnyOfProps[`::OPTION~${index + 1}`] = partialObj;
         objWithAnyOfProps['::type'] = 'xxx-of-option';
-        i++;
       } else if (v.type === 'array' || v.items) {
         const partialObj = [schemaInObjectNotation(v, {})];
         Object.assign(objWithAnyOfProps, partialObj);
       } else {
-        const prop = `prop${Object.keys(objWithAnyOfProps).length}`;
+        const prop = `::OPTION~${index + 1}`;
         objWithAnyOfProps[prop] = `${getTypeInfo(v).html}`;
       }
     });

@@ -40,7 +40,6 @@ export default css`
 }
 
 .tr.xxx-of{
-  color:var(--primary-color);
   border-top: 1px dotted var(--primary-color);
 }
 

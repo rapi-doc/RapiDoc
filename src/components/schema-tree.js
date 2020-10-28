@@ -185,10 +185,12 @@ export default class SchemaTree extends LitElement {
         <div class='td key' style='min-width:${minFieldColWidth}px' >
           ${newPrevKey.endsWith('*')
             ? html`${newPrevKey.substring(0, newPrevKey.length - 1)}<span style='color:var(--red);'>*</span>`
-            : newPrevKey
+            : prevKey.startsWith('::OPTION')
+              ? html`<span class='xxx-of-key'>${newPrevKey}</span>`
+              : html`${newPrevKey}`
           }:
           <span class='${dataTypeCss}'> 
-            ${prevDataType === 'array' ? `[${itemParts[0]}]` : itemParts[0]}
+            ${prevDataType === 'array' ? `[${itemParts[0]}]` : `${itemParts[0]}`}
             <span>${itemParts[1]}</span>
           </span>
         </div>

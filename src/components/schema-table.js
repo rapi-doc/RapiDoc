@@ -139,7 +139,7 @@ export default class SchemaTable extends LitElement {
                   : ''
                 }
                 ${data['::type'] === 'xxx-of-option' || prevKey.startsWith('::OPTION')
-                  ? html`<span class='xxx-of-key'>${newPrevKey}</span>`
+                  ? html`<span class='xxx-of-key' style='margin-left:-6px' >${newPrevKey}</span>`
                   : newPrevKey.endsWith('*')
                     ? html`<span style="display:inline-block; margin-left:-6px;"> ${newPrevKey.substring(0, newPrevKey.length - 1)}</span><span style='color:var(--red);'>*</span>`
                     : html`<span style="display:inline-block; margin-left:-6px;">${newPrevKey}</span>`
@@ -175,7 +175,9 @@ export default class SchemaTable extends LitElement {
         <div class='td key' style='padding-left:${leftPadding}px' >
           ${newPrevKey.endsWith('*')
             ? html`${newPrevKey.substring(0, newPrevKey.length - 1)}<span style='color:var(--red);'>*</span>`
-            : newPrevKey
+            : prevKey.startsWith('::OPTION')
+              ? html`<span class='xxx-of-key'>${newPrevKey}</span>`
+              : html`${newPrevKey}`
           }
         </div>
         <div class='td key-type ${dataTypeCss}'>${prevDataType === 'array' ? `[${itemParts[0]}]` : itemParts[0]} <span style="font-family: var(--font-mono);">${itemParts[1]}</span> </div>
