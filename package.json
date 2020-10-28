@@ -57,7 +57,7 @@
     "eslint-import-resolver-webpack": "^0.13.0",
     "eslint-loader": "^4.0.2",
     "eslint-plugin-import": "^2.22.1",
-    "file-loader": "^6.1.1",
+    "file-loader": "^6.2.0",
     "filemanager-webpack-plugin": "^2.0.5",
     "html-webpack-plugin": "^4.5.0",
     "inspectpack": "^4.5.1",

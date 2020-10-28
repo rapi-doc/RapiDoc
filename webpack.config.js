@@ -39,11 +39,13 @@ if (process.env.NODE_ENV === 'production') {
   commonPlugins.push(new webpack.BannerPlugin(BANNER));
   commonPlugins.push(new webpack.DefinePlugin({ VERSION }));
   commonPlugins.push(new FileManagerPlugin({
-    onEnd: {
-      copy: [
-        { source: 'dist/*.js', destination: 'docs' },
-        { source: 'dist/*.woff2', destination: 'docs' },
-      ],
+    events: {
+      onEnd: {
+        copy: [
+          { source: 'dist/*.js', destination: 'docs' },
+          { source: 'dist/*.woff2', destination: 'docs' },
+        ],
+      },
     },
   }));
 }
