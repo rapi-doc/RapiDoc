@@ -150,9 +150,11 @@ export default class SchemaTree extends LitElement {
             ${data['::type'] === 'xxx-of-option' || prevKey.startsWith('::OPTION')
               ? html`<span class='xxx-of-key'>${newPrevKey}</span>`
               : newPrevKey.endsWith('*')
-                ? html`${newPrevKey.substring(0, newPrevKey.length - 1)}<span style='color:var(--red);'>*</span>`
-                : newPrevKey
-            }${level > 0 ? ':' : ''}${openBracket}
+                ? html`${newPrevKey.substring(0, newPrevKey.length - 1)} ${prevDataType === 'array' ? 'ARRAY OF' : ''} <span style='color:var(--red);'>*</span>`
+                : html`${newPrevKey}`
+            }${level > 0 ? ':' : ''} 
+            ${data['::type'] === 'xxx-of' && prevDataType === 'array' ? html`<span style="color:var(--primary-color)">ARRAY</span>` : ''} 
+            ${openBracket}
           </div>
           <div class='td key-descr m-markdown-small'>${unsafeHTML(marked(prevDescr || ''))}</div>
         </div>

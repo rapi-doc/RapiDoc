@@ -1,14 +1,11 @@
 openapi: 3.0.0
 info:
-  title: sample-array-one
+  title: One Of Test Cases
   version: '1.0'
-servers:
-  - url: 'http://localhost'
 paths:
-  /sample-array-one:
+  /one-of-array-and-object:
     get:
-      summary: sample-array-one
-      tags: []
+      summary: One Of Array and Object
       responses:
         '200':
           description: OK
@@ -37,6 +34,31 @@ paths:
                               type: string
                             y:
                               type: string
-      operationId: get-sample-array-one
-components:
-  schemas: {}
+  /one-of-primitives-and-object:
+    get:
+      summary: One Of Object and premitives
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  a:
+                    type: string
+                  b:
+                    type: string
+                  c:
+                    oneOf:
+                      - type: boolean
+                      - type: number
+                      - type: string
+                      - type: object
+                        properties:
+                          x:
+                            type: string
+                          y:
+                            type: string
+                  d:
+                    type: string
