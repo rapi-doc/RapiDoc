@@ -4,6 +4,14 @@ info:
   version: 1.0.0
   title: Testing different data-types
 paths:
+  /nested-object-in-request-body:
+    post:
+      summary: Request body accepting a JSON
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Person"
   /nested-object:
     get:
       summary: Response schema made of nested objects. 
@@ -173,7 +181,7 @@ components:
     Category:
       type: object
       properties:
-        id:
+        catId:
           description: Category ID
           allOf:
             - $ref: '#/components/schemas/Id'
@@ -199,7 +207,7 @@ components:
           description: Categories this person belongs to
           allOf:
             - $ref: '#/components/schemas/Category'
-        DependentIds:
+        dependentIds:
           type: array
           description: IDs of Dependents .
           items:
@@ -251,3 +259,5 @@ components:
           description: Tag name
           type: string
           minLength: 1
+        fff:
+          type: string  

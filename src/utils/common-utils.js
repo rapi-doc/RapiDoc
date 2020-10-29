@@ -53,25 +53,19 @@ export function pathIsInSearch(searchVal, path) {
   return stringToSearch.includes(searchVal);
 }
 
-export function joinObjectKeys(obj, resultStr = '') {
-  if (!obj.properties) {
-    return '';
+export function schemaKeys(schemaProps, result = new Set()) {
+  if (!schemaProps) {
+    return result;
   }
-
-  // We should use a separated string variable in order to exclude next error 'Uncaught RangeError: Invalid string length'
-  let recursiveresultStr = '';
-  resultStr = `${resultStr} ${Object.keys(obj.properties || '').join(' ')}`;
-
-  Object.keys(obj.properties).forEach((propertyName) => {
-    if (obj.properties[propertyName].properties) {
-      recursiveresultStr = `${recursiveresultStr} ${joinObjectKeys(obj.properties[propertyName], resultStr)}`;
-    }
-    if (obj.properties[propertyName].type === 'array') {
-      recursiveresultStr = `${recursiveresultStr} ${joinObjectKeys(obj.properties[propertyName].items, resultStr)}`;
+  Object.keys(schemaProps).forEach((key) => {
+    result.add(key);
+    if (schemaProps[key].properties) {
+      schemaKeys(schemaProps[key].properties, result);
+    } else if (schemaProps[key].items?.properties) {
+      schemaKeys(schemaProps[key].items?.properties, result);
     }
   });
-
-  return `${resultStr} ${recursiveresultStr}`;
+  return result;
 }
 
 export function advanceSearch(searchVal, allSpecTags, searchOptions = []) {
@@ -79,10 +73,10 @@ export function advanceSearch(searchVal, allSpecTags, searchOptions = []) {
     return;
   }
 
-  let stringToSearch = '';
   const pathsMatched = [];
   allSpecTags.forEach((tag) => {
     tag.paths.forEach((path) => {
+      let stringToSearch = '';
       if (searchOptions.includes('search-api-path')) {
         stringToSearch = path.path;
       }
@@ -94,8 +88,12 @@ export function advanceSearch(searchVal, allSpecTags, searchOptions = []) {
       }
 
       if (searchOptions.includes('search-api-request-body') && path.requestBody) {
-        for (const contentType in path.requestBody.content) {
-          stringToSearch = `${stringToSearch} ${joinObjectKeys(path.requestBody.content[contentType].schema, stringToSearch)}`;
+        let schemaKeySet = new Set();
+        for (const contentType in path.requestBody?.content) {
+          if (path.requestBody.content[contentType].schema?.properties) {
+            schemaKeySet = schemaKeys(path.requestBody.content[contentType].schema?.properties);
+          }
+          stringToSearch = `${stringToSearch} ${[...schemaKeySet].join(' ')}`;
         }
       }
 
