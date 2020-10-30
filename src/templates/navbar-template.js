@@ -90,7 +90,7 @@ export default function navbarTemplate() {
       <div 
         class='nav-bar-path 
         ${this.usePathInNavBar === 'true' ? 'small-font' : ''}' 
-        data-content-id='${p.method}-${p.path}' 
+        data-content-id='${p.method}-${p.path.replace(invalidCharsRegEx, '-')}' 
         id='link-${p.method}-${p.path.replace(invalidCharsRegEx, '-')}' 
         @click = '${(e) => this.scrollToEl(e)}'
       > 

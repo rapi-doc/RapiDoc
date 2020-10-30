@@ -10,7 +10,7 @@ export function debounce(fn, delay) {
   };
 }
 
-export const invalidCharsRegEx = new RegExp(/[\s#:?&=]/, 'g');
+export const invalidCharsRegEx = new RegExp(/[\s#:?&={}]/, 'g');
 export const rapidocApiKey = '_rapidoc_api_key';
 
 export function sleep(ms) {
