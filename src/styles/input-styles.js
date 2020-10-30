@@ -90,6 +90,7 @@ select {
   appearance: none;
   cursor: pointer;
 }
+
 select:hover {
   border-color: var(--primary-color);
 }
@@ -118,6 +119,7 @@ input[type="file"]{
   border: 1px solid var(--primary-color);
   min-height: calc(var(--font-size-small) + 18px);
 }
+
 input[type="file"]::-webkit-file-upload-button {
   font-family: var(--font-regular);
   font-size: var(--font-size-small);

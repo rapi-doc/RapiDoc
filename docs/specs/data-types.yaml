@@ -237,7 +237,7 @@ components:
             $ref: '#/components/schemas/Tag'
         maritalStatus:
           type: string
-          description: Pet status in the store
+          description: Marital status in case of adult
           enum:
             - married
             - unmarried
@@ -259,5 +259,3 @@ components:
           description: Tag name
           type: string
           minLength: 1
-        fff:
-          type: string  
