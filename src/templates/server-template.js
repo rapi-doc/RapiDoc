@@ -89,7 +89,7 @@ export default function serverTemplate() {
               style = 'margin:4px 0; cursor:pointer'
             />
               <label style='cursor:pointer' for='srvr-opt-${i}'>
-                ${server.url} ${server.description ? html`- ${server.description}` : ''}
+                ${server.url} ${server.description ? html`- <span class='regular-font'>${server.description} </span>` : ''}
               </label>
             <br/>
           `)}
