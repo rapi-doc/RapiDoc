@@ -45,14 +45,13 @@ function endpointHeadTemplate(path) {
 }
 
 function endpointBodyTemplate(path) {
-  let accept = '';
+  const acceptContentTypes = new Set();
   for (const respStatus in path.responses) {
     for (const acceptContentType in (path.responses[respStatus].content)) {
-      accept = `${accept + acceptContentType}, `;
+      acceptContentTypes.add(acceptContentType.trim());
     }
   }
-  accept = accept.replace(/,\s*$/, ''); // remove trailing comma
-
+  const accept = [...acceptContentTypes].join(', ');
   // Filter API Keys that are non-empty and are applicable to the the path
   const nonEmptyApiKeys = this.resolvedSpec.securitySchemes.filter((v) => (v.finalKeyValue && path.security?.some((ps) => (v.apiKeyId in ps)))) || [];
 
