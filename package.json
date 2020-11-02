@@ -33,7 +33,7 @@
     "lit-html": "1.2.1",
     "marked": "^1.2.2",
     "prismjs": "^1.22.0",
-    "swagger-client": "^3.11.1",
+    "swagger-client": "^3.12.0",
     "swagger2openapi": "^7.0.3"
   },
   "scripts": {
@@ -50,7 +50,7 @@
     "babel-loader": "^8.1.0",
     "babel-plugin-template-html-minifier": "^4.1.0",
     "clean-webpack-plugin": "^3.0.0",
-    "compression-webpack-plugin": "^6.0.4",
+    "compression-webpack-plugin": "^6.0.5",
     "css-loader": "^5.0.0",
     "eslint": "^7.12.1",
     "eslint-config-airbnb": "^18.2.0",
