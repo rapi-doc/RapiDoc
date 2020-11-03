@@ -1,71 +1,35 @@
-openapi: 3.0.3
-tags:
-  - name: users
-    description: basic description
+openapi: 3.0.0
 info:
-  title: Sample API
-  description: Retrieves user by country and city
-  version: 0.0.1
-  contact:
-    name: me
-servers:
-  - url: http://api.example.com/v1
-components:
-  examples:
-    example1:
-      value: "ua"
-      summary: "example $ref ua"
-    example2:
-      value: "pl"
-      summary: "example $ref pl"
-    example3:
-      value: "ch"
-      summary: "example $ref ch"
+  title: Arranging by Tags
+  version: 1.0.0
+
+tags:
+  - name: Discovery
+
 paths:
-  /users/{country}/{city}:
+  /discover:
     get:
-      operationId: "get_users"
       tags:
-        - users
-      summary: Returns a list of users.
-      description: Optional extended description in CommonMark or HTML.
-      parameters:
-      - name: 'country'
-        required: true
-        in: 'path'
-        schema:
-          type: 'string'
-        examples:
-          example1:
-            $ref: '#/components/examples/example1'
-          example2: 
-            $ref: '#/components/examples/example2'
-      - name: 'city'
-        required: true
-        in: 'path'
-        schema:
-          type: 'string'
-        examples:
-          example1: 
-           value: "lviv"
-           summary: "example inline lviv"
-          example2: 
-           value: "kyiv"
-           summary: "example inline kyiv"
+        - Discovery
+      summary: Path 4 in the spec
       responses:
-        '200':    # status code
-          description: A JSON array of user names
-          content:
-            application/json:
-              schema: 
-                type: array
-                items: 
-                  type: string
-        '404':    # status code
-          description: not found
-          content:
-            application/json:
-              schema: 
-                type: array
-                items: 
-                  type: string
+        '200':
+          description: Array of nodes.
+  /discover/edges/profile/{profileId}:
+    get:
+      tags:
+        - Discovery
+      summary: Path 2 in the spec
+      operationId: DiscoverPlatformsBasedOnProfileAndUE
+      responses:
+        '200':
+          description: Array of nodes.
+
+  /discover/subscriber/edges:
+    get:
+      tags:
+        - Discovery
+      summary: Path 5 in the spec
+      responses:
+        '200':
+          description: Array of nodes
