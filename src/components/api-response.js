@@ -95,7 +95,7 @@ export default class ApiResponse extends LitElement {
         this.selectedStatus = statusCode;
       }
       const allMimeResp = {};
-      for (const mimeResp in this.responses[statusCode].content) {
+      for (const mimeResp in this.responses[statusCode]?.content) {
         const mimeRespObj = this.responses[statusCode].content[mimeResp];
         if (!this.selectedMimeType) {
           this.selectedMimeType = mimeResp;
@@ -120,7 +120,7 @@ export default class ApiResponse extends LitElement {
       }
       // Headers for each response status
       const tempHeaders = [];
-      for (const key in this.responses[statusCode].headers) {
+      for (const key in this.responses[statusCode]?.headers) {
         tempHeaders.push({ name: key, ...this.responses[statusCode].headers[key] });
       }
       this.headersForEachRespStatus[statusCode] = tempHeaders;
@@ -156,8 +156,8 @@ export default class ApiResponse extends LitElement {
       ${Object.keys(this.responses).map((status) => html`
         <div style = 'display: ${status === this.selectedStatus ? 'block' : 'none'}' >
           <div class="top-gap">
-            <span class="resp-descr m-markdown ">${unsafeHTML(marked(this.responses[status].description || ''))}</span>
-            ${(this.headersForEachRespStatus[status] && this.headersForEachRespStatus[status].length > 0)
+            <span class="resp-descr m-markdown ">${unsafeHTML(marked(this.responses[status]?.description || ''))}</span>
+            ${(this.headersForEachRespStatus[status] && this.headersForEachRespStatus[status]?.length > 0)
               ? html`${this.responseHeaderListTemplate(this.headersForEachRespStatus[status])}`
               : ''
             }

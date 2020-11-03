@@ -47,7 +47,7 @@ function endpointHeadTemplate(path) {
 function endpointBodyTemplate(path) {
   const acceptContentTypes = new Set();
   for (const respStatus in path.responses) {
-    for (const acceptContentType in (path.responses[respStatus].content)) {
+    for (const acceptContentType in (path.responses[respStatus]?.content)) {
       acceptContentTypes.add(acceptContentType.trim());
     }
   }
