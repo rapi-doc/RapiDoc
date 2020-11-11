@@ -303,18 +303,22 @@ export default function securitySchemeTemplate() {
                 }
               </td>
               <td>
-                ${v.type.toLowerCase() === 'apikey' || (v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'bearer')
+                ${(v.type.toLowerCase() === 'apikey') || (v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'bearer')
                   ? html`
                     ${v.type.toLowerCase() === 'apikey'
                       ? html`Send <code>${v.name}</code> in <code>${v.in}</code> with the given value`
                       : html`Send <code>Authorization</code> in <code>header</code> containing the word <code>Bearer</code> followed by a space and a Token String.`
                     }
                     <div style="display:flex;max-height:28px;">
-                      <input type = "text" value = "${v.value}" class="api-key-input" placeholder = "api-token" spellcheck = "false">
-                      <button class="m-btn thin-border" style = "margin-left:5px;"
-                        @click="${(e) => { onApiKeyChange.call(this, v.apiKeyId, e); }}"> 
-                        ${v.finalKeyValue ? 'UPDATE' : 'SET'}
-                      </button>
+                      ${v.in !== 'cookie'
+                        ? html`
+                          <input type = "text" value = "${v.value}" class="api-key-input" placeholder = "api-token" spellcheck = "false">
+                          <button class="m-btn thin-border" style = "margin-left:5px;"
+                            @click="${(e) => { onApiKeyChange.call(this, v.apiKeyId, e); }}"> 
+                            ${v.finalKeyValue ? 'UPDATE' : 'SET'}
+                          </button>`
+                        : ''
+                      }
                     </div>`
                   : ''
                 }
