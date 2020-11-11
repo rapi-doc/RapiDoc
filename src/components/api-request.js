@@ -873,7 +873,7 @@ export default class ApiRequest extends LitElement {
           }
         }
       });
-      fetchUrl = `${fetchUrl}?${urlQueryParam.toString()}`;
+      fetchUrl = `${fetchUrl}${urlQueryParam.toString() ? '?' : ''}${urlQueryParam.toString()}`;
     }
 
     // Query Params (Dynamic - create from JSON)
@@ -906,7 +906,7 @@ export default class ApiRequest extends LitElement {
               urlDynQueryParam.append(key, queryParamObj[key]);
             }
           }
-          fetchUrl = `${fetchUrl}?${urlDynQueryParam.toString()}`;
+          fetchUrl = `${fetchUrl}${urlDynQueryParam.toString() ? '?' : ''}${urlDynQueryParam.toString()}`;
         } catch (err) {
           console.log('RapiDoc: unable to parse %s into object', el.value); // eslint-disable-line no-console
         }
