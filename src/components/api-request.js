@@ -11,6 +11,7 @@ import FontStyles from '@/styles/font-styles';
 import BorderStyles from '@/styles/border-styles';
 import TabStyles from '@/styles/tab-styles';
 import PrismStyles from '@/styles/prism-styles';
+import CustomStyles from '@/styles/custom-styles';
 import { copyToClipboard } from '@/utils/common-utils';
 import { schemaInObjectNotation, getTypeInfo, generateExample } from '@/utils/schema-utils';
 import '@/components/json-tree';
@@ -152,6 +153,7 @@ export default class ApiRequest extends LitElement {
           }
         }
       `,
+      CustomStyles,
     ];
   }
 
