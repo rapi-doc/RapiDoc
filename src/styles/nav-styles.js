@@ -39,6 +39,7 @@ export default css`
 
 .nav-bar-tag {
   font-size: var(--font-size-regular);
+  color: var(--nav-accent-color);
   border-left:4px solid transparent;
   font-weight:bold;
   padding: 15px 30px 15px 10px;

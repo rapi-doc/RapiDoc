@@ -110,7 +110,7 @@ export default function endpointTemplate() {
     <div class='regular-font section-gap section-tag ${tag.expanded ? 'expanded' : 'collapsed'}' > 
     
       <div class='section-tag-header' @click="${() => { tag.expanded = !tag.expanded; this.requestUpdate(); }}">
-        <div id='${tag.name.replace(invalidCharsRegEx, '-')}' class="sub-title tag">${tag.name}</div>
+        <div id='${tag.name.replace(invalidCharsRegEx, '-')}' class="sub-title tag" style="color:var(--primary-color)">${tag.name}</div>
       </div>
       <div class='section-tag-body'>
         <div class="regular-font regular-font-size m-markdown" style="padding-bottom:12px">
