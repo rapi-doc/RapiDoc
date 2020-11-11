@@ -299,7 +299,7 @@ export default class ApiRequest extends LitElement {
                 ${paramSchema.constrain ? html`${paramSchema.constrain}<br/>` : ''}
                 ${param.schema.enum
                   ? param.schema.enum.map((v, i) => html`
-                    ${i > 0 ? ' | ' : ''}
+                    ${i > 0 ? ' | ' : html`<span style="font-weight:bold"> Allowed: </span>`}
                     <a style="cursor:pointer" data-enum="${v}" @click="${(e) => {
                       const inputEl = e.target.closest('table').querySelector(`input[data-pname="${param.name}"]`);
                       if (inputEl) {

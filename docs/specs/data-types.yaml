@@ -132,6 +132,18 @@ paths:
           schema:
             type: string
             format: date
+        - name: marital-status
+          in: query
+          required: true
+          example: married
+          schema:
+            type: string
+            enum:
+              - married
+              - unmarried
+              - widowed
+              - unknown
+            default: unknown
         - name: interests
           in: query
           required: true
