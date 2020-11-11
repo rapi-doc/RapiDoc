@@ -8,6 +8,7 @@ import TableStyles from '@/styles/table-styles';
 import InputStyles from '@/styles/input-styles';
 import TabStyles from '@/styles/tab-styles';
 import BorderStyles from '@/styles/border-styles';
+import CustomStyles from '@/styles/custom-styles';
 import '@/components/schema-tree';
 import '@/components/schema-table';
 
@@ -71,6 +72,7 @@ export default class ApiResponse extends LitElement {
         margin-top:12px;
         border-top: 1px dashed var(--border-color);
       }`,
+      CustomStyles,
     ];
   }
 
