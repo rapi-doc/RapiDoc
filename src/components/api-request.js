@@ -486,7 +486,7 @@ export default class ApiRequest extends LitElement {
             reqBodyFormHtml = this.formDataTemplate(reqBody.schema, reqBody.mimeType, (ex[0] ? ex[0].exampleValue : ''));
           }
         }
-      } else if ((RegExp('^audio/|^image/|^video/|/octet-stream$|/tar$|/zip$|/7z$|/pdf$').test(this.selectedRequestBodyType))) {
+      } else if ((RegExp('^audio/|^image/|^video/|^font/|tar$|zip$|7z$|rtf$|msword$|excel$|/pdf$|/octet-stream$').test(this.selectedRequestBodyType))) {
         if (reqBody.mimeType === this.selectedRequestBodyType) {
           reqBodyFileInputHtml = html`
             <div class = "small-font-size bold-text row">
@@ -1020,7 +1020,7 @@ export default class ApiRequest extends LitElement {
           }
         });
         fetchOptions.body = formDataParams;
-      } else if ((RegExp('^audio|^image|^video|octet-stream$|tar$|zip$|7z$|pdf$').test(requestBodyType))) {
+      } else if ((RegExp('^audio/|^image/|^video/|^font/|tar$|zip$|7z$|rtf$|msword$|excel$|/pdf$|/octet-stream$').test(requestBodyType))) {
         const bodyParamFileEl = requestPanelEl.querySelector('.request-body-param-file');
         if (bodyParamFileEl && bodyParamFileEl.files[0]) {
           fetchOptions.body = bodyParamFileEl.files[0];
@@ -1079,7 +1079,7 @@ export default class ApiRequest extends LitElement {
           resp.json().then((respObj) => {
             me.responseText = JSON.stringify(respObj, null, 2);
           });
-        } else if (RegExp('octet-stream|tar|zip|7z|pdf').test(contentType)) {
+        } else if (RegExp('^font/|tar$|zip$|7z$|rtf$|msword$|excel$|/pdf$|/octet-stream$').test(contentType)) {
           me.responseIsBlob = true;
           me.responseBlobType = 'download';
         } else if (RegExp('^audio|^image|^video').test(contentType)) {
