@@ -49,9 +49,10 @@ async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, g
   const respDisplayEl = authFlowDivEl ? authFlowDivEl.querySelector('.oauth-resp-display') : undefined;
   const urlFormParams = new URLSearchParams();
   const headers = new Headers();
-
-  urlFormParams.append('redirect_uri', redirectUrl);
   urlFormParams.append('grant_type', grantType);
+  if (grantType !== 'client_credentials') {
+    urlFormParams.append('redirect_uri', redirectUrl);
+  }
   if (authCode) {
     urlFormParams.append('code', authCode);
   }
