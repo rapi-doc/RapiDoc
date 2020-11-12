@@ -20,9 +20,12 @@ export default {
         b: parseInt(hex.slice(4, 6), 16),
       };
     },
-    invert(hex) {
-      const rgb = this.getRgb(hex);
-      return (rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114) >= 135 ? '#000' : '#fff'; // compare with `>=128`, but giving little more preference to white over black
+    luminanace(hexColorCode) {
+      const rgb = this.getRgb(hexColorCode);
+      return (rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114);
+    },
+    invert(hexColorCode) {
+      return this.luminanace(hexColorCode) > 135 ? '#000' : '#fff'; // compare with `>=128`, but giving little more preference to white over black
     },
     opacity(hex, opacity) {
       const rgb = this.getRgb(hex);
@@ -42,6 +45,11 @@ export default {
       if (rgb.b > 255) rgb.b = 255;
       else if (rgb.b < 0) rgb.b = 0;
       return `#${rgb.r.toString(16).padStart(2, '0')}${rgb.g.toString(16).padStart(2, '0')}${rgb.b.toString(16).padStart(2, '0')}`;
+    },
+    hasGoodContrast(hexColorCode1, hexColorCode2) {
+      const lum1 = this.luminanace(hexColorCode1);
+      const lum2 = this.luminanace(hexColorCode2);
+      return (lum1 - lum2);
     },
   },
 };
