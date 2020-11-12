@@ -1,35 +1,23 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
-  title: Arranging by Tags
+  title: Example API
+  description: Example API
   version: 1.0.0
-
-tags:
-  - name: Discovery
-
+servers:
+  - url: 'https://example.org'
 paths:
-  /discover:
+  /:
     get:
-      tags:
-        - Discovery
-      summary: Path 4 in the spec
+      summary: Get an example
+      description: Get an example
       responses:
         '200':
-          description: Array of nodes.
-  /discover/edges/profile/{profileId}:
-    get:
-      tags:
-        - Discovery
-      summary: Path 2 in the spec
-      operationId: DiscoverPlatformsBasedOnProfileAndUE
-      responses:
-        '200':
-          description: Array of nodes.
-
-  /discover/subscriber/edges:
-    get:
-      tags:
-        - Discovery
-      summary: Path 5 in the spec
-      responses:
-        '200':
-          description: Array of nodes
+          description: An empty response
+security:
+  - cookieAuth: []
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: SESSION
