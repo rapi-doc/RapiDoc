@@ -381,8 +381,13 @@ export function pathSecurityTemplate(pathSecurity) {
     });
     return html`<div style="position:absolute; top:3px; right:2px; font-size:var(--font-size-small); line-height: 1.5;">
       <div style="position:relative; display:flex; min-width:350px; max-width:700px; justify-content: flex-end;">
-        <div style="font-size: calc(var(--font-size-small) + 2px)"> &#128274; </div>
-          ${orSecurityKeys1.map((orSecurityItem1) => html`
+        <svg width="16" height="24">
+          <g>
+            <path style="fill: var(--fg3)" d="m13.8,8.5l0,-2.6l0,0c0,-3.2 -2.6,-5.8 -5.8,-5.8s-5.8,2.6 -5.8,5.8l0,0l0,2.6l-2.1,0l0,11.2l16,0l0,-11.2l-2.1,0l-0,0l0,0l0,0l-0,0zm-9.8,-2.6c0,0 0,0 0,0c0,-2.2 1.8,-4 4,-4c2.2,0 4,1.8 4,4c0,0 0,0 0,0l0,2.6l-8.03,0l0,-2.6l0,0l0,0z" />
+          </g>
+        </svg>
+          ${orSecurityKeys1.map((orSecurityItem1, i) => html`
+          ${i !== 0 ? html`<div style="padding:3px 4px;"> OR </div>` : ''}
           <div class="tooltip">
             <div style = "padding:2px 4px; white-space:nowrap; text-overflow:ellipsis;max-width:150px; overflow:hidden;"> ${orSecurityItem1.securityTypes} </div>
             <div class="tooltip-text" style="position:absolute; color: var(--fg); top:26px; right:0; border:1px solid var(--border-color);padding:2px 4px; display:block;">
