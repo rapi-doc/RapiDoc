@@ -154,7 +154,7 @@ export default class SchemaTree extends LitElement {
               : newPrevKey.endsWith('*')
                 ? html`${newPrevKey.substring(0, newPrevKey.length - 1)} ${prevDataType === 'array' ? 'ARRAY OF' : ''} <span style='color:var(--red);'>*</span>`
                 : html`${newPrevKey}`
-            }${level > 0 ? ':' : ''} 
+            }${level > 0 && !(prevKey.startsWith('::ONE~') || prevKey.startsWith('::ANY~') || prevKey.startsWith('::OPTION~')) ? ':' : ''} 
             ${data['::type'] === 'xxx-of' && prevDataType === 'array' ? html`<span style="color:var(--primary-color)">ARRAY</span>` : ''} 
             ${openBracket}
           </div>
@@ -188,11 +188,11 @@ export default class SchemaTree extends LitElement {
       <div class = "tr primitive">
         <div class='td key' style='min-width:${minFieldColWidth}px' >
           ${newPrevKey.endsWith('*')
-            ? html`${newPrevKey.substring(0, newPrevKey.length - 1)}<span style='color:var(--red);'>*</span>`
+            ? html`${newPrevKey.substring(0, newPrevKey.length - 1)}<span style='color:var(--red);'>*</span>:`
             : prevKey.startsWith('::OPTION')
               ? html`<span class='xxx-of-key'>${newPrevKey}</span>`
-              : html`${newPrevKey}`
-          }:
+              : html`${newPrevKey}:`
+          }
           <span class='${dataTypeCss}'> 
             ${prevDataType === 'array' ? `[${itemParts[0]}]` : `${itemParts[0]}`}
             <span>${itemParts[1]}</span>
