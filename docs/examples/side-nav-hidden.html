@@ -14,15 +14,19 @@
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;600&family=Roboto+Mono&display=swap" rel="stylesheet">
     <script type="text/javascript" src="../rapidoc-min.js"></script>
+    <style>
+      rapi-doc{
+        width:100%;
+      }
+    </style>
   </head>
   <body>
-    <rapi-doc spec-url = "../specs/petstore_extended.yaml" 
-      render-style = "read" 
-      theme="dark" 
-      show-header="false"
-      regular-font = 'Open Sans'
-      mono-font = 'Roboto Mono'
-      primary-color="#f54c47"
+    <rapi-doc 
+      spec-url="../specs/petstore_extended.yaml" 
+      regular-font="Open Sans" 
+      mono-font = "Roboto Mono"
+      show-side-nav = "false"
+      render-style = "read"
     > </rapi-doc>
   </body>
 </html>

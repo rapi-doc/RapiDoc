@@ -146,13 +146,15 @@
           docEl.setAttribute('nav-bg-color','#666699');
           docEl.setAttribute('primary-color','#ea526f');
           docEl.setAttribute('bg-color','#fff9fb');
-        } else if (themeName === 'greennav') {
+        } else if (themeName === 'lightgraynav') {
           getRapiDoc().setAttribute('render-style', 'read' );
           docEl.setAttribute('show-header','false');
           docEl.setAttribute('theme','light');
-          docEl.setAttribute('nav-bg-color','#b9e0d9');
-          docEl.setAttribute('primary-color','#4e9e99');
-          docEl.setAttribute('bg-color','#f2f9f8');
+          docEl.setAttribute('nav-bg-color','#fafafa');
+          docEl.setAttribute('nav-hover-text-color','#9b0700');
+          docEl.setAttribute('nav-hover-bg-color','#ffebea');
+          docEl.setAttribute('primary-color','#F63C41');
+          docEl.setAttribute('bg-color','#ffffff');
         } else if (themeName === 'darkbluenav') {
           getRapiDoc().setAttribute('render-style', 'read' );
           docEl.setAttribute('show-header','false');
@@ -214,9 +216,9 @@
           <div style='width:20px;'></div>
           <div style='background: #fff9fb; padding:0px 4px; font-size:30px; color:#ea526f'> &#9782;</div>
         </div>
-        <div class = 'side-nav'  style="background:#b9e0d9" onclick="changeTheme('greennav')" >
+        <div class = 'side-nav'  style="background:#ccc;" onclick="changeTheme('lightgraynav')" >
           <div style='width:20px;'></div>
-          <div style='background: #f2f9f8; padding:0px 4px; font-size:30px; color:#4e9e99'> &#9782;</div>
+          <div style='background: #fff; padding:0px 4px; font-size:30px; color:#F63C41'> &#9782;</div>
         </div>
         <div class = 'side-nav'  style="background:#3e4b54" onclick="changeTheme('graynav')" >
           <div style='width:20px;'></div>
