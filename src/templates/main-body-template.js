@@ -78,7 +78,11 @@ export default function mainBodyTemplate() {
 
     <div class="body">
       <!-- Side Nav -->
-      ${((this.renderStyle === 'read' || this.renderStyle === 'focused') && this.resolvedSpec) ? navbarTemplate.call(this) : ''}
+      ${((this.renderStyle === 'read' || this.renderStyle === 'focused')
+          && this.showSideNav === 'true'
+          && this.resolvedSpec
+        ) ? navbarTemplate.call(this) : ''
+      }
 
       <!-- Main Content -->
       <main class="main-content regular-font">

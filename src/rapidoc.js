@@ -71,6 +71,7 @@ export default class RapiDoc extends LitElement {
 
       // Hide/Show Sections & Enable Disable actions
       showHeader: { type: String, attribute: 'show-header' },
+      showSideNav: { type: String, attribute: 'show-side-nav' },
       showInfo: { type: String, attribute: 'show-info' },
       allowAuthentication: { type: String, attribute: 'allow-authentication' },
       allowTry: { type: String, attribute: 'allow-try' },
@@ -370,6 +371,7 @@ export default class RapiDoc extends LitElement {
     if (!this.fontSize || !'default, large, largest,'.includes(`${this.fontSize},`)) { this.fontSize = 'default'; }
 
     if (!this.showInfo || !'true, false,'.includes(`${this.showInfo},`)) { this.showInfo = 'true'; }
+    if (!this.showSideNav || !'true false'.includes(this.showSideNav)) { this.showSideNav = 'true'; }
     if (!this.showComponents || !'true false'.includes(this.showComponents)) { this.showComponents = 'false'; }
     if (!this.infoDescriptionHeadingsInNavBar || !'true, false,'.includes(`${this.infoDescriptionHeadingsInNavBar},`)) { this.infoDescriptionHeadingsInNavBar = 'false'; }
     if (!this.showAdvanceSearchDialog) { this.showAdvanceSearchDialog = false; }
