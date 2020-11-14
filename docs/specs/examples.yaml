@@ -4,18 +4,42 @@ info:
   description:  Providing Examples
   version: 1.0.0
 paths:
-  /multiple-examples-in-query-param:
+  /multiple-examples-in-request-parameters/{path-param-1}/{path-param-2}:
     get:
       tags:
         - Providing Examples
-      description: Multiple Examples for querystring parameters
-      parameters:  
+      parameters:
+      - name: 'path-param-1'
+        in: 'path'
+        schema:
+          type: 'string'
+          default: "p1-opt-2"  
+        examples:
+          example1: 
+            value: "p1-opt-1"
+          example2:
+            value: "p1-opt-2"
+      - name: 'path-param-2'
+        in: 'path'
+        schema:
+          type: 'string'
+        examples:
+          example1: 
+            value: "p2-opt-1"
+          example2:
+            value: "p2-opt-2"
+      - name: 'age'
+        description: Single Example
+        in: 'query'
+        schema:
+          type: 'number'
+        example: 24
       - name: 'country-code'
-        required: true
-        description: Multiple examples. Notice `us` do not have a summary
+        description: Multiple examples _(Notice `us` do not have a summary)_
         in: 'query'
         schema:
           type: 'string'
+        example: 'india'  
         examples:
           example1: 
             value: "uk"
@@ -25,6 +49,19 @@ paths:
           example3:
             value: "ch"
             summary: "China"
+      - name: 'marital-status'
+        in: 'query'
+        schema:
+          type: 'string'
+          default: "unmarried"  
+        examples:
+          example1: 
+            value: "married"
+          example2:
+            value: "unmarried"
+          example3:
+            value: "widowed"
+
   /multiple-examples-by-response-type:
     get:
       description: Multiple Examples provide for each media-type (`application/json` or `application/json`) 

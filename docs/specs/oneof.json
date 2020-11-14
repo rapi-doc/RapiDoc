@@ -32,8 +32,8 @@
 			"type": "object",
 			"additionalProperties": false,
 			"properties": {
-				"Id": { "type": "string", "description": "Employee ID"},
-				"Employee": {
+				"id": { "type": "string", "description": "Employee ID"},
+				"employee": {
 					"description": "Employee Details (Worker or Manager)",
 					"oneOf": [
 						{ "$ref": "#/definitions/manager"},

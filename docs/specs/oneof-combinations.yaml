@@ -1,11 +1,13 @@
 openapi: 3.0.0
 info:
-  title: One Of Test Cases
+  title: ONE-OF with combinations of various data types
   version: '1.0'
 paths:
   /one-of-array-and-object:
     get:
-      summary: One Of Array and Object
+      summary: One-Of Array and Object
+      tags:
+        - ONE-OF Combinations
       responses:
         '200':
           description: OK
@@ -36,7 +38,9 @@ paths:
                               type: string
   /one-of-primitives-and-object:
     get:
-      summary: One Of Object and premitives
+      summary: One-Of Object and premitives
+      tags:
+        - ONE-OF Combinations
       responses:
         '200':
           description: OK

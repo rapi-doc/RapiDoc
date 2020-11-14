@@ -117,6 +117,13 @@
             </td>
             <td>(empty)</td>
           </tr>
+
+          <tr>
+            <td class="attr-col mono bold right">fill-request-fields-with-example </td>
+            <td class="gray"><span class='bold dark-gray'>Allowed:<span class='blue'> true | false </span>
+            </span> Request fields will be filled with example value (if provided in spec) </td>
+            <td class='default-col'>true</td>
+          </tr>
         </table>
 
         <a id="att-colors"></a>
@@ -469,10 +476,7 @@
             </td>
             <td>(empty)</td>
           </tr>
-
-
         </table>
-
       </div>  
 
       <a id="methods"></a>
@@ -570,26 +574,31 @@ el.addEventListener('spec-loaded', e => console.log(e.detail));
       </div>
 
       <a id="developers"></a>
-      <h2> Advanced</h2>
+      <h2> Advance Styling </h2>
       <div class="table-block">
         <table class="m-table">
           <tr>
-            <th class="right">Extension </th>
-            <th class="left">Description </th>
+            <th>For those who like to perform advance stying by building RapiDoc from source</th>
           </tr>
           <tr>
-            <td class="mono bold right">custom-styling</td>
             <td class="gray">
-              custom styling with css can be enabled by editing <span class="mono">src/styles/custom-styles.js<span> and <strong>building your own package</strong> 
-              
-                <pre class="shadow1 code-block" style="width:550px"><code class="css">import { css } from 'lit-element';
+              This can be done by providing your style overrides in <span class="mono">src/styles/custom-styles.js</span>.
+              and build RapiDoc from source</span>
+                <pre class="shadow1 code-block" style="width:550px"><code class="js">// src/styles/custom-styles.js
 
+import { css } from 'lit-element';
 export default css`
   .tag.title {
     text-transform: capitalize;
     border-left: 2px dotted var(--red);
   }
 `;</code></pre>
+
+and build RapiDoc 
+
+<pre class="shadow1 code-block" style="width:550px"><code class="shell">yarn build</code></pre>
+generated rapidon-min.js in dist folder will have your styles
+
                 <br/>
             </td>
           </tr>

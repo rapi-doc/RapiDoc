@@ -1,23 +1,25 @@
-openapi: 3.0.3
+openapi: 3.0.0
 info:
-  title: Example API
-  description: Example API
-  version: 1.0.0
-servers:
-  - url: 'https://example.org'
+  version: 0.0.1
+  title: PortaBilling JSON API Reference Guide
 paths:
-  /:
+  /some-path:
     get:
-      summary: Get an example
-      description: Get an example
+      summary: to test
       responses:
         '200':
-          description: An empty response
-security:
-  - cookieAuth: []
-components:
-  securitySchemes:
-    cookieAuth:
-      type: apiKey
-      in: cookie
-      name: SESSION
+          description: Successful response of the API method
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  emailAddress:
+                    type: string
+                  phoneNumber:
+                    type: string
+                oneOf:
+                  - required:
+                      - emailAddress
+                  - required:
+                      - phoneNumber
