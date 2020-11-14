@@ -130,9 +130,9 @@ export default class SchemaTree extends LitElement {
     if (data['::type'] === 'object') {
       if (prevDataType === 'array') {
         if (level < this.schemaExpandLevel) {
-          openBracket = html`<span class="open-bracket array" @click="${this.toggleObjectExpand}">[{</span>`;
+          openBracket = html`<span class="open-bracket array-of-object" @click="${this.toggleObjectExpand}">[{</span>`;
         } else {
-          openBracket = html`<span class="open-bracket array" @click="${this.toggleObjectExpand}">[{...}]</span>`;
+          openBracket = html`<span class="open-bracket array-of-object" @click="${this.toggleObjectExpand}">[{...}]</span>`;
         }
         closeBracket = '}]';
       } else {
@@ -142,6 +142,22 @@ export default class SchemaTree extends LitElement {
           openBracket = html`<span class="open-bracket object" @click="${this.toggleObjectExpand}">{...}</span>`;
         }
         closeBracket = '}';
+      }
+    } else if (data['::type'] === 'array') {
+      if (prevDataType === 'array') {
+        if (level < this.schemaExpandLevel) {
+          openBracket = html`<span class="open-bracket array-of-array" @click="${this.toggleObjectExpand}">[[</span>`;
+        } else {
+          openBracket = html`<span class="open-bracket array-of-array" @click="${this.toggleObjectExpand}">[[...]]</span>`;
+        }
+        closeBracket = ']]';
+      } else {
+        if (level < this.schemaExpandLevel) {
+          openBracket = html`<span class="open-bracket array" @click="${this.toggleObjectExpand}">[</span>`;
+        } else {
+          openBracket = html`<span class="open-bracket array" @click="${this.toggleObjectExpand}">[...]</span>`;
+        }
+        closeBracket = ']';
       }
     }
 
@@ -153,8 +169,8 @@ export default class SchemaTree extends LitElement {
               ? html`<span class='xxx-of-key'>${newPrevKey}</span>`
               : newPrevKey.endsWith('*')
                 ? html`${newPrevKey.substring(0, newPrevKey.length - 1)} ${prevDataType === 'array' ? 'ARRAY OF' : ''} <span style='color:var(--red);'>*</span>`
-                : html`${newPrevKey}`
-            }${level > 0 && !(prevKey.startsWith('::ONE~') || prevKey.startsWith('::ANY~') || prevKey.startsWith('::OPTION~')) ? ':' : ''} 
+                : html`${newPrevKey === '::props' ? '' : newPrevKey}`
+            }${level > 0 && !(prevKey.startsWith('::props') || prevKey.startsWith('::ONE~') || prevKey.startsWith('::ANY~') || prevKey.startsWith('::OPTION~')) ? ':' : ''} 
             ${data['::type'] === 'xxx-of' && prevDataType === 'array' ? html`<span style="color:var(--primary-color)">ARRAY</span>` : ''} 
             ${openBracket}
           </div>
@@ -163,7 +179,15 @@ export default class SchemaTree extends LitElement {
         <div class='inside-bracket ${data['::type'] || 'no-type-info'}' style='padding-left:${data['::type'] !== 'xxx-of-option' ? leftPadding : 0}px;'>
           ${Object.keys(data).map((key) => html`
             ${['::description', '::type', '::props'].includes(key)
-              ? ''
+              ? data[key]['::type'] === 'array' || data[key]['::type'] === 'object'
+                ? html`${this.generateTree(
+                  data[key]['::type'] === 'array' ? data[key]['::props'] : data[key],
+                    data[key]['::type'],
+                    key,
+                    data[key]['::description'],
+                    (level + 1),
+                  )}`
+                : ''
               : html`${this.generateTree(
                 data[key]['::type'] === 'array' ? data[key]['::props'] : data[key],
                 data[key]['::type'],
@@ -230,10 +254,22 @@ export default class SchemaTree extends LitElement {
     const rowEl = e.target.closest('.tr');
     if (rowEl.classList.contains('expanded')) {
       rowEl.classList.replace('expanded', 'collapsed');
-      e.target.innerHTML = e.target.classList.contains('array') ? '[{...}]' : '{...}';
+      e.target.innerHTML = e.target.classList.contains('array-of-object')
+        ? '[{...}]'
+        : e.target.classList.contains('array-of-array')
+          ? '[[...]]'
+          : e.target.classList.contains('array')
+            ? '[...]'
+            : '{...}';
     } else {
       rowEl.classList.replace('collapsed', 'expanded');
-      e.target.innerHTML = e.target.classList.contains('array') ? '[{' : '{';
+      e.target.innerHTML = e.target.classList.contains('array-of-object')
+        ? '[{'
+        : e.target.classList.contains('array-of-array')
+          ? '[['
+          : e.target.classList.contains('object')
+            ? '{'
+            : '[';
     }
   }
 }
