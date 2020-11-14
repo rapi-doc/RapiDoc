@@ -147,7 +147,7 @@ export default class SchemaTree extends LitElement {
 
     if (typeof data === 'object') {
       return html`
-        <div class="tr ${level < this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type']}">
+        <div class="tr ${level < this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type'] || 'no-type-info'}">
           <div class='td key' style='min-width:${minFieldColWidth}px'>
             ${data['::type'] === 'xxx-of-option' || prevKey.startsWith('::OPTION')
               ? html`<span class='xxx-of-key'>${newPrevKey}</span>`
@@ -160,7 +160,7 @@ export default class SchemaTree extends LitElement {
           </div>
           <div class='td key-descr m-markdown-small'>${unsafeHTML(marked(prevDescr || ''))}</div>
         </div>
-        <div class='inside-bracket ${data['::type']}' style='padding-left:${data['::type'] !== 'xxx-of-option' ? leftPadding : 0}px;'>
+        <div class='inside-bracket ${data['::type'] || 'no-type-info'}' style='padding-left:${data['::type'] !== 'xxx-of-option' ? leftPadding : 0}px;'>
           ${Object.keys(data).map((key) => html`
             ${['::description', '::type', '::props'].includes(key)
               ? ''

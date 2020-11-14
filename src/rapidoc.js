@@ -59,6 +59,7 @@ export default class RapiDoc extends LitElement {
       schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
       schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
       responseAreaHeight: { type: String, attribute: 'response-area-height' },
+      fillRequestFieldsWithExample: { type: String, attribute: 'fill-request-fields-with-example' },
 
       // API Server
       apiKeyName: { type: String, attribute: 'api-key-name' },
@@ -348,6 +349,7 @@ export default class RapiDoc extends LitElement {
     if (!this.defaultSchemaTab || !'example, model,'.includes(`${this.defaultSchemaTab},`)) { this.defaultSchemaTab = 'model'; }
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) { this.schemaExpandLevel = 99999; }
     if (!this.schemaDescriptionExpanded || !'true, false,'.includes(`${this.schemaDescriptionExpanded},`)) { this.schemaDescriptionExpanded = 'false'; }
+    if (!this.fillRequestFieldsWithExample || !'true, false,'.includes(`${this.fillRequestFieldsWithExample},`)) { this.fillRequestFieldsWithExample = 'true'; }
     if (!this.responseAreaHeight) {
       this.responseAreaHeight = '300px';
     }

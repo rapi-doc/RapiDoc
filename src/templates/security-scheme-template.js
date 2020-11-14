@@ -393,22 +393,22 @@ export function pathSecurityTemplate(pathSecurity) {
             <div class="tooltip-text" style="position:absolute; color: var(--fg); top:26px; right:0; border:1px solid var(--border-color);padding:2px 4px; display:block;">
               ${orSecurityItem1.securityDefs.length > 1 ? html`<div>Requires <b>all</b> of the following </div>` : ''}
               <div style="padding-left: 8px">
-                ${orSecurityItem1.securityDefs.map((andSecurityItem, i) => html`
+                ${orSecurityItem1.securityDefs.map((andSecurityItem, j) => html`
                   ${andSecurityItem.type === 'oauth2'
                     ? html`
                       <div>
-                        ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${i + 1}.</b> &nbsp;` : html`Requires`}
+                        ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : html`Requires`}
                         OAuth Token (${andSecurityItem.apiKeyId}) in <b>Authorization header</b>
                       </div>`
                     : andSecurityItem.type === 'http'
                       ? html`
                         <div>
-                          ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${i + 1}.</b> &nbsp;` : html`Requires`} 
+                          ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : html`Requires`} 
                           ${andSecurityItem.scheme === 'basic' ? 'Base 64 encoded username:password' : 'Bearer Token'} in <b>Authorization header</b>
                         </div>`
                       : html`
                         <div>
-                          ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${i + 1}.</b> &nbsp;` : html`Requires`} 
+                          ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : html`Requires`} 
                           Token in <b>${andSecurityItem.name} ${andSecurityItem.in}</b>
                         </div>`
                   }

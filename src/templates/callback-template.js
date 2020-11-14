@@ -26,6 +26,7 @@ export default function callbackTemplate(callbacks) {
                       path = "${pathObj[0] || ''}" 
                       .parameters = "${method[1]?.parameters || ''}" 
                       .request_body = "${method[1]?.requestBody || ''}"
+                      fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
                       allow-try = "false"
                       render-style="${this.renderStyle}" 
                       schema-style = "${this.schemaStyle}"

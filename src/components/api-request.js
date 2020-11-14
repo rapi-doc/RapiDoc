@@ -49,6 +49,7 @@ export default class ApiRequest extends LitElement {
       responseHeaders: { type: String, attribute: false },
       responseStatus: { type: String, attribute: false },
       responseUrl: { type: String, attribute: false },
+      fillRequestFieldsWithExample: { type: String, attribute: 'fill-request-fields-with-example' },
       allowTry: { type: String, attribute: 'allow-try' },
       renderStyle: { type: String, attribute: 'render-style' },
       schemaStyle: { type: String, attribute: 'schema-style' },
@@ -244,7 +245,7 @@ export default class ApiRequest extends LitElement {
       }
       tableRows.push(html`
       <tr> 
-        <td rowspan="${this.allowTry === 'true' || inputVal !== '' ? '1' : '2'}" style="width:160px; min-width:100px;">
+        <td rowspan="${this.allowTry === 'true' ? '1' : '2'}" style="width:160px; min-width:100px;">
           <div class="param-name">
             ${param.required ? html`<span style='color:var(--red)'>*</span>` : ''}${param.name}
           </div>
@@ -255,7 +256,7 @@ export default class ApiRequest extends LitElement {
             }
           </div>
         </td>  
-        ${this.allowTry === 'true' || inputVal !== ''
+        ${this.allowTry === 'true'
           ? html`
             <td style="width:${paramSchema.type === 'array' || paramSchema.type === 'object' ? ('read focused'.includes(this.renderStyle) ? '300px' : '220px') : '160px'}; min-width:100px;">
               ${paramSchema.type === 'array'
@@ -279,21 +280,23 @@ export default class ApiRequest extends LitElement {
                       data-pname = "${param.name}"
                       data-param-serialize-style = "${paramStyle}"
                       data-param-serialize-explode = "${paramExplode}"
+                      data-example = "${inputVal}"
                       spellcheck = "false"
                       style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
-                    >${inputVal}</textarea>`
+                    >${this.fillRequestFieldsWithExample === 'true' ? inputVal : ''}</textarea>`
                   : html`
                     <input type="${paramSchema.format === 'password' ? 'password' : 'text'}" spellcheck="false" style="width:100%" class="request-param" 
                       data-pname="${param.name}" 
-                      data-ptype="${paramType}"  
+                      data-ptype="${paramType}"
+                      data-example="${inputVal}"  
                       data-array="false"
-                      .value="${inputVal}"
+                      .value="${this.fillRequestFieldsWithExample === 'true' ? inputVal : ''}"
                     />`
                 }
             </td>`
           : ''
         }
-        <td colspan="${(this.allowTry === 'true' || inputVal !== '') ? '1' : '2'}">
+        <td colspan="${(this.allowTry === 'true') ? '1' : '2'}">
           ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues
             ? html`
               <div class="param-constraint">
@@ -316,11 +319,13 @@ export default class ApiRequest extends LitElement {
         </td>  
       </tr>
       <tr>
-        ${this.allowTry === 'true' || inputVal !== '' ? html`<td style="border:none"> </td>` : ''}
+        ${this.allowTry === 'true' ? html`<td style="border:none"> </td>` : ''}
         <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;"> 
           <span class="m-markdown-small">${unsafeHTML(marked(param.description || ''))}</span>
+
+          <!-- Print all the Examples if provided -->
           ${(param.examples && Object.values(param.examples).length > 1)
-            ? html`<span> Examples: 
+            ? html`<span> <span style="font-weight:bold"> Examples: </span> 
               ${Object.entries(param.examples).map((ex, i, a) => html`
                 <a style="cursor:pointer" data-example="${ex[1].value}" @click="${(e) => {
                   const inputEl = e.target.closest('table').querySelector(`input[data-pname="${param.name}"]`);
@@ -333,6 +338,20 @@ export default class ApiRequest extends LitElement {
               }`
             : ''
           }
+          ${param.examples ? html`<br/>` : ''}
+          <!-- Print single Example if provided -->
+          ${(param.example
+            ? html`<span> <span style="font-weight:bold"> Example: </span>
+                <a style="cursor:pointer" data-example="${param.example}" @click="${(e) => {
+                  const inputEl = e.target.closest('table').querySelector(`input[data-pname="${param.name}"]`);
+                  if (inputEl) {
+                    inputEl.value = e.target.dataset.example;
+                  }
+                }}">
+                  ${param.example}
+                </a>`
+            : ''
+          )}
         </td>
       </tr>
     `);
@@ -457,11 +476,16 @@ export default class ApiRequest extends LitElement {
                     class = "textarea request-body-param-user-input" 
                     spellcheck = "false"
                     data-ptype = "${reqBody.mimeType}" 
+                    data-example = "${v.exampleValue}"
+                    data-example-format = "${v.exampleFormat}"
                     style="width:100%; resize:vertical;"
-                  >${(v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, null, 2))}</textarea>
+                  >${this.fillRequestFieldsWithExample === 'true'
+                      ? (v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, null, 2))
+                      : ''
+                    }</textarea>
                   <!-- This textarea(hidden) is to store the original example value, this will remain unchanged when users switches from one example to another, its is used to populate the editable textarea -->
                   <textarea 
-                    class = "textarea request-body-param ${reqBody.mimeType.substring(reqBody.mimeType.indexOf('/') + 1)}" 
+                    class = "textarea is-hidden request-body-param ${reqBody.mimeType.substring(reqBody.mimeType.indexOf('/') + 1)}" 
                     spellcheck = "false"
                     data-ptype = "${reqBody.mimeType}" 
                     style="width:100%; resize:vertical; display:none"
@@ -653,22 +677,24 @@ export default class ApiRequest extends LitElement {
                           data-array = "false" 
                           data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
                           data-pname = "${fieldName}"
+                          data-example = "${formdataPartExample[0].exampleValue || ''}"
                           spellcheck = "false"
-                        >${formdataPartExample[0].exampleValue}</textarea>
+                        >${this.fillRequestFieldsWithExample === 'true' ? formdataPartExample[0].exampleValue : ''}</textarea>
                         <!-- This textarea(hidden) is to store the original example value, in focused mode on navbar change it is used to update the example text -->
-                        <textarea data-pname = "hidden-${fieldName}" data-ptype = "${mimeType.includes('form-urlencode') ? 'hidden-form-urlencode' : 'hidden-form-data'}" style="display:none">${formdataPartExample[0].exampleValue}</textarea>
+                        <textarea data-pname = "hidden-${fieldName}" data-ptype = "${mimeType.includes('form-urlencode') ? 'hidden-form-urlencode' : 'hidden-form-data'}" class="is-hidden" style="display:none">${formdataPartExample[0].exampleValue}</textarea>
                       </div>`
                     }
                   </div>`
                   : html`
                     ${this.allowTry === 'true' || fieldSchema.example
                       ? html`<input
-                          .value = "${fieldSchema.example || ''}"
+                          .value = "${this.fillRequestFieldsWithExample === 'true' ? (fieldSchema.example || '') : ''}"
                           spellcheck = "false"
                           type = "${fieldSchema.format === 'binary' ? 'file' : fieldSchema.format === 'password' ? 'password' : 'text'}"
                           style = "width:200px"
                           data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
                           data-pname = "${fieldName}"
+                          data-example = "${fieldSchema.example || ''}"
                           data-array = "false"
                         />`
                       : ''
@@ -732,7 +758,7 @@ export default class ApiRequest extends LitElement {
       <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
         <div class="response-message ${this.responseStatus}">Response Status: ${this.responseMessage}</div>
         <div style="flex:1"></div>
-        <button class="m-btn" style="padding: 6px 0px;width:60px" @click="${this.clearResponseData}">CLEAR</button>
+        <button class="m-btn" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
       </div>
       <div class="tab-panel col" style="border-width:0 0 1px 0;">
         <div id="tab_buttons" class="tab-buttons row" @click="${(e) => {
@@ -817,12 +843,39 @@ export default class ApiRequest extends LitElement {
           }
         </div>
       </div>
-      <button class="m-btn primary" @click="${this.onTryClick}">TRY</button>
+      ${
+        this.parameters.length > 0 || this.request_body
+          ? html`
+            <button class="m-btn thin-border" style="margin-right:5px;" @click="${this.onFillRequestData}" title="Fills with example data (if provided)">
+              FILL
+            </button>
+            <button class="m-btn thin-border" style="margin-right:5px;" @click="${this.onClearRequestData}">
+              CLEAR
+            </button>`
+          : ''
+      }
+      <button class="m-btn primary thin-border" @click="${this.onTryClick}">TRY</button>
     </div>
     ${this.responseMessage === '' ? '' : this.apiResponseTabTemplate()}
     `;
   }
   /* eslint-enable indent */
+
+  async onFillRequestData(e) {
+    const requestPanelEl = e.target.closest('.request-panel');
+    const requestPanelInputEls = [...requestPanelEl.querySelectorAll('input, textarea:not(.is-hidden)')];
+    requestPanelInputEls.forEach((el) => {
+      if (el.dataset.example) {
+        el.value = el.dataset.example;
+      }
+    });
+  }
+
+  async onClearRequestData(e) {
+    const requestPanelEl = e.target.closest('.request-panel');
+    const requestPanelInputEls = [...requestPanelEl.querySelectorAll('input, textarea:not(.is-hidden)')];
+    requestPanelInputEls.forEach((el) => { el.value = ''; });
+  }
 
   async onTryClick(e) {
     const me = this;
