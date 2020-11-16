@@ -1,11 +1,9 @@
 import { css } from 'lit-element';
 
 export default css`
-a { color: var(--blue); }
 .border-top {
   border-top:1px solid var(--border-color);
 }
-
 .border{
   border:1px solid var(--border-color);
   border-radius: var(--border-radius);
@@ -23,5 +21,4 @@ a { color: var(--blue); }
 .mar-top-8{
   margin-top: 8px;
 }
-
 `;
