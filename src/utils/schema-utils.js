@@ -240,48 +240,47 @@ export function schemaToSampleObj(schema, config = { }) {
     obj = objWithAllProps;
   } else if (schema.oneOf) {
     if (schema.oneOf.length > 0) {
-      obj = schemaToSampleObj(schema.oneOf[0], config);
+      for (const key in schema.oneOf) {
+        obj[key] = schemaToSampleObj(schema.oneOf[key], config);
+      }
     }
   } else if (schema.anyOf) {
     // First generate values for regular properties
+    let commonObj = [];
     if (schema.type === 'object' || schema.properties) {
+      for (const key in schema.properties) {
+        if (schema.example) {
+          commonObj = schema;
+          break;
+        }
+        if (schema.properties[key].deprecated && !config.includeDeprecated) { continue; }
+        if (schema.properties[key].readOnly && !config.includeReadOnly) { continue; }
+        if (schema.properties[key].writeOnly && !config.includeWriteOnly) { continue; }
+        commonObj[key] = schemaToSampleObj(schema.properties[key], config);
+      }
+    }
+    for (const key in schema.anyOf) {
+      obj[key] = schemaToSampleObj(schema.anyOf[key], config);
+      obj[key] = { ...commonObj, ...obj[key] };
+    }
+  } else if (schema.type === 'object' || schema.properties) {
+    if (schema.example) {
+      obj = schema.example;
+    } else {
       for (const key in schema.properties) {
         if (schema.properties[key].deprecated && !config.includeDeprecated) { continue; }
         if (schema.properties[key].readOnly && !config.includeReadOnly) { continue; }
         if (schema.properties[key].writeOnly && !config.includeWriteOnly) { continue; }
-
-        if (schema.example) {
-          obj[key] = schema.example;
-        } else {
-          obj[key] = schemaToSampleObj(schema.properties[key], config);
+        if (schema.properties[key].type === 'array' || schema.properties[key].items) {
+          if (schema.properties[key].example) {
+            obj[key] = schema.properties[key].example;
+          } else if (schema.properties[key]?.items?.example) { // schemas and properties support single example but not multiple examples.
+            obj[key] = [schema.properties[key].items.example];
+          } else {
+            obj[key] = [schemaToSampleObj(schema.properties[key].items, config)];
+          }
+          continue;
         }
-      }
-    }
-    let i = 1;
-    if (schema.anyOf.length > 0) {
-      obj[`prop${i}`] = schemaToSampleObj(schema.anyOf[0], config);
-      i++;
-    }
-  } else if (schema.type === 'object' || schema.properties) {
-    for (const key in schema.properties) {
-      // console.log(schema.properties[key]);
-      if (schema.properties[key].deprecated && !config.includeDeprecated) { continue; }
-      if (schema.properties[key].readOnly && !config.includeReadOnly) { continue; }
-      if (schema.properties[key].writeOnly && !config.includeWriteOnly) { continue; }
-      if (schema.properties[key].type === 'array' || schema.properties[key].items) {
-        if (schema.properties[key].example) {
-          obj[key] = schema.properties[key].example;
-        } else if (schema.properties[key]?.items?.example) { // schemas and properties support single example but not multiple examples.
-          obj[key] = [schema.properties[key].items.example];
-        } else {
-          obj[key] = [schemaToSampleObj(schema.properties[key].items, config)];
-        }
-        continue;
-      }
-      if (schema.example) {
-        obj[key] = schema.example;
-        continue;
-      } else {
         obj[key] = schemaToSampleObj(schema.properties[key], config);
       }
     }
@@ -479,7 +478,19 @@ export function generateExample(examples, example, schema, mimeType, includeRead
           exampleValue: schema.example,
           exampleFormat: ((mimeType.toLowerCase().includes('json') && typeof schema.example === 'object') ? 'json' : 'text'),
         });
-      } else if (mimeType.toLowerCase().includes('json') || mimeType.toLowerCase().includes('text') || mimeType.toLowerCase().includes('*/*')) {
+      } else if (mimeType.toLowerCase().includes('json') || mimeType.toLowerCase().includes('text') || mimeType.toLowerCase().includes('*/*') || mimeType.toLowerCase().includes('xml')) {
+        let xmlRootStart = '';
+        let xmlRootEnd = '';
+        let exampleFormat = '';
+        let exampleValue = '';
+        if (mimeType.toLowerCase().includes('xml')) {
+          xmlRootStart = (schema.xml && schema.xml.name) ? `<${schema.xml.name}>` : '<root>';
+          xmlRootEnd = (schema.xml && schema.xml.name) ? `</${schema.xml.name}>` : '</root>';
+          exampleFormat = 'text';
+        } else {
+          exampleFormat = outputType;
+        }
+
         const egJson = schemaToSampleObj(
           schema,
           {
@@ -488,33 +499,40 @@ export function generateExample(examples, example, schema, mimeType, includeRead
             deprecated: true,
           },
         );
-        finalExamples.push({
-          exampleId: 'Example',
-          exampleSummary: '',
-          exampleDescription: '',
-          exampleType: mimeType,
-          exampleFormat: outputType,
-          exampleValue: outputType === 'text' ? JSON.stringify(egJson, null, 2) : egJson,
-        });
-      } else if (mimeType.toLowerCase().includes('xml')) {
-        const xmlRootStart = (schema.xml && schema.xml.name) ? `<${schema.xml.name}>` : '<root>';
-        const xmlRootEnd = (schema.xml && schema.xml.name) ? `</${schema.xml.name}>` : '</root>';
-        const egJson = schemaToSampleObj(
-          schema,
-          {
-            includeReadOnly,
-            includeWriteOnly: true,
-            deprecated: true,
-          },
-        );
-        finalExamples.push({
-          exampleId: 'Example',
-          exampleSummary: '',
-          exampleDescription: '',
-          exampleType: mimeType,
-          exampleValue: `${xmlRootStart}${json2xml(egJson)}\n${xmlRootEnd}`,
-          exampleFormat: 'text',
-        });
+
+        if (schema.anyOf || schema.oneOf) {
+          const schemaComposite = schema.anyOf || schema.oneOf;
+          for (const eg in egJson) {
+            if (mimeType.toLowerCase().includes('xml')) {
+              exampleValue = `${xmlRootStart}${json2xml(egJson[eg])}\n${xmlRootEnd}`;
+            } else {
+              exampleValue = outputType === 'text' ? JSON.stringify(egJson[eg], null, 2) : egJson[eg];
+            }
+
+            finalExamples.push({
+              exampleId: eg,
+              exampleSummary: schemaComposite[eg].title || `Example ${+eg + 1}`,
+              exampleDescription: schemaComposite[eg].description || '',
+              exampleType: mimeType,
+              exampleFormat,
+              exampleValue,
+            });
+          }
+        } else {
+          if (mimeType.toLowerCase().includes('xml')) {
+            exampleValue = `${xmlRootStart}${json2xml(egJson)}\n${xmlRootEnd}`;
+          } else {
+            exampleValue = outputType === 'text' ? JSON.stringify(egJson, null, 2) : egJson;
+          }
+          finalExamples.push({
+            exampleId: 'Example',
+            exampleSummary: '',
+            exampleDescription: '',
+            exampleType: mimeType,
+            exampleFormat,
+            exampleValue,
+          });
+        }
       } else {
         finalExamples.push({
           exampleId: 'Example',

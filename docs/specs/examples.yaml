@@ -417,6 +417,173 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ObjectWithArrayPropExample"
+  /examples-anyOf:
+    get:
+      tags:
+        - Providing Examples
+      summary: AnyOf schemas with examples as part of the subschema
+      responses:
+        '200':
+          description: AnyOf schemas with examples as part of the subschema
+          content:
+            application/problem+json:
+              schema:
+                anyOf:
+                  - title: AnyOf example 1
+                    description: First example
+                    type: object
+                    properties:
+                      foo:
+                        type: string
+                      bar:
+                        type: integer
+                    example:
+                      foo: foo
+                      bar: 42
+                  - title: Second anyOf
+                    description: Another example
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        foo:
+                          type: string
+                        quux:
+                          type: array
+                          items:
+                            type: number
+                    example:
+                      foo: foo
+                      quux: [ 42, 24 ]
+                  - title: No example defined
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        foo:
+                          type: string
+                        quux:
+                          type: array
+                          items:
+                            type: number
+  /examples-anyOf-with-general-properties:
+    get:
+      tags:
+        - Providing Examples
+      summary: AnyOf schemas with general properties 
+      responses:
+        '200':
+          description: AnyOf schemas with general properties
+          content:
+            application/problem+json:
+              schema:
+                title: A composed object
+                type: object
+                properties:
+                  common:
+                    type: string
+                  other:
+                    type: number
+                anyOf:
+                  - title: Schema 1
+                    type: object
+                    properties:
+                      foo:
+                        type: string
+                      bar:
+                        type: integer
+                    example:
+                      foo: foo
+                      bar: 42
+                  - title: Second schema
+                    type: object
+                    properties:
+                      baz:
+                        type: string
+                        format: url
+  /examples-oneOf:
+    get:
+      tags:
+        - Providing Examples
+      summary: OneOf schema with examples as part of the subschema
+      responses:
+        '200':
+          description: OneOf schema with examples as part of the subschema
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                  - title: Schema 1
+                    type: object
+                    properties:
+                      foo:
+                        type: string
+                      bar:
+                        type: integer
+                    example:
+                      foo: foo
+                      bar: 42
+                  - title: Second schema
+                    type: object
+                    properties:
+                      baz:
+                        type: string
+                        format: url
+  /examples-allOf:
+    get:
+      tags:
+        - Providing Examples
+      summary: AllOf schemas with examples as part of the subschema
+      responses:
+        '200':
+          description: AllOf schemas with examples as part of the subschema
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                  - title: Schema 1
+                    type: object
+                    properties:
+                      foo:
+                        type: string
+                      bar:
+                        type: integer
+                  - title: Second schema
+                    type: object
+                    properties:
+                      baz:
+                        type: string
+                        format: url
+  /examples-allOf-anyOf:
+    get:
+      tags:
+        - Providing Examples
+      summary: Combination of allOf & nested anyOf schemas
+      responses:
+        '200':
+          description: Combination of allOf & nested anyOf schemas
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                  - title: Schema 1
+                    type: object
+                    properties:
+                      foo:
+                        type: string
+                      bar:
+                        type: integer
+                  - title: Second schema
+                    anyOf:
+                      - type: object
+                        properties:
+                          baz:
+                            type: string
+                            format: url
+                      - type: object
+                        properties:
+                          foobar:
+                            type: string
 components:
   schemas:
     cost:
