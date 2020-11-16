@@ -54,7 +54,7 @@ export default function headerTemplate() {
         ? ''
         : html`
           <button class="m-btn primary only-large-screen" style="margin-left:10px;" @click="${this.onShowSearchModalClicked}">
-            Advance Search
+            Advanced Search
           </button>
         `
       }

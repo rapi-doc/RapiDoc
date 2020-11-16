@@ -73,7 +73,7 @@ export default function mainBodyTemplate() {
     <!-- Header -->
     ${this.showHeader === 'false' ? '' : headerTemplate.call(this)}
     
-    <!-- Advance Search -->
+    <!-- Advanced Search -->
     ${this.allowAdvanceSearch === 'false' ? '' : advanceSearchTemplate.call(this)}
 
     <div class="body">
