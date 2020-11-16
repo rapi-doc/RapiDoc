@@ -751,7 +751,7 @@ export default class RapiDoc extends LitElement {
     }
   }
 
-  // Event handler for Advance Search text-inputs and checkboxes
+  // Event handler for Advanced Search text-inputs and checkboxes
   onAdvanceSearch(ev, delay) {
     const eventTargetEl = ev.target;
     clearTimeout(this.timeoutId);
