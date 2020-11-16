@@ -278,9 +278,24 @@
           </tr>
           <tr>
             <td class="mono bold right">render-style </td>
-            <td class="gray"><span class='bold dark-gray'>Allowed:<span class='blue'> read | view</span></span> - 
-              determines display of api-docs. Currently there are two modes supported. 
-              'read' - more suitable for reading and 'view' more friendly for quick exploring 
+            <td class="gray"><span class='bold dark-gray'>Allowed:<span class='blue'> read | view | focused</span></span> - 
+              determines display of api-docs. Currently there are three modes supported. 
+              <ul>
+                <li>
+                  <span class="mono blue">view</span> 
+                  <span>friendly for quick exploring (expand/collapse the section of your interest)</span>
+                </li>
+                <li>
+                  <span class="mono blue">read</span>
+                  <span>suitable for reading (like a continuous web-page)</span>
+                </li>
+                <li>
+                  <span class="mono blue">focused</span>
+                  <span>similar to read but focuses on a single endpoint at a time (good for large specs)</span>
+                </li>
+
+              </ul>
+              'read' - more suitable for reading 'view' more friendly for quick exploring 
             </td>
             <td>view</td>
           </tr>
@@ -582,9 +597,11 @@ el.addEventListener('spec-loaded', e => console.log(e.detail));
           </tr>
           <tr>
             <td class="gray">
-              This can be done by providing your style overrides in <span class="mono">src/styles/custom-styles.js</span>.
-              and build RapiDoc from source</span>
-                <pre class="shadow1 code-block" style="width:550px"><code class="js">// src/styles/custom-styles.js
+              <span>
+                Developers can providing their own style overrides in <span class="mono blue">src/styles/custom-styles.js</span>.
+                This is provided as a clean way into add custom style overrides without making changes to the codebase
+              </span>
+              <pre class="shadow1 code-block" style="width:550px"><code class="js">// src/styles/custom-styles.js
 
 import { css } from 'lit-element';
 export default css`
@@ -597,7 +614,7 @@ export default css`
 and build RapiDoc 
 
 <pre class="shadow1 code-block" style="width:550px"><code class="shell">yarn build</code></pre>
-generated rapidon-min.js in dist folder will have your styles
+generated <span class="mono bold">rapidoc-min.js</span>  in <span class="mono bold">dist</span> folder will have your styles
 
                 <br/>
             </td>

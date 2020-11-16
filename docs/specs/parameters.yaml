@@ -260,6 +260,9 @@ paths:
                     amount: 700,
                     currency: INR
                   }
+      responses:
+        '200':
+          description: successful operation
   /request-body-data-as-form-data:
     post:
       summary: 3. Request body as FORM DATA
@@ -296,3 +299,6 @@ paths:
                     amount: 700,
                     currency: INR
                   }
+      responses:
+        '200':
+          description: successful operation

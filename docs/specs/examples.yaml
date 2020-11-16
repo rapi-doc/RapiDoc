@@ -39,7 +39,6 @@ paths:
         in: 'query'
         schema:
           type: 'string'
-        example: 'india'  
         examples:
           example1: 
             value: "uk"
