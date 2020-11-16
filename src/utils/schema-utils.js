@@ -21,7 +21,11 @@ export function getTypeInfo(schema) {
         ? '🆆'
         : '',
     deprecated: schema.deprecated ? '❌' : '',
-    example: typeof schema.example === 'undefined' ? '' : `${schema.example}`,
+    example: typeof schema.example === 'undefined'
+      ? ''
+      : Array.isArray(schema.example)
+        ? schema.example
+        : `${schema.example}`,
     default: typeof schema.default === 'undefined' ? '' : `${schema.default}`,
     description: schema.description ? schema.description : '',
     constrain: '',
@@ -29,7 +33,6 @@ export function getTypeInfo(schema) {
     arrayType: '',
     html: '',
   };
-
   if (info.type === '{recursive}') {
     info.description = schema.$ref.substring(schema.$ref.lastIndexOf('/') + 1);
   } else if (info.type === '{missing-type-info}') {

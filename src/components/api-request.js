@@ -218,7 +218,8 @@ export default class ApiRequest extends LitElement {
         continue;
       }
       const paramSchema = getTypeInfo(param.schema);
-      let inputVal = '';
+      let exampleVal = '';
+      let exampleList = [];
       let paramStyle = 'form';
       let paramExplode = true;
       if (paramType === 'query') {
@@ -229,20 +230,31 @@ export default class ApiRequest extends LitElement {
           paramExplode = param.explode;
         }
       }
+      param.example = typeof param.example === 'undefined'
+        ? ''
+        : Array.isArray(param.example)
+          ? param.example
+          : `${param.example}`;
 
-      param.example = typeof param.example === 'undefined' ? '' : `${param.example}`;
       if (param.example) {
-        inputVal = paramSchema.type === 'array' ? [param.example] : `${param.example}`;
+        exampleVal = paramSchema.type === 'array' ? param.example : `${param.example}`;
+        exampleList = [{ value: param.example, description: `${param.example}` }];
       } else if (paramSchema.example) {
-        inputVal = paramSchema.type === 'array' ? [paramSchema.example] : `${paramSchema.example}`;
+        exampleVal = paramSchema.type === 'array' ? paramSchema.example : `${paramSchema.example}`;
+        exampleList = [{ value: paramSchema.example, description: `${paramSchema.example}` }];
       } else if (param.examples && Object.values(param.examples).length > 0) {
-        const firstExample = Object.values(param.examples)[0].value || '';
-        inputVal = paramSchema.type === 'array' ? [firstExample] : firstExample;
-      } else {
-        inputVal = paramSchema.type === 'array'
-          ? (paramSchema.default ? [paramSchema.default] : '')
-          : (paramSchema.default ? paramSchema.default : '');
+        if (Array.isArray(param.examples)) {
+          // This is an invalid situation `examples` should always be a key-value pair not an array, but we are taking care of this case for now
+          const firstExample = Object.values(param.examples)[0] || '';
+          exampleVal = paramSchema.type === 'array' ? [firstExample] : firstExample;
+          exampleList = Object.values(param.examples).map((v) => ({ value: v, description: v }));
+        } else {
+          const exampleValAndDescr = Object.values(param.examples);
+          exampleVal = exampleValAndDescr[0]?.value;
+          exampleList = Object.values(param.examples).map((v) => ({ value: v.value, description: v.description || v.summary || v.value }));
+        }
       }
+
       tableRows.push(html`
       <tr> 
         <td rowspan="${this.allowTry === 'true' ? '1' : '2'}" style="width:160px; min-width:100px;">
@@ -265,11 +277,12 @@ export default class ApiRequest extends LitElement {
                     style = "width:160px; background:var(--input-bg);" 
                     data-ptype = "${paramType}"
                     data-pname = "${param.name}"
+                    data-example = "${Array.isArray(exampleVal) ? exampleVal.join('~|~') : exampleVal}"
                     data-param-serialize-style = "${paramStyle}"
                     data-param-serialize-explode = "${paramExplode}"
                     data-array = "true"
                     placeholder= "add-multiple &#x2b90;"
-                    .value = "${inputVal}"
+                    .value = "${exampleVal}"
                   >
                   </tag-input>`
                 : paramSchema.type === 'object'
@@ -278,19 +291,19 @@ export default class ApiRequest extends LitElement {
                       class = "textarea request-param"
                       data-ptype = "${paramType}-object"
                       data-pname = "${param.name}"
+                      data-example = "${exampleVal}"
                       data-param-serialize-style = "${paramStyle}"
                       data-param-serialize-explode = "${paramExplode}"
-                      data-example = "${inputVal}"
                       spellcheck = "false"
                       style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
-                    >${this.fillRequestFieldsWithExample === 'true' ? inputVal : ''}</textarea>`
+                    >${this.fillRequestFieldsWithExample === 'true' ? exampleVal : ''}</textarea>`
                   : html`
                     <input type="${paramSchema.format === 'password' ? 'password' : 'text'}" spellcheck="false" style="width:100%" class="request-param" 
-                      data-pname="${param.name}" 
                       data-ptype="${paramType}"
-                      data-example="${inputVal}"  
+                      data-pname="${param.name}" 
+                      data-example="${Array.isArray(exampleVal) ? exampleVal.join('~|~') : exampleVal}"
                       data-array="false"
-                      .value="${this.fillRequestFieldsWithExample === 'true' ? inputVal : ''}"
+                      .value="${this.fillRequestFieldsWithExample === 'true' ? exampleVal : ''}"
                     />`
                 }
             </td>`
@@ -302,17 +315,22 @@ export default class ApiRequest extends LitElement {
               <div class="param-constraint">
                 ${paramSchema.default ? html`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
                 ${paramSchema.constrain ? html`${paramSchema.constrain}<br/>` : ''}
-                ${param.schema.enum
-                  ? param.schema.enum.map((v, i) => html`
-                    ${i > 0 ? ' | ' : html`<span style="font-weight:bold"> Allowed: </span>`}
-                    <a style="cursor:pointer" data-enum="${v}" @click="${(e) => {
-                      const inputEl = e.target.closest('table').querySelector(`input[data-pname="${param.name}"]`);
+                ${paramSchema.allowedValues && paramSchema.allowedValues.split(',').map((v, i) => html`
+                  ${i > 0 ? ' | ' : html`<span style="font-weight:bold"> Allowed: </span>`}
+                  ${html`
+                    <a style="cursor:pointer" data-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}" data-enum="${v.trim()}" @click="${(e) => {
+                      const inputEl = e.target.closest('table').querySelector(`[data-pname="${param.name}"]`);
                       if (inputEl) {
-                        inputEl.value = e.target.dataset.enum;
+                        if (e.target.dataset.type === 'array') {
+                          inputEl.value = [e.target.dataset.enum];
+                        } else {
+                          inputEl.value = e.target.dataset.enum;
+                        }
                       }
-                    }}"> ${v} </a>`)
-                  : ''
-                }
+                    }}"> 
+                      ${v} 
+                    </a>`
+                  }`)}
               </div>`
             : ''
           }
@@ -322,34 +340,32 @@ export default class ApiRequest extends LitElement {
         ${this.allowTry === 'true' ? html`<td style="border:none"> </td>` : ''}
         <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;"> 
           <span class="m-markdown-small">${unsafeHTML(marked(param.description || ''))}</span>
-
-          <!-- Print all the Examples if provided -->
-          ${(param.examples && Object.values(param.examples).length > 1)
-            ? html`<span> <span style="font-weight:bold"> Examples: </span> 
-              ${Object.entries(param.examples).map((ex, i, a) => html`
-                <a style="cursor:pointer" data-example="${ex[1].value}" @click="${(e) => {
-                  const inputEl = e.target.closest('table').querySelector(`input[data-pname="${param.name}"]`);
-                  if (inputEl) {
-                    inputEl.value = e.target.dataset.example;
-                  }
-                }}">
-                  ${ex[1].summary || ex[1].value || ex[0]}
-                </a> ${i <= (a.length - 2) ? '| ' : ''}`)
-              }`
-            : ''
-          }
-          ${param.examples ? html`<br/>` : ''}
           <!-- Print single Example if provided -->
-          ${(param.example
+          ${(Array.isArray(exampleList) && exampleList.length > 0
             ? html`<span> <span style="font-weight:bold"> Example: </span>
-                <a style="cursor:pointer" data-example="${param.example}" @click="${(e) => {
-                  const inputEl = e.target.closest('table').querySelector(`input[data-pname="${param.name}"]`);
-                  if (inputEl) {
-                    inputEl.value = e.target.dataset.example;
+              ${exampleList.map((v, i) => html`
+                ${i === 0 ? '' : html` &#9671;`}
+                ${paramSchema.type === 'array' ? '[' : ''}
+                <a style="cursor:pointer" 
+                  data-example-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}" 
+                  data-example = "${paramSchema.type === 'array' ? (v.value?.join('~|~') || '') : (v.value || '')}" 
+                  @click="${(e) => {
+                    const inputEl = e.target.closest('table').querySelector(`[data-pname="${param.name}"]`);
+                    if (inputEl) {
+                      if (e.target.dataset.exampleType === 'array') {
+                        inputEl.value = e.target.dataset.example.split('~|~');
+                      } else {
+                        inputEl.value = e.target.dataset.example;
+                      }
+                    }
                   }
-                }}">
-                  ${param.example}
-                </a>`
+                }
+                ">
+                  ${v.description || ''}
+                </a>
+                ${paramSchema.type === 'array' ? '] ' : ''}
+              `)}
+            `
             : ''
           )}
         </td>
@@ -607,7 +623,7 @@ export default class ApiRequest extends LitElement {
           </td>  
           <td style="${fieldType === 'object' ? 'width:100%; padding:0;' : 'width:160px;'} min-width:100px;" colspan="${fieldType === 'object' ? 2 : 1}">
             ${fieldType === 'array'
-              ? fieldSchema.items.format === 'binary'
+              ? fieldSchema.items?.format === 'binary'
                 ? html`
                 <div class="file-input-container col" style='align-items:flex-end;' @click="${(e) => this.onAddRemoveFileInput(e, fieldName, mimeType)}">
                   <div class='input-set row'>
@@ -629,8 +645,10 @@ export default class ApiRequest extends LitElement {
                     style = "width:160px; background:var(--input-bg);" 
                     data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
                     data-pname = "${fieldName}"
+                    data-example = "${Array.isArray(fieldSchema.example) ? fieldSchema.example.join('~|~') : fieldSchema.example || ''}"
                     data-array = "true"
                     placeholder = "add-multiple &#x2b90;"
+                    .value = "${fieldSchema.example || ''}"
                   >
                   </tag-input>
                 `
@@ -677,7 +695,7 @@ export default class ApiRequest extends LitElement {
                           data-array = "false" 
                           data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
                           data-pname = "${fieldName}"
-                          data-example = "${formdataPartExample[0].exampleValue || ''}"
+                          data-example = "${formdataPartExample[0]?.exampleValue || ''}"
                           spellcheck = "false"
                         >${this.fillRequestFieldsWithExample === 'true' ? formdataPartExample[0].exampleValue : ''}</textarea>
                         <!-- This textarea(hidden) is to store the original example value, in focused mode on navbar change it is used to update the example text -->
@@ -707,17 +725,31 @@ export default class ApiRequest extends LitElement {
             ? ''
             : html`
               <td>
-                <div class="param-constraint">
-                  ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues
-                    ? html`
-                      <div class="param-constraint">
-                        ${paramSchema.default ? html`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
-                        ${paramSchema.constrain ? html`${paramSchema.constrain}<br/>` : ''}
-                        ${paramSchema.allowedValues ? html`<span style="font-weight:bold">Allowed: </span>${paramSchema.allowedValues}` : ''}
-                      </div>`
-                    : ''
-                  }
-                </div>
+                ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues
+                  ? html`
+                    <div class="param-constraint">
+                      ${paramSchema.default ? html`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
+                      ${paramSchema.constrain ? html`${paramSchema.constrain}<br/>` : ''}
+                      ${paramSchema.allowedValues && paramSchema.allowedValues.split(',').map((v, i) => html`
+                        ${i > 0 ? ' | ' : html`<span style="font-weight:bold"> Allowed: </span>`}
+                        ${html`
+                          <a style="cursor:pointer" data-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}" data-enum="${v.trim()}" @click="${(e) => {
+                            const inputEl = e.target.closest('table').querySelector(`[data-pname="${fieldName}"]`);
+                            if (inputEl) {
+                              if (e.target.dataset.type === 'array') {
+                                inputEl.value = [e.target.dataset.enum];
+                              } else {
+                                inputEl.value = e.target.dataset.enum;
+                              }
+                            }
+                          }}"> 
+                            ${v} 
+                          </a>`
+                        }`)
+                      }
+                    </div>`
+                  : ''
+                }
               </td>`
           }
         </tr>
@@ -728,6 +760,31 @@ export default class ApiRequest extends LitElement {
               ${this.allowTry === 'true' ? html`<td style="border:none"> </td>` : ''}
               <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;"> 
                 <span class="m-markdown-small">${unsafeHTML(marked(fieldSchema.description || ''))}</span>
+                ${paramSchema.example
+                  ? html`
+                    <span>
+                      <span style="font-weight:bold"> Example: </span>
+                      ${paramSchema.type === 'array' ? '[ ' : ''}
+                      <a style="cursor:pointer" 
+                        data-example-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}" 
+                        data-example = "${paramSchema.type === 'array' ? (paramSchema.example?.join('~|~') || '') : (paramSchema.example)}" 
+                        @click="${(e) => {
+                          const inputEl = e.target.closest('table').querySelector(`[data-pname="${fieldName}"]`);
+                          if (inputEl) {
+                            if (e.target.dataset.exampleType === 'array') {
+                              inputEl.value = e.target.dataset.example.split('~|~');
+                            } else {
+                              inputEl.value = e.target.dataset.example;
+                            }
+                          }
+                        }}
+                      ">
+                        ${paramSchema.type === 'array' ? paramSchema.example.join(', ') : paramSchema.example}
+                      </a>
+                      ${paramSchema.type === 'array' ? '] ' : ''}
+                    </span>`
+                  : ''
+                }
               </td>
             </tr>
           `
@@ -863,17 +920,21 @@ export default class ApiRequest extends LitElement {
 
   async onFillRequestData(e) {
     const requestPanelEl = e.target.closest('.request-panel');
-    const requestPanelInputEls = [...requestPanelEl.querySelectorAll('input, textarea:not(.is-hidden)')];
+    const requestPanelInputEls = [...requestPanelEl.querySelectorAll('input, tag-input, textarea:not(.is-hidden)')];
     requestPanelInputEls.forEach((el) => {
       if (el.dataset.example) {
-        el.value = el.dataset.example;
+        if (el.tagName.toUpperCase() === 'TAG-INPUT') {
+          el.value = el.dataset.example.split('~|~');
+        } else {
+          el.value = el.dataset.example;
+        }
       }
     });
   }
 
   async onClearRequestData(e) {
     const requestPanelEl = e.target.closest('.request-panel');
-    const requestPanelInputEls = [...requestPanelEl.querySelectorAll('input, textarea:not(.is-hidden)')];
+    const requestPanelInputEls = [...requestPanelEl.querySelectorAll('input, tag-input, textarea:not(.is-hidden)')];
     requestPanelInputEls.forEach((el) => { el.value = ''; });
   }
 
