@@ -354,12 +354,12 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     schema[xxxOf].forEach((v, index) => {
       if (v.type === 'object' || v.properties || v.allOf || v.anyOf || v.oneOf) {
         const partialObj = schemaInObjectNotation(v, {});
-        objWithAnyOfProps[`::OPTION~${index + 1}`] = partialObj;
+        objWithAnyOfProps[`::OPTION~${v.title ? v.title : index + 1}`] = partialObj;
         objWithAnyOfProps['::type'] = 'xxx-of-option';
       } else if (v.type === 'array' || v.items) {
         // This else-if block never seems to get executed
         const partialObj = [schemaInObjectNotation(v, {})];
-        objWithAnyOfProps[`::OPTION~${index + 1}`] = partialObj;
+        objWithAnyOfProps[`::OPTION~${v.title ? v.title : index + 1}`] = partialObj;
         objWithAnyOfProps['::type'] = 'xxx-of-array';
       } else {
         const prop = `::OPTION~${index + 1}`;
