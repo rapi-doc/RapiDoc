@@ -66,3 +66,61 @@ paths:
                             type: string
                   d:
                     type: string
+
+  /any-of-options-with-array-as-root:
+    post:
+      summary: ANY-OF Options with Array as root
+      tags:
+        - ANY-OF Root as Array / Object
+      requestBody:
+        description: ANY OF Option where root element is an array
+        required: true
+        content:
+          application/json:
+            schema:
+              anyOf:
+                - title: Option 1
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      age:
+                        type: integer
+                - title: Option 2
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      location:
+                        type: string
+                      pin:
+                        type: integer
+  
+  /any-of-options-with-object-as-root:
+    post:
+      summary: ANY-OF Options with Object as root
+      tags:
+         - ANY-OF Root as Array / Object
+      requestBody:
+        description: ANY OF Option where root element is an object
+        required: true
+        content:
+          application/json:
+            schema:
+              anyOf:
+                - title: Option 1
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    age:
+                      type: integer
+                - title: Option 2
+                  type: object
+                  properties:
+                    location:
+                      type: string
+                    zip:
+                      type: integer
