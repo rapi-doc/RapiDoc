@@ -336,9 +336,9 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     });
     obj = objWithAllProps;
   } else if (schema.anyOf || schema.oneOf) {
+    obj['::description'] = schema.description ? schema.description : '';
     // 1. First iterate the regular properties
     if (schema.type === 'object' || schema.properties) {
-      obj['::description'] = schema.description ? schema.description : '';
       obj['::type'] = 'object';
       for (const key in schema.properties) {
         if (schema.required && schema.required.includes(key)) {
