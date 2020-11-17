@@ -354,15 +354,15 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     schema[xxxOf].forEach((v, index) => {
       if (v.type === 'object' || v.properties || v.allOf || v.anyOf || v.oneOf) {
         const partialObj = schemaInObjectNotation(v, {});
-        objWithAnyOfProps[`::OPTION~${v.title ? v.title : index + 1}`] = partialObj;
+        objWithAnyOfProps[`::OPTION~${v.title ? v.title : `option ${index + 1}`}`] = partialObj;
         objWithAnyOfProps['::type'] = 'xxx-of-option';
       } else if (v.type === 'array' || v.items) {
         // This else-if block never seems to get executed
         const partialObj = [schemaInObjectNotation(v, {})];
-        objWithAnyOfProps[`::OPTION~${v.title ? v.title : index + 1}`] = partialObj;
+        objWithAnyOfProps[`::OPTION~${v.title ? v.title : `option ${index + 1}`}`] = partialObj;
         objWithAnyOfProps['::type'] = 'xxx-of-array';
       } else {
-        const prop = `::OPTION~${index + 1}`;
+        const prop = `::OPTION~${v.title ? v.title : `option ${index + 1}`}`;
         objWithAnyOfProps[prop] = `${getTypeInfo(v).html}`;
       }
     });
@@ -385,6 +385,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     obj['::description'] = schema.description ? schema.description : '';
     obj['::type'] = 'array';
     obj['::props'] = schemaInObjectNotation(schema.items, {}, (level + 1));
+    obj['::title'] = schema.items.title ? schema.items.title : '';
   } else {
     const typeObj = getTypeInfo(schema);
     if (typeObj.html) {

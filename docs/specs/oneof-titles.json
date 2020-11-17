@@ -1,0 +1,90 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "one-of Models",
+        "version": "1.0.0",
+        "description": "Spec containing model composition using one-of. Checkout the model definition under the RESPONSE section"
+    },
+    "paths": {
+        "/one-of/employee": {
+            "get": {
+                "tags": ["One Of Schema Model"],
+                "summary": "Schema defined using one-of",
+                "operationId": "empDetails",
+                "responses": {
+                    "200": {
+                        "description": "Checkout the model tab to view object schemas defined using one-of",
+                        "content" : {
+                            "application/json" : {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/employee"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "employee": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "id": { "type": "string", "description": "Employee ID" },
+                    "employee": {
+                        "description": "Employee Details (Worker or Manager)",
+                        "oneOf": [
+                            { "$ref": "#/components/schemas/manager" },
+                            { "$ref": "#/components/schemas/worker" },
+                            {
+                                "type": "object",
+                                "description": "this has no title",
+                                "properties": {
+                                    "personnel number": { "type": "string" }
+                                }
+                            },
+                            {
+                                "type": "array",
+                                "title": "an array title",
+                                "items": { "type": "string", "title": "an array item" }
+                            },
+                            {
+                                "type": "array",
+                                "description": "array without title",
+                                "items": { "type": "string", "title": "an array item" }
+                            },
+                            { "type": "string", "title": "ID number" },
+                            { "type": "null" }
+                        ]
+                    }
+                }
+            },
+            "manager": {
+                "title": "Manager",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "name": { "type": "string", "description": "Name of employee" },
+                    "directReports": { "type": "integer", "description": "Count of direct reports" }
+                }
+            },
+            "worker": {
+                "title": "Worker",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "name": { "type": "string", "description": "Name of employee" },
+                    "managerName": { "type": "string", "description": "Name of manager" }
+                }
+            }
+        }
+    },
+    "tags": [
+        { "name": "Employee Details", "description": "Employee Details" }
+    ]
+}

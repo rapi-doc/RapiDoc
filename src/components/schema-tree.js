@@ -107,6 +107,7 @@ export default class SchemaTree extends LitElement {
   }
 
   generateTree(data, prevDataType = 'object', prevKey = '', prevDescr = '', level = 0) {
+    delete data['::title'];
     if (!data) {
       return html`<div class="null" style="display:inline;">null</div>`;
     }
