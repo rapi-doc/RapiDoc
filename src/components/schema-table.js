@@ -140,7 +140,7 @@ export default class SchemaTable extends LitElement {
                     </span>`
                   : ''
                 }
-                ${data['::type'] === 'xxx-of-option' || prevKey.startsWith('::OPTION')
+                ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || prevKey.startsWith('::OPTION')
                   ? html`<span class='xxx-of-key' style='margin-left:-6px' >${newPrevKey}</span>`
                   : newPrevKey.endsWith('*')
                     ? html`<span style="display:inline-block; margin-left:-6px;"> ${newPrevKey.substring(0, newPrevKey.length - 1)}</span><span style='color:var(--red);'>*</span>`

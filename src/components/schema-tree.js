@@ -124,7 +124,6 @@ export default class SchemaTree extends LitElement {
 
     const leftPadding = 12;
     const minFieldColWidth = 300 - (level * leftPadding);
-
     let openBracket = '';
     let closeBracket = '';
     if (data['::type'] === 'object') {
@@ -160,43 +159,56 @@ export default class SchemaTree extends LitElement {
         closeBracket = ']';
       }
     }
-
     if (typeof data === 'object') {
       return html`
         <div class="tr ${level < this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type'] || 'no-type-info'}">
           <div class='td key' style='min-width:${minFieldColWidth}px'>
-            ${data['::type'] === 'xxx-of-option' || prevKey.startsWith('::OPTION')
+            ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || prevKey.startsWith('::OPTION')
               ? html`<span class='xxx-of-key'>${newPrevKey}</span>`
               : newPrevKey.endsWith('*')
                 ? html`${newPrevKey.substring(0, newPrevKey.length - 1)} ${prevDataType === 'array' ? 'ARRAY OF' : ''} <span style='color:var(--red);'>*</span>`
-                : html`${newPrevKey === '::props' ? '' : newPrevKey}`
-            }${level > 0 && !(prevKey.startsWith('::props') || prevKey.startsWith('::ONE~') || prevKey.startsWith('::ANY~') || prevKey.startsWith('::OPTION~')) ? ':' : ''} 
+                : html`${newPrevKey === '::props' || newPrevKey === '::ARRAY~OF' ? '' : newPrevKey}`
+            }
+            ${level > 0
+              && !(
+                prevKey.startsWith('::props')
+                || prevKey.startsWith('::ONE~')
+                || prevKey.startsWith('::ANY~')
+                || prevKey.startsWith('::OPTION~')
+                || prevKey.startsWith('::ARRAY~OF')
+              ) ? ':' : ''
+            } 
             ${data['::type'] === 'xxx-of' && prevDataType === 'array' ? html`<span style="color:var(--primary-color)">ARRAY</span>` : ''} 
             ${openBracket}
           </div>
           <div class='td key-descr m-markdown-small'>${unsafeHTML(marked(prevDescr || ''))}</div>
         </div>
-        <div class='inside-bracket ${data['::type'] || 'no-type-info'}' style='padding-left:${data['::type'] !== 'xxx-of-option' ? leftPadding : 0}px;'>
-          ${Object.keys(data).map((key) => html`
-            ${['::description', '::type', '::props'].includes(key)
-              ? data[key]['::type'] === 'array' || data[key]['::type'] === 'object'
-                ? html`${this.generateTree(
-                  data[key]['::type'] === 'array' ? data[key]['::props'] : data[key],
+        <div class='inside-bracket ${data['::type'] || 'no-type-info'}' style='padding-left:${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' ? 0 : leftPadding}px;'>
+          ${Array.isArray(data) && data[0]
+            ? html`${this.generateTree(data[0], 'xxx-of-option', '::ARRAY~OF', '', (level))}`
+            : html`
+              ${Object.keys(data).map((key) => html`
+                ${['::description', '::type', '::props'].includes(key)
+                  ? data[key]['::type'] === 'array' || data[key]['::type'] === 'object'
+                    ? html`${this.generateTree(
+                      data[key]['::type'] === 'array' ? data[key]['::props'] : data[key],
+                        data[key]['::type'],
+                        key,
+                        data[key]['::description'],
+                        (level + 1),
+                      )}`
+                    : ''
+                  : html`${this.generateTree(
+                    data[key]['::type'] === 'array' ? data[key]['::props'] : data[key],
                     data[key]['::type'],
                     key,
                     data[key]['::description'],
                     (level + 1),
                   )}`
-                : ''
-              : html`${this.generateTree(
-                data[key]['::type'] === 'array' ? data[key]['::props'] : data[key],
-                data[key]['::type'],
-                key,
-                data[key]['::description'],
-                (level + 1),
-              )}`
-            }
-          `)}
+                }
+              `)}
+            `
+          }
         </div>
         ${data['::type'] && data['::type'].includes('xxx-of')
           ? ''
