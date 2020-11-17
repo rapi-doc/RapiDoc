@@ -52,7 +52,16 @@
         "lastName"  : { "type": "string", "description": "Last Name" },
         "jobTitle"  : { "type": "string", "description": "Job title" },
         "department": { "type": "string", "description": "Department name"},
-        "salary"    : { "type": "number", "description": "Salary per annum"}
+        "salary"    : { "type": "number", "description": "Salary per annum"},
+        "array"     : { 
+          "type": "array", 
+          "items": {
+            "description": "A responsibility",
+            "properties": {
+              "type": { "type": "string", "description": "type of responsibility" }
+            }
+          }
+        }
       }
     }
   }
