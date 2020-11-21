@@ -55,6 +55,12 @@ export default css`
   display:inline-block;
 }
 
+.xxx-of-subkey {
+  color:var(--primary-color);
+  background-color:var(--primary-color-invert);
+  font-size: var(--font-size-small);
+}
+
 .stri, .string, .uri, .url, .byte, .bina, .date, .pass, .ipv4, .ipv4, .uuid, .emai, .host {color:var(--green);}
 .inte, .numb, .number, .int6, .int3, .floa, .doub, .deci .blue {color:var(--blue);}
 .null {color:var(--red);}

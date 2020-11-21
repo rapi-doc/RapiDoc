@@ -115,10 +115,13 @@ export default class SchemaTree extends LitElement {
       return html`<span class="key object">${prevKey}:{ }</span>`;
     }
     let newPrevKey = '';
+    let subKey = '';
     if (prevKey.startsWith('::ONE~OF') || prevKey.startsWith('::ANY~OF')) {
       newPrevKey = prevKey.replace('::', '').replace('~', ' ');
     } else if (prevKey.startsWith('::OPTION')) {
-      newPrevKey = prevKey.replace('::OPTION~', '');
+      const parts = prevKey.split('~');
+      newPrevKey = parts[1];
+      subKey = parts[2];
     } else {
       newPrevKey = prevKey;
     }
@@ -165,7 +168,7 @@ export default class SchemaTree extends LitElement {
         <div class="tr ${level < this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type'] || 'no-type-info'}">
           <div class='td key' style='min-width:${minFieldColWidth}px'>
             ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || prevKey.startsWith('::OPTION')
-              ? html`<span class='xxx-of-key'>${newPrevKey}</span>`
+              ? html`<span class='xxx-of-key'>${newPrevKey}</span><span class="xxx-of-key xxx-of-subkey">${subKey}</span>`
               : newPrevKey.endsWith('*')
                 ? html`${newPrevKey.substring(0, newPrevKey.length - 1)} ${prevDataType === 'array' ? 'ARRAY OF' : ''} <span style='color:var(--red);'>*</span>`
                 : html`${newPrevKey === '::props' || newPrevKey === '::ARRAY~OF' ? '' : newPrevKey}`

@@ -116,10 +116,13 @@ export default class SchemaTable extends LitElement {
       return html`<span class="td key object" style='padding-left:${leftPadding}px'>${prevKey}</span>`;
     }
     let newPrevKey = '';
+    let subKey = '';
     if (prevKey.startsWith('::ONE~OF') || prevKey.startsWith('::ANY~OF')) {
       newPrevKey = prevKey.replace('::', '').replace('~', ' ');
     } else if (prevKey.startsWith('::OPTION')) {
-      newPrevKey = prevKey.replace('::OPTION~', '');
+      const parts = prevKey.split('~');
+      newPrevKey = parts[1];
+      subKey = parts[2];
     } else {
       newPrevKey = prevKey;
     }
@@ -141,7 +144,7 @@ export default class SchemaTable extends LitElement {
                   : ''
                 }
                 ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || prevKey.startsWith('::OPTION')
-                  ? html`<span class='xxx-of-key' style='margin-left:-6px' >${newPrevKey}</span>`
+                  ? html`<span class="xxx-of-key" style="margin-left:-6px">${newPrevKey}</span><span class="xxx-of-key xxx-of-subkey">${subKey}</span>`
                   : newPrevKey.endsWith('*')
                     ? html`<span style="display:inline-block; margin-left:-6px;"> ${newPrevKey.substring(0, newPrevKey.length - 1)}</span><span style='color:var(--red);'>*</span>`
                     : html`<span style="display:inline-block; margin-left:-6px;">${newPrevKey}</span>`
