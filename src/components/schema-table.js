@@ -162,7 +162,7 @@ export default class SchemaTable extends LitElement {
               : html`${this.generateTree(
                 data[key]['::type'] === 'array' ? data[key]['::props'] : data[key],
                 data[key]['::type'],
-                data[key]['::title'] && !isNaN(key) ? data[key]['::title'] : key,
+                data[key]['::title'] && !Number.isNaN(key) ? data[key]['::title'] : key,
                 data[key]['::description'],
                 (level + 1),
               )}`
