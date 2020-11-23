@@ -42,6 +42,7 @@
       }
     },
     "name": {
+      "title": "Name",
       "type": "object",
       "additionalProperties": false,
       "properties": {
@@ -56,6 +57,7 @@
       }
     },
     "job": {
+      "title": "Job",
       "type": "object",
       "additionalProperties": false,
       "properties": {
