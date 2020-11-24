@@ -915,7 +915,7 @@ export default class ApiRequest extends LitElement {
         this.parameters.length > 0 || this.request_body
           ? html`
             <button class="m-btn thin-border" style="margin-right:5px;" @click="${this.onFillRequestData}" title="Fills with example data (if provided)">
-              FILL
+              FILL EXAMPLE
             </button>
             <button class="m-btn thin-border" style="margin-right:5px;" @click="${this.onClearRequestData}">
               CLEAR

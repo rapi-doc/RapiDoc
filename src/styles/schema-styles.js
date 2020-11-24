@@ -55,10 +55,11 @@ export default css`
   display:inline-block;
 }
 
-.xxx-of-subkey {
-  color:var(--primary-color);
-  background-color:var(--primary-color-invert);
-  font-size: var(--font-size-small);
+.xxx-of-descr {
+    font-family: var(--font-regular);
+    color: var(--primary-color);
+    font-size: calc(var(--font-size-small) - 1px);
+    margin-left: 2px;
 }
 
 .stri, .string, .uri, .url, .byte, .bina, .date, .pass, .ipv4, .ipv4, .uuid, .emai, .host {color:var(--green);}

@@ -144,7 +144,7 @@ export default class SchemaTable extends LitElement {
                   : ''
                 }
                 ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || prevKey.startsWith('::OPTION')
-                  ? html`<span class="xxx-of-key" style="margin-left:-6px">${newPrevKey}</span><span class="xxx-of-key xxx-of-subkey">${subKey}</span>`
+                  ? html`<span class="xxx-of-key" style="margin-left:-6px">${newPrevKey}</span><span class="xxx-of-descr">${subKey}</span>`
                   : newPrevKey.endsWith('*')
                     ? html`<span style="display:inline-block; margin-left:-6px;"> ${newPrevKey.substring(0, newPrevKey.length - 1)}</span><span style='color:var(--red);'>*</span>`
                     : html`<span style="display:inline-block; margin-left:-6px;">${newPrevKey}</span>`

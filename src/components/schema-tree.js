@@ -168,7 +168,7 @@ export default class SchemaTree extends LitElement {
         <div class="tr ${level < this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type'] || 'no-type-info'}">
           <div class='td key' style='min-width:${minFieldColWidth}px'>
             ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || prevKey.startsWith('::OPTION')
-              ? html`<span class='xxx-of-key'>${newPrevKey}</span><span class="xxx-of-key xxx-of-subkey">${subKey}</span>`
+              ? html`<span class='xxx-of-key'>${newPrevKey}</span><span class="xxx-of-descr">${subKey}</span>`
               : newPrevKey.endsWith('*')
                 ? html`${newPrevKey.substring(0, newPrevKey.length - 1)} ${prevDataType === 'array' ? 'ARRAY OF' : ''} <span style='color:var(--red);'>*</span>`
                 : html`${newPrevKey === '::props' || newPrevKey === '::ARRAY~OF' ? '' : newPrevKey}`
