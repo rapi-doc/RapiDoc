@@ -9,7 +9,7 @@ export default class TagInput extends LitElement {
         ? html`${this.value.map((v) => html`<span class='tag'> ${v} </span>`)}`
         : ''
       }
-      <input type="text" class='editor' @paste="${this.afterPaste}" @keydown="${this.afterKeyDown}" placeholder="${this.placeholder}">
+      <input type="text" class='editor' @paste="${this.afterPaste}" @keydown="${this.afterKeyDown}" placeholder="${this.placeholder || ''}">
     </div>
   `;
   }
@@ -20,6 +20,15 @@ export default class TagInput extends LitElement {
       placeholder: { type: String },
       value: { type: Array, attribute: 'value' },
     };
+  }
+
+  attributeChangedCallback(name, oldVal, newVal) {
+    if (name === 'value') {
+      if (newVal && oldVal !== newVal) {
+        const tmpVal = newVal.split(',').filter((v) => v.trim() !== '');
+        this.value = tmpVal || '';
+      }
+    }
   }
 
   afterPaste(e) {

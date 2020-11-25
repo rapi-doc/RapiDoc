@@ -59,6 +59,7 @@ export default class ApiRequest extends LitElement {
       activeResponseTab: { type: String }, // internal tracking of response-tab not exposed as a attribute
       selectedRequestBodyType: { type: String, attribute: 'selected-request-body-type' }, // internal tracking of selected request-body type
       selectedRequestBodyExample: { type: String, attribute: 'selected-request-body-example' }, // internal tracking of selected request-body example
+      renderedOnce: { type: Boolean },
     };
   }
 
@@ -282,7 +283,7 @@ export default class ApiRequest extends LitElement {
                     data-param-serialize-explode = "${paramExplode}"
                     data-array = "true"
                     placeholder= "add-multiple &#x2b90;"
-                    .value = "${exampleVal}"
+                    value = "${Array.isArray(exampleVal) ? exampleVal.join(',') : exampleVal}"
                   >
                   </tag-input>`
                 : paramSchema.type === 'object'
@@ -654,7 +655,7 @@ export default class ApiRequest extends LitElement {
                     data-example = "${Array.isArray(fieldSchema.example) ? fieldSchema.example.join('~|~') : fieldSchema.example || ''}"
                     data-array = "true"
                     placeholder = "add-multiple &#x2b90;"
-                    .value = "${fieldSchema.example || ''}"
+                    value = "${Array.isArray(fieldSchema.example) ? fieldSchema.example.join(',') : fieldSchema.example}"
                   >
                   </tag-input>
                 `
@@ -914,7 +915,7 @@ export default class ApiRequest extends LitElement {
         this.parameters.length > 0 || this.request_body
           ? html`
             <button class="m-btn thin-border" style="margin-right:5px;" @click="${this.onFillRequestData}" title="Fills with example data (if provided)">
-              FILL
+              FILL EXAMPLE
             </button>
             <button class="m-btn thin-border" style="margin-right:5px;" @click="${this.onClearRequestData}">
               CLEAR
@@ -1169,9 +1170,6 @@ export default class ApiRequest extends LitElement {
       }
       curlHeaders += ` -H "Content-Type: ${requestBodyType}" \\\n`;
     }
-
-    fetchOptions.headers['Cache-Control'] = 'no-cache';
-    curlHeaders += ' -H "Cache-Control: no-cache" \\\n';
 
     me.responseUrl = '';
     me.responseHeaders = '';

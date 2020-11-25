@@ -12,39 +12,53 @@
     <meta name='viewport' content='width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes'>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;600&family=Roboto+Mono&display=swap" rel="stylesheet">
     <script type='text/javascript' src='../rapidoc-min.js'></script>
-    <link href='../index.css' rel='stylesheet'>
     <script>
       function getRapiDoc(){
         return document.getElementById("thedoc");
       }
       
-      function toggleSchemaStyle () {
-        if (getRapiDoc().getAttribute('schema-style') === 'table') {
-          getRapiDoc().setAttribute('schema-style', 'tree');
+      function toggleSchemaStyle (attr) {
+        if (getRapiDoc().getAttribute(attr) === 'table') {
+          getRapiDoc().setAttribute(attr, 'tree');
         } else {
-          getRapiDoc().setAttribute('schema-style', 'table');
+          getRapiDoc().setAttribute(attr, 'table');
         }
       }
     </script>
-
+    <style>
+      .btn{
+        width: 70px;
+        height: 70px;
+        background-color: #47AFE8;
+        color: #fff;
+        font-size: 12px;
+        display: block;
+        border: none;
+        margin: 2px;
+        border-radius: 2px;
+        cursor:pointer;
+        outline:none;
+      }
+      rapi-doc{
+        width:100%;
+      }
+    </style>
   </head>
   <body>
-    <rapi-doc id="thedoc"
-      spec-url="../specs/oneof.yaml" 
+    <rapi-doc spec-url="../specs/oneof-titles.json" 
+      id="thedoc"
       show-info = "false"
       show-header = "false"
       render-style = "read"
-      schema-style = "tree"
-      allow-try = "false" 
+      allow-try = "false"
+      schema-style = "table"
       regular-font = 'Open Sans'
       mono-font = "Roboto Mono"
       allow-authentication = "false" 
-    > 
-      <div slot="nav-logo"  style="width:100%; display: flex; flex-direction:column;">
-        <div style="display: flex;justify-content: center; margin: 2px 0">
-          <button class='btn large' style="width:150px" onclick="toggleSchemaStyle()">Toggle Schema Style</button>
-        </div>
+    >
+      <div style="display:flex; margin:10px; justify-content:center;flex-wrap: wrap;">
+        <button class="btn" onclick="toggleSchemaStyle('schema-style')">Toggle Schema Style</button>
       </div>
-  </rapi-doc>
+    </rapi-doc>
   </body>
 </html>
