@@ -147,6 +147,8 @@ export function getSampleValueByType(schemaObj) {
       return '198.51.100.42';
     case 'ipv6':
       return '2001:0db8:5b96:0000:0000:426f:8e17:642a';
+    case 'null':
+      return null;
     default:
       if (schemaObj.nullable) {
         return null;
@@ -201,7 +203,7 @@ export function json2xml(obj, level = 1) {
 }
 
 function addSchemaInfoToExample(schema, obj) {
-  if (typeof obj !== 'object') {
+  if (typeof obj !== 'object' || obj === null) {
     return;
   }
   if (schema.title) {
@@ -213,7 +215,7 @@ function addSchemaInfoToExample(schema, obj) {
 }
 
 function removeTitlesAndDescriptions(obj) {
-  if (typeof obj !== 'object') {
+  if (typeof obj !== 'object' || obj === null) {
     return;
   }
   delete obj['::TITLE'];
