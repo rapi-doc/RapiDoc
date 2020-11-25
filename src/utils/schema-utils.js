@@ -201,6 +201,9 @@ export function json2xml(obj, level = 1) {
 }
 
 function addSchemaInfoToExample(schema, obj) {
+  if (typeof obj !== 'object') {
+    return;
+  }
   if (schema.title) {
     obj['::TITLE'] = schema.title;
   }
