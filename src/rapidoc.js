@@ -652,7 +652,7 @@ export default class RapiDoc extends LitElement {
       path = pathInput.match(new RegExp('/.*$'));
       const pathValue = (path && path.length === 1) ? path[0] : null;
 
-      if (methodType && pathValue && methodType === v.method && pathValue === v.path) {
+      if (methodType && pathValue && methodType === v.method && pathValue === v.path.replace(invalidCharsRegEx, '-')) {
         this.selectedContentId = `${methodType}-${pathValue}`;
         v.expanded = expandOperation;
         tag.expanded = true;
