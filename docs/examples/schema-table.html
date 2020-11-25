@@ -28,24 +28,18 @@
       theme = "dark"
       schema-style='table'
     > 
-      <div slot="nav-logo">
-
-        <div slot="nav-logo" style="width:100%; display: flex; flex-direction:column;">
-
-          <div style="text-align: center; padding: 0 0 12px 0; color:#47AFE8"> Schema Display Style </div>
-          <div style="display: flex;justify-content: center; margin: 2px 0">
-            <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('schema-style', 'tree')" >Tree</button>
-            <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('schema-style', 'table')" >Table</button>
-          </div>
-
-          <div style="text-align: center; padding: 20px 0 12px 0; color:#47AFE8"> Font Size </div>
-          <div style="display: flex;justify-content: center; margin: 2px 0"">
-            <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('font-size', 'default')" >Default</button>
-            <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('font-size', 'large')" >Large</button>
-            <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('font-size', 'largest')" >Largest</button>
-          </div>
+      <div slot="nav-logo" style="width:100%; display: flex; flex-direction:column;">
+        <div style="text-align: center; padding: 0 0 12px 0; color:#47AFE8"> Schema Display Style </div>
+        <div style="display: flex;justify-content: center; margin: 2px 0">
+          <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('schema-style', 'tree')" >Tree</button>
+          <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('schema-style', 'table')" >Table</button>
         </div>
-  
+
+        <div style="text-align: center; padding: 20px 0 12px 0; color:#47AFE8"> Font Size </div>
+        <div style="display: flex;justify-content: center; margin: 2px 0"">
+          <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('font-size', 'default')" >Default</button>
+          <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('font-size', 'large')" >Large</button>
+          <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('font-size', 'largest')" >Largest</button>
         </div>
       </div>
   </rapi-doc>
