@@ -278,12 +278,12 @@ export default class ApiRequest extends LitElement {
                     style = "width:160px; background:var(--input-bg);" 
                     data-ptype = "${paramType}"
                     data-pname = "${param.name}"
-                    data-example = "${Array.isArray(exampleVal) ? exampleVal.join('~|~') : exampleVal}"
+                    data-example = "${exampleVal ? (Array.isArray(exampleVal) ? exampleVal.join('~|~') : exampleVal) : paramSchema.default}"
                     data-param-serialize-style = "${paramStyle}"
                     data-param-serialize-explode = "${paramExplode}"
                     data-array = "true"
                     placeholder= "add-multiple &#x2b90;"
-                    value = "${Array.isArray(exampleVal) ? exampleVal.join(',') : exampleVal}"
+                    value = "${exampleVal ? (Array.isArray(exampleVal) ? exampleVal.join(',') : exampleVal) : paramSchema.default}"
                   >
                   </tag-input>`
                 : paramSchema.type === 'object'
@@ -292,19 +292,19 @@ export default class ApiRequest extends LitElement {
                       class = "textarea request-param"
                       data-ptype = "${paramType}-object"
                       data-pname = "${param.name}"
-                      data-example = "${exampleVal}"
+                      data-example = "${exampleVal || paramSchema.default}"
                       data-param-serialize-style = "${paramStyle}"
                       data-param-serialize-explode = "${paramExplode}"
                       spellcheck = "false"
                       style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
-                    >${this.fillRequestFieldsWithExample === 'true' ? exampleVal : ''}</textarea>`
+                    >${this.fillRequestFieldsWithExample === 'true' ? (exampleVal || paramSchema.default) : ''}</textarea>`
                   : html`
                     <input type="${paramSchema.format === 'password' ? 'password' : 'text'}" spellcheck="false" style="width:100%" class="request-param" 
                       data-ptype="${paramType}"
                       data-pname="${param.name}" 
-                      data-example="${Array.isArray(exampleVal) ? exampleVal.join('~|~') : exampleVal}"
+                      data-example = "${exampleVal ? (Array.isArray(exampleVal) ? exampleVal.join('~|~') : exampleVal) : (paramSchema.default ? paramSchema.default : '')}"
                       data-array="false"
-                      .value="${this.fillRequestFieldsWithExample === 'true' ? exampleVal : ''}"
+                      .value="${this.fillRequestFieldsWithExample === 'true' ? (exampleVal || paramSchema.default) : ''}"
                     />`
                 }
             </td>`
