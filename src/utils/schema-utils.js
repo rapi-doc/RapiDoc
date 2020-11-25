@@ -581,7 +581,6 @@ export function generateExample(examples, example, schema, mimeType, includeRead
         );
 
         let i = 0;
-        console.log(samples);
         for (const samplesKey in samples) {
           const summary = samples[samplesKey]['::TITLE'] || `Example ${++i}`;
           const description = samples[samplesKey]['::DESCRIPTION'] || '';
