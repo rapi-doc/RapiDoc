@@ -497,7 +497,7 @@ export default class ApiRequest extends LitElement {
                     class = "textarea request-body-param-user-input" 
                     spellcheck = "false"
                     data-ptype = "${reqBody.mimeType}" 
-                    data-example = "${v.exampleValue}"
+                    data-example = "${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, null, 2)}"
                     data-example-format = "${v.exampleFormat}"
                     style="width:100%; resize:vertical;"
                   >${this.fillRequestFieldsWithExample === 'true'
