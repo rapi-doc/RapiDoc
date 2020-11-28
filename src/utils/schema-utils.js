@@ -79,7 +79,7 @@ export function getTypeInfo(schema) {
       info.constrain = `max ${schema.maxLength} chars`;
     }
   }
-  info.html = `${info.type}~|~${info.readOrWriteOnly} ${info.deprecated}~|~${info.constrain}~|~${info.default}~|~${info.allowedValues}~|~${info.pattern}~|~${info.description}`;
+  info.html = `${info.type}~|~${info.readOrWriteOnly} ${info.deprecated}~|~${info.constrain}~|~${info.default}~|~${info.allowedValues}~|~${info.pattern}~|~${info.description}~|~${schema.title || ''}`;
   return info;
 }
 
