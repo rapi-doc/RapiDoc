@@ -116,13 +116,13 @@ export default class SchemaTable extends LitElement {
       return html`<span class="td key object" style='padding-left:${leftPadding}px'>${key}</span>`;
     }
     let label = '';
-    let subLabel = '';
+    let optionNumber = '';
     if (key.startsWith('::ONE~OF') || key.startsWith('::ANY~OF')) {
       label = key.replace('::', '').replace('~', ' ');
     } else if (key.startsWith('::OPTION')) {
       const parts = key.split('~');
-      label = parts[1];
-      subLabel = parts[2];
+      optionNumber = parts[1];
+      label = parts[2];
     } else {
       label = key;
     }
@@ -132,7 +132,7 @@ export default class SchemaTable extends LitElement {
           ? html`
             <div class='tr ${level < this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type']}' data-obj='${label}'>
               <div class='td key' style='padding-left:${leftPadding}px'>
-                ${label
+                ${label || optionNumber
                   ? html`
                     <span 
                       class='obj-toggle ${level < this.schemaExpandLevel ? 'expanded' : 'collapsed'}'
@@ -144,7 +144,7 @@ export default class SchemaTable extends LitElement {
                   : ''
                 }
                 ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION')
-                  ? html`<span class="xxx-of-key" style="margin-left:-6px">${label}</span><span class="xxx-of-descr">${subLabel}</span>`
+                  ? html`<span class="xxx-of-key" style="margin-left:-6px">${optionNumber}</span><span class="xxx-of-descr">${label}</span>`
                   : label.endsWith('*')
                     ? html`<span style="display:inline-block; margin-left:-6px;"> ${label.substring(0, label.length - 1)}</span><span style='color:var(--red);'>*</span>`
                     : html`<span style="display:inline-block; margin-left:-6px;">${label}</span>`
@@ -162,7 +162,7 @@ export default class SchemaTable extends LitElement {
               : html`${this.generateTree(
                 data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey],
                 data[dataKey]['::type'],
-                subLabel || dataKey,
+                label || dataKey,
                 data[dataKey]['::description'],
                 (level + 1),
               )}`
@@ -178,10 +178,10 @@ export default class SchemaTable extends LitElement {
     return html`
       <div class = "tr primitive">
         <div class='td key' style='padding-left:${leftPadding}px' >
-          ${label.endsWith('*')
+          ${label?.endsWith('*')
             ? html`${label.substring(0, label.length - 1)}<span style='color:var(--red);'>*</span>`
             : key.startsWith('::OPTION')
-              ? html`<span class='xxx-of-key'>${label}</span><span class="xxx-of-descr">${itemParts[7]}</span>`
+              ? html`<span class='xxx-of-key'>${optionNumber}</span><span class="xxx-of-descr">${itemParts[7]}</span>`
               : html`${label || html`<span class="xxx-of-descr">${itemParts[7]}</span>`}`
           }
         </div>
