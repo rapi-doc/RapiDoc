@@ -107,63 +107,63 @@ export default class SchemaTable extends LitElement {
     `;
   }
 
-  generateTree(data, prevDataType = 'object', prevKey = '', prevDescr = '', level = 0) {
+  generateTree(data, dataType = 'object', key = '', description = '', level = 0) {
     const leftPadding = 16 * level; // 2 space indentation at each level
     if (!data) {
       return html`<div class="null" style="display:inline;">null</div>`;
     }
     if (Object.keys(data).length === 0) {
-      return html`<span class="td key object" style='padding-left:${leftPadding}px'>${prevKey}</span>`;
+      return html`<span class="td key object" style='padding-left:${leftPadding}px'>${key}</span>`;
     }
-    let newPrevKey = '';
-    let subKey = '';
-    if (prevKey.startsWith('::ONE~OF') || prevKey.startsWith('::ANY~OF')) {
-      newPrevKey = prevKey.replace('::', '').replace('~', ' ');
-    } else if (prevKey.startsWith('::OPTION')) {
-      const parts = prevKey.split('~');
-      newPrevKey = parts[1];
-      subKey = parts[2];
+    let label = '';
+    let subLabel = '';
+    if (key.startsWith('::ONE~OF') || key.startsWith('::ANY~OF')) {
+      label = key.replace('::', '').replace('~', ' ');
+    } else if (key.startsWith('::OPTION')) {
+      const parts = key.split('~');
+      label = parts[1];
+      subLabel = parts[2];
     } else {
-      newPrevKey = prevKey;
+      label = key;
     }
     if (typeof data === 'object') {
       return html`
         ${level > 0
           ? html`
-            <div class='tr ${level < this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type']}' data-obj='${newPrevKey}'>
+            <div class='tr ${level < this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type']}' data-obj='${label}'>
               <div class='td key' style='padding-left:${leftPadding}px'>
-                ${newPrevKey
+                ${label
                   ? html`
                     <span 
                       class='obj-toggle ${level < this.schemaExpandLevel ? 'expanded' : 'collapsed'}'
-                      data-obj='${newPrevKey}'
-                      @click= ${(e) => this.toggleObjectExpand(e, newPrevKey)} 
+                      data-obj='${label}'
+                      @click= ${(e) => this.toggleObjectExpand(e, label)} 
                     >
                       ${level < this.schemaExpandLevel ? '-' : '+'}
                     </span>`
                   : ''
                 }
-                ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || prevKey.startsWith('::OPTION')
-                  ? html`<span class="xxx-of-key" style="margin-left:-6px">${newPrevKey}</span><span class="xxx-of-descr">${subKey}</span>`
-                  : newPrevKey.endsWith('*')
-                    ? html`<span style="display:inline-block; margin-left:-6px;"> ${newPrevKey.substring(0, newPrevKey.length - 1)}</span><span style='color:var(--red);'>*</span>`
-                    : html`<span style="display:inline-block; margin-left:-6px;">${newPrevKey}</span>`
+                ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION')
+                  ? html`<span class="xxx-of-key" style="margin-left:-6px">${label}</span><span class="xxx-of-descr">${subLabel}</span>`
+                  : label.endsWith('*')
+                    ? html`<span style="display:inline-block; margin-left:-6px;"> ${label.substring(0, label.length - 1)}</span><span style='color:var(--red);'>*</span>`
+                    : html`<span style="display:inline-block; margin-left:-6px;">${label}</span>`
                 }
               </div>
               <div class='td key-type'>${(data['::type'] || '').includes('xxx-of') ? '' : data['::type']}</div>
-              <div class='td key-descr m-markdown-small' style='line-height:1.7'>${unsafeHTML(marked(prevDescr || ''))}</div>
+              <div class='td key-descr m-markdown-small' style='line-height:1.7'>${unsafeHTML(marked(description || ''))}</div>
             </div>`
           : ''
         }
         <div class='object-body'>
-          ${Object.keys(data).map((key) => html`
-            ${['::description', '::type', '::props'].includes(key)
+          ${Object.keys(data).map((dataKey) => html`
+            ${['::description', '::type', '::props'].includes(dataKey)
               ? ''
               : html`${this.generateTree(
-                data[key]['::type'] === 'array' ? data[key]['::props'] : data[key],
-                data[key]['::type'],
-                subKey || key,
-                data[key]['::description'],
+                data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey],
+                data[dataKey]['::type'],
+                subLabel || dataKey,
+                data[dataKey]['::description'],
                 (level + 1),
               )}`
             }
@@ -178,41 +178,23 @@ export default class SchemaTable extends LitElement {
     return html`
       <div class = "tr primitive">
         <div class='td key' style='padding-left:${leftPadding}px' >
-          ${newPrevKey.endsWith('*')
-            ? html`${newPrevKey.substring(0, newPrevKey.length - 1)}<span style='color:var(--red);'>*</span>`
-            : prevKey.startsWith('::OPTION')
-              ? html`<span class='xxx-of-key'>${newPrevKey}</span><span class="xxx-of-descr">${itemParts[7]}</span>`
-              : html`${newPrevKey || html`<span class="xxx-of-descr">${itemParts[7]}</span>`}`
+          ${label.endsWith('*')
+            ? html`${label.substring(0, label.length - 1)}<span style='color:var(--red);'>*</span>`
+            : key.startsWith('::OPTION')
+              ? html`<span class='xxx-of-key'>${label}</span><span class="xxx-of-descr">${itemParts[7]}</span>`
+              : html`${label || html`<span class="xxx-of-descr">${itemParts[7]}</span>`}`
           }
         </div>
         <div class='td key-type ${dataTypeCss}'>
-          ${prevDataType === 'array'
-            ? `[${itemParts[0]}]`
-            : itemParts[0]
-          } 
+          ${dataType === 'array' ? `[${itemParts[0]}]` : itemParts[0] } 
           <span style="font-family: var(--font-mono);">${itemParts[1]} </span> </div>
         <div class='td key-descr'>
-          ${prevDataType === 'array' ? prevDescr : ''}
-          ${itemParts[2]
-            ? html`<div style='color: var(--fg2); padding-bottom:3px;'>${itemParts[4]}</div>`
-            : ''
-          }
-          ${itemParts[3]
-            ? html`<div style='color: var(--fg2); padding-bottom:3px;' ><span class='bold-text'>Default:</span> ${itemParts[3]}</div>`
-            : ''
-          }
-          ${itemParts[4]
-            ? html`<div style='color: var(--fg2); padding-bottom:3px;'><span class='bold-text'>Allowed: </span> &nbsp; ${itemParts[4]}</div>`
-            : ''
-          }
-          ${itemParts[5]
-            ? html`<div style='color: var(--fg2); padding-bottom:3px;'><span class='bold-text'>Pattern:</span>  &nbsp; ${itemParts[5]}</div>`
-            : ''
-          }
-          ${itemParts[6]
-            ? html`<span class="m-markdown-small">${unsafeHTML(marked(itemParts[6]))}</span>`
-            : ''
-          }
+          ${dataType === 'array' ? description : ''}
+          ${itemParts[2] ? html`<div style='color: var(--fg2); padding-bottom:3px;'>${itemParts[4]}</div>` : ''}
+          ${itemParts[3] ? html`<div style='color: var(--fg2); padding-bottom:3px;' ><span class='bold-text'>Default:</span> ${itemParts[3]}</div>` : ''}
+          ${itemParts[4] ? html`<div style='color: var(--fg2); padding-bottom:3px;'><span class='bold-text'>Allowed: </span> &nbsp; ${itemParts[4]}</div>` : ''}
+          ${itemParts[5] ? html`<div style='color: var(--fg2); padding-bottom:3px;'><span class='bold-text'>Pattern:</span>  &nbsp; ${itemParts[5]}</div>` : ''}
+          ${itemParts[6] ? html`<span class="m-markdown-small">${unsafeHTML(marked(itemParts[6]))}</span>` : ''}
         </div>
       </div>
     `;
