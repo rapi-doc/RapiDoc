@@ -162,7 +162,7 @@ export default class SchemaTable extends LitElement {
               : html`${this.generateTree(
                 data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey],
                 data[dataKey]['::type'],
-                label || dataKey,
+                dataKey,
                 data[dataKey]['::description'],
                 (level + 1),
               )}`
@@ -186,7 +186,7 @@ export default class SchemaTable extends LitElement {
           }
         </div>
         <div class='td key-type ${dataTypeCss}'>
-          ${dataType === 'array' ? `[${itemParts[0]}]` : itemParts[0] } 
+          ${dataType === 'array' ? `[${itemParts[0]}]` : itemParts[0]} 
           <span style="font-family: var(--font-mono);">${itemParts[1]} </span> </div>
         <div class='td key-descr'>
           ${dataType === 'array' ? description : ''}
