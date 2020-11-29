@@ -117,8 +117,10 @@ export default class SchemaTable extends LitElement {
     }
     let label = '';
     let optionNumber = '';
+    let isOneOfLabel = false;
     if (key.startsWith('::ONE~OF') || key.startsWith('::ANY~OF')) {
       label = key.replace('::', '').replace('~', ' ');
+      isOneOfLabel = true;
     } else if (key.startsWith('::OPTION')) {
       const parts = key.split('~');
       optionNumber = parts[1];
@@ -144,7 +146,7 @@ export default class SchemaTable extends LitElement {
                   : ''
                 }
                 ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION')
-                  ? html`<span class="xxx-of-key" style="margin-left:-6px">${optionNumber}</span><span class="xxx-of-descr">${label}</span>`
+                  ? html`<span class="xxx-of-key" style="margin-left:-6px">${optionNumber}</span><span class="${isOneOfLabel ? 'xxx-of-key' : 'xxx-of-descr'}">${label}</span>`
                   : label.endsWith('*')
                     ? html`<span style="display:inline-block; margin-left:-6px;"> ${label.substring(0, label.length - 1)}</span><span style='color:var(--red);'>*</span>`
                     : html`<span style="display:inline-block; margin-left:-6px;">${label}</span>`
