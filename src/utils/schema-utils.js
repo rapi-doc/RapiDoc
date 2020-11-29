@@ -438,7 +438,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
         objWithAnyOfProps['::type'] = 'xxx-of-option';
       } else if (v.type === 'array' || v.items) {
         // This else-if block never seems to get executed
-        const partialObj = [schemaInObjectNotation(v, {})];
+        const partialObj = schemaInObjectNotation(v, {});
         objWithAnyOfProps[`::OPTION~${index + 1}${v.title ? `~${v.title}` : ''}`] = partialObj;
         objWithAnyOfProps['::type'] = 'xxx-of-array';
       } else {
@@ -469,7 +469,6 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
         : '');
     obj['::type'] = 'array';
     obj['::props'] = schemaInObjectNotation(schema.items, {}, (level + 1));
-    obj['::title'] = schema.items.title ? schema.items.title : '';
   } else {
     const typeObj = getTypeInfo(schema);
     if (typeObj.html) {

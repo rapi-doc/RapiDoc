@@ -44,20 +44,17 @@ export default function focusedEndpointTemplate() {
     }
   }
 
-  return html`
-    ${itemToFocus === 'overview' || itemToFocus === 'authentication' || itemToFocus === 'api-servers'
-      ? html``
-      : itemToFocus.startsWith('tag--')
-        ? html`
-          <div class='regular-font section-gap--focused-mode'>
-            ${focusedTagBodyTemplate.call(this, selectedTagObj)}
-          </div>`
-        : html`
-          <div class='regular-font section-gap--focused-mode'>
-            ${expandedEndpointBodyTemplate.call(this, selectedPathObj)}
-          </div>
-        `
-    }
-  `;
+  return itemToFocus === 'overview' || itemToFocus === 'authentication' || itemToFocus === 'api-servers'
+    ? ''
+    : itemToFocus.startsWith('tag--')
+      ? html`
+        <div class='regular-font section-gap--focused-mode'>
+          ${focusedTagBodyTemplate.call(this, selectedTagObj)}
+        </div>`
+      : html`
+        <div class='regular-font section-gap--focused-mode'>
+          ${expandedEndpointBodyTemplate.call(this, selectedPathObj)}
+        </div>
+      `;
 }
 /* eslint-enable indent */
