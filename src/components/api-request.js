@@ -59,7 +59,6 @@ export default class ApiRequest extends LitElement {
       activeResponseTab: { type: String }, // internal tracking of response-tab not exposed as a attribute
       selectedRequestBodyType: { type: String, attribute: 'selected-request-body-type' }, // internal tracking of selected request-body type
       selectedRequestBodyExample: { type: String, attribute: 'selected-request-body-example' }, // internal tracking of selected request-body example
-      renderedOnce: { type: Boolean },
     };
   }
 
@@ -428,7 +427,12 @@ export default class ApiRequest extends LitElement {
 
     const requestBodyTypes = [];
     const content = this.request_body.content;
-
+    if (this.renderStyle === 'focused') {
+      this.activeResponseTab = '';
+      this.selectedRequestBodyType = '';
+      this.selectedRequestBodyExample = '';
+      this.selectedRequestBodyType = '';
+    }
     for (const mimeType in content) {
       requestBodyTypes.push({
         mimeType,
@@ -440,7 +444,6 @@ export default class ApiRequest extends LitElement {
         this.selectedRequestBodyType = mimeType;
       }
     }
-
     // MIME Type selector
     reqBodyTypeSelectorHtml = requestBodyTypes.length === 1
       ? ''
