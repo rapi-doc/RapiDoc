@@ -150,7 +150,7 @@ export default class SchemaTable extends LitElement {
                     : html`<span style="display:inline-block; margin-left:-6px;">${newPrevKey}</span>`
                 }
               </div>
-              <div class='td key-type'>${prevDataType.startsWith('xxx-') ? '' : prevDataType}</div>
+              <div class='td key-type'>${(data['::type'] || '').includes('xxx-of') ? '' : data['::type']}</div>
               <div class='td key-descr m-markdown-small' style='line-height:1.7'>${unsafeHTML(marked(prevDescr || ''))}</div>
             </div>`
           : ''
@@ -162,7 +162,7 @@ export default class SchemaTable extends LitElement {
               : html`${this.generateTree(
                 data[key]['::type'] === 'array' ? data[key]['::props'] : data[key],
                 data[key]['::type'],
-                data[key]['::title'] && !Number.isNaN(key) ? data[key]['::title'] : key,
+                data[key]['::title'] && !Number.isNaN(key) ? '' : key,
                 data[key]['::description'],
                 (level + 1),
               )}`
@@ -181,15 +181,20 @@ export default class SchemaTable extends LitElement {
           ${newPrevKey.endsWith('*')
             ? html`${newPrevKey.substring(0, newPrevKey.length - 1)}<span style='color:var(--red);'>*</span>`
             : prevKey.startsWith('::OPTION')
-              ? html`<span class='xxx-of-key'>${newPrevKey}</span>`
-              : html`${newPrevKey}`
+              ? html`<span class='xxx-of-key'>${newPrevKey}</span><span class="xxx-of-descr">${itemParts[7]}</span>`
+              : html`${newPrevKey || html`<span class="xxx-of-descr">${itemParts[7]}</span>`}`
           }
         </div>
-        <div class='td key-type ${dataTypeCss}'>${prevDataType === 'array' ? `[${itemParts[0]}]` : itemParts[0]} <span style="font-family: var(--font-mono);">${itemParts[1]}</span> </div>
+        <div class='td key-type ${dataTypeCss}'>
+          ${prevDataType === 'array'
+            ? `[${itemParts[0]}]`
+            : itemParts[0]
+          } 
+          <span style="font-family: var(--font-mono);">${itemParts[1]} </span> </div>
         <div class='td key-descr'>
           ${prevDataType === 'array' ? prevDescr : ''}
           ${itemParts[2]
-            ? html`<div style='color: var(--fg2); padding-bottom:3px;'>${itemParts[2]}</div>`
+            ? html`<div style='color: var(--fg2); padding-bottom:3px;'>${itemParts[4]}</div>`
             : ''
           }
           ${itemParts[3]
