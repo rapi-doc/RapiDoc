@@ -29,7 +29,7 @@ export default function focusedEndpointTemplate() {
     selectedTagObj = {};
   } else if (itemToFocus.startsWith('tag--')) {
     const tag = itemToFocus.replace('tag--', '');
-    selectedTagObj = this.resolvedSpec.tags.find((v) => v.name === tag);
+    selectedTagObj = this.resolvedSpec.tags.find((v) => v.name.replace(invalidCharsRegEx, '-') === tag);
   } else {
     for (i = 0; i < this.resolvedSpec.tags.length; i += 1) {
       selectedTagObj = this.resolvedSpec.tags[i];
