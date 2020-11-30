@@ -448,6 +448,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     });
     obj[(schema.anyOf ? `::ANY~OF ${suffix}` : `::ONE~OF ${suffix}`)] = objWithAnyOfProps;
     obj['::type'] = 'xxx-of';
+    debugger;
   } else if (schema.type === 'object' || schema.properties) {
     obj['::description'] = schema.description ? schema.description : '';
     obj['::type'] = 'object';
@@ -586,6 +587,9 @@ export function generateExample(examples, example, schema, mimeType, includeRead
 
         let i = 0;
         for (const samplesKey in samples) {
+          if (!samples[samplesKey]) {
+            continue;
+          }
           const summary = samples[samplesKey]['::TITLE'] || `Example ${++i}`;
           const description = samples[samplesKey]['::DESCRIPTION'] || '';
           removeTitlesAndDescriptions(samples[samplesKey]);
