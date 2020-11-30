@@ -183,7 +183,7 @@ export default class SchemaTable extends LitElement {
           ${label?.endsWith('*')
             ? html`${label.substring(0, label.length - 1)}<span style='color:var(--red);'>*</span>`
             : key.startsWith('::OPTION')
-              ? html`<span class='xxx-of-key'>${optionNumber}</span><span class="xxx-of-descr">${itemParts[7]}</span>`
+              ? html`<span class='xxx-of-key'>${optionNumber}</span><span class="xxx-of-descr">${label}</span>`
               : html`${label || html`<span class="xxx-of-descr">${itemParts[7]}</span>`}`
           }
         </div>
