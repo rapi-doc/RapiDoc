@@ -706,6 +706,14 @@ export default class RapiDoc extends LitElement {
     if (contentEl) {
       // Disable IntersectionObserver before scrolling into the view, else it will try to scroll the navbar which is not needed here
       this.isIntersectionObserverActive = false;
+
+      // for focused style it is important to reset request-body-selection which maintains the state for in case of multiple body
+      if (this.renderStyle === 'focused') {
+        const requestEl = this.shadowRoot.querySelector('api-request');
+        if (requestEl) {
+          requestEl.resetRequestBodySelection();
+        }
+      }
       contentEl.scrollIntoView({ behavior: 'auto', block: 'start' });
       const oldNavEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active');
       if (oldNavEl) {
