@@ -20,6 +20,7 @@ import EndpointStyles from '@/styles/endpoint-styles';
 import PrismStyles from '@/styles/prism-styles';
 import TabStyles from '@/styles/tab-styles';
 import NavStyles from '@/styles/nav-styles';
+import InfoStyles from '@/styles/info-styles';
 import CustomStyles from '@/styles/custom-styles';
 import {
   pathIsInSearch, invalidCharsRegEx, sleep, rapidocApiKey, advanceSearch,
@@ -125,6 +126,7 @@ export default class RapiDoc extends LitElement {
       PrismStyles,
       TabStyles,
       NavStyles,
+      InfoStyles,
       css`
       :host {
         --border-radius: 2px;
