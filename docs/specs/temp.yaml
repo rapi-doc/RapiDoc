@@ -2,6 +2,15 @@ openapi: 3.0.2
 info:
   title: OmicIDX
   version: 0.99.1
+  termsOfService: https://flexmail.be/en/terms-and-conditions
+  contact: 
+    email: api@flexmail.be
+    name: John Doe
+    url: example.org
+  license: 
+    name: Apache 2.0
+    url: example.org/license
+
 paths:
   '/sra/experiments':
     get:

@@ -448,7 +448,6 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     });
     obj[(schema.anyOf ? `::ANY~OF ${suffix}` : `::ONE~OF ${suffix}`)] = objWithAnyOfProps;
     obj['::type'] = 'xxx-of';
-    debugger;
   } else if (schema.type === 'object' || schema.properties) {
     obj['::description'] = schema.description ? schema.description : '';
     obj['::type'] = 'object';
