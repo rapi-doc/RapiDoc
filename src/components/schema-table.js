@@ -85,7 +85,7 @@ export default class SchemaTable extends LitElement {
           </div>
         </div>
           <div style='padding: 5px 0; color:var(--fg2)'> 
-            <span class="bold-text upper data-type" data-type="${this.data ? this.data['::type'] : ''}"> ${this.data ? this.data['::type'] : ''}</span> 
+            <span class="schema-root-type ${this.data?.['::type'] || ''} " > ${this.data?.['::type'] || ''}</span> 
             <span class='m-markdown' >${this.data ? unsafeHTML(marked(this.data['::description'] || '')) : ''}</span>
           </div>
           <div style = "border:1px solid var(--light-border-color)">

@@ -79,6 +79,15 @@ export default css`
   padding:5px 0;
   margin:0 2px;
 }
+.schema-root-type {
+  cursor:auto;
+  color:var(--fg2);
+  font-weight: bold;
+  text-transform: uppercase;
+}
+.schema-root-type.xxx-of {
+  display:none;
+}
 .toolbar-item:first-of-type { margin:0 2px 0 0;}
 
 @media only screen and (min-width: 500px) {
