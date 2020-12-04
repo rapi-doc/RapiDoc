@@ -115,41 +115,41 @@ export default class SchemaTable extends LitElement {
     if (Object.keys(data).length === 0) {
       return html`<span class="td key object" style='padding-left:${leftPadding}px'>${key}</span>`;
     }
-    let label = '';
+    let keyLabel = '';
     let optionNumber = '';
     let isOneOfLabel = false;
     if (key.startsWith('::ONE~OF') || key.startsWith('::ANY~OF')) {
-      label = key.replace('::', '').replace('~', ' ');
+      keyLabel = key.replace('::', '').replace('~', ' ');
       isOneOfLabel = true;
     } else if (key.startsWith('::OPTION')) {
       const parts = key.split('~');
       optionNumber = parts[1];
-      label = parts[2];
+      keyLabel = parts[2];
     } else {
-      label = key;
+      keyLabel = key;
     }
     if (typeof data === 'object') {
       return html`
         ${level > 0
           ? html`
-            <div class='tr ${level < this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type']}' data-obj='${label}'>
+            <div class='tr ${level < this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type']}' data-obj='${keyLabel}'>
               <div class='td key' style='padding-left:${leftPadding}px'>
-                ${label || optionNumber
+                ${keyLabel || optionNumber
                   ? html`
                     <span 
                       class='obj-toggle ${level < this.schemaExpandLevel ? 'expanded' : 'collapsed'}'
-                      data-obj='${label}'
-                      @click= ${(e) => this.toggleObjectExpand(e, label)} 
+                      data-obj='${keyLabel}'
+                      @click= ${(e) => this.toggleObjectExpand(e, keyLabel)} 
                     >
                       ${level < this.schemaExpandLevel ? '-' : '+'}
                     </span>`
                   : ''
                 }
                 ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION')
-                  ? html`<span class="xxx-of-key" style="margin-left:-6px">${optionNumber}</span><span class="${isOneOfLabel ? 'xxx-of-key' : 'xxx-of-descr'}">${label}</span>`
-                  : label.endsWith('*')
-                    ? html`<span style="display:inline-block; margin-left:-6px;"> ${label.substring(0, label.length - 1)}</span><span style='color:var(--red);'>*</span>`
-                    : html`<span style="display:inline-block; margin-left:-6px;">${label}</span>`
+                  ? html`<span class="xxx-of-key" style="margin-left:-6px">${optionNumber}</span><span class="${isOneOfLabel ? 'xxx-of-key' : 'xxx-of-descr'}">${keyLabel}</span>`
+                  : keyLabel.endsWith('*')
+                    ? html`<span style="display:inline-block; margin-left:-6px;"> ${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>`
+                    : html`<span style="display:inline-block; margin-left:-6px;">${keyLabel}</span>`
                 }
               </div>
               <div class='td key-type'>${(data['::type'] || '').includes('xxx-of') ? '' : data['::type']}</div>
@@ -180,11 +180,11 @@ export default class SchemaTable extends LitElement {
     return html`
       <div class = "tr primitive">
         <div class='td key' style='padding-left:${leftPadding}px' >
-          ${label?.endsWith('*')
-            ? html`${label.substring(0, label.length - 1)}<span style='color:var(--red);'>*</span>`
+          ${keyLabel?.endsWith('*')
+            ? html`${keyLabel.substring(0, keyLabel.length - 1)}<span style='color:var(--red);'>*</span>`
             : key.startsWith('::OPTION')
-              ? html`<span class='xxx-of-key'>${optionNumber}</span><span class="xxx-of-descr">${label}</span>`
-              : html`${label || html`<span class="xxx-of-descr">${itemParts[7]}</span>`}`
+              ? html`<span class='xxx-of-key'>${optionNumber}</span><span class="xxx-of-descr">${keyLabel}</span>`
+              : html`${keyLabel || html`<span class="xxx-of-descr">${itemParts[7]}</span>`}`
           }
         </div>
         <div class='td key-type ${dataTypeCss}'>
