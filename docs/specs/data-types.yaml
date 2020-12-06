@@ -67,7 +67,12 @@ paths:
                         dependentLastName:
                           description: Dependent Last Name
                           type: string
-                          
+                  hobbies:
+                    type: array
+                    description: array of objects
+                    items:
+                      type: object
+
   /simple-object:
     get:
       tags:

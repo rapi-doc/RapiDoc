@@ -65,6 +65,16 @@ paths:
                           y:
                             type: string
                       - type: array
+                        title: Cordinates
+                        description: Array of Object
+                        items:
+                          type: object
+                          properties:
+                            x:
+                              type: string
+                            y:
+                              type: string
+                      - type: array
                         title: Array title
                         description: Array of string with title and description
                         items:

@@ -586,6 +586,9 @@ export function generateExample(examples, example, schema, mimeType, includeRead
 
         let i = 0;
         for (const samplesKey in samples) {
+          if (!samples[samplesKey]) {
+            continue;
+          }
           const summary = samples[samplesKey]['::TITLE'] || `Example ${++i}`;
           const description = samples[samplesKey]['::DESCRIPTION'] || '';
           removeTitlesAndDescriptions(samples[samplesKey]);
