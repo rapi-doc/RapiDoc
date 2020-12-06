@@ -202,7 +202,7 @@ components:
         name:
           description: Category name
           type: string
-          minLength: 1
+          deprecated: true
     id:
       type: integer
       format: int64
@@ -221,8 +221,17 @@ components:
           description: Categories this person belongs to
           allOf:
             - $ref: '#/components/schemas/category'
+        country:
+          type: object
+          deprecated: true
+          properties:
+            countryCode:
+              type: string
+            countryName:
+              type: string
         dependentIds:
           type: array
+          deprecated: true
           description: IDs of Dependents .
           items:
             type: integer

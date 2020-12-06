@@ -47,6 +47,7 @@ components:
       properties:
         hits:
           title: Hits
+          deprecated: true
           type: array
           items:
             type: object
