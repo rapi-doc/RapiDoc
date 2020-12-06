@@ -29,7 +29,7 @@ export default class ApiResponse extends LitElement {
       schemaStyle: { type: String, attribute: 'schema-style' },
       renderStyle: { type: String, attribute: 'render-style' },
       selectedStatus: { type: String, attribute: 'selected-status' },
-      selectedMimeType: { type: String },
+      selectedMimeType: { type: String, attribute: 'selected-mime-type' },
       activeSchemaTab: { type: String, attribute: 'active-schema-tab' },
       schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
       schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
@@ -87,6 +87,11 @@ export default class ApiResponse extends LitElement {
       <div>  
     </div>  
     `;
+  }
+
+  resetSelection() {
+    this.selectedStatus = '';
+    this.selectedMimeType = '';
   }
 
   /* eslint-disable indent */

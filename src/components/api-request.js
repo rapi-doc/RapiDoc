@@ -386,6 +386,11 @@ export default class ApiRequest extends LitElement {
     </div>`;
   }
 
+  resetRequestBodySelection() {
+    this.selectedRequestBodyType = '';
+    this.selectedRequestBodyExample = '';
+  }
+
   // Request-Body Event Handlers
   onSelectExample(e) {
     this.selectedRequestBodyExample = e.target.value;
@@ -408,11 +413,6 @@ export default class ApiRequest extends LitElement {
         userInputExampleTextareaEl.value = exampleTextareaEl.value;
       }
     }, 0, mimeDropdownEl);
-  }
-
-  resetRequestBodySelection() {
-    this.selectedRequestBodyType = '';
-    this.selectedRequestBodyExample = '';
   }
 
   requestBodyTemplate() {
