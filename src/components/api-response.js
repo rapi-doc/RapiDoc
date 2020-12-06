@@ -99,7 +99,7 @@ export default class ApiResponse extends LitElement {
       const allMimeResp = {};
       for (const mimeResp in this.responses[statusCode]?.content) {
         const mimeRespObj = this.responses[statusCode].content[mimeResp];
-        if (!this.selectedMimeType) {
+        if (this.selectedMimeType !== mimeResp) {
           this.selectedMimeType = mimeResp;
         }
         // Generate Schema
