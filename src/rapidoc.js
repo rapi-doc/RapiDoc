@@ -272,7 +272,11 @@ export default class RapiDoc extends LitElement {
         padding: 6px 0px; 
       }
       .expanded-endpoint-body.deprecated{ filter:opacity(0.6); }
-      .divider { border-top:2px solid var(--primary-color); width:100%; }
+      .divider { 
+        border-top: 2px solid var(--primary-color);
+        margin: 24px 0;
+        width:100%;
+      }
 
       .tooltip {
         cursor:pointer;
