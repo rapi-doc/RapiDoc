@@ -79,7 +79,7 @@ export function getTypeInfo(schema) {
       info.constrain = `max ${schema.maxLength} chars`;
     }
   }
-  info.html = `${info.type}~|~${info.readOrWriteOnly} ${info.deprecated}~|~${info.constrain}~|~${info.default}~|~${info.allowedValues}~|~${info.pattern}~|~${info.description}~|~${schema.title || ''}`;
+  info.html = `${info.type}~|~${info.readOrWriteOnly}~|~${info.constrain}~|~${info.default}~|~${info.allowedValues}~|~${info.pattern}~|~${info.description}~|~${schema.title || ''}~|~${info.deprecated ? 'deprecated' : ''}`;
   return info;
 }
 
@@ -415,11 +415,12 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     });
     obj = objWithAllProps;
   } else if (schema.anyOf || schema.oneOf) {
-    obj['::description'] = schema.description ? schema.description : '';
+    obj['::description'] = schema.description || '';
     // 1. First iterate the regular properties
     if (schema.type === 'object' || schema.properties) {
-      obj['::description'] = schema.description ? schema.description : '';
+      obj['::description'] = schema.description || '';
       obj['::type'] = 'object';
+      // obj['::deprecated'] = schema.deprecated || false;
       for (const key in schema.properties) {
         if (schema.required && schema.required.includes(key)) {
           obj[`${key}*`] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
@@ -448,9 +449,11 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     });
     obj[(schema.anyOf ? `::ANY~OF ${suffix}` : `::ONE~OF ${suffix}`)] = objWithAnyOfProps;
     obj['::type'] = 'xxx-of';
+    // obj['::deprecated'] = schema.deprecated || false;
   } else if (schema.type === 'object' || schema.properties) {
-    obj['::description'] = schema.description ? schema.description : '';
+    obj['::description'] = schema.description || '';
     obj['::type'] = 'object';
+    obj['::deprecated'] = schema.deprecated || false;
     for (const key in schema.properties) {
       if (schema.required && schema.required.includes(key)) {
         obj[`${key}*`] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));

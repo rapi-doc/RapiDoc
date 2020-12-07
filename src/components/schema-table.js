@@ -41,6 +41,10 @@ export default class SchemaTable extends LitElement {
       .table .key {
         width: 240px;
       }
+      .key.deprecated .key-label {
+        text-decoration: line-through;
+      }
+
       .table .key-type {
         white-space: normal;
         width: 70px;
@@ -133,7 +137,7 @@ export default class SchemaTable extends LitElement {
         ${level > 0
           ? html`
             <div class='tr ${level < this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type']}' data-obj='${keyLabel}'>
-              <div class='td key' style='padding-left:${leftPadding}px'>
+              <div class="td key ${data['::deprecated'] ? 'deprecated' : ''}" style='padding-left:${leftPadding}px'>
                 ${keyLabel || optionNumber
                   ? html`
                     <span 
@@ -148,8 +152,8 @@ export default class SchemaTable extends LitElement {
                 ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION')
                   ? html`<span class="xxx-of-key" style="margin-left:-6px">${optionNumber}</span><span class="${isOneOfLabel ? 'xxx-of-key' : 'xxx-of-descr'}">${keyLabel}</span>`
                   : keyLabel.endsWith('*')
-                    ? html`<span style="display:inline-block; margin-left:-6px;"> ${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>`
-                    : html`<span style="display:inline-block; margin-left:-6px;">${keyLabel}</span>`
+                    ? html`<span class="key-label" style="display:inline-block; margin-left:-6px;"> ${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>`
+                    : html`<span class="key-label" style="display:inline-block; margin-left:-6px;">${keyLabel}</span>`
                 }
               </div>
               <div class='td key-type'>${(data['::type'] || '').includes('xxx-of') ? '' : data['::type']}</div>
@@ -159,7 +163,7 @@ export default class SchemaTable extends LitElement {
         }
         <div class='object-body'>
           ${Object.keys(data).map((dataKey) => html`
-            ${['::description', '::type', '::props'].includes(dataKey)
+            ${['::description', '::type', '::props', '::deprecated'].includes(dataKey)
               ? ''
               : html`${this.generateTree(
                 data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey],
@@ -179,12 +183,12 @@ export default class SchemaTable extends LitElement {
     const dataTypeCss = itemParts[0].replace('{', '').substring(0, 4).toLowerCase();
     return html`
       <div class = "tr primitive">
-        <div class='td key' style='padding-left:${leftPadding}px' >
+        <div class="td key ${itemParts[8]}" style='padding-left:${leftPadding}px' >
           ${keyLabel?.endsWith('*')
-            ? html`${keyLabel.substring(0, keyLabel.length - 1)}<span style='color:var(--red);'>*</span>`
+            ? html`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>`
             : key.startsWith('::OPTION')
               ? html`<span class='xxx-of-key'>${optionNumber}</span><span class="xxx-of-descr">${keyLabel}</span>`
-              : html`${keyLabel || html`<span class="xxx-of-descr">${itemParts[7]}</span>`}`
+              : html`${keyLabel ? html`<span class="key-label"> ${keyLabel}</span>` : html`<span class="xxx-of-descr">${itemParts[7]}</span>`}`
           }
         </div>
         <div class='td key-type ${dataTypeCss}'>

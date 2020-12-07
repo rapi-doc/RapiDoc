@@ -45,6 +45,9 @@ export default class SchemaTree extends LitElement {
       .tree .key {
         max-width: 300px;
       }
+      .key.deprecated .key-label {
+        text-decoration: line-through; 
+      }
 
       .open-bracket{
         display:inline-block;
@@ -165,12 +168,14 @@ export default class SchemaTree extends LitElement {
     if (typeof data === 'object') {
       return html`
         <div class="tr ${level < this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type'] || 'no-type-info'}">
-          <div class='td key' style='min-width:${minFieldColWidth}px'>
+          <div class="td key ${data['::deprecated'] ? 'deprecated' : ''}" style='min-width:${minFieldColWidth}px'>
             ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION')
-              ? html`<span class='xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>`
+              ? html`<span class='key-label xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>`
               : keyLabel.endsWith('*')
-                ? html`${keyLabel.substring(0, keyLabel.length - 1)}<span style='color:var(--red);'>*</span>`
-                : html`${keyLabel === '::props' || keyLabel === '::ARRAY~OF' ? '' : keyLabel}`
+                ? html`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>`
+                : keyLabel === '::props' || keyLabel === '::ARRAY~OF'
+                  ? ''
+                  : html`<span class="key-label">${keyLabel}<span>`
             }
             ${level > 0
               && !(
@@ -191,7 +196,7 @@ export default class SchemaTree extends LitElement {
             ? html`${this.generateTree(data[0], 'xxx-of-option', '::ARRAY~OF', '', (level))}`
             : html`
               ${Object.keys(data).map((dataKey) => html`
-                ${['::description', '::type', '::props'].includes(dataKey)
+                ${['::description', '::type', '::props', '::deprecated'].includes(dataKey)
                   ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object'
                     ? html`${this.generateTree(
                       data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey],
@@ -225,16 +230,16 @@ export default class SchemaTree extends LitElement {
     const dataTypeCss = itemParts[0].replace('{', '').substring(0, 4).toLowerCase();
     return html`
       <div class = "tr primitive">
-        <div class='td key' style='min-width:${minFieldColWidth}px' >
+        <div class="td key ${itemParts[8]}" style='min-width:${minFieldColWidth}px' >
           ${keyLabel.endsWith('*')
-            ? html`${keyLabel.substring(0, keyLabel.length - 1)}<span style='color:var(--red);'>*</span>:`
+            ? html`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>:`
             : key.startsWith('::OPTION')
-              ? html`<span class='xxx-of-key'>${keyLabel}</span>`
-              : html`${keyLabel}:`
+              ? html`<span class='key-label xxx-of-key'>${keyLabel}</span>`
+              : html`<span class="key-label">${keyLabel}</span>:`
           }
           <span class='${dataTypeCss}'> 
             ${dataType === 'array' ? `[${itemParts[0]}]` : `${itemParts[0]}`}
-            <span>${itemParts[1]}</span>
+            ${itemParts[1]}
           </span>
         </div>
         <div class='td key-descr'>
