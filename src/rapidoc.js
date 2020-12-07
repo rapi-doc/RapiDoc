@@ -600,7 +600,6 @@ export default class RapiDoc extends LitElement {
   }
 
   resetSelectedContentId() {
-    debugger;
     // No content is selected at start
     this.selectedContentId = '';
     // If there is hash in url then check if hash belong to any of the path in spec
@@ -609,7 +608,7 @@ export default class RapiDoc extends LitElement {
         ? 'overview' : hasValidPathInUrlHash(this.resolvedSpec.tags)
           ? window.location.hash.substring(1) : '';
     }
-    // If there is no matching hash to path, check if there is sufficient data to display overview of just display first path from first tag
+    // If there is no matching hash to path, check if there is sufficient data to display overview otherwise just display first path from first tag
     if (!this.selectedContentId) {
       if (this.showInfo === 'true' && (this.resolvedSpec.info?.description || this.resolvedSpec.info?.title)) {
         this.selectedContentId = 'overview';
