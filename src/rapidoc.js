@@ -617,7 +617,7 @@ export default class RapiDoc extends LitElement {
         this.selectedContentId = `${this.resolvedSpec.tags[0]?.paths[0]?.method}-${this.resolvedSpec.tags[0]?.paths[0]?.path}`;
       }
     }
-    // Set url hash back in address bar
+    // Set url back in address bar
     window.location.hash = `${this.selectedContentId}`;
   }
 

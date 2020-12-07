@@ -115,6 +115,6 @@ export function advanceSearch(searchVal, allSpecTags, searchOptions = []) {
 }
 
 export function hasValidPathInUrlHash(tags) {
-  const filterTags = tags.filter((tag) => tag.paths.filter((path) => String(window.location.hash.substring(1)) === `${path.method}-${path.path.replace(invalidCharsRegEx, '-')}`).length > 0);
+  const filterTags = tags.filter((tag) => tag.paths.filter((path) => window.location.hash.substring(1) === `${path.method}-${path.path.replace(invalidCharsRegEx, '-')}`).length > 0);
   return filterTags.length > 0;
 }
