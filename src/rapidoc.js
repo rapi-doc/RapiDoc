@@ -23,7 +23,7 @@ import NavStyles from '@/styles/nav-styles';
 import InfoStyles from '@/styles/info-styles';
 import CustomStyles from '@/styles/custom-styles';
 import {
-  pathIsInSearch, invalidCharsRegEx, sleep, rapidocApiKey, advanceSearch,
+  pathIsInSearch, invalidCharsRegEx, sleep, rapidocApiKey, advanceSearch, hasValidPathInUrlHash,
 } from '@/utils/common-utils';
 import ProcessSpec from '@/utils/spec-parser';
 import mainBodyTemplate from '@/templates/main-body-template';
@@ -599,6 +599,28 @@ export default class RapiDoc extends LitElement {
     }
   }
 
+  resetSelectedContentId() {
+    debugger;
+    // No content is selected at start
+    this.selectedContentId = '';
+    // If there is hash in url then check if hash belong to any of the path in spec
+    if (window.location.hash) {
+      this.selectedContentId = window.location.hash.substring(1).startsWith('overview--')
+        ? 'overview' : hasValidPathInUrlHash(this.resolvedSpec.tags)
+          ? window.location.hash.substring(1) : '';
+    }
+    // If there is no matching hash to path, check if there is sufficient data to display overview of just display first path from first tag
+    if (!this.selectedContentId) {
+      if (this.showInfo === 'true' && (this.resolvedSpec.info?.description || this.resolvedSpec.info?.title)) {
+        this.selectedContentId = 'overview';
+      } else {
+        this.selectedContentId = `${this.resolvedSpec.tags[0]?.paths[0]?.method}-${this.resolvedSpec.tags[0]?.paths[0]?.path}`;
+      }
+    }
+    // Set url hash back in address bar
+    window.location.hash = `${this.selectedContentId}`;
+  }
+
   async afterSpecParsedAndValidated(spec) {
     this.resolvedSpec = spec;
     if (this.defaultApiServerUrl) {
@@ -616,13 +638,7 @@ export default class RapiDoc extends LitElement {
         this.selectedServer = this.resolvedSpec.servers[0];
       }
     }
-    if (this.showInfo === 'true' && !window.location.hash && (this.resolvedSpec.info?.description || this.resolvedSpec.info?.title)) {
-      this.selectedContentId = 'overview';
-    } else if (window.location.hash) {
-      this.selectedContentId = window.location.hash.substring(1).startsWith('overview--') ? 'overview' : window.location.hash.substring(1);
-    } else {
-      this.selectedContentId = `${this.resolvedSpec.tags[0]?.paths[0]?.method}-${this.resolvedSpec.tags[0]?.paths[0]?.path}`;
-    }
+    this.resetSelectedContentId();
     this.requestUpdate();
     const specLoadedEvent = new CustomEvent('spec-loaded', { detail: spec });
     this.dispatchEvent(specLoadedEvent);
@@ -751,7 +767,9 @@ export default class RapiDoc extends LitElement {
 
   // Public Method (scrolls to a given path and highlights the left-nav selection)
   async scrollTo(path, expandPath = true) {
-    this.selectedContentId = path.startsWith('overview--') ? 'overview' : path;
+    if (path) {
+      this.selectedContentId = path.startsWith('overview--') ? 'overview' : path;
+    }
     await sleep(0);
     const gotoEl = this.shadowRoot.getElementById(path);
     if (gotoEl) {

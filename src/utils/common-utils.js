@@ -113,3 +113,8 @@ export function advanceSearch(searchVal, allSpecTags, searchOptions = []) {
   });
   return pathsMatched;
 }
+
+export function hasValidPathInUrlHash(tags) {
+  const filterTags = tags.filter((tag) => tag.paths.filter((path) => String(window.location.hash.substring(1)) === `${path.method}-${path.path.replace(invalidCharsRegEx, '-')}`).length > 0);
+  return filterTags.length > 0;
+}
