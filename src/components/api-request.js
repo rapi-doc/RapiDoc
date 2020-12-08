@@ -905,7 +905,7 @@ export default class ApiRequest extends LitElement {
           ${this.api_keys.length > 0
             ? html`<div style="color:var(--blue); overflow:hidden;"> 
                 ${this.api_keys.length === 1
-                  ? `${this.api_keys[0].typeDisplay}' in ${this.api_keys[0].in}`
+                  ? `${this.api_keys[0]?.typeDisplay} in ${this.api_keys[0].in}`
                   : `${this.api_keys.length} API keys applied`
                 } 
               </div>`
