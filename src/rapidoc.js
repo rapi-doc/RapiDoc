@@ -566,6 +566,19 @@ export default class RapiDoc extends LitElement {
     }
   }
 
+  resetDoc() {
+    this.resolvedSpec = null;
+    this.loading = true;
+    this.loadFailed = false;
+    this.requestUpdate();
+
+    // Remove the previous active tag
+    const oldNavEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active');
+    if (oldNavEl) {
+      oldNavEl.classList.remove('active');
+    }
+  }
+
   // Public Method
   async loadSpec(specUrl) {
     if (!specUrl) {
@@ -574,8 +587,7 @@ export default class RapiDoc extends LitElement {
 
     this.matchPaths = '';
     try {
-      this.loading = true;
-      this.loadFailed = false;
+      this.resetDoc();
       const spec = await ProcessSpec(
         specUrl,
         this.sortTags === 'true',
