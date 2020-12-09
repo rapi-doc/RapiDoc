@@ -574,8 +574,17 @@ export default class RapiDoc extends LitElement {
 
     this.matchPaths = '';
     try {
+      this.resolvedSpec = null;
       this.loading = true;
       this.loadFailed = false;
+      this.requestUpdate();
+      if (this.renderStyle === 'read' || this.renderStyle === 'focused') {
+        // Remove the previous active state from navbar
+          const oldNavEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active');
+          if (oldNavEl) {
+            oldNavEl.classList.remove('active');
+          }
+      }
       const spec = await ProcessSpec(
         specUrl,
         this.sortTags === 'true',
