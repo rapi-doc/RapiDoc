@@ -135,7 +135,7 @@ export default class ApiResponse extends LitElement {
     }
     return html`
       ${Object.keys(this.responses).length > 1
-        ? html`<div class='row'>
+        ? html`<div class='row' style='flex-wrap:wrap'>
           ${Object.keys(this.responses).map((respStatus) => html`
             ${respStatus === '$$ref' // Swagger-Client parser creates '$$ref' object if JSON references are used to create responses - this should be ignored
               ? ''

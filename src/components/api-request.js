@@ -197,11 +197,11 @@ export default class ApiRequest extends LitElement {
 
   /* eslint-disable indent */
   inputParametersTemplate(paramType) {
-    let title = '';
     const filteredParams = this.parameters ? this.parameters.filter((param) => param.in === paramType) : [];
     if (filteredParams.length === 0) {
       return '';
     }
+    let title = '';
     if (paramType === 'path') {
       title = 'PATH PARAMETERS';
     } else if (paramType === 'query') {
