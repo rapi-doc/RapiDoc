@@ -2,8 +2,11 @@
   "presets": [ 
     [
       "@babel/preset-env",{ 
-        "modules": false, // do not transform modules
-        "targets": {"esmodules": true },
+        "targets": [
+          ">1%",
+          "not ie 11",
+          "not op_mini all"
+        ]
       }
     ]
   ],
@@ -15,7 +18,7 @@
           "lit-element": [
             "html",
             {"name": "css", "encapsulation": "style"}
-          ],
+          ]
         },
         "htmlMinifier": {
           "collapseWhitespace": true,
