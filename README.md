@@ -11,17 +11,17 @@
 </p>        
 
 # RapiDoc
-Custom Eelement for Open-API spec viewing
+Custom Element for Open-API spec viewing
 
 ## Features
 - Supports Swagger 2.0 and OpenAPI 3.0 
 - Works with any framework or with no framework
-- Allows to make API calls
+- Allows making API calls
 - Better Usability, 
   - all Models and Examples are expanded by default, eliminates the need to click and reveal.
   - Request fields are pre-populated with sample data
   - Takes only one click to make an API call
-  - Request and response can be placed side-by-side for easy comparision
+  - Request and response can be placed side-by-side for easy comparison
 - Branding and Personalization features makes it easy to follow any style guide
   - Comes with 2 Themes (Dark and Light)
   - Replace default logo with yours
@@ -30,7 +30,7 @@ Custom Eelement for Open-API spec viewing
 - Plenty of customization options 
   - Add external contents at the top and bottom of the document,  you may add images, link, text, forms etc
   - Allows disabling API calling feature
-  - Hide the header so the user cant load any other OpenAPI Spec
+  - Hide the header, so the user can't load any other OpenAPI Spec
   - Hide Authentication and provide your own pre-generated api-key 
   - Embed it inside another HTML document
   - Use it inside another framework (react, vue, angular, lit-element)
