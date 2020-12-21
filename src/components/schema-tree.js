@@ -12,6 +12,7 @@ export default class SchemaTree extends LitElement {
       data: { type: Object },
       schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
       schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
+      schemaHideReadOnly: { type: String, attribute: 'schema-hide-read-only' },
     };
   }
 
@@ -19,6 +20,7 @@ export default class SchemaTree extends LitElement {
     super.connectedCallback();
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) { this.schemaExpandLevel = 99999; }
     if (!this.schemaDescriptionExpanded || !'true false'.includes(this.schemaDescriptionExpanded)) { this.schemaDescriptionExpanded = 'false'; }
+    if (!this.schemaHideReadOnly || !'true false'.includes(this.schemaHideReadOnly)) { this.schemaHideReadOnly = 'false'; }
   }
 
   static get styles() {
@@ -226,11 +228,14 @@ export default class SchemaTree extends LitElement {
     }
 
     // For Primitive Data types
-    const itemParts = data.split('~|~');
-    const dataTypeCss = itemParts[0].replace('{', '').substring(0, 4).toLowerCase();
+    const [type, readorWriteOnly, constraint, defaultValue, allowedValues, pattern, schemaDescription, , deprecated] = data.split('~|~');
+    if (readorWriteOnly === '🆁' && this.schemaHideReadOnly === 'true') {
+      return;
+    }
+    const dataTypeCss = type.replace('{', '').substring(0, 4).toLowerCase();
     return html`
       <div class = "tr primitive">
-        <div class="td key ${itemParts[8]}" style='min-width:${minFieldColWidth}px' >
+        <div class="td key ${deprecated}" style='min-width:${minFieldColWidth}px' >
           ${keyLabel.endsWith('*')
             ? html`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>:`
             : key.startsWith('::OPTION')
@@ -238,32 +243,17 @@ export default class SchemaTree extends LitElement {
               : html`<span class="key-label">${keyLabel}</span>:`
           }
           <span class='${dataTypeCss}'> 
-            ${dataType === 'array' ? `[${itemParts[0]}]` : `${itemParts[0]}`}
-            ${itemParts[1]}
+            ${dataType === 'array' ? `[${type}]` : `${type}`}
+            ${readorWriteOnly}
           </span>
         </div>
         <div class='td key-descr'>
           ${dataType === 'array' ? description : ''}
-          ${itemParts[2]
-            ? html`<div style='color: var(--fg2)'>${itemParts[2]}</div>`
-            : ''
-          }
-          ${itemParts[3]
-            ? html`<div style='color: var(--fg2)'><span class='bold-text'>Default:</span> ${itemParts[3]}</div>`
-            : ''
-          }
-          ${itemParts[4]
-            ? html`<div style='color: var(--fg2)'><span class='bold-text'>Allowed:</span> &nbsp; ${itemParts[4]}</div>`
-            : ''
-          }
-          ${itemParts[5]
-            ? html`<div style='color: var(--fg2)'><span class='bold-text'>Pattern:</span> ${itemParts[5]}</div>`
-            : ''
-          }
-          ${itemParts[6]
-            ? html`<span class="m-markdown-small">${unsafeHTML(marked(itemParts[6]))}</span>`
-            : ''
-          }
+          ${constraint ? html`<div style='color: var(--fg2)'>${constraint}</div>` : ''}
+          ${defaultValue ? html`<div style='color: var(--fg2)'><span class='bold-text'>Default:</span> ${defaultValue}</div>` : ''}
+          ${allowedValues ? html`<div style='color: var(--fg2)'><span class='bold-text'>Allowed:</span> &nbsp; ${allowedValues}</div>` : ''}
+          ${pattern ? html`<div style='color: var(--fg2)'><span class='bold-text'>Pattern:</span> ${pattern}</div>` : ''}
+          ${schemaDescription ? html`<span class="m-markdown-small">${unsafeHTML(marked(schemaDescription))}</span>` : ''}
         </div>
       </div>
     `;

@@ -1,0 +1,66 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Hidden readOnly",
+        "version": "1.0.0",
+        "description": "Hidden readOnly properties for write actions."
+    },
+    "paths": {
+        "/foo": {
+            "post": {
+                "summary": "1. Post",
+                "description": "Checkout the model tab to see (or not see) the readOnly property `bar`",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "foo": { "type": "string" },
+                                    "bar": { "type": "string", "readOnly": true }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": { "204": { "description": "No content"} }
+            },
+            "put": {
+                "summary": "2. Put",
+                "description": "Checkout the model tab to see (or not see) the readOnly property `bar`",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "foo": { "type": "string" },
+                                    "bar": { "type": "string", "readOnly": true }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": { "204": { "description": "No content"} }
+            },
+            "patch": {
+                "summary": "3. Patch",
+                "description": "Checkout the model tab to see (or not see) the readOnly property `bar`",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "foo": { "type": "string" },
+                                    "bar": { "type": "string", "readOnly": true }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": { "204": { "description": "No content"} }
+            }
+        }
+    }
+}
