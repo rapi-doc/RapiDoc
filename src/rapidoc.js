@@ -23,7 +23,7 @@ import NavStyles from '@/styles/nav-styles';
 import InfoStyles from '@/styles/info-styles';
 import CustomStyles from '@/styles/custom-styles';
 import {
-  pathIsInSearch, invalidCharsRegEx, sleep, rapidocApiKey, advanceSearch, hasValidPathInUrlHash,
+  pathIsInSearch, invalidCharsRegEx, sleep, rapidocApiKey, advancedSearch, hasValidPathInUrlHash,
 } from '@/utils/common-utils';
 import ProcessSpec from '@/utils/spec-parser';
 import mainBodyTemplate from '@/templates/main-body-template';
@@ -79,7 +79,7 @@ export default class RapiDoc extends LitElement {
       allowSpecUrlLoad: { type: String, attribute: 'allow-spec-url-load' },
       allowSpecFileLoad: { type: String, attribute: 'allow-spec-file-load' },
       allowSearch: { type: String, attribute: 'allow-search' },
-      allowAdvanceSearch: { type: String, attribute: 'allow-advance-search' },
+      allowAdvancedSearch: { type: String, attribute: 'allow-advanced-search' },
       allowServerSelection: { type: String, attribute: 'allow-server-selection' },
       showComponents: { type: String, attribute: 'show-components' },
 
@@ -111,8 +111,8 @@ export default class RapiDoc extends LitElement {
 
       // Internal Properties
       selectedContentId: { type: String },
-      showAdvanceSearchDialog: { type: Boolean },
-      advanceSearchMatches: { type: Object },
+      showAdvancedSearchDialog: { type: Boolean },
+      advancedSearchMatches: { type: Object },
     };
   }
 
@@ -362,7 +362,7 @@ export default class RapiDoc extends LitElement {
     }
 
     if (!this.allowSearch || !'true, false,'.includes(`${this.allowSearch},`)) { this.allowSearch = 'true'; }
-    if (!this.allowAdvanceSearch || !'true, false,'.includes(`${this.allowAdvanceSearch},`)) { this.allowAdvanceSearch = 'true'; }
+    if (!this.allowAdvancedSearch || !'true, false,'.includes(`${this.allowAdvancedSearch},`)) { this.allowAdvancedSearch = 'true'; }
 
     if (!this.allowTry || !'true, false,'.includes(`${this.allowTry},`)) { this.allowTry = 'true'; }
     if (!this.apiKeyValue) { this.apiKeyValue = '-'; }
@@ -380,7 +380,7 @@ export default class RapiDoc extends LitElement {
     if (!this.showSideNav || !'true false'.includes(this.showSideNav)) { this.showSideNav = 'true'; }
     if (!this.showComponents || !'true false'.includes(this.showComponents)) { this.showComponents = 'false'; }
     if (!this.infoDescriptionHeadingsInNavBar || !'true, false,'.includes(`${this.infoDescriptionHeadingsInNavBar},`)) { this.infoDescriptionHeadingsInNavBar = 'false'; }
-    if (!this.showAdvanceSearchDialog) { this.showAdvanceSearchDialog = false; }
+    if (!this.showAdvancedSearchDialog) { this.showAdvancedSearchDialog = false; }
 
     marked.setOptions({
       highlight: (code, lang) => {
@@ -552,7 +552,7 @@ export default class RapiDoc extends LitElement {
   }
 
   onShowSearchModalClicked() {
-    this.showAdvanceSearchDialog = true;
+    this.showAdvancedSearchDialog = true;
     this.requestUpdate();
   }
 
@@ -796,7 +796,7 @@ export default class RapiDoc extends LitElement {
   }
 
   // Event handler for Advanced Search text-inputs and checkboxes
-  onAdvanceSearch(ev, delay) {
+  onAdvancedSearch(ev, delay) {
     const eventTargetEl = ev.target;
     clearTimeout(this.timeoutId);
     this.timeoutId = setTimeout(() => {
@@ -804,10 +804,10 @@ export default class RapiDoc extends LitElement {
       if (eventTargetEl.type === 'text') {
         searchInputEl = eventTargetEl;
       } else {
-        searchInputEl = eventTargetEl.closest('.advance-search-options').querySelector('input[type=text]');
+        searchInputEl = eventTargetEl.closest('.advanced-search-options').querySelector('input[type=text]');
       }
-      const searcOptions = [...eventTargetEl.closest('.advance-search-options').querySelectorAll('input:checked')].map((v) => v.id);
-      this.advanceSearchMatches = advanceSearch(searchInputEl.value, this.resolvedSpec.tags, searcOptions);
+      const searcOptions = [...eventTargetEl.closest('.advanced-search-options').querySelectorAll('input:checked')].map((v) => v.id);
+      this.advancedSearchMatches = advancedSearch(searchInputEl.value, this.resolvedSpec.tags, searcOptions);
       this.requestUpdate();
       // console.log('the ptint %o', targetEl);
     }, delay);

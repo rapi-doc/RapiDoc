@@ -9,10 +9,10 @@ export default function navbarTemplate() {
     <div style="padding:16px 30px 0 16px;">
       <slot name="nav-logo" class="logo"></slot>
     </div>
-    ${(this.allowSearch === 'false' && this.allowAdvanceSearch === 'false')
+    ${(this.allowSearch === 'false' && this.allowAdvancedSearch === 'false')
       ? ''
       : html`
-        <div style="position:sticky; top:0; display:flex; flex-direction:row; align-items: stretch; padding:24px; ${this.allowAdvanceSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}">
+        <div style="position:sticky; top:0; display:flex; flex-direction:row; align-items: stretch; padding:24px; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}">
           ${this.allowSearch === 'false'
             ? ''
             : html`
@@ -33,7 +33,7 @@ export default function navbarTemplate() {
               }
             `
           }
-          ${this.allowAdvanceSearch === 'false' || this.matchPaths
+          ${this.allowAdvancedSearch === 'false' || this.matchPaths
             ? ''
             : html`
               <button class="m-btn primary" style="margin-left:5px;" @click="${this.onShowSearchModalClicked}">

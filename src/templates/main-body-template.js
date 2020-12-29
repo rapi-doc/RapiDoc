@@ -12,7 +12,7 @@ import securitySchemeTemplate from '@/templates/security-scheme-template';
 import componentsTemplate from '@/templates/components-template';
 import headerTemplate from '@/templates/header-template';
 import navbarTemplate from '@/templates/navbar-template';
-import advanceSearchTemplate from '@/templates/advance-search-template';
+import advancedSearchTemplate from '@/templates/advanced-search-template';
 
 import SetTheme from '@/utils/theme';
 import { isValidHexColor } from '@/utils/color-utils';
@@ -93,7 +93,7 @@ export default function mainBodyTemplate() {
     ${this.showHeader === 'false' ? '' : headerTemplate.call(this)}
     
     <!-- Advanced Search -->
-    ${this.allowAdvanceSearch === 'false' ? '' : advanceSearchTemplate.call(this)}
+    ${this.allowAdvancedSearch === 'false' ? '' : advancedSearchTemplate.call(this)}
 
     <div class="body">
       <!-- Side Nav -->
