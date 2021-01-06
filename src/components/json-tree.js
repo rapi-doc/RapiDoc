@@ -10,7 +10,6 @@ export default class JsonTree extends LitElement {
     return {
       data: { type: Object },
       renderStyle: { type: String, attribute: 'render-style' },
-      isLast: { type: Boolean },
     };
   }
 
@@ -80,7 +79,7 @@ export default class JsonTree extends LitElement {
         <div class='toolbar'> 
           <button  class="toolbar-btn" @click='${(e) => { copyToClipboard(JSON.stringify(this.data, null, 2), e); }}'> Copy </button>
         </div>
-        ${this.generateTree(this.data, this.isLast)}
+        ${this.generateTree(this.data, true)}
       </div>  
     `;
   }
