@@ -389,6 +389,7 @@ export default class ApiRequest extends LitElement {
   resetRequestBodySelection() {
     this.selectedRequestBodyType = '';
     this.selectedRequestBodyExample = '';
+    this.clearResponseData();
   }
 
   // Request-Body Event Handlers
