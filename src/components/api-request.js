@@ -310,10 +310,11 @@ export default class ApiRequest extends LitElement {
           : ''
         }
         <td colspan="${(this.allowTry === 'true') ? '1' : '2'}">
-          ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues
+          ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern
             ? html`
               <div class="param-constraint">
                 ${paramSchema.default ? html`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
+                ${paramSchema.pattern ? html`<span style="font-weight:bold">Pattern: </span>${paramSchema.pattern}<br/>` : ''}
                 ${paramSchema.constrain ? html`${paramSchema.constrain}<br/>` : ''}
                 ${paramSchema.allowedValues && paramSchema.allowedValues.split(',').map((v, i) => html`
                   ${i > 0 ? ' | ' : html`<span style="font-weight:bold"> Allowed: </span>`}
@@ -735,10 +736,11 @@ export default class ApiRequest extends LitElement {
             ? ''
             : html`
               <td>
-                ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues
+                ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern
                   ? html`
                     <div class="param-constraint">
                       ${paramSchema.default ? html`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
+                      ${paramSchema.pattern ? html`<span style="font-weight:bold">Pattern: </span>${paramSchema.pattern}<br/>` : ''}
                       ${paramSchema.constrain ? html`${paramSchema.constrain}<br/>` : ''}
                       ${paramSchema.allowedValues && paramSchema.allowedValues.split(',').map((v, i) => html`
                         ${i > 0 ? ' | ' : html`<span style="font-weight:bold"> Allowed: </span>`}
