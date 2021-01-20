@@ -141,6 +141,11 @@ paths:
           schema:
             type: string
             format: date
+        - name: phone
+          in: query
+          schema:
+            type: string
+            pattern: '/^\+(?:[0-9]-?){6,14}[0-9]$/'
         - name: marital-status
           in: query
           required: true
