@@ -24,7 +24,7 @@ export default function navbarTemplate() {
                   @change = "${this.onSearchChange}"  
                   spellcheck = "false" 
                 >
-                <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x2b90;</div>
+                <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x21a9;</div>
               </div>  
               ${this.matchPaths
                 ? html`
