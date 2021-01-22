@@ -1,65 +1,89 @@
 openapi: 3.0.2
 info:
-  title: OmicIDX
-  version: 0.99.1
-  termsOfService: https://flexmail.be/en/terms-and-conditions
-  contact: 
-    email: api@flexmail.be
-    name: John Doe
-    url: example.org
-  license: 
-    name: Apache 2.0
-    url: example.org/license
-
+  title: Test
+  version: "1.0"
 paths:
-  '/sra/experiments':
-    get:
+  /my-route:
+    post:
+      parameters:
+        - name: height
+          in: query
+          description: height (in inches)
+          schema:
+            type: integer
+        - name: full-name
+          in: query
+          description: Name of a person
+          schema:
+            type: string
+      requestBody:
+        description: Even though you can define multiple request bodies, but only one can be submitted 
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Price"
+            examples:
+              USD:
+                description: Cost in `US Dollars`
+                value: |
+                  {
+                    amount: 10,
+                    currency: USD,
+                    converstion: 'use-avg'
+                  }
+              INR:
+                description: Cost in `Indian Price`
+                value: |
+                  {
+                    amount: 700,
+                    currency: INR,
+                    converstion: 'use-avg'
+                  }
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/Price"
+          application/text:
+            schema:
+              $ref: "#/components/schemas/Price"
+            examples:
+              price-in-indian-rupee:
+                value: |
+                  amount: 700,
+                  currency: INR,
+                  converstion: 'use-avg'
+              price-in-us-dollars:
+                value: |
+                  amount: 10,
+                  currency: USD,
+                  converstion: 'use-avg'        
       responses:
-        '200':
-          description: Successful Response
+        200:
+          description: Success
           content:
+            image/png:
+              schema:
+                type: string
+                format: binary
             application/json:
               schema:
-                $ref: '#/components/schemas/ResponseModel'
-      tags:
-        - SRA
-      summary: Experiments
-      operationId: experiments_sra_experiments_get
-      parameters:
-        - description: 'The query, using [lucene query syntax](https://lucene.apache.org/core/3_6_0/queryparsersyntax.html)'
-          required: false
-          schema:
-            title: Q
-            type: string
-            description: 'The query, using [lucene query syntax](https://lucene.apache.org/core/3_6_0/queryparsersyntax.html)'
-            example: cancer
-          name: q
-          in: query
-components:
-  schemas:
-    ResponseModel:
-      title: ResponseModel
-      required:
-        - facets
-        - stats
-        - success
-      type: object
-      properties:
-        hits:
-          title: Hits
-          deprecated: true
-          type: array
-          items:
-            type: object
-        facets:
-          title: Facets
-          type: array
-          items:
-            type: object
-        success:
-          title: Success
-          type: boolean
-        cursor:
-          title: Cursor
-          type: string
-
+                type: object
+                properties:
+                  prop1:
+                    type: number
+                  prop2:
+                    type: string
+        201:
+          description: Success
+          content:
+            image/jpg:
+              schema:
+                type: string
+                format: binary
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  prop1:
+                    type: number
+                  prop2:
+                    type: string                    
