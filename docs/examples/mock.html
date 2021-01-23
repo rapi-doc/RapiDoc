@@ -6,7 +6,6 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
       gtag('config', 'UA-132775238-1');
     </script>
 
@@ -16,14 +15,25 @@
     <script type="text/javascript" src="../rapidoc-min.js"></script>
   </head>
   <body>
-    <rapi-doc 
-      show-info = "true"
-      spec-url = "../specs/petstore_extended.yaml"
-      show-header="false" 
-      render-style="focused"
-      allow-try="true" 
-      regular-font="Open Sans"
-      mono-font = "Roboto Mono"
+    <rapi-doc id="thedoc"
+      spec-url = "../specs/mock.yaml" 
+      allow-authentication = "false" 
+      render-style = "read" 
+      theme="light" 
+      show-header="false"
+      regular-font = 'Open Sans'
+      mono-font = 'Roboto Mono'
+      primary-color="#f54c47"
     > </rapi-doc>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', (event) => {
+        let docEl = document.getElementById("thedoc");
+        docEl.addEventListener('after-try', (e) => {
+          console.log(e.detail);
+        });
+      })
+    </script>
+
   </body>
 </html>

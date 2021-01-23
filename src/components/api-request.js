@@ -310,10 +310,11 @@ export default class ApiRequest extends LitElement {
           : ''
         }
         <td colspan="${(this.allowTry === 'true') ? '1' : '2'}">
-          ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues
+          ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern
             ? html`
               <div class="param-constraint">
                 ${paramSchema.default ? html`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
+                ${paramSchema.pattern ? html`<span style="font-weight:bold">Pattern: </span>${paramSchema.pattern}<br/>` : ''}
                 ${paramSchema.constrain ? html`${paramSchema.constrain}<br/>` : ''}
                 ${paramSchema.allowedValues && paramSchema.allowedValues.split(',').map((v, i) => html`
                   ${i > 0 ? ' | ' : html`<span style="font-weight:bold"> Allowed: </span>`}
@@ -389,6 +390,7 @@ export default class ApiRequest extends LitElement {
   resetRequestBodySelection() {
     this.selectedRequestBodyType = '';
     this.selectedRequestBodyExample = '';
+    this.clearResponseData();
   }
 
   // Request-Body Event Handlers
@@ -734,10 +736,11 @@ export default class ApiRequest extends LitElement {
             ? ''
             : html`
               <td>
-                ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues
+                ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern
                   ? html`
                     <div class="param-constraint">
                       ${paramSchema.default ? html`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
+                      ${paramSchema.pattern ? html`<span style="font-weight:bold">Pattern: </span>${paramSchema.pattern}<br/>` : ''}
                       ${paramSchema.constrain ? html`${paramSchema.constrain}<br/>` : ''}
                       ${paramSchema.allowedValues && paramSchema.allowedValues.split(',').map((v, i) => html`
                         ${i > 0 ? ' | ' : html`<span style="font-weight:bold"> Allowed: </span>`}
@@ -960,6 +963,8 @@ export default class ApiRequest extends LitElement {
     let curlHeaders = '';
     let curlData = '';
     let curlForm = '';
+    const respEl = this.closest('.expanded-req-resp-container, .req-resp-container')?.getElementsByTagName('api-response')[0];
+    const acceptHeader = respEl?.selectedMimeType;
     const requestPanelEl = e.target.closest('.request-panel');
     const pathParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='path']")];
     const queryParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='query']")];
@@ -1059,7 +1064,11 @@ export default class ApiRequest extends LitElement {
     }
     curl = `curl -X ${this.method.toUpperCase()} "${curlUrl}" \\\n`;
 
-    if (this.accept) {
+    if (acceptHeader) {
+      // Uses the acceptHeader from Response panel
+      fetchOptions.headers.Accept = acceptHeader;
+      curlHeaders += ` -H "Accept: ${acceptHeader}" \\\n`;
+    } else if (this.accept) {
       fetchOptions.headers.Accept = this.accept;
       curlHeaders += ` -H "Accept: ${this.accept}" \\\n`;
     }
@@ -1172,7 +1181,6 @@ export default class ApiRequest extends LitElement {
       }
       curlHeaders += ` -H "Content-Type: ${requestBodyType}" \\\n`;
     }
-
     me.responseUrl = '';
     me.responseHeaders = '';
     // me.responseText    = '';
@@ -1187,22 +1195,24 @@ export default class ApiRequest extends LitElement {
     }
     me.curlSyntax = `${curl}${curlHeaders}${curlData}${curlForm}`;
     try {
+      let respBlob;
+      let respJson;
+      let respText;
       tryBtnEl.disabled = true;
       // await wait(1000);
-      const resp = await fetch(fetchUrl, fetchOptions);
+      const tryResp = await fetch(fetchUrl, fetchOptions);
       tryBtnEl.disabled = false;
-      me.responseStatus = resp.ok ? 'success' : 'error';
-      me.responseMessage = `${resp.statusText}:${resp.status}`;
-      me.responseUrl = resp.url;
-      resp.headers.forEach((hdrVal, hdr) => {
+      me.responseStatus = tryResp.ok ? 'success' : 'error';
+      me.responseMessage = `${tryResp.statusText}:${tryResp.status}`;
+      me.responseUrl = tryResp.url;
+      tryResp.headers.forEach((hdrVal, hdr) => {
         me.responseHeaders = `${me.responseHeaders}${hdr.trim()}: ${hdrVal}\n`;
       });
-      const contentType = resp.headers.get('content-type');
+      const contentType = tryResp.headers.get('content-type');
       if (contentType) {
         if (contentType.includes('json')) {
-          resp.json().then((respObj) => {
-            me.responseText = JSON.stringify(respObj, null, 2);
-          });
+          respJson = await tryResp.json();
+          me.responseText = JSON.stringify(respJson, null, 2);
         } else if (RegExp('^font/|tar$|zip$|7z$|rtf$|msword$|excel$|/pdf$|/octet-stream$').test(contentType)) {
           me.responseIsBlob = true;
           me.responseBlobType = 'download';
@@ -1210,25 +1220,43 @@ export default class ApiRequest extends LitElement {
           me.responseIsBlob = true;
           me.responseBlobType = 'view';
         } else {
-          resp.text().then((respText) => {
-            me.responseText = respText;
-          });
+          respText = await tryResp.text();
+          me.responseText = respText;
         }
         if (me.responseIsBlob) {
-          const contentDisposition = resp.headers.get('content-disposition');
+          const contentDisposition = tryResp.headers.get('content-disposition');
           me.respContentDisposition = contentDisposition ? contentDisposition.split('filename=')[1] : 'filename';
-          resp.blob().then((respBlob) => {
-            me.responseBlobUrl = URL.createObjectURL(respBlob);
-          });
+          respBlob = await tryResp.blob();
+          me.responseBlobUrl = URL.createObjectURL(respBlob);
         }
       } else {
-        resp.text().then((respText) => {
-          me.responseText = respText;
-        });
+        respText = await tryResp.text();
+        me.responseText = respText;
       }
+      this.dispatchEvent(new CustomEvent('after-try', {
+        bubbles: true,
+        composed: true,
+        detail: {
+          fetchUrl,
+          fetchOptions,
+          responseStatus: me.responseStatus,
+          responseContentType: contentType,
+          responseIsBlob: me.responseIsBlob,
+          response: respJson || respText || respBlob,
+        },
+      }));
     } catch (err) {
       tryBtnEl.disabled = false;
       me.responseMessage = `${err.message} (CORS or Network Issue)`;
+      document.dispatchEvent(new CustomEvent('after-try', {
+        bubbles: true,
+        composed: true,
+        detail: {
+          err,
+          url: fetchUrl,
+          options: fetchOptions,
+        },
+      }));
     }
   }
 

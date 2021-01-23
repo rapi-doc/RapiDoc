@@ -555,6 +555,26 @@ el.addEventListener('spec-loaded', e => console.log(e.detail));
 <br/>
             </td>
           </tr>
+
+          <tr>
+            <td class="mono bold right">after-try</td>
+            <td class="gray">
+              called after user clicks try. Provides you with a object containing request and response details.
+<pre class="shadow1 code-block" style="width:550px"><code class="js">
+event.details will provide 
+{
+  fetchUrl: "https://..."
+  fetchOptions: { ... }, // obj with fetch options
+  responseStatus: "success | error",
+  responseContentType: "application/json",
+  responseIsBlob: {boolean},
+  response: {... }, // based on contentType contains json, text or blob
+  err?: { will exist if fetch call fails }
+}
+</code></pre>
+          <a href="https://github.com/mrin9/RapiDoc/blob/master/docs/examples/mock.html"> Example </a> 
+            </td>              
+          </tr>
         </table>
       </div>
 

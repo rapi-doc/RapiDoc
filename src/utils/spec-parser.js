@@ -363,7 +363,7 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
             security: fullPath.security,
             commonSummary: commonPathProp.summary,
             commonDescription: commonPathProp.description,
-            xCodeSamples: fullPath['x-code-samples'],
+            xCodeSamples: fullPath['x-codeSamples'] || fullPath['x-code-samples'] || '',
           });
         });// End of tag path create
       }

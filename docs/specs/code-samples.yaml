@@ -8,7 +8,7 @@ paths:
     get:
       summary: Code samples in endpoints
       description: |
-        `x-code-samples` is a vendor extension used to provide small snippets of code in various languages.
+        `x-codeSamples` or `x-code-samples` is a vendor extension used to provide small snippets of code in various languages.
         
         Below OpenAPI spec shows how to use this extension 
 
@@ -41,7 +41,7 @@ paths:
 
 
   
-      x-code-samples:
+      x-codeSamples:
         - lang: js
           label: 'JS - Node'
           source: |
