@@ -68,7 +68,7 @@ export function schemaKeys(schemaProps, result = new Set()) {
   return result;
 }
 
-export function advanceSearch(searchVal, allSpecTags, searchOptions = []) {
+export function advancedSearch(searchVal, allSpecTags, searchOptions = []) {
   if (!searchVal.trim() || searchOptions.length === 0) {
     return;
   }
