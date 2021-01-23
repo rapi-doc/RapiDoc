@@ -12,7 +12,7 @@ import securitySchemeTemplate from '@/templates/security-scheme-template';
 import componentsTemplate from '@/templates/components-template';
 import headerTemplate from '@/templates/header-template';
 import navbarTemplate from '@/templates/navbar-template';
-import advancedSearchTemplate from '@/templates/advanced-search-template';
+import advancedSearchTemplate from '@/templates/advance-search-template';
 
 import SetTheme from '@/utils/theme';
 import { isValidHexColor } from '@/utils/color-utils';
