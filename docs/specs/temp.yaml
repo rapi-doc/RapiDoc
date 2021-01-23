@@ -1,89 +1,143 @@
 openapi: 3.0.2
 info:
-  title: Test
+  title: Mock API Service
   version: "1.0"
+  description: APIs Spec for an API mocking servce
+servers:
+  - url: https://reqres.in/api/
 paths:
-  /my-route:
-    post:
+  /users:
+    get:
+      description: List of users (paginated)
       parameters:
-        - name: height
+        - name: page
           in: query
-          description: height (in inches)
           schema:
             type: integer
-        - name: full-name
+            example: 2
+        - name: delay
           in: query
-          description: Name of a person
+          description: for simulating response delay. Do not provide any value for page parameter(0 indicates no delay)
+          examples:
+            - '0'
+            - 3
           schema:
-            type: string
+            type: integer
+            minimum: 0
+            maximum: 10
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Description of **User** object
+                properties:
+                  page:
+                    description: Current Page number
+                    type: integer
+                  per_page:
+                    description: Number of records per page
+                    type: integer
+                  total:
+                    description: Total number of records
+                    type: integer
+                  total_pages:
+                    type: integer
+                  data:
+                    type: array
+                    description: List of users
+                    items:
+                      $ref: '#/components/schemas/user'
+                  support:
+                    $ref: '#/components/schemas/support'
+    post:
+      description: Create a user
       requestBody:
-        description: Even though you can define multiple request bodies, but only one can be submitted 
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Price"
-            examples:
-              USD:
-                description: Cost in `US Dollars`
-                value: |
-                  {
-                    amount: 10,
-                    currency: USD,
-                    converstion: 'use-avg'
-                  }
-              INR:
-                description: Cost in `Indian Price`
-                value: |
-                  {
-                    amount: 700,
-                    currency: INR,
-                    converstion: 'use-avg'
-                  }
-          application/xml:
-            schema:
-              $ref: "#/components/schemas/Price"
-          application/text:
-            schema:
-              $ref: "#/components/schemas/Price"
-            examples:
-              price-in-indian-rupee:
-                value: |
-                  amount: 700,
-                  currency: INR,
-                  converstion: 'use-avg'
-              price-in-us-dollars:
-                value: |
-                  amount: 10,
-                  currency: USD,
-                  converstion: 'use-avg'        
+              $ref: "#/components/schemas/userInput"
+      responses:
+        201:
+          description: User creation response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/userInput'
+                  - $ref: '#/components/schemas/createUserResponse'
+
+  /users/{userId}:
+    get:
+      description: Get a Single User
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: integer
+            example: 3
+          required: true
+          description: Numeric ID of the user to get
       responses:
         200:
-          description: Success
+          description: Response when a user is found
           content:
-            image/png:
-              schema:
-                type: string
-                format: binary
             application/json:
               schema:
                 type: object
                 properties:
-                  prop1:
-                    type: number
-                  prop2:
-                    type: string
-        201:
-          description: Success
-          content:
-            image/jpg:
-              schema:
-                type: string
-                format: binary
-            application/xml:
-              schema:
-                type: object
-                properties:
-                  prop1:
-                    type: number
-                  prop2:
-                    type: string                    
+                  data:
+                    $ref: '#/components/schemas/user'
+                  support:
+                    $ref: '#/components/schemas/support'
+        404:
+          description: User Not found
+
+components:
+  schemas:
+    user:
+      type: object
+      properties:
+        id:
+          description: User ID
+          type: integer
+        email:
+          description: User Email
+          type: string
+        first_name:
+          description: First Name
+          type: string
+        last_name:
+          description: Last Name
+          type: string
+        avatar:
+          description: Avatar URL
+          type: string
+    support:
+      type: object
+      properties:
+        url:
+          description: Support URL
+          type: string
+        text:
+          description: Support URL - Description
+          type: string
+    userInput:
+      type: object
+      properties:
+        name:
+          description: User Name
+          type: string
+        job:
+          description: Job
+          type: string
+    createUserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        createdAt:
+          type: string
+

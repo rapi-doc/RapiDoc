@@ -1195,6 +1195,9 @@ export default class ApiRequest extends LitElement {
     }
     me.curlSyntax = `${curl}${curlHeaders}${curlData}${curlForm}`;
     try {
+      let respBlob;
+      let respJson;
+      let respText;
       tryBtnEl.disabled = true;
       // await wait(1000);
       const tryResp = await fetch(fetchUrl, fetchOptions);
@@ -1208,9 +1211,8 @@ export default class ApiRequest extends LitElement {
       const contentType = tryResp.headers.get('content-type');
       if (contentType) {
         if (contentType.includes('json')) {
-          tryResp.json().then((respObj) => {
-            me.responseText = JSON.stringify(respObj, null, 2);
-          });
+          respJson = await tryResp.json();
+          me.responseText = JSON.stringify(respJson, null, 2);
         } else if (RegExp('^font/|tar$|zip$|7z$|rtf$|msword$|excel$|/pdf$|/octet-stream$').test(contentType)) {
           me.responseIsBlob = true;
           me.responseBlobType = 'download';
@@ -1218,25 +1220,43 @@ export default class ApiRequest extends LitElement {
           me.responseIsBlob = true;
           me.responseBlobType = 'view';
         } else {
-          tryResp.text().then((respText) => {
-            me.responseText = respText;
-          });
+          respText = await tryResp.text();
+          me.responseText = respText;
         }
         if (me.responseIsBlob) {
           const contentDisposition = tryResp.headers.get('content-disposition');
           me.respContentDisposition = contentDisposition ? contentDisposition.split('filename=')[1] : 'filename';
-          tryResp.blob().then((respBlob) => {
-            me.responseBlobUrl = URL.createObjectURL(respBlob);
-          });
+          respBlob = await tryResp.blob();
+          me.responseBlobUrl = URL.createObjectURL(respBlob);
         }
       } else {
-        tryResp.text().then((respText) => {
-          me.responseText = respText;
-        });
+        respText = await tryResp.text();
+        me.responseText = respText;
       }
+      this.dispatchEvent(new CustomEvent('after-try', {
+        bubbles: true,
+        composed: true,
+        detail: {
+          fetchUrl,
+          fetchOptions,
+          responseStatus: me.responseStatus,
+          responseContentType: contentType,
+          responseIsBlob: me.responseIsBlob,
+          response: respJson || respText || respBlob,
+        },
+      }));
     } catch (err) {
       tryBtnEl.disabled = false;
       me.responseMessage = `${err.message} (CORS or Network Issue)`;
+      document.dispatchEvent(new CustomEvent('after-try', {
+        bubbles: true,
+        composed: true,
+        detail: {
+          err,
+          url: fetchUrl,
+          options: fetchOptions,
+        },
+      }));
     }
   }
 
