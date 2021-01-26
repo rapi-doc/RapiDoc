@@ -45,14 +45,14 @@
     sort-endpoints-by = "summary"
     allow-api-list-style-selection = "false"
     regular-font = 'Open Sans'
-    schema-style = 'tree'
+    schema-style = 'table'
     render-style = 'read'
     default-schema-tab = "model"
   > 
   <div slot="nav-logo" style="width:100%; display: flex;justify-content: center;">
-    <button class='btn' onclick="document.getElementById('thedoc').setAttribute('spec-url', './specs/data-types.yaml')" >Spec URL</button>
-    <button class='btn' onclick="document.getElementById('thedoc').scrollTo('post-/user/createWithList')">Scroll To</button>
-  </div>
+    <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('schema-style', 'table')" >Table</button>
+    <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('schema-style', 'tree')" >Tree</button>
+</div>
 
   </rapi-doc>
 

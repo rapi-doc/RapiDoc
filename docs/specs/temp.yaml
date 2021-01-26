@@ -1,143 +1,42 @@
-openapi: 3.0.2
+openapi: 3.0.1
 info:
-  title: Mock API Service
-  version: "1.0"
-  description: APIs Spec for an API mocking servce
-servers:
-  - url: https://reqres.in/api/
+  version: 2021.2
 paths:
-  /users:
+  '/dataSources':
     get:
-      description: List of users (paginated)
-      parameters:
-        - name: page
-          in: query
-          schema:
-            type: integer
-            example: 2
-        - name: delay
-          in: query
-          description: for simulating response delay. Do not provide any value for page parameter(0 indicates no delay)
-          examples:
-            - '0'
-            - 3
-          schema:
-            type: integer
-            minimum: 0
-            maximum: 10
       responses:
         '200':
-          description: Successful operation
+          description: Success
           content:
-            application/json:
+            'application/json':
               schema:
-                type: object
-                description: Description of **User** object
-                properties:
-                  page:
-                    description: Current Page number
-                    type: integer
-                  per_page:
-                    description: Number of records per page
-                    type: integer
-                  total:
-                    description: Total number of records
-                    type: integer
-                  total_pages:
-                    type: integer
-                  data:
-                    type: array
-                    description: List of users
-                    items:
-                      $ref: '#/components/schemas/user'
-                  support:
-                    $ref: '#/components/schemas/support'
-    post:
-      description: Create a user
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/userInput"
-      responses:
-        201:
-          description: User creation response
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/schemas/userInput'
-                  - $ref: '#/components/schemas/createUserResponse'
-
-  /users/{userId}:
-    get:
-      description: Get a Single User
-      parameters:
-        - in: path
-          name: userId
-          schema:
-            type: integer
-            example: 3
-          required: true
-          description: Numeric ID of the user to get
-      responses:
-        200:
-          description: Response when a user is found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/user'
-                  support:
-                    $ref: '#/components/schemas/support'
-        404:
-          description: User Not found
-
+                $ref: '#/components/schemas/DataSources'
 components:
   schemas:
-    user:
+    DataSources:
+      description: Available data sources for the user
+      required:
+        - dataSources
       type: object
       properties:
-        id:
-          description: User ID
-          type: integer
-        email:
-          description: User Email
-          type: string
-        first_name:
-          description: First Name
-          type: string
-        last_name:
-          description: Last Name
-          type: string
-        avatar:
-          description: Avatar URL
-          type: string
-    support:
+        bankConnections:
+          description: Array of imported for the authorized user bank connections.
+          type: array
+          items:
+            $ref: '#/components/schemas/DataSourceBank'
+    DataSourceBank:
+      description: Available banks for the user
       type: object
       properties:
-        url:
-          description: Support URL
+        dataSourceId:
+          description: UUID of the data source.
           type: string
-        text:
-          description: Support URL - Description
+          example: 4e760145-2e65-4242-ac33-488943528c93
+        bic:
+          description: BIC of the bank
           type: string
-    userInput:
-      type: object
-      properties:
-        name:
-          description: User Name
+          example: COBADEFFXXX
+        bankName:
+          description: Name of the bank
           type: string
-        job:
-          description: Job
-          type: string
-    createUserResponse:
-      type: object
-      properties:
-        id:
-          type: integer
-        createdAt:
-          type: string
-
+          example: Commerzbank
