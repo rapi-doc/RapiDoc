@@ -64,10 +64,10 @@ paths:
     get:
       tags:
         - Array and object nesting
-      summary: Array of array (3 Lelels)
+      summary: Array of array (3 Levels)
       responses:
         200:
-          description: Array of array (3 Lelels)
+          description: Array of array (3 Levels)
           content:
             application/json:
               schema:
@@ -87,10 +87,10 @@ paths:
     get:
       tags:
         - Array and object nesting
-      summary: Array of array (4 Lelels)
+      summary: Array of array (4 Levels)
       responses:
         200:
-          description:  Array of array (4 Lelels)
+          description:  Array of array (4 Levels)
           content:
             application/json:
               schema:

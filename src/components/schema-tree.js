@@ -100,8 +100,6 @@ export default class SchemaTree extends LitElement {
             ${this.generateTree(
               this.data['::type'] === 'array' ? this.data['::props'] : this.data,
               this.data['::type'],
-              '',
-              '',
             )}`
           : html`<span class='mono-font' style='color:var(--red)'> Schema not found </span>`
         }

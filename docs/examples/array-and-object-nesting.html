@@ -25,7 +25,11 @@
       allow-try = "false" 
       regular-font = 'Open Sans'
       mono-font = "Roboto Mono"
-    > 
+    >
+    <div slot="nav-logo" style="width:100%; display: flex;justify-content: center;">
+      <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('schema-style', 'table')" >Table</button>
+      <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('schema-style', 'tree')" >Tree</button>
+    </div>
   </rapi-doc>
   </body>
 </html>

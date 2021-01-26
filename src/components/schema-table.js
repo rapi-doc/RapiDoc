@@ -47,7 +47,7 @@ export default class SchemaTable extends LitElement {
 
       .table .key-type {
         white-space: normal;
-        width: 70px;
+        width: 85px;
       }
       .collapsed-descr .tr {
         max-height: calc(var(--font-size-small) + var(--font-size-small) + 4px);
@@ -120,25 +120,41 @@ export default class SchemaTable extends LitElement {
       return html`<span class="td key object" style='padding-left:${leftPadding}px'>${key}</span>`;
     }
     let keyLabel = '';
-    let optionNumber = '';
+    let keyDescr = '';
     let isOneOfLabel = false;
     if (key.startsWith('::ONE~OF') || key.startsWith('::ANY~OF')) {
       keyLabel = key.replace('::', '').replace('~', ' ');
       isOneOfLabel = true;
     } else if (key.startsWith('::OPTION')) {
       const parts = key.split('~');
-      optionNumber = parts[1];
-      keyLabel = parts[2];
+      keyLabel = parts[1];
+      keyDescr = parts[2];
     } else {
       keyLabel = key;
     }
+
+    let detailObjType = '';
+    if (data['::type'] === 'object') {
+      if (dataType === 'array') {
+        detailObjType = 'array'; // Array of Object
+      } else {
+        detailObjType = 'object';
+      }
+    } else if (data['::type'] === 'array') {
+      if (dataType === 'array') {
+        detailObjType = 'array of array'; // Array of array
+      } else {
+        detailObjType = 'array';
+      }
+    }
+
     if (typeof data === 'object') {
       return html`
         ${level > 0
           ? html`
             <div class='tr ${level < this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type']}' data-obj='${keyLabel}'>
               <div class="td key ${data['::deprecated'] ? 'deprecated' : ''}" style='padding-left:${leftPadding}px'>
-                ${keyLabel || optionNumber
+                ${keyLabel || keyDescr
                   ? html`
                     <span 
                       class='obj-toggle ${level < this.schemaExpandLevel ? 'expanded' : 'collapsed'}'
@@ -150,30 +166,49 @@ export default class SchemaTable extends LitElement {
                   : ''
                 }
                 ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION')
-                  ? html`<span class="xxx-of-key" style="margin-left:-6px">${optionNumber}</span><span class="${isOneOfLabel ? 'xxx-of-key' : 'xxx-of-descr'}">${keyLabel}</span>`
+                  ? html`<span class="xxx-of-key" style="margin-left:-6px">${keyLabel}</span><span class="${isOneOfLabel ? 'xxx-of-key' : 'xxx-of-descr'}">${keyDescr}</span>`
                   : keyLabel.endsWith('*')
                     ? html`<span class="key-label" style="display:inline-block; margin-left:-6px;"> ${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>`
                     : html`<span class="key-label" style="display:inline-block; margin-left:-6px;">${keyLabel}</span>`
                 }
+                ${data['::type'] === 'xxx-of' && dataType === 'array' ? html`<span style="color:var(--primary-color)">ARRAY</span>` : ''} 
               </div>
-              <div class='td key-type'>${(data['::type'] || '').includes('xxx-of') ? '' : data['::type']}</div>
+              <div class='td key-type'>${(data['::type'] || '').includes('xxx-of') ? '' : detailObjType}</div>
               <div class='td key-descr m-markdown-small' style='line-height:1.7'>${unsafeHTML(marked(description || ''))}</div>
             </div>`
-          : ''
+          : html`
+              ${data['::type'] === 'array' && dataType === 'array'
+                ? html`<div class='tr'> <div class='td'> ${dataType} </div> </div>`
+                : ''
+              }
+          `
         }
         <div class='object-body'>
-          ${Object.keys(data).map((dataKey) => html`
-            ${['::description', '::type', '::props', '::deprecated'].includes(dataKey)
-              ? ''
-              : html`${this.generateTree(
-                data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey],
-                data[dataKey]['::type'],
-                dataKey,
-                data[dataKey]['::description'],
-                (level + 1),
-              )}`
-            }
-          `)}
+        ${Array.isArray(data) && data[0]
+          ? html`${this.generateTree(data[0], 'xxx-of-option', '::ARRAY~OF', '', (level))}`
+          : html`
+            ${Object.keys(data).map((dataKey) => html`
+              ${['::description', '::type', '::props', '::deprecated'].includes(dataKey)
+                ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object'
+                  ? html`${this.generateTree(
+                    data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey],
+                      data[dataKey]['::type'],
+                      dataKey,
+                      data[dataKey]['::description'],
+                      (level + 1),
+                    )}`
+                  : ''
+                : html`${this.generateTree(
+                  data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey],
+                  data[dataKey]['::type'],
+                  dataKey,
+                  data[dataKey]['::description'],
+                  (level + 1),
+                )}`
+              }
+            `)}
+          `
+        }
         <div>
       `;
     }
@@ -187,7 +222,7 @@ export default class SchemaTable extends LitElement {
           ${keyLabel?.endsWith('*')
             ? html`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>`
             : key.startsWith('::OPTION')
-              ? html`<span class='xxx-of-key'>${optionNumber}</span><span class="xxx-of-descr">${keyLabel}</span>`
+              ? html`<span class='xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>`
               : html`${keyLabel ? html`<span class="key-label"> ${keyLabel}</span>` : html`<span class="xxx-of-descr">${itemParts[7]}</span>`}`
           }
         </div>
