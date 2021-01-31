@@ -2,25 +2,37 @@ import { html } from 'lit-element';
 import { pathIsInSearch, invalidCharsRegEx } from '@/utils/common-utils';
 import marked from 'marked';
 
-export function expandCollapseNavBarTag(navLinkEl) {
-  const pathsContainerEl = navLinkEl.closest('.nav-bar-tag-and-paths')?.querySelector('.nav-bar-paths-under-tag');
-  const tagEl = navLinkEl.closest('.nav-bar-tag-and-paths')?.querySelector('.nav-bar-tag');
-  if (pathsContainerEl && tagEl) {
-    if (pathsContainerEl.classList.contains('collapsed')) {
-      pathsContainerEl.classList.replace('collapsed', 'expanded');
-    } else {
-      pathsContainerEl.classList.replace('expanded', 'collapsed');
-    }
-    if (tagEl.classList.contains('collapsed')) {
-      tagEl.classList.replace('collapsed', 'expanded');
-    } else {
-      tagEl.classList.replace('expanded', 'collapsed');
+export function expandCollapseNavBarTag(navLinkEl, action = 'toggle') {
+  const tagAndPathEl = navLinkEl.closest('.nav-bar-tag-and-paths');
+  if (tagAndPathEl) {
+    const isExpanded = tagAndPathEl.classList.contains('expanded');
+    if (isExpanded && (action === 'toggle' || action === 'collapse')) {
+      tagAndPathEl.classList.replace('expanded', 'collapsed');
+    } else if (!isExpanded && (action === 'toggle' || action === 'expand')) {
+      tagAndPathEl.classList.replace('collapsed', 'expanded');
     }
   }
 }
 
-async function onExpandCollapse(e) {
-  expandCollapseNavBarTag(e.target);
+export function expandCollapseAll(navEl, action = 'expand-all') {
+  const elList = [...navEl.querySelectorAll('.nav-bar-tag-and-paths')];
+  if (action === 'expand-all') {
+    elList.map((el) => {
+      el.classList.replace('collapsed', 'expanded');
+    });
+  } else {
+    elList.map((el) => {
+      el.classList.replace('expanded', 'collapsed');
+    });
+  }
+}
+
+function onExpandCollapse(e) {
+  expandCollapseNavBarTag(e.target, 'toggle');
+}
+
+function onExpandCollapseAll(e, action = 'expand-all') {
+  expandCollapseAll(e.target.closest('.nav-scroll'), action);
 }
 
 /* eslint-disable indent */
@@ -93,15 +105,25 @@ export default function navbarTemplate() {
       : html`<div class='nav-bar-info' id='link-authentication' data-content-id='authentication' @click = '${(e) => this.scrollToEl(e)}' > Authentication </div>`
     }
 
-    <span id='link-paths' class='nav-bar-section'>Operations</span>
+    <div id='link-paths' class='nav-bar-section'>
+      <div style="font-size:16px; display:flex; margin-left:10px;">
+        ${this.renderStyle === 'focused'
+          ? html`
+            <div @click="${(e) => { onExpandCollapseAll.call(this, e, 'expand-all'); }}" title="Expand all" style="transform: rotate(90deg); cursor:pointer; margin-right:10px;">▸</div>
+            <div @click="${(e) => { onExpandCollapseAll.call(this, e, 'collapse-all'); }}" title="Collapse all" style="transform: rotate(270deg); cursor:pointer;">▸</div>`
+          : ''
+        }  
+      </div>
+      <div class='nav-bar-section-title'> OPERATIONS </div>
+    </div>
     ${this.resolvedSpec.tags.map((tag) => html`
       <!-- Tag -->
-      <div class='nav-bar-tag-and-paths'>
-        <div class='nav-bar-tag ${tag.expanded ? 'expanded' : 'collapsed'}' id="link-tag--${tag.name.replace(invalidCharsRegEx, '-')}" data-content-id='tag--${tag.name.replace(invalidCharsRegEx, '-')}' @click='${(e) => this.scrollToEl(e)}'>
+      <div class='nav-bar-tag-and-paths ${tag.expanded ? 'expanded' : 'collapsed'}'>
+        <div class='nav-bar-tag' id="link-tag--${tag.name.replace(invalidCharsRegEx, '-')}" data-content-id='tag--${tag.name.replace(invalidCharsRegEx, '-')}' @click='${(e) => this.scrollToEl(e)}'>
           <div>${tag.name}</div>
           <div class="nav-bar-tag-icon" @click="${(e) => { onExpandCollapse.call(this, e); }}"></div>
         </div>
-        <div class='nav-bar-paths-under-tag ${tag.expanded ? 'expanded' : 'collapsed'}'>
+        <div class='nav-bar-paths-under-tag'>
           <!-- Paths in each tag (endpoints) -->
           ${tag.paths.filter((v) => {
             if (this.matchPaths) {
@@ -130,7 +152,11 @@ export default function navbarTemplate() {
     <!-- Components -->
     ${(this.showComponents === 'false' || !this.resolvedSpec.components)
     ? ''
-    : html`<div id='link-components' class='nav-bar-section' >Components</div>
+    : html`
+      <div id='link-components' class='nav-bar-section'>
+        <div></div>
+        <div class='nav-bar-section-title'>COMPONENTS</div>
+      </div>
       ${this.resolvedSpec.components.map((component) => (component.subComponents.length ? html`
         <div class='nav-bar-tag' data-content-id='cmp-${component.name.toLowerCase()}' id='link-cmp-${component.name.toLowerCase()}' @click='${(e) => this.scrollToEl(e)}'>
           ${component.name}

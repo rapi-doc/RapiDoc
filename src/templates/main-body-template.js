@@ -131,7 +131,7 @@ export default function mainBodyTemplate() {
                   ? (this.selectedContentId === 'authentication' ? securitySchemeTemplate.call(this) : '')
                   : securitySchemeTemplate.call(this)
               }
-              <div @click="${(e) => { this.handleHref(e); }}">
+              <div class="operations-root" @click="${(e) => { this.handleHref(e); }}">
                 ${this.resolvedSpec.tags
                   ? this.renderStyle === 'read'
                     ? expandedEndpointTemplate.call(this)

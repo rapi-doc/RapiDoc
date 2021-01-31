@@ -788,7 +788,7 @@ export default class RapiDoc extends LitElement {
         newNavEl.classList.add('active');
         newNavEl.scrollIntoView({ behavior: 'auto', block: 'center' });
         this.requestUpdate();
-        expandCollapseNavBarTag(newNavEl);
+        expandCollapseNavBarTag(newNavEl, 'expand');
       }
     }
   }
