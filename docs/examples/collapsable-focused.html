@@ -1,0 +1,48 @@
+<!doctype html>
+  <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-132775238-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-132775238-1');
+    </script>
+
+    <script>
+      function getRapiDoc(){
+        return document.getElementById("thedoc");
+      }  
+
+      function scrollWithAPI() {
+        let docEl = getRapiDoc();
+        docEl.scrollTo("get-/closed");
+      }
+    </script>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+    <script type="text/javascript" src="../rapidoc-min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;600&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <link href='../index.css' rel='stylesheet'>
+  </head>
+  <body>
+    <rapi-doc 
+      id="thedoc"
+      spec-url="../specs/collapsable.yaml" 
+      allow-try = "false" 
+      allow-authentication = "false"
+      mono-font = "Roboto Mono"
+      regular-font = 'Open Sans'
+      render-style= "focused"
+    > 
+    <div style="padding: 32px 16px; text-align: center;">
+      Embedded HTML button using <span class='mono'>scrollTo()</span> method <br/>
+      <button class="btn normal" onclick="document.getElementById('thedoc').scrollTo('get-/path1-in-closed-tag')">
+        Scroll To
+      </button>
+    </div>
+  </rapi-doc>
+  </body>
+</html>
