@@ -27,6 +27,38 @@ export default css`
   scrollbar-color: var(--nav-hover-bg-color) transparent;
 }
 
+.nav-bar-tag {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: row;
+}
+.nav-bar.read .nav-bar-tag-icon {
+  display:none;
+}
+
+.nav-bar-tag-icon {
+  font-size:20px; 
+  margin-right: -16px;
+}
+.nav-bar.focused .nav-bar-paths-under-tag.collapsed {
+  display:none;
+}
+.nav-bar.focused .nav-bar-tag.collapsed .nav-bar-tag-icon::after {
+  content: '⌵';
+  width:16px;
+  height:16px;
+  text-align: center;
+  display: inline-block;
+  transform: rotate(270deg);
+}
+.nav-bar.focused .nav-bar-tag.expanded .nav-bar-tag-icon::after {
+  content: '⌵';
+  width:16px;
+  height:16px;
+  text-align: center;
+  display: inline-block;
+}
 .nav-scroll::-webkit-scrollbar {
   width: 10px;
 }

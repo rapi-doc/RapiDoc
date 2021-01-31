@@ -2,10 +2,31 @@ import { html } from 'lit-element';
 import { pathIsInSearch, invalidCharsRegEx } from '@/utils/common-utils';
 import marked from 'marked';
 
+export function expandCollapseNavBarTag(navLinkEl) {
+  const pathsContainerEl = navLinkEl.closest('.nav-bar-tag-and-paths')?.querySelector('.nav-bar-paths-under-tag');
+  const tagEl = navLinkEl.closest('.nav-bar-tag-and-paths')?.querySelector('.nav-bar-tag');
+  if (pathsContainerEl && tagEl) {
+    if (pathsContainerEl.classList.contains('collapsed')) {
+      pathsContainerEl.classList.replace('collapsed', 'expanded');
+    } else {
+      pathsContainerEl.classList.replace('expanded', 'collapsed');
+    }
+    if (tagEl.classList.contains('collapsed')) {
+      tagEl.classList.replace('collapsed', 'expanded');
+    } else {
+      tagEl.classList.replace('expanded', 'collapsed');
+    }
+  }
+}
+
+async function onExpandCollapse(e) {
+  expandCollapseNavBarTag(e.target);
+}
+
 /* eslint-disable indent */
 export default function navbarTemplate() {
   return html`
-  <aside class='nav-bar'>
+  <aside class='nav-bar ${this.renderStyle}' >
     <div style="padding:16px 30px 0 16px;">
       <slot name="nav-logo" class="logo"></slot>
     </div>
@@ -41,7 +62,6 @@ export default function navbarTemplate() {
               </button>
             `
           }
-    
         </div>
       `
     }
@@ -76,31 +96,35 @@ export default function navbarTemplate() {
     <span id='link-paths' class='nav-bar-section'>Operations</span>
     ${this.resolvedSpec.tags.map((tag) => html`
       <!-- Tag -->
-      <div class='nav-bar-tag' id="link-tag--${tag.name.replace(invalidCharsRegEx, '-')}" data-content-id='tag--${tag.name.replace(invalidCharsRegEx, '-')}' @click='${(e) => this.scrollToEl(e)}'>
-        ${tag.name}
+      <div class='nav-bar-tag-and-paths'>
+        <div class='nav-bar-tag ${tag.expanded ? 'expanded' : 'collapsed'}' id="link-tag--${tag.name.replace(invalidCharsRegEx, '-')}" data-content-id='tag--${tag.name.replace(invalidCharsRegEx, '-')}' @click='${(e) => this.scrollToEl(e)}'>
+          <div>${tag.name}</div>
+          <div class="nav-bar-tag-icon" @click="${(e) => { onExpandCollapse.call(this, e); }}"></div>
+        </div>
+        <div class='nav-bar-paths-under-tag ${tag.expanded ? 'expanded' : 'collapsed'}'>
+          <!-- Paths in each tag (endpoints) -->
+          ${tag.paths.filter((v) => {
+            if (this.matchPaths) {
+              return pathIsInSearch(this.matchPaths, v);
+            }
+            return true;
+          }).map((p) => html`
+          <div 
+            class='nav-bar-path
+            ${this.usePathInNavBar === 'true' ? 'small-font' : ''}'
+            data-content-id='${p.method}-${p.path.replace(invalidCharsRegEx, '-')}'
+            id='link-${p.method}-${p.path.replace(invalidCharsRegEx, '-')}'
+            @click = '${(e) => this.scrollToEl(e)}'
+          >
+            <span style = "${p.deprecated ? 'filter:opacity(0.5)' : ''}">
+              ${this.usePathInNavBar === 'true'
+                ? html`<span class='mono-font'>${p.method.toUpperCase()} ${p.path}</span>`
+                : p.summary
+              }
+            </span>
+          </div>`)}
+        </div>
       </div>
-
-      <!-- Path (endpoints) -->
-      ${tag.paths.filter((v) => {
-        if (this.matchPaths) {
-          return pathIsInSearch(this.matchPaths, v);
-        }
-        return true;
-      }).map((p) => html`
-      <div 
-        class='nav-bar-path 
-        ${this.usePathInNavBar === 'true' ? 'small-font' : ''}' 
-        data-content-id='${p.method}-${p.path.replace(invalidCharsRegEx, '-')}' 
-        id='link-${p.method}-${p.path.replace(invalidCharsRegEx, '-')}' 
-        @click = '${(e) => this.scrollToEl(e)}'
-      > 
-        <span style = "${p.deprecated ? 'filter:opacity(0.5)' : ''}"> 
-          ${this.usePathInNavBar === 'true'
-            ? html`<span class='mono-font'>${p.method.toUpperCase()} ${p.path}</span>`
-            : p.summary
-          } 
-        </span>
-      </div>`)}
     `)}
 
     <!-- Components -->

@@ -9,7 +9,7 @@ import '@/components/api-response';
 /* eslint-disable indent */
 function focusedTagBodyTemplate(tag) {
   return html`
-    <h1 id="tag--${tag.name}">${tag.name}</h1>
+    <h1 id="tag--${tag.name.replace(invalidCharsRegEx, '-')}">${tag.name}</h1>
     ${tag.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(tag.description || ''))}</div>` : ''}
   `;
 }

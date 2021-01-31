@@ -22,6 +22,7 @@ import TabStyles from '@/styles/tab-styles';
 import NavStyles from '@/styles/nav-styles';
 import InfoStyles from '@/styles/info-styles';
 import CustomStyles from '@/styles/custom-styles';
+import { expandCollapseNavBarTag } from '@/templates/navbar-template';
 import {
   pathIsInSearch, invalidCharsRegEx, sleep, rapidocApiKey, advancedSearch, hasValidPathInUrlHash,
 } from '@/utils/common-utils';
@@ -392,11 +393,7 @@ export default class RapiDoc extends LitElement {
     });
 
     window.addEventListener('hashchange', () => {
-      if (this.renderStyle === 'focused') {
-        this.scrollTo(window.location.hash.substring(1));
-      } else {
-        this.scrollTo(window.location.hash.substring(1));
-      }
+      this.scrollTo(window.location.hash.substring(1));
     }, true);
   }
 
@@ -791,6 +788,7 @@ export default class RapiDoc extends LitElement {
         newNavEl.classList.add('active');
         newNavEl.scrollIntoView({ behavior: 'auto', block: 'center' });
         this.requestUpdate();
+        expandCollapseNavBarTag(newNavEl);
       }
     }
   }

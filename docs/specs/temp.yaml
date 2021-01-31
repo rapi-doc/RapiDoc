@@ -1,42 +1,72 @@
-openapi: 3.0.1
+openapi: 3.0.0
 info:
-  version: 2021.2
+  version: 1.119.0
+  title: Default value error
 paths:
-  '/dataSources':
+  /api/v1/accounts/dailyBalances:
     get:
+      tags:
+        - Accounts
+      summary: Get daily balances
+      operationId: getDailyBalances
+      parameters:
+        - name: withProjection
+          in: query
+          description: Whether....
+          required: false
+          schema:
+            type: boolean
+            default: true
+        - name: page
+          in: query
+          description: Result page that you want to retrieve.
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: perPage
+          in: query
+          description: "Maximum number of records per page. By default it's 20. Can be at
+            most 500. NOTE: Due to its validation and visualization, the swagger
+            frontend might show very low performance, or even crashes, when a
+            service responds with a lot of data. It is recommended to use a HTTP
+            client like Postman or DHC instead of our swagger frontend for
+            service calls with large page sizes."
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 20
+            example: 50
+        - name: order
+          in: query
+          description: Determines the order of the results.
+          required: false
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+              default: date,ASC
       responses:
-        '200':
-          description: Success
+        "200":
+          description: List of requested daily balances
           content:
-            'application/json':
+            "*/*":
               schema:
-                $ref: '#/components/schemas/DataSources'
+                $ref: "#/components/schemas/DailyBalanceList"
+servers:
+  - url: /
 components:
   schemas:
-    DataSources:
-      description: Available data sources for the user
-      required:
-        - dataSources
+    DailyBalanceList:
       type: object
       properties:
-        bankConnections:
-          description: Array of imported for the authorized user bank connections.
-          type: array
-          items:
-            $ref: '#/components/schemas/DataSourceBank'
-    DataSourceBank:
-      description: Available banks for the user
-      type: object
-      properties:
-        dataSourceId:
-          description: UUID of the data source.
+        latestCommonBalanceTimestamp:
           type: string
-          example: 4e760145-2e65-4242-ac33-488943528c93
-        bic:
-          description: BIC of the bank
-          type: string
-          example: COBADEFFXXX
-        bankName:
-          description: Name of the bank
-          type: string
-          example: Commerzbank
+          example: 2018-01-01 00:00:00.000
+          description: The latestCommonBalanceTimestamp is the latest timestamp at which
+            all regarded  accounts have been up to date.
+      description: Contains a list of daily balances
