@@ -1,0 +1,71 @@
+openapi: 3.0.0
+info:
+  title: Petstore API
+  description: |
+    Example to show how to use `x-client-id` and `x-client-secret` vendor extensions to pre fill them in the UI.
+    
+    Below is the Open API spec snippet that shows its usage, 
+    and if you check the authentication section you will find that client-id and client-secret is pre-filled, the user just needs to click on `GET TOKEN`
+    ```yaml
+      openapi: 3.0.0
+      ...
+      ...
+      components:
+        securitySchemes:
+          exampleOauth2Flow:
+            type: oauth2
+            x-client-id: my-client-id             # <--- when provided it will be pre filled in RapiDoc UI
+            x-client-secret: my-client-secret     # <--- when provided it will be pre filled in RapiDoc UI
+            flows:
+              authorizationCode:
+                authorizationUrl: http://localhost/authorize
+                tokenUrl: http://localhost/access_token
+                scopes:
+                  dog-lover: "always required"
+                  owner: "optional"
+    ```
+  version: "1.0"
+servers:
+  - url: 'https://exampleurl.org'
+security:
+  - exampleOauth2Flow: []
+paths:
+  '/dogs':
+    get:
+      summary: Return an array of the petstore's dogs.
+      responses:
+        '200':
+          description: A successful request returns an array of dogs.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  dogs:
+                    type: array
+                    example: "[Rex, Lassie, Beethoven]"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+components:
+  securitySchemes:
+    exampleOauth2Flow:
+      type: oauth2
+      description: >-
+        You authorize requests, by providing client credentials.
+      x-client-id: my-client-id
+      x-client-secret: my-client-secret
+      flows:
+        authorizationCode:
+          authorizationUrl: http://localhost/authorize
+          tokenUrl: http://localhost/access_token
+          scopes:
+            dog-lover: "always required"
+            owner: "optional"
+        clientCredentials:
+          tokenUrl: 'http://localhost:8080/token'
+          scopes:
+            dog-lover: "always required"
+            owner: "optional"
+

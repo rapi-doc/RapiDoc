@@ -226,10 +226,10 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow)
             : ''
           }
           <div style="display:flex; max-height:28px;">
-            <input type="text" value = "${clientId}" placeholder="client-id" spellcheck="false" class="oauth-client-id">
+            <input type="text" value = "${clientId || ''}" placeholder="client-id" spellcheck="false" class="oauth-client-id">
             ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password'
               ? html`
-                <input type="password" value = "${clientSecret}" placeholder="client-secret" spellcheck="false" class="oauth-client-secret" style = "margin:0 5px;">
+                <input type="password" value = "${clientSecret || ''}" placeholder="client-secret" spellcheck="false" class="oauth-client-secret" style = "margin:0 5px;">
                 ${flowName === 'authorizationCode' || flowName === 'clientCredentials'
                   ? html`
                     <select style="margin-right:5px;" class="oauth-send-client-secret-in">
@@ -342,7 +342,9 @@ export default function securitySchemeTemplate() {
               ? html`
                 <tr>
                   <td colspan="2" style="border:none; padding-left:48px">
-                    ${Object.keys(v.flows).map((f) => oAuthFlowTemplate.call(this, f, v.clientId, v.clientSecret, v.apiKeyId, v.flows[f]))} 
+                    ${Object.keys(v.flows).map((f) => oAuthFlowTemplate.call(
+                      this, f, v['x-client-id'], v['x-client-secret'], v.apiKeyId, v.flows[f],
+                    ))} 
                   </td>
                 </tr>    
                 `
