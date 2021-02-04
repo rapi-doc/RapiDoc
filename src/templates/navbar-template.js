@@ -45,7 +45,7 @@ export default function navbarTemplate() {
     ${(this.allowSearch === 'false' && this.allowAdvancedSearch === 'false')
       ? ''
       : html`
-        <div style="position:sticky; top:0; display:flex; flex-direction:row; align-items: stretch; padding:24px; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}">
+        <div style="position:sticky; top:0; display:flex; flex-direction:row; align-items: stretch; justify-content:center; padding:24px; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}">
           ${this.allowSearch === 'false'
             ? ''
             : html`
@@ -70,7 +70,7 @@ export default function navbarTemplate() {
             ? ''
             : html`
               <button class="m-btn primary" style="margin-left:5px;" @click="${this.onShowSearchModalClicked}">
-                Adv. Search
+                ${this.allowSearch === 'false' ? 'Search' : 'Adv. Search'}
               </button>
             `
           }
