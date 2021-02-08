@@ -31,7 +31,7 @@
   "dependencies": {
     "lit-element": "2.4.0",
     "lit-html": "1.2.1",
-    "marked": "^1.2.8",
+    "marked": "^2.0.0",
     "prismjs": "^1.23.0",
     "swagger-client": "^3.12.2",
     "swagger2openapi": "^7.0.5"
