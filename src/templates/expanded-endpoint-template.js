@@ -35,7 +35,7 @@ export function expandedEndpointBodyTemplate(path) {
     ${path.deprecated ? html`<div class="bold-text red-text" > DEPRECATED </div>` : ''}
     ${html`
       <h2 class = "${path.deprecated ? 'gray-text' : ''}"> 
-        ${path.summary || html`<span class='upper ${path.deprecated ? ' method-fg gray-text' : path.method}  '> ${path.method}</span> ${path.path}`} 
+        ${unsafeHTML(marked(path.summary || html`<span class='upper ${path.deprecated ? ' method-fg gray-text' : path.method}  '> ${path.method}</span> ${path.path}`))}  
       </h2>
       ${path.summary
         ? html`
