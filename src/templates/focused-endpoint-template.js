@@ -53,7 +53,7 @@ export default function focusedEndpointTemplate() {
         </div>`
       : html`
         <div class='regular-font section-gap--focused-mode'>
-          ${expandedEndpointBodyTemplate.call(this, selectedPathObj)}
+          ${expandedEndpointBodyTemplate.call(this, selectedPathObj, selectedTagObj.name)}
         </div>
       `;
 }

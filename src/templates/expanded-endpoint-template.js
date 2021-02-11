@@ -10,7 +10,7 @@ import '@/components/api-response';
 
 /* eslint-disable indent */
 
-export function expandedEndpointBodyTemplate(path) {
+export function expandedEndpointBodyTemplate(path, tagName = '') {
   const acceptContentTypes = new Set();
   for (const respStatus in path.responses) {
     for (const acceptContentType in (path.responses[respStatus]?.content)) {
@@ -30,8 +30,9 @@ export function expandedEndpointBodyTemplate(path) {
 
   const codeSampleTabPanel = path.xCodeSamples ? codeSamplesTemplate.call(this, path.xCodeSamples) : '';
   return html`
-    ${this.renderStyle === 'read' ? html` <div class='divider'></div>` : ''}
+    ${this.renderStyle === 'read' ? html`<div class='divider'></div>` : ''}
     <div class='expanded-endpoint-body observe-me ${path.method} ${path.deprecated ? 'deprecated' : ''} ' id='${path.method}-${path.path.replace(invalidCharsRegEx, '-')}'>
+    ${this.renderStyle === 'focused' ? html`<h3 class="upper" style="font-weight:bold"> ${tagName} </h3>` : ''}
     ${path.deprecated ? html`<div class="bold-text red-text" > DEPRECATED </div>` : ''}
     ${html`
       <h2 class = "${path.deprecated ? 'gray-text' : ''}"> 
@@ -95,7 +96,7 @@ export default function expandedEndpointTemplate() {
       </div>
     </div>
     <div class='regular-font section-gap--read-mode'>
-      ${tag.paths.map((path) => expandedEndpointBodyTemplate.call(this, path))}
+      ${tag.paths.map((path) => expandedEndpointBodyTemplate.call(this, path, 'BBB'))}
     </div>
     `)
   }

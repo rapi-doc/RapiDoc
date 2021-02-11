@@ -119,7 +119,14 @@ export default function navbarTemplate() {
     ${this.resolvedSpec.tags.filter((tag) => tag.paths.filter((path) => pathIsInSearch(this.matchPaths, path)).length).map((tag) => html`
       <!-- Tag -->
       <div class='nav-bar-tag-and-paths ${tag.expanded ? 'expanded' : 'collapsed'}'>
-        <div class='nav-bar-tag' id="link-tag--${tag.name.replace(invalidCharsRegEx, '-')}" data-content-id='tag--${tag.name.replace(invalidCharsRegEx, '-')}' @click='${(e) => this.scrollToEl(e)}'>
+        <div 
+          class='nav-bar-tag' 
+          id="link-tag--${tag.name.replace(invalidCharsRegEx, '-')}" 
+          data-content-id='tag--${tag.name.replace(invalidCharsRegEx, '-')}' 
+          @click='${(e) => {
+            this.scrollToEl(e);
+          }}'
+        >
           <div>${tag.name}</div>
           <div class="nav-bar-tag-icon" @click="${(e) => { onExpandCollapse.call(this, e); }}"></div>
         </div>
