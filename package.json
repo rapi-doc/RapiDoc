@@ -33,7 +33,7 @@
     "lit-html": "1.2.1",
     "marked": "^2.0.0",
     "prismjs": "^1.23.0",
-    "swagger-client": "^3.12.2",
+    "swagger-client": "^3.13.1",
     "swagger2openapi": "^7.0.5"
   },
   "scripts": {
@@ -44,15 +44,15 @@
     "lint-fix": "./node_modules/eslint/bin/eslint.js --fix ./src/**"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.10",
-    "@babel/preset-env": "^7.12.11",
+    "@babel/core": "^7.12.13",
+    "@babel/preset-env": "^7.12.13",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.2.2",
     "babel-plugin-template-html-minifier": "^4.1.0",
     "clean-webpack-plugin": "^3.0.0",
     "compression-webpack-plugin": "^6.1.1",
-    "css-loader": "^5.0.1",
-    "eslint": "^7.18.0",
+    "css-loader": "^5.0.2",
+    "eslint": "^7.19.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-import-resolver-webpack": "^0.13.0",
     "eslint-loader": "^4.0.2",
