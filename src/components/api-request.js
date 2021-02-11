@@ -1211,8 +1211,15 @@ export default class ApiRequest extends LitElement {
       const contentType = tryResp.headers.get('content-type');
       if (contentType) {
         if (contentType.includes('json')) {
-          respJson = await tryResp.json();
-          me.responseText = JSON.stringify(respJson, null, 2);
+          if (/charset=[^"']+/).test(contentType)) {
+            const enc = contentType.split('charset=')[1];
+            const buffer = await tryResp.arrayBuffer();
+            const respJson = new TextDecoder(enc).decode(buffer);
+            me.responseText = JSON.stringify(respJson, null, 2);
+          } else {
+            respJson = await tryResp.json();
+            me.responseText = JSON.stringify(respJson, null, 2);
+          }
         } else if (RegExp('^font/|tar$|zip$|7z$|rtf$|msword$|excel$|/pdf$|/octet-stream$').test(contentType)) {
           me.responseIsBlob = true;
           me.responseBlobType = 'download';
