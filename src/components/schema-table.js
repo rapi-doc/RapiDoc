@@ -231,8 +231,8 @@ export default class SchemaTable extends LitElement {
           <span style="font-family: var(--font-mono);">${itemParts[1]} </span> </div>
         <div class='td key-descr'>
           ${dataType === 'array' ? description : ''}
-          ${itemParts[2] ? html`<div style='color: var(--fg2); padding-bottom:3px;'>${itemParts[4]}</div>` : ''}
-          ${itemParts[3] ? html`<div style='color: var(--fg2); padding-bottom:3px;' ><span class='bold-text'>Default:</span> ${itemParts[3]}</div>` : ''}
+          ${itemParts[2] ? html`<div style='color: var(--fg2); padding-bottom:3px;'>${itemParts[2]}</div>` : ''}
+          ${itemParts[3] ? html`<div style='color: var(--fg2); padding-bottom:3px;'><span class='bold-text'>Default:</span> ${itemParts[3]}</div>` : ''}
           ${itemParts[4] ? html`<div style='color: var(--fg2); padding-bottom:3px;'><span class='bold-text'>Allowed: </span> &nbsp; ${itemParts[4]}</div>` : ''}
           ${itemParts[5] ? html`<div style='color: var(--fg2); padding-bottom:3px;'><span class='bold-text'>Pattern:</span>  &nbsp; ${itemParts[5]}</div>` : ''}
           ${itemParts[6] ? html`<span class="m-markdown-small">${unsafeHTML(marked(itemParts[6]))}</span>` : ''}
