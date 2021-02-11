@@ -116,7 +116,7 @@ export default function navbarTemplate() {
       </div>
       <div class='nav-bar-section-title'> OPERATIONS </div>
     </div>
-    ${this.resolvedSpec.tags.map((tag) => html`
+    ${this.resolvedSpec.tags.filter((tag) => tag.paths.filter((path) => pathIsInSearch(this.matchPaths, path)).length).map((tag) => html`
       <!-- Tag -->
       <div class='nav-bar-tag-and-paths ${tag.expanded ? 'expanded' : 'collapsed'}'>
         <div class='nav-bar-tag' id="link-tag--${tag.name.replace(invalidCharsRegEx, '-')}" data-content-id='tag--${tag.name.replace(invalidCharsRegEx, '-')}' @click='${(e) => this.scrollToEl(e)}'>
