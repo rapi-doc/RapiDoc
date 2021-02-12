@@ -1212,10 +1212,18 @@ export default class ApiRequest extends LitElement {
       if (contentType) {
         if (contentType.includes('json')) {
           if ((/charset=[^"']+/).test(contentType)) {
-            const enc = contentType.split('charset=')[1];
+            const encoding = contentType.split('charset=')[1];
             const buffer = await tryResp.arrayBuffer();
-            respJson = new TextDecoder(enc).decode(buffer);
-            me.responseText = JSON.stringify(respJson, null, 2);
+            try {
+              respText = new TextDecoder(encoding).decode(buffer);
+            } catch {
+              respText = new TextDecoder('utf-8').decode(buffer);
+            }
+            try {
+              me.responseText = JSON.stringify(JSON.parse(respText), null, 2);
+            } catch {
+              me.responseText = respText;
+            }
           } else {
             respJson = await tryResp.json();
             me.responseText = JSON.stringify(respJson, null, 2);
