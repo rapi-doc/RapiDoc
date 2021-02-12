@@ -281,7 +281,7 @@ export default class ApiRequest extends LitElement {
                     data-param-serialize-style = "${paramStyle}"
                     data-param-serialize-explode = "${paramExplode}"
                     data-array = "true"
-                    placeholder= "add-multiple &#x2b90;"
+                    placeholder = "add-multiple &#x21a9;"
                     value = "${Array.isArray(exampleVal) ? exampleVal.join(',') : exampleVal}"
                   >
                   </tag-input>`
@@ -658,7 +658,7 @@ export default class ApiRequest extends LitElement {
                     data-pname = "${fieldName}"
                     data-example = "${Array.isArray(fieldSchema.example) ? fieldSchema.example.join('~|~') : fieldSchema.example || ''}"
                     data-array = "true"
-                    placeholder = "add-multiple &#x2b90;"
+                    placeholder = "add-multiple &#x21a9;"
                     value = "${Array.isArray(fieldSchema.example) ? fieldSchema.example.join(',') : fieldSchema.example}"
                   >
                   </tag-input>

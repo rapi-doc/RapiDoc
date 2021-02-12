@@ -29,6 +29,7 @@ export default class TagInput extends LitElement {
         this.value = tmpVal || '';
       }
     }
+    super.attributeChangedCallback(name, oldVal, newVal);
   }
 
   afterPaste(e) {

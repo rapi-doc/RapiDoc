@@ -40,6 +40,7 @@ export default class DialogBox extends LitElement {
         }
       }
     }
+    super.attributeChangedCallback(name, oldVal, newVal);
   }
 
   /* eslint-disable indent */
