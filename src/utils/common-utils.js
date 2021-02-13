@@ -10,7 +10,7 @@ export function debounce(fn, delay) {
   };
 }
 
-export const invalidCharsRegEx = new RegExp(/[\s#:?&={}]/, 'g');
+export const invalidCharsRegEx = new RegExp(/[\s#:?&={}]/, 'g'); // used for generating valid html element ids by replacing the invalid chars with hyphen (-)
 export const rapidocApiKey = '_rapidoc_api_key';
 
 export function sleep(ms) {
@@ -115,6 +115,5 @@ export function advancedSearch(searchVal, allSpecTags, searchOptions = []) {
 }
 
 export function hasValidPathInUrlHash(tags) {
-  const filterTags = tags.filter((tag) => tag.paths.filter((path) => window.location.hash.substring(1) === `${path.method}-${path.path.replace(invalidCharsRegEx, '-')}`).length > 0);
-  return filterTags.length > 0;
+  return tags.find((tag) => tag.paths.find((path) => window.location.hash.substring(1) === path.elementId));
 }

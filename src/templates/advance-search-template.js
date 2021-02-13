@@ -1,5 +1,4 @@
 import { html } from 'lit-html';
-import { invalidCharsRegEx } from '@/utils/common-utils';
 import '@/components/dialog-box';
 
 /* eslint-disable indent */
@@ -55,7 +54,7 @@ export default function searchByPropertiesModalTemplate() {
             this.matchPaths = ''; // clear quick filter if applied
             this.showAdvancedSearchDialog = false; // Hide Search Dialog
             this.requestUpdate();
-            this.scrollTo(`${path.method}-${path.path.replace(invalidCharsRegEx, '-')}`);
+            this.scrollTo(`${path.elementId}`);
           }
         }"
       > 

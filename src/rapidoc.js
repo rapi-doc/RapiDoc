@@ -24,7 +24,7 @@ import InfoStyles from '@/styles/info-styles';
 import CustomStyles from '@/styles/custom-styles';
 import { expandCollapseNavBarTag } from '@/templates/navbar-template';
 import {
-  pathIsInSearch, invalidCharsRegEx, sleep, rapidocApiKey, advancedSearch, hasValidPathInUrlHash,
+  pathIsInSearch, sleep, rapidocApiKey, advancedSearch, hasValidPathInUrlHash,
 } from '@/utils/common-utils';
 import ProcessSpec from '@/utils/spec-parser';
 import mainBodyTemplate from '@/templates/main-body-template';
@@ -435,7 +435,7 @@ export default class RapiDoc extends LitElement {
           await this.loadSpec(newVal);
           // If goto-path is provided then try to scroll there
           if (this.gotoPath) {
-            this.scrollTo(this.gotoPath.replace(invalidCharsRegEx, '-').toLowerCase());
+            this.scrollTo(this.gotoPath);
           }
         }, 0);
       }
@@ -610,17 +610,13 @@ export default class RapiDoc extends LitElement {
     this.selectedContentId = '';
     // If there is hash in url then check if hash belong to any of the path in spec
     if (window.location.hash) {
-      this.selectedContentId = window.location.hash.substring(1).startsWith('overview--')
-        ? 'overview' : hasValidPathInUrlHash(this.resolvedSpec.tags)
-          ? window.location.hash.substring(1) : '';
-    }
-    // If there is no matching hash to path, check if there is sufficient data to display overview otherwise just display first path from first tag
-    if (!this.selectedContentId) {
-      if (this.showInfo === 'true' && (this.resolvedSpec.info?.description || this.resolvedSpec.info?.title)) {
-        this.selectedContentId = 'overview';
-      } else {
-        this.selectedContentId = `${this.resolvedSpec.tags[0]?.paths[0]?.method}-${this.resolvedSpec.tags[0]?.paths[0]?.path}`;
+      if ('top, overview, authentication, api-servers'.includes(window.location.hash.substring(1)) || hasValidPathInUrlHash(this.resolvedSpec.tags)) {
+        this.selectedContentId = window.location.hash.substring(1);
       }
+    }
+    // If there is no valid location-hash, check if there is sufficient data to display overview otherwise just display first path from first tag
+    if (!this.selectedContentId) {
+      this.selectedContentId = 'top';
     }
     // Set url back in address bar
     window.location.hash = `${this.selectedContentId}`;
@@ -650,33 +646,37 @@ export default class RapiDoc extends LitElement {
 
     // Initiate IntersectionObserver and put it at the end of event loop, to allow loading all the child elements (must for larger specs)
     this.intersectionObserver.disconnect();
-    if (this.renderStyle === 'read') {
-      await sleep(100);
-      this.observeExpandedContent(); // This will auto-highlight the selected nav
-    } else if (this.renderStyle === 'focused') {
-      await sleep(0);
-      const newNavEl = this.shadowRoot.getElementById(`link-${this.selectedContentId}`);
-      if (newNavEl) {
-        newNavEl.classList.add('active');
-        newNavEl.scrollIntoView({ behavior: 'auto', block: 'center' });
+    if (window.location.hash) {
+      if (this.renderStyle === 'read') {
+        await sleep(100);
+        this.observeExpandedContent(); // This will auto-highlight the selected nav-item in read-mode
+      } else if (this.renderStyle === 'focused') {
+        await sleep(0);
+        const newNavEl = this.shadowRoot.getElementById(`link-${this.selectedContentId}`);
+        if (newNavEl) {
+          newNavEl.classList.add('active');
+          newNavEl.scrollIntoView({ behavior: 'auto', block: 'center' });
+        }
       }
     }
     // On first time Spec load, try to navigate to location hash if provided
     if (window.location.hash) {
       if (!this.gotoPath) {
-        this.expandTreeToPath(window.location.hash, true, true);
+        this.expandAndGotoOperation(window.location.hash, true, true);
       }
     }
   }
 
-  expandTreeToPath(pathInput, expandOperation = true, scrollToElement = true) {
+  expandAndGotoOperation(elementId, expandOperation = true, scrollToElement = true) {
     // Expand full operation and tag
-    if (pathInput.indexOf('#') === 0) pathInput = pathInput.substring(1);
+    if (elementId.indexOf('#') === 0) {
+      elementId = elementId.substring(1);
+    }
     let path;
     this.resolvedSpec.tags.map((tag) => tag.paths.filter((v) => {
-      const method = pathInput.match(new RegExp('(.*?)-'));
+      const method = elementId.match(new RegExp('(.*?)-'));
       const methodType = (method && method.length === 2) ? method[1] : null;
-      path = pathInput.match(new RegExp('/.*$'));
+      path = elementId.match(new RegExp('/.*$'));
       const pathValue = (path && path.length === 1) ? path[0] : null;
 
       if (methodType && pathValue && methodType === v.method && pathValue === v.path) {
@@ -689,7 +689,7 @@ export default class RapiDoc extends LitElement {
     if (scrollToElement) {
       // delay required, else we cant find element
       window.setTimeout(() => {
-        const gotoEl = this.shadowRoot.getElementById(pathInput);
+        const gotoEl = this.shadowRoot.getElementById(elementId);
         if (gotoEl) {
           gotoEl.scrollIntoView({ behavior: 'auto', block: 'start' });
         }
@@ -778,7 +778,7 @@ export default class RapiDoc extends LitElement {
     await sleep(0);
     const gotoEl = this.shadowRoot.getElementById(path);
     if (gotoEl) {
-      this.expandTreeToPath(path, expandPath, true);
+      this.expandAndGotoOperation(path, expandPath, true);
       const oldNavEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active');
       const newNavEl = this.shadowRoot.getElementById(`link-${path}`);
       if (oldNavEl) {

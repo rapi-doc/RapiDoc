@@ -6,7 +6,7 @@ import '@/components/api-response';
 import codeSamplesTemplate from '@/templates/code-samples-template';
 import callbackTemplate from '@/templates/callback-template';
 import { pathSecurityTemplate } from '@/templates/security-scheme-template';
-import { pathIsInSearch, invalidCharsRegEx, rapidocApiKey } from '@/utils/common-utils';
+import { pathIsInSearch, rapidocApiKey } from '@/utils/common-utils';
 
 function toggleExpand(path) {
   if (path.expanded) {
@@ -14,9 +14,8 @@ function toggleExpand(path) {
     window.history.replaceState(null, null, `${window.location.href.split('#')[0]}`);
   } else {
     path.expanded = true; // Expand
-    const newHash = `#${path.method}-${path.path.replace(invalidCharsRegEx, '-')}`;
-    const currentHash = window.location.hash;
-    if (currentHash !== newHash) {
+    const newHash = `#${path.elementId}`;
+    if (window.location.hash !== newHash) {
       window.history.replaceState(null, null, `${window.location.href.split('#')[0]}${newHash}`);
     }
   }
@@ -138,7 +137,7 @@ export default function endpointTemplate() {
     <div class='regular-font section-gap section-tag ${tag.expanded ? 'expanded' : 'collapsed'}' > 
     
       <div class='section-tag-header' @click="${() => { tag.expanded = !tag.expanded; this.requestUpdate(); }}">
-        <div id='${tag.name.replace(invalidCharsRegEx, '-')}' class="sub-title tag" style="color:var(--primary-color)">${tag.name}</div>
+        <div id='${tag.elementId}' class="sub-title tag" style="color:var(--primary-color)">${tag.name}</div>
       </div>
       <div class='section-tag-body'>
         <div class="regular-font regular-font-size m-markdown" style="padding-bottom:12px">
@@ -150,7 +149,7 @@ export default function endpointTemplate() {
           }
           return true;
           }).map((path) => html`
-          <div id='${path.method}-${path.path.replace(invalidCharsRegEx, '-')}' class='m-endpoint regular-font ${path.method} ${path.expanded ? 'expanded' : 'collapsed'}'>
+          <div id='${path.elementId}' class='m-endpoint regular-font ${path.method} ${path.expanded ? 'expanded' : 'collapsed'}'>
             ${endpointHeadTemplate.call(this, path)}      
             ${path.expanded ? endpointBodyTemplate.call(this, path) : ''}
           </div>`)

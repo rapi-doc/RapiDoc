@@ -1,5 +1,5 @@
 import { html } from 'lit-element';
-import { pathIsInSearch, invalidCharsRegEx } from '@/utils/common-utils';
+import { pathIsInSearch } from '@/utils/common-utils';
 import marked from 'marked';
 
 export function expandCollapseNavBarTag(navLinkEl, action = 'toggle') {
@@ -121,8 +121,8 @@ export default function navbarTemplate() {
       <div class='nav-bar-tag-and-paths ${tag.expanded ? 'expanded' : 'collapsed'}'>
         <div 
           class='nav-bar-tag' 
-          id="link-tag--${tag.name.replace(invalidCharsRegEx, '-')}" 
-          data-content-id='tag--${tag.name.replace(invalidCharsRegEx, '-')}' 
+          id="link-${tag.elementId}" 
+          data-content-id='${tag.elementId}' 
           @click='${(e) => {
             this.scrollToEl(e);
           }}'
@@ -141,8 +141,8 @@ export default function navbarTemplate() {
           <div 
             class='nav-bar-path
             ${this.usePathInNavBar === 'true' ? 'small-font' : ''}'
-            data-content-id='${p.method}-${p.path.replace(invalidCharsRegEx, '-')}'
-            id='link-${p.method}-${p.path.replace(invalidCharsRegEx, '-')}'
+            data-content-id='${p.elementId}'
+            id='link-${p.elementId}'
             @click = '${(e) => this.scrollToEl(e)}'
           >
             <span style = "${p.deprecated ? 'filter:opacity(0.5)' : ''}">

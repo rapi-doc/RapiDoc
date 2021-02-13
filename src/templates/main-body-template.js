@@ -95,7 +95,7 @@ export default function mainBodyTemplate() {
     <!-- Advanced Search -->
     ${this.allowAdvancedSearch === 'false' ? '' : advancedSearchTemplate.call(this)}
 
-    <div class="body">
+    <div id='the-main-body' class="body">
       <!-- Side Nav -->
       ${((this.renderStyle === 'read' || this.renderStyle === 'focused')
           && this.showSideNav === 'true'

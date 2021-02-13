@@ -266,6 +266,7 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
   const tags = openApiSpec.tags && Array.isArray(openApiSpec.tags)
     ? openApiSpec.tags.map((v) => ({
       show: true,
+      elementId: `tag--${v.name.replace(invalidCharsRegEx, '-')}`,
       name: v.name,
       description: v.description,
       paths: [],
@@ -311,9 +312,10 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
           if (!tagObj) {
             tagObj = {
               show: true,
+              elementId: `tag--${tag.replace(invalidCharsRegEx, '-')}`,
               name: tag,
-              paths: [],
               description: specTagsItem ? specTagsItem.description : '',
+              paths: [],
               expanded: (specTagsItem ? specTagsItem['x-tag-expanded'] !== false : true),
             };
             tags.push(tagObj);
@@ -354,6 +356,7 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
             description: fullPath.description,
             path,
             operationId: fullPath.operationId,
+            elementId: `${methodName}-${path.replace(invalidCharsRegEx, '-')}`,
             servers: fullPath.servers ? commonPathProp.servers.concat(fullPath.servers) : commonPathProp.servers,
             parameters: finalParameters,
             requestBody: fullPath.requestBody,

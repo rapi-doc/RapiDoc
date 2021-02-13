@@ -2,14 +2,13 @@ import { html } from 'lit-element';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import marked from 'marked';
 import { expandedEndpointBodyTemplate } from '@/templates/expanded-endpoint-template';
-import { invalidCharsRegEx } from '@/utils/common-utils';
 import '@/components/api-request';
 import '@/components/api-response';
 
 /* eslint-disable indent */
 function focusedTagBodyTemplate(tag) {
   return html`
-    <h1 id="tag--${tag.name.replace(invalidCharsRegEx, '-')}">${tag.name}</h1>
+    <h1 id="${tag.elementId}">${tag.name}</h1>
     ${tag.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(tag.description || ''))}</div>` : ''}
   `;
 }
@@ -28,12 +27,11 @@ export default function focusedEndpointTemplate() {
     selectedPathObj = {};
     selectedTagObj = {};
   } else if (itemToFocus.startsWith('tag--')) {
-    const tag = itemToFocus.replace('tag--', '');
-    selectedTagObj = this.resolvedSpec.tags.find((v) => v.name.replace(invalidCharsRegEx, '-') === tag);
+    selectedTagObj = this.resolvedSpec.tags.find((v) => v.elementId === itemToFocus);
   } else {
     for (i = 0; i < this.resolvedSpec.tags.length; i += 1) {
       selectedTagObj = this.resolvedSpec.tags[i];
-      selectedPathObj = this.resolvedSpec.tags[i].paths.find((v) => `${v.method}-${v.path.replace(invalidCharsRegEx, '-')}` === itemToFocus);
+      selectedPathObj = this.resolvedSpec.tags[i].paths.find((v) => `${v.elementId}` === itemToFocus);
       if (selectedPathObj) {
         break;
       }
