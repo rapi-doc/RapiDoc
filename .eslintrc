@@ -12,6 +12,9 @@
     "browser": true,
     "node": true
   },
+  "globals": {
+    "globalThis": false // means it is not writeable
+  },
   "rules": {
     "max-len": [1, 300, 2, {"ignoreComments": true}],
     "no-debugger": 0,
