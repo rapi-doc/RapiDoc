@@ -9,7 +9,6 @@ import '@/components/api-request';
 import '@/components/api-response';
 
 /* eslint-disable indent */
-
 export function expandedEndpointBodyTemplate(path, tagName = '') {
   const acceptContentTypes = new Set();
   for (const respStatus in path.responses) {

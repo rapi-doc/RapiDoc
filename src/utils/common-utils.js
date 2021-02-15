@@ -50,7 +50,7 @@ export async function wait(ms) {
 
 export function pathIsInSearch(searchVal, path) {
   const stringToSearch = `${path.method} ${path.path} ${path.summary || path.description || ''} ${path.operationId || ''}`.toLowerCase();
-  return stringToSearch.includes(searchVal);
+  return stringToSearch.includes(searchVal.toLowerCase());
 }
 
 export function schemaKeys(schemaProps, result = new Set()) {
@@ -103,6 +103,7 @@ export function advancedSearch(searchVal, allSpecTags, searchOptions = []) {
 
       if (stringToSearch.toLowerCase().includes(searchVal.trim().toLowerCase())) {
         pathsMatched.push({
+          elementId: path.elementId,
           method: path.method,
           path: path.path,
           summary: path.summary || path.description || '',
@@ -114,6 +115,8 @@ export function advancedSearch(searchVal, allSpecTags, searchOptions = []) {
   return pathsMatched;
 }
 
+/*
 export function hasValidPathInUrlHash(tags) {
   return tags.find((tag) => tag.paths.find((path) => window.location.hash.substring(1) === path.elementId));
 }
+*/

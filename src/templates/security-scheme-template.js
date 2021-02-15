@@ -265,7 +265,10 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow)
 }
 
 export default function securitySchemeTemplate() {
-  const providedApiKeys = this.resolvedSpec.securitySchemes.filter((v) => (v.finalKeyValue));
+  const providedApiKeys = this.resolvedSpec.securitySchemes?.filter((v) => (v.finalKeyValue));
+  if (!providedApiKeys) {
+    return;
+  }
   return html`
   <div id='authentication' style="margin-top:24px; margin-bottom:24px;" class = 'observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}'>
     <div class='sub-title regular-font'> AUTHENTICATION </div>
@@ -422,27 +425,6 @@ export function pathSecurityTemplate(pathSecurity) {
         }
       </div>
     `;
-
-    /*
-    return html`<div style="position:absolute; top:3px; right:2px; font-size: calc(var(--font-size-small));">
-      <div style="position:relative; display:flex;">
-        <div style="font-size: calc(var(--font-size-small) + 2px)"> &#128274; </div>
-          ${pathSecurityDefs.map((v) => html`
-          <div class="tooltip">
-            <div style = "padding:2px 4px;"> ${v.securityScheme.typeDisplay} </div>
-            ${v.securityScheme.type === 'oauth2'
-              ? html`
-                <div class="tooltip-text" style="position:absolute; color: var(--fg); top:28px; right:0; border:1px solid var(--border-color);padding:2px 4px; min-width:100px; max-width:400px; display:inline-flex;">
-                  <b>Scopes:</b> &nbsp; ${v.scopes.join(', ')}
-                </div>`
-              : ''
-            }
-          </div>
-        `)
-        }
-      </div>
-      `;
-    */
   }
   return '';
 }

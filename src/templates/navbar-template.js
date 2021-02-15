@@ -3,7 +3,7 @@ import { pathIsInSearch } from '@/utils/common-utils';
 import marked from 'marked';
 
 export function expandCollapseNavBarTag(navLinkEl, action = 'toggle') {
-  const tagAndPathEl = navLinkEl.closest('.nav-bar-tag-and-paths');
+  const tagAndPathEl = navLinkEl?.closest('.nav-bar-tag-and-paths');
   if (tagAndPathEl) {
     const isExpanded = tagAndPathEl.classList.contains('expanded');
     if (isExpanded && (action === 'toggle' || action === 'collapse')) {
@@ -83,48 +83,54 @@ export default function navbarTemplate() {
         : html`
           ${(this.infoDescriptionHeadingsInNavBar === 'true')
             ? html`
-              ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? html`<div class='nav-bar-info' id='link-overview' data-content-id='overview' @click = '${(e) => this.scrollToEl(e)}' > Overview </div>` : ''}          
+              ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? html`<div class='nav-bar-info' id='link-overview' data-content-id='overview' @click = '${(e) => this.scrollToEventTarget(e, false)}' > Overview </div>` : ''}          
               ${this.resolvedSpec.infoDescriptionHeaders.map((header) => html`
-                <div class='nav-bar-h${header.depth}' id="link-overview--${new marked.Slugger().slug(header.text)}"  data-content-id='overview--${new marked.Slugger().slug(header.text)}' @click='${(e) => this.scrollToEl(e)}'>
+                <div 
+                  class='nav-bar-h${header.depth}' 
+                  id="link-overview--${new marked.Slugger().slug(header.text)}"  
+                  data-content-id='overview--${new marked.Slugger().slug(header.text)}' 
+                  @click='${(e) => this.scrollToEventTarget(e, false)}'
+                >
                   ${header.text}
                 </div>`)
               }
               ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? html`<hr style='border-top: 1px solid var(--nav-hover-bg-color); border-width:1px 0 0 0; margin: 15px 0 0 0'/>` : ''}
             `
-            : html`<div class='nav-bar-info'  id='link-overview' data-content-id='overview' @click = '${(e) => this.scrollToEl(e)}' > Overview </div>`
+            : html`<div class='nav-bar-info'  id='link-overview' data-content-id='overview' @click = '${(e) => this.scrollToEventTarget(e, false)}'> Overview </div>`
           }
         `
       }
     
-    ${(this.allowTry === 'false' || this.allowServerSelection === 'false')
-      ? ''
-      : html`<div class='nav-bar-info' id='link-api-servers' data-content-id='api-servers' @click = '${(e) => this.scrollToEl(e)}' > API Servers </div>`
-    }
-    ${(this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes)
-      ? ''
-      : html`<div class='nav-bar-info' id='link-authentication' data-content-id='authentication' @click = '${(e) => this.scrollToEl(e)}' > Authentication </div>`
-    }
+      ${this.allowServerSelection === 'false'
+        ? ''
+        : html`<div class='nav-bar-info' id='link-servers' data-content-id='servers' @click = '${(e) => this.scrollToEventTarget(e, false)}'> API Servers </div>`
+      }
+      ${(this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes)
+        ? ''
+        : html`<div class='nav-bar-info' id='link-auth' data-content-id='auth' @click = '${(e) => this.scrollToEventTarget(e, false)}'> Authentication </div>`
+      }
 
-    <div id='link-paths' class='nav-bar-section'>
-      <div style="font-size:16px; display:flex; margin-left:10px;">
-        ${this.renderStyle === 'focused'
-          ? html`
-            <div @click="${(e) => { onExpandCollapseAll.call(this, e, 'expand-all'); }}" title="Expand all" style="transform: rotate(90deg); cursor:pointer; margin-right:10px;">▸</div>
-            <div @click="${(e) => { onExpandCollapseAll.call(this, e, 'collapse-all'); }}" title="Collapse all" style="transform: rotate(270deg); cursor:pointer;">▸</div>`
-          : ''
-        }  
+      <div id='link-paths' class='nav-bar-section'>
+        <div style="font-size:16px; display:flex; margin-left:10px;">
+          ${this.renderStyle === 'focused'
+            ? html`
+              <div @click="${(e) => { onExpandCollapseAll.call(this, e, 'expand-all'); }}" title="Expand all" style="transform: rotate(90deg); cursor:pointer; margin-right:10px;">▸</div>
+              <div @click="${(e) => { onExpandCollapseAll.call(this, e, 'collapse-all'); }}" title="Collapse all" style="transform: rotate(270deg); cursor:pointer;">▸</div>`
+            : ''
+          }  
+        </div>
+        <div class='nav-bar-section-title'> OPERATIONS</div>
       </div>
-      <div class='nav-bar-section-title'> OPERATIONS </div>
-    </div>
-    ${this.resolvedSpec.tags.filter((tag) => tag.paths.filter((path) => pathIsInSearch(this.matchPaths, path)).length).map((tag) => html`
-      <!-- Tag -->
+
+      <!-- TAGS AND PATHS-->
+      ${this.resolvedSpec.tags.filter((tag) => tag.paths.filter((path) => pathIsInSearch(this.matchPaths, path)).length).map((tag) => html`
       <div class='nav-bar-tag-and-paths ${tag.expanded ? 'expanded' : 'collapsed'}'>
         <div 
           class='nav-bar-tag' 
           id="link-${tag.elementId}" 
           data-content-id='${tag.elementId}' 
           @click='${(e) => {
-            this.scrollToEl(e);
+            this.scrollToEventTarget(e, false);
           }}'
         >
           <div>${tag.name}</div>
@@ -143,7 +149,9 @@ export default function navbarTemplate() {
             ${this.usePathInNavBar === 'true' ? 'small-font' : ''}'
             data-content-id='${p.elementId}'
             id='link-${p.elementId}'
-            @click = '${(e) => this.scrollToEl(e)}'
+            @click = '${(e) => {
+              this.scrollToEventTarget(e, false);
+            }}'
           >
             <span style = "${p.deprecated ? 'filter:opacity(0.5)' : ''}">
               ${this.usePathInNavBar === 'true'
@@ -156,7 +164,7 @@ export default function navbarTemplate() {
       </div>
     `)}
 
-    <!-- Components -->
+    <!-- COMPONENTS -->
     ${(this.showComponents === 'false' || !this.resolvedSpec.components)
     ? ''
     : html`
@@ -165,17 +173,17 @@ export default function navbarTemplate() {
         <div class='nav-bar-section-title'>COMPONENTS</div>
       </div>
       ${this.resolvedSpec.components.map((component) => (component.subComponents.length ? html`
-        <div class='nav-bar-tag' data-content-id='cmp-${component.name.toLowerCase()}' id='link-cmp-${component.name.toLowerCase()}' @click='${(e) => this.scrollToEl(e)}'>
+        <div class='nav-bar-tag' data-content-id='cmp--${component.name.toLowerCase()}' id='link-cmp--${component.name.toLowerCase()}' @click='${(e) => this.scrollToEventTarget(e, false)}'>
           ${component.name}
         </div>
         ${component.subComponents.map((p) => html`
-        <div class='nav-bar-path' data-content-id='cmp-${p.id}' id='link-cmp-${p.id}' @click='${(e) => this.scrollToEl(e)}'>
+        <div class='nav-bar-path' data-content-id='cmp--${p.id}' id='link-cmp--${p.id}' @click='${(e) => this.scrollToEventTarget(e, false)}'>
           <span> ${p.name} </span>
         </div>`)}
       ` : ''))}
     `}
     </nav>`
-    }
+  }
   </aside>
 `;
 }

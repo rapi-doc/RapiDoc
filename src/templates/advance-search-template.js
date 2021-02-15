@@ -47,14 +47,14 @@ export default function searchByPropertiesModalTemplate() {
       <div
         class="mono-font small-font-size hover-bg"
         style='padding: 5px; cursor: pointer; border-bottom: 1px solid var(--light-border-color); ${path.deprecated ? 'filter:opacity(0.5);' : ''}' 
-        data-content-id='${path.method}-${path.path}'
+        data-content-id='${path.elementId}'
         tabindex = '0'
         @click="${
-          () => {
+          (e) => {
             this.matchPaths = ''; // clear quick filter if applied
             this.showAdvancedSearchDialog = false; // Hide Search Dialog
             this.requestUpdate();
-            this.scrollTo(`${path.elementId}`);
+            this.scrollToEventTarget(e, true);
           }
         }"
       > 
