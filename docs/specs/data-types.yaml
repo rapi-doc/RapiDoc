@@ -165,8 +165,12 @@ paths:
         - name: interests
           in: query
           required: true
+          description: __Exploded Array__ will send separate querystring parameter for each items eg - `interests=computers&interests=movies`
           schema:
             type: array
+            example: 
+              - computers
+              - movies
             minItems: 1
             maxItems: 3
             items:
@@ -183,7 +187,7 @@ paths:
               default: hiking   
         - name: tags
           in: query
-          description: Add tags to the person (not-exploded)
+          description: __Not Exploded Array__ will send a single querystring parameter with comma separated string eg - `tags=tall,dark,handsome`
           style: form
           explode: false
           schema:
