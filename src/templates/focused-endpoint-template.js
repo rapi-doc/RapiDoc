@@ -13,7 +13,7 @@ import { expandCollapseNavBarTag } from '@/templates/navbar-template';
 function wrapFocusedTemplate(templateToWrap) {
   return html`
     <div class='regular-font section-gap--focused-mode'>
-      ${templateToWrap};
+      ${templateToWrap}
     </div>`;
 }
 
@@ -32,7 +32,7 @@ function defaultContentTemplate() {
 function focusedTagBodyTemplate(tag) {
   return html`
     <h1 id="${tag.elementId}">${tag.name}</h1>
-    ${tag.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(tag.description || ''))}</div>` : ''}
+    ${tag.description ? html`<div class="m-markdown">${unsafeHTML(marked(tag.description))}</div>` : ''}
   `;
 }
 
