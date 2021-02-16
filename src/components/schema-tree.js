@@ -232,7 +232,7 @@ export default class SchemaTree extends LitElement {
           ${keyLabel.endsWith('*')
             ? html`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>:`
             : key.startsWith('::OPTION')
-              ? html`<span class='key-label xxx-of-key'>${keyLabel}</span>`
+              ? html`<span class='key-label xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>`
               : html`<span class="key-label">${keyLabel}</span>:`
           }
           <span class='${dataTypeCss}'> 
