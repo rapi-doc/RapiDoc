@@ -278,8 +278,8 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
   for (const path in openApiSpec.paths) {
     const commonParams = openApiSpec.paths[path].parameters;
     const commonPathProp = {
-      summary: openApiSpec.paths[path].summary,
-      description: openApiSpec.paths[path].description,
+      // summary: openApiSpec.paths[path].summary,
+      // description: openApiSpec.paths[path].description,
       servers: openApiSpec.paths[path].servers ? openApiSpec.paths[path].servers : [],
       parameters: openApiSpec.paths[path].parameters ? openApiSpec.paths[path].parameters : [],
     };
@@ -321,15 +321,11 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
             tags.push(tagObj);
           }
 
-          // Generate Path summary and Description if it is missing for a method
-          let summary = (fullPath.summary || fullPath.description || `${methodName} ${path}`).trim().split('/\r?\n/')[0];
-          if (summary.length > 100) {
-            summary = summary.split('.')[0];
+          // Generate a short summary which is broken
+          let shortSummary = (fullPath.summary || fullPath.description || fullPath.path).trim();
+          if (shortSummary.length > 100) {
+            shortSummary = shortSummary.split('/\r?\n|[.]/')[0]; // take the first line (period or carriage return)
           }
-          if (!fullPath.description) {
-            fullPath.description = ((fullPath.summary || '-').trim());
-          }
-
           // Merge Common Parameters with This methods parameters
           let finalParameters = [];
           if (commonParams) {
@@ -351,9 +347,10 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
             show: true,
             expanded: false,
             expandedAtLeastOnce: false,
-            summary,
+            summary: (fullPath.summary || ''),
+            description: (fullPath.description || ''),
+            shortSummary,
             method: methodName,
-            description: fullPath.description,
             path,
             operationId: fullPath.operationId,
             elementId: `${methodName}-${path.replace(invalidCharsRegEx, '-')}`,
@@ -364,8 +361,8 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
             callbacks: fullPath.callbacks,
             deprecated: fullPath.deprecated,
             security: fullPath.security,
-            commonSummary: commonPathProp.summary,
-            commonDescription: commonPathProp.description,
+            // commonSummary: commonPathProp.summary,
+            // commonDescription: commonPathProp.description,
             xCodeSamples: fullPath['x-codeSamples'] || fullPath['x-code-samples'] || '',
           });
         });// End of tag path create

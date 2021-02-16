@@ -34,19 +34,13 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
     ${this.renderStyle === 'focused' ? html`<h3 class="upper" style="font-weight:bold"> ${tagName} </h3>` : ''}
     ${path.deprecated ? html`<div class="bold-text red-text"> DEPRECATED </div>` : ''}
     ${html`
-      <h2 class = "${path.deprecated ? 'gray-text' : ''}"> 
-        ${path.summary || html`<span class='upper ${path.deprecated ? ' method-fg gray-text' : path.method}  '> ${path.method}</span> ${path.path}`} 
-      </h2>
-      ${path.summary
-        ? html`
-          <div class='mono-font regular-font-size' style='padding: 8px 0; color:var(--fg3)'> 
-            <span class='regular-font upper method-fg  ${path.deprecated ? ' gray-text' : ` bold-text ${path.method}`} '>${path.method}</span> 
-            <span class = '${path.deprecated ? 'gray-text' : ''}'> ${path.path} </span>
-          </div>`
-        : ''
-      }`
+      <h2> ${path.shortSummary || `${path.method.toUpperCase()} ${path.path}`}</h2>
+      <div class='mono-font regular-font-size' style='padding: 8px 0; color:var(--fg3)'> 
+        <span class='regular-font upper method-fg bold-text ${path.method}'>${path.method}</span> 
+        <span>${path.path}</span>
+      </div>`
     }
-    ${path.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(path.description || ''))}</div>` : ''}
+    ${path.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(path.description))}</div>` : ''}
     ${pathSecurityTemplate.call(this, path.security)}
     ${codeSampleTabPanel}
     <div class='expanded-req-resp-container'>

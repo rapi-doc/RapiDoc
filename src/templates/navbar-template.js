@@ -156,7 +156,7 @@ export default function navbarTemplate() {
             <span style = "${p.deprecated ? 'filter:opacity(0.5)' : ''}">
               ${this.usePathInNavBar === 'true'
                 ? html`<span class='mono-font'>${p.method.toUpperCase()} ${p.path}</span>`
-                : p.summary
+                : p.summary || p.shortSummary
               }
             </span>
           </div>`)}

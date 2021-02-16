@@ -55,7 +55,7 @@ function endpointHeadTemplate(path) {
       : ''
     }
     <div class="only-large-screen" style="min-width:60px; flex:1"></div>
-    <div class="m-markdown-small descr"> ${unsafeHTML(marked(path.summary || ''))} </div>
+    <div class="descr">${path.summary || path.shotSummary} </div>
   </div>
   `;
 }
@@ -81,7 +81,7 @@ function endpointBodyTemplate(path) {
   return html`
   <div class='endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}'>
     <div class="summary">
-      ${path.summary && path.summary !== path.description ? html`<div class="title">${path.summary}</div>` : ''}
+      ${path.summary ? html`<div class="title">${path.summary}<div>` : path.shortSummary !== path.description ? html`<div class="title">${path.shortSummary}</div>` : ''}
       ${path.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(path.description))}</div>` : ''}
       ${pathSecurityTemplate.call(this, path.security)}
       ${codeSampleTabPanel}
