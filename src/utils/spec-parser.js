@@ -322,7 +322,7 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
           }
 
           // Generate a short summary which is broken
-          let shortSummary = (fullPath.summary || fullPath.description || fullPath.path).trim();
+          let shortSummary = (fullPath.summary || fullPath.description || `${methodName.toUpperCase()} ${path}`).trim();
           if (shortSummary.length > 100) {
             shortSummary = shortSummary.split('/\r?\n|[.]/')[0]; // take the first line (period or carriage return)
           }
