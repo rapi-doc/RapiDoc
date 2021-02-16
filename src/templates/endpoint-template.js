@@ -55,7 +55,7 @@ function endpointHeadTemplate(path) {
       : ''
     }
     <div class="only-large-screen" style="min-width:60px; flex:1"></div>
-    <div class="descr">${path.summary || path.shotSummary} </div>
+    <div class="descr">${path.summary || path.shortSummary} </div>
   </div>
   `;
 }
