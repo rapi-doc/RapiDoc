@@ -3,15 +3,19 @@ import { LitElement, html, css } from 'lit-element';
 export default class TagInput extends LitElement {
   /* eslint-disable indent */
   render() {
+    let tagItemTmpl = '';
+    if (Array.isArray(this.value)) {
+      tagItemTmpl = html`${this.value
+        .filter((v) => v.trim() !== '')
+        .map((v) => html`<span class='tag'>${v}</span>`)
+      }`;
+    }
     return html`
-    <div class='tags' tabindex="0">
-      ${Array.isArray(this.value) && this.value.length > 0
-        ? html`${this.value.map((v) => html`<span class='tag'> ${v} </span>`)}`
-        : ''
-      }
-      <input type="text" class='editor' @paste="${this.afterPaste}" @keydown="${this.afterKeyDown}" placeholder="${this.placeholder || ''}">
-    </div>
-  `;
+      <div class='tags' tabindex="0">
+        ${tagItemTmpl}
+        <input type="text" class='editor' @paste="${(e) => this.afterPaste(e)}" @keydown="${this.afterKeyDown}" placeholder="${this.placeholder || ''}">
+      </div>
+    `;
   }
   /* eslint-enable indent */
 
@@ -25,8 +29,7 @@ export default class TagInput extends LitElement {
   attributeChangedCallback(name, oldVal, newVal) {
     if (name === 'value') {
       if (newVal && oldVal !== newVal) {
-        const tmpVal = newVal.split(',').filter((v) => v.trim() !== '');
-        this.value = tmpVal || '';
+        this.value = newVal.split(',').filter((v) => v.trim() !== '');
       }
     }
     super.attributeChangedCallback(name, oldVal, newVal);
@@ -35,7 +38,8 @@ export default class TagInput extends LitElement {
   afterPaste(e) {
     const clipboardData = e.clipboardData || window.clipboardData;
     const pastedData = clipboardData.getData('Text');
-    console.log(pastedData); // eslint-disable-line no-console
+    this.value = pastedData ? pastedData.split(',').filter((v) => v.trim() !== '') : '';
+    e.preventDefault();
   }
 
   afterKeyDown(e) {
