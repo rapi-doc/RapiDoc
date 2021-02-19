@@ -370,6 +370,7 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
     }); // End of Methods
   }
 
+  /*
   // sort paths by methods or path within each tags;
   const tagsWithSortedPaths = tags.filter((v) => v.paths && v.paths.length > 0);
   if (sortEndpointsBy === 'method') {
@@ -392,5 +393,18 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
       }
     });
   }
+  */
+
+  const tagsWithSortedPaths = tags.filter((tag) => tag.paths && tag.paths.length > 0);
+  tagsWithSortedPaths.forEach((tag) => {
+    if (sortEndpointsBy === 'method') {
+      tag.paths.sort((a, b) => methods.indexOf(a.method).toString().localeCompare(methods.indexOf(b.method)));
+    } else if (sortEndpointsBy === 'summary') {
+      tag.paths.sort((a, b) => (a.shortSummary).localeCompare(b.shortSummary));
+    } else {
+      tag.paths.sort((a, b) => a.path.localeCompare(b.path));
+    }
+    tag.firstPathId = tag.paths[0].elementId;
+  });
   return sortTags ? tagsWithSortedPaths.sort((a, b) => a.name.localeCompare(b.name)) : tagsWithSortedPaths;
 }

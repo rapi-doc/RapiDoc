@@ -128,9 +128,14 @@ export default function navbarTemplate() {
         <div 
           class='nav-bar-tag' 
           id="link-${tag.elementId}" 
-          data-content-id='${tag.elementId}' 
+          data-content-id='${tag.elementId}'
+          data-first-path-id='${tag.firstPathId}'
           @click='${(e) => {
-            this.scrollToEventTarget(e, false);
+            if (this.renderStyle === 'focused' && this.onNavTagClick === 'expand-collapse') {
+              onExpandCollapse.call(this, e);
+            } else {
+              this.scrollToEventTarget(e, false);
+            }
           }}'
         >
           <div>${tag.name}</div>
