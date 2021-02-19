@@ -139,7 +139,11 @@ export default function navbarTemplate() {
           }}'
         >
           <div>${tag.name}</div>
-          <div class="nav-bar-tag-icon" @click="${(e) => { onExpandCollapse.call(this, e); }}"></div>
+          <div class="nav-bar-tag-icon" @click="${(e) => {
+            if (this.renderStyle === 'focused' && this.onNavTagClick === 'show-description') {
+              onExpandCollapse.call(this, e);
+            }
+          }}"></div>
         </div>
         <div class='nav-bar-paths-under-tag'>
           <!-- Paths in each tag (endpoints) -->
