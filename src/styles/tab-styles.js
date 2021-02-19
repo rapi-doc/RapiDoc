@@ -23,6 +23,7 @@ export default css`
   background-color:transparent;
   cursor:pointer;
   outline:none;
+  font-family:var(--font-regular); 
   font-size:var(--font-size-small);
   margin-right:16px;
   padding:1px;

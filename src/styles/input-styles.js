@@ -47,8 +47,9 @@ export default css`
 }
 .toolbar-btn{
   cursor: pointer;
-  padding: 2px 0 4px;
+  padding: 4px;
   margin:0 2px;
+  font-size: var(--font-size-small);
   min-width: 50px;
   color: var(--primary-color-invert);
   border-radius: 2px;
@@ -62,6 +63,9 @@ input, textarea, select, button, pre {
   background-color: var(--input-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
+}
+button {
+  font-family: var(--font-regular);
 }
 
 /* Form Inputs */
