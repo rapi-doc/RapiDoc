@@ -357,6 +357,7 @@ export default function securitySchemeTemplate() {
         </table>`
       : ''
     }
+    <slot name="auth"></slot>
   </div>
 `;
 }

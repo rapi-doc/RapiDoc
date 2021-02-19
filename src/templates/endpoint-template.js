@@ -80,6 +80,7 @@ function endpointBodyTemplate(path) {
   const codeSampleTabPanel = path.xCodeSamples ? codeSamplesTemplate(path.xCodeSamples) : '';
   return html`
   <div class='endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}'>
+    <slot name="${path.elementId}"></slot>
     <div class="summary">
       ${path.summary ? html`<div class="title">${path.summary}<div>` : path.shortSummary !== path.description ? html`<div class="title">${path.shortSummary}</div>` : ''}
       ${path.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(path.description))}</div>` : ''}
@@ -140,6 +141,7 @@ export default function endpointTemplate() {
         <div id='${tag.elementId}' class="sub-title tag" style="color:var(--primary-color)">${tag.name}</div>
       </div>
       <div class='section-tag-body'>
+        <slot name="${tag.elementId}"></slot>
         <div class="regular-font regular-font-size m-markdown" style="padding-bottom:12px">
           ${unsafeHTML(marked(tag.description || ''))}
         </div>

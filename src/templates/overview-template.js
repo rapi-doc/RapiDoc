@@ -11,7 +11,7 @@ function infoDescriptionHeadingRenderer() {
 
 export default function overviewTemplate() {
   return html`
-    <div id="overview" 
+    <div id="overview"
       class="observe-me ${this.renderStyle === 'view' ? 'section-gap' : 'section-gap--read-mode'}">
       ${this.resolvedSpec?.info
         ? html`
@@ -47,6 +47,7 @@ export default function overviewTemplate() {
               : ''
             }
           </div>
+          <slot name="overview"></slot>
           <div id="api-description">
           ${this.resolvedSpec.info.description
             ? html`${

@@ -96,6 +96,7 @@ export default function serverTemplate() {
       `}
       <div class="table-title primary-text"> SELECTED: ${this.selectedServer?.computedUrl}</div>
     </div>
+    <slot name="servers"></slot>
     ${serverVarsTemplate.call(this)}
   </div>`;
 }
