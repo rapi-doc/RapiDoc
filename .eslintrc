@@ -1,5 +1,13 @@
 {
-  "parser": "babel-eslint",
+  "parser": "@babel/eslint-parser",
+  "parserOptions": {
+    "sourceType": "module",
+    "allowImportExportEverywhere": false,
+    "ecmaVersion": 2020,
+    "babelOptions": {
+      "configFile": "./.babelrc.json"
+    }
+  },
   "extends": "airbnb-base",
   "settings": {
     "import/resolver":{

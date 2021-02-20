@@ -1,12 +1,21 @@
 {
   "presets": [ 
     [
-      "@babel/preset-env",{ 
-        "targets": [
-          ">1%",
-          "not ie 11",
-          "not op_mini all"
-        ]
+      "@babel/preset-env",
+      {
+        "targets": {
+          "esmodules": true,
+          "android": "80",
+          "chrome": "85",
+          "edge": "87",
+          "firefox": "84",
+          "ios": "13",
+          "node": "14",
+          "opera": "72",
+          "safari": "14",
+          "samsung": "14"
+        },
+        "bugfixes": true
       }
     ]
   ],
