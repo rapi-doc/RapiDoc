@@ -98,7 +98,11 @@
           </tr>
           <tr>
             <td class="attr-col mono bold right">sort-endpoints-by </td>
-            <td class="gray"><span class='bold dark-gray'>Allowed:<span class='blue'> path | method | summary</span></span> Sort endpoints within each tags by path, method or summary </td>
+            <td class="gray"><span class='bold dark-gray'>
+              Allowed:<span class='blue'> path | method | summary</span></span> 
+              Sort endpoints within each tags by path, method or summary 
+              &nbsp;|&nbsp; <a href="./examples/arrange-by-tags.html">Example</a>
+            </td>
             <td class='default-col'>path</td>
           </tr>
           <tr>
@@ -193,20 +197,21 @@
             <td class="mono bold right">font-size </td>
             <td class="gray"> 
               <span class='bold dark-gray'>Allowed:<span class='blue'> default | large  | largest </span></span> 
-              <br/> sets the relative font sizes for the entire document
+              <br/> sets the relative font sizes for the entire document  &nbsp;|&nbsp; <a href="./examples/font-size.html">Example</a>
             </td>
             <td class='small-font'>default</td>
           </tr>
         </table>
 
         <a id="att-nav"></a>
-        <div class='table-title' id="nav-bar-colors"> Navigation bar settings (only applicable in read-mode)</div>
+        <div class='table-title' id="nav-bar-colors"> Navigation bar settings (only applicable in <span class="mono bold">read</span> and <span class="mono bold">focused</span> render style)</div>
         <table class="m-table">
           <tr>
             <td class=" attr-col mono bold right">use-path-in-nav-bar </td>
             <td class="gray">
               <span class='bold dark-gray'>Allowed:<span class='blue'> true | false</span></span> 
               set true to show API paths in the navigation bar instead of summary/description
+              &nbsp;|&nbsp; <a href="./examples/nav-item-as-path.html">Example</a>
             </td>
             <td class='default-col'>false</td>
           </tr>          
@@ -284,15 +289,15 @@
               <ul>
                 <li>
                   <span class="mono blue">view</span> 
-                  <span>friendly for quick exploring (expand/collapse the section of your interest)</span>
+                  <span>friendly for quick exploring (expand/collapse the section of your interest) &nbsp;|&nbsp; <a href="./examples/example1.html">Example</a></span>
                 </li>
                 <li>
                   <span class="mono blue">read</span>
-                  <span>suitable for reading (like a continuous web-page)</span>
+                  <span>suitable for reading (like a continuous web-page) &nbsp;|&nbsp; <a href="./examples/read-mode.html">Example</a> </span>
                 </li>
                 <li>
                   <span class="mono blue">focused</span>
-                  <span>similar to read but focuses on a single endpoint at a time (good for large specs)</span>
+                  <span>similar to read but focuses on a single endpoint at a time (good for large specs) &nbsp;|&nbsp; <a href="./examples/focused-mode.html">Example</a></span>
                 </li>
 
               </ul>
@@ -312,6 +317,7 @@
             <td class="mono bold right">schema-style </td>
             <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> tree | table</span></span> - 
               Two different ways to display object-schemas in the responses and request bodies 
+              &nbsp;|&nbsp; <a href="./examples/schema-table.html">Example</a>
             </td>
             <td>tree</td>
           </tr>
@@ -319,6 +325,7 @@
             <td class="mono bold right">schema-expand-level </td>
             <td class="gray">
               Schemas are expanded by default, use this attribute to control how many levels in the schema should be expanded
+              &nbsp;|&nbsp; <a href="./examples/schema-expand-level.html">Example</a>
             </td>
             <td>999</td>
           </tr>
@@ -425,6 +432,7 @@
             <td class="mono bold right">allow-advanced-search</td>
             <td class="gray">
                 Provides advanced search functionality, to search through API-paths, API-description, API-parameters and API-Responses
+                &nbsp;|&nbsp; <a href="./examples/search-by-params.html">Example</a>
             </td>
             <td>true</td>
           </tr>
@@ -433,6 +441,7 @@
             <td class="gray">
               The 'TRY' feature allows you to make REST calls to the API server. 
               To disable this feature, set it to false.
+              &nbsp;|&nbsp; <a href="./examples/try.html">Example</a> 
             </td>
             <td>true</td>
           </tr>
@@ -529,7 +538,8 @@
               <br/>
               <span class='mono blue'>path</span> should be provided in the format of {method}-{path}
               for instance you want to scrollTo <span class = "mono">GET /user/login</span> 
-              you should provide the location as <span class="dark-gray"> get-/user/login</span>
+              you should provide the location as <span class=" mono dark-gray"> get-/user/login</span>
+              &nbsp;|&nbsp; <a href="./examples/collapsable-focused.html">Example</a> 
             </td>
           </tr>
         </table>
@@ -641,8 +651,9 @@ event.details will provide
           <tr>
             <td class="gray" style="text-align: center;" colspan="2">
               Example of Slots: 
-              <a href="./examples/slots.html"> All Slots</a> &nbsp;|&nbsp; 
-              <a href="./examples/mix-html.html"> default and footer</a>
+              <a href="./examples/slots.html">All Slots</a> &nbsp;|&nbsp; 
+              <a href="./examples/mix-html.html">default and footer</a> &nbsp;|&nbsp; 
+              <a href="./examples/logo.html">nav-logo</a>
             </td>
           </tr>
         </table>
@@ -698,7 +709,7 @@ generated <span class="mono bold">rapidoc-min.js</span>  in <span class="mono bo
             <td class="gray">
               Use this vendor-extension to expand or collapse paths under a tag (applies only in view and focused render-style)
             </td>
-            <td><a href="./examples/collapsable.html#overview"> Usage Example </a> </td>
+            <td><a href="./examples/collapsable.html"> Usage Example </a> </td>
           </tr>
 
           <tr>
