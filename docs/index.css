@@ -1,4 +1,4 @@
-body{
+body, button {
   font-family: 'Lato', sans-serif;
   font-size: 14px;
   line-height: 24px;
@@ -226,7 +226,7 @@ h1,h2,h3 { font-weight:300; }
   height: 32px;
   padding:2px;
   font-size:13px;
-  background-color: #47AFE8;
+  background-color: DodgerBlue;
   color: #fff;
   border: none;
   margin: 0 2px;
@@ -236,7 +236,7 @@ h1,h2,h3 { font-weight:300; }
 }
 .btn.medium {
   width: 75px;
-  height: 24px
+  height: 28px
 }
 .btn.small {
   width: 60px;

@@ -35,18 +35,19 @@
       regular-font = 'Open Sans'
       render-style= "focused"
     > 
-    <div style="padding: 32px 16px; text-align: center;">
-      <span class='mono'>scrollTo() Method</span>
-      <button class="btn normal" onclick="document.getElementById('thedoc').scrollTo('overview')">
-        Overview
-      </button>
-      <button class="btn normal" style="width:190px" onclick="document.getElementById('thedoc').scrollTo('get-/path1-in-closed-tag')">
-        valid path (in collapsed tag)
-      </button>
-      <button class="btn normal" style="width:140px" onclick="document.getElementById('thedoc').scrollTo('an-incorrect-path')">
-        non-existant path
-      </button>
-    </div>
+
+      <div style="padding:16px; display: flex;justify-content: center; align-items: center;">
+        <span>Use</span> <span class='mono' style="margin: 0 5px;">scrollTo()</span> <span> method to goto : </span>
+        <button class="btn normal" onclick="document.getElementById('thedoc').scrollTo('overview')">
+          Overview
+        </button>
+        <button class="btn normal" style="width:190px" onclick="document.getElementById('thedoc').scrollTo('get-/path1-in-closed-tag')">
+          valid path (in collapsed tag)
+        </button>
+        <button class="btn normal" style="width:140px" onclick="document.getElementById('thedoc').scrollTo('an-incorrect-path')">
+          non-existant path
+        </button>
+      </div>
   </rapi-doc>
   </body>
 </html>

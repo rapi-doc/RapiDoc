@@ -591,7 +591,7 @@ event.details will provide
       <div class="table-block">
         <table class="m-table">
           <tr>
-            <th class="right">Slot Name</th>
+            <th class="right" style="width:150px">Slot Name</th>
             <th class="left">Description </th>
           </tr>
           <tr>
@@ -604,15 +604,46 @@ event.details will provide
           </tr>
           <tr>
             <td class="mono bold right">header</td>
-            <td class="gray"> The contents of this slot will appear at the header after the spec-url input</td>
+            <td class="gray"> contents appear at the header after the spec-url input</td>
           </tr>
           <tr>
             <td class="mono bold right">footer</td>
-            <td class="gray"> The contents of this slot will appear at the bottom of the spec</td>
+            <td class="gray"> contents appear at the bottom of the spec</td>
           </tr>
           <tr>
             <td class="mono bold right">nav-logo</td>
-            <td class="gray"> The contents of this slot will appear on Side navigation bar (only available in read-mode)</td>
+            <td class="gray"> contents appear at Side navigation bar (only available in read-mode)</td>
+          </tr>
+
+          <tr>
+            <td class="mono bold right">overview</td>
+            <td class="gray"> contents appear at overview section</td>
+          </tr>
+          <tr>
+            <td class="mono bold right">servers</td>
+            <td class="gray"> contents appear at server section</td>
+          </tr>
+          <tr>
+            <td class="mono bold right">auth</td>
+            <td class="gray"> contents appear at authentication section</td>
+          </tr>
+          <tr>
+            <td class="mono bold right">tag--{tag-name}</td>
+            <td class="gray"> each tag is identified by a name, this slot can be used to insert HTML content under various tags</td>
+          </tr>
+          <tr>
+            <td class="mono bold right">{method}-{path}</td>
+            <td class="gray"> each path is identified by an id. which is in the format of {method}-{path}, 
+              and certain invalid charecters such as {, }, #, space is replaced by hyphen (-). 
+              Use this slot to insert HTML content into a specifi tag 
+            </td>
+          </tr>
+          <tr>
+            <td class="gray" style="text-align: center;" colspan="2">
+              Example of Slots: 
+              <a href="./examples/slots.html"> All Slots</a> &nbsp;|&nbsp; 
+              <a href="./examples/mix-html.html"> default and footer</a>
+            </td>
           </tr>
         </table>
       </div>
