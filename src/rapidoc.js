@@ -287,17 +287,24 @@ export default class RapiDoc extends LitElement {
         border-left-width: 4px;
         margin-left:2px;
       }
+      .tooltip a {
+        color: var(--fg2);
+        text-decoration: none;
+      }
       .tooltip-text {
         color: var(--fg2);
         background-color: var(--bg2);
         visibility: hidden;
         overflow-wrap: break-word;
       }
-      .tooltip:hover{
+      .tooltip:hover {
         color: var(--primary-color);
         border-color: var(--primary-color);
-
       }
+      .tooltip:hover a:hover {
+        color: var(--primary-color);
+      }
+
       .tooltip:hover .tooltip-text {
         visibility: visible;
         opacity: 1;
