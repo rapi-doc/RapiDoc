@@ -395,7 +395,7 @@ export function pathSecurityTemplate(pathSecurity) {
           ${orSecurityKeys1.map((orSecurityItem1, i) => html`
           ${i !== 0 ? html`<div style="padding:3px 4px;"> OR </div>` : ''}
           <div class="tooltip">
-            <div style = "padding:2px 4px; white-space:nowrap; text-overflow:ellipsis;max-width:150px; overflow:hidden;"> ${orSecurityItem1.securityTypes} </div>
+            <div style = "padding:2px 4px; white-space:nowrap; text-overflow:ellipsis;max-width:150px; overflow:hidden;"><a href="#auth"> ${orSecurityItem1.securityTypes} </a></div>
             <div class="tooltip-text" style="position:absolute; color: var(--fg); top:26px; right:0; border:1px solid var(--border-color);padding:2px 4px; display:block;">
               ${orSecurityItem1.securityDefs.length > 1 ? html`<div>Requires <b>all</b> of the following </div>` : ''}
               <div style="padding-left: 8px">
@@ -404,7 +404,7 @@ export function pathSecurityTemplate(pathSecurity) {
                     ? html`
                       <div>
                         ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : html`Requires`}
-                        OAuth Token (${andSecurityItem.apiKeyId}) in <b>Authorization header</b>
+                        OAuth Token (${andSecurityItem.apiKeyId}) in <b>Authorization header</b>${orSecurityItem1.pathScopes !== '' ? html`. Required scopes: <ul>${orSecurityItem1.pathScopes.split(', ').map((scope) => html`<li>${scope}</li>`)}</ul>` : ''}
                       </div>`
                     : andSecurityItem.type === 'http'
                       ? html`
