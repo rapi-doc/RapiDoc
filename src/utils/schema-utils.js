@@ -445,11 +445,11 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
       } else {
         const prop = `::OPTION~${index + 1}${v.title ? `~${v.title}` : ''}`;
         objWithAnyOfProps[prop] = `${getTypeInfo(v).html}`;
+        objWithAnyOfProps['::type'] = 'xxx-of-option';
       }
     });
     obj[(schema.anyOf ? `::ANY~OF ${suffix}` : `::ONE~OF ${suffix}`)] = objWithAnyOfProps;
     obj['::type'] = 'xxx-of';
-    // obj['::deprecated'] = schema.deprecated || false;
   } else if (schema.type === 'object' || schema.properties) {
     obj['::description'] = schema.description || '';
     obj['::type'] = 'object';

@@ -130,6 +130,8 @@ export default class SchemaTree extends LitElement {
     const minFieldColWidth = 300 - (level * leftPadding);
     let openBracket = '';
     let closeBracket = '';
+    const isXxxOfNode = data['::type']?.startsWith('xxx-of');
+    const newLevel = isXxxOfNode ? level : level + 1;
     if (data['::type'] === 'object') {
       if (dataType === 'array') {
         if (level < this.schemaExpandLevel) {
@@ -165,7 +167,7 @@ export default class SchemaTree extends LitElement {
     }
     if (typeof data === 'object') {
       return html`
-        <div class="tr ${level < this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type'] || 'no-type-info'}">
+        <div class="tr ${level < this.schemaExpandLevel || data['::type']?.startsWith('xxx-of') ? 'expanded' : 'collapsed'} ${data['::type'] || 'no-type-info'}">
           <div class="td key ${data['::deprecated'] ? 'deprecated' : ''}" style='min-width:${minFieldColWidth}px'>
             ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION')
               ? html`<span class='key-label xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>`
@@ -173,7 +175,7 @@ export default class SchemaTree extends LitElement {
                 ? html`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>`
                 : keyLabel === '::props' || keyLabel === '::ARRAY~OF'
                   ? ''
-                  : html`<span class="key-label">${keyLabel}<span>`
+                  : html`<span class="key-label">${keyLabel}</span>`
             }
             ${level > 0
               && !(
@@ -191,7 +193,7 @@ export default class SchemaTree extends LitElement {
         </div>
         <div class='inside-bracket ${data['::type'] || 'no-type-info'}' style='padding-left:${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' ? 0 : leftPadding}px;'>
           ${Array.isArray(data) && data[0]
-            ? html`${this.generateTree(data[0], 'xxx-of-option', '::ARRAY~OF', '', (level))}`
+            ? html`${this.generateTree(data[0], 'xxx-of-option', '::ARRAY~OF', '', newLevel)}`
             : html`
               ${Object.keys(data).map((dataKey) => html`
                 ${['::description', '::type', '::props', '::deprecated'].includes(dataKey)
@@ -201,7 +203,7 @@ export default class SchemaTree extends LitElement {
                         data[dataKey]['::type'],
                         dataKey,
                         data[dataKey]['::description'],
-                        (level + 1),
+                        newLevel,
                       )}`
                     : ''
                   : html`${this.generateTree(
@@ -209,7 +211,7 @@ export default class SchemaTree extends LitElement {
                     data[dataKey]['::type'],
                     dataKey,
                     data[dataKey]['::description'],
-                    (level + 1),
+                    newLevel,
                   )}`
                 }
               `)}

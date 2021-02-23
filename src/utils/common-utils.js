@@ -133,7 +133,6 @@ export function prettyXml(sourceXmlString) {
   const xsltProcessor = new XSLTProcessor();
   xsltProcessor.importStylesheet(xsltDoc);
   const resultDoc = xsltProcessor.transformToDocument(xmlDoc);
-  debugger;
   return new XMLSerializer().serializeToString(resultDoc);
 }
 /*
