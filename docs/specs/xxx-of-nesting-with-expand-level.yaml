@@ -1,13 +1,19 @@
 openapi: 3.0.3
 info:
-  title: Test
-  description: test
+  title: One Of Nesting with Schema Expand level
+  description: >
+    this test case demonstrate covers the following scenarios
+    - nesting of `one-of`, `any-of`
+    - nested `one-of` contains 
+      - only primitive data type options
+      - mix of primitive and object data type options
+    - schema-exapand-level attribute must play nice with nesting of `one-of` and `any-of`
   version: 1.0.0
 servers:
   - url: 'http://localhost:9000'
     description: Local server
 paths:
-  /nested-xxx-of-with-objects:
+  /nested-xxx-of:
     get:
       parameters:
         - name: env
