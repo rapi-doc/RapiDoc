@@ -48,12 +48,14 @@
         <p style="margin-top:10px; padding:16px 36px; background-color:DodgerBlue; color:#fff; text-align:center;" >
           <b> auth</b> slot | <span style="font-size:12px"> good for describing authentication system</span>
         </p>  
-        <div style="display:flex; justify-content: space-evenly; font-size:13px; color: #777;">
-          <div class="mermaid" style="width:600px">
-            graph LR
+        <div style="display:flex; align-items:center; font-size:13px; color: #777;">
+          <div class="mermaid" style="width:400px">
+            graph TB
               API-Gateway --> Authentication-Server
               Authentication-Server-->A[fa:fa-ban Invalid Token]
               Authentication-Server-->B[fa:fa-ban Valid Token]
+              A --> 401[401 Response Status]
+              B --> 200[200 response Status<br/> with JSON payload]
           </div>
           <div style="margin-left:16px;"> 
             You may even introduce some JS based functionality 
