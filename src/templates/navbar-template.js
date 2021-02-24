@@ -49,7 +49,7 @@ export default function navbarTemplate() {
           ${this.allowSearch === 'false'
             ? ''
             : html`
-              <div style="display:flex; flex:1">
+              <div style="display:flex; flex:1; line-height:26px;">
                 <input id="nav-bar-search" 
                   style = "width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" 
                   type = "text"
