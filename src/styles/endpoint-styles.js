@@ -100,7 +100,7 @@ export default css`
   padding:8px 8px;
 }
 .summary .title{
-  font-size:calc(var(--title-font-size) + 2px);
+  font-size:calc(var(--font-size-regular) + 2px);
   margin-bottom: 6px;
   word-break: break-all;
 }

@@ -237,7 +237,7 @@ export default class RapiDoc extends LitElement {
         display:none;
       }
       .header-title{
-        font-size:calc(var(--title-font-size) + 8px); 
+        font-size:calc(var(--font-size-regular) + 8px); 
         padding:0 8px;
       }
       .tag.title {

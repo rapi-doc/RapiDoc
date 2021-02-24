@@ -45,7 +45,7 @@ export default function navbarTemplate() {
     ${(this.allowSearch === 'false' && this.allowAdvancedSearch === 'false')
       ? ''
       : html`
-        <div style="position:sticky; top:0; display:flex; flex-direction:row; align-items: stretch; justify-content:center; padding:24px; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}">
+        <div style="display:flex; flex-direction:row; justify-content:center; padding:24px; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}">
           ${this.allowSearch === 'false'
             ? ''
             : html`
@@ -57,7 +57,7 @@ export default function navbarTemplate() {
                   @change = "${this.onSearchChange}"  
                   spellcheck = "false" 
                 >
-                <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x21a9;</div>
+                <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div>
               </div>  
               ${this.matchPaths
                 ? html`

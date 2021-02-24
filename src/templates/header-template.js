@@ -25,7 +25,7 @@ export default function headerTemplate() {
             @change="${this.onSepcUrlChange}" 
             spellcheck="false" 
           >
-          <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x21a9;</div> 
+          <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div> 
         `
       } 
       ${(this.allowSpecFileLoad === 'false')
@@ -46,7 +46,7 @@ export default function headerTemplate() {
         ? ''
         : html`  
           <input id="search" class="header-input" type="text"  placeholder="Quick Search" @change="${this.onSearchChange}" style="max-width:130px;margin-left:10px;" spellcheck="false" >
-          <div style="margin: 6px 5px 0 -24px; font-size:var(--title-font-size); cursor:pointer;">&#x21a9;</div>
+          <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div>
         `
       }
       

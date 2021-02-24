@@ -995,16 +995,19 @@ export default class ApiRequest extends LitElement {
         } else {
           const paramSerializeStyle = el.dataset.paramSerializeStyle;
           const paramSerializeExplode = el.dataset.paramSerializeExplode;
-          const vals = (el.value && Array.isArray(el.value)) ? el.value : [];
-          if (paramSerializeStyle === 'spaceDelimited') {
-            urlQueryParam.append(el.dataset.pname, vals.join(' ').replace(/^\s|\s$/g, ''));
-          } else if (paramSerializeStyle === 'pipeDelimited') {
-            urlQueryParam.append(el.dataset.pname, vals.join('|').replace(/^\||\|$/g, ''));
-          } else {
-            if (paramSerializeExplode === 'true') { // eslint-disable-line no-lonely-if
-              vals.forEach((v) => { urlQueryParam.append(el.dataset.pname, v); });
+          let vals = ((el.value && Array.isArray(el.value)) ? el.value : []);
+          vals = Array.isArray(vals) ? vals.filter((v) => v !== '') : [];
+          if (vals.length > 0) {
+            if (paramSerializeStyle === 'spaceDelimited') {
+              urlQueryParam.append(el.dataset.pname, vals.join(' ').replace(/^\s|\s$/g, ''));
+            } else if (paramSerializeStyle === 'pipeDelimited') {
+              urlQueryParam.append(el.dataset.pname, vals.join('|').replace(/^\||\|$/g, ''));
             } else {
-              urlQueryParam.append(el.dataset.pname, vals.join(',').replace(/^,|,$/g, ''));
+              if (paramSerializeExplode === 'true') { // eslint-disable-line no-lonely-if
+                vals.forEach((v) => { urlQueryParam.append(el.dataset.pname, v); });
+              } else {
+                urlQueryParam.append(el.dataset.pname, vals.join(',').replace(/^,|,$/g, ''));
+              }
             }
           }
         }
