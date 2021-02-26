@@ -67,6 +67,19 @@ paths:
         }
         ```
 
+        ### Use HTML in markdown
+        <br>
+        <div style="color: white; background-color:SlateBlue; padding: 12px; border-radius:2px">
+          Markdown do not support colors or fancy HTML designs. However, if you need you can put some html directly inside the markup with some inline styling.
+          This box I designed using raw HTML inside the markdown
+        </div>  
+        <br>
+        <div style="background-color: #F0F0F0;padding: 12px 0px 12px 12px;border-left: 5px solid orangered;">
+          <b style="color:orangered" >TIP</b>  Here is another one, done using HTML inside markdown with two different colors to make it appear like a TIP
+        </div>  
+        <br>
+
+
         ### Images 
         Inline Images no-gap - ![appspot image filler](http://ipsumimage.appspot.com/100)![appspot image filler](http://ipsumimage.appspot.com/100)
 
