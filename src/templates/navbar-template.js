@@ -38,18 +38,18 @@ function onExpandCollapseAll(e, action = 'expand-all') {
 /* eslint-disable indent */
 export default function navbarTemplate() {
   return html`
-  <aside class='nav-bar ${this.renderStyle}' >
+  <nav class='nav-bar ${this.renderStyle}' >
     <div style="padding:16px 30px 0 16px;">
       <slot name="nav-logo" class="logo"></slot>
     </div>
     ${(this.allowSearch === 'false' && this.allowAdvancedSearch === 'false')
       ? ''
       : html`
-        <div style="display:flex; flex-direction:row; justify-content:center; align-items:flex-start; padding:24px; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}">
+        <div style="display:flex; flex-direction:row; justify-content:center; align-items:center; padding:24px; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}">
           ${this.allowSearch === 'false'
             ? ''
             : html`
-              <div style="display:flex; flex:1; line-height:26px;">
+              <div style="display:flex; flex:1; line-height:22px;">
                 <input id="nav-bar-search" 
                   style = "width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" 
                   type = "text"
@@ -83,17 +83,19 @@ export default function navbarTemplate() {
         : html`
           ${(this.infoDescriptionHeadingsInNavBar === 'true')
             ? html`
-              ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? html`<div class='nav-bar-info' id='link-overview' data-content-id='overview' @click = '${(e) => this.scrollToEventTarget(e, false)}' > Overview </div>` : ''}          
-              ${this.resolvedSpec.infoDescriptionHeaders.map((header) => html`
-                <div 
-                  class='nav-bar-h${header.depth}' 
-                  id="link-overview--${new marked.Slugger().slug(header.text)}"  
-                  data-content-id='overview--${new marked.Slugger().slug(header.text)}' 
-                  @click='${(e) => this.scrollToEventTarget(e, false)}'
-                >
-                  ${header.text}
-                </div>`)
-              }
+              ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? html`<div class='nav-bar-info' id='link-overview' data-content-id='overview' @click = '${(e) => this.scrollToEventTarget(e, false)}' > Overview </div>` : ''}
+              <div class="overview-headers">
+                ${this.resolvedSpec.infoDescriptionHeaders.map((header) => html`
+                  <div 
+                    class='nav-bar-h${header.depth}' 
+                    id="link-overview--${new marked.Slugger().slug(header.text)}"  
+                    data-content-id='overview--${new marked.Slugger().slug(header.text)}' 
+                    @click='${(e) => this.scrollToEventTarget(e, false)}'
+                  >
+                    ${header.text}
+                  </div>`)
+                }
+              </div>
               ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? html`<hr style='border-top: 1px solid var(--nav-hover-bg-color); border-width:1px 0 0 0; margin: 15px 0 0 0'/>` : ''}
             `
             : html`<div class='nav-bar-info'  id='link-overview' data-content-id='overview' @click = '${(e) => this.scrollToEventTarget(e, false)}'> Overview </div>`
@@ -123,55 +125,79 @@ export default function navbarTemplate() {
       </div>
 
       <!-- TAGS AND PATHS-->
-      ${this.resolvedSpec.tags.filter((tag) => tag.paths.filter((path) => pathIsInSearch(this.matchPaths, path)).length).map((tag) => html`
-      <div class='nav-bar-tag-and-paths ${tag.expanded ? 'expanded' : 'collapsed'}'>
-        <div 
-          class='nav-bar-tag' 
-          id="link-${tag.elementId}" 
-          data-content-id='${tag.elementId}'
-          data-first-path-id='${tag.firstPathId}'
-          @click='${(e) => {
-            if (this.renderStyle === 'focused' && this.onNavTagClick === 'expand-collapse') {
-              onExpandCollapse.call(this, e);
-            } else {
-              this.scrollToEventTarget(e, false);
+      ${this.resolvedSpec.tags
+        .filter((tag) => tag.paths.filter((path) => pathIsInSearch(this.matchPaths, path)).length)
+        .map((tag) => html`
+          <div class='nav-bar-tag-and-paths ${tag.expanded ? 'expanded' : 'collapsed'}'>
+            <div 
+              class='nav-bar-tag' 
+              id="link-${tag.elementId}" 
+              data-content-id='${tag.elementId}'
+              data-first-path-id='${tag.firstPathId}'
+              @click='${(e) => {
+                if (this.renderStyle === 'focused' && this.onNavTagClick === 'expand-collapse') {
+                  onExpandCollapse.call(this, e);
+                } else {
+                  this.scrollToEventTarget(e, false);
+                }
+              }}'
+            >
+              <div>${tag.name}</div>
+              <div class="nav-bar-tag-icon" @click="${(e) => {
+                if (this.renderStyle === 'focused' && this.onNavTagClick === 'show-description') {
+                  onExpandCollapse.call(this, e);
+                }
+              }}">
+              </div>
+            </div>
+
+            ${(this.infoDescriptionHeadingsInNavBar === 'true')
+              ? html`
+                ${this.renderStyle === 'focused' && this.onNavTagClick === 'expand-collapse'
+                  ? ''
+                  : html`
+                    <div class='tag-headers'>
+                      ${tag.headers.map((header) => html`
+                      <div 
+                        class='nav-bar-h${header.depth}' 
+                        id="link-${tag.elementId}--${new marked.Slugger().slug(header.text)}"  
+                        data-content-id='${tag.elementId}--${new marked.Slugger().slug(header.text)}' 
+                        @click='${(e) => this.scrollToEventTarget(e, false)}'
+                      > ${header.text}</div>`)}
+                    </div>`
+                }`
+              : ''
             }
-          }}'
-        >
-          <div>${tag.name}</div>
-          <div class="nav-bar-tag-icon" @click="${(e) => {
-            if (this.renderStyle === 'focused' && this.onNavTagClick === 'show-description') {
-              onExpandCollapse.call(this, e);
-            }
-          }}"></div>
-        </div>
-        <div class='nav-bar-paths-under-tag'>
-          <!-- Paths in each tag (endpoints) -->
-          ${tag.paths.filter((v) => {
-            if (this.matchPaths) {
-              return pathIsInSearch(this.matchPaths, v);
-            }
-            return true;
-          }).map((p) => html`
-          <div 
-            class='nav-bar-path
-            ${this.usePathInNavBar === 'true' ? 'small-font' : ''}'
-            data-content-id='${p.elementId}'
-            id='link-${p.elementId}'
-            @click = '${(e) => {
-              this.scrollToEventTarget(e, false);
-            }}'
-          >
-            <span style = "${p.deprecated ? 'filter:opacity(0.5)' : ''}">
-              ${this.usePathInNavBar === 'true'
-                ? html`<span class='mono-font'>${p.method.toUpperCase()} ${p.path}</span>`
-                : p.summary || p.shortSummary
-              }
-            </span>
-          </div>`)}
-        </div>
-      </div>
-    `)}
+
+            
+            <div class='nav-bar-paths-under-tag'>
+              <!-- Paths in each tag (endpoints) -->
+              ${tag.paths.filter((v) => {
+                if (this.matchPaths) {
+                  return pathIsInSearch(this.matchPaths, v);
+                }
+                return true;
+              }).map((p) => html`
+              <div 
+                class='nav-bar-path
+                ${this.usePathInNavBar === 'true' ? 'small-font' : ''}'
+                data-content-id='${p.elementId}'
+                id='link-${p.elementId}'
+                @click = '${(e) => {
+                  this.scrollToEventTarget(e, false);
+                }}'
+              >
+                <span style = "${p.deprecated ? 'filter:opacity(0.5)' : ''}">
+                  ${this.usePathInNavBar === 'true'
+                    ? html`<span class='mono-font'>${p.method.toUpperCase()} ${p.path}</span>`
+                    : p.summary || p.shortSummary
+                  }
+                </span>
+              </div>`)}
+            </div>
+          </div>
+        `)
+      }
 
     <!-- COMPONENTS -->
     ${(this.showComponents === 'false' || !this.resolvedSpec.components)
@@ -193,7 +219,7 @@ export default function navbarTemplate() {
     `}
     </nav>`
   }
-  </aside>
+  </nav>
 `;
 }
 /* eslint-enable indent */

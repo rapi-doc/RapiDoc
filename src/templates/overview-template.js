@@ -3,7 +3,7 @@ import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import marked from 'marked';
 
 /* eslint-disable indent */
-function infoDescriptionHeadingRenderer() {
+function headingRenderer() {
   const renderer = new marked.Renderer();
   renderer.heading = ((text, level, raw, slugger) => `<h${level} class="observe-me" id="overview--${slugger.slug(raw)}">${text}</h${level}>`);
   return renderer;
@@ -11,7 +11,7 @@ function infoDescriptionHeadingRenderer() {
 
 export default function overviewTemplate() {
   return html`
-    <div id="overview"
+    <section id="overview"
       class="observe-me ${this.renderStyle === 'view' ? 'section-gap' : 'section-gap--read-mode'}">
       ${this.resolvedSpec?.info
         ? html`
@@ -53,7 +53,7 @@ export default function overviewTemplate() {
             ? html`${
               unsafeHTML(`
                 <div class="m-markdown regular-font">
-                ${marked(this.resolvedSpec.info.description, this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: infoDescriptionHeadingRenderer() } : undefined)}
+                ${marked(this.resolvedSpec.info.description, this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer() } : undefined)}
               </div>`)}`
             : ''
           }
@@ -61,7 +61,7 @@ export default function overviewTemplate() {
         `
         : ''
       }
-    </div>
+    </section>
   `;
 }
 /* eslint-enable indent */

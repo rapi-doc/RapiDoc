@@ -6,7 +6,7 @@ import { copyToClipboard } from '@/utils/common-utils';
 /* eslint-disable indent */
 export default function codeSamplesTemplate(xCodeSamples) {
   return html`
-  <div class="table-title top-gap row"> CODE SAMPLES </div>
+  <section class="table-title top-gap"> CODE SAMPLES </div>
   <div class="tab-panel col"
     @click="${
       (e) => {
@@ -28,6 +28,6 @@ export default function codeSamplesTemplate(xCodeSamples) {
         <pre><code class="language">${Prism.languages[v.lang?.toLowerCase()] ? unsafeHTML(Prism.highlight(v.source, Prism.languages[v.lang?.toLowerCase()], v.lang?.toLowerCase())) : v.source}</code></pre>
       </div>`)
     }
-  </div>`;
+  </section>`;
 }
 /* eslint-enable indent */

@@ -42,7 +42,7 @@ function onExpandCollapseAll(e, action = 'expand-all') {
 /* eslint-disable indent */
 function endpointHeadTemplate(path) {
   return html`
-  <div @click="${(e) => { toggleExpand.call(this, path, e); }}" class='endpoint-head ${path.method} ${path.deprecated ? 'deprecated' : ''} ${path.expanded ? 'expanded' : 'collapsed'}'>
+  <summary @click="${(e) => { toggleExpand.call(this, path, e); }}" class='endpoint-head ${path.method} ${path.deprecated ? 'deprecated' : ''} ${path.expanded ? 'expanded' : 'collapsed'}'>
     <div class="method ${path.method} ${path.deprecated ? 'deprecated' : ''}"> ${path.method} </div> 
     <div class="path ${path.deprecated ? 'deprecated' : ''}"> 
       ${path.path} 
@@ -56,7 +56,7 @@ function endpointHeadTemplate(path) {
     }
     <div class="only-large-screen" style="min-width:60px; flex:1"></div>
     <div class="descr">${path.summary || path.shortSummary} </div>
-  </div>
+  </summary>
   `;
 }
 
@@ -151,10 +151,10 @@ export default function endpointTemplate() {
           }
           return true;
           }).map((path) => html`
-          <div id='${path.elementId}' class='m-endpoint regular-font ${path.method} ${path.expanded ? 'expanded' : 'collapsed'}'>
+          <section id='${path.elementId}' class='m-endpoint regular-font ${path.method} ${path.expanded ? 'expanded' : 'collapsed'}'>
             ${endpointHeadTemplate.call(this, path)}      
             ${path.expanded ? endpointBodyTemplate.call(this, path) : ''}
-          </div>`)
+          </section>`)
         }
       </div>
     </div>

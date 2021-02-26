@@ -67,7 +67,7 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
   const tags = groupByTags(jsonParsedSpec, sortTags, sortEndpointsBy);
 
   const components = getComponents(jsonParsedSpec);
-  const infoDescriptionHeaders = getInfoDescriptionHeaders(jsonParsedSpec);
+  const infoDescriptionHeaders = jsonParsedSpec.info?.description ? getHeadersFromMarkdown(jsonParsedSpec.info.description) : [];
 
   // Security Scheme
   const securitySchemes = [];
@@ -175,13 +175,10 @@ function groupByPaths(openApiSpec) {
   return paths;
 }
 */
-function getInfoDescriptionHeaders(openApiSpec) {
-  if (openApiSpec && openApiSpec.info && openApiSpec.info.description) {
-    const tokens = marked.lexer(openApiSpec.info.description);
-    const headers = tokens.filter((v) => v.type === 'heading' && v.depth <= 2);
-    return headers || [];
-  }
-  return [];
+function getHeadersFromMarkdown(markdownContent) {
+  const tokens = marked.lexer(markdownContent);
+  const headers = tokens.filter((v) => v.type === 'heading' && v.depth <= 2);
+  return headers || [];
 }
 
 function getComponents(openApiSpec) {
@@ -269,6 +266,7 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
       elementId: `tag--${v.name.replace(invalidCharsRegEx, '-')}`,
       name: v.name,
       description: v.description,
+      headers: v.description ? getHeadersFromMarkdown(v.description) : [],
       paths: [],
       expanded: v['x-tag-expanded'] !== false,
     }))
@@ -314,7 +312,8 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
               show: true,
               elementId: `tag--${tag.replace(invalidCharsRegEx, '-')}`,
               name: tag,
-              description: specTagsItem ? specTagsItem.description : '',
+              description: specTagsItem?.description || '',
+              headers: specTagsItem?.description ? getHeadersFromMarkdown(specTagsItem.description) : [],
               paths: [],
               expanded: (specTagsItem ? specTagsItem['x-tag-expanded'] !== false : true),
             };

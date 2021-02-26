@@ -270,7 +270,7 @@ export default function securitySchemeTemplate() {
     return;
   }
   return html`
-  <div id='auth' style="margin-top:24px; margin-bottom:24px;" class = 'observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}'>
+  <section id='auth' style="margin-top:24px; margin-bottom:24px;" class = 'observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}'>
     <div class='sub-title regular-font'> AUTHENTICATION </div>
 
     <div class="small-font-size" style="display:flex; align-items: center; min-height:30px">
@@ -358,7 +358,7 @@ export default function securitySchemeTemplate() {
       : ''
     }
     <slot name="auth"></slot>
-  </div>
+  </section>
 `;
 }
 

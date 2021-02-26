@@ -10,6 +10,12 @@ import serverTemplate from '@/templates/server-template';
 import securitySchemeTemplate from '@/templates/security-scheme-template';
 import { expandCollapseNavBarTag } from '@/templates/navbar-template';
 
+function headingRenderer(tagElementId) {
+  const renderer = new marked.Renderer();
+  renderer.heading = ((text, level, raw, slugger) => `<h${level} class="observe-me" id="${tagElementId}--${slugger.slug(raw)}">${text}</h${level}>`);
+  return renderer;
+}
+
 function wrapFocusedTemplate(templateToWrap) {
   return html`
     <div class='regular-font section-gap--focused-mode'>
@@ -29,10 +35,22 @@ function defaultContentTemplate() {
     : wrapFocusedTemplate('');
 }
 
+/* eslint-disable indent */
 function focusedTagBodyTemplate(tag) {
   return html`
     <h1 id="${tag.elementId}">${tag.name}</h1>
-    ${tag.description ? html`<div class="m-markdown">${unsafeHTML(marked(tag.description))}</div>` : ''}
+    ${this.onNavTagClick === 'show-description' && tag.description
+      ? html`
+        <div class="m-markdown">
+          ${
+            unsafeHTML(`
+            <div class="m-markdown regular-font">
+              ${marked(tag.description, this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer(tag.elementId) } : undefined)}
+            </div>`)
+          }
+        </div>`
+      : ''
+    }
   `;
 }
 
@@ -54,7 +72,8 @@ export default function focusedEndpointTemplate() {
   } else if (focusElId.startsWith('cmp--') && this.showComponents === 'true') {
     focusedTemplate = componentsTemplate.call(this);
   } else if (focusElId.startsWith('tag--')) {
-    selectedTagObj = this.resolvedSpec.tags.find((v) => v.elementId === focusElId);
+    const idToFocus = focusElId.indexOf('--', 4) > 0 ? focusElId.substring(0, focusElId.indexOf('--', 5)) : focusElId;
+    selectedTagObj = this.resolvedSpec.tags.find((v) => v.elementId === idToFocus);
     if (selectedTagObj) {
       focusedTemplate = wrapFocusedTemplate.call(this, focusedTagBodyTemplate.call(this, selectedTagObj));
     } else {
@@ -80,3 +99,4 @@ export default function focusedEndpointTemplate() {
   }
   return focusedTemplate;
 }
+/* eslint-enable indent */

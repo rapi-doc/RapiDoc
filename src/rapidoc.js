@@ -777,8 +777,8 @@ export default class RapiDoc extends LitElement {
       const contentEl = this.shadowRoot.getElementById(elementId);
       if (contentEl) {
         isValidElementId = true;
-        // ScrollIntoView is needed for read-mode and overview section in focused-mode
-        if (this.renderStyle === 'read' || elementId.startsWith('overview')) {
+        // ScrollIntoView is needed for read-mode and overview and tag section in focused-mode
+        if (this.renderStyle === 'read' || elementId.startsWith('overview') || elementId.startsWith('tag--')) {
           contentEl.scrollIntoView({ behavior: 'auto', block: 'start' });
         }
       } else {
