@@ -49,12 +49,16 @@ paths:
         - name: date-of-birth
           in: query
           required: true
+          example: 01-09-2021
           schema:
             type: string
             format: date
         - name: interests
           in: query
           required: true
+          examples:
+            - computers
+            - movies
           schema:
             type: array
             minItems: 1
@@ -76,6 +80,9 @@ paths:
           description: Add tags to the person (not-exploded)
           style: form
           explode: false
+          examples:
+            - robot
+            - not-real
           schema:
             type: array
             items:
