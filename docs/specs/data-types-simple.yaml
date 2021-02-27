@@ -23,6 +23,7 @@ paths:
           in: query
           description: Name of a person
           required: true
+          example: Iron Man
           schema:
             type: string
             minimum: 3
@@ -35,6 +36,7 @@ paths:
         - name: email
           in: query
           required: true
+          example: iron_man@example.com
           schema:
             type: string
             format: email
@@ -81,6 +83,7 @@ paths:
         - name: maritalStatus
           in: query
           description: marital status
+          example: unmarried
           schema:
             type: string
             enum:
