@@ -1,13 +1,24 @@
+/*
+import { webpack } from 'webpack';
+import FileManagerPlugin from 'filemanager-webpack-plugin';
+import BundleAnalyzerPlugin from 'webpack-bundle-analyzer';
+import CompressionPlugin from 'compression-webpack-plugin';
+import { DuplicatesPlugin } from 'inspectpack/plugin';
+import { CleanWebpackPlugin } from 'clean-webpack-plugin';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import ESLintPlugin from 'eslint-webpack-plugin';
+import 'path';
+*/
 const webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const FileManagerPlugin = require('filemanager-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const CompressionPlugin = require('compression-webpack-plugin');
 const { DuplicatesPlugin } = require('inspectpack/plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const CompressionPlugin = require('compression-webpack-plugin');
-const VERSION = JSON.stringify(require('./package.json').version).replace(/"/g, '');
-
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
+// const ESLintPlugin = require('eslint-webpack-plugin');
+const VERSION = JSON.stringify(require('./package.json').version).replace(/"/g, '');
 
 const BANNER = `RapiDoc ${VERSION.replace()} - WebComponent to View OpenAPI docs
 License: MIT
@@ -17,9 +28,7 @@ Author : Mrinmoy Majumdar`;
 const commonPlugins = [
   new webpack.HotModuleReplacementPlugin(),
   new CleanWebpackPlugin(),
-  new webpack.optimize.LimitChunkCountPlugin({
-    maxChunks: 1,
-  }),
+  new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }),
   new HtmlWebpackPlugin({ template: 'index.html' }),
   new CompressionPlugin(),
   new FileManagerPlugin({
@@ -30,6 +39,19 @@ const commonPlugins = [
       ],
     },
   }),
+  /*
+  new ESLintPlugin({
+    emitError: true,
+    emitWarning: true,
+    formatter: 'stylish',
+    fix: true,
+    overrideConfigFile: path.resolve(__dirname, '.eslintrc'),
+    outputReport: {
+      filePath: './eslint_report.html',
+      formatter: 'html',
+    },
+  }),
+  */
 ];
 
 if (process.env.NODE_ENV === 'production') {
