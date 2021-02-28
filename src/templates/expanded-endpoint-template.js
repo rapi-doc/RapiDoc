@@ -96,7 +96,7 @@ export default function expandedEndpointTemplate() {
       ${
         unsafeHTML(`
           <div class="m-markdown regular-font">
-          ${marked(tag.description, this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer(tag.elementId) } : undefined)}
+          ${marked(tag.description || '', this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer(tag.elementId) } : undefined)}
         </div>`)
       }
       </div>
