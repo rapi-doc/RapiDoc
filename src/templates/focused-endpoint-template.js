@@ -1,14 +1,14 @@
 import { html } from 'lit-element';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import marked from 'marked';
-import { expandedEndpointBodyTemplate } from '@/templates/expanded-endpoint-template';
-import '@/components/api-request';
-import '@/components/api-response';
-import componentsTemplate from '@/templates/components-template';
-import overviewTemplate from '@/templates/overview-template';
-import serverTemplate from '@/templates/server-template';
-import securitySchemeTemplate from '@/templates/security-scheme-template';
-import { expandCollapseNavBarTag } from '@/templates/navbar-template';
+import { expandedEndpointBodyTemplate } from '~/templates/expanded-endpoint-template';
+import '~/components/api-request';
+import '~/components/api-response';
+import componentsTemplate from '~/templates/components-template';
+import overviewTemplate from '~/templates/overview-template';
+import serverTemplate from '~/templates/server-template';
+import securitySchemeTemplate from '~/templates/security-scheme-template';
+import { expandCollapseNavBarTag } from '~/templates/navbar-template';
 
 function headingRenderer(tagElementId) {
   const renderer = new marked.Renderer();

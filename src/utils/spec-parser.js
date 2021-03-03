@@ -1,37 +1,41 @@
 /* eslint-disable no-use-before-define */
 // import JsonRefs from 'json-refs';
-import converter from 'swagger2openapi';
-import Swagger from 'swagger-client';
+// import converter from 'swagger2openapi';
+// import Swagger from 'swagger-client';
+import OpenApiParser from '@apitools/openapi-parser';
 import marked from 'marked';
-import { invalidCharsRegEx, rapidocApiKey } from '@/utils/common-utils';
+import { invalidCharsRegEx, rapidocApiKey } from '~/utils/common-utils';
 
 export default async function ProcessSpec(specUrl, sortTags = false, sortEndpointsBy = '', attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '') {
   let jsonParsedSpec;
-  let convertedSpec;
+  // let convertedSpec;
   // let resolvedRefSpec;
   // let resolveOptions;
   // const specLocation = '';
   // let url;
-
+  /*
   const convertOptions = {
     patch: true,
     warnOnly: true,
     resolveInternal: true,
     anchors: true,
   };
+  */
 
   try {
-    let specObj;
+    let specMeta;
     if (typeof specUrl === 'string') {
-      specObj = await Swagger(specUrl);
+      specMeta = await OpenApiParser.resolve({ url: specUrl }); // Swagger(specUrl);
     } else {
-      specObj = await Swagger({ spec: specUrl });
+      specMeta = await OpenApiParser.resolve({ spec: specUrl }); // Swagger({ spec: specUrl });
     }
-    jsonParsedSpec = specObj.spec;
+    jsonParsedSpec = specMeta.spec;
+    /*
     if (specObj.spec.swagger) {
       convertedSpec = await converter.convertObj(specObj.spec, convertOptions);
       jsonParsedSpec = convertedSpec.openapi;
     }
+    */
     /*
       // JsonRefs cant load yaml files, so first use converter
       if (typeof specUrl === 'string') {
@@ -265,7 +269,7 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
       show: true,
       elementId: `tag--${v.name.replace(invalidCharsRegEx, '-')}`,
       name: v.name,
-      description: v.description,
+      description: v.description || '',
       headers: v.description ? getHeadersFromMarkdown(v.description) : [],
       paths: [],
       expanded: v['x-tag-expanded'] !== false,
@@ -276,10 +280,8 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
   for (const path in openApiSpec.paths) {
     const commonParams = openApiSpec.paths[path].parameters;
     const commonPathProp = {
-      // summary: openApiSpec.paths[path].summary,
-      // description: openApiSpec.paths[path].description,
-      servers: openApiSpec.paths[path].servers ? openApiSpec.paths[path].servers : [],
-      parameters: openApiSpec.paths[path].parameters ? openApiSpec.paths[path].parameters : [],
+      servers: openApiSpec.paths[path].servers || [],
+      parameters: openApiSpec.paths[path].parameters || [],
     };
 
     methods.forEach((methodName) => {
@@ -287,7 +289,7 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
         const fullPath = openApiSpec.paths[path][methodName];
 
         // If path.methods are tagged, else generate it from path
-        const pathTags = fullPath.tags ? fullPath.tags : [];
+        const pathTags = fullPath.tags || [];
         if (pathTags.length === 0) {
           let firstWordEndIndex = path.indexOf('/', 1);
           if (firstWordEndIndex === -1) {

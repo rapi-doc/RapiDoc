@@ -4,21 +4,21 @@ import Prism from 'prismjs';
 
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 // import { live } from 'lit-html/directives/live';
-import TableStyles from '@/styles/table-styles';
-import FlexStyles from '@/styles/flex-styles';
-import InputStyles from '@/styles/input-styles';
-import FontStyles from '@/styles/font-styles';
-import BorderStyles from '@/styles/border-styles';
-import TabStyles from '@/styles/tab-styles';
-import PrismStyles from '@/styles/prism-styles';
-import CustomStyles from '@/styles/custom-styles';
-import { copyToClipboard, prettyXml } from '@/utils/common-utils';
+import TableStyles from '~/styles/table-styles';
+import FlexStyles from '~/styles/flex-styles';
+import InputStyles from '~/styles/input-styles';
+import FontStyles from '~/styles/font-styles';
+import BorderStyles from '~/styles/border-styles';
+import TabStyles from '~/styles/tab-styles';
+import PrismStyles from '~/styles/prism-styles';
+import CustomStyles from '~/styles/custom-styles';
+import { copyToClipboard, prettyXml } from '~/utils/common-utils';
 import {
   schemaInObjectNotation, getTypeInfo, generateExample,
-} from '@/utils/schema-utils';
-import '@/components/json-tree';
-import '@/components/schema-tree';
-import '@/components/tag-input';
+} from '~/utils/schema-utils';
+import '~/components/json-tree';
+import '~/components/schema-tree';
+import '~/components/tag-input';
 
 export default class ApiRequest extends LitElement {
   constructor() {

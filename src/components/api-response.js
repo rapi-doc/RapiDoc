@@ -1,16 +1,16 @@
 import { LitElement, html, css } from 'lit-element';
 import marked from 'marked';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
-import { schemaInObjectNotation, generateExample } from '@/utils/schema-utils';
-import FontStyles from '@/styles/font-styles';
-import FlexStyles from '@/styles/flex-styles';
-import TableStyles from '@/styles/table-styles';
-import InputStyles from '@/styles/input-styles';
-import TabStyles from '@/styles/tab-styles';
-import BorderStyles from '@/styles/border-styles';
-import CustomStyles from '@/styles/custom-styles';
-import '@/components/schema-tree';
-import '@/components/schema-table';
+import { schemaInObjectNotation, generateExample } from '~/utils/schema-utils';
+import FontStyles from '~/styles/font-styles';
+import FlexStyles from '~/styles/flex-styles';
+import TableStyles from '~/styles/table-styles';
+import InputStyles from '~/styles/input-styles';
+import TabStyles from '~/styles/tab-styles';
+import BorderStyles from '~/styles/border-styles';
+import CustomStyles from '~/styles/custom-styles';
+import '~/components/schema-tree';
+import '~/components/schema-table';
 
 export default class ApiResponse extends LitElement {
   constructor() {

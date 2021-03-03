@@ -2,8 +2,8 @@
 import { html } from 'lit-element';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import marked from 'marked';
-import '@/components/json-tree';
-import '@/components/schema-tree';
+import '~/components/json-tree';
+import '~/components/schema-tree';
 
 function componentBodyTemplate(sComponent) {
   return html`

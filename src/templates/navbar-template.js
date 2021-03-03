@@ -1,6 +1,6 @@
 import { html } from 'lit-element';
-import { pathIsInSearch } from '@/utils/common-utils';
 import marked from 'marked';
+import { pathIsInSearch } from '~/utils/common-utils';
 
 export function expandCollapseNavBarTag(navLinkEl, action = 'toggle') {
   const tagAndPathEl = navLinkEl?.closest('.nav-bar-tag-and-paths');

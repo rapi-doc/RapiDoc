@@ -1,9 +1,9 @@
 import { LitElement, html, css } from 'lit-element';
 import marked from 'marked';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
-import FontStyles from '@/styles/font-styles';
-import SchemaStyles from '@/styles/schema-styles';
-import CustomStyles from '@/styles/custom-styles';
+import FontStyles from '~/styles/font-styles';
+import SchemaStyles from '~/styles/schema-styles';
+import CustomStyles from '~/styles/custom-styles';
 
 export default class SchemaTable extends LitElement {
   static get properties() {
