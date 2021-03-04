@@ -483,7 +483,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
 }
 
 /* Create Example object */
-export function generateExample(examples, example, schema, mimeType, includeReadOnly = true, outputType) {
+export function generateExample(examples, example, schema, mimeType, includeReadOnly = true, includeWriteOnly = true, outputType) {
   const finalExamples = [];
   // First check if examples is provided
   if (examples) {
@@ -582,7 +582,7 @@ export function generateExample(examples, example, schema, mimeType, includeRead
           schema,
           {
             includeReadOnly,
-            includeWriteOnly: true,
+            includeWriteOnly,
             deprecated: true,
           },
         );
