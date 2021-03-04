@@ -37,15 +37,17 @@
           }
         });
 
-        if (optionsStr.trim() === '')
+        if (optionsStr.trim() === '') {
           getRapiDoc().removeAttribute('schema-hide-read-only');
-        else
+          getRapiDoc().connectedCallback();
+        }
+        else {
           getRapiDoc().setAttribute('schema-hide-read-only', optionsStr);
+        }
       }
 
-      function toggleNever()
+      function toggleNeverHideReadOnly(neverBox)
       {
-        const neverBox = document.getElementById('read-only-never');
         const options = document.getElementsByClassName('read-only-option');
 
         if (neverBox.checked) {
@@ -55,6 +57,17 @@
           getRapiDoc().setAttribute('schema-hide-read-only', 'never');
         } else {
           getRapiDoc().removeAttribute('schema-hide-read-only');
+          getRapiDoc().connectedCallback();
+        }
+      }
+
+      function toggleNeverHideWriteOnly(neverBox)
+      {
+        if (neverBox.checked) {
+          getRapiDoc().setAttribute('schema-hide-write-only', 'never');
+        } else {
+          getRapiDoc().removeAttribute('schema-hide-write-only');
+          getRapiDoc().connectedCallback();
         }
       }
     </script>
@@ -78,7 +91,7 @@
     </style>
   </head>
   <body>
-    <rapi-doc spec-url="../specs/readOnly.json"
+    <rapi-doc spec-url="../specs/readOnly-writeOnly.json"
       id="thedoc"
       show-info = "false"
       show-header = "false"
@@ -94,10 +107,13 @@
         <button class="btn" onclick="toggleSchemaStyle()">Toggle Schema Style</button>
       </div>
       <div style="display:flex; margin:10px; flex-direction: column;"><strong>Hide ReadOnly properties:</strong>
-        <div><input type="checkbox" id="read-only-never" onclick="toggleNever()" /><label for="read-only-never">Never</label></div>
+        <div><input type="checkbox" id="read-only-never" onclick="toggleNeverHideReadOnly(this)" /><label for="read-only-never">Never</label></div>
         <div><input type="checkbox" class="read-only-option" id="read-only-post" value="post" onclick="toggleReadOnly('post')" /><label for="read-only-post">POST</label></div>
         <div><input type="checkbox" class="read-only-option" id="read-only-put" value="put" onclick="toggleReadOnly('put')" /><label for="read-only-put">PUT</label></div>
         <div><input type="checkbox" class="read-only-option" id="read-only-patch" value="patch" onclick="toggleReadOnly('patch')" /><label for="read-only-patch">PATCH</label></div>
+      </div>
+      <div style="display:flex; margin:10px; flex-direction: column;"><strong>Hide WriteOnly properties:</strong>
+        <div><input type="checkbox" id="write-only-never" onclick="toggleNeverHideWriteOnly(this)" /><label for="write-only-never">Never</label></div>
       </div>
     </rapi-doc>
   </body>

@@ -1,0 +1,72 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Hidden readOnly",
+        "version": "1.0.0",
+        "description": "Hidden readOnly/writeOnly properties for write/read actions."
+    },
+    "components": {
+        "schemas": {
+            "dummy": {
+                "type": "object",
+                "properties": {
+                    "foo": { "type": "string" },
+                    "bar": { "type": "string", "readOnly": true },
+                    "baz": { "type": "string", "writeOnly": true }
+                }
+            }
+        },
+        "requestBodies": {
+            "request": {
+                "description": "Check out the model tab to see (or not see) the readOnly property `bar`",
+                "content": {
+                    "application/json": {
+                        "schema": { "$ref": "#/components/schemas/dummy" }
+                    }
+                }
+            }
+        },
+        "responses": {
+            "response": {
+                "description": "Check out the model tab to see (or not see) the writeOnly property `baz`",
+                "content": {
+                    "application/json": {
+                        "schema": { "$ref": "#/components/schemas/dummy" }
+                    }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/foo": {
+            "get": {
+                "summary": "1. Get",
+                "requestBody": { "$ref": "#/components/requestBodies/request" },
+                "responses": { "200": { "$ref": "#/components/responses/response" } }
+            },
+            "post": {
+                "summary": "2. Post",
+                "requestBody": { "$ref": "#/components/requestBodies/request" },
+                "responses": { "200": { "$ref": "#/components/responses/response" } }
+            },
+            "put": {
+                "summary": "3. Put",
+                "requestBody": { "$ref": "#/components/requestBodies/request" },
+                "responses": { "200": { "$ref": "#/components/responses/response" } }
+            },
+            "patch": {
+                "summary": "4. Patch",
+                "requestBody": { "$ref": "#/components/requestBodies/request" },
+                "responses": { "200": { "$ref": "#/components/responses/response" } }
+            },
+            "delete": {
+                "summary": "5. Delete",
+                "responses": { "200": { "$ref": "#/components/responses/response" } }
+            },
+            "options": {
+                "summary": "6. Options",
+                "responses": { "200": { "$ref": "#/components/responses/response" } }
+            }
+        }
+    }
+}
