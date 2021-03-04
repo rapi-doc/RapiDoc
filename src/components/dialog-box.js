@@ -1,6 +1,4 @@
-import { html } from 'lit-html';
-import { LitElement } from 'lit-element';
-
+import { LitElement, html } from 'lit-element';
 import DialogBoxStyles from '~/styles/dialog-box-styles';
 
 export default class DialogBox extends LitElement {

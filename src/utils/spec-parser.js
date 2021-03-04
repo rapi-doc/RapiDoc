@@ -1,27 +1,10 @@
 /* eslint-disable no-use-before-define */
-// import JsonRefs from 'json-refs';
-// import converter from 'swagger2openapi';
-// import Swagger from 'swagger-client';
 import OpenApiParser from '@apitools/openapi-parser';
 import marked from 'marked';
 import { invalidCharsRegEx, rapidocApiKey } from '~/utils/common-utils';
 
 export default async function ProcessSpec(specUrl, sortTags = false, sortEndpointsBy = '', attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '') {
   let jsonParsedSpec;
-  // let convertedSpec;
-  // let resolvedRefSpec;
-  // let resolveOptions;
-  // const specLocation = '';
-  // let url;
-  /*
-  const convertOptions = {
-    patch: true,
-    warnOnly: true,
-    resolveInternal: true,
-    anchors: true,
-  };
-  */
-
   try {
     let specMeta;
     if (typeof specUrl === 'string') {
@@ -30,37 +13,6 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
       specMeta = await OpenApiParser.resolve({ spec: specUrl }); // Swagger({ spec: specUrl });
     }
     jsonParsedSpec = specMeta.spec;
-    /*
-    if (specObj.spec.swagger) {
-      convertedSpec = await converter.convertObj(specObj.spec, convertOptions);
-      jsonParsedSpec = convertedSpec.openapi;
-    }
-    */
-    /*
-      // JsonRefs cant load yaml files, so first use converter
-      if (typeof specUrl === 'string') {
-        // resolvedRefSpec = await JsonRefs.resolveRefsAt(specUrl, resolveOptions);
-        convertedSpec = await converter.convertUrl(specUrl, convertOptions);
-        specLocation = convertedSpec.source.trim();
-        if (specLocation.startsWith('/')) {
-          url = new URL(`.${specLocation}`, window.location.href);
-          specLocation = url.pathname;
-        }
-      } else {
-        // resolvedRefSpec = await JsonRefs.resolveRefs(specUrl, resolveOptions);
-        convertedSpec = await converter.convertObj(specUrl, convertOptions);
-        url = new URL(window.location.href);
-        specLocation = url.pathname;
-      }
-      // convertedSpec = await converter.convertObj(resolvedRefSpec.resolved, convertOptions);
-      resolveOptions = {
-        resolveCirculars: false,
-        location: specLocation, // location is important to specify to resolve relative external file references when using JsonRefs.resolveRefs() which takes an JSON object
-      };
-      resolvedRefSpec = await JsonRefs.resolveRefs(convertedSpec.openapi, resolveOptions);
-      // jsonParsedSpec = convertedSpec.openapi;
-      jsonParsedSpec = resolvedRefSpec.resolved;
-    */
   } catch (err) {
     console.info('RapiDoc: %c There was an issue while parsing the spec %o ', 'color:orangered', err); // eslint-disable-line no-console
   }
@@ -162,23 +114,10 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
     externalDocs: jsonParsedSpec.externalDocs,
     securitySchemes,
     servers,
-    basePath: jsonParsedSpec.basePath, // Only available in swagger V2
   };
   return parsedSpec;
 }
 
-/*
-function groupByPaths(openApiSpec) {
-  const paths = [];
-  for (const p in openApiSpec.paths) {
-    openApiSpec.paths[p].path = p;
-    openApiSpec.paths[p].expanded = false;
-    openApiSpec.paths[p].activeMethod = 'no-active-method';
-    paths.push(openApiSpec.paths[p]);
-  }
-  return paths;
-}
-*/
 function getHeadersFromMarkdown(markdownContent) {
   const tokens = marked.lexer(markdownContent);
   const headers = tokens.filter((v) => v.type === 'heading' && v.depth <= 2);
@@ -370,31 +309,6 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
       }
     }); // End of Methods
   }
-
-  /*
-  // sort paths by methods or path within each tags;
-  const tagsWithSortedPaths = tags.filter((v) => v.paths && v.paths.length > 0);
-  if (sortEndpointsBy === 'method') {
-    tagsWithSortedPaths.forEach((v) => {
-      if (v.paths) {
-        // v.paths.sort((a, b) => a.method.localeCompare(b.method));
-        v.paths.sort((a, b) => methods.indexOf(a.method).toString().localeCompare(methods.indexOf(b.method)));
-      }
-    });
-  } else if (sortEndpointsBy === 'summary') {
-    tagsWithSortedPaths.forEach((v) => {
-      if (v.paths) {
-        v.paths.sort((a, b) => (a.summary || a.description || a.path).localeCompare(b.summary || b.description || b.path));
-      }
-    });
-  } else {
-    tagsWithSortedPaths.forEach((v) => {
-      if (v.paths) {
-        v.paths.sort((a, b) => a.path.localeCompare(b.path));
-      }
-    });
-  }
-  */
 
   const tagsWithSortedPaths = tags.filter((tag) => tag.paths && tag.paths.length > 0);
   tagsWithSortedPaths.forEach((tag) => {
