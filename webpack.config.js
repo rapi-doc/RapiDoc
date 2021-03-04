@@ -84,6 +84,7 @@ module.exports = {
     'node-fetch-h2': 'null',
     'cross-fetch': 'null',
     qs: 'null',
+    decorators: 'null',
   },
   optimization: {
     splitChunks: {
@@ -147,6 +148,7 @@ module.exports = {
   resolve: {
     alias: {
       '~': path.resolve(__dirname, 'src'),
+      'lit-html/lib/shady-render.js': path.resolve(__dirname, './node_modules/lit-html/lit-html.js'), // removes shady-render.js from the bundle
     },
   },
   plugins: commonPlugins,
