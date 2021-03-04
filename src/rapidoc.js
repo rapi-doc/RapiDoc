@@ -367,7 +367,14 @@ export default class RapiDoc extends LitElement {
     if (!this.defaultSchemaTab || !'example, model,'.includes(`${this.defaultSchemaTab},`)) { this.defaultSchemaTab = 'model'; }
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) { this.schemaExpandLevel = 99999; }
     if (!this.schemaDescriptionExpanded || !'true, false,'.includes(`${this.schemaDescriptionExpanded},`)) { this.schemaDescriptionExpanded = 'false'; }
-    this.schemaHideReadOnly = this.schemaHideReadOnly ? ['post', 'put', 'patch'].filter((value) => this.schemaHideReadOnly === 'always' || this.schemaHideReadOnly.includes(value)) : 'none';
+    if (!this.schemaHideReadOnly) {
+      this.schemaHideReadOnly = ['post', 'put', 'patch'];
+    } else if (this.schemaHideReadOnly !== 'never') {
+      this.schemaHideReadOnly = ['post', 'put', 'patch'].filter((value) => this.schemaHideReadOnly.includes(value));
+      if (this.schemaHideReadOnly.length === 0) {
+        this.schemaHideReadOnly = ['post', 'put', 'patch'];
+      }
+    }
     if (!this.fillRequestFieldsWithExample || !'true, false,'.includes(`${this.fillRequestFieldsWithExample},`)) { this.fillRequestFieldsWithExample = 'true'; }
     if (!this.onNavTagClick || !'expand-collapse, show-description,'.includes(`${this.onNavTagClick},`)) { this.onNavTagClick = 'expand-collapse'; }
     if (!this.responseAreaHeight) {

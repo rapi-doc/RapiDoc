@@ -346,11 +346,12 @@
           </tr>
           <tr>
             <td class="mono bold right">schema-hide-read-only </td>
-            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'>always | (combination of: post | put | patch)</span></span> -
-              By default the model schemas will have an icon indicating a property is readOnly. If you prefer to hide readOnly properties
-              for write actions, you can determine for which HTTP methods they should be hidden.
+            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'>always | never | (combination of: post | put | patch)</span></span> -
+              Model schemas will have an icon indicating a property is readOnly. By default, for schemas used in a Request object the property will
+              not be shown. If you prefer to show readOnly properties for write actions (POST, PUT, PATCH), you can configure this setting to 'never'
+              or determine for which HTTP methods they should be hidden.
             </td>
-            <td>none</td>
+            <td>always</td>
           </tr>
           <tr>
             <td class="mono bold right">default-schema-tab</td>

@@ -27,33 +27,34 @@
 
       function toggleReadOnly(value) {
         const el = document.getElementById('read-only-' + value);
-        const allBox = document.getElementById('read-only-all');
+        const neverBox = document.getElementById('read-only-never');
         const options = document.getElementsByClassName('read-only-option');
-        allBox.checked = false;
+        neverBox.checked = false;
         let optionsStr = '';
         Array.prototype.forEach.call(options, function (el) {
           if (el.checked) {
             optionsStr = optionsStr + ' ' + el.value;
           }
         });
-        getRapiDoc().setAttribute('schema-hide-read-only', optionsStr);
+
+        if (optionsStr.trim() === '')
+          getRapiDoc().removeAttribute('schema-hide-read-only');
+        else
+          getRapiDoc().setAttribute('schema-hide-read-only', optionsStr);
       }
 
-      function toggleAll()
+      function toggleNever()
       {
-        const allBox = document.getElementById('read-only-all');
+        const neverBox = document.getElementById('read-only-never');
         const options = document.getElementsByClassName('read-only-option');
 
-        if (allBox.checked) {
-          Array.prototype.forEach.call(options, function (el) {
-            el.checked = true;
-          });
-          getRapiDoc().setAttribute('schema-hide-read-only', 'post put patch');
-        } else {
+        if (neverBox.checked) {
           Array.prototype.forEach.call(options, function (el) {
             el.checked = false;
           });
-          getRapiDoc().setAttribute('schema-hide-read-only', '');
+          getRapiDoc().setAttribute('schema-hide-read-only', 'never');
+        } else {
+          getRapiDoc().removeAttribute('schema-hide-read-only');
         }
       }
     </script>
@@ -93,7 +94,7 @@
         <button class="btn" onclick="toggleSchemaStyle()">Toggle Schema Style</button>
       </div>
       <div style="display:flex; margin:10px; flex-direction: column;"><strong>Hide ReadOnly properties:</strong>
-        <div><input type="checkbox" id="read-only-all" onclick="toggleAll()" /><label for="read-only-all">Always</label></div>
+        <div><input type="checkbox" id="read-only-never" onclick="toggleNever()" /><label for="read-only-never">Never</label></div>
         <div><input type="checkbox" class="read-only-option" id="read-only-post" value="post" onclick="toggleReadOnly('post')" /><label for="read-only-post">POST</label></div>
         <div><input type="checkbox" class="read-only-option" id="read-only-put" value="put" onclick="toggleReadOnly('put')" /><label for="read-only-put">PUT</label></div>
         <div><input type="checkbox" class="read-only-option" id="read-only-patch" value="patch" onclick="toggleReadOnly('patch')" /><label for="read-only-patch">PATCH</label></div>

@@ -5,6 +5,27 @@
         "version": "1.0.0",
         "description": "Hidden readOnly properties for write actions."
     },
+    "components": {
+        "schemas": {
+            "dummy": {
+                "type": "object",
+                "properties": {
+                    "foo": { "type": "string" },
+                    "bar": { "type": "string", "readOnly": true }
+                }
+            }
+        },
+        "responses": {
+            "response": {
+                "description": "Dummy response",
+                "content": {
+                    "application/json": {
+                        "schema": { "$ref": "#/components/schemas/dummy" }
+                    }
+                }
+            }
+        }
+    },
     "paths": {
         "/foo": {
             "post": {
@@ -13,17 +34,11 @@
                 "requestBody": {
                     "content": {
                         "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "foo": { "type": "string" },
-                                    "bar": { "type": "string", "readOnly": true }
-                                }
-                            }
+                            "schema": { "$ref": "#/components/schemas/dummy" }
                         }
                     }
                 },
-                "responses": { "204": { "description": "No content"} }
+                "responses": { "200": { "$ref": "#/components/responses/response" } }
             },
             "put": {
                 "summary": "2. Put",
@@ -31,17 +46,11 @@
                 "requestBody": {
                     "content": {
                         "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "foo": { "type": "string" },
-                                    "bar": { "type": "string", "readOnly": true }
-                                }
-                            }
+                            "schema": { "$ref": "#/components/schemas/dummy" }
                         }
                     }
                 },
-                "responses": { "204": { "description": "No content"} }
+                "responses": { "200": { "$ref": "#/components/responses/response" } }
             },
             "patch": {
                 "summary": "3. Patch",
@@ -49,17 +58,11 @@
                 "requestBody": {
                     "content": {
                         "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "foo": { "type": "string" },
-                                    "bar": { "type": "string", "readOnly": true }
-                                }
-                            }
+                            "schema": { "$ref": "#/components/schemas/dummy" }
                         }
                     }
                 },
-                "responses": { "204": { "description": "No content"} }
+                "responses": { "200": { "$ref": "#/components/responses/response" } }
             }
         }
     }

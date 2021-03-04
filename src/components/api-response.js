@@ -296,6 +296,7 @@ export default class ApiResponse extends LitElement {
             .data = '${mimeRespDetails.schemaTree}'
             schema-expand-level = "${this.schemaExpandLevel}"
             schema-description-expanded = "${this.schemaDescriptionExpanded}"
+            schema-hide-read-only = false
           > </schema-tree> `
         : html`
           <schema-tree
@@ -304,6 +305,7 @@ export default class ApiResponse extends LitElement {
             .data = '${mimeRespDetails.schemaTree}'
             schema-expand-level = "${this.schemaExpandLevel}"
             schema-description-expanded = "${this.schemaDescriptionExpanded}"
+            schema-hide-read-only = false
           > </schema-tree>`
       }`;
   }
