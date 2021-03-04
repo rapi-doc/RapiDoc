@@ -29,13 +29,11 @@
   "module": "dist/rapidoc-min.js",
   "mode": "production",
   "dependencies": {
-    "@apitools/openapi-parser": "0.0.6",
+    "@apitools/openapi-parser": "^0.0.6",
     "lit-element": "2.4.0",
     "lit-html": "1.2.1",
     "marked": "^2.0.1",
-    "prismjs": "^1.23.0",
-    "swagger-client": "^3.13.1",
-    "swagger2openapi": "^7.0.5"
+    "prismjs": "^1.23.0"
   },
   "scripts": {
     "build": "NODE_ENV=production webpack --mode=production",
