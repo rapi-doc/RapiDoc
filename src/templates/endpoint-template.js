@@ -117,6 +117,7 @@ function endpointBodyTemplate(path) {
         schema-style="${this.schemaStyle}"
         schema-expand-level = "${this.schemaExpandLevel}"
         schema-description-expanded = "${this.schemaDescriptionExpanded}"
+        schema-hide-write-only = "${this.schemaHideWriteOnly}"
         selected-status = "${Object.keys(path.responses || {})[0] || ''}"
       > </api-response>
     </div>

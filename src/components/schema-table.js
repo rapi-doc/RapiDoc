@@ -11,6 +11,7 @@ export default class SchemaTable extends LitElement {
       schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
       schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
       schemaHideReadOnly: { type: String, attribute: 'schema-hide-read-only' },
+      schemaHideWriteOnly: { type: String, attribute: 'schema-hide-write-only' },
       data: { type: Object },
     };
   }
@@ -20,6 +21,7 @@ export default class SchemaTable extends LitElement {
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) { this.schemaExpandLevel = 99999; }
     if (!this.schemaDescriptionExpanded || !'true false'.includes(this.schemaDescriptionExpanded)) { this.schemaDescriptionExpanded = 'false'; }
     if (!this.schemaHideReadOnly || !'true false'.includes(this.schemaHideReadOnly)) { this.schemaHideReadOnly = 'true'; }
+    if (!this.schemaHideWriteOnly || !'true false'.includes(this.schemaHideWriteOnly)) { this.schemaHideWriteOnly = 'true'; }
   }
 
   static get styles() {
@@ -218,6 +220,9 @@ export default class SchemaTable extends LitElement {
     // For Primitive Data types
     const [type, readorWriteOnly, constraint, defaultValue, allowedValues, pattern, schemaDescription, schemaTitle, deprecated] = data.split('~|~');
     if (readorWriteOnly === '🆁' && this.schemaHideReadOnly === 'true') {
+      return;
+    }
+    if (readorWriteOnly === '🆆' && this.schemaHideWriteOnly === 'true') {
       return;
     }
     const dataTypeCss = type.replace('{', '').substring(0, 4).toLowerCase();

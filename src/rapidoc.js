@@ -61,6 +61,7 @@ export default class RapiDoc extends LitElement {
       schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
       schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
       schemaHideReadOnly: { type: String, attribute: 'schema-hide-read-only' },
+      schemaHideWriteOnly: { type: String, attribute: 'schema-hide-write-only' },
       responseAreaHeight: { type: String, attribute: 'response-area-height' },
       fillRequestFieldsWithExample: { type: String, attribute: 'fill-request-fields-with-example' },
       onNavTagClick: { type: String, attribute: 'on-nav-tag-click' },
@@ -375,6 +376,7 @@ export default class RapiDoc extends LitElement {
         this.schemaHideReadOnly = ['post', 'put', 'patch'];
       }
     }
+    this.schemaHideWriteOnly = this.schemaHideWriteOnly !== 'never';
     if (!this.fillRequestFieldsWithExample || !'true, false,'.includes(`${this.fillRequestFieldsWithExample},`)) { this.fillRequestFieldsWithExample = 'true'; }
     if (!this.onNavTagClick || !'expand-collapse, show-description,'.includes(`${this.onNavTagClick},`)) { this.onNavTagClick = 'expand-collapse'; }
     if (!this.responseAreaHeight) {

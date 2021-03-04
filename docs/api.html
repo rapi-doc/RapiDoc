@@ -349,7 +349,17 @@
             <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'>always | never | (combination of: post | put | patch)</span></span> -
               Model schemas will have an icon indicating a property is readOnly. By default, for schemas used in a Request object the property will
               not be shown. If you prefer to show readOnly properties for write actions (POST, PUT, PATCH), you can configure this setting to 'never'
-              or determine for which HTTP methods they should be hidden.
+              or determine for which HTTP methods they should be hidden.<br>
+              Schemas in Response objects are obviously not affected by this setting and will always show readOnly properties.
+            </td>
+            <td>always</td>
+          </tr>
+          <tr>
+            <td class="mono bold right">schema-hide-write-only </td>
+            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'>always | never</span></span> -
+              Model schemas will have an icon indicating a property is writeOnly. By default, for schemas used in a Response object the property will
+              not be shown. If you prefer to show writeOnly properties in Responses, you can configure this setting to 'never'.<br>
+              Schemas in Request objects are obviously not affected by this setting and will always show writeOnly properties.
             </td>
             <td>always</td>
           </tr>

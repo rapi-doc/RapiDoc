@@ -561,6 +561,7 @@ export default class ApiRequest extends LitElement {
               schema-expand-level = "${this.schemaExpandLevel}"
               schema-description-expanded = "${this.schemaDescriptionExpanded}"
               schema-hide-read-only = "${this.schemaHideReadOnly.includes(this.method)}"
+              schema-hide-write-only = false
             > </schema-table>
           `;
         } else if (this.schemaStyle === 'tree') {
@@ -573,6 +574,7 @@ export default class ApiRequest extends LitElement {
               schema-expand-level = "${this.schemaExpandLevel}"
               schema-description-expanded = "${this.schemaDescriptionExpanded}"
               schema-hide-read-only = "${this.schemaHideReadOnly.includes(this.method)}"
+              schema-hide-write-only = false
             > </schema-tree>
           `;
         }
