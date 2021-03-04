@@ -10,15 +10,15 @@
             "dummy": {
                 "type": "object",
                 "properties": {
-                    "foo": { "type": "string" },
-                    "bar": { "type": "string", "readOnly": true },
-                    "baz": { "type": "string", "writeOnly": true }
+                    "id": { "type": "string", "readOnly": true },
+                    "name": { "type": "string" },
+                    "password": { "type": "string", "writeOnly": true }
                 }
             }
         },
         "requestBodies": {
             "request": {
-                "description": "Check out the model tab to see (or not see) the readOnly property `bar`",
+                "description": "Check out the model tab to see (or not see) the readOnly property `id`",
                 "content": {
                     "application/json": {
                         "schema": { "$ref": "#/components/schemas/dummy" }
@@ -28,7 +28,7 @@
         },
         "responses": {
             "response": {
-                "description": "Check out the model tab to see (or not see) the writeOnly property `baz`",
+                "description": "Check out the model tab to see (or not see) the writeOnly property `password`",
                 "content": {
                     "application/json": {
                         "schema": { "$ref": "#/components/schemas/dummy" }
@@ -38,9 +38,10 @@
         }
     },
     "paths": {
-        "/foo": {
+        "/user": {
             "get": {
                 "summary": "1. Get",
+                "description": "Note: although uncommon, and it's an odd example here, but a GET request could also have a request body",
                 "requestBody": { "$ref": "#/components/requestBodies/request" },
                 "responses": { "200": { "$ref": "#/components/responses/response" } }
             },
