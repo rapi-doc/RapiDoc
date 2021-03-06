@@ -240,6 +240,12 @@ function mergePropertyExamples(obj, propertyName, propExamples) {
       mergedObj[`example-${i}`] = { ...obj[exampleKey] };
       mergedObj[`example-${i}`][propertyName] = propExamples[propExampleKey];
       i++;
+      if (i >= 10) {
+        break;
+      }
+    }
+    if (i >= 10) {
+      break;
     }
   }
   return mergedObj;
@@ -267,7 +273,7 @@ export function schemaToSampleObj(schema, config = { }) {
       return;
     }
 
-    schema.allOf.map((v) => {
+    schema.allOf.forEach((v) => {
       if (v.type === 'object' || v.properties || v.allOf || v.anyOf || v.oneOf) {
         const partialObj = schemaToSampleObj(v, config);
         Object.assign(objWithAllProps, partialObj);
@@ -486,7 +492,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
 export function generateExample(examples, example, schema, mimeType, includeReadOnly = true, outputType) {
   const finalExamples = [];
   // First check if examples is provided
-  if (examples) {
+  if (examples && Array.isArray(examples)) {
     for (const eg in examples) {
       let egContent = '';
       let egFormat = 'json';
