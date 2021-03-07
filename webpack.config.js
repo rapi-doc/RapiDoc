@@ -6,9 +6,10 @@ import CompressionPlugin from 'compression-webpack-plugin';
 import { DuplicatesPlugin } from 'inspectpack/plugin';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
-import ESLintPlugin from 'eslint-webpack-plugin';
 import 'path';
+// import ESLintPlugin from 'eslint-webpack-plugin';
 */
+
 const webpack = require('webpack');
 const FileManagerPlugin = require('filemanager-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
@@ -18,6 +19,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 // const ESLintPlugin = require('eslint-webpack-plugin');
+
 const VERSION = JSON.stringify(require('./package.json').version).replace(/"/g, '');
 
 const BANNER = `RapiDoc ${VERSION.replace()} - WebComponent to View OpenAPI docs
@@ -26,17 +28,22 @@ Repo   : https://github.com/mrin9/RapiDoc
 Author : Mrinmoy Majumdar`;
 
 const commonPlugins = [
+  new webpack.ProvidePlugin({
+    Buffer: ['buffer', 'Buffer'],
+  }),
   new webpack.HotModuleReplacementPlugin(),
   new CleanWebpackPlugin(),
   new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }),
   new HtmlWebpackPlugin({ template: 'index.html' }),
   new CompressionPlugin(),
   new FileManagerPlugin({
-    onEnd: {
-      copy: [
-        { source: 'dist/*.js', destination: 'docs' },
-        { source: 'dist/*.woff2', destination: 'docs' },
-      ],
+    events: {
+      onEnd: {
+        copy: [
+          { source: 'dist/*.js', destination: 'docs' },
+          { source: 'dist/*.woff2', destination: 'docs' },
+        ],
+      },
     },
   }),
   /*
@@ -44,7 +51,6 @@ const commonPlugins = [
     emitError: true,
     emitWarning: true,
     formatter: 'stylish',
-    fix: true,
     overrideConfigFile: path.resolve(__dirname, '.eslintrc'),
     outputReport: {
       filePath: './eslint_report.html',
@@ -73,8 +79,8 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 module.exports = {
+  mode: 'production',
   entry: './src/index.js',
-  node: { fs: 'empty' },
   externals: {
     esprima: 'esprima',
     'native-promise-only': 'native-promise-only',
@@ -85,11 +91,6 @@ module.exports = {
     'cross-fetch': 'null',
     qs: 'null',
     decorators: 'null',
-  },
-  optimization: {
-    splitChunks: {
-      chunks: 'all',
-    },
   },
   devtool: 'cheap-module-source-map',
   output: {
@@ -112,7 +113,7 @@ module.exports = {
           emitWarning: true,
           // failOnWarning: true,
           // failOnError: true,
-          fix: true,
+          fix: false,
           configFile: './.eslintrc',
           outputReport: {
             filePath: './eslint_report.html',
@@ -146,6 +147,9 @@ module.exports = {
     ],
   },
   resolve: {
+    fallback: {
+      fs: false,
+    },
     alias: {
       '~': path.resolve(__dirname, 'src'),
       'lit-html/lib/shady-render.js': path.resolve(__dirname, './node_modules/lit-html/lit-html.js'), // removes shady-render.js from the bundle
