@@ -33,6 +33,7 @@ export default class ApiResponse extends LitElement {
       activeSchemaTab: { type: String, attribute: 'active-schema-tab' },
       schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
       schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
+      schemaHideWriteOnly: { type: String, attribute: 'schema-hide-write-only' },
     };
   }
 
@@ -116,6 +117,7 @@ export default class ApiResponse extends LitElement {
           mimeRespObj.schema,
           mimeResp,
           true,
+          false,
           mimeResp.includes('json') ? 'json' : 'text',
         );
         allMimeResp[mimeResp] = {
@@ -296,6 +298,8 @@ export default class ApiResponse extends LitElement {
             .data = '${mimeRespDetails.schemaTree}'
             schema-expand-level = "${this.schemaExpandLevel}"
             schema-description-expanded = "${this.schemaDescriptionExpanded}"
+            schema-hide-read-only = false
+            schema-hide-write-only = ${this.schemaHideWriteOnly}
           > </schema-tree> `
         : html`
           <schema-tree
@@ -304,6 +308,8 @@ export default class ApiResponse extends LitElement {
             .data = '${mimeRespDetails.schemaTree}'
             schema-expand-level = "${this.schemaExpandLevel}"
             schema-description-expanded = "${this.schemaDescriptionExpanded}"
+            schema-hide-read-only = false
+            schema-hide-write-only = ${this.schemaHideWriteOnly}
           > </schema-tree>`
       }`;
   }

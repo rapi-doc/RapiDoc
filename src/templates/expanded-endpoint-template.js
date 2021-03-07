@@ -67,6 +67,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
         active-schema-tab = "${this.defaultSchemaTab}"
         schema-expand-level = "${this.schemaExpandLevel}"
         schema-description-expanded = "${this.schemaDescriptionExpanded}"
+        schema-hide-read-only = "${this.schemaHideReadOnly}"
       > </api-request>
 
       ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
@@ -79,6 +80,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
         active-schema-tab = "${this.defaultSchemaTab}"
         schema-expand-level = "${this.schemaExpandLevel}"
         schema-description-expanded = "${this.schemaDescriptionExpanded}"
+        schema-hide-write-only = "${this.schemaHideWriteOnly}"
         selected-status = "${Object.keys(path.responses || {})[0] || ''}"
       > </api-response>
     </div>

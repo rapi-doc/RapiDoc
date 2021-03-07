@@ -1,4 +1,4 @@
-import { LitElement, css, unsafeCSS } from 'lit-element';
+import { css, LitElement, unsafeCSS } from 'lit-element';
 import marked from 'marked';
 import Prism from 'prismjs';
 import 'prismjs/components/prism-css';
@@ -24,7 +24,7 @@ import InfoStyles from '~/styles/info-styles';
 import CustomStyles from '~/styles/custom-styles';
 // import { expandCollapseNavBarTag } from '@/templates/navbar-template';
 import {
-  pathIsInSearch, sleep, rapidocApiKey, advancedSearch,
+  advancedSearch, pathIsInSearch, rapidocApiKey, sleep,
 } from '~/utils/common-utils';
 import ProcessSpec from '~/utils/spec-parser';
 import mainBodyTemplate from '~/templates/main-body-template';
@@ -60,6 +60,8 @@ export default class RapiDoc extends LitElement {
       defaultSchemaTab: { type: String, attribute: 'default-schema-tab' },
       schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
       schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
+      schemaHideReadOnly: { type: String, attribute: 'schema-hide-read-only' },
+      schemaHideWriteOnly: { type: String, attribute: 'schema-hide-write-only' },
       responseAreaHeight: { type: String, attribute: 'response-area-height' },
       fillRequestFieldsWithExample: { type: String, attribute: 'fill-request-fields-with-example' },
       onNavTagClick: { type: String, attribute: 'on-nav-tag-click' },
@@ -366,6 +368,17 @@ export default class RapiDoc extends LitElement {
     if (!this.defaultSchemaTab || !'example, model,'.includes(`${this.defaultSchemaTab},`)) { this.defaultSchemaTab = 'model'; }
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) { this.schemaExpandLevel = 99999; }
     if (!this.schemaDescriptionExpanded || !'true, false,'.includes(`${this.schemaDescriptionExpanded},`)) { this.schemaDescriptionExpanded = 'false'; }
+    const writeMethodsWithBody = ['post', 'put', 'patch'];
+    if (!this.schemaHideReadOnly) {
+      this.schemaHideReadOnly = writeMethodsWithBody;
+    } else if (this.schemaHideReadOnly !== 'never') {
+      this.schemaHideReadOnly = writeMethodsWithBody.filter((value) => this.schemaHideReadOnly.includes(value));
+      if (this.schemaHideReadOnly.length === 0) {
+        this.schemaHideReadOnly = writeMethodsWithBody;
+      }
+    }
+    this.schemaHideReadOnly += ['get', 'head', 'delete', 'options'];
+    this.schemaHideWriteOnly = this.schemaHideWriteOnly !== 'never';
     if (!this.fillRequestFieldsWithExample || !'true, false,'.includes(`${this.fillRequestFieldsWithExample},`)) { this.fillRequestFieldsWithExample = 'true'; }
     if (!this.onNavTagClick || !'expand-collapse, show-description,'.includes(`${this.onNavTagClick},`)) { this.onNavTagClick = 'expand-collapse'; }
     if (!this.responseAreaHeight) {
