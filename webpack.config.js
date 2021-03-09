@@ -28,9 +28,7 @@ Repo   : https://github.com/mrin9/RapiDoc
 Author : Mrinmoy Majumdar`;
 
 const commonPlugins = [
-  new webpack.ProvidePlugin({
-    Buffer: ['buffer', 'Buffer'],
-  }),
+  new webpack.ProvidePlugin({ Buffer: ['buffer', 'Buffer'] }),
   new webpack.HotModuleReplacementPlugin(),
   new CleanWebpackPlugin(),
   new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }),
@@ -81,17 +79,6 @@ if (process.env.NODE_ENV === 'production') {
 module.exports = {
   mode: 'production',
   entry: './src/index.js',
-  externals: {
-    esprima: 'esprima',
-    'native-promise-only': 'native-promise-only',
-    commander: 'commander',
-    yargs: 'yargs',
-    'node-fetch': 'null',
-    'node-fetch-h2': 'null',
-    'cross-fetch': 'null',
-    qs: 'null',
-    decorators: 'null',
-  },
   devtool: 'cheap-module-source-map',
   output: {
     path: path.join(__dirname, 'dist'),
