@@ -131,7 +131,7 @@ export default class SchemaTree extends LitElement {
     }
 
     const leftPadding = 12;
-    const minFieldColWidth = 300 - (level * leftPadding);
+    const minFieldColWidth = 400 - (level * leftPadding);
     let openBracket = '';
     let closeBracket = '';
     const isXxxOfNode = data['::type']?.startsWith('xxx-of');
@@ -179,17 +179,10 @@ export default class SchemaTree extends LitElement {
                 ? html`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>`
                 : keyLabel === '::props' || keyLabel === '::ARRAY~OF'
                   ? ''
-                  : html`<span class="key-label">${keyLabel}</span>`
+                  : level > 0
+                    ? html`<span class="key-label">${keyLabel}:</span>`
+                    : ''
             }
-            ${level > 0
-              && !(
-                key.startsWith('::props')
-                || key.startsWith('::ONE~')
-                || key.startsWith('::ANY~')
-                || key.startsWith('::OPTION~')
-                || key.startsWith('::ARRAY~OF')
-              ) ? ':' : ''
-            } 
             ${data['::type'] === 'xxx-of' && dataType === 'array' ? html`<span style="color:var(--primary-color)">ARRAY</span>` : ''} 
             ${openBracket}
           </div>
@@ -245,7 +238,9 @@ export default class SchemaTree extends LitElement {
             ? html`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>:`
             : key.startsWith('::OPTION')
               ? html`<span class='key-label xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>`
-              : html`<span class="key-label">${keyLabel}</span>:`
+              : level > 0
+                ? html`<span class="key-label">${keyLabel}:</span>`
+                : ''
           }
           <span class='${dataTypeCss}'> 
             ${dataType === 'array' ? `[${type}]` : `${type}`}
