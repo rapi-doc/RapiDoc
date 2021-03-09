@@ -170,7 +170,7 @@ export default class RapiDoc extends LitElement {
       }
 
       .main-content-inner--view-mode {
-        padding: 0 16px;
+        padding: 0 8px;
       }
       .main-content::-webkit-scrollbar {
         width: 8px;
@@ -329,13 +329,13 @@ export default class RapiDoc extends LitElement {
           display:flex;
         }
         .section-gap { 
-          padding: 0 24px; 
+          padding: 0 0 0 24px; 
         }
         .section-gap--focused-mode {
-          padding: 24px; 
+          padding: 24px 8px; 
         }
         .section-gap--read-mode { 
-          padding: 48px 24px 24px 24px; 
+          padding: 24px 8px; 
         }
         .endpoint-body {
           position: relative;
@@ -343,16 +343,16 @@ export default class RapiDoc extends LitElement {
         }
       }
 
-      @media only screen and (min-width: 1000px) {
+      @media only screen and (min-width: 1024px) {
         .nav-bar {
           width: ${unsafeCSS(this.fontSize === 'default' ? '300px' : this.fontSize === 'large' ? '315px' : '330px')};
           display:flex;
         }
         .section-gap--focused-mode { 
-          padding: 12px 100px 12px 100px; 
+          padding: 12px 80px 12px 80px; 
         }
         .section-gap--read-mode { 
-          padding: 24px 100px 12px 100px; 
+          padding: 24px 80px 12px 80px; 
         }
       }`,
       CustomStyles,

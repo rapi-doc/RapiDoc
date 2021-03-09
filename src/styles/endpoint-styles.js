@@ -11,7 +11,7 @@ export default css`
   word-break: break-all;
 }
 
-.endpoint-head .descr{
+.endpoint-head .descr {
   font-size: var(--font-size-small);
   color:var(--light-fg);
   font-weight:400;
@@ -168,7 +168,7 @@ export default css`
   border-color:var(--red); 
 }
 
-@media only screen and (min-width: 768px) {
+@media only screen and (min-width: 1024px) {
   .only-large-screen { display:block; }
   .endpoint-head .path{
     font-size: var(--font-size-regular);
@@ -186,13 +186,13 @@ export default css`
   }
   .request{
     border-width:0 1px 0 0;
-    padding:16px 24px;
+    padding:16px;
   }
   .response{
-    padding:16px 24px;
+    padding:16px;
   } 
   .summary{
-    padding:8px 24px;
+    padding:8px 16px;
   }
 }
 `;
