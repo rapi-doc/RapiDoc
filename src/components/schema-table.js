@@ -97,7 +97,7 @@ export default class SchemaTable extends LitElement {
             <span class='m-markdown' >${this.data ? unsafeHTML(marked(this.data['::description'] || '')) : ''}</span>
           </div>
           <div style = 'border:1px solid var(--light-border-color)'>
-            <div style='display:flex; height:calc(var(--font-size-small) + 6px); line-height:calc(var(--font-size-small) + 6px); background-color: var(--bg2); padding:8px 4px; border-bottom:1px solid var(--light-border-color);'>
+            <div style='display:flex; background-color: var(--bg2); padding:8px 4px; border-bottom:1px solid var(--light-border-color);'>
               <div class='key' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Field </div>
               <div class='key-type' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Type </div>
               <div class='key-descr' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Description </div>
