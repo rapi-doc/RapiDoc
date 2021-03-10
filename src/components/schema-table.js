@@ -96,11 +96,11 @@ export default class SchemaTable extends LitElement {
             <span class="schema-root-type ${this.data?.['::type'] || ''} " > ${this.data?.['::type'] || ''}</span> 
             <span class='m-markdown' >${this.data ? unsafeHTML(marked(this.data['::description'] || '')) : ''}</span>
           </div>
-          <div style = "border:1px solid var(--light-border-color)">
-            <div style='display:flex; height:calc(var(--font-size-small) + 6px); background-color: var(--bg2); line-height:calc(var(--font-size-small) + 6px); padding:8px 2px; border-bottom:1px solid var(--light-border-color);'>
-              <div class='td key' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg)'> Field</div>
-              <div class='td key-type' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg)'> Type </div>
-              <div class='td key-descr' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg)'>Description</div>
+          <div style = 'border:1px solid var(--light-border-color)'>
+            <div style='display:flex; height:calc(var(--font-size-small) + 6px); line-height:calc(var(--font-size-small) + 6px); background-color: var(--bg2); padding:8px 4px; border-bottom:1px solid var(--light-border-color);'>
+              <div class='key' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Field </div>
+              <div class='key-type' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Type </div>
+              <div class='key-descr' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Description </div>
             </div>
             ${this.data
               ? html`
