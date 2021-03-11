@@ -182,15 +182,15 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow)
   let authorizationUrl = authFlow.authorizationUrl;
   let tokenUrl = authFlow.tokenUrl;
   let refreshUrl = authFlow.refreshUrl;
-  const isUrlAbsolute = (url) => (url.indexOf('://') > 0 || url.indexOf('//') === 0)
+  const isUrlAbsolute = (url) => (url.indexOf('://') > 0 || url.indexOf('//') === 0);
   if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
-    refreshUrl = this.selectedServer.computedUrl + refreshUrl;
+    refreshUrl = `${this.selectedServer.computedUrl}/${refreshUrl.replace(/^\//, '')}`;
   }
   if (tokenUrl && !isUrlAbsolute(tokenUrl)) {
-    tokenUrl = this.selectedServer.computedUrl + tokenUrl;
+    tokenUrl = `${this.selectedServer.computedUrl}/${tokenUrl.replace(/^\//, '')}`;
   }
   if (authorizationUrl && !isUrlAbsolute(authorizationUrl)) {
-    authorizationUrl = this.selectedServer.computedUrl + authorizationUrl;
+    authorizationUrl = `${this.selectedServer.computedUrl}/${authorizationUrl.replace(/^\//, '')}`;
   }
   let flowNameDisplay;
   if (flowName === 'authorizationCode') {
