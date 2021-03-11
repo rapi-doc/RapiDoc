@@ -1227,7 +1227,7 @@ export default class ApiRequest extends LitElement {
       const contentType = tryResp.headers.get('content-type');
       const respEmpty = (await tryResp.clone().text()).length === 0;
       if (respEmpty) {
-        respText = '';
+        me.responseText = '';
       } else if (contentType) {
         if (contentType.includes('json')) {
           if ((/charset=[^"']+/).test(contentType)) {
