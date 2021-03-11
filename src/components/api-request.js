@@ -1219,7 +1219,7 @@ export default class ApiRequest extends LitElement {
       const tryResp = await fetch(fetchUrl, fetchOptions);
       tryBtnEl.disabled = false;
       me.responseStatus = tryResp.ok ? 'success' : 'error';
-      me.responseMessage = `${tryResp.statusText}:${tryResp.status}`;
+      me.responseMessage = tryResp.statusText ? `${tryResp.statusText}:${tryResp.status}` : tryResp.status;
       me.responseUrl = tryResp.url;
       tryResp.headers.forEach((hdrVal, hdr) => {
         me.responseHeaders = `${me.responseHeaders}${hdr.trim()}: ${hdrVal}\n`;
@@ -1227,7 +1227,7 @@ export default class ApiRequest extends LitElement {
       const contentType = tryResp.headers.get('content-type');
       const respEmpty = (await tryResp.clone().text()).length === 0;
       if (respEmpty) {
-        respText = '';
+        me.responseText = '';
       } else if (contentType) {
         if (contentType.includes('json')) {
           if ((/charset=[^"']+/).test(contentType)) {
