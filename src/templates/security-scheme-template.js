@@ -179,6 +179,19 @@ async function onInvokeOAuthFlow(apiKeyId, flowType, authUrl, tokenUrl, e) {
 /* eslint-disable indent */
 
 function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow) {
+  let authorizationUrl = authFlow.authorizationUrl;
+  let tokenUrl = authFlow.tokenUrl;
+  let refreshUrl = authFlow.refreshUrl;
+  const isUrlAbsolute = (url) => (url.indexOf('://') > 0 || url.indexOf('//') === 0)
+  if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
+    refreshUrl = this.selectedServer.computedUrl + refreshUrl;
+  }
+  if (tokenUrl && !isUrlAbsolute(tokenUrl)) {
+    tokenUrl = this.selectedServer.computedUrl + tokenUrl;
+  }
+  if (authorizationUrl && !isUrlAbsolute(authorizationUrl)) {
+    authorizationUrl = this.selectedServer.computedUrl + authorizationUrl;
+  }
   let flowNameDisplay;
   if (flowName === 'authorizationCode') {
     flowNameDisplay = 'Authorization Code Flow';
@@ -194,16 +207,16 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow)
   return html`
     <div class="oauth-flow" style="padding: 10px 0; margin-bottom:10px;"> 
       <div class="tiny-title upper" style="margin-bottom:5px;">${flowNameDisplay}</div> 
-      ${authFlow.authorizationUrl
-        ? html`<div><span style="width:75px; display: inline-block;">Auth URL</span> <span class="mono-font"> ${authFlow.authorizationUrl} </span></div>`
+      ${authorizationUrl
+        ? html`<div><span style="width:75px; display: inline-block;">Auth URL</span> <span class="mono-font"> ${authorizationUrl} </span></div>`
         : ''
       }
-      ${authFlow.tokenUrl
-        ? html`<div><span style="width:75px; display: inline-block;">Token URL</span> <span class="mono-font">${authFlow.tokenUrl}</span></div>`
+      ${tokenUrl
+        ? html`<div><span style="width:75px; display: inline-block;">Token URL</span> <span class="mono-font">${tokenUrl}</span></div>`
         : ''
       }
-      ${authFlow.refreshUrl
-        ? html`<div><span style="width:75px; display: inline-block;">Refresh URL</span> <span class="mono-font">${authFlow.refreshUrl}</span></div>`
+      ${refreshUrl
+        ? html`<div><span style="width:75px; display: inline-block;">Refresh URL</span> <span class="mono-font">${refreshUrl}</span></div>`
         : ''
       }
       ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit' || flowName === 'password'
@@ -243,7 +256,7 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow)
             ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit'
               ? html`
                 <button class="m-btn thin-border"
-                  @click="${(e) => { onInvokeOAuthFlow.call(this, apiKeyId, flowName, authFlow.authorizationUrl, authFlow.tokenUrl, e); }}"
+                  @click="${(e) => { onInvokeOAuthFlow.call(this, apiKeyId, flowName, authorizationUrl, tokenUrl, e); }}"
                 > GET TOKEN </button>`
               : ''
             }
