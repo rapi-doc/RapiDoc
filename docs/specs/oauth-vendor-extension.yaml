@@ -18,15 +18,13 @@ info:
             x-client-secret: my-client-secret     # <--- when provided it will be pre filled in RapiDoc UI
             flows:
               authorizationCode:
-                authorizationUrl: http://localhost/authorize
-                tokenUrl: http://localhost/access_token
+                authorizationUrl: /authorize
+                tokenUrl: /access_token
                 scopes:
                   dog-lover: "always required"
                   owner: "optional"
     ```
   version: "1.0"
-servers:
-  - url: 'https://exampleurl.org'
 security:
   - exampleOauth2Flow: []
 paths:
@@ -58,13 +56,13 @@ components:
       x-client-secret: my-client-secret
       flows:
         authorizationCode:
-          authorizationUrl: http://localhost/authorize
-          tokenUrl: http://localhost/access_token
+          authorizationUrl: /authorize
+          tokenUrl: /access_token
           scopes:
             dog-lover: "always required"
             owner: "optional"
         clientCredentials:
-          tokenUrl: 'http://localhost:8080/token'
+          tokenUrl: '/token'
           scopes:
             dog-lover: "always required"
             owner: "optional"
