@@ -1,34 +1,11 @@
 openapi: 3.1.0
 info:
-  title: Sample Pet Store App
-  summary: A pet store manager.
-  description: This is a sample server for a pet store.
-  termsOfService: https://example.com/terms/
-  contact:
-    name: API Support
-    url: https://www.example.com/support
-    email: support@example.com
-  license:
-    name: Apache 2.0
-    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  title: Multiple DataTypes Per Field Test Case
   version: 1.0.1
-webhooks:
-  newPet:
-    post:
-      requestBody:
-        description: Information about a new pet in the system
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Pet"
-      responses:
-        "200":
-          description: Return a 200 status to indicate that the data was received successfully
 paths:
   /person:
     post:
       summary: Demonstrates data-types and constraints
-      description: Request-Parameters and Response-Schema contains various data types and constrains. Check out how is it desplayed below
       parameters:
         - name: height
           in: query
@@ -36,19 +13,16 @@ paths:
           required: true
           example: 70
           schema:
-            type: integer
-            format: int32
-            minimum: 12
-            maximum: 120
+            type: 
+              - integer
+              - number
       responses:
         '200':
-          description: successful operation
+          description: Successful Operation
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/person'
+                $ref: '#/components/schemas/person'
 tags:
   - name: Person
     description: Person Datatype

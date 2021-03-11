@@ -3,17 +3,24 @@ export function getTypeInfo(schema) {
   if (!schema) {
     return;
   }
+
+  let dataType = '';
+  if (schema.$ref) {
+    dataType = '{recursive}';
+  } else if (schema.type) {
+    dataType = Array.isArray(schema.type) ? schema.type.join('│') : schema.type;
+    if (schema.format || schema.enum) {
+      dataType = dataType.replace('string', schema.enum ? 'enum' : schema.format);
+    }
+  } else if (schema.hasMultiTypes) {
+    dataType = 'multiTypes';
+  } else {
+    dataType = '{missing-type-info}';
+  }
+
   const info = {
-    type: schema.$ref
-      ? '{recursive}'
-      : schema.enum
-        ? 'enum'
-        : schema.format
-          ? schema.format
-          : schema.type
-            ? schema.type
-            : '{missing-type-info}',
-    format: schema.format ? schema.format : '',
+    type: dataType,
+    format: schema.format || '',
     pattern: (schema.pattern && !schema.enum) ? schema.pattern : '',
     readOrWriteOnly: schema.readOnly
       ? '🆁'
@@ -26,8 +33,8 @@ export function getTypeInfo(schema) {
       : Array.isArray(schema.example)
         ? schema.example
         : `${schema.example}`,
-    default: typeof schema.default === 'undefined' ? '' : `${schema.default}`,
-    description: schema.description ? schema.description : '',
+    default: schema.default || '',
+    description: schema.description || '',
     constrain: '',
     allowedValues: '',
     arrayType: '',
@@ -95,7 +102,7 @@ export function getSampleValueByType(schemaObj) {
   if (schemaObj.$ref) { // Indicates a Circular ref
     return schemaObj.$ref;
   }
-  let typeValue = schemaObj.format || schemaObj.type || (schemaObj.enum ? 'enum' : '');
+  let typeValue = schemaObj.format || schemaObj.enum || schemaObj.type ? Array.isArray(schemaObj.type) ? schemaObj.type[0] : schemaObj.type : '';
   if (!typeValue) {
     if (schemaObj.enum) {
       typeValue = 'enum';
@@ -148,7 +155,7 @@ export function getSampleValueByType(schemaObj) {
     case 'ipv6':
       return '2001:0db8:5b96:0000:0000:426f:8e17:642a';
     case 'null':
-      return null;
+      return 'null';
     default:
       if (schemaObj.nullable) {
         return null;
@@ -456,6 +463,55 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     });
     obj[(schema.anyOf ? `::ANY~OF ${suffix}` : `::ONE~OF ${suffix}`)] = objWithAnyOfProps;
     obj['::type'] = 'xxx-of';
+  } else if (Array.isArray(schema.type)) {
+    // When a property has multiple types, then check further if any of the types are array or object, if yes then modify the schema using one-of
+    obj['::type'] = 'xxx-of';
+    const multiTypeOptions = {
+      '::type': 'xxx-of-option',
+    };
+    schema.type.forEach((v, i) => {
+      if (v === 'null') {
+        multiTypeOptions[`::OPTION~${i + 1}`] = 'NULL~|~~|~~|~~|~~|~~|~~|~~|~';
+      } else if ('integer, number, string, boolean,'.includes(`${v},`)) {
+        const tmpSchema = schema;
+        tmpSchema.type = Array.isArray(v) ? v.join('|') : v;
+        const primitiveTypeInfo = getTypeInfo(tmpSchema);
+        multiTypeOptions[`::OPTION~${i + 1}`] = primitiveTypeInfo.html;
+      } else if (v === 'object') {
+        // If object type iterate all the properties and create an object-type-option
+        const objTypeOption = {
+          '::description': schema.description || '',
+          '::type': 'object',
+          '::deprecated': schema.deprecated || false,
+        };
+        for (const key in schema.properties) {
+          if (schema.required && schema.required.includes(key)) {
+            objTypeOption[`${key}*`] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
+          } else {
+            objTypeOption[key] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
+          }
+        }
+        multiTypeOptions[`::OPTION~${i + 1}`] = objTypeOption;
+      } else if (v === 'array') {
+        multiTypeOptions[`::OPTION~${i + 1}`] = {
+          '::description': schema.description || '',
+          '::type': 'array',
+          '::props': schemaInObjectNotation(schema.items, {}, (level + 1)),
+        };
+      }
+    });
+    obj['::ONE~OF'] = multiTypeOptions;
+    /*
+    obj['::ONE~OF'] = {
+      '::type': 'xxx-of-option',
+      '::OPTION~1': 'integer~|~~|~~|~~|~~|~~|~~|~~|~',
+      '::OPTION~2': {
+        '::type': 'object',
+        id: 'string~|~~|~~|~~|~~|~~|~Tag ID~|~~|~',
+        name: 'string~|~~|~min 1 chars~|~~|~~|~~|~Tag name~|~~|~',
+      },
+    };
+    */
   } else if (schema.type === 'object' || schema.properties) {
     obj['::description'] = schema.description || '';
     obj['::type'] = 'object';
@@ -470,7 +526,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     if (schema.additionalProperties) {
       obj['<any-key>'] = schemaInObjectNotation(schema.additionalProperties, {});
     }
-  } else if (schema.items) { // If Array
+  } else if (schema.type === 'array' || schema.items) { // If Array
     obj['::description'] = schema.description
       ? schema.description
       : (schema.items.description
