@@ -1,8 +1,8 @@
 openapi: 3.0.0
 servers:
-  - url: petstore.swagger.io/v2
+  - url: https://petstore.swagger.io/v2
     description: Default server
-  - url: petstore.swagger.io/sandbox
+  - url: https://petstore.swagger.io/sandbox
     description: Sandbox server
 info:
   title: Pet Store

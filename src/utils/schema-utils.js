@@ -527,9 +527,9 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
   } else if (schema.type === 'array' || schema.items) { // If Array
     obj['::description'] = schema.description
       ? schema.description
-      : (schema.items.description
+      : schema.items?.description
         ? `array&lt;${schema.items.description}&gt;`
-        : '');
+        : '';
     obj['::type'] = 'array';
     obj['::props'] = schemaInObjectNotation(schema.items, {}, (level + 1));
   } else {
