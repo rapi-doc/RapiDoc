@@ -51,7 +51,7 @@ export default class SchemaTable extends LitElement {
 
       .table .key-type {
         white-space: normal;
-        width: 85px;
+        width: 150px;
       }
       .collapsed-descr .tr {
         max-height: calc(var(--font-size-small) + var(--font-size-small) + 4px);

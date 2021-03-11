@@ -242,7 +242,7 @@ export default class SchemaTree extends LitElement {
                 ? html`<span class="key-label">${keyLabel}:</span>`
                 : ''
           }
-          <span class='${dataTypeCss}'> 
+          <span class=${dataTypeCss} style="font-family:var(--font-regular)"> 
             ${dataType === 'array' ? `[${type}]` : `${type}`}
             ${readorWriteOnly}
           </span>

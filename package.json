@@ -38,7 +38,7 @@
   "scripts": {
     "build": "NODE_ENV=production webpack --mode=production",
     "build_windows": "set NODE_ENV='production'&&webpack --mode=production",
-    "serve": "webpack serve",
+    "serve": "webpack serve --mode=development",
     "serve1": "node --trace-deprecation ./node_modules/webpack/bin/webpack serve",
     "lint": "./node_modules/eslint/bin/eslint.js ./src/**",
     "lint-fix": "./node_modules/eslint/bin/eslint.js --fix ./src/**"

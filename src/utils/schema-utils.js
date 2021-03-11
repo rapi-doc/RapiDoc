@@ -6,7 +6,9 @@ export function getTypeInfo(schema) {
 
   let dataType = '';
   if (schema.$ref) {
-    dataType = '{recursive}';
+    const n = schema.$ref.lastIndexOf('/');
+    const schemaNode = schema.$ref.substring(n + 1);
+    dataType = `{recursive: ${schemaNode}} `;
   } else if (schema.type) {
     dataType = Array.isArray(schema.type) ? schema.type.join('│') : schema.type;
     if (schema.format || schema.enum) {
@@ -91,80 +93,64 @@ export function getTypeInfo(schema) {
 }
 
 export function getSampleValueByType(schemaObj) {
-  if (schemaObj.example === '') { return ''; }
-  if (schemaObj.example === null) { return null; }
-  if (schemaObj.example === 0) { return 0; }
-  if (schemaObj.example) { return schemaObj.example; }
+  const example = schemaObj.examples
+    ? schemaObj.examples[0]
+    : schemaObj.example
+      ? schemaObj.example
+      : undefined;
+  if (example === '') { return ''; }
+  if (example === null) { return null; }
+  if (example === 0) { return 0; }
+  if (example) { return example; }
 
   if (Object.keys(schemaObj).length === 0) {
     return null;
   }
-  if (schemaObj.$ref) { // Indicates a Circular ref
+  if (schemaObj.$ref) {
+    // Indicates a Circular ref
     return schemaObj.$ref;
   }
-  let typeValue = schemaObj.format || schemaObj.enum || schemaObj.type ? Array.isArray(schemaObj.type) ? schemaObj.type[0] : schemaObj.type : '';
-  if (!typeValue) {
-    if (schemaObj.enum) {
-      typeValue = 'enum';
-    } else if (schemaObj.anyOf) {
-      typeValue = 'anyOf';
-    } else if (schemaObj.oneOf) {
-      typeValue = 'oneOf';
+  const typeValue = Array.isArray(schemaObj.type) ? schemaObj.type[0] : schemaObj.type;
+  if (typeValue.match(/^integer/g)) { return 0; }
+  if (typeValue.match(/^number/g)) { return 0.5; }
+  if (typeValue.match(/^boolean/g)) { return false; }
+  if (typeValue.match(/^null/g)) { return null; }
+  if (typeValue.match(/^string/g)) {
+    if (schemaObj.enum) { return schemaObj.enum[0]; }
+    if (schemaObj.pattern) { return schemaObj.pattern; }
+    if (schemaObj.format) {
+      switch (schemaObj.format.toLowerCase()) {
+        case 'url':
+        case 'uri':
+          return 'http://example.com';
+        case 'date':
+          return (new Date(0)).toISOString().split('T')[0];
+        case 'time':
+          return (new Date(0)).toISOString().split('T')[1];
+        case 'date-time':
+          return (new Date(0)).toISOString();
+        case 'duration':
+          return 'P3Y6M4DT12H30M5S'; // P=Period 3-Years 6-Months 4-Days 12-Hours 30-Minutes 5-Seconds
+        case 'email':
+        case 'idn-email':
+          return 'user@example.com';
+        case 'hostname':
+        case 'idn-hostname':
+          return 'www.example.com';
+        case 'ipv4':
+          return '198.51.100.42';
+        case 'ipv6':
+          return '2001:0db8:5b96:0000:0000:426f:8e17:642a';
+        default:
+          return schemaObj.format;
+      }
+    } else {
+      // TODO: check for min and max length
+      return 'string';
     }
   }
-
-  switch (typeValue.toLowerCase()) {
-    case 'int32':
-    case 'int64':
-    case 'integer':
-      return 0;
-    case 'float':
-    case 'double':
-    case 'number':
-    case 'decimal':
-      return 0.5;
-    case 'string':
-      return (schemaObj.enum ? schemaObj.enum[0] : (schemaObj.pattern ? schemaObj.pattern : 'string'));
-    case 'url':
-    case 'uri':
-      return 'http://example.com';
-    case 'byte':
-      return btoa('string');
-    case 'binary':
-      return 'binary';
-    case 'boolean':
-      return false;
-    case 'date':
-      return (new Date(0)).toISOString().split('T')[0];
-    case 'date-time':
-      return (new Date(0)).toISOString();
-    case 'dateTime':
-      return (new Date(0)).toISOString();
-    case 'password':
-      return 'password';
-    case 'enum':
-      return schemaObj.enum[0];
-    case 'uuid':
-      return '3fa85f64-5717-4562-b3fc-2c963f66afa6';
-    case 'email':
-      return 'user@example.com';
-    case 'hostname':
-      return 'example.com';
-    case 'ipv4':
-      return '198.51.100.42';
-    case 'ipv6':
-      return '2001:0db8:5b96:0000:0000:426f:8e17:642a';
-    case 'null':
-      return 'null';
-    default:
-      if (schemaObj.nullable) {
-        return null;
-      }
-      if (schemaObj.$ref) {
-        return `data of type ${schemaObj.$ref}`;
-      }
-      return '?';
-  }
+  // If type cannot be determined
+  return '?';
 }
 
 /*
@@ -465,53 +451,65 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     obj['::type'] = 'xxx-of';
   } else if (Array.isArray(schema.type)) {
     // When a property has multiple types, then check further if any of the types are array or object, if yes then modify the schema using one-of
-    obj['::type'] = 'xxx-of';
-    const multiTypeOptions = {
-      '::type': 'xxx-of-option',
-    };
-    schema.type.forEach((v, i) => {
-      if (v === 'null') {
-        multiTypeOptions[`::OPTION~${i + 1}`] = 'NULL~|~~|~~|~~|~~|~~|~~|~~|~';
-      } else if ('integer, number, string, boolean,'.includes(`${v},`)) {
-        const tmpSchema = schema;
-        tmpSchema.type = Array.isArray(v) ? v.join('|') : v;
-        const primitiveTypeInfo = getTypeInfo(tmpSchema);
-        multiTypeOptions[`::OPTION~${i + 1}`] = primitiveTypeInfo.html;
-      } else if (v === 'object') {
-        // If object type iterate all the properties and create an object-type-option
-        const objTypeOption = {
-          '::description': schema.description || '',
-          '::type': 'object',
-          '::deprecated': schema.deprecated || false,
-        };
-        for (const key in schema.properties) {
-          if (schema.required && schema.required.includes(key)) {
-            objTypeOption[`${key}*`] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
-          } else {
-            objTypeOption[key] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
-          }
-        }
-        multiTypeOptions[`::OPTION~${i + 1}`] = objTypeOption;
-      } else if (v === 'array') {
-        multiTypeOptions[`::OPTION~${i + 1}`] = {
-          '::description': schema.description || '',
-          '::type': 'array',
-          '::props': schemaInObjectNotation(schema.items, {}, (level + 1)),
-        };
+    // Clone the schema - as it will be modified to replace multi-data-types with one-of;
+    const subSchema = JSON.parse(JSON.stringify(schema));
+    const primitiveType = [];
+    const complexTypes = [];
+    subSchema.type.forEach((v) => {
+      if (v.match(/integer|number|string|null|boolean/g)) {
+        primitiveType.push(v);
+      } else {
+        complexTypes.push(v);
       }
     });
-    obj['::ONE~OF'] = multiTypeOptions;
-    /*
-    obj['::ONE~OF'] = {
-      '::type': 'xxx-of-option',
-      '::OPTION~1': 'integer~|~~|~~|~~|~~|~~|~~|~~|~',
-      '::OPTION~2': {
-        '::type': 'object',
-        id: 'string~|~~|~~|~~|~~|~~|~Tag ID~|~~|~',
-        name: 'string~|~~|~min 1 chars~|~~|~~|~~|~Tag name~|~~|~',
-      },
-    };
-    */
+    let multiPrimitiveTypes;
+    if (primitiveType.length > 0) {
+      subSchema.type = primitiveType.join('┃');
+      multiPrimitiveTypes = getTypeInfo(subSchema);
+      if (complexTypes.length === 0) {
+        return `${multiPrimitiveTypes?.html || ''}`;
+      }
+    }
+    if (complexTypes.length > 0) {
+      obj['::type'] = 'xxx-of';
+      const multiTypeOptions = {
+        '::type': 'xxx-of-option',
+      };
+
+      // Generate ONE-OF options for complexTypes
+      complexTypes.forEach((v, i) => {
+        if (v === 'null') {
+          multiTypeOptions[`::OPTION~${i + 1}`] = 'NULL~|~~|~~|~~|~~|~~|~~|~~|~';
+        } else if ('integer, number, string, boolean,'.includes(`${v},`)) {
+          subSchema.type = Array.isArray(v) ? v.join('┃') : v;
+          const primitiveTypeInfo = getTypeInfo(subSchema);
+          multiTypeOptions[`::OPTION~${i + 1}`] = primitiveTypeInfo.html;
+        } else if (v === 'object') {
+          // If object type iterate all the properties and create an object-type-option
+          const objTypeOption = {
+            '::description': schema.description || '',
+            '::type': 'object',
+            '::deprecated': schema.deprecated || false,
+          };
+          for (const key in schema.properties) {
+            if (schema.required && schema.required.includes(key)) {
+              objTypeOption[`${key}*`] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
+            } else {
+              objTypeOption[key] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
+            }
+          }
+          multiTypeOptions[`::OPTION~${i + 1}`] = objTypeOption;
+        } else if (v === 'array') {
+          multiTypeOptions[`::OPTION~${i + 1}`] = {
+            '::description': schema.description || '',
+            '::type': 'array',
+            '::props': schemaInObjectNotation(schema.items, {}, (level + 1)),
+          };
+        }
+      });
+      multiTypeOptions[`::OPTION~${complexTypes.length + 1}`] = multiPrimitiveTypes?.html || '';
+      obj['::ONE~OF'] = multiTypeOptions;
+    }
   } else if (schema.type === 'object' || schema.properties) {
     obj['::description'] = schema.description || '';
     obj['::type'] = 'object';
@@ -536,7 +534,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     obj['::props'] = schemaInObjectNotation(schema.items, {}, (level + 1));
   } else {
     const typeObj = getTypeInfo(schema);
-    if (typeObj.html) {
+    if (typeObj?.html) {
       return `${typeObj.html}`;
     }
     return '';

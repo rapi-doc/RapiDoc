@@ -29,10 +29,11 @@ tags:
 components:
   schemas:
     location:
-      description: longitude/latitude or city name
+      description: longitude/latitude or city name or zipcode
       type: 
         - object
         - string
+        - integer
       properties:
         longitude:
           type: 
@@ -54,14 +55,14 @@ components:
             - string
             - integer
           minLength: 4
-          example: Guru
+          examples: 
+            - 123
         name:
           description: Name of the person
           type: 
-            - string
             - 'null'
+            - string
           minLength: 4
-          example: Guru
         age:
           description: Age of Person
           type: 

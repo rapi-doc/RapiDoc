@@ -221,6 +221,9 @@ export default class ApiRequest extends LitElement {
         continue;
       }
       const paramSchema = getTypeInfo(param.schema);
+      if (!paramSchema) {
+        continue;
+      }
       let exampleVal = '';
       let exampleList = [];
       let paramStyle = 'form';

@@ -56,15 +56,17 @@ export default class RapiDoc extends LitElement {
       // UI Layouts
       layout: { type: String },
       renderStyle: { type: String, attribute: 'render-style' },
-      schemaStyle: { type: String, attribute: 'schema-style' },
       defaultSchemaTab: { type: String, attribute: 'default-schema-tab' },
+      responseAreaHeight: { type: String, attribute: 'response-area-height' },
+      fillRequestFieldsWithExample: { type: String, attribute: 'fill-request-fields-with-example' },
+      onNavTagClick: { type: String, attribute: 'on-nav-tag-click' },
+
+      // Schema Styles
+      schemaStyle: { type: String, attribute: 'schema-style' },
       schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
       schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
       schemaHideReadOnly: { type: String, attribute: 'schema-hide-read-only' },
       schemaHideWriteOnly: { type: String, attribute: 'schema-hide-write-only' },
-      responseAreaHeight: { type: String, attribute: 'response-area-height' },
-      fillRequestFieldsWithExample: { type: String, attribute: 'fill-request-fields-with-example' },
-      onNavTagClick: { type: String, attribute: 'on-nav-tag-click' },
 
       // API Server
       apiKeyName: { type: String, attribute: 'api-key-name' },
