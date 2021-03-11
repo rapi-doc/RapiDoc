@@ -1225,7 +1225,10 @@ export default class ApiRequest extends LitElement {
         me.responseHeaders = `${me.responseHeaders}${hdr.trim()}: ${hdrVal}\n`;
       });
       const contentType = tryResp.headers.get('content-type');
-      if (contentType) {
+      const respEmpty = (await tryResp.clone().text()).length === 0;
+      if (respEmpty) {
+        respText = '';
+      } else if (contentType) {
         if (contentType.includes('json')) {
           if ((/charset=[^"']+/).test(contentType)) {
             const encoding = contentType.split('charset=')[1];
