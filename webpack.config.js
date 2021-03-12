@@ -83,6 +83,7 @@ module.exports = {
   output: {
     path: path.join(__dirname, 'dist'),
     filename: 'rapidoc-min.js',
+    publicPath: '',
   },
   devServer: {
     contentBase: path.join(__dirname, 'docs'),
