@@ -192,6 +192,7 @@ export default function navbarTemplate() {
                     ? html`<span class='mono-font'>${p.method.toUpperCase()} ${p.path}</span>`
                     : p.summary || p.shortSummary
                   }
+                  ${p.isWebhook ? '(Webhook)' : ''}
                 </span>
               </div>`)}
             </div>

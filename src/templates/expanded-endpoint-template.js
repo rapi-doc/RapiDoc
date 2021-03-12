@@ -42,6 +42,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
     ${html`
       <h2> ${path.shortSummary || `${path.method.toUpperCase()} ${path.path}`}</h2>
       <div class='mono-font regular-font-size' style='padding: 8px 0; color:var(--fg3)'> 
+        ${path.isWebhook ? html`<span style="color:var(--primary-color)"> WEBHOOK </span>` : ''}
         <span class='regular-font upper method-fg bold-text ${path.method}'>${path.method}</span> 
         <span>${path.path}</span>
       </div>

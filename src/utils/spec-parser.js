@@ -19,10 +19,13 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
 
   // const pathGroups = groupByPaths(jsonParsedSpec);
 
-  // Tags
+  // Tags with Paths and WebHooks
   const tags = groupByTags(jsonParsedSpec, sortTags, sortEndpointsBy);
 
+  // Components
   const components = getComponents(jsonParsedSpec);
+
+  // Info Description Headers
   const infoDescriptionHeaders = jsonParsedSpec.info?.description ? getHeadersFromMarkdown(jsonParsedSpec.info.description) : [];
 
   // Security Scheme
@@ -202,7 +205,7 @@ function getComponents(openApiSpec) {
 }
 
 function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
-  const methods = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options']; // this is also used for ordering endpoints by methods
+  const supportedMethods = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options']; // this is also used for ordering endpoints by methods
   const tags = openApiSpec.tags && Array.isArray(openApiSpec.tags)
     ? openApiSpec.tags.map((v) => ({
       show: true,
@@ -215,28 +218,35 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
     }))
     : [];
 
+  const pathsAndWebhooks = openApiSpec.paths || {};
+  if (openApiSpec.webhooks) {
+    for (const [key, value] of Object.entries(openApiSpec.webhooks)) {
+      value._type = 'webhook'; // eslint-disable-line no-underscore-dangle
+      pathsAndWebhooks[key] = value;
+    }
+  }
   // For each path find the tag and push it into the corresponding tag
-  for (const path in openApiSpec.paths) {
-    const commonParams = openApiSpec.paths[path].parameters;
+  for (const pathOrHookName in pathsAndWebhooks) {
+    const commonParams = pathsAndWebhooks[pathOrHookName].parameters;
     const commonPathProp = {
-      servers: openApiSpec.paths[path].servers || [],
-      parameters: openApiSpec.paths[path].parameters || [],
+      servers: pathsAndWebhooks[pathOrHookName].servers || [],
+      parameters: pathsAndWebhooks[pathOrHookName].parameters || [],
     };
-
-    methods.forEach((methodName) => {
-      if (openApiSpec.paths[path][methodName]) {
-        const fullPath = openApiSpec.paths[path][methodName];
-
+    const isWebhook = pathsAndWebhooks[pathOrHookName]._type === 'webhook'; // eslint-disable-line no-underscore-dangle
+    supportedMethods.forEach((methodName) => {
+      if (pathsAndWebhooks[pathOrHookName][methodName]) {
+        const pathOrHookObj = openApiSpec.paths[pathOrHookName][methodName];
         // If path.methods are tagged, else generate it from path
-        const pathTags = fullPath.tags || [];
+        const pathTags = pathOrHookObj.tags || [];
         if (pathTags.length === 0) {
-          let firstWordEndIndex = path.indexOf('/', 1);
+          const pathOrHookNameKey = pathOrHookName.replace(/^\/+|\/+$/g, '');
+          const firstWordEndIndex = pathOrHookNameKey.indexOf('/');
           if (firstWordEndIndex === -1) {
-            firstWordEndIndex = (path.length - 1);
+            pathTags.push(pathOrHookNameKey);
           } else {
-            firstWordEndIndex -= 1;
+            // firstWordEndIndex -= 1;
+            pathTags.push(pathOrHookNameKey.substr(0, firstWordEndIndex));
           }
-          pathTags.push(path.substr(1, firstWordEndIndex));
         }
 
         pathTags.forEach((tag) => {
@@ -262,48 +272,49 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
           }
 
           // Generate a short summary which is broken
-          let shortSummary = (fullPath.summary || fullPath.description || `${methodName.toUpperCase()} ${path}`).trim();
+          let shortSummary = (pathOrHookObj.summary || pathOrHookObj.description || `${methodName.toUpperCase()} ${pathOrHookName}`).trim();
           if (shortSummary.length > 100) {
             shortSummary = shortSummary.split(/[.|!|?]\s|[\r?\n]/)[0]; // take the first line (period or carriage return)
           }
           // Merge Common Parameters with This methods parameters
           let finalParameters = [];
           if (commonParams) {
-            if (fullPath.parameters) {
+            if (pathOrHookObj.parameters) {
               finalParameters = commonParams.filter((commonParam) => {
-                if (!fullPath.parameters.some((param) => (commonParam.name === param.name && commonParam.in === param.in))) {
+                if (!pathOrHookObj.parameters.some((param) => (commonParam.name === param.name && commonParam.in === param.in))) {
                   return commonParam;
                 }
-              }).concat(fullPath.parameters);
+              }).concat(pathOrHookObj.parameters);
             } else {
               finalParameters = commonParams.slice(0);
             }
           } else {
-            finalParameters = fullPath.parameters ? fullPath.parameters.slice(0) : [];
+            finalParameters = pathOrHookObj.parameters ? pathOrHookObj.parameters.slice(0) : [];
           }
 
           // Update Responses
           tagObj.paths.push({
             show: true,
             expanded: false,
+            isWebhook,
             expandedAtLeastOnce: false,
-            summary: (fullPath.summary || ''),
-            description: (fullPath.description || ''),
+            summary: (pathOrHookObj.summary || ''),
+            description: (pathOrHookObj.description || ''),
             shortSummary,
             method: methodName,
-            path,
-            operationId: fullPath.operationId,
-            elementId: `${methodName}-${path.replace(invalidCharsRegEx, '-')}`,
-            servers: fullPath.servers ? commonPathProp.servers.concat(fullPath.servers) : commonPathProp.servers,
+            path: pathOrHookName,
+            operationId: pathOrHookObj.operationId,
+            elementId: `${methodName}-${pathOrHookName.replace(invalidCharsRegEx, '-')}`,
+            servers: pathOrHookObj.servers ? commonPathProp.servers.concat(pathOrHookObj.servers) : commonPathProp.servers,
             parameters: finalParameters,
-            requestBody: fullPath.requestBody,
-            responses: fullPath.responses,
-            callbacks: fullPath.callbacks,
-            deprecated: fullPath.deprecated,
-            security: fullPath.security,
+            requestBody: pathOrHookObj.requestBody,
+            responses: pathOrHookObj.responses,
+            callbacks: pathOrHookObj.callbacks,
+            deprecated: pathOrHookObj.deprecated,
+            security: pathOrHookObj.security,
             // commonSummary: commonPathProp.summary,
             // commonDescription: commonPathProp.description,
-            xCodeSamples: fullPath['x-codeSamples'] || fullPath['x-code-samples'] || '',
+            xCodeSamples: pathOrHookObj['x-codeSamples'] || pathOrHookObj['x-code-samples'] || '',
           });
         });// End of tag path create
       }
@@ -313,7 +324,7 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
   const tagsWithSortedPaths = tags.filter((tag) => tag.paths && tag.paths.length > 0);
   tagsWithSortedPaths.forEach((tag) => {
     if (sortEndpointsBy === 'method') {
-      tag.paths.sort((a, b) => methods.indexOf(a.method).toString().localeCompare(methods.indexOf(b.method)));
+      tag.paths.sort((a, b) => supportedMethods.indexOf(a.method).toString().localeCompare(supportedMethods.indexOf(b.method)));
     } else if (sortEndpointsBy === 'summary') {
       tag.paths.sort((a, b) => (a.shortSummary).localeCompare(b.shortSummary));
     } else {
