@@ -3,8 +3,9 @@ export function getTypeInfo(schema) {
   if (!schema) {
     return;
   }
-
   let dataType = '';
+  let constrain = '';
+
   if (schema.$ref) {
     const n = schema.$ref.lastIndexOf('/');
     const schemaNode = schema.$ref.substring(n + 1);
@@ -43,6 +44,7 @@ export function getTypeInfo(schema) {
     arrayType: '',
     html: '',
   };
+
   if (info.type === '{recursive}') {
     info.description = schema.$ref.substring(schema.$ref.lastIndexOf('/') + 1);
   } else if (info.type === '{missing-type-info}') {
@@ -50,45 +52,36 @@ export function getTypeInfo(schema) {
   }
 
   // Set Allowed Values
-  if (schema.enum) {
-    let opt = '';
-    schema.enum.map((v) => {
-      opt += `${v}, `;
-    });
-    info.allowedValues = opt.slice(0, -2);
-  }
+  info.allowedValues = Array.isArray(schema.enum) ? schema.enum.join('┃') : '';
+  if (dataType === 'array' && schema.items) {
+    const arrayItemType = schema.items?.type;
+    const arrayItemDefault = schema.items?.default !== undefined ? schema.items.default : '';
 
-  if (schema.type === 'array' && schema.items) {
-    const arraySchema = schema.items;
-    info.arrayType = `${schema.type} of ${arraySchema.type}`;
-    info.default = arraySchema.default === 0 ? '0 ' : (arraySchema.default ? arraySchema.default : '');
-    if (arraySchema.enum) {
-      let opt = '';
-      arraySchema.enum.map((v) => {
-        opt += `${v}, `;
-      });
-      info.allowedValues = opt.slice(0, -2);
+    info.arrayType = `${schema.type} of ${Array.isArray(arrayItemType) ? arrayItemType.join('') : arrayItemType}`;
+    info.default = arrayItemDefault;
+    info.allowedValues = Array.isArray(schema.items?.enum) ? schema.items.enum.join('┃') : '';
+  }
+  if (dataType.match(/integer|number/g)) {
+    if (schema.minimum !== undefined || schema.exclusiveMinimum !== undefined) {
+      constrain += schema.minimum !== undefined ? `>= ${schema.minimum}` : `> ${schema.exclusiveMinimum}`;
     }
-  } else if (schema.type === 'integer' || schema.type === 'number') {
-    if (schema.minimum !== undefined && schema.maximum !== undefined) {
-      info.constrain = `${schema.exclusiveMinimum ? '>' : '>='}${schema.minimum} and ${schema.exclusiveMaximum ? '<' : '<='} ${schema.maximum}`;
-    } else if (schema.minimum !== undefined && schema.maximum === undefined) {
-      info.constrain = `${schema.exclusiveMinimum ? '>' : '>='}${schema.minimum}`;
-    } else if (schema.minimum === undefined && schema.maximum !== undefined) {
-      info.constrain = `${schema.exclusiveMaximum ? '<' : '<='}${schema.maximum}`;
+    if (schema.maximum !== undefined || schema.exclusiveMaximum !== undefined) {
+      constrain += schema.maximum !== undefined ? `${constrain ? '┃' : ''}<= ${schema.maximum}` : `${constrain ? '┃' : ''}< ${schema.exclusiveMaximum}`;
     }
     if (schema.multipleOf !== undefined) {
-      info.constrain = `(multiple of ${schema.multipleOf})`;
-    }
-  } else if (schema.type === 'string') {
-    if (schema.minLength !== undefined && schema.maxLength !== undefined) {
-      info.constrain = `(${schema.minLength} to ${schema.maxLength} chars)`;
-    } else if (schema.minLength !== undefined && schema.maxLength === undefined) {
-      info.constrain = `min ${schema.minLength} chars`;
-    } else if (schema.minLength === undefined && schema.maxLength !== undefined) {
-      info.constrain = `max ${schema.maxLength} chars`;
+      constrain += `${constrain ? '┃' : ''} multiple of ${schema.multipleOf}`;
     }
   }
+  if (dataType.match(/string/g)) {
+    if (schema.minLength !== undefined && schema.maxLength !== undefined) {
+      constrain += `${constrain ? '┃' : ''}${schema.minLength} to ${schema.maxLength} chars`;
+    } else if (schema.minLength !== undefined) {
+      constrain += `${constrain ? '┃' : ''}min ${schema.minLength} chars`;
+    } else if (schema.maxLength !== undefined) {
+      constrain += `max ${constrain ? '┃' : ''}${schema.maxLength} chars`;
+    }
+  }
+  info.constrain = constrain;
   info.html = `${info.type}~|~${info.readOrWriteOnly}~|~${info.constrain}~|~${info.default}~|~${info.allowedValues}~|~${info.pattern}~|~${info.description}~|~${schema.title || ''}~|~${info.deprecated ? 'deprecated' : ''}`;
   return info;
 }
@@ -478,9 +471,14 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     subSchema.type.forEach((v) => {
       if (v.match(/integer|number|string|null|boolean/g)) {
         primitiveType.push(v);
-      } else if (v === 'array' && subSchema.items?.type.match(/integer|number|string|null|boolean/g)) {
+      } else if (v === 'array' && typeof subSchema.items?.type === 'string' && subSchema.items?.type.match(/integer|number|string|null|boolean/g)) {
         // Array with primitive types should also be treated as primitive type
+
+        // if (subSchema.items.type === 'string' && subSchema.items.format) {
+        //   primitiveType.push(`[${subSchema.items.format}]`);
+        // } else {
         primitiveType.push(`[${subSchema.items.type}]`);
+        // }
       } else {
         complexTypes.push(v);
       }

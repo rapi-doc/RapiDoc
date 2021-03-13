@@ -230,7 +230,7 @@ export default class SchemaTree extends LitElement {
     if (readorWriteOnly === '🆆' && this.schemaHideWriteOnly === 'true') {
       return;
     }
-    const dataTypeCss = type.replace(/^\{|^\[/g, '').substring(0, 4).toLowerCase();
+    const dataTypeCss = type.replace(/\{|\[/g, '').substring(0, 4).toLowerCase();
     return html`
       <div class = "tr primitive">
         <div class="td key ${deprecated}" style='min-width:${minFieldColWidth}px' >
@@ -242,14 +242,14 @@ export default class SchemaTree extends LitElement {
                 ? html`<span class="key-label">${keyLabel}:</span>`
                 : ''
           }
-          <span class=${dataTypeCss} style="font-family:var(--font-regular)"> 
+          <span class="${dataTypeCss}" > 
             ${dataType === 'array' ? `[${type}]` : `${type}`}
             ${readorWriteOnly}
           </span>
         </div>
         <div class='td key-descr'>
           ${dataType === 'array' ? description : ''}
-          ${constraint ? html`<div style='color: var(--fg2)'>${constraint}</div>` : ''}
+          ${constraint ? html`<div style='color: var(--fg2)'><span class='bold-text'>Constraints:</span> &nbsp;${constraint}</div>` : ''}
           ${defaultValue ? html`<div style='color: var(--fg2)'><span class='bold-text'>Default:</span> ${defaultValue}</div>` : ''}
           ${allowedValues ? html`<div style='color: var(--fg2)'><span class='bold-text'>Allowed:</span> &nbsp; ${allowedValues}</div>` : ''}
           ${pattern ? html`<div style='color: var(--fg2)'><span class='bold-text'>Pattern:</span> ${pattern}</div>` : ''}
