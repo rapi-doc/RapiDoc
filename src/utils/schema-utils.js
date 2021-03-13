@@ -111,8 +111,24 @@ export function getSampleValueByType(schemaObj) {
     return schemaObj.$ref;
   }
   const typeValue = Array.isArray(schemaObj.type) ? schemaObj.type[0] : schemaObj.type;
-  if (typeValue.match(/^integer/g)) { return 0; }
-  if (typeValue.match(/^number/g)) { return 0.5; }
+
+  if (typeValue.match(/^integer|^number/g)) {
+    const multipleOf = Number.isNaN(Number(schemaObj.multipleOf)) ? undefined : Number(schemaObj.multipleOf);
+    const maximum = Number.isNaN(Number(schemaObj.maximum)) ? undefined : Number(schemaObj.maximum);
+    const minimumPossibleVal = Number.isNaN(Number(schemaObj.minimum))
+      ? Number.isNaN(Number(schemaObj.exclusiveMinimum))
+        ? maximum || 0
+        : Number(schemaObj.exclusiveMinimum) + (typeValue.startsWith('integer') ? 1 : 0.001)
+      : Number(schemaObj.minimum);
+    const finalVal = multipleOf
+      ? multipleOf >= minimumPossibleVal
+        ? multipleOf
+        : minimumPossibleVal % multipleOf === 0
+          ? minimumPossibleVal
+          : Math.ceil(minimumPossibleVal / multipleOf) * multipleOf
+      : minimumPossibleVal;
+    return finalVal;
+  }
   if (typeValue.match(/^boolean/g)) { return false; }
   if (typeValue.match(/^null/g)) { return null; }
   if (typeValue.match(/^string/g)) {
@@ -145,8 +161,10 @@ export function getSampleValueByType(schemaObj) {
           return schemaObj.format;
       }
     } else {
-      // TODO: check for min and max length
-      return 'string';
+      const minLength = Number.isNaN(schemaObj.minLength) ? undefined : Number(schemaObj.minLength);
+      const maxLength = Number.isNaN(schemaObj.maxLength) ? undefined : Number(schemaObj.maxLength);
+      const finalLength = minLength || (maxLength > 6 ? 6 : maxLength || undefined);
+      return finalLength ? 'A'.repeat(finalLength) : 'string';
     }
   }
   // If type cannot be determined
@@ -227,17 +245,18 @@ function addPropertyExampleToObjectExamples(example, obj, propertyKey) {
 function mergePropertyExamples(obj, propertyName, propExamples) {
   // Create an example for each variant of the propertyExample, merging them with the current (parent) example
   let i = 0;
+  const maxCombinations = 10;
   const mergedObj = {};
   for (const exampleKey in obj) {
     for (const propExampleKey in propExamples) {
       mergedObj[`example-${i}`] = { ...obj[exampleKey] };
       mergedObj[`example-${i}`][propertyName] = propExamples[propExampleKey];
       i++;
-      if (i >= 10) {
+      if (i >= maxCombinations) {
         break;
       }
     }
-    if (i >= 10) {
+    if (i >= maxCombinations) {
       break;
     }
   }
