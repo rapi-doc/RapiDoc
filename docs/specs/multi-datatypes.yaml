@@ -40,18 +40,26 @@ components:
             - number
             - string
           minLength: 4
-          examples: 
-            - 123
+          minimum: 10
         name:
           type: string
-          minLength: 4
+          maxLength: 100
+        gender:
+          type: string
+          enum:
+            - male
+            - female
+            - unknown
         location:
-          type: 
-            - string
-            - 'null'
+          description: location can be null, set using `nullable` property thats supported by OpenAPI `3.0.x`
+          type: string
+          nullable: true
         age:
           description: Age of Person
           type: integer
+          minimum: 21
+          exclusiveMaximum: 70
+          multipleOf: 5
         photoUrls:
           description: One URL or Array or URLs or set to false
           type: 
