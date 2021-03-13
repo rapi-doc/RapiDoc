@@ -230,7 +230,7 @@ export default class SchemaTree extends LitElement {
     if (readorWriteOnly === '🆆' && this.schemaHideWriteOnly === 'true') {
       return;
     }
-    const dataTypeCss = type.replace('{', '').substring(0, 4).toLowerCase();
+    const dataTypeCss = type.replace(/^\{|^\[/g, '').substring(0, 4).toLowerCase();
     return html`
       <div class = "tr primitive">
         <div class="td key ${deprecated}" style='min-width:${minFieldColWidth}px' >

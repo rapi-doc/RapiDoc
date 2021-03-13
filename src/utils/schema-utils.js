@@ -477,6 +477,9 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     subSchema.type.forEach((v) => {
       if (v.match(/integer|number|string|null|boolean/g)) {
         primitiveType.push(v);
+      } else if (v === 'array' && subSchema.items?.type.match(/integer|number|string|null|boolean/g)) {
+        // Array with primitive types should also be treated as primitive type
+        primitiveType.push(`[${subSchema.items.type}]`);
       } else {
         complexTypes.push(v);
       }
