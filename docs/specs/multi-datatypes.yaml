@@ -1,0 +1,80 @@
+openapi: 3.1.0
+info:
+  title: Support for multiple datatypes for each field 
+  version: 1.0.1
+paths:
+  /person:
+    post:
+      summary: Demonstrates data-types and constraints
+      parameters:
+        - name: height
+          in: query
+          description: height (in inches)
+          required: true
+          example: 70
+          schema:
+            type: 
+              - integer
+              - number
+      responses:
+        '200':
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/person'
+tags:
+  - name: Person
+    description: Person Datatype
+components:
+  schemas:
+    person:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          description: Person ID
+          type: 
+            - integer
+            - number
+            - string
+          minLength: 4
+          examples: 
+            - 123
+        name:
+          type: string
+          minLength: 4
+        location:
+          type: 
+            - string
+            - 'null'
+        age:
+          description: Age of Person
+          type: integer
+        photoUrls:
+          description: One URL or Array or URLs or set to false
+          type: 
+            - array
+            - boolean
+            - string
+          maxItems: 20
+          items:
+            type: string
+            format: url
+        hobby:
+          description: comma separated list of hobbies or an array of object 
+          type:
+            - string 
+            - array
+          items:
+            type: object
+            properties:
+              hobbyRank:
+                type:
+                  - integer
+                  - number
+              hobbyName:
+                type: string
+
+
