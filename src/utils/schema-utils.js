@@ -10,12 +10,13 @@ export function getTypeInfo(schema) {
     const schemaNode = schema.$ref.substring(n + 1);
     dataType = `{recursive: ${schemaNode}} `;
   } else if (schema.type) {
-    dataType = Array.isArray(schema.type) ? schema.type.join('│') : schema.type;
+    dataType = Array.isArray(schema.type) ? schema.type.join('┃') : schema.type;
     if (schema.format || schema.enum) {
       dataType = dataType.replace('string', schema.enum ? 'enum' : schema.format);
     }
-  } else if (schema.hasMultiTypes) {
-    dataType = 'multiTypes';
+    if (schema.nullable) {
+      dataType += '┃null';
+    }
   } else {
     dataType = '{missing-type-info}';
   }
