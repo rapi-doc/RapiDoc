@@ -59,14 +59,12 @@ export default class JsonTree extends LitElement {
       .boolean{color:var(--purple);}
       .object{color:var(--fg)}
       .toolbar {
+        position: absolute;
+        top:5px;
+        right:6px;
         display:flex;
-        width:100%;
-        padding: 2px 0;
-        color:var(--primary-color);
-        font-family: var(--font-regular);
-        margin-bottom:4px;
+        padding:2px;
         align-items: center;
-        font-size: calc(var(--font-size-small) - 1px);
       }`,
       CustomStyles,
     ];
@@ -77,7 +75,7 @@ export default class JsonTree extends LitElement {
     return html`
       <div class = "json-tree" >
         <div class='toolbar'> 
-          <button  class="toolbar-btn" @click='${(e) => { copyToClipboard(JSON.stringify(this.data, null, 2), e); }}'> Copy </button>
+          <button class="toolbar-btn" @click='${(e) => { copyToClipboard(JSON.stringify(this.data, null, 2), e); }}'> Copy </button>
         </div>
         ${this.generateTree(this.data, true)}
       </div>  

@@ -230,7 +230,7 @@ export default class SchemaTree extends LitElement {
     if (readorWriteOnly === '🆆' && this.schemaHideWriteOnly === 'true') {
       return;
     }
-    const dataTypeCss = type.replace(/\{|\[/g, '').substring(0, 4).toLowerCase();
+    const dataTypeCss = type.replace(/┃.*/g, '').replace(/[^a-zA-Z0-9+]/g, '').substring(0, 4).toLowerCase();
     return html`
       <div class = "tr primitive">
         <div class="td key ${deprecated}" style='min-width:${minFieldColWidth}px' >
@@ -249,10 +249,10 @@ export default class SchemaTree extends LitElement {
         </div>
         <div class='td key-descr'>
           ${dataType === 'array' ? description : ''}
-          ${constraint ? html`<div style='color: var(--fg2)'><span class='bold-text'>Constraints:</span> &nbsp;${constraint}</div>` : ''}
-          ${defaultValue ? html`<div style='color: var(--fg2)'><span class='bold-text'>Default:</span> ${defaultValue}</div>` : ''}
-          ${allowedValues ? html`<div style='color: var(--fg2)'><span class='bold-text'>Allowed:</span> &nbsp; ${allowedValues}</div>` : ''}
-          ${pattern ? html`<div style='color: var(--fg2)'><span class='bold-text'>Pattern:</span> ${pattern}</div>` : ''}
+          ${constraint ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Constraints: </span>${constraint}</div>` : ''}
+          ${defaultValue ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
+          ${allowedValues ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Allowed: </span>${allowedValues}</div>` : ''}
+          ${pattern ? html`<div style='display:inline-block; line-break: anywhere; margin-right:8px'><span class='bold-text'>Pattern: </span>${pattern}</div>` : ''}
           ${schemaDescription ? html`<span class="m-markdown-small">${unsafeHTML(marked(schemaDescription))}</span>` : ''}
         </div>
       </div>
