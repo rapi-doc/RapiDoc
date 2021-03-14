@@ -1,11 +1,4 @@
 /*!
- * RapiDoc 8.4.9-beta-1 - WebComponent to View OpenAPI docs
- * License: MIT
- * Repo   : https://github.com/mrin9/RapiDoc
- * Author : Mrinmoy Majumdar
- */
-
-/*!
  * The buffer module from node.js, for the browser.
  *
  * @author   Feross Aboukhadijeh <http://feross.org>
@@ -51,6 +44,15 @@
  * @namespace
  * @public
  */
+
+/**
+* @preserve
+* RapiDoc 8.4.9 - WebComponent to View OpenAPI docs
+* License: MIT
+* Repo   : https://github.com/mrin9/RapiDoc
+* Author : Mrinmoy Majumdar
+*
+/******/
 
 /**
 @license
