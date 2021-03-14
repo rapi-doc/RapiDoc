@@ -1,6 +1,6 @@
 {
   "name": "rapidoc",
-  "version": "8.4.9-beta-1",
+  "version": "8.4.9",
   "description": "RapiDoc - Open API spec viewer with built in console",
   "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
   "repository": {
@@ -39,6 +39,7 @@
     "build": "NODE_ENV=production webpack --mode=production",
     "build_windows": "set NODE_ENV='production'&&webpack --mode=production",
     "serve": "webpack serve --mode=development",
+    "serve-prod": "webpack serve --mode=production",
     "serve1": "node --trace-deprecation ./node_modules/webpack/bin/webpack serve",
     "lint": "./node_modules/eslint/bin/eslint.js ./src/**",
     "lint-fix": "./node_modules/eslint/bin/eslint.js --fix ./src/**"
@@ -62,6 +63,7 @@
     "html-webpack-plugin": "^5.3.1",
     "inspectpack": "^4.6.1",
     "style-loader": "^2.0.0",
+    "terser-webpack-plugin": "^5.1.1",
     "webpack": "^5.25.0",
     "webpack-bundle-analyzer": "^4.4.0",
     "webpack-cli": "^4.5.0",

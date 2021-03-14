@@ -17,15 +17,20 @@ const CompressionPlugin = require('compression-webpack-plugin');
 const { DuplicatesPlugin } = require('inspectpack/plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 const path = require('path');
 // const ESLintPlugin = require('eslint-webpack-plugin');
 
-const VERSION = JSON.stringify(require('./package.json').version).replace(/"/g, '');
+const rapidocVersion = JSON.stringify(require('./package.json').version).replace(/"/g, '');
 
-const BANNER = `RapiDoc ${VERSION.replace()} - WebComponent to View OpenAPI docs
-License: MIT
-Repo   : https://github.com/mrin9/RapiDoc
-Author : Mrinmoy Majumdar`;
+const rapidocBanner = `
+/**
+* @preserve
+* RapiDoc ${rapidocVersion.replace()} - WebComponent to View OpenAPI docs
+* License: MIT
+* Repo   : https://github.com/mrin9/RapiDoc
+* Author : Mrinmoy Majumdar
+*`;
 
 const commonPlugins = [
   new webpack.ProvidePlugin({ Buffer: ['buffer', 'Buffer'] }),
@@ -62,8 +67,11 @@ if (process.env.NODE_ENV === 'production') {
   console.log('BUILDING FOR PRODUCTION ... '); // eslint-disable-line no-console
   commonPlugins.push(new BundleAnalyzerPlugin({ analyzerMode: 'static' }));
   commonPlugins.push(new DuplicatesPlugin({ emitErrors: false, verbose: true }));
-  commonPlugins.push(new webpack.BannerPlugin(BANNER));
-  commonPlugins.push(new webpack.DefinePlugin({ VERSION }));
+  commonPlugins.push(new webpack.BannerPlugin({
+    raw: true,
+    banner: rapidocBanner,
+  }));
+  // commonPlugins.push(new webpack.DefinePlugin({ VERSION }));
   commonPlugins.push(new FileManagerPlugin({
     events: {
       onEnd: {
@@ -84,6 +92,16 @@ module.exports = {
     path: path.join(__dirname, 'dist'),
     filename: 'rapidoc-min.js',
     publicPath: '',
+  },
+  optimization: {
+    minimizer: [
+      new TerserPlugin({
+        extractComments: {
+          condition: /^\**!|@preserve|@license|@cc_on/i,
+          banner: (licenseFile) => `RapiDoc ${rapidocVersion} - License information can be found in ${licenseFile}`,
+        },
+      }),
+    ],
   },
   devServer: {
     contentBase: path.join(__dirname, 'docs'),
