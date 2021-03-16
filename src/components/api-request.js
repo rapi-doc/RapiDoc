@@ -1210,29 +1210,37 @@ export default class ApiRequest extends LitElement {
       me.responseBlobUrl = '';
     }
     me.curlSyntax = `${curl}${curlHeaders}${curlData}${curlForm}`;
+    const fetchRequest = new Request(fetchUrl, fetchOptions);
+    this.dispatchEvent(new CustomEvent('before-try', {
+      bubbles: true,
+      composed: true,
+      detail: {
+        request: fetchRequest,
+      },
+    }));
+
     try {
       let respBlob;
       let respJson;
       let respText;
       tryBtnEl.disabled = true;
-      // await wait(1000);
-      const tryResp = await fetch(fetchUrl, fetchOptions);
+      const fetchResponse = await fetch(fetchRequest);
       tryBtnEl.disabled = false;
-      me.responseStatus = tryResp.ok ? 'success' : 'error';
-      me.responseMessage = tryResp.statusText ? `${tryResp.statusText}:${tryResp.status}` : tryResp.status;
-      me.responseUrl = tryResp.url;
-      tryResp.headers.forEach((hdrVal, hdr) => {
+      me.responseStatus = fetchResponse.ok ? 'success' : 'error';
+      me.responseMessage = fetchResponse.statusText ? `${fetchResponse.statusText}:${fetchResponse.status}` : fetchResponse.status;
+      me.responseUrl = fetchResponse.url;
+      fetchResponse.headers.forEach((hdrVal, hdr) => {
         me.responseHeaders = `${me.responseHeaders}${hdr.trim()}: ${hdrVal}\n`;
       });
-      const contentType = tryResp.headers.get('content-type');
-      const respEmpty = (await tryResp.clone().text()).length === 0;
+      const contentType = fetchResponse.headers.get('content-type');
+      const respEmpty = (await fetchResponse.clone().text()).length === 0;
       if (respEmpty) {
         me.responseText = '';
       } else if (contentType) {
         if (contentType.includes('json')) {
           if ((/charset=[^"']+/).test(contentType)) {
             const encoding = contentType.split('charset=')[1];
-            const buffer = await tryResp.arrayBuffer();
+            const buffer = await fetchResponse.arrayBuffer();
             try {
               respText = new TextDecoder(encoding).decode(buffer);
             } catch {
@@ -1244,7 +1252,7 @@ export default class ApiRequest extends LitElement {
               me.responseText = respText;
             }
           } else {
-            respJson = await tryResp.json();
+            respJson = await fetchResponse.json();
             me.responseText = JSON.stringify(respJson, null, 2);
           }
         } else if (RegExp('^font/|tar$|zip$|7z$|rtf$|msword$|excel$|/pdf$|/octet-stream$').test(contentType)) {
@@ -1254,32 +1262,28 @@ export default class ApiRequest extends LitElement {
           me.responseIsBlob = true;
           me.responseBlobType = 'view';
         } else {
-          respText = await tryResp.text();
+          respText = await fetchResponse.text();
           if (contentType.includes('xml')) {
             me.responseText = prettyXml(respText);
           }
           me.responseText = respText;
         }
         if (me.responseIsBlob) {
-          const contentDisposition = tryResp.headers.get('content-disposition');
+          const contentDisposition = fetchResponse.headers.get('content-disposition');
           me.respContentDisposition = contentDisposition ? contentDisposition.split('filename=')[1] : 'filename';
-          respBlob = await tryResp.blob();
+          respBlob = await fetchResponse.blob();
           me.responseBlobUrl = URL.createObjectURL(respBlob);
         }
       } else {
-        respText = await tryResp.text();
+        respText = await fetchResponse.text();
         me.responseText = respText;
       }
       this.dispatchEvent(new CustomEvent('after-try', {
         bubbles: true,
         composed: true,
         detail: {
-          fetchUrl,
-          fetchOptions,
-          responseStatus: me.responseStatus,
-          responseContentType: contentType,
-          responseIsBlob: me.responseIsBlob,
-          response: respJson || respText || respBlob,
+          request: fetchRequest,
+          response: fetchResponse,
         },
       }));
     } catch (err) {
@@ -1290,8 +1294,7 @@ export default class ApiRequest extends LitElement {
         composed: true,
         detail: {
           err,
-          url: fetchUrl,
-          options: fetchOptions,
+          request: fetchRequest,
         },
       }));
     }
