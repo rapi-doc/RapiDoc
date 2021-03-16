@@ -115,19 +115,10 @@ export default class SchemaTable extends LitElement {
     `;
   }
 
-  generateTree(data, dataType = 'object', key = '', description = '', level = 0) {
-    /*
-    if ((data['::type'] || '').includes('xxx-of-option') || key.startsWith('::OPTION')) {
-      level -= 1;
-    }
-    */
-    if (key.startsWith('::OPTION')) {
-      level -= 1;
-    }
-    let leftPadding = 16 * level; // 2 space indentation at each level
-    if (key.startsWith('::OPTION')) {
-      leftPadding -= 6;
-    }
+  generateTree(data, dataType = 'object', key = '', description = '', schemaLevel = 0, indentLevel = 0) {
+    const newSchemaLevel = data['::type']?.startsWith('xxx-of') ? schemaLevel : (schemaLevel + 1);
+    const newIndentLevel = dataType === 'xxx-of-option' || data['::type'] === 'xxx-of-option' || key.startsWith('::OPTION') ? indentLevel : (indentLevel + 1);
+    const leftPadding = 16 * newIndentLevel; // 2 space indentation at each level
 
     if (!data) {
       return html`<div class="null" style="display:inline;">null</div>`;
@@ -166,18 +157,18 @@ export default class SchemaTable extends LitElement {
 
     if (typeof data === 'object') {
       return html`
-        ${level > 0
+        ${newSchemaLevel >= 0 && key
           ? html`
-            <div class='tr ${level < this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type']}' data-obj='${keyLabel}'>
+            <div class='tr ${newSchemaLevel <= this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type']}' data-obj='${keyLabel}'>
               <div class="td key ${data['::deprecated'] ? 'deprecated' : ''}" style='padding-left:${leftPadding}px'>
-                ${(keyLabel || keyDescr) && (data['::type'] || '').includes('xxx-of-option') === false
+                ${(keyLabel || keyDescr)
                   ? html`
                     <span 
-                      class='obj-toggle ${level < this.schemaExpandLevel ? 'expanded' : 'collapsed'}'
+                      class='obj-toggle ${newSchemaLevel < this.schemaExpandLevel ? 'expanded' : 'collapsed'}'
                       data-obj='${keyLabel}'
                       @click= ${(e) => this.toggleObjectExpand(e, keyLabel)} 
                     >
-                      ${level < this.schemaExpandLevel ? '-' : '+'}
+                      ${schemaLevel < this.schemaExpandLevel ? '-' : '+'}
                     </span>`
                   : ''
                 }
@@ -185,7 +176,7 @@ export default class SchemaTable extends LitElement {
                   ? html`<span class="xxx-of-key" style="margin-left:-6px">${keyLabel}</span><span class="${isOneOfLabel ? 'xxx-of-key' : 'xxx-of-descr'}">${keyDescr}</span>`
                   : keyLabel.endsWith('*')
                     ? html`<span class="key-label" style="display:inline-block; margin-left:-6px;"> ${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>`
-                    : html`<span class="key-label" style="display:inline-block; margin-left:-6px;">${keyLabel}</span>`
+                    : html`<span class="key-label" style="display:inline-block; margin-left:-6px;">${keyLabel === '::props' ? '' : keyLabel}</span>`
                 }
                 ${data['::type'] === 'xxx-of' && dataType === 'array' ? html`<span style="color:var(--primary-color)">ARRAY</span>` : ''} 
               </div>
@@ -201,7 +192,7 @@ export default class SchemaTable extends LitElement {
         }
         <div class='object-body'>
         ${Array.isArray(data) && data[0]
-          ? html`${this.generateTree(data[0], 'xxx-of-option', '::ARRAY~OF', '', (level))}`
+          ? html`${this.generateTree(data[0], 'xxx-of-option', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel)}`
           : html`
             ${Object.keys(data).map((dataKey) => html`
               ${['::description', '::type', '::props', '::deprecated'].includes(dataKey)
@@ -211,7 +202,8 @@ export default class SchemaTable extends LitElement {
                       data[dataKey]['::type'],
                       dataKey,
                       data[dataKey]['::description'],
-                      (level + 1),
+                      newSchemaLevel,
+                      newIndentLevel,
                     )}`
                   : ''
                 : html`${this.generateTree(
@@ -219,7 +211,8 @@ export default class SchemaTable extends LitElement {
                   data[dataKey]['::type'],
                   dataKey,
                   data[dataKey]['::description'],
-                  (level + 1),
+                  newSchemaLevel,
+                  newIndentLevel,
                 )}`
               }
             `)}

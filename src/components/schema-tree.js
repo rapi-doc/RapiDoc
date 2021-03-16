@@ -111,7 +111,7 @@ export default class SchemaTree extends LitElement {
     `;
   }
 
-  generateTree(data, dataType = 'object', key = '', description = '', level = 0) {
+  generateTree(data, dataType = 'object', key = '', description = '', schemaLevel = 0, indentLevel = 0) {
     if (!data) {
       return html`<div class="null" style="display:inline;">null</div>`;
     }
@@ -131,21 +131,23 @@ export default class SchemaTree extends LitElement {
     }
 
     const leftPadding = 12;
-    const minFieldColWidth = 400 - (level * leftPadding);
+    const minFieldColWidth = 400 - (indentLevel * leftPadding);
     let openBracket = '';
     let closeBracket = '';
-    const isXxxOfNode = data['::type']?.startsWith('xxx-of');
-    const newLevel = isXxxOfNode ? level : level + 1;
+    const newSchemaLevel = data['::type']?.startsWith('xxx-of') ? schemaLevel : (schemaLevel + 1);
+    // const newIndentLevel = dataType === 'xxx-of-option' || data['::type'] === 'xxx-of-option' ? indentLevel : (indentLevel + 1);
+    const newIndentLevel = dataType === 'xxx-of-option' || data['::type'] === 'xxx-of-option' || key.startsWith('::OPTION') ? indentLevel : (indentLevel + 1);
+    debugger;
     if (data['::type'] === 'object') {
       if (dataType === 'array') {
-        if (level < this.schemaExpandLevel) {
+        if (schemaLevel < this.schemaExpandLevel) {
           openBracket = html`<span class="open-bracket array-of-object" @click="${this.toggleObjectExpand}">[{</span>`;
         } else {
           openBracket = html`<span class="open-bracket array-of-object" @click="${this.toggleObjectExpand}">[{...}]</span>`;
         }
         closeBracket = '}]';
       } else {
-        if (level < this.schemaExpandLevel) {
+        if (schemaLevel < this.schemaExpandLevel) {
           openBracket = html`<span class="open-bracket object" @click="${this.toggleObjectExpand}">{</span>`;
         } else {
           openBracket = html`<span class="open-bracket object" @click="${this.toggleObjectExpand}">{...}</span>`;
@@ -154,14 +156,14 @@ export default class SchemaTree extends LitElement {
       }
     } else if (data['::type'] === 'array') {
       if (dataType === 'array') {
-        if (level < this.schemaExpandLevel) {
+        if (schemaLevel < this.schemaExpandLevel) {
           openBracket = html`<span class="open-bracket array-of-array" @click="${this.toggleObjectExpand}">[[</span>`;
         } else {
           openBracket = html`<span class="open-bracket array-of-array" @click="${this.toggleObjectExpand}">[[...]]</span>`;
         }
         closeBracket = ']]';
       } else {
-        if (level < this.schemaExpandLevel) {
+        if (schemaLevel < this.schemaExpandLevel) {
           openBracket = html`<span class="open-bracket array" @click="${this.toggleObjectExpand}">[</span>`;
         } else {
           openBracket = html`<span class="open-bracket array" @click="${this.toggleObjectExpand}">[...]</span>`;
@@ -171,7 +173,7 @@ export default class SchemaTree extends LitElement {
     }
     if (typeof data === 'object') {
       return html`
-        <div class="tr ${level < this.schemaExpandLevel || data['::type']?.startsWith('xxx-of') ? 'expanded' : 'collapsed'} ${data['::type'] || 'no-type-info'}">
+        <div class="tr ${schemaLevel < this.schemaExpandLevel || data['::type']?.startsWith('xxx-of') ? 'expanded' : 'collapsed'} ${data['::type'] || 'no-type-info'}">
           <div class="td key ${data['::deprecated'] ? 'deprecated' : ''}" style='min-width:${minFieldColWidth}px'>
             ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION')
               ? html`<span class='key-label xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>`
@@ -179,7 +181,7 @@ export default class SchemaTree extends LitElement {
                 ? html`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>`
                 : keyLabel === '::props' || keyLabel === '::ARRAY~OF'
                   ? ''
-                  : level > 0
+                  : schemaLevel > 0
                     ? html`<span class="key-label">${keyLabel}:</span>`
                     : ''
             }
@@ -190,7 +192,7 @@ export default class SchemaTree extends LitElement {
         </div>
         <div class='inside-bracket ${data['::type'] || 'no-type-info'}' style='padding-left:${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' ? 0 : leftPadding}px;'>
           ${Array.isArray(data) && data[0]
-            ? html`${this.generateTree(data[0], 'xxx-of-option', '::ARRAY~OF', '', newLevel)}`
+            ? html`${this.generateTree(data[0], 'xxx-of-option', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel)}`
             : html`
               ${Object.keys(data).map((dataKey) => html`
                 ${['::description', '::type', '::props', '::deprecated'].includes(dataKey)
@@ -200,7 +202,8 @@ export default class SchemaTree extends LitElement {
                         data[dataKey]['::type'],
                         dataKey,
                         data[dataKey]['::description'],
-                        newLevel,
+                        newSchemaLevel,
+                        newIndentLevel,
                       )}`
                     : ''
                   : html`${this.generateTree(
@@ -208,7 +211,8 @@ export default class SchemaTree extends LitElement {
                     data[dataKey]['::type'],
                     dataKey,
                     data[dataKey]['::description'],
-                    newLevel,
+                    newSchemaLevel,
+                    newIndentLevel,
                   )}`
                 }
               `)}
@@ -238,7 +242,7 @@ export default class SchemaTree extends LitElement {
             ? html`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>:`
             : key.startsWith('::OPTION')
               ? html`<span class='key-label xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>`
-              : level > 0
+              : schemaLevel > 0
                 ? html`<span class="key-label">${keyLabel}:</span>`
                 : ''
           }
