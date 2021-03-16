@@ -68,6 +68,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
         active-schema-tab = "${this.defaultSchemaTab}"
         schema-expand-level = "${this.schemaExpandLevel}"
         schema-description-expanded = "${this.schemaDescriptionExpanded}"
+        allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
         schema-hide-read-only = "${this.schemaHideReadOnly}"
         fetch-credentials = "${this.fetchCredentials}"
       > </api-request>
@@ -82,6 +83,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
         active-schema-tab = "${this.defaultSchemaTab}"
         schema-expand-level = "${this.schemaExpandLevel}"
         schema-description-expanded = "${this.schemaDescriptionExpanded}"
+        allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
         schema-hide-write-only = "${this.schemaHideWriteOnly}"
         selected-status = "${Object.keys(path.responses || {})[0] || ''}"
       > </api-response>

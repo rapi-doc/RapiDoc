@@ -74,7 +74,7 @@ export default css`
   padding: 2px 0;
   color:var(--primary-color);
 }
-.toolbar-item{
+.toolbar-item {
   cursor:pointer;
   padding:5px 0;
   margin:0 2px;

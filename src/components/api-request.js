@@ -58,6 +58,7 @@ export default class ApiRequest extends LitElement {
       activeSchemaTab: { type: String, attribute: 'active-schema-tab' },
       schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
       schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
+      allowSchemaDescriptionExpandToggle: { type: String, attribute: 'allow-schema-description-expand-toggle' },
       schemaHideReadOnly: { type: String, attribute: 'schema-hide-read-only' },
       fetchCredentials: { type: String, attribute: 'fetch-credentials' },
 
@@ -568,6 +569,7 @@ export default class ApiRequest extends LitElement {
               .data = '${schemaAsObj}'
               schema-expand-level = "${this.schemaExpandLevel}"
               schema-description-expanded = "${this.schemaDescriptionExpanded}"
+              allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
               schema-hide-read-only = "${this.schemaHideReadOnly.includes(this.method)}"
               schema-hide-write-only = false
             > </schema-table>
@@ -581,6 +583,7 @@ export default class ApiRequest extends LitElement {
               .data = '${schemaAsObj}'
               schema-expand-level = "${this.schemaExpandLevel}"
               schema-description-expanded = "${this.schemaDescriptionExpanded}"
+              allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
               schema-hide-read-only = "${this.schemaHideReadOnly.includes(this.method)}"
               schema-hide-write-only = false
             > </schema-tree>
@@ -711,6 +714,7 @@ export default class ApiRequest extends LitElement {
                           .data = '${formdataPartSchema}'
                           schema-expand-level = "${this.schemaExpandLevel}"
                           schema-description-expanded = "${this.schemaDescriptionExpanded}"
+                          allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
                         > </schema-tree>
                       </div>`
                     }

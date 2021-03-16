@@ -12,6 +12,7 @@ export default class SchemaTree extends LitElement {
       data: { type: Object },
       schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
       schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
+      allowSchemaDescriptionExpandToggle: { type: String, attribute: 'allow-schema-description-expand-toggle' },
       schemaHideReadOnly: { type: String, attribute: 'schema-hide-read-only' },
       schemaHideWriteOnly: { type: String, attribute: 'schema-hide-write-only' },
     };
@@ -93,12 +94,20 @@ export default class SchemaTree extends LitElement {
       <div class="tree ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : 'collapsed-descr'}">
         <div class="toolbar">
           <div class="toolbar-item schema-root-type ${this.data?.['::type'] || ''} "> ${this.data?.['::type'] || ''} </div>
-          <div style="flex:1"></div>
-          <div class='toolbar-item' @click='${() => { this.schemaDescriptionExpanded = (this.schemaDescriptionExpanded === 'true' ? 'false' : 'true'); }}'> 
-            ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'}
-          </div>
+          ${this.allowSchemaDescriptionExpandToggle === 'true'
+            ? html`
+              <div style="flex:1"></div>
+              <div class='toolbar-item' @click='${() => { this.schemaDescriptionExpanded = (this.schemaDescriptionExpanded === 'true' ? 'false' : 'true'); }}'> 
+                ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'}
+              </div>
+            `
+            : ''
+          }
         </div>
-        <span class='m-markdown'> ${this.data ? unsafeHTML(marked(this.data['::description'] || '')) : ''}</span>
+        ${this.data?.['::description']
+          ? html`<span class='m-markdown'> ${unsafeHTML(marked(this.data['::description'] || ''))}</span>`
+          : ''
+        }
         ${this.data
           ? html`
             ${this.generateTree(

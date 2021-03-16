@@ -10,6 +10,7 @@ export default class SchemaTable extends LitElement {
     return {
       schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
       schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
+      allowSchemaDescriptionExpandToggle: { type: String, attribute: 'allow-schema-description-expand-toggle' },
       schemaHideReadOnly: { type: String, attribute: 'schema-hide-read-only' },
       schemaHideWriteOnly: { type: String, attribute: 'schema-hide-write-only' },
       data: { type: Object },
@@ -86,31 +87,37 @@ export default class SchemaTable extends LitElement {
   render() {
     return html`
       <div class="table ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : 'collapsed-descr'}">
-        <div class='toolbar'> 
-          <div style="flex:1"></div>
-          <div class='toolbar-item' @click='${() => { this.schemaDescriptionExpanded = (this.schemaDescriptionExpanded === 'true' ? 'false' : 'true'); }}'> 
-            ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'}
-          </div>
+        <div class='toolbar'>
+          <div class="toolbar-item schema-root-type ${this.data?.['::type'] || ''} "> ${this.data?.['::type'] || ''} </div>
+          ${this.allowSchemaDescriptionExpandToggle === 'true'
+            ? html`
+              <div style="flex:1"></div>
+              <div class='toolbar-item' @click='${() => { this.schemaDescriptionExpanded = (this.schemaDescriptionExpanded === 'true' ? 'false' : 'true'); }}'> 
+                ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'}
+              </div>
+            `
+            : ''
+          }
         </div>
-          <div style='padding: 5px 0; color:var(--fg2)'> 
-            <span class="schema-root-type ${this.data?.['::type'] || ''} " > ${this.data?.['::type'] || ''}</span> 
-            <span class='m-markdown' >${this.data ? unsafeHTML(marked(this.data['::description'] || '')) : ''}</span>
+        ${this.data?.['::description']
+          ? html`<span class='m-markdown'> ${unsafeHTML(marked(this.data['::description'] || ''))}</span>`
+          : ''
+        }
+        <div style = 'border:1px solid var(--light-border-color)'>
+          <div style='display:flex; background-color: var(--bg2); padding:8px 4px; border-bottom:1px solid var(--light-border-color);'>
+            <div class='key' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Field </div>
+            <div class='key-type' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Type </div>
+            <div class='key-descr' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Description </div>
           </div>
-          <div style = 'border:1px solid var(--light-border-color)'>
-            <div style='display:flex; background-color: var(--bg2); padding:8px 4px; border-bottom:1px solid var(--light-border-color);'>
-              <div class='key' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Field </div>
-              <div class='key-type' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Type </div>
-              <div class='key-descr' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Description </div>
-            </div>
-            ${this.data
-              ? html`
-                ${this.generateTree(
-                  this.data['::type'] === 'array' ? this.data['::props'] : this.data,
-                  this.data['::type'],
-                )}`
-              : ''
-            }  
-          </div>
+          ${this.data
+            ? html`
+              ${this.generateTree(
+                this.data['::type'] === 'array' ? this.data['::props'] : this.data,
+                this.data['::type'],
+              )}`
+            : ''
+          }  
+        </div>
       </div>  
     `;
   }
