@@ -34,6 +34,7 @@ export default function callbackTemplate(callbacks) {
                       schema-expand-level = "${this.schemaExpandLevel}"
                       schema-description-expanded = "${this.schemaDescriptionExpanded}"
                       schema-hide-read-only = "${this.schemaHideReadOnly}"
+                      fetch-credentials = "${this.fetchCredentials}"
                     > </api-request>
 
                     <api-response

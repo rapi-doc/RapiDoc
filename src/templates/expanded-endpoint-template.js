@@ -69,6 +69,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
         schema-expand-level = "${this.schemaExpandLevel}"
         schema-description-expanded = "${this.schemaDescriptionExpanded}"
         schema-hide-read-only = "${this.schemaHideReadOnly}"
+        fetch-credentials = "${this.fetchCredentials}"
       > </api-request>
 
       ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}

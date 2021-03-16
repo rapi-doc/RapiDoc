@@ -59,6 +59,9 @@ export default class ApiRequest extends LitElement {
       schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
       schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
       schemaHideReadOnly: { type: String, attribute: 'schema-hide-read-only' },
+      fetchCredentials: { type: String, attribute: 'fetch-credentials' },
+
+      // properties for internal tracking
       activeResponseTab: { type: String }, // internal tracking of response-tab not exposed as a attribute
       selectedRequestBodyType: { type: String, attribute: 'selected-request-body-type' }, // internal tracking of selected request-body type
       selectedRequestBodyExample: { type: String, attribute: 'selected-request-body-example' }, // internal tracking of selected request-body example
@@ -1210,6 +1213,9 @@ export default class ApiRequest extends LitElement {
       me.responseBlobUrl = '';
     }
     me.curlSyntax = `${curl}${curlHeaders}${curlData}${curlForm}`;
+    if (this.fetchCredentials) {
+      fetchOptions.credentials = this.fetchCredentials;
+    }
     const fetchRequest = new Request(fetchUrl, fetchOptions);
     this.dispatchEvent(new CustomEvent('before-try', {
       bubbles: true,

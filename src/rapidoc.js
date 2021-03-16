@@ -112,6 +112,9 @@ export default class RapiDoc extends LitElement {
       usePathInNavBar: { type: String, attribute: 'use-path-in-nav-bar' },
       infoDescriptionHeadingsInNavBar: { type: String, attribute: 'info-description-headings-in-navbar' },
 
+      // Fetch Options
+      fetchCredentials: { type: String, attribute: 'fetch-credentials' },
+
       // Filters
       matchPaths: { type: String, attribute: 'match-paths' },
 
@@ -408,6 +411,8 @@ export default class RapiDoc extends LitElement {
     if (!this.showSideNav || !'true false'.includes(this.showSideNav)) { this.showSideNav = 'true'; }
     if (!this.showComponents || !'true false'.includes(this.showComponents)) { this.showComponents = 'false'; }
     if (!this.infoDescriptionHeadingsInNavBar || !'true, false,'.includes(`${this.infoDescriptionHeadingsInNavBar},`)) { this.infoDescriptionHeadingsInNavBar = 'false'; }
+    if (!this.fetchCredentials || !'omit, same-origin, include,'.includes(`${this.fetchCredentials},`)) { this.fetchCredentials = ''; }
+
     if (!this.showAdvancedSearchDialog) { this.showAdvancedSearchDialog = false; }
 
     marked.setOptions({
