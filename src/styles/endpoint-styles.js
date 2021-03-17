@@ -109,9 +109,9 @@ export default css`
   padding:2px 5px;
   vertical-align: middle;
   font-size:var(--font-size-small);
-  height: calc(var(--font-size-small) + 8px);
+  height: calc(var(--font-size-small) + 16px);
   line-height: calc(var(--font-size-small) + 8px);
-  min-width: 48px;
+  width: 60px;
   border-radius: 2px;
   display:inline-block;
   text-align: center;

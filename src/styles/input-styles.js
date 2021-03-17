@@ -5,7 +5,6 @@ export default css`
 /* Button */
 .m-btn {
   border-radius: var(--border-radius);
-  box-sizing: border-box;
   font-weight: 600;
   display: inline-block;
   padding: 6px 16px;
@@ -80,7 +79,6 @@ input[type="password"] {
   font-size: var(--font-size-small);
   transition: border .2s;
   padding: 6px 5px;
-  box-sizing: border-box;
 }
 
 select {

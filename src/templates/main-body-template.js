@@ -10,7 +10,6 @@ import securitySchemeTemplate from '~/templates/security-scheme-template';
 import headerTemplate from '~/templates/header-template';
 import navbarTemplate from '~/templates/navbar-template';
 import advancedSearchTemplate from '~/templates/advance-search-template';
-
 import SetTheme from '~/utils/theme';
 import { isValidHexColor } from '~/utils/color-utils';
 

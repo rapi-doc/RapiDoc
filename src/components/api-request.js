@@ -79,8 +79,10 @@ export default class ApiRequest extends LitElement {
       TabStyles,
       PrismStyles,
       css`
-        .read-mode{
-          margin-top:24px;
+        *, *:before, *:after { box-sizing: border-box; }
+    
+        .read-mode {
+          margin-top: 24px;
         }
         .param-name,
         .param-type {

@@ -1,6 +1,8 @@
 import { css } from 'lit-element';
 
 export default css`
+  *, *:before, *:after { box-sizing: border-box; }
+
   .dialog-box-overlay {
     background-color: var(--overlay-bg);
     position: fixed;
@@ -35,8 +37,7 @@ export default css`
     align-self: stretch;
     display: flex;
     align-items: center;
-    padding: 20px 16px;
-    box-sizing: border-box;
+    padding: 0px 16px;
     min-height: 60px;
     max-height: 60px;
     border-bottom: 1px solid var(--light-border-color);

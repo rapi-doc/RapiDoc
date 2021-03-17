@@ -1,6 +1,9 @@
 import { css } from 'lit-element';
 
 export default css`
+
+*, *:before, *:after { box-sizing: border-box; }
+
 .tr {
   display: flex;
   flex: none;
@@ -10,7 +13,6 @@ export default css`
 .td {
   display: block;
   flex: 0 0 auto;
-  box-sizing: border-box;
 }
 .key {
   font-family: var(--font-mono);

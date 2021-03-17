@@ -11,7 +11,6 @@ export default css`
   background-size: var(--nav-bg-image-size);
   background-repeat: var(--nav-bg-image-repeat, 'no-repeat');
   background-blend-mode: multiply;
-  box-sizing:border-box;
   line-height: calc(var(--font-size-small) + 4px);
   display:none;
   position:relative;

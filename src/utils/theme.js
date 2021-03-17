@@ -190,10 +190,13 @@ export default function setTheme(baseTheme, theme = {}) {
       brown: theme.brown ? theme.brown : '#D4AC0D',
     };
   }
-  return html`<style>
-    :host {
-
+  return html`
+  <style>
+  *, *:before, *:after { box-sizing: border-box; }
+  
+  :host {
     /* Common Styles - irrespective of themes */  
+    --border-radius: 2px;
     --layout: ${this.layout || 'row'};
     --font-mono: ${this.monoFont || 'Monaco, "Andale Mono", "Roboto Mono", Consolas, monospace'};
     --font-regular: ${this.regularFont || '"Open Sans", Avenir, "Segoe UI", Arial, sans-serif'};

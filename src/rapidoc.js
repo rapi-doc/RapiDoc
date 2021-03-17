@@ -140,8 +140,6 @@ export default class RapiDoc extends LitElement {
       InfoStyles,
       css`
       :host {
-        --border-radius: 2px;
-
         display:flex;
         flex-direction: column;
         min-width:360px;
@@ -159,7 +157,6 @@ export default class RapiDoc extends LitElement {
         display:flex;
         height:100%;
         width:100%;
-        box-sizing: border-box;
         overflow:hidden;
       }
 
@@ -254,7 +251,6 @@ export default class RapiDoc extends LitElement {
       .header{
         background-color:var(--header-bg);
         color:var(--header-fg);
-        box-sizing:border-box;
         width:100%;
       }
 
