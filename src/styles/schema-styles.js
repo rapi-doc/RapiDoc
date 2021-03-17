@@ -8,6 +8,7 @@ export default css`
   display: flex;
   flex: none;
   width: 100%;
+  box-sizing: content-box;
   border-bottom: 1px dotted transparent;
 }
 .td {
