@@ -45,11 +45,14 @@ components:
           type: string
           maxLength: 100
         gender:
-          type: string
+          type: 
+            - string
+            - integer
           enum:
             - male
             - female
             - unknown
+          minimum: 4
         location:
           description: location can be null, set using `nullable` property thats supported by OpenAPI `3.0.x`
           type: string

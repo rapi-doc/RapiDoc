@@ -68,7 +68,15 @@
 
   <!-- Start of API -->
   <div class="flex-col" id="api">
-    <div style="display:flex; flex-direction: column; ">
+    <div style="display:flex; flex-direction: column;">
+      <div style="display:flex; font-size:20px; font-weight: 300; align-self: center; margin: -12px 0 24px 0">
+        <a style ="color:orangered"  href="#att"> Attributes</a> &nbsp; |  &nbsp;
+        <a style ="color:orangered" href="#methods">  Methods</a> &nbsp; |  &nbsp;
+        <a style ="color:orangered" href="#events"> Events</a> &nbsp; |  &nbsp;
+        <a style ="color:orangered" href="#slots"> Slots</a> &nbsp; |  &nbsp;
+        <a style ="color:orangered" href="#vendor-extensions"> Venor Extensions </a> 
+      </div>
+
       <a id="att"></a>
       <h2> Attributes</h2>
       <div style="display:flex">
@@ -484,10 +492,17 @@
             </td>
             <td>true</td>
           </tr>
+          <tr>
+            <td class="mono bold right">allow-schema-description-expand-toggle </td>
+            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> true | false</span></span>
+              allow or hide the ability to expand/collapse field descriptions in the schema
+            </td>
+            <td>true</td>
+          </tr>
         </table>
 
         <a id="att-server"></a>
-        <div class='table-title' id='api-servers'> API Server</div>
+        <div class='table-title' id='api-servers'> API Server & calls</div>
         <table class="m-table">
           <tr>
             <td class="mono bold right">server-url</td>
@@ -540,6 +555,16 @@
             </td>
             <td>(empty)</td>
           </tr>
+          <tr>
+            <td class="mono bold right">fetch-credentials</td>
+            <td class="gray">
+              <span class='bold dark-gray'>Allowed:<span class='blue'> omit | same-origin | include</span></span>
+              enables passing credentials, as defined in the 
+              <a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#sending_a_request_with_credentials_included">Fetch standard, in CORS requests </a>
+              that are sent by the browser
+            </td>
+            <td>(empty)</td>
+          </tr>
         </table>
       </div>
 
@@ -578,50 +603,60 @@
 
       <a id="events"></a>
       <h2> Events</h2>
+
+      <div style="width:730px">
+        <span> Below is an example on how to handle events using plain JS</span>
+        <pre class="shadow1 code-block" style="width:730px"><code class="html">&lt;html&gt;
+  ...        
+  &lt;rapi-doc id="the-doc" spec-url = "https://.../spec.yaml"&gt; &lt;/rapi-doc&gt;
+
+  &lt;script&gt;
+    window.addEventListener('DOMContentLoaded', (event) => {
+      /* 
+        Ensure that the DOM is loaded, then add the event listener.
+        here we are listenig to 'before-try' event which fires when the user clicks 
+        on TRY, it then modifies the POST requests by adding a custom header 
+      */
+      const rapidocEl = document.getElementById('the-doc');
+      rapidocEl.addEventListener('before-try', (e) => {
+        if (e.detail.request.method === 'POST') {
+          e.detail.request.headers.append('custom-token', 'AAA.BBB.CCC');
+        }
+      });
+    });
+  &lt;/script&gt;
+  ...
+&lt;/html&gt;</code></pre>
+
       <div class="table-block">
         <table class="m-table">
           <tr>
-            <th class="right" >Event</th>
+            <th class="right" style="width:100px">Event</th>
             <th class="left">Description </th>
           </tr>
           <tr>
             <td class="mono bold right">spec-loaded</td>
             <td class="gray">
               called after the spec is parsed, and rendered. Provides you with a object representing the spec.
-
-<pre class="shadow1 code-block" style="width:550px"><code class="html">&lt;rapi-doc
-  id = "doc"
-  spec-url = "https://petstore.swagger.io/v2/swagger.json"
-&gt;
-&lt;/rapi-doc&gt;
-</code></pre>
-<br/>
-
-This is how you can listen to the event.
-<pre class="shadow1 code-block" style="width:550px"><code class="html">el = document.getElementById("doc");
-el.addEventListener('spec-loaded', e => console.log(e.detail));
-</code></pre>
-<br/>
+            </td>
+          </tr>
+          <tr>
+            <td class="mono bold right">before-try</td>
+            <td class="gray">
+              called before user clicks try. 
+              Provides a <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request" target="_blank">request object</a> 
+              that can be modified before making the final call to the API.
             </td>
           </tr>
 
           <tr>
             <td class="mono bold right">after-try</td>
             <td class="gray">
-              called after user clicks try. Provides you with a object containing request and response details.
-<pre class="shadow1 code-block" style="width:550px"><code class="js">
-event.details will provide
-{
-  fetchUrl: "https://..."
-  fetchOptions: { ... }, // obj with fetch options
-  responseStatus: "success | error",
-  responseContentType: "application/json",
-  responseIsBlob: {boolean},
-  response: {... }, // based on contentType contains json, text or blob
-  err?: { will exist if fetch call fails }
-}
-</code></pre>
-          <a href="https://github.com/mrin9/RapiDoc/blob/master/docs/examples/mock.html"> Example </a>
+              called after try (API-call) is completed and provides a 
+              <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request" target="_blank">request</a> and
+              <a href="https://developer.mozilla.org/en-US/docs/Web/API/Response" target="_blank">response</a> object
+              In case of an error it will provide an <span> request</span> and <span> err</span> object
+              <a href="https://github.com/mrin9/RapiDoc/blob/master/docs/examples/mock.html"> Example </a>
             </td>
           </tr>
         </table>
@@ -629,6 +664,27 @@ event.details will provide
 
       <a id="slots"></a>
       <h2> Slots</h2>
+      <div style="width:730px">
+        <span class="mono bold">slots</span> 
+        <span>
+          are placeholders inside a web component that you can fill with your own markup.
+          Below is an example on how to inject HTML/CSS/JS at various locations in RapiDoc 
+        </span>
+        <pre class="shadow1 code-block" style="width:730px"><code class="html">&lt;html&gt;
+  ...        
+  &lt;rapi-doc spec-url = "https://petstore.swagger.io/v2/swagger.json"&gt;
+    &lt;slot&gt; &lt;!-- This is a default slot --&gt;
+      &lt;h1&gt; My HTML Heading  &lt;/h1&gt;
+    &lt;/slot&gt;
+
+    &lt;slot name="nav-logo"&gt; &lt;!-- This is a named slot --&gt;
+      &lt;img src="https://via.placeholder.com/100" style="width:50px; height:50px"/&gt;
+    &lt;/slot&gt;
+  &lt;/rapi-doc&gt;
+  ...
+&lt;/html&gt;</code></pre>
+      
+      </div>
       <div class="table-block">
         <table class="m-table">
           <tr>
@@ -715,7 +771,7 @@ export default css`
 
 and build RapiDoc
 
-<pre class="shadow1 code-block" style="width:550px"><code class="shell">yarn build</code></pre>
+<pre class="shadow1 code-block" style="width:550px"><code class="shell">npm run build</code></pre>
 generated <span class="mono bold">rapidoc-min.js</span>  in <span class="mono bold">dist</span> folder will have your styles
 
                 <br/>

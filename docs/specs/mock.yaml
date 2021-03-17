@@ -126,6 +126,7 @@ components:
           type: string
     userInput:
       type: object
+      description: user object with `name` and `job` properties
       properties:
         name:
           description: User Name

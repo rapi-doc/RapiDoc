@@ -1,154 +1,46 @@
-openapi: 3.0.0
+openapi: "3.0.0"
 info:
-  title: tennis
-  version: '1.0'
-  contact:
-    name: test
-  description: |-
-    getPlayer -- takes a long time to view example
-    getTennisMatch -- crashes when you click on it
+  version: 1.0.0
+  title: Swagger Petstore
+  license:
+    name: MIT
 servers:
-  - url: 'http://localhost:3000'
+  - url: http://petstore.swagger.io/v1
 paths:
-  /getPlayer:
+  /pets:
     get:
-      summary: get player info
+      summary: List all pets
+      operationId: listPets
+      tags:
+        - pets
+      parameters: []
       responses:
         '200':
-          description: OK
+          description: Array of pets
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Player'
-              examples:
-                my-example-hexcode:
-                  value: |  
-                    {
-                      "eyeColor": "#FF0000",
-                      "hairColor": "#FF0000",
-                      "lipColor": "#FF0000",
-                      "mouthColor": "#FF0000",
-                      "pantsColor": "#FF0000",
-                      "racketColor": "#FF0000",
-                      "shirtColor": "#FF0000",
-                      "shoeColor": "#FF0000",
-                      "skinColor": "#FF0000",
-                      "sockColor": "#FF0000"
-                    }
-                my-example-rgb:
-                  value: |  
-                    {
-                      "eyeColor": { r: 255, g: 0, b: 0 },
-                      "hairColor": { r: 255, g: 0, b: 0 },
-                      "lipColor": { r: 255, g: 0, b: 0 },
-                      "mouthColor": { r: 255, g: 0, b: 0 },
-                      "pantsColor": { r: 255, g: 0, b: 0 },
-                      "racketColor": { r: 255, g: 0, b: 0 },
-                      "shirtColor": { r: 255, g: 0, b: 0 },
-                      "shoeColor": { r: 255, g: 0, b: 0 },
-                      "skinColor": { r: 255, g: 0, b: 0 },
-                      "sockColor":  { r: 255, g: 0, b: 0 }
-                    }
-      operationId: get-getPlayer
-      description: takes a long time to view example
-      tags:
-        - takes a long time
-
-  /getTennisMatch:
-    get:
-      summary: gets tennis match info
-      tags:
-        - will crash
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  leftPlayer:
-                    $ref: '#/components/schemas/Player'
-                  rightPlayer:
-                    $ref: '#/components/schemas/Player'
-              examples:
-                my-example:
-                  value: |
-                    {
-                      "leftPlayer": {
-                        "eyeColor": "#FF0000",
-                        "hairColor": "#FF0000",
-                        "lipColor": "#FF0000",
-                        "mouthColor": "#FF0000",
-                        "pantsColor": "#FF0000",
-                        "racketColor": "#FF0000",
-                        "shirtColor": "#FF0000",
-                        "shoeColor": "#FF0000",
-                        "skinColor": "#FF0000",
-                        "sockColor": "#FF0000"
-                      },
-                      "rightPlayer": {
-                        "eyeColor": "#FF0000",
-                        "hairColor": "#FF0000",
-                        "lipColor": "#FF0000",
-                        "mouthColor": "#FF0000",
-                        "pantsColor": "#FF0000",
-                        "racketColor": "#FF0000",
-                        "shirtColor": "#FF0000",
-                        "shoeColor": "#FF0000",
-                        "skinColor": "#FF0000",
-                        "sockColor": "#FF0000"
-                      }
-                    }      
-      operationId: get-getTennisMatch
-      description: crashes when you click on it
-    parameters: []
+                $ref: "#/components/schemas/Pets"
 components:
   schemas:
-    Color:
-      title: Color
-      description: ''
-      oneOf:
-        - type: string
-          properties: {}
-          description: color code
-          example: '#FF0000'
-        - type: object
-          properties:
-            r:
-              type: integer
-              example: 255
-            g:
-              type: integer
-              example: 0
-            b:
-              type: integer
-              example: 0
-          description: RGB color
-    Player:
-      title: Player
+    Dog:
       type: object
       properties:
-        eyeColor:
-          $ref: '#/components/schemas/Color'
-        hairColor:
-          $ref: '#/components/schemas/Color'
-        lipColor:
-          $ref: '#/components/schemas/Color'
-        mouthColor:
-          $ref: '#/components/schemas/Color'
-        pantsColor:
-          $ref: '#/components/schemas/Color'
-        racketColor:
-          $ref: '#/components/schemas/Color'
-        shirtColor:
-          $ref: '#/components/schemas/Color'
-        shoeColor:
-          $ref: '#/components/schemas/Color'
-        skinColor:
-          $ref: '#/components/schemas/Color'
-        sockColor:
-          $ref: '#/components/schemas/Color'
-tags:
-  - name: takes a long time
-  - name: will crash
+        id:
+          type: integer
+        dogName:
+          properties:
+            first:
+              type: string
+            last:
+              type: string
+
+    Cat:
+      type: object
+      properties:
+        catName:
+          type: string
+    Pets:
+      oneOf:
+        - $ref: "#/components/schemas/Dog"
+        - $ref: "#/components/schemas/Cat"
