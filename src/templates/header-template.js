@@ -19,11 +19,12 @@ export default function headerTemplate() {
           <input id="spec-url" 
             type="text" 
             style="font-size:var(--font-size-small)" 
-            class="header-input mono-font" 
+            class="header-input mono-font"
+            part="textbox spec-url" 
             placeholder="Spec URL" 
             value="${this.specUrl || ''}" 
             @change="${this.onSepcUrlChange}" 
-            spellcheck="false" 
+            spellcheck="false"
           >
           <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div> 
         `
@@ -32,6 +33,7 @@ export default function headerTemplate() {
         ? ''
         : html`
           <input id="spec-file" 
+            part = "file-input"
             type="file" 
             style="display:none" 
             value="${this.specFile || ''}" 
@@ -45,7 +47,7 @@ export default function headerTemplate() {
       ${(this.allowSearch === 'false' || 'read focused'.includes(this.renderStyle))
         ? ''
         : html`  
-          <input id="search" class="header-input" type="text"  placeholder="Quick Search" @change="${this.onSearchChange}" style="max-width:130px;margin-left:10px;" spellcheck="false" >
+          <input id="search" class="header-input" type="text" part="textbox header-filter" placeholder="Filter" @change="${this.onSearchChange}" style="max-width:130px;margin-left:10px;" spellcheck="false" >
           <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div>
         `
       }

@@ -224,10 +224,10 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow)
           ${authFlow.scopes
             ? html`
               <span> Scopes </span>
-              <div class= "oauth-scopes" style = "width:100%; display:flex; flex-direction:column; flex-wrap:wrap; margin:0 0 10px 24px">
+              <div class= "oauth-scopes" part="auth-scopes" style = "width:100%; display:flex; flex-direction:column; flex-wrap:wrap; margin:0 0 10px 24px">
                 ${Object.entries(authFlow.scopes).map((scopeAndDescr, index) => html`
                   <div class="m-checkbox" style="display:inline-flex; align-items:center">
-                    <input type="checkbox" id="${flowName}${index}" value="${scopeAndDescr[0]}">
+                    <input type="checkbox" part="checkbox auth-scope" id="${flowName}${index}" value="${scopeAndDescr[0]}">
                     <label for="${flowName}${index}" style="margin-left:5px">
                       <span class="mono-font">${scopeAndDescr[0]}</span>
                         ${scopeAndDescr[0] !== scopeAndDescr[1] ? ` - ${scopeAndDescr[1] || ''}` : ''}
@@ -239,10 +239,10 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow)
             : ''
           }
           <div style="display:flex; max-height:28px;">
-            <input type="text" value = "${clientId || ''}" placeholder="client-id" spellcheck="false" class="oauth-client-id">
+            <input type="text" part="textbox auth-client-id" value = "${clientId || ''}" placeholder="client-id" spellcheck="false" class="oauth-client-id">
             ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password'
               ? html`
-                <input type="password" value = "${clientSecret || ''}" placeholder="client-secret" spellcheck="false" class="oauth-client-secret" style = "margin:0 5px;">
+                <input type="password"  part="textbox auth-client-secret" value = "${clientSecret || ''}" placeholder="client-secret" spellcheck="false" class="oauth-client-secret" style = "margin:0 5px;">
                 ${flowName === 'authorizationCode' || flowName === 'clientCredentials'
                   ? html`
                     <select style="margin-right:5px;" class="oauth-send-client-secret-in">
@@ -264,8 +264,8 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow)
           ${flowName === 'password'
             ? html`
               <div style="display:flex; max-height:28px; margin-top:2px">
-                <input type="text" value = "" placeholder="username" spellcheck="false" class="api-key-user">
-                <input type="password" value = "" placeholder="password" spellcheck="false" class="api-key-password" style = "margin:0 5px;">
+                <input type="text" value = "" placeholder="username" spellcheck="false" class="api-key-user" part="textbox auth-username">
+                <input type="password" value = "" placeholder="password" spellcheck="false" class="api-key-password" style = "margin:0 5px;" part="textbox auth-password">
               </div>`
             : ''
           }  
@@ -283,7 +283,7 @@ export default function securitySchemeTemplate() {
     return;
   }
   return html`
-  <section id='auth' style="margin-top:24px; margin-bottom:24px;" class = 'observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}'>
+  <section id='auth' part="auth" style="margin-top:24px; margin-bottom:24px;" class = 'observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}'>
     <div class='sub-title regular-font'> AUTHENTICATION </div>
 
     <div class="small-font-size" style="display:flex; align-items: center; min-height:30px">
@@ -409,7 +409,7 @@ export function pathSecurityTemplate(pathSecurity) {
           ${i !== 0 ? html`<div style="padding:3px 4px;"> OR </div>` : ''}
           <div class="tooltip">
             <div style = "padding:2px 4px; white-space:nowrap; text-overflow:ellipsis;max-width:150px; overflow:hidden;">
-              <a href="#auth"> ${orSecurityItem1.securityTypes} </a>
+              <a part="anchor path-security" href="#auth"> ${orSecurityItem1.securityTypes} </a>
             </div>
             <div class="tooltip-text" style="position:absolute; color: var(--fg); top:26px; right:0; border:1px solid var(--border-color);padding:2px 4px; display:block;">
               ${orSecurityItem1.securityDefs.length > 1 ? html`<div>Requires <b>all</b> of the following </div>` : ''}

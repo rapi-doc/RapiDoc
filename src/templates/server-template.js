@@ -54,6 +54,7 @@ function serverVarsTemplate() {
             : html`
             <input
               type = "text"
+              part="textbox server-var"
               spellcheck = "false"
               data-var = "${kv[0]}"
               value = "${kv[1].default}"
@@ -73,8 +74,8 @@ function serverVarsTemplate() {
 
 export default function serverTemplate() {
   return html`
-  <section id = 'servers' style="margin-top:24px; margin-bottom:24px;" class='regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
-    <div class = 'sub-title'> API SERVER </div>
+  <section id = 'servers' part="servers" style="margin-top:24px; margin-bottom:24px;" class='regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
+    <div class = 'sub-title'>API SERVER</div>
     <div class = 'mono-font' style='margin: 12px 0; font-size:calc(var(--font-size-small) + 1px);'>
       ${this.resolvedSpec.servers?.length === 0
         ? ''
@@ -94,7 +95,7 @@ export default function serverTemplate() {
             <br/>
           `)}
       `}
-      <div class="table-title primary-text"> SELECTED: ${this.selectedServer?.computedUrl}</div>
+      <div class="table-title primary-text" part="selected-server"> SELECTED: ${this.selectedServer?.computedUrl}</div>
     </div>
     <slot name="servers"></slot>
     ${serverVarsTemplate.call(this)}

@@ -102,9 +102,6 @@ export default class RapiDoc extends LitElement {
 
       // Nav Bar Colors
       navBgColor: { type: String, attribute: 'nav-bg-color' },
-      navBgImage: { type: String, attribute: 'nav-bg-image' },
-      navBgImageSize: { type: String, attribute: 'nav-bg-image-size' },
-      navBgImageRepeat: { type: String, attribute: 'nav-bg-image-repeat' },
       navTextColor: { type: String, attribute: 'nav-text-color' },
       navHoverBgColor: { type: String, attribute: 'nav-hover-bg-color' },
       navHoverTextColor: { type: String, attribute: 'nav-hover-text-color' },

@@ -7,9 +7,6 @@ export default css`
   overflow: hidden;
   color:var(--nav-text-color);
   background-color: var(--nav-bg-color);
-  background-image: var(--nav-bg-image);
-  background-size: var(--nav-bg-image-size);
-  background-repeat: var(--nav-bg-image-repeat, 'no-repeat');
   background-blend-mode: multiply;
   line-height: calc(var(--font-size-small) + 4px);
   display:none;

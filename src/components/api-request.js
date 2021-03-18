@@ -286,7 +286,7 @@ export default class ApiRequest extends LitElement {
               ${paramSchema.type === 'array'
                 ? html`
                   <tag-input class="request-param" 
-                    style = "width:160px; background:var(--input-bg);" 
+                    style = "width:160px;" 
                     data-ptype = "${paramType}"
                     data-pname = "${param.name}"
                     data-example = "${Array.isArray(exampleVal) ? exampleVal.join('~|~') : exampleVal}"
@@ -310,7 +310,9 @@ export default class ApiRequest extends LitElement {
                       style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
                     >${this.fillRequestFieldsWithExample === 'true' ? exampleVal : ''}</textarea>`
                   : html`
-                    <input type="${paramSchema.format === 'password' ? 'password' : 'text'}" spellcheck="false" style="width:100%" class="request-param" 
+                    <input type="${paramSchema.format === 'password' ? 'password' : 'text'}" spellcheck="false" style="width:100%" 
+                      class="request-param"
+                      part="textbox param"
                       data-ptype="${paramType}"
                       data-pname="${param.name}" 
                       data-example="${Array.isArray(exampleVal) ? exampleVal.join('~|~') : exampleVal}"
@@ -331,7 +333,7 @@ export default class ApiRequest extends LitElement {
                 ${paramSchema.allowedValues && paramSchema.allowedValues.split(',').map((v, i) => html`
                   ${i > 0 ? ' | ' : html`<span style="font-weight:bold"> Allowed: </span>`}
                   ${html`
-                    <a class = "${this.allowTry === 'true' ? '' : 'inactive-link'}"
+                    <a part="anchor param-constraint" class = "${this.allowTry === 'true' ? '' : 'inactive-link'}"
                       data-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}"
                       data-enum="${v.trim()}"
                       @click="${(e) => {
@@ -363,7 +365,7 @@ export default class ApiRequest extends LitElement {
               ${exampleList.map((v, i) => html`
                 ${i === 0 ? '' : html` &#9671;`}
                 ${paramSchema.type === 'array' ? '[' : ''}
-                <a class = "${this.allowTry === 'true' ? '' : 'inactive-link'}"
+                <a part="anchor param-example" class = "${this.allowTry === 'true' ? '' : 'inactive-link'}"
                   data-example-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}"
                   data-example = "${v.value && Array.isArray(v.value) ? (v.value?.join('~|~') || '') : (v.value || '')}"
                   @click="${(e) => {
@@ -553,7 +555,7 @@ export default class ApiRequest extends LitElement {
         if (reqBody.mimeType === this.selectedRequestBodyType) {
           reqBodyFileInputHtml = html`
             <div class = "small-font-size bold-text row">
-              <input type="file" style="max-width:100%" class="request-body-param-file" data-ptype="${reqBody.mimeType}" spellcheck="false" />
+              <input type="file" part="file-input" style="max-width:100%" class="request-body-param-file" data-ptype="${reqBody.mimeType}" spellcheck="false" />
             </div>  
           `;
         }
@@ -660,7 +662,8 @@ export default class ApiRequest extends LitElement {
                 <div class="file-input-container col" style='align-items:flex-end;' @click="${(e) => this.onAddRemoveFileInput(e, fieldName, mimeType)}">
                   <div class='input-set row'>
                     <input 
-                      type = 'file'
+                      type = "file"
+                      part = "file-input"
                       style = "width:200px" 
                       data-pname = "${fieldName}" 
                       data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
@@ -674,7 +677,7 @@ export default class ApiRequest extends LitElement {
                 `
                 : html`
                   <tag-input
-                    style = "width:160px; background:var(--input-bg);" 
+                    style = "width:160px;" 
                     data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
                     data-pname = "${fieldName}"
                     data-example = "${Array.isArray(fieldSchema.example) ? fieldSchema.example.join('~|~') : fieldSchema.example || ''}"
@@ -724,6 +727,7 @@ export default class ApiRequest extends LitElement {
                       <div class="tab-content col" data-tab = 'example' style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'}; padding-left:5px; width:100%"> 
                         <textarea 
                           class = "textarea"
+                          part = "textarea param"
                           style = "width:100%; border:none; resize:vertical;" 
                           data-array = "false" 
                           data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
@@ -742,6 +746,7 @@ export default class ApiRequest extends LitElement {
                           .value = "${this.fillRequestFieldsWithExample === 'true' ? (fieldSchema.example || '') : ''}"
                           spellcheck = "false"
                           type = "${fieldSchema.format === 'binary' ? 'file' : fieldSchema.format === 'password' ? 'password' : 'text'}"
+                          part = "textbox param"
                           style = "width:200px"
                           data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
                           data-pname = "${fieldName}"
@@ -767,7 +772,7 @@ export default class ApiRequest extends LitElement {
                       ${paramSchema.allowedValues && paramSchema.allowedValues.split(',').map((v, i) => html`
                         ${i > 0 ? ' | ' : html`<span style="font-weight:bold"> Allowed: </span>`}
                         ${html`
-                          <a class = "${this.allowTry === 'true' ? '' : 'inactive-link'}"
+                          <a part="anchor param-constraint" class = "${this.allowTry === 'true' ? '' : 'inactive-link'}"
                             data-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}"
                             data-enum="${v.trim()}"
                             @click="${(e) => {
@@ -803,7 +808,7 @@ export default class ApiRequest extends LitElement {
                     <span>
                       <span style="font-weight:bold"> Example: </span>
                       ${paramSchema.type === 'array' ? '[ ' : ''}
-                      <a class = "${this.allowTry === 'true' ? '' : 'inactive-link'}"
+                      <a part="anchor param-example" class = "${this.allowTry === 'true' ? '' : 'inactive-link'}"
                         data-example-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}"
                         data-example = "${paramSchema.type === 'array' ? (paramSchema.example?.join('~|~') || '') : (paramSchema.example)}"
                         @click="${(e) => {

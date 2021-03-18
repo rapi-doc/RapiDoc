@@ -28,9 +28,6 @@ export default function setTheme(baseTheme, theme = {}) {
     const headerColor = theme.headerColor ? theme.headerColor : ColorUtils.color.brightness(bg1, 10);
 
     const navBgColor = theme.navBgColor ? theme.navBgColor : ColorUtils.color.brightness(bg1, 10);
-    const navBgImage = theme.navBgImage || '';
-    const navBgImageSize = theme.navBgImageSize;
-    const navBgImageRepeat = theme.navBgImageRepeat;
     const navTextColor = theme.navTextColor ? theme.navTextColor : ColorUtils.color.opacity(ColorUtils.color.invert(navBgColor), '0.65');
     const navHoverBgColor = theme.navHoverBgColor ? theme.navHoverBgColor : ColorUtils.color.brightness(navBgColor, -15);
     const navHoverTextColor = theme.navHoverTextColor ? theme.navHoverTextColor : ColorUtils.color.invert(navBgColor);
@@ -54,9 +51,6 @@ export default function setTheme(baseTheme, theme = {}) {
       selectionFg,
       overlayBg,
       navBgColor,
-      navBgImage,
-      navBgImageSize,
-      navBgImageRepeat,
       navTextColor,
       navHoverBgColor,
       navHoverTextColor,
@@ -121,9 +115,6 @@ export default function setTheme(baseTheme, theme = {}) {
     const navAccentColor = theme.navAccentColor ? theme.navAccentColor : primaryColor;
     */
     const navBgColor = theme.navBgColor ? theme.navBgColor : ColorUtils.color.brightness(bg1, -180);
-    const navBgImage = theme.navBgImage || '';
-    const navBgImageSize = theme.navBgImageSize || '';
-    const navBgImageRepeat = theme.navBgImageRepeat;
     const navTextColor = theme.navTextColor ? theme.navTextColor : ColorUtils.color.opacity(ColorUtils.color.invert(navBgColor), '0.65');
     const navHoverBgColor = theme.navHoverBgColor ? theme.navHoverBgColor : ColorUtils.color.brightness(navBgColor, -15);
     const navHoverTextColor = theme.navHoverTextColor ? theme.navHoverTextColor : ColorUtils.color.invert(navBgColor);
@@ -147,9 +138,6 @@ export default function setTheme(baseTheme, theme = {}) {
       selectionFg,
       overlayBg,
       navBgColor,
-      navBgImage,
-      navBgImageSize,
-      navBgImageRepeat,
       navTextColor,
       navHoverBgColor,
       navHoverTextColor,
@@ -252,9 +240,6 @@ export default function setTheme(baseTheme, theme = {}) {
 
     /* Nav Colors */  
     --nav-bg-color:${newTheme.navBgColor};
-    --nav-bg-image: url(${newTheme.navBgImage});
-    --nav-bg-image-size: ${newTheme.navBgImageSize || 'contain'};
-    --nav-bg-image-repeat: ${newTheme.navBgImageRepeat || 'no-repeat'};
     --nav-text-color:${newTheme.navTextColor};
     --nav-hover-bg-color:${newTheme.navHoverBgColor};
     --nav-hover-text-color:${newTheme.navHoverTextColor};

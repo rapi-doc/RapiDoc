@@ -177,9 +177,9 @@ input[type="checkbox"] {
   display: inline-block;
   background-color: var(--light-bg);
   border: 1px solid var(--light-bg);
-  border-radius: 10px;
+  border-radius: 9px;
   cursor: pointer;
-  height: 20px;
+  height: 18px;
   position: relative;
   transition: border .25s .15s, box-shadow .25s .3s, padding .25s;
   min-width: 36px;
