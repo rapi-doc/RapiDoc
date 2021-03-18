@@ -227,7 +227,7 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow)
               <div class= "oauth-scopes" part="auth-scopes" style = "width:100%; display:flex; flex-direction:column; flex-wrap:wrap; margin:0 0 10px 24px">
                 ${Object.entries(authFlow.scopes).map((scopeAndDescr, index) => html`
                   <div class="m-checkbox" style="display:inline-flex; align-items:center">
-                    <input type="checkbox" part="checkbox auth-scope" id="${flowName}${index}" value="${scopeAndDescr[0]}">
+                    <input type="checkbox" part="checkbox checkbox-auth-scope" id="${flowName}${index}" value="${scopeAndDescr[0]}">
                     <label for="${flowName}${index}" style="margin-left:5px">
                       <span class="mono-font">${scopeAndDescr[0]}</span>
                         ${scopeAndDescr[0] !== scopeAndDescr[1] ? ` - ${scopeAndDescr[1] || ''}` : ''}
@@ -283,7 +283,7 @@ export default function securitySchemeTemplate() {
     return;
   }
   return html`
-  <section id='auth' part="auth" style="margin-top:24px; margin-bottom:24px;" class = 'observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}'>
+  <section id='auth' part="section-auth" style="margin-top:24px; margin-bottom:24px;" class = 'observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}'>
     <div class='sub-title regular-font'> AUTHENTICATION </div>
 
     <div class="small-font-size" style="display:flex; align-items: center; min-height:30px">
@@ -412,7 +412,7 @@ export function pathSecurityTemplate(pathSecurity) {
           ${i !== 0 ? html`<div style="padding:3px 4px;"> OR </div>` : ''}
           <div class="tooltip">
             <div style = "padding:2px 4px; white-space:nowrap; text-overflow:ellipsis;max-width:150px; overflow:hidden;">
-              <a part="anchor path-security" href="#auth"> ${orSecurityItem1.securityTypes} </a>
+              <a part="anchor anchor-operation-security" href="#auth"> ${orSecurityItem1.securityTypes} </a>
             </div>
             <div class="tooltip-text" style="position:absolute; color: var(--fg); top:26px; right:0; border:1px solid var(--border-color);padding:2px 4px; display:block;">
               ${orSecurityItem1.securityDefs.length > 1 ? html`<div>Requires <b>all</b> of the following </div>` : ''}

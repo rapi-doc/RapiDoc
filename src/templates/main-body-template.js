@@ -45,7 +45,7 @@ export default function mainBodyTemplate() {
       }
 
       <!-- Main Content -->
-      <main class="main-content regular-font">
+      <main class="main-content regular-font" part="section-main-content">
         <slot></slot>
         <div class="main-content-inner--${this.renderStyle}-mode">
           ${this.loading === true

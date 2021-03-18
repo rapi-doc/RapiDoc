@@ -74,7 +74,7 @@ function serverVarsTemplate() {
 
 export default function serverTemplate() {
   return html`
-  <section id = 'servers' part="servers" style="margin-top:24px; margin-bottom:24px;" class='regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
+  <section id = 'servers' part="section-servers" style="margin-top:24px; margin-bottom:24px;" class='regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
     <div class = 'sub-title'>API SERVER</div>
     <div class = 'mono-font' style='margin: 12px 0; font-size:calc(var(--font-size-small) + 1px);'>
       ${this.resolvedSpec.servers?.length === 0

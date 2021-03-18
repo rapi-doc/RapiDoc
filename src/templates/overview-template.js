@@ -11,7 +11,7 @@ function headingRenderer() {
 
 export default function overviewTemplate() {
   return html`
-    <section id="overview" part="overview"
+    <section id="overview" part="section-overview"
       class="observe-me ${this.renderStyle === 'view' ? 'section-gap' : 'section-gap--read-mode'}">
       ${this.resolvedSpec?.info
         ? html`
@@ -26,24 +26,24 @@ export default function overviewTemplate() {
           <div id="api-info" style="font-size:calc(var(--font-size-regular) - 1px); margin-top:8px;">
             ${this.resolvedSpec.info.contact?.email
               ? html`<span>${this.resolvedSpec.info.contact.name || 'Email'}: 
-                <a href="mailto:${this.resolvedSpec.info.contact.email}" part="anchor contact-email">${this.resolvedSpec.info.contact.email}</a>
+                <a href="mailto:${this.resolvedSpec.info.contact.email}" part="anchor anchor-contact-email">${this.resolvedSpec.info.contact.email}</a>
               </span>`
               : ''
             }
             ${this.resolvedSpec.info.contact?.url
-              ? html`<span>URL: <a href="${this.resolvedSpec.info.contact.url}" part="anchor contact-url">${this.resolvedSpec.info.contact.url}</a></span>`
+              ? html`<span>URL: <a href="${this.resolvedSpec.info.contact.url}" part="anchor anchor-contact-url">${this.resolvedSpec.info.contact.url}</a></span>`
               : ''
             }
             ${this.resolvedSpec.info.license
               ? html`<span>License: 
                 ${this.resolvedSpec.info.license.url
-                ? html`<a href="${this.resolvedSpec.info.license.url}" part="anchor license">${this.resolvedSpec.info.license.name}</a>`
+                ? html`<a href="${this.resolvedSpec.info.license.url}" part="anchor anchor-license">${this.resolvedSpec.info.license.name}</a>`
                 : this.resolvedSpec.info.license.name
               } </span>`
               : ''
             }
             ${this.resolvedSpec.info.termsOfService
-              ? html`<span><a href="${this.resolvedSpec.info.termsOfService}" part="anchor tos">Terms of Service</a></span>`
+              ? html`<span><a href="${this.resolvedSpec.info.termsOfService}" part="anchor anchor-tos">Terms of Service</a></span>`
               : ''
             }
           </div>

@@ -38,7 +38,7 @@ function onExpandCollapseAll(e, action = 'expand-all') {
 /* eslint-disable indent */
 export default function navbarTemplate() {
   return html`
-  <nav class='nav-bar ${this.renderStyle}' >
+  <nav class='nav-bar ${this.renderStyle}' part="nav-bar">
     <div style="padding:16px 30px 0 16px;">
       <slot name="nav-logo" class="logo"></slot>
     </div>

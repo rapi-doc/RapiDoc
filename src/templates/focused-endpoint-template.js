@@ -18,7 +18,7 @@ function headingRenderer(tagElementId) {
 
 function wrapFocusedTemplate(templateToWrap) {
   return html`
-    <div class='regular-font section-gap--focused-mode'>
+    <div class='regular-font section-gap--focused-mode' part="section-operations-in-tag">
       ${templateToWrap}
     </div>`;
 }
