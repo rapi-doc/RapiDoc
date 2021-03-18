@@ -20,7 +20,7 @@ export default function headerTemplate() {
             type="text" 
             style="font-size:var(--font-size-small)" 
             class="header-input mono-font"
-            part="textbox spec-url" 
+            part="textbox textbox-spec-url" 
             placeholder="Spec URL" 
             value="${this.specUrl || ''}" 
             @change="${this.onSepcUrlChange}" 
@@ -40,14 +40,14 @@ export default function headerTemplate() {
             @change="${this.onSepcFileChange}" 
             spellcheck="false"
            >
-          <button class="m-btn primary only-large-screen" style="margin-left:10px;"  @click="${this.onFileLoadClick}"> LOCAL JSON FILE </button>
+          <button class="m-btn primary only-large-screen" style="margin-left:10px;" part="btn btn-fill" @click="${this.onFileLoadClick}"> LOCAL JSON FILE </button>
         `
       }
       <slot name="header"></slot>
       ${(this.allowSearch === 'false' || 'read focused'.includes(this.renderStyle))
         ? ''
         : html`  
-          <input id="search" class="header-input" type="text" part="textbox header-filter" placeholder="Filter" @change="${this.onSearchChange}" style="max-width:130px;margin-left:10px;" spellcheck="false" >
+          <input id="search" class="header-input" type="text" part="textbox textbox-header-filter" placeholder="Filter" @change="${this.onSearchChange}" style="max-width:130px;margin-left:10px;" spellcheck="false" >
           <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div>
         `
       }
@@ -55,8 +55,8 @@ export default function headerTemplate() {
       ${(this.allowSearch === 'false' || this.allowAdvancedSearch === 'false' || 'read focused'.includes(this.renderStyle))
         ? ''
         : html`
-          <button class="m-btn primary only-large-screen" style="margin-left:10px;" @click="${this.onShowSearchModalClicked}">
-            Advanced Search
+          <button class="m-btn primary only-large-screen" part="btn btn-fill btn-search" style="margin-left:10px;" @click="${this.onShowSearchModalClicked}">
+            Search
           </button>
         `
       }

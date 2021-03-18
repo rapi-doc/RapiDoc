@@ -15,7 +15,7 @@ export default function searchByPropertiesModalTemplate() {
         <input
           style="width:100%; padding-right:20px;"
           type="text"
-          part="textbox search-dialog"
+          part="textbox textbox-search-dialog"
           placeholder="search text..."
           spellcheck="false"
           @keyup = "${(e) => this.onAdvancedSearch(e, 400)}"

@@ -75,7 +75,7 @@ export default class JsonTree extends LitElement {
     return html`
       <div class = "json-tree" >
         <div class='toolbar'> 
-          <button class="toolbar-btn" @click='${(e) => { copyToClipboard(JSON.stringify(this.data, null, 2), e); }}'> Copy </button>
+          <button class="toolbar-btn" part="btn btn-fill" @click='${(e) => { copyToClipboard(JSON.stringify(this.data, null, 2), e); }}'> Copy </button>
         </div>
         ${this.generateTree(this.data, true)}
       </div>  

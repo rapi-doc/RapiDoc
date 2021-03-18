@@ -54,7 +54,7 @@ function serverVarsTemplate() {
             : html`
             <input
               type = "text"
-              part="textbox server-var"
+              part="textbox textbox-server-var"
               spellcheck = "false"
               data-var = "${kv[0]}"
               value = "${kv[1].default}"
@@ -95,7 +95,7 @@ export default function serverTemplate() {
             <br/>
           `)}
       `}
-      <div class="table-title primary-text" part="selected-server"> SELECTED: ${this.selectedServer?.computedUrl}</div>
+      <div class="table-title primary-text" part="label-selected-server"> SELECTED: ${this.selectedServer?.computedUrl}</div>
     </div>
     <slot name="servers"></slot>
     ${serverVarsTemplate.call(this)}

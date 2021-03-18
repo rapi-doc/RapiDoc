@@ -51,10 +51,10 @@ export default function navbarTemplate() {
             : html`
               <div style="display:flex; flex:1; line-height:22px;">
                 <input id="nav-bar-search" 
-                  part = "textbox nav-filter"
+                  part = "textbox textbox-nav-filter"
                   style = "width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" 
                   type = "text"
-                  placeholder = "Quick Search" 
+                  placeholder = "Filter" 
                   @change = "${this.onSearchChange}"  
                   spellcheck = "false" 
                 >
@@ -70,8 +70,8 @@ export default function navbarTemplate() {
           ${this.allowAdvancedSearch === 'false' || this.matchPaths
             ? ''
             : html`
-              <button class="m-btn primary" style="margin-left:5px;" @click="${this.onShowSearchModalClicked}">
-                ${this.allowSearch === 'false' ? 'Search' : 'Adv. Search'}
+              <button class="m-btn primary" part="btn btn-fill btn-search" style="margin-left:5px;" @click="${this.onShowSearchModalClicked}">
+                Search
               </button>
             `
           }

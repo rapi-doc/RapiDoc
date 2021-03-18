@@ -239,10 +239,10 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow)
             : ''
           }
           <div style="display:flex; max-height:28px;">
-            <input type="text" part="textbox auth-client-id" value = "${clientId || ''}" placeholder="client-id" spellcheck="false" class="oauth-client-id">
+            <input type="text" part="textbox textbox-auth-client-id" value = "${clientId || ''}" placeholder="client-id" spellcheck="false" class="oauth-client-id">
             ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password'
               ? html`
-                <input type="password"  part="textbox auth-client-secret" value = "${clientSecret || ''}" placeholder="client-secret" spellcheck="false" class="oauth-client-secret" style = "margin:0 5px;">
+                <input type="password"  part="textbox textbox-auth-client-secret" value = "${clientSecret || ''}" placeholder="client-secret" spellcheck="false" class="oauth-client-secret" style = "margin:0 5px;">
                 ${flowName === 'authorizationCode' || flowName === 'clientCredentials'
                   ? html`
                     <select style="margin-right:5px;" class="oauth-send-client-secret-in">
@@ -264,8 +264,8 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow)
           ${flowName === 'password'
             ? html`
               <div style="display:flex; max-height:28px; margin-top:2px">
-                <input type="text" value = "" placeholder="username" spellcheck="false" class="api-key-user" part="textbox auth-username">
-                <input type="password" value = "" placeholder="password" spellcheck="false" class="api-key-password" style = "margin:0 5px;" part="textbox auth-password">
+                <input type="text" value = "" placeholder="username" spellcheck="false" class="api-key-user" part="textbox textbox-username">
+                <input type="password" value = "" placeholder="password" spellcheck="false" class="api-key-password" style = "margin:0 5px;" part="textbox textbox-password">
               </div>`
             : ''
           }  
@@ -306,7 +306,7 @@ export default function securitySchemeTemplate() {
                   ${v.finalKeyValue
                     ? html`
                       <span class='blue-text'>  ${v.finalKeyValue ? 'Key Applied' : ''} </span> 
-                      <button class="m-btn thin-border small" @click=${() => { v.finalKeyValue = ''; this.requestUpdate(); }}>REMOVE</button>
+                      <button class="m-btn thin-border small" part="btn btn-outline" @click=${() => { v.finalKeyValue = ''; this.requestUpdate(); }}>REMOVE</button>
                       `
                     : ''
                   }
@@ -331,6 +331,7 @@ export default function securitySchemeTemplate() {
                         ? html`
                           <input type = "text" value = "${v.value}" class="api-key-input" placeholder = "api-token" spellcheck = "false">
                           <button class="m-btn thin-border" style = "margin-left:5px;"
+                            part = "btn btn-outline"
                             @click="${(e) => { onApiKeyChange.call(this, v.apiKeyId, e); }}"> 
                             ${v.finalKeyValue ? 'UPDATE' : 'SET'}
                           </button>`
@@ -346,7 +347,9 @@ export default function securitySchemeTemplate() {
                       <input type="text" value = "${v.user}" placeholder="username" spellcheck="false" class="api-key-user" style="width:100px">
                       <input type="password" value = "${v.password}" placeholder="password" spellcheck="false" class="api-key-password" style = "width:100px; margin:0 5px;">
                       <button class="m-btn thin-border"
-                        @click="${(e) => { onApiKeyChange.call(this, v.apiKeyId, e); }}"> 
+                        @click="${(e) => { onApiKeyChange.call(this, v.apiKeyId, e); }}"
+                        part = "btn btn-outline"
+                      > 
                         ${v.finalKeyValue ? 'UPDATE' : 'SET'}
                       </button>
                     </div>`
