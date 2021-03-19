@@ -153,7 +153,7 @@ export default class ApiResponse extends LitElement {
                     }
                   }}"
                   class='m-btn small ${this.selectedStatus === respStatus ? 'primary' : ''}'
-                  part="btn ${this.selectedStatus === respStatus ? 'btn-fill' : 'btn-outline'} btn-response-status"
+                  part="btn--resp ${this.selectedStatus === respStatus ? 'btn-fill--resp' : 'btn-outline--resp'} btn-response-status"
                   style='margin: 8px 4px 0 0'
                 > 
                   ${respStatus} 

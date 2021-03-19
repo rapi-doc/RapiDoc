@@ -68,9 +68,10 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
         active-schema-tab = "${this.defaultSchemaTab}"
         schema-expand-level = "${this.schemaExpandLevel}"
         schema-description-expanded = "${this.schemaDescriptionExpanded}"
-        allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+        allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
         schema-hide-read-only = "${this.schemaHideReadOnly}"
         fetch-credentials = "${this.fetchCredentials}"
+        exportparts = "btn btn-fill btn-outline btn-try"
       > </api-request>
 
       ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
@@ -83,9 +84,10 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
         active-schema-tab = "${this.defaultSchemaTab}"
         schema-expand-level = "${this.schemaExpandLevel}"
         schema-description-expanded = "${this.schemaDescriptionExpanded}"
-        allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+        allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
         schema-hide-write-only = "${this.schemaHideWriteOnly}"
         selected-status = "${Object.keys(path.responses || {})[0] || ''}"
+        exportparts = "btn--resp btn-fill--resp btn-outline--resp"
       > </api-response>
     </div>
   </div>
