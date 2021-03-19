@@ -25,9 +25,8 @@
 
 
   <!-- Code Highlight -->
-  <link rel="stylesheet" href="./highlight/styles/zenburn.css">
-  <script src="./highlight/highlight.pack.js"></script>
-  <script>hljs.initHighlightingOnLoad();</script>
+  <link rel="stylesheet" href="./prismjs/prism.css">
+  <script src="./prismjs/prism.js"></script>
 
   <link rel="stylesheet" href="index.css">
   <link rel="stylesheet" href="table.css">
@@ -74,6 +73,7 @@
         <a style ="color:orangered" href="#methods">  Methods</a> &nbsp; |  &nbsp;
         <a style ="color:orangered" href="#events"> Events</a> &nbsp; |  &nbsp;
         <a style ="color:orangered" href="#slots"> Slots</a> &nbsp; |  &nbsp;
+        <a style ="color:orangered" href="./css-parts.html"> Advance Styling </a> 
         <a style ="color:orangered" href="#vendor-extensions"> Venor Extensions </a> 
       </div>
 
@@ -606,212 +606,224 @@
 
       <div style="width:730px">
         <span> Below is an example on how to handle events using plain JS</span>
-        <pre class="shadow1 code-block" style="width:730px"><code class="html">&lt;html&gt;
-  ...        
-  &lt;rapi-doc id="the-doc" spec-url = "https://.../spec.yaml"&gt; &lt;/rapi-doc&gt;
+        <pre class="shadow1 code-block" style="width:730px">
+          <code class="language-html">
+            &lt;html&gt;
+            ...        
+              &lt;rapi-doc id="the-doc" spec-url = "https://.../spec.yaml"&gt; &lt;/rapi-doc&gt;
 
-  &lt;script&gt;
-    window.addEventListener('DOMContentLoaded', (event) => {
-      /* 
-        Ensure that the DOM is loaded, then add the event listener.
-        here we are listenig to 'before-try' event which fires when the user clicks 
-        on TRY, it then modifies the POST requests by adding a custom header 
-      */
-      const rapidocEl = document.getElementById('the-doc');
-      rapidocEl.addEventListener('before-try', (e) => {
-        if (e.detail.request.method === 'POST') {
-          e.detail.request.headers.append('custom-token', 'AAA.BBB.CCC');
-        }
-      });
-    });
-  &lt;/script&gt;
-  ...
-&lt;/html&gt;</code></pre>
+              &lt;script&gt;
+                window.addEventListener('DOMContentLoaded', (event) => {
+                  /* 
+                    Ensure that the DOM is loaded, then add the event listener.
+                    here we are listenig to 'before-try' event which fires when the user clicks 
+                    on TRY, it then modifies the POST requests by adding a custom header 
+                  */
+                  const rapidocEl = document.getElementById('the-doc');
+                  rapidocEl.addEventListener('before-try', (e) => {
+                    if (e.detail.request.method === 'POST') {
+                      e.detail.request.headers.append('custom-token', 'AAA.BBB.CCC');
+                    }
+                  });
+                });
+              &lt;/script&gt;
+            ...
+            &lt;/html&gt;
+          </code>
+        </pre>
 
-      <div class="table-block">
-        <table class="m-table">
-          <tr>
-            <th class="right" style="width:100px">Event</th>
-            <th class="left">Description </th>
-          </tr>
-          <tr>
-            <td class="mono bold right">spec-loaded</td>
-            <td class="gray">
-              called after the spec is parsed, and rendered. Provides you with a object representing the spec.
-            </td>
-          </tr>
-          <tr>
-            <td class="mono bold right">before-try</td>
-            <td class="gray">
-              called before user clicks try. 
-              Provides a <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request" target="_blank">request object</a> 
-              that can be modified before making the final call to the API.
-            </td>
-          </tr>
+        <div class="table-block">
+          <table class="m-table">
+            <tr>
+              <th class="right" style="width:100px">Event</th>
+              <th class="left">Description </th>
+            </tr>
+            <tr>
+              <td class="mono bold right">spec-loaded</td>
+              <td class="gray">
+                called after the spec is parsed, and rendered. Provides you with a object representing the spec.
+              </td>
+            </tr>
+            <tr>
+              <td class="mono bold right">before-try</td>
+              <td class="gray">
+                called before user clicks try. 
+                Provides a <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request" target="_blank">request object</a> 
+                that can be modified before making the final call to the API.
+              </td>
+            </tr>
 
-          <tr>
-            <td class="mono bold right">after-try</td>
-            <td class="gray">
-              called after try (API-call) is completed and provides a 
-              <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request" target="_blank">request</a> and
-              <a href="https://developer.mozilla.org/en-US/docs/Web/API/Response" target="_blank">response</a> object
-              In case of an error it will provide an <span> request</span> and <span> err</span> object
-              <a href="https://github.com/mrin9/RapiDoc/blob/master/docs/examples/mock.html"> Example </a>
-            </td>
-          </tr>
-        </table>
-      </div>
+            <tr>
+              <td class="mono bold right">after-try</td>
+              <td class="gray">
+                called after try (API-call) is completed and provides a 
+                <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request" target="_blank">request</a> and
+                <a href="https://developer.mozilla.org/en-US/docs/Web/API/Response" target="_blank">response</a> object
+                In case of an error it will provide an <span> request</span> and <span> err</span> object
+                <a href="https://github.com/mrin9/RapiDoc/blob/master/docs/examples/mock.html"> Example </a>
+              </td>
+            </tr>
+          </table>
+        </div>
 
-      <a id="slots"></a>
-      <h2> Slots</h2>
-      <div style="width:730px">
-        <span class="mono bold">slots</span> 
-        <span>
-          are placeholders inside a web component that you can fill with your own markup.
-          Below is an example on how to inject HTML/CSS/JS at various locations in RapiDoc 
-        </span>
-        <pre class="shadow1 code-block" style="width:730px"><code class="html">&lt;html&gt;
-  ...        
-  &lt;rapi-doc spec-url = "https://petstore.swagger.io/v2/swagger.json"&gt;
-    &lt;slot&gt; &lt;!-- This is a default slot --&gt;
-      &lt;h1&gt; My HTML Heading  &lt;/h1&gt;
-    &lt;/slot&gt;
+        <a id="slots"></a>
+        <h2> Slots</h2>
+        <div style="width:730px">
+          <span class="mono bold">slots</span> 
+          <span>
+            are placeholders inside a web component that you can fill with your own markup.
+            Below is an example on how to inject HTML/CSS/JS at various locations in RapiDoc 
+          </span>
+          <pre class="shadow1 code-block" style="width:730px">
+            <code class="html">
+              &lt;html&gt;
+                ...
+                &lt;rapi-doc spec-url = "https://petstore.swagger.io/v2/swagger.json"&gt;
+                  &lt;slot&gt; &lt;!-- This is a default slot --&gt;
+                    &lt;h1&gt; My HTML Heading  &lt;/h1&gt;
+                  &lt;/slot&gt;
 
-    &lt;slot name="nav-logo"&gt; &lt;!-- This is a named slot --&gt;
-      &lt;img src="https://via.placeholder.com/100" style="width:50px; height:50px"/&gt;
-    &lt;/slot&gt;
-  &lt;/rapi-doc&gt;
-  ...
-&lt;/html&gt;</code></pre>
-      
-      </div>
-      <div class="table-block">
-        <table class="m-table">
-          <tr>
-            <th class="right" style="width:150px">Slot Name</th>
-            <th class="left">Description </th>
-          </tr>
-          <tr>
-            <td class="mono bold right">(default)</td>
-            <td class="gray">any content placed inside <code>&lt;rapi-doc&gt;</code> tag, will be shown immediately under the header and above the info section </td>
-          </tr>
-          <tr>
-            <td class="mono bold right">logo</td>
-            <td class="gray">use this slot to replace the logo </td>
-          </tr>
-          <tr>
-            <td class="mono bold right">header</td>
-            <td class="gray"> contents appear at the header after the spec-url input</td>
-          </tr>
-          <tr>
-            <td class="mono bold right">footer</td>
-            <td class="gray"> contents appear at the bottom of the spec</td>
-          </tr>
-          <tr>
-            <td class="mono bold right">nav-logo</td>
-            <td class="gray"> contents appear at Side navigation bar (only available in read-mode)</td>
-          </tr>
+                  &lt;slot name="nav-logo"&gt; &lt;!-- This is a named slot --&gt;
+                    &lt;img src="https://via.placeholder.com/100" style="width:50px; height:50px"/&gt;
+                  &lt;/slot&gt;
+                &lt;/rapi-doc&gt;
+                ...
+              &lt;/html&gt;
+            </code>
+          </pre>
+        </div>
+        <div class="table-block">
+          <table class="m-table">
+            <tr>
+              <th class="right" style="width:150px">Slot Name</th>
+              <th class="left">Description </th>
+            </tr>
+            <tr>
+              <td class="mono bold right">(default)</td>
+              <td class="gray">any content placed inside <code>&lt;rapi-doc&gt;</code> tag, will be shown immediately under the header and above the info section </td>
+            </tr>
+            <tr>
+              <td class="mono bold right">logo</td>
+              <td class="gray">use this slot to replace the logo </td>
+            </tr>
+            <tr>
+              <td class="mono bold right">header</td>
+              <td class="gray"> contents appear at the header after the spec-url input</td>
+            </tr>
+            <tr>
+              <td class="mono bold right">footer</td>
+              <td class="gray"> contents appear at the bottom of the spec</td>
+            </tr>
+            <tr>
+              <td class="mono bold right">nav-logo</td>
+              <td class="gray"> contents appear at Side navigation bar (only available in read-mode)</td>
+            </tr>
 
-          <tr>
-            <td class="mono bold right">overview</td>
-            <td class="gray"> contents appear at overview section</td>
-          </tr>
-          <tr>
-            <td class="mono bold right">servers</td>
-            <td class="gray"> contents appear at server section</td>
-          </tr>
-          <tr>
-            <td class="mono bold right">auth</td>
-            <td class="gray"> contents appear at authentication section</td>
-          </tr>
-          <tr>
-            <td class="mono bold right">tag--{tag-name}</td>
-            <td class="gray"> each tag is identified by a name, this slot can be used to insert HTML content under various tags</td>
-          </tr>
-          <tr>
-            <td class="mono bold right">{method}-{path}</td>
-            <td class="gray"> each path is identified by an id. which is in the format of {method}-{path},
-              and certain invalid charecters such as {, }, #, space is replaced by hyphen (-).
-              Use this slot to insert HTML content into a specifi tag
-            </td>
-          </tr>
-          <tr>
-            <td class="gray" style="text-align: center;" colspan="2">
-              Example of Slots:
-              <a href="./examples/slots.html">All Slots</a> &nbsp;|&nbsp;
-              <a href="./examples/mix-html.html">default and footer</a> &nbsp;|&nbsp;
-              <a href="./examples/logo.html">nav-logo</a>
-            </td>
-          </tr>
-        </table>
-      </div>
+            <tr>
+              <td class="mono bold right">overview</td>
+              <td class="gray"> contents appear at overview section</td>
+            </tr>
+            <tr>
+              <td class="mono bold right">servers</td>
+              <td class="gray"> contents appear at server section</td>
+            </tr>
+            <tr>
+              <td class="mono bold right">auth</td>
+              <td class="gray"> contents appear at authentication section</td>
+            </tr>
+            <tr>
+              <td class="mono bold right">tag--{tag-name}</td>
+              <td class="gray"> each tag is identified by a name, this slot can be used to insert HTML content under various tags</td>
+            </tr>
+            <tr>
+              <td class="mono bold right">{method}-{path}</td>
+              <td class="gray"> each path is identified by an id. which is in the format of {method}-{path},
+                and certain invalid charecters such as {, }, #, space is replaced by hyphen (-).
+                Use this slot to insert HTML content into a specifi tag
+              </td>
+            </tr>
+            <tr>
+              <td class="gray" style="text-align: center;" colspan="2">
+                Example of Slots:
+                <a href="./examples/slots.html">All Slots</a> &nbsp;|&nbsp;
+                <a href="./examples/mix-html.html">default and footer</a> &nbsp;|&nbsp;
+                <a href="./examples/logo.html">nav-logo</a>
+              </td>
+            </tr>
+          </table>
+        </div>
 
-      <a id="developers"></a>
-      <h2> Advanced Styling </h2>
-      <div class="table-block">
-        <table class="m-table">
-          <tr>
-            <th>For those who like to perform advanced styling by building RapiDoc from source</th>
-          </tr>
-          <tr>
-            <td class="gray">
-              <span>
-                Developers can providing their own style overrides in <span class="mono blue">src/styles/custom-styles.js</span>.
-                This is provided as a clean way into add custom style overrides without making changes to the codebase
-              </span>
-              <pre class="shadow1 code-block" style="width:550px"><code class="js">// src/styles/custom-styles.js
+        <a id="developers"></a>
+        <h2> Advanced Styling </h2>
+        <div class="table-block">
+          <table class="m-table">
+            <tr>
+              <th>For those who like to perform advanced styling by building RapiDoc from source</th>
+            </tr>
+            <tr>
+              <td class="gray">
+                <span>
+                  Developers can providing their own style overrides in <span class="mono blue">src/styles/custom-styles.js</span>.
+                  This is provided as a clean way into add custom style overrides without making changes to the codebase
+                </span>
+                <pre class="shadow1 code-block" style="width:550px">
+                  <code class="language-js">
+                    // src/styles/custom-styles.js
 
-import { css } from 'lit-element';
-export default css`
-  .tag.title {
-    text-transform: capitalize;
-    border-left: 2px dotted var(--red);
-  }
-`;</code></pre>
+                    import { css } from 'lit-element';
+                    export default css`
+                      .tag.title {
+                        text-transform: capitalize;
+                        border-left: 2px dotted var(--red);
+                      }
+                    `;
+                  </code>
+                </pre>
+                and build RapiDoc
 
-and build RapiDoc
-
-<pre class="shadow1 code-block" style="width:550px"><code class="shell">npm run build</code></pre>
-generated <span class="mono bold">rapidoc-min.js</span>  in <span class="mono bold">dist</span> folder will have your styles
-
+                <pre class="shadow1 code-block" style="width:550px">
+                  <code class="language-shell">
+                    npm run build
+                  </code>
+                </pre>
+                generated <span class="mono bold">rapidoc-min.js</span>  in <span class="mono bold">dist</span> folder will have your styles
                 <br/>
-            </td>
-          </tr>
-        </table>
-      </div>
+              </td>
+            </tr>
+          </table>
+        </div>
 
 
-      <a id="vendor-extensions"></a>
-      <h2> Supported vendor extensions</h2>
-      <div class="table-block">
-        <table class="m-table">
-          <tr>
-            <td class="mono bold right" style="width:130px;" >x-code-sample <br/> x-codeSample </td>
-            <td class="gray"> Use this vendor-extension to provide code samples in various languages
-            </td>
-            <td style="width:130px;"><a href="./examples/code-samples.html#get-/code-samples"> Usage Example </a> </td>
-          </tr>
-          <tr>
-            <td class="mono bold right">x-tag-expanded</td>
-            <td class="gray">
-              Use this vendor-extension to expand or collapse paths under a tag (applies only in view and focused render-style)
-            </td>
-            <td><a href="./examples/collapsable.html"> Usage Example </a> </td>
-          </tr>
+        <a id="vendor-extensions"></a>
+        <h2> Supported vendor extensions</h2>
+        <div class="table-block">
+          <table class="m-table">
+            <tr>
+              <td class="mono bold right" style="width:130px;" >x-code-sample <br/> x-codeSample </td>
+              <td class="gray"> Use this vendor-extension to provide code samples in various languages
+              </td>
+              <td style="width:130px;"><a href="./examples/code-samples.html#get-/code-samples"> Usage Example </a> </td>
+            </tr>
+            <tr>
+              <td class="mono bold right">x-tag-expanded</td>
+              <td class="gray">
+                Use this vendor-extension to expand or collapse paths under a tag (applies only in view and focused render-style)
+              </td>
+              <td><a href="./examples/collapsable.html"> Usage Example </a> </td>
+            </tr>
 
-          <tr>
-            <td class="mono bold right">x-client-id <br/> x-client-secret </td>
-            <td class="gray">
-              Use these vendor-extensions to pre fill <span class="mono bold">client-id</span> and <span class="mono bold">client-secret</span> in the UI
-            </td>
-            <td><a href="./examples/oauth-vendor-extension.html"> Usage Example </a> </td>
-          </tr>
-
-
-        </table>
+            <tr>
+              <td class="mono bold right">x-client-id <br/> x-client-secret </td>
+              <td class="gray">
+                Use these vendor-extensions to pre fill <span class="mono bold">client-id</span> and <span class="mono bold">client-secret</span> in the UI
+              </td>
+              <td><a href="./examples/oauth-vendor-extension.html"> Usage Example </a> </td>
+            </tr>
+          </table>
+        </div>
       </div>
     </div>
-  </div>
+  </div>  
   <!-- End of API -->
 
   <div id="footer" class="footer">
@@ -821,19 +833,18 @@ generated <span class="mono bold">rapidoc-min.js</span>  in <span class="mono bo
     <div class="footer-item hide-in-mobile"> <a href="https://www.npmjs.com/package/rapidoc"> npm</a></div>
   </div>
 
-
   <script>
-  function goToSection(e){
-    if (e.target.dataset.action==='url'){
-      return;
-    }
+    function goToSection(e){
+      if (e.target.dataset.action==='url'){
+        return;
+      }
 
-    e.preventDefault();
-    var gotoEl = document.getElementById(e.target.getAttribute('href').substring(1));
-    if (gotoEl){
-      gotoEl.scrollIntoView({ block: 'start',  behavior: 'smooth' });
+      e.preventDefault();
+      var gotoEl = document.getElementById(e.target.getAttribute('href').substring(1));
+      if (gotoEl){
+        gotoEl.scrollIntoView({ block: 'start',  behavior: 'smooth' });
+      }
     }
-  }
   </script>
 </body>
 
