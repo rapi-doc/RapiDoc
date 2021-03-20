@@ -164,6 +164,7 @@ export default css`
   .m-markdown pre code {
     color: var(--code-fg);
     background-color: var(--code-bg);
+    background-color: transparent;
   }
 
   .m-markdown-small pre code {

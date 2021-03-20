@@ -68,8 +68,8 @@ export default css`
 .stri, .string, .uri, .url, .byte, .bina, .date, .pass, .ipv4, .ipv4, .uuid, .emai, .host {color:var(--green);}
 .inte, .numb, .number, .int6, .int3, .floa, .doub, .deci .blue {color:var(--blue);}
 .null {color:var(--red);}
-.bool, .boolean{color:var(--purple)}
-.enum {color:var(--orange)}
+.bool, .boolean{color:var(--orange)}
+.enum {color:var(--purple)}
 .recu {color:var(--brown)}
 .toolbar {
   display:flex;
