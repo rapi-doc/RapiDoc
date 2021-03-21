@@ -650,12 +650,17 @@ paths:
           description: successful operation
           headers:
             X-Rate-Limit:
-              description: calls per hour allowed by the user
+              description: |
+                calls per hour allowed by the user. The rate limit is applid to avoid DoS attack or an accdental usage of this
+                API such as putting it in a loop. `X-Rate-Limit` can vary based on time of the day, user, load and many more other factors.
+                This header will provide information on the rate limit which the user can use to adapt their task
               schema:
                 type: integer
                 format: int32
             X-Expires-After:
-              description: date in UTC when toekn expires
+              description: |
+                date in UTC when toekn expires. This information can be used to makke request for new tokens if its near expiry and thereby 
+                extend an existing session. 
               schema:
                 type: string
                 format: date-time
