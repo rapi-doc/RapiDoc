@@ -77,7 +77,6 @@ if (process.env.NODE_ENV === 'production') {
       onEnd: {
         copy: [
           { source: 'dist/*.js', destination: 'docs' },
-          { source: 'dist/*.woff2', destination: 'docs' },
         ],
       },
     },
