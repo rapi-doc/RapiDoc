@@ -104,7 +104,7 @@ info:
     ```
 
     **JAVA SCRIPT** `javascript` `js`
-    ```javascript
+    ```js
       function add(x, y) {
         const answer = x + y;
         return answer;
@@ -180,19 +180,19 @@ paths:
       description: |
         Syntax Highlighting in **OPERATION DESCRIPTION**
         ```http
-          POST /pet HTTP/1.1
-          Host: example.org
-          Content-Type: application/json; charset=utf-8
-          Content-Length: 137
-      
-          {
-            "status": "ok",
-            "extended": true,
-            "results": [
-              {"value": 0, "type": "int64"},
-              {"value": 1.0e+3, "type": "decimal"}
-            ]
-          }
+        POST /pet HTTP/1.1
+        Host: example.org
+        Content-Type: application/json; charset=utf-8
+        Content-Length: 137
+
+        {
+          "status": "ok",
+          "extended": true,
+          "results": [
+            {"value": 0, "type": "int64"},
+            {"value": 1.0e+3, "type": "decimal"}
+          ]
+        }
         ```
 
     post:
@@ -200,20 +200,15 @@ paths:
       requestBody:
         description: |
           Syntax Highlighting in **REQUEST BODY**
-          ```http
-            POST /pet HTTP/1.1
-            Host: example.org
-            Content-Type: application/json; charset=utf-8
-            Content-Length: 137
-        
-            {
-              "status": "ok",
-              "extended": true,
-              "results": [
-                {"value": 0, "type": "int64"},
-                {"value": 1.0e+3, "type": "decimal"}
-              ]
-            }
+          ```js
+          function add(x, y) {
+            const answer = x + y;
+            return answer;
+          }
+
+          for (let i = 0; i < 10; i++){
+            console.log(3, i); // prints in console
+          }
           ```
 
         content:
