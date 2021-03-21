@@ -277,7 +277,7 @@ export default class RapiDoc extends LitElement {
       }
       .expanded-endpoint-body.deprecated{ filter:opacity(0.6); }
       .divider { 
-        border-top: 2px solid var(--primary-color);
+        border-top: 2px solid var(--border-color);
         margin: 24px 0;
         width:100%;
       }
@@ -363,7 +363,7 @@ export default class RapiDoc extends LitElement {
     super.connectedCallback();
     if (!this.renderStyle || !'read, view, focused,'.includes(`${this.renderStyle},`)) { this.renderStyle = 'read'; }
     if (!this.schemaStyle || !'tree, table,'.includes(`${this.schemaStyle},`)) { this.schemaStyle = 'tree'; }
-    if (!this.theme || !'light, dark,'.includes(`${this.theme},`)) { this.theme = 'light'; }
+    if (!this.theme || !'light, dark,'.includes(`${this.theme},`)) { this.theme = 'dark'; }
     if (!this.defaultSchemaTab || !'example, model,'.includes(`${this.defaultSchemaTab},`)) { this.defaultSchemaTab = 'model'; }
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) { this.schemaExpandLevel = 99999; }
     if (!this.schemaDescriptionExpanded || !'true, false,'.includes(`${this.schemaDescriptionExpanded},`)) { this.schemaDescriptionExpanded = 'false'; }
