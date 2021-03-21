@@ -124,7 +124,7 @@ export default class ApiResponse extends LitElement {
         allMimeResp[mimeResp] = {
           description: this.responses[statusCode].description,
           examples: respExamples,
-          selectedExample: respExamples[0] ? respExamples[0].exampleId : '',
+          selectedExample: respExamples[0]?.exampleId || '',
           schemaTree,
         };
       }
@@ -204,18 +204,20 @@ export default class ApiResponse extends LitElement {
   responseHeaderListTemplate(respHeaders) {
     return html`
       <div style="padding:16px 0 8px 0" class="resp-headers small-font-size upper bold-text">Response Headers:</div> 
-      <table style="padding-bottom:16px;" class='small-font-size mono-font'>
+      <table style="border-collapse: collapse; margin-bottom:16px; border:1px solid var(--border-color); border-radius: var(--border-radius)" class="small-font-size mono-font">
         ${respHeaders.map((v) => html`
           <tr>
-            <td style="vertical-align: top;"> ${v.name}</td> 
-            <td style="vertical-align: top; padding:0 5px;"> 
-              ${v.schema.type ? v.schema.type : ''}
+            <td style="padding:8px; vertical-align: baseline; min-width:120px; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;">
+              ${v.name || ''}
             </td> 
-            <td style="vertical-align: top;">
-              <div class="m-markdown regular-font" style="margin-top:-7px">${unsafeHTML(marked(v.description || ''))}</div>
+            <td style="padding:4px; vertical-align: baseline; padding:0 5px; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;">
+              ${v.schema.type || ''}
+            </td> 
+            <td style="padding:8px; vertical-align: baseline; border-top: 1px solid var(--light-border-color);text-overflow: ellipsis;">
+              <div class="m-markdown-small regular-font" >${unsafeHTML(marked(v.description || ''))}</div>
             </td>
-            <td style="vertical-align: top;">
-              ${v.schema.example ? v.schema.example : ''}
+            <td style="padding:8px; vertical-align: baseline; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;">
+              ${v.schema.example || ''}
             </td>
           </tr>
         `)}
