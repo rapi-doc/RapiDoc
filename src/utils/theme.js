@@ -5,7 +5,7 @@ export default function setTheme(baseTheme, theme = {}) {
   let newTheme = {};
 
   // Common Theme colors
-  const primaryColor = theme.primaryColor ? theme.primaryColor : '#ff591e';
+  const primaryColor = theme.primaryColor ? theme.primaryColor : baseTheme === 'dark' ? '#f76b39' : '#ff591e';
   const primaryColorInvert = ColorUtils.color.invert(primaryColor);
   const primaryColorTrans = ColorUtils.color.opacity(primaryColor, '0.8');
 
@@ -169,7 +169,7 @@ export default function setTheme(baseTheme, theme = {}) {
       green: theme.green || '#690',
       lightGreen: theme.lightGreen || '#fbfff0',
 
-      blue: theme.blue || '#0299da',
+      blue: theme.blue || '#47AFE8',
       lightBlue: theme.lightBlue || '#eff8fd',
 
       orange: theme.orange || '#FF9900',
