@@ -51,14 +51,14 @@ Custom Element for Open-API spec viewing
 ## Build Process
 ```bash
 # Clone / Download the project then
-yarn install
+npm install
 
 # build will generate rapidoc-min.js, this is the only file you will need.
 # use it in the script tag of your html <script type="text/javascript" src="rapidoc-min.js"></script></body>
-yarn build 
+npm run build 
 
 # for developement use yarn serve (this will start an webserver at port 8080, then navigate to localhost:8080) 
-yarn serve
+npm run serve
 ```
 
 ## Contribution
