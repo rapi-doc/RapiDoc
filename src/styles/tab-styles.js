@@ -19,8 +19,9 @@ export default css`
 .tab-btn {
   border: none;
   border-bottom: 3px solid transparent; 
+  color: var(--light-fg);
+  background-color: transparent;
   white-space: nowrap;
-  background-color:transparent;
   cursor:pointer;
   outline:none;
   font-family:var(--font-regular); 

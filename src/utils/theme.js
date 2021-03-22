@@ -90,7 +90,7 @@ export default function setTheme(baseTheme, theme = {}) {
       brown: theme.brown || '#D4AC0D',
 
       codeBg: theme.codeBg || ColorUtils.color.opacity(ColorUtils.color.brightness(bg1, -15), 0.7),
-      codeFg: theme.codeFg || '#ccc',
+      codeFg: theme.codeFg || '#aaa',
       codePropertyColor: theme.codePropertyColor || '#f8c555',
       codeKeywordColor: theme.codeKeywordColor || '#cc99cd',
       codeOperatorColor: theme.codeOperatorColor || '#67cdcc',
