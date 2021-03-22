@@ -32,6 +32,20 @@ import mainBodyTemplate from '~/templates/main-body-template';
 export default class RapiDoc extends LitElement {
   constructor() {
     super();
+    const parent = this.parentElement;
+    if (parent.offsetHeight === 0 && parent.style.height === '') {
+      parent.style.height = '100vh';
+    }
+    if (parent.offsetWidth === 0 && parent.style.width === '') {
+      parent.style.width = '100vw';
+    }
+    if (parent.tagName === 'BODY') {
+      if (!parent.style.marginTop) { parent.style.marginTop = '0'; }
+      if (!parent.style.marginRight) { parent.style.marginRight = '0'; }
+      if (!parent.style.marginBottom) { parent.style.marginBottom = '0'; }
+      if (!parent.style.marginLeft) { parent.style.marginLeft = '0'; }
+    }
+
     const intersectionObserverOptions = {
       root: this.getRootNode().host,
       rootMargin: '-50px 0px -50px 0px', // when the element is visible 100px from bottom
@@ -99,6 +113,7 @@ export default class RapiDoc extends LitElement {
       fontSize: { type: String, attribute: 'font-size' },
       regularFont: { type: String, attribute: 'regular-font' },
       monoFont: { type: String, attribute: 'mono-font' },
+      loadFonts: { type: String, attribute: 'load-fonts' },
 
       // Nav Bar Colors
       navBgColor: { type: String, attribute: 'nav-bg-color' },
@@ -361,9 +376,34 @@ export default class RapiDoc extends LitElement {
   // Startup
   connectedCallback() {
     super.connectedCallback();
+
+    if (this.loadFonts !== 'false') {
+      const fontDescriptor = {
+        family: 'Open Sans',
+        style: 'normal',
+        weight: '300',
+        unicodeRange: 'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD',
+      };
+      const fontWeight300 = new FontFace(
+        'Open Sans',
+        "url(https://fonts.gstatic.com/s/opensans/v18/mem5YaGs126MiZpBA-UN_r8OUuhpKKSTjw.woff2) format('woff2')",
+        fontDescriptor,
+      );
+      fontDescriptor.weight = '600';
+      const fontWeight600 = new FontFace(
+        'Open Sans',
+        "url(https://fonts.gstatic.com/s/opensans/v18/mem5YaGs126MiZpBA-UNirkOUuhpKKSTjw.woff2) format('woff2')",
+        fontDescriptor,
+      );
+      fontWeight300.load().then((font) => { document.fonts.add(font); });
+      fontWeight600.load().then((font) => { document.fonts.add(font); });
+    }
+
     if (!this.renderStyle || !'read, view, focused,'.includes(`${this.renderStyle},`)) { this.renderStyle = 'read'; }
     if (!this.schemaStyle || !'tree, table,'.includes(`${this.schemaStyle},`)) { this.schemaStyle = 'tree'; }
-    if (!this.theme || !'light, dark,'.includes(`${this.theme},`)) { this.theme = 'dark'; }
+    if (!this.theme || !'light, dark,'.includes(`${this.theme},`)) {
+      this.theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+    }
     if (!this.defaultSchemaTab || !'example, model,'.includes(`${this.defaultSchemaTab},`)) { this.defaultSchemaTab = 'model'; }
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) { this.schemaExpandLevel = 99999; }
     if (!this.schemaDescriptionExpanded || !'true, false,'.includes(`${this.schemaDescriptionExpanded},`)) { this.schemaDescriptionExpanded = 'false'; }
