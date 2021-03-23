@@ -20,7 +20,7 @@ export default function setTheme(baseTheme, theme = {}) {
     const fg2 = theme.fg2 ? theme.fg2 : ColorUtils.color.brightness(fg1, -15); // or #ababab
     const fg3 = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, -20); // or #aaa
     const lightFg = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, -65); // or #777
-    const inlineCodeFg = theme.inlineCodeFg ? theme.inlineCodeFg : '#cdcdcd';
+    const inlineCodeFg = theme.inlineCodeFg ? theme.inlineCodeFg : '#aaa';
     const selectionBg = '#bbb';
     const selectionFg = '#eee';
 
