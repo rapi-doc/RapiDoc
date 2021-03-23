@@ -364,11 +364,11 @@ export default class RapiDoc extends LitElement {
     super.connectedCallback();
     const parent = this.parentElement;
     if (parent) {
-      if (parent.offsetHeight === 0 && parent.style.height === '') {
-        parent.style.height = '100vh';
-      }
       if (parent.offsetWidth === 0 && parent.style.width === '') {
         parent.style.width = '100vw';
+      }
+      if (parent.offsetHeight === 0 && parent.style.height === '') {
+        parent.style.height = '100vh';
       }
       if (parent.tagName === 'BODY') {
         if (!parent.style.marginTop) { parent.style.marginTop = '0'; }
