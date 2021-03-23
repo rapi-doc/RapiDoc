@@ -97,7 +97,7 @@ module.exports = {
       new TerserPlugin({
         extractComments: {
           condition: /^\**!|@preserve|@license|@cc_on/i,
-          banner: (licenseFile) => `RapiDoc ${rapidocVersion} - License information can be found in ${licenseFile}`,
+          banner: (licenseFile) => `RapiDoc ${rapidocVersion} | Author - Mrinmoy Majumdar | License information can be found in ${licenseFile} `,
         },
       }),
     ],
