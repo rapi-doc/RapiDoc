@@ -11,8 +11,8 @@
     </script>
     <meta charset='utf-8'>
     <meta name='viewport' content='width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes'>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;600&family=Roboto+Mono&display=swap" rel="stylesheet">
-    <script type='text/javascript' src='../rapidoc-min.js'></script>
+    <link href='../index.css' rel='stylesheet'>
+    <script type='module' src='../rapidoc-min.js'></script>
   </head>
   <body>
     <rapi-doc spec-url="../specs/multi-datatypes.yaml" 
@@ -23,8 +23,11 @@
       render-style = "read"
       schema-style = "table"
       allow-try = "true" 
-      regular-font = 'Open Sans'
-      mono-font = "Roboto Mono"
-    > </rapi-doc>
+    > 
+    <div style="display: flex;justify-content: center; margin: 2px 0">
+      <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('schema-style', 'tree')" >Tree</button>
+      <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('schema-style', 'table')" >Table</button>
+    </div>
+  </rapi-doc>
   </body>
 </html>

@@ -24,16 +24,15 @@
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
-    <script type="text/javascript" src="../rapidoc-min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;600&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script type="module" src="../rapidoc-min.js"></script>
     <link href='../index.css' rel='stylesheet'>
   </head>
   <body>
     <rapi-doc 
       id="thedoc"
-      spec-url="../specs/collapsable.yaml" 
-      mono-font = "Roboto Mono"
-      regular-font = 'Open Sans'
+      show-header = "false"
+      spec-url="../specs/collapsable.yaml"
+      render-style= "view"
     > 
       <div style="padding:16px; display: flex;justify-content: center; align-items: center;">
         <span>Use</span> <span class='mono' style="margin: 0 5px;">scrollTo()</span> <span> method to goto : </span>
