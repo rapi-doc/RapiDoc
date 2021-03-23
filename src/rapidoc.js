@@ -32,20 +32,6 @@ import mainBodyTemplate from '~/templates/main-body-template';
 export default class RapiDoc extends LitElement {
   constructor() {
     super();
-    const parent = this.parentElement;
-    if (parent.offsetHeight === 0 && parent.style.height === '') {
-      parent.style.height = '100vh';
-    }
-    if (parent.offsetWidth === 0 && parent.style.width === '') {
-      parent.style.width = '100vw';
-    }
-    if (parent.tagName === 'BODY') {
-      if (!parent.style.marginTop) { parent.style.marginTop = '0'; }
-      if (!parent.style.marginRight) { parent.style.marginRight = '0'; }
-      if (!parent.style.marginBottom) { parent.style.marginBottom = '0'; }
-      if (!parent.style.marginLeft) { parent.style.marginLeft = '0'; }
-    }
-
     const intersectionObserverOptions = {
       root: this.getRootNode().host,
       rootMargin: '-50px 0px -50px 0px', // when the element is visible 100px from bottom
@@ -376,6 +362,21 @@ export default class RapiDoc extends LitElement {
   // Startup
   connectedCallback() {
     super.connectedCallback();
+    const parent = this.parentElement;
+    if (parent) {
+      if (parent.offsetHeight === 0 && parent.style.height === '') {
+        parent.style.height = '100vh';
+      }
+      if (parent.offsetWidth === 0 && parent.style.width === '') {
+        parent.style.width = '100vw';
+      }
+      if (parent.tagName === 'BODY') {
+        if (!parent.style.marginTop) { parent.style.marginTop = '0'; }
+        if (!parent.style.marginRight) { parent.style.marginRight = '0'; }
+        if (!parent.style.marginBottom) { parent.style.marginBottom = '0'; }
+        if (!parent.style.marginLeft) { parent.style.marginLeft = '0'; }
+      }
+    }
 
     if (this.loadFonts !== 'false') {
       const fontDescriptor = {
