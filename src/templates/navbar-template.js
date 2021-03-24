@@ -130,28 +130,32 @@ export default function navbarTemplate() {
         .filter((tag) => tag.paths.filter((path) => pathIsInSearch(this.matchPaths, path)).length)
         .map((tag) => html`
           <div class='nav-bar-tag-and-paths ${tag.expanded ? 'expanded' : 'collapsed'}'>
-            <div 
-              class='nav-bar-tag' 
-              id="link-${tag.elementId}" 
-              data-content-id='${tag.elementId}'
-              data-first-path-id='${tag.firstPathId}'
-              @click='${(e) => {
-                if (this.renderStyle === 'focused' && this.onNavTagClick === 'expand-collapse') {
-                  onExpandCollapse.call(this, e);
-                } else {
-                  this.scrollToEventTarget(e, false);
-                }
-              }}'
-            >
-              <div>${tag.name}</div>
-              <div class="nav-bar-tag-icon" @click="${(e) => {
-                if (this.renderStyle === 'focused' && this.onNavTagClick === 'show-description') {
-                  onExpandCollapse.call(this, e);
-                }
-              }}">
-              </div>
-            </div>
-
+            ${tag.name === 'General ⦂'
+              ? html`<hr style="border:none; border-top: 1px dotted var(--nav-text-color); opacity:0.4; margin-top:-1px;"/>`
+              : html`
+                <div 
+                  class='nav-bar-tag' 
+                  id="link-${tag.elementId}" 
+                  data-content-id='${tag.elementId}'
+                  data-first-path-id='${tag.firstPathId}'
+                  @click='${(e) => {
+                    if (this.renderStyle === 'focused' && this.onNavTagClick === 'expand-collapse') {
+                      onExpandCollapse.call(this, e);
+                    } else {
+                      this.scrollToEventTarget(e, false);
+                    }
+                  }}'
+                >
+                  <div>${tag.name}</div>
+                  <div class="nav-bar-tag-icon" @click="${(e) => {
+                    if (this.renderStyle === 'focused' && this.onNavTagClick === 'show-description') {
+                      onExpandCollapse.call(this, e);
+                    }
+                  }}">
+                  </div>
+                </div>
+              `
+            }
             ${(this.infoDescriptionHeadingsInNavBar === 'true')
               ? html`
                 ${this.renderStyle === 'focused' && this.onNavTagClick === 'expand-collapse'

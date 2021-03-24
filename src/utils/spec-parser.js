@@ -3,7 +3,7 @@ import OpenApiParser from '@apitools/openapi-parser';
 import marked from 'marked';
 import { invalidCharsRegEx, rapidocApiKey } from '~/utils/common-utils';
 
-export default async function ProcessSpec(specUrl, sortTags = false, sortEndpointsBy = '', attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '') {
+export default async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = false, sortEndpointsBy = '', attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '') {
   let jsonParsedSpec;
   try {
     let specMeta;
@@ -20,7 +20,7 @@ export default async function ProcessSpec(specUrl, sortTags = false, sortEndpoin
   // const pathGroups = groupByPaths(jsonParsedSpec);
 
   // Tags with Paths and WebHooks
-  const tags = groupByTags(jsonParsedSpec, sortTags, sortEndpointsBy);
+  const tags = groupByTags(jsonParsedSpec, generateMissingTags, sortTags, sortEndpointsBy);
 
   // Components
   const components = getComponents(jsonParsedSpec);
@@ -204,7 +204,7 @@ function getComponents(openApiSpec) {
   return components || [];
 }
 
-function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
+function groupByTags(openApiSpec, generateMissingTags = false, sortTags = false, sortEndpointsBy) {
   const supportedMethods = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options']; // this is also used for ordering endpoints by methods
   const tags = openApiSpec.tags && Array.isArray(openApiSpec.tags)
     ? openApiSpec.tags.map((v) => ({
@@ -239,13 +239,17 @@ function groupByTags(openApiSpec, sortTags = false, sortEndpointsBy) {
         // If path.methods are tagged, else generate it from path
         const pathTags = pathOrHookObj.tags || [];
         if (pathTags.length === 0) {
-          const pathOrHookNameKey = pathOrHookName.replace(/^\/+|\/+$/g, '');
-          const firstWordEndIndex = pathOrHookNameKey.indexOf('/');
-          if (firstWordEndIndex === -1) {
-            pathTags.push(pathOrHookNameKey);
+          if (generateMissingTags) {
+            const pathOrHookNameKey = pathOrHookName.replace(/^\/+|\/+$/g, '');
+            const firstWordEndIndex = pathOrHookNameKey.indexOf('/');
+            if (firstWordEndIndex === -1) {
+              pathTags.push(pathOrHookNameKey);
+            } else {
+              // firstWordEndIndex -= 1;
+              pathTags.push(pathOrHookNameKey.substr(0, firstWordEndIndex));
+            }
           } else {
-            // firstWordEndIndex -= 1;
-            pathTags.push(pathOrHookNameKey.substr(0, firstWordEndIndex));
+            pathTags.push('General ⦂');
           }
         }
 

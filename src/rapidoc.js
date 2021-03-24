@@ -50,6 +50,7 @@ export default class RapiDoc extends LitElement {
       // Spec
       specUrl: { type: String, attribute: 'spec-url' },
       sortTags: { type: String, attribute: 'sort-tags' },
+      generateMissingTags: { type: String, attribute: 'generate-missing-tags' },
       sortEndpointsBy: { type: String, attribute: 'sort-endpoints-by' },
       specFile: { type: String, attribute: false },
 
@@ -435,6 +436,7 @@ export default class RapiDoc extends LitElement {
 
     if (!this.oauthReceiver) { this.oauthReceiver = 'oauth-receiver.html'; }
     if (!this.sortTags || !'true, false,'.includes(`${this.sortTags},`)) { this.sortTags = 'false'; }
+    if (!this.generateMissingTags || !'true, false,'.includes(`${this.generateMissingTags},`)) { this.generateMissingTags = 'false'; }
     if (!this.sortEndpointsBy || !'method, path, summary,'.includes(`${this.sortEndpointsBy},`)) { this.sortEndpointsBy = 'path'; }
     if (!this.navItemSpacing || !'compact, relaxed, default,'.includes(`${this.navItemSpacing},`)) { this.navItemSpacing = 'default'; }
     if (!this.usePathInNavBar || !'true, false,'.includes(`${this.usePathInNavBar},`)) { this.usePathInNavBar = 'false'; }
@@ -644,6 +646,7 @@ export default class RapiDoc extends LitElement {
       // this.requestUpdate();
       const spec = await ProcessSpec(
         specUrl,
+        this.generateMissingTags === 'true',
         this.sortTags === 'true',
         this.getAttribute('sort-endpoints-by'),
         this.getAttribute('api-key-name'),
