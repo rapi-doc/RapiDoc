@@ -53,6 +53,8 @@ paths:
                   support:
                     $ref: '#/components/schemas/support'
     post:
+      tags:
+        - Additions
       description: Create a user
       requestBody:
         content:
