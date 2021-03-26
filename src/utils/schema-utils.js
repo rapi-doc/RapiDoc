@@ -32,11 +32,8 @@ export function getTypeInfo(schema) {
         ? '🆆'
         : '',
     deprecated: schema.deprecated ? '❌' : '',
-    example: typeof schema.example === 'undefined'
-      ? ''
-      : Array.isArray(schema.example)
-        ? schema.example
-        : `${schema.example}`,
+    example: schema.examples || schema.example || '',
+    exampleType: Array.isArray(schema.examples || schema.example) ? 'array' : (schema.examples || schema.example) ? 'single-val' : '',
     default: schema.default || '',
     description: schema.description || '',
     constrain: '',
@@ -563,7 +560,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
 }
 
 /* Create Example object */
-export function generateExample(examples, example, schema, mimeType, includeReadOnly = true, includeWriteOnly = true, outputType) {
+export function generateExample(examples = '', example = '', schema, mimeType, includeReadOnly = true, includeWriteOnly = true, outputType) {
   const finalExamples = [];
   // First check if examples is provided
   if (examples) {

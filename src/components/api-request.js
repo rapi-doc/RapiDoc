@@ -256,7 +256,6 @@ export default class ApiRequest extends LitElement {
         exampleList = [{ value: paramSchema.example, description: `${paramSchema.example}` }];
       } else if (param.examples && Object.values(param.examples).length > 0) {
         if (Array.isArray(param.examples)) {
-          // This is an invalid situation `examples` should always be a key-value pair not an array, but we are taking care of this case for now
           const firstExample = Object.values(param.examples)[0] || '';
           exampleVal = paramSchema.type === 'array' ? [firstExample] : firstExample;
           exampleList = Object.values(param.examples).map((v) => ({ value: v, description: v }));
@@ -331,7 +330,7 @@ export default class ApiRequest extends LitElement {
                 ${paramSchema.default ? html`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
                 ${paramSchema.pattern ? html`<span style="font-weight:bold">Pattern: </span>${paramSchema.pattern}<br/>` : ''}
                 ${paramSchema.constrain ? html`${paramSchema.constrain}<br/>` : ''}
-                ${paramSchema.allowedValues && paramSchema.allowedValues.split(',').map((v, i) => html`
+                ${paramSchema.allowedValues && paramSchema.allowedValues.split('┃').map((v, i) => html`
                   ${i > 0 ? ' | ' : html`<span style="font-weight:bold"> Allowed: </span>`}
                   ${html`
                     <a part="anchor anchor-param-constraint" class = "${this.allowTry === 'true' ? '' : 'inactive-link'}"
@@ -364,7 +363,7 @@ export default class ApiRequest extends LitElement {
           ${(Array.isArray(exampleList) && exampleList.length > 0
             ? html`<span> <span style="font-weight:bold"> Example: </span>
               ${exampleList.map((v, i) => html`
-                ${i === 0 ? '' : html` &#9671;`}
+                ${i === 0 ? '' : html`┃`}
                 ${paramSchema.type === 'array' ? '[' : ''}
                 <a part="anchor anchor-param-example" class = "${this.allowTry === 'true' ? '' : 'inactive-link'}"
                   data-example-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}"
@@ -482,8 +481,8 @@ export default class ApiRequest extends LitElement {
         // Generate Example
         if (reqBody.mimeType === this.selectedRequestBodyType) {
           reqBodyExamples = generateExample(
-            reqBody.examples ? reqBody.examples : '',
-            reqBody.example ? reqBody.example : '',
+            reqBody.examples,
+            reqBody.example,
             reqBody.schema,
             reqBody.mimeType,
             false,
@@ -541,8 +540,8 @@ export default class ApiRequest extends LitElement {
       } else if (this.selectedRequestBodyType.includes('form-urlencoded') || this.selectedRequestBodyType.includes('form-data')) {
         if (reqBody.mimeType === this.selectedRequestBodyType) {
           const ex = generateExample(
-            reqBody.examples ? reqBody.examples : '',
-            reqBody.example ? reqBody.example : '',
+            reqBody.examples,
+            reqBody.example,
             reqBody.schema,
             reqBody.mimeType,
             false,
@@ -626,23 +625,92 @@ export default class ApiRequest extends LitElement {
     `;
   }
 
+  formDataParamAsObjectTemplate(fieldName, fieldSchema, mimeType) {
+    const formdataPartSchema = schemaInObjectNotation(fieldSchema, {});
+    const formdataPartExample = generateExample(
+      fieldSchema.examples,
+      fieldSchema.example,
+      fieldSchema,
+      'json',
+      false,
+      true,
+      'text',
+    );
+
+    return html`
+      <div class="tab-panel row" style="min-height:220px; border-left: 6px solid var(--light-border-color); align-items: stretch;">
+        <div style="width:24px; background-color:var(--light-border-color)">
+          <div class="row" style="flex-direction:row-reverse; width:160px; height:24px; transform:rotate(270deg) translateX(-160px); transform-origin:top left; display:block;" @click="${(e) => {
+          if (e.target.classList.contains('v-tab-btn')) {
+            const tab = e.target.dataset.tab;
+            if (tab) {
+              const tabPanelEl = e.target.closest('.tab-panel');
+              const selectedTabBtnEl = tabPanelEl.querySelector(`.v-tab-btn[data-tab="${tab}"]`);
+              const otherTabBtnEl = [...tabPanelEl.querySelectorAll(`.v-tab-btn:not([data-tab="${tab}"])`)];
+              const selectedTabContentEl = tabPanelEl.querySelector(`.tab-content[data-tab="${tab}"]`);
+              const otherTabContentEl = [...tabPanelEl.querySelectorAll(`.tab-content:not([data-tab="${tab}"])`)];
+              selectedTabBtnEl.classList.add('active');
+              selectedTabContentEl.style.display = 'block';
+              otherTabBtnEl.forEach((el) => { el.classList.remove('active'); });
+              otherTabContentEl.forEach((el) => { el.style.display = 'none'; });
+            }
+          }
+          if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; }
+        }}">
+          <button class="v-tab-btn ${this.activeSchemaTab === 'model' ? 'active' : ''}" data-tab = 'model'>MODEL</button>
+          <button class="v-tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
+        </div>
+      </div>  
+      ${html`
+        <div class="tab-content col" data-tab = 'model' style="display:${this.activeSchemaTab === 'model' ? 'block' : 'none'}; padding-left:5px; width:100%;"> 
+          <schema-tree
+            .data = '${formdataPartSchema}'
+            schema-expand-level = "${this.schemaExpandLevel}"
+            schema-description-expanded = "${this.schemaDescriptionExpanded}"
+            allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+          > </schema-tree>
+        </div>`
+      }
+      ${html`
+        <div class="tab-content col" data-tab = 'example' style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'}; padding-left:5px; width:100%"> 
+                      <div class="tab-content col" data-tab = 'example' style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'}; padding-left:5px; width:100%"> 
+        <div class="tab-content col" data-tab = 'example' style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'}; padding-left:5px; width:100%"> 
+                      <div class="tab-content col" data-tab = 'example' style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'}; padding-left:5px; width:100%"> 
+        <div class="tab-content col" data-tab = 'example' style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'}; padding-left:5px; width:100%"> 
+          <textarea 
+            class = "textarea"
+            part = "textarea textarea-param"
+            style = "width:100%; border:none; resize:vertical;" 
+                          style = "width:100%; border:none; resize:vertical;" 
+            style = "width:100%; border:none; resize:vertical;" 
+                          style = "width:100%; border:none; resize:vertical;" 
+            style = "width:100%; border:none; resize:vertical;" 
+            data-array = "false" 
+                          data-array = "false" 
+            data-array = "false" 
+                          data-array = "false" 
+            data-array = "false" 
+            data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
+            data-pname = "${fieldName}"
+            data-example = "${formdataPartExample[0]?.exampleValue || ''}"
+            spellcheck = "false"
+          >${this.fillRequestFieldsWithExample === 'true' ? formdataPartExample[0].exampleValue : ''}</textarea>
+          <!-- This textarea(hidden) is to store the original example value, in focused mode on navbar change it is used to update the example text -->
+          <textarea data-pname = "hidden-${fieldName}" data-ptype = "${mimeType.includes('form-urlencode') ? 'hidden-form-urlencode' : 'hidden-form-data'}" class="is-hidden" style="display:none">${formdataPartExample[0].exampleValue}</textarea>
+        </div>`
+      }
+      </div>
+    `;
+  }
+
   formDataTemplate(schema, mimeType, exampleValue = '') {
     const formDataTableRows = [];
     if (schema.properties) {
       for (const fieldName in schema.properties) {
         const fieldSchema = schema.properties[fieldName];
+        const fieldExamples = fieldSchema.examples || fieldSchema.example || '';
         const fieldType = fieldSchema.type;
-        const formdataPartSchema = schemaInObjectNotation(fieldSchema, {});
         const paramSchema = getTypeInfo(fieldSchema);
-        const formdataPartExample = generateExample(
-          '',
-          fieldSchema.example ? fieldSchema.example : '',
-          fieldSchema,
-          'json',
-          false,
-          true,
-          'text',
-        );
 
         formDataTableRows.push(html`
         <tr> 
@@ -682,77 +750,27 @@ export default class ApiRequest extends LitElement {
                     style = "width:160px;" 
                     data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
                     data-pname = "${fieldName}"
-                    data-example = "${Array.isArray(fieldSchema.example) ? fieldSchema.example.join('~|~') : fieldSchema.example || ''}"
+                    data-example = "${Array.isArray(fieldExamples) ? fieldExamples.join('~|~') : fieldExamples}"
                     data-array = "true"
                     placeholder = "add-multiple &#x21a9;"
-                    .value = "${Array.isArray(fieldSchema.example) ? fieldSchema.example : fieldSchema.example.split(',')}"
+                    .value = "${Array.isArray(fieldExamples) ? fieldExamples : [fieldExamples]}"
                   >
                   </tag-input>
                 `
               : html`
                 ${fieldType === 'object'
-                  ? html`
-                  <div class="tab-panel row" style="min-height:220px; border-left: 6px solid var(--light-border-color); align-items: stretch;">
-                    <div style="width:24px; background-color:var(--light-border-color)">
-                      <div class="row" style="flex-direction:row-reverse; width:160px; height:24px; transform:rotate(270deg) translateX(-160px); transform-origin:top left; display:block;" @click="${(e) => {
-                        if (e.target.classList.contains('v-tab-btn')) {
-                          const tab = e.target.dataset.tab;
-                          if (tab) {
-                            const tabPanelEl = e.target.closest('.tab-panel');
-                            const selectedTabBtnEl = tabPanelEl.querySelector(`.v-tab-btn[data-tab="${tab}"]`);
-                            const otherTabBtnEl = [...tabPanelEl.querySelectorAll(`.v-tab-btn:not([data-tab="${tab}"])`)];
-                            const selectedTabContentEl = tabPanelEl.querySelector(`.tab-content[data-tab="${tab}"]`);
-                            const otherTabContentEl = [...tabPanelEl.querySelectorAll(`.tab-content:not([data-tab="${tab}"])`)];
-                            selectedTabBtnEl.classList.add('active');
-                            selectedTabContentEl.style.display = 'block';
-                            otherTabBtnEl.forEach((el) => { el.classList.remove('active'); });
-                            otherTabContentEl.forEach((el) => { el.style.display = 'none'; });
-                          }
-                        }
-                        if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; }
-                      }}">
-                        <button class="v-tab-btn ${this.activeSchemaTab === 'model' ? 'active' : ''}" data-tab = 'model'>MODEL</button>
-                        <button class="v-tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
-                      </div>
-                    </div>  
-                    ${html`
-                      <div class="tab-content col" data-tab = 'model' style="display:${this.activeSchemaTab === 'model' ? 'block' : 'none'}; padding-left:5px; width:100%;"> 
-                        <schema-tree
-                          .data = '${formdataPartSchema}'
-                          schema-expand-level = "${this.schemaExpandLevel}"
-                          schema-description-expanded = "${this.schemaDescriptionExpanded}"
-                          allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
-                        > </schema-tree>
-                      </div>`
-                    }
-                    ${html`
-                      <div class="tab-content col" data-tab = 'example' style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'}; padding-left:5px; width:100%"> 
-                        <textarea 
-                          class = "textarea"
-                          part = "textarea textarea-param"
-                          style = "width:100%; border:none; resize:vertical;" 
-                          data-array = "false" 
-                          data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
-                          data-pname = "${fieldName}"
-                          data-example = "${formdataPartExample[0]?.exampleValue || ''}"
-                          spellcheck = "false"
-                        >${this.fillRequestFieldsWithExample === 'true' ? formdataPartExample[0].exampleValue : ''}</textarea>
-                        <!-- This textarea(hidden) is to store the original example value, in focused mode on navbar change it is used to update the example text -->
-                        <textarea data-pname = "hidden-${fieldName}" data-ptype = "${mimeType.includes('form-urlencode') ? 'hidden-form-urlencode' : 'hidden-form-data'}" class="is-hidden" style="display:none">${formdataPartExample[0].exampleValue}</textarea>
-                      </div>`
-                    }
-                  </div>`
+                  ? this.formDataParamAsObjectTemplate.call(this, fieldName, fieldSchema, mimeType)
                   : html`
                     ${this.allowTry === 'true'
                       ? html`<input
-                          .value = "${this.fillRequestFieldsWithExample === 'true' ? (fieldSchema.example || '') : ''}"
+                          .value = "${this.fillRequestFieldsWithExample === 'true' ? (Array.isArray(fieldExamples) ? fieldExamples[0] : fieldExamples) : ''}"
                           spellcheck = "false"
                           type = "${fieldSchema.format === 'binary' ? 'file' : fieldSchema.format === 'password' ? 'password' : 'text'}"
                           part = "textbox textbox-param"
                           style = "width:200px"
                           data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
                           data-pname = "${fieldName}"
-                          data-example = "${fieldSchema.example || ''}"
+                          data-example = "${Array.isArray(fieldExamples) ? fieldExamples[0] : fieldExamples}"
                           data-array = "false"
                         />`
                       : ''
@@ -771,7 +789,7 @@ export default class ApiRequest extends LitElement {
                       ${paramSchema.default ? html`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
                       ${paramSchema.pattern ? html`<span style="font-weight:bold">Pattern: </span>${paramSchema.pattern}<br/>` : ''}
                       ${paramSchema.constrain ? html`${paramSchema.constrain}<br/>` : ''}
-                      ${paramSchema.allowedValues && paramSchema.allowedValues.split(',').map((v, i) => html`
+                      ${paramSchema.allowedValues && paramSchema.allowedValues.split('┃').map((v, i) => html`
                         ${i > 0 ? ' | ' : html`<span style="font-weight:bold"> Allowed: </span>`}
                         ${html`
                           <a part="anchor anchor-param-constraint" class = "${this.allowTry === 'true' ? '' : 'inactive-link'}"
@@ -808,24 +826,35 @@ export default class ApiRequest extends LitElement {
                 ${paramSchema.example
                   ? html`
                     <span>
-                      <span style="font-weight:bold"> Example: </span>
+                      <span style="font-weight:bold"> Example:</span>
                       ${paramSchema.type === 'array' ? '[ ' : ''}
-                      <a part="anchor anchor-param-example" class = "${this.allowTry === 'true' ? '' : 'inactive-link'}"
-                        data-example-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}"
-                        data-example = "${paramSchema.type === 'array' ? (paramSchema.example?.join('~|~') || '') : (paramSchema.example)}"
-                        @click="${(e) => {
-                          const inputEl = e.target.closest('table').querySelector(`[data-pname="${fieldName}"]`);
-                          if (inputEl) {
-                            if (e.target.dataset.exampleType === 'array') {
-                              inputEl.value = e.target.dataset.example.split('~|~');
-                            } else {
-                              inputEl.value = e.target.dataset.example;
+
+                        <a part="anchor anchor-param-example" class = "${this.allowTry === 'true' ? '' : 'inactive-link'}"
+                          data-example-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}"
+                          data-example = "${fieldType === 'array'
+                            ? Array.isArray(paramSchema.example) ? paramSchema.example.join('~|~') : paramSchema.example
+                            : Array.isArray(paramSchema.example) ? paramSchema.example[0] : paramSchema.example
+                          }"
+                          @click="${(e) => {
+                            const inputEl = e.target.closest('table').querySelector(`[data-pname="${fieldName}"]`);
+                            if (inputEl) {
+                              if (e.target.dataset.exampleType === 'array') {
+                                inputEl.value = e.target.dataset.example.split('~|~');
+                              } else {
+                                inputEl.value = e.target.dataset.example;
+                              }
                             }
-                          }
-                        }}"
-                      >
-                        ${paramSchema.type === 'array' ? paramSchema.example.join(', ') : paramSchema.example}
-                      </a>
+                          }}"
+                        >
+                        ${fieldType === 'array'
+                          ? Array.isArray(paramSchema.example)
+                            ? paramSchema.example.join(' ,')
+                            : paramSchema.example
+                          : Array.isArray(paramSchema.example) && paramSchema.example[0]
+                            ? paramSchema.example[0]
+                            : paramSchema.example
+                        }
+                        </a>
                       ${paramSchema.type === 'array' ? '] ' : ''}
                     </span>`
                   : ''
