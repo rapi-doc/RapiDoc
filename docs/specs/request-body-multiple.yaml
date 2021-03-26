@@ -21,7 +21,8 @@ paths:
                   {
                     amount: 10,
                     currency: USD,
-                    converstion: 'use-avg'
+                    converstion: 'use-avg',
+                    taxes: ['federal', 'state']
                   }
               INR:
                 description: Cost in `Indian Price`
@@ -29,7 +30,8 @@ paths:
                   {
                     amount: 700,
                     currency: INR,
-                    converstion: 'use-avg'
+                    converstion: 'use-min'
+                    taxes: ['exchange']
                   }
           application/xml:
             schema:
@@ -92,15 +94,26 @@ components:
         currency:
           type: string
           description: Currency code
+          examples:
+            - USD
+            - INR
         converstion:
+          type: string
+          enum:
+            - use-min
+            - use-max
+            - use-avg
+          default: use-avg   
+          examples:
+            - use-avg
+            - use-min
+        taxes:
           type: array
-          minItems: 1
-          maxItems: 3
           items:
             type: string
-            enum:
-              - use-min
-              - use-max
-              - use-avg
-            default: use-avg   
-        
+          examples:
+            - 'exchange'
+            - ['state', 'federal']
+            - ['exchange', 'federal']
+            - 'federal'
+
