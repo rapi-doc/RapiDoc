@@ -5,6 +5,7 @@ export function getTypeInfo(schema) {
   }
   let dataType = '';
   let constrain = '';
+  let examples;
 
   if (schema.$ref) {
     const n = schema.$ref.lastIndexOf('/');
@@ -22,18 +23,19 @@ export function getTypeInfo(schema) {
     dataType = '{missing-type-info}';
   }
 
+  if (schema.examples) {
+    examples = Array.isArray(schema.examples) && schema.examples.length ? schema.examples : undefined;
+  } else if (schema.example) {
+    examples = Array.isArray(schema.example) && schema.example.length ? schema.example : schema.example ? [schema.example] : undefined;
+  }
+
   const info = {
     type: dataType,
     format: schema.format || '',
     pattern: (schema.pattern && !schema.enum) ? schema.pattern : '',
-    readOrWriteOnly: schema.readOnly
-      ? '🆁'
-      : schema.writeOnly
-        ? '🆆'
-        : '',
+    readOrWriteOnly: (schema.readOnly ? '🆁' : schema.writeOnly ? '🆆' : ''),
     deprecated: schema.deprecated ? '❌' : '',
-    example: schema.examples || schema.example || '',
-    exampleType: Array.isArray(schema.examples || schema.example) ? 'array' : (schema.examples || schema.example) ? 'single-val' : '',
+    examples,
     default: schema.default || '',
     description: schema.description || '',
     constrain: '',
