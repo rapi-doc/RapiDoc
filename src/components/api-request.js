@@ -673,22 +673,10 @@ export default class ApiRequest extends LitElement {
       }
       ${html`
         <div class="tab-content col" data-tab = 'example' style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'}; padding-left:5px; width:100%"> 
-                      <div class="tab-content col" data-tab = 'example' style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'}; padding-left:5px; width:100%"> 
-        <div class="tab-content col" data-tab = 'example' style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'}; padding-left:5px; width:100%"> 
-                      <div class="tab-content col" data-tab = 'example' style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'}; padding-left:5px; width:100%"> 
-        <div class="tab-content col" data-tab = 'example' style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'}; padding-left:5px; width:100%"> 
           <textarea 
             class = "textarea"
             part = "textarea textarea-param"
             style = "width:100%; border:none; resize:vertical;" 
-                          style = "width:100%; border:none; resize:vertical;" 
-            style = "width:100%; border:none; resize:vertical;" 
-                          style = "width:100%; border:none; resize:vertical;" 
-            style = "width:100%; border:none; resize:vertical;" 
-            data-array = "false" 
-                          data-array = "false" 
-            data-array = "false" 
-                          data-array = "false" 
             data-array = "false" 
             data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
             data-pname = "${fieldName}"
