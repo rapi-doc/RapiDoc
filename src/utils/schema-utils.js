@@ -5,7 +5,7 @@ export function getTypeInfo(schema) {
   }
   let dataType = '';
   let constrain = '';
-  let examples;
+  // let examples;
 
   if (schema.$ref) {
     const n = schema.$ref.lastIndexOf('/');
@@ -23,19 +23,13 @@ export function getTypeInfo(schema) {
     dataType = '{missing-type-info}';
   }
 
-  if (schema.examples) {
-    examples = Array.isArray(schema.examples) && schema.examples.length ? schema.examples : undefined;
-  } else if (schema.example) {
-    examples = Array.isArray(schema.example) && schema.example.length ? schema.example : schema.example ? [schema.example] : undefined;
-  }
-
   const info = {
     type: dataType,
     format: schema.format || '',
     pattern: (schema.pattern && !schema.enum) ? schema.pattern : '',
     readOrWriteOnly: (schema.readOnly ? '🆁' : schema.writeOnly ? '🆆' : ''),
     deprecated: schema.deprecated ? '❌' : '',
-    examples,
+    examples: schema.examples || schema.example,
     default: schema.default || '',
     description: schema.description || '',
     constrain: '',
@@ -85,6 +79,39 @@ export function getTypeInfo(schema) {
   return info;
 }
 
+export function normalizeExamples(examples, dataType = 'string') {
+  let exampleVal;
+  let exampleList;
+  if (examples) {
+    if (examples.constructor === Object) {
+      const exampleValAndDescr = Object.values(examples);
+      exampleVal = exampleValAndDescr[0]?.value;
+      exampleList = Object.values(examples).map((v) => ({ value: v.value, description: v.description || v.summary || v.value }));
+    } else {
+      // This is non standard way to provide example but will support for now
+      if (!Array.isArray(examples)) {
+        examples = examples ? [examples] : [];
+      }
+      if (examples.length > 0) {
+        if (dataType === 'array') {
+          exampleVal = examples[0];
+          exampleList = examples.map((v) => ({ value: v, description: Array.isArray(v) ? v.join(' , ') : v }));
+        } else {
+          exampleVal = examples[0];
+          exampleList = examples.map((v) => ({ value: v, description: v }));
+        }
+      }
+    }
+    return {
+      exampleVal,
+      exampleList,
+    };
+  }
+  return {
+    exampleVal: '',
+    exampleList: [],
+  };
+}
 export function getSampleValueByType(schemaObj) {
   const example = schemaObj.examples
     ? schemaObj.examples[0]
