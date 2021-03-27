@@ -191,6 +191,15 @@
           </tr>
 
           <tr>
+            <td class="mono bold right">load-fonts </td>
+            <td class="gray">
+              <span class='bold dark-gray'>Allowed:<span class='blue'>true | false</span></span>
+              RapiDoc will attempt to load fonts from CDN, If this is not intended, then set this to false.
+            </td>
+            <td class='small-font'>true</td>
+          </tr>
+
+          <tr>
             <td class="mono bold right">regular-font </td>
             <td class="gray">Font Name(s) to be used for regular text </td>
             <td class='small-font'>"Open Sans", Avenir, "Segoe UI", Arial, sans-serif</td>
@@ -560,8 +569,8 @@
             <td class="mono bold right">fetch-credentials</td>
             <td class="gray">
               <span class='bold dark-gray'>Allowed:<span class='blue'> omit | same-origin | include</span></span>
-              enables passing credentials, as defined in the 
-              <a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#sending_a_request_with_credentials_included">Fetch standard, in CORS requests </a>
+              enables passing credentials/cookies in cross domain calls, as defined in the 
+              <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials">Fetch standard, in CORS requests </a>
               that are sent by the browser
             </td>
             <td>(empty)</td>
