@@ -160,6 +160,12 @@ export default class ApiRequest extends LitElement {
             padding:8px;
           }
         }
+
+        @media only screen and (max-width: 470px) {
+          .hide-in-small-screen {
+            display:none;
+          }
+        }
       `,
       CustomStyles,
     ];
@@ -893,7 +899,7 @@ export default class ApiRequest extends LitElement {
 
     return html`
     <div style="display:flex; align-items:flex-end; margin:16px 0; font-size:var(--font-size-small);">
-      <div style="display:flex; flex-direction:column; margin:0; width:calc(100% - 60px);">
+      <div class="hide-in-small-screen" style="flex-direction:column; margin:0; width:calc(100% - 60px);">
         <div style="display:flex; flex-direction:row; align-items:center; overflow:hidden;"> 
           ${selectedServerHtml}
         </div>

@@ -13,6 +13,7 @@ export default async function ProcessSpec(specUrl, generateMissingTags = false, 
       specMeta = await OpenApiParser.resolve({ spec: specUrl }); // Swagger({ spec: specUrl });
     }
     jsonParsedSpec = specMeta.spec;
+    this.dispatchEvent(new CustomEvent('before-render', { detail: { spec: jsonParsedSpec } }));
   } catch (err) {
     console.info('RapiDoc: %c There was an issue while parsing the spec %o ', 'color:orangered', err); // eslint-disable-line no-console
   }
