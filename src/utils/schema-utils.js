@@ -56,10 +56,10 @@ export function getTypeInfo(schema) {
   }
   if (dataType.match(/integer|number/g)) {
     if (schema.minimum !== undefined || schema.exclusiveMinimum !== undefined) {
-      constrain += schema.minimum !== undefined ? `>= ${schema.minimum}` : `> ${schema.exclusiveMinimum}`;
+      constrain += schema.minimum !== undefined ? `Min ${schema.minimum}` : `More than ${schema.exclusiveMinimum}`;
     }
     if (schema.maximum !== undefined || schema.exclusiveMaximum !== undefined) {
-      constrain += schema.maximum !== undefined ? `${constrain ? '┃' : ''}<= ${schema.maximum}` : `${constrain ? '┃' : ''}< ${schema.exclusiveMaximum}`;
+      constrain += schema.maximum !== undefined ? `${constrain ? '┃' : ''}Max ${schema.maximum}` : `${constrain ? '┃' : ''}Less than ${schema.exclusiveMaximum}`;
     }
     if (schema.multipleOf !== undefined) {
       constrain += `${constrain ? '┃' : ''} multiple of ${schema.multipleOf}`;
@@ -69,9 +69,9 @@ export function getTypeInfo(schema) {
     if (schema.minLength !== undefined && schema.maxLength !== undefined) {
       constrain += `${constrain ? '┃' : ''}${schema.minLength} to ${schema.maxLength} chars`;
     } else if (schema.minLength !== undefined) {
-      constrain += `${constrain ? '┃' : ''}min ${schema.minLength} chars`;
+      constrain += `${constrain ? '┃' : ''}Min ${schema.minLength} chars`;
     } else if (schema.maxLength !== undefined) {
-      constrain += `max ${constrain ? '┃' : ''}${schema.maxLength} chars`;
+      constrain += `Max ${constrain ? '┃' : ''}${schema.maxLength} chars`;
     }
   }
   info.constrain = constrain;

@@ -6,7 +6,7 @@ import { copyToClipboard } from '~/utils/common-utils';
 /* eslint-disable indent */
 export default function codeSamplesTemplate(xCodeSamples) {
   return html`
-  <section class="table-title top-gap"> CODE SAMPLES </div>
+  <section class="table-title" style="margin-top:24px;">CODE SAMPLES</div>
   <div class="tab-panel col"
     @click="${
       (e) => {
