@@ -27,6 +27,11 @@
     <script>
       document.addEventListener('DOMContentLoaded', (event) => {
         let docEl = document.getElementById("thedoc");
+
+        docEl.addEventListener('before-render', (e) => {
+          e.detail.spec.info.description = "This description is updated using java-script on `before-render` event";
+        });
+
         docEl.addEventListener('after-try', (e) => {
           console.log(e.detail);
         });

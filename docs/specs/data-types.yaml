@@ -170,7 +170,8 @@ paths:
             type: array
             example: 
               - computers
-              - movies
+              - reading
+              - ['music', 'movies']
             minItems: 1
             maxItems: 3
             items:

@@ -1,4 +1,4 @@
-openapi: 3.0.2
+openapi: 3.1.0
 info:
   title: Mock API Service
   version: "1.0"
@@ -14,13 +14,19 @@ paths:
           in: query
           schema:
             type: integer
-            example: 2
+            examples: 
+              - 1
+              - 2
         - name: delay
           in: query
           description: for simulating response delay. Do not provide any value for page parameter(0 indicates no delay)
           examples:
-            - '0'
-            - 3
+            noDelay:
+              summary: No Delay
+              value: 0
+            someDelay:
+              summary: little delay
+              value: 2
           schema:
             type: integer
             minimum: 0

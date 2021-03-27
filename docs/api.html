@@ -355,11 +355,11 @@
           <tr>
             <td class="mono bold right">schema-hide-read-only </td>
             <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> always | never | (combination of: post | put | patch)</span></span> -
-              Model schemas will have an icon indicating a property is readOnly ( 🆁 ). By default, for schemas used in a Request object the property
-              will not be shown.<br>
-              If you prefer to show readOnly properties for write actions (POST, PUT, PATCH), you can configure this setting to 'never'
-              or determine for which HTTP methods they should be hidden.<br>
-              Schemas in Response objects are obviously not affected by this setting and will always show readOnly properties.
+              read-only fileds in request schemas is <span class='blue'> always </span> hidden but are shown in response.
+              <br/>
+              If you do not want to hide read-only fields or hide them based on action you can configure this setting to 'never' or any combination of post | put | patch to indicate where to hide
+              <br/>
+              Schemas in response section is not affected by this setting.
               &nbsp;|&nbsp; <a href="./examples/hide-read-only-write-only.html">Example</a>
             </td>
             <td>always</td>
@@ -367,10 +367,11 @@
           <tr>
             <td class="mono bold right">schema-hide-write-only </td>
             <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> always | never</span></span> -
-              Model schemas will have an icon indicating a property is writeOnly ( 🆆 ). By default, for schemas used in a Response object the property
-              will not be shown.<br>
-              If you prefer to show writeOnly properties in Responses, you can configure this setting to 'never'.<br>
-              Schemas in Request objects are obviously not affected by this setting and will always show writeOnly properties.
+              write-only fileds in response schemas is <span class='blue'> always </span> hidden but are shown in request.
+              <br/>
+              If you do not want to hide write-only fields then set to 'never'
+              <br/>
+              Schemas in request section is not affected by this setting.
               &nbsp;|&nbsp; <a href="./examples/hide-read-only-write-only.html">Example</a>
             </td>
             <td>always</td>
@@ -635,28 +636,33 @@
         <div class="table-block">
           <table class="m-table">
             <tr>
-              <th class="right" style="width:100px">Event</th>
+              <th class="right" style="width:130px">Event</th>
               <th class="left">Description </th>
+            </tr>
+            <tr>
+              <td class="mono bold right">before-render</td>
+              <td class="gray">
+                fired before rendering, provides spec object which can be modified and the changes will be reflected in rendering
+              </td>
             </tr>
             <tr>
               <td class="mono bold right">spec-loaded</td>
               <td class="gray">
-                called after the spec is parsed, and rendered. Provides you with a object representing the spec.
+                fired after the spec is parsed, and rendered. Provides an object representing the spec.
               </td>
             </tr>
             <tr>
               <td class="mono bold right">before-try</td>
               <td class="gray">
-                called before user clicks try. 
+                fired before user clicks try. 
                 Provides a <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request" target="_blank">request object</a> 
                 that can be modified before making the final call to the API.
               </td>
             </tr>
-
             <tr>
               <td class="mono bold right">after-try</td>
               <td class="gray">
-                called after try (API-call) is completed and provides a 
+                fired after try (API-call) is completed and provides a 
                 <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request" target="_blank">request</a> and
                 <a href="https://developer.mozilla.org/en-US/docs/Web/API/Response" target="_blank">response</a> object
                 In case of an error it will provide an <span> request</span> and <span> err</span> object
