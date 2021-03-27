@@ -23,9 +23,7 @@ import NavStyles from '~/styles/nav-styles';
 import InfoStyles from '~/styles/info-styles';
 import CustomStyles from '~/styles/custom-styles';
 // import { expandCollapseNavBarTag } from '@/templates/navbar-template';
-import {
-  advancedSearch, pathIsInSearch, rapidocApiKey, sleep,
-} from '~/utils/common-utils';
+import { advancedSearch, pathIsInSearch, rapidocApiKey, sleep } from '~/utils/common-utils';
 import ProcessSpec from '~/utils/spec-parser';
 import mainBodyTemplate from '~/templates/main-body-template';
 

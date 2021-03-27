@@ -949,7 +949,7 @@ export default class ApiRequest extends LitElement {
   }
 
   async onTryClick(e) {
-    const me = this;
+    // const me = this;
     const tryBtnEl = e.target;
     let fetchUrl;
     let curlUrl;
@@ -966,7 +966,7 @@ export default class ApiRequest extends LitElement {
     const headerParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='header']")];
     const requestBodyContainerEl = requestPanelEl.querySelector('.request-body-container');
 
-    fetchUrl = me.path;
+    fetchUrl = this.path;
     const fetchOptions = {
       method: this.method.toUpperCase(),
       headers: {},
@@ -1178,19 +1178,18 @@ export default class ApiRequest extends LitElement {
       }
       curlHeaders += ` -H "Content-Type: ${requestBodyType}" \\\n`;
     }
-    me.responseUrl = '';
-    me.responseHeaders = '';
-    // me.responseText    = '';
-    me.curlSyntax = '';
-    me.responseStatus = 'success';
-    me.responseIsBlob = false;
+    this.responseUrl = '';
+    this.responseHeaders = [];
+    this.curlSyntax = '';
+    this.responseStatus = 'success';
+    this.responseIsBlob = false;
 
-    me.respContentDisposition = '';
-    if (me.responseBlobUrl) {
-      URL.revokeObjectURL(me.responseBlobUrl);
-      me.responseBlobUrl = '';
+    this.respContentDisposition = '';
+    if (this.responseBlobUrl) {
+      URL.revokeObjectURL(this.responseBlobUrl);
+      this.responseBlobUrl = '';
     }
-    me.curlSyntax = `${curl}${curlHeaders}${curlData}${curlForm}`;
+    this.curlSyntax = `${curl}${curlHeaders}${curlData}${curlForm}`;
     if (this.fetchCredentials) {
       fetchOptions.credentials = this.fetchCredentials;
     }
@@ -1203,23 +1202,27 @@ export default class ApiRequest extends LitElement {
       },
     }));
 
+    let fetchResponse;
+    let responseClone;
     try {
       let respBlob;
       let respJson;
       let respText;
       tryBtnEl.disabled = true;
-      const fetchResponse = await fetch(fetchRequest);
+      fetchResponse = await fetch(fetchRequest);
+      responseClone = fetchResponse.clone(); // create a response clone to allow reading response body again (response.json, response.text etc)
       tryBtnEl.disabled = false;
-      me.responseStatus = fetchResponse.ok ? 'success' : 'error';
-      me.responseMessage = fetchResponse.statusText ? `${fetchResponse.statusText}:${fetchResponse.status}` : fetchResponse.status;
-      me.responseUrl = fetchResponse.url;
+      this.responseMessage = fetchResponse.statusText ? `${fetchResponse.statusText}:${fetchResponse.status}` : fetchResponse.status;
+      this.responseUrl = fetchResponse.url;
+      const respHeadersObj = {};
       fetchResponse.headers.forEach((hdrVal, hdr) => {
-        me.responseHeaders = `${me.responseHeaders}${hdr.trim()}: ${hdrVal}\n`;
+        respHeadersObj[hdr] = hdrVal;
+        this.responseHeaders = `${this.responseHeaders}${hdr}: ${hdrVal}\n`;
       });
       const contentType = fetchResponse.headers.get('content-type');
       const respEmpty = (await fetchResponse.clone().text()).length === 0;
       if (respEmpty) {
-        me.responseText = '';
+        this.responseText = '';
       } else if (contentType) {
         if (contentType.includes('json')) {
           if ((/charset=[^"']+/).test(contentType)) {
@@ -1231,54 +1234,60 @@ export default class ApiRequest extends LitElement {
               respText = new TextDecoder('utf-8').decode(buffer);
             }
             try {
-              me.responseText = JSON.stringify(JSON.parse(respText), null, 2);
+              respJson = JSON.parse(respText);
+              this.responseText = JSON.stringify(respJson, null, 2);
             } catch {
-              me.responseText = respText;
+              this.responseText = respText;
             }
           } else {
             respJson = await fetchResponse.json();
-            me.responseText = JSON.stringify(respJson, null, 2);
+            this.responseText = JSON.stringify(respJson, null, 2);
           }
         } else if (RegExp('^font/|tar$|zip$|7z$|rtf$|msword$|excel$|/pdf$|/octet-stream$').test(contentType)) {
-          me.responseIsBlob = true;
-          me.responseBlobType = 'download';
+          this.responseIsBlob = true;
+          this.responseBlobType = 'download';
         } else if (RegExp('^audio|^image|^video').test(contentType)) {
-          me.responseIsBlob = true;
-          me.responseBlobType = 'view';
+          this.responseIsBlob = true;
+          this.responseBlobType = 'view';
         } else {
           respText = await fetchResponse.text();
           if (contentType.includes('xml')) {
-            me.responseText = prettyXml(respText);
+            this.responseText = prettyXml(respText);
           }
-          me.responseText = respText;
+          this.responseText = respText;
         }
-        if (me.responseIsBlob) {
+        if (this.responseIsBlob) {
           const contentDisposition = fetchResponse.headers.get('content-disposition');
-          me.respContentDisposition = contentDisposition ? contentDisposition.split('filename=')[1] : 'filename';
+          this.respContentDisposition = contentDisposition ? contentDisposition.split('filename=')[1] : 'filename';
           respBlob = await fetchResponse.blob();
-          me.responseBlobUrl = URL.createObjectURL(respBlob);
+          this.responseBlobUrl = URL.createObjectURL(respBlob);
         }
       } else {
         respText = await fetchResponse.text();
-        me.responseText = respText;
+        this.responseText = respText;
       }
       this.dispatchEvent(new CustomEvent('after-try', {
         bubbles: true,
         composed: true,
         detail: {
           request: fetchRequest,
-          response: fetchResponse,
+          response: responseClone,
+          responseHeaders: respHeadersObj,
+          responseBody: respJson || respText || respBlob,
+          responseStatus: responseClone.ok,
         },
       }));
     } catch (err) {
       tryBtnEl.disabled = false;
-      me.responseMessage = `${err.message} (CORS or Network Issue)`;
+      this.responseMessage = `${err.message} (CORS or Network Issue)`;
       document.dispatchEvent(new CustomEvent('after-try', {
         bubbles: true,
         composed: true,
         detail: {
           err,
           request: fetchRequest,
+          response: responseClone,
+          responseStatus: responseClone.ok,
         },
       }));
     }
