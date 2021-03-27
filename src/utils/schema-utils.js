@@ -85,8 +85,15 @@ export function normalizeExamples(examples, dataType = 'string') {
   if (examples) {
     if (examples.constructor === Object) {
       const exampleValAndDescr = Object.values(examples);
-      exampleVal = exampleValAndDescr[0]?.value;
-      exampleList = Object.values(examples).map((v) => ({ value: v.value, description: v.description || v.summary || v.value }));
+      exampleVal = exampleValAndDescr.length > 0
+        ? typeof exampleValAndDescr[0].value === 'boolean' || typeof exampleValAndDescr[0].value === 'number'
+          ? exampleValAndDescr[0].value.toString()
+          : exampleValAndDescr[0].value
+        : '';
+      exampleList = Object.values(examples).map((v) => ({
+        value: typeof v.value === 'boolean' || typeof v.value === 'number' ? v.value.toString() : v.value,
+        description: v.description || v.summary || v.value,
+      }));
     } else {
       // This is non standard way to provide example but will support for now
       if (!Array.isArray(examples)) {
@@ -97,8 +104,8 @@ export function normalizeExamples(examples, dataType = 'string') {
           exampleVal = examples[0];
           exampleList = examples.map((v) => ({ value: v, description: Array.isArray(v) ? v.join(' , ') : v }));
         } else {
-          exampleVal = examples[0];
-          exampleList = examples.map((v) => ({ value: v, description: v }));
+          exampleVal = examples[0].toString();
+          exampleList = examples.map((v) => ({ value: v.toString(), description: v }));
         }
       }
     }
