@@ -404,7 +404,11 @@ export default class RapiDoc extends LitElement {
     if (!this.theme || !'light, dark,'.includes(`${this.theme},`)) {
       this.theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
     }
-    if (!this.defaultSchemaTab || !'example, model,'.includes(`${this.defaultSchemaTab},`)) { this.defaultSchemaTab = 'model'; }
+    if (!this.defaultSchemaTab || !'example, schema, model,'.includes(`${this.defaultSchemaTab},`)) { 
+      this.defaultSchemaTab = 'schema';
+    } else if (this.defaultSchemaTab === 'model') {
+      this.defaultSchemaTab = 'schema';
+    }
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) { this.schemaExpandLevel = 99999; }
     if (!this.schemaDescriptionExpanded || !'true, false,'.includes(`${this.schemaDescriptionExpanded},`)) { this.schemaDescriptionExpanded = 'false'; }
     const writeMethodsWithBody = ['post', 'put', 'patch'];

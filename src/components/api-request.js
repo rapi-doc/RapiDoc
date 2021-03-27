@@ -215,7 +215,7 @@ export default class ApiRequest extends LitElement {
     ${(exampleList.length > 0
       ? html`<span style="font-weight:bold">Example: </span>
         ${exampleList.map((v, i) => html`
-          ${i === 0 ? '' : html`┃`}
+          ${i === 0 ? '' : '┃'}
           ${paramType === 'array' ? '[' : ''}
           <a part="anchor anchor-param-example" class = "${this.allowTry === 'true' ? '' : 'inactive-link'}"
             data-example-type="${paramType === 'array' ? paramType : 'string'}"
@@ -596,11 +596,11 @@ export default class ApiRequest extends LitElement {
           ? html`
             <div class="tab-panel col" style="border-width:0 0 1px 0;">
               <div class="tab-buttons row" @click="${(e) => { if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; } }}">
-                <button class="tab-btn ${this.activeSchemaTab === 'model' ? 'active' : ''}"   data-tab = 'model'  >MODEL</button>
+                <button class="tab-btn ${this.activeSchemaTab === 'schema' ? 'active' : ''}"   data-tab = 'schema'  >SCHEMA</button>
                 <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
               </div>
-              ${html`<div class="tab-content col" style="display: ${this.activeSchemaTab === 'model' ? 'block' : 'none'}"> ${reqBodySchemaHtml}</div>`}
-              ${html`<div class="tab-content col" style="display: ${this.activeSchemaTab === 'model' ? 'none' : 'block'}"> ${reqBodyExampleHtml}</div>`}
+              ${html`<div class="tab-content col" style="display: ${this.activeSchemaTab === 'schema' ? 'block' : 'none'}"> ${reqBodySchemaHtml}</div>`}
+              ${html`<div class="tab-content col" style="display: ${this.activeSchemaTab === 'schema' ? 'none' : 'block'}"> ${reqBodyExampleHtml}</div>`}
             </div>`
           : html`  
             ${reqBodyFileInputHtml}
@@ -643,12 +643,12 @@ export default class ApiRequest extends LitElement {
           }
           if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; }
         }}">
-          <button class="v-tab-btn ${this.activeSchemaTab === 'model' ? 'active' : ''}" data-tab = 'model'>MODEL</button>
+          <button class="v-tab-btn ${this.activeSchemaTab === 'schema' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
           <button class="v-tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
         </div>
       </div>  
       ${html`
-        <div class="tab-content col" data-tab = 'model' style="display:${this.activeSchemaTab === 'model' ? 'block' : 'none'}; padding-left:5px; width:100%;"> 
+        <div class="tab-content col" data-tab = 'schema' style="display:${this.activeSchemaTab === 'schema' ? 'block' : 'none'}; padding-left:5px; width:100%;"> 
           <schema-tree
             .data = '${formdataPartSchema}'
             schema-expand-level = "${this.schemaExpandLevel}"
