@@ -713,6 +713,9 @@ export default class RapiDoc extends LitElement {
   }
 
   expandAndGotoOperation(elementId, scrollToElement = true) {
+    if (!this.resolvedSpec) {
+      return;
+    }
     // Expand full operation and tag
     let isExpandingNeeded = true;
     const tmpElementId = elementId.indexOf('#') === -1 ? elementId : elementId.substring(1);
@@ -762,9 +765,9 @@ export default class RapiDoc extends LitElement {
       return true;
     }
     if (id.startsWith('tag--')) {
-      return this.resolvedSpec.tags?.find((tag) => tag.elementId === id);
+      return this.resolvedSpec?.tags?.find((tag) => tag.elementId === id);
     }
-    return this.resolvedSpec.tags?.find((tag) => tag.paths.find((path) => path.elementId === id));
+    return this.resolvedSpec?.tags?.find((tag) => tag.paths.find((path) => path.elementId === id));
   }
 
   onIntersect(entries) {

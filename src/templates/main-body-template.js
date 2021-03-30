@@ -14,6 +14,9 @@ import SetTheme from '~/utils/theme';
 import { isValidHexColor } from '~/utils/color-utils';
 
 export default function mainBodyTemplate() {
+  if (!this.resolvedSpec) {
+    return '';
+  }
   const newTheme = {
     bg1: isValidHexColor(this.bgColor) ? this.bgColor : '',
     fg1: isValidHexColor(this.textColor) ? this.textColor : '',
@@ -25,7 +28,6 @@ export default function mainBodyTemplate() {
     navHoverTextColor: isValidHexColor(this.navHoverTextColor) ? this.navHoverTextColor : '',
     navAccentColor: isValidHexColor(this.navAccentColor) ? this.navAccentColor : '',
   };
-
   /* eslint-disable indent */
   return html`
     ${this.theme === 'dark' ? SetTheme.call(this, 'dark', newTheme) : SetTheme.call(this, 'light', newTheme)}
