@@ -21,6 +21,10 @@ paths:
           - api
         - client-credential-oauth:
           - api
+      responses:
+        '200':
+          description: Successful operation
+
   /connect/userinfo:
     get:
       summary: Get User Info
@@ -47,6 +51,10 @@ paths:
           - profile
         - basic: []
         - api-key1: []
+      responses:
+        '200':
+          description: Successful operation
+
 
 components:
   securitySchemes:
@@ -91,12 +99,3 @@ components:
             email: Email 
             profile: Profile 
             api: API 
-    basic:
-      type: http
-      description: |
-        some kind of `markdown description`
-      scheme: basic
-    api_key1:
-      type: apiKey
-      name: Authorization
-      in: header

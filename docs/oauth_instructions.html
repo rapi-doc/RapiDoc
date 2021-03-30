@@ -99,7 +99,7 @@
       </ul>  
     <h2> Short Version </h2>
     <ul>
-      <li> Register your app with an Authorization Provider such as https://bitbucket.org </li>
+      <li> Register your app with an Authorization Provider such as Microsoft Active Directory </li>
       <li> Create <span class='mono orange'> index.html </span>containing <span class='mono orange'> &lt;rapi-doc&gt;</span> element (<a href="#index-html"> view </a>)</li> 
       <li> Create another html and name it <span class='mono orange'> oauth-receiver.html </span> containing <span class='mono orange'> &lt;oauth-receiver&gt;</span> element (<a href="#auth-receiver-html"> view </a>)</li>
     </ul>
@@ -113,28 +113,29 @@
     <p>
       <ul>
         <li>
-          For this demo I am going to use <b>BitBucket</b> as the OAuth provider, so SignUp with https://bitbucket.org/ if you dont have an account
+          For this demo I am going to use <a href="https://demo.identityserver.io/" target="_blank"> <b>IdentityServer</b> </a>  as the OAuth provider. 
+          This is a demo Identity provider which is pre-configured with some users and supports various oAuth authentication flows
         </li>
         <li>
-          <b>Register OAuth Client in Bitbucket: </b> In my case the client is https://mrin9.github.io. <br/>
-          In your case it could be localhost:{port} or the domain from where you are hosting your html containing RapiDoc element
-          <ul>
-            <li>
-              While registering provide the <span class="blue">Redirect URL</span> as the url of <span class="blue mono"> oauth-receiver.html </span> that you created above
-            </li>
-            <li>
-              Upon successful registration, you should be provided with a client_id and client_secret 
-            </li>
-          </ul>  
+          <b>Register OAuth Client with identity Provider:</b> Normally you need to register your client application with the Identity provider which will provide you with a <span class='mono bold'> client-id and client-secret</span>
+          but in our case we donot need to do so because our demo identity server is pre-configured with some sample client-id and secret 
         </li>
       </ul>
     </p>
 
-    <h3> Setup Client </h3>
-    <b>Client: </b> This is the app's domain that host the html containing <span class='mono'> &lt;rapi-doc&gt;</span>
-    element.<br/>
-    In case of RapiDoc OAuth demo, since we host it from Github pages, it is https://mrin9.github.io<br/><br/>
-    Below are the two files that our server must have<br/><br/>
+    <h3> Setup RapiDoc </h3>
+    Below are the two files that you need to have<br/>
+    <ul>
+      <li> 
+          <span class="mono bold">index.html </span> 
+          <span class="gray"> (I am using the name index.html but you are free to use any name, it is the html that contain &lt;rapi-doc&gt; element) </span>
+      </li>
+      <li> 
+        <span class="mono bold">oauth-receiver.html </span>
+        <span class="gray">(It is important that you name this file exactly as oauth-receiver.html and place in the same location where the above file is)</span>
+      </li>
+    </ul>
+    <br/>
 
     <a id='index-html' class="blue mono">index.html</a> 
     (This is our main file that contains the  <span class='mono'> &lt;rapi-doc&gt;</span>  element )
@@ -169,6 +170,108 @@
         &lt;/body&gt;
       </code>
     </pre>
+
+    <h3> The OpenAPI spec </h3>
+    Our demo Identity server provides few sample APIs for testing. 
+    <br/>
+    Below is the OpenAPI spec which contains couple of APIs protected with identity server. 
+    You can check out how these are rendered through RapiDoc and how rapidoc exchanges oAuth tokens with the demo IdentityServer
+    | <a href="./examples/oauth-demo.html" target="_blank"> Demo </a>
+    <pre>
+      <code class="language-yaml code-block">
+        openapi: 3.0.0
+        info:
+          title: Identity 4 Server
+          description: Works only on `http://localhost...`
+          version: "1.0"
+        servers:
+        - url:  https://demo.identityserver.io
+        paths:
+          /api/test:
+            get:
+              summary: Test API
+              security:
+                - short-lived-oauth:
+                  - api
+                - long-lived-oauth:
+                  - api
+                - client-credential-oauth:
+                  - api
+              responses:
+                '200':
+                  description: Successful operation
+          /connect/userinfo:
+            get:
+              summary: Get User Info
+              security:
+                - short-lived-oauth:
+                  - openid
+                  - email
+                  - profile
+                - long-lived-oauth:
+                  - openid
+                  - email
+                  - profile
+                - client-credential-oauth:
+                  - openid
+                  - email
+                  - profile
+                - basic: []
+                - api-key1: []
+              responses:
+                '200':
+                  description: Successful operation
+        components:
+          securitySchemes:
+            short-lived-oauth:
+              type: oauth2
+              description: Provides OAuth token valid for short duration ~75 seconds
+              # vendor-extension x-client-id and x-client-secret to prefill data
+              x-client-id: interactive.confidential.short
+              x-client-secret: secret
+              flows:
+                authorizationCode:
+                  authorizationUrl: https://demo.identityserver.io/connect/authorize
+                  tokenUrl: https://demo.identityserver.io/connect/token
+                  scopes:
+                    openid: OpenID
+                    email: Email 
+                    profile: Profile 
+                    api: API 
+            long-lived-oauth:
+              type: oauth2
+              description: Provides an OAuth token thats valid for long durations
+              x-client-id: interactive.confidential
+              x-client-secret: secret
+              flows:
+                authorizationCode:
+                  authorizationUrl: https://demo.identityserver.io/connect/authorize
+                  tokenUrl: https://demo.identityserver.io/connect/token
+                  scopes:
+                    openid: OpenID
+                    email: Email 
+                    profile: Profile 
+                    api: API 
+            client-credential-oauth:
+              type: oauth2
+              description: Provides an OAuth token thats valid for long duration
+              x-client-id: m2m
+              x-client-secret: secret
+              flows:
+                clientCredentials:
+                  tokenUrl: https://demo.identityserver.io/connect/token
+                  scopes:
+                    openid: OpenID
+                    email: Email 
+                    profile: Profile 
+                    api: API 
+      </code>
+    </pre>
+    
+    
+
+
+
   </div>
 </body>
 
