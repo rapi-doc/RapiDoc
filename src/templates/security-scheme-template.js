@@ -2,6 +2,9 @@ import { html } from 'lit-element';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import marked from 'marked';
 
+const codeVerifier = '731DB1C3F7EA533B85E29492D26AA-1234567890-1234567890';
+const codeChallenge = '4FatVDBJKPAo4JgLLaaQFMUcQPn5CrPRvLlaob9PTYc'; // Base64 encoded SHA-256
+
 function onApiKeyChange(apiKeyId, e) {
   let apiKeyValue = '';
   const securityObj = this.resolvedSpec.securitySchemes.find((v) => (v.apiKeyId === apiKeyId));
@@ -55,6 +58,7 @@ async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, g
   }
   if (authCode) {
     urlFormParams.append('code', authCode);
+    urlFormParams.append('code_verifier', codeVerifier); // for PKCE
   }
   if (sendClientSecretIn === 'header') {
     headers.set('Authorization', `Basic ${btoa(`${clientId}:${clientSecret}`)}`);
@@ -115,14 +119,29 @@ async function onWindowMessageEvent(msgEvent, winObj, tokenUrl, clientId, client
   }
 }
 
+// code_challenge generator for PKCE flow
+// TODO: Implement dynamic generation of code-challenge based on code-verifier
+/*
+async function generateCodeChallenge() {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(codeVerifier);
+  const sha256Hash = await window.crypto.subtle.digest('SHA-256', data); // returns Unit8Array
+  // const utf8Decoder = new TextDecoder();
+  // const b64EncodedSha256 = btoa(utf8Decoder.decode(sha256Hash));
+  const b64EncodedSha256 = base64encode(sha256Hash);
+  return b64EncodedSha256;
+}
+*/
+
 async function onInvokeOAuthFlow(apiKeyId, flowType, authUrl, tokenUrl, e) {
   const authFlowDivEl = e.target.closest('.oauth-flow');
   const clientId = authFlowDivEl.querySelector('.oauth-client-id') ? authFlowDivEl.querySelector('.oauth-client-id').value.trim() : '';
   const clientSecret = authFlowDivEl.querySelector('.oauth-client-secret') ? authFlowDivEl.querySelector('.oauth-client-secret').value.trim() : '';
   const sendClientSecretIn = authFlowDivEl.querySelector('.oauth-send-client-secret-in') ? authFlowDivEl.querySelector('.oauth-send-client-secret-in').value.trim() : 'header';
-
-  const checkedScopeEls = [...authFlowDivEl.querySelectorAll('input[type="checkbox"]:checked')];
+  const checkedScopeEls = [...authFlowDivEl.querySelectorAll('.scope-checkbox:checked')];
+  const pkceCheckboxEl = authFlowDivEl.querySelector(`#${apiKeyId}-pkce`);
   const state = (`${Math.random().toString(36)}random`).slice(2, 9);
+  // const codeChallenge = await generateCodeChallenge(codeVerifier);
   const redirectUrlObj = new URL(`${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/${this.oauthReceiver}`);
   let grantType = '';
   let responseType = '';
@@ -149,6 +168,10 @@ async function onInvokeOAuthFlow(apiKeyId, flowType, authUrl, tokenUrl, e) {
     authCodeParams.set('redirect_uri', redirectUrlObj.toString());
     authCodeParams.set('response_type', responseType);
     authCodeParams.set('state', state);
+    if (pkceCheckboxEl && pkceCheckboxEl.checked) {
+      authCodeParams.set('code_challenge', codeChallenge);
+      authCodeParams.set('code_challenge_method', 'S256');
+    }
     authCodeParams.set('show_dialog', true);
     authUrlObj.search = authCodeParams.toString();
     // If any older message-event-listener is active then fire a fake message to remove it (these are single time listeners)
@@ -205,18 +228,18 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow)
     flowNameDisplay = flowName;
   }
   return html`
-    <div class="oauth-flow" style="padding: 10px 0; margin-bottom:10px;"> 
-      <div class="tiny-title upper" style="margin-bottom:5px;">${flowNameDisplay}</div> 
+    <div class="oauth-flow" style="padding: 12px 0; margin-bottom:12px;"> 
+      <div class="tiny-title upper" style="margin-bottom:8px;">${flowNameDisplay}</div> 
       ${authorizationUrl
-        ? html`<div><span style="width:75px; display: inline-block;">Auth URL</span> <span class="mono-font"> ${authorizationUrl} </span></div>`
+        ? html`<div style="margin-bottom:5px"><span style="width:75px; display: inline-block;">Auth URL</span> <span class="mono-font"> ${authorizationUrl} </span></div>`
         : ''
       }
       ${tokenUrl
-        ? html`<div><span style="width:75px; display: inline-block;">Token URL</span> <span class="mono-font">${tokenUrl}</span></div>`
+        ? html`<div style="margin-bottom:5px"><span style="width:75px; display: inline-block;">Token URL</span> <span class="mono-font">${tokenUrl}</span></div>`
         : ''
       }
       ${refreshUrl
-        ? html`<div><span style="width:75px; display: inline-block;">Refresh URL</span> <span class="mono-font">${refreshUrl}</span></div>`
+        ? html`<div style="margin-bottom:5px"><span style="width:75px; display: inline-block;">Refresh URL</span> <span class="mono-font">${refreshUrl}</span></div>`
         : ''
       }
       ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit' || flowName === 'password'
@@ -227,8 +250,8 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow)
               <div class= "oauth-scopes" part="section-auth-scopes" style = "width:100%; display:flex; flex-direction:column; flex-wrap:wrap; margin:0 0 10px 24px">
                 ${Object.entries(authFlow.scopes).map((scopeAndDescr, index) => html`
                   <div class="m-checkbox" style="display:inline-flex; align-items:center">
-                    <input type="checkbox" part="checkbox checkbox-auth-scope" id="${flowName}${index}" value="${scopeAndDescr[0]}">
-                    <label for="${flowName}${index}" style="margin-left:5px">
+                    <input type="checkbox" part="checkbox checkbox-auth-scope" class="scope-checkbox" id="${apiKeyId}${flowName}${index}" value="${scopeAndDescr[0]}">
+                    <label for="${apiKeyId}${flowName}${index}" style="margin-left:5px; cursor:pointer">
                       <span class="mono-font">${scopeAndDescr[0]}</span>
                         ${scopeAndDescr[0] !== scopeAndDescr[1] ? ` - ${scopeAndDescr[1] || ''}` : ''}
                     </label>
@@ -238,7 +261,18 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow)
             `
             : ''
           }
-          <div style="display:flex; max-height:28px;">
+          <div>
+            ${flowName === 'authorizationCode'
+              ? html`
+                <div style="margin: 16px 0 4px">
+                  <input type="checkbox" part="checkbox checkbox-auth-scope" id="${apiKeyId}-pkce" checked> 
+                  <label for="${apiKeyId}-pkce" style="margin:0 16px 0 4px; line-height:24px; cursor:pointer">
+                   Send Proof Key for Code Exchange (PKCE)
+                  </label>
+                </div>  
+              `
+              : ''
+            }
             <input type="text" part="textbox textbox-auth-client-id" value = "${clientId || ''}" placeholder="client-id" spellcheck="false" class="oauth-client-id">
             ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password'
               ? html`
@@ -250,7 +284,8 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow)
                       <option value = 'request-body'> Request Body </option> 
                     </select>`
                   : ''
-                }`
+                }
+`
               : html`<div style='width:5px'></div>`
             }
             ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit'
@@ -297,12 +332,12 @@ export default function securitySchemeTemplate() {
     </div>
     ${this.resolvedSpec.securitySchemes && this.resolvedSpec.securitySchemes.length > 0
       ? html`  
-        <table class='m-table' style = "width:100%">
+        <table class='m-table padded-12' style="width:100%;">
           ${this.resolvedSpec.securitySchemes.map((v) => html`
             <tr>  
               <td style="max-width:500px; overflow-wrap: break-word;">
-                <div style="min-height:24px"> 
-                  <span style="font-weight:bold">${v.typeDisplay}</span> 
+                <div style="line-height:28px; margin-bottom:5px;"> 
+                  <span style="font-weight:bold; font-size:var(--font-size-regular)">${v.typeDisplay}</span> 
                   ${v.finalKeyValue
                     ? html`
                       <span class='blue-text'>  ${v.finalKeyValue ? 'Key Applied' : ''} </span> 
@@ -318,15 +353,16 @@ export default function securitySchemeTemplate() {
                     </div>`
                   : ''
                 }
-              </td>
-              <td>
+
                 ${(v.type.toLowerCase() === 'apikey') || (v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'bearer')
                   ? html`
-                    ${v.type.toLowerCase() === 'apikey'
-                      ? html`Send <code>${v.name}</code> in <code>${v.in}</code> with the given value`
-                      : html`Send <code>Authorization</code> in <code>header</code> containing the word <code>Bearer</code> followed by a space and a Token String.`
-                    }
-                    <div style="display:flex;max-height:28px;">
+                    <div style="margin-bottom:5px">
+                      ${v.type.toLowerCase() === 'apikey'
+                        ? html`Send <code>${v.name}</code> in <code>${v.in}</code> with the given value`
+                        : html`Send <code>Authorization</code> in <code>header</code> containing the word <code>Bearer</code> followed by a space and a Token String.`
+                      }
+                    </div>  
+                    <div style="max-height:28px;">
                       ${v.in !== 'cookie'
                         ? html`
                           <input type = "text" value = "${v.value}" class="api-key-input" placeholder = "api-token" spellcheck = "false">
@@ -342,8 +378,10 @@ export default function securitySchemeTemplate() {
                 }
                 ${v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'basic'
                   ? html`
-                    Send <code>Authorization</code> in <code>header</code> containing the word <code>Basic</code> followed by a space and a base64 encoded string of <code>username:password</code>.
-                    <div style="display:flex; max-height:28px;">
+                    <div style="margin-bottom:5px">
+                      Send <code>Authorization</code> in <code>header</code> containing the word <code>Basic</code> followed by a space and a base64 encoded string of <code>username:password</code>.
+                    </div>  
+                    <div>
                       <input type="text" value = "${v.user}" placeholder="username" spellcheck="false" class="api-key-user" style="width:100px">
                       <input type="password" value = "${v.password}" placeholder="password" spellcheck="false" class="api-key-password" style = "width:100px; margin:0 5px;">
                       <button class="m-btn thin-border"
@@ -360,7 +398,7 @@ export default function securitySchemeTemplate() {
             ${v.type.toLowerCase() === 'oauth2'
               ? html`
                 <tr>
-                  <td colspan="2" style="border:none; padding-left:48px">
+                  <td style="border:none; padding-left:48px">
                     ${Object.keys(v.flows).map((f) => oAuthFlowTemplate.call(
                       this, f, v['x-client-id'], v['x-client-secret'], v.apiKeyId, v.flows[f],
                     ))} 
@@ -387,7 +425,7 @@ export function pathSecurityTemplate(pathSecurity) {
       let pathScopes = '';
       Object.keys(pSecurity).forEach((pathSecurityKey) => {
         const s = this.resolvedSpec.securitySchemes.find((ss) => ss.apiKeyId === pathSecurityKey);
-        if (!pathScopes) {
+        if (!pathScopes && Array.isArray(pSecurity[pathSecurityKey])) {
           pathScopes = pSecurity[pathSecurityKey].join(', ');
         }
         if (s) {
@@ -409,41 +447,56 @@ export function pathSecurityTemplate(pathSecurity) {
           </g>
         </svg>
           ${orSecurityKeys1.map((orSecurityItem1, i) => html`
-          ${i !== 0 ? html`<div style="padding:3px 4px;"> OR </div>` : ''}
-          <div class="tooltip">
-            <div style = "padding:2px 4px; white-space:nowrap; text-overflow:ellipsis;max-width:150px; overflow:hidden;">
-              <a part="anchor anchor-operation-security" href="#auth"> ${orSecurityItem1.securityTypes} </a>
-            </div>
-            <div class="tooltip-text" style="position:absolute; color: var(--fg); top:26px; right:0; border:1px solid var(--border-color);padding:2px 4px; display:block;">
-              ${orSecurityItem1.securityDefs.length > 1 ? html`<div>Requires <b>all</b> of the following </div>` : ''}
-              <div style="padding-left: 8px">
-                ${orSecurityItem1.securityDefs.map((andSecurityItem, j) => html`
-                  ${andSecurityItem.type === 'oauth2'
-                    ? html`
-                      <div>
-                        ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : html`Requires`}
-                        OAuth Token (${andSecurityItem.apiKeyId}) in <b>Authorization header</b>
-                        ${orSecurityItem1.pathScopes !== ''
-                          ? html`. Required scopes: <ul>${orSecurityItem1.pathScopes.split(',').map((scope) => html`<li>${scope}</li>`)}</ul>`
-                          : ''
-                        }
-                      </div>`
-                    : andSecurityItem.type === 'http'
-                      ? html`
-                        <div>
-                          ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : html`Requires`} 
-                          ${andSecurityItem.scheme === 'basic' ? 'Base 64 encoded username:password' : 'Bearer Token'} in <b>Authorization header</b>
-                        </div>`
-                      : html`
-                        <div>
-                          ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : html`Requires`} 
-                          Token in <b>${andSecurityItem.name} ${andSecurityItem.in}</b>
-                        </div>`
-                  }
-                `)}
-              </div>  
-            </div>
-          </div>  
+          
+          ${orSecurityItem1.securityTypes
+            ? html`
+              ${i !== 0 ? html`<div style="padding:3px 4px;"> OR </div>` : ''}
+              <div class="tooltip">
+                <div style = "padding:2px 4px; white-space:nowrap; text-overflow:ellipsis;max-width:150px; overflow:hidden;">
+                  <a part="anchor anchor-operation-security" href="#auth"> ${orSecurityItem1.securityTypes} </a>
+                </div>
+                <div class="tooltip-text" style="position:absolute; color: var(--fg); top:26px; right:0; border:1px solid var(--border-color);padding:2px 4px; display:block;">
+                  ${orSecurityItem1.securityDefs.length > 1 ? html`<div>Requires <b>all</b> of the following </div>` : ''}
+                  <div style="padding-left: 8px">
+                    ${orSecurityItem1.securityDefs.map((andSecurityItem, j) => html`
+                      ${andSecurityItem.type === 'oauth2'
+                        ? html`
+                          <div>
+                            ${orSecurityItem1.securityDefs.length > 1
+                              ? html`<b>${j + 1}.</b> &nbsp;`
+                              : 'Needs'
+                            }
+                            OAuth Token <span style="font-family:var(--font-mono); color:var(--primary-color);">${andSecurityItem.apiKeyId}</span> in <b>Authorization header</b>
+                            ${orSecurityItem1.pathScopes !== ''
+                              ? html`
+                                <div>
+                                  Required scopes: 
+                                  <ul style="font-family:var(--font-mono); margin-block: 4px; padding-inline:16px">
+                                    ${orSecurityItem1.pathScopes.split(',').map((scope) => html`<li>${scope}</li>`)}
+                                  </ul>
+                                </div>`
+                              : ''
+                            }
+                          </div>`
+                        : andSecurityItem.type === 'http'
+                          ? html`
+                            <div>
+                              ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : html`Requires`} 
+                              ${andSecurityItem.scheme === 'basic' ? 'Base 64 encoded username:password' : 'Bearer Token'} in <b>Authorization header</b>
+                            </div>`
+                          : html`
+                            <div>
+                              ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : html`Requires`} 
+                              Token in <b>${andSecurityItem.name} ${andSecurityItem.in}</b>
+                            </div>`
+                      }
+                    `)}
+                  </div>  
+                </div>
+              </div>
+            `
+            : ''
+          }
         `)
         }
       </div>

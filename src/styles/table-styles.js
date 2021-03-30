@@ -21,6 +21,11 @@ export default css`
   vertical-align: top;
 }
 
+.m-table.padded-12 td, 
+.m-table.padded-12 th {
+  padding: 12px;
+}
+
 .m-table td:not([align]), 
 .m-table th:not([align]) {
   text-align: left;
