@@ -30,6 +30,7 @@
   "mode": "production",
   "dependencies": {
     "@apitools/openapi-parser": "^0.0.7",
+    "base64-arraybuffer": "^0.2.0",
     "lit-element": "2.4.0",
     "lit-html": "1.2.1",
     "marked": "^2.0.1",
@@ -45,8 +46,8 @@
     "lint-fix": "./node_modules/eslint/bin/eslint.js --fix ./src/**"
   },
   "devDependencies": {
-    "@babel/core": "^7.13.13",
-    "@babel/eslint-parser": "^7.13.10",
+    "@babel/core": "^7.13.14",
+    "@babel/eslint-parser": "^7.13.14",
     "@babel/preset-env": "^7.13.12",
     "babel-loader": "^8.2.2",
     "babel-plugin-template-html-minifier": "^4.1.0",
@@ -66,7 +67,7 @@
     "terser-webpack-plugin": "^5.1.1",
     "webpack": "^5.28.0",
     "webpack-bundle-analyzer": "^4.4.0",
-    "webpack-cli": "^4.5.0",
+    "webpack-cli": "^4.6.0",
     "webpack-dev-server": "^3.11.2"
   },
   "engines": {
