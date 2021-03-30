@@ -138,7 +138,9 @@ export function getSampleValueByType(schemaObj) {
     return schemaObj.$ref;
   }
   const typeValue = Array.isArray(schemaObj.type) ? schemaObj.type[0] : schemaObj.type;
-
+  if (!typeValue) {
+    return '?';
+  }
   if (typeValue.match(/^integer|^number/g)) {
     const multipleOf = Number.isNaN(Number(schemaObj.multipleOf)) ? undefined : Number(schemaObj.multipleOf);
     const maximum = Number.isNaN(Number(schemaObj.maximum)) ? undefined : Number(schemaObj.maximum);
