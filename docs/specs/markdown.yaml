@@ -74,8 +74,8 @@ paths:
           This box I designed using raw HTML inside the markdown
         </div>  
         <br>
-        <div style="background-color: #F0F0F0;padding: 12px 0px 12px 12px;border-left: 5px solid orangered;">
-          <b style="color:orangered" >TIP</b>  Here is another one, done using HTML inside markdown with two different colors to make it appear like a TIP
+        <div style="color:#bbb; background-color:#444; padding: 12px 0px 12px 12px;border-left: 5px solid #F06560;">
+          <b style="color:#F06560">TIP</b>  Here is another one, done using HTML inside markdown with two different colors to make it appear like a TIP
         </div>  
         <br>
 

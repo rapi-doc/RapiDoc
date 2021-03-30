@@ -50,8 +50,7 @@ components:
   securitySchemes:
     exampleOauth2Flow:
       type: oauth2
-      description: >-
-        You authorize requests, by providing client credentials.
+      description: You authorize requests, by providing client credentials.
       x-client-id: my-client-id
       x-client-secret: my-client-secret
       flows:

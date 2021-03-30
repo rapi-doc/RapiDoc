@@ -1,0 +1,102 @@
+openapi: 3.0.1
+info:
+  title: Identity 4 Server
+  description: Works only on `http://localhost...`
+  version: "1.0"
+servers:
+- url:  https://demo.identityserver.io
+paths:
+  /api/test:
+    get:
+      summary: Test API
+      description: |
+        This API needs an oAuth token with `api` scope. This information can also be found when you hover over Authentication info 
+        provided besides the lock icon in the top-right section of this operation. 
+        <br/>
+        Every operation which has security requiremnts will contain this icon and the details can be checked by hovering above it
+      security:
+        - short-lived-oauth:
+          - api
+        - long-lived-oauth:
+          - api
+        - client-credential-oauth:
+          - api
+  /connect/userinfo:
+    get:
+      summary: Get User Info
+      description: |
+        This API needs an oAuth token with following one or more scopes
+          - `openid`
+          - `email`
+          - `profile`
+        
+        based on the scopes in the oAuth token, it will change the response shape. 
+        Give it a try by aquiring token with various scope combinations and check out the responses  
+      security:
+        - short-lived-oauth:
+          - openid
+          - email
+          - profile
+        - long-lived-oauth:
+          - openid
+          - email
+          - profile
+        - client-credential-oauth:
+          - openid
+          - email
+          - profile
+        - basic: []
+        - api-key1: []
+
+components:
+  securitySchemes:
+    short-lived-oauth:
+      type: oauth2
+      description: Provides an OAuth token thats valid for short duration ~75 seconds
+      x-client-id: interactive.confidential.short
+      x-client-secret: secret
+      flows:
+        authorizationCode:
+          authorizationUrl: https://demo.identityserver.io/connect/authorize
+          tokenUrl: https://demo.identityserver.io/connect/token
+          scopes:
+            openid:  OpenID
+            email: Email 
+            profile: Profile 
+            api: API 
+    long-lived-oauth:
+      type: oauth2
+      description: Provides an OAuth token thats valid for long durations
+      x-client-id: interactive.confidential
+      x-client-secret: secret
+      flows:
+        authorizationCode:
+          authorizationUrl: https://demo.identityserver.io/connect/authorize
+          tokenUrl: https://demo.identityserver.io/connect/token
+          scopes:
+            openid:  OpenID
+            email: Email 
+            profile: Profile 
+            api: API 
+    client-credential-oauth:
+      type: oauth2
+      description: Provides an OAuth token thats valid for long duration
+      x-client-id: m2m
+      x-client-secret: secret
+      flows:
+        clientCredentials:
+          tokenUrl: https://demo.identityserver.io/connect/token
+          scopes:
+            openid:  OpenID
+            email: Email 
+            profile: Profile 
+            api: API 
+    basic:
+      type: http
+      description: |
+        some kind of `markdown description`
+      scheme: basic
+    api_key1:
+      type: apiKey
+      name: Authorization
+      in: header
