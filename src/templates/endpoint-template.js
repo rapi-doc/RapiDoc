@@ -46,7 +46,7 @@ function endpointHeadTemplate(path) {
     <div class="method ${path.method} ${path.deprecated ? 'deprecated' : ''}"> ${path.method} </div> 
     <div class="path ${path.deprecated ? 'deprecated' : ''}"> 
       ${path.path} 
-      ${path.isWebhook ? html`<span style="color:var(--primary-color)"> (Webhook) </span>` : ''}
+      ${path.isWebhook ? html`<span style="font-family: var(--font-regular); font-size: var(--); font-size: var(--font-size-small); color:var(--primary-color); margin-left: 16px"> Webhook</span>` : ''}
     </div>
     ${path.deprecated
       ? html`

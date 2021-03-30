@@ -193,11 +193,11 @@ export default function navbarTemplate() {
                 }}'
               >
                 <span style = "${p.deprecated ? 'filter:opacity(0.5)' : ''}">
+                  ${p.isWebhook ? html`<span style="font-weight:bold; margin-right:8px; font-size: calc(var(--font-size-small) - 2px)">WEBHOOK</span>` : ''}
                   ${this.usePathInNavBar === 'true'
                     ? html`<span class='mono-font'>${p.method.toUpperCase()} ${p.path}</span>`
                     : p.summary || p.shortSummary
                   }
-                  ${p.isWebhook ? '(Webhook)' : ''}
                 </span>
               </div>`)}
             </div>

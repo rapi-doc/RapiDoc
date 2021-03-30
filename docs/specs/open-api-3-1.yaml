@@ -15,8 +15,6 @@ info:
 paths:
   /pet/findByTags:
     get:
-      tags:
-        - pet
       summary: Finds Pets by tags
       description: >-
         Muliple tags can be provided with comma seperated strings. Use tag1,
