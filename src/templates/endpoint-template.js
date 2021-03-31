@@ -89,8 +89,9 @@ function endpointBodyTemplate(path) {
       ${codeSampleTabPanel}
     </div>  
     <div class='req-resp-container'> 
-      <api-request 
-        class="request"  
+      <api-request
+        class = "${this.renderStyle}-mode"
+        style = "width:100%;"
         method = "${path.method}", 
         path = "${path.path}" 
         .parameters = "${path.parameters}"
@@ -113,8 +114,9 @@ function endpointBodyTemplate(path) {
       > 
         ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
       </api-request>
-      <api-response  
-        class="response" 
+      <api-response
+        class = "${this.renderStyle}-mode"
+        style = "width:100%;"
         .responses="${path.responses}"
         active-schema-tab = "${this.defaultSchemaTab}" 
         render-style="${this.renderStyle}" 

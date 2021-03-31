@@ -20,7 +20,9 @@ export default function callbackTemplate(callbacks) {
                     <span style="line-height:20px; vertical-align: baseline;">${pathObj[0]} </span>
                   </div>  
                   <div class='expanded-req-resp-container'>
-                    <api-request  class="request-panel"
+                    <api-request
+                      class = "${this.renderStyle}-mode callback"  
+                      style = "width:100%;"
                       callback = "true"
                       method = "${method[0] || ''}", 
                       path = "${pathObj[0] || ''}" 
@@ -40,6 +42,8 @@ export default function callbackTemplate(callbacks) {
                     > </api-request>
 
                     <api-response
+                      style = "width:100%;"
+                      class = "${this.renderStyle}-mode"
                       callback = "true"
                       .responses="${method[1]?.responses}"
                       render-style="${this.renderStyle}"

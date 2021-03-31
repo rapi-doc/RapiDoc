@@ -56,7 +56,9 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
     ${pathSecurityTemplate.call(this, path.security)}
     ${codeSampleTabPanel}
     <div class='expanded-req-resp-container'>
-      <api-request  class="request-panel"
+      <api-request
+        class = "${this.renderStyle}-mode"
+        style = "width:100%;"
         method = "${path.method}"
         path = "${path.path}"
         .parameters = "${path.parameters}"
@@ -81,7 +83,8 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
       ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
 
       <api-response
-        class = 'response-panel'
+        class = "${this.renderStyle}-mode"
+        style = "width:100%;"
         .responses = "${path.responses}"
         render-style = "${this.renderStyle}"
         schema-style = "${this.schemaStyle}"

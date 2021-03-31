@@ -138,33 +138,33 @@ export default css`
   flex-direction: column;
   border-top:1px solid var(--light-border-color);
 }
-.request,
-.response{
+api-request.view-mode,
+api-response.view-mode {
   flex:1; 
   min-height:100px;
   padding:16px 8px;
   overflow:hidden;
 }
-.request{
+api-request.view-mode {
   border-width:0 0 1px 0;
   border-style:dashed;
 }
 
-.head .request,
-.patch .request,
-.options .request { 
+.head api-request.view-mode,
+.patch api-request.view-mode,
+.options api-request.view-mode { 
   border-color:var(--yellow); 
 }
-.put .request{ 
+.put api-request.view-mode { 
   border-color:var(--orange); 
 }
-.post .request{ 
+.post api-request.view-mode { 
   border-color:var(--green); 
 }
-.get .request{ 
+.get api-request.view-mode{ 
   border-color:var(--blue); 
 }
-.delete .request{ 
+.delete api-request.view-mode{ 
   border-color:var(--red); 
 }
 
@@ -184,13 +184,13 @@ export default css`
   .req-resp-container{
     flex-direction: var(--layout, row);
   }
-  .request{
+  api-response.view-mode {
+    padding:16px;
+  }
+  api-request.view-mode {
     border-width:0 1px 0 0;
     padding:16px;
   }
-  .response{
-    padding:16px;
-  } 
   .summary{
     padding:8px 16px;
   }
