@@ -470,10 +470,11 @@ export function pathSecurityTemplate(pathSecurity) {
                             ${orSecurityItem1.pathScopes !== ''
                               ? html`
                                 <div>
-                                  Required scopes: 
-                                  <ul style="font-family:var(--font-mono); margin-block: 4px; padding-inline:16px">
-                                    ${orSecurityItem1.pathScopes.split(',').map((scope) => html`<li>${scope}</li>`)}
-                                  </ul>
+                                  <b>Required scopes:</b> 
+                                  <br/> 
+                                  <div style="margin-left:8px">  
+                                    ${orSecurityItem1.pathScopes.split(',').map((scope, cnt) => html`${cnt === 0 ? '' : '┃'}<span>${scope}</span>`)}
+                                  </div>  
                                 </div>`
                               : ''
                             }

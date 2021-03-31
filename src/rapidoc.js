@@ -294,8 +294,12 @@ export default class RapiDoc extends LitElement {
       }
       .tooltip-text {
         color: var(--fg2);
+        max-width: 400px;
+        position: absolute;
+        z-index:1;
         background-color: var(--bg2);
         visibility: hidden;
+
         overflow-wrap: break-word;
       }
       .tooltip:hover {
@@ -308,7 +312,6 @@ export default class RapiDoc extends LitElement {
 
       .tooltip:hover .tooltip-text {
         visibility: visible;
-        opacity: 1;
       }
 
       @keyframes spin {
