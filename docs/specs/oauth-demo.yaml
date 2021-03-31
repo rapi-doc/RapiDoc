@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
-  title: Identity 4 Server
-  description: Works only on `http://localhost...`
+  title: Identity Server
+  description: OAuth Demo using <a href="https://demo.identityserver.io" target="_blank">IdentityServer</a>
   version: "1.0"
 servers:
 - url:  https://demo.identityserver.io
@@ -55,7 +55,6 @@ paths:
         '200':
           description: Successful operation
 
-
 components:
   securitySchemes:
     short-lived-oauth:
@@ -68,7 +67,7 @@ components:
           authorizationUrl: https://demo.identityserver.io/connect/authorize
           tokenUrl: https://demo.identityserver.io/connect/token
           scopes:
-            openid:  OpenID
+            openid: OpenID
             email: Email 
             profile: Profile 
             api: API 
@@ -82,7 +81,7 @@ components:
           authorizationUrl: https://demo.identityserver.io/connect/authorize
           tokenUrl: https://demo.identityserver.io/connect/token
           scopes:
-            openid:  OpenID
+            openid: OpenID
             email: Email 
             profile: Profile 
             api: API 
@@ -95,7 +94,7 @@ components:
         clientCredentials:
           tokenUrl: https://demo.identityserver.io/connect/token
           scopes:
-            openid:  OpenID
+            openid: OpenID
             email: Email 
             profile: Profile 
             api: API 
