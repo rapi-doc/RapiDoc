@@ -397,9 +397,9 @@ export default class ApiRequest extends LitElement {
     this.selectedRequestBodyExample = e.target.value;
     const exampleDropdownEl = e.target;
     window.setTimeout((selectEl) => {
-      const exampleTextareaEl = selectEl.closest('.example-panel').querySelector('.request-body-param');
+      const readOnlyExampleEl = selectEl.closest('.example-panel').querySelector('.request-body-param');
       const userInputExampleTextareaEl = selectEl.closest('.example-panel').querySelector('.request-body-param-user-input');
-      userInputExampleTextareaEl.value = exampleTextareaEl.value;
+      userInputExampleTextareaEl.value = readOnlyExampleEl.innerText;
     }, 0, exampleDropdownEl);
   }
 
@@ -408,10 +408,10 @@ export default class ApiRequest extends LitElement {
     const mimeDropdownEl = e.target;
     this.selectedRequestBodyExample = '';
     window.setTimeout((selectEl) => {
-      const exampleTextareaEl = selectEl.closest('.request-body-container').querySelector('.request-body-param');
-      if (exampleTextareaEl) {
+      const readOnlyExampleEl = selectEl.closest('.request-body-container').querySelector('.request-body-param');
+      if (readOnlyExampleEl) {
         const userInputExampleTextareaEl = selectEl.closest('.request-body-container').querySelector('.request-body-param-user-input');
-        userInputExampleTextareaEl.value = exampleTextareaEl.value;
+        userInputExampleTextareaEl.value = readOnlyExampleEl.innerText;
       }
     }, 0, mimeDropdownEl);
   }
@@ -496,6 +496,14 @@ export default class ApiRequest extends LitElement {
                 <div class="example ${v.exampleId === this.selectedRequestBodyExample ? 'example-selected' : ''}" data-example = '${v.exampleId}'>
                   ${v.exampleSummary && v.exampleSummary.length > 80 ? html`<div style="padding: 4px 0"> ${v.exampleSummary} </div>` : ''}
                   ${v.exampleDescription ? html`<div class="m-markdown-small" style="padding: 4px 0"> ${unsafeHTML(marked(v.exampleDescription || ''))} </div>` : ''}
+                  <!-- This pre(hidden) is to store the original example value, this will remain unchanged when users switches from one example to another, its is used to populate the editable textarea -->
+                  <pre 
+                    class = "textarea is-hidden request-body-param ${reqBody.mimeType.substring(reqBody.mimeType.indexOf('/') + 1)}" 
+                    spellcheck = "false"
+                    data-ptype = "${reqBody.mimeType}" 
+                    style="width:100%; resize:vertical; display:none"
+                  >${(v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, null, 2))}</pre>
+
                   <!-- this textarea is for user to edit the example -->
                   <textarea 
                     class = "textarea request-body-param-user-input"
@@ -509,13 +517,7 @@ export default class ApiRequest extends LitElement {
                       ? (v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, null, 2))
                       : ''
                     }</textarea>
-                  <!-- This textarea(hidden) is to store the original example value, this will remain unchanged when users switches from one example to another, its is used to populate the editable textarea -->
-                  <textarea 
-                    class = "textarea is-hidden request-body-param ${reqBody.mimeType.substring(reqBody.mimeType.indexOf('/') + 1)}" 
-                    spellcheck = "false"
-                    data-ptype = "${reqBody.mimeType}" 
-                    style="width:100%; resize:vertical; display:none"
-                  >${(v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, null, 2))}</textarea>
+
                 </div>  
               `)}
 
@@ -1161,13 +1163,13 @@ export default class ApiRequest extends LitElement {
         fetchOptions.body = formDataParams;
       } else if ((RegExp('^audio/|^image/|^video/|^font/|tar$|zip$|7z$|rtf$|msword$|excel$|/pdf$|/octet-stream$').test(requestBodyType))) {
         const bodyParamFileEl = requestPanelEl.querySelector('.request-body-param-file');
-        if (bodyParamFileEl && bodyParamFileEl.files[0]) {
+        if (bodyParamFileEl?.files[0]) {
           fetchOptions.body = bodyParamFileEl.files[0];
           curlData = ` --data-binary @${bodyParamFileEl.files[0].name} \\\n`;
         }
       } else if (requestBodyType.includes('json') || requestBodyType.includes('xml') || requestBodyType.includes('text')) {
         const exampleTextAreaEl = requestPanelEl.querySelector('.request-body-param-user-input');
-        if (exampleTextAreaEl && exampleTextAreaEl.value) {
+        if (exampleTextAreaEl?.value) {
           fetchOptions.body = exampleTextAreaEl.value;
           // curlData = ` -d ${JSON.stringify(exampleTextAreaEl.value.replace(/(\r\n|\n|\r)/gm, '')).replace(/\\"/g, "'")} \\ \n`;
           try {
