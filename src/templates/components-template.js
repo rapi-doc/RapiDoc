@@ -23,6 +23,7 @@ function componentBodyTemplate(sComponent) {
 }
 
 export default function componentsTemplate() {
+  if (!this.resolvedSpec) { return ''; }
   return html`
   ${this.resolvedSpec.components.map((component) => html`
     <div id="cmp--${component.name.toLowerCase()}" class='regular-font section-gap--read-mode observe-me' style="border-top:1px solid var(--primary-color);">

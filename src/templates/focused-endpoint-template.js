@@ -55,7 +55,7 @@ function focusedTagBodyTemplate(tag) {
 }
 
 export default function focusedEndpointTemplate() {
-  if (!this.focusedElementId) {
+  if (!this.focusedElementId || !this.resolvedSpec) {
     return;
   }
   const focusElId = this.focusedElementId;

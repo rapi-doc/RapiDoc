@@ -133,6 +133,7 @@ function endpointBodyTemplate(path) {
 }
 
 export default function endpointTemplate() {
+  if (!this.resolvedSpec) { return ''; }
   return html`
     <div style="display:flex; justify-content:flex-end;"> 
       <span @click="${(e) => onExpandCollapseAll(e, 'expand-all')}" style="color:var(--primary-color); cursor:pointer;">

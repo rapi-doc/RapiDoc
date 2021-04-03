@@ -313,6 +313,7 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow)
 }
 
 export default function securitySchemeTemplate() {
+  if (!this.resolvedSpec) { return ''; }
   const providedApiKeys = this.resolvedSpec.securitySchemes?.filter((v) => (v.finalKeyValue));
   if (!providedApiKeys) {
     return;

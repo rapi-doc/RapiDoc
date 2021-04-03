@@ -102,6 +102,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
 }
 
 export default function expandedEndpointTemplate() {
+  if (!this.resolvedSpec) { return ''; }
   return html`
   ${this.resolvedSpec.tags.map((tag) => html`
     <section id="${tag.elementId}" part="section-tag" class="regular-font section-gap--read-mode observe-me" style="border-top:1px solid var(--primary-color);">
