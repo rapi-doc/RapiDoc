@@ -645,10 +645,14 @@ export default class RapiDoc extends LitElement {
     }
     this.matchPaths = '';
     try {
-      this.resolvedSpec = null;
+      this.resolvedSpec = {
+        specLoadError: false,
+        isSpecLoading: true,
+        tags: [],
+      };
       this.loading = true;
       this.loadFailed = false;
-      // this.requestUpdate();
+      this.requestUpdate();
       const spec = await ProcessSpec.call(
         this,
         specUrl,

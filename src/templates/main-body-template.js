@@ -34,10 +34,24 @@ export default function mainBodyTemplate() {
       ${this.theme === 'dark' ? SetTheme.call(this, 'dark', newTheme) : SetTheme.call(this, 'light', newTheme)}
       <!-- Header -->
       ${headerTemplate.call(this)}
-      <div style="margin:24px">
-        <h1 style="color: var(--red)"> ${this.resolvedSpec.info.title} </h1>
-        <div style="font-family:var(--font-mono)"> ${this.resolvedSpec.info.description} </div>
-      </div>
+      <main class="main-content regular-font" part="section-main-content">
+        <slot></slot>
+        <div style="margin:24px; text-align: center;">
+          <h1 style="color: var(--red)"> ${this.resolvedSpec.info.title} </h1>
+          <div style="font-family:var(--font-mono)"> ${this.resolvedSpec.info.description} </div>
+        </div>
+      </main>  
+    `;
+  }
+  if (this.resolvedSpec.isSpecLoading) {
+    return html`
+      ${this.theme === 'dark' ? SetTheme.call(this, 'dark', newTheme) : SetTheme.call(this, 'light', newTheme)}
+      <main class="main-content regular-font" part="section-main-content">
+        <slot></slot>
+        <div class="main-content-inner--${this.renderStyle}-mode">
+          <div class="loader"></div>
+        </div>
+      </main>  
     `;
   }
 

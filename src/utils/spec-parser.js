@@ -19,9 +19,10 @@ export default async function ProcessSpec(specUrl, generateMissingTags = false, 
       console.info('RapiDoc: %c There was an issue while parsing the spec %o ', 'color:orangered', specMeta); // eslint-disable-line no-console
       return {
         specLoadError: true,
+        isSpecLoading: false,
         info: {
           title: 'Error loading the spec',
-          description: specMeta.response?.url ? `${specMeta.response?.url} ┃ ${specMeta.response?.status} - ${specMeta.response?.statusText}` : 'Unable to load the Spec',
+          description: specMeta.response?.url ? `${specMeta.response?.url} ┃ ${specMeta.response?.status}  ${specMeta.response?.statusText}` : 'Unable to load the Spec',
           version: ' ',
         },
         tags: [],
@@ -124,6 +125,7 @@ export default async function ProcessSpec(specUrl, generateMissingTags = false, 
   servers = jsonParsedSpec.servers;
   const parsedSpec = {
     specLoadError: false,
+    isSpecLoading: false,
     info: jsonParsedSpec.info,
     infoDescriptionHeaders,
     tags,
