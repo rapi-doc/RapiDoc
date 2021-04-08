@@ -29,6 +29,18 @@ export default function mainBodyTemplate() {
     navAccentColor: isValidHexColor(this.navAccentColor) ? this.navAccentColor : '',
   };
   /* eslint-disable indent */
+  if (this.resolvedSpec.specLoadError) {
+    return html`
+      ${this.theme === 'dark' ? SetTheme.call(this, 'dark', newTheme) : SetTheme.call(this, 'light', newTheme)}
+      <!-- Header -->
+      ${headerTemplate.call(this)}
+      <div style="margin:24px">
+        <h1 style="color: var(--red)"> ${this.resolvedSpec.info.title} </h1>
+        <div style="font-family:var(--font-mono)"> ${this.resolvedSpec.info.description} </div>
+      </div>
+    `;
+  }
+
   return html`
     ${this.theme === 'dark' ? SetTheme.call(this, 'dark', newTheme) : SetTheme.call(this, 'light', newTheme)}
 

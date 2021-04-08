@@ -661,9 +661,6 @@ export default class RapiDoc extends LitElement {
         this.getAttribute('server-url'),
       );
       this.loading = false;
-      if (spec === undefined || spec === null) {
-        console.error('Unable to resolve the API spec. '); // eslint-disable-line no-console
-      }
       this.afterSpecParsedAndValidated(spec);
     } catch (err) {
       this.loading = false;

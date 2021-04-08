@@ -12,8 +12,21 @@ export default async function ProcessSpec(specUrl, generateMissingTags = false, 
     } else {
       specMeta = await OpenApiParser.resolve({ spec: specUrl }); // Swagger({ spec: specUrl });
     }
-    jsonParsedSpec = specMeta.spec;
-    this.dispatchEvent(new CustomEvent('before-render', { detail: { spec: jsonParsedSpec } }));
+    if (specMeta.spec) {
+      jsonParsedSpec = specMeta.spec;
+      this.dispatchEvent(new CustomEvent('before-render', { detail: { spec: jsonParsedSpec } }));
+    } else {
+      console.info('RapiDoc: %c There was an issue while parsing the spec %o ', 'color:orangered', specMeta); // eslint-disable-line no-console
+      return {
+        specLoadError: true,
+        info: {
+          title: 'Error loading the spec',
+          description: specMeta.response?.url ? `${specMeta.response?.url} ┃ ${specMeta.response?.status} - ${specMeta.response?.statusText}` : 'Unable to load the Spec',
+          version: ' ',
+        },
+        tags: [],
+      };
+    }
   } catch (err) {
     console.info('RapiDoc: %c There was an issue while parsing the spec %o ', 'color:orangered', err); // eslint-disable-line no-console
   }
@@ -110,11 +123,11 @@ export default async function ProcessSpec(specUrl, generateMissingTags = false, 
   }
   servers = jsonParsedSpec.servers;
   const parsedSpec = {
+    specLoadError: false,
     info: jsonParsedSpec.info,
     infoDescriptionHeaders,
     tags,
     components,
-    // pathGroups,
     externalDocs: jsonParsedSpec.externalDocs,
     securitySchemes,
     servers,

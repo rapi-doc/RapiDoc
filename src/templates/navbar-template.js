@@ -37,6 +37,15 @@ function onExpandCollapseAll(e, action = 'expand-all') {
 
 /* eslint-disable indent */
 export default function navbarTemplate() {
+  if (!this.resolvedSpec || this.resolvedSpec.specLoadError) {
+    return html`
+      <nav class='nav-bar' part="section-navbar">
+        <div style="padding:16px 30px 0 16px;">
+          <slot name="nav-logo" class="logo"></slot>
+        </div>
+      </nav>
+    `;
+  }
   return html`
   <nav class='nav-bar ${this.renderStyle}' part="section-navbar">
     <div style="padding:16px 30px 0 16px;">
