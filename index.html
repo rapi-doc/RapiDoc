@@ -41,11 +41,13 @@
     response-area-height = "900px"
   > </rapi-doc>
 -->
+<!--
   <rapi-doc 
     id = "thedoc" 
-    spec-url="https://petstore.swagger.io/v2/swagger.json"
+    spec-url="https://petstore.swagger.io/v2/swagger.json1"
     render-style = "read"
     load-fonts = "false"
+    show-header = "false"
   > 
     <div slot="nav-logo" style="width:100%; display: flex;justify-content: center;">
       <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('schema-style', 'table')" >Table</button>
@@ -55,64 +57,139 @@
       <b style="color:red"> Hello world</b>
     </div>
   </rapi-doc>
-<!-- 
+-->  
   <rapi-doc id = "thedoc" ></rapi-doc>
   <script>
     document.addEventListener('DOMContentLoaded', (event) => {
       let docEl = document.getElementById("thedoc");
       let strSpec = `
       {
-        "swagger": "2.0",
-        "info": {
-          "description": "Sample to test"
-        },
-        "paths": {
-          "/pets": {
-            "get": {
-              "description": "Returns all pets from the system that the user has access to",
-              "produces": [ "application/json"],
-              "responses": {
-                "200": {
-                  "description": "A list of pets.",
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/definitions/Pet"
-                    }
-                  }
+  "openapi": "3.0.1",
+  "info": {
+    "title": "My API",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/Todo/complicated": {
+      "get": {
+        "tags": [
+          "Todo"
+        ],
+        "summary": "Complicated action.",
+        "responses": {
+          "200": {
+            "description": "Returns a complicated class.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComplicatedClass"
                 }
               }
             }
           }
-        },
-        "definitions": {
-          "Pet": {
-            "type": "object",
-            "required": [
-              "id",
-              "name"
-            ],
-            "properties": {
-              "id": {
-                "type": "integer",
-                "format": "int64"
-              },
-              "name": {
-                "type": "string"
-              },
-              "tag": {
-                "type": "string"
-              }
-            }
-          }
         }
-      }  
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Tag": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "description": "Tag for TodoItem.",
+        "format": "int32"
+      },
+      "InnerEnum": {
+        "enum": [
+          1
+        ],
+        "type": "integer",
+        "description": "Inner enum.",
+        "format": "int32"
+      },
+      "SecondInnerEnum": {
+        "enum": [
+          0
+        ],
+        "type": "integer",
+        "description": "Second inner enum.",
+        "format": "int32"
+      },
+      "SecondInnerEnumSecondInnerClass": {
+        "type": "object",
+        "properties": {
+          "innerEnum": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SecondInnerEnum"
+              }
+            ],
+            "description": "Second inner enum."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Second inner class."
+      },
+      "InnerClass": {
+        "type": "object",
+        "properties": {
+          "innerEnum": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InnerEnum"
+            },
+            "description": "List of inner enums.",
+            "nullable": true
+          },
+          "secondInnerClass": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SecondInnerEnumSecondInnerClass"
+              }
+            ],
+            "description": "Second inner class.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Inner class."
+      },
+      "ComplicatedClass": {
+        "type": "object",
+        "properties": {
+          "tag": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Tag"
+              }
+            ],
+            "description": "Tag."
+          },
+          "innerClass": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/InnerClass"
+              }
+            ],
+            "description": "Inner class.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Complicated class for testing enums."
+      }
+    }
+  }
+}
       `;
       let objSpec = JSON.parse(strSpec);
       docEl.loadSpec(objSpec);
     })
   </script>
--->
 </body>
 
 </html>
