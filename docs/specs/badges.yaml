@@ -1,0 +1,53 @@
+openapi: 3.0.0
+info:
+  title: End-Point Badges (Vendor Extension)
+  version: 1.0.0
+  description: |
+    `x-badges` is for anotating end-points by assigning badges
+
+    Below OpenAPI spec shows how to use this extension 
+
+    ```yaml
+    openapi: 3.0.0
+    info:
+      title: End-Point Badges
+      version: 1.0.0
+    paths:
+      /badge-1-path:
+        get:
+          summary: ...
+          description: ...
+          x-badges:    # <<< Extension
+            - color: red  # <<< Allowed values (red, green, orange, blue, primary-color)
+              label: 'Will be Deprecated'
+            - color: blue
+              label: 'Popular: false'
+        ...
+        ...
+    ```
+paths:
+  /badge-1-path:
+    get:
+      summary: Endpoint with red and blue badge
+      x-badges:
+        - color: red
+          label: 'Beta'
+        - color: blue
+          label: 'Popular: true'
+  /badge-2-path:
+    get:
+      summary: Endpoint with primary-color
+      x-badges:
+        - color: primary-color
+          label: 'CORE API'
+  /badge-3-path:
+    get:
+      summary: Endpoint with green and orange badge
+      x-badges:
+        - color: green
+          label: 'Easy: Yes'
+        - color: orange
+          label: 'Slow'
+  /no-badges-path:
+    get:
+      summary: Endpoint with No badges
