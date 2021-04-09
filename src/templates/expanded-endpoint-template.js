@@ -40,6 +40,17 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
     ${(this.renderStyle === 'focused' && tagName !== 'General ⦂') ? html`<h3 class="upper" style="font-weight:bold"> ${tagName} </h3>` : ''}
     ${path.deprecated ? html`<div class="bold-text red-text"> DEPRECATED </div>` : ''}
     ${html`
+      ${path.xBadges && path.xBadges?.length > 0
+        ? html`
+          <div style="display:flex; flex-wrap:wrap; margin-bottom: -24px; font-size: var(--font-size-small);">
+            ${path.xBadges.map((v) => (
+                html`<span style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`
+              ))
+            }
+          </div>
+          `
+        : ''
+      }
       <h2> ${path.shortSummary || `${path.method.toUpperCase()} ${path.path}`}</h2>
       ${path.isWebhook
         ? html`<span style="color:var(--primary-color); font-weight:bold; font-size: var(--font-size-regular);"> WEBHOOK </span>`

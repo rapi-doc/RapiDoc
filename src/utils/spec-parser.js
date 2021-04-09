@@ -334,6 +334,7 @@ function groupByTags(openApiSpec, generateMissingTags = false, sortTags = false,
             security: pathOrHookObj.security,
             // commonSummary: commonPathProp.summary,
             // commonDescription: commonPathProp.description,
+            xBadges: pathOrHookObj['x-badges'] || undefined,
             xCodeSamples: pathOrHookObj['x-codeSamples'] || pathOrHookObj['x-code-samples'] || '',
           });
         });// End of tag path create
