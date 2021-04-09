@@ -321,8 +321,9 @@ export default class ApiRequest extends LitElement {
                       data-param-serialize-style = "${paramStyle}"
                       data-param-serialize-explode = "${paramExplode}"
                       spellcheck = "false"
+                      .textContent = "${this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : ''}"
                       style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
-                    >${this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : ''}</textarea>`
+                    ></textarea>`
                   : html`
                     <input type="${paramSchema.format === 'password' ? 'password' : 'text'}" spellcheck="false" style="width:100%" 
                       class="request-param"
@@ -513,10 +514,9 @@ export default class ApiRequest extends LitElement {
                     data-example = "${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, null, 2)}"
                     data-example-format = "${v.exampleFormat}"
                     style="width:100%; resize:vertical;"
-                  >${this.fillRequestFieldsWithExample === 'true'
-                      ? (v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, null, 2))
-                      : ''
-                    }</textarea>
+                    .textContent = "${this.fillRequestFieldsWithExample === 'true' ? (v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, null, 2)) : ''}"
+                  >
+                  </textarea>
 
                 </div>  
               `)}
@@ -669,8 +669,9 @@ export default class ApiRequest extends LitElement {
             data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
             data-pname = "${fieldName}"
             data-example = "${formdataPartExample[0]?.exampleValue || ''}"
+            .textContent = "${this.fillRequestFieldsWithExample === 'true' ? formdataPartExample[0].exampleValue : ''}"
             spellcheck = "false"
-          >${this.fillRequestFieldsWithExample === 'true' ? formdataPartExample[0].exampleValue : ''}</textarea>
+          ></textarea>
           <!-- This textarea(hidden) is to store the original example value, in focused mode on navbar change it is used to update the example text -->
           <textarea data-pname = "hidden-${fieldName}" data-ptype = "${mimeType.includes('form-urlencode') ? 'hidden-form-urlencode' : 'hidden-form-data'}" class="is-hidden" style="display:none">${formdataPartExample[0].exampleValue}</textarea>
         </div>`
@@ -820,9 +821,10 @@ export default class ApiRequest extends LitElement {
         part = "textarea textarea-param"
         spellcheck = "false"
         data-pname="dynamic-form" 
-        data-ptype="${mimeType}"  
+        data-ptype="${mimeType}"
+        .textContent = "${exampleValue}"
         style="width:100%"
-      >${exampleValue}</textarea>
+      ></textarea>
       ${schema.description ? html`<span class="m-markdown-small">${unsafeHTML(marked(schema.description))}</span>` : ''}
     `;
   }
