@@ -44,7 +44,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
         ? html`
           <div style="display:flex; flex-wrap:wrap; margin-bottom: -24px; font-size: var(--font-size-small);">
             ${path.xBadges.map((v) => (
-                html`<span style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`
+                html`<span style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`
               ))
             }
           </div>
