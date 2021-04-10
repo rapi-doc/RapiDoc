@@ -59,6 +59,7 @@ paths:
     post:
       tags:
         - Create User
+      summary: Create a user
       description: Create a user
       requestBody:
         content:
