@@ -138,33 +138,34 @@ export default css`
   flex-direction: column;
   border-top:1px solid var(--light-border-color);
 }
-api-request.view-mode,
+
+.view-mode-request,
 api-response.view-mode {
   flex:1; 
   min-height:100px;
   padding:16px 8px;
   overflow:hidden;
 }
-api-request.view-mode {
+.view-mode-request {
   border-width:0 0 1px 0;
   border-style:dashed;
 }
 
-.head api-request.view-mode,
-.patch api-request.view-mode,
-.options api-request.view-mode { 
+.head .view-mode-request,
+.patch .view-mode-request,
+.options .view-mode-request { 
   border-color:var(--yellow); 
 }
-.put api-request.view-mode { 
+.put .view-mode-request { 
   border-color:var(--orange); 
 }
-.post api-request.view-mode { 
+.post .view-mode-request { 
   border-color:var(--green); 
 }
-.get api-request.view-mode{ 
+.get .view-mode-request { 
   border-color:var(--blue); 
 }
-.delete api-request.view-mode{ 
+.delete .view-mode-request { 
   border-color:var(--red); 
 }
 
@@ -187,7 +188,7 @@ api-request.view-mode {
   api-response.view-mode {
     padding:16px;
   }
-  api-request.view-mode.row-layout {
+  .view-mode-request.row-layout {
     border-width:0 1px 0 0;
     padding:16px;
   }

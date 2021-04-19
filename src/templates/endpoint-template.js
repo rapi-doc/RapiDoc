@@ -114,31 +114,34 @@ function endpointBodyTemplate(path) {
       ${codeSampleTabPanel}
     </div>  
     <div class='req-resp-container'> 
-      <api-request
-        class = "${this.renderStyle}-mode ${this.layout}-layout"
-        style = "width:100%;"
-        method = "${path.method}", 
-        path = "${path.path}" 
-        .parameters = "${path.parameters}"
-        .request_body = "${path.requestBody}"
-        .api_keys = "${nonEmptyApiKeys}"
-        .servers = "${path.servers}" 
-        server-url = "${path.servers && path.servers.length > 0 ? path.servers[0].url : this.selectedServer.computedUrl}" 
-        active-schema-tab = "${this.defaultSchemaTab}"
-        fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
-        allow-try = "${this.allowTry}"
-        accept = "${accept}"
-        render-style="${this.renderStyle}" 
-        schema-style = "${this.schemaStyle}" 
-        schema-expand-level = "${this.schemaExpandLevel}"
-        schema-description-expanded = "${this.schemaDescriptionExpanded}"
-        allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
-        schema-hide-read-only = "${this.schemaHideReadOnly}"
-        fetch-credentials = "${this.fetchCredentials}"
-        exportparts="btn btn-fill btn-outline btn-try"
-      > 
-        ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
-      </api-request>
+      <div style="display:flex; flex-direction:column" class="view-mode-request ${this.layout}-layout">
+        <api-request
+          class = "${this.renderStyle}-mode ${this.layout}-layout"
+          style = "width:100%;"
+          method = "${path.method}", 
+          path = "${path.path}" 
+          .parameters = "${path.parameters}"
+          .request_body = "${path.requestBody}"
+          .api_keys = "${nonEmptyApiKeys}"
+          .servers = "${path.servers}" 
+          server-url = "${path.servers && path.servers.length > 0 ? path.servers[0].url : this.selectedServer.computedUrl}" 
+          active-schema-tab = "${this.defaultSchemaTab}"
+          fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
+          allow-try = "${this.allowTry}"
+          accept = "${accept}"
+          render-style="${this.renderStyle}" 
+          schema-style = "${this.schemaStyle}" 
+          schema-expand-level = "${this.schemaExpandLevel}"
+          schema-description-expanded = "${this.schemaDescriptionExpanded}"
+          allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
+          schema-hide-read-only = "${this.schemaHideReadOnly}"
+          fetch-credentials = "${this.fetchCredentials}"
+          exportparts="btn btn-fill btn-outline btn-try"
+        > </api-request>
+
+          ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
+      </div>  
+
       <api-response
         class = "${this.renderStyle}-mode"
         style = "width:100%;"
