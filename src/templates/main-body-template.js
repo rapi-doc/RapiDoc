@@ -13,7 +13,7 @@ import advancedSearchTemplate from '~/templates/advance-search-template';
 import SetTheme from '~/utils/theme';
 import { isValidHexColor } from '~/utils/color-utils';
 
-export default function mainBodyTemplate() {
+export default function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = true, pathsExpanded = false) {
   if (!this.resolvedSpec) {
     return '';
   }
@@ -30,6 +30,14 @@ export default function mainBodyTemplate() {
   };
   /* eslint-disable indent */
   if (this.resolvedSpec.specLoadError) {
+    /*
+    if (isMini) {
+      return html`
+        ${this.theme === 'dark' ? SetTheme.call(this, 'dark', newTheme) : SetTheme.call(this, 'light', newTheme)}
+        <div style="border:1px solid var(--border-color); height:42px; padding:5px; font-size:var(--font-size-small); color:var(--red); font-family:var(--font-mono)"> ${this.resolvedSpec.info.description} </div>
+      `;
+    }
+    */
     return html`
       ${this.theme === 'dark' ? SetTheme.call(this, 'dark', newTheme) : SetTheme.call(this, 'light', newTheme)}
       <!-- Header -->
@@ -91,7 +99,7 @@ export default function mainBodyTemplate() {
                       ${this.allowAuthentication === 'true' ? securitySchemeTemplate.call(this) : ''}
                       ${this.renderStyle === 'read'
                         ? expandedEndpointTemplate.call(this)
-                        : endpointTemplate.call(this)
+                        : endpointTemplate.call(this, showExpandCollapse, showTags, pathsExpanded)
                       }
                     `
                   }

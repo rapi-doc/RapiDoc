@@ -11,12 +11,16 @@ import { pathIsInSearch, rapidocApiKey } from '~/utils/common-utils';
 function toggleExpand(path) {
   if (path.expanded) {
     path.expanded = false; // collapse
-    window.history.replaceState(null, null, `${window.location.href.split('#')[0]}`);
+    if (this.updateRoutes === 'true') {
+      window.history.replaceState(null, null, `${window.location.href.split('#')[0]}`);
+    }
   } else {
     path.expanded = true; // Expand
     const newHash = `#${path.elementId}`;
-    if (window.location.hash !== newHash) {
-      window.history.replaceState(null, null, `${window.location.href.split('#')[0]}${newHash}`);
+    if (this.updateRoutes === 'true') {
+      if (window.location.hash !== newHash) {
+        window.history.replaceState(null, null, `${window.location.href.split('#')[0]}${newHash}`);
+      }
     }
   }
   this.requestUpdate();
@@ -40,9 +44,9 @@ function onExpandCollapseAll(e, action = 'expand-all') {
 }
 
 /* eslint-disable indent */
-function endpointHeadTemplate(path) {
+function endpointHeadTemplate(path, pathsExpanded = false) {
   return html`
-  <summary @click="${(e) => { toggleExpand.call(this, path, e); }}" class='endpoint-head ${path.method} ${path.deprecated ? 'deprecated' : ''} ${path.expanded ? 'expanded' : 'collapsed'}'>
+  <summary @click="${(e) => { toggleExpand.call(this, path, e); }}" class='endpoint-head ${path.method} ${path.deprecated ? 'deprecated' : ''} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
     <div class="method ${path.method} ${path.deprecated ? 'deprecated' : ''}"> ${path.method} </div> 
     <div class="path ${path.deprecated ? 'deprecated' : ''}"> 
       ${path.path} 
@@ -55,8 +59,12 @@ function endpointHeadTemplate(path) {
         </span>`
       : ''
     }
-    <div class="only-large-screen" style="min-width:60px; flex:1"></div>
-    <div class="descr">${path.summary || path.shortSummary} </div>
+    ${this.showSummaryWhenCollapsed
+      ? html`
+        <div class="only-large-screen" style="min-width:60px; flex:1"></div>
+        <div class="descr">${path.summary || path.shortSummary} </div>`
+      : ''
+    }
   </summary>
   `;
 }
@@ -107,7 +115,7 @@ function endpointBodyTemplate(path) {
     </div>  
     <div class='req-resp-container'> 
       <api-request
-        class = "${this.renderStyle}-mode"
+        class = "${this.renderStyle}-mode ${this.layout}-layout"
         style = "width:100%;"
         method = "${path.method}", 
         path = "${path.path}" 
@@ -149,43 +157,64 @@ function endpointBodyTemplate(path) {
   </div>`;
 }
 
-export default function endpointTemplate() {
+export default function endpointTemplate(showExpandCollapse = true, showTags = true, pathsExpanded = false) {
   if (!this.resolvedSpec) { return ''; }
   return html`
-    <div style="display:flex; justify-content:flex-end;"> 
-      <span @click="${(e) => onExpandCollapseAll(e, 'expand-all')}" style="color:var(--primary-color); cursor:pointer;">
-        Expand all
-      </span> 
-      &nbsp;|&nbsp; 
-      <span @click="${(e) => onExpandCollapseAll(e, 'collapse-all')}" style="color:var(--primary-color); cursor:pointer;" >
-        Collapse all
-      </span> 
-      &nbsp; sections
-    </div>
+    ${showExpandCollapse
+      ? html`
+        <div style="display:flex; justify-content:flex-end;"> 
+          <span @click="${(e) => onExpandCollapseAll(e, 'expand-all')}" style="color:var(--primary-color); cursor:pointer;">
+            Expand all
+          </span> 
+          &nbsp;|&nbsp; 
+          <span @click="${(e) => onExpandCollapseAll(e, 'collapse-all')}" style="color:var(--primary-color); cursor:pointer;" >
+            Collapse all
+          </span> 
+          &nbsp; sections
+        </div>`
+      : ''
+    }
     ${this.resolvedSpec.tags.map((tag) => html`
-    <div class='regular-font section-gap section-tag ${tag.expanded ? 'expanded' : 'collapsed'}' > 
-    
-      <div class='section-tag-header' @click="${() => { tag.expanded = !tag.expanded; this.requestUpdate(); }}">
-        <div id='${tag.elementId}' class="sub-title tag" style="color:var(--primary-color)">${tag.name}</div>
-      </div>
-      <div class='section-tag-body'>
-        <slot name="${tag.elementId}"></slot>
-        <div class="regular-font regular-font-size m-markdown" style="padding-bottom:12px">
-          ${unsafeHTML(marked(tag.description || ''))}
-        </div>
-        ${tag.paths.filter((v) => {
-          if (this.matchPaths) {
-            return pathIsInSearch(this.matchPaths, v);
+      ${showTags
+        ? html` 
+          <div class='regular-font section-gap section-tag ${tag.expanded ? 'expanded' : 'collapsed'}'> 
+            <div class='section-tag-header' @click="${() => { tag.expanded = !tag.expanded; this.requestUpdate(); }}">
+              <div id='${tag.elementId}' class="sub-title tag" style="color:var(--primary-color)">${tag.name}</div>
+            </div>
+            <div class='section-tag-body'>
+              <slot name="${tag.elementId}"></slot>
+              <div class="regular-font regular-font-size m-markdown" style="padding-bottom:12px">
+                ${unsafeHTML(marked(tag.description || ''))}
+              </div>
+              ${tag.paths.filter((v) => {
+                if (this.matchPaths) {
+                  return pathIsInSearch(this.matchPaths, v);
+                }
+                return true;
+                }).map((path) => html`
+                <section id='${path.elementId}' class='m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
+                  ${endpointHeadTemplate.call(this, path, pathsExpanded)}      
+                  ${pathsExpanded || path.expanded ? endpointBodyTemplate.call(this, path) : ''}
+                </section>`)
+              }
+            </div>
+          </div>`
+        : html`
+          <div class='section-tag-body'>
+          ${tag.paths.filter((v) => {
+            if (this.matchPaths) {
+              return pathIsInSearch(this.matchPaths, v);
+            }
+            return true;
+            }).map((path) => html`
+            <section id='${path.elementId}' class='m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
+              ${endpointHeadTemplate.call(this, path, pathsExpanded)}      
+              ${pathsExpanded || path.expanded ? endpointBodyTemplate.call(this, path) : ''}
+            </section>`)
           }
-          return true;
-          }).map((path) => html`
-          <section id='${path.elementId}' class='m-endpoint regular-font ${path.method} ${path.expanded ? 'expanded' : 'collapsed'}'>
-            ${endpointHeadTemplate.call(this, path)}      
-            ${path.expanded ? endpointBodyTemplate.call(this, path) : ''}
-          </section>`)
-        }
-      </div>
-    </div>
+          </div>
+        `
+      }
   `)
   }`;
 }

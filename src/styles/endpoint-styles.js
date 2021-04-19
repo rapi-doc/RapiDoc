@@ -172,7 +172,6 @@ api-request.view-mode {
   .only-large-screen { display:block; }
   .endpoint-head .path{
     font-size: var(--font-size-regular);
-    min-width:400px;
   }
   .endpoint-head .descr{
     display: flex;
@@ -183,11 +182,12 @@ api-request.view-mode {
   }
   .req-resp-container{
     flex-direction: var(--layout, row);
+    flex-wrap: nowrap;
   }
   api-response.view-mode {
     padding:16px;
   }
-  api-request.view-mode {
+  api-request.view-mode.row-layout {
     border-width:0 1px 0 0;
     padding:16px;
   }

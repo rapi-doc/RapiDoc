@@ -35,6 +35,7 @@ export default class RapiDoc extends LitElement {
       rootMargin: '-50px 0px -50px 0px', // when the element is visible 100px from bottom
       threshold: 0,
     };
+    this.showSummaryWhenCollapsed = true;
     this.isIntersectionObserverActive = true;
     this.intersectionObserver = new IntersectionObserver((entries) => { this.onIntersect(entries); }, intersectionObserverOptions);
   }
@@ -46,6 +47,7 @@ export default class RapiDoc extends LitElement {
       gotoPath: { type: String, attribute: 'goto-path' },
 
       // Spec
+      updateRoutes: { type: String, attribute: 'update-routes' },
       specUrl: { type: String, attribute: 'spec-url' },
       sortTags: { type: String, attribute: 'sort-tags' },
       generateMissingTags: { type: String, attribute: 'generate-missing-tags' },
@@ -440,6 +442,7 @@ export default class RapiDoc extends LitElement {
     if (!this.apiKeyName) { this.apiKeyName = ''; }
 
     if (!this.oauthReceiver) { this.oauthReceiver = 'oauth-receiver.html'; }
+    if (!this.updateRoutes || !'true, false,'.includes(`${this.updateRoutes},`)) { this.updateRoutes = 'true'; }
     if (!this.sortTags || !'true, false,'.includes(`${this.sortTags},`)) { this.sortTags = 'false'; }
     if (!this.generateMissingTags || !'true, false,'.includes(`${this.generateMissingTags},`)) { this.generateMissingTags = 'false'; }
     if (!this.sortEndpointsBy || !'method, path, summary,'.includes(`${this.sortEndpointsBy},`)) { this.sortEndpointsBy = 'path'; }
@@ -707,7 +710,7 @@ export default class RapiDoc extends LitElement {
     if (locationHash) {
       if (this.renderStyle === 'view') {
         this.expandAndGotoOperation(locationHash, true, true);
-      } else if (this.renderStyle === 'focused') {
+      } else {
         this.scrollTo(locationHash);
       }
     } else if (this.renderStyle === 'focused') {
