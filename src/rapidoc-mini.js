@@ -151,6 +151,7 @@ export default class RapiDocMini extends LitElement {
     }
 
     if (!this.showSummaryWhenCollapsed || !'true, false,'.includes(`${this.showSummaryWhenCollapsed},`)) { this.showSummaryWhenCollapsed = 'true'; }
+    if (!this.layout || !'row, column,'.includes(`${this.layout},`)) { this.layout = 'row'; }
     if (!this.schemaStyle || !'tree, table,'.includes(`${this.schemaStyle},`)) { this.schemaStyle = 'tree'; }
     if (!this.theme || !'light, dark,'.includes(`${this.theme},`)) {
       this.theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
