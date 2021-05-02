@@ -134,17 +134,30 @@
   <h3>Use a different theme </h3>
   <rapi-doc-mini
     style= "width:600px; border-radius: 4px; box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);"
-    theme = "dark"
     id = "thedoc" 
     spec-url="../specs/petstore.json"
-    theme = "light"
+    theme = "dark"
     schema-style = 'table'
     sort-endpoints-by = "method"
     layout = "column"
     match-paths = "/store"
   > </rapi-doc-mini>
+  
+  <h3>Handling non available specs</h3>
+  <rapi-doc-mini
+    style= "width:600px; border-radius: 4px; margin-bottom: 16px;"
+    theme = "dark"
+    id = "thedoc" 
+    spec-url="../specs/fake-non-existing.json"
+  > </rapi-doc-mini>
+  <rapi-doc-mini
+    style= "width:600px; border-radius: 4px; margin-bottom: 16px;"
+    theme = "light"
+    id = "thedoc" 
+    spec-url="../specs/fake-non-existing.json"
+  > </rapi-doc-mini>
 
-  </main>
+</main>
 
   </body>
 </html>
