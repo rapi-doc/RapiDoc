@@ -30,14 +30,12 @@ export default function mainBodyTemplate(isMini = false, showExpandCollapse = tr
   };
   /* eslint-disable indent */
   if (this.resolvedSpec.specLoadError) {
-    /*
     if (isMini) {
       return html`
         ${this.theme === 'dark' ? SetTheme.call(this, 'dark', newTheme) : SetTheme.call(this, 'light', newTheme)}
-        <div style="border:1px solid var(--border-color); height:42px; padding:5px; font-size:var(--font-size-small); color:var(--red); font-family:var(--font-mono)"> ${this.resolvedSpec.info.description} </div>
+        <div style="display:flex; align-items:center; border:1px dashed var(--border-color); height:42px; padding:5px; font-size:var(--font-size-small); color:var(--red); font-family:var(--font-mono)"> ${this.resolvedSpec.info.description} </div>
       `;
     }
-    */
     return html`
       ${this.theme === 'dark' ? SetTheme.call(this, 'dark', newTheme) : SetTheme.call(this, 'light', newTheme)}
       <!-- Header -->
