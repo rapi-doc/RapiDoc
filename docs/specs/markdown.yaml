@@ -159,6 +159,11 @@ paths:
                         description: |
                           `Last name` (last name must be monospaced)
                         type: string
+                  hobbies:
+                    type: array
+                    description:  list of words separated by `comma` (comma should be monospaced).
+                    items: 
+                      type: string
                   dependentNames:
                     type: array
                     description: Array of **Dependents** (Dependents must be bold).

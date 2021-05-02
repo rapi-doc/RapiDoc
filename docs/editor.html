@@ -9,14 +9,11 @@
         <div class="split edit">
           <div id="container" style="height:100%"></div>
         </div>
-        <div class="split view">B</div>
+        <div class="split view">Sample Data</div>
     </div>
     <script src="https://unpkg.com/split.js/dist/split.min.js"></script>
     <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
     <link href='./editor.css' rel='stylesheet'>
-
-
-
     <script>
       Split(['.edit', '.view'], {
         gutterSize: 1,
@@ -44,7 +41,8 @@ info:
 paths:
 `,
           language: 'yaml',
-          theme: 'vs-dark'
+          theme: 'vs-dark',
+          minimap: { enabled: false}
         });
       });
       

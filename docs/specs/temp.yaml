@@ -7,20 +7,26 @@ info:
 servers:
   - url: http://petstore.swagger.io/v1
 paths:
-  /pets:
-    get:
-      summary: List all pets
-      operationId: listPets
-      tags:
-        - pets
-      parameters: []
+  /test:
+    post:
       responses:
         '200':
-          description: Array of pets
+          description: Response.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Pets"
+                type: object
+                properties:
+                  result:
+                    type: string
+                    # Markdown works for this property.
+                    description: API result code. This property never be `null`. See [this link](https://example.com) for details.
+                  idList:
+                    type: array
+                    items: 
+                      type: string
+                    # Markdown doesn't work for this property.  
+                    description: User ID list. Each element of the list is an `integer`. See [this link](https://example.com) for details.
 components:
   schemas:
     Dog:
