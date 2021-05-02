@@ -31,8 +31,8 @@
   "dependencies": {
     "@apitools/openapi-parser": "^0.0.8",
     "base64-arraybuffer": "^0.2.0",
-    "lit-element": "2.4.0",
-    "lit-html": "1.2.1",
+    "lit-element": "2.5.0",
+    "lit-html": "1.4.0",
     "marked": "^2.0.3",
     "prismjs": "^1.23.0"
   },
