@@ -36,7 +36,6 @@ export default css`
 .nav-bar-tag-icon {
   color: var(--nav-text-color);
   font-size: 20px; 
-  margin-right: -16px;
 }
 .nav-bar-tag-icon:hover {
   color:var(--nav-hover-text-color);
@@ -74,7 +73,7 @@ export default css`
   color: var(--nav-accent-color);
   border-left:4px solid transparent;
   font-weight:bold;
-  padding: 15px 30px 15px 10px;
+  padding: 15px calc(var(--scroll-bar-width) + 5px) 15px 10px;
   text-transform: capitalize;
 }
 
