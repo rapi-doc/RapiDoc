@@ -87,7 +87,7 @@ export default function navbarTemplate() {
         </div>
       `
     }
-    ${html`<nav class='nav-scroll'>
+    ${html`<nav class='nav-scroll' part="section-navbar-scroll">
       ${(this.showInfo === 'false' || !this.resolvedSpec.info)
         ? ''
         : html`

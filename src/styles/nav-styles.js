@@ -60,7 +60,7 @@ export default css`
   display: inline-block;
 }
 .nav-scroll::-webkit-scrollbar {
-  width: 10px;
+  width: var(--scroll-bar-width, 8px);
 }
 .nav-scroll::-webkit-scrollbar-track {
   background:transparent;
@@ -110,7 +110,7 @@ export default css`
   justify-content: space-between;
   font-size: var(--font-size-small);
   color: var(--nav-text-color);
-  padding: 15px 15px 5px 5px;
+  padding: 15px calc(var(--scroll-bar-width) + 5px) 5px 5px;
   filter:opacity(0.5);
   font-weight:bold;
   border-bottom: 1px solid var(--nav-text-color);
