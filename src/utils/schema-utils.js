@@ -164,6 +164,7 @@ export function getSampleValueByType(schemaObj) {
     if (schemaObj.enum) { return schemaObj.enum[0]; }
     if (schemaObj.pattern) { return schemaObj.pattern; }
     if (schemaObj.format) {
+      const u = `${Date.now().toString(16)}${Math.random().toString(16)}0`.repeat(16);
       switch (schemaObj.format.toLowerCase()) {
         case 'url':
         case 'uri':
@@ -186,8 +187,10 @@ export function getSampleValueByType(schemaObj) {
           return '198.51.100.42';
         case 'ipv6':
           return '2001:0db8:5b96:0000:0000:426f:8e17:642a';
+        case 'uuid':
+          return [u.substr(0, 8), u.substr(8, 4), `4000-8${u.substr(13, 3)}`, u.substr(16, 12)].join('-');
         default:
-          return schemaObj.format;
+          return '';
       }
     } else {
       const minLength = Number.isNaN(schemaObj.minLength) ? undefined : Number(schemaObj.minLength);

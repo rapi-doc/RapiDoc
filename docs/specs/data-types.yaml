@@ -218,8 +218,8 @@ components:
           type: string
           deprecated: true
     id:
-      type: integer
-      format: int64
+      type: string
+      format: uuid
       readOnly: true
     person:
       type: object
