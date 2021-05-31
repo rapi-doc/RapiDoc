@@ -299,6 +299,7 @@ export default class RapiDocMini extends LitElement {
 
   async afterSpecParsedAndValidated(spec) {
     this.resolvedSpec = spec;
+    this.selectedServer = undefined;
     if (this.defaultApiServerUrl) {
       if (this.defaultApiServerUrl === this.serverUrl) {
         this.selectedServer = {
