@@ -1,52 +1,31 @@
-openapi: "3.0.0"
+openapi: 3.0.0
 info:
+  title: Example
   version: 1.0.0
-  title: Swagger Petstore
-  license:
-    name: MIT
-servers:
-  - url: http://petstore.swagger.io/v1
 paths:
-  /test:
-    post:
+  /p:
+    get:
       responses:
         '200':
-          description: Response.
+          description: Get Person
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  result:
-                    type: string
-                    # Markdown works for this property.
-                    description: API result code. This property never be `null`. See [this link](https://example.com) for details.
-                  idList:
-                    type: array
-                    items: 
-                      type: string
-                    # Markdown doesn't work for this property.  
-                    description: User ID list. Each element of the list is an `integer`. See [this link](https://example.com) for details.
+                $ref: '#/components/schemas/Person'
+              examples:
+                example-1:
+                  $ref: '#/components/examples/PersonExample'
 components:
   schemas:
-    Dog:
+    Person:
       type: object
       properties:
-        id:
-          type: integer
-        dogName:
-          properties:
-            first:
-              type: string
-            last:
-              type: string
-
-    Cat:
-      type: object
-      properties:
-        catName:
+        name:
           type: string
-    Pets:
-      oneOf:
-        - $ref: "#/components/schemas/Dog"
-        - $ref: "#/components/schemas/Cat"
+        age:
+          type: integer
+  examples:
+    PersonExample:
+      value:
+        name: Toby
+        age: 24
