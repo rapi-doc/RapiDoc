@@ -5,7 +5,7 @@ info:
   description: >
     Following OpenAPI spec demonstrates how to arrange the paths using tags. (even though the paths are defined in random order in the spec but they are shown in the order as they are defined under `tags` section)
 
-      - If there are multiple paths inside a tag, they can be further sorted. Use `sort-endpoints-by` property which can accept `path`, `method` or `summary`
+      - If there are multiple paths inside a tag, they can be further sorted. Use `sort-endpoints-by` property which can accept `path`, `method`, `summary` or `none`
       - If you do not want to specify tag order, but follow certain naming conventions for tags in the spec you may use `sort-tags` property in RapiDoc element to sort tags alphabetically
 
     ```yaml
@@ -18,7 +18,7 @@ info:
         - name: The First Tag
         - name: And Second Tag
         - name: 3rd Tag
-  
+
       paths:
         /path-3.1:
           get:
@@ -49,8 +49,8 @@ info:
         /no-tag/path:
           get:
             summary: This path do not have any tag
-                          
-    ```       
+
+    ```
 paths:
   /path-3.1:
     get:
@@ -74,7 +74,7 @@ paths:
       summary: Second path of 2nd Tag
       tags:
         - And Second Tag
-  
+
   /common-path-in-first-and-3rd-tag:
     get:
       summary: Path belongs to First and 3rd Tag
@@ -84,7 +84,7 @@ paths:
   /no-tag/path:
     get:
       summary: This path do not have any tag
-                
+
 tags:
   - name: The First Tag
   - name: And Second Tag

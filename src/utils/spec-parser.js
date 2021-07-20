@@ -348,8 +348,10 @@ function groupByTags(openApiSpec, generateMissingTags = false, sortTags = false,
       tag.paths.sort((a, b) => supportedMethods.indexOf(a.method).toString().localeCompare(supportedMethods.indexOf(b.method)));
     } else if (sortEndpointsBy === 'summary') {
       tag.paths.sort((a, b) => (a.shortSummary).localeCompare(b.shortSummary));
-    } else {
+    } else if (sortEndpointsBy === 'path') {
       tag.paths.sort((a, b) => a.path.localeCompare(b.path));
+    } else if (sortEndpointsBy === 'none') {
+      // don't sort if sortEndpointsBy is 'none'
     }
     tag.firstPathId = tag.paths[0].elementId;
   });
