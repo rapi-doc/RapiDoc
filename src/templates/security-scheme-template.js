@@ -48,12 +48,12 @@ function updateOAuthKey(apiKeyId, tokenType = 'Bearer', accessToken) {
 
 /* eslint-disable no-console */
 // Gets Access-Token in exchange of Authorization Code
-async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, grantType, authCode, sendClientSecretIn = 'header', apiKeyId, authFlowDivEl, scopes = null) {
+async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, grantType, authCode, sendClientSecretIn = 'header', apiKeyId, authFlowDivEl, scopes = null, username = null, password = null) {
   const respDisplayEl = authFlowDivEl ? authFlowDivEl.querySelector('.oauth-resp-display') : undefined;
   const urlFormParams = new URLSearchParams();
   const headers = new Headers();
   urlFormParams.append('grant_type', grantType);
-  if (grantType !== 'client_credentials') {
+  if (grantType !== 'client_credentials' && grantType !== 'password') {
     urlFormParams.append('redirect_uri', redirectUrl);
   }
   if (authCode) {
@@ -65,6 +65,10 @@ async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, g
   } else {
     urlFormParams.append('client_id', clientId);
     urlFormParams.append('client_secret', clientSecret);
+  }
+  if (grantType === 'password') {
+    urlFormParams.append('username', username);
+    urlFormParams.append('password', password);
   }
   if (scopes) {
     urlFormParams.append('scope', scopes);
@@ -137,6 +141,8 @@ async function onInvokeOAuthFlow(apiKeyId, flowType, authUrl, tokenUrl, e) {
   const authFlowDivEl = e.target.closest('.oauth-flow');
   const clientId = authFlowDivEl.querySelector('.oauth-client-id') ? authFlowDivEl.querySelector('.oauth-client-id').value.trim() : '';
   const clientSecret = authFlowDivEl.querySelector('.oauth-client-secret') ? authFlowDivEl.querySelector('.oauth-client-secret').value.trim() : '';
+  const username = authFlowDivEl.querySelector('.api-key-user') ? authFlowDivEl.querySelector('.api-key-user').value.trim() : '';
+  const password = authFlowDivEl.querySelector('.api-key-password') ? authFlowDivEl.querySelector('.api-key-password').value.trim() : '';
   const sendClientSecretIn = authFlowDivEl.querySelector('.oauth-send-client-secret-in') ? authFlowDivEl.querySelector('.oauth-send-client-secret-in').value.trim() : 'header';
   const checkedScopeEls = [...authFlowDivEl.querySelectorAll('.scope-checkbox:checked')];
   const pkceCheckboxEl = authFlowDivEl.querySelector(`#${apiKeyId}-pkce`);
@@ -195,6 +201,10 @@ async function onInvokeOAuthFlow(apiKeyId, flowType, authUrl, tokenUrl, e) {
     grantType = 'client_credentials';
     const selectedScopes = checkedScopeEls.map((v) => v.value).join(' ');
     fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrlObj.toString(), grantType, '', sendClientSecretIn, apiKeyId, authFlowDivEl, selectedScopes);
+  } else if (flowType === 'password'){
+    grantType = 'password';
+    const selectedScopes = checkedScopeEls.map((v) => v.value).join(' ');
+    fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrlObj.toString(), grantType, '', sendClientSecretIn, apiKeyId, authFlowDivEl, selectedScopes, username, password);
   }
 }
 /* eslint-enable no-console */
@@ -261,6 +271,14 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow)
             `
             : ''
           }
+          ${flowName === 'password'
+            ? html`
+              <div style="display:flex; max-height:28px; margin-top:2px">
+                <input type="text" value = "" placeholder="username" spellcheck="false" class="api-key-user" part="textbox textbox-username">
+                <input type="password" value = "" placeholder="password" spellcheck="false" class="api-key-password" style = "margin:0 5px;" part="textbox textbox-password">
+              </div>`
+            : ''
+          }  
           <div>
             ${flowName === 'authorizationCode'
               ? html`
@@ -277,7 +295,7 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow)
             ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password'
               ? html`
                 <input type="password" part="textbox textbox-auth-client-secret" value = "${clientSecret || ''}" placeholder="client-secret" spellcheck="false" class="oauth-client-secret" style = "margin:0 5px;">
-                ${flowName === 'authorizationCode' || flowName === 'clientCredentials'
+                ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password'
                   ? html`
                     <select style="margin-right:5px;" class="oauth-send-client-secret-in">
                       <option value = 'header' selected> Authorization Header </option> 
@@ -288,7 +306,7 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow)
 `
               : html`<div style='width:5px'></div>`
             }
-            ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit'
+            ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit' || flowName === 'password'
               ? html`
                 <button class="m-btn thin-border" part="btn btn-outline"
                   @click="${(e) => { onInvokeOAuthFlow.call(this, apiKeyId, flowName, authorizationUrl, tokenUrl, e); }}"
@@ -296,14 +314,6 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow)
               : ''
             }
           </div>
-          ${flowName === 'password'
-            ? html`
-              <div style="display:flex; max-height:28px; margin-top:2px">
-                <input type="text" value = "" placeholder="username" spellcheck="false" class="api-key-user" part="textbox textbox-username">
-                <input type="password" value = "" placeholder="password" spellcheck="false" class="api-key-password" style = "margin:0 5px;" part="textbox textbox-password">
-              </div>`
-            : ''
-          }  
           <div class="oauth-resp-display red-text small-font-size"></div>
           `
         : ''
