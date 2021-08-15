@@ -114,6 +114,7 @@ export default class SchemaTable extends LitElement {
               ${this.generateTree(
                 this.data['::type'] === 'array' ? this.data['::props'] : this.data,
                 this.data['::type'],
+                this.data['::array-type'],
               )}`
             : ''
           }  
@@ -122,7 +123,7 @@ export default class SchemaTable extends LitElement {
     `;
   }
 
-  generateTree(data, dataType = 'object', key = '', description = '', schemaLevel = 0, indentLevel = 0) {
+  generateTree(data, dataType = 'object', arrayType = '', key = '', description = '', schemaLevel = 0, indentLevel = 0) {
     const newSchemaLevel = data['::type']?.startsWith('xxx-of') ? schemaLevel : (schemaLevel + 1);
     const newIndentLevel = dataType === 'xxx-of-option' || data['::type'] === 'xxx-of-option' || key.startsWith('::OPTION') ? indentLevel : (indentLevel + 1);
     const leftPadding = 16 * newIndentLevel; // 2 space indentation at each level
@@ -150,13 +151,14 @@ export default class SchemaTable extends LitElement {
     let detailObjType = '';
     if (data['::type'] === 'object') {
       if (dataType === 'array') {
-        detailObjType = 'array'; // Array of Object
+        detailObjType = 'array of object'; // Array of Object
       } else {
         detailObjType = 'object';
       }
     } else if (data['::type'] === 'array') {
       if (dataType === 'array') {
-        detailObjType = 'array of array'; // Array of array
+        // detailObjType = 'array of array'; // Array of array
+        detailObjType = `array of array ${arrayType !== 'object' ? `of ${arrayType}` : ''}`; // Array of array
       } else {
         detailObjType = 'array';
       }
@@ -192,21 +194,27 @@ export default class SchemaTable extends LitElement {
             </div>`
           : html`
               ${data['::type'] === 'array' && dataType === 'array'
-                ? html`<div class='tr'> <div class='td'> ${dataType} </div> </div>`
+                ? html`
+                  <div class='tr'> 
+                    <div class='td key'></div> 
+                    <div class='td key-type'> ${arrayType && arrayType !== 'object' ? `${dataType} of ${arrayType}` : dataType}</div> 
+                    <div class='td key-descr'></div> 
+                  </div>`
                 : ''
               }
           `
         }
         <div class='object-body'>
         ${Array.isArray(data) && data[0]
-          ? html`${this.generateTree(data[0], 'xxx-of-option', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel)}`
+          ? html`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel)}`
           : html`
             ${Object.keys(data).map((dataKey) => html`
-              ${['::description', '::type', '::props', '::deprecated'].includes(dataKey)
+              ${['::description', '::type', '::props', '::deprecated', '::array-type'].includes(dataKey)
                 ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object'
                   ? html`${this.generateTree(
                     data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey],
                       data[dataKey]['::type'],
+                      data[dataKey]['::array-type'] || '',
                       dataKey,
                       data[dataKey]['::description'],
                       newSchemaLevel,
@@ -216,6 +224,7 @@ export default class SchemaTable extends LitElement {
                 : html`${this.generateTree(
                   data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey],
                   data[dataKey]['::type'],
+                  data[dataKey]['::array-type'] || '',
                   dataKey,
                   data[dataKey]['::description'],
                   newSchemaLevel,

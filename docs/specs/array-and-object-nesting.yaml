@@ -60,6 +60,30 @@ paths:
                         type: string
                       field-2:
                         type: number
+  /array-of-array-of-primitive:
+    get:
+      tags:
+        - Array and object nesting
+      summary: Array of array of number
+      responses:
+        200:
+          description: Array of array of number
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  age:
+                    type: integer
+                  prices:
+                    type: array
+                    items:
+                      type: array
+                      items:
+                        type: number
+
   /array-of-array-3-levels:
     get:
       tags:

@@ -113,6 +113,8 @@ export default class SchemaTree extends LitElement {
             ${this.generateTree(
               this.data['::type'] === 'array' ? this.data['::props'] : this.data,
               this.data['::type'],
+              this.data['::array-type'] || '',
+
             )}`
           : html`<span class='mono-font' style='color:var(--red)'> Schema not found </span>`
         }
@@ -120,7 +122,7 @@ export default class SchemaTree extends LitElement {
     `;
   }
 
-  generateTree(data, dataType = 'object', key = '', description = '', schemaLevel = 0, indentLevel = 0) {
+  generateTree(data, dataType = 'object', arrayType = '', key = '', description = '', schemaLevel = 0, indentLevel = 0) {
     if (!data) {
       return html`<div class="null" style="display:inline;">null</div>`;
     }
@@ -164,10 +166,11 @@ export default class SchemaTree extends LitElement {
       }
     } else if (data['::type'] === 'array') {
       if (dataType === 'array') {
+        const arrType = arrayType !== 'object' ? arrayType : '';
         if (schemaLevel < this.schemaExpandLevel) {
-          openBracket = html`<span class="open-bracket array-of-array" @click="${this.toggleObjectExpand}">[[</span>`;
+          openBracket = html`<span class="open-bracket array-of-array" data-array-type="${arrType}" @click="${this.toggleObjectExpand}">[[ ${arrType} </span>`;
         } else {
-          openBracket = html`<span class="open-bracket array-of-array" @click="${this.toggleObjectExpand}">[[...]]</span>`;
+          openBracket = html`<span class="open-bracket array-of-array"  data-array-type="${arrType}" @click="${this.toggleObjectExpand}">[[...]]</span>`;
         }
         closeBracket = ']]';
       } else {
@@ -200,14 +203,15 @@ export default class SchemaTree extends LitElement {
         </div>
         <div class='inside-bracket ${data['::type'] || 'no-type-info'}' style='padding-left:${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' ? 0 : leftPadding}px;'>
           ${Array.isArray(data) && data[0]
-            ? html`${this.generateTree(data[0], 'xxx-of-option', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel)}`
+            ? html`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel)}`
             : html`
               ${Object.keys(data).map((dataKey) => html`
-                ${['::description', '::type', '::props', '::deprecated'].includes(dataKey)
+                ${['::description', '::type', '::props', '::deprecated', '::array-type'].includes(dataKey)
                   ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object'
                     ? html`${this.generateTree(
                       data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey],
                         data[dataKey]['::type'],
+                        data[dataKey]['::array-type'] || '',
                         dataKey,
                         data[dataKey]['::description'],
                         newSchemaLevel,
@@ -217,6 +221,7 @@ export default class SchemaTree extends LitElement {
                   : html`${this.generateTree(
                     data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey],
                     data[dataKey]['::type'],
+                    data[dataKey]['::array-type'] || '',
                     dataKey,
                     data[dataKey]['::description'],
                     newSchemaLevel,
@@ -288,7 +293,7 @@ export default class SchemaTree extends LitElement {
       e.target.innerHTML = e.target.classList.contains('array-of-object')
         ? '[{'
         : e.target.classList.contains('array-of-array')
-          ? '[['
+          ? `[[ ${e.target.dataset.arrayType}`
           : e.target.classList.contains('object')
             ? '{'
             : '[';

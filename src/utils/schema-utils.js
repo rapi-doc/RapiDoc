@@ -589,6 +589,9 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
         ? `array&lt;${schema.items.description}&gt;`
         : '';
     obj['::type'] = 'array';
+    if (schema.items.items) {
+      obj['::array-type'] = schema.items.items.type;
+    }
     obj['::props'] = schemaInObjectNotation(schema.items, {}, (level + 1));
   } else {
     const typeObj = getTypeInfo(schema);
