@@ -1258,7 +1258,8 @@ export default class ApiRequest extends LitElement {
             respJson = await fetchResponse.json();
             this.responseText = JSON.stringify(respJson, null, 2);
           }
-        } else if (RegExp('^font/|tar$|zip$|7z$|rtf$|msword$|excel$|/pdf$|/octet-stream$').test(contentType)) {
+        // eslint-disable-next-line no-useless-escape
+        } else if (RegExp('^font/|tar$|zip$|7z$|rtf$|msword$|excel$|/pdf$|/octet-stream$|^application\/vnd\.').test(contentType)) {
           this.responseIsBlob = true;
           this.responseBlobType = 'download';
         } else if (RegExp('^audio|^image|^video').test(contentType)) {
