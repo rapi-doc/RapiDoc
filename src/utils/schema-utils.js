@@ -334,13 +334,59 @@ export function schemaToSampleObj(schema, config = { }) {
 
     obj = objWithAllProps;
   } else if (schema.oneOf) {
+    // 1. First create example with scheme.properties
+    const objWithSchemaProps = {};
+    if (schema.properties) {
+      for (const propertyName in schema.properties) {
+        objWithSchemaProps[propertyName] = getSampleValueByType(schema.properties[propertyName]);
+      }
+    }
+
     if (schema.oneOf.length > 0) {
+      /*
+      oneOf:
+        - type: object
+          properties:
+            option1_PropA:
+              type: string
+            option1_PropB:
+              type: string
+        - type: object
+          properties:
+            option2_PropX:
+              type: string
+      properties:
+        prop1:
+          type: string
+        prop2:
+          type: string
+          minLength: 10
+
+      The aboove Schem should generate the following 2 examples
+
+      Example-1
+      {
+        prop1: 'string',
+        prop2: 'AAAAAAAAAA',       <-- min-length 10
+        option1_PropA: 'string',
+        option1_PropB: 'string'
+      }
+
+      Example-2
+      {
+        prop1: 'string',
+        prop2: 'AAAAAAAAAA',       <-- min-length 10
+        option2_PropX: 'string'
+      }
+      */
       let i = 0;
       // Merge all examples of each oneOf-schema
       for (const key in schema.oneOf) {
         const oneOfSamples = schemaToSampleObj(schema.oneOf[key], config);
         for (const sampleKey in oneOfSamples) {
-          obj[`example-${i}`] = oneOfSamples[sampleKey];
+          // 2. In the final example include a one-of item along with properties
+          const finalExample = Object.assign(oneOfSamples[sampleKey], objWithSchemaProps);
+          obj[`example-${i}`] = finalExample;
           addSchemaInfoToExample(schema.oneOf[key], obj[`example-${i}`]);
           i++;
         }
