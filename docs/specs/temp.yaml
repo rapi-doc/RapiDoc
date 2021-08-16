@@ -1,31 +1,43 @@
-openapi: 3.0.0
+openapi: "3.0.0"
 info:
-  title: Example
   version: 1.0.0
+  title: Swagger Petstore
+  license:
+    name: MIT
+servers:
+  - url: http://petstore.swagger.io/v1
 paths:
-  /p:
+  /pets:
     get:
+      summary: List all pets
+      operationId: listPets
+      tags:
+        - pets
+      parameters: []
       responses:
         '200':
-          description: Get Person
+          description: Array of pets
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Person'
-              examples:
-                example-1:
-                  $ref: '#/components/examples/PersonExample'
+                $ref: "#/components/schemas/Pets"
 components:
   schemas:
-    Person:
-      type: object
+    Pets:
+      oneOf:
+        - type: object
+          properties:
+            opt1A:
+              type: string
+            opt1B:
+                type: string
+        - type: object
+          properties:
+            opt2:
+              type: string
       properties:
-        name:
+        otherprop1:
           type: string
-        age:
-          type: integer
-  examples:
-    PersonExample:
-      value:
-        name: Toby
-        age: 24
+        otherprop2:
+          type: string
+          minLength: 10              
