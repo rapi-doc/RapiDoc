@@ -23,7 +23,7 @@ import NavStyles from '~/styles/nav-styles';
 import InfoStyles from '~/styles/info-styles';
 import CustomStyles from '~/styles/custom-styles';
 // import { expandCollapseNavBarTag } from '@/templates/navbar-template';
-import { advancedSearch, pathIsInSearch, rapidocApiKey, sleep } from '~/utils/common-utils';
+import { advancedSearch, pathIsInSearch, componentIsInSearch, rapidocApiKey, sleep } from '~/utils/common-utils';
 import ProcessSpec from '~/utils/spec-parser';
 import mainBodyTemplate from '~/templates/main-body-template';
 
@@ -619,6 +619,12 @@ export default class RapiDoc extends LitElement {
         }
       }
     }));
+    this.resolvedSpec.components.forEach((component) => component.subComponents.filter((v) => {
+      v.expanded = false;
+      if (!this.matchPaths || componentIsInSearch(this.matchPaths, v)) {
+        v.expanded = true;
+      }
+    }));
     this.requestUpdate();
   }
 
@@ -626,6 +632,9 @@ export default class RapiDoc extends LitElement {
     const searchEl = this.shadowRoot.getElementById('nav-bar-search');
     searchEl.value = '';
     this.matchPaths = '';
+    this.resolvedSpec.components.forEach((component) => component.subComponents.filter((v) => {
+      v.expanded = true;
+    }));
   }
 
   onShowSearchModalClicked() {
