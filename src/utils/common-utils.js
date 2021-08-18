@@ -48,6 +48,10 @@ export async function wait(ms) {
   });
 }
 
+export function componentIsInSearch(searchVal, component) {
+  return component.name.toLowerCase().includes(searchVal.toLowerCase());
+}
+
 export function pathIsInSearch(searchVal, path) {
   const stringToSearch = `${path.method} ${path.path} ${path.summary || path.description || ''} ${path.operationId || ''}`.toLowerCase();
   return stringToSearch.includes(searchVal.toLowerCase());
