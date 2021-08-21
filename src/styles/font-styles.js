@@ -24,6 +24,7 @@ export default css`
     font-size: calc(var(--font-size-small) + 4px);
     font-weight:bold;
     margin-bottom:8px;
+    text-align:left;
   }
   .tiny-title { 
     font-size:calc(var(--font-size-small) + 1px); 

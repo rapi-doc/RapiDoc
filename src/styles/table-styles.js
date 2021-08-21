@@ -8,6 +8,7 @@ export default css`
   border-radius: var(--border-radius);
   margin: 0;
   max-width: 100%;
+  direction: ltr;
 }
 .m-table tr:first-child td,
 .m-table tr:first-child th {
