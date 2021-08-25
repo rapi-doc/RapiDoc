@@ -19,6 +19,8 @@ export function getTypeInfo(schema) {
     if (schema.nullable) {
       dataType += '┃null';
     }
+  } else if (Object.keys(schema).length === 0) {
+    dataType = 'any';
   } else {
     dataType = '{missing-type-info}';
   }
@@ -40,7 +42,7 @@ export function getTypeInfo(schema) {
 
   if (info.type === '{recursive}') {
     info.description = schema.$ref.substring(schema.$ref.lastIndexOf('/') + 1);
-  } else if (info.type === '{missing-type-info}') {
+  } else if (info.type === '{missing-type-info}' || info.type === 'any') {
     info.description = info.description || '';
   }
 
@@ -78,7 +80,9 @@ export function getTypeInfo(schema) {
   info.html = `${info.type}~|~${info.readOrWriteOnly}~|~${info.constrain}~|~${info.default}~|~${info.allowedValues}~|~${info.pattern}~|~${info.description}~|~${schema.title || ''}~|~${info.deprecated ? 'deprecated' : ''}`;
   return info;
 }
-
+export function nestExampleIfPresent(example) {
+  return example ? { Example: { value: example } } : example;
+}
 export function normalizeExamples(examples, dataType = 'string') {
   let exampleVal;
   let exampleList;
@@ -801,4 +805,29 @@ export function generateExample(examples = '', example = '', schema, mimeType, i
     }
   }
   return finalExamples;
+}
+
+function getSerializeStyleForContentType(contentType) {
+  if (contentType === 'application/json') {
+    return 'json';
+  }
+  if (contentType === 'application/xml') {
+    return 'xml';
+  }
+  return null;
+}
+
+export function getSchemaFromParam(param) {
+  if (param.schema) {
+    return [param.schema, null];
+  }
+  if (param.content) {
+    // we gonna use the first content-encoding
+    for (const contentType of Object.keys(param.content)) {
+      if (param.content[contentType].schema) {
+        return [param.content[contentType].schema, getSerializeStyleForContentType(contentType), param.content[contentType]];
+      }
+    }
+  }
+  return [null, null];
 }

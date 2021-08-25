@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title:  Dynamic Query Params 
+  title:  Dynamic Query Params
   version: 1.0.0
 paths:
   /dynamic-query-params:
@@ -11,14 +11,14 @@ paths:
       description: >
         Following OpenAPI spec demonstrate various ways to pass query params.
           - you may pass predefined query params
-          - you may create dynamic query params by defining a query-param as an object, 
+          - you may create dynamic query params by defining a query-param as an object,
             in that case each key of the object will be treated as a seperate param
           - Array serialization depends on `style` and `explode` property
 
         ```yaml
          openapi: 3.0.0
           info:
-            title:  Dynamic Query Params 
+            title:  Dynamic Query Params
             version: 1.0.0
           paths:
             /dynamic-query-params:
@@ -27,7 +27,11 @@ paths:
                   - Query Params
                 summary:  Various ways to pass query params
                 parameters:
-                  - name: furits
+                  - name: limit
+                    in: query
+                    schema:
+                      type: integer
+                  - name: fruits
                     in: query
                     style: form
                     explode: false
@@ -45,51 +49,67 @@ paths:
                     name: dynamic-query-params1
                     schema:
                       type: object
-                      additionalProperties:
-                        type: string
+                      additionalProperties: {}
                   - in: query
                     name: dynamic-query-params2
                     style: form
                     explode: false
                     schema:
                       type: object
-                      additionalProperties:
-                        type: string
+                      additionalProperties: {}
                   - in: query
                     name: dynamic-query-params3
                     style: pipeDelimited
                     explode: false
                     schema:
                       type: object
-                      additionalProperties:
-                        type: string
+                      additionalProperties: {}
+                  - in: query
+                    name: dynamic-query-params4
+                    content:
+                      "application/json":
+                        schema:
+                          type: object
+                          properties:
+                            someProperty:
+                              type: string
+                          additionalProperties:
+                          type: string
                 responses:
                   '200':
                     description: successful operation
           ```
       parameters:
-        - name: furits
+        - name: limit
           in: query
-          example: 
+          example: 10
+          description: >
+            primitive non-dynamic parameter can coexist with dynamic parameters <br />
+            `limit=10`
+          schema:
+            type: integer
+        - name: fruits
+          in: query
+          example:
             - apple
             - banana
             - grape
           description: >
             not-exploded array, should be serialized as <br />
-            `fruits=apple,banana,grape` 
+            `fruits=apple,banana,grape`
           schema:
             type: array
             items:
               type: string
         - name: colors
           in: query
-          example: 
+          example:
             - red
             - black
             - white
           description: >
             exploded array, should be serialized as <br />
-            `colors=red&colors=black&colors=white` 
+            `colors=red&colors=black&colors=white`
           schema:
             type: array
             items:
@@ -101,14 +121,13 @@ paths:
             `a=1&b=2&colors=red&colors=black&e=3`
           schema:
             type: object
-            additionalProperties:
-              type: string
+            additionalProperties: {}
           example: >
             {
               "a":1,
               "b":2,
               "colors":[
-                "red", 
+                "red",
                 "black"
               ],
               "d":{ "d1":1, "d2":2 },
@@ -123,14 +142,13 @@ paths:
           explode: false
           schema:
             type: object
-            additionalProperties:
-              type: string
+            additionalProperties: {}
           example: >
             {
               "f":1,
               "g":2,
               "hobbies":[
-                "music", 
+                "music",
                 "dance"
               ]
             }
@@ -143,14 +161,32 @@ paths:
           explode: false
           schema:
             type: object
-            additionalProperties:
-              type: string
+            additionalProperties: {}
           example: >
             {
               "i":1,
               "j":2,
               "keys":["public", "private"]
-            }            
+            }
+        - in: query
+          name: dynamic-query-params4
+          description: >
+            Parameters with JSON encoding are JSON encoded and escaped: <br />
+            `dynamic-query-params4=%7B%22someProperty%22%3A%22foo%22%2C%22bar%22%3A%22baz%22%7D`
+          content:
+            "application/json":
+              example: >
+                {
+                  "someProperty": "foo",
+                  "bar": "baz"
+                }
+              schema:
+                type: object
+                properties:
+                  someProperty:
+                    type: string
+                additionalProperties:
+                  type: string
       responses:
         '200':
           description: successful operation

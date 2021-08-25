@@ -13,7 +13,7 @@ import TabStyles from '~/styles/tab-styles';
 import PrismStyles from '~/styles/prism-styles';
 import CustomStyles from '~/styles/custom-styles';
 import { copyToClipboard, prettyXml } from '~/utils/common-utils';
-import { schemaInObjectNotation, getTypeInfo, generateExample, normalizeExamples } from '~/utils/schema-utils';
+import { schemaInObjectNotation, getTypeInfo, generateExample, normalizeExamples, getSchemaFromParam, json2xml, nestExampleIfPresent } from '~/utils/schema-utils';
 import '~/components/json-tree';
 import '~/components/schema-tree';
 import '~/components/tag-input';
@@ -30,6 +30,7 @@ export default class ApiRequest extends LitElement {
     this.activeResponseTab = 'response'; // allowed values: response, headers, curl
     this.selectedRequestBodyType = '';
     this.selectedRequestBodyExample = '';
+    this.activeParameterSchemaTabs = {};
   }
 
   static get properties() {
@@ -54,6 +55,14 @@ export default class ApiRequest extends LitElement {
       renderStyle: { type: String, attribute: 'render-style' },
       schemaStyle: { type: String, attribute: 'schema-style' },
       activeSchemaTab: { type: String, attribute: 'active-schema-tab' },
+      activeParameterSchemaTabs: {
+        type: Object,
+        converter: {
+          fromAttribute: (attr) => JSON.parse(attr),
+          toAttribute: (prop) => JSON.stringify(prop),
+        },
+        attribute: 'active-parameter-schema-tabs',
+      },
       schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
       schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
       allowSchemaDescriptionExpandToggle: { type: String, attribute: 'allow-schema-description-expand-toggle' },
@@ -258,13 +267,15 @@ export default class ApiRequest extends LitElement {
 
     const tableRows = [];
     for (const param of filteredParams) {
-      if (!param.schema) {
+      const [declaredParamSchema, serializeStyle, mimeTypeElem] = getSchemaFromParam(param);
+      if (!declaredParamSchema) {
         continue;
       }
-      const paramSchema = getTypeInfo(param.schema);
+      const paramSchema = getTypeInfo(declaredParamSchema);
       if (!paramSchema) {
         continue;
       }
+      const schemaAsObj = schemaInObjectNotation(declaredParamSchema, {});
       // let exampleVal = '';
       // let exampleList = [];
       let paramStyle = 'form';
@@ -272,6 +283,8 @@ export default class ApiRequest extends LitElement {
       if (paramType === 'query') {
         if (param.style && 'form spaceDelimited pipeDelimited'.includes(param.style)) {
           paramStyle = param.style;
+        } else if (serializeStyle) {
+          paramStyle = serializeStyle;
         }
         if (typeof param.explode === 'boolean') {
           paramExplode = param.explode;
@@ -279,7 +292,27 @@ export default class ApiRequest extends LitElement {
       }
 
       // openapi 3.1.0 spec based examples (which must be Object(string : { value:any, summary?: string, description?: string})
-      const example = normalizeExamples((param.examples || param.example || paramSchema.examples || paramSchema.example), paramSchema.type);
+      const example = normalizeExamples(
+        (param.examples
+          || nestExampleIfPresent(param.example)
+          || nestExampleIfPresent(mimeTypeElem?.example)
+          || mimeTypeElem?.examples
+          || paramSchema.examples
+          || nestExampleIfPresent(paramSchema.example)
+        ),
+        paramSchema.type,
+      );
+      if (!example.exampleVal && paramSchema.type === 'object') {
+        example.exampleVal = generateExample(
+          '',
+          '',
+          declaredParamSchema,
+          serializeStyle,
+          true,
+          true,
+          'text',
+        )[0].exampleValue;
+      }
       const labelColWidth = 'read focused'.includes(this.renderStyle) ? '200px' : '160px';
       tableRows.push(html`
       <tr> 
@@ -313,18 +346,46 @@ export default class ApiRequest extends LitElement {
                   </tag-input>`
                 : paramSchema.type === 'object'
                   ? html`
-                    <textarea 
-                      class = "textarea request-param"
-                      part = "textarea textarea-param"
-                      data-ptype = "${paramType}-object"
-                      data-pname = "${param.name}"
-                      data-example = "${example.exampleVal}"
-                      data-param-serialize-style = "${paramStyle}"
-                      data-param-serialize-explode = "${paramExplode}"
-                      spellcheck = "false"
-                      .textContent = "${this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : ''}"
-                      style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
-                    ></textarea>`
+                    <div class="tab-panel col" style="border-width:0 0 1px 0;">
+                      <div class="tab-buttons row" @click="${(e) => {
+                  if (e.target.tagName.toLowerCase() === 'button') {
+                    const newState = { ...this.activeParameterSchemaTabs };
+                    newState[param.name] = e.target.dataset.tab;
+                    this.activeParameterSchemaTabs = newState;
+                  }
+                }}">
+                        <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
+                        <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
+                      </div>
+                      ${this.activeParameterSchemaTabs[param.name] === 'example'
+                        ? html`<div class="tab-content col">
+                          <textarea 
+                            class = "textarea request-param"
+                            part = "textarea textarea-param"
+                            data-ptype = "${paramType}-object"
+                            data-pname = "${param.name}"
+                            data-example = "${example.exampleVal}"
+                            data-param-serialize-style = "${paramStyle}"
+                            data-param-serialize-explode = "${paramExplode}"
+                            spellcheck = "false"
+                            .textContent = "${this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : ''}"
+                            style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
+                          ></textarea>
+                        </div>`
+                        : html`<div class="tab-content col">            
+                                <schema-tree
+                                  class = 'json'
+                                  style = 'display: block'
+                                  .data = '${schemaAsObj}'
+                                  schema-expand-level = "${this.schemaExpandLevel}"
+                                  schema-description-expanded = "${this.schemaDescriptionExpanded}"
+                                  allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+                                  schema-hide-read-only = "${this.schemaHideReadOnly.includes(this.method)}"
+                                  schema-hide-write-only = false
+                                > </schema-tree>
+                              </div>`
+                        }
+                    </div>`
                   : html`
                     <input type="${paramSchema.format === 'password' ? 'password' : 'text'}" spellcheck="false" style="width:100%" 
                       class="request-param"
@@ -367,11 +428,11 @@ export default class ApiRequest extends LitElement {
               </div>`
             : ''
           }
-        </td>  
+        </td>
       </tr>
       <tr>
         ${this.allowTry === 'true' ? html`<td style="border:none"> </td>` : ''}
-        <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;"> 
+        <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;">
           <span class="m-markdown-small">${unsafeHTML(marked(param.description || ''))}</span>
           ${this.exampleListTemplate.call(this, param.name, paramSchema.type, example.exampleList)}
         </td>
@@ -599,8 +660,8 @@ export default class ApiRequest extends LitElement {
           ? html`
             <div class="tab-panel col" style="border-width:0 0 1px 0;">
               <div class="tab-buttons row" @click="${(e) => { if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; } }}">
-                <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}"   data-tab = 'schema'>SCHEMA</button>
-                <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
+                <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
+                <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
               </div>
               ${this.activeSchemaTab === 'example'
                 ? html`<div class="tab-content col"> ${reqBodyExampleHtml}</div>`
@@ -992,8 +1053,8 @@ export default class ApiRequest extends LitElement {
     });
 
     // Query Params
+    const urlQueryParam = new URLSearchParams();
     if (queryParamEls.length > 0) {
-      const urlQueryParam = new URLSearchParams();
       queryParamEls.forEach((el) => {
         if (el.dataset.array === 'false') {
           if (el.value !== '') {
@@ -1019,45 +1080,51 @@ export default class ApiRequest extends LitElement {
           }
         }
       });
-      fetchUrl = `${fetchUrl}${urlQueryParam.toString() ? '?' : ''}${urlQueryParam.toString()}`;
     }
 
     // Query Params (Dynamic - create from JSON)
     if (queryParamObjTypeEls.length > 0) {
-      const urlDynQueryParam = new URLSearchParams();
       queryParamObjTypeEls.map((el) => {
         try {
           let queryParamObj = {};
           const paramSerializeStyle = el.dataset.paramSerializeStyle;
           const paramSerializeExplode = el.dataset.paramSerializeExplode;
           queryParamObj = Object.assign(queryParamObj, JSON.parse(el.value.replace(/\s+/g, ' ')));
-          for (const key in queryParamObj) {
-            if (typeof queryParamObj[key] === 'object') {
-              if (Array.isArray(queryParamObj[key])) {
-                if (paramSerializeStyle === 'spaceDelimited') {
-                  urlDynQueryParam.append(key, queryParamObj[key].join(' '));
-                } else if (paramSerializeStyle === 'pipeDelimited') {
-                  urlDynQueryParam.append(key, queryParamObj[key].join('|'));
-                } else {
-                  if (paramSerializeExplode === 'true') { // eslint-disable-line no-lonely-if
-                    queryParamObj[key].forEach((v) => {
-                      urlDynQueryParam.append(key, v);
-                    });
+          if ('json xml'.includes(paramSerializeStyle)) {
+            if (paramSerializeStyle === 'json') {
+              urlQueryParam.append(el.dataset.pname, JSON.stringify(queryParamObj));
+            } else if (paramSerializeStyle === 'xml') {
+              urlQueryParam.append(el.dataset.pname, json2xml(queryParamObj));
+            }
+          } else {
+            for (const key in queryParamObj) {
+              if (typeof queryParamObj[key] === 'object') {
+                if (Array.isArray(queryParamObj[key])) {
+                  if (paramSerializeStyle === 'spaceDelimited') {
+                    urlQueryParam.append(key, queryParamObj[key].join(' '));
+                  } else if (paramSerializeStyle === 'pipeDelimited') {
+                    urlQueryParam.append(key, queryParamObj[key].join('|'));
                   } else {
-                    urlDynQueryParam.append(key, queryParamObj[key]);
+                    if (paramSerializeExplode === 'true') { // eslint-disable-line no-lonely-if
+                      queryParamObj[key].forEach((v) => {
+                        urlQueryParam.append(key, v);
+                      });
+                    } else {
+                      urlQueryParam.append(key, queryParamObj[key]);
+                    }
                   }
                 }
+              } else {
+                urlQueryParam.append(key, queryParamObj[key]);
               }
-            } else {
-              urlDynQueryParam.append(key, queryParamObj[key]);
             }
           }
-          fetchUrl = `${fetchUrl}${urlDynQueryParam.toString() ? '?' : ''}${urlDynQueryParam.toString()}`;
         } catch (err) {
           console.log('RapiDoc: unable to parse %s into object', el.value); // eslint-disable-line no-console
         }
       });
     }
+    fetchUrl = `${fetchUrl}${urlQueryParam.toString() ? '?' : ''}${urlQueryParam.toString()}`;
 
     // Add authentication Query-Param if provided
     this.api_keys
