@@ -2,10 +2,45 @@
 import { html } from 'lit-element';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import marked from 'marked';
+import { schemaInObjectNotation } from '~/utils/schema-utils';
 import '~/components/json-tree';
 import '~/components/schema-tree';
+import '~/components/schema-table';
+
+function schemaBodyTemplate(sComponent) {
+  return html`
+  <div class='divider'></div>
+  <div class='expanded-endpoint-body observe-me ${sComponent.name}' id='cmp--${sComponent.id}' >
+    <h1> ${sComponent.name} </h1>
+  ${this.schemaStyle === 'table'
+    ? html`
+      <schema-table
+        render-style = '${this.renderStyle}'
+        .data = '${schemaInObjectNotation(sComponent.component, {})}'
+        schema-expand-level = "${this.schemaExpandLevel}"
+        schema-description-expanded = "${this.schemaDescriptionExpanded}"
+        allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+        schema-hide-read-only = false
+        schema-hide-write-only = ${this.schemaHideWriteOnly}
+      > </schema-tree> `
+    : html`
+      <schema-tree
+        render-style = '${this.renderStyle}'
+        .data = '${schemaInObjectNotation(sComponent.component, {})}'
+        schema-expand-level = "${this.schemaExpandLevel}"
+        schema-description-expanded = "${this.schemaDescriptionExpanded}"
+        allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+        schema-hide-read-only = false
+        schema-hide-write-only = ${this.schemaHideWriteOnly}
+      > </schema-tree>`
+}
+  </div>`;
+}
 
 function componentBodyTemplate(sComponent) {
+  if (sComponent.id.indexOf('schemas-') !== -1) {
+    return schemaBodyTemplate.call(this, sComponent);
+  }
   return html`
   <div class='divider'></div>
   <div class='expanded-endpoint-body observe-me ${sComponent.name}' id='cmp--${sComponent.id}' >
@@ -33,7 +68,7 @@ export default function componentsTemplate() {
       </div>
     </div>
     <div class='regular-font section-gap--read-mode'>
-      ${component.subComponents.map((sComponent) => componentBodyTemplate.call(this, sComponent))}
+      ${component.subComponents.filter((c) => c.expanded !== false).map((sComponent) => componentBodyTemplate.call(this, sComponent))}
     </div>
     `)
 }

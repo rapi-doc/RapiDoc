@@ -229,7 +229,7 @@ export default function navbarTemplate() {
                 @click='${(e) => this.scrollToEventTarget(e, false)}'>
                 ${component.name}
               </div>
-              ${component.subComponents.map((p) => html`
+              ${component.subComponents.filter((p) => p.expanded !== false).map((p) => html`
                 <div class='nav-bar-path' data-content-id='cmp--${p.id}' id='link-cmp--${p.id}' @click='${(e) => this.scrollToEventTarget(e, false)}'>
                   <span> ${p.name} </span>
                 </div>`)
