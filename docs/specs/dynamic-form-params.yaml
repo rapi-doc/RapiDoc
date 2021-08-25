@@ -71,9 +71,17 @@ paths:
                 name:
                   type: string
                   description: name of person
+                  examples:
+                    example1: 
+                      summary: Fullname
+                      value: Nikola Tesla
+                    example2:
+                      summary: Name with prefix
+                      value: Dr. Albert Einstein
                 age:
                   type: integer
                   description: age of person
+                  example: 28
       responses:
         '200':
           description: OK

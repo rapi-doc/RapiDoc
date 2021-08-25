@@ -140,6 +140,7 @@ paths:
                         type: string
               examples:
                 example-1:
+                  description: Exmple 1 Description
                   value: |
                     <root>
                       <person>
@@ -150,17 +151,6 @@ paths:
                         <age> 9 </age>
                       </person>
                     </root>
-                example-2:
-                  value: |
-                    <root>
-                      <person>
-                        <fullName>
-                          <firstName> Pluto </firstName>
-                        </fullName>
-                        <age> 4 </age>
-                      </person>
-                    </root>
-
   /single-example-by-response-type:
     get:
       summary: Single Example at schema Level

@@ -696,7 +696,6 @@ export default class ApiRequest extends LitElement {
         const paramSchema = getTypeInfo(fieldSchema);
         const labelColWidth = 'read focused'.includes(this.renderStyle) ? '200px' : '160px';
         const example = normalizeExamples((paramSchema.examples || paramSchema.example), paramSchema.type);
-
         formDataTableRows.push(html`
         <tr> 
           <td style="width:${labelColWidth}; min-width:100px;">
@@ -748,7 +747,7 @@ export default class ApiRequest extends LitElement {
                   : html`
                     ${this.allowTry === 'true'
                       ? html`<input
-                          .value = "${this.fillRequestFieldsWithExample === 'true' ? (Array.isArray(fieldExamples) ? fieldExamples[0] : fieldExamples) : ''}"
+                          .value = "${this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : ''}"
                           spellcheck = "false"
                           type = "${fieldSchema.format === 'binary' ? 'file' : fieldSchema.format === 'password' ? 'password' : 'text'}"
                           part = "textbox textbox-param"
