@@ -1225,10 +1225,12 @@ export default class ApiRequest extends LitElement {
       let respJson;
       let respText;
       tryBtnEl.disabled = true;
+      const startTime = performance.now();
       fetchResponse = await fetch(fetchRequest);
+      const endTime = performance.now();
       responseClone = fetchResponse.clone(); // create a response clone to allow reading response body again (response.json, response.text etc)
       tryBtnEl.disabled = false;
-      this.responseMessage = fetchResponse.statusText ? `${fetchResponse.statusText}:${fetchResponse.status}` : fetchResponse.status;
+      this.responseMessage = html`${fetchResponse.statusText ? `${fetchResponse.statusText}:${fetchResponse.status}` : fetchResponse.status} <div style="color:var(--light-fg)"> Took ${Math.round(endTime - startTime)} milliseconds </div>`;
       this.responseUrl = fetchResponse.url;
       const respHeadersObj = {};
       fetchResponse.headers.forEach((hdrVal, hdr) => {
