@@ -108,6 +108,7 @@ export default class ApiRequest extends LitElement {
           min-height:220px; 
           padding:5px;
           resize:vertical;
+          direction: ltr;
         }
         .example:first-child {
           margin-top: -9px;

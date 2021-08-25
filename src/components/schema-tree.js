@@ -35,6 +35,7 @@ export default class SchemaTree extends LitElement {
       .tree {
         font-size:var(--font-size-small);
         text-align: left;
+        direction: ltr;
         line-height:calc(var(--font-size-small) + 6px);
       }
       .tree .tr:hover{

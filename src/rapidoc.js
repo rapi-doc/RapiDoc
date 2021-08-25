@@ -90,6 +90,7 @@ export default class RapiDoc extends LitElement {
       allowServerSelection: { type: String, attribute: 'allow-server-selection' },
       allowSchemaDescriptionExpandToggle: { type: String, attribute: 'allow-schema-description-expand-toggle' },
       showComponents: { type: String, attribute: 'show-components' },
+      pageDirection: { type: String, attribute: 'page-direction' },
 
       // Main Colors and Font
       theme: { type: String },

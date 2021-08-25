@@ -55,7 +55,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
       ${path.isWebhook
         ? html`<span style="color:var(--primary-color); font-weight:bold; font-size: var(--font-size-regular);"> WEBHOOK </span>`
         : html`
-          <div class='mono-font part="section-operation-url" regular-font-size' style='padding: 8px 0; color:var(--fg3)'> 
+          <div class='mono-font part="section-operation-url" regular-font-size' style='text-align:left; direction:ltr; padding: 8px 0; color:var(--fg3)'> 
             <span part="label-operation-method" class='regular-font upper method-fg bold-text ${path.method}'>${path.method}</span> 
             <span part="label-operation-path">${path.path}</span>
           </div>
