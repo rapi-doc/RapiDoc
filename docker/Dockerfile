@@ -1,5 +1,5 @@
 # Run the Docker image (view a spec thats hosted on a web-server)
-# docker run -it --rm -p 80:80 -e SPEC_URL="http://petstore.swagger.io/v2/swagger.json" rapidoc
+# docker run -it --rm -p 80:80 -e SPEC_URL="http://petstore.swagger.io/v2/swagger.json" mrin9/rapidoc
 
 # Run the Docker image (view a spec thats on the local disk)
 # Mount the local spec onto nginx server (available in the docker container)
@@ -19,25 +19,19 @@
 #    -e SPEC_URL="http://petstore.swagger.io/v2/swagger.json" \
 #    -e RAPIDOC_OPTIONS="theme='dark' server-url='http://localhost:8080/api'" mrin9/rapidoc
 
-FROM node:alpine
+# build stage
+FROM node:lts-alpine as build-stage
+WORKDIR /app
+COPY package*.json ./
+COPY docker/* ./docker/*
+RUN npm install
+COPY . .
+RUN npm run build
 
-RUN apk update
-
-# Copy files needed for building
-WORKDIR /build
-COPY package.json yarn.lock webpack.config.js .babelrc .eslintrc jsconfig.json index.html /build/
-
-# Copy src
-COPY src /build/src
-
-# Install Dependencies
-RUN yarn install --frozen-lockfile --silent
-
-# Build
-RUN yarn build
-
-
-FROM nginx:alpine
+# production stage
+FROM nginx:stable-alpine as production-stage
+COPY --from=build-stage /app/dist /app
+COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
 
 ENV PAGE_TITLE="RapiDoc"
 ENV PAGE_FAVICON="favicon.png"
