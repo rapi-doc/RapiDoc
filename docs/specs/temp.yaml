@@ -1,43 +1,35 @@
-openapi: "3.0.0"
+openapi: 3.1.0
 info:
+  title: GitHub Issue 547
   version: 1.0.0
-  title: Swagger Petstore
-  license:
-    name: MIT
-servers:
-  - url: http://petstore.swagger.io/v1
+  contact:
+    name: SeerUK
 paths:
-  /pets:
+  /v1/example:
     get:
-      summary: List all pets
-      operationId: listPets
-      tags:
-        - pets
-      parameters: []
+      summary: /v1/example
       responses:
         '200':
-          description: Array of pets
+          description: Example response
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Pets"
+                $ref: '#/components/schemas/ExampleResponse'
+      operationId: v1Example
+
 components:
   schemas:
-    Pets:
-      oneOf:
-        - type: object
-          properties:
-            opt1A:
+    ExampleResponse:
+      type: object
+      description: Description for Foo and Bar
+      allOf:
+        - properties:
+            bar:
               type: string
-            opt1B:
-                type: string
-        - type: object
-          properties:
-            opt2:
-              type: string
+        - $ref: '#/components/schemas/SomeObjectType'
+    SomeObjectType:
+      type: object
+      description: Description for Foo
       properties:
-        otherprop1:
+        foo:
           type: string
-        otherprop2:
-          type: string
-          minLength: 10              
