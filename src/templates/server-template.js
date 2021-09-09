@@ -6,6 +6,13 @@ function onApiServerChange(e, server) {
   if (e && e.target.checked) {
     this.selectedServer = server;
     this.requestUpdate();
+    this.dispatchEvent(new CustomEvent('api-server-change', {
+      bubbles: true,
+      composed: true,
+      detail: {
+        selectedServer: server,
+      },
+    }));
   }
 }
 
