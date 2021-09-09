@@ -1343,7 +1343,7 @@ export default class ApiRequest extends LitElement {
         }
         if (this.responseIsBlob) {
           const contentDisposition = fetchResponse.headers.get('content-disposition');
-          this.respContentDisposition = contentDisposition ? contentDisposition.split('filename=')[1] : 'filename';
+          this.respContentDisposition = contentDisposition ? contentDisposition.split('filename=')[1].replace(/\\"/g, '') : 'filename';
           respBlob = await fetchResponse.blob();
           this.responseBlobUrl = URL.createObjectURL(respBlob);
         }
