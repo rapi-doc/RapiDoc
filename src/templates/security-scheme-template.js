@@ -13,7 +13,7 @@ function onApiKeyChange(apiKeyId, e) {
     if (securityObj.type && securityObj.scheme && securityObj.type === 'http' && securityObj.scheme.toLowerCase() === 'basic') {
       const userVal = trEl.querySelector('.api-key-user').value.trim();
       const passwordVal = trEl.querySelector('.api-key-password').value.trim();
-      if (userVal && passwordVal) {
+      if (userVal) {
         apiKeyValue = `Basic ${btoa(`${userVal}:${passwordVal}`)}`;
       }
     } else {
