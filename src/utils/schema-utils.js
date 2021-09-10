@@ -126,9 +126,9 @@ export function normalizeExamples(examples, dataType = 'string') {
 export function getSampleValueByType(schemaObj) {
   const example = schemaObj.examples
     ? schemaObj.examples[0]
-    : schemaObj.example
-      ? schemaObj.example
-      : undefined;
+    : schemaObj.example === null
+      ? null
+      : schemaObj.example || undefined;
   if (example === '') { return ''; }
   if (example === null) { return null; }
   if (example === 0) { return 0; }
