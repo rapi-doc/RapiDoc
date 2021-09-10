@@ -13,7 +13,7 @@ export default class TagInput extends LitElement {
     return html`
       <div class='tags' tabindex="0">
         ${tagItemTmpl}
-        <input type="text" class='editor' @paste="${(e) => this.afterPaste(e)}" @keydown="${this.afterKeyDown}" placeholder="${this.placeholder || ''}">
+        <input type="text" class='editor' @paste="${(e) => this.afterPaste(e)}" @keydown="${this.afterKeyDown}" @blur="${this.onBlur}" placeholder="${this.placeholder || ''}">
       </div>
     `;
   }
@@ -61,6 +61,17 @@ export default class TagInput extends LitElement {
           this.value = [...this.value];
         }
       }
+    }
+  }
+
+  onBlur(e) {
+    if (e.target.value) {
+      if (Array.isArray(this.value)) {
+        this.value = [...this.value, e.target.value];
+      } else {
+        this.value = [e.target.value];
+      }
+      e.target.value = '';
     }
   }
 
