@@ -108,7 +108,7 @@ export default function navbarTemplate() {
               </div>
               ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? html`<hr style='border-top: 1px solid var(--nav-hover-bg-color); border-width:1px 0 0 0; margin: 15px 0 0 0'/>` : ''}
             `
-            : html`<div class='nav-bar-info'  id='link-overview' data-content-id='overview' @click = '${(e) => this.scrollToEventTarget(e, false)}'> Overview </div>`
+            : html`<div class='nav-bar-info' id='link-overview' data-content-id='overview' @click = '${(e) => this.scrollToEventTarget(e, false)}'> Overview </div>`
           }
         `
       }
@@ -215,7 +215,7 @@ export default function navbarTemplate() {
       }
 
       <!-- COMPONENTS -->
-      ${this.resolvedSpec.components && this.showComponents === 'true'
+      ${this.resolvedSpec.components && this.showComponents === 'true' && this.renderStyle === 'focused'
         ? html`
           <div id='link-components' class='nav-bar-section'>
             <div></div>
