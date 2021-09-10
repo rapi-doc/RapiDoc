@@ -47,7 +47,8 @@ export default class RapiDoc extends LitElement {
       gotoPath: { type: String, attribute: 'goto-path' },
 
       // Spec
-      updateRoutes: { type: String, attribute: 'update-routes' },
+      updateRoute: { type: String, attribute: 'update-route' },
+      routePrefix: { type: String, attribute: 'route-prefix' },
       specUrl: { type: String, attribute: 'spec-url' },
       sortTags: { type: String, attribute: 'sort-tags' },
       generateMissingTags: { type: String, attribute: 'generate-missing-tags' },
@@ -444,7 +445,8 @@ export default class RapiDoc extends LitElement {
     if (!this.apiKeyName) { this.apiKeyName = ''; }
 
     if (!this.oauthReceiver) { this.oauthReceiver = 'oauth-receiver.html'; }
-    if (!this.updateRoutes || !'true, false,'.includes(`${this.updateRoutes},`)) { this.updateRoutes = 'true'; }
+    if (!this.updateRoute || !'true, false,'.includes(`${this.updateRoute},`)) { this.updateRoute = 'true'; }
+    if (!this.routePrefix) { this.routePrefix = '#'; }
     if (!this.sortTags || !'true, false,'.includes(`${this.sortTags},`)) { this.sortTags = 'false'; }
     if (!this.generateMissingTags || !'true, false,'.includes(`${this.generateMissingTags},`)) { this.generateMissingTags = 'false'; }
     if (!this.sortEndpointsBy || !'method, path, summary, none,'.includes(`${this.sortEndpointsBy},`)) { this.sortEndpointsBy = 'path'; }
@@ -763,7 +765,9 @@ export default class RapiDoc extends LitElement {
         const gotoEl = this.shadowRoot.getElementById(tmpElementId);
         if (gotoEl) {
           gotoEl.scrollIntoView({ behavior: 'auto', block: 'start' });
-          window.history.replaceState(null, null, `#${tmpElementId}`);
+          if (this.updateRoute === 'true') {
+            window.history.replaceState(null, null, `${this.routePrefix || '#'}${tmpElementId}`);
+          }
         }
       }, isExpandingNeeded ? 150 : 0);
     }
@@ -800,7 +804,9 @@ export default class RapiDoc extends LitElement {
 
         // Add active class in the new element
         if (newNavEl) {
-          window.history.replaceState(null, null, `${window.location.href.split('#')[0]}#${entry.target.id}`);
+          if (this.updateRoute === 'true') {
+            window.history.replaceState(null, null, `${window.location.href.split('#')[0]}${this.routePrefix || '#'}${entry.target.id}`);
+          }
           newNavEl.scrollIntoView({ behavior: 'auto', block: 'center' });
           newNavEl.classList.add('active');
         }
@@ -880,7 +886,9 @@ export default class RapiDoc extends LitElement {
         }
 
         // Update Location Hash
-        window.history.replaceState(null, null, `#${elementId}`);
+        if (this.updateRoute === 'true') {
+          window.history.replaceState(null, null, `${this.routePrefix || '#'}${elementId}`);
+        }
 
         // Update NavBar View and Styles
         const newNavEl = this.shadowRoot.getElementById(`link-${elementId}`);

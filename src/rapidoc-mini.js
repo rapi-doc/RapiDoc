@@ -30,7 +30,7 @@ export default class RapiDocMini extends LitElement {
   constructor() {
     super();
     this.isMini = true;
-    this.updateRoutes = 'false';
+    this.updateRoute = 'false';
     this.renderStyle = 'view';
     this.showHeader = 'false';
     this.allowAdvancedSearch = 'false';
