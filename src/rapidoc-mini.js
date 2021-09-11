@@ -80,6 +80,7 @@ export default class RapiDocMini extends LitElement {
 
       // Filters
       matchPaths: { type: String, attribute: 'match-paths' },
+      matchType: { type: String, attribute: 'match-type' },
 
       // Internal Properties
       loading: { type: Boolean }, // indicates spec is being loaded
@@ -176,6 +177,7 @@ export default class RapiDocMini extends LitElement {
     if (!this.sortTags || !'true, false,'.includes(`${this.sortTags},`)) { this.sortTags = 'false'; }
     if (!this.sortEndpointsBy || !'method, path, summary,'.includes(`${this.sortEndpointsBy},`)) { this.sortEndpointsBy = 'path'; }
     if (!this.fontSize || !'default, large, largest,'.includes(`${this.fontSize},`)) { this.fontSize = 'default'; }
+    if (!this.matchType || !'includes regex'.includes(this.matchType)) { this.matchType = 'includes'; }
 
     if (!this.allowSchemaDescriptionExpandToggle || !'true, false,'.includes(`${this.allowSchemaDescriptionExpandToggle},`)) { this.allowSchemaDescriptionExpandToggle = 'true'; }
     if (!this.fetchCredentials || !'omit, same-origin, include,'.includes(`${this.fetchCredentials},`)) { this.fetchCredentials = ''; }

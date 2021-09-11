@@ -191,7 +191,7 @@ export default function endpointTemplate(showExpandCollapse = true, showTags = t
               </div>
               ${tag.paths.filter((v) => {
                 if (this.matchPaths) {
-                  return pathIsInSearch(this.matchPaths, v);
+                  return pathIsInSearch(this.matchPaths, v, this.matchType);
                 }
                 return true;
                 }).map((path) => html`
@@ -206,7 +206,7 @@ export default function endpointTemplate(showExpandCollapse = true, showTags = t
           <div class='section-tag-body'>
           ${tag.paths.filter((v) => {
             if (this.matchPaths) {
-              return pathIsInSearch(this.matchPaths, v);
+              return pathIsInSearch(this.matchPaths, v, this.matchType);
             }
             return true;
             }).map((path) => html`

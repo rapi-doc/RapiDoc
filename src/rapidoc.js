@@ -119,6 +119,7 @@ export default class RapiDoc extends LitElement {
 
       // Filters
       matchPaths: { type: String, attribute: 'match-paths' },
+      matchType: { type: String, attribute: 'match-type' },
 
       // Internal Properties
       loading: { type: Boolean }, // indicates spec is being loaded
@@ -463,6 +464,7 @@ export default class RapiDoc extends LitElement {
     if (!this.showComponents || !'true false'.includes(this.showComponents)) { this.showComponents = 'false'; }
     if (!this.infoDescriptionHeadingsInNavBar || !'true, false,'.includes(`${this.infoDescriptionHeadingsInNavBar},`)) { this.infoDescriptionHeadingsInNavBar = 'false'; }
     if (!this.fetchCredentials || !'omit, same-origin, include,'.includes(`${this.fetchCredentials},`)) { this.fetchCredentials = ''; }
+    if (!this.matchType || !'includes regex'.includes(this.matchType)) { this.matchType = 'includes'; }
 
     if (!this.showAdvancedSearchDialog) { this.showAdvancedSearchDialog = false; }
 
@@ -614,7 +616,7 @@ export default class RapiDoc extends LitElement {
     this.resolvedSpec.tags.forEach((tag) => tag.paths.filter((v) => {
       if (this.matchPaths) {
         // v.expanded = false;
-        if (pathIsInSearch(this.matchPaths, v)) {
+        if (pathIsInSearch(this.matchPaths, v, this.matchType)) {
           tag.expanded = true;
         }
       }
