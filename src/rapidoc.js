@@ -494,13 +494,10 @@ export default class RapiDoc extends LitElement {
     return renderer;
   }
 
-  /* eslint-disable indent */
   render() {
     // return render(mainBodyTemplate(this), this.shadowRoot, { eventContext: this });
     return mainBodyTemplate.call(this);
   }
-
-  /* eslint-enable indent */
 
   observeExpandedContent() {
     // Main Container

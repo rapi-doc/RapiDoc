@@ -12,7 +12,7 @@ import BorderStyles from '~/styles/border-styles';
 import TabStyles from '~/styles/tab-styles';
 import PrismStyles from '~/styles/prism-styles';
 import CustomStyles from '~/styles/custom-styles';
-import { copyToClipboard, prettyXml } from '~/utils/common-utils';
+import { copyToClipboard, prettyXml, downloadResource, viewResource } from '~/utils/common-utils';
 import { schemaInObjectNotation, getTypeInfo, generateExample, normalizeExamples, getSchemaFromParam, json2xml, nestExampleIfPresent } from '~/utils/schema-utils';
 import '~/components/json-tree';
 import '~/components/schema-tree';
@@ -915,9 +915,11 @@ export default class ApiRequest extends LitElement {
         ${this.responseIsBlob
           ? html`
             <div class="tab-content col" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};">
-              <button class="m-btn thin-border mar-top-8" style="width:135px" @click="${this.downloadResponseBlob}" part="btn btn-outline">DOWNLOAD</button>
+              <button class="m-btn thin-border mar-top-8" style="width:135px" @click='${(e) => { downloadResource(this.responseBlobUrl, this.respContentDisposition, e); }}' part="btn btn-outline">
+                DOWNLOAD
+              </button>
               ${this.responseBlobType === 'view'
-                ? html`<button class="m-btn thin-border mar-top-8" style="width:135px" @click="${this.viewResponseBlob}" part="btn btn-outline">VIEW (NEW TAB)</button>`
+                ? html`<button class="m-btn thin-border mar-top-8" style="width:135px"  @click='${(e) => { viewResource(this.responseBlobUrl, e); }}' part="btn btn-outline">VIEW (NEW TAB)</button>`
                 : ''
               }
             </div>`
@@ -1376,6 +1378,7 @@ export default class ApiRequest extends LitElement {
         },
       }));
     }
+    this.requestUpdate();
   }
 
   onAddRemoveFileInput(e, pname, ptype) {
@@ -1415,30 +1418,6 @@ export default class ApiRequest extends LitElement {
     newInputContainerEl.appendChild(newRemoveBtnEl);
     el.insertBefore(newInputContainerEl, e.target);
     // el.appendChild(newInputContainerEl);
-  }
-
-  downloadResponseBlob() {
-    if (this.responseBlobUrl) {
-      const a = document.createElement('a');
-      document.body.appendChild(a);
-      a.style = 'display: none';
-      a.href = this.responseBlobUrl;
-      a.download = this.respContentDisposition;
-      a.click();
-      a.remove();
-    }
-  }
-
-  viewResponseBlob() {
-    if (this.responseBlobUrl) {
-      const a = document.createElement('a');
-      document.body.appendChild(a);
-      a.style = 'display: none';
-      a.href = this.responseBlobUrl;
-      a.target = '_blank';
-      a.click();
-      a.remove();
-    }
   }
 
   clearResponseData() {

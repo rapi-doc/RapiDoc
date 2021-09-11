@@ -144,3 +144,27 @@ export function hasValidPathInUrlHash(tags) {
   return tags.find((tag) => tag.paths.find((path) => window.location.hash.substring(1) === path.elementId));
 }
 */
+
+export function downloadResource(url, fileName) {
+  if (url) {
+    const a = document.createElement('a');
+    document.body.appendChild(a);
+    a.style = 'display: none';
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    a.remove();
+  }
+}
+
+export function viewResource(url) {
+  if (url) {
+    const a = document.createElement('a');
+    document.body.appendChild(a);
+    a.style = 'display: none';
+    a.href = url;
+    a.target = '_blank';
+    a.click();
+    a.remove();
+  }
+}

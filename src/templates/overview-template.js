@@ -1,6 +1,7 @@
 import { html } from 'lit-element';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import marked from 'marked';
+import { downloadResource, viewResource } from '~/utils/common-utils';
 
 /* eslint-disable indent */
 function headingRenderer() {
@@ -44,6 +45,14 @@ export default function overviewTemplate() {
             }
             ${this.resolvedSpec.info.termsOfService
               ? html`<span><a href="${this.resolvedSpec.info.termsOfService}" part="anchor anchor-overview">Terms of Service</a></span>`
+              : ''
+            }
+            ${this.specUrl
+              ? html`
+                <div style="display:flex; margin:12px 0; gap:8px; justify-content: start;">
+                  <button class="m-btn thin-border" style="width:170px" part="btn btn-outline" @click='${(e) => { downloadResource(this.specUrl, 'openapi-spec', e); }}'>Download OpenAPI spec</button>
+                  <button class="m-btn thin-border" style="width:200px" part="btn btn-outline" @click='${(e) => { viewResource(this.specUrl, e); }}'>View OpenAPI spec (New Tab)</button>
+                </div>`
               : ''
             }
           </div>

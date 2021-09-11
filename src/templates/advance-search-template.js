@@ -8,7 +8,7 @@ export default function searchByPropertiesModalTemplate() {
 
   return html`
     <dialog-box 
-      heading="Advanced Search" 
+      heading="Search" 
       show="${(!!this.showAdvancedSearchDialog)}"
     >
       <span class="advanced-search-options">
