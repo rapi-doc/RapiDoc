@@ -87,7 +87,7 @@ export default css`
   .m-markdown span,
   .m-markdown li {
     font-size: var(--font-size-regular);
-    line-height:calc(var(--font-size-regular) + 8px);
+    line-height:calc(var(--font-size-regular) + 12px);
   }
   
   .m-markdown-small p,
@@ -258,5 +258,8 @@ export default css`
     margin-inline-end: 0;
     border-left: 3px solid var(--border-color);
     padding: 6px 0 6px 6px;
+  }
+  .m-markdown hr{
+    border: 1px solid var(--border-color);
   }
 `;

@@ -273,7 +273,7 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow)
           }
           ${flowName === 'password'
             ? html`
-              <div style="display:flex; max-height:28px; margin-top:2px">
+              <div style="margin:5px 0">
                 <input type="text" value = "" placeholder="username" spellcheck="false" class="api-key-user" part="textbox textbox-username">
                 <input type="password" value = "" placeholder="password" spellcheck="false" class="api-key-password" style = "margin:0 5px;" part="textbox textbox-password">
               </div>`
@@ -302,9 +302,8 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, apiKeyId, authFlow)
                       <option value = 'request-body'> Request Body </option> 
                     </select>`
                   : ''
-                }
-`
-              : html`<div style='width:5px'></div>`
+                }`
+              : ''
             }
             ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit' || flowName === 'password'
               ? html`
