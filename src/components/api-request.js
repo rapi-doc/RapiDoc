@@ -39,6 +39,7 @@ export default class ApiRequest extends LitElement {
       servers: { type: Array },
       method: { type: String },
       path: { type: String },
+      security: { type: Array },
       parameters: { type: Array },
       request_body: { type: Object },
       api_keys: { type: Array },
@@ -348,12 +349,12 @@ export default class ApiRequest extends LitElement {
                   ? html`
                     <div class="tab-panel col" style="border-width:0 0 1px 0;">
                       <div class="tab-buttons row" @click="${(e) => {
-                  if (e.target.tagName.toLowerCase() === 'button') {
-                    const newState = { ...this.activeParameterSchemaTabs };
-                    newState[param.name] = e.target.dataset.tab;
-                    this.activeParameterSchemaTabs = newState;
-                  }
-                }}">
+                        if (e.target.tagName.toLowerCase() === 'button') {
+                          const newState = { ...this.activeParameterSchemaTabs };
+                          newState[param.name] = e.target.dataset.tab;
+                          this.activeParameterSchemaTabs = newState;
+                        }
+                      }}">
                         <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
                         <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
                       </div>
@@ -372,18 +373,19 @@ export default class ApiRequest extends LitElement {
                             style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
                           ></textarea>
                         </div>`
-                        : html`<div class="tab-content col">            
-                                <schema-tree
-                                  class = 'json'
-                                  style = 'display: block'
-                                  .data = '${schemaAsObj}'
-                                  schema-expand-level = "${this.schemaExpandLevel}"
-                                  schema-description-expanded = "${this.schemaDescriptionExpanded}"
-                                  allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
-                                  schema-hide-read-only = "${this.schemaHideReadOnly.includes(this.method)}"
-                                  schema-hide-write-only = false
-                                > </schema-tree>
-                              </div>`
+                        : html`
+                          <div class="tab-content col">            
+                            <schema-tree
+                              class = 'json'
+                              style = 'display: block'
+                              .data = '${schemaAsObj}'
+                              schema-expand-level = "${this.schemaExpandLevel}"
+                              schema-description-expanded = "${this.schemaDescriptionExpanded}"
+                              allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+                              schema-hide-read-only = "${this.schemaHideReadOnly.includes(this.method)}"
+                              schema-hide-write-only = false
+                            > </schema-tree>
+                          </div>`
                         }
                     </div>`
                   : html`
@@ -977,14 +979,18 @@ export default class ApiRequest extends LitElement {
         </div>
         <div style="display:flex;">
           <div style="font-weight:bold; padding-right:5px;">Authentication</div>
-          ${this.api_keys.length > 0
-            ? html`<div style="color:var(--blue); overflow:hidden;"> 
-                ${this.api_keys.length === 1
-                  ? `${this.api_keys[0]?.typeDisplay} in ${this.api_keys[0].in}`
-                  : `${this.api_keys.length} API keys applied`
-                } 
-              </div>`
-            : html`<div style="color:var(--red)">No API key applied</div>`
+          ${this.security?.length > 0
+            ? html`
+              ${this.api_keys.length > 0
+                ? html`<div style="color:var(--blue); overflow:hidden;"> 
+                    ${this.api_keys.length === 1
+                      ? `${this.api_keys[0]?.typeDisplay} in ${this.api_keys[0].in}`
+                      : `${this.api_keys.length} API keys applied`
+                    } 
+                  </div>`
+                : html`<div class="gray-text">Required  <span style="color:var(--red)">(None Applied)</span>`
+              }`
+            : html`<span class="gray-text"> Not Required </span>`
           }
         </div>
       </div>

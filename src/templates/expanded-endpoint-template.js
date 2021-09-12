@@ -72,6 +72,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
         style = "width:100%;"
         method = "${path.method}"
         path = "${path.path}"
+        .security = "${path.security}"
         .parameters = "${path.parameters}"
         .request_body = "${path.requestBody}"
         .api_keys = "${nonEmptyApiKeys}"

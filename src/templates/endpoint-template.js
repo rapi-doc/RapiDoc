@@ -119,7 +119,8 @@ function endpointBodyTemplate(path) {
           class = "${this.renderStyle}-mode ${this.layout}-layout"
           style = "width:100%;"
           method = "${path.method}", 
-          path = "${path.path}" 
+          path = "${path.path}"
+          .security = "${path.security}"
           .parameters = "${path.parameters}"
           .request_body = "${path.requestBody}"
           .api_keys = "${nonEmptyApiKeys}"
