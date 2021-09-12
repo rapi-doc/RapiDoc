@@ -368,7 +368,7 @@ export default function securitySchemeTemplate() {
                   ? html`
                     <div style="margin-bottom:5px">
                       ${v.type.toLowerCase() === 'apikey'
-                        ? html`Send <code>${v.name}</code> in <code>${v.in}</code> with the given value`
+                        ? html`Send <code>${v.name}</code> in <code>${v.in}</code>`
                         : html`Send <code>Authorization</code> in <code>header</code> containing the word <code>Bearer</code> followed by a space and a Token String.`
                       }
                     </div>  
@@ -381,7 +381,7 @@ export default function securitySchemeTemplate() {
                             @click="${(e) => { onApiKeyChange.call(this, v.apiKeyId, e); }}"> 
                             ${v.finalKeyValue ? 'UPDATE' : 'SET'}
                           </button>`
-                        : ''
+                        : html`<span class="gray-text" style="font-size::var(--font-size-small)"> cookies cannot be set from here</span>`
                       }
                     </div>`
                   : ''
