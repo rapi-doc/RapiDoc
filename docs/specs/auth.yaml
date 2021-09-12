@@ -49,6 +49,7 @@ paths:
         - User.ReadBasic.All
         - Directory.Read.All
       - basic: []
+      - api_key_cookie: []
       - api_key1: []
         api_key2: []
 components:
@@ -64,6 +65,12 @@ components:
       type: apiKey
       name: specialKey
       in: header
+    api_key_cookie:
+      description: API Key that should be sent in cookie
+        authorization filters.
+      type: apiKey
+      name: api_key_cookie
+      in: cookie
     ms-oauth:
       type: oauth2
       description: | 

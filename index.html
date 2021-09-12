@@ -30,7 +30,7 @@
     ./specs/oneof1.yaml  <<< nested oneof
 -->
 <rapi-doc 
-  spec-url = "./specs/temp.yaml" 
+  spec-url = "./specs/petstore.yaml" 
   id="thedoc" 
   theme = "dark"
   render-style="read" 
@@ -38,11 +38,12 @@
   show-components = "true"
   show-info = "true"
   show-header = "false"
-  allow-search = "false"
+  allow-search = "true"
   allow-advanced-search = "false"
   allow-server-selection = "false"
   allow-authentication	= "false"
   update-route="false"
+  match-type="regex"
 ></rapi-doc>
 <!--
   <rapi-doc-mini
