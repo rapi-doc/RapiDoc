@@ -162,6 +162,7 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
   const checkedScopeEls = [...authFlowDivEl.querySelectorAll('.scope-checkbox:checked')];
   const pkceCheckboxEl = authFlowDivEl.querySelector(`#${securitySchemeId}-pkce`);
   const state = (`${Math.random().toString(36)}random`).slice(2, 9);
+  const nonce = (`${Math.random().toString(36)}random`).slice(2, 9);
   // const codeChallenge = await generateCodeChallenge(codeVerifier);
   const redirectUrlObj = new URL(`${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/${this.oauthReceiver}`);
   let grantType = '';
@@ -189,6 +190,7 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
     authCodeParams.set('redirect_uri', redirectUrlObj.toString());
     authCodeParams.set('response_type', responseType);
     authCodeParams.set('state', state);
+    authCodeParams.set('nonce', nonce);
     if (pkceCheckboxEl && pkceCheckboxEl.checked) {
       authCodeParams.set('code_challenge', codeChallenge);
       authCodeParams.set('code_challenge_method', 'S256');
