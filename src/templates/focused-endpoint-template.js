@@ -69,6 +69,11 @@ export default function focusedEndpointTemplate() {
     focusedTemplate = securitySchemeTemplate.call(this);
   } else if (focusElId === 'servers' && this.allowServerSelection === 'true') {
     focusedTemplate = serverTemplate.call(this);
+  } else if (focusElId === 'operations-top') {
+    focusedTemplate = html`
+    <div id="operations-top" class="observe-me">
+      <slot name="operations-top"></slot>
+    </div>`;
   } else if (focusElId.startsWith('cmp--') && this.showComponents === 'true') {
     focusedTemplate = componentsTemplate.call(this);
   } else if (focusElId.startsWith('tag--')) {

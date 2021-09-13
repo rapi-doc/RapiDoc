@@ -95,6 +95,9 @@ export default function mainBodyTemplate(isMini = false, showExpandCollapse = tr
                       ${this.showInfo === 'true' ? overviewTemplate.call(this) : ''}
                       ${this.allowServerSelection === 'true' ? serverTemplate.call(this) : ''}
                       ${this.allowAuthentication === 'true' ? securitySchemeTemplate.call(this) : ''}
+                      <div id="operations-top" class="observe-me">
+                        <slot name="operations-top"></slot>
+                      </div>  
                       ${this.renderStyle === 'read'
                         ? expandedEndpointTemplate.call(this)
                         : endpointTemplate.call(this, showExpandCollapse, showTags, pathsExpanded)

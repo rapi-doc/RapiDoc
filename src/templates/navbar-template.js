@@ -122,7 +122,7 @@ export default function navbarTemplate() {
         : html`<div class='nav-bar-info' id='link-auth' data-content-id='auth' @click = '${(e) => this.scrollToEventTarget(e, false)}'> Authentication </div>`
       }
 
-      <div id='link-paths' class='nav-bar-section'>
+      <div id='link-operations-top' class='nav-bar-section operations' data-content-id='operations-top' @click = '${(e) => this.scrollToEventTarget(e, false)}'>
         <div style="font-size:16px; display:flex; margin-left:10px;">
           ${this.renderStyle === 'focused'
             ? html`
@@ -140,7 +140,7 @@ export default function navbarTemplate() {
         .map((tag) => html`
           <div class='nav-bar-tag-and-paths ${tag.expanded ? 'expanded' : 'collapsed'}'>
             ${tag.name === 'General ⦂'
-              ? html`<hr style="border:none; border-top: 1px dotted var(--nav-text-color); opacity:0.4; margin-top:-1px;"/>`
+              ? html`<hr style="border:none; border-top: 1px dotted var(--nav-text-color); opacity:0.4; margin:-1px 0 0 0;"/>`
               : html`
                 <div 
                   class='nav-bar-tag' 
@@ -217,7 +217,7 @@ export default function navbarTemplate() {
       <!-- COMPONENTS -->
       ${this.resolvedSpec.components && this.showComponents === 'true' && this.renderStyle === 'focused'
         ? html`
-          <div id='link-components' class='nav-bar-section'>
+          <div id='link-components' class='nav-bar-section components'>
             <div></div>
             <div class='nav-bar-section-title'>COMPONENTS</div>
           </div>

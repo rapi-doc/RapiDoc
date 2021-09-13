@@ -109,10 +109,17 @@ export default css`
   justify-content: space-between;
   font-size: var(--font-size-small);
   color: var(--nav-text-color);
-  padding: 15px calc(var(--scroll-bar-width) + 5px) 5px 5px;
+  padding: var(--nav-item-padding);
   filter:opacity(0.5);
   font-weight:bold;
   border-bottom: 1px solid var(--nav-text-color);
+}
+.nav-bar-section.operations {
+  cursor:pointer;
+}
+.nav-bar-section.operations:hover {
+  color:var(--nav-hover-text-color);
+  background-color:var(--nav-hover-bg-color);
 }
 
 .nav-bar-section:first-child {
@@ -124,7 +131,8 @@ export default css`
 .nav-bar-h2.active,
 .nav-bar-info.active,
 .nav-bar-tag.active,
-.nav-bar-path.active {
+.nav-bar-path.active,
+.nav-bar-section.operations.active {
   border-left:4px solid var(--nav-accent-color);
   color:var(--nav-hover-text-color);
 }

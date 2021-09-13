@@ -25,10 +25,10 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
   const accept = [...acceptContentTypes].join(', ');
 
   // Filter API Keys that are non-empty and are applicable to the the path
-  const nonEmptyApiKeys = this.resolvedSpec.securitySchemes.filter((v) => (v.finalKeyValue && path.security?.some((ps) => (v.apiKeyId in ps)))) || [];
+  const nonEmptyApiKeys = this.resolvedSpec.securitySchemes.filter((v) => (v.finalKeyValue && path.security?.some((ps) => (v.securitySchemeId in ps)))) || [];
 
   // If a RapiDoc API Key is specified on the element and its value is not hyphen(-) then include it for all paths
-  const rapiDocApiKey = this.resolvedSpec.securitySchemes.find((v) => (v.apiKeyId === rapidocApiKey && v.value !== '-'));
+  const rapiDocApiKey = this.resolvedSpec.securitySchemes.find((v) => (v.securitySchemeId === rapidocApiKey && v.value !== '-'));
   if (rapiDocApiKey) {
     nonEmptyApiKeys.push(rapiDocApiKey);
   }

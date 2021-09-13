@@ -26,6 +26,7 @@ import CustomStyles from '~/styles/custom-styles';
 import { advancedSearch, pathIsInSearch, componentIsInSearch, rapidocApiKey, sleep } from '~/utils/common-utils';
 import ProcessSpec from '~/utils/spec-parser';
 import mainBodyTemplate from '~/templates/main-body-template';
+import { applyApiKey, onClearAllApiKeys } from '~/templates/security-scheme-template';
 
 export default class RapiDoc extends LitElement {
   constructor() {
@@ -562,10 +563,10 @@ export default class RapiDoc extends LitElement {
 
       if (updateSelectedApiKey) {
         if (this.resolvedSpec) {
-          const rapiDocApiKey = this.resolvedSpec.securitySchemes.find((v) => v.apiKeyId === rapidocApiKey);
+          const rapiDocApiKey = this.resolvedSpec.securitySchemes.find((v) => v.securitySchemeId === rapidocApiKey);
           if (!rapiDocApiKey) {
             this.resolvedSpec.securitySchemes.push({
-              apiKeyId: rapidocApiKey,
+              securitySchemeId: rapidocApiKey,
               description: 'api-key provided in rapidoc element attributes',
               type: 'apiKey',
               name: apiKeyName,
@@ -798,7 +799,7 @@ export default class RapiDoc extends LitElement {
     }
     entries.forEach((entry) => {
       if (entry.isIntersecting && entry.intersectionRatio > 0) {
-        const oldNavEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active');
+        const oldNavEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active, .operations.active');
         const newNavEl = this.shadowRoot.getElementById(`link-${entry.target.id}`);
 
         // Add active class in the new element
@@ -897,7 +898,7 @@ export default class RapiDoc extends LitElement {
             newNavEl.scrollIntoView({ behavior: 'auto', block: 'center' });
           }
           await sleep(0);
-          const oldNavEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active');
+          const oldNavEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active, .operations.active');
           if (oldNavEl) {
             oldNavEl.classList.remove('active');
           }
@@ -906,6 +907,27 @@ export default class RapiDoc extends LitElement {
         }
       }
     }
+  }
+
+  // Public Method
+  setHttpUserNameAndPassword(securitySchemeId, username, password) {
+    applyApiKey.call(this, securitySchemeId, username, password);
+  }
+
+  // Public Method
+  setApiKey(securitySchemeId, apiKeyValue) {
+    applyApiKey.call(this, securitySchemeId, '', '', apiKeyValue);
+  }
+
+  // Public Method
+  setOauthClientIdAndSecret(securitySchemeId, oauthFlow, clientId, clientSecret, username, password, scopes) {
+    // eslint-disable-next-line no-console
+    console.log(securitySchemeId, oauthFlow, clientId, clientSecret, username, password, scopes);
+  }
+
+  // Public Method
+  clearAllKeys() {
+    onClearAllApiKeys.call(this);
   }
 
   // Event handler for Advanced Search text-inputs and checkboxes
