@@ -1,10 +1,13 @@
 /* eslint-disable no-use-before-define */
 import OpenApiParser from '@apitools/openapi-parser';
 import marked from 'marked';
-import { invalidCharsRegEx, rapidocApiKey } from '~/utils/common-utils';
+import { invalidCharsRegEx, rapidocApiKey, sleep } from '~/utils/common-utils';
 
 export default async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = false, sortEndpointsBy = '', attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '') {
   let jsonParsedSpec;
+  // important to show the initial loader
+  this.requestUpdate();
+  await sleep(0);
   try {
     let specMeta;
     if (typeof specUrl === 'string') {
@@ -12,7 +15,7 @@ export default async function ProcessSpec(specUrl, generateMissingTags = false, 
     } else {
       specMeta = await OpenApiParser.resolve({ spec: specUrl }); // Swagger({ spec: specUrl });
     }
-    if (specMeta.spec) {
+    if (specMeta.spec && (specMeta.spec.components || specMeta.spec.info || specMeta.spec.servers || specMeta.spec.tags || specMeta.spec.paths)) {
       jsonParsedSpec = specMeta.spec;
       this.dispatchEvent(new CustomEvent('before-render', { detail: { spec: jsonParsedSpec } }));
     } else {
@@ -45,29 +48,33 @@ export default async function ProcessSpec(specUrl, generateMissingTags = false, 
 
   // Security Scheme
   const securitySchemes = [];
-  if (jsonParsedSpec.components && jsonParsedSpec.components.securitySchemes) {
+  if (jsonParsedSpec.components?.securitySchemes) {
+    const securitySchemeSet = new Set();
     Object.entries(jsonParsedSpec.components.securitySchemes).forEach((kv) => {
-      const securityObj = { apiKeyId: kv[0], ...kv[1] };
-      securityObj.value = '';
-      securityObj.finalKeyValue = '';
-      if (kv[1].type === 'apiKey' || kv[1].type === 'http') {
-        securityObj.in = kv[1].in || 'header';
-        securityObj.name = kv[1].name || 'Authorization';
-        securityObj.user = '';
-        securityObj.password = '';
-      } else if (kv[1].type === 'oauth2') {
-        securityObj.in = 'header';
-        securityObj.name = 'Authorization';
-        securityObj.clientId = '';
-        securityObj.clientSecret = '';
+      if (!securitySchemeSet.has(kv[0])) {
+        securitySchemeSet.add(kv[0]);
+        const securityObj = { securitySchemeId: kv[0], ...kv[1] };
+        securityObj.value = '';
+        securityObj.finalKeyValue = '';
+        if (kv[1].type === 'apiKey' || kv[1].type === 'http') {
+          securityObj.in = kv[1].in || 'header';
+          securityObj.name = kv[1].name || 'Authorization';
+          securityObj.user = '';
+          securityObj.password = '';
+        } else if (kv[1].type === 'oauth2') {
+          securityObj.in = 'header';
+          securityObj.name = 'Authorization';
+          securityObj.clientId = '';
+          securityObj.clientSecret = '';
+        }
+        securitySchemes.push(securityObj);
       }
-      securitySchemes.push(securityObj);
     });
   }
 
   if (attrApiKey && attrApiKeyLocation && attrApiKeyValue) {
     securitySchemes.push({
-      apiKeyId: rapidocApiKey,
+      securitySchemeId: rapidocApiKey,
       description: 'api-key provided in rapidoc element attributes',
       type: 'apiKey',
       oAuthFlow: '',
@@ -85,7 +92,7 @@ export default async function ProcessSpec(specUrl, generateMissingTags = false, 
     } else if (v.type === 'apiKey') {
       v.typeDisplay = `API Key (${v.name})`;
     } else if (v.type === 'oauth2') {
-      v.typeDisplay = `OAuth (${v.apiKeyId})`;
+      v.typeDisplay = `OAuth (${v.securitySchemeId})`;
     } else {
       v.typeDisplay = v.type;
     }

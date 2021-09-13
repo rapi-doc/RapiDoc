@@ -668,7 +668,6 @@ export default class RapiDoc extends LitElement {
       };
       this.loading = true;
       this.loadFailed = false;
-      this.requestUpdate();
       const spec = await ProcessSpec.call(
         this,
         specUrl,
