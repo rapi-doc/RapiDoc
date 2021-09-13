@@ -910,12 +910,12 @@ export default class RapiDoc extends LitElement {
 
   // Public Method
   setHttpUserNameAndPassword(securitySchemeId, username, password) {
-    applyApiKey.call(this, securitySchemeId, username, password);
+    return applyApiKey.call(this, securitySchemeId, username, password);
   }
 
   // Public Method
   setApiKey(securitySchemeId, apiKeyValue) {
-    applyApiKey.call(this, securitySchemeId, '', '', apiKeyValue);
+    return applyApiKey.call(this, securitySchemeId, '', '', apiKeyValue);
   }
 
   // Public Method
@@ -925,8 +925,8 @@ export default class RapiDoc extends LitElement {
   }
 
   // Public Method
-  clearAllKeys() {
-    onClearAllApiKeys.call(this);
+  removeAllSecurityKeys() {
+    return onClearAllApiKeys.call(this);
   }
 
   // Event handler for Advanced Search text-inputs and checkboxes

@@ -39,8 +39,8 @@ paths:
     get:
       description: API that need API Key and HTTP Basic 
       security:
-      - basic: []
-      - api_key2: []
+      - http-basic: []
+      - http-bearer: []
   /fake-api-that-with-complex-security:
     get:
       description: API with a complex security requirements
@@ -48,15 +48,18 @@ paths:
       - ms-oauth:
         - User.ReadBasic.All
         - Directory.Read.All
-      - basic: []
+      - http-basic: []
       - api_key_cookie: []
       - api_key1: []
         api_key2: []
 components:
   securitySchemes:
-    basic:
+    http-basic:
       type: http
       scheme: basic
+    http-bearer:
+      type: http
+      scheme: bearer
     api_key1:
       type: apiKey
       name: Authorization

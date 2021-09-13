@@ -236,7 +236,7 @@ export default class RapiDocMini extends LitElement {
 
       if (updateSelectedApiKey) {
         if (this.resolvedSpec) {
-          const rapiDocApiKey = this.resolvedSpec.securitySchemes.find((v) => v.apiKeyId === rapidocApiKey);
+          const rapiDocApiKey = this.resolvedSpec.securitySchemes.find((v) => v.securitySchemeId === rapidocApiKey);
           if (!rapiDocApiKey) {
             this.resolvedSpec.securitySchemes.push({
               apiKeyId: rapidocApiKey,
