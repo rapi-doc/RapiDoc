@@ -830,6 +830,8 @@ export default class RapiDoc extends LitElement {
     if (!navEl.dataset.contentId) {
       return;
     }
+    // push the current URL to history before navigating
+    history.pushState(null, "") 
     this.isIntersectionObserverActive = false;
     this.scrollTo(navEl.dataset.contentId, true, scrollNavItemToView);
     setTimeout(() => {
