@@ -39,20 +39,27 @@
           <div style="color:#888"> This section is not a part of RapiDoc generated doc. It is created using HTML and JS to dempostrate how to programatically apply security keys</div>
 
           <div style="margin-top:16px">
-            RapiDoc provides you with helper methods which you may use to set various security keys programatically. 
-            Helpful in the cases where you like to automatically apply security, instead of asking user to key in
-            <br/><br/>
+            RapiDoc provides you with helper methods which you may use to set supply security keys programatically. 
+            There are two methods which can be used to set the values needed for various security schemes
+            <ol>
+              <li> <span style="font-family:'Roboto Mono'">setHttpUserNameAndPassword()</span></li>
+              <li> <span style="font-family:'Roboto Mono'">setApiKey()</span></li>
+            </ol>
           </div>
           <p>
-            This spec contains the following security schemes
+            The table below list all the scurity schemes included in this spec. Check the corrosponding method that can be used to supply a access-token
             <table class="table" style="border:1px solid #444; font-family:'Roboto Mono'">
               <tr><th>TYPE</th><th>SECURITY SCHEME ID</th><th>METHOD USED TO UPDATE</th></tr>
-              <tr> <td>http</td><td>http-basic</td> <td>RapiDocEl.setHttpUserNameAndPassword('http-basic', 'newUserName', 'newPassword')</td></tr>
-              <tr> <td>http</td><td>http-bearer</td><td>RapiDocEl.setHttpUserNameAndPassword('http-bearer', 'newUserName', 'newPassword')</td></tr>
-              <tr> <td>apiKey</td><td>api_key1</td><td>RapiDocEl.setApiKey('api_key1', 'newApiToken')</td></tr>
-              <tr> <td>apiKey</td><td>api_key2</td><td>RapiDocEl.setApiKey('api_key2', 'newApiToken')</td></tr>
-              <tr> <td>apiKey</td><td>api_key_cookie</td><td> Not Supported</td></tr>
-              <tr> <td>oauth2</td><td>ms-oauth</td><td> ---</td></tr>
+              <tr> <td>http</td><td>http-basic</td> <td rowspan="2">RapiDocEl.setHttpUserNameAndPassword('http-basic', 'newUserName', 'newPassword')</td></tr>
+              <tr> <td>http</td><td>http-bearer</td></tr>
+              <tr> <td>oauth2</td><td>ms-oauth</td><td style="border-bottom: 1px dashed #383838;" rowspan="3">RapiDocEl.setApiKey('api_key1', 'newApiToken')</td></tr>
+              <tr> <td>apiKey</td><td>api_key1</td></tr>
+              <tr> <td>apiKey</td><td>api_key2</td></tr>
+              <tr> <td>apiKey</td><td>api_key_cookie</td><td>
+                <span style="font-family:'Open Sans'; color:#666">
+                  If the apiKey needs to send using a cookie, then it wont be set as RapiDoc do not support creation or reading of cookies
+                </span>
+              </td></tr>
             </table>
           </p>
           <div style="margin:32px 0 16px 0; color:#777; font-weight:bold">
@@ -79,12 +86,8 @@
             <tr>
               <td>OAuth</td>
               <td> 
-                <input class='size txt' id='oauth-security-scheme-id' type='text' placeholder='Security Scheme ID' spellcheck='false' style="width:120px"> 
-                <input class='size txt' id='oauth-flow' type='text' placeholder='OAuth Flow' spellcheck='false'> 
-                <input class='size txt' id='oauth-client-id' type='text' placeholder='client-id' spellcheck='false' > 
-                <input class='size txt' id='oauth-client-secret' type='text' placeholder='client-secret' spellcheck='false' > 
-                <input class='size txt' id='oauth-username' type='text' placeholder='Username' spellcheck='false' > 
-                <input class='size txt' id='oauth-password' type='text' placeholder='password' spellcheck='false' > 
+                <input class='size txt' id='oauth-security-scheme-id' value="ms-oauth" type='text' placeholder='Security Scheme ID' spellcheck='false' style="width:120px"> 
+                <input class='size txt' id='oauth-key-value' type='text' value="new-token"  placeholder='Access Token' spellcheck='false' > 
                 <button class='size btn' onclick='setSecurity(event, "oauth2")'>Apply</button>
               </td>
             </tr>
@@ -116,7 +119,8 @@
           result = docEl.setApiKey(securitySchemeId, newApiToken);
         } else if (securityType === 'oauth2') {
           const securitySchemeId = trEl.querySelector('#oauth-security-scheme-id').value;
-          result = docEl.setOauthClientIdAndSecret(securitySchemeId, 'oauthFlow', 'clientId', 'clientSecret', 'username', 'password', 'scopes');
+          const newApiToken = trEl.querySelector('#oauth-key-value').value;
+          result = docEl.setApiKey(securitySchemeId, newApiToken);
         }
         ev.target.innerText = result ? 'Applied !' : 'Failed';
         ev.target.style.backgroundColor = result ? 'green' : 'orangered';
