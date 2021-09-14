@@ -908,20 +908,14 @@ export default class RapiDoc extends LitElement {
     }
   }
 
-  // Public Method
+  // Public Method - to update security-scheme of type http
   setHttpUserNameAndPassword(securitySchemeId, username, password) {
     return applyApiKey.call(this, securitySchemeId, username, password);
   }
 
-  // Public Method
+  // Public Method - to update security-scheme of type apiKey or OAuth
   setApiKey(securitySchemeId, apiKeyValue) {
     return applyApiKey.call(this, securitySchemeId, '', '', apiKeyValue);
-  }
-
-  // Public Method
-  setOauthClientIdAndSecret(securitySchemeId, oauthFlow, clientId, clientSecret, username, password, scopes) {
-    // eslint-disable-next-line no-console
-    console.log(securitySchemeId, oauthFlow, clientId, clientSecret, username, password, scopes);
   }
 
   // Public Method

@@ -5,16 +5,15 @@ import { invalidCharsRegEx, rapidocApiKey, sleep } from '~/utils/common-utils';
 
 export default async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = false, sortEndpointsBy = '', attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '') {
   let jsonParsedSpec;
-  // important to show the initial loader
-  this.requestUpdate();
-  await sleep(0);
   try {
+    this.requestUpdate(); // important to show the initial loader
     let specMeta;
     if (typeof specUrl === 'string') {
       specMeta = await OpenApiParser.resolve({ url: specUrl }); // Swagger(specUrl);
     } else {
       specMeta = await OpenApiParser.resolve({ spec: specUrl }); // Swagger({ spec: specUrl });
     }
+    await sleep(0); // important to show the initial loader (allows for rendering updates)
     if (specMeta.spec && (specMeta.spec.components || specMeta.spec.info || specMeta.spec.servers || specMeta.spec.tags || specMeta.spec.paths)) {
       jsonParsedSpec = specMeta.spec;
       this.dispatchEvent(new CustomEvent('before-render', { detail: { spec: jsonParsedSpec } }));
