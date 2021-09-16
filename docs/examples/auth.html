@@ -36,18 +36,17 @@
       <div slot='operations-top'>
         <div style="font-size:14px; border:0; background-color: #282828; border-radius:4px; padding:16px; margin:16px 75px">
           <h3> Prgramatically Applying Security</h3>
-          <div style="color:#888"> This section is not a part of RapiDoc generated doc. It is created using HTML and JS to dempostrate how to programatically apply security keys</div>
+          <div style="color:#888"> This section is not a part of RapiDoc generated doc. It is created using HTML/JS to demonstrate how to programatically apply security keys</div>
 
           <div style="margin-top:16px">
-            RapiDoc provides you with helper methods which you may use to set supply security keys programatically. 
-            There are two methods which can be used to set the values needed for various security schemes
+            RapiDoc provides you with two helper methods which you can use to supply security keys programatically. 
             <ol>
               <li> <span style="font-family:'Roboto Mono'">setHttpUserNameAndPassword()</span></li>
               <li> <span style="font-family:'Roboto Mono'">setApiKey()</span></li>
             </ol>
           </div>
           <p>
-            The table below list all the scurity schemes included in this spec. Check the corrosponding method that can be used to supply a access-token
+            The table below list all the scurity schemes included in this spec. Check the corrosponding method that can be used to supply an access-token
             <table class="table" style="border:1px solid #444; font-family:'Roboto Mono'">
               <tr><th>TYPE</th><th>SECURITY SCHEME ID</th><th>METHOD USED TO UPDATE</th></tr>
               <tr> <td>http</td><td>http-basic</td> <td rowspan="2">RapiDocEl.setHttpUserNameAndPassword('http-basic', 'newUserName', 'newPassword')</td></tr>
