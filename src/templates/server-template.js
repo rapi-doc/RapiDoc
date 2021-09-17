@@ -2,18 +2,21 @@ import { html } from 'lit-element';
 import marked from 'marked';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 
-function onApiServerChange(e, server) {
-  if (e && e.target.checked) {
-    this.selectedServer = server;
-    this.requestUpdate();
-    this.dispatchEvent(new CustomEvent('api-server-change', {
-      bubbles: true,
-      composed: true,
-      detail: {
-        selectedServer: server,
-      },
-    }));
+export function setApiServer(serverUrl) {
+  const serverObj = this.resolvedSpec?.servers.find((s) => s.url === serverUrl);
+  if (!serverObj) {
+    return false;
   }
+  this.selectedServer = serverObj;
+  this.requestUpdate();
+  this.dispatchEvent(new CustomEvent('api-server-change', {
+    bubbles: true,
+    composed: true,
+    detail: {
+      selectedServer: serverObj,
+    },
+  }));
+  return true;
 }
 
 function onApiServerVarChange(e, serverObj) {
@@ -93,7 +96,7 @@ export default function serverTemplate() {
               name = 'api_server'
               id = 'srvr-opt-${i}'
               value = '${server.url}'
-              @change = ${(e) => { onApiServerChange.call(this, e, server); }}
+              @change = ${() => { setApiServer.call(this, server.url); }}
               .checked = '${this.selectedServer.url === server.url}'
               style = 'margin:4px 0; cursor:pointer'
             />

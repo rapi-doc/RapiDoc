@@ -15,6 +15,9 @@ export default css`
   flex-wrap:nowrap;
   word-break:break-word;
 }
+::slotted(*){
+  padding:16px 30px 0 16px;
+}
 .nav-scroll {
   overflow-x: hidden;
   overflow-y: auto;
@@ -73,7 +76,7 @@ export default css`
   color: var(--nav-accent-color);
   border-left:4px solid transparent;
   font-weight:bold;
-  padding: 15px calc(var(--scroll-bar-width) + 5px) 15px 10px;
+  padding: 15px 15px 15px 10px;
   text-transform: capitalize;
 }
 
@@ -110,9 +113,7 @@ export default css`
   font-size: var(--font-size-small);
   color: var(--nav-text-color);
   padding: var(--nav-item-padding);
-  filter:opacity(0.5);
   font-weight:bold;
-  border-bottom: 1px solid var(--nav-text-color);
 }
 .nav-bar-section.operations {
   cursor:pointer;

@@ -27,6 +27,7 @@ import { advancedSearch, pathIsInSearch, componentIsInSearch, rapidocApiKey, sle
 import ProcessSpec from '~/utils/spec-parser';
 import mainBodyTemplate from '~/templates/main-body-template';
 import { applyApiKey, onClearAllApiKeys } from '~/templates/security-scheme-template';
+import { setApiServer } from '~/templates/server-template';
 
 export default class RapiDoc extends LitElement {
   constructor() {
@@ -921,6 +922,12 @@ export default class RapiDoc extends LitElement {
   // Public Method
   removeAllSecurityKeys() {
     return onClearAllApiKeys.call(this);
+  }
+
+  // Public Method
+  setApiServer(apiServerUrl) {
+    // return apiServerUrl;
+    return setApiServer.call(this, apiServerUrl);
   }
 
   // Event handler for Advanced Search text-inputs and checkboxes
