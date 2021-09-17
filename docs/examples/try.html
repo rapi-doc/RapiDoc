@@ -14,20 +14,25 @@
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,600&display=swap" rel="stylesheet">
     <link href='../index.css' rel='stylesheet'>
     <script type='text/javascript' src='../rapidoc-min.js'></script>
+    <style>
+      rapi-doc::part(section-navbar) {
+        background: linear-gradient(90deg,#3d4e70, #2e3746);
+      }
+    </style>
   </head>
   <body>
-    <rapi-doc spec-url="../specs/data-types-simple.yaml"
+    <rapi-doc spec-url="../specs/mock.yaml"
       id = "thedoc"
-      nav-bg-color = '#3f4d67'
-      nav-text-color = '#a9b7d0'
+      theme="dark" 
+      primary-color="#f54c47"
+      bg-color="#2e3746"
+      text-color = "#bacdee"
       allow-authentication = "false" 
       allow-server-selection = "false"	
       allow-search = "false"
       show-info = "false"
       show-header = "false"
       render-style = "read"
-      regular-font = 'Open Sans'
-      schema-style='table'
     > 
       <div slot="nav-logo">
         <div style="text-align: center; padding: 0 0 12px 0; color:#47AFE8"> Enable/Disable TRY </div>
