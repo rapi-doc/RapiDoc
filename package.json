@@ -1,6 +1,6 @@
 {
   "name": "rapidoc",
-  "version": "9.1.0",
+  "version": "9.1.1-beta",
   "description": "RapiDoc - Open API spec viewer with built in console",
   "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
   "repository": {
@@ -47,13 +47,13 @@
   },
   "devDependencies": {
     "@babel/core": "^7.15.5",
-    "@babel/eslint-parser": "^7.15.4",
+    "@babel/eslint-parser": "^7.15.7",
     "@babel/preset-env": "^7.15.6",
     "babel-loader": "^8.2.2",
     "babel-plugin-template-html-minifier": "^4.1.0",
     "clean-webpack-plugin": "^4.0.0",
     "compression-webpack-plugin": "^9.0.0",
-    "css-loader": "^6.2.0",
+    "css-loader": "^6.3.0",
     "eslint": "^7.32.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-import-resolver-webpack": "^0.13.1",
