@@ -16,11 +16,16 @@
     <script type="module" src="../rapidoc-min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;600&family=Roboto+Mono&display=swap" rel="stylesheet">
     <style>
-      .size { width: 80px; height: 30px;  font-size:13px; margin: 0 2px; padding: 0 8px; border-radius: 2px; outline:none; color: #fff;}
+      .size { width: 100px; height: 30px;  font-size:13px; margin: 0 2px; padding: 0 8px; border-radius: 2px; outline:none; color: #fff;}
       .btn { background-color: #2069e0; cursor:pointer; border: 1px solid transparent;}
       .txt {background-color: #2e2e2e; border: 1px solid #2069e0;}
       .table{ border:1px solid #444; border-collapse: collapse;}
       .table td{ font-size:12px; font-family: 'Roboto Mono'; border: 1px solid #444; padding:8px;}
+      .table th{ font-size:11px; font-family: 'Open Sans'; border: 1px solid #444; padding:8px; background: #222;}
+      datalist {
+        background-color: #222;
+        border: 1px solid #2069e0;
+      }
       rapi-doc{
         width:100%;
       }
@@ -41,29 +46,30 @@
             *This section is not RapiDoc generated. It is user injected HTML/JS into a <span style="font-family:'Roboto Mono'"> &lt;slot&gt;</span> element to demonstrate how to programatically apply security keys
           </div>
 
-          <div style="margin-top:16px">
+          <div style="margin:24px 0 8px 0">
             RapiDoc provides you with two helper methods which you can use to supply security keys programatically. 
-            <ol>
-              <li> <span style="font-family:'Roboto Mono'">setHttpUserNameAndPassword()</span></li>
-              <li> <span style="font-family:'Roboto Mono'">setApiKey()</span></li>
-            </ol>
           </div>
-          <p>
+          <table class="table" style="border:1px solid #444; font-family:'Roboto Mono'">
+            <tr><th>SCHEME-TYPE</th><th>METHOD USED TO UPDATE</th></tr>
+            <tr> <td>basic</td><td>setHttpUserNameAndPassword('http-basic', 'newUserName', 'newPassword')</td></tr>
+            <tr> <td>other than basic</td><td style="border-bottom: 1px dashed #383838;" rowspan="3">setApiKey('api_key1', 'newApiToken')</td></tr>
+          </table>
+
+          <div style="margin:24px 0 8px 0">
             The table below list all the scurity schemes included in this spec. Check the corrosponding method that can be used to supply an access-token
-            <table class="table" style="border:1px solid #444; font-family:'Roboto Mono'">
-              <tr><th>TYPE</th><th>SECURITY SCHEME ID</th><th>METHOD USED TO UPDATE</th></tr>
-              <tr> <td>http</td><td>http-basic</td> <td rowspan="2">RapiDocEl.setHttpUserNameAndPassword('http-basic', 'newUserName', 'newPassword')</td></tr>
-              <tr> <td>http</td><td>http-bearer</td></tr>
-              <tr> <td>oauth2</td><td>ms-oauth</td><td style="border-bottom: 1px dashed #383838;" rowspan="3">RapiDocEl.setApiKey('api_key1', 'newApiToken')</td></tr>
-              <tr> <td>apiKey</td><td>api_key1</td></tr>
-              <tr> <td>apiKey</td><td>api_key2</td></tr>
-              <tr> <td>apiKey</td><td>api_key_cookie</td><td>
-                <span style="font-family:'Open Sans'; color:#777">
-                  If the apiKey needs to send using a cookie, then it wont be set as RapiDoc do not support creation or reading of cookies
-                </span>
-              </td></tr>
-            </table>
-          </p>
+          </div>
+          <table class="table" style="border:1px solid #444; font-family:'Roboto Mono'">
+            <tr><th>SECURITY SCHEME</th><th>SCHEME TYPE</th><th>METHOD USED TO UPDATE</th></tr>
+            <tr> <td>http-basic</td><td>basic</td> <td>setHttpUserNameAndPassword('http-basic', 'newUserName', 'newPassword')</td></tr>
+            <tr> <td>http-bearer</td><td>bearer</td> <td>setApiKey('http-bearer', 'newToken')</td></tr>
+            <tr> <td>api_key1</td><td> <span style="color:#777"> (not-specified)</span></td> <td>setApiKey('api_key1', 'newToken')</td></tr>
+            <tr> <td>api_key2</td><td> <span style="color:#777"> (not-specified)</span></td> <td>setApiKey('api_key2', 'newToken')</td></tr>
+            <tr> <td>ms-oauth</td><td> <span style="color:#777"> (not-specified)</span></td> <td>setApiKey('ms-oauth', 'newToken')</td></tr>
+            <tr> <td>api_key_cookie</td><td> <span style="color:#777"> (not-specified)</span></td> 
+              <td> <span style="color:#777"> (wont work as this scheme sends api-key in a cookie, and rapidoc dont create/read cookies)</span></td>
+            </tr>
+          </table>
+
           <div style="margin:32px 0 16px 0; color:#777; font-weight:bold">
             Below form is used for taking user input and apply the security key using javascipt 
           </div>
@@ -79,18 +85,17 @@
             </tr>
             <tr>
               <td> API Key</td>
-              <td> 
-                <input class='size txt' id='api-security-scheme-id' value="api_key1" type='text' placeholder='Security Scheme ID' spellcheck='false' style="width:120px"> 
+              <td>
+                <select class='size txt' style="width:138px" id='api-security-scheme-id' placeholder='Security Scheme ID'>
+                  <option value="api_key1">api_key1</option>
+                  <option value="api_key2">api_key2</option>
+                  <option value="http-bearer">http-bearer</option>
+                  <option value="ms-oauth">ms-oauth</option>
+                  <option value="invalid-key">invalid-key</option>
+                </select>
+
                 <input class='size txt' id='api-key-value' type='text' value="new-token"  placeholder='API Key Value' spellcheck='false' > 
                 <button class='size btn' onclick='setSecurity(event, "apikey")'>Apply</button>
-              </td>
-            </tr>
-            <tr>
-              <td>OAuth</td>
-              <td> 
-                <input class='size txt' id='oauth-security-scheme-id' value="ms-oauth" type='text' placeholder='Security Scheme ID' spellcheck='false' style="width:120px"> 
-                <input class='size txt' id='oauth-key-value' type='text' value="new-token"  placeholder='Access Token' spellcheck='false' > 
-                <button class='size btn' onclick='setSecurity(event, "oauth2")'>Apply</button>
               </td>
             </tr>
             <tr>
@@ -110,8 +115,6 @@
               <td colspan="2"><button class='size btn' style="width:110px" onclick='setApiServer(event)'>Set API Server</button></td>
             </tr>  
           </table>
-
-
         </div>
       </div>  
     </rapi-doc>
