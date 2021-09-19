@@ -5,21 +5,21 @@ import marked from 'marked';
 const codeVerifier = '731DB1C3F7EA533B85E29492D26AA-1234567890-1234567890';
 const codeChallenge = '4FatVDBJKPAo4JgLLaaQFMUcQPn5CrPRvLlaob9PTYc'; // Base64 encoded SHA-256
 
-export function applyApiKey(securitySchemeId, username = '', password = '', apikeyVal = '') {
+export function applyApiKey(securitySchemeId, username = '', password = '', providedApikeyVal = '') {
   const securityObj = this.resolvedSpec.securitySchemes?.find((v) => (v.securitySchemeId === securitySchemeId));
   if (!securityObj) {
     return false;
   }
-  let apiKeyValue = '';
-  if (securityObj.type && securityObj.scheme && securityObj.type === 'http' && securityObj.scheme.toLowerCase() === 'basic') {
+  let finalApiKeyValue = '';
+  if (securityObj.scheme?.toLowerCase() === 'basic') {
     if (username) {
-      apiKeyValue = `Basic ${btoa(`${username}:${password}`)}`;
+      finalApiKeyValue = `Basic ${btoa(`${username}:${password}`)}`;
     }
-  } else if (apikeyVal) {
-    apiKeyValue = `${securityObj.scheme?.toLowerCase() === 'bearer' ? 'Bearer' : ''} ${apiKeyValue}`;
+  } else if (providedApikeyVal) {
+    finalApiKeyValue = `${securityObj.scheme?.toLowerCase() === 'bearer' ? 'Bearer' : ''} ${providedApikeyVal}`;
   }
-  if (apiKeyValue) {
-    securityObj.finalKeyValue = apiKeyValue;
+  if (finalApiKeyValue) {
+    securityObj.finalKeyValue = finalApiKeyValue;
     this.requestUpdate();
     return true;
   }
