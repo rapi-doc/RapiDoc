@@ -27,11 +27,11 @@
     <main>
       <h2>Introducing &lt;rapi-doc-mini&gt; Web Component </h2>
       <p> 
-        <b>&lt;rapi-doc-mini&gt;</b> a new way to expose your API documentation. There are various styles and need how one would like to document their APIs. 
+        <b>&lt;rapi-doc-mini&gt;</b> a new way to expose your API documentation. There are various styles and needs how one would like to document their APIs. 
         such as 
         <ul>
           <li>
-            All the APIs are documented in one central place. This is where <b>&lt;rapi-doc&gt;</b> fits in.
+            All the APIs are documented in one central place. This is where <b>&lt;rapi-doc&gt;</b> fits in. However for the rest of bullets listed below  <b>&lt;rapi-doc-mini&gt;</b> is your friend
           </li>
           <li>
            Expose just a few important APIs such as authentication etc as a part of a blog, to provide an initial understanding to your audience
@@ -45,7 +45,6 @@
           </li>
         </ul>
       </p>
-
 
       <h2>Usage in a blog style writing</h2>
       <p style="flex:1">
@@ -69,7 +68,8 @@
               bg-color = "#f9f9fb"
             &gt; &lt;/rapi-doc-mini&gt;</code>
         </pre>
-        Above HTML snippet will result in generating an API doc as shown below. Go ahead and play with the below APIs, make live request and watch the responses
+        Above HTML snippet will result in generating an API doc as shown below. Notice how it blends seamlessly with this writeup as if its a part of this page. 
+        Go ahead and play with the below APIs, make live request and watch the responses, all from this very blog.
       </p>
       <rapi-doc-mini
         style= "min-width:600px;"
@@ -95,9 +95,8 @@
         paths-expanded = "false"
       > </rapi-doc-mini>
      
-     
       <br/><br/>
-      <h3>Pick and show specific APIs </h3>
+      <h3>Pick only specific APIs from OpenAPI spec</h3>
       Instead of showing entire open-api spec you can just extract and choose to show what you need to show. This is done using <b>match-paths</b> attribute.
       <br/>Example below uses the same OpenAPI spec as we used above, but showing only the paths that we intend to
 
@@ -125,6 +124,7 @@
       > </rapi-doc-mini>
     <br/>
     <h3>More complex RegEx based filtering of API is possible too (match-paths & match-type)</h3>
+    Here we are using regular RegEx to select the paths which is either <span class="mono blue"> get /users/{userId}</span> &nbsp;&nbsp;or&nbsp;&nbsp; <span class="mono blue"> post /users</span>
     <pre class="shadow1 code-block" style="width:575px">
       <code class="language-html">
         &lt;rapi-doc-mini
@@ -152,7 +152,7 @@
     > </rapi-doc-mini>
 
     <h3>Show it Minimzed or Expanded</h3>
-    If expand/collapse is not your style, or feel it a bit of distraction then have it always expanded and make it more natural and integrated part of your writeup.
+    If expand/collapse is not your style, then have it always expanded and make it more natural and integrated part of your writeup.
     <br> Use the attribute <b>paths-expanded = "true"</b> to achive this <br/><br/>
     
     <rapi-doc-mini
