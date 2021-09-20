@@ -16,7 +16,7 @@ export default async function ProcessSpec(specUrl, generateMissingTags = false, 
     await sleep(0); // important to show the initial loader (allows for rendering updates)
 
     // If  JSON Schema Viewer
-    if (specMeta.resolvedSpec.jsonSchemaViewer && specMeta.resolvedSpec.schemaAndExamples) {
+    if (specMeta.resolvedSpec?.jsonSchemaViewer && specMeta.resolvedSpec?.schemaAndExamples) {
       this.dispatchEvent(new CustomEvent('before-render', { detail: { spec: specMeta.resolvedSpec } }));
       const schemaAndExamples = Object.entries(specMeta.resolvedSpec.schemaAndExamples).map((v) => ({ show: true, expanded: true, selectedExample: null, name: v[0], elementId: v[0].replace(invalidCharsRegEx, '-'), ...v[1] }));
       const parsedSpec = {
