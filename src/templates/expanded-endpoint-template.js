@@ -11,7 +11,13 @@ import '~/components/api-response';
 /* eslint-disable indent */
 function headingRenderer(tagElementId) {
   const renderer = new marked.Renderer();
-  renderer.heading = ((text, level, raw, slugger) => `<h${level} class="observe-me" id="${tagElementId}--${slugger.slug(raw)}">${text}</h${level}>`);
+  renderer.heading = ((text, level, raw, slugger) => {
+    let rest = `--${slugger.slug(raw)}`
+    if (rest == "--overview") {
+      rest = ""
+    }
+    return `<h${level} class="observe-me" id="${tagElementId}${rest}">${text}</h${level}>`
+  });
   return renderer;
 }
 
@@ -44,9 +50,9 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
         ? html`
           <div style="display:flex; flex-wrap:wrap; margin-bottom: -24px; font-size: var(--font-size-small);">
             ${path.xBadges.map((v) => (
-                html`<span style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`
-              ))
-            }
+          html`<span style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`
+        ))
+          }
           </div>
           `
         : ''
@@ -117,23 +123,22 @@ export default function expandedEndpointTemplate() {
   if (!this.resolvedSpec) { return ''; }
   return html`
   ${this.resolvedSpec.tags.map((tag) => html`
-    <section id="${tag.elementId}" part="section-tag" class="regular-font section-gap--read-mode observe-me" style="border-top:1px solid var(--primary-color);">
+    <section id="${tag.elementId}--overview" part="section-tag" class="regular-font section-gap--read-mode observe-me" style="border-top:1px solid var(--primary-color);">
       <div class="title tag" part="label-tag-title">${tag.name}</div>
       <slot name="${tag.elementId}"></slot>
       <div class="regular-font-size">
-      ${
-        unsafeHTML(`
+      ${unsafeHTML(`
           <div class="m-markdown regular-font">
           ${marked(tag.description || '', this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer(tag.elementId) } : undefined)}
         </div>`)
-      }
+    }
       </div>
     </section>
     <section class='regular-font section-gap--read-mode' part="section-operations-in-tag">
       ${tag.paths.map((path) => expandedEndpointBodyTemplate.call(this, path, 'BBB'))}
     </section>
     `)
-  }
+    }
 `;
 }
 /* eslint-enable indent */

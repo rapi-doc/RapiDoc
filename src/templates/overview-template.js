@@ -15,61 +15,20 @@ export default function overviewTemplate() {
     <section id="overview" part="section-overview"
       class="observe-me ${this.renderStyle === 'view' ? 'section-gap' : 'section-gap--read-mode'}">
       ${this.resolvedSpec?.info
-        ? html`
-          <div id="api-title" part="label-overview-title" style="font-size:32px">
-            ${this.resolvedSpec.info.title}
-            ${!this.resolvedSpec.info.version ? '' : html`
-              <span style = 'font-size:var(--font-size-small);font-weight:bold'>
-                ${this.resolvedSpec.info.version}
-              </span>`
-            }
-          </div>
-          <div id="api-info" style="font-size:calc(var(--font-size-regular) - 1px); margin-top:8px;">
-            ${this.resolvedSpec.info.contact?.email
-              ? html`<span>${this.resolvedSpec.info.contact.name || 'Email'}: 
-                <a href="mailto:${this.resolvedSpec.info.contact.email}" part="anchor anchor-overview">${this.resolvedSpec.info.contact.email}</a>
-              </span>`
-              : ''
-            }
-            ${this.resolvedSpec.info.contact?.url
-              ? html`<span>URL: <a href="${this.resolvedSpec.info.contact.url}" part="anchor anchor-overview">${this.resolvedSpec.info.contact.url}</a></span>`
-              : ''
-            }
-            ${this.resolvedSpec.info.license
-              ? html`<span>License: 
-                ${this.resolvedSpec.info.license.url
-                ? html`<a href="${this.resolvedSpec.info.license.url}" part="anchor anchor-overview">${this.resolvedSpec.info.license.name}</a>`
-                : this.resolvedSpec.info.license.name
-              } </span>`
-              : ''
-            }
-            ${this.resolvedSpec.info.termsOfService
-              ? html`<span><a href="${this.resolvedSpec.info.termsOfService}" part="anchor anchor-overview">Terms of Service</a></span>`
-              : ''
-            }
-            ${this.specUrl
-              ? html`
-                <div style="display:flex; margin:12px 0; gap:8px; justify-content: start;">
-                  <button class="m-btn thin-border" style="width:170px" part="btn btn-outline" @click='${(e) => { downloadResource(this.specUrl, 'openapi-spec', e); }}'>Download OpenAPI spec</button>
-                  <button class="m-btn thin-border" style="width:200px" part="btn btn-outline" @click='${(e) => { viewResource(this.specUrl, e); }}'>View OpenAPI spec (New Tab)</button>
-                </div>`
-              : ''
-            }
-          </div>
+      ? html`
           <slot name="overview"></slot>
           <div id="api-description">
           ${this.resolvedSpec.info.description
-            ? html`${
-              unsafeHTML(`
+          ? html`${unsafeHTML(`
                 <div class="m-markdown regular-font">
                 ${marked(this.resolvedSpec.info.description, this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer() } : undefined)}
               </div>`)}`
-            : ''
-          }
+          : ''
+        }
           </div>
         `
-        : ''
-      }
+      : ''
+    }
     </section>
   `;
 }
