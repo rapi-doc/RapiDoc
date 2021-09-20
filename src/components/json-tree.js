@@ -23,6 +23,7 @@ export default class JsonTree extends LitElement {
         display:flex;
       }
       .json-tree {
+        position: relative;
         font-family: var(--font-mono);
         font-size: var(--font-size-small);
         display:inline-block;

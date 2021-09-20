@@ -14,6 +14,19 @@ export default async function ProcessSpec(specUrl, generateMissingTags = false, 
       specMeta = await OpenApiParser.resolve({ spec: specUrl }); // Swagger({ spec: specUrl });
     }
     await sleep(0); // important to show the initial loader (allows for rendering updates)
+
+    // If  JSON Schema Viewer
+    if (specMeta.resolvedSpec.jsonSchemaViewer && specMeta.resolvedSpec.schemaAndExamples) {
+      this.dispatchEvent(new CustomEvent('before-render', { detail: { spec: specMeta.resolvedSpec } }));
+      const schemaAndExamples = Object.entries(specMeta.resolvedSpec.schemaAndExamples).map((v) => ({ show: true, expanded: true, selectedExample: null, name: v[0], elementId: v[0].replace(invalidCharsRegEx, '-'), ...v[1] }));
+      const parsedSpec = {
+        specLoadError: false,
+        isSpecLoading: false,
+        info: specMeta.resolvedSpec.info,
+        schemaAndExamples,
+      };
+      return parsedSpec;
+    }
     if (specMeta.spec && (specMeta.spec.components || specMeta.spec.info || specMeta.spec.servers || specMeta.spec.tags || specMeta.spec.paths)) {
       jsonParsedSpec = specMeta.spec;
       this.dispatchEvent(new CustomEvent('before-render', { detail: { spec: jsonParsedSpec } }));

@@ -245,19 +245,18 @@ export default class RapiDoc extends LitElement {
       .only-large-screen{
         display:none;
       }
-      .header-title{
-        font-size:calc(var(--font-size-regular) + 8px); 
-        padding:0 8px;
-      }
       .tag.title {
         text-transform: uppercase;
       }
-      .header{
+      .header {
         background-color:var(--header-bg);
         color:var(--header-fg);
         width:100%;
       }
-
+      .header-title {
+        font-size:calc(var(--font-size-regular) + 8px); 
+        padding:0 8px;
+      }
       input.header-input{
         background:var(--header-color-darker);
         color:var(--header-fg);

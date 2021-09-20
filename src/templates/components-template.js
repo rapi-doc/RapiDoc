@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { html } from 'lit-element';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import marked from 'marked';
@@ -11,7 +10,7 @@ function schemaBodyTemplate(sComponent) {
   return html`
   <div class='divider'></div>
   <div class='expanded-endpoint-body observe-me ${sComponent.name}' id='cmp--${sComponent.id}' >
-    <h1> ${sComponent.name} </h1>
+    <div style="font-weight:bold"> ${sComponent.name} <span style="color:var(--light-fg); font-size:var(--font-size-small); font-weight:400;"> Schema </span></div>
   ${this.schemaStyle === 'table'
     ? html`
       <schema-table
@@ -37,7 +36,7 @@ function schemaBodyTemplate(sComponent) {
   </div>`;
 }
 
-function componentBodyTemplate(sComponent) {
+function componentBodyTemplate(sComponent, componentType) {
   if (sComponent.id.indexOf('schemas-') !== -1) {
     return schemaBodyTemplate.call(this, sComponent);
   }
@@ -45,7 +44,7 @@ function componentBodyTemplate(sComponent) {
   <div class='divider'></div>
   <div class='expanded-endpoint-body observe-me ${sComponent.name}' id='cmp--${sComponent.id}' >
     ${html`
-      <h1> ${sComponent.name} </h1>
+      <div style="font-weight:bold"> ${sComponent.name} <span style="color:var(--light-fg); font-size:var(--font-size-small); font-weight:400"> ${componentType} </span> </div>
       ${sComponent.component
     ? html`
       <div class='mono-font regular-font-size' style='padding: 8px 0; color:var(--fg2)'> 
@@ -68,7 +67,7 @@ export default function componentsTemplate() {
       </div>
     </div>
     <div class='regular-font section-gap--read-mode'>
-      ${component.subComponents.filter((c) => c.expanded !== false).map((sComponent) => componentBodyTemplate.call(this, sComponent))}
+      ${component.subComponents.filter((c) => c.expanded !== false).map((sComponent) => componentBodyTemplate.call(this, sComponent, component.name))}
     </div>
     `)
 }

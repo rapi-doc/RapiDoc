@@ -654,7 +654,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
 }
 
 /* Create Example object */
-export function generateExample(examples = '', example = '', schema, mimeType, includeReadOnly = true, includeWriteOnly = true, outputType) {
+export function generateExample(examples = '', example = '', schema, mimeType, includeReadOnly = true, includeWriteOnly = true, outputType = 'json', includeGeneratedExample = false) {
   const finalExamples = [];
   // First check if examples is provided
   if (examples) {
@@ -724,8 +724,8 @@ export function generateExample(examples = '', example = '', schema, mimeType, i
       exampleFormat: egFormat,
     });
   }
-  // If schema-level examples are not provided then generate one based on the schema field types
-  if (finalExamples.length === 0) {
+  // If schema-level examples are not provided or includeGeneratedExample === true then generate one based on the schema field types
+  if (finalExamples.length === 0 || includeGeneratedExample === true) {
     if (schema) {
       if (schema.example) { // Note: schema.examples (plurals) is not allowed as per spec
         finalExamples.push({

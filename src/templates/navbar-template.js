@@ -136,7 +136,7 @@ export default function navbarTemplate() {
         .map((tag) => html`
           <div class='nav-bar-tag-and-paths ${tag.expanded ? 'expanded' : 'collapsed'}'>
             ${tag.name === 'General ⦂'
-              ? html`<hr style="border:none; border-top: 1px dotted var(--nav-text-color); opacity:0.4; margin:-1px 0 0 0;"/>`
+              ? html`<hr style="border:none; border-top: 1px dotted var(--nav-text-color); opacity:0.3; margin:-1px 0 0 0;"/>`
               : html`
                 <div 
                   class='nav-bar-tag' 

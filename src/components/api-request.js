@@ -312,6 +312,7 @@ export default class ApiRequest extends LitElement {
           true,
           true,
           'text',
+          false,
         )[0].exampleValue;
       }
       const labelColWidth = 'read focused'.includes(this.renderStyle) ? '200px' : '160px';
@@ -538,6 +539,7 @@ export default class ApiRequest extends LitElement {
             false,
             true,
             'text',
+            false,
           );
           if (!this.selectedRequestBodyExample) {
             this.selectedRequestBodyExample = (reqBodyExamples.length > 0 ? reqBodyExamples[0].exampleId : '');
@@ -598,6 +600,7 @@ export default class ApiRequest extends LitElement {
             false,
             true,
             'text',
+            false,
           );
           if (reqBody.schema) {
             reqBodyFormHtml = this.formDataTemplate(reqBody.schema, reqBody.mimeType, (ex[0] ? ex[0].exampleValue : ''));
@@ -689,6 +692,7 @@ export default class ApiRequest extends LitElement {
       false,
       true,
       'text',
+      false,
     );
 
     return html`
