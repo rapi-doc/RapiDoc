@@ -87,7 +87,7 @@ paths:
   /api-server-template:
     get:
       summary: Dynamic API Server.
-      discription: Uses API server template string and variables which can be used to generatea a desired API server url -  The selected and computed API Server URL should be shown against `API SERVER`.
+      description: Uses API server template string and variables which can be used to generatea a desired API server url -  The selected and computed API Server URL should be shown against `API SERVER`.
       responses:
         '200':
           description: successful operation
