@@ -738,7 +738,7 @@
         <div style="width:710px">
           <span class="mono bold">slots</span> 
           <span>
-            are placeholders inside a web component that you can fill with your own markup.
+            are predefined placeholders inside a RapiDoc component. You can use these slots to place your custom html in certain desired locations inside RapiDoc.
             Below is an example on how to inject HTML/CSS/JS at various locations in RapiDoc 
           </span>
           <pre class="shadow1 code-block" style="max-width: calc(100% - 8px)">
@@ -746,13 +746,13 @@
               &lt;html&gt;
                 ...
                 &lt;rapi-doc spec-url = "https://petstore.swagger.io/v2/swagger.json"&gt;
-                  &lt;slot&gt; &lt;!-- This is a default slot --&gt;
+                  &lt;div&gt; &lt;!-- HTML Elements without slot attribute goes into default location--&gt;
                     &lt;h1&gt; My HTML Heading  &lt;/h1&gt;
-                  &lt;/slot&gt;
+                  &lt;/div&gt;
 
-                  &lt;slot name="nav-logo"&gt; &lt;!-- This is a named slot --&gt;
-                    &lt;img src="https://via.placeholder.com/100" style="width:50px; height:50px"/&gt;
-                  &lt;/slot&gt;
+                  &lt;!-- provide slot attribute to place an element at desired location --&gt;
+                  &lt;img slot="nav-logo" src="https://via.placeholder.com/100" style="width:50px; height:50px"/&gt;
+                 
                 &lt;/rapi-doc&gt;
                 ...
               &lt;/html&gt;
@@ -771,7 +771,7 @@
             </tr>
             <tr>
               <td class="mono bold right">logo</td>
-              <td class="gray">use this slot to replace the logo </td>
+              <td class="gray">use this slot to replace the logo on the header </td>
             </tr>
             <tr>
               <td class="mono bold right">header</td>
@@ -783,20 +783,27 @@
             </tr>
             <tr>
               <td class="mono bold right">nav-logo</td>
-              <td class="gray"> contents appear at Side navigation bar (only available in read-mode)</td>
+              <td class="gray"> contents appear at the top of Side navigation bar usually used for logo. (only available in read-mode)</td>
             </tr>
 
             <tr>
               <td class="mono bold right">overview</td>
-              <td class="gray"> contents appear at overview section</td>
+              <td class="gray"> contents appear at overview section - top of the document. You can link to this section using <span class="mono blue"> #overview </span>
+              </td> </td>
             </tr>
             <tr>
               <td class="mono bold right">servers</td>
-              <td class="gray"> contents appear at server section</td>
+              <td class="gray"> contents appear at server section which is under the overview slot. You can link to this section using <span class="mono blue"> #servers </span> </td>
             </tr>
             <tr>
               <td class="mono bold right">auth</td>
-              <td class="gray"> contents appear at authentication section</td>
+              <td class="gray"> contents appear at authentication section which is under the overview > servers slot. You can link to this section using <span class="mono blue"> #auth </span></td>
+            </tr>
+            <tr>
+              <td class="mono bold right">operations-top</td>
+              <td class="gray"> contents appear at the top of all the operations but below overview > servers > auth section. 
+                Use this section to provide content that applies to all the operations. You can link this section using <span class="mono blue"> #operations-top </span>
+              </td>
             </tr>
             <tr>
               <td class="mono bold right">tag--{tag-name}</td>
