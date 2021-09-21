@@ -47,7 +47,7 @@ export default function overviewTemplate() {
               ? html`<span><a href="${this.resolvedSpec.info.termsOfService}" part="anchor anchor-overview">Terms of Service</a></span>`
               : ''
             }
-            ${this.specUrl
+            ${this.specUrl && this.allowSpecFileDownload === 'true'
               ? html`
                 <div style="display:flex; margin:12px 0; gap:8px; justify-content: start;">
                   <button class="m-btn thin-border" style="width:170px" part="btn btn-outline" @click='${(e) => { downloadResource(this.specUrl, 'openapi-spec', e); }}'>Download OpenAPI spec</button>

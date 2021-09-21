@@ -55,6 +55,7 @@ export default class JsonSchemaViewer extends LitElement {
       // Allow or restrict features
       allowSpecUrlLoad: { type: String, attribute: 'allow-spec-url-load' },
       allowSpecFileLoad: { type: String, attribute: 'allow-spec-file-load' },
+      allowSpecFileDownload: { type: String, attribute: 'allow-spec-file-download' },
       allowSearch: { type: String, attribute: 'allow-search' },
 
       // Main Colors and Font
