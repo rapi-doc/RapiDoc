@@ -102,6 +102,9 @@ export default class ApiRequest extends LitElement {
           color: var(--fg); 
           font-family: var(--font-mono);
         }
+        .param-name.deprecated { 
+          text-decoration: line-through;
+        }
         .param-type{
           color: var(--light-fg); 
           font-family: var(--font-regular);
@@ -766,11 +769,8 @@ export default class ApiRequest extends LitElement {
         formDataTableRows.push(html`
         <tr> 
           <td style="width:${labelColWidth}; min-width:100px;">
-            <div class="param-name">
-              ${fieldSchema.required
-                ? html`<span style='color:var(--red);'>*</span>${fieldName}`
-                : html`${fieldName}`
-              }
+            <div class="param-name ${fieldSchema.deprecated ? 'deprecated' : ''}">
+              ${fieldName}${(schema.required?.includes(fieldName) || fieldSchema.required) ? html`<span style='color:var(--red);'>*</span>` : ''}
             </div>
             <div class="param-type">${paramSchema.type}</div>
           </td>  
