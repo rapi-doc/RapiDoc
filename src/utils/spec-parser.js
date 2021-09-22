@@ -331,6 +331,14 @@ function groupByTags(openApiSpec, generateMissingTags = false, sortTags = false,
             finalParameters = pathOrHookObj.parameters ? pathOrHookObj.parameters.slice(0) : [];
           }
 
+          // Filter callbacks to contain only objects.
+          if (pathOrHookObj.callbacks) {
+            for (const [callbackName, callbackConfig] of Object.entries(pathOrHookObj.callbacks)) {
+              const filteredCallbacks = Object.entries(callbackConfig).filter((entry) => typeof entry[1] === 'object') || [];
+              pathOrHookObj.callbacks[callbackName] = Object.fromEntries(filteredCallbacks);
+            }
+          }
+
           // Update Responses
           tagObj.paths.push({
             show: true,
