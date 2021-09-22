@@ -11,6 +11,8 @@ paths:
           multipart/form-data:
             schema:
               type: object
+              required:
+                - agePart
               properties:
                 photoPart:
                   type: string
@@ -27,6 +29,7 @@ paths:
                 agePart:
                   type: integer
                   default: 21
+                  deprecated: true
                   description: 'Age of the person'
                 contactPart:
                   type: object

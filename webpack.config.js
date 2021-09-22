@@ -49,18 +49,6 @@ const commonPlugins = [
       },
     },
   }),
-  /*
-  new ESLintPlugin({
-    emitError: true,
-    emitWarning: true,
-    formatter: 'stylish',
-    overrideConfigFile: path.resolve(__dirname, '.eslintrc'),
-    outputReport: {
-      filePath: './eslint_report.html',
-      formatter: 'html',
-    },
-  }),
-  */
 ];
 
 if (process.env.NODE_ENV === 'production') {
