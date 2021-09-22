@@ -1257,11 +1257,15 @@ export default class ApiRequest extends LitElement {
         const exampleTextAreaEl = requestPanelEl.querySelector('.request-body-param-user-input');
         if (exampleTextAreaEl?.value) {
           fetchOptions.body = exampleTextAreaEl.value;
-          // curlData = ` -d ${JSON.stringify(exampleTextAreaEl.value.replace(/(\r\n|\n|\r)/gm, '')).replace(/\\"/g, "'")} \\ \n`;
-          try {
-            curlData = ` -d '${JSON.stringify(JSON.parse(exampleTextAreaEl.value))}' \\\n`;
-          } catch (err) {
-            curlData = ` -d '${exampleTextAreaEl.value.replace(/(\r\n|\n|\r)/gm, '')}' \\\n`;
+          if (requestBodyType.includes('json')) {
+            try {
+              curlData = ` -d '${JSON.stringify(JSON.parse(exampleTextAreaEl.value))}' \\\n`;
+            } catch (err) {
+              // Ignore.
+            }
+          }
+          if (!curlData) {
+            curlData = ` -d '${exampleTextAreaEl.value.replace(/'/g, '\'"\'"\'')}' \\\n`;
           }
         }
       }
