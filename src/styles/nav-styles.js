@@ -14,6 +14,7 @@ export default css`
   flex-direction:column;
   flex-wrap:nowrap;
   word-break:break-word;
+  border-right: 1px solid #343A3F;
 }
 ::slotted(*){
   padding:16px 30px 0 16px;
@@ -24,6 +25,7 @@ export default css`
   overflow-y: overlay;
   scrollbar-width: thin;
   scrollbar-color: var(--nav-hover-bg-color) transparent;
+  width: 340px;
 }
 
 .nav-bar-tag {

@@ -101,7 +101,7 @@ export default function navbarTemplate() {
                   </div>`)
               }
               </div>
-              ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? html`<hr style='border-top: 1px solid var(--nav-hover-bg-color); border-width:1px 0 0 0; margin: 15px 0 0 0'/>` : ''}
+              ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? html`<hr style='border-top: 1px solid #343A3F; border-width:1px 0 0 0; margin: 15px 0 0 0'/>` : ''}
             `
             : html`<div class='nav-bar-info' id='link-overview' data-content-id='overview' @click = '${(e) => this.scrollToEventTarget(e, false)}'> Overview </div>`
           }

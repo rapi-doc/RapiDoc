@@ -16,5 +16,6 @@ export default css`
     .m-markdown h1 {
         font-weight: 600 !important;
         font-size: 21px !important;
+        letter-spacing: 0.025em;
     }
 `;
