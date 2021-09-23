@@ -75,6 +75,25 @@ paths:
                               type: string
                           additionalProperties:
                           type: string
+                  - in: query
+                    name: dynamic-query-params5
+                    explode: false
+                    required: false
+                    schema:
+                      type: object
+                      properties:
+                        propertyOne:
+                          type: string
+                          enum:
+                            - VALUE-1
+                            - VALUE-2
+                          default: VALUE-2
+                        propertyTwo:
+                          type: string
+                          enum:
+                            - FLAG-1
+                            - FLAG-2
+                          default: FLAG-1
                 responses:
                   '200':
                     description: successful operation
@@ -187,6 +206,28 @@ paths:
                     type: string
                 additionalProperties:
                   type: string
+        - in: query
+          name: dynamic-query-params5
+          description: >
+            Example generation works for non-exloded objects:<br />
+            `propertyOne=VALUE-1&property2=FLAG-1`
+          explode: false
+          required: false
+          schema:
+            type: object
+            properties:
+              propertyOne:
+                type: string
+                enum:
+                  - VALUE-1
+                  - VALUE-2
+                default: VALUE-2
+              propertyTwo:
+                type: string
+                enum:
+                  - FLAG-1
+                  - FLAG-2
+                default: FLAG-1
       responses:
         '200':
           description: successful operation

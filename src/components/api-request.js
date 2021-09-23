@@ -311,7 +311,7 @@ export default class ApiRequest extends LitElement {
           '',
           '',
           declaredParamSchema,
-          serializeStyle,
+          serializeStyle || 'json',
           true,
           true,
           'text',
