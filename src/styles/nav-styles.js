@@ -138,7 +138,7 @@ export default css`
 .nav-bar-tag.active {
   color: #FF8390;
   background-color: #343A3F;
-  margin: 2px 16px 2px 16px:
+  margin: 2px 16px 2px 16px;
   padding: 6px 4px 6px 4px:
   border-radius: 4px:
 }
