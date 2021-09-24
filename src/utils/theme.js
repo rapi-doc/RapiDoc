@@ -30,6 +30,8 @@ export default function setTheme(baseTheme, theme = {}) {
     const navTextColor = theme.navTextColor ? theme.navTextColor : ColorUtils.color.opacity(ColorUtils.color.invert(navBgColor), '0.65');
     const navHoverBgColor = theme.navHoverBgColor ? theme.navHoverBgColor : ColorUtils.color.brightness(navBgColor, -15);
     const navHoverTextColor = theme.navHoverTextColor ? theme.navHoverTextColor : ColorUtils.color.invert(navBgColor);
+    const navActiveBgColor = theme.navActiveBgColor ? theme.navActiveBgColor : ColorUtils.color.brightness(navBgColor, -15);
+    const navActiveTextColor = theme.navActiveTextColor ? theme.navActiveTextColor : ColorUtils.color.invert(navBgColor);
     const navAccentColor = theme.navAccentColor ? theme.navAccentColor : ColorUtils.color.brightness(primaryColor, 25);
     const overlayBg = 'rgba(80, 80, 80, 0.4)';
 
@@ -53,6 +55,8 @@ export default function setTheme(baseTheme, theme = {}) {
       navTextColor,
       navHoverBgColor,
       navHoverTextColor,
+      navActiveBgColor,
+      navActiveTextColor,
       navAccentColor,
 
       headerColor,
@@ -122,6 +126,8 @@ export default function setTheme(baseTheme, theme = {}) {
     const navTextColor = theme.navTextColor ? theme.navTextColor : ColorUtils.color.opacity(ColorUtils.color.invert(navBgColor), '0.65');
     const navHoverBgColor = theme.navHoverBgColor ? theme.navHoverBgColor : ColorUtils.color.brightness(navBgColor, -15);
     const navHoverTextColor = theme.navHoverTextColor ? theme.navHoverTextColor : ColorUtils.color.invert(navBgColor);
+    const navActiveBgColor = theme.navActiveBgColor ? theme.navActiveBgColor : ColorUtils.color.brightness(navBgColor, -15);
+    const navActiveTextColor = theme.navActiveTextColor ? theme.navActiveTextColor : ColorUtils.color.invert(navBgColor);
     const navAccentColor = theme.navAccentColor ? theme.navAccentColor : ColorUtils.color.brightness(primaryColor, 25);
     const overlayBg = 'rgba(0, 0, 0, 0.4)';
 
@@ -145,6 +151,8 @@ export default function setTheme(baseTheme, theme = {}) {
       navTextColor,
       navHoverBgColor,
       navHoverTextColor,
+      navActiveBgColor,
+      navActiveTextColor,
       navAccentColor,
 
       headerColor,
@@ -258,6 +266,8 @@ export default function setTheme(baseTheme, theme = {}) {
     --nav-text-color:${newTheme.navTextColor};
     --nav-hover-bg-color:${newTheme.navHoverBgColor};
     --nav-hover-text-color:${newTheme.navHoverTextColor};
+    --nav-active-bg-color:${newTheme.navActiveBgColor};
+    --nav-active-text-color:${newTheme.navActiveTextColor};
     --nav-accent-color:${newTheme.navAccentColor};
 
     /* Primary Colors */  

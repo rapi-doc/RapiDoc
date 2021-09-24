@@ -135,7 +135,8 @@ export default css`
 .nav-bar-path.active,
 .nav-bar-section.operations.active {
   border-left:4px solid var(--nav-accent-color);
-  color:var(--nav-hover-text-color);
+  color:var(--nav-active-text-color);
+  background-color:var(--nav-active-bg-color);
 }
 
 .nav-bar-h1:hover,

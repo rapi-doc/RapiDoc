@@ -112,6 +112,8 @@ export default class RapiDoc extends LitElement {
       navTextColor: { type: String, attribute: 'nav-text-color' },
       navHoverBgColor: { type: String, attribute: 'nav-hover-bg-color' },
       navHoverTextColor: { type: String, attribute: 'nav-hover-text-color' },
+      navActiveBgColor: { type: String, attribute: 'nav-active-bg-color' },
+      navActiveTextColor: { type: String, attribute: 'nav-active-text-color' },
       navAccentColor: { type: String, attribute: 'nav-accent-color' },
       navItemSpacing: { type: String, attribute: 'nav-item-spacing' },
       usePathInNavBar: { type: String, attribute: 'use-path-in-nav-bar' },
