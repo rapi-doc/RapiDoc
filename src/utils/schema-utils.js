@@ -661,7 +661,7 @@ export function generateExample(examples = '', example = '', schema, mimeType, i
     for (const eg in examples) {
       let egContent = '';
       let egFormat = 'json';
-      if (mimeType.toLowerCase().includes('json')) {
+      if (mimeType?.toLowerCase().includes('json')) {
         if (outputType === 'text') {
           egContent = typeof examples[eg].value === 'string' ? examples[eg].value : JSON.stringify(examples[eg].value, undefined, 2);
           egFormat = 'text';
@@ -695,7 +695,7 @@ export function generateExample(examples = '', example = '', schema, mimeType, i
   } else if (example) {
     let egContent = '';
     let egFormat = 'json';
-    if (mimeType.toLowerCase().includes('json')) {
+    if (mimeType?.toLowerCase().includes('json')) {
       if (outputType === 'text') {
         egContent = typeof example === 'string' ? example : JSON.stringify(example, undefined, 2);
         egFormat = 'text';
@@ -734,14 +734,14 @@ export function generateExample(examples = '', example = '', schema, mimeType, i
           exampleDescription: '',
           exampleType: mimeType,
           exampleValue: schema.example,
-          exampleFormat: ((mimeType.toLowerCase().includes('json') && typeof schema.example === 'object') ? 'json' : 'text'),
+          exampleFormat: ((mimeType?.toLowerCase().includes('json') && typeof schema.example === 'object') ? 'json' : 'text'),
         });
-      } else if (mimeType.toLowerCase().includes('json') || mimeType.toLowerCase().includes('text') || mimeType.toLowerCase().includes('*/*') || mimeType.toLowerCase().includes('xml')) {
+      } else if (mimeType?.toLowerCase().includes('json') || mimeType?.toLowerCase().includes('text') || mimeType?.toLowerCase().includes('*/*') || mimeType?.toLowerCase().includes('xml')) {
         let xmlRootStart = '';
         let xmlRootEnd = '';
         let exampleFormat = '';
         let exampleValue = '';
-        if (mimeType.toLowerCase().includes('xml')) {
+        if (mimeType?.toLowerCase().includes('xml')) {
           xmlRootStart = (schema.xml && schema.xml.name) ? `<${schema.xml.name}>` : '<root>';
           xmlRootEnd = (schema.xml && schema.xml.name) ? `</${schema.xml.name}>` : '</root>';
           exampleFormat = 'text';
@@ -767,7 +767,7 @@ export function generateExample(examples = '', example = '', schema, mimeType, i
           const description = samples[samplesKey]['::DESCRIPTION'] || '';
           removeTitlesAndDescriptions(samples[samplesKey]);
 
-          if (mimeType.toLowerCase().includes('xml')) {
+          if (mimeType?.toLowerCase().includes('xml')) {
             exampleValue = `${xmlRootStart}${json2xml(samples[samplesKey])}\n${xmlRootEnd}`;
           } else {
             exampleValue = outputType === 'text' ? JSON.stringify(samples[samplesKey], null, 2) : samples[samplesKey];
@@ -819,7 +819,7 @@ function getSerializeStyleForContentType(contentType) {
 
 export function getSchemaFromParam(param) {
   if (param.schema) {
-    return [param.schema, null];
+    return [param.schema, null, null];
   }
   if (param.content) {
     // we gonna use the first content-encoding
@@ -829,5 +829,5 @@ export function getSchemaFromParam(param) {
       }
     }
   }
-  return [null, null];
+  return [null, null, null];
 }
