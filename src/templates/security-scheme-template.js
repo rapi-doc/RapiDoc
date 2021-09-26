@@ -1,3 +1,4 @@
+/* eslint-disable arrow-body-style */
 import { html } from 'lit-element';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import marked from 'marked';
@@ -449,19 +450,18 @@ export function pathSecurityTemplate(pathSecurity) {
     pathSecurity.forEach((pSecurity) => {
       const andSecurityKeys1 = [];
       const andKeyTypes = [];
-      let pathScopes = '';
       Object.keys(pSecurity).forEach((pathSecurityKey) => {
+        let pathScopes = '';
         const s = this.resolvedSpec.securitySchemes.find((ss) => ss.securitySchemeId === pathSecurityKey);
-        if (!pathScopes && Array.isArray(pSecurity[pathSecurityKey])) {
+        if (pSecurity[pathSecurityKey] && Array.isArray(pSecurity[pathSecurityKey])) {
           pathScopes = pSecurity[pathSecurityKey].join(', ');
         }
         if (s) {
           andKeyTypes.push(s.typeDisplay);
-          andSecurityKeys1.push(s);
+          andSecurityKeys1.push({ ...s, ...({ scopes: pathScopes }) });
         }
       });
       orSecurityKeys1.push({
-        pathScopes,
         securityTypes: andKeyTypes.length > 1 ? `${andKeyTypes[0]} + ${andKeyTypes.length - 1} more` : andKeyTypes[0],
         securityDefs: andSecurityKeys1,
       });
@@ -485,7 +485,20 @@ export function pathSecurityTemplate(pathSecurity) {
                 <div class="tooltip-text" style="position:absolute; color: var(--fg); top:26px; right:0; border:1px solid var(--border-color);padding:2px 4px; display:block;">
                   ${orSecurityItem1.securityDefs.length > 1 ? html`<div>Requires <b>all</b> of the following </div>` : ''}
                   <div style="padding-left: 8px">
-                    ${orSecurityItem1.securityDefs.map((andSecurityItem, j) => html`
+                    ${orSecurityItem1.securityDefs.map((andSecurityItem, j) => {
+                      const scopeHtml = html`${andSecurityItem.scopes !== ''
+                        ? html`
+                          <div>
+                            <b>Required scopes:</b> 
+                            <br/> 
+                            <div style="margin-left:8px">  
+                              ${andSecurityItem.scopes.split(',').map((scope, cnt) => html`${cnt === 0 ? '' : '┃'}<span>${scope}</span>`)}
+                            </div>  
+                          </div>`
+                        : ''
+                      }`;
+
+                      return html`
                       ${andSecurityItem.type === 'oauth2'
                         ? html`
                           <div>
@@ -494,31 +507,23 @@ export function pathSecurityTemplate(pathSecurity) {
                               : 'Needs'
                             }
                             OAuth Token <span style="font-family:var(--font-mono); color:var(--primary-color);">${andSecurityItem.securitySchemeId}</span> in <b>Authorization header</b>
-                            ${orSecurityItem1.pathScopes !== ''
-                              ? html`
-                                <div>
-                                  <b>Required scopes:</b> 
-                                  <br/> 
-                                  <div style="margin-left:8px">  
-                                    ${orSecurityItem1.pathScopes.split(',').map((scope, cnt) => html`${cnt === 0 ? '' : '┃'}<span>${scope}</span>`)}
-                                  </div>  
-                                </div>`
-                              : ''
-                            }
+                            ${scopeHtml}
                           </div>`
                         : andSecurityItem.type === 'http'
                           ? html`
                             <div>
                               ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : html`Requires`} 
                               ${andSecurityItem.scheme === 'basic' ? 'Base 64 encoded username:password' : 'Bearer Token'} in <b>Authorization header</b>
+                              ${scopeHtml}
                             </div>`
                           : html`
                             <div>
                               ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : html`Requires`} 
                               Token in <b>${andSecurityItem.name} ${andSecurityItem.in}</b>
+                              ${scopeHtml}
                             </div>`
-                      }
-                    `)}
+                      }`;
+                    })}
                   </div>  
                 </div>
               </div>

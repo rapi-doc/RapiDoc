@@ -1057,7 +1057,6 @@ export default class ApiRequest extends LitElement {
     fetchUrl = this.path;
     const fetchOptions = {
       method: this.method.toUpperCase(),
-      headers: {},
     };
     // Generate URL using Path Params
     pathParamEls.map((el) => {
@@ -1154,13 +1153,13 @@ export default class ApiRequest extends LitElement {
       curlUrl = fetchUrl;
     }
     curl = `curl -X ${this.method.toUpperCase()} "${curlUrl}" \\\n`;
-
+    const reqHeaders = new Headers();
     if (acceptHeader) {
       // Uses the acceptHeader from Response panel
-      fetchOptions.headers.Accept = acceptHeader;
+      reqHeaders.append('Accept', acceptHeader);
       curlHeaders += ` -H "Accept: ${acceptHeader}" \\\n`;
     } else if (this.accept) {
-      fetchOptions.headers.Accept = this.accept;
+      reqHeaders.append('Accept', this.accept);
       curlHeaders += ` -H "Accept: ${this.accept}" \\\n`;
     }
 
@@ -1168,14 +1167,14 @@ export default class ApiRequest extends LitElement {
     this.api_keys
       .filter((v) => (v.in === 'header'))
       .forEach((v) => {
-        fetchOptions.headers[v.name] = v.finalKeyValue;
+        reqHeaders.append(v.name, v.finalKeyValue);
         curlHeaders += ` -H "${v.name}: ${v.finalKeyValue}" \\\n`;
       });
 
     // Add Header Params
     headerParamEls.map((el) => {
       if (el.value) {
-        fetchOptions.headers[el.dataset.pname] = el.value;
+        reqHeaders.append(el.dataset.pname, el.value);
         curlHeaders += ` -H "${el.dataset.pname}: ${el.value}" \\\n`;
       }
     });
@@ -1272,7 +1271,7 @@ export default class ApiRequest extends LitElement {
       // Common for all request-body
       if (!requestBodyType.includes('form-data')) {
         // For multipart/form-data dont set the content-type to allow creation of browser generated part boundaries
-        fetchOptions.headers['Content-Type'] = requestBodyType;
+        reqHeaders.append('Content-Type', requestBodyType);
       }
       curlHeaders += ` -H "Content-Type: ${requestBodyType}" \\\n`;
     }
@@ -1291,6 +1290,7 @@ export default class ApiRequest extends LitElement {
     if (this.fetchCredentials) {
       fetchOptions.credentials = this.fetchCredentials;
     }
+    fetchOptions.headers = reqHeaders;
     const fetchRequest = new Request(fetchUrl, fetchOptions);
     this.dispatchEvent(new CustomEvent('before-try', {
       bubbles: true,
