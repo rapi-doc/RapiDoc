@@ -48,9 +48,9 @@ paths:
       - ms-oauth:
         - User.ReadBasic.All
         - Directory.Read.All
-      - http-basic: []
+      - http-basic: ['h-scope1', 'h-scope2']
       - api_key_cookie: []
-      - api_key1: []
+      - api_key1: ['a-scope1', 'a-scope2']
         api_key2: []
 components:
   securitySchemes:
