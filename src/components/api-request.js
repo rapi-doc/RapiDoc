@@ -584,9 +584,7 @@ export default class ApiRequest extends LitElement {
                     data-example-format = "${v.exampleFormat}"
                     style="width:100%; resize:vertical;"
                     .textContent = "${this.fillRequestFieldsWithExample === 'true' ? (v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, null, 2)) : ''}"
-                  >
-                  </textarea>
-
+                  ></textarea>
                 </div>  
               `)}
 
@@ -935,8 +933,7 @@ export default class ApiRequest extends LitElement {
               <pre style="white-space:pre; max-height:400px; overflow:auto">${responseFormat
                 ? html`<code>${unsafeHTML(Prism.highlight(this.responseText, Prism.languages[responseFormat], responseFormat))}</code>`
                 : `${this.responseText}`
-              }
-              </pre>
+              }</pre>
             </div>`
         }
         <div class="tab-content col m-markdown" style="flex:1;display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};" >

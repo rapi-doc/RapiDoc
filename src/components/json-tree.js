@@ -99,7 +99,7 @@ export default class JsonTree extends LitElement {
       <div class="inside-bracket">
         ${Object.keys(data).map((key, i, a) => html`
           <div class="item"> 
-            ${detailType === 'pure_object' ? html`${key}:` : ''}
+            ${detailType === 'pure_object' ? html`"${key}":` : ''}
             ${this.generateTree(data[key], i === (a.length - 1))}
           </div>`)
         }
