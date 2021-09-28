@@ -17,7 +17,7 @@ export function applyApiKey(securitySchemeId, username = '', password = '', prov
       finalApiKeyValue = `Basic ${btoa(`${username}:${password}`)}`;
     }
   } else if (providedApikeyVal) {
-    finalApiKeyValue = `${securityObj.scheme?.toLowerCase() === 'bearer' ? 'Bearer' : ''} ${providedApikeyVal}`;
+    finalApiKeyValue = `${securityObj.scheme?.toLowerCase() === 'bearer' ? 'Bearer ' : ''}${providedApikeyVal}`;
   }
   if (finalApiKeyValue) {
     securityObj.finalKeyValue = finalApiKeyValue;
