@@ -52,7 +52,7 @@ export default function headerTemplate() {
         `
       }
       
-      ${(this.allowSearch === 'false' || this.allowAdvancedSearch === 'false' || 'read focused'.includes(this.renderStyle))
+      ${(this.allowAdvancedSearch === 'false' || 'read focused'.includes(this.renderStyle))
         ? ''
         : html`
           <button class="m-btn primary only-large-screen" part="btn btn-fill btn-search" style="margin-left:10px;" @click="${this.onShowSearchModalClicked}">
