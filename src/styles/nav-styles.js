@@ -15,7 +15,7 @@ export default css`
   flex-wrap:nowrap;
   word-break:break-word;
 }
-::slotted(*){
+::slotted([slot=nav-logo]){
   padding:16px 30px 0 16px;
 }
 .nav-scroll {
