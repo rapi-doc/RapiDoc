@@ -19,8 +19,8 @@ function schemaBodyTemplate(sComponent) {
         schema-expand-level = "${this.schemaExpandLevel}"
         schema-description-expanded = "${this.schemaDescriptionExpanded}"
         allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
-        schema-hide-read-only = false
-        schema-hide-write-only = ${this.schemaHideWriteOnly}
+        schema-hide-read-only = "false"
+        schema-hide-write-only = "${this.schemaHideWriteOnly}"
       > </schema-tree> `
     : html`
       <schema-tree
@@ -29,8 +29,8 @@ function schemaBodyTemplate(sComponent) {
         schema-expand-level = "${this.schemaExpandLevel}"
         schema-description-expanded = "${this.schemaDescriptionExpanded}"
         allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
-        schema-hide-read-only = false
-        schema-hide-write-only = ${this.schemaHideWriteOnly}
+        schema-hide-read-only = "false"
+        schema-hide-write-only = "${this.schemaHideWriteOnly}"
       > </schema-tree>`
 }
   </div>`;

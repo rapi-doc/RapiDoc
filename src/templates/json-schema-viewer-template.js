@@ -60,12 +60,12 @@ function jsonSchemaBodyTemplate() {
           <div style="display:flex; flex-direction: row; gap:16px;">
             <div class="json-schema-def" style="flex:1; padding:16px 0 16px 16px; ">
               <schema-tree
-                .data = '${schemaInObjectNotation(jSchemaBody.schema, {})}'
+                .data = "${schemaInObjectNotation(jSchemaBody.schema, {})}"
                 schema-expand-level = "${this.schemaExpandLevel}"
                 schema-description-expanded = "${this.schemaDescriptionExpanded}"
                 allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
-                schema-hide-read-only = false
-                schema-hide-write-only = false
+                schema-hide-read-only = "false"
+                schema-hide-write-only = "false"
               > </schema-tree>
             </div>
             <div class="json-schema-example-panel" style="width:400px; background-color: var(--input-bg); padding:16px 0 16px 16px; border-left: 1px dashed var(--border-color);">
@@ -81,9 +81,9 @@ function jsonSchemaBodyTemplate() {
               }
               ${examplesObj.map((v) => html`
                 <json-tree 
-                  .data="${v.exampleValue}"
-                  data-example = '${v.exampleId}'
-                  class = 'example'
+                  .data = "${v.exampleValue}"
+                  data-example = "${v.exampleId}"
+                  class = "example"
                   style = "margin-top:16px; display: ${v.exampleId === jSchemaBody.selectedExample ? 'flex' : 'none'}"
                 ></json-tree>`)
               }

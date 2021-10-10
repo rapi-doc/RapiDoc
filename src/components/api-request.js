@@ -387,7 +387,7 @@ export default class ApiRequest extends LitElement {
                               schema-description-expanded = "${this.schemaDescriptionExpanded}"
                               allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
                               schema-hide-read-only = "${this.schemaHideReadOnly.includes(this.method)}"
-                              schema-hide-write-only = false
+                              schema-hide-write-only = "false"
                             > </schema-tree>
                           </div>`
                         }
@@ -631,21 +631,21 @@ export default class ApiRequest extends LitElement {
               schema-description-expanded = "${this.schemaDescriptionExpanded}"
               allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
               schema-hide-read-only = "${this.schemaHideReadOnly.includes(this.method)}"
-              schema-hide-write-only = false
+              schema-hide-write-only = "false"
             > </schema-table>
           `;
         } else if (this.schemaStyle === 'tree') {
           reqBodySchemaHtml = html`
             ${reqBodySchemaHtml}
             <schema-tree
-              class = '${reqBody.mimeType.substring(reqBody.mimeType.indexOf('/') + 1)}'
-              style = 'display: ${this.selectedRequestBodyType === reqBody.mimeType ? 'block' : 'none'};'
-              .data = '${schemaAsObj}'
+              class = "${reqBody.mimeType.substring(reqBody.mimeType.indexOf('/') + 1)}"
+              style = "display: ${this.selectedRequestBodyType === reqBody.mimeType ? 'block' : 'none'};"
+              .data = "${schemaAsObj}"
               schema-expand-level = "${this.schemaExpandLevel}"
               schema-description-expanded = "${this.schemaDescriptionExpanded}"
               allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
-              schema-hide-read-only = "${this.schemaHideReadOnly.includes(this.method)}"
-              schema-hide-write-only = false
+              schema-hide-read-only = "true"
+              schema-hide-write-only = "false"
             > </schema-tree>
           `;
         }

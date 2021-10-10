@@ -622,6 +622,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     obj['::description'] = schema.description || '';
     obj['::type'] = 'object';
     obj['::deprecated'] = schema.deprecated || false;
+    obj['::readwrite'] = schema.readOnly ? 'readonly' : schema.writeOnly ? 'writeonly' : '';
     for (const key in schema.properties) {
       if (schema.required && schema.required.includes(key)) {
         obj[`${key}*`] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
@@ -639,6 +640,8 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
         ? `array&lt;${schema.items.description}&gt;`
         : '';
     obj['::type'] = 'array';
+    obj['::deprecated'] = schema.deprecated || false;
+    obj['::readwrite'] = schema.readOnly ? 'readonly' : schema.writeOnly ? 'writeonly' : '';
     if (schema.items.items) {
       obj['::array-type'] = schema.items.items.type;
     }
