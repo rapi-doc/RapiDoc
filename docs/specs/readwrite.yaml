@@ -1,22 +1,11 @@
 openapi: 3.0.3
 info:
   version: "1.0.0"
-  title: "Read-only component test"
+  title: "RaedOnly and WriteOnly Testcase "
 paths:
-  /holders:
-    get:
-      summary: "GET shows the read-only component"
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Holder'
+  /read-write:
     post:
-      summary: "POST doesn't show the read-only component"
+      summary: "Request doesn't show the read-only and Response doesn't show write-only"
       requestBody:
         content:
           application/json:
@@ -27,6 +16,13 @@ paths:
       responses:
         '200':
           description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Holder'
+
 components:
   schemas:
     Holder:
