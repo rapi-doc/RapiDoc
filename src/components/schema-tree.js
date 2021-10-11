@@ -115,7 +115,6 @@ export default class SchemaTree extends LitElement {
               this.data['::type'] === 'array' ? this.data['::props'] : this.data,
               this.data['::type'],
               this.data['::array-type'] || '',
-
             )}`
           : html`<span class='mono-font' style='color:var(--red)'> Schema not found </span>`
         }
@@ -123,7 +122,28 @@ export default class SchemaTree extends LitElement {
     `;
   }
 
-  generateTree(data, dataType = 'object', arrayType = '', key = '', description = '', schemaLevel = 0, indentLevel = 0) {
+  generateTree(data, dataType = 'object', arrayType = '', key = '', description = '', schemaLevel = 0, indentLevel = 0, readOrWrite = '') {
+    if (this.schemaHideReadOnly === 'true') {
+      if (dataType === 'array') {
+        if (readOrWrite === 'readonly') {
+          return;
+        }
+      }
+      if (data['::readwrite'] === 'readonly') {
+        return;
+      }
+    }
+    if (this.schemaHideWriteOnly === 'true') {
+      if (dataType === 'array') {
+        if (readOrWrite === 'writeonly') {
+          return;
+        }
+      }
+      if (data['::readwrite'] === 'writeonly') {
+        return;
+      }
+    }
+
     if (!data) {
       return html`<div class="null" style="display:inline;">null</div>`;
     }
@@ -189,13 +209,13 @@ export default class SchemaTree extends LitElement {
           <div class="td key ${data['::deprecated'] ? 'deprecated' : ''}" style='min-width:${minFieldColWidth}px'>
             ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION')
               ? html`<span class='key-label xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>`
-              : keyLabel.endsWith('*')
-                ? html`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>`
-                : keyLabel === '::props' || keyLabel === '::ARRAY~OF'
-                  ? ''
-                  : schemaLevel > 0
-                    ? html`<span class="key-label">${keyLabel}:</span>`
-                    : ''
+              : keyLabel === '::props' || keyLabel === '::ARRAY~OF'
+                ? ''
+                : schemaLevel > 0
+                  ? html`<span class="key-label" title="${readOrWrite === 'readonly' ? 'Read-Only' : readOrWrite === 'writeonly' ? 'Write-Only' : ''}">
+                      ${keyLabel.replace(/\*$/, '')}${keyLabel.endsWith('*') ? html`<span style="color:var(--red)">*</span>` : ''}${readOrWrite === 'readonly' ? html` 🆁` : readOrWrite === 'writeonly' ? html` 🆆` : readOrWrite}:
+                    </span>`
+                  : ''
             }
             ${data['::type'] === 'xxx-of' && dataType === 'array' ? html`<span style="color:var(--primary-color)">ARRAY</span>` : ''} 
             ${openBracket}
@@ -204,7 +224,7 @@ export default class SchemaTree extends LitElement {
         </div>
         <div class='inside-bracket ${data['::type'] || 'no-type-info'}' style='padding-left:${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' ? 0 : leftPadding}px;'>
           ${Array.isArray(data) && data[0]
-            ? html`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel)}`
+            ? html`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, data[0]['::readwrite'])}`
             : html`
               ${Object.keys(data).map((dataKey) => html`
                 ${['::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite'].includes(dataKey)
@@ -217,6 +237,7 @@ export default class SchemaTree extends LitElement {
                         data[dataKey]['::description'],
                         newSchemaLevel,
                         newIndentLevel,
+                        data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '',
                       )}`
                     : ''
                   : html`${this.generateTree(
@@ -227,6 +248,7 @@ export default class SchemaTree extends LitElement {
                     data[dataKey]['::description'],
                     newSchemaLevel,
                     newIndentLevel,
+                    data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '',
                   )}`
                 }
               `)}
@@ -240,15 +262,34 @@ export default class SchemaTree extends LitElement {
       `;
     }
 
-    // For Primitive Data types
-    const [type, readorWriteOnly, constraint, defaultValue, allowedValues, pattern, schemaDescription, , deprecated] = data.split('~|~');
-    if (readorWriteOnly === '🆁' && this.schemaHideReadOnly === 'true') {
+    // For Primitive types and array of Primitives
+    const [type, primitiveReadOrWrite, constraint, defaultValue, allowedValues, pattern, schemaDescription, , deprecated] = data.split('~|~');
+    if (primitiveReadOrWrite === '🆁' && this.schemaHideReadOnly === 'true') {
       return;
     }
-    if (readorWriteOnly === '🆆' && this.schemaHideWriteOnly === 'true') {
+    if (primitiveReadOrWrite === '🆆' && this.schemaHideWriteOnly === 'true') {
       return;
     }
     const dataTypeCss = type.replace(/┃.*/g, '').replace(/[^a-zA-Z0-9+]/g, '').substring(0, 4).toLowerCase();
+
+    let finalReadWriteText = '';
+    let finalReadWriteTip = '';
+    if (dataType === 'array') {
+      if (readOrWrite === 'readonly') {
+        finalReadWriteText = '🆁';
+        finalReadWriteTip = 'Read-Only';
+      } else if (readOrWrite === 'writeonly') {
+        finalReadWriteText = '🆆';
+        finalReadWriteTip = 'Write-Only';
+      }
+    } else if (primitiveReadOrWrite === '🆁') {
+        finalReadWriteText = '🆁';
+        finalReadWriteTip = 'Read-Only';
+      } else if (primitiveReadOrWrite === '🆆') {
+        finalReadWriteText = '🆆';
+        finalReadWriteTip = 'Write-Only';
+      }
+
     return html`
       <div class = "tr primitive">
         <div class="td key ${deprecated}" style='min-width:${minFieldColWidth}px' >
@@ -258,9 +299,9 @@ export default class SchemaTree extends LitElement {
               ? html`<span class='key-label xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>`
               : html`<span class="key-label">${keyLabel}:</span>`
           }
-          <span class="${dataTypeCss}" > 
+          <span class="${dataTypeCss}" title="${finalReadWriteTip}"> 
             ${dataType === 'array' ? `[${type}]` : `${type}`}
-            ${readorWriteOnly}
+            ${finalReadWriteText}
           </span>
         </div>
         <div class='td key-descr'>

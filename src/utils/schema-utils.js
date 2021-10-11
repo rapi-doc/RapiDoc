@@ -436,10 +436,10 @@ export function schemaToSampleObj(schema, config = { }) {
       obj['example-0'] = schema.example;
     } else {
       for (const propertyName in schema.properties) {
-        if (schema.properties[propertyName].deprecated && !config.includeDeprecated) { continue; }
-        if (schema.properties[propertyName].readOnly && !config.includeReadOnly) { continue; }
-        if (schema.properties[propertyName].writeOnly && !config.includeWriteOnly) { continue; }
-        if (schema.properties[propertyName].type === 'array' || schema.properties[propertyName].items) {
+        if (schema.properties[propertyName]?.deprecated && !config.includeDeprecated) { continue; }
+        if (schema.properties[propertyName]?.readOnly && !config.includeReadOnly) { continue; }
+        if (schema.properties[propertyName]?.writeOnly && !config.includeWriteOnly) { continue; }
+        if (schema.properties[propertyName]?.type === 'array' || schema.properties[propertyName]?.items) {
           if (schema.properties[propertyName].example) {
             addPropertyExampleToObjectExamples(schema.properties[propertyName].example, obj, propertyName);
           } else if (schema.properties[propertyName]?.items?.example) { // schemas and properties support single example but not multiple examples.

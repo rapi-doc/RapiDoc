@@ -123,11 +123,31 @@ export default class SchemaTable extends LitElement {
     `;
   }
 
-  generateTree(data, dataType = 'object', arrayType = '', key = '', description = '', schemaLevel = 0, indentLevel = 0) {
+  generateTree(data, dataType = 'object', arrayType = '', key = '', description = '', schemaLevel = 0, indentLevel = 0, readOrWrite = '') {
+    if (this.schemaHideReadOnly === 'true') {
+      if (dataType === 'array') {
+        if (readOrWrite === 'readonly') {
+          return;
+        }
+      }
+      if (data['::readwrite'] === 'readonly') {
+        return;
+      }
+    }
+    if (this.schemaHideWriteOnly === 'true') {
+      if (dataType === 'array') {
+        if (readOrWrite === 'writeonly') {
+          return;
+        }
+      }
+      if (data['::readwrite'] === 'writeonly') {
+        return;
+      }
+    }
+
     const newSchemaLevel = data['::type']?.startsWith('xxx-of') ? schemaLevel : (schemaLevel + 1);
     const newIndentLevel = dataType === 'xxx-of-option' || data['::type'] === 'xxx-of-option' || key.startsWith('::OPTION') ? indentLevel : (indentLevel + 1);
     const leftPadding = 16 * newIndentLevel; // 2 space indentation at each level
-
     if (!data) {
       return html`<div class="null" style="display:inline;">null</div>`;
     }
@@ -189,7 +209,10 @@ export default class SchemaTable extends LitElement {
                 }
                 ${data['::type'] === 'xxx-of' && dataType === 'array' ? html`<span style="color:var(--primary-color)">ARRAY</span>` : ''} 
               </div>
-              <div class='td key-type'>${(data['::type'] || '').includes('xxx-of') ? '' : detailObjType}</div>
+              <div class='td key-type' title="${data['::readwrite'] === 'readonly' ? 'Read-Only' : data['::readwrite'] === 'writeonly' ? 'Write-Only' : ''}">
+                ${(data['::type'] || '').includes('xxx-of') ? '' : detailObjType}
+                ${data['::readwrite'] === 'readonly' ? ' 🆁' : data['::readwrite'] === 'writeonly' ? ' 🆆' : ''}
+              </div>
               <div class='td key-descr m-markdown-small' style='line-height:1.7'>${unsafeHTML(marked(description || ''))}</div>
             </div>`
           : html`
@@ -197,7 +220,9 @@ export default class SchemaTable extends LitElement {
                 ? html`
                   <div class='tr'> 
                     <div class='td key'></div> 
-                    <div class='td key-type'> ${arrayType && arrayType !== 'object' ? `${dataType} of ${arrayType}` : dataType}</div> 
+                    <div class='td key-type'>
+                      ${arrayType && arrayType !== 'object' ? `${dataType} of ${arrayType}` : dataType}
+                    </div> 
                     <div class='td key-descr'></div> 
                   </div>`
                 : ''
@@ -206,7 +231,7 @@ export default class SchemaTable extends LitElement {
         }
         <div class='object-body'>
         ${Array.isArray(data) && data[0]
-          ? html`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel)}`
+          ? html`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, '')}`
           : html`
             ${Object.keys(data).map((dataKey) => html`
               ${['::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite'].includes(dataKey)
@@ -219,6 +244,7 @@ export default class SchemaTable extends LitElement {
                       data[dataKey]['::description'],
                       newSchemaLevel,
                       newIndentLevel,
+                      data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '',
                     )}`
                   : ''
                 : html`${this.generateTree(
@@ -229,6 +255,7 @@ export default class SchemaTable extends LitElement {
                   data[dataKey]['::description'],
                   newSchemaLevel,
                   newIndentLevel,
+                  data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '',
                 )}`
               }
             `)}
@@ -239,17 +266,29 @@ export default class SchemaTable extends LitElement {
     }
 
     // For Primitive Data types
-    const [type, readorWriteOnly, constraint, defaultValue, allowedValues, pattern, schemaDescription, schemaTitle, deprecated] = data.split('~|~');
-    if (readorWriteOnly === '🆁' && this.schemaHideReadOnly === 'true') {
+    const [type, readOrWriteOnly, constraint, defaultValue, allowedValues, pattern, schemaDescription, schemaTitle, deprecated] = data.split('~|~');
+    if (readOrWriteOnly === '🆁' && this.schemaHideReadOnly === 'true') {
       return;
     }
-    if (readorWriteOnly === '🆆' && this.schemaHideWriteOnly === 'true') {
+    if (readOrWriteOnly === '🆆' && this.schemaHideWriteOnly === 'true') {
       return;
     }
     const dataTypeCss = type.replace(/┃.*/g, '').replace(/[^a-zA-Z0-9+]/g, '').substring(0, 4).toLowerCase();
+    let dataTypeHtml = '';
+    if (dataType === 'array') {
+      dataTypeHtml = html` 
+        <div class='td key-type ${dataTypeCss}' title="${readOrWrite === 'readonly' ? 'Read-Only' : readOrWriteOnly === 'writeonly' ? 'Write-Only' : ''}">
+          [${type}] ${readOrWrite === 'readonly' ? '🆁' : readOrWrite === 'writeonly' ? '🆆' : ''}
+        </div>`;
+    } else {
+      dataTypeHtml = html` 
+        <div class='td key-type ${dataTypeCss}' title="${readOrWriteOnly === '🆁' ? 'Read-Only' : readOrWriteOnly === '🆆' ? 'Write-Only' : ''}">
+          ${type} ${readOrWriteOnly}
+        </div>`;
+    }
     return html`
       <div class = "tr primitive">
-        <div class="td key ${deprecated}" style='padding-left:${leftPadding}px' >
+        <div class="td key ${deprecated}" style='padding-left:${leftPadding}px'>
           ${keyLabel?.endsWith('*')
             ? html`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>`
             : key.startsWith('::OPTION')
@@ -257,9 +296,7 @@ export default class SchemaTable extends LitElement {
               : html`${keyLabel ? html`<span class="key-label"> ${keyLabel}</span>` : html`<span class="xxx-of-descr">${schemaTitle}</span>`}`
           }
         </div>
-        <div class='td key-type ${dataTypeCss}'>
-          ${dataType === 'array' ? `[${type}]` : type} 
-          <span style="font-family: var(--font-mono);">${readorWriteOnly} </span> </div>
+        ${dataTypeHtml}
         <div class='td key-descr'>
           ${dataType === 'array' ? html`<span class="m-markdown-small">${unsafeHTML(marked(description))}</span>` : ''}
           ${constraint ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Constraints: </span> ${constraint}</div>` : ''}
