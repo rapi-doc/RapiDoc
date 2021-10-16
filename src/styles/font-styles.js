@@ -88,8 +88,9 @@ export default css`
     font-size: var(--font-size-regular);
     line-height:calc(var(--font-size-regular) + 8px);
   }
-  .m-markdown li{
-    line-height:calc(var(--font-size-regular) + 12px);
+  .m-markdown li {
+    font-size: var(--font-size-regular);
+    line-height:calc(var(--font-size-regular) + 10px);
   }
   
   .m-markdown-small p,
