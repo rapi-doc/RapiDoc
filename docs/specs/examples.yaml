@@ -60,6 +60,17 @@ paths:
             value: "unmarried"
           example3:
             value: "widowed"
+      - name: luckyNumbers
+        in: query
+        schema:
+          type: array
+          items:
+            type: number
+          minItems: 4
+          maxItems: 4
+          examples:
+            - [10]
+            - [10, 20, 30, 40]
 
   /multiple-examples-by-response-type:
     get:

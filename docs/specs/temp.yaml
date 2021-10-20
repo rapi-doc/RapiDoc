@@ -1,94 +1,73 @@
-openapi: 3.0.3
+openapi: 3.0.1
 info:
-  version: "1.0.0"
-  title: "Read-only component test"
+  title: Test unorder schemas
+  description: |-
+    Should not report {recursive}
+  version: "1.0"
 paths:
-  /holders:
+  /api/test:
     get:
-      summary: "GET shows the read-only component"
       responses:
-        '200':
-          description: Successful operation
+        "200":
+          description: Status OK
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Holder'
-    post:
-      summary: "POST doesn't show the read-only component"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                holder:
-                  $ref: '#/components/schemas/Holder'
-      responses:
-        '200':
-          description: Successful operation
+                $ref: '#/components/schemas/Parent'
 components:
   schemas:
-    Holder:
+    Child1:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Parent'
+    Child2:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Parent'
+      - type: object
+        properties:
+          field3:
+            type: string
+    Child3:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Parent'
+      - type: object
+        properties:
+          field1:
+            type: string
+            enum:
+            - A1
+            - A2
+    Child4:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Parent'
+      - type: object
+        properties:
+          field2:
+            type: string
+            enum:
+            - B1
+            - B2
+    Parent:
+      required:
+        - type
       type: object
       properties:
-        id:
-          type: integer
         name:
           type: string
-        others:
-          $ref: '#/components/schemas/other'
-    other:
-      type: object
-      required:
-        - obj-regular
-      properties:
-        primitive:
-          type: integer
-        primitive-readonly:
-          readOnly: true
-          type: integer
-        obj-regular:
-          type: object
-          properties:
-            obj-prop1:
-              type: integer
-            obj-prop2:
-              type: integer
-            obj-prop-readonly:
-              readOnly: true
-              type: integer
-            obj-prop-writeonly:
-              writeOnly: true
-              type: integer
-        primitive-writeonly:
-          writeOnly: true
-          type: integer
-        obj-readonly:
-          type: object
-          readOnly: true
-          properties:
-            c1:
-              type: integer
-            c2:
-              type: integer
-        obj-writeonly:
-          type: object
-          writeOnly: true
-          properties:
-            d1:
-              type: integer
-            d2:
-              type: integer
-        arr-readonly:
-          type: array
-          readOnly: true
-          items:
-            type: string
-        arr-writeonly:
-          type: array
-          writeOnly: true
-          items:
-            type: string
-        g:
-          type: integer
+        type:
+          type: string
+      discriminator:
+        propertyName: type
+        mapping:
+          one: '#/components/schemas/Child1'
+          tow: '#/components/schemas/Child2'
+          three: '#/components/schemas/Child3'
+          four: '#/components/schemas/Child4'
+      oneOf:
+      - $ref: '#/components/schemas/Child1'
+      - $ref: '#/components/schemas/Child2'
+      - $ref: '#/components/schemas/Child3'
+      - $ref: '#/components/schemas/Child4'

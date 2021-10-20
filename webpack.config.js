@@ -144,6 +144,7 @@ module.exports = {
   resolve: {
     fallback: {
       fs: false,
+      buffer: require.resolve('buffer'),
     },
     alias: {
       '~': path.resolve(__dirname, 'src'),

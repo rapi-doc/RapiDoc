@@ -45,6 +45,8 @@
  * MIT license
  */
 
+/*! https://mths.be/punycode v1.3.2 by @mathias */
+
 /*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
 
 /**

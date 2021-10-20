@@ -1,114 +1,143 @@
 {
-  "openapi": "3.0.0",
+  "openapi": "3.0.1",
   "info": {
-    "title": "photos API",
-    "description": "picsum",
-    "version": "1.0.0"
+    "title": "My API",
+    "version": "v1"
   },
-  "servers": [
-    {
-      "url": "https://picsum.photos/",
-      "description": "picsum photos"
-    }
-  ],
   "paths": {
-    "/{width}/{height}": {
+    "/api/{typeId}/complicated": {
       "get": {
-        "tags": [
-          "The Lorem Ipsum for photos"
-        ],
-        "description": "Return a photo",
-        "parameters": [
-          {
-            "name": "width",
-            "in": "path",
-            "description": "photo width",
-            "required": true,
-            "example": 100,
-            "schema": {
-              "minimum": 100,
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "height",
-            "in": "path",
-            "description": "photo height",
-            "required": true,
-            "example": 100,
-            "schema": {
-              "minimum": 100,
-              "type": "integer",
-              "format": "int32"
-            }
+        "parameters": [{
+          "name": "typeId",
+          "in": "path",
+          "schema": {
+            "type": "string",
+            "default": "TODO"
           }
+        }],
+        "x-code-samples": [{
+          "lang": "Javascript",
+          "source": "console.log('This is a code sample');\nconsole.log('{}');"
+        }],
+        "tags": [
+          "Todo"
         ],
+        "summary": "Complicated action.",
         "responses": {
           "200": {
-            "description": "Default response",
+            "description": "Returns a complicated class.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "object",
-                      "properties": {
-                        "attributes": {
-                          "type": "object",
-                          "properties": {
-                            "randomId": {
-                              "type": "integer"
-                            }
-                          },
-                          "anyOf": [
-                            {
-                              "oneOf": [
-                                {
-                                  "properties": {
-                                    "title1": {
-                                      "type": "string"
-                                    }
-                                  }
-                                },
-                                {
-                                  "properties": {
-                                    "examId1": {
-                                      "type": "integer"
-                                    }
-                                  }
-                                }
-                              ]
-                            },
-                            {
-                              "oneOf": [
-                                {
-                                  "properties": {
-                                    "title2": {
-                                      "type": "string"
-                                    }
-                                  }
-                                },
-                                {
-                                  "properties": {
-                                    "examId2": {
-                                      "type": "integer"
-                                    }
-                                  }
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/ComplicatedClass"
                 }
               }
             }
           }
         }
+      }
+    }
+  },
+  "security": [{ "oauth": ["scope:read", "scope:write"] }],
+  "components": {
+    "schemas": {
+      "Tag": {
+        "enum": [0, 1, 2],
+        "type": "integer",
+        "description": "Tag for TodoItem.",
+        "format": "int32"
+      },
+      "InnerEnum": {
+        "enum": [1],
+        "type": "integer",
+        "description": "Inner enum.",
+        "format": "int32"
+      },
+      "SecondInnerEnum": {
+        "readOnly": true,
+        "enum": [0],
+        "type": "integer",
+        "description": "Second inner enum.",
+        "format": "int32"
+      },
+      "SecondInnerEnumSecondInnerClass": {
+        "type": "object",
+        "properties": {
+          "innerEnum": {
+            "allOf": [{
+              "$ref": "#/components/schemas/SecondInnerEnum"
+            }],
+            "description": "Second inner enum."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Second inner class."
+      },
+      "InnerClass": {
+        "readOnly": true,
+        "type": "object",
+        "properties": {
+          "innerEnum": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InnerEnum"
+            },
+            "description": "List of inner enums.",
+            "nullable": true
+          },
+          "secondInnerClass": {
+            "allOf": [{
+              "$ref": "#/components/schemas/SecondInnerEnumSecondInnerClass"
+            }],
+            "description": "Second inner class.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Inner class."
+      },
+      "ComplicatedClass": {
+        "type": "object",
+        "properties": {
+          "tag": {
+            "allOf": [{
+              "$ref": "#/components/schemas/Tag"
+            }],
+            "description": "Tag."
+          },
+          "innerClass": {
+            "allOf": [{
+              "$ref": "#/components/schemas/InnerClass"
+            }],
+            "description": "Inner class.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Complicated class for testing enums."
+      }
+    },
+    "securitySchemes": {
+      "basicAuth": {
+        "type": "http",
+        "scheme": "basic",
+        "in": "header"
+      },
+      "oauth": {
+        "type": "oauth2",
+        "flows": {
+          "implicit": {
+            "authorizationUrl": "https://example.com/api/oauth/dialog",
+            "scopes": {
+              "scope:read": "read scope",
+              "scope:write": "modify write scope"
+            }
+          }
+        }
+      },
+      "cookieAuth": {
+        "type": "apiKey",
+        "in": "cookie"
       }
     }
   }
