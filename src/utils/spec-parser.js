@@ -355,6 +355,7 @@ function groupByTags(openApiSpec, generateMissingTags = false, sortTags = false,
             // commonDescription: commonPathProp.description,
             xBadges: pathOrHookObj['x-badges'] || undefined,
             xCodeSamples: pathOrHookObj['x-codeSamples'] || pathOrHookObj['x-code-samples'] || '',
+            xOrder: pathOrHookObj["x-order"]
           });
         });// End of tag path create
       }
@@ -371,6 +372,8 @@ function groupByTags(openApiSpec, generateMissingTags = false, sortTags = false,
       tag.paths.sort((a, b) => a.path.localeCompare(b.path));
     } else if (sortEndpointsBy === 'none') {
       // don't sort if sortEndpointsBy is 'none'
+    } else if (sortEndpointsBy === 'x-order') {
+      tag.paths.sort((a, b) => a.xOrder < b.xOrder)
     }
     tag.firstPathId = tag.paths[0].elementId;
   });
