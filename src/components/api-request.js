@@ -3,7 +3,8 @@ import marked from 'marked';
 import Prism from 'prismjs';
 
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
-// import { live } from 'lit-html/directives/live';
+import { guard } from 'lit-html/directives/guard';
+import { live } from 'lit-html/directives/live';
 import TableStyles from '~/styles/table-styles';
 import FlexStyles from '~/styles/flex-styles';
 import InputStyles from '~/styles/input-styles';
@@ -192,11 +193,11 @@ export default class ApiRequest extends LitElement {
         ${this.callback === 'true' ? 'CALLBACK REQUEST' : 'REQUEST'}
       </div>
       <div>
-        ${this.inputParametersTemplate('path')}
-        ${this.inputParametersTemplate('query')}
+        ${guard([this.parameters], () => this.inputParametersTemplate('path'))}
+        ${guard([this.parameters], () => this.inputParametersTemplate('query'))}
         ${this.requestBodyTemplate()}
-        ${this.inputParametersTemplate('header')}
-        ${this.inputParametersTemplate('cookie')}
+        ${guard([this.parameters], () => this.inputParametersTemplate('header'))}
+        ${guard([this.parameters], () => this.inputParametersTemplate('cookie'))}
         ${this.allowTry === 'false' ? '' : html`${this.apiCallTemplate()}`}
       </div>  
     </div>
@@ -400,7 +401,7 @@ export default class ApiRequest extends LitElement {
                       data-pname="${param.name}" 
                       data-example="${Array.isArray(example.exampleVal) ? example.exampleVal.join('~|~') : example.exampleVal}"
                       data-array="false"
-                      .value="${this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : ''}"
+                      .value="${live(this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : '')}"
                     />`
                 }
             </td>`
