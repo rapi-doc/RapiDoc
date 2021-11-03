@@ -1,5 +1,5 @@
 import { LitElement, html, css } from 'lit-element';
-import marked from 'marked';
+import { marked } from 'marked';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import { schemaInObjectNotation, generateExample } from '~/utils/schema-utils';
 import FontStyles from '~/styles/font-styles';

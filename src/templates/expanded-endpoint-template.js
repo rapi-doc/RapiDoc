@@ -1,6 +1,6 @@
 import { html } from 'lit-element';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
-import marked from 'marked';
+import { marked } from 'marked';
 import { rapidocApiKey } from '~/utils/common-utils';
 import { pathSecurityTemplate } from '~/templates/security-scheme-template';
 import codeSamplesTemplate from '~/templates/code-samples-template';

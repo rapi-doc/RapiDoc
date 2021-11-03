@@ -1,5 +1,5 @@
 import { html } from 'lit-element';
-import marked from 'marked';
+import { marked } from 'marked';
 import { pathIsInSearch } from '~/utils/common-utils';
 
 export function expandCollapseNavBarTag(navLinkEl, action = 'toggle') {
@@ -50,7 +50,7 @@ export default function navbarTemplate() {
     ${(this.allowSearch === 'false' && this.allowAdvancedSearch === 'false')
       ? ''
       : html`
-        <div style="display:flex; flex-direction:row; justify-content:center; align-items:center; padding:24px; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}">
+        <div style="display:flex; flex-direction:row; justify-content:center; align-items:center; padding:8px 24px 12px 24px; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}">
           ${this.allowSearch === 'false'
             ? ''
             : html`

@@ -1,5 +1,5 @@
 import { html } from 'lit-element';
-import marked from 'marked';
+import { marked } from 'marked';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 
 // Templates

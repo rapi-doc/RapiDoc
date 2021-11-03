@@ -1,6 +1,6 @@
 import { html } from 'lit-element';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
-import marked from 'marked';
+import { marked } from 'marked';
 import { downloadResource, viewResource } from '~/utils/common-utils';
 
 /* eslint-disable indent */

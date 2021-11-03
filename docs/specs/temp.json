@@ -1,144 +1,34 @@
 {
-  "openapi": "3.0.1",
+  "components": {},
   "info": {
-    "title": "My API",
-    "version": "v1"
+      "title": "Example Schema",
+      "version": "0.0.1"
   },
+  "openapi": "3.0.3",
   "paths": {
-    "/api/{typeId}/complicated": {
-      "get": {
-        "parameters": [{
-          "name": "typeId",
-          "in": "path",
-          "schema": {
-            "type": "string",
-            "default": "TODO"
+      "/api/v1/example": {
+          "get": {
+              "operationId": "v1_example",
+              "description": "Example API",
+              "parameters": [
+                  {
+                      "in": "query",
+                      "name": "boolean_query_parameter",
+                      "schema": {
+                          "type": "boolean",
+                          "default": false
+                      }
+                  },
+                  {
+                      "in": "query",
+                      "name": "integer_query_parameter",
+                      "schema": {
+                          "type": "integer",
+                          "default": 0
+                      }
+                  }
+              ]
           }
-        }],
-        "x-code-samples": [{
-          "lang": "Javascript",
-          "source": "console.log('This is a code sample');\nconsole.log('{}');"
-        }],
-        "tags": [
-          "Todo"
-        ],
-        "summary": "Complicated action.",
-        "responses": {
-          "200": {
-            "description": "Returns a complicated class.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ComplicatedClass"
-                }
-              }
-            }
-          }
-        }
       }
-    }
-  },
-  "security": [{ "oauth": ["scope:read", "scope:write"] }],
-  "components": {
-    "schemas": {
-      "Tag": {
-        "enum": [0, 1, 2],
-        "type": "integer",
-        "description": "Tag for TodoItem.",
-        "format": "int32"
-      },
-      "InnerEnum": {
-        "enum": [1],
-        "type": "integer",
-        "description": "Inner enum.",
-        "format": "int32"
-      },
-      "SecondInnerEnum": {
-        "readOnly": true,
-        "enum": [0],
-        "type": "integer",
-        "description": "Second inner enum.",
-        "format": "int32"
-      },
-      "SecondInnerEnumSecondInnerClass": {
-        "type": "object",
-        "properties": {
-          "innerEnum": {
-            "allOf": [{
-              "$ref": "#/components/schemas/SecondInnerEnum"
-            }],
-            "description": "Second inner enum."
-          }
-        },
-        "additionalProperties": false,
-        "description": "Second inner class."
-      },
-      "InnerClass": {
-        "readOnly": true,
-        "type": "object",
-        "properties": {
-          "innerEnum": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/InnerEnum"
-            },
-            "description": "List of inner enums.",
-            "nullable": true
-          },
-          "secondInnerClass": {
-            "allOf": [{
-              "$ref": "#/components/schemas/SecondInnerEnumSecondInnerClass"
-            }],
-            "description": "Second inner class.",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false,
-        "description": "Inner class."
-      },
-      "ComplicatedClass": {
-        "type": "object",
-        "properties": {
-          "tag": {
-            "allOf": [{
-              "$ref": "#/components/schemas/Tag"
-            }],
-            "description": "Tag."
-          },
-          "innerClass": {
-            "allOf": [{
-              "$ref": "#/components/schemas/InnerClass"
-            }],
-            "description": "Inner class.",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false,
-        "description": "Complicated class for testing enums."
-      }
-    },
-    "securitySchemes": {
-      "basicAuth": {
-        "type": "http",
-        "scheme": "basic",
-        "in": "header"
-      },
-      "oauth": {
-        "type": "oauth2",
-        "flows": {
-          "implicit": {
-            "authorizationUrl": "https://example.com/api/oauth/dialog",
-            "scopes": {
-              "scope:read": "read scope",
-              "scope:write": "modify write scope"
-            }
-          }
-        }
-      },
-      "cookieAuth": {
-        "type": "apiKey",
-        "in": "cookie"
-      }
-    }
   }
 }

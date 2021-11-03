@@ -1,6 +1,6 @@
 /* eslint-disable no-use-before-define */
 import OpenApiParser from '@apitools/openapi-parser';
-import marked from 'marked';
+import { marked } from 'marked';
 import { invalidCharsRegEx, rapidocApiKey, sleep } from '~/utils/common-utils';
 
 export default async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = false, sortEndpointsBy = '', attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '') {
