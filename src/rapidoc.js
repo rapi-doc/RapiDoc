@@ -709,6 +709,8 @@ export default class RapiDoc extends LitElement {
       }
     }
     this.requestUpdate();
+    // eslint-disable-next-line no-await-in-loop
+    while (!await this.updateComplete);
     const specLoadedEvent = new CustomEvent('spec-loaded', { detail: spec });
     this.dispatchEvent(specLoadedEvent);
 
