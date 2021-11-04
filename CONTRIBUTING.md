@@ -1,7 +1,6 @@
 ## Pull Request Guidelines
 
 - Fork this repository to your own account. Do not create branches here.
-- **DO NOT** include files inside `dist` directory.
 - Rebase before creating a PR to keep commit history clear.
 - Make sure that running `yarn build` output do not emit any warnings or errors
 
