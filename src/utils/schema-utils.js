@@ -389,10 +389,12 @@ export function schemaToSampleObj(schema, config = { }) {
         const oneOfSamples = schemaToSampleObj(schema.oneOf[key], config);
         for (const sampleKey in oneOfSamples) {
           // 2. In the final example include a one-of item along with properties
-          const finalExample = Object.assign(oneOfSamples[sampleKey], objWithSchemaProps);
-          obj[`example-${i}`] = finalExample;
-          addSchemaInfoToExample(schema.oneOf[key], obj[`example-${i}`]);
-          i++;
+          if (oneOfSamples[sampleKey] === null) {
+            const finalExample = Object.assign(oneOfSamples[sampleKey], objWithSchemaProps);
+            obj[`example-${i}`] = finalExample;
+            addSchemaInfoToExample(schema.oneOf[key], obj[`example-${i}`]);
+            i++;
+          }
         }
       }
     }
