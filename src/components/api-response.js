@@ -114,10 +114,10 @@ export default class ApiResponse extends LitElement {
         const schemaTree = schemaInObjectNotation(mimeRespObj.schema, {});
         // Generate Example
         const respExamples = generateExample(
-          mimeRespObj.examples,
-          mimeRespObj.example,
           mimeRespObj.schema,
           mimeResp,
+          mimeRespObj.examples,
+          mimeRespObj.example,
           true,
           false,
           mimeResp.includes('json') ? 'json' : 'text',

@@ -309,10 +309,10 @@ export default class ApiRequest extends LitElement {
       );
       if (!example.exampleVal && paramSchema.type === 'object') {
         example.exampleVal = generateExample(
-          '',
-          '',
           declaredParamSchema,
           serializeStyle || 'json',
+          '',
+          '',
           true,
           true,
           'text',
@@ -536,10 +536,10 @@ export default class ApiRequest extends LitElement {
         // Generate Example
         if (reqBody.mimeType === this.selectedRequestBodyType) {
           reqBodyExamples = generateExample(
-            reqBody.examples,
-            reqBody.example,
             reqBody.schema,
             reqBody.mimeType,
+            reqBody.examples,
+            reqBody.example,
             false,
             true,
             'text',
@@ -595,10 +595,10 @@ export default class ApiRequest extends LitElement {
       } else if (this.selectedRequestBodyType.includes('form-urlencoded') || this.selectedRequestBodyType.includes('form-data')) {
         if (reqBody.mimeType === this.selectedRequestBodyType) {
           const ex = generateExample(
-            reqBody.examples,
-            reqBody.example,
             reqBody.schema,
             reqBody.mimeType,
+            reqBody.examples,
+            reqBody.example,
             false,
             true,
             'text',
@@ -608,7 +608,7 @@ export default class ApiRequest extends LitElement {
             reqBodyFormHtml = this.formDataTemplate(reqBody.schema, reqBody.mimeType, (ex[0] ? ex[0].exampleValue : ''));
           }
         }
-      } else if ((RegExp('^audio/|^image/|^video/|^font/|tar$|zip$|7z$|rtf$|msword$|excel$|/pdf$|/octet-stream$').test(this.selectedRequestBodyType))) {
+      } else if ((/^audio\/|^image\/|^video\/|^font\/|tar$|zip$|7z$|rtf$|msword$|excel$|\/pdf$|\/octet-stream$/.test(this.selectedRequestBodyType))) {
         if (reqBody.mimeType === this.selectedRequestBodyType) {
           reqBodyFileInputHtml = html`
             <div class = "small-font-size bold-text row">
@@ -687,10 +687,10 @@ export default class ApiRequest extends LitElement {
     // This template is used when form-data param should be send as a object (application/json, application/xml)
     const formdataPartSchema = schemaInObjectNotation(fieldSchema, {});
     const formdataPartExample = generateExample(
-      fieldSchema.examples,
-      fieldSchema.example,
       fieldSchema,
       'json',
+      fieldSchema.examples,
+      fieldSchema.example,
       false,
       true,
       'text',
@@ -1244,7 +1244,7 @@ export default class ApiRequest extends LitElement {
           }
         });
         fetchOptions.body = formDataParams;
-      } else if ((RegExp('^audio/|^image/|^video/|^font/|tar$|zip$|7z$|rtf$|msword$|excel$|/pdf$|/octet-stream$').test(requestBodyType))) {
+      } else if (/^audio\/|^image\/|^video\/|^font\/|tar$|zip$|7z$|rtf$|msword$|excel$|\/pdf$|\/octet-stream$/.test(requestBodyType)) {
         const bodyParamFileEl = requestPanelEl.querySelector('.request-body-param-file');
         if (bodyParamFileEl?.files[0]) {
           fetchOptions.body = bodyParamFileEl.files[0];
@@ -1342,10 +1342,10 @@ export default class ApiRequest extends LitElement {
             this.responseText = JSON.stringify(respJson, null, 2);
           }
         // eslint-disable-next-line no-useless-escape
-        } else if (RegExp('^font/|tar$|zip$|7z$|rtf$|msword$|excel$|/pdf$|/octet-stream$|^application\/vnd\.').test(contentType)) {
+        } else if (/^font\/|tar$|zip$|7z$|rtf$|msword$|excel$|\/pdf$|\/octet-stream$|^application\/vnd\./.test(contentType)) {
           this.responseIsBlob = true;
           this.responseBlobType = 'download';
-        } else if (RegExp('^audio|^image|^video').test(contentType)) {
+        } else if (/^audio|^image|^video/.test(contentType)) {
           this.responseIsBlob = true;
           this.responseBlobType = 'view';
         } else {

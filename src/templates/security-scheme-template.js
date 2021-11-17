@@ -56,7 +56,7 @@ function onApiKeyChange(securitySchemeId) {
 }
 
 // Updates the OAuth Access Token (API key), so it reflects in UI and gets used in TRY calls
-function updateOAuthKey(securitySchemeId, tokenType = 'Bearer', accessToken) {
+function updateOAuthKey(securitySchemeId, accessToken, tokenType = 'Bearer') {
   const securityObj = this.resolvedSpec.securitySchemes.find((v) => (v.securitySchemeId === securitySchemeId));
   securityObj.finalKeyValue = `${(tokenType.toLowerCase() === 'bearer' ? 'Bearer' : (tokenType.toLowerCase() === 'mac' ? 'MAC' : tokenType))} ${accessToken}`;
   this.requestUpdate();
@@ -64,7 +64,7 @@ function updateOAuthKey(securitySchemeId, tokenType = 'Bearer', accessToken) {
 
 /* eslint-disable no-console */
 // Gets Access-Token in exchange of Authorization Code
-async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, grantType, authCode, sendClientSecretIn = 'header', securitySchemeId, authFlowDivEl, scopes = null, username = null, password = null) {
+async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, grantType, authCode, securitySchemeId, authFlowDivEl, sendClientSecretIn = 'header', scopes = null, username = null, password = null) {
   const respDisplayEl = authFlowDivEl ? authFlowDivEl.querySelector('.oauth-resp-display') : undefined;
   const urlFormParams = new URLSearchParams();
   const headers = new Headers();
@@ -95,7 +95,7 @@ async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, g
     const tokenResp = await resp.json();
     if (resp.ok) {
       if (tokenResp.token_type && tokenResp.access_token) {
-        updateOAuthKey.call(this, securitySchemeId, tokenResp.token_type, tokenResp.access_token);
+        updateOAuthKey.call(this, securitySchemeId, tokenResp.access_token, tokenResp.token_type);
         if (respDisplayEl) {
           respDisplayEl.innerHTML = '<span style="color:var(--green)">Access Token Received</span>';
         }
@@ -131,10 +131,10 @@ async function onWindowMessageEvent(msgEvent, winObj, tokenUrl, clientId, client
   if (msgEvent.data) {
     if (msgEvent.data.responseType === 'code') {
       // Authorization Code flow
-      fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrl, grantType, msgEvent.data.code, sendClientSecretIn, securitySchemeId, authFlowDivEl);
+      fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrl, grantType, msgEvent.data.code, securitySchemeId, authFlowDivEl, sendClientSecretIn);
     } else if (msgEvent.data.responseType === 'token') {
       // Implicit flow
-      updateOAuthKey.call(this, securitySchemeId, msgEvent.data.token_type, msgEvent.data.access_token);
+      updateOAuthKey.call(this, securitySchemeId, msgEvent.data.access_token, msgEvent.data.token_type);
     }
   }
 }
@@ -218,11 +218,11 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
   } else if (flowType === 'clientCredentials') {
     grantType = 'client_credentials';
     const selectedScopes = checkedScopeEls.map((v) => v.value).join(' ');
-    fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrlObj.toString(), grantType, '', sendClientSecretIn, securitySchemeId, authFlowDivEl, selectedScopes);
+    fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrlObj.toString(), grantType, '', securitySchemeId, authFlowDivEl, sendClientSecretIn, selectedScopes);
   } else if (flowType === 'password') {
     grantType = 'password';
     const selectedScopes = checkedScopeEls.map((v) => v.value).join(' ');
-    fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrlObj.toString(), grantType, '', sendClientSecretIn, securitySchemeId, authFlowDivEl, selectedScopes, username, password);
+    fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrlObj.toString(), grantType, '', securitySchemeId, authFlowDivEl, sendClientSecretIn, selectedScopes, username, password);
   }
 }
 /* eslint-enable no-console */
@@ -427,9 +427,7 @@ export default function securitySchemeTemplate() {
               ? html`
                 <tr>
                   <td style="border:none; padding-left:48px">
-                    ${Object.keys(v.flows).map((f) => oAuthFlowTemplate.call(
-                      this, f, v['x-client-id'], v['x-client-secret'], v.securitySchemeId, v.flows[f],
-                    ))} 
+                    ${Object.keys(v.flows).map((f) => oAuthFlowTemplate.call(this, f, v['x-client-id'], v['x-client-secret'], v.securitySchemeId, v.flows[f]))} 
                   </td>
                 </tr>    
                 `

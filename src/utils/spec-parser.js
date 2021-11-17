@@ -50,7 +50,7 @@ export default async function ProcessSpec(specUrl, generateMissingTags = false, 
   // const pathGroups = groupByPaths(jsonParsedSpec);
 
   // Tags with Paths and WebHooks
-  const tags = groupByTags(jsonParsedSpec, generateMissingTags, sortTags, sortEndpointsBy);
+  const tags = groupByTags(jsonParsedSpec, sortEndpointsBy, generateMissingTags, sortTags);
 
   // Components
   const components = getComponents(jsonParsedSpec);
@@ -239,7 +239,7 @@ function getComponents(openApiSpec) {
   return components || [];
 }
 
-function groupByTags(openApiSpec, generateMissingTags = false, sortTags = false, sortEndpointsBy) {
+function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, sortTags = false) {
   const supportedMethods = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options']; // this is also used for ordering endpoints by methods
   const tags = openApiSpec.tags && Array.isArray(openApiSpec.tags)
     ? openApiSpec.tags.map((v) => ({
