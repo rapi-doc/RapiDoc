@@ -49,7 +49,7 @@ function jsonSchemaBodyTemplate() {
     ${this.showInfo === 'true' ? overviewTemplate.call(this) : ''}
     <div style="font-size:var(--font-size-regular);">
     ${this.resolvedSpec.schemaAndExamples.map((jSchemaBody) => {
-      const examplesObj = generateExample(jSchemaBody.examples, jSchemaBody.example, jSchemaBody.schema, 'json', true, false, 'json', true);
+      const examplesObj = generateExample(jSchemaBody.schema, 'json', jSchemaBody.examples, jSchemaBody.example, true, false, 'json', true);
       jSchemaBody.selectedExample = examplesObj[0]?.exampleId;
       return html`
         <section id='${jSchemaBody.elementId}' class='json-schema-and-example regular-font' style="display:flex; flex-direction: column; border:1px solid var(--border-color); margin-bottom:32px; border-top: 5px solid var(--border-color)">
