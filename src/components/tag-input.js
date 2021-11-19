@@ -38,7 +38,16 @@ export default class TagInput extends LitElement {
   afterPaste(e) {
     const clipboardData = e.clipboardData || window.clipboardData;
     const pastedData = clipboardData.getData('Text');
-    this.value = pastedData ? pastedData.split(',').filter((v) => v.trim() !== '') : '';
+    const pastedArray = pastedData ? pastedData.split(',').filter((v) => v.trim() !== '') : '';
+    
+    if(pastedArray) {
+      if (Array.isArray(this.value)) {
+        this.value = [...this.value, ...pastedArray];
+      }
+      else {
+        this.value = pastedArray;
+      }
+    }
     e.preventDefault();
   }
 
