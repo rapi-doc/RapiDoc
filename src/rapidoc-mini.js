@@ -49,6 +49,7 @@ export default class RapiDocMini extends LitElement {
       responseAreaHeight: { type: String, attribute: 'response-area-height' },
       showSummaryWhenCollapsed: { type: String, attribute: 'show-summary-when-collapsed' },
       fillRequestFieldsWithExample: { type: String, attribute: 'fill-request-fields-with-example' },
+      persistAuth: { type: String, attribute: 'persist-auth' },
 
       // Schema Styles
       schemaStyle: { type: String, attribute: 'schema-style' },
@@ -166,6 +167,7 @@ export default class RapiDocMini extends LitElement {
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) { this.schemaExpandLevel = 99999; }
     if (!this.schemaDescriptionExpanded || !'true, false,'.includes(`${this.schemaDescriptionExpanded},`)) { this.schemaDescriptionExpanded = 'false'; }
     if (!this.fillRequestFieldsWithExample || !'true, false,'.includes(`${this.fillRequestFieldsWithExample},`)) { this.fillRequestFieldsWithExample = 'true'; }
+    if (!this.persistAuth || !'true, false,'.includes(`${this.persistAuth},`)) { this.persistAuth = 'false'; }
     if (!this.responseAreaHeight) { this.responseAreaHeight = '300px'; }
 
     if (!this.allowTry || !'true, false,'.includes(`${this.allowTry},`)) { this.allowTry = 'true'; }
