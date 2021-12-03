@@ -6,7 +6,7 @@ import focusedEndpointTemplate from '~/templates/focused-endpoint-template';
 import overviewTemplate from '~/templates/overview-template';
 import endpointTemplate from '~/templates/endpoint-template';
 import serverTemplate from '~/templates/server-template';
-import securitySchemeTemplate from '~/templates/security-scheme-template';
+import securitySchemeTemplate, { recoverPersistedApiKeys } from '~/templates/security-scheme-template';
 import headerTemplate from '~/templates/header-template';
 import navbarTemplate from '~/templates/navbar-template';
 import advancedSearchTemplate from '~/templates/advance-search-template';
@@ -16,6 +16,9 @@ import { isValidHexColor } from '~/utils/color-utils';
 export default function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = true, pathsExpanded = false) {
   if (!this.resolvedSpec) {
     return '';
+  }
+  if (this.persistAuth === 'true') {
+    recoverPersistedApiKeys.call(this);
   }
   const newTheme = {
     bg1: isValidHexColor(this.bgColor) ? this.bgColor : '',
