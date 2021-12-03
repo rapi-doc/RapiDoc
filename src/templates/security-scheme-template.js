@@ -48,6 +48,13 @@ function setPersistedApiKeys(obj) {
   localStorage.setItem(localStorageKey, JSON.stringify(obj));
 }
 
+export function recoverPersistedApiKeys() {
+  const rapidocLs = getPersistedApiKeys.call(this);
+  Object.values(rapidocLs).forEach((p) => {
+    applyApiKey.call(this, p.securitySchemeId, p.username, p.password, p.value);
+  });
+}
+
 function onApiKeyChange(securitySchemeId) {
   let apiKeyValue = '';
   const securityObj = this.resolvedSpec.securitySchemes.find((v) => (v.securitySchemeId === securitySchemeId));
@@ -371,12 +378,6 @@ function removeApiKey(securitySchemeId) {
 
 export default function securitySchemeTemplate() {
   if (!this.resolvedSpec) { return ''; }
-  if (this.persistAuth === 'true') {
-    const rapidocLs = getPersistedApiKeys.call(this);
-    Object.values(rapidocLs).forEach((p) => {
-      applyApiKey.call(this, p.securitySchemeId, p.username, p.password, p.value);
-    });
-  }
   const providedApiKeys = this.resolvedSpec.securitySchemes?.filter((v) => (v.finalKeyValue));
   if (!providedApiKeys) {
     return;
