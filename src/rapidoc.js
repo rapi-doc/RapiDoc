@@ -63,6 +63,7 @@ export default class RapiDoc extends LitElement {
       defaultSchemaTab: { type: String, attribute: 'default-schema-tab' },
       responseAreaHeight: { type: String, attribute: 'response-area-height' },
       fillRequestFieldsWithExample: { type: String, attribute: 'fill-request-fields-with-example' },
+      persistAuth: { type: String, attribute: 'persist-auth' },
       onNavTagClick: { type: String, attribute: 'on-nav-tag-click' },
 
       // Schema Styles
@@ -434,6 +435,7 @@ export default class RapiDoc extends LitElement {
     this.schemaHideReadOnly += ['get', 'head', 'delete', 'options'];
     this.schemaHideWriteOnly = this.schemaHideWriteOnly !== 'never';
     if (!this.fillRequestFieldsWithExample || !'true, false,'.includes(`${this.fillRequestFieldsWithExample},`)) { this.fillRequestFieldsWithExample = 'true'; }
+    if (!this.persistAuth || !'true, false,'.includes(`${this.persistAuth},`)) { this.persistAuth = 'false'; }
     if (!this.onNavTagClick || !'expand-collapse, show-description,'.includes(`${this.onNavTagClick},`)) { this.onNavTagClick = 'expand-collapse'; }
     if (!this.responseAreaHeight) {
       this.responseAreaHeight = '300px';
