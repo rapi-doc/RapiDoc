@@ -31,10 +31,6 @@ function onExpandCollapse(e) {
   expandCollapseNavBarTag(e.target, 'toggle');
 }
 
-function onExpandCollapseAll(e, action = 'expand-all') {
-  expandCollapseAll(e.target.closest('.nav-scroll'), action);
-}
-
 /* eslint-disable indent */
 export default function navbarTemplate() {
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) {
@@ -117,18 +113,6 @@ export default function navbarTemplate() {
         ? ''
         : html`<div class='nav-bar-info' id='link-auth' data-content-id='auth' @click = '${(e) => this.scrollToEventTarget(e, false)}'> Authentication </div>`
       }
-
-      <div id='link-operations-top' class='nav-bar-section operations' data-content-id='operations-top' @click = '${(e) => this.scrollToEventTarget(e, false)}'>
-        <div style="font-size:16px; display:flex; margin-left:10px;">
-          ${this.renderStyle === 'focused'
-            ? html`
-              <div @click="${(e) => { onExpandCollapseAll.call(this, e, 'expand-all'); }}" title="Expand all" style="transform: rotate(90deg); cursor:pointer; margin-right:10px;">▸</div>
-              <div @click="${(e) => { onExpandCollapseAll.call(this, e, 'collapse-all'); }}" title="Collapse all" style="transform: rotate(270deg); cursor:pointer;">▸</div>`
-            : ''
-          }  
-        </div>
-        <div class='nav-bar-section-title'> OPERATIONS </div>
-      </div>
 
       <!-- TAGS AND PATHS-->
       ${this.resolvedSpec.tags
