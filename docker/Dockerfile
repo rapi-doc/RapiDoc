@@ -30,17 +30,14 @@ RUN npm run build
 
 # production stage
 FROM nginx:stable-alpine as production-stage
-COPY --from=build-stage /app/dist /app
-COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
 
 ENV PAGE_TITLE="RapiDoc"
 ENV PAGE_FAVICON="favicon.png"
 ENV SPEC_URL="http://petstore.swagger.io/v2/swagger.json"
 ENV PORT=80
-ENV RAPIDOC_OPTIONS=
 
 # copy files to the nginx folder
-COPY --from=0 build/dist /usr/share/nginx/html
+COPY --from=build-stage /app/dist /usr/share/nginx/html
 COPY docker/index.tpl.html /usr/share/nginx/html/index.html
 COPY logo.png /usr/share/nginx/html/favicon.png
 COPY docker/nginx.conf /etc/nginx/
