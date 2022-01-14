@@ -1,3 +1,6 @@
+# to Build the Docker image from root folder execute 
+# docker build -t mrin9/rapidoc -f ./docker/Dockerfile . 
+
 # Run the Docker image (view a spec thats hosted on a web-server)
 # docker run -it --rm -p 80:80 -e SPEC_URL="http://petstore.swagger.io/v2/swagger.json" mrin9/rapidoc
 
