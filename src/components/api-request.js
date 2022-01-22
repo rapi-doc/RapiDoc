@@ -285,6 +285,7 @@ export default class ApiRequest extends LitElement {
       // let exampleList = [];
       let paramStyle = 'form';
       let paramExplode = true;
+      let paramAllowReserved = false;
       if (paramType === 'query') {
         if (param.style && 'form spaceDelimited pipeDelimited'.includes(param.style)) {
           paramStyle = param.style;
@@ -293,6 +294,9 @@ export default class ApiRequest extends LitElement {
         }
         if (typeof param.explode === 'boolean') {
           paramExplode = param.explode;
+        }
+        if (typeof param.allowReserved === 'boolean') {
+          paramAllowReserved = param.allowReserved;
         }
       }
 
@@ -345,6 +349,7 @@ export default class ApiRequest extends LitElement {
                     data-example = "${Array.isArray(example.exampleVal) ? example.exampleVal.join('~|~') : example.exampleVal}"
                     data-param-serialize-style = "${paramStyle}"
                     data-param-serialize-explode = "${paramExplode}"
+                    data-param-allow-reserved = "${paramAllowReserved}"
                     data-array = "true"
                     placeholder = "add-multiple &#x21a9;"
                     .value = "${Array.isArray(example.exampleVal) ? example.exampleVal : example.exampleVal}"
@@ -373,6 +378,7 @@ export default class ApiRequest extends LitElement {
                             data-example = "${example.exampleVal}"
                             data-param-serialize-style = "${paramStyle}"
                             data-param-serialize-explode = "${paramExplode}"
+                            data-param-allow-reserved = "${paramAllowReserved}"
                             spellcheck = "false"
                             .textContent = "${this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : ''}"
                             style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
@@ -400,6 +406,7 @@ export default class ApiRequest extends LitElement {
                       data-ptype="${paramType}"
                       data-pname="${param.name}" 
                       data-example="${Array.isArray(example.exampleVal) ? example.exampleVal.join('~|~') : example.exampleVal}"
+                      data-param-allow-reserved = "${paramAllowReserved}"
                       data-array="false"
                       .value="${live(this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : '')}"
                     />`
@@ -1062,12 +1069,17 @@ export default class ApiRequest extends LitElement {
     });
 
     // Query Params
-    const urlQueryParam = new URLSearchParams();
+    const urlQueryParamsMap = new Map();
+    const queryParamsWithReservedCharsAllowed = [];
     if (queryParamEls.length > 0) {
       queryParamEls.forEach((el) => {
+        const queryParam = new URLSearchParams();
+        if (el.dataset.paramAllowReserved === 'true') {
+          queryParamsWithReservedCharsAllowed.push(el.dataset.pname);
+        }
         if (el.dataset.array === 'false') {
           if (el.value !== '') {
-            urlQueryParam.append(el.dataset.pname, el.value);
+            queryParam.append(el.dataset.pname, el.value);
           }
         } else {
           const paramSerializeStyle = el.dataset.paramSerializeStyle;
@@ -1076,17 +1088,20 @@ export default class ApiRequest extends LitElement {
           vals = Array.isArray(vals) ? vals.filter((v) => v !== '') : [];
           if (vals.length > 0) {
             if (paramSerializeStyle === 'spaceDelimited') {
-              urlQueryParam.append(el.dataset.pname, vals.join(' ').replace(/^\s|\s$/g, ''));
+              queryParam.append(el.dataset.pname, vals.join(' ').replace(/^\s|\s$/g, ''));
             } else if (paramSerializeStyle === 'pipeDelimited') {
-              urlQueryParam.append(el.dataset.pname, vals.join('|').replace(/^\||\|$/g, ''));
+              queryParam.append(el.dataset.pname, vals.join('|').replace(/^\||\|$/g, ''));
             } else {
               if (paramSerializeExplode === 'true') { // eslint-disable-line no-lonely-if
-                vals.forEach((v) => { urlQueryParam.append(el.dataset.pname, v); });
+                vals.forEach((v) => { queryParam.append(el.dataset.pname, v); });
               } else {
-                urlQueryParam.append(el.dataset.pname, vals.join(',').replace(/^,|,$/g, ''));
+                queryParam.append(el.dataset.pname, vals.join(',').replace(/^,|,$/g, ''));
               }
             }
           }
+        }
+        if (queryParam.toString()) {
+          urlQueryParamsMap.set(el.dataset.pname, queryParam);
         }
       });
     }
@@ -1094,46 +1109,67 @@ export default class ApiRequest extends LitElement {
     // Query Params (Dynamic - create from JSON)
     if (queryParamObjTypeEls.length > 0) {
       queryParamObjTypeEls.map((el) => {
+        const queryParam = new URLSearchParams();
         try {
           let queryParamObj = {};
           const paramSerializeStyle = el.dataset.paramSerializeStyle;
           const paramSerializeExplode = el.dataset.paramSerializeExplode;
           queryParamObj = Object.assign(queryParamObj, JSON.parse(el.value.replace(/\s+/g, ' ')));
+          if (el.dataset.paramAllowReserved === 'true') {
+            queryParamsWithReservedCharsAllowed.push(el.dataset.pname);
+          }
           if ('json xml'.includes(paramSerializeStyle)) {
             if (paramSerializeStyle === 'json') {
-              urlQueryParam.append(el.dataset.pname, JSON.stringify(queryParamObj));
+              queryParam.append(el.dataset.pname, JSON.stringify(queryParamObj));
             } else if (paramSerializeStyle === 'xml') {
-              urlQueryParam.append(el.dataset.pname, json2xml(queryParamObj));
+              queryParam.append(el.dataset.pname, json2xml(queryParamObj));
             }
           } else {
             for (const key in queryParamObj) {
               if (typeof queryParamObj[key] === 'object') {
                 if (Array.isArray(queryParamObj[key])) {
                   if (paramSerializeStyle === 'spaceDelimited') {
-                    urlQueryParam.append(key, queryParamObj[key].join(' '));
+                    queryParam.append(key, queryParamObj[key].join(' '));
                   } else if (paramSerializeStyle === 'pipeDelimited') {
-                    urlQueryParam.append(key, queryParamObj[key].join('|'));
+                    queryParam.append(key, queryParamObj[key].join('|'));
                   } else {
                     if (paramSerializeExplode === 'true') { // eslint-disable-line no-lonely-if
                       queryParamObj[key].forEach((v) => {
-                        urlQueryParam.append(key, v);
+                        queryParam.append(key, v);
                       });
                     } else {
-                      urlQueryParam.append(key, queryParamObj[key]);
+                      queryParam.append(key, queryParamObj[key]);
                     }
                   }
                 }
               } else {
-                urlQueryParam.append(key, queryParamObj[key]);
+                queryParam.append(key, queryParamObj[key]);
               }
             }
           }
         } catch (err) {
           console.log('RapiDoc: unable to parse %s into object', el.value); // eslint-disable-line no-console
         }
+        if (queryParam.toString()) {
+          urlQueryParamsMap.set(el.dataset.pname, queryParam);
+        }
       });
     }
-    fetchUrl = `${fetchUrl}${urlQueryParam.toString() ? '?' : ''}${urlQueryParam.toString()}`;
+    let urlQueryParamString = '';
+    if (urlQueryParamsMap.size) {
+      urlQueryParamString = '?';
+      urlQueryParamsMap.forEach((val, pname) => {
+        if (queryParamsWithReservedCharsAllowed.includes(pname)) {
+          urlQueryParamString += `${pname}=`;
+          urlQueryParamString += val.getAll(pname).join(`&${pname}=`);
+          urlQueryParamString += '&';
+        } else {
+          urlQueryParamString += `${val.toString()}&`;
+        }
+      });
+      urlQueryParamString = urlQueryParamString.slice(0, -1);
+    }
+    fetchUrl = `${fetchUrl}${urlQueryParamString}`;
 
     // Add authentication Query-Param if provided
     this.api_keys
