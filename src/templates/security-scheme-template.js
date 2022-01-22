@@ -6,6 +6,8 @@ import { marked } from 'marked';
 const codeVerifier = '731DB1C3F7EA533B85E29492D26AA-1234567890-1234567890';
 const codeChallenge = '4FatVDBJKPAo4JgLLaaQFMUcQPn5CrPRvLlaob9PTYc'; // Base64 encoded SHA-256
 
+const localStorageKey = 'rapidoc';
+
 export function applyApiKey(securitySchemeId, username = '', password = '', providedApikeyVal = '') {
   const securityObj = this.resolvedSpec.securitySchemes?.find((v) => (v.securitySchemeId === securitySchemeId));
   if (!securityObj) {
@@ -17,6 +19,7 @@ export function applyApiKey(securitySchemeId, username = '', password = '', prov
       finalApiKeyValue = `Basic ${btoa(`${username}:${password}`)}`;
     }
   } else if (providedApikeyVal) {
+    securityObj.value = providedApikeyVal;
     finalApiKeyValue = `${securityObj.scheme?.toLowerCase() === 'bearer' ? 'Bearer ' : ''}${providedApikeyVal}`;
   }
   if (finalApiKeyValue) {
@@ -37,6 +40,21 @@ export function onClearAllApiKeys() {
   this.requestUpdate();
 }
 
+function getPersistedApiKeys() {
+  return JSON.parse(localStorage.getItem(localStorageKey)) || {};
+}
+
+function setPersistedApiKeys(obj) {
+  localStorage.setItem(localStorageKey, JSON.stringify(obj));
+}
+
+export function recoverPersistedApiKeys() {
+  const rapidocLs = getPersistedApiKeys.call(this);
+  Object.values(rapidocLs).forEach((p) => {
+    applyApiKey.call(this, p.securitySchemeId, p.username, p.password, p.value);
+  });
+}
+
 function onApiKeyChange(securitySchemeId) {
   let apiKeyValue = '';
   const securityObj = this.resolvedSpec.securitySchemes.find((v) => (v.securitySchemeId === securitySchemeId));
@@ -50,6 +68,11 @@ function onApiKeyChange(securitySchemeId) {
       } else {
         apiKeyValue = trEl.querySelector('.api-key-input').value.trim();
         applyApiKey.call(this, securitySchemeId, '', '', apiKeyValue);
+      }
+      if (this.persistAuth === 'true') {
+        const rapidocLs = getPersistedApiKeys.call(this);
+        rapidocLs[securitySchemeId] = securityObj;
+        setPersistedApiKeys.call(this, rapidocLs);
       }
     }
   }
@@ -339,6 +362,20 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
   `;
 }
 
+function removeApiKey(securitySchemeId) {
+  const securityObj = this.resolvedSpec.securitySchemes?.find((v) => (v.securitySchemeId === securitySchemeId));
+  securityObj.user = '';
+  securityObj.password = '';
+  securityObj.value = '';
+  securityObj.finalKeyValue = '';
+  if (this.persistAuth === 'true') {
+    const rapidocLs = getPersistedApiKeys.call(this);
+    delete rapidocLs[securityObj.securitySchemeId];
+    setPersistedApiKeys.call(this, rapidocLs);
+  }
+  this.requestUpdate();
+}
+
 export default function securitySchemeTemplate() {
   if (!this.resolvedSpec) { return ''; }
   const providedApiKeys = this.resolvedSpec.securitySchemes?.filter((v) => (v.finalKeyValue));
@@ -369,7 +406,7 @@ export default function securitySchemeTemplate() {
                   ${v.finalKeyValue
                     ? html`
                       <span class='blue-text'>  ${v.finalKeyValue ? 'Key Applied' : ''} </span>
-                      <button class="m-btn thin-border small" part="btn btn-outline" @click=${() => { v.finalKeyValue = ''; this.requestUpdate(); }}>REMOVE</button>
+                      <button class="m-btn thin-border small" part="btn btn-outline" @click=${() => { removeApiKey.call(this, v.securitySchemeId); }}>REMOVE</button>
                       `
                     : ''
                   }

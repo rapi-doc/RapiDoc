@@ -15,6 +15,15 @@ paths:
                 type: object
                 $ref: "#/components/schemas/person"
 components:
+  securitySchemes:
+    JWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    ApiKey:
+      type: apiKey
+      in: header
+      name: API_TOKEN
   schemas:
     person:
       type: object
