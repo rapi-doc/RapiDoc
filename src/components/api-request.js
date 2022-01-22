@@ -193,11 +193,11 @@ export default class ApiRequest extends LitElement {
         ${this.callback === 'true' ? 'CALLBACK REQUEST' : 'REQUEST'}
       </div>
       <div>
-        ${guard([this.parameters], () => this.inputParametersTemplate('path'))}
-        ${guard([this.parameters], () => this.inputParametersTemplate('query'))}
+        ${guard([this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('path'))}
+        ${guard([this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('query'))}
         ${this.requestBodyTemplate()}
-        ${guard([this.parameters], () => this.inputParametersTemplate('header'))}
-        ${guard([this.parameters], () => this.inputParametersTemplate('cookie'))}
+        ${guard([this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('header'))}
+        ${guard([this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('cookie'))}
         ${this.allowTry === 'false' ? '' : html`${this.apiCallTemplate()}`}
       </div>  
     </div>
@@ -246,7 +246,7 @@ export default class ApiRequest extends LitElement {
               }
             }
           }"
-          >${v.description || v.summary || v.value}</a>
+          >${v.value && Array.isArray(v.value) ? (v.value?.join(', ')) : (v.value || '')}</a>
           ${paramType === 'array' ? '] ' : ''}
         `)}
       `
