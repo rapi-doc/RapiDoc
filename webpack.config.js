@@ -18,6 +18,7 @@ const { DuplicatesPlugin } = require('inspectpack/plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
+const UnminifiedWebpackPlugin = require('unminified-webpack-plugin');
 const path = require('path');
 // const ESLintPlugin = require('eslint-webpack-plugin');
 
@@ -55,6 +56,7 @@ if (process.env.NODE_ENV === 'production') {
   console.log('BUILDING FOR PRODUCTION ... '); // eslint-disable-line no-console
   commonPlugins.push(new BundleAnalyzerPlugin({ analyzerMode: 'static' }));
   commonPlugins.push(new DuplicatesPlugin({ emitErrors: false, verbose: true }));
+  commonPlugins.push(new UnminifiedWebpackPlugin());
   commonPlugins.push(new webpack.BannerPlugin({
     raw: true,
     banner: rapidocBanner,
