@@ -482,7 +482,9 @@ export default class RapiDoc extends LitElement {
     });
 
     window.addEventListener('hashchange', () => {
-      this.scrollTo(window.location.hash.substring(1));
+      const regEx = new RegExp(`^${this.routePrefix}`, 'i');
+      const elementId = window.location.hash.replace(regEx, '');
+      this.scrollTo(elementId);
     }, true);
   }
 
