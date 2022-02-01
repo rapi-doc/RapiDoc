@@ -373,7 +373,7 @@ function groupByTags(openApiSpec, generateMissingTags = false, sortTags = false,
     } else if (sortEndpointsBy === 'none') {
       // don't sort if sortEndpointsBy is 'none'
     } else if (sortEndpointsBy === 'x-order') {
-      tag.paths.sort((a, b) => a.xOrder < b.xOrder)
+      tag.paths.sort((a, b) => a.xOrder - b.xOrder)
     }
     tag.firstPathId = tag.paths[0].elementId;
   });
