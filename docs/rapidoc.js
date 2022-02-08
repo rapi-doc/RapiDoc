@@ -2984,7 +2984,7 @@ function splitCells(tableRow, count) {
 
   // First/last cell in a row cannot be empty if it has no leading/trailing pipe
   if (!cells[0].trim()) { cells.shift(); }
-  if (!cells[cells.length - 1].trim()) { cells.pop(); }
+  if (cells.length > 0 && !cells[cells.length - 1].trim()) { cells.pop(); }
 
   if (cells.length > count) {
     cells.splice(count);
@@ -3433,7 +3433,7 @@ class Tokenizer {
         type: 'table',
         header: splitCells(cap[1]).map(c => { return { text: c }; }),
         align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
-        rows: cap[3] ? cap[3].replace(/\n[ \t]*$/, '').split('\n') : []
+        rows: cap[3] && cap[3].trim() ? cap[3].replace(/\n[ \t]*$/, '').split('\n') : []
       };
 
       if (item.header.length === item.align.length) {
@@ -7633,7 +7633,7 @@ var http$1 = {};
 
   return exports;
 
-})({}));
+}))({});
 })(typeof self !== 'undefined' ? self : globalThis);
 
 /* eslint complexity: [2, 18], max-statements: [2, 33] */
@@ -16479,7 +16479,14 @@ var _default$4 = {
       });
       patches.push(...absoluteRefPatches);
       return undefined;
-    }); // Merge back the values from the original definition
+    }); // If there was an example in the original definition,
+    // keep it instead of merging with examples from other schema
+
+    if (originalDefinitionObj.example) {
+      // Delete other schema examples
+      patches.push(specmap.remove([].concat(parent, 'example')));
+    } // Merge back the values from the original definition
+
 
     patches.push(specmap.mergeDeep(parent, originalDefinitionObj)); // If there was not an original $$ref value, make sure to remove
     // any $$ref value that may exist from the result of `allOf` merges
@@ -21933,11 +21940,13 @@ async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = fals
 
     if (typeof specUrl === 'string') {
       specMeta = await index.resolve({
-        url: specUrl
+        url: specUrl,
+        allowMetaPatches: false
       }); // Swagger(specUrl);
     } else {
       specMeta = await index.resolve({
-        spec: specUrl
+        spec: specUrl,
+        allowMetaPatches: false
       }); // Swagger({ spec: specUrl });
     }
 
@@ -27466,10 +27475,13 @@ class RapiDoc extends LitElement {
     const locationHash = (_window$location$hash = window.location.hash) === null || _window$location$hash === void 0 ? void 0 : _window$location$hash.substring(1);
 
     if (locationHash) {
+      const regEx = new RegExp(`^${this.routePrefix}`, 'i');
+      const elementId = window.location.hash.replace(regEx, '');
+
       if (this.renderStyle === 'view') {
-        this.expandAndGotoOperation(locationHash, true, true);
+        this.expandAndGotoOperation(elementId, true, true);
       } else {
-        this.scrollTo(locationHash);
+        this.scrollTo(elementId);
       }
     } else if (this.renderStyle === 'focused') {
       var _this$resolvedSpec$ta;
@@ -34241,7 +34253,7 @@ Prism.languages.js = Prism.languages.javascript;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("1eec880843fe59401dc9")
+/******/ 		__webpack_require__.h = () => ("df05e226319ffb7a972b")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

@@ -1,34 +1,135 @@
 {
-  "components": {},
+  "x-generator": "NSwag v13.13.2.0 (NJsonSchema v10.5.2.0 (Newtonsoft.Json v12.0.0.0))",
+  "openapi": "3.0.0",
   "info": {
-      "title": "Example Schema",
-      "version": "0.0.1"
+    "title": "API",
+    "version": "1.0.0"
   },
-  "openapi": "3.0.3",
+  "servers": [
+    {
+      "url": "http://localhost:8181"
+    }
+  ],
   "paths": {
-      "/api/v1/example": {
-          "get": {
-              "operationId": "v1_example",
-              "description": "Example API",
-              "parameters": [
-                  {
-                      "in": "query",
-                      "name": "boolean_query_parameter",
-                      "schema": {
-                          "type": "boolean",
-                          "default": false
-                      }
-                  },
-                  {
-                      "in": "query",
-                      "name": "integer_query_parameter",
-                      "schema": {
-                          "type": "integer",
-                          "default": 0
-                      }
-                  }
+    "/api/employee": {
+      "get": {
+        "tags": [
+          "Employee"
+        ],
+        "summary": "Get Employees",
+        "description": "Gets one or more employees",
+        "operationId": "Employee_GetEmployees",
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "description": "A comma-delimited list of employee ids/codes to retrieve.  If not provided, all employees will be returned.",
+            "schema": {
+              "type": "array",
+              "nullable": true,
+              "items": {
+                "type": "string"
+              }
+            },
+            "x-position": 1
+          },
+          {
+            "name": "idType",
+            "in": "query",
+            "description": "The type of id: MasterId, EmployeeCode, or TimeWorksPlusId",
+            "schema": {
+              "default": "EmployeeCode",
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/EmployeeIdType"
+                }
               ]
+            },
+            "x-position": 2
           }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Employee"
+                  }
+                }
+              }
+            }
+          }
+        }
       }
-  }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Employee": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "employeeCode"
+        ],
+        "properties": {
+          "employeeCode": {
+            "type": "string",
+            "description": "The employee code.",
+            "maxLength": 20,
+            "minLength": 1
+          },
+          "firstName": {
+            "type": "string",
+            "description": "The employee's first name.",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "description": "The employee's last name.",
+            "nullable": true
+          }
+        }
+      },
+      "EmployeeIdType": {
+        "type": "string",
+        "description": "Type of unique identifier to identify the employee.",
+        "x-enumFlags": true,
+        "x-enumNames": [
+          "MasterId",
+          "EmployeeCode",
+          "TimeWorksPlusId"
+        ],
+        "enum": [
+          "MasterId",
+          "EmployeeCode",
+          "TimeWorksPlusId"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "Authorization": {
+        "type": "http",
+        "description": "All API endpoints use JWT Authentication. You must obtain a valid JWT from the SwipeClock Authorization Service",
+        "name": "Authorization",
+        "in": "header",
+        "scheme": "Bearer",
+        "bearerFormat": "JWT",
+        "flows": {
+          "implicit": {
+            "authorizationUrl": "http://localhost:8181/AuthenticationService/"
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "Authorization": []
+    }
+  ]
 }
