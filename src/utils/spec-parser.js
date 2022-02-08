@@ -9,9 +9,9 @@ export default async function ProcessSpec(specUrl, generateMissingTags = false, 
     this.requestUpdate(); // important to show the initial loader
     let specMeta;
     if (typeof specUrl === 'string') {
-      specMeta = await OpenApiParser.resolve({ url: specUrl }); // Swagger(specUrl);
+      specMeta = await OpenApiParser.resolve({ url: specUrl, allowMetaPatches: false }); // Swagger(specUrl);
     } else {
-      specMeta = await OpenApiParser.resolve({ spec: specUrl }); // Swagger({ spec: specUrl });
+      specMeta = await OpenApiParser.resolve({ spec: specUrl, allowMetaPatches: false }); // Swagger({ spec: specUrl });
     }
     await sleep(0); // important to show the initial loader (allows for rendering updates)
 
