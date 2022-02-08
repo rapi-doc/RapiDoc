@@ -728,10 +728,12 @@ export default class RapiDoc extends LitElement {
     // On first time Spec load, try to navigate to location hash if provided
     const locationHash = window.location.hash?.substring(1);
     if (locationHash) {
+      const regEx = new RegExp(`^${this.routePrefix}`, 'i');
+      const elementId = window.location.hash.replace(regEx, '');
       if (this.renderStyle === 'view') {
-        this.expandAndGotoOperation(locationHash, true, true);
+        this.expandAndGotoOperation(elementId, true, true);
       } else {
-        this.scrollTo(locationHash);
+        this.scrollTo(elementId);
       }
     } else if (this.renderStyle === 'focused') {
       const defaultElementId = this.showInfo ? 'overview' : this.resolvedSpec.tags[0]?.paths[0];
