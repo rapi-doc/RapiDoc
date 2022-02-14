@@ -16,6 +16,7 @@ info:
             type: oauth2
             x-client-id: my-client-id             # <--- when provided it will be pre filled in RapiDoc UI
             x-client-secret: my-client-secret     # <--- when provided it will be pre filled in RapiDoc UI
+            x-default-scopes: [dog-lover, another-one]     # <--- when provided scopes will be pre checked in RapiDoc UI
             flows:
               authorizationCode:
                 authorizationUrl: /authorize
@@ -23,6 +24,7 @@ info:
                 scopes:
                   dog-lover: "always required"
                   owner: "optional"
+                  another-one: "optional"
     ```
   version: "1.0"
 security:
@@ -53,6 +55,9 @@ components:
       description: You authorize requests, by providing client credentials.
       x-client-id: my-client-id
       x-client-secret: my-client-secret
+      x-default-scopes:
+        - dog-lover
+        - another-one
       flows:
         authorizationCode:
           authorizationUrl: /authorize
@@ -60,9 +65,11 @@ components:
           scopes:
             dog-lover: "always required"
             owner: "optional"
+            another-one: "optional"
         clientCredentials:
           tokenUrl: '/token'
           scopes:
             dog-lover: "always required"
             owner: "optional"
+            another-one: "optional"
 
