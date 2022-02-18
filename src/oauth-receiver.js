@@ -24,7 +24,7 @@ export default class OauthReceiver extends HTMLElement {
     } else if (window.location.hash) { // Applies to Implicit flow
       const token_type = this.parseQueryString(window.location.hash.substring(1), 'token_type'); // eslint-disable-line camelcase
       const access_token = this.parseQueryString(window.location.hash.substring(1), 'access_token'); // eslint-disable-line camelcase
-      authData = { token_type, access_token, responseType: 'token' };
+      authData = { token_type, access_token, responseType: 'token' }; // eslint-disable-line camelcase
     }
 
     if (window.opener) {

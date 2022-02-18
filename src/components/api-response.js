@@ -148,7 +148,7 @@ export default class ApiResponse extends LitElement {
                   @click="${() => {
                     this.selectedStatus = respStatus;
                     if (this.responses[respStatus].content && Object.keys(this.responses[respStatus].content)[0]) {
-                      this.selectedMimeType = Object.keys(this.responses[respStatus].content)[0];
+                      this.selectedMimeType = Object.keys(this.responses[respStatus].content)[0]; // eslint-disable-line prefer-destructuring
                     } else {
                       this.selectedMimeType = undefined;
                     }

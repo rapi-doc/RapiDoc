@@ -162,8 +162,8 @@ export default class SchemaTable extends LitElement {
       isOneOfLabel = true;
     } else if (key.startsWith('::OPTION')) {
       const parts = key.split('~');
-      keyLabel = parts[1];
-      keyDescr = parts[2];
+      keyLabel = parts[1]; // eslint-disable-line prefer-destructuring
+      keyDescr = parts[2]; // eslint-disable-line prefer-destructuring
     } else {
       keyLabel = key;
     }
