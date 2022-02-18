@@ -274,11 +274,11 @@ export default class ApiRequest extends LitElement {
     for (const param of filteredParams) {
       const [declaredParamSchema, serializeStyle, mimeTypeElem] = getSchemaFromParam(param);
       if (!declaredParamSchema) {
-        continue;
+        continue; // eslint-disable-line no-continue
       }
       const paramSchema = getTypeInfo(declaredParamSchema);
       if (!paramSchema) {
-        continue;
+        continue; // eslint-disable-line no-continue
       }
       const schemaAsObj = schemaInObjectNotation(declaredParamSchema, {});
       // let exampleVal = '';
@@ -509,7 +509,7 @@ export default class ApiRequest extends LitElement {
     let reqBodyExampleHtml = '';
 
     const requestBodyTypes = [];
-    const content = this.request_body.content;
+    const { content } = this.request_body;
     for (const mimeType in content) {
       requestBodyTypes.push({
         mimeType,
@@ -709,7 +709,7 @@ export default class ApiRequest extends LitElement {
         <div style="width:24px; background-color:var(--light-border-color)">
           <div class="row" style="flex-direction:row-reverse; width:160px; height:24px; transform:rotate(270deg) translateX(-160px); transform-origin:top left; display:block;" @click="${(e) => {
           if (e.target.classList.contains('v-tab-btn')) {
-            const tab = e.target.dataset.tab;
+            const { tab } = e.target.dataset;
             if (tab) {
               const tabPanelEl = e.target.closest('.tab-panel');
               const selectedTabBtnEl = tabPanelEl.querySelector(`.v-tab-btn[data-tab="${tab}"]`);
@@ -1082,8 +1082,7 @@ export default class ApiRequest extends LitElement {
             queryParam.append(el.dataset.pname, el.value);
           }
         } else {
-          const paramSerializeStyle = el.dataset.paramSerializeStyle;
-          const paramSerializeExplode = el.dataset.paramSerializeExplode;
+          const { paramSerializeStyle, paramSerializeExplode } = el.dataset;
           let vals = ((el.value && Array.isArray(el.value)) ? el.value : []);
           vals = Array.isArray(vals) ? vals.filter((v) => v !== '') : [];
           if (vals.length > 0) {
@@ -1112,8 +1111,7 @@ export default class ApiRequest extends LitElement {
         const queryParam = new URLSearchParams();
         try {
           let queryParamObj = {};
-          const paramSerializeStyle = el.dataset.paramSerializeStyle;
-          const paramSerializeExplode = el.dataset.paramSerializeExplode;
+          const { paramSerializeStyle, paramSerializeExplode } = el.dataset.paramSerializeStyle;
           queryParamObj = Object.assign(queryParamObj, JSON.parse(el.value.replace(/\s+/g, ' ')));
           if (el.dataset.paramAllowReserved === 'true') {
             queryParamsWithReservedCharsAllowed.push(el.dataset.pname);
@@ -1283,7 +1281,7 @@ export default class ApiRequest extends LitElement {
       } else if (/^audio\/|^image\/|^video\/|^font\/|tar$|zip$|7z$|rtf$|msword$|excel$|\/pdf$|\/octet-stream$/.test(requestBodyType)) {
         const bodyParamFileEl = requestPanelEl.querySelector('.request-body-param-file');
         if (bodyParamFileEl?.files[0]) {
-          fetchOptions.body = bodyParamFileEl.files[0];
+          fetchOptions.body = bodyParamFileEl.files[0]; // eslint-disable-line prefer-destructuring
           curlData = ` --data-binary @${bodyParamFileEl.files[0].name} \\\n`;
         }
       } else if (requestBodyType.includes('json') || requestBodyType.includes('xml') || requestBodyType.includes('text')) {

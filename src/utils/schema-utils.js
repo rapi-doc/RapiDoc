@@ -105,7 +105,7 @@ export function normalizeExamples(examples, dataType = 'string') {
       }
       if (examples.length > 0) {
         if (dataType === 'array') {
-          exampleVal = examples[0];
+          [exampleVal] = examples;
           exampleList = examples.map((v) => ({ value: v, description: Array.isArray(v) ? v.join(' , ') : v }));
         } else {
           exampleVal = examples[0].toString();

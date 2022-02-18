@@ -316,7 +316,7 @@ export default class RapiDocMini extends LitElement {
     }
     if (!this.selectedServer) {
       if (this.resolvedSpec.servers) {
-        this.selectedServer = this.resolvedSpec.servers[0];
+        this.selectedServer = this.resolvedSpec.servers[0]; // eslint-disable-line prefer-destructuring
       }
     }
     this.requestUpdate();
