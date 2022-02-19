@@ -1,6 +1,6 @@
 {
   "name": "rapidoc",
-  "version": "9.1.5-beta",
+  "version": "9.1.8",
   "description": "RapiDoc - Open API spec viewer with built in console",
   "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
   "repository": {
@@ -32,13 +32,13 @@
   "module": "dist/rapidoc-min.js",
   "mode": "production",
   "dependencies": {
-    "@apitools/openapi-parser": "^0.0.14",
+    "@apitools/openapi-parser": "^0.0.24",
     "base64-arraybuffer": "^1.0.2",
     "buffer": "^6.0.3",
     "lit-element": "2.5.1",
     "lit-html": "1.4.1",
     "marked": "^4.0.12",
-    "prismjs": "^1.27.0"
+    "prismjs": "^1.26.0"
   },
   "scripts": {
     "build": "NODE_ENV=production webpack --mode=production",
