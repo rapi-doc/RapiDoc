@@ -252,7 +252,7 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
 
 /* eslint-disable indent */
 
-function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, authFlow) {
+function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, authFlow, defaultScopes = []) {
   let { authorizationUrl, tokenUrl, refreshUrl } = authFlow.authorizationUrl;
   const isUrlAbsolute = (url) => (url.indexOf('://') > 0 || url.indexOf('//') === 0);
   if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
@@ -277,8 +277,8 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
     flowNameDisplay = flowName;
   }
   return html`
-    <div class="oauth-flow ${flowName}" style="padding: 12px 0; margin-bottom:12px;"> 
-      <div class="tiny-title upper" style="margin-bottom:8px;">${flowNameDisplay}</div> 
+    <div class="oauth-flow ${flowName}" style="padding: 12px 0; margin-bottom:12px;">
+      <div class="tiny-title upper" style="margin-bottom:8px;">${flowNameDisplay}</div>
       ${authorizationUrl
         ? html`<div style="margin-bottom:5px"><span style="width:75px; display: inline-block;">Auth URL</span> <span class="mono-font"> ${authorizationUrl} </span></div>`
         : ''
@@ -299,7 +299,7 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
               <div class= "oauth-scopes" part="section-auth-scopes" style = "width:100%; display:flex; flex-direction:column; flex-wrap:wrap; margin:0 0 10px 24px">
                 ${Object.entries(authFlow.scopes).map((scopeAndDescr, index) => html`
                   <div class="m-checkbox" style="display:inline-flex; align-items:center">
-                    <input type="checkbox" part="checkbox checkbox-auth-scope" class="scope-checkbox" id="${securitySchemeId}${flowName}${index}" value="${scopeAndDescr[0]}">
+                    <input type="checkbox" part="checkbox checkbox-auth-scope" class="scope-checkbox" id="${securitySchemeId}${flowName}${index}" ?checked="${defaultScopes.includes(scopeAndDescr[0])}" value="${scopeAndDescr[0]}">
                     <label for="${securitySchemeId}${flowName}${index}" style="margin-left:5px; cursor:pointer">
                       <span class="mono-font">${scopeAndDescr[0]}</span>
                         ${scopeAndDescr[0] !== scopeAndDescr[1] ? ` - ${scopeAndDescr[1] || ''}` : ''}
@@ -317,16 +317,16 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
                 <input type="password" value = "" placeholder="password" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} api-key-password" style = "margin:0 5px;" part="textbox textbox-password">
               </div>`
             : ''
-          }  
+          }
           <div>
             ${flowName === 'authorizationCode'
               ? html`
                 <div style="margin: 16px 0 4px">
-                  <input type="checkbox" part="checkbox checkbox-auth-scope" id="${securitySchemeId}-pkce" checked> 
+                  <input type="checkbox" part="checkbox checkbox-auth-scope" id="${securitySchemeId}-pkce" checked>
                   <label for="${securitySchemeId}-pkce" style="margin:0 16px 0 4px; line-height:24px; cursor:pointer">
                    Send Proof Key for Code Exchange (PKCE)
                   </label>
-                </div>  
+                </div>
               `
               : ''
             }
@@ -337,8 +337,8 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
                 ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password'
                   ? html`
                     <select style="margin-right:5px;" class="${flowName} ${securitySchemeId} oauth-send-client-secret-in">
-                      <option value = 'header' selected> Authorization Header </option> 
-                      <option value = 'request-body'> Request Body </option> 
+                      <option value = 'header' selected> Authorization Header </option>
+                      <option value = 'request-body'> Request Body </option>
                     </select>`
                   : ''
                 }`
@@ -356,7 +356,7 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
           `
         : ''
       }
-    </div>  
+    </div>
   `;
 }
 
@@ -424,14 +424,14 @@ export default function securitySchemeTemplate() {
                         ? html`Send <code>${v.name}</code> in <code>${v.in}</code>`
                         : html`Send <code>Authorization</code> in <code>header</code> containing the word <code>Bearer</code> followed by a space and a Token String.`
                       }
-                    </div>  
+                    </div>
                     <div style="max-height:28px;">
                       ${v.in !== 'cookie'
                         ? html`
                           <input type = "text" value = "${v.value}" class="${v.type} ${v.securitySchemeId} api-key-input" placeholder = "api-token" spellcheck = "false">
                           <button class="m-btn thin-border" style = "margin-left:5px;"
                             part = "btn btn-outline"
-                            @click="${(e) => { onApiKeyChange.call(this, v.securitySchemeId, e); }}"> 
+                            @click="${(e) => { onApiKeyChange.call(this, v.securitySchemeId, e); }}">
                             ${v.finalKeyValue ? 'UPDATE' : 'SET'}
                           </button>`
                         : html`<span class="gray-text" style="font-size::var(--font-size-small)"> cookies cannot be set from here</span>`
@@ -443,14 +443,14 @@ export default function securitySchemeTemplate() {
                   ? html`
                     <div style="margin-bottom:5px">
                       Send <code>Authorization</code> in <code>header</code> containing the word <code>Basic</code> followed by a space and a base64 encoded string of <code>username:password</code>.
-                    </div>  
+                    </div>
                     <div>
                       <input type="text" value = "${v.user}" placeholder="username" spellcheck="false" class="${v.type} ${v.securitySchemeId} api-key-user" style="width:100px">
                       <input type="password" value = "${v.password}" placeholder="password" spellcheck="false" class="${v.type} ${v.securitySchemeId} api-key-password" style = "width:100px; margin:0 5px;">
                       <button class="m-btn thin-border"
                         @click="${(e) => { onApiKeyChange.call(this, v.securitySchemeId, e); }}"
                         part = "btn btn-outline"
-                      > 
+                      >
                         ${v.finalKeyValue ? 'UPDATE' : 'SET'}
                       </button>
                     </div>`
@@ -462,12 +462,12 @@ export default function securitySchemeTemplate() {
               ? html`
                 <tr>
                   <td style="border:none; padding-left:48px">
-                    ${Object.keys(v.flows).map((f) => oAuthFlowTemplate.call(this, f, v['x-client-id'], v['x-client-secret'], v.securitySchemeId, v.flows[f]))} 
+                    ${Object.keys(v.flows).map((f) => oAuthFlowTemplate.call(this, f, v['x-client-id'], v['x-client-secret'], v.securitySchemeId, v.flows[f], v['x-default-scopes']))}
                   </td>
-                </tr>    
+                </tr>
                 `
               : ''
-            }    
+            }
           `)}
         </table>`
       : ''
@@ -507,7 +507,7 @@ export function pathSecurityTemplate(pathSecurity) {
           </g>
         </svg>
           ${orSecurityKeys1.map((orSecurityItem1, i) => html`
-          
+
           ${orSecurityItem1.securityTypes
             ? html`
               ${i !== 0 ? html`<div style="padding:3px 4px;"> OR </div>` : ''}
@@ -522,11 +522,11 @@ export function pathSecurityTemplate(pathSecurity) {
                       const scopeHtml = html`${andSecurityItem.scopes !== ''
                         ? html`
                           <div>
-                            <b>Required scopes:</b> 
-                            <br/> 
-                            <div style="margin-left:8px">  
+                            <b>Required scopes:</b>
+                            <br/>
+                            <div style="margin-left:8px">
                               ${andSecurityItem.scopes.split(',').map((scope, cnt) => html`${cnt === 0 ? '' : '┃'}<span>${scope}</span>`)}
-                            </div>  
+                            </div>
                           </div>`
                         : ''
                       }`;
@@ -545,19 +545,19 @@ export function pathSecurityTemplate(pathSecurity) {
                         : andSecurityItem.type === 'http'
                           ? html`
                             <div>
-                              ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : html`Requires`} 
+                              ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : html`Requires`}
                               ${andSecurityItem.scheme === 'basic' ? 'Base 64 encoded username:password' : 'Bearer Token'} in <b>Authorization header</b>
                               ${scopeHtml}
                             </div>`
                           : html`
                             <div>
-                              ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : html`Requires`} 
+                              ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : html`Requires`}
                               Token in <b>${andSecurityItem.name} ${andSecurityItem.in}</b>
                               ${scopeHtml}
                             </div>`
                       }`;
                     })}
-                  </div>  
+                  </div>
                 </div>
               </div>
             `

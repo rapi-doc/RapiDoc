@@ -2,10 +2,11 @@ openapi: 3.0.0
 info:
   title: Petstore API
   description: |
-    Example to show how to use `x-client-id` and `x-client-secret` vendor extensions to pre fill them in the UI.
-    
-    Below is the Open API spec snippet that shows its usage, 
-    and if you check the authentication section you will find that client-id and client-secret is pre-filled, the user just needs to click on `GET TOKEN`
+    Example to show how to use `x-client-id`, `x-client-secret` and `x-default-scopes` vendor extensions to pre fill them in the UI.
+
+    Below is the Open API spec snippet that shows its usage,
+    and if you check the authentication section you will find that client-id and client-secret are pre-filled, the user just needs to click on `GET TOKEN`.
+    Also notice that the scope `dog-lover` is already checked
     ```yaml
       openapi: 3.0.0
       ...
@@ -16,6 +17,7 @@ info:
             type: oauth2
             x-client-id: my-client-id             # <--- when provided it will be pre filled in RapiDoc UI
             x-client-secret: my-client-secret     # <--- when provided it will be pre filled in RapiDoc UI
+            x-default-scopes: [dog-lover]         # <--- when provided scopes will be pre checked in RapiDoc UI
             flows:
               authorizationCode:
                 authorizationUrl: /authorize
@@ -53,6 +55,8 @@ components:
       description: You authorize requests, by providing client credentials.
       x-client-id: my-client-id
       x-client-secret: my-client-secret
+      x-default-scopes:
+        - dog-lover
       flows:
         authorizationCode:
           authorizationUrl: /authorize
