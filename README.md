@@ -61,4 +61,10 @@ npm run build
 npm run serve
 ```
 
-## Contribution
+## Roadmap 2022
+- Pre Rendering RapiDoc
+- Improve PDF generation of OpenAPI spec Using RapiPDF
+- Create a Command Line interface (CLI) to make it automation friendly
+- Improve Documentation, Test Cases and Examples
+- Create a live playground (Something like swagger editor)
+
