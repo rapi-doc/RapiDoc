@@ -1,5 +1,5 @@
-import { html } from 'lit-element';
-import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import { html } from 'lit';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
 import { expandedEndpointBodyTemplate } from '~/templates/expanded-endpoint-template';
 import '~/components/api-request';

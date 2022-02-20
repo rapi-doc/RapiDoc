@@ -1,4 +1,4 @@
-import { css } from 'lit-element';
+import { css } from 'lit';
 
 /*
 This file is reserved for any custom css that developers want to add to

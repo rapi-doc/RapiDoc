@@ -8,2776 +8,53 @@
 */******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 310:
+/***/ 448:
 /***/ ((__unused_webpack_module, __unused_webpack___webpack_exports__, __webpack_require__) => {
 
 "use strict";
 
 // UNUSED EXPORTS: JsonSchemaViewer, OAuthReceiver, RapiDocMini, default
 
-;// CONCATENATED MODULE: ./node_modules/lit-html/lib/directive.js
+;// CONCATENATED MODULE: ./node_modules/@lit/reactive-element/css-tag.js
 /**
  * @license
- * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
- * This code may only be used under the BSD style license found at
- * http://polymer.github.io/LICENSE.txt
- * The complete set of authors may be found at
- * http://polymer.github.io/AUTHORS.txt
- * The complete set of contributors may be found at
- * http://polymer.github.io/CONTRIBUTORS.txt
- * Code distributed by Google as part of the polymer project is also
- * subject to an additional IP rights grant found at
- * http://polymer.github.io/PATENTS.txt
+ * Copyright 2019 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
  */
-const directives = new WeakMap();
-/**
- * Brands a function as a directive factory function so that lit-html will call
- * the function during template rendering, rather than passing as a value.
- *
- * A _directive_ is a function that takes a Part as an argument. It has the
- * signature: `(part: Part) => void`.
- *
- * A directive _factory_ is a function that takes arguments for data and
- * configuration and returns a directive. Users of directive usually refer to
- * the directive factory as the directive. For example, "The repeat directive".
- *
- * Usually a template author will invoke a directive factory in their template
- * with relevant arguments, which will then return a directive function.
- *
- * Here's an example of using the `repeat()` directive factory that takes an
- * array and a function to render an item:
- *
- * ```js
- * html`<ul><${repeat(items, (item) => html`<li>${item}</li>`)}</ul>`
- * ```
- *
- * When `repeat` is invoked, it returns a directive function that closes over
- * `items` and the template function. When the outer template is rendered, the
- * return directive function is called with the Part for the expression.
- * `repeat` then performs it's custom logic to render multiple items.
- *
- * @param f The directive factory function. Must be a function that returns a
- * function of the signature `(part: Part) => void`. The returned function will
- * be called with the part object.
- *
- * @example
- *
- * import {directive, html} from 'lit-html';
- *
- * const immutable = directive((v) => (part) => {
- *   if (part.value !== v) {
- *     part.setValue(v)
- *   }
- * });
- */
-const directive = (f) => ((...args) => {
-    const d = f(...args);
-    directives.set(d, true);
-    return d;
-});
-const isDirective = (o) => {
-    return typeof o === 'function' && directives.has(o);
-};
-//# sourceMappingURL=directive.js.map
-;// CONCATENATED MODULE: ./node_modules/lit-html/lib/dom.js
+const css_tag_t=window.ShadowRoot&&(void 0===window.ShadyCSS||window.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,e=Symbol(),n=new Map;class s{constructor(t,n){if(this._$cssResult$=!0,n!==e)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=t}get styleSheet(){let e=n.get(this.cssText);return css_tag_t&&void 0===e&&(n.set(this.cssText,e=new CSSStyleSheet),e.replaceSync(this.cssText)),e}toString(){return this.cssText}}const o=t=>new s("string"==typeof t?t:t+"",e),r=(t,...n)=>{const o=1===t.length?t[0]:n.reduce(((e,n,s)=>e+(t=>{if(!0===t._$cssResult$)return t.cssText;if("number"==typeof t)return t;throw Error("Value passed to 'css' function must be a 'css' function result: "+t+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(n)+t[s+1]),t[0]);return new s(o,e)},i=(e,n)=>{css_tag_t?e.adoptedStyleSheets=n.map((t=>t instanceof CSSStyleSheet?t:t.styleSheet)):n.forEach((t=>{const n=document.createElement("style"),s=window.litNonce;void 0!==s&&n.setAttribute("nonce",s),n.textContent=t.cssText,e.appendChild(n)}))},S=css_tag_t?t=>t:t=>t instanceof CSSStyleSheet?(t=>{let e="";for(const n of t.cssRules)e+=n.cssText;return o(e)})(t):t;
+//# sourceMappingURL=css-tag.js.map
+
+;// CONCATENATED MODULE: ./node_modules/@lit/reactive-element/reactive-element.js
+
 /**
  * @license
- * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
- * This code may only be used under the BSD style license found at
- * http://polymer.github.io/LICENSE.txt
- * The complete set of authors may be found at
- * http://polymer.github.io/AUTHORS.txt
- * The complete set of contributors may be found at
- * http://polymer.github.io/CONTRIBUTORS.txt
- * Code distributed by Google as part of the polymer project is also
- * subject to an additional IP rights grant found at
- * http://polymer.github.io/PATENTS.txt
- */
-/**
- * True if the custom elements polyfill is in use.
- */
-const isCEPolyfill = typeof window !== 'undefined' &&
-    window.customElements != null &&
-    window.customElements.polyfillWrapFlushCallback !==
-        undefined;
-/**
- * Reparents nodes, starting from `start` (inclusive) to `end` (exclusive),
- * into another container (could be the same container), before `before`. If
- * `before` is null, it appends the nodes to the container.
- */
-const dom_reparentNodes = (container, start, end = null, before = null) => {
-    while (start !== end) {
-        const n = start.nextSibling;
-        container.insertBefore(start, before);
-        start = n;
-    }
-};
-/**
- * Removes nodes, starting from `start` (inclusive) to `end` (exclusive), from
- * `container`.
- */
-const removeNodes = (container, start, end = null) => {
-    while (start !== end) {
-        const n = start.nextSibling;
-        container.removeChild(start);
-        start = n;
-    }
-};
-//# sourceMappingURL=dom.js.map
-;// CONCATENATED MODULE: ./node_modules/lit-html/lib/part.js
-/**
- * @license
- * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
- * This code may only be used under the BSD style license found at
- * http://polymer.github.io/LICENSE.txt
- * The complete set of authors may be found at
- * http://polymer.github.io/AUTHORS.txt
- * The complete set of contributors may be found at
- * http://polymer.github.io/CONTRIBUTORS.txt
- * Code distributed by Google as part of the polymer project is also
- * subject to an additional IP rights grant found at
- * http://polymer.github.io/PATENTS.txt
- */
-/**
- * A sentinel value that signals that a value was handled by a directive and
- * should not be written to the DOM.
- */
-const noChange = {};
-/**
- * A sentinel value that signals a NodePart to fully clear its content.
- */
-const nothing = {};
-//# sourceMappingURL=part.js.map
-;// CONCATENATED MODULE: ./node_modules/lit-html/lib/template.js
-/**
- * @license
- * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
- * This code may only be used under the BSD style license found at
- * http://polymer.github.io/LICENSE.txt
- * The complete set of authors may be found at
- * http://polymer.github.io/AUTHORS.txt
- * The complete set of contributors may be found at
- * http://polymer.github.io/CONTRIBUTORS.txt
- * Code distributed by Google as part of the polymer project is also
- * subject to an additional IP rights grant found at
- * http://polymer.github.io/PATENTS.txt
- */
-/**
- * An expression marker with embedded unique key to avoid collision with
- * possible text in templates.
- */
-const marker = `{{lit-${String(Math.random()).slice(2)}}}`;
-/**
- * An expression marker used text-positions, multi-binding attributes, and
- * attributes with markup-like text values.
- */
-const nodeMarker = `<!--${marker}-->`;
-const markerRegex = new RegExp(`${marker}|${nodeMarker}`);
-/**
- * Suffix appended to all bound attribute names.
- */
-const boundAttributeSuffix = '$lit$';
-/**
- * An updatable Template that tracks the location of dynamic parts.
- */
-class Template {
-    constructor(result, element) {
-        this.parts = [];
-        this.element = element;
-        const nodesToRemove = [];
-        const stack = [];
-        // Edge needs all 4 parameters present; IE11 needs 3rd parameter to be null
-        const walker = document.createTreeWalker(element.content, 133 /* NodeFilter.SHOW_{ELEMENT|COMMENT|TEXT} */, null, false);
-        // Keeps track of the last index associated with a part. We try to delete
-        // unnecessary nodes, but we never want to associate two different parts
-        // to the same index. They must have a constant node between.
-        let lastPartIndex = 0;
-        let index = -1;
-        let partIndex = 0;
-        const { strings, values: { length } } = result;
-        while (partIndex < length) {
-            const node = walker.nextNode();
-            if (node === null) {
-                // We've exhausted the content inside a nested template element.
-                // Because we still have parts (the outer for-loop), we know:
-                // - There is a template in the stack
-                // - The walker will find a nextNode outside the template
-                walker.currentNode = stack.pop();
-                continue;
-            }
-            index++;
-            if (node.nodeType === 1 /* Node.ELEMENT_NODE */) {
-                if (node.hasAttributes()) {
-                    const attributes = node.attributes;
-                    const { length } = attributes;
-                    // Per
-                    // https://developer.mozilla.org/en-US/docs/Web/API/NamedNodeMap,
-                    // attributes are not guaranteed to be returned in document order.
-                    // In particular, Edge/IE can return them out of order, so we cannot
-                    // assume a correspondence between part index and attribute index.
-                    let count = 0;
-                    for (let i = 0; i < length; i++) {
-                        if (endsWith(attributes[i].name, boundAttributeSuffix)) {
-                            count++;
-                        }
-                    }
-                    while (count-- > 0) {
-                        // Get the template literal section leading up to the first
-                        // expression in this attribute
-                        const stringForPart = strings[partIndex];
-                        // Find the attribute name
-                        const name = lastAttributeNameRegex.exec(stringForPart)[2];
-                        // Find the corresponding attribute
-                        // All bound attributes have had a suffix added in
-                        // TemplateResult#getHTML to opt out of special attribute
-                        // handling. To look up the attribute value we also need to add
-                        // the suffix.
-                        const attributeLookupName = name.toLowerCase() + boundAttributeSuffix;
-                        const attributeValue = node.getAttribute(attributeLookupName);
-                        node.removeAttribute(attributeLookupName);
-                        const statics = attributeValue.split(markerRegex);
-                        this.parts.push({ type: 'attribute', index, name, strings: statics });
-                        partIndex += statics.length - 1;
-                    }
-                }
-                if (node.tagName === 'TEMPLATE') {
-                    stack.push(node);
-                    walker.currentNode = node.content;
-                }
-            }
-            else if (node.nodeType === 3 /* Node.TEXT_NODE */) {
-                const data = node.data;
-                if (data.indexOf(marker) >= 0) {
-                    const parent = node.parentNode;
-                    const strings = data.split(markerRegex);
-                    const lastIndex = strings.length - 1;
-                    // Generate a new text node for each literal section
-                    // These nodes are also used as the markers for node parts
-                    for (let i = 0; i < lastIndex; i++) {
-                        let insert;
-                        let s = strings[i];
-                        if (s === '') {
-                            insert = createMarker();
-                        }
-                        else {
-                            const match = lastAttributeNameRegex.exec(s);
-                            if (match !== null && endsWith(match[2], boundAttributeSuffix)) {
-                                s = s.slice(0, match.index) + match[1] +
-                                    match[2].slice(0, -boundAttributeSuffix.length) + match[3];
-                            }
-                            insert = document.createTextNode(s);
-                        }
-                        parent.insertBefore(insert, node);
-                        this.parts.push({ type: 'node', index: ++index });
-                    }
-                    // If there's no text, we must insert a comment to mark our place.
-                    // Else, we can trust it will stick around after cloning.
-                    if (strings[lastIndex] === '') {
-                        parent.insertBefore(createMarker(), node);
-                        nodesToRemove.push(node);
-                    }
-                    else {
-                        node.data = strings[lastIndex];
-                    }
-                    // We have a part for each match found
-                    partIndex += lastIndex;
-                }
-            }
-            else if (node.nodeType === 8 /* Node.COMMENT_NODE */) {
-                if (node.data === marker) {
-                    const parent = node.parentNode;
-                    // Add a new marker node to be the startNode of the Part if any of
-                    // the following are true:
-                    //  * We don't have a previousSibling
-                    //  * The previousSibling is already the start of a previous part
-                    if (node.previousSibling === null || index === lastPartIndex) {
-                        index++;
-                        parent.insertBefore(createMarker(), node);
-                    }
-                    lastPartIndex = index;
-                    this.parts.push({ type: 'node', index });
-                    // If we don't have a nextSibling, keep this node so we have an end.
-                    // Else, we can remove it to save future costs.
-                    if (node.nextSibling === null) {
-                        node.data = '';
-                    }
-                    else {
-                        nodesToRemove.push(node);
-                        index--;
-                    }
-                    partIndex++;
-                }
-                else {
-                    let i = -1;
-                    while ((i = node.data.indexOf(marker, i + 1)) !== -1) {
-                        // Comment node has a binding marker inside, make an inactive part
-                        // The binding won't work, but subsequent bindings will
-                        // TODO (justinfagnani): consider whether it's even worth it to
-                        // make bindings in comments work
-                        this.parts.push({ type: 'node', index: -1 });
-                        partIndex++;
-                    }
-                }
-            }
-        }
-        // Remove text binding nodes after the walk to not disturb the TreeWalker
-        for (const n of nodesToRemove) {
-            n.parentNode.removeChild(n);
-        }
-    }
-}
-const endsWith = (str, suffix) => {
-    const index = str.length - suffix.length;
-    return index >= 0 && str.slice(index) === suffix;
-};
-const isTemplatePartActive = (part) => part.index !== -1;
-// Allows `document.createComment('')` to be renamed for a
-// small manual size-savings.
-const createMarker = () => document.createComment('');
-/**
- * This regex extracts the attribute name preceding an attribute-position
- * expression. It does this by matching the syntax allowed for attributes
- * against the string literal directly preceding the expression, assuming that
- * the expression is in an attribute-value position.
- *
- * See attributes in the HTML spec:
- * https://www.w3.org/TR/html5/syntax.html#elements-attributes
- *
- * " \x09\x0a\x0c\x0d" are HTML space characters:
- * https://www.w3.org/TR/html5/infrastructure.html#space-characters
- *
- * "\0-\x1F\x7F-\x9F" are Unicode control characters, which includes every
- * space character except " ".
- *
- * So an attribute is:
- *  * The name: any character except a control character, space character, ('),
- *    ("), ">", "=", or "/"
- *  * Followed by zero or more space characters
- *  * Followed by "="
- *  * Followed by zero or more space characters
- *  * Followed by:
- *    * Any character except space, ('), ("), "<", ">", "=", (`), or
- *    * (") then any non-("), or
- *    * (') then any non-(')
- */
-const lastAttributeNameRegex = 
-// eslint-disable-next-line no-control-regex
-/([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F "'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
-//# sourceMappingURL=template.js.map
-;// CONCATENATED MODULE: ./node_modules/lit-html/lib/template-instance.js
-/**
- * @license
- * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
- * This code may only be used under the BSD style license found at
- * http://polymer.github.io/LICENSE.txt
- * The complete set of authors may be found at
- * http://polymer.github.io/AUTHORS.txt
- * The complete set of contributors may be found at
- * http://polymer.github.io/CONTRIBUTORS.txt
- * Code distributed by Google as part of the polymer project is also
- * subject to an additional IP rights grant found at
- * http://polymer.github.io/PATENTS.txt
- */
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */var reactive_element_s;const reactive_element_e=window.trustedTypes,reactive_element_r=reactive_element_e?reactive_element_e.emptyScript:"",h=window.reactiveElementPolyfillSupport,reactive_element_o={toAttribute(t,i){switch(i){case Boolean:t=t?reactive_element_r:null;break;case Object:case Array:t=null==t?t:JSON.stringify(t)}return t},fromAttribute(t,i){let s=t;switch(i){case Boolean:s=null!==t;break;case Number:s=null===t?null:Number(t);break;case Object:case Array:try{s=JSON.parse(t)}catch(t){s=null}}return s}},reactive_element_n=(t,i)=>i!==t&&(i==i||t==t),l={attribute:!0,type:String,converter:reactive_element_o,reflect:!1,hasChanged:reactive_element_n};class a extends HTMLElement{constructor(){super(),this._$Et=new Map,this.isUpdatePending=!1,this.hasUpdated=!1,this._$Ei=null,this.o()}static addInitializer(t){var i;null!==(i=this.l)&&void 0!==i||(this.l=[]),this.l.push(t)}static get observedAttributes(){this.finalize();const t=[];return this.elementProperties.forEach(((i,s)=>{const e=this._$Eh(s,i);void 0!==e&&(this._$Eu.set(e,s),t.push(e))})),t}static createProperty(t,i=l){if(i.state&&(i.attribute=!1),this.finalize(),this.elementProperties.set(t,i),!i.noAccessor&&!this.prototype.hasOwnProperty(t)){const s="symbol"==typeof t?Symbol():"__"+t,e=this.getPropertyDescriptor(t,s,i);void 0!==e&&Object.defineProperty(this.prototype,t,e)}}static getPropertyDescriptor(t,i,s){return{get(){return this[i]},set(e){const r=this[t];this[i]=e,this.requestUpdate(t,r,s)},configurable:!0,enumerable:!0}}static getPropertyOptions(t){return this.elementProperties.get(t)||l}static finalize(){if(this.hasOwnProperty("finalized"))return!1;this.finalized=!0;const t=Object.getPrototypeOf(this);if(t.finalize(),this.elementProperties=new Map(t.elementProperties),this._$Eu=new Map,this.hasOwnProperty("properties")){const t=this.properties,i=[...Object.getOwnPropertyNames(t),...Object.getOwnPropertySymbols(t)];for(const s of i)this.createProperty(s,t[s])}return this.elementStyles=this.finalizeStyles(this.styles),!0}static finalizeStyles(i){const s=[];if(Array.isArray(i)){const e=new Set(i.flat(1/0).reverse());for(const i of e)s.unshift(S(i))}else void 0!==i&&s.push(S(i));return s}static _$Eh(t,i){const s=i.attribute;return!1===s?void 0:"string"==typeof s?s:"string"==typeof t?t.toLowerCase():void 0}o(){var t;this._$Ep=new Promise((t=>this.enableUpdating=t)),this._$AL=new Map,this._$Em(),this.requestUpdate(),null===(t=this.constructor.l)||void 0===t||t.forEach((t=>t(this)))}addController(t){var i,s;(null!==(i=this._$Eg)&&void 0!==i?i:this._$Eg=[]).push(t),void 0!==this.renderRoot&&this.isConnected&&(null===(s=t.hostConnected)||void 0===s||s.call(t))}removeController(t){var i;null===(i=this._$Eg)||void 0===i||i.splice(this._$Eg.indexOf(t)>>>0,1)}_$Em(){this.constructor.elementProperties.forEach(((t,i)=>{this.hasOwnProperty(i)&&(this._$Et.set(i,this[i]),delete this[i])}))}createRenderRoot(){var t;const s=null!==(t=this.shadowRoot)&&void 0!==t?t:this.attachShadow(this.constructor.shadowRootOptions);return i(s,this.constructor.elementStyles),s}connectedCallback(){var t;void 0===this.renderRoot&&(this.renderRoot=this.createRenderRoot()),this.enableUpdating(!0),null===(t=this._$Eg)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostConnected)||void 0===i?void 0:i.call(t)}))}enableUpdating(t){}disconnectedCallback(){var t;null===(t=this._$Eg)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostDisconnected)||void 0===i?void 0:i.call(t)}))}attributeChangedCallback(t,i,s){this._$AK(t,s)}_$ES(t,i,s=l){var e,r;const h=this.constructor._$Eh(t,s);if(void 0!==h&&!0===s.reflect){const n=(null!==(r=null===(e=s.converter)||void 0===e?void 0:e.toAttribute)&&void 0!==r?r:reactive_element_o.toAttribute)(i,s.type);this._$Ei=t,null==n?this.removeAttribute(h):this.setAttribute(h,n),this._$Ei=null}}_$AK(t,i){var s,e,r;const h=this.constructor,n=h._$Eu.get(t);if(void 0!==n&&this._$Ei!==n){const t=h.getPropertyOptions(n),l=t.converter,a=null!==(r=null!==(e=null===(s=l)||void 0===s?void 0:s.fromAttribute)&&void 0!==e?e:"function"==typeof l?l:null)&&void 0!==r?r:reactive_element_o.fromAttribute;this._$Ei=n,this[n]=a(i,t.type),this._$Ei=null}}requestUpdate(t,i,s){let e=!0;void 0!==t&&(((s=s||this.constructor.getPropertyOptions(t)).hasChanged||reactive_element_n)(this[t],i)?(this._$AL.has(t)||this._$AL.set(t,i),!0===s.reflect&&this._$Ei!==t&&(void 0===this._$EC&&(this._$EC=new Map),this._$EC.set(t,s))):e=!1),!this.isUpdatePending&&e&&(this._$Ep=this._$E_())}async _$E_(){this.isUpdatePending=!0;try{await this._$Ep}catch(t){Promise.reject(t)}const t=this.scheduleUpdate();return null!=t&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){var t;if(!this.isUpdatePending)return;this.hasUpdated,this._$Et&&(this._$Et.forEach(((t,i)=>this[i]=t)),this._$Et=void 0);let i=!1;const s=this._$AL;try{i=this.shouldUpdate(s),i?(this.willUpdate(s),null===(t=this._$Eg)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostUpdate)||void 0===i?void 0:i.call(t)})),this.update(s)):this._$EU()}catch(t){throw i=!1,this._$EU(),t}i&&this._$AE(s)}willUpdate(t){}_$AE(t){var i;null===(i=this._$Eg)||void 0===i||i.forEach((t=>{var i;return null===(i=t.hostUpdated)||void 0===i?void 0:i.call(t)})),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(t)),this.updated(t)}_$EU(){this._$AL=new Map,this.isUpdatePending=!1}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$Ep}shouldUpdate(t){return!0}update(t){void 0!==this._$EC&&(this._$EC.forEach(((t,i)=>this._$ES(i,this[i],t))),this._$EC=void 0),this._$EU()}updated(t){}firstUpdated(t){}}a.finalized=!0,a.elementProperties=new Map,a.elementStyles=[],a.shadowRootOptions={mode:"open"},null==h||h({ReactiveElement:a}),(null!==(reactive_element_s=globalThis.reactiveElementVersions)&&void 0!==reactive_element_s?reactive_element_s:globalThis.reactiveElementVersions=[]).push("1.3.0");
+//# sourceMappingURL=reactive-element.js.map
 
-
-/**
- * An instance of a `Template` that can be attached to the DOM and updated
- * with new values.
- */
-class TemplateInstance {
-    constructor(template, processor, options) {
-        this.__parts = [];
-        this.template = template;
-        this.processor = processor;
-        this.options = options;
-    }
-    update(values) {
-        let i = 0;
-        for (const part of this.__parts) {
-            if (part !== undefined) {
-                part.setValue(values[i]);
-            }
-            i++;
-        }
-        for (const part of this.__parts) {
-            if (part !== undefined) {
-                part.commit();
-            }
-        }
-    }
-    _clone() {
-        // There are a number of steps in the lifecycle of a template instance's
-        // DOM fragment:
-        //  1. Clone - create the instance fragment
-        //  2. Adopt - adopt into the main document
-        //  3. Process - find part markers and create parts
-        //  4. Upgrade - upgrade custom elements
-        //  5. Update - set node, attribute, property, etc., values
-        //  6. Connect - connect to the document. Optional and outside of this
-        //     method.
-        //
-        // We have a few constraints on the ordering of these steps:
-        //  * We need to upgrade before updating, so that property values will pass
-        //    through any property setters.
-        //  * We would like to process before upgrading so that we're sure that the
-        //    cloned fragment is inert and not disturbed by self-modifying DOM.
-        //  * We want custom elements to upgrade even in disconnected fragments.
-        //
-        // Given these constraints, with full custom elements support we would
-        // prefer the order: Clone, Process, Adopt, Upgrade, Update, Connect
-        //
-        // But Safari does not implement CustomElementRegistry#upgrade, so we
-        // can not implement that order and still have upgrade-before-update and
-        // upgrade disconnected fragments. So we instead sacrifice the
-        // process-before-upgrade constraint, since in Custom Elements v1 elements
-        // must not modify their light DOM in the constructor. We still have issues
-        // when co-existing with CEv0 elements like Polymer 1, and with polyfills
-        // that don't strictly adhere to the no-modification rule because shadow
-        // DOM, which may be created in the constructor, is emulated by being placed
-        // in the light DOM.
-        //
-        // The resulting order is on native is: Clone, Adopt, Upgrade, Process,
-        // Update, Connect. document.importNode() performs Clone, Adopt, and Upgrade
-        // in one step.
-        //
-        // The Custom Elements v1 polyfill supports upgrade(), so the order when
-        // polyfilled is the more ideal: Clone, Process, Adopt, Upgrade, Update,
-        // Connect.
-        const fragment = isCEPolyfill ?
-            this.template.element.content.cloneNode(true) :
-            document.importNode(this.template.element.content, true);
-        const stack = [];
-        const parts = this.template.parts;
-        // Edge needs all 4 parameters present; IE11 needs 3rd parameter to be null
-        const walker = document.createTreeWalker(fragment, 133 /* NodeFilter.SHOW_{ELEMENT|COMMENT|TEXT} */, null, false);
-        let partIndex = 0;
-        let nodeIndex = 0;
-        let part;
-        let node = walker.nextNode();
-        // Loop through all the nodes and parts of a template
-        while (partIndex < parts.length) {
-            part = parts[partIndex];
-            if (!isTemplatePartActive(part)) {
-                this.__parts.push(undefined);
-                partIndex++;
-                continue;
-            }
-            // Progress the tree walker until we find our next part's node.
-            // Note that multiple parts may share the same node (attribute parts
-            // on a single element), so this loop may not run at all.
-            while (nodeIndex < part.index) {
-                nodeIndex++;
-                if (node.nodeName === 'TEMPLATE') {
-                    stack.push(node);
-                    walker.currentNode = node.content;
-                }
-                if ((node = walker.nextNode()) === null) {
-                    // We've exhausted the content inside a nested template element.
-                    // Because we still have parts (the outer for-loop), we know:
-                    // - There is a template in the stack
-                    // - The walker will find a nextNode outside the template
-                    walker.currentNode = stack.pop();
-                    node = walker.nextNode();
-                }
-            }
-            // We've arrived at our part's node.
-            if (part.type === 'node') {
-                const part = this.processor.handleTextExpression(this.options);
-                part.insertAfterNode(node.previousSibling);
-                this.__parts.push(part);
-            }
-            else {
-                this.__parts.push(...this.processor.handleAttributeExpressions(node, part.name, part.strings, this.options));
-            }
-            partIndex++;
-        }
-        if (isCEPolyfill) {
-            document.adoptNode(fragment);
-            customElements.upgrade(fragment);
-        }
-        return fragment;
-    }
-}
-//# sourceMappingURL=template-instance.js.map
-;// CONCATENATED MODULE: ./node_modules/lit-html/lib/template-result.js
-/**
- * @license
- * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
- * This code may only be used under the BSD style license found at
- * http://polymer.github.io/LICENSE.txt
- * The complete set of authors may be found at
- * http://polymer.github.io/AUTHORS.txt
- * The complete set of contributors may be found at
- * http://polymer.github.io/CONTRIBUTORS.txt
- * Code distributed by Google as part of the polymer project is also
- * subject to an additional IP rights grant found at
- * http://polymer.github.io/PATENTS.txt
- */
-/**
- * @module lit-html
- */
-
-
-/**
- * Our TrustedTypePolicy for HTML which is declared using the html template
- * tag function.
- *
- * That HTML is a developer-authored constant, and is parsed with innerHTML
- * before any untrusted expressions have been mixed in. Therefor it is
- * considered safe by construction.
- */
-const policy = window.trustedTypes &&
-    trustedTypes.createPolicy('lit-html', { createHTML: (s) => s });
-const commentMarker = ` ${marker} `;
-/**
- * The return type of `html`, which holds a Template and the values from
- * interpolated expressions.
- */
-class TemplateResult {
-    constructor(strings, values, type, processor) {
-        this.strings = strings;
-        this.values = values;
-        this.type = type;
-        this.processor = processor;
-    }
-    /**
-     * Returns a string of HTML used to create a `<template>` element.
-     */
-    getHTML() {
-        const l = this.strings.length - 1;
-        let html = '';
-        let isCommentBinding = false;
-        for (let i = 0; i < l; i++) {
-            const s = this.strings[i];
-            // For each binding we want to determine the kind of marker to insert
-            // into the template source before it's parsed by the browser's HTML
-            // parser. The marker type is based on whether the expression is in an
-            // attribute, text, or comment position.
-            //   * For node-position bindings we insert a comment with the marker
-            //     sentinel as its text content, like <!--{{lit-guid}}-->.
-            //   * For attribute bindings we insert just the marker sentinel for the
-            //     first binding, so that we support unquoted attribute bindings.
-            //     Subsequent bindings can use a comment marker because multi-binding
-            //     attributes must be quoted.
-            //   * For comment bindings we insert just the marker sentinel so we don't
-            //     close the comment.
-            //
-            // The following code scans the template source, but is *not* an HTML
-            // parser. We don't need to track the tree structure of the HTML, only
-            // whether a binding is inside a comment, and if not, if it appears to be
-            // the first binding in an attribute.
-            const commentOpen = s.lastIndexOf('<!--');
-            // We're in comment position if we have a comment open with no following
-            // comment close. Because <-- can appear in an attribute value there can
-            // be false positives.
-            isCommentBinding = (commentOpen > -1 || isCommentBinding) &&
-                s.indexOf('-->', commentOpen + 1) === -1;
-            // Check to see if we have an attribute-like sequence preceding the
-            // expression. This can match "name=value" like structures in text,
-            // comments, and attribute values, so there can be false-positives.
-            const attributeMatch = lastAttributeNameRegex.exec(s);
-            if (attributeMatch === null) {
-                // We're only in this branch if we don't have a attribute-like
-                // preceding sequence. For comments, this guards against unusual
-                // attribute values like <div foo="<!--${'bar'}">. Cases like
-                // <!-- foo=${'bar'}--> are handled correctly in the attribute branch
-                // below.
-                html += s + (isCommentBinding ? commentMarker : nodeMarker);
-            }
-            else {
-                // For attributes we use just a marker sentinel, and also append a
-                // $lit$ suffix to the name to opt-out of attribute-specific parsing
-                // that IE and Edge do for style and certain SVG attributes.
-                html += s.substr(0, attributeMatch.index) + attributeMatch[1] +
-                    attributeMatch[2] + boundAttributeSuffix + attributeMatch[3] +
-                    marker;
-            }
-        }
-        html += this.strings[l];
-        return html;
-    }
-    getTemplateElement() {
-        const template = document.createElement('template');
-        let value = this.getHTML();
-        if (policy !== undefined) {
-            // this is secure because `this.strings` is a TemplateStringsArray.
-            // TODO: validate this when
-            // https://github.com/tc39/proposal-array-is-template-object is
-            // implemented.
-            value = policy.createHTML(value);
-        }
-        template.innerHTML = value;
-        return template;
-    }
-}
-/**
- * A TemplateResult for SVG fragments.
- *
- * This class wraps HTML in an `<svg>` tag in order to parse its contents in the
- * SVG namespace, then modifies the template to remove the `<svg>` tag so that
- * clones only container the original fragment.
- */
-class template_result_SVGTemplateResult extends (/* unused pure expression or super */ null && (TemplateResult)) {
-    getHTML() {
-        return `<svg>${super.getHTML()}</svg>`;
-    }
-    getTemplateElement() {
-        const template = super.getTemplateElement();
-        const content = template.content;
-        const svgElement = content.firstChild;
-        content.removeChild(svgElement);
-        reparentNodes(content, svgElement.firstChild);
-        return template;
-    }
-}
-//# sourceMappingURL=template-result.js.map
-;// CONCATENATED MODULE: ./node_modules/lit-html/lib/parts.js
-/**
- * @license
- * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
- * This code may only be used under the BSD style license found at
- * http://polymer.github.io/LICENSE.txt
- * The complete set of authors may be found at
- * http://polymer.github.io/AUTHORS.txt
- * The complete set of contributors may be found at
- * http://polymer.github.io/CONTRIBUTORS.txt
- * Code distributed by Google as part of the polymer project is also
- * subject to an additional IP rights grant found at
- * http://polymer.github.io/PATENTS.txt
- */
-
-
-
-
-
-
-const isPrimitive = (value) => {
-    return (value === null ||
-        !(typeof value === 'object' || typeof value === 'function'));
-};
-const isIterable = (value) => {
-    return Array.isArray(value) ||
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        !!(value && value[Symbol.iterator]);
-};
-/**
- * Writes attribute values to the DOM for a group of AttributeParts bound to a
- * single attribute. The value is only set once even if there are multiple parts
- * for an attribute.
- */
-class AttributeCommitter {
-    constructor(element, name, strings) {
-        this.dirty = true;
-        this.element = element;
-        this.name = name;
-        this.strings = strings;
-        this.parts = [];
-        for (let i = 0; i < strings.length - 1; i++) {
-            this.parts[i] = this._createPart();
-        }
-    }
-    /**
-     * Creates a single part. Override this to create a differnt type of part.
-     */
-    _createPart() {
-        return new AttributePart(this);
-    }
-    _getValue() {
-        const strings = this.strings;
-        const l = strings.length - 1;
-        const parts = this.parts;
-        // If we're assigning an attribute via syntax like:
-        //    attr="${foo}"  or  attr=${foo}
-        // but not
-        //    attr="${foo} ${bar}" or attr="${foo} baz"
-        // then we don't want to coerce the attribute value into one long
-        // string. Instead we want to just return the value itself directly,
-        // so that sanitizeDOMValue can get the actual value rather than
-        // String(value)
-        // The exception is if v is an array, in which case we do want to smash
-        // it together into a string without calling String() on the array.
-        //
-        // This also allows trusted values (when using TrustedTypes) being
-        // assigned to DOM sinks without being stringified in the process.
-        if (l === 1 && strings[0] === '' && strings[1] === '') {
-            const v = parts[0].value;
-            if (typeof v === 'symbol') {
-                return String(v);
-            }
-            if (typeof v === 'string' || !isIterable(v)) {
-                return v;
-            }
-        }
-        let text = '';
-        for (let i = 0; i < l; i++) {
-            text += strings[i];
-            const part = parts[i];
-            if (part !== undefined) {
-                const v = part.value;
-                if (isPrimitive(v) || !isIterable(v)) {
-                    text += typeof v === 'string' ? v : String(v);
-                }
-                else {
-                    for (const t of v) {
-                        text += typeof t === 'string' ? t : String(t);
-                    }
-                }
-            }
-        }
-        text += strings[l];
-        return text;
-    }
-    commit() {
-        if (this.dirty) {
-            this.dirty = false;
-            this.element.setAttribute(this.name, this._getValue());
-        }
-    }
-}
-/**
- * A Part that controls all or part of an attribute value.
- */
-class AttributePart {
-    constructor(committer) {
-        this.value = undefined;
-        this.committer = committer;
-    }
-    setValue(value) {
-        if (value !== noChange && (!isPrimitive(value) || value !== this.value)) {
-            this.value = value;
-            // If the value is a not a directive, dirty the committer so that it'll
-            // call setAttribute. If the value is a directive, it'll dirty the
-            // committer if it calls setValue().
-            if (!isDirective(value)) {
-                this.committer.dirty = true;
-            }
-        }
-    }
-    commit() {
-        while (isDirective(this.value)) {
-            const directive = this.value;
-            this.value = noChange;
-            directive(this);
-        }
-        if (this.value === noChange) {
-            return;
-        }
-        this.committer.commit();
-    }
-}
-/**
- * A Part that controls a location within a Node tree. Like a Range, NodePart
- * has start and end locations and can set and update the Nodes between those
- * locations.
- *
- * NodeParts support several value types: primitives, Nodes, TemplateResults,
- * as well as arrays and iterables of those types.
- */
-class NodePart {
-    constructor(options) {
-        this.value = undefined;
-        this.__pendingValue = undefined;
-        this.options = options;
-    }
-    /**
-     * Appends this part into a container.
-     *
-     * This part must be empty, as its contents are not automatically moved.
-     */
-    appendInto(container) {
-        this.startNode = container.appendChild(createMarker());
-        this.endNode = container.appendChild(createMarker());
-    }
-    /**
-     * Inserts this part after the `ref` node (between `ref` and `ref`'s next
-     * sibling). Both `ref` and its next sibling must be static, unchanging nodes
-     * such as those that appear in a literal section of a template.
-     *
-     * This part must be empty, as its contents are not automatically moved.
-     */
-    insertAfterNode(ref) {
-        this.startNode = ref;
-        this.endNode = ref.nextSibling;
-    }
-    /**
-     * Appends this part into a parent part.
-     *
-     * This part must be empty, as its contents are not automatically moved.
-     */
-    appendIntoPart(part) {
-        part.__insert(this.startNode = createMarker());
-        part.__insert(this.endNode = createMarker());
-    }
-    /**
-     * Inserts this part after the `ref` part.
-     *
-     * This part must be empty, as its contents are not automatically moved.
-     */
-    insertAfterPart(ref) {
-        ref.__insert(this.startNode = createMarker());
-        this.endNode = ref.endNode;
-        ref.endNode = this.startNode;
-    }
-    setValue(value) {
-        this.__pendingValue = value;
-    }
-    commit() {
-        if (this.startNode.parentNode === null) {
-            return;
-        }
-        while (isDirective(this.__pendingValue)) {
-            const directive = this.__pendingValue;
-            this.__pendingValue = noChange;
-            directive(this);
-        }
-        const value = this.__pendingValue;
-        if (value === noChange) {
-            return;
-        }
-        if (isPrimitive(value)) {
-            if (value !== this.value) {
-                this.__commitText(value);
-            }
-        }
-        else if (value instanceof TemplateResult) {
-            this.__commitTemplateResult(value);
-        }
-        else if (value instanceof Node) {
-            this.__commitNode(value);
-        }
-        else if (isIterable(value)) {
-            this.__commitIterable(value);
-        }
-        else if (value === nothing) {
-            this.value = nothing;
-            this.clear();
-        }
-        else {
-            // Fallback, will render the string representation
-            this.__commitText(value);
-        }
-    }
-    __insert(node) {
-        this.endNode.parentNode.insertBefore(node, this.endNode);
-    }
-    __commitNode(value) {
-        if (this.value === value) {
-            return;
-        }
-        this.clear();
-        this.__insert(value);
-        this.value = value;
-    }
-    __commitText(value) {
-        const node = this.startNode.nextSibling;
-        value = value == null ? '' : value;
-        // If `value` isn't already a string, we explicitly convert it here in case
-        // it can't be implicitly converted - i.e. it's a symbol.
-        const valueAsString = typeof value === 'string' ? value : String(value);
-        if (node === this.endNode.previousSibling &&
-            node.nodeType === 3 /* Node.TEXT_NODE */) {
-            // If we only have a single text node between the markers, we can just
-            // set its value, rather than replacing it.
-            // TODO(justinfagnani): Can we just check if this.value is primitive?
-            node.data = valueAsString;
-        }
-        else {
-            this.__commitNode(document.createTextNode(valueAsString));
-        }
-        this.value = value;
-    }
-    __commitTemplateResult(value) {
-        const template = this.options.templateFactory(value);
-        if (this.value instanceof TemplateInstance &&
-            this.value.template === template) {
-            this.value.update(value.values);
-        }
-        else {
-            // Make sure we propagate the template processor from the TemplateResult
-            // so that we use its syntax extension, etc. The template factory comes
-            // from the render function options so that it can control template
-            // caching and preprocessing.
-            const instance = new TemplateInstance(template, value.processor, this.options);
-            const fragment = instance._clone();
-            instance.update(value.values);
-            this.__commitNode(fragment);
-            this.value = instance;
-        }
-    }
-    __commitIterable(value) {
-        // For an Iterable, we create a new InstancePart per item, then set its
-        // value to the item. This is a little bit of overhead for every item in
-        // an Iterable, but it lets us recurse easily and efficiently update Arrays
-        // of TemplateResults that will be commonly returned from expressions like:
-        // array.map((i) => html`${i}`), by reusing existing TemplateInstances.
-        // If _value is an array, then the previous render was of an
-        // iterable and _value will contain the NodeParts from the previous
-        // render. If _value is not an array, clear this part and make a new
-        // array for NodeParts.
-        if (!Array.isArray(this.value)) {
-            this.value = [];
-            this.clear();
-        }
-        // Lets us keep track of how many items we stamped so we can clear leftover
-        // items from a previous render
-        const itemParts = this.value;
-        let partIndex = 0;
-        let itemPart;
-        for (const item of value) {
-            // Try to reuse an existing part
-            itemPart = itemParts[partIndex];
-            // If no existing part, create a new one
-            if (itemPart === undefined) {
-                itemPart = new NodePart(this.options);
-                itemParts.push(itemPart);
-                if (partIndex === 0) {
-                    itemPart.appendIntoPart(this);
-                }
-                else {
-                    itemPart.insertAfterPart(itemParts[partIndex - 1]);
-                }
-            }
-            itemPart.setValue(item);
-            itemPart.commit();
-            partIndex++;
-        }
-        if (partIndex < itemParts.length) {
-            // Truncate the parts array so _value reflects the current state
-            itemParts.length = partIndex;
-            this.clear(itemPart && itemPart.endNode);
-        }
-    }
-    clear(startNode = this.startNode) {
-        removeNodes(this.startNode.parentNode, startNode.nextSibling, this.endNode);
-    }
-}
-/**
- * Implements a boolean attribute, roughly as defined in the HTML
- * specification.
- *
- * If the value is truthy, then the attribute is present with a value of
- * ''. If the value is falsey, the attribute is removed.
- */
-class BooleanAttributePart {
-    constructor(element, name, strings) {
-        this.value = undefined;
-        this.__pendingValue = undefined;
-        if (strings.length !== 2 || strings[0] !== '' || strings[1] !== '') {
-            throw new Error('Boolean attributes can only contain a single expression');
-        }
-        this.element = element;
-        this.name = name;
-        this.strings = strings;
-    }
-    setValue(value) {
-        this.__pendingValue = value;
-    }
-    commit() {
-        while (isDirective(this.__pendingValue)) {
-            const directive = this.__pendingValue;
-            this.__pendingValue = noChange;
-            directive(this);
-        }
-        if (this.__pendingValue === noChange) {
-            return;
-        }
-        const value = !!this.__pendingValue;
-        if (this.value !== value) {
-            if (value) {
-                this.element.setAttribute(this.name, '');
-            }
-            else {
-                this.element.removeAttribute(this.name);
-            }
-            this.value = value;
-        }
-        this.__pendingValue = noChange;
-    }
-}
-/**
- * Sets attribute values for PropertyParts, so that the value is only set once
- * even if there are multiple parts for a property.
- *
- * If an expression controls the whole property value, then the value is simply
- * assigned to the property under control. If there are string literals or
- * multiple expressions, then the strings are expressions are interpolated into
- * a string first.
- */
-class PropertyCommitter extends AttributeCommitter {
-    constructor(element, name, strings) {
-        super(element, name, strings);
-        this.single =
-            (strings.length === 2 && strings[0] === '' && strings[1] === '');
-    }
-    _createPart() {
-        return new PropertyPart(this);
-    }
-    _getValue() {
-        if (this.single) {
-            return this.parts[0].value;
-        }
-        return super._getValue();
-    }
-    commit() {
-        if (this.dirty) {
-            this.dirty = false;
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            this.element[this.name] = this._getValue();
-        }
-    }
-}
-class PropertyPart extends AttributePart {
-}
-// Detect event listener options support. If the `capture` property is read
-// from the options object, then options are supported. If not, then the third
-// argument to add/removeEventListener is interpreted as the boolean capture
-// value so we should only pass the `capture` property.
-let eventOptionsSupported = false;
-// Wrap into an IIFE because MS Edge <= v41 does not support having try/catch
-// blocks right into the body of a module
-(() => {
-    try {
-        const options = {
-            get capture() {
-                eventOptionsSupported = true;
-                return false;
-            }
-        };
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        window.addEventListener('test', options, options);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        window.removeEventListener('test', options, options);
-    }
-    catch (_e) {
-        // event options not supported
-    }
-})();
-class EventPart {
-    constructor(element, eventName, eventContext) {
-        this.value = undefined;
-        this.__pendingValue = undefined;
-        this.element = element;
-        this.eventName = eventName;
-        this.eventContext = eventContext;
-        this.__boundHandleEvent = (e) => this.handleEvent(e);
-    }
-    setValue(value) {
-        this.__pendingValue = value;
-    }
-    commit() {
-        while (isDirective(this.__pendingValue)) {
-            const directive = this.__pendingValue;
-            this.__pendingValue = noChange;
-            directive(this);
-        }
-        if (this.__pendingValue === noChange) {
-            return;
-        }
-        const newListener = this.__pendingValue;
-        const oldListener = this.value;
-        const shouldRemoveListener = newListener == null ||
-            oldListener != null &&
-                (newListener.capture !== oldListener.capture ||
-                    newListener.once !== oldListener.once ||
-                    newListener.passive !== oldListener.passive);
-        const shouldAddListener = newListener != null && (oldListener == null || shouldRemoveListener);
-        if (shouldRemoveListener) {
-            this.element.removeEventListener(this.eventName, this.__boundHandleEvent, this.__options);
-        }
-        if (shouldAddListener) {
-            this.__options = getOptions(newListener);
-            this.element.addEventListener(this.eventName, this.__boundHandleEvent, this.__options);
-        }
-        this.value = newListener;
-        this.__pendingValue = noChange;
-    }
-    handleEvent(event) {
-        if (typeof this.value === 'function') {
-            this.value.call(this.eventContext || this.element, event);
-        }
-        else {
-            this.value.handleEvent(event);
-        }
-    }
-}
-// We copy options because of the inconsistent behavior of browsers when reading
-// the third argument of add/removeEventListener. IE11 doesn't support options
-// at all. Chrome 41 only reads `capture` if the argument is an object.
-const getOptions = (o) => o &&
-    (eventOptionsSupported ?
-        { capture: o.capture, passive: o.passive, once: o.once } :
-        o.capture);
-//# sourceMappingURL=parts.js.map
-;// CONCATENATED MODULE: ./node_modules/lit-html/lib/default-template-processor.js
-/**
- * @license
- * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
- * This code may only be used under the BSD style license found at
- * http://polymer.github.io/LICENSE.txt
- * The complete set of authors may be found at
- * http://polymer.github.io/AUTHORS.txt
- * The complete set of contributors may be found at
- * http://polymer.github.io/CONTRIBUTORS.txt
- * Code distributed by Google as part of the polymer project is also
- * subject to an additional IP rights grant found at
- * http://polymer.github.io/PATENTS.txt
- */
-
-/**
- * Creates Parts when a template is instantiated.
- */
-class DefaultTemplateProcessor {
-    /**
-     * Create parts for an attribute-position binding, given the event, attribute
-     * name, and string literals.
-     *
-     * @param element The element containing the binding
-     * @param name  The attribute name
-     * @param strings The string literals. There are always at least two strings,
-     *   event for fully-controlled bindings with a single expression.
-     */
-    handleAttributeExpressions(element, name, strings, options) {
-        const prefix = name[0];
-        if (prefix === '.') {
-            const committer = new PropertyCommitter(element, name.slice(1), strings);
-            return committer.parts;
-        }
-        if (prefix === '@') {
-            return [new EventPart(element, name.slice(1), options.eventContext)];
-        }
-        if (prefix === '?') {
-            return [new BooleanAttributePart(element, name.slice(1), strings)];
-        }
-        const committer = new AttributeCommitter(element, name, strings);
-        return committer.parts;
-    }
-    /**
-     * Create parts for a text-position binding.
-     * @param templateFactory
-     */
-    handleTextExpression(options) {
-        return new NodePart(options);
-    }
-}
-const default_template_processor_defaultTemplateProcessor = new DefaultTemplateProcessor();
-//# sourceMappingURL=default-template-processor.js.map
-;// CONCATENATED MODULE: ./node_modules/lit-html/lib/template-factory.js
-/**
- * @license
- * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
- * This code may only be used under the BSD style license found at
- * http://polymer.github.io/LICENSE.txt
- * The complete set of authors may be found at
- * http://polymer.github.io/AUTHORS.txt
- * The complete set of contributors may be found at
- * http://polymer.github.io/CONTRIBUTORS.txt
- * Code distributed by Google as part of the polymer project is also
- * subject to an additional IP rights grant found at
- * http://polymer.github.io/PATENTS.txt
- */
-
-/**
- * The default TemplateFactory which caches Templates keyed on
- * result.type and result.strings.
- */
-function templateFactory(result) {
-    let templateCache = templateCaches.get(result.type);
-    if (templateCache === undefined) {
-        templateCache = {
-            stringsArray: new WeakMap(),
-            keyString: new Map()
-        };
-        templateCaches.set(result.type, templateCache);
-    }
-    let template = templateCache.stringsArray.get(result.strings);
-    if (template !== undefined) {
-        return template;
-    }
-    // If the TemplateStringsArray is new, generate a key from the strings
-    // This key is shared between all templates with identical content
-    const key = result.strings.join(marker);
-    // Check if we already have a Template for this key
-    template = templateCache.keyString.get(key);
-    if (template === undefined) {
-        // If we have not seen this key before, create a new Template
-        template = new Template(result, result.getTemplateElement());
-        // Cache the Template for this key
-        templateCache.keyString.set(key, template);
-    }
-    // Cache all future queries for this TemplateStringsArray
-    templateCache.stringsArray.set(result.strings, template);
-    return template;
-}
-const templateCaches = new Map();
-//# sourceMappingURL=template-factory.js.map
-;// CONCATENATED MODULE: ./node_modules/lit-html/lib/render.js
-/**
- * @license
- * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
- * This code may only be used under the BSD style license found at
- * http://polymer.github.io/LICENSE.txt
- * The complete set of authors may be found at
- * http://polymer.github.io/AUTHORS.txt
- * The complete set of contributors may be found at
- * http://polymer.github.io/CONTRIBUTORS.txt
- * Code distributed by Google as part of the polymer project is also
- * subject to an additional IP rights grant found at
- * http://polymer.github.io/PATENTS.txt
- */
-
-
-
-const parts = new WeakMap();
-/**
- * Renders a template result or other value to a container.
- *
- * To update a container with new values, reevaluate the template literal and
- * call `render` with the new result.
- *
- * @param result Any value renderable by NodePart - typically a TemplateResult
- *     created by evaluating a template tag like `html` or `svg`.
- * @param container A DOM parent to render to. The entire contents are either
- *     replaced, or efficiently updated if the same result type was previous
- *     rendered there.
- * @param options RenderOptions for the entire render tree rendered to this
- *     container. Render options must *not* change between renders to the same
- *     container, as those changes will not effect previously rendered DOM.
- */
-const render = (result, container, options) => {
-    let part = parts.get(container);
-    if (part === undefined) {
-        removeNodes(container, container.firstChild);
-        parts.set(container, part = new NodePart(Object.assign({ templateFactory: templateFactory }, options)));
-        part.appendInto(container);
-    }
-    part.setValue(result);
-    part.commit();
-};
-//# sourceMappingURL=render.js.map
 ;// CONCATENATED MODULE: ./node_modules/lit-html/lit-html.js
 /**
  * @license
- * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
- * This code may only be used under the BSD style license found at
- * http://polymer.github.io/LICENSE.txt
- * The complete set of authors may be found at
- * http://polymer.github.io/AUTHORS.txt
- * The complete set of contributors may be found at
- * http://polymer.github.io/CONTRIBUTORS.txt
- * Code distributed by Google as part of the polymer project is also
- * subject to an additional IP rights grant found at
- * http://polymer.github.io/PATENTS.txt
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
  */
-/**
- *
- * Main lit-html module.
- *
- * Main exports:
- *
- * -  [[html]]
- * -  [[svg]]
- * -  [[render]]
- *
- * @packageDocumentation
- */
-/**
- * Do not remove this comment; it keeps typedoc from misplacing the module
- * docs.
- */
-
-
-
-
-// TODO(justinfagnani): remove line when we get NodePart moving methods
-
-
-
-
-
-
-
-
-// IMPORTANT: do not change the property name or the assignment expression.
-// This line will be used in regexes to search for lit-html usage.
-// TODO(justinfagnani): inject version number at build time
-if (typeof window !== 'undefined') {
-    (window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.4.1');
-}
-/**
- * Interprets a template literal as an HTML template that can efficiently
- * render to and update a container.
- */
-const html = (strings, ...values) => new TemplateResult(strings, values, 'html', default_template_processor_defaultTemplateProcessor);
-/**
- * Interprets a template literal as an SVG template that can efficiently
- * render to and update a container.
- */
-const svg = (strings, ...values) => new SVGTemplateResult(strings, values, 'svg', defaultTemplateProcessor);
+var lit_html_t;const lit_html_i=globalThis.trustedTypes,lit_html_s=lit_html_i?lit_html_i.createPolicy("lit-html",{createHTML:t=>t}):void 0,lit_html_e=`lit$${(Math.random()+"").slice(9)}$`,lit_html_o="?"+lit_html_e,lit_html_n=`<${lit_html_o}>`,lit_html_l=document,lit_html_h=(t="")=>lit_html_l.createComment(t),lit_html_r=t=>null===t||"object"!=typeof t&&"function"!=typeof t,d=Array.isArray,u=t=>{var i;return d(t)||"function"==typeof(null===(i=t)||void 0===i?void 0:i[Symbol.iterator])},c=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,v=/-->/g,lit_html_a=/>/g,f=/>|[ 	\n\r](?:([^\s"'>=/]+)([ 	\n\r]*=[ 	\n\r]*(?:[^ 	\n\r"'`<>=]|("|')|))|$)/g,_=/'/g,m=/"/g,g=/^(?:script|style|textarea|title)$/i,p=t=>(i,...s)=>({_$litType$:t,strings:i,values:s}),$=p(1),y=p(2),b=Symbol.for("lit-noChange"),w=Symbol.for("lit-nothing"),T=new WeakMap,x=(t,i,s)=>{var e,o;const n=null!==(e=null==s?void 0:s.renderBefore)&&void 0!==e?e:i;let l=n._$litPart$;if(void 0===l){const t=null!==(o=null==s?void 0:s.renderBefore)&&void 0!==o?o:null;n._$litPart$=l=new N(i.insertBefore(lit_html_h(),t),t,void 0,null!=s?s:{})}return l._$AI(t),l},A=lit_html_l.createTreeWalker(lit_html_l,129,null,!1),C=(t,i)=>{const o=t.length-1,l=[];let h,r=2===i?"<svg>":"",d=c;for(let i=0;i<o;i++){const s=t[i];let o,u,p=-1,$=0;for(;$<s.length&&(d.lastIndex=$,u=d.exec(s),null!==u);)$=d.lastIndex,d===c?"!--"===u[1]?d=v:void 0!==u[1]?d=lit_html_a:void 0!==u[2]?(g.test(u[2])&&(h=RegExp("</"+u[2],"g")),d=f):void 0!==u[3]&&(d=f):d===f?">"===u[0]?(d=null!=h?h:c,p=-1):void 0===u[1]?p=-2:(p=d.lastIndex-u[2].length,o=u[1],d=void 0===u[3]?f:'"'===u[3]?m:_):d===m||d===_?d=f:d===v||d===lit_html_a?d=c:(d=f,h=void 0);const y=d===f&&t[i+1].startsWith("/>")?" ":"";r+=d===c?s+lit_html_n:p>=0?(l.push(o),s.slice(0,p)+"$lit$"+s.slice(p)+lit_html_e+y):s+lit_html_e+(-2===p?(l.push(void 0),i):y)}const u=r+(t[o]||"<?>")+(2===i?"</svg>":"");if(!Array.isArray(t)||!t.hasOwnProperty("raw"))throw Error("invalid template strings array");return[void 0!==lit_html_s?lit_html_s.createHTML(u):u,l]};class E{constructor({strings:t,_$litType$:s},n){let l;this.parts=[];let r=0,d=0;const u=t.length-1,c=this.parts,[v,a]=C(t,s);if(this.el=E.createElement(v,n),A.currentNode=this.el.content,2===s){const t=this.el.content,i=t.firstChild;i.remove(),t.append(...i.childNodes)}for(;null!==(l=A.nextNode())&&c.length<u;){if(1===l.nodeType){if(l.hasAttributes()){const t=[];for(const i of l.getAttributeNames())if(i.endsWith("$lit$")||i.startsWith(lit_html_e)){const s=a[d++];if(t.push(i),void 0!==s){const t=l.getAttribute(s.toLowerCase()+"$lit$").split(lit_html_e),i=/([.?@])?(.*)/.exec(s);c.push({type:1,index:r,name:i[2],strings:t,ctor:"."===i[1]?M:"?"===i[1]?H:"@"===i[1]?I:lit_html_S})}else c.push({type:6,index:r})}for(const i of t)l.removeAttribute(i)}if(g.test(l.tagName)){const t=l.textContent.split(lit_html_e),s=t.length-1;if(s>0){l.textContent=lit_html_i?lit_html_i.emptyScript:"";for(let i=0;i<s;i++)l.append(t[i],lit_html_h()),A.nextNode(),c.push({type:2,index:++r});l.append(t[s],lit_html_h())}}}else if(8===l.nodeType)if(l.data===lit_html_o)c.push({type:2,index:r});else{let t=-1;for(;-1!==(t=l.data.indexOf(lit_html_e,t+1));)c.push({type:7,index:r}),t+=lit_html_e.length-1}r++}}static createElement(t,i){const s=lit_html_l.createElement("template");return s.innerHTML=t,s}}function P(t,i,s=t,e){var o,n,l,h;if(i===b)return i;let d=void 0!==e?null===(o=s._$Cl)||void 0===o?void 0:o[e]:s._$Cu;const u=lit_html_r(i)?void 0:i._$litDirective$;return(null==d?void 0:d.constructor)!==u&&(null===(n=null==d?void 0:d._$AO)||void 0===n||n.call(d,!1),void 0===u?d=void 0:(d=new u(t),d._$AT(t,s,e)),void 0!==e?(null!==(l=(h=s)._$Cl)&&void 0!==l?l:h._$Cl=[])[e]=d:s._$Cu=d),void 0!==d&&(i=P(t,d._$AS(t,i.values),d,e)),i}class V{constructor(t,i){this.v=[],this._$AN=void 0,this._$AD=t,this._$AM=i}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}p(t){var i;const{el:{content:s},parts:e}=this._$AD,o=(null!==(i=null==t?void 0:t.creationScope)&&void 0!==i?i:lit_html_l).importNode(s,!0);A.currentNode=o;let n=A.nextNode(),h=0,r=0,d=e[0];for(;void 0!==d;){if(h===d.index){let i;2===d.type?i=new N(n,n.nextSibling,this,t):1===d.type?i=new d.ctor(n,d.name,d.strings,this,t):6===d.type&&(i=new L(n,this,t)),this.v.push(i),d=e[++r]}h!==(null==d?void 0:d.index)&&(n=A.nextNode(),h++)}return o}m(t){let i=0;for(const s of this.v)void 0!==s&&(void 0!==s.strings?(s._$AI(t,s,i),i+=s.strings.length-2):s._$AI(t[i])),i++}}class N{constructor(t,i,s,e){var o;this.type=2,this._$AH=w,this._$AN=void 0,this._$AA=t,this._$AB=i,this._$AM=s,this.options=e,this._$Cg=null===(o=null==e?void 0:e.isConnected)||void 0===o||o}get _$AU(){var t,i;return null!==(i=null===(t=this._$AM)||void 0===t?void 0:t._$AU)&&void 0!==i?i:this._$Cg}get parentNode(){let t=this._$AA.parentNode;const i=this._$AM;return void 0!==i&&11===t.nodeType&&(t=i.parentNode),t}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(t,i=this){t=P(this,t,i),lit_html_r(t)?t===w||null==t||""===t?(this._$AH!==w&&this._$AR(),this._$AH=w):t!==this._$AH&&t!==b&&this.$(t):void 0!==t._$litType$?this.T(t):void 0!==t.nodeType?this.k(t):u(t)?this.S(t):this.$(t)}A(t,i=this._$AB){return this._$AA.parentNode.insertBefore(t,i)}k(t){this._$AH!==t&&(this._$AR(),this._$AH=this.A(t))}$(t){this._$AH!==w&&lit_html_r(this._$AH)?this._$AA.nextSibling.data=t:this.k(lit_html_l.createTextNode(t)),this._$AH=t}T(t){var i;const{values:s,_$litType$:e}=t,o="number"==typeof e?this._$AC(t):(void 0===e.el&&(e.el=E.createElement(e.h,this.options)),e);if((null===(i=this._$AH)||void 0===i?void 0:i._$AD)===o)this._$AH.m(s);else{const t=new V(o,this),i=t.p(this.options);t.m(s),this.k(i),this._$AH=t}}_$AC(t){let i=T.get(t.strings);return void 0===i&&T.set(t.strings,i=new E(t)),i}S(t){d(this._$AH)||(this._$AH=[],this._$AR());const i=this._$AH;let s,e=0;for(const o of t)e===i.length?i.push(s=new N(this.A(lit_html_h()),this.A(lit_html_h()),this,this.options)):s=i[e],s._$AI(o),e++;e<i.length&&(this._$AR(s&&s._$AB.nextSibling,e),i.length=e)}_$AR(t=this._$AA.nextSibling,i){var s;for(null===(s=this._$AP)||void 0===s||s.call(this,!1,!0,i);t&&t!==this._$AB;){const i=t.nextSibling;t.remove(),t=i}}setConnected(t){var i;void 0===this._$AM&&(this._$Cg=t,null===(i=this._$AP)||void 0===i||i.call(this,t))}}class lit_html_S{constructor(t,i,s,e,o){this.type=1,this._$AH=w,this._$AN=void 0,this.element=t,this.name=i,this._$AM=e,this.options=o,s.length>2||""!==s[0]||""!==s[1]?(this._$AH=Array(s.length-1).fill(new String),this.strings=s):this._$AH=w}get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}_$AI(t,i=this,s,e){const o=this.strings;let n=!1;if(void 0===o)t=P(this,t,i,0),n=!lit_html_r(t)||t!==this._$AH&&t!==b,n&&(this._$AH=t);else{const e=t;let l,h;for(t=o[0],l=0;l<o.length-1;l++)h=P(this,e[s+l],i,l),h===b&&(h=this._$AH[l]),n||(n=!lit_html_r(h)||h!==this._$AH[l]),h===w?t=w:t!==w&&(t+=(null!=h?h:"")+o[l+1]),this._$AH[l]=h}n&&!e&&this.C(t)}C(t){t===w?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,null!=t?t:"")}}class M extends lit_html_S{constructor(){super(...arguments),this.type=3}C(t){this.element[this.name]=t===w?void 0:t}}const k=lit_html_i?lit_html_i.emptyScript:"";class H extends lit_html_S{constructor(){super(...arguments),this.type=4}C(t){t&&t!==w?this.element.setAttribute(this.name,k):this.element.removeAttribute(this.name)}}class I extends lit_html_S{constructor(t,i,s,e,o){super(t,i,s,e,o),this.type=5}_$AI(t,i=this){var s;if((t=null!==(s=P(this,t,i,0))&&void 0!==s?s:w)===b)return;const e=this._$AH,o=t===w&&e!==w||t.capture!==e.capture||t.once!==e.once||t.passive!==e.passive,n=t!==w&&(e===w||o);o&&this.element.removeEventListener(this.name,this,e),n&&this.element.addEventListener(this.name,this,t),this._$AH=t}handleEvent(t){var i,s;"function"==typeof this._$AH?this._$AH.call(null!==(s=null===(i=this.options)||void 0===i?void 0:i.host)&&void 0!==s?s:this.element,t):this._$AH.handleEvent(t)}}class L{constructor(t,i,s){this.element=t,this.type=6,this._$AN=void 0,this._$AM=i,this.options=s}get _$AU(){return this._$AM._$AU}_$AI(t){P(this,t)}}const R={P:"$lit$",L:lit_html_e,V:lit_html_o,I:1,N:C,R:V,D:u,j:P,H:N,O:lit_html_S,F:H,B:I,W:M,Z:L},z=window.litHtmlPolyfillSupport;null==z||z(E,N),(null!==(lit_html_t=globalThis.litHtmlVersions)&&void 0!==lit_html_t?lit_html_t:globalThis.litHtmlVersions=[]).push("2.2.0");
 //# sourceMappingURL=lit-html.js.map
-;// CONCATENATED MODULE: ./node_modules/lit-element/lib/updating-element.js
-/**
- * @license
- * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
- * This code may only be used under the BSD style license found at
- * http://polymer.github.io/LICENSE.txt
- * The complete set of authors may be found at
- * http://polymer.github.io/AUTHORS.txt
- * The complete set of contributors may be found at
- * http://polymer.github.io/CONTRIBUTORS.txt
- * Code distributed by Google as part of the polymer project is also
- * subject to an additional IP rights grant found at
- * http://polymer.github.io/PATENTS.txt
- */
-var _a;
-/**
- * Use this module if you want to create your own base class extending
- * [[UpdatingElement]].
- * @packageDocumentation
- */
-/*
- * When using Closure Compiler, JSCompiler_renameProperty(property, object) is
- * replaced at compile time by the munged name for object[property]. We cannot
- * alias this function, so we have to use a small shim that has the same
- * behavior when not compiling.
- */
-window.JSCompiler_renameProperty =
-    (prop, _obj) => prop;
-const defaultConverter = {
-    toAttribute(value, type) {
-        switch (type) {
-            case Boolean:
-                return value ? '' : null;
-            case Object:
-            case Array:
-                // if the value is `null` or `undefined` pass this through
-                // to allow removing/no change behavior.
-                return value == null ? value : JSON.stringify(value);
-        }
-        return value;
-    },
-    fromAttribute(value, type) {
-        switch (type) {
-            case Boolean:
-                return value !== null;
-            case Number:
-                return value === null ? null : Number(value);
-            case Object:
-            case Array:
-                // Type assert to adhere to Bazel's "must type assert JSON parse" rule.
-                return JSON.parse(value);
-        }
-        return value;
-    }
-};
-/**
- * Change function that returns true if `value` is different from `oldValue`.
- * This method is used as the default for a property's `hasChanged` function.
- */
-const notEqual = (value, old) => {
-    // This ensures (old==NaN, value==NaN) always returns false
-    return old !== value && (old === old || value === value);
-};
-const defaultPropertyDeclaration = {
-    attribute: true,
-    type: String,
-    converter: defaultConverter,
-    reflect: false,
-    hasChanged: notEqual
-};
-const STATE_HAS_UPDATED = 1;
-const STATE_UPDATE_REQUESTED = 1 << 2;
-const STATE_IS_REFLECTING_TO_ATTRIBUTE = 1 << 3;
-const STATE_IS_REFLECTING_TO_PROPERTY = 1 << 4;
-/**
- * The Closure JS Compiler doesn't currently have good support for static
- * property semantics where "this" is dynamic (e.g.
- * https://github.com/google/closure-compiler/issues/3177 and others) so we use
- * this hack to bypass any rewriting by the compiler.
- */
-const finalized = 'finalized';
-/**
- * Base element class which manages element properties and attributes. When
- * properties change, the `update` method is asynchronously called. This method
- * should be supplied by subclassers to render updates as desired.
- * @noInheritDoc
- */
-class UpdatingElement extends HTMLElement {
-    constructor() {
-        super();
-        this.initialize();
-    }
-    /**
-     * Returns a list of attributes corresponding to the registered properties.
-     * @nocollapse
-     */
-    static get observedAttributes() {
-        // note: piggy backing on this to ensure we're finalized.
-        this.finalize();
-        const attributes = [];
-        // Use forEach so this works even if for/of loops are compiled to for loops
-        // expecting arrays
-        this._classProperties.forEach((v, p) => {
-            const attr = this._attributeNameForProperty(p, v);
-            if (attr !== undefined) {
-                this._attributeToPropertyMap.set(attr, p);
-                attributes.push(attr);
-            }
-        });
-        return attributes;
-    }
-    /**
-     * Ensures the private `_classProperties` property metadata is created.
-     * In addition to `finalize` this is also called in `createProperty` to
-     * ensure the `@property` decorator can add property metadata.
-     */
-    /** @nocollapse */
-    static _ensureClassProperties() {
-        // ensure private storage for property declarations.
-        if (!this.hasOwnProperty(JSCompiler_renameProperty('_classProperties', this))) {
-            this._classProperties = new Map();
-            // NOTE: Workaround IE11 not supporting Map constructor argument.
-            const superProperties = Object.getPrototypeOf(this)._classProperties;
-            if (superProperties !== undefined) {
-                superProperties.forEach((v, k) => this._classProperties.set(k, v));
-            }
-        }
-    }
-    /**
-     * Creates a property accessor on the element prototype if one does not exist
-     * and stores a PropertyDeclaration for the property with the given options.
-     * The property setter calls the property's `hasChanged` property option
-     * or uses a strict identity check to determine whether or not to request
-     * an update.
-     *
-     * This method may be overridden to customize properties; however,
-     * when doing so, it's important to call `super.createProperty` to ensure
-     * the property is setup correctly. This method calls
-     * `getPropertyDescriptor` internally to get a descriptor to install.
-     * To customize what properties do when they are get or set, override
-     * `getPropertyDescriptor`. To customize the options for a property,
-     * implement `createProperty` like this:
-     *
-     * static createProperty(name, options) {
-     *   options = Object.assign(options, {myOption: true});
-     *   super.createProperty(name, options);
-     * }
-     *
-     * @nocollapse
-     */
-    static createProperty(name, options = defaultPropertyDeclaration) {
-        // Note, since this can be called by the `@property` decorator which
-        // is called before `finalize`, we ensure storage exists for property
-        // metadata.
-        this._ensureClassProperties();
-        this._classProperties.set(name, options);
-        // Do not generate an accessor if the prototype already has one, since
-        // it would be lost otherwise and that would never be the user's intention;
-        // Instead, we expect users to call `requestUpdate` themselves from
-        // user-defined accessors. Note that if the super has an accessor we will
-        // still overwrite it
-        if (options.noAccessor || this.prototype.hasOwnProperty(name)) {
-            return;
-        }
-        const key = typeof name === 'symbol' ? Symbol() : `__${name}`;
-        const descriptor = this.getPropertyDescriptor(name, key, options);
-        if (descriptor !== undefined) {
-            Object.defineProperty(this.prototype, name, descriptor);
-        }
-    }
-    /**
-     * Returns a property descriptor to be defined on the given named property.
-     * If no descriptor is returned, the property will not become an accessor.
-     * For example,
-     *
-     *   class MyElement extends LitElement {
-     *     static getPropertyDescriptor(name, key, options) {
-     *       const defaultDescriptor =
-     *           super.getPropertyDescriptor(name, key, options);
-     *       const setter = defaultDescriptor.set;
-     *       return {
-     *         get: defaultDescriptor.get,
-     *         set(value) {
-     *           setter.call(this, value);
-     *           // custom action.
-     *         },
-     *         configurable: true,
-     *         enumerable: true
-     *       }
-     *     }
-     *   }
-     *
-     * @nocollapse
-     */
-    static getPropertyDescriptor(name, key, options) {
-        return {
-            // tslint:disable-next-line:no-any no symbol in index
-            get() {
-                return this[key];
-            },
-            set(value) {
-                const oldValue = this[name];
-                this[key] = value;
-                this
-                    .requestUpdateInternal(name, oldValue, options);
-            },
-            configurable: true,
-            enumerable: true
-        };
-    }
-    /**
-     * Returns the property options associated with the given property.
-     * These options are defined with a PropertyDeclaration via the `properties`
-     * object or the `@property` decorator and are registered in
-     * `createProperty(...)`.
-     *
-     * Note, this method should be considered "final" and not overridden. To
-     * customize the options for a given property, override `createProperty`.
-     *
-     * @nocollapse
-     * @final
-     */
-    static getPropertyOptions(name) {
-        return this._classProperties && this._classProperties.get(name) ||
-            defaultPropertyDeclaration;
-    }
-    /**
-     * Creates property accessors for registered properties and ensures
-     * any superclasses are also finalized.
-     * @nocollapse
-     */
-    static finalize() {
-        // finalize any superclasses
-        const superCtor = Object.getPrototypeOf(this);
-        if (!superCtor.hasOwnProperty(finalized)) {
-            superCtor.finalize();
-        }
-        this[finalized] = true;
-        this._ensureClassProperties();
-        // initialize Map populated in observedAttributes
-        this._attributeToPropertyMap = new Map();
-        // make any properties
-        // Note, only process "own" properties since this element will inherit
-        // any properties defined on the superClass, and finalization ensures
-        // the entire prototype chain is finalized.
-        if (this.hasOwnProperty(JSCompiler_renameProperty('properties', this))) {
-            const props = this.properties;
-            // support symbols in properties (IE11 does not support this)
-            const propKeys = [
-                ...Object.getOwnPropertyNames(props),
-                ...(typeof Object.getOwnPropertySymbols === 'function') ?
-                    Object.getOwnPropertySymbols(props) :
-                    []
-            ];
-            // This for/of is ok because propKeys is an array
-            for (const p of propKeys) {
-                // note, use of `any` is due to TypeSript lack of support for symbol in
-                // index types
-                // tslint:disable-next-line:no-any no symbol in index
-                this.createProperty(p, props[p]);
-            }
-        }
-    }
-    /**
-     * Returns the property name for the given attribute `name`.
-     * @nocollapse
-     */
-    static _attributeNameForProperty(name, options) {
-        const attribute = options.attribute;
-        return attribute === false ?
-            undefined :
-            (typeof attribute === 'string' ?
-                attribute :
-                (typeof name === 'string' ? name.toLowerCase() : undefined));
-    }
-    /**
-     * Returns true if a property should request an update.
-     * Called when a property value is set and uses the `hasChanged`
-     * option for the property if present or a strict identity check.
-     * @nocollapse
-     */
-    static _valueHasChanged(value, old, hasChanged = notEqual) {
-        return hasChanged(value, old);
-    }
-    /**
-     * Returns the property value for the given attribute value.
-     * Called via the `attributeChangedCallback` and uses the property's
-     * `converter` or `converter.fromAttribute` property option.
-     * @nocollapse
-     */
-    static _propertyValueFromAttribute(value, options) {
-        const type = options.type;
-        const converter = options.converter || defaultConverter;
-        const fromAttribute = (typeof converter === 'function' ? converter : converter.fromAttribute);
-        return fromAttribute ? fromAttribute(value, type) : value;
-    }
-    /**
-     * Returns the attribute value for the given property value. If this
-     * returns undefined, the property will *not* be reflected to an attribute.
-     * If this returns null, the attribute will be removed, otherwise the
-     * attribute will be set to the value.
-     * This uses the property's `reflect` and `type.toAttribute` property options.
-     * @nocollapse
-     */
-    static _propertyValueToAttribute(value, options) {
-        if (options.reflect === undefined) {
-            return;
-        }
-        const type = options.type;
-        const converter = options.converter;
-        const toAttribute = converter && converter.toAttribute ||
-            defaultConverter.toAttribute;
-        return toAttribute(value, type);
-    }
-    /**
-     * Performs element initialization. By default captures any pre-set values for
-     * registered properties.
-     */
-    initialize() {
-        this._updateState = 0;
-        this._updatePromise =
-            new Promise((res) => this._enableUpdatingResolver = res);
-        this._changedProperties = new Map();
-        this._saveInstanceProperties();
-        // ensures first update will be caught by an early access of
-        // `updateComplete`
-        this.requestUpdateInternal();
-    }
-    /**
-     * Fixes any properties set on the instance before upgrade time.
-     * Otherwise these would shadow the accessor and break these properties.
-     * The properties are stored in a Map which is played back after the
-     * constructor runs. Note, on very old versions of Safari (<=9) or Chrome
-     * (<=41), properties created for native platform properties like (`id` or
-     * `name`) may not have default values set in the element constructor. On
-     * these browsers native properties appear on instances and therefore their
-     * default value will overwrite any element default (e.g. if the element sets
-     * this.id = 'id' in the constructor, the 'id' will become '' since this is
-     * the native platform default).
-     */
-    _saveInstanceProperties() {
-        // Use forEach so this works even if for/of loops are compiled to for loops
-        // expecting arrays
-        this.constructor
-            ._classProperties.forEach((_v, p) => {
-            if (this.hasOwnProperty(p)) {
-                const value = this[p];
-                delete this[p];
-                if (!this._instanceProperties) {
-                    this._instanceProperties = new Map();
-                }
-                this._instanceProperties.set(p, value);
-            }
-        });
-    }
-    /**
-     * Applies previously saved instance properties.
-     */
-    _applyInstanceProperties() {
-        // Use forEach so this works even if for/of loops are compiled to for loops
-        // expecting arrays
-        // tslint:disable-next-line:no-any
-        this._instanceProperties.forEach((v, p) => this[p] = v);
-        this._instanceProperties = undefined;
-    }
-    connectedCallback() {
-        // Ensure first connection completes an update. Updates cannot complete
-        // before connection.
-        this.enableUpdating();
-    }
-    enableUpdating() {
-        if (this._enableUpdatingResolver !== undefined) {
-            this._enableUpdatingResolver();
-            this._enableUpdatingResolver = undefined;
-        }
-    }
-    /**
-     * Allows for `super.disconnectedCallback()` in extensions while
-     * reserving the possibility of making non-breaking feature additions
-     * when disconnecting at some point in the future.
-     */
-    disconnectedCallback() {
-    }
-    /**
-     * Synchronizes property values when attributes change.
-     */
-    attributeChangedCallback(name, old, value) {
-        if (old !== value) {
-            this._attributeToProperty(name, value);
-        }
-    }
-    _propertyToAttribute(name, value, options = defaultPropertyDeclaration) {
-        const ctor = this.constructor;
-        const attr = ctor._attributeNameForProperty(name, options);
-        if (attr !== undefined) {
-            const attrValue = ctor._propertyValueToAttribute(value, options);
-            // an undefined value does not change the attribute.
-            if (attrValue === undefined) {
-                return;
-            }
-            // Track if the property is being reflected to avoid
-            // setting the property again via `attributeChangedCallback`. Note:
-            // 1. this takes advantage of the fact that the callback is synchronous.
-            // 2. will behave incorrectly if multiple attributes are in the reaction
-            // stack at time of calling. However, since we process attributes
-            // in `update` this should not be possible (or an extreme corner case
-            // that we'd like to discover).
-            // mark state reflecting
-            this._updateState = this._updateState | STATE_IS_REFLECTING_TO_ATTRIBUTE;
-            if (attrValue == null) {
-                this.removeAttribute(attr);
-            }
-            else {
-                this.setAttribute(attr, attrValue);
-            }
-            // mark state not reflecting
-            this._updateState = this._updateState & ~STATE_IS_REFLECTING_TO_ATTRIBUTE;
-        }
-    }
-    _attributeToProperty(name, value) {
-        // Use tracking info to avoid deserializing attribute value if it was
-        // just set from a property setter.
-        if (this._updateState & STATE_IS_REFLECTING_TO_ATTRIBUTE) {
-            return;
-        }
-        const ctor = this.constructor;
-        // Note, hint this as an `AttributeMap` so closure clearly understands
-        // the type; it has issues with tracking types through statics
-        // tslint:disable-next-line:no-unnecessary-type-assertion
-        const propName = ctor._attributeToPropertyMap.get(name);
-        if (propName !== undefined) {
-            const options = ctor.getPropertyOptions(propName);
-            // mark state reflecting
-            this._updateState = this._updateState | STATE_IS_REFLECTING_TO_PROPERTY;
-            this[propName] =
-                // tslint:disable-next-line:no-any
-                ctor._propertyValueFromAttribute(value, options);
-            // mark state not reflecting
-            this._updateState = this._updateState & ~STATE_IS_REFLECTING_TO_PROPERTY;
-        }
-    }
-    /**
-     * This protected version of `requestUpdate` does not access or return the
-     * `updateComplete` promise. This promise can be overridden and is therefore
-     * not free to access.
-     */
-    requestUpdateInternal(name, oldValue, options) {
-        let shouldRequestUpdate = true;
-        // If we have a property key, perform property update steps.
-        if (name !== undefined) {
-            const ctor = this.constructor;
-            options = options || ctor.getPropertyOptions(name);
-            if (ctor._valueHasChanged(this[name], oldValue, options.hasChanged)) {
-                if (!this._changedProperties.has(name)) {
-                    this._changedProperties.set(name, oldValue);
-                }
-                // Add to reflecting properties set.
-                // Note, it's important that every change has a chance to add the
-                // property to `_reflectingProperties`. This ensures setting
-                // attribute + property reflects correctly.
-                if (options.reflect === true &&
-                    !(this._updateState & STATE_IS_REFLECTING_TO_PROPERTY)) {
-                    if (this._reflectingProperties === undefined) {
-                        this._reflectingProperties = new Map();
-                    }
-                    this._reflectingProperties.set(name, options);
-                }
-            }
-            else {
-                // Abort the request if the property should not be considered changed.
-                shouldRequestUpdate = false;
-            }
-        }
-        if (!this._hasRequestedUpdate && shouldRequestUpdate) {
-            this._updatePromise = this._enqueueUpdate();
-        }
-    }
-    /**
-     * Requests an update which is processed asynchronously. This should
-     * be called when an element should update based on some state not triggered
-     * by setting a property. In this case, pass no arguments. It should also be
-     * called when manually implementing a property setter. In this case, pass the
-     * property `name` and `oldValue` to ensure that any configured property
-     * options are honored. Returns the `updateComplete` Promise which is resolved
-     * when the update completes.
-     *
-     * @param name {PropertyKey} (optional) name of requesting property
-     * @param oldValue {any} (optional) old value of requesting property
-     * @returns {Promise} A Promise that is resolved when the update completes.
-     */
-    requestUpdate(name, oldValue) {
-        this.requestUpdateInternal(name, oldValue);
-        return this.updateComplete;
-    }
-    /**
-     * Sets up the element to asynchronously update.
-     */
-    async _enqueueUpdate() {
-        this._updateState = this._updateState | STATE_UPDATE_REQUESTED;
-        try {
-            // Ensure any previous update has resolved before updating.
-            // This `await` also ensures that property changes are batched.
-            await this._updatePromise;
-        }
-        catch (e) {
-            // Ignore any previous errors. We only care that the previous cycle is
-            // done. Any error should have been handled in the previous update.
-        }
-        const result = this.performUpdate();
-        // If `performUpdate` returns a Promise, we await it. This is done to
-        // enable coordinating updates with a scheduler. Note, the result is
-        // checked to avoid delaying an additional microtask unless we need to.
-        if (result != null) {
-            await result;
-        }
-        return !this._hasRequestedUpdate;
-    }
-    get _hasRequestedUpdate() {
-        return (this._updateState & STATE_UPDATE_REQUESTED);
-    }
-    get hasUpdated() {
-        return (this._updateState & STATE_HAS_UPDATED);
-    }
-    /**
-     * Performs an element update. Note, if an exception is thrown during the
-     * update, `firstUpdated` and `updated` will not be called.
-     *
-     * You can override this method to change the timing of updates. If this
-     * method is overridden, `super.performUpdate()` must be called.
-     *
-     * For instance, to schedule updates to occur just before the next frame:
-     *
-     * ```
-     * protected async performUpdate(): Promise<unknown> {
-     *   await new Promise((resolve) => requestAnimationFrame(() => resolve()));
-     *   super.performUpdate();
-     * }
-     * ```
-     */
-    performUpdate() {
-        // Abort any update if one is not pending when this is called.
-        // This can happen if `performUpdate` is called early to "flush"
-        // the update.
-        if (!this._hasRequestedUpdate) {
-            return;
-        }
-        // Mixin instance properties once, if they exist.
-        if (this._instanceProperties) {
-            this._applyInstanceProperties();
-        }
-        let shouldUpdate = false;
-        const changedProperties = this._changedProperties;
-        try {
-            shouldUpdate = this.shouldUpdate(changedProperties);
-            if (shouldUpdate) {
-                this.update(changedProperties);
-            }
-            else {
-                this._markUpdated();
-            }
-        }
-        catch (e) {
-            // Prevent `firstUpdated` and `updated` from running when there's an
-            // update exception.
-            shouldUpdate = false;
-            // Ensure element can accept additional updates after an exception.
-            this._markUpdated();
-            throw e;
-        }
-        if (shouldUpdate) {
-            if (!(this._updateState & STATE_HAS_UPDATED)) {
-                this._updateState = this._updateState | STATE_HAS_UPDATED;
-                this.firstUpdated(changedProperties);
-            }
-            this.updated(changedProperties);
-        }
-    }
-    _markUpdated() {
-        this._changedProperties = new Map();
-        this._updateState = this._updateState & ~STATE_UPDATE_REQUESTED;
-    }
-    /**
-     * Returns a Promise that resolves when the element has completed updating.
-     * The Promise value is a boolean that is `true` if the element completed the
-     * update without triggering another update. The Promise result is `false` if
-     * a property was set inside `updated()`. If the Promise is rejected, an
-     * exception was thrown during the update.
-     *
-     * To await additional asynchronous work, override the `_getUpdateComplete`
-     * method. For example, it is sometimes useful to await a rendered element
-     * before fulfilling this Promise. To do this, first await
-     * `super._getUpdateComplete()`, then any subsequent state.
-     *
-     * @returns {Promise} The Promise returns a boolean that indicates if the
-     * update resolved without triggering another update.
-     */
-    get updateComplete() {
-        return this._getUpdateComplete();
-    }
-    /**
-     * Override point for the `updateComplete` promise.
-     *
-     * It is not safe to override the `updateComplete` getter directly due to a
-     * limitation in TypeScript which means it is not possible to call a
-     * superclass getter (e.g. `super.updateComplete.then(...)`) when the target
-     * language is ES5 (https://github.com/microsoft/TypeScript/issues/338).
-     * This method should be overridden instead. For example:
-     *
-     *   class MyElement extends LitElement {
-     *     async _getUpdateComplete() {
-     *       await super._getUpdateComplete();
-     *       await this._myChild.updateComplete;
-     *     }
-     *   }
-     * @deprecated Override `getUpdateComplete()` instead for forward
-     *     compatibility with `lit-element` 3.0 / `@lit/reactive-element`.
-     */
-    _getUpdateComplete() {
-        return this.getUpdateComplete();
-    }
-    /**
-     * Override point for the `updateComplete` promise.
-     *
-     * It is not safe to override the `updateComplete` getter directly due to a
-     * limitation in TypeScript which means it is not possible to call a
-     * superclass getter (e.g. `super.updateComplete.then(...)`) when the target
-     * language is ES5 (https://github.com/microsoft/TypeScript/issues/338).
-     * This method should be overridden instead. For example:
-     *
-     *   class MyElement extends LitElement {
-     *     async getUpdateComplete() {
-     *       await super.getUpdateComplete();
-     *       await this._myChild.updateComplete;
-     *     }
-     *   }
-     */
-    getUpdateComplete() {
-        return this._updatePromise;
-    }
-    /**
-     * Controls whether or not `update` should be called when the element requests
-     * an update. By default, this method always returns `true`, but this can be
-     * customized to control when to update.
-     *
-     * @param _changedProperties Map of changed properties with old values
-     */
-    shouldUpdate(_changedProperties) {
-        return true;
-    }
-    /**
-     * Updates the element. This method reflects property values to attributes.
-     * It can be overridden to render and keep updated element DOM.
-     * Setting properties inside this method will *not* trigger
-     * another update.
-     *
-     * @param _changedProperties Map of changed properties with old values
-     */
-    update(_changedProperties) {
-        if (this._reflectingProperties !== undefined &&
-            this._reflectingProperties.size > 0) {
-            // Use forEach so this works even if for/of loops are compiled to for
-            // loops expecting arrays
-            this._reflectingProperties.forEach((v, k) => this._propertyToAttribute(k, this[k], v));
-            this._reflectingProperties = undefined;
-        }
-        this._markUpdated();
-    }
-    /**
-     * Invoked whenever the element is updated. Implement to perform
-     * post-updating tasks via DOM APIs, for example, focusing an element.
-     *
-     * Setting properties inside this method will trigger the element to update
-     * again after this update cycle completes.
-     *
-     * @param _changedProperties Map of changed properties with old values
-     */
-    updated(_changedProperties) {
-    }
-    /**
-     * Invoked when the element is first updated. Implement to perform one time
-     * work on the element after update.
-     *
-     * Setting properties inside this method will trigger the element to update
-     * again after this update cycle completes.
-     *
-     * @param _changedProperties Map of changed properties with old values
-     */
-    firstUpdated(_changedProperties) {
-    }
-}
-_a = finalized;
-/**
- * Marks class as having finished creating properties.
- */
-UpdatingElement[_a] = true;
-//# sourceMappingURL=updating-element.js.map
-;// CONCATENATED MODULE: ./node_modules/lit-element/lib/decorators.js
-/**
- * @license
- * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
- * This code may only be used under the BSD style license found at
- * http://polymer.github.io/LICENSE.txt
- * The complete set of authors may be found at
- * http://polymer.github.io/AUTHORS.txt
- * The complete set of contributors may be found at
- * http://polymer.github.io/CONTRIBUTORS.txt
- * Code distributed by Google as part of the polymer project is also
- * subject to an additional IP rights grant found at
- * http://polymer.github.io/PATENTS.txt
- */
-const legacyCustomElement = (tagName, clazz) => {
-    window.customElements.define(tagName, clazz);
-    // Cast as any because TS doesn't recognize the return type as being a
-    // subtype of the decorated class when clazz is typed as
-    // `Constructor<HTMLElement>` for some reason.
-    // `Constructor<HTMLElement>` is helpful to make sure the decorator is
-    // applied to elements however.
-    // tslint:disable-next-line:no-any
-    return clazz;
-};
-const standardCustomElement = (tagName, descriptor) => {
-    const { kind, elements } = descriptor;
-    return {
-        kind,
-        elements,
-        // This callback is called once the class is otherwise fully defined
-        finisher(clazz) {
-            window.customElements.define(tagName, clazz);
-        }
-    };
-};
-/**
- * Class decorator factory that defines the decorated class as a custom element.
- *
- * ```
- * @customElement('my-element')
- * class MyElement {
- *   render() {
- *     return html``;
- *   }
- * }
- * ```
- * @category Decorator
- * @param tagName The name of the custom element to define.
- */
-const customElement = (tagName) => (classOrDescriptor) => (typeof classOrDescriptor === 'function') ?
-    legacyCustomElement(tagName, classOrDescriptor) :
-    standardCustomElement(tagName, classOrDescriptor);
-const standardProperty = (options, element) => {
-    // When decorating an accessor, pass it through and add property metadata.
-    // Note, the `hasOwnProperty` check in `createProperty` ensures we don't
-    // stomp over the user's accessor.
-    if (element.kind === 'method' && element.descriptor &&
-        !('value' in element.descriptor)) {
-        return Object.assign(Object.assign({}, element), { finisher(clazz) {
-                clazz.createProperty(element.key, options);
-            } });
-    }
-    else {
-        // createProperty() takes care of defining the property, but we still
-        // must return some kind of descriptor, so return a descriptor for an
-        // unused prototype field. The finisher calls createProperty().
-        return {
-            kind: 'field',
-            key: Symbol(),
-            placement: 'own',
-            descriptor: {},
-            // When @babel/plugin-proposal-decorators implements initializers,
-            // do this instead of the initializer below. See:
-            // https://github.com/babel/babel/issues/9260 extras: [
-            //   {
-            //     kind: 'initializer',
-            //     placement: 'own',
-            //     initializer: descriptor.initializer,
-            //   }
-            // ],
-            initializer() {
-                if (typeof element.initializer === 'function') {
-                    this[element.key] = element.initializer.call(this);
-                }
-            },
-            finisher(clazz) {
-                clazz.createProperty(element.key, options);
-            }
-        };
-    }
-};
-const legacyProperty = (options, proto, name) => {
-    proto.constructor
-        .createProperty(name, options);
-};
-/**
- * A property decorator which creates a LitElement property which reflects a
- * corresponding attribute value. A [[`PropertyDeclaration`]] may optionally be
- * supplied to configure property features.
- *
- * This decorator should only be used for public fields. Private or protected
- * fields should use the [[`internalProperty`]] decorator.
- *
- * @example
- * ```ts
- * class MyElement {
- *   @property({ type: Boolean })
- *   clicked = false;
- * }
- * ```
- * @category Decorator
- * @ExportDecoratedItems
- */
-function property(options) {
-    // tslint:disable-next-line:no-any decorator
-    return (protoOrDescriptor, name) => (name !== undefined) ?
-        legacyProperty(options, protoOrDescriptor, name) :
-        standardProperty(options, protoOrDescriptor);
-}
-/**
- * Declares a private or protected property that still triggers updates to the
- * element when it changes.
- *
- * Properties declared this way must not be used from HTML or HTML templating
- * systems, they're solely for properties internal to the element. These
- * properties may be renamed by optimization tools like the Closure Compiler.
- * @category Decorator
- * @deprecated `internalProperty` has been renamed to `state` in lit-element
- *     3.0. Please update to `state` now to be compatible with 3.0.
- */
-function internalProperty(options) {
-    return property({ attribute: false, hasChanged: options === null || options === void 0 ? void 0 : options.hasChanged });
-}
-/**
- * Declares a private or protected property that still triggers updates to the
- * element when it changes.
- *
- * Properties declared this way must not be used from HTML or HTML templating
- * systems, they're solely for properties internal to the element. These
- * properties may be renamed by optimization tools like the Closure Compiler.
- * @category Decorator
- */
-const state = (options) => internalProperty(options);
-/**
- * A property decorator that converts a class property into a getter that
- * executes a querySelector on the element's renderRoot.
- *
- * @param selector A DOMString containing one or more selectors to match.
- * @param cache An optional boolean which when true performs the DOM query only
- * once and caches the result.
- *
- * See: https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector
- *
- * @example
- *
- * ```ts
- * class MyElement {
- *   @query('#first')
- *   first;
- *
- *   render() {
- *     return html`
- *       <div id="first"></div>
- *       <div id="second"></div>
- *     `;
- *   }
- * }
- * ```
- * @category Decorator
- */
-function query(selector, cache) {
-    return (protoOrDescriptor, 
-    // tslint:disable-next-line:no-any decorator
-    name) => {
-        const descriptor = {
-            get() {
-                return this.renderRoot.querySelector(selector);
-            },
-            enumerable: true,
-            configurable: true,
-        };
-        if (cache) {
-            const prop = name !== undefined ? name : protoOrDescriptor.key;
-            const key = typeof prop === 'symbol' ? Symbol() : `__${prop}`;
-            descriptor.get = function () {
-                if (this[key] === undefined) {
-                    (this[key] =
-                        this.renderRoot.querySelector(selector));
-                }
-                return this[key];
-            };
-        }
-        return (name !== undefined) ?
-            legacyQuery(descriptor, protoOrDescriptor, name) :
-            standardQuery(descriptor, protoOrDescriptor);
-    };
-}
-// Note, in the future, we may extend this decorator to support the use case
-// where the queried element may need to do work to become ready to interact
-// with (e.g. load some implementation code). If so, we might elect to
-// add a second argument defining a function that can be run to make the
-// queried element loaded/updated/ready.
-/**
- * A property decorator that converts a class property into a getter that
- * returns a promise that resolves to the result of a querySelector on the
- * element's renderRoot done after the element's `updateComplete` promise
- * resolves. When the queried property may change with element state, this
- * decorator can be used instead of requiring users to await the
- * `updateComplete` before accessing the property.
- *
- * @param selector A DOMString containing one or more selectors to match.
- *
- * See: https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector
- *
- * @example
- * ```ts
- * class MyElement {
- *   @queryAsync('#first')
- *   first;
- *
- *   render() {
- *     return html`
- *       <div id="first"></div>
- *       <div id="second"></div>
- *     `;
- *   }
- * }
- *
- * // external usage
- * async doSomethingWithFirst() {
- *  (await aMyElement.first).doSomething();
- * }
- * ```
- * @category Decorator
- */
-function queryAsync(selector) {
-    return (protoOrDescriptor, 
-    // tslint:disable-next-line:no-any decorator
-    name) => {
-        const descriptor = {
-            async get() {
-                await this.updateComplete;
-                return this.renderRoot.querySelector(selector);
-            },
-            enumerable: true,
-            configurable: true,
-        };
-        return (name !== undefined) ?
-            legacyQuery(descriptor, protoOrDescriptor, name) :
-            standardQuery(descriptor, protoOrDescriptor);
-    };
-}
-/**
- * A property decorator that converts a class property into a getter
- * that executes a querySelectorAll on the element's renderRoot.
- *
- * @param selector A DOMString containing one or more selectors to match.
- *
- * See:
- * https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelectorAll
- *
- * @example
- * ```ts
- * class MyElement {
- *   @queryAll('div')
- *   divs;
- *
- *   render() {
- *     return html`
- *       <div id="first"></div>
- *       <div id="second"></div>
- *     `;
- *   }
- * }
- * ```
- * @category Decorator
- */
-function queryAll(selector) {
-    return (protoOrDescriptor, 
-    // tslint:disable-next-line:no-any decorator
-    name) => {
-        const descriptor = {
-            get() {
-                return this.renderRoot.querySelectorAll(selector);
-            },
-            enumerable: true,
-            configurable: true,
-        };
-        return (name !== undefined) ?
-            legacyQuery(descriptor, protoOrDescriptor, name) :
-            standardQuery(descriptor, protoOrDescriptor);
-    };
-}
-const legacyQuery = (descriptor, proto, name) => {
-    Object.defineProperty(proto, name, descriptor);
-};
-const standardQuery = (descriptor, element) => ({
-    kind: 'method',
-    placement: 'prototype',
-    key: element.key,
-    descriptor,
-});
-const standardEventOptions = (options, element) => {
-    return Object.assign(Object.assign({}, element), { finisher(clazz) {
-            Object.assign(clazz.prototype[element.key], options);
-        } });
-};
-const legacyEventOptions = 
-// tslint:disable-next-line:no-any legacy decorator
-(options, proto, name) => {
-    Object.assign(proto[name], options);
-};
-/**
- * Adds event listener options to a method used as an event listener in a
- * lit-html template.
- *
- * @param options An object that specifies event listener options as accepted by
- * `EventTarget#addEventListener` and `EventTarget#removeEventListener`.
- *
- * Current browsers support the `capture`, `passive`, and `once` options. See:
- * https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#Parameters
- *
- * @example
- * ```ts
- * class MyElement {
- *   clicked = false;
- *
- *   render() {
- *     return html`
- *       <div @click=${this._onClick}`>
- *         <button></button>
- *       </div>
- *     `;
- *   }
- *
- *   @eventOptions({capture: true})
- *   _onClick(e) {
- *     this.clicked = true;
- *   }
- * }
- * ```
- * @category Decorator
- */
-function eventOptions(options) {
-    // Return value typed as any to prevent TypeScript from complaining that
-    // standard decorator function signature does not match TypeScript decorator
-    // signature
-    // TODO(kschaaf): unclear why it was only failing on this decorator and not
-    // the others
-    return ((protoOrDescriptor, name) => (name !== undefined) ?
-        legacyEventOptions(options, protoOrDescriptor, name) :
-        standardEventOptions(options, protoOrDescriptor));
-}
-// x-browser support for matches
-// tslint:disable-next-line:no-any
-const ElementProto = Element.prototype;
-const legacyMatches = ElementProto.msMatchesSelector || ElementProto.webkitMatchesSelector;
-/**
- * A property decorator that converts a class property into a getter that
- * returns the `assignedNodes` of the given named `slot`. Note, the type of
- * this property should be annotated as `NodeListOf<HTMLElement>`.
- *
- * @param slotName A string name of the slot.
- * @param flatten A boolean which when true flattens the assigned nodes,
- * meaning any assigned nodes that are slot elements are replaced with their
- * assigned nodes.
- * @param selector A string which filters the results to elements that match
- * the given css selector.
- *
- * * @example
- * ```ts
- * class MyElement {
- *   @queryAssignedNodes('list', true, '.item')
- *   listItems;
- *
- *   render() {
- *     return html`
- *       <slot name="list"></slot>
- *     `;
- *   }
- * }
- * ```
- * @category Decorator
- */
-function queryAssignedNodes(slotName = '', flatten = false, selector = '') {
-    return (protoOrDescriptor, 
-    // tslint:disable-next-line:no-any decorator
-    name) => {
-        const descriptor = {
-            get() {
-                const slotSelector = `slot${slotName ? `[name=${slotName}]` : ':not([name])'}`;
-                const slot = this.renderRoot.querySelector(slotSelector);
-                let nodes = slot && slot.assignedNodes({ flatten });
-                if (nodes && selector) {
-                    nodes = nodes.filter((node) => node.nodeType === Node.ELEMENT_NODE &&
-                        // tslint:disable-next-line:no-any testing existence on older browsers
-                        (node.matches ?
-                            node.matches(selector) :
-                            legacyMatches.call(node, selector)));
-                }
-                return nodes;
-            },
-            enumerable: true,
-            configurable: true,
-        };
-        return (name !== undefined) ?
-            legacyQuery(descriptor, protoOrDescriptor, name) :
-            standardQuery(descriptor, protoOrDescriptor);
-    };
-}
-//# sourceMappingURL=decorators.js.map
-;// CONCATENATED MODULE: ./node_modules/lit-element/lib/css-tag.js
-/**
-@license
-Copyright (c) 2019 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at
-http://polymer.github.io/LICENSE.txt The complete set of authors may be found at
-http://polymer.github.io/AUTHORS.txt The complete set of contributors may be
-found at http://polymer.github.io/CONTRIBUTORS.txt Code distributed by Google as
-part of the polymer project is also subject to an additional IP rights grant
-found at http://polymer.github.io/PATENTS.txt
-*/
-/**
- * Whether the current browser supports `adoptedStyleSheets`.
- */
-const supportsAdoptingStyleSheets = (window.ShadowRoot) &&
-    (window.ShadyCSS === undefined || window.ShadyCSS.nativeShadow) &&
-    ('adoptedStyleSheets' in Document.prototype) &&
-    ('replace' in CSSStyleSheet.prototype);
-const constructionToken = Symbol();
-class CSSResult {
-    constructor(cssText, safeToken) {
-        if (safeToken !== constructionToken) {
-            throw new Error('CSSResult is not constructable. Use `unsafeCSS` or `css` instead.');
-        }
-        this.cssText = cssText;
-    }
-    // Note, this is a getter so that it's lazy. In practice, this means
-    // stylesheets are not created until the first element instance is made.
-    get styleSheet() {
-        if (this._styleSheet === undefined) {
-            // Note, if `supportsAdoptingStyleSheets` is true then we assume
-            // CSSStyleSheet is constructable.
-            if (supportsAdoptingStyleSheets) {
-                this._styleSheet = new CSSStyleSheet();
-                this._styleSheet.replaceSync(this.cssText);
-            }
-            else {
-                this._styleSheet = null;
-            }
-        }
-        return this._styleSheet;
-    }
-    toString() {
-        return this.cssText;
-    }
-}
-/**
- * Wrap a value for interpolation in a [[`css`]] tagged template literal.
- *
- * This is unsafe because untrusted CSS text can be used to phone home
- * or exfiltrate data to an attacker controlled site. Take care to only use
- * this with trusted input.
- */
-const unsafeCSS = (value) => {
-    return new CSSResult(String(value), constructionToken);
-};
-const textFromCSSResult = (value) => {
-    if (value instanceof CSSResult) {
-        return value.cssText;
-    }
-    else if (typeof value === 'number') {
-        return value;
-    }
-    else {
-        throw new Error(`Value passed to 'css' function must be a 'css' function result: ${value}. Use 'unsafeCSS' to pass non-literal values, but
-            take care to ensure page security.`);
-    }
-};
-/**
- * Template tag which which can be used with LitElement's [[LitElement.styles |
- * `styles`]] property to set element styles. For security reasons, only literal
- * string values may be used. To incorporate non-literal values [[`unsafeCSS`]]
- * may be used inside a template string part.
- */
-const css = (strings, ...values) => {
-    const cssText = values.reduce((acc, v, idx) => acc + textFromCSSResult(v) + strings[idx + 1], strings[0]);
-    return new CSSResult(cssText, constructionToken);
-};
-//# sourceMappingURL=css-tag.js.map
+
 ;// CONCATENATED MODULE: ./node_modules/lit-element/lit-element.js
+
 /**
  * @license
- * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
- * This code may only be used under the BSD style license found at
- * http://polymer.github.io/LICENSE.txt
- * The complete set of authors may be found at
- * http://polymer.github.io/AUTHORS.txt
- * The complete set of contributors may be found at
- * http://polymer.github.io/CONTRIBUTORS.txt
- * Code distributed by Google as part of the polymer project is also
- * subject to an additional IP rights grant found at
- * http://polymer.github.io/PATENTS.txt
- */
-/**
- * The main LitElement module, which defines the [[`LitElement`]] base class and
- * related APIs.
- *
- *  LitElement components can define a template and a set of observed
- * properties. Changing an observed property triggers a re-render of the
- * element.
- *
- *  Import [[`LitElement`]] and [[`html`]] from this module to create a
- * component:
- *
- *  ```js
- * import {LitElement, html} from 'lit-element';
- *
- * class MyElement extends LitElement {
- *
- *   // Declare observed properties
- *   static get properties() {
- *     return {
- *       adjective: {}
- *     }
- *   }
- *
- *   constructor() {
- *     this.adjective = 'awesome';
- *   }
- *
- *   // Define the element's template
- *   render() {
- *     return html`<p>your ${adjective} template here</p>`;
- *   }
- * }
- *
- * customElements.define('my-element', MyElement);
- * ```
- *
- * `LitElement` extends [[`UpdatingElement`]] and adds lit-html templating.
- * The `UpdatingElement` class is provided for users that want to build
- * their own custom element base classes that don't use lit-html.
- *
- * @packageDocumentation
- */
-
-
-
-
-
-
-
-
-// IMPORTANT: do not change the property name or the assignment expression.
-// This line will be used in regexes to search for LitElement usage.
-// TODO(justinfagnani): inject version number at build time
-(window['litElementVersions'] || (window['litElementVersions'] = []))
-    .push('2.5.1');
-/**
- * Sentinal value used to avoid calling lit-html's render function when
- * subclasses do not implement `render`
- */
-const renderNotImplemented = {};
-/**
- * Base element class that manages element properties and attributes, and
- * renders a lit-html template.
- *
- * To define a component, subclass `LitElement` and implement a
- * `render` method to provide the component's template. Define properties
- * using the [[`properties`]] property or the [[`property`]] decorator.
- */
-class LitElement extends UpdatingElement {
-    /**
-     * Return the array of styles to apply to the element.
-     * Override this method to integrate into a style management system.
-     *
-     * @nocollapse
-     */
-    static getStyles() {
-        return this.styles;
-    }
-    /** @nocollapse */
-    static _getUniqueStyles() {
-        // Only gather styles once per class
-        if (this.hasOwnProperty(JSCompiler_renameProperty('_styles', this))) {
-            return;
-        }
-        // Take care not to call `this.getStyles()` multiple times since this
-        // generates new CSSResults each time.
-        // TODO(sorvell): Since we do not cache CSSResults by input, any
-        // shared styles will generate new stylesheet objects, which is wasteful.
-        // This should be addressed when a browser ships constructable
-        // stylesheets.
-        const userStyles = this.getStyles();
-        if (Array.isArray(userStyles)) {
-            // De-duplicate styles preserving the _last_ instance in the set.
-            // This is a performance optimization to avoid duplicated styles that can
-            // occur especially when composing via subclassing.
-            // The last item is kept to try to preserve the cascade order with the
-            // assumption that it's most important that last added styles override
-            // previous styles.
-            const addStyles = (styles, set) => styles.reduceRight((set, s) => 
-            // Note: On IE set.add() does not return the set
-            Array.isArray(s) ? addStyles(s, set) : (set.add(s), set), set);
-            // Array.from does not work on Set in IE, otherwise return
-            // Array.from(addStyles(userStyles, new Set<CSSResult>())).reverse()
-            const set = addStyles(userStyles, new Set());
-            const styles = [];
-            set.forEach((v) => styles.unshift(v));
-            this._styles = styles;
-        }
-        else {
-            this._styles = userStyles === undefined ? [] : [userStyles];
-        }
-        // Ensure that there are no invalid CSSStyleSheet instances here. They are
-        // invalid in two conditions.
-        // (1) the sheet is non-constructible (`sheet` of a HTMLStyleElement), but
-        //     this is impossible to check except via .replaceSync or use
-        // (2) the ShadyCSS polyfill is enabled (:. supportsAdoptingStyleSheets is
-        //     false)
-        this._styles = this._styles.map((s) => {
-            if (s instanceof CSSStyleSheet && !supportsAdoptingStyleSheets) {
-                // Flatten the cssText from the passed constructible stylesheet (or
-                // undetectable non-constructible stylesheet). The user might have
-                // expected to update their stylesheets over time, but the alternative
-                // is a crash.
-                const cssText = Array.prototype.slice.call(s.cssRules)
-                    .reduce((css, rule) => css + rule.cssText, '');
-                return unsafeCSS(cssText);
-            }
-            return s;
-        });
-    }
-    /**
-     * Performs element initialization. By default this calls
-     * [[`createRenderRoot`]] to create the element [[`renderRoot`]] node and
-     * captures any pre-set values for registered properties.
-     */
-    initialize() {
-        super.initialize();
-        this.constructor._getUniqueStyles();
-        this.renderRoot = this.createRenderRoot();
-        // Note, if renderRoot is not a shadowRoot, styles would/could apply to the
-        // element's getRootNode(). While this could be done, we're choosing not to
-        // support this now since it would require different logic around de-duping.
-        if (window.ShadowRoot && this.renderRoot instanceof window.ShadowRoot) {
-            this.adoptStyles();
-        }
-    }
-    /**
-     * Returns the node into which the element should render and by default
-     * creates and returns an open shadowRoot. Implement to customize where the
-     * element's DOM is rendered. For example, to render into the element's
-     * childNodes, return `this`.
-     * @returns {Element|DocumentFragment} Returns a node into which to render.
-     */
-    createRenderRoot() {
-        return this.attachShadow(this.constructor.shadowRootOptions);
-    }
-    /**
-     * Applies styling to the element shadowRoot using the [[`styles`]]
-     * property. Styling will apply using `shadowRoot.adoptedStyleSheets` where
-     * available and will fallback otherwise. When Shadow DOM is polyfilled,
-     * ShadyCSS scopes styles and adds them to the document. When Shadow DOM
-     * is available but `adoptedStyleSheets` is not, styles are appended to the
-     * end of the `shadowRoot` to [mimic spec
-     * behavior](https://wicg.github.io/construct-stylesheets/#using-constructed-stylesheets).
-     */
-    adoptStyles() {
-        const styles = this.constructor._styles;
-        if (styles.length === 0) {
-            return;
-        }
-        // There are three separate cases here based on Shadow DOM support.
-        // (1) shadowRoot polyfilled: use ShadyCSS
-        // (2) shadowRoot.adoptedStyleSheets available: use it
-        // (3) shadowRoot.adoptedStyleSheets polyfilled: append styles after
-        // rendering
-        if (window.ShadyCSS !== undefined && !window.ShadyCSS.nativeShadow) {
-            window.ShadyCSS.ScopingShim.prepareAdoptedCssText(styles.map((s) => s.cssText), this.localName);
-        }
-        else if (supportsAdoptingStyleSheets) {
-            this.renderRoot.adoptedStyleSheets =
-                styles.map((s) => s instanceof CSSStyleSheet ? s : s.styleSheet);
-        }
-        else {
-            // This must be done after rendering so the actual style insertion is done
-            // in `update`.
-            this._needsShimAdoptedStyleSheets = true;
-        }
-    }
-    connectedCallback() {
-        super.connectedCallback();
-        // Note, first update/render handles styleElement so we only call this if
-        // connected after first update.
-        if (this.hasUpdated && window.ShadyCSS !== undefined) {
-            window.ShadyCSS.styleElement(this);
-        }
-    }
-    /**
-     * Updates the element. This method reflects property values to attributes
-     * and calls `render` to render DOM via lit-html. Setting properties inside
-     * this method will *not* trigger another update.
-     * @param _changedProperties Map of changed properties with old values
-     */
-    update(changedProperties) {
-        // Setting properties in `render` should not trigger an update. Since
-        // updates are allowed after super.update, it's important to call `render`
-        // before that.
-        const templateResult = this.render();
-        super.update(changedProperties);
-        // If render is not implemented by the component, don't call lit-html render
-        if (templateResult !== renderNotImplemented) {
-            this.constructor
-                .render(templateResult, this.renderRoot, { scopeName: this.localName, eventContext: this });
-        }
-        // When native Shadow DOM is used but adoptedStyles are not supported,
-        // insert styling after rendering to ensure adoptedStyles have highest
-        // priority.
-        if (this._needsShimAdoptedStyleSheets) {
-            this._needsShimAdoptedStyleSheets = false;
-            this.constructor._styles.forEach((s) => {
-                const style = document.createElement('style');
-                style.textContent = s.cssText;
-                this.renderRoot.appendChild(style);
-            });
-        }
-    }
-    /**
-     * Invoked on each update to perform rendering tasks. This method may return
-     * any value renderable by lit-html's `NodePart` - typically a
-     * `TemplateResult`. Setting properties inside this method will *not* trigger
-     * the element to update.
-     */
-    render() {
-        return renderNotImplemented;
-    }
-}
-/**
- * Ensure this class is marked as `finalized` as an optimization ensuring
- * it will not needlessly try to `finalize`.
- *
- * Note this property name is a string to prevent breaking Closure JS Compiler
- * optimizations. See updating-element.ts for more information.
- */
-LitElement['finalized'] = true;
-/**
- * Reference to the underlying library method used to render the element's
- * DOM. By default, points to the `render` method from lit-html's shady-render
- * module.
- *
- * **Most users will never need to touch this property.**
- *
- * This  property should not be confused with the `render` instance method,
- * which should be overridden to define a template for the element.
- *
- * Advanced users creating a new base class based on LitElement can override
- * this property to point to a custom render method with a signature that
- * matches [shady-render's `render`
- * method](https://lit-html.polymer-project.org/api/modules/shady_render.html#render).
- *
- * @nocollapse
- */
-LitElement.render = render;
-/** @nocollapse */
-LitElement.shadowRootOptions = { mode: 'open' };
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */var lit_element_l,lit_element_o;const lit_element_r=(/* unused pure expression or super */ null && (t));class lit_element_s extends a{constructor(){super(...arguments),this.renderOptions={host:this},this._$Dt=void 0}createRenderRoot(){var t,e;const i=super.createRenderRoot();return null!==(t=(e=this.renderOptions).renderBefore)&&void 0!==t||(e.renderBefore=i.firstChild),i}update(t){const i=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(t),this._$Dt=x(i,this.renderRoot,this.renderOptions)}connectedCallback(){var t;super.connectedCallback(),null===(t=this._$Dt)||void 0===t||t.setConnected(!0)}disconnectedCallback(){var t;super.disconnectedCallback(),null===(t=this._$Dt)||void 0===t||t.setConnected(!1)}render(){return b}}lit_element_s.finalized=!0,lit_element_s._$litElement$=!0,null===(lit_element_l=globalThis.litElementHydrateSupport)||void 0===lit_element_l||lit_element_l.call(globalThis,{LitElement:lit_element_s});const lit_element_n=globalThis.litElementPolyfillSupport;null==lit_element_n||lit_element_n({LitElement:lit_element_s});const lit_element_h={_$AK:(t,e,i)=>{t._$AK(e,i)},_$AL:t=>t._$AL};(null!==(lit_element_o=globalThis.litElementVersions)&&void 0!==lit_element_o?lit_element_o:globalThis.litElementVersions=[]).push("3.2.0");
 //# sourceMappingURL=lit-element.js.map
+
+;// CONCATENATED MODULE: ./node_modules/lit/index.js
+
+//# sourceMappingURL=index.js.map
+
 ;// CONCATENATED MODULE: ./node_modules/marked/lib/marked.esm.js
 /**
  * marked - a markdown parser
@@ -5504,33 +2781,1080 @@ var prism_http = __webpack_require__(57);
 var prism_csharp = __webpack_require__(16);
 ;// CONCATENATED MODULE: ./src/styles/font-styles.js
 
-/* harmony default export */ const font_styles = (css`.hover-bg:hover{background:var(--bg3)}::selection{background:var(--selection-bg);color:var(--selection-fg)}.regular-font{font-family:var(--font-regular)}.mono-font{font-family:var(--font-mono)}.title{font-size:calc(var(--font-size-small) + 18px);font-weight:400}.sub-title{font-size:20px}.req-res-title{font-family:var(--font-regular);font-size:calc(var(--font-size-small) + 4px);font-weight:700;margin-bottom:8px;text-align:left}.tiny-title{font-size:calc(var(--font-size-small) + 1px);font-weight:700}.regular-font-size{font-size:var(--font-size-regular)}.small-font-size{font-size:var(--font-size-small)}.upper{text-transform:uppercase}.primary-text{color:var(--primary-color)}.bold-text{font-weight:700}.gray-text{color:var(--light-fg)}.red-text{color:var(--red)}.blue-text{color:var(--blue)}.multiline{overflow:scroll;max-height:var(--resp-area-height,300px);color:var(--fg3)}.method-fg.put{color:var(--orange)}.method-fg.post{color:var(--green)}.method-fg.get{color:var(--blue)}.method-fg.delete{color:var(--red)}.method-fg.head,.method-fg.options,.method-fg.patch{color:var(--yellow)}h1{font-family:var(--font-regular);font-size:28px;padding-top:10px;letter-spacing:normal;font-weight:400}h2{font-family:var(--font-regular);font-size:24px;padding-top:10px;letter-spacing:normal;font-weight:400}h3{font-family:var(--font-regular);font-size:18px;padding-top:10px;letter-spacing:normal;font-weight:400}h4{font-family:var(--font-regular);font-size:16px;padding-top:10px;letter-spacing:normal;font-weight:400}h5{font-family:var(--font-regular);font-size:14px;padding-top:10px;letter-spacing:normal;font-weight:400}h6{font-family:var(--font-regular);font-size:14px;padding-top:10px;letter-spacing:normal;font-weight:400}h1,h2,h3,h4,h5{margin-block-end:.2em}p{margin-block-start:.5em}a{color:var(--blue);cursor:pointer}a.inactive-link{color:var(--fg);text-decoration:none;cursor:text}code,pre{margin:0;font-family:var(--font-mono);font-size:calc(var(--font-size-mono) - 1px)}.m-markdown,.m-markdown-small{display:block}.m-markdown p,.m-markdown span{font-size:var(--font-size-regular);line-height:calc(var(--font-size-regular) + 8px)}.m-markdown li{font-size:var(--font-size-regular);line-height:calc(var(--font-size-regular) + 10px)}.m-markdown-small li,.m-markdown-small p,.m-markdown-small span{font-size:var(--font-size-small);line-height:calc(var(--font-size-small) + 6px)}.m-markdown-small li{line-height:calc(var(--font-size-small) + 8px)}.m-markdown p:not(:first-child){margin-block-start:24px}.m-markdown-small p:not(:first-child){margin-block-start:12px}.m-markdown-small p:first-child{margin-block-start:0}.m-markdown p,.m-markdown-small p{margin-block-end:0}.m-markdown code span{font-size:var(--font-size-mono)}.m-markdown code,.m-markdown-small code{padding:1px 6px;border-radius:2px;color:var(--inline-code-fg);background-color:var(--bg3);font-size:calc(var(--font-size-mono));line-height:1.2}.m-markdown-small code{font-size:calc(var(--font-size-mono) - 1px)}.m-markdown pre,.m-markdown-small pre{white-space:pre-wrap;overflow-x:auto;line-height:normal;border-radius:2px;border:1px solid var(--code-border-color)}.m-markdown pre{padding:12px;background-color:var(--code-bg);color:var(--code-fg)}.m-markdown-small pre{margin-top:4px;padding:2px 4px;background-color:var(--bg3);color:var(--fg2)}.m-markdown pre code,.m-markdown-small pre code{border:none;padding:0}.m-markdown pre code{color:var(--code-fg);background-color:var(--code-bg);background-color:transparent}.m-markdown-small pre code{color:var(--fg2);background-color:var(--bg3)}.m-markdown ol,.m-markdown ul{padding-inline-start:30px}.m-markdown-small ol,.m-markdown-small ul{padding-inline-start:20px}.m-markdown a,.m-markdown-small a{color:var(--blue)}.m-markdown img,.m-markdown-small img{max-width:100%}.m-markdown table,.m-markdown-small table{border-spacing:0;margin:10px 0;border-collapse:separate;border:1px solid var(--border-color);border-radius:var(--border-radius);font-size:calc(var(--font-size-small) + 1px);line-height:calc(var(--font-size-small) + 4px);max-width:100%}.m-markdown-small table{font-size:var(--font-size-small);line-height:calc(var(--font-size-small) + 2px);margin:8px 0}.m-markdown td,.m-markdown th,.m-markdown-small td,.m-markdown-small th{vertical-align:top;border-top:1px solid var(--border-color);line-height:calc(var(--font-size-small) + 4px)}.m-markdown tr:first-child th,.m-markdown-small tr:first-child th{border-top:0 none}.m-markdown td,.m-markdown th{padding:10px 12px}.m-markdown-small td,.m-markdown-small th{padding:8px 8px}.m-markdown th,.m-markdown-small th{font-weight:600;background-color:var(--bg2);vertical-align:middle}.m-markdown-small table code{font-size:calc(var(--font-size-mono) - 2px)}.m-markdown table code{font-size:calc(var(--font-size-mono) - 1px)}.m-markdown blockquote,.m-markdown-small blockquote{margin-inline-start:0;margin-inline-end:0;border-left:3px solid var(--border-color);padding:6px 0 6px 6px}.m-markdown hr{border:1px solid var(--border-color)}`);
+/* harmony default export */ const font_styles = (r`
+  .hover-bg:hover{
+    background: var(--bg3);
+  }
+  ::selection {
+    background: var(--selection-bg);
+    color: var(--selection-fg);
+  }
+  .regular-font{ 
+    font-family:var(--font-regular); 
+  }
+  .mono-font { 
+    font-family:var(--font-mono); 
+  }
+  .title { 
+    font-size: calc(var(--font-size-small) + 18px);
+    font-weight: normal 
+  }
+  .sub-title{ font-size: 20px;}
+  .req-res-title {
+    font-family: var(--font-regular);
+    font-size: calc(var(--font-size-small) + 4px);
+    font-weight:bold;
+    margin-bottom:8px;
+    text-align:left;
+  }
+  .tiny-title { 
+    font-size:calc(var(--font-size-small) + 1px); 
+    font-weight:bold; 
+  }
+  .regular-font-size { font-size: var(--font-size-regular); }
+  .small-font-size { font-size: var(--font-size-small); }
+  .upper { text-transform: uppercase; }
+  .primary-text{ color: var(--primary-color); }
+  .bold-text { font-weight:bold; }
+  .gray-text { color: var(--light-fg); }
+  .red-text {color: var(--red)}
+  .blue-text {color: var(--blue)}
+  .multiline {
+    overflow: scroll;
+    max-height: var(--resp-area-height, 300px);
+    color: var(--fg3);  
+  }
+  .method-fg.put { color: var(--orange); }
+  .method-fg.post { color: var(--green); }
+  .method-fg.get { color: var(--blue); }
+  .method-fg.delete { color: var(--red); }
+  .method-fg.options, 
+  .method-fg.head, 
+  .method-fg.patch { 
+    color: var(--yellow); 
+  }
+
+  h1{ font-family:var(--font-regular); font-size:28px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
+  h2{ font-family:var(--font-regular); font-size:24px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
+  h3{ font-family:var(--font-regular); font-size:18px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
+  h4{ font-family:var(--font-regular); font-size:16px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
+  h5{ font-family:var(--font-regular); font-size:14px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
+  h6{ font-family:var(--font-regular); font-size:14px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
+
+  h1,h2,h3,h4,h5,h5{
+    margin-block-end: 0.2em;
+  }
+  p { margin-block-start: 0.5em; }
+  a { color: var(--blue); cursor:pointer; }
+  a.inactive-link { 
+    color:var(--fg);
+    text-decoration: none;
+    cursor:text;
+  }
+  
+  code,
+  pre {
+    margin: 0px;
+    font-family: var(--font-mono);
+    font-size: calc(var(--font-size-mono) - 1px);
+  }
+
+  .m-markdown,
+  .m-markdown-small {
+    display:block;
+  }
+
+  .m-markdown p,
+  .m-markdown span {
+    font-size: var(--font-size-regular);
+    line-height:calc(var(--font-size-regular) + 8px);
+  }
+  .m-markdown li {
+    font-size: var(--font-size-regular);
+    line-height:calc(var(--font-size-regular) + 10px);
+  }
+  
+  .m-markdown-small p,
+  .m-markdown-small span,
+  .m-markdown-small li {
+    font-size: var(--font-size-small);
+    line-height: calc(var(--font-size-small) + 6px);
+  }
+  .m-markdown-small li {
+    line-height: calc(var(--font-size-small) + 8px);
+  }
+
+  .m-markdown p:not(:first-child) {
+    margin-block-start: 24px;
+  }
+
+  .m-markdown-small p:not(:first-child) {
+    margin-block-start: 12px;
+  }
+  .m-markdown-small p:first-child {
+    margin-block-start: 0;
+  }
+
+  .m-markdown p,
+  .m-markdown-small p {
+    margin-block-end: 0
+  }
+
+  .m-markdown code span {
+    font-size:var(--font-size-mono);
+  }
+
+  .m-markdown-small code,
+  .m-markdown code {
+    padding: 1px 6px;
+    border-radius: 2px;
+    color: var(--inline-code-fg);
+    background-color: var(--bg3);
+    font-size: calc(var(--font-size-mono));
+    line-height: 1.2;
+  }
+
+  .m-markdown-small code {
+    font-size: calc(var(--font-size-mono) - 1px);
+  }
+
+  .m-markdown-small pre,
+  .m-markdown pre {
+    white-space: pre-wrap;
+    overflow-x: auto;
+    line-height: normal;
+    border-radius: 2px;
+    border: 1px solid var(--code-border-color);
+  }
+
+  .m-markdown pre {
+    padding: 12px;
+    background-color: var(--code-bg);
+    color:var(--code-fg);
+  }
+
+  .m-markdown-small pre {
+    margin-top: 4px;
+    padding: 2px 4px;
+    background-color: var(--bg3);
+    color: var(--fg2);
+  }
+
+  .m-markdown-small pre code,
+  .m-markdown pre code {
+    border:none;
+    padding:0;
+  }
+
+  .m-markdown pre code {
+    color: var(--code-fg);
+    background-color: var(--code-bg);
+    background-color: transparent;
+  }
+
+  .m-markdown-small pre code {
+    color: var(--fg2);
+    background-color: var(--bg3);
+  }
+
+  .m-markdown ul,
+  .m-markdown ol {
+    padding-inline-start: 30px;
+  }
+
+  .m-markdown-small ul,
+  .m-markdown-small ol {
+    padding-inline-start: 20px;
+  }
+
+  .m-markdown-small a,
+  .m-markdown a {
+    color:var(--blue);
+  }
+
+  .m-markdown-small img,
+  .m-markdown img { 
+    max-width: 100%; 
+  }
+
+  /* Markdown table */
+
+  .m-markdown-small table,
+  .m-markdown table {
+    border-spacing: 0;
+    margin: 10px 0;
+    border-collapse: separate;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: calc(var(--font-size-small) + 1px);
+    line-height: calc(var(--font-size-small) + 4px);
+    max-width: 100%;
+  }
+
+  .m-markdown-small table {
+    font-size: var(--font-size-small);
+    line-height: calc(var(--font-size-small) + 2px);
+    margin: 8px 0;
+  }
+
+  .m-markdown-small td, 
+  .m-markdown-small th,
+  .m-markdown td, 
+  .m-markdown th {
+    vertical-align: top;
+    border-top: 1px solid var(--border-color);
+    line-height: calc(var(--font-size-small) + 4px);
+  }
+
+  .m-markdown-small tr:first-child th,
+  .m-markdown tr:first-child th {
+    border-top: 0 none;
+  }
+
+  .m-markdown th, 
+  .m-markdown td { 
+    padding: 10px 12px; 
+  }
+
+  .m-markdown-small th,
+  .m-markdown-small td { 
+    padding: 8px 8px; 
+  }
+
+  .m-markdown th,
+  .m-markdown-small th {
+    font-weight: 600;
+    background-color: var(--bg2);
+    vertical-align: middle;
+  }
+
+  .m-markdown-small table code {
+    font-size: calc(var(--font-size-mono) - 2px);
+  }
+
+  .m-markdown table code {
+    font-size: calc(var(--font-size-mono) - 1px);
+  }
+
+  .m-markdown blockquote,
+  .m-markdown-small blockquote {
+    margin-inline-start: 0;
+    margin-inline-end: 0;
+    border-left: 3px solid var(--border-color);
+    padding: 6px 0 6px 6px;
+  }
+  .m-markdown hr{
+    border: 1px solid var(--border-color);
+  }
+`);
 ;// CONCATENATED MODULE: ./src/styles/input-styles.js
 
 /* eslint-disable max-len */
 
-/* harmony default export */ const input_styles = (css`.m-btn{border-radius:var(--border-radius);font-weight:600;display:inline-block;padding:6px 16px;font-size:var(--font-size-small);outline:0;line-height:1;text-align:center;white-space:nowrap;border:2px solid var(--primary-color);background-color:transparent;transition:background-color .2s;user-select:none;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.24)}.m-btn.primary{background-color:var(--primary-color);color:var(--primary-color-invert)}.m-btn.thin-border{border-width:1px}.m-btn.large{padding:8px 14px}.m-btn.small{padding:5px 12px}.m-btn.tiny{padding:5px 6px}.m-btn.circle{border-radius:50%}.m-btn:hover{background-color:var(--primary-color);color:var(--primary-color-invert)}.m-btn.nav{border:2px solid var(--nav-accent-color)}.m-btn.nav:hover{background-color:var(--nav-accent-color)}.m-btn:disabled{background-color:var(--bg3);color:var(--fg3);border-color:var(--fg3);cursor:not-allowed;opacity:.4}.toolbar-btn{cursor:pointer;padding:4px;margin:0 2px;font-size:var(--font-size-small);min-width:50px;color:var(--primary-color-invert);border-radius:2px;border:none;background-color:var(--primary-color)}button,input,pre,select,textarea{color:var(--fg);outline:0;background-color:var(--input-bg);border:1px solid var(--border-color);border-radius:var(--border-radius)}button{font-family:var(--font-regular)}input[type=file],input[type=password],input[type=text],pre,select,textarea{font-family:var(--font-mono);font-weight:400;font-size:var(--font-size-small);transition:border .2s;padding:6px 5px}select{font-family:var(--font-regular);padding:5px 30px 5px 5px;background-image:url("data:image/svg+xml;charset=utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%3E%3Cpath%20d%3D%22M10.3%203.3L6%207.6%201.7%203.3A1%201%200%2000.3%204.7l5%205a1%201%200%20001.4%200l5-5a1%201%200%2010-1.4-1.4z%22%20fill%3D%22%23777777%22%2F%3E%3C%2Fsvg%3E");background-position:calc(100% - 5px) center;background-repeat:no-repeat;background-size:10px;-webkit-appearance:none;-moz-appearance:none;appearance:none;cursor:pointer}select:hover{border-color:var(--primary-color)}input[type=password]::placeholder,input[type=text]::placeholder,textarea::placeholder{color:var(--placeholder-color);opacity:1}input[type=password]:active,input[type=password]:focus,input[type=text]:active,input[type=text]:focus,select:focus,textarea:active,textarea:focus{border:1px solid var(--primary-color)}input[type=file]{font-family:var(--font-regular);padding:2px;cursor:pointer;border:1px solid var(--primary-color);min-height:calc(var(--font-size-small) + 18px)}input[type=file]::-webkit-file-upload-button{font-family:var(--font-regular);font-size:var(--font-size-small);outline:0;cursor:pointer;padding:3px 8px;border:1px solid var(--primary-color);background-color:var(--primary-color);color:var(--primary-color-invert);border-radius:var(--border-radius);-webkit-appearance:none}pre,textarea{scrollbar-width:thin;scrollbar-color:var(--border-color) var(--input-bg)}pre::-webkit-scrollbar,textarea::-webkit-scrollbar{width:8px;height:8px}pre::-webkit-scrollbar-track,textarea::-webkit-scrollbar-track{background:var(--input-bg)}pre::-webkit-scrollbar-thumb,textarea::-webkit-scrollbar-thumb{border-radius:2px;background-color:var(--border-color)}.link{font-size:var(--font-size-small);text-decoration:underline;color:var(--blue);font-family:var(--font-mono);margin-bottom:2px}input[type=checkbox]:focus{outline:0}input[type=checkbox]{appearance:none;display:inline-block;background-color:var(--light-bg);border:1px solid var(--light-bg);border-radius:9px;cursor:pointer;height:18px;position:relative;transition:border .25s .15s,box-shadow .25s .3s,padding .25s;min-width:36px;width:36px;vertical-align:top}input[type=checkbox]:after{position:absolute;background-color:var(--bg);border:1px solid var(--light-bg);border-radius:8px;content:'';top:0;left:0;right:16px;display:block;height:16px;transition:border .25s .15s,left .25s .1s,right .15s .175s}input[type=checkbox]:checked{box-shadow:inset 0 0 0 13px var(--green);border-color:var(--green)}input[type=checkbox]:checked:after{border:1px solid var(--green);left:16px;right:1px;transition:border .25s,left .15s .25s,right .25s .175s}`);
+/* harmony default export */ const input_styles = (r`
+/* Button */
+.m-btn {
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  display: inline-block;
+  padding: 6px 16px;
+  font-size: var(--font-size-small);
+  outline: 0;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  border: 2px solid var(--primary-color);
+  background-color:transparent;
+  transition: background-color 0.2s;
+  user-select: none;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+.m-btn.primary {
+  background-color: var(--primary-color);
+  color: var(--primary-color-invert);
+}
+.m-btn.thin-border { border-width: 1px; }
+.m-btn.large { padding:8px 14px; }
+.m-btn.small { padding:5px 12px; }
+.m-btn.tiny { padding:5px 6px; }
+.m-btn.circle { border-radius: 50%; }
+.m-btn:hover { 
+  background-color: var(--primary-color);
+  color: var(--primary-color-invert);
+}
+.m-btn.nav { border: 2px solid var(--nav-accent-color); }
+.m-btn.nav:hover { 
+  background-color: var(--nav-accent-color);
+}
+.m-btn:disabled{ 
+  background-color: var(--bg3);
+  color: var(--fg3);
+  border-color: var(--fg3);
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+.toolbar-btn{
+  cursor: pointer;
+  padding: 4px;
+  margin:0 2px;
+  font-size: var(--font-size-small);
+  min-width: 50px;
+  color: var(--primary-color-invert);
+  border-radius: 2px;
+  border: none;
+  background-color: var(--primary-color);
+}
+
+input, textarea, select, button, pre {
+  color:var(--fg);
+  outline: none;
+  background-color: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+}
+button {
+  font-family: var(--font-regular);
+}
+
+/* Form Inputs */
+pre,
+select,
+textarea,
+input[type="file"],
+input[type="text"],
+input[type="password"] {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: var(--font-size-small);
+  transition: border .2s;
+  padding: 6px 5px;
+}
+
+select {
+  font-family: var(--font-regular);
+  padding: 5px 30px 5px 5px;
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%3E%3Cpath%20d%3D%22M10.3%203.3L6%207.6%201.7%203.3A1%201%200%2000.3%204.7l5%205a1%201%200%20001.4%200l5-5a1%201%200%2010-1.4-1.4z%22%20fill%3D%22%23777777%22%2F%3E%3C%2Fsvg%3E"); 
+  background-position: calc(100% - 5px) center;
+  background-repeat: no-repeat;  
+  background-size: 10px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+select:hover {
+  border-color: var(--primary-color);
+}
+
+textarea::placeholder,
+input[type="text"]::placeholder,
+input[type="password"]::placeholder {
+  color: var(--placeholder-color);
+  opacity:1;
+}
+
+select:focus,
+textarea:focus,
+input[type="text"]:focus,
+input[type="password"]:focus,
+textarea:active,
+input[type="text"]:active,
+input[type="password"]:active {
+  border:1px solid var(--primary-color);
+}
+
+input[type="file"]{
+  font-family: var(--font-regular);
+  padding:2px;
+  cursor:pointer;
+  border: 1px solid var(--primary-color);
+  min-height: calc(var(--font-size-small) + 18px);
+}
+
+input[type="file"]::-webkit-file-upload-button {
+  font-family: var(--font-regular);
+  font-size: var(--font-size-small);
+  outline: none;
+  cursor:pointer;
+  padding: 3px 8px;
+  border: 1px solid var(--primary-color);
+  background-color: var(--primary-color);
+  color: var(--primary-color-invert);
+  border-radius: var(--border-radius);;
+  -webkit-appearance: none;
+}
+
+pre,
+textarea {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) var(--input-bg);
+}
+
+pre::-webkit-scrollbar,
+textarea::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+pre::-webkit-scrollbar-track,
+textarea::-webkit-scrollbar-track {
+  background:var(--input-bg);
+}
+ 
+pre::-webkit-scrollbar-thumb,
+textarea::-webkit-scrollbar-thumb {
+  border-radius: 2px;
+  background-color: var(--border-color);
+}
+
+.link {
+  font-size:var(--font-size-small);
+  text-decoration: underline;
+  color:var(--blue);
+  font-family:var(--font-mono);
+  margin-bottom:2px;
+}
+
+input[type="checkbox"]:focus{
+  outline:0;
+}
+
+/* Toggle Body */
+input[type="checkbox"] {
+  appearance: none;
+  display: inline-block;
+  background-color: var(--light-bg);
+  border: 1px solid var(--light-bg);
+  border-radius: 9px;
+  cursor: pointer;
+  height: 18px;
+  position: relative;
+  transition: border .25s .15s, box-shadow .25s .3s, padding .25s;
+  min-width: 36px;
+  width: 36px;
+  vertical-align: top;
+}
+/* Toggle Thumb */
+input[type="checkbox"]:after {
+  position: absolute;
+  background-color: var(--bg);
+  border: 1px solid var(--light-bg);
+  border-radius: 8px;
+  content: '';
+  top: 0px;
+  left: 0px;
+  right: 16px;
+  display: block;
+  height: 16px;
+  transition: border .25s .15s, left .25s .1s, right .15s .175s;
+}
+
+/* Toggle Body - Checked */
+input[type="checkbox"]:checked {
+  box-shadow: inset 0 0 0 13px var(--green);
+  border-color: var(--green);
+}
+/* Toggle Thumb - Checked*/
+input[type="checkbox"]:checked:after {
+  border: 1px solid var(--green);
+  left: 16px;
+  right: 1px;
+  transition: border .25s, left .15s .25s, right .25s .175s;
+}
+`);
 ;// CONCATENATED MODULE: ./src/styles/flex-styles.js
 
-/* harmony default export */ const flex_styles = (css`.col,.row{display:flex}.row{align-items:center;flex-direction:row}.col{align-items:stretch;flex-direction:column}`);
+/* harmony default export */ const flex_styles = (r`
+.row, .col{
+  display:flex;
+} 
+.row {
+  align-items:center;
+  flex-direction: row;
+}
+.col {
+  align-items:stretch;
+  flex-direction: column;
+}
+`);
 ;// CONCATENATED MODULE: ./src/styles/table-styles.js
 
-/* harmony default export */ const table_styles = (css`.m-table{border-spacing:0;border-collapse:separate;border:1px solid var(--light-border-color);border-radius:var(--border-radius);margin:0;max-width:100%;direction:ltr}.m-table tr:first-child td,.m-table tr:first-child th{border-top:0 none}.m-table td,.m-table th{font-size:var(--font-size-small);line-height:calc(var(--font-size-small) + 4px);padding:4px 5px 4px;vertical-align:top}.m-table.padded-12 td,.m-table.padded-12 th{padding:12px}.m-table td:not([align]),.m-table th:not([align]){text-align:left}.m-table th{color:var(--fg2);font-size:var(--font-size-small);line-height:calc(var(--font-size-small) + 18px);font-weight:600;letter-spacing:normal;background-color:var(--bg2);vertical-align:bottom;border-bottom:1px solid var(--light-border-color)}.m-table>tbody>tr>td,.m-table>tr>td{border-top:1px solid var(--light-border-color);text-overflow:ellipsis;overflow:hidden}.table-title{font-size:var(--font-size-small);font-weight:700;vertical-align:middle;margin:12px 0 4px 0}`);
+/* harmony default export */ const table_styles = (r`
+.m-table {
+  border-spacing: 0;  
+  border-collapse: separate;
+  border: 1px solid var(--light-border-color);
+  border-radius: var(--border-radius);
+  margin: 0;
+  max-width: 100%;
+  direction: ltr;
+}
+.m-table tr:first-child td,
+.m-table tr:first-child th {
+    border-top: 0 none;
+}
+.m-table td, 
+.m-table th {
+  font-size: var(--font-size-small);
+  line-height: calc(var(--font-size-small) + 4px);
+  padding: 4px 5px 4px;
+  vertical-align: top;
+}
+
+.m-table.padded-12 td, 
+.m-table.padded-12 th {
+  padding: 12px;
+}
+
+.m-table td:not([align]), 
+.m-table th:not([align]) {
+  text-align: left;
+}
+
+.m-table th {
+  color: var(--fg2);
+  font-size: var(--font-size-small);
+  line-height: calc(var(--font-size-small) + 18px);
+  font-weight: 600;
+  letter-spacing: normal;
+  background-color: var(--bg2);
+  vertical-align: bottom;
+  border-bottom: 1px solid var(--light-border-color);
+}
+
+.m-table > tbody > tr > td,
+.m-table > tr > td {
+  border-top: 1px solid var(--light-border-color);
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.table-title {
+  font-size:var(--font-size-small);
+  font-weight:bold;
+  vertical-align: middle;
+  margin: 12px 0 4px 0;
+}
+`);
 ;// CONCATENATED MODULE: ./src/styles/endpoint-styles.js
 
-/* harmony default export */ const endpoint_styles = (css`.only-large-screen{display:none}.endpoint-head .path{display:flex;font-family:var(--font-mono);font-size:var(--font-size-small);align-items:center;overflow-wrap:break-word;word-break:break-all}.endpoint-head .descr{font-size:var(--font-size-small);color:var(--light-fg);font-weight:400;align-items:center;overflow-wrap:break-word;word-break:break-all;display:none}.m-endpoint.expanded{margin-bottom:16px}.m-endpoint>.endpoint-head{border-width:1px 1px 1px 5px;border-style:solid;border-color:transparent;border-top-color:var(--light-border-color);display:flex;padding:6px 16px;align-items:center;cursor:pointer}.m-endpoint>.endpoint-head.put.expanded,.m-endpoint>.endpoint-head.put:hover{border-color:var(--orange);background-color:var(--light-orange)}.m-endpoint>.endpoint-head.post.expanded,.m-endpoint>.endpoint-head.post:hover{border-color:var(--green);background-color:var(--light-green)}.m-endpoint>.endpoint-head.get.expanded,.m-endpoint>.endpoint-head.get:hover{border-color:var(--blue);background-color:var(--light-blue)}.m-endpoint>.endpoint-head.delete.expanded,.m-endpoint>.endpoint-head.delete:hover{border-color:var(--red);background-color:var(--light-red)}.m-endpoint>.endpoint-head.head.expanded,.m-endpoint>.endpoint-head.head:hover,.m-endpoint>.endpoint-head.options.expanded,.m-endpoint>.endpoint-head.options:hover,.m-endpoint>.endpoint-head.patch.expanded,.m-endpoint>.endpoint-head.patch:hover{border-color:var(--yellow);background-color:var(--light-yellow)}.m-endpoint>.endpoint-head.deprecated.expanded,.m-endpoint>.endpoint-head.deprecated:hover{border-color:var(--border-color);filter:opacity(.6)}.m-endpoint .endpoint-body{flex-wrap:wrap;padding:16px 0 0 0;border-width:0 1px 1px 5px;border-style:solid;box-shadow:0 4px 3px -3px rgba(0,0,0,.15)}.m-endpoint .endpoint-body.delete{border-color:var(--red)}.m-endpoint .endpoint-body.put{border-color:var(--orange)}.m-endpoint .endpoint-body.post{border-color:var(--green)}.m-endpoint .endpoint-body.get{border-color:var(--blue)}.m-endpoint .endpoint-body.head,.m-endpoint .endpoint-body.options,.m-endpoint .endpoint-body.patch{border-color:var(--yellow)}.m-endpoint .endpoint-body.deprecated{border-color:var(--border-color);filter:opacity(.6)}.endpoint-head .deprecated{color:var(--light-fg);filter:opacity(.6)}.summary{padding:8px 8px}.summary .title{font-size:calc(var(--font-size-regular) + 2px);margin-bottom:6px;word-break:break-all}.method{padding:2px 5px;vertical-align:middle;font-size:var(--font-size-small);height:calc(var(--font-size-small) + 16px);line-height:calc(var(--font-size-small) + 8px);width:60px;border-radius:2px;display:inline-block;text-align:center;font-weight:700;text-transform:uppercase;margin-right:5px}.method.delete{border:2px solid var(--red)}.method.put{border:2px solid var(--orange)}.method.post{border:2px solid var(--green)}.method.get{border:2px solid var(--blue)}.method.get.deprecated{border:2px solid var(--border-color)}.method.head,.method.options,.method.patch{border:2px solid var(--yellow)}.req-resp-container{display:flex;margin-top:16px;align-items:stretch;flex-wrap:wrap;flex-direction:column;border-top:1px solid var(--light-border-color)}.view-mode-request,api-response.view-mode{flex:1;min-height:100px;padding:16px 8px;overflow:hidden}.view-mode-request{border-width:0 0 1px 0;border-style:dashed}.head .view-mode-request,.options .view-mode-request,.patch .view-mode-request{border-color:var(--yellow)}.put .view-mode-request{border-color:var(--orange)}.post .view-mode-request{border-color:var(--green)}.get .view-mode-request{border-color:var(--blue)}.delete .view-mode-request{border-color:var(--red)}@media only screen and (min-width:1024px){.only-large-screen{display:block}.endpoint-head .path{font-size:var(--font-size-regular)}.endpoint-head .descr{display:flex}.descr .m-markdown-small,.endpoint-head .m-markdown-small{display:block}.req-resp-container{flex-direction:var(--layout,row);flex-wrap:nowrap}api-response.view-mode{padding:16px}.view-mode-request.row-layout{border-width:0 1px 0 0;padding:16px}.summary{padding:8px 16px}}`);
+/* harmony default export */ const endpoint_styles = (r`
+.only-large-screen { display:none; }
+.endpoint-head .path{
+  display: flex;
+  font-family:var(--font-mono);
+  font-size: var(--font-size-small);
+  align-items: center;
+  overflow-wrap: break-word;
+  word-break: break-all;
+}
+
+.endpoint-head .descr {
+  font-size: var(--font-size-small);
+  color:var(--light-fg);
+  font-weight:400;
+  align-items: center;
+  overflow-wrap: break-word;
+  word-break: break-all;
+  display:none;
+}
+
+.m-endpoint.expanded{margin-bottom:16px; }
+.m-endpoint > .endpoint-head{
+  border-width:1px 1px 1px 5px;
+  border-style:solid;
+  border-color:transparent;
+  border-top-color:var(--light-border-color);
+  display:flex;
+  padding:6px 16px;
+  align-items: center;
+  cursor: pointer;
+}
+.m-endpoint > .endpoint-head.put:hover,
+.m-endpoint > .endpoint-head.put.expanded{
+  border-color:var(--orange); 
+  background-color:var(--light-orange); 
+}
+.m-endpoint > .endpoint-head.post:hover,
+.m-endpoint > .endpoint-head.post.expanded {
+  border-color:var(--green); 
+  background-color:var(--light-green); 
+}
+.m-endpoint > .endpoint-head.get:hover,
+.m-endpoint > .endpoint-head.get.expanded {
+  border-color:var(--blue); 
+  background-color:var(--light-blue); 
+}
+.m-endpoint > .endpoint-head.delete:hover,
+.m-endpoint > .endpoint-head.delete.expanded {
+  border-color:var(--red); 
+  background-color:var(--light-red); 
+}
+
+.m-endpoint > .endpoint-head.head:hover,
+.m-endpoint > .endpoint-head.head.expanded,
+.m-endpoint > .endpoint-head.patch:hover,
+.m-endpoint > .endpoint-head.patch.expanded,
+.m-endpoint > .endpoint-head.options:hover,
+.m-endpoint > .endpoint-head.options.expanded {
+  border-color:var(--yellow); 
+  background-color:var(--light-yellow); 
+}
+
+.m-endpoint > .endpoint-head.deprecated:hover,
+.m-endpoint > .endpoint-head.deprecated.expanded {
+  border-color:var(--border-color); 
+  filter:opacity(0.6);
+}
+
+.m-endpoint .endpoint-body {
+  flex-wrap:wrap;
+  padding:16px 0px 0 0px;
+  border-width:0px 1px 1px 5px;
+  border-style:solid;
+  box-shadow: 0px 4px 3px -3px rgba(0, 0, 0, 0.15);
+}
+.m-endpoint .endpoint-body.delete{ border-color:var(--red); }
+.m-endpoint .endpoint-body.put{ border-color:var(--orange); }
+.m-endpoint .endpoint-body.post{border-color:var(--green);}
+.m-endpoint .endpoint-body.get{ border-color:var(--blue); }
+.m-endpoint .endpoint-body.head,
+.m-endpoint .endpoint-body.patch,
+.m-endpoint .endpoint-body.options { 
+  border-color:var(--yellow); 
+}
+
+.m-endpoint .endpoint-body.deprecated{ 
+  border-color:var(--border-color);
+  filter:opacity(0.6);
+}
+
+.endpoint-head .deprecated{
+  color: var(--light-fg);
+  filter:opacity(0.6);
+}
+
+.summary{
+  padding:8px 8px;
+}
+.summary .title{
+  font-size:calc(var(--font-size-regular) + 2px);
+  margin-bottom: 6px;
+  word-break: break-all;
+}
+
+.method{
+  padding:2px 5px;
+  vertical-align: middle;
+  font-size:var(--font-size-small);
+  height: calc(var(--font-size-small) + 16px);
+  line-height: calc(var(--font-size-small) + 8px);
+  width: 60px;
+  border-radius: 2px;
+  display:inline-block;
+  text-align: center;
+  font-weight: bold;
+  text-transform:uppercase;
+  margin-right:5px;
+}
+.method.delete{ border: 2px solid var(--red);}
+.method.put{ border: 2px solid var(--orange); }
+.method.post{ border: 2px solid var(--green); }
+.method.get{ border: 2px solid var(--blue); }
+.method.get.deprecated{ border: 2px solid var(--border-color); }
+.method.head,
+.method.patch,
+.method.options { 
+  border: 2px solid var(--yellow); 
+}
+
+.req-resp-container{
+  display: flex;
+  margin-top:16px;
+  align-items: stretch;
+  flex-wrap: wrap;
+  flex-direction: column;
+  border-top:1px solid var(--light-border-color);
+}
+
+.view-mode-request,
+api-response.view-mode {
+  flex:1; 
+  min-height:100px;
+  padding:16px 8px;
+  overflow:hidden;
+}
+.view-mode-request {
+  border-width:0 0 1px 0;
+  border-style:dashed;
+}
+
+.head .view-mode-request,
+.patch .view-mode-request,
+.options .view-mode-request { 
+  border-color:var(--yellow); 
+}
+.put .view-mode-request { 
+  border-color:var(--orange); 
+}
+.post .view-mode-request { 
+  border-color:var(--green); 
+}
+.get .view-mode-request { 
+  border-color:var(--blue); 
+}
+.delete .view-mode-request { 
+  border-color:var(--red); 
+}
+
+@media only screen and (min-width: 1024px) {
+  .only-large-screen { display:block; }
+  .endpoint-head .path{
+    font-size: var(--font-size-regular);
+  }
+  .endpoint-head .descr{
+    display: flex;
+  }
+  .endpoint-head .m-markdown-small,
+  .descr .m-markdown-small{
+    display:block;
+  }
+  .req-resp-container{
+    flex-direction: var(--layout, row);
+    flex-wrap: nowrap;
+  }
+  api-response.view-mode {
+    padding:16px;
+  }
+  .view-mode-request.row-layout {
+    border-width:0 1px 0 0;
+    padding:16px;
+  }
+  .summary{
+    padding:8px 16px;
+  }
+}
+`);
 ;// CONCATENATED MODULE: ./src/styles/prism-styles.js
 
-/* harmony default export */ const prism_styles = (css`code[class*=language-],pre[class*=language-]{text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;tab-size:2;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none}pre[class*=language-]{padding:1em;margin:.5em 0;overflow:auto}:not(pre)>code[class*=language-]{white-space:normal}.token.block-comment,.token.cdata,.token.comment,.token.doctype,.token.prolog{color:var(--light-fg)}.token.punctuation{color:var(--fg)}.token.attr-name,.token.deleted,.token.namespace,.token.tag{color:var(--pink)}.token.function-name{color:var(--blue)}.token.boolean,.token.function,.token.number{color:var(--red)}.token.class-name,.token.constant,.token.property,.token.symbol{color:var(--code-property-color)}.token.atrule,.token.builtin,.token.important,.token.keyword,.token.selector{color:var(--code-keyword-color)}.token.attr-value,.token.char,.token.regex,.token.string,.token.variable{color:var(--green)}.token.entity,.token.operator,.token.url{color:var(--code-operator-color)}.token.bold,.token.important{font-weight:700}.token.italic{font-style:italic}.token.entity{cursor:help}.token.inserted{color:green}`);
+/* harmony default export */ const prism_styles = (r`
+code[class*="language-"],
+pre[class*="language-"] {
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.5;
+  tab-size: 2;
+
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+  padding: 1em;
+  margin: .5em 0;
+  overflow: auto;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+  white-space: normal;
+}
+
+.token.comment,
+.token.block-comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: var(--light-fg)
+}
+
+.token.punctuation {
+  color: var(--fg);
+}
+
+.token.tag,
+.token.attr-name,
+.token.namespace,
+.token.deleted {
+  color:var(--pink);
+}
+
+.token.function-name {
+  color: var(--blue);
+}
+
+.token.boolean,
+.token.number,
+.token.function {
+  color: var(--red);
+}
+
+.token.property,
+.token.class-name,
+.token.constant,
+.token.symbol {
+  color: var(--code-property-color);
+}
+
+.token.selector,
+.token.important,
+.token.atrule,
+.token.keyword,
+.token.builtin {
+  color: var(--code-keyword-color);
+}
+
+.token.string,
+.token.char,
+.token.attr-value,
+.token.regex,
+.token.variable { 
+  color: var(--green);
+}
+
+.token.operator,
+.token.entity,
+.token.url {
+  color: var(--code-operator-color);
+}
+
+.token.important,
+.token.bold {
+  font-weight: bold;
+}
+.token.italic {
+  font-style: italic;
+}
+
+.token.entity {
+  cursor: help;
+}
+
+.token.inserted {
+  color: green;
+}
+`);
 ;// CONCATENATED MODULE: ./src/styles/tab-styles.js
 
-/* harmony default export */ const tab_styles = (css`.tab-panel{border:none}.tab-buttons{height:30px;border-bottom:1px solid var(--light-border-color);align-items:stretch;overflow-y:hidden;overflow-x:auto;scrollbar-width:thin}.tab-buttons::-webkit-scrollbar{height:1px;background-color:var(--border-color)}.tab-btn{border:none;border-bottom:3px solid transparent;color:var(--light-fg);background-color:transparent;white-space:nowrap;cursor:pointer;outline:0;font-family:var(--font-regular);font-size:var(--font-size-small);margin-right:16px;padding:1px}.tab-btn.active{border-bottom:3px solid var(--primary-color);font-weight:700;color:var(--primary-color)}.tab-btn:hover{color:var(--primary-color)}.tab-content{margin:-1px 0 0 0;position:relative}`);
+/* harmony default export */ const tab_styles = (r`
+.tab-panel {
+  border: none;
+}
+.tab-buttons {
+  height:30px;
+  border-bottom: 1px solid var(--light-border-color) ;
+  align-items: stretch;
+  overflow-y: hidden;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.tab-buttons::-webkit-scrollbar {
+  height: 1px;
+  background-color: var(--border-color);
+}
+.tab-btn {
+  border: none;
+  border-bottom: 3px solid transparent; 
+  color: var(--light-fg);
+  background-color: transparent;
+  white-space: nowrap;
+  cursor:pointer;
+  outline:none;
+  font-family:var(--font-regular); 
+  font-size:var(--font-size-small);
+  margin-right:16px;
+  padding:1px;
+}
+.tab-btn.active {
+  border-bottom: 3px solid var(--primary-color); 
+  font-weight:bold;
+  color:var(--primary-color);
+}
+
+.tab-btn:hover {
+  color:var(--primary-color);
+}
+.tab-content {
+  margin:-1px 0 0 0;
+  position:relative;
+}
+`);
 ;// CONCATENATED MODULE: ./src/styles/nav-styles.js
 
-/* harmony default export */ const nav_styles = (css`.nav-bar{width:0;height:100%;overflow:hidden;color:var(--nav-text-color);background-color:var(--nav-bg-color);background-blend-mode:multiply;line-height:calc(var(--font-size-small) + 4px);display:none;position:relative;flex-direction:column;flex-wrap:nowrap;word-break:break-word}::slotted([slot=nav-logo]){padding:16px 16px 0 16px}.nav-scroll{overflow-x:hidden;overflow-y:auto;overflow-y:overlay;scrollbar-width:thin;scrollbar-color:var(--nav-hover-bg-color) transparent}.nav-bar-tag{display:flex;align-items:center;justify-content:space-between;flex-direction:row}.nav-bar.read .nav-bar-tag-icon{display:none}.nav-bar-tag-icon{color:var(--nav-text-color);font-size:20px}.nav-bar-tag-icon:hover{color:var(--nav-hover-text-color)}.nav-bar.focused .nav-bar-tag-and-paths.collapsed .nav-bar-paths-under-tag{display:none}.nav-bar.focused .nav-bar-tag-and-paths.collapsed .nav-bar-tag-icon::after{content:'⌵';width:16px;height:16px;text-align:center;display:inline-block;transform:rotate(270deg)}.nav-bar.focused .nav-bar-tag-and-paths.expanded .nav-bar-tag-icon::after{content:'⌵';width:16px;height:16px;text-align:center;display:inline-block}.nav-scroll::-webkit-scrollbar{width:var(--scroll-bar-width,8px)}.nav-scroll::-webkit-scrollbar-track{background:0 0}.nav-scroll::-webkit-scrollbar-thumb{background-color:var(--nav-hover-bg-color)}.nav-bar-tag{font-size:var(--font-size-regular);color:var(--nav-accent-color);border-left:4px solid transparent;font-weight:700;padding:15px 15px 15px 10px;text-transform:capitalize}.nav-bar-components,.nav-bar-h1,.nav-bar-h2,.nav-bar-info,.nav-bar-path,.nav-bar-tag{display:flex;cursor:pointer;border-left:4px solid transparent}.nav-bar-h1,.nav-bar-h2,.nav-bar-path{font-size:calc(var(--font-size-small) + 1px);padding:var(--nav-item-padding)}.nav-bar-path.small-font{font-size:var(--font-size-small)}.nav-bar-info{font-size:var(--font-size-regular);padding:16px 10px;font-weight:700}.nav-bar-section{display:flex;flex-direction:row;justify-content:space-between;font-size:var(--font-size-small);color:var(--nav-text-color);padding:var(--nav-item-padding);font-weight:700}.nav-bar-section.operations{cursor:pointer}.nav-bar-section.operations:hover{color:var(--nav-hover-text-color);background-color:var(--nav-hover-bg-color)}.nav-bar-section:first-child{display:none}.nav-bar-h2{margin-left:12px}.nav-bar-h1.active,.nav-bar-h2.active,.nav-bar-info.active,.nav-bar-path.active,.nav-bar-section.operations.active,.nav-bar-tag.active{border-left:4px solid var(--nav-accent-color);color:var(--nav-hover-text-color)}.nav-bar-h1:hover,.nav-bar-h2:hover,.nav-bar-info:hover,.nav-bar-path:hover,.nav-bar-tag:hover{color:var(--nav-hover-text-color);background-color:var(--nav-hover-bg-color)}`);
+/* harmony default export */ const nav_styles = (r`
+.nav-bar {
+  width:0;
+  height:100%;
+  overflow: hidden;
+  color:var(--nav-text-color);
+  background-color: var(--nav-bg-color);
+  background-blend-mode: multiply;
+  line-height: calc(var(--font-size-small) + 4px);
+  display:none;
+  position:relative;
+  flex-direction:column;
+  flex-wrap:nowrap;
+  word-break:break-word;
+}
+::slotted([slot=nav-logo]){
+  padding:16px 16px 0 16px;
+}
+.nav-scroll {
+  overflow-x: hidden;
+  overflow-y: auto;
+  overflow-y: overlay;
+  scrollbar-width: thin;
+  scrollbar-color: var(--nav-hover-bg-color) transparent;
+}
+
+.nav-bar-tag {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: row;
+}
+.nav-bar.read .nav-bar-tag-icon {
+  display:none;
+}
+
+.nav-bar-tag-icon {
+  color: var(--nav-text-color);
+  font-size: 20px; 
+}
+.nav-bar-tag-icon:hover {
+  color:var(--nav-hover-text-color);
+}
+.nav-bar.focused .nav-bar-tag-and-paths.collapsed .nav-bar-paths-under-tag {
+  display:none;
+}
+.nav-bar.focused .nav-bar-tag-and-paths.collapsed .nav-bar-tag-icon::after {
+  content: '⌵';
+  width:16px;
+  height:16px;
+  text-align: center;
+  display: inline-block;
+  transform: rotate(270deg);
+}
+.nav-bar.focused .nav-bar-tag-and-paths.expanded .nav-bar-tag-icon::after {
+  content: '⌵';
+  width:16px;
+  height:16px;
+  text-align: center;
+  display: inline-block;
+}
+.nav-scroll::-webkit-scrollbar {
+  width: var(--scroll-bar-width, 8px);
+}
+.nav-scroll::-webkit-scrollbar-track {
+  background:transparent;
+}
+.nav-scroll::-webkit-scrollbar-thumb {
+  background-color: var(--nav-hover-bg-color);
+}
+
+.nav-bar-tag {
+  font-size: var(--font-size-regular);
+  color: var(--nav-accent-color);
+  border-left:4px solid transparent;
+  font-weight:bold;
+  padding: 15px 15px 15px 10px;
+  text-transform: capitalize;
+}
+
+.nav-bar-components,
+.nav-bar-h1,
+.nav-bar-h2,
+.nav-bar-info,
+.nav-bar-tag,
+.nav-bar-path {
+  display:flex;
+  cursor:pointer;
+  border-left:4px solid transparent;
+}
+
+.nav-bar-h1,
+.nav-bar-h2,
+.nav-bar-path {
+  font-size: calc(var(--font-size-small) + 1px);
+  padding: var(--nav-item-padding);
+}
+.nav-bar-path.small-font {
+  font-size: var(--font-size-small);
+}
+
+.nav-bar-info {
+  font-size: var(--font-size-regular);
+  padding: 16px 10px;
+  font-weight:bold;
+}
+.nav-bar-section {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  font-size: var(--font-size-small);
+  color: var(--nav-text-color);
+  padding: var(--nav-item-padding);
+  font-weight:bold;
+}
+.nav-bar-section.operations {
+  cursor:pointer;
+}
+.nav-bar-section.operations:hover {
+  color:var(--nav-hover-text-color);
+  background-color:var(--nav-hover-bg-color);
+}
+
+.nav-bar-section:first-child {
+  display: none;
+}
+.nav-bar-h2 {margin-left:12px;}
+
+.nav-bar-h1.active,
+.nav-bar-h2.active,
+.nav-bar-info.active,
+.nav-bar-tag.active,
+.nav-bar-path.active,
+.nav-bar-section.operations.active {
+  border-left:4px solid var(--nav-accent-color);
+  color:var(--nav-hover-text-color);
+}
+
+.nav-bar-h1:hover,
+.nav-bar-h2:hover,
+.nav-bar-info:hover,
+.nav-bar-tag:hover,
+.nav-bar-path:hover {
+  color:var(--nav-hover-text-color);
+  background-color:var(--nav-hover-bg-color);
+}
+`);
 ;// CONCATENATED MODULE: ./src/styles/info-styles.js
 
-/* harmony default export */ const info_styles = (css`#api-info{font-size:calc(var(--font-size-regular) - 1px);margin-top:8px margin-left: -15px}#api-info span:before{content:"|";display:inline-block;opacity:.5;width:15px;text-align:center}#api-info span:first-child:before{content:"";width:0}`);
+/* harmony default export */ const info_styles = (r`
+#api-info {
+  font-size:calc(var(--font-size-regular) - 1px);margin-top:8px
+  margin-left: -15px;
+}
+
+#api-info span:before {
+  content: "|";
+  display: inline-block;
+  opacity: 0.5;
+  width: 15px;
+  text-align: center;
+}
+#api-info span:first-child:before {
+  content: "";
+  width: 0px;
+}
+`);
 ;// CONCATENATED MODULE: ./src/styles/custom-styles.js
 
 /*
@@ -5538,7 +3862,9 @@ This file is reserved for any custom css that developers want to add to
 customize their theme. Simply add your css to this file and yarn build.
 */
 
-/* harmony default export */ const custom_styles = (css``);
+/* harmony default export */ const custom_styles = (r`
+
+`);
 ;// CONCATENATED MODULE: ./src/utils/common-utils.js
 /* For Delayed Event Handler Execution */
 function debounce(fn, delay) {
@@ -10740,7 +9066,7 @@ var bind$5 = functionBindContext;
 var isCallable$4 = isCallable$k;
 var hasOwn$6 = hasOwnProperty_1;
 var fails$7 = fails$q;
-var openapi_parser_es_html = html$2;
+var html = html$2;
 var arraySlice$1 = arraySlice$3;
 var createElement = documentCreateElement$1;
 var validateArgumentsLength$1 = validateArgumentsLength$2;
@@ -10833,8 +9159,8 @@ if (!set$1 || !clear) {
   // IE8-
   } else if (ONREADYSTATECHANGE in createElement('script')) {
     defer = function (id) {
-      openapi_parser_es_html.appendChild(createElement('script'))[ONREADYSTATECHANGE] = function () {
-        openapi_parser_es_html.removeChild(this);
+      html.appendChild(createElement('script'))[ONREADYSTATECHANGE] = function () {
+        html.removeChild(this);
         run(id);
       };
     };
@@ -16380,9 +14706,9 @@ function charFromCodepoint(c) {
 
 var simpleEscapeCheck = new Array(256); // integer, for fast access
 var simpleEscapeMap = new Array(256);
-for (var i = 0; i < 256; i++) {
-  simpleEscapeCheck[i] = simpleEscapeSequence(i) ? 1 : 0;
-  simpleEscapeMap[i] = simpleEscapeSequence(i);
+for (var openapi_parser_es_i = 0; openapi_parser_es_i < 256; openapi_parser_es_i++) {
+  simpleEscapeCheck[openapi_parser_es_i] = simpleEscapeSequence(openapi_parser_es_i) ? 1 : 0;
+  simpleEscapeMap[openapi_parser_es_i] = simpleEscapeSequence(openapi_parser_es_i);
 }
 
 
@@ -25950,7 +24276,7 @@ function mapTagOperations(_ref2) {
 }
 
 /* eslint-disable es/no-array-prototype-indexof -- required for testing */
-var $ = _export;
+var openapi_parser_es_$ = _export;
 var uncurryThis = functionUncurryThis;
 var $IndexOf = arrayIncludes.indexOf;
 var arrayMethodIsStrict = arrayMethodIsStrict$2;
@@ -25962,7 +24288,7 @@ var STRICT_METHOD = arrayMethodIsStrict('indexOf');
 
 // `Array.prototype.indexOf` method
 // https://tc39.es/ecma262/#sec-array.prototype.indexof
-$({ target: 'Array', proto: true, forced: NEGATIVE_ZERO || !STRICT_METHOD }, {
+openapi_parser_es_$({ target: 'Array', proto: true, forced: NEGATIVE_ZERO || !STRICT_METHOD }, {
   indexOf: function indexOf(searchElement /* , fromIndex = 0 */) {
     var fromIndex = arguments.length > 1 ? arguments[1] : undefined;
     return NEGATIVE_ZERO
@@ -26395,7 +24721,7 @@ function path(_ref) {
   });
   req.url = req.url.split("{".concat(name, "}")).join(styledValue);
 }
-function openapi_parser_es_query(_ref2) {
+function query(_ref2) {
   var req = _ref2.req,
       value = _ref2.value,
       parameter = _ref2.parameter;
@@ -26495,7 +24821,7 @@ var OAS3_PARAMETER_BUILDERS = /*#__PURE__*/Object.freeze({
 	__proto__: null,
 	[Symbol.toStringTag]: 'Module',
 	path: path,
-	query: openapi_parser_es_query,
+	query: query,
 	header: header,
 	cookie: cookie
 });
@@ -29282,54 +27608,32 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
   });
   return sortTags ? tagsWithSortedPaths.sort((a, b) => a.name.localeCompare(b.name)) : tagsWithSortedPaths;
 }
-;// CONCATENATED MODULE: ./node_modules/lit-html/directives/unsafe-html.js
+;// CONCATENATED MODULE: ./node_modules/lit-html/directive.js
 /**
  * @license
- * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
- * This code may only be used under the BSD style license found at
- * http://polymer.github.io/LICENSE.txt
- * The complete set of authors may be found at
- * http://polymer.github.io/AUTHORS.txt
- * The complete set of contributors may be found at
- * http://polymer.github.io/CONTRIBUTORS.txt
- * Code distributed by Google as part of the polymer project is also
- * subject to an additional IP rights grant found at
- * http://polymer.github.io/PATENTS.txt
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
  */
+const directive_t={ATTRIBUTE:1,CHILD:2,PROPERTY:3,BOOLEAN_ATTRIBUTE:4,EVENT:5,ELEMENT:6},directive_e=t=>(...e)=>({_$litDirective$:t,values:e});class directive_i{constructor(t){}get _$AU(){return this._$AM._$AU}_$AT(t,e,i){this._$Ct=t,this._$AM=e,this._$Ci=i}_$AS(t,e){return this.update(t,e)}update(t,e){return this.render(...e)}}
+//# sourceMappingURL=directive.js.map
 
+;// CONCATENATED MODULE: ./node_modules/lit-html/directives/unsafe-html.js
 
-// For each part, remember the value that was last rendered to the part by the
-// unsafeHTML directive, and the DocumentFragment that was last set as a value.
-// The DocumentFragment is used as a unique key to check if the last value
-// rendered to the part was with unsafeHTML. If not, we'll always re-render the
-// value passed to unsafeHTML.
-const previousValues = new WeakMap();
 /**
- * Renders the result as HTML, rather than text.
- *
- * Note, this is unsafe to use with any user-provided input that hasn't been
- * sanitized or escaped, as it may lead to cross-site-scripting
- * vulnerabilities.
- */
-const unsafeHTML = directive((value) => (part) => {
-    if (!(part instanceof NodePart)) {
-        throw new Error('unsafeHTML can only be used in text bindings');
-    }
-    const previousValue = previousValues.get(part);
-    if (previousValue !== undefined && isPrimitive(value) &&
-        value === previousValue.value && part.value === previousValue.fragment) {
-        return;
-    }
-    const template = document.createElement('template');
-    template.innerHTML = value; // innerHTML casts to string internally
-    const fragment = document.importNode(template.content, true);
-    part.setValue(fragment);
-    previousValues.set(part, { value, fragment });
-});
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */class unsafe_html_e extends directive_i{constructor(i){if(super(i),this.it=w,i.type!==directive_t.CHILD)throw Error(this.constructor.directiveName+"() can only be used in child bindings")}render(r){if(r===w||null==r)return this.ft=void 0,this.it=r;if(r===b)return r;if("string"!=typeof r)throw Error(this.constructor.directiveName+"() called with a non-string value");if(r===this.it)return this.ft;this.it=r;const s=[r];return s.raw=s,this.ft={_$litType$:this.constructor.resultType,strings:s,values:[]}}}unsafe_html_e.directiveName="unsafeHTML",unsafe_html_e.resultType=1;const unsafe_html_o=directive_e(unsafe_html_e);
 //# sourceMappingURL=unsafe-html.js.map
+
+;// CONCATENATED MODULE: ./node_modules/lit/directives/unsafe-html.js
+
+//# sourceMappingURL=unsafe-html.js.map
+
 ;// CONCATENATED MODULE: ./src/templates/security-scheme-template.js
 /* eslint-disable arrow-body-style */
 
+ // eslint-disable-line import/extensions
 
 
 const codeVerifier = '731DB1C3F7EA533B85E29492D26AA-1234567890-1234567890';
@@ -29622,12 +27926,12 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
 /* eslint-disable indent */
 
 
-function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, authFlow) {
+function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, authFlow, defaultScopes = []) {
   let {
     authorizationUrl,
     tokenUrl,
     refreshUrl
-  } = authFlow.authorizationUrl;
+  } = authFlow;
 
   const isUrlAbsolute = url => url.indexOf('://') > 0 || url.indexOf('//') === 0;
 
@@ -29657,9 +27961,60 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
     flowNameDisplay = flowName;
   }
 
-  return html` <div class="oauth-flow ${flowName}" style="padding:12px 0;margin-bottom:12px"> <div class="tiny-title upper" style="margin-bottom:8px">${flowNameDisplay}</div> ${authorizationUrl ? html`<div style="margin-bottom:5px"><span style="width:75px;display:inline-block">Auth URL</span> <span class="mono-font"> ${authorizationUrl} </span></div>` : ''} ${tokenUrl ? html`<div style="margin-bottom:5px"><span style="width:75px;display:inline-block">Token URL</span> <span class="mono-font">${tokenUrl}</span></div>` : ''} ${refreshUrl ? html`<div style="margin-bottom:5px"><span style="width:75px;display:inline-block">Refresh URL</span> <span class="mono-font">${refreshUrl}</span></div>` : ''} ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit' || flowName === 'password' ? html` ${authFlow.scopes ? html` <span> Scopes </span> <div class="oauth-scopes" part="section-auth-scopes" style="width:100%;display:flex;flex-direction:column;flex-wrap:wrap;margin:0 0 10px 24px"> ${Object.entries(authFlow.scopes).map((scopeAndDescr, index) => html` <div class="m-checkbox" style="display:inline-flex;align-items:center"> <input type="checkbox" part="checkbox checkbox-auth-scope" class="scope-checkbox" id="${securitySchemeId}${flowName}${index}" value="${scopeAndDescr[0]}"> <label for="${securitySchemeId}${flowName}${index}" style="margin-left:5px;cursor:pointer"> <span class="mono-font">${scopeAndDescr[0]}</span> ${scopeAndDescr[0] !== scopeAndDescr[1] ? ` - ${scopeAndDescr[1] || ''}` : ''} </label> </div> `)} </div> ` : ''} ${flowName === 'password' ? html` <div style="margin:5px 0"> <input type="text" value="" placeholder="username" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} api-key-user" part="textbox textbox-username"> <input type="password" value="" placeholder="password" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} api-key-password" style="margin:0 5px" part="textbox textbox-password"> </div>` : ''} <div> ${flowName === 'authorizationCode' ? html` <div style="margin:16px 0 4px"> <input type="checkbox" part="checkbox checkbox-auth-scope" id="${securitySchemeId}-pkce" checked="checked"> <label for="${securitySchemeId}-pkce" style="margin:0 16px 0 4px;line-height:24px;cursor:pointer"> Send Proof Key for Code Exchange (PKCE) </label> </div> ` : ''} <input type="text" part="textbox textbox-auth-client-id" value="${clientId || ''}" placeholder="client-id" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} oauth-client-id"> ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password' ? html` <input type="password" part="textbox textbox-auth-client-secret" value="${clientSecret || ''}" placeholder="client-secret" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} oauth-client-secret" style="margin:0 5px"> ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password' ? html` <select style="margin-right:5px" class="${flowName} ${securitySchemeId} oauth-send-client-secret-in"> <option value="header" selected="selected"> Authorization Header </option> <option value="request-body"> Request Body </option> </select>` : ''}` : ''} ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit' || flowName === 'password' ? html` <button class="m-btn thin-border" part="btn btn-outline" @click="${e => {
+  return $`
+    <div class="oauth-flow ${flowName}" style="padding: 12px 0; margin-bottom:12px;">
+      <div class="tiny-title upper" style="margin-bottom:8px;">${flowNameDisplay}</div>
+      ${authorizationUrl ? $`<div style="margin-bottom:5px"><span style="width:75px; display: inline-block;">Auth URL</span> <span class="mono-font"> ${authorizationUrl} </span></div>` : ''}
+      ${tokenUrl ? $`<div style="margin-bottom:5px"><span style="width:75px; display: inline-block;">Token URL</span> <span class="mono-font">${tokenUrl}</span></div>` : ''}
+      ${refreshUrl ? $`<div style="margin-bottom:5px"><span style="width:75px; display: inline-block;">Refresh URL</span> <span class="mono-font">${refreshUrl}</span></div>` : ''}
+      ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit' || flowName === 'password' ? $`
+          ${authFlow.scopes ? $`
+              <span> Scopes </span>
+              <div class= "oauth-scopes" part="section-auth-scopes" style = "width:100%; display:flex; flex-direction:column; flex-wrap:wrap; margin:0 0 10px 24px">
+                ${Object.entries(authFlow.scopes).map((scopeAndDescr, index) => $`
+                  <div class="m-checkbox" style="display:inline-flex; align-items:center">
+                    <input type="checkbox" part="checkbox checkbox-auth-scope" class="scope-checkbox" id="${securitySchemeId}${flowName}${index}" ?checked="${defaultScopes.includes(scopeAndDescr[0])}" value="${scopeAndDescr[0]}">
+                    <label for="${securitySchemeId}${flowName}${index}" style="margin-left:5px; cursor:pointer">
+                      <span class="mono-font">${scopeAndDescr[0]}</span>
+                        ${scopeAndDescr[0] !== scopeAndDescr[1] ? ` - ${scopeAndDescr[1] || ''}` : ''}
+                    </label>
+                  </div>
+                `)}
+              </div>
+            ` : ''}
+          ${flowName === 'password' ? $`
+              <div style="margin:5px 0">
+                <input type="text" value = "" placeholder="username" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} api-key-user" part="textbox textbox-username">
+                <input type="password" value = "" placeholder="password" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} api-key-password" style = "margin:0 5px;" part="textbox textbox-password">
+              </div>` : ''}
+          <div>
+            ${flowName === 'authorizationCode' ? $`
+                <div style="margin: 16px 0 4px">
+                  <input type="checkbox" part="checkbox checkbox-auth-scope" id="${securitySchemeId}-pkce" checked>
+                  <label for="${securitySchemeId}-pkce" style="margin:0 16px 0 4px; line-height:24px; cursor:pointer">
+                   Send Proof Key for Code Exchange (PKCE)
+                  </label>
+                </div>
+              ` : ''}
+            <input type="text" part="textbox textbox-auth-client-id" value = "${clientId || ''}" placeholder="client-id" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} oauth-client-id">
+            ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password' ? $`
+                <input type="password" part="textbox textbox-auth-client-secret" value = "${clientSecret || ''}" placeholder="client-secret" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} oauth-client-secret" style = "margin:0 5px;">
+                ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password' ? $`
+                    <select style="margin-right:5px;" class="${flowName} ${securitySchemeId} oauth-send-client-secret-in">
+                      <option value = 'header' selected> Authorization Header </option>
+                      <option value = 'request-body'> Request Body </option>
+                    </select>` : ''}` : ''}
+            ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit' || flowName === 'password' ? $`
+                <button class="m-btn thin-border" part="btn btn-outline"
+                  @click="${e => {
     onInvokeOAuthFlow.call(this, securitySchemeId, flowName, authorizationUrl, tokenUrl, e);
-  }}"> GET TOKEN </button>` : ''} </div> <div class="oauth-resp-display red-text small-font-size"></div> ` : ''} </div> `;
+  }}"
+                > GET TOKEN </button>` : ''}
+          </div>
+          <div class="oauth-resp-display red-text small-font-size"></div>
+          ` : ''}
+    </div>
+  `;
 }
 
 function removeApiKey(securitySchemeId) {
@@ -29693,15 +28048,82 @@ function securitySchemeTemplate() {
     return;
   }
 
-  return html` <section id="auth" part="section-auth" style="text-align:left;direction:ltr;margin-top:24px;margin-bottom:24px" class="observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}"> <div class="sub-title regular-font"> AUTHENTICATION </div> <div class="small-font-size" style="display:flex;align-items:center;min-height:30px"> ${providedApiKeys.length > 0 ? html` <div class="blue-text"> ${providedApiKeys.length} API key applied </div> <div style="flex:1"></div> <button class="m-btn thin-border" part="btn btn-outline" @click="${() => {
+  return $`
+  <section id='auth' part="section-auth" style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;" class = 'observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}'>
+    <div class='sub-title regular-font'> AUTHENTICATION </div>
+
+    <div class="small-font-size" style="display:flex; align-items: center; min-height:30px">
+      ${providedApiKeys.length > 0 ? $`
+          <div class="blue-text"> ${providedApiKeys.length} API key applied </div>
+          <div style="flex:1"></div>
+          <button class="m-btn thin-border" part="btn btn-outline" @click=${() => {
     onClearAllApiKeys.call(this);
-  }}">CLEAR ALL API KEYS</button>` : html`<div class="red-text">No API key applied</div>`} </div> ${this.resolvedSpec.securitySchemes && this.resolvedSpec.securitySchemes.length > 0 ? html` <table id="auth-table" class="m-table padded-12" style="width:100%"> ${this.resolvedSpec.securitySchemes.map(v => html` <tr id="security-scheme-${v.securitySchemeId}" class="${v.type.toLowerCase()}"> <td style="max-width:500px;overflow-wrap:break-word"> <div style="line-height:28px;margin-bottom:5px"> <span style="font-weight:700;font-size:var(--font-size-regular)">${v.typeDisplay}</span> ${v.finalKeyValue ? html` <span class="blue-text"> ${v.finalKeyValue ? 'Key Applied' : ''} </span> <button class="m-btn thin-border small" part="btn btn-outline" @click="${() => {
+  }}>CLEAR ALL API KEYS</button>` : $`<div class="red-text">No API key applied</div>`}
+    </div>
+    ${this.resolvedSpec.securitySchemes && this.resolvedSpec.securitySchemes.length > 0 ? $`
+        <table id="auth-table" class='m-table padded-12' style="width:100%;">
+          ${this.resolvedSpec.securitySchemes.map(v => $`
+            <tr id="security-scheme-${v.securitySchemeId}" class="${v.type.toLowerCase()}">
+              <td style="max-width:500px; overflow-wrap: break-word;">
+                <div style="line-height:28px; margin-bottom:5px;">
+                  <span style="font-weight:bold; font-size:var(--font-size-regular)">${v.typeDisplay}</span>
+                  ${v.finalKeyValue ? $`
+                      <span class='blue-text'>  ${v.finalKeyValue ? 'Key Applied' : ''} </span>
+                      <button class="m-btn thin-border small" part="btn btn-outline" @click=${() => {
     removeApiKey.call(this, v.securitySchemeId);
-  }}">REMOVE</button> ` : ''} </div> ${v.description ? html` <div class="m-markdown"> ${unsafeHTML(marked(v.description || ''))} </div>` : ''} ${v.type.toLowerCase() === 'apikey' || v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'bearer' ? html` <div style="margin-bottom:5px"> ${v.type.toLowerCase() === 'apikey' ? html`Send <code>${v.name}</code> in <code>${v.in}</code>` : html`Send <code>Authorization</code> in <code>header</code> containing the word <code>Bearer</code> followed by a space and a Token String.`} </div> <div style="max-height:28px"> ${v.in !== 'cookie' ? html` <input type="text" value="${v.value}" class="${v.type} ${v.securitySchemeId} api-key-input" placeholder="api-token" spellcheck="false"> <button class="m-btn thin-border" style="margin-left:5px" part="btn btn-outline" @click="${e => {
+  }}>REMOVE</button>
+                      ` : ''}
+                </div>
+                ${v.description ? $`
+                    <div class="m-markdown">
+                      ${unsafe_html_o(marked(v.description || ''))}
+                    </div>` : ''}
+
+                ${v.type.toLowerCase() === 'apikey' || v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'bearer' ? $`
+                    <div style="margin-bottom:5px">
+                      ${v.type.toLowerCase() === 'apikey' ? $`Send <code>${v.name}</code> in <code>${v.in}</code>` : $`Send <code>Authorization</code> in <code>header</code> containing the word <code>Bearer</code> followed by a space and a Token String.`}
+                    </div>
+                    <div style="max-height:28px;">
+                      ${v.in !== 'cookie' ? $`
+                          <input type = "text" value = "${v.value}" class="${v.type} ${v.securitySchemeId} api-key-input" placeholder = "api-token" spellcheck = "false">
+                          <button class="m-btn thin-border" style = "margin-left:5px;"
+                            part = "btn btn-outline"
+                            @click="${e => {
     onApiKeyChange.call(this, v.securitySchemeId, e);
-  }}"> ${v.finalKeyValue ? 'UPDATE' : 'SET'} </button>` : html`<span class="gray-text" style="font-size::var(--font-size-small)"> cookies cannot be set from here</span>`} </div>` : ''} ${v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'basic' ? html` <div style="margin-bottom:5px"> Send <code>Authorization</code> in <code>header</code> containing the word <code>Basic</code> followed by a space and a base64 encoded string of <code>username:password</code>. </div> <div> <input type="text" value="${v.user}" placeholder="username" spellcheck="false" class="${v.type} ${v.securitySchemeId} api-key-user" style="width:100px"> <input type="password" value="${v.password}" placeholder="password" spellcheck="false" class="${v.type} ${v.securitySchemeId} api-key-password" style="width:100px;margin:0 5px"> <button class="m-btn thin-border" @click="${e => {
+  }}">
+                            ${v.finalKeyValue ? 'UPDATE' : 'SET'}
+                          </button>` : $`<span class="gray-text" style="font-size::var(--font-size-small)"> cookies cannot be set from here</span>`}
+                    </div>` : ''}
+                ${v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'basic' ? $`
+                    <div style="margin-bottom:5px">
+                      Send <code>Authorization</code> in <code>header</code> containing the word <code>Basic</code> followed by a space and a base64 encoded string of <code>username:password</code>.
+                    </div>
+                    <div>
+                      <input type="text" value = "${v.user}" placeholder="username" spellcheck="false" class="${v.type} ${v.securitySchemeId} api-key-user" style="width:100px">
+                      <input type="password" value = "${v.password}" placeholder="password" spellcheck="false" class="${v.type} ${v.securitySchemeId} api-key-password" style = "width:100px; margin:0 5px;">
+                      <button class="m-btn thin-border"
+                        @click="${e => {
     onApiKeyChange.call(this, v.securitySchemeId, e);
-  }}" part="btn btn-outline"> ${v.finalKeyValue ? 'UPDATE' : 'SET'} </button> </div>` : ''} </td> </tr> ${v.type.toLowerCase() === 'oauth2' ? html` <tr> <td style="border:none;padding-left:48px"> ${Object.keys(v.flows).map(f => oAuthFlowTemplate.call(this, f, v['x-client-id'], v['x-client-secret'], v.securitySchemeId, v.flows[f]))} </td> </tr> ` : ''} `)} </table>` : ''} <slot name="auth"></slot> </section> `;
+  }}"
+                        part = "btn btn-outline"
+                      >
+                        ${v.finalKeyValue ? 'UPDATE' : 'SET'}
+                      </button>
+                    </div>` : ''}
+              </td>
+            </tr>
+            ${v.type.toLowerCase() === 'oauth2' ? $`
+                <tr>
+                  <td style="border:none; padding-left:48px">
+                    ${Object.keys(v.flows).map(f => oAuthFlowTemplate.call(this, f, v['x-client-id'], v['x-client-secret'], v.securitySchemeId, v.flows[f], v['x-default-scopes']))}
+                  </td>
+                </tr>
+                ` : ''}
+          `)}
+        </table>` : ''}
+    <slot name="auth"></slot>
+  </section>
+`;
 }
 function pathSecurityTemplate(pathSecurity) {
   if (this.resolvedSpec.securitySchemes && pathSecurity) {
@@ -29731,10 +28153,58 @@ function pathSecurityTemplate(pathSecurity) {
         securityDefs: andSecurityKeys1
       });
     });
-    return html`<div style="position:absolute;top:3px;right:2px;font-size:var(--font-size-small);line-height:1.5"> <div style="position:relative;display:flex;min-width:350px;max-width:700px;justify-content:flex-end"> <svg width="16" height="24"> <g> <path style="fill:var(--fg3)" d="m13.8,8.5l0,-2.6l0,0c0,-3.2 -2.6,-5.8 -5.8,-5.8s-5.8,2.6 -5.8,5.8l0,0l0,2.6l-2.1,0l0,11.2l16,0l0,-11.2l-2.1,0l-0,0l0,0l0,0l-0,0zm-9.8,-2.6c0,0 0,0 0,0c0,-2.2 1.8,-4 4,-4c2.2,0 4,1.8 4,4c0,0 0,0 0,0l0,2.6l-8.03,0l0,-2.6l0,0l0,0z"/> </g> </svg> ${orSecurityKeys1.map((orSecurityItem1, i) => html` ${orSecurityItem1.securityTypes ? html` ${i !== 0 ? html`<div style="padding:3px 4px"> OR </div>` : ''} <div class="tooltip"> <div style="padding:2px 4px;white-space:nowrap;text-overflow:ellipsis;max-width:150px;overflow:hidden"> <a part="anchor anchor-operation-security" href="#auth"> ${orSecurityItem1.securityTypes} </a> </div> <div class="tooltip-text" style="position:absolute;color:var(--fg);top:26px;right:0;border:1px solid var(--border-color);padding:2px 4px;display:block"> ${orSecurityItem1.securityDefs.length > 1 ? html`<div>Requires <b>all</b> of the following </div>` : ''} <div style="padding-left:8px"> ${orSecurityItem1.securityDefs.map((andSecurityItem, j) => {
-      const scopeHtml = html`${andSecurityItem.scopes !== '' ? html` <div> <b>Required scopes:</b> <br> <div style="margin-left:8px"> ${andSecurityItem.scopes.split(',').map((scope, cnt) => html`${cnt === 0 ? '' : '┃'}<span>${scope}</span>`)} </div> </div>` : ''}`;
-      return html` ${andSecurityItem.type === 'oauth2' ? html` <div> ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : 'Needs'} OAuth Token <span style="font-family:var(--font-mono);color:var(--primary-color)">${andSecurityItem.securitySchemeId}</span> in <b>Authorization header</b> ${scopeHtml} </div>` : andSecurityItem.type === 'http' ? html` <div> ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : html`Requires`} ${andSecurityItem.scheme === 'basic' ? 'Base 64 encoded username:password' : 'Bearer Token'} in <b>Authorization header</b> ${scopeHtml} </div>` : html` <div> ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : html`Requires`} Token in <b>${andSecurityItem.name} ${andSecurityItem.in}</b> ${scopeHtml} </div>`}`;
-    })} </div> </div> </div> ` : ''} `)} </div> </div>`;
+    return $`<div style="position:absolute; top:3px; right:2px; font-size:var(--font-size-small); line-height: 1.5;">
+      <div style="position:relative; display:flex; min-width:350px; max-width:700px; justify-content: flex-end;">
+        <svg width="16" height="24">
+          <g>
+            <path style="fill: var(--fg3)" d="m13.8,8.5l0,-2.6l0,0c0,-3.2 -2.6,-5.8 -5.8,-5.8s-5.8,2.6 -5.8,5.8l0,0l0,2.6l-2.1,0l0,11.2l16,0l0,-11.2l-2.1,0l-0,0l0,0l0,0l-0,0zm-9.8,-2.6c0,0 0,0 0,0c0,-2.2 1.8,-4 4,-4c2.2,0 4,1.8 4,4c0,0 0,0 0,0l0,2.6l-8.03,0l0,-2.6l0,0l0,0z" />
+          </g>
+        </svg>
+          ${orSecurityKeys1.map((orSecurityItem1, i) => $`
+
+          ${orSecurityItem1.securityTypes ? $`
+              ${i !== 0 ? $`<div style="padding:3px 4px;"> OR </div>` : ''}
+              <div class="tooltip">
+                <div style = "padding:2px 4px; white-space:nowrap; text-overflow:ellipsis;max-width:150px; overflow:hidden;">
+                  <a part="anchor anchor-operation-security" href="#auth"> ${orSecurityItem1.securityTypes} </a>
+                </div>
+                <div class="tooltip-text" style="position:absolute; color: var(--fg); top:26px; right:0; border:1px solid var(--border-color);padding:2px 4px; display:block;">
+                  ${orSecurityItem1.securityDefs.length > 1 ? $`<div>Requires <b>all</b> of the following </div>` : ''}
+                  <div style="padding-left: 8px">
+                    ${orSecurityItem1.securityDefs.map((andSecurityItem, j) => {
+      const scopeHtml = $`${andSecurityItem.scopes !== '' ? $`
+                          <div>
+                            <b>Required scopes:</b>
+                            <br/>
+                            <div style="margin-left:8px">
+                              ${andSecurityItem.scopes.split(',').map((scope, cnt) => $`${cnt === 0 ? '' : '┃'}<span>${scope}</span>`)}
+                            </div>
+                          </div>` : ''}`;
+      return $`
+                      ${andSecurityItem.type === 'oauth2' ? $`
+                          <div>
+                            ${orSecurityItem1.securityDefs.length > 1 ? $`<b>${j + 1}.</b> &nbsp;` : 'Needs'}
+                            OAuth Token <span style="font-family:var(--font-mono); color:var(--primary-color);">${andSecurityItem.securitySchemeId}</span> in <b>Authorization header</b>
+                            ${scopeHtml}
+                          </div>` : andSecurityItem.type === 'http' ? $`
+                            <div>
+                              ${orSecurityItem1.securityDefs.length > 1 ? $`<b>${j + 1}.</b> &nbsp;` : $`Requires`}
+                              ${andSecurityItem.scheme === 'basic' ? 'Base 64 encoded username:password' : 'Bearer Token'} in <b>Authorization header</b>
+                              ${scopeHtml}
+                            </div>` : $`
+                            <div>
+                              ${orSecurityItem1.securityDefs.length > 1 ? $`<b>${j + 1}.</b> &nbsp;` : $`Requires`}
+                              Token in <b>${andSecurityItem.name} ${andSecurityItem.in}</b>
+                              ${scopeHtml}
+                            </div>`}`;
+    })}
+                  </div>
+                </div>
+              </div>
+            ` : ''}
+        `)}
+      </div>
+    `;
   }
 
   return '';
@@ -29742,13 +28212,17 @@ function pathSecurityTemplate(pathSecurity) {
 /* eslint-enable indent */
 ;// CONCATENATED MODULE: ./src/templates/code-samples-template.js
 
+ // eslint-disable-line import/extensions
 
 
 
 /* eslint-disable indent */
 
 function codeSamplesTemplate(xCodeSamples) {
-  return html` <section class="table-title" style="margin-top:24px">CODE SAMPLES <div class="tab-panel col" @click="${e => {
+  return $`
+  <section class="table-title" style="margin-top:24px;">CODE SAMPLES</div>
+  <div class="tab-panel col"
+    @click="${e => {
     if (!e.target.classList.contains('tab-btn')) {
       return;
     }
@@ -29760,13 +28234,22 @@ function codeSamplesTemplate(xCodeSamples) {
     tabContents.forEach(tabBodyEl => {
       tabBodyEl.style.display = tabBodyEl.dataset.tab === clickedTab ? 'block' : 'none';
     });
-  }}"> <div class="tab-buttons row" style="width:100"> ${xCodeSamples.map((v, i) => html`<button class="tab-btn ${i === 0 ? 'active' : ''}" data-tab="${v.lang}${i}"> ${v.label || v.lang} </button>`)} </div> ${xCodeSamples.map((v, i) => {
+  }}">
+    <div class="tab-buttons row" style="width:100; overflow">
+      ${xCodeSamples.map((v, i) => $`<button class="tab-btn ${i === 0 ? 'active' : ''}" data-tab = '${v.lang}${i}'> ${v.label || v.lang} </button>`)}
+    </div>
+    ${xCodeSamples.map((v, i) => {
     var _v$lang, _v$lang2, _v$lang3;
 
-    return html` <div class="tab-content m-markdown" style="display:${i === 0 ? 'block' : 'none'}" data-tab="${v.lang}${i}"> <button class="toolbar-btn" style="position:absolute;top:12px;right:8px" @click="${e => {
+    return $`
+      <div class="tab-content m-markdown" style= "display:${i === 0 ? 'block' : 'none'}" data-tab = '${v.lang}${i}'>
+        <button class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${e => {
       copyToClipboard(v.source, e);
-    }}"> Copy </button> <pre><code class="language">${(prism_default()).languages[(_v$lang = v.lang) === null || _v$lang === void 0 ? void 0 : _v$lang.toLowerCase()] ? unsafeHTML(prism_default().highlight(v.source, (prism_default()).languages[(_v$lang2 = v.lang) === null || _v$lang2 === void 0 ? void 0 : _v$lang2.toLowerCase()], (_v$lang3 = v.lang) === null || _v$lang3 === void 0 ? void 0 : _v$lang3.toLowerCase())) : v.source}</code></pre> </div>`;
-  })} </div></section>`;
+    }}'> Copy </button>
+        <pre><code class="language">${(prism_default()).languages[(_v$lang = v.lang) === null || _v$lang === void 0 ? void 0 : _v$lang.toLowerCase()] ? unsafe_html_o(prism_default().highlight(v.source, (prism_default()).languages[(_v$lang2 = v.lang) === null || _v$lang2 === void 0 ? void 0 : _v$lang2.toLowerCase()], (_v$lang3 = v.lang) === null || _v$lang3 === void 0 ? void 0 : _v$lang3.toLowerCase())) : v.source}</code></pre>
+      </div>`;
+  })}
+  </section>`;
 }
 /* eslint-enable indent */
 ;// CONCATENATED MODULE: ./src/templates/callback-template.js
@@ -29774,160 +28257,133 @@ function codeSamplesTemplate(xCodeSamples) {
 /* eslint-disable indent */
 
 function callbackTemplate(callbacks) {
-  return html` <div class="req-res-title" style="margin-top:12px">CALLBACKS</div> ${Object.entries(callbacks).map(kv => html` <div class="tiny-title" style="padding:12px;border:1px solid var(--light-border-color)"> ${kv[0]} ${Object.entries(kv[1]).map(pathObj => html` <div class="mono-font small-font-size" style="display:flex;margin-left:16px"> <div> ${Object.entries(pathObj[1]).map(method => {
+  return $`
+    <div class="req-res-title" style="margin-top:12px">CALLBACKS</div>
+    ${Object.entries(callbacks).map(kv => $`
+      <div class="tiny-title" style="padding: 12px; border:1px solid var(--light-border-color)"> 
+        ${kv[0]}
+        ${Object.entries(kv[1]).map(pathObj => $`
+          <div class="mono-font small-font-size" style="display:flex; margin-left:16px;">
+            <div> 
+              ${Object.entries(pathObj[1]).map(method => {
     var _method$, _method$2, _method$3;
 
-    return html` <div> <div style="margin-top:12px"> <div class="method method-fg ${method[0]}" style="width:70px;border:none;margin:0;padding:0;line-height:20px;vertical-align:baseline;text-align:left"> <span style="font-size:20px"> &#x2944; </span> ${method[0]} </div> <span style="line-height:20px;vertical-align:baseline">${pathObj[0]} </span> </div> <div class="expanded-req-resp-container"> <api-request class="${this.renderStyle}-mode callback" style="width:100%" callback="true" method="${method[0] || ''}" , path="${pathObj[0] || ''}" .parameters="${((_method$ = method[1]) === null || _method$ === void 0 ? void 0 : _method$.parameters) || ''}" .request_body="${((_method$2 = method[1]) === null || _method$2 === void 0 ? void 0 : _method$2.requestBody) || ''}" fill-request-fields-with-example="${this.fillRequestFieldsWithExample}" allow-try="false" render-style="${this.renderStyle}" schema-style="${this.schemaStyle}" active-schema-tab="${this.defaultSchemaTab}" schema-expand-level="${this.schemaExpandLevel}" schema-description-expanded="${this.schemaDescriptionExpanded}" allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}" , schema-hide-read-only="${this.schemaHideReadOnly}" fetch-credentials="${this.fetchCredentials}" exportparts="btn btn-fill btn-outline btn-try"> </api-request> <api-response style="width:100%" class="${this.renderStyle}-mode" callback="true" .responses="${(_method$3 = method[1]) === null || _method$3 === void 0 ? void 0 : _method$3.responses}" render-style="${this.renderStyle}" schema-style="${this.schemaStyle}" active-schema-tab="${this.defaultSchemaTab}" schema-expand-level="${this.schemaExpandLevel}" schema-description-expanded="${this.schemaDescriptionExpanded}" allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}" exportparts="btn--resp btn-fill--resp btn-outline--resp"> </api-response> </div> </div> `;
-  })} </div> </div> `)} </div> `)} `;
+    return $`
+                <div>
+                  <div style="margin-top:12px;">
+                    <div class="method method-fg ${method[0]}" style="width:70px; border:none; margin:0; padding:0; line-height:20px; vertical-align: baseline;text-align:left"> 
+                      <span style="font-size:20px;"> &#x2944; </span> 
+                      ${method[0]} 
+                    </div>
+                    <span style="line-height:20px; vertical-align: baseline;">${pathObj[0]} </span>
+                  </div>  
+                  <div class='expanded-req-resp-container'>
+                    <api-request
+                      class = "${this.renderStyle}-mode callback"  
+                      style = "width:100%;"
+                      callback = "true"
+                      method = "${method[0] || ''}", 
+                      path = "${pathObj[0] || ''}" 
+                      .parameters = "${((_method$ = method[1]) === null || _method$ === void 0 ? void 0 : _method$.parameters) || ''}" 
+                      .request_body = "${((_method$2 = method[1]) === null || _method$2 === void 0 ? void 0 : _method$2.requestBody) || ''}"
+                      fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
+                      allow-try = "false"
+                      render-style="${this.renderStyle}" 
+                      schema-style = "${this.schemaStyle}"
+                      active-schema-tab = "${this.defaultSchemaTab}"
+                      schema-expand-level = "${this.schemaExpandLevel}"
+                      schema-description-expanded = "${this.schemaDescriptionExpanded}"
+                      allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+                      schema-hide-read-only = "${this.schemaHideReadOnly}"
+                      fetch-credentials = "${this.fetchCredentials}"
+                      exportparts="btn btn-fill btn-outline btn-try"
+                    > </api-request>
+
+                    <api-response
+                      style = "width:100%;"
+                      class = "${this.renderStyle}-mode"
+                      callback = "true"
+                      .responses="${(_method$3 = method[1]) === null || _method$3 === void 0 ? void 0 : _method$3.responses}"
+                      render-style="${this.renderStyle}"
+                      schema-style="${this.schemaStyle}"
+                      active-schema-tab = "${this.defaultSchemaTab}"
+                      schema-expand-level = "${this.schemaExpandLevel}"
+                      schema-description-expanded = "${this.schemaDescriptionExpanded}"
+                      allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
+                      exportparts = "btn--resp btn-fill--resp btn-outline--resp"
+                    > </api-response>
+                  </div>
+                </div>  
+              `;
+  })}
+            </div>  
+          </div>  
+        `)}
+      </div>  
+    `)}
+  `;
 }
 /* eslint-enable indent */
 ;// CONCATENATED MODULE: ./node_modules/lit-html/directives/guard.js
+
 /**
  * @license
- * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
- * This code may only be used under the BSD style license found at
- * http://polymer.github.io/LICENSE.txt
- * The complete set of authors may be found at
- * http://polymer.github.io/AUTHORS.txt
- * The complete set of contributors may be found at
- * http://polymer.github.io/CONTRIBUTORS.txt
- * Code distributed by Google as part of the polymer project is also
- * subject to an additional IP rights grant found at
- * http://polymer.github.io/PATENTS.txt
+ * Copyright 2018 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
  */
-
-const guard_previousValues = new WeakMap();
-/**
- * Prevents re-render of a template function until a single value or an array of
- * values changes.
- *
- * Example:
- *
- * ```js
- * html`
- *   <div>
- *     ${guard([user.id, company.id], () => html`...`)}
- *   </div>
- * ```
- *
- * In this case, the template only renders if either `user.id` or `company.id`
- * changes.
- *
- * guard() is useful with immutable data patterns, by preventing expensive work
- * until data updates.
- *
- * Example:
- *
- * ```js
- * html`
- *   <div>
- *     ${guard([immutableItems], () => immutableItems.map(i => html`${i}`))}
- *   </div>
- * ```
- *
- * In this case, items are mapped over only when the array reference changes.
- *
- * @param value the value to check before re-rendering
- * @param f the template function
- */
-const guard = directive((value, f) => (part) => {
-    const previousValue = guard_previousValues.get(part);
-    if (Array.isArray(value)) {
-        // Dirty-check arrays by item
-        if (Array.isArray(previousValue) &&
-            previousValue.length === value.length &&
-            value.every((v, i) => v === previousValue[i])) {
-            return;
-        }
-    }
-    else if (previousValue === value &&
-        (value !== undefined || guard_previousValues.has(part))) {
-        // Dirty-check non-arrays by identity
-        return;
-    }
-    part.setValue(f());
-    // Copy the value if it's an array so that if it's mutated we don't forget
-    // what the previous values were.
-    guard_previousValues.set(part, Array.isArray(value) ? Array.from(value) : value);
-});
+const guard_e={},guard_i=directive_e(class extends directive_i{constructor(){super(...arguments),this.nt=guard_e}render(r,t){return t()}update(t,[s,e]){if(Array.isArray(s)){if(Array.isArray(this.nt)&&this.nt.length===s.length&&s.every(((r,t)=>r===this.nt[t])))return b}else if(this.nt===s)return b;return this.nt=Array.isArray(s)?Array.from(s):s,this.render(s,e)}});
 //# sourceMappingURL=guard.js.map
-;// CONCATENATED MODULE: ./node_modules/lit-html/directives/live.js
-/**
- * @license
- * Copyright (c) 2020 The Polymer Project Authors. All rights reserved.
- * This code may only be used under the BSD style license found at
- * http://polymer.github.io/LICENSE.txt
- * The complete set of authors may be found at
- * http://polymer.github.io/AUTHORS.txt
- * The complete set of contributors may be found at
- * http://polymer.github.io/CONTRIBUTORS.txt
- * Code distributed by Google as part of the polymer project is also
- * subject to an additional IP rights grant found at
- * http://polymer.github.io/PATENTS.txt
- */
+
+;// CONCATENATED MODULE: ./node_modules/lit/directives/guard.js
+
+//# sourceMappingURL=guard.js.map
+
+;// CONCATENATED MODULE: ./node_modules/lit-html/directive-helpers.js
 
 /**
- * Checks binding values against live DOM values, instead of previously bound
- * values, when determining whether to update the value.
- *
- * This is useful for cases where the DOM value may change from outside of
- * lit-html, such as with a binding to an `<input>` element's `value` property,
- * a content editable elements text, or to a custom element that changes it's
- * own properties or attributes.
- *
- * In these cases if the DOM value changes, but the value set through lit-html
- * bindings hasn't, lit-html won't know to update the DOM value and will leave
- * it alone. If this is not what you want—if you want to overwrite the DOM
- * value with the bound value no matter what—use the `live()` directive:
- *
- *     html`<input .value=${live(x)}>`
- *
- * `live()` performs a strict equality check agains the live DOM value, and if
- * the new value is equal to the live value, does nothing. This means that
- * `live()` should not be used when the binding will cause a type conversion. If
- * you use `live()` with an attribute binding, make sure that only strings are
- * passed in, or the binding will update every render.
- */
-const live = directive((value) => (part) => {
-    let previousValue;
-    if (part instanceof EventPart || part instanceof NodePart) {
-        throw new Error('The `live` directive is not allowed on text or event bindings');
-    }
-    if (part instanceof BooleanAttributePart) {
-        checkStrings(part.strings);
-        previousValue = part.element.hasAttribute(part.name);
-        // This is a hack needed because BooleanAttributePart doesn't have a
-        // committer and does its own dirty checking after directives
-        part.value = previousValue;
-    }
-    else {
-        const { element, name, strings } = part.committer;
-        checkStrings(strings);
-        if (part instanceof PropertyPart) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            previousValue = element[name];
-            if (previousValue === value) {
-                return;
-            }
-        }
-        else if (part instanceof AttributePart) {
-            previousValue = element.getAttribute(name);
-        }
-        if (previousValue === String(value)) {
-            return;
-        }
-    }
-    part.setValue(value);
-});
-const checkStrings = (strings) => {
-    if (strings.length !== 2 || strings[0] !== '' || strings[1] !== '') {
-        throw new Error('`live` bindings can only contain a single expression');
-    }
-};
+ * @license
+ * Copyright 2020 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */const{H:directive_helpers_i}=R,directive_helpers_t=o=>null===o||"object"!=typeof o&&"function"!=typeof o,directive_helpers_n={HTML:1,SVG:2},directive_helpers_v=(o,i)=>{var t,n;return void 0===i?void 0!==(null===(t=o)||void 0===t?void 0:t._$litType$):(null===(n=o)||void 0===n?void 0:n._$litType$)===i},directive_helpers_l=o=>{var i;return void 0!==(null===(i=o)||void 0===i?void 0:i._$litDirective$)},directive_helpers_d=o=>{var i;return null===(i=o)||void 0===i?void 0:i._$litDirective$},directive_helpers_r=o=>void 0===o.strings,directive_helpers_e=()=>document.createComment(""),directive_helpers_u=(o,t,n)=>{var v;const l=o._$AA.parentNode,d=void 0===t?o._$AB:t._$AA;if(void 0===n){const t=l.insertBefore(directive_helpers_e(),d),v=l.insertBefore(directive_helpers_e(),d);n=new directive_helpers_i(t,v,o,o.options)}else{const i=n._$AB.nextSibling,t=n._$AM,r=t!==o;if(r){let i;null===(v=n._$AQ)||void 0===v||v.call(n,o),n._$AM=o,void 0!==n._$AP&&(i=o._$AU)!==t._$AU&&n._$AP(i)}if(i!==d||r){let o=n._$AA;for(;o!==i;){const i=o.nextSibling;l.insertBefore(o,d),o=i}}}return n},directive_helpers_c=(o,i,t=o)=>(o._$AI(i,t),o),directive_helpers_f={},directive_helpers_s=(o,i=directive_helpers_f)=>o._$AH=i,directive_helpers_a=o=>o._$AH,directive_helpers_m=o=>{var i;null===(i=o._$AP)||void 0===i||i.call(o,!1,!0);let t=o._$AA;const n=o._$AB.nextSibling;for(;t!==n;){const o=t.nextSibling;t.remove(),t=o}},directive_helpers_p=o=>{o._$AR()};
+//# sourceMappingURL=directive-helpers.js.map
+
+;// CONCATENATED MODULE: ./node_modules/lit-html/directives/live.js
+
+/**
+ * @license
+ * Copyright 2020 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */const live_l=directive_e(class extends directive_i{constructor(r){if(super(r),r.type!==directive_t.PROPERTY&&r.type!==directive_t.ATTRIBUTE&&r.type!==directive_t.BOOLEAN_ATTRIBUTE)throw Error("The `live` directive is not allowed on child or event bindings");if(!directive_helpers_r(r))throw Error("`live` bindings can only contain a single expression")}render(r){return r}update(i,[t]){if(t===b||t===w)return t;const o=i.element,l=i.name;if(i.type===directive_t.PROPERTY){if(t===o[l])return b}else if(i.type===directive_t.BOOLEAN_ATTRIBUTE){if(!!t===o.hasAttribute(l))return b}else if(i.type===directive_t.ATTRIBUTE&&o.getAttribute(l)===t+"")return b;return directive_helpers_s(i),t}});
 //# sourceMappingURL=live.js.map
+
+;// CONCATENATED MODULE: ./node_modules/lit/directives/live.js
+
+//# sourceMappingURL=live.js.map
+
 ;// CONCATENATED MODULE: ./src/styles/border-styles.js
 
-/* harmony default export */ const border_styles = (css`.border-top{border-top:1px solid var(--border-color)}.border{border:1px solid var(--border-color);border-radius:var(--border-radius)}.light-border{border:1px solid var(--light-border-color);border-radius:var(--border-radius)}.pad-8-16{padding:8px 16px}.pad-top-8{padding-top:8px}.mar-top-8{margin-top:8px}`);
+/* harmony default export */ const border_styles = (r`
+.border-top {
+  border-top:1px solid var(--border-color);
+}
+.border{
+  border:1px solid var(--border-color);
+  border-radius: var(--border-radius);
+}
+.light-border{
+  border:1px solid var(--light-border-color);
+  border-radius: var(--border-radius);
+}
+.pad-8-16{
+  padding: 8px 16px;
+}
+.pad-top-8{
+  padding-top: 8px;
+}
+.mar-top-8{
+  margin-top: 8px;
+}
+`);
 ;// CONCATENATED MODULE: ./src/utils/schema-utils.js
 /* Generates an schema object containing type and constraint info */
 function getTypeInfo(schema) {
@@ -30910,7 +29366,7 @@ function getSchemaFromParam(param) {
 
 
 
-class JsonTree extends LitElement {
+class JsonTree extends lit_element_s {
   static get properties() {
     return {
       data: {
@@ -30924,33 +29380,100 @@ class JsonTree extends LitElement {
   }
 
   static get styles() {
-    return [font_styles, border_styles, input_styles, css`:host{display:flex}.json-tree{position:relative;font-family:var(--font-mono);font-size:var(--font-size-small);display:inline-block;overflow:hidden;word-break:break-all;flex:1;line-height:calc(var(--font-size-small) + 6px);direction:ltr;text-align:left}.open-bracket{display:inline-block;padding:0 20px 0 0;cursor:pointer;border:1px solid transparent;border-radius:3px}.open-bracket:hover{color:var(--primary-color);background-color:var(--hover-color);border:1px solid var(--border-color)}.inside-bracket{padding-left:12px;border-left:1px dotted var(--border-color)}.open-bracket.collapsed+.inside-bracket,.open-bracket.collapsed+.inside-bracket+.close-bracket{display:none}.string{color:var(--green)}.number{color:var(--blue)}.null{color:var(--red)}.boolean{color:var(--purple)}.object{color:var(--fg)}.toolbar{position:absolute;top:5px;right:6px;display:flex;padding:2px;align-items:center}`, custom_styles];
+    return [font_styles, border_styles, input_styles, r`
+      :host{
+        display:flex;
+      }
+      .json-tree {
+        position: relative;
+        font-family: var(--font-mono);
+        font-size: var(--font-size-small);
+        display:inline-block;
+        overflow:hidden;
+        word-break: break-all;
+        flex:1;
+        line-height: calc(var(--font-size-small) + 6px);
+        direction: ltr; 
+        text-align: left;
+      }
+
+      .open-bracket{
+        display:inline-block;
+        padding: 0 20px 0 0;
+        cursor:pointer;
+        border: 1px solid transparent;
+        border-radius:3px;
+      }
+      .open-bracket:hover{
+        color:var(--primary-color);
+        background-color:var(--hover-color);
+        border: 1px solid var(--border-color);
+      }
+      .inside-bracket{
+        padding-left:12px;
+        border-left:1px dotted var(--border-color);
+      }
+      .open-bracket.collapsed + .inside-bracket,
+      .open-bracket.collapsed + .inside-bracket + .close-bracket {
+        display:none;
+      }
+
+      .string{color:var(--green);}
+      .number{color:var(--blue);}
+      .null{color:var(--red);}
+      .boolean{color:var(--purple);}
+      .object{color:var(--fg)}
+      .toolbar {
+        position: absolute;
+        top:5px;
+        right:6px;
+        display:flex;
+        padding:2px;
+        align-items: center;
+      }`, custom_styles];
   }
   /* eslint-disable indent */
 
 
   render() {
-    return html` <div class="json-tree"> <div class="toolbar"> <button class="toolbar-btn" part="btn btn-fill" @click="${e => {
+    return $`
+      <div class = "json-tree" >
+        <div class='toolbar'> 
+          <button class="toolbar-btn" part="btn btn-fill" @click='${e => {
       copyToClipboard(JSON.stringify(this.data, null, 2), e);
-    }}"> Copy </button> </div> ${this.generateTree(this.data, true)} </div> `;
+    }}'> Copy </button>
+        </div>
+        ${this.generateTree(this.data, true)}
+      </div>  
+    `;
   }
 
   generateTree(data, isLast = false) {
     if (data === null) {
-      return html`<div class="null" style="display:inline">null</div>`;
+      return $`<div class="null" style="display:inline;">null</div>`;
     }
 
     if (typeof data === 'object' && data instanceof Date === false) {
       const detailType = Array.isArray(data) ? 'array' : 'pure_object';
 
       if (Object.keys(data).length === 0) {
-        return html`${Array.isArray(data) ? '[ ],' : '{ },'}`;
+        return $`${Array.isArray(data) ? '[ ],' : '{ },'}`;
       }
 
-      return html` <div class="open-bracket expanded ${detailType === 'array' ? 'array' : 'object'}" @click="${this.toggleExpand}"> ${detailType === 'array' ? '[' : '{'}</div> <div class="inside-bracket"> ${Object.keys(data).map((key, i, a) => html` <div class="item"> ${detailType === 'pure_object' ? html`"${key}":` : ''} ${this.generateTree(data[key], i === a.length - 1)} </div>`)} </div> <div class="close-bracket">${detailType === 'array' ? ']' : '}'}${isLast ? '' : ','}</div> `;
+      return $`
+      <div class="open-bracket expanded ${detailType === 'array' ? 'array' : 'object'} " @click="${this.toggleExpand}" > ${detailType === 'array' ? '[' : '{'}</div>
+      <div class="inside-bracket">
+        ${Object.keys(data).map((key, i, a) => $`
+          <div class="item"> 
+            ${detailType === 'pure_object' ? $`"${key}":` : ''}
+            ${this.generateTree(data[key], i === a.length - 1)}
+          </div>`)}
+      </div>
+      <div class="close-bracket">${detailType === 'array' ? ']' : '}'}${isLast ? '' : ','}</div>
+      `;
     }
 
-    return typeof data === 'string' || data instanceof Date ? html`<span class="${typeof data}">"${data}"</span>${isLast ? '' : ','}` : html`<span class="${typeof data}">${data}</span>${isLast ? '' : ','}`;
+    return typeof data === 'string' || data instanceof Date ? $`<span class="${typeof data}">"${data}"</span>${isLast ? '' : ','}` : $`<span class="${typeof data}">${data}</span>${isLast ? '' : ','}`;
   }
   /* eslint-enable indent */
 
@@ -30972,16 +29495,118 @@ class JsonTree extends LitElement {
 customElements.define('json-tree', JsonTree);
 ;// CONCATENATED MODULE: ./src/styles/schema-styles.js
 
-/* harmony default export */ const schema_styles = (css`*,:after,:before{box-sizing:border-box}.tr{display:flex;flex:none;width:100%;box-sizing:content-box;border-bottom:1px dotted transparent}.td{display:block;flex:0 0 auto}.key{font-family:var(--font-mono);white-space:normal;word-break:break-all}.collapsed-descr .key{overflow:hidden}.key-descr{font-family:var(--font-regular);color:var(--light-fg);flex-shrink:1;text-overflow:ellipsis;overflow:hidden;display:none}.expanded-descr .key-descr{max-height:auto;overflow:hidden;display:none}.collapsed-descr .tr{max-height:20px}.tr.xxx-of{border-top:1px dotted var(--primary-color)}.xxx-of-key{font-size:calc(var(--font-size-small) - 2px);font-weight:700;background-color:var(--primary-color);color:var(--primary-color-invert);border-radius:2px;line-height:calc(var(--font-size-small) + 6px);padding:0 5px;margin-bottom:1px;display:inline-block}.xxx-of-descr{font-family:var(--font-regular);color:var(--primary-color);font-size:calc(var(--font-size-small) - 1px);margin-left:2px}.bina,.byte,.date,.emai,.host,.ipv4,.pass,.stri,.string,.uri,.url,.uuid{color:var(--green)}.deci .blue,.doub,.floa,.int3,.int6,.inte,.numb,.number{color:var(--blue)}.null{color:var(--red)}.bool,.boolean{color:var(--orange)}.enum{color:var(--purple)}.recu{color:var(--brown)}.toolbar{display:flex;width:100%;padding:2px 0;color:var(--primary-color)}.toolbar-item{cursor:pointer;padding:5px 0;margin:0 2px}.schema-root-type{cursor:auto;color:var(--fg2);font-weight:700;text-transform:uppercase}.schema-root-type.xxx-of{display:none}.toolbar-item:first-of-type{margin:0 2px 0 0}@media only screen and (min-width:500px){.key-descr{display:block}.expanded-descr .key-descr{display:block}}`);
+/* harmony default export */ const schema_styles = (r`
+
+*, *:before, *:after { box-sizing: border-box; }
+
+.tr {
+  display: flex;
+  flex: none;
+  width: 100%;
+  box-sizing: content-box;
+  border-bottom: 1px dotted transparent;
+}
+.td {
+  display: block;
+  flex: 0 0 auto;
+}
+.key {
+  font-family: var(--font-mono);
+  white-space: normal;
+  word-break: break-all;
+}
+
+.collapsed-descr .key{
+  overflow:hidden;
+}
+
+.key-descr {
+  font-family:var(--font-regular);
+  color:var(--light-fg);
+  flex-shrink: 1;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  display: none;
+}
+.expanded-descr .key-descr{
+  max-height:auto;
+  overflow:hidden;
+  display: none;
+}
+.collapsed-descr .tr {
+  max-height:20px;
+}
+
+.tr.xxx-of{
+  border-top: 1px dotted var(--primary-color);
+}
+
+.xxx-of-key {
+  font-size: calc(var(--font-size-small) - 2px); 
+  font-weight:bold; 
+  background-color:var(--primary-color); 
+  color:var(--primary-color-invert); 
+  border-radius:2px;
+  line-height:calc(var(--font-size-small) + 6px);
+  padding:0px 5px; 
+  margin-bottom:1px; 
+  display:inline-block;
+}
+
+.xxx-of-descr {
+    font-family: var(--font-regular);
+    color: var(--primary-color);
+    font-size: calc(var(--font-size-small) - 1px);
+    margin-left: 2px;
+}
+
+.stri, .string, .uri, .url, .byte, .bina, .date, .pass, .ipv4, .ipv4, .uuid, .emai, .host {color:var(--green);}
+.inte, .numb, .number, .int6, .int3, .floa, .doub, .deci .blue {color:var(--blue);}
+.null {color:var(--red);}
+.bool, .boolean{color:var(--orange)}
+.enum {color:var(--purple)}
+.recu {color:var(--brown)}
+.toolbar {
+  display:flex;
+  width:100%;
+  padding: 2px 0;
+  color:var(--primary-color);
+}
+.toolbar-item {
+  cursor:pointer;
+  padding:5px 0;
+  margin:0 2px;
+}
+.schema-root-type {
+  cursor:auto;
+  color:var(--fg2);
+  font-weight: bold;
+  text-transform: uppercase;
+}
+.schema-root-type.xxx-of {
+  display:none;
+}
+.toolbar-item:first-of-type { margin:0 2px 0 0;}
+
+@media only screen and (min-width: 500px) {
+  .key-descr {
+    display: block;
+  }
+  .expanded-descr .key-descr{
+    display: block;
+  }
+}
+`);
 ;// CONCATENATED MODULE: ./src/components/schema-tree.js
 
+ // eslint-disable-line import/extensions
 
 
 
 
 
 
-class SchemaTree extends LitElement {
+class SchemaTree extends lit_element_s {
   static get properties() {
     return {
       data: {
@@ -31031,7 +29656,60 @@ class SchemaTree extends LitElement {
   }
 
   static get styles() {
-    return [font_styles, schema_styles, border_styles, css`.tree{font-size:var(--font-size-small);text-align:left;direction:ltr;line-height:calc(var(--font-size-small) + 6px)}.tree .tr:hover{background-color:var(--hover-color)}.collapsed-descr .tr{max-height:calc(var(--font-size-small) + 8px)}.collapsed-descr .m-markdown-small p{line-height:calc(var(--font-size-small) + 6px)}.tree .key{max-width:300px}.key.deprecated .key-label{text-decoration:line-through}.open-bracket{display:inline-block;padding:0 20px 0 0;cursor:pointer;border:1px solid transparent;border-radius:3px}.open-bracket:hover{color:var(--primary-color);background-color:var(--hover-color);border:1px solid var(--border-color)}.close-bracket{display:inline-block;font-family:var(--font-mono)}.tr.collapsed+.inside-bracket,.tr.collapsed+.inside-bracket+.close-bracket{display:none}.inside-bracket.array,.inside-bracket.object{border-left:1px dotted var(--border-color)}.inside-bracket.xxx-of{padding:5px 0;border-style:dotted;border-width:0 0 1px 0;border-color:var(--primary-color)}`, custom_styles];
+    return [font_styles, schema_styles, border_styles, r`
+      .tree {
+        font-size:var(--font-size-small);
+        text-align: left;
+        direction: ltr;
+        line-height:calc(var(--font-size-small) + 6px);
+      }
+      .tree .tr:hover{
+        background-color:var(--hover-color);
+      }
+      .collapsed-descr .tr {
+        max-height:calc(var(--font-size-small) + 8px);
+      }
+      .collapsed-descr .m-markdown-small p {
+        line-height:calc(var(--font-size-small) + 6px);
+      }
+
+      .tree .key {
+        max-width: 300px;
+      }
+      .key.deprecated .key-label {
+        text-decoration: line-through; 
+      }
+
+      .open-bracket{
+        display:inline-block;
+        padding: 0 20px 0 0;
+        cursor:pointer;
+        border: 1px solid transparent;
+        border-radius:3px;
+      }
+      .open-bracket:hover {
+        color:var(--primary-color);
+        background-color:var(--hover-color);
+        border: 1px solid var(--border-color);
+      }
+      .close-bracket{
+        display:inline-block;
+        font-family: var(--font-mono);
+      }
+      .tr.collapsed + .inside-bracket,
+      .tr.collapsed + .inside-bracket + .close-bracket{
+        display:none;
+      }
+      .inside-bracket.object,
+      .inside-bracket.array {
+        border-left: 1px dotted var(--border-color);
+      }
+      .inside-bracket.xxx-of {
+        padding:5px 0px;
+        border-style: dotted;
+        border-width: 0 0 1px 0;
+        border-color:var(--primary-color);
+      }`, custom_styles];
   }
   /* eslint-disable indent */
 
@@ -31039,9 +29717,24 @@ class SchemaTree extends LitElement {
   render() {
     var _this$data, _this$data2, _this$data3;
 
-    return html` <div class="tree ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : 'collapsed-descr'}"> <div class="toolbar"> <div class="toolbar-item schema-root-type ${((_this$data = this.data) === null || _this$data === void 0 ? void 0 : _this$data['::type']) || ''}"> ${((_this$data2 = this.data) === null || _this$data2 === void 0 ? void 0 : _this$data2['::type']) || ''} </div> ${this.allowSchemaDescriptionExpandToggle === 'true' ? html` <div style="flex:1"></div> <div class="toolbar-item" @click="${() => {
+    return $`
+      <div class="tree ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : 'collapsed-descr'}">
+        <div class="toolbar">
+          <div class="toolbar-item schema-root-type ${((_this$data = this.data) === null || _this$data === void 0 ? void 0 : _this$data['::type']) || ''} "> ${((_this$data2 = this.data) === null || _this$data2 === void 0 ? void 0 : _this$data2['::type']) || ''} </div>
+          ${this.allowSchemaDescriptionExpandToggle === 'true' ? $`
+              <div style="flex:1"></div>
+              <div class='toolbar-item' @click='${() => {
       this.schemaDescriptionExpanded = this.schemaDescriptionExpanded === 'true' ? 'false' : 'true';
-    }}"> ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'} </div> ` : ''} </div> ${(_this$data3 = this.data) !== null && _this$data3 !== void 0 && _this$data3['::description'] ? html`<span class="m-markdown"> ${unsafeHTML(marked(this.data['::description'] || ''))}</span>` : ''} ${this.data ? html` ${this.generateTree(this.data['::type'] === 'array' ? this.data['::props'] : this.data, this.data['::type'], this.data['::array-type'] || '')}` : html`<span class="mono-font" style="color:var(--red)"> Schema not found </span>`} </div> `;
+    }}'> 
+                ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'}
+              </div>
+            ` : ''}
+        </div>
+        ${(_this$data3 = this.data) !== null && _this$data3 !== void 0 && _this$data3['::description'] ? $`<span class='m-markdown'> ${unsafe_html_o(marked(this.data['::description'] || ''))}</span>` : ''}
+        ${this.data ? $`
+            ${this.generateTree(this.data['::type'] === 'array' ? this.data['::props'] : this.data, this.data['::type'], this.data['::array-type'] || '')}` : $`<span class='mono-font' style='color:var(--red)'> Schema not found </span>`}
+      </div>  
+    `;
   }
 
   generateTree(data, dataType = 'object', arrayType = '', key = '', description = '', schemaLevel = 0, indentLevel = 0, readOrWrite = '') {
@@ -31072,11 +29765,11 @@ class SchemaTree extends LitElement {
     }
 
     if (!data) {
-      return html`<div class="null" style="display:inline">null</div>`;
+      return $`<div class="null" style="display:inline;">null</div>`;
     }
 
     if (Object.keys(data).length === 0) {
-      return html`<span class="key object">${key}:{ }</span>`;
+      return $`<span class="key object">${key}:{ }</span>`;
     }
 
     let keyLabel = '';
@@ -31104,17 +29797,17 @@ class SchemaTree extends LitElement {
     if (data['::type'] === 'object') {
       if (dataType === 'array') {
         if (schemaLevel < this.schemaExpandLevel) {
-          openBracket = html`<span class="open-bracket array-of-object" @click="${this.toggleObjectExpand}">[{</span>`;
+          openBracket = $`<span class="open-bracket array-of-object" @click="${this.toggleObjectExpand}">[{</span>`;
         } else {
-          openBracket = html`<span class="open-bracket array-of-object" @click="${this.toggleObjectExpand}">[{...}]</span>`;
+          openBracket = $`<span class="open-bracket array-of-object" @click="${this.toggleObjectExpand}">[{...}]</span>`;
         }
 
         closeBracket = '}]';
       } else {
         if (schemaLevel < this.schemaExpandLevel) {
-          openBracket = html`<span class="open-bracket object" @click="${this.toggleObjectExpand}">{</span>`;
+          openBracket = $`<span class="open-bracket object" @click="${this.toggleObjectExpand}">{</span>`;
         } else {
-          openBracket = html`<span class="open-bracket object" @click="${this.toggleObjectExpand}">{...}</span>`;
+          openBracket = $`<span class="open-bracket object" @click="${this.toggleObjectExpand}">{...}</span>`;
         }
 
         closeBracket = '}';
@@ -31124,17 +29817,17 @@ class SchemaTree extends LitElement {
         const arrType = arrayType !== 'object' ? arrayType : '';
 
         if (schemaLevel < this.schemaExpandLevel) {
-          openBracket = html`<span class="open-bracket array-of-array" data-array-type="${arrType}" @click="${this.toggleObjectExpand}">[[ ${arrType} </span>`;
+          openBracket = $`<span class="open-bracket array-of-array" data-array-type="${arrType}" @click="${this.toggleObjectExpand}">[[ ${arrType} </span>`;
         } else {
-          openBracket = html`<span class="open-bracket array-of-array" data-array-type="${arrType}" @click="${this.toggleObjectExpand}">[[...]]</span>`;
+          openBracket = $`<span class="open-bracket array-of-array"  data-array-type="${arrType}" @click="${this.toggleObjectExpand}">[[...]]</span>`;
         }
 
         closeBracket = ']]';
       } else {
         if (schemaLevel < this.schemaExpandLevel) {
-          openBracket = html`<span class="open-bracket array" @click="${this.toggleObjectExpand}">[</span>`;
+          openBracket = $`<span class="open-bracket array" @click="${this.toggleObjectExpand}">[</span>`;
         } else {
-          openBracket = html`<span class="open-bracket array" @click="${this.toggleObjectExpand}">[...]</span>`;
+          openBracket = $`<span class="open-bracket array" @click="${this.toggleObjectExpand}">[...]</span>`;
         }
 
         closeBracket = ']';
@@ -31144,7 +29837,26 @@ class SchemaTree extends LitElement {
     if (typeof data === 'object') {
       var _data$Type2;
 
-      return html` <div class="tr ${schemaLevel < this.schemaExpandLevel || (_data$Type2 = data['::type']) !== null && _data$Type2 !== void 0 && _data$Type2.startsWith('xxx-of') ? 'expanded' : 'collapsed'} ${data['::type'] || 'no-type-info'}"> <div class="td key ${data['::deprecated'] ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px"> ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION') ? html`<span class="key-label xxx-of-key">${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>` : keyLabel === '::props' || keyLabel === '::ARRAY~OF' ? '' : schemaLevel > 0 ? html`<span class="key-label" title="${readOrWrite === 'readonly' ? 'Read-Only' : readOrWrite === 'writeonly' ? 'Write-Only' : ''}"> ${keyLabel.replace(/\*$/, '')}${keyLabel.endsWith('*') ? html`<span style="color:var(--red)">*</span>` : ''}${readOrWrite === 'readonly' ? html` 🆁` : readOrWrite === 'writeonly' ? html` 🆆` : readOrWrite}: </span>` : ''} ${data['::type'] === 'xxx-of' && dataType === 'array' ? html`<span style="color:var(--primary-color)">ARRAY</span>` : ''} ${openBracket} </div> <div class="td key-descr m-markdown-small">${unsafeHTML(marked(description || ''))}</div> </div> <div class="inside-bracket ${data['::type'] || 'no-type-info'}" style="padding-left:${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' ? 0 : leftPadding}px"> ${Array.isArray(data) && data[0] ? html`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, data[0]['::readwrite'])}` : html` ${Object.keys(data).map(dataKey => html` ${['::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? html`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}` : '' : html`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}`} `)} `} </div> ${data['::type'] && data['::type'].includes('xxx-of') ? '' : html`<div class="close-bracket"> ${closeBracket} </div>`} `;
+      return $`
+        <div class="tr ${schemaLevel < this.schemaExpandLevel || (_data$Type2 = data['::type']) !== null && _data$Type2 !== void 0 && _data$Type2.startsWith('xxx-of') ? 'expanded' : 'collapsed'} ${data['::type'] || 'no-type-info'}">
+          <div class="td key ${data['::deprecated'] ? 'deprecated' : ''}" style='min-width:${minFieldColWidth}px'>
+            ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION') ? $`<span class='key-label xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>` : keyLabel === '::props' || keyLabel === '::ARRAY~OF' ? '' : schemaLevel > 0 ? $`<span class="key-label" title="${readOrWrite === 'readonly' ? 'Read-Only' : readOrWrite === 'writeonly' ? 'Write-Only' : ''}">
+                      ${keyLabel.replace(/\*$/, '')}${keyLabel.endsWith('*') ? $`<span style="color:var(--red)">*</span>` : ''}${readOrWrite === 'readonly' ? $` 🆁` : readOrWrite === 'writeonly' ? $` 🆆` : readOrWrite}:
+                    </span>` : ''}
+            ${data['::type'] === 'xxx-of' && dataType === 'array' ? $`<span style="color:var(--primary-color)">ARRAY</span>` : ''} 
+            ${openBracket}
+          </div>
+          <div class='td key-descr m-markdown-small'>${unsafe_html_o(marked(description || ''))}</div>
+        </div>
+        <div class='inside-bracket ${data['::type'] || 'no-type-info'}' style='padding-left:${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' ? 0 : leftPadding}px;'>
+          ${Array.isArray(data) && data[0] ? $`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, data[0]['::readwrite'])}` : $`
+              ${Object.keys(data).map(dataKey => $`
+                ${['::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}` : '' : $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}`}
+              `)}
+            `}
+        </div>
+        ${data['::type'] && data['::type'].includes('xxx-of') ? '' : $`<div class='close-bracket'> ${closeBracket} </div>`}
+      `;
     } // For Primitive types and array of Primitives
 
 
@@ -31178,7 +29890,25 @@ class SchemaTree extends LitElement {
       finalReadWriteTip = 'Write-Only';
     }
 
-    return html` <div class="tr primitive"> <div class="td key ${deprecated}" style="min-width:${minFieldColWidth}px"> ${keyLabel.endsWith('*') ? html`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style="color:var(--red)">*</span>:` : key.startsWith('::OPTION') ? html`<span class="key-label xxx-of-key">${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>` : html`<span class="key-label">${keyLabel}:</span>`} <span class="${dataTypeCss}" title="${finalReadWriteTip}"> ${dataType === 'array' ? `[${type}]` : `${type}`} ${finalReadWriteText} </span> </div> <div class="td key-descr"> ${dataType === 'array' ? html`<span class="m-markdown-small">${unsafeHTML(marked(description))}</span>` : ''} ${constraint ? html`<div style="display:inline-block;line-break:anywhere;margin-right:8px"><span class="bold-text">Constraints: </span>${constraint}</div>` : ''} ${defaultValue ? html`<div style="display:inline-block;line-break:anywhere;margin-right:8px"><span class="bold-text">Default: </span>${defaultValue}</div>` : ''} ${allowedValues ? html`<div style="display:inline-block;line-break:anywhere;margin-right:8px"><span class="bold-text">Allowed: </span>${allowedValues}</div>` : ''} ${pattern ? html`<div style="display:inline-block;line-break:anywhere;margin-right:8px"><span class="bold-text">Pattern: </span>${pattern}</div>` : ''} ${schemaDescription ? html`<span class="m-markdown-small">${unsafeHTML(marked(schemaDescription))}</span>` : ''} </div> </div> `;
+    return $`
+      <div class = "tr primitive">
+        <div class="td key ${deprecated}" style='min-width:${minFieldColWidth}px' >
+          ${keyLabel.endsWith('*') ? $`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>:` : key.startsWith('::OPTION') ? $`<span class='key-label xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>` : $`<span class="key-label">${keyLabel}:</span>`}
+          <span class="${dataTypeCss}" title="${finalReadWriteTip}"> 
+            ${dataType === 'array' ? `[${type}]` : `${type}`}
+            ${finalReadWriteText}
+          </span>
+        </div>
+        <div class='td key-descr'>
+          ${dataType === 'array' ? $`<span class="m-markdown-small">${unsafe_html_o(marked(description))}</span>` : ''}
+          ${constraint ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Constraints: </span>${constraint}</div>` : ''}
+          ${defaultValue ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
+          ${allowedValues ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Allowed: </span>${allowedValues}</div>` : ''}
+          ${pattern ? $`<div style='display:inline-block; line-break: anywhere; margin-right:8px'><span class='bold-text'>Pattern: </span>${pattern}</div>` : ''}
+          ${schemaDescription ? $`<span class="m-markdown-small">${unsafe_html_o(marked(schemaDescription))}</span>` : ''}
+        </div>
+      </div>
+    `;
   }
   /* eslint-enable indent */
 
@@ -31199,16 +29929,21 @@ class SchemaTree extends LitElement {
 customElements.define('schema-tree', SchemaTree);
 ;// CONCATENATED MODULE: ./src/components/tag-input.js
 
-class TagInput extends LitElement {
+class TagInput extends lit_element_s {
   /* eslint-disable indent */
   render() {
     let tagItemTmpl = '';
 
     if (Array.isArray(this.value)) {
-      tagItemTmpl = html`${this.value.filter(v => v.trim() !== '').map(v => html`<span class="tag">${v}</span>`)}`;
+      tagItemTmpl = $`${this.value.filter(v => v.trim() !== '').map(v => $`<span class='tag'>${v}</span>`)}`;
     }
 
-    return html` <div class="tags" tabindex="0"> ${tagItemTmpl} <input type="text" class="editor" @paste="${e => this.afterPaste(e)}" @keydown="${this.afterKeyDown}" @blur="${this.onBlur}" placeholder="${this.placeholder || ''}"> </div> `;
+    return $`
+      <div class='tags' tabindex="0">
+        ${tagItemTmpl}
+        <input type="text" class='editor' @paste="${e => this.afterPaste(e)}" @keydown="${this.afterKeyDown}" @blur="${this.onBlur}" placeholder="${this.placeholder || ''}">
+      </div>
+    `;
   }
   /* eslint-enable indent */
 
@@ -31288,7 +30023,49 @@ class TagInput extends LitElement {
   }
 
   static get styles() {
-    return [css`.tags{display:flex;flex-wrap:wrap;outline:0;padding:0;border-radius:var(--border-radius);border:1px solid var(--border-color);cursor:text;overflow:hidden;background:var(--input-bg)}.editor,.tag{padding:3px;margin:2px}.tag{border:1px solid var(--border-color);background-color:var(--bg3);color:var(--fg3);border-radius:var(--border-radius);word-break:break-all;font-size:var(--font-size-small)}.tag:hover~#cursor{display:block}.editor{flex:1;border:1px solid transparent;color:var(--fg);min-width:60px;outline:0;line-height:inherit;font-family:inherit;background:0 0;font-size:calc(var(--font-size-small) + 1px)}.editor::placeholder{color:var(--placeholder-color);opacity:1}`];
+    return [r`
+      .tags{
+        display:flex;
+        flex-wrap: wrap;
+        outline: none;
+        padding:0;
+        border-radius:var(--border-radius);
+        border:1px solid var(--border-color);
+        cursor:text;
+        overflow:hidden;
+        background:var(--input-bg);
+      }
+      .tag, .editor {
+        padding:3px;
+        margin:2px;
+      }
+      .tag{
+        border:1px solid var(--border-color);
+        background-color:var(--bg3);
+        color:var(--fg3);
+        border-radius:var(--border-radius);
+        word-break: break-all;
+        font-size: var(--font-size-small);
+      }
+      .tag:hover ~ #cursor {
+        display: block;
+      }
+      .editor{
+        flex:1;
+        border:1px solid transparent;
+        color:var(--fg);
+        min-width:60px;
+        outline: none;
+        line-height: inherit;
+        font-family:inherit;
+        background:transparent;
+        font-size: calc(var(--font-size-small) + 1px);
+      }
+      .editor::placeholder {
+        color: var(--placeholder-color);
+        opacity:1;
+      }
+    `];
   }
 
 } // Register the element with the browser
@@ -31296,6 +30073,11 @@ class TagInput extends LitElement {
 customElements.define('tag-input', TagInput);
 ;// CONCATENATED MODULE: ./src/components/api-request.js
 
+ // eslint-disable-line import/extensions
+
+ // eslint-disable-line import/extensions
+
+ // eslint-disable-line import/extensions
 
 
 
@@ -31312,9 +30094,7 @@ customElements.define('tag-input', TagInput);
 
 
 
-
-
-class ApiRequest extends LitElement {
+class ApiRequest extends lit_element_s {
   constructor() {
     super();
     this.responseMessage = '';
@@ -31453,11 +30233,119 @@ class ApiRequest extends LitElement {
   }
 
   static get styles() {
-    return [table_styles, input_styles, font_styles, flex_styles, border_styles, tab_styles, prism_styles, css`*,:after,:before{box-sizing:border-box}.read-mode{margin-top:24px}.param-name,.param-type{margin:1px 0;text-align:right;line-height:var(--font-size-small)}.param-name{color:var(--fg);font-family:var(--font-mono)}.param-name.deprecated{text-decoration:line-through}.param-type{color:var(--light-fg);font-family:var(--font-regular)}.param-constraint{min-width:100px}.param-constraint:empty{display:none}.top-gap{margin-top:24px}.textarea{min-height:220px;padding:5px;resize:vertical;direction:ltr}.example:first-child{margin-top:-9px}.response-message{font-weight:700;text-overflow:ellipsis}.response-message.error{color:var(--red)}.response-message.success{color:var(--blue)}.file-input-container{align-items:flex-end}.file-input-container .input-set:first-child .file-input-remove-btn{visibility:hidden}.file-input-remove-btn{font-size:16px;color:var(--red);outline:0;border:none;background:0 0;cursor:pointer}.v-tab-btn{font-size:var(--smal-font-size);height:24px;border:none;background:0 0;opacity:.3;cursor:pointer;padding:4px 8px}.v-tab-btn.active{font-weight:700;background:var(--bg);opacity:1}@media only screen and (min-width:768px){.textarea{padding:8px}}@media only screen and (max-width:470px){.hide-in-small-screen{display:none}}`, custom_styles];
+    return [table_styles, input_styles, font_styles, flex_styles, border_styles, tab_styles, prism_styles, r`
+        *, *:before, *:after { box-sizing: border-box; }
+    
+        .read-mode {
+          margin-top: 24px;
+        }
+        .param-name,
+        .param-type {
+          margin: 1px 0;
+          text-align: right;
+          line-height: var(--font-size-small);
+        }
+        .param-name{
+          color: var(--fg); 
+          font-family: var(--font-mono);
+        }
+        .param-name.deprecated { 
+          text-decoration: line-through;
+        }
+        .param-type{
+          color: var(--light-fg); 
+          font-family: var(--font-regular);
+        }
+        .param-constraint{
+          min-width:100px;
+        }
+        .param-constraint:empty{
+          display:none;
+        }
+        .top-gap{margin-top:24px;}
+
+        .textarea {
+          min-height:220px; 
+          padding:5px;
+          resize:vertical;
+          direction: ltr;
+        }
+        .example:first-child {
+          margin-top: -9px;
+        }
+
+        .response-message{
+          font-weight:bold;
+          text-overflow: ellipsis;
+        }
+        .response-message.error {
+          color:var(--red);
+        }
+        .response-message.success {
+          color:var(--blue);
+        }
+
+        .file-input-container {
+          align-items:flex-end;
+        }
+        .file-input-container .input-set:first-child .file-input-remove-btn{
+          visibility:hidden;
+        }
+
+        .file-input-remove-btn{
+          font-size:16px;
+          color:var(--red);
+          outline: none;
+          border: none;
+          background:none;
+          cursor:pointer;
+        }
+
+        .v-tab-btn {
+          font-size: var(--smal-font-size);
+          height:24px; 
+          border:none; 
+          background:none; 
+          opacity: 0.3;
+          cursor: pointer;
+          padding: 4px 8px;
+        }
+        .v-tab-btn.active {
+          font-weight: bold;
+          background: var(--bg);
+          opacity: 1;
+        }
+
+        @media only screen and (min-width: 768px) {
+          .textarea {
+            padding:8px;
+          }
+        }
+
+        @media only screen and (max-width: 470px) {
+          .hide-in-small-screen {
+            display:none;
+          }
+        }
+      `, custom_styles];
   }
 
   render() {
-    return html` <div class="col regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'}"> <div class="${this.callback === 'true' ? 'tiny-title' : 'req-res-title'}"> ${this.callback === 'true' ? 'CALLBACK REQUEST' : 'REQUEST'} </div> <div> ${guard([this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('path'))} ${guard([this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('query'))} ${this.requestBodyTemplate()} ${guard([this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('header'))} ${guard([this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('cookie'))} ${this.allowTry === 'false' ? '' : html`${this.apiCallTemplate()}`} </div> </div> `;
+    return $`
+    <div class="col regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'}">
+      <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} "> 
+        ${this.callback === 'true' ? 'CALLBACK REQUEST' : 'REQUEST'}
+      </div>
+      <div>
+        ${guard_i([this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('path'))}
+        ${guard_i([this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('query'))}
+        ${this.requestBodyTemplate()}
+        ${guard_i([this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('header'))}
+        ${guard_i([this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('cookie'))}
+        ${this.allowTry === 'false' ? '' : $`${this.apiCallTemplate()}`}
+      </div>  
+    </div>
+    `;
   }
 
   updated(changedProperties) {
@@ -31482,10 +30370,18 @@ class ApiRequest extends LitElement {
 
 
   exampleListTemplate(paramName, paramType, exampleList = []) {
-    return html` ${exampleList.length > 0 ? html`<span style="font-weight:700">Example: </span> ${exampleList.map((v, i) => {
+    return $`
+    ${exampleList.length > 0 ? $`<span style="font-weight:bold">Example: </span>
+        ${exampleList.map((v, i) => {
       var _v$value, _v$value2;
 
-      return html` ${i === 0 ? '' : '┃'} ${paramType === 'array' ? '[' : ''} <a part="anchor anchor-param-example" class="${this.allowTry === 'true' ? '' : 'inactive-link'}" data-example-type="${paramType === 'array' ? paramType : 'string'}" data-example="${v.value && Array.isArray(v.value) ? (_v$value = v.value) === null || _v$value === void 0 ? void 0 : _v$value.join('~|~') : v.value || ''}" @click="${e => {
+      return $`
+          ${i === 0 ? '' : '┃'}
+          ${paramType === 'array' ? '[' : ''}
+          <a part="anchor anchor-param-example" class = "${this.allowTry === 'true' ? '' : 'inactive-link'}"
+            data-example-type="${paramType === 'array' ? paramType : 'string'}"
+            data-example = "${v.value && Array.isArray(v.value) ? (_v$value = v.value) === null || _v$value === void 0 ? void 0 : _v$value.join('~|~') : v.value || ''}"
+            @click="${e => {
         const inputEl = e.target.closest('table').querySelector(`[data-pname="${paramName}"]`);
 
         if (inputEl) {
@@ -31495,8 +30391,12 @@ class ApiRequest extends LitElement {
             inputEl.value = e.target.dataset.example;
           }
         }
-      }}">${v.value && Array.isArray(v.value) ? (_v$value2 = v.value) === null || _v$value2 === void 0 ? void 0 : _v$value2.join(', ') : v.value || ''}</a> ${paramType === 'array' ? '] ' : ''} `;
-    })} ` : ''}`;
+      }}"
+          >${v.value && Array.isArray(v.value) ? (_v$value2 = v.value) === null || _v$value2 === void 0 ? void 0 : _v$value2.join(', ') : v.value || ''}</a>
+          ${paramType === 'array' ? '] ' : ''}
+        `;
+    })}
+      ` : ''}`;
   }
 
   inputParametersTemplate(paramType) {
@@ -31564,14 +30464,96 @@ class ApiRequest extends LitElement {
       }
 
       const labelColWidth = 'read focused'.includes(this.renderStyle) ? '200px' : '160px';
-      tableRows.push(html` <tr> <td rowspan="${this.allowTry === 'true' ? '1' : '2'}" style="width:${labelColWidth};min-width:100px"> <div class="param-name"> ${param.required ? html`<span style="color:var(--red)">*</span>` : ''}${param.name} </div> <div class="param-type"> ${paramSchema.type === 'array' ? `${paramSchema.arrayType}` : `${paramSchema.format ? paramSchema.format : paramSchema.type}`} </div> </td> ${this.allowTry === 'true' ? html` <td style="min-width:100px"> ${paramSchema.type === 'array' ? html` <tag-input class="request-param" style="width:100%" data-ptype="${paramType}" data-pname="${param.name}" data-example="${Array.isArray(example.exampleVal) ? example.exampleVal.join('~|~') : example.exampleVal}" data-param-serialize-style="${paramStyle}" data-param-serialize-explode="${paramExplode}" data-param-allow-reserved="${paramAllowReserved}" data-array="true" placeholder="add-multiple &#x21a9;" .value="${Array.isArray(example.exampleVal) ? example.exampleVal : example.exampleVal}"> </tag-input>` : paramSchema.type === 'object' ? html` <div class="tab-panel col" style="border-width:0 0 1px 0"> <div class="tab-buttons row" @click="${e => {
+      tableRows.push($`
+      <tr> 
+        <td rowspan="${this.allowTry === 'true' ? '1' : '2'}" style="width:${labelColWidth}; min-width:100px;">
+          <div class="param-name">
+            ${param.required ? $`<span style='color:var(--red)'>*</span>` : ''}${param.name}
+          </div>
+          <div class="param-type">
+            ${paramSchema.type === 'array' ? `${paramSchema.arrayType}` : `${paramSchema.format ? paramSchema.format : paramSchema.type}`}
+          </div>
+        </td>  
+        ${this.allowTry === 'true' ? $`
+            <td style="min-width:100px;">
+              ${paramSchema.type === 'array' ? $`
+                  <tag-input class="request-param" 
+                    style = "width:100%" 
+                    data-ptype = "${paramType}"
+                    data-pname = "${param.name}"
+                    data-example = "${Array.isArray(example.exampleVal) ? example.exampleVal.join('~|~') : example.exampleVal}"
+                    data-param-serialize-style = "${paramStyle}"
+                    data-param-serialize-explode = "${paramExplode}"
+                    data-param-allow-reserved = "${paramAllowReserved}"
+                    data-array = "true"
+                    placeholder = "add-multiple &#x21a9;"
+                    .value = "${Array.isArray(example.exampleVal) ? example.exampleVal : example.exampleVal}"
+                  >
+                  </tag-input>` : paramSchema.type === 'object' ? $`
+                    <div class="tab-panel col" style="border-width:0 0 1px 0;">
+                      <div class="tab-buttons row" @click="${e => {
         if (e.target.tagName.toLowerCase() === 'button') {
           const newState = { ...this.activeParameterSchemaTabs
           };
           newState[param.name] = e.target.dataset.tab;
           this.activeParameterSchemaTabs = newState;
         }
-      }}"> <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab="schema">SCHEMA</button> <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] === 'example' ? 'active' : ''}" data-tab="example">EXAMPLE </button> </div> ${this.activeParameterSchemaTabs[param.name] === 'example' ? html`<div class="tab-content col"> <textarea class="textarea request-param" part="textarea textarea-param" data-ptype="${paramType}-object" data-pname="${param.name}" data-example="${example.exampleVal}" data-param-serialize-style="${paramStyle}" data-param-serialize-explode="${paramExplode}" data-param-allow-reserved="${paramAllowReserved}" spellcheck="false" .textContent="${this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : ''}" style="resize:vertical;width:100%;height:${'read focused'.includes(this.renderStyle) ? '180px' : '120px'}"></textarea> </div>` : html` <div class="tab-content col"> <schema-tree class="json" style="display:block" .data="${schemaAsObj}" schema-expand-level="${this.schemaExpandLevel}" schema-description-expanded="${this.schemaDescriptionExpanded}" allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}" , schema-hide-read-only="${this.schemaHideReadOnly.includes(this.method)}" schema-hide-write-only="false"> </schema-tree> </div>`} </div>` : html` <input type="${paramSchema.format === 'password' ? 'password' : 'text'}" spellcheck="false" style="width:100%" class="request-param" part="textbox textbox-param" data-ptype="${paramType}" data-pname="${param.name}" data-example="${Array.isArray(example.exampleVal) ? example.exampleVal.join('~|~') : example.exampleVal}" data-param-allow-reserved="${paramAllowReserved}" data-array="false" .value="${live(this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : '')}">`} </td>` : ''} <td colspan="${this.allowTry === 'true' ? '1' : '2'}"> ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern ? html` <div class="param-constraint"> ${paramSchema.default ? html`<span style="font-weight:700">Default: </span>${paramSchema.default}<br>` : ''} ${paramSchema.pattern ? html`<span style="font-weight:700">Pattern: </span>${paramSchema.pattern}<br>` : ''} ${paramSchema.constrain ? html`${paramSchema.constrain}<br>` : ''} ${paramSchema.allowedValues && paramSchema.allowedValues.split('┃').map((v, i) => html` ${i > 0 ? '┃' : html`<span style="font-weight:700">Allowed: </span>`} ${html` <a part="anchor anchor-param-constraint" class="${this.allowTry === 'true' ? '' : 'inactive-link'}" data-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}" data-enum="${v.trim()}" @click="${e => {
+      }}">
+                        <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
+                        <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
+                      </div>
+                      ${this.activeParameterSchemaTabs[param.name] === 'example' ? $`<div class="tab-content col">
+                          <textarea 
+                            class = "textarea request-param"
+                            part = "textarea textarea-param"
+                            data-ptype = "${paramType}-object"
+                            data-pname = "${param.name}"
+                            data-example = "${example.exampleVal}"
+                            data-param-serialize-style = "${paramStyle}"
+                            data-param-serialize-explode = "${paramExplode}"
+                            data-param-allow-reserved = "${paramAllowReserved}"
+                            spellcheck = "false"
+                            .textContent = "${this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : ''}"
+                            style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
+                          ></textarea>
+                        </div>` : $`
+                          <div class="tab-content col">            
+                            <schema-tree
+                              class = 'json'
+                              style = 'display: block'
+                              .data = '${schemaAsObj}'
+                              schema-expand-level = "${this.schemaExpandLevel}"
+                              schema-description-expanded = "${this.schemaDescriptionExpanded}"
+                              allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+                              schema-hide-read-only = "${this.schemaHideReadOnly.includes(this.method)}"
+                              schema-hide-write-only = "false"
+                            > </schema-tree>
+                          </div>`}
+                    </div>` : $`
+                    <input type="${paramSchema.format === 'password' ? 'password' : 'text'}" spellcheck="false" style="width:100%" 
+                      class="request-param"
+                      part="textbox textbox-param"
+                      data-ptype="${paramType}"
+                      data-pname="${param.name}" 
+                      data-example="${Array.isArray(example.exampleVal) ? example.exampleVal.join('~|~') : example.exampleVal}"
+                      data-param-allow-reserved = "${paramAllowReserved}"
+                      data-array="false"
+                      .value="${live_l(this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : '')}"
+                    />`}
+            </td>` : ''}
+        <td colspan="${this.allowTry === 'true' ? '1' : '2'}">
+          ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern ? $`
+              <div class="param-constraint">
+                ${paramSchema.default ? $`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
+                ${paramSchema.pattern ? $`<span style="font-weight:bold">Pattern: </span>${paramSchema.pattern}<br/>` : ''}
+                ${paramSchema.constrain ? $`${paramSchema.constrain}<br/>` : ''}
+                ${paramSchema.allowedValues && paramSchema.allowedValues.split('┃').map((v, i) => $`
+                  ${i > 0 ? '┃' : $`<span style="font-weight:bold">Allowed: </span>`}
+                  ${$`
+                    <a part="anchor anchor-param-constraint" class = "${this.allowTry === 'true' ? '' : 'inactive-link'}"
+                      data-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}"
+                      data-enum="${v.trim()}"
+                      @click="${e => {
         const inputEl = e.target.closest('table').querySelector(`[data-pname="${param.name}"]`);
 
         if (inputEl) {
@@ -31581,10 +30563,28 @@ class ApiRequest extends LitElement {
             inputEl.value = e.target.dataset.enum;
           }
         }
-      }}">${v}</a>`}`)} </div>` : ''} </td> </tr> <tr> ${this.allowTry === 'true' ? html`<td style="border:none"> </td>` : ''} <td colspan="2" style="border:none;margin-top:0;padding:0 5px 8px 5px"> <span class="m-markdown-small">${unsafeHTML(marked(param.description || ''))}</span> ${this.exampleListTemplate.call(this, param.name, paramSchema.type, example.exampleList)} </td> </tr> `);
+      }}"
+                    >${v}</a>`}`)}
+              </div>` : ''}
+        </td>
+      </tr>
+      <tr>
+        ${this.allowTry === 'true' ? $`<td style="border:none"> </td>` : ''}
+        <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;">
+          <span class="m-markdown-small">${unsafe_html_o(marked(param.description || ''))}</span>
+          ${this.exampleListTemplate.call(this, param.name, paramSchema.type, example.exampleList)}
+        </td>
+      </tr>
+    `);
     }
 
-    return html` <div class="table-title top-gap">${title}</div> <div style="display:block;overflow-x:auto;max-width:100%"> <table class="m-table" style="width:100%;word-break:break-word"> ${tableRows} </table> </div>`;
+    return $`
+    <div class="table-title top-gap">${title}</div>
+    <div style="display:block; overflow-x:auto; max-width:100%;">
+      <table class="m-table" style="width:100%; word-break:break-word;">
+        ${tableRows}
+      </table>
+    </div>`;
   }
 
   resetRequestBodySelection() {
@@ -31652,7 +30652,14 @@ class ApiRequest extends LitElement {
     } // MIME Type selector
 
 
-    reqBodyTypeSelectorHtml = requestBodyTypes.length === 1 ? '' : html` <select style="min-width:100px;max-width:100%;margin-bottom:-1px" @change="${e => this.onMimeTypeChange(e)}"> ${requestBodyTypes.map(reqBody => html` <option value="${reqBody.mimeType}" ?selected="${reqBody.mimeType === this.selectedRequestBodyType}"> ${reqBody.mimeType} </option> `)} </select> `; // For Loop - Main
+    reqBodyTypeSelectorHtml = requestBodyTypes.length === 1 ? '' : $`
+        <select style="min-width:100px; max-width:100%;  margin-bottom:-1px;" @change = '${e => this.onMimeTypeChange(e)}'>
+          ${requestBodyTypes.map(reqBody => $`
+            <option value = '${reqBody.mimeType}' ?selected = '${reqBody.mimeType === this.selectedRequestBodyType}'>
+              ${reqBody.mimeType}
+            </option> `)}
+        </select>
+      `; // For Loop - Main
 
     requestBodyTypes.forEach(reqBody => {
       let schemaAsObj;
@@ -31667,7 +30674,44 @@ class ApiRequest extends LitElement {
             this.selectedRequestBodyExample = reqBodyExamples.length > 0 ? reqBodyExamples[0].exampleId : '';
           }
 
-          reqBodyExampleHtml = html` ${reqBodyExampleHtml} <div class="example-panel border-top pad-top-8"> ${reqBodyExamples.length === 1 ? '' : html` <select style="min-width:100px;max-width:100%;margin-bottom:-1px" @change="${e => this.onSelectExample(e)}"> ${reqBodyExamples.map(v => html`<option value="${v.exampleId}" ?selected="${v.exampleId === this.selectedRequestBodyExample}"> ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary ? v.exampleSummary : v.exampleId} </option>`)} </select> `} ${reqBodyExamples.filter(v => v.exampleId === this.selectedRequestBodyExample).map(v => html` <div class="example ${v.exampleId === this.selectedRequestBodyExample ? 'example-selected' : ''}" data-example="${v.exampleId}"> ${v.exampleSummary && v.exampleSummary.length > 80 ? html`<div style="padding:4px 0"> ${v.exampleSummary} </div>` : ''} ${v.exampleDescription ? html`<div class="m-markdown-small" style="padding:4px 0"> ${unsafeHTML(marked(v.exampleDescription || ''))} </div>` : ''} <pre class="textarea is-hidden request-body-param ${reqBody.mimeType.substring(reqBody.mimeType.indexOf('/') + 1)}" spellcheck="false" data-ptype="${reqBody.mimeType}" style="width:100%;resize:vertical;display:none">${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, null, 2)}</pre> <textarea class="textarea request-body-param-user-input" part="textarea textarea-param" spellcheck="false" data-ptype="${reqBody.mimeType}" data-example="${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, null, 2)}" data-example-format="${v.exampleFormat}" style="width:100%;resize:vertical" .textContent="${this.fillRequestFieldsWithExample === 'true' ? v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, null, 2) : ''}"></textarea> </div> `)} </div> `;
+          reqBodyExampleHtml = $`
+            ${reqBodyExampleHtml}
+            <div class = 'example-panel border-top pad-top-8'>
+              ${reqBodyExamples.length === 1 ? '' : $`
+                  <select style="min-width:100px; max-width:100%;  margin-bottom:-1px;" @change='${e => this.onSelectExample(e)}'>
+                    ${reqBodyExamples.map(v => $`<option value="${v.exampleId}" ?selected=${v.exampleId === this.selectedRequestBodyExample} > 
+                      ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary ? v.exampleSummary : v.exampleId} 
+                    </option>`)}
+                  </select>
+                `}
+              ${reqBodyExamples.filter(v => v.exampleId === this.selectedRequestBodyExample).map(v => $`
+                <div class="example ${v.exampleId === this.selectedRequestBodyExample ? 'example-selected' : ''}" data-example = '${v.exampleId}'>
+                  ${v.exampleSummary && v.exampleSummary.length > 80 ? $`<div style="padding: 4px 0"> ${v.exampleSummary} </div>` : ''}
+                  ${v.exampleDescription ? $`<div class="m-markdown-small" style="padding: 4px 0"> ${unsafe_html_o(marked(v.exampleDescription || ''))} </div>` : ''}
+                  <!-- This pre(hidden) is to store the original example value, this will remain unchanged when users switches from one example to another, its is used to populate the editable textarea -->
+                  <pre 
+                    class = "textarea is-hidden request-body-param ${reqBody.mimeType.substring(reqBody.mimeType.indexOf('/') + 1)}" 
+                    spellcheck = "false"
+                    data-ptype = "${reqBody.mimeType}" 
+                    style="width:100%; resize:vertical; display:none"
+                  >${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, null, 2)}</pre>
+
+                  <!-- this textarea is for user to edit the example -->
+                  <textarea 
+                    class = "textarea request-body-param-user-input"
+                    part = "textarea textarea-param"
+                    spellcheck = "false"
+                    data-ptype = "${reqBody.mimeType}" 
+                    data-example = "${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, null, 2)}"
+                    data-example-format = "${v.exampleFormat}"
+                    style="width:100%; resize:vertical;"
+                    .textContent = "${this.fillRequestFieldsWithExample === 'true' ? v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, null, 2) : ''}"
+                  ></textarea>
+                </div>  
+              `)}
+
+            </div>
+          `;
         }
       } else if (this.selectedRequestBodyType.includes('form-urlencoded') || this.selectedRequestBodyType.includes('form-data')) {
         if (reqBody.mimeType === this.selectedRequestBodyType) {
@@ -31679,7 +30723,11 @@ class ApiRequest extends LitElement {
         }
       } else if (/^audio\/|^image\/|^video\/|^font\/|tar$|zip$|7z$|rtf$|msword$|excel$|\/pdf$|\/octet-stream$/.test(this.selectedRequestBodyType)) {
         if (reqBody.mimeType === this.selectedRequestBodyType) {
-          reqBodyFileInputHtml = html` <div class="small-font-size bold-text row"> <input type="file" part="file-input" style="max-width:100%" class="request-body-param-file" data-ptype="${reqBody.mimeType}" spellcheck="false"> </div> `;
+          reqBodyFileInputHtml = $`
+            <div class = "small-font-size bold-text row">
+              <input type="file" part="file-input" style="max-width:100%" class="request-body-param-file" data-ptype="${reqBody.mimeType}" spellcheck="false" />
+            </div>  
+          `;
         }
       } // Generate Schema
 
@@ -31688,17 +30736,62 @@ class ApiRequest extends LitElement {
         schemaAsObj = schemaInObjectNotation(reqBody.schema, {});
 
         if (this.schemaStyle === 'table') {
-          reqBodySchemaHtml = html` ${reqBodySchemaHtml} <schema-table class="${reqBody.mimeType.substring(reqBody.mimeType.indexOf('/') + 1)}" style="display:${this.selectedRequestBodyType === reqBody.mimeType ? 'block' : 'none'}" .data="${schemaAsObj}" schema-expand-level="${this.schemaExpandLevel}" schema-description-expanded="${this.schemaDescriptionExpanded}" allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}" , schema-hide-read-only="${this.schemaHideReadOnly.includes(this.method)}" schema-hide-write-only="false"> </schema-table> `;
+          reqBodySchemaHtml = $`
+            ${reqBodySchemaHtml}
+            <schema-table
+              class = '${reqBody.mimeType.substring(reqBody.mimeType.indexOf('/') + 1)}'
+              style = 'display: ${this.selectedRequestBodyType === reqBody.mimeType ? 'block' : 'none'};'
+              .data = '${schemaAsObj}'
+              schema-expand-level = "${this.schemaExpandLevel}"
+              schema-description-expanded = "${this.schemaDescriptionExpanded}"
+              allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+              schema-hide-read-only = "${this.schemaHideReadOnly.includes(this.method)}"
+              schema-hide-write-only = "false"
+            > </schema-table>
+          `;
         } else if (this.schemaStyle === 'tree') {
-          reqBodySchemaHtml = html` ${reqBodySchemaHtml} <schema-tree class="${reqBody.mimeType.substring(reqBody.mimeType.indexOf('/') + 1)}" style="display:${this.selectedRequestBodyType === reqBody.mimeType ? 'block' : 'none'}" .data="${schemaAsObj}" schema-expand-level="${this.schemaExpandLevel}" schema-description-expanded="${this.schemaDescriptionExpanded}" allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}" , schema-hide-read-only="true" schema-hide-write-only="false"> </schema-tree> `;
+          reqBodySchemaHtml = $`
+            ${reqBodySchemaHtml}
+            <schema-tree
+              class = "${reqBody.mimeType.substring(reqBody.mimeType.indexOf('/') + 1)}"
+              style = "display: ${this.selectedRequestBodyType === reqBody.mimeType ? 'block' : 'none'};"
+              .data = "${schemaAsObj}"
+              schema-expand-level = "${this.schemaExpandLevel}"
+              schema-description-expanded = "${this.schemaDescriptionExpanded}"
+              allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+              schema-hide-read-only = "true"
+              schema-hide-write-only = "false"
+            > </schema-tree>
+          `;
         }
       }
     });
-    return html` <div class="request-body-container" data-selected-request-body-type="${this.selectedRequestBodyType}"> <div class="table-title top-gap row"> REQUEST BODY ${this.request_body.required ? html`<span class="mono-font" style="color:var(--red)">*</span>` : ''} <span style="font-weight:400;margin-left:5px"> ${this.selectedRequestBodyType}</span> <span style="flex:1"></span> ${reqBodyTypeSelectorHtml} </div> ${this.request_body.description ? html`<div class="m-markdown" style="margin-bottom:12px">${unsafeHTML(marked(this.request_body.description))}</div>` : ''} ${this.selectedRequestBodyType.includes('json') || this.selectedRequestBodyType.includes('xml') || this.selectedRequestBodyType.includes('text') ? html` <div class="tab-panel col" style="border-width:0 0 1px 0"> <div class="tab-buttons row" @click="${e => {
+    return $`
+      <div class='request-body-container' data-selected-request-body-type="${this.selectedRequestBodyType}">
+        <div class="table-title top-gap row">
+          REQUEST BODY ${this.request_body.required ? $`<span class="mono-font" style='color:var(--red)'>*</span>` : ''} 
+          <span style = "font-weight:normal; margin-left:5px"> ${this.selectedRequestBodyType}</span>
+          <span style="flex:1"></span>
+          ${reqBodyTypeSelectorHtml}
+        </div>
+        ${this.request_body.description ? $`<div class="m-markdown" style="margin-bottom:12px">${unsafe_html_o(marked(this.request_body.description))}</div>` : ''}
+        
+        ${this.selectedRequestBodyType.includes('json') || this.selectedRequestBodyType.includes('xml') || this.selectedRequestBodyType.includes('text') ? $`
+            <div class="tab-panel col" style="border-width:0 0 1px 0;">
+              <div class="tab-buttons row" @click="${e => {
       if (e.target.tagName.toLowerCase() === 'button') {
         this.activeSchemaTab = e.target.dataset.tab;
       }
-    }}"> <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab="schema">SCHEMA</button> <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab="example">EXAMPLE</button> </div> ${this.activeSchemaTab === 'example' ? html`<div class="tab-content col"> ${reqBodyExampleHtml}</div>` : html`<div class="tab-content col"> ${reqBodySchemaHtml}</div>`} </div>` : html` ${reqBodyFileInputHtml} ${reqBodyFormHtml}`} </div> `;
+    }}">
+                <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
+                <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
+              </div>
+              ${this.activeSchemaTab === 'example' ? $`<div class="tab-content col"> ${reqBodyExampleHtml}</div>` : $`<div class="tab-content col"> ${reqBodySchemaHtml}</div>`}
+            </div>` : $`  
+            ${reqBodyFileInputHtml}
+            ${reqBodyFormHtml}`}
+      </div>  
+    `;
   }
 
   formDataParamAsObjectTemplate(fieldName, fieldSchema, mimeType) {
@@ -31707,7 +30800,10 @@ class ApiRequest extends LitElement {
     // This template is used when form-data param should be send as a object (application/json, application/xml)
     const formdataPartSchema = schemaInObjectNotation(fieldSchema, {});
     const formdataPartExample = generateExample(fieldSchema, 'json', fieldSchema.examples, fieldSchema.example, false, true, 'text', false);
-    return html` <div class="tab-panel row" style="min-height:220px;border-left:6px solid var(--light-border-color);align-items:stretch"> <div style="width:24px;background-color:var(--light-border-color)"> <div class="row" style="flex-direction:row-reverse;width:160px;height:24px;transform:rotate(270deg) translateX(-160px);transform-origin:top left;display:block" @click="${e => {
+    return $`
+      <div class="tab-panel row" style="min-height:220px; border-left: 6px solid var(--light-border-color); align-items: stretch;">
+        <div style="width:24px; background-color:var(--light-border-color)">
+          <div class="row" style="flex-direction:row-reverse; width:160px; height:24px; transform:rotate(270deg) translateX(-160px); transform-origin:top left; display:block;" @click="${e => {
       if (e.target.classList.contains('v-tab-btn')) {
         const {
           tab
@@ -31733,7 +30829,38 @@ class ApiRequest extends LitElement {
       if (e.target.tagName.toLowerCase() === 'button') {
         this.activeSchemaTab = e.target.dataset.tab;
       }
-    }}"> <button class="v-tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab="schema">SCHEMA</button> <button class="v-tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab="example">EXAMPLE</button> </div> </div> ${html` <div class="tab-content col" data-tab="schema" style="display:${this.activeSchemaTab !== 'example' ? 'block' : 'none'};padding-left:5px;width:100%"> <schema-tree .data="${formdataPartSchema}" schema-expand-level="${this.schemaExpandLevel}" schema-description-expanded="${this.schemaDescriptionExpanded}" allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}" ,> </schema-tree> </div>`} ${html` <div class="tab-content col" data-tab="example" style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'};padding-left:5px;width:100%"> <textarea class="textarea" part="textarea textarea-param" style="width:100%;border:none;resize:vertical" data-array="false" data-ptype="${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}" data-pname="${fieldName}" data-example="${((_formdataPartExample$ = formdataPartExample[0]) === null || _formdataPartExample$ === void 0 ? void 0 : _formdataPartExample$.exampleValue) || ''}" .textContent="${this.fillRequestFieldsWithExample === 'true' ? formdataPartExample[0].exampleValue : ''}" spellcheck="false"></textarea> <textarea data-pname="hidden-${fieldName}" data-ptype="${mimeType.includes('form-urlencode') ? 'hidden-form-urlencode' : 'hidden-form-data'}" class="is-hidden" style="display:none">${formdataPartExample[0].exampleValue}</textarea> </div>`} </div> `;
+    }}">
+          <button class="v-tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
+          <button class="v-tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
+        </div>
+      </div>
+      ${$`
+        <div class="tab-content col" data-tab = 'schema' style="display:${this.activeSchemaTab !== 'example' ? 'block' : 'none'}; padding-left:5px; width:100%;"> 
+          <schema-tree
+            .data = '${formdataPartSchema}'
+            schema-expand-level = "${this.schemaExpandLevel}"
+            schema-description-expanded = "${this.schemaDescriptionExpanded}"
+            allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+          > </schema-tree>
+        </div>`}
+      ${$`
+        <div class="tab-content col" data-tab = 'example' style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'}; padding-left:5px; width:100%"> 
+          <textarea 
+            class = "textarea"
+            part = "textarea textarea-param"
+            style = "width:100%; border:none; resize:vertical;" 
+            data-array = "false" 
+            data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
+            data-pname = "${fieldName}"
+            data-example = "${((_formdataPartExample$ = formdataPartExample[0]) === null || _formdataPartExample$ === void 0 ? void 0 : _formdataPartExample$.exampleValue) || ''}"
+            .textContent = "${this.fillRequestFieldsWithExample === 'true' ? formdataPartExample[0].exampleValue : ''}"
+            spellcheck = "false"
+          ></textarea>
+          <!-- This textarea(hidden) is to store the original example value, in focused mode on navbar change it is used to update the example text -->
+          <textarea data-pname = "hidden-${fieldName}" data-ptype = "${mimeType.includes('form-urlencode') ? 'hidden-form-urlencode' : 'hidden-form-data'}" class="is-hidden" style="display:none">${formdataPartExample[0].exampleValue}</textarea>
+        </div>`}
+      </div>
+    `;
   }
 
   formDataTemplate(schema, mimeType, exampleValue = '') {
@@ -31754,7 +30881,73 @@ class ApiRequest extends LitElement {
         const paramSchema = getTypeInfo(fieldSchema);
         const labelColWidth = 'read focused'.includes(this.renderStyle) ? '200px' : '160px';
         const example = normalizeExamples(paramSchema.examples || paramSchema.example, paramSchema.type);
-        formDataTableRows.push(html` <tr> <td style="width:${labelColWidth};min-width:100px"> <div class="param-name ${fieldSchema.deprecated ? 'deprecated' : ''}"> ${fieldName}${(_schema$required = schema.required) !== null && _schema$required !== void 0 && _schema$required.includes(fieldName) || fieldSchema.required ? html`<span style="color:var(--red)">*</span>` : ''} </div> <div class="param-type">${paramSchema.type}</div> </td> <td style="${fieldType === 'object' ? 'width:100%; padding:0;' : this.allowTry === 'true' ? '' : 'display:none;'} min-width:100px" colspan="${fieldType === 'object' ? 2 : 1}"> ${fieldType === 'array' ? ((_fieldSchema$items = fieldSchema.items) === null || _fieldSchema$items === void 0 ? void 0 : _fieldSchema$items.format) === 'binary' ? html` <div class="file-input-container col" style="align-items:flex-end" @click="${e => this.onAddRemoveFileInput(e, fieldName, mimeType)}"> <div class="input-set row"> <input type="file" part="file-input" style="width:100%" data-pname="${fieldName}" data-ptype="${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}" data-array="false" data-file-array="true"> <button class="file-input-remove-btn"> &#x2715; </button> </div> <button class="m-btn primary file-input-add-btn" part="btn btn-fill" style="margin:2px 25px 0 0;padding:2px 6px">ADD</button> </div> ` : html` <tag-input style="width:100%" data-ptype="${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}" data-pname="${fieldName}" data-example="${Array.isArray(fieldExamples) ? fieldExamples.join('~|~') : fieldExamples}" data-array="true" placeholder="add-multiple &#x21a9;" .value="${Array.isArray(fieldExamples) ? Array.isArray(fieldExamples[0]) ? fieldExamples[0] : [fieldExamples[0]] : [fieldExamples]}"> </tag-input> ` : html` ${fieldType === 'object' ? this.formDataParamAsObjectTemplate.call(this, fieldName, fieldSchema, mimeType) : html` ${this.allowTry === 'true' ? html`<input .value="${this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : ''}" spellcheck="false" type="${fieldSchema.format === 'binary' ? 'file' : fieldSchema.format === 'password' ? 'password' : 'text'}" part="textbox textbox-param" style="width:100%" data-ptype="${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}" data-pname="${fieldName}" data-example="${Array.isArray(fieldExamples) ? fieldExamples[0] : fieldExamples}" data-array="false">` : ''} `}`} </td> ${fieldType === 'object' ? '' : html` <td> ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern ? html` <div class="param-constraint"> ${paramSchema.default ? html`<span style="font-weight:700">Default: </span>${paramSchema.default}<br>` : ''} ${paramSchema.pattern ? html`<span style="font-weight:700">Pattern: </span>${paramSchema.pattern}<br>` : ''} ${paramSchema.constrain ? html`${paramSchema.constrain}<br>` : ''} ${paramSchema.allowedValues && paramSchema.allowedValues.split('┃').map((v, i) => html` ${i > 0 ? '┃' : html`<span style="font-weight:700">Allowed: </span>`} ${html` <a part="anchor anchor-param-constraint" class="${this.allowTry === 'true' ? '' : 'inactive-link'}" data-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}" data-enum="${v.trim()}" @click="${e => {
+        formDataTableRows.push($`
+        <tr> 
+          <td style="width:${labelColWidth}; min-width:100px;">
+            <div class="param-name ${fieldSchema.deprecated ? 'deprecated' : ''}">
+              ${fieldName}${(_schema$required = schema.required) !== null && _schema$required !== void 0 && _schema$required.includes(fieldName) || fieldSchema.required ? $`<span style='color:var(--red);'>*</span>` : ''}
+            </div>
+            <div class="param-type">${paramSchema.type}</div>
+          </td>  
+          <td 
+            style="${fieldType === 'object' ? 'width:100%; padding:0;' : this.allowTry === 'true' ? '' : 'display:none;'} min-width:100px;" 
+            colspan="${fieldType === 'object' ? 2 : 1}">
+            ${fieldType === 'array' ? ((_fieldSchema$items = fieldSchema.items) === null || _fieldSchema$items === void 0 ? void 0 : _fieldSchema$items.format) === 'binary' ? $`
+                <div class="file-input-container col" style='align-items:flex-end;' @click="${e => this.onAddRemoveFileInput(e, fieldName, mimeType)}">
+                  <div class='input-set row'>
+                    <input 
+                      type = "file"
+                      part = "file-input"
+                      style = "width:100%" 
+                      data-pname = "${fieldName}" 
+                      data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
+                      data-array = "false" 
+                      data-file-array = "true" 
+                    />
+                    <button class="file-input-remove-btn"> &#x2715; </button>
+                  </div>  
+                  <button class="m-btn primary file-input-add-btn" part="btn btn-fill" style="margin:2px 25px 0 0; padding:2px 6px;">ADD</button>
+                </div>  
+                ` : $`
+                  <tag-input
+                    style = "width:100%" 
+                    data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
+                    data-pname = "${fieldName}"
+                    data-example = "${Array.isArray(fieldExamples) ? fieldExamples.join('~|~') : fieldExamples}"
+                    data-array = "true"
+                    placeholder = "add-multiple &#x21a9;"
+                    .value = "${Array.isArray(fieldExamples) ? Array.isArray(fieldExamples[0]) ? fieldExamples[0] : [fieldExamples[0]] : [fieldExamples]}"
+                  >
+                  </tag-input>
+                ` : $`
+                ${fieldType === 'object' ? this.formDataParamAsObjectTemplate.call(this, fieldName, fieldSchema, mimeType) : $`
+                    ${this.allowTry === 'true' ? $`<input
+                          .value = "${this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : ''}"
+                          spellcheck = "false"
+                          type = "${fieldSchema.format === 'binary' ? 'file' : fieldSchema.format === 'password' ? 'password' : 'text'}"
+                          part = "textbox textbox-param"
+                          style = "width:100%"
+                          data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
+                          data-pname = "${fieldName}"
+                          data-example = "${Array.isArray(fieldExamples) ? fieldExamples[0] : fieldExamples}"
+                          data-array = "false"
+                        />` : ''}
+                    `}`}
+          </td>
+          ${fieldType === 'object' ? '' : $`
+              <td>
+                ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern ? $`
+                    <div class="param-constraint">
+                      ${paramSchema.default ? $`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
+                      ${paramSchema.pattern ? $`<span style="font-weight:bold">Pattern: </span>${paramSchema.pattern}<br/>` : ''}
+                      ${paramSchema.constrain ? $`${paramSchema.constrain}<br/>` : ''}
+                      ${paramSchema.allowedValues && paramSchema.allowedValues.split('┃').map((v, i) => $`
+                        ${i > 0 ? '┃' : $`<span style="font-weight:bold">Allowed: </span>`}
+                        ${$`
+                          <a part="anchor anchor-param-constraint" class = "${this.allowTry === 'true' ? '' : 'inactive-link'}"
+                            data-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}"
+                            data-enum="${v.trim()}"
+                            @click="${e => {
           const inputEl = e.target.closest('table').querySelector(`[data-pname="${fieldName}"]`);
 
           if (inputEl) {
@@ -31764,34 +30957,95 @@ class ApiRequest extends LitElement {
               inputEl.value = e.target.dataset.enum;
             }
           }
-        }}"> ${v} </a>`}`)} </div>` : ''} </td>`} </tr> ${fieldType === 'object' ? '' : html` <tr> <td style="border:none"> </td> <td colspan="2" style="border:none;margin-top:0;padding:0 5px 8px 5px"> <span class="m-markdown-small">${unsafeHTML(marked(fieldSchema.description || ''))}</span> ${this.exampleListTemplate.call(this, fieldName, paramSchema.type, example.exampleList)} </td> </tr> `}`);
+        }}"
+                          > 
+                            ${v} 
+                          </a>`}`)}
+                    </div>` : ''}
+              </td>`}
+        </tr>
+        ${fieldType === 'object' ? '' : $`
+            <tr>
+              <td style="border:none"> </td>
+              <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;"> 
+                <span class="m-markdown-small">${unsafe_html_o(marked(fieldSchema.description || ''))}</span>
+                ${this.exampleListTemplate.call(this, fieldName, paramSchema.type, example.exampleList)}
+              </td>
+            </tr>
+          `}`);
       }
 
-      return html` <table style="width:100%" class="m-table"> ${formDataTableRows} </table> `;
+      return $`
+        <table style="width:100%;" class="m-table">
+          ${formDataTableRows}
+        </table>
+      `;
     }
 
-    return html` <textarea class="textarea dynamic-form-param ${mimeType}" part="textarea textarea-param" spellcheck="false" data-pname="dynamic-form" data-ptype="${mimeType}" .textContent="${exampleValue}" style="width:100%"></textarea> ${schema.description ? html`<span class="m-markdown-small">${unsafeHTML(marked(schema.description))}</span>` : ''} `;
+    return $`
+      <textarea
+        class = "textarea dynamic-form-param ${mimeType}"
+        part = "textarea textarea-param"
+        spellcheck = "false"
+        data-pname="dynamic-form" 
+        data-ptype="${mimeType}"
+        .textContent = "${exampleValue}"
+        style="width:100%"
+      ></textarea>
+      ${schema.description ? $`<span class="m-markdown-small">${unsafe_html_o(marked(schema.description))}</span>` : ''}
+    `;
   }
 
   apiResponseTabTemplate() {
     const responseFormat = this.responseHeaders.includes('json') ? 'json' : this.responseHeaders.includes('html') || this.responseHeaders.includes('xml') ? 'html' : '';
-    return html` <div class="row" style="font-size:var(--font-size-small);margin:5px 0"> <div class="response-message ${this.responseStatus}">Response Status: ${this.responseMessage}</div> <div style="flex:1"></div> <button class="m-btn" part="btn btn-outline" @click="${this.clearResponseData}">CLEAR RESPONSE</button> </div> <div class="tab-panel col" style="border-width:0 0 1px 0"> <div id="tab_buttons" class="tab-buttons row" @click="${e => {
+    return $`
+      <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
+        <div class="response-message ${this.responseStatus}">Response Status: ${this.responseMessage}</div>
+        <div style="flex:1"></div>
+        <button class="m-btn" part="btn btn-outline" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
+      </div>
+      <div class="tab-panel col" style="border-width:0 0 1px 0;">
+        <div id="tab_buttons" class="tab-buttons row" @click="${e => {
       if (e.target.classList.contains('tab-btn') === false) {
         return;
       }
 
       this.activeResponseTab = e.target.dataset.tab;
-    }}"> <button class="tab-btn ${this.activeResponseTab === 'response' ? 'active' : ''}" data-tab="response"> RESPONSE</button> <button class="tab-btn ${this.activeResponseTab === 'headers' ? 'active' : ''}" data-tab="headers"> RESPONSE HEADERS</button> <button class="tab-btn ${this.activeResponseTab === 'curl' ? 'active' : ''}" data-tab="curl">CURL</button> </div> ${this.responseIsBlob ? html` <div class="tab-content col" style="flex:1;display:${this.activeResponseTab === 'response' ? 'flex' : 'none'}"> <button class="m-btn thin-border mar-top-8" style="width:135px" @click="${e => {
+    }}">
+          <button class="tab-btn ${this.activeResponseTab === 'response' ? 'active' : ''}" data-tab = 'response' > RESPONSE</button>
+          <button class="tab-btn ${this.activeResponseTab === 'headers' ? 'active' : ''}"  data-tab = 'headers' > RESPONSE HEADERS</button>
+          <button class="tab-btn ${this.activeResponseTab === 'curl' ? 'active' : ''}" data-tab = 'curl'>CURL</button>
+        </div>
+        ${this.responseIsBlob ? $`
+            <div class="tab-content col" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};">
+              <button class="m-btn thin-border mar-top-8" style="width:135px" @click='${e => {
       downloadResource(this.responseBlobUrl, this.respContentDisposition, e);
-    }}" part="btn btn-outline"> DOWNLOAD </button> ${this.responseBlobType === 'view' ? html`<button class="m-btn thin-border mar-top-8" style="width:135px" @click="${e => {
+    }}' part="btn btn-outline">
+                DOWNLOAD
+              </button>
+              ${this.responseBlobType === 'view' ? $`<button class="m-btn thin-border mar-top-8" style="width:135px"  @click='${e => {
       viewResource(this.responseBlobUrl, e);
-    }}" part="btn btn-outline">VIEW (NEW TAB)</button>` : ''} </div>` : html` <div class="tab-content col m-markdown" style="flex:1;display:${this.activeResponseTab === 'response' ? 'flex' : 'none'}"> <button class="toolbar-btn" style="position:absolute;top:12px;right:8px" @click="${e => {
+    }}' part="btn btn-outline">VIEW (NEW TAB)</button>` : ''}
+            </div>` : $`
+            <div class="tab-content col m-markdown" style="flex:1;display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};" >
+              <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${e => {
       copyToClipboard(this.responseText, e);
-    }}" part="btn btn-fill"> Copy </button> <pre style="white-space:pre;max-height:400px;overflow:auto">${responseFormat ? html`<code>${unsafeHTML(prism_default().highlight(this.responseText, (prism_default()).languages[responseFormat], responseFormat))}</code>` : `${this.responseText}`}</pre> </div>`} <div class="tab-content col m-markdown" style="flex:1;display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'}"> <button class="toolbar-btn" style="position:absolute;top:12px;right:8px" @click="${e => {
+    }}' part="btn btn-fill"> Copy </button>
+              <pre style="white-space:pre; max-height:400px; overflow:auto">${responseFormat ? $`<code>${unsafe_html_o(prism_default().highlight(this.responseText, (prism_default()).languages[responseFormat], responseFormat))}</code>` : `${this.responseText}`}</pre>
+            </div>`}
+        <div class="tab-content col m-markdown" style="flex:1;display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};" >
+          <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${e => {
       copyToClipboard(this.responseHeaders, e);
-    }}" part="btn btn-fill"> Copy </button> <pre style="white-space:pre"><code>${unsafeHTML(prism_default().highlight(this.responseHeaders, (prism_default()).languages.css, 'css'))}</code></pre> </div> <div class="tab-content col m-markdown" style="flex:1;display:${this.activeResponseTab === 'curl' ? 'flex' : 'none'}"> <button class="toolbar-btn" style="position:absolute;top:12px;right:8px" @click="${e => {
+    }}' part="btn btn-fill"> Copy </button>
+          <pre style="white-space:pre"><code>${unsafe_html_o(prism_default().highlight(this.responseHeaders, (prism_default()).languages.css, 'css'))}</code></pre>
+        </div>
+        <div class="tab-content col m-markdown" style="flex:1;display:${this.activeResponseTab === 'curl' ? 'flex' : 'none'};">
+          <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${e => {
       copyToClipboard(this.curlSyntax.replace(/\\$/, ''), e);
-    }}" part="btn btn-fill"> Copy </button> <pre style="white-space:pre"><code>${unsafeHTML(prism_default().highlight(this.curlSyntax.trim().replace(/\\$/, ''), (prism_default()).languages.shell, 'shell'))}</code></pre> </div> </div>`;
+    }}' part="btn btn-fill"> Copy </button>
+          <pre style="white-space:pre"><code>${unsafe_html_o(prism_default().highlight(this.curlSyntax.trim().replace(/\\$/, ''), (prism_default()).languages.shell, 'shell'))}</code></pre>
+        </div>
+      </div>`;
   }
 
   apiCallTemplate() {
@@ -31800,13 +31054,51 @@ class ApiRequest extends LitElement {
     let selectServerDropdownHtml = '';
 
     if (this.servers && this.servers.length > 0) {
-      selectServerDropdownHtml = html` <select style="min-width:100px" @change="${e => {
+      selectServerDropdownHtml = $`
+        <select style="min-width:100px;" @change='${e => {
         this.serverUrl = e.target.value;
-      }}"> ${this.servers.map(v => html`<option value="${v.url}"> ${v.url} - ${v.description} </option>`)} </select> `;
+      }}'>
+          ${this.servers.map(v => $`<option value = "${v.url}"> ${v.url} - ${v.description} </option>`)}
+        </select>
+      `;
     }
 
-    const selectedServerHtml = html` <div style="display:flex;flex-direction:column"> ${selectServerDropdownHtml} ${this.serverUrl ? html` <div style="display:flex;align-items:baseline"> <div style="font-weight:700;padding-right:5px">API Server</div> <span class="gray-text"> ${this.serverUrl} </span> </div> ` : ''} </div> `;
-    return html` <div style="display:flex;align-items:flex-end;margin:16px 0;font-size:var(--font-size-small)"> <div class="hide-in-small-screen" style="flex-direction:column;margin:0;width:calc(100% - 60px)"> <div style="display:flex;flex-direction:row;align-items:center;overflow:hidden"> ${selectedServerHtml} </div> <div style="display:flex"> <div style="font-weight:700;padding-right:5px">Authentication</div> ${((_this$security = this.security) === null || _this$security === void 0 ? void 0 : _this$security.length) > 0 ? html` ${this.api_keys.length > 0 ? html`<div style="color:var(--blue);overflow:hidden"> ${this.api_keys.length === 1 ? `${(_this$api_keys$ = this.api_keys[0]) === null || _this$api_keys$ === void 0 ? void 0 : _this$api_keys$.typeDisplay} in ${this.api_keys[0].in}` : `${this.api_keys.length} API keys applied`} </div>` : html`<div class="gray-text">Required <span style="color:var(--red)">(None Applied)</span></div>`}` : html`<span class="gray-text"> Not Required </span>`} </div> </div> ${this.parameters.length > 0 || this.request_body ? html` <button class="m-btn thin-border" part="btn btn-outline" style="margin-right:5px" @click="${this.onFillRequestData}" title="Fills with example data (if provided)"> FILL EXAMPLE </button> <button class="m-btn thin-border" part="btn btn-outline" style="margin-right:5px" @click="${this.onClearRequestData}"> CLEAR </button>` : ''} <button class="m-btn primary thin-border" part="btn btn-fill btn-try" @click="${this.onTryClick}">TRY</button> </div> ${this.responseMessage === '' ? '' : this.apiResponseTabTemplate()} `;
+    const selectedServerHtml = $`
+      <div style="display:flex; flex-direction:column;">
+        ${selectServerDropdownHtml}
+        ${this.serverUrl ? $`
+            <div style="display:flex; align-items:baseline;">
+              <div style="font-weight:bold; padding-right:5px;">API Server</div> 
+              <span class = "gray-text"> ${this.serverUrl} </span>
+            </div>
+          ` : ''}
+      </div>  
+    `;
+    return $`
+    <div style="display:flex; align-items:flex-end; margin:16px 0; font-size:var(--font-size-small);">
+      <div class="hide-in-small-screen" style="flex-direction:column; margin:0; width:calc(100% - 60px);">
+        <div style="display:flex; flex-direction:row; align-items:center; overflow:hidden;"> 
+          ${selectedServerHtml}
+        </div>
+        <div style="display:flex;">
+          <div style="font-weight:bold; padding-right:5px;">Authentication</div>
+          ${((_this$security = this.security) === null || _this$security === void 0 ? void 0 : _this$security.length) > 0 ? $`
+              ${this.api_keys.length > 0 ? $`<div style="color:var(--blue); overflow:hidden;"> 
+                    ${this.api_keys.length === 1 ? `${(_this$api_keys$ = this.api_keys[0]) === null || _this$api_keys$ === void 0 ? void 0 : _this$api_keys$.typeDisplay} in ${this.api_keys[0].in}` : `${this.api_keys.length} API keys applied`} 
+                  </div>` : $`<div class="gray-text">Required  <span style="color:var(--red)">(None Applied)</span>`}` : $`<span class="gray-text"> Not Required </span>`}
+        </div>
+      </div>
+      ${this.parameters.length > 0 || this.request_body ? $`
+            <button class="m-btn thin-border" part="btn btn-outline" style="margin-right:5px;" @click="${this.onFillRequestData}" title="Fills with example data (if provided)">
+              FILL EXAMPLE
+            </button>
+            <button class="m-btn thin-border" part="btn btn-outline" style="margin-right:5px;" @click="${this.onClearRequestData}">
+              CLEAR
+            </button>` : ''}
+      <button class="m-btn primary thin-border" part="btn btn-fill btn-try" @click="${this.onTryClick}">TRY</button>
+    </div>
+    ${this.responseMessage === '' ? '' : this.apiResponseTabTemplate()}
+    `;
   }
   /* eslint-enable indent */
 
@@ -31918,7 +31210,7 @@ class ApiRequest extends LitElement {
           const {
             paramSerializeStyle,
             paramSerializeExplode
-          } = el.dataset.paramSerializeStyle;
+          } = el.dataset;
           queryParamObj = Object.assign(queryParamObj, JSON.parse(el.value.replace(/\s+/g, ' ')));
 
           if (el.dataset.paramAllowReserved === 'true') {
@@ -32167,7 +31459,7 @@ class ApiRequest extends LitElement {
       responseClone = fetchResponse.clone(); // create a response clone to allow reading response body again (response.json, response.text etc)
 
       tryBtnEl.disabled = false;
-      this.responseMessage = html`${fetchResponse.statusText ? `${fetchResponse.statusText}:${fetchResponse.status}` : fetchResponse.status} <div style="color:var(--light-fg)"> Took ${Math.round(endTime - startTime)} milliseconds </div>`;
+      this.responseMessage = $`${fetchResponse.statusText ? `${fetchResponse.statusText}:${fetchResponse.status}` : fetchResponse.status} <div style="color:var(--light-fg)"> Took ${Math.round(endTime - startTime)} milliseconds </div>`;
       this.responseUrl = fetchResponse.url;
       const respHeadersObj = {};
       fetchResponse.headers.forEach((hdrVal, hdr) => {
@@ -32323,12 +31615,13 @@ class ApiRequest extends LitElement {
 customElements.define('api-request', ApiRequest);
 ;// CONCATENATED MODULE: ./src/components/schema-table.js
 
+ // eslint-disable-line import/extensions
 
 
 
 
 
-class SchemaTable extends LitElement {
+class SchemaTable extends lit_element_s {
   static get properties() {
     return {
       schemaExpandLevel: {
@@ -32378,7 +31671,56 @@ class SchemaTable extends LitElement {
   }
 
   static get styles() {
-    return [font_styles, schema_styles, css`.table{font-size:var(--font-size-small);text-align:left;line-height:calc(var(--font-size-small) + 6px)}.table .tr{width:calc(100% - 5px);padding:0 0 0 5px;border-bottom:1px dotted var(--light-border-color)}.table .td{padding:4px 0}.table .key{width:240px}.key.deprecated .key-label{text-decoration:line-through}.table .key-type{white-space:normal;width:150px}.collapsed-descr .tr{max-height:calc(var(--font-size-small) + var(--font-size-small) + 4px)}.obj-toggle{padding:0 2px;border-radius:2px;border:1px solid transparent;display:inline-block;margin-left:-16px;color:var(--primary-color);cursor:pointer;font-size:calc(var(--font-size-small) + 4px);font-family:var(--font-mono);background-clip:border-box}.obj-toggle:hover{border-color:var(--primary-color)}.tr.expanded+.object-body{display:block}.tr.collapsed+.object-body{display:none}`, custom_styles];
+    return [font_styles, schema_styles, r`
+      .table {
+        font-size: var(--font-size-small);
+        text-align: left;
+        line-height: calc(var(--font-size-small) + 6px);
+      }
+      .table .tr {
+        width: calc(100% - 5px);
+        padding: 0 0 0 5px;
+        border-bottom: 1px dotted var(--light-border-color);
+      }
+      .table .td {
+        padding: 4px 0;
+      }
+      .table .key {
+        width: 240px;
+      }
+      .key.deprecated .key-label {
+        text-decoration: line-through;
+      }
+
+      .table .key-type {
+        white-space: normal;
+        width: 150px;
+      }
+      .collapsed-descr .tr {
+        max-height: calc(var(--font-size-small) + var(--font-size-small) + 4px);
+      }
+
+      .obj-toggle {
+        padding: 0 2px;
+        border-radius:2px;
+        border: 1px solid transparent;
+        display: inline-block;
+        margin-left: -16px;
+        color:var(--primary-color);
+        cursor:pointer;
+        font-size: calc(var(--font-size-small) + 4px);
+        font-family: var(--font-mono);
+        background-clip: border-box;
+      }
+      .obj-toggle:hover {
+        border-color: var(--primary-color);
+      }
+      .tr.expanded + .object-body {
+        display:block;
+      }
+      .tr.collapsed + .object-body {
+        display:none;
+      }`, custom_styles];
   }
   /* eslint-disable indent */
 
@@ -32386,9 +31728,31 @@ class SchemaTable extends LitElement {
   render() {
     var _this$data, _this$data2, _this$data3;
 
-    return html` <div class="table ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : 'collapsed-descr'}"> <div class="toolbar"> <div class="toolbar-item schema-root-type ${((_this$data = this.data) === null || _this$data === void 0 ? void 0 : _this$data['::type']) || ''}"> ${((_this$data2 = this.data) === null || _this$data2 === void 0 ? void 0 : _this$data2['::type']) || ''} </div> ${this.allowSchemaDescriptionExpandToggle === 'true' ? html` <div style="flex:1"></div> <div class="toolbar-item" @click="${() => {
+    return $`
+      <div class="table ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : 'collapsed-descr'}">
+        <div class='toolbar'>
+          <div class="toolbar-item schema-root-type ${((_this$data = this.data) === null || _this$data === void 0 ? void 0 : _this$data['::type']) || ''} "> ${((_this$data2 = this.data) === null || _this$data2 === void 0 ? void 0 : _this$data2['::type']) || ''} </div>
+          ${this.allowSchemaDescriptionExpandToggle === 'true' ? $`
+              <div style="flex:1"></div>
+              <div class='toolbar-item' @click='${() => {
       this.schemaDescriptionExpanded = this.schemaDescriptionExpanded === 'true' ? 'false' : 'true';
-    }}"> ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'} </div> ` : ''} </div> ${(_this$data3 = this.data) !== null && _this$data3 !== void 0 && _this$data3['::description'] ? html`<span class="m-markdown"> ${unsafeHTML(marked(this.data['::description'] || ''))}</span>` : ''} <div style="border:1px solid var(--light-border-color)"> <div style="display:flex;background-color:var(--bg2);padding:8px 4px;border-bottom:1px solid var(--light-border-color)"> <div class="key" style="font-family:var(--font-regular);font-weight:700;color:var(--fg)"> Field </div> <div class="key-type" style="font-family:var(--font-regular);font-weight:700;color:var(--fg)"> Type </div> <div class="key-descr" style="font-family:var(--font-regular);font-weight:700;color:var(--fg)"> Description </div> </div> ${this.data ? html` ${this.generateTree(this.data['::type'] === 'array' ? this.data['::props'] : this.data, this.data['::type'], this.data['::array-type'])}` : ''} </div> </div> `;
+    }}'> 
+                ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'}
+              </div>
+            ` : ''}
+        </div>
+        ${(_this$data3 = this.data) !== null && _this$data3 !== void 0 && _this$data3['::description'] ? $`<span class='m-markdown'> ${unsafe_html_o(marked(this.data['::description'] || ''))}</span>` : ''}
+        <div style = 'border:1px solid var(--light-border-color)'>
+          <div style='display:flex; background-color: var(--bg2); padding:8px 4px; border-bottom:1px solid var(--light-border-color);'>
+            <div class='key' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Field </div>
+            <div class='key-type' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Type </div>
+            <div class='key-descr' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Description </div>
+          </div>
+          ${this.data ? $`
+              ${this.generateTree(this.data['::type'] === 'array' ? this.data['::props'] : this.data, this.data['::type'], this.data['::array-type'])}` : ''}  
+        </div>
+      </div>  
+    `;
   }
 
   generateTree(data, dataType = 'object', arrayType = '', key = '', description = '', schemaLevel = 0, indentLevel = 0, readOrWrite = '') {
@@ -32423,11 +31787,11 @@ class SchemaTable extends LitElement {
     const leftPadding = 16 * newIndentLevel; // 2 space indentation at each level
 
     if (!data) {
-      return html`<div class="null" style="display:inline">null</div>`;
+      return $`<div class="null" style="display:inline;">null</div>`;
     }
 
     if (Object.keys(data).length === 0) {
-      return html`<span class="td key object" style="padding-left:${leftPadding}px">${key}</span>`;
+      return $`<span class="td key object" style='padding-left:${leftPadding}px'>${key}</span>`;
     }
 
     let keyLabel = '';
@@ -32464,7 +31828,44 @@ class SchemaTable extends LitElement {
     }
 
     if (typeof data === 'object') {
-      return html` ${newSchemaLevel >= 0 && key ? html` <div class="tr ${newSchemaLevel <= this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type']}" data-obj="${keyLabel}"> <div class="td key ${data['::deprecated'] ? 'deprecated' : ''}" style="padding-left:${leftPadding}px"> ${keyLabel || keyDescr ? html` <span class="obj-toggle ${newSchemaLevel < this.schemaExpandLevel ? 'expanded' : 'collapsed'}" data-obj="${keyLabel}" @click="${e => this.toggleObjectExpand(e, keyLabel)}"> ${schemaLevel < this.schemaExpandLevel ? '-' : '+'} </span>` : ''} ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION') ? html`<span class="xxx-of-key" style="margin-left:-6px">${keyLabel}</span><span class="${isOneOfLabel ? 'xxx-of-key' : 'xxx-of-descr'}">${keyDescr}</span>` : keyLabel.endsWith('*') ? html`<span class="key-label" style="display:inline-block;margin-left:-6px"> ${keyLabel.substring(0, keyLabel.length - 1)}</span><span style="color:var(--red)">*</span>` : html`<span class="key-label" style="display:inline-block;margin-left:-6px">${keyLabel === '::props' ? '' : keyLabel}</span>`} ${data['::type'] === 'xxx-of' && dataType === 'array' ? html`<span style="color:var(--primary-color)">ARRAY</span>` : ''} </div> <div class="td key-type" title="${data['::readwrite'] === 'readonly' ? 'Read-Only' : data['::readwrite'] === 'writeonly' ? 'Write-Only' : ''}"> ${(data['::type'] || '').includes('xxx-of') ? '' : detailObjType} ${data['::readwrite'] === 'readonly' ? ' 🆁' : data['::readwrite'] === 'writeonly' ? ' 🆆' : ''} </div> <div class="td key-descr m-markdown-small" style="line-height:1.7">${unsafeHTML(marked(description || ''))}</div> </div>` : html` ${data['::type'] === 'array' && dataType === 'array' ? html` <div class="tr"> <div class="td key"></div> <div class="td key-type"> ${arrayType && arrayType !== 'object' ? `${dataType} of ${arrayType}` : dataType} </div> <div class="td key-descr"></div> </div>` : ''} `} <div class="object-body"> ${Array.isArray(data) && data[0] ? html`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, '')}` : html` ${Object.keys(data).map(dataKey => html` ${['::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? html`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}` : '' : html`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}`} `)} `} <div> </div></div>`;
+      return $`
+        ${newSchemaLevel >= 0 && key ? $`
+            <div class='tr ${newSchemaLevel <= this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type']}' data-obj='${keyLabel}'>
+              <div class="td key ${data['::deprecated'] ? 'deprecated' : ''}" style='padding-left:${leftPadding}px'>
+                ${keyLabel || keyDescr ? $`
+                    <span 
+                      class='obj-toggle ${newSchemaLevel < this.schemaExpandLevel ? 'expanded' : 'collapsed'}'
+                      data-obj='${keyLabel}'
+                      @click= ${e => this.toggleObjectExpand(e, keyLabel)} 
+                    >
+                      ${schemaLevel < this.schemaExpandLevel ? '-' : '+'}
+                    </span>` : ''}
+                ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION') ? $`<span class="xxx-of-key" style="margin-left:-6px">${keyLabel}</span><span class="${isOneOfLabel ? 'xxx-of-key' : 'xxx-of-descr'}">${keyDescr}</span>` : keyLabel.endsWith('*') ? $`<span class="key-label" style="display:inline-block; margin-left:-6px;"> ${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>` : $`<span class="key-label" style="display:inline-block; margin-left:-6px;">${keyLabel === '::props' ? '' : keyLabel}</span>`}
+                ${data['::type'] === 'xxx-of' && dataType === 'array' ? $`<span style="color:var(--primary-color)">ARRAY</span>` : ''} 
+              </div>
+              <div class='td key-type' title="${data['::readwrite'] === 'readonly' ? 'Read-Only' : data['::readwrite'] === 'writeonly' ? 'Write-Only' : ''}">
+                ${(data['::type'] || '').includes('xxx-of') ? '' : detailObjType}
+                ${data['::readwrite'] === 'readonly' ? ' 🆁' : data['::readwrite'] === 'writeonly' ? ' 🆆' : ''}
+              </div>
+              <div class='td key-descr m-markdown-small' style='line-height:1.7'>${unsafe_html_o(marked(description || ''))}</div>
+            </div>` : $`
+              ${data['::type'] === 'array' && dataType === 'array' ? $`
+                  <div class='tr'> 
+                    <div class='td key'></div> 
+                    <div class='td key-type'>
+                      ${arrayType && arrayType !== 'object' ? `${dataType} of ${arrayType}` : dataType}
+                    </div> 
+                    <div class='td key-descr'></div> 
+                  </div>` : ''}
+          `}
+        <div class='object-body'>
+        ${Array.isArray(data) && data[0] ? $`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, '')}` : $`
+            ${Object.keys(data).map(dataKey => $`
+              ${['::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}` : '' : $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}`}
+            `)}
+          `}
+        <div>
+      `;
     } // For Primitive Data types
 
 
@@ -32482,12 +31883,33 @@ class SchemaTable extends LitElement {
     let dataTypeHtml = '';
 
     if (dataType === 'array') {
-      dataTypeHtml = html` <div class="td key-type ${dataTypeCss}" title="${readOrWrite === 'readonly' ? 'Read-Only' : readOrWriteOnly === 'writeonly' ? 'Write-Only' : ''}"> [${type}] ${readOrWrite === 'readonly' ? '🆁' : readOrWrite === 'writeonly' ? '🆆' : ''} </div>`;
+      dataTypeHtml = $` 
+        <div class='td key-type ${dataTypeCss}' title="${readOrWrite === 'readonly' ? 'Read-Only' : readOrWriteOnly === 'writeonly' ? 'Write-Only' : ''}">
+          [${type}] ${readOrWrite === 'readonly' ? '🆁' : readOrWrite === 'writeonly' ? '🆆' : ''}
+        </div>`;
     } else {
-      dataTypeHtml = html` <div class="td key-type ${dataTypeCss}" title="${readOrWriteOnly === '🆁' ? 'Read-Only' : readOrWriteOnly === '🆆' ? 'Write-Only' : ''}"> ${type} ${readOrWriteOnly} </div>`;
+      dataTypeHtml = $` 
+        <div class='td key-type ${dataTypeCss}' title="${readOrWriteOnly === '🆁' ? 'Read-Only' : readOrWriteOnly === '🆆' ? 'Write-Only' : ''}">
+          ${type} ${readOrWriteOnly}
+        </div>`;
     }
 
-    return html` <div class="tr primitive"> <div class="td key ${deprecated}" style="padding-left:${leftPadding}px"> ${(_keyLabel = keyLabel) !== null && _keyLabel !== void 0 && _keyLabel.endsWith('*') ? html`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style="color:var(--red)">*</span>` : key.startsWith('::OPTION') ? html`<span class="xxx-of-key">${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>` : html`${keyLabel ? html`<span class="key-label"> ${keyLabel}</span>` : html`<span class="xxx-of-descr">${schemaTitle}</span>`}`} </div> ${dataTypeHtml} <div class="td key-descr"> ${dataType === 'array' ? html`<span class="m-markdown-small">${unsafeHTML(marked(description))}</span>` : ''} ${constraint ? html`<div style="display:inline-block;line-break:anywhere;margin-right:8px"> <span class="bold-text">Constraints: </span> ${constraint}</div>` : ''} ${defaultValue ? html`<div style="display:inline-block;line-break:anywhere;margin-right:8px"> <span class="bold-text">Default: </span>${defaultValue}</div>` : ''} ${allowedValues ? html`<div style="display:inline-block;line-break:anywhere;margin-right:8px"> <span class="bold-text">Allowed: </span>${allowedValues}</div>` : ''} ${pattern ? html`<div style="display:inline-block;line-break:anywhere;margin-right:8px"> <span class="bold-text">Pattern: </span>${pattern}</div>` : ''} ${schemaDescription ? html`<span class="m-markdown-small">${unsafeHTML(marked(schemaDescription))}</span>` : ''} </div> </div> `;
+    return $`
+      <div class = "tr primitive">
+        <div class="td key ${deprecated}" style='padding-left:${leftPadding}px'>
+          ${(_keyLabel = keyLabel) !== null && _keyLabel !== void 0 && _keyLabel.endsWith('*') ? $`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>` : key.startsWith('::OPTION') ? $`<span class='xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>` : $`${keyLabel ? $`<span class="key-label"> ${keyLabel}</span>` : $`<span class="xxx-of-descr">${schemaTitle}</span>`}`}
+        </div>
+        ${dataTypeHtml}
+        <div class='td key-descr'>
+          ${dataType === 'array' ? $`<span class="m-markdown-small">${unsafe_html_o(marked(description))}</span>` : ''}
+          ${constraint ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Constraints: </span> ${constraint}</div>` : ''}
+          ${defaultValue ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
+          ${allowedValues ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Allowed: </span>${allowedValues}</div>` : ''}
+          ${pattern ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Pattern: </span>${pattern}</div>` : ''}
+          ${schemaDescription ? $`<span class="m-markdown-small">${unsafe_html_o(marked(schemaDescription))}</span>` : ''}
+        </div>
+      </div>
+    `;
   }
   /* eslint-enable indent */
 
@@ -32510,6 +31932,7 @@ class SchemaTable extends LitElement {
 customElements.define('schema-table', SchemaTable);
 ;// CONCATENATED MODULE: ./src/components/api-response.js
 
+ // eslint-disable-line import/extensions
 
 
 
@@ -32522,7 +31945,7 @@ customElements.define('schema-table', SchemaTable);
 
 
 
-class ApiResponse extends LitElement {
+class ApiResponse extends lit_element_s {
   constructor() {
     super();
     this.selectedStatus = '';
@@ -32582,11 +32005,48 @@ class ApiResponse extends LitElement {
   }
 
   static get styles() {
-    return [font_styles, flex_styles, tab_styles, table_styles, input_styles, border_styles, css`.resp-head{vertical-align:middle;padding:16px 0 8px}.resp-head.divider{border-top:1px solid var(--border-color);margin-top:10px}.resp-status{font-weight:700;font-size:calc(var(--font-size-small) + 1px)}.resp-descr{font-size:calc(var(--font-size-small) + 1px);color:var(--light-fg);text-align:left}.top-gap{margin-top:16px}.example-panel{font-size:var(--font-size-small);margin:0}.focused-mode,.read-mode{padding-top:24px;margin-top:12px;border-top:1px dashed var(--border-color)}`, custom_styles];
+    return [font_styles, flex_styles, tab_styles, table_styles, input_styles, border_styles, r`
+      .resp-head{
+        vertical-align: middle;
+        padding:16px 0 8px;
+      }
+      .resp-head.divider{
+        border-top: 1px solid var(--border-color);
+        margin-top:10px;
+      }
+      .resp-status{ 
+        font-weight:bold;
+        font-size:calc(var(--font-size-small) + 1px);
+      }
+      .resp-descr{
+        font-size:calc(var(--font-size-small) + 1px);
+        color:var(--light-fg);
+        text-align:left;
+      }
+      .top-gap{margin-top:16px;}
+      .example-panel{
+        font-size:var(--font-size-small);
+        margin:0;
+      }
+      .focused-mode,
+      .read-mode {
+        padding-top:24px;
+        margin-top:12px;
+        border-top: 1px dashed var(--border-color);
+      }`, custom_styles];
   }
 
   render() {
-    return html` <div class="col regular-font response-panel ${this.renderStyle}-mode"> <div class="${this.callback === 'true' ? 'tiny-title' : 'req-res-title'}"> ${this.callback === 'true' ? 'CALLBACK RESPONSE' : 'RESPONSE'} </div> <div> ${this.responseTemplate()} <div> </div> </div></div>`;
+    return $`
+    <div class="col regular-font response-panel ${this.renderStyle}-mode">
+      <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} "> 
+        ${this.callback === 'true' ? 'CALLBACK RESPONSE' : 'RESPONSE'}
+      </div>
+      <div>
+        ${this.responseTemplate()}
+      <div>  
+    </div>  
+    `;
   }
 
   resetSelection() {
@@ -32645,8 +32105,13 @@ class ApiResponse extends LitElement {
       this.mimeResponsesForEachStatus[statusCode] = allMimeResp;
     }
 
-    return html` ${Object.keys(this.responses).length > 1 ? html`<div class="row" style="flex-wrap:wrap"> ${Object.keys(this.responses).map(respStatus => html` ${respStatus === '$$ref' // Swagger-Client parser creates '$$ref' object if JSON references are used to create responses - this should be ignored
-    ? '' : html` <button @click="${() => {
+    return $`
+      ${Object.keys(this.responses).length > 1 ? $`<div class='row' style='flex-wrap:wrap'>
+          ${Object.keys(this.responses).map(respStatus => $`
+            ${respStatus === '$$ref' // Swagger-Client parser creates '$$ref' object if JSON references are used to create responses - this should be ignored
+    ? '' : $`
+                <button 
+                  @click="${() => {
       this.selectedStatus = respStatus;
 
       if (this.responses[respStatus].content && Object.keys(this.responses[respStatus].content)[0]) {
@@ -32654,25 +32119,77 @@ class ApiResponse extends LitElement {
       } else {
         this.selectedMimeType = undefined;
       }
-    }}" class="m-btn small ${this.selectedStatus === respStatus ? 'primary' : ''}" part="btn--resp ${this.selectedStatus === respStatus ? 'btn-fill--resp' : 'btn-outline--resp'} btn-response-status" style="margin:8px 4px 0 0"> ${respStatus} </button>`}`)}</div>` : html`<span>${Object.keys(this.responses)[0]}</span>`}  ${Object.keys(this.responses).map(status => {
+    }}"
+                  class='m-btn small ${this.selectedStatus === respStatus ? 'primary' : ''}'
+                  part="btn--resp ${this.selectedStatus === respStatus ? 'btn-fill--resp' : 'btn-outline--resp'} btn-response-status"
+                  style='margin: 8px 4px 0 0'
+                > 
+                  ${respStatus} 
+                </button>`}`)}` : $`<span>${Object.keys(this.responses)[0]}</span>`}
+      </div>
+
+      ${Object.keys(this.responses).map(status => {
       var _this$responses$statu3, _this$headersForEachR;
 
-      return html` <div style="display:${status === this.selectedStatus ? 'block' : 'none'}"> <div class="top-gap"> <span class="resp-descr m-markdown">${unsafeHTML(marked(((_this$responses$statu3 = this.responses[status]) === null || _this$responses$statu3 === void 0 ? void 0 : _this$responses$statu3.description) || ''))}</span> ${this.headersForEachRespStatus[status] && ((_this$headersForEachR = this.headersForEachRespStatus[status]) === null || _this$headersForEachR === void 0 ? void 0 : _this$headersForEachR.length) > 0 ? html`${this.responseHeaderListTemplate(this.headersForEachRespStatus[status])}` : ''} </div> ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 0 ? '' : html` <div class="tab-panel col"> <div class="tab-buttons row" @click="${e => {
+      return $`
+        <div style = 'display: ${status === this.selectedStatus ? 'block' : 'none'}' >
+          <div class="top-gap">
+            <span class="resp-descr m-markdown ">${unsafe_html_o(marked(((_this$responses$statu3 = this.responses[status]) === null || _this$responses$statu3 === void 0 ? void 0 : _this$responses$statu3.description) || ''))}</span>
+            ${this.headersForEachRespStatus[status] && ((_this$headersForEachR = this.headersForEachRespStatus[status]) === null || _this$headersForEachR === void 0 ? void 0 : _this$headersForEachR.length) > 0 ? $`${this.responseHeaderListTemplate(this.headersForEachRespStatus[status])}` : ''}
+          </div>
+          ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 0 ? '' : $`  
+              <div class="tab-panel col">
+                <div class="tab-buttons row" @click="${e => {
         if (e.target.tagName.toLowerCase() === 'button') {
           this.activeSchemaTab = e.target.dataset.tab;
         }
-      }}"> <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab="schema">SCHEMA</button> <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab="example">EXAMPLE </button> <div style="flex:1"></div> ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1 ? html`<span class="small-font-size gray-text" style="align-self:center;margin-top:8px"> ${Object.keys(this.mimeResponsesForEachStatus[status])[0]} </span>` : html`${this.mimeTypeDropdownTemplate(Object.keys(this.mimeResponsesForEachStatus[status]))}`} </div> ${this.activeSchemaTab === 'example' ? html`<div class="tab-content col" style="flex:1"> ${this.mimeExampleTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])} </div>` : html`<div class="tab-content col" style="flex:1"> ${this.mimeSchemaTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])} </div>`} </div> `}</div>`;
-    })} `;
+      }}" >
+                  <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' >SCHEMA</button>
+                  <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
+                  <div style="flex:1"></div>
+                  ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1 ? $`<span class='small-font-size gray-text' style='align-self:center; margin-top:8px;'> ${Object.keys(this.mimeResponsesForEachStatus[status])[0]} </span>` : $`${this.mimeTypeDropdownTemplate(Object.keys(this.mimeResponsesForEachStatus[status]))}`}
+                </div>
+                ${this.activeSchemaTab === 'example' ? $`<div class ='tab-content col' style = 'flex:1;'>
+                      ${this.mimeExampleTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
+                    </div>` : $`<div class ='tab-content col' style = 'flex:1;'>
+                      ${this.mimeSchemaTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
+                    </div>`}
+              </div>
+            `}`;
+    })}
+    `;
   }
 
   responseHeaderListTemplate(respHeaders) {
-    return html` <div style="padding:16px 0 8px 0" class="resp-headers small-font-size bold-text">RESPONSE HEADERS</div> <table style="border-collapse:collapse;margin-bottom:16px;border:1px solid var(--border-color);border-radius:var(--border-radius)" class="small-font-size mono-font"> ${respHeaders.map(v => html` <tr> <td style="padding:8px;vertical-align:baseline;min-width:120px;border-top:1px solid var(--light-border-color);text-overflow:ellipsis"> ${v.name || ''} </td> <td style="padding:4px;vertical-align:baseline;padding:0 5px;border-top:1px solid var(--light-border-color);text-overflow:ellipsis"> ${v.schema.type || ''} </td> <td style="padding:8px;vertical-align:baseline;border-top:1px solid var(--light-border-color);text-overflow:ellipsis"> <div class="m-markdown-small regular-font">${unsafeHTML(marked(v.description || ''))}</div> </td> <td style="padding:8px;vertical-align:baseline;border-top:1px solid var(--light-border-color);text-overflow:ellipsis"> ${v.schema.example || ''} </td> </tr> `)} </table>`;
+    return $`
+      <div style="padding:16px 0 8px 0" class="resp-headers small-font-size bold-text">RESPONSE HEADERS</div> 
+      <table style="border-collapse: collapse; margin-bottom:16px; border:1px solid var(--border-color); border-radius: var(--border-radius)" class="small-font-size mono-font">
+        ${respHeaders.map(v => $`
+          <tr>
+            <td style="padding:8px; vertical-align: baseline; min-width:120px; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;">
+              ${v.name || ''}
+            </td> 
+            <td style="padding:4px; vertical-align: baseline; padding:0 5px; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;">
+              ${v.schema.type || ''}
+            </td> 
+            <td style="padding:8px; vertical-align: baseline; border-top: 1px solid var(--light-border-color);text-overflow: ellipsis;">
+              <div class="m-markdown-small regular-font" >${unsafe_html_o(marked(v.description || ''))}</div>
+            </td>
+            <td style="padding:8px; vertical-align: baseline; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;">
+              ${v.schema.example || ''}
+            </td>
+          </tr>
+        `)}
+    </table>`;
   }
 
   mimeTypeDropdownTemplate(mimeTypes) {
-    return html` <select @change="${e => {
+    return $`
+      <select @change="${e => {
       this.selectedMimeType = e.target.value;
-    }}" style="margin-bottom:-1px;z-index:1"> ${mimeTypes.map(mimeType => html`<option value="${mimeType}" ?selected="${mimeType === this.selectedMimeType}"> ${mimeType} </option>`)} </select>`;
+    }}" style='margin-bottom: -1px; z-index:1'>
+        ${mimeTypes.map(mimeType => $`<option value='${mimeType}' ?selected = '${mimeType === this.selectedMimeType}'> ${mimeType} </option>`)}
+      </select>`;
   }
 
   onSelectExample(e) {
@@ -32685,18 +32202,74 @@ class ApiResponse extends LitElement {
 
   mimeExampleTemplate(mimeRespDetails) {
     if (!mimeRespDetails) {
-      return html` <pre style="color:var(--red)" class="${this.renderStyle === 'read' ? 'read example-panel border pad-8-16' : 'example-panel border-top'}"> No example provided </pre> `;
+      return $`
+        <pre style='color:var(--red)' class = '${this.renderStyle === 'read' ? 'read example-panel border pad-8-16' : 'example-panel border-top'}'> No example provided </pre>
+      `;
     }
 
-    return html` ${mimeRespDetails.examples.length === 1 ? html` ${mimeRespDetails.examples[0].exampleFormat === 'json' ? html` ${mimeRespDetails.examples[0].exampleSummary && mimeRespDetails.examples[0].exampleSummary.length > 80 ? html`<div style="padding:4px 0"> ${mimeRespDetails.examples[0].exampleSummary} </div>` : ''} ${mimeRespDetails.examples[0].exampleDescription ? html`<div class="m-markdown-small" style="padding:4px 0"> ${unsafeHTML(marked(mimeRespDetails.examples[0].exampleDescription || ''))} </div>` : ''} <json-tree render-style="${this.renderStyle}" .data="${mimeRespDetails.examples[0].exampleValue}" class="example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}"></json-tree>` : html` ${mimeRespDetails.examples[0].exampleSummary && mimeRespDetails.examples[0].exampleSummary.length > 80 ? html`<div style="padding:4px 0"> ${mimeRespDetails.examples[0].exampleSummary} </div>` : ''} ${mimeRespDetails.examples[0].exampleDescription ? html`<div class="m-markdown-small" style="padding:4px 0"> ${unsafeHTML(marked(mimeRespDetails.examples[0].exampleDescription || ''))} </div>` : ''} <pre class="example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}">${mimeRespDetails.examples[0].exampleValue}</pre> `}` : html` <span class="example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}"> <select style="min-width:100px;max-width:100%" @change="${e => this.onSelectExample(e)}"> ${mimeRespDetails.examples.map(v => html`<option value="${v.exampleId}" ?selected="${v.exampleId === mimeRespDetails.selectedExample}"> ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary} </option>`)} </select> ${mimeRespDetails.examples.map(v => html` <div class="example" data-example="${v.exampleId}" style="display:${v.exampleId === mimeRespDetails.selectedExample ? 'block' : 'none'}"> ${v.exampleSummary && v.exampleSummary.length > 80 ? html`<div style="padding:4px 0"> ${v.exampleSummary} </div>` : ''} ${v.exampleDescription ? html`<div class="m-markdown-small" style="padding:4px 0"> ${unsafeHTML(marked(v.exampleDescription || ''))} </div>` : ''} ${v.exampleFormat === 'json' ? html` <json-tree render-style="${this.renderStyle}" .data="${v.exampleValue}"></json-tree>` : html`<pre>${v.exampleValue}</pre>`} </div> `)} </span> `} `;
+    return $`
+      ${mimeRespDetails.examples.length === 1 ? $`
+          ${mimeRespDetails.examples[0].exampleFormat === 'json' ? $`
+              ${mimeRespDetails.examples[0].exampleSummary && mimeRespDetails.examples[0].exampleSummary.length > 80 ? $`<div style="padding: 4px 0"> ${mimeRespDetails.examples[0].exampleSummary} </div>` : ''}
+              ${mimeRespDetails.examples[0].exampleDescription ? $`<div class="m-markdown-small" style="padding: 4px 0"> ${unsafe_html_o(marked(mimeRespDetails.examples[0].exampleDescription || ''))} </div>` : ''}
+              <json-tree 
+                render-style = '${this.renderStyle}'
+                .data="${mimeRespDetails.examples[0].exampleValue}"
+                class = 'example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}'
+              ></json-tree>` : $`
+              ${mimeRespDetails.examples[0].exampleSummary && mimeRespDetails.examples[0].exampleSummary.length > 80 ? $`<div style="padding: 4px 0"> ${mimeRespDetails.examples[0].exampleSummary} </div>` : ''}
+              ${mimeRespDetails.examples[0].exampleDescription ? $`<div class="m-markdown-small" style="padding: 4px 0"> ${unsafe_html_o(marked(mimeRespDetails.examples[0].exampleDescription || ''))} </div>` : ''}
+              <pre class = 'example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}'>${mimeRespDetails.examples[0].exampleValue}</pre>
+            `}` : $`
+          <span class = 'example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}'>
+            <select style="min-width:100px; max-width:100%" @change='${e => this.onSelectExample(e)}'>
+              ${mimeRespDetails.examples.map(v => $`<option value="${v.exampleId}" ?selected=${v.exampleId === mimeRespDetails.selectedExample} > 
+                ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary} 
+              </option>`)}
+            </select>
+            ${mimeRespDetails.examples.map(v => $`
+              <div class="example" data-example = '${v.exampleId}' style = "display: ${v.exampleId === mimeRespDetails.selectedExample ? 'block' : 'none'}">
+                ${v.exampleSummary && v.exampleSummary.length > 80 ? $`<div style="padding: 4px 0"> ${v.exampleSummary} </div>` : ''}
+                ${v.exampleDescription ? $`<div class="m-markdown-small"  style="padding: 4px 0"> ${unsafe_html_o(marked(v.exampleDescription || ''))} </div>` : ''}
+                ${v.exampleFormat === 'json' ? $`
+                    <json-tree 
+                      render-style = '${this.renderStyle}'
+                      .data = '${v.exampleValue}'
+                    ></json-tree>` : $`<pre>${v.exampleValue}</pre>`}
+              </div>  
+            `)}
+          </span>  
+        `}
+    `;
   }
 
   mimeSchemaTemplate(mimeRespDetails) {
     if (!mimeRespDetails) {
-      return html` <pre style="color:var(--red)" class="${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top'}"> Schema not found</pre> `;
+      return $`
+        <pre style='color:var(--red)' class = '${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top'}'> Schema not found</pre>
+      `;
     }
 
-    return html` ${this.schemaStyle === 'table' ? html` <schema-table render-style="${this.renderStyle}" .data="${mimeRespDetails.schemaTree}" schema-expand-level="${this.schemaExpandLevel}" schema-description-expanded="${this.schemaDescriptionExpanded}" allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}" , schema-hide-read-only="false" schema-hide-write-only="${this.schemaHideWriteOnly}">  </schema-table>` : html` <schema-tree render-style="${this.renderStyle}" .data="${mimeRespDetails.schemaTree}" schema-expand-level="${this.schemaExpandLevel}" schema-description-expanded="${this.schemaDescriptionExpanded}" allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}" , schema-hide-read-only="false" schema-hide-write-only="${this.schemaHideWriteOnly}"> </schema-tree>`}`;
+    return $`
+      ${this.schemaStyle === 'table' ? $`
+          <schema-table
+            render-style = "${this.renderStyle}"
+            .data = "${mimeRespDetails.schemaTree}"
+            schema-expand-level = "${this.schemaExpandLevel}"
+            schema-description-expanded = "${this.schemaDescriptionExpanded}"
+            allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+            schema-hide-read-only = "false"
+            schema-hide-write-only = "${this.schemaHideWriteOnly}"
+          > </schema-tree> ` : $`
+          <schema-tree
+            render-style = "${this.renderStyle}"
+            .data = '${mimeRespDetails.schemaTree}'
+            schema-expand-level = "${this.schemaExpandLevel}"
+            schema-description-expanded = "${this.schemaDescriptionExpanded}"
+            allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+            schema-hide-read-only = "false"
+            schema-hide-write-only = "${this.schemaHideWriteOnly}"
+          > </schema-tree>`}`;
   }
   /* eslint-enable indent */
 
@@ -32706,6 +32279,7 @@ class ApiResponse extends LitElement {
 customElements.define('api-response', ApiResponse);
 ;// CONCATENATED MODULE: ./src/templates/expanded-endpoint-template.js
 
+ // eslint-disable-line import/extensions
 
 
 
@@ -32752,23 +32326,103 @@ function expandedEndpointBodyTemplate(path, tagName = '') {
   }
 
   const codeSampleTabPanel = path.xCodeSamples ? codeSamplesTemplate.call(this, path.xCodeSamples) : '';
-  return html` ${this.renderStyle === 'read' ? html`<div class="divider" part="operation-divider"></div>` : ''} <div class="expanded-endpoint-body observe-me ${path.method} ${path.deprecated ? 'deprecated' : ''}" part="section-operation ${path.elementId}" id="${path.elementId}"> ${this.renderStyle === 'focused' && tagName !== 'General ⦂' ? html`<h3 class="upper" style="font-weight:700"> ${tagName} </h3>` : ''} ${path.deprecated ? html`<div class="bold-text red-text"> DEPRECATED </div>` : ''} ${html` ${path.xBadges && ((_path$xBadges = path.xBadges) === null || _path$xBadges === void 0 ? void 0 : _path$xBadges.length) > 0 ? html` <div style="display:flex;flex-wrap:wrap;margin-bottom:-24px;font-size:var(--font-size-small)"> ${path.xBadges.map(v => html`<span style="margin:1px;margin-right:5px;padding:1px 8px;font-weight:700;border-radius:12px;background-color:var(--light-${v.color},var(--input-bg));color:var(--${v.color});border:1px solid var(--${v.color})">${v.label}</span>`)} </div> ` : ''} <h2> ${path.shortSummary || `${path.method.toUpperCase()} ${path.path}`}</h2> ${path.isWebhook ? html`<span style="color:var(--primary-color);font-weight:700;font-size:var(--font-size-regular)"> WEBHOOK </span>` : html` <div class='mono-font part="section-operation-url" regular-font-size' style="text-align:left;direction:ltr;padding:8px 0;color:var(--fg3)"> <span part="label-operation-method" class="regular-font upper method-fg bold-text ${path.method}">${path.method}</span> <span part="label-operation-path">${path.path}</span> </div> `} <slot name="${path.elementId}"></slot>`} ${path.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(path.description))}</div>` : ''} ${pathSecurityTemplate.call(this, path.security)} ${codeSampleTabPanel} <div class="expanded-req-resp-container"> <api-request class="${this.renderStyle}-mode" style="width:100%" method="${path.method}" path="${path.path}" .security="${path.security}" .parameters="${path.parameters}" .request_body="${path.requestBody}" .api_keys="${nonEmptyApiKeys}" .servers="${path.servers}" server-url="${((_path$servers = path.servers) === null || _path$servers === void 0 ? void 0 : (_path$servers$ = _path$servers[0]) === null || _path$servers$ === void 0 ? void 0 : _path$servers$.url) || this.selectedServer.computedUrl}" fill-request-fields-with-example="${this.fillRequestFieldsWithExample}" allow-try="${this.allowTry}" accept="${accept}" render-style="${this.renderStyle}" schema-style="${this.schemaStyle}" active-schema-tab="${this.defaultSchemaTab}" schema-expand-level="${this.schemaExpandLevel}" schema-description-expanded="${this.schemaDescriptionExpanded}" allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}" schema-hide-read-only="${this.schemaHideReadOnly}" fetch-credentials="${this.fetchCredentials}" exportparts="btn btn-fill btn-outline btn-try"> </api-request> ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''} <api-response class="${this.renderStyle}-mode" style="width:100%" .responses="${path.responses}" render-style="${this.renderStyle}" schema-style="${this.schemaStyle}" active-schema-tab="${this.defaultSchemaTab}" schema-expand-level="${this.schemaExpandLevel}" schema-description-expanded="${this.schemaDescriptionExpanded}" allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}" schema-hide-write-only="${this.schemaHideWriteOnly}" selected-status="${Object.keys(path.responses || {})[0] || ''}" exportparts="btn--resp btn-fill--resp btn-outline--resp"> </api-response> </div> </div> `;
+  return $`
+    ${this.renderStyle === 'read' ? $`<div class='divider' part="operation-divider"></div>` : ''}
+    <div class='expanded-endpoint-body observe-me ${path.method} ${path.deprecated ? 'deprecated' : ''} ' part="section-operation ${path.elementId}" id='${path.elementId}'>
+    ${this.renderStyle === 'focused' && tagName !== 'General ⦂' ? $`<h3 class="upper" style="font-weight:bold"> ${tagName} </h3>` : ''}
+    ${path.deprecated ? $`<div class="bold-text red-text"> DEPRECATED </div>` : ''}
+    ${$`
+      ${path.xBadges && ((_path$xBadges = path.xBadges) === null || _path$xBadges === void 0 ? void 0 : _path$xBadges.length) > 0 ? $`
+          <div style="display:flex; flex-wrap:wrap; margin-bottom: -24px; font-size: var(--font-size-small);">
+            ${path.xBadges.map(v => $`<span style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`)}
+          </div>
+          ` : ''}
+      <h2> ${path.shortSummary || `${path.method.toUpperCase()} ${path.path}`}</h2>
+      ${path.isWebhook ? $`<span style="color:var(--primary-color); font-weight:bold; font-size: var(--font-size-regular);"> WEBHOOK </span>` : $`
+          <div class='mono-font part="section-operation-url" regular-font-size' style='text-align:left; direction:ltr; padding: 8px 0; color:var(--fg3)'> 
+            <span part="label-operation-method" class='regular-font upper method-fg bold-text ${path.method}'>${path.method}</span> 
+            <span part="label-operation-path">${path.path}</span>
+          </div>
+        `}
+      <slot name="${path.elementId}"></slot>`}
+    ${path.description ? $`<div class="m-markdown"> ${unsafe_html_o(marked(path.description))}</div>` : ''}
+    ${pathSecurityTemplate.call(this, path.security)}
+    ${codeSampleTabPanel}
+    <div class='expanded-req-resp-container'>
+      <api-request
+        class = "${this.renderStyle}-mode"
+        style = "width:100%;"
+        method = "${path.method}"
+        path = "${path.path}"
+        .security = "${path.security}"
+        .parameters = "${path.parameters}"
+        .request_body = "${path.requestBody}"
+        .api_keys = "${nonEmptyApiKeys}"
+        .servers = "${path.servers}"
+        server-url = "${((_path$servers = path.servers) === null || _path$servers === void 0 ? void 0 : (_path$servers$ = _path$servers[0]) === null || _path$servers$ === void 0 ? void 0 : _path$servers$.url) || this.selectedServer.computedUrl}"
+        fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
+        allow-try = "${this.allowTry}"
+        accept = "${accept}"
+        render-style="${this.renderStyle}" 
+        schema-style = "${this.schemaStyle}"
+        active-schema-tab = "${this.defaultSchemaTab}"
+        schema-expand-level = "${this.schemaExpandLevel}"
+        schema-description-expanded = "${this.schemaDescriptionExpanded}"
+        allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
+        schema-hide-read-only = "${this.schemaHideReadOnly}"
+        fetch-credentials = "${this.fetchCredentials}"
+        exportparts = "btn btn-fill btn-outline btn-try"
+      > </api-request>
+
+      ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
+
+      <api-response
+        class = "${this.renderStyle}-mode"
+        style = "width:100%;"
+        .responses = "${path.responses}"
+        render-style = "${this.renderStyle}"
+        schema-style = "${this.schemaStyle}"
+        active-schema-tab = "${this.defaultSchemaTab}"
+        schema-expand-level = "${this.schemaExpandLevel}"
+        schema-description-expanded = "${this.schemaDescriptionExpanded}"
+        allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
+        schema-hide-write-only = "${this.schemaHideWriteOnly}"
+        selected-status = "${Object.keys(path.responses || {})[0] || ''}"
+        exportparts = "btn--resp btn-fill--resp btn-outline--resp"
+      > </api-response>
+    </div>
+  </div>
+  `;
 }
 function expandedEndpointTemplate() {
   if (!this.resolvedSpec) {
     return '';
   }
 
-  return html` ${this.resolvedSpec.tags.map(tag => html` <section id="${tag.elementId}" part="section-tag" class="regular-font section-gap--read-mode observe-me" style="border-top:1px solid var(--primary-color)"> <div class="title tag" part="label-tag-title">${tag.name}</div> <slot name="${tag.elementId}"></slot> <div class="regular-font-size"> ${unsafeHTML(`
+  return $`
+  ${this.resolvedSpec.tags.map(tag => $`
+    <section id="${tag.elementId}" part="section-tag" class="regular-font section-gap--read-mode observe-me" style="border-top:1px solid var(--primary-color);">
+      <div class="title tag" part="label-tag-title">${tag.name}</div>
+      <slot name="${tag.elementId}"></slot>
+      <div class="regular-font-size">
+      ${unsafe_html_o(`
           <div class="m-markdown regular-font">
           ${marked(tag.description || '', this.infoDescriptionHeadingsInNavBar === 'true' ? {
     renderer: headingRenderer(tag.elementId)
   } : undefined)}
-        </div>`)} </div> </section> <section class="regular-font section-gap--read-mode" part="section-operations-in-tag"> ${tag.paths.map(path => expandedEndpointBodyTemplate.call(this, path, 'BBB'))} </section> `)} `;
+        </div>`)}
+      </div>
+    </section>
+    <section class='regular-font section-gap--read-mode' part="section-operations-in-tag">
+      ${tag.paths.map(path => expandedEndpointBodyTemplate.call(this, path, 'BBB'))}
+    </section>
+    `)}
+`;
 }
 /* eslint-enable indent */
 ;// CONCATENATED MODULE: ./src/templates/components-template.js
 
+ // eslint-disable-line import/extensions
 
 
 
@@ -32777,7 +32431,30 @@ function expandedEndpointTemplate() {
 
 
 function schemaBodyTemplate(sComponent) {
-  return html` <div class="divider"></div> <div class="expanded-endpoint-body observe-me ${sComponent.name}" id="cmp--${sComponent.id}"> <div style="font-weight:700"> ${sComponent.name} <span style="color:var(--light-fg);font-size:var(--font-size-small);font-weight:400"> Schema </span></div> ${this.schemaStyle === 'table' ? html` <schema-table render-style="${this.renderStyle}" .data="${schemaInObjectNotation(sComponent.component, {})}" schema-expand-level="${this.schemaExpandLevel}" schema-description-expanded="${this.schemaDescriptionExpanded}" allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}" , schema-hide-read-only="false" schema-hide-write-only="${this.schemaHideWriteOnly}">  </schema-table>` : html` <schema-tree render-style="${this.renderStyle}" .data="${schemaInObjectNotation(sComponent.component, {})}" schema-expand-level="${this.schemaExpandLevel}" schema-description-expanded="${this.schemaDescriptionExpanded}" allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}" , schema-hide-read-only="false" schema-hide-write-only="${this.schemaHideWriteOnly}"> </schema-tree>`} </div>`;
+  return $`
+  <div class='divider'></div>
+  <div class='expanded-endpoint-body observe-me ${sComponent.name}' id='cmp--${sComponent.id}' >
+    <div style="font-weight:bold"> ${sComponent.name} <span style="color:var(--light-fg); font-size:var(--font-size-small); font-weight:400;"> Schema </span></div>
+  ${this.schemaStyle === 'table' ? $`
+      <schema-table
+        render-style = '${this.renderStyle}'
+        .data = '${schemaInObjectNotation(sComponent.component, {})}'
+        schema-expand-level = "${this.schemaExpandLevel}"
+        schema-description-expanded = "${this.schemaDescriptionExpanded}"
+        allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+        schema-hide-read-only = "false"
+        schema-hide-write-only = "${this.schemaHideWriteOnly}"
+      > </schema-tree> ` : $`
+      <schema-tree
+        render-style = '${this.renderStyle}'
+        .data = '${schemaInObjectNotation(sComponent.component, {})}'
+        schema-expand-level = "${this.schemaExpandLevel}"
+        schema-description-expanded = "${this.schemaDescriptionExpanded}"
+        allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+        schema-hide-read-only = "false"
+        schema-hide-write-only = "${this.schemaHideWriteOnly}"
+      > </schema-tree>`}
+  </div>`;
 }
 
 function componentBodyTemplate(sComponent, componentType) {
@@ -32785,7 +32462,18 @@ function componentBodyTemplate(sComponent, componentType) {
     return schemaBodyTemplate.call(this, sComponent);
   }
 
-  return html` <div class="divider"></div> <div class="expanded-endpoint-body observe-me ${sComponent.name}" id="cmp--${sComponent.id}"> ${html` <div style="font-weight:700"> ${sComponent.name} <span style="color:var(--light-fg);font-size:var(--font-size-small);font-weight:400"> ${componentType} </span> </div> ${sComponent.component ? html` <div class="mono-font regular-font-size" style="padding:8px 0;color:var(--fg2)"> <json-tree class="border tree" render-style="${this.renderStyle}" .data="${sComponent.component}"> </json-tree> </div>` : ''} `} </div> `;
+  return $`
+  <div class='divider'></div>
+  <div class='expanded-endpoint-body observe-me ${sComponent.name}' id='cmp--${sComponent.id}' >
+    ${$`
+      <div style="font-weight:bold"> ${sComponent.name} <span style="color:var(--light-fg); font-size:var(--font-size-small); font-weight:400"> ${componentType} </span> </div>
+      ${sComponent.component ? $`
+      <div class='mono-font regular-font-size' style='padding: 8px 0; color:var(--fg2)'> 
+        <json-tree class="border tree" render-style='${this.renderStyle}' .data="${sComponent.component}"> </json-tree>
+      </div>` : ''}
+    `}
+  </div>
+  `;
 }
 
 function componentsTemplate() {
@@ -32793,11 +32481,24 @@ function componentsTemplate() {
     return '';
   }
 
-  return html` ${this.resolvedSpec.components.map(component => html` <div id="cmp--${component.name.toLowerCase()}" class="regular-font section-gap--read-mode observe-me" style="border-top:1px solid var(--primary-color)"> <div class="title tag">${component.name}</div> <div class="regular-font-size"> ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(component.description ? component.description : '')}</div>`)} </div> </div> <div class="regular-font section-gap--read-mode"> ${component.subComponents.filter(c => c.expanded !== false).map(sComponent => componentBodyTemplate.call(this, sComponent, component.name))} </div> `)} `;
+  return $`
+  ${this.resolvedSpec.components.map(component => $`
+    <div id="cmp--${component.name.toLowerCase()}" class='regular-font section-gap--read-mode observe-me' style="border-top:1px solid var(--primary-color);">
+      <div class="title tag">${component.name}</div>
+      <div class="regular-font-size">
+        ${unsafe_html_o(`<div class='m-markdown regular-font'>${marked(component.description ? component.description : '')}</div>`)}
+      </div>
+    </div>
+    <div class='regular-font section-gap--read-mode'>
+      ${component.subComponents.filter(c => c.expanded !== false).map(sComponent => componentBodyTemplate.call(this, sComponent, component.name))}
+    </div>
+    `)}
+`;
 }
 /* eslint-enable indent */
 ;// CONCATENATED MODULE: ./src/templates/overview-template.js
 
+ // eslint-disable-line import/extensions
 
 
 
@@ -32814,20 +32515,52 @@ function overview_template_headingRenderer() {
 function overviewTemplate() {
   var _this$resolvedSpec, _this$resolvedSpec$in, _this$resolvedSpec$in2, _this$specUrl;
 
-  return html` <section id="overview" part="section-overview" class="observe-me ${this.renderStyle === 'view' ? 'section-gap' : 'section-gap--read-mode'}"> ${(_this$resolvedSpec = this.resolvedSpec) !== null && _this$resolvedSpec !== void 0 && _this$resolvedSpec.info ? html` <div id="api-title" part="label-overview-title" style="font-size:32px"> ${this.resolvedSpec.info.title} ${!this.resolvedSpec.info.version ? '' : html` <span style="font-size:var(--font-size-small);font-weight:700"> ${this.resolvedSpec.info.version} </span>`} </div> <div id="api-info" style="font-size:calc(var(--font-size-regular) - 1px);margin-top:8px"> ${(_this$resolvedSpec$in = this.resolvedSpec.info.contact) !== null && _this$resolvedSpec$in !== void 0 && _this$resolvedSpec$in.email ? html`<span>${this.resolvedSpec.info.contact.name || 'Email'}: <a href="mailto:${this.resolvedSpec.info.contact.email}" part="anchor anchor-overview">${this.resolvedSpec.info.contact.email}</a> </span>` : ''} ${(_this$resolvedSpec$in2 = this.resolvedSpec.info.contact) !== null && _this$resolvedSpec$in2 !== void 0 && _this$resolvedSpec$in2.url ? html`<span>URL: <a href="${this.resolvedSpec.info.contact.url}" part="anchor anchor-overview">${this.resolvedSpec.info.contact.url}</a></span>` : ''} ${this.resolvedSpec.info.license ? html`<span>License: ${this.resolvedSpec.info.license.url ? html`<a href="${this.resolvedSpec.info.license.url}" part="anchor anchor-overview">${this.resolvedSpec.info.license.name}</a>` : this.resolvedSpec.info.license.name} </span>` : ''} ${this.resolvedSpec.info.termsOfService ? html`<span><a href="${this.resolvedSpec.info.termsOfService}" part="anchor anchor-overview">Terms of Service</a></span>` : ''} ${this.specUrl && this.allowSpecFileDownload === 'true' ? html` <div style="display:flex;margin:12px 0;gap:8px;justify-content:start"> <button class="m-btn thin-border" style="width:170px" part="btn btn-outline" @click="${e => {
+  return $`
+    <section id="overview" part="section-overview"
+      class="observe-me ${this.renderStyle === 'view' ? 'section-gap' : 'section-gap--read-mode'}">
+      ${(_this$resolvedSpec = this.resolvedSpec) !== null && _this$resolvedSpec !== void 0 && _this$resolvedSpec.info ? $`
+          <div id="api-title" part="label-overview-title" style="font-size:32px">
+            ${this.resolvedSpec.info.title}
+            ${!this.resolvedSpec.info.version ? '' : $`
+              <span style = 'font-size:var(--font-size-small);font-weight:bold'>
+                ${this.resolvedSpec.info.version}
+              </span>`}
+          </div>
+          <div id="api-info" style="font-size:calc(var(--font-size-regular) - 1px); margin-top:8px;">
+            ${(_this$resolvedSpec$in = this.resolvedSpec.info.contact) !== null && _this$resolvedSpec$in !== void 0 && _this$resolvedSpec$in.email ? $`<span>${this.resolvedSpec.info.contact.name || 'Email'}: 
+                <a href="mailto:${this.resolvedSpec.info.contact.email}" part="anchor anchor-overview">${this.resolvedSpec.info.contact.email}</a>
+              </span>` : ''}
+            ${(_this$resolvedSpec$in2 = this.resolvedSpec.info.contact) !== null && _this$resolvedSpec$in2 !== void 0 && _this$resolvedSpec$in2.url ? $`<span>URL: <a href="${this.resolvedSpec.info.contact.url}" part="anchor anchor-overview">${this.resolvedSpec.info.contact.url}</a></span>` : ''}
+            ${this.resolvedSpec.info.license ? $`<span>License: 
+                ${this.resolvedSpec.info.license.url ? $`<a href="${this.resolvedSpec.info.license.url}" part="anchor anchor-overview">${this.resolvedSpec.info.license.name}</a>` : this.resolvedSpec.info.license.name} </span>` : ''}
+            ${this.resolvedSpec.info.termsOfService ? $`<span><a href="${this.resolvedSpec.info.termsOfService}" part="anchor anchor-overview">Terms of Service</a></span>` : ''}
+            ${this.specUrl && this.allowSpecFileDownload === 'true' ? $`
+                <div style="display:flex; margin:12px 0; gap:8px; justify-content: start;">
+                  <button class="m-btn thin-border" style="width:170px" part="btn btn-outline" @click='${e => {
     downloadResource(this.specUrl, 'openapi-spec', e);
-  }}">Download OpenAPI spec</button> ${(_this$specUrl = this.specUrl) !== null && _this$specUrl !== void 0 && _this$specUrl.trim().toLowerCase().endsWith('json') ? html`<button class="m-btn thin-border" style="width:200px" part="btn btn-outline" @click="${e => {
+  }}'>Download OpenAPI spec</button>
+                  ${(_this$specUrl = this.specUrl) !== null && _this$specUrl !== void 0 && _this$specUrl.trim().toLowerCase().endsWith('json') ? $`<button class="m-btn thin-border" style="width:200px" part="btn btn-outline" @click='${e => {
     viewResource(this.specUrl, e);
-  }}">View OpenAPI spec (New Tab)</button>` : ''} </div>` : ''} </div> <slot name="overview"></slot> <div id="api-description"> ${this.resolvedSpec.info.description ? html`${unsafeHTML(`
+  }}'>View OpenAPI spec (New Tab)</button>` : ''}
+                </div>` : ''}
+          </div>
+          <slot name="overview"></slot>
+          <div id="api-description">
+          ${this.resolvedSpec.info.description ? $`${unsafe_html_o(`
                 <div class="m-markdown regular-font">
                 ${marked(this.resolvedSpec.info.description, this.infoDescriptionHeadingsInNavBar === 'true' ? {
     renderer: overview_template_headingRenderer()
   } : undefined)}
-              </div>`)}` : ''} </div> ` : ''} </section> `;
+              </div>`)}` : ''}
+          </div>
+        ` : ''}
+    </section>
+  `;
 }
 /* eslint-enable indent */
 ;// CONCATENATED MODULE: ./src/templates/server-template.js
 
+ // eslint-disable-line import/extensions
 
 
 function setApiServer(serverUrl) {
@@ -32866,11 +32599,47 @@ function onApiServerVarChange(e, serverObj) {
 
 function serverVarsTemplate() {
   // const selectedServerObj = this.resolvedSpec.servers.find((v) => (v.url === this.selectedServer));
-  return this.selectedServer && this.selectedServer.variables ? html` <div class="table-title"> SERVER VARIABLES</div> <table class="m-table"> ${Object.entries(this.selectedServer.variables).map(kv => html` <tr> <td style="vertical-align:middle">${kv[0]}</td> <td> ${kv[1].enum ? html` <select data-var="${kv[0]}" @input="${e => {
+  return this.selectedServer && this.selectedServer.variables ? $`
+    <div class="table-title"> SERVER VARIABLES</div>
+    <table class='m-table'>
+      ${Object.entries(this.selectedServer.variables).map(kv => $`
+        <tr>
+          <td style="vertical-align: middle;" >${kv[0]}</td>
+          <td>
+            ${kv[1].enum ? $`
+            <select
+              data-var = "${kv[0]}"
+              @input = ${e => {
     onApiServerVarChange.call(this, e, this.selectedServer);
-  }}"> ${Object.entries(kv[1].enum).map(e => kv[1].default === e[1] ? html` <option selected="selected" label="${e[1]}" value="${e[1]}">` : html` <option label="${e[1]}" value="${e[1]}">`)} </select>` : html` <input type="text" part="textbox textbox-server-var" spellcheck="false" data-var="${kv[0]}" value="${kv[1].default}" @input="${e => {
+  }}
+            >
+            ${Object.entries(kv[1].enum).map(e => kv[1].default === e[1] ? $`
+              <option
+                selected
+                label = ${e[1]}
+                value = ${e[1]}
+              />` : $`
+              <option
+                label = ${e[1]}
+                value = ${e[1]}
+              />`)}
+            </select>` : $`
+            <input
+              type = "text"
+              part="textbox textbox-server-var"
+              spellcheck = "false"
+              data-var = "${kv[0]}"
+              value = "${kv[1].default}"
+              @input = ${e => {
     onApiServerVarChange.call(this, e, this.selectedServer);
-  }}">`} </td> </tr> ${kv[1].description ? html`<tr><td colspan="2" style="border:none"><span class="m-markdown-small"> ${unsafeHTML(marked(kv[1].description))} </span></td></tr>` : ''} `)} </table> ` : '';
+  }}
+            />`}
+          </td>
+        </tr>
+        ${kv[1].description ? $`<tr><td colspan="2" style="border:none"><span class="m-markdown-small"> ${unsafe_html_o(marked(kv[1].description))} </span></td></tr>` : ''}
+      `)}
+    </table>
+    ` : '';
 }
 
 function serverTemplate() {
@@ -32880,9 +32649,33 @@ function serverTemplate() {
     return '';
   }
 
-  return html` <section id="servers" part="section-servers" style="text-align:left;direction:ltr;margin-top:24px;margin-bottom:24px" class="regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}"> <div class="sub-title">API SERVER</div> <div class="mono-font" style="margin:12px 0;font-size:calc(var(--font-size-small) + 1px)"> ${!this.resolvedSpec.servers || ((_this$resolvedSpec$se = this.resolvedSpec.servers) === null || _this$resolvedSpec$se === void 0 ? void 0 : _this$resolvedSpec$se.length) === 0 ? '' : html` ${(_this$resolvedSpec2 = this.resolvedSpec) === null || _this$resolvedSpec2 === void 0 ? void 0 : _this$resolvedSpec2.servers.map((server, i) => html` <input type="radio" name="api_server" id="srvr-opt-${i}" value="${server.url}" @change="${() => {
+  return $`
+  <section id = 'servers' part="section-servers" style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;" class='regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
+    <div class = 'sub-title'>API SERVER</div>
+    <div class = 'mono-font' style='margin: 12px 0; font-size:calc(var(--font-size-small) + 1px);'>
+      ${!this.resolvedSpec.servers || ((_this$resolvedSpec$se = this.resolvedSpec.servers) === null || _this$resolvedSpec$se === void 0 ? void 0 : _this$resolvedSpec$se.length) === 0 ? '' : $`
+          ${(_this$resolvedSpec2 = this.resolvedSpec) === null || _this$resolvedSpec2 === void 0 ? void 0 : _this$resolvedSpec2.servers.map((server, i) => $`
+            <input type = 'radio'
+              name = 'api_server'
+              id = 'srvr-opt-${i}'
+              value = '${server.url}'
+              @change = ${() => {
     setApiServer.call(this, server.url);
-  }}" .checked="${this.selectedServer.url === server.url}" style="margin:4px 0;cursor:pointer"> <label style="cursor:pointer" for="srvr-opt-${i}"> ${server.url} ${server.description ? html`- <span class="regular-font">${server.description} </span>` : ''} </label> <br> `)} `} <div class="table-title primary-text" part="label-selected-server"> SELECTED: ${((_this$selectedServer = this.selectedServer) === null || _this$selectedServer === void 0 ? void 0 : _this$selectedServer.computedUrl) || 'none'}</div> </div> <slot name="servers"></slot> ${serverVarsTemplate.call(this)} </section>`;
+  }}
+              .checked = '${this.selectedServer.url === server.url}'
+              style = 'margin:4px 0; cursor:pointer'
+            />
+              <label style='cursor:pointer' for='srvr-opt-${i}'>
+                ${server.url} ${server.description ? $`- <span class='regular-font'>${server.description} </span>` : ''}
+              </label>
+            <br/>
+          `)}
+      `}
+      <div class="table-title primary-text" part="label-selected-server"> SELECTED: ${((_this$selectedServer = this.selectedServer) === null || _this$selectedServer === void 0 ? void 0 : _this$selectedServer.computedUrl) || 'none'}</div>
+    </div>
+    <slot name="servers"></slot>
+    ${serverVarsTemplate.call(this)}
+  </section>`;
 }
 /* eslint-enable indent */
 ;// CONCATENATED MODULE: ./src/templates/navbar-template.js
@@ -32928,36 +32721,166 @@ function onExpandCollapseAll(e, action = 'expand-all') {
 
 function navbarTemplate() {
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) {
-    return html` <nav class="nav-bar" part="section-navbar"> <slot name="nav-logo" class="logo"></slot> </nav> `;
+    return $`
+      <nav class='nav-bar' part="section-navbar">
+        <slot name="nav-logo" class="logo"></slot>
+      </nav>
+    `;
   }
 
-  return html` <nav class="nav-bar ${this.renderStyle}" part="section-navbar"> <slot name="nav-logo" class="logo"></slot> ${this.allowSearch === 'false' && this.allowAdvancedSearch === 'false' ? '' : html` <div style="display:flex;flex-direction:row;justify-content:center;align-items:center;padding:8px 24px 12px 24px;${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}"> ${this.allowSearch === 'false' ? '' : html` <div style="display:flex;flex:1;line-height:22px"> <input id="nav-bar-search" part="textbox textbox-nav-filter" style="width:100%;padding-right:20px;color:var(--nav-hover-text-color);border-color:var(--nav-accent-color);background-color:var(--nav-hover-bg-color)" type="text" placeholder="Filter" @change="${this.onSearchChange}" spellcheck="false"> <div style="margin:6px 5px 0 -24px;font-size:var(--font-size-regular);cursor:pointer">&#x21a9;</div> </div> ${this.matchPaths ? html` <div @click="${this.onClearSearch}" style="margin-left:5px;cursor:pointer;align-self:center;color:var(--nav-text-color)" class="small-font-size primary-text bold-text"> CLEAR </div>` : ''} `} ${this.allowAdvancedSearch === 'false' || this.matchPaths ? '' : html` <button class="m-btn primary" part="btn btn-fill btn-search" style="margin-left:5px" @click="${this.onShowSearchModalClicked}"> Search </button> `} </div> `} ${html`<nav class="nav-scroll" part="section-navbar-scroll"> ${this.showInfo === 'false' || !this.resolvedSpec.info ? '' : html` ${this.infoDescriptionHeadingsInNavBar === 'true' ? html` ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? html`<div class="nav-bar-info" id="link-overview" data-content-id="overview" @click="${e => this.scrollToEventTarget(e, false)}"> Overview </div>` : ''} <div class="overview-headers"> ${this.resolvedSpec.infoDescriptionHeaders.map(header => html` <div class="nav-bar-h${header.depth}" id="link-overview--${new marked.Slugger().slug(header.text)}" data-content-id="overview--${new marked.Slugger().slug(header.text)}" @click="${e => this.scrollToEventTarget(e, false)}"> ${header.text} </div>`)} </div> ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? html`<hr style="border-top:1px solid var(--nav-hover-bg-color);border-width:1px 0 0 0;margin:15px 0 0 0">` : ''} ` : html`<div class="nav-bar-info" id="link-overview" data-content-id="overview" @click="${e => this.scrollToEventTarget(e, false)}"> Overview </div>`} `} ${this.allowServerSelection === 'false' ? '' : html`<div class="nav-bar-info" id="link-servers" data-content-id="servers" @click="${e => this.scrollToEventTarget(e, false)}"> API Servers </div>`} ${this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes ? '' : html`<div class="nav-bar-info" id="link-auth" data-content-id="auth" @click="${e => this.scrollToEventTarget(e, false)}"> Authentication </div>`} <div id="link-operations-top" class="nav-bar-section operations" data-content-id="operations-top" @click="${e => this.scrollToEventTarget(e, false)}"> <div style="font-size:16px;display:flex;margin-left:10px"> ${this.renderStyle === 'focused' ? html` <div @click="${e => {
+  return $`
+  <nav class='nav-bar ${this.renderStyle}' part="section-navbar">
+    <slot name="nav-logo" class="logo"></slot>
+    ${this.allowSearch === 'false' && this.allowAdvancedSearch === 'false' ? '' : $`
+        <div style="display:flex; flex-direction:row; justify-content:center; align-items:center; padding:8px 24px 12px 24px; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}">
+          ${this.allowSearch === 'false' ? '' : $`
+              <div style="display:flex; flex:1; line-height:22px;">
+                <input id="nav-bar-search" 
+                  part = "textbox textbox-nav-filter"
+                  style = "width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" 
+                  type = "text"
+                  placeholder = "Filter" 
+                  @change = "${this.onSearchChange}"  
+                  spellcheck = "false" 
+                >
+                <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div>
+              </div>  
+              ${this.matchPaths ? $`
+                  <div @click = '${this.onClearSearch}' style='margin-left:5px; cursor:pointer; align-self:center; color:var(--nav-text-color)' class='small-font-size primary-text bold-text'> CLEAR </div>` : ''}
+            `}
+          ${this.allowAdvancedSearch === 'false' || this.matchPaths ? '' : $`
+              <button class="m-btn primary" part="btn btn-fill btn-search" style="margin-left:5px;" @click="${this.onShowSearchModalClicked}">
+                Search
+              </button>
+            `}
+        </div>
+      `}
+    ${$`<nav class='nav-scroll' part="section-navbar-scroll">
+      ${this.showInfo === 'false' || !this.resolvedSpec.info ? '' : $`
+          ${this.infoDescriptionHeadingsInNavBar === 'true' ? $`
+              ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? $`<div class='nav-bar-info' id='link-overview' data-content-id='overview' @click = '${e => this.scrollToEventTarget(e, false)}' > Overview </div>` : ''}
+              <div class="overview-headers">
+                ${this.resolvedSpec.infoDescriptionHeaders.map(header => $`
+                  <div 
+                    class='nav-bar-h${header.depth}' 
+                    id="link-overview--${new marked.Slugger().slug(header.text)}"  
+                    data-content-id='overview--${new marked.Slugger().slug(header.text)}' 
+                    @click='${e => this.scrollToEventTarget(e, false)}'
+                  >
+                    ${header.text}
+                  </div>`)}
+              </div>
+              ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? $`<hr style='border-top: 1px solid var(--nav-hover-bg-color); border-width:1px 0 0 0; margin: 15px 0 0 0'/>` : ''}
+            ` : $`<div class='nav-bar-info' id='link-overview' data-content-id='overview' @click = '${e => this.scrollToEventTarget(e, false)}'> Overview </div>`}
+        `}
+    
+      ${this.allowServerSelection === 'false' ? '' : $`<div class='nav-bar-info' id='link-servers' data-content-id='servers' @click = '${e => this.scrollToEventTarget(e, false)}'> API Servers </div>`}
+      ${this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes ? '' : $`<div class='nav-bar-info' id='link-auth' data-content-id='auth' @click = '${e => this.scrollToEventTarget(e, false)}'> Authentication </div>`}
+
+      <div id='link-operations-top' class='nav-bar-section operations' data-content-id='operations-top' @click = '${e => this.scrollToEventTarget(e, false)}'>
+        <div style="font-size:16px; display:flex; margin-left:10px;">
+          ${this.renderStyle === 'focused' ? $`
+              <div @click="${e => {
     onExpandCollapseAll.call(this, e, 'expand-all');
-  }}" title="Expand all" style="transform:rotate(90deg);cursor:pointer;margin-right:10px">▸</div> <div @click="${e => {
+  }}" title="Expand all" style="transform: rotate(90deg); cursor:pointer; margin-right:10px;">▸</div>
+              <div @click="${e => {
     onExpandCollapseAll.call(this, e, 'collapse-all');
-  }}" title="Collapse all" style="transform:rotate(270deg);cursor:pointer">▸</div>` : ''} </div> <div class="nav-bar-section-title"> OPERATIONS </div> </div> ${this.resolvedSpec.tags.filter(tag => tag.paths.filter(path => pathIsInSearch(this.matchPaths, path, this.matchType)).length).map(tag => html` <div class="nav-bar-tag-and-paths ${tag.expanded ? 'expanded' : 'collapsed'}"> ${tag.name === 'General ⦂' ? html`<hr style="border:none;border-top:1px dotted var(--nav-text-color);opacity:.3;margin:-1px 0 0 0">` : html` <div class="nav-bar-tag" id="link-${tag.elementId}" data-content-id="${tag.elementId}" data-first-path-id="${tag.firstPathId}" @click="${e => {
+  }}" title="Collapse all" style="transform: rotate(270deg); cursor:pointer;">▸</div>` : ''}  
+        </div>
+        <div class='nav-bar-section-title'> OPERATIONS </div>
+      </div>
+
+      <!-- TAGS AND PATHS-->
+      ${this.resolvedSpec.tags.filter(tag => tag.paths.filter(path => pathIsInSearch(this.matchPaths, path, this.matchType)).length).map(tag => $`
+          <div class='nav-bar-tag-and-paths ${tag.expanded ? 'expanded' : 'collapsed'}'>
+            ${tag.name === 'General ⦂' ? $`<hr style="border:none; border-top: 1px dotted var(--nav-text-color); opacity:0.3; margin:-1px 0 0 0;"/>` : $`
+                <div 
+                  class='nav-bar-tag' 
+                  id="link-${tag.elementId}" 
+                  data-content-id='${tag.elementId}'
+                  data-first-path-id='${tag.firstPathId}'
+                  @click='${e => {
     if (this.renderStyle === 'focused' && this.onNavTagClick === 'expand-collapse') {
       onExpandCollapse.call(this, e);
     } else {
       this.scrollToEventTarget(e, false);
     }
-  }}"> <div>${tag.name}</div> <div class="nav-bar-tag-icon" @click="${e => {
+  }}'
+                >
+                  <div>${tag.name}</div>
+                  <div class="nav-bar-tag-icon" @click="${e => {
     if (this.renderStyle === 'focused' && this.onNavTagClick === 'show-description') {
       onExpandCollapse.call(this, e);
     }
-  }}"> </div> </div> `} ${this.infoDescriptionHeadingsInNavBar === 'true' ? html` ${this.renderStyle === 'focused' && this.onNavTagClick === 'expand-collapse' ? '' : html` <div class="tag-headers"> ${tag.headers.map(header => html` <div class="nav-bar-h${header.depth}" id="link-${tag.elementId}--${new marked.Slugger().slug(header.text)}" data-content-id="${tag.elementId}--${new marked.Slugger().slug(header.text)}" @click="${e => this.scrollToEventTarget(e, false)}"> ${header.text}</div>`)} </div>`}` : ''} <div class="nav-bar-paths-under-tag"> ${tag.paths.filter(v => {
+  }}">
+                  </div>
+                </div>
+              `}
+            ${this.infoDescriptionHeadingsInNavBar === 'true' ? $`
+                ${this.renderStyle === 'focused' && this.onNavTagClick === 'expand-collapse' ? '' : $`
+                    <div class='tag-headers'>
+                      ${tag.headers.map(header => $`
+                      <div 
+                        class='nav-bar-h${header.depth}' 
+                        id="link-${tag.elementId}--${new marked.Slugger().slug(header.text)}"  
+                        data-content-id='${tag.elementId}--${new marked.Slugger().slug(header.text)}' 
+                        @click='${e => this.scrollToEventTarget(e, false)}'
+                      > ${header.text}</div>`)}
+                    </div>`}` : ''}
+
+            
+            <div class='nav-bar-paths-under-tag'>
+              <!-- Paths in each tag (endpoints) -->
+              ${tag.paths.filter(v => {
     if (this.matchPaths) {
       return pathIsInSearch(this.matchPaths, v, this.matchType);
     }
 
     return true;
-  }).map(p => html` <div class="nav-bar-path ${this.usePathInNavBar === 'true' ? 'small-font' : ''}" data-content-id="${p.elementId}" id="link-${p.elementId}" @click="${e => {
+  }).map(p => $`
+              <div 
+                class='nav-bar-path
+                ${this.usePathInNavBar === 'true' ? 'small-font' : ''}'
+                data-content-id='${p.elementId}'
+                id='link-${p.elementId}'
+                @click = '${e => {
     this.scrollToEventTarget(e, false);
-  }}"> <span style="${p.deprecated ? 'filter:opacity(0.5)' : ''}"> ${p.isWebhook ? html`<span style="font-weight:700;margin-right:8px;font-size:calc(var(--font-size-small) - 2px)">WEBHOOK</span>` : ''} ${this.usePathInNavBar === 'true' ? html`<span class="mono-font">${p.method.toUpperCase()} ${p.path}</span>` : p.summary || p.shortSummary} </span> </div>`)} </div> </div> `)} ${this.resolvedSpec.components && this.showComponents === 'true' && this.renderStyle === 'focused' ? html` <div id="link-components" class="nav-bar-section components"> <div></div> <div class="nav-bar-section-title">COMPONENTS</div> </div> ${this.resolvedSpec.components.map(component => component.subComponents.length ? html` <div class="nav-bar-tag" data-content-id="cmp--${component.name.toLowerCase()}" id="link-cmp--${component.name.toLowerCase()}" @click="${e => this.scrollToEventTarget(e, false)}"> ${component.name} </div> ${component.subComponents.filter(p => p.expanded !== false).map(p => html` <div class="nav-bar-path" data-content-id="cmp--${p.id}" id="link-cmp--${p.id}" @click="${e => this.scrollToEventTarget(e, false)}"> <span> ${p.name} </span> </div>`)}` : '')}` : ''} </nav>`} </nav> `;
+  }}'
+              >
+                <span style = "${p.deprecated ? 'filter:opacity(0.5)' : ''}">
+                  ${p.isWebhook ? $`<span style="font-weight:bold; margin-right:8px; font-size: calc(var(--font-size-small) - 2px)">WEBHOOK</span>` : ''}
+                  ${this.usePathInNavBar === 'true' ? $`<span class='mono-font'>${p.method.toUpperCase()} ${p.path}</span>` : p.summary || p.shortSummary}
+                </span>
+              </div>`)}
+            </div>
+          </div>
+        `)}
+
+      <!-- COMPONENTS -->
+      ${this.resolvedSpec.components && this.showComponents === 'true' && this.renderStyle === 'focused' ? $`
+          <div id='link-components' class='nav-bar-section components'>
+            <div></div>
+            <div class='nav-bar-section-title'>COMPONENTS</div>
+          </div>
+          ${this.resolvedSpec.components.map(component => component.subComponents.length ? $`
+              <div class='nav-bar-tag' 
+                data-content-id='cmp--${component.name.toLowerCase()}' 
+                id='link-cmp--${component.name.toLowerCase()}' 
+                @click='${e => this.scrollToEventTarget(e, false)}'>
+                ${component.name}
+              </div>
+              ${component.subComponents.filter(p => p.expanded !== false).map(p => $`
+                <div class='nav-bar-path' data-content-id='cmp--${p.id}' id='link-cmp--${p.id}' @click='${e => this.scrollToEventTarget(e, false)}'>
+                  <span> ${p.name} </span>
+                </div>`)}` : '')}` : ''}
+    </nav>`}
+</nav>
+`;
 }
 /* eslint-enable indent */
 ;// CONCATENATED MODULE: ./src/templates/focused-endpoint-template.js
 
+ // eslint-disable-line import/extensions
 
 
 
@@ -32978,7 +32901,10 @@ function focused_endpoint_template_headingRenderer(tagElementId) {
 }
 
 function wrapFocusedTemplate(templateToWrap) {
-  return html` <div class="regular-font section-gap--focused-mode" part="section-operations-in-tag"> ${templateToWrap} </div>`;
+  return $`
+    <div class='regular-font section-gap--focused-mode' part="section-operations-in-tag">
+      ${templateToWrap}
+    </div>`;
 }
 
 function defaultContentTemplate() {
@@ -32997,12 +32923,18 @@ function defaultContentTemplate() {
 
 
 function focusedTagBodyTemplate(tag) {
-  return html` <h1 id="${tag.elementId}">${tag.name}</h1> ${this.onNavTagClick === 'show-description' && tag.description ? html` <div class="m-markdown"> ${unsafeHTML(`
+  return $`
+    <h1 id="${tag.elementId}">${tag.name}</h1>
+    ${this.onNavTagClick === 'show-description' && tag.description ? $`
+        <div class="m-markdown">
+          ${unsafe_html_o(`
             <div class="m-markdown regular-font">
               ${marked(tag.description || '', this.infoDescriptionHeadingsInNavBar === 'true' ? {
     renderer: focused_endpoint_template_headingRenderer(tag.elementId)
   } : undefined)}
-            </div>`)} </div>` : ''} `;
+            </div>`)}
+        </div>` : ''}
+  `;
 }
 
 function focusedEndpointTemplate() {
@@ -33023,7 +32955,10 @@ function focusedEndpointTemplate() {
   } else if (focusElId === 'servers' && this.allowServerSelection === 'true') {
     focusedTemplate = serverTemplate.call(this);
   } else if (focusElId === 'operations-top') {
-    focusedTemplate = html` <div id="operations-top" class="observe-me"> <slot name="operations-top"></slot> </div>`;
+    focusedTemplate = $`
+    <div id="operations-top" class="observe-me">
+      <slot name="operations-top"></slot>
+    </div>`;
   } else if (focusElId.startsWith('cmp--') && this.showComponents === 'true') {
     focusedTemplate = componentsTemplate.call(this);
   } else if (focusElId.startsWith('tag--')) {
@@ -33061,6 +32996,7 @@ function focusedEndpointTemplate() {
 /* eslint-enable indent */
 ;// CONCATENATED MODULE: ./src/templates/endpoint-template.js
 
+ // eslint-disable-line import/extensions
 
 
 
@@ -33113,9 +33049,24 @@ function endpoint_template_onExpandCollapseAll(e, action = 'expand-all') {
 
 
 function endpointHeadTemplate(path, pathsExpanded = false) {
-  return html` <summary @click="${e => {
+  return $`
+  <summary @click="${e => {
     toggleExpand.call(this, path, e);
-  }}" class="endpoint-head ${path.method} ${path.deprecated ? 'deprecated' : ''} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}"> <div class="method ${path.method} ${path.deprecated ? 'deprecated' : ''}"> ${path.method} </div> <div class="path ${path.deprecated ? 'deprecated' : ''}"> ${path.path} ${path.isWebhook ? html`<span style="font-family:var(--font-regular);font-size:var(--);font-size:var(--font-size-small);color:var(--primary-color);margin-left:16px"> Webhook</span>` : ''} </div> ${path.deprecated ? html` <span style="font-size:var(--font-size-small);text-transform:uppercase;font-weight:700;color:var(--red);margin:2px 0 0 5px"> deprecated </span>` : ''} ${this.showSummaryWhenCollapsed ? html` <div class="only-large-screen" style="min-width:60px;flex:1"></div> <div class="descr">${path.summary || path.shortSummary} </div>` : ''} </summary> `;
+  }}" class='endpoint-head ${path.method} ${path.deprecated ? 'deprecated' : ''} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
+    <div class="method ${path.method} ${path.deprecated ? 'deprecated' : ''}"> ${path.method} </div> 
+    <div class="path ${path.deprecated ? 'deprecated' : ''}"> 
+      ${path.path} 
+      ${path.isWebhook ? $`<span style="font-family: var(--font-regular); font-size: var(--); font-size: var(--font-size-small); color:var(--primary-color); margin-left: 16px"> Webhook</span>` : ''}
+    </div>
+    ${path.deprecated ? $`
+        <span style="font-size:var(--font-size-small); text-transform:uppercase; font-weight:bold; color:var(--red); margin:2px 0 0 5px;"> 
+          deprecated 
+        </span>` : ''}
+    ${this.showSummaryWhenCollapsed ? $`
+        <div class="only-large-screen" style="min-width:60px; flex:1"></div>
+        <div class="descr">${path.summary || path.shortSummary} </div>` : ''}
+  </summary>
+  `;
 }
 
 function endpointBodyTemplate(path) {
@@ -33146,7 +33097,67 @@ function endpointBodyTemplate(path) {
   }
 
   const codeSampleTabPanel = path.xCodeSamples ? codeSamplesTemplate(path.xCodeSamples) : '';
-  return html` <div class="endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}"> <div class="summary"> ${path.summary ? html`<div class="title">${path.summary}<div></div></div>` : path.shortSummary !== path.description ? html`<div class="title">${path.shortSummary}</div>` : ''} ${path.xBadges && ((_path$xBadges = path.xBadges) === null || _path$xBadges === void 0 ? void 0 : _path$xBadges.length) > 0 ? html` <div style="display:flex;flex-wrap:wrap;font-size:var(--font-size-small)"> ${path.xBadges.map(v => html`<span style="margin:1px;margin-right:5px;padding:1px 8px;font-weight:700;border-radius:12px;background-color:var(--light-${v.color},var(--input-bg));color:var(--${v.color});border:1px solid var(--${v.color})">${v.label}</span>`)} </div> ` : ''} ${path.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(path.description))}</div>` : ''} <slot name="${path.elementId}"></slot> ${pathSecurityTemplate.call(this, path.security)} ${codeSampleTabPanel} </div> <div class="req-resp-container"> <div style="display:flex;flex-direction:column" class="view-mode-request ${this.layout}-layout"> <api-request class="${this.renderStyle}-mode ${this.layout}-layout" style="width:100%" method="${path.method}" , path="${path.path}" .security="${path.security}" .parameters="${path.parameters}" .request_body="${path.requestBody}" .api_keys="${nonEmptyApiKeys}" .servers="${path.servers}" server-url="${path.servers && path.servers.length > 0 ? path.servers[0].url : this.selectedServer.computedUrl}" active-schema-tab="${this.defaultSchemaTab}" fill-request-fields-with-example="${this.fillRequestFieldsWithExample}" allow-try="${this.allowTry}" accept="${accept}" render-style="${this.renderStyle}" schema-style="${this.schemaStyle}" schema-expand-level="${this.schemaExpandLevel}" schema-description-expanded="${this.schemaDescriptionExpanded}" allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}" schema-hide-read-only="${this.schemaHideReadOnly}" fetch-credentials="${this.fetchCredentials}" exportparts="btn btn-fill btn-outline btn-try"> </api-request> ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''} </div> <api-response class="${this.renderStyle}-mode" style="width:100%" .responses="${path.responses}" active-schema-tab="${this.defaultSchemaTab}" render-style="${this.renderStyle}" schema-style="${this.schemaStyle}" schema-expand-level="${this.schemaExpandLevel}" schema-description-expanded="${this.schemaDescriptionExpanded}" allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}" schema-hide-write-only="${this.schemaHideWriteOnly}" selected-status="${Object.keys(path.responses || {})[0] || ''}" exportparts="btn--resp btn-fill--resp btn-outline--resp"> </api-response> </div> </div>`;
+  return $`
+  <div class='endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}'>
+    <div class="summary">
+      ${path.summary ? $`<div class="title">${path.summary}<div>` : path.shortSummary !== path.description ? $`<div class="title">${path.shortSummary}</div>` : ''}
+      ${path.xBadges && ((_path$xBadges = path.xBadges) === null || _path$xBadges === void 0 ? void 0 : _path$xBadges.length) > 0 ? $`
+          <div style="display:flex; flex-wrap:wrap;font-size: var(--font-size-small);">
+            ${path.xBadges.map(v => $`<span style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`)}
+          </div>
+          ` : ''}
+
+      ${path.description ? $`<div class="m-markdown"> ${unsafe_html_o(marked(path.description))}</div>` : ''}
+      <slot name="${path.elementId}"></slot>
+      ${pathSecurityTemplate.call(this, path.security)}
+      ${codeSampleTabPanel}
+    </div>  
+    <div class='req-resp-container'> 
+      <div style="display:flex; flex-direction:column" class="view-mode-request ${this.layout}-layout">
+        <api-request
+          class = "${this.renderStyle}-mode ${this.layout}-layout"
+          style = "width:100%;"
+          method = "${path.method}", 
+          path = "${path.path}"
+          .security = "${path.security}"
+          .parameters = "${path.parameters}"
+          .request_body = "${path.requestBody}"
+          .api_keys = "${nonEmptyApiKeys}"
+          .servers = "${path.servers}" 
+          server-url = "${path.servers && path.servers.length > 0 ? path.servers[0].url : this.selectedServer.computedUrl}" 
+          active-schema-tab = "${this.defaultSchemaTab}"
+          fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
+          allow-try = "${this.allowTry}"
+          accept = "${accept}"
+          render-style="${this.renderStyle}" 
+          schema-style = "${this.schemaStyle}" 
+          schema-expand-level = "${this.schemaExpandLevel}"
+          schema-description-expanded = "${this.schemaDescriptionExpanded}"
+          allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
+          schema-hide-read-only = "${this.schemaHideReadOnly}"
+          fetch-credentials = "${this.fetchCredentials}"
+          exportparts="btn btn-fill btn-outline btn-try"
+        > </api-request>
+
+          ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
+      </div>  
+
+      <api-response
+        class = "${this.renderStyle}-mode"
+        style = "width:100%;"
+        .responses="${path.responses}"
+        active-schema-tab = "${this.defaultSchemaTab}" 
+        render-style="${this.renderStyle}" 
+        schema-style="${this.schemaStyle}"
+        schema-expand-level = "${this.schemaExpandLevel}"
+        schema-description-expanded = "${this.schemaDescriptionExpanded}"
+        allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
+        schema-hide-write-only = "${this.schemaHideWriteOnly}"
+        selected-status = "${Object.keys(path.responses || {})[0] || ''}"
+        exportparts = "btn--resp btn-fill--resp btn-outline--resp"
+      > </api-response>
+    </div>
+  </div>`;
 }
 
 function endpointTemplate(showExpandCollapse = true, showTags = true, pathsExpanded = false) {
@@ -33154,22 +33165,60 @@ function endpointTemplate(showExpandCollapse = true, showTags = true, pathsExpan
     return '';
   }
 
-  return html` ${showExpandCollapse ? html` <div style="display:flex;justify-content:flex-end"> <span @click="${e => endpoint_template_onExpandCollapseAll(e, 'expand-all')}" style="color:var(--primary-color);cursor:pointer"> Expand all </span> &nbsp;|&nbsp; <span @click="${e => endpoint_template_onExpandCollapseAll(e, 'collapse-all')}" style="color:var(--primary-color);cursor:pointer"> Collapse all </span> &nbsp; sections </div>` : ''} ${this.resolvedSpec.tags.map(tag => html` ${showTags ? html` <div class="regular-font section-gap section-tag ${tag.expanded ? 'expanded' : 'collapsed'}"> <div class="section-tag-header" @click="${() => {
+  return $`
+    ${showExpandCollapse ? $`
+        <div style="display:flex; justify-content:flex-end;"> 
+          <span @click="${e => endpoint_template_onExpandCollapseAll(e, 'expand-all')}" style="color:var(--primary-color); cursor:pointer;">
+            Expand all
+          </span> 
+          &nbsp;|&nbsp; 
+          <span @click="${e => endpoint_template_onExpandCollapseAll(e, 'collapse-all')}" style="color:var(--primary-color); cursor:pointer;" >
+            Collapse all
+          </span> 
+          &nbsp; sections
+        </div>` : ''}
+    ${this.resolvedSpec.tags.map(tag => $`
+      ${showTags ? $` 
+          <div class='regular-font section-gap section-tag ${tag.expanded ? 'expanded' : 'collapsed'}'> 
+            <div class='section-tag-header' @click="${() => {
     tag.expanded = !tag.expanded;
     this.requestUpdate();
-  }}"> <div id="${tag.elementId}" class="sub-title tag" style="color:var(--primary-color)">${tag.name}</div> </div> <div class="section-tag-body"> <slot name="${tag.elementId}"></slot> <div class="regular-font regular-font-size m-markdown" style="padding-bottom:12px"> ${unsafeHTML(marked(tag.description || ''))} </div> ${tag.paths.filter(v => {
+  }}">
+              <div id='${tag.elementId}' class="sub-title tag" style="color:var(--primary-color)">${tag.name}</div>
+            </div>
+            <div class='section-tag-body'>
+              <slot name="${tag.elementId}"></slot>
+              <div class="regular-font regular-font-size m-markdown" style="padding-bottom:12px">
+                ${unsafe_html_o(marked(tag.description || ''))}
+              </div>
+              ${tag.paths.filter(v => {
     if (this.matchPaths) {
       return pathIsInSearch(this.matchPaths, v, this.matchType);
     }
 
     return true;
-  }).map(path => html` <section id="${path.elementId}" class="m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}"> ${endpointHeadTemplate.call(this, path, pathsExpanded)} ${pathsExpanded || path.expanded ? endpointBodyTemplate.call(this, path) : ''} </section>`)} </div> </div>` : html` <div class="section-tag-body"> ${tag.paths.filter(v => {
+  }).map(path => $`
+                <section id='${path.elementId}' class='m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
+                  ${endpointHeadTemplate.call(this, path, pathsExpanded)}      
+                  ${pathsExpanded || path.expanded ? endpointBodyTemplate.call(this, path) : ''}
+                </section>`)}
+            </div>
+          </div>` : $`
+          <div class='section-tag-body'>
+          ${tag.paths.filter(v => {
     if (this.matchPaths) {
       return pathIsInSearch(this.matchPaths, v, this.matchType);
     }
 
     return true;
-  }).map(path => html` <section id="${path.elementId}" class="m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}"> ${endpointHeadTemplate.call(this, path, pathsExpanded)} ${pathsExpanded || path.expanded ? endpointBodyTemplate.call(this, path) : ''} </section>`)} </div> `} `)}`;
+  }).map(path => $`
+            <section id='${path.elementId}' class='m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
+              ${endpointHeadTemplate.call(this, path, pathsExpanded)}      
+              ${pathsExpanded || path.expanded ? endpointBodyTemplate.call(this, path) : ''}
+            </section>`)}
+          </div>
+        `}
+  `)}`;
 }
 /* eslint-enable indent */
 ;// CONCATENATED MODULE: ./src/templates/logo-template.js
@@ -33177,7 +33226,18 @@ function endpointTemplate(showExpandCollapse = true, showTags = true, pathsExpan
 /* eslint-disable indent */
 
 function logoTemplate(style) {
-  return html` <div style="${style}"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="1 0 511 512"> <path d="M351 411a202 202 0 01-350 0 203 203 0 01333-24 203 203 0 0117 24zm0 0" fill="#adc165"/> <path d="M334 387a202 202 0 01-216-69 202 202 0 01216 69zm78 32H85a8 8 0 01-8-8 8 8 0 018-8h327a8 8 0 017 8 8 8 0 01-7 8zm0 0" fill="#99aa52"/> <path d="M374 338l-5 30a202 202 0 01-248-248 203 203 0 01253 218zm0 0" fill="#ffc73b"/> <path d="M374 338a202 202 0 01-100-197 203 203 0 01100 197zm38 81l-6-2-231-231a8 8 0 0111-11l231 230a8 8 0 01-5 14zm0 0" fill="#efb025"/> <path d="M311 175c0 75 40 140 101 175a202 202 0 000-350 202 202 0 00-101 175zm0 0" fill="#ff903e"/> <path d="M412 419a8 8 0 01-8-8V85a8 8 0 0115 0v326a8 8 0 01-7 8zm0 0" fill="#e87425"/> </svg> </div> `;
+  return $`
+  <div style=${style}>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="1 0 511 512">
+      <path d="M351 411a202 202 0 01-350 0 203 203 0 01333-24 203 203 0 0117 24zm0 0" fill="#adc165"/>
+      <path d="M334 387a202 202 0 01-216-69 202 202 0 01216 69zm78 32H85a8 8 0 01-8-8 8 8 0 018-8h327a8 8 0 017 8 8 8 0 01-7 8zm0 0" fill="#99aa52"/>
+      <path d="M374 338l-5 30a202 202 0 01-248-248 203 203 0 01253 218zm0 0" fill="#ffc73b"/>
+      <path d="M374 338a202 202 0 01-100-197 203 203 0 01100 197zm38 81l-6-2-231-231a8 8 0 0111-11l231 230a8 8 0 01-5 14zm0 0" fill="#efb025"/>
+      <path d="M311 175c0 75 40 140 101 175a202 202 0 000-350 202 202 0 00-101 175zm0 0" fill="#ff903e"/>
+      <path d="M412 419a8 8 0 01-8-8V85a8 8 0 0115 0v326a8 8 0 01-7 8zm0 0" fill="#e87425"/>
+    </svg>
+  </div>    
+`;
 }
 /* eslint-enable indent */
 ;// CONCATENATED MODULE: ./src/templates/header-template.js
@@ -33186,16 +33246,134 @@ function logoTemplate(style) {
 /* eslint-disable indent */
 
 function headerTemplate() {
-  return html` <header class="row header regular-font" part="section-header" style="padding:8px 4px 8px 4px;min-height:48px"> <div class="only-large-screen-flex" style="align-items:center"> <slot name="logo" class="logo" part="section-logo"> ${logoTemplate('height:36px;width:36px;margin-left:5px')} </slot> <div class="header-title" part="label-header-title">${this.headingText}</div> </div> <div style="margin:0 8px;display:flex;flex:1"> ${this.allowSpecUrlLoad === 'false' ? '' : html` <input id="spec-url" type="text" style="font-size:var(--font-size-small)" class="header-input mono-font" part="textbox textbox-spec-url" placeholder="Spec URL" value="${this.specUrl || ''}" @change="${this.onSepcUrlChange}" spellcheck="false"> <div style="margin:6px 5px 0 -24px;font-size:var(--font-size-regular);cursor:pointer">&#x21a9;</div> `} ${this.allowSpecFileLoad === 'false' ? '' : html` <input id="spec-file" part="file-input" type="file" style="display:none" value="${this.specFile || ''}" @change="${this.onSepcFileChange}" spellcheck="false"> <button class="m-btn primary only-large-screen" style="margin-left:10px" part="btn btn-fill" @click="${this.onFileLoadClick}"> LOCAL JSON FILE </button> `} <slot name="header"></slot> ${this.allowSearch === 'false' || 'read focused'.includes(this.renderStyle) ? '' : html` <input id="search" class="header-input" type="text" part="textbox textbox-header-filter" placeholder="Filter" @change="${this.onSearchChange}" style="max-width:130px;margin-left:10px" spellcheck="false"> <div style="margin:6px 5px 0 -24px;font-size:var(--font-size-regular);cursor:pointer">&#x21a9;</div> `} ${this.allowAdvancedSearch === 'false' || 'read focused'.includes(this.renderStyle) ? '' : html` <button class="m-btn primary only-large-screen" part="btn btn-fill btn-search" style="margin-left:10px" @click="${this.onShowSearchModalClicked}"> Search </button> `} </div> </header>`;
+  return $`
+  <header class="row header regular-font" part="section-header" style="padding:8px 4px 8px 4px;min-height:48px;">
+    <div class="only-large-screen-flex" style="align-items: center;">
+      <slot name="logo" class="logo" part="section-logo">
+        ${logoTemplate('height:36px;width:36px;margin-left:5px')}
+        <!-- m-logo style="height:36px;width:36px;margin-left:5px"></m-logo -->
+      </slot>  
+      <div class="header-title" part="label-header-title">${this.headingText}</div>
+    </div>  
+    <div style="margin: 0px 8px;display:flex;flex:1">
+      ${this.allowSpecUrlLoad === 'false' ? '' : $`
+          <input id="spec-url" 
+            type="text" 
+            style="font-size:var(--font-size-small)" 
+            class="header-input mono-font"
+            part="textbox textbox-spec-url" 
+            placeholder="Spec URL" 
+            value="${this.specUrl || ''}" 
+            @change="${this.onSepcUrlChange}" 
+            spellcheck="false"
+          >
+          <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div> 
+        `} 
+      ${this.allowSpecFileLoad === 'false' ? '' : $`
+          <input id="spec-file" 
+            part = "file-input"
+            type="file" 
+            style="display:none" 
+            value="${this.specFile || ''}" 
+            @change="${this.onSepcFileChange}" 
+            spellcheck="false"
+           >
+          <button class="m-btn primary only-large-screen" style="margin-left:10px;" part="btn btn-fill" @click="${this.onFileLoadClick}"> LOCAL JSON FILE </button>
+        `}
+      <slot name="header"></slot>
+      ${this.allowSearch === 'false' || 'read focused'.includes(this.renderStyle) ? '' : $`  
+          <input id="search" class="header-input" type="text" part="textbox textbox-header-filter" placeholder="Filter" @change="${this.onSearchChange}" style="max-width:130px;margin-left:10px;" spellcheck="false" >
+          <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div>
+        `}
+      
+      ${this.allowAdvancedSearch === 'false' || 'read focused'.includes(this.renderStyle) ? '' : $`
+          <button class="m-btn primary only-large-screen" part="btn btn-fill btn-search" style="margin-left:10px;" @click="${this.onShowSearchModalClicked}">
+            Search
+          </button>
+        `}
+    </div>
+    </header>`;
 }
 /* eslint-enable indent */
 ;// CONCATENATED MODULE: ./src/styles/dialog-box-styles.js
 
-/* harmony default export */ const dialog_box_styles = (css`*,:after,:before{box-sizing:border-box}.dialog-box-overlay{background-color:var(--overlay-bg);position:fixed;left:0;top:0;width:100vw;height:100vh;overflow:hidden;z-index:var(--dialog-z-index)}.dialog-box{position:fixed;top:100px;left:50%;transform:translate(-50%,0);display:flex;flex-direction:column;width:70vw;background-color:var(--bg2);color:var(--fg2);border-radius:4px;max-height:500px;overflow:hidden;border:1px solid var(--border-color);box-shadow:0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22)}.dialog-box-header{position:sticky;top:0;align-self:stretch;display:flex;align-items:center;padding:0 16px;min-height:60px;max-height:60px;border-bottom:1px solid var(--light-border-color);overflow:hidden}.dialog-box-header button{font-size:1.5rem;font-weight:700;line-height:1;color:var(--fg);border:none;outline:0;background-color:transparent;cursor:pointer;border:1px solid transparent;border-radius:50%;margin-right:-8px}.dialog-box-header button:hover{border-color:var(--primary-color)}.dialog-box-content{padding:16px;display:block;overflow:auto;height:100%}.dialog-box-title{flex-grow:1;font-size:24px}`);
+/* harmony default export */ const dialog_box_styles = (r`
+  *, *:before, *:after { box-sizing: border-box; }
+
+  .dialog-box-overlay {
+    background-color: var(--overlay-bg);
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    z-index: var(--dialog-z-index);
+  }
+  
+  .dialog-box {
+    position: fixed;
+    top: 100px;
+    left: 50%;
+    transform: translate(-50%, 0%);
+    display: flex;
+    flex-direction: column;
+    width: 70vw;
+    background-color: var(--bg2);
+    color: var(--fg2);
+    border-radius: 4px;
+    max-height: 500px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+  }
+  
+  .dialog-box-header {
+    position: sticky;
+    top: 0;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    padding: 0px 16px;
+    min-height: 60px;
+    max-height: 60px;
+    border-bottom: 1px solid var(--light-border-color);
+    overflow: hidden;
+  }
+  
+  .dialog-box-header button {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--fg);
+    border: none;
+    outline: none;
+    background-color: transparent;
+    cursor:pointer;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    margin-right: -8px;
+  }
+  .dialog-box-header button:hover {
+    border-color: var(--primary-color);
+  }
+
+  .dialog-box-content {
+    padding: 16px;
+    display:block;
+    overflow: auto;
+    height: 100%;
+  }
+
+  .dialog-box-title {
+    flex-grow: 1;
+    font-size:24px;
+  }
+`);
 ;// CONCATENATED MODULE: ./src/components/dialog-box.js
 
 
-class DialogBox extends LitElement {
+class DialogBox extends lit_element_s {
   static get properties() {
     return {
       heading: {
@@ -33247,7 +33425,19 @@ class DialogBox extends LitElement {
 
 
   render() {
-    return html` ${this.show === 'true' ? html` <div class="dialog-box-overlay"> <div class="dialog-box"> <header class="dialog-box-header"> <span class="dialog-box-title">${this.heading}</span> <button type="button" @click="${this.onClose}">&times;</button> </header> <div class="dialog-box-content"> <slot></slot> </div> </div> </div>` : ''}`;
+    return $`
+    ${this.show === 'true' ? $`
+        <div class="dialog-box-overlay">
+          <div class="dialog-box">
+            <header class="dialog-box-header">
+              <span class="dialog-box-title">${this.heading}</span>
+              <button type="button" @click="${this.onClose}">&times;</button>
+            </header>
+            <div class="dialog-box-content">
+              <slot></slot>
+            </div>
+          </div>
+        </div>` : ''}`;
   }
   /* eslint-enable indent */
 
@@ -33273,14 +33463,66 @@ function searchByPropertiesModalTemplate() {
     this.showAdvancedSearchDialog = false;
   });
   document.addEventListener('open', this.onOpenSearchDialog);
-  return html` <dialog-box heading="Search" show="${!!this.showAdvancedSearchDialog}"> <span class="advanced-search-options"> <input style="width:100%;padding-right:20px" type="text" part="textbox textbox-search-dialog" placeholder="search text..." spellcheck="false" @keyup="${e => this.onAdvancedSearch(e, 400)}"> <div style="display:flex;margin:8px 0 24px"> <div> <input style="cursor:pointer" type="checkbox" part="checkbox checkbox-search-dialog" id="search-api-path" checked="checked" @change="${e => this.onAdvancedSearch(e, 0)}"> <label for="search-api-path" style="cursor:pointer"> API Path </label> </div> <div style="margin-left:16px"> <input style="cursor:pointer" type="checkbox" part="checkbox checkbox-search-dialog" id="search-api-descr" checked="checked" @change="${e => this.onAdvancedSearch(e, 0)}"> <label style="cursor:pointer" for="search-api-descr"> API Description </label> </div> <div style="margin-left:16px"> <input style="cursor:pointer" type="checkbox" part="checkbox checkbox-search-dialog" id="search-api-params" @change="${e => this.onAdvancedSearch(e, 0)}"> <label style="cursor:pointer" for="search-api-params"> API Parameters </label> </div> <div style="margin-left:16px"> <input style="cursor:pointer" type="checkbox" part="checkbox checkbox-search-dialog" id="search-api-request-body" @change="${e => this.onAdvancedSearch(e, 0)}"> <label style="cursor:pointer" for="search-api-request-body"> Request Body Parameters </label> </div> <div style="margin-left:16px"> <input style="cursor:pointer" type="checkbox" part="checkbox checkbox-search-dialog" id="search-api-resp-descr" @change="${e => this.onAdvancedSearch(e, 0)}"> <label style="cursor:pointer" for="search-api-resp-descr"> Response Description </label> </div> </div> </span> ${(_this$advancedSearchM = this.advancedSearchMatches) === null || _this$advancedSearchM === void 0 ? void 0 : _this$advancedSearchM.map(path => html` <div class="mono-font small-font-size hover-bg" style="padding:5px;cursor:pointer;border-bottom:1px solid var(--light-border-color);${path.deprecated ? 'filter:opacity(0.5);' : ''}" data-content-id="${path.elementId}" tabindex="0" @click="${e => {
+  return $`
+    <dialog-box 
+      heading="Search" 
+      show="${!!this.showAdvancedSearchDialog}"
+    >
+      <span class="advanced-search-options">
+        <input
+          style="width:100%; padding-right:20px;"
+          type="text"
+          part="textbox textbox-search-dialog"
+          placeholder="search text..."
+          spellcheck="false"
+          @keyup = "${e => this.onAdvancedSearch(e, 400)}"
+        >
+        <div style="display:flex; margin:8px 0 24px;">
+          <div>
+            <input style="cursor:pointer;" type="checkbox" part="checkbox checkbox-search-dialog" id="search-api-path" checked @change = "${e => this.onAdvancedSearch(e, 0)}">
+            <label for="search-api-path" style="cursor:pointer;"> API Path </label>
+            </div>
+          <div style="margin-left: 16px;">
+            <input style="cursor:pointer;" type="checkbox" part="checkbox checkbox-search-dialog" id="search-api-descr" checked @change = "${e => this.onAdvancedSearch(e, 0)}">
+            <label style="cursor:pointer;" for="search-api-descr"> API Description </label>
+          </div>
+          <div style="margin-left: 16px;">
+            <input style="cursor:pointer;" type="checkbox" part="checkbox checkbox-search-dialog" id="search-api-params" @change = "${e => this.onAdvancedSearch(e, 0)}">
+            <label style="cursor:pointer;" for="search-api-params"> API Parameters </label>
+          </div>
+          <div style="margin-left: 16px;">
+            <input style="cursor:pointer;" type="checkbox" part="checkbox checkbox-search-dialog" id="search-api-request-body" @change = "${e => this.onAdvancedSearch(e, 0)}">
+            <label style="cursor:pointer;" for="search-api-request-body"> Request Body Parameters </label>
+          </div>
+          <div style="margin-left: 16px;">
+            <input style="cursor:pointer;" type="checkbox" part="checkbox checkbox-search-dialog" id="search-api-resp-descr" @change = "${e => this.onAdvancedSearch(e, 0)}">
+            <label style="cursor:pointer;" for="search-api-resp-descr"> Response Description </label>
+          </div>
+        </div>
+      </span>
+      
+      ${(_this$advancedSearchM = this.advancedSearchMatches) === null || _this$advancedSearchM === void 0 ? void 0 : _this$advancedSearchM.map(path => $`
+      <div
+        class="mono-font small-font-size hover-bg"
+        style='padding: 5px; cursor: pointer; border-bottom: 1px solid var(--light-border-color); ${path.deprecated ? 'filter:opacity(0.5);' : ''}' 
+        data-content-id='${path.elementId}'
+        tabindex = '0'
+        @click="${e => {
     this.matchPaths = ''; // clear quick filter if applied
 
     this.showAdvancedSearchDialog = false; // Hide Search Dialog
 
     this.requestUpdate();
     this.scrollToEventTarget(e, true);
-  }}"> <span class="upper bold-text method-fg ${path.method}">${path.method}</span> <span>${path.path}</span> <span class="regular-font gray-text">${path.summary}</span> </div> `)} </dialog-box> `;
+  }}"
+      > 
+        <span class="upper bold-text method-fg ${path.method}">${path.method}</span> 
+        <span>${path.path}</span>
+        <span class="regular-font gray-text">${path.summary}</span>
+      </div>
+    `)}
+    </dialog-box>
+  `;
 }
 /* eslint-enable indent */
 ;// CONCATENATED MODULE: ./src/utils/color-utils.js
@@ -33531,7 +33773,88 @@ function setTheme(baseTheme, theme = {}) {
     };
   }
 
-  return html` <style>*,:after,:before{box-sizing:border-box}:host{--border-radius:2px;--layout:${this.layout || 'row'};--font-mono:${this.monoFont || 'Monaco, "Andale Mono", "Roboto Mono", Consolas, monospace'};--font-regular:${this.regularFont || '"Open Sans", Avenir, "Segoe UI", Arial, sans-serif'};--scroll-bar-width:8px;--nav-item-padding:${this.navItemSpacing === 'relaxed' ? '10px 16px 10px 10px' : this.navItemSpacing === 'compact' ? '5px 16px 5px 10px' : '7px 16px 7px 10px'};--resp-area-height:${this.responseAreaHeight};--font-size-small:${this.fontSize === 'default' ? '12px' : this.fontSize === 'large' ? '13px' : '14px'};--font-size-mono:${this.fontSize === 'default' ? '13px' : this.fontSize === 'large' ? '14px' : '15px'};--font-size-regular:${this.fontSize === 'default' ? '14px' : this.fontSize === 'large' ? '15px' : '16px'};--dialog-z-index:1000;--bg:${newTheme.bg1};--bg2:${newTheme.bg2};--bg3:${newTheme.bg3};--light-bg:${newTheme.lightBg};--fg:${newTheme.fg1};--fg2:${newTheme.fg2};--fg3:${newTheme.fg3};--light-fg:${newTheme.lightFg};--selection-bg:${newTheme.selectionBg};--selection-fg:${newTheme.selectionFg};--overlay-bg:${newTheme.overlayBg};--border-color:${newTheme.borderColor};--light-border-color:${newTheme.lightBorderColor};--code-border-color:${newTheme.codeBorderColor};--input-bg:${newTheme.inputBg};--placeholder-color:${newTheme.placeHolder};--hover-color:${newTheme.hoverColor};--red:${newTheme.red};--light-red:${newTheme.lightRed};--pink:${newTheme.pink};--light-pink:${newTheme.lightPink};--green:${newTheme.green};--light-green:${newTheme.lightGreen};--blue:${newTheme.blue};--light-blue:${newTheme.lightBlue};--orange:${newTheme.orange};--light-orange:${newTheme.lightOrange};--yellow:${newTheme.yellow};--light-yellow:${newTheme.lightYellow};--purple:${newTheme.purple};--brown:${newTheme.brown};--header-bg:${newTheme.headerColor};--header-fg:${newTheme.headerColorInvert};--header-color-darker:${newTheme.headerColorDarker};--header-color-border:${newTheme.headerColorBorder};--nav-bg-color:${newTheme.navBgColor};--nav-text-color:${newTheme.navTextColor};--nav-hover-bg-color:${newTheme.navHoverBgColor};--nav-hover-text-color:${newTheme.navHoverTextColor};--nav-accent-color:${newTheme.navAccentColor};--primary-color:${newTheme.primaryColor};--primary-color-invert:${newTheme.primaryColorInvert};--primary-color-trans:${newTheme.primaryColorTrans};--code-bg:${newTheme.codeBg};--code-fg:${newTheme.codeFg};--inline-code-fg:${newTheme.inlineCodeFg};--code-property-color:${newTheme.codePropertyColor};--code-keyword-color:${newTheme.codeKeywordColor};--code-operator-color:${newTheme.codeOperatorColor}}</style>`;
+  return $`
+  <style>
+  *, *:before, *:after { box-sizing: border-box; }
+  
+  :host {
+    /* Common Styles - irrespective of themes */  
+    --border-radius: 2px;
+    --layout: ${this.layout || 'row'};
+    --font-mono: ${this.monoFont || 'Monaco, "Andale Mono", "Roboto Mono", Consolas, monospace'};
+    --font-regular: ${this.regularFont || '"Open Sans", Avenir, "Segoe UI", Arial, sans-serif'};
+    --scroll-bar-width: 8px;
+    --nav-item-padding: ${this.navItemSpacing === 'relaxed' ? '10px 16px 10px 10px' : this.navItemSpacing === 'compact' ? '5px 16px 5px 10px' : '7px 16px 7px 10px'};
+    
+    --resp-area-height: ${this.responseAreaHeight};
+    --font-size-small:  ${this.fontSize === 'default' ? '12px' : this.fontSize === 'large' ? '13px' : '14px'};
+    --font-size-mono:   ${this.fontSize === 'default' ? '13px' : this.fontSize === 'large' ? '14px' : '15px'};
+    --font-size-regular: ${this.fontSize === 'default' ? '14px' : this.fontSize === 'large' ? '15px' : '16px'};
+    --dialog-z-index: 1000;
+
+    /* Theme specific styles */  
+    --bg:${newTheme.bg1};
+    --bg2:${newTheme.bg2};
+    --bg3:${newTheme.bg3};
+    --light-bg:${newTheme.lightBg};
+    --fg:${newTheme.fg1};
+    --fg2:${newTheme.fg2};
+    --fg3:${newTheme.fg3};
+    --light-fg:${newTheme.lightFg};
+    --selection-bg:${newTheme.selectionBg};
+    --selection-fg:${newTheme.selectionFg};
+    --overlay-bg:${newTheme.overlayBg};
+    
+    /* Border Colors */
+    --border-color:${newTheme.borderColor};
+    --light-border-color:${newTheme.lightBorderColor};
+    --code-border-color:${newTheme.codeBorderColor};
+
+    --input-bg:${newTheme.inputBg};
+    --placeholder-color:${newTheme.placeHolder};
+    --hover-color:${newTheme.hoverColor};
+    --red:${newTheme.red};
+    --light-red:${newTheme.lightRed};
+    --pink:${newTheme.pink};
+    --light-pink:${newTheme.lightPink};
+    --green:${newTheme.green};
+    --light-green:${newTheme.lightGreen};
+    --blue:${newTheme.blue};
+    --light-blue:${newTheme.lightBlue};
+    --orange:${newTheme.orange};
+    --light-orange:${newTheme.lightOrange};
+    --yellow:${newTheme.yellow};
+    --light-yellow:${newTheme.lightYellow};
+    --purple:${newTheme.purple};
+    --brown:${newTheme.brown};
+
+    /* Header Color */
+    --header-bg:${newTheme.headerColor};
+    --header-fg:${newTheme.headerColorInvert};
+    --header-color-darker:${newTheme.headerColorDarker};
+    --header-color-border:${newTheme.headerColorBorder};
+
+    /* Nav Colors */  
+    --nav-bg-color:${newTheme.navBgColor};
+    --nav-text-color:${newTheme.navTextColor};
+    --nav-hover-bg-color:${newTheme.navHoverBgColor};
+    --nav-hover-text-color:${newTheme.navHoverTextColor};
+    --nav-accent-color:${newTheme.navAccentColor};
+
+    /* Primary Colors */  
+    --primary-color:${newTheme.primaryColor};
+    --primary-color-invert:${newTheme.primaryColorInvert};
+    --primary-color-trans:${newTheme.primaryColorTrans};
+
+    /*Code Syntax Color*/
+    --code-bg:${newTheme.codeBg};
+    --code-fg:${newTheme.codeFg};
+    --inline-code-fg:${newTheme.inlineCodeFg};
+    --code-property-color:${newTheme.codePropertyColor};
+    --code-keyword-color:${newTheme.codeKeywordColor};
+    --code-operator-color:${newTheme.codeOperatorColor};
+  }
+  </style>`;
 }
 ;// CONCATENATED MODULE: ./src/templates/main-body-template.js
  // Templates
@@ -33571,19 +33894,76 @@ function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = 
 
   if (this.resolvedSpec.specLoadError) {
     if (isMini) {
-      return html` ${this.theme === 'dark' ? setTheme.call(this, 'dark', newTheme) : setTheme.call(this, 'light', newTheme)} <div style="display:flex;align-items:center;border:1px dashed var(--border-color);height:42px;padding:5px;font-size:var(--font-size-small);color:var(--red);font-family:var(--font-mono)"> ${this.resolvedSpec.info.description} </div> `;
+      return $`
+        ${this.theme === 'dark' ? setTheme.call(this, 'dark', newTheme) : setTheme.call(this, 'light', newTheme)}
+        <div style="display:flex; align-items:center; border:1px dashed var(--border-color); height:42px; padding:5px; font-size:var(--font-size-small); color:var(--red); font-family:var(--font-mono)"> ${this.resolvedSpec.info.description} </div>
+      `;
     }
 
-    return html` ${this.theme === 'dark' ? setTheme.call(this, 'dark', newTheme) : setTheme.call(this, 'light', newTheme)} ${headerTemplate.call(this)} <main class="main-content regular-font" part="section-main-content"> <slot></slot> <div style="margin:24px;text-align:center"> <h1 style="color:var(--red)"> ${this.resolvedSpec.info.title} </h1> <div style="font-family:var(--font-mono)"> ${this.resolvedSpec.info.description} </div> </div> </main> `;
+    return $`
+      ${this.theme === 'dark' ? setTheme.call(this, 'dark', newTheme) : setTheme.call(this, 'light', newTheme)}
+      <!-- Header -->
+      ${headerTemplate.call(this)}
+      <main class="main-content regular-font" part="section-main-content">
+        <slot></slot>
+        <div style="margin:24px; text-align: center;">
+          <h1 style="color: var(--red)"> ${this.resolvedSpec.info.title} </h1>
+          <div style="font-family:var(--font-mono)"> ${this.resolvedSpec.info.description} </div>
+        </div>
+      </main>  
+    `;
   }
 
   if (this.resolvedSpec.isSpecLoading) {
-    return html` ${this.theme === 'dark' ? setTheme.call(this, 'dark', newTheme) : setTheme.call(this, 'light', newTheme)} <main class="main-content regular-font" part="section-main-content"> <slot></slot> <div class="main-content-inner--${this.renderStyle}-mode"> <div class="loader"></div> </div> </main> `;
+    return $`
+      ${this.theme === 'dark' ? setTheme.call(this, 'dark', newTheme) : setTheme.call(this, 'light', newTheme)}
+      <main class="main-content regular-font" part="section-main-content">
+        <slot></slot>
+        <div class="main-content-inner--${this.renderStyle}-mode">
+          <div class="loader"></div>
+        </div>
+      </main>  
+    `;
   }
 
-  return html` ${this.theme === 'dark' ? setTheme.call(this, 'dark', newTheme) : setTheme.call(this, 'light', newTheme)} ${this.showHeader === 'false' ? '' : headerTemplate.call(this)} ${this.allowAdvancedSearch === 'false' ? '' : searchByPropertiesModalTemplate.call(this)} <div id="the-main-body" class="body" dir="${this.pageDirection}"> ${(this.renderStyle === 'read' || this.renderStyle === 'focused') && this.showSideNav === 'true' && this.resolvedSpec ? navbarTemplate.call(this) : ''} <main class="main-content regular-font" part="section-main-content"> <slot></slot> <div class="main-content-inner--${this.renderStyle}-mode"> ${this.loading === true ? html`<div class="loader"></div>` : html` ${this.loadFailed === true ? html`<div style="text-align:center;margin:16px"> Unable to load the Spec</div>` : html` <div class="operations-root" @click="${e => {
+  return $`
+    ${this.theme === 'dark' ? setTheme.call(this, 'dark', newTheme) : setTheme.call(this, 'light', newTheme)}
+
+    <!-- Header -->
+    ${this.showHeader === 'false' ? '' : headerTemplate.call(this)}
+    
+    <!-- Advanced Search -->
+    ${this.allowAdvancedSearch === 'false' ? '' : searchByPropertiesModalTemplate.call(this)}
+
+    <div id='the-main-body' class="body" dir= ${this.pageDirection}>
+      <!-- Side Nav -->
+      ${(this.renderStyle === 'read' || this.renderStyle === 'focused') && this.showSideNav === 'true' && this.resolvedSpec ? navbarTemplate.call(this) : ''}
+
+      <!-- Main Content -->
+      <main class="main-content regular-font" part="section-main-content">
+        <slot></slot>
+        <div class="main-content-inner--${this.renderStyle}-mode">
+          ${this.loading === true ? $`<div class="loader"></div>` : $`
+              ${this.loadFailed === true ? $`<div style="text-align: center;margin: 16px;"> Unable to load the Spec</div>` : $`
+                  <div class="operations-root" @click="${e => {
     this.handleHref(e);
-  }}"> ${this.renderStyle === 'focused' ? html`${focusedEndpointTemplate.call(this)}` : html` ${this.showInfo === 'true' ? overviewTemplate.call(this) : ''} ${this.allowServerSelection === 'true' ? serverTemplate.call(this) : ''} ${this.allowAuthentication === 'true' ? securitySchemeTemplate.call(this) : ''} <div id="operations-top" class="observe-me"> <slot name="operations-top"></slot> </div> ${this.renderStyle === 'read' ? expandedEndpointTemplate.call(this) : endpointTemplate.call(this, showExpandCollapse, showTags, pathsExpanded)} `} </div> `}`} </div> <slot name="footer"></slot> </main> </div> `;
+  }}">
+                  ${this.renderStyle === 'focused' ? $`${focusedEndpointTemplate.call(this)}` : $`
+                      ${this.showInfo === 'true' ? overviewTemplate.call(this) : ''}
+                      ${this.allowServerSelection === 'true' ? serverTemplate.call(this) : ''}
+                      ${this.allowAuthentication === 'true' ? securitySchemeTemplate.call(this) : ''}
+                      <div id="operations-top" class="observe-me">
+                        <slot name="operations-top"></slot>
+                      </div>  
+                      ${this.renderStyle === 'read' ? expandedEndpointTemplate.call(this) : endpointTemplate.call(this, showExpandCollapse, showTags, pathsExpanded)}
+                    `}
+                  </div>
+                `}`}
+        </div>
+        <slot name="footer"></slot>
+      </main>
+    </div>  
+  `;
 }
 /* eslint-enable indent */
 ;// CONCATENATED MODULE: ./src/rapidoc.js
@@ -33616,7 +33996,7 @@ function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = 
 
 
 
-class RapiDoc extends LitElement {
+class RapiDoc extends lit_element_s {
   constructor() {
     super();
     const intersectionObserverOptions = {
@@ -33905,7 +34285,227 @@ class RapiDoc extends LitElement {
   }
 
   static get styles() {
-    return [font_styles, input_styles, flex_styles, table_styles, endpoint_styles, prism_styles, tab_styles, nav_styles, info_styles, css`:host{display:flex;flex-direction:column;min-width:360px;width:100%;height:100%;margin:0;padding:0;overflow:hidden;letter-spacing:normal;color:var(--fg);background-color:var(--bg);font-family:var(--font-regular)}.body{display:flex;height:100%;width:100%;overflow:hidden}.main-content{margin:0;padding:0;display:block;flex:1;height:100%;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--border-color) transparent}.main-content-inner--view-mode{padding:0 8px}.main-content::-webkit-scrollbar{width:8px;height:8px}.main-content::-webkit-scrollbar-track{background:0 0}.main-content::-webkit-scrollbar-thumb{background-color:var(--border-color)}.section-gap.section-tag{border-bottom:1px solid var(--border-color)}.section-gap,.section-gap--focused-mode,.section-gap--read-mode{padding:0 4px}.section-tag-header{position:relative;cursor:n-resize;padding:12px 0}.collapsed .section-tag-header:hover{cursor:s-resize}.section-tag-header:hover{background-image:linear-gradient(to right,rgba(0,0,0,0),var(--border-color),rgba(0,0,0,0))}.section-tag-header:hover::after{position:absolute;margin-left:-24px;font-size:20px;top:calc(50% - 14px);color:var(--primary-color);content:'⬆'}.collapsed .section-tag-header::after{position:absolute;margin-left:-24px;font-size:20px;top:calc(50% - 14px);color:var(--border-color);content:'⬇'}.collapsed .section-tag-header:hover::after{color:var(--primary-color)}.collapsed .section-tag-body{display:none}.logo{height:36px;width:36px;margin-left:5px}.only-large-screen,.only-large-screen-flex{display:none}.tag.title{text-transform:uppercase}.header{background-color:var(--header-bg);color:var(--header-fg);width:100%}.header-title{font-size:calc(var(--font-size-regular) + 8px);padding:0 8px}input.header-input{background:var(--header-color-darker);color:var(--header-fg);border:1px solid var(--header-color-border);flex:1;padding-right:24px;border-radius:3px}input.header-input::placeholder{opacity:.4}.loader{margin:16px auto 16px auto;border:4px solid var(--bg3);border-radius:50%;border-top:4px solid var(--primary-color);width:36px;height:36px;animation:spin 2s linear infinite}.expanded-endpoint-body{position:relative;padding:6px 0}.expanded-endpoint-body.deprecated{filter:opacity(.6)}.divider{border-top:2px solid var(--border-color);margin:24px 0;width:100%}.tooltip{cursor:pointer;border:1px solid var(--border-color);border-left-width:4px;margin-left:2px}.tooltip a{color:var(--fg2);text-decoration:none}.tooltip-text{color:var(--fg2);max-width:400px;position:absolute;z-index:1;background-color:var(--bg2);visibility:hidden;overflow-wrap:break-word}.tooltip:hover{color:var(--primary-color);border-color:var(--primary-color)}.tooltip:hover a:hover{color:var(--primary-color)}.tooltip:hover .tooltip-text{visibility:visible}@keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}@media only screen and (min-width:768px){.nav-bar{width:260px;display:flex}.only-large-screen{display:block}.only-large-screen-flex{display:flex}.section-gap{padding:0 0 0 24px}.section-gap--focused-mode{padding:24px 8px}.section-gap--read-mode{padding:24px 8px}.endpoint-body{position:relative;padding:36px 0 48px 0}}@media only screen and (min-width:1024px){.nav-bar{width:${unsafeCSS(this.fontSize === 'default' ? '300px' : this.fontSize === 'large' ? '315px' : '330px')};display:flex}.section-gap--focused-mode{padding:12px 80px 12px 80px}.section-gap--read-mode{padding:24px 80px 12px 80px}}`, custom_styles];
+    return [font_styles, input_styles, flex_styles, table_styles, endpoint_styles, prism_styles, tab_styles, nav_styles, info_styles, r`
+      :host {
+        display:flex;
+        flex-direction: column;
+        min-width:360px;
+        width:100%;
+        height:100%;
+        margin:0;
+        padding:0;
+        overflow: hidden;
+        letter-spacing:normal;
+        color:var(--fg);
+        background-color:var(--bg);
+        font-family:var(--font-regular);
+      }
+      .body {
+        display:flex;
+        height:100%;
+        width:100%;
+        overflow:hidden;
+      }
+
+      .main-content { 
+        margin:0;
+        padding: 0; 
+        display:block;
+        flex:1;
+        height:100%;
+        overflow-y: auto;
+        overflow-x: hidden;
+        scrollbar-width: thin;
+        scrollbar-color: var(--border-color) transparent;
+      }
+
+      .main-content-inner--view-mode {
+        padding: 0 8px;
+      }
+      .main-content::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      .main-content::-webkit-scrollbar-track {
+        background:transparent;
+      }
+      .main-content::-webkit-scrollbar-thumb {
+        background-color: var(--border-color);
+      }
+
+      .section-gap.section-tag {
+        border-bottom:1px solid var(--border-color);
+      }
+      .section-gap,
+      .section-gap--focused-mode,
+      .section-gap--read-mode { 
+        padding: 0px 4px; 
+      }
+      .section-tag-header {
+        position:relative;
+        cursor: n-resize;
+        padding: 12px 0;
+      }
+      .collapsed .section-tag-header:hover{
+        cursor: s-resize;
+      }
+
+      .section-tag-header:hover{
+        background-image: linear-gradient(to right, rgba(0,0,0,0), var(--border-color), rgba(0,0,0,0));
+      }
+
+      .section-tag-header:hover::after {
+        position:absolute;
+        margin-left:-24px;
+        font-size:20px;
+        top: calc(50% - 14px);
+        color:var(--primary-color);
+        content: '⬆'; 
+      }
+
+      .collapsed .section-tag-header::after {
+        position:absolute;
+        margin-left:-24px;
+        font-size:20px;
+        top: calc(50% - 14px);
+        color: var(--border-color);
+        content: '⬇'; 
+      }
+      .collapsed .section-tag-header:hover::after {
+        color:var(--primary-color);
+      }
+
+      .collapsed .section-tag-body {
+        display:none;
+      }
+
+      .logo {
+        height:36px;
+        width:36px;
+        margin-left:5px; 
+      }
+      .only-large-screen-flex,
+      .only-large-screen{
+        display:none;
+      }
+      .tag.title {
+        text-transform: uppercase;
+      }
+      .header {
+        background-color:var(--header-bg);
+        color:var(--header-fg);
+        width:100%;
+      }
+      .header-title {
+        font-size:calc(var(--font-size-regular) + 8px); 
+        padding:0 8px;
+      }
+      input.header-input{
+        background:var(--header-color-darker);
+        color:var(--header-fg);
+        border:1px solid var(--header-color-border);
+        flex:1; 
+        padding-right:24px;
+        border-radius:3px;
+      }
+      input.header-input::placeholder {
+        opacity:0.4;
+      }
+      .loader {
+        margin: 16px auto 16px auto; 
+        border: 4px solid var(--bg3);
+        border-radius: 50%;
+        border-top: 4px solid var(--primary-color);
+        width: 36px;
+        height: 36px;
+        animation: spin 2s linear infinite;
+      }
+      .expanded-endpoint-body{ 
+        position: relative;
+        padding: 6px 0px; 
+      }
+      .expanded-endpoint-body.deprecated{ filter:opacity(0.6); }
+      .divider { 
+        border-top: 2px solid var(--border-color);
+        margin: 24px 0;
+        width:100%;
+      }
+
+      .tooltip {
+        cursor:pointer;
+        border: 1px solid var(--border-color);
+        border-left-width: 4px;
+        margin-left:2px;
+      }
+      .tooltip a {
+        color: var(--fg2);
+        text-decoration: none;
+      }
+      .tooltip-text {
+        color: var(--fg2);
+        max-width: 400px;
+        position: absolute;
+        z-index:1;
+        background-color: var(--bg2);
+        visibility: hidden;
+
+        overflow-wrap: break-word;
+      }
+      .tooltip:hover {
+        color: var(--primary-color);
+        border-color: var(--primary-color);
+      }
+      .tooltip:hover a:hover {
+        color: var(--primary-color);
+      }
+
+      .tooltip:hover .tooltip-text {
+        visibility: visible;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      @media only screen and (min-width: 768px) {
+        .nav-bar {
+          width: 260px;
+          display:flex;
+        }
+        .only-large-screen{
+          display:block;
+        }
+        .only-large-screen-flex{
+          display:flex;
+        }
+        .section-gap { 
+          padding: 0 0 0 24px; 
+        }
+        .section-gap--focused-mode {
+          padding: 24px 8px; 
+        }
+        .section-gap--read-mode { 
+          padding: 24px 8px; 
+        }
+        .endpoint-body {
+          position: relative;
+          padding:36px 0 48px 0;
+        }
+      }
+
+      @media only screen and (min-width: 1024px) {
+        .nav-bar {
+          width: ${o(this.fontSize === 'default' ? '300px' : this.fontSize === 'large' ? '315px' : '330px')};
+          display:flex;
+        }
+        .section-gap--focused-mode { 
+          padding: 12px 80px 12px 80px; 
+        }
+        .section-gap--read-mode { 
+          padding: 24px 80px 12px 80px; 
+        }
+      }`, custom_styles];
   } // Startup
 
 
@@ -34695,7 +35295,7 @@ customElements.define('rapi-doc', RapiDoc);
 
 
 
-class RapiDocMini extends LitElement {
+class RapiDocMini extends lit_element_s {
   constructor() {
     super();
     this.isMini = true;
@@ -34841,7 +35441,30 @@ class RapiDocMini extends LitElement {
   }
 
   static get styles() {
-    return [font_styles, input_styles, flex_styles, table_styles, endpoint_styles, prism_styles, tab_styles, nav_styles, info_styles, css`:host{display:flex;flex-direction:column;min-width:360px;width:100%;height:100%;margin:0;padding:0;overflow:hidden;letter-spacing:normal;color:var(--fg);background-color:var(--bg);font-family:var(--font-regular)}@media only screen and (min-width:768px){.only-large-screen{display:block}.only-large-screen-flex{display:flex}}`];
+    return [font_styles, input_styles, flex_styles, table_styles, endpoint_styles, prism_styles, tab_styles, nav_styles, info_styles, r`
+      :host {
+        display:flex;
+        flex-direction: column;
+        min-width:360px;
+        width:100%;
+        height:100%;
+        margin:0;
+        padding:0;
+        overflow: hidden;
+        letter-spacing:normal;
+        color:var(--fg);
+        background-color:var(--bg);
+        font-family:var(--font-regular);
+      }
+
+      @media only screen and (min-width: 768px) {
+        .only-large-screen{
+          display:block;
+        }
+        .only-large-screen-flex{
+          display:flex;
+        }
+      }`];
   } // Startup
 
 
@@ -35189,6 +35812,7 @@ class OauthReceiver extends HTMLElement {
 customElements.define('oauth-receiver', OauthReceiver);
 ;// CONCATENATED MODULE: ./src/templates/json-schema-viewer-template.js
 
+ // eslint-disable-line import/extensions
 
  // Templates
 
@@ -35203,20 +35827,81 @@ customElements.define('oauth-receiver', OauthReceiver);
 // Json Schema Nav Template
 
 function jsonSchemaNavTemplate() {
-  return html` <nav class="nav-bar" part="section-navbar"> <slot name="nav-logo" class="logo"></slot> <div style="display:flex;line-height:22px;padding:8px"> <input id="nav-bar-search" part="textbox textbox-nav-filter" style="width:100%;height:26px;padding-right:20px;color:var(--nav-hover-text-color);border-color:var(--nav-accent-color);background-color:var(--nav-hover-bg-color)" type="text" placeholder="Filter" @change="${this.onSearchChange}" spellcheck="false"> <div style="margin:6px 5px 0 -24px;font-size:var(--font-size-regular);cursor:pointer">&#x21a9;</div> </div> <nav style="flex:1" class="nav-scroll" part="section-navbar-scroll"> ${this.resolvedSpec.schemaAndExamples.map(v => html` <div class="nav-bar-path" data-content-id="${v.elementId}" id="link-${v.elementId}" @click="${e => {
+  return $`
+  <nav class='nav-bar' part="section-navbar">
+    <slot name="nav-logo" class="logo"></slot>
+    <div style="display:flex;line-height:22px; padding:8px">
+      <input id="nav-bar-search" 
+        part = "textbox textbox-nav-filter"
+        style = "width:100%; height: 26px; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" 
+        type = "text"
+        placeholder = "Filter" 
+        @change = "${this.onSearchChange}"  
+        spellcheck = "false" 
+      >
+      <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div>
+    </div>
+    <nav style="flex:1" class='nav-scroll' part="section-navbar-scroll">
+      ${this.resolvedSpec.schemaAndExamples.map(v => $`
+        <div class='nav-bar-path' data-content-id='${v.elementId}' id='link-${v.elementId}'
+          @click = '${e => {
     this.scrollToEventTarget(e, false);
-  }}"> ${v.name} </div>`)} </nav> </nav> `;
+  }}'
+        > 
+          ${v.name}
+        </div>`)}
+    </nav>  
+  </nav>
+  `;
 } // Json Schema Body Template
 
 
 function jsonSchemaBodyTemplate() {
-  return html` ${this.showInfo === 'true' ? overviewTemplate.call(this) : ''} <div style="font-size:var(--font-size-regular)"> ${this.resolvedSpec.schemaAndExamples.map(jSchemaBody => {
+  return $`
+    ${this.showInfo === 'true' ? overviewTemplate.call(this) : ''}
+    <div style="font-size:var(--font-size-regular);">
+    ${this.resolvedSpec.schemaAndExamples.map(jSchemaBody => {
     var _examplesObj$;
 
     const examplesObj = generateExample(jSchemaBody.schema, 'json', jSchemaBody.examples, jSchemaBody.example, true, false, 'json', true);
     jSchemaBody.selectedExample = (_examplesObj$ = examplesObj[0]) === null || _examplesObj$ === void 0 ? void 0 : _examplesObj$.exampleId;
-    return html` <section id="${jSchemaBody.elementId}" class="json-schema-and-example regular-font" style="display:flex;flex-direction:column;border:1px solid var(--border-color);margin-bottom:32px;border-top:5px solid var(--border-color)"> <div style="padding:16px;border-bottom:1px solid var(--border-color)"> <div style="font-size:var(--font-size-small);font-weight:700">${jSchemaBody.name}</div> <span class="json-schema-description m-markdown">${unsafeHTML(marked(jSchemaBody.description || ''))}</span> </div> <div style="display:flex;flex-direction:row;gap:16px"> <div class="json-schema-def" style="flex:1;padding:16px 0 16px 16px"> <schema-tree .data="${schemaInObjectNotation(jSchemaBody.schema, {})}" schema-expand-level="${this.schemaExpandLevel}" schema-description-expanded="${this.schemaDescriptionExpanded}" allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}" , schema-hide-read-only="false" schema-hide-write-only="false"> </schema-tree> </div> <div class="json-schema-example-panel" style="width:400px;background-color:var(--input-bg);padding:16px 0 16px 16px;border-left:1px dashed var(--border-color)"> ${examplesObj.length > 1 ? html`<select style="min-width:100px;max-width:100%" @change="${e => this.onSelectExample(e, jSchemaBody)}"> ${examplesObj.map(v => html` <option value="${v.exampleId}" ?selected="${v.exampleId === jSchemaBody.selectedExample}"> ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary} </option>`)} </select>` : html`<div style="font-size:var(--font-size-small);font-weight:700;margin:5px 0"> ${examplesObj[0].exampleSummary}</div>`} ${examplesObj.map(v => html` <json-tree .data="${v.exampleValue}" data-example="${v.exampleId}" class="example" style="margin-top:16px;display:${v.exampleId === jSchemaBody.selectedExample ? 'flex' : 'none'}"></json-tree>`)} </div> </div> </section>`;
-  })} </div> `;
+    return $`
+        <section id='${jSchemaBody.elementId}' class='json-schema-and-example regular-font' style="display:flex; flex-direction: column; border:1px solid var(--border-color); margin-bottom:32px; border-top: 5px solid var(--border-color)">
+          <div style="padding:16px; border-bottom: 1px solid var(--border-color)">
+            <div style="font-size:var(--font-size-small); font-weight:bold">${jSchemaBody.name}</div>
+            <span class="json-schema-description m-markdown ">${unsafe_html_o(marked(jSchemaBody.description || ''))}</span>
+          </div>  
+          <div style="display:flex; flex-direction: row; gap:16px;">
+            <div class="json-schema-def" style="flex:1; padding:16px 0 16px 16px; ">
+              <schema-tree
+                .data = "${schemaInObjectNotation(jSchemaBody.schema, {})}"
+                schema-expand-level = "${this.schemaExpandLevel}"
+                schema-description-expanded = "${this.schemaDescriptionExpanded}"
+                allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+                schema-hide-read-only = "false"
+                schema-hide-write-only = "false"
+              > </schema-tree>
+            </div>
+            <div class="json-schema-example-panel" style="width:400px; background-color: var(--input-bg); padding:16px 0 16px 16px; border-left: 1px dashed var(--border-color);">
+              ${examplesObj.length > 1 ? $`<select style="min-width:100px; max-width:100%" @change='${e => this.onSelectExample(e, jSchemaBody)}'>
+                    ${examplesObj.map(v => $`
+                      <option value="${v.exampleId}" ?selected=${v.exampleId === jSchemaBody.selectedExample}> 
+                        ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary}
+                      </option>`)}
+                  </select>` : $`<div style="font-size: var(--font-size-small);font-weight:700; margin:5px 0"> ${examplesObj[0].exampleSummary}</div>`}
+              ${examplesObj.map(v => $`
+                <json-tree 
+                  .data = "${v.exampleValue}"
+                  data-example = "${v.exampleId}"
+                  class = "example"
+                  style = "margin-top:16px; display: ${v.exampleId === jSchemaBody.selectedExample ? 'flex' : 'none'}"
+                ></json-tree>`)}
+            </div>
+          </div>
+        </section>`;
+  })}
+    </div>
+  `;
 }
 /* eslint-enable indent */
 // Json Schema Root Template
@@ -35243,19 +35928,67 @@ function jsonSchemaViewerTemplate(isMini = false) {
 
   if (this.resolvedSpec.specLoadError) {
     if (isMini) {
-      return html` ${this.theme === 'dark' ? setTheme.call(this, 'dark', newTheme) : setTheme.call(this, 'light', newTheme)} <div style="display:flex;align-items:center;border:1px dashed var(--border-color);height:42px;padding:5px;font-size:var(--font-size-small);color:var(--red);font-family:var(--font-mono)"> ${this.resolvedSpec.info.description} </div> `;
+      return $`
+        ${this.theme === 'dark' ? setTheme.call(this, 'dark', newTheme) : setTheme.call(this, 'light', newTheme)}
+        <div style="display:flex; align-items:center; border:1px dashed var(--border-color); height:42px; padding:5px; font-size:var(--font-size-small); color:var(--red); font-family:var(--font-mono)"> ${this.resolvedSpec.info.description} </div>
+      `;
     }
 
-    return html` ${this.theme === 'dark' ? setTheme.call(this, 'dark', newTheme) : setTheme.call(this, 'light', newTheme)} ${headerTemplate.call(this)} <h1> Header </h1> <main class="main-content regular-font" part="section-main-content"> <slot></slot> <div style="margin:24px;text-align:center"> <h1 style="color:var(--red)"> ${this.resolvedSpec.info.title} </h1> <div style="font-family:var(--font-mono)"> ${this.resolvedSpec.info.description} </div> </div> </main> `;
+    return $`
+      ${this.theme === 'dark' ? setTheme.call(this, 'dark', newTheme) : setTheme.call(this, 'light', newTheme)}
+      <!-- Header -->
+      ${headerTemplate.call(this)}
+      <h1> Header </h1>
+      <main class="main-content regular-font" part="section-main-content">
+        <slot></slot>
+        <div style="margin:24px; text-align: center;">
+          <h1 style="color: var(--red)"> ${this.resolvedSpec.info.title} </h1>
+          <div style="font-family:var(--font-mono)"> ${this.resolvedSpec.info.description} </div>
+        </div>
+      </main>  
+    `;
   }
 
   if (this.resolvedSpec.isSpecLoading) {
-    return html` ${this.theme === 'dark' ? setTheme.call(this, 'dark', newTheme) : setTheme.call(this, 'light', newTheme)} <main class="main-content regular-font" part="section-main-content"> <slot></slot> <div class="main-content-inner--${this.renderStyle}-mode"> <div class="loader"></div> </div> </main> `;
+    return $`
+      ${this.theme === 'dark' ? setTheme.call(this, 'dark', newTheme) : setTheme.call(this, 'light', newTheme)}
+      <main class="main-content regular-font" part="section-main-content">
+        <slot></slot>
+        <div class="main-content-inner--${this.renderStyle}-mode">
+          <div class="loader"></div>
+        </div>
+      </main>  
+    `;
   }
 
-  return html` ${this.theme === 'dark' ? setTheme.call(this, 'dark', newTheme) : setTheme.call(this, 'light', newTheme)} ${this.showHeader === 'false' ? '' : headerTemplate.call(this)} <div id="the-main-body" class="body" dir="${this.pageDirection}"> ${jsonSchemaNavTemplate.call(this)} <main class="main-content regular-font" part="section-main-content"> <slot></slot> <div class="main-content-inner--${this.renderStyle}-mode"> ${this.loading === true ? html`<div class="loader"></div>` : html` ${this.loadFailed === true ? html`<div style="text-align:center;margin:16px"> Unable to load the Spec</div>` : html` <div class="operations-root" @click="${e => {
+  return $`
+    ${this.theme === 'dark' ? setTheme.call(this, 'dark', newTheme) : setTheme.call(this, 'light', newTheme)}
+
+    <!-- Header -->
+    ${this.showHeader === 'false' ? '' : headerTemplate.call(this)}
+    
+    <div id='the-main-body' class="body" dir= ${this.pageDirection}>
+
+      <!-- Side Nav -->
+      ${jsonSchemaNavTemplate.call(this)}
+
+      <!-- Main Content -->
+      <main class="main-content regular-font" part="section-main-content">
+        <slot></slot>
+        <div class="main-content-inner--${this.renderStyle}-mode">
+          ${this.loading === true ? $`<div class="loader"></div>` : $`
+              ${this.loadFailed === true ? $`<div style="text-align: center;margin: 16px;"> Unable to load the Spec</div>` : $`
+                  <div class="operations-root" @click="${e => {
     this.handleHref(e);
-  }}"> ${jsonSchemaBodyTemplate.call(this)} </div> `}`} </div> <slot name="footer"></slot> </main> </div> `;
+  }}">
+                    ${jsonSchemaBodyTemplate.call(this)}
+                  </div>
+                `}`}
+        </div>
+        <slot name="footer"></slot>
+      </main>
+    </div>  
+  `;
 }
 /* eslint-enable indent */
 ;// CONCATENATED MODULE: ./src/json-schema-viewer.js
@@ -35283,7 +36016,7 @@ function jsonSchemaViewerTemplate(isMini = false) {
 
 
 
-class JsonSchemaViewer extends LitElement {
+class JsonSchemaViewer extends lit_element_s {
   constructor() {
     super();
     this.isMini = false;
@@ -35389,7 +36122,93 @@ class JsonSchemaViewer extends LitElement {
   }
 
   static get styles() {
-    return [font_styles, input_styles, flex_styles, table_styles, endpoint_styles, prism_styles, tab_styles, nav_styles, info_styles, css`:host{display:flex;flex-direction:column;min-width:360px;width:100%;height:100%;margin:0;padding:0;overflow:hidden;letter-spacing:normal;color:var(--fg);background-color:var(--bg);font-family:var(--font-regular)}.body{display:flex;height:100%;width:100%;overflow:hidden}.nav-bar{width:230px;display:flex}.main-content{margin:0;padding:16px;display:block;flex:1;height:100%;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--border-color) transparent}.main-content-inner--view-mode{padding:0 8px}.main-content::-webkit-scrollbar{width:8px;height:8px}.main-content::-webkit-scrollbar-track{background:0 0}.main-content::-webkit-scrollbar-thumb{background-color:var(--border-color)}.header{background-color:var(--header-bg);color:var(--header-fg);width:100%}.header-title{font-size:calc(var(--font-size-regular) + 8px);padding:0 8px}input.header-input{background:var(--header-color-darker);color:var(--header-fg);border:1px solid var(--header-color-border);flex:1;padding-right:24px;border-radius:3px}input.header-input::placeholder{opacity:.4}.loader{margin:16px auto 16px auto;border:4px solid var(--bg3);border-radius:50%;border-top:4px solid var(--primary-color);width:36px;height:36px;animation:spin 2s linear infinite}@media only screen and (min-width:768px){.only-large-screen{display:block}.only-large-screen-flex{display:flex}}`];
+    return [font_styles, input_styles, flex_styles, table_styles, endpoint_styles, prism_styles, tab_styles, nav_styles, info_styles, r`
+      :host {
+        display:flex;
+        flex-direction: column;
+        min-width:360px;
+        width:100%;
+        height:100%;
+        margin:0;
+        padding:0;
+        overflow: hidden;
+        letter-spacing:normal;
+        color:var(--fg);
+        background-color:var(--bg);
+        font-family:var(--font-regular);
+      }
+      .body {
+        display:flex;
+        height:100%;
+        width:100%;
+        overflow:hidden;
+      }
+      .nav-bar {
+        width: 230px;
+        display:flex;
+      }
+
+      .main-content { 
+        margin:0;
+        padding: 16px; 
+        display:block;
+        flex:1;
+        height:100%;
+        overflow-y: auto;
+        overflow-x: hidden;
+        scrollbar-width: thin;
+        scrollbar-color: var(--border-color) transparent;
+      }
+      .main-content-inner--view-mode {
+        padding: 0 8px;
+      }
+      .main-content::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      .main-content::-webkit-scrollbar-track {
+        background:transparent;
+      }
+      .main-content::-webkit-scrollbar-thumb {
+        background-color: var(--border-color);
+      }
+      .header {
+        background-color:var(--header-bg);
+        color:var(--header-fg);
+        width:100%;
+      }
+      .header-title {
+        font-size:calc(var(--font-size-regular) + 8px); 
+        padding:0 8px;
+      }
+      input.header-input{
+        background:var(--header-color-darker);
+        color:var(--header-fg);
+        border:1px solid var(--header-color-border);
+        flex:1; 
+        padding-right:24px;
+        border-radius:3px;
+      }
+      input.header-input::placeholder {
+        opacity:0.4;
+      }
+      .loader {
+        margin: 16px auto 16px auto; 
+        border: 4px solid var(--bg3);
+        border-radius: 50%;
+        border-top: 4px solid var(--primary-color);
+        width: 36px;
+        height: 36px;
+        animation: spin 2s linear infinite;
+      }
+      @media only screen and (min-width: 768px) {
+        .only-large-screen{
+          display:block;
+        }
+        .only-large-screen-flex{
+          display:flex;
+        }
+      }`];
   } // Startup
 
 
@@ -41170,7 +41989,7 @@ Prism.languages.js = Prism.languages.javascript;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("f6622dfe93480ff10f61")
+/******/ 		__webpack_require__.h = () => ("7e0a229dfb3d30e8a302")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
@@ -42138,7 +42957,7 @@ Prism.languages.js = Prism.languages.javascript;
 /******/ 	// module cache are used so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	var __webpack_exports__ = __webpack_require__(310);
+/******/ 	var __webpack_exports__ = __webpack_require__(448);
 /******/ 	
 /******/ })()
 ;

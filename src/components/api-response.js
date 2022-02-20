@@ -1,6 +1,6 @@
-import { LitElement, html, css } from 'lit-element';
+import { LitElement, html, css } from 'lit';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
-import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import { schemaInObjectNotation, generateExample } from '~/utils/schema-utils';
 import FontStyles from '~/styles/font-styles';
 import FlexStyles from '~/styles/flex-styles';

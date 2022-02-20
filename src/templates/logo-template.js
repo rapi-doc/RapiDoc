@@ -1,4 +1,4 @@
-import { html } from 'lit-element';
+import { html } from 'lit';
 
 /* eslint-disable indent */
 export default function logoTemplate(style) {

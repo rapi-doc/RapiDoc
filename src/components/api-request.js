@@ -1,10 +1,9 @@
-import { LitElement, html, css } from 'lit-element';
+import { LitElement, html, css } from 'lit';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
+import { guard } from 'lit/directives/guard.js'; // eslint-disable-line import/extensions
+import { live } from 'lit/directives/live.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
 import Prism from 'prismjs';
-
-import { unsafeHTML } from 'lit-html/directives/unsafe-html';
-import { guard } from 'lit-html/directives/guard';
-import { live } from 'lit-html/directives/live';
 import TableStyles from '~/styles/table-styles';
 import FlexStyles from '~/styles/flex-styles';
 import InputStyles from '~/styles/input-styles';

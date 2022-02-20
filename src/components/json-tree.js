@@ -1,4 +1,4 @@
-import { LitElement, html, css } from 'lit-element';
+import { LitElement, html, css } from 'lit';
 import { copyToClipboard } from '~/utils/common-utils';
 import FontStyles from '~/styles/font-styles';
 import BorderStyles from '~/styles/border-styles';

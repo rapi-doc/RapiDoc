@@ -1,4 +1,4 @@
-import { html } from 'lit-element';
+import { html } from 'lit';
 
 // Templates
 import expandedEndpointTemplate from '~/templates/expanded-endpoint-template';

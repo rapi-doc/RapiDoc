@@ -1,6 +1,6 @@
-import { html } from 'lit-element';
+import { html } from 'lit';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
-import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 
 // Templates
 import overviewTemplate from '~/templates/overview-template';

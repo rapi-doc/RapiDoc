@@ -1,6 +1,6 @@
-import { html } from 'lit-element';
+import { html } from 'lit';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
-import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 
 export function setApiServer(serverUrl) {
   const serverObj = this.resolvedSpec?.servers.find((s) => s.url === serverUrl);

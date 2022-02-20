@@ -1,6 +1,6 @@
 /* eslint-disable arrow-body-style */
-import { html } from 'lit-element';
-import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import { html } from 'lit';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
 
 const codeVerifier = '731DB1C3F7EA533B85E29492D26AA-1234567890-1234567890';
