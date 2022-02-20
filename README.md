@@ -61,4 +61,15 @@ npm run build
 npm run serve
 ```
 
-## Contribution
+## Roadmap
+- Upgrade to use `lit 2`
+- Pre Rendering / Server Side Rendering (SSR) of RapiDoc
+- Improve PDF generation of OpenAPI spec Using RapiPDF
+- Create a Command Line interface (CLI) to make it automation friendly
+- Add localization support
+- Follow Web Content Accessibility Guidelines (WCAG 2)
+- Improve Homepage, Documentation and Examples
+- Create groundwork for automated testing
+- Create a live playground (Something like swagger editor)
+- Create a short animation/video to show how RapiDoc/RapiPDF works
+
