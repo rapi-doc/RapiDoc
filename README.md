@@ -62,9 +62,12 @@ npm run serve
 ```
 
 ## Roadmap 2022
+- Upgrade to use `lit 2`
 - Pre Rendering RapiDoc
 - Improve PDF generation of OpenAPI spec Using RapiPDF
 - Create a Command Line interface (CLI) to make it automation friendly
-- Improve Documentation, Test Cases and Examples
+- Improve Documentation and Examples
+- Create groundwork for automated testing
 - Create a live playground (Something like swagger editor)
+- Create a short animation/video to show how RapiDoc/RapiPDF works
 
