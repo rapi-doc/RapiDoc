@@ -1111,7 +1111,7 @@ export default class ApiRequest extends LitElement {
         const queryParam = new URLSearchParams();
         try {
           let queryParamObj = {};
-          const { paramSerializeStyle, paramSerializeExplode } = el.dataset.paramSerializeStyle;
+          const { paramSerializeStyle, paramSerializeExplode } = el.dataset;
           queryParamObj = Object.assign(queryParamObj, JSON.parse(el.value.replace(/\s+/g, ' ')));
           if (el.dataset.paramAllowReserved === 'true') {
             queryParamsWithReservedCharsAllowed.push(el.dataset.pname);

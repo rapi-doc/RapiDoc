@@ -253,7 +253,7 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
 /* eslint-disable indent */
 
 function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, authFlow, defaultScopes = []) {
-  let { authorizationUrl, tokenUrl, refreshUrl } = authFlow.authorizationUrl;
+  let { authorizationUrl, tokenUrl, refreshUrl } = authFlow;
   const isUrlAbsolute = (url) => (url.indexOf('://') > 0 || url.indexOf('//') === 0);
   if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
     refreshUrl = `${this.selectedServer.computedUrl}/${refreshUrl.replace(/^\//, '')}`;
