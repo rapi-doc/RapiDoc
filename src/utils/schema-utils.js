@@ -32,7 +32,7 @@ export function getTypeInfo(schema) {
     readOrWriteOnly: (schema.readOnly ? '🆁' : schema.writeOnly ? '🆆' : ''),
     deprecated: schema.deprecated ? '❌' : '',
     examples: schema.examples || schema.example,
-    default: schema.default || '',
+    default: schema.default != null ? `${schema.default}` : '',
     description: schema.description || '',
     constrain: '',
     allowedValues: '',
