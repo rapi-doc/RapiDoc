@@ -57,11 +57,11 @@ export function getTypeInfo(schema) {
     info.allowedValues = Array.isArray(schema.items?.enum) ? schema.items.enum.join('┃') : '';
   }
   if (dataType.match(/integer|number/g)) {
-    if (schema.minimum !== undefined || schema.exclusiveMinimum !== undefined) {
-      constrain += schema.minimum !== undefined ? `Min ${schema.minimum}` : `More than ${schema.exclusiveMinimum}`;
+    if (schema.minimum !== undefined) {
+      constrain += `${schema.exclusiveMinimum ? 'More than' : 'Min'} ${schema.minimum}`;
     }
-    if (schema.maximum !== undefined || schema.exclusiveMaximum !== undefined) {
-      constrain += schema.maximum !== undefined ? `${constrain ? '┃' : ''}Max ${schema.maximum}` : `${constrain ? '┃' : ''}Less than ${schema.exclusiveMaximum}`;
+    if (schema.maximum !== undefined) {
+      constrain += `${constrain ? '┃' : ''} ${schema.exclusiveMaximum ? 'Less than' : 'Max'} ${schema.maximum}`;
     }
     if (schema.multipleOf !== undefined) {
       constrain += `${constrain ? '┃' : ''} multiple of ${schema.multipleOf}`;

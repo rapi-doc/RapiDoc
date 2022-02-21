@@ -61,7 +61,8 @@ components:
           description: Age of Person
           type: integer
           minimum: 21
-          exclusiveMaximum: 70
+          maximum: 70
+          exclusiveMaximum: true
           multipleOf: 5
         photoUrls:
           description: One URL or Array or URLs or set to false
