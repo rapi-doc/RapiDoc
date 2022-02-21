@@ -192,11 +192,11 @@ export default class ApiRequest extends LitElement {
         ${this.callback === 'true' ? 'CALLBACK REQUEST' : 'REQUEST'}
       </div>
       <div>
-        ${guard([this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('path'))}
-        ${guard([this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('query'))}
+        ${guard([this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('path'))}
+        ${guard([this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('query'))}
         ${this.requestBodyTemplate()}
-        ${guard([this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('header'))}
-        ${guard([this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('cookie'))}
+        ${guard([this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('header'))}
+        ${guard([this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('cookie'))}
         ${this.allowTry === 'false' ? '' : html`${this.apiCallTemplate()}`}
       </div>  
     </div>
@@ -413,9 +413,9 @@ export default class ApiRequest extends LitElement {
             </td>`
           : ''
         }
-        <td colspan="${(this.allowTry === 'true') ? '1' : '2'}">
-          ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern
-            ? html`
+        ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern
+          ? html`
+            <td colspan="${(this.allowTry === 'true') ? '1' : '2'}">
               <div class="param-constraint">
                 ${paramSchema.default ? html`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
                 ${paramSchema.pattern ? html`<span style="font-weight:bold">Pattern: </span>${paramSchema.pattern}<br/>` : ''}
@@ -438,14 +438,14 @@ export default class ApiRequest extends LitElement {
                       }}"
                     >${v}</a>`
                   }`)}
-              </div>`
-            : ''
-          }
-        </td>
+              </div>
+            </td>`
+          : ''
+        }
       </tr>
       <tr>
         ${this.allowTry === 'true' ? html`<td style="border:none"> </td>` : ''}
-        <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;">
+        <td colspan="2" style="border:none;">
           <span class="m-markdown-small">${unsafeHTML(marked(param.description || ''))}</span>
           ${this.exampleListTemplate.call(this, param.name, paramSchema.type, example.exampleList)}
         </td>
