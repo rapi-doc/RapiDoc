@@ -154,7 +154,7 @@ export default class ApiResponse extends LitElement {
                     }
                   }}"
                   class='m-btn small ${this.selectedStatus === respStatus ? 'primary' : ''}'
-                  part="btn--resp ${this.selectedStatus === respStatus ? 'btn-fill--resp' : 'btn-outline--resp'} btn-response-status"
+                  part="btn ${this.selectedStatus === respStatus ? 'btn-response-status btn-selected-response-status' : ' btn-response-status'}"
                   style='margin: 8px 4px 0 0'
                 > 
                   ${respStatus} 
@@ -258,6 +258,7 @@ export default class ApiResponse extends LitElement {
                 render-style = '${this.renderStyle}'
                 .data="${mimeRespDetails.examples[0].exampleValue}"
                 class = 'example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}'
+                exportparts = "btn:btn, btn-fill:btn-fill, btn-copy:btn-copy" 
               ></json-tree>`
             : html`
               ${mimeRespDetails.examples[0].exampleSummary && mimeRespDetails.examples[0].exampleSummary.length > 80 ? html`<div style="padding: 4px 0"> ${mimeRespDetails.examples[0].exampleSummary} </div>` : ''}
@@ -281,6 +282,7 @@ export default class ApiResponse extends LitElement {
                     <json-tree 
                       render-style = '${this.renderStyle}'
                       .data = '${v.exampleValue}'
+                      exportparts = "btn:btn, btn-fill:btn-fill, btn-copy:btn-copy" 
                     ></json-tree>`
                   : html`<pre>${v.exampleValue}</pre>`
                 }

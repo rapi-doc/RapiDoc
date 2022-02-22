@@ -137,7 +137,9 @@ function endpointBodyTemplate(path) {
           allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
           schema-hide-read-only = "${this.schemaHideReadOnly}"
           fetch-credentials = "${this.fetchCredentials}"
-          exportparts="btn btn-fill btn-outline btn-try"
+          exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
+            file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
+            anchor:anchor, anchor-param-example:anchor-param-example"
         > </api-request>
 
           ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
@@ -155,7 +157,8 @@ function endpointBodyTemplate(path) {
         allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
         schema-hide-write-only = "${this.schemaHideWriteOnly}"
         selected-status = "${Object.keys(path.responses || {})[0] || ''}"
-        exportparts = "btn--resp btn-fill--resp btn-outline--resp"
+        exportparts = 
+        "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, anchor:anchor, anchor-param-example:anchor-param-example, btn-clear-resp:btn-clear-resp"
       > </api-response>
     </div>
   </div>`;

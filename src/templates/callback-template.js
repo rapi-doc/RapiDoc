@@ -38,7 +38,9 @@ export default function callbackTemplate(callbacks) {
                       allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
                       schema-hide-read-only = "${this.schemaHideReadOnly}"
                       fetch-credentials = "${this.fetchCredentials}"
-                      exportparts="btn btn-fill btn-outline btn-try"
+                      exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
+                        file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
+                        anchor:anchor, anchor-param-example:anchor-param-example"
                     > </api-request>
 
                     <api-response
@@ -52,7 +54,7 @@ export default function callbackTemplate(callbacks) {
                       schema-expand-level = "${this.schemaExpandLevel}"
                       schema-description-expanded = "${this.schemaDescriptionExpanded}"
                       allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
-                      exportparts = "btn--resp btn-fill--resp btn-outline--resp"
+                      exportparts = "btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy"
                     > </api-response>
                   </div>
                 </div>  

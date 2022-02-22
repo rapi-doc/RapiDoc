@@ -191,23 +191,41 @@
         </code>
       </pre>
     </p>
-    <h2>Limitation</h2>
-    <p>RapiDoc web Component is made up of smaller web components, below is RapiDoc component composition structure 
-      <br/>
-      At the moment CSS Parts can target only those HTML content which directly fall under <span class="mono bold blue"> &lt;rapi-doc&gt;</span> element.
-      <br/>
-      HTML elements under <span class="mono bold"> &lt;api-request&gt;, &lt;api-response&gt; &lt;schema-tree&gt; and &lt;schema-table&gt; cannot be targeted for styling</span>
-    </p>
-    <pre>
-      - rapi-doc
-        - api-request
-          - schema-tree 
-          - schema-table
-        - api-response
-          - schema-tree 
-          - schema-table
-    </pre>
 
+    <p>
+      <span>
+        Another Example to change the button styles
+        | <a href="./examples-theme/cssparts-btn.html" target="_blank"> Demo</a>
+      </span>
+      <pre class="shadow1 code-block" style="width:730px">
+        <code class="language-html">
+          &lt;html&gt;
+            ...
+            &lt;style&gt;
+              rapi-doc::part(btn){ border-radius: 15px; }
+              rapi-doc::part(btn-try) { 
+                background-color: yellow;
+                color: #333;
+                border-color: yellow;
+              }
+              rapi-doc::part(btn-selected-response-status) {
+                background-color: yellow;
+                color: #333;
+                border-color: yellow;
+              }
+            &lt;/style&gt;
+            &lt;rapi-doc  spec-url = "https://petstore.swagger.io/v2/swagger.json" 
+              show-header = "false"
+              nav-bg-color = "#423368"
+              primary-color ="#df75c4"
+              bg-color = "#fae4f5"    
+            &gt; &lt;/rapi-doc&gt;
+            ...
+          &lt;/html&gt;
+        </code>
+      </pre>
+
+    </p>
     <p>
       Following are the list of <span class="mono bold blue">css ::part</span> provided by rapidoc. The names of these parts should be self explenatory
       <table class="m-table">
@@ -230,7 +248,7 @@
         <tr> <td class="blue" style="border:none">Buttons</td></tr>
         <tr>
           <td class="mono">
-            btn, btn-fill, btn-outline, btn-search
+            btn, btn-fill, btn-outline, btn-search, btn-try, btn-fill, btn-clear, btn-copy, btn-clear-resp, 
           </td>
         </tr>
 
@@ -241,10 +259,17 @@
           </td>
         </tr>
 
+        <tr> <td class="blue" style="border:none">Inputs</td></tr>
+        <tr>
+          <td class="mono">
+            textbox, textbox-param, textarea, textarea-param, file-input
+          </td>
+        </tr>
+
         <tr><td class="blue" style="border:none">Anchors</td></tr>
         <tr>
           <td class="mono">
-            anchor, anchor-overview
+            anchor, anchor-overview, anchor-param-example
           </td>
         </tr>
       </table>
