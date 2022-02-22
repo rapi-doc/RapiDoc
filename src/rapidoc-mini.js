@@ -159,7 +159,7 @@ export default class RapiDocMini extends LitElement {
       this.theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
     }
     if (!this.defaultSchemaTab || !'example, schema, model,'.includes(`${this.defaultSchemaTab},`)) {
-      this.defaultSchemaTab = 'schema';
+      this.defaultSchemaTab = 'example';
     } else if (this.defaultSchemaTab === 'model') {
       this.defaultSchemaTab = 'schema';
     }

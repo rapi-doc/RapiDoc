@@ -364,8 +364,8 @@ export default class ApiRequest extends LitElement {
                           this.activeParameterSchemaTabs = newState;
                         }
                       }}">
-                        <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
                         <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
+                        <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
                       </div>
                       ${this.activeParameterSchemaTabs[param.name] === 'example'
                         ? html`<div class="tab-content col">
@@ -673,8 +673,8 @@ export default class ApiRequest extends LitElement {
           ? html`
             <div class="tab-panel col" style="border-width:0 0 1px 0;">
               <div class="tab-buttons row" @click="${(e) => { if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; } }}">
-                <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
                 <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
+                <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
               </div>
               ${this.activeSchemaTab === 'example'
                 ? html`<div class="tab-content col"> ${reqBodyExampleHtml}</div>`
@@ -723,20 +723,10 @@ export default class ApiRequest extends LitElement {
           }
           if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; }
         }}">
-          <button class="v-tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
           <button class="v-tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
+          <button class="v-tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
         </div>
       </div>
-      ${html`
-        <div class="tab-content col" data-tab = 'schema' style="display:${this.activeSchemaTab !== 'example' ? 'block' : 'none'}; padding-left:5px; width:100%;"> 
-          <schema-tree
-            .data = '${formdataPartSchema}'
-            schema-expand-level = "${this.schemaExpandLevel}"
-            schema-description-expanded = "${this.schemaDescriptionExpanded}"
-            allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
-          > </schema-tree>
-        </div>`
-      }
       ${html`
         <div class="tab-content col" data-tab = 'example' style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'}; padding-left:5px; width:100%"> 
           <textarea 
@@ -752,6 +742,16 @@ export default class ApiRequest extends LitElement {
           ></textarea>
           <!-- This textarea(hidden) is to store the original example value, in focused mode on navbar change it is used to update the example text -->
           <textarea data-pname = "hidden-${fieldName}" data-ptype = "${mimeType.includes('form-urlencode') ? 'hidden-form-urlencode' : 'hidden-form-data'}" class="is-hidden" style="display:none">${formdataPartExample[0].exampleValue}</textarea>
+        </div>`
+      }
+      ${html`
+        <div class="tab-content col" data-tab = 'schema' style="display:${this.activeSchemaTab !== 'example' ? 'block' : 'none'}; padding-left:5px; width:100%;"> 
+          <schema-tree
+            .data = '${formdataPartSchema}'
+            schema-expand-level = "${this.schemaExpandLevel}"
+            schema-description-expanded = "${this.schemaDescriptionExpanded}"
+            allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+          > </schema-tree>
         </div>`
       }
       </div>
