@@ -30501,8 +30501,8 @@ class ApiRequest extends lit_element_s {
           this.activeParameterSchemaTabs = newState;
         }
       }}">
-                        <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
                         <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
+                        <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
                       </div>
                       ${this.activeParameterSchemaTabs[param.name] === 'example' ? $`<div class="tab-content col">
                           <textarea 
@@ -30785,8 +30785,8 @@ class ApiRequest extends lit_element_s {
         this.activeSchemaTab = e.target.dataset.tab;
       }
     }}">
-                <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
                 <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
+                <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
               </div>
               ${this.activeSchemaTab === 'example' ? $`<div class="tab-content col"> ${reqBodyExampleHtml}</div>` : $`<div class="tab-content col"> ${reqBodySchemaHtml}</div>`}
             </div>` : $`  
@@ -30832,19 +30832,10 @@ class ApiRequest extends lit_element_s {
         this.activeSchemaTab = e.target.dataset.tab;
       }
     }}">
-          <button class="v-tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
           <button class="v-tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
+          <button class="v-tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
         </div>
       </div>
-      ${$`
-        <div class="tab-content col" data-tab = 'schema' style="display:${this.activeSchemaTab !== 'example' ? 'block' : 'none'}; padding-left:5px; width:100%;"> 
-          <schema-tree
-            .data = '${formdataPartSchema}'
-            schema-expand-level = "${this.schemaExpandLevel}"
-            schema-description-expanded = "${this.schemaDescriptionExpanded}"
-            allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
-          > </schema-tree>
-        </div>`}
       ${$`
         <div class="tab-content col" data-tab = 'example' style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'}; padding-left:5px; width:100%"> 
           <textarea 
@@ -30860,6 +30851,15 @@ class ApiRequest extends lit_element_s {
           ></textarea>
           <!-- This textarea(hidden) is to store the original example value, in focused mode on navbar change it is used to update the example text -->
           <textarea data-pname = "hidden-${fieldName}" data-ptype = "${mimeType.includes('form-urlencode') ? 'hidden-form-urlencode' : 'hidden-form-data'}" class="is-hidden" style="display:none">${formdataPartExample[0].exampleValue}</textarea>
+        </div>`}
+      ${$`
+        <div class="tab-content col" data-tab = 'schema' style="display:${this.activeSchemaTab !== 'example' ? 'block' : 'none'}; padding-left:5px; width:100%;"> 
+          <schema-tree
+            .data = '${formdataPartSchema}'
+            schema-expand-level = "${this.schemaExpandLevel}"
+            schema-description-expanded = "${this.schemaDescriptionExpanded}"
+            allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+          > </schema-tree>
         </div>`}
       </div>
     `;
@@ -31438,13 +31438,18 @@ class ApiRequest extends lit_element_s {
       fetchOptions.credentials = this.fetchCredentials;
     }
 
+    const controller = new AbortController();
+    const {
+      signal
+    } = controller;
     fetchOptions.headers = reqHeaders;
     const fetchRequest = new Request(fetchUrl, fetchOptions);
     this.dispatchEvent(new CustomEvent('before-try', {
       bubbles: true,
       composed: true,
       detail: {
-        request: fetchRequest
+        request: fetchRequest,
+        controller
       }
     }));
     let fetchResponse;
@@ -31456,7 +31461,9 @@ class ApiRequest extends lit_element_s {
       let respText;
       tryBtnEl.disabled = true;
       const startTime = performance.now();
-      fetchResponse = await fetch(fetchRequest);
+      fetchResponse = await fetch(fetchRequest, {
+        signal
+      });
       const endTime = performance.now();
       responseClone = fetchResponse.clone(); // create a response clone to allow reading response body again (response.json, response.text etc)
 
@@ -31536,17 +31543,28 @@ class ApiRequest extends lit_element_s {
       }));
     } catch (err) {
       tryBtnEl.disabled = false;
-      this.responseMessage = `${err.message} (CORS or Network Issue)`;
-      document.dispatchEvent(new CustomEvent('after-try', {
-        bubbles: true,
-        composed: true,
-        detail: {
-          err,
-          request: fetchRequest,
-          response: responseClone,
-          responseStatus: responseClone.ok
-        }
-      }));
+
+      if (err.name === 'AbortError') {
+        this.dispatchEvent(new CustomEvent('request-aborted', {
+          bubbles: true,
+          composed: true,
+          detail: {
+            err,
+            request: fetchRequest
+          }
+        }));
+        this.responseMessage = 'Request Aborted';
+      } else {
+        this.dispatchEvent(new CustomEvent('after-try', {
+          bubbles: true,
+          composed: true,
+          detail: {
+            err,
+            request: fetchRequest
+          }
+        }));
+        this.responseMessage = `${err.message} (CORS or Network Issue)`;
+      }
     }
 
     this.requestUpdate();
@@ -32146,8 +32164,8 @@ class ApiResponse extends lit_element_s {
           this.activeSchemaTab = e.target.dataset.tab;
         }
       }}" >
-                  <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' >SCHEMA</button>
                   <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
+                  <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' >SCHEMA</button>
                   <div style="flex:1"></div>
                   ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1 ? $`<span class='small-font-size gray-text' style='align-self:center; margin-top:8px;'> ${Object.keys(this.mimeResponsesForEachStatus[status])[0]} </span>` : $`${this.mimeTypeDropdownTemplate(Object.keys(this.mimeResponsesForEachStatus[status]))}`}
                 </div>
@@ -34585,7 +34603,7 @@ class RapiDoc extends lit_element_s {
     }
 
     if (!this.defaultSchemaTab || !'example, schema, model,'.includes(`${this.defaultSchemaTab},`)) {
-      this.defaultSchemaTab = 'schema';
+      this.defaultSchemaTab = 'example';
     } else if (this.defaultSchemaTab === 'model') {
       this.defaultSchemaTab = 'schema';
     }
@@ -35515,7 +35533,7 @@ class RapiDocMini extends lit_element_s {
     }
 
     if (!this.defaultSchemaTab || !'example, schema, model,'.includes(`${this.defaultSchemaTab},`)) {
-      this.defaultSchemaTab = 'schema';
+      this.defaultSchemaTab = 'example';
     } else if (this.defaultSchemaTab === 'model') {
       this.defaultSchemaTab = 'schema';
     }
@@ -41998,7 +42016,7 @@ Prism.languages.js = Prism.languages.javascript;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("7a7e117d78e681e60bf4")
+/******/ 		__webpack_require__.h = () => ("5c0e179872605ca38c72")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
