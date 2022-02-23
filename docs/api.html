@@ -685,7 +685,7 @@
         <div class="table-block">
           <table class="m-table">
             <tr>
-              <th class="right" style="width:130px">Event</th>
+              <th class="right" style="width:150px">Event</th>
               <th class="left">Description </th>
             </tr>
             <tr>
@@ -706,6 +706,31 @@
                 fired before user clicks try. 
                 Provides a <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request" target="_blank">request object</a> 
                 that can be modified before making the final call to the API.
+
+                <br/>
+                Example: To add a custom header before making a try call  
+                <pre class="shadow1 code-block" style = "width:500px">
+                  <code class="language-js">
+                    rapidocEl.addEventListener('before-try', (e) => {
+                      if (e.detail.request.method === 'POST') {
+                        e.detail.request.headers.append('my-header', 'XYX');
+                      }
+                    });
+                  </code>
+                </pre>
+
+                <br/>
+                Example: To abort a (Try)request - Below example aborts all DELETE calls
+                <pre class="shadow1 code-block" style = "width:500px">
+                  <code class="language-js">
+                    rapidocEl.addEventListener('before-try', (e) => {
+                      if (e.detail.request.method === 'DELETE') {
+                        e.detail.controller.abort();
+                      }
+                    });
+                  </code>
+                </pre>
+
               </td>
             </tr>
             <tr>
@@ -715,13 +740,22 @@
                 <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request" target="_blank">request</a> and
                 <a href="https://developer.mozilla.org/en-US/docs/Web/API/Response" target="_blank">response</a> object
                 In case of an error it will provide an <span> request</span> and <span> err</span> object
-                <a href="https://github.com/mrin9/RapiDoc/blob/master/docs/examples/mock.html"> Example </a>
+                
+              </td>
+            </tr>
+            <tr>
+              <td class="mono bold right">request-aborted</td>
+              <td class="gray">
+                fired when user aborts the request
               </td>
             </tr>
             <tr>
               <td class="mono bold right">api-server-change</td>
               <td class="gray">fires when you change the API server </td>
             </tr>
+            <tr><td colspan="2" style = "text-align: center;">
+              Working <a href="./examples/events.html"> Example </a> of Event Handling In RapiDoc
+            </td></tr>
           </table>
         </div>
 

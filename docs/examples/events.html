@@ -16,14 +16,12 @@
   </head>
   <body>
     <rapi-doc id="thedoc"
-      spec-url = "../specs/mock.yaml" 
+      spec-url = "../specs/events.yaml" 
       allow-authentication = "false"
+      allow-server-selection = "false"
       show-header="false"
-      render-style = "read"
-      sort-tags = "true"
-      primary-color="#f54c47"
+      render-style = "focus"
     > 
-
     </rapi-doc>
 
     <script>
@@ -31,24 +29,24 @@
         let docEl = document.getElementById("thedoc");
 
         docEl.addEventListener('before-render', (e) => {
-          e.detail.spec.info.description = "This description is updated using java-script on `before-render` event";
+          e.detail.spec.info.title = "EVENTS - This text is updated during `before-render` event";
         });
 
         docEl.addEventListener('after-try', (e) => {
-          console.log('Try Complete:', e.detail);
+          alert("Hello from 'after-try' event ");
         });
 
         docEl.addEventListener('before-try', (e) => {
-          // e.detail.controller.abort('Reason to abort');
-          setTimeout(() => {
-            e.detail.controller.abort('Reason to abort');
-          }, 100);
+          if (e.detail.request.method === 'POST') {
+            setTimeout(() => {
+              e.detail.controller.abort();
+            }, 0);
+          }
         });
 
-        docEl.addEventListener('Request Aborted:', (e) => {
-          console.log('Request Aborted', e);
+        docEl.addEventListener('request-aborted', (e) => {
+          alert("POST Requests are aborted in 'before-try' event ");
         });
-
       })
     </script>
 

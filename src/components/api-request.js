@@ -1057,7 +1057,6 @@ export default class ApiRequest extends LitElement {
     const queryParamObjTypeEls = [...requestPanelEl.querySelectorAll("[data-ptype='query-object']")];
     const headerParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='header']")];
     const requestBodyContainerEl = requestPanelEl.querySelector('.request-body-container');
-
     fetchUrl = this.path;
     const fetchOptions = {
       method: this.method.toUpperCase(),
@@ -1321,6 +1320,8 @@ export default class ApiRequest extends LitElement {
     if (this.fetchCredentials) {
       fetchOptions.credentials = this.fetchCredentials;
     }
+    const controller = new AbortController();
+    const { signal } = controller;
     fetchOptions.headers = reqHeaders;
     const fetchRequest = new Request(fetchUrl, fetchOptions);
     this.dispatchEvent(new CustomEvent('before-try', {
@@ -1328,6 +1329,7 @@ export default class ApiRequest extends LitElement {
       composed: true,
       detail: {
         request: fetchRequest,
+        controller,
       },
     }));
 
@@ -1339,7 +1341,7 @@ export default class ApiRequest extends LitElement {
       let respText;
       tryBtnEl.disabled = true;
       const startTime = performance.now();
-      fetchResponse = await fetch(fetchRequest);
+      fetchResponse = await fetch(fetchRequest, { signal });
       const endTime = performance.now();
       responseClone = fetchResponse.clone(); // create a response clone to allow reading response body again (response.json, response.text etc)
       tryBtnEl.disabled = false;
@@ -1411,17 +1413,27 @@ export default class ApiRequest extends LitElement {
       }));
     } catch (err) {
       tryBtnEl.disabled = false;
-      this.responseMessage = `${err.message} (CORS or Network Issue)`;
-      document.dispatchEvent(new CustomEvent('after-try', {
-        bubbles: true,
-        composed: true,
-        detail: {
-          err,
-          request: fetchRequest,
-          response: responseClone,
-          responseStatus: responseClone.ok,
-        },
-      }));
+      if (err.name === 'AbortError') {
+        this.dispatchEvent(new CustomEvent('request-aborted', {
+          bubbles: true,
+          composed: true,
+          detail: {
+            err,
+            request: fetchRequest,
+          },
+        }));
+        this.responseMessage = 'Request Aborted';
+      } else {
+        this.dispatchEvent(new CustomEvent('after-try', {
+          bubbles: true,
+          composed: true,
+          detail: {
+            err,
+            request: fetchRequest,
+          },
+        }));
+        this.responseMessage = `${err.message} (CORS or Network Issue)`;
+      }
     }
     this.requestUpdate();
   }
