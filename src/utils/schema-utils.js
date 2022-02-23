@@ -787,6 +787,15 @@ export function generateExample(schema, mimeType, examples = '', example = '', i
             exampleValue,
           });
         }
+      } else if (mimeType?.toLowerCase().includes('jose')) {
+        finalExamples.push({
+          exampleId: 'Example',
+          exampleSummary: 'Base64 Encoded',
+          exampleDescription: '',
+          exampleType: mimeType,
+          exampleValue: schema.pattern || 'bXJpbg==',
+          exampleFormat: 'text',
+        });
       } else {
         finalExamples.push({
           exampleId: 'Example',
