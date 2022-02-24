@@ -62,7 +62,7 @@ npm run serve
 ```
 
 ## Roadmap
-- ✔ Upgrade to use `lit 2`
+- ✅ Upgrade to use `lit 2`
 - Pre Rendering / Server Side Rendering (SSR) of RapiDoc
 - Improve PDF generation of OpenAPI spec Using RapiPDF
 - Create a Command Line interface (CLI) to make it automation friendly
