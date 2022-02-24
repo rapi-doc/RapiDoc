@@ -1,0 +1,129 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Titles example (title)",
+    "description": "More detailed description of the titles example API",
+    "version": "1"
+  },
+  "paths": {
+    "/inline/object": {
+      "get": {
+        "summary": "Example with inline schemas, object",
+        "responses": {
+          "default": {
+            "description": "Response description.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "title": "Inline object (title)",
+                  "description": "Detailed description of inline object.",
+                  "type": "object",
+                  "properties": {
+                    "prop": {
+                      "title": "Inline property in inline object (title)",
+                      "description": "Detailed description of inline property in inline object.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inline/array": {
+      "get": {
+        "summary": "Example with inline schemas, array",
+        "responses": {
+          "default": {
+            "description": "Response description.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "title": "Inline array (title)",
+                  "description": "Detailed description of inline array.",
+                  "type": "array",
+                  "items": {
+                    "title": "Inline item in inline array (title)",
+                    "description": "Detailed description of inline item in inline array.",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/components/object": {
+      "get": {
+        "summary": "Example with schemas in components, object",
+        "responses": {
+          "default": {
+            "description": "Response description.",
+            "content": {
+              "*/*": {
+                "schema": { "$ref": "#/components/schemas/Object" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/components/array": {
+      "get": {
+        "summary": "Example with schemas in components, array",
+        "responses": {
+          "default": {
+            "description": "Response description.",
+            "content": {
+              "*/*": {
+                "schema": { "$ref": "#/components/schemas/ArrayOfString" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "String": {
+        "title": "Schema String (title)",
+        "description": "Detailed description of schema String.",
+        "type": "string"
+      },
+      "ArrayOfString": {
+        "title": "Schema ArrayOfString (title)",
+        "description": "Detailed description of schema ArrayOfString.",
+        "type": "array",
+        "items": { "$ref": "#/components/schemas/String" }
+      },
+      "Object": {
+        "title": "Schema Object (title)",
+        "description": "Detailed description of schema Object.",
+        "type": "object",
+        "properties": {
+          "componentString": { "$ref": "#/components/schemas/String" },
+          "inlineString": {
+            "title": "Inline string property in schema Object (title)",
+            "description": "Detailed description of inline string property in schema Object.",
+            "type": "string"
+          },
+          "componentArray": { "$ref": "#/components/schemas/ArrayOfString" },
+          "inlineArray": {
+            "title": "Inline array property in schema Object (title)",
+            "description": "Detailed description of inline array property in schema Object.",
+            "type": "array",
+            "items": {
+              "title": "Inline item in inline array property in schema Object (title)",
+              "description": "Detailed description of inline item in inline array property in schema Object.",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

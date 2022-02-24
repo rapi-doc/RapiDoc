@@ -57,7 +57,7 @@ info:
 servers:
   - url: https://reqres.in/api/
 paths:
-  /users:
+  /users?delay=2:
     get:
       description: List of users (paginated)
       parameters:
