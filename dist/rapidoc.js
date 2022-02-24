@@ -1,7 +1,7 @@
 
 /**
 * @preserve
-* RapiDoc 9.1.8 - WebComponent to View OpenAPI docs
+* RapiDoc 9.2.0-beta - WebComponent to View OpenAPI docs
 * License: MIT
 * Repo   : https://github.com/mrin9/RapiDoc
 * Author : Mrinmoy Majumdar
@@ -28973,6 +28973,44 @@ function schemaToSampleObj(schema, config = {}) {
 
   return obj;
 }
+
+function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
+  var _schema$items5;
+
+  let markdown = '';
+
+  if (schema.title) {
+    markdown = `**${schema.title}:** `;
+  }
+
+  if (schema.minItems) {
+    markdown = `${markdown} **Min Items:** ${schema.minItems}`;
+  }
+
+  if (schema.maxItems) {
+    markdown = `${markdown} **Max Items:** ${schema.maxItems}`;
+  }
+
+  if (schema.description) {
+    markdown = `${markdown} ${schema.description}`;
+  }
+
+  if (level > 0 && (_schema$items5 = schema.items) !== null && _schema$items5 !== void 0 && _schema$items5.description) {
+    let itemsMarkdown = '';
+
+    if (schema.items.minProperties) {
+      itemsMarkdown = `**Min Properties:** ${schema.items.minProperties}`;
+    }
+
+    if (schema.items.maxProperties) {
+      itemsMarkdown = `${itemsMarkdown} **Max Properties:** ${schema.items.maxProperties}`;
+    }
+
+    markdown = `${markdown} ⮕ ${itemsMarkdown} [ ${schema.items.description} ] `;
+  }
+
+  return markdown;
+}
 /**
  * For changing OpenAPI-Schema to an Object Notation,
  * This Object would further be an input to UI Components to generate an Object-Tree
@@ -28981,6 +29019,7 @@ function schemaToSampleObj(schema, config = {}) {
  * @param {number} level - recursion level
  * @param {string} suffix - used for suffixing property names to avoid duplicate props during object composion
  */
+
 
 function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
   if (!schema) {
@@ -29104,6 +29143,7 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
         } else if (v === 'object') {
           // If object type iterate all the properties and create an object-type-option
           const objTypeOption = {
+            '::title': schema.title || '',
             '::description': schema.description || '',
             '::type': 'object',
             '::deprecated': schema.deprecated || false
@@ -29120,6 +29160,7 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
           multiTypeOptions[`::OPTION~${i + 1}`] = objTypeOption;
         } else if (v === 'array') {
           multiTypeOptions[`::OPTION~${i + 1}`] = {
+            '::title': schema.title || '',
             '::description': schema.description || '',
             '::type': 'array',
             '::props': schemaInObjectNotation(schema.items, {}, level + 1)
@@ -29130,7 +29171,9 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
       obj['::ONE~OF'] = multiTypeOptions;
     }
   } else if (schema.type === 'object' || schema.properties) {
-    obj['::description'] = schema.description || '';
+    // If Object
+    obj['::title'] = schema.title || '';
+    obj['::description'] = generateMarkdownForArrayAndObjectDescription(schema, level);
     obj['::type'] = 'object';
     obj['::deprecated'] = schema.deprecated || false;
     obj['::readwrite'] = schema.readOnly ? 'readonly' : schema.writeOnly ? 'writeonly' : '';
@@ -29147,10 +29190,9 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
       obj['<any-key>'] = schemaInObjectNotation(schema.additionalProperties, {});
     }
   } else if (schema.type === 'array' || schema.items) {
-    var _schema$items5;
-
     // If Array
-    obj['::description'] = schema.description ? schema.description : (_schema$items5 = schema.items) !== null && _schema$items5 !== void 0 && _schema$items5.description ? `array&lt;${schema.items.description}&gt;` : '';
+    obj['::title'] = schema.title || '';
+    obj['::description'] = generateMarkdownForArrayAndObjectDescription(schema, level);
     obj['::type'] = 'array';
     obj['::deprecated'] = schema.deprecated || false;
     obj['::readwrite'] = schema.readOnly ? 'readonly' : schema.writeOnly ? 'writeonly' : '';
@@ -29307,6 +29349,15 @@ function generateExample(schema, mimeType, examples = '', example = '', includeR
             exampleValue
           });
         }
+      } else if (mimeType !== null && mimeType !== void 0 && mimeType.toLowerCase().includes('jose')) {
+        finalExamples.push({
+          exampleId: 'Example',
+          exampleSummary: 'Base64 Encoded',
+          exampleDescription: '',
+          exampleType: mimeType,
+          exampleValue: schema.pattern || 'bXJpbg==',
+          exampleFormat: 'text'
+        });
       } else {
         finalExamples.push({
           exampleId: 'Example',
@@ -29853,7 +29904,7 @@ class SchemaTree extends lit_element_s {
         <div class='inside-bracket ${data['::type'] || 'no-type-info'}' style='padding-left:${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' ? 0 : leftPadding}px;'>
           ${Array.isArray(data) && data[0] ? $`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, data[0]['::readwrite'])}` : $`
               ${Object.keys(data).map(dataKey => $`
-                ${['::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}` : '' : $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}`}
+                ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}` : '' : $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}`}
               `)}
             `}
         </div>
@@ -29862,7 +29913,7 @@ class SchemaTree extends lit_element_s {
     } // For Primitive types and array of Primitives
 
 
-    const [type, primitiveReadOrWrite, constraint, defaultValue, allowedValues, pattern, schemaDescription,, deprecated] = data.split('~|~');
+    const [type, primitiveReadOrWrite, constraint, defaultValue, allowedValues, pattern, schemaDescription, schemaTitle, deprecated] = data.split('~|~');
 
     if (primitiveReadOrWrite === '🆁' && this.schemaHideReadOnly === 'true') {
       return;
@@ -29907,7 +29958,7 @@ class SchemaTree extends lit_element_s {
           ${defaultValue ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
           ${allowedValues ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Allowed: </span>${allowedValues}</div>` : ''}
           ${pattern ? $`<div style='display:inline-block; line-break: anywhere; margin-right:8px'><span class='bold-text'>Pattern: </span>${pattern}</div>` : ''}
-          ${schemaDescription ? $`<span class="m-markdown-small">${unsafe_html_o(marked(schemaDescription))}</span>` : ''}
+          ${schemaDescription ? $`<span class="m-markdown-small">${unsafe_html_o(marked(`${schemaTitle ? `**${schemaTitle}:**` : ''} ${schemaDescription}`))}</span>` : ''}
         </div>
       </div>
     `;
@@ -30667,7 +30718,7 @@ class ApiRequest extends lit_element_s {
       let schemaAsObj;
       let reqBodyExamples = [];
 
-      if (this.selectedRequestBodyType.includes('json') || this.selectedRequestBodyType.includes('xml') || this.selectedRequestBodyType.includes('text')) {
+      if (this.selectedRequestBodyType.includes('json') || this.selectedRequestBodyType.includes('xml') || this.selectedRequestBodyType.includes('text') || this.selectedRequestBodyType.includes('jose')) {
         // Generate Example
         if (reqBody.mimeType === this.selectedRequestBodyType) {
           reqBodyExamples = generateExample(reqBody.schema, reqBody.mimeType, reqBody.examples, reqBody.example, false, true, 'text', false);
@@ -30734,7 +30785,7 @@ class ApiRequest extends lit_element_s {
       } // Generate Schema
 
 
-      if (reqBody.mimeType.includes('json') || reqBody.mimeType.includes('xml') || reqBody.mimeType.includes('text')) {
+      if (reqBody.mimeType.includes('json') || reqBody.mimeType.includes('xml') || reqBody.mimeType.includes('text') || this.selectedRequestBodyType.includes('jose')) {
         schemaAsObj = schemaInObjectNotation(reqBody.schema, {});
 
         if (this.schemaStyle === 'table') {
@@ -30778,7 +30829,7 @@ class ApiRequest extends lit_element_s {
         </div>
         ${this.request_body.description ? $`<div class="m-markdown" style="margin-bottom:12px">${unsafe_html_o(marked(this.request_body.description))}</div>` : ''}
         
-        ${this.selectedRequestBodyType.includes('json') || this.selectedRequestBodyType.includes('xml') || this.selectedRequestBodyType.includes('text') ? $`
+        ${this.selectedRequestBodyType.includes('json') || this.selectedRequestBodyType.includes('xml') || this.selectedRequestBodyType.includes('text') || this.selectedRequestBodyType.includes('jose') ? $`
             <div class="tab-panel col" style="border-width:0 0 1px 0;">
               <div class="tab-buttons row" @click="${e => {
       if (e.target.tagName.toLowerCase() === 'button') {
@@ -31881,7 +31932,7 @@ class SchemaTable extends lit_element_s {
         <div class='object-body'>
         ${Array.isArray(data) && data[0] ? $`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, '')}` : $`
             ${Object.keys(data).map(dataKey => $`
-              ${['::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}` : '' : $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}`}
+              ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}` : '' : $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}`}
             `)}
           `}
         <div>
@@ -31926,7 +31977,7 @@ class SchemaTable extends lit_element_s {
           ${defaultValue ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
           ${allowedValues ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Allowed: </span>${allowedValues}</div>` : ''}
           ${pattern ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Pattern: </span>${pattern}</div>` : ''}
-          ${schemaDescription ? $`<span class="m-markdown-small">${unsafe_html_o(marked(schemaDescription))}</span>` : ''}
+          ${schemaDescription ? $`<span class="m-markdown-small">${unsafe_html_o(marked(`${schemaTitle ? `**${schemaTitle}:**` : ''} ${schemaDescription}`))}</span>` : ''}
         </div>
       </div>
     `;
@@ -42016,7 +42067,7 @@ Prism.languages.js = Prism.languages.javascript;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("5c0e179872605ca38c72")
+/******/ 		__webpack_require__.h = () => ("27ebe4f6ce7b32ad2722")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
