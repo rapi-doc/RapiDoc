@@ -22,7 +22,7 @@ export default css`
   }
 
   .m-btn {
-    border-radius: 1000px;
+    border-radius: 30px;
     padding: var(--base-gap) calc(var(--base-gap) * 1.5);
     font-size: 1rem;
   }
@@ -35,10 +35,14 @@ export default css`
   input[type="text"],
   input[type="password"],
   input[type="file"] {
-    border-radius: 1000px;
+    border-radius: 30px;
     border: 2px solid var(--color-primary);
     padding: var(--base-gap) calc(var(--base-gap) * 1.5);
     transition: border, background-color 250ms;
+  }
+  
+  textarea {
+    border-radius: 10px;
   }
 
   pre,
@@ -50,5 +54,9 @@ export default css`
     background-color: var(--color-ground-x-dark);
     box-shadow: 0 8px 16px rgb(var(--color-primary) / 30%);
     border-width: 2px;
+  }
+  
+  api-request {
+    min-width: 0;
   }
 `;
