@@ -20,6 +20,7 @@ import PrismStyles from '~/styles/prism-styles';
 import TabStyles from '~/styles/tab-styles';
 import NavStyles from '~/styles/nav-styles';
 import InfoStyles from '~/styles/info-styles';
+import CustomStyles from '~/styles/custom-styles';
 
 import EndpointStyles from '~/styles/endpoint-styles';
 import ProcessSpec from '~/utils/spec-parser';
@@ -84,6 +85,7 @@ export default class JsonSchemaViewer extends LitElement {
       TabStyles,
       NavStyles,
       InfoStyles,
+      CustomStyles,
       css`
       :host {
         display:flex;
