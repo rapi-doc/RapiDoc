@@ -90,9 +90,6 @@ export default css`
     padding: 6px 5px;
   }
 
-  
-  
-
   /* --- Other --- */
   
   .tree, json-tree {
