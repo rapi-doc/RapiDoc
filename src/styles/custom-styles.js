@@ -6,8 +6,10 @@ customize their theme. Simply add your css to this file and yarn build.
 */
 
 export default css`
-  .tree {
-    background-color: var(--color-ground-dark);
+  /* --- Containers --- */
+  
+  api-request {
+    min-width: 0;
   }
 
   .expanded-endpoint-body > * {
@@ -25,6 +27,8 @@ export default css`
     column-gap: calc(var(--base-gap) * 6);
   }
 
+  /* --- Buttons --- */
+
   .m-btn {
     border-radius: 30px;
     padding: var(--base-gap) calc(var(--base-gap) * 1.5);
@@ -41,6 +45,8 @@ export default css`
   .tab-btn {
     border-radius: 0;
   }
+
+  /* --- Inputs --- */
 
   pre,
   select,
@@ -68,8 +74,30 @@ export default css`
     box-shadow: 0 8px 16px rgb(var(--color-primary) / 30%);
     border-width: 2px;
   }
+
+  .m-markdown pre {
+    border-radius: var(--border-radius);
+  }
+
+  /* --- Tables --- */
+
+  .m-table td,
+  .m-table th {
+    padding: 6px 5px;
+  }
+
   
-  api-request {
-    min-width: 0;
+  
+
+  /* --- Other --- */
+  
+  .tree, .example-panel {
+    background-color: var(--bg2);
+    padding: calc(var(--base-gap) * 1.5);
+    border-radius: var(--border-radius);
+  }
+  
+  .param-constraint {
+    margin-top: 10px;
   }
 `;
