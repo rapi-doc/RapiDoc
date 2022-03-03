@@ -27,6 +27,10 @@ export default css`
     column-gap: calc(var(--base-gap) * 6);
   }
 
+  .response-panel {
+    margin-top: 0;
+  }
+
   /* --- Buttons --- */
 
   .m-btn {
@@ -107,5 +111,69 @@ export default css`
   
   .nav-bar-tag:hover {
     color: var(--nav-accent-color);
+  }
+
+  ::-webkit-scrollbar,
+  textarea::-webkit-scrollbar,
+  pre::-webkit-scrollbar,
+  .nav-scroll::-webkit-scrollbar,
+  .tab-buttons::-webkit-scrollbar,
+  .main-content::-webkit-scrollbar {
+    width: var(--scrollbar-width);
+    height: var(--scrollbar-width);
+  }
+
+  ::-webkit-scrollbar-thumb,
+  textarea::-webkit-scrollbar-thumb,
+  pre::-webkit-scrollbar-thumb,
+  .nav-scroll::-webkit-scrollbar-thumb,
+  .tab-buttons::-webkit-scrollbar-thumb,
+  .main-content::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb-bg-color);
+    background-clip: var(--scrollbar-thumb-bg-clip);
+    border-radius: var(--scrollbar-thumb-border-radius);
+    border: var(--scrollbar-thumb-border);
+  }
+
+  ::-webkit-scrollbar-thumb:hover,
+  textarea::-webkit-scrollbar-thumb:hover,
+  pre::-webkit-scrollbar-thumb:hover,
+  .nav-scroll::-webkit-scrollbar-thumb:hover,
+  .tab-buttons::-webkit-scrollbar-thumb:hover,
+  .main-content::-webkit-scrollbar-thumb:hover {
+    background-color: var(--scrollbar-thumb-bg-color-hover);
+  }
+
+  ::-webkit-scrollbar-track,
+  textarea::-webkit-scrollbar-track,
+  pre::-webkit-scrollbar-track,
+  .nav-scroll::-webkit-scrollbar-track,
+  .tab-buttons::-webkit-scrollbar-track,
+  .main-content::-webkit-scrollbar-track {
+    background: var(--scrollbar-track-background);
+  }
+
+  ::-webkit-scrollbar-corner, 
+  textarea::-webkit-scrollbar-corner, 
+  pre::-webkit-scrollbar-corner, 
+  .nav-scroll::-webkit-scrollbar-corner, 
+  .tab-buttons::-webkit-scrollbar-corner, 
+  .main-content::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  
+  textarea::-webkit-resizer {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 52.9 52.9' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3CclipPath clipPathUnits='userSpaceOnUse' id='a'%3E%3Cpath d='m.2 46.6 46.5.4V2' fill='none' stroke='%23000' stroke-width='.3'/%3E%3C/clipPath%3E%3C/defs%3E%3Cg clip-path='url(%23a)' transform='translate(4.2 4.2)' fill='none' stroke-width='1.3'%3E%3Cpath d='M-2.9 54 54-2.6' stroke='%23191919'/%3E%3Cpath d='M-2.1 54.8 54.6-1.7' stroke='%23e7e7e7'/%3E%3Cpath d='M3 59.4 59.9 2.9' stroke='%23191919'/%3E%3Cpath d='M3.8 60.2 60.5 3.7' stroke='%23e7e7e7'/%3E%3Cpath d='M8.5 64.6 65.2 8.2' stroke='%23191919'/%3E%3Cpath d='M9.2 65.4 66 9' stroke='%23e7e7e7'/%3E%3Cpath d='m13.8 69.8 56.8-56.4' stroke='%23191919'/%3E%3Cpath d='m14.6 70.7 56.7-56.5' stroke='%23e7e7e7'/%3E%3C/g%3E%3C/svg%3E");
+  }
+  textarea::placeholder {
+    opacity: 1;
+    transition: opacity var(--animation-time-basic) ease-in-out;
+  }
+  textarea:focus::placeholder {
+    opacity: 0;
+  }
+
+  textarea::-webkit-scrollbar-thumb:hover {
+    background-color: var(--scrollbar-thumb-bg-color-hover);
   }
 `;
