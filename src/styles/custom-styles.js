@@ -64,9 +64,9 @@ export default css`
     border-radius: 10px;
   }
 
-  pre,
-  select,
-  textarea,
+  pre:focus,
+  select:focus,
+  textarea:focus,
   input[type="text"]:focus,
   input[type="password"]:focus,
   input[type="file"]:focus {
@@ -91,13 +91,21 @@ export default css`
 
   /* --- Other --- */
   
-  .tree, .example-panel {
+  .tree, json-tree {
     background-color: var(--bg2);
     padding: calc(var(--base-gap) * 1.5);
     border-radius: var(--border-radius);
   }
   
-  .param-constraint {
-    margin-top: 10px;
+  .tree code {
+    line-break: anywhere;
+  }
+  
+  .example-panel select {
+    margin-bottom: var(--base-gap) !important;
+  }
+  
+  .nav-bar-tag:hover {
+    color: var(--nav-accent-color);
   }
 `;

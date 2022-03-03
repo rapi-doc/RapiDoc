@@ -556,7 +556,7 @@ export default class ApiRequest extends LitElement {
           }
           reqBodyExampleHtml = html`
             ${reqBodyExampleHtml}
-            <div class = 'example-panel border-top pad-top-8'>
+            <div class = 'example-panel pad-top-8'>
               ${reqBodyExamples.length === 1
                 ? ''
                 : html`
