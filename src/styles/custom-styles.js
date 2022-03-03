@@ -14,6 +14,10 @@ export default css`
     width: 50%;
   }
 
+  .expanded-endpoint-body > h3 {
+    margin-bottom: calc(var(--base-gap) * 2);
+  }
+
   .expanded-req-resp-container {
     width: 100%;
     display: grid;
@@ -28,6 +32,15 @@ export default css`
   }
 
   .m-btn.thin-border { border-width: 2px; }
+
+  .tab-buttons {
+    margin-bottom: var(--base-gap);
+    border: none;
+  }
+  
+  .tab-btn {
+    border-radius: 0;
+  }
 
   pre,
   select,
