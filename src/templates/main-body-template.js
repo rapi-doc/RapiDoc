@@ -1,4 +1,4 @@
-import { html } from 'lit';
+import { html } from 'lit-element';
 
 // Templates
 import expandedEndpointTemplate from '~/templates/expanded-endpoint-template';
@@ -73,7 +73,7 @@ export default function mainBodyTemplate(isMini = false, showExpandCollapse = tr
     <!-- Advanced Search -->
     ${this.allowAdvancedSearch === 'false' ? '' : advancedSearchTemplate.call(this)}
 
-    <div id='the-main-body' class="body" dir= ${this.pageDirection}>
+    <div id='the-main-body' class="body ${this.mainBodyCssClass}" dir= ${this.pageDirection}>
       <!-- Side Nav -->
       ${((this.renderStyle === 'read' || this.renderStyle === 'focused')
           && this.showSideNav === 'true'

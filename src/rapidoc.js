@@ -130,6 +130,13 @@ export default class RapiDoc extends LitElement {
       focusedElementId: { type: String }, // updating the focusedElementId will automatically render appropriate section in focused mode
       showAdvancedSearchDialog: { type: Boolean },
       advancedSearchMatches: { type: Object },
+
+      //section collapse action
+      expandCollapseSectionAction :  { type: Boolean, attribute: 'show-section-collapse' },
+      //main body class for custom css
+      mainBodyCssClass: { type: String, attribute: 'main-css-class' },
+      //add custom css file
+      customCssFile: { type: String, attribute: 'custom-css-file' },
     };
   }
 
@@ -472,6 +479,9 @@ export default class RapiDoc extends LitElement {
 
     if (!this.showAdvancedSearchDialog) { this.showAdvancedSearchDialog = false; }
 
+    if (!this.expandCollapseSectionAction) { this.expandCollapseSectionAction = false; }
+    if (!this.mainBodyCssClass) { this.mainBodyCssClass = ""; }
+    if (!this.customCssFile) { this.customCssFile = null; }
     marked.setOptions({
       highlight: (code, lang) => {
         if (Prism.languages[lang]) {
@@ -504,6 +514,11 @@ export default class RapiDoc extends LitElement {
 
   render() {
     // return render(mainBodyTemplate(this), this.shadowRoot, { eventContext: this });
+    const rapipdfCustomCSS = document.querySelector(`link[href*="${this.customCssFile}"]`);
+     // adding custom style for RapiDoc
+     if (rapipdfCustomCSS) {
+      this.shadowRoot.appendChild(rapipdfCustomCSS.cloneNode());
+    }
     return mainBodyTemplate.call(this);
   }
 
@@ -709,7 +724,7 @@ export default class RapiDoc extends LitElement {
     }
     if (!this.selectedServer) {
       if (this.resolvedSpec.servers) {
-        this.selectedServer = this.resolvedSpec.servers[0]; // eslint-disable-line prefer-destructuring
+        this.selectedServer = this.resolvedSpec.servers[0];
       }
     }
     this.requestUpdate();

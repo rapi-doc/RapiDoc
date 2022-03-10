@@ -167,7 +167,7 @@ function endpointBodyTemplate(path) {
 export default function endpointTemplate(showExpandCollapse = true, showTags = true, pathsExpanded = false) {
   if (!this.resolvedSpec) { return ''; }
   return html`
-    ${showExpandCollapse
+    ${showExpandCollapse && this.expandCollapseSectionAction 
       ? html`
         <div style="display:flex; justify-content:flex-end;"> 
           <span @click="${(e) => onExpandCollapseAll(e, 'expand-all')}" style="color:var(--primary-color); cursor:pointer;">
