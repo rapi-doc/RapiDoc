@@ -93,7 +93,7 @@ export default css`
 }
 .toolbar-item:first-of-type { margin:0 2px 0 0;}
 
-@media only screen and (min-width: 500px) {
+@media only screen and (min-width: 1420px) {
   .key-descr {
     display: block;
   }

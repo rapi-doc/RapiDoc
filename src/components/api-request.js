@@ -322,7 +322,7 @@ export default class ApiRequest extends LitElement {
           false,
         )[0].exampleValue;
       }
-      const labelColWidth = 'read focused'.includes(this.renderStyle) ? '200px' : '160px';
+      const labelColWidth = 'read focused'.includes(this.renderStyle) ? '160px' : '120px';
       tableRows.push(html`
       <tr> 
         <td rowspan="${this.allowTry === 'true' ? '1' : '2'}" style="width:${labelColWidth}; min-width:100px;">
@@ -556,7 +556,7 @@ export default class ApiRequest extends LitElement {
           }
           reqBodyExampleHtml = html`
             ${reqBodyExampleHtml}
-            <div class = 'example-panel border-top pad-top-8'>
+            <div class = 'example-panel pad-top-8'>
               ${reqBodyExamples.length === 1
                 ? ''
                 : html`
@@ -937,7 +937,7 @@ export default class ApiRequest extends LitElement {
           : html`
             <div class="tab-content col m-markdown" style="flex:1;display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};" >
               <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.responseText, e); }}' part="btn btn-fill"> Copy </button>
-              <pre style="white-space:pre; max-height:400px; overflow:auto">${responseFormat
+              <pre style="max-height:400px; overflow:auto">${responseFormat
                 ? html`<code>${unsafeHTML(Prism.highlight(this.responseText, Prism.languages[responseFormat], responseFormat))}</code>`
                 : `${this.responseText}`
               }</pre>
@@ -945,11 +945,11 @@ export default class ApiRequest extends LitElement {
         }
         <div class="tab-content col m-markdown" style="flex:1;display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};" >
           <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.responseHeaders, e); }}' part="btn btn-fill"> Copy </button>
-          <pre style="white-space:pre"><code>${unsafeHTML(Prism.highlight(this.responseHeaders, Prism.languages.css, 'css'))}</code></pre>
+          <pre><code>${unsafeHTML(Prism.highlight(this.responseHeaders, Prism.languages.css, 'css'))}</code></pre>
         </div>
         <div class="tab-content col m-markdown" style="flex:1;display:${this.activeResponseTab === 'curl' ? 'flex' : 'none'};">
           <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.curlSyntax.replace(/\\$/, ''), e); }}' part="btn btn-fill"> Copy </button>
-          <pre style="white-space:pre"><code>${unsafeHTML(Prism.highlight(this.curlSyntax.trim().replace(/\\$/, ''), Prism.languages.shell, 'shell'))}</code></pre>
+          <pre><code>${unsafeHTML(Prism.highlight(this.curlSyntax.trim().replace(/\\$/, ''), Prism.languages.shell, 'shell'))}</code></pre>
         </div>
       </div>`;
   }
