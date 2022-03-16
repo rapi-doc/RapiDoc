@@ -46,7 +46,8 @@
     "serve-prod": "webpack serve --mode=production",
     "serve1": "node --trace-deprecation ./node_modules/webpack/bin/webpack serve",
     "lint": "./node_modules/eslint/bin/eslint.js ./src/**",
-    "lint-fix": "./node_modules/eslint/bin/eslint.js --fix ./src/**"
+    "lint-fix": "./node_modules/eslint/bin/eslint.js --fix ./src/**",
+    "prepublishOnly": "make ci"
   },
   "devDependencies": {
     "@babel/core": "^7.17.5",
