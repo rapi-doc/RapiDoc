@@ -1,11 +1,11 @@
 {
-  "name": "rapidoc",
+  "name": "@35up/rapidoc",
   "version": "9.2.0",
   "description": "RapiDoc - Open API spec viewer with built in console",
   "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mrin9/RapiDoc.git"
+    "url": "https://github.com/35up/RapiDoc.git"
   },
   "license": "MIT",
   "keywords": [
@@ -46,7 +46,8 @@
     "serve-prod": "webpack serve --mode=production",
     "serve1": "node --trace-deprecation ./node_modules/webpack/bin/webpack serve",
     "lint": "./node_modules/eslint/bin/eslint.js ./src/**",
-    "lint-fix": "./node_modules/eslint/bin/eslint.js --fix ./src/**"
+    "lint-fix": "./node_modules/eslint/bin/eslint.js --fix ./src/**",
+    "prepublishOnly": "make ci"
   },
   "devDependencies": {
     "@babel/core": "^7.17.5",
