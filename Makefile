@@ -14,9 +14,8 @@ github-pkg:
 	touch ~/.npmrc \
 	&& npm config set '//npm.pkg.github.com/:_authToken' "$$GH_TOKEN"
 
-.PHONY: node_modules
 node_modules:
-	npm i
+	npm ci
 
 .PHONY: build
 build: node_modules
@@ -27,4 +26,4 @@ lint: node_modules
 	npm run lint
 
 .PHONY: ci
-ci: lint build
+ci: node_modules lint build
