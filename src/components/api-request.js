@@ -98,12 +98,12 @@ export default class ApiRequest extends LitElement {
           text-align: right;
           line-height: var(--font-size-small);
         }
-        .param-name{
+        .param-name {
           color: var(--fg); 
           font-family: var(--font-mono);
         }
         .param-name.deprecated { 
-          text-decoration: line-through;
+          color: var(--red);
         }
         .param-type{
           color: var(--light-fg); 
@@ -324,10 +324,12 @@ export default class ApiRequest extends LitElement {
       }
       const labelColWidth = 'read focused'.includes(this.renderStyle) ? '200px' : '160px';
       tableRows.push(html`
-      <tr> 
+      <tr title="${param.deprecated ? 'Deprecated' : ''}"> 
         <td rowspan="${this.allowTry === 'true' ? '1' : '2'}" style="width:${labelColWidth}; min-width:100px;">
-          <div class="param-name">
-            ${param.required ? html`<span style='color:var(--red)'>*</span>` : ''}${param.name}
+          <div class="param-name ${param.deprecated ? 'deprecated' : ''}" >
+            ${param.deprecated ? html`<span style='color:var(--red);'>✗</span>` : ''}
+            ${param.required ? html`<span style='color:var(--red)'>*</span>` : ''}
+            ${param.name}
           </div>
           <div class="param-type">
             ${paramSchema.type === 'array'
@@ -772,7 +774,7 @@ export default class ApiRequest extends LitElement {
         const labelColWidth = 'read focused'.includes(this.renderStyle) ? '200px' : '160px';
         const example = normalizeExamples((paramSchema.examples || paramSchema.example), paramSchema.type);
         formDataTableRows.push(html`
-        <tr> 
+        <tr title="${fieldSchema.deprecated ? 'Deprecated' : ''}"> 
           <td style="width:${labelColWidth}; min-width:100px;">
             <div class="param-name ${fieldSchema.deprecated ? 'deprecated' : ''}">
               ${fieldName}${(schema.required?.includes(fieldName) || fieldSchema.required) ? html`<span style='color:var(--red);'>*</span>` : ''}
