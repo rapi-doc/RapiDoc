@@ -129,7 +129,7 @@ export default class SchemaTree extends LitElement {
           return;
         }
       }
-      if (data['::readwrite'] === 'readonly') {
+      if (data && data['::readwrite'] === 'readonly') {
         return;
       }
     }
@@ -139,13 +139,22 @@ export default class SchemaTree extends LitElement {
           return;
         }
       }
-      if (data['::readwrite'] === 'writeonly') {
+      if (data && data['::readwrite'] === 'writeonly') {
         return;
       }
     }
 
     if (!data) {
-      return html`<div class="null" style="display:inline;">null</div>`;
+      return html`<div class="null" style="display:inline;">
+        <span class="key-label xxx-of-key"> ${key.replace('::OPTION~', '')}</span>
+        ${
+          dataType === 'array'
+            ? html`<span class='mono-font'> [ ] </span>`
+            : dataType === 'object'
+              ? html`<span class='mono-font'> { } </span>`
+              : html`<span class='mono-font'> schema undefined </span>`
+        }
+      </div>`;
     }
     if (Object.keys(data).length === 0) {
       return html`<span class="key object">${key}:{ }</span>`;

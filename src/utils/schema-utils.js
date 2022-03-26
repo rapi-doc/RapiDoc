@@ -383,17 +383,19 @@ export function schemaToSampleObj(schema, config = { }) {
         option2_PropX: 'string'
       }
       */
-      let i = 0;
-      // Merge all examples of each oneOf-schema
-      for (const key in schema.oneOf) {
-        const oneOfSamples = schemaToSampleObj(schema.oneOf[key], config);
-        for (const sampleKey in oneOfSamples) {
-          // 2. In the final example include a one-of item along with properties
-          const finalExample = Object.assign(oneOfSamples[sampleKey] || {}, objWithSchemaProps);
+      // let i = 0;
+      // Merge all examples of each oneOf-schema (pick only the first oneof schema, because it is one-of)
+      // for (const key in schema.oneOf) {
+      const firstOneOfSchema = schema.oneOf[0];
+      const oneOfSamples = schemaToSampleObj(firstOneOfSchema, config);
+      if (oneOfSamples instanceof Object) {
+        const oneOfSampleKeys = Object.keys(oneOfSamples);
+        // eslint-disable-next-line no-loop-func
+        oneOfSampleKeys.forEach((sampleKey, i) => {
+          const finalExample = oneOfSamples[sampleKey];
           obj[`example-${i}`] = finalExample;
-          addSchemaInfoToExample(schema.oneOf[key], obj[`example-${i}`]);
-          i++;
-        }
+          addSchemaInfoToExample(firstOneOfSchema, obj[`example-${i}`]);
+        });
       }
     }
   } else if (schema.anyOf) {
@@ -458,18 +460,22 @@ export function schemaToSampleObj(schema, config = { }) {
       }
     }
   } else if (schema.type === 'array' || schema.items) {
-    if (schema.example) {
-      obj['example-0'] = schema.example;
-    } else if (schema.items?.example) { // schemas and properties support single example but not multiple examples.
-      obj['example-0'] = [schema.items.example];
-    } else {
-      const samples = schemaToSampleObj(schema.items, config);
-      let i = 0;
-      for (const key in samples) {
-        obj[`example-${i}`] = [samples[key]];
-        addSchemaInfoToExample(schema.items, obj[`example-${i}`]);
-        i++;
+    if (schema.items || schema.example) {
+      if (schema.example) {
+        obj['example-0'] = schema.example;
+      } else if (schema.items?.example) { // schemas and properties support single example but not multiple examples.
+        obj['example-0'] = [schema.items.example];
+      } else {
+        const samples = schemaToSampleObj(schema.items, config);
+        let i = 0;
+        for (const key in samples) {
+          obj[`example-${i}`] = [samples[key]];
+          addSchemaInfoToExample(schema.items, obj[`example-${i}`]);
+          i++;
+        }
       }
+    } else {
+      obj['example-0'] = [];
     }
   } else {
     return { 'example-0': getSampleValueByType(schema) };
@@ -668,7 +674,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     obj['::type'] = 'array';
     obj['::deprecated'] = schema.deprecated || false;
     obj['::readwrite'] = schema.readOnly ? 'readonly' : schema.writeOnly ? 'writeonly' : '';
-    if (schema.items.items) {
+    if (schema.items?.items) {
       obj['::array-type'] = schema.items.items.type;
     }
     obj['::props'] = schemaInObjectNotation(schema.items, {}, (level + 1));
