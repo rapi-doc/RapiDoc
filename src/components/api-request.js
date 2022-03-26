@@ -408,8 +408,9 @@ export default class ApiRequest extends LitElement {
                       data-pname="${param.name}" 
                       data-example="${Array.isArray(example.exampleVal) ? example.exampleVal.join('~|~') : example.exampleVal}"
                       data-param-allow-reserved = "${paramAllowReserved}"
+                      data-x-fill-example = "${param['x-fill-example'] || 'yes'}"
                       data-array="false"
-                      .value="${live(this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : '')}"
+                      .value="${param['x-fill-example'] === 'no' ? '' : live(this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : '')}"
                     />`
                 }
             </td>`
