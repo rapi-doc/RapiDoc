@@ -145,8 +145,11 @@ paths:
           schema:
             type: string
             format: date
-        - name: phone
+        - name: phone-deprecated
           in: query
+          x-fill-example: no
+          example: 12345
+          deprecated: true
           schema:
             type: string
             pattern: '/^\+(?:[0-9]-?){6,14}[0-9]$/'

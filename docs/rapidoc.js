@@ -1,7 +1,7 @@
 
 /**
 * @preserve
-* RapiDoc 9.2.0 - WebComponent to View OpenAPI docs
+* RapiDoc 9.2.0-beta - WebComponent to View OpenAPI docs
 * License: MIT
 * Repo   : https://github.com/mrin9/RapiDoc
 * Author : Mrinmoy Majumdar
@@ -28832,20 +28832,20 @@ function schemaToSampleObj(schema, config = {}) {
         option2_PropX: 'string'
       }
       */
-      let i = 0; // Merge all examples of each oneOf-schema
+      // let i = 0;
+      // Merge all examples of each oneOf-schema (pick only the first oneof schema, because it is one-of)
+      // for (const key in schema.oneOf) {
+      const firstOneOfSchema = schema.oneOf[0];
+      const oneOfSamples = schemaToSampleObj(firstOneOfSchema, config);
 
-      for (const key in schema.oneOf) {
-        const oneOfSamples = schemaToSampleObj(schema.oneOf[key], config);
+      if (oneOfSamples instanceof Object) {
+        const oneOfSampleKeys = Object.keys(oneOfSamples); // eslint-disable-next-line no-loop-func
 
-        for (const sampleKey in oneOfSamples) {
-          // 2. In the final example include a one-of item along with properties
-          if (oneOfSamples[sampleKey] === null) {
-            const finalExample = Object.assign(oneOfSamples[sampleKey], objWithSchemaProps);
-            obj[`example-${i}`] = finalExample;
-            addSchemaInfoToExample(schema.oneOf[key], obj[`example-${i}`]);
-            i++;
-          }
-        }
+        oneOfSampleKeys.forEach((sampleKey, i) => {
+          const finalExample = oneOfSamples[sampleKey];
+          obj[`example-${i}`] = finalExample;
+          addSchemaInfoToExample(firstOneOfSchema, obj[`example-${i}`]);
+        });
       }
     }
   } else if (schema.anyOf) {
@@ -28948,22 +28948,26 @@ function schemaToSampleObj(schema, config = {}) {
       }
     }
   } else if (schema.type === 'array' || schema.items) {
-    var _schema$items4;
+    if (schema.items || schema.example) {
+      var _schema$items4;
 
-    if (schema.example) {
-      obj['example-0'] = schema.example;
-    } else if ((_schema$items4 = schema.items) !== null && _schema$items4 !== void 0 && _schema$items4.example) {
-      // schemas and properties support single example but not multiple examples.
-      obj['example-0'] = [schema.items.example];
-    } else {
-      const samples = schemaToSampleObj(schema.items, config);
-      let i = 0;
+      if (schema.example) {
+        obj['example-0'] = schema.example;
+      } else if ((_schema$items4 = schema.items) !== null && _schema$items4 !== void 0 && _schema$items4.example) {
+        // schemas and properties support single example but not multiple examples.
+        obj['example-0'] = [schema.items.example];
+      } else {
+        const samples = schemaToSampleObj(schema.items, config);
+        let i = 0;
 
-      for (const key in samples) {
-        obj[`example-${i}`] = [samples[key]];
-        addSchemaInfoToExample(schema.items, obj[`example-${i}`]);
-        i++;
+        for (const key in samples) {
+          obj[`example-${i}`] = [samples[key]];
+          addSchemaInfoToExample(schema.items, obj[`example-${i}`]);
+          i++;
+        }
       }
+    } else {
+      obj['example-0'] = [];
     }
   } else {
     return {
@@ -29190,6 +29194,8 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
       obj['<any-key>'] = schemaInObjectNotation(schema.additionalProperties, {});
     }
   } else if (schema.type === 'array' || schema.items) {
+    var _schema$items6;
+
     // If Array
     obj['::title'] = schema.title || '';
     obj['::description'] = generateMarkdownForArrayAndObjectDescription(schema, level);
@@ -29197,7 +29203,7 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     obj['::deprecated'] = schema.deprecated || false;
     obj['::readwrite'] = schema.readOnly ? 'readonly' : schema.writeOnly ? 'writeonly' : '';
 
-    if (schema.items.items) {
+    if ((_schema$items6 = schema.items) !== null && _schema$items6 !== void 0 && _schema$items6.items) {
       obj['::array-type'] = schema.items.items.type;
     }
 
@@ -29730,7 +29736,7 @@ class SchemaTree extends lit_element_s {
         max-width: 300px;
       }
       .key.deprecated .key-label {
-        text-decoration: line-through; 
+        color: var(--red);
       }
 
       .open-bracket{
@@ -29800,7 +29806,7 @@ class SchemaTree extends lit_element_s {
         }
       }
 
-      if (data['::readwrite'] === 'readonly') {
+      if (data && data['::readwrite'] === 'readonly') {
         return;
       }
     }
@@ -29812,13 +29818,16 @@ class SchemaTree extends lit_element_s {
         }
       }
 
-      if (data['::readwrite'] === 'writeonly') {
+      if (data && data['::readwrite'] === 'writeonly') {
         return;
       }
     }
 
     if (!data) {
-      return $`<div class="null" style="display:inline;">null</div>`;
+      return $`<div class="null" style="display:inline;">
+        <span class="key-label xxx-of-key"> ${key.replace('::OPTION~', '')}</span>
+        ${dataType === 'array' ? $`<span class='mono-font'> [ ] </span>` : dataType === 'object' ? $`<span class='mono-font'> { } </span>` : $`<span class='mono-font'> schema undefined </span>`}
+      </div>`;
     }
 
     if (Object.keys(data).length === 0) {
@@ -29891,9 +29900,10 @@ class SchemaTree extends lit_element_s {
       var _data$Type2;
 
       return $`
-        <div class="tr ${schemaLevel < this.schemaExpandLevel || (_data$Type2 = data['::type']) !== null && _data$Type2 !== void 0 && _data$Type2.startsWith('xxx-of') ? 'expanded' : 'collapsed'} ${data['::type'] || 'no-type-info'}">
+        <div class="tr ${schemaLevel < this.schemaExpandLevel || (_data$Type2 = data['::type']) !== null && _data$Type2 !== void 0 && _data$Type2.startsWith('xxx-of') ? 'expanded' : 'collapsed'} ${data['::type'] || 'no-type-info'}" title="${data['::deprecated'] ? 'Deprecated' : ''}">
           <div class="td key ${data['::deprecated'] ? 'deprecated' : ''}" style='min-width:${minFieldColWidth}px'>
-            ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION') ? $`<span class='key-label xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>` : keyLabel === '::props' || keyLabel === '::ARRAY~OF' ? '' : schemaLevel > 0 ? $`<span class="key-label" title="${readOrWrite === 'readonly' ? 'Read-Only' : readOrWrite === 'writeonly' ? 'Write-Only' : ''}">
+            ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION') ? $`<span class='key-label xxx-of-key'> ${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>` : keyLabel === '::props' || keyLabel === '::ARRAY~OF' ? '' : schemaLevel > 0 ? $`<span class="key-label" title="${readOrWrite === 'readonly' ? 'Read-Only' : readOrWrite === 'writeonly' ? 'Write-Only' : ''}">
+                      ${data['::deprecated'] ? '✗' : ''}
                       ${keyLabel.replace(/\*$/, '')}${keyLabel.endsWith('*') ? $`<span style="color:var(--red)">*</span>` : ''}${readOrWrite === 'readonly' ? $` 🆁` : readOrWrite === 'writeonly' ? $` 🆆` : readOrWrite}:
                     </span>` : ''}
             ${data['::type'] === 'xxx-of' && dataType === 'array' ? $`<span style="color:var(--primary-color)">ARRAY</span>` : ''} 
@@ -29944,8 +29954,9 @@ class SchemaTree extends lit_element_s {
     }
 
     return $`
-      <div class = "tr primitive">
-        <div class="td key ${deprecated}" style='min-width:${minFieldColWidth}px' >
+      <div class = "tr primitive" title="${deprecated ? 'Deprecated' : ''}">
+        <div class="td key ${deprecated}" style='min-width:${minFieldColWidth}px'>
+          ${deprecated ? $`<span style='color:var(--red);'>✗</span>` : ''}
           ${keyLabel.endsWith('*') ? $`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>:` : key.startsWith('::OPTION') ? $`<span class='key-label xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>` : $`<span class="key-label">${keyLabel}:</span>`}
           <span class="${dataTypeCss}" title="${finalReadWriteTip}"> 
             ${dataType === 'array' ? `[${type}]` : `${type}`}
@@ -30298,12 +30309,12 @@ class ApiRequest extends lit_element_s {
           text-align: right;
           line-height: var(--font-size-small);
         }
-        .param-name{
+        .param-name {
           color: var(--fg); 
           font-family: var(--font-mono);
         }
         .param-name.deprecated { 
-          text-decoration: line-through;
+          color: var(--red);
         }
         .param-type{
           color: var(--light-fg); 
@@ -30518,10 +30529,12 @@ class ApiRequest extends lit_element_s {
 
       const labelColWidth = 'read focused'.includes(this.renderStyle) ? '200px' : '160px';
       tableRows.push($`
-      <tr> 
+      <tr title="${param.deprecated ? 'Deprecated' : ''}"> 
         <td rowspan="${this.allowTry === 'true' ? '1' : '2'}" style="width:${labelColWidth}; min-width:100px;">
-          <div class="param-name">
-            ${param.required ? $`<span style='color:var(--red)'>*</span>` : ''}${param.name}
+          <div class="param-name ${param.deprecated ? 'deprecated' : ''}" >
+            ${param.deprecated ? $`<span style='color:var(--red);'>✗</span>` : ''}
+            ${param.required ? $`<span style='color:var(--red)'>*</span>` : ''}
+            ${param.name}
           </div>
           <div class="param-type">
             ${paramSchema.type === 'array' ? `${paramSchema.arrayType}` : `${paramSchema.format ? paramSchema.format : paramSchema.type}`}
@@ -30590,8 +30603,9 @@ class ApiRequest extends lit_element_s {
                       data-pname="${param.name}" 
                       data-example="${Array.isArray(example.exampleVal) ? example.exampleVal.join('~|~') : example.exampleVal}"
                       data-param-allow-reserved = "${paramAllowReserved}"
+                      data-x-fill-example = "${param['x-fill-example'] || 'yes'}"
                       data-array="false"
-                      .value="${live_l(this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : '')}"
+                      .value="${param['x-fill-example'] === 'no' ? '' : live_l(this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : '')}"
                     />`}
             </td>` : ''}
         ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern ? $`
@@ -30935,7 +30949,7 @@ class ApiRequest extends lit_element_s {
         const labelColWidth = 'read focused'.includes(this.renderStyle) ? '200px' : '160px';
         const example = normalizeExamples(paramSchema.examples || paramSchema.example, paramSchema.type);
         formDataTableRows.push($`
-        <tr> 
+        <tr title="${fieldSchema.deprecated ? 'Deprecated' : ''}"> 
           <td style="width:${labelColWidth}; min-width:100px;">
             <div class="param-name ${fieldSchema.deprecated ? 'deprecated' : ''}">
               ${fieldName}${(_schema$required = schema.required) !== null && _schema$required !== void 0 && _schema$required.includes(fieldName) || fieldSchema.required ? $`<span style='color:var(--red);'>*</span>` : ''}
@@ -31760,7 +31774,7 @@ class SchemaTable extends lit_element_s {
         width: 240px;
       }
       .key.deprecated .key-label {
-        text-decoration: line-through;
+        color: var(--red);
       }
 
       .table .key-type {
@@ -31836,7 +31850,7 @@ class SchemaTable extends lit_element_s {
         }
       }
 
-      if (data['::readwrite'] === 'readonly') {
+      if (data && data['::readwrite'] === 'readonly') {
         return;
       }
     }
@@ -31848,18 +31862,22 @@ class SchemaTable extends lit_element_s {
         }
       }
 
-      if (data['::readwrite'] === 'writeonly') {
+      if (data && data['::readwrite'] === 'writeonly') {
         return;
       }
+    }
+
+    if (!data) {
+      return $`<div class="null" style="display:inline;">
+        <span style='margin-left:${(schemaLevel + 1) * 16}px'> &nbsp; </span>
+        <span class="key-label xxx-of-key"> ${key.replace('::OPTION~', '')}</span>
+        ${dataType === 'array' ? $`<span class='mono-font'> [ ] </span>` : dataType === 'object' ? $`<span class='mono-font'> { } </span>` : $`<span class='mono-font'> schema undefined </span>`}
+      </div>`;
     }
 
     const newSchemaLevel = (_data$Type = data['::type']) !== null && _data$Type !== void 0 && _data$Type.startsWith('xxx-of') ? schemaLevel : schemaLevel + 1;
     const newIndentLevel = dataType === 'xxx-of-option' || data['::type'] === 'xxx-of-option' || key.startsWith('::OPTION') ? indentLevel : indentLevel + 1;
     const leftPadding = 16 * newIndentLevel; // 2 space indentation at each level
-
-    if (!data) {
-      return $`<div class="null" style="display:inline;">null</div>`;
-    }
 
     if (Object.keys(data).length === 0) {
       return $`<span class="td key object" style='padding-left:${leftPadding}px'>${key}</span>`;
@@ -31901,7 +31919,7 @@ class SchemaTable extends lit_element_s {
     if (typeof data === 'object') {
       return $`
         ${newSchemaLevel >= 0 && key ? $`
-            <div class='tr ${newSchemaLevel <= this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type']}' data-obj='${keyLabel}'>
+            <div class='tr ${newSchemaLevel <= this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type']}' data-obj='${keyLabel}' title="${data['::deprecated'] ? 'Deprecated' : ''}">
               <div class="td key ${data['::deprecated'] ? 'deprecated' : ''}" style='padding-left:${leftPadding}px'>
                 ${keyLabel || keyDescr ? $`
                     <span 
@@ -31911,7 +31929,7 @@ class SchemaTable extends lit_element_s {
                     >
                       ${schemaLevel < this.schemaExpandLevel ? '-' : '+'}
                     </span>` : ''}
-                ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION') ? $`<span class="xxx-of-key" style="margin-left:-6px">${keyLabel}</span><span class="${isOneOfLabel ? 'xxx-of-key' : 'xxx-of-descr'}">${keyDescr}</span>` : keyLabel.endsWith('*') ? $`<span class="key-label" style="display:inline-block; margin-left:-6px;"> ${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>` : $`<span class="key-label" style="display:inline-block; margin-left:-6px;">${keyLabel === '::props' ? '' : keyLabel}</span>`}
+                ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION') ? $`<span class="xxx-of-key" style="margin-left:-6px">${keyLabel}</span><span class="${isOneOfLabel ? 'xxx-of-key' : 'xxx-of-descr'}">${keyDescr}</span>` : keyLabel.endsWith('*') ? $`<span class="key-label" style="display:inline-block; margin-left:-6px;">${data['::deprecated'] ? '✗' : ''} ${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>` : $`<span class="key-label" style="display:inline-block; margin-left:-6px;">${data['::deprecated'] ? '✗' : ''} ${keyLabel === '::props' ? '' : keyLabel}</span>`}
                 ${data['::type'] === 'xxx-of' && dataType === 'array' ? $`<span style="color:var(--primary-color)">ARRAY</span>` : ''} 
               </div>
               <div class='td key-type' title="${data['::readwrite'] === 'readonly' ? 'Read-Only' : data['::readwrite'] === 'writeonly' ? 'Write-Only' : ''}">
@@ -31966,9 +31984,12 @@ class SchemaTable extends lit_element_s {
     }
 
     return $`
-      <div class = "tr primitive">
+      <div class = "tr primitive" title="${deprecated ? 'Deprecated' : ''}">
         <div class="td key ${deprecated}" style='padding-left:${leftPadding}px'>
-          ${(_keyLabel = keyLabel) !== null && _keyLabel !== void 0 && _keyLabel.endsWith('*') ? $`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>` : key.startsWith('::OPTION') ? $`<span class='xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>` : $`${keyLabel ? $`<span class="key-label"> ${keyLabel}</span>` : $`<span class="xxx-of-descr">${schemaTitle}</span>`}`}
+          ${deprecated ? $`<span style='color:var(--red);'>✗</span>` : ''}
+          ${(_keyLabel = keyLabel) !== null && _keyLabel !== void 0 && _keyLabel.endsWith('*') ? $`
+              <span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span>
+              <span style='color:var(--red);'>*</span>` : key.startsWith('::OPTION') ? $`<span class='xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>` : $`${keyLabel ? $`<span class="key-label"> ${keyLabel}</span>` : $`<span class="xxx-of-descr">${schemaTitle}</span>`}`}
         </div>
         ${dataTypeHtml}
         <div class='td key-descr'>
@@ -35373,6 +35394,8 @@ customElements.define('rapi-doc', RapiDoc);
 
 
 
+
+
 class RapiDocMini extends lit_element_s {
   constructor() {
     super();
@@ -35766,6 +35789,27 @@ class RapiDocMini extends lit_element_s {
       this.resolvedSpec = null;
       console.error(`RapiDoc: Unable to resolve the API spec..  ${err.message}`); // eslint-disable-line no-console
     }
+  } // Public Method - to update security-scheme of type http
+
+
+  setHttpUserNameAndPassword(securitySchemeId, username, password) {
+    return applyApiKey.call(this, securitySchemeId, username, password);
+  } // Public Method - to update security-scheme of type apiKey or OAuth
+
+
+  setApiKey(securitySchemeId, apiKeyValue) {
+    return applyApiKey.call(this, securitySchemeId, '', '', apiKeyValue);
+  } // Public Method
+
+
+  removeAllSecurityKeys() {
+    return onClearAllApiKeys.call(this);
+  } // Public Method
+
+
+  setApiServer(apiServerUrl) {
+    // return apiServerUrl;
+    return setApiServer.call(this, apiServerUrl);
   }
 
   async afterSpecParsedAndValidated(spec) {
@@ -42067,7 +42111,7 @@ Prism.languages.js = Prism.languages.javascript;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("27ebe4f6ce7b32ad2722")
+/******/ 		__webpack_require__.h = () => ("246b4832d0ee8aacc0a3")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
