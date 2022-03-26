@@ -25,6 +25,8 @@ import EndpointStyles from '~/styles/endpoint-styles';
 import { rapidocApiKey } from '~/utils/common-utils';
 import ProcessSpec from '~/utils/spec-parser';
 import mainBodyTemplate from '~/templates/main-body-template';
+import { applyApiKey, onClearAllApiKeys } from '~/templates/security-scheme-template';
+import { setApiServer } from '~/templates/server-template';
 
 export default class RapiDocMini extends LitElement {
   constructor() {
@@ -299,6 +301,27 @@ export default class RapiDocMini extends LitElement {
       this.resolvedSpec = null;
       console.error(`RapiDoc: Unable to resolve the API spec..  ${err.message}`); // eslint-disable-line no-console
     }
+  }
+
+  // Public Method - to update security-scheme of type http
+  setHttpUserNameAndPassword(securitySchemeId, username, password) {
+    return applyApiKey.call(this, securitySchemeId, username, password);
+  }
+
+  // Public Method - to update security-scheme of type apiKey or OAuth
+  setApiKey(securitySchemeId, apiKeyValue) {
+    return applyApiKey.call(this, securitySchemeId, '', '', apiKeyValue);
+  }
+
+  // Public Method
+  removeAllSecurityKeys() {
+    return onClearAllApiKeys.call(this);
+  }
+
+  // Public Method
+  setApiServer(apiServerUrl) {
+    // return apiServerUrl;
+    return setApiServer.call(this, apiServerUrl);
   }
 
   async afterSpecParsedAndValidated(spec) {
