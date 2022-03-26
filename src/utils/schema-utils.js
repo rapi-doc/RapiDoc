@@ -488,14 +488,14 @@ function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
   if (schema.title) {
     markdown = `**${schema.title}:** `;
   }
+  if (schema.description) {
+    markdown = `${markdown} ${schema.description} ${schema.minItems || schema.maxItems ? '⤵<br/>' : ''}`;
+  }
   if (schema.minItems) {
     markdown = `${markdown} **Min Items:** ${schema.minItems}`;
   }
   if (schema.maxItems) {
     markdown = `${markdown} **Max Items:** ${schema.maxItems}`;
-  }
-  if (schema.description) {
-    markdown = `${markdown} ${schema.description}`;
   }
   if (level > 0 && schema.items?.description) {
     let itemsMarkdown = '';
