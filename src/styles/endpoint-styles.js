@@ -105,7 +105,7 @@ export default css`
   word-break: break-all;
 }
 
-.method{
+.endpoint-head .method{
   padding:2px 5px;
   vertical-align: middle;
   font-size:var(--font-size-small);
@@ -119,14 +119,14 @@ export default css`
   text-transform:uppercase;
   margin-right:5px;
 }
-.method.delete{ border: 2px solid var(--red);}
-.method.put{ border: 2px solid var(--orange); }
-.method.post{ border: 2px solid var(--green); }
-.method.get{ border: 2px solid var(--blue); }
-.method.get.deprecated{ border: 2px solid var(--border-color); }
-.method.head,
-.method.patch,
-.method.options { 
+.endpoint-head .method.delete{ border: 2px solid var(--red);}
+.endpoint-head .method.put{ border: 2px solid var(--orange); }
+.endpoint-head .method.post{ border: 2px solid var(--green); }
+.endpoint-head .method.get{ border: 2px solid var(--blue); }
+.endpoint-head .method.get.deprecated{ border: 2px solid var(--border-color); }
+.endpoint-head .method.head,
+.endpoint-head .method.patch,
+.endpoint-head .method.options { 
   border: 2px solid var(--yellow); 
 }
 
