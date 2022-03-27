@@ -18,6 +18,7 @@ info:
             x-client-id: my-client-id             # <--- when provided it will be pre filled in RapiDoc UI
             x-client-secret: my-client-secret     # <--- when provided it will be pre filled in RapiDoc UI
             x-default-scopes: [dog-lover]         # <--- when provided scopes will be pre checked in RapiDoc UI
+            x-receive-token-in: request-body      # <--- can be 'header' or 'request-body' when provided this will be pre selected
             flows:
               authorizationCode:
                 authorizationUrl: /authorize
@@ -57,6 +58,7 @@ components:
       x-client-secret: my-client-secret
       x-default-scopes:
         - dog-lover
+      x-receive-token-in: request-body  
       flows:
         authorizationCode:
           authorizationUrl: /authorize

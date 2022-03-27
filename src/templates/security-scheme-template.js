@@ -252,7 +252,7 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
 
 /* eslint-disable indent */
 
-function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, authFlow, defaultScopes = []) {
+function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, authFlow, defaultScopes = [], receiveTokenIn = 'header') {
   let { authorizationUrl, tokenUrl, refreshUrl } = authFlow;
   const isUrlAbsolute = (url) => (url.indexOf('://') > 0 || url.indexOf('//') === 0);
   if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
@@ -337,8 +337,8 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
                 ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password'
                   ? html`
                     <select style="margin-right:5px;" class="${flowName} ${securitySchemeId} oauth-send-client-secret-in">
-                      <option value = 'header' selected> Authorization Header </option>
-                      <option value = 'request-body'> Request Body </option>
+                      <option value = 'header' .selected = ${receiveTokenIn === 'header'} > Authorization Header </option>
+                      <option value = 'request-body' .selected = ${receiveTokenIn === 'request-body'}> Request Body </option>
                     </select>`
                   : ''
                 }`
@@ -462,7 +462,7 @@ export default function securitySchemeTemplate() {
               ? html`
                 <tr>
                   <td style="border:none; padding-left:48px">
-                    ${Object.keys(v.flows).map((f) => oAuthFlowTemplate.call(this, f, v['x-client-id'], v['x-client-secret'], v.securitySchemeId, v.flows[f], v['x-default-scopes']))}
+                    ${Object.keys(v.flows).map((f) => oAuthFlowTemplate.call(this, f, v['x-client-id'], v['x-client-secret'], v.securitySchemeId, v.flows[f], v['x-default-scopes'], v['x-receive-token-in']))}
                   </td>
                 </tr>
                 `
