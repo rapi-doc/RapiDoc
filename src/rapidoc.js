@@ -117,6 +117,7 @@ export default class RapiDoc extends LitElement {
       navHoverTextColor: { type: String, attribute: 'nav-hover-text-color' },
       navAccentColor: { type: String, attribute: 'nav-accent-color' },
       navItemSpacing: { type: String, attribute: 'nav-item-spacing' },
+      showMethodInNavBar: { type: String, attribute: 'show-method-in-nav-bar' },
       usePathInNavBar: { type: String, attribute: 'use-path-in-nav-bar' },
       infoDescriptionHeadingsInNavBar: { type: String, attribute: 'info-description-headings-in-navbar' },
 
@@ -329,6 +330,20 @@ export default class RapiDoc extends LitElement {
         100% { transform: rotate(360deg); }
       }
 
+      .nav-method {
+        padding: 3px 4px;
+        border-radius: 4px 0 0 4px;
+        margin-right: 4px;
+        font-weight: bold;
+        font-size: calc(var(--font-size-small) - 2px);
+        color: #000;
+      }
+      .nav-method.get { background-color: var(--blue); }
+      .nav-method.put { background-color: var(--orange); }
+      .nav-method.post { background-color: var(--green); }
+      .nav-method.delete { background-color: var(--red); }
+      .nav-method.head, .nav-method.patch , .nav-method.options { background-color: var(--yellow); }
+
       @media only screen and (min-width: 768px) {
         .nav-bar {
           width: 260px;
@@ -458,6 +473,7 @@ export default class RapiDoc extends LitElement {
     if (!this.generateMissingTags || !'true, false,'.includes(`${this.generateMissingTags},`)) { this.generateMissingTags = 'false'; }
     if (!this.sortEndpointsBy || !'method, path, summary, none,'.includes(`${this.sortEndpointsBy},`)) { this.sortEndpointsBy = 'path'; }
     if (!this.navItemSpacing || !'compact, relaxed, default,'.includes(`${this.navItemSpacing},`)) { this.navItemSpacing = 'default'; }
+    if (!this.showMethodInNavBar || !'true, false,'.includes(`${this.showMethodInNavBar},`)) { this.showMethodInNavBar = 'false'; }
     if (!this.usePathInNavBar || !'true, false,'.includes(`${this.usePathInNavBar},`)) { this.usePathInNavBar = 'false'; }
     if (!this.fontSize || !'default, large, largest,'.includes(`${this.fontSize},`)) { this.fontSize = 'default'; }
 
