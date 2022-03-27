@@ -134,7 +134,7 @@ export default class JsonSchemaViewer extends LitElement {
       .main-content::-webkit-scrollbar-thumb {
         background-color: var(--border-color);
       }
-      .header {
+      .main-header {
         background-color:var(--header-bg);
         color:var(--header-fg);
         width:100%;

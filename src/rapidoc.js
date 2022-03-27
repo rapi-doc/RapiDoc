@@ -250,7 +250,7 @@ export default class RapiDoc extends LitElement {
       .tag.title {
         text-transform: uppercase;
       }
-      .header {
+      .main-header {
         background-color:var(--header-bg);
         color:var(--header-fg);
         width:100%;
