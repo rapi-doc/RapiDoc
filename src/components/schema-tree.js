@@ -319,8 +319,9 @@ export default class SchemaTree extends LitElement {
           ${dataType === 'array' ? html`<span class="m-markdown-small">${unsafeHTML(marked(description))}</span>` : ''}
           ${schemaDescription
             ? html`<span class="m-markdown-small">
-              ${unsafeHTML(marked(`${schemaTitle ? `**${schemaTitle}:**` : ''}`))}
-                <span> ${schemaDescription} ${constraint || defaultValue || allowedValues || pattern ? '⤵' : ''} </span>
+                ${unsafeHTML(marked(
+                  `${schemaTitle ? `**${schemaTitle}:**` : ''} ${schemaDescription} ${constraint || defaultValue || allowedValues || pattern ? '⤵' : ''}`,
+                ))}
               </span>`
             : ''
           }
