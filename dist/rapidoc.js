@@ -27926,7 +27926,7 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
 /* eslint-disable indent */
 
 
-function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, authFlow, defaultScopes = []) {
+function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, authFlow, defaultScopes = [], receiveTokenIn = 'header') {
   let {
     authorizationUrl,
     tokenUrl,
@@ -28001,8 +28001,8 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
                 <input type="password" part="textbox textbox-auth-client-secret" value = "${clientSecret || ''}" placeholder="client-secret" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} oauth-client-secret" style = "margin:0 5px;">
                 ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password' ? $`
                     <select style="margin-right:5px;" class="${flowName} ${securitySchemeId} oauth-send-client-secret-in">
-                      <option value = 'header' selected> Authorization Header </option>
-                      <option value = 'request-body'> Request Body </option>
+                      <option value = 'header' .selected = ${receiveTokenIn === 'header'} > Authorization Header </option>
+                      <option value = 'request-body' .selected = ${receiveTokenIn === 'request-body'}> Request Body </option>
                     </select>` : ''}` : ''}
             ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit' || flowName === 'password' ? $`
                 <button class="m-btn thin-border" part="btn btn-outline"
@@ -28115,7 +28115,7 @@ function securitySchemeTemplate() {
             ${v.type.toLowerCase() === 'oauth2' ? $`
                 <tr>
                   <td style="border:none; padding-left:48px">
-                    ${Object.keys(v.flows).map(f => oAuthFlowTemplate.call(this, f, v['x-client-id'], v['x-client-secret'], v.securitySchemeId, v.flows[f], v['x-default-scopes']))}
+                    ${Object.keys(v.flows).map(f => oAuthFlowTemplate.call(this, f, v['x-client-id'], v['x-client-secret'], v.securitySchemeId, v.flows[f], v['x-default-scopes'], v['x-receive-token-in']))}
                   </td>
                 </tr>
                 ` : ''}
@@ -28987,16 +28987,16 @@ function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
     markdown = `**${schema.title}:** `;
   }
 
+  if (schema.description) {
+    markdown = `${markdown} ${schema.description} ${schema.minItems || schema.maxItems ? '⤵<br/>' : ''}`;
+  }
+
   if (schema.minItems) {
     markdown = `${markdown} **Min Items:** ${schema.minItems}`;
   }
 
   if (schema.maxItems) {
     markdown = `${markdown} **Max Items:** ${schema.maxItems}`;
-  }
-
-  if (schema.description) {
-    markdown = `${markdown} ${schema.description}`;
   }
 
   if (level > 0 && (_schema$items5 = schema.items) !== null && _schema$items5 !== void 0 && _schema$items5.description) {
@@ -29965,11 +29965,13 @@ class SchemaTree extends lit_element_s {
         </div>
         <div class='td key-descr'>
           ${dataType === 'array' ? $`<span class="m-markdown-small">${unsafe_html_o(marked(description))}</span>` : ''}
+          ${schemaDescription ? $`<span class="m-markdown-small">
+                ${unsafe_html_o(marked(`${schemaTitle ? `**${schemaTitle}:**` : ''} ${schemaDescription} ${constraint || defaultValue || allowedValues || pattern ? '⤵' : ''}`))}
+              </span>` : ''}
           ${constraint ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Constraints: </span>${constraint}</div>` : ''}
           ${defaultValue ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
           ${allowedValues ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Allowed: </span>${allowedValues}</div>` : ''}
           ${pattern ? $`<div style='display:inline-block; line-break: anywhere; margin-right:8px'><span class='bold-text'>Pattern: </span>${pattern}</div>` : ''}
-          ${schemaDescription ? $`<span class="m-markdown-small">${unsafe_html_o(marked(`${schemaTitle ? `**${schemaTitle}:**` : ''} ${schemaDescription}`))}</span>` : ''}
         </div>
       </div>
     `;
@@ -31994,11 +31996,13 @@ class SchemaTable extends lit_element_s {
         ${dataTypeHtml}
         <div class='td key-descr'>
           ${dataType === 'array' ? $`<span class="m-markdown-small">${unsafe_html_o(marked(description))}</span>` : ''}
+          ${schemaDescription ? $`<span class="m-markdown-small">
+              ${unsafe_html_o(marked(`${schemaTitle ? `**${schemaTitle}:**` : ''} ${schemaDescription} ${constraint || defaultValue || allowedValues || pattern ? '⤵' : ''}`))}
+              </span>` : ''}
           ${constraint ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Constraints: </span> ${constraint}</div>` : ''}
           ${defaultValue ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
           ${allowedValues ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Allowed: </span>${allowedValues}</div>` : ''}
           ${pattern ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Pattern: </span>${pattern}</div>` : ''}
-          ${schemaDescription ? $`<span class="m-markdown-small">${unsafe_html_o(marked(`${schemaTitle ? `**${schemaTitle}:**` : ''} ${schemaDescription}`))}</span>` : ''}
         </div>
       </div>
     `;
@@ -32944,8 +32948,9 @@ function navbarTemplate() {
   }}'
               >
                 <span style = "${p.deprecated ? 'filter:opacity(0.5)' : ''}">
+                  ${this.showMethodInNavBar === 'true' ? $`<span class="nav-method ${p.method}">${p.method.substring(0, 3).toUpperCase()}</span>` : ''}
                   ${p.isWebhook ? $`<span style="font-weight:bold; margin-right:8px; font-size: calc(var(--font-size-small) - 2px)">WEBHOOK</span>` : ''}
-                  ${this.usePathInNavBar === 'true' ? $`<span class='mono-font'>${p.method.toUpperCase()} ${p.path}</span>` : p.summary || p.shortSummary}
+                  ${this.usePathInNavBar === 'true' ? $`<span class='mono-font'>${p.path}</span>` : p.summary || p.shortSummary}
                 </span>
               </div>`)}
             </div>
@@ -33346,7 +33351,7 @@ function logoTemplate(style) {
 
 function headerTemplate() {
   return $`
-  <header class="row header regular-font" part="section-header" style="padding:8px 4px 8px 4px;min-height:48px;">
+  <header class="row main-header regular-font" part="section-header" style="padding:8px 4px 8px 4px;min-height:48px;">
     <div class="only-large-screen-flex" style="align-items: center;">
       <slot name="logo" class="logo" part="section-logo">
         ${logoTemplate('height:36px;width:36px;margin-left:5px')}
@@ -34034,7 +34039,7 @@ function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = 
     <!-- Advanced Search -->
     ${this.allowAdvancedSearch === 'false' ? '' : searchByPropertiesModalTemplate.call(this)}
 
-    <div id='the-main-body' class="body" dir= ${this.pageDirection}>
+    <div id='the-main-body' class="body ${this.cssClasses}" dir= ${this.pageDirection} >
       <!-- Side Nav -->
       ${(this.renderStyle === 'read' || this.renderStyle === 'focused') && this.showSideNav === 'true' && this.resolvedSpec ? navbarTemplate.call(this) : ''}
 
@@ -34318,6 +34323,14 @@ class RapiDoc extends lit_element_s {
         type: String,
         attribute: 'load-fonts'
       },
+      cssFile: {
+        type: String,
+        attribute: 'css-file'
+      },
+      cssClasses: {
+        type: String,
+        attribute: 'css-classes'
+      },
       // Nav Bar Colors
       navBgColor: {
         type: String,
@@ -34342,6 +34355,10 @@ class RapiDoc extends lit_element_s {
       navItemSpacing: {
         type: String,
         attribute: 'nav-item-spacing'
+      },
+      showMethodInNavBar: {
+        type: String,
+        attribute: 'show-method-in-nav-bar'
       },
       usePathInNavBar: {
         type: String,
@@ -34490,7 +34507,7 @@ class RapiDoc extends lit_element_s {
       .tag.title {
         text-transform: uppercase;
       }
-      .header {
+      .main-header {
         background-color:var(--header-bg);
         color:var(--header-fg);
         width:100%;
@@ -34566,6 +34583,20 @@ class RapiDoc extends lit_element_s {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
       }
+
+      .nav-method {
+        padding: 3px 4px;
+        border-radius: 4px 0 0 4px;
+        margin-right: 4px;
+        font-weight: bold;
+        font-size: calc(var(--font-size-small) - 2px);
+        color: #000;
+      }
+      .nav-method.get { background-color: var(--blue); }
+      .nav-method.put { background-color: var(--orange); }
+      .nav-method.post { background-color: var(--green); }
+      .nav-method.delete { background-color: var(--red); }
+      .nav-method.head, .nav-method.patch , .nav-method.options { background-color: var(--yellow); }
 
       @media only screen and (min-width: 768px) {
         .nav-bar {
@@ -34771,6 +34802,10 @@ class RapiDoc extends lit_element_s {
       this.navItemSpacing = 'default';
     }
 
+    if (!this.showMethodInNavBar || !'true, false,'.includes(`${this.showMethodInNavBar},`)) {
+      this.showMethodInNavBar = 'false';
+    }
+
     if (!this.usePathInNavBar || !'true, false,'.includes(`${this.usePathInNavBar},`)) {
       this.usePathInNavBar = 'false';
     }
@@ -34819,6 +34854,14 @@ class RapiDoc extends lit_element_s {
       this.showAdvancedSearchDialog = false;
     }
 
+    if (!this.cssFile) {
+      this.cssFile = null;
+    }
+
+    if (!this.cssClasses) {
+      this.cssClasses = '';
+    }
+
     marked.setOptions({
       highlight: (code, lang) => {
         if ((prism_default()).languages[lang]) {
@@ -34854,6 +34897,12 @@ class RapiDoc extends lit_element_s {
 
   render() {
     // return render(mainBodyTemplate(this), this.shadowRoot, { eventContext: this });
+    const cssLinkEl = document.querySelector(`link[href*="${this.cssFile}"]`); // adding custom style for RapiDoc
+
+    if (cssLinkEl) {
+      this.shadowRoot.appendChild(cssLinkEl.cloneNode());
+    }
+
     return mainBodyTemplate.call(this);
   }
 
@@ -36089,7 +36138,7 @@ function jsonSchemaViewerTemplate(isMini = false) {
     <!-- Header -->
     ${this.showHeader === 'false' ? '' : headerTemplate.call(this)}
     
-    <div id='the-main-body' class="body" dir= ${this.pageDirection}>
+    <div id='the-main-body' class="body ${this.cssClasses}" dir= ${this.pageDirection}>
 
       <!-- Side Nav -->
       ${jsonSchemaNavTemplate.call(this)}
@@ -36294,7 +36343,7 @@ class JsonSchemaViewer extends lit_element_s {
       .main-content::-webkit-scrollbar-thumb {
         background-color: var(--border-color);
       }
-      .header {
+      .main-header {
         background-color:var(--header-bg);
         color:var(--header-fg);
         width:100%;
@@ -42111,7 +42160,7 @@ Prism.languages.js = Prism.languages.javascript;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("246b4832d0ee8aacc0a3")
+/******/ 		__webpack_require__.h = () => ("1419bfcd54c8b90af680")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
