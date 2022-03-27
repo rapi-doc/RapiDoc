@@ -107,6 +107,8 @@ export default class RapiDoc extends LitElement {
       regularFont: { type: String, attribute: 'regular-font' },
       monoFont: { type: String, attribute: 'mono-font' },
       loadFonts: { type: String, attribute: 'load-fonts' },
+      cssFile: { type: String, attribute: 'css-file' },
+      cssClasses: { type: String, attribute: 'css-classes' },
 
       // Nav Bar Colors
       navBgColor: { type: String, attribute: 'nav-bg-color' },
@@ -472,6 +474,9 @@ export default class RapiDoc extends LitElement {
 
     if (!this.showAdvancedSearchDialog) { this.showAdvancedSearchDialog = false; }
 
+    if (!this.cssFile) { this.cssFile = null; }
+    if (!this.cssClasses) { this.cssClasses = ''; }
+
     marked.setOptions({
       highlight: (code, lang) => {
         if (Prism.languages[lang]) {
@@ -504,6 +509,11 @@ export default class RapiDoc extends LitElement {
 
   render() {
     // return render(mainBodyTemplate(this), this.shadowRoot, { eventContext: this });
+    const cssLinkEl = document.querySelector(`link[href*="${this.cssFile}"]`);
+    // adding custom style for RapiDoc
+    if (cssLinkEl) {
+      this.shadowRoot.appendChild(cssLinkEl.cloneNode());
+    }
     return mainBodyTemplate.call(this);
   }
 

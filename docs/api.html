@@ -156,6 +156,7 @@
           </tr>
         </table>
 
+
         <a id="att-colors"></a>
         <div class='table-title' id="colors"> UI Colors and Fonts </div>
         <table class="m-table">
@@ -235,7 +236,23 @@
             </td>
             <td class='small-font'>default</td>
           </tr>
+
+          <tr>
+            <td class="mono bold right">css-file<br/>css-classes</td>
+            <td class="gray" colspan="2">
+              These two attributes go together which helps to inject your own CSS class.<br/>
+              <ul style="margin-block-start: 0; padding-inline-start: 15px;">
+                <li>create a &lt;link&gt; tag in your html and link to your external css file </li>
+                <li> 
+                  provide the name of css file in <span class='bold mono' style="color:#333"> css-file </span> attribute <br/>
+                  and provide names of all the CSS class names that you would like to apply to RapiDoc Element separated by a space in 
+                  <span class='bold mono' style="color:#333"> css-classes </span> attribute
+                </li>
+              </ul>             
+            </td>
+          </tr>
         </table>
+
 
         <a id="att-nav"></a>
         <div class='table-title' id="nav-bar-colors"> Navigation bar settings (only applicable in <span class="mono bold">read</span> and <span class="mono bold">focused</span> render style)</div>
@@ -286,8 +303,8 @@
             </td>
             <td class='default-col'>default</td>
           </tr>
-
         </table>
+
 
         <a id="att-layout"></a>
         <div class='table-title' id='layout'> UI Layout & Placement</div>
@@ -389,7 +406,6 @@
             </td>
             <td>model</td>
           </tr>
-
           <tr>
             <td class="mono bold right">response-area-height</td>
             <td class="gray">
@@ -399,6 +415,8 @@
             <td>300px</td>
           </tr>
         </table>
+
+
 
         <a id="att-sections"></a>
         <div class='table-title' id='toggle-sections'> Hide/Show Sections </div>
@@ -645,9 +663,6 @@
               To programmatically provide username and password 
             </td>
           </tr>
-
-
-
         </table>
       </div>
 
