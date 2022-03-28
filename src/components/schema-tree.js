@@ -323,7 +323,7 @@ export default class SchemaTree extends LitElement {
                   `${schemaTitle ? `**${schemaTitle}:**` : ''} ${schemaDescription} ${constraint || defaultValue || allowedValues || pattern ? '⤵' : ''}`,
                 ))}
               </span>`
-            : ''
+            : schemaTitle ? html`${schemaTitle} ${constraint || defaultValue || allowedValues || pattern ? '⤵' : ''}` : ''
           }
           ${constraint ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Constraints: </span>${constraint}</div>` : ''}
           ${defaultValue ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
