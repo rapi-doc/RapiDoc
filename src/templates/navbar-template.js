@@ -198,9 +198,9 @@ export default function navbarTemplate() {
                 }}'
               >
                 <span style = "display:flex; align-items:start; ${p.deprecated ? 'filter:opacity(0.5)' : ''}">
-                  ${this.showMethodInNavBar === 'true'
-                   ? html`<span class="nav-method ${p.method}">${p.method.substring(0, 3).toUpperCase()}</span>`
-                   : ''
+                  ${html`<span class="nav-method ${this.showMethodInNavBar} ${p.method}">
+                      ${this.showMethodInNavBar === 'as-colored-block' ? p.method.substring(0, 3).toUpperCase() : p.method.toUpperCase()}
+                    </span>`
                   }
                   ${p.isWebhook ? html`<span style="font-weight:bold; margin-right:8px; font-size: calc(var(--font-size-small) - 2px)">WEBHOOK</span>` : ''}
                   ${this.usePathInNavBar === 'true'

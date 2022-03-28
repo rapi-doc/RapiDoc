@@ -330,20 +330,29 @@ export default class RapiDoc extends LitElement {
         100% { transform: rotate(360deg); }
       }
 
-      .nav-method {
+      .nav-method { font-weight: bold; margin-right: 4px; font-size: calc(var(--font-size-small) - 2px);}
+      .nav-method.false { display: none; }
+
+      .nav-method.as-colored-text.get { color:var(--blue); }
+      .nav-method.as-colored-text.put { color:var(--orange); }
+      .nav-method.as-colored-text.post { color:var(--green); }
+      .nav-method.as-colored-text.delete { color:var(--red); }
+      .nav-method.as-colored-text.head, .nav-method.as-colored-text.patch, .nav-method.as-colored-text.options { color:var(--yellow); }
+      
+      .nav-method.as-colored-block {
         padding: 1px 4px;
         min-width: 30px;
         border-radius: 4px 0 0 4px;
-        margin-right: 4px;
-        font-weight: bold;
-        font-size: calc(var(--font-size-small) - 2px);
         color: #000;
       }
-      .nav-method.get { background-color: var(--blue); }
-      .nav-method.put { background-color: var(--orange); }
-      .nav-method.post { background-color: var(--green); }
-      .nav-method.delete { background-color: var(--red); }
-      .nav-method.head, .nav-method.patch , .nav-method.options { background-color: var(--yellow); }
+
+      .nav-method.as-colored-block.get { background-color: var(--blue); }
+      .nav-method.as-colored-block.put { background-color: var(--orange); }
+      .nav-method.as-colored-block.post { background-color: var(--green); }
+      .nav-method.as-colored-block.delete { background-color: var(--red); }
+      .nav-method.as-colored-block.head, .nav-method.as-colored-block.patch , .nav-method.as-colored-block.options { 
+        background-color: var(--yellow); 
+      }
 
       @media only screen and (min-width: 768px) {
         .nav-bar {
@@ -474,7 +483,7 @@ export default class RapiDoc extends LitElement {
     if (!this.generateMissingTags || !'true, false,'.includes(`${this.generateMissingTags},`)) { this.generateMissingTags = 'false'; }
     if (!this.sortEndpointsBy || !'method, path, summary, none,'.includes(`${this.sortEndpointsBy},`)) { this.sortEndpointsBy = 'path'; }
     if (!this.navItemSpacing || !'compact, relaxed, default,'.includes(`${this.navItemSpacing},`)) { this.navItemSpacing = 'default'; }
-    if (!this.showMethodInNavBar || !'true, false,'.includes(`${this.showMethodInNavBar},`)) { this.showMethodInNavBar = 'false'; }
+    if (!this.showMethodInNavBar || !'false, as-plain-text, as-colored-text, as-colored-block,'.includes(`${this.showMethodInNavBar},`)) { this.showMethodInNavBar = 'false'; }
     if (!this.usePathInNavBar || !'true, false,'.includes(`${this.usePathInNavBar},`)) { this.usePathInNavBar = 'false'; }
     if (!this.fontSize || !'default, large, largest,'.includes(`${this.fontSize},`)) { this.fontSize = 'default'; }
 
