@@ -11,7 +11,7 @@ export default function setTheme(baseTheme, theme = {}) {
 
   // Dark and Light Theme colors
   if (baseTheme === 'dark') {
-    const bg1 = theme.bg1 ? theme.bg1 : '#333';
+    const bg1 = theme.bg1 ? theme.bg1 : '#2a2b2c';
     const fg1 = theme.fg1 ? theme.fg1 : '#bbb';
 
     const bg2 = theme.bg2 ? theme.bg2 : ColorUtils.color.brightness(bg1, 5); // or #383838;
@@ -96,7 +96,7 @@ export default function setTheme(baseTheme, theme = {}) {
       codeOperatorColor: theme.codeOperatorColor || '#67cdcc',
     };
   } else {
-    const bg1 = (theme.bg1 ? theme.bg1 : '#ffffff');
+    const bg1 = (theme.bg1 ? theme.bg1 : '#fafbfc');
     const fg1 = (theme.fg1 ? theme.fg1 : '#444444');
     const bg2 = theme.bg2 ? theme.bg2 : ColorUtils.color.brightness(bg1, -5); // or '#fafafa'
     const bg3 = theme.bg3 ? theme.bg3 : ColorUtils.color.brightness(bg1, -15); // or '#f6f6f6'
@@ -118,7 +118,7 @@ export default function setTheme(baseTheme, theme = {}) {
     const navHoverTextColor = theme.navHoverTextColor ? theme.navHoverTextColor : primaryColor;
     const navAccentColor = theme.navAccentColor ? theme.navAccentColor : primaryColor;
     */
-    const navBgColor = theme.navBgColor ? theme.navBgColor : ColorUtils.color.brightness(bg1, -180);
+    const navBgColor = theme.navBgColor ? theme.navBgColor : ColorUtils.color.brightness(bg1, -200);
     const navTextColor = theme.navTextColor ? theme.navTextColor : ColorUtils.color.opacity(ColorUtils.color.invert(navBgColor), '0.65');
     const navHoverBgColor = theme.navHoverBgColor ? theme.navHoverBgColor : ColorUtils.color.brightness(navBgColor, -15);
     const navHoverTextColor = theme.navHoverTextColor ? theme.navHoverTextColor : ColorUtils.color.invert(navBgColor);

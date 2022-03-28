@@ -331,7 +331,8 @@ export default class RapiDoc extends LitElement {
       }
 
       .nav-method {
-        padding: 3px 4px;
+        padding: 1px 4px;
+        min-width: 30px;
         border-radius: 4px 0 0 4px;
         margin-right: 4px;
         font-weight: bold;

@@ -197,7 +197,7 @@ export default function navbarTemplate() {
                   this.scrollToEventTarget(e, false);
                 }}'
               >
-                <span style = "${p.deprecated ? 'filter:opacity(0.5)' : ''}">
+                <span style = "display:flex; align-items:start; ${p.deprecated ? 'filter:opacity(0.5)' : ''}">
                   ${this.showMethodInNavBar === 'true'
                    ? html`<span class="nav-method ${p.method}">${p.method.substring(0, 3).toUpperCase()}</span>`
                    : ''
