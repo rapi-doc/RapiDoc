@@ -29967,7 +29967,7 @@ class SchemaTree extends lit_element_s {
           ${dataType === 'array' ? $`<span class="m-markdown-small">${unsafe_html_o(marked(description))}</span>` : ''}
           ${schemaDescription ? $`<span class="m-markdown-small">
                 ${unsafe_html_o(marked(`${schemaTitle ? `**${schemaTitle}:**` : ''} ${schemaDescription} ${constraint || defaultValue || allowedValues || pattern ? '⤵' : ''}`))}
-              </span>` : ''}
+              </span>` : schemaTitle ? $`${schemaTitle} ${constraint || defaultValue || allowedValues || pattern ? '⤵' : ''}` : ''}
           ${constraint ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Constraints: </span>${constraint}</div>` : ''}
           ${defaultValue ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
           ${allowedValues ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Allowed: </span>${allowedValues}</div>` : ''}
@@ -31998,7 +31998,7 @@ class SchemaTable extends lit_element_s {
           ${dataType === 'array' ? $`<span class="m-markdown-small">${unsafe_html_o(marked(description))}</span>` : ''}
           ${schemaDescription ? $`<span class="m-markdown-small">
               ${unsafe_html_o(marked(`${schemaTitle ? `**${schemaTitle}:**` : ''} ${schemaDescription} ${constraint || defaultValue || allowedValues || pattern ? '⤵' : ''}`))}
-              </span>` : ''}
+              </span>` : schemaTitle ? $`${schemaTitle} ${constraint || defaultValue || allowedValues || pattern ? '⤵' : ''}` : ''}
           ${constraint ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Constraints: </span> ${constraint}</div>` : ''}
           ${defaultValue ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
           ${allowedValues ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Allowed: </span>${allowedValues}</div>` : ''}
@@ -32948,7 +32948,9 @@ function navbarTemplate() {
   }}'
               >
                 <span style = "display:flex; align-items:start; ${p.deprecated ? 'filter:opacity(0.5)' : ''}">
-                  ${this.showMethodInNavBar === 'true' ? $`<span class="nav-method ${p.method}">${p.method.substring(0, 3).toUpperCase()}</span>` : ''}
+                  ${$`<span class="nav-method ${this.showMethodInNavBar} ${p.method}">
+                      ${this.showMethodInNavBar === 'as-colored-block' ? p.method.substring(0, 3).toUpperCase() : p.method.toUpperCase()}
+                    </span>`}
                   ${p.isWebhook ? $`<span style="font-weight:bold; margin-right:8px; font-size: calc(var(--font-size-small) - 2px)">WEBHOOK</span>` : ''}
                   ${this.usePathInNavBar === 'true' ? $`<span class='mono-font'>${p.path}</span>` : p.summary || p.shortSummary}
                 </span>
@@ -34584,20 +34586,29 @@ class RapiDoc extends lit_element_s {
         100% { transform: rotate(360deg); }
       }
 
-      .nav-method {
+      .nav-method { font-weight: bold; margin-right: 4px; font-size: calc(var(--font-size-small) - 2px);}
+      .nav-method.false { display: none; }
+
+      .nav-method.as-colored-text.get { color:var(--blue); }
+      .nav-method.as-colored-text.put { color:var(--orange); }
+      .nav-method.as-colored-text.post { color:var(--green); }
+      .nav-method.as-colored-text.delete { color:var(--red); }
+      .nav-method.as-colored-text.head, .nav-method.as-colored-text.patch, .nav-method.as-colored-text.options { color:var(--yellow); }
+      
+      .nav-method.as-colored-block {
         padding: 1px 4px;
         min-width: 30px;
         border-radius: 4px 0 0 4px;
-        margin-right: 4px;
-        font-weight: bold;
-        font-size: calc(var(--font-size-small) - 2px);
         color: #000;
       }
-      .nav-method.get { background-color: var(--blue); }
-      .nav-method.put { background-color: var(--orange); }
-      .nav-method.post { background-color: var(--green); }
-      .nav-method.delete { background-color: var(--red); }
-      .nav-method.head, .nav-method.patch , .nav-method.options { background-color: var(--yellow); }
+
+      .nav-method.as-colored-block.get { background-color: var(--blue); }
+      .nav-method.as-colored-block.put { background-color: var(--orange); }
+      .nav-method.as-colored-block.post { background-color: var(--green); }
+      .nav-method.as-colored-block.delete { background-color: var(--red); }
+      .nav-method.as-colored-block.head, .nav-method.as-colored-block.patch , .nav-method.as-colored-block.options { 
+        background-color: var(--yellow); 
+      }
 
       @media only screen and (min-width: 768px) {
         .nav-bar {
@@ -34803,7 +34814,7 @@ class RapiDoc extends lit_element_s {
       this.navItemSpacing = 'default';
     }
 
-    if (!this.showMethodInNavBar || !'true, false,'.includes(`${this.showMethodInNavBar},`)) {
+    if (!this.showMethodInNavBar || !'false, as-plain-text, as-colored-text, as-colored-block,'.includes(`${this.showMethodInNavBar},`)) {
       this.showMethodInNavBar = 'false';
     }
 
@@ -42161,7 +42172,7 @@ Prism.languages.js = Prism.languages.javascript;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("39d6d0ba31bb9af7d036")
+/******/ 		__webpack_require__.h = () => ("9e42f89c766621773c26")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
