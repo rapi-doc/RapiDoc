@@ -32947,7 +32947,7 @@ function navbarTemplate() {
     this.scrollToEventTarget(e, false);
   }}'
               >
-                <span style = "${p.deprecated ? 'filter:opacity(0.5)' : ''}">
+                <span style = "display:flex; align-items:start; ${p.deprecated ? 'filter:opacity(0.5)' : ''}">
                   ${this.showMethodInNavBar === 'true' ? $`<span class="nav-method ${p.method}">${p.method.substring(0, 3).toUpperCase()}</span>` : ''}
                   ${p.isWebhook ? $`<span style="font-weight:bold; margin-right:8px; font-size: calc(var(--font-size-small) - 2px)">WEBHOOK</span>` : ''}
                   ${this.usePathInNavBar === 'true' ? $`<span class='mono-font'>${p.path}</span>` : p.summary || p.shortSummary}
@@ -33706,7 +33706,7 @@ function setTheme(baseTheme, theme = {}) {
   const primaryColorTrans = color_utils.color.opacity(primaryColor, '0.8'); // Dark and Light Theme colors
 
   if (baseTheme === 'dark') {
-    const bg1 = theme.bg1 ? theme.bg1 : '#333';
+    const bg1 = theme.bg1 ? theme.bg1 : '#2a2b2c';
     const fg1 = theme.fg1 ? theme.fg1 : '#bbb';
     const bg2 = theme.bg2 ? theme.bg2 : color_utils.color.brightness(bg1, 5); // or #383838;
 
@@ -33790,7 +33790,7 @@ function setTheme(baseTheme, theme = {}) {
       codeOperatorColor: theme.codeOperatorColor || '#67cdcc'
     };
   } else {
-    const bg1 = theme.bg1 ? theme.bg1 : '#ffffff';
+    const bg1 = theme.bg1 ? theme.bg1 : '#fafbfc';
     const fg1 = theme.fg1 ? theme.fg1 : '#444444';
     const bg2 = theme.bg2 ? theme.bg2 : color_utils.color.brightness(bg1, -5); // or '#fafafa'
 
@@ -33815,7 +33815,7 @@ function setTheme(baseTheme, theme = {}) {
     const navAccentColor = theme.navAccentColor ? theme.navAccentColor : primaryColor;
     */
 
-    const navBgColor = theme.navBgColor ? theme.navBgColor : color_utils.color.brightness(bg1, -180);
+    const navBgColor = theme.navBgColor ? theme.navBgColor : color_utils.color.brightness(bg1, -200);
     const navTextColor = theme.navTextColor ? theme.navTextColor : color_utils.color.opacity(color_utils.color.invert(navBgColor), '0.65');
     const navHoverBgColor = theme.navHoverBgColor ? theme.navHoverBgColor : color_utils.color.brightness(navBgColor, -15);
     const navHoverTextColor = theme.navHoverTextColor ? theme.navHoverTextColor : color_utils.color.invert(navBgColor);
@@ -34585,7 +34585,8 @@ class RapiDoc extends lit_element_s {
       }
 
       .nav-method {
-        padding: 3px 4px;
+        padding: 1px 4px;
+        min-width: 30px;
         border-radius: 4px 0 0 4px;
         margin-right: 4px;
         font-weight: bold;
@@ -42160,7 +42161,7 @@ Prism.languages.js = Prism.languages.javascript;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("0fcb8968b0f742dac632")
+/******/ 		__webpack_require__.h = () => ("39d6d0ba31bb9af7d036")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
