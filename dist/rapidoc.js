@@ -33726,7 +33726,7 @@ function setTheme(baseTheme, theme = {}) {
     const selectionFg = '#eee';
     const headerColor = theme.headerColor ? theme.headerColor : color_utils.color.brightness(bg1, 10);
     const navBgColor = theme.navBgColor ? theme.navBgColor : color_utils.color.brightness(bg1, 10);
-    const navTextColor = theme.navTextColor ? theme.navTextColor : color_utils.color.opacity(color_utils.color.invert(navBgColor), '0.65');
+    const navTextColor = theme.navTextColor ? theme.navTextColor : color_utils.color.opacity(color_utils.color.invert(navBgColor), '0.50');
     const navHoverBgColor = theme.navHoverBgColor ? theme.navHoverBgColor : color_utils.color.brightness(navBgColor, -15);
     const navHoverTextColor = theme.navHoverTextColor ? theme.navHoverTextColor : color_utils.color.invert(navBgColor);
     const navAccentColor = theme.navAccentColor ? theme.navAccentColor : color_utils.color.brightness(primaryColor, 25);
@@ -33946,6 +33946,13 @@ function setTheme(baseTheme, theme = {}) {
     --nav-hover-bg-color:${newTheme.navHoverBgColor};
     --nav-hover-text-color:${newTheme.navHoverTextColor};
     --nav-accent-color:${newTheme.navAccentColor};
+
+    /* Nav API Method Colors*/
+    --nav-get-color:${newTheme.blue};
+    --nav-put-color:${newTheme.orange};
+    --nav-post-color:${newTheme.green};
+    --nav-delete-color:${newTheme.red};
+    --nav-head-color:${newTheme.yellow};
 
     /* Primary Colors */  
     --primary-color:${newTheme.primaryColor};
@@ -34589,11 +34596,11 @@ class RapiDoc extends lit_element_s {
       .nav-method { font-weight: bold; margin-right: 4px; font-size: calc(var(--font-size-small) - 2px);}
       .nav-method.false { display: none; }
 
-      .nav-method.as-colored-text.get { color:var(--blue); }
-      .nav-method.as-colored-text.put { color:var(--orange); }
-      .nav-method.as-colored-text.post { color:var(--green); }
-      .nav-method.as-colored-text.delete { color:var(--red); }
-      .nav-method.as-colored-text.head, .nav-method.as-colored-text.patch, .nav-method.as-colored-text.options { color:var(--yellow); }
+      .nav-method.as-colored-text.get { color:var(--nav-get-color); }
+      .nav-method.as-colored-text.put { color:var(--nav-put-color); }
+      .nav-method.as-colored-text.post { color:var(--nav-post-color); }
+      .nav-method.as-colored-text.delete { color:var(--nav-delete-color); }
+      .nav-method.as-colored-text.head, .nav-method.as-colored-text.patch, .nav-method.as-colored-text.options { color:var(--nav-head-color); }
       
       .nav-method.as-colored-block {
         padding: 1px 4px;
@@ -42172,7 +42179,7 @@ Prism.languages.js = Prism.languages.javascript;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("9e42f89c766621773c26")
+/******/ 		__webpack_require__.h = () => ("d781eb66b9fc0c82dedf")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

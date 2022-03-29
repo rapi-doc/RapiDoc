@@ -333,11 +333,11 @@ export default class RapiDoc extends LitElement {
       .nav-method { font-weight: bold; margin-right: 4px; font-size: calc(var(--font-size-small) - 2px);}
       .nav-method.false { display: none; }
 
-      .nav-method.as-colored-text.get { color:var(--blue); }
-      .nav-method.as-colored-text.put { color:var(--orange); }
-      .nav-method.as-colored-text.post { color:var(--green); }
-      .nav-method.as-colored-text.delete { color:var(--red); }
-      .nav-method.as-colored-text.head, .nav-method.as-colored-text.patch, .nav-method.as-colored-text.options { color:var(--yellow); }
+      .nav-method.as-colored-text.get { color:var(--nav-get-color); }
+      .nav-method.as-colored-text.put { color:var(--nav-put-color); }
+      .nav-method.as-colored-text.post { color:var(--nav-post-color); }
+      .nav-method.as-colored-text.delete { color:var(--nav-delete-color); }
+      .nav-method.as-colored-text.head, .nav-method.as-colored-text.patch, .nav-method.as-colored-text.options { color:var(--nav-head-color); }
       
       .nav-method.as-colored-block {
         padding: 1px 4px;
