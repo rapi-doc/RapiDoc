@@ -34593,7 +34593,7 @@ class RapiDoc extends lit_element_s {
         100% { transform: rotate(360deg); }
       }
 
-      .nav-method { font-weight: bold; margin-right: 4px; font-size: calc(var(--font-size-small) - 2px);}
+      .nav-method { font-weight: bold; margin-right: 4px; font-size: calc(var(--font-size-small) - 2px); white-space: nowrap; }
       .nav-method.false { display: none; }
 
       .nav-method.as-colored-text.get { color:var(--nav-get-color); }
@@ -42179,7 +42179,7 @@ Prism.languages.js = Prism.languages.javascript;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("d781eb66b9fc0c82dedf")
+/******/ 		__webpack_require__.h = () => ("17d08cc6fa39b23c87c7")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

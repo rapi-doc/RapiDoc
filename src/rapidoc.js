@@ -330,7 +330,7 @@ export default class RapiDoc extends LitElement {
         100% { transform: rotate(360deg); }
       }
 
-      .nav-method { font-weight: bold; margin-right: 4px; font-size: calc(var(--font-size-small) - 2px);}
+      .nav-method { font-weight: bold; margin-right: 4px; font-size: calc(var(--font-size-small) - 2px); white-space: nowrap; }
       .nav-method.false { display: none; }
 
       .nav-method.as-colored-text.get { color:var(--nav-get-color); }
