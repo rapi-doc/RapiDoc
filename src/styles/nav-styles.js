@@ -52,7 +52,8 @@ export default css`
   height:16px;
   text-align: center;
   display: inline-block;
-  transform: rotate(270deg);
+  transform: rotate(-90deg);
+  transition: transform 0.2s ease-out 0s;
 }
 .nav-bar.focused .nav-bar-tag-and-paths.expanded .nav-bar-tag-icon::after {
   content: '⌵';
@@ -60,6 +61,7 @@ export default css`
   height:16px;
   text-align: center;
   display: inline-block;
+  transition: transform 0.2s ease-out 0s;
 }
 .nav-scroll::-webkit-scrollbar {
   width: var(--scroll-bar-width, 8px);
