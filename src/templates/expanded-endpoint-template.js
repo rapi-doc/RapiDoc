@@ -79,6 +79,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
         .servers = "${path.servers}"
         server-url = "${path.servers?.[0]?.url || this.selectedServer.computedUrl}"
         fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
+        use-summary-to-list-example = "${this.useSummaryToListExamples}"
         allow-try = "${this.allowTry}"
         accept = "${accept}"
         render-style="${this.renderStyle}" 

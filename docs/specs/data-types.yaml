@@ -121,6 +121,20 @@ paths:
           schema:
             type: string
             minimum: 3
+          examples:
+            empty:
+              value:
+              summary: No Name
+            male-name:
+              value: James
+              summary: Male name
+            female-name:
+              value: Ria
+              summary: Female Name
+            gender-nutral-name:
+              value: Charlie
+              summary: Gender Neutral Name
+
         - name: social-connection
           in: query
           description: facebook, linkedin, github, instagram, twitter etc 
@@ -229,6 +243,10 @@ components:
         - name
         - photoUrls
       properties:
+        dob:
+          description: Date of Birth
+          type: string
+          format: date
         id:
           description: Pet ID
           allOf:
@@ -260,7 +278,19 @@ components:
           description: Name of the person
           type: string
           minLength: 4
-          example: Guru
+          examples:
+            empty:
+              value:
+              summary: No Name
+            male-name:
+              value: James
+              summary: Male name
+            female-name:
+              value: Ria
+              summary: Female Name
+            gender-nutral-name:
+              value: Charlie
+              summary: Gender Neutral Name
         photoUrls:
           description: The list of URL to a cute photos featuring pet
           type: array

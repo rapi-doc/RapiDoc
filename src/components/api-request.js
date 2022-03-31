@@ -52,6 +52,7 @@ export default class ApiRequest extends LitElement {
       responseStatus: { type: String, attribute: false },
       responseUrl: { type: String, attribute: false },
       fillRequestFieldsWithExample: { type: String, attribute: 'fill-request-fields-with-example' },
+      useSummaryToListExamples: { type: String, attribute: 'use-summary-to-list-example' },
       allowTry: { type: String, attribute: 'allow-try' },
       renderStyle: { type: String, attribute: 'render-style' },
       schemaStyle: { type: String, attribute: 'schema-style' },
@@ -245,7 +246,12 @@ export default class ApiRequest extends LitElement {
               }
             }
           }"
-          >${v.value && Array.isArray(v.value) ? (v.value?.join(', ')) : (v.value || '')}</a>
+          >
+          ${this.useSummaryToListExamples === 'true'
+            ? v.description || v.summary || (v.value && Array.isArray(v.value) ? (v.value?.join(', ')) : (v.value || ''))
+            : v.value && Array.isArray(v.value) ? (v.value?.join(', ')) : (v.value || '')
+          }
+          </a>
           ${paramType === 'array' ? '] ' : ''}
         `)}
       `

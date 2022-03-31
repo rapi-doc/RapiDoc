@@ -23,7 +23,19 @@ paths:
           in: query
           description: Name of a person
           required: true
-          example: Iron Man
+          examples:
+            empty: ## just an empty value ## fixes auto filling example
+              value:
+              summary: No Name
+            male-name:
+              value: James
+              summary: Male name
+            female-name:
+              value: Ria
+              summary: Female Name
+            gender-nutral-name:
+              value: Charlie
+              summary: Gender Neutral Name
           schema:
             type: string
             minimum: 3
