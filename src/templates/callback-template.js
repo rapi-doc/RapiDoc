@@ -31,6 +31,7 @@ export default function callbackTemplate(callbacks) {
                       fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
                       use-summary-to-list-example = "${this.useSummaryToListExamples}"
                       allow-try = "false"
+                      hide-try-metadata="${this.hideTryMetadata}"
                       render-style="${this.renderStyle}" 
                       schema-style = "${this.schemaStyle}"
                       request-body-render-style="${this.requestBodyRenderStyle}"

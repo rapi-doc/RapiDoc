@@ -89,6 +89,7 @@ export default class RapiDoc extends LitElement {
       showInfo: { type: String, attribute: 'show-info' },
       allowAuthentication: { type: String, attribute: 'allow-authentication' },
       allowTry: { type: String, attribute: 'allow-try' },
+      hideTryMetadata: { type: Boolean, attribute: 'hide-try-metadata' },
       allowSpecUrlLoad: { type: String, attribute: 'allow-spec-url-load' },
       allowSpecFileLoad: { type: String, attribute: 'allow-spec-file-load' },
       allowSpecFileDownload: { type: String, attribute: 'allow-spec-file-download' },

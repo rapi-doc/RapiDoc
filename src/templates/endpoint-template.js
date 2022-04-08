@@ -130,6 +130,7 @@ function endpointBodyTemplate(path) {
           fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
           use-summary-to-list-example = "${this.useSummaryToListExamples}"
           allow-try = "${this.allowTry}"
+          hide-try-metadata="${this.hideTryMetadata}"
           accept = "${accept}"
           render-style="${this.renderStyle}" 
           schema-style = "${this.schemaStyle}" 

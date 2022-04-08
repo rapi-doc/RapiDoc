@@ -56,6 +56,7 @@ export default class ApiRequest extends LitElement {
       fillRequestFieldsWithExample: { type: String, attribute: 'fill-request-fields-with-example' },
       useSummaryToListExamples: { type: String, attribute: 'use-summary-to-list-example' },
       allowTry: { type: String, attribute: 'allow-try' },
+      hideTryMetadata: { type: Boolean, attribute: 'hide-try-metadata' },
       renderStyle: { type: String, attribute: 'render-style' },
       schemaStyle: { type: String, attribute: 'schema-style' },
       activeSchemaTab: { type: String, attribute: 'active-schema-tab' },
@@ -1038,25 +1039,30 @@ export default class ApiRequest extends LitElement {
     return html`
     <div style="display:flex; align-items:flex-end; margin:16px 0; font-size:var(--font-size-small);">
       <div class="hide-in-small-screen" style="flex-direction:column; margin:0; width:calc(100% - 60px);">
-        <div style="display:flex; flex-direction:row; align-items:center; overflow:hidden;"> 
-          ${selectedServerHtml}
-        </div>
-        <div style="display:flex;">
-          <div style="font-weight:bold; padding-right:5px;">Authentication</div>
-          ${this.security?.length > 0
-            ? html`
-              ${this.api_keys.length > 0
-                ? html`<div style="color:var(--blue); overflow:hidden;"> 
-                    ${this.api_keys.length === 1
-                      ? `${this.api_keys[0]?.typeDisplay} in ${this.api_keys[0].in}`
-                      : `${this.api_keys.length} API keys applied`
-                    } 
-                  </div>`
-                : html`<div class="gray-text">Required  <span style="color:var(--red)">(None Applied)</span>`
-              }`
-            : html`<span class="gray-text"> Not Required </span>`
-          }
-        </div>
+        ${this.hideTryMetadata
+            ? null
+            : html`
+              <div style="display:flex; flex-direction:row; align-items:center; overflow:hidden;"> 
+                ${selectedServerHtml}
+              </div>
+              <div style="display:flex;">
+                <div style="font-weight:bold; padding-right:5px;">Authentication</div>
+                ${this.security?.length > 0
+                  ? html`
+                    ${this.api_keys.length > 0
+                      ? html`<div style="color:var(--blue); overflow:hidden;"> 
+                          ${this.api_keys.length === 1
+                            ? `${this.api_keys[0]?.typeDisplay} in ${this.api_keys[0].in}`
+                            : `${this.api_keys.length} API keys applied`
+                          } 
+                        </div>`
+                      : html`<div class="gray-text">Required  <span style="color:var(--red)">(None Applied)</span>`
+                    }`
+                  : html`<span class="gray-text"> Not Required </span>`
+                }
+              </div>
+            `
+        }
       </div>
       ${
         this.parameters.length > 0 || this.request_body
