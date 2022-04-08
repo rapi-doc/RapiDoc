@@ -33,6 +33,7 @@ export default function callbackTemplate(callbacks) {
                       allow-try = "false"
                       render-style="${this.renderStyle}" 
                       schema-style = "${this.schemaStyle}"
+                      request-body-render-style="${this.requestBodyRenderStyle}"
                       active-schema-tab = "${this.defaultSchemaTab}"
                       schema-expand-level = "${this.schemaExpandLevel}"
                       schema-description-expanded = "${this.schemaDescriptionExpanded}"

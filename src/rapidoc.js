@@ -66,6 +66,7 @@ export default class RapiDoc extends LitElement {
       useSummaryToListExamples: { type: String, attribute: 'use-summary-to-list-example' },
       persistAuth: { type: String, attribute: 'persist-auth' },
       onNavTagClick: { type: String, attribute: 'on-nav-tag-click' },
+      requestBodyRenderStyle: { type: String, attribute: 'request-body-render-style' }, // 'splitted' | 'default'
 
       // Schema Styles
       schemaStyle: { type: String, attribute: 'schema-style' },

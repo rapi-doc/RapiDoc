@@ -28,6 +28,7 @@ export default class ApiRequest extends LitElement {
     this.responseUrl = '';
     this.curlSyntax = '';
     this.activeResponseTab = 'response'; // allowed values: response, headers, curl
+    this.requestBodyRenderStyle = 'default';
     this.selectedRequestBodyType = '';
     this.selectedRequestBodyExample = '';
     this.activeParameterSchemaTabs = {};
@@ -46,6 +47,7 @@ export default class ApiRequest extends LitElement {
       parser: { type: Object },
       accept: { type: String },
       callback: { type: String },
+      requestBodyRenderStyle: { type: String, attribute: 'request-body-render-style' }, // 'splitted' | 'default'
       responseMessage: { type: String, attribute: false },
       responseText: { type: String, attribute: false },
       responseHeaders: { type: String, attribute: false },
@@ -168,6 +170,34 @@ export default class ApiRequest extends LitElement {
           font-weight: bold;
           background: var(--bg);
           opacity: 1;
+        }
+
+        .splitted-body-request--wrapper {
+          display: flex;
+          justify-content: space-between;
+        }
+        .splitted-body-request--example-wrapper,
+        .splitted-body-request--schema-wrapper {
+          display: flex;
+          flex-direction: column;
+          width: calc(50% - 1em);
+        }
+        .splitted-body-request--example-wrapper .example-panel {
+          padding: 0;
+          border-top: 0;
+        }
+        .splitted-body-request--example-wrapper .example {
+          margin: 0;
+        }
+        .splitted-body-request--example-wrapper .request-body-param-user-input {
+          display: block;
+          padding: 1em;
+        }
+        .splitted-body-request--schema-wrapper schema-tree {
+          padding: .5em 1em;
+          border: 1px solid rgb(212, 213, 214);
+          background-color: white;
+          flex: 1;
         }
 
         @media only screen and (min-width: 768px) {
@@ -679,17 +709,34 @@ export default class ApiRequest extends LitElement {
         ${this.request_body.description ? html`<div class="m-markdown" style="margin-bottom:12px">${unsafeHTML(marked(this.request_body.description))}</div>` : ''}
         
         ${(this.selectedRequestBodyType.includes('json') || this.selectedRequestBodyType.includes('xml') || this.selectedRequestBodyType.includes('text') || this.selectedRequestBodyType.includes('jose'))
-          ? html`
-            <div class="tab-panel col" style="border-width:0 0 1px 0;">
-              <div class="tab-buttons row" @click="${(e) => { if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; } }}">
-                <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
-                <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
-              </div>
-              ${this.activeSchemaTab === 'example'
-                ? html`<div class="tab-content col"> ${reqBodyExampleHtml}</div>`
-                : html`<div class="tab-content col"> ${reqBodySchemaHtml}</div>`
-              }
-            </div>`
+          ? (() => {
+            switch (this.requestBodyRenderStyle) {
+              case 'splitted': return html`
+                <div class="splitted-body-request--wrapper">
+                  <div class="splitted-body-request--schema-wrapper">
+                    <span>Expected schema</span>
+                    ${reqBodySchemaHtml}
+                  </div>
+                  <div class="splitted-body-request--example-wrapper">
+                    <span>Body input</span>
+                    ${reqBodyExampleHtml}
+                  </div>
+                </div>
+              `;
+              default: return html`
+                <div class="tab-panel col" style="border-width:0 0 1px 0;">
+                  <div class="tab-buttons row" @click="${(e) => { if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; } }}">
+                    <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
+                    <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
+                  </div>
+                  ${this.activeSchemaTab === 'example'
+                    ? html`<div class="tab-content col"> ${reqBodyExampleHtml}</div>`
+                    : html`<div class="tab-content col"> ${reqBodySchemaHtml}</div>`
+                  }
+                </div>
+              `;
+            }
+          })()
           : html`  
             ${reqBodyFileInputHtml}
             ${reqBodyFormHtml}`
@@ -946,7 +993,7 @@ export default class ApiRequest extends LitElement {
           : html`
             <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};" >
               <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.responseText, e); }}' part="btn btn-fill"> Copy </button>
-              <pre style="white-space:pre; min-height:50px; height:400px; resize:vertical; overflow:auto">${responseFormat
+              <pre style="white-space:pre; min-height:50px; height:max-content; resize:vertical; overflow:auto">${responseFormat
                 ? html`<code>${unsafeHTML(Prism.highlight(this.responseText, Prism.languages[responseFormat], responseFormat))}</code>`
                 : `${this.responseText}`
               }</pre>

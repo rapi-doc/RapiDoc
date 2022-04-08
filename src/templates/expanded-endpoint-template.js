@@ -84,6 +84,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
         accept = "${accept}"
         render-style="${this.renderStyle}" 
         schema-style = "${this.schemaStyle}"
+        request-body-render-style="${this.requestBodyRenderStyle}"
         active-schema-tab = "${this.defaultSchemaTab}"
         schema-expand-level = "${this.schemaExpandLevel}"
         schema-description-expanded = "${this.schemaDescriptionExpanded}"

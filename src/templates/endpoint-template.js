@@ -133,6 +133,7 @@ function endpointBodyTemplate(path) {
           accept = "${accept}"
           render-style="${this.renderStyle}" 
           schema-style = "${this.schemaStyle}" 
+          request-body-render-style="${this.requestBodyRenderStyle}"
           schema-expand-level = "${this.schemaExpandLevel}"
           schema-description-expanded = "${this.schemaDescriptionExpanded}"
           allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
