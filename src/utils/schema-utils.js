@@ -12,7 +12,7 @@ export function getTypeInfo(schema) {
     const schemaNode = schema.$ref.substring(n + 1);
     dataType = `{recursive: ${schemaNode}} `;
   } else if (schema.type) {
-    dataType = Array.isArray(schema.type) ? schema.type.join('┃') : schema.type;
+    dataType = Array.isArray(schema.type) ? schema.type.join(schema.length === 2 ? ' or ' : '┃') : schema.type;
     if (schema.format || schema.enum) {
       dataType = dataType.replace('string', schema.enum ? 'enum' : schema.format);
     }
@@ -604,7 +604,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     });
     let multiPrimitiveTypes;
     if (primitiveType.length > 0) {
-      subSchema.type = primitiveType.join('┃');
+      subSchema.type = primitiveType.join(primitiveType.length === 2 ? ' or ' : '┃');
       multiPrimitiveTypes = getTypeInfo(subSchema);
       if (complexTypes.length === 0) {
         return `${multiPrimitiveTypes?.html || ''}`;

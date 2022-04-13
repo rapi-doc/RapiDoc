@@ -1,71 +1,62 @@
 components:
   schemas:
-    Links:
+    objectWithReadWriteProps:
       additionalProperties: false
-      properties:
-        first:
-          $ref: '#/components/schemas/LinkProperty'
-        last:
-          $ref: '#/components/schemas/LinkProperty'
-        next:
-          $ref: '#/components/schemas/LinkProperty'
-        prev:
-          $ref: '#/components/schemas/LinkProperty'
-        related:
-          $ref: '#/components/schemas/LinkProperty'
-        self:
-          $ref: '#/components/schemas/LinkProperty'
       type: object
-    LinkProperty:
-      oneOf:
-        - description: A string containing the link’s URL.
-          type: array      
-        - additionalProperties: false
-          example:
-            href: https://example.com/api/resource
+      properties:
+        isWriteOnlyString:
+          type: string
+          writeOnly: true
+          format: timestamp
+          example: "2021-07-01T00:00:00.000Z"
+        isWriteOnlyObj:
+          type: object
+          writeOnly: true
           properties:
-            href:
-              description: A string containing the link’s URL.
-              example: https://example.com/api/resource
+            field1:
               type: string
-            meta:
+            field2:
               type: string
-          required:
-            - href
-          type: object            
+        isReadOnlyString:
+          type: string
+          readOnly: true
+          format: timestamp
+          example: "2021-07-01T00:00:00.000Z"
+        isReadOnlyObj:
+          type: object
+          readOnly: true
+          properties:
+            field1:
+              type: string
+            field2:
+              type: string
+        isReadWriteString:
+          type: string
+          format: timestamp
+          example: "2021-07-01T00:00:00.000Z"
+        isReadWriteObj:
+          type: object
+          properties:
+            field1:
+              type: string
+            field2:
+              type: string
 
 info:
-  title: Example API
-  version: v3
+  title: Test for Read and Write only properties
 openapi: 3.0.3
 paths:
-  /foo/{bar_id}/baz:
-    get:
-      description: Get a list of bazzes your foo can access based on its bar id.
-      operationId: getFooBaz
-      parameters:
-        - description: The bar id of your foo.
-          in: path
-          name: bar_id
-          required: true
-          schema:
-            format: uuid
-            type: string
+  /read-and-write-prop-test:
+    post:
+      summary: Request Body accepting a JSON
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/objectWithReadWriteProps"
       responses:
         '200':
           content:
-            application/vnd.api+json:
+            application/json:
               schema:
-                additionalProperties: false
-                properties:
-                  data:
-                    items:
-                      type: string
-                    type: array
-                  links:
-                    $ref: '#/components/schemas/Links'
-                required:
-                  - data
-                  - links
-                type: object
-          description: A list of bazzes accessible by the foo.
+                $ref: "#/components/schemas/objectWithReadWriteProps"

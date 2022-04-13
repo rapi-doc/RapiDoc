@@ -128,6 +128,9 @@ function marked_esm_escape(html, encode) {
 
 const unescapeTest = /&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/ig;
 
+/**
+ * @param {string} html
+ */
 function marked_esm_unescape(html) {
   // explicitly match decimal, hex, and named HTML entities
   return html.replace(unescapeTest, (_, n) => {
@@ -143,8 +146,13 @@ function marked_esm_unescape(html) {
 }
 
 const caret = /(^|[^\[])\^/g;
+
+/**
+ * @param {string | RegExp} regex
+ * @param {string} opt
+ */
 function edit(regex, opt) {
-  regex = regex.source || regex;
+  regex = typeof regex === 'string' ? regex : regex.source;
   opt = opt || '';
   const obj = {
     replace: (name, val) => {
@@ -162,6 +170,12 @@ function edit(regex, opt) {
 
 const nonWordAndColonTest = /[^\w:]/g;
 const originIndependentUrl = /^$|^[a-z][a-z0-9+.-]*:|^[?#]/i;
+
+/**
+ * @param {boolean} sanitize
+ * @param {string} base
+ * @param {string} href
+ */
 function cleanUrl(sanitize, base, href) {
   if (sanitize) {
     let prot;
@@ -192,6 +206,10 @@ const justDomain = /^[^:]+:\/*[^/]*$/;
 const protocol = /^([^:]+:)[\s\S]*$/;
 const domain = /^([^:]+:\/*[^/]*)[\s\S]*$/;
 
+/**
+ * @param {string} base
+ * @param {string} href
+ */
 function resolveUrl(base, href) {
   if (!baseUrls[' ' + base]) {
     // we can ignore everything in base after the last slash of its path component,
@@ -276,9 +294,14 @@ function splitCells(tableRow, count) {
   return cells;
 }
 
-// Remove trailing 'c's. Equivalent to str.replace(/c*$/, '').
-// /c*$/ is vulnerable to REDOS.
-// invert: Remove suffix of non-c chars instead. Default falsey.
+/**
+ * Remove trailing 'c's. Equivalent to str.replace(/c*$/, '').
+ * /c*$/ is vulnerable to REDOS.
+ *
+ * @param {string} str
+ * @param {string} c
+ * @param {boolean} invert Remove suffix of non-c chars instead. Default falsey.
+ */
 function rtrim(str, c, invert) {
   const l = str.length;
   if (l === 0) {
@@ -300,7 +323,7 @@ function rtrim(str, c, invert) {
     }
   }
 
-  return str.substr(0, l - suffLen);
+  return str.slice(0, l - suffLen);
 }
 
 function findClosingBracket(str, b) {
@@ -332,6 +355,10 @@ function checkSanitizeDeprecation(opt) {
 }
 
 // copied from https://stackoverflow.com/a/5450113/806777
+/**
+ * @param {string} pattern
+ * @param {number} count
+ */
 function repeatString(pattern, count) {
   if (count < 1) {
     return '';
@@ -492,7 +519,7 @@ class Tokenizer {
   blockquote(src) {
     const cap = this.rules.block.blockquote.exec(src);
     if (cap) {
-      const text = cap[0].replace(/^ *> ?/gm, '');
+      const text = cap[0].replace(/^ *>[ \t]?/gm, '');
 
       return {
         type: 'blockquote',
@@ -528,7 +555,7 @@ class Tokenizer {
       }
 
       // Get next list item
-      const itemRegex = new RegExp(`^( {0,3}${bull})((?: [^\\n]*)?(?:\\n|$))`);
+      const itemRegex = new RegExp(`^( {0,3}${bull})((?:[\t ][^\\n]*)?(?:\\n|$))`);
 
       // Check if current bullet point can start a new List Item
       while (src) {
@@ -1115,10 +1142,10 @@ const block = {
   newline: /^(?: *(?:\n|$))+/,
   code: /^( {4}[^\n]+(?:\n(?: *(?:\n|$))*)?)+/,
   fences: /^ {0,3}(`{3,}(?=[^`\n]*\n)|~{3,})([^\n]*)\n(?:|([\s\S]*?)\n)(?: {0,3}\1[~`]* *(?=\n|$)|$)/,
-  hr: /^ {0,3}((?:- *){3,}|(?:_ *){3,}|(?:\* *){3,})(?:\n+|$)/,
+  hr: /^ {0,3}((?:-[\t ]*){3,}|(?:_[ \t]*){3,}|(?:\*[ \t]*){3,})(?:\n+|$)/,
   heading: /^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/,
   blockquote: /^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/,
-  list: /^( {0,3}bull)( [^\n]+?)?(?:\n|$)/,
+  list: /^( {0,3}bull)([ \t][^\n]+?)?(?:\n|$)/,
   html: '^ {0,3}(?:' // optional indentation
     + '<(script|pre|style|textarea)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)' // (1)
     + '|comment[^\\n]*(\\n+|$)' // (2)
@@ -1272,9 +1299,9 @@ const inline = {
   emStrong: {
     lDelim: /^(?:\*+(?:([punct_])|[^\s*]))|^_+(?:([punct*])|([^\s_]))/,
     //        (1) and (2) can only be a Right Delimiter. (3) and (4) can only be Left.  (5) and (6) can be either Left or Right.
-    //        () Skip orphan delim inside strong    (1) #***                (2) a***#, a***                   (3) #***a, ***a                 (4) ***#              (5) #***#                 (6) a***a
-    rDelimAst: /^[^_*]*?\_\_[^_*]*?\*[^_*]*?(?=\_\_)|[punct_](\*+)(?=[\s]|$)|[^punct*_\s](\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|[^punct*_\s](\*+)(?=[^punct*_\s])/,
-    rDelimUnd: /^[^_*]*?\*\*[^_*]*?\_[^_*]*?(?=\*\*)|[punct*](\_+)(?=[\s]|$)|[^punct*_\s](\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/ // ^- Not allowed for _
+    //          () Skip orphan inside strong  () Consume to delim (1) #***                (2) a***#, a***                   (3) #***a, ***a                 (4) ***#              (5) #***#                 (6) a***a
+    rDelimAst: /^[^_*]*?\_\_[^_*]*?\*[^_*]*?(?=\_\_)|[^*]+(?=[^*])|[punct_](\*+)(?=[\s]|$)|[^punct*_\s](\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|[^punct*_\s](\*+)(?=[^punct*_\s])/,
+    rDelimUnd: /^[^_*]*?\*\*[^_*]*?\_[^_*]*?(?=\*\*)|[^_]+(?=[^_])|[punct*](\_+)(?=[\s]|$)|[^punct*_\s](\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/ // ^- Not allowed for _
   },
   code: /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/,
   br: /^( {2,}|\\)\n(?!\s*$)/,
@@ -1407,6 +1434,7 @@ inline.breaks = merge({}, inline.gfm, {
 
 /**
  * smartypants text replacement
+ * @param {string} text
  */
 function smartypants(text) {
   return text
@@ -1428,6 +1456,7 @@ function smartypants(text) {
 
 /**
  * mangle email addresses
+ * @param {string} text
  */
 function mangle(text) {
   let out = '',
@@ -1515,8 +1544,7 @@ class Lexer {
    */
   lex(src) {
     src = src
-      .replace(/\r\n|\r/g, '\n')
-      .replace(/\t/g, '    ');
+      .replace(/\r\n|\r/g, '\n');
 
     this.blockTokens(src, this.tokens);
 
@@ -1533,8 +1561,13 @@ class Lexer {
    */
   blockTokens(src, tokens = []) {
     if (this.options.pedantic) {
-      src = src.replace(/^ +$/gm, '');
+      src = src.replace(/\t/g, '    ').replace(/^ +$/gm, '');
+    } else {
+      src = src.replace(/^( *)(\t+)/gm, (_, leading, tabs) => {
+        return leading + '    '.repeat(tabs.length);
+      });
     }
+
     let token, lastToken, cutSrc, lastParagraphClipped;
 
     while (src) {
@@ -1930,29 +1963,31 @@ class Renderer {
       + '</code></pre>\n';
   }
 
+  /**
+   * @param {string} quote
+   */
   blockquote(quote) {
-    return '<blockquote>\n' + quote + '</blockquote>\n';
+    return `<blockquote>\n${quote}</blockquote>\n`;
   }
 
   html(html) {
     return html;
   }
 
+  /**
+   * @param {string} text
+   * @param {string} level
+   * @param {string} raw
+   * @param {any} slugger
+   */
   heading(text, level, raw, slugger) {
     if (this.options.headerIds) {
-      return '<h'
-        + level
-        + ' id="'
-        + this.options.headerPrefix
-        + slugger.slug(raw)
-        + '">'
-        + text
-        + '</h'
-        + level
-        + '>\n';
+      const id = this.options.headerPrefix + slugger.slug(raw);
+      return `<h${level} id="${id}">${text}</h${level}>\n`;
     }
+
     // ignore IDs
-    return '<h' + level + '>' + text + '</h' + level + '>\n';
+    return `<h${level}>${text}</h${level}>\n`;
   }
 
   hr() {
@@ -1965,8 +2000,11 @@ class Renderer {
     return '<' + type + startatt + '>\n' + body + '</' + type + '>\n';
   }
 
+  /**
+   * @param {string} text
+   */
   listitem(text) {
-    return '<li>' + text + '</li>\n';
+    return `<li>${text}</li>\n`;
   }
 
   checkbox(checked) {
@@ -1977,12 +2015,19 @@ class Renderer {
       + '> ';
   }
 
+  /**
+   * @param {string} text
+   */
   paragraph(text) {
-    return '<p>' + text + '</p>\n';
+    return `<p>${text}</p>\n`;
   }
 
+  /**
+   * @param {string} header
+   * @param {string} body
+   */
   table(header, body) {
-    if (body) body = '<tbody>' + body + '</tbody>';
+    if (body) body = `<tbody>${body}</tbody>`;
 
     return '<table>\n'
       + '<thead>\n'
@@ -1992,39 +2037,59 @@ class Renderer {
       + '</table>\n';
   }
 
+  /**
+   * @param {string} content
+   */
   tablerow(content) {
-    return '<tr>\n' + content + '</tr>\n';
+    return `<tr>\n${content}</tr>\n`;
   }
 
   tablecell(content, flags) {
     const type = flags.header ? 'th' : 'td';
     const tag = flags.align
-      ? '<' + type + ' align="' + flags.align + '">'
-      : '<' + type + '>';
-    return tag + content + '</' + type + '>\n';
+      ? `<${type} align="${flags.align}">`
+      : `<${type}>`;
+    return tag + content + `</${type}>\n`;
   }
 
-  // span level renderer
+  /**
+   * span level renderer
+   * @param {string} text
+   */
   strong(text) {
-    return '<strong>' + text + '</strong>';
+    return `<strong>${text}</strong>`;
   }
 
+  /**
+   * @param {string} text
+   */
   em(text) {
-    return '<em>' + text + '</em>';
+    return `<em>${text}</em>`;
   }
 
+  /**
+   * @param {string} text
+   */
   codespan(text) {
-    return '<code>' + text + '</code>';
+    return `<code>${text}</code>`;
   }
 
   br() {
     return this.options.xhtml ? '<br/>' : '<br>';
   }
 
+  /**
+   * @param {string} text
+   */
   del(text) {
-    return '<del>' + text + '</del>';
+    return `<del>${text}</del>`;
   }
 
+  /**
+   * @param {string} href
+   * @param {string} title
+   * @param {string} text
+   */
   link(href, title, text) {
     href = cleanUrl(this.options.sanitize, this.options.baseUrl, href);
     if (href === null) {
@@ -2038,15 +2103,20 @@ class Renderer {
     return out;
   }
 
+  /**
+   * @param {string} href
+   * @param {string} title
+   * @param {string} text
+   */
   image(href, title, text) {
     href = cleanUrl(this.options.sanitize, this.options.baseUrl, href);
     if (href === null) {
       return text;
     }
 
-    let out = '<img src="' + href + '" alt="' + text + '"';
+    let out = `<img src="${href}" alt="${text}"`;
     if (title) {
-      out += ' title="' + title + '"';
+      out += ` title="${title}"`;
     }
     out += this.options.xhtml ? '/>' : '>';
     return out;
@@ -2108,6 +2178,9 @@ class Slugger {
     this.seen = {};
   }
 
+  /**
+   * @param {string} value
+   */
   serialize(value) {
     return value
       .toLowerCase()
@@ -2121,6 +2194,8 @@ class Slugger {
 
   /**
    * Finds the next safe (unique) slug to use
+   * @param {string} originalSlug
+   * @param {boolean} isDryRun
    */
   getNextSafeSlug(originalSlug, isDryRun) {
     let slug = originalSlug;
@@ -2141,8 +2216,9 @@ class Slugger {
 
   /**
    * Convert string to unique id
-   * @param {object} options
-   * @param {boolean} options.dryrun Generates the next unique slug without updating the internal accumulator.
+   * @param {object} [options]
+   * @param {boolean} [options.dryrun] Generates the next unique slug without
+   * updating the internal accumulator.
    */
   slug(value, options = {}) {
     const slug = this.serialize(value);
@@ -2703,6 +2779,7 @@ marked.walkTokens = function(tokens, callback) {
 
 /**
  * Parse Inline
+ * @param {string} src
  */
 marked.parseInline = function(src, opt) {
   // throw error in case of non string input
@@ -3740,7 +3817,8 @@ pre[class*="language-"] {
   height:16px;
   text-align: center;
   display: inline-block;
-  transform: rotate(270deg);
+  transform: rotate(-90deg);
+  transition: transform 0.2s ease-out 0s;
 }
 .nav-bar.focused .nav-bar-tag-and-paths.expanded .nav-bar-tag-icon::after {
   content: '⌵';
@@ -3748,6 +3826,7 @@ pre[class*="language-"] {
   height:16px;
   text-align: center;
   display: inline-block;
+  transition: transform 0.2s ease-out 0s;
 }
 .nav-scroll::-webkit-scrollbar {
   width: var(--scroll-bar-width, 8px);
@@ -28287,6 +28366,7 @@ function callbackTemplate(callbacks) {
                       .parameters = "${((_method$ = method[1]) === null || _method$ === void 0 ? void 0 : _method$.parameters) || ''}" 
                       .request_body = "${((_method$2 = method[1]) === null || _method$2 === void 0 ? void 0 : _method$2.requestBody) || ''}"
                       fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
+                      use-summary-to-list-example = "${this.useSummaryToListExamples}"
                       allow-try = "false"
                       render-style="${this.renderStyle}" 
                       schema-style = "${this.schemaStyle}"
@@ -28401,7 +28481,7 @@ function getTypeInfo(schema) {
     const schemaNode = schema.$ref.substring(n + 1);
     dataType = `{recursive: ${schemaNode}} `;
   } else if (schema.type) {
-    dataType = Array.isArray(schema.type) ? schema.type.join('┃') : schema.type;
+    dataType = Array.isArray(schema.type) ? schema.type.join(schema.length === 2 ? ' or ' : '┃') : schema.type;
 
     if (schema.format || schema.enum) {
       dataType = dataType.replace('string', schema.enum ? 'enum' : schema.format);
@@ -29119,7 +29199,7 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     let multiPrimitiveTypes;
 
     if (primitiveType.length > 0) {
-      subSchema.type = primitiveType.join('┃');
+      subSchema.type = primitiveType.join(primitiveType.length === 2 ? ' or ' : '┃');
       multiPrimitiveTypes = getTypeInfo(subSchema);
 
       if (complexTypes.length === 0) {
@@ -30236,6 +30316,10 @@ class ApiRequest extends lit_element_s {
         type: String,
         attribute: 'fill-request-fields-with-example'
       },
+      useSummaryToListExamples: {
+        type: String,
+        attribute: 'use-summary-to-list-example'
+      },
       allowTry: {
         type: String,
         attribute: 'allow-try'
@@ -30439,7 +30523,7 @@ class ApiRequest extends lit_element_s {
     return $`
     ${exampleList.length > 0 ? $`<span style="font-weight:bold">Example: </span>
         ${exampleList.map((v, i) => {
-      var _v$value, _v$value2;
+      var _v$value, _v$value2, _v$value3;
 
       return $`
           ${i === 0 ? '' : '┃'}
@@ -30458,7 +30542,9 @@ class ApiRequest extends lit_element_s {
           }
         }
       }}"
-          >${v.value && Array.isArray(v.value) ? (_v$value2 = v.value) === null || _v$value2 === void 0 ? void 0 : _v$value2.join(', ') : v.value || ''}</a>
+          >
+          ${this.useSummaryToListExamples === 'true' ? v.description || v.summary || (v.value && Array.isArray(v.value) ? (_v$value2 = v.value) === null || _v$value2 === void 0 ? void 0 : _v$value2.join(', ') : v.value || '') : v.value && Array.isArray(v.value) ? (_v$value3 = v.value) === null || _v$value3 === void 0 ? void 0 : _v$value3.join(', ') : v.value || ''}
+          </a>
           ${paramType === 'array' ? '] ' : ''}
         `;
     })}
@@ -32459,6 +32545,7 @@ function expandedEndpointBodyTemplate(path, tagName = '') {
         .servers = "${path.servers}"
         server-url = "${((_path$servers = path.servers) === null || _path$servers === void 0 ? void 0 : (_path$servers$ = _path$servers[0]) === null || _path$servers$ === void 0 ? void 0 : _path$servers$.url) || this.selectedServer.computedUrl}"
         fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
+        use-summary-to-list-example = "${this.useSummaryToListExamples}"
         allow-try = "${this.allowTry}"
         accept = "${accept}"
         render-style="${this.renderStyle}" 
@@ -33230,6 +33317,7 @@ function endpointBodyTemplate(path) {
           server-url = "${path.servers && path.servers.length > 0 ? path.servers[0].url : this.selectedServer.computedUrl}" 
           active-schema-tab = "${this.defaultSchemaTab}"
           fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
+          use-summary-to-list-example = "${this.useSummaryToListExamples}"
           allow-try = "${this.allowTry}"
           accept = "${accept}"
           render-style="${this.renderStyle}" 
@@ -34185,6 +34273,10 @@ class RapiDoc extends lit_element_s {
         type: String,
         attribute: 'fill-request-fields-with-example'
       },
+      useSummaryToListExamples: {
+        type: String,
+        attribute: 'use-summary-to-list-example'
+      },
       persistAuth: {
         type: String,
         attribute: 'persist-auth'
@@ -34755,6 +34847,10 @@ class RapiDoc extends lit_element_s {
 
     if (!this.fillRequestFieldsWithExample || !'true, false,'.includes(`${this.fillRequestFieldsWithExample},`)) {
       this.fillRequestFieldsWithExample = 'true';
+    }
+
+    if (!this.useSummaryToListExamples || !'true, false,'.includes(`${this.useSummaryToListExamples},`)) {
+      this.useSummaryToListExamples = 'false';
     }
 
     if (!this.persistAuth || !'true, false,'.includes(`${this.persistAuth},`)) {
@@ -35509,6 +35605,10 @@ class RapiDocMini extends lit_element_s {
         type: String,
         attribute: 'fill-request-fields-with-example'
       },
+      useSummaryToListExamples: {
+        type: String,
+        attribute: 'use-summary-to-list-example'
+      },
       persistAuth: {
         type: String,
         attribute: 'persist-auth'
@@ -35692,6 +35792,10 @@ class RapiDocMini extends lit_element_s {
 
     if (!this.fillRequestFieldsWithExample || !'true, false,'.includes(`${this.fillRequestFieldsWithExample},`)) {
       this.fillRequestFieldsWithExample = 'true';
+    }
+
+    if (!this.useSummaryToListExamples || !'true, false,'.includes(`${this.useSummaryToListExamples},`)) {
+      this.useSummaryToListExamples = 'false';
     }
 
     if (!this.persistAuth || !'true, false,'.includes(`${this.persistAuth},`)) {
@@ -42179,7 +42283,7 @@ Prism.languages.js = Prism.languages.javascript;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("17d08cc6fa39b23c87c7")
+/******/ 		__webpack_require__.h = () => ("91f9e574d7a20f317a48")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
@@ -42259,7 +42363,8 @@ Prism.languages.js = Prism.languages.javascript;
 /******/ 		var currentStatus = "idle";
 /******/ 		
 /******/ 		// while downloading
-/******/ 		var blockingPromises;
+/******/ 		var blockingPromises = 0;
+/******/ 		var blockingPromisesWaiting = [];
 /******/ 		
 /******/ 		// The update info
 /******/ 		var currentUpdateApplyHandlers;
@@ -42449,17 +42554,28 @@ Prism.languages.js = Prism.languages.javascript;
 /******/ 			return Promise.all(results);
 /******/ 		}
 /******/ 		
+/******/ 		function unblock() {
+/******/ 			if (--blockingPromises === 0) {
+/******/ 				setStatus("ready").then(function () {
+/******/ 					if (blockingPromises === 0) {
+/******/ 						var list = blockingPromisesWaiting;
+/******/ 						blockingPromisesWaiting = [];
+/******/ 						for (var i = 0; i < list.length; i++) {
+/******/ 							list[i]();
+/******/ 						}
+/******/ 					}
+/******/ 				});
+/******/ 			}
+/******/ 		}
+/******/ 		
 /******/ 		function trackBlockingPromise(promise) {
 /******/ 			switch (currentStatus) {
 /******/ 				case "ready":
 /******/ 					setStatus("prepare");
-/******/ 					blockingPromises.push(promise);
-/******/ 					waitForBlockingPromises(function () {
-/******/ 						return setStatus("ready");
-/******/ 					});
-/******/ 					return promise;
+/******/ 				/* fallthrough */
 /******/ 				case "prepare":
-/******/ 					blockingPromises.push(promise);
+/******/ 					blockingPromises++;
+/******/ 					promise.then(unblock, unblock);
 /******/ 					return promise;
 /******/ 				default:
 /******/ 					return promise;
@@ -42467,11 +42583,11 @@ Prism.languages.js = Prism.languages.javascript;
 /******/ 		}
 /******/ 		
 /******/ 		function waitForBlockingPromises(fn) {
-/******/ 			if (blockingPromises.length === 0) return fn();
-/******/ 			var blocker = blockingPromises;
-/******/ 			blockingPromises = [];
-/******/ 			return Promise.all(blocker).then(function () {
-/******/ 				return waitForBlockingPromises(fn);
+/******/ 			if (blockingPromises === 0) return fn();
+/******/ 			return new Promise(function (resolve) {
+/******/ 				blockingPromisesWaiting.push(function () {
+/******/ 					resolve(fn());
+/******/ 				});
 /******/ 			});
 /******/ 		}
 /******/ 		
@@ -42492,7 +42608,6 @@ Prism.languages.js = Prism.languages.javascript;
 /******/ 		
 /******/ 					return setStatus("prepare").then(function () {
 /******/ 						var updatedModules = [];
-/******/ 						blockingPromises = [];
 /******/ 						currentUpdateApplyHandlers = [];
 /******/ 		
 /******/ 						return Promise.all(
@@ -42529,7 +42644,11 @@ Prism.languages.js = Prism.languages.javascript;
 /******/ 		function hotApply(options) {
 /******/ 			if (currentStatus !== "ready") {
 /******/ 				return Promise.resolve().then(function () {
-/******/ 					throw new Error("apply() is only allowed in ready status");
+/******/ 					throw new Error(
+/******/ 						"apply() is only allowed in ready status (state: " +
+/******/ 							currentStatus +
+/******/ 							")"
+/******/ 					);
 /******/ 				});
 /******/ 			}
 /******/ 			return internalApply(options);
@@ -42648,7 +42767,8 @@ Prism.languages.js = Prism.languages.javascript;
 /******/ 		
 /******/ 		var currentUpdatedModulesList;
 /******/ 		var waitingUpdateResolves = {};
-/******/ 		function loadUpdateChunk(chunkId) {
+/******/ 		function loadUpdateChunk(chunkId, updatedModulesList) {
+/******/ 			currentUpdatedModulesList = updatedModulesList;
 /******/ 			return new Promise((resolve, reject) => {
 /******/ 				waitingUpdateResolves[chunkId] = resolve;
 /******/ 				// start update chunk loading
@@ -43111,15 +43231,16 @@ Prism.languages.js = Prism.languages.javascript;
 /******/ 				) {
 /******/ 					promises.push(loadUpdateChunk(chunkId, updatedModulesList));
 /******/ 					currentUpdateChunks[chunkId] = true;
+/******/ 				} else {
+/******/ 					currentUpdateChunks[chunkId] = false;
 /******/ 				}
 /******/ 			});
 /******/ 			if (__webpack_require__.f) {
 /******/ 				__webpack_require__.f.jsonpHmr = function (chunkId, promises) {
 /******/ 					if (
 /******/ 						currentUpdateChunks &&
-/******/ 						!__webpack_require__.o(currentUpdateChunks, chunkId) &&
-/******/ 						__webpack_require__.o(installedChunks, chunkId) &&
-/******/ 						installedChunks[chunkId] !== undefined
+/******/ 						__webpack_require__.o(currentUpdateChunks, chunkId) &&
+/******/ 						!currentUpdateChunks[chunkId]
 /******/ 					) {
 /******/ 						promises.push(loadUpdateChunk(chunkId));
 /******/ 						currentUpdateChunks[chunkId] = true;
