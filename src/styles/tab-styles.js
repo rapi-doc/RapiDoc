@@ -41,5 +41,6 @@ export default css`
 .tab-content {
   margin:-1px 0 0 0;
   position:relative;
+  min-height: 50px;
 }
 `;
