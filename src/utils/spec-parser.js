@@ -106,7 +106,7 @@ export default async function ProcessSpec(specUrl, generateMissingTags = false, 
     } else if (v.type === 'oauth2') {
       v.typeDisplay = `OAuth (${v.securitySchemeId})`;
     } else {
-      v.typeDisplay = v.type;
+      v.typeDisplay = v.type || 'None';
     }
   });
 

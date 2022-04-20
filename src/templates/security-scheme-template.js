@@ -483,21 +483,28 @@ export function pathSecurityTemplate(pathSecurity) {
     pathSecurity.forEach((pSecurity) => {
       const andSecurityKeys1 = [];
       const andKeyTypes = [];
-      Object.keys(pSecurity).forEach((pathSecurityKey) => {
-        let pathScopes = '';
-        const s = this.resolvedSpec.securitySchemes.find((ss) => ss.securitySchemeId === pathSecurityKey);
-        if (pSecurity[pathSecurityKey] && Array.isArray(pSecurity[pathSecurityKey])) {
-          pathScopes = pSecurity[pathSecurityKey].join(', ');
-        }
-        if (s) {
-          andKeyTypes.push(s.typeDisplay);
-          andSecurityKeys1.push({ ...s, ...({ scopes: pathScopes }) });
-        }
-      });
-      orSecurityKeys1.push({
-        securityTypes: andKeyTypes.length > 1 ? `${andKeyTypes[0]} + ${andKeyTypes.length - 1} more` : andKeyTypes[0],
-        securityDefs: andSecurityKeys1,
-      });
+      if (Object.keys(pSecurity).length === 0) {
+        orSecurityKeys1.push({
+          securityTypes: 'None',
+          securityDefs: [],
+        });
+      } else {
+        Object.keys(pSecurity).forEach((pathSecurityKey) => {
+          let pathScopes = '';
+          const s = this.resolvedSpec.securitySchemes.find((ss) => ss.securitySchemeId === pathSecurityKey);
+          if (pSecurity[pathSecurityKey] && Array.isArray(pSecurity[pathSecurityKey])) {
+            pathScopes = pSecurity[pathSecurityKey].join(', ');
+          }
+          if (s) {
+            andKeyTypes.push(s.typeDisplay);
+            andSecurityKeys1.push({ ...s, ...({ scopes: pathScopes }) });
+          }
+        });
+        orSecurityKeys1.push({
+          securityTypes: andKeyTypes.length > 1 ? `${andKeyTypes[0]} + ${andKeyTypes.length - 1} more` : andKeyTypes[0],
+          securityDefs: andSecurityKeys1,
+        });
+      }
     });
     return html`<div style="position:absolute; top:3px; right:2px; font-size:var(--font-size-small); line-height: 1.5;">
       <div style="position:relative; display:flex; min-width:350px; max-width:700px; justify-content: flex-end;">
