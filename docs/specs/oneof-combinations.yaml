@@ -94,21 +94,21 @@ paths:
                         description: Null with a title
                         title: Null with a title
                       - type: 'null'
-                        description: Null without a title                            
+                        description: Null without a title
                   d:
                     type: string
-  /any-of-options-with-array-as-root:
+  /one-of-options-with-array-as-root:
     post:
-      summary: ANY-OF Options with Array as root
+      summary: ONE-OF Options with Array as root
       tags:
-        - ANY-OF Root as Array / Object
+        - ONE-OF Root as Array / Object
       requestBody:
-        description: ANY OF Option where root element is an array
+        description: ONE OF Option where root element is an array
         required: true
         content:
           application/json:
             schema:
-              anyOf:
+              oneOf:
                 - title: Option 1
                   type: array
                   items:
@@ -127,19 +127,19 @@ paths:
                         type: string
                       pin:
                         type: integer
-  
-  /any-of-options-with-object-as-root:
+
+  /one-of-options-with-object-as-root:
     post:
-      summary: ANY-OF Options with Object as root
+      summary: ONE-OF Options with Object as root
       tags:
-         - ANY-OF Root as Array / Object
+         - ONE-OF Root as Array / Object
       requestBody:
-        description: ANY OF Option where root element is an object
+        description: ONE OF Option where root element is an object
         required: true
         content:
           application/json:
             schema:
-              anyOf:
+              oneOf:
                 - title: Option 1
                   type: object
                   properties:

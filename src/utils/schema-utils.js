@@ -383,19 +383,27 @@ export function schemaToSampleObj(schema, config = { }) {
         option2_PropX: 'string'
       }
       */
-      // let i = 0;
-      // Merge all examples of each oneOf-schema (pick only the first oneof schema, because it is one-of)
-      // for (const key in schema.oneOf) {
-      const firstOneOfSchema = schema.oneOf[0];
-      const oneOfSamples = schemaToSampleObj(firstOneOfSchema, config);
-      if (oneOfSamples instanceof Object) {
-        const oneOfSampleKeys = Object.keys(oneOfSamples);
-        // eslint-disable-next-line no-loop-func
-        oneOfSampleKeys.forEach((sampleKey, i) => {
-          const finalExample = oneOfSamples[sampleKey];
+      let i = 0;
+      // Merge all examples of each oneOf-schema
+      for (const key in schema.oneOf) {
+        const oneOfSamples = schemaToSampleObj(schema.oneOf[key], config);
+        for (const sampleKey in oneOfSamples) {
+          // 2. In the final example include a one-of item along with properties
+          let finalExample;
+          if (Object.keys(objWithSchemaProps).length > 0) {
+            if (oneOfSamples[sampleKey] === null || typeof oneOfSamples[sampleKey] !== 'object') {
+              // This doesn't really make sense since every oneOf schema _should_ be an object if there are common properties, so we'll skip this
+              continue;
+            } else {
+              finalExample = Object.assign(oneOfSamples[sampleKey], objWithSchemaProps);
+            }
+          } else {
+            finalExample = oneOfSamples[sampleKey];
+          }
           obj[`example-${i}`] = finalExample;
-          addSchemaInfoToExample(firstOneOfSchema, obj[`example-${i}`]);
-        });
+          addSchemaInfoToExample(schema.oneOf[key], obj[`example-${i}`]);
+          i++;
+        }
       }
     }
   } else if (schema.anyOf) {
