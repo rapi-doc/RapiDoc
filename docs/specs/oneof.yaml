@@ -49,6 +49,62 @@ paths:
                   prop2:
                     type: string
                     minLength: 10
+  /one-of/schema/senseless-options:
+    get:
+      tags:
+        - One Of Schema Model
+      summary: ONE-OF schema example generation test but with senseless options
+      operationId: empDetails
+      responses:
+        "200":
+          description: Should only generate examples for options that are objects
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: 'null'
+                  - type: string
+                  - type: object
+                    properties:
+                      option2_PropX:
+                        type: string
+                  - type: object
+                    properties:
+                      option1_PropA:
+                        type: string
+                      option1_PropB:
+                        type: string
+                properties:
+                  prop1:
+                    type: string
+                  prop2:
+                    type: string
+                    minLength: 10
+  /one-of/schema/root:
+    get:
+      tags:
+        - One Of Schema Model
+      summary: ONE-OF schema example generation with object and primitives at the root level (no common properties)
+      operationId: empDetails
+      responses:
+        "200":
+          description: Should generate examples for both the object and primitive options, but not for null
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: 'null'
+                  - type: string
+                  - type: object
+                    properties:
+                      option2_PropX:
+                        type: string
+                  - type: object
+                    properties:
+                      option1_PropA:
+                        type: string
+                      option1_PropB:
+                        type: string
 
 tags:
   - name: Employee Details
