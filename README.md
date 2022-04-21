@@ -5,7 +5,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square"/>
     <img src="https://img.shields.io/github/size/mrin9/rapidoc/dist/rapidoc-min.js.svg?colorB=blue&label=minified&style=flat-square">
     <img src="https://img.shields.io/github/size/mrin9/rapidoc/dist/rapidoc-min.js.gz.svg?colorB=blue&label=zip&style=flat-square">
-    <a href="https://discord.gg/fyRvSSKcFv" alt="Join us on Discord">
+    <a href="https://discord.gg/X9evUeFY" alt="Join us on Discord">
         <img src="https://img.shields.io/discord/966725943022469200?style=flat-square" />
     </a>
     <a href="https://www.webcomponents.org/element/rapidoc" alt="published on webcomponents.org">
@@ -16,7 +16,7 @@
 # RapiDoc
 Custom Element for Open-API spec viewing
 
-[Join us on Discord](https://discord.gg/fyRvSSKcFv)
+[Join us on Discord](https://discord.gg/X9evUeFY)
 
 ## Features
 - Supports Swagger 2.0, OpenAPI 3.x.x 
