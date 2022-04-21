@@ -17,6 +17,25 @@ body, button {
 }
 
 a { color:#0055fd; text-decoration: none;}
+
+a.zuplo-button {
+  background-color:#FF00BD; 
+  border:0; 
+  border-radius: 5px;
+  color: white; 
+  font-size: large; 
+  font-family:exo; 
+  padding: 3px 15px 3px 15px;
+   box-shadow: 1px 1px 2px #00000044; 
+   text-decoration: none;
+   white-space: nowrap;
+}
+
+a.zuplo-button:hover {
+  background-color:#ff00bbd7;
+  text-decoration: none;
+}
+
 a:not(.menu-item):hover { text-decoration: underline; }
 h1,h2,h3 {
   margin-block-start: 1em;
@@ -182,6 +201,7 @@ h1,h2,h3 {
 }
 
 .features {
+  margin-top:50px;
   display:flex;
   flex-wrap:wrap;
   justify-content: center;

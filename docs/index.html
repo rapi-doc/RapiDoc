@@ -22,7 +22,9 @@
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Lato:300,400&display=swap" rel="stylesheet">
-
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo:wght@300;500&display=swap" rel="stylesheet">
 
   <!-- Code Highlight -->
   <link rel="stylesheet" href="./prismjs/prism.css">
@@ -40,6 +42,9 @@
   .beer-handle { 
     background: cornflowerblue 
   };
+
+
+ 
   
   #main-img { width: 350px; }
   #main-img { width: 350px; } /* Duplicate is needed- not sure why else it is not taking the effect while testing in responsive mode */
@@ -68,12 +73,22 @@
 </head>
 
 <body>
+  <div style="background-color: white; font-family: exo;font-weight: lighter; font-size:large; display:flex; flex-direction: row; align-items: center;justify-content: space-between">
+    <div style="padding:15px 20px 15px 20px; ">
+      Get a Stripe like API experience for your customers in minutes - documentation, rate-limiting and API-key auth with <a style="font-weight:bold; color:#FF00BD" href="https://www.zuplo.com/?utm_campaign=Rapidoc&utm_source=rapidoc&utm_medium=banner">zuplo</a>
+    </div>
+    <div style="padding:2px 20px 2px 20px; ">
+      <a class="zuplo-button" href="https://www.zuplo.com/?utm_campaign=Rapidoc&utm_source=rapidoc&utm_medium=banner">Start free</a>
+    </div>
+  </div>
   <!--Banner Starts-->
   <div class="banner">
     <div class='topbar' style="height:500px">
       <div class="header">
+        <img src="images/sponsored_by_zuplo.svg" style="position:absolute;top:63px" />
         <img class="logo" src="./images/logo.png" style="width:36px;height:36px;margin-right:10px;" />  
         <div class="product-name">RapiDoc</div>
+        
         <div class="menu" style="flex:1"></div>
         <nav class="menu" onclick="goToSection(event)">
           <a class="menu-item hide-in-mobile" href="#features"> Features </a>
@@ -98,9 +113,16 @@
       </div>
       <div style="display:flex; justify-content: center;">
         <img id='main-img' class="shadow3" src="./images/dark_ss.png" />
+        
+      
+      </div>
+      <div style="display:flex; justify-content: center; margin-top:50px;">
+        <a href="https://discord.gg/a2zujtF8kK"><img src="images/join_on-discord.svg" /></a>
       </div>
     </div>
     <!-- End of Banner Image -->
+
+    
 
     <!--Waves Container-->
     <div>
@@ -116,9 +138,11 @@
       </svg>
     </div>
     <!--Waves end-->
+    
   </div>
   <!--Header ends-->
 
+ 
   <div class="features" id="features" >
     <div class="feature">
       <object type="image/svg+xml" data="./images/webcomponent.svg" style="width:64px; height:64px;"> </object>
