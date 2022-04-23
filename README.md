@@ -6,7 +6,7 @@
     <img src="https://img.shields.io/github/size/mrin9/rapidoc/dist/rapidoc-min.js.svg?colorB=blue&label=minified&style=flat-square">
     <img src="https://img.shields.io/github/size/mrin9/rapidoc/dist/rapidoc-min.js.gz.svg?colorB=blue&label=zip&style=flat-square">
     <a href="https://discord.gg/X9evUeFY" alt="Join us on Discord">
-        <img src="https://img.shields.io/discord/966725943022469200?style=flat-square" />
+        <img src="https://img.shields.io/discord/848913990360629268?style=flat-square" />
     </a>
     <a href="https://www.webcomponents.org/element/rapidoc" alt="published on webcomponents.org">
         <img src="https://img.shields.io/badge/webcomponents.org-rapidoc-blue.svg?style=social"/>
