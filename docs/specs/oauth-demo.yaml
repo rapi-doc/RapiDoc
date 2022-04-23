@@ -6,6 +6,16 @@ info:
 servers:
 - url:  https://demo.identityserver.io
 paths:
+  /api/no-security:
+    get:
+      summary: API Endpoint with optional security
+      security:
+        - {}
+        - short-lived-oauth:
+          - openid
+          - email
+          - profile
+
   /api/test:
     get:
       summary: Test API
