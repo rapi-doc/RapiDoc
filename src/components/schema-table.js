@@ -310,15 +310,17 @@ export default class SchemaTable extends LitElement {
           }
         </div>
         ${dataTypeHtml}
-        <div class='td key-descr'>
+        <div class='td key-descr' @click="${() => { this.schemaDescriptionExpanded = 'true'; }}">
           ${dataType === 'array' ? html`<span class="m-markdown-small">${unsafeHTML(marked(description))}</span>` : ''}
           ${schemaDescription
             ? html`<span class="m-markdown-small">
-              ${unsafeHTML(marked(
-                `${schemaTitle ? `**${schemaTitle}:**` : ''} ${schemaDescription} ${constraint || defaultValue || allowedValues || pattern ? '⤵' : ''}`,
-              ))}
+              ${unsafeHTML(marked(`${schemaTitle ? `**${schemaTitle}:**` : ''} ${schemaDescription} ${constraint || defaultValue || allowedValues || pattern ? '<span  class="more-content">⤵</span>' : ''}`))}
               </span>`
-            : schemaTitle ? html`${schemaTitle} ${constraint || defaultValue || allowedValues || pattern ? '⤵' : ''}` : ''
+            : schemaTitle
+              ? html`${schemaTitle} ${constraint || defaultValue || allowedValues || pattern
+                ? html`<span class="more-content">⤵</span>`
+                : ''}`
+              : ''
           }
           ${constraint ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Constraints: </span> ${constraint}</div>` : ''}
           ${defaultValue ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}

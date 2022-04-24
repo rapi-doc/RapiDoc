@@ -497,7 +497,7 @@ function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
     markdown = `**${schema.title}:** `;
   }
   if (schema.description) {
-    markdown = `${markdown} ${schema.description} ${schema.minItems || schema.maxItems ? '⤵<br/>' : ''}`;
+    markdown = `${markdown} ${schema.description} ${schema.minItems || schema.maxItems ? '<span class="more-content">⤵</span><br/>' : ''}`;
   }
   if (schema.minItems) {
     markdown = `${markdown} **Min Items:** ${schema.minItems}`;

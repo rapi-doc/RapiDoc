@@ -21,9 +21,11 @@ export default css`
   word-break: break-all;
 }
 
-.collapsed-descr .key{
+.collapsed-descr .key {
   overflow:hidden;
 }
+
+.expanded-descr .more-content { display:none; }
 
 .key-descr {
   font-family:var(--font-regular);
