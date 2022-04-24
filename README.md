@@ -3,8 +3,8 @@
 
 <p align="center">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square"/>
-    <img src="https://img.shields.io/github/size/mrin9/rapidoc/dist/rapidoc-min.js.svg?colorB=blue&label=minified&style=flat-square">
-    <img src="https://img.shields.io/github/size/mrin9/rapidoc/dist/rapidoc-min.js.gz.svg?colorB=blue&label=zip&style=flat-square">
+    <img src="https://img.shields.io/github/size/rapi-doc/rapidoc/dist/rapidoc-min.js.svg?colorB=blue&label=minified&style=flat-square">
+    <img src="https://img.shields.io/github/size/rapi-doc/rapidoc/dist/rapidoc-min.js.gz.svg?colorB=blue&label=zip&style=flat-square">
     <a href="https://discord.gg/X9evUeFY" alt="Join us on Discord">
         <img src="https://img.shields.io/discord/848913990360629268?style=flat-square" />
     </a>
@@ -47,10 +47,10 @@ Custom Element for Open-API spec viewing
 
 
 ## Documentation
-[Check out the usage and demos](https://mrin9.github.io/RapiDoc/)
+[Check out the usage and demos](https://rapi-doc.github.io/RapiDoc/)
 
 ## Examples
-[Examples and Test cases](https://mrin9.github.io/RapiDoc/list.html)
+[Examples and Test cases](https://rapi-doc.github.io/RapiDoc/list.html)
 
 
 ## Build Process
