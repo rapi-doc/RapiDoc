@@ -29,7 +29,7 @@ const rapidocBanner = `
 * @preserve
 * RapiDoc ${rapidocVersion.replace()} - WebComponent to View OpenAPI docs
 * License: MIT
-* Repo   : https://github.com/mrin9/RapiDoc
+* Repo   : https://github.com/rapi-doc/RapiDoc
 * Author : Mrinmoy Majumdar
 *`;
 

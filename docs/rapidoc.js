@@ -3,7 +3,7 @@
 * @preserve
 * RapiDoc 9.2.0-beta - WebComponent to View OpenAPI docs
 * License: MIT
-* Repo   : https://github.com/mrin9/RapiDoc
+* Repo   : https://github.com/rapi-doc/RapiDoc
 * Author : Mrinmoy Majumdar
 */******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({

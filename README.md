@@ -1,4 +1,4 @@
-<img alt="MrinDoc logo" src="https://github.com/mrin9/RapiDoc/blob/master/logo.png" width="60px" />
+<img alt="MrinDoc logo" src="https://github.com/rapi-doc/RapiDoc/blob/master/logo.png" width="60px" />
 
 
 <p align="center">
