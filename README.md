@@ -16,7 +16,9 @@
 # RapiDoc
 Custom Element for Open-API spec viewing
 
-[Join us on Discord](https://discord.gg/X9evUeFY)
+Join the [RapiDoc community on Discord](https://discord.gg/X9evUeFY)
+
+Sponsored by [Zuplo](https://www.zuplo.com/?utm_campaign=Rapidoc&utm_source=rapidoc&utm_medium=readme) - Get a Stripe-like API experience for your customers in minutes - documentation, rate-limiting and API-key auth in minutes. 
 
 ## Features
 - Supports Swagger 2.0, OpenAPI 3.x.x 
