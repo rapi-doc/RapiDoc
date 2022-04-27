@@ -69,6 +69,7 @@ export default class ApiRequest extends LitElement {
       schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
       allowSchemaDescriptionExpandToggle: { type: String, attribute: 'allow-schema-description-expand-toggle' },
       schemaHideReadOnly: { type: String, attribute: 'schema-hide-read-only' },
+      schemaHideWriteOnly: { type: String, attribute: 'schema-hide-write-only' },
       fetchCredentials: { type: String, attribute: 'fetch-credentials' },
 
       // properties for internal tracking
@@ -322,8 +323,8 @@ export default class ApiRequest extends LitElement {
           serializeStyle || 'json',
           '',
           '',
-          true,
-          true,
+          !(this.schemaHideReadOnly && (this.schemaHideReadOnly.includes(this.method) || this.schemaHideReadOnly === 'true')),
+          !(this.schemaHideWriteOnly && (this.schemaHideWriteOnly.includes(this.method) || this.schemaHideWriteOnly === 'true')),
           'text',
           false,
         )[0].exampleValue;
@@ -401,7 +402,7 @@ export default class ApiRequest extends LitElement {
                               schema-description-expanded = "${this.schemaDescriptionExpanded}"
                               allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
                               schema-hide-read-only = "${this.schemaHideReadOnly.includes(this.method)}"
-                              schema-hide-write-only = "false"
+                              schema-hide-write-only = "${this.schemaHideWriteOnly.includes(this.method)}"
                             > </schema-tree>
                           </div>`
                         }
@@ -555,8 +556,8 @@ export default class ApiRequest extends LitElement {
             reqBody.mimeType,
             reqBody.examples,
             reqBody.example,
-            false,
-            true,
+            !(this.schemaHideReadOnly && (this.schemaHideReadOnly.includes(this.method) || this.schemaHideReadOnly === 'true')),
+            !(this.schemaHideWriteOnly && (this.schemaHideWriteOnly.includes(this.method) || this.schemaHideWriteOnly === 'true')),
             'text',
             false,
           );
@@ -614,8 +615,8 @@ export default class ApiRequest extends LitElement {
             reqBody.mimeType,
             reqBody.examples,
             reqBody.example,
-            false,
-            true,
+            !(this.schemaHideReadOnly && (this.schemaHideReadOnly.includes(this.method) || this.schemaHideReadOnly === 'true')),
+            !(this.schemaHideWriteOnly && (this.schemaHideWriteOnly.includes(this.method) || this.schemaHideWriteOnly === 'true')),
             'text',
             false,
           );
@@ -646,8 +647,8 @@ export default class ApiRequest extends LitElement {
               schema-expand-level = "${this.schemaExpandLevel}"
               schema-description-expanded = "${this.schemaDescriptionExpanded}"
               allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
-              schema-hide-read-only = "${this.schemaHideReadOnly.includes(this.method)}"
-              schema-hide-write-only = "false"
+              schema-hide-read-only = "${this.schemaHideReadOnly}"
+              schema-hide-write-only = "${this.schemaHideWriteOnly}"
             > </schema-table>
           `;
         } else if (this.schemaStyle === 'tree') {
@@ -660,8 +661,8 @@ export default class ApiRequest extends LitElement {
               schema-expand-level = "${this.schemaExpandLevel}"
               schema-description-expanded = "${this.schemaDescriptionExpanded}"
               allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
-              schema-hide-read-only = "true"
-              schema-hide-write-only = "false"
+              schema-hide-read-only = "${this.schemaHideReadOnly}"
+              schema-hide-write-only = "${this.schemaHideWriteOnly}"
             > </schema-tree>
           `;
         }
@@ -706,8 +707,8 @@ export default class ApiRequest extends LitElement {
       'json',
       fieldSchema.examples,
       fieldSchema.example,
-      false,
-      true,
+      !(this.schemaHideReadOnly && (this.schemaHideReadOnly.includes(this.method) || this.schemaHideReadOnly === 'true')),
+      !(this.schemaHideWriteOnly && (this.schemaHideWriteOnly.includes(this.method) || this.schemaHideWriteOnly === 'true')),
       'text',
       false,
     );
