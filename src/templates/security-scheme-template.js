@@ -3,8 +3,47 @@ import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
 
-const codeVerifier = '731DB1C3F7EA533B85E29492D26AA-1234567890-1234567890';
-const codeChallenge = '4FatVDBJKPAo4JgLLaaQFMUcQPn5CrPRvLlaob9PTYc'; // Base64 encoded SHA-256
+function dec2hex(dec) {
+  return (`0${dec.toString(16)}`).substr(-2);
+}
+
+function generateRandomString() {
+  const array = new Uint32Array(56 / 2);
+  window.crypto.getRandomValues(array);
+  return Array.from(array, dec2hex).join('');
+}
+
+function sha256(plain) { // returns promise ArrayBuffer
+  const encoder = new TextEncoder();
+  const data = encoder.encode(plain);
+  return window.crypto.subtle.digest('SHA-256', data);
+}
+
+function base64urlencode(a) {
+  let str = '';
+  const bytes = new Uint8Array(a);
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    str += String.fromCharCode(bytes[i]);
+  }
+  return btoa(str)
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+}
+
+async function challengeFromVerifier(v) {
+  const hashed = await sha256(v);
+  const base64encoded = base64urlencode(hashed);
+  return base64encoded;
+}
+
+let codeVerifier = '';
+async function generateCodeChallenge() {
+  codeVerifier = generateRandomString();
+  const codeChallenge = await challengeFromVerifier(codeVerifier);
+  return codeChallenge;
+}
 
 const localStorageKey = 'rapidoc';
 
@@ -162,20 +201,6 @@ async function onWindowMessageEvent(msgEvent, winObj, tokenUrl, clientId, client
   }
 }
 
-// code_challenge generator for PKCE flow
-// TODO: Implement dynamic generation of code-challenge based on code-verifier
-/*
-async function generateCodeChallenge() {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(codeVerifier);
-  const sha256Hash = await window.crypto.subtle.digest('SHA-256', data); // returns Unit8Array
-  // const utf8Decoder = new TextDecoder();
-  // const b64EncodedSha256 = btoa(utf8Decoder.decode(sha256Hash));
-  const b64EncodedSha256 = base64encode(sha256Hash);
-  return b64EncodedSha256;
-}
-*/
-
 async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, e) {
   const authFlowDivEl = e.target.closest('.oauth-flow');
   const clientId = authFlowDivEl.querySelector('.oauth-client-id') ? authFlowDivEl.querySelector('.oauth-client-id').value.trim() : '';
@@ -185,9 +210,11 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
   const sendClientSecretIn = authFlowDivEl.querySelector('.oauth-send-client-secret-in') ? authFlowDivEl.querySelector('.oauth-send-client-secret-in').value.trim() : 'header';
   const checkedScopeEls = [...authFlowDivEl.querySelectorAll('.scope-checkbox:checked')];
   const pkceCheckboxEl = authFlowDivEl.querySelector(`#${securitySchemeId}-pkce`);
-  const state = (`${Math.random().toString(36)}random`).slice(2, 9);
-  const nonce = (`${Math.random().toString(36)}random`).slice(2, 9);
-  // const codeChallenge = await generateCodeChallenge(codeVerifier);
+  const a = new Uint32Array(4);
+  await window.crypto.getRandomValues(a);
+  const state = (`${a[0].toString(36)}${a[1].toString(36)}randomnum`).slice(2, 12);
+  const nonce = (`${a[2].toString(36)}${a[3].toString(36)}randomnum`).slice(2, 12);
+  const codeChallenge = await generateCodeChallenge();
   const redirectUrlObj = new URL(`${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/${this.oauthReceiver}`);
   let grantType = '';
   let responseType = '';
@@ -253,6 +280,11 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
 /* eslint-disable indent */
 
 function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, authFlow, defaultScopes = [], receiveTokenIn = 'header') {
+  clientId = authFlow['x-client-id'] || clientId;
+  clientSecret = authFlow['x-client-secret'] || clientSecret;
+  defaultScopes = authFlow['x-default-scopes'] || defaultScopes;
+  receiveTokenIn = authFlow['x-receive-token-in'] || receiveTokenIn;
+  const pkceOnly = authFlow['x-pkce-only'];
   let { authorizationUrl, tokenUrl, refreshUrl } = authFlow;
   const isUrlAbsolute = (url) => (url.indexOf('://') > 0 || url.indexOf('//') === 0);
   if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
@@ -322,7 +354,7 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
             ${flowName === 'authorizationCode'
               ? html`
                 <div style="margin: 16px 0 4px">
-                  <input type="checkbox" part="checkbox checkbox-auth-scope" id="${securitySchemeId}-pkce" checked>
+                  <input type="checkbox" part="checkbox checkbox-auth-scope" id="${securitySchemeId}-pkce" checked ?disabled="${pkceOnly}">
                   <label for="${securitySchemeId}-pkce" style="margin:0 16px 0 4px; line-height:24px; cursor:pointer">
                    Send Proof Key for Code Exchange (PKCE)
                   </label>
@@ -333,10 +365,10 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
             <input type="text" part="textbox textbox-auth-client-id" value = "${clientId || ''}" placeholder="client-id" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} oauth-client-id">
             ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password'
               ? html`
-                <input type="password" part="textbox textbox-auth-client-secret" value = "${clientSecret || ''}" placeholder="client-secret" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} oauth-client-secret" style = "margin:0 5px;">
+                <input type="password" part="textbox textbox-auth-client-secret" value = "${clientSecret || ''}" placeholder="client-secret" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} oauth-client-secret" style = "margin:0 5px;${pkceOnly ? 'display:none;' : ''}">
                 ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password'
                   ? html`
-                    <select style="margin-right:5px;" class="${flowName} ${securitySchemeId} oauth-send-client-secret-in">
+                    <select style="margin-right:5px;${pkceOnly ? 'display:none;' : ''}" class="${flowName} ${securitySchemeId} oauth-send-client-secret-in">
                       <option value = 'header' .selected = ${receiveTokenIn === 'header'} > Authorization Header </option>
                       <option value = 'request-body' .selected = ${receiveTokenIn === 'request-body'}> Request Body </option>
                     </select>`
