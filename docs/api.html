@@ -694,6 +694,29 @@
               To programmatically set API Server.  <span class='mono blue'>apiServerUrl</span> should be a valid server url which you have defined in the spec
             </td>
           </tr>
+          <tr>
+            <td colspan="3">
+              <pre class="shadow1 code-block" style = "width:600px; margin: 0 auto;">
+                <code class="language-html">
+                  &lt;html&gt;
+                  ...        
+                    &lt;rapi-doc id="the-doc" spec-url = "https://.../spec.yaml"&gt; &lt;/rapi-doc&gt;
+                    &lt;script&gt;
+                      window.addEventListener('DOMContentLoaded', (event) => {
+                        const rapidocEl = document.getElementById('the-doc');
+                        rapidocEl.addEventListener('spec-loaded', (e) => {
+                          rapidocEl.setApiServer(globalThis.origin + "/api");
+                          // Sets the server to http://localhost:8080/api
+                          // you must have defined this server in your spec
+                        });
+                      });
+                    &lt;/script&gt;
+                  ...
+                  &lt;/html&gt;
+                </code>
+              </pre>
+            </td>
+          </tr>
 
           <tr>
             <td class="mono bold right">scrollTo(path) </td>
