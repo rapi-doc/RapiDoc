@@ -450,12 +450,12 @@ export default class ApiRequest extends LitElement {
                   }`)}
               </div>
             </td>`
-          : ''
+          : html`<td></td>`
         }
       </tr>
       <tr>
         ${this.allowTry === 'true' ? html`<td style="border:none"> </td>` : ''}
-        <td colspan="2" style="border:none;">
+        <td colspan="2" style="border:none">
           <span class="m-markdown-small">${unsafeHTML(marked(param.description || ''))}</span>
           ${this.exampleListTemplate.call(this, param.name, paramSchema.type, example.exampleList)}
         </td>
