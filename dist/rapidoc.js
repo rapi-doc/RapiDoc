@@ -29858,6 +29858,15 @@ class SchemaTree extends lit_element_s {
       .key.deprecated .key-label {
         color: var(--red);
       }
+      .tr.expanded:hover > .td.key > .open-bracket {
+        color: var(--primary-color);
+      }
+      .tr.expanded:hover + .inside-bracket {
+        border-left: 1px solid var(--fg3);
+      }
+      .tr.expanded:hover + .inside-bracket + .close-bracket {
+        color: var(--primary-color);
+      }
 
       .open-bracket{
         display:inline-block;
@@ -42384,7 +42393,7 @@ Prism.languages.js = Prism.languages.javascript;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("efc8c20817853847202f")
+/******/ 		__webpack_require__.h = () => ("3fddfcd81d51ea460b8a")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

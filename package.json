@@ -35,8 +35,8 @@
     "@apitools/openapi-parser": "^0.0.24",
     "base64-arraybuffer": "^1.0.2",
     "buffer": "^6.0.3",
-    "lit": "^2.2.2",
-    "marked": "^4.0.14",
+    "lit": "^2.2.3",
+    "marked": "^4.0.15",
     "prismjs": "^1.28.0"
   },
   "scripts": {
@@ -49,15 +49,15 @@
     "lint-fix": "./node_modules/eslint/bin/eslint.js --fix ./src/**"
   },
   "devDependencies": {
-    "@babel/core": "^7.17.9",
+    "@babel/core": "^7.17.10",
     "@babel/eslint-parser": "^7.17.0",
-    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-env": "^7.17.10",
     "babel-loader": "^8.2.5",
     "babel-plugin-template-html-minifier": "^4.1.0",
     "clean-webpack-plugin": "^4.0.0",
     "compression-webpack-plugin": "^9.2.0",
     "css-loader": "^6.7.1",
-    "eslint": "^8.14.0",
+    "eslint": "^8.15.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-import-resolver-webpack": "^0.13.2",
     "eslint-plugin-import": "^2.26.0",
@@ -69,10 +69,10 @@
     "style-loader": "^3.3.1",
     "terser-webpack-plugin": "^5.3.1",
     "unminified-webpack-plugin": "^3.0.0",
-    "webpack": "^5.72.0",
+    "webpack": "^5.72.1",
     "webpack-bundle-analyzer": "^4.5.0",
     "webpack-cli": "^4.9.2",
-    "webpack-dev-server": "^4.8.1"
+    "webpack-dev-server": "^4.9.0"
   },
   "engines": {
     "node": ">=10.21.0"
