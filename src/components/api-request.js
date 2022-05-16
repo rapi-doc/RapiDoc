@@ -346,7 +346,7 @@ export default class ApiRequest extends LitElement {
         </td>  
         ${this.allowTry === 'true'
           ? html`
-            <td style="min-width:100px;">
+            <td style="min-width:100px;" colspan="${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern ? '1' : '2'}">
               ${paramSchema.type === 'array'
                 ? html`
                   <tag-input class="request-param" 
