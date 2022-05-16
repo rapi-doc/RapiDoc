@@ -35,17 +35,28 @@ export default class JsonTree extends LitElement {
         text-align: left;
       }
 
-      .open-bracket{
+      .open-bracket {
         display:inline-block;
         padding: 0 20px 0 0;
         cursor:pointer;
         border: 1px solid transparent;
         border-radius:3px;
       }
-      .open-bracket:hover{
+      .close-bracket {
+        border: 1px solid transparent;
+        border-radius:3px;
+        display:inline-block;
+      }
+      .open-bracket:hover {
         color:var(--primary-color);
         background-color:var(--hover-color);
         border: 1px solid var(--border-color);
+      }
+      .open-bracket.expanded:hover ~ .inside-bracket {
+        border-left: 1px solid var(--fg3);
+      }
+      .open-bracket.expanded:hover ~ .close-bracket {
+        color:var(--primary-color);
       }
       .inside-bracket{
         padding-left:12px;
