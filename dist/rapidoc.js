@@ -1,7 +1,7 @@
 
 /**
 * @preserve
-* RapiDoc 9.2.0-beta - WebComponent to View OpenAPI docs
+* RapiDoc 9.3.0-beta - WebComponent to View OpenAPI docs
 * License: MIT
 * Repo   : https://github.com/rapi-doc/RapiDoc
 * Author : Mrinmoy Majumdar
@@ -773,7 +773,7 @@ class Tokenizer {
         l = item.header.length;
         for (j = 0; j < l; j++) {
           item.header[j].tokens = [];
-          this.lexer.inlineTokens(item.header[j].text, item.header[j].tokens);
+          this.lexer.inline(item.header[j].text, item.header[j].tokens);
         }
 
         // cell child tokens
@@ -782,7 +782,7 @@ class Tokenizer {
           row = item.rows[j];
           for (k = 0; k < row.length; k++) {
             row[k].tokens = [];
-            this.lexer.inlineTokens(row[k].text, row[k].tokens);
+            this.lexer.inline(row[k].text, row[k].tokens);
           }
         }
 
@@ -42393,7 +42393,7 @@ Prism.languages.js = Prism.languages.javascript;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("3fddfcd81d51ea460b8a")
+/******/ 		__webpack_require__.h = () => ("ccc2cfcc281c32c1d0db")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
