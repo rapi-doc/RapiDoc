@@ -89,7 +89,12 @@ export default function navbarTemplate() {
         : html`
           ${(this.infoDescriptionHeadingsInNavBar === 'true')
             ? html`
-              ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? html`<div class='nav-bar-info' id='link-overview' data-content-id='overview' @click = '${(e) => this.scrollToEventTarget(e, false)}' > Overview </div>` : ''}
+              ${this.resolvedSpec.infoDescriptionHeaders.length > 0
+                ? html`<div class='nav-bar-info' id='link-overview' data-content-id='overview' @click = '${(e) => this.scrollToEventTarget(e, false)}'> 
+                    ${this.resolvedSpec.info?.title?.trim() || 'Overview'}
+                  </div>`
+                : ''
+              }
               <div class="overview-headers">
                 ${this.resolvedSpec.infoDescriptionHeaders.map((header) => html`
                   <div 
@@ -104,7 +109,9 @@ export default function navbarTemplate() {
               </div>
               ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? html`<hr style='border-top: 1px solid var(--nav-hover-bg-color); border-width:1px 0 0 0; margin: 15px 0 0 0'/>` : ''}
             `
-            : html`<div class='nav-bar-info' id='link-overview' data-content-id='overview' @click = '${(e) => this.scrollToEventTarget(e, false)}'> Overview </div>`
+            : html`<div class='nav-bar-info' id='link-overview' data-content-id='overview' @click = '${(e) => this.scrollToEventTarget(e, false)}'> 
+            ${this.resolvedSpec.info?.title?.trim() || 'Overview'} 
+              </div>`
           }
         `
       }
