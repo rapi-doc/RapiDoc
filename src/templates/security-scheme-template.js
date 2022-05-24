@@ -520,7 +520,10 @@ export function pathSecurityTemplate(pathSecurity) {
               ${i !== 0 ? html`<div style="padding:3px 4px;"> OR </div>` : ''}
               <div class="tooltip">
                 <div style = "padding:2px 4px; white-space:nowrap; text-overflow:ellipsis;max-width:150px; overflow:hidden;">
-                  <a part="anchor anchor-operation-security" href="#auth"> ${orSecurityItem1.securityTypes} </a>
+                  ${this.updateRoute === 'true' && this.allowAuthentication === 'true'
+                    ? html`<a part="anchor anchor-operation-security" href="#auth"> ${orSecurityItem1.securityTypes} </a>`
+                    : html`${orSecurityItem1.securityTypes}`
+                  }
                 </div>
                 <div class="tooltip-text" style="position:absolute; color: var(--fg); top:26px; right:0; border:1px solid var(--border-color);padding:2px 4px; display:block;">
                   ${orSecurityItem1.securityDefs.length > 1 ? html`<div>Requires <b>all</b> of the following </div>` : ''}
