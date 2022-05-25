@@ -88,12 +88,12 @@ function endpointBodyTemplate(path) {
 
   const codeSampleTabPanel = path.xCodeSamples ? codeSamplesTemplate(path.xCodeSamples) : '';
   return html`
-  <div part="section-end-point-body" class='endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}'>
+  <div part="section-endpoint-body" class='endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}'>
     <div class="summary">
       ${path.summary
-        ? html`<div class="title" part="section-end-point-body-title">${path.summary}<div>`
+        ? html`<div class="title" part="section-endpoint-body-title">${path.summary}<div>`
         : path.shortSummary !== path.description
-          ? html`<div class="title" part="section-end-point-body-title">${path.shortSummary}</div>`
+          ? html`<div class="title" part="section-endpoint-body-title">${path.shortSummary}</div>`
           : ''
       }
       ${path.xBadges && path.xBadges?.length > 0
@@ -108,7 +108,7 @@ function endpointBodyTemplate(path) {
         : ''
       }
 
-      ${path.description ? html`<div  part="section-end-point-body-description" class="m-markdown"> ${unsafeHTML(marked(path.description))}</div>` : ''}
+      ${path.description ? html`<div  part="section-endpoint-body-description" class="m-markdown"> ${unsafeHTML(marked(path.description))}</div>` : ''}
       <slot name="${path.elementId}"></slot>
       ${pathSecurityTemplate.call(this, path.security)}
       ${codeSampleTabPanel}
@@ -203,7 +203,7 @@ export default function endpointTemplate(showExpandCollapse = true, showTags = t
                 }
                 return true;
                 }).map((path) => html`
-                <section part="section-end-point" id='${path.elementId}' class='m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
+                <section part="section-endpoint" id='${path.elementId}' class='m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
                   ${endpointHeadTemplate.call(this, path, pathsExpanded)}      
                   ${pathsExpanded || path.expanded ? endpointBodyTemplate.call(this, path) : ''}
                 </section>`)
