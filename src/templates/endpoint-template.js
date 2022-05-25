@@ -46,7 +46,7 @@ function onExpandCollapseAll(e, action = 'expand-all') {
 /* eslint-disable indent */
 function endpointHeadTemplate(path, pathsExpanded = false) {
   return html`
-  <summary @click="${(e) => { toggleExpand.call(this, path, e); }}" part="section-endpoint-head" class='endpoint-head ${path.method} ${path.deprecated ? 'deprecated' : ''} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
+  <summary @click="${(e) => { toggleExpand.call(this, path, e); }}" part="section-endpoint-head-${path.expanded ? 'expanded' : 'collapsed'}" class='endpoint-head ${path.method} ${path.deprecated ? 'deprecated' : ''} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
     <div part="section-endpoint-head-method" class="method ${path.method} ${path.deprecated ? 'deprecated' : ''}"> ${path.method} </div> 
     <div  part="section-endpoint-head-path" class="path ${path.deprecated ? 'deprecated' : ''}"> 
       ${path.path} 
@@ -88,7 +88,7 @@ function endpointBodyTemplate(path) {
 
   const codeSampleTabPanel = path.xCodeSamples ? codeSamplesTemplate(path.xCodeSamples) : '';
   return html`
-  <div part="section-endpoint-body" class='endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}'>
+  <div part="section-endpoint-body-${path.expanded ? 'expanded' : 'collapsed'}" class='endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}'>
     <div class="summary">
       ${path.summary
         ? html`<div class="title" part="section-endpoint-body-title">${path.summary}<div>`
@@ -108,7 +108,7 @@ function endpointBodyTemplate(path) {
         : ''
       }
 
-      ${path.description ? html`<div  part="section-endpoint-body-description" class="m-markdown"> ${unsafeHTML(marked(path.description))}</div>` : ''}
+      ${path.description ? html`<div part="section-endpoint-body-description" class="m-markdown"> ${unsafeHTML(marked(path.description))}</div>` : ''}
       <slot name="${path.elementId}"></slot>
       ${pathSecurityTemplate.call(this, path.security)}
       ${codeSampleTabPanel}
