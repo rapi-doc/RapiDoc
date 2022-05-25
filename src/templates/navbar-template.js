@@ -50,7 +50,7 @@ export default function navbarTemplate() {
     ${(this.allowSearch === 'false' && this.allowAdvancedSearch === 'false')
       ? ''
       : html`
-        <div style="display:flex; flex-direction:row; justify-content:center; align-items:center; padding:8px 24px 12px 24px; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}">
+        <div style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 24px 12px 24px; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}">
           ${this.allowSearch === 'false'
             ? ''
             : html`
@@ -67,7 +67,9 @@ export default function navbarTemplate() {
               </div>  
               ${this.matchPaths
                 ? html`
-                  <div @click = '${this.onClearSearch}' style='margin-left:5px; cursor:pointer; align-self:center; color:var(--nav-text-color)' class='small-font-size primary-text bold-text'> CLEAR </div>`
+                  <button @click = '${this.onClearSearch}' class="m-btn thin-border" style="margin-left:5px; color:var(--nav-text-color); width:75px; padding:6px 8px;" part="btn btn-outline btn-clear-filter">
+                    CLEAR
+                  </button>`
                 : ''
               }
             `
@@ -75,8 +77,8 @@ export default function navbarTemplate() {
           ${this.allowAdvancedSearch === 'false' || this.matchPaths
             ? ''
             : html`
-              <button class="m-btn primary" part="btn btn-fill btn-search" style="margin-left:5px;" @click="${this.onShowSearchModalClicked}">
-                Search
+              <button class="m-btn primary" part="btn btn-fill btn-search" style="margin-left:5px; padding:6px 8px; width:75px" @click="${this.onShowSearchModalClicked}">
+                SEARCH
               </button>
             `
           }
