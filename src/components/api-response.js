@@ -312,6 +312,7 @@ export default class ApiResponse extends LitElement {
             allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
             schema-hide-read-only = "${this.schemaHideReadOnly}"
             schema-hide-write-only = "${this.schemaHideWriteOnly}"
+            exportparts = "schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
           > </schema-tree> `
         : html`
           <schema-tree
@@ -322,6 +323,7 @@ export default class ApiResponse extends LitElement {
             allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
             schema-hide-read-only = "${this.schemaHideReadOnly}"
             schema-hide-write-only = "${this.schemaHideWriteOnly}"
+            exportparts = "schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
           > </schema-tree>`
       }`;
   }
