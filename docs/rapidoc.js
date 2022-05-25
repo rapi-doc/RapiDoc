@@ -1,7 +1,7 @@
 
 /**
 * @preserve
-* RapiDoc 9.3.0-beta - WebComponent to View OpenAPI docs
+* RapiDoc 9.3.0 - WebComponent to View OpenAPI docs
 * License: MIT
 * Repo   : https://github.com/rapi-doc/RapiDoc
 * Author : Mrinmoy Majumdar
@@ -28259,7 +28259,7 @@ function pathSecurityTemplate(pathSecurity) {
               ${i !== 0 ? $`<div style="padding:3px 4px;"> OR </div>` : ''}
               <div class="tooltip">
                 <div style = "padding:2px 4px; white-space:nowrap; text-overflow:ellipsis;max-width:150px; overflow:hidden;">
-                  <a part="anchor anchor-operation-security" href="#auth"> ${orSecurityItem1.securityTypes} </a>
+                  ${this.updateRoute === 'true' && this.allowAuthentication === 'true' ? $`<a part="anchor anchor-operation-security" href="#auth"> ${orSecurityItem1.securityTypes} </a>` : $`${orSecurityItem1.securityTypes}`}
                 </div>
                 <div class="tooltip-text" style="position:absolute; color: var(--fg); top:26px; right:0; border:1px solid var(--border-color);padding:2px 4px; display:block;">
                   ${orSecurityItem1.securityDefs.length > 1 ? $`<div>Requires <b>all</b> of the following </div>` : ''}
@@ -28393,7 +28393,7 @@ function callbackTemplate(callbacks) {
                       fetch-credentials = "${this.fetchCredentials}"
                       exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
                         file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
-                        anchor:anchor, anchor-param-example:anchor-param-example"
+                        anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
                     > </api-request>
 
                     <api-response
@@ -28409,7 +28409,8 @@ function callbackTemplate(callbacks) {
                       allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
                       schema-hide-read-only = "${this.schemaHideReadOnly}"
                       schema-hide-write-only = "false"
-                      exportparts = "btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy"
+                      exportparts = "btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
+                      schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
                     > </api-response>
                   </div>
                 </div>  
@@ -29911,14 +29912,14 @@ class SchemaTree extends lit_element_s {
           <div class="toolbar-item schema-root-type ${((_this$data = this.data) === null || _this$data === void 0 ? void 0 : _this$data['::type']) || ''} "> ${((_this$data2 = this.data) === null || _this$data2 === void 0 ? void 0 : _this$data2['::type']) || ''} </div>
           ${this.allowSchemaDescriptionExpandToggle === 'true' ? $`
               <div style="flex:1"></div>
-              <div class='toolbar-item' @click='${() => {
+              <div part="schema-toolbar-item schema-multiline-toggle" class='toolbar-item' @click='${() => {
       this.schemaDescriptionExpanded = this.schemaDescriptionExpanded === 'true' ? 'false' : 'true';
     }}'> 
                 ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'}
               </div>
             ` : ''}
         </div>
-        ${(_this$data3 = this.data) !== null && _this$data3 !== void 0 && _this$data3['::description'] ? $`<span class='m-markdown'> ${unsafe_html_o(marked(this.data['::description'] || ''))}</span>` : ''}
+        ${(_this$data3 = this.data) !== null && _this$data3 !== void 0 && _this$data3['::description'] ? $`<span part="schema-description" class='m-markdown'> ${unsafe_html_o(marked(this.data['::description'] || ''))}</span>` : ''}
         ${this.data ? $`
             ${this.generateTree(this.data['::type'] === 'array' ? this.data['::props'] : this.data, this.data['::type'], this.data['::array-type'] || '')}` : $`<span class='mono-font' style='color:var(--red)'> Schema not found </span>`}
       </div>  
@@ -30734,6 +30735,9 @@ class ApiRequest extends lit_element_s {
                               allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
                               schema-hide-read-only = "${this.schemaHideReadOnly.includes(this.method)}"
                               schema-hide-write-only = "${this.schemaHideWriteOnly.includes(this.method)}"
+                              exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
+            file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
+            anchor:anchor, anchor-param-example:anchor-param-example"
                             > </schema-tree>
                           </div>`}
                     </div>` : $`
@@ -30955,6 +30959,7 @@ class ApiRequest extends lit_element_s {
               allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
               schema-hide-read-only = "${this.schemaHideReadOnly}"
               schema-hide-write-only = "${this.schemaHideWriteOnly}"
+              exportparts = "schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
             > </schema-table>
           `;
         } else if (this.schemaStyle === 'tree') {
@@ -30969,6 +30974,7 @@ class ApiRequest extends lit_element_s {
               allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
               schema-hide-read-only = "${this.schemaHideReadOnly}"
               schema-hide-write-only = "${this.schemaHideWriteOnly}"
+              exportparts = "schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
             > </schema-tree>
           `;
         }
@@ -31960,14 +31966,14 @@ class SchemaTable extends lit_element_s {
           <div class="toolbar-item schema-root-type ${((_this$data = this.data) === null || _this$data === void 0 ? void 0 : _this$data['::type']) || ''} "> ${((_this$data2 = this.data) === null || _this$data2 === void 0 ? void 0 : _this$data2['::type']) || ''} </div>
           ${this.allowSchemaDescriptionExpandToggle === 'true' ? $`
               <div style="flex:1"></div>
-              <div class='toolbar-item' @click='${() => {
+              <div part="schema-multiline-toggle" class='toolbar-item' @click='${() => {
       this.schemaDescriptionExpanded = this.schemaDescriptionExpanded === 'true' ? 'false' : 'true';
     }}'> 
                 ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'}
               </div>
             ` : ''}
         </div>
-        ${(_this$data3 = this.data) !== null && _this$data3 !== void 0 && _this$data3['::description'] ? $`<span class='m-markdown'> ${unsafe_html_o(marked(this.data['::description'] || ''))}</span>` : ''}
+        ${(_this$data3 = this.data) !== null && _this$data3 !== void 0 && _this$data3['::description'] ? $`<span part="schema-description" class='m-markdown'> ${unsafe_html_o(marked(this.data['::description'] || ''))}</span>` : ''}
         <div style = 'border:1px solid var(--light-border-color)'>
           <div style='display:flex; background-color: var(--bg2); padding:8px 4px; border-bottom:1px solid var(--light-border-color);'>
             <div class='key' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Field </div>
@@ -32572,74 +32578,75 @@ function expandedEndpointBodyTemplate(path, tagName = '') {
   return $`
     ${this.renderStyle === 'read' ? $`<div class='divider' part="operation-divider"></div>` : ''}
     <div class='expanded-endpoint-body observe-me ${path.method} ${path.deprecated ? 'deprecated' : ''} ' part="section-operation ${path.elementId}" id='${path.elementId}'>
-    ${this.renderStyle === 'focused' && tagName !== 'General ⦂' ? $`<h3 class="upper" style="font-weight:bold"> ${tagName} </h3>` : ''}
-    ${path.deprecated ? $`<div class="bold-text red-text"> DEPRECATED </div>` : ''}
-    ${$`
-      ${path.xBadges && ((_path$xBadges = path.xBadges) === null || _path$xBadges === void 0 ? void 0 : _path$xBadges.length) > 0 ? $`
-          <div style="display:flex; flex-wrap:wrap; margin-bottom: -24px; font-size: var(--font-size-small);">
-            ${path.xBadges.map(v => $`<span style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`)}
-          </div>
-          ` : ''}
-      <h2> ${path.shortSummary || `${path.method.toUpperCase()} ${path.path}`}</h2>
-      ${path.isWebhook ? $`<span style="color:var(--primary-color); font-weight:bold; font-size: var(--font-size-regular);"> WEBHOOK </span>` : $`
-          <div class='mono-font part="section-operation-url" regular-font-size' style='text-align:left; direction:ltr; padding: 8px 0; color:var(--fg3)'> 
-            <span part="label-operation-method" class='regular-font upper method-fg bold-text ${path.method}'>${path.method}</span> 
-            <span part="label-operation-path">${path.path}</span>
-          </div>
-        `}
-      <slot name="${path.elementId}"></slot>`}
-    ${path.description ? $`<div class="m-markdown"> ${unsafe_html_o(marked(path.description))}</div>` : ''}
-    ${pathSecurityTemplate.call(this, path.security)}
-    ${codeSampleTabPanel}
-    <div class='expanded-req-resp-container'>
-      <api-request
-        class = "${this.renderStyle}-mode"
-        style = "width:100%;"
-        method = "${path.method}"
-        path = "${path.path}"
-        .security = "${path.security}"
-        .parameters = "${path.parameters}"
-        .request_body = "${path.requestBody}"
-        .api_keys = "${nonEmptyApiKeys}"
-        .servers = "${path.servers}"
-        server-url = "${((_path$servers = path.servers) === null || _path$servers === void 0 ? void 0 : (_path$servers$ = _path$servers[0]) === null || _path$servers$ === void 0 ? void 0 : _path$servers$.url) || this.selectedServer.computedUrl}"
-        fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
-        use-summary-to-list-example = "${this.useSummaryToListExamples}"
-        allow-try = "${this.allowTry}"
-        accept = "${accept}"
-        render-style="${this.renderStyle}" 
-        schema-style = "${this.schemaStyle}"
-        active-schema-tab = "${this.defaultSchemaTab}"
-        schema-expand-level = "${this.schemaExpandLevel}"
-        schema-description-expanded = "${this.schemaDescriptionExpanded}"
-        allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
-        schema-hide-read-only = "${path.isWebhook ? false : this.schemaHideReadOnly}"
-        schema-hide-write-only = "${path.isWebhook ? this.schemaHideWriteOnly : false}"
-        fetch-credentials = "${this.fetchCredentials}"
-        exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
-          file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
-          anchor:anchor, anchor-param-example:anchor-param-example"
-      > </api-request>
+      ${this.renderStyle === 'focused' && tagName !== 'General ⦂' ? $`<h3 class="upper" style="font-weight:bold" part="section-operation-tag"> ${tagName} </h3>` : ''}
+      ${path.deprecated ? $`<div class="bold-text red-text"> DEPRECATED </div>` : ''}
+      ${$`
+        ${path.xBadges && ((_path$xBadges = path.xBadges) === null || _path$xBadges === void 0 ? void 0 : _path$xBadges.length) > 0 ? $`
+            <div style="display:flex; flex-wrap:wrap; margin-bottom: -24px; font-size: var(--font-size-small);">
+              ${path.xBadges.map(v => $`<span style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`)}
+            </div>
+            ` : ''}
+        <h2 part="section-operation-summary"> ${path.shortSummary || `${path.method.toUpperCase()} ${path.path}`}</h2>
+        ${path.isWebhook ? $`<span part="section-operation-webhook style="color:var(--primary-color); font-weight:bold; font-size: var(--font-size-regular);"> WEBHOOK </span>` : $`
+            <div class='mono-font part="section-operation-webhook-method" regular-font-size' style='text-align:left; direction:ltr; padding: 8px 0; color:var(--fg3)'> 
+              <span part="label-operation-method" class='regular-font upper method-fg bold-text ${path.method}'>${path.method}</span> 
+              <span part="label-operation-path">${path.path}</span>
+            </div>
+          `}
+        <slot name="${path.elementId}"></slot>`}
+      ${path.description ? $`<div class="m-markdown"> ${unsafe_html_o(marked(path.description))}</div>` : ''}
+      ${pathSecurityTemplate.call(this, path.security)}
+      ${codeSampleTabPanel}
+      <div class='expanded-req-resp-container'>
+        <api-request
+          class = "${this.renderStyle}-mode"
+          style = "width:100%;"
+          method = "${path.method}"
+          path = "${path.path}"
+          .security = "${path.security}"
+          .parameters = "${path.parameters}"
+          .request_body = "${path.requestBody}"
+          .api_keys = "${nonEmptyApiKeys}"
+          .servers = "${path.servers}"
+          server-url = "${((_path$servers = path.servers) === null || _path$servers === void 0 ? void 0 : (_path$servers$ = _path$servers[0]) === null || _path$servers$ === void 0 ? void 0 : _path$servers$.url) || this.selectedServer.computedUrl}"
+          fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
+          use-summary-to-list-example = "${this.useSummaryToListExamples}"
+          allow-try = "${this.allowTry}"
+          accept = "${accept}"
+          render-style="${this.renderStyle}" 
+          schema-style = "${this.schemaStyle}"
+          active-schema-tab = "${this.defaultSchemaTab}"
+          schema-expand-level = "${this.schemaExpandLevel}"
+          schema-description-expanded = "${this.schemaDescriptionExpanded}"
+          allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
+          schema-hide-read-only = "${path.isWebhook ? false : this.schemaHideReadOnly}"
+          schema-hide-write-only = "${path.isWebhook ? this.schemaHideWriteOnly : false}"
+          fetch-credentials = "${this.fetchCredentials}"
+          exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
+            file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
+            anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+        > </api-request>
 
-      ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
+        ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
 
-      <api-response
-        class = "${this.renderStyle}-mode"
-        style = "width:100%;"
-        .responses = "${path.responses}"
-        render-style = "${this.renderStyle}"
-        schema-style = "${this.schemaStyle}"
-        active-schema-tab = "${this.defaultSchemaTab}"
-        schema-expand-level = "${this.schemaExpandLevel}"
-        schema-description-expanded = "${this.schemaDescriptionExpanded}"
-        allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
-        schema-hide-read-only = "${path.isWebhook ? this.schemaHideReadOnly : false}"
-        schema-hide-write-only = "${path.isWebhook ? false : this.schemaHideWriteOnly}"
-        selected-status = "${Object.keys(path.responses || {})[0] || ''}"
-        exportparts = "btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy"
-      > </api-response>
+        <api-response
+          class = "${this.renderStyle}-mode"
+          style = "width:100%;"
+          .responses = "${path.responses}"
+          render-style = "${this.renderStyle}"
+          schema-style = "${this.schemaStyle}"
+          active-schema-tab = "${this.defaultSchemaTab}"
+          schema-expand-level = "${this.schemaExpandLevel}"
+          schema-description-expanded = "${this.schemaDescriptionExpanded}"
+          allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
+          schema-hide-read-only = "${path.isWebhook ? this.schemaHideReadOnly : false}"
+          schema-hide-write-only = "${path.isWebhook ? false : this.schemaHideWriteOnly}"
+          selected-status = "${Object.keys(path.responses || {})[0] || ''}"
+          exportparts = "btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
+          schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+        > </api-response>
+      </div>
     </div>
-  </div>
   `;
 }
 function expandedEndpointTemplate() {
@@ -32650,7 +32657,7 @@ function expandedEndpointTemplate() {
   return $`
   ${this.resolvedSpec.tags.map(tag => $`
     <section id="${tag.elementId}" part="section-tag" class="regular-font section-gap--read-mode observe-me" style="border-top:1px solid var(--primary-color);">
-      <div class="title tag" part="label-tag-title">${tag.name}</div>
+      <div class="title tag" part="section-tag-title label-tag-title">${tag.name}</div>
       <slot name="${tag.elementId}"></slot>
       <div class="regular-font-size">
       ${unsafe_html_o(`
@@ -32692,6 +32699,7 @@ function schemaBodyTemplate(sComponent) {
         allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
         schema-hide-read-only = "false"
         schema-hide-write-only = "${this.schemaHideWriteOnly}"
+        exportparts = "schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
       > </schema-tree> ` : $`
       <schema-tree
         render-style = '${this.renderStyle}'
@@ -32701,6 +32709,7 @@ function schemaBodyTemplate(sComponent) {
         allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
         schema-hide-read-only = "false"
         schema-hide-write-only = "${this.schemaHideWriteOnly}"
+        exportparts = "schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
       > </schema-tree>`}
   </div>`;
 }
@@ -32767,7 +32776,7 @@ function overviewTemplate() {
     <section id="overview" part="section-overview"
       class="observe-me ${this.renderStyle === 'view' ? 'section-gap' : 'section-gap--read-mode'}">
       ${(_this$resolvedSpec = this.resolvedSpec) !== null && _this$resolvedSpec !== void 0 && _this$resolvedSpec.info ? $`
-          <div id="api-title" part="label-overview-title" style="font-size:32px">
+          <div id="api-title" part="section-overview-title" style="font-size:32px">
             ${this.resolvedSpec.info.title}
             ${!this.resolvedSpec.info.version ? '' : $`
               <span style = 'font-size:var(--font-size-small);font-weight:bold'>
@@ -32848,7 +32857,7 @@ function onApiServerVarChange(e, serverObj) {
 function serverVarsTemplate() {
   // const selectedServerObj = this.resolvedSpec.servers.find((v) => (v.url === this.selectedServer));
   return this.selectedServer && this.selectedServer.variables ? $`
-    <div class="table-title"> SERVER VARIABLES</div>
+    <div class="table-title">SERVER VARIABLES</div>
     <table class='m-table'>
       ${Object.entries(this.selectedServer.variables).map(kv => $`
         <tr>
@@ -32899,7 +32908,7 @@ function serverTemplate() {
 
   return $`
   <section id = 'servers' part="section-servers" style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;" class='regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
-    <div class = 'sub-title'>API SERVER</div>
+    <div part = "section-servers-title" class = "sub-title">API SERVER</div>
     <div class = 'mono-font' style='margin: 12px 0; font-size:calc(var(--font-size-small) + 1px);'>
       ${!this.resolvedSpec.servers || ((_this$resolvedSpec$se = this.resolvedSpec.servers) === null || _this$resolvedSpec$se === void 0 ? void 0 : _this$resolvedSpec$se.length) === 0 ? '' : $`
           ${(_this$resolvedSpec2 = this.resolvedSpec) === null || _this$resolvedSpec2 === void 0 ? void 0 : _this$resolvedSpec2.servers.map((server, i) => $`
@@ -32968,6 +32977,8 @@ function onExpandCollapseAll(e, action = 'expand-all') {
 
 
 function navbarTemplate() {
+  var _this$resolvedSpec$in, _this$resolvedSpec$in2, _this$resolvedSpec$in3, _this$resolvedSpec$in4;
+
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) {
     return $`
       <nav class='nav-bar' part="section-navbar">
@@ -32980,7 +32991,7 @@ function navbarTemplate() {
   <nav class='nav-bar ${this.renderStyle}' part="section-navbar">
     <slot name="nav-logo" class="logo"></slot>
     ${this.allowSearch === 'false' && this.allowAdvancedSearch === 'false' ? '' : $`
-        <div style="display:flex; flex-direction:row; justify-content:center; align-items:center; padding:8px 24px 12px 24px; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}">
+        <div style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 24px 12px 24px; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}">
           ${this.allowSearch === 'false' ? '' : $`
               <div style="display:flex; flex:1; line-height:22px;">
                 <input id="nav-bar-search" 
@@ -32994,11 +33005,13 @@ function navbarTemplate() {
                 <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div>
               </div>  
               ${this.matchPaths ? $`
-                  <div @click = '${this.onClearSearch}' style='margin-left:5px; cursor:pointer; align-self:center; color:var(--nav-text-color)' class='small-font-size primary-text bold-text'> CLEAR </div>` : ''}
+                  <button @click = '${this.onClearSearch}' class="m-btn thin-border" style="margin-left:5px; color:var(--nav-text-color); width:75px; padding:6px 8px;" part="btn btn-outline btn-clear-filter">
+                    CLEAR
+                  </button>` : ''}
             `}
           ${this.allowAdvancedSearch === 'false' || this.matchPaths ? '' : $`
-              <button class="m-btn primary" part="btn btn-fill btn-search" style="margin-left:5px;" @click="${this.onShowSearchModalClicked}">
-                Search
+              <button class="m-btn primary" part="btn btn-fill btn-search" style="margin-left:5px; padding:6px 8px; width:75px" @click="${this.onShowSearchModalClicked}">
+                SEARCH
               </button>
             `}
         </div>
@@ -33006,7 +33019,9 @@ function navbarTemplate() {
     ${$`<nav class='nav-scroll' part="section-navbar-scroll">
       ${this.showInfo === 'false' || !this.resolvedSpec.info ? '' : $`
           ${this.infoDescriptionHeadingsInNavBar === 'true' ? $`
-              ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? $`<div class='nav-bar-info' id='link-overview' data-content-id='overview' @click = '${e => this.scrollToEventTarget(e, false)}' > Overview </div>` : ''}
+              ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? $`<div class='nav-bar-info' id='link-overview' data-content-id='overview' @click = '${e => this.scrollToEventTarget(e, false)}'> 
+                    ${((_this$resolvedSpec$in = this.resolvedSpec.info) === null || _this$resolvedSpec$in === void 0 ? void 0 : (_this$resolvedSpec$in2 = _this$resolvedSpec$in.title) === null || _this$resolvedSpec$in2 === void 0 ? void 0 : _this$resolvedSpec$in2.trim()) || 'Overview'}
+                  </div>` : ''}
               <div class="overview-headers">
                 ${this.resolvedSpec.infoDescriptionHeaders.map(header => $`
                   <div 
@@ -33019,7 +33034,9 @@ function navbarTemplate() {
                   </div>`)}
               </div>
               ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? $`<hr style='border-top: 1px solid var(--nav-hover-bg-color); border-width:1px 0 0 0; margin: 15px 0 0 0'/>` : ''}
-            ` : $`<div class='nav-bar-info' id='link-overview' data-content-id='overview' @click = '${e => this.scrollToEventTarget(e, false)}'> Overview </div>`}
+            ` : $`<div class='nav-bar-info' id='link-overview' data-content-id='overview' @click = '${e => this.scrollToEventTarget(e, false)}'> 
+            ${((_this$resolvedSpec$in3 = this.resolvedSpec.info) === null || _this$resolvedSpec$in3 === void 0 ? void 0 : (_this$resolvedSpec$in4 = _this$resolvedSpec$in3.title) === null || _this$resolvedSpec$in4 === void 0 ? void 0 : _this$resolvedSpec$in4.trim()) || 'Overview'} 
+              </div>`}
         `}
     
       ${this.allowServerSelection === 'false' ? '' : $`<div class='nav-bar-info' id='link-servers' data-content-id='servers' @click = '${e => this.scrollToEventTarget(e, false)}'> API Servers </div>`}
@@ -33303,9 +33320,9 @@ function endpointHeadTemplate(path, pathsExpanded = false) {
   return $`
   <summary @click="${e => {
     toggleExpand.call(this, path, e);
-  }}" class='endpoint-head ${path.method} ${path.deprecated ? 'deprecated' : ''} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
-    <div class="method ${path.method} ${path.deprecated ? 'deprecated' : ''}"> ${path.method} </div> 
-    <div class="path ${path.deprecated ? 'deprecated' : ''}"> 
+  }}" part="section-endpoint-head-${path.expanded ? 'expanded' : 'collapsed'}" class='endpoint-head ${path.method} ${path.deprecated ? 'deprecated' : ''} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
+    <div part="section-endpoint-head-method" class="method ${path.method} ${path.deprecated ? 'deprecated' : ''}"> ${path.method} </div> 
+    <div  part="section-endpoint-head-path" class="path ${path.deprecated ? 'deprecated' : ''}"> 
       ${path.path} 
       ${path.isWebhook ? $`<span style="font-family: var(--font-regular); font-size: var(--); font-size: var(--font-size-small); color:var(--primary-color); margin-left: 16px"> Webhook</span>` : ''}
     </div>
@@ -33315,7 +33332,7 @@ function endpointHeadTemplate(path, pathsExpanded = false) {
         </span>` : ''}
     ${this.showSummaryWhenCollapsed ? $`
         <div class="only-large-screen" style="min-width:60px; flex:1"></div>
-        <div class="descr">${path.summary || path.shortSummary} </div>` : ''}
+        <div part="section-endpoint-head-description" class="descr">${path.summary || path.shortSummary} </div>` : ''}
   </summary>
   `;
 }
@@ -33349,16 +33366,16 @@ function endpointBodyTemplate(path) {
 
   const codeSampleTabPanel = path.xCodeSamples ? codeSamplesTemplate(path.xCodeSamples) : '';
   return $`
-  <div class='endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}'>
+  <div part="section-endpoint-body-${path.expanded ? 'expanded' : 'collapsed'}" class='endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}'>
     <div class="summary">
-      ${path.summary ? $`<div class="title">${path.summary}<div>` : path.shortSummary !== path.description ? $`<div class="title">${path.shortSummary}</div>` : ''}
+      ${path.summary ? $`<div class="title" part="section-endpoint-body-title">${path.summary}<div>` : path.shortSummary !== path.description ? $`<div class="title" part="section-endpoint-body-title">${path.shortSummary}</div>` : ''}
       ${path.xBadges && ((_path$xBadges = path.xBadges) === null || _path$xBadges === void 0 ? void 0 : _path$xBadges.length) > 0 ? $`
           <div style="display:flex; flex-wrap:wrap;font-size: var(--font-size-small);">
-            ${path.xBadges.map(v => $`<span style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`)}
+            ${path.xBadges.map(v => $`<span part="endpoint-badge" style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`)}
           </div>
           ` : ''}
 
-      ${path.description ? $`<div class="m-markdown"> ${unsafe_html_o(marked(path.description))}</div>` : ''}
+      ${path.description ? $`<div part="section-endpoint-body-description" class="m-markdown"> ${unsafe_html_o(marked(path.description))}</div>` : ''}
       <slot name="${path.elementId}"></slot>
       ${pathSecurityTemplate.call(this, path.security)}
       ${codeSampleTabPanel}
@@ -33391,7 +33408,7 @@ function endpointBodyTemplate(path) {
           fetch-credentials = "${this.fetchCredentials}"
           exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
             file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
-            anchor:anchor, anchor-param-example:anchor-param-example"
+            anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
         > </api-request>
 
           ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
@@ -33410,8 +33427,9 @@ function endpointBodyTemplate(path) {
         schema-hide-read-only = "${path.isWebhook ? this.schemaHideWriteOnly : this.schemaHideReadOnly}"
         schema-hide-write-only = "${path.isWebhook ? this.schemaHideReadOnly : this.schemaHideWriteOnly}"
         selected-status = "${Object.keys(path.responses || {})[0] || ''}"
-        exportparts = 
-        "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, anchor:anchor, anchor-param-example:anchor-param-example, btn-clear-resp:btn-clear-resp"
+        exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, file-input:file-input, 
+        textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, anchor:anchor, anchor-param-example:anchor-param-example, btn-clear-resp:btn-clear-resp,
+        schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
       > </api-response>
     </div>
   </div>`;
@@ -33455,7 +33473,7 @@ function endpointTemplate(showExpandCollapse = true, showTags = true, pathsExpan
 
     return true;
   }).map(path => $`
-                <section id='${path.elementId}' class='m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
+                <section part="section-endpoint" id='${path.elementId}' class='m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
                   ${endpointHeadTemplate.call(this, path, pathsExpanded)}      
                   ${pathsExpanded || path.expanded ? endpointBodyTemplate.call(this, path) : ''}
                 </section>`)}
@@ -42393,7 +42411,7 @@ Prism.languages.js = Prism.languages.javascript;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("ccc2cfcc281c32c1d0db")
+/******/ 		__webpack_require__.h = () => ("124033b60eb8a90aab98")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
