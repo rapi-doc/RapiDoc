@@ -16,7 +16,7 @@ export default function overviewTemplate() {
       class="observe-me ${this.renderStyle === 'view' ? 'section-gap' : 'section-gap--read-mode'}">
       ${this.resolvedSpec?.info
         ? html`
-          <div id="api-title" part="label-overview-title" style="font-size:32px">
+          <div id="api-title" part="section-overview-title" style="font-size:32px">
             ${this.resolvedSpec.info.title}
             ${!this.resolvedSpec.info.version ? '' : html`
               <span style = 'font-size:var(--font-size-small);font-weight:bold'>

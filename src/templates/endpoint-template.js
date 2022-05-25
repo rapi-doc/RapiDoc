@@ -46,8 +46,8 @@ function onExpandCollapseAll(e, action = 'expand-all') {
 /* eslint-disable indent */
 function endpointHeadTemplate(path, pathsExpanded = false) {
   return html`
-  <summary @click="${(e) => { toggleExpand.call(this, path, e); }}" class='endpoint-head ${path.method} ${path.deprecated ? 'deprecated' : ''} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
-    <div class="method ${path.method} ${path.deprecated ? 'deprecated' : ''}"> ${path.method} </div> 
+  <summary @click="${(e) => { toggleExpand.call(this, path, e); }}" part="endpoint-head" class='endpoint-head ${path.method} ${path.deprecated ? 'deprecated' : ''} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
+    <div part="endpoint-head-method" class="method ${path.method} ${path.deprecated ? 'deprecated' : ''}"> ${path.method} </div> 
     <div class="path ${path.deprecated ? 'deprecated' : ''}"> 
       ${path.path} 
       ${path.isWebhook ? html`<span style="font-family: var(--font-regular); font-size: var(--); font-size: var(--font-size-small); color:var(--primary-color); margin-left: 16px"> Webhook</span>` : ''}
@@ -62,7 +62,7 @@ function endpointHeadTemplate(path, pathsExpanded = false) {
     ${this.showSummaryWhenCollapsed
       ? html`
         <div class="only-large-screen" style="min-width:60px; flex:1"></div>
-        <div class="descr">${path.summary || path.shortSummary} </div>`
+        <div part="endpoint-head-summary" class="descr">${path.summary || path.shortSummary} </div>`
       : ''
     }
   </summary>
