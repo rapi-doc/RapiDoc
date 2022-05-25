@@ -93,7 +93,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
           fetch-credentials = "${this.fetchCredentials}"
           exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
             file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
-            anchor:anchor, anchor-param-example:anchor-param-example"
+            anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
         > </api-request>
 
         ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
@@ -111,7 +111,8 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
           schema-hide-read-only = "${path.isWebhook ? this.schemaHideReadOnly : false}"
           schema-hide-write-only = "${path.isWebhook ? false : this.schemaHideWriteOnly}"
           selected-status = "${Object.keys(path.responses || {})[0] || ''}"
-          exportparts = "btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy"
+          exportparts = "btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
+          schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
         > </api-response>
       </div>
     </div>

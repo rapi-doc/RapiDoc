@@ -46,9 +46,9 @@ function onExpandCollapseAll(e, action = 'expand-all') {
 /* eslint-disable indent */
 function endpointHeadTemplate(path, pathsExpanded = false) {
   return html`
-  <summary @click="${(e) => { toggleExpand.call(this, path, e); }}" part="endpoint-head" class='endpoint-head ${path.method} ${path.deprecated ? 'deprecated' : ''} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
-    <div part="endpoint-head-method" class="method ${path.method} ${path.deprecated ? 'deprecated' : ''}"> ${path.method} </div> 
-    <div class="path ${path.deprecated ? 'deprecated' : ''}"> 
+  <summary @click="${(e) => { toggleExpand.call(this, path, e); }}" part="section-endpoint-head" class='endpoint-head ${path.method} ${path.deprecated ? 'deprecated' : ''} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
+    <div part="section-endpoint-head-method" class="method ${path.method} ${path.deprecated ? 'deprecated' : ''}"> ${path.method} </div> 
+    <div  part="section-endpoint-head-path" class="path ${path.deprecated ? 'deprecated' : ''}"> 
       ${path.path} 
       ${path.isWebhook ? html`<span style="font-family: var(--font-regular); font-size: var(--); font-size: var(--font-size-small); color:var(--primary-color); margin-left: 16px"> Webhook</span>` : ''}
     </div>
@@ -62,7 +62,7 @@ function endpointHeadTemplate(path, pathsExpanded = false) {
     ${this.showSummaryWhenCollapsed
       ? html`
         <div class="only-large-screen" style="min-width:60px; flex:1"></div>
-        <div part="endpoint-head-summary" class="descr">${path.summary || path.shortSummary} </div>`
+        <div part="section-endpoint-head-description" class="descr">${path.summary || path.shortSummary} </div>`
       : ''
     }
   </summary>
@@ -88,19 +88,19 @@ function endpointBodyTemplate(path) {
 
   const codeSampleTabPanel = path.xCodeSamples ? codeSamplesTemplate(path.xCodeSamples) : '';
   return html`
-  <div class='endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}'>
+  <div part="section-end-point-body" class='endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}'>
     <div class="summary">
       ${path.summary
-        ? html`<div class="title">${path.summary}<div>`
+        ? html`<div class="title" part="section-end-point-body-title">${path.summary}<div>`
         : path.shortSummary !== path.description
-          ? html`<div class="title">${path.shortSummary}</div>`
+          ? html`<div class="title" part="section-end-point-body-title">${path.shortSummary}</div>`
           : ''
       }
       ${path.xBadges && path.xBadges?.length > 0
         ? html`
           <div style="display:flex; flex-wrap:wrap;font-size: var(--font-size-small);">
             ${path.xBadges.map((v) => (
-                html`<span style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`
+                html`<span part="endpoint-badge" style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`
               ))
             }
           </div>
@@ -108,7 +108,7 @@ function endpointBodyTemplate(path) {
         : ''
       }
 
-      ${path.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(path.description))}</div>` : ''}
+      ${path.description ? html`<div  part="section-end-point-body-description" class="m-markdown"> ${unsafeHTML(marked(path.description))}</div>` : ''}
       <slot name="${path.elementId}"></slot>
       ${pathSecurityTemplate.call(this, path.security)}
       ${codeSampleTabPanel}
@@ -141,7 +141,7 @@ function endpointBodyTemplate(path) {
           fetch-credentials = "${this.fetchCredentials}"
           exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
             file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
-            anchor:anchor, anchor-param-example:anchor-param-example"
+            anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
         > </api-request>
 
           ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
@@ -160,8 +160,9 @@ function endpointBodyTemplate(path) {
         schema-hide-read-only = "${path.isWebhook ? this.schemaHideWriteOnly : this.schemaHideReadOnly}"
         schema-hide-write-only = "${path.isWebhook ? this.schemaHideReadOnly : this.schemaHideWriteOnly}"
         selected-status = "${Object.keys(path.responses || {})[0] || ''}"
-        exportparts = 
-        "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, anchor:anchor, anchor-param-example:anchor-param-example, btn-clear-resp:btn-clear-resp"
+        exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, file-input:file-input, 
+        textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, anchor:anchor, anchor-param-example:anchor-param-example, btn-clear-resp:btn-clear-resp,
+        schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
       > </api-response>
     </div>
   </div>`;
@@ -202,7 +203,7 @@ export default function endpointTemplate(showExpandCollapse = true, showTags = t
                 }
                 return true;
                 }).map((path) => html`
-                <section id='${path.elementId}' class='m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
+                <section part="section-end-point" id='${path.elementId}' class='m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
                   ${endpointHeadTemplate.call(this, path, pathsExpanded)}      
                   ${pathsExpanded || path.expanded ? endpointBodyTemplate.call(this, path) : ''}
                 </section>`)

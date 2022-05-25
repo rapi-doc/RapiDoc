@@ -42,7 +42,7 @@ export default function callbackTemplate(callbacks) {
                       fetch-credentials = "${this.fetchCredentials}"
                       exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
                         file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
-                        anchor:anchor, anchor-param-example:anchor-param-example"
+                        anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
                     > </api-request>
 
                     <api-response
@@ -58,7 +58,8 @@ export default function callbackTemplate(callbacks) {
                       allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
                       schema-hide-read-only = "${this.schemaHideReadOnly}"
                       schema-hide-write-only = "false"
-                      exportparts = "btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy"
+                      exportparts = "btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
+                      schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
                     > </api-response>
                   </div>
                 </div>  
