@@ -34,23 +34,27 @@ export default css`
 }
 .m-endpoint > .endpoint-head.put:hover,
 .m-endpoint > .endpoint-head.put.expanded{
-  border-color:var(--orange); 
-  background-color:var(--light-orange); 
+  border-color:var(--put-color); 
+  background-color:var(--put-bg-color);
+  border-color:var(--put-border-color);
 }
 .m-endpoint > .endpoint-head.post:hover,
 .m-endpoint > .endpoint-head.post.expanded {
-  border-color:var(--green); 
-  background-color:var(--light-green); 
+  border-color:var(--post-color);
+  background-color:var(--post-bg-color);
+  border-color:var(--post-border-color);
 }
 .m-endpoint > .endpoint-head.get:hover,
 .m-endpoint > .endpoint-head.get.expanded {
-  border-color:var(--blue); 
-  background-color:var(--light-blue); 
+  border-color:var(--get-color); 
+  background-color:var(--get-bg-color);
+  border-color:var(--get-border-color);
 }
 .m-endpoint > .endpoint-head.delete:hover,
 .m-endpoint > .endpoint-head.delete.expanded {
-  border-color:var(--red); 
-  background-color:var(--light-red); 
+  border-color:var(--delete-color); 
+  background-color:var(--delete-bg-color);
+  border-color:var(--delete-border-color);
 }
 
 .m-endpoint > .endpoint-head.head:hover,
@@ -76,10 +80,10 @@ export default css`
   border-style:solid;
   box-shadow: 0px 4px 3px -3px rgba(0, 0, 0, 0.15);
 }
-.m-endpoint .endpoint-body.delete{ border-color:var(--red); }
-.m-endpoint .endpoint-body.put{ border-color:var(--orange); }
-.m-endpoint .endpoint-body.post{border-color:var(--green);}
-.m-endpoint .endpoint-body.get{ border-color:var(--blue); }
+.m-endpoint .endpoint-body.delete{ border-color:var(--delete-color); }
+.m-endpoint .endpoint-body.put{ border-color:var(--put-color); }
+.m-endpoint .endpoint-body.post{border-color:var(--post-color);}
+.m-endpoint .endpoint-body.get{ border-color:var(--get-color); }
 .m-endpoint .endpoint-body.head,
 .m-endpoint .endpoint-body.patch,
 .m-endpoint .endpoint-body.options { 
@@ -119,10 +123,10 @@ export default css`
   text-transform:uppercase;
   margin-right:5px;
 }
-.endpoint-head .method.delete{ border: 2px solid var(--red);}
-.endpoint-head .method.put{ border: 2px solid var(--orange); }
-.endpoint-head .method.post{ border: 2px solid var(--green); }
-.endpoint-head .method.get{ border: 2px solid var(--blue); }
+.endpoint-head .method.delete{ border: 2px solid var(--delete-color);}
+.endpoint-head .method.put{ border: 2px solid var(--put-color); }
+.endpoint-head .method.post{ border: 2px solid var(--post-color); }
+.endpoint-head .method.get{ border: 2px solid var(--get-color); }
 .endpoint-head .method.get.deprecated{ border: 2px solid var(--border-color); }
 .endpoint-head .method.head,
 .endpoint-head .method.patch,
@@ -157,16 +161,16 @@ api-response.view-mode {
   border-color:var(--yellow); 
 }
 .put .view-mode-request { 
-  border-color:var(--orange); 
+  border-color:var(--put-color); 
 }
 .post .view-mode-request { 
-  border-color:var(--green); 
+  border-color:var(--post-color); 
 }
 .get .view-mode-request { 
-  border-color:var(--blue); 
+  border-color:var(--get-color); 
 }
 .delete .view-mode-request { 
-  border-color:var(--red); 
+  border-color:var(--delete-color); 
 }
 
 @media only screen and (min-width: 1024px) {

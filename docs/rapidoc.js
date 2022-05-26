@@ -34238,10 +34238,10 @@ function setTheme(baseTheme, theme = {}) {
     --nav-accent-color:${newTheme.navAccentColor};
 
     /* Nav API Method Colors*/
-    --nav-get-color:${newTheme.blue};
-    --nav-put-color:${newTheme.orange};
-    --nav-post-color:${newTheme.green};
-    --nav-delete-color:${newTheme.red};
+    --get-color:${newTheme.blue};
+    --put-color:${newTheme.orange};
+    --post-color:${newTheme.green};
+    --delete-color:${newTheme.red};
     --nav-head-color:${newTheme.yellow};
 
     /* Primary Colors */  
@@ -34890,10 +34890,10 @@ class RapiDoc extends lit_element_s {
       .nav-method { font-weight: bold; margin-right: 4px; font-size: calc(var(--font-size-small) - 2px); white-space: nowrap; }
       .nav-method.false { display: none; }
 
-      .nav-method.as-colored-text.get { color:var(--nav-get-color); }
-      .nav-method.as-colored-text.put { color:var(--nav-put-color); }
-      .nav-method.as-colored-text.post { color:var(--nav-post-color); }
-      .nav-method.as-colored-text.delete { color:var(--nav-delete-color); }
+      .nav-method.as-colored-text.get { color:var(--get-color); }
+      .nav-method.as-colored-text.put { color:var(--put-color); }
+      .nav-method.as-colored-text.post { color:var(--post-color); }
+      .nav-method.as-colored-text.delete { color:var(--delete-color); }
       .nav-method.as-colored-text.head, .nav-method.as-colored-text.patch, .nav-method.as-colored-text.options { color:var(--nav-head-color); }
       
       .nav-method.as-colored-block {
