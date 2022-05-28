@@ -29,7 +29,6 @@ export default function callbackTemplate(callbacks) {
                       .parameters = "${method[1]?.parameters || ''}" 
                       .request_body = "${method[1]?.requestBody || ''}"
                       fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
-                      use-summary-to-list-example = "${this.useSummaryToListExamples}"
                       allow-try = "false"
                       render-style="${this.renderStyle}" 
                       schema-style = "${this.schemaStyle}"

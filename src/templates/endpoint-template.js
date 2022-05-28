@@ -129,7 +129,6 @@ function endpointBodyTemplate(path) {
           server-url = "${path.servers && path.servers.length > 0 ? path.servers[0].url : this.selectedServer.computedUrl}" 
           active-schema-tab = "${this.defaultSchemaTab}"
           fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
-          use-summary-to-list-example = "${this.useSummaryToListExamples}"
           allow-try = "${this.allowTry}"
           accept = "${accept}"
           render-style="${this.renderStyle}" 

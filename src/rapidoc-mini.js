@@ -51,7 +51,6 @@ export default class RapiDocMini extends LitElement {
       responseAreaHeight: { type: String, attribute: 'response-area-height' },
       showSummaryWhenCollapsed: { type: String, attribute: 'show-summary-when-collapsed' },
       fillRequestFieldsWithExample: { type: String, attribute: 'fill-request-fields-with-example' },
-      useSummaryToListExamples: { type: String, attribute: 'use-summary-to-list-example' },
       persistAuth: { type: String, attribute: 'persist-auth' },
 
       // Schema Styles
@@ -170,7 +169,6 @@ export default class RapiDocMini extends LitElement {
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) { this.schemaExpandLevel = 99999; }
     if (!this.schemaDescriptionExpanded || !'true, false,'.includes(`${this.schemaDescriptionExpanded},`)) { this.schemaDescriptionExpanded = 'false'; }
     if (!this.fillRequestFieldsWithExample || !'true, false,'.includes(`${this.fillRequestFieldsWithExample},`)) { this.fillRequestFieldsWithExample = 'true'; }
-    if (!this.useSummaryToListExamples || !'true, false,'.includes(`${this.useSummaryToListExamples},`)) { this.useSummaryToListExamples = 'false'; }
     if (!this.persistAuth || !'true, false,'.includes(`${this.persistAuth},`)) { this.persistAuth = 'false'; }
     if (!this.responseAreaHeight) { this.responseAreaHeight = '300px'; }
 
