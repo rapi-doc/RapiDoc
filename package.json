@@ -36,7 +36,7 @@
     "@apitools/openapi-parser": "^0.0.24",
     "base64-arraybuffer": "^1.0.2",
     "buffer": "^6.0.3",
-    "lit": "^2.2.4",
+    "lit": "^2.2.5",
     "marked": "^4.0.16",
     "prismjs": "^1.28.0"
   },
@@ -50,9 +50,9 @@
     "lint-fix": "./node_modules/eslint/bin/eslint.js --fix ./src/**"
   },
   "devDependencies": {
-    "@babel/core": "^7.18.0",
-    "@babel/eslint-parser": "^7.17.0",
-    "@babel/preset-env": "^7.18.0",
+    "@babel/core": "^7.18.2",
+    "@babel/eslint-parser": "^7.18.2",
+    "@babel/preset-env": "^7.18.2",
     "babel-loader": "^8.2.5",
     "babel-plugin-template-html-minifier": "^4.1.0",
     "clean-webpack-plugin": "^4.0.0",

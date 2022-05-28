@@ -28357,7 +28357,7 @@ function callbackTemplate(callbacks) {
         ${kv[0]}
         ${Object.entries(kv[1]).map(pathObj => $`
           <div class="mono-font small-font-size" style="display:flex; margin-left:16px;">
-            <div> 
+            <div style="width:100%"> 
               ${Object.entries(pathObj[1]).map(method => {
     var _method$, _method$2, _method$3;
 
@@ -28389,7 +28389,7 @@ function callbackTemplate(callbacks) {
                       schema-description-expanded = "${this.schemaDescriptionExpanded}"
                       allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
                       schema-hide-read-only = "false"
-                      schema-hide-write-only = "${this.schemaHideWriteOnly}"
+                      schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : 'true'}"
                       fetch-credentials = "${this.fetchCredentials}"
                       exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
                         file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
@@ -28407,7 +28407,7 @@ function callbackTemplate(callbacks) {
                       schema-expand-level = "${this.schemaExpandLevel}"
                       schema-description-expanded = "${this.schemaDescriptionExpanded}"
                       allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
-                      schema-hide-read-only = "${this.schemaHideReadOnly}"
+                      schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : 'true'}"
                       schema-hide-write-only = "false"
                       exportparts = "btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
                       schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
@@ -30342,6 +30342,9 @@ class ApiRequest extends lit_element_s {
       callback: {
         type: String
       },
+      webhook: {
+        type: String
+      },
       responseMessage: {
         type: String,
         attribute: false
@@ -30666,7 +30669,9 @@ class ApiRequest extends lit_element_s {
       const example = normalizeExamples(param.examples || nestExampleIfPresent(param.example) || nestExampleIfPresent(mimeTypeElem === null || mimeTypeElem === void 0 ? void 0 : mimeTypeElem.example) || (mimeTypeElem === null || mimeTypeElem === void 0 ? void 0 : mimeTypeElem.examples) || paramSchema.examples || nestExampleIfPresent(paramSchema.example), paramSchema.type);
 
       if (!example.exampleVal && paramSchema.type === 'object') {
-        example.exampleVal = generateExample(declaredParamSchema, serializeStyle || 'json', '', '', !(this.schemaHideReadOnly && (this.schemaHideReadOnly.includes(this.method) || this.schemaHideReadOnly === 'true')), !(this.schemaHideWriteOnly && (this.schemaHideWriteOnly.includes(this.method) || this.schemaHideWriteOnly === 'true')), 'text', false)[0].exampleValue;
+        example.exampleVal = generateExample(declaredParamSchema, serializeStyle || 'json', '', '', this.callback === 'true' || this.webhook === 'true' ? true : false, // eslint-disable-line no-unneeded-ternary
+        this.callback === 'true' || this.webhook === 'true' ? false : true, // eslint-disable-line no-unneeded-ternary
+        true, 'text', false)[0].exampleValue;
       }
 
       const labelColWidth = 'read focused'.includes(this.renderStyle) ? '200px' : '160px';
@@ -30880,7 +30885,9 @@ class ApiRequest extends lit_element_s {
       if (this.selectedRequestBodyType.includes('json') || this.selectedRequestBodyType.includes('xml') || this.selectedRequestBodyType.includes('text') || this.selectedRequestBodyType.includes('jose')) {
         // Generate Example
         if (reqBody.mimeType === this.selectedRequestBodyType) {
-          reqBodyExamples = generateExample(reqBody.schema, reqBody.mimeType, reqBody.examples, reqBody.example, !(this.schemaHideReadOnly && (this.schemaHideReadOnly.includes(this.method) || this.schemaHideReadOnly === 'true')), !(this.schemaHideWriteOnly && (this.schemaHideWriteOnly.includes(this.method) || this.schemaHideWriteOnly === 'true')), 'text', false);
+          reqBodyExamples = generateExample(reqBody.schema, reqBody.mimeType, reqBody.examples, reqBody.example, this.callback === 'true' || this.webhook === 'true' ? true : false, // eslint-disable-line no-unneeded-ternary
+          this.callback === 'true' || this.webhook === 'true' ? false : true, // eslint-disable-line no-unneeded-ternary
+          'text', false);
 
           if (!this.selectedRequestBodyExample) {
             this.selectedRequestBodyExample = reqBodyExamples.length > 0 ? reqBodyExamples[0].exampleId : '';
@@ -30927,7 +30934,9 @@ class ApiRequest extends lit_element_s {
         }
       } else if (this.selectedRequestBodyType.includes('form-urlencoded') || this.selectedRequestBodyType.includes('form-data')) {
         if (reqBody.mimeType === this.selectedRequestBodyType) {
-          const ex = generateExample(reqBody.schema, reqBody.mimeType, reqBody.examples, reqBody.example, !(this.schemaHideReadOnly && (this.schemaHideReadOnly.includes(this.method) || this.schemaHideReadOnly === 'true')), !(this.schemaHideWriteOnly && (this.schemaHideWriteOnly.includes(this.method) || this.schemaHideWriteOnly === 'true')), 'text', false);
+          const ex = generateExample(reqBody.schema, reqBody.mimeType, reqBody.examples, reqBody.example, this.callback === 'true' || this.webhook === 'true' ? true : false, // eslint-disable-line no-unneeded-ternary
+          this.callback === 'true' || this.webhook === 'true' ? false : true, // eslint-disable-line no-unneeded-ternary
+          'text', false);
 
           if (reqBody.schema) {
             reqBodyFormHtml = this.formDataTemplate(reqBody.schema, reqBody.mimeType, ex[0] ? ex[0].exampleValue : '');
@@ -31013,7 +31022,9 @@ class ApiRequest extends lit_element_s {
 
     // This template is used when form-data param should be send as a object (application/json, application/xml)
     const formdataPartSchema = schemaInObjectNotation(fieldSchema, {});
-    const formdataPartExample = generateExample(fieldSchema, 'json', fieldSchema.examples, fieldSchema.example, !(this.schemaHideReadOnly && (this.schemaHideReadOnly.includes(this.method) || this.schemaHideReadOnly === 'true')), !(this.schemaHideWriteOnly && (this.schemaHideWriteOnly.includes(this.method) || this.schemaHideWriteOnly === 'true')), 'text', false);
+    const formdataPartExample = generateExample(fieldSchema, 'json', fieldSchema.examples, fieldSchema.example, this.callback === 'true' || this.webhook === 'true' ? true : false, // eslint-disable-line no-unneeded-ternary
+    this.callback === 'true' || this.webhook === 'true' ? false : true, // eslint-disable-line no-unneeded-ternary
+    'text', false);
     return $`
       <div class="tab-panel row" style="min-height:220px; border-left: 6px solid var(--light-border-color); align-items: stretch;">
         <div style="width:24px; background-color:var(--light-border-color)">
@@ -32202,6 +32213,9 @@ class ApiResponse extends lit_element_s {
       callback: {
         type: String
       },
+      webhook: {
+        type: String
+      },
       responses: {
         type: Object
       },
@@ -32327,7 +32341,9 @@ class ApiResponse extends lit_element_s {
 
         const schemaTree = schemaInObjectNotation(mimeRespObj.schema, {}); // Generate Example
 
-        const respExamples = generateExample(mimeRespObj.schema, mimeResp, mimeRespObj.examples, mimeRespObj.example, !(this.schemaHideReadOnly && (this.schemaHideReadOnly.includes(this.method) || this.schemaHideReadOnly === 'true')), !(this.schemaHideWriteOnly && (this.schemaHideWriteOnly.includes(this.method) || this.schemaHideWriteOnly === 'true')), mimeResp.includes('json') ? 'json' : 'text');
+        const respExamples = generateExample(mimeRespObj.schema, mimeResp, mimeRespObj.examples, mimeRespObj.example, this.callback === 'true' || this.webhook === 'true' ? false : true, // eslint-disable-line no-unneeded-ternary
+        this.callback === 'true' || this.webhook === 'true' ? true : false, // eslint-disable-line no-unneeded-ternary
+        mimeResp.includes('json') ? 'json' : 'text');
         allMimeResp[mimeResp] = {
           description: this.responses[statusCode].description,
           examples: respExamples,
@@ -32509,6 +32525,7 @@ class ApiResponse extends lit_element_s {
             allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
             schema-hide-read-only = "${this.schemaHideReadOnly}"
             schema-hide-write-only = "${this.schemaHideWriteOnly}"
+            exportparts = "schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
           > </schema-tree> ` : $`
           <schema-tree
             render-style = "${this.renderStyle}"
@@ -32518,6 +32535,7 @@ class ApiResponse extends lit_element_s {
             allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
             schema-hide-read-only = "${this.schemaHideReadOnly}"
             schema-hide-write-only = "${this.schemaHideWriteOnly}"
+            exportparts = "schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
           > </schema-tree>`}`;
   }
   /* eslint-enable indent */
@@ -32601,6 +32619,7 @@ function expandedEndpointBodyTemplate(path, tagName = '') {
         <api-request
           class = "${this.renderStyle}-mode"
           style = "width:100%;"
+          webhook = "${path.isWebhook}"
           method = "${path.method}"
           path = "${path.path}"
           .security = "${path.security}"
@@ -32619,8 +32638,8 @@ function expandedEndpointBodyTemplate(path, tagName = '') {
           schema-expand-level = "${this.schemaExpandLevel}"
           schema-description-expanded = "${this.schemaDescriptionExpanded}"
           allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
-          schema-hide-read-only = "${path.isWebhook ? false : this.schemaHideReadOnly}"
-          schema-hide-write-only = "${path.isWebhook ? this.schemaHideWriteOnly : false}"
+          schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
+          schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
           fetch-credentials = "${this.fetchCredentials}"
           exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
             file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
@@ -32632,6 +32651,7 @@ function expandedEndpointBodyTemplate(path, tagName = '') {
         <api-response
           class = "${this.renderStyle}-mode"
           style = "width:100%;"
+          webhook = "${path.isWebhook}"
           .responses = "${path.responses}"
           render-style = "${this.renderStyle}"
           schema-style = "${this.schemaStyle}"
@@ -32639,8 +32659,8 @@ function expandedEndpointBodyTemplate(path, tagName = '') {
           schema-expand-level = "${this.schemaExpandLevel}"
           schema-description-expanded = "${this.schemaDescriptionExpanded}"
           allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
-          schema-hide-read-only = "${path.isWebhook ? this.schemaHideReadOnly : false}"
-          schema-hide-write-only = "${path.isWebhook ? false : this.schemaHideWriteOnly}"
+          schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
+          schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
           selected-status = "${Object.keys(path.responses || {})[0] || ''}"
           exportparts = "btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
           schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
@@ -33385,6 +33405,7 @@ function endpointBodyTemplate(path) {
         <api-request
           class = "${this.renderStyle}-mode ${this.layout}-layout"
           style = "width:100%;"
+          webhook = "${path.isWebhook}"
           method = "${path.method}", 
           path = "${path.path}"
           .security = "${path.security}"
@@ -33403,8 +33424,8 @@ function endpointBodyTemplate(path) {
           schema-expand-level = "${this.schemaExpandLevel}"
           schema-description-expanded = "${this.schemaDescriptionExpanded}"
           allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
-          schema-hide-read-only = "${path.isWebhook ? this.schemaHideWriteOnly : this.schemaHideReadOnly}"
-          schema-hide-write-only = "${path.isWebhook ? this.schemaHideReadOnly : this.schemaHideWriteOnly}"
+          schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
+          schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
           fetch-credentials = "${this.fetchCredentials}"
           exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
             file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
@@ -33417,6 +33438,7 @@ function endpointBodyTemplate(path) {
       <api-response
         class = "${this.renderStyle}-mode"
         style = "width:100%;"
+        webhook = "${path.isWebhook}"
         .responses="${path.responses}"
         active-schema-tab = "${this.defaultSchemaTab}" 
         render-style="${this.renderStyle}" 
@@ -33424,8 +33446,8 @@ function endpointBodyTemplate(path) {
         schema-expand-level = "${this.schemaExpandLevel}"
         schema-description-expanded = "${this.schemaDescriptionExpanded}"
         allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
-        schema-hide-read-only = "${path.isWebhook ? this.schemaHideWriteOnly : this.schemaHideReadOnly}"
-        schema-hide-write-only = "${path.isWebhook ? this.schemaHideReadOnly : this.schemaHideWriteOnly}"
+        schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
+        schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
         selected-status = "${Object.keys(path.responses || {})[0] || ''}"
         exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, file-input:file-input, 
         textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, anchor:anchor, anchor-param-example:anchor-param-example, btn-clear-resp:btn-clear-resp,
@@ -34911,20 +34933,13 @@ class RapiDoc extends lit_element_s {
       this.schemaDescriptionExpanded = 'false';
     }
 
-    const writeMethodsWithBody = ['post', 'put', 'patch'];
-
-    if (!this.schemaHideReadOnly) {
-      this.schemaHideReadOnly = writeMethodsWithBody;
-    } else if (this.schemaHideReadOnly !== 'never') {
-      this.schemaHideReadOnly = writeMethodsWithBody.filter(value => this.schemaHideReadOnly.includes(value));
-
-      if (this.schemaHideReadOnly.length === 0) {
-        this.schemaHideReadOnly = writeMethodsWithBody;
-      }
+    if (!this.schemaHideReadOnly || !'default, never,'.includes(`${this.schemaHideReadOnly},`)) {
+      this.schemaHideReadOnly = 'default';
     }
 
-    this.schemaHideReadOnly += ['get', 'head', 'delete', 'options'];
-    this.schemaHideWriteOnly = this.schemaHideWriteOnly !== 'never';
+    if (!this.schemaHideWriteOnly || !'default, never,'.includes(`${this.schemaHideWriteOnly},`)) {
+      this.schemaHideWriteOnly = 'default';
+    }
 
     if (!this.fillRequestFieldsWithExample || !'true, false,'.includes(`${this.fillRequestFieldsWithExample},`)) {
       this.fillRequestFieldsWithExample = 'true';
@@ -42411,7 +42426,7 @@ Prism.languages.js = Prism.languages.javascript;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("9cfd848bcce7d0ae5b1a")
+/******/ 		__webpack_require__.h = () => ("105736ea8418e824cbb6")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
