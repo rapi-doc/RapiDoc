@@ -413,27 +413,27 @@
           </tr>
           <tr>
             <td class="mono bold right">schema-hide-read-only </td>
-            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> always | never | (combination of: post | put | patch)</span></span> -
-              read-only fields in request schemas is <span class='blue'> always </span> hidden but are shown in response.
+            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> default | never </span></span> -
+              default will show read-only schema attributes in Responses, and in Requests of Webhook / Callback
               <br/>
-              If you do not want to hide read-only fields or hide them based on action you can configure this setting to 'never' or any combination of post | put | patch to indicate where to hide
+              If you do not want to hide read-only fields in schema then you may set it to 'never'
               <br/>
-              Schemas in response section is not affected by this setting.
+              <b>Note:</b>This do not effect example generation.
               &nbsp;|&nbsp; <a href="./examples/hide-read-only-write-only.html">Example</a>
             </td>
-            <td>always</td>
+            <td>default</td>
           </tr>
           <tr>
             <td class="mono bold right">schema-hide-write-only </td>
-            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> always | never</span></span> -
-              write-only fields in response schemas is <span class='blue'> always </span> hidden but are shown in request.
+            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> default | never </span></span> -
+              default will show write-only schema attributes in Requests, and in Responses of Webhook / Callback
               <br/>
-              If you do not want to hide write-only fields then set to 'never'
+              If you do not want to hide write-only fields in schema then you may set it to 'never'
               <br/>
-              Schemas in request section is not affected by this setting.
+              <b>Note:</b>This do not effect example generation.
               &nbsp;|&nbsp; <a href="./examples/hide-read-only-write-only.html">Example</a>
             </td>
-            <td>always</td>
+            <td>default</td>
           </tr>
           <tr>
             <td class="mono bold right">default-schema-tab</td>

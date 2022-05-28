@@ -1,62 +1,82 @@
-components:
-  schemas:
-    objectWithReadWriteProps:
-      additionalProperties: false
-      type: object
-      properties:
-        isWriteOnlyString:
-          type: string
-          writeOnly: true
-          format: timestamp
-          example: "2021-07-01T00:00:00.000Z"
-        isWriteOnlyObj:
-          type: object
-          writeOnly: true
-          properties:
-            field1:
-              type: string
-            field2:
-              type: string
-        isReadOnlyString:
-          type: string
-          readOnly: true
-          format: timestamp
-          example: "2021-07-01T00:00:00.000Z"
-        isReadOnlyObj:
-          type: object
-          readOnly: true
-          properties:
-            field1:
-              type: string
-            field2:
-              type: string
-        isReadWriteString:
-          type: string
-          format: timestamp
-          example: "2021-07-01T00:00:00.000Z"
-        isReadWriteObj:
-          type: object
-          properties:
-            field1:
-              type: string
-            field2:
-              type: string
-
+openapi: 3.0.0
 info:
-  title: Test for Read and Write only properties
-openapi: 3.0.3
+  title: Test case
+  version: "1"
+
 paths:
-  /read-and-write-prop-test:
-    post:
-      summary: Request Body accepting a JSON
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/objectWithReadWriteProps"
+  /users:
+    get:
       responses:
-        '200':
+        "200":
+          description: Get all the users
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/objectWithReadWriteProps"
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+    post:
+      summary: Create a user
+      requestBody:
+        description: Pass in the RFQ properties to update. Only `product` is required.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      callbacks:
+        created:
+          /webhook:
+            post:
+              description: Called when the user is created
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: "#/components/schemas/User"
+              responses:
+                "200":
+                  description: OK
+      responses:
+        "202":
+          description: Accepted
+webhooks:
+  user-hooks:
+    post:
+      summary: Called after user Creation
+      requestBody:
+        description: Informs the client that a user is created and passes on the user data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "200":
+          description: Return a 200 status to indicate that the data was received successfully
+    get:
+      summary: register for subscription to user events
+      responses:
+        "200":
+          description: Create a subscription on a user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Server-generated ID of the user
+          readOnly: true
+        name:
+          type: string
+          description: The name of the user
+        password:
+          type: string
+          description: Password of the user
+          format: password
+          writeOnly: true
