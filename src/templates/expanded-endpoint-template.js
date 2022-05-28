@@ -70,6 +70,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
         <api-request
           class = "${this.renderStyle}-mode"
           style = "width:100%;"
+          webhook = "${path.isWebhook}"
           method = "${path.method}"
           path = "${path.path}"
           .security = "${path.security}"
@@ -88,8 +89,8 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
           schema-expand-level = "${this.schemaExpandLevel}"
           schema-description-expanded = "${this.schemaDescriptionExpanded}"
           allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
-          schema-hide-read-only = "${path.isWebhook ? false : this.schemaHideReadOnly}"
-          schema-hide-write-only = "${path.isWebhook ? this.schemaHideWriteOnly : false}"
+          schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
+          schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
           fetch-credentials = "${this.fetchCredentials}"
           exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
             file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
@@ -101,6 +102,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
         <api-response
           class = "${this.renderStyle}-mode"
           style = "width:100%;"
+          webhook = "${path.isWebhook}"
           .responses = "${path.responses}"
           render-style = "${this.renderStyle}"
           schema-style = "${this.schemaStyle}"
@@ -108,8 +110,8 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
           schema-expand-level = "${this.schemaExpandLevel}"
           schema-description-expanded = "${this.schemaDescriptionExpanded}"
           allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
-          schema-hide-read-only = "${path.isWebhook ? this.schemaHideReadOnly : false}"
-          schema-hide-write-only = "${path.isWebhook ? false : this.schemaHideWriteOnly}"
+          schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
+          schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
           selected-status = "${Object.keys(path.responses || {})[0] || ''}"
           exportparts = "btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
           schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"

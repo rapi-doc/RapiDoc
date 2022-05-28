@@ -24,6 +24,7 @@ export default class ApiResponse extends LitElement {
   static get properties() {
     return {
       callback: { type: String },
+      webhook: { type: String },
       responses: { type: Object },
       parser: { type: Object },
       schemaStyle: { type: String, attribute: 'schema-style' },
@@ -119,8 +120,8 @@ export default class ApiResponse extends LitElement {
           mimeResp,
           mimeRespObj.examples,
           mimeRespObj.example,
-          !(this.schemaHideReadOnly && (this.schemaHideReadOnly.includes(this.method) || this.schemaHideReadOnly === 'true')),
-          !(this.schemaHideWriteOnly && (this.schemaHideWriteOnly.includes(this.method) || this.schemaHideWriteOnly === 'true')),
+          this.callback === 'true' || this.webhook === 'true' ? false : true, // eslint-disable-line no-unneeded-ternary
+          this.callback === 'true' || this.webhook === 'true' ? true : false, // eslint-disable-line no-unneeded-ternary
           mimeResp.includes('json') ? 'json' : 'text',
         );
         allMimeResp[mimeResp] = {

@@ -451,17 +451,10 @@ export default class RapiDoc extends LitElement {
     }
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) { this.schemaExpandLevel = 99999; }
     if (!this.schemaDescriptionExpanded || !'true, false,'.includes(`${this.schemaDescriptionExpanded},`)) { this.schemaDescriptionExpanded = 'false'; }
-    const writeMethodsWithBody = ['post', 'put', 'patch'];
-    if (!this.schemaHideReadOnly) {
-      this.schemaHideReadOnly = writeMethodsWithBody;
-    } else if (this.schemaHideReadOnly !== 'never') {
-      this.schemaHideReadOnly = writeMethodsWithBody.filter((value) => this.schemaHideReadOnly.includes(value));
-      if (this.schemaHideReadOnly.length === 0) {
-        this.schemaHideReadOnly = writeMethodsWithBody;
-      }
-    }
-    this.schemaHideReadOnly += ['get', 'head', 'delete', 'options'];
-    this.schemaHideWriteOnly = this.schemaHideWriteOnly !== 'never';
+
+    if (!this.schemaHideReadOnly || !'default, never,'.includes(`${this.schemaHideReadOnly},`)) { this.schemaHideReadOnly = 'default'; }
+    if (!this.schemaHideWriteOnly || !'default, never,'.includes(`${this.schemaHideWriteOnly},`)) { this.schemaHideWriteOnly = 'default'; }
+
     if (!this.fillRequestFieldsWithExample || !'true, false,'.includes(`${this.fillRequestFieldsWithExample},`)) { this.fillRequestFieldsWithExample = 'true'; }
     if (!this.useSummaryToListExamples || !'true, false,'.includes(`${this.useSummaryToListExamples},`)) { this.useSummaryToListExamples = 'false'; }
     if (!this.persistAuth || !'true, false,'.includes(`${this.persistAuth},`)) { this.persistAuth = 'false'; }

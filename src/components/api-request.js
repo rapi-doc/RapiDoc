@@ -46,6 +46,7 @@ export default class ApiRequest extends LitElement {
       parser: { type: Object },
       accept: { type: String },
       callback: { type: String },
+      webhook: { type: String },
       responseMessage: { type: String, attribute: false },
       responseText: { type: String, attribute: false },
       responseHeaders: { type: String, attribute: false },
@@ -323,8 +324,9 @@ export default class ApiRequest extends LitElement {
           serializeStyle || 'json',
           '',
           '',
-          !(this.schemaHideReadOnly && (this.schemaHideReadOnly.includes(this.method) || this.schemaHideReadOnly === 'true')),
-          !(this.schemaHideWriteOnly && (this.schemaHideWriteOnly.includes(this.method) || this.schemaHideWriteOnly === 'true')),
+          this.callback === 'true' || this.webhook === 'true' ? true : false, // eslint-disable-line no-unneeded-ternary
+          this.callback === 'true' || this.webhook === 'true' ? false : true, // eslint-disable-line no-unneeded-ternary
+          true,
           'text',
           false,
         )[0].exampleValue;
@@ -559,8 +561,8 @@ export default class ApiRequest extends LitElement {
             reqBody.mimeType,
             reqBody.examples,
             reqBody.example,
-            !(this.schemaHideReadOnly && (this.schemaHideReadOnly.includes(this.method) || this.schemaHideReadOnly === 'true')),
-            !(this.schemaHideWriteOnly && (this.schemaHideWriteOnly.includes(this.method) || this.schemaHideWriteOnly === 'true')),
+            this.callback === 'true' || this.webhook === 'true' ? true : false, // eslint-disable-line no-unneeded-ternary
+            this.callback === 'true' || this.webhook === 'true' ? false : true, // eslint-disable-line no-unneeded-ternary
             'text',
             false,
           );
@@ -618,8 +620,8 @@ export default class ApiRequest extends LitElement {
             reqBody.mimeType,
             reqBody.examples,
             reqBody.example,
-            !(this.schemaHideReadOnly && (this.schemaHideReadOnly.includes(this.method) || this.schemaHideReadOnly === 'true')),
-            !(this.schemaHideWriteOnly && (this.schemaHideWriteOnly.includes(this.method) || this.schemaHideWriteOnly === 'true')),
+            this.callback === 'true' || this.webhook === 'true' ? true : false, // eslint-disable-line no-unneeded-ternary
+            this.callback === 'true' || this.webhook === 'true' ? false : true, // eslint-disable-line no-unneeded-ternary
             'text',
             false,
           );
@@ -712,8 +714,8 @@ export default class ApiRequest extends LitElement {
       'json',
       fieldSchema.examples,
       fieldSchema.example,
-      !(this.schemaHideReadOnly && (this.schemaHideReadOnly.includes(this.method) || this.schemaHideReadOnly === 'true')),
-      !(this.schemaHideWriteOnly && (this.schemaHideWriteOnly.includes(this.method) || this.schemaHideWriteOnly === 'true')),
+      this.callback === 'true' || this.webhook === 'true' ? true : false, // eslint-disable-line no-unneeded-ternary
+      this.callback === 'true' || this.webhook === 'true' ? false : true, // eslint-disable-line no-unneeded-ternary
       'text',
       false,
     );

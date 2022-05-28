@@ -9,7 +9,7 @@ export default function callbackTemplate(callbacks) {
         ${kv[0]}
         ${Object.entries(kv[1]).map((pathObj) => html`
           <div class="mono-font small-font-size" style="display:flex; margin-left:16px;">
-            <div> 
+            <div style="width:100%"> 
               ${Object.entries(pathObj[1]).map((method) => html`
                 <div>
                   <div style="margin-top:12px;">
@@ -38,7 +38,7 @@ export default function callbackTemplate(callbacks) {
                       schema-description-expanded = "${this.schemaDescriptionExpanded}"
                       allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
                       schema-hide-read-only = "false"
-                      schema-hide-write-only = "${this.schemaHideWriteOnly}"
+                      schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : 'true'}"
                       fetch-credentials = "${this.fetchCredentials}"
                       exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
                         file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
@@ -56,7 +56,7 @@ export default function callbackTemplate(callbacks) {
                       schema-expand-level = "${this.schemaExpandLevel}"
                       schema-description-expanded = "${this.schemaDescriptionExpanded}"
                       allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
-                      schema-hide-read-only = "${this.schemaHideReadOnly}"
+                      schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : 'true'}"
                       schema-hide-write-only = "false"
                       exportparts = "btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
                       schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"

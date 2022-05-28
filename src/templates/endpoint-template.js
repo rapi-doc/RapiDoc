@@ -118,6 +118,7 @@ function endpointBodyTemplate(path) {
         <api-request
           class = "${this.renderStyle}-mode ${this.layout}-layout"
           style = "width:100%;"
+          webhook = "${path.isWebhook}"
           method = "${path.method}", 
           path = "${path.path}"
           .security = "${path.security}"
@@ -136,8 +137,8 @@ function endpointBodyTemplate(path) {
           schema-expand-level = "${this.schemaExpandLevel}"
           schema-description-expanded = "${this.schemaDescriptionExpanded}"
           allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
-          schema-hide-read-only = "${path.isWebhook ? this.schemaHideWriteOnly : this.schemaHideReadOnly}"
-          schema-hide-write-only = "${path.isWebhook ? this.schemaHideReadOnly : this.schemaHideWriteOnly}"
+          schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
+          schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
           fetch-credentials = "${this.fetchCredentials}"
           exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
             file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
@@ -150,6 +151,7 @@ function endpointBodyTemplate(path) {
       <api-response
         class = "${this.renderStyle}-mode"
         style = "width:100%;"
+        webhook = "${path.isWebhook}"
         .responses="${path.responses}"
         active-schema-tab = "${this.defaultSchemaTab}" 
         render-style="${this.renderStyle}" 
@@ -157,8 +159,8 @@ function endpointBodyTemplate(path) {
         schema-expand-level = "${this.schemaExpandLevel}"
         schema-description-expanded = "${this.schemaDescriptionExpanded}"
         allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
-        schema-hide-read-only = "${path.isWebhook ? this.schemaHideWriteOnly : this.schemaHideReadOnly}"
-        schema-hide-write-only = "${path.isWebhook ? this.schemaHideReadOnly : this.schemaHideWriteOnly}"
+        schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
+        schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
         selected-status = "${Object.keys(path.responses || {})[0] || ''}"
         exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, file-input:file-input, 
         textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, anchor:anchor, anchor-param-example:anchor-param-example, btn-clear-resp:btn-clear-resp,
