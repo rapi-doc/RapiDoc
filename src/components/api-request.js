@@ -13,9 +13,15 @@ import BorderStyles from '~/styles/border-styles';
 import TabStyles from '~/styles/tab-styles';
 import PrismStyles from '~/styles/prism-styles';
 import CustomStyles from '~/styles/custom-styles';
-
-import { copyToClipboard, downloadResource, viewResource } from '~/utils/common-utils';
-import { schemaInObjectNotation, getTypeInfo, generateExample, normalizeExamples, getSchemaFromParam, json2xml, nestExampleIfPresent } from '~/utils/schema-utils';
+import { copyToClipboard, prettyXml, downloadResource, viewResource } from '~/utils/common-utils';
+import { schemaInObjectNotation,
+  getTypeInfo,
+  generateExample,
+  normalizeExamples,
+  getSchemaFromParam,
+  json2xml,
+  nestExampleIfPresent,
+  anyExampleWithSummaryOrDescription } from '~/utils/schema-utils';
 import '~/components/json-tree';
 import '~/components/schema-tree';
 import '~/components/tag-input';
@@ -55,7 +61,6 @@ export default class ApiRequest extends LitElement {
       responseStatus: { type: String, attribute: false },
       responseUrl: { type: String, attribute: false },
       fillRequestFieldsWithExample: { type: String, attribute: 'fill-request-fields-with-example' },
-      useSummaryToListExamples: { type: String, attribute: 'use-summary-to-list-example' },
       allowTry: { type: String, attribute: 'allow-try' },
       renderStyle: { type: String, attribute: 'render-style' },
       schemaStyle: { type: String, attribute: 'schema-style' },
@@ -227,40 +232,61 @@ export default class ApiRequest extends LitElement {
     }
   }
 
+  renderExample(example, paramType, paramName) {
+    return html`
+      ${paramType === 'array' ? '[' : ''}
+      <a
+        part="anchor anchor-param-example"
+        class="${this.allowTry === 'true' ? '' : 'inactive-link'}"
+        data-example-type="${paramType === 'array' ? paramType : 'string'}"
+        data-example="${example.value && Array.isArray(example.value) ? example.value?.join('~|~') : example.value || ''}"
+        @click="${(e) => {
+    const inputEl = e.target.closest('table').querySelector(`[data-pname="${paramName}"]`);
+    if (inputEl) {
+      if (e.target.dataset.exampleType === 'array') {
+        inputEl.value = e.target.dataset.example.split('~|~');
+      } else {
+        inputEl.value = e.target.dataset.example;
+      }
+    }
+  }
+}"
+      >
+        ${example.value && Array.isArray(example.value) ? example.value?.join(', ') : example.value || '∅'}
+      </a>
+      ${paramType === 'array' ? '] ' : ''}
+    `;
+  }
+
+  renderShortFormatExamples(examples, paramType, paramName) {
+    return html`${examples.map((x, i) => html`
+      ${i === 0 ? '' : '┃'}
+      ${this.renderExample(x, paramType, paramName)}`)}`;
+  }
+
+  renderLongFormatExamples(exampleList, paramType, paramName) {
+    return html` <ul style="list-style-type: disclosure-closed;">
+      ${exampleList.map((v) => html`
+          <li>
+            ${this.renderExample(v, paramType, paramName)}
+            ${v.summary?.length > 0 ? html`<span>&lpar;${v.summary}&rpar;</span>` : ''}
+            ${v.description?.length > 0 ? html`<p>${unsafeHTML(marked(v.description))}</p>` : ''}
+          </li>
+        `)}
+    </ul>`;
+  }
+
   /* eslint-disable indent */
 
   exampleListTemplate(paramName, paramType, exampleList = []) {
-    return html`
-    ${(exampleList.length > 0
-      ? html`<span style="font-weight:bold">Example: </span>
-        ${exampleList.map((v, i) => html`
-          ${i === 0 ? '' : '┃'}
-          ${paramType === 'array' ? '[' : ''}
-          <a part="anchor anchor-param-example" class = "${this.allowTry === 'true' ? '' : 'inactive-link'}"
-            data-example-type="${paramType === 'array' ? paramType : 'string'}"
-            data-example = "${v.value && Array.isArray(v.value) ? (v.value?.join('~|~')) : (v.value || '')}"
-            @click="${(e) => {
-              const inputEl = e.target.closest('table').querySelector(`[data-pname="${paramName}"]`);
-              if (inputEl) {
-                if (e.target.dataset.exampleType === 'array') {
-                  inputEl.value = e.target.dataset.example.split('~|~');
-                } else {
-                  inputEl.value = e.target.dataset.example;
-                }
-              }
-            }
-          }"
-          >
-          ${this.useSummaryToListExamples === 'true'
-            ? v.description || v.summary || (v.value && Array.isArray(v.value) ? (v.value?.join(', ')) : (v.value || ''))
-            : v.value && Array.isArray(v.value) ? (v.value?.join(', ')) : (v.value || '')
-          }
-          </a>
-          ${paramType === 'array' ? '] ' : ''}
-        `)}
-      `
-      : ''
-    )}`;
+    return html` ${exampleList.length > 0
+      ? html`<span style="font-weight:bold">Examples: </span>
+          ${
+            anyExampleWithSummaryOrDescription(exampleList)
+            ? this.renderLongFormatExamples(exampleList, paramType, paramName)
+            : this.renderShortFormatExamples(exampleList, paramType, paramName)
+          }`
+      : ''}`;
   }
 
   inputParametersTemplate(paramType) {
@@ -397,7 +423,7 @@ export default class ApiRequest extends LitElement {
                           ></textarea>
                         </div>`
                         : html`
-                          <div class="tab-content col">            
+                          <div class="tab-content col">
                             <schema-tree
                               class = 'json'
                               style = 'display: block'
