@@ -1,0 +1,138 @@
+<!doctype html>
+  <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src='https://www.googletagmanager.com/gtag/js?id=UA-132775238-1'></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-132775238-1');
+    </script>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes'>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;600&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script type='text/javascript' src='../rapidoc-min.js'></script>
+
+    <!-- Code Highlight -->
+    <link rel="stylesheet" href="../prismjs/prism.css">
+    <script src="../prismjs/prism.js"></script>
+
+    <script>
+      function getRapiDoc(){
+        return document.getElementById("thedoc");
+      }
+
+      function toggleSchemaStyle () {
+        if (getRapiDoc().getAttribute('schema-style') === 'table') {
+          getRapiDoc().setAttribute('schema-style', 'tree');
+        } else {
+          getRapiDoc().setAttribute('schema-style', 'table');
+        }
+      }
+
+      function setSchemaAttr(attrName, attrValue) {
+        getRapiDoc().setAttribute(attrName, attrValue);
+      }
+
+
+    </script>
+    <style>
+      .btn{
+        width: 180px;
+        height: 40px;
+        background-color: #0184cb;
+        color: #fff;
+        border: none;
+        border-radius: 2px;
+        outline:none;
+      }
+
+      table{
+        border-collapse: collapse;
+        border-radius: 12px;
+      }
+      th, td { 
+        padding: 8px;
+      }
+
+      rapi-doc { 
+        width:100%;
+      }
+    </style>
+  </head>
+  <body>
+    <rapi-doc spec-url="../specs/schema-read-and-write-only.yaml"
+      id="thedoc"
+      show-info = "false"
+      show-header = "false"
+      render-style = "read"
+      allow-try = "false"
+      schema-style = "table"
+      regular-font = 'Open Sans'
+      mono-font = "Roboto Mono"
+      allow-authentication = "false"
+      allow-server-selection	= "false"
+      sort-endpoints-by="summary"
+    >
+    <span slot="operations-top" >
+      <div style="font-size:13px; margin:16px; padding:16px; background-color:#444; color:#fff; border-radius:4px" >
+        <div style = "display:flex; gap:16px">
+          <div style = "display:block">
+            <b> SCHEMA </b><br/>
+            <pre style="padding:12px; background-color:#222;width: 400px; border-radius:4px">
+              <code class="language-js">
+                {
+                  user: {
+                    type      : "object",
+                    properties: {
+                      id       : { type: "string", readOnly: true },
+                      name     : { type: "string" },
+                      password : { type: "string", writeOnly: true}
+                    }
+                  }
+                }             
+              </code>
+            </pre>
+          </div>
+          <div>
+            <b> ATTRIBUTES </b><br/>
+            <table style = "border:1px solid #aaa; margin-top:8px; font-family:Consolas, Monaco, 'Andale Mono', monospace;" >
+              <tr style = "border-top:1px solid #aaa;">
+                <td> schema-hide-read-only </td> 
+                <td> 
+                  <span>
+                    <input type="radio" id="default" name="readonly" value="default" onclick="setSchemaAttr('schema-hide-read-only', this.value)">
+                    <label for="default">default</label>
+                  </span>
+                  <span style = "margin-left:16px">
+                    <input type="radio" id="never" name="readonly" value="never" onclick="setSchemaAttr('schema-hide-read-only', this.value)">
+                    <label for="never">never</label>
+                  </span>
+                </td>
+              </tr>
+              <tr style = "border-top:1px solid #aaa;">
+                <td> schema-hide-write-only </td> 
+                <td> 
+                  <span>
+                    <input type="radio" id="default" name="writeonly" value="default" onclick="setSchemaAttr('schema-hide-write-only', this.value)" >
+                    <label for="default">default</label>
+                  </span>
+                  <span style="margin-left:16px">
+                    <input type="radio" id="never" name="writeonly" value="never" onclick="setSchemaAttr('schema-hide-write-only', this.value)">
+                    <label for="never">never</label>
+                  </span>
+                </td>
+              </tr>
+              <tr style = "border-top:3px solid #aaa;">
+                <td colspan="2" style="text-align: center;"> 
+                  <button class="btn" onclick="toggleSchemaStyle()">Toggle Schema Style</button>
+                </td>
+              </tr>
+            </table>  
+          </div>
+        </div>
+      </div>  
+    </span>
+    </rapi-doc>
+  </body>
+</html>

@@ -95,6 +95,7 @@
         <a href="#att-nav"> Navigation Bar</a> &nbsp; |  &nbsp;
         <a href="#att-layout"> Layout</a> &nbsp; |  &nbsp;
         <a href="#att-sections"> Sections</a> &nbsp; |  &nbsp;
+        <a href="#att-schema"> Schema</a> &nbsp; |  &nbsp;
         <a href="#att-server"> API Server</a>
       </div>
 
@@ -107,7 +108,7 @@
             <td class="gray">url of the OpenAPI spec to view </td>
             <td class='default-col'>(empty)</td>
           </tr>
-          <tr>
+          <tr id="update-route">
             <td class="attr-col mono bold right">update-route </td>
             <td class="gray">
               Allowed:<span class='blue'> true | false</span> 
@@ -143,7 +144,7 @@
             <td class="gray">Heading text on top-left corner </td>
             <td>(empty)</td>
           </tr>
-          <tr>
+          <tr id="goto-path">
             <td class="mono bold right">goto-path</td>
             <td class="gray">
               Initial location on the document (identified by method and path) where you want to go after the spec is loaded.
@@ -156,7 +157,7 @@
             <td>(empty)</td>
           </tr>
 
-          <tr>
+          <tr id="fill-request-fields-with-example">
             <td class="attr-col mono bold right">fill-request-fields-with-example </td>
             <td class="gray">
               <span class='bold dark-gray'>Allowed:<span class='blue'> true | false </span></span> 
@@ -328,18 +329,26 @@
             <td class="gray"> text color of the navigation item on mouse-over </td>
             <td class='default-col'></td>
           </tr>
-          <tr>
+          <tr id="nav-accent-color">
             <td class=" attr-col mono bold right">nav-accent-color </td>
             <td class="gray"> Current selected item indicator</td>
             <td class='default-col'></td>
           </tr>
-          <tr>
+          <tr id="nav-item-spacing">
             <td class=" attr-col mono bold right">nav-item-spacing </td>
             <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> default | compact | relaxed</span></span>
               Controls navigation item spacing
               &nbsp;|&nbsp; <a href="./examples/navbar-spacing.html">Example</a>
             </td>
             <td class='default-col'>default</td>
+          </tr>
+          <tr id="on-nav-tag-click">
+            <td class="mono bold right">on-nav-tag-click</td>
+            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> expand-collapse | show-description</span></span> -
+              applies only to focused render-style. It determinses the behavior of clicking on a Tag in navigation bar.
+              It can either expand-collapse the tag or take you to the tag's description page.
+            </td>
+            <td>expand-collapse</td>
           </tr>
         </table>
 
@@ -380,71 +389,6 @@
             <td>read</td>
           </tr>
           <tr>
-            <td class="mono bold right">on-nav-tag-click</td>
-            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> expand-collapse | show-description</span></span> -
-              applies only to focused render-style. It determinses the behavior of clicking on a Tag in navigation bar.
-              It can either expand-collapse the tag or take you to the tag's description page.
-            </td>
-            <td>expand-collapse</td>
-          </tr>
-          <tr>
-            <td class="mono bold right">schema-style </td>
-            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> tree | table</span></span> -
-              Two different ways to display object-schemas in the responses and request bodies
-              &nbsp;|&nbsp; <a href="./examples/schema-table.html">Example</a>
-            </td>
-            <td>tree</td>
-          </tr>
-          <tr>
-            <td class="mono bold right">schema-expand-level </td>
-            <td class="gray">
-              Schemas are expanded by default, use this attribute to control how many levels in the schema should be expanded
-              &nbsp;|&nbsp; <a href="./examples/schema-expand-level.html">Example</a>
-            </td>
-            <td>999</td>
-          </tr>
-          <tr>
-            <td class="mono bold right">schema-description-expanded </td>
-            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> true | false</span></span> -
-              Constraint and descriptions information of fields in the schema are collapsed to show only the first line.
-              Set it to true if you want them to fully expanded
-            </td>
-            <td>false</td>
-          </tr>
-          <tr>
-            <td class="mono bold right">schema-hide-read-only </td>
-            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> default | never </span></span> -
-              default will show read-only schema attributes in Responses, and in Requests of Webhook / Callback
-              <br/>
-              If you do not want to hide read-only fields in schema then you may set it to 'never'
-              <br/>
-              <b>Note:</b>This do not effect example generation.
-              &nbsp;|&nbsp; <a href="./examples/hide-read-only-write-only.html">Example</a>
-            </td>
-            <td>default</td>
-          </tr>
-          <tr>
-            <td class="mono bold right">schema-hide-write-only </td>
-            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> default | never </span></span> -
-              default will show write-only schema attributes in Requests, and in Responses of Webhook / Callback
-              <br/>
-              If you do not want to hide write-only fields in schema then you may set it to 'never'
-              <br/>
-              <b>Note:</b>This do not effect example generation.
-              &nbsp;|&nbsp; <a href="./examples/hide-read-only-write-only.html">Example</a>
-            </td>
-            <td>default</td>
-          </tr>
-          <tr>
-            <td class="mono bold right">default-schema-tab</td>
-            <td class="gray">
-              <span class='bold dark-gray'>Allowed:<span class='blue'> schema | example</span></span> -
-              The schemas are displayed in two tabs - Model and Example.
-              This option allows you to pick the default tab that you would like to be active
-            </td>
-            <td>model</td>
-          </tr>
-          <tr>
             <td class="mono bold right">response-area-height</td>
             <td class="gray">
               <span class='bold dark-gray'>Allowed:<span class='blue'> valid css height value such as 400px, 50%, 60vh etc</span></span> -
@@ -453,8 +397,6 @@
             <td>300px</td>
           </tr>
         </table>
-
-
 
         <a id="att-sections"></a>
         <div class='table-title' id='toggle-sections'> Hide/Show Sections </div>
@@ -569,10 +511,74 @@
           </tr>
         </table>
 
+        <a id="att-schema"></a>
+        <div class='table-title' id='layout'> Schema Section Settings</div>
+        <table class="m-table">
+          <tr id="schema-style">
+            <td class="attr-col mono bold right">schema-style</td>
+            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> tree | table</span></span> -
+              Two different ways to display object-schemas in the responses and request bodies
+              &nbsp;|&nbsp; <a href="./examples/schema-table.html">Example</a>
+            </td>
+            <td>tree</td>
+          </tr>
+          <tr id="schema-expand-level">
+            <td class="attr-col mono bold right">schema-expand-level </td>
+            <td class="gray">
+              Schemas are expanded by default, use this attribute to control how many levels in the schema should be expanded
+              &nbsp;|&nbsp; <a href="./examples/schema-expand-level.html">Example</a>
+            </td>
+            <td>999</td>
+          </tr>
+          <tr id="schema-description-expanded">
+            <td class="mono bold right">schema-description-expanded </td>
+            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> true | false</span></span> -
+              Constraint and descriptions information of fields in the schema are collapsed to show only the first line.
+              Set it to true if you want them to fully expanded
+            </td>
+            <td>false</td>
+          </tr>
+          <tr id="schema-hide-read-only">
+            <td class="mono bold right">schema-hide-read-only </td>
+            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> default | never </span></span> -
+              default will show read-only schema attributes in Responses, and in Requests of Webhook / Callback
+              <br/>
+              If you do not want to hide read-only fields in schema then you may set it to 'never'
+              <br/>
+              <b>Note:</b>This do not effect example generation.
+              &nbsp;|&nbsp; <a href="./examples/schema-read-and-write-only.html">Example</a>
+            </td>
+            <td>default</td>
+          </tr>
+          <tr id="schema-hide-write-only">
+            <td class="mono bold right">schema-hide-write-only </td>
+            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> default | never </span></span> -
+              default will show write-only schema attributes in Requests, and in Responses of Webhook / Callback
+              <br/>
+              If you do not want to hide write-only fields in schema then you may set it to 'never'
+              <br/>
+              <b>Note:</b>This do not effect example generation.
+              &nbsp;|&nbsp; <a href="./examples/schema-read-and-write-only.html">Example</a>
+            </td>
+            <td>default</td>
+          </tr>
+          <tr id="default-schema-tab">
+            <td class="mono bold right">default-schema-tab</td>
+            <td class="gray">
+              <span class='bold dark-gray'>Allowed:<span class='blue'> schema | example</span></span> -
+              The schemas are displayed in two tabs - Model and Example.
+              This option allows you to pick the default tab that you would like to be active
+            </td>
+            <td>model</td>
+          </tr>
+        </table>
+
+
+
         <a id="att-server"></a>
         <div class='table-title' id='api-servers'> API Server & calls</div>
         <table class="m-table">
-          <tr>
+          <tr id ="server-url">
             <td class="mono bold right">server-url</td>
             <td class="gray">
               OpenAPI spec has a provision for providing the server url. The UI will list all the server URLs provided in the spec.
@@ -582,7 +588,7 @@
             </td>
             <td>(empty)</td>
           </tr>
-          <tr>
+          <tr id="default-api-server">
             <td class="mono bold right">default-api-server</td>
             <td class="gray">
               If you have multiple api-server listed in the spec, use this attribute to select the default API server, where all the API calls will goto.
@@ -590,7 +596,7 @@
             </td>
             <td>(empty)</td>
           </tr>
-          <tr>
+          <tr >
             <td colspan="3" style="border-bottom-style:dashed; text-align: center;">
               <br/>
               When providing API key using RapiDoc element, make sure that you provide all the 3 attributes with some default values
@@ -602,12 +608,12 @@
             </td>
 
           </tr>
-          <tr>
+          <tr id="api-key-name">
             <td class="attr-col mono bold right">api-key-name</td>
             <td class="gray">Name of the API key that will be send while trying out the APIs</td>
             <td class='default-col'>(empty)</td>
           </tr>
-          <tr>
+          <tr id="api-key-location">
             <td class="mono bold right">api-key-location</td>
             <td class="gray">
               <span class='bold dark-gray'>Allowed:<span class='blue'> header, query</span></span> -
@@ -615,7 +621,7 @@
             </td>
             <td>(empty)</td>
           </tr>
-          <tr>
+          <tr id="api-key-value">
             <td class="mono bold right">api-key-value</td>
             <td class="gray">
               Value of the API key that will be send while trying out the APIs.
@@ -623,7 +629,7 @@
             </td>
             <td>(empty)</td>
           </tr>
-          <tr>
+          <tr id="fetch-credentials">
             <td class="mono bold right">fetch-credentials</td>
             <td class="gray">
               <span class='bold dark-gray'>Allowed:<span class='blue'> omit | same-origin | include</span></span>
@@ -645,7 +651,7 @@
             <th class="left">Description </th>
             <th class="default-col"></th>
           </tr>
-          <tr>
+          <tr id="loadSpec">
             <td class="mono bold right">loadSpec() </td>
             <td class="gray">To programmatically load spec. The method takes
               <ul>
@@ -655,7 +661,7 @@
             </td>
             <td> <a href="https://github.com/rapi-doc/RapiDoc/blob/master/docs/examples/example9.html"> Example </a></td>
           </tr>
-          <tr>
+          <tr id="scrollTo">
             <td class="mono bold right">scrollTo(path) </td>
             <td class="gray" colspan="2">
               To programmatically scroll to a section (identified by combination method and path).
@@ -667,7 +673,7 @@
             </td>
           </tr>
 
-          <tr>
+          <tr id="setHttpUserNameAndPassword">
             <td class="mono bold right" style="text-align: left;">
               setHttpUserNameAndPassword(<br>
                 &nbsp;&nbsp;securitySchemeId,<br/>
@@ -679,7 +685,7 @@
               To programmatically provide username and password.  <span class='mono blue'>securitySchemeId</span> should be a valid securityScheme which you have defined in the spec
             </td>
           </tr>
-          <tr>
+          <tr id="setApiKey">
             <td class="mono bold right" style="text-align: left;">setApiKey(<br/>
               &nbsp;&nbsp;securitySchemeId, token<br/>
             ) 
@@ -688,7 +694,7 @@
               To programmatically provide api-key. <span class='mono blue'>securitySchemeId</span> should be a valid securityScheme which you have defined in the spec
             </td>
           </tr>
-          <tr>
+          <tr id="setApiServer">
             <td class="mono bold right" style="border-bottom:none;">setApiServer(apiServerUrl) </td>
             <td class="gray" colspan="2" style="border-bottom:none;">
               To programmatically set API Server.  <span class='mono blue'>apiServerUrl</span> should be a valid server url which you have defined in the spec
@@ -718,7 +724,7 @@
             </td>
           </tr>
 
-          <tr>
+          <tr id="scrollTo">
             <td class="mono bold right">scrollTo(path) </td>
             <td class="gray" colspan="2">
               To programmatically provide username and password 
@@ -764,19 +770,19 @@
               <th class="right" style="width:150px">Event</th>
               <th class="left">Description </th>
             </tr>
-            <tr>
+            <tr id="before-render">
               <td class="mono bold right">before-render</td>
               <td class="gray">
                 fired before rendering, provides spec object which can be modified and the changes will be reflected in rendering
               </td>
             </tr>
-            <tr>
+            <tr id="spec-loaded">
               <td class="mono bold right">spec-loaded</td>
               <td class="gray">
                 fired after the spec is parsed, and rendered. Provides an object representing the spec.
               </td>
             </tr>
-            <tr>
+            <tr id="before-try">
               <td class="mono bold right">before-try</td>
               <td class="gray">
                 fired before user clicks try. 
@@ -810,7 +816,7 @@
 
               </td>
             </tr>
-            <tr>
+            <tr id="after-try">
               <td class="mono bold right">after-try</td>
               <td class="gray">
                 fired after try (API-call) is completed and provides a 
@@ -820,7 +826,7 @@
                 
               </td>
             </tr>
-            <tr>
+            <tr id="request-aborted">
               <td class="mono bold right">request-aborted</td>
               <td class="gray">
                 fired when user aborts the request
@@ -974,13 +980,13 @@
         <h2> Supported vendor extensions</h2>
         <div class="table-block">
           <table class="m-table">
-            <tr>
+            <tr id="x-code-sample">
               <td class="mono bold right" style="width:160px;" >x-code-sample <br/> x-codeSample </td>
               <td class="gray"> Use this vendor-extension to provide code samples in various languages
               </td>
               <td style="width:130px;"><a href="./examples/code-samples.html"> Usage Example </a> </td>
             </tr>
-            <tr>
+            <tr id="x-badges">
               <td class="mono bold right" style="width:130px;" >x-badges </td>
               <td class="gray"> Use this vendor-extension to annotate end-points with short color coded lables </td>
               <td style="width:130px;"><a href="./examples/badges.html"> Usage Example </a> </td>
@@ -994,16 +1000,18 @@
               <td><a href="./examples/collapsable.html"> Usage Example </a> </td>
             </tr>
 
-            <tr>
+            <tr id="x-fill-example">
               <td class="mono bold right">x-fill-example</td>
               <td class="gray">
                 <span class='bold dark-gray'>Allowed:<span class='blue'> yes | no</span></span> -
                 Use this vendor-extension for each request parameter to indicate if the provided example is auto populated on the UI
+                <br/> 
+                if this behaviour needs to be applied for all the examples then see <a href="#fill-request-fields-with-example"> fill-request-fields-with-example</a> 
               </td>
               <td></td>
             </tr>
 
-            <tr>
+            <tr id="x-client-id">
               <td class="mono bold right"><br/>x-client-id <br/> x-client-secret <br/> x-default-scopes <br/> x-receive-token-in  </td>
               <td class="gray">
                 Use these vendor-extensions to pre fill <br/>
