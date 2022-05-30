@@ -9,12 +9,12 @@
   dependencies:
     "@jridgewell/trace-mapping" "^0.3.0"
 
-"@apitools/openapi-parser@^0.0.24":
-  "integrity" "sha512-s1cJort2nFt5B57cCj6aO3MieJxhK4ouyZprYoY8lFlCGPEtRDUlQPai00cpMqt5YrsryyFMp1M0G2QsJa69Vg=="
-  "resolved" "https://registry.npmjs.org/@apitools/openapi-parser/-/openapi-parser-0.0.24.tgz"
-  "version" "0.0.24"
+"@apitools/openapi-parser@^0.0.25":
+  "integrity" "sha512-OUj1VsJUrzvQxVZvOyOg5jNzMdKv5mzEErgzpgxlZoJOZ30Uh5YjJ0YYQDjomohbMB1I735qC1RvP2Jy6SxaPw=="
+  "resolved" "https://registry.npmjs.org/@apitools/openapi-parser/-/openapi-parser-0.0.25.tgz"
+  "version" "0.0.25"
   dependencies:
-    "swagger-client" "^3.18.4"
+    "swagger-client" "^3.18.5"
 
 "@babel/code-frame@^7.16.7":
   "integrity" "sha512-iAXqUn8IIeBTNd72xsFlgaXHkMBMt6y4HJp1tIaK465CWLT/fG1aqB7ykr95gHHmlBdGbFeWWfyB4NJJ0nmeIg=="
@@ -1815,11 +1815,6 @@
     "node-releases" "^2.0.3"
     "picocolors" "^1.0.0"
 
-"btoa@^1.2.1":
-  "integrity" "sha512-SB4/MIGlsiVkMcHmT+pSmIPoNDoHg+7cMzmt3Uxt628MTz2487DKSqK/fuhFBrkuqrYv5UCEnACpF4dTFNKc/g=="
-  "resolved" "https://registry.npmjs.org/btoa/-/btoa-1.2.1.tgz"
-  "version" "1.2.1"
-
 "buffer-crc32@^0.2.1", "buffer-crc32@^0.2.13":
   "integrity" "sha1-DTM+PwDqxQqhRUq9MO+MKl2ackI="
   "resolved" "https://registry.npmjs.org/buffer-crc32/-/buffer-crc32-0.2.13.tgz"
@@ -2155,7 +2150,12 @@
   "resolved" "https://registry.npmjs.org/cookie-signature/-/cookie-signature-1.0.6.tgz"
   "version" "1.0.6"
 
-"cookie@~0.4.1", "cookie@0.4.2":
+"cookie@~0.5.0":
+  "integrity" "sha512-YZ3GUyn/o8gfKJlnlX7g7xq4gyO6OSuhGPKaaGssGB2qgDUS0gPgtTvoyZLTt9Ab6dC4hfc9dV5arkvc/OCmrw=="
+  "resolved" "https://registry.npmjs.org/cookie/-/cookie-0.5.0.tgz"
+  "version" "0.5.0"
+
+"cookie@0.4.2":
   "integrity" "sha512-aSWTXFzaKWkvHO1Ny/s+ePFpvKsPnjc551iI41v3ny/ow6tBG5Vd+FuqGNhh1LxOmVzOlGUriIlOaokOvhaStA=="
   "resolved" "https://registry.npmjs.org/cookie/-/cookie-0.4.2.tgz"
   "version" "0.4.2"
@@ -3023,9 +3023,9 @@
     "micromatch" "^4.0.4"
 
 "fast-json-patch@^3.0.0-1":
-  "integrity" "sha512-IhpytlsVTRndz0hU5t0/MGzS/etxLlfrpG5V5M9mVbuj9TrJLWaMfsox9REM5rkuGX0T+5qjpe8XA1o0gZ42nA=="
-  "resolved" "https://registry.npmjs.org/fast-json-patch/-/fast-json-patch-3.1.0.tgz"
-  "version" "3.1.0"
+  "integrity" "sha512-vf6IHUX2SBcA+5/+4883dsIjpBTqmfBjmYiWK1savxQmFk4JfBMLa7ynTYOs1Rolp/T1betJxHiGD3g1Mn8lUQ=="
+  "resolved" "https://registry.npmjs.org/fast-json-patch/-/fast-json-patch-3.1.1.tgz"
+  "version" "3.1.1"
 
 "fast-json-stable-stringify@^2.0.0":
   "integrity" "sha512-lhd/wF+Lk98HZoTCtlVraHtfh5XYijIjalXck7saUtuanSDyLMxnHhSXEDJqHxD7msR8D0uCmqlkwjCV8xvwHw=="
@@ -3167,9 +3167,9 @@
   "version" "1.0.2"
 
 "form-data-encoder@^1.4.3":
-  "integrity" "sha512-EFRDrsMm/kyqbTQocNvRXMLjc7Es2Vk+IQFx/YW7hkUH1eBl4J1fqiP34l74Yt0pFLCNpc06fkbVk00008mzjg=="
-  "resolved" "https://registry.npmjs.org/form-data-encoder/-/form-data-encoder-1.7.1.tgz"
-  "version" "1.7.1"
+  "integrity" "sha512-qfqtYan3rxrnCk1VYaA4H+Ms9xdpPqvLZa6xmMgFvhO32x7/3J/ExcTd6qpxM0vH2GdMI+poehyBZvqfMTto8A=="
+  "resolved" "https://registry.npmjs.org/form-data-encoder/-/form-data-encoder-1.7.2.tgz"
+  "version" "1.7.2"
 
 "formdata-node@^4.0.0":
   "integrity" "sha512-k7lYJyzDOSL6h917favP8j1L0/wNyylzU+x+1w4p5haGVHNlP58dbpdJhiCUsDbWsa9HwEtLp89obQgXl2e0qg=="
@@ -5759,14 +5759,13 @@
   "resolved" "https://registry.npmjs.org/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz"
   "version" "1.0.0"
 
-"swagger-client@^3.18.4":
-  "integrity" "sha512-Wj26oEctONq/u0uM+eSj18675YM5e2vFnx7Kr4neLeXEHKUsfceVQ/OdtrBXdrT3VbtdBbZfMTfl1JOBpix2MA=="
-  "resolved" "https://registry.npmjs.org/swagger-client/-/swagger-client-3.18.4.tgz"
-  "version" "3.18.4"
+"swagger-client@^3.18.5":
+  "integrity" "sha512-c0txGDtfQTJnaIBaEKCwtRNcUaaAfj+RXI4QVV9p3WW+AUCQqp4naCjaDNNsOfMkE4ySyhnblbL+jGqAVC7snw=="
+  "resolved" "https://registry.npmjs.org/swagger-client/-/swagger-client-3.18.5.tgz"
+  "version" "3.18.5"
   dependencies:
     "@babel/runtime-corejs3" "^7.11.2"
-    "btoa" "^1.2.1"
-    "cookie" "~0.4.1"
+    "cookie" "~0.5.0"
     "cross-fetch" "^3.1.5"
     "deepmerge" "~4.2.2"
     "fast-json-patch" "^3.0.0-1"
