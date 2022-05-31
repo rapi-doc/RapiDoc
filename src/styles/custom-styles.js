@@ -34,8 +34,7 @@ export default css`
     flex-wrap: nowrap;
     overflow-x: auto;
     position: relative;
-    -webkit-overflow-scrolling: touch;
-    -ms-overflow-style: -ms-autohiding-scrollbar;
+    scrollbar-color: transparent transparent;
 }
 
 .label-operation-path-container::-webkit-scrollbar {
