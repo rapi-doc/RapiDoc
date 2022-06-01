@@ -43,10 +43,10 @@ export default css`
     max-height: var(--resp-area-height, 300px);
     color: var(--fg3);  
   }
-  .method-fg.put { color: var(--orange); }
-  .method-fg.post { color: var(--green); }
-  .method-fg.get { color: var(--blue); }
-  .method-fg.delete { color: var(--red); }
+  .method-fg.put { color: var(--put-color); }
+  .method-fg.post { color: var(--post-color); }
+  .method-fg.get { color: var(--get-color); }
+  .method-fg.delete { color: var(--delete-color); }
   .method-fg.options, 
   .method-fg.head, 
   .method-fg.patch { 

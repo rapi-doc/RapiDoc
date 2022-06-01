@@ -53,11 +53,15 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
         }
         <h2 part="section-operation-summary"> ${path.shortSummary || `${path.method.toUpperCase()} ${path.path}`}</h2>
         ${path.isWebhook
-          ? html`<span part="section-operation-webhook style="color:var(--primary-color); font-weight:bold; font-size: var(--font-size-regular);"> WEBHOOK </span>`
+          ? html`<span part="section-operation-webhook" style="color:var(--primary-color); font-weight:bold; font-size: var(--font-size-regular);"> WEBHOOK </span>`
           : html`
-            <div class='mono-font part="section-operation-webhook-method" regular-font-size' style='text-align:left; direction:ltr; padding: 8px 0; color:var(--fg3)'> 
-              <span part="label-operation-method" class='regular-font upper method-fg bold-text ${path.method}'>${path.method}</span> 
-              <span part="label-operation-path">${path.path}</span>
+            <div class='mono-font regular-font-size label-operation-container' part="section-operation-webhook-method">
+              <div class='label-operation-method-container' style='border-color: var(--${path.method}-border-color); background-color: var(--${path.method}-bg-color);'>
+                <span part="label-operation-method" class='regular-font upper method-fg bold-text ${path.method}'>${path.method}</span>
+              </div>
+              <div class='label-operation-path-container'>
+                <span class='label-operation-path-item' part="label-operation-path">${path.path}</span>
+              </div>
             </div>
           `
         }

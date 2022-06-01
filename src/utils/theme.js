@@ -152,7 +152,7 @@ export default function setTheme(baseTheme, theme = {}) {
       headerColorDarker: ColorUtils.color.brightness(headerColor, -20),
       headerColorBorder: ColorUtils.color.brightness(headerColor, 10),
 
-      borderColor: theme.borderColor || ColorUtils.color.brightness(bg1, -38),
+      borderColor: theme.borderColor || '#B9B9B9',
       lightBorderColor: theme.lightBorderColor || ColorUtils.color.brightness(bg1, -23),
       codeBorderColor: theme.codeBorderColor || 'transparent',
 
@@ -180,6 +180,22 @@ export default function setTheme(baseTheme, theme = {}) {
 
       purple: theme.purple || '#786FF1',
       brown: theme.brown || '#D4AC0D',
+
+      fgPositive: '#38853C',
+      bgPositive: '#DFF1E0',
+      borderPositive: '#83D187',
+
+      fgWarning: '#D56A00',
+      bgWarning: '#FFEBD7',
+      borderWarning: '#F5AE70',
+
+      fgInfo: '#2978B5',
+      bgInfo: '#DEECF7',
+      borderInfo: '#7CBBEA',
+
+      fgCritical: '#CC3D3D',
+      bgCritical: '#F8E3E3',
+      borderCritical: '#F49494',
 
       codeBg: theme.codeBg || ColorUtils.color.opacity(ColorUtils.color.brightness(bg1, -15), 0.7),
       codeFg: theme.codeFg || '#666',
@@ -259,13 +275,24 @@ export default function setTheme(baseTheme, theme = {}) {
     --nav-hover-bg-color:${newTheme.navHoverBgColor};
     --nav-hover-text-color:${newTheme.navHoverTextColor};
     --nav-accent-color:${newTheme.navAccentColor};
-
-    /* Nav API Method Colors*/
-    --nav-get-color:${newTheme.blue};
-    --nav-put-color:${newTheme.orange};
-    --nav-post-color:${newTheme.green};
-    --nav-delete-color:${newTheme.red};
     --nav-head-color:${newTheme.yellow};
+
+    /* API Method Colors */
+    --get-color:${newTheme.fgPositive};
+    --get-bg-color:${newTheme.bgPositive};
+    --get-border-color:${newTheme.borderPositive};
+
+    --put-color:${newTheme.fgWarning};
+    --put-bg-color:${newTheme.bgWarning};
+    --put-border-color:${newTheme.borderWarning};
+
+    --post-color:${newTheme.fgInfo};
+    --post-bg-color:${newTheme.bgInfo};
+    --post-border-color:${newTheme.borderInfo};
+
+    --delete-color:${newTheme.fgCritical};
+    --delete-bg-color:${newTheme.bgCritical};
+    --delete-border-color:${newTheme.borderCritical};
 
     /* Primary Colors */  
     --primary-color:${newTheme.primaryColor};
