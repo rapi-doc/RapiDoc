@@ -6,6 +6,20 @@ customize their theme. Simply add your css to this file and yarn build.
 */
 
 export default css`
+.request-card {
+  border: 1px solid #CCCED8;
+  border-radius: 4px;
+  padding-block: 24px;
+  margin-top: 24px;
+}
+
+.input-req {
+  padding-block: 12px !important;
+  padding-inline: 16px !important;
+  font-size: 14px !important;
+  line-height: 20px;
+  color: #000000;
+}
 
 .label-operation-container {
     text-align: left;
