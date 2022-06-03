@@ -277,13 +277,13 @@ export default class ApiRequest extends LitElement {
     }
     let title = '';
     if (paramType === 'path') {
-      title = 'PATH PARAMETERS';
+      title = 'Path Params';
     } else if (paramType === 'query') {
-      title = 'QUERY-STRING PARAMETERS';
+      title = 'Query-String Params';
     } else if (paramType === 'header') {
-      title = 'REQUEST HEADERS';
+      title = 'Headers';
     } else if (paramType === 'cookie') {
-      title = 'COOKIES';
+      title = 'Cookies';
     }
 
     const tableRows = [];
