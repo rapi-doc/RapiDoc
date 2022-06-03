@@ -50,9 +50,10 @@ export default css`
   overflow: hidden;
 }
 .table-title {
-  font-size:var(--font-size-small);
-  font-weight:bold;
+  font-size: 16px;
+  font-weight: 400;
   vertical-align: middle;
-  margin: 12px 0 4px 0;
+  line-height: 18px;
+  padding-inline: 16px;
 }
 `;
