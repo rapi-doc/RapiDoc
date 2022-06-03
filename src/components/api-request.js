@@ -125,6 +125,7 @@ export default class ApiRequest extends LitElement {
           font-size: 12px;
           line-height: 16px;
           color: #4A4A4A;
+          margin: 4px 0px 0px;
         }
 
         .top-gap{margin-top:24px;}
