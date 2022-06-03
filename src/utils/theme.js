@@ -101,7 +101,7 @@ export default function setTheme(baseTheme, theme = {}) {
     const bg2 = theme.bg2 ? theme.bg2 : ColorUtils.color.brightness(bg1, -5); // or '#fafafa'
     const bg3 = theme.bg3 ? theme.bg3 : ColorUtils.color.brightness(bg1, -15); // or '#f6f6f6'
     const lightBg = theme.bg3 ? theme.bg3 : ColorUtils.color.brightness(bg1, -45);
-    const fg2 = theme.fg2 ? theme.fg2 : ColorUtils.color.brightness(fg1, 17); // or '#555'
+    const fg2 = theme.fg2 ? theme.fg2 : '#545454';
     const fg3 = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, 30); // or #666
     const lightFg = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, 70); // or #999
     const inlineCodeFg = theme.inlineCodeFg ? theme.inlineCodeFg : 'brown';
@@ -156,7 +156,7 @@ export default function setTheme(baseTheme, theme = {}) {
       lightBorderColor: theme.lightBorderColor || ColorUtils.color.brightness(bg1, -23),
       codeBorderColor: theme.codeBorderColor || 'transparent',
 
-      inputBg: theme.inputBg || ColorUtils.color.brightness(bg1, 10), // #fff
+      inputBg: theme.inputBg || 'rgba(255, 255, 255, 0.0001)',
       placeHolder: theme.placeHolder || ColorUtils.color.brightness(lightFg, 20), // #dedede
       hoverColor: theme.hoverColor || ColorUtils.color.brightness(bg1, -5), // # f1f1f1
 
@@ -210,7 +210,7 @@ export default function setTheme(baseTheme, theme = {}) {
   
   :host {
     /* Common Styles - irrespective of themes */  
-    --border-radius: 2px;
+    --border-radius: 4px;
     --layout: ${this.layout || 'row'};
     --font-mono: ${this.monoFont || 'Monaco, "Andale Mono", "Roboto Mono", Consolas, monospace'};
     --font-regular: ${this.regularFont || '"Open Sans", Avenir, "Segoe UI", Arial, sans-serif'};

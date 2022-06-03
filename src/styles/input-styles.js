@@ -57,10 +57,10 @@ export default css`
 }
 
 input, textarea, select, button, pre {
-  color:var(--fg);
+  color: #000000;
   outline: none;
   background-color: var(--input-bg);
-  border: 1px solid var(--border-color);
+  border: 1px solid #B9B9B9;
   border-radius: var(--border-radius);
 }
 button {
@@ -74,11 +74,12 @@ textarea,
 input[type="file"],
 input[type="text"],
 input[type="password"] {
-  font-family: var(--font-mono);
+  font-family: var(--font-regular);
   font-weight: 400;
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-regular);
   transition: border .2s;
-  padding: 6px 5px;
+  padding: 12px 16px;
+  line-height: 140%;
 }
 
 select {
@@ -98,6 +99,10 @@ select:hover {
   border-color: var(--primary-color);
 }
 
+input[type="text"]:hover {
+  border-color: var(--fg2);
+}
+
 textarea::placeholder,
 input[type="text"]::placeholder,
 input[type="password"]::placeholder {
@@ -112,7 +117,8 @@ input[type="password"]:focus,
 textarea:active,
 input[type="text"]:active,
 input[type="password"]:active {
-  border:1px solid var(--primary-color);
+  border-color: #3B3B3B;
+  box-shadow: 0px 0px 0px 1px #FFFFFF, 0px 0px 0px 3px #B9B9B9;
 }
 
 input[type="file"]{
