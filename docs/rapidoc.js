@@ -3189,10 +3189,10 @@ var prism_csharp = __webpack_require__(16);
 }
 
 input, textarea, select, button, pre {
-  color:var(--fg);
+  color: #000000;
   outline: none;
   background-color: var(--input-bg);
-  border: 1px solid var(--border-color);
+  border: 1px solid #B9B9B9;
   border-radius: var(--border-radius);
 }
 button {
@@ -3206,11 +3206,12 @@ textarea,
 input[type="file"],
 input[type="text"],
 input[type="password"] {
-  font-family: var(--font-mono);
+  font-family: var(--font-regular);
   font-weight: 400;
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-regular);
   transition: border .2s;
-  padding: 6px 5px;
+  padding: 12px 16px;
+  line-height: 140%;
 }
 
 select {
@@ -3230,6 +3231,10 @@ select:hover {
   border-color: var(--primary-color);
 }
 
+input[type="text"]:hover {
+  border-color: var(--fg2);
+}
+
 textarea::placeholder,
 input[type="text"]::placeholder,
 input[type="password"]::placeholder {
@@ -3244,7 +3249,8 @@ input[type="password"]:focus,
 textarea:active,
 input[type="text"]:active,
 input[type="password"]:active {
-  border:1px solid var(--primary-color);
+  border-color: #3B3B3B;
+  box-shadow: 0px 0px 0px 1px #FFFFFF, 0px 0px 0px 3px #B9B9B9;
 }
 
 input[type="file"]{
@@ -4020,6 +4026,30 @@ customize their theme. Simply add your css to this file and yarn build.
     border-style: solid;
     border-radius: 4px 0px 0px 4px;
     margin: 4px 0px;
+}
+
+.header-auth-title {
+    color: #4A4A4A;
+    font-size: 16px;
+    line-height: 18px;
+    font-weight: 400;
+}
+
+.header-auth-container {
+    margin-top: 16px;
+}
+
+.header-auth-label {
+    color: var(--fg2);
+    margin-bottom: 4px;
+    font-size: var(--font-size-regular);
+    line-height: 19.6px;
+    font-weight: 400;
+}
+
+.header-auth-input {
+    width: 535px;
+    height: 44px;
 }
 
 `);
@@ -28292,6 +28322,10 @@ function removeApiKey(securitySchemeId) {
   this.requestUpdate();
 }
 
+function handleApiKeyChange(securitySchemeId, apiKey) {
+  if (apiKey === '') removeApiKey.call(this, securitySchemeId);else onApiKeyChange.call(this, securitySchemeId);
+}
+
 function securitySchemeTemplate() {
   var _this$resolvedSpec$se4;
 
@@ -28307,77 +28341,69 @@ function securitySchemeTemplate() {
 
   return $`
   <section id='auth' part="section-auth" style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;" class = 'observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}'>
-    <div class='sub-title regular-font'> AUTHENTICATION </div>
+    <div class="header-auth-title">Header Auth</div>
 
-    <div class="small-font-size" style="display:flex; align-items: center; min-height:30px">
-      ${providedApiKeys.length > 0 ? $`
-          <div class="blue-text"> ${providedApiKeys.length} API key applied </div>
-          <div style="flex:1"></div>
-          <button class="m-btn thin-border" part="btn btn-outline" @click=${() => {
-    onClearAllApiKeys.call(this);
-  }}>CLEAR ALL API KEYS</button>` : $`<div class="red-text">No API key applied</div>`}
-    </div>
     ${this.resolvedSpec.securitySchemes && this.resolvedSpec.securitySchemes.length > 0 ? $`
-        <table id="auth-table" class='m-table padded-12' style="width:100%;">
+        <div id="auth-table">
           ${this.resolvedSpec.securitySchemes.map(v => $`
-            <tr id="security-scheme-${v.securitySchemeId}" class="${v.type.toLowerCase()}">
-              <td style="max-width:500px; overflow-wrap: break-word;">
-                <div style="line-height:28px; margin-bottom:5px;">
-                  <span style="font-weight:bold; font-size:var(--font-size-regular)">${v.typeDisplay}</span>
-                  ${v.finalKeyValue ? $`
-                      <span class='blue-text'>  ${v.finalKeyValue ? 'Key Applied' : ''} </span>
-                      <button class="m-btn thin-border small" part="btn btn-outline" @click=${() => {
-    removeApiKey.call(this, v.securitySchemeId);
-  }}>REMOVE</button>
-                      ` : ''}
-                </div>
-                ${v.description ? $`
-                    <div class="m-markdown">
-                      ${unsafe_html_o(marked(v.description || ''))}
-                    </div>` : ''}
+            <div id="security-scheme-${v.securitySchemeId}" class="header-auth-container ${v.type.toLowerCase()}">
+              <div class="header-auth-label">${v.typeDisplay}</div>
+              ${v.description ? $`
+                  <div class="m-markdown">
+                    ${unsafe_html_o(marked(v.description || ''))}
+                  </div>` : ''}
 
-                ${v.type.toLowerCase() === 'apikey' || v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'bearer' ? $`
-                    <div style="margin-bottom:5px">
-                      ${v.type.toLowerCase() === 'apikey' ? $`Send <code>${v.name}</code> in <code>${v.in}</code>` : $`Send <code>Authorization</code> in <code>header</code> containing the word <code>Bearer</code> followed by a space and a Token String.`}
-                    </div>
-                    <div style="max-height:28px;">
-                      ${v.in !== 'cookie' ? $`
-                          <input type = "text" value = "${v.value}" class="${v.type} ${v.securitySchemeId} api-key-input" placeholder = "api-token" spellcheck = "false">
-                          <button class="m-btn thin-border" style = "margin-left:5px;"
-                            part = "btn btn-outline"
-                            @click="${e => {
-    onApiKeyChange.call(this, v.securitySchemeId, e);
-  }}">
-                            ${v.finalKeyValue ? 'UPDATE' : 'SET'}
-                          </button>` : $`<span class="gray-text" style="font-size::var(--font-size-small)"> cookies cannot be set from here</span>`}
-                    </div>` : ''}
-                ${v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'basic' ? $`
-                    <div style="margin-bottom:5px">
-                      Send <code>Authorization</code> in <code>header</code> containing the word <code>Basic</code> followed by a space and a base64 encoded string of <code>username:password</code>.
-                    </div>
-                    <div>
-                      <input type="text" value = "${v.user}" placeholder="username" spellcheck="false" class="${v.type} ${v.securitySchemeId} api-key-user" style="width:100px">
-                      <input type="password" value = "${v.password}" placeholder="password" spellcheck="false" class="${v.type} ${v.securitySchemeId} api-key-password" style = "width:100px; margin:0 5px;">
-                      <button class="m-btn thin-border"
-                        @click="${e => {
+              ${v.type.toLowerCase() === 'apikey' || v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'bearer' ? $`
+                  <div>
+                    ${v.in !== 'cookie' ? $`
+                        <input
+                          type="text"
+                          spellcheck="false"
+                          value="${v.value}"
+                          class="${v.type} ${v.securitySchemeId} api-key-input header-auth-input"
+                          @change="${e => {
+    handleApiKeyChange.call(this, v.securitySchemeId, e.target.value);
+  }}"
+                        >` : $`<span class="gray-text" style="font-size::var(--font-size-small)"> cookies cannot be set from here</span>`}
+                  </div>` : ''}
+              ${v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'basic' ? $`
+                  <div style="margin-bottom:5px">
+                    Send <code>Authorization</code> in <code>header</code> containing the word <code>Basic</code> followed by a space and a base64 encoded string of <code>username:password</code>.
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      value="${v.user}"
+                      spellcheck="false"
+                      placeholder="username"
+                      class="${v.type} ${v.securitySchemeId} api-key-user"
+                      style="width:100px"
+                    >
+                    <input
+                      type="password"
+                      spellcheck="false"
+                      placeholder="password"
+                      value="${v.password}"
+                      class="${v.type} ${v.securitySchemeId} api-key-password"
+                      style="width:100px; margin:0 5px;"
+                    >
+                    <button class="m-btn thin-border"
+                      @click="${e => {
     onApiKeyChange.call(this, v.securitySchemeId, e);
   }}"
-                        part = "btn btn-outline"
-                      >
-                        ${v.finalKeyValue ? 'UPDATE' : 'SET'}
-                      </button>
-                    </div>` : ''}
-              </td>
-            </tr>
+                      part="btn btn-outline"
+                    >
+                      ${v.finalKeyValue ? 'UPDATE' : 'SET'}
+                    </button>
+                  </div>` : ''}
+            </div>
             ${v.type.toLowerCase() === 'oauth2' ? $`
-                <tr>
-                  <td style="border:none; padding-left:48px">
-                    ${Object.keys(v.flows).map(f => oAuthFlowTemplate.call(this, f, v['x-client-id'], v['x-client-secret'], v.securitySchemeId, v.flows[f], v['x-default-scopes'], v['x-receive-token-in']))}
-                  </td>
-                </tr>
+                <div>
+                  ${Object.keys(v.flows).map(f => oAuthFlowTemplate.call(this, f, v['x-client-id'], v['x-client-secret'], v.securitySchemeId, v.flows[f], v['x-default-scopes'], v['x-receive-token-in']))}
+                </div>
                 ` : ''}
           `)}
-        </table>` : ''}
+        </div>` : ''}
     <slot name="auth"></slot>
   </section>
 `;
@@ -30625,6 +30651,7 @@ class ApiRequest extends lit_element_s {
           font-size: 12px;
           line-height: 16px;
           color: #4A4A4A;
+          margin: 4px 0px 0px;
         }
 
         .top-gap{margin-top:24px;}
@@ -34118,8 +34145,7 @@ function setTheme(baseTheme, theme = {}) {
     const bg3 = theme.bg3 ? theme.bg3 : color_utils.color.brightness(bg1, -15); // or '#f6f6f6'
 
     const lightBg = theme.bg3 ? theme.bg3 : color_utils.color.brightness(bg1, -45);
-    const fg2 = theme.fg2 ? theme.fg2 : color_utils.color.brightness(fg1, 17); // or '#555'
-
+    const fg2 = theme.fg2 ? theme.fg2 : '#545454';
     const fg3 = theme.fg3 ? theme.fg3 : color_utils.color.brightness(fg1, 30); // or #666
 
     const lightFg = theme.fg3 ? theme.fg3 : color_utils.color.brightness(fg1, 70); // or #999
@@ -34170,8 +34196,7 @@ function setTheme(baseTheme, theme = {}) {
       borderColor: theme.borderColor || '#B9B9B9',
       lightBorderColor: theme.lightBorderColor || color_utils.color.brightness(bg1, -23),
       codeBorderColor: theme.codeBorderColor || 'transparent',
-      inputBg: theme.inputBg || color_utils.color.brightness(bg1, 10),
-      // #fff
+      inputBg: theme.inputBg || 'rgba(255, 255, 255, 0.0001)',
       placeHolder: theme.placeHolder || color_utils.color.brightness(lightFg, 20),
       // #dedede
       hoverColor: theme.hoverColor || color_utils.color.brightness(bg1, -5),
@@ -34216,7 +34241,7 @@ function setTheme(baseTheme, theme = {}) {
   
   :host {
     /* Common Styles - irrespective of themes */  
-    --border-radius: 2px;
+    --border-radius: 4px;
     --layout: ${this.layout || 'row'};
     --font-mono: ${this.monoFont || 'Monaco, "Andale Mono", "Roboto Mono", Consolas, monospace'};
     --font-regular: ${this.regularFont || '"Open Sans", Avenir, "Segoe UI", Arial, sans-serif'};
@@ -40213,7 +40238,7 @@ Prism.languages.js = Prism.languages.javascript;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("2d9cf37a8fd25d3afeb9")
+/******/ 		__webpack_require__.h = () => ("89290d05b0c5012551bc")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
