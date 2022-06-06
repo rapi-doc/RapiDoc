@@ -3972,6 +3972,7 @@ customize their theme. Simply add your css to this file and yarn build.
   font-size: 14px !important;
   line-height: 20px;
   color: #000000;
+  border-radius: 4px;
 }
 
 .label-operation-container {
@@ -40238,7 +40239,7 @@ Prism.languages.js = Prism.languages.javascript;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("89290d05b0c5012551bc")
+/******/ 		__webpack_require__.h = () => ("b56355b0dbddc7995ace")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

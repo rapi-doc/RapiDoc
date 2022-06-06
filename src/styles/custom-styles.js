@@ -19,6 +19,7 @@ export default css`
   font-size: 14px !important;
   line-height: 20px;
   color: #000000;
+  border-radius: 4px;
 }
 
 .label-operation-container {
