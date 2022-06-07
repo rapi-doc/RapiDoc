@@ -7,6 +7,7 @@ import codeSamplesTemplate from '~/templates/code-samples-template';
 import callbackTemplate from '~/templates/callback-template';
 import '~/components/api-request';
 import '~/components/api-response';
+import '~/components/content-copy-button';
 
 /* eslint-disable indent */
 function headingRenderer(tagElementId) {
@@ -60,7 +61,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
                 <span part="label-operation-method" class='regular-font upper method-fg bold-text ${path.method}'>${path.method}</span>
               </div>
               <div class='label-operation-path-container'>
-                <span class='label-operation-path-item' part="label-operation-path">${path.path}</span>
+                <content-copy-button content='${path.path}'></content-copy-button>
               </div>
             </div>
           `
