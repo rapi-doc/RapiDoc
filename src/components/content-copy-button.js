@@ -7,16 +7,29 @@ import copySymbol from './assets/copy-symbol';
 // eslint-disable-next-line import/prefer-default-export
 export class ContentCopyButton extends LitElement {
     static properties = {
+        id: { type: String },
         content: { type: String },
         copied: { type: Boolean },
         showButton: { type: Boolean },
     };
 
-    constructor(content) {
+    constructor(id, content) {
         super();
+        this.id = id;
         this.content = content;
         this.copied = false;
         this.showButton = false;
+    }
+
+    reset() {
+        this.copied = false;
+        this.showButton = false;
+    }
+
+    willUpdate(changedProperties) {
+        if (changedProperties.has('id')) {
+            this.reset();
+        }
     }
 
     onButtonClick() {
@@ -98,7 +111,7 @@ export class ContentCopyButton extends LitElement {
                 outline: inherit;
                 right: 0;
                 display: block;
-                position: -webkit-sticky; /* Required for Safari */
+                position: -webkit-sticky;
                 position: sticky;
             }
 
