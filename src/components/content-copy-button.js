@@ -2,6 +2,7 @@
 import { LitElement, html, css } from 'lit';
 import checkSymbol from './assets/check-symbol';
 import copySymbol from './assets/copy-symbol';
+import './toast-component';
 
 /* eslint-disable indent */
 // eslint-disable-next-line import/prefer-default-export
@@ -11,6 +12,7 @@ export class ContentCopyButton extends LitElement {
         content: { type: String },
         copied: { type: Boolean },
         showButton: { type: Boolean },
+        showToast: { type: Boolean },
     };
 
     constructor(id, content) {
@@ -19,6 +21,8 @@ export class ContentCopyButton extends LitElement {
         this.content = content;
         this.copied = false;
         this.showButton = false;
+        this.showToast = false;
+        this.addEventListener('closed-toast', () => { this.showToast = false; });
     }
 
     reset() {
@@ -39,6 +43,7 @@ export class ContentCopyButton extends LitElement {
 
     onTextClick() {
         navigator.clipboard.writeText(this.content);
+        this.showToast = true;
     }
 
     onMouseover() {
@@ -73,6 +78,11 @@ export class ContentCopyButton extends LitElement {
                     </div>
                     <div class='copy-container' @mouseover="${this.onMouseover}"></div>
                     `
+                }
+                ${
+                    this.showToast
+                    ? html`<toast-component tone="positive" message="Copied to clipboard"></toast-component>`
+                    : ''
                 }
         `;
     }
