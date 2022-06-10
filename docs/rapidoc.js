@@ -3966,15 +3966,6 @@ customize their theme. Simply add your css to this file and yarn build.
   margin-top: 24px;
 }
 
-.input-req {
-  padding-block: 12px !important;
-  padding-inline: 16px !important;
-  font-size: 14px !important;
-  line-height: 20px;
-  color: #000000;
-  border-radius: 4px;
-}
-
 .label-operation-container {
     text-align: left;
     direction: ltr;
@@ -30627,8 +30618,11 @@ class ApiRequest extends lit_element_s {
           font-weight: normal;
           line-height: 20px;
           color: #545454; 
-          margin-block: 8px 4px;
+          margin-block: 24px 4px;
           font-family: var(--font-mono);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
         }
         .param-name.deprecated { 
           color: #DC5A41;
@@ -30639,8 +30633,12 @@ class ApiRequest extends lit_element_s {
           line-height: 16px;
           color: #4A4A4A; 
           font-family: var(--font-regular);
-          margin-top: 16px;
         }
+
+        .param-type > span {
+          margin-left: 8px;
+        }
+
         .param-constraint{
           min-width:100px;
         }
@@ -30862,13 +30860,14 @@ class ApiRequest extends lit_element_s {
 
 
       tableRows.push($`
-      <div class="param-type">
-        ${paramSchema.type === 'array' ? `${paramSchema.arrayType}` : `${paramSchema.format ? paramSchema.format : paramSchema.type}`}
-        ${param.deprecated ? $`<span style='color:#DC5A41; float: right;'>deprecated</span>` : ''}
-        ${param.required ? $`<span style='color:#DC5A41; float: right;'>required</span>` : ''}
-      </div>
       <div class="param-name ${param.deprecated ? 'deprecated' : ''}" >
         ${param.name}
+
+        <div class="param-type">
+          ${paramSchema.type === 'array' ? `${paramSchema.arrayType}` : `${paramSchema.format ? paramSchema.format : paramSchema.type}`}
+          ${param.deprecated ? $`<span style='color:#DC5A41;'>deprecated</span>` : ''}
+          ${param.required ? $`<span style='color:#DC5A41;'>required</span>` : ''}
+        </div>
       </div>
 
       ${this.allowTry === 'true' ? $`
@@ -30929,8 +30928,7 @@ class ApiRequest extends lit_element_s {
                         > </schema-tree>
                       </div>`}
                 </div>` : $`
-                <input type="${paramSchema.format === 'password' ? 'password' : 'text'}" spellcheck="false" style="width:100%" 
-                  class="input-req"
+                <input type="${paramSchema.format === 'password' ? 'password' : 'text'}" spellcheck="false" style="width:100%" W
                   data-ptype="${paramType}"
                   data-pname="${param.name}" 
                   data-example="${Array.isArray(example.exampleVal) ? example.exampleVal.join('~|~') : example.exampleVal}"
@@ -30948,7 +30946,7 @@ class ApiRequest extends lit_element_s {
     <div class="request-card">
       <div class="table-title">${title}</div>
       <hr style="border-top: 1px solid #E7E9EE;border-bottom:0;margin-block: 24px 0px;">
-      <div style="display:block; margin-top:8px; overflow-x:auto; max-width:100%;padding-inline: 16px;">
+      <div style="display:block; overflow-x:auto; max-width:100%;padding-inline: 16px;">
         <div style="width:100%; display:flex; flex-direction: column;">
           ${tableRows}
         </div>
@@ -40239,7 +40237,7 @@ Prism.languages.js = Prism.languages.javascript;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("b56355b0dbddc7995ace")
+/******/ 		__webpack_require__.h = () => ("c8c64b9240e7a6d5eba4")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

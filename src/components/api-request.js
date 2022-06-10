@@ -100,8 +100,11 @@ export default class ApiRequest extends LitElement {
           font-weight: normal;
           line-height: 20px;
           color: #545454; 
-          margin-block: 8px 4px;
+          margin-block: 24px 4px;
           font-family: var(--font-mono);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
         }
         .param-name.deprecated { 
           color: #DC5A41;
@@ -112,8 +115,12 @@ export default class ApiRequest extends LitElement {
           line-height: 16px;
           color: #4A4A4A; 
           font-family: var(--font-regular);
-          margin-top: 16px;
         }
+
+        .param-type > span {
+          margin-left: 8px;
+        }
+
         .param-constraint{
           min-width:100px;
         }
@@ -343,16 +350,17 @@ export default class ApiRequest extends LitElement {
       }
       // const labelColWidth = 'read focused'.includes(this.renderStyle) ? '200px' : '160px';
       tableRows.push(html`
-      <div class="param-type">
-        ${paramSchema.type === 'array'
-          ? `${paramSchema.arrayType}`
-          : `${paramSchema.format ? paramSchema.format : paramSchema.type}`
-        }
-        ${param.deprecated ? html`<span style='color:#DC5A41; float: right;'>deprecated</span>` : ''}
-        ${param.required ? html`<span style='color:#DC5A41; float: right;'>required</span>` : ''}
-      </div>
       <div class="param-name ${param.deprecated ? 'deprecated' : ''}" >
         ${param.name}
+
+        <div class="param-type">
+          ${paramSchema.type === 'array'
+            ? `${paramSchema.arrayType}`
+            : `${paramSchema.format ? paramSchema.format : paramSchema.type}`
+          }
+          ${param.deprecated ? html`<span style='color:#DC5A41;'>deprecated</span>` : ''}
+          ${param.required ? html`<span style='color:#DC5A41;'>required</span>` : ''}
+        </div>
       </div>
 
       ${this.allowTry === 'true'
@@ -420,8 +428,7 @@ export default class ApiRequest extends LitElement {
                     }
                 </div>`
               : html`
-                <input type="${paramSchema.format === 'password' ? 'password' : 'text'}" spellcheck="false" style="width:100%" 
-                  class="input-req"
+                <input type="${paramSchema.format === 'password' ? 'password' : 'text'}" spellcheck="false" style="width:100%" W
                   data-ptype="${paramType}"
                   data-pname="${param.name}" 
                   data-example="${Array.isArray(example.exampleVal) ? example.exampleVal.join('~|~') : example.exampleVal}"
@@ -442,7 +449,7 @@ export default class ApiRequest extends LitElement {
     <div class="request-card">
       <div class="table-title">${title}</div>
       <hr style="border-top: 1px solid #E7E9EE;border-bottom:0;margin-block: 24px 0px;">
-      <div style="display:block; margin-top:8px; overflow-x:auto; max-width:100%;padding-inline: 16px;">
+      <div style="display:block; overflow-x:auto; max-width:100%;padding-inline: 16px;">
         <div style="width:100%; display:flex; flex-direction: column;">
           ${tableRows}
         </div>
