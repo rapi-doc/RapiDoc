@@ -348,7 +348,6 @@ export default class ApiRequest extends LitElement {
           false,
         )[0].exampleValue;
       }
-      // const labelColWidth = 'read focused'.includes(this.renderStyle) ? '200px' : '160px';
       tableRows.push(html`
       <div class="param-name ${param.deprecated ? 'deprecated' : ''}" >
         ${param.name}
