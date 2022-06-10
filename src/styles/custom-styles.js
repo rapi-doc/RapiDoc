@@ -61,4 +61,28 @@ export default css`
     margin: 4px 0px;
 }
 
+.header-auth-title {
+    color: #4A4A4A;
+    font-size: 16px;
+    line-height: 18px;
+    font-weight: 400;
+}
+
+.header-auth-container {
+    margin-top: 16px;
+}
+
+.header-auth-label {
+    color: var(--fg2);
+    margin-bottom: 4px;
+    font-size: var(--font-size-regular);
+    line-height: 19.6px;
+    font-weight: 400;
+}
+
+.header-auth-input {
+    width: 535px;
+    height: 44px;
+}
+
 `;
