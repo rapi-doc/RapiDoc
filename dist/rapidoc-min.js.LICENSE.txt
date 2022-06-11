@@ -18,6 +18,13 @@
  * Released under the MIT License.
  */
 
+/*!
+ * repeat-string <https://github.com/jonschlinkert/repeat-string>
+ *
+ * Copyright (c) 2014-2015, Jon Schlinkert.
+ * Licensed under the MIT License.
+ */
+
 /*! https://mths.be/punycode v1.3.2 by @mathias */
 
 /*! js-yaml 4.1.0 https://github.com/nodeca/js-yaml @license MIT */

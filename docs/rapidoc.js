@@ -2903,7 +2903,7 @@ var prism_csharp = __webpack_require__(16);
   .blue-text {color: var(--blue)}
   .multiline {
     overflow: scroll;
-    max-height: var(--resp-area-height, 300px);
+    max-height: var(--resp-area-height, 400px);
     color: var(--fg3);  
   }
   .method-fg.put { color: var(--orange); }
@@ -4089,10 +4089,12 @@ function advancedSearch(searchVal, allSpecTags, searchOptions = []) {
   });
   return pathsMatched;
 }
-function prettyXml(sourceXmlString) {
+/*
+export function prettyXml(sourceXmlString) {
   const xmlDoc = new DOMParser().parseFromString(sourceXmlString, 'text/xml');
-  const xsltDoc = new DOMParser().parseFromString([// describes how we want to modify the XML - indent everything
-  `<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  const xsltDoc = new DOMParser().parseFromString([
+    // describes how we want to modify the XML - indent everything
+    `<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
       <xsl:strip-space elements="*"/>
         <xsl:template match="para[content-style][not(text())]">
           <xsl:value-of select="normalize-space(.)"/>
@@ -4101,15 +4103,12 @@ function prettyXml(sourceXmlString) {
           <xsl:copy><xsl:apply-templates select="node()|@*"/></xsl:copy>
         </xsl:template>
         <xsl:output indent="yes"/>
-      </xsl:stylesheet>`].join('\n'), 'application/xml');
+      </xsl:stylesheet>`,
+  ].join('\n'), 'application/xml');
   const xsltProcessor = new XSLTProcessor();
   xsltProcessor.importStylesheet(xsltDoc);
   const resultDoc = xsltProcessor.transformToDocument(xmlDoc);
   return new XMLSerializer().serializeToString(resultDoc);
-}
-/*
-export function hasValidPathInUrlHash(tags) {
-  return tags.find((tag) => tag.paths.find((path) => window.location.hash.substring(1) === path.elementId));
 }
 */
 
@@ -28559,6 +28558,9 @@ const guard_e={},guard_i=directive_e(class extends directive_i{constructor(){sup
 
 //# sourceMappingURL=live.js.map
 
+// EXTERNAL MODULE: ./node_modules/xml-but-prettier/dist/index.js
+var dist = __webpack_require__(131);
+var dist_default = /*#__PURE__*/__webpack_require__.n(dist);
 ;// CONCATENATED MODULE: ./src/styles/border-styles.js
 
 /* harmony default export */ const border_styles = (r`
@@ -30389,6 +30391,7 @@ customElements.define('tag-input', TagInput);
 
 
 
+
 class ApiRequest extends lit_element_s {
   constructor() {
     super();
@@ -31355,7 +31358,7 @@ class ApiRequest extends lit_element_s {
               <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${e => {
       copyToClipboard(this.responseText, e);
     }}' part="btn btn-fill"> Copy </button>
-              <pre style="white-space:pre; min-height:50px; height:400px; resize:vertical; overflow:auto">${responseFormat ? $`<code>${unsafe_html_o(prism_default().highlight(this.responseText, (prism_default()).languages[responseFormat], responseFormat))}</code>` : `${this.responseText}`}</pre>
+              <pre style="white-space:pre; min-height:50px; height:var(--resp-area-height, 400px); resize:vertical; overflow:auto">${responseFormat ? $`<code>${unsafe_html_o(prism_default().highlight(this.responseText, (prism_default()).languages[responseFormat], responseFormat))}</code>` : `${this.responseText}`}</pre>
             </div>`}
         <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};" >
           <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${e => {
@@ -31783,6 +31786,8 @@ class ApiRequest extends lit_element_s {
       let respText;
       tryBtnEl.disabled = true;
       const startTime = performance.now();
+      this.responseText = '⌛';
+      this.requestUpdate();
       fetchResponse = await fetch(fetchRequest, {
         signal
       });
@@ -31835,10 +31840,13 @@ class ApiRequest extends lit_element_s {
           respText = await fetchResponse.text();
 
           if (contentType.includes('xml')) {
-            this.responseText = prettyXml(respText);
+            this.responseText = dist_default()(respText, {
+              textNodesOnSameLine: true,
+              indentor: '  '
+            });
+          } else {
+            this.responseText = respText;
           }
-
-          this.responseText = respText;
         }
 
         if (this.responseIsBlob) {
@@ -34183,8 +34191,8 @@ function setTheme(baseTheme, theme = {}) {
     --nav-item-padding: ${this.navItemSpacing === 'relaxed' ? '10px 16px 10px 10px' : this.navItemSpacing === 'compact' ? '5px 16px 5px 10px' : '7px 16px 7px 10px'};
     
     --resp-area-height: ${this.responseAreaHeight};
-    --font-size-small:  ${this.fontSize === 'default' ? '12px' : this.fontSize === 'large' ? '13px' : '14px'};
-    --font-size-mono:   ${this.fontSize === 'default' ? '13px' : this.fontSize === 'large' ? '14px' : '15px'};
+    --font-size-small: ${this.fontSize === 'default' ? '12px' : this.fontSize === 'large' ? '13px' : '14px'};
+    --font-size-mono: ${this.fontSize === 'default' ? '13px' : this.fontSize === 'large' ? '14px' : '15px'};
     --font-size-regular: ${this.fontSize === 'default' ? '14px' : this.fontSize === 'large' ? '15px' : '16px'};
     --dialog-z-index: 1000;
 
@@ -35057,7 +35065,7 @@ class RapiDoc extends lit_element_s {
     }
 
     if (!this.responseAreaHeight) {
-      this.responseAreaHeight = '300px';
+      this.responseAreaHeight = '400px';
     }
 
     if (!this.allowSearch || !'true, false,'.includes(`${this.allowSearch},`)) {
@@ -36784,10 +36792,6 @@ class JsonSchemaViewer extends lit_element_s {
 
     if (!this.schemaDescriptionExpanded || !'true, false,'.includes(`${this.schemaDescriptionExpanded},`)) {
       this.schemaDescriptionExpanded = 'false';
-    }
-
-    if (!this.responseAreaHeight) {
-      this.responseAreaHeight = '300px';
     }
 
     if (!this.fontSize || !'default, large, largest,'.includes(`${this.fontSize},`)) {
@@ -40074,6 +40078,191 @@ Prism.languages.js = Prism.languages.javascript;
 }());
 
 
+/***/ }),
+
+/***/ 464:
+/***/ ((module) => {
+
+"use strict";
+/*!
+ * repeat-string <https://github.com/jonschlinkert/repeat-string>
+ *
+ * Copyright (c) 2014-2015, Jon Schlinkert.
+ * Licensed under the MIT License.
+ */
+
+
+
+/**
+ * Results cache
+ */
+
+var res = '';
+var cache;
+
+/**
+ * Expose `repeat`
+ */
+
+module.exports = repeat;
+
+/**
+ * Repeat the given `string` the specified `number`
+ * of times.
+ *
+ * **Example:**
+ *
+ * ```js
+ * var repeat = require('repeat-string');
+ * repeat('A', 5);
+ * //=> AAAAA
+ * ```
+ *
+ * @param {String} `string` The string to repeat
+ * @param {Number} `number` The number of times to repeat the string
+ * @return {String} Repeated string
+ * @api public
+ */
+
+function repeat(str, num) {
+  if (typeof str !== 'string') {
+    throw new TypeError('expected a string');
+  }
+
+  // cover common, quick use cases
+  if (num === 1) return str;
+  if (num === 2) return str + str;
+
+  var max = str.length * num;
+  if (cache !== str || typeof cache === 'undefined') {
+    cache = str;
+    res = '';
+  } else if (res.length >= max) {
+    return res.substr(0, max);
+  }
+
+  while (max > res.length && num > 1) {
+    if (num & 1) {
+      res += str;
+    }
+
+    num >>= 1;
+    str += str;
+  }
+
+  res += str;
+  res = res.substr(0, max);
+  return res;
+}
+
+
+/***/ }),
+
+/***/ 131:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var repeat = __webpack_require__(464);
+
+var splitOnTags = function splitOnTags(str) {
+  return str.split(/(<\/?[^>]+>)/g).filter(function (line) {
+    return line.trim() !== '';
+  });
+};
+var isTag = function isTag(str) {
+  return (/<[^>!]+>/.test(str)
+  );
+};
+var isClosingTag = function isClosingTag(str) {
+  return (/<\/+[^>]+>/.test(str)
+  );
+};
+var isSelfClosingTag = function isSelfClosingTag(str) {
+  return (/<[^>]+\/>/.test(str)
+  );
+};
+var isOpeningTag = function isOpeningTag(str) {
+  return isTag(str) && !isClosingTag(str) && !isSelfClosingTag(str);
+};
+
+module.exports = function (xml) {
+  var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  var indentor = config.indentor,
+      textNodesOnSameLine = config.textNodesOnSameLine;
+
+  var depth = 0;
+  var indicesToRemove = [];
+  indentor = indentor || '    ';
+
+  var rawResult = lexer(xml).map(function (element, i, arr) {
+    var value = element.value,
+        type = element.type;
+
+    if (type === 'ClosingTag') {
+      depth--;
+    }
+
+    var indentation = repeat(indentor, depth);
+    var line = indentation + value;
+
+    if (type === 'OpeningTag') {
+      depth++;
+    }
+
+    if (textNodesOnSameLine) {
+      // Lookbehind for [OpeningTag][Text][ClosingTag]
+      var oneBefore = arr[i - 1];
+      var twoBefore = arr[i - 2];
+
+      if (type === "ClosingTag" && oneBefore.type === "Text" && twoBefore.type === "OpeningTag") {
+        // collapse into a single line
+        line = '' + indentation + twoBefore.value + oneBefore.value + value;
+        indicesToRemove.push(i - 2, i - 1);
+      }
+    }
+
+    return line;
+  });
+
+  indicesToRemove.forEach(function (idx) {
+    return rawResult[idx] = null;
+  });
+
+  return rawResult.filter(function (val) {
+    return !!val;
+  }).join('\n');
+};
+
+function lexer(xmlStr) {
+  var values = splitOnTags(xmlStr);
+  return values.map(function (value) {
+    return {
+      value: value,
+      type: getType(value)
+    };
+  });
+}
+
+// Helpers
+
+function getType(str) {
+  if (isClosingTag(str)) {
+    return 'ClosingTag';
+  }
+
+  if (isOpeningTag(str)) {
+    return 'OpeningTag';
+  }
+
+  if (isSelfClosingTag(str)) {
+    return 'SelfClosingTag';
+  }
+
+  return 'Text';
+}
+
 /***/ })
 
 /******/ 	});
@@ -40161,7 +40350,7 @@ Prism.languages.js = Prism.languages.javascript;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("ece16f9000df7b36c875")
+/******/ 		__webpack_require__.h = () => ("40f904ad200313df0674")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
