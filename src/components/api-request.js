@@ -958,7 +958,6 @@ export default class ApiRequest extends LitElement {
       if (this.responseHeaders.includes('application/x-ndjson')) {
         responseFormat = 'json';
         const prismLines = this.responseText.split('\n').map((q) => Prism.highlight(q, Prism.languages[responseFormat], responseFormat)).join('\n');
-
         responseContent = html`<code>${unsafeHTML(prismLines)}</code>`;
       } else if (this.responseHeaders.includes('json')) {
         responseFormat = 'json';
