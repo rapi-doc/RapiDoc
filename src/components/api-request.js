@@ -3,6 +3,7 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-li
 import { guard } from 'lit/directives/guard.js'; // eslint-disable-line import/extensions
 import { live } from 'lit/directives/live.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
+import formatXml from 'xml-but-prettier';
 import Prism from 'prismjs';
 import TableStyles from '~/styles/table-styles';
 import FlexStyles from '~/styles/flex-styles';
@@ -12,7 +13,8 @@ import BorderStyles from '~/styles/border-styles';
 import TabStyles from '~/styles/tab-styles';
 import PrismStyles from '~/styles/prism-styles';
 import CustomStyles from '~/styles/custom-styles';
-import { copyToClipboard, prettyXml, downloadResource, viewResource } from '~/utils/common-utils';
+
+import { copyToClipboard, downloadResource, viewResource } from '~/utils/common-utils';
 import { schemaInObjectNotation, getTypeInfo, generateExample, normalizeExamples, getSchemaFromParam, json2xml, nestExampleIfPresent } from '~/utils/schema-utils';
 import '~/components/json-tree';
 import '~/components/schema-tree';
@@ -967,8 +969,8 @@ export default class ApiRequest extends LitElement {
           : html`
             <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};" >
               <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.responseText, e); }}' part="btn btn-fill"> Copy </button>
-              <pre style="white-space:pre; min-height:50px; height:400px; resize:vertical; overflow:auto">${responseFormat
-                ? responseContent
+              <pre style="white-space:pre; min-height:50px; height:var(--resp-area-height, 400px); resize:vertical; overflow:auto">${responseFormat
+                ? html`<code>${unsafeHTML(Prism.highlight(this.responseText, Prism.languages[responseFormat], responseFormat))}</code>`
                 : `${this.responseText}`
               }</pre>
             </div>`
@@ -1371,6 +1373,8 @@ export default class ApiRequest extends LitElement {
       let respText;
       tryBtnEl.disabled = true;
       const startTime = performance.now();
+      this.responseText = '⌛';
+      this.requestUpdate();
       fetchResponse = await fetch(fetchRequest, { signal });
       const endTime = performance.now();
       responseClone = fetchResponse.clone(); // create a response clone to allow reading response body again (response.json, response.text etc)
@@ -1418,9 +1422,10 @@ export default class ApiRequest extends LitElement {
         } else {
           respText = await fetchResponse.text();
           if (contentType.includes('xml')) {
-            this.responseText = prettyXml(respText);
+            this.responseText = formatXml(respText, { textNodesOnSameLine: true, indentor: '  ' });
+          } else {
+            this.responseText = respText;
           }
-          this.responseText = respText;
         }
         if (this.responseIsBlob) {
           const contentDisposition = fetchResponse.headers.get('content-disposition');
