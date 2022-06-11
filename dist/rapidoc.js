@@ -28478,7 +28478,6 @@ function callbackTemplate(callbacks) {
                       .parameters = "${((_method$ = method[1]) === null || _method$ === void 0 ? void 0 : _method$.parameters) || ''}" 
                       .request_body = "${((_method$2 = method[1]) === null || _method$2 === void 0 ? void 0 : _method$2.requestBody) || ''}"
                       fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
-                      use-summary-to-list-example = "${this.useSummaryToListExamples}"
                       allow-try = "false"
                       render-style="${this.renderStyle}" 
                       schema-style = "${this.schemaStyle}"
@@ -28685,50 +28684,65 @@ function nestExampleIfPresent(example) {
   } : example;
 }
 function normalizeExamples(examples, dataType = 'string') {
-  let exampleVal;
-  let exampleList;
+  if (!examples) {
+    return {
+      exampleVal: '',
+      exampleList: []
+    };
+  }
 
-  if (examples) {
-    if (examples.constructor === Object) {
-      const exampleValAndDescr = Object.values(examples);
-      exampleVal = exampleValAndDescr.length > 0 ? typeof exampleValAndDescr[0].value === 'boolean' || typeof exampleValAndDescr[0].value === 'number' ? exampleValAndDescr[0].value.toString() : exampleValAndDescr[0].value : '';
-      exampleList = Object.values(examples).map(v => ({
-        value: typeof v.value === 'boolean' || typeof v.value === 'number' ? v.value.toString() : v.value,
-        description: v.description || v.summary || v.value
-      }));
-    } else {
-      // This is non standard way to provide example but will support for now
-      if (!Array.isArray(examples)) {
-        examples = examples ? [examples] : [];
-      }
+  if (examples.constructor === Object) {
+    const exampleValAndDescr = Object.values(examples);
+    const exampleVal = exampleValAndDescr.length > 0 ? typeof exampleValAndDescr[0].value === 'boolean' || typeof exampleValAndDescr[0].value === 'number' ? exampleValAndDescr[0].value.toString() : exampleValAndDescr[0].value : '';
+    const exampleList = Object.values(examples).map(v => ({
+      value: typeof v.value === 'boolean' || typeof v.value === 'number' ? v.value.toString() : v.value,
+      summary: v.summary,
+      description: v.description
+    }));
+    return {
+      exampleVal,
+      exampleList
+    };
+  } // This is non-standard way to provide example but will support for now
 
-      if (examples.length > 0) {
-        if (dataType === 'array') {
-          [exampleVal] = examples;
-          exampleList = examples.map(v => ({
-            value: v,
-            description: Array.isArray(v) ? v.join(' , ') : v
-          }));
-        } else {
-          exampleVal = examples[0].toString();
-          exampleList = examples.map(v => ({
-            value: v.toString(),
-            description: v
-          }));
-        }
-      }
-    }
 
+  if (!Array.isArray(examples)) {
+    examples = examples ? [examples] : [];
+  }
+
+  if (examples.length === 0) {
+    return {
+      exampleVal: '',
+      exampleList: []
+    };
+  }
+
+  if (dataType === 'array') {
+    const [exampleVal] = examples;
+    const exampleList = examples.map(v => ({
+      value: v
+    }));
     return {
       exampleVal,
       exampleList
     };
   }
 
+  const exampleVal = examples[0].toString();
+  const exampleList = examples.map(v => ({
+    value: v.toString()
+  }));
   return {
-    exampleVal: '',
-    exampleList: []
+    exampleVal,
+    exampleList
   };
+}
+function anyExampleWithSummaryOrDescription(examples) {
+  return examples.some(x => {
+    var _x$summary, _x$description;
+
+    return ((_x$summary = x.summary) === null || _x$summary === void 0 ? void 0 : _x$summary.length) > 0 || ((_x$description = x.description) === null || _x$description === void 0 ? void 0 : _x$description.length) > 0;
+  });
 }
 function getSampleValueByType(schemaObj) {
   const example = schemaObj.examples ? schemaObj.examples[0] : schemaObj.example === null ? null : schemaObj.example || undefined;
@@ -30471,10 +30485,6 @@ class ApiRequest extends lit_element_s {
         type: String,
         attribute: 'fill-request-fields-with-example'
       },
-      useSummaryToListExamples: {
-        type: String,
-        attribute: 'use-summary-to-list-example'
-      },
       allowTry: {
         type: String,
         attribute: 'allow-try'
@@ -30675,39 +30685,62 @@ class ApiRequest extends lit_element_s {
       }
     }
   }
+
+  renderExample(example, paramType, paramName) {
+    var _example$value, _example$value2;
+
+    return $`
+      ${paramType === 'array' ? '[' : ''}
+      <a
+        part="anchor anchor-param-example"
+        class="${this.allowTry === 'true' ? '' : 'inactive-link'}"
+        data-example-type="${paramType === 'array' ? paramType : 'string'}"
+        data-example="${example.value && Array.isArray(example.value) ? (_example$value = example.value) === null || _example$value === void 0 ? void 0 : _example$value.join('~|~') : example.value || ''}"
+        @click="${e => {
+      const inputEl = e.target.closest('table').querySelector(`[data-pname="${paramName}"]`);
+
+      if (inputEl) {
+        if (e.target.dataset.exampleType === 'array') {
+          inputEl.value = e.target.dataset.example.split('~|~');
+        } else {
+          inputEl.value = e.target.dataset.example;
+        }
+      }
+    }}"
+      >
+        ${example.value && Array.isArray(example.value) ? (_example$value2 = example.value) === null || _example$value2 === void 0 ? void 0 : _example$value2.join(', ') : example.value || '∅'}
+      </a>
+      ${paramType === 'array' ? '] ' : ''}
+    `;
+  }
+
+  renderShortFormatExamples(examples, paramType, paramName) {
+    return $`${examples.map((x, i) => $`
+      ${i === 0 ? '' : '┃'}
+      ${this.renderExample(x, paramType, paramName)}`)}`;
+  }
+
+  renderLongFormatExamples(exampleList, paramType, paramName) {
+    return $` <ul style="list-style-type: disclosure-closed;">
+      ${exampleList.map(v => {
+      var _v$summary, _v$description;
+
+      return $`
+          <li>
+            ${this.renderExample(v, paramType, paramName)}
+            ${((_v$summary = v.summary) === null || _v$summary === void 0 ? void 0 : _v$summary.length) > 0 ? $`<span>&lpar;${v.summary}&rpar;</span>` : ''}
+            ${((_v$description = v.description) === null || _v$description === void 0 ? void 0 : _v$description.length) > 0 ? $`<p>${unsafe_html_o(marked(v.description))}</p>` : ''}
+          </li>
+        `;
+    })}
+    </ul>`;
+  }
   /* eslint-disable indent */
 
 
   exampleListTemplate(paramName, paramType, exampleList = []) {
-    return $`
-    ${exampleList.length > 0 ? $`<span style="font-weight:bold">Example: </span>
-        ${exampleList.map((v, i) => {
-      var _v$value, _v$value2, _v$value3;
-
-      return $`
-          ${i === 0 ? '' : '┃'}
-          ${paramType === 'array' ? '[' : ''}
-          <a part="anchor anchor-param-example" class = "${this.allowTry === 'true' ? '' : 'inactive-link'}"
-            data-example-type="${paramType === 'array' ? paramType : 'string'}"
-            data-example = "${v.value && Array.isArray(v.value) ? (_v$value = v.value) === null || _v$value === void 0 ? void 0 : _v$value.join('~|~') : v.value || ''}"
-            @click="${e => {
-        const inputEl = e.target.closest('table').querySelector(`[data-pname="${paramName}"]`);
-
-        if (inputEl) {
-          if (e.target.dataset.exampleType === 'array') {
-            inputEl.value = e.target.dataset.example.split('~|~');
-          } else {
-            inputEl.value = e.target.dataset.example;
-          }
-        }
-      }}"
-          >
-          ${this.useSummaryToListExamples === 'true' ? v.description || v.summary || (v.value && Array.isArray(v.value) ? (_v$value2 = v.value) === null || _v$value2 === void 0 ? void 0 : _v$value2.join(', ') : v.value || '') : v.value && Array.isArray(v.value) ? (_v$value3 = v.value) === null || _v$value3 === void 0 ? void 0 : _v$value3.join(', ') : v.value || ''}
-          </a>
-          ${paramType === 'array' ? '] ' : ''}
-        `;
-    })}
-      ` : ''}`;
+    return $` ${exampleList.length > 0 ? $`<span style="font-weight:bold">Examples: </span>
+          ${anyExampleWithSummaryOrDescription(exampleList) ? this.renderLongFormatExamples(exampleList, paramType, paramName) : this.renderShortFormatExamples(exampleList, paramType, paramName)}` : ''}`;
   }
 
   inputParametersTemplate(paramType) {
@@ -30832,7 +30865,7 @@ class ApiRequest extends lit_element_s {
                             style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
                           ></textarea>
                         </div>` : $`
-                          <div class="tab-content col">            
+                          <div class="tab-content col">
                             <schema-tree
                               class = 'json'
                               style = 'display: block'
@@ -31324,7 +31357,26 @@ class ApiRequest extends lit_element_s {
   }
 
   apiResponseTabTemplate() {
-    const responseFormat = this.responseHeaders.includes('json') ? 'json' : this.responseHeaders.includes('html') || this.responseHeaders.includes('xml') ? 'html' : '';
+    let responseFormat = '';
+    let responseContent = '';
+
+    if (!this.responseIsBlob) {
+      if (this.responseHeaders.includes('application/x-ndjson')) {
+        responseFormat = 'json';
+        const prismLines = this.responseText.split('\n').map(q => prism_default().highlight(q, (prism_default()).languages[responseFormat], responseFormat)).join('\n');
+        responseContent = $`<code>${unsafe_html_o(prismLines)}</code>`;
+      } else if (this.responseHeaders.includes('json')) {
+        responseFormat = 'json';
+        responseContent = $`<code>${unsafe_html_o(prism_default().highlight(this.responseText, (prism_default()).languages[responseFormat], responseFormat))}</code>`;
+      } else if (this.responseHeaders.includes('html') || this.responseHeaders.includes('xml')) {
+        responseFormat = 'html';
+        responseContent = $`<code>${unsafe_html_o(prism_default().highlight(this.responseText, (prism_default()).languages[responseFormat], responseFormat))}</code>`;
+      } else {
+        responseFormat = 'text';
+        responseContent = $`<code>${this.responseText}</code>`;
+      }
+    }
+
     return $`
       <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
         <div class="response-message ${this.responseStatus}">Response Status: ${this.responseMessage}</div>
@@ -31358,7 +31410,7 @@ class ApiRequest extends lit_element_s {
               <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${e => {
       copyToClipboard(this.responseText, e);
     }}' part="btn btn-fill"> Copy </button>
-              <pre style="white-space:pre; min-height:50px; height:var(--resp-area-height, 400px); resize:vertical; overflow:auto">${responseFormat ? $`<code>${unsafe_html_o(prism_default().highlight(this.responseText, (prism_default()).languages[responseFormat], responseFormat))}</code>` : `${this.responseText}`}</pre>
+              <pre style="white-space:pre; min-height:50px; height:var(--resp-area-height, 400px); resize:vertical; overflow:auto">${responseContent}</pre>
             </div>`}
         <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};" >
           <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${e => {
@@ -31808,7 +31860,9 @@ class ApiRequest extends lit_element_s {
       if (respEmpty) {
         this.responseText = '';
       } else if (contentType) {
-        if (contentType.includes('json')) {
+        if (contentType === 'application/x-ndjson') {
+          this.responseText = await fetchResponse.text();
+        } else if (contentType.includes('json')) {
           if (/charset=[^"']+/.test(contentType)) {
             const encoding = contentType.split('charset=')[1];
             const buffer = await fetchResponse.arrayBuffer();
@@ -32736,7 +32790,6 @@ function expandedEndpointBodyTemplate(path, tagName = '') {
           .servers = "${path.servers}"
           server-url = "${((_path$servers = path.servers) === null || _path$servers === void 0 ? void 0 : (_path$servers$ = _path$servers[0]) === null || _path$servers$ === void 0 ? void 0 : _path$servers$.url) || this.selectedServer.computedUrl}"
           fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
-          use-summary-to-list-example = "${this.useSummaryToListExamples}"
           allow-try = "${this.allowTry}"
           accept = "${accept}"
           render-style="${this.renderStyle}" 
@@ -33523,7 +33576,6 @@ function endpointBodyTemplate(path) {
           server-url = "${path.servers && path.servers.length > 0 ? path.servers[0].url : this.selectedServer.computedUrl}" 
           active-schema-tab = "${this.defaultSchemaTab}"
           fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
-          use-summary-to-list-example = "${this.useSummaryToListExamples}"
           allow-try = "${this.allowTry}"
           accept = "${accept}"
           render-style="${this.renderStyle}" 
@@ -34483,10 +34535,6 @@ class RapiDoc extends lit_element_s {
         type: String,
         attribute: 'fill-request-fields-with-example'
       },
-      useSummaryToListExamples: {
-        type: String,
-        attribute: 'use-summary-to-list-example'
-      },
       persistAuth: {
         type: String,
         attribute: 'persist-auth'
@@ -35050,10 +35098,6 @@ class RapiDoc extends lit_element_s {
 
     if (!this.fillRequestFieldsWithExample || !'true, false,'.includes(`${this.fillRequestFieldsWithExample},`)) {
       this.fillRequestFieldsWithExample = 'true';
-    }
-
-    if (!this.useSummaryToListExamples || !'true, false,'.includes(`${this.useSummaryToListExamples},`)) {
-      this.useSummaryToListExamples = 'false';
     }
 
     if (!this.persistAuth || !'true, false,'.includes(`${this.persistAuth},`)) {
@@ -35808,10 +35852,6 @@ class RapiDocMini extends lit_element_s {
         type: String,
         attribute: 'fill-request-fields-with-example'
       },
-      useSummaryToListExamples: {
-        type: String,
-        attribute: 'use-summary-to-list-example'
-      },
       persistAuth: {
         type: String,
         attribute: 'persist-auth'
@@ -35995,10 +36035,6 @@ class RapiDocMini extends lit_element_s {
 
     if (!this.fillRequestFieldsWithExample || !'true, false,'.includes(`${this.fillRequestFieldsWithExample},`)) {
       this.fillRequestFieldsWithExample = 'true';
-    }
-
-    if (!this.useSummaryToListExamples || !'true, false,'.includes(`${this.useSummaryToListExamples},`)) {
-      this.useSummaryToListExamples = 'false';
     }
 
     if (!this.persistAuth || !'true, false,'.includes(`${this.persistAuth},`)) {
@@ -40350,7 +40386,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("40f904ad200313df0674")
+/******/ 		__webpack_require__.h = () => ("d7ecc9e97285f636ae59")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
