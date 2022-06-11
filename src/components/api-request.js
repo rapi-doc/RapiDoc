@@ -926,7 +926,20 @@ export default class ApiRequest extends LitElement {
   }
 
   apiResponseTabTemplate() {
-    const responseFormat = this.responseHeaders.includes('json') ? 'json' : (this.responseHeaders.includes('html') || this.responseHeaders.includes('xml')) ? 'html' : '';
+    let responseFormat = '';
+    let responseContent = '';
+    if (this.responseHeaders.includes('application/x-ndjson')) {
+      responseFormat = 'json';
+      const prismLines = this.responseText.split('\n').map((q) => Prism.highlight(q, Prism.languages[responseFormat], responseFormat)).join('\n');
+
+      responseContent = html`<code>${unsafeHTML(prismLines)}</code>`;
+    } else if (this.responseHeaders.includes('json')) {
+      responseFormat = 'json';
+      responseContent = html`<code>${unsafeHTML(Prism.highlight(this.responseText, Prism.languages[responseFormat], responseFormat))}</code>`;
+    } else if (this.responseHeaders.includes('html') || this.responseHeaders.includes('xml')) {
+      responseFormat = 'html';
+      responseContent = html`<code>${unsafeHTML(Prism.highlight(this.responseText, Prism.languages[responseFormat], responseFormat))}</code>`;
+    }
     return html`
       <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
         <div class="response-message ${this.responseStatus}">Response Status: ${this.responseMessage}</div>
@@ -1378,7 +1391,9 @@ export default class ApiRequest extends LitElement {
       if (respEmpty) {
         this.responseText = '';
       } else if (contentType) {
-        if (contentType.includes('json')) {
+        if (contentType === 'application/x-ndjson') {
+          this.responseText = await fetchResponse.text();
+        } else if (contentType.includes('json')) {
           if ((/charset=[^"']+/).test(contentType)) {
             const encoding = contentType.split('charset=')[1];
             const buffer = await fetchResponse.arrayBuffer();
