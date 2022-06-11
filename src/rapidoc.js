@@ -458,7 +458,7 @@ export default class RapiDoc extends LitElement {
     if (!this.persistAuth || !'true, false,'.includes(`${this.persistAuth},`)) { this.persistAuth = 'false'; }
     if (!this.onNavTagClick || !'expand-collapse, show-description,'.includes(`${this.onNavTagClick},`)) { this.onNavTagClick = 'expand-collapse'; }
     if (!this.responseAreaHeight) {
-      this.responseAreaHeight = '300px';
+      this.responseAreaHeight = '400px';
     }
 
     if (!this.allowSearch || !'true, false,'.includes(`${this.allowSearch},`)) { this.allowSearch = 'true'; }

@@ -953,17 +953,22 @@ export default class ApiRequest extends LitElement {
   apiResponseTabTemplate() {
     let responseFormat = '';
     let responseContent = '';
-    if (this.responseHeaders.includes('application/x-ndjson')) {
-      responseFormat = 'json';
-      const prismLines = this.responseText.split('\n').map((q) => Prism.highlight(q, Prism.languages[responseFormat], responseFormat)).join('\n');
+    if (!this.responseIsBlob) {
+      if (this.responseHeaders.includes('application/x-ndjson')) {
+        responseFormat = 'json';
+        const prismLines = this.responseText.split('\n').map((q) => Prism.highlight(q, Prism.languages[responseFormat], responseFormat)).join('\n');
 
-      responseContent = html`<code>${unsafeHTML(prismLines)}</code>`;
-    } else if (this.responseHeaders.includes('json')) {
-      responseFormat = 'json';
-      responseContent = html`<code>${unsafeHTML(Prism.highlight(this.responseText, Prism.languages[responseFormat], responseFormat))}</code>`;
-    } else if (this.responseHeaders.includes('html') || this.responseHeaders.includes('xml')) {
-      responseFormat = 'html';
-      responseContent = html`<code>${unsafeHTML(Prism.highlight(this.responseText, Prism.languages[responseFormat], responseFormat))}</code>`;
+        responseContent = html`<code>${unsafeHTML(prismLines)}</code>`;
+      } else if (this.responseHeaders.includes('json')) {
+        responseFormat = 'json';
+        responseContent = html`<code>${unsafeHTML(Prism.highlight(this.responseText, Prism.languages[responseFormat], responseFormat))}</code>`;
+      } else if (this.responseHeaders.includes('html') || this.responseHeaders.includes('xml')) {
+        responseFormat = 'html';
+        responseContent = html`<code>${unsafeHTML(Prism.highlight(this.responseText, Prism.languages[responseFormat], responseFormat))}</code>`;
+      } else {
+        responseFormat = 'text';
+        responseContent = html`<code>${this.responseText}</code>`;
+      }
     }
     return html`
       <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
@@ -994,10 +999,7 @@ export default class ApiRequest extends LitElement {
           : html`
             <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};" >
               <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.responseText, e); }}' part="btn btn-fill"> Copy </button>
-              <pre style="white-space:pre; min-height:50px; height:400px; resize:vertical; overflow:auto">${responseFormat
-                ? responseContent
-                : `${this.responseText}`
-              }</pre>
+              <pre style="white-space:pre; min-height:50px; height:var(--resp-area-height, 400px); resize:vertical; overflow:auto">${responseContent}</pre>
             </div>`
         }
         <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};" >
