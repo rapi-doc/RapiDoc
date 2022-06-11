@@ -3,6 +3,7 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-li
 import { guard } from 'lit/directives/guard.js'; // eslint-disable-line import/extensions
 import { live } from 'lit/directives/live.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
+import formatXml from 'xml-but-prettier';
 import Prism from 'prismjs';
 import TableStyles from '~/styles/table-styles';
 import FlexStyles from '~/styles/flex-styles';
@@ -12,7 +13,7 @@ import BorderStyles from '~/styles/border-styles';
 import TabStyles from '~/styles/tab-styles';
 import PrismStyles from '~/styles/prism-styles';
 import CustomStyles from '~/styles/custom-styles';
-import { copyToClipboard, prettyXml, downloadResource, viewResource } from '~/utils/common-utils';
+import { copyToClipboard, downloadResource, viewResource } from '~/utils/common-utils';
 import { schemaInObjectNotation,
   getTypeInfo,
   generateExample,
@@ -1449,9 +1450,10 @@ export default class ApiRequest extends LitElement {
         } else {
           respText = await fetchResponse.text();
           if (contentType.includes('xml')) {
-            this.responseText = prettyXml(respText);
+            this.responseText = formatXml(respText, { textNodesOnSameLine: true, indentor: '  ' });
+          } else {
+            this.responseText = respText;
           }
-          this.responseText = respText;
         }
         if (this.responseIsBlob) {
           const contentDisposition = fetchResponse.headers.get('content-disposition');

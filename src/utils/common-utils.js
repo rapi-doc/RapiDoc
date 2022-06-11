@@ -124,6 +124,7 @@ export function advancedSearch(searchVal, allSpecTags, searchOptions = []) {
   return pathsMatched;
 }
 
+/*
 export function prettyXml(sourceXmlString) {
   const xmlDoc = new DOMParser().parseFromString(sourceXmlString, 'text/xml');
   const xsltDoc = new DOMParser().parseFromString([
@@ -143,10 +144,6 @@ export function prettyXml(sourceXmlString) {
   xsltProcessor.importStylesheet(xsltDoc);
   const resultDoc = xsltProcessor.transformToDocument(xmlDoc);
   return new XMLSerializer().serializeToString(resultDoc);
-}
-/*
-export function hasValidPathInUrlHash(tags) {
-  return tags.find((tag) => tag.paths.find((path) => window.location.hash.substring(1) === path.elementId));
 }
 */
 
