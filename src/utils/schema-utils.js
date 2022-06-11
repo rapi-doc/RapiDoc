@@ -83,46 +83,57 @@ export function getTypeInfo(schema) {
 export function nestExampleIfPresent(example) {
   return example ? { Example: { value: example } } : example;
 }
+
 export function normalizeExamples(examples, dataType = 'string') {
-  let exampleVal;
-  let exampleList;
-  if (examples) {
-    if (examples.constructor === Object) {
-      const exampleValAndDescr = Object.values(examples);
-      exampleVal = exampleValAndDescr.length > 0
-        ? typeof exampleValAndDescr[0].value === 'boolean' || typeof exampleValAndDescr[0].value === 'number'
-          ? exampleValAndDescr[0].value.toString()
-          : exampleValAndDescr[0].value
-        : '';
-      exampleList = Object.values(examples).map((v) => ({
-        value: typeof v.value === 'boolean' || typeof v.value === 'number' ? v.value.toString() : v.value,
-        description: v.description || v.summary || v.value,
-      }));
-    } else {
-      // This is non standard way to provide example but will support for now
-      if (!Array.isArray(examples)) {
-        examples = examples ? [examples] : [];
-      }
-      if (examples.length > 0) {
-        if (dataType === 'array') {
-          [exampleVal] = examples;
-          exampleList = examples.map((v) => ({ value: v, description: Array.isArray(v) ? v.join(' , ') : v }));
-        } else {
-          exampleVal = examples[0].toString();
-          exampleList = examples.map((v) => ({ value: v.toString(), description: v }));
-        }
-      }
-    }
+  if (!examples) {
     return {
-      exampleVal,
-      exampleList,
+      exampleVal: '',
+      exampleList: [],
     };
   }
-  return {
-    exampleVal: '',
-    exampleList: [],
-  };
+
+  if (examples.constructor === Object) {
+    const exampleValAndDescr = Object.values(examples);
+    const exampleVal = exampleValAndDescr.length > 0
+      ? typeof exampleValAndDescr[0].value === 'boolean' || typeof exampleValAndDescr[0].value === 'number'
+        ? exampleValAndDescr[0].value.toString()
+        : exampleValAndDescr[0].value
+      : '';
+    const exampleList = Object.values(examples).map((v) => ({
+      value: typeof v.value === 'boolean' || typeof v.value === 'number' ? v.value.toString() : v.value,
+      summary: v.summary,
+      description: v.description,
+    }));
+    return { exampleVal, exampleList };
+  }
+
+  // This is non-standard way to provide example but will support for now
+  if (!Array.isArray(examples)) {
+    examples = examples ? [examples] : [];
+  }
+
+  if (examples.length === 0) {
+    return {
+      exampleVal: '',
+      exampleList: [],
+    };
+  }
+
+  if (dataType === 'array') {
+    const [exampleVal] = examples;
+    const exampleList = examples.map((v) => ({ value: v }));
+    return { exampleVal, exampleList };
+  }
+
+  const exampleVal = examples[0].toString();
+  const exampleList = examples.map((v) => ({ value: v.toString() }));
+  return { exampleVal, exampleList };
 }
+
+export function anyExampleWithSummaryOrDescription(examples) {
+  return examples.some((x) => x.summary?.length > 0 || x.description?.length > 0);
+}
+
 export function getSampleValueByType(schemaObj) {
   const example = schemaObj.examples
     ? schemaObj.examples[0]

@@ -63,7 +63,6 @@ export default class RapiDoc extends LitElement {
       defaultSchemaTab: { type: String, attribute: 'default-schema-tab' },
       responseAreaHeight: { type: String, attribute: 'response-area-height' },
       fillRequestFieldsWithExample: { type: String, attribute: 'fill-request-fields-with-example' },
-      useSummaryToListExamples: { type: String, attribute: 'use-summary-to-list-example' },
       persistAuth: { type: String, attribute: 'persist-auth' },
       onNavTagClick: { type: String, attribute: 'on-nav-tag-click' },
 
@@ -456,7 +455,6 @@ export default class RapiDoc extends LitElement {
     if (!this.schemaHideWriteOnly || !'default, never,'.includes(`${this.schemaHideWriteOnly},`)) { this.schemaHideWriteOnly = 'default'; }
 
     if (!this.fillRequestFieldsWithExample || !'true, false,'.includes(`${this.fillRequestFieldsWithExample},`)) { this.fillRequestFieldsWithExample = 'true'; }
-    if (!this.useSummaryToListExamples || !'true, false,'.includes(`${this.useSummaryToListExamples},`)) { this.useSummaryToListExamples = 'false'; }
     if (!this.persistAuth || !'true, false,'.includes(`${this.persistAuth},`)) { this.persistAuth = 'false'; }
     if (!this.onNavTagClick || !'expand-collapse, show-description,'.includes(`${this.onNavTagClick},`)) { this.onNavTagClick = 'expand-collapse'; }
     if (!this.responseAreaHeight) {
