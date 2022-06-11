@@ -31258,7 +31258,26 @@ class ApiRequest extends lit_element_s {
   }
 
   apiResponseTabTemplate() {
-    const responseFormat = this.responseHeaders.includes('json') ? 'json' : this.responseHeaders.includes('html') || this.responseHeaders.includes('xml') ? 'html' : '';
+    let responseFormat = '';
+    let responseContent = '';
+
+    if (!this.responseIsBlob) {
+      if (this.responseHeaders.includes('application/x-ndjson')) {
+        responseFormat = 'json';
+        const prismLines = this.responseText.split('\n').map(q => prism_default().highlight(q, (prism_default()).languages[responseFormat], responseFormat)).join('\n');
+        responseContent = $`<code>${unsafe_html_o(prismLines)}</code>`;
+      } else if (this.responseHeaders.includes('json')) {
+        responseFormat = 'json';
+        responseContent = $`<code>${unsafe_html_o(prism_default().highlight(this.responseText, (prism_default()).languages[responseFormat], responseFormat))}</code>`;
+      } else if (this.responseHeaders.includes('html') || this.responseHeaders.includes('xml')) {
+        responseFormat = 'html';
+        responseContent = $`<code>${unsafe_html_o(prism_default().highlight(this.responseText, (prism_default()).languages[responseFormat], responseFormat))}</code>`;
+      } else {
+        responseFormat = 'text';
+        responseContent = $`<code>${this.responseText}</code>`;
+      }
+    }
+
     return $`
       <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
         <div class="response-message ${this.responseStatus}">Response Status: ${this.responseMessage}</div>
@@ -31292,7 +31311,7 @@ class ApiRequest extends lit_element_s {
               <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${e => {
       copyToClipboard(this.responseText, e);
     }}' part="btn btn-fill"> Copy </button>
-              <pre style="white-space:pre; min-height:50px; height:var(--resp-area-height, 400px); resize:vertical; overflow:auto">${responseFormat ? $`<code>${unsafe_html_o(prism_default().highlight(this.responseText, (prism_default()).languages[responseFormat], responseFormat))}</code>` : `${this.responseText}`}</pre>
+              <pre style="white-space:pre; min-height:50px; height:var(--resp-area-height, 400px); resize:vertical; overflow:auto">${responseContent}</pre>
             </div>`}
         <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};" >
           <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${e => {
@@ -31742,7 +31761,9 @@ class ApiRequest extends lit_element_s {
       if (respEmpty) {
         this.responseText = '';
       } else if (contentType) {
-        if (contentType.includes('json')) {
+        if (contentType === 'application/x-ndjson') {
+          this.responseText = await fetchResponse.text();
+        } else if (contentType.includes('json')) {
           if (/charset=[^"']+/.test(contentType)) {
             const encoding = contentType.split('charset=')[1];
             const buffer = await fetchResponse.arrayBuffer();
@@ -42631,6 +42652,7 @@ function getType(str) {
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
 <<<<<<< HEAD
+<<<<<<< HEAD
 /******/ 		__webpack_require__.h = () => ("40f904ad200313df0674")
 =======
 <<<<<<< HEAD
@@ -42639,6 +42661,9 @@ function getType(str) {
 /******/ 		__webpack_require__.h = () => ("40f904ad200313df0674")
 >>>>>>> efa2043 (package update and generated build)
 >>>>>>> xeptore-master
+=======
+/******/ 		__webpack_require__.h = () => ("e68f98997c083a6ff925")
+>>>>>>> b08f3bc235608b450282af0c71aa22233b952e6a
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
