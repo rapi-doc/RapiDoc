@@ -202,11 +202,11 @@ export default class ApiRequest extends LitElement {
         ${this.callback === 'true' ? 'CALLBACK REQUEST' : 'REQUEST'}
       </div>
       <div>
-        ${guard([this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('path'))}
-        ${guard([this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('query'))}
+        ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('path'))}
+        ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('query'))}
         ${this.requestBodyTemplate()}
-        ${guard([this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('header'))}
-        ${guard([this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('cookie'))}
+        ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('header'))}
+        ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('cookie'))}
         ${this.allowTry === 'false' ? '' : html`${this.apiCallTemplate()}`}
       </div>  
     </div>
@@ -334,7 +334,6 @@ export default class ApiRequest extends LitElement {
           paramAllowReserved = param.allowReserved;
         }
       }
-
       // openapi 3.1.0 spec based examples (which must be Object(string : { value:any, summary?: string, description?: string})
       const example = normalizeExamples(
         (param.examples
@@ -390,7 +389,11 @@ export default class ApiRequest extends LitElement {
                     data-param-allow-reserved = "${paramAllowReserved}"
                     data-array = "true"
                     placeholder = "add-multiple &#x21a9;"
-                    .value = "${Array.isArray(example.exampleVal) ? example.exampleVal : example.exampleVal}"
+                    .value = "${
+                      this.fillRequestFieldsWithExample === 'true'
+                        ? Array.isArray(example.exampleVal) ? example.exampleVal : [example.exampleVal]
+                        : []
+                    }"
                   >
                   </tag-input>`
                 : paramSchema.type === 'object'

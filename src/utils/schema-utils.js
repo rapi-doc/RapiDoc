@@ -81,6 +81,16 @@ export function getTypeInfo(schema) {
   return info;
 }
 export function nestExampleIfPresent(example) {
+  if (typeof example === 'boolean') {
+    return {
+      Example: { value: `${example}` },
+    };
+  }
+  if (example === '') {
+    return {
+      Example: { value: '' },
+    };
+  }
   return example ? { Example: { value: example } } : example;
 }
 
