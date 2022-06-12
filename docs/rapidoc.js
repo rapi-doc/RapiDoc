@@ -28677,6 +28677,22 @@ function getTypeInfo(schema) {
   return info;
 }
 function nestExampleIfPresent(example) {
+  if (typeof example === 'boolean') {
+    return {
+      Example: {
+        value: `${example}`
+      }
+    };
+  }
+
+  if (example === '') {
+    return {
+      Example: {
+        value: ''
+      }
+    };
+  }
+
   return example ? {
     Example: {
       value: example
@@ -30656,11 +30672,11 @@ class ApiRequest extends lit_element_s {
         ${this.callback === 'true' ? 'CALLBACK REQUEST' : 'REQUEST'}
       </div>
       <div>
-        ${guard_i([this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('path'))}
-        ${guard_i([this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('query'))}
+        ${guard_i([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('path'))}
+        ${guard_i([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('query'))}
         ${this.requestBodyTemplate()}
-        ${guard_i([this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('header'))}
-        ${guard_i([this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('cookie'))}
+        ${guard_i([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('header'))}
+        ${guard_i([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('cookie'))}
         ${this.allowTry === 'false' ? '' : $`${this.apiCallTemplate()}`}
       </div>  
     </div>
@@ -30835,7 +30851,7 @@ class ApiRequest extends lit_element_s {
                     data-param-allow-reserved = "${paramAllowReserved}"
                     data-array = "true"
                     placeholder = "add-multiple &#x21a9;"
-                    .value = "${Array.isArray(example.exampleVal) ? example.exampleVal : example.exampleVal}"
+                    .value = "${this.fillRequestFieldsWithExample === 'true' ? Array.isArray(example.exampleVal) ? example.exampleVal : [example.exampleVal] : []}"
                   >
                   </tag-input>` : paramSchema.type === 'object' ? $`
                     <div class="tab-panel col" style="border-width:0 0 1px 0;">
@@ -40386,7 +40402,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("d7ecc9e97285f636ae59")
+/******/ 		__webpack_require__.h = () => ("280d31e407aae9ae319c")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
