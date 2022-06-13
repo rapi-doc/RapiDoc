@@ -101,9 +101,8 @@ export class Toast extends LitElement {
                 align-items: center;
                 padding: 0px 0px 0px 4px;
                 gap: 12px;
-                min-height: 40px;
-                height: auto;
                 width: auto;
+                min-height: 40px;
             }
 
             .text {
@@ -116,6 +115,7 @@ export class Toast extends LitElement {
                 align-items: center;
                 letter-spacing: 0.002em;
                 color: black;
+                margin: 0;
             }
 
             .toast {
@@ -131,18 +131,18 @@ export class Toast extends LitElement {
                 justify-content: space-between;
                 padding: 16px 16px 16px 20px;
                 gap: 12px;
-                height: auto;
                 min-width: 16.125rem;
-                min-height: 4.5rem;
+                width: auto;
                 border: 1px solid;
                 box-shadow: 0px 12px 16px rgba(0, 0, 0, 0.16);
                 border-radius: 4px;
                 position: fixed;
                 overflow: hidden;
                 pointer-events: all;
-                bottom: 0;
+                bottom: 32px;
                 right: 50%;
                 transform: translateX(50%);
+                z-index: 999;
                 -webkit-animation:
                     fadeIn .3s ease,
                     slideIn .3s ease,
@@ -155,38 +155,8 @@ export class Toast extends LitElement {
 
             @media only screen and (min-width: 768px) {
                 .toast-active {
-                    display: flex;
-                    flex-direction: row;
-                    align-items: center;
-                    justify-content: space-between;
-                    padding: 16px 16px 16px 20px;
-                    gap: 12px;
-                    width: auto;
-                    height: auto;
-                    min-width: 16.125rem;
-                    min-height: 4.5rem;
-                    border: 1px solid;
-                    box-shadow: 0px 12px 16px rgba(0, 0, 0, 0.16);
-                    border-radius: 4px;
-                    position: fixed;
-                    overflow: hidden;
-                    pointer-events: all;
-                    bottom: 0;
-                    right: 0;
+                    right: 96px;
                     transform: none;
-                    -webkit-animation:
-                        fadeIn .3s ease,
-                        slideIn .3s ease,
-                        fadeOut .3s ease 10s forwards;
-                    animation:
-                        fadeIn .3s ease,
-                        slideIn .3s ease,
-                        fadeOut .3s ease 10s forwards;
-                }
-                .toast {
-                    opacity: 0;
-                    pointer-events: none;
-                    display: none;
                 }
             }
             
