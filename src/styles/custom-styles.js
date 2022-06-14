@@ -29,7 +29,6 @@ export default css`
     flex-grow: 1;
     justify-content: space-between;
     align-items: stretch;
-    padding: 4px 8px;
     width: auto;
     height: 28px;
     left: 0;
