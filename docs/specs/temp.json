@@ -11,6 +11,16 @@
           {
             "name": "param1",
             "in": "query",
+            "description": "empty String",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": { "type": "string" },
+            "example": ""
+          },
+          {
+            "name": "param2",
+            "in": "query",
             "description": "array examples on array params un-expectedly pre-populate the field with the given value(s).",
             "required": false,
             "style": "form",
@@ -19,7 +29,7 @@
             "example": ["example1", "example2"]
           },
           {
-            "name": "param2",
+            "name": "param3",
             "in": "query",
             "description": "array examples on array params un-expectedly pre-populate the field with the given value(s).",
             "required": false,
@@ -29,7 +39,7 @@
             "example": ["example1", "example2"]
           },
           {
-            "name": "param3",
+            "name": "param4",
             "in": "query",
             "description": "boolean `true` example",
             "required": false,
@@ -39,7 +49,7 @@
             "example": true
           },
           {
-            "name": "param4",
+            "name": "param5",
             "in": "query",
             "description": "boolean `false` example",
             "required": false,
