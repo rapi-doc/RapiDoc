@@ -30693,23 +30693,50 @@ class ApiRequest extends lit_element_s {
     </div>
     `;
   }
-
-  updated(changedProperties) {
+  /*
+  async updated(changedProperties) {
     // In focused mode after rendering the request component, update the text-areas(which contains examples) using
     // the original values from hidden textareas
     // This is done coz, user may update the dom by editing the textarea's and once the DOM is updated externally change detection wont happen, therefore update the values manually
     if (this.renderStyle === 'focused') {
-      if (changedProperties.size === 1 && changedProperties.has('activeSchemaTab')) {// dont update example as only tabs is switched
+      if (changedProperties.size === 1 && changedProperties.has('activeSchemaTab')) {
+        // dont update example as only tabs is switched
       } else {
-        const exampleTextAreaEls = [...this.shadowRoot.querySelectorAll('textarea[data-ptype="form-data"]')];
-        exampleTextAreaEls.forEach(el => {
-          const origExampleEl = this.shadowRoot.querySelector(`textarea[data-pname='hidden-${el.dataset.pname}']`);
-
-          if (origExampleEl) {
-            el.value = origExampleEl.value;
-          }
-        });
+        this.requestUpdate();
       }
+    }
+  }
+  */
+
+
+  async saveExampleState() {
+    if (this.renderStyle === 'focused') {
+      const reqBodyTextAreaEls = [...this.shadowRoot.querySelectorAll('textarea.request-body-param-user-input')];
+      reqBodyTextAreaEls.forEach(el => {
+        el.dataset.user_example = el.value;
+      });
+      const exampleTextAreaEls = [...this.shadowRoot.querySelectorAll('textarea[data-ptype="form-data"]')];
+      exampleTextAreaEls.forEach(el => {
+        el.dataset.user_example = el.value;
+      });
+      this.requestUpdate();
+    }
+  }
+
+  async updateExamplesFromDataAttr() {
+    // In focused mode after rendering the request component, update the text-areas(which contains examples) using
+    // the original values from hidden textareas
+    // This is done coz, user may update the dom by editing the textarea's and once the DOM is updated externally change detection wont happen, therefore update the values manually
+    if (this.renderStyle === 'focused') {
+      const reqBodyTextAreaEls = [...this.shadowRoot.querySelectorAll('textarea.request-body-param-user-input')];
+      reqBodyTextAreaEls.forEach(el => {
+        el.value = el.dataset.user_example || el.dataset.example;
+      });
+      const exampleTextAreaEls = [...this.shadowRoot.querySelectorAll('textarea[data-ptype="form-data"]')];
+      exampleTextAreaEls.forEach(el => {
+        el.value = el.dataset.user_example || el.dataset.example;
+      });
+      this.requestUpdate();
     }
   }
 
@@ -30964,11 +30991,17 @@ class ApiRequest extends lit_element_s {
         ${tableRows}
       </table>
     </div>`;
-  }
+  } // This method is called before navigation change in focusd mode
 
-  resetRequestBodySelection() {
+
+  async beforerNavigationFocusedMode() {// this.saveExampleState();
+  } // This method is called after navigation change in focusd mode
+
+
+  async afterNavigationFocusedMode() {
     this.selectedRequestBodyType = '';
     this.selectedRequestBodyExample = '';
+    this.updateExamplesFromDataAttr();
     this.clearResponseData();
   } // Request-Body Event Handlers
 
@@ -31171,7 +31204,8 @@ class ApiRequest extends lit_element_s {
                 <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
                 <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
               </div>
-              ${this.activeSchemaTab === 'example' ? $`<div class="tab-content col"> ${reqBodyExampleHtml}</div>` : $`<div class="tab-content col"> ${reqBodySchemaHtml}</div>`}
+              ${$`<div class="tab-content col" style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'};"> ${reqBodyExampleHtml}</div>`}
+              ${$`<div class="tab-content col" style="display:${this.activeSchemaTab === 'example' ? 'none' : 'block'};"> ${reqBodySchemaHtml}</div>`}
             </div>` : $`  
             ${reqBodyFileInputHtml}
             ${reqBodyFormHtml}`}
@@ -31234,8 +31268,6 @@ class ApiRequest extends lit_element_s {
             .textContent = "${this.fillRequestFieldsWithExample === 'true' ? formdataPartExample[0].exampleValue : ''}"
             spellcheck = "false"
           ></textarea>
-          <!-- This textarea(hidden) is to store the original example value, in focused mode on navbar change it is used to update the example text -->
-          <textarea data-pname = "hidden-${fieldName}" data-ptype = "${mimeType.includes('form-urlencode') ? 'hidden-form-urlencode' : 'hidden-form-data'}" class="is-hidden" style="display:none">${formdataPartExample[0].exampleValue}</textarea>
         </div>`}
       ${$`
         <div class="tab-content col" data-tab = 'schema' style="display:${this.activeSchemaTab !== 'example' ? 'block' : 'none'}; padding-left:5px; width:100%;"> 
@@ -35688,6 +35720,15 @@ class RapiDoc extends lit_element_s {
     }
 
     this.isIntersectionObserverActive = false;
+
+    if (this.renderStyle === 'focused') {
+      const requestEl = this.shadowRoot.querySelector('api-request');
+
+      if (requestEl) {
+        requestEl.beforerNavigationFocusedMode();
+      }
+    }
+
     this.scrollTo(navEl.dataset.contentId, true, scrollNavItemToView);
     setTimeout(() => {
       this.isIntersectionObserverActive = true;
@@ -35725,7 +35766,7 @@ class RapiDoc extends lit_element_s {
           const requestEl = this.shadowRoot.querySelector('api-request');
 
           if (requestEl) {
-            requestEl.resetRequestBodySelection();
+            requestEl.afterNavigationFocusedMode();
           }
 
           const responseEl = this.shadowRoot.querySelector('api-response');
@@ -40413,7 +40454,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("ccec3cb349627a1ca179")
+/******/ 		__webpack_require__.h = () => ("7e5b4aa8cf9c2be345b4")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
