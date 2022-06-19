@@ -884,6 +884,12 @@ export default class RapiDoc extends LitElement {
       return;
     }
     this.isIntersectionObserverActive = false;
+    if (this.renderStyle === 'focused') {
+      const requestEl = this.shadowRoot.querySelector('api-request');
+      if (requestEl) {
+        requestEl.beforerNavigationFocusedMode();
+      }
+    }
     this.scrollTo(navEl.dataset.contentId, true, scrollNavItemToView);
     setTimeout(() => {
       this.isIntersectionObserverActive = true;
@@ -914,7 +920,7 @@ export default class RapiDoc extends LitElement {
         if (this.renderStyle === 'focused') {
           const requestEl = this.shadowRoot.querySelector('api-request');
           if (requestEl) {
-            requestEl.resetRequestBodySelection();
+            requestEl.afterNavigationFocusedMode();
           }
           const responseEl = this.shadowRoot.querySelector('api-response');
           if (responseEl) {
