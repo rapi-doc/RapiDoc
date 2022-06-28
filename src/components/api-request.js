@@ -1432,9 +1432,10 @@ export default class ApiRequest extends LitElement {
       let respJson;
       let respText;
       tryBtnEl.disabled = true;
-      const startTime = performance.now();
       this.responseText = '⌛';
+      this.responseMessage = '';
       this.requestUpdate();
+      const startTime = performance.now();
       fetchResponse = await fetch(fetchRequest, { signal });
       const endTime = performance.now();
       responseClone = fetchResponse.clone(); // create a response clone to allow reading response body again (response.json, response.text etc)
