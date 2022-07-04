@@ -50,7 +50,7 @@ export default function navbarTemplate() {
     ${(this.allowSearch === 'false' && this.allowAdvancedSearch === 'false')
       ? ''
       : html`
-        <div style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 24px 12px 24px; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}">
+        <div style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 24px 12px 24px; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}" part="section-navbar-search">
           ${this.allowSearch === 'false'
             ? ''
             : html`
