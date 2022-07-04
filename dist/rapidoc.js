@@ -1,7 +1,7 @@
 
 /**
 * @preserve
-* RapiDoc 9.3.2 - WebComponent to View OpenAPI docs
+* RapiDoc 9.3.3 - WebComponent to View OpenAPI docs
 * License: MIT
 * Repo   : https://github.com/rapi-doc/RapiDoc
 * Author : Mrinmoy Majumdar
@@ -29429,6 +29429,11 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     obj['::title'] = schema.title || '';
     obj['::description'] = generateMarkdownForArrayAndObjectDescription(schema, level);
     obj['::type'] = 'object';
+
+    if (Array.isArray(schema.type) && schema.type.includes('null') || schema.nullable) {
+      obj['::dataTypeLabel'] = 'object or null';
+    }
+
     obj['::deprecated'] = schema.deprecated || false;
     obj['::readwrite'] = schema.readOnly ? 'readonly' : schema.writeOnly ? 'writeonly' : '';
 
@@ -29450,6 +29455,11 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     obj['::title'] = schema.title || '';
     obj['::description'] = generateMarkdownForArrayAndObjectDescription(schema, level);
     obj['::type'] = 'array';
+
+    if (Array.isArray(schema.type) && schema.type.includes('null') || schema.nullable) {
+      obj['::dataTypeLabel'] = 'array or null';
+    }
+
     obj['::deprecated'] = schema.deprecated || false;
     obj['::readwrite'] = schema.readOnly ? 'readonly' : schema.writeOnly ? 'writeonly' : '';
 
@@ -30186,7 +30196,7 @@ class SchemaTree extends lit_element_s {
         <div class='inside-bracket ${data['::type'] || 'no-type-info'}' style='padding-left:${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' ? 0 : leftPadding}px;'>
           ${Array.isArray(data) && data[0] ? $`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, data[0]['::readwrite'])}` : $`
               ${Object.keys(data).map(dataKey => $`
-                ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}` : '' : $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}`}
+                ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite', '::dataTypeLabel'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}` : '' : $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}`}
               `)}
             `}
         </div>
@@ -32286,14 +32296,14 @@ class SchemaTable extends lit_element_s {
       if (dataType === 'array') {
         detailObjType = 'array of object'; // Array of Object
       } else {
-        detailObjType = 'object';
+        detailObjType = data['::dataTypeLabel'] || data['::type'];
       }
     } else if (data['::type'] === 'array') {
       if (dataType === 'array') {
         // detailObjType = 'array of array'; // Array of array
         detailObjType = `array of array ${arrayType !== 'object' ? `of ${arrayType}` : ''}`; // Array of array
       } else {
-        detailObjType = 'array';
+        detailObjType = data['::dataTypeLabel'] || data['::type'];
       }
     }
 
@@ -32331,7 +32341,7 @@ class SchemaTable extends lit_element_s {
         <div class='object-body'>
         ${Array.isArray(data) && data[0] ? $`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, '')}` : $`
             ${Object.keys(data).map(dataKey => $`
-              ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}` : '' : $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}`}
+              ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite', '::dataTypeLabel'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}` : '' : $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}`}
             `)}
           `}
         <div>
@@ -40459,7 +40469,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("668fc200d1a4aec66c96")
+/******/ 		__webpack_require__.h = () => ("86e05890ecd1b58be1fc")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

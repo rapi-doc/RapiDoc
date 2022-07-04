@@ -4,6 +4,24 @@ info:
   version: "1"
 
 paths:
+  /test:
+    get:
+      summary: Test endpoint
+      operationId: test
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  obj:
+                    nullable: true
+                    type: object
+                    properties:
+                      test:
+                        type: string
   /users:
     get:
       responses:
