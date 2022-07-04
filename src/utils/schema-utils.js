@@ -685,6 +685,9 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     obj['::title'] = schema.title || '';
     obj['::description'] = generateMarkdownForArrayAndObjectDescription(schema, level);
     obj['::type'] = 'object';
+    if ((Array.isArray(schema.type) && schema.type.includes('null')) || schema.nullable) {
+      obj['::dataTypeLabel'] = 'object or null';
+    }
     obj['::deprecated'] = schema.deprecated || false;
     obj['::readwrite'] = schema.readOnly ? 'readonly' : schema.writeOnly ? 'writeonly' : '';
     for (const key in schema.properties) {
@@ -701,6 +704,9 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     obj['::title'] = schema.title || '';
     obj['::description'] = generateMarkdownForArrayAndObjectDescription(schema, level);
     obj['::type'] = 'array';
+    if ((Array.isArray(schema.type) && schema.type.includes('null')) || schema.nullable) {
+      obj['::dataTypeLabel'] = 'array or null';
+    }
     obj['::deprecated'] = schema.deprecated || false;
     obj['::readwrite'] = schema.readOnly ? 'readonly' : schema.writeOnly ? 'writeonly' : '';
     if (schema.items?.items) {
