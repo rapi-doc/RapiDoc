@@ -3,4 +3,6 @@
     docEl.addEventListener('before-try', (e) => {
       e.detail.request.headers.append('AAA-BBB', 'CCC DDDD');
     });
-  });</script><body><rapi-doc spec-url="./specs/temp.json" id="thedoc" theme="dark" render-style="view" schema-style="table" show-method-in-nav-bar="true" use-path-in-nav-bar="true" show-components="true" show-info="true" show-header="true" allow-search="false" allow-advanced-search="true" allow-spec-url-load="false" allow-spec-file-download="true" allow-server-selection="true" allow-authentication="true" update-route="false" match-type="regex" persist-auth="true" fill-request-fields-with-example="false"></rapi-doc></body></html>
+  });</script><style>rapi-doc::part(section-navbar-search){
+  background-color: red;
+}</style><body><rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" id="thedoc" theme="dark" goto-path="get-/pet/-petId-" render-style="focused" schema-style="table" show-method-in-nav-bar="true" use-path-in-nav-bar="true" show-components="true" show-info="true" show-header="true" allow-search="false" allow-advanced-search="true" allow-spec-url-load="false" allow-spec-file-download="true" allow-server-selection="true" allow-authentication="true" update-route="false" match-type="regex" persist-auth="true" fill-request-fields-with-example="false"></rapi-doc></body></html>

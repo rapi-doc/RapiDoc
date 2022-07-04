@@ -30887,9 +30887,10 @@ class ApiRequest extends lit_element_s {
                     data-param-serialize-style = "${paramStyle}"
                     data-param-serialize-explode = "${paramExplode}"
                     data-param-allow-reserved = "${paramAllowReserved}"
+                    data-x-fill-example = "${param['x-fill-example'] || 'yes'}"
                     data-array = "true"
                     placeholder = "add-multiple &#x21a9;"
-                    .value = "${this.fillRequestFieldsWithExample === 'true' ? Array.isArray(example.exampleVal) ? example.exampleVal : [example.exampleVal] : []}"
+                    .value="${param['x-fill-example'] === 'no' ? [] : live_l(this.fillRequestFieldsWithExample === 'true' ? Array.isArray(example.exampleVal) ? example.exampleVal : [example.exampleVal] : [])}"
                   >
                   </tag-input>` : paramSchema.type === 'object' ? $`
                     <div class="tab-panel col" style="border-width:0 0 1px 0;">
@@ -30914,8 +30915,9 @@ class ApiRequest extends lit_element_s {
                             data-param-serialize-style = "${paramStyle}"
                             data-param-serialize-explode = "${paramExplode}"
                             data-param-allow-reserved = "${paramAllowReserved}"
+                            data-x-fill-example = "${param['x-fill-example'] || 'yes'}"
                             spellcheck = "false"
-                            .textContent = "${this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : ''}"
+                            .textContent="${param['x-fill-example'] === 'no' ? '' : live_l(this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : '')}"
                             style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
                           ></textarea>
                         </div>` : $`
@@ -31896,9 +31898,10 @@ class ApiRequest extends lit_element_s {
       let respJson;
       let respText;
       tryBtnEl.disabled = true;
-      const startTime = performance.now();
       this.responseText = '⌛';
+      this.responseMessage = '';
       this.requestUpdate();
+      const startTime = performance.now();
       fetchResponse = await fetch(fetchRequest, {
         signal
       });
@@ -33230,7 +33233,7 @@ function navbarTemplate() {
   <nav class='nav-bar ${this.renderStyle}' part="section-navbar">
     <slot name="nav-logo" class="logo"></slot>
     ${this.allowSearch === 'false' && this.allowAdvancedSearch === 'false' ? '' : $`
-        <div style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 24px 12px 24px; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}">
+        <div style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 24px 12px 24px; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}" part="section-navbar-search">
           ${this.allowSearch === 'false' ? '' : $`
               <div style="display:flex; flex:1; line-height:22px;">
                 <input id="nav-bar-search" 
@@ -35567,10 +35570,13 @@ class RapiDoc extends lit_element_s {
         this.scrollTo(elementId);
       }
     } else if (this.renderStyle === 'focused') {
-      var _this$resolvedSpec$ta;
+      // If goto-path is provided and no location-hash is present then try to scroll to default element
+      if (!this.gotoPath) {
+        var _this$resolvedSpec$ta;
 
-      const defaultElementId = this.showInfo ? 'overview' : (_this$resolvedSpec$ta = this.resolvedSpec.tags[0]) === null || _this$resolvedSpec$ta === void 0 ? void 0 : _this$resolvedSpec$ta.paths[0];
-      this.scrollTo(defaultElementId);
+        const defaultElementId = this.showInfo ? 'overview' : (_this$resolvedSpec$ta = this.resolvedSpec.tags[0]) === null || _this$resolvedSpec$ta === void 0 ? void 0 : _this$resolvedSpec$ta.paths[0];
+        this.scrollTo(defaultElementId);
+      }
     }
   }
 
@@ -35741,7 +35747,6 @@ class RapiDoc extends lit_element_s {
       // for focused mode update this.focusedElementId to update the rendering, else it wont find the needed html elements
       // focusedElementId will get validated in the template
       this.focusedElementId = elementId;
-      await sleep(0);
     }
 
     if (this.renderStyle === 'view') {
@@ -40454,7 +40459,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("7e5b4aa8cf9c2be345b4")
+/******/ 		__webpack_require__.h = () => ("668fc200d1a4aec66c96")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
