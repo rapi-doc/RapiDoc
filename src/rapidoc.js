@@ -765,8 +765,11 @@ export default class RapiDoc extends LitElement {
         this.scrollTo(elementId);
       }
     } else if (this.renderStyle === 'focused') {
-      const defaultElementId = this.showInfo ? 'overview' : this.resolvedSpec.tags[0]?.paths[0];
-      this.scrollTo(defaultElementId);
+      // If goto-path is provided and no location-hash is present then try to scroll to default element
+      if (!this.gotoPath) {
+        const defaultElementId = this.showInfo ? 'overview' : this.resolvedSpec.tags[0]?.paths[0];
+        this.scrollTo(defaultElementId);
+      }
     }
   }
 
@@ -902,7 +905,6 @@ export default class RapiDoc extends LitElement {
       // for focused mode update this.focusedElementId to update the rendering, else it wont find the needed html elements
       // focusedElementId will get validated in the template
       this.focusedElementId = elementId;
-      await sleep(0);
     }
     if (this.renderStyle === 'view') {
       this.expandAndGotoOperation(elementId, expandPath, true);
