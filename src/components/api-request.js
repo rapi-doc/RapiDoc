@@ -414,12 +414,12 @@ export default class ApiRequest extends LitElement {
                     data-param-serialize-style = "${paramStyle}"
                     data-param-serialize-explode = "${paramExplode}"
                     data-param-allow-reserved = "${paramAllowReserved}"
+                    data-x-fill-example = "${param['x-fill-example'] || 'yes'}"
                     data-array = "true"
                     placeholder = "add-multiple &#x21a9;"
-                    .value = "${
-                      this.fillRequestFieldsWithExample === 'true'
-                        ? Array.isArray(example.exampleVal) ? example.exampleVal : [example.exampleVal]
-                        : []
+                    .value="${param['x-fill-example'] === 'no'
+                      ? []
+                      : live(this.fillRequestFieldsWithExample === 'true' ? Array.isArray(example.exampleVal) ? example.exampleVal : [example.exampleVal] : [])
                     }"
                   >
                   </tag-input>`
@@ -447,8 +447,9 @@ export default class ApiRequest extends LitElement {
                             data-param-serialize-style = "${paramStyle}"
                             data-param-serialize-explode = "${paramExplode}"
                             data-param-allow-reserved = "${paramAllowReserved}"
+                            data-x-fill-example = "${param['x-fill-example'] || 'yes'}"
                             spellcheck = "false"
-                            .textContent = "${this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : ''}"
+                            .textContent="${param['x-fill-example'] === 'no' ? '' : live(this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : '')}"
                             style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
                           ></textarea>
                         </div>`
