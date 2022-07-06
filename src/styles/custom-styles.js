@@ -13,6 +13,18 @@ export default css`
   margin-top: 24px;
 }
 
+.request-title-container {
+  margin-left: 16px;
+}
+
+.request-title {
+  margin-bottom: 8px;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 18px;
+  color: #4A4A4A;
+}
+
 .label-operation-container {
     text-align: left;
     direction: ltr;

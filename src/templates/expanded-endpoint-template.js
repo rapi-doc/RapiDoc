@@ -75,6 +75,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
         <api-request
           class = "${this.renderStyle}-mode"
           style = "width:100%;"
+          schema-short-summary = "${path.shortSummary}"
           webhook = "${path.isWebhook}"
           method = "${path.method}"
           path = "${path.path}"
