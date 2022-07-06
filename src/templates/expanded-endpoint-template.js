@@ -38,7 +38,9 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
   return html`
     ${this.renderStyle === 'read' ? html`<div class='divider' part="operation-divider"></div>` : ''}
     <div class='expanded-endpoint-body observe-me ${path.method} ${path.deprecated ? 'deprecated' : ''} ' part="section-operation ${path.elementId}" id='${path.elementId}'>
-      ${(this.renderStyle === 'focused' && tagName !== 'General ⦂') ? html`<h3 class="upper" style="font-weight:bold" part="section-operation-tag"> ${tagName} </h3>` : ''}
+      ${(this.renderStyle === 'focused' && tagName !== 'General ⦂') ? html`
+        <bread-crumbs .headers=${[this.resolvedSpec.info.title, tagName, path.shortSummary]}></bread-crumbs>
+      ` : ''}
       ${path.deprecated ? html`<div class="bold-text red-text"> DEPRECATED </div>` : ''}
       ${html`
         ${path.xBadges && path.xBadges?.length > 0
@@ -52,7 +54,9 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
             `
           : ''
         }
-        <h2 part="section-operation-summary"> ${path.shortSummary || `${path.method.toUpperCase()} ${path.path}`}</h2>
+        <h2 class="endpoint-title" part="section-operation-summary">
+          ${path.shortSummary || `${path.method.toUpperCase()} ${path.path}`}
+        </h2>
         ${path.isWebhook
           ? html`<span part="section-operation-webhook" style="color:var(--primary-color); font-weight:bold; font-size: var(--font-size-regular);"> WEBHOOK </span>`
           : html`

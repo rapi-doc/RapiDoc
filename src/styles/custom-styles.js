@@ -6,6 +6,15 @@ customize their theme. Simply add your css to this file and yarn build.
 */
 
 export default css`
+.endpoint-title {
+  padding: 0;
+  margin-top: 24px;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 38px;
+  color: #4A4A4A;
+}
+
 .request-card {
   border: 1px solid #CCCED8;
   border-radius: 4px;
