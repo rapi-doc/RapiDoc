@@ -1,100 +1,54 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
-  title: Test case
-  version: "1"
-
+  title: Apidoc
+  version: '1.0'
 paths:
-  /test:
+  /my/test/path:
     get:
-      summary: Test endpoint
       operationId: test
       responses:
         '200':
-          description: OK
+          description: ''
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  obj:
-                    nullable: true
-                    type: object
-                    properties:
-                      test:
-                        type: string
-  /users:
-    get:
-      responses:
-        "200":
-          description: Get all the users
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/User"
-    post:
-      summary: Create a user
-      requestBody:
-        description: Pass in the RFQ properties to update. Only `product` is required.
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/User"
-      callbacks:
-        created:
-          /webhook:
-            post:
-              description: Called when the user is created
-              requestBody:
-                content:
-                  application/json:
-                    schema:
-                      $ref: "#/components/schemas/User"
-              responses:
-                "200":
-                  description: OK
-      responses:
-        "202":
-          description: Accepted
-webhooks:
-  user-hooks:
-    post:
-      summary: Called after user Creation
-      requestBody:
-        description: Informs the client that a user is created and passes on the user data
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/User"
-      responses:
-        "200":
-          description: Return a 200 status to indicate that the data was received successfully
-    get:
-      summary: register for subscription to user events
-      responses:
-        "200":
-          description: Create a subscription on a user
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
+                $ref: '#/components/schemas/TestSchema'
 components:
   schemas:
-    User:
+    TestSchema:
       type: object
+      deprecated: true
       properties:
-        id:
+        prop1:
+          description: _First name_ (First name should be italics)
           type: string
-          description: Server-generated ID of the user
+          deprecated: true
+        targets_new:
+          type: array
+          items:
+            type: string
           readOnly: true
-        name:
-          type: string
-          description: The name of the user
-        password:
-          type: string
-          description: Password of the user
-          format: password
-          writeOnly: true
+        targets:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Deprecated in description also
+          deprecated: true
+        fullName:
+          description: Person's Full name
+          type: object
+          deprecated: true
+          properties:
+            firstName:
+              description: _First name_ (First name should be italics)
+              type: string
+              deprecated: true
+            lastName:
+              description: |
+                `Last name` (last name must be monospaced)
+              type: string
+  
+      required:
+      - targets_new
+      - targets
