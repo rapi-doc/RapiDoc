@@ -14,6 +14,7 @@ export default class Breadcrumbs extends LitElement {
       css`
         .container {
           display: flex;
+          align-items: center;
         }
 
         .header {
