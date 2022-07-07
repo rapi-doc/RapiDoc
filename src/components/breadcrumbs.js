@@ -22,6 +22,15 @@ export default class Breadcrumbs extends LitElement {
           font-weight: 400;
           line-height: 18px;
           color: #A1A8B3;
+          text-decoration: none;
+        }
+
+        .header:hover {
+          color: #4A596B;
+        }
+
+        .header:active {
+          color: #0C1522;
         }
 
         .caret {
@@ -48,7 +57,7 @@ export default class Breadcrumbs extends LitElement {
             </svg>
           ` : ''}
 
-          <div class='header'>${header}</div>
+          <a class='header' href=${header.link}>${header.title}</a>
         `)}
       </div>
     `;

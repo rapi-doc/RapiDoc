@@ -39,7 +39,23 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
     ${this.renderStyle === 'read' ? html`<div class='divider' part="operation-divider"></div>` : ''}
     <div class='expanded-endpoint-body observe-me ${path.method} ${path.deprecated ? 'deprecated' : ''} ' part="section-operation ${path.elementId}" id='${path.elementId}'>
       ${(this.renderStyle === 'focused' && tagName !== 'General ⦂') ? html`
-        <bread-crumbs .headers=${[this.resolvedSpec.info.title, tagName, path.shortSummary]}></bread-crumbs>
+        <bread-crumbs
+          .headers=${[
+            {
+              title: this.resolvedSpec.info.title,
+              link: '.',
+            },
+            {
+              title: tagName,
+              link: '.',
+            },
+            {
+              title: path.shortSummary,
+              link: '.',
+            },
+          ]}
+        >
+        </bread-crumbs>
       ` : ''}
       ${path.deprecated ? html`<div class="bold-text red-text"> DEPRECATED </div>` : ''}
       ${html`

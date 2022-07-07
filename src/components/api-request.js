@@ -450,7 +450,23 @@ export default class ApiRequest extends LitElement {
     <div class="request-card">
       <div class="request-title-container">
         <div class="request-title">${title}</div>
-        <bread-crumbs .headers=${[this.schemaShortSummary, 'Authentication', title]}></bread-crumbs>
+        <bread-crumbs
+          .headers=${[
+            {
+              title: this.schemaShortSummary,
+              link: '.',
+            },
+            {
+              title: 'Authentication',
+              link: '.',
+            },
+            {
+              title,
+              link: '.',
+            },
+          ]}
+        >
+        </bread-crumbs>
       </div>
       <hr style="border-top: 1px solid #E7E9EE;border-bottom:0;margin-block: 24px 0px;">
       <div style="display:block; overflow-x:auto; max-width:100%;padding-inline: 16px;">
