@@ -36,6 +36,13 @@ export default class Breadcrumbs extends LitElement {
         .caret {
           margin: 0 2px;
         }
+
+        @media(max-width: 1024px) {
+          .header {
+            font-size: 12px;
+            line-height: 16px;
+          }
+        }
       `,
       CustomStyles,
     ];
