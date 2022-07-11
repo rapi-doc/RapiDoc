@@ -42,9 +42,14 @@ export default class Breadcrumbs extends LitElement {
   }
 
   render() {
+    const headers = this.headers.map(({ title, link }) => ({
+      title: title.slice(0, 25) + (title.length > 25 ? '...' : ''),
+      link,
+    }));
+
     return html`
       <div class='container'>
-        ${this.headers.map((header, index) => html`
+        ${headers.map((header, index) => html`
           ${index > 0 ? html`
             <svg class="caret" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
