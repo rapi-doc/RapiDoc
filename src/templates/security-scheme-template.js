@@ -395,7 +395,7 @@ export default function securitySchemeTemplate() {
     </div>
     ${this.resolvedSpec.securitySchemes && this.resolvedSpec.securitySchemes.length > 0
       ? html`
-        <table id="auth-table" class='m-table padded-12' style="width:100%;">
+        <table role="presentation" id="auth-table" class='m-table padded-12' style="width:100%;">
           ${this.resolvedSpec.securitySchemes.map((v) => html`
             <tr id="security-scheme-${v.securitySchemeId}" class="${v.type.toLowerCase()}">
               <td style="max-width:500px; overflow-wrap: break-word;">
