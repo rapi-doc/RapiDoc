@@ -16,6 +16,7 @@ import { schemaInObjectNotation, getTypeInfo, generateExample, normalizeExamples
 import '~/components/json-tree';
 import '~/components/schema-tree';
 import '~/components/tag-input';
+import '~/components/breadcrumbs';
 
 export default class ApiRequest extends LitElement {
   constructor() {
@@ -34,6 +35,7 @@ export default class ApiRequest extends LitElement {
 
   static get properties() {
     return {
+      schemaShortSummary: { type: String, attribute: 'schema-short-summary' },
       serverUrl: { type: String, attribute: 'server-url' },
       servers: { type: Array },
       method: { type: String },
@@ -446,7 +448,26 @@ export default class ApiRequest extends LitElement {
 
     return html`
     <div class="request-card">
-      <div class="table-title">${title}</div>
+      <div class="request-title-container">
+        <div class="request-title">${title}</div>
+        <bread-crumbs
+          .headers=${[
+            {
+              title: this.schemaShortSummary,
+              link: '.',
+            },
+            {
+              title: 'Authentication',
+              link: '.',
+            },
+            {
+              title,
+              link: '.',
+            },
+          ]}
+        >
+        </bread-crumbs>
+      </div>
       <hr style="border-top: 1px solid #E7E9EE;border-bottom:0;margin-block: 24px 0px;">
       <div style="display:block; overflow-x:auto; max-width:100%;padding-inline: 16px;">
         <div style="width:100%; display:flex; flex-direction: column;">
