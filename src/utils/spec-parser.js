@@ -351,7 +351,12 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
             method: methodName,
             path: pathOrHookName,
             operationId: pathOrHookObj.operationId,
-            elementId: `${methodName}-${pathOrHookName.replace(invalidCharsRegEx, '-')}`,
+            elementId: `${methodName}${
+              pathOrHookName
+                .replace(/{/g, '<')
+                .replace(/}/g, '>')
+                .replace(invalidCharsRegEx, '-')
+            }`,
             servers: pathOrHookObj.servers ? commonPathProp.servers.concat(pathOrHookObj.servers) : commonPathProp.servers,
             parameters: finalParameters,
             requestBody: pathOrHookObj.requestBody,
