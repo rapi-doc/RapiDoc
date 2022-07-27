@@ -905,6 +905,7 @@ export default class RapiDoc extends LitElement {
       // for focused mode update this.focusedElementId to update the rendering, else it wont find the needed html elements
       // focusedElementId will get validated in the template
       this.focusedElementId = elementId;
+      await sleep(0);
     }
     if (this.renderStyle === 'view') {
       this.expandAndGotoOperation(elementId, expandPath, true);
