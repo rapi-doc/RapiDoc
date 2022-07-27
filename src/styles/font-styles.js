@@ -125,7 +125,7 @@ export default css`
 
   .m-markdown-small code,
   .m-markdown code {
-    padding: 1px 6px;
+    padding: 1px 0;
     border-radius: 2px;
     color: var(--inline-code-fg);
     background-color: var(--bg3);
