@@ -114,13 +114,7 @@ export default class SchemaTable extends LitElement {
               ${this.generateTree(
                 this.data['::type'] === 'array' ? this.data['::props'] : this.data,
                 this.data['::type'],
-                this.data?.['::array-type'] || '',
-                '',
-                this.data?.['::description'] || '',
-                0,
-                0,
-                this.data['::readwrite'] ? this.data['::readwrite'] : '',
-                this.data?.['::deprecated'] === 'deprecated',
+                this.data['::array-type'],
               )}`
             : ''
           }  
@@ -129,7 +123,7 @@ export default class SchemaTable extends LitElement {
     `;
   }
 
-  generateTree(data, dataType = 'object', arrayType = '', key = '', description = '', schemaLevel = 0, indentLevel = 0, readOrWrite = '', isDeprecated = false) {
+  generateTree(data, dataType = 'object', arrayType = '', key = '', description = '', schemaLevel = 0, indentLevel = 0, readOrWrite = '') {
     if (this.schemaHideReadOnly === 'true') {
       if (dataType === 'array') {
         if (readOrWrite === 'readonly') {
@@ -204,8 +198,8 @@ export default class SchemaTable extends LitElement {
       return html`
         ${newSchemaLevel >= 0 && key
           ? html`
-            <div class='tr ${newSchemaLevel <= this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type']}' data-obj='${keyLabel}' title="${isDeprecated ? 'Deprecated' : ''}">
-              <div class="td key ${isDeprecated ? 'deprecated' : ''}" style='padding-left:${leftPadding}px'>
+            <div class='tr ${newSchemaLevel <= this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type']}' data-obj='${keyLabel}' title="${data['::deprecated'] ? 'Deprecated' : ''}">
+              <div class="td key ${data['::deprecated'] ? 'deprecated' : ''}" style='padding-left:${leftPadding}px'>
                 ${(keyLabel || keyDescr)
                   ? html`
                     <span 
@@ -220,8 +214,8 @@ export default class SchemaTable extends LitElement {
                 ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION')
                   ? html`<span class="xxx-of-key" style="margin-left:-6px">${keyLabel}</span><span class="${isOneOfLabel ? 'xxx-of-key' : 'xxx-of-descr'}">${keyDescr}</span>`
                   : keyLabel.endsWith('*')
-                    ? html`<span class="key-label" style="display:inline-block; margin-left:-6px;">${isDeprecated ? '✗' : ''} ${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>`
-                    : html`<span class="key-label" style="display:inline-block; margin-left:-6px;">${isDeprecated ? '✗' : ''} ${keyLabel === '::props' ? '' : keyLabel}</span>`
+                    ? html`<span class="key-label" style="display:inline-block; margin-left:-6px;">${data['::deprecated'] ? '✗' : ''} ${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>`
+                    : html`<span class="key-label" style="display:inline-block; margin-left:-6px;">${data['::deprecated'] ? '✗' : ''} ${keyLabel === '::props' ? '' : keyLabel}</span>`
                 }
                 ${data['::type'] === 'xxx-of' && dataType === 'array' ? html`<span style="color:var(--primary-color)">ARRAY</span>` : ''} 
               </div>
@@ -247,7 +241,7 @@ export default class SchemaTable extends LitElement {
         }
         <div class='object-body'>
         ${Array.isArray(data) && data[0]
-          ? html`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, '', data['::deprecated'] || false)}`
+          ? html`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, '')}`
           : html`
             ${Object.keys(data).map((dataKey) => html`
               ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite', '::dataTypeLabel'].includes(dataKey)
@@ -261,7 +255,6 @@ export default class SchemaTable extends LitElement {
                       newSchemaLevel,
                       newIndentLevel,
                       data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '',
-                      data[dataKey]['::deprecated'] || false,
                     )}`
                   : ''
                 : html`${this.generateTree(
@@ -273,7 +266,6 @@ export default class SchemaTable extends LitElement {
                   newSchemaLevel,
                   newIndentLevel,
                   data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '',
-                  data[dataKey]['::deprecated'] || false,
                 )}`
               }
             `)}
@@ -295,7 +287,7 @@ export default class SchemaTable extends LitElement {
     let dataTypeHtml = '';
     if (dataType === 'array') {
       dataTypeHtml = html` 
-        <div class='td key-type ${dataTypeCss} ${isDeprecated ? 'deprecated' : ''}' title="${readOrWrite === 'readonly' ? 'Read-Only' : readOrWriteOnly === 'writeonly' ? 'Write-Only' : ''}">
+        <div class='td key-type ${dataTypeCss}' title="${readOrWrite === 'readonly' ? 'Read-Only' : readOrWriteOnly === 'writeonly' ? 'Write-Only' : ''}">
           [${type}] ${readOrWrite === 'readonly' ? '🆁' : readOrWrite === 'writeonly' ? '🆆' : ''}
         </div>`;
     } else {
@@ -305,9 +297,9 @@ export default class SchemaTable extends LitElement {
         </div>`;
     }
     return html`
-      <div class = "tr primitive" title="${isDeprecated || deprecated === 'deprecated' ? 'Deprecated' : ''}">
-        <div class="td key ${isDeprecated ? 'deprecated' : ''} ${deprecated}" style='padding-left:${leftPadding}px'>
-          ${isDeprecated || deprecated === 'deprecated' ? html`<span style='color:var(--red);'>✗</span>` : ''}
+      <div class = "tr primitive" title="${deprecated ? 'Deprecated' : ''}">
+        <div class="td key ${deprecated}" style='padding-left:${leftPadding}px'>
+          ${deprecated ? html`<span style='color:var(--red);'>✗</span>` : ''}
           ${keyLabel?.endsWith('*')
             ? html`
               <span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span>
