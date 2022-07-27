@@ -186,10 +186,27 @@ export default class ApiRequest extends LitElement {
   }
 
   render() {
+    /* eslint-disable indent */
     return html`
     <div class="col regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'}">
       <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} "> 
         ${this.callback === 'true' ? 'CALLBACK REQUEST' : 'REQUEST'}
+      </div>
+      <div style="display:flex;">
+        <div style="font-weight:bold; padding-right:5px;">Authentication</div>
+        ${this.security?.length > 0
+          ? html`
+            ${this.api_keys.length > 0
+              ? html`<div style="color:var(--blue); overflow:hidden;">
+                  ${this.api_keys.length === 1
+                    ? `${this.api_keys[0]?.typeDisplay} in ${this.api_keys[0].in}`
+                    : `${this.api_keys.length} API keys applied`
+                  }
+                </div>`
+              : html`<div class="gray-text">Required  <span style="color:var(--red)">(None Applied)</span>`
+            }`
+          : html`<span class="gray-text"> Not Required </span>`
+        }
       </div>
       <div>
         ${guard([this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('path'))}
@@ -201,6 +218,7 @@ export default class ApiRequest extends LitElement {
       </div>  
     </div>
     `;
+    /* eslint-enable indent */
   }
 
   updated(changedProperties) {
@@ -981,25 +999,9 @@ export default class ApiRequest extends LitElement {
 
     return html`
     <div style="display:flex; align-items:flex-end; margin:16px 0; font-size:var(--font-size-small);">
-      <div class="hide-in-small-screen" style="flex-direction:column; margin:0; width:calc(100% - 60px);">
+      <div class="hide-in-small-screen" style="flex-direction:column; margin:0; width:calc(100% - 60px); align-self:center;">
         <div style="display:flex; flex-direction:row; align-items:center; overflow:hidden;"> 
           ${selectedServerHtml}
-        </div>
-        <div style="display:flex;">
-          <div style="font-weight:bold; padding-right:5px;">Authentication</div>
-          ${this.security?.length > 0
-            ? html`
-              ${this.api_keys.length > 0
-                ? html`<div style="color:var(--blue); overflow:hidden;"> 
-                    ${this.api_keys.length === 1
-                      ? `${this.api_keys[0]?.typeDisplay} in ${this.api_keys[0].in}`
-                      : `${this.api_keys.length} API keys applied`
-                    } 
-                  </div>`
-                : html`<div class="gray-text">Required  <span style="color:var(--red)">(None Applied)</span>`
-              }`
-            : html`<span class="gray-text"> Not Required </span>`
-          }
         </div>
       </div>
       ${
