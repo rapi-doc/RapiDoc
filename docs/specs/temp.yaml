@@ -1,54 +1,533 @@
-openapi: 3.0.3
+openapi: 3.0.0
 info:
-  title: Apidoc
-  version: '1.0'
+  title: xxxxx
+  description: Documentation for xxxx xxxx
+  termsOfService: about:black
+  contact:
+    name: Support
+    url: about:blank
+    email: example@example.com.mx
+  version: 3.0.0
+servers:
+  - url: https://xxxxxxx.com
+    description: xxxURL
+components:
+  schemas: {}
+  responses: {}
+  examples: {}
+  headers: {}
+  securitySchemes:
+    x-api-key:
+      type: apiKey
+      in: header
+      name: x-api-key
+      description: Key for unauthenticated requests
+    cashier-token:
+      type: http
+      bearerFormat: JWT
+      scheme: bearer
+    admin-token:
+      type: http
+      bearerFormat: JWT
+      scheme: bearer
 paths:
-  /my/test/path:
+  /api/products:
     get:
-      operationId: test
+      operationId: ListProducts
+      tags:
+        - products
+      summary: List Products
+      description: Gets a list of products
+      parameters:
+        - name: department_id
+          in: query
+          description: Filter by department ID
+          required: false
+          deprecated: false
+          allowEmptyValue: false
+          schema:
+            description: Filter by department
+            minimum: 1
+            type: integer
+        - name: direction
+          in: query
+          description: Set the order of the results
+          required: false
+          deprecated: false
+          allowEmptyValue: false
+          schema:
+            default: asc
+            description: Order direction
+            enum:
+              - asc
+              - desc
+            type: string
+        - name: order_by
+          in: query
+          description: Order the results by the filed specified
+          required: false
+          deprecated: false
+          allowEmptyValue: false
+          schema:
+            enum:
+              - name
+              - barcode
+              - product_type
+              - department
+              - product_subcategory
+              - product_category
+              - active
+            type: string
+        - name: page
+          in: query
+          description: Page number of the results to fetch
+          required: false
+          deprecated: false
+          allowEmptyValue: false
+          schema:
+            default: 1
+            minimum: 1
+            type: integer
+        - name: price_list_ids
+          in: query
+          description: Appends the specified price list to the results (pipe separated). if not specified, returns all price lists
+          required: false
+          deprecated: false
+          allowEmptyValue: false
+          schema:
+            description: A list of price list ids to filter by.
+            pattern: ^([0-9]+){1}(?:|[0-9]+)*
+            type: string
+        - name: price_lists
+          in: query
+          description: Indicates whether to include the price lists in the results
+          required: false
+          deprecated: false
+          allowEmptyValue: false
+          schema:
+            description: Indicates if the price lists should be returned
+            type: boolean
+        - name: product_category_id
+          in: query
+          description: Filter by product category ID
+          required: false
+          deprecated: false
+          allowEmptyValue: false
+          schema:
+            description: Filter by product category
+            minimum: 1
+            type: integer
+        - name: product_subcategory_id
+          in: query
+          description: Filter by product subcategory ID
+          required: false
+          deprecated: false
+          allowEmptyValue: false
+          schema:
+            description: Filter by product sub category
+            minimum: 1
+            type: integer
+        - name: product_type_id
+          in: query
+          description: Filter by product type ID
+          required: false
+          deprecated: false
+          allowEmptyValue: false
+          schema:
+            description: Filter by product type
+            minimum: 1
+            type: integer
+        - name: size
+          in: query
+          description: Number of results to return
+          required: false
+          deprecated: false
+          allowEmptyValue: false
+          schema:
+            default: 100
+            maximum: 5000
+            minimum: 1
+            type: integer
+        - name: status
+          in: query
+          description: Filter by status
+          required: false
+          deprecated: false
+          allowEmptyValue: false
+          schema:
+            default: active
+            enum:
+              - active
+              - inactive
+              - all
+            type: string
+        - name: text_search
+          in: query
+          description: Search for products by name, shortname or barcode
+          required: false
+          deprecated: false
+          allowEmptyValue: false
+          schema:
+            description: product name or barcode to search for
+            maxLength: 45
+            minLength: 1
+            type: string
       responses:
         '200':
           description: ''
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TestSchema'
-components:
-  schemas:
-    TestSchema:
-      type: object
-      deprecated: true
-      properties:
-        prop1:
-          description: _First name_ (First name should be italics)
-          type: string
-          deprecated: true
-        targets_new:
-          type: array
-          items:
-            type: string
-          readOnly: true
-        targets:
-          type: array
-          items:
-            type: string
-          readOnly: true
-          description: Deprecated in description also
-          deprecated: true
-        fullName:
-          description: Person's Full name
-          type: object
-          deprecated: true
-          properties:
-            firstName:
-              description: _First name_ (First name should be italics)
-              type: string
-              deprecated: true
-            lastName:
-              description: |
-                `Last name` (last name must be monospaced)
-              type: string
-  
-      required:
-      - targets_new
-      - targets
+                type: object
+                properties:
+                  pagination:
+                    type: object
+                    description: Object that contians information about pagination
+                    properties:
+                      current_page:
+                        type: integer
+                        description: Indicates the number of the current page
+                      page_size:
+                        type: integer
+                        description: The number of max results per page
+                      total_pages:
+                        type: integer
+                        description: The total of pages available
+                  products:
+                    type: array
+                    description: contains a list of products
+                    items:
+                      properties:
+                        active:
+                          description: Indicates if the product is active
+                          type: boolean
+                        autogenerated_barcode:
+                          description: Indicates if the barcode of the product is an autogenerated barcode
+                          type: boolean
+                        barcode:
+                          description: the barcode of the product
+                          type: string
+                        brand_id:
+                          description: ID of the brand to belongs it
+                          type: integer
+                        created:
+                          description: Unix timestamp when the product was registered
+                          type: integer
+                        department_id:
+                          description: ID of the department to belongs it
+                          type: integer
+                        department_name:
+                          description: Name of the department to belongs it
+                          type: string
+                        id:
+                          description: ID of the product
+                          type: integer
+                        is_golden:
+                          description: Indicates if the product belongs to golden catalog (products with a trademark)
+                          type: boolean
+                        name:
+                          description: Name of the product
+                          type: string
+                        price_list:
+                          description: a list of price list for the product
+                          items:
+                            properties:
+                              price:
+                                description: price of the product for the price list
+                                type: number
+                              price_list_id:
+                                description: ID of the price list
+                                type: integer
+                              price_list_name:
+                                description: Name of the price list
+                                type: string
+                          type: array
+                        product_category_id:
+                          description: ID of the category
+                          type: integer
+                        product_category_name:
+                          description: The name of the category that the product belongs
+                          type: string
+                        product_subcategory_id:
+                          description: ID of the subcategory to the product belongs it
+                          type: integer
+                        product_subcategory_name:
+                          description: name of the subcategory
+                          type: string
+                        product_type_id:
+                          description: ID of the type of product
+                          type: integer
+                        product_type_name:
+                          description: Name of the type of product
+                          type: string
+                        short_name:
+                          description: The short name of the product
+                          type: string
+                        unit_prefix_id:
+                          description: ID of the unit prefix of the product
+                          type: integer
+                        unit_prefix_name:
+                          description: Name of the unit prefix of the product
+                          type: string
+                        updated:
+                          description: unix timestamp of last update
+                          type: integer
+                        use_inventory:
+                          description: Indicates if the product uses inventory
+                          type: boolean
+                  records_in_current_page:
+                    type: integer
+                    description: Number of rows returned in this page
+              example:
+                pagination:
+                  current_page: 1
+                  page_size: 2
+                  total_pages: 9
+                products:
+                  - active: true
+                    autogenerated_barcode: true
+                    barcode: '1010'
+                    brand_id: 1
+                    created: 1649530825557
+                    department_id: 9
+                    department_name: Panaderia
+                    id: 86
+                    is_golden: false
+                    name: Bolillo
+                    price_list:
+                      - price: 2
+                        price_list_id: 11
+                        price_list_name: Principal
+                    product_category_id: 8
+                    product_category_name: default
+                    product_subcategory_id: 10
+                    product_subcategory_name: default
+                    product_type_id: 1
+                    product_type_name: Pieza
+                    short_name: Bolillo
+                    unit_prefix_id: 1
+                    unit_prefix_name: pieza
+                    updated: 1649530825557
+                    use_inventory: false
+                  - active: true
+                    autogenerated_barcode: false
+                    barcode: '7501064112546 '
+                    brand_id: 1
+                    created: 1649532262428
+                    department_id: 7
+                    department_name: Bebidas
+                    id: 97
+                    is_golden: false
+                    name: Cerveza Modelo Especial 355ml
+                    price_list:
+                      - price: 18
+                        price_list_id: 11
+                        price_list_name: Principal
+                    product_category_id: 8
+                    product_category_name: default
+                    product_subcategory_id: 10
+                    product_subcategory_name: default
+                    product_type_id: 1
+                    product_type_name: Pieza
+                    short_name: Cerveza Modelo 355ml
+                    unit_prefix_id: 1
+                    unit_prefix_name: pieza
+                    updated: 1649532262428
+                    use_inventory: false
+                records_in_current_page: 2
+      deprecated: false
+      security:
+        - admin-token: []
+    post:
+      operationId: AddProduct
+      tags:
+        - products
+      summary: Add Product
+      description: Registers a new product
+      parameters: []
+      requestBody:
+        description: Body that must send to the endpoint
+        content:
+          application/json:
+            schema:
+              title: Product
+              description: Schema used to register a product
+              type: object
+              properties:
+                barcode:
+                  description: The unique indentifier of the product
+                  type: string
+                  minLength: 4
+                  maxLength: 20
+                autogenerated_barcode:
+                  description: If the barcode was autogenerated
+                  type: boolean
+                name:
+                  description: the name for the product
+                  type: string
+                  minLength: 3
+                  maxLength: 45
+                short_name:
+                  description: the short name for the product
+                  type: string
+                  minLength: 3
+                  maxLength: 45
+                product_type_id:
+                  description: The type of the product
+                  type: integer
+                unit_prefix_id:
+                  type: integer
+                product_subcategory_id:
+                  description: Specifies the chain product subcategory that belongs it
+                  type: integer
+                  minimum: 1
+                department_id:
+                  description: The department that the product belongs to
+                  type: integer
+                  minimum: 1
+                price_lists:
+                  title: price_lists
+                  description: Specifies the price of the product for each price list
+                  type: array
+                  items:
+                    additionalProperties: false
+                    properties:
+                      id:
+                        description: The id of the price list
+                        type: integer
+                      price:
+                        description: The price for the product for the price list
+                        type: number
+                        minimum: 0
+                    required:
+                      - id
+                      - price
+                  minItems: 1
+                cost:
+                  type: object
+                  description: The cost of the product
+                  properties:
+                    provider_id:
+                      type: number
+                      description: The id of the provider
+                      minimum: 0
+                    cost:
+                      type: number
+                      description: The cost of the product (unitary cost)
+                      minimum: 0
+                    purchased_at:
+                      type: integer
+                      description: The unix timesamp when the product was purchased
+                    promotion_applied:
+                      type: boolean
+                      description: Indicates if the product was purchased with a promotion
+                    quantity:
+                      type: number
+                      description: The quantity of the product purchased
+                      minimum: 0
+                  additionalProperties: false
+                  required:
+                    - provider_id
+                    - cost
+                    - purchased_at
+                    - promotion_applied
+                    - quantity
+                use_inventory:
+                  description: If the product uses inventory
+                  type: boolean
+                inventories:
+                  type: array
+                  description: The inventory of the product on each warehouse
+                  items:
+                    additionalProperties: false
+                    properties:
+                      warehouse_id:
+                        type: integer
+                        description: The id of the warehouse
+                        minimum: 0
+                      quantity:
+                        type: number
+                        description: The quantity of the product in the store
+                        minimum: 0
+                      unit_prefix_id:
+                        type: integer
+                        description: The unit prefix of the product
+                      minimum_quantity:
+                        type: number
+                        description: The minimum quantity of the product in the store
+                        exclusiveMinimum: true
+                      maximum_quantity:
+                        type: number
+                        description: The maximum quantity of the product in the store
+                        exclusiveMinimum: true
+                    required:
+                      - warehouse_id
+                      - quantity
+                      - unit_prefix_id
+                  minItems: 1
+                taxes:
+                  type: array
+                  description: The taxes that apply to the product
+                  items:
+                    additionalProperties: false
+                    properties:
+                      id:
+                        type: integer
+                        description: The id of the tax
+                        minimum: 1
+                      assessment_type_id:
+                        type: number
+                        description: The percentage of the tax
+                        minimum: 1
+                      base_amount:
+                        type: number
+                        description: The base amount of the tax
+                        minimum: 0
+                    required:
+                      - id
+                      - assessment_type_id
+                      - base_amount
+              additionalProperties: false
+              example:
+                barcode: '1025'
+                autogenerated_barcode: true
+                name: Concha Chocolate
+                short_name: Concha
+                product_type_id: 1
+                product_subcategory_id: 1
+                unit_prefix_id: 1
+                department_id: 1
+                use_inventory: false
+                taxes:
+                  - id: 1
+                    assessment_type_id: 1
+                    base_amount: 0.16
+                price_lists:
+                  - id: 4
+                    price: 7.5
+                cost:
+                  provider_id: 1
+                  purchased_at: 1643411479000
+                  cost: 4
+                  promotion_applied: false
+                  quantity: 50
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: a simple sucess message
+                  id:
+                    type: integer
+                    description: ID of the resource created
+                example:
+                  id: 649
+                  message: success
+      deprecated: false
+      security:
+        - admin-token: []
