@@ -290,17 +290,26 @@ export default class ApiRequest extends LitElement {
 
     let content = null;
 
-    if (this.activeParameterTemplateTabs[paramType] === 'example') {
-      const paramExample = filteredParams.reduce((acc, param) => ({ ...acc, [param.name]: param.example }), {});
+    if (this.activeParameterTemplateTabs[paramType] === 'schema') {
+      const requiredParamsNames = filteredParams.filter((p) => p.required).map((p) => p.name);
+      const paramsSchema = filteredParams.reduce((acc, param) => ({
+        ...acc,
+        properties: { ...acc.properties, [param.name]: param.schema },
+      }), { type: 'object', properties: {}, ...(requiredParamsNames.length && { required: requiredParamsNames }) });
+      const paramsSchemaAsObj = schemaInObjectNotation(paramsSchema, {});
 
-      content = html`
-        <json-tree
-          render-style='${this.renderStyle}'
-          .data="${paramExample}"
-          class='example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}'
-          exportparts="btn:btn, btn-fill:btn-fill, btn-copy:btn-copy"
-        ></json-tree>
-      `;
+      content = html`<div class="tab-content col">
+        <schema-tree
+          class = 'json'
+          style = 'display: block'
+          .data = '${paramsSchemaAsObj}'
+          schema-expand-level = "${this.schemaExpandLevel}"
+          schema-description-expanded = "${this.schemaDescriptionExpanded}"
+          allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+          schema-hide-read-only = "${this.schemaHideReadOnly.includes(this.method)}"
+          schema-hide-write-only = "false"
+        > </schema-tree>
+      </div>`;
     } else {
       const tableRows = [];
       for (const param of filteredParams) {
@@ -504,8 +513,8 @@ export default class ApiRequest extends LitElement {
           this.requestUpdate();
         }
       }}">
-        <button class="tab-btn ${this.activeParameterTemplateTabs[paramType] !== 'example' ? 'active' : ''}" data-tab = 'interactive'>INTERACTIVE </button>
-        <button class="tab-btn ${this.activeParameterTemplateTabs[paramType] === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
+        <button class="tab-btn ${this.activeParameterTemplateTabs[paramType] !== 'schema' ? 'active' : ''}" data-tab = 'interactive'>INTERACTIVE </button>
+        <button class="tab-btn ${this.activeParameterTemplateTabs[paramType] === 'schema' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
       </div>
       ${content}
     </div>`;
