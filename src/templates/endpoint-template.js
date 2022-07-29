@@ -118,6 +118,7 @@ function endpointBodyTemplate(path) {
         <api-request
           class = "${this.renderStyle}-mode ${this.layout}-layout"
           style = "width:100%;"
+          schema-short-summary="${path.shortSummary}"
           webhook = "${path.isWebhook}"
           method = "${path.method}", 
           path = "${path.path}"
