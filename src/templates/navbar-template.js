@@ -26,7 +26,17 @@ export function expandCollapseAll(navEl, action = 'expand-all') {
     });
   }
 }
-
+function downloadResource(url, fileName) {
+  if (url) {
+    const a = document.createElement('a');
+    document.body.appendChild(a);
+    a.style = 'display: none';
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    a.remove();
+  }
+}
 function onExpandCollapse(e) {
   expandCollapseNavBarTag(e.target, 'toggle');
 }
@@ -83,8 +93,13 @@ export default function navbarTemplate() {
         </div>
       `
     }
+    <div style="display:flex; margin:12px 0; gap:8px; justify-content: start;">
+      <button class="m-btn thin-border" style="width:170px; margin: 0 auto;" part="btn btn-outline" @click='${(e) => {
+        downloadResource(this.specUrl, '35up-specs', e);
+      }}'>Download YAML file</button>
+    </div>
     ${html`<nav class='nav-scroll' part="section-navbar-scroll">
-      ${(this.showInfo === 'false' || !this.resolvedSpec.info)
+        ${(this.showInfo === 'false' || !this.resolvedSpec.info)
         ? ''
         : html`
           ${(this.infoDescriptionHeadingsInNavBar === 'true')
