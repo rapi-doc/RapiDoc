@@ -291,12 +291,7 @@ export default class ApiRequest extends LitElement {
     let content = null;
 
     if (this.activeParameterTemplateTabs[paramType] === 'schema') {
-      const requiredParamsNames = filteredParams.filter((p) => p.required).map((p) => p.name);
-      const paramsSchema = filteredParams.reduce((acc, param) => ({
-        ...acc,
-        properties: { ...acc.properties, [param.name]: param.schema },
-      }), { type: 'object', properties: {}, ...(requiredParamsNames.length && { required: requiredParamsNames }) });
-      const paramsSchemaAsObj = schemaInObjectNotation(paramsSchema, {});
+      const paramsSchemaAsObj = this.makeParamsSchemaObject(filteredParams);
 
       content = html`<div class="tab-content col">
         <schema-tree
@@ -518,6 +513,15 @@ export default class ApiRequest extends LitElement {
       </div>
       ${content}
     </div>`;
+  }
+
+  makeParamsSchemaObject(params) {
+    const requiredParamsNames = params.filter((p) => p.required).map((p) => p.name);
+    const paramsSchema = params.reduce((acc, param) => ({
+      ...acc,
+      properties: { ...acc.properties, [param.name]: param.schema },
+    }), { type: 'object', properties: {}, ...(requiredParamsNames.length && { required: requiredParamsNames }) });
+    return schemaInObjectNotation(paramsSchema, {});
   }
 
   resetRequestBodySelection() {
