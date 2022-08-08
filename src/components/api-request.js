@@ -508,7 +508,7 @@ export default class ApiRequest extends LitElement {
           this.requestUpdate();
         }
       }}">
-        <button class="tab-btn ${this.activeParameterTemplateTabs[paramType] !== 'schema' ? 'active' : ''}" data-tab = 'interactive'>INTERACTIVE </button>
+        <button class="tab-btn ${this.activeParameterTemplateTabs[paramType] !== 'schema' ? 'active' : ''}" data-tab = 'interactive'>INTERACTIVE</button>
         <button class="tab-btn ${this.activeParameterTemplateTabs[paramType] === 'schema' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
       </div>
       ${content}
