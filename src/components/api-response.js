@@ -269,7 +269,7 @@ export default class ApiResponse extends LitElement {
                 </div>
                 `
               }`)
-          }`
+          }</div>`
         : ''
       }
       </div>
