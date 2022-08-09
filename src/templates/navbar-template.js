@@ -105,7 +105,7 @@ export default function navbarTemplate() {
       </a>
     </div>
     ${html`<nav class='nav-scroll' part="section-navbar-scroll">
-        ${(this.showInfo === 'false' || !this.resolvedSpec.info)
+      ${(this.showInfo === 'false' || !this.resolvedSpec.info)
         ? ''
         : html`
           ${(this.infoDescriptionHeadingsInNavBar === 'true')
