@@ -11,6 +11,7 @@ import BorderStyles from '~/styles/border-styles';
 import CustomStyles from '~/styles/custom-styles';
 import '~/components/schema-tree';
 import '~/components/schema-table';
+import cornersOutIcon from './assets/corners-out-icon';
 
 export default class ApiResponse extends LitElement {
   constructor() {
@@ -66,6 +67,16 @@ export default class ApiResponse extends LitElement {
         color:var(--light-fg);
         text-align:left;
       }
+      .resp-box{
+        display: flex;
+        flex-direction: row;
+        flex: 1 1 auto;
+        justify-content: space-between;
+        align-items: center;
+        padding: 24px;
+        border: 1px solid #CCCED8;
+        border-radius: 4px;
+      }
       .top-gap{margin-top:16px;}
       .example-panel{
         font-size:var(--font-size-small);
@@ -73,10 +84,30 @@ export default class ApiResponse extends LitElement {
       }
       .focused-mode,
       .read-mode {
-        padding-top:24px;
-        margin-top:12px;
-        border-top: 1px dashed var(--border-color);
-      }`,
+        margin: 32px 0px;
+        display: flex;
+        flex-direction: column;
+        row-gap: 24px;
+      }
+      .dot {
+        height: 8px;
+        width: 8px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+      .success {
+        background-color: var(--success-color);
+      }
+      .informational {
+        background-color: var(--informational-color);
+      }
+      .redirection {
+        background-color: var(--redirection-color);
+      }
+      .error {
+        background-color: var(--error-color);
+      }
+      `,
       CustomStyles,
     ];
   }
@@ -84,19 +115,27 @@ export default class ApiResponse extends LitElement {
   render() {
     return html`
     <div class="col regular-font response-panel ${this.renderStyle}-mode">
-      <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} "> 
-        ${this.callback === 'true' ? 'CALLBACK RESPONSE' : 'RESPONSE'}
-      </div>
-      <div>
-        ${this.responseTemplate()}
-      <div>  
-    </div>  
+      ${this.responseTemplate()}
+    </div>
     `;
   }
 
   resetSelection() {
     this.selectedStatus = '';
     this.selectedMimeType = '';
+  }
+
+  getResponseStatusType(respStatus) {
+    const status = respStatus.toString();
+    return status.startsWith('1')
+      ? 'informational'
+      : status.startsWith('2')
+        ? 'success'
+        : status.startsWith('3')
+          ? 'redirection'
+          : (status.startsWith('4') || status.startsWith('5'))
+            ? 'error'
+            : '';
   }
 
   /* eslint-disable indent */
@@ -140,30 +179,58 @@ export default class ApiResponse extends LitElement {
       this.mimeResponsesForEachStatus[statusCode] = allMimeResp;
     }
     return html`
-      ${Object.keys(this.responses).length > 1
+      ${Object.keys(this.responses).length >= 1
         ? html`<div class='row' style='flex-wrap:wrap'>
           ${Object.keys(this.responses).map((respStatus) => html`
             ${respStatus === '$$ref' // Swagger-Client parser creates '$$ref' object if JSON references are used to create responses - this should be ignored
               ? ''
               : html`
-                <button 
-                  @click="${() => {
-                    this.selectedStatus = respStatus;
-                    if (this.responses[respStatus].content && Object.keys(this.responses[respStatus].content)[0]) {
-                      this.selectedMimeType = Object.keys(this.responses[respStatus].content)[0]; // eslint-disable-line prefer-destructuring
-                    } else {
-                      this.selectedMimeType = undefined;
-                    }
-                  }}"
-                  class='m-btn small ${this.selectedStatus === respStatus ? 'primary' : ''}'
-                  part="btn ${this.selectedStatus === respStatus ? 'btn-response-status btn-selected-response-status' : ' btn-response-status'}"
-                  style='margin: 8px 4px 0 0'
-                > 
-                  ${respStatus} 
-                </button>`
+                <div class="resp-box">
+                  <div style='display: flex; flex-direction: row; justify-content: flex-start; align-items: center;'>
+                    <button
+                      style="display: flex; justify-content: center; align-items: center; background: none; color: inherit; border: none; padding: 0; font: inherit; cursor: pointer; outline: inherit; margin-right: 8px"
+                      @click="${() => {
+                        this.selectedStatus = respStatus;
+                        if (this.responses[respStatus].content && Object.keys(this.responses[respStatus].content)[0]) {
+                          this.selectedMimeType = Object.keys(this.responses[respStatus].content)[0]; // eslint-disable-line prefer-destructuring
+                        } else {
+                          this.selectedMimeType = undefined;
+                        }
+                      }}"
+                    >
+                      ${cornersOutIcon()}
+                    </button>
+                    <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} " style="margin: 0">
+                      ${this.callback === 'true' ? 'Callback Response' : 'Response'}
+                    </div>
+                  </div>
+                  <div style='display: flex; flex-direction: row; justify-content: flex-end; align-items: center;'>
+                    <div style='margin-right: 4px'>
+                      <span class='dot ${this.getResponseStatusType(respStatus)}'></span>
+                    </div>
+                    <div>
+                      <span>${respStatus}</span>
+                    </div>
+                  </div>
+                </div>
+                `
               }`)
           }`
-        : html`<span>${Object.keys(this.responses)[0]}</span>`
+        : html`
+          <div class="resp-box">
+            <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} " style="margin: 0">
+              ${this.callback === 'true' ? 'Callback Response' : 'Response'}
+            </div>
+            <div style='display: flex; flex-direction: row; justify-content: flex-end; align-items: center;'>
+              <div style='margin-right: 4px'>
+                <span class='dot ${this.getResponseStatusType(Object.keys(this.responses)[0])}'></span>
+              </div>
+              <div>
+                <span>${Object.keys(this.responses)[0]}</span>
+              </div>
+            </div>
+          </div>
+          `
       }
       </div>
 
