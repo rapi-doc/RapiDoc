@@ -116,7 +116,7 @@ export default class ApiRequest extends LitElement {
         .param-constraint:empty{
           display:none;
         }
-        .top-gap{margin-top:24px;}
+        .top-gap{margin-top:12px;}
 
         .textarea {
           min-height:220px; 
@@ -186,28 +186,39 @@ export default class ApiRequest extends LitElement {
     ];
   }
 
+  renderAuthInfo() {
+    /* eslint-disable indent */
+    const authRequired = html`<div class="gray-text">Required  <span style="color:var(--red)">(None Applied)</span>`;
+    const authNotRequired = html`<div class="gray-text"> Not Required </div>`;
+    const appliedApiKeys = html`
+      <div style="color:var(--blue); overflow:hidden;">
+        ${this.api_keys.length === 1
+          ? `${this.api_keys[0]?.typeDisplay} in ${this.api_keys[0].in}`
+          : `${this.api_keys.length} API keys applied`}
+      </div>
+    `;
+
+    return html`
+      <div class="${this.callback === 'true' ? 'tiny-title' : 'req-res-title'}">
+        AUTHENTICATION
+      </div>
+      <div style="margin-bottom: 24px">
+      ${this.security?.length > 0
+        ? this.api_keys.length > 0 ? appliedApiKeys : authRequired
+        : authNotRequired
+      }
+      </div>
+    `;
+    /* eslint-enable indent */
+  }
+
   render() {
     /* eslint-disable indent */
     return html`
     <div class="col regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'}">
+      ${this.renderAuthInfo()}
       <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} "> 
         ${this.callback === 'true' ? 'CALLBACK REQUEST' : 'REQUEST'}
-      </div>
-      <div style="display:flex;">
-        <div style="font-weight:bold; padding-right:5px;">Authentication</div>
-        ${this.security?.length > 0
-          ? html`
-            ${this.api_keys.length > 0
-              ? html`<div style="color:var(--blue); overflow:hidden;">
-                  ${this.api_keys.length === 1
-                    ? `${this.api_keys[0]?.typeDisplay} in ${this.api_keys[0].in}`
-                    : `${this.api_keys.length} API keys applied`
-                  }
-                </div>`
-              : html`<div class="gray-text">Required  <span style="color:var(--red)">(None Applied)</span>`
-            }`
-          : html`<span class="gray-text"> Not Required </span>`
-        }
       </div>
       <div>
         ${guard([this.allowTry, this.parameters, this.activeParameterSchemaTabs, this.activeParameterTemplateTabs], () => this.inputParametersTemplate('path'))}
