@@ -142,7 +142,7 @@ export class Toast extends LitElement {
                 bottom: 32px;
                 right: 50%;
                 transform: translateX(50%);
-                z-index: 999;
+                z-index: 1001;
                 -webkit-animation:
                     fadeIn .3s ease,
                     slideIn .3s ease,
