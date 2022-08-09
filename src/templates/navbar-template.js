@@ -83,6 +83,27 @@ export default function navbarTemplate() {
         </div>
       `
     }
+    <div style="display:flex; margin:12px 0; gap:8px; justify-content: start;">
+      <style>
+        .download-link {
+            width:170px; 
+            margin-left:16px; 
+            text-decoration: none; 
+            color: var(--fg);
+        }
+        .download-link:hover {
+          color: var(--primary-color-invert);
+        }
+      </style>
+      <a
+        download="35up-specs.yml"
+        href=${this.specUrl}
+        class="m-btn thin-border download-link"
+        part="btn btn-outline"
+      >
+        Download YAML file
+      </a>
+    </div>
     ${html`<nav class='nav-scroll' part="section-navbar-scroll">
       ${(this.showInfo === 'false' || !this.resolvedSpec.info)
         ? ''
