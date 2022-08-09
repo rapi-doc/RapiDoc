@@ -12,6 +12,7 @@ import CustomStyles from '~/styles/custom-styles';
 import '~/components/schema-tree';
 import '~/components/schema-table';
 import cornersOutIcon from './assets/corners-out-icon';
+import closeSymbol from './assets/close-symbol';
 
 export default class ApiResponse extends LitElement {
   constructor() {
@@ -79,6 +80,41 @@ export default class ApiResponse extends LitElement {
         border: 1px solid #CCCED8;
         border-radius: 4px;
       }
+      .resp-modal-header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        flex: 1 1 auto;
+      }
+      .resp-modal-content {
+        padding: 24px 16px;
+        background-color: #FFFFFF;
+        width: 80%;
+        max-width: 720px;
+        max-height: 70%;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        overflow: auto;
+      }
+      .resp-modal {
+        display: none;
+        position: fixed;
+        z-index: 1002;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.1);
+      }
+      .resp-modal-bg {
+        height: 100%;
+        width: 100%;
+        position: relative;
+      }
       .top-gap{margin-top:16px;}
       .example-panel{
         font-size:var(--font-size-small);
@@ -108,6 +144,21 @@ export default class ApiResponse extends LitElement {
       }
       .error {
         background-color: var(--error-color);
+      }
+      .close-button {
+          display: flex;
+          flex-direction: row;
+          justify-content: center;
+          align-items: center;
+          border: none;
+          border-radius: 4px;
+          padding: 0px;
+          width: 24px;
+          height: 24px;
+      }
+      .close-button:hover {
+          cursor: pointer;
+          background-color: rgba(0, 0, 0, 0.05);
       }
       `,
       CustomStyles,
@@ -198,6 +249,7 @@ export default class ApiResponse extends LitElement {
                         } else {
                           this.selectedMimeType = undefined;
                         }
+                        this.renderRoot.getElementById(`resp-modal-${respStatus}`).style.display = 'block';
                       }}"
                     >
                       ${cornersOutIcon()}
@@ -223,39 +275,69 @@ export default class ApiResponse extends LitElement {
       </div>
 
       ${Object.keys(this.responses).map((status) => html`
-        <div style = 'display: ${status === this.selectedStatus ? 'block' : 'none'}' >
-          <div class="top-gap">
-            <span class="resp-descr m-markdown ">${unsafeHTML(marked(this.responses[status]?.description || ''))}</span>
-            ${(this.headersForEachRespStatus[status] && this.headersForEachRespStatus[status]?.length > 0)
-              ? html`${this.responseHeaderListTemplate(this.headersForEachRespStatus[status])}`
-              : ''
-            }
-          </div>
-          ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 0
-            ? ''
-            : html`  
-              <div class="tab-panel col">
-                <div class="tab-buttons row" @click="${(e) => { if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; } }}" >
-                  <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
-                  <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' >SCHEMA</button>
-                  <div style="flex:1"></div>
-                  ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1
-                    ? html`<span class='small-font-size gray-text' style='align-self:center; margin-top:8px;'> ${Object.keys(this.mimeResponsesForEachStatus[status])[0]} </span>`
-                    : html`${this.mimeTypeDropdownTemplate(Object.keys(this.mimeResponsesForEachStatus[status]))}`
+        <div class="resp-modal" id="resp-modal-${status}">
+          <div class="resp-modal-bg"
+            @click="${() => {
+              this.renderRoot.getElementById(`resp-modal-${status}`).style.display = 'none';
+            }}"
+          ></div>
+          <div class="resp-border resp-modal-content">
+            <div class="resp-modal-header">
+              <div style='display: flex; flex-direction: row; justify-content: flex-start; align-items: center;'>
+                <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} " style="margin: 0">
+                  ${this.callback === 'true' ? 'Callback Response' : 'Response'}
+                </div>
+              </div>
+              <div style='display: flex; flex-direction: row; justify-content: flex-end; align-items: center; column-gap: 4px'>
+                <div>
+                  <span class='dot ${this.getResponseStatusType(status)}'></span>
+                </div>
+                <div>
+                  <span>${status}</span>
+                </div>
+                <button class="close-button"
+                  @click="${() => {
+                    this.renderRoot.getElementById(`resp-modal-${status}`).style.display = 'none';
+                  }}"
+                >
+                  ${closeSymbol()}
+                </button>
+              </div>
+            </div>
+            <div class="top-gap">
+              <span class="resp-descr m-markdown ">${unsafeHTML(marked(this.responses[status]?.description || ''))}</span>
+              ${(this.headersForEachRespStatus[status] && this.headersForEachRespStatus[status]?.length > 0)
+                ? html`${this.responseHeaderListTemplate(this.headersForEachRespStatus[status])}`
+                : ''
+              }
+            </div>
+            ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 0
+              ? ''
+              : html`  
+                <div class="tab-panel col">
+                  <div class="tab-buttons row" @click="${(e) => { if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; } }}" >
+                    <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
+                    <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' >SCHEMA</button>
+                    <div style="flex:1"></div>
+                    ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1
+                      ? html`<span class='small-font-size gray-text' style='align-self:center; margin-top:8px;'> ${Object.keys(this.mimeResponsesForEachStatus[status])[0]} </span>`
+                      : html`${this.mimeTypeDropdownTemplate(Object.keys(this.mimeResponsesForEachStatus[status]))}`
+                    }
+                  </div>
+                  ${this.activeSchemaTab === 'example'
+                    ? html`<div class ='tab-content col' style = 'flex:1;'>
+                        ${this.mimeExampleTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
+                      </div>`
+                    : html`<div class ='tab-content col' style = 'flex:1;'>
+                        ${this.mimeSchemaTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
+                      </div>`
                   }
                 </div>
-                ${this.activeSchemaTab === 'example'
-                  ? html`<div class ='tab-content col' style = 'flex:1;'>
-                      ${this.mimeExampleTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
-                    </div>`
-                  : html`<div class ='tab-content col' style = 'flex:1;'>
-                      ${this.mimeSchemaTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
-                    </div>`
-                }
-              </div>
-            `
-          }`)
-        }
+              `
+            }
+          </div>
+        </div>
+      `)}
     `;
   }
 
