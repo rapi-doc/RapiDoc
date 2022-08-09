@@ -76,6 +76,9 @@ export default class ApiResponse extends LitElement {
         align-items: center;
         padding: 24px;
       }
+      .resp-box:hover {
+        cursor: pointer;
+      }
       .resp-border{
         border: 1px solid #CCCED8;
         border-radius: 4px;
@@ -238,22 +241,21 @@ export default class ApiResponse extends LitElement {
             ${respStatus === '$$ref' // Swagger-Client parser creates '$$ref' object if JSON references are used to create responses - this should be ignored
               ? ''
               : html`
-                <div class="resp-box resp-border">
+                <div class="resp-box resp-border"
+                  @click="${() => {
+                    this.selectedStatus = respStatus;
+                    if (this.responses[respStatus].content && Object.keys(this.responses[respStatus].content)[0]) {
+                      this.selectedMimeType = Object.keys(this.responses[respStatus].content)[0]; // eslint-disable-line prefer-destructuring
+                    } else {
+                      this.selectedMimeType = undefined;
+                    }
+                    this.renderRoot.getElementById(`resp-modal-${respStatus}`).style.display = 'block';
+                  }}"
+                >
                   <div style='display: flex; flex-direction: row; justify-content: flex-start; align-items: center;'>
-                    <button
-                      style="display: flex; justify-content: center; align-items: center; background: none; color: inherit; border: none; padding: 0; font: inherit; cursor: pointer; outline: inherit; margin-right: 8px"
-                      @click="${() => {
-                        this.selectedStatus = respStatus;
-                        if (this.responses[respStatus].content && Object.keys(this.responses[respStatus].content)[0]) {
-                          this.selectedMimeType = Object.keys(this.responses[respStatus].content)[0]; // eslint-disable-line prefer-destructuring
-                        } else {
-                          this.selectedMimeType = undefined;
-                        }
-                        this.renderRoot.getElementById(`resp-modal-${respStatus}`).style.display = 'block';
-                      }}"
-                    >
+                    <div style="display: flex; justify-content: center; align-items: center; margin-right: 8px">
                       ${cornersOutIcon()}
-                    </button>
+                    </div>
                     <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} " style="margin: 0">
                       ${this.callback === 'true' ? 'Callback Response' : 'Response'}
                     </div>
