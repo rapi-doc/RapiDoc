@@ -74,6 +74,8 @@ export default class ApiResponse extends LitElement {
         justify-content: space-between;
         align-items: center;
         padding: 24px;
+      }
+      .resp-border{
         border: 1px solid #CCCED8;
         border-radius: 4px;
       }
@@ -185,7 +187,7 @@ export default class ApiResponse extends LitElement {
             ${respStatus === '$$ref' // Swagger-Client parser creates '$$ref' object if JSON references are used to create responses - this should be ignored
               ? ''
               : html`
-                <div class="resp-box">
+                <div class="resp-box resp-border">
                   <div style='display: flex; flex-direction: row; justify-content: flex-start; align-items: center;'>
                     <button
                       style="display: flex; justify-content: center; align-items: center; background: none; color: inherit; border: none; padding: 0; font: inherit; cursor: pointer; outline: inherit; margin-right: 8px"
