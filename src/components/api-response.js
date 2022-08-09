@@ -216,21 +216,7 @@ export default class ApiResponse extends LitElement {
                 `
               }`)
           }`
-        : html`
-          <div class="resp-box">
-            <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} " style="margin: 0">
-              ${this.callback === 'true' ? 'Callback Response' : 'Response'}
-            </div>
-            <div style='display: flex; flex-direction: row; justify-content: flex-end; align-items: center;'>
-              <div style='margin-right: 4px'>
-                <span class='dot ${this.getResponseStatusType(Object.keys(this.responses)[0])}'></span>
-              </div>
-              <div>
-                <span>${Object.keys(this.responses)[0]}</span>
-              </div>
-            </div>
-          </div>
-          `
+        : ''
       }
       </div>
 
