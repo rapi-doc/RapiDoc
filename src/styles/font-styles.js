@@ -22,9 +22,11 @@ export default css`
   .req-res-title {
     font-family: var(--font-regular);
     font-size: calc(var(--font-size-small) + 4px);
-    font-weight:bold;
     margin-bottom:8px;
     text-align:left;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 18px;
   }
   .tiny-title { 
     font-size:calc(var(--font-size-small) + 1px); 

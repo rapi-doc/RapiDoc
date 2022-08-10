@@ -11,6 +11,8 @@ import BorderStyles from '~/styles/border-styles';
 import CustomStyles from '~/styles/custom-styles';
 import '~/components/schema-tree';
 import '~/components/schema-table';
+import cornersOutIcon from './assets/corners-out-icon';
+import closeSymbol from './assets/close-symbol';
 
 export default class ApiResponse extends LitElement {
   constructor() {
@@ -66,6 +68,56 @@ export default class ApiResponse extends LitElement {
         color:var(--light-fg);
         text-align:left;
       }
+      .resp-box{
+        display: flex;
+        flex-direction: row;
+        flex: 1 1 auto;
+        justify-content: space-between;
+        align-items: center;
+        padding: 24px;
+      }
+      .resp-box:hover {
+        cursor: pointer;
+      }
+      .resp-border{
+        border: 1px solid #CCCED8;
+        border-radius: 4px;
+      }
+      .resp-modal-header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        flex: 1 1 auto;
+      }
+      .resp-modal-content {
+        padding: 24px 16px;
+        background-color: #FFFFFF;
+        width: 80%;
+        max-width: 720px;
+        max-height: 70%;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        overflow: auto;
+      }
+      .resp-modal {
+        display: none;
+        position: fixed;
+        z-index: 1002;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.1);
+      }
+      .resp-modal-bg {
+        height: 100%;
+        width: 100%;
+        position: relative;
+      }
       .top-gap{margin-top:16px;}
       .example-panel{
         font-size:var(--font-size-small);
@@ -73,10 +125,45 @@ export default class ApiResponse extends LitElement {
       }
       .focused-mode,
       .read-mode {
-        padding-top:24px;
-        margin-top:12px;
-        border-top: 1px dashed var(--border-color);
-      }`,
+        margin: 32px 0px;
+        display: flex;
+        flex-direction: column;
+        row-gap: 24px;
+      }
+      .dot {
+        height: 8px;
+        width: 8px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+      .success {
+        background-color: var(--success-color);
+      }
+      .informational {
+        background-color: var(--informational-color);
+      }
+      .redirection {
+        background-color: var(--redirection-color);
+      }
+      .error {
+        background-color: var(--error-color);
+      }
+      .close-button {
+          display: flex;
+          flex-direction: row;
+          justify-content: center;
+          align-items: center;
+          border: none;
+          border-radius: 4px;
+          padding: 0px;
+          width: 24px;
+          height: 24px;
+      }
+      .close-button:hover {
+          cursor: pointer;
+          background-color: rgba(0, 0, 0, 0.05);
+      }
+      `,
       CustomStyles,
     ];
   }
@@ -84,19 +171,27 @@ export default class ApiResponse extends LitElement {
   render() {
     return html`
     <div class="col regular-font response-panel ${this.renderStyle}-mode">
-      <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} "> 
-        ${this.callback === 'true' ? 'CALLBACK RESPONSE' : 'RESPONSE'}
-      </div>
-      <div>
-        ${this.responseTemplate()}
-      <div>  
-    </div>  
+      ${this.responseTemplate()}
+    </div>
     `;
   }
 
   resetSelection() {
     this.selectedStatus = '';
     this.selectedMimeType = '';
+  }
+
+  getResponseStatusType(respStatus) {
+    const status = respStatus.toString();
+    return status.startsWith('1')
+      ? 'informational'
+      : status.startsWith('2')
+        ? 'success'
+        : status.startsWith('3')
+          ? 'redirection'
+          : (status.startsWith('4') || status.startsWith('5'))
+            ? 'error'
+            : '';
   }
 
   /* eslint-disable indent */
@@ -140,13 +235,13 @@ export default class ApiResponse extends LitElement {
       this.mimeResponsesForEachStatus[statusCode] = allMimeResp;
     }
     return html`
-      ${Object.keys(this.responses).length > 1
+      ${Object.keys(this.responses).length >= 1
         ? html`<div class='row' style='flex-wrap:wrap'>
           ${Object.keys(this.responses).map((respStatus) => html`
             ${respStatus === '$$ref' // Swagger-Client parser creates '$$ref' object if JSON references are used to create responses - this should be ignored
               ? ''
               : html`
-                <button 
+                <div class="resp-box resp-border"
                   @click="${() => {
                     this.selectedStatus = respStatus;
                     if (this.responses[respStatus].content && Object.keys(this.responses[respStatus].content)[0]) {
@@ -154,53 +249,97 @@ export default class ApiResponse extends LitElement {
                     } else {
                       this.selectedMimeType = undefined;
                     }
+                    this.renderRoot.getElementById(`resp-modal-${respStatus}`).style.display = 'block';
                   }}"
-                  class='m-btn small ${this.selectedStatus === respStatus ? 'primary' : ''}'
-                  part="btn ${this.selectedStatus === respStatus ? 'btn-response-status btn-selected-response-status' : ' btn-response-status'}"
-                  style='margin: 8px 4px 0 0'
-                > 
-                  ${respStatus} 
-                </button>`
+                >
+                  <div style='display: flex; flex-direction: row; justify-content: flex-start; align-items: center;'>
+                    <div style="display: flex; justify-content: center; align-items: center; margin-right: 8px">
+                      ${cornersOutIcon()}
+                    </div>
+                    <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} " style="margin: 0">
+                      ${this.callback === 'true' ? 'Callback Response' : 'Response'}
+                    </div>
+                  </div>
+                  <div style='display: flex; flex-direction: row; justify-content: flex-end; align-items: center;'>
+                    <div style='margin-right: 4px'>
+                      <span class='dot ${this.getResponseStatusType(respStatus)}'></span>
+                    </div>
+                    <div>
+                      <span>${respStatus}</span>
+                    </div>
+                  </div>
+                </div>
+                `
               }`)
-          }`
-        : html`<span>${Object.keys(this.responses)[0]}</span>`
+          }</div>`
+        : ''
       }
       </div>
 
       ${Object.keys(this.responses).map((status) => html`
-        <div style = 'display: ${status === this.selectedStatus ? 'block' : 'none'}' >
-          <div class="top-gap">
-            <span class="resp-descr m-markdown ">${unsafeHTML(marked(this.responses[status]?.description || ''))}</span>
-            ${(this.headersForEachRespStatus[status] && this.headersForEachRespStatus[status]?.length > 0)
-              ? html`${this.responseHeaderListTemplate(this.headersForEachRespStatus[status])}`
-              : ''
-            }
-          </div>
-          ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 0
-            ? ''
-            : html`  
-              <div class="tab-panel col">
-                <div class="tab-buttons row" @click="${(e) => { if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; } }}" >
-                  <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
-                  <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' >SCHEMA</button>
-                  <div style="flex:1"></div>
-                  ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1
-                    ? html`<span class='small-font-size gray-text' style='align-self:center; margin-top:8px;'> ${Object.keys(this.mimeResponsesForEachStatus[status])[0]} </span>`
-                    : html`${this.mimeTypeDropdownTemplate(Object.keys(this.mimeResponsesForEachStatus[status]))}`
+        <div class="resp-modal" id="resp-modal-${status}">
+          <div class="resp-modal-bg"
+            @click="${() => {
+              this.renderRoot.getElementById(`resp-modal-${status}`).style.display = 'none';
+            }}"
+          ></div>
+          <div class="resp-border resp-modal-content">
+            <div class="resp-modal-header">
+              <div style='display: flex; flex-direction: row; justify-content: flex-start; align-items: center;'>
+                <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} " style="margin: 0">
+                  ${this.callback === 'true' ? 'Callback Response' : 'Response'}
+                </div>
+              </div>
+              <div style='display: flex; flex-direction: row; justify-content: flex-end; align-items: center; column-gap: 4px'>
+                <div>
+                  <span class='dot ${this.getResponseStatusType(status)}'></span>
+                </div>
+                <div>
+                  <span>${status}</span>
+                </div>
+                <button class="close-button"
+                  @click="${() => {
+                    this.renderRoot.getElementById(`resp-modal-${status}`).style.display = 'none';
+                  }}"
+                >
+                  ${closeSymbol()}
+                </button>
+              </div>
+            </div>
+            <div class="top-gap">
+              <span class="resp-descr m-markdown ">${unsafeHTML(marked(this.responses[status]?.description || ''))}</span>
+              ${(this.headersForEachRespStatus[status] && this.headersForEachRespStatus[status]?.length > 0)
+                ? html`${this.responseHeaderListTemplate(this.headersForEachRespStatus[status])}`
+                : ''
+              }
+            </div>
+            ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 0
+              ? ''
+              : html`  
+                <div class="tab-panel col">
+                  <div class="tab-buttons row" @click="${(e) => { if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; } }}" >
+                    <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
+                    <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' >SCHEMA</button>
+                    <div style="flex:1"></div>
+                    ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1
+                      ? html`<span class='small-font-size gray-text' style='align-self:center; margin-top:8px;'> ${Object.keys(this.mimeResponsesForEachStatus[status])[0]} </span>`
+                      : html`${this.mimeTypeDropdownTemplate(Object.keys(this.mimeResponsesForEachStatus[status]))}`
+                    }
+                  </div>
+                  ${this.activeSchemaTab === 'example'
+                    ? html`<div class ='tab-content col' style = 'flex:1;'>
+                        ${this.mimeExampleTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
+                      </div>`
+                    : html`<div class ='tab-content col' style = 'flex:1;'>
+                        ${this.mimeSchemaTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
+                      </div>`
                   }
                 </div>
-                ${this.activeSchemaTab === 'example'
-                  ? html`<div class ='tab-content col' style = 'flex:1;'>
-                      ${this.mimeExampleTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
-                    </div>`
-                  : html`<div class ='tab-content col' style = 'flex:1;'>
-                      ${this.mimeSchemaTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
-                    </div>`
-                }
-              </div>
-            `
-          }`)
-        }
+              `
+            }
+          </div>
+        </div>
+      `)}
     `;
   }
 

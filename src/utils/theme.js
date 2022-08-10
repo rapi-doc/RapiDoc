@@ -294,6 +294,12 @@ export default function setTheme(baseTheme, theme = {}) {
     --delete-bg-color:${newTheme.bgCritical};
     --delete-border-color:${newTheme.borderCritical};
 
+    /* HTTP Status Colors */
+    --success-color:${newTheme.fgPositive};
+    --informational-color:${newTheme.fgInfo};
+    --redirection-color:${newTheme.fgWarning};
+    --error-color:${newTheme.fgCritical};
+
     /* Primary Colors */  
     --primary-color:${newTheme.primaryColor};
     --primary-color-invert:${newTheme.primaryColorInvert};
