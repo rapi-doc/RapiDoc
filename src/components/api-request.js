@@ -31,6 +31,7 @@ export default class ApiRequest extends LitElement {
     this.selectedRequestBodyType = '';
     this.selectedRequestBodyExample = '';
     this.activeParameterSchemaTabs = {};
+    this.activeParameterTemplateTabs = {};
   }
 
   static get properties() {
@@ -115,7 +116,7 @@ export default class ApiRequest extends LitElement {
         .param-constraint:empty{
           display:none;
         }
-        .top-gap{margin-top:24px;}
+        .top-gap{margin-top:12px;}
 
         .textarea {
           min-height:220px; 
@@ -185,22 +186,51 @@ export default class ApiRequest extends LitElement {
     ];
   }
 
+  renderAuthInfo() {
+    /* eslint-disable indent */
+    const authRequired = html`<div class="gray-text">Required  <span style="color:var(--red)">(None Applied)</span>`;
+    const authNotRequired = html`<div class="gray-text"> Not Required </div>`;
+    const appliedApiKeys = html`
+      <div style="color:var(--blue); overflow:hidden;">
+        ${this.api_keys.length === 1
+          ? `${this.api_keys[0]?.typeDisplay} in ${this.api_keys[0].in}`
+          : `${this.api_keys.length} API keys applied`}
+      </div>
+    `;
+
+    return html`
+      <div class="${this.callback === 'true' ? 'tiny-title' : 'req-res-title'}">
+        AUTHENTICATION
+      </div>
+      <div style="margin-bottom: 24px">
+      ${this.security?.length > 0
+        ? this.api_keys.length > 0 ? appliedApiKeys : authRequired
+        : authNotRequired
+      }
+      </div>
+    `;
+    /* eslint-enable indent */
+  }
+
   render() {
+    /* eslint-disable indent */
     return html`
     <div class="col regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'}">
+      ${this.renderAuthInfo()}
       <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} "> 
         ${this.callback === 'true' ? 'CALLBACK REQUEST' : 'REQUEST'}
       </div>
       <div>
-        ${guard([this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('path'))}
-        ${guard([this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('query'))}
+        ${guard([this.allowTry, this.parameters, this.activeParameterSchemaTabs, this.activeParameterTemplateTabs], () => this.inputParametersTemplate('path'))}
+        ${guard([this.allowTry, this.parameters, this.activeParameterSchemaTabs, this.activeParameterTemplateTabs], () => this.inputParametersTemplate('query'))}
         ${this.requestBodyTemplate()}
-        ${guard([this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('header'))}
-        ${guard([this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('cookie'))}
+        ${guard([this.allowTry, this.parameters, this.activeParameterSchemaTabs, this.activeParameterTemplateTabs], () => this.inputParametersTemplate('header'))}
+        ${guard([this.allowTry, this.parameters, this.activeParameterSchemaTabs, this.activeParameterTemplateTabs], () => this.inputParametersTemplate('cookie'))}
         ${this.allowTry === 'false' ? '' : html`${this.apiCallTemplate()}`}
       </div>  
     </div>
     `;
+    /* eslint-enable indent */
   }
 
   updated(changedProperties) {
@@ -269,197 +299,240 @@ export default class ApiRequest extends LitElement {
       title = 'COOKIES';
     }
 
-    const tableRows = [];
-    for (const param of filteredParams) {
-      const [declaredParamSchema, serializeStyle, mimeTypeElem] = getSchemaFromParam(param);
-      if (!declaredParamSchema) {
-        continue; // eslint-disable-line no-continue
-      }
-      const paramSchema = getTypeInfo(declaredParamSchema);
-      if (!paramSchema) {
-        continue; // eslint-disable-line no-continue
-      }
-      const schemaAsObj = schemaInObjectNotation(declaredParamSchema, {});
-      // let exampleVal = '';
-      // let exampleList = [];
-      let paramStyle = 'form';
-      let paramExplode = true;
-      let paramAllowReserved = false;
-      if (paramType === 'query') {
-        if (param.style && 'form spaceDelimited pipeDelimited'.includes(param.style)) {
-          paramStyle = param.style;
-        } else if (serializeStyle) {
-          paramStyle = serializeStyle;
-        }
-        if (typeof param.explode === 'boolean') {
-          paramExplode = param.explode;
-        }
-        if (typeof param.allowReserved === 'boolean') {
-          paramAllowReserved = param.allowReserved;
-        }
-      }
+    let content = null;
 
-      // openapi 3.1.0 spec based examples (which must be Object(string : { value:any, summary?: string, description?: string})
-      const example = normalizeExamples(
-        (param.examples
-          || nestExampleIfPresent(param.example)
-          || nestExampleIfPresent(mimeTypeElem?.example)
-          || mimeTypeElem?.examples
-          || paramSchema.examples
-          || nestExampleIfPresent(paramSchema.example)
-        ),
-        paramSchema.type,
-      );
-      if (!example.exampleVal && paramSchema.type === 'object') {
-        example.exampleVal = generateExample(
-          declaredParamSchema,
-          serializeStyle || 'json',
-          '',
-          '',
-          true,
-          true,
-          'text',
-          false,
-        )[0].exampleValue;
-      }
-      const labelColWidth = 'read focused'.includes(this.renderStyle) ? '160px' : '120px';
-      tableRows.push(html`
-      <tr> 
-        <td rowspan="${this.allowTry === 'true' ? '1' : '2'}" style="width:${labelColWidth}; min-width:100px;">
-          <div class="param-name">
-            ${param.required ? html`<span style='color:var(--red)'>*</span>` : ''}${param.name}
-          </div>
-          <div class="param-type">
-            ${paramSchema.type === 'array'
-              ? `${paramSchema.arrayType}`
-              : `${paramSchema.format ? paramSchema.format : paramSchema.type}`
-            }
-          </div>
-        </td>  
-        ${this.allowTry === 'true'
-          ? html`
-            <td style="min-width:100px;">
+    if (this.activeParameterTemplateTabs[paramType] === 'schema') {
+      const paramsSchemaAsObj = this.makeParamsSchemaObject(filteredParams);
+
+      content = html`<div class="tab-content col">
+        <schema-tree
+          class = 'json'
+          style = 'display: block'
+          .data = '${paramsSchemaAsObj}'
+          schema-expand-level = "${this.schemaExpandLevel}"
+          schema-description-expanded = "${this.schemaDescriptionExpanded}"
+          allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+          schema-hide-read-only = "${this.schemaHideReadOnly.includes(this.method)}"
+          schema-hide-write-only = "false"
+        > </schema-tree>
+      </div>`;
+    } else {
+      const tableRows = [];
+      for (const param of filteredParams) {
+        const [declaredParamSchema, serializeStyle, mimeTypeElem] = getSchemaFromParam(param);
+        if (!declaredParamSchema) {
+          continue; // eslint-disable-line no-continue
+        }
+        const paramSchema = getTypeInfo(declaredParamSchema);
+        if (!paramSchema) {
+          continue; // eslint-disable-line no-continue
+        }
+        const schemaAsObj = schemaInObjectNotation(declaredParamSchema, {});
+        // let exampleVal = '';
+        // let exampleList = [];
+        let paramStyle = 'form';
+        let paramExplode = true;
+        let paramAllowReserved = false;
+        if (paramType === 'query') {
+          if (param.style && 'form spaceDelimited pipeDelimited'.includes(param.style)) {
+            paramStyle = param.style;
+          } else if (serializeStyle) {
+            paramStyle = serializeStyle;
+          }
+          if (typeof param.explode === 'boolean') {
+            paramExplode = param.explode;
+          }
+          if (typeof param.allowReserved === 'boolean') {
+            paramAllowReserved = param.allowReserved;
+          }
+        }
+
+        // openapi 3.1.0 spec based examples (which must be Object(string : { value:any, summary?: string, description?: string})
+        const example = normalizeExamples(
+          (param.examples
+            || nestExampleIfPresent(param.example)
+            || nestExampleIfPresent(mimeTypeElem?.example)
+            || mimeTypeElem?.examples
+            || paramSchema.examples
+            || nestExampleIfPresent(paramSchema.example)
+          ),
+          paramSchema.type,
+        );
+        if (!example.exampleVal && paramSchema.type === 'object') {
+          example.exampleVal = generateExample(
+            declaredParamSchema,
+            serializeStyle || 'json',
+            '',
+            '',
+            true,
+            true,
+            'text',
+            false,
+          )[0].exampleValue;
+        }
+        const labelColWidth = 'read focused'.includes(this.renderStyle) ? '160px' : '120px';
+        tableRows.push(html`
+        <tr>
+          <td rowspan="${this.allowTry === 'true' ? '1' : '2'}" style="width:${labelColWidth}; min-width:100px;">
+            <div class="param-name">
+              ${param.required ? html`<span style='color:var(--red)'>*</span>` : ''}${param.name}
+            </div>
+            <div class="param-type">
               ${paramSchema.type === 'array'
-                ? html`
-                  <tag-input class="request-param" 
-                    style = "width:100%" 
-                    data-ptype = "${paramType}"
-                    data-pname = "${param.name}"
-                    data-example = "${Array.isArray(example.exampleVal) ? example.exampleVal.join('~|~') : example.exampleVal}"
-                    data-param-serialize-style = "${paramStyle}"
-                    data-param-serialize-explode = "${paramExplode}"
-                    data-param-allow-reserved = "${paramAllowReserved}"
-                    data-array = "true"
-                    placeholder = "add-multiple &#x21a9;"
-                    .value = "${Array.isArray(example.exampleVal) ? example.exampleVal : example.exampleVal}"
-                  >
-                  </tag-input>`
-                : paramSchema.type === 'object'
+                ? `${paramSchema.arrayType}`
+                : `${paramSchema.format ? paramSchema.format : paramSchema.type}`
+              }
+            </div>
+          </td>
+          ${this.allowTry === 'true'
+            ? html`
+              <td style="min-width:100px;">
+                ${paramSchema.type === 'array'
                   ? html`
-                    <div class="tab-panel col" style="border-width:0 0 1px 0;">
-                      <div class="tab-buttons row" @click="${(e) => {
-                        if (e.target.tagName.toLowerCase() === 'button') {
-                          const newState = { ...this.activeParameterSchemaTabs };
-                          newState[param.name] = e.target.dataset.tab;
-                          this.activeParameterSchemaTabs = newState;
-                        }
-                      }}">
-                        <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
-                        <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
-                      </div>
-                      ${this.activeParameterSchemaTabs[param.name] === 'example'
-                        ? html`<div class="tab-content col">
-                          <textarea 
-                            class = "textarea request-param"
-                            part = "textarea textarea-param"
-                            data-ptype = "${paramType}-object"
-                            data-pname = "${param.name}"
-                            data-example = "${example.exampleVal}"
-                            data-param-serialize-style = "${paramStyle}"
-                            data-param-serialize-explode = "${paramExplode}"
-                            data-param-allow-reserved = "${paramAllowReserved}"
-                            spellcheck = "false"
-                            .textContent = "${this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : ''}"
-                            style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
-                          ></textarea>
-                        </div>`
-                        : html`
-                          <div class="tab-content col">            
-                            <schema-tree
-                              class = 'json'
-                              style = 'display: block'
-                              .data = '${schemaAsObj}'
-                              schema-expand-level = "${this.schemaExpandLevel}"
-                              schema-description-expanded = "${this.schemaDescriptionExpanded}"
-                              allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
-                              schema-hide-read-only = "${this.schemaHideReadOnly.includes(this.method)}"
-                              schema-hide-write-only = "false"
-                            > </schema-tree>
-                          </div>`
-                        }
-                    </div>`
-                  : html`
-                    <input type="${paramSchema.format === 'password' ? 'password' : 'text'}" spellcheck="false" style="width:100%" 
-                      class="request-param"
-                      part="textbox textbox-param"
-                      data-ptype="${paramType}"
-                      data-pname="${param.name}" 
-                      data-example="${Array.isArray(example.exampleVal) ? example.exampleVal.join('~|~') : example.exampleVal}"
+                    <tag-input class="request-param"
+                      style = "width:100%"
+                      data-ptype = "${paramType}"
+                      data-pname = "${param.name}"
+                      data-example = "${Array.isArray(example.exampleVal) ? example.exampleVal.join('~|~') : example.exampleVal}"
+                      data-param-serialize-style = "${paramStyle}"
+                      data-param-serialize-explode = "${paramExplode}"
                       data-param-allow-reserved = "${paramAllowReserved}"
-                      data-array="false"
-                      .value="${live(this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : '')}"
-                    />`
-                }
-            </td>`
-          : ''
-        }
-        ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern
-          ? html`
-            <td colspan="${(this.allowTry === 'true') ? '1' : '2'}">
-              <div class="param-constraint">
-                ${paramSchema.default ? html`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
-                ${paramSchema.pattern ? html`<span style="font-weight:bold">Pattern: </span>${paramSchema.pattern}<br/>` : ''}
-                ${paramSchema.constrain ? html`${paramSchema.constrain}<br/>` : ''}
-                ${paramSchema.allowedValues && paramSchema.allowedValues.split('┃').map((v, i) => html`
-                  ${i > 0 ? '┃' : html`<span style="font-weight:bold">Allowed: </span>`}
-                  ${html`
-                    <a part="anchor anchor-param-constraint" class = "${this.allowTry === 'true' ? '' : 'inactive-link'}"
-                      data-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}"
-                      data-enum="${v.trim()}"
-                      @click="${(e) => {
-                        const inputEl = e.target.closest('table').querySelector(`[data-pname="${param.name}"]`);
-                        if (inputEl) {
-                          if (e.target.dataset.type === 'array') {
-                            inputEl.value = [e.target.dataset.enum];
-                          } else {
-                            inputEl.value = e.target.dataset.enum;
+                      data-array = "true"
+                      placeholder = "add-multiple &#x21a9;"
+                      .value = "${Array.isArray(example.exampleVal) ? example.exampleVal : example.exampleVal}"
+                    >
+                    </tag-input>`
+                  : paramSchema.type === 'object'
+                    ? html`
+                      <div class="tab-panel col" style="border-width:0 0 1px 0;">
+                        <div class="tab-buttons row" @click="${(e) => {
+                          if (e.target.tagName.toLowerCase() === 'button') {
+                            const newState = { ...this.activeParameterSchemaTabs };
+                            newState[param.name] = e.target.dataset.tab;
+                            this.activeParameterSchemaTabs = newState;
                           }
-                        }
-                      }}"
-                    >${v}</a>`
-                  }`)}
-              </div>
-            </td>`
-          : ''
-        }
-      </tr>
-      <tr>
-        ${this.allowTry === 'true' ? html`<td style="border:none"> </td>` : ''}
-        <td colspan="2" style="border:none;">
-          <span class="m-markdown-small">${unsafeHTML(marked(param.description || ''))}</span>
-          ${this.exampleListTemplate.call(this, param.name, paramSchema.type, example.exampleList)}
-        </td>
-      </tr>
-    `);
+                        }}">
+                          <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
+                          <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
+                        </div>
+                        ${this.activeParameterSchemaTabs[param.name] === 'example'
+                          ? html`<div class="tab-content col">
+                            <textarea
+                              class = "textarea request-param"
+                              part = "textarea textarea-param"
+                              data-ptype = "${paramType}-object"
+                              data-pname = "${param.name}"
+                              data-example = "${example.exampleVal}"
+                              data-param-serialize-style = "${paramStyle}"
+                              data-param-serialize-explode = "${paramExplode}"
+                              data-param-allow-reserved = "${paramAllowReserved}"
+                              spellcheck = "false"
+                              .textContent = "${this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : ''}"
+                              style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
+                            ></textarea>
+                          </div>`
+                          : html`
+                            <div class="tab-content col">
+                              <schema-tree
+                                class = 'json'
+                                style = 'display: block'
+                                .data = '${schemaAsObj}'
+                                schema-expand-level = "${this.schemaExpandLevel}"
+                                schema-description-expanded = "${this.schemaDescriptionExpanded}"
+                                allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+                                schema-hide-read-only = "${this.schemaHideReadOnly.includes(this.method)}"
+                                schema-hide-write-only = "false"
+                              > </schema-tree>
+                            </div>`
+                          }
+                      </div>`
+                    : html`
+                      <input type="${paramSchema.format === 'password' ? 'password' : 'text'}" spellcheck="false" style="width:100%"
+                        class="request-param"
+                        part="textbox textbox-param"
+                        data-ptype="${paramType}"
+                        data-pname="${param.name}"
+                        data-example="${Array.isArray(example.exampleVal) ? example.exampleVal.join('~|~') : example.exampleVal}"
+                        data-param-allow-reserved = "${paramAllowReserved}"
+                        data-array="false"
+                        .value="${live(this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : '')}"
+                      />`
+                  }
+              </td>`
+            : ''
+          }
+          ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern
+            ? html`
+              <td colspan="${(this.allowTry === 'true') ? '1' : '2'}">
+                <div class="param-constraint">
+                  ${paramSchema.default ? html`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
+                  ${paramSchema.pattern ? html`<span style="font-weight:bold">Pattern: </span>${paramSchema.pattern}<br/>` : ''}
+                  ${paramSchema.constrain ? html`${paramSchema.constrain}<br/>` : ''}
+                  ${paramSchema.allowedValues && paramSchema.allowedValues.split('┃').map((v, i) => html`
+                    ${i > 0 ? '┃' : html`<span style="font-weight:bold">Allowed: </span>`}
+                    ${html`
+                      <a part="anchor anchor-param-constraint" class = "${this.allowTry === 'true' ? '' : 'inactive-link'}"
+                        data-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}"
+                        data-enum="${v.trim()}"
+                        @click="${(e) => {
+                          const inputEl = e.target.closest('table').querySelector(`[data-pname="${param.name}"]`);
+                          if (inputEl) {
+                            if (e.target.dataset.type === 'array') {
+                              inputEl.value = [e.target.dataset.enum];
+                            } else {
+                              inputEl.value = e.target.dataset.enum;
+                            }
+                          }
+                        }}"
+                      >${v}</a>`
+                    }`)}
+                </div>
+              </td>`
+            : ''
+          }
+        </tr>
+        <tr>
+          ${this.allowTry === 'true' ? html`<td style="border:none"> </td>` : ''}
+          <td colspan="2" style="border:none;">
+            <span class="m-markdown-small">${unsafeHTML(marked(param.description || ''))}</span>
+            ${this.exampleListTemplate.call(this, param.name, paramSchema.type, example.exampleList)}
+          </td>
+        </tr>
+      `);
+      }
+      content = html`
+        <table class="m-table" style="width:100%; word-break:break-word;">
+          ${tableRows}
+        </table>
+      `;
     }
 
     return html`
     <div class="table-title top-gap">${title}</div>
     <div style="display:block; overflow-x:auto; max-width:100%;">
-      <table class="m-table" style="width:100%; word-break:break-word;">
-        ${tableRows}
-      </table>
+    <div class="tab-panel col" style="border-width:0 0 1px 0;">
+      <div class="tab-buttons row" @click="${(e) => {
+        if (e.target.tagName.toLowerCase() === 'button') {
+          const newState = { ...this.activeParameterTemplateTabs };
+          newState[paramType] = e.target.dataset.tab;
+          this.activeParameterTemplateTabs = newState;
+          this.requestUpdate();
+        }
+      }}">
+        <button class="tab-btn ${this.activeParameterTemplateTabs[paramType] !== 'schema' ? 'active' : ''}" data-tab = 'interactive'>INTERACTIVE</button>
+        <button class="tab-btn ${this.activeParameterTemplateTabs[paramType] === 'schema' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
+      </div>
+      ${content}
     </div>`;
+  }
+
+  makeParamsSchemaObject(params) {
+    const requiredParamsNames = params.filter((p) => p.required).map((p) => p.name);
+    const paramsSchema = params.reduce((acc, param) => ({
+      ...acc,
+      properties: { ...acc.properties, [param.name]: param.schema },
+    }), { type: 'object', properties: {}, ...(requiredParamsNames.length && { required: requiredParamsNames }) });
+    return schemaInObjectNotation(paramsSchema, {});
   }
 
   resetRequestBodySelection() {
@@ -981,25 +1054,9 @@ export default class ApiRequest extends LitElement {
 
     return html`
     <div style="display:flex; align-items:flex-end; margin:16px 0; font-size:var(--font-size-small);">
-      <div class="hide-in-small-screen" style="flex-direction:column; margin:0; width:calc(100% - 60px);">
+      <div class="hide-in-small-screen" style="flex-direction:column; margin:0; width:calc(100% - 60px); align-self:center;">
         <div style="display:flex; flex-direction:row; align-items:center; overflow:hidden;"> 
           ${selectedServerHtml}
-        </div>
-        <div style="display:flex;">
-          <div style="font-weight:bold; padding-right:5px;">Authentication</div>
-          ${this.security?.length > 0
-            ? html`
-              ${this.api_keys.length > 0
-                ? html`<div style="color:var(--blue); overflow:hidden;"> 
-                    ${this.api_keys.length === 1
-                      ? `${this.api_keys[0]?.typeDisplay} in ${this.api_keys[0].in}`
-                      : `${this.api_keys.length} API keys applied`
-                    } 
-                  </div>`
-                : html`<div class="gray-text">Required  <span style="color:var(--red)">(None Applied)</span>`
-              }`
-            : html`<span class="gray-text"> Not Required </span>`
-          }
         </div>
       </div>
       ${

@@ -95,7 +95,9 @@ export default css`
 
 @media only screen and (min-width: 1420px) {
   .key-descr {
-    display: block;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
   }
   .expanded-descr .key-descr{
     display: block;
