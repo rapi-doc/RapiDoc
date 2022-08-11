@@ -89,17 +89,22 @@ export default class ApiResponse extends LitElement {
         align-items: center;
         justify-content: space-between;
         flex: 1 1 auto;
+        height: 45px;
       }
       .resp-modal-content {
         padding: 24px 16px;
         background-color: #FFFFFF;
         width: 80%;
+        height: 70%;
         max-width: 720px;
-        max-height: 70%;
+        max-height: 1120px;
         position: absolute;
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
+      }
+      .resp-modal-body {
+        height: calc(100% - 45px);
         overflow: auto;
       }
       .resp-modal {
@@ -110,7 +115,6 @@ export default class ApiResponse extends LitElement {
         top: 0;
         width: 100%;
         height: 100%;
-        overflow: auto;
         background-color: rgba(0,0,0,0.1);
       }
       .resp-modal-bg {
@@ -306,37 +310,39 @@ export default class ApiResponse extends LitElement {
                 </button>
               </div>
             </div>
-            <div class="top-gap">
-              <span class="resp-descr m-markdown ">${unsafeHTML(marked(this.responses[status]?.description || ''))}</span>
-              ${(this.headersForEachRespStatus[status] && this.headersForEachRespStatus[status]?.length > 0)
-                ? html`${this.responseHeaderListTemplate(this.headersForEachRespStatus[status])}`
-                : ''
-              }
-            </div>
-            ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 0
-              ? ''
-              : html`  
-                <div class="tab-panel col">
-                  <div class="tab-buttons row" @click="${(e) => { if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; } }}" >
-                    <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
-                    <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' >SCHEMA</button>
-                    <div style="flex:1"></div>
-                    ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1
-                      ? html`<span class='small-font-size gray-text' style='align-self:center; margin-top:8px;'> ${Object.keys(this.mimeResponsesForEachStatus[status])[0]} </span>`
-                      : html`${this.mimeTypeDropdownTemplate(Object.keys(this.mimeResponsesForEachStatus[status]))}`
+            <div class="resp-modal-body">
+              <div class="top-gap">
+                <span class="resp-descr m-markdown ">${unsafeHTML(marked(this.responses[status]?.description || ''))}</span>
+                ${(this.headersForEachRespStatus[status] && this.headersForEachRespStatus[status]?.length > 0)
+                  ? html`${this.responseHeaderListTemplate(this.headersForEachRespStatus[status])}`
+                  : ''
+                }
+              </div>
+              ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 0
+                ? ''
+                : html`  
+                  <div class="tab-panel col">
+                    <div class="tab-buttons row" @click="${(e) => { if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; } }}" >
+                      <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
+                      <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' >SCHEMA</button>
+                      <div style="flex:1"></div>
+                      ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1
+                        ? html`<span class='small-font-size gray-text' style='align-self:center; margin-top:8px;'> ${Object.keys(this.mimeResponsesForEachStatus[status])[0]} </span>`
+                        : html`${this.mimeTypeDropdownTemplate(Object.keys(this.mimeResponsesForEachStatus[status]))}`
+                      }
+                    </div>
+                    ${this.activeSchemaTab === 'example'
+                      ? html`<div class ='tab-content col' style = 'flex:1;'>
+                          ${this.mimeExampleTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
+                        </div>`
+                      : html`<div class ='tab-content col' style = 'flex:1;'>
+                          ${this.mimeSchemaTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
+                        </div>`
                     }
                   </div>
-                  ${this.activeSchemaTab === 'example'
-                    ? html`<div class ='tab-content col' style = 'flex:1;'>
-                        ${this.mimeExampleTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
-                      </div>`
-                    : html`<div class ='tab-content col' style = 'flex:1;'>
-                        ${this.mimeSchemaTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
-                      </div>`
-                  }
-                </div>
-              `
-            }
+                `
+              }
+            </div>
           </div>
         </div>
       `)}
