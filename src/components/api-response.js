@@ -106,6 +106,24 @@ export default class ApiResponse extends LitElement {
       .resp-modal-body {
         height: calc(100% - 45px);
         overflow: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: white white;
+      }
+      .resp-modal-body:hover {
+        scrollbar-color: #CCCED8 white;
+      }
+      .resp-modal-body::-webkit-scrollbar {
+        display: block;
+        width: 6px;
+        background-color: white;
+      }
+      .resp-modal-body::-webkit-scrollbar-thumb {
+        border-radius: 4px;
+        background: white;
+      }
+      .resp-modal-body:hover::-webkit-scrollbar-thumb {
+        background: #CCCED8;
       }
       .resp-modal {
         display: none;
