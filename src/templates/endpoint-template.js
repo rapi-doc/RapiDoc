@@ -139,33 +139,33 @@ function endpointBodyTemplate(path) {
           schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
           schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
           fetch-credentials = "${this.fetchCredentials}"
-          exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
+          exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
             file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
             anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
-        > </api-request>
+          > </api-request>
 
           ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
-      </div>  
+        </div>  
 
-      <api-response
-        class = "${this.renderStyle}-mode"
-        style = "width:100%;"
-        webhook = "${path.isWebhook}"
-        .responses="${path.responses}"
-        active-schema-tab = "${this.defaultSchemaTab}" 
-        render-style="${this.renderStyle}" 
-        schema-style="${this.schemaStyle}"
-        schema-expand-level = "${this.schemaExpandLevel}"
-        schema-description-expanded = "${this.schemaDescriptionExpanded}"
-        allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
-        schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
-        schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
-        selected-status = "${Object.keys(path.responses || {})[0] || ''}"
-        exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, file-input:file-input, 
-        textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, anchor:anchor, anchor-param-example:anchor-param-example, btn-clear-resp:btn-clear-resp,
-        schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
-      > </api-response>
-    </div>
+        <api-response
+          class = "${this.renderStyle}-mode"
+          style = "width:100%;"
+          webhook = "${path.isWebhook}"
+          .responses="${path.responses}"
+          active-schema-tab = "${this.defaultSchemaTab}" 
+          render-style="${this.renderStyle}" 
+          schema-style="${this.schemaStyle}"
+          schema-expand-level = "${this.schemaExpandLevel}"
+          schema-description-expanded = "${this.schemaDescriptionExpanded}"
+          allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
+          schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
+          schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
+          selected-status = "${Object.keys(path.responses || {})[0] || ''}"
+          exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, file-input:file-input, 
+          textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, anchor:anchor, anchor-param-example:anchor-param-example, btn-clear-resp:btn-clear-resp,
+          schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+        > </api-response>
+      </div>
   </div>`;
 }
 

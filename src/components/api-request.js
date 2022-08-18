@@ -464,9 +464,9 @@ export default class ApiRequest extends LitElement {
                               allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
                               schema-hide-read-only = "${this.schemaHideReadOnly.includes(this.method)}"
                               schema-hide-write-only = "${this.schemaHideWriteOnly.includes(this.method)}"
-                              exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
-            file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
-            anchor:anchor, anchor-param-example:anchor-param-example"
+                              exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
+                                file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
+                                anchor:anchor, anchor-param-example:anchor-param-example"
                             > </schema-tree>
                           </div>`
                         }
@@ -1073,7 +1073,7 @@ export default class ApiRequest extends LitElement {
     `;
 
     return html`
-    <div style="display:flex; align-items:flex-end; margin:16px 0; font-size:var(--font-size-small);">
+    <div style="display:flex; align-items:flex-end; margin:16px 0; font-size:var(--font-size-small);" part="wrap-request-btn">
       <div class="hide-in-small-screen" style="flex-direction:column; margin:0; width:calc(100% - 60px);">
         <div style="display:flex; flex-direction:row; align-items:center; overflow:hidden;"> 
           ${selectedServerHtml}
