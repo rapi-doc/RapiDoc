@@ -35,7 +35,7 @@ export default function callbackTemplate(callbacks) {
                       active-schema-tab = "${this.defaultSchemaTab}"
                       schema-expand-level = "${this.schemaExpandLevel}"
                       schema-description-expanded = "${this.schemaDescriptionExpanded}"
-                      allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+                      allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
                       schema-hide-read-only = "false"
                       schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : 'true'}"
                       fetch-credentials = "${this.fetchCredentials}"

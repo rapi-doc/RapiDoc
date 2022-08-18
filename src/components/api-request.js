@@ -461,7 +461,7 @@ export default class ApiRequest extends LitElement {
                               .data = '${schemaAsObj}'
                               schema-expand-level = "${this.schemaExpandLevel}"
                               schema-description-expanded = "${this.schemaDescriptionExpanded}"
-                              allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+                              allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
                               schema-hide-read-only = "${this.schemaHideReadOnly.includes(this.method)}"
                               schema-hide-write-only = "${this.schemaHideWriteOnly.includes(this.method)}"
                               exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
@@ -717,7 +717,7 @@ export default class ApiRequest extends LitElement {
               .data = '${schemaAsObj}'
               schema-expand-level = "${this.schemaExpandLevel}"
               schema-description-expanded = "${this.schemaDescriptionExpanded}"
-              allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+              allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
               schema-hide-read-only = "${this.schemaHideReadOnly}"
               schema-hide-write-only = "${this.schemaHideWriteOnly}"
               exportparts = "schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
@@ -732,7 +732,7 @@ export default class ApiRequest extends LitElement {
               .data = "${schemaAsObj}"
               schema-expand-level = "${this.schemaExpandLevel}"
               schema-description-expanded = "${this.schemaDescriptionExpanded}"
-              allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+              allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
               schema-hide-read-only = "${this.schemaHideReadOnly}"
               schema-hide-write-only = "${this.schemaHideWriteOnly}"
               exportparts = "schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"

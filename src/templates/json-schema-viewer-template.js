@@ -63,7 +63,7 @@ function jsonSchemaBodyTemplate() {
                 .data = "${schemaInObjectNotation(jSchemaBody.schema, {})}"
                 schema-expand-level = "${this.schemaExpandLevel}"
                 schema-description-expanded = "${this.schemaDescriptionExpanded}"
-                allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+                allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
                 schema-hide-read-only = "false"
                 schema-hide-write-only = "false"
               > </schema-tree>

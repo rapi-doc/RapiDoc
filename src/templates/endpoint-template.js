@@ -119,7 +119,7 @@ function endpointBodyTemplate(path) {
           class = "${this.renderStyle}-mode ${this.layout}-layout"
           style = "width:100%;"
           webhook = "${path.isWebhook}"
-          method = "${path.method}", 
+          method = "${path.method}"
           path = "${path.path}"
           .security = "${path.security}"
           .parameters = "${path.parameters}"
