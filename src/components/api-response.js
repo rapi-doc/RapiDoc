@@ -128,7 +128,7 @@ export default class ApiResponse extends LitElement {
       .resp-modal {
         display: none;
         position: fixed;
-        z-index: 1002;
+        z-index: 10000;
         left: 0;
         top: 0;
         width: 100%;
@@ -136,9 +136,11 @@ export default class ApiResponse extends LitElement {
         background-color: rgba(0,0,0,0.1);
       }
       .resp-modal-bg {
-        height: 100%;
-        width: 100%;
-        position: relative;
+        height: 100vh;
+        width: 100vw;
+        position: fixed;
+        overscroll-behavior: contain;
+        overflow: none;
       }
       .top-gap{margin-top:16px;}
       .example-panel{
@@ -272,6 +274,7 @@ export default class ApiResponse extends LitElement {
                       this.selectedMimeType = undefined;
                     }
                     this.renderRoot.getElementById(`resp-modal-${respStatus}`).style.display = 'block';
+                    document.body.style.overflow = 'hidden';
                   }}"
                 >
                   <div style='display: flex; flex-direction: row; justify-content: flex-start; align-items: center;'>
@@ -303,6 +306,7 @@ export default class ApiResponse extends LitElement {
           <div class="resp-modal-bg"
             @click="${() => {
               this.renderRoot.getElementById(`resp-modal-${status}`).style.display = 'none';
+              document.body.style.overflow = 'auto';
             }}"
           ></div>
           <div class="resp-border resp-modal-content">
@@ -322,6 +326,7 @@ export default class ApiResponse extends LitElement {
                 <button class="close-button"
                   @click="${() => {
                     this.renderRoot.getElementById(`resp-modal-${status}`).style.display = 'none';
+                    document.body.style.overflow = 'auto';
                   }}"
                 >
                   ${closeSymbol()}
