@@ -90,6 +90,7 @@ export default class ApiResponse extends LitElement {
         justify-content: space-between;
         flex: 1 1 auto;
         height: 45px;
+        border-bottom: 1px solid #CCCED8;
       }
       .resp-modal-content {
         padding: 24px 16px;
@@ -109,6 +110,7 @@ export default class ApiResponse extends LitElement {
         overscroll-behavior: contain;
         scrollbar-width: thin;
         scrollbar-color: white white;
+        border-bottom: 1px solid #CCCED8;
       }
       .resp-modal-body:hover {
         scrollbar-color: #CCCED8 white;
