@@ -116,6 +116,7 @@ export default class ApiResponse extends LitElement {
       .resp-modal-body::-webkit-scrollbar {
         display: block;
         width: 6px;
+        height: 6px;
         background-color: white;
       }
       .resp-modal-body::-webkit-scrollbar-thumb {
