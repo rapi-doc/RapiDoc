@@ -76,6 +76,11 @@ export function getTypeInfo(schema) {
       constrain += `Max ${constrain ? '┃' : ''}${schema.maxLength} chars`;
     }
   }
+
+  if (dataType.match(/integer|number/g) && schema.format) {
+    info.type = schema.format;
+  }
+
   info.constrain = constrain;
   info.html = `${info.type}~|~${info.readOrWriteOnly}~|~${info.constrain}~|~${info.default}~|~${info.allowedValues}~|~${info.pattern}~|~${info.description}~|~${schema.title || ''}~|~${info.deprecated ? 'deprecated' : ''}`;
   return info;

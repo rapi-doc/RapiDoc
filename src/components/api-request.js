@@ -1150,7 +1150,7 @@ export default class ApiRequest extends LitElement {
     const queryParamObjTypeEls = [...requestPanelEl.querySelectorAll("[data-ptype='query-object']")];
     const headerParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='header']")];
     const requestBodyContainerEl = requestPanelEl.querySelector('.request-body-container');
-    fetchUrl = this.path;
+    fetchUrl = this.path.replaceAll(' ', '');
     const fetchOptions = {
       method: this.method.toUpperCase(),
     };
