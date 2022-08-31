@@ -30708,7 +30708,7 @@ function serverTemplate() {
     </div>
     <div style="display: flex; align-items: center;">
       ${(_this$selectedServer = this.selectedServer) !== null && _this$selectedServer !== void 0 && _this$selectedServer.computedUrl ? $`<div class='label-operation-path-container' style="font-size:14px; border-radius: 4px;">
-            <content-copy-button id='copy-baseURL' content='${(_this$selectedServer2 = this.selectedServer) === null || _this$selectedServer2 === void 0 ? void 0 : _this$selectedServer2.computedUrl}'></content-copy-button>
+            <content-copy-button id='copy-baseURL' content='${(_this$selectedServer2 = this.selectedServer) === null || _this$selectedServer2 === void 0 ? void 0 : _this$selectedServer2.computedUrl}${this.path}'></content-copy-button>
           </div>` : ''}
     </div>
   </section>`;
@@ -41600,7 +41600,7 @@ Prism.languages.py = Prism.languages.python;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("6db0d5d5fadeb4252f3e")
+/******/ 		__webpack_require__.h = () => ("143142ee34b2a50f5332")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
