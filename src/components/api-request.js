@@ -10,6 +10,7 @@ import FontStyles from '~/styles/font-styles';
 import BorderStyles from '~/styles/border-styles';
 import TabStyles from '~/styles/tab-styles';
 import PrismStyles from '~/styles/prism-styles';
+import PrismLanguagesStyles from '~/styles/prism-languages-styles';
 import CustomStyles from '~/styles/custom-styles';
 import { copyToClipboard, prettyXml, downloadResource, viewResource } from '~/utils/common-utils';
 import { schemaInObjectNotation, getTypeInfo, generateExample, normalizeExamples, getSchemaFromParam, json2xml, nestExampleIfPresent } from '~/utils/schema-utils';
@@ -18,10 +19,15 @@ import '~/components/schema-tree';
 import '~/components/tag-input';
 import '~/components/breadcrumbs';
 
+import serverTemplate from '~/templates/server-template';
+import securitySchemeTemplate from '~/templates/security-scheme-template';
+
 export default class ApiRequest extends LitElement {
   constructor() {
     super();
+    this.resolvedSpec = {};
     this.responseMessage = '';
+    this.resultLoad = false;
     this.responseStatus = 'success';
     this.responseHeaders = '';
     this.responseText = '';
@@ -37,6 +43,8 @@ export default class ApiRequest extends LitElement {
     return {
       schemaShortSummary: { type: String, attribute: 'schema-short-summary' },
       serverUrl: { type: String, attribute: 'server-url' },
+      resolvedSpec: { type: Object },
+      selectedServer: { type: Object },
       servers: { type: Array },
       method: { type: String },
       path: { type: String },
@@ -90,6 +98,7 @@ export default class ApiRequest extends LitElement {
       BorderStyles,
       TabStyles,
       PrismStyles,
+      PrismLanguagesStyles,
       css`
         *, *:before, *:after { box-sizing: border-box; }
     
@@ -350,100 +359,102 @@ export default class ApiRequest extends LitElement {
           false,
         )[0].exampleValue;
       }
-      tableRows.push(html`
-      <div class="param-name ${param.deprecated ? 'deprecated' : ''}" >
-        ${param.name}
+      if (!this.resolvedSpec.securitySchemes.some((e) => e.name === param.name)) {
+        tableRows.push(html`
+              <div class="param-name ${param.deprecated ? 'deprecated' : ''}" >
+                ${param.name}
 
-        <div class="param-type">
-          ${paramSchema.type === 'array'
-            ? `${paramSchema.arrayType}`
-            : `${paramSchema.format ? paramSchema.format : paramSchema.type}`
-          }
-          ${param.deprecated ? html`<span style='color:#DC5A41;'>deprecated</span>` : ''}
-          ${param.required ? html`<span style='color:#DC5A41;'>required</span>` : ''}
-        </div>
-      </div>
+                <div class="param-type">
+                  ${paramSchema.type === 'array'
+                    ? `${paramSchema.arrayType}`
+                    : `${paramSchema.format ? paramSchema.format : paramSchema.type}`
+                  }
+                  ${param.deprecated ? html`<span style='color:#DC5A41;'>deprecated</span>` : ''}
+                  ${param.required ? html`<span style='color:#DC5A41;'>required</span>` : ''}
+                </div>
+              </div>
 
-      ${this.allowTry === 'true'
-        ? html`
-          ${paramSchema.type === 'array'
-            ? html`
-              <tag-input class="request-param" 
-                style = "width:100%" 
-                data-ptype = "${paramType}"
-                data-pname = "${param.name}"
-                data-example = "${Array.isArray(example.exampleVal) ? example.exampleVal.join('~|~') : example.exampleVal}"
-                data-param-serialize-style = "${paramStyle}"
-                data-param-serialize-explode = "${paramExplode}"
-                data-param-allow-reserved = "${paramAllowReserved}"
-                data-array = "true"
-                placeholder = "add-multiple &#x21a9;"
-                .value = "${Array.isArray(example.exampleVal) ? example.exampleVal : example.exampleVal}"
-              >
-              </tag-input>`
-            : paramSchema.type === 'object'
-              ? html`
-                <div class="tab-panel col" style="border-width:0 0 1px 0;">
-                  <div class="tab-buttons row" @click="${(e) => {
-                    if (e.target.tagName.toLowerCase() === 'button') {
-                      const newState = { ...this.activeParameterSchemaTabs };
-                      newState[param.name] = e.target.dataset.tab;
-                      this.activeParameterSchemaTabs = newState;
-                    }
-                  }}">
-                    <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
-                    <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
-                  </div>
-                  ${this.activeParameterSchemaTabs[param.name] === 'example'
-                    ? html`<div class="tab-content col">
-                      <textarea 
-                        class = "textarea request-param"
-                        part = "textarea textarea-param"
-                        data-ptype = "${paramType}-object"
+              ${this.allowTry === 'true'
+                ? html`
+                  ${paramSchema.type === 'array'
+                    ? html`
+                      <tag-input class="request-param" 
+                        style = "width:100%" 
+                        data-ptype = "${paramType}"
                         data-pname = "${param.name}"
-                        data-example = "${example.exampleVal}"
+                        data-example = "${Array.isArray(example.exampleVal) ? example.exampleVal.join('~|~') : example.exampleVal}"
                         data-param-serialize-style = "${paramStyle}"
                         data-param-serialize-explode = "${paramExplode}"
                         data-param-allow-reserved = "${paramAllowReserved}"
-                        spellcheck = "false"
-                        .textContent = "${this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : ''}"
-                        style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
-                      ></textarea>
-                    </div>`
-                    : html`
-                      <div class="tab-content col">            
-                        <schema-tree
-                          class = 'json'
-                          style = 'display: block'
-                          .data = '${schemaAsObj}'
-                          schema-expand-level = "${this.schemaExpandLevel}"
-                          schema-description-expanded = "${this.schemaDescriptionExpanded}"
-                          allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
-                          schema-hide-read-only = "${this.schemaHideReadOnly.includes(this.method)}"
-                          schema-hide-write-only = "${this.schemaHideWriteOnly.includes(this.method)}"
-                          exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
-        file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
-        anchor:anchor, anchor-param-example:anchor-param-example"
-                        > </schema-tree>
-                      </div>`
-                    }
-                </div>`
-              : html`
-                <input type="${paramSchema.format === 'password' ? 'password' : 'text'}" spellcheck="false" style="width:100%" W
-                  data-ptype="${paramType}"
-                  data-pname="${param.name}" 
-                  data-example="${Array.isArray(example.exampleVal) ? example.exampleVal.join('~|~') : example.exampleVal}"
-                  data-param-allow-reserved = "${paramAllowReserved}"
-                  data-x-fill-example = "${param['x-fill-example'] || 'yes'}"
-                  data-array="false"
-                  value="${param.schema.default}"
-                />`
-            }`
-        : ''
-      }
-      <span class="param-description">${unsafeHTML(marked(param.description || ''))}</span>
-      ${this.exampleListTemplate.call(this, param.name, paramSchema.type, example.exampleList)}
-    `);
+                        data-array = "true"
+                        placeholder = "add-multiple &#x21a9;"
+                        .value = "${Array.isArray(example.exampleVal) ? example.exampleVal : example.exampleVal}"
+                      >
+                      </tag-input>`
+                    : paramSchema.type === 'object'
+                      ? html`
+                        <div class="tab-panel col" style="border-width:0 0 1px 0;">
+                          <div class="tab-buttons row" @click="${(e) => {
+                            if (e.target.tagName.toLowerCase() === 'button') {
+                              const newState = { ...this.activeParameterSchemaTabs };
+                              newState[param.name] = e.target.dataset.tab;
+                              this.activeParameterSchemaTabs = newState;
+                            }
+                          }}">
+                            <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
+                            <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
+                          </div>
+                          ${this.activeParameterSchemaTabs[param.name] === 'example'
+                            ? html`<div class="tab-content col">
+                              <textarea 
+                                class = "textarea request-param"
+                                part = "textarea textarea-param"
+                                data-ptype = "${paramType}-object"
+                                data-pname = "${param.name}"
+                                data-example = "${example.exampleVal}"
+                                data-param-serialize-style = "${paramStyle}"
+                                data-param-serialize-explode = "${paramExplode}"
+                                data-param-allow-reserved = "${paramAllowReserved}"
+                                spellcheck = "false"
+                                .textContent = "${this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : ''}"
+                                style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
+                              ></textarea>
+                            </div>`
+                            : html`
+                              <div class="tab-content col">            
+                                <schema-tree
+                                  class = 'json'
+                                  style = 'display: block'
+                                  .data = '${schemaAsObj}'
+                                  schema-expand-level = "${this.schemaExpandLevel}"
+                                  schema-description-expanded = "${this.schemaDescriptionExpanded}"
+                                  allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+                                  schema-hide-read-only = "${this.schemaHideReadOnly.includes(this.method)}"
+                                  schema-hide-write-only = "${this.schemaHideWriteOnly.includes(this.method)}"
+                                  exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
+                file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
+                anchor:anchor, anchor-param-example:anchor-param-example"
+                                > </schema-tree>
+                              </div>`
+                            }
+                        </div>`
+                      : html`
+                        <input type="${paramSchema.format === 'password' ? 'password' : 'text'}" spellcheck="false" style="width:100%" W
+                          data-ptype="${paramType}"
+                          data-pname="${param.name}" 
+                          data-example="${Array.isArray(example.exampleVal) ? example.exampleVal.join('~|~') : example.exampleVal}"
+                          data-param-allow-reserved = "${paramAllowReserved}"
+                          data-x-fill-example = "${param['x-fill-example'] || 'yes'}"
+                          data-array="false"
+                          value="${param.schema.default}"
+                        />`
+                    }`
+                : ''
+              }
+              <span class="param-description">${unsafeHTML(marked(param.description || ''))}</span>
+              ${this.exampleListTemplate.call(this, param.name, paramSchema.type, example.exampleList)}
+            `);
+        }
     }
 
     return html`
@@ -925,55 +936,59 @@ export default class ApiRequest extends LitElement {
 
   apiResponseTabTemplate() {
     const responseFormat = this.responseHeaders.includes('json') ? 'json' : (this.responseHeaders.includes('html') || this.responseHeaders.includes('xml')) ? 'html' : '';
+
+    Prism.languages.shell = {
+      ...Prism.languages.shell,
+      method: /\b(GET|POST|PUT|DELETE)\b/g,
+    };
+
+    Prism.plugins.customClass.map((className, language) => `${language}-${className}`);
     return html`
       <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
-        <div class="response-message ${this.responseStatus}">Response Status: ${this.responseMessage}</div>
         <div style="flex:1"></div>
         <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
       </div>
-      <div class="tab-panel col" style="border-width:0 0 1px 0;">
-        <div id="tab_buttons" class="tab-buttons row" @click="${(e) => {
-            if (e.target.classList.contains('tab-btn') === false) { return; }
-            this.activeResponseTab = e.target.dataset.tab;
-        }}">
-          <button class="tab-btn ${this.activeResponseTab === 'response' ? 'active' : ''}" data-tab = 'response' > RESPONSE</button>
-          <button class="tab-btn ${this.activeResponseTab === 'headers' ? 'active' : ''}"  data-tab = 'headers' > RESPONSE HEADERS</button>
-          <button class="tab-btn ${this.activeResponseTab === 'curl' ? 'active' : ''}" data-tab = 'curl'>CURL</button>
-        </div>
-        ${this.responseIsBlob
-          ? html`
-            <div class="tab-content col" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};">
-              <button class="m-btn thin-border mar-top-8" style="width:135px" @click='${(e) => { downloadResource(this.responseBlobUrl, this.respContentDisposition, e); }}' part="btn btn-outline">
-                DOWNLOAD
-              </button>
-              ${this.responseBlobType === 'view'
-                ? html`<button class="m-btn thin-border mar-top-8" style="width:135px"  @click='${(e) => { viewResource(this.responseBlobUrl, e); }}' part="btn btn-outline">VIEW (NEW TAB)</button>`
-                : ''
-              }
-            </div>`
-          : html`
-            <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};" >
-              <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.responseText, e); }}' part="btn btn-fill"> Copy </button>
-              <pre style="white-space:pre; min-height:50px; height:400px; resize:vertical; overflow:auto">${responseFormat
-                ? html`<code>${unsafeHTML(Prism.highlight(this.responseText, Prism.languages[responseFormat], responseFormat))}</code>`
-                : `${this.responseText}`
-              }</pre>
-            </div>`
-        }
-        <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};" >
-          <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.responseHeaders, e); }}' part="btn btn-fill"> Copy </button>
-          <pre style="white-space:pre"><code>${unsafeHTML(Prism.highlight(this.responseHeaders, Prism.languages.css, 'css'))}</code></pre>
-        </div>
-        <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'curl' ? 'flex' : 'none'};">
+      <div class="tab-panel col" style="border-top: 1px solid #E7E9EE; border-bottom: 1px solid #E7E9EE;">
+        <div class="tab-content col m-markdown" style="flex:1; display:flex; margin: 0;">
           <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.curlSyntax.replace(/\\$/, ''), e); }}' part="btn btn-fill"> Copy </button>
-          <pre style="white-space:pre"><code>${unsafeHTML(Prism.highlight(this.curlSyntax.trim().replace(/\\$/, ''), Prism.languages.shell, 'shell'))}</code></pre>
+          <pre class="code-container" style="white-space:pre;border: none;"><code>${unsafeHTML(Prism.highlight(this.curlSyntax.trim().replace(/\\$/, ''), Prism.languages.shell, 'shell'))}</code></pre>
+        </div>
+        <div style="background: #F8F7FC; padding-inline: 32px;padding-block: 16px">
+          <div class="row" style="width:100%; height:20px; background:#E7E9EE; border-radius:2px;padding-inline:4px;margin-bottom:4px">
+            <div style="width:8px;height:8px;border-radius:50%;${this.responseBlobUrl || this.responseText ? 'border: 1px solid #79A479;background: #E6F2E6;' : 'border: 1px solid #DC4C43;background: #F0E6E4;'}"></div>
+            <div style="margin-left:4px; color:#4A596B; font-size:12px; font-weight:500;">${this.responseMessage}</div>
+          </div>
+          ${this.responseIsBlob
+            ? html`
+              <div class="tab-content col" style="flex:1; display:flex;">
+                <button class="m-btn thin-border mar-top-8" style="width:135px" @click='${(e) => { downloadResource(this.responseBlobUrl, this.respContentDisposition, e); }}' part="btn btn-outline">
+                  DOWNLOAD
+                </button>
+                ${this.responseBlobType === 'view'
+                  ? html`<button class="m-btn thin-border mar-top-8" style="width:135px"  @click='${(e) => { viewResource(this.responseBlobUrl, e); }}' part="btn btn-outline">VIEW (NEW TAB)</button>`
+                  : ''
+                }
+              </div>`
+            : html`
+              ${responseFormat || this.responseText
+                ? html`<div class="tab-content col m-markdown" style="flex:1; display:flex;" >
+                <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.responseText, e); }}' part="btn btn-fill"> Copy </button>
+                <pre style="white-space:pre; min-height:50px; height:auto; resize:vertical; overflow:auto">
+                ${responseFormat
+                  ? html`<code>${unsafeHTML(Prism.highlight(this.responseText, Prism.languages[responseFormat], responseFormat))}</code>`
+                  : `${this.responseText}`
+                }</pre>
+              </div>`
+                : ''
+              } 
+              `
+          }
         </div>
       </div>`;
   }
 
   apiCallTemplate() {
     let selectServerDropdownHtml = '';
-
     if (this.servers && this.servers.length > 0) {
       selectServerDropdownHtml = html`
         <select style="min-width:100px;" @change='${(e) => { this.serverUrl = e.target.value; }}'>
@@ -995,6 +1010,11 @@ export default class ApiRequest extends LitElement {
         }
       </div>  
     `;
+
+    if (!this.resultLoad) {
+      this.updateComplete.then(() => { this.onTryClick(this.renderRoot.host.shadowRoot.children[0]); });
+      this.resultLoad = true;
+    }
 
     return html`
     <div style="display:flex; align-items:flex-end; margin:16px 0; font-size:var(--font-size-small);">
@@ -1032,6 +1052,8 @@ export default class ApiRequest extends LitElement {
       }
       <button class="m-btn primary thin-border" part="btn btn-try" @click="${this.onTryClick}">TRY</button>
     </div>
+    ${securitySchemeTemplate.call(this)}
+    ${serverTemplate.call(this)}
     ${this.responseMessage === '' ? '' : this.apiResponseTabTemplate()}
     `;
   }
@@ -1058,23 +1080,26 @@ export default class ApiRequest extends LitElement {
   }
 
   async onTryClick(e) {
-    // const me = this;
-    const tryBtnEl = e.target;
+    const tryBtnEl = e.target ? e.target : e;
     let fetchUrl;
     let curlUrl;
     let curl = '';
     let curlHeaders = '';
     let curlData = '';
     let curlForm = '';
+    let acceptValue = '';
+    let contentTypeValue = '';
+
     const respEl = this.closest('.expanded-req-resp-container, .req-resp-container')?.getElementsByTagName('api-response')[0];
     const acceptHeader = respEl?.selectedMimeType;
-    const requestPanelEl = e.target.closest('.request-panel');
+    const requestPanelEl = tryBtnEl.closest('.request-panel');
     const pathParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='path']")];
     const queryParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='query']")];
     const queryParamObjTypeEls = [...requestPanelEl.querySelectorAll("[data-ptype='query-object']")];
     const headerParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='header']")];
     const requestBodyContainerEl = requestPanelEl.querySelector('.request-body-container');
     fetchUrl = this.path;
+
     const fetchOptions = {
       method: this.method.toUpperCase(),
     };
@@ -1192,43 +1217,59 @@ export default class ApiRequest extends LitElement {
       });
 
     // Final URL for API call
-    fetchUrl = `${this.serverUrl.replace(/\/$/, '')}${fetchUrl}`;
+    // fetchUrl = `${this.serverUrl.replace(/\/$/, '')}${fetchUrl}`;
+    fetchUrl = `${this.selectedServer.computedUrl.replace(/\/$/, '')}${fetchUrl}`;
     if (fetchUrl.startsWith('http') === false) {
       const url = new URL(fetchUrl, window.location.href);
       curlUrl = url.href;
     } else {
       curlUrl = fetchUrl;
     }
-    curl = `curl -X ${this.method.toUpperCase()} "${curlUrl}" \\\n`;
+    curl = `curl --request ${this.method.toUpperCase()} \\\n --url '${curlUrl}' \\\n`;
     const reqHeaders = new Headers();
-    if (acceptHeader) {
-      // Uses the acceptHeader from Response panel
-      reqHeaders.append('Accept', acceptHeader);
-      curlHeaders += ` -H "Accept: ${acceptHeader}" \\\n`;
-    } else if (this.accept) {
-      reqHeaders.append('Accept', this.accept);
-      curlHeaders += ` -H "Accept: ${this.accept}" \\\n`;
-    }
-
-    // Add Authentication Header if provided
-    this.api_keys
-      .filter((v) => (v.in === 'header'))
-      .forEach((v) => {
-        reqHeaders.append(v.name, v.finalKeyValue);
-        curlHeaders += ` -H "${v.name}: ${v.finalKeyValue}" \\\n`;
-      });
 
     // Add Header Params
+    let headerParams = '';
+    const requestBodyType = requestBodyContainerEl ? requestBodyContainerEl.dataset.selectedRequestBodyType : '';
     headerParamEls.map((el) => {
       if (el.value) {
-        reqHeaders.append(el.dataset.pname, el.value);
-        curlHeaders += ` -H "${el.dataset.pname}: ${el.value}" \\\n`;
+        if (el.dataset.pname === 'Accept') acceptValue = el.value;
+        else if (el.dataset.pname === 'Content-Type') contentTypeValue = el.value;
+        else {
+          reqHeaders.append(el.dataset.pname, el.value);
+          headerParams += ` --header '${el.dataset.pname}: ${el.value}' \\\n`;
+        }
       }
     });
 
+    if (acceptValue) {
+      reqHeaders.append('Accept', acceptValue);
+      curlHeaders += ` --header "Accept: ${acceptValue}" \\\n`;
+    } else if (acceptHeader) {
+      // Uses the acceptHeader from Response panel
+      reqHeaders.append('Accept', acceptHeader);
+      curlHeaders += ` --header "Accept: ${acceptHeader}" \\\n`;
+    } else if (this.accept) {
+      reqHeaders.append('Accept', this.accept);
+      curlHeaders += ` --header "Accept: ${this.accept}" \\\n`;
+    }
+
+    if (contentTypeValue) {
+      reqHeaders.append('Content-Type', contentTypeValue);
+      curlHeaders += ` --header 'Content-Type: ${contentTypeValue}' \\\n`;
+    } else if (requestBodyContainerEl) {
+      curlHeaders += ` --header "Content-Type: ${requestBodyType}" \\\n`;
+    }
+
+    // Add Authentication Header if provided
+    this.resolvedSpec.securitySchemes.forEach((key) => {
+      headerParams += ` --header '${key.name}: ${key.value}' \\\n`;
+    });
+
+    curlHeaders += headerParams;
+
     // Request Body Params
     if (requestBodyContainerEl) {
-      const requestBodyType = requestBodyContainerEl.dataset.selectedRequestBodyType;
       if (requestBodyType.includes('form-urlencoded')) {
         // url-encoded Form Params (dynamic) - Parse JSON and generate Params
         const formUrlDynamicTextAreaEl = requestPanelEl.querySelector("[data-ptype='dynamic-form']");
@@ -1252,7 +1293,7 @@ export default class ApiRequest extends LitElement {
               formUrlDynParams.append(prop, JSON.stringify(tmpObj[prop]));
             }
             fetchOptions.body = formUrlDynParams;
-            curlData = ` -d ${formUrlDynParams.toString()} \\\n`;
+            curlData = ` --data ${formUrlDynParams.toString()} \\\n`;
           }
         } else {
           // url-encoded Form Params (regular)
@@ -1305,13 +1346,13 @@ export default class ApiRequest extends LitElement {
           fetchOptions.body = exampleTextAreaEl.value;
           if (requestBodyType.includes('json')) {
             try {
-              curlData = ` -d '${JSON.stringify(JSON.parse(exampleTextAreaEl.value))}' \\\n`;
+              curlData = ` --data '${JSON.stringify(JSON.parse(exampleTextAreaEl.value))}' \\\n`;
             } catch (err) {
               // Ignore.
             }
           }
           if (!curlData) {
-            curlData = ` -d '${exampleTextAreaEl.value.replace(/'/g, '\'"\'"\'')}' \\\n`;
+            curlData = ` --data '${exampleTextAreaEl.value.replace(/'/g, '\'"\'"\'')}' \\\n`;
           }
         }
       }
@@ -1320,8 +1361,8 @@ export default class ApiRequest extends LitElement {
         // For multipart/form-data dont set the content-type to allow creation of browser generated part boundaries
         reqHeaders.append('Content-Type', requestBodyType);
       }
-      curlHeaders += ` -H "Content-Type: ${requestBodyType}" \\\n`;
     }
+
     this.responseUrl = '';
     this.responseHeaders = [];
     this.curlSyntax = '';
