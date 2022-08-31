@@ -92,7 +92,7 @@ export default function serverTemplate() {
     <div style="display: flex; align-items: center;">
       ${this.selectedServer?.computedUrl
         ? html`<div class='label-operation-path-container' style="font-size:14px; border-radius: 4px;">
-            <content-copy-button id='copy-baseURL' content='${this.selectedServer?.computedUrl}'></content-copy-button>
+            <content-copy-button id='copy-baseURL' content='${this.selectedServer?.computedUrl}${this.path}'></content-copy-button>
           </div>`
         : ''
       }
