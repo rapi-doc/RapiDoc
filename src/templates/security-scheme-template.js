@@ -394,7 +394,7 @@ export default function securitySchemeTemplate() {
         <div id="auth-table">
           ${this.resolvedSpec.securitySchemes.map((v) => html`
             <div id="security-scheme-${v.securitySchemeId}" class="header-auth-container ${v.type.toLowerCase()}">
-              <div class="header-auth-label">${v.typeDisplay}</div>
+              <div class="header-auth-label">${v.name}</div>
               ${v.description
                 ? html`
                   <div class="m-markdown">
@@ -464,7 +464,11 @@ export default function securitySchemeTemplate() {
         </div>`
       : ''
     }
-    <slot name="auth"></slot>
+    <button class='test-method-button' @click='${this.onTryClick}'>
+      TEST METHOD
+    </button>
+    <slot name="auth">
+    </slot>
   </section>
 `;
 }
