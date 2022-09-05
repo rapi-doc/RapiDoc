@@ -1,7 +1,7 @@
 
 /**
 * @preserve
-* RapiDoc 9.3.3 - WebComponent to View OpenAPI docs
+* RapiDoc 9.3.4.beta - WebComponent to View OpenAPI docs
 * License: MIT
 * Repo   : https://github.com/rapi-doc/RapiDoc
 * Author : Mrinmoy Majumdar
@@ -69,6 +69,7 @@ var lit_html_t;const lit_html_i=window,lit_html_s=lit_html_i.trustedTypes,lit_ht
 
 function getDefaults() {
   return {
+    async: false,
     baseUrl: null,
     breaks: false,
     extensions: null,
@@ -387,7 +388,7 @@ function outputLink(cap, link, raw, lexer) {
       href,
       title,
       text,
-      tokens: lexer.inlineTokens(text, [])
+      tokens: lexer.inlineTokens(text)
     };
     lexer.state.inLink = false;
     return token;
@@ -493,15 +494,13 @@ class Tokenizer {
         }
       }
 
-      const token = {
+      return {
         type: 'heading',
         raw: cap[0],
         depth: cap[1].length,
         text,
-        tokens: []
+        tokens: this.lexer.inline(text)
       };
-      this.lexer.inline(token.text, token.tokens);
-      return token;
     }
   }
 
@@ -723,10 +722,10 @@ class Tokenizer {
         text: cap[0]
       };
       if (this.options.sanitize) {
+        const text = this.options.sanitizer ? this.options.sanitizer(cap[0]) : marked_esm_escape(cap[0]);
         token.type = 'paragraph';
-        token.text = this.options.sanitizer ? this.options.sanitizer(cap[0]) : marked_esm_escape(cap[0]);
-        token.tokens = [];
-        this.lexer.inline(token.text, token.tokens);
+        token.text = text;
+        token.tokens = this.lexer.inline(text);
       }
       return token;
     }
@@ -784,8 +783,7 @@ class Tokenizer {
         // header child tokens
         l = item.header.length;
         for (j = 0; j < l; j++) {
-          item.header[j].tokens = [];
-          this.lexer.inline(item.header[j].text, item.header[j].tokens);
+          item.header[j].tokens = this.lexer.inline(item.header[j].text);
         }
 
         // cell child tokens
@@ -793,8 +791,7 @@ class Tokenizer {
         for (j = 0; j < l; j++) {
           row = item.rows[j];
           for (k = 0; k < row.length; k++) {
-            row[k].tokens = [];
-            this.lexer.inline(row[k].text, row[k].tokens);
+            row[k].tokens = this.lexer.inline(row[k].text);
           }
         }
 
@@ -806,45 +803,40 @@ class Tokenizer {
   lheading(src) {
     const cap = this.rules.block.lheading.exec(src);
     if (cap) {
-      const token = {
+      return {
         type: 'heading',
         raw: cap[0],
         depth: cap[2].charAt(0) === '=' ? 1 : 2,
         text: cap[1],
-        tokens: []
+        tokens: this.lexer.inline(cap[1])
       };
-      this.lexer.inline(token.text, token.tokens);
-      return token;
     }
   }
 
   paragraph(src) {
     const cap = this.rules.block.paragraph.exec(src);
     if (cap) {
-      const token = {
+      const text = cap[1].charAt(cap[1].length - 1) === '\n'
+        ? cap[1].slice(0, -1)
+        : cap[1];
+      return {
         type: 'paragraph',
         raw: cap[0],
-        text: cap[1].charAt(cap[1].length - 1) === '\n'
-          ? cap[1].slice(0, -1)
-          : cap[1],
-        tokens: []
+        text,
+        tokens: this.lexer.inline(text)
       };
-      this.lexer.inline(token.text, token.tokens);
-      return token;
     }
   }
 
   text(src) {
     const cap = this.rules.block.text.exec(src);
     if (cap) {
-      const token = {
+      return {
         type: 'text',
         raw: cap[0],
         text: cap[0],
-        tokens: []
+        tokens: this.lexer.inline(cap[0])
       };
-      this.lexer.inline(token.text, token.tokens);
-      return token;
     }
   }
 
@@ -1013,7 +1005,7 @@ class Tokenizer {
             type: 'em',
             raw: src.slice(0, lLength + match.index + rLength + 1),
             text,
-            tokens: this.lexer.inlineTokens(text, [])
+            tokens: this.lexer.inlineTokens(text)
           };
         }
 
@@ -1023,7 +1015,7 @@ class Tokenizer {
           type: 'strong',
           raw: src.slice(0, lLength + match.index + rLength + 1),
           text,
-          tokens: this.lexer.inlineTokens(text, [])
+          tokens: this.lexer.inlineTokens(text)
         };
       }
     }
@@ -1064,7 +1056,7 @@ class Tokenizer {
         type: 'del',
         raw: cap[0],
         text: cap[2],
-        tokens: this.lexer.inlineTokens(cap[2], [])
+        tokens: this.lexer.inlineTokens(cap[2])
       };
     }
   }
@@ -2613,13 +2605,7 @@ function marked(src, opt, callback) {
     return;
   }
 
-  try {
-    const tokens = Lexer.lex(src, opt);
-    if (opt.walkTokens) {
-      marked.walkTokens(tokens, opt.walkTokens);
-    }
-    return Parser.parse(tokens, opt);
-  } catch (e) {
+  function onError(e) {
     e.message += '\nPlease report this to https://github.com/markedjs/marked.';
     if (opt.silent) {
       return '<p>An error occurred:</p><pre>'
@@ -2627,6 +2613,23 @@ function marked(src, opt, callback) {
         + '</pre>';
     }
     throw e;
+  }
+
+  try {
+    const tokens = Lexer.lex(src, opt);
+    if (opt.walkTokens) {
+      if (opt.async) {
+        return Promise.all(marked.walkTokens(tokens, opt.walkTokens))
+          .then(() => {
+            return Parser.parse(tokens, opt);
+          })
+          .catch(onError);
+      }
+      marked.walkTokens(tokens, opt.walkTokens);
+    }
+    return Parser.parse(tokens, opt);
+  } catch (e) {
+    onError(e);
   }
 }
 
@@ -2744,10 +2747,12 @@ marked.use = function(...args) {
     if (pack.walkTokens) {
       const walkTokens = marked.defaults.walkTokens;
       opts.walkTokens = function(token) {
-        pack.walkTokens.call(this, token);
+        let values = [];
+        values.push(pack.walkTokens.call(this, token));
         if (walkTokens) {
-          walkTokens.call(this, token);
+          values = values.concat(walkTokens.call(this, token));
         }
+        return values;
       };
     }
 
@@ -2764,35 +2769,37 @@ marked.use = function(...args) {
  */
 
 marked.walkTokens = function(tokens, callback) {
+  let values = [];
   for (const token of tokens) {
-    callback.call(marked, token);
+    values = values.concat(callback.call(marked, token));
     switch (token.type) {
       case 'table': {
         for (const cell of token.header) {
-          marked.walkTokens(cell.tokens, callback);
+          values = values.concat(marked.walkTokens(cell.tokens, callback));
         }
         for (const row of token.rows) {
           for (const cell of row) {
-            marked.walkTokens(cell.tokens, callback);
+            values = values.concat(marked.walkTokens(cell.tokens, callback));
           }
         }
         break;
       }
       case 'list': {
-        marked.walkTokens(token.items, callback);
+        values = values.concat(marked.walkTokens(token.items, callback));
         break;
       }
       default: {
         if (marked.defaults.extensions && marked.defaults.extensions.childTokens && marked.defaults.extensions.childTokens[token.type]) { // Walk any extensions
           marked.defaults.extensions.childTokens[token.type].forEach(function(childTokens) {
-            marked.walkTokens(token[childTokens], callback);
+            values = values.concat(marked.walkTokens(token[childTokens], callback));
           });
         } else if (token.tokens) {
-          marked.walkTokens(token.tokens, callback);
+          values = values.concat(marked.walkTokens(token.tokens, callback));
         }
       }
     }
   }
+  return values;
 };
 
 /**
@@ -12750,6 +12757,8 @@ var dist_default = /*#__PURE__*/__webpack_require__.n(dist);
 ;// CONCATENATED MODULE: ./src/utils/schema-utils.js
 /* Generates an schema object containing type and constraint info */
 function getTypeInfo(schema) {
+  var _schema$default;
+
   if (!schema) {
     return;
   }
@@ -12784,7 +12793,7 @@ function getTypeInfo(schema) {
     readOrWriteOnly: schema.readOnly ? '🆁' : schema.writeOnly ? '🆆' : '',
     deprecated: schema.deprecated ? '❌' : '',
     examples: schema.examples || schema.example,
-    default: schema.default != null ? `${schema.default}` : '',
+    default: schema.default === null ? 'null' : schema.default === '' ? '∅' : ((_schema$default = schema.default) === null || _schema$default === void 0 ? void 0 : _schema$default.replace(/^\s+|\s+$/g, m => '●'.repeat(m.length))) || '',
     description: schema.description || '',
     constrain: '',
     allowedValues: '',
@@ -12799,16 +12808,16 @@ function getTypeInfo(schema) {
   } // Set Allowed Values
 
 
-  info.allowedValues = Array.isArray(schema.enum) ? schema.enum.join('┃') : '';
+  info.allowedValues = Array.isArray(schema.enum) ? schema.enum.map(v => v === null ? 'null' : v === '' ? '∅' : v.replace(/^\s+|\s+$/g, m => '●'.repeat(m.length))).join('┃') : '';
 
   if (dataType === 'array' && schema.items) {
-    var _schema$items, _schema$items2, _schema$items3;
+    var _schema$items, _schema$items$default, _schema$items2;
 
     const arrayItemType = (_schema$items = schema.items) === null || _schema$items === void 0 ? void 0 : _schema$items.type;
-    const arrayItemDefault = ((_schema$items2 = schema.items) === null || _schema$items2 === void 0 ? void 0 : _schema$items2.default) !== undefined ? schema.items.default : '';
+    const arrayItemDefault = schema.items.default === null ? 'null' : schema.items.default === '' ? '∅' : ((_schema$items$default = schema.items.default) === null || _schema$items$default === void 0 ? void 0 : _schema$items$default.replace(/^\s+|\s+$/g, m => '●'.repeat(m.length))) || '';
     info.arrayType = `${schema.type} of ${Array.isArray(arrayItemType) ? arrayItemType.join('') : arrayItemType}`;
     info.default = arrayItemDefault;
-    info.allowedValues = Array.isArray((_schema$items3 = schema.items) === null || _schema$items3 === void 0 ? void 0 : _schema$items3.enum) ? schema.items.enum.join('┃') : '';
+    info.allowedValues = Array.isArray((_schema$items2 = schema.items) === null || _schema$items2 === void 0 ? void 0 : _schema$items2.enum) ? schema.items.enum.map(v => v === null ? `${v}` : v === '' ? '∅' : v.replace(/^\s+|\s+$/g, m => '·'.repeat(m.length))).join('┃') : '';
   }
 
   if (dataType.match(/integer|number/g)) {
@@ -13351,11 +13360,11 @@ function schemaToSampleObj(schema, config = {}) {
     }
   } else if (schema.type === 'array' || schema.items) {
     if (schema.items || schema.example) {
-      var _schema$items4;
+      var _schema$items3;
 
       if (schema.example) {
         obj['example-0'] = schema.example;
-      } else if ((_schema$items4 = schema.items) !== null && _schema$items4 !== void 0 && _schema$items4.example) {
+      } else if ((_schema$items3 = schema.items) !== null && _schema$items3 !== void 0 && _schema$items3.example) {
         // schemas and properties support single example but not multiple examples.
         obj['example-0'] = [schema.items.example];
       } else {
@@ -13381,7 +13390,7 @@ function schemaToSampleObj(schema, config = {}) {
 }
 
 function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
-  var _schema$items5;
+  var _schema$items4;
 
   let markdown = '';
 
@@ -13401,7 +13410,7 @@ function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
     markdown = `${markdown} **Max Items:** ${schema.maxItems}`;
   }
 
-  if (level > 0 && (_schema$items5 = schema.items) !== null && _schema$items5 !== void 0 && _schema$items5.description) {
+  if (level > 0 && (_schema$items4 = schema.items) !== null && _schema$items4 !== void 0 && _schema$items4.description) {
     let itemsMarkdown = '';
 
     if (schema.items.minProperties) {
@@ -13601,7 +13610,7 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
       obj['<any-key>'] = schemaInObjectNotation(schema.additionalProperties, {});
     }
   } else if (schema.type === 'array' || schema.items) {
-    var _schema$items6;
+    var _schema$items5;
 
     // If Array
     obj['::title'] = schema.title || '';
@@ -13615,7 +13624,7 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     obj['::deprecated'] = schema.deprecated || false;
     obj['::readwrite'] = schema.readOnly ? 'readonly' : schema.writeOnly ? 'writeonly' : '';
 
-    if ((_schema$items6 = schema.items) !== null && _schema$items6 !== void 0 && _schema$items6.items) {
+    if ((_schema$items5 = schema.items) !== null && _schema$items5 !== void 0 && _schema$items5.items) {
       obj['::array-type'] = schema.items.items.type;
     }
 
@@ -14223,7 +14232,7 @@ class SchemaTree extends lit_element_s {
               </div>
             ` : ''}
         </div>
-        ${(_this$data3 = this.data) !== null && _this$data3 !== void 0 && _this$data3['::description'] ? y`<span part="schema-description" class='m-markdown'> ${unsafe_html_o(marked(this.data['::description'] || ''))}</span>` : ''}
+        <span part="schema-description" class='m-markdown'> ${unsafe_html_o(marked(((_this$data3 = this.data) === null || _this$data3 === void 0 ? void 0 : _this$data3['::description']) || ''))}</span>
         ${this.data ? y`
             ${this.generateTree(this.data['::type'] === 'array' ? this.data['::props'] : this.data, this.data['::type'], this.data['::array-type'] || '')}` : y`<span class='mono-font' style='color:var(--red)'> Schema not found </span>`}
       </div>  
@@ -14347,14 +14356,19 @@ class SchemaTree extends lit_element_s {
         </div>
         <div class='inside-bracket ${data['::type'] || 'no-type-info'}' style='padding-left:${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' ? 0 : leftPadding}px;'>
           ${Array.isArray(data) && data[0] ? y`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, data[0]['::readwrite'])}` : y`
-              ${Object.keys(data).map(dataKey => y`
-                ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite', '::dataTypeLabel'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? y`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}` : '' : y`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}`}
-              `)}
+              ${Object.keys(data).map(dataKey => {
+        var _data$dataKey;
+
+        return y`
+                ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite', '::dataTypeLabel'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? y`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}` : '' : y`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, ((_data$dataKey = data[dataKey]) === null || _data$dataKey === void 0 ? void 0 : _data$dataKey['::description']) || '', newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}`}
+              `;
+      })}
             `}
         </div>
         ${data['::type'] && data['::type'].includes('xxx-of') ? '' : y`<div class='close-bracket'> ${closeBracket} </div>`}
       `;
     } // For Primitive types and array of Primitives
+    // eslint-disable-next-line no-unused-vars
 
 
     const [type, primitiveReadOrWrite, constraint, defaultValue, allowedValues, pattern, schemaDescription, schemaTitle, deprecated] = data.split('~|~');
@@ -14399,9 +14413,6 @@ class SchemaTree extends lit_element_s {
         </div>
         <div class='td key-descr'>
           ${dataType === 'array' ? y`<span class="m-markdown-small">${unsafe_html_o(marked(description))}</span>` : ''}
-          ${schemaDescription ? y`<span class="m-markdown-small">
-              ${unsafe_html_o(marked(`${schemaTitle ? `**${schemaTitle}:**` : ''} ${schemaDescription} ${constraint || defaultValue || allowedValues || pattern ? '<span class="more-content">⤵</span>' : ''}`))}
-              </span>` : schemaTitle ? y`${schemaTitle} ${constraint || defaultValue || allowedValues || pattern ? y`<span class="more-content">⤵</span>` : ''}` : ''}
           ${constraint ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Constraints: </span>${constraint}</div>` : ''}
           ${defaultValue ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
           ${allowedValues ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Allowed: </span>${allowedValues}</div>` : ''}
@@ -14435,7 +14446,7 @@ class TagInput extends lit_element_s {
     let tagItemTmpl = '';
 
     if (Array.isArray(this.value)) {
-      tagItemTmpl = y`${this.value.filter(v => v.trim() !== '').map(v => y`<span class='tag'>${v}</span>`)}`;
+      tagItemTmpl = y`${this.value.filter(v => typeof v === 'string' && v.trim() !== '').map(v => y`<span class='tag'>${v}</span>`)}`;
     }
 
     return y`
@@ -14901,6 +14912,8 @@ class ApiRequest extends lit_element_s {
       this.requestUpdate();
     }
   }
+  /* eslint-disable indent */
+
 
   renderExample(example, paramType, paramName) {
     var _example$value, _example$value2;
@@ -14909,6 +14922,7 @@ class ApiRequest extends lit_element_s {
       ${paramType === 'array' ? '[' : ''}
       <a
         part="anchor anchor-param-example"
+        style="display:inline-block; min-width:24px; text-align:center"
         class="${this.allowTry === 'true' ? '' : 'inactive-link'}"
         data-example-type="${paramType === 'array' ? paramType : 'string'}"
         data-example="${example.value && Array.isArray(example.value) ? (_example$value = example.value) === null || _example$value === void 0 ? void 0 : _example$value.join('~|~') : example.value || ''}"
@@ -14916,15 +14930,11 @@ class ApiRequest extends lit_element_s {
       const inputEl = e.target.closest('table').querySelector(`[data-pname="${paramName}"]`);
 
       if (inputEl) {
-        if (e.target.dataset.exampleType === 'array') {
-          inputEl.value = e.target.dataset.example.split('~|~');
-        } else {
-          inputEl.value = e.target.dataset.example;
-        }
+        inputEl.value = e.target.dataset.exampleType === 'array' ? e.target.dataset.example.split('~|~') : e.target.dataset.example;
       }
     }}"
       >
-        ${example.value && Array.isArray(example.value) ? (_example$value2 = example.value) === null || _example$value2 === void 0 ? void 0 : _example$value2.join(', ') : example.value || '∅'}
+        ${example.value && Array.isArray(example.value) ? example.value.join(', ') : example.value === null ? 'null' : example.value === '' ? '∅' : ((_example$value2 = example.value) === null || _example$value2 === void 0 ? void 0 : _example$value2.replace(/^\s+|\s+$/g, m => '●'.repeat(m.length))) || ''}
       </a>
       ${paramType === 'array' ? '] ' : ''}
     `;
@@ -14951,8 +14961,6 @@ class ApiRequest extends lit_element_s {
     })}
     </ul>`;
   }
-  /* eslint-disable indent */
-
 
   exampleListTemplate(paramName, paramType, exampleList = []) {
     return y` ${exampleList.length > 0 ? y`<span style="font-weight:bold">Examples: </span>
@@ -16369,7 +16377,7 @@ class SchemaTable extends lit_element_s {
               </div>
             ` : ''}
         </div>
-        ${(_this$data3 = this.data) !== null && _this$data3 !== void 0 && _this$data3['::description'] ? y`<span part="schema-description" class='m-markdown'> ${unsafe_html_o(marked(this.data['::description'] || ''))}</span>` : ''}
+        <span part="schema-description" class='m-markdown'> ${unsafe_html_o(marked(((_this$data3 = this.data) === null || _this$data3 === void 0 ? void 0 : _this$data3['::description']) || ''))}
         <div style = 'border:1px solid var(--light-border-color)'>
           <div style='display:flex; background-color: var(--bg2); padding:8px 4px; border-bottom:1px solid var(--light-border-color);'>
             <div class='key' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Field </div>
@@ -16492,13 +16500,18 @@ class SchemaTable extends lit_element_s {
           `}
         <div class='object-body'>
         ${Array.isArray(data) && data[0] ? y`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, '')}` : y`
-            ${Object.keys(data).map(dataKey => y`
-              ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite', '::dataTypeLabel'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? y`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}` : '' : y`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}`}
-            `)}
+            ${Object.keys(data).map(dataKey => {
+        var _data$dataKey;
+
+        return y`
+              ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite', '::dataTypeLabel'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? y`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}` : '' : y`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, ((_data$dataKey = data[dataKey]) === null || _data$dataKey === void 0 ? void 0 : _data$dataKey['::description']) || '', newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}`}
+            `;
+      })}
           `}
         <div>
       `;
     } // For Primitive Data types
+    // eslint-disable-next-line no-unused-vars
 
 
     const [type, readOrWriteOnly, constraint, defaultValue, allowedValues, pattern, schemaDescription, schemaTitle, deprecated] = data.split('~|~');
@@ -16539,9 +16552,6 @@ class SchemaTable extends lit_element_s {
       this.schemaDescriptionExpanded = 'true';
     }}">
           ${dataType === 'array' ? y`<span class="m-markdown-small">${unsafe_html_o(marked(description))}</span>` : ''}
-          ${schemaDescription ? y`<span class="m-markdown-small">
-              ${unsafe_html_o(marked(`${schemaTitle ? `**${schemaTitle}:**` : ''} ${schemaDescription} ${constraint || defaultValue || allowedValues || pattern ? '<span  class="more-content">⤵</span>' : ''}`))}
-              </span>` : schemaTitle ? y`${schemaTitle} ${constraint || defaultValue || allowedValues || pattern ? y`<span class="more-content">⤵</span>` : ''}` : ''}
           ${constraint ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Constraints: </span> ${constraint}</div>` : ''}
           ${defaultValue ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
           ${allowedValues ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Allowed: </span>${allowedValues}</div>` : ''}
@@ -24631,7 +24641,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("5832f421223790aca863")
+/******/ 		__webpack_require__.h = () => ("89469c36358ca3470ebe")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
