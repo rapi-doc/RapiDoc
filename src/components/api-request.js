@@ -259,27 +259,27 @@ export default class ApiRequest extends LitElement {
     }
   }
 
+  /* eslint-disable indent */
   renderExample(example, paramType, paramName) {
     return html`
       ${paramType === 'array' ? '[' : ''}
       <a
         part="anchor anchor-param-example"
+        style="display:inline-block; min-width:24px; text-align:center"
         class="${this.allowTry === 'true' ? '' : 'inactive-link'}"
         data-example-type="${paramType === 'array' ? paramType : 'string'}"
         data-example="${example.value && Array.isArray(example.value) ? example.value?.join('~|~') : example.value || ''}"
         @click="${(e) => {
-    const inputEl = e.target.closest('table').querySelector(`[data-pname="${paramName}"]`);
-    if (inputEl) {
-      if (e.target.dataset.exampleType === 'array') {
-        inputEl.value = e.target.dataset.example.split('~|~');
-      } else {
-        inputEl.value = e.target.dataset.example;
-      }
-    }
-  }
-}"
+          const inputEl = e.target.closest('table').querySelector(`[data-pname="${paramName}"]`);
+          if (inputEl) {
+            inputEl.value = e.target.dataset.exampleType === 'array' ? e.target.dataset.example.split('~|~') : e.target.dataset.example;
+          }
+        }}"
       >
-        ${example.value && Array.isArray(example.value) ? example.value?.join(', ') : example.value || '∅'}
+        ${example.value && Array.isArray(example.value)
+          ? example.value.join(', ')
+          : example.value === null ? 'null' : (example.value === '' ? '∅' : example.value?.replace(/^\s+|\s+$/g, (m) => '●'.repeat(m.length)) || '')
+        }
       </a>
       ${paramType === 'array' ? '] ' : ''}
     `;
@@ -303,17 +303,15 @@ export default class ApiRequest extends LitElement {
     </ul>`;
   }
 
-  /* eslint-disable indent */
-
   exampleListTemplate(paramName, paramType, exampleList = []) {
-    return html` ${exampleList.length > 0
-      ? html`<span style="font-weight:bold">Examples: </span>
-          ${
-            anyExampleWithSummaryOrDescription(exampleList)
+    return html` ${
+      exampleList.length > 0
+        ? html`<span style="font-weight:bold">Examples: </span>
+          ${anyExampleWithSummaryOrDescription(exampleList)
             ? this.renderLongFormatExamples(exampleList, paramType, paramName)
-            : this.renderShortFormatExamples(exampleList, paramType, paramName)
-          }`
-      : ''}`;
+            : this.renderShortFormatExamples(exampleList, paramType, paramName)}`
+        : ''
+      }`;
   }
 
   inputParametersTemplate(paramType) {

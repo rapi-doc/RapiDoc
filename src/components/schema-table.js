@@ -99,10 +99,7 @@ export default class SchemaTable extends LitElement {
             : ''
           }
         </div>
-        ${this.data?.['::description']
-          ? html`<span part="schema-description" class='m-markdown'> ${unsafeHTML(marked(this.data['::description'] || ''))}</span>`
-          : ''
-        }
+        <span part="schema-description" class='m-markdown'> ${unsafeHTML(marked(this.data?.['::description'] || ''))}
         <div style = 'border:1px solid var(--light-border-color)'>
           <div style='display:flex; background-color: var(--bg2); padding:8px 4px; border-bottom:1px solid var(--light-border-color);'>
             <div class='key' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Field </div>
@@ -262,7 +259,7 @@ export default class SchemaTable extends LitElement {
                   data[dataKey]['::type'],
                   data[dataKey]['::array-type'] || '',
                   dataKey,
-                  data[dataKey]['::description'],
+                  data[dataKey]?.['::description'] || '',
                   newSchemaLevel,
                   newIndentLevel,
                   data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '',
@@ -276,6 +273,7 @@ export default class SchemaTable extends LitElement {
     }
 
     // For Primitive Data types
+    // eslint-disable-next-line no-unused-vars
     const [type, readOrWriteOnly, constraint, defaultValue, allowedValues, pattern, schemaDescription, schemaTitle, deprecated] = data.split('~|~');
     if (readOrWriteOnly === '🆁' && this.schemaHideReadOnly === 'true') {
       return;
@@ -312,16 +310,6 @@ export default class SchemaTable extends LitElement {
         ${dataTypeHtml}
         <div class='td key-descr' @click="${() => { this.schemaDescriptionExpanded = 'true'; }}">
           ${dataType === 'array' ? html`<span class="m-markdown-small">${unsafeHTML(marked(description))}</span>` : ''}
-          ${schemaDescription
-            ? html`<span class="m-markdown-small">
-              ${unsafeHTML(marked(`${schemaTitle ? `**${schemaTitle}:**` : ''} ${schemaDescription} ${constraint || defaultValue || allowedValues || pattern ? '<span  class="more-content">⤵</span>' : ''}`))}
-              </span>`
-            : schemaTitle
-              ? html`${schemaTitle} ${constraint || defaultValue || allowedValues || pattern
-                ? html`<span class="more-content">⤵</span>`
-                : ''}`
-              : ''
-          }
           ${constraint ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Constraints: </span> ${constraint}</div>` : ''}
           ${defaultValue ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
           ${allowedValues ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Allowed: </span>${allowedValues}</div>` : ''}

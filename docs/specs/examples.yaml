@@ -39,6 +39,7 @@ paths:
         in: 'query'
         schema:
           type: 'string'
+          default: " "
         examples:
           example1: 
             value: "uk"
@@ -69,6 +70,8 @@ paths:
           minItems: 4
           maxItems: 4
           examples:
+            - ""
+            - "   "
             - [10]
             - [10, 20, 30, 40]
 
@@ -616,7 +619,7 @@ components:
       items:
         type: integer
         format: int64
-      example: [1, 2, 3]
+      example: [1, 2, 3, 4]
     ArrayOfInt-2:
       type: array
       items:

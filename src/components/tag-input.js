@@ -6,7 +6,7 @@ export default class TagInput extends LitElement {
     let tagItemTmpl = '';
     if (Array.isArray(this.value)) {
       tagItemTmpl = html`${this.value
-        .filter((v) => v.trim() !== '')
+        .filter((v) => typeof v === 'string' && v.trim() !== '')
         .map((v) => html`<span class='tag'>${v}</span>`)
       }`;
     }

@@ -32,7 +32,7 @@ export function getTypeInfo(schema) {
     readOrWriteOnly: (schema.readOnly ? '🆁' : schema.writeOnly ? '🆆' : ''),
     deprecated: schema.deprecated ? '❌' : '',
     examples: schema.examples || schema.example,
-    default: schema.default != null ? `${schema.default}` : '',
+    default: schema.default === null ? 'null' : schema.default === '' ? '∅' : schema.default?.replace(/^\s+|\s+$/g, (m) => '●'.repeat(m.length)) || '',
     description: schema.description || '',
     constrain: '',
     allowedValues: '',
@@ -45,16 +45,19 @@ export function getTypeInfo(schema) {
   } else if (info.type === '{missing-type-info}' || info.type === 'any') {
     info.description = info.description || '';
   }
-
   // Set Allowed Values
-  info.allowedValues = Array.isArray(schema.enum) ? schema.enum.join('┃') : '';
+  info.allowedValues = Array.isArray(schema.enum)
+    ? schema.enum.map((v) => (v === null ? 'null' : v === '' ? '∅' : v.replace(/^\s+|\s+$/g, (m) => '●'.repeat(m.length)))).join('┃')
+    : '';
   if (dataType === 'array' && schema.items) {
     const arrayItemType = schema.items?.type;
-    const arrayItemDefault = schema.items?.default !== undefined ? schema.items.default : '';
+    const arrayItemDefault = schema.items.default === null ? 'null' : schema.items.default === '' ? '∅' : schema.items.default?.replace(/^\s+|\s+$/g, (m) => '●'.repeat(m.length)) || '';
 
     info.arrayType = `${schema.type} of ${Array.isArray(arrayItemType) ? arrayItemType.join('') : arrayItemType}`;
     info.default = arrayItemDefault;
-    info.allowedValues = Array.isArray(schema.items?.enum) ? schema.items.enum.join('┃') : '';
+    info.allowedValues = Array.isArray(schema.items?.enum)
+      ? schema.items.enum.map((v) => (v === null ? `${v}` : v === '' ? '∅' : v.replace(/^\s+|\s+$/g, (m) => '·'.repeat(m.length)))).join('┃')
+      : '';
   }
   if (dataType.match(/integer|number/g)) {
     if (schema.minimum !== undefined || schema.exclusiveMinimum !== undefined) {
