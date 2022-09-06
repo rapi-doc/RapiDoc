@@ -72,6 +72,7 @@ export default css`
 .null {color:var(--red);}
 .bool, .boolean{color:var(--orange)}
 .enum {color:var(--purple)}
+.cons {color:var(--purple)}
 .recu {color:var(--brown)}
 .toolbar {
   display:flex;
