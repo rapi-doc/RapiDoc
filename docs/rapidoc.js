@@ -12755,10 +12755,33 @@ var dist_default = /*#__PURE__*/__webpack_require__.n(dist);
 }
 `);
 ;// CONCATENATED MODULE: ./src/utils/schema-utils.js
-/* Generates an schema object containing type and constraint info */
-function getTypeInfo(schema) {
-  var _schema$default;
+// Takes a value as input and provides a printable string to replresent null values, spaces, blankstring etc
+function getPrintableVal(val) {
+  if (val === undefined) {
+    return '';
+  }
 
+  if (val === null) {
+    return 'null';
+  }
+
+  if (val === '') {
+    return '∅';
+  }
+
+  if (typeof val === 'boolean' || typeof val === 'number') {
+    return `${val}`;
+  }
+
+  if (Array.isArray(val)) {
+    return val.map(v => v === null ? 'null' : v === '' ? '∅' : v.toString().replace(/^ +| +$/g, m => '●'.repeat(m.length)) || '').join(', ');
+  }
+
+  return val.toString().replace(/^ +| +$/g, m => '●'.repeat(m.length)) || '';
+}
+/* Generates an schema object containing type and constraint info */
+
+function getTypeInfo(schema) {
   if (!schema) {
     return;
   }
@@ -12793,7 +12816,7 @@ function getTypeInfo(schema) {
     readOrWriteOnly: schema.readOnly ? '🆁' : schema.writeOnly ? '🆆' : '',
     deprecated: schema.deprecated ? '❌' : '',
     examples: schema.examples || schema.example,
-    default: schema.default === null ? 'null' : schema.default === '' ? '∅' : ((_schema$default = schema.default) === null || _schema$default === void 0 ? void 0 : _schema$default.replace(/^\s+|\s+$/g, m => '●'.repeat(m.length))) || '',
+    default: getPrintableVal(schema.default),
     description: schema.description || '',
     constrain: '',
     allowedValues: '',
@@ -12808,16 +12831,16 @@ function getTypeInfo(schema) {
   } // Set Allowed Values
 
 
-  info.allowedValues = Array.isArray(schema.enum) ? schema.enum.map(v => v === null ? 'null' : v === '' ? '∅' : v.replace(/^\s+|\s+$/g, m => '●'.repeat(m.length))).join('┃') : '';
+  info.allowedValues = Array.isArray(schema.enum) ? schema.enum.map(v => getPrintableVal(v)).join('┃') : '';
 
   if (dataType === 'array' && schema.items) {
-    var _schema$items, _schema$items$default, _schema$items2;
+    var _schema$items, _schema$items2;
 
     const arrayItemType = (_schema$items = schema.items) === null || _schema$items === void 0 ? void 0 : _schema$items.type;
-    const arrayItemDefault = schema.items.default === null ? 'null' : schema.items.default === '' ? '∅' : ((_schema$items$default = schema.items.default) === null || _schema$items$default === void 0 ? void 0 : _schema$items$default.replace(/^\s+|\s+$/g, m => '●'.repeat(m.length))) || '';
+    const arrayItemDefault = getPrintableVal(schema.items.default);
     info.arrayType = `${schema.type} of ${Array.isArray(arrayItemType) ? arrayItemType.join('') : arrayItemType}`;
     info.default = arrayItemDefault;
-    info.allowedValues = Array.isArray((_schema$items2 = schema.items) === null || _schema$items2 === void 0 ? void 0 : _schema$items2.enum) ? schema.items.enum.map(v => v === null ? `${v}` : v === '' ? '∅' : v.replace(/^\s+|\s+$/g, m => '·'.repeat(m.length))).join('┃') : '';
+    info.allowedValues = Array.isArray((_schema$items2 = schema.items) === null || _schema$items2 === void 0 ? void 0 : _schema$items2.enum) ? schema.items.enum.map(v => getPrintableVal(v)).join('┃') : '';
   }
 
   if (dataType.match(/integer|number/g)) {
@@ -12849,7 +12872,7 @@ function getTypeInfo(schema) {
   return info;
 }
 function nestExampleIfPresent(example) {
-  if (typeof example === 'boolean') {
+  if (typeof example === 'boolean' || typeof example === 'number') {
     return {
       Example: {
         value: `${example}`
@@ -12871,6 +12894,19 @@ function nestExampleIfPresent(example) {
     }
   } : example;
 }
+/**
+ *  Normalize example object in the following format (List of object which is used to render example links and fill the input boxes)
+ *  [{
+ *     exampleVal  : 'value to be rendered on the input control (text-box)',
+ *     exampleList : [
+ *       value         : '',
+ *       printableValue: '',
+ *       summary       : '',
+ *       description   : ''
+ *     ]
+ *  }]
+ * */
+
 function normalizeExamples(examples, dataType = 'string') {
   if (!examples) {
     return {
@@ -12880,13 +12916,13 @@ function normalizeExamples(examples, dataType = 'string') {
   }
 
   if (examples.constructor === Object) {
-    const exampleValAndDescr = Object.values(examples);
-    const exampleVal = exampleValAndDescr.length > 0 ? typeof exampleValAndDescr[0].value === 'boolean' || typeof exampleValAndDescr[0].value === 'number' ? exampleValAndDescr[0].value.toString() : exampleValAndDescr[0].value : '';
-    const exampleList = Object.values(examples).map(v => ({
-      value: typeof v.value === 'boolean' || typeof v.value === 'number' ? v.value.toString() : v.value,
-      summary: v.summary,
-      description: v.description
+    const exampleList = Object.values(examples).filter(v => v['x-example-show-value'] !== false).map(v => ({
+      value: typeof v.value === 'boolean' || typeof v.value === 'number' ? `${v.value}` : v.value || '',
+      printableValue: getPrintableVal(v.value),
+      summary: v.summary || '',
+      description: v.description || ''
     }));
+    const exampleVal = exampleList.length > 0 ? exampleList[0].value.toString() : '';
     return {
       exampleVal,
       exampleList
@@ -12908,7 +12944,8 @@ function normalizeExamples(examples, dataType = 'string') {
   if (dataType === 'array') {
     const [exampleVal] = examples;
     const exampleList = examples.map(v => ({
-      value: v
+      value: v,
+      printableValue: getPrintableVal(v)
     }));
     return {
       exampleVal,
@@ -12918,7 +12955,8 @@ function normalizeExamples(examples, dataType = 'string') {
 
   const exampleVal = examples[0].toString();
   const exampleList = examples.map(v => ({
-    value: v.toString()
+    value: v.toString(),
+    printableValue: getPrintableVal(v)
   }));
   return {
     exampleVal,
@@ -13722,7 +13760,7 @@ function generateExample(schema, mimeType, examples = '', example = '', includeR
   if (finalExamples.length === 0 || includeGeneratedExample === true) {
     if (schema) {
       if (schema.example) {
-        // Note: schema.examples (plurals) is not allowed as per spec
+        // Note: Deprecated: The 'example' property has been deprecated in 3.1.0 in favor of the JSON Schema 'examples' keyword
         finalExamples.push({
           exampleId: 'Example',
           exampleSummary: '',
@@ -14916,7 +14954,7 @@ class ApiRequest extends lit_element_s {
 
 
   renderExample(example, paramType, paramName) {
-    var _example$value, _example$value2;
+    var _example$value;
 
     return y`
       ${paramType === 'array' ? '[' : ''}
@@ -14933,9 +14971,7 @@ class ApiRequest extends lit_element_s {
         inputEl.value = e.target.dataset.exampleType === 'array' ? e.target.dataset.example.split('~|~') : e.target.dataset.example;
       }
     }}"
-      >
-        ${example.value && Array.isArray(example.value) ? example.value.join(', ') : example.value === null ? 'null' : example.value === '' ? '∅' : ((_example$value2 = example.value) === null || _example$value2 === void 0 ? void 0 : _example$value2.replace(/^\s+|\s+$/g, m => '●'.repeat(m.length))) || ''}
-      </a>
+      > ${example.printableValue || example.value} </a>
       ${paramType === 'array' ? '] ' : ''}
     `;
   }
@@ -24641,7 +24677,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("89469c36358ca3470ebe")
+/******/ 		__webpack_require__.h = () => ("b903d168c3de37b353b6")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
