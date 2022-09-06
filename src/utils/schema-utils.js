@@ -13,9 +13,9 @@ export function getPrintableVal(val) {
     return `${val}`;
   }
   if (Array.isArray(val)) {
-    return val.map((v) => (v === null ? 'null' : v === '' ? '∅' : v.toString().replace(/^\s+|\s+$/g, (m) => '●'.repeat(m.length)) || '')).join(', ');
+    return val.map((v) => (v === null ? 'null' : v === '' ? '∅' : v.toString().replace(/^ +| +$/g, (m) => '●'.repeat(m.length)) || '')).join(', ');
   }
-  return val.toString().replace(/^\s+|\s+$/g, (m) => '●'.repeat(m.length)) || '';
+  return val.toString().replace(/^ +| +$/g, (m) => '●'.repeat(m.length)) || '';
 }
 
 /* Generates an schema object containing type and constraint info */
@@ -139,18 +139,17 @@ export function normalizeExamples(examples, dataType = 'string') {
     };
   }
   if (examples.constructor === Object) {
-    const exampleValAndDescr = Object.values(examples);
-    const exampleVal = exampleValAndDescr.length > 0
-      ? typeof exampleValAndDescr[0].value === 'boolean' || typeof exampleValAndDescr[0].value === 'number'
-        ? exampleValAndDescr[0].value.toString()
-        : exampleValAndDescr[0].value
+    const exampleList = Object.values(examples)
+      .filter((v) => (v['x-example-show-value'] !== false))
+      .map((v) => ({
+        value: (typeof v.value === 'boolean' || typeof v.value === 'number' ? `${v.value}` : (v.value || '')),
+        printableValue: getPrintableVal(v.value),
+        summary: v.summary || '',
+        description: v.description || '',
+      }));
+    const exampleVal = exampleList.length > 0
+      ? exampleList[0].value.toString()
       : '';
-    const exampleList = Object.values(examples).map((v) => ({
-      value: typeof v.value === 'boolean' || typeof v.value === 'number' ? v.value.toString() : v.value,
-      printableValue: getPrintableVal(v.value),
-      summary: v.summary,
-      description: v.description,
-    }));
     return { exampleVal, exampleList };
   }
 
