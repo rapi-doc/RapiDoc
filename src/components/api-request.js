@@ -275,12 +275,7 @@ export default class ApiRequest extends LitElement {
             inputEl.value = e.target.dataset.exampleType === 'array' ? e.target.dataset.example.split('~|~') : e.target.dataset.example;
           }
         }}"
-      >
-        ${example.value && Array.isArray(example.value)
-          ? example.value.join(', ')
-          : example.value === null ? 'null' : (example.value === '' ? '∅' : example.value?.replace(/^\s+|\s+$/g, (m) => '●'.repeat(m.length)) || '')
-        }
-      </a>
+      > ${example.printableValue || example.value} </a>
       ${paramType === 'array' ? '] ' : ''}
     `;
   }

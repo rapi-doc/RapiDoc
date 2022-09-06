@@ -1,3 +1,23 @@
+// Takes a value as input and provides a printable string to replresent null values, spaces, blankstring etc
+export function getPrintableVal(val) {
+  if (val === undefined) {
+    return '';
+  }
+  if (val === null) {
+    return 'null';
+  }
+  if (val === '') {
+    return '∅';
+  }
+  if (typeof val === 'boolean' || typeof val === 'number') {
+    return `${val}`;
+  }
+  if (Array.isArray(val)) {
+    return val.map((v) => (v === null ? 'null' : v === '' ? '∅' : v.toString().replace(/^\s+|\s+$/g, (m) => '●'.repeat(m.length)) || '')).join(', ');
+  }
+  return val.toString().replace(/^\s+|\s+$/g, (m) => '●'.repeat(m.length)) || '';
+}
+
 /* Generates an schema object containing type and constraint info */
 export function getTypeInfo(schema) {
   if (!schema) {
@@ -32,7 +52,7 @@ export function getTypeInfo(schema) {
     readOrWriteOnly: (schema.readOnly ? '🆁' : schema.writeOnly ? '🆆' : ''),
     deprecated: schema.deprecated ? '❌' : '',
     examples: schema.examples || schema.example,
-    default: schema.default === null ? 'null' : schema.default === '' ? '∅' : schema.default?.replace(/^\s+|\s+$/g, (m) => '●'.repeat(m.length)) || '',
+    default: getPrintableVal(schema.default),
     description: schema.description || '',
     constrain: '',
     allowedValues: '',
@@ -47,16 +67,17 @@ export function getTypeInfo(schema) {
   }
   // Set Allowed Values
   info.allowedValues = Array.isArray(schema.enum)
-    ? schema.enum.map((v) => (v === null ? 'null' : v === '' ? '∅' : v.replace(/^\s+|\s+$/g, (m) => '●'.repeat(m.length)))).join('┃')
+    ? schema.enum.map((v) => (getPrintableVal(v))).join('┃')
     : '';
+
   if (dataType === 'array' && schema.items) {
     const arrayItemType = schema.items?.type;
-    const arrayItemDefault = schema.items.default === null ? 'null' : schema.items.default === '' ? '∅' : schema.items.default?.replace(/^\s+|\s+$/g, (m) => '●'.repeat(m.length)) || '';
+    const arrayItemDefault = getPrintableVal(schema.items.default);
 
     info.arrayType = `${schema.type} of ${Array.isArray(arrayItemType) ? arrayItemType.join('') : arrayItemType}`;
     info.default = arrayItemDefault;
     info.allowedValues = Array.isArray(schema.items?.enum)
-      ? schema.items.enum.map((v) => (v === null ? `${v}` : v === '' ? '∅' : v.replace(/^\s+|\s+$/g, (m) => '·'.repeat(m.length)))).join('┃')
+      ? schema.items.enum.map((v) => (getPrintableVal(v))).join('┃')
       : '';
   }
   if (dataType.match(/integer|number/g)) {
@@ -83,8 +104,9 @@ export function getTypeInfo(schema) {
   info.html = `${info.type}~|~${info.readOrWriteOnly}~|~${info.constrain}~|~${info.default}~|~${info.allowedValues}~|~${info.pattern}~|~${info.description}~|~${schema.title || ''}~|~${info.deprecated ? 'deprecated' : ''}`;
   return info;
 }
+
 export function nestExampleIfPresent(example) {
-  if (typeof example === 'boolean') {
+  if (typeof example === 'boolean' || typeof example === 'number') {
     return {
       Example: { value: `${example}` },
     };
@@ -97,6 +119,18 @@ export function nestExampleIfPresent(example) {
   return example ? { Example: { value: example } } : example;
 }
 
+/**
+ *  Normalize example object in the following format (List of object which is used to render example links and fill the input boxes)
+ *  [{
+ *     exampleVal  : 'value to be rendered on the input control (text-box)',
+ *     exampleList : [
+ *       value         : '',
+ *       printableValue: '',
+ *       summary       : '',
+ *       description   : ''
+ *     ]
+ *  }]
+ * */
 export function normalizeExamples(examples, dataType = 'string') {
   if (!examples) {
     return {
@@ -104,7 +138,6 @@ export function normalizeExamples(examples, dataType = 'string') {
       exampleList: [],
     };
   }
-
   if (examples.constructor === Object) {
     const exampleValAndDescr = Object.values(examples);
     const exampleVal = exampleValAndDescr.length > 0
@@ -114,6 +147,7 @@ export function normalizeExamples(examples, dataType = 'string') {
       : '';
     const exampleList = Object.values(examples).map((v) => ({
       value: typeof v.value === 'boolean' || typeof v.value === 'number' ? v.value.toString() : v.value,
+      printableValue: getPrintableVal(v.value),
       summary: v.summary,
       description: v.description,
     }));
@@ -134,12 +168,18 @@ export function normalizeExamples(examples, dataType = 'string') {
 
   if (dataType === 'array') {
     const [exampleVal] = examples;
-    const exampleList = examples.map((v) => ({ value: v }));
+    const exampleList = examples.map((v) => ({
+      value: v,
+      printableValue: getPrintableVal(v),
+    }));
     return { exampleVal, exampleList };
   }
 
   const exampleVal = examples[0].toString();
-  const exampleList = examples.map((v) => ({ value: v.toString() }));
+  const exampleList = examples.map((v) => ({
+    value: v.toString(),
+    printableValue: getPrintableVal(v),
+  }));
   return { exampleVal, exampleList };
 }
 
@@ -800,7 +840,8 @@ export function generateExample(schema, mimeType, examples = '', example = '', i
   // If schema-level examples are not provided or includeGeneratedExample === true then generate one based on the schema field types
   if (finalExamples.length === 0 || includeGeneratedExample === true) {
     if (schema) {
-      if (schema.example) { // Note: schema.examples (plurals) is not allowed as per spec
+      if (schema.example) {
+        // Note: Deprecated: The 'example' property has been deprecated in 3.1.0 in favor of the JSON Schema 'examples' keyword
         finalExamples.push({
           exampleId: 'Example',
           exampleSummary: '',
