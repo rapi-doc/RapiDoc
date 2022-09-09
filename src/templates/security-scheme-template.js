@@ -480,6 +480,13 @@ export default function securitySchemeTemplate() {
 export function pathSecurityTemplate(pathSecurity) {
   if (this.resolvedSpec.securitySchemes && pathSecurity) {
     const orSecurityKeys1 = [];
+    if (Array.isArray(pathSecurity)) {
+      if (pathSecurity.length === 0) {
+        return '';
+      }
+    } else {
+      return '';
+    }
     pathSecurity.forEach((pSecurity) => {
       const andSecurityKeys1 = [];
       const andKeyTypes = [];
@@ -508,10 +515,11 @@ export function pathSecurityTemplate(pathSecurity) {
     });
     return html`<div style="position:absolute; top:3px; right:2px; font-size:var(--font-size-small); line-height: 1.5;">
       <div style="position:relative; display:flex; min-width:350px; max-width:700px; justify-content: flex-end;">
-        <svg width="16" height="24">
-          <g>
-            <path style="fill: var(--fg3)" d="m13.8,8.5l0,-2.6l0,0c0,-3.2 -2.6,-5.8 -5.8,-5.8s-5.8,2.6 -5.8,5.8l0,0l0,2.6l-2.1,0l0,11.2l16,0l0,-11.2l-2.1,0l-0,0l0,0l0,0l-0,0zm-9.8,-2.6c0,0 0,0 0,0c0,-2.2 1.8,-4 4,-4c2.2,0 4,1.8 4,4c0,0 0,0 0,0l0,2.6l-8.03,0l0,-2.6l0,0l0,0z" />
-          </g>
+        <svg width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" fill="none" style="stroke:var(--fg3)">
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+          <rect x="5" y="11" width="14" height="10" rx="2" />
+          <circle cx="12" cy="16" r="1" />
+          <path d="M8 11v-4a4 4 0 0 1 8 0v4" />
         </svg>
           ${orSecurityKeys1.map((orSecurityItem1, i) => html`
 
