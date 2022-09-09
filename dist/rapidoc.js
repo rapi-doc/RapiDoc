@@ -12480,6 +12480,15 @@ function securitySchemeTemplate() {
 function pathSecurityTemplate(pathSecurity) {
   if (this.resolvedSpec.securitySchemes && pathSecurity) {
     const orSecurityKeys1 = [];
+
+    if (Array.isArray(pathSecurity)) {
+      if (pathSecurity.length === 0) {
+        return '';
+      }
+    } else {
+      return '';
+    }
+
     pathSecurity.forEach(pSecurity => {
       const andSecurityKeys1 = [];
       const andKeyTypes = [];
@@ -12515,13 +12524,8 @@ function pathSecurityTemplate(pathSecurity) {
     });
     return y`<div style="position:absolute; top:3px; right:2px; font-size:var(--font-size-small); line-height: 1.5;">
       <div style="position:relative; display:flex; min-width:350px; max-width:700px; justify-content: flex-end;">
-        <svg width="16" height="24">
-          <g>
-            <path style="fill: var(--fg3)" d="m13.8,8.5l0,-2.6l0,0c0,-3.2 -2.6,-5.8 -5.8,-5.8s-5.8,2.6 -5.8,5.8l0,0l0,2.6l-2.1,0l0,11.2l16,0l0,-11.2l-2.1,0l-0,0l0,0l0,0l-0,0zm-9.8,-2.6c0,0 0,0 0,0c0,-2.2 1.8,-4 4,-4c2.2,0 4,1.8 4,4c0,0 0,0 0,0l0,2.6l-8.03,0l0,-2.6l0,0l0,0z" />
-          </g>
-        </svg>
+        <svg width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" fill="none" style="stroke:var(--fg3)"> <rect x="5" y="11" width="14" height="10" rx="2" /> <circle cx="12" cy="16" r="1" /> <path d="M8 11v-4a4 4 0 0 1 8 0v4" /></svg>
           ${orSecurityKeys1.map((orSecurityItem1, i) => y`
-
           ${orSecurityItem1.securityTypes ? y`
               ${i !== 0 ? y`<div style="padding:3px 4px;"> OR </div>` : ''}
               <div class="tooltip">
@@ -17240,7 +17244,7 @@ function overviewTemplate() {
             ${this.resolvedSpec.info.termsOfService ? y`<span><a href="${this.resolvedSpec.info.termsOfService}" part="anchor anchor-overview">Terms of Service</a></span>` : ''}
             ${this.specUrl && this.allowSpecFileDownload === 'true' ? y`
                 <div style="display:flex; margin:12px 0; gap:8px; justify-content: start;">
-                  <button class="m-btn thin-border" style="width:170px" part="btn btn-outline" @click='${e => {
+                  <button class="m-btn thin-border" style="min-width:170px" part="btn btn-outline" @click='${e => {
     downloadResource(this.specUrl, 'openapi-spec', e);
   }}'>Download OpenAPI spec</button>
                   ${(_this$specUrl = this.specUrl) !== null && _this$specUrl !== void 0 && _this$specUrl.trim().toLowerCase().endsWith('json') ? y`<button class="m-btn thin-border" style="width:200px" part="btn btn-outline" @click='${e => {
@@ -24677,7 +24681,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("b903d168c3de37b353b6")
+/******/ 		__webpack_require__.h = () => ("a20d397b8b64c821de71")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

@@ -51,9 +51,9 @@
     "lint-fix": "./node_modules/eslint/bin/eslint.js --fix ./src/**"
   },
   "devDependencies": {
-    "@babel/core": "^7.18.13",
+    "@babel/core": "^7.19.0",
     "@babel/eslint-parser": "^7.18.9",
-    "@babel/preset-env": "^7.18.10",
+    "@babel/preset-env": "^7.19.0",
     "babel-loader": "^8.2.5",
     "babel-plugin-template-html-minifier": "^4.1.0",
     "clean-webpack-plugin": "^4.0.0",
@@ -74,7 +74,7 @@
     "webpack": "^5.74.0",
     "webpack-bundle-analyzer": "^4.6.1",
     "webpack-cli": "^4.10.0",
-    "webpack-dev-server": "^4.10.1"
+    "webpack-dev-server": "^4.11.0"
   },
   "engines": {
     "node": ">=10.21.0"
