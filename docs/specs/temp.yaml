@@ -15,19 +15,21 @@ paths:
         content:
           application/json:
             schema:
-              anyOf:
-                - title: Option 1
-                  type: object
-                  properties:
-                    name:
-                      type: string
-                    age:
-                      type: integer
-                - title: Option 2
-                  type: object
-                  properties:
-                    location:
-                      type: string
-                    zip:
-                      type: integer
+              type: object
+              properties:
+                name:
+                  type: string
+                age:
+                  type: number
+                color:
+                  type: string
+                  oneOf:
+                  - const: false
+                    title: Blue
+                  - const: y
+                    title: Yellow
+                  - const: r
+                    title: Red
+
+
 

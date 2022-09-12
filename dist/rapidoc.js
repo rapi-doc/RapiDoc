@@ -12800,13 +12800,15 @@ function getTypeInfo(schema) {
   } else if (schema.type) {
     dataType = Array.isArray(schema.type) ? schema.type.join(schema.length === 2 ? ' or ' : '┃') : schema.type;
 
-    if (schema.format || schema.enum) {
-      dataType = dataType.replace('string', schema.enum ? 'enum' : schema.format);
+    if (schema.format || schema.enum || schema.const) {
+      dataType = dataType.replace('string', schema.enum ? 'enum' : schema.const ? 'const' : schema.format);
     }
 
     if (schema.nullable) {
       dataType += '┃null';
     }
+  } else if (schema.const) {
+    dataType = 'const';
   } else if (Object.keys(schema).length === 0) {
     dataType = 'any';
   } else {
@@ -12835,7 +12837,7 @@ function getTypeInfo(schema) {
   } // Set Allowed Values
 
 
-  info.allowedValues = Array.isArray(schema.enum) ? schema.enum.map(v => getPrintableVal(v)).join('┃') : '';
+  info.allowedValues = schema.const ? schema.const : Array.isArray(schema.enum) ? schema.enum.map(v => getPrintableVal(v)).join('┃') : '';
 
   if (dataType === 'array' && schema.items) {
     var _schema$items, _schema$items2;
@@ -12844,7 +12846,7 @@ function getTypeInfo(schema) {
     const arrayItemDefault = getPrintableVal(schema.items.default);
     info.arrayType = `${schema.type} of ${Array.isArray(arrayItemType) ? arrayItemType.join('') : arrayItemType}`;
     info.default = arrayItemDefault;
-    info.allowedValues = Array.isArray((_schema$items2 = schema.items) === null || _schema$items2 === void 0 ? void 0 : _schema$items2.enum) ? schema.items.enum.map(v => getPrintableVal(v)).join('┃') : '';
+    info.allowedValues = schema.items.const ? schema.const : Array.isArray((_schema$items2 = schema.items) === null || _schema$items2 === void 0 ? void 0 : _schema$items2.enum) ? schema.items.enum.map(v => getPrintableVal(v)).join('┃') : '';
   }
 
   if (dataType.match(/integer|number/g)) {
@@ -13002,6 +13004,14 @@ function getSampleValueByType(schemaObj) {
     return schemaObj.$ref;
   }
 
+  if (schemaObj.const === false || schemaObj.const === 0 || schemaObj.const === null || schemaObj.const === '') {
+    return schemaObj.const;
+  }
+
+  if (schemaObj.const) {
+    return schemaObj.const;
+  }
+
   const typeValue = Array.isArray(schemaObj.type) ? schemaObj.type[0] : schemaObj.type;
 
   if (!typeValue) {
@@ -13027,6 +13037,10 @@ function getSampleValueByType(schemaObj) {
   if (typeValue.match(/^string/g)) {
     if (schemaObj.enum) {
       return schemaObj.enum[0];
+    }
+
+    if (schemaObj.const) {
+      return schemaObj.const;
     }
 
     if (schemaObj.pattern) {
@@ -14100,6 +14114,7 @@ customElements.define('json-tree', JsonTree);
 .null {color:var(--red);}
 .bool, .boolean{color:var(--orange)}
 .enum {color:var(--purple)}
+.cons {color:var(--purple)}
 .recu {color:var(--brown)}
 .toolbar {
   display:flex;
@@ -14457,7 +14472,7 @@ class SchemaTree extends lit_element_s {
           ${dataType === 'array' ? y`<span class="m-markdown-small">${unsafe_html_o(marked(description))}</span>` : ''}
           ${constraint ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Constraints: </span>${constraint}</div>` : ''}
           ${defaultValue ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
-          ${allowedValues ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Allowed: </span>${allowedValues}</div>` : ''}
+          ${allowedValues ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>${type === 'const' ? 'Value' : 'Allowed'}: </span>${allowedValues}</div>` : ''}
           ${pattern ? y`<div style='display:inline-block; line-break: anywhere; margin-right:8px'><span class='bold-text'>Pattern: </span>${pattern}</div>` : ''}
         </div>
       </div>
@@ -16594,7 +16609,7 @@ class SchemaTable extends lit_element_s {
           ${dataType === 'array' ? y`<span class="m-markdown-small">${unsafe_html_o(marked(description))}</span>` : ''}
           ${constraint ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Constraints: </span> ${constraint}</div>` : ''}
           ${defaultValue ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
-          ${allowedValues ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Allowed: </span>${allowedValues}</div>` : ''}
+          ${allowedValues ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>${type === 'const' ? 'Value' : 'Allowed'}: </span>${allowedValues}</div>` : ''}
           ${pattern ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Pattern: </span>${pattern}</div>` : ''}
         </div>
       </div>
@@ -24681,7 +24696,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("a20d397b8b64c821de71")
+/******/ 		__webpack_require__.h = () => ("fd7fb9752043a38ae472")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
