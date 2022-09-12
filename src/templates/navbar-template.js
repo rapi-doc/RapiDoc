@@ -83,7 +83,7 @@ export default function navbarTemplate() {
         </div>
       `
     }
-    <div style="display:flex; margin:12px 0; gap:8px; justify-content: start;">
+    <div style="display:flex; margin:12px 0; gap:8px; justify-content: start; align-items: center;">
       <style>
         .download-link {
             width:170px; 
