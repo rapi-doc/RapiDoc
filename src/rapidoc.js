@@ -160,10 +160,10 @@ export default class RapiDoc extends LitElement {
         font-family:var(--font-regular);
       }
       .body {
-        display:flex;
+        display:inline-block;
         height:100%;
         width:100%;
-        overflow:hidden;
+        overflow:scroll;
       }
 
       .main-content { 
@@ -328,6 +328,9 @@ export default class RapiDoc extends LitElement {
       }
 
       @media only screen and (min-width: 768px) {
+        .body {
+          display: flex;
+        }
         .nav-bar {
           width: 260px;
           display:flex;
