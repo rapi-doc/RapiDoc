@@ -39,6 +39,8 @@ export function getTypeInfo(schema) {
     if (schema.nullable) {
       dataType += '┃null';
     }
+  } else if (schema.const) {
+    dataType = 'const';
   } else if (Object.keys(schema).length === 0) {
     dataType = 'any';
   } else {
@@ -207,6 +209,12 @@ export function getSampleValueByType(schemaObj) {
   if (schemaObj.$ref) {
     // Indicates a Circular ref
     return schemaObj.$ref;
+  }
+  if (schemaObj.const === false || schemaObj.const === 0 || schemaObj.const === null || schemaObj.const === '') {
+    return schemaObj.const;
+  }
+  if (schemaObj.const) {
+    return schemaObj.const;
   }
   const typeValue = Array.isArray(schemaObj.type) ? schemaObj.type[0] : schemaObj.type;
   if (!typeValue) {
