@@ -32830,34 +32830,61 @@ class ApiResponse extends lit_element_s {
         align-items: center;
         justify-content: space-between;
         flex: 1 1 auto;
+        height: 45px;
+        border-bottom: 1px solid #CCCED8;
       }
       .resp-modal-content {
         padding: 24px 16px;
         background-color: #FFFFFF;
         width: 80%;
+        height: 70%;
         max-width: 720px;
-        max-height: 70%;
+        max-height: 1120px;
         position: absolute;
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
+      }
+      .resp-modal-body {
+        height: calc(100% - 45px);
         overflow: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: white white;
+        border-bottom: 1px solid #CCCED8;
+      }
+      .resp-modal-body:hover {
+        scrollbar-color: #CCCED8 white;
+      }
+      .resp-modal-body::-webkit-scrollbar {
+        display: block;
+        width: 6px;
+        height: 6px;
+        background-color: white;
+      }
+      .resp-modal-body::-webkit-scrollbar-thumb {
+        border-radius: 4px;
+        background: white;
+      }
+      .resp-modal-body:hover::-webkit-scrollbar-thumb {
+        background: #CCCED8;
       }
       .resp-modal {
         display: none;
         position: fixed;
-        z-index: 1002;
+        z-index: 10000;
         left: 0;
         top: 0;
         width: 100%;
         height: 100%;
-        overflow: auto;
         background-color: rgba(0,0,0,0.1);
       }
       .resp-modal-bg {
-        height: 100%;
-        width: 100%;
-        position: relative;
+        height: 100vh;
+        width: 100vw;
+        position: fixed;
+        overscroll-behavior: contain;
+        overflow: none;
       }
       .top-gap{margin-top:16px;}
       .example-panel{
@@ -32994,6 +33021,7 @@ class ApiResponse extends lit_element_s {
       }
 
       this.renderRoot.getElementById(`resp-modal-${respStatus}`).style.display = 'block';
+      document.body.style.overflow = 'hidden';
     }}"
                 >
                   <div style='display: flex; flex-direction: row; justify-content: flex-start; align-items: center;'>
@@ -33024,6 +33052,7 @@ class ApiResponse extends lit_element_s {
           <div class="resp-modal-bg"
             @click="${() => {
         this.renderRoot.getElementById(`resp-modal-${status}`).style.display = 'none';
+        document.body.style.overflow = 'auto';
       }}"
           ></div>
           <div class="resp-border resp-modal-content">
@@ -33043,35 +33072,38 @@ class ApiResponse extends lit_element_s {
                 <button class="close-button"
                   @click="${() => {
         this.renderRoot.getElementById(`resp-modal-${status}`).style.display = 'none';
+        document.body.style.overflow = 'auto';
       }}"
                 >
                   ${closeSymbol()}
                 </button>
               </div>
             </div>
-            <div class="top-gap">
-              <span class="resp-descr m-markdown ">${unsafe_html_o(marked(((_this$responses$statu3 = this.responses[status]) === null || _this$responses$statu3 === void 0 ? void 0 : _this$responses$statu3.description) || ''))}</span>
-              ${this.headersForEachRespStatus[status] && ((_this$headersForEachR = this.headersForEachRespStatus[status]) === null || _this$headersForEachR === void 0 ? void 0 : _this$headersForEachR.length) > 0 ? $`${this.responseHeaderListTemplate(this.headersForEachRespStatus[status])}` : ''}
-            </div>
-            ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 0 ? '' : $`  
-                <div class="tab-panel col">
-                  <div class="tab-buttons row" @click="${e => {
+            <div class="resp-modal-body">
+              <div class="top-gap">
+                <span class="resp-descr m-markdown ">${unsafe_html_o(marked(((_this$responses$statu3 = this.responses[status]) === null || _this$responses$statu3 === void 0 ? void 0 : _this$responses$statu3.description) || ''))}</span>
+                ${this.headersForEachRespStatus[status] && ((_this$headersForEachR = this.headersForEachRespStatus[status]) === null || _this$headersForEachR === void 0 ? void 0 : _this$headersForEachR.length) > 0 ? $`${this.responseHeaderListTemplate(this.headersForEachRespStatus[status])}` : ''}
+              </div>
+              ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 0 ? '' : $`  
+                  <div class="tab-panel col">
+                    <div class="tab-buttons row" @click="${e => {
         if (e.target.tagName.toLowerCase() === 'button') {
           this.activeSchemaTab = e.target.dataset.tab;
         }
       }}" >
-                    <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
-                    <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' >SCHEMA</button>
-                    <div style="flex:1"></div>
-                    ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1 ? $`<span class='small-font-size gray-text' style='align-self:center; margin-top:8px;'> ${Object.keys(this.mimeResponsesForEachStatus[status])[0]} </span>` : $`${this.mimeTypeDropdownTemplate(Object.keys(this.mimeResponsesForEachStatus[status]))}`}
+                      <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
+                      <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' >SCHEMA</button>
+                      <div style="flex:1"></div>
+                      ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1 ? $`<span class='small-font-size gray-text' style='align-self:center; margin-top:8px;'> ${Object.keys(this.mimeResponsesForEachStatus[status])[0]} </span>` : $`${this.mimeTypeDropdownTemplate(Object.keys(this.mimeResponsesForEachStatus[status]))}`}
+                    </div>
+                    ${this.activeSchemaTab === 'example' ? $`<div class ='tab-content col' style = 'flex:1;'>
+                          ${this.mimeExampleTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
+                        </div>` : $`<div class ='tab-content col' style = 'flex:1;'>
+                          ${this.mimeSchemaTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
+                        </div>`}
                   </div>
-                  ${this.activeSchemaTab === 'example' ? $`<div class ='tab-content col' style = 'flex:1;'>
-                        ${this.mimeExampleTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
-                      </div>` : $`<div class ='tab-content col' style = 'flex:1;'>
-                        ${this.mimeSchemaTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
-                      </div>`}
-                </div>
-              `}
+                `}
+            </div>
           </div>
         </div>
       `;
@@ -41600,7 +41632,7 @@ Prism.languages.py = Prism.languages.python;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("143142ee34b2a50f5332")
+/******/ 		__webpack_require__.h = () => ("98b5a62532052a8a46c9")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
