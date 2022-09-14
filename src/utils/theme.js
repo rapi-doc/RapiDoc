@@ -213,6 +213,7 @@ export default function setTheme(baseTheme, theme = {}) {
     --border-radius: 4px;
     --layout: ${this.layout || 'row'};
     --font-mono: ${this.monoFont || 'Monaco, "Andale Mono", "Roboto Mono", Consolas, monospace'};
+    --font-medium: ${this.mediumFont || this.monoFont || 'Monaco, "Andale Mono", "Roboto Mono", Consolas, monospace'};
     --font-regular: ${this.regularFont || '"Open Sans", Avenir, "Segoe UI", Arial, sans-serif'};
     --scroll-bar-width: 8px;
     --nav-item-padding: ${this.navItemSpacing === 'relaxed'

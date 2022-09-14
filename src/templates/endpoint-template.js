@@ -3,6 +3,7 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-li
 import { marked } from 'marked';
 import '~/components/api-request';
 import '~/components/api-response';
+import '~/components/content-copy-button';
 import codeSamplesTemplate from '~/templates/code-samples-template';
 import callbackTemplate from '~/templates/callback-template';
 import { pathSecurityTemplate } from '~/templates/security-scheme-template';
@@ -127,6 +128,8 @@ function endpointBodyTemplate(path) {
           .request_body = "${path.requestBody}"
           .api_keys = "${nonEmptyApiKeys}"
           .servers = "${path.servers}" 
+          .resolvedSpec="${this.resolvedSpec}"
+          .selectedServer="${this.selectedServer}"
           server-url = "${path.servers && path.servers.length > 0 ? path.servers[0].url : this.selectedServer.computedUrl}" 
           active-schema-tab = "${this.defaultSchemaTab}"
           fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
@@ -217,7 +220,7 @@ export default function endpointTemplate(showExpandCollapse = true, showTags = t
           <div class='section-tag-body'>
           ${tag.paths.filter((v) => {
             if (this.matchPaths) {
-              return pathIsInSearch(this.matchPaths, v, this.matchType);
+              return pathIsInSearch(this.matchPaths, v, 'exactly');
             }
             return true;
             }).map((path) => html`

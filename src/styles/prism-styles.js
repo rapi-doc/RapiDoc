@@ -53,9 +53,12 @@ pre[class*="language-"] {
 }
 
 .token.boolean,
-.token.number,
-.token.function {
+.token.number{
   color: var(--red);
+}
+
+.token.function {
+  color: #2953B2;
 }
 
 .token.property,

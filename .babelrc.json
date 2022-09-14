@@ -37,6 +37,13 @@
           "minifyCSS": true
         }
       }
+    ],
+    [
+      "prismjs", {
+        "languages": ["shell", "javascript", "ruby", "php", "python", "json"],
+        "plugins": ["custom-class"],
+        "css": true
+      }
     ]
   ]
 }

@@ -107,6 +107,7 @@ export default class RapiDoc extends LitElement {
       fontSize: { type: String, attribute: 'font-size' },
       regularFont: { type: String, attribute: 'regular-font' },
       monoFont: { type: String, attribute: 'mono-font' },
+      mediumFont: { type: String, attribute: 'medium-font' },
       loadFonts: { type: String, attribute: 'load-fonts' },
       cssFile: { type: String, attribute: 'css-file' },
       cssClasses: { type: String, attribute: 'css-classes' },

@@ -34,6 +34,7 @@
   "mode": "production",
   "dependencies": {
     "@apitools/openapi-parser": "^0.0.25",
+    "babel-plugin-prismjs": "^2.1.0",
     "base64-arraybuffer": "^1.0.2",
     "buffer": "^6.0.3",
     "lit": "^2.2.5",

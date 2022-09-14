@@ -149,8 +149,10 @@ export default css`
   }
 
   .m-markdown pre {
-    padding: 12px;
-    background-color: var(--code-bg);
+    paddingBlock: 16px;
+    paddingInline: 32px;
+    background-color: #F8F7FC;
+    border: 1px solid #E7E9EE;
     color:var(--code-fg);
   }
 
@@ -168,7 +170,7 @@ export default css`
   }
 
   .m-markdown pre code {
-    color: var(--code-fg);
+    color: #DC5A41;
     background-color: var(--code-bg);
     background-color: transparent;
   }

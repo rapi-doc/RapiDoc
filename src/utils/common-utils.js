@@ -58,7 +58,7 @@ export function pathIsInSearch(searchVal, path, matchType = 'includes') {
     const stringToSearch = `${path.method} ${path.path} ${path.summary || path.description || ''} ${path.operationId || ''}`.toLowerCase();
     return stringToSearch.includes(searchVal.toLowerCase());
   }
-  const regex = new RegExp(searchVal, 'i');
+  const regex = new RegExp(`^${searchVal}$`, 'i');
   return regex.test(`${path.method} ${path.path}`);
 }
 

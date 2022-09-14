@@ -35,7 +35,6 @@ function serverVarsTemplate() {
   // const selectedServerObj = this.resolvedSpec.servers.find((v) => (v.url === this.selectedServer));
   return this.selectedServer && this.selectedServer.variables
     ? html`
-    <div class="table-title">SERVER VARIABLES</div>
     <table class='m-table'>
       ${Object.entries(this.selectedServer.variables).map((kv) => html`
         <tr>
@@ -85,31 +84,19 @@ function serverVarsTemplate() {
 export default function serverTemplate() {
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) { return ''; }
   return html`
-  <section id = 'servers' part="section-servers" style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;" class='regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
-    <div part = "section-servers-title" class = "sub-title">API SERVER</div>
-    <div class = 'mono-font' style='margin: 12px 0; font-size:calc(var(--font-size-small) + 1px);'>
-      ${!this.resolvedSpec.servers || this.resolvedSpec.servers?.length === 0
-        ? ''
-        : html`
-          ${this.resolvedSpec?.servers.map((server, i) => html`
-            <input type = 'radio'
-              name = 'api_server'
-              id = 'srvr-opt-${i}'
-              value = '${server.url}'
-              @change = ${() => { setApiServer.call(this, server.url); }}
-              .checked = '${this.selectedServer.url === server.url}'
-              style = 'margin:4px 0; cursor:pointer'
-            />
-              <label style='cursor:pointer' for='srvr-opt-${i}'>
-                ${server.url} ${server.description ? html`- <span class='regular-font'>${server.description} </span>` : ''}
-              </label>
-            <br/>
-          `)}
-      `}
-      <div class="table-title primary-text" part="label-selected-server"> SELECTED: ${this.selectedServer?.computedUrl || 'none'}</div>
+  <section id = 'servers' part="section-servers" style="text-align:left; direction:ltr; margin-block: 32px 24px;" class='regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
+    <span class="api-base-url">Base URL</span>
+    <div style="margin-block: 16px;">
+      ${serverVarsTemplate.call(this)}
     </div>
-    <slot name="servers"></slot>
-    ${serverVarsTemplate.call(this)}
+    <div style="display: flex; align-items: center;">
+      ${this.selectedServer?.computedUrl
+        ? html`<div class='label-operation-path-container' style="font-size:14px; border-radius: 4px;">
+            <content-copy-button id='copy-baseURL' content='${this.selectedServer?.computedUrl}${this.path}'></content-copy-button>
+          </div>`
+        : ''
+      }
+    </div>
   </section>`;
 }
 /* eslint-enable indent */
