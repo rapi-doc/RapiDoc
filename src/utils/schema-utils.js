@@ -794,7 +794,8 @@ export function generateExample(schema, mimeType, examples = '', example = '', i
           egContent = examples[eg].value;
           if (typeof examples[eg].value === 'string') {
             try {
-              const fixedJsonString = examples[eg].value.replace((/([\w]+)(:)/g), '"$1"$2').replace((/'/g), '"');
+              // const fixedJsonString = examples[eg].value.replace((/([\w]+)(:)/g), '"$1"$2').replace((/'/g), '"');
+              const fixedJsonString = examples[eg].value;
               egContent = JSON.parse(fixedJsonString);
               egFormat = 'json';
             } catch (err) {
