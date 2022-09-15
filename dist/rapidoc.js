@@ -12091,6 +12091,11 @@ async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, g
   const headers = new Headers();
   urlFormParams.append('grant_type', grantType);
 
+  if (grantType === 'authorization_code') {
+    urlFormParams.append('client_id', clientId);
+    urlFormParams.append('client_secret', clientSecret);
+  }
+
   if (grantType !== 'client_credentials' && grantType !== 'password') {
     urlFormParams.append('redirect_uri', redirectUrl);
   }
@@ -14469,7 +14474,7 @@ class SchemaTree extends lit_element_s {
           </span>
         </div>
         <div class='td key-descr'>
-          ${dataType === 'array' ? y`<span class="m-markdown-small">${unsafe_html_o(marked(description))}</span>` : ''}
+          ${y`<span class="m-markdown-small">${unsafe_html_o(marked(dataType === 'array' ? description : schemaDescription))}</span>`}
           ${constraint ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Constraints: </span>${constraint}</div>` : ''}
           ${defaultValue ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
           ${allowedValues ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>${type === 'const' ? 'Value' : 'Allowed'}: </span>${allowedValues}</div>` : ''}
@@ -16606,7 +16611,7 @@ class SchemaTable extends lit_element_s {
         <div class='td key-descr' @click="${() => {
       this.schemaDescriptionExpanded = 'true';
     }}">
-          ${dataType === 'array' ? y`<span class="m-markdown-small">${unsafe_html_o(marked(description))}</span>` : ''}
+          ${y`<span class="m-markdown-small">${unsafe_html_o(marked(dataType === 'array' ? description : schemaDescription))}</span>`}
           ${constraint ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Constraints: </span> ${constraint}</div>` : ''}
           ${defaultValue ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
           ${allowedValues ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>${type === 'const' ? 'Value' : 'Allowed'}: </span>${allowedValues}</div>` : ''}
@@ -24696,7 +24701,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("fd7fb9752043a38ae472")
+/******/ 		__webpack_require__.h = () => ("c14e283d72af7955d470")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

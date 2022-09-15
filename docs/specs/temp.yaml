@@ -1,35 +1,61 @@
 openapi: 3.0.0
 info:
-  title: Request Parameters Test Cases
-  description: Various request parameters types with defaults, examples and allowed values
+  title: Example
+  description: Example Description
+  termsOfService: ''
   version: 1.0.0
+servers:
+  - url: https://{serverName}/api
+    description: ''
+    variables:
+      serverName:
+        default: 127.0.0.1
+components:
+  schemas:
+    ExampleType:
+      description: |-
+        ### Example Description
+        * opt1: Description of opt1
+        * opt2: Description of opt1
+        * opt3: Description of opt1
+        * opt4: Description of opt1
+      type: string
+      enum:
+        - opt1
+        - opt2
+        - opt3
+        - opt4
+    ExampleTypeArray:
+      description: ''
+      type: object
+      properties:
+        example:
+          description: ''
+          type: array
+          items:
+            $ref: '#/components/schemas/ExampleType'
+          nullable: true
 paths:
-
-  /request-body-data-as-json:
+  /v1/example:
+    get:
+      summary: Get Example
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExampleTypeArray'
+      operationId: v1GetExample
     post:
-      summary: 2. Request body as JSON
-      security: []
-      requestBody:
-        description: Request body as **JSON**
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                age:
-                  type: number
-                color:
-                  type: string
-                  oneOf:
-                  - const: false
-                    title: Blue
-                  - const: y
-                    title: Yellow
-                  - const: r
-                    title: Red
-
-
-
+      summary: Post Example
+      responses:
+        '200':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExampleTypeArray'
+      operationId: v1PostExample
