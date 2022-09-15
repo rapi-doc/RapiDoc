@@ -189,8 +189,8 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
   const sendClientSecretIn = authFlowDivEl.querySelector('.oauth-send-client-secret-in') ? authFlowDivEl.querySelector('.oauth-send-client-secret-in').value.trim() : 'header';
   const checkedScopeEls = [...authFlowDivEl.querySelectorAll('.scope-checkbox:checked')];
   const pkceCheckboxEl = authFlowDivEl.querySelector(`#${securitySchemeId}-pkce`);
-  const state = (`${Math.random().toString(36)}random`).slice(2, 9);
-  const nonce = (`${Math.random().toString(36)}random`).slice(2, 9);
+  const state = (`${Math.random().toString(36).slice(2, 9)}random${Math.random().toString(36).slice(2, 9)}`);
+  const nonce = (`${Math.random().toString(36).slice(2, 9)}random${Math.random().toString(36).slice(2, 9)}`);
   // const codeChallenge = await generateCodeChallenge(codeVerifier);
   const redirectUrlObj = new URL(`${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/${this.oauthReceiver}`);
   let grantType = '';
@@ -258,6 +258,7 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
 
 function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, authFlow, defaultScopes = [], receiveTokenIn = 'header') {
   let { authorizationUrl, tokenUrl, refreshUrl } = authFlow;
+  const pkceOnly = authFlow['x-pkce-only'] || false;
   const isUrlAbsolute = (url) => (url.indexOf('://') > 0 || url.indexOf('//') === 0);
   if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
     refreshUrl = `${this.selectedServer.computedUrl}/${refreshUrl.replace(/^\//, '')}`;
@@ -326,7 +327,7 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
             ${flowName === 'authorizationCode'
               ? html`
                 <div style="margin: 16px 0 4px">
-                  <input type="checkbox" part="checkbox checkbox-auth-scope" id="${securitySchemeId}-pkce" checked>
+                  <input type="checkbox" part="checkbox checkbox-auth-scope" id="${securitySchemeId}-pkce" checked ?disabled=${pkceOnly}>
                   <label for="${securitySchemeId}-pkce" style="margin:0 16px 0 4px; line-height:24px; cursor:pointer">
                    Send Proof Key for Code Exchange (PKCE)
                   </label>
@@ -337,15 +338,17 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
             <input type="text" part="textbox textbox-auth-client-id" value = "${clientId || ''}" placeholder="client-id" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} oauth-client-id">
             ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password'
               ? html`
-                <input type="password" part="textbox textbox-auth-client-secret" value = "${clientSecret || ''}" placeholder="client-secret" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} oauth-client-secret" style = "margin:0 5px;">
-                ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password'
-                  ? html`
-                    <select style="margin-right:5px;" class="${flowName} ${securitySchemeId} oauth-send-client-secret-in">
-                      <option value = 'header' .selected = ${receiveTokenIn === 'header'} > Authorization Header </option>
-                      <option value = 'request-body' .selected = ${receiveTokenIn === 'request-body'}> Request Body </option>
-                    </select>`
-                  : ''
-                }`
+                <input 
+                  type="password" part="textbox textbox-auth-client-secret" 
+                  value = "${clientSecret || ''}" placeholder="client-secret" spellcheck="false" 
+                  class="oauth2 ${flowName} ${securitySchemeId} 
+                  oauth-client-secret" 
+                  style = "margin:0 5px;${pkceOnly ? 'display:none;' : ''}"
+                >
+                <select style="margin-right:5px;${pkceOnly ? 'display:none;' : ''}" class="${flowName} ${securitySchemeId} oauth-send-client-secret-in">
+                  <option value = 'header' .selected = ${receiveTokenIn === 'header'} > Authorization Header </option>
+                  <option value = 'request-body' .selected = ${receiveTokenIn === 'request-body'}> Request Body </option>
+                </select>`
               : ''
             }
             ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit' || flowName === 'password'
@@ -466,7 +469,17 @@ export default function securitySchemeTemplate() {
               ? html`
                 <tr>
                   <td style="border:none; padding-left:48px">
-                    ${Object.keys(v.flows).map((f) => oAuthFlowTemplate.call(this, f, v['x-client-id'], v['x-client-secret'], v.securitySchemeId, v.flows[f], v['x-default-scopes'], v['x-receive-token-in']))}
+                    ${Object.keys(v.flows).map((f) => oAuthFlowTemplate
+                      .call(
+                        this,
+                        f,
+                        (v.flows[f]['x-client-id'] || v['x-client-id'] || ''),
+                        (v.flows[f]['x-client-secret'] || v['x-client-secret'] || ''),
+                        v.securitySchemeId,
+                        v.flows[f],
+                        (v.flows[f]['x-default-scopes'] || v['x-default-scopes']),
+                        (v.flows[f]['x-receive-token-in'] || v['x-receive-token-in']),
+                      ))}
                   </td>
                 </tr>
                 `
