@@ -173,8 +173,11 @@ paths:
       tags:
         - pet
       summary: Update an existing pet
-      description: ''
+      description: This is a description for updating a pet (!!!)
       operationId: updatePet
+      externalDocs:
+        description: Find more info here
+        url: https://rapidocweb.com
       responses:
         '400':
           description: Invalid ID supplied

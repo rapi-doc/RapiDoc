@@ -64,6 +64,18 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
         <slot name="${path.elementId}"></slot>`
       }
       ${path.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(path.description))}</div>` : ''}
+      ${path.externalDocs?.url || path.externalDocs?.description
+        ? html`<div style="background-color:var(--bg3); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--border-radius)"> 
+            <div class="m-markdown"> ${unsafeHTML(marked(path.externalDocs?.description || ''))} </div>
+            ${path.externalDocs?.url
+              ? html`<div> <a href="${path.externalDocs?.url}"> 
+                  ${path.externalDocs?.url} <div style="transform: rotate(270deg) scale(1.5); display: inline-block; margin-left:5px">⇲</div>
+                </a> </div>`
+              : ''
+            }
+          </div>`
+        : ''
+      }
       ${pathSecurityTemplate.call(this, path.security)}
       ${codeSampleTabPanel}
       <div class='expanded-req-resp-container'>
