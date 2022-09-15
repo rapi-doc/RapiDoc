@@ -5,6 +5,47 @@ info:
   version: "1.0"
 servers:
 - url:  https://demo.duendesoftware.com
+
+components:
+  securitySchemes:
+    short-lived-oauth:
+      type: oauth2
+      description: Provides an OAuth token thats valid for short duration ~75 seconds
+      
+      # pre filling client-id, secret and scopes for all flows using vendor extension
+      x-client-id: interactive.confidential.short
+      x-client-secret: secret
+      x-default-scopes:
+        openid
+      
+      flows:
+        authorizationCode:
+          authorizationUrl: https://demo.duendesoftware.com/connect/authorize
+          tokenUrl: https://demo.duendesoftware.com/connect/token
+          scopes:
+            openid: OpenID
+            email: Email 
+            profile: Profile 
+    long-lived-oauth:
+      type: oauth2
+      description: Provides an OAuth token thats valid for long durations
+      flows:
+        authorizationCode:
+          authorizationUrl: https://demo.duendesoftware.com/connect/authorize
+          tokenUrl: https://demo.duendesoftware.com/connect/token
+
+          # pre filling client-id, secret and scopes for a specific flow using vendor extension
+          x-client-id: interactive.confidential
+          x-client-secret: secret
+          x-default-scopes:
+            openid
+          # when x-pkce-only=true, it will not allow to provide or send client_secret through the UI
+          x-pkce-only: true
+          
+          scopes:
+            openid: OpenID
+            email: Email 
+            profile: Profile 
 paths:
   /api/test:
     get:
@@ -45,31 +86,4 @@ paths:
         '200':
           description: Successful operation
 
-components:
-  securitySchemes:
-    short-lived-oauth:
-      type: oauth2
-      description: Provides an OAuth token thats valid for short duration ~75 seconds
-      x-client-id: interactive.confidential.short
-      x-client-secret: secret
-      flows:
-        authorizationCode:
-          authorizationUrl: https://demo.duendesoftware.com/connect/authorize
-          tokenUrl: https://demo.duendesoftware.com/connect/token
-          scopes:
-            openid: OpenID
-            email: Email 
-            profile: Profile 
-    long-lived-oauth:
-      type: oauth2
-      description: Provides an OAuth token thats valid for long durations
-      x-client-id: interactive.confidential
-      x-client-secret: secret
-      flows:
-        authorizationCode:
-          authorizationUrl: https://demo.duendesoftware.com/connect/authorize
-          tokenUrl: https://demo.duendesoftware.com/connect/token
-          scopes:
-            openid: OpenID
-            email: Email 
-            profile: Profile 
+
