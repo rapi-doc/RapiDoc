@@ -1,21 +1,11 @@
 openapi: 3.0.1
 info:
   title: Identity Server
-  description: OAuth Demo using <a href="https://demo.identityserver.io" target="_blank">IdentityServer</a>
+  description: OAuth Demo using <a href="https://demo.duendesoftware.com/" target="_blank">IdentityServer</a>
   version: "1.0"
 servers:
-- url:  https://demo.identityserver.io
+- url:  https://demo.duendesoftware.com
 paths:
-  /api/no-security:
-    get:
-      summary: API Endpoint with optional security
-      security:
-        - {}
-        - short-lived-oauth:
-          - openid
-          - email
-          - profile
-
   /api/test:
     get:
       summary: Test API
@@ -26,11 +16,7 @@ paths:
         Every operation which has security requiremnts will contain this icon and the details can be checked by hovering above it
       security:
         - short-lived-oauth:
-          - api
         - long-lived-oauth:
-          - api
-        - client-credential-oauth:
-          - api
       responses:
         '200':
           description: Successful operation
@@ -55,12 +41,6 @@ paths:
           - openid
           - email
           - profile
-        - client-credential-oauth:
-          - openid
-          - email
-          - profile
-        - basic: []
-        - api-key1: []
       responses:
         '200':
           description: Successful operation
@@ -74,13 +54,12 @@ components:
       x-client-secret: secret
       flows:
         authorizationCode:
-          authorizationUrl: https://demo.identityserver.io/connect/authorize
-          tokenUrl: https://demo.identityserver.io/connect/token
+          authorizationUrl: https://demo.duendesoftware.com/connect/authorize
+          tokenUrl: https://demo.duendesoftware.com/connect/token
           scopes:
             openid: OpenID
             email: Email 
             profile: Profile 
-            api: API 
     long-lived-oauth:
       type: oauth2
       description: Provides an OAuth token thats valid for long durations
@@ -88,23 +67,9 @@ components:
       x-client-secret: secret
       flows:
         authorizationCode:
-          authorizationUrl: https://demo.identityserver.io/connect/authorize
-          tokenUrl: https://demo.identityserver.io/connect/token
+          authorizationUrl: https://demo.duendesoftware.com/connect/authorize
+          tokenUrl: https://demo.duendesoftware.com/connect/token
           scopes:
             openid: OpenID
             email: Email 
             profile: Profile 
-            api: API 
-    client-credential-oauth:
-      type: oauth2
-      description: Provides an OAuth token thats valid for long duration
-      x-client-id: m2m
-      x-client-secret: secret
-      flows:
-        clientCredentials:
-          tokenUrl: https://demo.identityserver.io/connect/token
-          scopes:
-            openid: OpenID
-            email: Email 
-            profile: Profile 
-            api: API 
