@@ -11923,6 +11923,7 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
             expandedAtLeastOnce: false,
             summary: pathOrHookObj.summary || '',
             description: pathOrHookObj.description || '',
+            externalDocs: pathOrHookObj.externalDocs,
             shortSummary,
             method: methodName,
             path: pathOrHookName,
@@ -13727,7 +13728,8 @@ function generateExample(schema, mimeType, examples = '', example = '', includeR
 
           if (typeof examples[eg].value === 'string') {
             try {
-              const fixedJsonString = examples[eg].value.replace(/([\w]+)(:)/g, '"$1"$2').replace(/'/g, '"');
+              // const fixedJsonString = examples[eg].value.replace((/([\w]+)(:)/g), '"$1"$2').replace((/'/g), '"');
+              const fixedJsonString = examples[eg].value;
               egContent = JSON.parse(fixedJsonString);
               egFormat = 'json';
             } catch (err) {
@@ -17026,7 +17028,7 @@ function headingRenderer(tagElementId) {
 }
 
 function expandedEndpointBodyTemplate(path, tagName = '') {
-  var _path$xBadges, _path$servers, _path$servers$;
+  var _path$xBadges, _path$externalDocs, _path$externalDocs2, _path$externalDocs3, _path$externalDocs4, _path$externalDocs5, _path$externalDocs6, _path$servers, _path$servers$;
 
   const acceptContentTypes = new Set();
 
@@ -17073,6 +17075,12 @@ function expandedEndpointBodyTemplate(path, tagName = '') {
           `}
         <slot name="${path.elementId}"></slot>`}
       ${path.description ? y`<div class="m-markdown"> ${unsafe_html_o(marked(path.description))}</div>` : ''}
+      ${(_path$externalDocs = path.externalDocs) !== null && _path$externalDocs !== void 0 && _path$externalDocs.url || (_path$externalDocs2 = path.externalDocs) !== null && _path$externalDocs2 !== void 0 && _path$externalDocs2.description ? y`<div style="background-color:var(--bg3); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--border-radius)"> 
+            <div class="m-markdown"> ${unsafe_html_o(marked(((_path$externalDocs3 = path.externalDocs) === null || _path$externalDocs3 === void 0 ? void 0 : _path$externalDocs3.description) || ''))} </div>
+            ${(_path$externalDocs4 = path.externalDocs) !== null && _path$externalDocs4 !== void 0 && _path$externalDocs4.url ? y`<div> <a href="${(_path$externalDocs5 = path.externalDocs) === null || _path$externalDocs5 === void 0 ? void 0 : _path$externalDocs5.url}"> 
+                  ${(_path$externalDocs6 = path.externalDocs) === null || _path$externalDocs6 === void 0 ? void 0 : _path$externalDocs6.url} <div style="transform: rotate(270deg) scale(1.5); display: inline-block; margin-left:5px">⇲</div>
+                </a> </div>` : ''}
+          </div>` : ''}
       ${pathSecurityTemplate.call(this, path.security)}
       ${codeSampleTabPanel}
       <div class='expanded-req-resp-container'>
@@ -17815,7 +17823,7 @@ function endpointHeadTemplate(path, pathsExpanded = false) {
 }
 
 function endpointBodyTemplate(path) {
-  var _path$xBadges;
+  var _path$xBadges, _path$externalDocs, _path$externalDocs2, _path$externalDocs3, _path$externalDocs4, _path$externalDocs5, _path$externalDocs6;
 
   const acceptContentTypes = new Set();
 
@@ -17853,6 +17861,12 @@ function endpointBodyTemplate(path) {
           ` : ''}
 
       ${path.description ? y`<div part="section-endpoint-body-description" class="m-markdown"> ${unsafe_html_o(marked(path.description))}</div>` : ''}
+      ${(_path$externalDocs = path.externalDocs) !== null && _path$externalDocs !== void 0 && _path$externalDocs.url || (_path$externalDocs2 = path.externalDocs) !== null && _path$externalDocs2 !== void 0 && _path$externalDocs2.description ? y`<div style="background-color:var(--bg3); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--border-radius)"> 
+            <div class="m-markdown"> ${unsafe_html_o(marked(((_path$externalDocs3 = path.externalDocs) === null || _path$externalDocs3 === void 0 ? void 0 : _path$externalDocs3.description) || ''))} </div>
+            ${(_path$externalDocs4 = path.externalDocs) !== null && _path$externalDocs4 !== void 0 && _path$externalDocs4.url ? y`<div> <a href="${(_path$externalDocs5 = path.externalDocs) === null || _path$externalDocs5 === void 0 ? void 0 : _path$externalDocs5.url}"> 
+                  ${(_path$externalDocs6 = path.externalDocs) === null || _path$externalDocs6 === void 0 ? void 0 : _path$externalDocs6.url} <div style="transform: rotate(270deg) scale(1.5); display: inline-block; margin-left:5px">⇲</div>
+                </a> </div>` : ''}
+          </div>` : ''}
       <slot name="${path.elementId}"></slot>
       ${pathSecurityTemplate.call(this, path.security)}
       ${codeSampleTabPanel}
@@ -24707,7 +24721,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("0eb4cb7028146d49e8fc")
+/******/ 		__webpack_require__.h = () => ("528fc4670d863c491d23")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
