@@ -282,11 +282,21 @@ export default class RapiDoc extends LitElement {
         height: 36px;
         animation: spin 2s linear infinite;
       }
-      .expanded-endpoint-body{ 
+      .expanded-endpoint-body { 
         position: relative;
         padding: 6px 0px; 
       }
-      .expanded-endpoint-body.deprecated{ filter:opacity(0.6); }
+      .expanded-endpoint-body .tag-description {
+        background: var(--code-bg);
+        border-radius: var(--border-radius);
+        transition: max-height .2s ease-out;
+      }
+      .expanded-endpoint-body .tag-icon {
+        transition: transform .2s ease-out;
+      }
+      .expanded-endpoint-body .tag-icon.expanded {
+        transform: rotate(180deg);
+      }
       .divider { 
         border-top: 2px solid var(--border-color);
         margin: 24px 0;

@@ -37,7 +37,7 @@ export default css`
 }
 .nav-bar-paths-under-tag {
   overflow:hidden;
-  transition: max-height .3s ease;
+  transition: max-height .2s ease-out;
 }
 
 .nav-bar-tag-icon {

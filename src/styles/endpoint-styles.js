@@ -130,7 +130,7 @@ export default css`
   border: 2px solid var(--yellow); 
 }
 
-.req-resp-container{
+.req-resp-container {
   display: flex;
   margin-top:16px;
   align-items: stretch;
