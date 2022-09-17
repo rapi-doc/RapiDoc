@@ -20,12 +20,15 @@ export function expandCollapseNavBarTag(navLinkEl, action = 'toggle') {
 export function expandCollapseAll(navEl, action = 'expand-all') {
   const elList = [...navEl.querySelectorAll('.nav-bar-tag-and-paths')];
   if (action === 'expand-all') {
-    elList.map((el) => {
+    elList.forEach((el) => {
+      const navBarPathsUnderTagEl = el.querySelector('.nav-bar-paths-under-tag');
       el.classList.replace('collapsed', 'expanded');
+      navBarPathsUnderTagEl.style.maxHeight = `${navBarPathsUnderTagEl?.scrollHeight}px`;
     });
   } else {
-    elList.map((el) => {
+    elList.forEach((el) => {
       el.classList.replace('expanded', 'collapsed');
+      el.querySelector('.nav-bar-paths-under-tag').style.maxHeight = 0;
     });
   }
 }
