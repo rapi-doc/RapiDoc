@@ -4,12 +4,15 @@ import { pathIsInSearch } from '~/utils/common-utils';
 
 export function expandCollapseNavBarTag(navLinkEl, action = 'toggle') {
   const tagAndPathEl = navLinkEl?.closest('.nav-bar-tag-and-paths');
+  const pathsUnderTagEl = tagAndPathEl.querySelector('.nav-bar-paths-under-tag');
   if (tagAndPathEl) {
     const isExpanded = tagAndPathEl.classList.contains('expanded');
     if (isExpanded && (action === 'toggle' || action === 'collapse')) {
+      pathsUnderTagEl.style.maxHeight = 0;
       tagAndPathEl.classList.replace('expanded', 'collapsed');
     } else if (!isExpanded && (action === 'toggle' || action === 'expand')) {
       tagAndPathEl.classList.replace('collapsed', 'expanded');
+      pathsUnderTagEl.style.maxHeight = `${pathsUnderTagEl.scrollHeight}px`;
     }
   }
 }
@@ -188,8 +191,7 @@ export default function navbarTemplate() {
               : ''
             }
 
-            
-            <div class='nav-bar-paths-under-tag'>
+            <div class='nav-bar-paths-under-tag' style="max-height:5000px; height:${tag.expanded ? 'auto' : '0'};">
               <!-- Paths in each tag (endpoints) -->
               ${tag.paths.filter((v) => {
                 if (this.matchPaths) {

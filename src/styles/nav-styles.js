@@ -35,6 +35,10 @@ export default css`
 .nav-bar.read .nav-bar-tag-icon {
   display:none;
 }
+.nav-bar-paths-under-tag {
+  overflow:hidden;
+  transition: max-height .3s ease;
+}
 
 .nav-bar-tag-icon {
   color: var(--nav-text-color);
@@ -42,9 +46,6 @@ export default css`
 }
 .nav-bar-tag-icon:hover {
   color:var(--nav-hover-text-color);
-}
-.nav-bar.focused .nav-bar-tag-and-paths.collapsed .nav-bar-paths-under-tag {
-  display:none;
 }
 .nav-bar.focused .nav-bar-tag-and-paths.collapsed .nav-bar-tag-icon::after {
   content: '⌵';
