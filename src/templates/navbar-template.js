@@ -191,7 +191,7 @@ export default function navbarTemplate() {
               : ''
             }
 
-            <div class='nav-bar-paths-under-tag' style="max-height:5000px; height:${tag.expanded ? 'auto' : '0'};">
+            <div class='nav-bar-paths-under-tag' style="max-height:${(tag.paths?.length || 1) * 50}px; height:${tag.expanded ? 'auto' : '0'};">
               <!-- Paths in each tag (endpoints) -->
               ${tag.paths.filter((v) => {
                 if (this.matchPaths) {
