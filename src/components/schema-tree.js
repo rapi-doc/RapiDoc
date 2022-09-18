@@ -63,7 +63,9 @@ export default class SchemaTree extends LitElement {
       .tr.expanded:hover + .inside-bracket + .close-bracket {
         color: var(--primary-color);
       }
-
+      .inside-bracket.xxx-of-option {
+        border-left: 1px solid transparent;
+      }
       .open-bracket{
         display:inline-block;
         padding: 0 20px 0 0;
@@ -87,12 +89,6 @@ export default class SchemaTree extends LitElement {
       .inside-bracket.object,
       .inside-bracket.array {
         border-left: 1px dotted var(--border-color);
-      }
-      .inside-bracket.xxx-of {
-        padding:5px 0px;
-        border-style: dotted;
-        border-width: 0 0 1px 0;
-        border-color:var(--primary-color);
       }`,
       CustomStyles,
     ];

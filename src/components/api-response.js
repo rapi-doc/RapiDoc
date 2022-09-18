@@ -215,13 +215,13 @@ export default class ApiResponse extends LitElement {
               ${v.name || ''}
             </td> 
             <td style="padding:4px; vertical-align: baseline; padding:0 5px; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;">
-              ${v.schema.type || ''}
+              ${v.schema?.type || ''}
             </td> 
             <td style="padding:8px; vertical-align: baseline; border-top: 1px solid var(--light-border-color);text-overflow: ellipsis;">
               <div class="m-markdown-small regular-font" >${unsafeHTML(marked(v.description || ''))}</div>
             </td>
             <td style="padding:8px; vertical-align: baseline; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;">
-              ${v.schema.example || ''}
+              ${v.schema?.example || ''}
             </td>
           </tr>
         `)}

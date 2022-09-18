@@ -44,10 +44,6 @@ export default css`
   max-height:20px;
 }
 
-.tr.xxx-of{
-  border-top: 1px dotted var(--primary-color);
-}
-
 .xxx-of-key {
   font-size: calc(var(--font-size-small) - 2px); 
   font-weight:bold; 
@@ -61,10 +57,10 @@ export default css`
 }
 
 .xxx-of-descr {
-    font-family: var(--font-regular);
-    color: var(--primary-color);
-    font-size: calc(var(--font-size-small) - 1px);
-    margin-left: 2px;
+  font-family: var(--font-regular);
+  color: var(--primary-color);
+  font-size: calc(var(--font-size-small) - 1px);
+  margin-left: 2px;
 }
 
 .stri, .string, .uri, .url, .byte, .bina, .date, .pass, .ipv4, .ipv4, .uuid, .emai, .host {color:var(--green);}
@@ -90,9 +86,6 @@ export default css`
   color:var(--fg2);
   font-weight: bold;
   text-transform: uppercase;
-}
-.schema-root-type.xxx-of {
-  display:none;
 }
 .toolbar-item:first-of-type { margin:0 2px 0 0;}
 

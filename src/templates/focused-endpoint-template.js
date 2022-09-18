@@ -98,7 +98,7 @@ export default function focusedEndpointTemplate() {
       expandCollapseNavBarTag(newNavEl, 'expand');
       focusedTemplate = wrapFocusedTemplate.call(
         this,
-        expandedEndpointBodyTemplate.call(this, selectedPathObj, selectedTagObj.name, selectedTagObj.description || ''),
+        expandedEndpointBodyTemplate.call(this, selectedPathObj, (selectedTagObj.name || ''), (selectedTagObj.description || '')),
       );
     } else {
       // if focusedElementId is not found then show the default content (overview or first-path)

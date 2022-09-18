@@ -418,7 +418,11 @@ export function schemaToSampleObj(schema, config = { }) {
     const objWithSchemaProps = {};
     if (schema.properties) {
       for (const propertyName in schema.properties) {
-        objWithSchemaProps[propertyName] = getSampleValueByType(schema.properties[propertyName]);
+        if (schema.properties[propertyName].properties || schema.properties[propertyName].properties.items) {
+          objWithSchemaProps[propertyName] = schemaToSampleObj(schema.properties[propertyName], config);
+        } else {
+          objWithSchemaProps[propertyName] = getSampleValueByType(schema.properties[propertyName]);
+        }
       }
     }
 
@@ -665,7 +669,8 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
       }
     });
     obj[(schema.anyOf ? `::ANY~OF ${suffix}` : `::ONE~OF ${suffix}`)] = objWithAnyOfProps;
-    obj['::type'] = 'xxx-of';
+    // obj['::type'] = 'object';
+    obj['::type'] = 'object';
   } else if (Array.isArray(schema.type)) {
     // When a property has multiple types, then check further if any of the types are array or object, if yes then modify the schema using one-of
     // Clone the schema - as it will be modified to replace multi-data-types with one-of;
@@ -695,7 +700,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
       }
     }
     if (complexTypes.length > 0) {
-      obj['::type'] = 'xxx-of';
+      obj['::type'] = 'object';
       const multiTypeOptions = {
         '::type': 'xxx-of-option',
       };
@@ -875,16 +880,7 @@ export function generateExample(schema, mimeType, examples = '', example = '', i
         } else {
           exampleFormat = outputType;
         }
-
-        const samples = schemaToSampleObj(
-          schema,
-          {
-            includeReadOnly,
-            includeWriteOnly,
-            deprecated: true,
-          },
-        );
-
+        const samples = schemaToSampleObj(schema, { includeReadOnly, includeWriteOnly, deprecated: true });
         let i = 0;
         for (const samplesKey in samples) {
           if (!samples[samplesKey]) {
