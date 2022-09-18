@@ -58,11 +58,12 @@ export default class JsonTree extends LitElement {
       .open-bracket.expanded:hover ~ .close-bracket {
         color:var(--primary-color);
       }
-      .inside-bracket{
+      .inside-bracket {
         padding-left:12px;
+        transition: max-height .2s ease-out;
+        overflow: hidden;
         border-left:1px dotted var(--border-color);
       }
-      .open-bracket.collapsed + .inside-bracket,
       .open-bracket.collapsed + .inside-bracket + .close-bracket {
         display:none;
       }
@@ -127,11 +128,14 @@ export default class JsonTree extends LitElement {
 
   toggleExpand(e) {
     const openBracketEl = e.target;
+    const bodyEl = openBracketEl.nextElementSibling;
     if (openBracketEl.classList.contains('expanded')) {
       openBracketEl.classList.replace('expanded', 'collapsed');
+      bodyEl.style.maxHeight = 0;
       e.target.innerHTML = e.target.classList.contains('array') ? '[...]' : '{...}';
     } else {
       openBracketEl.classList.replace('collapsed', 'expanded');
+      bodyEl.style.maxHeight = `${bodyEl.scrollHeight}px`;
       e.target.innerHTML = e.target.classList.contains('array') ? '[' : '{';
     }
   }
