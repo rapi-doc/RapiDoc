@@ -16121,15 +16121,25 @@ class ApiRequest extends lit_element_s {
       signal
     } = controller;
     fetchOptions.headers = reqHeaders;
-    const fetchRequest = new Request(fetchUrl, fetchOptions);
+    const tempRequest = {
+      url: fetchUrl,
+      ...fetchOptions
+    };
     this.dispatchEvent(new CustomEvent('before-try', {
       bubbles: true,
       composed: true,
       detail: {
-        request: fetchRequest,
+        request: tempRequest,
         controller
       }
     }));
+    const updatedFetchOptions = {
+      method: tempRequest.method,
+      headers: tempRequest.headers,
+      credentials: tempRequest.credentials,
+      body: tempRequest.body
+    };
+    const fetchRequest = new Request(tempRequest.url, updatedFetchOptions);
     let fetchResponse;
     let responseClone;
 
@@ -16240,6 +16250,7 @@ class ApiRequest extends lit_element_s {
           }
         }));
         this.responseMessage = 'Request Aborted';
+        this.responseText = 'Request Aborted';
       } else {
         this.dispatchEvent(new CustomEvent('after-try', {
           bubbles: true,
@@ -24779,7 +24790,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("cf79ca1cbc219e72fd44")
+/******/ 		__webpack_require__.h = () => ("6a6a6a78929e818a0928")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
