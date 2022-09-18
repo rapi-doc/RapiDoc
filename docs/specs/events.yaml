@@ -31,19 +31,28 @@ info:
               e.detail.spec.info.title = "EVENTS - This text is updated during `before-render` event";
             });
 
-            // 2. before-try (Aborts all post calls)
+            // 2. before-try (Adds a querystring param to all GET calls)
+            docEl.addEventListener('before-try', (e) => {
+              if (e.detail.request.method === 'GET') {
+                const url = new URL( e.detail.request.url);
+                url.searchParams.append('delay', '3');
+                e.detail.request.url = url.searchParams.toString();
+              }
+            });
+
+            // 3. before-try (Aborts all post calls)
             docEl.addEventListener('before-try', (e) => {
               if (e.detail.request.method === 'POST') {
                 e.detail.controller.abort();
               }
             });
 
-            // 3. after-try
+            // 4. after-try
             docEl.addEventListener('after-try', (e) => {
-              alert("Hello from 'after-try' event ");
+              console.log("Hello from 'after-try' event ");
             });
 
-            // 4. request-aborted
+            // 5. request-aborted
             docEl.addEventListener('request-aborted', (e) => {
               calert("POST Requests are aborted in 'before-try' event ");
             });
@@ -57,7 +66,7 @@ info:
 servers:
   - url: https://reqres.in/api/
 paths:
-  /users?delay=2:
+  /users:
     get:
       description: List of users (paginated)
       parameters:
@@ -97,6 +106,14 @@ paths:
                     $ref: '#/components/schemas/support'
     post:
       description: Create a user
+      parameters:
+        - name: delay
+          in: query
+          schema:
+            type: integer
+            examples: 
+              - 1
+              - 10
       requestBody:
         content:
           application/json:

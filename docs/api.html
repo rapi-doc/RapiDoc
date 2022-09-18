@@ -776,7 +776,7 @@
               <td class="mono bold right">before-try</td>
               <td class="gray">
                 fired before user clicks try. 
-                Provides a <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request" target="_blank">Request object</a> 
+                Provides a <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request" target="_blank">Request like object</a> 
                 that can be modified before making the final call to the API.<br/> 
                 Also you get an <a href="https://developer.mozilla.org/en-US/docs/Web/API/AbortController" target="_blank"> AbortController object</a> 
                 which can be used for aborting a request 
@@ -787,6 +787,20 @@
                     rapidocEl.addEventListener('before-try', (e) => {
                       if (e.detail.request.method === 'POST') {
                         e.detail.request.headers.append('my-header', 'XYX');
+                      }
+                    });
+                  </code>
+                </pre>
+
+                <br/>
+                Example: Add a query-string param to all GET request
+                <pre class="shadow1 code-block" style = "width:500px">
+                  <code class="language-js">
+                    rapidocEl.addEventListener('before-try', (e) => {
+                      if (e.detail.request.method === 'GET') {
+                        const url = new URL( e.detail.request.url);
+                        url.searchParams.append('delay', '3');
+                        e.detail.request.url = url.searchParams.toString();
                       }
                     });
                   </code>

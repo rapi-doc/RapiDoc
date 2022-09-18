@@ -33,7 +33,15 @@
         });
 
         docEl.addEventListener('after-try', (e) => {
-          alert("Hello from 'after-try' event ");
+          console.log("Hello from 'after-try' event ");
+        });
+
+        docEl.addEventListener('before-try', (e) => {
+          if (e.detail.request.method === 'GET') {
+            const url = new URL( e.detail.request.url);
+            url.searchParams.append('delay', '3');
+            e.detail.request.url = url.searchParams.toString();
+          }
         });
 
         docEl.addEventListener('before-try', (e) => {
@@ -45,7 +53,7 @@
         });
 
         docEl.addEventListener('request-aborted', (e) => {
-          alert("POST Requests are aborted in 'before-try' event ");
+          console.log("POST Requests are aborted in 'before-try' event ");
         });
       })
     </script>
