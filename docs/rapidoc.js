@@ -3571,7 +3571,7 @@ input[type="checkbox"]:checked:after {
   border: 2px solid var(--yellow); 
 }
 
-.req-resp-container{
+.req-resp-container {
   display: flex;
   margin-top:16px;
   align-items: stretch;
@@ -3826,6 +3826,10 @@ pre[class*="language-"] {
 .nav-bar.read .nav-bar-tag-icon {
   display:none;
 }
+.nav-bar-paths-under-tag {
+  overflow:hidden;
+  transition: max-height .2s ease-out;
+}
 
 .nav-bar-tag-icon {
   color: var(--nav-text-color);
@@ -3833,9 +3837,6 @@ pre[class*="language-"] {
 }
 .nav-bar-tag-icon:hover {
   color:var(--nav-hover-text-color);
-}
-.nav-bar.focused .nav-bar-tag-and-paths.collapsed .nav-bar-paths-under-tag {
-  display:none;
 }
 .nav-bar.focused .nav-bar-tag-and-paths.collapsed .nav-bar-tag-icon::after {
   content: '⌵';
@@ -13263,7 +13264,11 @@ function schemaToSampleObj(schema, config = {}) {
 
     if (schema.properties) {
       for (const propertyName in schema.properties) {
-        objWithSchemaProps[propertyName] = getSampleValueByType(schema.properties[propertyName]);
+        if (schema.properties[propertyName].properties || schema.properties[propertyName].properties.items) {
+          objWithSchemaProps[propertyName] = schemaToSampleObj(schema.properties[propertyName], config);
+        } else {
+          objWithSchemaProps[propertyName] = getSampleValueByType(schema.properties[propertyName]);
+        }
       }
     }
 
@@ -13571,8 +13576,9 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
         objWithAnyOfProps['::type'] = 'xxx-of-option';
       }
     });
-    obj[schema.anyOf ? `::ANY~OF ${suffix}` : `::ONE~OF ${suffix}`] = objWithAnyOfProps;
-    obj['::type'] = 'xxx-of';
+    obj[schema.anyOf ? `::ANY~OF ${suffix}` : `::ONE~OF ${suffix}`] = objWithAnyOfProps; // obj['::type'] = 'object';
+
+    obj['::type'] = 'object';
   } else if (Array.isArray(schema.type)) {
     // When a property has multiple types, then check further if any of the types are array or object, if yes then modify the schema using one-of
     // Clone the schema - as it will be modified to replace multi-data-types with one-of;
@@ -13611,7 +13617,7 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     if (complexTypes.length > 0) {
       var _multiPrimitiveTypes2;
 
-      obj['::type'] = 'xxx-of';
+      obj['::type'] = 'object';
       const multiTypeOptions = {
         '::type': 'xxx-of-option'
       }; // Generate ONE-OF options for complexTypes
@@ -13969,11 +13975,12 @@ class JsonTree extends lit_element_s {
       .open-bracket.expanded:hover ~ .close-bracket {
         color:var(--primary-color);
       }
-      .inside-bracket{
+      .inside-bracket {
         padding-left:12px;
+        transition: max-height .2s ease-out;
+        overflow: hidden;
         border-left:1px dotted var(--border-color);
       }
-      .open-bracket.collapsed + .inside-bracket,
       .open-bracket.collapsed + .inside-bracket + .close-bracket {
         display:none;
       }
@@ -14040,12 +14047,15 @@ class JsonTree extends lit_element_s {
 
   toggleExpand(e) {
     const openBracketEl = e.target;
+    const bodyEl = openBracketEl.nextElementSibling;
 
     if (openBracketEl.classList.contains('expanded')) {
       openBracketEl.classList.replace('expanded', 'collapsed');
+      bodyEl.style.maxHeight = 0;
       e.target.innerHTML = e.target.classList.contains('array') ? '[...]' : '{...}';
     } else {
       openBracketEl.classList.replace('collapsed', 'expanded');
+      bodyEl.style.maxHeight = `${bodyEl.scrollHeight}px`;
       e.target.innerHTML = e.target.classList.contains('array') ? '[' : '{';
     }
   }
@@ -14099,10 +14109,6 @@ customElements.define('json-tree', JsonTree);
   max-height:20px;
 }
 
-.tr.xxx-of{
-  border-top: 1px dotted var(--primary-color);
-}
-
 .xxx-of-key {
   font-size: calc(var(--font-size-small) - 2px); 
   font-weight:bold; 
@@ -14116,10 +14122,10 @@ customElements.define('json-tree', JsonTree);
 }
 
 .xxx-of-descr {
-    font-family: var(--font-regular);
-    color: var(--primary-color);
-    font-size: calc(var(--font-size-small) - 1px);
-    margin-left: 2px;
+  font-family: var(--font-regular);
+  color: var(--primary-color);
+  font-size: calc(var(--font-size-small) - 1px);
+  margin-left: 2px;
 }
 
 .stri, .string, .uri, .url, .byte, .bina, .date, .pass, .ipv4, .ipv4, .uuid, .emai, .host {color:var(--green);}
@@ -14145,9 +14151,6 @@ customElements.define('json-tree', JsonTree);
   color:var(--fg2);
   font-weight: bold;
   text-transform: uppercase;
-}
-.schema-root-type.xxx-of {
-  display:none;
 }
 .toolbar-item:first-of-type { margin:0 2px 0 0;}
 
@@ -14251,7 +14254,9 @@ class SchemaTree extends lit_element_s {
       .tr.expanded:hover + .inside-bracket + .close-bracket {
         color: var(--primary-color);
       }
-
+      .inside-bracket.xxx-of-option {
+        border-left: 1px solid transparent;
+      }
       .open-bracket{
         display:inline-block;
         padding: 0 20px 0 0;
@@ -14264,23 +14269,18 @@ class SchemaTree extends lit_element_s {
         background-color:var(--hover-color);
         border: 1px solid var(--border-color);
       }
-      .close-bracket{
+      .close-bracket {
         display:inline-block;
         font-family: var(--font-mono);
       }
-      .tr.collapsed + .inside-bracket,
-      .tr.collapsed + .inside-bracket + .close-bracket{
+      .tr.collapsed + .inside-bracket + .close-bracket {
         display:none;
       }
       .inside-bracket.object,
       .inside-bracket.array {
+        transition: max-height .2s ease-out;
+        overflow: hidden;
         border-left: 1px dotted var(--border-color);
-      }
-      .inside-bracket.xxx-of {
-        padding:5px 0px;
-        border-style: dotted;
-        border-width: 0 0 1px 0;
-        border-color:var(--primary-color);
       }`, custom_styles];
   }
   /* eslint-disable indent */
@@ -14419,7 +14419,6 @@ class SchemaTree extends lit_element_s {
                       ${data['::deprecated'] ? '✗' : ''}
                       ${keyLabel.replace(/\*$/, '')}${keyLabel.endsWith('*') ? y`<span style="color:var(--red)">*</span>` : ''}${readOrWrite === 'readonly' ? y` 🆁` : readOrWrite === 'writeonly' ? y` 🆆` : readOrWrite}:
                     </span>` : ''}
-            ${data['::type'] === 'xxx-of' && dataType === 'array' ? y`<span style="color:var(--primary-color)">ARRAY</span>` : ''} 
             ${openBracket}
           </div>
           <div class='td key-descr m-markdown-small'>${unsafe_html_o(marked(description || ''))}</div>
@@ -14496,12 +14495,15 @@ class SchemaTree extends lit_element_s {
 
   toggleObjectExpand(e) {
     const rowEl = e.target.closest('.tr');
+    const bodyEl = rowEl.nextElementSibling;
 
     if (rowEl.classList.contains('expanded')) {
       rowEl.classList.replace('expanded', 'collapsed');
+      bodyEl.style.maxHeight = 0;
       e.target.innerHTML = e.target.classList.contains('array-of-object') ? '[{...}]' : e.target.classList.contains('array-of-array') ? '[[...]]' : e.target.classList.contains('array') ? '[...]' : '{...}';
     } else {
       rowEl.classList.replace('collapsed', 'expanded');
+      bodyEl.style.maxHeight = `${bodyEl.scrollHeight}px`;
       e.target.innerHTML = e.target.classList.contains('array-of-object') ? '[{' : e.target.classList.contains('array-of-array') ? `[[ ${e.target.dataset.arrayType}` : e.target.classList.contains('object') ? '{' : '[';
     }
   }
@@ -16891,22 +16893,26 @@ class ApiResponse extends lit_element_s {
     return y`
       <div style="padding:16px 0 8px 0" class="resp-headers small-font-size bold-text">RESPONSE HEADERS</div> 
       <table role="presentation" style="border-collapse: collapse; margin-bottom:16px; border:1px solid var(--border-color); border-radius: var(--border-radius)" class="small-font-size mono-font">
-        ${respHeaders.map(v => y`
+        ${respHeaders.map(v => {
+      var _v$schema, _v$schema2;
+
+      return y`
           <tr>
             <td style="padding:8px; vertical-align: baseline; min-width:120px; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;">
               ${v.name || ''}
             </td> 
             <td style="padding:4px; vertical-align: baseline; padding:0 5px; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;">
-              ${v.schema.type || ''}
+              ${((_v$schema = v.schema) === null || _v$schema === void 0 ? void 0 : _v$schema.type) || ''}
             </td> 
             <td style="padding:8px; vertical-align: baseline; border-top: 1px solid var(--light-border-color);text-overflow: ellipsis;">
               <div class="m-markdown-small regular-font" >${unsafe_html_o(marked(v.description || ''))}</div>
             </td>
             <td style="padding:8px; vertical-align: baseline; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;">
-              ${v.schema.example || ''}
+              ${((_v$schema2 = v.schema) === null || _v$schema2 === void 0 ? void 0 : _v$schema2.example) || ''}
             </td>
           </tr>
-        `)}
+        `;
+    })}
     </table>`;
   }
 
@@ -17027,7 +17033,26 @@ function headingRenderer(tagElementId) {
   return renderer;
 }
 
-function expandedEndpointBodyTemplate(path, tagName = '') {
+function expandCollapseTagDescription(e) {
+  const tagDescriptionEl = e.target.closest('.tag-container').querySelector('.tag-description');
+  const tagIconEl = e.target.closest('.tag-container').querySelector('.tag-icon');
+
+  if (tagDescriptionEl && tagIconEl) {
+    const isExpanded = tagDescriptionEl.classList.contains('expanded');
+
+    if (isExpanded) {
+      tagDescriptionEl.style.maxHeight = 0;
+      tagDescriptionEl.classList.replace('expanded', 'collapsed');
+      tagIconEl.classList.replace('expanded', 'collapsed');
+    } else {
+      tagDescriptionEl.style.maxHeight = `${tagDescriptionEl.scrollHeight}px`;
+      tagDescriptionEl.classList.replace('collapsed', 'expanded');
+      tagIconEl.classList.replace('collapsed', 'expanded');
+    }
+  }
+}
+
+function expandedEndpointBodyTemplate(path, tagName = '', tagDescription = '') {
   var _path$xBadges, _path$externalDocs, _path$externalDocs2, _path$externalDocs3, _path$externalDocs4, _path$externalDocs5, _path$externalDocs6, _path$servers, _path$servers$;
 
   const acceptContentTypes = new Set();
@@ -17058,7 +17083,22 @@ function expandedEndpointBodyTemplate(path, tagName = '') {
   return y`
     ${this.renderStyle === 'read' ? y`<div class='divider' part="operation-divider"></div>` : ''}
     <div class='expanded-endpoint-body observe-me ${path.method} ${path.deprecated ? 'deprecated' : ''} ' part="section-operation ${path.elementId}" id='${path.elementId}'>
-      ${this.renderStyle === 'focused' && tagName !== 'General ⦂' ? y`<h3 class="upper" style="font-weight:bold" part="section-operation-tag"> ${tagName} </h3>` : ''}
+      ${this.renderStyle === 'focused' && tagName !== 'General ⦂' ? y`
+          <div class="tag-container" part="section-operation-tag"> 
+            <span class="upper" style="font-weight:bold; font-size:18px;"> ${tagName} </span>
+            ${tagDescription ? y`
+                <svg class="tag-icon collapsed" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" fill="none" style="stroke:var(--primary-color); vertical-align:top; cursor:pointer"
+                @click="${e => {
+    expandCollapseTagDescription.call(this, e);
+  }}"
+                >
+                  <path d="M12 20h-6a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h8"></path><path d="M18 4v17"></path><path d="M15 18l3 3l3 -3"></path>
+                </svg>
+                <div class="tag-description collapsed" style="max-height:0px; overflow:hidden; margin-top:16px; border:1px solid var(--border-color)"> 
+                  <div class="m-markdown" style="padding:8px"> ${unsafe_html_o(marked(tagDescription))}</div>  
+                </div>` : ''}  
+          </div>
+        ` : ''}
       ${path.deprecated ? y`<div class="bold-text red-text"> DEPRECATED </div>` : ''}
       ${y`
         ${path.xBadges && ((_path$xBadges = path.xBadges) === null || _path$xBadges === void 0 ? void 0 : _path$xBadges.length) > 0 ? y`
@@ -17077,7 +17117,7 @@ function expandedEndpointBodyTemplate(path, tagName = '') {
       ${path.description ? y`<div class="m-markdown"> ${unsafe_html_o(marked(path.description))}</div>` : ''}
       ${(_path$externalDocs = path.externalDocs) !== null && _path$externalDocs !== void 0 && _path$externalDocs.url || (_path$externalDocs2 = path.externalDocs) !== null && _path$externalDocs2 !== void 0 && _path$externalDocs2.description ? y`<div style="background-color:var(--bg3); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--border-radius)"> 
             <div class="m-markdown"> ${unsafe_html_o(marked(((_path$externalDocs3 = path.externalDocs) === null || _path$externalDocs3 === void 0 ? void 0 : _path$externalDocs3.description) || ''))} </div>
-            ${(_path$externalDocs4 = path.externalDocs) !== null && _path$externalDocs4 !== void 0 && _path$externalDocs4.url ? y`<div> <a href="${(_path$externalDocs5 = path.externalDocs) === null || _path$externalDocs5 === void 0 ? void 0 : _path$externalDocs5.url}"> 
+            ${(_path$externalDocs4 = path.externalDocs) !== null && _path$externalDocs4 !== void 0 && _path$externalDocs4.url ? y`<div> <a href="${(_path$externalDocs5 = path.externalDocs) === null || _path$externalDocs5 === void 0 ? void 0 : _path$externalDocs5.url}" target="_blank"> 
                   ${(_path$externalDocs6 = path.externalDocs) === null || _path$externalDocs6 === void 0 ? void 0 : _path$externalDocs6.url} <div style="transform: rotate(270deg) scale(1.5); display: inline-block; margin-left:5px">⇲</div>
                 </a> </div>` : ''}
           </div>` : ''}
@@ -17156,7 +17196,7 @@ function expandedEndpointTemplate() {
       </div>
     </section>
     <section class="regular-font section-gap--read-mode" part="section-operations-in-tag">
-      ${tag.paths.map(path => expandedEndpointBodyTemplate.call(this, path, 'BBB'))}
+      ${tag.paths.map(path => expandedEndpointBodyTemplate.call(this, path))}
     </section>
     `)}
 `;
@@ -17426,14 +17466,17 @@ function serverTemplate() {
 
 function expandCollapseNavBarTag(navLinkEl, action = 'toggle') {
   const tagAndPathEl = navLinkEl === null || navLinkEl === void 0 ? void 0 : navLinkEl.closest('.nav-bar-tag-and-paths');
+  const pathsUnderTagEl = tagAndPathEl.querySelector('.nav-bar-paths-under-tag');
 
   if (tagAndPathEl) {
     const isExpanded = tagAndPathEl.classList.contains('expanded');
 
     if (isExpanded && (action === 'toggle' || action === 'collapse')) {
+      pathsUnderTagEl.style.maxHeight = 0;
       tagAndPathEl.classList.replace('expanded', 'collapsed');
     } else if (!isExpanded && (action === 'toggle' || action === 'expand')) {
       tagAndPathEl.classList.replace('collapsed', 'expanded');
+      pathsUnderTagEl.style.maxHeight = `${pathsUnderTagEl.scrollHeight}px`;
     }
   }
 }
@@ -17441,12 +17484,15 @@ function expandCollapseAll(navEl, action = 'expand-all') {
   const elList = [...navEl.querySelectorAll('.nav-bar-tag-and-paths')];
 
   if (action === 'expand-all') {
-    elList.map(el => {
+    elList.forEach(el => {
+      const navBarPathsUnderTagEl = el.querySelector('.nav-bar-paths-under-tag');
       el.classList.replace('collapsed', 'expanded');
+      navBarPathsUnderTagEl.style.maxHeight = `${navBarPathsUnderTagEl === null || navBarPathsUnderTagEl === void 0 ? void 0 : navBarPathsUnderTagEl.scrollHeight}px`;
     });
   } else {
-    elList.map(el => {
+    elList.forEach(el => {
       el.classList.replace('expanded', 'collapsed');
+      el.querySelector('.nav-bar-paths-under-tag').style.maxHeight = 0;
     });
   }
 }
@@ -17541,7 +17587,10 @@ function navbarTemplate() {
       </div>
 
       <!-- TAGS AND PATHS-->
-      ${this.resolvedSpec.tags.filter(tag => tag.paths.filter(path => pathIsInSearch(this.matchPaths, path, this.matchType)).length).map(tag => y`
+      ${this.resolvedSpec.tags.filter(tag => tag.paths.filter(path => pathIsInSearch(this.matchPaths, path, this.matchType)).length).map(tag => {
+    var _tag$paths;
+
+    return y`
           <div class='nav-bar-tag-and-paths ${tag.expanded ? 'expanded' : 'collapsed'}'>
             ${tag.name === 'General ⦂' ? y`<hr style="border:none; border-top: 1px dotted var(--nav-text-color); opacity:0.3; margin:-1px 0 0 0;"/>` : y`
                 <div 
@@ -17550,19 +17599,19 @@ function navbarTemplate() {
                   data-content-id='${tag.elementId}'
                   data-first-path-id='${tag.firstPathId}'
                   @click='${e => {
-    if (this.renderStyle === 'focused' && this.onNavTagClick === 'expand-collapse') {
-      onExpandCollapse.call(this, e);
-    } else {
-      this.scrollToEventTarget(e, false);
-    }
-  }}'
+      if (this.renderStyle === 'focused' && this.onNavTagClick === 'expand-collapse') {
+        onExpandCollapse.call(this, e);
+      } else {
+        this.scrollToEventTarget(e, false);
+      }
+    }}'
                 >
                   <div>${tag.name}</div>
                   <div class="nav-bar-tag-icon" @click="${e => {
-    if (this.renderStyle === 'focused' && this.onNavTagClick === 'show-description') {
-      onExpandCollapse.call(this, e);
-    }
-  }}">
+      if (this.renderStyle === 'focused' && this.onNavTagClick === 'show-description') {
+        onExpandCollapse.call(this, e);
+      }
+    }}">
                   </div>
                 </div>
               `}
@@ -17577,25 +17626,23 @@ function navbarTemplate() {
                         @click='${e => this.scrollToEventTarget(e, false)}'
                       > ${header.text}</div>`)}
                     </div>`}` : ''}
-
-            
-            <div class='nav-bar-paths-under-tag'>
+            <div class='nav-bar-paths-under-tag' style="max-height:${tag.expanded ? (((_tag$paths = tag.paths) === null || _tag$paths === void 0 ? void 0 : _tag$paths.length) || 1) * 50 : 0}px;">
               <!-- Paths in each tag (endpoints) -->
               ${tag.paths.filter(v => {
-    if (this.matchPaths) {
-      return pathIsInSearch(this.matchPaths, v, this.matchType);
-    }
+      if (this.matchPaths) {
+        return pathIsInSearch(this.matchPaths, v, this.matchType);
+      }
 
-    return true;
-  }).map(p => y`
+      return true;
+    }).map(p => y`
               <div 
                 class='nav-bar-path
                 ${this.usePathInNavBar === 'true' ? 'small-font' : ''}'
                 data-content-id='${p.elementId}'
                 id='link-${p.elementId}'
                 @click = '${e => {
-    this.scrollToEventTarget(e, false);
-  }}'
+      this.scrollToEventTarget(e, false);
+    }}'
               >
                 <span style = "display:flex; align-items:start; ${p.deprecated ? 'filter:opacity(0.5)' : ''}">
                   ${y`<span class="nav-method ${this.showMethodInNavBar} ${p.method}">
@@ -17607,7 +17654,8 @@ function navbarTemplate() {
               </div>`)}
             </div>
           </div>
-        `)}
+        `;
+  })}
 
       <!-- COMPONENTS -->
       ${this.resolvedSpec.components && this.showComponents === 'true' && this.renderStyle === 'focused' ? y`
@@ -17737,7 +17785,7 @@ function focusedEndpointTemplate() {
       // In focused mode we must expand the nav-bar tag element if it is collapsed
       const newNavEl = this.shadowRoot.getElementById(`link-${focusElId}`);
       expandCollapseNavBarTag(newNavEl, 'expand');
-      focusedTemplate = wrapFocusedTemplate.call(this, expandedEndpointBodyTemplate.call(this, selectedPathObj, selectedTagObj.name));
+      focusedTemplate = wrapFocusedTemplate.call(this, expandedEndpointBodyTemplate.call(this, selectedPathObj, selectedTagObj.name || '', selectedTagObj.description || ''));
     } else {
       // if focusedElementId is not found then show the default content (overview or first-path)
       focusedTemplate = defaultContentTemplate.call(this);
@@ -17863,7 +17911,7 @@ function endpointBodyTemplate(path) {
       ${path.description ? y`<div part="section-endpoint-body-description" class="m-markdown"> ${unsafe_html_o(marked(path.description))}</div>` : ''}
       ${(_path$externalDocs = path.externalDocs) !== null && _path$externalDocs !== void 0 && _path$externalDocs.url || (_path$externalDocs2 = path.externalDocs) !== null && _path$externalDocs2 !== void 0 && _path$externalDocs2.description ? y`<div style="background-color:var(--bg3); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--border-radius)"> 
             <div class="m-markdown"> ${unsafe_html_o(marked(((_path$externalDocs3 = path.externalDocs) === null || _path$externalDocs3 === void 0 ? void 0 : _path$externalDocs3.description) || ''))} </div>
-            ${(_path$externalDocs4 = path.externalDocs) !== null && _path$externalDocs4 !== void 0 && _path$externalDocs4.url ? y`<div> <a href="${(_path$externalDocs5 = path.externalDocs) === null || _path$externalDocs5 === void 0 ? void 0 : _path$externalDocs5.url}"> 
+            ${(_path$externalDocs4 = path.externalDocs) !== null && _path$externalDocs4 !== void 0 && _path$externalDocs4.url ? y`<div> <a href="${(_path$externalDocs5 = path.externalDocs) === null || _path$externalDocs5 === void 0 ? void 0 : _path$externalDocs5.url}" target="_blank"> 
                   ${(_path$externalDocs6 = path.externalDocs) === null || _path$externalDocs6 === void 0 ? void 0 : _path$externalDocs6.url} <div style="transform: rotate(270deg) scale(1.5); display: inline-block; margin-left:5px">⇲</div>
                 </a> </div>` : ''}
           </div>` : ''}
@@ -19206,11 +19254,21 @@ class RapiDoc extends lit_element_s {
         height: 36px;
         animation: spin 2s linear infinite;
       }
-      .expanded-endpoint-body{ 
+      .expanded-endpoint-body { 
         position: relative;
         padding: 6px 0px; 
       }
-      .expanded-endpoint-body.deprecated{ filter:opacity(0.6); }
+      .expanded-endpoint-body .tag-description {
+        background: var(--code-bg);
+        border-radius: var(--border-radius);
+        transition: max-height .2s ease-out;
+      }
+      .expanded-endpoint-body .tag-icon {
+        transition: transform .2s ease-out;
+      }
+      .expanded-endpoint-body .tag-icon.expanded {
+        transform: rotate(180deg);
+      }
       .divider { 
         border-top: 2px solid var(--border-color);
         margin: 24px 0;
@@ -19374,7 +19432,7 @@ class RapiDoc extends lit_element_s {
     }
 
     if (!this.renderStyle || !'read, view, focused,'.includes(`${this.renderStyle},`)) {
-      this.renderStyle = 'read';
+      this.renderStyle = 'focused';
     }
 
     if (!this.schemaStyle || !'tree, table,'.includes(`${this.schemaStyle},`)) {
@@ -24721,7 +24779,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("528fc4670d863c491d23")
+/******/ 		__webpack_require__.h = () => ("cf79ca1cbc219e72fd44")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
