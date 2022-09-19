@@ -902,7 +902,7 @@ export function generateExample(schema, mimeType, examples = '', example = '', i
         let exampleFormat = '';
         let exampleValue = '';
         if (mimeType?.toLowerCase().includes('xml')) {
-          xmlRootStart = schema.xml?.name ? `<${schema.xml.name} ${schema.xml.namespace ? `xmlns:"${schema.xml.namespace}"` : ''} >` : '<root>';
+          xmlRootStart = schema.xml?.name ? `<${schema.xml.name} ${schema.xml.namespace ? `xmlns="${schema.xml.namespace}"` : ''}>` : '<root>';
           xmlRootEnd = schema.xml?.name ? `</${schema.xml.name}>` : '</root>';
           exampleFormat = 'text';
         } else {
