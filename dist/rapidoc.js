@@ -13858,7 +13858,7 @@ function generateExample(schema, mimeType, examples = '', example = '', includeR
         if (mimeType !== null && mimeType !== void 0 && mimeType.toLowerCase().includes('xml')) {
           var _schema$xml5, _schema$xml6;
 
-          xmlRootStart = (_schema$xml5 = schema.xml) !== null && _schema$xml5 !== void 0 && _schema$xml5.name ? `<${schema.xml.name} ${schema.xml.namespace ? `xmlns:"${schema.xml.namespace}"` : ''} >` : '<root>';
+          xmlRootStart = (_schema$xml5 = schema.xml) !== null && _schema$xml5 !== void 0 && _schema$xml5.name ? `<${schema.xml.name} ${schema.xml.namespace ? `xmlns="${schema.xml.namespace}"` : ''}>` : '<root>';
           xmlRootEnd = (_schema$xml6 = schema.xml) !== null && _schema$xml6 !== void 0 && _schema$xml6.name ? `</${schema.xml.name}>` : '</root>';
           exampleFormat = 'text';
         } else {
@@ -24836,7 +24836,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("73861cf83a5996676cce")
+/******/ 		__webpack_require__.h = () => ("62ce9536b06aebf7edf7")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

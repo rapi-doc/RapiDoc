@@ -4,42 +4,6 @@ info:
   version: 1.0.0
   title: Responses as XML 
 paths:
-  /xml-provided-in-spec:
-    get:
-      summary: XML (Provided in spec)
-      description: XML example Provided in spec
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/xml:
-              examples:
-                example-1:
-                  summary: XML Example
-                  value: |
-                    <person> 
-                      <age>9</age> 
-                      <fullName> 
-                        <firstName>Mickey</firstName> 
-                        <lastName>Mouse</lastName> 
-                      </fullName>  
-                    </person>
-              schema:
-                type: object
-                properties:
-                  age:
-                    description: Person Age
-                    type: integer
-                  fullName:
-                    description: Person Full name
-                    type: object
-                    properties:
-                      firstName:
-                        description: First name
-                        type: string
-                      lastName:
-                        description: Last name
-                        type: string
   /xml-generated-from-schema:
     get:
       summary: XML (Generated From Schema)
