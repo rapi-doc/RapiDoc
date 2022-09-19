@@ -13994,6 +13994,7 @@ class JsonTree extends lit_element_s {
         word-break: break-all;
         flex:1;
         line-height: calc(var(--font-size-small) + 6px);
+        min-height: 40px;
         direction: ltr; 
         text-align: left;
       }
@@ -14023,10 +14024,10 @@ class JsonTree extends lit_element_s {
       }
       .inside-bracket {
         padding-left:12px;
-        transition: max-height .2s ease-out;
         overflow: hidden;
         border-left:1px dotted var(--border-color);
       }
+      .open-bracket.collapsed + .inside-bracket,
       .open-bracket.collapsed + .inside-bracket + .close-bracket {
         display:none;
       }
@@ -14093,15 +14094,12 @@ class JsonTree extends lit_element_s {
 
   toggleExpand(e) {
     const openBracketEl = e.target;
-    const bodyEl = openBracketEl.nextElementSibling;
 
     if (openBracketEl.classList.contains('expanded')) {
       openBracketEl.classList.replace('expanded', 'collapsed');
-      bodyEl.style.maxHeight = 0;
       e.target.innerHTML = e.target.classList.contains('array') ? '[...]' : '{...}';
     } else {
       openBracketEl.classList.replace('collapsed', 'expanded');
-      bodyEl.style.maxHeight = `${bodyEl.scrollHeight}px`;
       e.target.innerHTML = e.target.classList.contains('array') ? '[' : '{';
     }
   }
@@ -14315,17 +14313,17 @@ class SchemaTree extends lit_element_s {
         background-color:var(--hover-color);
         border: 1px solid var(--border-color);
       }
-      .close-bracket {
+      .close-bracket{
         display:inline-block;
         font-family: var(--font-mono);
       }
-      .tr.collapsed + .inside-bracket + .close-bracket {
+      .tr.collapsed + .inside-bracket,
+      .tr.collapsed + .inside-bracket + .close-bracket{
+        overflow: hidden;
         display:none;
       }
       .inside-bracket.object,
       .inside-bracket.array {
-        transition: max-height .2s ease-out;
-        overflow: hidden;
         border-left: 1px dotted var(--border-color);
       }`, custom_styles];
   }
@@ -14541,15 +14539,12 @@ class SchemaTree extends lit_element_s {
 
   toggleObjectExpand(e) {
     const rowEl = e.target.closest('.tr');
-    const bodyEl = rowEl.nextElementSibling;
 
     if (rowEl.classList.contains('expanded')) {
       rowEl.classList.replace('expanded', 'collapsed');
-      bodyEl.style.maxHeight = 0;
       e.target.innerHTML = e.target.classList.contains('array-of-object') ? '[{...}]' : e.target.classList.contains('array-of-array') ? '[[...]]' : e.target.classList.contains('array') ? '[...]' : '{...}';
     } else {
       rowEl.classList.replace('collapsed', 'expanded');
-      bodyEl.style.maxHeight = `${bodyEl.scrollHeight}px`;
       e.target.innerHTML = e.target.classList.contains('array-of-object') ? '[{' : e.target.classList.contains('array-of-array') ? `[[ ${e.target.dataset.arrayType}` : e.target.classList.contains('object') ? '{' : '[';
     }
   }
@@ -24836,7 +24831,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("62ce9536b06aebf7edf7")
+/******/ 		__webpack_require__.h = () => ("a22867abbdd0ae68d875")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
