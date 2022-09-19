@@ -1,46 +1,41 @@
-openapi: "3.0.0"
+openapi: 3.0.0
 info:
-  title: Example
+  description: Test date example
   version: "1.0.0"
+  title: Test date example
 servers:
-  - url: https://example.com
+- url: https://example.dev
+  description: Staging
 paths:
-  /test:
-    get:
+  /demo:
+    post:
       summary: Example
+      operationId: example
+      description: |
+        Show how date string example is rendered wrong
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DemoRequest'
+        description: Demo request
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Parent"
-
+                $ref: "#/components/schemas/DemoRequest"
 components:
   schemas:
-    Parent:
+    DemoRequest:
       type: object
       properties:
-        person:
-          type: object
-          properties:
-            age:
-              type: number
-      allOf:
-        - $ref: "#/components/schemas/Child1"
-        - $ref: "#/components/schemas/Child2"
-    Child1:
-      type: object
-      properties:
-        oneOf_Option_1_prop1:
+        date_of_birth:
           type: string
-        oneOf_Option_1_prop2:
-          type: string
-    Child2:
-      type: object
-      properties:
-        oneOf_Option_2_prop1:
-          type: string
-        oneOf_Option_2_prop2:
-          type: string
-
+          format: date
+          example: 1990-02-25
+          description: Date of Birth
+        is_married:
+          type: boolean
+          example: null

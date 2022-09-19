@@ -13004,6 +13004,23 @@ function getSampleValueByType(schemaObj) {
     return 0;
   }
 
+  if (example === false) {
+    return false;
+  }
+
+  if (example instanceof Date) {
+    switch (schemaObj.format.toLowerCase()) {
+      case 'date':
+        return example.toISOString().split('T')[0];
+
+      case 'time':
+        return example.toISOString().split('T')[1];
+
+      default:
+        return example.toISOString();
+    }
+  }
+
   if (example) {
     return example;
   }
@@ -24831,7 +24848,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("a22867abbdd0ae68d875")
+/******/ 		__webpack_require__.h = () => ("3d49ad2407088a12c42e")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
