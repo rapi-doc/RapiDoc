@@ -414,7 +414,7 @@ export function schemaToSampleObj(schema, config = { }) {
   if (schema.allOf) {
     const objWithAllProps = {};
 
-    if (schema.allOf.length === 1 && !schema.allOf[0].properties && !schema.allOf[0].items) {
+    if (schema.allOf.length === 1 && !schema.allOf[0]?.properties && !schema.allOf[0]?.items) {
       // If allOf has single item and the type is not an object or array, then its a primitive
       if (schema.allOf[0].$ref) {
         return '{  }';
@@ -447,7 +447,7 @@ export function schemaToSampleObj(schema, config = { }) {
     const objWithSchemaProps = {};
     if (schema.properties) {
       for (const propertyName in schema.properties) {
-        if (schema.properties[propertyName].properties || schema.properties[propertyName].properties.items) {
+        if (schema.properties[propertyName].properties || schema.properties[propertyName].properties?.items) {
           objWithSchemaProps[propertyName] = schemaToSampleObj(schema.properties[propertyName], config);
         } else {
           objWithSchemaProps[propertyName] = getSampleValueByType(schema.properties[propertyName]);
