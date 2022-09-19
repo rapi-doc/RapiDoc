@@ -314,12 +314,22 @@ export function json2xml(obj, level = 1) {
     return `\n${indent}${obj.toString()}`;
   }
   for (const prop in obj) {
+    const tagNameOrProp = (obj[prop]['::XML_TAG'] || prop);
+    let tagName = '';
     if (Array.isArray(obj[prop])) {
-      xmlText = `${xmlText}\n${indent}<${prop}> ${json2xml(obj[prop], level + 1)}\n${indent}</${prop}>`;
-    } else if (typeof obj[prop] === 'object') {
-      xmlText = `${xmlText}\n${indent}<${prop}> ${json2xml(obj[prop], level + 1)}\n${indent}</${prop}>`;
+      tagName = tagNameOrProp[0]['::XML_TAG'] || `${prop}`;
     } else {
-      xmlText = `${xmlText}\n${indent}<${prop}> ${obj[prop].toString()} </${prop}>`;
+      tagName = tagNameOrProp;
+    }
+    if (prop.startsWith('::')) {
+      continue;
+    }
+    if (Array.isArray(obj[prop])) {
+      xmlText = `${xmlText}\n${indent}<${tagName}> ${json2xml(obj[prop], level + 1)}\n${indent}</${tagName}>`;
+    } else if (typeof obj[prop] === 'object') {
+      xmlText = `${xmlText}\n${indent}<${tagName}> ${json2xml(obj[prop], level + 1)}\n${indent}</${tagName}>`;
+    } else {
+      xmlText = `${xmlText}\n${indent}<${tagName}> ${obj[prop].toString()} </${tagName}>`;
     }
   }
   return xmlText;
@@ -335,6 +345,12 @@ function addSchemaInfoToExample(schema, obj) {
   if (schema.description) {
     obj['::DESCRIPTION'] = schema.description;
   }
+  if (schema.xml?.name) {
+    obj['::XML_TAG'] = schema.xml?.name;
+  }
+  if (schema.xml?.wrapped) {
+    obj['::XML_WRAP'] = schema.xml?.wrapped.toString();
+  }
 }
 
 function removeTitlesAndDescriptions(obj) {
@@ -343,6 +359,8 @@ function removeTitlesAndDescriptions(obj) {
   }
   delete obj['::TITLE'];
   delete obj['::DESCRIPTION'];
+  delete obj['::XML_TAG'];
+  delete obj['::XML_WRAP'];
   for (const k in obj) {
     removeTitlesAndDescriptions(obj[k]);
   }
@@ -536,11 +554,21 @@ export function schemaToSampleObj(schema, config = { }) {
             addPropertyExampleToObjectExamples([schema.properties[propertyName].items.example], obj, propertyName);
           } else {
             const itemSamples = schemaToSampleObj(schema.properties[propertyName].items, config);
-            const arraySamples = [];
-            for (const key in itemSamples) {
-              arraySamples[key] = [itemSamples[key]];
+            if (config.useXmlTagForProp) {
+              const xmlTagName = schema.properties[propertyName].xml?.name || propertyName;
+              if (schema.properties[propertyName].xml?.wrapped) {
+                const wrappedItemSample = JSON.parse(`{ "${xmlTagName}" : { "${xmlTagName}" : ${JSON.stringify(itemSamples['example-0'])} } }`);
+                obj = mergePropertyExamples(obj, xmlTagName, wrappedItemSample);
+              } else {
+                obj = mergePropertyExamples(obj, xmlTagName, itemSamples);
+              }
+            } else {
+              const arraySamples = [];
+              for (const key in itemSamples) {
+                arraySamples[key] = [itemSamples[key]];
+              }
+              obj = mergePropertyExamples(obj, propertyName, arraySamples);
             }
-            obj = mergePropertyExamples(obj, propertyName, arraySamples);
           }
           continue;
         }
@@ -874,13 +902,13 @@ export function generateExample(schema, mimeType, examples = '', example = '', i
         let exampleFormat = '';
         let exampleValue = '';
         if (mimeType?.toLowerCase().includes('xml')) {
-          xmlRootStart = (schema.xml && schema.xml.name) ? `<${schema.xml.name}>` : '<root>';
-          xmlRootEnd = (schema.xml && schema.xml.name) ? `</${schema.xml.name}>` : '</root>';
+          xmlRootStart = schema.xml?.name ? `<${schema.xml.name} ${schema.xml.namespace ? `xmlns:"${schema.xml.namespace}"` : ''} >` : '<root>';
+          xmlRootEnd = schema.xml?.name ? `</${schema.xml.name}>` : '</root>';
           exampleFormat = 'text';
         } else {
           exampleFormat = outputType;
         }
-        const samples = schemaToSampleObj(schema, { includeReadOnly, includeWriteOnly, deprecated: true });
+        const samples = schemaToSampleObj(schema, { includeReadOnly, includeWriteOnly, deprecated: true, useXmlTagForProp: true });
         let i = 0;
         for (const samplesKey in samples) {
           if (!samples[samplesKey]) {
@@ -888,11 +916,10 @@ export function generateExample(schema, mimeType, examples = '', example = '', i
           }
           const summary = samples[samplesKey]['::TITLE'] || `Example ${++i}`;
           const description = samples[samplesKey]['::DESCRIPTION'] || '';
-          removeTitlesAndDescriptions(samples[samplesKey]);
-
           if (mimeType?.toLowerCase().includes('xml')) {
-            exampleValue = `${xmlRootStart}${json2xml(samples[samplesKey])}\n${xmlRootEnd}`;
+            exampleValue = `<?xml version="1.0" encoding="UTF-8"?>\n${xmlRootStart}${json2xml(samples[samplesKey], 1)}\n${xmlRootEnd}`;
           } else {
+            removeTitlesAndDescriptions(samples[samplesKey]);
             exampleValue = outputType === 'text' ? JSON.stringify(samples[samplesKey], null, 2) : samples[samplesKey];
           }
 
