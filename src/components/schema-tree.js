@@ -78,17 +78,17 @@ export default class SchemaTree extends LitElement {
         background-color:var(--hover-color);
         border: 1px solid var(--border-color);
       }
-      .close-bracket {
+      .close-bracket{
         display:inline-block;
         font-family: var(--font-mono);
       }
-      .tr.collapsed + .inside-bracket + .close-bracket {
+      .tr.collapsed + .inside-bracket,
+      .tr.collapsed + .inside-bracket + .close-bracket{
+        overflow: hidden;
         display:none;
       }
       .inside-bracket.object,
       .inside-bracket.array {
-        transition: max-height .2s ease-out;
-        overflow: hidden;
         border-left: 1px dotted var(--border-color);
       }`,
       CustomStyles,
@@ -332,10 +332,8 @@ export default class SchemaTree extends LitElement {
 
   toggleObjectExpand(e) {
     const rowEl = e.target.closest('.tr');
-    const bodyEl = rowEl.nextElementSibling;
     if (rowEl.classList.contains('expanded')) {
       rowEl.classList.replace('expanded', 'collapsed');
-      bodyEl.style.maxHeight = 0;
       e.target.innerHTML = e.target.classList.contains('array-of-object')
         ? '[{...}]'
         : e.target.classList.contains('array-of-array')
@@ -345,7 +343,6 @@ export default class SchemaTree extends LitElement {
             : '{...}';
     } else {
       rowEl.classList.replace('collapsed', 'expanded');
-      bodyEl.style.maxHeight = `${bodyEl.scrollHeight}px`;
       e.target.innerHTML = e.target.classList.contains('array-of-object')
         ? '[{'
         : e.target.classList.contains('array-of-array')
