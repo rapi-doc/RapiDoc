@@ -13146,12 +13146,25 @@ function json2xml(obj, level = 1) {
   }
 
   for (const prop in obj) {
+    const tagNameOrProp = obj[prop]['::XML_TAG'] || prop;
+    let tagName = '';
+
     if (Array.isArray(obj[prop])) {
-      xmlText = `${xmlText}\n${indent}<${prop}> ${json2xml(obj[prop], level + 1)}\n${indent}</${prop}>`;
-    } else if (typeof obj[prop] === 'object') {
-      xmlText = `${xmlText}\n${indent}<${prop}> ${json2xml(obj[prop], level + 1)}\n${indent}</${prop}>`;
+      tagName = tagNameOrProp[0]['::XML_TAG'] || `${prop}`;
     } else {
-      xmlText = `${xmlText}\n${indent}<${prop}> ${obj[prop].toString()} </${prop}>`;
+      tagName = tagNameOrProp;
+    }
+
+    if (prop.startsWith('::')) {
+      continue;
+    }
+
+    if (Array.isArray(obj[prop])) {
+      xmlText = `${xmlText}\n${indent}<${tagName}> ${json2xml(obj[prop], level + 1)}\n${indent}</${tagName}>`;
+    } else if (typeof obj[prop] === 'object') {
+      xmlText = `${xmlText}\n${indent}<${tagName}> ${json2xml(obj[prop], level + 1)}\n${indent}</${tagName}>`;
+    } else {
+      xmlText = `${xmlText}\n${indent}<${tagName}> ${obj[prop].toString()} </${tagName}>`;
     }
   }
 
@@ -13159,6 +13172,8 @@ function json2xml(obj, level = 1) {
 }
 
 function addSchemaInfoToExample(schema, obj) {
+  var _schema$xml, _schema$xml3;
+
   if (typeof obj !== 'object' || obj === null) {
     return;
   }
@@ -13170,6 +13185,18 @@ function addSchemaInfoToExample(schema, obj) {
   if (schema.description) {
     obj['::DESCRIPTION'] = schema.description;
   }
+
+  if ((_schema$xml = schema.xml) !== null && _schema$xml !== void 0 && _schema$xml.name) {
+    var _schema$xml2;
+
+    obj['::XML_TAG'] = (_schema$xml2 = schema.xml) === null || _schema$xml2 === void 0 ? void 0 : _schema$xml2.name;
+  }
+
+  if ((_schema$xml3 = schema.xml) !== null && _schema$xml3 !== void 0 && _schema$xml3.wrapped) {
+    var _schema$xml4;
+
+    obj['::XML_WRAP'] = (_schema$xml4 = schema.xml) === null || _schema$xml4 === void 0 ? void 0 : _schema$xml4.wrapped.toString();
+  }
 }
 
 function removeTitlesAndDescriptions(obj) {
@@ -13179,6 +13206,8 @@ function removeTitlesAndDescriptions(obj) {
 
   delete obj['::TITLE'];
   delete obj['::DESCRIPTION'];
+  delete obj['::XML_TAG'];
+  delete obj['::XML_WRAP'];
 
   for (const k in obj) {
     removeTitlesAndDescriptions(obj[k]);
@@ -13416,13 +13445,27 @@ function schemaToSampleObj(schema, config = {}) {
             addPropertyExampleToObjectExamples([schema.properties[propertyName].items.example], obj, propertyName);
           } else {
             const itemSamples = schemaToSampleObj(schema.properties[propertyName].items, config);
-            const arraySamples = [];
 
-            for (const key in itemSamples) {
-              arraySamples[key] = [itemSamples[key]];
+            if (config.useXmlTagForProp) {
+              var _schema$properties$pr8, _schema$properties$pr9;
+
+              const xmlTagName = ((_schema$properties$pr8 = schema.properties[propertyName].xml) === null || _schema$properties$pr8 === void 0 ? void 0 : _schema$properties$pr8.name) || propertyName;
+
+              if ((_schema$properties$pr9 = schema.properties[propertyName].xml) !== null && _schema$properties$pr9 !== void 0 && _schema$properties$pr9.wrapped) {
+                const wrappedItemSample = JSON.parse(`{ "${xmlTagName}" : { "${xmlTagName}" : ${JSON.stringify(itemSamples['example-0'])} } }`);
+                obj = mergePropertyExamples(obj, xmlTagName, wrappedItemSample);
+              } else {
+                obj = mergePropertyExamples(obj, xmlTagName, itemSamples);
+              }
+            } else {
+              const arraySamples = [];
+
+              for (const key in itemSamples) {
+                arraySamples[key] = [itemSamples[key]];
+              }
+
+              obj = mergePropertyExamples(obj, propertyName, arraySamples);
             }
-
-            obj = mergePropertyExamples(obj, propertyName, arraySamples);
           }
 
           continue;
@@ -13813,8 +13856,10 @@ function generateExample(schema, mimeType, examples = '', example = '', includeR
         let exampleValue = '';
 
         if (mimeType !== null && mimeType !== void 0 && mimeType.toLowerCase().includes('xml')) {
-          xmlRootStart = schema.xml && schema.xml.name ? `<${schema.xml.name}>` : '<root>';
-          xmlRootEnd = schema.xml && schema.xml.name ? `</${schema.xml.name}>` : '</root>';
+          var _schema$xml5, _schema$xml6;
+
+          xmlRootStart = (_schema$xml5 = schema.xml) !== null && _schema$xml5 !== void 0 && _schema$xml5.name ? `<${schema.xml.name} ${schema.xml.namespace ? `xmlns:"${schema.xml.namespace}"` : ''} >` : '<root>';
+          xmlRootEnd = (_schema$xml6 = schema.xml) !== null && _schema$xml6 !== void 0 && _schema$xml6.name ? `</${schema.xml.name}>` : '</root>';
           exampleFormat = 'text';
         } else {
           exampleFormat = outputType;
@@ -13823,7 +13868,8 @@ function generateExample(schema, mimeType, examples = '', example = '', includeR
         const samples = schemaToSampleObj(schema, {
           includeReadOnly,
           includeWriteOnly,
-          deprecated: true
+          deprecated: true,
+          useXmlTagForProp: true
         });
         let i = 0;
 
@@ -13834,11 +13880,11 @@ function generateExample(schema, mimeType, examples = '', example = '', includeR
 
           const summary = samples[samplesKey]['::TITLE'] || `Example ${++i}`;
           const description = samples[samplesKey]['::DESCRIPTION'] || '';
-          removeTitlesAndDescriptions(samples[samplesKey]);
 
           if (mimeType !== null && mimeType !== void 0 && mimeType.toLowerCase().includes('xml')) {
-            exampleValue = `${xmlRootStart}${json2xml(samples[samplesKey])}\n${xmlRootEnd}`;
+            exampleValue = `<?xml version="1.0" encoding="UTF-8"?>\n${xmlRootStart}${json2xml(samples[samplesKey], 1)}\n${xmlRootEnd}`;
           } else {
+            removeTitlesAndDescriptions(samples[samplesKey]);
             exampleValue = outputType === 'text' ? JSON.stringify(samples[samplesKey], null, 2) : samples[samplesKey];
           }
 
@@ -24790,7 +24836,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("6a6a6a78929e818a0928")
+/******/ 		__webpack_require__.h = () => ("73861cf83a5996676cce")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
