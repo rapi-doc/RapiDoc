@@ -13273,9 +13273,11 @@ function schemaToSampleObj(schema, config = {}) {
   }
 
   if (schema.allOf) {
+    var _schema$allOf$, _schema$allOf$2;
+
     const objWithAllProps = {};
 
-    if (schema.allOf.length === 1 && !schema.allOf[0].properties && !schema.allOf[0].items) {
+    if (schema.allOf.length === 1 && !((_schema$allOf$ = schema.allOf[0]) !== null && _schema$allOf$ !== void 0 && _schema$allOf$.properties) && !((_schema$allOf$2 = schema.allOf[0]) !== null && _schema$allOf$2 !== void 0 && _schema$allOf$2.items)) {
       // If allOf has single item and the type is not an object or array, then its a primitive
       if (schema.allOf[0].$ref) {
         return '{  }';
@@ -13310,7 +13312,9 @@ function schemaToSampleObj(schema, config = {}) {
 
     if (schema.properties) {
       for (const propertyName in schema.properties) {
-        if (schema.properties[propertyName].properties || schema.properties[propertyName].properties.items) {
+        var _schema$properties$pr;
+
+        if (schema.properties[propertyName].properties || (_schema$properties$pr = schema.properties[propertyName].properties) !== null && _schema$properties$pr !== void 0 && _schema$properties$pr.items) {
           objWithSchemaProps[propertyName] = schemaToSampleObj(schema.properties[propertyName], config);
         } else {
           objWithSchemaProps[propertyName] = getSampleValueByType(schema.properties[propertyName]);
@@ -13438,37 +13442,37 @@ function schemaToSampleObj(schema, config = {}) {
       obj['example-0'] = schema.example;
     } else {
       for (const propertyName in schema.properties) {
-        var _schema$properties$pr, _schema$properties$pr2, _schema$properties$pr3, _schema$properties$pr4, _schema$properties$pr5;
+        var _schema$properties$pr2, _schema$properties$pr3, _schema$properties$pr4, _schema$properties$pr5, _schema$properties$pr6;
 
-        if ((_schema$properties$pr = schema.properties[propertyName]) !== null && _schema$properties$pr !== void 0 && _schema$properties$pr.deprecated && !config.includeDeprecated) {
+        if ((_schema$properties$pr2 = schema.properties[propertyName]) !== null && _schema$properties$pr2 !== void 0 && _schema$properties$pr2.deprecated && !config.includeDeprecated) {
           continue;
         }
 
-        if ((_schema$properties$pr2 = schema.properties[propertyName]) !== null && _schema$properties$pr2 !== void 0 && _schema$properties$pr2.readOnly && !config.includeReadOnly) {
+        if ((_schema$properties$pr3 = schema.properties[propertyName]) !== null && _schema$properties$pr3 !== void 0 && _schema$properties$pr3.readOnly && !config.includeReadOnly) {
           continue;
         }
 
-        if ((_schema$properties$pr3 = schema.properties[propertyName]) !== null && _schema$properties$pr3 !== void 0 && _schema$properties$pr3.writeOnly && !config.includeWriteOnly) {
+        if ((_schema$properties$pr4 = schema.properties[propertyName]) !== null && _schema$properties$pr4 !== void 0 && _schema$properties$pr4.writeOnly && !config.includeWriteOnly) {
           continue;
         }
 
-        if (((_schema$properties$pr4 = schema.properties[propertyName]) === null || _schema$properties$pr4 === void 0 ? void 0 : _schema$properties$pr4.type) === 'array' || (_schema$properties$pr5 = schema.properties[propertyName]) !== null && _schema$properties$pr5 !== void 0 && _schema$properties$pr5.items) {
-          var _schema$properties$pr6, _schema$properties$pr7;
+        if (((_schema$properties$pr5 = schema.properties[propertyName]) === null || _schema$properties$pr5 === void 0 ? void 0 : _schema$properties$pr5.type) === 'array' || (_schema$properties$pr6 = schema.properties[propertyName]) !== null && _schema$properties$pr6 !== void 0 && _schema$properties$pr6.items) {
+          var _schema$properties$pr7, _schema$properties$pr8;
 
           if (schema.properties[propertyName].example) {
             addPropertyExampleToObjectExamples(schema.properties[propertyName].example, obj, propertyName);
-          } else if ((_schema$properties$pr6 = schema.properties[propertyName]) !== null && _schema$properties$pr6 !== void 0 && (_schema$properties$pr7 = _schema$properties$pr6.items) !== null && _schema$properties$pr7 !== void 0 && _schema$properties$pr7.example) {
+          } else if ((_schema$properties$pr7 = schema.properties[propertyName]) !== null && _schema$properties$pr7 !== void 0 && (_schema$properties$pr8 = _schema$properties$pr7.items) !== null && _schema$properties$pr8 !== void 0 && _schema$properties$pr8.example) {
             // schemas and properties support single example but not multiple examples.
             addPropertyExampleToObjectExamples([schema.properties[propertyName].items.example], obj, propertyName);
           } else {
             const itemSamples = schemaToSampleObj(schema.properties[propertyName].items, config);
 
             if (config.useXmlTagForProp) {
-              var _schema$properties$pr8, _schema$properties$pr9;
+              var _schema$properties$pr9, _schema$properties$pr10;
 
-              const xmlTagName = ((_schema$properties$pr8 = schema.properties[propertyName].xml) === null || _schema$properties$pr8 === void 0 ? void 0 : _schema$properties$pr8.name) || propertyName;
+              const xmlTagName = ((_schema$properties$pr9 = schema.properties[propertyName].xml) === null || _schema$properties$pr9 === void 0 ? void 0 : _schema$properties$pr9.name) || propertyName;
 
-              if ((_schema$properties$pr9 = schema.properties[propertyName].xml) !== null && _schema$properties$pr9 !== void 0 && _schema$properties$pr9.wrapped) {
+              if ((_schema$properties$pr10 = schema.properties[propertyName].xml) !== null && _schema$properties$pr10 !== void 0 && _schema$properties$pr10.wrapped) {
                 const wrappedItemSample = JSON.parse(`{ "${xmlTagName}" : { "${xmlTagName}" : ${JSON.stringify(itemSamples['example-0'])} } }`);
                 obj = mergePropertyExamples(obj, xmlTagName, wrappedItemSample);
               } else {
@@ -24848,7 +24852,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("3d49ad2407088a12c42e")
+/******/ 		__webpack_require__.h = () => ("a9b439cc52935489ce5a")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
