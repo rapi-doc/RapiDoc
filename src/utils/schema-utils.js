@@ -201,6 +201,17 @@ export function getSampleValueByType(schemaObj) {
   if (example === '') { return ''; }
   if (example === null) { return null; }
   if (example === 0) { return 0; }
+  if (example === false) { return false; }
+  if (example instanceof Date) {
+    switch (schemaObj.format.toLowerCase()) {
+      case 'date':
+        return example.toISOString().split('T')[0];
+      case 'time':
+        return example.toISOString().split('T')[1];
+      default:
+        return example.toISOString();
+    }
+  }
   if (example) { return example; }
 
   if (Object.keys(schemaObj).length === 0) {
