@@ -105,15 +105,6 @@ input[type="password"]::placeholder {
   opacity:1;
 }
 
-select:focus,
-textarea:focus,
-input[type="text"]:focus,
-input[type="password"]:focus,
-textarea:active,
-input[type="text"]:active,
-input[type="password"]:active {
-  border:1px solid var(--primary-color);
-}
 
 input[type="file"]{
   font-family: var(--font-regular);
@@ -167,10 +158,6 @@ textarea::-webkit-scrollbar-thumb {
   margin-bottom:2px;
 }
 
-input[type="checkbox"]:focus{
-  outline:0;
-}
-
 /* Toggle Body */
 input[type="checkbox"] {
   appearance: none;
@@ -203,7 +190,7 @@ input[type="checkbox"]:after {
 
 /* Toggle Body - Checked */
 input[type="checkbox"]:checked {
-  box-shadow: inset 0 0 0 13px var(--green);
+  background-color: var(--green);
   border-color: var(--green);
 }
 /* Toggle Thumb - Checked*/
@@ -212,5 +199,4 @@ input[type="checkbox"]:checked:after {
   left: 16px;
   right: 1px;
   transition: border .25s, left .15s .25s, right .25s .175s;
-}
-`;
+}`;

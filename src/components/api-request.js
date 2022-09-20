@@ -98,7 +98,10 @@ export default class ApiRequest extends LitElement {
       PrismStyles,
       css`
         *, *:before, *:after { box-sizing: border-box; }
-    
+        :where(input, button, textarea, select, [tabindex="0"]):focus {
+          outline: none;
+          box-shadow: 0 0 0 1px var(--primary-color), 0 0 0 4px var(--primary-color-trans);
+        }
         .read-mode {
           margin-top: 24px;
         }
@@ -329,7 +332,7 @@ export default class ApiRequest extends LitElement {
     for (const param of filteredParams) {
       const [declaredParamSchema, serializeStyle, mimeTypeElem] = getSchemaFromParam(param);
       if (!declaredParamSchema) {
-        continue; // eslint-disable-line no-continue
+        continue;
       }
       const paramSchema = getTypeInfo(declaredParamSchema);
       if (!paramSchema) {
@@ -1230,7 +1233,7 @@ export default class ApiRequest extends LitElement {
             }
           }
         } catch (err) {
-          console.log('RapiDoc: unable to parse %s into object', el.value); // eslint-disable-line no-console
+          console.error('RapiDoc: unable to parse %s into object', el.value); // eslint-disable-line no-console
         }
         if (queryParam.toString()) {
           urlQueryParamsMap.set(el.dataset.pname, queryParam);

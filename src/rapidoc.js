@@ -168,6 +168,10 @@ export default class RapiDoc extends LitElement {
         width:100%;
         overflow:hidden;
       }
+      :where(input, button, textarea, select, [tabindex="0"]):focus {
+        outline: none;
+        box-shadow: 0 0 0 1px var(--primary-color), 0 0 0 4px var(--primary-color-trans);
+      }
 
       .main-content { 
         margin:0;
