@@ -98,10 +98,9 @@ export default class ApiRequest extends LitElement {
       PrismStyles,
       css`
         *, *:before, *:after { box-sizing: border-box; }
-        :where(input, button, textarea, select, [tabindex="0"]):focus {
-          outline: none;
-          box-shadow: 0 0 0 1px var(--primary-color), 0 0 0 4px var(--primary-color-trans);
-        }
+        :where(button, input[type="checkbox"], [tabindex="0"]):focus-visible { box-shadow: var(--focus-shadow); }
+        :where(input[type="text"], input[type="password"], select, textarea):focus-visible { border-color: var(--primary-color); }
+        tag-input:focus-within { outline: 1px solid;}
         .read-mode {
           margin-top: 24px;
         }

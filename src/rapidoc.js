@@ -162,17 +162,14 @@ export default class RapiDoc extends LitElement {
         background-color:var(--bg);
         font-family:var(--font-regular);
       }
-      .body {
+      :where(button, input[type="checkbox"], [tabindex="0"]):focus-visible { box-shadow: var(--focus-shadow); }
+      :where(input[type="text"], input[type="password"], select, textarea):focus-visible { border-color: var(--primary-color); }
+    .body {
         display:flex;
         height:100%;
         width:100%;
         overflow:hidden;
       }
-      :where(input, button, textarea, select, [tabindex="0"]):focus {
-        outline: none;
-        box-shadow: 0 0 0 1px var(--primary-color), 0 0 0 4px var(--primary-color-trans);
-      }
-
       .main-content { 
         margin:0;
         padding: 0; 
@@ -896,7 +893,10 @@ export default class RapiDoc extends LitElement {
    *
   */
   async scrollToEventTarget(event, scrollNavItemToView = true) {
-    const navEl = event.currentTarget;
+    if (!(event.type === 'click' || (event.type === 'keyup' && event.keyCode === 13))) {
+      return;
+    }
+    const navEl = event.target;
     if (!navEl.dataset.contentId) {
       return;
     }

@@ -1,6 +1,20 @@
 import { css } from 'lit';
 
 export default css`
+.nav-bar-info:focus-visible,
+.nav-bar-tag:focus-visible,
+.nav-bar-path:focus-visible {
+  outline: 1px solid;
+  box-shadow: none;
+  outline-offset: -4px;
+}
+.nav-bar-expand-all:focus-visible,
+.nav-bar-collapse-all:focus-visible,
+.nav-bar-tag-icon:focus-visible {
+  outline: 1px solid;
+  box-shadow: none;
+  outline-offset: 2px;
+}
 .nav-bar {
   width:0;
   height:100%;
@@ -37,7 +51,23 @@ export default css`
 }
 .nav-bar-paths-under-tag {
   overflow:hidden;
-  transition: max-height .2s ease-out;
+  transition: max-height .2s ease-out, visibility .3s;
+}
+.collapsed .nav-bar-paths-under-tag {
+  visibility: hidden;
+}
+
+.nav-bar-expand-all {
+  transform: rotate(90deg); 
+  cursor:pointer; 
+  margin-right:10px;
+}
+.nav-bar-collapse-all {
+  transform: rotate(270deg); 
+  cursor:pointer;
+}
+.nav-bar-expand-all:hover, .nav-bar-collapse-all:hover {
+  color: var(--primary-color);
 }
 
 .nav-bar-tag-icon {

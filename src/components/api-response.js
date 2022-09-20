@@ -50,10 +50,8 @@ export default class ApiResponse extends LitElement {
       InputStyles,
       BorderStyles,
       css`
-      :where(input, button, textarea, select, [tabindex="0"]):focus {
-        outline: none;
-        box-shadow: 0 0 0 1px var(--primary-color), 0 0 0 4px var(--primary-color-trans);
-      }
+      :where(button, input[type="checkbox"], [tabindex="0"]):focus-visible { box-shadow: var(--focus-shadow); }
+      :where(input[type="text"], input[type="password"], select, textarea):focus-visible { border-color: var(--primary-color); }
       .resp-head{
         vertical-align: middle;
         padding:16px 0 8px;

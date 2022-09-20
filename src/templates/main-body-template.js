@@ -82,7 +82,7 @@ export default function mainBodyTemplate(isMini = false, showExpandCollapse = tr
       }
 
       <!-- Main Content -->
-      <main class="main-content regular-font" part="section-main-content">
+      <main class="main-content regular-font" tabindex="-1" part="section-main-content">
         <slot></slot>
         <div class="main-content-inner--${this.renderStyle}-mode">
           ${this.loading === true

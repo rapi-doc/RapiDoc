@@ -7,7 +7,7 @@ export default function setTheme(baseTheme, theme = {}) {
   // Common Theme colors
   const primaryColor = theme.primaryColor ? theme.primaryColor : baseTheme === 'dark' ? '#f76b39' : '#ff591e';
   const primaryColorInvert = ColorUtils.color.invert(primaryColor);
-  const primaryColorTrans = ColorUtils.color.opacity(primaryColor, '0.8');
+  const primaryColorTrans = ColorUtils.color.opacity(primaryColor, '0.4');
 
   // Dark and Light Theme colors
   if (baseTheme === 'dark') {
@@ -210,6 +210,8 @@ export default function setTheme(baseTheme, theme = {}) {
     --font-size-mono: ${this.fontSize === 'default' ? '13px' : (this.fontSize === 'large' ? '14px' : '15px')};
     --font-size-regular: ${this.fontSize === 'default' ? '14px' : (this.fontSize === 'large' ? '15px' : '16px')};
     --dialog-z-index: 1000;
+
+    --focus-shadow: 0 0 0 1px transparent, 0 0 0 3px ${newTheme.primaryColorTrans};
 
     /* Theme specific styles */  
     --bg:${newTheme.bg1};

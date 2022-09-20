@@ -22,6 +22,8 @@ export default class JsonTree extends LitElement {
       :host{
         display:flex;
       }
+      :where(button, input[type="checkbox"], [tabindex="0"]):focus-visible { box-shadow: var(--focus-shadow); }
+      :where(input[type="text"], input[type="password"], select, textarea):focus-visible { border-color: var(--primary-color); }
       .json-tree {
         position: relative;
         font-family: var(--font-mono);
