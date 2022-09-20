@@ -262,6 +262,9 @@ components:
         - name
         - photoUrls
       properties:
+        primaryEmail:
+          type: string
+          format: email
         dob:
           description: Date of Birth
           type: string

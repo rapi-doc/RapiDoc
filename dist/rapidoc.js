@@ -3257,15 +3257,6 @@ input[type="password"]::placeholder {
   opacity:1;
 }
 
-select:focus,
-textarea:focus,
-input[type="text"]:focus,
-input[type="password"]:focus,
-textarea:active,
-input[type="text"]:active,
-input[type="password"]:active {
-  border:1px solid var(--primary-color);
-}
 
 input[type="file"]{
   font-family: var(--font-regular);
@@ -3319,10 +3310,6 @@ textarea::-webkit-scrollbar-thumb {
   margin-bottom:2px;
 }
 
-input[type="checkbox"]:focus{
-  outline:0;
-}
-
 /* Toggle Body */
 input[type="checkbox"] {
   appearance: none;
@@ -3355,7 +3342,7 @@ input[type="checkbox"]:after {
 
 /* Toggle Body - Checked */
 input[type="checkbox"]:checked {
-  box-shadow: inset 0 0 0 13px var(--green);
+  background-color: var(--green);
   border-color: var(--green);
 }
 /* Toggle Thumb - Checked*/
@@ -3364,8 +3351,7 @@ input[type="checkbox"]:checked:after {
   left: 16px;
   right: 1px;
   transition: border .25s, left .15s .25s, right .25s .175s;
-}
-`);
+}`);
 ;// CONCATENATED MODULE: ./src/styles/flex-styles.js
 
 /* harmony default export */ const flex_styles = (i`
@@ -3751,6 +3737,7 @@ pre[class*="language-"] {
 }
 .tab-buttons {
   height:30px;
+  padding: 4px 4px 0 4px;
   border-bottom: 1px solid var(--light-border-color) ;
   align-items: stretch;
   overflow-y: hidden;
@@ -3792,6 +3779,20 @@ pre[class*="language-"] {
 ;// CONCATENATED MODULE: ./src/styles/nav-styles.js
 
 /* harmony default export */ const nav_styles = (i`
+.nav-bar-info:focus-visible,
+.nav-bar-tag:focus-visible,
+.nav-bar-path:focus-visible {
+  outline: 1px solid;
+  box-shadow: none;
+  outline-offset: -4px;
+}
+.nav-bar-expand-all:focus-visible,
+.nav-bar-collapse-all:focus-visible,
+.nav-bar-tag-icon:focus-visible {
+  outline: 1px solid;
+  box-shadow: none;
+  outline-offset: 2px;
+}
 .nav-bar {
   width:0;
   height:100%;
@@ -3828,7 +3829,23 @@ pre[class*="language-"] {
 }
 .nav-bar-paths-under-tag {
   overflow:hidden;
-  transition: max-height .2s ease-out;
+  transition: max-height .2s ease-out, visibility .3s;
+}
+.collapsed .nav-bar-paths-under-tag {
+  visibility: hidden;
+}
+
+.nav-bar-expand-all {
+  transform: rotate(90deg); 
+  cursor:pointer; 
+  margin-right:10px;
+}
+.nav-bar-collapse-all {
+  transform: rotate(270deg); 
+  cursor:pointer;
+}
+.nav-bar-expand-all:hover, .nav-bar-collapse-all:hover {
+  color: var(--primary-color);
 }
 
 .nav-bar-tag-icon {
@@ -14006,6 +14023,8 @@ class JsonTree extends lit_element_s {
       :host{
         display:flex;
       }
+      :where(button, input[type="checkbox"], [tabindex="0"]):focus-visible { box-shadow: var(--focus-shadow); }
+      :where(input[type="text"], input[type="password"], select, textarea):focus-visible { border-color: var(--primary-color); }
       .json-tree {
         position: relative;
         font-family: var(--font-mono);
@@ -14584,7 +14603,7 @@ class TagInput extends lit_element_s {
     }
 
     return y`
-      <div class='tags' tabindex="0">
+      <div class='tags'>
         ${tagItemTmpl}
         <input type="text" class='editor' @paste="${e => this.afterPaste(e)}" @keydown="${this.afterKeyDown}" @blur="${this.onBlur}" placeholder="${this.placeholder || ''}">
       </div>
@@ -14669,7 +14688,7 @@ class TagInput extends lit_element_s {
 
   static get styles() {
     return [i`
-      .tags{
+      .tags {
         display:flex;
         flex-wrap: wrap;
         outline: none;
@@ -14695,7 +14714,7 @@ class TagInput extends lit_element_s {
       .tag:hover ~ #cursor {
         display: block;
       }
-      .editor{
+      .editor {
         flex:1;
         border:1px solid transparent;
         color:var(--fg);
@@ -14705,6 +14724,9 @@ class TagInput extends lit_element_s {
         font-family:inherit;
         background:transparent;
         font-size: calc(var(--font-size-small) + 1px);
+      }
+      .editor:focus-visible {
+        outline: 1px solid;
       }
       .editor::placeholder {
         color: var(--placeholder-color);
@@ -14888,7 +14910,9 @@ class ApiRequest extends lit_element_s {
   static get styles() {
     return [table_styles, input_styles, font_styles, flex_styles, border_styles, tab_styles, prism_styles, i`
         *, *:before, *:after { box-sizing: border-box; }
-    
+        :where(button, input[type="checkbox"], [tabindex="0"]):focus-visible { box-shadow: var(--focus-shadow); }
+        :where(input[type="text"], input[type="password"], select, textarea):focus-visible { border-color: var(--primary-color); }
+        tag-input:focus-within { outline: 1px solid;}
         .read-mode {
           margin-top: 24px;
         }
@@ -15124,7 +15148,7 @@ class ApiRequest extends lit_element_s {
       const [declaredParamSchema, serializeStyle, mimeTypeElem] = getSchemaFromParam(param);
 
       if (!declaredParamSchema) {
-        continue; // eslint-disable-line no-continue
+        continue;
       }
 
       const paramSchema = getTypeInfo(declaredParamSchema);
@@ -15990,7 +16014,7 @@ class ApiRequest extends lit_element_s {
             }
           }
         } catch (err) {
-          console.log('RapiDoc: unable to parse %s into object', el.value); // eslint-disable-line no-console
+          console.error('RapiDoc: unable to parse %s into object', el.value); // eslint-disable-line no-console
         }
 
         if (queryParam.toString()) {
@@ -16806,6 +16830,8 @@ class ApiResponse extends lit_element_s {
 
   static get styles() {
     return [font_styles, flex_styles, tab_styles, table_styles, input_styles, border_styles, i`
+      :where(button, input[type="checkbox"], [tabindex="0"]):focus-visible { box-shadow: var(--focus-shadow); }
+      :where(input[type="text"], input[type="password"], select, textarea):focus-visible { border-color: var(--primary-color); }
       .resp-head{
         vertical-align: middle;
         padding:16px 0 8px;
@@ -17188,13 +17214,13 @@ function expandedEndpointBodyTemplate(path, tagName = '', tagDescription = '') {
           `}
         <slot name="${path.elementId}"></slot>`}
       ${path.description ? y`<div class="m-markdown"> ${unsafe_html_o(marked(path.description))}</div>` : ''}
+      ${pathSecurityTemplate.call(this, path.security)}
       ${(_path$externalDocs = path.externalDocs) !== null && _path$externalDocs !== void 0 && _path$externalDocs.url || (_path$externalDocs2 = path.externalDocs) !== null && _path$externalDocs2 !== void 0 && _path$externalDocs2.description ? y`<div style="background-color:var(--bg3); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--border-radius)"> 
             <div class="m-markdown"> ${unsafe_html_o(marked(((_path$externalDocs3 = path.externalDocs) === null || _path$externalDocs3 === void 0 ? void 0 : _path$externalDocs3.description) || ''))} </div>
             ${(_path$externalDocs4 = path.externalDocs) !== null && _path$externalDocs4 !== void 0 && _path$externalDocs4.url ? y`<div> <a href="${(_path$externalDocs5 = path.externalDocs) === null || _path$externalDocs5 === void 0 ? void 0 : _path$externalDocs5.url}" target="_blank"> 
                   ${(_path$externalDocs6 = path.externalDocs) === null || _path$externalDocs6 === void 0 ? void 0 : _path$externalDocs6.url} <div style="transform: rotate(270deg) scale(1.5); display: inline-block; margin-left:5px">⇲</div>
                 </a> </div>` : ''}
           </div>` : ''}
-      ${pathSecurityTemplate.call(this, path.security)}
       ${codeSampleTabPanel}
       <div class='expanded-req-resp-container'>
         <api-request
@@ -17553,7 +17579,12 @@ function expandCollapseNavBarTag(navLinkEl, action = 'toggle') {
     }
   }
 }
-function expandCollapseAll(navEl, action = 'expand-all') {
+function expandCollapseAll(event, action = 'expand-all') {
+  if (!(event.type === 'click' || event.type === 'keyup' && event.keyCode === 13)) {
+    return;
+  }
+
+  const navEl = event.target.closest('.nav-scroll');
   const elList = [...navEl.querySelectorAll('.nav-bar-tag-and-paths')];
 
   if (action === 'expand-all') {
@@ -17569,16 +17600,25 @@ function expandCollapseAll(navEl, action = 'expand-all') {
     });
   }
 }
+function navBarClickAndEnterHandler(event) {
+  var _navEl$dataset, _navEl$dataset2, _navEl$dataset3, _navEl$dataset4;
 
-function onExpandCollapse(e) {
-  expandCollapseNavBarTag(e.target, 'toggle');
-}
+  if (!(event.type === 'click' || event.type === 'keyup' && event.keyCode === 13)) {
+    return;
+  }
 
-function onExpandCollapseAll(e, action = 'expand-all') {
-  expandCollapseAll(e.target.closest('.nav-scroll'), action);
+  const navEl = event.target;
+  event.stopPropagation();
+
+  if (((_navEl$dataset = navEl.dataset) === null || _navEl$dataset === void 0 ? void 0 : _navEl$dataset.action) === 'navigate') {
+    this.scrollToEventTarget(event, false);
+  } else if (((_navEl$dataset2 = navEl.dataset) === null || _navEl$dataset2 === void 0 ? void 0 : _navEl$dataset2.action) === 'expand-all' || ((_navEl$dataset3 = navEl.dataset) === null || _navEl$dataset3 === void 0 ? void 0 : _navEl$dataset3.action) === 'collapse-all') {
+    expandCollapseAll(event, navEl.dataset.action);
+  } else if (((_navEl$dataset4 = navEl.dataset) === null || _navEl$dataset4 === void 0 ? void 0 : _navEl$dataset4.action) === 'expand-collapse-tag') {
+    expandCollapseNavBarTag(navEl, 'toggle');
+  }
 }
 /* eslint-disable indent */
-
 
 function navbarTemplate() {
   var _this$resolvedSpec$in, _this$resolvedSpec$in2, _this$resolvedSpec$in3, _this$resolvedSpec$in4;
@@ -17620,41 +17660,45 @@ function navbarTemplate() {
             `}
         </div>
       `}
-    ${y`<nav class='nav-scroll' part="section-navbar-scroll">
+    ${y`<nav class='nav-scroll' tabindex="-1" part="section-navbar-scroll" @click='${e => navBarClickAndEnterHandler.call(this, e)}' @keyup='${e => navBarClickAndEnterHandler.call(this, e)}' >
       ${this.showInfo === 'false' || !this.resolvedSpec.info ? '' : y`
           ${this.infoDescriptionHeadingsInNavBar === 'true' ? y`
-              ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? y`<div class='nav-bar-info' id='link-overview' data-content-id='overview' @click = '${e => this.scrollToEventTarget(e, false)}'> 
+              ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? y`<div class='nav-bar-info' id='link-overview' data-content-id='overview' data-action='navigate' tabindex='0'> 
                     ${((_this$resolvedSpec$in = this.resolvedSpec.info) === null || _this$resolvedSpec$in === void 0 ? void 0 : (_this$resolvedSpec$in2 = _this$resolvedSpec$in.title) === null || _this$resolvedSpec$in2 === void 0 ? void 0 : _this$resolvedSpec$in2.trim()) || 'Overview'}
                   </div>` : ''}
               <div class="overview-headers">
                 ${this.resolvedSpec.infoDescriptionHeaders.map(header => y`
                   <div 
                     class='nav-bar-h${header.depth}' 
-                    id="link-overview--${new marked.Slugger().slug(header.text)}"  
+                    id="link-overview--${new marked.Slugger().slug(header.text)}"
+                    data-action='navigate' 
                     data-content-id='overview--${new marked.Slugger().slug(header.text)}' 
-                    @click='${e => this.scrollToEventTarget(e, false)}'
                   >
                     ${header.text}
                   </div>`)}
               </div>
               ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? y`<hr style='border-top: 1px solid var(--nav-hover-bg-color); border-width:1px 0 0 0; margin: 15px 0 0 0'/>` : ''}
-            ` : y`<div class='nav-bar-info' id='link-overview' data-content-id='overview' @click = '${e => this.scrollToEventTarget(e, false)}'> 
+            ` : y`<div class='nav-bar-info' id='link-overview' data-action='navigate' data-content-id='overview' tabindex='0'> 
             ${((_this$resolvedSpec$in3 = this.resolvedSpec.info) === null || _this$resolvedSpec$in3 === void 0 ? void 0 : (_this$resolvedSpec$in4 = _this$resolvedSpec$in3.title) === null || _this$resolvedSpec$in4 === void 0 ? void 0 : _this$resolvedSpec$in4.trim()) || 'Overview'} 
               </div>`}
         `}
     
-      ${this.allowServerSelection === 'false' ? '' : y`<div class='nav-bar-info' id='link-servers' data-content-id='servers' @click = '${e => this.scrollToEventTarget(e, false)}'> API Servers </div>`}
-      ${this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes ? '' : y`<div class='nav-bar-info' id='link-auth' data-content-id='auth' @click = '${e => this.scrollToEventTarget(e, false)}'> Authentication </div>`}
+      ${this.allowServerSelection === 'false' ? '' : y`<div class='nav-bar-info' id='link-servers' data-action='navigate' data-content-id='servers' tabindex='0'> API Servers </div>`}
+      ${this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes ? '' : y`<div class='nav-bar-info' id='link-auth' data-action='navigate' data-content-id='auth' tabindex='0' > Authentication </div>`}
 
-      <div id='link-operations-top' class='nav-bar-section operations' data-content-id='operations-top' @click = '${e => this.scrollToEventTarget(e, false)}'>
+      <div id='link-operations-top' class='nav-bar-section operations' data-action='navigate' data-content-id='${this.renderStyle === 'focused' ? '' : 'operations-top'}'>
         <div style="font-size:16px; display:flex; margin-left:10px;">
           ${this.renderStyle === 'focused' ? y`
-              <div @click="${e => {
-    onExpandCollapseAll.call(this, e, 'expand-all');
-  }}" title="Expand all" style="transform: rotate(90deg); cursor:pointer; margin-right:10px;">▸</div>
-              <div @click="${e => {
-    onExpandCollapseAll.call(this, e, 'collapse-all');
-  }}" title="Collapse all" style="transform: rotate(270deg); cursor:pointer;">▸</div>` : ''}  
+              <div class="nav-bar-expand-all"
+                data-action='expand-all'
+                tabindex='0' 
+                title="Expand all"
+              >▸</div>
+              <div class="nav-bar-collapse-all"
+                data-action='collapse-all'
+                tabindex='0' 
+                title="Collapse all"
+              >▸</div>` : ''}  
         </div>
         <div class='nav-bar-section-title'> OPERATIONS </div>
       </div>
@@ -17664,42 +17708,33 @@ function navbarTemplate() {
     var _tag$paths;
 
     return y`
-          <div class='nav-bar-tag-and-paths ${tag.expanded ? 'expanded' : 'collapsed'}'>
+          <div class='nav-bar-tag-and-paths ${this.renderStyle === 'read' ? 'expanded' : tag.expanded ? 'expanded' : 'collapsed'}'>
             ${tag.name === 'General ⦂' ? y`<hr style="border:none; border-top: 1px dotted var(--nav-text-color); opacity:0.3; margin:-1px 0 0 0;"/>` : y`
                 <div 
-                  class='nav-bar-tag' 
-                  id="link-${tag.elementId}" 
-                  data-content-id='${tag.elementId}'
+                  class='nav-bar-tag'
+                  id="link-${tag.elementId}"
+                  data-action='${(this.renderStyle === 'read' ? 'navigate' : this.onNavTagClick === 'show-description') ? 'navigate' : 'expand-collapse-tag'}'
+                  data-content-id='${(this.renderStyle === 'read' ? `${tag.elementId}` : this.onNavTagClick === 'show-description') ? `${tag.elementId}` : ''}'
                   data-first-path-id='${tag.firstPathId}'
-                  @click='${e => {
-      if (this.renderStyle === 'focused' && this.onNavTagClick === 'expand-collapse') {
-        onExpandCollapse.call(this, e);
-      } else {
-        this.scrollToEventTarget(e, false);
-      }
-    }}'
+                  tabindex='0'
                 >
                   <div>${tag.name}</div>
-                  <div class="nav-bar-tag-icon" @click="${e => {
-      if (this.renderStyle === 'focused' && this.onNavTagClick === 'show-description') {
-        onExpandCollapse.call(this, e);
-      }
-    }}">
-                  </div>
+                  <div class="nav-bar-tag-icon" tabindex='0' data-action='expand-collapse-tag'></div>
                 </div>
               `}
             ${this.infoDescriptionHeadingsInNavBar === 'true' ? y`
                 ${this.renderStyle === 'focused' && this.onNavTagClick === 'expand-collapse' ? '' : y`
                     <div class='tag-headers'>
                       ${tag.headers.map(header => y`
-                      <div 
-                        class='nav-bar-h${header.depth}' 
-                        id="link-${tag.elementId}--${new marked.Slugger().slug(header.text)}"  
-                        data-content-id='${tag.elementId}--${new marked.Slugger().slug(header.text)}' 
-                        @click='${e => this.scrollToEventTarget(e, false)}'
+                      <div
+                        class='nav-bar-h${header.depth}'
+                        id="link-${tag.elementId}--${new marked.Slugger().slug(header.text)}"
+                        data-action='navigate'
+                        data-content-id='${tag.elementId}--${new marked.Slugger().slug(header.text)}'
+                        tabindex='0'
                       > ${header.text}</div>`)}
                     </div>`}` : ''}
-            <div class='nav-bar-paths-under-tag' style="max-height:${tag.expanded ? (((_tag$paths = tag.paths) === null || _tag$paths === void 0 ? void 0 : _tag$paths.length) || 1) * 50 : 0}px;">
+            <div class='nav-bar-paths-under-tag' style="max-height:${tag.expanded || this.renderStyle === 'read' ? (((_tag$paths = tag.paths) === null || _tag$paths === void 0 ? void 0 : _tag$paths.length) || 1) * 50 : 0}px;">
               <!-- Paths in each tag (endpoints) -->
               ${tag.paths.filter(v => {
       if (this.matchPaths) {
@@ -17711,18 +17746,17 @@ function navbarTemplate() {
               <div 
                 class='nav-bar-path
                 ${this.usePathInNavBar === 'true' ? 'small-font' : ''}'
+                data-action='navigate'
                 data-content-id='${p.elementId}'
                 id='link-${p.elementId}'
-                @click = '${e => {
-      this.scrollToEventTarget(e, false);
-    }}'
+                tabindex='0'
               >
-                <span style = "display:flex; align-items:start; ${p.deprecated ? 'filter:opacity(0.5)' : ''}">
-                  ${y`<span class="nav-method ${this.showMethodInNavBar} ${p.method}">
+                <span style = "display:flex; pointer-events: none; align-items:start; ${p.deprecated ? 'filter:opacity(0.5)' : ''}">
+                  ${y`<span class="nav-method ${this.showMethodInNavBar} ${p.method}" style='pointer-events: none;'>
                       ${this.showMethodInNavBar === 'as-colored-block' ? p.method.substring(0, 3).toUpperCase() : p.method.toUpperCase()}
                     </span>`}
-                  ${p.isWebhook ? y`<span style="font-weight:bold; margin-right:8px; font-size: calc(var(--font-size-small) - 2px)">WEBHOOK</span>` : ''}
-                  ${this.usePathInNavBar === 'true' ? y`<span class='mono-font'>${p.path}</span>` : p.summary || p.shortSummary}
+                  ${p.isWebhook ? y`<span style="font-weight:bold; pointer-events: none; margin-right:8px; font-size: calc(var(--font-size-small) - 2px)">WEBHOOK</span>` : ''}
+                  ${this.usePathInNavBar === 'true' ? y`<span style='pointer-events: none;' class='mono-font'>${p.path}</span>` : p.summary || p.shortSummary}
                 </span>
               </div>`)}
             </div>
@@ -17737,14 +17771,15 @@ function navbarTemplate() {
             <div class='nav-bar-section-title'>COMPONENTS</div>
           </div>
           ${this.resolvedSpec.components.map(component => component.subComponents.length ? y`
-              <div class='nav-bar-tag' 
+              <div class='nav-bar-tag'
+                data-action='navigate' 
                 data-content-id='cmp--${component.name.toLowerCase()}' 
-                id='link-cmp--${component.name.toLowerCase()}' 
-                @click='${e => this.scrollToEventTarget(e, false)}'>
+                id='link-cmp--${component.name.toLowerCase()}'
+              >
                 ${component.name}
               </div>
               ${component.subComponents.filter(p => p.expanded !== false).map(p => y`
-                <div class='nav-bar-path' data-content-id='cmp--${p.id}' id='link-cmp--${p.id}' @click='${e => this.scrollToEventTarget(e, false)}'>
+                <div class='nav-bar-path' data-action='navigate' data-content-id='cmp--${p.id}' id='link-cmp--${p.id}'>
                   <span> ${p.name} </span>
                 </div>`)}` : '')}` : ''}
     </nav>`}
@@ -17916,7 +17951,7 @@ function endpoint_template_expandCollapseAll(operationsRootEl, action = 'expand-
   }
 }
 
-function endpoint_template_onExpandCollapseAll(e, action = 'expand-all') {
+function onExpandCollapseAll(e, action = 'expand-all') {
   endpoint_template_expandCollapseAll.call(this, e.target.closest('.operations-root'), action);
 }
 /* eslint-disable indent */
@@ -18056,11 +18091,11 @@ function endpointTemplate(showExpandCollapse = true, showTags = true, pathsExpan
   return y`
     ${showExpandCollapse ? y`
         <div style="display:flex; justify-content:flex-end;"> 
-          <span @click="${e => endpoint_template_onExpandCollapseAll(e, 'expand-all')}" style="color:var(--primary-color); cursor:pointer;">
+          <span @click="${e => onExpandCollapseAll(e, 'expand-all')}" style="color:var(--primary-color); cursor:pointer;">
             Expand all
           </span> 
           &nbsp;|&nbsp; 
-          <span @click="${e => endpoint_template_onExpandCollapseAll(e, 'collapse-all')}" style="color:var(--primary-color); cursor:pointer;" >
+          <span @click="${e => onExpandCollapseAll(e, 'collapse-all')}" style="color:var(--primary-color); cursor:pointer;" >
             Collapse all
           </span> 
           &nbsp; sections
@@ -18487,7 +18522,7 @@ function setTheme(baseTheme, theme = {}) {
 
   const primaryColor = theme.primaryColor ? theme.primaryColor : baseTheme === 'dark' ? '#f76b39' : '#ff591e';
   const primaryColorInvert = color_utils.color.invert(primaryColor);
-  const primaryColorTrans = color_utils.color.opacity(primaryColor, '0.8'); // Dark and Light Theme colors
+  const primaryColorTrans = color_utils.color.opacity(primaryColor, '0.4'); // Dark and Light Theme colors
 
   if (baseTheme === 'dark') {
     const bg1 = theme.bg1 ? theme.bg1 : '#2a2b2c';
@@ -18680,6 +18715,8 @@ function setTheme(baseTheme, theme = {}) {
     --font-size-regular: ${this.fontSize === 'default' ? '14px' : this.fontSize === 'large' ? '15px' : '16px'};
     --dialog-z-index: 1000;
 
+    --focus-shadow: 0 0 0 1px transparent, 0 0 0 3px ${newTheme.primaryColorTrans};
+
     /* Theme specific styles */  
     --bg:${newTheme.bg1};
     --bg2:${newTheme.bg2};
@@ -18835,7 +18872,7 @@ function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = 
       ${(this.renderStyle === 'read' || this.renderStyle === 'focused') && this.showSideNav === 'true' && this.resolvedSpec ? navbarTemplate.call(this) : ''}
 
       <!-- Main Content -->
-      <main class="main-content regular-font" part="section-main-content">
+      <main class="main-content regular-font" tabindex="-1" part="section-main-content">
         <slot></slot>
         <div class="main-content-inner--${this.renderStyle}-mode">
           ${this.loading === true ? y`<div class="loader"></div>` : y`
@@ -19207,13 +19244,14 @@ class RapiDoc extends lit_element_s {
         background-color:var(--bg);
         font-family:var(--font-regular);
       }
-      .body {
+      :where(button, input[type="checkbox"], [tabindex="0"]):focus-visible { box-shadow: var(--focus-shadow); }
+      :where(input[type="text"], input[type="password"], select, textarea):focus-visible { border-color: var(--primary-color); }
+    .body {
         display:flex;
         height:100%;
         width:100%;
         overflow:hidden;
       }
-
       .main-content { 
         margin:0;
         padding: 0; 
@@ -20099,7 +20137,11 @@ class RapiDoc extends lit_element_s {
 
 
   async scrollToEventTarget(event, scrollNavItemToView = true) {
-    const navEl = event.currentTarget;
+    if (!(event.type === 'click' || event.type === 'keyup' && event.keyCode === 13)) {
+      return;
+    }
+
+    const navEl = event.target;
 
     if (!navEl.dataset.contentId) {
       return;
@@ -24852,7 +24894,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("a9b439cc52935489ce5a")
+/******/ 		__webpack_require__.h = () => ("f1b027d929a1ed21ea97")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
