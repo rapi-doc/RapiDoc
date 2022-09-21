@@ -16,7 +16,8 @@ export function applyApiKey(securitySchemeId, username = '', password = '', prov
   let finalApiKeyValue = '';
   if (securityObj.scheme?.toLowerCase() === 'basic') {
     if (username) {
-      finalApiKeyValue = `Basic ${btoa(`${username}:${password}`)}`;
+      finalApiKeyValue = Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
+      // finalApiKeyValue = `Basic ${btoa(`${username}:${password}`)}`;
     }
   } else if (providedApikeyVal) {
     securityObj.value = providedApikeyVal;
@@ -104,7 +105,8 @@ async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, g
     urlFormParams.append('code_verifier', codeVerifier); // for PKCE
   }
   if (sendClientSecretIn === 'header') {
-    headers.set('Authorization', `Basic ${btoa(`${clientId}:${clientSecret}`)}`);
+    // headers.set('Authorization', `Basic ${btoa(`${clientId}:${clientSecret}`)}`);
+    headers.set('Authorization', `Basic ${Buffer.from(`${username}:${password}`, 'utf8').toString('base64')}`);
   } else {
     urlFormParams.append('client_id', clientId);
     urlFormParams.append('client_secret', clientSecret);
