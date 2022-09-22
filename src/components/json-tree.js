@@ -91,7 +91,7 @@ export default class JsonTree extends LitElement {
   /* eslint-disable indent */
   render() {
     return html`
-      <div class = "json-tree"  @click='${(e) => { if (e.target.classList.contains('btn-copy')) { copyToClipboard(JSON.stringify(this.data, null, 2), e); } else { this.toggleExpand(); } }}'>
+      <div class = "json-tree"  @click='${(e) => { if (e.target.classList.contains('btn-copy')) { copyToClipboard(JSON.stringify(this.data, null, 2), e); } else { this.toggleExpand(e); } }}'>
         <div class='toolbar'> 
           <button class="toolbar-btn btn-copy" part="btn btn-fill btn-copy"> Copy </button>
         </div>

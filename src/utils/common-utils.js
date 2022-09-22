@@ -19,7 +19,7 @@ export function sleep(ms) {
 }
 
 export function copyToClipboard(data, e) {
-  const btnEl = e.currentTarget;
+  const btnEl = e.target;
   const textArea = document.createElement('textarea');
   textArea.value = data;
   textArea.style.position = 'fixed'; // avoid scrolling to bottom
