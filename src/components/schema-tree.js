@@ -98,16 +98,15 @@ export default class SchemaTree extends LitElement {
   /* eslint-disable indent */
   render() {
     return html`
-      <div class="tree ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : 'collapsed-descr'}">
+      <div class="tree ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : 'collapsed-descr'}" @click="${(e) => this.handleAllEvents(e)}">
         <div class="toolbar">
           <div class="toolbar-item schema-root-type ${this.data?.['::type'] || ''} "> ${this.data?.['::type'] || ''} </div>
           ${this.allowSchemaDescriptionExpandToggle === 'true'
             ? html`
               <div style="flex:1"></div>
-              <div part="schema-toolbar-item schema-multiline-toggle" class='toolbar-item' @click='${() => { this.schemaDescriptionExpanded = (this.schemaDescriptionExpanded === 'true' ? 'false' : 'true'); }}'> 
+              <div part="schema-toolbar-item schema-multiline-toggle" class='toolbar-item schema-multiline-toggle'> 
                 ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'}
-              </div>
-            `
+              </div>`
             : ''
           }
         </div>
@@ -184,16 +183,16 @@ export default class SchemaTree extends LitElement {
     if (data['::type'] === 'object') {
       if (dataType === 'array') {
         if (schemaLevel < this.schemaExpandLevel) {
-          openBracket = html`<span class="open-bracket array-of-object" @click="${this.toggleObjectExpand}">[{</span>`;
+          openBracket = html`<span class="open-bracket array-of-object" >[{</span>`;
         } else {
-          openBracket = html`<span class="open-bracket array-of-object" @click="${this.toggleObjectExpand}">[{...}]</span>`;
+          openBracket = html`<span class="open-bracket array-of-object">[{...}]</span>`;
         }
         closeBracket = '}]';
       } else {
         if (schemaLevel < this.schemaExpandLevel) {
-          openBracket = html`<span class="open-bracket object" @click="${this.toggleObjectExpand}">{</span>`;
+          openBracket = html`<span class="open-bracket object">{</span>`;
         } else {
-          openBracket = html`<span class="open-bracket object" @click="${this.toggleObjectExpand}">{...}</span>`;
+          openBracket = html`<span class="open-bracket object">{...}</span>`;
         }
         closeBracket = '}';
       }
@@ -201,16 +200,16 @@ export default class SchemaTree extends LitElement {
       if (dataType === 'array') {
         const arrType = arrayType !== 'object' ? arrayType : '';
         if (schemaLevel < this.schemaExpandLevel) {
-          openBracket = html`<span class="open-bracket array-of-array" data-array-type="${arrType}" @click="${this.toggleObjectExpand}">[[ ${arrType} </span>`;
+          openBracket = html`<span class="open-bracket array-of-array" data-array-type="${arrType}">[[ ${arrType} </span>`;
         } else {
-          openBracket = html`<span class="open-bracket array-of-array"  data-array-type="${arrType}" @click="${this.toggleObjectExpand}">[[...]]</span>`;
+          openBracket = html`<span class="open-bracket array-of-array"  data-array-type="${arrType}">[[...]]</span>`;
         }
         closeBracket = ']]';
       } else {
         if (schemaLevel < this.schemaExpandLevel) {
-          openBracket = html`<span class="open-bracket array" @click="${this.toggleObjectExpand}">[</span>`;
+          openBracket = html`<span class="open-bracket array">[</span>`;
         } else {
-          openBracket = html`<span class="open-bracket array" @click="${this.toggleObjectExpand}">[...]</span>`;
+          openBracket = html`<span class="open-bracket array">[...]</span>`;
         }
         closeBracket = ']';
       }
@@ -329,6 +328,14 @@ export default class SchemaTree extends LitElement {
     `;
   }
   /* eslint-enable indent */
+
+  handleAllEvents(e) {
+    if (e.target.classList.contains('open-bracket')) {
+      this.toggleObjectExpand(e);
+    } else if (e.target.classList.contains('schema-multiline-toggle')) {
+      this.schemaDescriptionExpanded = (this.schemaDescriptionExpanded === 'true' ? 'false' : 'true');
+    }
+  }
 
   toggleObjectExpand(e) {
     const rowEl = e.target.closest('.tr');
