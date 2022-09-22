@@ -91,11 +91,11 @@ export default class JsonTree extends LitElement {
   /* eslint-disable indent */
   render() {
     return html`
-      <div class = "json-tree" >
+      <div class = "json-tree"  @click='${(e) => { if (e.target.classList.contains('btn-copy')) { copyToClipboard(JSON.stringify(this.data, null, 2), e); } else { this.toggleExpand(); } }}'>
         <div class='toolbar'> 
-          <button class="toolbar-btn" part="btn btn-fill btn-copy" @click='${(e) => { copyToClipboard(JSON.stringify(this.data, null, 2), e); }}'> Copy </button>
+          <button class="toolbar-btn btn-copy" part="btn btn-fill btn-copy"> Copy </button>
         </div>
-        ${this.generateTree(this.data, true)}
+          ${this.generateTree(this.data, true)}
       </div>  
     `;
   }
@@ -110,7 +110,7 @@ export default class JsonTree extends LitElement {
         return html`${(Array.isArray(data) ? '[ ],' : '{ },')}`;
       }
       return html`
-      <div class="open-bracket expanded ${detailType === 'array' ? 'array' : 'object'} " @click="${this.toggleExpand}" > ${detailType === 'array' ? '[' : '{'}</div>
+      <div class="open-bracket expanded ${detailType === 'array' ? 'array' : 'object'}" > ${detailType === 'array' ? '[' : '{'}</div>
       <div class="inside-bracket">
         ${Object.keys(data).map((key, i, a) => html`
           <div class="item"> 
@@ -122,7 +122,6 @@ export default class JsonTree extends LitElement {
       <div class="close-bracket">${detailType === 'array' ? ']' : '}'}${isLast ? '' : ','}</div>
       `;
     }
-
     return (typeof data === 'string' || data instanceof Date)
       ? html`<span class="${typeof data}">"${data}"</span>${isLast ? '' : ','}`
       : html`<span class="${typeof data}">${data}</span>${isLast ? '' : ','}`;
