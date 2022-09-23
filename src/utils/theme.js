@@ -31,6 +31,8 @@ export default function setTheme(baseTheme, theme = {}) {
     const navHoverBgColor = theme.navHoverBgColor ? theme.navHoverBgColor : ColorUtils.color.brightness(navBgColor, -15);
     const navHoverTextColor = theme.navHoverTextColor ? theme.navHoverTextColor : ColorUtils.color.invert(navBgColor);
     const navAccentColor = theme.navAccentColor ? theme.navAccentColor : ColorUtils.color.brightness(primaryColor, 25);
+    const navAccentTextColor = theme.navAccentTextColor ? theme.navAccenttextColor : ColorUtils.color.invert(navAccentColor);
+
     const overlayBg = 'rgba(80, 80, 80, 0.4)';
 
     newTheme = {
@@ -54,7 +56,7 @@ export default function setTheme(baseTheme, theme = {}) {
       navHoverBgColor,
       navHoverTextColor,
       navAccentColor,
-
+      navAccentTextColor,
       headerColor,
       headerColorInvert: ColorUtils.color.invert(headerColor),
       headerColorDarker: ColorUtils.color.brightness(headerColor, -20),
@@ -123,6 +125,7 @@ export default function setTheme(baseTheme, theme = {}) {
     const navHoverBgColor = theme.navHoverBgColor ? theme.navHoverBgColor : ColorUtils.color.brightness(navBgColor, -15);
     const navHoverTextColor = theme.navHoverTextColor ? theme.navHoverTextColor : ColorUtils.color.invert(navBgColor);
     const navAccentColor = theme.navAccentColor ? theme.navAccentColor : ColorUtils.color.brightness(primaryColor, 25);
+    const navAccentTextColor = theme.navAccentTextColor ? theme.navAccenttextColor : ColorUtils.color.invert(navAccentColor);
     const overlayBg = 'rgba(0, 0, 0, 0.4)';
 
     newTheme = {
@@ -146,7 +149,7 @@ export default function setTheme(baseTheme, theme = {}) {
       navHoverBgColor,
       navHoverTextColor,
       navAccentColor,
-
+      navAccentTextColor,
       headerColor,
       headerColorInvert: ColorUtils.color.invert(headerColor),
       headerColorDarker: ColorUtils.color.brightness(headerColor, -20),
@@ -261,6 +264,7 @@ export default function setTheme(baseTheme, theme = {}) {
     --nav-hover-bg-color:${newTheme.navHoverBgColor};
     --nav-hover-text-color:${newTheme.navHoverTextColor};
     --nav-accent-color:${newTheme.navAccentColor};
+    --nav-accent-text-color:${newTheme.navAccentTextColor};
 
     /* Nav API Method Colors*/
     --nav-get-color:${newTheme.blue};

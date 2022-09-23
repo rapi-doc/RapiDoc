@@ -71,7 +71,7 @@ export default function navbarTemplate() {
           ${this.allowSearch === 'false'
             ? ''
             : html`
-              <div style="display:flex; flex:1; line-height:22px;">
+              <div style = "display:flex; flex:1; line-height:22px;">
                 <input id="nav-bar-search" 
                   part = "textbox textbox-nav-filter"
                   style = "width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" 
@@ -109,15 +109,15 @@ export default function navbarTemplate() {
           ${(this.infoDescriptionHeadingsInNavBar === 'true')
             ? html`
               ${this.resolvedSpec.infoDescriptionHeaders.length > 0
-                ? html`<div class='nav-bar-info' id='link-overview' data-content-id='overview' data-action='navigate' tabindex='0'> 
+                ? html`<div class='nav-bar-info ${this.navActiveItemMarker}' id='link-overview' data-content-id='overview' data-action='navigate' tabindex='0'> 
                     ${this.resolvedSpec.info?.title?.trim() || 'Overview'}
                   </div>`
                 : ''
               }
               <div class="overview-headers">
                 ${this.resolvedSpec.infoDescriptionHeaders.map((header) => html`
-                  <div 
-                    class='nav-bar-h${header.depth}' 
+                  <div
+                    class='nav-bar-h${header.depth} ${this.navActiveItemMarker}' 
                     id="link-overview--${new marked.Slugger().slug(header.text)}"
                     data-action='navigate' 
                     data-content-id='overview--${new marked.Slugger().slug(header.text)}' 
@@ -128,7 +128,7 @@ export default function navbarTemplate() {
               </div>
               ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? html`<hr style='border-top: 1px solid var(--nav-hover-bg-color); border-width:1px 0 0 0; margin: 15px 0 0 0'/>` : ''}
             `
-            : html`<div class='nav-bar-info' id='link-overview' data-action='navigate' data-content-id='overview' tabindex='0'> 
+            : html`<div class='nav-bar-info ${this.navActiveItemMarker}' id='link-overview' data-action='navigate' data-content-id='overview' tabindex='0'> 
             ${this.resolvedSpec.info?.title?.trim() || 'Overview'} 
               </div>`
           }
@@ -137,11 +137,11 @@ export default function navbarTemplate() {
     
       ${this.allowServerSelection === 'false'
         ? ''
-        : html`<div class='nav-bar-info' id='link-servers' data-action='navigate' data-content-id='servers' tabindex='0'> API Servers </div>`
+        : html`<div class='nav-bar-info ${this.navActiveItemMarker}' id='link-servers' data-action='navigate' data-content-id='servers' tabindex='0'> API Servers </div>`
       }
       ${(this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes)
         ? ''
-        : html`<div class='nav-bar-info' id='link-auth' data-action='navigate' data-content-id='auth' tabindex='0' > Authentication </div>`
+        : html`<div class='nav-bar-info ${this.navActiveItemMarker}' id='link-auth' data-action='navigate' data-content-id='auth' tabindex='0' > Authentication </div>`
       }
 
       <div id='link-operations-top' class='nav-bar-section operations' data-action='navigate' data-content-id='${this.renderStyle === 'focused' ? '' : 'operations-top'}'>
@@ -173,7 +173,7 @@ export default function navbarTemplate() {
               ? html`<hr style="border:none; border-top: 1px dotted var(--nav-text-color); opacity:0.3; margin:-1px 0 0 0;"/>`
               : html`
                 <div 
-                  class='nav-bar-tag'
+                  class='nav-bar-tag ${this.navActiveItemMarker}'
                   id="link-${tag.elementId}"
                   data-action='${(this.renderStyle === 'read' ? 'navigate' : this.onNavTagClick === 'show-description') ? 'navigate' : 'expand-collapse-tag'}'
                   data-content-id='${(this.renderStyle === 'read' ? `${tag.elementId}` : this.onNavTagClick === 'show-description') ? `${tag.elementId}` : ''}'
@@ -193,7 +193,7 @@ export default function navbarTemplate() {
                     <div class='tag-headers'>
                       ${tag.headers.map((header) => html`
                       <div
-                        class='nav-bar-h${header.depth}'
+                        class='nav-bar-h${header.depth} ${this.navActiveItemMarker}'
                         id="link-${tag.elementId}--${new marked.Slugger().slug(header.text)}"
                         data-action='navigate'
                         data-content-id='${tag.elementId}--${new marked.Slugger().slug(header.text)}'
@@ -212,8 +212,8 @@ export default function navbarTemplate() {
                 return true;
               }).map((p) => html`
               <div 
-                class='nav-bar-path
-                ${this.usePathInNavBar === 'true' ? 'small-font' : ''}'
+                class='nav-bar-path ${this.navActiveItemMarker} ${this.usePathInNavBar === 'true' ? 'small-font' : ''}'
+                part="section-navbar-item"
                 data-action='navigate'
                 data-content-id='${p.elementId}'
                 id='link-${p.elementId}'

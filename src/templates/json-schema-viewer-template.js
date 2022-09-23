@@ -113,6 +113,7 @@ export default function jsonSchemaViewerTemplate(isMini = false) {
     navHoverBgColor: isValidHexColor(this.navHoverBgColor) ? this.navHoverBgColor : '',
     navHoverTextColor: isValidHexColor(this.navHoverTextColor) ? this.navHoverTextColor : '',
     navAccentColor: isValidHexColor(this.navAccentColor) ? this.navAccentColor : '',
+    navAccenttextColor: isValidHexColor(this.navAccentTextColor) ? this.navAccentTextColor : '',
   };
   /* eslint-disable indent */
   if (this.resolvedSpec.specLoadError) {

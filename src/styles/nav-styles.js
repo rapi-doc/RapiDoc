@@ -120,7 +120,12 @@ export default css`
 .nav-bar-tag,
 .nav-bar-path {
   display:flex;
-  cursor:pointer;
+  cursor: pointer;
+  width: 100%;
+  border: none;
+  border-radius:4px; 
+  color: var(--nav-text-color);
+  background: transparent;
   border-left:4px solid transparent;
 }
 
@@ -161,14 +166,25 @@ export default css`
 }
 .nav-bar-h2 {margin-left:12px;}
 
-.nav-bar-h1.active,
-.nav-bar-h2.active,
-.nav-bar-info.active,
-.nav-bar-tag.active,
-.nav-bar-path.active,
-.nav-bar-section.operations.active {
+.nav-bar-h1.left-bar.active,
+.nav-bar-h2.left-bar.active,
+.nav-bar-info.left-bar.active,
+.nav-bar-tag.left-bar.active,
+.nav-bar-path.left-bar.active,
+.nav-bar-section.left-bar.operations.active {
   border-left:4px solid var(--nav-accent-color);
   color:var(--nav-hover-text-color);
+}
+
+.nav-bar-h1.colored-block.active,
+.nav-bar-h2.colored-block.active,
+.nav-bar-info.colored-block.active,
+.nav-bar-tag.colored-block.active,
+.nav-bar-path.colored-block.active,
+.nav-bar-section.colored-block.operations.active {
+  background-color: var(--nav-accent-color);
+  color: var(--nav-accent-text-color);
+  border-radius: 0;
 }
 
 .nav-bar-h1:hover,

@@ -30,6 +30,7 @@ export default function mainBodyTemplate(isMini = false, showExpandCollapse = tr
     navHoverBgColor: isValidHexColor(this.navHoverBgColor) ? this.navHoverBgColor : '',
     navHoverTextColor: isValidHexColor(this.navHoverTextColor) ? this.navHoverTextColor : '',
     navAccentColor: isValidHexColor(this.navAccentColor) ? this.navAccentColor : '',
+    navAccentTextColor: isValidHexColor(this.navAccentTextColor) ? this.navAccentTextColor : '',
   };
   /* eslint-disable indent */
   if (this.resolvedSpec.specLoadError) {
