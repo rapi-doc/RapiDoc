@@ -3898,7 +3898,12 @@ pre[class*="language-"] {
 .nav-bar-tag,
 .nav-bar-path {
   display:flex;
-  cursor:pointer;
+  cursor: pointer;
+  width: 100%;
+  border: none;
+  border-radius:4px; 
+  color: var(--nav-text-color);
+  background: transparent;
   border-left:4px solid transparent;
 }
 
@@ -3939,14 +3944,25 @@ pre[class*="language-"] {
 }
 .nav-bar-h2 {margin-left:12px;}
 
-.nav-bar-h1.active,
-.nav-bar-h2.active,
-.nav-bar-info.active,
-.nav-bar-tag.active,
-.nav-bar-path.active,
-.nav-bar-section.operations.active {
+.nav-bar-h1.left-bar.active,
+.nav-bar-h2.left-bar.active,
+.nav-bar-info.left-bar.active,
+.nav-bar-tag.left-bar.active,
+.nav-bar-path.left-bar.active,
+.nav-bar-section.left-bar.operations.active {
   border-left:4px solid var(--nav-accent-color);
   color:var(--nav-hover-text-color);
+}
+
+.nav-bar-h1.colored-block.active,
+.nav-bar-h2.colored-block.active,
+.nav-bar-info.colored-block.active,
+.nav-bar-tag.colored-block.active,
+.nav-bar-path.colored-block.active,
+.nav-bar-section.colored-block.operations.active {
+  background-color: var(--nav-accent-color);
+  color: var(--nav-accent-text-color);
+  border-radius: 0;
 }
 
 .nav-bar-h1:hover,
@@ -17647,7 +17663,7 @@ function navbarTemplate() {
     ${this.allowSearch === 'false' && this.allowAdvancedSearch === 'false' ? '' : y`
         <div style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 24px 12px 24px; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}" part="section-navbar-search">
           ${this.allowSearch === 'false' ? '' : y`
-              <div style="display:flex; flex:1; line-height:22px;">
+              <div style = "display:flex; flex:1; line-height:22px;">
                 <input id="nav-bar-search" 
                   part = "textbox textbox-nav-filter"
                   style = "width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" 
@@ -17673,13 +17689,13 @@ function navbarTemplate() {
     ${y`<nav class='nav-scroll' tabindex="-1" part="section-navbar-scroll" @click='${e => navBarClickAndEnterHandler.call(this, e)}' @keyup='${e => navBarClickAndEnterHandler.call(this, e)}' >
       ${this.showInfo === 'false' || !this.resolvedSpec.info ? '' : y`
           ${this.infoDescriptionHeadingsInNavBar === 'true' ? y`
-              ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? y`<div class='nav-bar-info' id='link-overview' data-content-id='overview' data-action='navigate' tabindex='0'> 
+              ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? y`<div class='nav-bar-info ${this.navActiveItemMarker}' id='link-overview' data-content-id='overview' data-action='navigate' tabindex='0'> 
                     ${((_this$resolvedSpec$in = this.resolvedSpec.info) === null || _this$resolvedSpec$in === void 0 ? void 0 : (_this$resolvedSpec$in2 = _this$resolvedSpec$in.title) === null || _this$resolvedSpec$in2 === void 0 ? void 0 : _this$resolvedSpec$in2.trim()) || 'Overview'}
                   </div>` : ''}
               <div class="overview-headers">
                 ${this.resolvedSpec.infoDescriptionHeaders.map(header => y`
-                  <div 
-                    class='nav-bar-h${header.depth}' 
+                  <div
+                    class='nav-bar-h${header.depth} ${this.navActiveItemMarker}' 
                     id="link-overview--${new marked.Slugger().slug(header.text)}"
                     data-action='navigate' 
                     data-content-id='overview--${new marked.Slugger().slug(header.text)}' 
@@ -17688,13 +17704,13 @@ function navbarTemplate() {
                   </div>`)}
               </div>
               ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? y`<hr style='border-top: 1px solid var(--nav-hover-bg-color); border-width:1px 0 0 0; margin: 15px 0 0 0'/>` : ''}
-            ` : y`<div class='nav-bar-info' id='link-overview' data-action='navigate' data-content-id='overview' tabindex='0'> 
+            ` : y`<div class='nav-bar-info ${this.navActiveItemMarker}' id='link-overview' data-action='navigate' data-content-id='overview' tabindex='0'> 
             ${((_this$resolvedSpec$in3 = this.resolvedSpec.info) === null || _this$resolvedSpec$in3 === void 0 ? void 0 : (_this$resolvedSpec$in4 = _this$resolvedSpec$in3.title) === null || _this$resolvedSpec$in4 === void 0 ? void 0 : _this$resolvedSpec$in4.trim()) || 'Overview'} 
               </div>`}
         `}
     
-      ${this.allowServerSelection === 'false' ? '' : y`<div class='nav-bar-info' id='link-servers' data-action='navigate' data-content-id='servers' tabindex='0'> API Servers </div>`}
-      ${this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes ? '' : y`<div class='nav-bar-info' id='link-auth' data-action='navigate' data-content-id='auth' tabindex='0' > Authentication </div>`}
+      ${this.allowServerSelection === 'false' ? '' : y`<div class='nav-bar-info ${this.navActiveItemMarker}' id='link-servers' data-action='navigate' data-content-id='servers' tabindex='0'> API Servers </div>`}
+      ${this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes ? '' : y`<div class='nav-bar-info ${this.navActiveItemMarker}' id='link-auth' data-action='navigate' data-content-id='auth' tabindex='0' > Authentication </div>`}
 
       <div id='link-operations-top' class='nav-bar-section operations' data-action='navigate' data-content-id='${this.renderStyle === 'focused' ? '' : 'operations-top'}'>
         <div style="font-size:16px; display:flex; margin-left:10px;">
@@ -17721,7 +17737,7 @@ function navbarTemplate() {
           <div class='nav-bar-tag-and-paths ${this.renderStyle === 'read' ? 'expanded' : tag.expanded ? 'expanded' : 'collapsed'}'>
             ${tag.name === 'General ⦂' ? y`<hr style="border:none; border-top: 1px dotted var(--nav-text-color); opacity:0.3; margin:-1px 0 0 0;"/>` : y`
                 <div 
-                  class='nav-bar-tag'
+                  class='nav-bar-tag ${this.navActiveItemMarker}'
                   id="link-${tag.elementId}"
                   data-action='${(this.renderStyle === 'read' ? 'navigate' : this.onNavTagClick === 'show-description') ? 'navigate' : 'expand-collapse-tag'}'
                   data-content-id='${(this.renderStyle === 'read' ? `${tag.elementId}` : this.onNavTagClick === 'show-description') ? `${tag.elementId}` : ''}'
@@ -17737,7 +17753,7 @@ function navbarTemplate() {
                     <div class='tag-headers'>
                       ${tag.headers.map(header => y`
                       <div
-                        class='nav-bar-h${header.depth}'
+                        class='nav-bar-h${header.depth} ${this.navActiveItemMarker}'
                         id="link-${tag.elementId}--${new marked.Slugger().slug(header.text)}"
                         data-action='navigate'
                         data-content-id='${tag.elementId}--${new marked.Slugger().slug(header.text)}'
@@ -17754,8 +17770,8 @@ function navbarTemplate() {
       return true;
     }).map(p => y`
               <div 
-                class='nav-bar-path
-                ${this.usePathInNavBar === 'true' ? 'small-font' : ''}'
+                class='nav-bar-path ${this.navActiveItemMarker} ${this.usePathInNavBar === 'true' ? 'small-font' : ''}'
+                part="section-navbar-item"
                 data-action='navigate'
                 data-content-id='${p.elementId}'
                 id='link-${p.elementId}'
@@ -18557,6 +18573,7 @@ function setTheme(baseTheme, theme = {}) {
     const navHoverBgColor = theme.navHoverBgColor ? theme.navHoverBgColor : color_utils.color.brightness(navBgColor, -15);
     const navHoverTextColor = theme.navHoverTextColor ? theme.navHoverTextColor : color_utils.color.invert(navBgColor);
     const navAccentColor = theme.navAccentColor ? theme.navAccentColor : color_utils.color.brightness(primaryColor, 25);
+    const navAccentTextColor = theme.navAccentTextColor ? theme.navAccenttextColor : color_utils.color.invert(navAccentColor);
     const overlayBg = 'rgba(80, 80, 80, 0.4)';
     newTheme = {
       bg1,
@@ -18579,6 +18596,7 @@ function setTheme(baseTheme, theme = {}) {
       navHoverBgColor,
       navHoverTextColor,
       navAccentColor,
+      navAccentTextColor,
       headerColor,
       headerColorInvert: color_utils.color.invert(headerColor),
       headerColorDarker: color_utils.color.brightness(headerColor, -20),
@@ -18649,6 +18667,7 @@ function setTheme(baseTheme, theme = {}) {
     const navHoverBgColor = theme.navHoverBgColor ? theme.navHoverBgColor : color_utils.color.brightness(navBgColor, -15);
     const navHoverTextColor = theme.navHoverTextColor ? theme.navHoverTextColor : color_utils.color.invert(navBgColor);
     const navAccentColor = theme.navAccentColor ? theme.navAccentColor : color_utils.color.brightness(primaryColor, 25);
+    const navAccentTextColor = theme.navAccentTextColor ? theme.navAccenttextColor : color_utils.color.invert(navAccentColor);
     const overlayBg = 'rgba(0, 0, 0, 0.4)';
     newTheme = {
       bg1,
@@ -18671,6 +18690,7 @@ function setTheme(baseTheme, theme = {}) {
       navHoverBgColor,
       navHoverTextColor,
       navAccentColor,
+      navAccentTextColor,
       headerColor,
       headerColorInvert: color_utils.color.invert(headerColor),
       headerColorDarker: color_utils.color.brightness(headerColor, -20),
@@ -18775,6 +18795,7 @@ function setTheme(baseTheme, theme = {}) {
     --nav-hover-bg-color:${newTheme.navHoverBgColor};
     --nav-hover-text-color:${newTheme.navHoverTextColor};
     --nav-accent-color:${newTheme.navAccentColor};
+    --nav-accent-text-color:${newTheme.navAccentTextColor};
 
     /* Nav API Method Colors*/
     --nav-get-color:${newTheme.blue};
@@ -18830,7 +18851,8 @@ function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = 
     navTextColor: isValidHexColor(this.navTextColor) ? this.navTextColor : '',
     navHoverBgColor: isValidHexColor(this.navHoverBgColor) ? this.navHoverBgColor : '',
     navHoverTextColor: isValidHexColor(this.navHoverTextColor) ? this.navHoverTextColor : '',
-    navAccentColor: isValidHexColor(this.navAccentColor) ? this.navAccentColor : ''
+    navAccentColor: isValidHexColor(this.navAccentColor) ? this.navAccentColor : '',
+    navAccentTextColor: isValidHexColor(this.navAccentTextColor) ? this.navAccentTextColor : ''
   };
   /* eslint-disable indent */
 
@@ -19190,6 +19212,14 @@ class RapiDoc extends lit_element_s {
         type: String,
         attribute: 'nav-accent-color'
       },
+      navAccentTextColor: {
+        type: String,
+        attribute: 'nav-accent-text-color'
+      },
+      navActiveItemMarker: {
+        type: String,
+        attribute: 'nav-active-item-marker'
+      },
       navItemSpacing: {
         type: String,
         attribute: 'nav-item-spacing'
@@ -19448,6 +19478,9 @@ class RapiDoc extends lit_element_s {
         border-radius: 4px 0 0 4px;
         color: #000;
       }
+      .colored-block .nav-method.as-colored-block {
+        outline: 1px solid;
+      }
 
       .nav-method.as-colored-block.get { background-color: var(--blue); }
       .nav-method.as-colored-block.put { background-color: var(--orange); }
@@ -19594,10 +19627,6 @@ class RapiDoc extends lit_element_s {
       this.persistAuth = 'false';
     }
 
-    if (!this.onNavTagClick || !'expand-collapse, show-description,'.includes(`${this.onNavTagClick},`)) {
-      this.onNavTagClick = 'expand-collapse';
-    }
-
     if (!this.responseAreaHeight) {
       this.responseAreaHeight = '400px';
     }
@@ -19650,6 +19679,10 @@ class RapiDoc extends lit_element_s {
       this.sortEndpointsBy = 'path';
     }
 
+    if (!this.onNavTagClick || !'expand-collapse, show-description,'.includes(`${this.onNavTagClick},`)) {
+      this.onNavTagClick = 'expand-collapse';
+    }
+
     if (!this.navItemSpacing || !'compact, relaxed, default,'.includes(`${this.navItemSpacing},`)) {
       this.navItemSpacing = 'default';
     }
@@ -19660,6 +19693,10 @@ class RapiDoc extends lit_element_s {
 
     if (!this.usePathInNavBar || !'true, false,'.includes(`${this.usePathInNavBar},`)) {
       this.usePathInNavBar = 'false';
+    }
+
+    if (!this.navActiveItemMarker || !'left-bar, colored-block'.includes(`${this.navActiveItemMarker},`)) {
+      this.navActiveItemMarker = 'left-bar';
     }
 
     if (!this.fontSize || !'default, large, largest,'.includes(`${this.fontSize},`)) {
@@ -20108,11 +20145,13 @@ class RapiDoc extends lit_element_s {
             block: 'center'
           });
           newNavEl.classList.add('active');
+          newNavEl.part.add('section-navbar-active-item');
         } // Remove active class from previous element
 
 
         if (oldNavEl) {
           oldNavEl.classList.remove('active');
+          newNavEl.part.remove('section-navbar-active-item');
         }
       }
     });
@@ -20235,10 +20274,13 @@ class RapiDoc extends lit_element_s {
 
           if (oldNavEl) {
             oldNavEl.classList.remove('active');
+            oldNavEl.part.remove('active');
+            oldNavEl.part.remove('section-navbar-active-item');
           }
 
           newNavEl.classList.add('active'); // must add the class after scrolling
-          // this.requestUpdate();
+
+          newNavEl.part.add('section-navbar-active-item'); // this.requestUpdate();
         }
       }
     }
@@ -20961,7 +21003,8 @@ function jsonSchemaViewerTemplate(isMini = false) {
     navTextColor: isValidHexColor(this.navTextColor) ? this.navTextColor : '',
     navHoverBgColor: isValidHexColor(this.navHoverBgColor) ? this.navHoverBgColor : '',
     navHoverTextColor: isValidHexColor(this.navHoverTextColor) ? this.navHoverTextColor : '',
-    navAccentColor: isValidHexColor(this.navAccentColor) ? this.navAccentColor : ''
+    navAccentColor: isValidHexColor(this.navAccentColor) ? this.navAccentColor : '',
+    navAccenttextColor: isValidHexColor(this.navAccentTextColor) ? this.navAccentTextColor : ''
   };
   /* eslint-disable indent */
 
@@ -27269,7 +27312,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("553b3488dd19139aca55")
+/******/ 		__webpack_require__.h = () => ("513a685743d2d65411b5")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

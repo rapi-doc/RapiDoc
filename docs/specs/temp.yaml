@@ -1,41 +1,63 @@
 openapi: 3.0.0
 info:
-  description: Test date example
-  version: "1.0.0"
-  title: Test date example
+  title: sample
+  version: '1.0'
 servers:
-- url: https://example.dev
-  description: Staging
+  - url: 'http://localhost:3000'
+    description: test
 paths:
-  /demo:
+  /test:
     post:
-      summary: Example
-      operationId: example
-      description: |
-        Show how date string example is rendered wrong
+      summary: Create
+      operationId: post-test
+      responses:
+        '201':
+          description: Created
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DemoRequest'
-        description: Demo request
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/DemoRequest"
+              $ref: '#/components/schemas/Test'
+            examples: {}
+        description: ''
+      description: ''
+    parameters: []
 components:
   schemas:
-    DemoRequest:
+    Test:
+      title: ''
       type: object
+      description: ''
+      examples: []
+      x-tags:
+        - test
+        - user
       properties:
-        date_of_birth:
+        direct:
+          oneOf:
+            - properties:
+                foo:
+                  type: string
+                  readOnly: true
+            - properties:
+                bar:
+                  type: string
+          type: object
+        reference:
+          oneOf:
+            - $ref: '#/components/schemas/Foo'
+            - $ref: '#/components/schemas/Bar'
+    Foo:
+      type: object
+      title: Foo
+      properties:
+        foo:
           type: string
-          format: date
-          example: 1990-02-25
-          description: Date of Birth
-        is_married:
-          type: boolean
-          example: null
+          readOnly: true
+    Bar:
+      type: object
+      title: Bar
+      properties:
+        bar:
+          type: string
+          readOnly: true
