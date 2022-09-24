@@ -37,18 +37,18 @@ export default function mainBodyTemplate(isMini = false, showExpandCollapse = tr
     if (isMini) {
       return html`
         ${this.theme === 'dark' ? SetTheme.call(this, 'dark', newTheme) : SetTheme.call(this, 'light', newTheme)}
-        <div style="display:flex; align-items:center; border:1px dashed var(--border-color); height:42px; padding:5px; font-size:var(--font-size-small); color:var(--red); font-family:var(--font-mono)"> ${this.resolvedSpec.info.description} </div>
+        <div style='display:flex; align-items:center; border:1px dashed var(--border-color); height:42px; padding:5px; font-size:var(--font-size-small); color:var(--red); font-family:var(--font-mono)'> ${this.resolvedSpec.info.description} </div>
       `;
     }
     return html`
       ${this.theme === 'dark' ? SetTheme.call(this, 'dark', newTheme) : SetTheme.call(this, 'light', newTheme)}
       <!-- Header -->
       ${headerTemplate.call(this)}
-      <main class="main-content regular-font" part="section-main-content">
+      <main class='main-content regular-font' part='section-main-content'>
         <slot></slot>
-        <div style="margin:24px; text-align: center;">
-          <h1 style="color: var(--red)"> ${this.resolvedSpec.info.title} </h1>
-          <div style="font-family:var(--font-mono)"> ${this.resolvedSpec.info.description} </div>
+        <div style='margin:24px; text-align: center;'>
+          <h1 style='color: var(--red)'> ${this.resolvedSpec.info.title} </h1>
+          <div style='font-family:var(--font-mono)'> ${this.resolvedSpec.info.description} </div>
         </div>
       </main>  
     `;
@@ -56,10 +56,10 @@ export default function mainBodyTemplate(isMini = false, showExpandCollapse = tr
   if (this.resolvedSpec.isSpecLoading) {
     return html`
       ${this.theme === 'dark' ? SetTheme.call(this, 'dark', newTheme) : SetTheme.call(this, 'light', newTheme)}
-      <main class="main-content regular-font" part="section-main-content">
+      <main class='main-content regular-font' part='section-main-content'>
         <slot></slot>
-        <div class="main-content-inner--${this.renderStyle}-mode">
-          <div class="loader"></div>
+        <div class='main-content-inner--${this.renderStyle}-mode'>
+          <div class='loader'></div>
         </div>
       </main>  
     `;
@@ -74,7 +74,7 @@ export default function mainBodyTemplate(isMini = false, showExpandCollapse = tr
     <!-- Advanced Search -->
     ${this.allowAdvancedSearch === 'false' ? '' : advancedSearchTemplate.call(this)}
 
-    <div id='the-main-body' class="body ${this.cssClasses}" dir= ${this.pageDirection} >
+    <div id='the-main-body' class='body ${this.cssClasses}' dir='${this.pageDirection}' >
       <!-- Side Nav -->
       ${((this.renderStyle === 'read' || this.renderStyle === 'focused')
           && this.showSideNav === 'true'
@@ -83,24 +83,24 @@ export default function mainBodyTemplate(isMini = false, showExpandCollapse = tr
       }
 
       <!-- Main Content -->
-      <main class="main-content regular-font" tabindex="-1" part="section-main-content">
+      <main class='main-content regular-font' tabindex='-1' part='section-main-content'>
         <slot></slot>
-        <div class="main-content-inner--${this.renderStyle}-mode">
+        <div class='main-content-inner--${this.renderStyle}-mode'>
           ${this.loading === true
-            ? html`<div class="loader"></div>`
+            ? html`<div class='loader'></div>`
             : html`
               ${this.loadFailed === true
-                ? html`<div style="text-align: center;margin: 16px;"> Unable to load the Spec</div>`
+                ? html`<div style='text-align: center;margin: 16px;'> Unable to load the Spec</div>`
                 : html`
-                  <div class="operations-root" @click="${(e) => { this.handleHref(e); }}">
+                  <div class='operations-root' @click='${(e) => { this.handleHref(e); }}'>
                   ${this.renderStyle === 'focused'
                     ? html`${focusedEndpointTemplate.call(this)}`
                     : html`
                       ${this.showInfo === 'true' ? overviewTemplate.call(this) : ''}
                       ${this.allowServerSelection === 'true' ? serverTemplate.call(this) : ''}
                       ${this.allowAuthentication === 'true' ? securitySchemeTemplate.call(this) : ''}
-                      <div id="operations-top" class="observe-me">
-                        <slot name="operations-top"></slot>
+                      <div id='operations-top' class='observe-me'>
+                        <slot name='operations-top'></slot>
                       </div>  
                       ${this.renderStyle === 'read'
                         ? expandedEndpointTemplate.call(this)
@@ -113,7 +113,7 @@ export default function mainBodyTemplate(isMini = false, showExpandCollapse = tr
               }`
           }
         </div>
-        <slot name="footer"></slot>
+        <slot name='footer'></slot>
       </main>
     </div>  
   `;
