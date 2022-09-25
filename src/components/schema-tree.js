@@ -131,7 +131,7 @@ export default class SchemaTree extends LitElement {
           return;
         }
       }
-      if (data && data['::readwrite'] === 'readonly') {
+      if (data?.['::readwrite'] === 'readonly') {
         return;
       }
     }
@@ -141,7 +141,7 @@ export default class SchemaTree extends LitElement {
           return;
         }
       }
-      if (data && data['::readwrite'] === 'writeonly') {
+      if (data?.['::readwrite'] === 'writeonly') {
         return;
       }
     }
@@ -167,8 +167,7 @@ export default class SchemaTree extends LitElement {
       keyLabel = key.replace('::', '').replace('~', ' ');
     } else if (key.startsWith('::OPTION')) {
       const parts = key.split('~');
-      keyLabel = parts[1]; // eslint-disable-line prefer-destructuring
-      keyDescr = parts[2]; // eslint-disable-line prefer-destructuring
+      [, keyLabel, keyDescr] = parts;
     } else {
       keyLabel = key;
     }
