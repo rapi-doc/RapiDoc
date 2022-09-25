@@ -41,10 +41,10 @@ export default class SchemaTree extends LitElement {
       .tree .tr:hover{
         background-color:var(--hover-color);
       }
-      .collapsed-descr .tr {
+      .collapsed-all-descr .tr {
         max-height:calc(var(--font-size-small) + 8px);
       }
-      .collapsed-descr .m-markdown-small p {
+      .collapsed-all-descr .m-markdown-small p {
         line-height:calc(var(--font-size-small) + 6px);
       }
 
@@ -98,7 +98,7 @@ export default class SchemaTree extends LitElement {
   /* eslint-disable indent */
   render() {
     return html`
-      <div class="tree ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : 'collapsed-descr'}" @click="${(e) => this.handleAllEvents(e)}">
+      <div class="tree ${this.schemaDescriptionExpanded === 'true' ? 'expanded-all-descr' : 'collapsed-all-descr'}" @click="${(e) => this.handleAllEvents(e)}">
         <div class="toolbar">
           <div class="toolbar-item schema-root-type ${this.data?.['::type'] || ''} "> ${this.data?.['::type'] || ''} </div>
           ${this.allowSchemaDescriptionExpandToggle === 'true'
@@ -317,7 +317,10 @@ export default class SchemaTree extends LitElement {
           </span>
         </div>
         <div class='td key-descr'>
-          ${html`<span class="m-markdown-small">${unsafeHTML(marked(dataType === 'array' ? description : schemaDescription))}</span>`}
+          ${html`<span class="m-markdown-small">
+            ${unsafeHTML(marked(dataType === 'array' ? description : schemaTitle ? `<b>${schemaTitle}:</b> ${schemaDescription}` : schemaDescription))}
+          </span>`
+          }
           ${constraint ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Constraints: </span>${constraint}</div>` : ''}
           ${defaultValue ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
           ${allowedValues ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>${type === 'const' ? 'Value' : 'Allowed'}: </span>${allowedValues}</div>` : ''}

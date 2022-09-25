@@ -21,7 +21,7 @@ export default css`
   word-break: break-all;
 }
 
-.collapsed-descr .key {
+.collapsed-all-descr .key {
   overflow:hidden;
 }
 
@@ -40,7 +40,7 @@ export default css`
   overflow:hidden;
   display: none;
 }
-.collapsed-descr .tr {
+.collapsed-all-descr .tr {
   max-height:20px;
 }
 

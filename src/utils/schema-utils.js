@@ -619,18 +619,18 @@ function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
     markdown = `${markdown} ${schema.description} ${schema.minItems || schema.maxItems ? '<span class="more-content">⤵</span><br/>' : ''}`;
   }
   if (schema.minItems) {
-    markdown = `${markdown} **Min Items:** ${schema.minItems}`;
+    markdown = `${markdown} <b>Min Items:</b> ${schema.minItems}`;
   }
   if (schema.maxItems) {
-    markdown = `${markdown} **Max Items:** ${schema.maxItems}`;
+    markdown = `${markdown} <b>Max Items:</b> ${schema.maxItems}`;
   }
   if (level > 0 && schema.items?.description) {
     let itemsMarkdown = '';
     if (schema.items.minProperties) {
-      itemsMarkdown = `**Min Properties:** ${schema.items.minProperties}`;
+      itemsMarkdown = `<b>Min Properties:</b> ${schema.items.minProperties}`;
     }
     if (schema.items.maxProperties) {
-      itemsMarkdown = `${itemsMarkdown} **Max Properties:** ${schema.items.maxProperties}`;
+      itemsMarkdown = `${itemsMarkdown} <b>Max Properties:</b> ${schema.items.maxProperties}`;
     }
     markdown = `${markdown} ⮕ ${itemsMarkdown} [ ${schema.items.description} ] `;
   }
