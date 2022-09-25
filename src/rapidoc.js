@@ -872,7 +872,7 @@ export default class RapiDoc extends LitElement {
         // Remove active class from previous element
         if (oldNavEl) {
           oldNavEl.classList.remove('active');
-          newNavEl.part.remove('section-navbar-active-item');
+          oldNavEl.part.remove('section-navbar-active-item');
         }
       }
     });

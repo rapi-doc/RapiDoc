@@ -61,7 +61,7 @@ export default function mainBodyTemplate(isMini = false, showExpandCollapse = tr
         <div class='main-content-inner--${this.renderStyle}-mode'>
           <div class='loader'></div>
         </div>
-      </main>  
+      </main>
     `;
   }
 
