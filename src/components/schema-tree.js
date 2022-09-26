@@ -41,13 +41,10 @@ export default class SchemaTree extends LitElement {
       .tree .tr:hover{
         background-color:var(--hover-color);
       }
-      .collapsed-all-descr .tr {
+      .collapsed-all-descr .tr:not(.expanded-descr) {
+        overflow: hidden;
         max-height:calc(var(--font-size-small) + 8px);
       }
-      .collapsed-all-descr .m-markdown-small p {
-        line-height:calc(var(--font-size-small) + 6px);
-      }
-
       .tree .key {
         max-width: 300px;
       }
@@ -282,7 +279,7 @@ export default class SchemaTree extends LitElement {
       return;
     }
     const dataTypeCss = type.replace(/┃.*/g, '').replace(/[^a-zA-Z0-9+]/g, '').substring(0, 4).toLowerCase();
-
+    const descrExpander = `${constraint || defaultValue || allowedValues || pattern ? `<span class="descr-expand-toggle ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : ''}">➔</span>` : ''}`;
     let finalReadWriteText = '';
     let finalReadWriteTip = '';
     if (dataType === 'array') {
@@ -294,12 +291,12 @@ export default class SchemaTree extends LitElement {
         finalReadWriteTip = 'Write-Only';
       }
     } else if (primitiveReadOrWrite === '🆁') {
-        finalReadWriteText = '🆁';
-        finalReadWriteTip = 'Read-Only';
-      } else if (primitiveReadOrWrite === '🆆') {
-        finalReadWriteText = '🆆';
-        finalReadWriteTip = 'Write-Only';
-      }
+      finalReadWriteText = '🆁';
+      finalReadWriteTip = 'Read-Only';
+    } else if (primitiveReadOrWrite === '🆆') {
+      finalReadWriteText = '🆆';
+      finalReadWriteTip = 'Write-Only';
+    }
 
     return html`
       <div class = "tr primitive" title="${deprecated ? 'Deprecated' : ''}">
@@ -318,7 +315,11 @@ export default class SchemaTree extends LitElement {
         </div>
         <div class='td key-descr'>
           ${html`<span class="m-markdown-small">
-            ${unsafeHTML(marked(dataType === 'array' ? description : schemaTitle ? `<b>${schemaTitle}:</b> ${schemaDescription}` : schemaDescription))}
+            ${unsafeHTML(marked(dataType === 'array'
+              ? `${descrExpander} ${description}`
+              : schemaTitle
+                ? `${descrExpander} <b>${schemaTitle}:</b> ${schemaDescription}`
+                : `${descrExpander} ${schemaDescription}`))}
           </span>`
           }
           ${constraint ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Constraints: </span>${constraint}</div>` : ''}
@@ -336,6 +337,12 @@ export default class SchemaTree extends LitElement {
       this.toggleObjectExpand(e);
     } else if (e.target.classList.contains('schema-multiline-toggle')) {
       this.schemaDescriptionExpanded = (this.schemaDescriptionExpanded === 'true' ? 'false' : 'true');
+    } else if (e.target.classList.contains('descr-expand-toggle')) {
+      const trEl = e.target.closest('.tr');
+      if (trEl) {
+        trEl.classList.toggle('expanded-descr');
+        trEl.styles.maxHeight = trEl.scrollHeight;
+      }
     }
   }
 

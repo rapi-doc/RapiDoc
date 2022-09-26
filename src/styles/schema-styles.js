@@ -10,6 +10,7 @@ export default css`
   width: 100%;
   box-sizing: content-box;
   border-bottom: 1px dotted transparent;
+  transition: max-height 0.3s ease-out;
 }
 .td {
   display: block;
@@ -23,6 +24,26 @@ export default css`
 
 .collapsed-all-descr .key {
   overflow:hidden;
+}
+.expanded-all-descr .key-descr .descr-expand-toggle {
+  display:none;
+}
+
+.key-descr .descr-expand-toggle {
+  display:inline-block;
+  user-select:none;
+  color: var(--fg);
+  cursor: pointer;
+  transform: rotate(45deg);
+  transition: transform .2s ease;
+}
+
+.expanded-descr .key-descr .descr-expand-toggle {
+  transform: rotate(270deg)
+}
+
+.key-descr .descr-expand-toggle:hover {
+  color: var(--primary-color);
 }
 
 .expanded-descr .more-content { display:none; }
@@ -39,9 +60,6 @@ export default css`
   max-height:auto;
   overflow:hidden;
   display: none;
-}
-.collapsed-all-descr .tr {
-  max-height:20px;
 }
 
 .xxx-of-key {

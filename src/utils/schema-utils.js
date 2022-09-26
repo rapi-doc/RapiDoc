@@ -611,12 +611,12 @@ export function schemaToSampleObj(schema, config = { }) {
 }
 
 function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
-  let markdown = '';
+  let markdown = (schema.minItems || schema.maxItems) ? '<span class="descr-expand-toggle">➔</span>' : '';
   if (schema.title) {
-    markdown = `**${schema.title}:** `;
+    markdown = `${markdown}<b>${schema.title}:</b> `;
   }
   if (schema.description) {
-    markdown = `${markdown} ${schema.description} ${schema.minItems || schema.maxItems ? '<span class="more-content">⤵</span><br/>' : ''}`;
+    markdown = `${markdown} ${schema.description}<br/>`;
   }
   if (schema.minItems) {
     markdown = `${markdown} <b>Min Items:</b> ${schema.minItems}`;
