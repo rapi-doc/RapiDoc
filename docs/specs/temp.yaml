@@ -1,68 +1,23 @@
-openapi: 3.1.0
+openapi: 3.0.0
 info:
-  title: sample
-  version: '1.0'
-servers:
-  - url: 'http://localhost:3000'
-    description: test
+  description: Contains all data types
+  version: 1.0.0
+  title: Testing different data-types
 paths:
-  /test:
+  /person:
     post:
-      summary: Create
-      operationId: post-test
+      tags:
+        - Test with various data types
+      summary: Data Types with constraints
+      description: Request-Parameters and Response-Schema contains various data types and constrains. Check out how is it desplayed below
+      parameters:
+        - in: query
+          name: phone-deprecated
+          example: 0012345
+          deprecated: true
+          schema:
+            type: string
+            pattern: '/^\+(?:[0-9]-?){6,14}[0-9]$/'
       responses:
-        '201':
-          description: Created
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Test'
-            examples: {}
-        description: ''
-      description: ''
-    parameters: []
-components:
-  schemas:
-    Test:
-      type: object
-      properties:
-        direct:
-          type: object
-          oneOf:
-            - properties:
-                foo:
-                  type: string
-              readOnly: true
-            - properties:
-                bar:
-                  type: string
-                  readOnly: true
-        reference:
-          oneOf:
-            - type: object
-              title: Foo
-              properties:
-                foo:
-                  type: string
-              readOnly: true
-            - type: object
-              title: Bar
-              properties:
-                bar:
-                  type: string
-              readOnly: true
-    Foo:
-      type: object
-      title: Foo
-      properties:
-        foo:
-          type: string
-      readOnly: true
-    Bar:
-      type: object
-      title: Bar
-      properties:
-        bar:
-          type: string
-      readOnly: true
+        '200':
+          description: successful operation

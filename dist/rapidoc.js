@@ -13564,33 +13564,35 @@ function schemaToSampleObj(schema, config = {}) {
 function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
   var _schema$items4;
 
-  let markdown = '';
+  let markdown = (schema.description || schema.title) && (schema.minItems || schema.maxItems) ? '<span class="descr-expand-toggle">➔</span>' : '';
 
   if (schema.title) {
-    markdown = `**${schema.title}:** `;
-  }
-
-  if (schema.description) {
-    markdown = `${markdown} ${schema.description} ${schema.minItems || schema.maxItems ? '<span class="more-content">⤵</span><br/>' : ''}`;
+    if (schema.description) {
+      markdown = `${markdown} <b>${schema.title}:</b> ${schema.description}<br/>`;
+    } else {
+      markdown = `${markdown} ${schema.title}<br/>`;
+    }
+  } else if (schema.description) {
+    markdown = `${markdown} ${schema.description}<br/>`;
   }
 
   if (schema.minItems) {
-    markdown = `${markdown} **Min Items:** ${schema.minItems}`;
+    markdown = `${markdown} <b>Min Items:</b> ${schema.minItems}`;
   }
 
   if (schema.maxItems) {
-    markdown = `${markdown} **Max Items:** ${schema.maxItems}`;
+    markdown = `${markdown} <b>Max Items:</b> ${schema.maxItems}`;
   }
 
   if (level > 0 && (_schema$items4 = schema.items) !== null && _schema$items4 !== void 0 && _schema$items4.description) {
     let itemsMarkdown = '';
 
     if (schema.items.minProperties) {
-      itemsMarkdown = `**Min Properties:** ${schema.items.minProperties}`;
+      itemsMarkdown = `<b>Min Properties:</b> ${schema.items.minProperties}`;
     }
 
     if (schema.items.maxProperties) {
-      itemsMarkdown = `${itemsMarkdown} **Max Properties:** ${schema.items.maxProperties}`;
+      itemsMarkdown = `${itemsMarkdown} <b>Max Properties:</b> ${schema.items.maxProperties}`;
     }
 
     markdown = `${markdown} ⮕ ${itemsMarkdown} [ ${schema.items.description} ] `;
@@ -14185,6 +14187,7 @@ customElements.define('json-tree', JsonTree);
   width: 100%;
   box-sizing: content-box;
   border-bottom: 1px dotted transparent;
+  transition: max-height 0.3s ease-out;
 }
 .td {
   display: block;
@@ -14196,8 +14199,28 @@ customElements.define('json-tree', JsonTree);
   word-break: break-all;
 }
 
-.collapsed-descr .key {
+.collapsed-all-descr .key {
   overflow:hidden;
+}
+.expanded-all-descr .key-descr .descr-expand-toggle {
+  display:none;
+}
+
+.key-descr .descr-expand-toggle {
+  display:inline-block;
+  user-select:none;
+  color: var(--fg);
+  cursor: pointer;
+  transform: rotate(45deg);
+  transition: transform .2s ease;
+}
+
+.expanded-descr .key-descr .descr-expand-toggle {
+  transform: rotate(270deg)
+}
+
+.key-descr .descr-expand-toggle:hover {
+  color: var(--primary-color);
 }
 
 .expanded-descr .more-content { display:none; }
@@ -14214,9 +14237,6 @@ customElements.define('json-tree', JsonTree);
   max-height:auto;
   overflow:hidden;
   display: none;
-}
-.collapsed-descr .tr {
-  max-height:20px;
 }
 
 .xxx-of-key {
@@ -14342,13 +14362,10 @@ class SchemaTree extends lit_element_s {
       .tree .tr:hover{
         background-color:var(--hover-color);
       }
-      .collapsed-descr .tr {
+      .collapsed-all-descr .tr:not(.expanded-descr) {
+        overflow: hidden;
         max-height:calc(var(--font-size-small) + 8px);
       }
-      .collapsed-descr .m-markdown-small p {
-        line-height:calc(var(--font-size-small) + 6px);
-      }
-
       .tree .key {
         max-width: 300px;
       }
@@ -14400,7 +14417,7 @@ class SchemaTree extends lit_element_s {
     var _this$data, _this$data2, _this$data3;
 
     return y`
-      <div class="tree ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : 'collapsed-descr'}" @click="${e => this.handleAllEvents(e)}">
+      <div class="tree ${this.schemaDescriptionExpanded === 'true' ? 'expanded-all-descr' : 'collapsed-all-descr'}" @click="${e => this.handleAllEvents(e)}">
         <div class="toolbar">
           <div class="toolbar-item schema-root-type ${((_this$data = this.data) === null || _this$data === void 0 ? void 0 : _this$data['::type']) || ''} "> ${((_this$data2 = this.data) === null || _this$data2 === void 0 ? void 0 : _this$data2['::type']) || ''} </div>
           ${this.allowSchemaDescriptionExpandToggle === 'true' ? y`
@@ -14556,6 +14573,7 @@ class SchemaTree extends lit_element_s {
     }
 
     const dataTypeCss = type.replace(/┃.*/g, '').replace(/[^a-zA-Z0-9+]/g, '').substring(0, 4).toLowerCase();
+    const descrExpander = `${constraint || defaultValue || allowedValues || pattern ? `<span class="descr-expand-toggle ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : ''}">➔</span>` : ''}`;
     let finalReadWriteText = '';
     let finalReadWriteTip = '';
 
@@ -14586,7 +14604,9 @@ class SchemaTree extends lit_element_s {
           </span>
         </div>
         <div class='td key-descr'>
-          ${y`<span class="m-markdown-small">${unsafe_html_o(marked(dataType === 'array' ? description : schemaDescription))}</span>`}
+          ${description || schemaTitle || schemaDescription ? y`${y`<span class="m-markdown-small">
+                ${unsafe_html_o(marked(dataType === 'array' ? `${descrExpander} ${description}` : schemaTitle ? `${descrExpander} <b>${schemaTitle}:</b> ${schemaDescription}` : `${descrExpander} ${schemaDescription}`))}
+              </span>`}` : ''}  
           ${constraint ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Constraints: </span>${constraint}</div>` : ''}
           ${defaultValue ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
           ${allowedValues ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>${type === 'const' ? 'Value' : 'Allowed'}: </span>${allowedValues}</div>` : ''}
@@ -14603,6 +14623,13 @@ class SchemaTree extends lit_element_s {
       this.toggleObjectExpand(e);
     } else if (e.target.classList.contains('schema-multiline-toggle')) {
       this.schemaDescriptionExpanded = this.schemaDescriptionExpanded === 'true' ? 'false' : 'true';
+    } else if (e.target.classList.contains('descr-expand-toggle')) {
+      const trEl = e.target.closest('.tr');
+
+      if (trEl) {
+        trEl.classList.toggle('expanded-descr');
+        trEl.style.maxHeight = trEl.scrollHeight;
+      }
     }
   }
 
@@ -16528,7 +16555,7 @@ class SchemaTable extends lit_element_s {
         white-space: normal;
         width: 150px;
       }
-      .collapsed-descr .tr {
+      .collapsed-all-descr .tr:not(.expanded-descr) {
         max-height: calc(var(--font-size-small) + var(--font-size-small) + 4px);
       }
 
@@ -16561,7 +16588,7 @@ class SchemaTable extends lit_element_s {
     var _this$data, _this$data2, _this$data3;
 
     return y`
-      <div class="table ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : 'collapsed-descr'}" @click="${e => this.handleAllEvents(e)}">
+      <div class="table ${this.schemaDescriptionExpanded === 'true' ? 'expanded-all-descr' : 'collapsed-all-descr'}" @click="${e => this.handleAllEvents(e)}">
         <div class='toolbar'>
           <div class="toolbar-item schema-root-type ${((_this$data = this.data) === null || _this$data === void 0 ? void 0 : _this$data['::type']) || ''} "> ${((_this$data2 = this.data) === null || _this$data2 === void 0 ? void 0 : _this$data2['::type']) || ''} </div>
           ${this.allowSchemaDescriptionExpandToggle === 'true' ? y`
@@ -16714,6 +16741,7 @@ class SchemaTable extends lit_element_s {
     }
 
     const dataTypeCss = type.replace(/┃.*/g, '').replace(/[^a-zA-Z0-9+]/g, '').substring(0, 4).toLowerCase();
+    const descrExpander = `${constraint || defaultValue || allowedValues || pattern ? '<span class="descr-expand-toggle">➔</span>' : ''}`;
     let dataTypeHtml = '';
 
     if (dataType === 'array') {
@@ -16738,7 +16766,9 @@ class SchemaTable extends lit_element_s {
         </div>
         ${dataTypeHtml}
         <div class='td key-descr'>
-          ${y`<span class="m-markdown-small">${unsafe_html_o(marked(dataType === 'array' ? description : schemaDescription))}</span>`}
+          ${y`<span class="m-markdown-small">
+            ${unsafe_html_o(marked(dataType === 'array' ? `${descrExpander} ${description}` : schemaTitle ? `${descrExpander} <b>${schemaTitle}:</b> ${schemaDescription}` : `${descrExpander} ${schemaDescription}`))}
+          </span>`}
           ${constraint ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Constraints: </span> ${constraint}</div>` : ''}
           ${defaultValue ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
           ${allowedValues ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>${type === 'const' ? 'Value' : 'Allowed'}: </span>${allowedValues}</div>` : ''}
@@ -16755,6 +16785,13 @@ class SchemaTable extends lit_element_s {
       this.toggleObjectExpand(e);
     } else if (e.target.classList.contains('schema-multiline-toggle')) {
       this.schemaDescriptionExpanded = this.schemaDescriptionExpanded === 'true' ? 'false' : 'true';
+    } else if (e.target.classList.contains('descr-expand-toggle')) {
+      const trEl = e.target.closest('.tr');
+
+      if (trEl) {
+        trEl.classList.toggle('expanded-descr');
+        trEl.style.maxHeight = trEl.scrollHeight;
+      }
     }
   }
 
@@ -19768,7 +19805,7 @@ class RapiDoc extends lit_element_s {
     window.addEventListener('hashchange', () => {
       const regEx = new RegExp(`^${this.routePrefix}`, 'i');
       const elementId = window.location.hash.replace(regEx, '');
-      this.scrollTo(elementId);
+      this.scrollToPath(elementId);
     }, true);
   } // Cleanup
 
@@ -19816,7 +19853,7 @@ class RapiDoc extends lit_element_s {
           await this.loadSpec(newVal); // If goto-path is provided and no location-hash is present then try to scroll there
 
           if (this.gotoPath && !window.location.hash) {
-            this.scrollTo(this.gotoPath);
+            this.scrollToPath(this.gotoPath);
           }
         }, 0);
       }
@@ -20037,7 +20074,7 @@ class RapiDoc extends lit_element_s {
       if (this.renderStyle === 'view') {
         this.expandAndGotoOperation(elementId, true, true);
       } else {
-        this.scrollTo(elementId);
+        this.scrollToPath(elementId);
       }
     } else if (this.renderStyle === 'focused') {
       // If goto-path is provided and no location-hash is present then try to scroll to default element
@@ -20045,7 +20082,7 @@ class RapiDoc extends lit_element_s {
         var _this$resolvedSpec$ta;
 
         const defaultElementId = this.showInfo ? 'overview' : (_this$resolvedSpec$ta = this.resolvedSpec.tags[0]) === null || _this$resolvedSpec$ta === void 0 ? void 0 : _this$resolvedSpec$ta.paths[0];
-        this.scrollTo(defaultElementId);
+        this.scrollToPath(defaultElementId);
       }
     }
   }
@@ -20211,14 +20248,14 @@ class RapiDoc extends lit_element_s {
       }
     }
 
-    this.scrollTo(navEl.dataset.contentId, true, scrollNavItemToView);
+    this.scrollToPath(navEl.dataset.contentId, true, scrollNavItemToView);
     setTimeout(() => {
       this.isIntersectionObserverActive = true;
     }, 300);
   } // Public Method (scrolls to a given path and highlights the left-nav selection)
 
 
-  async scrollTo(elementId, expandPath = true, scrollNavItemToView = true) {
+  async scrollToPath(elementId, expandPath = true, scrollNavItemToView = true) {
     if (this.renderStyle === 'focused') {
       // for focused mode update this.focusedElementId to update the rendering, else it wont find the needed html elements
       // focusedElementId will get validated in the template
@@ -27317,7 +27354,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("c493b75afb401321bd23")
+/******/ 		__webpack_require__.h = () => ("340221473e07902ef2ec")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

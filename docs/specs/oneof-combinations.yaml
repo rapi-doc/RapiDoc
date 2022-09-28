@@ -195,3 +195,33 @@ paths:
                       type: string
                     oneof_opt2_prop2:
                       type: integer
+
+  /one-of-options-with-read-only-items:
+    post:
+      summary: ONE-OF Options with ReadOnly Items
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reference:
+                  oneOf:
+                    - type: object
+                      title: ReadOnly Option
+                      description: Should be ignored as options cant be ReadOnly
+                      properties:
+                        foo:
+                          type: string
+                      readOnly: true
+                    - type: object
+                      title: Contains ReadOnly Props
+                      description: Should be shown as empty object in request bodies
+                      properties:
+                        bar:
+                          type: string
+                          readOnly: true
+      responses:
+        '201':
+          description: Created
+    
