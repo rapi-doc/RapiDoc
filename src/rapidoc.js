@@ -526,7 +526,7 @@ export default class RapiDoc extends LitElement {
     window.addEventListener('hashchange', () => {
       const regEx = new RegExp(`^${this.routePrefix}`, 'i');
       const elementId = window.location.hash.replace(regEx, '');
-      this.scrollTo(elementId);
+      this.scrollToPath(elementId);
     }, true);
   }
 
@@ -570,7 +570,7 @@ export default class RapiDoc extends LitElement {
           await this.loadSpec(newVal);
           // If goto-path is provided and no location-hash is present then try to scroll there
           if (this.gotoPath && !window.location.hash) {
-            this.scrollTo(this.gotoPath);
+            this.scrollToPath(this.gotoPath);
           }
         }, 0);
       }
@@ -780,13 +780,13 @@ export default class RapiDoc extends LitElement {
       if (this.renderStyle === 'view') {
         this.expandAndGotoOperation(elementId, true, true);
       } else {
-        this.scrollTo(elementId);
+        this.scrollToPath(elementId);
       }
     } else if (this.renderStyle === 'focused') {
       // If goto-path is provided and no location-hash is present then try to scroll to default element
       if (!this.gotoPath) {
         const defaultElementId = this.showInfo ? 'overview' : this.resolvedSpec.tags[0]?.paths[0];
-        this.scrollTo(defaultElementId);
+        this.scrollToPath(defaultElementId);
       }
     }
   }
@@ -916,14 +916,14 @@ export default class RapiDoc extends LitElement {
         requestEl.beforerNavigationFocusedMode();
       }
     }
-    this.scrollTo(navEl.dataset.contentId, true, scrollNavItemToView);
+    this.scrollToPath(navEl.dataset.contentId, true, scrollNavItemToView);
     setTimeout(() => {
       this.isIntersectionObserverActive = true;
     }, 300);
   }
 
   // Public Method (scrolls to a given path and highlights the left-nav selection)
-  async scrollTo(elementId, expandPath = true, scrollNavItemToView = true) {
+  async scrollToPath(elementId, expandPath = true, scrollNavItemToView = true) {
     if (this.renderStyle === 'focused') {
       // for focused mode update this.focusedElementId to update the rendering, else it wont find the needed html elements
       // focusedElementId will get validated in the template
