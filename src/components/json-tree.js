@@ -130,12 +130,14 @@ export default class JsonTree extends LitElement {
 
   toggleExpand(e) {
     const openBracketEl = e.target;
-    if (openBracketEl.classList.contains('expanded')) {
-      openBracketEl.classList.replace('expanded', 'collapsed');
-      e.target.innerHTML = e.target.classList.contains('array') ? '[...]' : '{...}';
-    } else {
-      openBracketEl.classList.replace('collapsed', 'expanded');
-      e.target.innerHTML = e.target.classList.contains('array') ? '[' : '{';
+    if (e.target.classList.contains('open-bracket')) {
+      if (openBracketEl.classList.contains('expanded')) {
+        openBracketEl.classList.replace('expanded', 'collapsed');
+        e.target.innerHTML = e.target.classList.contains('array') ? '[...]' : '{...}';
+      } else {
+        openBracketEl.classList.replace('collapsed', 'expanded');
+        e.target.innerHTML = e.target.classList.contains('array') ? '[' : '{';
+      }
     }
   }
 }
