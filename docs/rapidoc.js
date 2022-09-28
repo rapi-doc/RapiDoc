@@ -14163,12 +14163,14 @@ class JsonTree extends lit_element_s {
   toggleExpand(e) {
     const openBracketEl = e.target;
 
-    if (openBracketEl.classList.contains('expanded')) {
-      openBracketEl.classList.replace('expanded', 'collapsed');
-      e.target.innerHTML = e.target.classList.contains('array') ? '[...]' : '{...}';
-    } else {
-      openBracketEl.classList.replace('collapsed', 'expanded');
-      e.target.innerHTML = e.target.classList.contains('array') ? '[' : '{';
+    if (e.target.classList.contains('open-bracket')) {
+      if (openBracketEl.classList.contains('expanded')) {
+        openBracketEl.classList.replace('expanded', 'collapsed');
+        e.target.innerHTML = e.target.classList.contains('array') ? '[...]' : '{...}';
+      } else {
+        openBracketEl.classList.replace('collapsed', 'expanded');
+        e.target.innerHTML = e.target.classList.contains('array') ? '[' : '{';
+      }
     }
   }
 
@@ -16547,6 +16549,9 @@ class SchemaTable extends lit_element_s {
       .table .key {
         width: 240px;
       }
+      .key .key-label {
+        font-size: var(--font-size-mono);
+      }
       .key.deprecated .key-label {
         color: var(--red);
       }
@@ -16556,7 +16561,7 @@ class SchemaTable extends lit_element_s {
         width: 150px;
       }
       .collapsed-all-descr .tr:not(.expanded-descr) {
-        max-height: calc(var(--font-size-small) + var(--font-size-small) + 4px);
+        max-height: calc(var(--font-size-small) + var(--font-size-small));
       }
 
       .obj-toggle {
@@ -16598,7 +16603,7 @@ class SchemaTable extends lit_element_s {
               </div>
             ` : ''}
         </div>
-        <span part="schema-description" class='m-markdown'> ${unsafe_html_o(marked(((_this$data3 = this.data) === null || _this$data3 === void 0 ? void 0 : _this$data3['::description']) || ''))}
+        <span part="schema-description" class='m-markdown'> ${unsafe_html_o(marked(((_this$data3 = this.data) === null || _this$data3 === void 0 ? void 0 : _this$data3['::description']) || ''))} </span>
         <div style = 'border:1px solid var(--light-border-color)'>
           <div style='display:flex; background-color: var(--bg2); padding:8px 4px; border-bottom:1px solid var(--light-border-color);'>
             <div class='key' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Field </div>
@@ -16765,11 +16770,11 @@ class SchemaTable extends lit_element_s {
               <span style='color:var(--red);'>*</span>` : key.startsWith('::OPTION') ? y`<span class='xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>` : y`${keyLabel ? y`<span class="key-label"> ${keyLabel}</span>` : y`<span class="xxx-of-descr">${schemaTitle}</span>`}`}
         </div>
         ${dataTypeHtml}
-        <div class='td key-descr'>
+        <div class='td key-descr' style='font-size: var(--font-size-small)'>
           ${y`<span class="m-markdown-small">
             ${unsafe_html_o(marked(dataType === 'array' ? `${descrExpander} ${description}` : schemaTitle ? `${descrExpander} <b>${schemaTitle}:</b> ${schemaDescription}` : `${descrExpander} ${schemaDescription}`))}
           </span>`}
-          ${constraint ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Constraints: </span> ${constraint}</div>` : ''}
+          ${constraint ? y`<div class='' style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Constraints: </span> ${constraint}</div>` : ''}
           ${defaultValue ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
           ${allowedValues ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>${type === 'const' ? 'Value' : 'Allowed'}: </span>${allowedValues}</div>` : ''}
           ${pattern ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Pattern: </span>${pattern}</div>` : ''}
@@ -27354,7 +27359,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("340221473e07902ef2ec")
+/******/ 		__webpack_require__.h = () => ("55d5b7d1f08784f90cb4")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
