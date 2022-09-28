@@ -46,6 +46,9 @@ export default class SchemaTable extends LitElement {
       .table .key {
         width: 240px;
       }
+      .key .key-label {
+        font-size: var(--font-size-mono);
+      }
       .key.deprecated .key-label {
         color: var(--red);
       }
@@ -55,7 +58,7 @@ export default class SchemaTable extends LitElement {
         width: 150px;
       }
       .collapsed-all-descr .tr:not(.expanded-descr) {
-        max-height: calc(var(--font-size-small) + var(--font-size-small) + 4px);
+        max-height: calc(var(--font-size-small) + var(--font-size-small));
       }
 
       .obj-toggle {
@@ -99,7 +102,7 @@ export default class SchemaTable extends LitElement {
             : ''
           }
         </div>
-        <span part="schema-description" class='m-markdown'> ${unsafeHTML(marked(this.data?.['::description'] || ''))}
+        <span part="schema-description" class='m-markdown'> ${unsafeHTML(marked(this.data?.['::description'] || ''))} </span>
         <div style = 'border:1px solid var(--light-border-color)'>
           <div style='display:flex; background-color: var(--bg2); padding:8px 4px; border-bottom:1px solid var(--light-border-color);'>
             <div class='key' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Field </div>
@@ -304,7 +307,7 @@ export default class SchemaTable extends LitElement {
           }
         </div>
         ${dataTypeHtml}
-        <div class='td key-descr'>
+        <div class='td key-descr' style='font-size: var(--font-size-small)'>
           ${html`<span class="m-markdown-small">
             ${unsafeHTML(marked(dataType === 'array'
               ? `${descrExpander} ${description}`
@@ -313,7 +316,7 @@ export default class SchemaTable extends LitElement {
                 : `${descrExpander} ${schemaDescription}`))}
           </span>`
           }
-          ${constraint ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Constraints: </span> ${constraint}</div>` : ''}
+          ${constraint ? html`<div class='' style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Constraints: </span> ${constraint}</div>` : ''}
           ${defaultValue ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
           ${allowedValues ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>${type === 'const' ? 'Value' : 'Allowed'}: </span>${allowedValues}</div>` : ''}
           ${pattern ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Pattern: </span>${pattern}</div>` : ''}
