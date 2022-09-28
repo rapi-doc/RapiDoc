@@ -314,14 +314,17 @@ export default class SchemaTree extends LitElement {
           </span>
         </div>
         <div class='td key-descr'>
-          ${html`<span class="m-markdown-small">
-            ${unsafeHTML(marked(dataType === 'array'
-              ? `${descrExpander} ${description}`
-              : schemaTitle
-                ? `${descrExpander} <b>${schemaTitle}:</b> ${schemaDescription}`
-                : `${descrExpander} ${schemaDescription}`))}
-          </span>`
-          }
+          ${description || schemaTitle || schemaDescription
+            ? html`${html`<span class="m-markdown-small">
+                ${unsafeHTML(marked(dataType === 'array'
+                  ? `${descrExpander} ${description}`
+                  : schemaTitle
+                    ? `${descrExpander} <b>${schemaTitle}:</b> ${schemaDescription}`
+                    : `${descrExpander} ${schemaDescription}`))}
+              </span>`
+              }`
+            : ''
+          }  
           ${constraint ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Constraints: </span>${constraint}</div>` : ''}
           ${defaultValue ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
           ${allowedValues ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>${type === 'const' ? 'Value' : 'Allowed'}: </span>${allowedValues}</div>` : ''}
@@ -341,7 +344,7 @@ export default class SchemaTree extends LitElement {
       const trEl = e.target.closest('.tr');
       if (trEl) {
         trEl.classList.toggle('expanded-descr');
-        trEl.styles.maxHeight = trEl.scrollHeight;
+        trEl.style.maxHeight = trEl.scrollHeight;
       }
     }
   }

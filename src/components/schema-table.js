@@ -332,7 +332,7 @@ export default class SchemaTable extends LitElement {
       const trEl = e.target.closest('.tr');
       if (trEl) {
         trEl.classList.toggle('expanded-descr');
-        trEl.styles.maxHeight = trEl.scrollHeight;
+        trEl.style.maxHeight = trEl.scrollHeight;
       }
     }
   }
