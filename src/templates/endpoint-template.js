@@ -113,9 +113,9 @@ function endpointBodyTemplate(path) {
         ? html`<div style="background-color:var(--bg3); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--border-radius)"> 
             <div class="m-markdown"> ${unsafeHTML(marked(path.externalDocs?.description || ''))} </div>
             ${path.externalDocs?.url
-              ? html`<div> <a href="${path.externalDocs?.url}" target="_blank"> 
+              ? html`<a style="font-family:var(--font-mono); font-size:var(--font-size-small)" href="${path.externalDocs?.url}" target="_blank"> 
                   ${path.externalDocs?.url} <div style="transform: rotate(270deg) scale(1.5); display: inline-block; margin-left:5px">⇲</div>
-                </a> </div>`
+                </a>`
               : ''
             }
           </div>`
