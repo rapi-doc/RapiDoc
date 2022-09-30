@@ -76,9 +76,6 @@ export default css`
 .m-endpoint .endpoint-body {
   flex-wrap:wrap;
   padding:16px 0px 0 0px;
-  border-width:0px 1px 1px 5px;
-  border-style:solid;
-  box-shadow: 0px 4px 3px -3px rgba(0, 0, 0, 0.15);
 }
 .m-endpoint .endpoint-body.delete{ border-color:var(--delete-border-color); }
 .m-endpoint .endpoint-body.put{ border-color:var(--put-border-color); }
@@ -156,7 +153,7 @@ api-response.view-mode {
   overflow:hidden;
 }
 .view-mode-request {
-  border-width:0 0 1px 0;
+  border-width: 0;
   border-style:dashed;
 }
 
