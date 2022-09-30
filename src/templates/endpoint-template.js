@@ -89,6 +89,58 @@ function endpointBodyTemplate(path) {
 
   const codeSampleTabPanel = path.xCodeSamples ? codeSamplesTemplate(path.xCodeSamples) : '';
   return html`
+  <style>
+      .label-operation-container {
+        text-align: left;
+        direction: ltr;
+        color: var(--fg3);
+        display: flex;
+        width: 100%;
+        overflow: hidden;
+        margin-bottom: 24px;
+      }
+
+      .label-operation-path-container {
+        display: inline-flex;
+        flex-direction: row;
+        flex-grow: 1;
+        justify-content: space-between;
+        align-items: stretch;
+        width: auto;
+        height: 28px;
+        left: 0;
+        top: 0;
+        border: 1px solid var(--border-color);
+        border-radius: 0px 4px 4px 0px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        position: relative;
+        scrollbar-color: transparent transparent;
+      }
+
+      .label-operation-path-container::-webkit-scrollbar {
+        display: none;
+      }
+
+      .label-operation-path-item {
+        flex: 0 0 auto;
+      }
+
+      .label-operation-method-container {
+        display: inline-flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 8px;
+        width: auto;
+        height: 28px;
+        left: 0;
+        top: 0;
+        border-width: 1px 0px 1px 1px;
+        border-style: solid;
+        border-radius: 4px 0px 0px 4px;
+      }
+  </style>
   <div part="section-endpoint-body-${path.expanded ? 'expanded' : 'collapsed'}" class='endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}'>
     <div class="summary">
       ${path.summary
@@ -108,8 +160,15 @@ function endpointBodyTemplate(path) {
           `
         : ''
       }
-
-      ${path.description ? html`<div part="section-endpoint-body-description" class="m-markdown"> ${unsafeHTML(marked(path.description))}</div>` : ''}
+      <div class='mono-font regular-font-size label-operation-container'>
+        <div class='label-operation-method-container' style='border-color: var(--${path.method}-border-color); background-color: var(--${path.method}-bg-color);'>
+          <span class='regular-font upper method-fg bold-text ${path.method}'>${path.method}</span>
+        </div>
+        <div class='label-operation-path-container'>
+          <content-copy-button id='${path.method}${path.path}' content='${path.path}'></content-copy-button>
+        </div>
+      </div>
+      ${path.description ? html`<div part="section-endpoint-body-description" class="path-description"> ${unsafeHTML(marked(path.description))}</div>` : ''}
       <slot name="${path.elementId}"></slot>
       ${pathSecurityTemplate.call(this, path.security)}
       ${codeSampleTabPanel}

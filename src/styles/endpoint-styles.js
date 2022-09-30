@@ -101,12 +101,18 @@ export default css`
 }
 
 .summary{
-  padding:8px 8px;
+  padding: 24px 16px;
 }
 .summary .title{
-  font-size:calc(var(--font-size-regular) + 2px);
-  margin-bottom: 6px;
+  font-size: 28px;
+  margin-bottom: 24px;
   word-break: break-all;
+}
+
+.path-description p {
+    font-size: 18px;
+    line-height: 24px;
+    margin: 0;
 }
 
 .endpoint-head .method{
@@ -136,7 +142,6 @@ export default css`
 
 .req-resp-container{
   display: flex;
-  margin-top:16px;
   align-items: stretch;
   flex-wrap: wrap;
   flex-direction: column;
@@ -147,7 +152,7 @@ export default css`
 api-response.view-mode {
   flex:1; 
   min-height:100px;
-  padding:16px 8px;
+  padding: 0 16px 24px 16px;
   overflow:hidden;
 }
 .view-mode-request {
@@ -197,7 +202,7 @@ api-response.view-mode {
     padding:16px;
   }
   .summary{
-    padding:8px 16px;
+    padding:24px 16px;
   }
 }
 `;
