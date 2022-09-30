@@ -92,7 +92,7 @@ function endpointBodyTemplate(path) {
   <div part="section-endpoint-body-${path.expanded ? 'expanded' : 'collapsed'}" class='endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}'>
     <div class="summary">
       ${path.summary
-        ? html`<div class="title" part="section-endpoint-body-title">${path.summary}<div>`
+        ? html`<div class="title" part="section-endpoint-body-title">${path.summary}</div>`
         : path.shortSummary !== path.description
           ? html`<div class="title" part="section-endpoint-body-title">${path.shortSummary}</div>`
           : ''
@@ -210,7 +210,7 @@ export default function endpointTemplate(showExpandCollapse = true, showTags = t
                 return true;
                 }).map((path) => html`
                 <section part="section-endpoint" id='${path.elementId}' class='m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
-                  ${endpointHeadTemplate.call(this, path, pathsExpanded)}      
+                  <!--${endpointHeadTemplate.call(this, path, pathsExpanded)}-->
                   ${pathsExpanded || path.expanded ? endpointBodyTemplate.call(this, path) : ''}
                 </section>`)
               }
@@ -225,7 +225,7 @@ export default function endpointTemplate(showExpandCollapse = true, showTags = t
             return true;
             }).map((path) => html`
             <section id='${path.elementId}' class='m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
-              ${endpointHeadTemplate.call(this, path, pathsExpanded)}      
+              <!--${endpointHeadTemplate.call(this, path, pathsExpanded)}-->
               ${pathsExpanded || path.expanded ? endpointBodyTemplate.call(this, path) : ''}
             </section>`)
           }
