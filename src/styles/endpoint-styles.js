@@ -76,9 +76,6 @@ export default css`
 .m-endpoint .endpoint-body {
   flex-wrap:wrap;
   padding:16px 0px 0 0px;
-  border-width:0px 1px 1px 5px;
-  border-style:solid;
-  box-shadow: 0px 4px 3px -3px rgba(0, 0, 0, 0.15);
 }
 .m-endpoint .endpoint-body.delete{ border-color:var(--delete-border-color); }
 .m-endpoint .endpoint-body.put{ border-color:var(--put-border-color); }
@@ -101,12 +98,18 @@ export default css`
 }
 
 .summary{
-  padding:8px 8px;
+  padding: 24px 16px;
 }
 .summary .title{
-  font-size:calc(var(--font-size-regular) + 2px);
-  margin-bottom: 6px;
+  font-size: 28px;
+  margin-bottom: 24px;
   word-break: break-all;
+}
+
+.path-description p {
+    font-size: 18px;
+    line-height: 24px;
+    margin: 0;
 }
 
 .endpoint-head .method{
@@ -136,7 +139,6 @@ export default css`
 
 .req-resp-container{
   display: flex;
-  margin-top:16px;
   align-items: stretch;
   flex-wrap: wrap;
   flex-direction: column;
@@ -147,11 +149,11 @@ export default css`
 api-response.view-mode {
   flex:1; 
   min-height:100px;
-  padding:16px 8px;
+  padding: 0 16px 24px 16px;
   overflow:hidden;
 }
 .view-mode-request {
-  border-width:0 0 1px 0;
+  border-width: 0;
   border-style:dashed;
 }
 
@@ -197,7 +199,7 @@ api-response.view-mode {
     padding:16px;
   }
   .summary{
-    padding:8px 16px;
+    padding:24px 16px;
   }
 }
 `;
