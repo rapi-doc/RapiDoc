@@ -923,7 +923,7 @@ export function generateExample(schema, mimeType, examples = '', example = '', i
         } else {
           exampleFormat = outputType;
         }
-        const samples = schemaToSampleObj(schema, { includeReadOnly, includeWriteOnly, deprecated: true, useXmlTagForProp: mimeType.includes('xml') });
+        const samples = schemaToSampleObj(schema, { includeReadOnly, includeWriteOnly, deprecated: true, useXmlTagForProp: mimeType?.toLowerCase().includes('xml') });
         let i = 0;
         for (const samplesKey in samples) {
           if (!samples[samplesKey]) {

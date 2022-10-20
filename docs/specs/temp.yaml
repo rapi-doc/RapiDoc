@@ -4,20 +4,136 @@ info:
   version: 1.0.0
   title: Testing different data-types
 paths:
-  /person:
+  /nested-object-in-request-body:
     post:
       tags:
         - Test with various data types
-      summary: Data Types with constraints
-      description: Request-Parameters and Response-Schema contains various data types and constrains. Check out how is it desplayed below
-      parameters:
-        - in: query
-          name: phone-deprecated
-          example: 0012345
+      summary: Request Body accepting a JSON
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/test"
+components:
+  schemas:
+    category:
+      type: object
+      properties:
+        catId:
+          description: Category ID
+          allOf:
+            - $ref: '#/components/schemas/id'
+        name:
+          description: Category name
+          type: string
           deprecated: true
-          schema:
+    id:
+      type: string
+      format: uuid
+    person:
+      type: object
+      required:
+        - name
+        - photoUrls
+      properties:
+        primaryEmail:
+          type: string
+          format: email
+        dob:
+          description: Date of Birth
+          type: string
+          format: date
+        id:
+          title: Unique ID
+          description: SSN
+          allOf:
+            - $ref: '#/components/schemas/id'
+        category:
+          title: Person Category
+          description: Categories this person belongs to
+          allOf:
+            - $ref: '#/components/schemas/category'
+        country:
+          type: object
+          deprecated: true
+          properties:
+            countryCode:
+              type: string
+            countryName:
+              type: string
+        dependentIds:
+          type: array
+          deprecated: true
+          description: IDs of Dependents .
+          items:
+            type: integer
+          example:
+            - 278
+            - 279
+            - 280
+            - 281
+        name:
+          description: Name of the person
+          type: string
+          minLength: 4
+          examples:
+            empty:
+              value:
+              summary: No Name
+            male-name:
+              value: James
+              summary: Male name
+            female-name:
+              value: Ria
+              summary: Female Name
+            gender-nutral-name:
+              value: Charlie
+              summary: Gender Neutral Name
+        photoUrls:
+          description: The list of URL to a cute photos featuring pet
+          type: array
+          maxItems: 20
+          items:
             type: string
-            pattern: '/^\+(?:[0-9]-?){6,14}[0-9]$/'
-      responses:
-        '200':
-          description: successful operation
+            format: url
+        tags:
+          title: TAGS
+          description: Tags attached to the person
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/tag'
+        maritalStatus:
+          type: string
+          description: Marital status in case of adult
+          enum:
+            - married
+            - unmarried
+            - widowed
+        phone:
+          description: phone number in international format
+          type: string
+          pattern: '/^\+(?:[0-9]-?){6,14}[0-9]$/'
+          example: +1-202-555-0192
+          nullable: true
+    tag:
+      type: object
+      properties:
+        id:
+          description: Tag ID
+          allOf:
+            - $ref: '#/components/schemas/id'
+        name:
+          description: Tag name
+          type: string
+          minLength: 1
+    test:
+      type: object
+      properties:
+        photoUrls:
+          description: The list of URL to a cute photos featuring pet
+          type: array
+          maxItems: 20
+          items:
+            type: string
+            format: url
