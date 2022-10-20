@@ -410,7 +410,6 @@ export function schemaToSampleObj(schema, config = { }) {
   if (!schema) {
     return;
   }
-
   if (schema.allOf) {
     const objWithAllProps = {};
 
@@ -924,7 +923,7 @@ export function generateExample(schema, mimeType, examples = '', example = '', i
         } else {
           exampleFormat = outputType;
         }
-        const samples = schemaToSampleObj(schema, { includeReadOnly, includeWriteOnly, deprecated: true, useXmlTagForProp: true });
+        const samples = schemaToSampleObj(schema, { includeReadOnly, includeWriteOnly, deprecated: true, useXmlTagForProp: mimeType.includes('xml') });
         let i = 0;
         for (const samplesKey in samples) {
           if (!samples[samplesKey]) {
