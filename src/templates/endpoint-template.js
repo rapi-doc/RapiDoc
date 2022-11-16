@@ -70,6 +70,14 @@ function endpointHeadTemplate(path, pathsExpanded = false) {
   `;
 }
 
+function processPathDescription(description) {
+  // extract magic blocks delimiters
+  // eslint-disable-next-line no-useless-escape
+  const magicBlockRegex = /[\/*block[:[a-zA-Z0-9&_.-]*]*]/gm;
+  description = description.replace(magicBlockRegex, '');
+  return description;
+}
+
 function endpointBodyTemplate(path) {
   const acceptContentTypes = new Set();
   for (const respStatus in path.responses) {
@@ -88,6 +96,7 @@ function endpointBodyTemplate(path) {
   }
 
   const codeSampleTabPanel = path.xCodeSamples ? codeSamplesTemplate(path.xCodeSamples) : '';
+  path.description = processPathDescription(path.description);
   return html`
   <style>
       .label-operation-container {
