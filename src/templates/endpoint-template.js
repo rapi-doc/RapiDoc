@@ -8,6 +8,7 @@ import codeSamplesTemplate from '~/templates/code-samples-template';
 import callbackTemplate from '~/templates/callback-template';
 import { pathSecurityTemplate } from '~/templates/security-scheme-template';
 import { pathIsInSearch, rapidocApiKey } from '~/utils/common-utils';
+import processPathDescription from '~/utils/magic-block-utils';
 
 function toggleExpand(path) {
   if (path.expanded) {
@@ -68,14 +69,6 @@ function endpointHeadTemplate(path, pathsExpanded = false) {
     }
   </summary>
   `;
-}
-
-function processPathDescription(description) {
-  // extract magic blocks delimiters
-  // eslint-disable-next-line no-useless-escape
-  const magicBlockRegex = /[\/*block[:[a-zA-Z0-9&_.-]*]*]/gm;
-  description = description.replace(magicBlockRegex, '');
-  return description;
 }
 
 function endpointBodyTemplate(path) {
@@ -148,6 +141,17 @@ function endpointBodyTemplate(path) {
         border-width: 1px 0px 1px 1px;
         border-style: solid;
         border-radius: 4px 0px 0px 4px;
+      }
+
+      .invalid-block {
+        background-color: red;
+        color: white;
+        padding: 20px;
+      }
+
+      blockquote {
+        background-color: #F8F8F9;
+        padding: 20px;
       }
   </style>
   <div part="section-endpoint-body-${path.expanded ? 'expanded' : 'collapsed'}" class='endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}'>
