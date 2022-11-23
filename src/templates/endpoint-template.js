@@ -153,6 +153,13 @@ function endpointBodyTemplate(path) {
         background-color: #F8F8F9;
         padding: 20px;
       }
+
+      pre {
+        overflow: scroll;
+        max-height: 1000px;
+        margin-top: 15px!important;
+        margin-bottom: 15px!important;
+      }
   </style>
   <div part="section-endpoint-body-${path.expanded ? 'expanded' : 'collapsed'}" class='endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}'>
     <div class="summary">
