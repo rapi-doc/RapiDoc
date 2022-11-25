@@ -149,8 +149,27 @@ function endpointBodyTemplate(path) {
         padding: 20px;
       }
 
-      blockquote {
-        background-color: #F8F8F9;
+      blockquote.warning {
+        border-left: 3px solid #f0ad4e;
+        background-color: #fcf8f2;
+        padding: 20px;
+      }
+
+      blockquote.danger {
+        border-left: 3px solid #d9534f;
+        background-color: #fdf7f7;
+        padding: 20px;
+      }
+
+      blockquote.info {
+        border-left: 3px solid #5bc0de;
+        background-color: #e3edf2;
+        padding: 20px;
+      }
+
+      blockquote.success {
+        border-left: 3px solid #50af51;
+        background-color: #f3f8f3;
         padding: 20px;
       }
 
@@ -188,7 +207,7 @@ function endpointBodyTemplate(path) {
           <content-copy-button id='${path.method}${path.path}' content='${path.path}'></content-copy-button>
         </div>
       </div>
-      ${path.description ? html`<div part="section-endpoint-body-description" class="path-description"> ${unsafeHTML(marked(path.description))}</div>` : ''}
+      ${path.description ? html`<div part="section-endpoint-body-description" class="path-description"> ${unsafeHTML(path.description)}</div>` : ''}
       <slot name="${path.elementId}"></slot>
       ${pathSecurityTemplate.call(this, path.security)}
       ${codeSampleTabPanel}

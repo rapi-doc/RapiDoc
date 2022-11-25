@@ -1,10 +1,16 @@
-function replacer(_match, blockType, blockContent) {
+import { marked } from 'marked';
+
+function replacerBlocks(_match, textBefore, blockType, blockContent, textAfter) {
+  let replaced = '';
+
+  if (textBefore) replaced += `${marked(textBefore)}\n\n`;
+
   try {
     const block = JSON.parse(blockContent);
 
     switch (blockType) {
       case 'code':
-        return block.codes.reduce((prev, curr) => {
+        replaced += marked(block.codes.reduce((prev, curr) => {
           switch (curr.language) {
             case 'jsonc':
               curr.language = 'json';
@@ -17,54 +23,72 @@ function replacer(_match, blockType, blockContent) {
           }
 
           return `${prev}\n\`\`\`${curr.language}\n${curr.code}\n\`\`\`\n`;
-        }, '');
+        }, ''));
+        break;
 
       case 'html':
-        return `\n\n${block.html}`;
+        replaced += `\n\n${block.html}\n\n`;
+        break;
 
       case 'image':
-        return block.images.reduce((prev, curr) => `${prev}\n\n<img src="${curr.image[0]}" alt="${curr.image[1]}" style="width:50%;" />`, '');
+        replaced += block.images.reduce((prev, curr) => `${prev}\n\n<img src="${curr.image[0]}" alt="${curr.image[1]}" style="width:50%;" />`, '');
+        break;
 
       case 'api-header':
-        return `\n\n## ${block.title}\n\n`;
+        replaced += marked(`## ${block.title}`);
+        break;
 
       case 'callout':
-        return `\n\n> ${block.body}`;
+        replaced += `<blockquote class=${block.type}>${marked(block.body.replace(/\[/gm, ' ['))}</blockquote>`;
+        break;
 
       case 'embed':
-        return `\n\n${block.html}`;
+        replaced += `\n\n${block.html}\n\n`;
+        break;
 
       case 'parameters': {
         const { rows, cols } = block;
 
         let table = '\n\n';
-        for (let i = 0; i < cols; i++) table += `| ${block.data[`h-${i}`]}`;
+        for (let i = 0; i < cols; i++) {
+          if (block.data[`h-${i}`]) table += `| ${block.data[`h-${i}`]}`;
+          else table += '|';
+        }
+
         table += '|\n';
+
         for (let i = 0; i < cols; i++) table += '| :---';
 
         for (let i = 0; i < rows; i++) {
           table += '|\n';
           for (let j = 0; j < cols; j++) {
-            table += `| ${block.data[`${i}-${j}`].replace(/\n/gm, '<br />')}`;
+            if (block.data[`${i}-${j}`]) table += `| ${block.data[`${i}-${j}`].replace(/\n/gm, '<br />')}`;
+            else table += '|';
           }
         }
 
         table += '|\n';
-        return table;
+        replaced += marked(table);
       }
+        break;
 
       default:
-        return '';
+        replaced += '';
+        break;
     }
+
+    if (textAfter) replaced += marked(textAfter);
   } catch (err) {
-    return `\n\n<p class="invalid-block">Invalid block.<br />${err.message}</p>\n\n`;
+    replaced += `\n\n<p class="invalid-block">Invalid block.<br />${err.message}</p>\n\n`;
+    if (textAfter) replaced += marked(textAfter);
   }
+
+  return replaced;
 }
 
 export default function processPathDescription(description) {
-  const magicBlockRegex = /\[block:(?<Type>[^\]]*)\](?<Content>[^]+?)\[\/block\]/gms;
-  const replacedMarkdown = description.replace(/ *[\\n]* *\[ *[\\n]* */gm, '[')
-    .replace(/ *[\\n]* *] *[\\n]* */gm, ']')
-    .replace(magicBlockRegex, replacer);
+  const magicBlockRegex = /(?<TextBefore>[^[\]]*)\[block:(?<Type>[^\]]*)\](?<Content>.+?)\[\/block\](?<TextAfter>[^[\]]*)/gms;
+  const replacedMarkdown = description.replace(magicBlockRegex, replacerBlocks);
+
   return replacedMarkdown;
 }
