@@ -8,7 +8,7 @@
 */******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 656:
+/***/ 73:
 /***/ ((__unused_webpack_module, __unused_webpack___webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -30,7 +30,7 @@ const css_tag_t=window,e=css_tag_t.ShadowRoot&&(void 0===css_tag_t.ShadyCSS||css
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */var reactive_element_s;const reactive_element_e=window,reactive_element_r=reactive_element_e.trustedTypes,h=reactive_element_r?reactive_element_r.emptyScript:"",reactive_element_o=reactive_element_e.reactiveElementPolyfillSupport,reactive_element_n={toAttribute(t,i){switch(i){case Boolean:t=t?h:null;break;case Object:case Array:t=null==t?t:JSON.stringify(t)}return t},fromAttribute(t,i){let s=t;switch(i){case Boolean:s=null!==t;break;case Number:s=null===t?null:Number(t);break;case Object:case Array:try{s=JSON.parse(t)}catch(t){s=null}}return s}},a=(t,i)=>i!==t&&(i==i||t==t),l={attribute:!0,type:String,converter:reactive_element_n,reflect:!1,hasChanged:a};class d extends HTMLElement{constructor(){super(),this._$Ei=new Map,this.isUpdatePending=!1,this.hasUpdated=!1,this._$El=null,this.u()}static addInitializer(t){var i;null!==(i=this.h)&&void 0!==i||(this.h=[]),this.h.push(t)}static get observedAttributes(){this.finalize();const t=[];return this.elementProperties.forEach(((i,s)=>{const e=this._$Ep(s,i);void 0!==e&&(this._$Ev.set(e,s),t.push(e))})),t}static createProperty(t,i=l){if(i.state&&(i.attribute=!1),this.finalize(),this.elementProperties.set(t,i),!i.noAccessor&&!this.prototype.hasOwnProperty(t)){const s="symbol"==typeof t?Symbol():"__"+t,e=this.getPropertyDescriptor(t,s,i);void 0!==e&&Object.defineProperty(this.prototype,t,e)}}static getPropertyDescriptor(t,i,s){return{get(){return this[i]},set(e){const r=this[t];this[i]=e,this.requestUpdate(t,r,s)},configurable:!0,enumerable:!0}}static getPropertyOptions(t){return this.elementProperties.get(t)||l}static finalize(){if(this.hasOwnProperty("finalized"))return!1;this.finalized=!0;const t=Object.getPrototypeOf(this);if(t.finalize(),this.elementProperties=new Map(t.elementProperties),this._$Ev=new Map,this.hasOwnProperty("properties")){const t=this.properties,i=[...Object.getOwnPropertyNames(t),...Object.getOwnPropertySymbols(t)];for(const s of i)this.createProperty(s,t[s])}return this.elementStyles=this.finalizeStyles(this.styles),!0}static finalizeStyles(i){const s=[];if(Array.isArray(i)){const e=new Set(i.flat(1/0).reverse());for(const i of e)s.unshift(c(i))}else void 0!==i&&s.push(c(i));return s}static _$Ep(t,i){const s=i.attribute;return!1===s?void 0:"string"==typeof s?s:"string"==typeof t?t.toLowerCase():void 0}u(){var t;this._$E_=new Promise((t=>this.enableUpdating=t)),this._$AL=new Map,this._$Eg(),this.requestUpdate(),null===(t=this.constructor.h)||void 0===t||t.forEach((t=>t(this)))}addController(t){var i,s;(null!==(i=this._$ES)&&void 0!==i?i:this._$ES=[]).push(t),void 0!==this.renderRoot&&this.isConnected&&(null===(s=t.hostConnected)||void 0===s||s.call(t))}removeController(t){var i;null===(i=this._$ES)||void 0===i||i.splice(this._$ES.indexOf(t)>>>0,1)}_$Eg(){this.constructor.elementProperties.forEach(((t,i)=>{this.hasOwnProperty(i)&&(this._$Ei.set(i,this[i]),delete this[i])}))}createRenderRoot(){var t;const s=null!==(t=this.shadowRoot)&&void 0!==t?t:this.attachShadow(this.constructor.shadowRootOptions);return S(s,this.constructor.elementStyles),s}connectedCallback(){var t;void 0===this.renderRoot&&(this.renderRoot=this.createRenderRoot()),this.enableUpdating(!0),null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostConnected)||void 0===i?void 0:i.call(t)}))}enableUpdating(t){}disconnectedCallback(){var t;null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostDisconnected)||void 0===i?void 0:i.call(t)}))}attributeChangedCallback(t,i,s){this._$AK(t,s)}_$EO(t,i,s=l){var e;const r=this.constructor._$Ep(t,s);if(void 0!==r&&!0===s.reflect){const h=(void 0!==(null===(e=s.converter)||void 0===e?void 0:e.toAttribute)?s.converter:reactive_element_n).toAttribute(i,s.type);this._$El=t,null==h?this.removeAttribute(r):this.setAttribute(r,h),this._$El=null}}_$AK(t,i){var s;const e=this.constructor,r=e._$Ev.get(t);if(void 0!==r&&this._$El!==r){const t=e.getPropertyOptions(r),h="function"==typeof t.converter?{fromAttribute:t.converter}:void 0!==(null===(s=t.converter)||void 0===s?void 0:s.fromAttribute)?t.converter:reactive_element_n;this._$El=r,this[r]=h.fromAttribute(i,t.type),this._$El=null}}requestUpdate(t,i,s){let e=!0;void 0!==t&&(((s=s||this.constructor.getPropertyOptions(t)).hasChanged||a)(this[t],i)?(this._$AL.has(t)||this._$AL.set(t,i),!0===s.reflect&&this._$El!==t&&(void 0===this._$EC&&(this._$EC=new Map),this._$EC.set(t,s))):e=!1),!this.isUpdatePending&&e&&(this._$E_=this._$Ej())}async _$Ej(){this.isUpdatePending=!0;try{await this._$E_}catch(t){Promise.reject(t)}const t=this.scheduleUpdate();return null!=t&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){var t;if(!this.isUpdatePending)return;this.hasUpdated,this._$Ei&&(this._$Ei.forEach(((t,i)=>this[i]=t)),this._$Ei=void 0);let i=!1;const s=this._$AL;try{i=this.shouldUpdate(s),i?(this.willUpdate(s),null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostUpdate)||void 0===i?void 0:i.call(t)})),this.update(s)):this._$Ek()}catch(t){throw i=!1,this._$Ek(),t}i&&this._$AE(s)}willUpdate(t){}_$AE(t){var i;null===(i=this._$ES)||void 0===i||i.forEach((t=>{var i;return null===(i=t.hostUpdated)||void 0===i?void 0:i.call(t)})),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(t)),this.updated(t)}_$Ek(){this._$AL=new Map,this.isUpdatePending=!1}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$E_}shouldUpdate(t){return!0}update(t){void 0!==this._$EC&&(this._$EC.forEach(((t,i)=>this._$EO(i,this[i],t))),this._$EC=void 0),this._$Ek()}updated(t){}firstUpdated(t){}}d.finalized=!0,d.elementProperties=new Map,d.elementStyles=[],d.shadowRootOptions={mode:"open"},null==reactive_element_o||reactive_element_o({ReactiveElement:d}),(null!==(reactive_element_s=reactive_element_e.reactiveElementVersions)&&void 0!==reactive_element_s?reactive_element_s:reactive_element_e.reactiveElementVersions=[]).push("1.4.0");
+ */var reactive_element_s;const reactive_element_e=window,reactive_element_r=reactive_element_e.trustedTypes,h=reactive_element_r?reactive_element_r.emptyScript:"",reactive_element_o=reactive_element_e.reactiveElementPolyfillSupport,reactive_element_n={toAttribute(t,i){switch(i){case Boolean:t=t?h:null;break;case Object:case Array:t=null==t?t:JSON.stringify(t)}return t},fromAttribute(t,i){let s=t;switch(i){case Boolean:s=null!==t;break;case Number:s=null===t?null:Number(t);break;case Object:case Array:try{s=JSON.parse(t)}catch(t){s=null}}return s}},a=(t,i)=>i!==t&&(i==i||t==t),l={attribute:!0,type:String,converter:reactive_element_n,reflect:!1,hasChanged:a};class d extends HTMLElement{constructor(){super(),this._$Ei=new Map,this.isUpdatePending=!1,this.hasUpdated=!1,this._$El=null,this.u()}static addInitializer(t){var i;this.finalize(),(null!==(i=this.h)&&void 0!==i?i:this.h=[]).push(t)}static get observedAttributes(){this.finalize();const t=[];return this.elementProperties.forEach(((i,s)=>{const e=this._$Ep(s,i);void 0!==e&&(this._$Ev.set(e,s),t.push(e))})),t}static createProperty(t,i=l){if(i.state&&(i.attribute=!1),this.finalize(),this.elementProperties.set(t,i),!i.noAccessor&&!this.prototype.hasOwnProperty(t)){const s="symbol"==typeof t?Symbol():"__"+t,e=this.getPropertyDescriptor(t,s,i);void 0!==e&&Object.defineProperty(this.prototype,t,e)}}static getPropertyDescriptor(t,i,s){return{get(){return this[i]},set(e){const r=this[t];this[i]=e,this.requestUpdate(t,r,s)},configurable:!0,enumerable:!0}}static getPropertyOptions(t){return this.elementProperties.get(t)||l}static finalize(){if(this.hasOwnProperty("finalized"))return!1;this.finalized=!0;const t=Object.getPrototypeOf(this);if(t.finalize(),void 0!==t.h&&(this.h=[...t.h]),this.elementProperties=new Map(t.elementProperties),this._$Ev=new Map,this.hasOwnProperty("properties")){const t=this.properties,i=[...Object.getOwnPropertyNames(t),...Object.getOwnPropertySymbols(t)];for(const s of i)this.createProperty(s,t[s])}return this.elementStyles=this.finalizeStyles(this.styles),!0}static finalizeStyles(i){const s=[];if(Array.isArray(i)){const e=new Set(i.flat(1/0).reverse());for(const i of e)s.unshift(c(i))}else void 0!==i&&s.push(c(i));return s}static _$Ep(t,i){const s=i.attribute;return!1===s?void 0:"string"==typeof s?s:"string"==typeof t?t.toLowerCase():void 0}u(){var t;this._$E_=new Promise((t=>this.enableUpdating=t)),this._$AL=new Map,this._$Eg(),this.requestUpdate(),null===(t=this.constructor.h)||void 0===t||t.forEach((t=>t(this)))}addController(t){var i,s;(null!==(i=this._$ES)&&void 0!==i?i:this._$ES=[]).push(t),void 0!==this.renderRoot&&this.isConnected&&(null===(s=t.hostConnected)||void 0===s||s.call(t))}removeController(t){var i;null===(i=this._$ES)||void 0===i||i.splice(this._$ES.indexOf(t)>>>0,1)}_$Eg(){this.constructor.elementProperties.forEach(((t,i)=>{this.hasOwnProperty(i)&&(this._$Ei.set(i,this[i]),delete this[i])}))}createRenderRoot(){var t;const s=null!==(t=this.shadowRoot)&&void 0!==t?t:this.attachShadow(this.constructor.shadowRootOptions);return S(s,this.constructor.elementStyles),s}connectedCallback(){var t;void 0===this.renderRoot&&(this.renderRoot=this.createRenderRoot()),this.enableUpdating(!0),null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostConnected)||void 0===i?void 0:i.call(t)}))}enableUpdating(t){}disconnectedCallback(){var t;null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostDisconnected)||void 0===i?void 0:i.call(t)}))}attributeChangedCallback(t,i,s){this._$AK(t,s)}_$EO(t,i,s=l){var e;const r=this.constructor._$Ep(t,s);if(void 0!==r&&!0===s.reflect){const h=(void 0!==(null===(e=s.converter)||void 0===e?void 0:e.toAttribute)?s.converter:reactive_element_n).toAttribute(i,s.type);this._$El=t,null==h?this.removeAttribute(r):this.setAttribute(r,h),this._$El=null}}_$AK(t,i){var s;const e=this.constructor,r=e._$Ev.get(t);if(void 0!==r&&this._$El!==r){const t=e.getPropertyOptions(r),h="function"==typeof t.converter?{fromAttribute:t.converter}:void 0!==(null===(s=t.converter)||void 0===s?void 0:s.fromAttribute)?t.converter:reactive_element_n;this._$El=r,this[r]=h.fromAttribute(i,t.type),this._$El=null}}requestUpdate(t,i,s){let e=!0;void 0!==t&&(((s=s||this.constructor.getPropertyOptions(t)).hasChanged||a)(this[t],i)?(this._$AL.has(t)||this._$AL.set(t,i),!0===s.reflect&&this._$El!==t&&(void 0===this._$EC&&(this._$EC=new Map),this._$EC.set(t,s))):e=!1),!this.isUpdatePending&&e&&(this._$E_=this._$Ej())}async _$Ej(){this.isUpdatePending=!0;try{await this._$E_}catch(t){Promise.reject(t)}const t=this.scheduleUpdate();return null!=t&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){var t;if(!this.isUpdatePending)return;this.hasUpdated,this._$Ei&&(this._$Ei.forEach(((t,i)=>this[i]=t)),this._$Ei=void 0);let i=!1;const s=this._$AL;try{i=this.shouldUpdate(s),i?(this.willUpdate(s),null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostUpdate)||void 0===i?void 0:i.call(t)})),this.update(s)):this._$Ek()}catch(t){throw i=!1,this._$Ek(),t}i&&this._$AE(s)}willUpdate(t){}_$AE(t){var i;null===(i=this._$ES)||void 0===i||i.forEach((t=>{var i;return null===(i=t.hostUpdated)||void 0===i?void 0:i.call(t)})),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(t)),this.updated(t)}_$Ek(){this._$AL=new Map,this.isUpdatePending=!1}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$E_}shouldUpdate(t){return!0}update(t){void 0!==this._$EC&&(this._$EC.forEach(((t,i)=>this._$EO(i,this[i],t))),this._$EC=void 0),this._$Ek()}updated(t){}firstUpdated(t){}}d.finalized=!0,d.elementProperties=new Map,d.elementStyles=[],d.shadowRootOptions={mode:"open"},null==reactive_element_o||reactive_element_o({ReactiveElement:d}),(null!==(reactive_element_s=reactive_element_e.reactiveElementVersions)&&void 0!==reactive_element_s?reactive_element_s:reactive_element_e.reactiveElementVersions=[]).push("1.4.2");
 //# sourceMappingURL=reactive-element.js.map
 
 ;// CONCATENATED MODULE: ./node_modules/lit-html/lit-html.js
@@ -42,13 +42,40 @@ const css_tag_t=window,e=css_tag_t.ShadowRoot&&(void 0===css_tag_t.ShadyCSS||css
 var lit_html_t;const lit_html_i=window,lit_html_s=lit_html_i.trustedTypes,lit_html_e=lit_html_s?lit_html_s.createPolicy("lit-html",{createHTML:t=>t}):void 0,lit_html_o=`lit$${(Math.random()+"").slice(9)}$`,lit_html_n="?"+lit_html_o,lit_html_l=`<${lit_html_n}>`,lit_html_h=document,lit_html_r=(t="")=>lit_html_h.createComment(t),lit_html_d=t=>null===t||"object"!=typeof t&&"function"!=typeof t,u=Array.isArray,lit_html_c=t=>u(t)||"function"==typeof(null==t?void 0:t[Symbol.iterator]),v=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,lit_html_a=/-->/g,f=/>/g,_=RegExp(">|[ \t\n\f\r](?:([^\\s\"'>=/]+)([ \t\n\f\r]*=[ \t\n\f\r]*(?:[^ \t\n\f\r\"'`<>=]|(\"|')|))|$)","g"),m=/'/g,p=/"/g,$=/^(?:script|style|textarea|title)$/i,g=t=>(i,...s)=>({_$litType$:t,strings:i,values:s}),y=g(1),w=g(2),x=Symbol.for("lit-noChange"),b=Symbol.for("lit-nothing"),T=new WeakMap,A=lit_html_h.createTreeWalker(lit_html_h,129,null,!1),E=(t,i)=>{const s=t.length-1,n=[];let h,r=2===i?"<svg>":"",d=v;for(let i=0;i<s;i++){const s=t[i];let e,u,c=-1,g=0;for(;g<s.length&&(d.lastIndex=g,u=d.exec(s),null!==u);)g=d.lastIndex,d===v?"!--"===u[1]?d=lit_html_a:void 0!==u[1]?d=f:void 0!==u[2]?($.test(u[2])&&(h=RegExp("</"+u[2],"g")),d=_):void 0!==u[3]&&(d=_):d===_?">"===u[0]?(d=null!=h?h:v,c=-1):void 0===u[1]?c=-2:(c=d.lastIndex-u[2].length,e=u[1],d=void 0===u[3]?_:'"'===u[3]?p:m):d===p||d===m?d=_:d===lit_html_a||d===f?d=v:(d=_,h=void 0);const y=d===_&&t[i+1].startsWith("/>")?" ":"";r+=d===v?s+lit_html_l:c>=0?(n.push(e),s.slice(0,c)+"$lit$"+s.slice(c)+lit_html_o+y):s+lit_html_o+(-2===c?(n.push(void 0),i):y)}const u=r+(t[s]||"<?>")+(2===i?"</svg>":"");if(!Array.isArray(t)||!t.hasOwnProperty("raw"))throw Error("invalid template strings array");return[void 0!==lit_html_e?lit_html_e.createHTML(u):u,n]};class C{constructor({strings:t,_$litType$:i},e){let l;this.parts=[];let h=0,d=0;const u=t.length-1,c=this.parts,[v,a]=E(t,i);if(this.el=C.createElement(v,e),A.currentNode=this.el.content,2===i){const t=this.el.content,i=t.firstChild;i.remove(),t.append(...i.childNodes)}for(;null!==(l=A.nextNode())&&c.length<u;){if(1===l.nodeType){if(l.hasAttributes()){const t=[];for(const i of l.getAttributeNames())if(i.endsWith("$lit$")||i.startsWith(lit_html_o)){const s=a[d++];if(t.push(i),void 0!==s){const t=l.getAttribute(s.toLowerCase()+"$lit$").split(lit_html_o),i=/([.?@])?(.*)/.exec(s);c.push({type:1,index:h,name:i[2],strings:t,ctor:"."===i[1]?M:"?"===i[1]?k:"@"===i[1]?H:lit_html_S})}else c.push({type:6,index:h})}for(const i of t)l.removeAttribute(i)}if($.test(l.tagName)){const t=l.textContent.split(lit_html_o),i=t.length-1;if(i>0){l.textContent=lit_html_s?lit_html_s.emptyScript:"";for(let s=0;s<i;s++)l.append(t[s],lit_html_r()),A.nextNode(),c.push({type:2,index:++h});l.append(t[i],lit_html_r())}}}else if(8===l.nodeType)if(l.data===lit_html_n)c.push({type:2,index:h});else{let t=-1;for(;-1!==(t=l.data.indexOf(lit_html_o,t+1));)c.push({type:7,index:h}),t+=lit_html_o.length-1}h++}}static createElement(t,i){const s=lit_html_h.createElement("template");return s.innerHTML=t,s}}function P(t,i,s=t,e){var o,n,l,h;if(i===x)return i;let r=void 0!==e?null===(o=s._$Co)||void 0===o?void 0:o[e]:s._$Cl;const u=lit_html_d(i)?void 0:i._$litDirective$;return(null==r?void 0:r.constructor)!==u&&(null===(n=null==r?void 0:r._$AO)||void 0===n||n.call(r,!1),void 0===u?r=void 0:(r=new u(t),r._$AT(t,s,e)),void 0!==e?(null!==(l=(h=s)._$Co)&&void 0!==l?l:h._$Co=[])[e]=r:s._$Cl=r),void 0!==r&&(i=P(t,r._$AS(t,i.values),r,e)),i}class V{constructor(t,i){this.u=[],this._$AN=void 0,this._$AD=t,this._$AM=i}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}v(t){var i;const{el:{content:s},parts:e}=this._$AD,o=(null!==(i=null==t?void 0:t.creationScope)&&void 0!==i?i:lit_html_h).importNode(s,!0);A.currentNode=o;let n=A.nextNode(),l=0,r=0,d=e[0];for(;void 0!==d;){if(l===d.index){let i;2===d.type?i=new N(n,n.nextSibling,this,t):1===d.type?i=new d.ctor(n,d.name,d.strings,this,t):6===d.type&&(i=new I(n,this,t)),this.u.push(i),d=e[++r]}l!==(null==d?void 0:d.index)&&(n=A.nextNode(),l++)}return o}p(t){let i=0;for(const s of this.u)void 0!==s&&(void 0!==s.strings?(s._$AI(t,s,i),i+=s.strings.length-2):s._$AI(t[i])),i++}}class N{constructor(t,i,s,e){var o;this.type=2,this._$AH=b,this._$AN=void 0,this._$AA=t,this._$AB=i,this._$AM=s,this.options=e,this._$Cm=null===(o=null==e?void 0:e.isConnected)||void 0===o||o}get _$AU(){var t,i;return null!==(i=null===(t=this._$AM)||void 0===t?void 0:t._$AU)&&void 0!==i?i:this._$Cm}get parentNode(){let t=this._$AA.parentNode;const i=this._$AM;return void 0!==i&&11===t.nodeType&&(t=i.parentNode),t}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(t,i=this){t=P(this,t,i),lit_html_d(t)?t===b||null==t||""===t?(this._$AH!==b&&this._$AR(),this._$AH=b):t!==this._$AH&&t!==x&&this.g(t):void 0!==t._$litType$?this.$(t):void 0!==t.nodeType?this.T(t):lit_html_c(t)?this.k(t):this.g(t)}O(t,i=this._$AB){return this._$AA.parentNode.insertBefore(t,i)}T(t){this._$AH!==t&&(this._$AR(),this._$AH=this.O(t))}g(t){this._$AH!==b&&lit_html_d(this._$AH)?this._$AA.nextSibling.data=t:this.T(lit_html_h.createTextNode(t)),this._$AH=t}$(t){var i;const{values:s,_$litType$:e}=t,o="number"==typeof e?this._$AC(t):(void 0===e.el&&(e.el=C.createElement(e.h,this.options)),e);if((null===(i=this._$AH)||void 0===i?void 0:i._$AD)===o)this._$AH.p(s);else{const t=new V(o,this),i=t.v(this.options);t.p(s),this.T(i),this._$AH=t}}_$AC(t){let i=T.get(t.strings);return void 0===i&&T.set(t.strings,i=new C(t)),i}k(t){u(this._$AH)||(this._$AH=[],this._$AR());const i=this._$AH;let s,e=0;for(const o of t)e===i.length?i.push(s=new N(this.O(lit_html_r()),this.O(lit_html_r()),this,this.options)):s=i[e],s._$AI(o),e++;e<i.length&&(this._$AR(s&&s._$AB.nextSibling,e),i.length=e)}_$AR(t=this._$AA.nextSibling,i){var s;for(null===(s=this._$AP)||void 0===s||s.call(this,!1,!0,i);t&&t!==this._$AB;){const i=t.nextSibling;t.remove(),t=i}}setConnected(t){var i;void 0===this._$AM&&(this._$Cm=t,null===(i=this._$AP)||void 0===i||i.call(this,t))}}class lit_html_S{constructor(t,i,s,e,o){this.type=1,this._$AH=b,this._$AN=void 0,this.element=t,this.name=i,this._$AM=e,this.options=o,s.length>2||""!==s[0]||""!==s[1]?(this._$AH=Array(s.length-1).fill(new String),this.strings=s):this._$AH=b}get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}_$AI(t,i=this,s,e){const o=this.strings;let n=!1;if(void 0===o)t=P(this,t,i,0),n=!lit_html_d(t)||t!==this._$AH&&t!==x,n&&(this._$AH=t);else{const e=t;let l,h;for(t=o[0],l=0;l<o.length-1;l++)h=P(this,e[s+l],i,l),h===x&&(h=this._$AH[l]),n||(n=!lit_html_d(h)||h!==this._$AH[l]),h===b?t=b:t!==b&&(t+=(null!=h?h:"")+o[l+1]),this._$AH[l]=h}n&&!e&&this.j(t)}j(t){t===b?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,null!=t?t:"")}}class M extends lit_html_S{constructor(){super(...arguments),this.type=3}j(t){this.element[this.name]=t===b?void 0:t}}const R=lit_html_s?lit_html_s.emptyScript:"";class k extends lit_html_S{constructor(){super(...arguments),this.type=4}j(t){t&&t!==b?this.element.setAttribute(this.name,R):this.element.removeAttribute(this.name)}}class H extends lit_html_S{constructor(t,i,s,e,o){super(t,i,s,e,o),this.type=5}_$AI(t,i=this){var s;if((t=null!==(s=P(this,t,i,0))&&void 0!==s?s:b)===x)return;const e=this._$AH,o=t===b&&e!==b||t.capture!==e.capture||t.once!==e.once||t.passive!==e.passive,n=t!==b&&(e===b||o);o&&this.element.removeEventListener(this.name,this,e),n&&this.element.addEventListener(this.name,this,t),this._$AH=t}handleEvent(t){var i,s;"function"==typeof this._$AH?this._$AH.call(null!==(s=null===(i=this.options)||void 0===i?void 0:i.host)&&void 0!==s?s:this.element,t):this._$AH.handleEvent(t)}}class I{constructor(t,i,s){this.element=t,this.type=6,this._$AN=void 0,this._$AM=i,this.options=s}get _$AU(){return this._$AM._$AU}_$AI(t){P(this,t)}}const L={P:"$lit$",A:lit_html_o,M:lit_html_n,C:1,L:E,R:V,D:lit_html_c,V:P,I:N,H:lit_html_S,N:k,U:H,B:M,F:I},z=lit_html_i.litHtmlPolyfillSupport;null==z||z(C,N),(null!==(lit_html_t=lit_html_i.litHtmlVersions)&&void 0!==lit_html_t?lit_html_t:lit_html_i.litHtmlVersions=[]).push("2.4.0");const Z=(t,i,s)=>{var e,o;const n=null!==(e=null==s?void 0:s.renderBefore)&&void 0!==e?e:i;let l=n._$litPart$;if(void 0===l){const t=null!==(o=null==s?void 0:s.renderBefore)&&void 0!==o?o:null;n._$litPart$=l=new N(i.insertBefore(lit_html_r(),t),t,void 0,null!=s?s:{})}return l._$AI(t),l};
 //# sourceMappingURL=lit-html.js.map
 
+;// CONCATENATED MODULE: ./node_modules/lit-element/node_modules/@lit/reactive-element/css-tag.js
+/**
+ * @license
+ * Copyright 2019 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+const reactive_element_css_tag_t=window.ShadowRoot&&(void 0===window.ShadyCSS||window.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,css_tag_e=Symbol(),css_tag_n=new Map;class css_tag_s{constructor(t,n){if(this._$cssResult$=!0,n!==css_tag_e)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=t}get styleSheet(){let e=css_tag_n.get(this.cssText);return reactive_element_css_tag_t&&void 0===e&&(css_tag_n.set(this.cssText,e=new CSSStyleSheet),e.replaceSync(this.cssText)),e}toString(){return this.cssText}}const css_tag_o=t=>new css_tag_s("string"==typeof t?t:t+"",css_tag_e),css_tag_r=(t,...n)=>{const o=1===t.length?t[0]:n.reduce(((e,n,s)=>e+(t=>{if(!0===t._$cssResult$)return t.cssText;if("number"==typeof t)return t;throw Error("Value passed to 'css' function must be a 'css' function result: "+t+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(n)+t[s+1]),t[0]);return new css_tag_s(o,css_tag_e)},css_tag_i=(e,n)=>{reactive_element_css_tag_t?e.adoptedStyleSheets=n.map((t=>t instanceof CSSStyleSheet?t:t.styleSheet)):n.forEach((t=>{const n=document.createElement("style"),s=window.litNonce;void 0!==s&&n.setAttribute("nonce",s),n.textContent=t.cssText,e.appendChild(n)}))},css_tag_S=reactive_element_css_tag_t?t=>t:t=>t instanceof CSSStyleSheet?(t=>{let e="";for(const n of t.cssRules)e+=n.cssText;return css_tag_o(e)})(t):t;
+//# sourceMappingURL=css-tag.js.map
+
+;// CONCATENATED MODULE: ./node_modules/lit-element/node_modules/@lit/reactive-element/reactive-element.js
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */var reactive_element_reactive_element_s;const reactive_element_reactive_element_e=window.trustedTypes,reactive_element_reactive_element_r=reactive_element_reactive_element_e?reactive_element_reactive_element_e.emptyScript:"",reactive_element_h=window.reactiveElementPolyfillSupport,reactive_element_reactive_element_o={toAttribute(t,i){switch(i){case Boolean:t=t?reactive_element_reactive_element_r:null;break;case Object:case Array:t=null==t?t:JSON.stringify(t)}return t},fromAttribute(t,i){let s=t;switch(i){case Boolean:s=null!==t;break;case Number:s=null===t?null:Number(t);break;case Object:case Array:try{s=JSON.parse(t)}catch(t){s=null}}return s}},reactive_element_reactive_element_n=(t,i)=>i!==t&&(i==i||t==t),reactive_element_l={attribute:!0,type:String,converter:reactive_element_reactive_element_o,reflect:!1,hasChanged:reactive_element_reactive_element_n};class reactive_element_a extends HTMLElement{constructor(){super(),this._$Et=new Map,this.isUpdatePending=!1,this.hasUpdated=!1,this._$Ei=null,this.o()}static addInitializer(t){var i;null!==(i=this.l)&&void 0!==i||(this.l=[]),this.l.push(t)}static get observedAttributes(){this.finalize();const t=[];return this.elementProperties.forEach(((i,s)=>{const e=this._$Eh(s,i);void 0!==e&&(this._$Eu.set(e,s),t.push(e))})),t}static createProperty(t,i=reactive_element_l){if(i.state&&(i.attribute=!1),this.finalize(),this.elementProperties.set(t,i),!i.noAccessor&&!this.prototype.hasOwnProperty(t)){const s="symbol"==typeof t?Symbol():"__"+t,e=this.getPropertyDescriptor(t,s,i);void 0!==e&&Object.defineProperty(this.prototype,t,e)}}static getPropertyDescriptor(t,i,s){return{get(){return this[i]},set(e){const r=this[t];this[i]=e,this.requestUpdate(t,r,s)},configurable:!0,enumerable:!0}}static getPropertyOptions(t){return this.elementProperties.get(t)||reactive_element_l}static finalize(){if(this.hasOwnProperty("finalized"))return!1;this.finalized=!0;const t=Object.getPrototypeOf(this);if(t.finalize(),this.elementProperties=new Map(t.elementProperties),this._$Eu=new Map,this.hasOwnProperty("properties")){const t=this.properties,i=[...Object.getOwnPropertyNames(t),...Object.getOwnPropertySymbols(t)];for(const s of i)this.createProperty(s,t[s])}return this.elementStyles=this.finalizeStyles(this.styles),!0}static finalizeStyles(i){const s=[];if(Array.isArray(i)){const e=new Set(i.flat(1/0).reverse());for(const i of e)s.unshift(css_tag_S(i))}else void 0!==i&&s.push(css_tag_S(i));return s}static _$Eh(t,i){const s=i.attribute;return!1===s?void 0:"string"==typeof s?s:"string"==typeof t?t.toLowerCase():void 0}o(){var t;this._$Ep=new Promise((t=>this.enableUpdating=t)),this._$AL=new Map,this._$Em(),this.requestUpdate(),null===(t=this.constructor.l)||void 0===t||t.forEach((t=>t(this)))}addController(t){var i,s;(null!==(i=this._$Eg)&&void 0!==i?i:this._$Eg=[]).push(t),void 0!==this.renderRoot&&this.isConnected&&(null===(s=t.hostConnected)||void 0===s||s.call(t))}removeController(t){var i;null===(i=this._$Eg)||void 0===i||i.splice(this._$Eg.indexOf(t)>>>0,1)}_$Em(){this.constructor.elementProperties.forEach(((t,i)=>{this.hasOwnProperty(i)&&(this._$Et.set(i,this[i]),delete this[i])}))}createRenderRoot(){var t;const s=null!==(t=this.shadowRoot)&&void 0!==t?t:this.attachShadow(this.constructor.shadowRootOptions);return css_tag_i(s,this.constructor.elementStyles),s}connectedCallback(){var t;void 0===this.renderRoot&&(this.renderRoot=this.createRenderRoot()),this.enableUpdating(!0),null===(t=this._$Eg)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostConnected)||void 0===i?void 0:i.call(t)}))}enableUpdating(t){}disconnectedCallback(){var t;null===(t=this._$Eg)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostDisconnected)||void 0===i?void 0:i.call(t)}))}attributeChangedCallback(t,i,s){this._$AK(t,s)}_$ES(t,i,s=reactive_element_l){var e,r;const h=this.constructor._$Eh(t,s);if(void 0!==h&&!0===s.reflect){const n=(null!==(r=null===(e=s.converter)||void 0===e?void 0:e.toAttribute)&&void 0!==r?r:reactive_element_reactive_element_o.toAttribute)(i,s.type);this._$Ei=t,null==n?this.removeAttribute(h):this.setAttribute(h,n),this._$Ei=null}}_$AK(t,i){var s,e,r;const h=this.constructor,n=h._$Eu.get(t);if(void 0!==n&&this._$Ei!==n){const t=h.getPropertyOptions(n),l=t.converter,a=null!==(r=null!==(e=null===(s=l)||void 0===s?void 0:s.fromAttribute)&&void 0!==e?e:"function"==typeof l?l:null)&&void 0!==r?r:reactive_element_reactive_element_o.fromAttribute;this._$Ei=n,this[n]=a(i,t.type),this._$Ei=null}}requestUpdate(t,i,s){let e=!0;void 0!==t&&(((s=s||this.constructor.getPropertyOptions(t)).hasChanged||reactive_element_reactive_element_n)(this[t],i)?(this._$AL.has(t)||this._$AL.set(t,i),!0===s.reflect&&this._$Ei!==t&&(void 0===this._$EC&&(this._$EC=new Map),this._$EC.set(t,s))):e=!1),!this.isUpdatePending&&e&&(this._$Ep=this._$E_())}async _$E_(){this.isUpdatePending=!0;try{await this._$Ep}catch(t){Promise.reject(t)}const t=this.scheduleUpdate();return null!=t&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){var t;if(!this.isUpdatePending)return;this.hasUpdated,this._$Et&&(this._$Et.forEach(((t,i)=>this[i]=t)),this._$Et=void 0);let i=!1;const s=this._$AL;try{i=this.shouldUpdate(s),i?(this.willUpdate(s),null===(t=this._$Eg)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostUpdate)||void 0===i?void 0:i.call(t)})),this.update(s)):this._$EU()}catch(t){throw i=!1,this._$EU(),t}i&&this._$AE(s)}willUpdate(t){}_$AE(t){var i;null===(i=this._$Eg)||void 0===i||i.forEach((t=>{var i;return null===(i=t.hostUpdated)||void 0===i?void 0:i.call(t)})),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(t)),this.updated(t)}_$EU(){this._$AL=new Map,this.isUpdatePending=!1}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$Ep}shouldUpdate(t){return!0}update(t){void 0!==this._$EC&&(this._$EC.forEach(((t,i)=>this._$ES(i,this[i],t))),this._$EC=void 0),this._$EU()}updated(t){}firstUpdated(t){}}reactive_element_a.finalized=!0,reactive_element_a.elementProperties=new Map,reactive_element_a.elementStyles=[],reactive_element_a.shadowRootOptions={mode:"open"},null==reactive_element_h||reactive_element_h({ReactiveElement:reactive_element_a}),(null!==(reactive_element_reactive_element_s=globalThis.reactiveElementVersions)&&void 0!==reactive_element_reactive_element_s?reactive_element_reactive_element_s:globalThis.reactiveElementVersions=[]).push("1.3.0");
+//# sourceMappingURL=reactive-element.js.map
+
+;// CONCATENATED MODULE: ./node_modules/lit-element/node_modules/lit-html/lit-html.js
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+var lit_html_lit_html_t;const lit_html_lit_html_i=globalThis.trustedTypes,lit_html_lit_html_s=lit_html_lit_html_i?lit_html_lit_html_i.createPolicy("lit-html",{createHTML:t=>t}):void 0,lit_html_lit_html_e=`lit$${(Math.random()+"").slice(9)}$`,lit_html_lit_html_o="?"+lit_html_lit_html_e,lit_html_lit_html_n=`<${lit_html_lit_html_o}>`,lit_html_lit_html_l=document,lit_html_lit_html_h=(t="")=>lit_html_lit_html_l.createComment(t),lit_html_lit_html_r=t=>null===t||"object"!=typeof t&&"function"!=typeof t,lit_html_lit_html_d=Array.isArray,lit_html_u=t=>{var i;return lit_html_lit_html_d(t)||"function"==typeof(null===(i=t)||void 0===i?void 0:i[Symbol.iterator])},lit_html_lit_html_c=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,lit_html_v=/-->/g,lit_html_lit_html_a=/>/g,lit_html_f=/>|[ 	\n\r](?:([^\s"'>=/]+)([ 	\n\r]*=[ 	\n\r]*(?:[^ 	\n\r"'`<>=]|("|')|))|$)/g,lit_html_=/'/g,lit_html_m=/"/g,lit_html_g=/^(?:script|style|textarea|title)$/i,lit_html_p=t=>(i,...s)=>({_$litType$:t,strings:i,values:s}),lit_html_$=lit_html_p(1),lit_html_y=lit_html_p(2),lit_html_b=Symbol.for("lit-noChange"),lit_html_w=Symbol.for("lit-nothing"),lit_html_T=new WeakMap,lit_html_x=(t,i,s)=>{var e,o;const n=null!==(e=null==s?void 0:s.renderBefore)&&void 0!==e?e:i;let l=n._$litPart$;if(void 0===l){const t=null!==(o=null==s?void 0:s.renderBefore)&&void 0!==o?o:null;n._$litPart$=l=new lit_html_N(i.insertBefore(lit_html_lit_html_h(),t),t,void 0,null!=s?s:{})}return l._$AI(t),l},lit_html_A=lit_html_lit_html_l.createTreeWalker(lit_html_lit_html_l,129,null,!1),lit_html_C=(t,i)=>{const o=t.length-1,l=[];let h,r=2===i?"<svg>":"",d=lit_html_lit_html_c;for(let i=0;i<o;i++){const s=t[i];let o,u,p=-1,$=0;for(;$<s.length&&(d.lastIndex=$,u=d.exec(s),null!==u);)$=d.lastIndex,d===lit_html_lit_html_c?"!--"===u[1]?d=lit_html_v:void 0!==u[1]?d=lit_html_lit_html_a:void 0!==u[2]?(lit_html_g.test(u[2])&&(h=RegExp("</"+u[2],"g")),d=lit_html_f):void 0!==u[3]&&(d=lit_html_f):d===lit_html_f?">"===u[0]?(d=null!=h?h:lit_html_lit_html_c,p=-1):void 0===u[1]?p=-2:(p=d.lastIndex-u[2].length,o=u[1],d=void 0===u[3]?lit_html_f:'"'===u[3]?lit_html_m:lit_html_):d===lit_html_m||d===lit_html_?d=lit_html_f:d===lit_html_v||d===lit_html_lit_html_a?d=lit_html_lit_html_c:(d=lit_html_f,h=void 0);const y=d===lit_html_f&&t[i+1].startsWith("/>")?" ":"";r+=d===lit_html_lit_html_c?s+lit_html_lit_html_n:p>=0?(l.push(o),s.slice(0,p)+"$lit$"+s.slice(p)+lit_html_lit_html_e+y):s+lit_html_lit_html_e+(-2===p?(l.push(void 0),i):y)}const u=r+(t[o]||"<?>")+(2===i?"</svg>":"");if(!Array.isArray(t)||!t.hasOwnProperty("raw"))throw Error("invalid template strings array");return[void 0!==lit_html_lit_html_s?lit_html_lit_html_s.createHTML(u):u,l]};class lit_html_E{constructor({strings:t,_$litType$:s},n){let l;this.parts=[];let r=0,d=0;const u=t.length-1,c=this.parts,[v,a]=lit_html_C(t,s);if(this.el=lit_html_E.createElement(v,n),lit_html_A.currentNode=this.el.content,2===s){const t=this.el.content,i=t.firstChild;i.remove(),t.append(...i.childNodes)}for(;null!==(l=lit_html_A.nextNode())&&c.length<u;){if(1===l.nodeType){if(l.hasAttributes()){const t=[];for(const i of l.getAttributeNames())if(i.endsWith("$lit$")||i.startsWith(lit_html_lit_html_e)){const s=a[d++];if(t.push(i),void 0!==s){const t=l.getAttribute(s.toLowerCase()+"$lit$").split(lit_html_lit_html_e),i=/([.?@])?(.*)/.exec(s);c.push({type:1,index:r,name:i[2],strings:t,ctor:"."===i[1]?lit_html_M:"?"===i[1]?lit_html_H:"@"===i[1]?lit_html_I:lit_html_lit_html_S})}else c.push({type:6,index:r})}for(const i of t)l.removeAttribute(i)}if(lit_html_g.test(l.tagName)){const t=l.textContent.split(lit_html_lit_html_e),s=t.length-1;if(s>0){l.textContent=lit_html_lit_html_i?lit_html_lit_html_i.emptyScript:"";for(let i=0;i<s;i++)l.append(t[i],lit_html_lit_html_h()),lit_html_A.nextNode(),c.push({type:2,index:++r});l.append(t[s],lit_html_lit_html_h())}}}else if(8===l.nodeType)if(l.data===lit_html_lit_html_o)c.push({type:2,index:r});else{let t=-1;for(;-1!==(t=l.data.indexOf(lit_html_lit_html_e,t+1));)c.push({type:7,index:r}),t+=lit_html_lit_html_e.length-1}r++}}static createElement(t,i){const s=lit_html_lit_html_l.createElement("template");return s.innerHTML=t,s}}function lit_html_P(t,i,s=t,e){var o,n,l,h;if(i===lit_html_b)return i;let d=void 0!==e?null===(o=s._$Cl)||void 0===o?void 0:o[e]:s._$Cu;const u=lit_html_lit_html_r(i)?void 0:i._$litDirective$;return(null==d?void 0:d.constructor)!==u&&(null===(n=null==d?void 0:d._$AO)||void 0===n||n.call(d,!1),void 0===u?d=void 0:(d=new u(t),d._$AT(t,s,e)),void 0!==e?(null!==(l=(h=s)._$Cl)&&void 0!==l?l:h._$Cl=[])[e]=d:s._$Cu=d),void 0!==d&&(i=lit_html_P(t,d._$AS(t,i.values),d,e)),i}class lit_html_V{constructor(t,i){this.v=[],this._$AN=void 0,this._$AD=t,this._$AM=i}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}p(t){var i;const{el:{content:s},parts:e}=this._$AD,o=(null!==(i=null==t?void 0:t.creationScope)&&void 0!==i?i:lit_html_lit_html_l).importNode(s,!0);lit_html_A.currentNode=o;let n=lit_html_A.nextNode(),h=0,r=0,d=e[0];for(;void 0!==d;){if(h===d.index){let i;2===d.type?i=new lit_html_N(n,n.nextSibling,this,t):1===d.type?i=new d.ctor(n,d.name,d.strings,this,t):6===d.type&&(i=new lit_html_L(n,this,t)),this.v.push(i),d=e[++r]}h!==(null==d?void 0:d.index)&&(n=lit_html_A.nextNode(),h++)}return o}m(t){let i=0;for(const s of this.v)void 0!==s&&(void 0!==s.strings?(s._$AI(t,s,i),i+=s.strings.length-2):s._$AI(t[i])),i++}}class lit_html_N{constructor(t,i,s,e){var o;this.type=2,this._$AH=lit_html_w,this._$AN=void 0,this._$AA=t,this._$AB=i,this._$AM=s,this.options=e,this._$Cg=null===(o=null==e?void 0:e.isConnected)||void 0===o||o}get _$AU(){var t,i;return null!==(i=null===(t=this._$AM)||void 0===t?void 0:t._$AU)&&void 0!==i?i:this._$Cg}get parentNode(){let t=this._$AA.parentNode;const i=this._$AM;return void 0!==i&&11===t.nodeType&&(t=i.parentNode),t}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(t,i=this){t=lit_html_P(this,t,i),lit_html_lit_html_r(t)?t===lit_html_w||null==t||""===t?(this._$AH!==lit_html_w&&this._$AR(),this._$AH=lit_html_w):t!==this._$AH&&t!==lit_html_b&&this.$(t):void 0!==t._$litType$?this.T(t):void 0!==t.nodeType?this.k(t):lit_html_u(t)?this.S(t):this.$(t)}A(t,i=this._$AB){return this._$AA.parentNode.insertBefore(t,i)}k(t){this._$AH!==t&&(this._$AR(),this._$AH=this.A(t))}$(t){this._$AH!==lit_html_w&&lit_html_lit_html_r(this._$AH)?this._$AA.nextSibling.data=t:this.k(lit_html_lit_html_l.createTextNode(t)),this._$AH=t}T(t){var i;const{values:s,_$litType$:e}=t,o="number"==typeof e?this._$AC(t):(void 0===e.el&&(e.el=lit_html_E.createElement(e.h,this.options)),e);if((null===(i=this._$AH)||void 0===i?void 0:i._$AD)===o)this._$AH.m(s);else{const t=new lit_html_V(o,this),i=t.p(this.options);t.m(s),this.k(i),this._$AH=t}}_$AC(t){let i=lit_html_T.get(t.strings);return void 0===i&&lit_html_T.set(t.strings,i=new lit_html_E(t)),i}S(t){lit_html_lit_html_d(this._$AH)||(this._$AH=[],this._$AR());const i=this._$AH;let s,e=0;for(const o of t)e===i.length?i.push(s=new lit_html_N(this.A(lit_html_lit_html_h()),this.A(lit_html_lit_html_h()),this,this.options)):s=i[e],s._$AI(o),e++;e<i.length&&(this._$AR(s&&s._$AB.nextSibling,e),i.length=e)}_$AR(t=this._$AA.nextSibling,i){var s;for(null===(s=this._$AP)||void 0===s||s.call(this,!1,!0,i);t&&t!==this._$AB;){const i=t.nextSibling;t.remove(),t=i}}setConnected(t){var i;void 0===this._$AM&&(this._$Cg=t,null===(i=this._$AP)||void 0===i||i.call(this,t))}}class lit_html_lit_html_S{constructor(t,i,s,e,o){this.type=1,this._$AH=lit_html_w,this._$AN=void 0,this.element=t,this.name=i,this._$AM=e,this.options=o,s.length>2||""!==s[0]||""!==s[1]?(this._$AH=Array(s.length-1).fill(new String),this.strings=s):this._$AH=lit_html_w}get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}_$AI(t,i=this,s,e){const o=this.strings;let n=!1;if(void 0===o)t=lit_html_P(this,t,i,0),n=!lit_html_lit_html_r(t)||t!==this._$AH&&t!==lit_html_b,n&&(this._$AH=t);else{const e=t;let l,h;for(t=o[0],l=0;l<o.length-1;l++)h=lit_html_P(this,e[s+l],i,l),h===lit_html_b&&(h=this._$AH[l]),n||(n=!lit_html_lit_html_r(h)||h!==this._$AH[l]),h===lit_html_w?t=lit_html_w:t!==lit_html_w&&(t+=(null!=h?h:"")+o[l+1]),this._$AH[l]=h}n&&!e&&this.C(t)}C(t){t===lit_html_w?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,null!=t?t:"")}}class lit_html_M extends lit_html_lit_html_S{constructor(){super(...arguments),this.type=3}C(t){this.element[this.name]=t===lit_html_w?void 0:t}}const lit_html_k=lit_html_lit_html_i?lit_html_lit_html_i.emptyScript:"";class lit_html_H extends lit_html_lit_html_S{constructor(){super(...arguments),this.type=4}C(t){t&&t!==lit_html_w?this.element.setAttribute(this.name,lit_html_k):this.element.removeAttribute(this.name)}}class lit_html_I extends lit_html_lit_html_S{constructor(t,i,s,e,o){super(t,i,s,e,o),this.type=5}_$AI(t,i=this){var s;if((t=null!==(s=lit_html_P(this,t,i,0))&&void 0!==s?s:lit_html_w)===lit_html_b)return;const e=this._$AH,o=t===lit_html_w&&e!==lit_html_w||t.capture!==e.capture||t.once!==e.once||t.passive!==e.passive,n=t!==lit_html_w&&(e===lit_html_w||o);o&&this.element.removeEventListener(this.name,this,e),n&&this.element.addEventListener(this.name,this,t),this._$AH=t}handleEvent(t){var i,s;"function"==typeof this._$AH?this._$AH.call(null!==(s=null===(i=this.options)||void 0===i?void 0:i.host)&&void 0!==s?s:this.element,t):this._$AH.handleEvent(t)}}class lit_html_L{constructor(t,i,s){this.element=t,this.type=6,this._$AN=void 0,this._$AM=i,this.options=s}get _$AU(){return this._$AM._$AU}_$AI(t){lit_html_P(this,t)}}const lit_html_R={P:"$lit$",L:lit_html_lit_html_e,V:lit_html_lit_html_o,I:1,N:lit_html_C,R:lit_html_V,D:lit_html_u,j:lit_html_P,H:lit_html_N,O:lit_html_lit_html_S,F:lit_html_H,B:lit_html_I,W:lit_html_M,Z:lit_html_L},lit_html_z=window.litHtmlPolyfillSupport;null==lit_html_z||lit_html_z(lit_html_E,lit_html_N),(null!==(lit_html_lit_html_t=globalThis.litHtmlVersions)&&void 0!==lit_html_lit_html_t?lit_html_lit_html_t:globalThis.litHtmlVersions=[]).push("2.2.0");
+//# sourceMappingURL=lit-html.js.map
+
 ;// CONCATENATED MODULE: ./node_modules/lit-element/lit-element.js
 
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */var lit_element_l,lit_element_o;const lit_element_r=(/* unused pure expression or super */ null && (t));class lit_element_s extends d{constructor(){super(...arguments),this.renderOptions={host:this},this._$Dt=void 0}createRenderRoot(){var t,e;const i=super.createRenderRoot();return null!==(t=(e=this.renderOptions).renderBefore)&&void 0!==t||(e.renderBefore=i.firstChild),i}update(t){const i=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(t),this._$Dt=Z(i,this.renderRoot,this.renderOptions)}connectedCallback(){var t;super.connectedCallback(),null===(t=this._$Dt)||void 0===t||t.setConnected(!0)}disconnectedCallback(){var t;super.disconnectedCallback(),null===(t=this._$Dt)||void 0===t||t.setConnected(!1)}render(){return x}}lit_element_s.finalized=!0,lit_element_s._$litElement$=!0,null===(lit_element_l=globalThis.litElementHydrateSupport)||void 0===lit_element_l||lit_element_l.call(globalThis,{LitElement:lit_element_s});const lit_element_n=globalThis.litElementPolyfillSupport;null==lit_element_n||lit_element_n({LitElement:lit_element_s});const lit_element_h={_$AK:(t,e,i)=>{t._$AK(e,i)},_$AL:t=>t._$AL};(null!==(lit_element_o=globalThis.litElementVersions)&&void 0!==lit_element_o?lit_element_o:globalThis.litElementVersions=[]).push("3.2.0");
+ */var lit_element_l,lit_element_o;const lit_element_r=(/* unused pure expression or super */ null && (t));class lit_element_s extends reactive_element_a{constructor(){super(...arguments),this.renderOptions={host:this},this._$Dt=void 0}createRenderRoot(){var t,e;const i=super.createRenderRoot();return null!==(t=(e=this.renderOptions).renderBefore)&&void 0!==t||(e.renderBefore=i.firstChild),i}update(t){const i=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(t),this._$Dt=lit_html_x(i,this.renderRoot,this.renderOptions)}connectedCallback(){var t;super.connectedCallback(),null===(t=this._$Dt)||void 0===t||t.setConnected(!0)}disconnectedCallback(){var t;super.disconnectedCallback(),null===(t=this._$Dt)||void 0===t||t.setConnected(!1)}render(){return lit_html_b}}lit_element_s.finalized=!0,lit_element_s._$litElement$=!0,null===(lit_element_l=globalThis.litElementHydrateSupport)||void 0===lit_element_l||lit_element_l.call(globalThis,{LitElement:lit_element_s});const lit_element_n=globalThis.litElementPolyfillSupport;null==lit_element_n||lit_element_n({LitElement:lit_element_s});const lit_element_h={_$AK:(t,e,i)=>{t._$AK(e,i)},_$AL:t=>t._$AL};(null!==(lit_element_o=globalThis.litElementVersions)&&void 0!==lit_element_o?lit_element_o:globalThis.litElementVersions=[]).push("3.2.0");
 //# sourceMappingURL=lit-element.js.map
 
 ;// CONCATENATED MODULE: ./node_modules/lit/index.js
@@ -101,9 +128,9 @@ function changeDefaults(newDefaults) {
  * Helpers
  */
 const escapeTest = /[&<>"']/;
-const escapeReplace = /[&<>"']/g;
-const escapeTestNoEncode = /[<>"']|&(?!#?\w+;)/;
-const escapeReplaceNoEncode = /[<>"']|&(?!#?\w+;)/g;
+const escapeReplace = new RegExp(escapeTest.source, 'g');
+const escapeTestNoEncode = /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/;
+const escapeReplaceNoEncode = new RegExp(escapeTestNoEncode.source, 'g');
 const escapeReplacements = {
   '&': '&amp;',
   '<': '&lt;',
@@ -471,7 +498,7 @@ class Tokenizer {
       return {
         type: 'code',
         raw,
-        lang: cap[2] ? cap[2].trim() : cap[2],
+        lang: cap[2] ? cap[2].trim().replace(this.rules.inline._escapes, '$1') : cap[2],
         text
       };
     }
@@ -733,14 +760,15 @@ class Tokenizer {
   def(src) {
     const cap = this.rules.block.def.exec(src);
     if (cap) {
-      if (cap[3]) cap[3] = cap[3].substring(1, cap[3].length - 1);
       const tag = cap[1].toLowerCase().replace(/\s+/g, ' ');
+      const href = cap[2] ? cap[2].replace(/^<(.*)>$/, '$1').replace(this.rules.inline._escapes, '$1') : '';
+      const title = cap[3] ? cap[3].substring(1, cap[3].length - 1).replace(this.rules.inline._escapes, '$1') : cap[3];
       return {
         type: 'def',
         tag,
         raw: cap[0],
-        href: cap[2],
-        title: cap[3]
+        href,
+        title
       };
     }
   }
@@ -942,7 +970,7 @@ class Tokenizer {
         || (cap = this.rules.inline.nolink.exec(src))) {
       let link = (cap[2] || cap[1]).replace(/\s+/g, ' ');
       link = links[link.toLowerCase()];
-      if (!link || !link.href) {
+      if (!link) {
         const text = cap[0].charAt(0);
         return {
           type: 'text',
@@ -997,22 +1025,24 @@ class Tokenizer {
         // Remove extra characters. *a*** -> *a*
         rLength = Math.min(rLength, rLength + delimTotal + midDelimTotal);
 
+        const raw = src.slice(0, lLength + match.index + (match[0].length - rDelim.length) + rLength);
+
         // Create `em` if smallest delimiter has odd char count. *a***
         if (Math.min(lLength, rLength) % 2) {
-          const text = src.slice(1, lLength + match.index + rLength);
+          const text = raw.slice(1, -1);
           return {
             type: 'em',
-            raw: src.slice(0, lLength + match.index + rLength + 1),
+            raw,
             text,
             tokens: this.lexer.inlineTokens(text)
           };
         }
 
         // Create 'strong' if smallest delimiter has even char count. **a***
-        const text = src.slice(2, lLength + match.index + rLength - 1);
+        const text = raw.slice(2, -2);
         return {
           type: 'strong',
-          raw: src.slice(0, lLength + match.index + rLength + 1),
+          raw,
           text,
           tokens: this.lexer.inlineTokens(text)
         };
@@ -1164,9 +1194,9 @@ const block = {
     + '|<(?!script|pre|style|textarea)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n *)+\\n|$)' // (7) open tag
     + '|</(?!script|pre|style|textarea)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n *)+\\n|$)' // (7) closing tag
     + ')',
-  def: /^ {0,3}\[(label)\]: *(?:\n *)?<?([^\s>]+)>?(?:(?: +(?:\n *)?| *\n *)(title))? *(?:\n+|$)/,
+  def: /^ {0,3}\[(label)\]: *(?:\n *)?([^<\s][^\s]*|<.*?>)(?:(?: +(?:\n *)?| *\n *)(title))? *(?:\n+|$)/,
   table: noopTest,
-  lheading: /^([^\n]+)\n {0,3}(=+|-+) *(?:\n+|$)/,
+  lheading: /^((?:.|\n(?!\n))+?)\n {0,3}(=+|-+) *(?:\n+|$)/,
   // regex template, placeholders will be replaced according to different paragraph
   // interruption rules of commonmark and the original markdown spec:
   _paragraph: /^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html|table| +\n)[^\n]+)*)/,
@@ -1276,6 +1306,7 @@ block.pedantic = merge({}, block.normal, {
   def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/,
   heading: /^(#{1,6})(.*)(?:\n+|$)/,
   fences: noopTest, // fences not supported
+  lheading: /^(.+?)\n {0,3}(=+|-+) *(?:\n+|$)/,
   paragraph: edit(block.normal._paragraph)
     .replace('hr', block.hr)
     .replace('heading', ' *#{1,6} *[^\n]')
@@ -1307,9 +1338,9 @@ const inline = {
   emStrong: {
     lDelim: /^(?:\*+(?:([punct_])|[^\s*]))|^_+(?:([punct*])|([^\s_]))/,
     //        (1) and (2) can only be a Right Delimiter. (3) and (4) can only be Left.  (5) and (6) can be either Left or Right.
-    //          () Skip orphan inside strong  () Consume to delim (1) #***                (2) a***#, a***                   (3) #***a, ***a                 (4) ***#              (5) #***#                 (6) a***a
-    rDelimAst: /^[^_*]*?\_\_[^_*]*?\*[^_*]*?(?=\_\_)|[^*]+(?=[^*])|[punct_](\*+)(?=[\s]|$)|[^punct*_\s](\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|[^punct*_\s](\*+)(?=[^punct*_\s])/,
-    rDelimUnd: /^[^_*]*?\*\*[^_*]*?\_[^_*]*?(?=\*\*)|[^_]+(?=[^_])|[punct*](\_+)(?=[\s]|$)|[^punct*_\s](\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/ // ^- Not allowed for _
+    //          () Skip orphan inside strong                                      () Consume to delim     (1) #***                (2) a***#, a***                             (3) #***a, ***a                 (4) ***#              (5) #***#                 (6) a***a
+    rDelimAst: /^(?:[^_*\\]|\\.)*?\_\_(?:[^_*\\]|\\.)*?\*(?:[^_*\\]|\\.)*?(?=\_\_)|(?:[^*\\]|\\.)+(?=[^*])|[punct_](\*+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|(?:[^punct*_\s\\]|\\.)(\*+)(?=[^punct*_\s])/,
+    rDelimUnd: /^(?:[^_*\\]|\\.)*?\*\*(?:[^_*\\]|\\.)*?\_(?:[^_*\\]|\\.)*?(?=\*\*)|(?:[^_\\]|\\.)+(?=[^_])|[punct*](\_+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/ // ^- Not allowed for _
   },
   code: /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/,
   br: /^( {2,}|\\)\n(?!\s*$)/,
@@ -1325,7 +1356,9 @@ inline.punctuation = edit(inline.punctuation).replace(/punctuation/g, inline._pu
 
 // sequences em should skip over [title](link), `code`, <html>
 inline.blockSkip = /\[[^\]]*?\]\([^\)]*?\)|`[^`]*?`|<[^>]*?>/g;
-inline.escapedEmSt = /\\\*|\\_/g;
+// lookbehind is not available on Safari as of version 16
+// inline.escapedEmSt = /(?<=(?:^|[^\\)(?:\\[^])*)\\[*_]/g;
+inline.escapedEmSt = /(?:^|[^\\])(?:\\\\)*\\[*_]/g;
 
 inline._comment = edit(block._comment).replace('(?:-->|$)', '-->').getRegex();
 
@@ -1787,7 +1820,8 @@ class Lexer {
 
     // Mask out escaped em & strong delimiters
     while ((match = this.tokenizer.rules.inline.escapedEmSt.exec(maskedSrc)) != null) {
-      maskedSrc = maskedSrc.slice(0, match.index) + '++' + maskedSrc.slice(this.tokenizer.rules.inline.escapedEmSt.lastIndex);
+      maskedSrc = maskedSrc.slice(0, match.index + match[0].length - 2) + '++' + maskedSrc.slice(this.tokenizer.rules.inline.escapedEmSt.lastIndex);
+      this.tokenizer.rules.inline.escapedEmSt.lastIndex--;
     }
 
     while (src) {
@@ -1966,7 +2000,7 @@ class Renderer {
 
     return '<pre><code class="'
       + this.options.langPrefix
-      + marked_esm_escape(lang, true)
+      + marked_esm_escape(lang)
       + '">'
       + (escaped ? code : marked_esm_escape(code, true))
       + '</code></pre>\n';
@@ -2104,7 +2138,7 @@ class Renderer {
     if (href === null) {
       return text;
     }
-    let out = '<a href="' + marked_esm_escape(href) + '"';
+    let out = '<a href="' + href + '"';
     if (title) {
       out += ' title="' + title + '"';
     }
@@ -2652,20 +2686,23 @@ marked.defaults = defaults;
  */
 
 marked.use = function(...args) {
-  const opts = merge({}, ...args);
   const extensions = marked.defaults.extensions || { renderers: {}, childTokens: {} };
-  let hasExtensions;
 
   args.forEach((pack) => {
+    // copy options to new object
+    const opts = merge({}, pack);
+
+    // set async to true if it was set to true before
+    opts.async = marked.defaults.async || opts.async;
+
     // ==-- Parse "addon" extensions --== //
     if (pack.extensions) {
-      hasExtensions = true;
       pack.extensions.forEach((ext) => {
         if (!ext.name) {
           throw new Error('extension name required');
         }
         if (ext.renderer) { // Renderer extensions
-          const prevRenderer = extensions.renderers ? extensions.renderers[ext.name] : null;
+          const prevRenderer = extensions.renderers[ext.name];
           if (prevRenderer) {
             // Replace extension with func to run new extension but fall back if false
             extensions.renderers[ext.name] = function(...args) {
@@ -2708,6 +2745,7 @@ marked.use = function(...args) {
           extensions.childTokens[ext.name] = ext.childTokens;
         }
       });
+      opts.extensions = extensions;
     }
 
     // ==-- Parse "overwrite" extensions --== //
@@ -2753,10 +2791,6 @@ marked.use = function(...args) {
         }
         return values;
       };
-    }
-
-    if (hasExtensions) {
-      opts.extensions = extensions;
     }
 
     marked.setOptions(opts);
@@ -2882,7 +2916,7 @@ var prism_http = __webpack_require__(57);
 var prism_csharp = __webpack_require__(16);
 ;// CONCATENATED MODULE: ./src/styles/font-styles.js
 
-/* harmony default export */ const font_styles = (i`
+/* harmony default export */ const font_styles = (css_tag_r`
   .hover-bg:hover{
     background: var(--bg3);
   }
@@ -3150,9 +3184,9 @@ var prism_csharp = __webpack_require__(16);
 `);
 ;// CONCATENATED MODULE: ./src/styles/input-styles.js
 
-/* eslint-disable max-len */
 
-/* harmony default export */ const input_styles = (i`
+/* eslint-disable max-len */
+/* harmony default export */ const input_styles = (css_tag_r`
 /* Button */
 .m-btn {
   border-radius: var(--border-radius);
@@ -3353,7 +3387,7 @@ input[type="checkbox"]:checked:after {
 }`);
 ;// CONCATENATED MODULE: ./src/styles/flex-styles.js
 
-/* harmony default export */ const flex_styles = (i`
+/* harmony default export */ const flex_styles = (css_tag_r`
 .row, .col{
   display:flex;
 } 
@@ -3368,7 +3402,7 @@ input[type="checkbox"]:checked:after {
 `);
 ;// CONCATENATED MODULE: ./src/styles/table-styles.js
 
-/* harmony default export */ const table_styles = (i`
+/* harmony default export */ const table_styles = (css_tag_r`
 .m-table {
   border-spacing: 0;  
   border-collapse: separate;
@@ -3426,7 +3460,7 @@ input[type="checkbox"]:checked:after {
 `);
 ;// CONCATENATED MODULE: ./src/styles/endpoint-styles.js
 
-/* harmony default export */ const endpoint_styles = (i`
+/* harmony default export */ const endpoint_styles = (css_tag_r`
 .only-large-screen { display:none; }
 .endpoint-head .path{
   display: flex;
@@ -3625,7 +3659,7 @@ api-response.view-mode {
 `);
 ;// CONCATENATED MODULE: ./src/styles/prism-styles.js
 
-/* harmony default export */ const prism_styles = (i`
+/* harmony default export */ const prism_styles = (css_tag_r`
 code[class*="language-"],
 pre[class*="language-"] {
   text-align: left;
@@ -3730,7 +3764,7 @@ pre[class*="language-"] {
 `);
 ;// CONCATENATED MODULE: ./src/styles/tab-styles.js
 
-/* harmony default export */ const tab_styles = (i`
+/* harmony default export */ const tab_styles = (css_tag_r`
 .tab-panel {
   border: none;
 }
@@ -3777,7 +3811,7 @@ pre[class*="language-"] {
 `);
 ;// CONCATENATED MODULE: ./src/styles/nav-styles.js
 
-/* harmony default export */ const nav_styles = (i`
+/* harmony default export */ const nav_styles = (css_tag_r`
 .nav-bar-info:focus-visible,
 .nav-bar-tag:focus-visible,
 .nav-bar-path:focus-visible {
@@ -3975,7 +4009,7 @@ pre[class*="language-"] {
 `);
 ;// CONCATENATED MODULE: ./src/styles/info-styles.js
 
-/* harmony default export */ const info_styles = (i`
+/* harmony default export */ const info_styles = (css_tag_r`
 #api-info {
   font-size: calc(var(--font-size-regular) - 1px);
   margin-top: 8px;
@@ -3996,12 +4030,13 @@ pre[class*="language-"] {
 `);
 ;// CONCATENATED MODULE: ./src/styles/custom-styles.js
 
+
 /*
 This file is reserved for any custom css that developers want to add to
 customize their theme. Simply add your css to this file and yarn build.
 */
 
-/* harmony default export */ const custom_styles = (i`
+/* harmony default export */ const custom_styles = (css_tag_r`
 
 `);
 ;// CONCATENATED MODULE: ./src/utils/common-utils.js
@@ -4017,7 +4052,6 @@ function debounce(fn, delay) {
   };
 }
 const invalidCharsRegEx = /[\s#:?&={}]/g; // used for generating valid html element ids by replacing the invalid chars with hyphen (-)
-
 const rapidocApiKey = '_rapidoc_api_key';
 function sleep(ms) {
   // eslint-disable-next-line no-promise-executor-return
@@ -4028,11 +4062,9 @@ function copyToClipboard(data, e) {
   const textArea = document.createElement('textarea');
   textArea.value = data;
   textArea.style.position = 'fixed'; // avoid scrolling to bottom
-
   document.body.appendChild(textArea);
   textArea.focus();
   textArea.select();
-
   try {
     document.execCommand('copy');
     btnEl.innerText = 'Copied';
@@ -4062,7 +4094,6 @@ function pathIsInSearch(searchVal, path, matchType = 'includes') {
     const stringToSearch = `${path.method} ${path.path} ${path.summary || path.description || ''} ${path.operationId || ''}`.toLowerCase();
     return stringToSearch.includes(searchVal.toLowerCase());
   }
-
   const regex = new RegExp(searchVal, 'i');
   return regex.test(`${path.method} ${path.path}`);
 }
@@ -4070,17 +4101,13 @@ function schemaKeys(schemaProps, result = new Set()) {
   if (!schemaProps) {
     return result;
   }
-
   Object.keys(schemaProps).forEach(key => {
     var _schemaProps$key$item;
-
     result.add(key);
-
     if (schemaProps[key].properties) {
       schemaKeys(schemaProps[key].properties, result);
     } else if ((_schemaProps$key$item = schemaProps[key].items) !== null && _schemaProps$key$item !== void 0 && _schemaProps$key$item.properties) {
       var _schemaProps$key$item2;
-
       schemaKeys((_schemaProps$key$item2 = schemaProps[key].items) === null || _schemaProps$key$item2 === void 0 ? void 0 : _schemaProps$key$item2.properties, result);
     }
   });
@@ -4090,46 +4117,34 @@ function advancedSearch(searchVal, allSpecTags, searchOptions = []) {
   if (!searchVal.trim() || searchOptions.length === 0) {
     return;
   }
-
   const pathsMatched = [];
   allSpecTags.forEach(tag => {
     tag.paths.forEach(path => {
       let stringToSearch = '';
-
       if (searchOptions.includes('search-api-path')) {
         stringToSearch = path.path;
       }
-
       if (searchOptions.includes('search-api-descr')) {
         stringToSearch = `${stringToSearch} ${path.summary || path.description || ''}`;
       }
-
       if (searchOptions.includes('search-api-params')) {
         var _path$parameters;
-
         stringToSearch = `${stringToSearch} ${((_path$parameters = path.parameters) === null || _path$parameters === void 0 ? void 0 : _path$parameters.map(v => v.name).join(' ')) || ''}`;
       }
-
       if (searchOptions.includes('search-api-request-body') && path.requestBody) {
         let schemaKeySet = new Set();
-
         for (const contentType in (_path$requestBody = path.requestBody) === null || _path$requestBody === void 0 ? void 0 : _path$requestBody.content) {
           var _path$requestBody, _path$requestBody$con;
-
           if ((_path$requestBody$con = path.requestBody.content[contentType].schema) !== null && _path$requestBody$con !== void 0 && _path$requestBody$con.properties) {
             var _path$requestBody$con2;
-
             schemaKeySet = schemaKeys((_path$requestBody$con2 = path.requestBody.content[contentType].schema) === null || _path$requestBody$con2 === void 0 ? void 0 : _path$requestBody$con2.properties);
           }
-
           stringToSearch = `${stringToSearch} ${[...schemaKeySet].join(' ')}`;
         }
       }
-
       if (searchOptions.includes('search-api-resp-descr')) {
         stringToSearch = `${stringToSearch} ${Object.values(path.responses).map(v => v.description || '').join(' ')}`;
       }
-
       if (stringToSearch.toLowerCase().includes(searchVal.trim().toLowerCase())) {
         pathsMatched.push({
           elementId: path.elementId,
@@ -4143,6 +4158,7 @@ function advancedSearch(searchVal, allSpecTags, searchOptions = []) {
   });
   return pathsMatched;
 }
+
 /*
 export function prettyXml(sourceXmlString) {
   const xmlDoc = new DOMParser().parseFromString(sourceXmlString, 'text/xml');
@@ -11540,16 +11556,11 @@ const aR = { convertObj: iR, resolve: function(t9) {
 
 async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = false, sortEndpointsBy = '', attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '') {
   var _jsonParsedSpec$info, _jsonParsedSpec$compo;
-
   let jsonParsedSpec;
-
   try {
     var _specMeta$resolvedSpe, _specMeta$resolvedSpe2;
-
     this.requestUpdate(); // important to show the initial loader
-
     let specMeta;
-
     if (typeof specUrl === 'string') {
       specMeta = await aR.resolve({
         url: specUrl,
@@ -11563,8 +11574,8 @@ async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = fals
     }
 
     await sleep(0); // important to show the initial loader (allows for rendering updates)
-    // If  JSON Schema Viewer
 
+    // If  JSON Schema Viewer
     if ((_specMeta$resolvedSpe = specMeta.resolvedSpec) !== null && _specMeta$resolvedSpe !== void 0 && _specMeta$resolvedSpe.jsonSchemaViewer && (_specMeta$resolvedSpe2 = specMeta.resolvedSpec) !== null && _specMeta$resolvedSpe2 !== void 0 && _specMeta$resolvedSpe2.schemaAndExamples) {
       this.dispatchEvent(new CustomEvent('before-render', {
         detail: {
@@ -11587,7 +11598,6 @@ async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = fals
       };
       return parsedSpec;
     }
-
     if (specMeta.spec && (specMeta.spec.components || specMeta.spec.info || specMeta.spec.servers || specMeta.spec.tags || specMeta.spec.paths)) {
       jsonParsedSpec = specMeta.spec;
       this.dispatchEvent(new CustomEvent('before-render', {
@@ -11597,9 +11607,7 @@ async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = fals
       }));
     } else {
       var _specMeta$response, _specMeta$response2, _specMeta$response3, _specMeta$response4;
-
       console.info('RapiDoc: %c There was an issue while parsing the spec %o ', 'color:orangered', specMeta); // eslint-disable-line no-console
-
       return {
         specLoadError: true,
         isSpecLoading: false,
@@ -11613,18 +11621,21 @@ async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = fals
     }
   } catch (err) {
     console.info('RapiDoc: %c There was an issue while parsing the spec %o ', 'color:orangered', err); // eslint-disable-line no-console
-  } // const pathGroups = groupByPaths(jsonParsedSpec);
+  }
+
+  // const pathGroups = groupByPaths(jsonParsedSpec);
+
   // Tags with Paths and WebHooks
+  const tags = groupByTags(jsonParsedSpec, sortEndpointsBy, generateMissingTags, sortTags);
 
+  // Components
+  const components = getComponents(jsonParsedSpec);
 
-  const tags = groupByTags(jsonParsedSpec, sortEndpointsBy, generateMissingTags, sortTags); // Components
+  // Info Description Headers
+  const infoDescriptionHeaders = (_jsonParsedSpec$info = jsonParsedSpec.info) !== null && _jsonParsedSpec$info !== void 0 && _jsonParsedSpec$info.description ? getHeadersFromMarkdown(jsonParsedSpec.info.description) : [];
 
-  const components = getComponents(jsonParsedSpec); // Info Description Headers
-
-  const infoDescriptionHeaders = (_jsonParsedSpec$info = jsonParsedSpec.info) !== null && _jsonParsedSpec$info !== void 0 && _jsonParsedSpec$info.description ? getHeadersFromMarkdown(jsonParsedSpec.info.description) : []; // Security Scheme
-
+  // Security Scheme
   const securitySchemes = [];
-
   if ((_jsonParsedSpec$compo = jsonParsedSpec.components) !== null && _jsonParsedSpec$compo !== void 0 && _jsonParsedSpec$compo.securitySchemes) {
     const securitySchemeSet = new Set();
     Object.entries(jsonParsedSpec.components.securitySchemes).forEach(kv => {
@@ -11636,7 +11647,6 @@ async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = fals
         };
         securityObj.value = '';
         securityObj.finalKeyValue = '';
-
         if (kv[1].type === 'apiKey' || kv[1].type === 'http') {
           securityObj.in = kv[1].in || 'header';
           securityObj.name = kv[1].name || 'Authorization';
@@ -11648,12 +11658,10 @@ async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = fals
           securityObj.clientId = '';
           securityObj.clientSecret = '';
         }
-
         securitySchemes.push(securityObj);
       }
     });
   }
-
   if (attrApiKey && attrApiKeyLocation && attrApiKeyValue) {
     securitySchemes.push({
       securitySchemeId: rapidocApiKey,
@@ -11665,9 +11673,9 @@ async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = fals
       value: attrApiKeyValue,
       finalKeyValue: attrApiKeyValue
     });
-  } // Updated Security Type Display Text based on Type
+  }
 
-
+  // Updated Security Type Display Text based on Type
   securitySchemes.forEach(v => {
     if (v.type === 'http') {
       v.typeDisplay = v.scheme === 'basic' ? 'HTTP Basic' : 'HTTP Bearer';
@@ -11678,22 +11686,20 @@ async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = fals
     } else {
       v.typeDisplay = v.type || 'None';
     }
-  }); // Servers
+  });
 
+  // Servers
   let servers = [];
-
   if (jsonParsedSpec.servers && Array.isArray(jsonParsedSpec.servers)) {
     jsonParsedSpec.servers.forEach(v => {
       let computedUrl = v.url.trim();
-
       if (!(computedUrl.startsWith('http') || computedUrl.startsWith('//') || computedUrl.startsWith('{'))) {
         if (window.location.origin.startsWith('http')) {
           v.url = window.location.origin + v.url;
           computedUrl = v.url;
         }
-      } // Apply server-variables to generate final computed-url
-
-
+      }
+      // Apply server-variables to generate final computed-url
       if (v.variables) {
         Object.entries(v.variables).forEach(kv => {
           const regex = new RegExp(`{${kv[0]}}`, 'g');
@@ -11701,10 +11707,8 @@ async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = fals
           kv[1].value = kv[1].default || '';
         });
       }
-
       v.computedUrl = computedUrl;
     });
-
     if (serverUrl) {
       jsonParsedSpec.servers.push({
         url: serverUrl,
@@ -11727,7 +11731,6 @@ async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = fals
       computedUrl: 'http://localhost'
     }];
   }
-
   servers = jsonParsedSpec.servers;
   const parsedSpec = {
     specLoadError: false,
@@ -11742,23 +11745,18 @@ async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = fals
   };
   return parsedSpec;
 }
-
 function getHeadersFromMarkdown(markdownContent) {
   const tokens = marked.lexer(markdownContent);
   const headers = tokens.filter(v => v.type === 'heading' && v.depth <= 2);
   return headers || [];
 }
-
 function getComponents(openApiSpec) {
   if (!openApiSpec.components) {
     return [];
   }
-
   const components = [];
-
   for (const component in openApiSpec.components) {
     const subComponents = [];
-
     for (const sComponent in openApiSpec.components[component]) {
       const scmp = {
         show: true,
@@ -11768,64 +11766,52 @@ function getComponents(openApiSpec) {
       };
       subComponents.push(scmp);
     }
-
     let cmpDescription = component;
     let cmpName = component;
-
     switch (component) {
       case 'schemas':
         cmpName = 'Schemas';
         cmpDescription = 'Schemas allows the definition of input and output data types. These types can be objects, but also primitives and arrays.';
         break;
-
       case 'responses':
         cmpName = 'Responses';
         cmpDescription = 'Describes responses from an API Operation, including design-time, static links to operations based on the response.';
         break;
-
       case 'parameters':
         cmpName = 'Parameters';
         cmpDescription = 'Describes operation parameters. A unique parameter is defined by a combination of a name and location.';
         break;
-
       case 'examples':
         cmpName = 'Examples';
         cmpDescription = 'List of Examples for operations, can be requests, responses and objects examples.';
         break;
-
       case 'requestBodies':
         cmpName = 'Request Bodies';
         cmpDescription = 'Describes common request bodies that are used across the API operations.';
         break;
-
       case 'headers':
         cmpName = 'Headers';
         cmpDescription = 'Headers follows the structure of the Parameters but they are explicitly in "header"';
         break;
-
       case 'securitySchemes':
-        cmpName = 'Security Schemes'; // eslint-disable-next-line max-len
-
+        cmpName = 'Security Schemes';
+        // eslint-disable-next-line max-len
         cmpDescription = 'Defines a security scheme that can be used by the operations. Supported schemes are HTTP authentication, an API key (either as a header, a cookie parameter or as a query parameter), OAuth2\'s common flows(implicit, password, client credentials and authorization code) as defined in RFC6749, and OpenID Connect Discovery.';
         break;
-
       case 'links':
         cmpName = 'Links';
         cmpDescription = 'Links represent a possible design-time link for a response. The presence of a link does not guarantee the caller\'s ability to successfully invoke it, rather it provides a known relationship and traversal mechanism between responses and other operations.';
         break;
-
       case 'callbacks':
-        cmpName = 'Callbacks'; // eslint-disable-next-line max-len
-
+        cmpName = 'Callbacks';
+        // eslint-disable-next-line max-len
         cmpDescription = 'A map of possible out-of band callbacks related to the parent operation. Each value in the map is a Path Item Object that describes a set of requests that may be initiated by the API provider and the expected responses. The key value used to identify the path item object is an expression, evaluated at runtime, that identifies a URL to use for the callback operation.';
         break;
-
       default:
         cmpName = component;
         cmpDescription = component;
         break;
     }
-
     const cmp = {
       show: true,
       name: cmpName,
@@ -11834,13 +11820,10 @@ function getComponents(openApiSpec) {
     };
     components.push(cmp);
   }
-
   return components || [];
 }
-
 function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, sortTags = false) {
   const supportedMethods = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options']; // this is also used for ordering endpoints by methods
-
   const tags = openApiSpec.tags && Array.isArray(openApiSpec.tags) ? openApiSpec.tags.map(v => ({
     show: true,
     elementId: `tag--${v.name.replace(invalidCharsRegEx, '-')}`,
@@ -11851,16 +11834,13 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
     expanded: v['x-tag-expanded'] !== false
   })) : [];
   const pathsAndWebhooks = openApiSpec.paths || {};
-
   if (openApiSpec.webhooks) {
     for (const [key, value] of Object.entries(openApiSpec.webhooks)) {
       value._type = 'webhook'; // eslint-disable-line no-underscore-dangle
-
       pathsAndWebhooks[key] = value;
     }
-  } // For each path find the tag and push it into the corresponding tag
-
-
+  }
+  // For each path find the tag and push it into the corresponding tag
   for (const pathOrHookName in pathsAndWebhooks) {
     const commonParams = pathsAndWebhooks[pathOrHookName].parameters;
     const commonPathProp = {
@@ -11868,18 +11848,15 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
       parameters: pathsAndWebhooks[pathOrHookName].parameters || []
     };
     const isWebhook = pathsAndWebhooks[pathOrHookName]._type === 'webhook'; // eslint-disable-line no-underscore-dangle
-
     supportedMethods.forEach(methodName => {
       if (pathsAndWebhooks[pathOrHookName][methodName]) {
-        const pathOrHookObj = openApiSpec.paths[pathOrHookName][methodName]; // If path.methods are tagged, else generate it from path
-
+        const pathOrHookObj = openApiSpec.paths[pathOrHookName][methodName];
+        // If path.methods are tagged, else generate it from path
         const pathTags = pathOrHookObj.tags || [];
-
         if (pathTags.length === 0) {
           if (generateMissingTags) {
             const pathOrHookNameKey = pathOrHookName.replace(/^\/+|\/+$/g, '');
             const firstWordEndIndex = pathOrHookNameKey.indexOf('/');
-
             if (firstWordEndIndex === -1) {
               pathTags.push(pathOrHookNameKey);
             } else {
@@ -11890,20 +11867,15 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
             pathTags.push('General ⦂');
           }
         }
-
         pathTags.forEach(tag => {
           let tagObj;
           let specTagsItem;
-
           if (openApiSpec.tags) {
             specTagsItem = openApiSpec.tags.find(v => v.name.toLowerCase() === tag.toLowerCase());
           }
-
           tagObj = tags.find(v => v.name === tag);
-
           if (!tagObj) {
             var _specTagsItem, _specTagsItem2;
-
             tagObj = {
               show: true,
               elementId: `tag--${tag.replace(invalidCharsRegEx, '-')}`,
@@ -11914,18 +11886,15 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
               expanded: specTagsItem ? specTagsItem['x-tag-expanded'] !== false : true
             };
             tags.push(tagObj);
-          } // Generate a short summary which is broken
+          }
 
-
+          // Generate a short summary which is broken
           let shortSummary = (pathOrHookObj.summary || pathOrHookObj.description || `${methodName.toUpperCase()} ${pathOrHookName}`).trim();
-
           if (shortSummary.length > 100) {
             [shortSummary] = shortSummary.split(/[.|!|?]\s|[\r?\n]/); // take the first line (period or carriage return)
-          } // Merge Common Parameters with This methods parameters
-
-
+          }
+          // Merge Common Parameters with This methods parameters
           let finalParameters = [];
-
           if (commonParams) {
             if (pathOrHookObj.parameters) {
               finalParameters = commonParams.filter(commonParam => {
@@ -11938,17 +11907,17 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
             }
           } else {
             finalParameters = pathOrHookObj.parameters ? pathOrHookObj.parameters.slice(0) : [];
-          } // Filter callbacks to contain only objects.
+          }
 
-
+          // Filter callbacks to contain only objects.
           if (pathOrHookObj.callbacks) {
             for (const [callbackName, callbackConfig] of Object.entries(pathOrHookObj.callbacks)) {
               const filteredCallbacks = Object.entries(callbackConfig).filter(entry => typeof entry[1] === 'object') || [];
               pathOrHookObj.callbacks[callbackName] = Object.fromEntries(filteredCallbacks);
             }
-          } // Update Responses
+          }
 
-
+          // Update Responses
           tagObj.paths.push({
             show: true,
             expanded: false,
@@ -11987,9 +11956,9 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
       tag.paths.sort((a, b) => a.shortSummary.localeCompare(b.shortSummary));
     } else if (sortEndpointsBy === 'path') {
       tag.paths.sort((a, b) => a.path.localeCompare(b.path));
-    } else if (sortEndpointsBy === 'none') {// don't sort if sortEndpointsBy is 'none'
+    } else if (sortEndpointsBy === 'none') {
+      // don't sort if sortEndpointsBy is 'none'
     }
-
     tag.firstPathId = tag.paths[0].elementId;
   });
   return sortTags ? tagsWithSortedPaths.sort((a, b) => a.name.localeCompare(b.name)) : tagsWithSortedPaths;
@@ -12022,44 +11991,36 @@ const directive_t={ATTRIBUTE:1,CHILD:2,PROPERTY:3,BOOLEAN_ATTRIBUTE:4,EVENT:5,EL
 
  // eslint-disable-line import/extensions
 
-
 const codeVerifier = '731DB1C3F7EA533B85E29492D26AA-1234567890-1234567890';
 const codeChallenge = '4FatVDBJKPAo4JgLLaaQFMUcQPn5CrPRvLlaob9PTYc'; // Base64 encoded SHA-256
 
 const localStorageKey = 'rapidoc';
 function applyApiKey(securitySchemeId, username = '', password = '', providedApikeyVal = '') {
   var _this$resolvedSpec$se, _securityObj$scheme;
-
   const securityObj = (_this$resolvedSpec$se = this.resolvedSpec.securitySchemes) === null || _this$resolvedSpec$se === void 0 ? void 0 : _this$resolvedSpec$se.find(v => v.securitySchemeId === securitySchemeId);
-
   if (!securityObj) {
     return false;
   }
-
   let finalApiKeyValue = '';
-
   if (((_securityObj$scheme = securityObj.scheme) === null || _securityObj$scheme === void 0 ? void 0 : _securityObj$scheme.toLowerCase()) === 'basic') {
     if (username) {
-      finalApiKeyValue = Buffer.from(`${username}:${password}`, 'utf8').toString('base64'); // finalApiKeyValue = `Basic ${btoa(`${username}:${password}`)}`;
+      finalApiKeyValue = Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
+      // finalApiKeyValue = `Basic ${btoa(`${username}:${password}`)}`;
     }
   } else if (providedApikeyVal) {
     var _securityObj$scheme2;
-
     securityObj.value = providedApikeyVal;
     finalApiKeyValue = `${((_securityObj$scheme2 = securityObj.scheme) === null || _securityObj$scheme2 === void 0 ? void 0 : _securityObj$scheme2.toLowerCase()) === 'bearer' ? 'Bearer ' : ''}${providedApikeyVal}`;
   }
-
   if (finalApiKeyValue) {
     securityObj.finalKeyValue = finalApiKeyValue;
     this.requestUpdate();
     return true;
   }
-
   return false;
 }
 function onClearAllApiKeys() {
   var _this$resolvedSpec$se2;
-
   (_this$resolvedSpec$se2 = this.resolvedSpec.securitySchemes) === null || _this$resolvedSpec$se2 === void 0 ? void 0 : _this$resolvedSpec$se2.forEach(v => {
     v.user = '';
     v.password = '';
@@ -12068,29 +12029,23 @@ function onClearAllApiKeys() {
   });
   this.requestUpdate();
 }
-
 function getPersistedApiKeys() {
   return JSON.parse(localStorage.getItem(localStorageKey)) || {};
 }
-
 function setPersistedApiKeys(obj) {
   localStorage.setItem(localStorageKey, JSON.stringify(obj));
 }
-
 function recoverPersistedApiKeys() {
   const rapidocLs = getPersistedApiKeys.call(this);
   Object.values(rapidocLs).forEach(p => {
     applyApiKey.call(this, p.securitySchemeId, p.username, p.password, p.value);
   });
 }
-
 function onApiKeyChange(securitySchemeId) {
   let apiKeyValue = '';
   const securityObj = this.resolvedSpec.securitySchemes.find(v => v.securitySchemeId === securitySchemeId);
-
   if (securityObj) {
     const trEl = this.shadowRoot.getElementById(`security-scheme-${securitySchemeId}`);
-
     if (trEl) {
       if (securityObj.type && securityObj.scheme && securityObj.type === 'http' && securityObj.scheme.toLowerCase() === 'basic') {
         const userVal = trEl.querySelector('.api-key-user').value.trim();
@@ -12100,7 +12055,6 @@ function onApiKeyChange(securitySchemeId) {
         apiKeyValue = trEl.querySelector('.api-key-input').value.trim();
         applyApiKey.call(this, securitySchemeId, '', '', apiKeyValue);
       }
-
       if (this.persistAuth === 'true') {
         const rapidocLs = getPersistedApiKeys.call(this);
         rapidocLs[securitySchemeId] = securityObj;
@@ -12108,33 +12062,29 @@ function onApiKeyChange(securitySchemeId) {
       }
     }
   }
-} // Updates the OAuth Access Token (API key), so it reflects in UI and gets used in TRY calls
+}
 
-
+// Updates the OAuth Access Token (API key), so it reflects in UI and gets used in TRY calls
 function updateOAuthKey(securitySchemeId, accessToken, tokenType = 'Bearer') {
   const securityObj = this.resolvedSpec.securitySchemes.find(v => v.securitySchemeId === securitySchemeId);
   securityObj.finalKeyValue = `${tokenType.toLowerCase() === 'bearer' ? 'Bearer' : tokenType.toLowerCase() === 'mac' ? 'MAC' : tokenType} ${accessToken}`;
   this.requestUpdate();
 }
+
 /* eslint-disable no-console */
 // Gets Access-Token in exchange of Authorization Code
-
-
 async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, grantType, authCode, securitySchemeId, authFlowDivEl, sendClientSecretIn = 'header', scopes = null, username = null, password = null) {
   const respDisplayEl = authFlowDivEl ? authFlowDivEl.querySelector('.oauth-resp-display') : undefined;
   const urlFormParams = new URLSearchParams();
   const headers = new Headers();
   urlFormParams.append('grant_type', grantType);
-
   if (grantType === 'authorization_code') {
     urlFormParams.append('client_id', clientId);
     urlFormParams.append('client_secret', clientSecret);
   }
-
   if (grantType !== 'client_credentials' && grantType !== 'password') {
     urlFormParams.append('redirect_uri', redirectUrl);
   }
-
   if (authCode) {
     urlFormParams.append('code', authCode);
     urlFormParams.append('code_verifier', codeVerifier); // for PKCE
@@ -12147,16 +12097,13 @@ async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, g
     urlFormParams.append('client_id', clientId);
     urlFormParams.append('client_secret', clientSecret);
   }
-
   if (grantType === 'password') {
     urlFormParams.append('username', username);
     urlFormParams.append('password', password);
   }
-
   if (scopes) {
     urlFormParams.append('scope', scopes);
   }
-
   try {
     const resp = await fetch(tokenUrl, {
       method: 'POST',
@@ -12164,50 +12111,41 @@ async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, g
       body: urlFormParams
     });
     const tokenResp = await resp.json();
-
     if (resp.ok) {
       if (tokenResp.token_type && tokenResp.access_token) {
         updateOAuthKey.call(this, securitySchemeId, tokenResp.access_token, tokenResp.token_type);
-
         if (respDisplayEl) {
           respDisplayEl.innerHTML = '<span style="color:var(--green)">Access Token Received</span>';
         }
-
         return true;
       }
     } else {
       if (respDisplayEl) {
         respDisplayEl.innerHTML = `<span style="color:var(--red)">${tokenResp.error_description || tokenResp.error_description || 'Unable to get access token'}</span>`;
       }
-
       return false;
     }
   } catch (err) {
     if (respDisplayEl) {
       respDisplayEl.innerHTML = '<span style="color:var(--red)">Failed to get access token</span>';
     }
-
     return false;
   }
-} // Gets invoked when it receives the Authorization Code from the other window via message-event
+}
 
-
+// Gets invoked when it receives the Authorization Code from the other window via message-event
 async function onWindowMessageEvent(msgEvent, winObj, tokenUrl, clientId, clientSecret, redirectUrl, grantType, sendClientSecretIn, securitySchemeId, authFlowDivEl) {
   sessionStorage.removeItem('winMessageEventActive');
   winObj.close();
-
   if (msgEvent.data.fake) {
     return;
   }
-
   if (!msgEvent.data) {
     console.warn('RapiDoc: Received no data with authorization message');
   }
-
   if (msgEvent.data.error) {
     console.warn('RapiDoc: Error while receiving data');
   }
-
   if (msgEvent.data) {
     if (msgEvent.data.responseType === 'code') {
       // Authorization Code flow
@@ -12217,9 +12155,10 @@ async function onWindowMessageEvent(msgEvent, winObj, tokenUrl, clientId, client
       updateOAuthKey.call(this, securitySchemeId, msgEvent.data.access_token, msgEvent.data.token_type);
     }
   }
-} // code_challenge generator for PKCE flow
-// TODO: Implement dynamic generation of code-challenge based on code-verifier
+}
 
+// code_challenge generator for PKCE flow
+// TODO: Implement dynamic generation of code-challenge based on code-verifier
 /*
 async function generateCodeChallenge() {
   const encoder = new TextEncoder();
@@ -12232,7 +12171,6 @@ async function generateCodeChallenge() {
 }
 */
 
-
 async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, e) {
   const authFlowDivEl = e.target.closest('.oauth-flow');
   const clientId = authFlowDivEl.querySelector('.oauth-client-id') ? authFlowDivEl.querySelector('.oauth-client-id').value.trim() : '';
@@ -12243,58 +12181,50 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
   const checkedScopeEls = [...authFlowDivEl.querySelectorAll('.scope-checkbox:checked')];
   const pkceCheckboxEl = authFlowDivEl.querySelector(`#${securitySchemeId}-pkce`);
   const state = `${Math.random().toString(36).slice(2, 9)}random${Math.random().toString(36).slice(2, 9)}`;
-  const nonce = `${Math.random().toString(36).slice(2, 9)}random${Math.random().toString(36).slice(2, 9)}`; // const codeChallenge = await generateCodeChallenge(codeVerifier);
-
+  const nonce = `${Math.random().toString(36).slice(2, 9)}random${Math.random().toString(36).slice(2, 9)}`;
+  // const codeChallenge = await generateCodeChallenge(codeVerifier);
   const redirectUrlObj = new URL(`${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/${this.oauthReceiver}`);
   let grantType = '';
   let responseType = '';
-  let newWindow; // clear previous error messages
+  let newWindow;
 
+  // clear previous error messages
   const errEls = [...authFlowDivEl.parentNode.querySelectorAll('.oauth-resp-display')];
   errEls.forEach(v => {
     v.innerHTML = '';
   });
-
   if (flowType === 'authorizationCode' || flowType === 'implicit') {
     const authUrlObj = new URL(authUrl);
-
     if (flowType === 'authorizationCode') {
       grantType = 'authorization_code';
       responseType = 'code';
     } else if (flowType === 'implicit') {
       responseType = 'token';
     }
-
     const authCodeParams = new URLSearchParams(authUrlObj.search);
     const selectedScopes = checkedScopeEls.map(v => v.value).join(' ');
-
     if (selectedScopes) {
       authCodeParams.set('scope', selectedScopes);
     }
-
     authCodeParams.set('client_id', clientId);
     authCodeParams.set('redirect_uri', redirectUrlObj.toString());
     authCodeParams.set('response_type', responseType);
     authCodeParams.set('state', state);
     authCodeParams.set('nonce', nonce);
-
     if (pkceCheckboxEl && pkceCheckboxEl.checked) {
       authCodeParams.set('code_challenge', codeChallenge);
       authCodeParams.set('code_challenge_method', 'S256');
     }
-
     authCodeParams.set('show_dialog', true);
-    authUrlObj.search = authCodeParams.toString(); // If any older message-event-listener is active then fire a fake message to remove it (these are single time listeners)
-
+    authUrlObj.search = authCodeParams.toString();
+    // If any older message-event-listener is active then fire a fake message to remove it (these are single time listeners)
     if (sessionStorage.getItem('winMessageEventActive') === 'true') {
       window.postMessage({
         fake: true
       }, this);
     }
-
     setTimeout(() => {
       newWindow = window.open(authUrlObj.toString());
-
       if (!newWindow) {
         console.error(`RapiDoc: Unable to open ${authUrlObj.toString()} in a new window`);
       } else {
@@ -12318,7 +12248,6 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
 
 /* eslint-disable indent */
 
-
 function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, authFlow, defaultScopes = [], receiveTokenIn = 'header') {
   let {
     authorizationUrl,
@@ -12326,23 +12255,17 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
     refreshUrl
   } = authFlow;
   const pkceOnly = authFlow['x-pkce-only'] || false;
-
   const isUrlAbsolute = url => url.indexOf('://') > 0 || url.indexOf('//') === 0;
-
   if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
     refreshUrl = `${this.selectedServer.computedUrl}/${refreshUrl.replace(/^\//, '')}`;
   }
-
   if (tokenUrl && !isUrlAbsolute(tokenUrl)) {
     tokenUrl = `${this.selectedServer.computedUrl}/${tokenUrl.replace(/^\//, '')}`;
   }
-
   if (authorizationUrl && !isUrlAbsolute(authorizationUrl)) {
     authorizationUrl = `${this.selectedServer.computedUrl}/${authorizationUrl.replace(/^\//, '')}`;
   }
-
   let flowNameDisplay;
-
   if (flowName === 'authorizationCode') {
     flowNameDisplay = 'Authorization Code Flow';
   } else if (flowName === 'clientCredentials') {
@@ -12354,18 +12277,17 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
   } else {
     flowNameDisplay = flowName;
   }
-
-  return y`
+  return lit_html_$`
     <div class="oauth-flow ${flowName}" style="padding: 12px 0; margin-bottom:12px;">
       <div class="tiny-title upper" style="margin-bottom:8px;">${flowNameDisplay}</div>
-      ${authorizationUrl ? y`<div style="margin-bottom:5px"><span style="width:75px; display: inline-block;">Auth URL</span> <span class="mono-font"> ${authorizationUrl} </span></div>` : ''}
-      ${tokenUrl ? y`<div style="margin-bottom:5px"><span style="width:75px; display: inline-block;">Token URL</span> <span class="mono-font">${tokenUrl}</span></div>` : ''}
-      ${refreshUrl ? y`<div style="margin-bottom:5px"><span style="width:75px; display: inline-block;">Refresh URL</span> <span class="mono-font">${refreshUrl}</span></div>` : ''}
-      ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit' || flowName === 'password' ? y`
-          ${authFlow.scopes ? y`
+      ${authorizationUrl ? lit_html_$`<div style="margin-bottom:5px"><span style="width:75px; display: inline-block;">Auth URL</span> <span class="mono-font"> ${authorizationUrl} </span></div>` : ''}
+      ${tokenUrl ? lit_html_$`<div style="margin-bottom:5px"><span style="width:75px; display: inline-block;">Token URL</span> <span class="mono-font">${tokenUrl}</span></div>` : ''}
+      ${refreshUrl ? lit_html_$`<div style="margin-bottom:5px"><span style="width:75px; display: inline-block;">Refresh URL</span> <span class="mono-font">${refreshUrl}</span></div>` : ''}
+      ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit' || flowName === 'password' ? lit_html_$`
+          ${authFlow.scopes ? lit_html_$`
               <span> Scopes </span>
               <div class= "oauth-scopes" part="section-auth-scopes" style = "width:100%; display:flex; flex-direction:column; flex-wrap:wrap; margin:0 0 10px 24px">
-                ${Object.entries(authFlow.scopes).map((scopeAndDescr, index) => y`
+                ${Object.entries(authFlow.scopes).map((scopeAndDescr, index) => lit_html_$`
                   <div class="m-checkbox" style="display:inline-flex; align-items:center">
                     <input type="checkbox" part="checkbox checkbox-auth-scope" class="scope-checkbox" id="${securitySchemeId}${flowName}${index}" ?checked="${defaultScopes.includes(scopeAndDescr[0])}" value="${scopeAndDescr[0]}">
                     <label for="${securitySchemeId}${flowName}${index}" style="margin-left:5px; cursor:pointer">
@@ -12376,13 +12298,13 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
                 `)}
               </div>
             ` : ''}
-          ${flowName === 'password' ? y`
+          ${flowName === 'password' ? lit_html_$`
               <div style="margin:5px 0">
                 <input type="text" value = "" placeholder="username" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} api-key-user" part="textbox textbox-username">
                 <input type="password" value = "" placeholder="password" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} api-key-password" style = "margin:0 5px;" part="textbox textbox-password">
               </div>` : ''}
           <div>
-            ${flowName === 'authorizationCode' ? y`
+            ${flowName === 'authorizationCode' ? lit_html_$`
                 <div style="margin: 16px 0 4px">
                   <input type="checkbox" part="checkbox checkbox-auth-scope" id="${securitySchemeId}-pkce" checked ?disabled=${pkceOnly}>
                   <label for="${securitySchemeId}-pkce" style="margin:0 16px 0 4px; line-height:24px; cursor:pointer">
@@ -12391,7 +12313,7 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
                 </div>
               ` : ''}
             <input type="text" part="textbox textbox-auth-client-id" value = "${clientId || ''}" placeholder="client-id" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} oauth-client-id">
-            ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password' ? y`
+            ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password' ? lit_html_$`
                 <input 
                   type="password" part="textbox textbox-auth-client-secret" 
                   value = "${clientSecret || ''}" placeholder="client-secret" spellcheck="false" 
@@ -12403,7 +12325,7 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
                   <option value = 'header' .selected = ${receiveTokenIn === 'header'} > Authorization Header </option>
                   <option value = 'request-body' .selected = ${receiveTokenIn === 'request-body'}> Request Body </option>
                 </select>` : ''}
-            ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit' || flowName === 'password' ? y`
+            ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit' || flowName === 'password' ? lit_html_$`
                 <button class="m-btn thin-border" part="btn btn-outline"
                   @click="${e => {
     onInvokeOAuthFlow.call(this, securitySchemeId, flowName, authorizationUrl, tokenUrl, e);
@@ -12415,75 +12337,66 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
     </div>
   `;
 }
-
 function removeApiKey(securitySchemeId) {
   var _this$resolvedSpec$se3;
-
   const securityObj = (_this$resolvedSpec$se3 = this.resolvedSpec.securitySchemes) === null || _this$resolvedSpec$se3 === void 0 ? void 0 : _this$resolvedSpec$se3.find(v => v.securitySchemeId === securitySchemeId);
   securityObj.user = '';
   securityObj.password = '';
   securityObj.value = '';
   securityObj.finalKeyValue = '';
-
   if (this.persistAuth === 'true') {
     const rapidocLs = getPersistedApiKeys.call(this);
     delete rapidocLs[securityObj.securitySchemeId];
     setPersistedApiKeys.call(this, rapidocLs);
   }
-
   this.requestUpdate();
 }
-
 function securitySchemeTemplate() {
   var _this$resolvedSpec$se4;
-
   if (!this.resolvedSpec) {
     return '';
   }
-
   const providedApiKeys = (_this$resolvedSpec$se4 = this.resolvedSpec.securitySchemes) === null || _this$resolvedSpec$se4 === void 0 ? void 0 : _this$resolvedSpec$se4.filter(v => v.finalKeyValue);
-
   if (!providedApiKeys) {
     return;
   }
-
-  return y`
+  return lit_html_$`
   <section id='auth' part="section-auth" style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;" class = 'observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}'>
     <div class='sub-title regular-font'> AUTHENTICATION </div>
 
     <div class="small-font-size" style="display:flex; align-items: center; min-height:30px">
-      ${providedApiKeys.length > 0 ? y`
+      ${providedApiKeys.length > 0 ? lit_html_$`
           <div class="blue-text"> ${providedApiKeys.length} API key applied </div>
           <div style="flex:1"></div>
           <button class="m-btn thin-border" part="btn btn-outline" @click=${() => {
     onClearAllApiKeys.call(this);
-  }}>CLEAR ALL API KEYS</button>` : y`<div class="red-text">No API key applied</div>`}
+  }}>CLEAR ALL API KEYS</button>` : lit_html_$`<div class="red-text">No API key applied</div>`}
     </div>
-    ${this.resolvedSpec.securitySchemes && this.resolvedSpec.securitySchemes.length > 0 ? y`
+    ${this.resolvedSpec.securitySchemes && this.resolvedSpec.securitySchemes.length > 0 ? lit_html_$`
         <table role="presentation" id="auth-table" class='m-table padded-12' style="width:100%;">
-          ${this.resolvedSpec.securitySchemes.map(v => y`
+          ${this.resolvedSpec.securitySchemes.map(v => lit_html_$`
             <tr id="security-scheme-${v.securitySchemeId}" class="${v.type.toLowerCase()}">
               <td style="max-width:500px; overflow-wrap: break-word;">
                 <div style="line-height:28px; margin-bottom:5px;">
                   <span style="font-weight:bold; font-size:var(--font-size-regular)">${v.typeDisplay}</span>
-                  ${v.finalKeyValue ? y`
+                  ${v.finalKeyValue ? lit_html_$`
                       <span class='blue-text'>  ${v.finalKeyValue ? 'Key Applied' : ''} </span>
                       <button class="m-btn thin-border small" part="btn btn-outline" @click=${() => {
     removeApiKey.call(this, v.securitySchemeId);
   }}>REMOVE</button>
                       ` : ''}
                 </div>
-                ${v.description ? y`
+                ${v.description ? lit_html_$`
                     <div class="m-markdown">
                       ${unsafe_html_o(marked(v.description || ''))}
                     </div>` : ''}
 
-                ${v.type.toLowerCase() === 'apikey' || v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'bearer' ? y`
+                ${v.type.toLowerCase() === 'apikey' || v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'bearer' ? lit_html_$`
                     <div style="margin-bottom:5px">
-                      ${v.type.toLowerCase() === 'apikey' ? y`Send <code>${v.name}</code> in <code>${v.in}</code>` : y`Send <code>Authorization</code> in <code>header</code> containing the word <code>Bearer</code> followed by a space and a Token String.`}
+                      ${v.type.toLowerCase() === 'apikey' ? lit_html_$`Send <code>${v.name}</code> in <code>${v.in}</code>` : lit_html_$`Send <code>Authorization</code> in <code>header</code> containing the word <code>Bearer</code> followed by a space and a Token String.`}
                     </div>
                     <div style="max-height:28px;">
-                      ${v.in !== 'cookie' ? y`
+                      ${v.in !== 'cookie' ? lit_html_$`
                           <input type = "text" value = "${v.value}" class="${v.type} ${v.securitySchemeId} api-key-input" placeholder = "api-token" spellcheck = "false">
                           <button class="m-btn thin-border" style = "margin-left:5px;"
                             part = "btn btn-outline"
@@ -12491,9 +12404,9 @@ function securitySchemeTemplate() {
     onApiKeyChange.call(this, v.securitySchemeId, e);
   }}">
                             ${v.finalKeyValue ? 'UPDATE' : 'SET'}
-                          </button>` : y`<span class="gray-text" style="font-size::var(--font-size-small)"> cookies cannot be set from here</span>`}
+                          </button>` : lit_html_$`<span class="gray-text" style="font-size::var(--font-size-small)"> cookies cannot be set from here</span>`}
                     </div>` : ''}
-                ${v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'basic' ? y`
+                ${v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'basic' ? lit_html_$`
                     <div style="margin-bottom:5px">
                       Send <code>Authorization</code> in <code>header</code> containing the word <code>Basic</code> followed by a space and a base64 encoded string of <code>username:password</code>.
                     </div>
@@ -12511,7 +12424,7 @@ function securitySchemeTemplate() {
                     </div>` : ''}
               </td>
             </tr>
-            ${v.type.toLowerCase() === 'oauth2' ? y`
+            ${v.type.toLowerCase() === 'oauth2' ? lit_html_$`
                 <tr>
                   <td style="border:none; padding-left:48px">
                     ${Object.keys(v.flows).map(f => oAuthFlowTemplate.call(this, f, v.flows[f]['x-client-id'] || v['x-client-id'] || '', v.flows[f]['x-client-secret'] || v['x-client-secret'] || '', v.securitySchemeId, v.flows[f], v.flows[f]['x-default-scopes'] || v['x-default-scopes'], v.flows[f]['x-receive-token-in'] || v['x-receive-token-in']))}
@@ -12527,7 +12440,6 @@ function securitySchemeTemplate() {
 function pathSecurityTemplate(pathSecurity) {
   if (this.resolvedSpec.securitySchemes && pathSecurity) {
     const orSecurityKeys1 = [];
-
     if (Array.isArray(pathSecurity)) {
       if (pathSecurity.length === 0) {
         return '';
@@ -12535,11 +12447,9 @@ function pathSecurityTemplate(pathSecurity) {
     } else {
       return '';
     }
-
     pathSecurity.forEach(pSecurity => {
       const andSecurityKeys1 = [];
       const andKeyTypes = [];
-
       if (Object.keys(pSecurity).length === 0) {
         orSecurityKeys1.push({
           securityTypes: 'None',
@@ -12549,14 +12459,13 @@ function pathSecurityTemplate(pathSecurity) {
         Object.keys(pSecurity).forEach(pathSecurityKey => {
           let pathScopes = '';
           const s = this.resolvedSpec.securitySchemes.find(ss => ss.securitySchemeId === pathSecurityKey);
-
           if (pSecurity[pathSecurityKey] && Array.isArray(pSecurity[pathSecurityKey])) {
             pathScopes = pSecurity[pathSecurityKey].join(', ');
           }
-
           if (s) {
             andKeyTypes.push(s.typeDisplay);
-            andSecurityKeys1.push({ ...s,
+            andSecurityKeys1.push({
+              ...s,
               ...{
                 scopes: pathScopes
               }
@@ -12569,42 +12478,42 @@ function pathSecurityTemplate(pathSecurity) {
         });
       }
     });
-    return y`<div style="position:absolute; top:3px; right:2px; font-size:var(--font-size-small); line-height: 1.5;">
+    return lit_html_$`<div style="position:absolute; top:3px; right:2px; font-size:var(--font-size-small); line-height: 1.5;">
       <div style="position:relative; display:flex; min-width:350px; max-width:700px; justify-content: flex-end;">
         <svg width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" fill="none" style="stroke:var(--fg3)"> <rect x="5" y="11" width="14" height="10" rx="2" /> <circle cx="12" cy="16" r="1" /> <path d="M8 11v-4a4 4 0 0 1 8 0v4" /></svg>
-          ${orSecurityKeys1.map((orSecurityItem1, i) => y`
-          ${orSecurityItem1.securityTypes ? y`
-              ${i !== 0 ? y`<div style="padding:3px 4px;"> OR </div>` : ''}
+          ${orSecurityKeys1.map((orSecurityItem1, i) => lit_html_$`
+          ${orSecurityItem1.securityTypes ? lit_html_$`
+              ${i !== 0 ? lit_html_$`<div style="padding:3px 4px;"> OR </div>` : ''}
               <div class="tooltip">
                 <div style = "padding:2px 4px; white-space:nowrap; text-overflow:ellipsis;max-width:150px; overflow:hidden;">
-                  ${this.updateRoute === 'true' && this.allowAuthentication === 'true' ? y`<a part="anchor anchor-operation-security" href="#auth"> ${orSecurityItem1.securityTypes} </a>` : y`${orSecurityItem1.securityTypes}`}
+                  ${this.updateRoute === 'true' && this.allowAuthentication === 'true' ? lit_html_$`<a part="anchor anchor-operation-security" href="#auth"> ${orSecurityItem1.securityTypes} </a>` : lit_html_$`${orSecurityItem1.securityTypes}`}
                 </div>
                 <div class="tooltip-text" style="position:absolute; color: var(--fg); top:26px; right:0; border:1px solid var(--border-color);padding:2px 4px; display:block;">
-                  ${orSecurityItem1.securityDefs.length > 1 ? y`<div>Requires <b>all</b> of the following </div>` : ''}
+                  ${orSecurityItem1.securityDefs.length > 1 ? lit_html_$`<div>Requires <b>all</b> of the following </div>` : ''}
                   <div style="padding-left: 8px">
                     ${orSecurityItem1.securityDefs.map((andSecurityItem, j) => {
-      const scopeHtml = y`${andSecurityItem.scopes !== '' ? y`
+      const scopeHtml = lit_html_$`${andSecurityItem.scopes !== '' ? lit_html_$`
                           <div>
                             <b>Required scopes:</b>
                             <br/>
                             <div style="margin-left:8px">
-                              ${andSecurityItem.scopes.split(',').map((scope, cnt) => y`${cnt === 0 ? '' : '┃'}<span>${scope}</span>`)}
+                              ${andSecurityItem.scopes.split(',').map((scope, cnt) => lit_html_$`${cnt === 0 ? '' : '┃'}<span>${scope}</span>`)}
                             </div>
                           </div>` : ''}`;
-      return y`
-                      ${andSecurityItem.type === 'oauth2' ? y`
+      return lit_html_$`
+                      ${andSecurityItem.type === 'oauth2' ? lit_html_$`
                           <div>
-                            ${orSecurityItem1.securityDefs.length > 1 ? y`<b>${j + 1}.</b> &nbsp;` : 'Needs'}
+                            ${orSecurityItem1.securityDefs.length > 1 ? lit_html_$`<b>${j + 1}.</b> &nbsp;` : 'Needs'}
                             OAuth Token <span style="font-family:var(--font-mono); color:var(--primary-color);">${andSecurityItem.securitySchemeId}</span> in <b>Authorization header</b>
                             ${scopeHtml}
-                          </div>` : andSecurityItem.type === 'http' ? y`
+                          </div>` : andSecurityItem.type === 'http' ? lit_html_$`
                             <div>
-                              ${orSecurityItem1.securityDefs.length > 1 ? y`<b>${j + 1}.</b> &nbsp;` : y`Requires`}
+                              ${orSecurityItem1.securityDefs.length > 1 ? lit_html_$`<b>${j + 1}.</b> &nbsp;` : lit_html_$`Requires`}
                               ${andSecurityItem.scheme === 'basic' ? 'Base 64 encoded username:password' : 'Bearer Token'} in <b>Authorization header</b>
                               ${scopeHtml}
-                            </div>` : y`
+                            </div>` : lit_html_$`
                             <div>
-                              ${orSecurityItem1.securityDefs.length > 1 ? y`<b>${j + 1}.</b> &nbsp;` : y`Requires`}
+                              ${orSecurityItem1.securityDefs.length > 1 ? lit_html_$`<b>${j + 1}.</b> &nbsp;` : lit_html_$`Requires`}
                               Token in <b>${andSecurityItem.name} ${andSecurityItem.in}</b>
                               ${scopeHtml}
                             </div>`}`;
@@ -12617,9 +12526,9 @@ function pathSecurityTemplate(pathSecurity) {
       </div>
     `;
   }
-
   return '';
 }
+
 /* eslint-enable indent */
 ;// CONCATENATED MODULE: ./src/templates/code-samples-template.js
 
@@ -12628,16 +12537,14 @@ function pathSecurityTemplate(pathSecurity) {
 
 
 /* eslint-disable indent */
-
 function codeSamplesTemplate(xCodeSamples) {
-  return y`
+  return lit_html_$`
   <section class="table-title" style="margin-top:24px;">CODE SAMPLES</div>
   <div class="tab-panel col"
     @click="${e => {
     if (!e.target.classList.contains('tab-btn')) {
       return;
     }
-
     const clickedTab = e.target.dataset.tab;
     const tabButtons = [...e.currentTarget.querySelectorAll('.tab-btn')];
     const tabContents = [...e.currentTarget.querySelectorAll('.tab-content')];
@@ -12647,12 +12554,11 @@ function codeSamplesTemplate(xCodeSamples) {
     });
   }}">
     <div class="tab-buttons row" style="width:100; overflow">
-      ${xCodeSamples.map((v, i) => y`<button class="tab-btn ${i === 0 ? 'active' : ''}" data-tab = '${v.lang}${i}'> ${v.label || v.lang} </button>`)}
+      ${xCodeSamples.map((v, i) => lit_html_$`<button class="tab-btn ${i === 0 ? 'active' : ''}" data-tab = '${v.lang}${i}'> ${v.label || v.lang} </button>`)}
     </div>
     ${xCodeSamples.map((v, i) => {
     var _v$lang, _v$lang2, _v$lang3;
-
-    return y`
+    return lit_html_$`
       <div class="tab-content m-markdown" style= "display:${i === 0 ? 'block' : 'none'}" data-tab = '${v.lang}${i}'>
         <button class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${e => {
       copyToClipboard(v.source, e);
@@ -12666,21 +12572,20 @@ function codeSamplesTemplate(xCodeSamples) {
 /* eslint-enable indent */
 ;// CONCATENATED MODULE: ./src/templates/callback-template.js
 
-/* eslint-disable indent */
 
+/* eslint-disable indent */
 function callbackTemplate(callbacks) {
-  return y`
+  return lit_html_$`
     <div class="req-res-title" style="margin-top:12px">CALLBACKS</div>
-    ${Object.entries(callbacks).map(kv => y`
+    ${Object.entries(callbacks).map(kv => lit_html_$`
       <div class="tiny-title" style="padding: 12px; border:1px solid var(--light-border-color)"> 
         ${kv[0]}
-        ${Object.entries(kv[1]).map(pathObj => y`
+        ${Object.entries(kv[1]).map(pathObj => lit_html_$`
           <div class="mono-font small-font-size" style="display:flex; margin-left:16px;">
             <div style="width:100%"> 
               ${Object.entries(pathObj[1]).map(method => {
     var _method$, _method$2, _method$3;
-
-    return y`
+    return lit_html_$`
                 <div>
                   <div style="margin-top:12px;">
                     <div class="method method-fg ${method[0]}" style="width:70px; border:none; margin:0; padding:0; line-height:20px; vertical-align: baseline;text-align:left"> 
@@ -12783,7 +12688,7 @@ var dist = __webpack_require__(131);
 var dist_default = /*#__PURE__*/__webpack_require__.n(dist);
 ;// CONCATENATED MODULE: ./src/styles/border-styles.js
 
-/* harmony default export */ const border_styles = (i`
+/* harmony default export */ const border_styles = (css_tag_r`
 .border-top {
   border-top:1px solid var(--border-color);
 }
@@ -12811,34 +12716,29 @@ function getPrintableVal(val) {
   if (val === undefined) {
     return '';
   }
-
   if (val === null) {
     return 'null';
   }
-
   if (val === '') {
     return '∅';
   }
-
   if (typeof val === 'boolean' || typeof val === 'number') {
     return `${val}`;
   }
-
   if (Array.isArray(val)) {
     return val.map(v => v === null ? 'null' : v === '' ? '∅' : v.toString().replace(/^ +| +$/g, m => '●'.repeat(m.length)) || '').join(', ');
   }
-
   return val.toString().replace(/^ +| +$/g, m => '●'.repeat(m.length)) || '';
 }
-/* Generates an schema object containing type and constraint info */
 
+/* Generates an schema object containing type and constraint info */
 function getTypeInfo(schema) {
   if (!schema) {
     return;
   }
-
   let dataType = '';
-  let constrain = ''; // let examples;
+  let constrain = '';
+  // let examples;
 
   if (schema.$ref) {
     const n = schema.$ref.lastIndexOf('/');
@@ -12846,11 +12746,9 @@ function getTypeInfo(schema) {
     dataType = `{recursive: ${schemaNode}} `;
   } else if (schema.type) {
     dataType = Array.isArray(schema.type) ? schema.type.join(schema.length === 2 ? ' or ' : '┃') : schema.type;
-
     if (schema.format || schema.enum || schema.const) {
       dataType = dataType.replace('string', schema.enum ? 'enum' : schema.const ? 'const' : schema.format);
     }
-
     if (schema.nullable) {
       dataType += '┃null';
     }
@@ -12861,7 +12759,6 @@ function getTypeInfo(schema) {
   } else {
     dataType = '{missing-type-info}';
   }
-
   const info = {
     type: dataType,
     format: schema.format || '',
@@ -12876,40 +12773,32 @@ function getTypeInfo(schema) {
     arrayType: '',
     html: ''
   };
-
   if (info.type === '{recursive}') {
     info.description = schema.$ref.substring(schema.$ref.lastIndexOf('/') + 1);
   } else if (info.type === '{missing-type-info}' || info.type === 'any') {
     info.description = info.description || '';
-  } // Set Allowed Values
-
-
+  }
+  // Set Allowed Values
   info.allowedValues = schema.const ? schema.const : Array.isArray(schema.enum) ? schema.enum.map(v => getPrintableVal(v)).join('┃') : '';
-
   if (dataType === 'array' && schema.items) {
     var _schema$items, _schema$items2;
-
     const arrayItemType = (_schema$items = schema.items) === null || _schema$items === void 0 ? void 0 : _schema$items.type;
     const arrayItemDefault = getPrintableVal(schema.items.default);
     info.arrayType = `${schema.type} of ${Array.isArray(arrayItemType) ? arrayItemType.join('') : arrayItemType}`;
     info.default = arrayItemDefault;
     info.allowedValues = schema.items.const ? schema.const : Array.isArray((_schema$items2 = schema.items) === null || _schema$items2 === void 0 ? void 0 : _schema$items2.enum) ? schema.items.enum.map(v => getPrintableVal(v)).join('┃') : '';
   }
-
   if (dataType.match(/integer|number/g)) {
     if (schema.minimum !== undefined || schema.exclusiveMinimum !== undefined) {
       constrain += schema.minimum !== undefined ? `Min ${schema.minimum}` : `More than ${schema.exclusiveMinimum}`;
     }
-
     if (schema.maximum !== undefined || schema.exclusiveMaximum !== undefined) {
       constrain += schema.maximum !== undefined ? `${constrain ? '┃' : ''}Max ${schema.maximum}` : `${constrain ? '┃' : ''}Less than ${schema.exclusiveMaximum}`;
     }
-
     if (schema.multipleOf !== undefined) {
       constrain += `${constrain ? '┃' : ''} multiple of ${schema.multipleOf}`;
     }
   }
-
   if (dataType.match(/string/g)) {
     if (schema.minLength !== undefined && schema.maxLength !== undefined) {
       constrain += `${constrain ? '┃' : ''}${schema.minLength} to ${schema.maxLength} chars`;
@@ -12919,7 +12808,6 @@ function getTypeInfo(schema) {
       constrain += `Max ${constrain ? '┃' : ''}${schema.maxLength} chars`;
     }
   }
-
   info.constrain = constrain;
   info.html = `${info.type}~|~${info.readOrWriteOnly}~|~${info.constrain}~|~${info.default}~|~${info.allowedValues}~|~${info.pattern}~|~${info.description}~|~${schema.title || ''}~|~${info.deprecated ? 'deprecated' : ''}`;
   return info;
@@ -12932,7 +12820,6 @@ function nestExampleIfPresent(example) {
       }
     };
   }
-
   if (example === '') {
     return {
       Example: {
@@ -12940,13 +12827,13 @@ function nestExampleIfPresent(example) {
       }
     };
   }
-
   return example ? {
     Example: {
       value: example
     }
   } : example;
 }
+
 /**
  *  Normalize example object in the following format (List of object which is used to render example links and fill the input boxes)
  *  [{
@@ -12959,7 +12846,6 @@ function nestExampleIfPresent(example) {
  *     ]
  *  }]
  * */
-
 function normalizeExamples(examples, dataType = 'string') {
   if (!examples) {
     return {
@@ -12967,7 +12853,6 @@ function normalizeExamples(examples, dataType = 'string') {
       exampleList: []
     };
   }
-
   if (examples.constructor === Object) {
     const exampleList = Object.values(examples).filter(v => v['x-example-show-value'] !== false).map(v => ({
       value: typeof v.value === 'boolean' || typeof v.value === 'number' ? `${v.value}` : v.value || '',
@@ -12980,20 +12865,18 @@ function normalizeExamples(examples, dataType = 'string') {
       exampleVal,
       exampleList
     };
-  } // This is non-standard way to provide example but will support for now
+  }
 
-
+  // This is non-standard way to provide example but will support for now
   if (!Array.isArray(examples)) {
     examples = examples ? [examples] : [];
   }
-
   if (examples.length === 0) {
     return {
       exampleVal: '',
       exampleList: []
     };
   }
-
   if (dataType === 'array') {
     const [exampleVal] = examples;
     const exampleList = examples.map(v => ({
@@ -13005,7 +12888,6 @@ function normalizeExamples(examples, dataType = 'string') {
       exampleList
     };
   }
-
   const exampleVal = examples[0].toString();
   const exampleList = examples.map(v => ({
     value: v.toString(),
@@ -13019,69 +12901,53 @@ function normalizeExamples(examples, dataType = 'string') {
 function anyExampleWithSummaryOrDescription(examples) {
   return examples.some(x => {
     var _x$summary, _x$description;
-
     return ((_x$summary = x.summary) === null || _x$summary === void 0 ? void 0 : _x$summary.length) > 0 || ((_x$description = x.description) === null || _x$description === void 0 ? void 0 : _x$description.length) > 0;
   });
 }
 function getSampleValueByType(schemaObj) {
   const example = schemaObj.examples ? schemaObj.examples[0] : schemaObj.example === null ? null : schemaObj.example || undefined;
-
   if (example === '') {
     return '';
   }
-
   if (example === null) {
     return null;
   }
-
   if (example === 0) {
     return 0;
   }
-
   if (example === false) {
     return false;
   }
-
   if (example instanceof Date) {
     switch (schemaObj.format.toLowerCase()) {
       case 'date':
         return example.toISOString().split('T')[0];
-
       case 'time':
         return example.toISOString().split('T')[1];
-
       default:
         return example.toISOString();
     }
   }
-
   if (example) {
     return example;
   }
-
   if (Object.keys(schemaObj).length === 0) {
     return null;
   }
-
   if (schemaObj.$ref) {
     // Indicates a Circular ref
     return schemaObj.$ref;
   }
-
   if (schemaObj.const === false || schemaObj.const === 0 || schemaObj.const === null || schemaObj.const === '') {
     return schemaObj.const;
   }
-
   if (schemaObj.const) {
     return schemaObj.const;
   }
-
   const typeValue = Array.isArray(schemaObj.type) ? schemaObj.type[0] : schemaObj.type;
-
   if (!typeValue) {
     return '?';
   }
-
   if (typeValue.match(/^integer|^number/g)) {
     const multipleOf = Number.isNaN(Number(schemaObj.multipleOf)) ? undefined : Number(schemaObj.multipleOf);
     const maximum = Number.isNaN(Number(schemaObj.maximum)) ? undefined : Number(schemaObj.maximum);
@@ -13089,66 +12955,49 @@ function getSampleValueByType(schemaObj) {
     const finalVal = multipleOf ? multipleOf >= minimumPossibleVal ? multipleOf : minimumPossibleVal % multipleOf === 0 ? minimumPossibleVal : Math.ceil(minimumPossibleVal / multipleOf) * multipleOf : minimumPossibleVal;
     return finalVal;
   }
-
   if (typeValue.match(/^boolean/g)) {
     return false;
   }
-
   if (typeValue.match(/^null/g)) {
     return null;
   }
-
   if (typeValue.match(/^string/g)) {
     if (schemaObj.enum) {
       return schemaObj.enum[0];
     }
-
     if (schemaObj.const) {
       return schemaObj.const;
     }
-
     if (schemaObj.pattern) {
       return schemaObj.pattern;
     }
-
     if (schemaObj.format) {
       const u = `${Date.now().toString(16)}${Math.random().toString(16)}0`.repeat(16);
-
       switch (schemaObj.format.toLowerCase()) {
         case 'url':
         case 'uri':
           return 'http://example.com';
-
         case 'date':
           return new Date(0).toISOString().split('T')[0];
-
         case 'time':
           return new Date(0).toISOString().split('T')[1];
-
         case 'date-time':
           return new Date(0).toISOString();
-
         case 'duration':
           return 'P3Y6M4DT12H30M5S';
         // P=Period 3-Years 6-Months 4-Days 12-Hours 30-Minutes 5-Seconds
-
         case 'email':
         case 'idn-email':
           return 'user@example.com';
-
         case 'hostname':
         case 'idn-hostname':
           return 'www.example.com';
-
         case 'ipv4':
           return '198.51.100.42';
-
         case 'ipv6':
           return '2001:0db8:5b96:0000:0000:426f:8e17:642a';
-
         case 'uuid':
           return [u.substr(0, 8), u.substr(8, 4), `4000-8${u.substr(13, 3)}`, u.substr(16, 12)].join('-');
-
         default:
           return '';
       }
@@ -13158,11 +13007,11 @@ function getSampleValueByType(schemaObj) {
       const finalLength = minLength || (maxLength > 6 ? 6 : maxLength || undefined);
       return finalLength ? 'A'.repeat(finalLength) : 'string';
     }
-  } // If type cannot be determined
-
-
+  }
+  // If type cannot be determined
   return '?';
 }
+
 /*
 json2xml- TestCase
   {
@@ -13187,29 +13036,23 @@ json2xml- TestCase
     </prop3>
   </root>
 */
-
 function json2xml(obj, level = 1) {
   const indent = '  '.repeat(level);
   let xmlText = '';
-
   if (level === 1 && typeof obj !== 'object') {
     return `\n${indent}${obj.toString()}`;
   }
-
   for (const prop in obj) {
     const tagNameOrProp = obj[prop]['::XML_TAG'] || prop;
     let tagName = '';
-
     if (Array.isArray(obj[prop])) {
       tagName = tagNameOrProp[0]['::XML_TAG'] || `${prop}`;
     } else {
       tagName = tagNameOrProp;
     }
-
     if (prop.startsWith('::')) {
       continue;
     }
-
     if (Array.isArray(obj[prop])) {
       xmlText = `${xmlText}\n${indent}<${tagName}> ${json2xml(obj[prop], level + 1)}\n${indent}</${tagName}>`;
     } else if (typeof obj[prop] === 'object') {
@@ -13218,113 +13061,88 @@ function json2xml(obj, level = 1) {
       xmlText = `${xmlText}\n${indent}<${tagName}> ${obj[prop].toString()} </${tagName}>`;
     }
   }
-
   return xmlText;
 }
-
 function addSchemaInfoToExample(schema, obj) {
   var _schema$xml, _schema$xml3;
-
   if (typeof obj !== 'object' || obj === null) {
     return;
   }
-
   if (schema.title) {
     obj['::TITLE'] = schema.title;
   }
-
   if (schema.description) {
     obj['::DESCRIPTION'] = schema.description;
   }
-
   if ((_schema$xml = schema.xml) !== null && _schema$xml !== void 0 && _schema$xml.name) {
     var _schema$xml2;
-
     obj['::XML_TAG'] = (_schema$xml2 = schema.xml) === null || _schema$xml2 === void 0 ? void 0 : _schema$xml2.name;
   }
-
   if ((_schema$xml3 = schema.xml) !== null && _schema$xml3 !== void 0 && _schema$xml3.wrapped) {
     var _schema$xml4;
-
     obj['::XML_WRAP'] = (_schema$xml4 = schema.xml) === null || _schema$xml4 === void 0 ? void 0 : _schema$xml4.wrapped.toString();
   }
 }
-
 function removeTitlesAndDescriptions(obj) {
   if (typeof obj !== 'object' || obj === null) {
     return;
   }
-
   delete obj['::TITLE'];
   delete obj['::DESCRIPTION'];
   delete obj['::XML_TAG'];
   delete obj['::XML_WRAP'];
-
   for (const k in obj) {
     removeTitlesAndDescriptions(obj[k]);
   }
 }
-
 function addPropertyExampleToObjectExamples(example, obj, propertyKey) {
   for (const key in obj) {
     obj[key][propertyKey] = example;
   }
 }
-
 function mergePropertyExamples(obj, propertyName, propExamples) {
   // Create an example for each variant of the propertyExample, merging them with the current (parent) example
   let i = 0;
   const maxCombinations = 10;
   const mergedObj = {};
-
   for (const exampleKey in obj) {
     for (const propExampleKey in propExamples) {
-      mergedObj[`example-${i}`] = { ...obj[exampleKey]
+      mergedObj[`example-${i}`] = {
+        ...obj[exampleKey]
       };
       mergedObj[`example-${i}`][propertyName] = propExamples[propExampleKey];
       i++;
-
       if (i >= maxCombinations) {
         break;
       }
     }
-
     if (i >= maxCombinations) {
       break;
     }
   }
-
   return mergedObj;
 }
+
 /* For changing JSON-Schema to a Sample Object, as per the schema (to generate examples based on schema) */
-
-
 function schemaToSampleObj(schema, config = {}) {
   let obj = {};
-
   if (!schema) {
     return;
   }
-
   if (schema.allOf) {
     var _schema$allOf$, _schema$allOf$2;
-
     const objWithAllProps = {};
-
     if (schema.allOf.length === 1 && !((_schema$allOf$ = schema.allOf[0]) !== null && _schema$allOf$ !== void 0 && _schema$allOf$.properties) && !((_schema$allOf$2 = schema.allOf[0]) !== null && _schema$allOf$2 !== void 0 && _schema$allOf$2.items)) {
       // If allOf has single item and the type is not an object or array, then its a primitive
       if (schema.allOf[0].$ref) {
         return '{  }';
       }
-
       if (schema.allOf[0].readOnly && config.includeReadOnly) {
         const tempSchema = schema.allOf[0];
         return getSampleValueByType(tempSchema);
       }
-
       return;
     }
-
     schema.allOf.forEach(v => {
       if (v.type === 'object' || v.properties || v.allOf || v.anyOf || v.oneOf) {
         const partialObj = schemaToSampleObj(v, config);
@@ -13343,11 +13161,9 @@ function schemaToSampleObj(schema, config = {}) {
   } else if (schema.oneOf) {
     // 1. First create example with scheme.properties
     const objWithSchemaProps = {};
-
     if (schema.properties) {
       for (const propertyName in schema.properties) {
         var _schema$properties$pr;
-
         if (schema.properties[propertyName].properties || (_schema$properties$pr = schema.properties[propertyName].properties) !== null && _schema$properties$pr !== void 0 && _schema$properties$pr.items) {
           objWithSchemaProps[propertyName] = schemaToSampleObj(schema.properties[propertyName], config);
         } else {
@@ -13355,7 +13171,6 @@ function schemaToSampleObj(schema, config = {}) {
         }
       }
     }
-
     if (schema.oneOf.length > 0) {
       /*
       oneOf:
@@ -13390,15 +13205,13 @@ function schemaToSampleObj(schema, config = {}) {
         option2_PropX: 'string'
       }
       */
-      let i = 0; // Merge all examples of each oneOf-schema
-
+      let i = 0;
+      // Merge all examples of each oneOf-schema
       for (const key in schema.oneOf) {
         const oneOfSamples = schemaToSampleObj(schema.oneOf[key], config);
-
         for (const sampleKey in oneOfSamples) {
           // 2. In the final example include a one-of item along with properties
           let finalExample;
-
           if (Object.keys(objWithSchemaProps).length > 0) {
             if (oneOfSamples[sampleKey] === null || typeof oneOfSamples[sampleKey] !== 'object') {
               // This doesn't really make sense since every oneOf schema _should_ be an object if there are common properties, so we'll skip this
@@ -13409,7 +13222,6 @@ function schemaToSampleObj(schema, config = {}) {
           } else {
             finalExample = oneOfSamples[sampleKey];
           }
-
           obj[`example-${i}`] = finalExample;
           addSchemaInfoToExample(schema.oneOf[key], obj[`example-${i}`]);
           i++;
@@ -13419,51 +13231,43 @@ function schemaToSampleObj(schema, config = {}) {
   } else if (schema.anyOf) {
     // First generate values for regular properties
     let commonObj;
-
     if (schema.type === 'object' || schema.properties) {
       commonObj = {
         'example-0': {}
       };
-
       for (const propertyName in schema.properties) {
         if (schema.example) {
           commonObj = schema;
           break;
         }
-
         if (schema.properties[propertyName].deprecated && !config.includeDeprecated) {
           continue;
         }
-
         if (schema.properties[propertyName].readOnly && !config.includeReadOnly) {
           continue;
         }
-
         if (schema.properties[propertyName].writeOnly && !config.includeWriteOnly) {
           continue;
         }
-
         commonObj = mergePropertyExamples(commonObj, propertyName, schemaToSampleObj(schema.properties[propertyName], config));
       }
-    } // Combine every variant of the regular properties with every variant of the anyOf samples
+    }
 
-
+    // Combine every variant of the regular properties with every variant of the anyOf samples
     let i = 0;
-
     for (const key in schema.anyOf) {
       const anyOfSamples = schemaToSampleObj(schema.anyOf[key], config);
-
       for (const sampleKey in anyOfSamples) {
         if (typeof commonObj !== 'undefined') {
           for (const commonKey in commonObj) {
-            obj[`example-${i}`] = { ...commonObj[commonKey],
+            obj[`example-${i}`] = {
+              ...commonObj[commonKey],
               ...anyOfSamples[sampleKey]
             };
           }
         } else {
           obj[`example-${i}`] = anyOfSamples[sampleKey];
         }
-
         addSchemaInfoToExample(schema.anyOf[key], obj[`example-${i}`]);
         i++;
       }
@@ -13471,28 +13275,22 @@ function schemaToSampleObj(schema, config = {}) {
   } else if (schema.type === 'object' || schema.properties) {
     obj['example-0'] = {};
     addSchemaInfoToExample(schema, obj['example-0']);
-
     if (schema.example) {
       obj['example-0'] = schema.example;
     } else {
       for (const propertyName in schema.properties) {
         var _schema$properties$pr2, _schema$properties$pr3, _schema$properties$pr4, _schema$properties$pr5, _schema$properties$pr6;
-
         if ((_schema$properties$pr2 = schema.properties[propertyName]) !== null && _schema$properties$pr2 !== void 0 && _schema$properties$pr2.deprecated && !config.includeDeprecated) {
           continue;
         }
-
         if ((_schema$properties$pr3 = schema.properties[propertyName]) !== null && _schema$properties$pr3 !== void 0 && _schema$properties$pr3.readOnly && !config.includeReadOnly) {
           continue;
         }
-
         if ((_schema$properties$pr4 = schema.properties[propertyName]) !== null && _schema$properties$pr4 !== void 0 && _schema$properties$pr4.writeOnly && !config.includeWriteOnly) {
           continue;
         }
-
         if (((_schema$properties$pr5 = schema.properties[propertyName]) === null || _schema$properties$pr5 === void 0 ? void 0 : _schema$properties$pr5.type) === 'array' || (_schema$properties$pr6 = schema.properties[propertyName]) !== null && _schema$properties$pr6 !== void 0 && _schema$properties$pr6.items) {
           var _schema$properties$pr7, _schema$properties$pr8;
-
           if (schema.properties[propertyName].example) {
             addPropertyExampleToObjectExamples(schema.properties[propertyName].example, obj, propertyName);
           } else if ((_schema$properties$pr7 = schema.properties[propertyName]) !== null && _schema$properties$pr7 !== void 0 && (_schema$properties$pr8 = _schema$properties$pr7.items) !== null && _schema$properties$pr8 !== void 0 && _schema$properties$pr8.example) {
@@ -13500,12 +13298,9 @@ function schemaToSampleObj(schema, config = {}) {
             addPropertyExampleToObjectExamples([schema.properties[propertyName].items.example], obj, propertyName);
           } else {
             const itemSamples = schemaToSampleObj(schema.properties[propertyName].items, config);
-
             if (config.useXmlTagForProp) {
               var _schema$properties$pr9, _schema$properties$pr10;
-
               const xmlTagName = ((_schema$properties$pr9 = schema.properties[propertyName].xml) === null || _schema$properties$pr9 === void 0 ? void 0 : _schema$properties$pr9.name) || propertyName;
-
               if ((_schema$properties$pr10 = schema.properties[propertyName].xml) !== null && _schema$properties$pr10 !== void 0 && _schema$properties$pr10.wrapped) {
                 const wrappedItemSample = JSON.parse(`{ "${xmlTagName}" : { "${xmlTagName}" : ${JSON.stringify(itemSamples['example-0'])} } }`);
                 obj = mergePropertyExamples(obj, xmlTagName, wrappedItemSample);
@@ -13514,25 +13309,20 @@ function schemaToSampleObj(schema, config = {}) {
               }
             } else {
               const arraySamples = [];
-
               for (const key in itemSamples) {
                 arraySamples[key] = [itemSamples[key]];
               }
-
               obj = mergePropertyExamples(obj, propertyName, arraySamples);
             }
           }
-
           continue;
         }
-
         obj = mergePropertyExamples(obj, propertyName, schemaToSampleObj(schema.properties[propertyName], config));
       }
     }
   } else if (schema.type === 'array' || schema.items) {
     if (schema.items || schema.example) {
       var _schema$items3;
-
       if (schema.example) {
         obj['example-0'] = schema.example;
       } else if ((_schema$items3 = schema.items) !== null && _schema$items3 !== void 0 && _schema$items3.example) {
@@ -13541,7 +13331,6 @@ function schemaToSampleObj(schema, config = {}) {
       } else {
         const samples = schemaToSampleObj(schema.items, config);
         let i = 0;
-
         for (const key in samples) {
           obj[`example-${i}`] = [samples[key]];
           addSchemaInfoToExample(schema.items, obj[`example-${i}`]);
@@ -13556,15 +13345,11 @@ function schemaToSampleObj(schema, config = {}) {
       'example-0': getSampleValueByType(schema)
     };
   }
-
   return obj;
 }
-
 function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
   var _schema$items4;
-
   let markdown = (schema.description || schema.title) && (schema.minItems || schema.maxItems) ? '<span class="descr-expand-toggle">➔</span>' : '';
-
   if (schema.title) {
     if (schema.description) {
       markdown = `${markdown} <b>${schema.title}:</b> ${schema.description}<br/>`;
@@ -13574,29 +13359,22 @@ function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
   } else if (schema.description) {
     markdown = `${markdown} ${schema.description}<br/>`;
   }
-
   if (schema.minItems) {
     markdown = `${markdown} <b>Min Items:</b> ${schema.minItems}`;
   }
-
   if (schema.maxItems) {
     markdown = `${markdown} <b>Max Items:</b> ${schema.maxItems}`;
   }
-
   if (level > 0 && (_schema$items4 = schema.items) !== null && _schema$items4 !== void 0 && _schema$items4.description) {
     let itemsMarkdown = '';
-
     if (schema.items.minProperties) {
       itemsMarkdown = `<b>Min Properties:</b> ${schema.items.minProperties}`;
     }
-
     if (schema.items.maxProperties) {
       itemsMarkdown = `${itemsMarkdown} <b>Max Properties:</b> ${schema.items.maxProperties}`;
     }
-
     markdown = `${markdown} ⮕ ${itemsMarkdown} [ ${schema.items.description} ] `;
   }
-
   return markdown;
 }
 /**
@@ -13607,23 +13385,18 @@ function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
  * @param {number} level - recursion level
  * @param {string} suffix - used for suffixing property names to avoid duplicate props during object composion
  */
-
-
 function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
   if (!schema) {
     return;
   }
-
   if (schema.allOf) {
     const objWithAllProps = {};
-
     if (schema.allOf.length === 1 && !schema.allOf[0].properties && !schema.allOf[0].items) {
       // If allOf has single item and the type is not an object or array, then its a primitive
       const tempSchema = schema.allOf[0];
       return `${getTypeInfo(tempSchema).html}`;
-    } // If allOf is an array of multiple elements, then all the keys makes a single object
-
-
+    }
+    // If allOf is an array of multiple elements, then all the keys makes a single object
     schema.allOf.map((v, i) => {
       if (v.type === 'object' || v.properties || v.allOf || v.anyOf || v.oneOf) {
         const propSuffix = (v.anyOf || v.oneOf) && i > 0 ? i : '';
@@ -13642,12 +13415,12 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     });
     obj = objWithAllProps;
   } else if (schema.anyOf || schema.oneOf) {
-    obj['::description'] = schema.description || ''; // 1. First iterate the regular properties
-
+    obj['::description'] = schema.description || '';
+    // 1. First iterate the regular properties
     if (schema.type === 'object' || schema.properties) {
       obj['::description'] = schema.description || '';
-      obj['::type'] = 'object'; // obj['::deprecated'] = schema.deprecated || false;
-
+      obj['::type'] = 'object';
+      // obj['::deprecated'] = schema.deprecated || false;
       for (const key in schema.properties) {
         if (schema.required && schema.required.includes(key)) {
           obj[`${key}*`] = schemaInObjectNotation(schema.properties[key], {}, level + 1);
@@ -13655,9 +13428,8 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
           obj[key] = schemaInObjectNotation(schema.properties[key], {}, level + 1);
         }
       }
-    } // 2. Then show allof/anyof objects
-
-
+    }
+    // 2. Then show allof/anyof objects
     const objWithAnyOfProps = {};
     const xxxOf = schema.anyOf ? 'anyOf' : 'oneOf';
     schema[xxxOf].forEach((v, index) => {
@@ -13665,14 +13437,12 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
         const partialObj = schemaInObjectNotation(v, {});
         objWithAnyOfProps[`::OPTION~${index + 1}${v.title ? `~${v.title}` : ''}`] = partialObj;
         objWithAnyOfProps[`::OPTION~${index + 1}${v.title ? `~${v.title}` : ''}`]['::readwrite'] = ''; // xxx-options cannot be read or write only
-
         objWithAnyOfProps['::type'] = 'xxx-of-option';
       } else if (v.type === 'array' || v.items) {
         // This else-if block never seems to get executed
         const partialObj = schemaInObjectNotation(v, {});
         objWithAnyOfProps[`::OPTION~${index + 1}${v.title ? `~${v.title}` : ''}`] = partialObj;
         objWithAnyOfProps[`::OPTION~${index + 1}${v.title ? `~${v.title}` : ''}`]['::readwrite'] = ''; // xxx-options cannot be read or write only
-
         objWithAnyOfProps['::type'] = 'xxx-of-array';
       } else {
         const prop = `::OPTION~${index + 1}${v.title ? `~${v.title}` : ''}`;
@@ -13680,8 +13450,8 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
         objWithAnyOfProps['::type'] = 'xxx-of-option';
       }
     });
-    obj[schema.anyOf ? `::ANY~OF ${suffix}` : `::ONE~OF ${suffix}`] = objWithAnyOfProps; // obj['::type'] = 'object';
-
+    obj[schema.anyOf ? `::ANY~OF ${suffix}` : `::ONE~OF ${suffix}`] = objWithAnyOfProps;
+    // obj['::type'] = 'object';
     obj['::type'] = 'object';
   } else if (Array.isArray(schema.type)) {
     // When a property has multiple types, then check further if any of the types are array or object, if yes then modify the schema using one-of
@@ -13691,7 +13461,6 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     const complexTypes = [];
     subSchema.type.forEach(v => {
       var _subSchema$items, _subSchema$items2;
-
       if (v.match(/integer|number|string|null|boolean/g)) {
         primitiveType.push(v);
       } else if (v === 'array' && typeof ((_subSchema$items = subSchema.items) === null || _subSchema$items === void 0 ? void 0 : _subSchema$items.type) === 'string' && (_subSchema$items2 = subSchema.items) !== null && _subSchema$items2 !== void 0 && _subSchema$items2.type.match(/integer|number|string|null|boolean/g)) {
@@ -13706,26 +13475,22 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
       }
     });
     let multiPrimitiveTypes;
-
     if (primitiveType.length > 0) {
       subSchema.type = primitiveType.join(primitiveType.length === 2 ? ' or ' : '┃');
       multiPrimitiveTypes = getTypeInfo(subSchema);
-
       if (complexTypes.length === 0) {
         var _multiPrimitiveTypes;
-
         return `${((_multiPrimitiveTypes = multiPrimitiveTypes) === null || _multiPrimitiveTypes === void 0 ? void 0 : _multiPrimitiveTypes.html) || ''}`;
       }
     }
-
     if (complexTypes.length > 0) {
       var _multiPrimitiveTypes2;
-
       obj['::type'] = 'object';
       const multiTypeOptions = {
         '::type': 'xxx-of-option'
-      }; // Generate ONE-OF options for complexTypes
+      };
 
+      // Generate ONE-OF options for complexTypes
       complexTypes.forEach((v, i) => {
         if (v === 'null') {
           multiTypeOptions[`::OPTION~${i + 1}`] = 'NULL~|~~|~~|~~|~~|~~|~~|~~|~';
@@ -13741,7 +13506,6 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
             '::type': 'object',
             '::deprecated': schema.deprecated || false
           };
-
           for (const key in schema.properties) {
             if (schema.required && schema.required.includes(key)) {
               objTypeOption[`${key}*`] = schemaInObjectNotation(schema.properties[key], {}, level + 1);
@@ -13749,7 +13513,6 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
               objTypeOption[key] = schemaInObjectNotation(schema.properties[key], {}, level + 1);
             }
           }
-
           multiTypeOptions[`::OPTION~${i + 1}`] = objTypeOption;
         } else if (v === 'array') {
           multiTypeOptions[`::OPTION~${i + 1}`] = {
@@ -13768,14 +13531,11 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     obj['::title'] = schema.title || '';
     obj['::description'] = generateMarkdownForArrayAndObjectDescription(schema, level);
     obj['::type'] = 'object';
-
     if (Array.isArray(schema.type) && schema.type.includes('null') || schema.nullable) {
       obj['::dataTypeLabel'] = 'object or null';
     }
-
     obj['::deprecated'] = schema.deprecated || false;
     obj['::readwrite'] = schema.readOnly ? 'readonly' : schema.writeOnly ? 'writeonly' : '';
-
     for (const key in schema.properties) {
       if (schema.required && schema.required.includes(key)) {
         obj[`${key}*`] = schemaInObjectNotation(schema.properties[key], {}, level + 1);
@@ -13783,59 +13543,48 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
         obj[key] = schemaInObjectNotation(schema.properties[key], {}, level + 1);
       }
     }
-
     if (schema.additionalProperties) {
       obj['<any-key>'] = schemaInObjectNotation(schema.additionalProperties, {});
     }
   } else if (schema.type === 'array' || schema.items) {
     var _schema$items5;
-
     // If Array
     obj['::title'] = schema.title || '';
     obj['::description'] = generateMarkdownForArrayAndObjectDescription(schema, level);
     obj['::type'] = 'array';
-
     if (Array.isArray(schema.type) && schema.type.includes('null') || schema.nullable) {
       obj['::dataTypeLabel'] = 'array or null';
     }
-
     obj['::deprecated'] = schema.deprecated || false;
     obj['::readwrite'] = schema.readOnly ? 'readonly' : schema.writeOnly ? 'writeonly' : '';
-
     if ((_schema$items5 = schema.items) !== null && _schema$items5 !== void 0 && _schema$items5.items) {
       obj['::array-type'] = schema.items.items.type;
     }
-
     obj['::props'] = schemaInObjectNotation(schema.items, {}, level + 1);
   } else {
     const typeObj = getTypeInfo(schema);
-
     if (typeObj !== null && typeObj !== void 0 && typeObj.html) {
       return `${typeObj.html}`;
     }
-
     return '';
   }
-
   return obj;
 }
+
 /* Create Example object */
-
 function generateExample(schema, mimeType, examples = '', example = '', includeReadOnly = true, includeWriteOnly = true, outputType = 'json', includeGeneratedExample = false) {
-  const finalExamples = []; // First check if examples is provided
-
+  const finalExamples = [];
+  // First check if examples is provided
   if (examples) {
     for (const eg in examples) {
       let egContent = '';
       let egFormat = 'json';
-
       if (mimeType !== null && mimeType !== void 0 && mimeType.toLowerCase().includes('json')) {
         if (outputType === 'text') {
           egContent = typeof examples[eg].value === 'string' ? examples[eg].value : JSON.stringify(examples[eg].value, undefined, 2);
           egFormat = 'text';
         } else {
           egContent = examples[eg].value;
-
           if (typeof examples[eg].value === 'string') {
             try {
               // const fixedJsonString = examples[eg].value.replace((/([\w]+)(:)/g), '"$1"$2').replace((/'/g), '"');
@@ -13852,7 +13601,6 @@ function generateExample(schema, mimeType, examples = '', example = '', includeR
         egContent = examples[eg].value;
         egFormat = 'text';
       }
-
       finalExamples.push({
         exampleId: eg,
         exampleSummary: examples[eg].summary || eg,
@@ -13865,7 +13613,6 @@ function generateExample(schema, mimeType, examples = '', example = '', includeR
   } else if (example) {
     let egContent = '';
     let egFormat = 'json';
-
     if (mimeType !== null && mimeType !== void 0 && mimeType.toLowerCase().includes('json')) {
       if (outputType === 'text') {
         egContent = typeof example === 'string' ? example : JSON.stringify(example, undefined, 2);
@@ -13886,7 +13633,6 @@ function generateExample(schema, mimeType, examples = '', example = '', includeR
       egContent = example;
       egFormat = 'text';
     }
-
     finalExamples.push({
       exampleId: 'Example',
       exampleSummary: '',
@@ -13895,9 +13641,8 @@ function generateExample(schema, mimeType, examples = '', example = '', includeR
       exampleValue: egContent,
       exampleFormat: egFormat
     });
-  } // If schema-level examples are not provided or includeGeneratedExample === true then generate one based on the schema field types
-
-
+  }
+  // If schema-level examples are not provided or includeGeneratedExample === true then generate one based on the schema field types
   if (finalExamples.length === 0 || includeGeneratedExample === true) {
     if (schema) {
       if (schema.example) {
@@ -13915,17 +13660,14 @@ function generateExample(schema, mimeType, examples = '', example = '', includeR
         let xmlRootEnd = '';
         let exampleFormat = '';
         let exampleValue = '';
-
         if (mimeType !== null && mimeType !== void 0 && mimeType.toLowerCase().includes('xml')) {
           var _schema$xml5, _schema$xml6;
-
           xmlRootStart = (_schema$xml5 = schema.xml) !== null && _schema$xml5 !== void 0 && _schema$xml5.name ? `<${schema.xml.name} ${schema.xml.namespace ? `xmlns="${schema.xml.namespace}"` : ''}>` : '<root>';
           xmlRootEnd = (_schema$xml6 = schema.xml) !== null && _schema$xml6 !== void 0 && _schema$xml6.name ? `</${schema.xml.name}>` : '</root>';
           exampleFormat = 'text';
         } else {
           exampleFormat = outputType;
         }
-
         const samples = schemaToSampleObj(schema, {
           includeReadOnly,
           includeWriteOnly,
@@ -13933,22 +13675,18 @@ function generateExample(schema, mimeType, examples = '', example = '', includeR
           useXmlTagForProp: mimeType === null || mimeType === void 0 ? void 0 : mimeType.toLowerCase().includes('xml')
         });
         let i = 0;
-
         for (const samplesKey in samples) {
           if (!samples[samplesKey]) {
             continue;
           }
-
           const summary = samples[samplesKey]['::TITLE'] || `Example ${++i}`;
           const description = samples[samplesKey]['::DESCRIPTION'] || '';
-
           if (mimeType !== null && mimeType !== void 0 && mimeType.toLowerCase().includes('xml')) {
             exampleValue = `<?xml version="1.0" encoding="UTF-8"?>\n${xmlRootStart}${json2xml(samples[samplesKey], 1)}\n${xmlRootEnd}`;
           } else {
             removeTitlesAndDescriptions(samples[samplesKey]);
             exampleValue = outputType === 'text' ? JSON.stringify(samples[samplesKey], null, 2) : samples[samplesKey];
           }
-
           finalExamples.push({
             exampleId: samplesKey,
             exampleSummary: summary,
@@ -13989,27 +13727,21 @@ function generateExample(schema, mimeType, examples = '', example = '', includeR
       });
     }
   }
-
   return finalExamples;
 }
-
 function getSerializeStyleForContentType(contentType) {
   if (contentType === 'application/json') {
     return 'json';
   }
-
   if (contentType === 'application/xml') {
     return 'xml';
   }
-
   return null;
 }
-
 function getSchemaFromParam(param) {
   if (param.schema) {
     return [param.schema, null, null];
   }
-
   if (param.content) {
     // we gonna use the first content-encoding
     for (const contentType of Object.keys(param.content)) {
@@ -14018,7 +13750,6 @@ function getSchemaFromParam(param) {
       }
     }
   }
-
   return [null, null, null];
 }
 ;// CONCATENATED MODULE: ./src/components/json-tree.js
@@ -14040,9 +13771,8 @@ class JsonTree extends lit_element_s {
       }
     };
   }
-
   static get styles() {
-    return [font_styles, border_styles, input_styles, i`
+    return [font_styles, border_styles, input_styles, css_tag_r`
       :host{
         display:flex;
       }
@@ -14109,11 +13839,10 @@ class JsonTree extends lit_element_s {
         align-items: center;
       }`, custom_styles];
   }
+
   /* eslint-disable indent */
-
-
   render() {
-    return y`
+    return lit_html_$`
       <div class = "json-tree"  @click='${e => {
       if (e.target.classList.contains('btn-copy')) {
         copyToClipboard(JSON.stringify(this.data, null, 2), e);
@@ -14128,40 +13857,33 @@ class JsonTree extends lit_element_s {
       </div>  
     `;
   }
-
   generateTree(data, isLast = false) {
     if (data === null) {
-      return y`<div class="null" style="display:inline;">null</div>`;
+      return lit_html_$`<div class="null" style="display:inline;">null</div>`;
     }
-
     if (typeof data === 'object' && data instanceof Date === false) {
       const detailType = Array.isArray(data) ? 'array' : 'pure_object';
-
       if (Object.keys(data).length === 0) {
-        return y`${Array.isArray(data) ? '[ ],' : '{ },'}`;
+        return lit_html_$`${Array.isArray(data) ? '[ ],' : '{ },'}`;
       }
-
-      return y`
+      return lit_html_$`
       <div class="open-bracket expanded ${detailType === 'array' ? 'array' : 'object'}" > ${detailType === 'array' ? '[' : '{'}</div>
       <div class="inside-bracket">
-        ${Object.keys(data).map((key, i, a) => y`
+        ${Object.keys(data).map((key, i, a) => lit_html_$`
           <div class="item"> 
-            ${detailType === 'pure_object' ? y`"${key}":` : ''}
+            ${detailType === 'pure_object' ? lit_html_$`"${key}":` : ''}
             ${this.generateTree(data[key], i === a.length - 1)}
           </div>`)}
       </div>
       <div class="close-bracket">${detailType === 'array' ? ']' : '}'}${isLast ? '' : ','}</div>
       `;
     }
-
-    return typeof data === 'string' || data instanceof Date ? y`<span class="${typeof data}">"${data}"</span>${isLast ? '' : ','}` : y`<span class="${typeof data}">${data}</span>${isLast ? '' : ','}`;
+    return typeof data === 'string' || data instanceof Date ? lit_html_$`<span class="${typeof data}">"${data}"</span>${isLast ? '' : ','}` : lit_html_$`<span class="${typeof data}">${data}</span>${isLast ? '' : ','}`;
   }
   /* eslint-enable indent */
 
-
   toggleExpand(e) {
     const openBracketEl = e.target;
-
     if (e.target.classList.contains('open-bracket')) {
       if (openBracketEl.classList.contains('expanded')) {
         openBracketEl.classList.replace('expanded', 'collapsed');
@@ -14172,13 +13894,12 @@ class JsonTree extends lit_element_s {
       }
     }
   }
-
-} // Register the element with the browser
-
+}
+// Register the element with the browser
 customElements.define('json-tree', JsonTree);
 ;// CONCATENATED MODULE: ./src/styles/schema-styles.js
 
-/* harmony default export */ const schema_styles = (i`
+/* harmony default export */ const schema_styles = (css_tag_r`
 
 *, *:before, *:after { box-sizing: border-box; }
 
@@ -14302,7 +14023,6 @@ customElements.define('json-tree', JsonTree);
 
 
 
-
 class SchemaTree extends lit_element_s {
   static get properties() {
     return {
@@ -14331,29 +14051,23 @@ class SchemaTree extends lit_element_s {
       }
     };
   }
-
   connectedCallback() {
     super.connectedCallback();
-
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) {
       this.schemaExpandLevel = 99999;
     }
-
     if (!this.schemaDescriptionExpanded || !'true false'.includes(this.schemaDescriptionExpanded)) {
       this.schemaDescriptionExpanded = 'false';
     }
-
     if (!this.schemaHideReadOnly || !'true false'.includes(this.schemaHideReadOnly)) {
       this.schemaHideReadOnly = 'true';
     }
-
     if (!this.schemaHideWriteOnly || !'true false'.includes(this.schemaHideWriteOnly)) {
       this.schemaHideWriteOnly = 'true';
     }
   }
-
   static get styles() {
-    return [font_styles, schema_styles, border_styles, i`
+    return [font_styles, schema_styles, border_styles, css_tag_r`
       .tree {
         font-size:var(--font-size-small);
         text-align: left;
@@ -14411,70 +14125,59 @@ class SchemaTree extends lit_element_s {
         border-left: 1px dotted var(--border-color);
       }`, custom_styles];
   }
+
   /* eslint-disable indent */
-
-
   render() {
     var _this$data, _this$data2, _this$data3;
-
-    return y`
+    return lit_html_$`
       <div class="tree ${this.schemaDescriptionExpanded === 'true' ? 'expanded-all-descr' : 'collapsed-all-descr'}" @click="${e => this.handleAllEvents(e)}">
         <div class="toolbar">
           <div class="toolbar-item schema-root-type ${((_this$data = this.data) === null || _this$data === void 0 ? void 0 : _this$data['::type']) || ''} "> ${((_this$data2 = this.data) === null || _this$data2 === void 0 ? void 0 : _this$data2['::type']) || ''} </div>
-          ${this.allowSchemaDescriptionExpandToggle === 'true' ? y`
+          ${this.allowSchemaDescriptionExpandToggle === 'true' ? lit_html_$`
               <div style="flex:1"></div>
               <div part="schema-toolbar-item schema-multiline-toggle" class='toolbar-item schema-multiline-toggle'> 
                 ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'}
               </div>` : ''}
         </div>
         <span part="schema-description" class='m-markdown'> ${unsafe_html_o(marked(((_this$data3 = this.data) === null || _this$data3 === void 0 ? void 0 : _this$data3['::description']) || ''))}</span>
-        ${this.data ? y`
-            ${this.generateTree(this.data['::type'] === 'array' ? this.data['::props'] : this.data, this.data['::type'], this.data['::array-type'] || '')}` : y`<span class='mono-font' style='color:var(--red)'> Schema not found </span>`}
+        ${this.data ? lit_html_$`
+            ${this.generateTree(this.data['::type'] === 'array' ? this.data['::props'] : this.data, this.data['::type'], this.data['::array-type'] || '')}` : lit_html_$`<span class='mono-font' style='color:var(--red)'> Schema not found </span>`}
       </div>  
     `;
   }
-
   generateTree(data, dataType = 'object', arrayType = '', key = '', description = '', schemaLevel = 0, indentLevel = 0, readOrWrite = '') {
     var _data$Type;
-
     if (this.schemaHideReadOnly === 'true') {
       if (dataType === 'array') {
         if (readOrWrite === 'readonly') {
           return;
         }
       }
-
       if ((data === null || data === void 0 ? void 0 : data['::readwrite']) === 'readonly') {
         return;
       }
     }
-
     if (this.schemaHideWriteOnly === 'true') {
       if (dataType === 'array') {
         if (readOrWrite === 'writeonly') {
           return;
         }
       }
-
       if ((data === null || data === void 0 ? void 0 : data['::readwrite']) === 'writeonly') {
         return;
       }
     }
-
     if (!data) {
-      return y`<div class="null" style="display:inline;">
+      return lit_html_$`<div class="null" style="display:inline;">
         <span class="key-label xxx-of-key"> ${key.replace('::OPTION~', '')}</span>
-        ${dataType === 'array' ? y`<span class='mono-font'> [ ] </span>` : dataType === 'object' ? y`<span class='mono-font'> { } </span>` : y`<span class='mono-font'> schema undefined </span>`}
+        ${dataType === 'array' ? lit_html_$`<span class='mono-font'> [ ] </span>` : dataType === 'object' ? lit_html_$`<span class='mono-font'> { } </span>` : lit_html_$`<span class='mono-font'> schema undefined </span>`}
       </div>`;
     }
-
     if (Object.keys(data).length === 0) {
-      return y`<span class="key object">${key}:{ }</span>`;
+      return lit_html_$`<span class="key object">${key}:{ }</span>`;
     }
-
     let keyLabel = '';
     let keyDescr = '';
-
     if (key.startsWith('::ONE~OF') || key.startsWith('::ANY~OF')) {
       keyLabel = key.replace('::', '').replace('~', ' ');
     } else if (key.startsWith('::OPTION')) {
@@ -14483,101 +14186,87 @@ class SchemaTree extends lit_element_s {
     } else {
       keyLabel = key;
     }
-
     const leftPadding = 12;
     const minFieldColWidth = 400 - indentLevel * leftPadding;
     let openBracket = '';
     let closeBracket = '';
-    const newSchemaLevel = (_data$Type = data['::type']) !== null && _data$Type !== void 0 && _data$Type.startsWith('xxx-of') ? schemaLevel : schemaLevel + 1; // const newIndentLevel = dataType === 'xxx-of-option' || data['::type'] === 'xxx-of-option' ? indentLevel : (indentLevel + 1);
-
+    const newSchemaLevel = (_data$Type = data['::type']) !== null && _data$Type !== void 0 && _data$Type.startsWith('xxx-of') ? schemaLevel : schemaLevel + 1;
+    // const newIndentLevel = dataType === 'xxx-of-option' || data['::type'] === 'xxx-of-option' ? indentLevel : (indentLevel + 1);
     const newIndentLevel = dataType === 'xxx-of-option' || data['::type'] === 'xxx-of-option' || key.startsWith('::OPTION') ? indentLevel : indentLevel + 1;
-
     if (data['::type'] === 'object') {
       if (dataType === 'array') {
         if (schemaLevel < this.schemaExpandLevel) {
-          openBracket = y`<span class="open-bracket array-of-object" >[{</span>`;
+          openBracket = lit_html_$`<span class="open-bracket array-of-object" >[{</span>`;
         } else {
-          openBracket = y`<span class="open-bracket array-of-object">[{...}]</span>`;
+          openBracket = lit_html_$`<span class="open-bracket array-of-object">[{...}]</span>`;
         }
-
         closeBracket = '}]';
       } else {
         if (schemaLevel < this.schemaExpandLevel) {
-          openBracket = y`<span class="open-bracket object">{</span>`;
+          openBracket = lit_html_$`<span class="open-bracket object">{</span>`;
         } else {
-          openBracket = y`<span class="open-bracket object">{...}</span>`;
+          openBracket = lit_html_$`<span class="open-bracket object">{...}</span>`;
         }
-
         closeBracket = '}';
       }
     } else if (data['::type'] === 'array') {
       if (dataType === 'array') {
         const arrType = arrayType !== 'object' ? arrayType : '';
-
         if (schemaLevel < this.schemaExpandLevel) {
-          openBracket = y`<span class="open-bracket array-of-array" data-array-type="${arrType}">[[ ${arrType} </span>`;
+          openBracket = lit_html_$`<span class="open-bracket array-of-array" data-array-type="${arrType}">[[ ${arrType} </span>`;
         } else {
-          openBracket = y`<span class="open-bracket array-of-array"  data-array-type="${arrType}">[[...]]</span>`;
+          openBracket = lit_html_$`<span class="open-bracket array-of-array"  data-array-type="${arrType}">[[...]]</span>`;
         }
-
         closeBracket = ']]';
       } else {
         if (schemaLevel < this.schemaExpandLevel) {
-          openBracket = y`<span class="open-bracket array">[</span>`;
+          openBracket = lit_html_$`<span class="open-bracket array">[</span>`;
         } else {
-          openBracket = y`<span class="open-bracket array">[...]</span>`;
+          openBracket = lit_html_$`<span class="open-bracket array">[...]</span>`;
         }
-
         closeBracket = ']';
       }
     }
-
     if (typeof data === 'object') {
       var _data$Type2;
-
-      return y`
+      return lit_html_$`
         <div class="tr ${schemaLevel < this.schemaExpandLevel || (_data$Type2 = data['::type']) !== null && _data$Type2 !== void 0 && _data$Type2.startsWith('xxx-of') ? 'expanded' : 'collapsed'} ${data['::type'] || 'no-type-info'}" title="${data['::deprecated'] ? 'Deprecated' : ''}">
           <div class="td key ${data['::deprecated'] ? 'deprecated' : ''}" style='min-width:${minFieldColWidth}px'>
-            ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION') ? y`<span class='key-label xxx-of-key'> ${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>` : keyLabel === '::props' || keyLabel === '::ARRAY~OF' ? '' : schemaLevel > 0 ? y`<span class="key-label" title="${readOrWrite === 'readonly' ? 'Read-Only' : readOrWrite === 'writeonly' ? 'Write-Only' : ''}">
+            ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION') ? lit_html_$`<span class='key-label xxx-of-key'> ${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>` : keyLabel === '::props' || keyLabel === '::ARRAY~OF' ? '' : schemaLevel > 0 ? lit_html_$`<span class="key-label" title="${readOrWrite === 'readonly' ? 'Read-Only' : readOrWrite === 'writeonly' ? 'Write-Only' : ''}">
                       ${data['::deprecated'] ? '✗' : ''}
-                      ${keyLabel.replace(/\*$/, '')}${keyLabel.endsWith('*') ? y`<span style="color:var(--red)">*</span>` : ''}${readOrWrite === 'readonly' ? y` 🆁` : readOrWrite === 'writeonly' ? y` 🆆` : readOrWrite}:
+                      ${keyLabel.replace(/\*$/, '')}${keyLabel.endsWith('*') ? lit_html_$`<span style="color:var(--red)">*</span>` : ''}${readOrWrite === 'readonly' ? lit_html_$` 🆁` : readOrWrite === 'writeonly' ? lit_html_$` 🆆` : readOrWrite}:
                     </span>` : ''}
             ${openBracket}
           </div>
           <div class='td key-descr m-markdown-small'>${unsafe_html_o(marked(description || ''))}</div>
         </div>
         <div class='inside-bracket ${data['::type'] || 'no-type-info'}' style='padding-left:${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' ? 0 : leftPadding}px;'>
-          ${Array.isArray(data) && data[0] ? y`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, data[0]['::readwrite'])}` : y`
+          ${Array.isArray(data) && data[0] ? lit_html_$`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, data[0]['::readwrite'])}` : lit_html_$`
               ${Object.keys(data).map(dataKey => {
         var _data$dataKey;
-
-        return y`
-                ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite', '::dataTypeLabel'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? y`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}` : '' : y`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, ((_data$dataKey = data[dataKey]) === null || _data$dataKey === void 0 ? void 0 : _data$dataKey['::description']) || '', newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}`}
+        return lit_html_$`
+                ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite', '::dataTypeLabel'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? lit_html_$`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}` : '' : lit_html_$`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, ((_data$dataKey = data[dataKey]) === null || _data$dataKey === void 0 ? void 0 : _data$dataKey['::description']) || '', newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}`}
               `;
       })}
             `}
         </div>
-        ${data['::type'] && data['::type'].includes('xxx-of') ? '' : y`<div class='close-bracket'> ${closeBracket} </div>`}
+        ${data['::type'] && data['::type'].includes('xxx-of') ? '' : lit_html_$`<div class='close-bracket'> ${closeBracket} </div>`}
       `;
-    } // For Primitive types and array of Primitives
+    }
+
+    // For Primitive types and array of Primitives
     // eslint-disable-next-line no-unused-vars
-
-
     const [type, primitiveReadOrWrite, constraint, defaultValue, allowedValues, pattern, schemaDescription, schemaTitle, deprecated] = data.split('~|~');
-
     if (primitiveReadOrWrite === '🆁' && this.schemaHideReadOnly === 'true') {
       return;
     }
-
     if (primitiveReadOrWrite === '🆆' && this.schemaHideWriteOnly === 'true') {
       return;
     }
-
     const dataTypeCss = type.replace(/┃.*/g, '').replace(/[^a-zA-Z0-9+]/g, '').substring(0, 4).toLowerCase();
     const descrExpander = `${constraint || defaultValue || allowedValues || pattern ? `<span class="descr-expand-toggle ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : ''}">➔</span>` : ''}`;
     let finalReadWriteText = '';
     let finalReadWriteTip = '';
-
     if (dataType === 'array') {
       if (readOrWrite === 'readonly') {
         finalReadWriteText = '🆁';
@@ -14593,31 +14282,29 @@ class SchemaTree extends lit_element_s {
       finalReadWriteText = '🆆';
       finalReadWriteTip = 'Write-Only';
     }
-
-    return y`
+    return lit_html_$`
       <div class = "tr primitive" title="${deprecated ? 'Deprecated' : ''}">
         <div class="td key ${deprecated}" style='min-width:${minFieldColWidth}px'>
-          ${deprecated ? y`<span style='color:var(--red);'>✗</span>` : ''}
-          ${keyLabel.endsWith('*') ? y`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>:` : key.startsWith('::OPTION') ? y`<span class='key-label xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>` : y`<span class="key-label">${keyLabel}:</span>`}
+          ${deprecated ? lit_html_$`<span style='color:var(--red);'>✗</span>` : ''}
+          ${keyLabel.endsWith('*') ? lit_html_$`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>:` : key.startsWith('::OPTION') ? lit_html_$`<span class='key-label xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>` : lit_html_$`<span class="key-label">${keyLabel}:</span>`}
           <span class="${dataTypeCss}" title="${finalReadWriteTip}"> 
             ${dataType === 'array' ? `[${type}]` : `${type}`}
             ${finalReadWriteText}
           </span>
         </div>
         <div class='td key-descr'>
-          ${description || schemaTitle || schemaDescription ? y`${y`<span class="m-markdown-small">
+          ${description || schemaTitle || schemaDescription ? lit_html_$`${lit_html_$`<span class="m-markdown-small">
                 ${unsafe_html_o(marked(dataType === 'array' ? `${descrExpander} ${description}` : schemaTitle ? `${descrExpander} <b>${schemaTitle}:</b> ${schemaDescription}` : `${descrExpander} ${schemaDescription}`))}
               </span>`}` : ''}  
-          ${constraint ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Constraints: </span>${constraint}</div>` : ''}
-          ${defaultValue ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
-          ${allowedValues ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>${type === 'const' ? 'Value' : 'Allowed'}: </span>${allowedValues}</div>` : ''}
-          ${pattern ? y`<div style='display:inline-block; line-break: anywhere; margin-right:8px'><span class='bold-text'>Pattern: </span>${pattern}</div>` : ''}
+          ${constraint ? lit_html_$`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Constraints: </span>${constraint}</div>` : ''}
+          ${defaultValue ? lit_html_$`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
+          ${allowedValues ? lit_html_$`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>${type === 'const' ? 'Value' : 'Allowed'}: </span>${allowedValues}</div>` : ''}
+          ${pattern ? lit_html_$`<div style='display:inline-block; line-break: anywhere; margin-right:8px'><span class='bold-text'>Pattern: </span>${pattern}</div>` : ''}
         </div>
       </div>
     `;
   }
   /* eslint-enable indent */
-
 
   handleAllEvents(e) {
     if (e.target.classList.contains('open-bracket')) {
@@ -14626,17 +14313,14 @@ class SchemaTree extends lit_element_s {
       this.schemaDescriptionExpanded = this.schemaDescriptionExpanded === 'true' ? 'false' : 'true';
     } else if (e.target.classList.contains('descr-expand-toggle')) {
       const trEl = e.target.closest('.tr');
-
       if (trEl) {
         trEl.classList.toggle('expanded-descr');
         trEl.style.maxHeight = trEl.scrollHeight;
       }
     }
   }
-
   toggleObjectExpand(e) {
     const rowEl = e.target.closest('.tr');
-
     if (rowEl.classList.contains('expanded')) {
       rowEl.classList.replace('expanded', 'collapsed');
       e.target.innerHTML = e.target.classList.contains('array-of-object') ? '[{...}]' : e.target.classList.contains('array-of-array') ? '[[...]]' : e.target.classList.contains('array') ? '[...]' : '{...}';
@@ -14645,7 +14329,6 @@ class SchemaTree extends lit_element_s {
       e.target.innerHTML = e.target.classList.contains('array-of-object') ? '[{' : e.target.classList.contains('array-of-array') ? `[[ ${e.target.dataset.arrayType}` : e.target.classList.contains('object') ? '{' : '[';
     }
   }
-
 }
 customElements.define('schema-tree', SchemaTree);
 ;// CONCATENATED MODULE: ./src/components/tag-input.js
@@ -14654,12 +14337,10 @@ class TagInput extends lit_element_s {
   /* eslint-disable indent */
   render() {
     let tagItemTmpl = '';
-
     if (Array.isArray(this.value)) {
-      tagItemTmpl = y`${this.value.filter(v => typeof v === 'string' && v.trim() !== '').map(v => y`<span class='tag'>${v}</span>`)}`;
+      tagItemTmpl = lit_html_$`${this.value.filter(v => typeof v === 'string' && v.trim() !== '').map(v => lit_html_$`<span class='tag'>${v}</span>`)}`;
     }
-
-    return y`
+    return lit_html_$`
       <div class='tags'>
         ${tagItemTmpl}
         <input type="text" class='editor' @paste="${e => this.afterPaste(e)}" @keydown="${this.afterKeyDown}" @blur="${this.onBlur}" placeholder="${this.placeholder || ''}">
@@ -14667,7 +14348,6 @@ class TagInput extends lit_element_s {
     `;
   }
   /* eslint-enable indent */
-
 
   static get properties() {
     return {
@@ -14680,22 +14360,18 @@ class TagInput extends lit_element_s {
       }
     };
   }
-
   attributeChangedCallback(name, oldVal, newVal) {
     if (name === 'value') {
       if (newVal && oldVal !== newVal) {
         this.value = newVal.split(',').filter(v => v.trim() !== '');
       }
     }
-
     super.attributeChangedCallback(name, oldVal, newVal);
   }
-
   afterPaste(e) {
     const clipboardData = e.clipboardData || window.clipboardData;
     const pastedData = clipboardData.getData('Text');
     const pastedArray = pastedData ? pastedData.split(',').filter(v => v.trim() !== '') : '';
-
     if (pastedArray) {
       if (Array.isArray(this.value)) {
         this.value = [...this.value, ...pastedArray];
@@ -14703,22 +14379,18 @@ class TagInput extends lit_element_s {
         this.value = pastedArray;
       }
     }
-
     e.preventDefault();
   }
-
   afterKeyDown(e) {
     if (e.keyCode === 13) {
       e.stopPropagation();
       e.preventDefault();
-
       if (e.target.value) {
         if (Array.isArray(this.value)) {
           this.value = [...this.value, e.target.value];
         } else {
           this.value = [e.target.value];
         }
-
         e.target.value = '';
       }
     } else if (e.keyCode === 8) {
@@ -14730,7 +14402,6 @@ class TagInput extends lit_element_s {
       }
     }
   }
-
   onBlur(e) {
     if (e.target.value) {
       if (Array.isArray(this.value)) {
@@ -14738,13 +14409,11 @@ class TagInput extends lit_element_s {
       } else {
         this.value = [e.target.value];
       }
-
       e.target.value = '';
     }
   }
-
   static get styles() {
-    return [i`
+    return [css_tag_r`
       .tags {
         display:flex;
         flex-wrap: wrap;
@@ -14791,18 +14460,14 @@ class TagInput extends lit_element_s {
       }
     `];
   }
-
-} // Register the element with the browser
-
+}
+// Register the element with the browser
 customElements.define('tag-input', TagInput);
 ;// CONCATENATED MODULE: ./src/components/api-request.js
 
  // eslint-disable-line import/extensions
-
  // eslint-disable-line import/extensions
-
  // eslint-disable-line import/extensions
-
 
 
 
@@ -14829,12 +14494,10 @@ class ApiRequest extends lit_element_s {
     this.responseUrl = '';
     this.curlSyntax = '';
     this.activeResponseTab = 'response'; // allowed values: response, headers, curl
-
     this.selectedRequestBodyType = '';
     this.selectedRequestBodyExample = '';
     this.activeParameterSchemaTabs = {};
   }
-
   static get properties() {
     return {
       serverUrl: {
@@ -14960,12 +14623,11 @@ class ApiRequest extends lit_element_s {
         type: String,
         attribute: 'selected-request-body-example'
       } // internal tracking of selected request-body example
-
     };
   }
 
   static get styles() {
-    return [table_styles, input_styles, font_styles, flex_styles, border_styles, tab_styles, prism_styles, i`
+    return [table_styles, input_styles, font_styles, flex_styles, border_styles, tab_styles, prism_styles, css_tag_r`
         *, *:before, *:after { box-sizing: border-box; }
         :where(button, input[type="checkbox"], [tabindex="0"]):focus-visible { box-shadow: var(--focus-shadow); }
         :where(input[type="text"], input[type="password"], select, textarea):focus-visible { border-color: var(--primary-color); }
@@ -15063,9 +14725,8 @@ class ApiRequest extends lit_element_s {
         }
       `, custom_styles];
   }
-
   render() {
-    return y`
+    return lit_html_$`
     <div class="col regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'}">
       <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} "> 
         ${this.callback === 'true' ? 'CALLBACK REQUEST' : 'REQUEST'}
@@ -15076,11 +14737,12 @@ class ApiRequest extends lit_element_s {
         ${this.requestBodyTemplate()}
         ${guard_i([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('header'))}
         ${guard_i([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('cookie'))}
-        ${this.allowTry === 'false' ? '' : y`${this.apiCallTemplate()}`}
+        ${this.allowTry === 'false' ? '' : lit_html_$`${this.apiCallTemplate()}`}
       </div>  
     </div>
     `;
   }
+
   /*
   async updated(changedProperties) {
     // In focused mode after rendering the request component, update the text-areas(which contains examples) using
@@ -15096,7 +14758,6 @@ class ApiRequest extends lit_element_s {
   }
   */
 
-
   async saveExampleState() {
     if (this.renderStyle === 'focused') {
       const reqBodyTextAreaEls = [...this.shadowRoot.querySelectorAll('textarea.request-body-param-user-input')];
@@ -15110,7 +14771,6 @@ class ApiRequest extends lit_element_s {
       this.requestUpdate();
     }
   }
-
   async updateExamplesFromDataAttr() {
     // In focused mode after rendering the request component, update the text-areas(which contains examples) using
     // the original values from hidden textareas
@@ -15127,13 +14787,11 @@ class ApiRequest extends lit_element_s {
       this.requestUpdate();
     }
   }
+
   /* eslint-disable indent */
-
-
   renderExample(example, paramType, paramName) {
     var _example$value;
-
-    return y`
+    return lit_html_$`
       ${paramType === 'array' ? '[' : ''}
       <a
         part="anchor anchor-param-example"
@@ -15143,7 +14801,6 @@ class ApiRequest extends lit_element_s {
         data-example="${example.value && Array.isArray(example.value) ? (_example$value = example.value) === null || _example$value === void 0 ? void 0 : _example$value.join('~|~') : example.value || ''}"
         @click="${e => {
       const inputEl = e.target.closest('table').querySelector(`[data-pname="${paramName}"]`);
-
       if (inputEl) {
         inputEl.value = e.target.dataset.exampleType === 'array' ? e.target.dataset.example.split('~|~') : e.target.dataset.example;
       }
@@ -15152,43 +14809,35 @@ class ApiRequest extends lit_element_s {
       ${paramType === 'array' ? '] ' : ''}
     `;
   }
-
   renderShortFormatExamples(examples, paramType, paramName) {
-    return y`${examples.map((x, i) => y`
+    return lit_html_$`${examples.map((x, i) => lit_html_$`
       ${i === 0 ? '' : '┃'}
       ${this.renderExample(x, paramType, paramName)}`)}`;
   }
-
   renderLongFormatExamples(exampleList, paramType, paramName) {
-    return y` <ul style="list-style-type: disclosure-closed;">
+    return lit_html_$` <ul style="list-style-type: disclosure-closed;">
       ${exampleList.map(v => {
       var _v$summary, _v$description;
-
-      return y`
+      return lit_html_$`
           <li>
             ${this.renderExample(v, paramType, paramName)}
-            ${((_v$summary = v.summary) === null || _v$summary === void 0 ? void 0 : _v$summary.length) > 0 ? y`<span>&lpar;${v.summary}&rpar;</span>` : ''}
-            ${((_v$description = v.description) === null || _v$description === void 0 ? void 0 : _v$description.length) > 0 ? y`<p>${unsafe_html_o(marked(v.description))}</p>` : ''}
+            ${((_v$summary = v.summary) === null || _v$summary === void 0 ? void 0 : _v$summary.length) > 0 ? lit_html_$`<span>&lpar;${v.summary}&rpar;</span>` : ''}
+            ${((_v$description = v.description) === null || _v$description === void 0 ? void 0 : _v$description.length) > 0 ? lit_html_$`<p>${unsafe_html_o(marked(v.description))}</p>` : ''}
           </li>
         `;
     })}
     </ul>`;
   }
-
   exampleListTemplate(paramName, paramType, exampleList = []) {
-    return y` ${exampleList.length > 0 ? y`<span style="font-weight:bold">Examples: </span>
+    return lit_html_$` ${exampleList.length > 0 ? lit_html_$`<span style="font-weight:bold">Examples: </span>
           ${anyExampleWithSummaryOrDescription(exampleList) ? this.renderLongFormatExamples(exampleList, paramType, paramName) : this.renderShortFormatExamples(exampleList, paramType, paramName)}` : ''}`;
   }
-
   inputParametersTemplate(paramType) {
     const filteredParams = this.parameters ? this.parameters.filter(param => param.in === paramType) : [];
-
     if (filteredParams.length === 0) {
       return '';
     }
-
     let title = '';
-
     if (paramType === 'path') {
       title = 'PATH PARAMETERS';
     } else if (paramType === 'query') {
@@ -15198,70 +14847,61 @@ class ApiRequest extends lit_element_s {
     } else if (paramType === 'cookie') {
       title = 'COOKIES';
     }
-
     const tableRows = [];
-
     for (const param of filteredParams) {
       const [declaredParamSchema, serializeStyle, mimeTypeElem] = getSchemaFromParam(param);
-
       if (!declaredParamSchema) {
         continue;
       }
-
       const paramSchema = getTypeInfo(declaredParamSchema);
-
       if (!paramSchema) {
         continue; // eslint-disable-line no-continue
       }
 
-      const schemaAsObj = schemaInObjectNotation(declaredParamSchema, {}); // let exampleVal = '';
+      const schemaAsObj = schemaInObjectNotation(declaredParamSchema, {});
+      // let exampleVal = '';
       // let exampleList = [];
-
       let paramStyle = 'form';
       let paramExplode = true;
       let paramAllowReserved = false;
-
       if (paramType === 'query') {
         if (param.style && 'form spaceDelimited pipeDelimited'.includes(param.style)) {
           paramStyle = param.style;
         } else if (serializeStyle) {
           paramStyle = serializeStyle;
         }
-
         if (typeof param.explode === 'boolean') {
           paramExplode = param.explode;
         }
-
         if (typeof param.allowReserved === 'boolean') {
           paramAllowReserved = param.allowReserved;
         }
-      } // openapi 3.1.0 spec based examples (which must be Object(string : { value:any, summary?: string, description?: string})
-
-
-      const example = normalizeExamples(param.examples || nestExampleIfPresent(param.example) || nestExampleIfPresent(mimeTypeElem === null || mimeTypeElem === void 0 ? void 0 : mimeTypeElem.example) || (mimeTypeElem === null || mimeTypeElem === void 0 ? void 0 : mimeTypeElem.examples) || paramSchema.examples || nestExampleIfPresent(paramSchema.example), paramSchema.type);
-
+      }
+      // openapi 3.1.0 spec based examples (which must be Object(string : { value:any, summary?: string, description?: string})
+      const example = normalizeExamples(param.examples || nestExampleIfPresent(param.example) || nestExampleIfPresent(mimeTypeElem === null || mimeTypeElem === void 0 ? void 0 : mimeTypeElem.example) || (mimeTypeElem === null || mimeTypeElem === void 0 ? void 0 : mimeTypeElem.examples) || nestExampleIfPresent(paramSchema.examples) || nestExampleIfPresent(paramSchema.example), paramSchema.type);
       if (!example.exampleVal && paramSchema.type === 'object') {
-        example.exampleVal = generateExample(declaredParamSchema, serializeStyle || 'json', '', '', this.callback === 'true' || this.webhook === 'true' ? true : false, // eslint-disable-line no-unneeded-ternary
-        this.callback === 'true' || this.webhook === 'true' ? false : true, // eslint-disable-line no-unneeded-ternary
+        example.exampleVal = generateExample(declaredParamSchema, serializeStyle || 'json', '', '', this.callback === 'true' || this.webhook === 'true' ? true : false,
+        // eslint-disable-line no-unneeded-ternary
+        this.callback === 'true' || this.webhook === 'true' ? false : true,
+        // eslint-disable-line no-unneeded-ternary
         true, 'text', false)[0].exampleValue;
       }
-
       const labelColWidth = 'read focused'.includes(this.renderStyle) ? '200px' : '160px';
-      tableRows.push(y`
+      tableRows.push(lit_html_$`
       <tr title="${param.deprecated ? 'Deprecated' : ''}"> 
         <td rowspan="${this.allowTry === 'true' ? '1' : '2'}" style="width:${labelColWidth}; min-width:100px;">
           <div class="param-name ${param.deprecated ? 'deprecated' : ''}" >
-            ${param.deprecated ? y`<span style='color:var(--red);'>✗</span>` : ''}
-            ${param.required ? y`<span style='color:var(--red)'>*</span>` : ''}
+            ${param.deprecated ? lit_html_$`<span style='color:var(--red);'>✗</span>` : ''}
+            ${param.required ? lit_html_$`<span style='color:var(--red)'>*</span>` : ''}
             ${param.name}
           </div>
           <div class="param-type">
             ${paramSchema.type === 'array' ? `${paramSchema.arrayType}` : `${paramSchema.format ? paramSchema.format : paramSchema.type}`}
           </div>
         </td>  
-        ${this.allowTry === 'true' ? y`
+        ${this.allowTry === 'true' ? lit_html_$`
             <td style="min-width:100px;" colspan="${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern ? '1' : '2'}">
-              ${paramSchema.type === 'array' ? y`
+              ${paramSchema.type === 'array' ? lit_html_$`
                   <tag-input class="request-param" 
                     style = "width:100%" 
                     data-ptype = "${paramType}"
@@ -15275,11 +14915,12 @@ class ApiRequest extends lit_element_s {
                     placeholder = "add-multiple &#x21a9;"
                     .value="${param['x-fill-example'] === 'no' ? [] : live_l(this.fillRequestFieldsWithExample === 'true' ? Array.isArray(example.exampleVal) ? example.exampleVal : [example.exampleVal] : [])}"
                   >
-                  </tag-input>` : paramSchema.type === 'object' ? y`
+                  </tag-input>` : paramSchema.type === 'object' ? lit_html_$`
                     <div class="tab-panel col" style="border-width:0 0 1px 0;">
                       <div class="tab-buttons row" @click="${e => {
         if (e.target.tagName.toLowerCase() === 'button') {
-          const newState = { ...this.activeParameterSchemaTabs
+          const newState = {
+            ...this.activeParameterSchemaTabs
           };
           newState[param.name] = e.target.dataset.tab;
           this.activeParameterSchemaTabs = newState;
@@ -15288,7 +14929,7 @@ class ApiRequest extends lit_element_s {
                         <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
                         <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
                       </div>
-                      ${this.activeParameterSchemaTabs[param.name] === 'example' ? y`<div class="tab-content col">
+                      ${this.activeParameterSchemaTabs[param.name] === 'example' ? lit_html_$`<div class="tab-content col">
                           <textarea 
                             class = "textarea request-param"
                             part = "textarea textarea-param"
@@ -15303,7 +14944,7 @@ class ApiRequest extends lit_element_s {
                             .textContent="${param['x-fill-example'] === 'no' ? '' : live_l(this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : '')}"
                             style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
                           ></textarea>
-                        </div>` : y`
+                        </div>` : lit_html_$`
                           <div class="tab-content col">
                             <schema-tree
                               class = 'json'
@@ -15319,7 +14960,7 @@ class ApiRequest extends lit_element_s {
                                 anchor:anchor, anchor-param-example:anchor-param-example"
                             > </schema-tree>
                           </div>`}
-                    </div>` : y`
+                    </div>` : lit_html_$`
                     <input type="${paramSchema.format === 'password' ? 'password' : 'text'}" spellcheck="false" style="width:100%" 
                       class="request-param"
                       part="textbox textbox-param"
@@ -15332,21 +14973,20 @@ class ApiRequest extends lit_element_s {
                       .value="${param['x-fill-example'] === 'no' ? '' : live_l(this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : '')}"
                     />`}
             </td>` : ''}
-        ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern ? y`
+        ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern ? lit_html_$`
             <td colspan="${this.allowTry === 'true' ? '1' : '2'}">
               <div class="param-constraint">
-                ${paramSchema.default ? y`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
-                ${paramSchema.pattern ? y`<span style="font-weight:bold">Pattern: </span>${paramSchema.pattern}<br/>` : ''}
-                ${paramSchema.constrain ? y`${paramSchema.constrain}<br/>` : ''}
-                ${paramSchema.allowedValues && paramSchema.allowedValues.split('┃').map((v, i) => y`
-                  ${i > 0 ? '┃' : y`<span style="font-weight:bold">Allowed: </span>`}
-                  ${y`
+                ${paramSchema.default ? lit_html_$`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
+                ${paramSchema.pattern ? lit_html_$`<span style="font-weight:bold">Pattern: </span>${paramSchema.pattern}<br/>` : ''}
+                ${paramSchema.constrain ? lit_html_$`${paramSchema.constrain}<br/>` : ''}
+                ${paramSchema.allowedValues && paramSchema.allowedValues.split('┃').map((v, i) => lit_html_$`
+                  ${i > 0 ? '┃' : lit_html_$`<span style="font-weight:bold">Allowed: </span>`}
+                  ${lit_html_$`
                     <a part="anchor anchor-param-constraint" class = "${this.allowTry === 'true' ? '' : 'inactive-link'}"
                       data-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}"
                       data-enum="${v.trim()}"
                       @click="${e => {
         const inputEl = e.target.closest('table').querySelector(`[data-pname="${param.name}"]`);
-
         if (inputEl) {
           if (e.target.dataset.type === 'array') {
             inputEl.value = [e.target.dataset.enum];
@@ -15357,10 +14997,10 @@ class ApiRequest extends lit_element_s {
       }}"
                     >${v}</a>`}`)}
               </div>
-            </td>` : y`<td></td>`}
+            </td>` : lit_html_$`<td></td>`}
       </tr>
       <tr>
-        ${this.allowTry === 'true' ? y`<td style="border:none"> </td>` : ''}
+        ${this.allowTry === 'true' ? lit_html_$`<td style="border:none"> </td>` : ''}
         <td colspan="2" style="border:none">
           <span class="m-markdown-small">${unsafe_html_o(marked(param.description || ''))}</span>
           ${this.exampleListTemplate.call(this, param.name, paramSchema.type, example.exampleList)}
@@ -15368,29 +15008,29 @@ class ApiRequest extends lit_element_s {
       </tr>
     `);
     }
-
-    return y`
+    return lit_html_$`
     <div class="table-title top-gap">${title}</div>
     <div style="display:block; overflow-x:auto; max-width:100%;">
       <table role="presentation" class="m-table" style="width:100%; word-break:break-word;">
         ${tableRows}
       </table>
     </div>`;
-  } // This method is called before navigation change in focusd mode
+  }
 
+  // This method is called before navigation change in focusd mode
+  async beforerNavigationFocusedMode() {
+    // this.saveExampleState();
+  }
 
-  async beforerNavigationFocusedMode() {// this.saveExampleState();
-  } // This method is called after navigation change in focusd mode
-
-
+  // This method is called after navigation change in focusd mode
   async afterNavigationFocusedMode() {
     this.selectedRequestBodyType = '';
     this.selectedRequestBodyExample = '';
     this.updateExamplesFromDataAttr();
     this.clearResponseData();
-  } // Request-Body Event Handlers
+  }
 
-
+  // Request-Body Event Handlers
   onSelectExample(e) {
     this.selectedRequestBodyExample = e.target.value;
     const exampleDropdownEl = e.target;
@@ -15400,31 +15040,27 @@ class ApiRequest extends lit_element_s {
       userInputExampleTextareaEl.value = readOnlyExampleEl.innerText;
     }, 0, exampleDropdownEl);
   }
-
   onMimeTypeChange(e) {
     this.selectedRequestBodyType = e.target.value;
     const mimeDropdownEl = e.target;
     this.selectedRequestBodyExample = '';
     window.setTimeout(selectEl => {
       const readOnlyExampleEl = selectEl.closest('.request-body-container').querySelector('.request-body-param');
-
       if (readOnlyExampleEl) {
         const userInputExampleTextareaEl = selectEl.closest('.request-body-container').querySelector('.request-body-param-user-input');
         userInputExampleTextareaEl.value = readOnlyExampleEl.innerText;
       }
     }, 0, mimeDropdownEl);
   }
-
   requestBodyTemplate() {
     if (!this.request_body) {
       return '';
     }
-
     if (Object.keys(this.request_body).length === 0) {
       return '';
-    } // Variable to store partial HTMLs
+    }
 
-
+    // Variable to store partial HTMLs
     let reqBodyTypeSelectorHtml = '';
     let reqBodyFileInputHtml = '';
     let reqBodyFormHtml = '';
@@ -15434,7 +15070,6 @@ class ApiRequest extends lit_element_s {
     const {
       content
     } = this.request_body;
-
     for (const mimeType in content) {
       requestBodyTypes.push({
         mimeType,
@@ -15442,51 +15077,49 @@ class ApiRequest extends lit_element_s {
         example: content[mimeType].example,
         examples: content[mimeType].examples
       });
-
       if (!this.selectedRequestBodyType) {
         this.selectedRequestBodyType = mimeType;
       }
-    } // MIME Type selector
-
-
-    reqBodyTypeSelectorHtml = requestBodyTypes.length === 1 ? '' : y`
+    }
+    // MIME Type selector
+    reqBodyTypeSelectorHtml = requestBodyTypes.length === 1 ? '' : lit_html_$`
         <select style="min-width:100px; max-width:100%;  margin-bottom:-1px;" @change = '${e => this.onMimeTypeChange(e)}'>
-          ${requestBodyTypes.map(reqBody => y`
+          ${requestBodyTypes.map(reqBody => lit_html_$`
             <option value = '${reqBody.mimeType}' ?selected = '${reqBody.mimeType === this.selectedRequestBodyType}'>
               ${reqBody.mimeType}
             </option> `)}
         </select>
-      `; // For Loop - Main
+      `;
 
+    // For Loop - Main
     requestBodyTypes.forEach(reqBody => {
       let schemaAsObj;
       let reqBodyExamples = [];
-
       if (this.selectedRequestBodyType.includes('json') || this.selectedRequestBodyType.includes('xml') || this.selectedRequestBodyType.includes('text') || this.selectedRequestBodyType.includes('jose')) {
         // Generate Example
         if (reqBody.mimeType === this.selectedRequestBodyType) {
-          reqBodyExamples = generateExample(reqBody.schema, reqBody.mimeType, reqBody.examples, reqBody.example, this.callback === 'true' || this.webhook === 'true' ? true : false, // eslint-disable-line no-unneeded-ternary
-          this.callback === 'true' || this.webhook === 'true' ? false : true, // eslint-disable-line no-unneeded-ternary
+          reqBodyExamples = generateExample(reqBody.schema, reqBody.mimeType, reqBody.examples, reqBody.example, this.callback === 'true' || this.webhook === 'true' ? true : false,
+          // eslint-disable-line no-unneeded-ternary
+          this.callback === 'true' || this.webhook === 'true' ? false : true,
+          // eslint-disable-line no-unneeded-ternary
           'text', false);
-
           if (!this.selectedRequestBodyExample) {
             this.selectedRequestBodyExample = reqBodyExamples.length > 0 ? reqBodyExamples[0].exampleId : '';
           }
-
-          reqBodyExampleHtml = y`
+          reqBodyExampleHtml = lit_html_$`
             ${reqBodyExampleHtml}
             <div class = 'example-panel border-top pad-top-8'>
-              ${reqBodyExamples.length === 1 ? '' : y`
+              ${reqBodyExamples.length === 1 ? '' : lit_html_$`
                   <select style="min-width:100px; max-width:100%;  margin-bottom:-1px;" @change='${e => this.onSelectExample(e)}'>
-                    ${reqBodyExamples.map(v => y`<option value="${v.exampleId}" ?selected=${v.exampleId === this.selectedRequestBodyExample} > 
+                    ${reqBodyExamples.map(v => lit_html_$`<option value="${v.exampleId}" ?selected=${v.exampleId === this.selectedRequestBodyExample} > 
                       ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary ? v.exampleSummary : v.exampleId} 
                     </option>`)}
                   </select>
                 `}
-              ${reqBodyExamples.filter(v => v.exampleId === this.selectedRequestBodyExample).map(v => y`
+              ${reqBodyExamples.filter(v => v.exampleId === this.selectedRequestBodyExample).map(v => lit_html_$`
                 <div class="example ${v.exampleId === this.selectedRequestBodyExample ? 'example-selected' : ''}" data-example = '${v.exampleId}'>
-                  ${v.exampleSummary && v.exampleSummary.length > 80 ? y`<div style="padding: 4px 0"> ${v.exampleSummary} </div>` : ''}
-                  ${v.exampleDescription ? y`<div class="m-markdown-small" style="padding: 4px 0"> ${unsafe_html_o(marked(v.exampleDescription || ''))} </div>` : ''}
+                  ${v.exampleSummary && v.exampleSummary.length > 80 ? lit_html_$`<div style="padding: 4px 0"> ${v.exampleSummary} </div>` : ''}
+                  ${v.exampleDescription ? lit_html_$`<div class="m-markdown-small" style="padding: 4px 0"> ${unsafe_html_o(marked(v.exampleDescription || ''))} </div>` : ''}
                   <!-- This pre(hidden) is to store the original example value, this will remain unchanged when users switches from one example to another, its is used to populate the editable textarea -->
                   <pre 
                     class = "textarea is-hidden request-body-param ${reqBody.mimeType.substring(reqBody.mimeType.indexOf('/') + 1)}" 
@@ -15514,30 +15147,30 @@ class ApiRequest extends lit_element_s {
         }
       } else if (this.selectedRequestBodyType.includes('form-urlencoded') || this.selectedRequestBodyType.includes('form-data')) {
         if (reqBody.mimeType === this.selectedRequestBodyType) {
-          const ex = generateExample(reqBody.schema, reqBody.mimeType, reqBody.examples, reqBody.example, this.callback === 'true' || this.webhook === 'true' ? true : false, // eslint-disable-line no-unneeded-ternary
-          this.callback === 'true' || this.webhook === 'true' ? false : true, // eslint-disable-line no-unneeded-ternary
+          const ex = generateExample(reqBody.schema, reqBody.mimeType, reqBody.examples, reqBody.example, this.callback === 'true' || this.webhook === 'true' ? true : false,
+          // eslint-disable-line no-unneeded-ternary
+          this.callback === 'true' || this.webhook === 'true' ? false : true,
+          // eslint-disable-line no-unneeded-ternary
           'text', false);
-
           if (reqBody.schema) {
             reqBodyFormHtml = this.formDataTemplate(reqBody.schema, reqBody.mimeType, ex[0] ? ex[0].exampleValue : '');
           }
         }
       } else if (/^audio\/|^image\/|^video\/|^font\/|tar$|zip$|7z$|rtf$|msword$|excel$|\/pdf$|\/octet-stream$/.test(this.selectedRequestBodyType)) {
         if (reqBody.mimeType === this.selectedRequestBodyType) {
-          reqBodyFileInputHtml = y`
+          reqBodyFileInputHtml = lit_html_$`
             <div class = "small-font-size bold-text row">
               <input type="file" part="file-input" style="max-width:100%" class="request-body-param-file" data-ptype="${reqBody.mimeType}" spellcheck="false" />
             </div>  
           `;
         }
-      } // Generate Schema
+      }
 
-
+      // Generate Schema
       if (reqBody.mimeType.includes('json') || reqBody.mimeType.includes('xml') || reqBody.mimeType.includes('text') || this.selectedRequestBodyType.includes('jose')) {
         schemaAsObj = schemaInObjectNotation(reqBody.schema, {});
-
         if (this.schemaStyle === 'table') {
-          reqBodySchemaHtml = y`
+          reqBodySchemaHtml = lit_html_$`
             ${reqBodySchemaHtml}
             <schema-table
               class = '${reqBody.mimeType.substring(reqBody.mimeType.indexOf('/') + 1)}'
@@ -15552,7 +15185,7 @@ class ApiRequest extends lit_element_s {
             > </schema-table>
           `;
         } else if (this.schemaStyle === 'tree') {
-          reqBodySchemaHtml = y`
+          reqBodySchemaHtml = lit_html_$`
             ${reqBodySchemaHtml}
             <schema-tree
               class = "${reqBody.mimeType.substring(reqBody.mimeType.indexOf('/') + 1)}"
@@ -15569,17 +15202,17 @@ class ApiRequest extends lit_element_s {
         }
       }
     });
-    return y`
+    return lit_html_$`
       <div class='request-body-container' data-selected-request-body-type="${this.selectedRequestBodyType}">
         <div class="table-title top-gap row">
-          REQUEST BODY ${this.request_body.required ? y`<span class="mono-font" style='color:var(--red)'>*</span>` : ''} 
+          REQUEST BODY ${this.request_body.required ? lit_html_$`<span class="mono-font" style='color:var(--red)'>*</span>` : ''} 
           <span style = "font-weight:normal; margin-left:5px"> ${this.selectedRequestBodyType}</span>
           <span style="flex:1"></span>
           ${reqBodyTypeSelectorHtml}
         </div>
-        ${this.request_body.description ? y`<div class="m-markdown" style="margin-bottom:12px">${unsafe_html_o(marked(this.request_body.description))}</div>` : ''}
+        ${this.request_body.description ? lit_html_$`<div class="m-markdown" style="margin-bottom:12px">${unsafe_html_o(marked(this.request_body.description))}</div>` : ''}
         
-        ${this.selectedRequestBodyType.includes('json') || this.selectedRequestBodyType.includes('xml') || this.selectedRequestBodyType.includes('text') || this.selectedRequestBodyType.includes('jose') ? y`
+        ${this.selectedRequestBodyType.includes('json') || this.selectedRequestBodyType.includes('xml') || this.selectedRequestBodyType.includes('text') || this.selectedRequestBodyType.includes('jose') ? lit_html_$`
             <div class="tab-panel col" style="border-width:0 0 1px 0;">
               <div class="tab-buttons row" @click="${e => {
       if (e.target.tagName.toLowerCase() === 'button') {
@@ -15589,24 +15222,24 @@ class ApiRequest extends lit_element_s {
                 <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
                 <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
               </div>
-              ${y`<div class="tab-content col" style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'};"> ${reqBodyExampleHtml}</div>`}
-              ${y`<div class="tab-content col" style="display:${this.activeSchemaTab === 'example' ? 'none' : 'block'};"> ${reqBodySchemaHtml}</div>`}
-            </div>` : y`  
+              ${lit_html_$`<div class="tab-content col" style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'};"> ${reqBodyExampleHtml}</div>`}
+              ${lit_html_$`<div class="tab-content col" style="display:${this.activeSchemaTab === 'example' ? 'none' : 'block'};"> ${reqBodySchemaHtml}</div>`}
+            </div>` : lit_html_$`  
             ${reqBodyFileInputHtml}
             ${reqBodyFormHtml}`}
       </div>  
     `;
   }
-
   formDataParamAsObjectTemplate(fieldName, fieldSchema, mimeType) {
     var _formdataPartExample$;
-
     // This template is used when form-data param should be send as a object (application/json, application/xml)
     const formdataPartSchema = schemaInObjectNotation(fieldSchema, {});
-    const formdataPartExample = generateExample(fieldSchema, 'json', fieldSchema.examples, fieldSchema.example, this.callback === 'true' || this.webhook === 'true' ? true : false, // eslint-disable-line no-unneeded-ternary
-    this.callback === 'true' || this.webhook === 'true' ? false : true, // eslint-disable-line no-unneeded-ternary
+    const formdataPartExample = generateExample(fieldSchema, 'json', fieldSchema.examples, fieldSchema.example, this.callback === 'true' || this.webhook === 'true' ? true : false,
+    // eslint-disable-line no-unneeded-ternary
+    this.callback === 'true' || this.webhook === 'true' ? false : true,
+    // eslint-disable-line no-unneeded-ternary
     'text', false);
-    return y`
+    return lit_html_$`
       <div class="tab-panel row" style="min-height:220px; border-left: 6px solid var(--light-border-color); align-items: stretch;">
         <div style="width:24px; background-color:var(--light-border-color)">
           <div class="row" style="flex-direction:row-reverse; width:160px; height:24px; transform:rotate(270deg) translateX(-160px); transform-origin:top left; display:block;" @click="${e => {
@@ -15614,7 +15247,6 @@ class ApiRequest extends lit_element_s {
         const {
           tab
         } = e.target.dataset;
-
         if (tab) {
           const tabPanelEl = e.target.closest('.tab-panel');
           const selectedTabBtnEl = tabPanelEl.querySelector(`.v-tab-btn[data-tab="${tab}"]`);
@@ -15631,7 +15263,6 @@ class ApiRequest extends lit_element_s {
           });
         }
       }
-
       if (e.target.tagName.toLowerCase() === 'button') {
         this.activeSchemaTab = e.target.dataset.tab;
       }
@@ -15640,7 +15271,7 @@ class ApiRequest extends lit_element_s {
           <button class="v-tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
         </div>
       </div>
-      ${y`
+      ${lit_html_$`
         <div class="tab-content col" data-tab = 'example' style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'}; padding-left:5px; width:100%"> 
           <textarea 
             class = "textarea"
@@ -15654,7 +15285,7 @@ class ApiRequest extends lit_element_s {
             spellcheck = "false"
           ></textarea>
         </div>`}
-      ${y`
+      ${lit_html_$`
         <div class="tab-content col" data-tab = 'schema' style="display:${this.activeSchemaTab !== 'example' ? 'block' : 'none'}; padding-left:5px; width:100%;"> 
           <schema-tree
             .data = '${formdataPartSchema}'
@@ -15666,37 +15297,32 @@ class ApiRequest extends lit_element_s {
       </div>
     `;
   }
-
   formDataTemplate(schema, mimeType, exampleValue = '') {
     const formDataTableRows = [];
-
     if (schema.properties) {
       for (const fieldName in schema.properties) {
         var _schema$required, _fieldSchema$items;
-
         const fieldSchema = schema.properties[fieldName];
-
         if (fieldSchema.readOnly) {
           continue;
         }
-
         const fieldExamples = fieldSchema.examples || fieldSchema.example || '';
         const fieldType = fieldSchema.type;
         const paramSchema = getTypeInfo(fieldSchema);
         const labelColWidth = 'read focused'.includes(this.renderStyle) ? '200px' : '160px';
         const example = normalizeExamples(paramSchema.examples || paramSchema.example, paramSchema.type);
-        formDataTableRows.push(y`
+        formDataTableRows.push(lit_html_$`
         <tr title="${fieldSchema.deprecated ? 'Deprecated' : ''}"> 
           <td style="width:${labelColWidth}; min-width:100px;">
             <div class="param-name ${fieldSchema.deprecated ? 'deprecated' : ''}">
-              ${fieldName}${(_schema$required = schema.required) !== null && _schema$required !== void 0 && _schema$required.includes(fieldName) || fieldSchema.required ? y`<span style='color:var(--red);'>*</span>` : ''}
+              ${fieldName}${(_schema$required = schema.required) !== null && _schema$required !== void 0 && _schema$required.includes(fieldName) || fieldSchema.required ? lit_html_$`<span style='color:var(--red);'>*</span>` : ''}
             </div>
             <div class="param-type">${paramSchema.type}</div>
           </td>  
           <td 
             style="${fieldType === 'object' ? 'width:100%; padding:0;' : this.allowTry === 'true' ? '' : 'display:none;'} min-width:100px;" 
             colspan="${fieldType === 'object' ? 2 : 1}">
-            ${fieldType === 'array' ? ((_fieldSchema$items = fieldSchema.items) === null || _fieldSchema$items === void 0 ? void 0 : _fieldSchema$items.format) === 'binary' ? y`
+            ${fieldType === 'array' ? ((_fieldSchema$items = fieldSchema.items) === null || _fieldSchema$items === void 0 ? void 0 : _fieldSchema$items.format) === 'binary' ? lit_html_$`
                 <div class="file-input-container col" style='align-items:flex-end;' @click="${e => this.onAddRemoveFileInput(e, fieldName, mimeType)}">
                   <div class='input-set row'>
                     <input 
@@ -15712,7 +15338,7 @@ class ApiRequest extends lit_element_s {
                   </div>  
                   <button class="m-btn primary file-input-add-btn" part="btn btn-fill" style="margin:2px 25px 0 0; padding:2px 6px;">ADD</button>
                 </div>  
-                ` : y`
+                ` : lit_html_$`
                   <tag-input
                     style = "width:100%" 
                     data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
@@ -15723,9 +15349,9 @@ class ApiRequest extends lit_element_s {
                     .value = "${Array.isArray(fieldExamples) ? Array.isArray(fieldExamples[0]) ? fieldExamples[0] : [fieldExamples[0]] : [fieldExamples]}"
                   >
                   </tag-input>
-                ` : y`
-                ${fieldType === 'object' ? this.formDataParamAsObjectTemplate.call(this, fieldName, fieldSchema, mimeType) : y`
-                    ${this.allowTry === 'true' ? y`<input
+                ` : lit_html_$`
+                ${fieldType === 'object' ? this.formDataParamAsObjectTemplate.call(this, fieldName, fieldSchema, mimeType) : lit_html_$`
+                    ${this.allowTry === 'true' ? lit_html_$`<input
                           .value = "${this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : ''}"
                           spellcheck = "false"
                           type = "${fieldSchema.format === 'binary' ? 'file' : fieldSchema.format === 'password' ? 'password' : 'text'}"
@@ -15738,22 +15364,21 @@ class ApiRequest extends lit_element_s {
                         />` : ''}
                     `}`}
           </td>
-          ${fieldType === 'object' ? '' : y`
+          ${fieldType === 'object' ? '' : lit_html_$`
               <td>
-                ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern ? y`
+                ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern ? lit_html_$`
                     <div class="param-constraint">
-                      ${paramSchema.default ? y`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
-                      ${paramSchema.pattern ? y`<span style="font-weight:bold">Pattern: </span>${paramSchema.pattern}<br/>` : ''}
-                      ${paramSchema.constrain ? y`${paramSchema.constrain}<br/>` : ''}
-                      ${paramSchema.allowedValues && paramSchema.allowedValues.split('┃').map((v, i) => y`
-                        ${i > 0 ? '┃' : y`<span style="font-weight:bold">Allowed: </span>`}
-                        ${y`
+                      ${paramSchema.default ? lit_html_$`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
+                      ${paramSchema.pattern ? lit_html_$`<span style="font-weight:bold">Pattern: </span>${paramSchema.pattern}<br/>` : ''}
+                      ${paramSchema.constrain ? lit_html_$`${paramSchema.constrain}<br/>` : ''}
+                      ${paramSchema.allowedValues && paramSchema.allowedValues.split('┃').map((v, i) => lit_html_$`
+                        ${i > 0 ? '┃' : lit_html_$`<span style="font-weight:bold">Allowed: </span>`}
+                        ${lit_html_$`
                           <a part="anchor anchor-param-constraint" class = "${this.allowTry === 'true' ? '' : 'inactive-link'}"
                             data-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}"
                             data-enum="${v.trim()}"
                             @click="${e => {
           const inputEl = e.target.closest('table').querySelector(`[data-pname="${fieldName}"]`);
-
           if (inputEl) {
             if (e.target.dataset.type === 'array') {
               inputEl.value = [e.target.dataset.enum];
@@ -15768,7 +15393,7 @@ class ApiRequest extends lit_element_s {
                     </div>` : ''}
               </td>`}
         </tr>
-        ${fieldType === 'object' ? '' : y`
+        ${fieldType === 'object' ? '' : lit_html_$`
             <tr>
               <td style="border:none"> </td>
               <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;"> 
@@ -15778,15 +15403,13 @@ class ApiRequest extends lit_element_s {
             </tr>
           `}`);
       }
-
-      return y`
+      return lit_html_$`
         <table role="presentation" style="width:100%;" class="m-table">
           ${formDataTableRows}
         </table>
       `;
     }
-
-    return y`
+    return lit_html_$`
       <textarea
         class = "textarea dynamic-form-param ${mimeType}"
         part = "textarea textarea-param"
@@ -15796,32 +15419,29 @@ class ApiRequest extends lit_element_s {
         .textContent = "${exampleValue}"
         style="width:100%"
       ></textarea>
-      ${schema.description ? y`<span class="m-markdown-small">${unsafe_html_o(marked(schema.description))}</span>` : ''}
+      ${schema.description ? lit_html_$`<span class="m-markdown-small">${unsafe_html_o(marked(schema.description))}</span>` : ''}
     `;
   }
-
   apiResponseTabTemplate() {
     let responseFormat = '';
     let responseContent = '';
-
     if (!this.responseIsBlob) {
       if (this.responseHeaders.includes('application/x-ndjson')) {
         responseFormat = 'json';
         const prismLines = this.responseText.split('\n').map(q => prism_default().highlight(q, (prism_default()).languages[responseFormat], responseFormat)).join('\n');
-        responseContent = y`<code>${unsafe_html_o(prismLines)}</code>`;
+        responseContent = lit_html_$`<code>${unsafe_html_o(prismLines)}</code>`;
       } else if (this.responseHeaders.includes('json')) {
         responseFormat = 'json';
-        responseContent = y`<code>${unsafe_html_o(prism_default().highlight(this.responseText, (prism_default()).languages[responseFormat], responseFormat))}</code>`;
+        responseContent = lit_html_$`<code>${unsafe_html_o(prism_default().highlight(this.responseText, (prism_default()).languages[responseFormat], responseFormat))}</code>`;
       } else if (this.responseHeaders.includes('html') || this.responseHeaders.includes('xml')) {
         responseFormat = 'html';
-        responseContent = y`<code>${unsafe_html_o(prism_default().highlight(this.responseText, (prism_default()).languages[responseFormat], responseFormat))}</code>`;
+        responseContent = lit_html_$`<code>${unsafe_html_o(prism_default().highlight(this.responseText, (prism_default()).languages[responseFormat], responseFormat))}</code>`;
       } else {
         responseFormat = 'text';
-        responseContent = y`<code>${this.responseText}</code>`;
+        responseContent = lit_html_$`<code>${this.responseText}</code>`;
       }
     }
-
-    return y`
+    return lit_html_$`
       <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
         <div class="response-message ${this.responseStatus}">Response Status: ${this.responseMessage}</div>
         <div style="flex:1"></div>
@@ -15832,24 +15452,23 @@ class ApiRequest extends lit_element_s {
       if (e.target.classList.contains('tab-btn') === false) {
         return;
       }
-
       this.activeResponseTab = e.target.dataset.tab;
     }}">
           <button class="tab-btn ${this.activeResponseTab === 'response' ? 'active' : ''}" data-tab = 'response' > RESPONSE</button>
           <button class="tab-btn ${this.activeResponseTab === 'headers' ? 'active' : ''}"  data-tab = 'headers' > RESPONSE HEADERS</button>
           <button class="tab-btn ${this.activeResponseTab === 'curl' ? 'active' : ''}" data-tab = 'curl'>CURL</button>
         </div>
-        ${this.responseIsBlob ? y`
+        ${this.responseIsBlob ? lit_html_$`
             <div class="tab-content col" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};">
               <button class="m-btn thin-border mar-top-8" style="width:135px" @click='${e => {
       downloadResource(this.responseBlobUrl, this.respContentDisposition, e);
     }}' part="btn btn-outline">
                 DOWNLOAD
               </button>
-              ${this.responseBlobType === 'view' ? y`<button class="m-btn thin-border mar-top-8" style="width:135px"  @click='${e => {
+              ${this.responseBlobType === 'view' ? lit_html_$`<button class="m-btn thin-border mar-top-8" style="width:135px"  @click='${e => {
       viewResource(this.responseBlobUrl, e);
     }}' part="btn btn-outline">VIEW (NEW TAB)</button>` : ''}
-            </div>` : y`
+            </div>` : lit_html_$`
             <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};" >
               <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${e => {
       copyToClipboard(this.responseText, e);
@@ -15870,26 +15489,22 @@ class ApiRequest extends lit_element_s {
         </div>
       </div>`;
   }
-
   apiCallTemplate() {
     var _this$security, _this$api_keys$;
-
     let selectServerDropdownHtml = '';
-
     if (this.servers && this.servers.length > 0) {
-      selectServerDropdownHtml = y`
+      selectServerDropdownHtml = lit_html_$`
         <select style="min-width:100px;" @change='${e => {
         this.serverUrl = e.target.value;
       }}'>
-          ${this.servers.map(v => y`<option value = "${v.url}"> ${v.url} - ${v.description} </option>`)}
+          ${this.servers.map(v => lit_html_$`<option value = "${v.url}"> ${v.url} - ${v.description} </option>`)}
         </select>
       `;
     }
-
-    const selectedServerHtml = y`
+    const selectedServerHtml = lit_html_$`
       <div style="display:flex; flex-direction:column;">
         ${selectServerDropdownHtml}
-        ${this.serverUrl ? y`
+        ${this.serverUrl ? lit_html_$`
             <div style="display:flex; align-items:baseline;">
               <div style="font-weight:bold; padding-right:5px;">API Server</div> 
               <span class = "gray-text"> ${this.serverUrl} </span>
@@ -15897,7 +15512,7 @@ class ApiRequest extends lit_element_s {
           ` : ''}
       </div>  
     `;
-    return y`
+    return lit_html_$`
     <div style="display:flex; align-items:flex-end; margin:16px 0; font-size:var(--font-size-small);" part="wrap-request-btn">
       <div class="hide-in-small-screen" style="flex-direction:column; margin:0; width:calc(100% - 60px);">
         <div style="display:flex; flex-direction:row; align-items:center; overflow:hidden;"> 
@@ -15905,13 +15520,13 @@ class ApiRequest extends lit_element_s {
         </div>
         <div style="display:flex;">
           <div style="font-weight:bold; padding-right:5px;">Authentication</div>
-          ${((_this$security = this.security) === null || _this$security === void 0 ? void 0 : _this$security.length) > 0 ? y`
-              ${this.api_keys.length > 0 ? y`<div style="color:var(--blue); overflow:hidden;"> 
+          ${((_this$security = this.security) === null || _this$security === void 0 ? void 0 : _this$security.length) > 0 ? lit_html_$`
+              ${this.api_keys.length > 0 ? lit_html_$`<div style="color:var(--blue); overflow:hidden;"> 
                     ${this.api_keys.length === 1 ? `${(_this$api_keys$ = this.api_keys[0]) === null || _this$api_keys$ === void 0 ? void 0 : _this$api_keys$.typeDisplay} in ${this.api_keys[0].in}` : `${this.api_keys.length} API keys applied`} 
-                  </div>` : y`<div class="gray-text">Required  <span style="color:var(--red)">(None Applied)</span>`}` : y`<span class="gray-text"> Not Required </span>`}
+                  </div>` : lit_html_$`<div class="gray-text">Required  <span style="color:var(--red)">(None Applied)</span>`}` : lit_html_$`<span class="gray-text"> Not Required </span>`}
         </div>
       </div>
-      ${this.parameters.length > 0 || this.request_body ? y`
+      ${this.parameters.length > 0 || this.request_body ? lit_html_$`
             <button class="m-btn thin-border" part="btn btn-outline btn-fill" style="margin-right:5px;" @click="${this.onFillRequestData}" title="Fills with example data (if provided)">
               FILL EXAMPLE
             </button>
@@ -15924,7 +15539,6 @@ class ApiRequest extends lit_element_s {
     `;
   }
   /* eslint-enable indent */
-
 
   async onFillRequestData(e) {
     const requestPanelEl = e.target.closest('.request-panel');
@@ -15939,7 +15553,6 @@ class ApiRequest extends lit_element_s {
       }
     });
   }
-
   async onClearRequestData(e) {
     const requestPanelEl = e.target.closest('.request-panel');
     const requestPanelInputEls = [...requestPanelEl.querySelectorAll('input, tag-input, textarea:not(.is-hidden)')];
@@ -15947,10 +15560,8 @@ class ApiRequest extends lit_element_s {
       el.value = '';
     });
   }
-
   async onTryClick(e) {
     var _this$closest;
-
     // const me = this;
     const tryBtnEl = e.target;
     let fetchUrl;
@@ -15970,23 +15581,21 @@ class ApiRequest extends lit_element_s {
     fetchUrl = this.path;
     const fetchOptions = {
       method: this.method.toUpperCase()
-    }; // Generate URL using Path Params
-
+    };
+    // Generate URL using Path Params
     pathParamEls.map(el => {
       fetchUrl = fetchUrl.replace(`{${el.dataset.pname}}`, encodeURIComponent(el.value));
-    }); // Query Params
+    });
 
+    // Query Params
     const urlQueryParamsMap = new Map();
     const queryParamsWithReservedCharsAllowed = [];
-
     if (queryParamEls.length > 0) {
       queryParamEls.forEach(el => {
         const queryParam = new URLSearchParams();
-
         if (el.dataset.paramAllowReserved === 'true') {
           queryParamsWithReservedCharsAllowed.push(el.dataset.pname);
         }
-
         if (el.dataset.array === 'false') {
           if (el.value !== '') {
             queryParam.append(el.dataset.pname, el.value);
@@ -15998,7 +15607,6 @@ class ApiRequest extends lit_element_s {
           } = el.dataset;
           let vals = el.value && Array.isArray(el.value) ? el.value : [];
           vals = Array.isArray(vals) ? vals.filter(v => v !== '') : [];
-
           if (vals.length > 0) {
             if (paramSerializeStyle === 'spaceDelimited') {
               queryParam.append(el.dataset.pname, vals.join(' ').replace(/^\s|\s$/g, ''));
@@ -16016,18 +15624,16 @@ class ApiRequest extends lit_element_s {
             }
           }
         }
-
         if (queryParam.toString()) {
           urlQueryParamsMap.set(el.dataset.pname, queryParam);
         }
       });
-    } // Query Params (Dynamic - create from JSON)
+    }
 
-
+    // Query Params (Dynamic - create from JSON)
     if (queryParamObjTypeEls.length > 0) {
       queryParamObjTypeEls.map(el => {
         const queryParam = new URLSearchParams();
-
         try {
           let queryParamObj = {};
           const {
@@ -16035,11 +15641,9 @@ class ApiRequest extends lit_element_s {
             paramSerializeExplode
           } = el.dataset;
           queryParamObj = Object.assign(queryParamObj, JSON.parse(el.value.replace(/\s+/g, ' ')));
-
           if (el.dataset.paramAllowReserved === 'true') {
             queryParamsWithReservedCharsAllowed.push(el.dataset.pname);
           }
-
           if ('json xml'.includes(paramSerializeStyle)) {
             if (paramSerializeStyle === 'json') {
               queryParam.append(el.dataset.pname, JSON.stringify(queryParamObj));
@@ -16079,9 +15683,7 @@ class ApiRequest extends lit_element_s {
         }
       });
     }
-
     let urlQueryParamString = '';
-
     if (urlQueryParamsMap.size) {
       urlQueryParamString = '?';
       urlQueryParamsMap.forEach((val, pname) => {
@@ -16095,25 +15697,23 @@ class ApiRequest extends lit_element_s {
       });
       urlQueryParamString = urlQueryParamString.slice(0, -1);
     }
+    fetchUrl = `${fetchUrl}${urlQueryParamString}`;
 
-    fetchUrl = `${fetchUrl}${urlQueryParamString}`; // Add authentication Query-Param if provided
-
+    // Add authentication Query-Param if provided
     this.api_keys.filter(v => v.in === 'query').forEach(v => {
       fetchUrl = `${fetchUrl}${fetchUrl.includes('?') ? '&' : '?'}${v.name}=${encodeURIComponent(v.finalKeyValue)}`;
-    }); // Final URL for API call
+    });
 
+    // Final URL for API call
     fetchUrl = `${this.serverUrl.replace(/\/$/, '')}${fetchUrl}`;
-
     if (fetchUrl.startsWith('http') === false) {
       const url = new URL(fetchUrl, window.location.href);
       curlUrl = url.href;
     } else {
       curlUrl = fetchUrl;
     }
-
     curl = `curl -X ${this.method.toUpperCase()} "${curlUrl}" \\\n`;
     const reqHeaders = new Headers();
-
     if (acceptHeader) {
       // Uses the acceptHeader from Response panel
       reqHeaders.append('Accept', acceptHeader);
@@ -16121,34 +15721,33 @@ class ApiRequest extends lit_element_s {
     } else if (this.accept) {
       reqHeaders.append('Accept', this.accept);
       curlHeaders += ` -H "Accept: ${this.accept}" \\\n`;
-    } // Add Authentication Header if provided
+    }
 
-
+    // Add Authentication Header if provided
     this.api_keys.filter(v => v.in === 'header').forEach(v => {
       reqHeaders.append(v.name, v.finalKeyValue);
       curlHeaders += ` -H "${v.name}: ${v.finalKeyValue}" \\\n`;
-    }); // Add Header Params
+    });
 
+    // Add Header Params
     headerParamEls.map(el => {
       if (el.value) {
         reqHeaders.append(el.dataset.pname, el.value);
         curlHeaders += ` -H "${el.dataset.pname}: ${el.value}" \\\n`;
       }
-    }); // Request Body Params
+    });
 
+    // Request Body Params
     if (requestBodyContainerEl) {
       const requestBodyType = requestBodyContainerEl.dataset.selectedRequestBodyType;
-
       if (requestBodyType.includes('form-urlencoded')) {
         // url-encoded Form Params (dynamic) - Parse JSON and generate Params
         const formUrlDynamicTextAreaEl = requestPanelEl.querySelector("[data-ptype='dynamic-form']");
-
         if (formUrlDynamicTextAreaEl) {
           const val = formUrlDynamicTextAreaEl.value;
           const formUrlDynParams = new URLSearchParams();
           let proceed = true;
           let tmpObj;
-
           if (val) {
             try {
               tmpObj = JSON.parse(val);
@@ -16159,12 +15758,10 @@ class ApiRequest extends lit_element_s {
           } else {
             proceed = false;
           }
-
           if (proceed) {
             for (const prop in tmpObj) {
               formUrlDynParams.append(prop, JSON.stringify(tmpObj[prop]));
             }
-
             fetchOptions.body = formUrlDynParams;
             curlData = ` -d ${formUrlDynParams.toString()} \\\n`;
           }
@@ -16207,58 +15804,47 @@ class ApiRequest extends lit_element_s {
         fetchOptions.body = formDataParams;
       } else if (/^audio\/|^image\/|^video\/|^font\/|tar$|zip$|7z$|rtf$|msword$|excel$|\/pdf$|\/octet-stream$/.test(requestBodyType)) {
         const bodyParamFileEl = requestPanelEl.querySelector('.request-body-param-file');
-
         if (bodyParamFileEl !== null && bodyParamFileEl !== void 0 && bodyParamFileEl.files[0]) {
           fetchOptions.body = bodyParamFileEl.files[0]; // eslint-disable-line prefer-destructuring
-
           curlData = ` --data-binary @${bodyParamFileEl.files[0].name} \\\n`;
         }
       } else if (requestBodyType.includes('json') || requestBodyType.includes('xml') || requestBodyType.includes('text')) {
         const exampleTextAreaEl = requestPanelEl.querySelector('.request-body-param-user-input');
-
         if (exampleTextAreaEl !== null && exampleTextAreaEl !== void 0 && exampleTextAreaEl.value) {
           fetchOptions.body = exampleTextAreaEl.value;
-
           if (requestBodyType.includes('json')) {
             try {
               curlData = ` -d '${JSON.stringify(JSON.parse(exampleTextAreaEl.value))}' \\\n`;
-            } catch (err) {// Ignore.
+            } catch (err) {
+              // Ignore.
             }
           }
-
           if (!curlData) {
             curlData = ` -d '${exampleTextAreaEl.value.replace(/'/g, '\'"\'"\'')}' \\\n`;
           }
         }
-      } // Common for all request-body
-
-
+      }
+      // Common for all request-body
       if (!requestBodyType.includes('form-data')) {
         // For multipart/form-data dont set the content-type to allow creation of browser generated part boundaries
         reqHeaders.append('Content-Type', requestBodyType);
       }
-
       curlHeaders += ` -H "Content-Type: ${requestBodyType}" \\\n`;
     }
-
     this.responseUrl = '';
     this.responseHeaders = [];
     this.curlSyntax = '';
     this.responseStatus = 'success';
     this.responseIsBlob = false;
     this.respContentDisposition = '';
-
     if (this.responseBlobUrl) {
       URL.revokeObjectURL(this.responseBlobUrl);
       this.responseBlobUrl = '';
     }
-
     this.curlSyntax = `${curl}${curlHeaders}${curlData}${curlForm}`;
-
     if (this.fetchCredentials) {
       fetchOptions.credentials = this.fetchCredentials;
     }
-
     const controller = new AbortController();
     const {
       signal
@@ -16285,7 +15871,6 @@ class ApiRequest extends lit_element_s {
     const fetchRequest = new Request(tempRequest.url, updatedFetchOptions);
     let fetchResponse;
     let responseClone;
-
     try {
       let respBlob;
       let respJson;
@@ -16300,9 +15885,8 @@ class ApiRequest extends lit_element_s {
       });
       const endTime = performance.now();
       responseClone = fetchResponse.clone(); // create a response clone to allow reading response body again (response.json, response.text etc)
-
       tryBtnEl.disabled = false;
-      this.responseMessage = y`${fetchResponse.statusText ? `${fetchResponse.statusText}:${fetchResponse.status}` : fetchResponse.status} <div style="color:var(--light-fg)"> Took ${Math.round(endTime - startTime)} milliseconds </div>`;
+      this.responseMessage = lit_html_$`${fetchResponse.statusText ? `${fetchResponse.statusText}:${fetchResponse.status}` : fetchResponse.status} <div style="color:var(--light-fg)"> Took ${Math.round(endTime - startTime)} milliseconds </div>`;
       this.responseUrl = fetchResponse.url;
       const respHeadersObj = {};
       fetchResponse.headers.forEach((hdrVal, hdr) => {
@@ -16311,7 +15895,6 @@ class ApiRequest extends lit_element_s {
       });
       const contentType = fetchResponse.headers.get('content-type');
       const respEmpty = (await fetchResponse.clone().text()).length === 0;
-
       if (respEmpty) {
         this.responseText = '';
       } else if (contentType) {
@@ -16321,13 +15904,11 @@ class ApiRequest extends lit_element_s {
           if (/charset=[^"']+/.test(contentType)) {
             const encoding = contentType.split('charset=')[1];
             const buffer = await fetchResponse.arrayBuffer();
-
             try {
               respText = new TextDecoder(encoding).decode(buffer);
             } catch {
               respText = new TextDecoder('utf-8').decode(buffer);
             }
-
             try {
               respJson = JSON.parse(respText);
               this.responseText = JSON.stringify(respJson, null, 2);
@@ -16337,8 +15918,8 @@ class ApiRequest extends lit_element_s {
           } else {
             respJson = await fetchResponse.json();
             this.responseText = JSON.stringify(respJson, null, 2);
-          } // eslint-disable-next-line no-useless-escape
-
+          }
+          // eslint-disable-next-line no-useless-escape
         } else if (/^font\/|tar$|zip$|7z$|rtf$|msword$|excel$|\/pdf$|\/octet-stream$|^application\/vnd\./.test(contentType)) {
           this.responseIsBlob = true;
           this.responseBlobType = 'download';
@@ -16347,7 +15928,6 @@ class ApiRequest extends lit_element_s {
           this.responseBlobType = 'view';
         } else {
           respText = await fetchResponse.text();
-
           if (contentType.includes('xml')) {
             this.responseText = dist_default()(respText, {
               textNodesOnSameLine: true,
@@ -16357,7 +15937,6 @@ class ApiRequest extends lit_element_s {
             this.responseText = respText;
           }
         }
-
         if (this.responseIsBlob) {
           const contentDisposition = fetchResponse.headers.get('content-disposition');
           this.respContentDisposition = contentDisposition ? contentDisposition.split('filename=')[1].replace(/"|'/g, '') : 'filename';
@@ -16368,7 +15947,6 @@ class ApiRequest extends lit_element_s {
         respText = await fetchResponse.text();
         this.responseText = respText;
       }
-
       this.dispatchEvent(new CustomEvent('after-try', {
         bubbles: true,
         composed: true,
@@ -16382,7 +15960,6 @@ class ApiRequest extends lit_element_s {
       }));
     } catch (err) {
       tryBtnEl.disabled = false;
-
       if (err.name === 'AbortError') {
         this.dispatchEvent(new CustomEvent('request-aborted', {
           bubbles: true,
@@ -16406,42 +15983,43 @@ class ApiRequest extends lit_element_s {
         this.responseMessage = `${err.message} (CORS or Network Issue)`;
       }
     }
-
     this.requestUpdate();
   }
-
   onAddRemoveFileInput(e, pname, ptype) {
     if (e.target.tagName.toLowerCase() !== 'button') {
       return;
     }
-
     if (e.target.classList.contains('file-input-remove-btn')) {
       // Remove File Input Set
       const el = e.target.closest('.input-set');
       el.remove();
       return;
     }
+    const el = e.target.closest('.file-input-container');
 
-    const el = e.target.closest('.file-input-container'); // Add File Input Set
+    // Add File Input Set
+
     // Container
-
     const newInputContainerEl = document.createElement('div');
-    newInputContainerEl.setAttribute('class', 'input-set row'); // File Input
+    newInputContainerEl.setAttribute('class', 'input-set row');
 
+    // File Input
     const newInputEl = document.createElement('input');
     newInputEl.type = 'file';
     newInputEl.style = 'width:200px; margin-top:2px;';
     newInputEl.setAttribute('data-pname', pname);
     newInputEl.setAttribute('data-ptype', ptype.includes('form-urlencode') ? 'form-urlencode' : 'form-data');
     newInputEl.setAttribute('data-array', 'false');
-    newInputEl.setAttribute('data-file-array', 'true'); // Remover Button
+    newInputEl.setAttribute('data-file-array', 'true');
 
+    // Remover Button
     const newRemoveBtnEl = document.createElement('button');
     newRemoveBtnEl.setAttribute('class', 'file-input-remove-btn');
     newRemoveBtnEl.innerHTML = '&#x2715;';
     newInputContainerEl.appendChild(newInputEl);
     newInputContainerEl.appendChild(newRemoveBtnEl);
-    el.insertBefore(newInputContainerEl, e.target); // el.appendChild(newInputContainerEl);
+    el.insertBefore(newInputContainerEl, e.target);
+    // el.appendChild(newInputContainerEl);
   }
 
   clearResponseData() {
@@ -16453,30 +16031,26 @@ class ApiRequest extends lit_element_s {
     this.responseIsBlob = false;
     this.responseBlobType = '';
     this.respContentDisposition = '';
-
     if (this.responseBlobUrl) {
       URL.revokeObjectURL(this.responseBlobUrl);
       this.responseBlobUrl = '';
     }
   }
-
   disconnectedCallback() {
     // Cleanup ObjectURL forthe blob data if this component created one
     if (this.responseBlobUrl) {
       URL.revokeObjectURL(this.responseBlobUrl);
       this.responseBlobUrl = '';
     }
-
     super.disconnectedCallback();
   }
+}
 
-} // Register the element with the browser
-
+// Register the element with the browser
 customElements.define('api-request', ApiRequest);
 ;// CONCATENATED MODULE: ./src/components/schema-table.js
 
  // eslint-disable-line import/extensions
-
 
 
 
@@ -16509,29 +16083,23 @@ class SchemaTable extends lit_element_s {
       }
     };
   }
-
   connectedCallback() {
     super.connectedCallback();
-
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) {
       this.schemaExpandLevel = 99999;
     }
-
     if (!this.schemaDescriptionExpanded || !'true false'.includes(this.schemaDescriptionExpanded)) {
       this.schemaDescriptionExpanded = 'false';
     }
-
     if (!this.schemaHideReadOnly || !'true false'.includes(this.schemaHideReadOnly)) {
       this.schemaHideReadOnly = 'true';
     }
-
     if (!this.schemaHideWriteOnly || !'true false'.includes(this.schemaHideWriteOnly)) {
       this.schemaHideWriteOnly = 'true';
     }
   }
-
   static get styles() {
-    return [font_styles, schema_styles, i`
+    return [font_styles, schema_styles, css_tag_r`
       .table {
         font-size: var(--font-size-small);
         text-align: left;
@@ -16585,17 +16153,15 @@ class SchemaTable extends lit_element_s {
         display:none;
       }`, custom_styles];
   }
+
   /* eslint-disable indent */
-
-
   render() {
     var _this$data, _this$data2, _this$data3;
-
-    return y`
+    return lit_html_$`
       <div class="table ${this.schemaDescriptionExpanded === 'true' ? 'expanded-all-descr' : 'collapsed-all-descr'}" @click="${e => this.handleAllEvents(e)}">
         <div class='toolbar'>
           <div class="toolbar-item schema-root-type ${((_this$data = this.data) === null || _this$data === void 0 ? void 0 : _this$data['::type']) || ''} "> ${((_this$data2 = this.data) === null || _this$data2 === void 0 ? void 0 : _this$data2['::type']) || ''} </div>
-          ${this.allowSchemaDescriptionExpandToggle === 'true' ? y`
+          ${this.allowSchemaDescriptionExpandToggle === 'true' ? lit_html_$`
               <div style="flex:1"></div>
               <div part="schema-multiline-toggle" class='toolbar-item schema-multiline-toggle' > 
                 ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'}
@@ -16609,74 +16175,61 @@ class SchemaTable extends lit_element_s {
             <div class='key-type' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Type </div>
             <div class='key-descr' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Description </div>
           </div>
-          ${this.data ? y`
+          ${this.data ? lit_html_$`
               ${this.generateTree(this.data['::type'] === 'array' ? this.data['::props'] : this.data, this.data['::type'], this.data['::array-type'])}` : ''}  
         </div>
       </div>  
     `;
   }
-
   generateTree(data, dataType = 'object', arrayType = '', key = '', description = '', schemaLevel = 0, indentLevel = 0, readOrWrite = '') {
     var _data$Type, _keyLabel;
-
     if (this.schemaHideReadOnly === 'true') {
       if (dataType === 'array') {
         if (readOrWrite === 'readonly') {
           return;
         }
       }
-
       if (data && data['::readwrite'] === 'readonly') {
         return;
       }
     }
-
     if (this.schemaHideWriteOnly === 'true') {
       if (dataType === 'array') {
         if (readOrWrite === 'writeonly') {
           return;
         }
       }
-
       if (data && data['::readwrite'] === 'writeonly') {
         return;
       }
     }
-
     if (!data) {
-      return y`<div class="null" style="display:inline;">
+      return lit_html_$`<div class="null" style="display:inline;">
         <span style='margin-left:${(schemaLevel + 1) * 16}px'> &nbsp; </span>
         <span class="key-label xxx-of-key"> ${key.replace('::OPTION~', '')}</span>
-        ${dataType === 'array' ? y`<span class='mono-font'> [ ] </span>` : dataType === 'object' ? y`<span class='mono-font'> { } </span>` : y`<span class='mono-font'> schema undefined </span>`}
+        ${dataType === 'array' ? lit_html_$`<span class='mono-font'> [ ] </span>` : dataType === 'object' ? lit_html_$`<span class='mono-font'> { } </span>` : lit_html_$`<span class='mono-font'> schema undefined </span>`}
       </div>`;
     }
-
     const newSchemaLevel = (_data$Type = data['::type']) !== null && _data$Type !== void 0 && _data$Type.startsWith('xxx-of') ? schemaLevel : schemaLevel + 1;
     const newIndentLevel = dataType === 'xxx-of-option' || data['::type'] === 'xxx-of-option' || key.startsWith('::OPTION') ? indentLevel : indentLevel + 1;
     const leftPadding = 16 * newIndentLevel; // 2 space indentation at each level
-
     if (Object.keys(data).length === 0) {
-      return y`<span class="td key object" style='padding-left:${leftPadding}px'>${key}</span>`;
+      return lit_html_$`<span class="td key object" style='padding-left:${leftPadding}px'>${key}</span>`;
     }
-
     let keyLabel = '';
     let keyDescr = '';
     let isOneOfLabel = false;
-
     if (key.startsWith('::ONE~OF') || key.startsWith('::ANY~OF')) {
       keyLabel = key.replace('::', '').replace('~', ' ');
       isOneOfLabel = true;
     } else if (key.startsWith('::OPTION')) {
       const parts = key.split('~');
       keyLabel = parts[1]; // eslint-disable-line prefer-destructuring
-
       keyDescr = parts[2]; // eslint-disable-line prefer-destructuring
     } else {
       keyLabel = key;
     }
-
     let detailObjType = '';
-
     if (data['::type'] === 'object') {
       if (dataType === 'array') {
         detailObjType = 'array of object'; // Array of Object
@@ -16691,26 +16244,25 @@ class SchemaTable extends lit_element_s {
         detailObjType = data['::dataTypeLabel'] || data['::type'];
       }
     }
-
     if (typeof data === 'object') {
-      return y`
-        ${newSchemaLevel >= 0 && key ? y`
+      return lit_html_$`
+        ${newSchemaLevel >= 0 && key ? lit_html_$`
             <div class='tr ${newSchemaLevel <= this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type']}' data-obj='${keyLabel}' title="${data['::deprecated'] ? 'Deprecated' : ''}">
               <div class="td key ${data['::deprecated'] ? 'deprecated' : ''}" style='padding-left:${leftPadding}px'>
-                ${keyLabel || keyDescr ? y`
+                ${keyLabel || keyDescr ? lit_html_$`
                     <span class='obj-toggle ${newSchemaLevel < this.schemaExpandLevel ? 'expanded' : 'collapsed'}' data-obj='${keyLabel}'>
                       ${schemaLevel < this.schemaExpandLevel ? '-' : '+'}
                     </span>` : ''}
-                ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION') ? y`<span class="xxx-of-key" style="margin-left:-6px">${keyLabel}</span><span class="${isOneOfLabel ? 'xxx-of-key' : 'xxx-of-descr'}">${keyDescr}</span>` : keyLabel.endsWith('*') ? y`<span class="key-label" style="display:inline-block; margin-left:-6px;">${data['::deprecated'] ? '✗' : ''} ${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>` : y`<span class="key-label" style="display:inline-block; margin-left:-6px;">${data['::deprecated'] ? '✗' : ''} ${keyLabel === '::props' ? '' : keyLabel}</span>`}
-                ${data['::type'] === 'xxx-of' && dataType === 'array' ? y`<span style="color:var(--primary-color)">ARRAY</span>` : ''} 
+                ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION') ? lit_html_$`<span class="xxx-of-key" style="margin-left:-6px">${keyLabel}</span><span class="${isOneOfLabel ? 'xxx-of-key' : 'xxx-of-descr'}">${keyDescr}</span>` : keyLabel.endsWith('*') ? lit_html_$`<span class="key-label" style="display:inline-block; margin-left:-6px;">${data['::deprecated'] ? '✗' : ''} ${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>` : lit_html_$`<span class="key-label" style="display:inline-block; margin-left:-6px;">${data['::deprecated'] ? '✗' : ''} ${keyLabel === '::props' ? '' : keyLabel}</span>`}
+                ${data['::type'] === 'xxx-of' && dataType === 'array' ? lit_html_$`<span style="color:var(--primary-color)">ARRAY</span>` : ''} 
               </div>
               <div class='td key-type' title="${data['::readwrite'] === 'readonly' ? 'Read-Only' : data['::readwrite'] === 'writeonly' ? 'Write-Only' : ''}">
                 ${(data['::type'] || '').includes('xxx-of') ? '' : detailObjType}
                 ${data['::readwrite'] === 'readonly' ? ' 🆁' : data['::readwrite'] === 'writeonly' ? ' 🆆' : ''}
               </div>
               <div class='td key-descr m-markdown-small' style='line-height:1.7'>${unsafe_html_o(marked(description || ''))}</div>
-            </div>` : y`
-            ${data['::type'] === 'array' && dataType === 'array' ? y`
+            </div>` : lit_html_$`
+            ${data['::type'] === 'array' && dataType === 'array' ? lit_html_$`
                 <div class='tr'> 
                   <div class='td key'></div> 
                   <div class='td key-type'>
@@ -16719,70 +16271,63 @@ class SchemaTable extends lit_element_s {
                   <div class='td key-descr'></div> 
                 </div>` : ''}`}
         <div class='object-body'>
-        ${Array.isArray(data) && data[0] ? y`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, '')}` : y`
+        ${Array.isArray(data) && data[0] ? lit_html_$`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, '')}` : lit_html_$`
             ${Object.keys(data).map(dataKey => {
         var _data$dataKey;
-
-        return y`
-              ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite', '::dataTypeLabel'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? y`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}` : '' : y`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, ((_data$dataKey = data[dataKey]) === null || _data$dataKey === void 0 ? void 0 : _data$dataKey['::description']) || '', newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}`}
+        return lit_html_$`
+              ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite', '::dataTypeLabel'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? lit_html_$`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}` : '' : lit_html_$`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, ((_data$dataKey = data[dataKey]) === null || _data$dataKey === void 0 ? void 0 : _data$dataKey['::description']) || '', newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}`}
             `;
       })}
           `}
         <div>
       `;
-    } // For Primitive Data types
+    }
+
+    // For Primitive Data types
     // eslint-disable-next-line no-unused-vars
-
-
     const [type, readOrWriteOnly, constraint, defaultValue, allowedValues, pattern, schemaDescription, schemaTitle, deprecated] = data.split('~|~');
-
     if (readOrWriteOnly === '🆁' && this.schemaHideReadOnly === 'true') {
       return;
     }
-
     if (readOrWriteOnly === '🆆' && this.schemaHideWriteOnly === 'true') {
       return;
     }
-
     const dataTypeCss = type.replace(/┃.*/g, '').replace(/[^a-zA-Z0-9+]/g, '').substring(0, 4).toLowerCase();
     const descrExpander = `${constraint || defaultValue || allowedValues || pattern ? '<span class="descr-expand-toggle">➔</span>' : ''}`;
     let dataTypeHtml = '';
-
     if (dataType === 'array') {
-      dataTypeHtml = y` 
+      dataTypeHtml = lit_html_$` 
         <div class='td key-type ${dataTypeCss}' title="${readOrWrite === 'readonly' ? 'Read-Only' : readOrWriteOnly === 'writeonly' ? 'Write-Only' : ''}">
           [${type}] ${readOrWrite === 'readonly' ? '🆁' : readOrWrite === 'writeonly' ? '🆆' : ''}
         </div>`;
     } else {
-      dataTypeHtml = y` 
+      dataTypeHtml = lit_html_$` 
         <div class='td key-type ${dataTypeCss}' title="${readOrWriteOnly === '🆁' ? 'Read-Only' : readOrWriteOnly === '🆆' ? 'Write-Only' : ''}">
           ${type} ${readOrWriteOnly}
         </div>`;
     }
-
-    return y`
+    return lit_html_$`
       <div class = "tr primitive" title="${deprecated ? 'Deprecated' : ''}">
         <div class="td key ${deprecated}" style='padding-left:${leftPadding}px'>
-          ${deprecated ? y`<span style='color:var(--red);'>✗</span>` : ''}
-          ${(_keyLabel = keyLabel) !== null && _keyLabel !== void 0 && _keyLabel.endsWith('*') ? y`
+          ${deprecated ? lit_html_$`<span style='color:var(--red);'>✗</span>` : ''}
+          ${(_keyLabel = keyLabel) !== null && _keyLabel !== void 0 && _keyLabel.endsWith('*') ? lit_html_$`
               <span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span>
-              <span style='color:var(--red);'>*</span>` : key.startsWith('::OPTION') ? y`<span class='xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>` : y`${keyLabel ? y`<span class="key-label"> ${keyLabel}</span>` : y`<span class="xxx-of-descr">${schemaTitle}</span>`}`}
+              <span style='color:var(--red);'>*</span>` : key.startsWith('::OPTION') ? lit_html_$`<span class='xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>` : lit_html_$`${keyLabel ? lit_html_$`<span class="key-label"> ${keyLabel}</span>` : lit_html_$`<span class="xxx-of-descr">${schemaTitle}</span>`}`}
         </div>
         ${dataTypeHtml}
         <div class='td key-descr' style='font-size: var(--font-size-small)'>
-          ${y`<span class="m-markdown-small">
+          ${lit_html_$`<span class="m-markdown-small">
             ${unsafe_html_o(marked(dataType === 'array' ? `${descrExpander} ${description}` : schemaTitle ? `${descrExpander} <b>${schemaTitle}:</b> ${schemaDescription}` : `${descrExpander} ${schemaDescription}`))}
           </span>`}
-          ${constraint ? y`<div class='' style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Constraints: </span> ${constraint}</div>` : ''}
-          ${defaultValue ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
-          ${allowedValues ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>${type === 'const' ? 'Value' : 'Allowed'}: </span>${allowedValues}</div>` : ''}
-          ${pattern ? y`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Pattern: </span>${pattern}</div>` : ''}
+          ${constraint ? lit_html_$`<div class='' style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Constraints: </span> ${constraint}</div>` : ''}
+          ${defaultValue ? lit_html_$`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
+          ${allowedValues ? lit_html_$`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>${type === 'const' ? 'Value' : 'Allowed'}: </span>${allowedValues}</div>` : ''}
+          ${pattern ? lit_html_$`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Pattern: </span>${pattern}</div>` : ''}
         </div>
       </div>
     `;
   }
   /* eslint-enable indent */
-
 
   handleAllEvents(e) {
     if (e.target.classList.contains('obj-toggle')) {
@@ -16791,17 +16336,14 @@ class SchemaTable extends lit_element_s {
       this.schemaDescriptionExpanded = this.schemaDescriptionExpanded === 'true' ? 'false' : 'true';
     } else if (e.target.classList.contains('descr-expand-toggle')) {
       const trEl = e.target.closest('.tr');
-
       if (trEl) {
         trEl.classList.toggle('expanded-descr');
         trEl.style.maxHeight = trEl.scrollHeight;
       }
     }
   }
-
   toggleObjectExpand(e) {
     const rowEl = e.target.closest('.tr');
-
     if (rowEl.classList.contains('expanded')) {
       rowEl.classList.add('collapsed');
       rowEl.classList.remove('expanded');
@@ -16812,13 +16354,11 @@ class SchemaTable extends lit_element_s {
       e.target.innerText = '-';
     }
   }
-
 }
 customElements.define('schema-table', SchemaTable);
 ;// CONCATENATED MODULE: ./src/components/api-response.js
 
  // eslint-disable-line import/extensions
-
 
 
 
@@ -16839,7 +16379,6 @@ class ApiResponse extends lit_element_s {
     this.mimeResponsesForEachStatus = {};
     this.activeSchemaTab = 'schema';
   }
-
   static get properties() {
     return {
       callback: {
@@ -16896,9 +16435,8 @@ class ApiResponse extends lit_element_s {
       }
     };
   }
-
   static get styles() {
-    return [font_styles, flex_styles, tab_styles, table_styles, input_styles, border_styles, i`
+    return [font_styles, flex_styles, tab_styles, table_styles, input_styles, border_styles, css_tag_r`
       :where(button, input[type="checkbox"], [tabindex="0"]):focus-visible { box-shadow: var(--focus-shadow); }
       :where(input[type="text"], input[type="password"], select, textarea):focus-visible { border-color: var(--primary-color); }
       .resp-head{
@@ -16930,9 +16468,8 @@ class ApiResponse extends lit_element_s {
         border-top: 1px dashed var(--border-color);
       }`, custom_styles];
   }
-
   render() {
-    return y`
+    return lit_html_$`
     <div class="col regular-font response-panel ${this.renderStyle}-mode">
       <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} "> 
         ${this.callback === 'true' ? 'CALLBACK RESPONSE' : 'RESPONSE'}
@@ -16943,40 +16480,34 @@ class ApiResponse extends lit_element_s {
     </div>  
     `;
   }
-
   resetSelection() {
     this.selectedStatus = '';
     this.selectedMimeType = '';
   }
+
   /* eslint-disable indent */
-
-
   responseTemplate() {
     if (!this.responses) {
       return '';
     }
-
     for (const statusCode in this.responses) {
       if (!this.selectedStatus) {
         this.selectedStatus = statusCode;
       }
-
       const allMimeResp = {};
-
       for (const mimeResp in (_this$responses$statu = this.responses[statusCode]) === null || _this$responses$statu === void 0 ? void 0 : _this$responses$statu.content) {
         var _this$responses$statu, _respExamples$;
-
         const mimeRespObj = this.responses[statusCode].content[mimeResp];
-
         if (!this.selectedMimeType) {
           this.selectedMimeType = mimeResp;
-        } // Generate Schema
-
-
-        const schemaTree = schemaInObjectNotation(mimeRespObj.schema, {}); // Generate Example
-
-        const respExamples = generateExample(mimeRespObj.schema, mimeResp, mimeRespObj.examples, mimeRespObj.example, this.callback === 'true' || this.webhook === 'true' ? false : true, // eslint-disable-line no-unneeded-ternary
-        this.callback === 'true' || this.webhook === 'true' ? true : false, // eslint-disable-line no-unneeded-ternary
+        }
+        // Generate Schema
+        const schemaTree = schemaInObjectNotation(mimeRespObj.schema, {});
+        // Generate Example
+        const respExamples = generateExample(mimeRespObj.schema, mimeResp, mimeRespObj.examples, mimeRespObj.example, this.callback === 'true' || this.webhook === 'true' ? false : true,
+        // eslint-disable-line no-unneeded-ternary
+        this.callback === 'true' || this.webhook === 'true' ? true : false,
+        // eslint-disable-line no-unneeded-ternary
         mimeResp.includes('json') ? 'json' : 'text');
         allMimeResp[mimeResp] = {
           description: this.responses[statusCode].description,
@@ -16984,33 +16515,27 @@ class ApiResponse extends lit_element_s {
           selectedExample: ((_respExamples$ = respExamples[0]) === null || _respExamples$ === void 0 ? void 0 : _respExamples$.exampleId) || '',
           schemaTree
         };
-      } // Headers for each response status
-
-
+      }
+      // Headers for each response status
       const tempHeaders = [];
-
       for (const key in (_this$responses$statu2 = this.responses[statusCode]) === null || _this$responses$statu2 === void 0 ? void 0 : _this$responses$statu2.headers) {
         var _this$responses$statu2;
-
         tempHeaders.push({
           name: key,
           ...this.responses[statusCode].headers[key]
         });
       }
-
       this.headersForEachRespStatus[statusCode] = tempHeaders;
       this.mimeResponsesForEachStatus[statusCode] = allMimeResp;
     }
-
-    return y`
-      ${Object.keys(this.responses).length > 1 ? y`<div class='row' style='flex-wrap:wrap'>
-          ${Object.keys(this.responses).map(respStatus => y`
+    return lit_html_$`
+      ${Object.keys(this.responses).length > 1 ? lit_html_$`<div class='row' style='flex-wrap:wrap'>
+          ${Object.keys(this.responses).map(respStatus => lit_html_$`
             ${respStatus === '$$ref' // Swagger-Client parser creates '$$ref' object if JSON references are used to create responses - this should be ignored
-    ? '' : y`
+    ? '' : lit_html_$`
                 <button 
                   @click="${() => {
       this.selectedStatus = respStatus;
-
       if (this.responses[respStatus].content && Object.keys(this.responses[respStatus].content)[0]) {
         this.selectedMimeType = Object.keys(this.responses[respStatus].content)[0]; // eslint-disable-line prefer-destructuring
       } else {
@@ -17022,19 +16547,18 @@ class ApiResponse extends lit_element_s {
                   style='margin: 8px 4px 0 0'
                 > 
                   ${respStatus} 
-                </button>`}`)}` : y`<span>${Object.keys(this.responses)[0]}</span>`}
+                </button>`}`)}` : lit_html_$`<span>${Object.keys(this.responses)[0]}</span>`}
       </div>
 
       ${Object.keys(this.responses).map(status => {
       var _this$responses$statu3, _this$headersForEachR;
-
-      return y`
+      return lit_html_$`
         <div style = 'display: ${status === this.selectedStatus ? 'block' : 'none'}' >
           <div class="top-gap">
             <span class="resp-descr m-markdown ">${unsafe_html_o(marked(((_this$responses$statu3 = this.responses[status]) === null || _this$responses$statu3 === void 0 ? void 0 : _this$responses$statu3.description) || ''))}</span>
-            ${this.headersForEachRespStatus[status] && ((_this$headersForEachR = this.headersForEachRespStatus[status]) === null || _this$headersForEachR === void 0 ? void 0 : _this$headersForEachR.length) > 0 ? y`${this.responseHeaderListTemplate(this.headersForEachRespStatus[status])}` : ''}
+            ${this.headersForEachRespStatus[status] && ((_this$headersForEachR = this.headersForEachRespStatus[status]) === null || _this$headersForEachR === void 0 ? void 0 : _this$headersForEachR.length) > 0 ? lit_html_$`${this.responseHeaderListTemplate(this.headersForEachRespStatus[status])}` : ''}
           </div>
-          ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 0 ? '' : y`  
+          ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 0 ? '' : lit_html_$`  
               <div class="tab-panel col">
                 <div class="tab-buttons row" @click="${e => {
         if (e.target.tagName.toLowerCase() === 'button') {
@@ -17044,11 +16568,11 @@ class ApiResponse extends lit_element_s {
                   <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
                   <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' >SCHEMA</button>
                   <div style="flex:1"></div>
-                  ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1 ? y`<span class='small-font-size gray-text' style='align-self:center; margin-top:8px;'> ${Object.keys(this.mimeResponsesForEachStatus[status])[0]} </span>` : y`${this.mimeTypeDropdownTemplate(Object.keys(this.mimeResponsesForEachStatus[status]))}`}
+                  ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1 ? lit_html_$`<span class='small-font-size gray-text' style='align-self:center; margin-top:8px;'> ${Object.keys(this.mimeResponsesForEachStatus[status])[0]} </span>` : lit_html_$`${this.mimeTypeDropdownTemplate(Object.keys(this.mimeResponsesForEachStatus[status]))}`}
                 </div>
-                ${this.activeSchemaTab === 'example' ? y`<div class ='tab-content col' style = 'flex:1;'>
+                ${this.activeSchemaTab === 'example' ? lit_html_$`<div class ='tab-content col' style = 'flex:1;'>
                       ${this.mimeExampleTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
-                    </div>` : y`<div class ='tab-content col' style = 'flex:1;'>
+                    </div>` : lit_html_$`<div class ='tab-content col' style = 'flex:1;'>
                       ${this.mimeSchemaTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
                     </div>`}
               </div>
@@ -17056,15 +16580,13 @@ class ApiResponse extends lit_element_s {
     })}
     `;
   }
-
   responseHeaderListTemplate(respHeaders) {
-    return y`
+    return lit_html_$`
       <div style="padding:16px 0 8px 0" class="resp-headers small-font-size bold-text">RESPONSE HEADERS</div> 
       <table role="presentation" style="border-collapse: collapse; margin-bottom:16px; border:1px solid var(--border-color); border-radius: var(--border-radius)" class="small-font-size mono-font">
         ${respHeaders.map(v => {
       var _v$schema, _v$schema2;
-
-      return y`
+      return lit_html_$`
           <tr>
             <td style="padding:8px; vertical-align: baseline; min-width:120px; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;">
               ${v.name || ''}
@@ -17083,16 +16605,14 @@ class ApiResponse extends lit_element_s {
     })}
     </table>`;
   }
-
   mimeTypeDropdownTemplate(mimeTypes) {
-    return y`
+    return lit_html_$`
       <select aria-label='mime types' @change="${e => {
       this.selectedMimeType = e.target.value;
     }}" style='margin-bottom: -1px; z-index:1'>
-        ${mimeTypes.map(mimeType => y`<option value='${mimeType}' ?selected = '${mimeType === this.selectedMimeType}'> ${mimeType} </option>`)}
+        ${mimeTypes.map(mimeType => lit_html_$`<option value='${mimeType}' ?selected = '${mimeType === this.selectedMimeType}'> ${mimeType} </option>`)}
       </select>`;
   }
-
   onSelectExample(e) {
     const exampleContainerEl = e.target.closest('.example-panel');
     const exampleEls = [...exampleContainerEl.querySelectorAll('.example')];
@@ -17100,61 +16620,57 @@ class ApiResponse extends lit_element_s {
       v.style.display = v.dataset.example === e.target.value ? 'block' : 'none';
     });
   }
-
   mimeExampleTemplate(mimeRespDetails) {
     if (!mimeRespDetails) {
-      return y`
+      return lit_html_$`
         <pre style='color:var(--red)' class = '${this.renderStyle === 'read' ? 'read example-panel border pad-8-16' : 'example-panel border-top'}'> No example provided </pre>
       `;
     }
-
-    return y`
-      ${mimeRespDetails.examples.length === 1 ? y`
-          ${mimeRespDetails.examples[0].exampleFormat === 'json' ? y`
-              ${mimeRespDetails.examples[0].exampleSummary && mimeRespDetails.examples[0].exampleSummary.length > 80 ? y`<div style="padding: 4px 0"> ${mimeRespDetails.examples[0].exampleSummary} </div>` : ''}
-              ${mimeRespDetails.examples[0].exampleDescription ? y`<div class="m-markdown-small" style="padding: 4px 0"> ${unsafe_html_o(marked(mimeRespDetails.examples[0].exampleDescription || ''))} </div>` : ''}
+    return lit_html_$`
+      ${mimeRespDetails.examples.length === 1 ? lit_html_$`
+          ${mimeRespDetails.examples[0].exampleFormat === 'json' ? lit_html_$`
+              ${mimeRespDetails.examples[0].exampleSummary && mimeRespDetails.examples[0].exampleSummary.length > 80 ? lit_html_$`<div style="padding: 4px 0"> ${mimeRespDetails.examples[0].exampleSummary} </div>` : ''}
+              ${mimeRespDetails.examples[0].exampleDescription ? lit_html_$`<div class="m-markdown-small" style="padding: 4px 0"> ${unsafe_html_o(marked(mimeRespDetails.examples[0].exampleDescription || ''))} </div>` : ''}
               <json-tree 
                 render-style = '${this.renderStyle}'
                 .data="${mimeRespDetails.examples[0].exampleValue}"
                 class = 'example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}'
                 exportparts = "btn:btn, btn-fill:btn-fill, btn-copy:btn-copy" 
-              ></json-tree>` : y`
-              ${mimeRespDetails.examples[0].exampleSummary && mimeRespDetails.examples[0].exampleSummary.length > 80 ? y`<div style="padding: 4px 0"> ${mimeRespDetails.examples[0].exampleSummary} </div>` : ''}
-              ${mimeRespDetails.examples[0].exampleDescription ? y`<div class="m-markdown-small" style="padding: 4px 0"> ${unsafe_html_o(marked(mimeRespDetails.examples[0].exampleDescription || ''))} </div>` : ''}
+              ></json-tree>` : lit_html_$`
+              ${mimeRespDetails.examples[0].exampleSummary && mimeRespDetails.examples[0].exampleSummary.length > 80 ? lit_html_$`<div style="padding: 4px 0"> ${mimeRespDetails.examples[0].exampleSummary} </div>` : ''}
+              ${mimeRespDetails.examples[0].exampleDescription ? lit_html_$`<div class="m-markdown-small" style="padding: 4px 0"> ${unsafe_html_o(marked(mimeRespDetails.examples[0].exampleDescription || ''))} </div>` : ''}
               <pre class = 'example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}'>${mimeRespDetails.examples[0].exampleValue}</pre>
-            `}` : y`
+            `}` : lit_html_$`
           <span class = 'example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}'>
             <select aria-label='response examples' style="min-width:100px; max-width:100%" @change='${e => this.onSelectExample(e)}'>
-              ${mimeRespDetails.examples.map(v => y`<option value="${v.exampleId}" ?selected=${v.exampleId === mimeRespDetails.selectedExample} > 
+              ${mimeRespDetails.examples.map(v => lit_html_$`<option value="${v.exampleId}" ?selected=${v.exampleId === mimeRespDetails.selectedExample} > 
                 ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary} 
               </option>`)}
             </select>
-            ${mimeRespDetails.examples.map(v => y`
+            ${mimeRespDetails.examples.map(v => lit_html_$`
               <div class="example" data-example = '${v.exampleId}' style = "display: ${v.exampleId === mimeRespDetails.selectedExample ? 'block' : 'none'}">
-                ${v.exampleSummary && v.exampleSummary.length > 80 ? y`<div style="padding: 4px 0"> ${v.exampleSummary} </div>` : ''}
-                ${v.exampleDescription ? y`<div class="m-markdown-small"  style="padding: 4px 0"> ${unsafe_html_o(marked(v.exampleDescription || ''))} </div>` : ''}
-                ${v.exampleFormat === 'json' ? y`
+                ${v.exampleSummary && v.exampleSummary.length > 80 ? lit_html_$`<div style="padding: 4px 0"> ${v.exampleSummary} </div>` : ''}
+                ${v.exampleDescription ? lit_html_$`<div class="m-markdown-small"  style="padding: 4px 0"> ${unsafe_html_o(marked(v.exampleDescription || ''))} </div>` : ''}
+                ${v.exampleFormat === 'json' ? lit_html_$`
                     <json-tree 
                       render-style = '${this.renderStyle}'
                       .data = '${v.exampleValue}'
                       exportparts = "btn:btn, btn-fill:btn-fill, btn-copy:btn-copy" 
-                    ></json-tree>` : y`<pre>${v.exampleValue}</pre>`}
+                    ></json-tree>` : lit_html_$`<pre>${v.exampleValue}</pre>`}
               </div>  
             `)}
           </span>  
         `}
     `;
   }
-
   mimeSchemaTemplate(mimeRespDetails) {
     if (!mimeRespDetails) {
-      return y`
+      return lit_html_$`
         <pre style='color:var(--red)' class = '${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top'}'> Schema not found</pre>
       `;
     }
-
-    return y`
-      ${this.schemaStyle === 'table' ? y`
+    return lit_html_$`
+      ${this.schemaStyle === 'table' ? lit_html_$`
           <schema-table
             .data = "${mimeRespDetails.schemaTree}"
             schema-expand-level = "${this.schemaExpandLevel}"
@@ -17163,7 +16679,7 @@ class ApiResponse extends lit_element_s {
             schema-hide-read-only = "${this.schemaHideReadOnly}"
             schema-hide-write-only = "${this.schemaHideWriteOnly}"
             exportparts = "schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
-          > </schema-table> ` : y`
+          > </schema-table> ` : lit_html_$`
           <schema-tree
             .data = '${mimeRespDetails.schemaTree}'
             schema-expand-level = "${this.schemaExpandLevel}"
@@ -17175,10 +16691,9 @@ class ApiResponse extends lit_element_s {
           > </schema-tree>`}`;
   }
   /* eslint-enable indent */
+}
 
-
-} // Register the element with the browser
-
+// Register the element with the browser
 customElements.define('api-response', ApiResponse);
 ;// CONCATENATED MODULE: ./src/templates/expanded-endpoint-template.js
 
@@ -17192,22 +16707,16 @@ customElements.define('api-response', ApiResponse);
 
 
 /* eslint-disable indent */
-
 function headingRenderer(tagElementId) {
   const renderer = new marked.Renderer();
-
   renderer.heading = (text, level, raw, slugger) => `<h${level} class="observe-me" id="${tagElementId}--${slugger.slug(raw)}">${text}</h${level}>`;
-
   return renderer;
 }
-
 function expandCollapseTagDescription(e) {
   const tagDescriptionEl = e.target.closest('.tag-container').querySelector('.tag-description');
   const tagIconEl = e.target.closest('.tag-container').querySelector('.tag-icon');
-
   if (tagDescriptionEl && tagIconEl) {
     const isExpanded = tagDescriptionEl.classList.contains('expanded');
-
     if (isExpanded) {
       tagDescriptionEl.style.maxHeight = 0;
       tagDescriptionEl.classList.replace('expanded', 'collapsed');
@@ -17219,42 +16728,36 @@ function expandCollapseTagDescription(e) {
     }
   }
 }
-
 function expandedEndpointBodyTemplate(path, tagName = '', tagDescription = '') {
   var _path$xBadges, _path$externalDocs, _path$externalDocs2, _path$externalDocs3, _path$externalDocs4, _path$externalDocs5, _path$externalDocs6, _path$servers, _path$servers$;
-
   const acceptContentTypes = new Set();
-
   for (const respStatus in path.responses) {
     for (const acceptContentType in (_path$responses$respS = path.responses[respStatus]) === null || _path$responses$respS === void 0 ? void 0 : _path$responses$respS.content) {
       var _path$responses$respS;
-
       acceptContentTypes.add(acceptContentType.trim());
     }
   }
+  const accept = [...acceptContentTypes].join(', ');
 
-  const accept = [...acceptContentTypes].join(', '); // Filter API Keys that are non-empty and are applicable to the the path
-
+  // Filter API Keys that are non-empty and are applicable to the the path
   const nonEmptyApiKeys = this.resolvedSpec.securitySchemes.filter(v => {
     var _path$security;
-
     return v.finalKeyValue && ((_path$security = path.security) === null || _path$security === void 0 ? void 0 : _path$security.some(ps => v.securitySchemeId in ps));
-  }) || []; // If a RapiDoc API Key is specified on the element and its value is not hyphen(-) then include it for all paths
+  }) || [];
 
+  // If a RapiDoc API Key is specified on the element and its value is not hyphen(-) then include it for all paths
   const rapiDocApiKey = this.resolvedSpec.securitySchemes.find(v => v.securitySchemeId === rapidocApiKey && v.value !== '-');
-
   if (rapiDocApiKey) {
     nonEmptyApiKeys.push(rapiDocApiKey);
   }
-
   const codeSampleTabPanel = path.xCodeSamples ? codeSamplesTemplate.call(this, path.xCodeSamples) : '';
-  return y`
-    ${this.renderStyle === 'read' ? y`<div class='divider' part="operation-divider"></div>` : ''}
+  return lit_html_$`
+    ${this.renderStyle === 'read' ? lit_html_$`<div class='divider' part="operation-divider"></div>` : ''}
     <div class='expanded-endpoint-body observe-me ${path.method} ${path.deprecated ? 'deprecated' : ''} ' part="section-operation ${path.elementId}" id='${path.elementId}'>
-      ${this.renderStyle === 'focused' && tagName !== 'General ⦂' ? y`
+      ${this.renderStyle === 'focused' && tagName !== 'General ⦂' ? lit_html_$`
           <div class="tag-container" part="section-operation-tag"> 
             <span class="upper" style="font-weight:bold; font-size:18px;"> ${tagName} </span>
-            ${tagDescription ? y`
+            ${tagDescription ? lit_html_$`
                 <svg class="tag-icon collapsed" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" fill="none" style="stroke:var(--primary-color); vertical-align:top; cursor:pointer"
                 @click="${e => {
     expandCollapseTagDescription.call(this, e);
@@ -17267,26 +16770,26 @@ function expandedEndpointBodyTemplate(path, tagName = '', tagDescription = '') {
                 </div>` : ''}  
           </div>
         ` : ''}
-      ${path.deprecated ? y`<div class="bold-text red-text"> DEPRECATED </div>` : ''}
-      ${y`
-        ${path.xBadges && ((_path$xBadges = path.xBadges) === null || _path$xBadges === void 0 ? void 0 : _path$xBadges.length) > 0 ? y`
+      ${path.deprecated ? lit_html_$`<div class="bold-text red-text"> DEPRECATED </div>` : ''}
+      ${lit_html_$`
+        ${path.xBadges && ((_path$xBadges = path.xBadges) === null || _path$xBadges === void 0 ? void 0 : _path$xBadges.length) > 0 ? lit_html_$`
             <div style="display:flex; flex-wrap:wrap; margin-bottom: -24px; font-size: var(--font-size-small);">
-              ${path.xBadges.map(v => y`<span style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`)}
+              ${path.xBadges.map(v => lit_html_$`<span style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`)}
             </div>
             ` : ''}
         <h2 part="section-operation-summary"> ${path.shortSummary || `${path.method.toUpperCase()} ${path.path}`}</h2>
-        ${path.isWebhook ? y`<span part="section-operation-webhook" style="color:var(--primary-color); font-weight:bold; font-size: var(--font-size-regular);"> WEBHOOK </span>` : y`
+        ${path.isWebhook ? lit_html_$`<span part="section-operation-webhook" style="color:var(--primary-color); font-weight:bold; font-size: var(--font-size-regular);"> WEBHOOK </span>` : lit_html_$`
             <div part="section-operation-webhook-method" class="mono-font regular-font-size" style="text-align:left; direction:ltr; padding: 8px 0; color:var(--fg3)"> 
               <span part="label-operation-method" class="regular-font upper method-fg bold-text ${path.method}">${path.method}</span> 
               <span part="label-operation-path">${path.path}</span>
             </div>
           `}
         <slot name="${path.elementId}"></slot>`}
-      ${path.description ? y`<div class="m-markdown"> ${unsafe_html_o(marked(path.description))}</div>` : ''}
+      ${path.description ? lit_html_$`<div class="m-markdown"> ${unsafe_html_o(marked(path.description))}</div>` : ''}
       ${pathSecurityTemplate.call(this, path.security)}
-      ${(_path$externalDocs = path.externalDocs) !== null && _path$externalDocs !== void 0 && _path$externalDocs.url || (_path$externalDocs2 = path.externalDocs) !== null && _path$externalDocs2 !== void 0 && _path$externalDocs2.description ? y`<div style="background-color:var(--bg3); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--border-radius)"> 
+      ${(_path$externalDocs = path.externalDocs) !== null && _path$externalDocs !== void 0 && _path$externalDocs.url || (_path$externalDocs2 = path.externalDocs) !== null && _path$externalDocs2 !== void 0 && _path$externalDocs2.description ? lit_html_$`<div style="background-color:var(--bg3); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--border-radius)"> 
             <div class="m-markdown"> ${unsafe_html_o(marked(((_path$externalDocs3 = path.externalDocs) === null || _path$externalDocs3 === void 0 ? void 0 : _path$externalDocs3.description) || ''))} </div>
-            ${(_path$externalDocs4 = path.externalDocs) !== null && _path$externalDocs4 !== void 0 && _path$externalDocs4.url ? y`<a style="font-family:var(--font-mono); font-size:var(--font-size-small)" href="${(_path$externalDocs5 = path.externalDocs) === null || _path$externalDocs5 === void 0 ? void 0 : _path$externalDocs5.url}" target="_blank">
+            ${(_path$externalDocs4 = path.externalDocs) !== null && _path$externalDocs4 !== void 0 && _path$externalDocs4.url ? lit_html_$`<a style="font-family:var(--font-mono); font-size:var(--font-size-small)" href="${(_path$externalDocs5 = path.externalDocs) === null || _path$externalDocs5 === void 0 ? void 0 : _path$externalDocs5.url}" target="_blank">
                   ${(_path$externalDocs6 = path.externalDocs) === null || _path$externalDocs6 === void 0 ? void 0 : _path$externalDocs6.url} <div style="transform: rotate(270deg) scale(1.5); display: inline-block; margin-left:5px">⇲</div>
                 </a>` : ''}
           </div>` : ''}
@@ -17348,9 +16851,8 @@ function expandedEndpointTemplate() {
   if (!this.resolvedSpec) {
     return '';
   }
-
-  return y`
-  ${this.resolvedSpec.tags.map(tag => y`
+  return lit_html_$`
+  ${this.resolvedSpec.tags.map(tag => lit_html_$`
     <section id="${tag.elementId}" part="section-tag" class="regular-font section-gap--read-mode observe-me" style="border-top:1px solid var(--primary-color);">
       <div class="title tag" part="section-tag-title label-tag-title">${tag.name}</div>
       <slot name="${tag.elementId}"></slot>
@@ -17378,14 +16880,12 @@ function expandedEndpointTemplate() {
 
 
 
-
-
 function schemaBodyTemplate(sComponent) {
-  return y`
+  return lit_html_$`
   <div class='divider'></div>
   <div class='expanded-endpoint-body observe-me ${sComponent.name}' id='cmp--${sComponent.id}' >
     <div style="font-weight:bold"> ${sComponent.name} <span style="color:var(--light-fg); font-size:var(--font-size-small); font-weight:400;"> Schema </span></div>
-  ${this.schemaStyle === 'table' ? y`
+  ${this.schemaStyle === 'table' ? lit_html_$`
       <schema-table
         .data = '${schemaInObjectNotation(sComponent.component, {})}'
         schema-expand-level = "${this.schemaExpandLevel}"
@@ -17394,7 +16894,7 @@ function schemaBodyTemplate(sComponent) {
         schema-hide-read-only = "false"
         schema-hide-write-only = "${this.schemaHideWriteOnly}"
         exportparts = "schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
-      > </schema-table>` : y`
+      > </schema-table>` : lit_html_$`
       <schema-tree
         .data = '${schemaInObjectNotation(sComponent.component, {})}'
         schema-expand-level = "${this.schemaExpandLevel}"
@@ -17406,18 +16906,16 @@ function schemaBodyTemplate(sComponent) {
       > </schema-tree>`}
   </div>`;
 }
-
 function componentBodyTemplate(sComponent, componentType) {
   if (sComponent.id.indexOf('schemas-') !== -1) {
     return schemaBodyTemplate.call(this, sComponent);
   }
-
-  return y`
+  return lit_html_$`
   <div class='divider'></div>
   <div class='expanded-endpoint-body observe-me ${sComponent.name}' id='cmp--${sComponent.id}' >
-    ${y`
+    ${lit_html_$`
       <div style="font-weight:bold"> ${sComponent.name} <span style="color:var(--light-fg); font-size:var(--font-size-small); font-weight:400"> ${componentType} </span> </div>
-      ${sComponent.component ? y`
+      ${sComponent.component ? lit_html_$`
       <div class='mono-font regular-font-size' style='padding: 8px 0; color:var(--fg2)'> 
         <json-tree class="border tree" render-style='${this.renderStyle}' .data="${sComponent.component}"> </json-tree>
       </div>` : ''}
@@ -17425,14 +16923,12 @@ function componentBodyTemplate(sComponent, componentType) {
   </div>
   `;
 }
-
 function componentsTemplate() {
   if (!this.resolvedSpec) {
     return '';
   }
-
-  return y`
-  ${this.resolvedSpec.components.map(component => y`
+  return lit_html_$`
+  ${this.resolvedSpec.components.map(component => lit_html_$`
     <div id="cmp--${component.name.toLowerCase()}" class='regular-font section-gap--read-mode observe-me' style="border-top:1px solid var(--primary-color);">
       <div class="title tag">${component.name}</div>
       <div class="regular-font-size">
@@ -17453,50 +16949,45 @@ function componentsTemplate() {
 
 
 /* eslint-disable indent */
-
 function overview_template_headingRenderer() {
   const renderer = new marked.Renderer();
-
   renderer.heading = (text, level, raw, slugger) => `<h${level} class="observe-me" id="overview--${slugger.slug(raw)}">${text}</h${level}>`;
-
   return renderer;
 }
-
 function overviewTemplate() {
   var _this$resolvedSpec, _this$resolvedSpec$in, _this$resolvedSpec$in2, _this$specUrl;
-
-  return y`
+  return lit_html_$`
     <section id="overview" part="section-overview"
       class="observe-me ${this.renderStyle === 'view' ? 'section-gap' : 'section-gap--read-mode'}">
-      ${(_this$resolvedSpec = this.resolvedSpec) !== null && _this$resolvedSpec !== void 0 && _this$resolvedSpec.info ? y`
+      ${(_this$resolvedSpec = this.resolvedSpec) !== null && _this$resolvedSpec !== void 0 && _this$resolvedSpec.info ? lit_html_$`
           <div id="api-title" part="section-overview-title" style="font-size:32px">
             ${this.resolvedSpec.info.title}
-            ${!this.resolvedSpec.info.version ? '' : y`
+            ${!this.resolvedSpec.info.version ? '' : lit_html_$`
               <span style = 'font-size:var(--font-size-small);font-weight:bold'>
                 ${this.resolvedSpec.info.version}
               </span>`}
           </div>
           <div id="api-info" style="font-size:calc(var(--font-size-regular) - 1px); margin-top:8px;">
-            ${(_this$resolvedSpec$in = this.resolvedSpec.info.contact) !== null && _this$resolvedSpec$in !== void 0 && _this$resolvedSpec$in.email ? y`<span>${this.resolvedSpec.info.contact.name || 'Email'}: 
+            ${(_this$resolvedSpec$in = this.resolvedSpec.info.contact) !== null && _this$resolvedSpec$in !== void 0 && _this$resolvedSpec$in.email ? lit_html_$`<span>${this.resolvedSpec.info.contact.name || 'Email'}: 
                 <a href="mailto:${this.resolvedSpec.info.contact.email}" part="anchor anchor-overview">${this.resolvedSpec.info.contact.email}</a>
               </span>` : ''}
-            ${(_this$resolvedSpec$in2 = this.resolvedSpec.info.contact) !== null && _this$resolvedSpec$in2 !== void 0 && _this$resolvedSpec$in2.url ? y`<span>URL: <a href="${this.resolvedSpec.info.contact.url}" part="anchor anchor-overview">${this.resolvedSpec.info.contact.url}</a></span>` : ''}
-            ${this.resolvedSpec.info.license ? y`<span>License: 
-                ${this.resolvedSpec.info.license.url ? y`<a href="${this.resolvedSpec.info.license.url}" part="anchor anchor-overview">${this.resolvedSpec.info.license.name}</a>` : this.resolvedSpec.info.license.name} </span>` : ''}
-            ${this.resolvedSpec.info.termsOfService ? y`<span><a href="${this.resolvedSpec.info.termsOfService}" part="anchor anchor-overview">Terms of Service</a></span>` : ''}
-            ${this.specUrl && this.allowSpecFileDownload === 'true' ? y`
+            ${(_this$resolvedSpec$in2 = this.resolvedSpec.info.contact) !== null && _this$resolvedSpec$in2 !== void 0 && _this$resolvedSpec$in2.url ? lit_html_$`<span>URL: <a href="${this.resolvedSpec.info.contact.url}" part="anchor anchor-overview">${this.resolvedSpec.info.contact.url}</a></span>` : ''}
+            ${this.resolvedSpec.info.license ? lit_html_$`<span>License: 
+                ${this.resolvedSpec.info.license.url ? lit_html_$`<a href="${this.resolvedSpec.info.license.url}" part="anchor anchor-overview">${this.resolvedSpec.info.license.name}</a>` : this.resolvedSpec.info.license.name} </span>` : ''}
+            ${this.resolvedSpec.info.termsOfService ? lit_html_$`<span><a href="${this.resolvedSpec.info.termsOfService}" part="anchor anchor-overview">Terms of Service</a></span>` : ''}
+            ${this.specUrl && this.allowSpecFileDownload === 'true' ? lit_html_$`
                 <div style="display:flex; margin:12px 0; gap:8px; justify-content: start;">
                   <button class="m-btn thin-border" style="min-width:170px" part="btn btn-outline" @click='${e => {
     downloadResource(this.specUrl, 'openapi-spec', e);
   }}'>Download OpenAPI spec</button>
-                  ${(_this$specUrl = this.specUrl) !== null && _this$specUrl !== void 0 && _this$specUrl.trim().toLowerCase().endsWith('json') ? y`<button class="m-btn thin-border" style="width:200px" part="btn btn-outline" @click='${e => {
+                  ${(_this$specUrl = this.specUrl) !== null && _this$specUrl !== void 0 && _this$specUrl.trim().toLowerCase().endsWith('json') ? lit_html_$`<button class="m-btn thin-border" style="width:200px" part="btn btn-outline" @click='${e => {
     viewResource(this.specUrl, e);
   }}'>View OpenAPI spec (New Tab)</button>` : ''}
                 </div>` : ''}
           </div>
           <slot name="overview"></slot>
           <div id="api-description">
-          ${this.resolvedSpec.info.description ? y`${unsafe_html_o(`
+          ${this.resolvedSpec.info.description ? lit_html_$`${unsafe_html_o(`
                 <div class="m-markdown regular-font">
                 ${marked(this.resolvedSpec.info.description, this.infoDescriptionHeadingsInNavBar === 'true' ? {
     renderer: overview_template_headingRenderer()
@@ -17512,16 +17003,12 @@ function overviewTemplate() {
 
  // eslint-disable-line import/extensions
 
-
 function setApiServer(serverUrl) {
   var _this$resolvedSpec;
-
   const serverObj = (_this$resolvedSpec = this.resolvedSpec) === null || _this$resolvedSpec === void 0 ? void 0 : _this$resolvedSpec.servers.find(s => s.url === serverUrl);
-
   if (!serverObj) {
     return false;
   }
-
   this.selectedServer = serverObj;
   this.requestUpdate();
   this.dispatchEvent(new CustomEvent('api-server-change', {
@@ -17533,7 +17020,6 @@ function setApiServer(serverUrl) {
   }));
   return true;
 }
-
 function onApiServerVarChange(e, serverObj) {
   const inputEls = [...e.currentTarget.closest('table').querySelectorAll('input, select')];
   let tempUrl = serverObj.url;
@@ -17544,36 +17030,35 @@ function onApiServerVarChange(e, serverObj) {
   serverObj.computedUrl = tempUrl;
   this.requestUpdate();
 }
+
 /* eslint-disable indent */
-
-
 function serverVarsTemplate() {
   // const selectedServerObj = this.resolvedSpec.servers.find((v) => (v.url === this.selectedServer));
-  return this.selectedServer && this.selectedServer.variables ? y`
+  return this.selectedServer && this.selectedServer.variables ? lit_html_$`
     <div class="table-title">SERVER VARIABLES</div>
     <table class='m-table' role='presentation'>
-      ${Object.entries(this.selectedServer.variables).map(kv => y`
+      ${Object.entries(this.selectedServer.variables).map(kv => lit_html_$`
         <tr>
           <td style="vertical-align: middle;" >${kv[0]}</td>
           <td>
-            ${kv[1].enum ? y`
+            ${kv[1].enum ? lit_html_$`
             <select
               data-var = "${kv[0]}"
               @input = ${e => {
     onApiServerVarChange.call(this, e, this.selectedServer);
   }}
             >
-            ${Object.entries(kv[1].enum).map(e => kv[1].default === e[1] ? y`
+            ${Object.entries(kv[1].enum).map(e => kv[1].default === e[1] ? lit_html_$`
               <option
                 selected
                 label = ${e[1]}
                 value = ${e[1]}
-              />` : y`
+              />` : lit_html_$`
               <option
                 label = ${e[1]}
                 value = ${e[1]}
               />`)}
-            </select>` : y`
+            </select>` : lit_html_$`
             <input
               type = "text"
               part="textbox textbox-server-var"
@@ -17586,25 +17071,22 @@ function serverVarsTemplate() {
             />`}
           </td>
         </tr>
-        ${kv[1].description ? y`<tr><td colspan="2" style="border:none"><span class="m-markdown-small"> ${unsafe_html_o(marked(kv[1].description))} </span></td></tr>` : ''}
+        ${kv[1].description ? lit_html_$`<tr><td colspan="2" style="border:none"><span class="m-markdown-small"> ${unsafe_html_o(marked(kv[1].description))} </span></td></tr>` : ''}
       `)}
     </table>
     ` : '';
 }
-
 function serverTemplate() {
   var _this$resolvedSpec$se, _this$resolvedSpec2, _this$selectedServer;
-
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) {
     return '';
   }
-
-  return y`
+  return lit_html_$`
   <section id = 'servers' part="section-servers" style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;" class='regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
     <div part = "section-servers-title" class = "sub-title">API SERVER</div>
     <div class = 'mono-font' style='margin: 12px 0; font-size:calc(var(--font-size-small) + 1px);'>
-      ${!this.resolvedSpec.servers || ((_this$resolvedSpec$se = this.resolvedSpec.servers) === null || _this$resolvedSpec$se === void 0 ? void 0 : _this$resolvedSpec$se.length) === 0 ? '' : y`
-          ${(_this$resolvedSpec2 = this.resolvedSpec) === null || _this$resolvedSpec2 === void 0 ? void 0 : _this$resolvedSpec2.servers.map((server, i) => y`
+      ${!this.resolvedSpec.servers || ((_this$resolvedSpec$se = this.resolvedSpec.servers) === null || _this$resolvedSpec$se === void 0 ? void 0 : _this$resolvedSpec$se.length) === 0 ? '' : lit_html_$`
+          ${(_this$resolvedSpec2 = this.resolvedSpec) === null || _this$resolvedSpec2 === void 0 ? void 0 : _this$resolvedSpec2.servers.map((server, i) => lit_html_$`
             <input type = 'radio'
               name = 'api_server'
               id = 'srvr-opt-${i}'
@@ -17616,7 +17098,7 @@ function serverTemplate() {
               style = 'margin:4px 0; cursor:pointer'
             />
               <label style='cursor:pointer' for='srvr-opt-${i}'>
-                ${server.url} ${server.description ? y`- <span class='regular-font'>${server.description} </span>` : ''}
+                ${server.url} ${server.description ? lit_html_$`- <span class='regular-font'>${server.description} </span>` : ''}
               </label>
             <br/>
           `)}
@@ -17635,10 +17117,8 @@ function serverTemplate() {
 function expandCollapseNavBarTag(navLinkEl, action = 'toggle') {
   const tagAndPathEl = navLinkEl === null || navLinkEl === void 0 ? void 0 : navLinkEl.closest('.nav-bar-tag-and-paths');
   const pathsUnderTagEl = tagAndPathEl.querySelector('.nav-bar-paths-under-tag');
-
   if (tagAndPathEl) {
     const isExpanded = tagAndPathEl.classList.contains('expanded');
-
     if (isExpanded && (action === 'toggle' || action === 'collapse')) {
       pathsUnderTagEl.style.maxHeight = 0;
       tagAndPathEl.classList.replace('expanded', 'collapsed');
@@ -17652,10 +17132,8 @@ function expandCollapseAll(event, action = 'expand-all') {
   if (!(event.type === 'click' || event.type === 'keyup' && event.keyCode === 13)) {
     return;
   }
-
   const navEl = event.target.closest('.nav-scroll');
   const elList = [...navEl.querySelectorAll('.nav-bar-tag-and-paths')];
-
   if (action === 'expand-all') {
     elList.forEach(el => {
       const navBarPathsUnderTagEl = el.querySelector('.nav-bar-paths-under-tag');
@@ -17671,14 +17149,11 @@ function expandCollapseAll(event, action = 'expand-all') {
 }
 function navBarClickAndEnterHandler(event) {
   var _navEl$dataset, _navEl$dataset2, _navEl$dataset3, _navEl$dataset4;
-
   if (!(event.type === 'click' || event.type === 'keyup' && event.keyCode === 13)) {
     return;
   }
-
   const navEl = event.target;
   event.stopPropagation();
-
   if (((_navEl$dataset = navEl.dataset) === null || _navEl$dataset === void 0 ? void 0 : _navEl$dataset.action) === 'navigate') {
     this.scrollToEventTarget(event, false);
   } else if (((_navEl$dataset2 = navEl.dataset) === null || _navEl$dataset2 === void 0 ? void 0 : _navEl$dataset2.action) === 'expand-all' || ((_navEl$dataset3 = navEl.dataset) === null || _navEl$dataset3 === void 0 ? void 0 : _navEl$dataset3.action) === 'collapse-all') {
@@ -17687,25 +17162,23 @@ function navBarClickAndEnterHandler(event) {
     expandCollapseNavBarTag(navEl, 'toggle');
   }
 }
-/* eslint-disable indent */
 
+/* eslint-disable indent */
 function navbarTemplate() {
   var _this$resolvedSpec$in, _this$resolvedSpec$in2, _this$resolvedSpec$in3, _this$resolvedSpec$in4;
-
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) {
-    return y`
+    return lit_html_$`
       <nav class='nav-bar' part='section-navbar'>
         <slot name='nav-logo' class='logo'></slot>
       </nav>
     `;
   }
-
-  return y`
+  return lit_html_$`
   <nav class='nav-bar ${this.renderStyle}' part='section-navbar'>
     <slot name='nav-logo' class='logo'></slot>
-    ${this.allowSearch === 'false' && this.allowAdvancedSearch === 'false' ? '' : y`
+    ${this.allowSearch === 'false' && this.allowAdvancedSearch === 'false' ? '' : lit_html_$`
         <div style='display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 24px 12px 24px; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}' part='section-navbar-search'>
-          ${this.allowSearch === 'false' ? '' : y`
+          ${this.allowSearch === 'false' ? '' : lit_html_$`
               <div style = 'display:flex; flex:1; line-height:22px;'>
                 <input id = 'nav-bar-search' 
                   part = 'textbox textbox-nav-filter'
@@ -17717,26 +17190,26 @@ function navbarTemplate() {
                 >
                 <div style='margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;'>&#x21a9;</div>
               </div>  
-              ${this.matchPaths ? y`
+              ${this.matchPaths ? lit_html_$`
                   <button @click = '${this.onClearSearch}' class='m-btn thin-border' style='margin-left:5px; color:var(--nav-text-color); width:75px; padding:6px 8px;' part='btn btn-outline btn-clear-filter'>
                     CLEAR
                   </button>` : ''}
             `}
-          ${this.allowAdvancedSearch === 'false' || this.matchPaths ? '' : y`
+          ${this.allowAdvancedSearch === 'false' || this.matchPaths ? '' : lit_html_$`
               <button class='m-btn primary' part='btn btn-fill btn-search' style='margin-left:5px; padding:6px 8px; width:75px' @click='${this.onShowSearchModalClicked}'>
                 SEARCH
               </button>
             `}
         </div>
       `}
-    ${y`<nav class='nav-scroll' tabindex='-1' part='section-navbar-scroll' @click='${e => navBarClickAndEnterHandler.call(this, e)}' @keyup='${e => navBarClickAndEnterHandler.call(this, e)}' >
-      ${this.showInfo === 'false' || !this.resolvedSpec.info ? '' : y`
-          ${this.infoDescriptionHeadingsInNavBar === 'true' ? y`
-              ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? y`<div class='nav-bar-info ${this.navActiveItemMarker}' id='link-overview' data-content-id='overview' data-action='navigate' tabindex='0' part='section-navbar-item section-navbar-overview'> 
+    ${lit_html_$`<nav class='nav-scroll' tabindex='-1' part='section-navbar-scroll' @click='${e => navBarClickAndEnterHandler.call(this, e)}' @keyup='${e => navBarClickAndEnterHandler.call(this, e)}' >
+      ${this.showInfo === 'false' || !this.resolvedSpec.info ? '' : lit_html_$`
+          ${this.infoDescriptionHeadingsInNavBar === 'true' ? lit_html_$`
+              ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? lit_html_$`<div class='nav-bar-info ${this.navActiveItemMarker}' id='link-overview' data-content-id='overview' data-action='navigate' tabindex='0' part='section-navbar-item section-navbar-overview'> 
                     ${((_this$resolvedSpec$in = this.resolvedSpec.info) === null || _this$resolvedSpec$in === void 0 ? void 0 : (_this$resolvedSpec$in2 = _this$resolvedSpec$in.title) === null || _this$resolvedSpec$in2 === void 0 ? void 0 : _this$resolvedSpec$in2.trim()) || 'Overview'}
                   </div>` : ''}
               <div class='overview-headers'>
-                ${this.resolvedSpec.infoDescriptionHeaders.map(header => y`
+                ${this.resolvedSpec.infoDescriptionHeaders.map(header => lit_html_$`
                   <div
                     class='nav-bar-h${header.depth} ${this.navActiveItemMarker}' 
                     id='link-overview--${new marked.Slugger().slug(header.text)}'
@@ -17746,18 +17219,18 @@ function navbarTemplate() {
                     ${header.text}
                   </div>`)}
               </div>
-              ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? y`<hr style='border-top: 1px solid var(--nav-hover-bg-color); border-width:1px 0 0 0; margin: 15px 0 0 0'/>` : ''}
-            ` : y`<div class='nav-bar-info ${this.navActiveItemMarker}' id='link-overview' data-action='navigate' data-content-id='overview' tabindex='0'> 
+              ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? lit_html_$`<hr style='border-top: 1px solid var(--nav-hover-bg-color); border-width:1px 0 0 0; margin: 15px 0 0 0'/>` : ''}
+            ` : lit_html_$`<div class='nav-bar-info ${this.navActiveItemMarker}' id='link-overview' data-action='navigate' data-content-id='overview' tabindex='0'> 
               ${((_this$resolvedSpec$in3 = this.resolvedSpec.info) === null || _this$resolvedSpec$in3 === void 0 ? void 0 : (_this$resolvedSpec$in4 = _this$resolvedSpec$in3.title) === null || _this$resolvedSpec$in4 === void 0 ? void 0 : _this$resolvedSpec$in4.trim()) || 'Overview'}
             </div>`}
         `}
     
-      ${this.allowServerSelection === 'false' ? '' : y`<div class='nav-bar-info ${this.navActiveItemMarker}' id='link-servers' data-action='navigate' data-content-id='servers' tabindex='0' part='section-navbar-item section-navbar-servers'> API Servers </div>`}
-      ${this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes ? '' : y`<div class='nav-bar-info ${this.navActiveItemMarker}' id='link-auth' data-action='navigate' data-content-id='auth' tabindex='0' part='section-navbar-item section-navbar-auth'> Authentication </div>`}
+      ${this.allowServerSelection === 'false' ? '' : lit_html_$`<div class='nav-bar-info ${this.navActiveItemMarker}' id='link-servers' data-action='navigate' data-content-id='servers' tabindex='0' part='section-navbar-item section-navbar-servers'> API Servers </div>`}
+      ${this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes ? '' : lit_html_$`<div class='nav-bar-info ${this.navActiveItemMarker}' id='link-auth' data-action='navigate' data-content-id='auth' tabindex='0' part='section-navbar-item section-navbar-auth'> Authentication </div>`}
 
       <div id='link-operations-top' class='nav-bar-section operations' data-action='navigate' data-content-id='${this.renderStyle === 'focused' ? '' : 'operations-top'}' part='section-navbar-item section-navbar-operations-top'>
         <div style='font-size:16px; display:flex; margin-left:10px;'>
-          ${this.renderStyle === 'focused' ? y`
+          ${this.renderStyle === 'focused' ? lit_html_$`
               <div class='nav-bar-expand-all'
                 data-action='expand-all'
                 tabindex='0' 
@@ -17775,10 +17248,9 @@ function navbarTemplate() {
       <!-- TAGS AND PATHS-->
       ${this.resolvedSpec.tags.filter(tag => tag.paths.filter(path => pathIsInSearch(this.matchPaths, path, this.matchType)).length).map(tag => {
     var _tag$paths;
-
-    return y`
+    return lit_html_$`
           <div class='nav-bar-tag-and-paths ${this.renderStyle === 'read' ? 'expanded' : tag.expanded ? 'expanded' : 'collapsed'}' >
-            ${tag.name === 'General ⦂' ? y`<hr style='border:none; border-top: 1px dotted var(--nav-text-color); opacity:0.3; margin:-1px 0 0 0;'/>` : y`
+            ${tag.name === 'General ⦂' ? lit_html_$`<hr style='border:none; border-top: 1px dotted var(--nav-text-color); opacity:0.3; margin:-1px 0 0 0;'/>` : lit_html_$`
                 <div 
                   class='nav-bar-tag ${this.navActiveItemMarker}'
                   part='section-navbar-item section-navbar-tag'
@@ -17792,10 +17264,10 @@ function navbarTemplate() {
                   <div class='nav-bar-tag-icon' tabindex='0' data-action='expand-collapse-tag'></div>
                 </div>
               `}
-            ${this.infoDescriptionHeadingsInNavBar === 'true' ? y`
-                ${this.renderStyle === 'focused' && this.onNavTagClick === 'expand-collapse' ? '' : y`
+            ${this.infoDescriptionHeadingsInNavBar === 'true' ? lit_html_$`
+                ${this.renderStyle === 'focused' && this.onNavTagClick === 'expand-collapse' ? '' : lit_html_$`
                     <div class='tag-headers'>
-                      ${tag.headers.map(header => y`
+                      ${tag.headers.map(header => lit_html_$`
                       <div
                         class='nav-bar-h${header.depth} ${this.navActiveItemMarker}'
                         part='section-navbar-item section-navbar-h${header.depth}'
@@ -17811,9 +17283,8 @@ function navbarTemplate() {
       if (this.matchPaths) {
         return pathIsInSearch(this.matchPaths, v, this.matchType);
       }
-
       return true;
-    }).map(p => y`
+    }).map(p => lit_html_$`
               <div 
                 class='nav-bar-path ${this.navActiveItemMarker} ${this.usePathInNavBar === 'true' ? 'small-font' : ''}'
                 part='section-navbar-item section-navbar-path'
@@ -17823,11 +17294,11 @@ function navbarTemplate() {
                 tabindex='0'
               >
                 <span style = 'display:flex; pointer-events: none; align-items:start; ${p.deprecated ? 'filter:opacity(0.5)' : ''}'>
-                  ${y`<span class='nav-method ${this.showMethodInNavBar} ${p.method}' style='pointer-events: none;'>
+                  ${lit_html_$`<span class='nav-method ${this.showMethodInNavBar} ${p.method}' style='pointer-events: none;'>
                       ${this.showMethodInNavBar === 'as-colored-block' ? p.method.substring(0, 3).toUpperCase() : p.method.toUpperCase()}
                     </span>`}
-                  ${p.isWebhook ? y`<span style='font-weight:bold; pointer-events: none; margin-right:8px; font-size: calc(var(--font-size-small) - 2px)'>WEBHOOK</span>` : ''}
-                  ${this.usePathInNavBar === 'true' ? y`<span style='pointer-events: none;' class='mono-font'>${p.path}</span>` : p.summary || p.shortSummary}
+                  ${p.isWebhook ? lit_html_$`<span style='font-weight:bold; pointer-events: none; margin-right:8px; font-size: calc(var(--font-size-small) - 2px)'>WEBHOOK</span>` : ''}
+                  ${this.usePathInNavBar === 'true' ? lit_html_$`<span style='pointer-events: none;' class='mono-font'>${p.path}</span>` : p.summary || p.shortSummary}
                 </span>
               </div>`)}
             </div>
@@ -17836,12 +17307,12 @@ function navbarTemplate() {
   })}
 
       <!-- COMPONENTS -->
-      ${this.resolvedSpec.components && this.showComponents === 'true' && this.renderStyle === 'focused' ? y`
+      ${this.resolvedSpec.components && this.showComponents === 'true' && this.renderStyle === 'focused' ? lit_html_$`
           <div id='link-components' class='nav-bar-section components'>
             <div></div>
             <div class='nav-bar-section-title'>COMPONENTS</div>
           </div>
-          ${this.resolvedSpec.components.map(component => component.subComponents.length ? y`
+          ${this.resolvedSpec.components.map(component => component.subComponents.length ? lit_html_$`
               <div class='nav-bar-tag'
                 part='section-navbar-item section-navbar-tag'
                 data-action='navigate' 
@@ -17850,7 +17321,7 @@ function navbarTemplate() {
               >
                 ${component.name}
               </div>
-              ${component.subComponents.filter(p => p.expanded !== false).map(p => y`
+              ${component.subComponents.filter(p => p.expanded !== false).map(p => lit_html_$`
                 <div class='nav-bar-path' data-action='navigate' data-content-id='cmp--${p.id}' id='link-cmp--${p.id}'>
                   <span> ${p.name} </span>
                 </div>`)}` : '')}` : ''}
@@ -17871,42 +17342,33 @@ function navbarTemplate() {
 
 
 
-
-
 function focused_endpoint_template_headingRenderer(tagElementId) {
   const renderer = new marked.Renderer();
-
   renderer.heading = (text, level, raw, slugger) => `<h${level} class="observe-me" id="${tagElementId}--${slugger.slug(raw)}">${text}</h${level}>`;
-
   return renderer;
 }
-
 function wrapFocusedTemplate(templateToWrap) {
-  return y`
+  return lit_html_$`
     <div class='regular-font section-gap--focused-mode' part="section-operations-in-tag">
       ${templateToWrap}
     </div>`;
 }
-
 function defaultContentTemplate() {
   var _this$resolvedSpec$ta;
-
   // In focused mode default content is overview or first path
   if (this.showInfo === 'true') {
     return wrapFocusedTemplate(overviewTemplate.call(this));
   }
-
   const selectedTagObj = this.resolvedSpec.tags[0];
   const selectedPathObj = (_this$resolvedSpec$ta = this.resolvedSpec.tags[0]) === null || _this$resolvedSpec$ta === void 0 ? void 0 : _this$resolvedSpec$ta.paths[0];
   return selectedTagObj && selectedPathObj ? wrapFocusedTemplate(expandedEndpointBodyTemplate.call(this, selectedPathObj, selectedTagObj.name)) : wrapFocusedTemplate('');
 }
+
 /* eslint-disable indent */
-
-
 function focusedTagBodyTemplate(tag) {
-  return y`
+  return lit_html_$`
     <h1 id="${tag.elementId}">${tag.name}</h1>
-    ${this.onNavTagClick === 'show-description' && tag.description ? y`
+    ${this.onNavTagClick === 'show-description' && tag.description ? lit_html_$`
         <div class="m-markdown">
           ${unsafe_html_o(`
             <div class="m-markdown regular-font">
@@ -17917,18 +17379,15 @@ function focusedTagBodyTemplate(tag) {
         </div>` : ''}
   `;
 }
-
 function focusedEndpointTemplate() {
   if (!this.focusedElementId || !this.resolvedSpec) {
     return;
   }
-
   const focusElId = this.focusedElementId;
   let selectedPathObj = null;
   let selectedTagObj = null;
   let focusedTemplate;
   let i = 0;
-
   if (focusElId.startsWith('overview') && this.showInfo === 'true') {
     focusedTemplate = overviewTemplate.call(this);
   } else if (focusElId === 'auth' && this.allowAuthentication === 'true') {
@@ -17936,7 +17395,7 @@ function focusedEndpointTemplate() {
   } else if (focusElId === 'servers' && this.allowServerSelection === 'true') {
     focusedTemplate = serverTemplate.call(this);
   } else if (focusElId === 'operations-top') {
-    focusedTemplate = y`
+    focusedTemplate = lit_html_$`
     <div id="operations-top" class="observe-me">
       <slot name="operations-top"></slot>
     </div>`;
@@ -17945,7 +17404,6 @@ function focusedEndpointTemplate() {
   } else if (focusElId.startsWith('tag--')) {
     const idToFocus = focusElId.indexOf('--', 4) > 0 ? focusElId.substring(0, focusElId.indexOf('--', 5)) : focusElId;
     selectedTagObj = this.resolvedSpec.tags.find(v => v.elementId === idToFocus);
-
     if (selectedTagObj) {
       focusedTemplate = wrapFocusedTemplate.call(this, focusedTagBodyTemplate.call(this, selectedTagObj));
     } else {
@@ -17955,12 +17413,10 @@ function focusedEndpointTemplate() {
     for (i = 0; i < this.resolvedSpec.tags.length; i += 1) {
       selectedTagObj = this.resolvedSpec.tags[i];
       selectedPathObj = this.resolvedSpec.tags[i].paths.find(v => `${v.elementId}` === focusElId);
-
       if (selectedPathObj) {
         break;
       }
     }
-
     if (selectedPathObj) {
       // In focused mode we must expand the nav-bar tag element if it is collapsed
       const newNavEl = this.shadowRoot.getElementById(`link-${focusElId}`);
@@ -17971,7 +17427,6 @@ function focusedEndpointTemplate() {
       focusedTemplate = defaultContentTemplate.call(this);
     }
   }
-
   return focusedTemplate;
 }
 /* eslint-enable indent */
@@ -17985,33 +17440,25 @@ function focusedEndpointTemplate() {
 
 
 
-
-
 function toggleExpand(path) {
   if (path.expanded) {
     path.expanded = false; // collapse
-
     if (this.updateRoute === 'true') {
       window.history.replaceState(null, null, `${window.location.href.split('#')[0]}${this.routePrefix === '#' ? '' : `${this.routePrefix}`}`);
     }
   } else {
     path.expanded = true; // Expand
-
     if (this.updateRoute === 'true') {
       const newHash = `${this.routePrefix || '#'}${path.elementId}`;
-
       if (window.location.hash !== newHash) {
         window.history.replaceState(null, null, `${window.location.href.split('#')[0]}${newHash}`);
       }
     }
   }
-
   this.requestUpdate();
 }
-
 function endpoint_template_expandCollapseAll(operationsRootEl, action = 'expand-all') {
   const elList = [...operationsRootEl.querySelectorAll('.section-tag')];
-
   if (action === 'expand-all') {
     elList.map(el => {
       el.classList.replace('collapsed', 'expanded');
@@ -18022,76 +17469,67 @@ function endpoint_template_expandCollapseAll(operationsRootEl, action = 'expand-
     });
   }
 }
-
 function onExpandCollapseAll(e, action = 'expand-all') {
   endpoint_template_expandCollapseAll.call(this, e.target.closest('.operations-root'), action);
 }
+
 /* eslint-disable indent */
-
-
 function endpointHeadTemplate(path, pathsExpanded = false) {
-  return y`
+  return lit_html_$`
   <summary @click="${e => {
     toggleExpand.call(this, path, e);
   }}" part="section-endpoint-head-${path.expanded ? 'expanded' : 'collapsed'}" class='endpoint-head ${path.method} ${path.deprecated ? 'deprecated' : ''} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
     <div part="section-endpoint-head-method" class="method ${path.method} ${path.deprecated ? 'deprecated' : ''}"> ${path.method} </div> 
     <div  part="section-endpoint-head-path" class="path ${path.deprecated ? 'deprecated' : ''}"> 
       ${path.path} 
-      ${path.isWebhook ? y`<span style="font-family: var(--font-regular); font-size: var(--); font-size: var(--font-size-small); color:var(--primary-color); margin-left: 16px"> Webhook</span>` : ''}
+      ${path.isWebhook ? lit_html_$`<span style="font-family: var(--font-regular); font-size: var(--); font-size: var(--font-size-small); color:var(--primary-color); margin-left: 16px"> Webhook</span>` : ''}
     </div>
-    ${path.deprecated ? y`
+    ${path.deprecated ? lit_html_$`
         <span style="font-size:var(--font-size-small); text-transform:uppercase; font-weight:bold; color:var(--red); margin:2px 0 0 5px;"> 
           deprecated 
         </span>` : ''}
-    ${this.showSummaryWhenCollapsed ? y`
+    ${this.showSummaryWhenCollapsed ? lit_html_$`
         <div class="only-large-screen" style="min-width:60px; flex:1"></div>
         <div part="section-endpoint-head-description" class="descr">${path.summary || path.shortSummary} </div>` : ''}
   </summary>
   `;
 }
-
 function endpointBodyTemplate(path) {
   var _path$xBadges, _path$externalDocs, _path$externalDocs2, _path$externalDocs3, _path$externalDocs4, _path$externalDocs5, _path$externalDocs6;
-
   const acceptContentTypes = new Set();
-
   for (const respStatus in path.responses) {
     for (const acceptContentType in (_path$responses$respS = path.responses[respStatus]) === null || _path$responses$respS === void 0 ? void 0 : _path$responses$respS.content) {
       var _path$responses$respS;
-
       acceptContentTypes.add(acceptContentType.trim());
     }
   }
-
-  const accept = [...acceptContentTypes].join(', '); // Filter API Keys that are non-empty and are applicable to the the path
-
+  const accept = [...acceptContentTypes].join(', ');
+  // Filter API Keys that are non-empty and are applicable to the the path
   const nonEmptyApiKeys = this.resolvedSpec.securitySchemes.filter(v => {
     var _path$security;
-
     return v.finalKeyValue && ((_path$security = path.security) === null || _path$security === void 0 ? void 0 : _path$security.some(ps => v.securitySchemeId in ps));
-  }) || []; // If a RapiDoc API Key is specified on the element and its value is not hyphen(-) then include it for all paths
+  }) || [];
 
+  // If a RapiDoc API Key is specified on the element and its value is not hyphen(-) then include it for all paths
   const rapiDocApiKey = this.resolvedSpec.securitySchemes.find(v => v.securitySchemeId === rapidocApiKey && v.value !== '-');
-
   if (rapiDocApiKey) {
     nonEmptyApiKeys.push(rapiDocApiKey);
   }
-
   const codeSampleTabPanel = path.xCodeSamples ? codeSamplesTemplate(path.xCodeSamples) : '';
-  return y`
+  return lit_html_$`
   <div part="section-endpoint-body-${path.expanded ? 'expanded' : 'collapsed'}" class='endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}'>
     <div class="summary">
-      ${path.summary ? y`<div class="title" part="section-endpoint-body-title">${path.summary}<div>` : path.shortSummary !== path.description ? y`<div class="title" part="section-endpoint-body-title">${path.shortSummary}</div>` : ''}
-      ${path.xBadges && ((_path$xBadges = path.xBadges) === null || _path$xBadges === void 0 ? void 0 : _path$xBadges.length) > 0 ? y`
+      ${path.summary ? lit_html_$`<div class="title" part="section-endpoint-body-title">${path.summary}<div>` : path.shortSummary !== path.description ? lit_html_$`<div class="title" part="section-endpoint-body-title">${path.shortSummary}</div>` : ''}
+      ${path.xBadges && ((_path$xBadges = path.xBadges) === null || _path$xBadges === void 0 ? void 0 : _path$xBadges.length) > 0 ? lit_html_$`
           <div style="display:flex; flex-wrap:wrap;font-size: var(--font-size-small);">
-            ${path.xBadges.map(v => y`<span part="endpoint-badge" style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`)}
+            ${path.xBadges.map(v => lit_html_$`<span part="endpoint-badge" style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`)}
           </div>
           ` : ''}
 
-      ${path.description ? y`<div part="section-endpoint-body-description" class="m-markdown"> ${unsafe_html_o(marked(path.description))}</div>` : ''}
-      ${(_path$externalDocs = path.externalDocs) !== null && _path$externalDocs !== void 0 && _path$externalDocs.url || (_path$externalDocs2 = path.externalDocs) !== null && _path$externalDocs2 !== void 0 && _path$externalDocs2.description ? y`<div style="background-color:var(--bg3); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--border-radius)"> 
+      ${path.description ? lit_html_$`<div part="section-endpoint-body-description" class="m-markdown"> ${unsafe_html_o(marked(path.description))}</div>` : ''}
+      ${(_path$externalDocs = path.externalDocs) !== null && _path$externalDocs !== void 0 && _path$externalDocs.url || (_path$externalDocs2 = path.externalDocs) !== null && _path$externalDocs2 !== void 0 && _path$externalDocs2.description ? lit_html_$`<div style="background-color:var(--bg3); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--border-radius)"> 
             <div class="m-markdown"> ${unsafe_html_o(marked(((_path$externalDocs3 = path.externalDocs) === null || _path$externalDocs3 === void 0 ? void 0 : _path$externalDocs3.description) || ''))} </div>
-            ${(_path$externalDocs4 = path.externalDocs) !== null && _path$externalDocs4 !== void 0 && _path$externalDocs4.url ? y`<a style="font-family:var(--font-mono); font-size:var(--font-size-small)" href="${(_path$externalDocs5 = path.externalDocs) === null || _path$externalDocs5 === void 0 ? void 0 : _path$externalDocs5.url}" target="_blank"> 
+            ${(_path$externalDocs4 = path.externalDocs) !== null && _path$externalDocs4 !== void 0 && _path$externalDocs4.url ? lit_html_$`<a style="font-family:var(--font-mono); font-size:var(--font-size-small)" href="${(_path$externalDocs5 = path.externalDocs) === null || _path$externalDocs5 === void 0 ? void 0 : _path$externalDocs5.url}" target="_blank"> 
                   ${(_path$externalDocs6 = path.externalDocs) === null || _path$externalDocs6 === void 0 ? void 0 : _path$externalDocs6.url} <div style="transform: rotate(270deg) scale(1.5); display: inline-block; margin-left:5px">⇲</div>
                 </a>` : ''}
           </div>` : ''}
@@ -18154,14 +17592,12 @@ function endpointBodyTemplate(path) {
       </div>
   </div>`;
 }
-
 function endpointTemplate(showExpandCollapse = true, showTags = true, pathsExpanded = false) {
   if (!this.resolvedSpec) {
     return '';
   }
-
-  return y`
-    ${showExpandCollapse ? y`
+  return lit_html_$`
+    ${showExpandCollapse ? lit_html_$`
         <div style="display:flex; justify-content:flex-end;"> 
           <span @click="${e => onExpandCollapseAll(e, 'expand-all')}" style="color:var(--primary-color); cursor:pointer;">
             Expand all
@@ -18172,8 +17608,8 @@ function endpointTemplate(showExpandCollapse = true, showTags = true, pathsExpan
           </span> 
           &nbsp; sections
         </div>` : ''}
-    ${this.resolvedSpec.tags.map(tag => y`
-      ${showTags ? y` 
+    ${this.resolvedSpec.tags.map(tag => lit_html_$`
+      ${showTags ? lit_html_$` 
           <div class='regular-font section-gap section-tag ${tag.expanded ? 'expanded' : 'collapsed'}'> 
             <div class='section-tag-header' @click="${() => {
     tag.expanded = !tag.expanded;
@@ -18190,23 +17626,21 @@ function endpointTemplate(showExpandCollapse = true, showTags = true, pathsExpan
     if (this.matchPaths) {
       return pathIsInSearch(this.matchPaths, v, this.matchType);
     }
-
     return true;
-  }).map(path => y`
+  }).map(path => lit_html_$`
                 <section part="section-endpoint" id='${path.elementId}' class='m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
                   ${endpointHeadTemplate.call(this, path, pathsExpanded)}      
                   ${pathsExpanded || path.expanded ? endpointBodyTemplate.call(this, path) : ''}
                 </section>`)}
             </div>
-          </div>` : y`
+          </div>` : lit_html_$`
           <div class='section-tag-body'>
           ${tag.paths.filter(v => {
     if (this.matchPaths) {
       return pathIsInSearch(this.matchPaths, v, this.matchType);
     }
-
     return true;
-  }).map(path => y`
+  }).map(path => lit_html_$`
             <section id='${path.elementId}' class='m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
               ${endpointHeadTemplate.call(this, path, pathsExpanded)}      
               ${pathsExpanded || path.expanded ? endpointBodyTemplate.call(this, path) : ''}
@@ -18218,10 +17652,10 @@ function endpointTemplate(showExpandCollapse = true, showTags = true, pathsExpan
 /* eslint-enable indent */
 ;// CONCATENATED MODULE: ./src/templates/logo-template.js
 
-/* eslint-disable indent */
 
+/* eslint-disable indent */
 function logoTemplate(style) {
-  return y`
+  return lit_html_$`
   <div style=${style}>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="1 0 511 512">
       <path d="M351 411a202 202 0 01-350 0 203 203 0 01333-24 203 203 0 0117 24zm0 0" fill="#adc165"/>
@@ -18238,10 +17672,10 @@ function logoTemplate(style) {
 ;// CONCATENATED MODULE: ./src/templates/header-template.js
 
 
-/* eslint-disable indent */
 
+/* eslint-disable indent */
 function headerTemplate() {
-  return y`
+  return lit_html_$`
   <header class="row main-header regular-font" part="section-header" style="padding:8px 4px 8px 4px;min-height:48px;">
     <div class="only-large-screen-flex" style="align-items: center;">
       <slot name="logo" class="logo" part="section-logo">
@@ -18251,7 +17685,7 @@ function headerTemplate() {
       <div class="header-title" part="label-header-title">${this.headingText}</div>
     </div>  
     <div style="margin: 0px 8px;display:flex;flex:1">
-      ${this.allowSpecUrlLoad === 'false' ? '' : y`
+      ${this.allowSpecUrlLoad === 'false' ? '' : lit_html_$`
           <input id="spec-url" 
             type="text" 
             style="font-size:var(--font-size-small)" 
@@ -18264,7 +17698,7 @@ function headerTemplate() {
           >
           <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div> 
         `} 
-      ${this.allowSpecFileLoad === 'false' ? '' : y`
+      ${this.allowSpecFileLoad === 'false' ? '' : lit_html_$`
           <input id="spec-file" 
             part = "file-input"
             type="file" 
@@ -18276,12 +17710,12 @@ function headerTemplate() {
           <button class="m-btn primary only-large-screen" style="margin-left:10px;" part="btn btn-fill" @click="${this.onFileLoadClick}"> LOCAL JSON FILE </button>
         `}
       <slot name="header"></slot>
-      ${this.allowSearch === 'false' || 'read focused'.includes(this.renderStyle) ? '' : y`  
+      ${this.allowSearch === 'false' || 'read focused'.includes(this.renderStyle) ? '' : lit_html_$`  
           <input id="search" class="header-input" type="text" part="textbox textbox-header-filter" placeholder="Filter" @change="${this.onSearchChange}" style="max-width:130px;margin-left:10px;" spellcheck="false" >
           <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div>
         `}
       
-      ${this.allowAdvancedSearch === 'false' || 'read focused'.includes(this.renderStyle) ? '' : y`
+      ${this.allowAdvancedSearch === 'false' || 'read focused'.includes(this.renderStyle) ? '' : lit_html_$`
           <button class="m-btn primary only-large-screen" part="btn btn-fill btn-search" style="margin-left:10px;" @click="${this.onShowSearchModalClicked}">
             Search
           </button>
@@ -18292,7 +17726,7 @@ function headerTemplate() {
 /* eslint-enable indent */
 ;// CONCATENATED MODULE: ./src/styles/dialog-box-styles.js
 
-/* harmony default export */ const dialog_box_styles = (i`
+/* harmony default export */ const dialog_box_styles = (css_tag_r`
   *, *:before, *:after { box-sizing: border-box; }
 
   .dialog-box-overlay {
@@ -18381,11 +17815,9 @@ class DialogBox extends lit_element_s {
       }
     };
   }
-
   static get styles() {
     return [dialog_box_styles];
   }
-
   connectedCallback() {
     super.connectedCallback();
     document.addEventListener('keydown', e => {
@@ -18394,16 +17826,13 @@ class DialogBox extends lit_element_s {
       }
     });
   }
-
   attributeChangedCallback(name, oldVal, newVal) {
     if (oldVal !== newVal) {
       if (name === 'heading') {
         this.heading = newVal;
       }
-
       if (name === 'show') {
         this.show = newVal;
-
         if (newVal === 'true') {
           document.dispatchEvent(new CustomEvent('open', {
             bubbles: true,
@@ -18413,15 +17842,13 @@ class DialogBox extends lit_element_s {
         }
       }
     }
-
     super.attributeChangedCallback(name, oldVal, newVal);
   }
+
   /* eslint-disable indent */
-
-
   render() {
-    return y`
-    ${this.show === 'true' ? y`
+    return lit_html_$`
+    ${this.show === 'true' ? lit_html_$`
         <div class="dialog-box-overlay">
           <div class="dialog-box">
             <header class="dialog-box-header">
@@ -18436,29 +17863,26 @@ class DialogBox extends lit_element_s {
   }
   /* eslint-enable indent */
 
-
   onClose() {
     document.dispatchEvent(new CustomEvent('close', {
       bubbles: true,
       composed: true
     }));
   }
-
 }
 customElements.define('dialog-box', DialogBox);
 ;// CONCATENATED MODULE: ./src/templates/advance-search-template.js
 
 
-/* eslint-disable indent */
 
+/* eslint-disable indent */
 function searchByPropertiesModalTemplate() {
   var _this$advancedSearchM;
-
   document.addEventListener('close', () => {
     this.showAdvancedSearchDialog = false;
   });
   document.addEventListener('open', this.onOpenSearchDialog);
-  return y`
+  return lit_html_$`
     <dialog-box 
       heading="Search" 
       show="${!!this.showAdvancedSearchDialog}"
@@ -18496,7 +17920,7 @@ function searchByPropertiesModalTemplate() {
         </div>
       </span>
       
-      ${(_this$advancedSearchM = this.advancedSearchMatches) === null || _this$advancedSearchM === void 0 ? void 0 : _this$advancedSearchM.map(path => y`
+      ${(_this$advancedSearchM = this.advancedSearchMatches) === null || _this$advancedSearchM === void 0 ? void 0 : _this$advancedSearchM.map(path => lit_html_$`
       <div
         class="mono-font small-font-size hover-bg"
         style='padding: 5px; cursor: pointer; border-bottom: 1px solid var(--light-border-color); ${path.deprecated ? 'filter:opacity(0.5);' : ''}' 
@@ -18504,9 +17928,7 @@ function searchByPropertiesModalTemplate() {
         tabindex = '0'
         @click="${e => {
     this.matchPaths = ''; // clear quick filter if applied
-
     this.showAdvancedSearchDialog = false; // Hide Search Dialog
-
     this.requestUpdate();
     this.scrollToEventTarget(e, true);
   }}"
@@ -18526,33 +17948,27 @@ function searchByPropertiesModalTemplate() {
     inputReverseFg: '#fff',
     inputReverseBg: '#333',
     headerBg: '#444',
-
     getRgb(hex) {
       if (hex.indexOf('#') === 0) {
         hex = hex.slice(1, 7);
-      } // convert 3-digit hex to 6-digits.
-
-
+      }
+      // convert 3-digit hex to 6-digits.
       if (hex.length === 3 || hex.length === 4) {
         hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
       }
-
       if (hex.length !== 6) {
         throw new Error('Invalid HEX color.');
       }
-
       return {
         r: parseInt(hex.slice(0, 2), 16),
         g: parseInt(hex.slice(2, 4), 16),
         b: parseInt(hex.slice(4, 6), 16)
       };
     },
-
     luminanace(hexColorCode) {
       const rgb = this.getRgb(hexColorCode);
       return rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114;
     },
-
     invert(hexColorCode) {
       return this.luminanace(hexColorCode) > 135 ? '#000' : '#fff'; // compare with `>=128`, but giving little more preference to white over black
     },
@@ -18561,7 +17977,6 @@ function searchByPropertiesModalTemplate() {
       const rgb = this.getRgb(hex);
       return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity})`;
     },
-
     brightness(hex, amt) {
       const rgb = this.getRgb(hex);
       rgb.r += amt;
@@ -18572,13 +17987,11 @@ function searchByPropertiesModalTemplate() {
       if (rgb.b > 255) rgb.b = 255;else if (rgb.b < 0) rgb.b = 0;
       return `#${rgb.r.toString(16).padStart(2, '0')}${rgb.g.toString(16).padStart(2, '0')}${rgb.b.toString(16).padStart(2, '0')}`;
     },
-
     hasGoodContrast(hexColorCode1, hexColorCode2) {
       const lum1 = this.luminanace(hexColorCode1);
       const lum2 = this.luminanace(hexColorCode2);
       return lum1 - lum2;
     }
-
   }
 });
 function isValidHexColor(colorCode) {
@@ -18588,28 +18001,24 @@ function isValidHexColor(colorCode) {
 
 
 /* Generates an schema object containing type and constraint info */
-
 function setTheme(baseTheme, theme = {}) {
-  let newTheme = {}; // Common Theme colors
+  let newTheme = {};
 
+  // Common Theme colors
   const primaryColor = theme.primaryColor ? theme.primaryColor : baseTheme === 'dark' ? '#f76b39' : '#ff591e';
   const primaryColorInvert = color_utils.color.invert(primaryColor);
-  const primaryColorTrans = color_utils.color.opacity(primaryColor, '0.4'); // Dark and Light Theme colors
+  const primaryColorTrans = color_utils.color.opacity(primaryColor, '0.4');
 
+  // Dark and Light Theme colors
   if (baseTheme === 'dark') {
     const bg1 = theme.bg1 ? theme.bg1 : '#2a2b2c';
     const fg1 = theme.fg1 ? theme.fg1 : '#bbb';
     const bg2 = theme.bg2 ? theme.bg2 : color_utils.color.brightness(bg1, 5); // or #383838;
-
     const bg3 = theme.bg3 ? theme.bg3 : color_utils.color.brightness(bg1, 17); // or #444;
-
     const lightBg = theme.bg3 ? theme.bg3 : color_utils.color.brightness(bg1, 35);
     const fg2 = theme.fg2 ? theme.fg2 : color_utils.color.brightness(fg1, -15); // or #ababab
-
     const fg3 = theme.fg3 ? theme.fg3 : color_utils.color.brightness(fg1, -20); // or #aaa
-
     const lightFg = theme.fg3 ? theme.fg3 : color_utils.color.brightness(fg1, -65); // or #777
-
     const inlineCodeFg = theme.inlineCodeFg ? theme.inlineCodeFg : '#aaa';
     const selectionBg = '#bbb';
     const selectionFg = '#eee';
@@ -18657,23 +18066,29 @@ function setTheme(baseTheme, theme = {}) {
       placeHolder: theme.placeHolder || color_utils.color.opacity(fg1, '0.3'),
       hoverColor: theme.hoverColor || color_utils.color.brightness(bg1, -10),
       // #2a2a2a
+
       red: theme.red ? theme.red : '#F06560',
       lightRed: theme.lightRed ? theme.lightRed : color_utils.color.brightness(bg1, -10),
       // #2a2a2a
+
       pink: theme.pink ? theme.pink : '#ffb2b2',
       lightPink: theme.lightPink || color_utils.color.brightness(bg1, -10),
       green: theme.green || '#7ec699',
       lightGreen: theme.lightGreen || color_utils.color.brightness(bg1, -10),
       // #2a2a2a
+
       blue: theme.blue || '#71b7ff',
       lightBlue: theme.lightBlue || color_utils.color.brightness(bg1, -10),
       // #2a2a2a
+
       orange: theme.orange ? theme.orange : '#f08d49',
       lightOrange: theme.lightOrange || color_utils.color.brightness(bg1, -10),
       // #2a2a2a
+
       yellow: theme.yellow || '#827717',
       lightYellow: theme.lightYellow || color_utils.color.brightness(bg1, -10),
       // #2a2a2a
+
       purple: theme.purple || '#786FF1',
       brown: theme.brown || '#D4AC0D',
       codeBg: theme.codeBg || color_utils.color.opacity(color_utils.color.brightness(bg1, -15), 0.7),
@@ -18686,20 +18101,16 @@ function setTheme(baseTheme, theme = {}) {
     const bg1 = theme.bg1 ? theme.bg1 : '#fafbfc';
     const fg1 = theme.fg1 ? theme.fg1 : '#444444';
     const bg2 = theme.bg2 ? theme.bg2 : color_utils.color.brightness(bg1, -5); // or '#fafafa'
-
     const bg3 = theme.bg3 ? theme.bg3 : color_utils.color.brightness(bg1, -15); // or '#f6f6f6'
-
     const lightBg = theme.bg3 ? theme.bg3 : color_utils.color.brightness(bg1, -45);
     const fg2 = theme.fg2 ? theme.fg2 : color_utils.color.brightness(fg1, 17); // or '#555'
-
     const fg3 = theme.fg3 ? theme.fg3 : color_utils.color.brightness(fg1, 30); // or #666
-
     const lightFg = theme.fg3 ? theme.fg3 : color_utils.color.brightness(fg1, 70); // or #999
-
     const inlineCodeFg = theme.inlineCodeFg ? theme.inlineCodeFg : 'brown';
     const selectionBg = '#444';
     const selectionFg = '#eee';
     const headerColor = theme.headerColor ? theme.headerColor : color_utils.color.brightness(bg1, -180);
+
     /*
     const navBgColor = theme.navBgColor ? theme.navBgColor : ColorUtils.color.brightness(bg1, -10);
     const navTextColor = theme.navTextColor ? theme.navTextColor : ColorUtils.color.brightness(fg1, 5);
@@ -18707,7 +18118,6 @@ function setTheme(baseTheme, theme = {}) {
     const navHoverTextColor = theme.navHoverTextColor ? theme.navHoverTextColor : primaryColor;
     const navAccentColor = theme.navAccentColor ? theme.navAccentColor : primaryColor;
     */
-
     const navBgColor = theme.navBgColor ? theme.navBgColor : color_utils.color.brightness(bg1, -200);
     const navTextColor = theme.navTextColor ? theme.navTextColor : color_utils.color.opacity(color_utils.color.invert(navBgColor), '0.65');
     const navHoverBgColor = theme.navHoverBgColor ? theme.navHoverBgColor : color_utils.color.brightness(navBgColor, -15);
@@ -18750,6 +18160,7 @@ function setTheme(baseTheme, theme = {}) {
       // #dedede
       hoverColor: theme.hoverColor || color_utils.color.brightness(bg1, -5),
       // # f1f1f1
+
       red: theme.red || '#F06560',
       lightRed: theme.lightRed || '#fff0f0',
       pink: theme.pink ? theme.pink : '#990055',
@@ -18771,8 +18182,7 @@ function setTheme(baseTheme, theme = {}) {
       codeOperatorColor: theme.codeOperatorColor || '#9a6e3a'
     };
   }
-
-  return y`
+  return lit_html_$`
   <style>
   *, *:before, *:after { box-sizing: border-box; }
   
@@ -18866,8 +18276,9 @@ function setTheme(baseTheme, theme = {}) {
   </style>`;
 }
 ;// CONCATENATED MODULE: ./src/templates/main-body-template.js
- // Templates
 
+
+// Templates
 
 
 
@@ -18883,11 +18294,9 @@ function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = 
   if (!this.resolvedSpec) {
     return '';
   }
-
   if (this.persistAuth === 'true') {
     recoverPersistedApiKeys.call(this);
   }
-
   const newTheme = {
     bg1: isValidHexColor(this.bgColor) ? this.bgColor : '',
     fg1: isValidHexColor(this.textColor) ? this.textColor : '',
@@ -18901,16 +18310,14 @@ function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = 
     navAccentTextColor: isValidHexColor(this.navAccentTextColor) ? this.navAccentTextColor : ''
   };
   /* eslint-disable indent */
-
   if (this.resolvedSpec.specLoadError) {
     if (isMini) {
-      return y`
+      return lit_html_$`
         ${this.theme === 'dark' ? setTheme.call(this, 'dark', newTheme) : setTheme.call(this, 'light', newTheme)}
         <div style='display:flex; align-items:center; border:1px dashed var(--border-color); height:42px; padding:5px; font-size:var(--font-size-small); color:var(--red); font-family:var(--font-mono)'> ${this.resolvedSpec.info.description} </div>
       `;
     }
-
-    return y`
+    return lit_html_$`
       ${this.theme === 'dark' ? setTheme.call(this, 'dark', newTheme) : setTheme.call(this, 'light', newTheme)}
       <!-- Header -->
       ${headerTemplate.call(this)}
@@ -18923,9 +18330,8 @@ function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = 
       </main>  
     `;
   }
-
   if (this.resolvedSpec.isSpecLoading) {
-    return y`
+    return lit_html_$`
       ${this.theme === 'dark' ? setTheme.call(this, 'dark', newTheme) : setTheme.call(this, 'light', newTheme)}
       <main class='main-content regular-font' part='section-main-content'>
         <slot></slot>
@@ -18935,8 +18341,7 @@ function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = 
       </main>
     `;
   }
-
-  return y`
+  return lit_html_$`
     ${this.theme === 'dark' ? setTheme.call(this, 'dark', newTheme) : setTheme.call(this, 'light', newTheme)}
 
     <!-- Header -->
@@ -18953,12 +18358,12 @@ function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = 
       <main class='main-content regular-font' tabindex='-1' part='section-main-content'>
         <slot></slot>
         <div class='main-content-inner--${this.renderStyle}-mode'>
-          ${this.loading === true ? y`<div class='loader'></div>` : y`
-              ${this.loadFailed === true ? y`<div style='text-align: center;margin: 16px;'> Unable to load the Spec</div>` : y`
+          ${this.loading === true ? lit_html_$`<div class='loader'></div>` : lit_html_$`
+              ${this.loadFailed === true ? lit_html_$`<div style='text-align: center;margin: 16px;'> Unable to load the Spec</div>` : lit_html_$`
                   <div class='operations-root' @click='${e => {
     this.handleHref(e);
   }}'>
-                  ${this.renderStyle === 'focused' ? y`${focusedEndpointTemplate.call(this)}` : y`
+                  ${this.renderStyle === 'focused' ? lit_html_$`${focusedEndpointTemplate.call(this)}` : lit_html_$`
                       ${this.showInfo === 'true' ? overviewTemplate.call(this) : ''}
                       ${this.allowServerSelection === 'true' ? serverTemplate.call(this) : ''}
                       ${this.allowAuthentication === 'true' ? securitySchemeTemplate.call(this) : ''}
@@ -18988,7 +18393,9 @@ function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = 
 
 
 
- // Styles
+
+
+// Styles
 
 
 
@@ -18999,8 +18406,7 @@ function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = 
 
 
 
- // import { expandCollapseNavBarTag } from '@/templates/navbar-template';
-
+// import { expandCollapseNavBarTag } from '@/templates/navbar-template';
 
 
 
@@ -19021,7 +18427,6 @@ class RapiDoc extends lit_element_s {
       this.onIntersect(entries);
     }, intersectionObserverOptions);
   }
-
   static get properties() {
     return {
       // Heading
@@ -19313,9 +18718,8 @@ class RapiDoc extends lit_element_s {
       }
     };
   }
-
   static get styles() {
-    return [font_styles, input_styles, flex_styles, table_styles, endpoint_styles, prism_styles, tab_styles, nav_styles, info_styles, i`
+    return [font_styles, input_styles, flex_styles, table_styles, endpoint_styles, prism_styles, tab_styles, nav_styles, info_styles, css_tag_r`
       :host {
         display:flex;
         flex-direction: column;
@@ -19564,7 +18968,7 @@ class RapiDoc extends lit_element_s {
 
       @media only screen and (min-width: 1024px) {
         .nav-bar {
-          width: ${r(this.fontSize === 'default' ? '300px' : this.fontSize === 'large' ? '315px' : '330px')};
+          width: ${css_tag_o(this.fontSize === 'default' ? '300px' : this.fontSize === 'large' ? '315px' : '330px')};
           display:flex;
         }
         .section-gap--focused-mode { 
@@ -19574,41 +18978,34 @@ class RapiDoc extends lit_element_s {
           padding: 24px 80px 12px 80px; 
         }
       }`, custom_styles];
-  } // Startup
+  }
 
-
+  // Startup
   connectedCallback() {
     super.connectedCallback();
     const parent = this.parentElement;
-
     if (parent) {
       if (parent.offsetWidth === 0 && parent.style.width === '') {
         parent.style.width = '100vw';
       }
-
       if (parent.offsetHeight === 0 && parent.style.height === '') {
         parent.style.height = '100vh';
       }
-
       if (parent.tagName === 'BODY') {
         if (!parent.style.marginTop) {
           parent.style.marginTop = '0';
         }
-
         if (!parent.style.marginRight) {
           parent.style.marginRight = '0';
         }
-
         if (!parent.style.marginBottom) {
           parent.style.marginBottom = '0';
         }
-
         if (!parent.style.marginLeft) {
           parent.style.marginLeft = '0';
         }
       }
     }
-
     if (this.loadFonts !== 'false') {
       const fontDescriptor = {
         family: 'Open Sans',
@@ -19626,183 +19023,139 @@ class RapiDoc extends lit_element_s {
         document.fonts.add(font);
       });
     }
-
     if (!this.layout || !'row, column,'.includes(`${this.layout},`)) {
       this.layout = 'row';
     }
-
     if (!this.renderStyle || !'read, view, focused,'.includes(`${this.renderStyle},`)) {
       this.renderStyle = 'focused';
     }
-
     if (!this.schemaStyle || !'tree, table,'.includes(`${this.schemaStyle},`)) {
       this.schemaStyle = 'tree';
     }
-
     if (!this.theme || !'light, dark,'.includes(`${this.theme},`)) {
       this.theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
     }
-
     if (!this.defaultSchemaTab || !'example, schema, model,'.includes(`${this.defaultSchemaTab},`)) {
       this.defaultSchemaTab = 'example';
     } else if (this.defaultSchemaTab === 'model') {
       this.defaultSchemaTab = 'schema';
     }
-
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) {
       this.schemaExpandLevel = 99999;
     }
-
     if (!this.schemaDescriptionExpanded || !'true, false,'.includes(`${this.schemaDescriptionExpanded},`)) {
       this.schemaDescriptionExpanded = 'false';
     }
-
     if (!this.schemaHideReadOnly || !'default, never,'.includes(`${this.schemaHideReadOnly},`)) {
       this.schemaHideReadOnly = 'default';
     }
-
     if (!this.schemaHideWriteOnly || !'default, never,'.includes(`${this.schemaHideWriteOnly},`)) {
       this.schemaHideWriteOnly = 'default';
     }
-
     if (!this.fillRequestFieldsWithExample || !'true, false,'.includes(`${this.fillRequestFieldsWithExample},`)) {
       this.fillRequestFieldsWithExample = 'true';
     }
-
     if (!this.persistAuth || !'true, false,'.includes(`${this.persistAuth},`)) {
       this.persistAuth = 'false';
     }
-
     if (!this.responseAreaHeight) {
       this.responseAreaHeight = '400px';
     }
-
     if (!this.allowSearch || !'true, false,'.includes(`${this.allowSearch},`)) {
       this.allowSearch = 'true';
     }
-
     if (!this.allowAdvancedSearch || !'true, false,'.includes(`${this.allowAdvancedSearch},`)) {
       this.allowAdvancedSearch = 'true';
     }
-
     if (!this.allowTry || !'true, false,'.includes(`${this.allowTry},`)) {
       this.allowTry = 'true';
     }
-
     if (!this.apiKeyValue) {
       this.apiKeyValue = '-';
     }
-
     if (!this.apiKeyLocation) {
       this.apiKeyLocation = 'header';
     }
-
     if (!this.apiKeyName) {
       this.apiKeyName = '';
     }
-
     if (!this.oauthReceiver) {
       this.oauthReceiver = 'oauth-receiver.html';
     }
-
     if (!this.updateRoute || !'true, false,'.includes(`${this.updateRoute},`)) {
       this.updateRoute = 'true';
     }
-
     if (!this.routePrefix) {
       this.routePrefix = '#';
     }
-
     if (!this.sortTags || !'true, false,'.includes(`${this.sortTags},`)) {
       this.sortTags = 'false';
     }
-
     if (!this.generateMissingTags || !'true, false,'.includes(`${this.generateMissingTags},`)) {
       this.generateMissingTags = 'false';
     }
-
     if (!this.sortEndpointsBy || !'method, path, summary, none,'.includes(`${this.sortEndpointsBy},`)) {
       this.sortEndpointsBy = 'path';
     }
-
     if (!this.onNavTagClick || !'expand-collapse, show-description,'.includes(`${this.onNavTagClick},`)) {
       this.onNavTagClick = 'expand-collapse';
     }
-
     if (!this.navItemSpacing || !'compact, relaxed, default,'.includes(`${this.navItemSpacing},`)) {
       this.navItemSpacing = 'default';
     }
-
     if (!this.showMethodInNavBar || !'false, as-plain-text, as-colored-text, as-colored-block,'.includes(`${this.showMethodInNavBar},`)) {
       this.showMethodInNavBar = 'false';
     }
-
     if (!this.usePathInNavBar || !'true, false,'.includes(`${this.usePathInNavBar},`)) {
       this.usePathInNavBar = 'false';
     }
-
     if (!this.navActiveItemMarker || !'left-bar, colored-block'.includes(`${this.navActiveItemMarker},`)) {
       this.navActiveItemMarker = 'left-bar';
     }
-
     if (!this.fontSize || !'default, large, largest,'.includes(`${this.fontSize},`)) {
       this.fontSize = 'default';
     }
-
     if (!this.showInfo || !'true, false,'.includes(`${this.showInfo},`)) {
       this.showInfo = 'true';
     }
-
     if (!this.allowServerSelection || !'true, false,'.includes(`${this.allowServerSelection},`)) {
       this.allowServerSelection = 'true';
     }
-
     if (!this.allowAuthentication || !'true, false,'.includes(`${this.allowAuthentication},`)) {
       this.allowAuthentication = 'true';
     }
-
     if (!this.allowSchemaDescriptionExpandToggle || !'true, false,'.includes(`${this.allowSchemaDescriptionExpandToggle},`)) {
       this.allowSchemaDescriptionExpandToggle = 'true';
     }
-
     if (!this.showSideNav || !'true false'.includes(this.showSideNav)) {
       this.showSideNav = 'true';
     }
-
     if (!this.showComponents || !'true false'.includes(this.showComponents)) {
       this.showComponents = 'false';
     }
-
     if (!this.infoDescriptionHeadingsInNavBar || !'true, false,'.includes(`${this.infoDescriptionHeadingsInNavBar},`)) {
       this.infoDescriptionHeadingsInNavBar = 'false';
     }
-
     if (!this.fetchCredentials || !'omit, same-origin, include,'.includes(`${this.fetchCredentials},`)) {
       this.fetchCredentials = '';
     }
-
     if (!this.matchType || !'includes regex'.includes(this.matchType)) {
       this.matchType = 'includes';
     }
-
     if (!this.showAdvancedSearchDialog) {
       this.showAdvancedSearchDialog = false;
     }
-
     if (!this.cssFile) {
       this.cssFile = null;
     }
-
     if (!this.cssClasses) {
       this.cssClasses = '';
     }
-
     marked.setOptions({
       highlight: (code, lang) => {
         if ((prism_default()).languages[lang]) {
           return prism_default().highlight(code, (prism_default()).languages[lang], lang);
         }
-
         return code;
       }
     });
@@ -19811,36 +19164,29 @@ class RapiDoc extends lit_element_s {
       const elementId = window.location.hash.replace(regEx, '');
       this.scrollToPath(elementId);
     }, true);
-  } // Cleanup
+  }
 
-
+  // Cleanup
   disconnectedCallback() {
     if (this.intersectionObserver) {
       this.intersectionObserver.disconnect();
     }
-
     super.disconnectedCallback();
   }
-
   infoDescriptionHeadingRenderer() {
     const renderer = new marked.Renderer();
-
     renderer.heading = (text, level, raw, slugger) => `<h${level} class="observe-me" id="${slugger.slug(raw)}">${text}</h${level}>`;
-
     return renderer;
   }
-
   render() {
     // return render(mainBodyTemplate(this), this.shadowRoot, { eventContext: this });
-    const cssLinkEl = document.querySelector(`link[href*="${this.cssFile}"]`); // adding custom style for RapiDoc
-
+    const cssLinkEl = document.querySelector(`link[href*="${this.cssFile}"]`);
+    // adding custom style for RapiDoc
     if (cssLinkEl) {
       this.shadowRoot.appendChild(cssLinkEl.cloneNode());
     }
-
     return mainBodyTemplate.call(this);
   }
-
   observeExpandedContent() {
     // Main Container
     const observeOverviewEls = this.shadowRoot.querySelectorAll('.observe-me');
@@ -19848,21 +19194,19 @@ class RapiDoc extends lit_element_s {
       this.intersectionObserver.observe(targetEl);
     });
   }
-
   attributeChangedCallback(name, oldVal, newVal) {
     if (name === 'spec-url') {
       if (oldVal !== newVal) {
         // put it at the end of event-loop to load all the attributes
         window.setTimeout(async () => {
-          await this.loadSpec(newVal); // If goto-path is provided and no location-hash is present then try to scroll there
-
+          await this.loadSpec(newVal);
+          // If goto-path is provided and no location-hash is present then try to scroll there
           if (this.gotoPath && !window.location.hash) {
             this.scrollToPath(this.gotoPath);
           }
         }, 0);
       }
     }
-
     if (name === 'render-style') {
       if (newVal === 'read') {
         window.setTimeout(() => {
@@ -19872,13 +19216,11 @@ class RapiDoc extends lit_element_s {
         this.intersectionObserver.disconnect();
       }
     }
-
     if (name === 'api-key-name' || name === 'api-key-location' || name === 'api-key-value') {
       let updateSelectedApiKey = false;
       let apiKeyName = '';
       let apiKeyLocation = '';
       let apiKeyValue = '';
-
       if (name === 'api-key-name') {
         if (this.getAttribute('api-key-location') && this.getAttribute('api-key-value')) {
           apiKeyName = newVal;
@@ -19901,11 +19243,9 @@ class RapiDoc extends lit_element_s {
           updateSelectedApiKey = true;
         }
       }
-
       if (updateSelectedApiKey) {
         if (this.resolvedSpec) {
           const rapiDocApiKey = this.resolvedSpec.securitySchemes.find(v => v.securitySchemeId === rapidocApiKey);
-
           if (!rapiDocApiKey) {
             this.resolvedSpec.securitySchemes.push({
               securitySchemeId: rapidocApiKey,
@@ -19922,24 +19262,19 @@ class RapiDoc extends lit_element_s {
             rapiDocApiKey.value = apiKeyValue;
             rapiDocApiKey.finalKeyValue = apiKeyValue;
           }
-
           this.requestUpdate();
         }
       }
     }
-
     super.attributeChangedCallback(name, oldVal, newVal);
   }
-
   onSepcUrlChange() {
     this.setAttribute('spec-url', this.shadowRoot.getElementById('spec-url').value);
   }
-
   onSepcFileChange(e) {
     this.setAttribute('spec-file', this.shadowRoot.getElementById('spec-file').value);
     const specFile = e.target.files[0];
     const reader = new FileReader();
-
     reader.onload = () => {
       try {
         const specObj = JSON.parse(reader.result);
@@ -19948,16 +19283,13 @@ class RapiDoc extends lit_element_s {
       } catch (err) {
         console.error('RapiDoc: Unable to read or parse json'); // eslint-disable-line no-console
       }
-    }; // Read the Text file
-
-
+    };
+    // Read the Text file
     reader.readAsText(specFile);
   }
-
   onFileLoadClick() {
     this.shadowRoot.getElementById('spec-file').click();
   }
-
   onSearchChange(e) {
     this.matchPaths = e.target.value;
     this.resolvedSpec.tags.forEach(tag => tag.paths.filter(v => {
@@ -19970,14 +19302,12 @@ class RapiDoc extends lit_element_s {
     }));
     this.resolvedSpec.components.forEach(component => component.subComponents.filter(v => {
       v.expanded = false;
-
       if (!this.matchPaths || componentIsInSearch(this.matchPaths, v)) {
         v.expanded = true;
       }
     }));
     this.requestUpdate();
   }
-
   onClearSearch() {
     const searchEl = this.shadowRoot.getElementById('nav-bar-search');
     searchEl.value = '';
@@ -19986,30 +19316,26 @@ class RapiDoc extends lit_element_s {
       v.expanded = true;
     }));
   }
-
   onShowSearchModalClicked() {
     this.showAdvancedSearchDialog = true;
-  } // Event Handler on Dialog-Box is opened
+  }
 
-
+  // Event Handler on Dialog-Box is opened
   async onOpenSearchDialog(e) {
     // Set focus to text input
     const inputEl = e.detail.querySelector('input');
     await sleep(0);
-
     if (inputEl) {
       inputEl.focus();
     }
-  } // Public Method
+  }
 
-
+  // Public Method
   async loadSpec(specUrl) {
     if (!specUrl) {
       return;
     }
-
     this.matchPaths = '';
-
     try {
       this.resolvedSpec = {
         specLoadError: false,
@@ -20031,10 +19357,8 @@ class RapiDoc extends lit_element_s {
 
   async afterSpecParsedAndValidated(spec) {
     var _window$location$hash;
-
     this.resolvedSpec = spec;
     this.selectedServer = undefined;
-
     if (this.defaultApiServerUrl) {
       if (this.defaultApiServerUrl === this.serverUrl) {
         this.selectedServer = {
@@ -20045,36 +19369,32 @@ class RapiDoc extends lit_element_s {
         this.selectedServer = this.resolvedSpec.servers.find(v => v.url === this.defaultApiServerUrl);
       }
     }
-
     if (!this.selectedServer) {
       if (this.resolvedSpec.servers) {
         this.selectedServer = this.resolvedSpec.servers[0]; // eslint-disable-line prefer-destructuring
       }
     }
 
-    this.requestUpdate(); // eslint-disable-next-line no-await-in-loop
-
+    this.requestUpdate();
+    // eslint-disable-next-line no-await-in-loop
     while (!(await this.updateComplete));
-
     const specLoadedEvent = new CustomEvent('spec-loaded', {
       detail: spec
     });
-    this.dispatchEvent(specLoadedEvent); // Initiate IntersectionObserver and put it at the end of event loop, to allow loading all the child elements (must for larger specs)
+    this.dispatchEvent(specLoadedEvent);
 
+    // Initiate IntersectionObserver and put it at the end of event loop, to allow loading all the child elements (must for larger specs)
     this.intersectionObserver.disconnect();
-
     if (this.renderStyle === 'read') {
       await sleep(100);
       this.observeExpandedContent(); // This will auto-highlight the selected nav-item in read-mode
-    } // On first time Spec load, try to navigate to location hash if provided
+    }
 
-
+    // On first time Spec load, try to navigate to location hash if provided
     const locationHash = (_window$location$hash = window.location.hash) === null || _window$location$hash === void 0 ? void 0 : _window$location$hash.substring(1);
-
     if (locationHash) {
       const regEx = new RegExp(`^${this.routePrefix}`, 'i');
       const elementId = window.location.hash.replace(regEx, '');
-
       if (this.renderStyle === 'view') {
         this.expandAndGotoOperation(elementId, true, true);
       } else {
@@ -20084,31 +19404,25 @@ class RapiDoc extends lit_element_s {
       // If goto-path is provided and no location-hash is present then try to scroll to default element
       if (!this.gotoPath) {
         var _this$resolvedSpec$ta;
-
         const defaultElementId = this.showInfo ? 'overview' : (_this$resolvedSpec$ta = this.resolvedSpec.tags[0]) === null || _this$resolvedSpec$ta === void 0 ? void 0 : _this$resolvedSpec$ta.paths[0];
         this.scrollToPath(defaultElementId);
       }
     }
   }
-
   expandAndGotoOperation(elementId, scrollToElement = true) {
     if (!this.resolvedSpec) {
       return;
-    } // Expand full operation and tag
-
-
+    }
+    // Expand full operation and tag
     let isExpandingNeeded = true;
     const tmpElementId = elementId.indexOf('#') === -1 ? elementId : elementId.substring(1);
-
     if (tmpElementId.startsWith('overview') || tmpElementId === 'servers' || tmpElementId === 'auth') {
       isExpandingNeeded = false;
     } else {
       for (let i = 0; i < ((_this$resolvedSpec$ta2 = this.resolvedSpec.tags) === null || _this$resolvedSpec$ta2 === void 0 ? void 0 : _this$resolvedSpec$ta2.length); i++) {
         var _this$resolvedSpec$ta2, _tag$paths;
-
         const tag = this.resolvedSpec.tags[i];
         const path = (_tag$paths = tag.paths) === null || _tag$paths === void 0 ? void 0 : _tag$paths.find(p => p.elementId === elementId);
-
         if (path) {
           if (path.expanded && tag.expanded) {
             isExpandingNeeded = false;
@@ -20119,22 +19433,18 @@ class RapiDoc extends lit_element_s {
         }
       }
     }
-
     if (scrollToElement) {
       // requestUpdate() and delay required, else we cant find element
       if (isExpandingNeeded) {
         this.requestUpdate();
       }
-
       window.setTimeout(() => {
         const gotoEl = this.shadowRoot.getElementById(tmpElementId);
-
         if (gotoEl) {
           gotoEl.scrollIntoView({
             behavior: 'auto',
             block: 'start'
           });
-
           if (this.updateRoute === 'true') {
             window.history.replaceState(null, null, `${this.routePrefix || '#'}${tmpElementId}`);
           }
@@ -20142,73 +19452,61 @@ class RapiDoc extends lit_element_s {
       }, isExpandingNeeded ? 150 : 0);
     }
   }
-
   isValidTopId(id) {
     return id.startsWith('overview') || id === 'servers' || id === 'auth';
   }
-
   isValidPathId(id) {
     var _this$resolvedSpec2, _this$resolvedSpec2$t;
-
     if (id === 'overview' && this.showInfo) {
       return true;
     }
-
     if (id === 'servers' && this.allowServerSelection) {
       return true;
     }
-
     if (id === 'auth' && this.allowAuthentication) {
       return true;
     }
-
     if (id.startsWith('tag--')) {
       var _this$resolvedSpec, _this$resolvedSpec$ta3;
-
       return (_this$resolvedSpec = this.resolvedSpec) === null || _this$resolvedSpec === void 0 ? void 0 : (_this$resolvedSpec$ta3 = _this$resolvedSpec.tags) === null || _this$resolvedSpec$ta3 === void 0 ? void 0 : _this$resolvedSpec$ta3.find(tag => tag.elementId === id);
     }
-
     return (_this$resolvedSpec2 = this.resolvedSpec) === null || _this$resolvedSpec2 === void 0 ? void 0 : (_this$resolvedSpec2$t = _this$resolvedSpec2.tags) === null || _this$resolvedSpec2$t === void 0 ? void 0 : _this$resolvedSpec2$t.find(tag => tag.paths.find(path => path.elementId === id));
   }
-
   onIntersect(entries) {
     if (this.isIntersectionObserverActive === false) {
       return;
     }
-
     entries.forEach(entry => {
       if (entry.isIntersecting && entry.intersectionRatio > 0) {
         const oldNavEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active, .operations.active');
-        const newNavEl = this.shadowRoot.getElementById(`link-${entry.target.id}`); // Add active class in the new element
+        const newNavEl = this.shadowRoot.getElementById(`link-${entry.target.id}`);
 
+        // Add active class in the new element
         if (newNavEl) {
           if (this.updateRoute === 'true') {
             window.history.replaceState(null, null, `${window.location.href.split('#')[0]}${this.routePrefix || '#'}${entry.target.id}`);
           }
-
           newNavEl.scrollIntoView({
             behavior: 'auto',
             block: 'center'
           });
           newNavEl.classList.add('active');
           newNavEl.part.add('section-navbar-active-item');
-        } // Remove active class from previous element
-
-
+        }
+        // Remove active class from previous element
         if (oldNavEl) {
           oldNavEl.classList.remove('active');
           oldNavEl.part.remove('section-navbar-active-item');
         }
       }
     });
-  } // Called by anchor tags created using markdown
+  }
 
-
+  // Called by anchor tags created using markdown
   handleHref(e) {
     if (e.target.tagName.toLowerCase() === 'a') {
       if (e.target.getAttribute('href').startsWith('#')) {
         const gotoEl = this.shadowRoot.getElementById(e.target.getAttribute('href').replace('#', ''));
-
         if (gotoEl) {
           gotoEl.scrollIntoView({
             behavior: 'auto',
@@ -20218,6 +19516,7 @@ class RapiDoc extends lit_element_s {
       }
     }
   }
+
   /**
    * Called by
    *  - onClick of Navigation Bar
@@ -20229,36 +19528,28 @@ class RapiDoc extends lit_element_s {
    *  3. Activate IntersectionObserver (after little delay)
    *
   */
-
-
   async scrollToEventTarget(event, scrollNavItemToView = true) {
     if (!(event.type === 'click' || event.type === 'keyup' && event.keyCode === 13)) {
       return;
     }
-
     const navEl = event.target;
-
     if (!navEl.dataset.contentId) {
       return;
     }
-
     this.isIntersectionObserverActive = false;
-
     if (this.renderStyle === 'focused') {
       const requestEl = this.shadowRoot.querySelector('api-request');
-
       if (requestEl) {
         requestEl.beforerNavigationFocusedMode();
       }
     }
-
     this.scrollToPath(navEl.dataset.contentId, true, scrollNavItemToView);
     setTimeout(() => {
       this.isIntersectionObserverActive = true;
     }, 300);
-  } // Public Method (scrolls to a given path and highlights the left-nav selection)
+  }
 
-
+  // Public Method (scrolls to a given path and highlights the left-nav selection)
   async scrollToPath(elementId, expandPath = true, scrollNavItemToView = true) {
     if (this.renderStyle === 'focused') {
       // for focused mode update this.focusedElementId to update the rendering, else it wont find the needed html elements
@@ -20266,13 +19557,11 @@ class RapiDoc extends lit_element_s {
       this.focusedElementId = elementId;
       await sleep(0);
     }
-
     if (this.renderStyle === 'view') {
       this.expandAndGotoOperation(elementId, expandPath, true);
     } else {
       let isValidElementId = false;
       const contentEl = this.shadowRoot.getElementById(elementId);
-
       if (contentEl) {
         isValidElementId = true;
         contentEl.scrollIntoView({
@@ -20282,31 +19571,26 @@ class RapiDoc extends lit_element_s {
       } else {
         isValidElementId = false;
       }
-
       if (isValidElementId) {
         // for focused style it is important to reset request-body-selection and response selection which maintains the state for in case of multiple req-body or multiple response mime-type
         if (this.renderStyle === 'focused') {
           const requestEl = this.shadowRoot.querySelector('api-request');
-
           if (requestEl) {
             requestEl.afterNavigationFocusedMode();
           }
-
           const responseEl = this.shadowRoot.querySelector('api-response');
-
           if (responseEl) {
             responseEl.resetSelection();
           }
-        } // Update Location Hash
+        }
 
-
+        // Update Location Hash
         if (this.updateRoute === 'true') {
           window.history.replaceState(null, null, `${this.routePrefix || '#'}${elementId}`);
-        } // Update NavBar View and Styles
+        }
 
-
+        // Update NavBar View and Styles
         const newNavEl = this.shadowRoot.getElementById(`link-${elementId}`);
-
         if (newNavEl) {
           if (scrollNavItemToView) {
             newNavEl.scrollIntoView({
@@ -20314,63 +19598,57 @@ class RapiDoc extends lit_element_s {
               block: 'center'
             });
           }
-
           await sleep(0);
           const oldNavEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active, .operations.active');
-
           if (oldNavEl) {
             oldNavEl.classList.remove('active');
             oldNavEl.part.remove('active');
             oldNavEl.part.remove('section-navbar-active-item');
           }
-
           newNavEl.classList.add('active'); // must add the class after scrolling
-
-          newNavEl.part.add('section-navbar-active-item'); // this.requestUpdate();
+          newNavEl.part.add('section-navbar-active-item');
+          // this.requestUpdate();
         }
       }
     }
-  } // Public Method - to update security-scheme of type http
+  }
 
-
+  // Public Method - to update security-scheme of type http
   setHttpUserNameAndPassword(securitySchemeId, username, password) {
     return applyApiKey.call(this, securitySchemeId, username, password);
-  } // Public Method - to update security-scheme of type apiKey or OAuth
+  }
 
-
+  // Public Method - to update security-scheme of type apiKey or OAuth
   setApiKey(securitySchemeId, apiKeyValue) {
     return applyApiKey.call(this, securitySchemeId, '', '', apiKeyValue);
-  } // Public Method
+  }
 
-
+  // Public Method
   removeAllSecurityKeys() {
     return onClearAllApiKeys.call(this);
-  } // Public Method
+  }
 
-
+  // Public Method
   setApiServer(apiServerUrl) {
     // return apiServerUrl;
     return setApiServer.call(this, apiServerUrl);
-  } // Event handler for Advanced Search text-inputs and checkboxes
+  }
 
-
+  // Event handler for Advanced Search text-inputs and checkboxes
   onAdvancedSearch(ev, delay) {
     const eventTargetEl = ev.target;
     clearTimeout(this.timeoutId);
     this.timeoutId = setTimeout(() => {
       let searchInputEl;
-
       if (eventTargetEl.type === 'text') {
         searchInputEl = eventTargetEl;
       } else {
         searchInputEl = eventTargetEl.closest('.advanced-search-options').querySelector('input[type=text]');
       }
-
       const searcOptions = [...eventTargetEl.closest('.advanced-search-options').querySelectorAll('input:checked')].map(v => v.id);
       this.advancedSearchMatches = advancedSearch(searchInputEl.value, this.resolvedSpec.tags, searcOptions);
     }, delay);
   }
-
 }
 customElements.define('rapi-doc', RapiDoc);
 ;// CONCATENATED MODULE: ./src/rapidoc-mini.js
@@ -20385,8 +19663,9 @@ customElements.define('rapi-doc', RapiDoc);
 
 
 
- // Styles
 
+
+// Styles
 
 
 
@@ -20410,7 +19689,6 @@ class RapiDocMini extends lit_element_s {
     this.showHeader = 'false';
     this.allowAdvancedSearch = 'false';
   }
-
   static get properties() {
     return {
       // Spec
@@ -20542,12 +19820,11 @@ class RapiDocMini extends lit_element_s {
       loading: {
         type: Boolean
       } // indicates spec is being loaded
-
     };
   }
 
   static get styles() {
-    return [font_styles, input_styles, flex_styles, table_styles, endpoint_styles, prism_styles, tab_styles, nav_styles, info_styles, i`
+    return [font_styles, input_styles, flex_styles, table_styles, endpoint_styles, prism_styles, tab_styles, nav_styles, info_styles, css_tag_r`
       :host {
         display:flex;
         flex-direction: column;
@@ -20571,12 +19848,11 @@ class RapiDocMini extends lit_element_s {
           display:flex;
         }
       }`];
-  } // Startup
+  }
 
-
+  // Startup
   connectedCallback() {
     super.connectedCallback();
-
     if (this.loadFonts !== 'false') {
       const fontDescriptor = {
         family: 'Open Sans',
@@ -20594,110 +19870,84 @@ class RapiDocMini extends lit_element_s {
         document.fonts.add(font);
       });
     }
-
     if (!this.showSummaryWhenCollapsed || !'true, false,'.includes(`${this.showSummaryWhenCollapsed},`)) {
       this.showSummaryWhenCollapsed = 'true';
     }
-
     if (!this.layout || !'row, column,'.includes(`${this.layout},`)) {
       this.layout = 'row';
     }
-
     if (!this.schemaStyle || !'tree, table,'.includes(`${this.schemaStyle},`)) {
       this.schemaStyle = 'tree';
     }
-
     if (!this.theme || !'light, dark,'.includes(`${this.theme},`)) {
       this.theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
     }
-
     if (!this.defaultSchemaTab || !'example, schema, model,'.includes(`${this.defaultSchemaTab},`)) {
       this.defaultSchemaTab = 'example';
     } else if (this.defaultSchemaTab === 'model') {
       this.defaultSchemaTab = 'schema';
     }
-
     this.pathsExpanded = this.pathsExpanded === 'true';
-
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) {
       this.schemaExpandLevel = 99999;
     }
-
     if (!this.schemaDescriptionExpanded || !'true, false,'.includes(`${this.schemaDescriptionExpanded},`)) {
       this.schemaDescriptionExpanded = 'false';
     }
-
     if (!this.fillRequestFieldsWithExample || !'true, false,'.includes(`${this.fillRequestFieldsWithExample},`)) {
       this.fillRequestFieldsWithExample = 'true';
     }
-
     if (!this.persistAuth || !'true, false,'.includes(`${this.persistAuth},`)) {
       this.persistAuth = 'false';
     }
-
     if (!this.responseAreaHeight) {
       this.responseAreaHeight = '300px';
     }
-
     if (!this.allowTry || !'true, false,'.includes(`${this.allowTry},`)) {
       this.allowTry = 'true';
     }
-
     if (!this.apiKeyValue) {
       this.apiKeyValue = '-';
     }
-
     if (!this.apiKeyLocation) {
       this.apiKeyLocation = 'header';
     }
-
     if (!this.apiKeyName) {
       this.apiKeyName = '';
     }
-
     if (!this.oauthReceiver) {
       this.oauthReceiver = 'oauth-receiver.html';
     }
-
     if (!this.sortTags || !'true, false,'.includes(`${this.sortTags},`)) {
       this.sortTags = 'false';
     }
-
     if (!this.sortEndpointsBy || !'method, path, summary,'.includes(`${this.sortEndpointsBy},`)) {
       this.sortEndpointsBy = 'path';
     }
-
     if (!this.fontSize || !'default, large, largest,'.includes(`${this.fontSize},`)) {
       this.fontSize = 'default';
     }
-
     if (!this.matchType || !'includes regex'.includes(this.matchType)) {
       this.matchType = 'includes';
     }
-
     if (!this.allowSchemaDescriptionExpandToggle || !'true, false,'.includes(`${this.allowSchemaDescriptionExpandToggle},`)) {
       this.allowSchemaDescriptionExpandToggle = 'true';
     }
-
     if (!this.fetchCredentials || !'omit, same-origin, include,'.includes(`${this.fetchCredentials},`)) {
       this.fetchCredentials = '';
     }
-
     marked.setOptions({
       highlight: (code, lang) => {
         if ((prism_default()).languages[lang]) {
           return prism_default().highlight(code, (prism_default()).languages[lang], lang);
         }
-
         return code;
       }
     });
   }
-
   render() {
     return mainBodyTemplate.call(this, true, false, false, this.pathsExpanded);
   }
-
   attributeChangedCallback(name, oldVal, newVal) {
     if (name === 'spec-url') {
       if (oldVal !== newVal) {
@@ -20707,13 +19957,11 @@ class RapiDocMini extends lit_element_s {
         }, 0);
       }
     }
-
     if (name === 'api-key-name' || name === 'api-key-location' || name === 'api-key-value') {
       let updateSelectedApiKey = false;
       let apiKeyName = '';
       let apiKeyLocation = '';
       let apiKeyValue = '';
-
       if (name === 'api-key-name') {
         if (this.getAttribute('api-key-location') && this.getAttribute('api-key-value')) {
           apiKeyName = newVal;
@@ -20736,11 +19984,9 @@ class RapiDocMini extends lit_element_s {
           updateSelectedApiKey = true;
         }
       }
-
       if (updateSelectedApiKey) {
         if (this.resolvedSpec) {
           const rapiDocApiKey = this.resolvedSpec.securitySchemes.find(v => v.securitySchemeId === rapidocApiKey);
-
           if (!rapiDocApiKey) {
             this.resolvedSpec.securitySchemes.push({
               apiKeyId: rapidocApiKey,
@@ -20757,25 +20003,21 @@ class RapiDocMini extends lit_element_s {
             rapiDocApiKey.value = apiKeyValue;
             rapiDocApiKey.finalKeyValue = apiKeyValue;
           }
-
           this.requestUpdate();
         }
       }
     }
-
     super.attributeChangedCallback(name, oldVal, newVal);
   }
-
   onSepcUrlChange() {
     this.setAttribute('spec-url', this.shadowRoot.getElementById('spec-url').value);
-  } // Public Method
+  }
 
-
+  // Public Method
   async loadSpec(specUrl) {
     if (!specUrl) {
       return;
     }
-
     try {
       this.resolvedSpec = {
         specLoadError: false,
@@ -20794,33 +20036,31 @@ class RapiDocMini extends lit_element_s {
       this.resolvedSpec = null;
       console.error(`RapiDoc: Unable to resolve the API spec..  ${err.message}`); // eslint-disable-line no-console
     }
-  } // Public Method - to update security-scheme of type http
+  }
 
-
+  // Public Method - to update security-scheme of type http
   setHttpUserNameAndPassword(securitySchemeId, username, password) {
     return applyApiKey.call(this, securitySchemeId, username, password);
-  } // Public Method - to update security-scheme of type apiKey or OAuth
+  }
 
-
+  // Public Method - to update security-scheme of type apiKey or OAuth
   setApiKey(securitySchemeId, apiKeyValue) {
     return applyApiKey.call(this, securitySchemeId, '', '', apiKeyValue);
-  } // Public Method
+  }
 
-
+  // Public Method
   removeAllSecurityKeys() {
     return onClearAllApiKeys.call(this);
-  } // Public Method
+  }
 
-
+  // Public Method
   setApiServer(apiServerUrl) {
     // return apiServerUrl;
     return setApiServer.call(this, apiServerUrl);
   }
-
   async afterSpecParsedAndValidated(spec) {
     this.resolvedSpec = spec;
     this.selectedServer = undefined;
-
     if (this.defaultApiServerUrl) {
       if (this.defaultApiServerUrl === this.serverUrl) {
         this.selectedServer = {
@@ -20831,29 +20071,26 @@ class RapiDocMini extends lit_element_s {
         this.selectedServer = this.resolvedSpec.servers.find(v => v.url === this.defaultApiServerUrl);
       }
     }
-
     if (!this.selectedServer) {
       if (this.resolvedSpec.servers) {
         this.selectedServer = this.resolvedSpec.servers[0]; // eslint-disable-line prefer-destructuring
       }
     }
 
-    this.requestUpdate(); // eslint-disable-next-line no-await-in-loop
-
+    this.requestUpdate();
+    // eslint-disable-next-line no-await-in-loop
     while (!(await this.updateComplete));
-
     const specLoadedEvent = new CustomEvent('spec-loaded', {
       detail: spec
     });
     this.dispatchEvent(specLoadedEvent);
-  } // Called by anchor tags created using markdown
+  }
 
-
+  // Called by anchor tags created using markdown
   handleHref(e) {
     if (e.target.tagName.toLowerCase() === 'a') {
       if (e.target.getAttribute('href').startsWith('#')) {
         const gotoEl = this.shadowRoot.getElementById(e.target.getAttribute('href').replace('#', ''));
-
         if (gotoEl) {
           gotoEl.scrollIntoView({
             behavior: 'auto',
@@ -20863,7 +20100,6 @@ class RapiDocMini extends lit_element_s {
       }
     }
   }
-
 }
 customElements.define('rapi-doc-mini', RapiDocMini);
 ;// CONCATENATED MODULE: ./src/oauth-receiver.js
@@ -20872,15 +20108,13 @@ class OauthReceiver extends HTMLElement {
     this.receiveAuthParms();
     window.addEventListener('storage', e => this.receiveStorage(e), true);
   }
+
   /**
    * Read OAuth2 parameters and sends them off
    * to the window opener through `window.postMessage`.
    */
-
-
   receiveAuthParms() {
     let authData = {};
-
     if (document.location.search) {
       // Applies to authorizationCode flow
       const params = new URLSearchParams(document.location.search);
@@ -20896,9 +20130,7 @@ class OauthReceiver extends HTMLElement {
     } else if (window.location.hash) {
       // Applies to Implicit flow
       const token_type = this.parseQueryString(window.location.hash.substring(1), 'token_type'); // eslint-disable-line camelcase
-
       const access_token = this.parseQueryString(window.location.hash.substring(1), 'access_token'); // eslint-disable-line camelcase
-
       authData = {
         token_type,
         access_token,
@@ -20910,7 +20142,6 @@ class OauthReceiver extends HTMLElement {
       window.opener.postMessage(authData, this.target);
       return;
     }
-
     sessionStorage.setItem('rapidoc-oauth-data', JSON.stringify(authData)); // Fallback to session storage if window.opener dont exist
   }
 
@@ -20922,26 +20153,23 @@ class OauthReceiver extends HTMLElement {
       }
     }
   }
-
   parseQueryString(queryString, key) {
     const vars = queryString.split('&');
-
     for (let i = 0; i < vars.length; i++) {
       const pair = vars[i].split('=');
-
       if (decodeURIComponent(pair[0]) === key) {
         return decodeURIComponent(pair[1]);
       }
     }
   }
-
 }
 customElements.define('oauth-receiver', OauthReceiver);
 ;// CONCATENATED MODULE: ./src/templates/json-schema-viewer-template.js
 
  // eslint-disable-line import/extensions
 
- // Templates
+
+// Templates
 
 
 
@@ -20952,9 +20180,8 @@ customElements.define('oauth-receiver', OauthReceiver);
 
 /* eslint-disable indent */
 // Json Schema Nav Template
-
 function jsonSchemaNavTemplate() {
-  return y`
+  return lit_html_$`
   <nav class='nav-bar' part="section-navbar">
     <slot name="nav-logo" class="logo"></slot>
     <div style="display:flex;line-height:22px; padding:8px">
@@ -20969,7 +20196,7 @@ function jsonSchemaNavTemplate() {
       <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div>
     </div>
     <nav style="flex:1" class='nav-scroll' part="section-navbar-scroll">
-      ${this.resolvedSpec.schemaAndExamples.map(v => y`
+      ${this.resolvedSpec.schemaAndExamples.map(v => lit_html_$`
         <div class='nav-bar-path' data-content-id='${v.elementId}' id='link-${v.elementId}'
           @click = '${e => {
     this.scrollToEventTarget(e, false);
@@ -20980,19 +20207,18 @@ function jsonSchemaNavTemplate() {
     </nav>  
   </nav>
   `;
-} // Json Schema Body Template
+}
 
-
+// Json Schema Body Template
 function jsonSchemaBodyTemplate() {
-  return y`
+  return lit_html_$`
     ${this.showInfo === 'true' ? overviewTemplate.call(this) : ''}
     <div style="font-size:var(--font-size-regular);">
     ${this.resolvedSpec.schemaAndExamples.map(jSchemaBody => {
     var _examplesObj$;
-
     const examplesObj = generateExample(jSchemaBody.schema, 'json', jSchemaBody.examples, jSchemaBody.example, true, false, 'json', true);
     jSchemaBody.selectedExample = (_examplesObj$ = examplesObj[0]) === null || _examplesObj$ === void 0 ? void 0 : _examplesObj$.exampleId;
-    return y`
+    return lit_html_$`
         <section id='${jSchemaBody.elementId}' class='json-schema-and-example regular-font' style="display:flex; flex-direction: column; border:1px solid var(--border-color); margin-bottom:32px; border-top: 5px solid var(--border-color)">
           <div style="padding:16px; border-bottom: 1px solid var(--border-color)">
             <div style="font-size:var(--font-size-small); font-weight:bold">${jSchemaBody.name}</div>
@@ -21010,13 +20236,13 @@ function jsonSchemaBodyTemplate() {
               > </schema-tree>
             </div>
             <div class="json-schema-example-panel" style="width:400px; background-color: var(--input-bg); padding:16px 0 16px 16px; border-left: 1px dashed var(--border-color);">
-              ${examplesObj.length > 1 ? y`<select style="min-width:100px; max-width:100%" @change='${e => this.onSelectExample(e, jSchemaBody)}'>
-                    ${examplesObj.map(v => y`
+              ${examplesObj.length > 1 ? lit_html_$`<select style="min-width:100px; max-width:100%" @change='${e => this.onSelectExample(e, jSchemaBody)}'>
+                    ${examplesObj.map(v => lit_html_$`
                       <option value="${v.exampleId}" ?selected=${v.exampleId === jSchemaBody.selectedExample}> 
                         ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary}
                       </option>`)}
-                  </select>` : y`<div style="font-size: var(--font-size-small);font-weight:700; margin:5px 0"> ${examplesObj[0].exampleSummary}</div>`}
-              ${examplesObj.map(v => y`
+                  </select>` : lit_html_$`<div style="font-size: var(--font-size-small);font-weight:700; margin:5px 0"> ${examplesObj[0].exampleSummary}</div>`}
+              ${examplesObj.map(v => lit_html_$`
                 <json-tree 
                   .data = "${v.exampleValue}"
                   data-example = "${v.exampleId}"
@@ -21031,15 +20257,13 @@ function jsonSchemaBodyTemplate() {
   `;
 }
 /* eslint-enable indent */
+
 // Json Schema Root Template
-
-
 function jsonSchemaViewerTemplate(isMini = false) {
   // export default function jsonSchemaViewerTemplate(isMini = false, showExpandCollapse = true, showTags = true, pathsExpanded = false) {
   if (!this.resolvedSpec) {
     return '';
   }
-
   const newTheme = {
     bg1: isValidHexColor(this.bgColor) ? this.bgColor : '',
     fg1: isValidHexColor(this.textColor) ? this.textColor : '',
@@ -21053,16 +20277,14 @@ function jsonSchemaViewerTemplate(isMini = false) {
     navAccenttextColor: isValidHexColor(this.navAccentTextColor) ? this.navAccentTextColor : ''
   };
   /* eslint-disable indent */
-
   if (this.resolvedSpec.specLoadError) {
     if (isMini) {
-      return y`
+      return lit_html_$`
         ${this.theme === 'dark' ? setTheme.call(this, 'dark', newTheme) : setTheme.call(this, 'light', newTheme)}
         <div style="display:flex; align-items:center; border:1px dashed var(--border-color); height:42px; padding:5px; font-size:var(--font-size-small); color:var(--red); font-family:var(--font-mono)"> ${this.resolvedSpec.info.description} </div>
       `;
     }
-
-    return y`
+    return lit_html_$`
       ${this.theme === 'dark' ? setTheme.call(this, 'dark', newTheme) : setTheme.call(this, 'light', newTheme)}
       <!-- Header -->
       ${headerTemplate.call(this)}
@@ -21076,9 +20298,8 @@ function jsonSchemaViewerTemplate(isMini = false) {
       </main>  
     `;
   }
-
   if (this.resolvedSpec.isSpecLoading) {
-    return y`
+    return lit_html_$`
       ${this.theme === 'dark' ? setTheme.call(this, 'dark', newTheme) : setTheme.call(this, 'light', newTheme)}
       <main class="main-content regular-font" part="section-main-content">
         <slot></slot>
@@ -21088,8 +20309,7 @@ function jsonSchemaViewerTemplate(isMini = false) {
       </main>  
     `;
   }
-
-  return y`
+  return lit_html_$`
     ${this.theme === 'dark' ? setTheme.call(this, 'dark', newTheme) : setTheme.call(this, 'light', newTheme)}
 
     <!-- Header -->
@@ -21104,8 +20324,8 @@ function jsonSchemaViewerTemplate(isMini = false) {
       <main class="main-content regular-font" part="section-main-content">
         <slot></slot>
         <div class="main-content-inner--${this.renderStyle}-mode">
-          ${this.loading === true ? y`<div class="loader"></div>` : y`
-              ${this.loadFailed === true ? y`<div style="text-align: center;margin: 16px;"> Unable to load the Spec</div>` : y`
+          ${this.loading === true ? lit_html_$`<div class="loader"></div>` : lit_html_$`
+              ${this.loadFailed === true ? lit_html_$`<div style="text-align: center;margin: 16px;"> Unable to load the Spec</div>` : lit_html_$`
                   <div class="operations-root" @click="${e => {
     this.handleHref(e);
   }}">
@@ -21131,8 +20351,9 @@ function jsonSchemaViewerTemplate(isMini = false) {
 
 
 
- // Styles
 
+
+// Styles
 
 
 
@@ -21154,7 +20375,6 @@ class JsonSchemaViewer extends lit_element_s {
     this.allowAdvancedSearch = 'false';
     this.selectedExampleForEachSchema = {};
   }
-
   static get properties() {
     return {
       // Spec
@@ -21245,12 +20465,11 @@ class JsonSchemaViewer extends lit_element_s {
       loading: {
         type: Boolean
       } // indicates spec is being loaded
-
     };
   }
 
   static get styles() {
-    return [font_styles, input_styles, flex_styles, table_styles, endpoint_styles, prism_styles, tab_styles, nav_styles, info_styles, i`
+    return [font_styles, input_styles, flex_styles, table_styles, endpoint_styles, prism_styles, tab_styles, nav_styles, info_styles, css_tag_r`
       :host {
         display:flex;
         flex-direction: column;
@@ -21337,41 +20556,34 @@ class JsonSchemaViewer extends lit_element_s {
           display:flex;
         }
       }`];
-  } // Startup
+  }
 
-
+  // Startup
   connectedCallback() {
     super.connectedCallback();
     const parent = this.parentElement;
-
     if (parent) {
       if (parent.offsetWidth === 0 && parent.style.width === '') {
         parent.style.width = '100vw';
       }
-
       if (parent.offsetHeight === 0 && parent.style.height === '') {
         parent.style.height = '100vh';
       }
-
       if (parent.tagName === 'BODY') {
         if (!parent.style.marginTop) {
           parent.style.marginTop = '0';
         }
-
         if (!parent.style.marginRight) {
           parent.style.marginRight = '0';
         }
-
         if (!parent.style.marginBottom) {
           parent.style.marginBottom = '0';
         }
-
         if (!parent.style.marginLeft) {
           parent.style.marginLeft = '0';
         }
       }
     }
-
     if (this.loadFonts !== 'false') {
       const fontDescriptor = {
         family: 'Open Sans',
@@ -21389,69 +20601,53 @@ class JsonSchemaViewer extends lit_element_s {
         document.fonts.add(font);
       });
     }
-
     this.renderStyle = 'focused';
     this.pathsExpanded = this.pathsExpanded === 'true';
-
     if (!this.showInfo || !'true, false,'.includes(`${this.showInfo},`)) {
       this.showInfo = 'true';
     }
-
     if (!this.showSideNav || !'true false'.includes(this.showSideNav)) {
       this.showSideNav = 'true';
     }
-
     if (!this.showHeader || !'true, false,'.includes(`${this.showHeader},`)) {
       this.showHeader = 'true';
     }
-
     if (!this.schemaStyle || !'tree, table,'.includes(`${this.schemaStyle},`)) {
       this.schemaStyle = 'tree';
     }
-
     if (!this.theme || !'light, dark,'.includes(`${this.theme},`)) {
       this.theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
     }
-
     if (!this.allowSearch || !'true, false,'.includes(`${this.allowSearch},`)) {
       this.allowSearch = 'true';
     }
-
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) {
       this.schemaExpandLevel = 99999;
     }
-
     if (!this.schemaDescriptionExpanded || !'true, false,'.includes(`${this.schemaDescriptionExpanded},`)) {
       this.schemaDescriptionExpanded = 'false';
     }
-
     if (!this.fontSize || !'default, large, largest,'.includes(`${this.fontSize},`)) {
       this.fontSize = 'default';
     }
-
     if (!this.matchType || !'includes regex'.includes(this.matchType)) {
       this.matchType = 'includes';
     }
-
     if (!this.allowSchemaDescriptionExpandToggle || !'true, false,'.includes(`${this.allowSchemaDescriptionExpandToggle},`)) {
       this.allowSchemaDescriptionExpandToggle = 'true';
     }
-
     marked.setOptions({
       highlight: (code, lang) => {
         if ((prism_default()).languages[lang]) {
           return prism_default().highlight(code, (prism_default()).languages[lang], lang);
         }
-
         return code;
       }
     });
   }
-
   render() {
     return jsonSchemaViewerTemplate.call(this, true, false, false, this.pathsExpanded);
   }
-
   attributeChangedCallback(name, oldVal, newVal) {
     if (name === 'spec-url') {
       if (oldVal !== newVal) {
@@ -21461,25 +20657,21 @@ class JsonSchemaViewer extends lit_element_s {
         }, 0);
       }
     }
-
     super.attributeChangedCallback(name, oldVal, newVal);
   }
-
   onSepcUrlChange() {
     this.setAttribute('spec-url', this.shadowRoot.getElementById('spec-url').value);
   }
-
   onSearchChange(e) {
     // Todo: Filter Search
     this.matchPaths = e.target.value;
-  } // Public Method
+  }
 
-
+  // Public Method
   async loadSpec(specUrl) {
     if (!specUrl) {
       return;
     }
-
     try {
       this.resolvedSpec = {
         specLoadError: false,
@@ -21506,14 +20698,13 @@ class JsonSchemaViewer extends lit_element_s {
       detail: spec
     });
     this.dispatchEvent(specLoadedEvent);
-  } // Called by anchor tags created using markdown
+  }
 
-
+  // Called by anchor tags created using markdown
   handleHref(e) {
     if (e.target.tagName.toLowerCase() === 'a') {
       if (e.target.getAttribute('href').startsWith('#')) {
         const gotoEl = this.shadowRoot.getElementById(e.target.getAttribute('href').replace('#', ''));
-
         if (gotoEl) {
           gotoEl.scrollIntoView({
             behavior: 'auto',
@@ -21522,9 +20713,9 @@ class JsonSchemaViewer extends lit_element_s {
         }
       }
     }
-  } // Example Dropdown @change Handler
+  }
 
-
+  // Example Dropdown @change Handler
   onSelectExample(e) {
     const exampleContainerEl = e.target.closest('.json-schema-example-panel');
     const exampleEls = [...exampleContainerEl.querySelectorAll('.example')];
@@ -21532,16 +20723,12 @@ class JsonSchemaViewer extends lit_element_s {
       v.style.display = v.dataset.example === e.target.value ? 'flex' : 'none';
     });
   }
-
   async scrollToEventTarget(event) {
     const navEl = event.currentTarget;
-
     if (!navEl.dataset.contentId) {
       return;
     }
-
     const contentEl = this.shadowRoot.getElementById(navEl.dataset.contentId);
-
     if (contentEl) {
       contentEl.scrollIntoView({
         behavior: 'auto',
@@ -21549,7 +20736,6 @@ class JsonSchemaViewer extends lit_element_s {
       });
     }
   }
-
 }
 customElements.define('json-schema-viewer', JsonSchemaViewer);
 ;// CONCATENATED MODULE: ./src/index.js
@@ -27358,7 +26544,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("c93f7c334d10fecdbb73")
+/******/ 		__webpack_require__.h = () => ("1630c968e0ae88eebbb7")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
@@ -28343,7 +27529,7 @@ function getType(str) {
 /******/ 	// module cache are used so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	var __webpack_exports__ = __webpack_require__(656);
+/******/ 	var __webpack_exports__ = __webpack_require__(73);
 /******/ 	
 /******/ })()
 ;

@@ -362,7 +362,7 @@ export default class ApiRequest extends LitElement {
           || nestExampleIfPresent(param.example)
           || nestExampleIfPresent(mimeTypeElem?.example)
           || mimeTypeElem?.examples
-          || paramSchema.examples
+          || nestExampleIfPresent(paramSchema.examples)
           || nestExampleIfPresent(paramSchema.example)
         ),
         paramSchema.type,
