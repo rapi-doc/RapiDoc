@@ -129,6 +129,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
           server-url = "${path.servers?.[0]?.url || this.selectedServer.computedUrl}"
           fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
           allow-try = "${this.allowTry}"
+          show-curl-before-try = "${this.showCurlBeforeTry}"
           accept = "${accept}"
           render-style="${this.renderStyle}" 
           schema-style = "${this.schemaStyle}"

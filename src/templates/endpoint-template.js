@@ -142,6 +142,7 @@ function endpointBodyTemplate(path) {
           active-schema-tab = "${this.defaultSchemaTab}"
           fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
           allow-try = "${this.allowTry}"
+          show-curl-before-try = "${this.showCurlBeforeTry}"
           accept = "${accept}"
           render-style="${this.renderStyle}" 
           schema-style = "${this.schemaStyle}" 
