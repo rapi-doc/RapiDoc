@@ -17195,7 +17195,7 @@ function serverTemplate() {
 
 function expandCollapseNavBarTag(navLinkEl, action = 'toggle') {
   const tagAndPathEl = navLinkEl === null || navLinkEl === void 0 ? void 0 : navLinkEl.closest('.nav-bar-tag-and-paths');
-  const pathsUnderTagEl = tagAndPathEl.querySelector('.nav-bar-paths-under-tag');
+  const pathsUnderTagEl = tagAndPathEl === null || tagAndPathEl === void 0 ? void 0 : tagAndPathEl.querySelector('.nav-bar-paths-under-tag');
   if (tagAndPathEl) {
     const isExpanded = tagAndPathEl.classList.contains('expanded');
     if (isExpanded && (action === 'toggle' || action === 'collapse')) {
@@ -19493,6 +19493,9 @@ class RapiDoc extends lit_element_s {
       }
     }
   }
+  replaceHistoryState(hashId) {
+    window.history.replaceState(null, null, `${window.location.href.split('#')[0]}${this.routePrefix || '#'}${hashId}`);
+  }
   expandAndGotoOperation(elementId, scrollToElement = true) {
     if (!this.resolvedSpec) {
       return;
@@ -19530,7 +19533,7 @@ class RapiDoc extends lit_element_s {
             block: 'start'
           });
           if (this.updateRoute === 'true') {
-            window.history.replaceState(null, null, `${this.routePrefix || '#'}${tmpElementId}`);
+            this.replaceHistoryState(tmpElementId);
           }
         }
       }, isExpandingNeeded ? 150 : 0);
@@ -19568,7 +19571,7 @@ class RapiDoc extends lit_element_s {
         // Add active class in the new element
         if (newNavEl) {
           if (this.updateRoute === 'true') {
-            window.history.replaceState(null, null, `${window.location.href.split('#')[0]}${this.routePrefix || '#'}${entry.target.id}`);
+            this.replaceHistoryState(entry.target.id);
           }
           newNavEl.scrollIntoView({
             behavior: 'auto',
@@ -19670,7 +19673,7 @@ class RapiDoc extends lit_element_s {
 
         // Update Location Hash
         if (this.updateRoute === 'true') {
-          window.history.replaceState(null, null, `${this.routePrefix || '#'}${elementId}`);
+          this.replaceHistoryState(elementId);
         }
 
         // Update NavBar View and Styles
@@ -26628,7 +26631,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("9cf1ea23f9721efb1ca2")
+/******/ 		__webpack_require__.h = () => ("5f12fb6e37320e1e4dee")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
