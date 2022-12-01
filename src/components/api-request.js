@@ -544,12 +544,12 @@ export default class ApiRequest extends LitElement {
     </div>`;
   }
 
-  // This method is called before navigation change in focusd mode
-  async beforerNavigationFocusedMode() {
+  // This method is called before navigation change in focused mode
+  async beforeNavigationFocusedMode() {
     // this.saveExampleState();
   }
 
-  // This method is called after navigation change in focusd mode
+  // This method is called after navigation change in focused mode
   async afterNavigationFocusedMode() {
     this.selectedRequestBodyType = '';
     this.selectedRequestBodyExample = '';

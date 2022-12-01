@@ -640,11 +640,11 @@ export default class RapiDoc extends LitElement {
     super.attributeChangedCallback(name, oldVal, newVal);
   }
 
-  onSepcUrlChange() {
+  onSpecUrlChange() {
     this.setAttribute('spec-url', this.shadowRoot.getElementById('spec-url').value);
   }
 
-  onSepcFileChange(e) {
+  onSpecFileChange(e) {
     this.setAttribute('spec-file', this.shadowRoot.getElementById('spec-file').value);
     const specFile = e.target.files[0];
     const reader = new FileReader();
@@ -951,7 +951,7 @@ export default class RapiDoc extends LitElement {
     if (this.renderStyle === 'focused') {
       const requestEl = this.shadowRoot.querySelector('api-request');
       if (requestEl) {
-        requestEl.beforerNavigationFocusedMode();
+        requestEl.beforeNavigationFocusedMode();
       }
     }
     this.scrollToPath(navEl.dataset.contentId, true, scrollNavItemToView);

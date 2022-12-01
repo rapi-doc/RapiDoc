@@ -23,7 +23,7 @@ export default function headerTemplate() {
             part="textbox textbox-spec-url" 
             placeholder="Spec URL" 
             value="${this.specUrl || ''}" 
-            @change="${this.onSepcUrlChange}" 
+            @change="${this.onSpecUrlChange}" 
             spellcheck="false"
           >
           <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div> 
@@ -37,7 +37,7 @@ export default function headerTemplate() {
             type="file" 
             style="display:none" 
             value="${this.specFile || ''}" 
-            @change="${this.onSepcFileChange}" 
+            @change="${this.onSpecFileChange}" 
             spellcheck="false"
            >
           <button class="m-btn primary only-large-screen" style="margin-left:10px;" part="btn btn-fill" @click="${this.onFileLoadClick}"> LOCAL JSON FILE </button>
