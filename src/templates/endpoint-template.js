@@ -12,14 +12,14 @@ function toggleExpand(path) {
   if (path.expanded) {
     path.expanded = false; // collapse
     if (this.updateRoute === 'true') {
-      window.history.replaceState(null, null, `${window.location.href.split('#')[0]}${this.routePrefix === '#' ? '' : `${this.routePrefix}`}`);
+      this.replaceHistoryState('');
     }
   } else {
     path.expanded = true; // Expand
     if (this.updateRoute === 'true') {
       const newHash = `${this.routePrefix || '#'}${path.elementId}`;
       if (window.location.hash !== newHash) {
-        window.history.replaceState(null, null, `${window.location.href.split('#')[0]}${newHash}`);
+        this.replaceHistoryState(path.elementId);
       }
     }
   }
