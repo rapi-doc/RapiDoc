@@ -39,7 +39,7 @@ function replacerBlocks(_match, textBefore, blockType, blockContent, textAfter) 
         break;
 
       case 'callout':
-        replaced += `<blockquote class=${block.type}>${marked(block.body.replace(/\[/gm, ' ['))}</blockquote>`;
+        replaced += `<blockquote class=${block.type}><h3>${block.title ?? ''}</h3>${marked(block.body)}</blockquote>`;
         break;
 
       case 'embed':
@@ -79,7 +79,7 @@ function replacerBlocks(_match, textBefore, blockType, blockContent, textAfter) 
 
     if (textAfter) replaced += marked(textAfter);
   } catch (err) {
-    replaced += `\n\n<p class="invalid-block">Invalid block.<br />${err.message}</p>\n\n`;
+    replaced += `\n\n<blockquote class="warning"><h3>Work in progress</h3>[block:${blockType}]${blockContent}[/block]</blockquote>\n\n`;
     if (textAfter) replaced += marked(textAfter);
   }
 
