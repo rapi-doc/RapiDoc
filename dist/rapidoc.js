@@ -15036,12 +15036,12 @@ class ApiRequest extends lit_element_s {
     </div>`;
   }
 
-  // This method is called before navigation change in focusd mode
-  async beforerNavigationFocusedMode() {
+  // This method is called before navigation change in focused mode
+  async beforeNavigationFocusedMode() {
     // this.saveExampleState();
   }
 
-  // This method is called after navigation change in focusd mode
+  // This method is called after navigation change in focused mode
   async afterNavigationFocusedMode() {
     this.selectedRequestBodyType = '';
     this.selectedRequestBodyExample = '';
@@ -17523,14 +17523,14 @@ function toggleExpand(path) {
   if (path.expanded) {
     path.expanded = false; // collapse
     if (this.updateRoute === 'true') {
-      window.history.replaceState(null, null, `${window.location.href.split('#')[0]}${this.routePrefix === '#' ? '' : `${this.routePrefix}`}`);
+      this.replaceHistoryState('');
     }
   } else {
     path.expanded = true; // Expand
     if (this.updateRoute === 'true') {
       const newHash = `${this.routePrefix || '#'}${path.elementId}`;
       if (window.location.hash !== newHash) {
-        window.history.replaceState(null, null, `${window.location.href.split('#')[0]}${newHash}`);
+        this.replaceHistoryState(path.elementId);
       }
     }
   }
@@ -17773,7 +17773,7 @@ function headerTemplate() {
             part="textbox textbox-spec-url" 
             placeholder="Spec URL" 
             value="${this.specUrl || ''}" 
-            @change="${this.onSepcUrlChange}" 
+            @change="${this.onSpecUrlChange}" 
             spellcheck="false"
           >
           <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div> 
@@ -17784,7 +17784,7 @@ function headerTemplate() {
             type="file" 
             style="display:none" 
             value="${this.specFile || ''}" 
-            @change="${this.onSepcFileChange}" 
+            @change="${this.onSpecFileChange}" 
             spellcheck="false"
            >
           <button class="m-btn primary only-large-screen" style="margin-left:10px;" part="btn btn-fill" @click="${this.onFileLoadClick}"> LOCAL JSON FILE </button>
@@ -18502,7 +18502,9 @@ class RapiDoc extends lit_element_s {
       threshold: 0
     };
     this.showSummaryWhenCollapsed = true;
-    this.isIntersectionObserverActive = true;
+    // Will activate intersection observer only after spec load and hash analyze
+    // to scroll to the proper element without being reverted by observer behavior
+    this.isIntersectionObserverActive = false;
     this.intersectionObserver = new IntersectionObserver(entries => {
       this.onIntersect(entries);
     }, intersectionObserverOptions);
@@ -19244,9 +19246,7 @@ class RapiDoc extends lit_element_s {
       }
     });
     window.addEventListener('hashchange', () => {
-      const regEx = new RegExp(`^${this.routePrefix}`, 'i');
-      const elementId = window.location.hash.replace(regEx, '');
-      this.scrollToPath(elementId);
+      this.scrollToPath(this.getElementIDFromURL());
     }, true);
   }
 
@@ -19352,10 +19352,10 @@ class RapiDoc extends lit_element_s {
     }
     super.attributeChangedCallback(name, oldVal, newVal);
   }
-  onSepcUrlChange() {
+  onSpecUrlChange() {
     this.setAttribute('spec-url', this.shadowRoot.getElementById('spec-url').value);
   }
-  onSepcFileChange(e) {
+  onSpecFileChange(e) {
     this.setAttribute('spec-file', this.shadowRoot.getElementById('spec-file').value);
     const specFile = e.target.files[0];
     const reader = new FileReader();
@@ -19440,7 +19440,6 @@ class RapiDoc extends lit_element_s {
   }
 
   async afterSpecParsedAndValidated(spec) {
-    var _window$location$hash;
     this.resolvedSpec = spec;
     this.selectedServer = undefined;
     if (this.defaultApiServerUrl) {
@@ -19474,11 +19473,11 @@ class RapiDoc extends lit_element_s {
       this.observeExpandedContent(); // This will auto-highlight the selected nav-item in read-mode
     }
 
+    this.isIntersectionObserverActive = true;
+
     // On first time Spec load, try to navigate to location hash if provided
-    const locationHash = (_window$location$hash = window.location.hash) === null || _window$location$hash === void 0 ? void 0 : _window$location$hash.substring(1);
-    if (locationHash) {
-      const regEx = new RegExp(`^${this.routePrefix}`, 'i');
-      const elementId = window.location.hash.replace(regEx, '');
+    const elementId = this.getElementIDFromURL();
+    if (elementId) {
       if (this.renderStyle === 'view') {
         this.expandAndGotoOperation(elementId, true, true);
       } else {
@@ -19493,8 +19492,38 @@ class RapiDoc extends lit_element_s {
       }
     }
   }
+
+  /**
+   * Return the URL from where is served the RapiDoc component, removing any hash and route prefix
+   */
+  getComponentBaseURL() {
+    const {
+      href
+    } = window.location;
+
+    // Remove end of string # or /
+    const cleanRouterPrefix = this.routePrefix.replace(/(#|\/)$/, '');
+    if (!cleanRouterPrefix) {
+      return href.split('#')[0];
+    }
+    const indexOfRoutePrefix = href.lastIndexOf(cleanRouterPrefix);
+    if (indexOfRoutePrefix === -1) {
+      return href;
+    }
+    return href.slice(0, indexOfRoutePrefix);
+  }
+
+  /**
+   * From the URL return the ID of the element whether it is in the hash or if used a router prefix without a hash
+   */
+  getElementIDFromURL() {
+    const baseURL = this.getComponentBaseURL();
+    const elementId = window.location.href.replace(baseURL + this.routePrefix, '');
+    return elementId;
+  }
   replaceHistoryState(hashId) {
-    window.history.replaceState(null, null, `${window.location.href.split('#')[0]}${this.routePrefix || '#'}${hashId}`);
+    const baseURL = this.getComponentBaseURL();
+    window.history.replaceState(null, null, `${baseURL}${this.routePrefix || '#'}${hashId}`);
   }
   expandAndGotoOperation(elementId, scrollToElement = true) {
     if (!this.resolvedSpec) {
@@ -19580,8 +19609,10 @@ class RapiDoc extends lit_element_s {
           newNavEl.classList.add('active');
           newNavEl.part.add('section-navbar-active-item');
         }
+
         // Remove active class from previous element
-        if (oldNavEl) {
+        // if it is different from the new one (edge case on loading in read render style)
+        if (oldNavEl && oldNavEl !== newNavEl) {
           oldNavEl.classList.remove('active');
           oldNavEl.part.remove('section-navbar-active-item');
         }
@@ -19627,7 +19658,7 @@ class RapiDoc extends lit_element_s {
     if (this.renderStyle === 'focused') {
       const requestEl = this.shadowRoot.querySelector('api-request');
       if (requestEl) {
-        requestEl.beforerNavigationFocusedMode();
+        requestEl.beforeNavigationFocusedMode();
       }
     }
     this.scrollToPath(navEl.dataset.contentId, true, scrollNavItemToView);
@@ -20096,7 +20127,7 @@ class RapiDocMini extends lit_element_s {
     }
     super.attributeChangedCallback(name, oldVal, newVal);
   }
-  onSepcUrlChange() {
+  onSpecUrlChange() {
     this.setAttribute('spec-url', this.shadowRoot.getElementById('spec-url').value);
   }
 
@@ -20746,7 +20777,7 @@ class JsonSchemaViewer extends lit_element_s {
     }
     super.attributeChangedCallback(name, oldVal, newVal);
   }
-  onSepcUrlChange() {
+  onSpecUrlChange() {
     this.setAttribute('spec-url', this.shadowRoot.getElementById('spec-url').value);
   }
   onSearchChange(e) {
@@ -26631,7 +26662,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("5f12fb6e37320e1e4dee")
+/******/ 		__webpack_require__.h = () => ("06e5cc36e5f0fee09200")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

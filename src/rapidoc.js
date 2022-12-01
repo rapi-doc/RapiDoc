@@ -893,6 +893,7 @@ export default class RapiDoc extends LitElement {
     if (this.isIntersectionObserverActive === false) {
       return;
     }
+
     entries.forEach((entry) => {
       if (entry.isIntersecting && entry.intersectionRatio > 0) {
         const oldNavEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active, .operations.active');
@@ -907,8 +908,10 @@ export default class RapiDoc extends LitElement {
           newNavEl.classList.add('active');
           newNavEl.part.add('section-navbar-active-item');
         }
+
         // Remove active class from previous element
-        if (oldNavEl) {
+        // if it is different from the new one (edge case on loading in read render style)
+        if (oldNavEl && oldNavEl !== newNavEl) {
           oldNavEl.classList.remove('active');
           oldNavEl.part.remove('section-navbar-active-item');
         }
