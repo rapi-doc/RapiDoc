@@ -15455,7 +15455,7 @@ class ApiRequest extends lit_element_s {
         <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${e => {
       copyToClipboard(this.curlSyntax.replace(/\\$/, ''), e);
     }}' part="btn btn-fill"> Copy </button>
-        <pre style="white-space:pre-wrap"><code>${unsafe_html_o(prism_default().highlight(this.curlSyntax.trim().replace(/\\$/, ''), (prism_default()).languages.shell, 'shell'))}</code></pre>
+        <pre style="white-space:pre"><code>${unsafe_html_o(prism_default().highlight(this.curlSyntax.trim().replace(/\\$/, ''), (prism_default()).languages.shell, 'shell'))}</code></pre>
       </div>
       `;
   }
@@ -26628,7 +26628,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("6112e0c26407ee2deb21")
+/******/ 		__webpack_require__.h = () => ("9cf1ea23f9721efb1ca2")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
