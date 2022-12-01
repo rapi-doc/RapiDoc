@@ -38,7 +38,9 @@ export default class RapiDoc extends LitElement {
       threshold: 0,
     };
     this.showSummaryWhenCollapsed = true;
-    this.isIntersectionObserverActive = true;
+    // Will activate intersection observer only after spec load and hash analyze
+    // to scroll to the proper element without being reverted by observer behavior
+    this.isIntersectionObserverActive = false;
     this.intersectionObserver = new IntersectionObserver((entries) => { this.onIntersect(entries); }, intersectionObserverOptions);
   }
 
@@ -525,9 +527,7 @@ export default class RapiDoc extends LitElement {
     });
 
     window.addEventListener('hashchange', () => {
-      const regEx = new RegExp(`^${this.routePrefix}`, 'i');
-      const elementId = window.location.hash.replace(regEx, '');
-      this.scrollToPath(elementId);
+      this.scrollToPath(this.getElementIDFromURL());
     }, true);
   }
 
@@ -773,11 +773,12 @@ export default class RapiDoc extends LitElement {
       this.observeExpandedContent(); // This will auto-highlight the selected nav-item in read-mode
     }
 
+    this.isIntersectionObserverActive = true;
+
     // On first time Spec load, try to navigate to location hash if provided
-    const locationHash = window.location.hash?.substring(1);
-    if (locationHash) {
-      const regEx = new RegExp(`^${this.routePrefix}`, 'i');
-      const elementId = window.location.hash.replace(regEx, '');
+    const elementId = this.getElementIDFromURL();
+
+    if (elementId) {
       if (this.renderStyle === 'view') {
         this.expandAndGotoOperation(elementId, true, true);
       } else {
@@ -792,8 +793,40 @@ export default class RapiDoc extends LitElement {
     }
   }
 
+  /**
+   * Return the URL from where is served the RapiDoc component, removing any hash and route prefix
+   */
+  getComponentBaseURL() {
+    const { href } = window.location;
+
+    // Remove end of string # or /
+    const cleanRouterPrefix = this.routePrefix.replace(/(#|\/)$/, '');
+
+    if (!cleanRouterPrefix) {
+      return href.split('#')[0];
+    }
+
+    const indexOfRoutePrefix = href.lastIndexOf(cleanRouterPrefix);
+
+    if (indexOfRoutePrefix === -1) {
+      return href;
+    }
+
+    return href.slice(0, indexOfRoutePrefix);
+  }
+
+  /**
+   * From the URL return the ID of the element whether it is in the hash or if used a router prefix without a hash
+   */
+  getElementIDFromURL() {
+    const baseURL = this.getComponentBaseURL();
+    const elementId = window.location.href.replace(baseURL + this.routePrefix, '');
+    return elementId;
+  }
+
   replaceHistoryState(hashId) {
-    window.history.replaceState(null, null, `${window.location.href.split('#')[0]}${this.routePrefix || '#'}${hashId}`);
+    const baseURL = this.getComponentBaseURL();
+    window.history.replaceState(null, null, `${baseURL}${this.routePrefix || '#'}${hashId}`);
   }
 
   expandAndGotoOperation(elementId, scrollToElement = true) {
