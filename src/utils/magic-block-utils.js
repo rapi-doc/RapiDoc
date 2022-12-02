@@ -6,7 +6,7 @@ function replacerBlocks(_match, textBefore, blockType, blockContent, textAfter) 
   if (textBefore) replaced += `${marked(textBefore)}\n\n`;
 
   try {
-    const block = JSON.parse(blockContent);
+    const block = JSON.parse(decodeURIComponent(blockContent));
 
     switch (blockType) {
       case 'code':
@@ -22,7 +22,7 @@ function replacerBlocks(_match, textBefore, blockType, blockContent, textAfter) 
               break;
           }
 
-          return `${prev}\n\`\`\`${curr.language}\n${curr.code}\n\`\`\`\n`;
+          return `${prev}\n\`\`\`${curr.language}\n${decodeURIComponent(curr.code)}\n\`\`\`\n`;
         }, ''));
         break;
 
