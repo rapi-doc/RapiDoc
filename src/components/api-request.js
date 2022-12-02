@@ -1593,7 +1593,9 @@ export default class ApiRequest extends LitElement {
     curl = `curl -X ${this.method.toUpperCase()} "${curlUrl}" \\\n`;
 
     curlHeaders = Array.from(fetchHeaders).map(([key, value]) => ` -H "${key}: ${value}"`).join('\\\n');
-
+    if (curlHeaders) {
+      curlHeaders = `${curlHeaders} \\\n`;
+    }
     if (fetchOptions.body instanceof URLSearchParams) {
       curlData = ` -d ${fetchOptions.body.toString()} \\\n`;
     } else if (fetchOptions.body instanceof File) {
