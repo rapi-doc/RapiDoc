@@ -308,9 +308,9 @@ json2xml- TestCase
   <root>
     <prop1>simple</prop1>
     <prop2>
-      <0> a </0>
-      <1> b </1>
-      <2> c </2>
+      <0>a</0>
+      <1>b</1>
+      <2>c</2>
     </prop2>
     <prop3>
       <ob1>val-1</ob1>
@@ -336,11 +336,11 @@ export function json2xml(obj, level = 1) {
       continue;
     }
     if (Array.isArray(obj[prop])) {
-      xmlText = `${xmlText}\n${indent}<${tagName}> ${json2xml(obj[prop], level + 1)}\n${indent}</${tagName}>`;
+      xmlText = `${xmlText}\n${indent}<${tagName}>${json2xml(obj[prop], level + 1)}\n${indent}</${tagName}>`;
     } else if (typeof obj[prop] === 'object') {
-      xmlText = `${xmlText}\n${indent}<${tagName}> ${json2xml(obj[prop], level + 1)}\n${indent}</${tagName}>`;
+      xmlText = `${xmlText}\n${indent}<${tagName}>${json2xml(obj[prop], level + 1)}\n${indent}</${tagName}>`;
     } else {
-      xmlText = `${xmlText}\n${indent}<${tagName}> ${obj[prop].toString()} </${tagName}>`;
+      xmlText = `${xmlText}\n${indent}<${tagName}>${obj[prop].toString()}</${tagName}>`;
     }
   }
   return xmlText;
