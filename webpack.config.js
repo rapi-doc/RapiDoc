@@ -78,7 +78,8 @@ if (process.env.NODE_ENV === 'production') {
 module.exports = {
   mode: 'production',
   entry: './src/index.js',
-  devtool: 'cheap-module-source-map',
+  // Enable sourcemaps for debugging webpack's output.
+  devtool: 'source-map',
   output: {
     path: path.join(__dirname, 'dist'),
     filename: 'rapidoc-min.js',
@@ -103,6 +104,10 @@ module.exports = {
   },
   module: {
     rules: [
+      // All files with a '.ts' or '.tsx' extension will be handled by 'ts-loader'.
+      { test: /\.tsx?$/, loader: 'ts-loader' },
+      // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
+      { test: /\.js$/, loader: 'source-map-loader' },
       {
         test: /\.js$/,
         exclude: /node_modules/,
@@ -129,6 +134,7 @@ module.exports = {
     ],
   },
   resolve: {
+    extensions: ['', '.webpack.js', '.web.js', '.ts', '.tsx', '.js'],
     fallback: {
       fs: false,
       buffer: require.resolve('buffer'),
