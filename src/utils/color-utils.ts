@@ -3,7 +3,7 @@ export default {
     inputReverseFg: '#fff',
     inputReverseBg: '#333',
     headerBg: '#444',
-    getRgb(hex) {
+    getRgb(hex: string) {
       if (hex.indexOf('#') === 0) {
         hex = hex.slice(1, 7);
       }
@@ -20,18 +20,18 @@ export default {
         b: parseInt(hex.slice(4, 6), 16),
       };
     },
-    luminanace(hexColorCode) {
+    luminanace(hexColorCode: string) {
       const rgb = this.getRgb(hexColorCode);
-      return (rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114);
+      return rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114;
     },
-    invert(hexColorCode) {
+    invert(hexColorCode: string) {
       return this.luminanace(hexColorCode) > 135 ? '#000' : '#fff'; // compare with `>=128`, but giving little more preference to white over black
     },
-    opacity(hex, opacity) {
+    opacity(hex: string, opacity: string) {
       const rgb = this.getRgb(hex);
       return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity})`;
     },
-    brightness(hex, amt) {
+    brightness(hex: string, amt: number) {
       const rgb = this.getRgb(hex);
       rgb.r += amt;
       rgb.g += amt;
@@ -44,16 +44,20 @@ export default {
 
       if (rgb.b > 255) rgb.b = 255;
       else if (rgb.b < 0) rgb.b = 0;
-      return `#${rgb.r.toString(16).padStart(2, '0')}${rgb.g.toString(16).padStart(2, '0')}${rgb.b.toString(16).padStart(2, '0')}`;
+      return `#${rgb.r.toString(16).padStart(2, '0')}${rgb.g
+        .toString(16)
+        .padStart(2, '0')}${rgb.b.toString(16).padStart(2, '0')}`;
     },
-    hasGoodContrast(hexColorCode1, hexColorCode2) {
+    hasGoodContrast(hexColorCode1: string, hexColorCode2: string) {
       const lum1 = this.luminanace(hexColorCode1);
       const lum2 = this.luminanace(hexColorCode2);
-      return (lum1 - lum2);
+      return lum1 - lum2;
     },
   },
 };
 
-export function isValidHexColor(colorCode) {
-  return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3}|[A-Fa-f0-9]{8}|[A-Fa-f0-9]{4})$/i.test(colorCode);
+export function isValidHexColor(colorCode: string) {
+  return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3}|[A-Fa-f0-9]{8}|[A-Fa-f0-9]{4})$/i.test(
+    colorCode
+  );
 }
