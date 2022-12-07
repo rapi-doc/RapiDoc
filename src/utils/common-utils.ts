@@ -1,6 +1,6 @@
 /* For Delayed Event Handler Execution */
-export function debounce(fn: () => void, delay: number) {
-  let timeoutID: number;
+export function debounce(this: unknown, fn: () => void, delay: number) {
+  let timeoutID: ReturnType<typeof setTimeout>;
   return (...args: any) => {
     clearTimeout(timeoutID);
     const that = this;
