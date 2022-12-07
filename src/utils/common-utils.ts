@@ -1,7 +1,7 @@
 /* For Delayed Event Handler Execution */
-export function debounce(fn, delay) {
-  let timeoutID = null;
-  return (...args) => {
+export function debounce(fn: () => void, delay: number) {
+  let timeoutID: number;
+  return (...args: any) => {
     clearTimeout(timeoutID);
     const that = this;
     timeoutID = setTimeout(() => {
@@ -13,13 +13,13 @@ export function debounce(fn, delay) {
 export const invalidCharsRegEx = /[\s#:?&={}]/g; // used for generating valid html element ids by replacing the invalid chars with hyphen (-)
 export const rapidocApiKey = '_rapidoc_api_key';
 
-export function sleep(ms) {
+export function sleep(ms: number) {
   // eslint-disable-next-line no-promise-executor-return
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export function copyToClipboard(data, e) {
-  const btnEl = e.target;
+export function copyToClipboard(data: string, e: MouseEvent) {
+  const btnEl = e.target as HTMLElement;
   const textArea = document.createElement('textarea');
   textArea.value = data;
   textArea.style.position = 'fixed'; // avoid scrolling to bottom
@@ -38,22 +38,35 @@ export function copyToClipboard(data, e) {
   document.body.removeChild(textArea);
 }
 
-export function getBaseUrlFromUrl(url) {
+export function getBaseUrlFromUrl(url: string) {
   const pathArray = url.split('/');
   return `${pathArray[0]}//${pathArray[2]}`;
 }
 
-export async function wait(ms) {
+export async function wait(ms: number) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
 }
 
-export function componentIsInSearch(searchVal, component) {
+export function componentIsInSearch(
+  searchVal: string,
+  component: { name: string }
+) {
   return component.name.toLowerCase().includes(searchVal.toLowerCase());
 }
 
-export function pathIsInSearch(searchVal, path, matchType = 'includes') {
+export function pathIsInSearch(
+  searchVal: string,
+  path: {
+    method: string;
+    path: string;
+    summary: string;
+    operationId: string;
+    description: string;
+  },
+  matchType = 'includes'
+) {
   if (matchType === 'includes') {
     const stringToSearch = `${path.method} ${path.path} ${path.summary || path.description || ''} ${path.operationId || ''}`.toLowerCase();
     return stringToSearch.includes(searchVal.toLowerCase());
@@ -62,27 +75,71 @@ export function pathIsInSearch(searchVal, path, matchType = 'includes') {
   return regex.test(`${path.method} ${path.path}`);
 }
 
-export function schemaKeys(schemaProps, result = new Set()) {
+interface SchemaProps {
+  [key: string]: { 
+    properties?: SchemaProps, 
+    items?: {
+      properties: SchemaProps
+    } 
+  }
+}
+
+export function schemaKeys(schemaProps: SchemaProps | undefined, result = new Set()) {
   if (!schemaProps) {
     return result;
   }
   Object.keys(schemaProps).forEach((key) => {
     result.add(key);
-    if (schemaProps[key].properties) {
-      schemaKeys(schemaProps[key].properties, result);
-    } else if (schemaProps[key].items?.properties) {
-      schemaKeys(schemaProps[key].items?.properties, result);
+    const value = schemaProps[key];
+    if (value.properties) {
+      schemaKeys(value.properties, result);
+    } else if (value.items?.properties) {
+      schemaKeys(value.items?.properties, result);
     }
   });
   return result;
 }
 
-export function advancedSearch(searchVal, allSpecTags, searchOptions = []) {
+export function advancedSearch(
+  searchVal: string,
+  allSpecTags: {
+    paths: {
+      requestBody: {
+        content?:{
+          [index:string]: {
+            schema?: {
+              properties: SchemaProps
+            }
+          }
+        }
+      };
+      responses: {
+        [index: string]: {
+          description: string;
+        }
+      },
+      summary: string;
+      description: string;
+      parameters: {name: string}[];
+      path: string;
+      elementId: string;
+      method: string;
+      deprecated: boolean;
+    }[];
+  }[],
+  searchOptions: string[] = []
+) {
   if (!searchVal.trim() || searchOptions.length === 0) {
     return;
   }
 
-  const pathsMatched = [];
+  const pathsMatched: {
+    elementId: string,
+    method: string,
+    path: string,
+    summary: string,
+    deprecated: boolean,
+  }[] = [];
   allSpecTags.forEach((tag) => {
     tag.paths.forEach((path) => {
       let stringToSearch = '';
@@ -100,14 +157,18 @@ export function advancedSearch(searchVal, allSpecTags, searchOptions = []) {
         let schemaKeySet = new Set();
         for (const contentType in path.requestBody?.content) {
           if (path.requestBody.content[contentType].schema?.properties) {
-            schemaKeySet = schemaKeys(path.requestBody.content[contentType].schema?.properties);
+            schemaKeySet = schemaKeys(
+              path.requestBody.content[contentType].schema?.properties
+            );
           }
           stringToSearch = `${stringToSearch} ${[...schemaKeySet].join(' ')}`;
         }
       }
 
       if (searchOptions.includes('search-api-resp-descr')) {
-        stringToSearch = `${stringToSearch} ${Object.values(path.responses).map((v) => v.description || '').join(' ')}`;
+        stringToSearch = `${stringToSearch} ${Object.values(path.responses)
+          .map((v) => v.description || '')
+          .join(' ')}`;
       }
 
       if (stringToSearch.toLowerCase().includes(searchVal.trim().toLowerCase())) {
@@ -147,11 +208,11 @@ export function prettyXml(sourceXmlString) {
 }
 */
 
-export function downloadResource(url, fileName) {
+export function downloadResource(url: string, fileName: string) {
   if (url) {
     const a = document.createElement('a');
     document.body.appendChild(a);
-    a.style = 'display: none';
+    a.style.display = 'none';
     a.href = url;
     a.download = fileName;
     a.click();
@@ -159,11 +220,11 @@ export function downloadResource(url, fileName) {
   }
 }
 
-export function viewResource(url) {
+export function viewResource(url: string) {
   if (url) {
     const a = document.createElement('a');
     document.body.appendChild(a);
-    a.style = 'display: none';
+    a.style.display = 'none';
     a.href = url;
     a.target = '_blank';
     a.click();
