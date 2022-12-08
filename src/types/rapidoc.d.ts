@@ -1,6 +1,59 @@
 import { OpenAPIV3 } from 'openapi-types';
 import { marked } from 'marked';
 
+export interface RapiDocTheme {
+  bg1: string;
+  bg2: string;
+  bg3: string;
+  blue: string;
+  borderColor: string;
+  brown: string;
+  codeBg: string;
+  codeBorderColor: string;
+  codeFg: string;
+  codeKeywordColor: string;
+  codeOperatorColor: string;
+  codePropertyColor: string;
+  fg1: string;
+  fg2: string;
+  fg3: string;
+  green: string;
+  headerColor: string;
+  headerColorBorder: string;
+  headerColorDarker: string;
+  headerColorInvert: string;
+  hoverColor: string;
+  inlineCodeFg: string;
+  inputBg: string;
+  lightBg: string;
+  lightBlue: string;
+  lightBorderColor: string;
+  lightFg: string;
+  lightGreen: string;
+  lightOrange: string;
+  lightPink: string;
+  lightRed: string;
+  lightYellow: string;
+  navAccentColor: string;
+  navAccentTextColor: string;
+  navBgColor: string;
+  navHoverBgColor: string;
+  navHoverTextColor: string;
+  navTextColor: string;
+  orange: string;
+  overlayBg: string;
+  pink: string;
+  placeHolder: string;
+  primaryColor: string;
+  primaryColorInvert: string;
+  primaryColorTrans: string;
+  purple: string;
+  red: string;
+  selectionBg: string;
+  selectionFg: string;
+  yellow: string;
+}
+
 export type RapiDocMethods =
   | 'get'
   | 'put'
@@ -13,6 +66,12 @@ export type RapiDocMethods =
 export interface RapidocElement {
   requestUpdate: () => void;
   dispatchEvent: (event: CustomEvent) => void;
+  layout: 'row' | 'column'
+  monoFont: string;
+  regularFont: string;
+  navItemSpacing: 'relaxed' | 'compact';
+  responseAreaHeight: string;
+  fontSize: 'default' | 'large';
 }
 
 export interface RapiDocServer extends OpenAPIV3.ServerObject {
@@ -60,10 +119,6 @@ export interface RapiDocTag extends OpenAPIV3.TagObject {
   }[];
   'x-tag-expanded'?: boolean;
 }
-
-/* export type RapidocPathItem = OpenAPIV3.PathItemObject<T> & {
-        [method in HttpMethods]?: OperationObject<T>;
-    } */
 
 export interface RapiDocWebHookValue<T extends {} = {}>
   extends OpenAPIV3.PathItemObject<T> {

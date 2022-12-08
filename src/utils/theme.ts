@@ -1,13 +1,15 @@
 import { html } from 'lit';
-import ColorUtils from '~/utils/color-utils';
+import ColorUtils from '@rapidoc/utils/color-utils';
+import { RapidocElement, RapiDocTheme } from '@rapidoc-types';
+
 /* Generates an schema object containing type and constraint info */
-export default function setTheme(baseTheme, theme = {}) {
-  let newTheme = {};
+export default function setTheme(this: RapidocElement, baseTheme: 'dark' | 'light', theme: Partial<RapiDocTheme> = {}) {
+  let newTheme: Partial<RapiDocTheme> = {};
 
   // Common Theme colors
   const primaryColor = theme.primaryColor ? theme.primaryColor : baseTheme === 'dark' ? '#f76b39' : '#ff591e';
   const primaryColorInvert = ColorUtils.color.invert(primaryColor);
-  const primaryColorTrans = ColorUtils.color.opacity(primaryColor, '0.4');
+  const primaryColorTrans = ColorUtils.color.opacity(primaryColor, 0.4);
 
   // Dark and Light Theme colors
   if (baseTheme === 'dark') {
@@ -27,11 +29,11 @@ export default function setTheme(baseTheme, theme = {}) {
     const headerColor = theme.headerColor ? theme.headerColor : ColorUtils.color.brightness(bg1, 10);
 
     const navBgColor = theme.navBgColor ? theme.navBgColor : ColorUtils.color.brightness(bg1, 10);
-    const navTextColor = theme.navTextColor ? theme.navTextColor : ColorUtils.color.opacity(ColorUtils.color.invert(navBgColor), '0.50');
+    const navTextColor = theme.navTextColor ? theme.navTextColor : ColorUtils.color.opacity(ColorUtils.color.invert(navBgColor), 0.50);
     const navHoverBgColor = theme.navHoverBgColor ? theme.navHoverBgColor : ColorUtils.color.brightness(navBgColor, -15);
     const navHoverTextColor = theme.navHoverTextColor ? theme.navHoverTextColor : ColorUtils.color.invert(navBgColor);
     const navAccentColor = theme.navAccentColor ? theme.navAccentColor : ColorUtils.color.brightness(primaryColor, 25);
-    const navAccentTextColor = theme.navAccentTextColor ? theme.navAccenttextColor : ColorUtils.color.invert(navAccentColor);
+    const navAccentTextColor = theme.navAccentTextColor ? theme.navAccentTextColor : ColorUtils.color.invert(navAccentColor);
 
     const overlayBg = 'rgba(80, 80, 80, 0.4)';
 
@@ -67,7 +69,7 @@ export default function setTheme(baseTheme, theme = {}) {
       codeBorderColor: theme.codeBorderColor || ColorUtils.color.brightness(bg1, 30),
 
       inputBg: theme.inputBg || ColorUtils.color.brightness(bg1, -5), // #2f2f2f
-      placeHolder: theme.placeHolder || ColorUtils.color.opacity(fg1, '0.3'),
+      placeHolder: theme.placeHolder || ColorUtils.color.opacity(fg1, 0.3),
       hoverColor: theme.hoverColor || ColorUtils.color.brightness(bg1, -10), // #2a2a2a
 
       red: theme.red ? theme.red : '#F06560',
@@ -121,11 +123,11 @@ export default function setTheme(baseTheme, theme = {}) {
     const navAccentColor = theme.navAccentColor ? theme.navAccentColor : primaryColor;
     */
     const navBgColor = theme.navBgColor ? theme.navBgColor : ColorUtils.color.brightness(bg1, -200);
-    const navTextColor = theme.navTextColor ? theme.navTextColor : ColorUtils.color.opacity(ColorUtils.color.invert(navBgColor), '0.65');
+    const navTextColor = theme.navTextColor ? theme.navTextColor : ColorUtils.color.opacity(ColorUtils.color.invert(navBgColor), 0.65);
     const navHoverBgColor = theme.navHoverBgColor ? theme.navHoverBgColor : ColorUtils.color.brightness(navBgColor, -15);
     const navHoverTextColor = theme.navHoverTextColor ? theme.navHoverTextColor : ColorUtils.color.invert(navBgColor);
     const navAccentColor = theme.navAccentColor ? theme.navAccentColor : ColorUtils.color.brightness(primaryColor, 25);
-    const navAccentTextColor = theme.navAccentTextColor ? theme.navAccenttextColor : ColorUtils.color.invert(navAccentColor);
+    const navAccentTextColor = theme.navAccentTextColor ? theme.navAccentTextColor : ColorUtils.color.invert(navAccentColor);
     const overlayBg = 'rgba(0, 0, 0, 0.4)';
 
     newTheme = {
