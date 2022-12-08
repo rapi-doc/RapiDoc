@@ -1,21 +1,61 @@
 /* eslint-disable no-use-before-define */
 import OpenApiParser from '@apitools/openapi-parser';
 import { marked } from 'marked';
-import { invalidCharsRegEx, rapidocApiKey, sleep } from '@rapidoc/utils/common-utils';
-import { RapiDocDocument, RapidocElement, RapiDocMethods, RapiDocSecurityScheme, RapiDocServer, RapiDocTag } from '@rapidoc/types/rapidoc';
+import {
+  invalidCharsRegEx,
+  rapidocApiKey,
+  sleep,
+} from '@rapidoc/utils/common-utils';
+import {
+  RapiDocDocument,
+  RapidocElement,
+  RapiDocMethods,
+  RapiDocSecurityScheme,
+  RapiDocServer,
+  RapiDocTag,
+} from '@rapidoc/types/rapidoc';
 import { OpenAPIV3 } from 'openapi-types';
 
-export default async function ProcessSpec(this: RapidocElement, specUrl: string, generateMissingTags = false, sortTags = false, sortEndpointsBy: 'method' | 'summary' | 'path' | 'none' | '' = '', attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '') {
+export default async function ProcessSpec(
+  this: RapidocElement,
+  specUrl: string,
+  generateMissingTags = false,
+  sortTags = false,
+  sortEndpointsBy: 'method' | 'summary' | 'path' | 'none' | '' = '',
+  attrApiKey = '',
+  attrApiKeyLocation = '',
+  attrApiKeyValue = '',
+  serverUrl = ''
+) {
   let jsonParsedSpec: RapiDocDocument | undefined;
   try {
     this.requestUpdate(); // important to show the initial loader
-    let specMeta = await OpenApiParser.resolve({ url: specUrl, allowMetaPatches: false }); // Swagger(specUrl);
+    let specMeta = await OpenApiParser.resolve({
+      url: specUrl,
+      allowMetaPatches: false,
+    }); // Swagger(specUrl);
     await sleep(0); // important to show the initial loader (allows for rendering updates)
 
     // If  JSON Schema Viewer
-    if (specMeta.resolvedSpec?.jsonSchemaViewer && specMeta.resolvedSpec?.schemaAndExamples) {
-      this.dispatchEvent(new CustomEvent('before-render', { detail: { spec: specMeta.resolvedSpec } }));
-      const schemaAndExamples = Object.entries(specMeta.resolvedSpec.schemaAndExamples).map(([key, value]) => ({ show: true, expanded: true, selectedExample: null, name: key, elementId: key.replace(invalidCharsRegEx, '-'), ...value}));
+    if (
+      specMeta.resolvedSpec?.jsonSchemaViewer &&
+      specMeta.resolvedSpec?.schemaAndExamples
+    ) {
+      this.dispatchEvent(
+        new CustomEvent('before-render', {
+          detail: { spec: specMeta.resolvedSpec },
+        })
+      );
+      const schemaAndExamples = Object.entries(
+        specMeta.resolvedSpec.schemaAndExamples
+      ).map(([key, value]) => ({
+        show: true,
+        expanded: true,
+        selectedExample: null,
+        name: key,
+        elementId: key.replace(invalidCharsRegEx, '-'),
+        ...value,
+      }));
       const parsedSpec = {
         specLoadError: false,
         isSpecLoading: false,
@@ -24,24 +64,43 @@ export default async function ProcessSpec(this: RapidocElement, specUrl: string,
       };
       return parsedSpec;
     }
-    if (specMeta.spec && (specMeta.spec.components || specMeta.spec.info || specMeta.spec.servers || specMeta.spec.tags || specMeta.spec.paths)) {
+    if (
+      specMeta.spec &&
+      (specMeta.spec.components ||
+        specMeta.spec.info ||
+        specMeta.spec.servers ||
+        specMeta.spec.tags ||
+        specMeta.spec.paths)
+    ) {
       jsonParsedSpec = specMeta.spec;
-      this.dispatchEvent(new CustomEvent('before-render', { detail: { spec: jsonParsedSpec } }));
+      this.dispatchEvent(
+        new CustomEvent('before-render', { detail: { spec: jsonParsedSpec } })
+      );
     } else {
-      console.info('RapiDoc: %c There was an issue while parsing the spec %o ', 'color:orangered', specMeta); // eslint-disable-line no-console
+      console.info(
+        'RapiDoc: %c There was an issue while parsing the spec %o ',
+        'color:orangered',
+        specMeta
+      ); // eslint-disable-line no-console
       return {
         specLoadError: true,
         isSpecLoading: false,
         info: {
           title: 'Error loading the spec',
-          description: specMeta.response?.url ? `${specMeta.response?.url} ┃ ${specMeta.response?.status}  ${specMeta.response?.statusText}` : 'Unable to load the Spec',
+          description: specMeta.response?.url
+            ? `${specMeta.response?.url} ┃ ${specMeta.response?.status}  ${specMeta.response?.statusText}`
+            : 'Unable to load the Spec',
           version: ' ',
         },
         tags: [],
       };
     }
   } catch (err) {
-    console.info('RapiDoc: %c There was an issue while parsing the spec %o ', 'color:orangered', err); // eslint-disable-line no-console
+    console.info(
+      'RapiDoc: %c There was an issue while parsing the spec %o ',
+      'color:orangered',
+      err
+    ); // eslint-disable-line no-console
   }
 
   if (!jsonParsedSpec) {
@@ -51,22 +110,33 @@ export default async function ProcessSpec(this: RapidocElement, specUrl: string,
   // const pathGroups = groupByPaths(jsonParsedSpec);
 
   // Tags with Paths and WebHooks
-  const tags = groupByTags(jsonParsedSpec, sortEndpointsBy, generateMissingTags, sortTags);
+  const tags = groupByTags(
+    jsonParsedSpec,
+    sortEndpointsBy,
+    generateMissingTags,
+    sortTags
+  );
 
   // Components
   const components = getComponents(jsonParsedSpec);
 
   // Info Description Headers
-  const infoDescriptionHeaders = jsonParsedSpec?.info?.description ? getHeadersFromMarkdown(jsonParsedSpec.info.description) : [];
+  const infoDescriptionHeaders = jsonParsedSpec?.info?.description
+    ? getHeadersFromMarkdown(jsonParsedSpec.info.description)
+    : [];
 
   // Security Scheme
   const securitySchemes: RapiDocSecurityScheme[] = [];
   if (jsonParsedSpec?.components?.securitySchemes) {
     const securitySchemeSet = new Set();
-    Object.entries(jsonParsedSpec.components.securitySchemes).forEach(([securitySchemeId, securityScheme]) => {
+    Object.entries(jsonParsedSpec.components.securitySchemes).forEach(
+      ([securitySchemeId, securityScheme]) => {
         if (!securitySchemeSet.has(securitySchemeId)) {
           securitySchemeSet.add(securitySchemeId);
-          const securitySchemeObject: any = { securitySchemeId, ...securityScheme };
+          const securitySchemeObject: any = {
+            securitySchemeId,
+            ...securityScheme,
+          };
           securitySchemeObject.value = '';
           securitySchemeObject.finalKeyValue = '';
 
@@ -92,7 +162,8 @@ export default async function ProcessSpec(this: RapidocElement, specUrl: string,
           }
           securitySchemes.push(securitySchemeObject);
         }
-      });
+      }
+    );
   }
 
   if (attrApiKey && attrApiKeyLocation && attrApiKeyValue) {
@@ -109,38 +180,44 @@ export default async function ProcessSpec(this: RapidocElement, specUrl: string,
   }
 
   // Updated Security Type Display Text based on Type
-  securitySchemes.forEach((v) => {
-    if (v.type === 'http') {
-      v.typeDisplay = v.scheme === 'basic' ? 'HTTP Basic' : 'HTTP Bearer';
-    } else if (v.type === 'apiKey') {
-      v.typeDisplay = `API Key (${v.name})`;
-    } else if (v.type === 'oauth2') {
-      v.typeDisplay = `OAuth (${v.securitySchemeId})`;
+  securitySchemes.forEach((securityScheme) => {
+    if (securityScheme.type === 'http') {
+      securityScheme.typeDisplay = securityScheme.scheme === 'basic' ? 'HTTP Basic' : 'HTTP Bearer';
+    } else if (securityScheme.type === 'apiKey') {
+      securityScheme.typeDisplay = `API Key (${securityScheme.name})`;
+    } else if (securityScheme.type === 'oauth2') {
+      securityScheme.typeDisplay = `OAuth (${securityScheme.securitySchemeId})`;
     } else {
-      v.typeDisplay = v.type || 'None';
+      securityScheme.typeDisplay = securityScheme.type || 'None';
     }
   });
 
   // Servers
   let servers: RapiDocServer[] = [];
   if (jsonParsedSpec?.servers && Array.isArray(jsonParsedSpec.servers)) {
-    jsonParsedSpec.servers.forEach((v) => {
-      let computedUrl = v.url.trim();
-      if (!(computedUrl.startsWith('http') || computedUrl.startsWith('//') || computedUrl.startsWith('{'))) {
+    jsonParsedSpec.servers.forEach((server) => {
+      let computedUrl = server.url.trim();
+      if (
+        !(
+          computedUrl.startsWith('http') ||
+          computedUrl.startsWith('//') ||
+          computedUrl.startsWith('{')
+        )
+      ) {
         if (window.location.origin.startsWith('http')) {
-          v.url = window.location.origin + v.url;
-          computedUrl = v.url;
+          server.url = window.location.origin + server.url;
+          computedUrl = server.url;
         }
       }
       // Apply server-variables to generate final computed-url
-      if (v.variables) {
-        Object.entries(v.variables).forEach(([key, variable]) => {
+      if (server.variables) {
+        Object.entries(server.variables).forEach(([key, variable]) => {
           const regex = new RegExp(`{${key}}`, 'g');
           computedUrl = computedUrl.replace(regex, variable.default || '');
           variable.value = variable.default || '';
         });
       }
-      v.computedUrl = computedUrl;
+      server.computedUrl = computedUrl;
     });
     if (serverUrl) {
       jsonParsedSpec.servers.push({ url: serverUrl, computedUrl: serverUrl });
@@ -148,9 +225,13 @@ export default async function ProcessSpec(this: RapidocElement, specUrl: string,
   } else if (serverUrl) {
     jsonParsedSpec.servers = [{ url: serverUrl, computedUrl: serverUrl }];
   } else if (window.location.origin.startsWith('http')) {
-    jsonParsedSpec.servers = [{ url: window.location.origin, computedUrl: window.location.origin }];
+    jsonParsedSpec.servers = [
+      { url: window.location.origin, computedUrl: window.location.origin },
+    ];
   } else {
-    jsonParsedSpec.servers = [{ url: 'http://localhost', computedUrl: 'http://localhost' }];
+    jsonParsedSpec.servers = [
+      { url: 'http://localhost', computedUrl: 'http://localhost' },
+    ];
   }
   servers = jsonParsedSpec.servers;
   const parsedSpec = {
@@ -169,7 +250,7 @@ export default async function ProcessSpec(this: RapidocElement, specUrl: string,
 
 function getHeadersFromMarkdown(markdownContent: string) {
   const tokens = marked.lexer(markdownContent);
-  const headers = tokens.filter((v) => v.type === 'heading' && v.depth <= 2);
+  const headers = tokens.filter((token) => token.type === 'heading' && token.depth <= 2);
   return headers || [];
 }
 
@@ -188,12 +269,16 @@ function getComponents(openApiSpec: RapiDocDocument) {
       component: any;
     }[];
   }[] = [];
-  Object.entries(openApiSpec.components).forEach(([component, componentValue]) => {
+  Object.entries(openApiSpec.components).forEach(
+    ([component, componentValue]) => {
       const subComponents = [];
       for (const sComponent in componentValue) {
         const scmp = {
           show: true,
-          id: `${component.toLowerCase()}-${sComponent.toLowerCase()}`.replace(invalidCharsRegEx, '-'),
+          id: `${component.toLowerCase()}-${sComponent.toLowerCase()}`.replace(
+            invalidCharsRegEx,
+            '-'
+          ),
           name: sComponent,
           component: componentValue[sComponent],
         };
@@ -206,41 +291,50 @@ function getComponents(openApiSpec: RapiDocDocument) {
       switch (component) {
         case 'schemas':
           cmpName = 'Schemas';
-          cmpDescription = 'Schemas allows the definition of input and output data types. These types can be objects, but also primitives and arrays.';
+          cmpDescription =
+            'Schemas allows the definition of input and output data types. These types can be objects, but also primitives and arrays.';
           break;
         case 'responses':
           cmpName = 'Responses';
-          cmpDescription = 'Describes responses from an API Operation, including design-time, static links to operations based on the response.';
+          cmpDescription =
+            'Describes responses from an API Operation, including design-time, static links to operations based on the response.';
           break;
         case 'parameters':
           cmpName = 'Parameters';
-          cmpDescription = 'Describes operation parameters. A unique parameter is defined by a combination of a name and location.';
+          cmpDescription =
+            'Describes operation parameters. A unique parameter is defined by a combination of a name and location.';
           break;
         case 'examples':
           cmpName = 'Examples';
-          cmpDescription = 'List of Examples for operations, can be requests, responses and objects examples.';
+          cmpDescription =
+            'List of Examples for operations, can be requests, responses and objects examples.';
           break;
         case 'requestBodies':
           cmpName = 'Request Bodies';
-          cmpDescription = 'Describes common request bodies that are used across the API operations.';
+          cmpDescription =
+            'Describes common request bodies that are used across the API operations.';
           break;
         case 'headers':
           cmpName = 'Headers';
-          cmpDescription = 'Headers follows the structure of the Parameters but they are explicitly in "header"';
+          cmpDescription =
+            'Headers follows the structure of the Parameters but they are explicitly in "header"';
           break;
         case 'securitySchemes':
           cmpName = 'Security Schemes';
           // eslint-disable-next-line max-len
-          cmpDescription = 'Defines a security scheme that can be used by the operations. Supported schemes are HTTP authentication, an API key (either as a header, a cookie parameter or as a query parameter), OAuth2\'s common flows(implicit, password, client credentials and authorization code) as defined in RFC6749, and OpenID Connect Discovery.';
+          cmpDescription =
+            "Defines a security scheme that can be used by the operations. Supported schemes are HTTP authentication, an API key (either as a header, a cookie parameter or as a query parameter), OAuth2's common flows(implicit, password, client credentials and authorization code) as defined in RFC6749, and OpenID Connect Discovery.";
           break;
         case 'links':
           cmpName = 'Links';
-          cmpDescription = 'Links represent a possible design-time link for a response. The presence of a link does not guarantee the caller\'s ability to successfully invoke it, rather it provides a known relationship and traversal mechanism between responses and other operations.';
+          cmpDescription =
+            "Links represent a possible design-time link for a response. The presence of a link does not guarantee the caller's ability to successfully invoke it, rather it provides a known relationship and traversal mechanism between responses and other operations.";
           break;
         case 'callbacks':
           cmpName = 'Callbacks';
           // eslint-disable-next-line max-len
-          cmpDescription = 'A map of possible out-of band callbacks related to the parent operation. Each value in the map is a Path Item Object that describes a set of requests that may be initiated by the API provider and the expected responses. The key value used to identify the path item object is an expression, evaluated at runtime, that identifies a URL to use for the callback operation.';
+          cmpDescription =
+            'A map of possible out-of band callbacks related to the parent operation. Each value in the map is a Path Item Object that describes a set of requests that may be initiated by the API provider and the expected responses. The key value used to identify the path item object is an expression, evaluated at runtime, that identifies a URL to use for the callback operation.';
           break;
         default:
           cmpName = component;
@@ -261,18 +355,31 @@ function getComponents(openApiSpec: RapiDocDocument) {
   return components || [];
 }
 
-function groupByTags(openApiSpec: RapiDocDocument, sortEndpointsBy: 'method' | 'summary' | 'path' | 'none' | '', generateMissingTags = false, sortTags = false) {
-  const supportedMethods: RapiDocMethods[] = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options']; // this is also used for ordering endpoints by methods
+function groupByTags(
+  openApiSpec: RapiDocDocument,
+  sortEndpointsBy: 'method' | 'summary' | 'path' | 'none' | '',
+  generateMissingTags = false,
+  sortTags = false
+) {
+  const supportedMethods: RapiDocMethods[] = [
+    'get',
+    'put',
+    'post',
+    'delete',
+    'patch',
+    'head',
+    'options',
+  ]; // this is also used for ordering endpoints by methods
   const tags: RapiDocTag[] =
     openApiSpec.tags && Array.isArray(openApiSpec.tags)
-      ? openApiSpec.tags.map((v) => ({
+      ? openApiSpec.tags.map((tag) => ({
           show: true,
-          elementId: `tag--${v.name.replace(invalidCharsRegEx, '-')}`,
-          name: v.name,
-          description: v.description || '',
-          headers: v.description ? getHeadersFromMarkdown(v.description) : [],
+          elementId: `tag--${tag.name.replace(invalidCharsRegEx, '-')}`,
+          name: tag.name,
+          description: tag.description || '',
+          headers: tag.description ? getHeadersFromMarkdown(tag.description) : [],
           paths: [],
-          expanded: v['x-tag-expanded'] !== false,
+          expanded: tag['x-tag-expanded'] !== false,
         }))
       : [];
 
@@ -284,7 +391,8 @@ function groupByTags(openApiSpec: RapiDocDocument, sortEndpointsBy: 'method' | '
     }
   }
   // For each path find the tag and push it into the corresponding tag
-  Object.entries(pathsAndWebhooks).forEach(([pathOrHookName, pathOrHookValue]) => {
+  Object.entries(pathsAndWebhooks).forEach(
+    ([pathOrHookName, pathOrHookValue]) => {
       // Theoretically could be an OpenAPIV3.ReferenceObject[];
       const commonParams =
         pathOrHookValue?.parameters as unknown as OpenAPIV3.ParameterObject[];
@@ -317,30 +425,40 @@ function groupByTags(openApiSpec: RapiDocDocument, sortEndpointsBy: 'method' | '
             }
           }
 
-          pathTags.forEach((tag) => {
+          pathTags.forEach((pathTag) => {
             let tagObj: RapiDocTag | undefined;
             let specTagsItem;
 
             if (openApiSpec.tags) {
-              specTagsItem = openApiSpec.tags.find((v) => (v.name.toLowerCase() === tag.toLowerCase()));
+              specTagsItem = openApiSpec.tags.find(
+                (tag) => tag.name.toLowerCase() === pathTag.toLowerCase()
+              );
             }
 
-            tagObj = tags.find((v) => v.name === tag);
+            tagObj = tags.find((tag) => tag.name === pathTag);
             if (!tagObj) {
               tagObj = {
                 show: true,
-                elementId: `tag--${tag.replace(invalidCharsRegEx, '-')}`,
-                name: tag,
+                elementId: `tag--${pathTag.replace(invalidCharsRegEx, '-')}`,
+                name: pathTag,
                 description: specTagsItem?.description || '',
-                headers: specTagsItem?.description ? getHeadersFromMarkdown(specTagsItem.description) : [],
+                headers: specTagsItem?.description
+                  ? getHeadersFromMarkdown(specTagsItem.description)
+                  : [],
                 paths: [],
-                expanded: (specTagsItem ? specTagsItem['x-tag-expanded'] !== false : true),
+                expanded: specTagsItem
+                  ? specTagsItem['x-tag-expanded'] !== false
+                  : true,
               };
               tags.push(tagObj);
             }
 
             // Generate a short summary which is broken
-            let shortSummary = (pathOrHookObj?.summary || pathOrHookObj?.description || `${methodName.toUpperCase()} ${pathOrHookName}`).trim();
+            let shortSummary = (
+              pathOrHookObj?.summary ||
+              pathOrHookObj?.description ||
+              `${methodName.toUpperCase()} ${pathOrHookName}`
+            ).trim();
             if (shortSummary.length > 100) {
               [shortSummary] = shortSummary.split(/[.|!|?]\s|[\r?\n]/); // take the first line (period or carriage return)
             }
@@ -348,29 +466,45 @@ function groupByTags(openApiSpec: RapiDocDocument, sortEndpointsBy: 'method' | '
             let finalParameters = [];
             if (commonParams) {
               if (pathOrHookObj?.parameters) {
-                finalParameters = commonParams.filter((commonParam) => {
+                finalParameters = commonParams
+                  .filter((commonParam) => {
                     if (
                       (
                         !pathOrHookObj?.parameters as unknown as OpenAPIV3.ParameterObject[]
-                      )?.some((param) => (commonParam.name === param.name && commonParam.in === param.in))
+                      )?.some(
+                        (param) =>
+                          commonParam.name === param.name &&
+                          commonParam.in === param.in
+                      )
                     ) {
                       return true;
                     }
 
                     return false;
-                  }).concat(pathOrHookObj.parameters as unknown as OpenAPIV3.ParameterObject[]);
+                  })
+                  .concat(
+                    pathOrHookObj.parameters as unknown as OpenAPIV3.ParameterObject[]
+                  );
               } else {
                 finalParameters = commonParams.slice(0);
               }
             } else {
-              finalParameters = pathOrHookObj?.parameters ? pathOrHookObj.parameters.slice(0) : [];
+              finalParameters = pathOrHookObj?.parameters
+                ? pathOrHookObj.parameters.slice(0)
+                : [];
             }
 
             // Filter callbacks to contain only objects.
             if (pathOrHookObj?.callbacks) {
-              for (const [callbackName, callbackConfig] of Object.entries(pathOrHookObj.callbacks)) {
-                const filteredCallbacks = Object.entries(callbackConfig).filter((entry) => typeof entry[1] === 'object') || [];
-                pathOrHookObj.callbacks[callbackName] = Object.fromEntries(filteredCallbacks);
+              for (const [callbackName, callbackConfig] of Object.entries(
+                pathOrHookObj.callbacks
+              )) {
+                const filteredCallbacks =
+                  Object.entries(callbackConfig).filter(
+                    (entry) => typeof entry[1] === 'object'
+                  ) || [];
+                pathOrHookObj.callbacks[callbackName] =
+                  Object.fromEntries(filteredCallbacks);
               }
             }
 
@@ -387,8 +521,13 @@ function groupByTags(openApiSpec: RapiDocDocument, sortEndpointsBy: 'method' | '
               method: methodName,
               path: pathOrHookName,
               operationId: pathOrHookObj?.operationId,
-              elementId: `${methodName}-${pathOrHookName.replace(invalidCharsRegEx, '-')}`,
-              servers: pathOrHookObj?.servers ? commonPathProp.servers.concat(pathOrHookObj.servers) : commonPathProp.servers,
+              elementId: `${methodName}-${pathOrHookName.replace(
+                invalidCharsRegEx,
+                '-'
+              )}`,
+              servers: pathOrHookObj?.servers
+                ? commonPathProp.servers.concat(pathOrHookObj.servers)
+                : commonPathProp.servers,
               parameters: finalParameters,
               requestBody: pathOrHookObj?.requestBody,
               responses: pathOrHookObj?.responses,
@@ -398,25 +537,30 @@ function groupByTags(openApiSpec: RapiDocDocument, sortEndpointsBy: 'method' | '
               // commonSummary: commonPathProp.summary,
               // commonDescription: commonPathProp.description,
               xBadges: pathOrHookObj?.['x-badges'] || undefined,
-              xCodeSamples: pathOrHookObj?.['x-codeSamples'] || pathOrHookObj?.['x-code-samples'] || '',
+              xCodeSamples:
+                pathOrHookObj?.['x-codeSamples'] ||
+                pathOrHookObj?.['x-code-samples'] ||
+                '',
             });
-          });// End of tag path create
+          }); // End of tag path create
         }
       }); // End of Methods
     }
   );
 
-  const tagsWithSortedPaths = tags.filter((tag) => tag.paths && tag.paths.length > 0);
+  const tagsWithSortedPaths = tags.filter(
+    (tag) => tag.paths && tag.paths.length > 0
+  );
   tagsWithSortedPaths.forEach((tag) => {
     if (sortEndpointsBy === 'method') {
-      tag.paths.sort((a, b) => {
-        const indexOfA = supportedMethods.indexOf(a.method);
-        const indexOfB = supportedMethods.indexOf(b.method);
+      tag.paths.sort((tagA, tagB) => {
+        const indexOfMethodA = supportedMethods.indexOf(tagA.method);
+        const indexOfMethodB = supportedMethods.indexOf(tagB.method);
 
-        return indexOfA - indexOfB;
+        return indexOfMethodA - indexOfMethodB;
       });
     } else if (sortEndpointsBy === 'summary') {
-      tag.paths.sort((a, b) => (a.shortSummary).localeCompare(b.shortSummary));
+      tag.paths.sort((a, b) => a.shortSummary.localeCompare(b.shortSummary));
     } else if (sortEndpointsBy === 'path') {
       tag.paths.sort((a, b) => a.path.localeCompare(b.path));
     } else if (sortEndpointsBy === 'none') {
@@ -424,5 +568,7 @@ function groupByTags(openApiSpec: RapiDocDocument, sortEndpointsBy: 'method' | '
     }
     tag.firstPathId = tag.paths[0].elementId;
   });
-  return sortTags ? tagsWithSortedPaths.sort((a, b) => a.name.localeCompare(b.name)) : tagsWithSortedPaths;
+  return sortTags
+    ? tagsWithSortedPaths.sort((tagA, tagB) => tagA.name.localeCompare(tagB.name))
+    : tagsWithSortedPaths;
 }
