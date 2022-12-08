@@ -27,7 +27,7 @@ export default {
     invert(hexColorCode: string) {
       return this.luminanace(hexColorCode) > 135 ? '#000' : '#fff'; // compare with `>=128`, but giving little more preference to white over black
     },
-    opacity(hex: string, opacity: string) {
+    opacity(hex: string, opacity: number) {
       const rgb = this.getRgb(hex);
       return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity})`;
     },
