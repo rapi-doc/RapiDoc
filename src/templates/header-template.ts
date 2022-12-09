@@ -1,8 +1,9 @@
 import { html } from 'lit';
-import logoTemplate from '~/templates/logo-template';
+import logoTemplate from '@rapidoc/templates/logo-template';
+import { RapidocElement } from '@rapidoc-types';
 
 /* eslint-disable indent */
-export default function headerTemplate() {
+export default function headerTemplate(this: RapidocElement) {
   return html`
   <header class="row main-header regular-font" part="section-header" style="padding:8px 4px 8px 4px;min-height:48px;">
     <div class="only-large-screen-flex" style="align-items: center;">
