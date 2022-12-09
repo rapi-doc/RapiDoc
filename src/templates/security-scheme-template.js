@@ -2,6 +2,7 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
+import updateCurl from '~/utils/update-curl';
 
 const codeVerifier = '731DB1C3F7EA533B85E29492D26AA-1234567890-1234567890';
 const codeChallenge = '4FatVDBJKPAo4JgLLaaQFMUcQPn5CrPRvLlaob9PTYc'; // Base64 encoded SHA-256
@@ -374,9 +375,11 @@ function removeApiKey(securitySchemeId) {
   this.requestUpdate();
 }
 
-function handleApiKeyChange(securitySchemeId, apiKey) {
+function handleApiKeyChange(e, securitySchemeId, apiKey) {
   if (apiKey === '') removeApiKey.call(this, securitySchemeId);
   else onApiKeyChange.call(this, securitySchemeId);
+
+  updateCurl.call(this, e.target ? e.target : e);
 }
 
 export default function securitySchemeTemplate() {
@@ -413,7 +416,7 @@ export default function securitySchemeTemplate() {
                           spellcheck="false"
                           value="${v.value}"
                           class="${v.type} ${v.securitySchemeId} api-key-input header-auth-input"
-                          @change="${(e) => { handleApiKeyChange.call(this, v.securitySchemeId, e.target.value); }}"
+                          @input="${(e) => { handleApiKeyChange.call(this, e, v.securitySchemeId, e.target.value); }}"
                         >`
                       : html`<span class="gray-text" style="font-size::var(--font-size-small)"> cookies cannot be set from here</span>`
                     }
@@ -433,6 +436,7 @@ export default function securitySchemeTemplate() {
                       placeholder="username"
                       class="${v.type} ${v.securitySchemeId} api-key-user"
                       style="width:100px"
+                      @change = ${(e) => { updateCurl.call(this, e.target ? e.target : e); }}
                     >
                     <input
                       type="password"
@@ -441,6 +445,7 @@ export default function securitySchemeTemplate() {
                       value="${v.password}"
                       class="${v.type} ${v.securitySchemeId} api-key-password"
                       style="width:100px; margin:0 5px;"
+                      @change = ${(e) => { updateCurl.call(this, e.target ? e.target : e); }}
                     >
                     <button class="m-btn thin-border"
                       @click="${(e) => { onApiKeyChange.call(this, v.securitySchemeId, e); }}"
@@ -464,7 +469,7 @@ export default function securitySchemeTemplate() {
         </div>`
       : ''
     }
-    <button class='test-method-button' @click='${this.onTryClick}'>
+    <button class='test-method-button' @click='${this.onTryClick}' >
       TEST METHOD
     </button>
     <slot name="auth">
