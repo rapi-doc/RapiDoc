@@ -72,10 +72,12 @@ export interface RapidocElement {
   navItemSpacing: 'relaxed' | 'compact';
   responseAreaHeight: string;
   fontSize: 'default' | 'large';
+  allowSpecFileDownload: 'true' | 'false';
   allowAdvancedSearch: 'true' | 'false';
   allowSearch: 'true' | 'false';
   allowSpecFileLoad: 'true' | 'false';
   allowSpecUrlLoad: 'true' | 'false';
+  infoDescriptionHeadingsInNavBar: 'true' | 'false';
   headingText: string;
   onFileLoadClick: () => void;
   onSearchChange: () => void;
@@ -85,6 +87,7 @@ export interface RapidocElement {
   renderStyle: string;
   specFile: string;
   specUrl: string;
+  resolvedSpec: RapiDocDocument
 }
 
 export interface RapiDocServer extends OpenAPIV3.ServerObject {
