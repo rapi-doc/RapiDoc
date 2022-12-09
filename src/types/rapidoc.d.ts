@@ -66,7 +66,7 @@ export type RapiDocMethods =
 export interface RapidocElement {
   requestUpdate: () => void;
   dispatchEvent: (event: CustomEvent) => void;
-  layout: 'row' | 'column'
+  layout: 'row' | 'column';
   monoFont: string;
   regularFont: string;
   navItemSpacing: 'relaxed' | 'compact';
@@ -161,3 +161,22 @@ export type RapiDocSecurityScheme = OpenAPIV3.SecuritySchemeObject & {
   value?: string;
   finalKeyValue?: string;
 };
+
+export type RapiDocSchema = OpenAPIV3.SchemaObject & {
+  length?: number;
+  const?: boolean | number | string;
+  enum?: boolean;
+  format?: string;
+  examples?: any[];
+  items?: RapiDocSchema;
+  type?: 'boolean' | 'object' | 'number' | 'string' | 'integer' | string;
+};
+
+export interface RapidocObj {
+  '::TITLE'?: string;
+  '::DESCRIPTION'?: string;
+  '::XML_TAG'?: string;
+  '::XML_WRAP'?: string;
+
+  [index: string]: RapidocObj | undefined | string;
+}

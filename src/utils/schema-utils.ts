@@ -1,5 +1,8 @@
-// Takes a value as input and provides a printable string to replresent null values, spaces, blankstring etc
-export function getPrintableVal(val) {
+import { RapidocObj, RapiDocSchema } from '@rapidoc-types';
+import type { OpenAPIV3 } from 'openapi-types';
+
+// Takes a value as input and provides a printable string to represent null values, spaces, blank string etc
+export function getPrintableVal(val: unknown) {
   if (val === undefined) {
     return '';
   }
@@ -13,13 +16,13 @@ export function getPrintableVal(val) {
     return `${val}`;
   }
   if (Array.isArray(val)) {
-    return val.map((v) => (v === null ? 'null' : v === '' ? '∅' : v.toString().replace(/^ +| +$/g, (m) => '●'.repeat(m.length)) || '')).join(', ');
+    return val.map((v) => (v === null ? 'null' : v === '' ? '∅' : v.toString().replace(/^ +| +$/g, (m: string) => '●'.repeat(m.length)) || '')).join(', ');
   }
-  return val.toString().replace(/^ +| +$/g, (m) => '●'.repeat(m.length)) || '';
+  return val.toString().replace(/^ +| +$/g, (m: string) => '●'.repeat(m.length)) || '';
 }
 
 /* Generates an schema object containing type and constraint info */
-export function getTypeInfo(schema) {
+export function getTypeInfo(schema: (OpenAPIV3.ReferenceObject | RapiDocSchema)) {
   if (!schema) {
     return;
   }
@@ -27,14 +30,16 @@ export function getTypeInfo(schema) {
   let constrain = '';
   // let examples;
 
-  if (schema.$ref) {
+  const isRefSchema = '$ref' in schema;
+
+  if (isRefSchema) {
     const n = schema.$ref.lastIndexOf('/');
     const schemaNode = schema.$ref.substring(n + 1);
     dataType = `{recursive: ${schemaNode}} `;
   } else if (schema.type) {
     dataType = Array.isArray(schema.type) ? schema.type.join(schema.length === 2 ? ' or ' : '┃') : schema.type;
     if (schema.format || schema.enum || schema.const) {
-      dataType = dataType.replace('string', schema.enum ? 'enum' : schema.const ? 'const' : schema.format);
+      dataType = dataType.replace('string', schema.enum ? 'enum' : schema.const ? 'const' : (schema.format || ''));
     }
     if (schema.nullable) {
       dataType += '┃null';
@@ -47,71 +52,91 @@ export function getTypeInfo(schema) {
     dataType = '{missing-type-info}';
   }
 
-  const info = {
+  const info: {
+    type: string;
+    format: string;
+    pattern: string;
+    readOrWriteOnly: string;
+    deprecated: string;
+    examples: any;
+    default: string;
+    description: string;
+    constrain: string;
+    allowedValues?: string | number | boolean | undefined;
+    arrayType: string;
+    html: string;
+  } = {
     type: dataType,
-    format: schema.format || '',
-    pattern: (schema.pattern && !schema.enum) ? schema.pattern : '',
-    readOrWriteOnly: (schema.readOnly ? '🆁' : schema.writeOnly ? '🆆' : ''),
-    deprecated: schema.deprecated ? '❌' : '',
-    examples: schema.examples || schema.example,
-    default: getPrintableVal(schema.default),
-    description: schema.description || '',
+    format: isRefSchema ? '' : schema.format || '',
+    pattern: isRefSchema ? '' : (schema.pattern && !schema.enum) ? schema.pattern : '',
+    readOrWriteOnly: isRefSchema ? '' : (schema.readOnly ? '🆁' : schema.writeOnly ? '🆆' : ''),
+    deprecated: isRefSchema ? '' : schema.deprecated ? '❌' : '',
+    examples: isRefSchema ? '' : schema.examples || schema.example,
+    default: isRefSchema ? '' : getPrintableVal(schema.default),
+    description: isRefSchema ? '' : schema.description || '',
     constrain: '',
     allowedValues: '',
     arrayType: '',
     html: '',
   };
 
-  if (info.type === '{recursive}') {
+  if (isRefSchema) {
     info.description = schema.$ref.substring(schema.$ref.lastIndexOf('/') + 1);
   } else if (info.type === '{missing-type-info}' || info.type === 'any') {
     info.description = info.description || '';
   }
-  // Set Allowed Values
-  info.allowedValues = schema.const
-    ? schema.const
-    : Array.isArray(schema.enum)
-      ? schema.enum.map((v) => (getPrintableVal(v))).join('┃')
-      : '';
 
-  if (dataType === 'array' && schema.items) {
-    const arrayItemType = schema.items?.type;
-    const arrayItemDefault = getPrintableVal(schema.items.default);
-
-    info.arrayType = `${schema.type} of ${Array.isArray(arrayItemType) ? arrayItemType.join('') : arrayItemType}`;
-    info.default = arrayItemDefault;
-    info.allowedValues = schema.items.const
+  if (!isRefSchema) {
+    // Set Allowed Values
+    info.allowedValues = schema.const
       ? schema.const
-      : Array.isArray(schema.items?.enum)
-        ? schema.items.enum.map((v) => (getPrintableVal(v))).join('┃')
+      : Array.isArray(schema.enum)
+        ? schema.enum.map((v) => (getPrintableVal(v))).join('┃')
         : '';
   }
+
+  if (dataType === 'array' && 'items' in schema) {
+    const schemaItems = schema.items;
+    if (schemaItems) {
+      const arrayItemType = 'type' in schemaItems && schemaItems?.type;
+      const arrayItemDefault = getPrintableVal('default' in schemaItems && schemaItems.default);
+
+      info.arrayType = `${schema.type} of ${Array.isArray(arrayItemType) ? arrayItemType.join('') : arrayItemType}`;
+      info.default = arrayItemDefault;
+      info.allowedValues = 'const' in schemaItems && schemaItems.const
+        ? schema.const
+        : 'enum' in schemaItems && Array.isArray(schemaItems?.enum)
+          ? schemaItems.enum.map((v) => (getPrintableVal(v))).join('┃')
+          : '';
+    }
+  }
+
   if (dataType.match(/integer|number/g)) {
-    if (schema.minimum !== undefined || schema.exclusiveMinimum !== undefined) {
+    if (('minimum' in schema && schema.minimum !== undefined) || ('exclusiveMinimum' in schema && schema.exclusiveMinimum !== undefined)) {
       constrain += schema.minimum !== undefined ? `Min ${schema.minimum}` : `More than ${schema.exclusiveMinimum}`;
     }
-    if (schema.maximum !== undefined || schema.exclusiveMaximum !== undefined) {
+    if (('maximum' in schema && schema.maximum !== undefined) || ('exclusiveMaximum' in schema && schema.exclusiveMaximum !== undefined)) {
       constrain += schema.maximum !== undefined ? `${constrain ? '┃' : ''}Max ${schema.maximum}` : `${constrain ? '┃' : ''}Less than ${schema.exclusiveMaximum}`;
     }
-    if (schema.multipleOf !== undefined) {
+    if ('multipleOf' in schema && schema.multipleOf !== undefined) {
       constrain += `${constrain ? '┃' : ''} multiple of ${schema.multipleOf}`;
     }
   }
   if (dataType.match(/string/g)) {
-    if (schema.minLength !== undefined && schema.maxLength !== undefined) {
+    if (('minLength' in schema && schema.minLength !== undefined) && ('maxLength' in schema && schema.maxLength !== undefined)) {
       constrain += `${constrain ? '┃' : ''}${schema.minLength} to ${schema.maxLength} chars`;
-    } else if (schema.minLength !== undefined) {
+    } else if ('minLength' in schema && schema.minLength !== undefined) {
       constrain += `${constrain ? '┃' : ''}Min ${schema.minLength} chars`;
-    } else if (schema.maxLength !== undefined) {
+    } else if ('maxLength' in schema && schema.maxLength !== undefined) {
       constrain += `Max ${constrain ? '┃' : ''}${schema.maxLength} chars`;
     }
   }
   info.constrain = constrain;
-  info.html = `${info.type}~|~${info.readOrWriteOnly}~|~${info.constrain}~|~${info.default}~|~${info.allowedValues}~|~${info.pattern}~|~${info.description}~|~${schema.title || ''}~|~${info.deprecated ? 'deprecated' : ''}`;
+  info.html = `${info.type}~|~${info.readOrWriteOnly}~|~${info.constrain}~|~${info.default}~|~${info.allowedValues}~|~${info.pattern}~|~${info.description}~|~${'title' in schema && schema.title || ''}~|~${info.deprecated ? 'deprecated' : ''}`;
   return info;
 }
 
-export function nestExampleIfPresent(example) {
+export function nestExampleIfPresent(example: boolean | number | string) {
   if (typeof example === 'boolean' || typeof example === 'number') {
     return {
       Example: { value: `${example}` },
@@ -137,7 +162,7 @@ export function nestExampleIfPresent(example) {
  *     ]
  *  }]
  * */
-export function normalizeExamples(examples, dataType = 'string') {
+export function normalizeExamples(examples: OpenAPIV3.ExampleObject | OpenAPIV3.ExampleObject[], dataType = 'string') {
   if (!examples) {
     return {
       exampleVal: '',
@@ -188,11 +213,11 @@ export function normalizeExamples(examples, dataType = 'string') {
   return { exampleVal, exampleList };
 }
 
-export function anyExampleWithSummaryOrDescription(examples) {
-  return examples.some((x) => x.summary?.length > 0 || x.description?.length > 0);
+export function anyExampleWithSummaryOrDescription(examples: OpenAPIV3.ExampleObject[]) {
+  return examples.some((x) => (x.summary?.length || 0) > 0 || (x.description?.length || 0) > 0);
 }
 
-export function getSampleValueByType(schemaObj) {
+export function getSampleValueByType(schemaObj: RapiDocSchema) {
   const example = schemaObj.examples
     ? schemaObj.examples[0]
     : schemaObj.example === null
@@ -203,7 +228,7 @@ export function getSampleValueByType(schemaObj) {
   if (example === 0) { return 0; }
   if (example === false) { return false; }
   if (example instanceof Date) {
-    switch (schemaObj.format.toLowerCase()) {
+    switch (schemaObj.format?.toLowerCase()) {
       case 'date':
         return example.toISOString().split('T')[0];
       case 'time':
@@ -217,7 +242,7 @@ export function getSampleValueByType(schemaObj) {
   if (Object.keys(schemaObj).length === 0) {
     return null;
   }
-  if (schemaObj.$ref) {
+  if ('$ref' in schemaObj) {
     // Indicates a Circular ref
     return schemaObj.$ref;
   }
@@ -285,7 +310,7 @@ export function getSampleValueByType(schemaObj) {
       }
     } else {
       const minLength = Number.isNaN(schemaObj.minLength) ? undefined : Number(schemaObj.minLength);
-      const maxLength = Number.isNaN(schemaObj.maxLength) ? undefined : Number(schemaObj.maxLength);
+      const maxLength = Number.isNaN(schemaObj.maxLength) ? 0 : Number(schemaObj.maxLength);
       const finalLength = minLength || (maxLength > 6 ? 6 : maxLength || undefined);
       return finalLength ? 'A'.repeat(finalLength) : 'string';
     }
@@ -318,7 +343,7 @@ json2xml- TestCase
     </prop3>
   </root>
 */
-export function json2xml(obj, level = 1) {
+export function json2xml(obj: any, level = 1) {
   const indent = '  '.repeat(level);
   let xmlText = '';
   if (level === 1 && typeof obj !== 'object') {
@@ -346,7 +371,7 @@ export function json2xml(obj, level = 1) {
   return xmlText;
 }
 
-function addSchemaInfoToExample(schema, obj) {
+function addSchemaInfoToExample(schema: RapiDocSchema, obj: RapidocObj) {
   if (typeof obj !== 'object' || obj === null) {
     return;
   }
@@ -364,7 +389,7 @@ function addSchemaInfoToExample(schema, obj) {
   }
 }
 
-function removeTitlesAndDescriptions(obj) {
+function removeTitlesAndDescriptions(obj: RapidocObj) {
   if (typeof obj !== 'object' || obj === null) {
     return;
   }
@@ -373,21 +398,24 @@ function removeTitlesAndDescriptions(obj) {
   delete obj['::XML_TAG'];
   delete obj['::XML_WRAP'];
   for (const k in obj) {
-    removeTitlesAndDescriptions(obj[k]);
+    const value = obj[k];
+    if (typeof value === 'object') {
+      removeTitlesAndDescriptions(value);
+    }
   }
 }
 
-function addPropertyExampleToObjectExamples(example, obj, propertyKey) {
+function addPropertyExampleToObjectExamples(example: unknown, obj: {[index:string]: any}, propertyKey: string) {
   for (const key in obj) {
     obj[key][propertyKey] = example;
   }
 }
 
-function mergePropertyExamples(obj, propertyName, propExamples) {
+function mergePropertyExamples(obj: any, propertyName: string, propExamples: any) {
   // Create an example for each variant of the propertyExample, merging them with the current (parent) example
   let i = 0;
   const maxCombinations = 10;
-  const mergedObj = {};
+  const mergedObj: any = {};
   for (const exampleKey in obj) {
     for (const propExampleKey in propExamples) {
       mergedObj[`example-${i}`] = { ...obj[exampleKey] };
@@ -405,36 +433,36 @@ function mergePropertyExamples(obj, propertyName, propExamples) {
 }
 
 /* For changing JSON-Schema to a Sample Object, as per the schema (to generate examples based on schema) */
-export function schemaToSampleObj(schema, config = { }) {
-  let obj = {};
+export function schemaToSampleObj(schema: RapiDocSchema | undefined, config: { includeReadOnly?: boolean, deprecated?: boolean, includeDeprecated?: boolean, includeWriteOnly?: boolean, useXmlTagForProp?: boolean } = { }) {
+  let obj: any = {};
   if (!schema) {
     return;
   }
   if (schema.allOf) {
-    const objWithAllProps = {};
+    const objWithAllProps: any = {};
 
-    if (schema.allOf.length === 1 && !schema.allOf[0]?.properties && !schema.allOf[0]?.items) {
+    if (schema.allOf.length === 1 && !('properties' in schema.allOf[0]) && !('items' in schema.allOf[0])) {
       // If allOf has single item and the type is not an object or array, then its a primitive
-      if (schema.allOf[0].$ref) {
+      if ('$ref' in schema.allOf[0]) {
         return '{  }';
       }
       if (schema.allOf[0].readOnly && config.includeReadOnly) {
-        const tempSchema = schema.allOf[0];
+        const tempSchema = schema.allOf[0] as RapiDocSchema;
         return getSampleValueByType(tempSchema);
       }
       return;
     }
 
     schema.allOf.forEach((v) => {
-      if (v.type === 'object' || v.properties || v.allOf || v.anyOf || v.oneOf) {
-        const partialObj = schemaToSampleObj(v, config);
+      if (('type' in v && v.type === 'object') || 'properties' in v || 'allOf' in v || 'anyOf' in v || 'oneOf' in v) {
+        const partialObj = schemaToSampleObj(v as RapiDocSchema, config);
         Object.assign(objWithAllProps, partialObj);
-      } else if (v.type === 'array' || v.items) {
-        const partialObj = [schemaToSampleObj(v, config)];
+      } else if (('type' in v && v.type === 'array') || 'items' in v) {
+        const partialObj = [schemaToSampleObj(v as RapiDocSchema, config)];
         Object.assign(objWithAllProps, partialObj);
-      } else if (v.type) {
+      } else if ('type' in v) {
         const prop = `prop${Object.keys(objWithAllProps).length}`;
-        objWithAllProps[prop] = getSampleValueByType(v);
+        objWithAllProps[prop] = getSampleValueByType(v as RapiDocSchema);
       } else {
         return '';
       }
@@ -443,13 +471,14 @@ export function schemaToSampleObj(schema, config = { }) {
     obj = objWithAllProps;
   } else if (schema.oneOf) {
     // 1. First create example with scheme.properties
-    const objWithSchemaProps = {};
+    const objWithSchemaProps: any = {};
     if (schema.properties) {
       for (const propertyName in schema.properties) {
-        if (schema.properties[propertyName].properties || schema.properties[propertyName].properties?.items) {
-          objWithSchemaProps[propertyName] = schemaToSampleObj(schema.properties[propertyName], config);
+        const value = schema.properties[propertyName] as RapiDocSchema;
+        if ('properties' in value && value.properties) {
+          objWithSchemaProps[propertyName] = schemaToSampleObj(value, config);
         } else {
-          objWithSchemaProps[propertyName] = getSampleValueByType(schema.properties[propertyName]);
+          objWithSchemaProps[propertyName] = getSampleValueByType(value);
         }
       }
     }
@@ -494,7 +523,7 @@ export function schemaToSampleObj(schema, config = { }) {
       let i = 0;
       // Merge all examples of each oneOf-schema
       for (const key in schema.oneOf) {
-        const oneOfSamples = schemaToSampleObj(schema.oneOf[key], config);
+        const oneOfSamples = schemaToSampleObj(schema.oneOf[key] as RapiDocSchema, config);
         for (const sampleKey in oneOfSamples) {
           // 2. In the final example include a one-of item along with properties
           let finalExample;
@@ -509,7 +538,7 @@ export function schemaToSampleObj(schema, config = { }) {
             finalExample = oneOfSamples[sampleKey];
           }
           obj[`example-${i}`] = finalExample;
-          addSchemaInfoToExample(schema.oneOf[key], obj[`example-${i}`]);
+          addSchemaInfoToExample(schema.oneOf[key] as RapiDocSchema, obj[`example-${i}`]);
           i++;
         }
       }
@@ -524,17 +553,17 @@ export function schemaToSampleObj(schema, config = { }) {
           commonObj = schema;
           break;
         }
-        if (schema.properties[propertyName].deprecated && !config.includeDeprecated) { continue; }
-        if (schema.properties[propertyName].readOnly && !config.includeReadOnly) { continue; }
-        if (schema.properties[propertyName].writeOnly && !config.includeWriteOnly) { continue; }
-        commonObj = mergePropertyExamples(commonObj, propertyName, schemaToSampleObj(schema.properties[propertyName], config));
+        if ((schema.properties[propertyName] as RapiDocSchema).deprecated && !config.includeDeprecated) { continue; }
+        if ((schema.properties[propertyName] as RapiDocSchema).readOnly && !config.includeReadOnly) { continue; }
+        if ((schema.properties[propertyName] as RapiDocSchema).writeOnly && !config.includeWriteOnly) { continue; }
+        commonObj = mergePropertyExamples(commonObj, propertyName, schemaToSampleObj(schema.properties[propertyName] as RapiDocSchema, config));
       }
     }
 
     // Combine every variant of the regular properties with every variant of the anyOf samples
     let i = 0;
     for (const key in schema.anyOf) {
-      const anyOfSamples = schemaToSampleObj(schema.anyOf[key], config);
+      const anyOfSamples = schemaToSampleObj(schema.anyOf[key] as RapiDocSchema, config);
       for (const sampleKey in anyOfSamples) {
         if (typeof commonObj !== 'undefined') {
           for (const commonKey in commonObj) {
@@ -543,7 +572,7 @@ export function schemaToSampleObj(schema, config = { }) {
         } else {
           obj[`example-${i}`] = anyOfSamples[sampleKey];
         }
-        addSchemaInfoToExample(schema.anyOf[key], obj[`example-${i}`]);
+        addSchemaInfoToExample(schema.anyOf[key] as RapiDocSchema, obj[`example-${i}`]);
         i++;
       }
     }
@@ -554,26 +583,28 @@ export function schemaToSampleObj(schema, config = { }) {
       obj['example-0'] = schema.example;
     } else {
       for (const propertyName in schema.properties) {
-        if (schema.properties[propertyName]?.deprecated && !config.includeDeprecated) { continue; }
-        if (schema.properties[propertyName]?.readOnly && !config.includeReadOnly) { continue; }
-        if (schema.properties[propertyName]?.writeOnly && !config.includeWriteOnly) { continue; }
-        if (schema.properties[propertyName]?.type === 'array' || schema.properties[propertyName]?.items) {
-          if (schema.properties[propertyName].example) {
-            addPropertyExampleToObjectExamples(schema.properties[propertyName].example, obj, propertyName);
-          } else if (schema.properties[propertyName]?.items?.example) { // schemas and properties support single example but not multiple examples.
-            addPropertyExampleToObjectExamples([schema.properties[propertyName].items.example], obj, propertyName);
+        const subSchema = schema.properties[propertyName] as RapiDocSchema;
+
+        if (subSchema?.deprecated && !config.includeDeprecated) { continue; }
+        if (subSchema?.readOnly && !config.includeReadOnly) { continue; }
+        if (subSchema?.writeOnly && !config.includeWriteOnly) { continue; }
+        if (subSchema?.type === 'array' || (schema.properties[propertyName] as RapiDocSchema)?.items) {
+          if (subSchema.example) {
+            addPropertyExampleToObjectExamples(subSchema.example, obj, propertyName);
+          } else if (subSchema?.items?.example) { // schemas and properties support single example but not multiple examples.
+            addPropertyExampleToObjectExamples([subSchema.items.example], obj, propertyName);
           } else {
-            const itemSamples = schemaToSampleObj(schema.properties[propertyName].items, config);
+            const itemSamples = schemaToSampleObj(subSchema.items, config);
             if (config.useXmlTagForProp) {
-              const xmlTagName = schema.properties[propertyName].xml?.name || propertyName;
-              if (schema.properties[propertyName].xml?.wrapped) {
+              const xmlTagName = subSchema.xml?.name || propertyName;
+              if (subSchema.xml?.wrapped) {
                 const wrappedItemSample = JSON.parse(`{ "${xmlTagName}" : { "${xmlTagName}" : ${JSON.stringify(itemSamples['example-0'])} } }`);
                 obj = mergePropertyExamples(obj, xmlTagName, wrappedItemSample);
               } else {
                 obj = mergePropertyExamples(obj, xmlTagName, itemSamples);
               }
             } else {
-              const arraySamples = [];
+              const arraySamples: any[] & { [index: string]: any } = [];
               for (const key in itemSamples) {
                 arraySamples[key] = [itemSamples[key]];
               }
@@ -582,7 +613,7 @@ export function schemaToSampleObj(schema, config = { }) {
           }
           continue;
         }
-        obj = mergePropertyExamples(obj, propertyName, schemaToSampleObj(schema.properties[propertyName], config));
+        obj = mergePropertyExamples(obj, propertyName, schemaToSampleObj(schema.properties[propertyName] as RapiDocSchema, config));
       }
     }
   } else if (schema.type === 'array' || schema.items) {
@@ -596,7 +627,7 @@ export function schemaToSampleObj(schema, config = { }) {
         let i = 0;
         for (const key in samples) {
           obj[`example-${i}`] = [samples[key]];
-          addSchemaInfoToExample(schema.items, obj[`example-${i}`]);
+          addSchemaInfoToExample(schema.items as RapiDocSchema, obj[`example-${i}`]);
           i++;
         }
       }
@@ -609,7 +640,7 @@ export function schemaToSampleObj(schema, config = { }) {
   return obj;
 }
 
-function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
+function generateMarkdownForArrayAndObjectDescription(schema: RapiDocSchema, level = 0) {
   let markdown = ((schema.description || schema.title) && (schema.minItems || schema.maxItems)) ? '<span class="descr-expand-toggle">➔</span>' : '';
   if (schema.title) {
     if (schema.description) {
@@ -646,19 +677,19 @@ function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
  * @param {number} level - recursion level
  * @param {string} suffix - used for suffixing property names to avoid duplicate props during object composion
  */
-export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
+export function schemaInObjectNotation(schema: RapiDocSchema, obj: any, level: number = 0, suffix: string | number = '') {
   if (!schema) {
     return;
   }
   if (schema.allOf) {
-    const objWithAllProps = {};
-    if (schema.allOf.length === 1 && !schema.allOf[0].properties && !schema.allOf[0].items) {
+    const objWithAllProps: any = {};
+    if (schema.allOf.length === 1 && !(schema.allOf[0] as RapiDocSchema).properties && !(schema.allOf[0] as RapiDocSchema).items) {
       // If allOf has single item and the type is not an object or array, then its a primitive
-      const tempSchema = schema.allOf[0];
-      return `${getTypeInfo(tempSchema).html}`;
+      const tempSchema = schema.allOf[0] as RapiDocSchema;
+      return `${getTypeInfo(tempSchema)?.html}`;
     }
     // If allOf is an array of multiple elements, then all the keys makes a single object
-    schema.allOf.map((v, i) => {
+    (schema.allOf as RapiDocSchema[]).map((v, i) => {
       if (v.type === 'object' || v.properties || v.allOf || v.anyOf || v.oneOf) {
         const propSuffix = (v.anyOf || v.oneOf) && i > 0 ? i : '';
         const partialObj = schemaInObjectNotation(v, {}, (level + 1), propSuffix);
@@ -669,7 +700,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
       } else if (v.type) {
         const prop = `prop${Object.keys(objWithAllProps).length}`;
         const typeObj = getTypeInfo(v);
-        objWithAllProps[prop] = `${typeObj.html}`;
+        objWithAllProps[prop] = `${typeObj?.html}`;
       } else {
         return '';
       }
@@ -684,16 +715,16 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
       // obj['::deprecated'] = schema.deprecated || false;
       for (const key in schema.properties) {
         if (schema.required && schema.required.includes(key)) {
-          obj[`${key}*`] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
+          obj[`${key}*`] = schemaInObjectNotation(schema.properties[key] as RapiDocSchema, {}, (level + 1));
         } else {
-          obj[key] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
+          obj[key] = schemaInObjectNotation(schema.properties[key] as RapiDocSchema, {}, (level + 1));
         }
       }
     }
     // 2. Then show allof/anyof objects
-    const objWithAnyOfProps = {};
+    const objWithAnyOfProps: any = {};
     const xxxOf = schema.anyOf ? 'anyOf' : 'oneOf';
-    schema[xxxOf].forEach((v, index) => {
+    (schema[xxxOf] as RapiDocSchema[]).forEach((v, index) => {
       if (v.type === 'object' || v.properties || v.allOf || v.anyOf || v.oneOf) {
         const partialObj = schemaInObjectNotation(v, {});
         objWithAnyOfProps[`::OPTION~${index + 1}${v.title ? `~${v.title}` : ''}`] = partialObj;
@@ -707,7 +738,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
         objWithAnyOfProps['::type'] = 'xxx-of-array';
       } else {
         const prop = `::OPTION~${index + 1}${v.title ? `~${v.title}` : ''}`;
-        objWithAnyOfProps[prop] = `${getTypeInfo(v).html}`;
+        objWithAnyOfProps[prop] = `${getTypeInfo(v)?.html}`;
         objWithAnyOfProps['::type'] = 'xxx-of-option';
       }
     });
@@ -717,10 +748,10 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
   } else if (Array.isArray(schema.type)) {
     // When a property has multiple types, then check further if any of the types are array or object, if yes then modify the schema using one-of
     // Clone the schema - as it will be modified to replace multi-data-types with one-of;
-    const subSchema = JSON.parse(JSON.stringify(schema));
-    const primitiveType = [];
-    const complexTypes = [];
-    subSchema.type.forEach((v) => {
+    const subSchema: RapiDocSchema = JSON.parse(JSON.stringify(schema));
+    const primitiveType: any[] = [];
+    const complexTypes: any[] = [];
+    (subSchema.type as unknown as any[]).forEach((v) => {
       if (v.match(/integer|number|string|null|boolean/g)) {
         primitiveType.push(v);
       } else if (v === 'array' && typeof subSchema.items?.type === 'string' && subSchema.items?.type.match(/integer|number|string|null|boolean/g)) {
@@ -736,7 +767,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     });
     let multiPrimitiveTypes;
     if (primitiveType.length > 0) {
-      subSchema.type = primitiveType.join(primitiveType.length === 2 ? ' or ' : '┃');
+      (subSchema.type as string) = primitiveType.join(primitiveType.length === 2 ? ' or ' : '┃');
       multiPrimitiveTypes = getTypeInfo(subSchema);
       if (complexTypes.length === 0) {
         return `${multiPrimitiveTypes?.html || ''}`;
@@ -744,7 +775,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     }
     if (complexTypes.length > 0) {
       obj['::type'] = 'object';
-      const multiTypeOptions = {
+      const multiTypeOptions: { '::type': string, [index: string]: string | any } = {
         '::type': 'xxx-of-option',
       };
 
@@ -755,10 +786,10 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
         } else if ('integer, number, string, boolean,'.includes(`${v},`)) {
           subSchema.type = Array.isArray(v) ? v.join('┃') : v;
           const primitiveTypeInfo = getTypeInfo(subSchema);
-          multiTypeOptions[`::OPTION~${i + 1}`] = primitiveTypeInfo.html;
+          multiTypeOptions[`::OPTION~${i + 1}`] = primitiveTypeInfo?.html;
         } else if (v === 'object') {
           // If object type iterate all the properties and create an object-type-option
-          const objTypeOption = {
+          const objTypeOption: { '::title': string, '::description': string, '::type': string, '::deprecated': boolean, [index: string]: string | boolean } = {
             '::title': schema.title || '',
             '::description': schema.description || '',
             '::type': 'object',
@@ -766,9 +797,9 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
           };
           for (const key in schema.properties) {
             if (schema.required && schema.required.includes(key)) {
-              objTypeOption[`${key}*`] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
+              objTypeOption[`${key}*`] = schemaInObjectNotation(schema.properties[key] as RapiDocSchema, {}, (level + 1));
             } else {
-              objTypeOption[key] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
+              objTypeOption[key] = schemaInObjectNotation(schema.properties[key] as RapiDocSchema, {}, (level + 1));
             }
           }
           multiTypeOptions[`::OPTION~${i + 1}`] = objTypeOption;
@@ -777,7 +808,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
             '::title': schema.title || '',
             '::description': schema.description || '',
             '::type': 'array',
-            '::props': schemaInObjectNotation(schema.items, {}, (level + 1)),
+            '::props': schemaInObjectNotation(schema.items as RapiDocSchema, {}, (level + 1)),
           };
         }
       });
@@ -795,13 +826,13 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     obj['::readwrite'] = schema.readOnly ? 'readonly' : schema.writeOnly ? 'writeonly' : '';
     for (const key in schema.properties) {
       if (schema.required && schema.required.includes(key)) {
-        obj[`${key}*`] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
+        obj[`${key}*`] = schemaInObjectNotation(schema.properties[key] as RapiDocSchema, {}, (level + 1));
       } else {
-        obj[key] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
+        obj[key] = schemaInObjectNotation(schema.properties[key] as RapiDocSchema, {}, (level + 1));
       }
     }
     if (schema.additionalProperties) {
-      obj['<any-key>'] = schemaInObjectNotation(schema.additionalProperties, {});
+      obj['<any-key>'] = schemaInObjectNotation(schema.additionalProperties as RapiDocSchema, {});
     }
   } else if (schema.type === 'array' || schema.items) { // If Array
     obj['::title'] = schema.title || '';
@@ -815,7 +846,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     if (schema.items?.items) {
       obj['::array-type'] = schema.items.items.type;
     }
-    obj['::props'] = schemaInObjectNotation(schema.items, {}, (level + 1));
+    obj['::props'] = schemaInObjectNotation(schema.items as RapiDocSchema, {}, (level + 1));
   } else {
     const typeObj = getTypeInfo(schema);
     if (typeObj?.html) {
@@ -827,7 +858,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
 }
 
 /* Create Example object */
-export function generateExample(schema, mimeType, examples = '', example = '', includeReadOnly = true, includeWriteOnly = true, outputType = 'json', includeGeneratedExample = false) {
+export function generateExample(schema: RapiDocSchema, mimeType: string, examples: { [index: string]: { value: string, summary: string, description: string } } | undefined = undefined, example = '', includeReadOnly = true, includeWriteOnly = true, outputType = 'json', includeGeneratedExample = false) {
   const finalExamples = [];
   // First check if examples is provided
   if (examples) {
@@ -981,7 +1012,7 @@ export function generateExample(schema, mimeType, examples = '', example = '', i
   return finalExamples;
 }
 
-function getSerializeStyleForContentType(contentType) {
+function getSerializeStyleForContentType(contentType: string) {
   if (contentType === 'application/json') {
     return 'json';
   }
@@ -991,7 +1022,7 @@ function getSerializeStyleForContentType(contentType) {
   return null;
 }
 
-export function getSchemaFromParam(param) {
+export function getSchemaFromParam(param: OpenAPIV3.ParameterObject) {
   if (param.schema) {
     return [param.schema, null, null];
   }
