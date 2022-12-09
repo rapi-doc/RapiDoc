@@ -125,6 +125,17 @@ export interface RapidocElement {
   loading: boolean;
   loadFailed: boolean;
   handleHref: (event: MouseEvent) => void;
+  advancedSearchMatches: {
+    elementId: string;
+    deprecated: boolean;
+    method: string;
+    path: string;
+    summary: string;
+  }[];
+  matchPaths: string;
+  onAdvancedSearch: (event: Event, value: number) => void;
+  onOpenSearchDialog: (event: Event) => void;
+  showAdvancedSearchDialog: boolean;
 }
 
 export interface RapiDocServer extends OpenAPIV3.ServerObject {
