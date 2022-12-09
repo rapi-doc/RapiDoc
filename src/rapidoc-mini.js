@@ -191,6 +191,7 @@ export default class RapiDocMini extends LitElement {
 
     marked.setOptions({
       highlight: (code, lang) => {
+        if (lang === 'curl') lang = 'bash';
         if (Prism.languages[lang]) {
           return Prism.highlight(code, Prism.languages[lang], lang);
         }

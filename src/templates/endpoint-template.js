@@ -8,6 +8,7 @@ import codeSamplesTemplate from '~/templates/code-samples-template';
 import callbackTemplate from '~/templates/callback-template';
 import { pathSecurityTemplate } from '~/templates/security-scheme-template';
 import { pathIsInSearch, rapidocApiKey } from '~/utils/common-utils';
+import processPathDescription from '~/utils/magic-block-utils';
 
 function toggleExpand(path) {
   if (path.expanded) {
@@ -88,6 +89,7 @@ function endpointBodyTemplate(path) {
   }
 
   const codeSampleTabPanel = path.xCodeSamples ? codeSamplesTemplate(path.xCodeSamples) : '';
+  path.description = processPathDescription(path.description);
   return html`
   <style>
       .label-operation-container {
@@ -140,6 +142,73 @@ function endpointBodyTemplate(path) {
         border-style: solid;
         border-radius: 4px 0px 0px 4px;
       }
+
+      blockquote {
+        padding: 20px;
+      }
+
+      blockquote h3 {
+        margin: 0;
+        padding: 0;
+      }
+
+      blockquote.warning {
+        border-left: 3px solid #f0ad4e;
+        background-color: #fcf8f2;
+      }
+
+      blockquote.warning h3 {
+        color: #f0ad4e;
+      }
+
+      blockquote.danger {
+        border-left: 3px solid #d9534f;
+        background-color: #fdf7f7;
+      }
+
+      blockquote.danger h3 {
+        color: #d9534f;
+      }
+
+      blockquote.info {
+        border-left: 3px solid #5bc0de;
+        background-color: #e3edf2;
+      }
+
+      blockquote.info h3 {
+        color: #5bc0de;
+      }
+
+      blockquote.success {
+        border-left: 3px solid #50af51;
+        background-color: #f3f8f3;
+      }
+
+      blockquote.success h3 {
+        color: #50af51;
+      }
+
+      pre {
+        overflow: scroll;
+        max-height: 1000px;
+        margin-top: 15px!important;
+        margin-bottom: 15px!important;
+      }
+
+      table {
+        border-spacing: 0px;
+        border-collapse: collapse;
+      }
+
+      table th {
+        border: 1px solid #dfe2e5;
+        padding: 6px 13px;
+      }
+
+      table td {
+        border: 1px solid #dfe2e5;
+        padding: 6px 13px;
+      }
   </style>
   <div part="section-endpoint-body-${path.expanded ? 'expanded' : 'collapsed'}" class='endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}'>
     <div class="summary">
@@ -168,7 +237,7 @@ function endpointBodyTemplate(path) {
           <content-copy-button id='${path.method}${path.path}' content='${path.path}'></content-copy-button>
         </div>
       </div>
-      ${path.description ? html`<div part="section-endpoint-body-description" class="path-description"> ${unsafeHTML(marked(path.description))}</div>` : ''}
+      ${path.description ? html`<div part="section-endpoint-body-description" class="path-description"> ${unsafeHTML(path.description)}</div>` : ''}
       <slot name="${path.elementId}"></slot>
       ${pathSecurityTemplate.call(this, path.security)}
       ${codeSampleTabPanel}
