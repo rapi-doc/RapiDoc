@@ -3,17 +3,18 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-li
 import { marked } from 'marked';
 
 // Templates
-import overviewTemplate from '~/templates/overview-template';
-import headerTemplate from '~/templates/header-template';
-import { schemaInObjectNotation, generateExample } from '~/utils/schema-utils';
-import '~/components/json-tree';
-import '~/components/schema-tree';
-import SetTheme from '~/utils/theme';
-import { isValidHexColor } from '~/utils/color-utils';
+import overviewTemplate from '@rapidoc/templates/overview-template';
+import headerTemplate from '@rapidoc/templates/header-template';
+import { schemaInObjectNotation, generateExample } from '@rapidoc/utils/schema-utils';
+import '@rapidoc/components/json-tree';
+import '@rapidoc/components/schema-tree';
+import SetTheme from '@rapidoc/utils/theme';
+import { isValidHexColor } from '@rapidoc/utils/color-utils';
+import { RapidocElement, RapiDocTheme } from '@rapidoc-types';
 
 /* eslint-disable indent */
 // Json Schema Nav Template
-function jsonSchemaNavTemplate() {
+function jsonSchemaNavTemplate(this: RapidocElement) {
   return html`
   <nav class='nav-bar' part="section-navbar">
     <slot name="nav-logo" class="logo"></slot>
@@ -31,7 +32,7 @@ function jsonSchemaNavTemplate() {
     <nav style="flex:1" class='nav-scroll' part="section-navbar-scroll">
       ${this.resolvedSpec.schemaAndExamples.map((v) => html`
         <div class='nav-bar-path' data-content-id='${v.elementId}' id='link-${v.elementId}'
-          @click = '${(e) => {
+          @click = '${(e: MouseEvent) => {
             this.scrollToEventTarget(e, false);
           }}'
         > 
@@ -44,7 +45,7 @@ function jsonSchemaNavTemplate() {
 }
 
 // Json Schema Body Template
-function jsonSchemaBodyTemplate() {
+function jsonSchemaBodyTemplate(this: RapidocElement) {
   return html`
     ${this.showInfo === 'true' ? overviewTemplate.call(this) : ''}
     <div style="font-size:var(--font-size-regular);">
@@ -70,7 +71,7 @@ function jsonSchemaBodyTemplate() {
             </div>
             <div class="json-schema-example-panel" style="width:400px; background-color: var(--input-bg); padding:16px 0 16px 16px; border-left: 1px dashed var(--border-color);">
               ${examplesObj.length > 1
-                ? html`<select style="min-width:100px; max-width:100%" @change='${(e) => this.onSelectExample(e, jSchemaBody)}'>
+                ? html`<select style="min-width:100px; max-width:100%" @change='${(e: Event) => this.onSelectExample(e, jSchemaBody)}'>
                     ${examplesObj.map((v) => html`
                       <option value="${v.exampleId}" ?selected=${(v.exampleId === jSchemaBody.selectedExample)}> 
                         ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary}
@@ -98,12 +99,12 @@ function jsonSchemaBodyTemplate() {
 /* eslint-enable indent */
 
 // Json Schema Root Template
-export default function jsonSchemaViewerTemplate(isMini = false) {
+export default function jsonSchemaViewerTemplate(this: RapidocElement, isMini = false) {
 // export default function jsonSchemaViewerTemplate(isMini = false, showExpandCollapse = true, showTags = true, pathsExpanded = false) {
   if (!this.resolvedSpec) {
     return '';
   }
-  const newTheme = {
+  const newTheme: Partial<RapiDocTheme> = {
     bg1: isValidHexColor(this.bgColor) ? this.bgColor : '',
     fg1: isValidHexColor(this.textColor) ? this.textColor : '',
     headerColor: isValidHexColor(this.headerColor) ? this.headerColor : '',
@@ -113,7 +114,7 @@ export default function jsonSchemaViewerTemplate(isMini = false) {
     navHoverBgColor: isValidHexColor(this.navHoverBgColor) ? this.navHoverBgColor : '',
     navHoverTextColor: isValidHexColor(this.navHoverTextColor) ? this.navHoverTextColor : '',
     navAccentColor: isValidHexColor(this.navAccentColor) ? this.navAccentColor : '',
-    navAccenttextColor: isValidHexColor(this.navAccentTextColor) ? this.navAccentTextColor : '',
+    navAccentTextColor: isValidHexColor(this.navAccentTextColor) ? this.navAccentTextColor : '',
   };
   /* eslint-disable indent */
   if (this.resolvedSpec.specLoadError) {
@@ -170,7 +171,7 @@ export default function jsonSchemaViewerTemplate(isMini = false) {
               ${this.loadFailed === true
                 ? html`<div style="text-align: center;margin: 16px;"> Unable to load the Spec</div>`
                 : html`
-                  <div class="operations-root" @click="${(e) => { this.handleHref(e); }}">
+                  <div class="operations-root" @click="${(e: MouseEvent) => { this.handleHref(e); }}">
                     ${jsonSchemaBodyTemplate.call(this)}
                   </div>
                 `

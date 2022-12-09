@@ -78,6 +78,7 @@ export interface RapidocElement {
   allowSpecFileLoad: 'true' | 'false';
   allowSpecUrlLoad: 'true' | 'false';
   infoDescriptionHeadingsInNavBar: 'true' | 'false';
+  showInfo: 'true' | 'false';
   headingText: string;
   onFileLoadClick: () => void;
   onSearchChange: () => void;
@@ -87,7 +88,43 @@ export interface RapidocElement {
   renderStyle: string;
   specFile: string;
   specUrl: string;
-  resolvedSpec: RapiDocDocument
+  resolvedSpec: RapiDocDocument;
+  schemaExpandLevel: number;
+  schemaDescriptionExpanded: 'true' | 'false';
+  allowSchemaDescriptionExpandToggle: 'true' | 'false';
+  scrollToEventTarget: (
+    event: MouseEvent,
+    scrollNavItemToView: boolean
+  ) => void;
+  onSelectExample: (
+    event: Event,
+    jSchemaBody: {
+      elementId: string;
+      name: string;
+      schema: RapiDocSchema;
+      examples: RapiDocExamples;
+      example: string;
+      selectedExample: string;
+      description: string;
+    }
+  ) => void;
+  bgColor: string;
+  headerColor: string;
+  navAccentColor: string;
+  navAccentTextColor: string;
+  navBgColor: string;
+  navHoverBgColor: string;
+  navHoverTextColor: string;
+  navTextColor: string;
+  primaryColor: string;
+  textColor: string;
+  theme: 'dark' | 'light';
+  showHeader: 'true' | 'false';
+  cssClasses: string;
+  pageDirection: 'rtl' | 'ltr';
+  loading: boolean;
+  loadFailed: boolean;
+  handleHref: (event: MouseEvent) => void;
 }
 
 export interface RapiDocServer extends OpenAPIV3.ServerObject {
@@ -163,6 +200,17 @@ export interface RapiDocDocument<T extends {} = {}>
   servers?: RapiDocServer[];
   tags?: RapiDocTag[];
   paths: RapiDocPath<T, {}>;
+  isSpecLoading: boolean;
+  specLoadError: boolean;
+  schemaAndExamples: {
+    elementId: string;
+    name: string;
+    schema: RapiDocSchema;
+    examples: RapiDocExamples;
+    example: string;
+    selectedExample: string;
+    description: string;
+  }[];
   webhooks?: {
     [index: string]: RapiDocWebHookValue & {
       [method in OpenAPIV3.HttpMethods]?: OpenAPIV3.OperationObject<T>;
@@ -177,6 +225,10 @@ export type RapiDocSecurityScheme = OpenAPIV3.SecuritySchemeObject & {
   value?: string;
   finalKeyValue?: string;
 };
+
+export interface RapiDocExamples {
+  [index: string]: { value: string; summary: string; description: string };
+}
 
 export type RapiDocSchema = OpenAPIV3.SchemaObject & {
   length?: number;

@@ -1,4 +1,4 @@
-import { RapidocObj, RapiDocSchema } from '@rapidoc-types';
+import { RapiDocExamples, RapidocObj, RapiDocSchema } from '@rapidoc-types';
 import type { OpenAPIV3 } from 'openapi-types';
 
 // Takes a value as input and provides a printable string to represent null values, spaces, blank string etc
@@ -858,7 +858,7 @@ export function schemaInObjectNotation(schema: RapiDocSchema, obj: any, level: n
 }
 
 /* Create Example object */
-export function generateExample(schema: RapiDocSchema, mimeType: string, examples: { [index: string]: { value: string, summary: string, description: string } } | undefined = undefined, example = '', includeReadOnly = true, includeWriteOnly = true, outputType = 'json', includeGeneratedExample = false) {
+export function generateExample(schema: RapiDocSchema, mimeType: string, examples: RapiDocExamples | undefined = undefined, example = '', includeReadOnly = true, includeWriteOnly = true, outputType = 'json', includeGeneratedExample = false) {
   const finalExamples = [];
   // First check if examples is provided
   if (examples) {
