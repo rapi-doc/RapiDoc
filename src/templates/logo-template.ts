@@ -1,7 +1,7 @@
 import { html } from 'lit';
 
 /* eslint-disable indent */
-export default function logoTemplate(style) {
+export default function logoTemplate(style: string) {
 return html`
   <div style=${style}>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="1 0 511 512">
