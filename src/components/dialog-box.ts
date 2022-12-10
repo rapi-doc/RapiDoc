@@ -1,19 +1,19 @@
 import { LitElement, html } from 'lit';
-import DialogBoxStyles from '~/styles/dialog-box-styles';
+import DialogBoxStyles from '@rapidoc/styles/dialog-box-styles';
+import { property } from 'lit/decorators';
 
 export default class DialogBox extends LitElement {
-  static get properties() {
-    return {
-      heading: { type: String, attribute: 'heading' },
-      show: { type: String, attribute: 'show' },
-    };
-  }
+  @property({ type: String, attribute: 'heading' })
+  public heading?: string | null;
 
-  static get styles() {
+  @property({ type: String, attribute: 'show' })
+  public show?: string | null;
+
+  static override get styles() {
     return [DialogBoxStyles];
   }
 
-  connectedCallback() {
+  override connectedCallback() {
     super.connectedCallback();
     document.addEventListener('keydown', (e) => {
       if (e.code === 'Escape') {
@@ -22,7 +22,7 @@ export default class DialogBox extends LitElement {
     });
   }
 
-  attributeChangedCallback(name, oldVal, newVal) {
+  override attributeChangedCallback(name: string, oldVal: string | null, newVal: string | null) {
     if (oldVal !== newVal) {
       if (name === 'heading') {
         this.heading = newVal;
@@ -42,7 +42,7 @@ export default class DialogBox extends LitElement {
   }
 
   /* eslint-disable indent */
-  render() {
+  override render() {
     return html`
     ${this.show === 'true'
       ? html`
