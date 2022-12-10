@@ -800,8 +800,11 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
         obj[key] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
       }
     }
+    for (const key in schema.patternProperties) {
+      obj[`[pattern: ${key}]`] = schemaInObjectNotation(schema.patternProperties[key], obj, (level + 1));
+    }
     if (schema.additionalProperties) {
-      obj['<any-key>'] = schemaInObjectNotation(schema.additionalProperties, {});
+      obj['[any-key]'] = schemaInObjectNotation(schema.additionalProperties, {});
     }
   } else if (schema.type === 'array' || schema.items) { // If Array
     obj['::title'] = schema.title || '';
