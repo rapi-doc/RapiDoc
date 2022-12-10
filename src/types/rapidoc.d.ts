@@ -136,6 +136,12 @@ export interface RapidocElement {
   onAdvancedSearch: (event: Event, value: number) => void;
   onOpenSearchDialog: (event: Event) => void;
   showAdvancedSearchDialog: boolean;
+  fillRequestFieldsWithExample: 'true' | 'false';
+  schemaStyle: 'tree' | 'table';
+  defaultSchemaTab: 'schema' | 'example';
+  schemaHideWriteOnly: 'default' | 'never';
+  schemaHideReadOnly: 'default' | 'never';
+  fetchCredentials: 'omit' | 'same-origin' | 'include';
 }
 
 export interface RapiDocServer extends OpenAPIV3.ServerObject {
