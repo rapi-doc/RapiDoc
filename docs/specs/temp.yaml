@@ -21,6 +21,11 @@ paths:
           application/json:
             schema:
               type: object
+              additionalProperties: 
+                type: integer
+              patternProperties:
+                S_: 
+                  type: integer
               properties:
                 foo:
                   type: string
