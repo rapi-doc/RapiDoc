@@ -1,23 +1,32 @@
-import { LitElement, html, css } from 'lit';
+import { LitElement, html, css, TemplateResult } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
-import FontStyles from '~/styles/font-styles';
-import SchemaStyles from '~/styles/schema-styles';
-import CustomStyles from '~/styles/custom-styles';
+import FontStyles from '@rapidoc/styles/font-styles';
+import SchemaStyles from '@rapidoc/styles/schema-styles';
+import CustomStyles from '@rapidoc/styles/custom-styles';
+import { property } from 'lit/decorators';
 
 export default class SchemaTable extends LitElement {
-  static get properties() {
-    return {
-      schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
-      schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
-      allowSchemaDescriptionExpandToggle: { type: String, attribute: 'allow-schema-description-expand-toggle' },
-      schemaHideReadOnly: { type: String, attribute: 'schema-hide-read-only' },
-      schemaHideWriteOnly: { type: String, attribute: 'schema-hide-write-only' },
-      data: { type: Object },
-    };
-  }
+  
+  @property({ type: Number, attribute: 'schema-expand-level' })
+  public schemaExpandLevel = 999;
+  
+  @property({ type: String, attribute: 'schema-description-expanded' })
+  public schemaDescriptionExpanded?: string;
+  
+  @property({ type: String, attribute: 'allow-schema-description-expand-toggle' })
+  public allowSchemaDescriptionExpandToggle?: string;
+  
+  @property({ type: String, attribute: 'schema-hide-read-only' })
+  public schemaHideReadOnly?: string;
+  
+  @property({ type: String, attribute: 'schema-hide-write-only' })
+  public schemaHideWriteOnly?: string;
+  
+  @property({ type: Object })
+  public data?: any;
 
-  connectedCallback() {
+  override connectedCallback() {
     super.connectedCallback();
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) { this.schemaExpandLevel = 99999; }
     if (!this.schemaDescriptionExpanded || !'true false'.includes(this.schemaDescriptionExpanded)) { this.schemaDescriptionExpanded = 'false'; }
@@ -25,7 +34,7 @@ export default class SchemaTable extends LitElement {
     if (!this.schemaHideWriteOnly || !'true false'.includes(this.schemaHideWriteOnly)) { this.schemaHideWriteOnly = 'true'; }
   }
 
-  static get styles() {
+  static override get styles() {
     return [
       FontStyles,
       SchemaStyles,
@@ -87,9 +96,9 @@ export default class SchemaTable extends LitElement {
   }
 
   /* eslint-disable indent */
-  render() {
+  override render() {
     return html`
-      <div class="table ${this.schemaDescriptionExpanded === 'true' ? 'expanded-all-descr' : 'collapsed-all-descr'}" @click="${(e) => this.handleAllEvents(e)}">
+      <div class="table ${this.schemaDescriptionExpanded === 'true' ? 'expanded-all-descr' : 'collapsed-all-descr'}" @click="${(e: MouseEvent) => this.handleAllEvents(e)}">
         <div class='toolbar'>
           <div class="toolbar-item schema-root-type ${this.data?.['::type'] || ''} "> ${this.data?.['::type'] || ''} </div>
           ${this.allowSchemaDescriptionExpandToggle === 'true'
@@ -123,7 +132,7 @@ export default class SchemaTable extends LitElement {
     `;
   }
 
-  generateTree(data, dataType = 'object', arrayType = '', key = '', description = '', schemaLevel = 0, indentLevel = 0, readOrWrite = '') {
+  generateTree(data: any, dataType = 'object', arrayType = '', key = '', description = '', schemaLevel = 0, indentLevel = 0, readOrWrite = ''): any {
     if (this.schemaHideReadOnly === 'true') {
       if (dataType === 'array') {
         if (readOrWrite === 'readonly') {
@@ -281,7 +290,7 @@ export default class SchemaTable extends LitElement {
     }
     const dataTypeCss = type.replace(/┃.*/g, '').replace(/[^a-zA-Z0-9+]/g, '').substring(0, 4).toLowerCase();
     const descrExpander = `${constraint || defaultValue || allowedValues || pattern ? '<span class="descr-expand-toggle">➔</span>' : ''}`;
-    let dataTypeHtml = '';
+    let dataTypeHtml: TemplateResult<1> = html``;
     if (dataType === 'array') {
       dataTypeHtml = html` 
         <div class='td key-type ${dataTypeCss}' title="${readOrWrite === 'readonly' ? 'Read-Only' : readOrWriteOnly === 'writeonly' ? 'Write-Only' : ''}">
@@ -326,30 +335,33 @@ export default class SchemaTable extends LitElement {
   }
   /* eslint-enable indent */
 
-  handleAllEvents(e) {
-    if (e.target.classList.contains('obj-toggle')) {
+  handleAllEvents(e: MouseEvent) {
+    const target = e.target as HTMLElement;
+
+    if (target.classList.contains('obj-toggle')) {
       this.toggleObjectExpand(e);
-    } else if (e.target.classList.contains('schema-multiline-toggle')) {
+    } else if (target.classList.contains('schema-multiline-toggle')) {
       this.schemaDescriptionExpanded = (this.schemaDescriptionExpanded === 'true' ? 'false' : 'true');
-    } else if (e.target.classList.contains('descr-expand-toggle')) {
-      const trEl = e.target.closest('.tr');
+    } else if (target.classList.contains('descr-expand-toggle')) {
+      const trEl = target.closest('.tr') as HTMLElement;
       if (trEl) {
         trEl.classList.toggle('expanded-descr');
-        trEl.style.maxHeight = trEl.scrollHeight;
+        trEl.style.maxHeight = `${trEl.scrollHeight}`;
       }
     }
   }
 
-  toggleObjectExpand(e) {
-    const rowEl = e.target.closest('.tr');
+  toggleObjectExpand(e: MouseEvent) {
+    const target = e.target as HTMLElement;
+    const rowEl = target.closest('.tr') as HTMLElement;
     if (rowEl.classList.contains('expanded')) {
       rowEl.classList.add('collapsed');
       rowEl.classList.remove('expanded');
-      e.target.innerText = '+';
+      target.innerText = '+';
     } else {
       rowEl.classList.remove('collapsed');
       rowEl.classList.add('expanded');
-      e.target.innerText = '-';
+      target.innerText = '-';
     }
   }
 }
