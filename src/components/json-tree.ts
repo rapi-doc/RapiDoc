@@ -1,19 +1,19 @@
-import { LitElement, html, css } from 'lit';
-import { copyToClipboard } from '~/utils/common-utils';
-import FontStyles from '~/styles/font-styles';
-import BorderStyles from '~/styles/border-styles';
-import InputStyles from '~/styles/input-styles';
-import CustomStyles from '~/styles/custom-styles';
+import { LitElement, html, css, TemplateResult } from 'lit';
+import { copyToClipboard } from '@rapidoc/utils/common-utils';
+import FontStyles from '@rapidoc/styles/font-styles';
+import BorderStyles from '@rapidoc/styles/border-styles';
+import InputStyles from '@rapidoc/styles/input-styles';
+import CustomStyles from '@rapidoc/styles/custom-styles';
+import { property } from 'lit/decorators';
 
 export default class JsonTree extends LitElement {
-  static get properties() {
-    return {
-      data: { type: Object },
-      renderStyle: { type: String, attribute: 'render-style' },
-    };
-  }
+  @property({ type: Object })
+  public data?: any;
 
-  static get styles() {
+  @property({ type: String, attribute: 'render-style' })
+  public renderStyle?: string;
+
+  static override get styles() {
     return [
       FontStyles,
       BorderStyles,
@@ -89,9 +89,9 @@ export default class JsonTree extends LitElement {
   }
 
   /* eslint-disable indent */
-  render() {
+  override render() {
     return html`
-      <div class = "json-tree"  @click='${(e) => { if (e.target.classList.contains('btn-copy')) { copyToClipboard(JSON.stringify(this.data, null, 2), e); } else { this.toggleExpand(e); } }}'>
+      <div class = "json-tree"  @click='${(e: MouseEvent) => { if ((e.target as HTMLElement).classList.contains('btn-copy')) { copyToClipboard(JSON.stringify(this.data, null, 2), e); } else { this.toggleExpand(e); } }}'>
         <div class='toolbar'> 
           <button class="toolbar-btn btn-copy" part="btn btn-fill btn-copy"> Copy </button>
         </div>
@@ -100,7 +100,7 @@ export default class JsonTree extends LitElement {
     `;
   }
 
-  generateTree(data, isLast = false) {
+  generateTree(data: any, isLast = false): TemplateResult<1> {
     if (data === null) {
       return html`<div class="null" style="display:inline;">null</div>`;
     }
@@ -128,15 +128,15 @@ export default class JsonTree extends LitElement {
   }
   /* eslint-enable indent */
 
-  toggleExpand(e) {
-    const openBracketEl = e.target;
-    if (e.target.classList.contains('open-bracket')) {
+  toggleExpand(e: MouseEvent) {
+    const openBracketEl = e.target as HTMLElement;
+    if (openBracketEl.classList.contains('open-bracket')) {
       if (openBracketEl.classList.contains('expanded')) {
         openBracketEl.classList.replace('expanded', 'collapsed');
-        e.target.innerHTML = e.target.classList.contains('array') ? '[...]' : '{...}';
+        openBracketEl.innerHTML = openBracketEl.classList.contains('array') ? '[...]' : '{...}';
       } else {
         openBracketEl.classList.replace('collapsed', 'expanded');
-        e.target.innerHTML = e.target.classList.contains('array') ? '[' : '{';
+        openBracketEl.innerHTML = openBracketEl.classList.contains('array') ? '[' : '{';
       }
     }
   }
