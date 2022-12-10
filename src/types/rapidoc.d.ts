@@ -154,6 +154,12 @@ export interface RapiDocServer extends OpenAPIV3.ServerObject {
   };
 }
 
+export interface RapiDocXCodeSample {
+  lang: string;
+  label: string;
+  source: string;
+}
+
 export interface RapiDocTag extends OpenAPIV3.TagObject {
   show: boolean;
   elementId: string;
@@ -185,7 +191,7 @@ export interface RapiDocTag extends OpenAPIV3.TagObject {
     deprecated?: boolean;
     security?: OpenAPIV3.SecurityRequirementObject[];
     xBadges?: string;
-    xCodeSamples: string;
+    xCodeSamples: RapiDocXCodeSample[];
   }[];
   'x-tag-expanded'?: boolean;
 }
