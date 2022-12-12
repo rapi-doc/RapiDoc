@@ -53,6 +53,46 @@ export interface RapiDocTheme {
   selectionFg: string;
   yellow: string;
 }
+export interface ResolvedSpec {
+  specLoadError: boolean;
+  isSpecLoading: boolean;
+  info?: OpenAPIV3.InfoObject;
+  tags?: RapiDocTag[];
+  schemaAndExamples?: {
+    elementId: string;
+    name: string;
+    schema: RapiDocSchema;
+    examples: RapiDocExamples;
+    example: string;
+    selectedExample: string;
+    description: string;
+  }[];
+  infoDescriptionHeaders?: marked.Token[];
+  components?: {
+    show: boolean;
+    name: string;
+    description: string;
+    subComponents: {
+      show: boolean;
+      id: string;
+      name: string;
+      component: any;
+      expanded?: boolean | undefined;
+    }[];
+  }[];
+  externalDocs?: OpenAPIV3.ExternalDocumentationObject | undefined;
+  securitySchemes?: RapiDocSecurityScheme[];
+  servers?: (OpenAPIV3.ServerObject & {
+    computedUrl?: string | undefined;
+    variables?:
+      | {
+          [variable: string]: OpenAPIV3.ServerVariableObject & {
+            value?: string | undefined;
+          };
+        }
+      | undefined;
+  })[];
+}
 
 export type RapiDocMethods =
   | 'get'
@@ -63,40 +103,50 @@ export type RapiDocMethods =
   | 'head'
   | 'options';
 
-export interface RapidocElement {
-  shadowRoot: ShadowRoot;
-  requestUpdate: () => void;
-  dispatchEvent: (event: CustomEvent) => void;
-  layout: 'row' | 'column';
-  monoFont: string;
-  regularFont: string;
-  navItemSpacing: 'relaxed' | 'compact';
-  responseAreaHeight: string;
-  fontSize: 'default' | 'large';
-  allowSpecFileDownload: 'true' | 'false';
-  allowAdvancedSearch: 'true' | 'false';
-  allowSearch: 'true' | 'false';
-  allowSpecFileLoad: 'true' | 'false';
-  allowSpecUrlLoad: 'true' | 'false';
-  infoDescriptionHeadingsInNavBar: 'true' | 'false';
-  showInfo: 'true' | 'false';
-  headingText: string;
-  onFileLoadClick: () => void;
-  onSearchChange: () => void;
-  onShowSearchModalClicked: () => void;
-  onSpecFileChange: () => void;
+export interface RapiDocCallableElement {
+  resolvedSpec?: ResolvedSpec | null;
+  bgColor?: string;
+  textColor?: string;
+  headerColor?: string;
+  primaryColor?: string;
+  navBgColor?: string;
+  navTextColor?: string;
+  navHoverBgColor?: string;
+  navHoverTextColor?: string;
+  navAccentColor?: string;
+  navAccentTextColor?: string;
+  theme?: 'dark' | 'light';
+  renderStyle?: string;
+  cssClasses?: string;
+  showHeader?: 'true' | 'false';
+  loading?: boolean;
+  loadFailed?: boolean;
+  pageDirection?: 'rtl' | 'ltr';
+  showInfo?: 'true' | 'false';
+  schemaExpandLevel?: number;
+  schemaDescriptionExpanded?: 'true' | 'false';
+  allowSchemaDescriptionExpandToggle?: 'true' | 'false';
+  layout?: 'row' | 'column';
+  monoFont?: string;
+  regularFont?: string;
+  navItemSpacing?: 'relaxed' | 'compact';
+  responseAreaHeight?: string;
+  fontSize?: 'default' | 'large';
+  headingText?: string;
+  allowSpecUrlLoad?: 'true' | 'false';
   onSpecUrlChange: () => void;
-  renderStyle: string;
-  specFile: string;
-  specUrl: string;
-  resolvedSpec: RapiDocDocument;
-  schemaExpandLevel: number;
-  schemaDescriptionExpanded: 'true' | 'false';
-  allowSchemaDescriptionExpandToggle: 'true' | 'false';
-  scrollToEventTarget: (
-    event: MouseEvent,
-    scrollNavItemToView: boolean
-  ) => void;
+  specUrl?: string;
+  allowSpecFileLoad?: 'true' | 'false';
+  onSpecFileChange: () => void;
+  specFile?: string;
+  onFileLoadClick: () => void;
+  allowSearch?: 'true' | 'false';
+  allowAdvancedSearch?: 'true' | 'false';
+  onSearchChange: (event: Event) => void;
+  onShowSearchModalClicked: () => void;
+  allowSpecFileDownload?: 'true' | 'false';
+  infoDescriptionHeadingsInNavBar?: 'true' | 'false';
+
   onSelectExample: (
     event: Event,
     jSchemaBody: {
@@ -109,23 +159,19 @@ export interface RapidocElement {
       description: string;
     }
   ) => void;
-  bgColor: string;
-  headerColor: string;
-  navAccentColor: string;
-  navAccentTextColor: string;
-  navBgColor: string;
-  navHoverBgColor: string;
-  navHoverTextColor: string;
-  navTextColor: string;
-  primaryColor: string;
-  textColor: string;
-  theme: 'dark' | 'light';
-  showHeader: 'true' | 'false';
-  cssClasses: string;
-  pageDirection: 'rtl' | 'ltr';
-  loading: boolean;
-  loadFailed: boolean;
   handleHref: (event: MouseEvent) => void;
+  scrollToEventTarget: (
+    event: MouseEvent,
+    scrollNavItemToView: boolean
+  ) => void;
+  requestUpdate: () => void;
+  dispatchEvent: (event: CustomEvent) => void;
+}
+
+export interface RapidocElement extends RapiDocCallableElement {
+  shadowRoot: ShadowRoot;
+  renderStyle: string;
+  resolvedSpec: RapiDocDocument;
   advancedSearchMatches: {
     elementId: string;
     deprecated: boolean;
@@ -163,6 +209,9 @@ export interface RapidocElement {
   showComponents: 'true' | 'false';
   focusedElementId: string;
   showSideNav: 'true' | 'false';
+}
+
+export interface RapiDocJSONSchemaViewerElement extends RapiDocCallableElement {
 }
 
 export interface DocumentModifiedByRapiDoc<T extends {} = {}>
@@ -261,9 +310,8 @@ export interface RapiDocPath {
   xCodeSamples: RapiDocXCodeSample[];
 }
 
-export interface RapiDocDocument {
+export interface RapiDocDocument extends ResolvedSpec {
   openapi: string;
-  info: OpenAPIV3.InfoObject;
   security?: OpenAPIV3.SecurityRequirementObject[];
   externalDocs?: OpenAPIV3.ExternalDocumentationObject;
   'x-express-openapi-additional-middleware'?: (
@@ -273,10 +321,7 @@ export interface RapiDocDocument {
   'x-express-openapi-validation-strict'?: boolean;
 
   servers?: RapiDocServer[];
-  tags?: RapiDocTag[];
   paths: RapiDocPath[];
-  isSpecLoading: boolean;
-  specLoadError: boolean;
   schemaAndExamples: {
     elementId: string;
     name: string;
@@ -292,7 +337,7 @@ export interface RapiDocDocument {
     };
   }; */;
   securitySchemes: RapiDocSecurityScheme[];
-  infoDescriptionHeaders: { text: string; depth: number }[];
+  infoDescriptionHeaders: marked.Token[];
   components: {
     show: boolean;
     name: string;

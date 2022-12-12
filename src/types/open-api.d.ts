@@ -5,7 +5,7 @@ declare module "@apitools/openapi-parser" {
     resolvedSpec?: {
       jsonSchemaViewer: unknown;
       schemaAndExamples: any[];
-      info: unknown;
+      info: OpenAPIV3.InfoObject;
     };
     spec: OpenAPIV3.Document;
     response?: {
