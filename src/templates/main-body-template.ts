@@ -1,19 +1,20 @@
 import { html } from 'lit';
 
 // Templates
-import expandedEndpointTemplate from '~/templates/expanded-endpoint-template';
-import focusedEndpointTemplate from '~/templates/focused-endpoint-template';
-import overviewTemplate from '~/templates/overview-template';
-import endpointTemplate from '~/templates/endpoint-template';
-import serverTemplate from '~/templates/server-template';
-import securitySchemeTemplate, { recoverPersistedApiKeys } from '~/templates/security-scheme-template';
-import headerTemplate from '~/templates/header-template';
-import navbarTemplate from '~/templates/navbar-template';
-import advancedSearchTemplate from '~/templates/advance-search-template';
-import SetTheme from '~/utils/theme';
-import { isValidHexColor } from '~/utils/color-utils';
+import expandedEndpointTemplate from '@rapidoc/templates/expanded-endpoint-template';
+import focusedEndpointTemplate from '@rapidoc/templates/focused-endpoint-template';
+import overviewTemplate from '@rapidoc/templates/overview-template';
+import endpointTemplate from '@rapidoc/templates/endpoint-template';
+import serverTemplate from '@rapidoc/templates/server-template';
+import securitySchemeTemplate, { recoverPersistedApiKeys } from '@rapidoc/templates/security-scheme-template';
+import headerTemplate from '@rapidoc/templates/header-template';
+import navbarTemplate from '@rapidoc/templates/navbar-template';
+import advancedSearchTemplate from './advance-search-template';
+import SetTheme from '@rapidoc/utils/theme';
+import { isValidHexColor } from '@rapidoc/utils/color-utils';
+import { RapidocElement } from '@rapidoc-types';
 
-export default function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = true, pathsExpanded = false) {
+export default function mainBodyTemplate(this: RapidocElement, isMini = false, showExpandCollapse = true, showTags = true, pathsExpanded = false) {
   if (!this.resolvedSpec) {
     return '';
   }
@@ -92,7 +93,7 @@ export default function mainBodyTemplate(isMini = false, showExpandCollapse = tr
               ${this.loadFailed === true
                 ? html`<div style='text-align: center;margin: 16px;'> Unable to load the Spec</div>`
                 : html`
-                  <div class='operations-root' @click='${(e) => { this.handleHref(e); }}'>
+                  <div class='operations-root' @click='${(e: MouseEvent) => { this.handleHref(e); }}'>
                   ${this.renderStyle === 'focused'
                     ? html`${focusedEndpointTemplate.call(this)}`
                     : html`

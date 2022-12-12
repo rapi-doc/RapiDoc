@@ -162,6 +162,7 @@ export interface RapidocElement {
   showMethodInNavBar: 'as-colored-block';
   showComponents: 'true' | 'false';
   focusedElementId: string;
+  showSideNav: 'true' | 'false';
 }
 
 export interface DocumentModifiedByRapiDoc<T extends {} = {}>
