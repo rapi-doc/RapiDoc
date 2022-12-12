@@ -8,6 +8,7 @@ import callbackTemplate from '~/templates/callback-template';
 import '~/components/api-request';
 import '~/components/api-response';
 import '~/components/content-copy-button';
+import processPathDescription from '~/utils/magic-block-utils';
 
 /* eslint-disable indent */
 function headingRenderer(tagElementId) {
@@ -35,6 +36,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
   }
 
   const codeSampleTabPanel = path.xCodeSamples ? codeSamplesTemplate.call(this, path.xCodeSamples) : '';
+  path.description = processPathDescription(path.description);
   return html`
     ${this.renderStyle === 'read' ? html`<div class='divider' part="operation-divider"></div>` : ''}
     <div class='expanded-endpoint-body observe-me ${path.method} ${path.deprecated ? 'deprecated' : ''} ' part="section-operation ${path.elementId}" id='${path.elementId}'>
@@ -84,6 +86,8 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
           .request_body = "${path.requestBody}"
           .api_keys = "${nonEmptyApiKeys}"
           .servers = "${path.servers}"
+          .resolvedSpec="${this.resolvedSpec}"
+          .selectedServer="${this.selectedServer}"
           server-url = "${path.servers?.[0]?.url || this.selectedServer.computedUrl}"
           fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
           use-summary-to-list-example = "${this.useSummaryToListExamples}"
