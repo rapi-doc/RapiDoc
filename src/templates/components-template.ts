@@ -1,12 +1,13 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
-import { schemaInObjectNotation } from '~/utils/schema-utils';
-import '~/components/json-tree';
-import '~/components/schema-tree';
-import '~/components/schema-table';
+import { schemaInObjectNotation } from '@rapidoc/utils/schema-utils';
+import '@rapidoc/components/json-tree';
+import '@rapidoc/components/schema-tree';
+import '@rapidoc/components/schema-table';
+import { RapidocElement, RapiDocSchema } from '@rapidoc-types';
 
-function schemaBodyTemplate(sComponent) {
+function schemaBodyTemplate(this: RapidocElement, sComponent: { name: string; id: string; component: RapiDocSchema}) {
   return html`
   <div class='divider'></div>
   <div class='expanded-endpoint-body observe-me ${sComponent.name}' id='cmp--${sComponent.id}' >
@@ -36,7 +37,7 @@ function schemaBodyTemplate(sComponent) {
   </div>`;
 }
 
-function componentBodyTemplate(sComponent, componentType) {
+function componentBodyTemplate(this: RapidocElement, sComponent: { name: string; id: string; component: RapiDocSchema}, componentType: string) {
   if (sComponent.id.indexOf('schemas-') !== -1) {
     return schemaBodyTemplate.call(this, sComponent);
   }
@@ -56,10 +57,11 @@ function componentBodyTemplate(sComponent, componentType) {
   `;
 }
 
-export default function componentsTemplate() {
+export default function componentsTemplate(this: RapidocElement) {
   if (!this.resolvedSpec) { return ''; }
+  // TODO: Typescript migration, replace any by proper typing, resolvedSpec.components should not be an array
   return html`
-  ${this.resolvedSpec.components.map((component) => html`
+  ${(this.resolvedSpec.components as any)?.map((component: any) => html`
     <div id="cmp--${component.name.toLowerCase()}" class='regular-font section-gap--read-mode observe-me' style="border-top:1px solid var(--primary-color);">
       <div class="title tag">${component.name}</div>
       <div class="regular-font-size">
@@ -67,7 +69,7 @@ export default function componentsTemplate() {
       </div>
     </div>
     <div class='regular-font section-gap--read-mode'>
-      ${component.subComponents.filter((c) => c.expanded !== false).map((sComponent) => componentBodyTemplate.call(this, sComponent, component.name))}
+      ${component.subComponents.filter((c: any) => c.expanded !== false).map((sComponent: any) => componentBodyTemplate.call(this, sComponent, component.name))}
     </div>
     `)
 }
