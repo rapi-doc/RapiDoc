@@ -3,12 +3,14 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-li
 import { marked } from 'marked';
 import '~/components/api-request';
 import '~/components/api-response';
-import codeSamplesTemplate from '~/templates/code-samples-template';
-import callbackTemplate from '~/templates/callback-template';
-import { pathSecurityTemplate } from '~/templates/security-scheme-template';
-import { pathIsInSearch, rapidocApiKey } from '~/utils/common-utils';
+import codeSamplesTemplate from './code-samples-template';
+import callbackTemplate from './callback-template';
+import { pathSecurityTemplate } from './security-scheme-template';
+import { pathIsInSearch, rapidocApiKey } from '@rapidoc/utils/common-utils';
+import { RapidocElement, RapiDocPath, RapiDocXCodeSample } from '@rapidoc-types';
+import { OpenAPIV3 } from 'openapi-types';
 
-function toggleExpand(path) {
+function toggleExpand(this: RapidocElement, path: RapiDocPath<{ expanded: boolean, elementId: string }>) {
   if (path.expanded) {
     path.expanded = false; // collapse
     if (this.updateRoute === 'true') {
@@ -26,7 +28,7 @@ function toggleExpand(path) {
   this.requestUpdate();
 }
 
-export function expandCollapseAll(operationsRootEl, action = 'expand-all') {
+export function expandCollapseAll(operationsRootEl: HTMLElement, action = 'expand-all') {
   const elList = [...operationsRootEl.querySelectorAll('.section-tag')];
   if (action === 'expand-all') {
     elList.map((el) => {
@@ -39,14 +41,14 @@ export function expandCollapseAll(operationsRootEl, action = 'expand-all') {
   }
 }
 
-function onExpandCollapseAll(e, action = 'expand-all') {
-  expandCollapseAll.call(this, e.target.closest('.operations-root'), action);
+function onExpandCollapseAll(e: MouseEvent, action = 'expand-all') {
+  expandCollapseAll((e.target as HTMLElement).closest('.operations-root') as HTMLElement, action);
 }
 
 /* eslint-disable indent */
-function endpointHeadTemplate(path, pathsExpanded = false) {
+function endpointHeadTemplate(this: RapidocElement, path: RapiDocPath<{ expanded: boolean, elementId: string }>, pathsExpanded = false) {
   return html`
-  <summary @click="${(e) => { toggleExpand.call(this, path, e); }}" part="section-endpoint-head-${path.expanded ? 'expanded' : 'collapsed'}" class='endpoint-head ${path.method} ${path.deprecated ? 'deprecated' : ''} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
+  <summary @click="${() => { toggleExpand.call(this, path); }}" part="section-endpoint-head-${path.expanded ? 'expanded' : 'collapsed'}" class='endpoint-head ${path.method} ${path.deprecated ? 'deprecated' : ''} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
     <div part="section-endpoint-head-method" class="method ${path.method} ${path.deprecated ? 'deprecated' : ''}"> ${path.method} </div> 
     <div  part="section-endpoint-head-path" class="path ${path.deprecated ? 'deprecated' : ''}"> 
       ${path.path} 
@@ -69,10 +71,11 @@ function endpointHeadTemplate(path, pathsExpanded = false) {
   `;
 }
 
-function endpointBodyTemplate(path) {
+function endpointBodyTemplate(this: RapidocElement, path: RapiDocPath<{ expanded: boolean, elementId: string, description: string; security: { securitySchemeId: string }[]; xCodeSamples: RapiDocXCodeSample[]; xBadges: { color: string; label: string}[], externalDocs: OpenAPIV3.ExternalDocumentationObject, callbacks: OpenAPIV3.CallbackObject }>) {
   const acceptContentTypes = new Set();
   for (const respStatus in path.responses) {
-    for (const acceptContentType in (path.responses[respStatus]?.content)) {
+    // TODO: typescript migration: remove any by proper typing
+    for (const acceptContentType in ((path.responses as any)[respStatus]?.content)) {
       acceptContentTypes.add(acceptContentType.trim());
     }
   }
@@ -138,7 +141,7 @@ function endpointBodyTemplate(path) {
           .request_body = "${path.requestBody}"
           .api_keys = "${nonEmptyApiKeys}"
           .servers = "${path.servers}" 
-          server-url = "${path.servers && path.servers.length > 0 ? path.servers[0].url : this.selectedServer.computedUrl}" 
+          server-url = "${Array.isArray(path.servers) && path.servers.length > 0 ? path.servers[0].url : this.selectedServer.computedUrl}" 
           active-schema-tab = "${this.defaultSchemaTab}"
           fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
           allow-try = "${this.allowTry}"
@@ -182,24 +185,24 @@ function endpointBodyTemplate(path) {
   </div>`;
 }
 
-export default function endpointTemplate(showExpandCollapse = true, showTags = true, pathsExpanded = false) {
+export default function endpointTemplate(this: RapidocElement, showExpandCollapse = true, showTags = true, pathsExpanded = false) {
   if (!this.resolvedSpec) { return ''; }
   return html`
     ${showExpandCollapse
       ? html`
         <div style="display:flex; justify-content:flex-end;"> 
-          <span @click="${(e) => onExpandCollapseAll(e, 'expand-all')}" style="color:var(--primary-color); cursor:pointer;">
+          <span @click="${(e: MouseEvent) => onExpandCollapseAll(e, 'expand-all')}" style="color:var(--primary-color); cursor:pointer;">
             Expand all
           </span> 
           &nbsp;|&nbsp; 
-          <span @click="${(e) => onExpandCollapseAll(e, 'collapse-all')}" style="color:var(--primary-color); cursor:pointer;" >
+          <span @click="${(e: MouseEvent) => onExpandCollapseAll(e, 'collapse-all')}" style="color:var(--primary-color); cursor:pointer;" >
             Collapse all
           </span> 
           &nbsp; sections
         </div>`
       : ''
     }
-    ${this.resolvedSpec.tags.map((tag) => html`
+    ${this.resolvedSpec.tags?.map((tag) => html`
       ${showTags
         ? html` 
           <div class='regular-font section-gap section-tag ${tag.expanded ? 'expanded' : 'collapsed'}'> 
@@ -211,7 +214,7 @@ export default function endpointTemplate(showExpandCollapse = true, showTags = t
               <div class="regular-font regular-font-size m-markdown" style="padding-bottom:12px">
                 ${unsafeHTML(marked(tag.description || ''))}
               </div>
-              ${tag.paths.filter((v) => {
+              ${(tag.paths as RapiDocPath<{expanded: boolean, elementId: string, description: string; security: { securitySchemeId: string }[]; xCodeSamples: RapiDocXCodeSample[]; xBadges: { color: string; label: string}[], externalDocs: OpenAPIV3.ExternalDocumentationObject, callbacks: OpenAPIV3.CallbackObject}>[]).filter((v) => {
                 if (this.matchPaths) {
                   return pathIsInSearch(this.matchPaths, v, this.matchType);
                 }
@@ -226,7 +229,7 @@ export default function endpointTemplate(showExpandCollapse = true, showTags = t
           </div>`
         : html`
           <div class='section-tag-body'>
-          ${tag.paths.filter((v) => {
+          ${(tag.paths as RapiDocPath<{expanded: boolean, elementId: string, description: string; security: { securitySchemeId: string }[]; xCodeSamples: RapiDocXCodeSample[]; xBadges: { color: string; label: string}[], externalDocs: OpenAPIV3.ExternalDocumentationObject, callbacks: OpenAPIV3.CallbackObject}>[]).filter((v) => {
             if (this.matchPaths) {
               return pathIsInSearch(this.matchPaths, v, this.matchType);
             }

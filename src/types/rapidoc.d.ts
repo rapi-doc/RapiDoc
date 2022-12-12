@@ -150,6 +150,10 @@ export interface RapidocElement {
   persistAuth: 'true' | 'false';
   oauthReceiver: string;
   allowAuthentication: 'true' | 'false';
+  showSummaryWhenCollapsed: boolean;
+  allowTry: 'true' | 'false';
+  showCurlBeforeTry: 'true' | 'false';
+  matchType: string;
 }
 
 export interface RapiDocServer extends OpenAPIV3.ServerObject {
@@ -176,31 +180,7 @@ export interface RapiDocTag extends OpenAPIV3.TagObject {
   headers: marked.Token[];
   expanded: boolean;
   firstPathId?: string;
-  paths: {
-    show: boolean;
-    expanded: boolean;
-    isWebhook: boolean;
-    expandedAtLeastOnce: boolean;
-    summary: string;
-    description: string;
-    externalDocs?: OpenAPIV3.ExternalDocumentationObject;
-    shortSummary: string;
-    method: RapiDocMethods;
-    path: string;
-    operationId?: string;
-    elementId: string;
-    servers: OpenAPIV3.ServerObject[];
-    parameters: (OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject)[];
-    requestBody?: OpenAPIV3.ReferenceObject | OpenAPIV3.RequestBodyObject;
-    responses?: OpenAPIV3.ResponsesObject;
-    callbacks?: {
-      [callback: string]: OpenAPIV3.ReferenceObject | OpenAPIV3.CallbackObject;
-    };
-    deprecated?: boolean;
-    security?: OpenAPIV3.SecurityRequirementObject[];
-    xBadges?: string;
-    xCodeSamples: RapiDocXCodeSample[];
-  }[];
+  paths: RapiDocPath[];
   'x-tag-expanded'?: boolean;
 }
 
@@ -215,16 +195,7 @@ interface RapiDocExtraOperation {
   'x-code-samples'?: string;
 }
 
-export interface RapiDocPath<T extends {} = {}, P extends {} = {}>
-  extends OpenAPIV3.PathsObject<T, {}> {
-  [pattern: string]:
-    | (RapiDocWebHookValue<T> & {
-        [method in OpenAPIV3.HttpMethods]?: OpenAPIV3.OperationObject<
-          T & RapiDocExtraOperation
-        >;
-      })
-    | undefined;
-}
+export type RapiDocPath<T extends {} = {}, U extends {} = {}, V extends {} = {}>= OpenAPIV3.PathsObject<U, V> & T;
 
 export interface RapiDocDocument<T extends {} = {}>
   extends OpenAPIV3.Document<T> {

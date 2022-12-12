@@ -517,7 +517,8 @@ export default function securitySchemeTemplate(this: RapidocElement) {
 `;
 }
 
-export function pathSecurityTemplate(this: RapidocElement, pathSecurity: string) {
+// TODO: typescript migration replace any by proper typings
+export function pathSecurityTemplate(this: RapidocElement, pathSecurity: any) {
   if (this.resolvedSpec.securitySchemes && pathSecurity) {
     const orSecurityKeys1: {
       securityTypes?: string
