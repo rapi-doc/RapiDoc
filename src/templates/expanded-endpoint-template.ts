@@ -1,27 +1,29 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
-import { rapidocApiKey } from '~/utils/common-utils';
-import { pathSecurityTemplate } from '~/templates/security-scheme-template';
-import codeSamplesTemplate from '~/templates/code-samples-template';
-import callbackTemplate from '~/templates/callback-template';
+import { rapidocApiKey } from '@rapidoc/utils/common-utils';
+import { pathSecurityTemplate } from '@rapidoc/templates/security-scheme-template';
+import codeSamplesTemplate from '@rapidoc/templates/code-samples-template';
+import callbackTemplate from '@rapidoc/templates/callback-template';
 import '~/components/api-request';
 import '~/components/api-response';
+import { RapidocElement, RapiDocPath } from '@rapidoc-types';
+import { OpenAPIV3 } from 'openapi-types';
 
 /* eslint-disable indent */
-function headingRenderer(tagElementId) {
+function headingRenderer(tagElementId: string) {
   const renderer = new marked.Renderer();
   renderer.heading = ((text, level, raw, slugger) => `<h${level} class="observe-me" id="${tagElementId}--${slugger.slug(raw)}">${text}</h${level}>`);
   return renderer;
 }
 
-function expandCollapseTagDescription(e) {
-  const tagDescriptionEl = e.target.closest('.tag-container').querySelector('.tag-description');
-  const tagIconEl = e.target.closest('.tag-container').querySelector('.tag-icon');
+function expandCollapseTagDescription(e: MouseEvent) {
+  const tagDescriptionEl = (((e.target as HTMLElement).closest('.tag-container') as HTMLElement).querySelector('.tag-description') as HTMLElement);
+  const tagIconEl = (((e.target as HTMLElement).closest('.tag-container') as HTMLElement).querySelector('.tag-icon') as HTMLElement);
   if (tagDescriptionEl && tagIconEl) {
     const isExpanded = tagDescriptionEl.classList.contains('expanded');
     if (isExpanded) {
-      tagDescriptionEl.style.maxHeight = 0;
+      tagDescriptionEl.style.maxHeight = '0';
       tagDescriptionEl.classList.replace('expanded', 'collapsed');
       tagIconEl.classList.replace('expanded', 'collapsed');
     } else {
@@ -32,10 +34,10 @@ function expandCollapseTagDescription(e) {
   }
 }
 
-export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription = '') {
+export function expandedEndpointBodyTemplate(this: RapidocElement, path: RapiDocPath, tagName = '', tagDescription = '') {
   const acceptContentTypes = new Set();
   for (const respStatus in path.responses) {
-    for (const acceptContentType in (path.responses[respStatus]?.content)) {
+    for (const acceptContentType in ((path.responses[respStatus] as OpenAPIV3.ResponseObject)?.content)) {
       acceptContentTypes.add(acceptContentType.trim());
     }
   }
@@ -61,7 +63,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
             ${tagDescription
               ? html`
                 <svg class="tag-icon collapsed" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" fill="none" style="stroke:var(--primary-color); vertical-align:top; cursor:pointer"
-                @click="${(e) => { expandCollapseTagDescription.call(this, e); }}"
+                @click="${(e: MouseEvent) => { expandCollapseTagDescription.call(this, e); }}"
                 >
                   <path d="M12 20h-6a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h8"></path><path d="M18 4v17"></path><path d="M15 18l3 3l3 -3"></path>
                 </svg>
@@ -169,10 +171,10 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
   `;
 }
 
-export default function expandedEndpointTemplate() {
+export default function expandedEndpointTemplate(this: RapidocElement) {
   if (!this.resolvedSpec) { return ''; }
   return html`
-  ${this.resolvedSpec.tags.map((tag) => html`
+  ${this.resolvedSpec?.tags?.map((tag) => html`
     <section id="${tag.elementId}" part="section-tag" class="regular-font section-gap--read-mode observe-me" style="border-top:1px solid var(--primary-color);">
       <div class="title tag" part="section-tag-title label-tag-title">${tag.name}</div>
       <slot name="${tag.elementId}"></slot>
