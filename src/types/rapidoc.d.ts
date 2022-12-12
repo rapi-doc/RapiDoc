@@ -161,6 +161,7 @@ export interface RapidocElement {
   usePathInNavBar: 'true' | 'false';
   showMethodInNavBar: 'as-colored-block';
   showComponents: 'true' | 'false';
+  focusedElementId: string;
 }
 
 export interface DocumentModifiedByRapiDoc<T extends {} = {}>
