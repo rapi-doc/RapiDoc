@@ -154,6 +154,37 @@ export interface RapidocElement {
   allowTry: 'true' | 'false';
   showCurlBeforeTry: 'true' | 'false';
   matchType: string;
+  onClearSearch: (event: MouseEvent) => void;
+  navActiveItemMarker: string;
+  allowServerSelection: 'true' | 'false';
+  onNavTagClick: 'show-description' | 'expand-collapse';
+  usePathInNavBar: 'true' | 'false';
+  showMethodInNavBar: 'as-colored-block';
+  showComponents: 'true' | 'false';
+}
+
+export interface DocumentModifiedByRapiDoc<T extends {} = {}>
+  extends OpenAPIV3.Document {
+  servers?: (OpenAPIV3.ServerObject & {
+    computedUrl?: string;
+    variables?: {
+      [variable: string]: OpenAPIV3.ServerVariableObject & { value?: string };
+    };
+  })[];
+  tags?: (OpenAPIV3.TagObject & { 'x-tag-expanded'?: boolean })[];
+  webhooks?: Record<
+    string,
+    (OpenAPIV3.PathItemObject | OpenAPIV3.ReferenceObject) & {
+      _type?: 'webhook';
+    }
+  >;
+
+  paths: OpenAPIV3.PathsObject<
+    T,
+    {
+      _type?: 'webhook';
+    }
+  >;
 }
 
 export interface RapiDocServer extends OpenAPIV3.ServerObject {
@@ -172,17 +203,24 @@ export interface RapiDocXCodeSample {
   source: string;
 }
 
-export interface RapiDocTag extends OpenAPIV3.TagObject {
+export interface RapiDocTag {
   show: boolean;
   elementId: string;
   name: string;
   description: string;
-  headers: marked.Token[];
+  headers: (marked.Token & { depth?: number; text?: string })[];
   expanded: boolean;
   firstPathId?: string;
   paths: RapiDocPath[];
   'x-tag-expanded'?: boolean;
 }
+
+export type RapiDocOperationObject<T extends {} = {}> =
+  OpenAPIV3.OperationObject<T> & {
+    'x-badges'?: string;
+    'x-codeSamples'?: string;
+    'x-code-samples'?: string;
+  };
 
 export interface RapiDocWebHookValue<T extends {} = {}>
   extends OpenAPIV3.PathItemObject<T> {
@@ -195,13 +233,46 @@ interface RapiDocExtraOperation {
   'x-code-samples'?: string;
 }
 
-export type RapiDocPath<T extends {} = {}, U extends {} = {}, V extends {} = {}>= OpenAPIV3.PathsObject<U, V> & T;
+export interface RapiDocPath {
+  show: boolean;
+  expanded: boolean;
+  isWebhook: boolean;
+  expandedAtLeastOnce: boolean;
+  summary: string;
+  description: string;
+  externalDocs?: OpenAPIV3.ExternalDocumentationObject;
+  shortSummary: string;
+  method: RapiDocMethods;
+  path: string;
+  operationId?: string;
+  elementId: string;
+  servers: OpenAPIV3.ServerObject[];
+  parameters: (OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject)[];
+  requestBody?: OpenAPIV3.ReferenceObject | OpenAPIV3.RequestBodyObject;
+  responses?: OpenAPIV3.ResponsesObject;
+  callbacks?: {
+    [callback: string]: OpenAPIV3.ReferenceObject | OpenAPIV3.CallbackObject;
+  };
+  deprecated?: boolean;
+  security?: OpenAPIV3.SecurityRequirementObject[];
+  xBadges?: { color: string; label: string }[];
+  xCodeSamples: RapiDocXCodeSample[];
+}
 
-export interface RapiDocDocument<T extends {} = {}>
-  extends OpenAPIV3.Document<T> {
+export interface RapiDocDocument {
+  openapi: string;
+  info: OpenAPIV3.InfoObject;
+  security?: OpenAPIV3.SecurityRequirementObject[];
+  externalDocs?: OpenAPIV3.ExternalDocumentationObject;
+  'x-express-openapi-additional-middleware'?: (
+    | ((request: any, response: any, next: any) => Promise<void>)
+    | ((request: any, response: any, next: any) => void)
+  )[];
+  'x-express-openapi-validation-strict'?: boolean;
+
   servers?: RapiDocServer[];
   tags?: RapiDocTag[];
-  paths: RapiDocPath<T, {}>;
+  paths: RapiDocPath[];
   isSpecLoading: boolean;
   specLoadError: boolean;
   schemaAndExamples: {
@@ -212,13 +283,27 @@ export interface RapiDocDocument<T extends {} = {}>
     example: string;
     selectedExample: string;
     description: string;
-  }[];
+  }[] /* 
   webhooks?: {
     [index: string]: RapiDocWebHookValue & {
       [method in OpenAPIV3.HttpMethods]?: OpenAPIV3.OperationObject<T>;
     };
-  };
+  }; */;
   securitySchemes: RapiDocSecurityScheme[];
+  infoDescriptionHeaders: { text: string; depth: number }[];
+  components: {
+    show: boolean;
+    name: string;
+    description: string;
+    // securitySchemes: RapiDocSecurityScheme[];
+    subComponents: {
+      show: boolean;
+      id: string;
+      name: string;
+      component: any;
+      expanded?: boolean;
+    }[];
+  }[];
 }
 
 export type RapiDocSecurityScheme = OpenAPIV3.SecuritySchemeObject & {

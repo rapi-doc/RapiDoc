@@ -1,14 +1,13 @@
 
 declare module "@apitools/openapi-parser" {
-  import { RapiDocDocument } from '@rapidoc-types';
-  
+  import { OpenAPIV3 } from 'openapi-types';
   const Spec: {
     resolvedSpec?: {
       jsonSchemaViewer: unknown;
       schemaAndExamples: any[];
       info: unknown;
     };
-    spec: RapiDocDocument;
+    spec: OpenAPIV3.Document;
     response?: {
       url: string;
       status: string;
