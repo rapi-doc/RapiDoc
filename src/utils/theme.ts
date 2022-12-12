@@ -1,9 +1,9 @@
 import { html } from 'lit';
 import ColorUtils from '@rapidoc/utils/color-utils';
-import { RapidocElement, RapiDocTheme } from '@rapidoc-types';
+import { RapiDocCallableElement, RapiDocTheme } from '@rapidoc-types';
 
 /* Generates an schema object containing type and constraint info */
-export default function setTheme(this: RapidocElement, baseTheme: 'dark' | 'light', theme: Partial<RapiDocTheme> = {}) {
+export default function setTheme(this: RapiDocCallableElement, baseTheme: 'dark' | 'light', theme: Partial<RapiDocTheme> = {}) {
   let newTheme: Partial<RapiDocTheme> = {};
 
   // Common Theme colors
