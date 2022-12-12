@@ -337,7 +337,7 @@ export interface RapiDocDocument extends ResolvedSpec {
     };
   }; */;
   securitySchemes: RapiDocSecurityScheme[];
-  infoDescriptionHeaders: marked.Token[];
+  infoDescriptionHeaders: marked.Tokens.Heading[];
   components: {
     show: boolean;
     name: string;
