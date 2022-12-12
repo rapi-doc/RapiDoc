@@ -2,7 +2,7 @@ import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
 import { downloadResource, viewResource } from '@rapidoc/utils/common-utils';
-import { RapidocElement } from '@rapidoc-types';
+import { RapiDocCallableElement } from '@rapidoc-types';
 
 /* eslint-disable indent */
 function headingRenderer() {
@@ -11,7 +11,7 @@ function headingRenderer() {
   return renderer;
 }
 
-export default function overviewTemplate(this: RapidocElement) {
+export default function overviewTemplate(this: RapiDocCallableElement) {
   return html`
     <section id="overview" part="section-overview"
       class="observe-me ${this.renderStyle === 'view' ? 'section-gap' : 'section-gap--read-mode'}">
