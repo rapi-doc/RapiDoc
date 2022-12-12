@@ -1,25 +1,27 @@
 /* eslint-disable arrow-body-style */
+import { RapidocElement, RapiDocSecurityScheme } from '@rapidoc-types';
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
+import { OpenAPIV3 } from 'openapi-types';
 
 const codeVerifier = '731DB1C3F7EA533B85E29492D26AA-1234567890-1234567890';
 const codeChallenge = '4FatVDBJKPAo4JgLLaaQFMUcQPn5CrPRvLlaob9PTYc'; // Base64 encoded SHA-256
 
 const localStorageKey = 'rapidoc';
 
-export function applyApiKey(securitySchemeId, username = '', password = '', providedApikeyVal = '') {
+export function applyApiKey(this: RapidocElement, securitySchemeId: string, username = '', password = '', providedApikeyVal = '') {
   const securityObj = this.resolvedSpec.securitySchemes?.find((v) => (v.securitySchemeId === securitySchemeId));
   if (!securityObj) {
     return false;
   }
   let finalApiKeyValue = '';
-  if (securityObj.scheme?.toLowerCase() === 'basic') {
+  if (securityObj.type === 'http' && securityObj.scheme?.toLowerCase() === 'basic') {
     if (username) {
       finalApiKeyValue = Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
       // finalApiKeyValue = `Basic ${btoa(`${username}:${password}`)}`;
     }
-  } else if (providedApikeyVal) {
+  } else if (securityObj.type === 'http' && providedApikeyVal) {
     securityObj.value = providedApikeyVal;
     finalApiKeyValue = `${securityObj.scheme?.toLowerCase() === 'bearer' ? 'Bearer ' : ''}${providedApikeyVal}`;
   }
@@ -31,7 +33,7 @@ export function applyApiKey(securitySchemeId, username = '', password = '', prov
   return false;
 }
 
-export function onClearAllApiKeys() {
+export function onClearAllApiKeys(this: RapidocElement) {
   this.resolvedSpec.securitySchemes?.forEach((v) => {
     v.user = '';
     v.password = '';
@@ -41,33 +43,33 @@ export function onClearAllApiKeys() {
   this.requestUpdate();
 }
 
-function getPersistedApiKeys() {
-  return JSON.parse(localStorage.getItem(localStorageKey)) || {};
+function getPersistedApiKeys(): { [key: string]: RapiDocSecurityScheme } {
+  return JSON.parse(localStorage.getItem(localStorageKey) as string) || {};
 }
 
-function setPersistedApiKeys(obj) {
+function setPersistedApiKeys(obj: unknown) {
   localStorage.setItem(localStorageKey, JSON.stringify(obj));
 }
 
-export function recoverPersistedApiKeys() {
+export function recoverPersistedApiKeys(this: RapidocElement) {
   const rapidocLs = getPersistedApiKeys.call(this);
   Object.values(rapidocLs).forEach((p) => {
     applyApiKey.call(this, p.securitySchemeId, p.username, p.password, p.value);
   });
 }
 
-function onApiKeyChange(securitySchemeId) {
+function onApiKeyChange(this: RapidocElement, securitySchemeId: string) {
   let apiKeyValue = '';
   const securityObj = this.resolvedSpec.securitySchemes.find((v) => (v.securitySchemeId === securitySchemeId));
   if (securityObj) {
-    const trEl = this.shadowRoot.getElementById(`security-scheme-${securitySchemeId}`);
+    const trEl = this.shadowRoot.getElementById(`security-scheme-${securitySchemeId}`) as HTMLElement;
     if (trEl) {
-      if (securityObj.type && securityObj.scheme && securityObj.type === 'http' && securityObj.scheme.toLowerCase() === 'basic') {
-        const userVal = trEl.querySelector('.api-key-user').value.trim();
-        const passwordVal = trEl.querySelector('.api-key-password').value.trim();
+      if (securityObj?.type === 'http' && securityObj.scheme && securityObj.scheme.toLowerCase() === 'basic') {
+        const userVal = (trEl.querySelector('.api-key-user') as HTMLInputElement).value.trim();
+        const passwordVal = (trEl.querySelector('.api-key-password') as HTMLInputElement).value.trim();
         applyApiKey.call(this, securitySchemeId, userVal, passwordVal);
       } else {
-        apiKeyValue = trEl.querySelector('.api-key-input').value.trim();
+        apiKeyValue = (trEl.querySelector('.api-key-input') as HTMLInputElement).value.trim();
         applyApiKey.call(this, securitySchemeId, '', '', apiKeyValue);
       }
       if (this.persistAuth === 'true') {
@@ -80,15 +82,18 @@ function onApiKeyChange(securitySchemeId) {
 }
 
 // Updates the OAuth Access Token (API key), so it reflects in UI and gets used in TRY calls
-function updateOAuthKey(securitySchemeId, accessToken, tokenType = 'Bearer') {
+function updateOAuthKey(this: RapidocElement, securitySchemeId: string, accessToken: string, tokenType = 'Bearer') {
   const securityObj = this.resolvedSpec.securitySchemes.find((v) => (v.securitySchemeId === securitySchemeId));
+  if (!securityObj) {
+    return;
+  }
   securityObj.finalKeyValue = `${(tokenType.toLowerCase() === 'bearer' ? 'Bearer' : (tokenType.toLowerCase() === 'mac' ? 'MAC' : tokenType))} ${accessToken}`;
   this.requestUpdate();
 }
 
 /* eslint-disable no-console */
 // Gets Access-Token in exchange of Authorization Code
-async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, grantType, authCode, securitySchemeId, authFlowDivEl, sendClientSecretIn = 'header', scopes = null, username = null, password = null) {
+async function fetchAccessToken(this: RapidocElement, tokenUrl: string, clientId: string, clientSecret: string, redirectUrl: string, grantType: 'authorization_code' | 'client_credentials' | 'password', authCode: string, securitySchemeId: string, authFlowDivEl: HTMLElement, sendClientSecretIn = 'header', scopes: string | null = null, username: string | null = null, password: string | null = null) {
   const respDisplayEl = authFlowDivEl ? authFlowDivEl.querySelector('.oauth-resp-display') : undefined;
   const urlFormParams = new URLSearchParams();
   const headers = new Headers();
@@ -111,7 +116,7 @@ async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, g
     urlFormParams.append('client_id', clientId);
     urlFormParams.append('client_secret', clientSecret);
   }
-  if (grantType === 'password') {
+  if (grantType === 'password' && username !== null && password !== null) {
     urlFormParams.append('username', username);
     urlFormParams.append('password', password);
   }
@@ -145,7 +150,7 @@ async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, g
 }
 
 // Gets invoked when it receives the Authorization Code from the other window via message-event
-async function onWindowMessageEvent(msgEvent, winObj, tokenUrl, clientId, clientSecret, redirectUrl, grantType, sendClientSecretIn, securitySchemeId, authFlowDivEl) {
+async function onWindowMessageEvent(this: RapidocElement, msgEvent: MessageEvent, winObj: Window, tokenUrl: string, clientId: string, clientSecret: string, redirectUrl: string, grantType: 'authorization_code' | 'client_credentials' | 'password', sendClientSecretIn: string, securitySchemeId: string, authFlowDivEl: HTMLElement) {
   sessionStorage.removeItem('winMessageEventActive');
   winObj.close();
   if (msgEvent.data.fake) {
@@ -182,25 +187,25 @@ async function generateCodeChallenge() {
 }
 */
 
-async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, e) {
-  const authFlowDivEl = e.target.closest('.oauth-flow');
-  const clientId = authFlowDivEl.querySelector('.oauth-client-id') ? authFlowDivEl.querySelector('.oauth-client-id').value.trim() : '';
-  const clientSecret = authFlowDivEl.querySelector('.oauth-client-secret') ? authFlowDivEl.querySelector('.oauth-client-secret').value.trim() : '';
-  const username = authFlowDivEl.querySelector('.api-key-user') ? authFlowDivEl.querySelector('.api-key-user').value.trim() : '';
-  const password = authFlowDivEl.querySelector('.api-key-password') ? authFlowDivEl.querySelector('.api-key-password').value.trim() : '';
-  const sendClientSecretIn = authFlowDivEl.querySelector('.oauth-send-client-secret-in') ? authFlowDivEl.querySelector('.oauth-send-client-secret-in').value.trim() : 'header';
-  const checkedScopeEls = [...authFlowDivEl.querySelectorAll('.scope-checkbox:checked')];
-  const pkceCheckboxEl = authFlowDivEl.querySelector(`#${securitySchemeId}-pkce`);
+async function onInvokeOAuthFlow(this: RapidocElement, securitySchemeId: string, flowType: string, authUrl: string, tokenUrl: string, e: MouseEvent) {
+  const authFlowDivEl = (e.target as HTMLElement).closest('.oauth-flow') as HTMLElement;
+  const clientId = authFlowDivEl.querySelector('.oauth-client-id') ? (authFlowDivEl.querySelector('.oauth-client-id') as HTMLInputElement).value.trim() : '';
+  const clientSecret = authFlowDivEl.querySelector('.oauth-client-secret') ? (authFlowDivEl.querySelector('.oauth-client-secret') as HTMLInputElement).value.trim() : '';
+  const username = authFlowDivEl.querySelector('.api-key-user') ? (authFlowDivEl.querySelector('.api-key-user') as HTMLInputElement).value.trim() : '';
+  const password = authFlowDivEl.querySelector('.api-key-password') ? (authFlowDivEl.querySelector('.api-key-password') as HTMLInputElement).value.trim() : '';
+  const sendClientSecretIn = authFlowDivEl.querySelector('.oauth-send-client-secret-in') ? (authFlowDivEl.querySelector('.oauth-send-client-secret-in') as HTMLInputElement).value.trim() : 'header';
+  const checkedScopeEls = [...authFlowDivEl.querySelectorAll('.scope-checkbox:checked')] as HTMLInputElement[];
+  const pkceCheckboxEl = authFlowDivEl.querySelector(`#${securitySchemeId}-pkce`) as HTMLInputElement;
   const state = (`${Math.random().toString(36).slice(2, 9)}random${Math.random().toString(36).slice(2, 9)}`);
   const nonce = (`${Math.random().toString(36).slice(2, 9)}random${Math.random().toString(36).slice(2, 9)}`);
   // const codeChallenge = await generateCodeChallenge(codeVerifier);
   const redirectUrlObj = new URL(`${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/${this.oauthReceiver}`);
-  let grantType = '';
+  let grantType: 'authorization_code' | 'client_credentials' | 'password';
   let responseType = '';
-  let newWindow;
+  let newWindow: Window;
 
   // clear previous error messages
-  const errEls = [...authFlowDivEl.parentNode.querySelectorAll('.oauth-resp-display')];
+  const errEls = [...(authFlowDivEl.parentNode as HTMLElement).querySelectorAll('.oauth-resp-display')];
   errEls.forEach((v) => { v.innerHTML = ''; });
 
   if (flowType === 'authorizationCode' || flowType === 'implicit') {
@@ -225,14 +230,15 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
       authCodeParams.set('code_challenge', codeChallenge);
       authCodeParams.set('code_challenge_method', 'S256');
     }
-    authCodeParams.set('show_dialog', true);
+    authCodeParams.set('show_dialog', 'true');
     authUrlObj.search = authCodeParams.toString();
     // If any older message-event-listener is active then fire a fake message to remove it (these are single time listeners)
     if (sessionStorage.getItem('winMessageEventActive') === 'true') {
-      window.postMessage({ fake: true }, this);
+      // TODO: Typescript migration `this` cannot be a parameter of postMessage
+      window.postMessage({ fake: true }/* , this */);
     }
     setTimeout(() => {
-      newWindow = window.open(authUrlObj.toString());
+      newWindow = window.open(authUrlObj.toString()) as Window;
       if (!newWindow) {
         console.error(`RapiDoc: Unable to open ${authUrlObj.toString()} in a new window`);
       } else {
@@ -258,10 +264,10 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
 
 /* eslint-disable indent */
 
-function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, authFlow, defaultScopes = [], receiveTokenIn = 'header') {
+function oAuthFlowTemplate(this: RapidocElement, flowName: 'authorizationCode' |'clientCredentials' |'implicit' |'password', clientId: string, clientSecret: string, securitySchemeId: string, authFlow: OpenAPIV3.OAuth2SecurityScheme & { authorizationUrl: string, tokenUrl: string, refreshUrl: string, scopes: { [key: string]: string }; 'x-pkce-only'?: boolean }, defaultScopes: string[] = [], receiveTokenIn = 'header') {
   let { authorizationUrl, tokenUrl, refreshUrl } = authFlow;
   const pkceOnly = authFlow['x-pkce-only'] || false;
-  const isUrlAbsolute = (url) => (url.indexOf('://') > 0 || url.indexOf('//') === 0);
+  const isUrlAbsolute = (url: string) => (url.indexOf('://') > 0 || url.indexOf('//') === 0);
   if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
     refreshUrl = `${this.selectedServer.computedUrl}/${refreshUrl.replace(/^\//, '')}`;
   }
@@ -356,7 +362,7 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
             ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit' || flowName === 'password'
               ? html`
                 <button class="m-btn thin-border" part="btn btn-outline"
-                  @click="${(e) => { onInvokeOAuthFlow.call(this, securitySchemeId, flowName, authorizationUrl, tokenUrl, e); }}"
+                  @click="${(e: MouseEvent) => { onInvokeOAuthFlow.call(this, securitySchemeId, flowName, authorizationUrl, tokenUrl, e); }}"
                 > GET TOKEN </button>`
               : ''
             }
@@ -369,8 +375,13 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
   `;
 }
 
-function removeApiKey(securitySchemeId) {
+function removeApiKey(this: RapidocElement, securitySchemeId: string) {
   const securityObj = this.resolvedSpec.securitySchemes?.find((v) => (v.securitySchemeId === securitySchemeId));
+
+  if(!securityObj) {
+    return
+  }
+  
   securityObj.user = '';
   securityObj.password = '';
   securityObj.value = '';
@@ -383,7 +394,7 @@ function removeApiKey(securitySchemeId) {
   this.requestUpdate();
 }
 
-export default function securitySchemeTemplate() {
+export default function securitySchemeTemplate(this: RapidocElement) {
   if (!this.resolvedSpec) { return ''; }
   const providedApiKeys = this.resolvedSpec.securitySchemes?.filter((v) => (v.finalKeyValue));
   if (!providedApiKeys) {
@@ -426,29 +437,29 @@ export default function securitySchemeTemplate() {
                   : ''
                 }
 
-                ${(v.type.toLowerCase() === 'apikey') || (v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'bearer')
+                ${(v.type === 'apiKey') || (v.type === 'http' && v.scheme === 'bearer')
                   ? html`
                     <div style="margin-bottom:5px">
-                      ${v.type.toLowerCase() === 'apikey'
+                      ${v.type === 'apiKey'
                         ? html`Send <code>${v.name}</code> in <code>${v.in}</code>`
                         : html`Send <code>Authorization</code> in <code>header</code> containing the word <code>Bearer</code> followed by a space and a Token String.`
                       }
                     </div>
                     <div style="max-height:28px;">
-                      ${v.in !== 'cookie'
+                      ${v.type === 'apiKey' && v.in !== 'cookie'
                         ? html`
                           <input type = "text" value = "${v.value}" class="${v.type} ${v.securitySchemeId} api-key-input" placeholder = "api-token" spellcheck = "false">
                           <button class="m-btn thin-border" style = "margin-left:5px;"
                             part = "btn btn-outline"
-                            @click="${(e) => { onApiKeyChange.call(this, v.securitySchemeId, e); }}">
+                            @click="${() => { onApiKeyChange.call(this, v.securitySchemeId); }}">
                             ${v.finalKeyValue ? 'UPDATE' : 'SET'}
                           </button>`
-                        : html`<span class="gray-text" style="font-size::var(--font-size-small)"> cookies cannot be set from here</span>`
+                        : html`<span class="gray-text" style="font-size:var(--font-size-small)"> cookies cannot be set from here</span>`
                       }
                     </div>`
                   : ''
                 }
-                ${v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'basic'
+                ${v.type === 'http' && v.scheme === 'basic'
                   ? html`
                     <div style="margin-bottom:5px">
                       Send <code>Authorization</code> in <code>header</code> containing the word <code>Basic</code> followed by a space and a base64 encoded string of <code>username:password</code>.
@@ -457,7 +468,7 @@ export default function securitySchemeTemplate() {
                       <input type="text" value = "${v.user}" placeholder="username" spellcheck="false" class="${v.type} ${v.securitySchemeId} api-key-user" style="width:100px">
                       <input type="password" value = "${v.password}" placeholder="password" spellcheck="false" class="${v.type} ${v.securitySchemeId} api-key-password" style = "width:100px; margin:0 5px;">
                       <button class="m-btn thin-border"
-                        @click="${(e) => { onApiKeyChange.call(this, v.securitySchemeId, e); }}"
+                        @click="${() => { onApiKeyChange.call(this, v.securitySchemeId); }}"
                         part = "btn btn-outline"
                       >
                         ${v.finalKeyValue ? 'UPDATE' : 'SET'}
@@ -467,21 +478,31 @@ export default function securitySchemeTemplate() {
                 }
               </td>
             </tr>
-            ${v.type.toLowerCase() === 'oauth2'
+            ${v.type === 'oauth2'
               ? html`
                 <tr>
                   <td style="border:none; padding-left:48px">
-                    ${Object.keys(v.flows).map((f) => oAuthFlowTemplate
-                      .call(
-                        this,
-                        f,
-                        (v.flows[f]['x-client-id'] || v['x-client-id'] || ''),
-                        (v.flows[f]['x-client-secret'] || v['x-client-secret'] || ''),
-                        v.securitySchemeId,
-                        v.flows[f],
-                        (v.flows[f]['x-default-scopes'] || v['x-default-scopes']),
-                        (v.flows[f]['x-receive-token-in'] || v['x-receive-token-in']),
-                      ))}
+                    ${(Object.keys(v.flows) as ("authorizationCode" | "clientCredentials" | "implicit" | "password")[]).map((f) => {
+                      const currentFlow = v.flows[f] as unknown as OpenAPIV3.OAuth2SecurityScheme & {
+                        'x-client-id'?: string;
+                        'x-client-secret'?: string;
+                        'x-default-scopes'?: string[];
+                        'x-receive-token-in'?: string;
+                      }; 
+
+                      return oAuthFlowTemplate
+                        .call(
+                          this,
+                          f,
+                          (currentFlow['x-client-id'] || v['x-client-id'] || ''),
+                          (currentFlow['x-client-secret'] || v['x-client-secret'] || ''),
+                          v.securitySchemeId,
+                          // TODO: Typescript migration need check on the passed type
+                          currentFlow as any,
+                          (currentFlow['x-default-scopes'] || v['x-default-scopes']),
+                          (currentFlow['x-receive-token-in'] || v['x-receive-token-in']),
+                        )
+                    })}
                   </td>
                 </tr>
                 `
@@ -496,9 +517,12 @@ export default function securitySchemeTemplate() {
 `;
 }
 
-export function pathSecurityTemplate(pathSecurity) {
+export function pathSecurityTemplate(this: RapidocElement, pathSecurity: string) {
   if (this.resolvedSpec.securitySchemes && pathSecurity) {
-    const orSecurityKeys1 = [];
+    const orSecurityKeys1: {
+      securityTypes?: string
+      securityDefs: (RapiDocSecurityScheme & { scopes: string })[]
+    }[] = [];
     if (Array.isArray(pathSecurity)) {
       if (pathSecurity.length === 0) {
         return '';
@@ -507,8 +531,8 @@ export function pathSecurityTemplate(pathSecurity) {
       return '';
     }
     pathSecurity.forEach((pSecurity) => {
-      const andSecurityKeys1 = [];
-      const andKeyTypes = [];
+      const andSecurityKeys1: (RapiDocSecurityScheme & { scopes: string })[] = [];
+      const andKeyTypes: (string | undefined)[] = [];
       if (Object.keys(pSecurity).length === 0) {
         orSecurityKeys1.push({
           securityTypes: 'None',
@@ -580,12 +604,13 @@ export function pathSecurityTemplate(pathSecurity) {
                               ${andSecurityItem.scheme === 'basic' ? 'Base 64 encoded username:password' : 'Bearer Token'} in <b>Authorization header</b>
                               ${scopeHtml}
                             </div>`
-                          : html`
+                          : andSecurityItem.type === 'apiKey' ? html`
                             <div>
                               ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : html`Requires`}
                               Token in <b>${andSecurityItem.name} ${andSecurityItem.in}</b>
                               ${scopeHtml}
                             </div>`
+                          : html``
                       }`;
                     })}
                   </div>

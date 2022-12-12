@@ -64,6 +64,7 @@ export type RapiDocMethods =
   | 'options';
 
 export interface RapidocElement {
+  shadowRoot: ShadowRoot;
   requestUpdate: () => void;
   dispatchEvent: (event: CustomEvent) => void;
   layout: 'row' | 'column';
@@ -142,6 +143,13 @@ export interface RapidocElement {
   schemaHideWriteOnly: 'default' | 'never';
   schemaHideReadOnly: 'default' | 'never';
   fetchCredentials: 'omit' | 'same-origin' | 'include';
+  replaceHistoryState: (value: string) => void;
+  updateRoute: 'true' | 'false';
+  routePrefix: string;
+  selectedServer: RapiDocServer;
+  persistAuth: 'true' | 'false';
+  oauthReceiver: string;
+  allowAuthentication: 'true' | 'false';
 }
 
 export interface RapiDocServer extends OpenAPIV3.ServerObject {
@@ -239,6 +247,7 @@ export interface RapiDocDocument<T extends {} = {}>
       [method in OpenAPIV3.HttpMethods]?: OpenAPIV3.OperationObject<T>;
     };
   };
+  securitySchemes: RapiDocSecurityScheme[];
 }
 
 export type RapiDocSecurityScheme = OpenAPIV3.SecuritySchemeObject & {
@@ -247,6 +256,13 @@ export type RapiDocSecurityScheme = OpenAPIV3.SecuritySchemeObject & {
   oAuthFlow?: string;
   value?: string;
   finalKeyValue?: string;
+  username?: string;
+  user?: string;
+  password?: string;
+  'x-client-id'?: string;
+  'x-client-secret'?: string;
+  'x-default-scopes'?: string[];
+  'x-receive-token-in'?: string;
 };
 
 export interface RapiDocExamples {
