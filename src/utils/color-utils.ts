@@ -56,7 +56,11 @@ export default {
   },
 };
 
-export function isValidHexColor(colorCode: string) {
+export function isValidHexColor(colorCode?: string): boolean {
+  if (!colorCode) {
+    return false;
+  }
+
   return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3}|[A-Fa-f0-9]{8}|[A-Fa-f0-9]{4})$/i.test(
     colorCode
   );
