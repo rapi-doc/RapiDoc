@@ -10,11 +10,11 @@ import '@rapidoc/components/json-tree';
 import '@rapidoc/components/schema-tree';
 import SetTheme from '@rapidoc/utils/theme';
 import { isValidHexColor } from '@rapidoc/utils/color-utils';
-import { RapidocElement, RapiDocTheme } from '@rapidoc-types';
+import { RapiDocCallableElement, RapiDocJSONSchemaViewerElement, RapiDocTheme } from '@rapidoc-types';
 
 /* eslint-disable indent */
 // Json Schema Nav Template
-function jsonSchemaNavTemplate(this: RapidocElement) {
+function jsonSchemaNavTemplate(this: RapiDocCallableElement) {
   return html`
   <nav class='nav-bar' part="section-navbar">
     <slot name="nav-logo" class="logo"></slot>
@@ -30,7 +30,7 @@ function jsonSchemaNavTemplate(this: RapidocElement) {
       <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div>
     </div>
     <nav style="flex:1" class='nav-scroll' part="section-navbar-scroll">
-      ${this.resolvedSpec.schemaAndExamples.map((v) => html`
+      ${this.resolvedSpec?.schemaAndExamples?.map((v) => html`
         <div class='nav-bar-path' data-content-id='${v.elementId}' id='link-${v.elementId}'
           @click = '${(e: MouseEvent) => {
             this.scrollToEventTarget(e, false);
@@ -45,11 +45,11 @@ function jsonSchemaNavTemplate(this: RapidocElement) {
 }
 
 // Json Schema Body Template
-function jsonSchemaBodyTemplate(this: RapidocElement) {
+function jsonSchemaBodyTemplate(this: RapiDocJSONSchemaViewerElement) {
   return html`
     ${this.showInfo === 'true' ? overviewTemplate.call(this) : ''}
     <div style="font-size:var(--font-size-regular);">
-    ${this.resolvedSpec.schemaAndExamples.map((jSchemaBody) => {
+    ${this.resolvedSpec?.schemaAndExamples?.map((jSchemaBody) => {
       const examplesObj = generateExample(jSchemaBody.schema, 'json', jSchemaBody.examples, jSchemaBody.example, true, false, 'json', true);
       jSchemaBody.selectedExample = examplesObj[0]?.exampleId;
       return html`
@@ -99,7 +99,7 @@ function jsonSchemaBodyTemplate(this: RapidocElement) {
 /* eslint-enable indent */
 
 // Json Schema Root Template
-export default function jsonSchemaViewerTemplate(this: RapidocElement, isMini = false) {
+export default function jsonSchemaViewerTemplate(this: RapiDocJSONSchemaViewerElement, isMini = false) {
 // export default function jsonSchemaViewerTemplate(isMini = false, showExpandCollapse = true, showTags = true, pathsExpanded = false) {
   if (!this.resolvedSpec) {
     return '';
@@ -121,7 +121,7 @@ export default function jsonSchemaViewerTemplate(this: RapidocElement, isMini = 
     if (isMini) {
       return html`
         ${this.theme === 'dark' ? SetTheme.call(this, 'dark', newTheme) : SetTheme.call(this, 'light', newTheme)}
-        <div style="display:flex; align-items:center; border:1px dashed var(--border-color); height:42px; padding:5px; font-size:var(--font-size-small); color:var(--red); font-family:var(--font-mono)"> ${this.resolvedSpec.info.description} </div>
+        <div style="display:flex; align-items:center; border:1px dashed var(--border-color); height:42px; padding:5px; font-size:var(--font-size-small); color:var(--red); font-family:var(--font-mono)"> ${this.resolvedSpec.info?.description} </div>
       `;
     }
     return html`
@@ -132,8 +132,8 @@ export default function jsonSchemaViewerTemplate(this: RapidocElement, isMini = 
       <main class="main-content regular-font" part="section-main-content">
         <slot></slot>
         <div style="margin:24px; text-align: center;">
-          <h1 style="color: var(--red)"> ${this.resolvedSpec.info.title} </h1>
-          <div style="font-family:var(--font-mono)"> ${this.resolvedSpec.info.description} </div>
+          <h1 style="color: var(--red)"> ${this.resolvedSpec.info?.title} </h1>
+          <div style="font-family:var(--font-mono)"> ${this.resolvedSpec.info?.description} </div>
         </div>
       </main>  
     `;
