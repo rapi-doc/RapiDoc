@@ -894,7 +894,7 @@ function generateMarkdownForArrayAndObjectDescription(
   return markdown;
 }
 
-interface ObjectNotationSchema {
+export interface ObjectNotationSchema {
   '::dataTypeLabel'?: string;
   '::deprecated'?: boolean;
   '::description'?: string;
