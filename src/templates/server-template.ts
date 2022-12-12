@@ -1,9 +1,10 @@
+import { RapidocElement, RapiDocServer } from '@rapidoc-types';
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
 
-export function setApiServer(serverUrl) {
-  const serverObj = this.resolvedSpec?.servers.find((s) => s.url === serverUrl);
+export function setApiServer(this: RapidocElement, serverUrl: string) {
+  const serverObj = this.resolvedSpec?.servers?.find((s) => s.url === serverUrl);
   if (!serverObj) {
     return false;
   }
@@ -19,8 +20,8 @@ export function setApiServer(serverUrl) {
   return true;
 }
 
-function onApiServerVarChange(e, serverObj) {
-  const inputEls = [...e.currentTarget.closest('table').querySelectorAll('input, select')];
+function onApiServerVarChange(this: RapidocElement, e: Event, serverObj: RapiDocServer) {
+  const inputEls = [...((e.currentTarget as HTMLElement).closest('table') as HTMLTableElement).querySelectorAll('input, select')] as (HTMLInputElement | HTMLSelectElement)[];
   let tempUrl = serverObj.url;
   inputEls.forEach((v) => {
     const regex = new RegExp(`{${v.dataset.var}}`, 'g');
@@ -31,7 +32,7 @@ function onApiServerVarChange(e, serverObj) {
 }
 
 /* eslint-disable indent */
-function serverVarsTemplate() {
+function serverVarsTemplate(this: RapidocElement) {
   // const selectedServerObj = this.resolvedSpec.servers.find((v) => (v.url === this.selectedServer));
   return this.selectedServer && this.selectedServer.variables
     ? html`
@@ -45,7 +46,7 @@ function serverVarsTemplate() {
             ? html`
             <select
               data-var = "${kv[0]}"
-              @input = ${(e) => { onApiServerVarChange.call(this, e, this.selectedServer); }}
+              @input = ${(e: Event) => { onApiServerVarChange.call(this, e, this.selectedServer); }}
             >
             ${Object.entries(kv[1].enum).map((e) => (kv[1].default === e[1]
               ? html`
@@ -68,7 +69,7 @@ function serverVarsTemplate() {
               spellcheck = "false"
               data-var = "${kv[0]}"
               value = "${kv[1].default}"
-              @input = ${(e) => { onApiServerVarChange.call(this, e, this.selectedServer); }}
+              @input = ${(e: Event) => { onApiServerVarChange.call(this, e, this.selectedServer); }}
             />`}
           </td>
         </tr>
@@ -82,7 +83,7 @@ function serverVarsTemplate() {
     : '';
 }
 
-export default function serverTemplate() {
+export default function serverTemplate(this: RapidocElement) {
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) { return ''; }
   return html`
   <section id = 'servers' part="section-servers" style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;" class='regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
