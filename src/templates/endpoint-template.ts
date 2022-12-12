@@ -7,10 +7,9 @@ import codeSamplesTemplate from './code-samples-template';
 import callbackTemplate from './callback-template';
 import { pathSecurityTemplate } from './security-scheme-template';
 import { pathIsInSearch, rapidocApiKey } from '@rapidoc/utils/common-utils';
-import { RapidocElement, RapiDocPath, RapiDocXCodeSample } from '@rapidoc-types';
-import { OpenAPIV3 } from 'openapi-types';
+import { RapidocElement, RapiDocPath } from '@rapidoc-types';
 
-function toggleExpand(this: RapidocElement, path: RapiDocPath<{ expanded: boolean, elementId: string }>) {
+function toggleExpand(this: RapidocElement, path: RapiDocPath) {
   if (path.expanded) {
     path.expanded = false; // collapse
     if (this.updateRoute === 'true') {
@@ -46,7 +45,7 @@ function onExpandCollapseAll(e: MouseEvent, action = 'expand-all') {
 }
 
 /* eslint-disable indent */
-function endpointHeadTemplate(this: RapidocElement, path: RapiDocPath<{ expanded: boolean, elementId: string }>, pathsExpanded = false) {
+function endpointHeadTemplate(this: RapidocElement, path: RapiDocPath, pathsExpanded = false) {
   return html`
   <summary @click="${() => { toggleExpand.call(this, path); }}" part="section-endpoint-head-${path.expanded ? 'expanded' : 'collapsed'}" class='endpoint-head ${path.method} ${path.deprecated ? 'deprecated' : ''} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
     <div part="section-endpoint-head-method" class="method ${path.method} ${path.deprecated ? 'deprecated' : ''}"> ${path.method} </div> 
@@ -71,7 +70,7 @@ function endpointHeadTemplate(this: RapidocElement, path: RapiDocPath<{ expanded
   `;
 }
 
-function endpointBodyTemplate(this: RapidocElement, path: RapiDocPath<{ expanded: boolean, elementId: string, description: string; security: { securitySchemeId: string }[]; xCodeSamples: RapiDocXCodeSample[]; xBadges: { color: string; label: string}[], externalDocs: OpenAPIV3.ExternalDocumentationObject, callbacks: OpenAPIV3.CallbackObject }>) {
+function endpointBodyTemplate(this: RapidocElement, path: RapiDocPath) {
   const acceptContentTypes = new Set();
   for (const respStatus in path.responses) {
     // TODO: typescript migration: remove any by proper typing
@@ -214,7 +213,7 @@ export default function endpointTemplate(this: RapidocElement, showExpandCollaps
               <div class="regular-font regular-font-size m-markdown" style="padding-bottom:12px">
                 ${unsafeHTML(marked(tag.description || ''))}
               </div>
-              ${(tag.paths as RapiDocPath<{expanded: boolean, elementId: string, description: string; security: { securitySchemeId: string }[]; xCodeSamples: RapiDocXCodeSample[]; xBadges: { color: string; label: string}[], externalDocs: OpenAPIV3.ExternalDocumentationObject, callbacks: OpenAPIV3.CallbackObject}>[]).filter((v) => {
+              ${(tag.paths as RapiDocPath[]).filter((v) => {
                 if (this.matchPaths) {
                   return pathIsInSearch(this.matchPaths, v, this.matchType);
                 }
@@ -229,7 +228,7 @@ export default function endpointTemplate(this: RapidocElement, showExpandCollaps
           </div>`
         : html`
           <div class='section-tag-body'>
-          ${(tag.paths as RapiDocPath<{expanded: boolean, elementId: string, description: string; security: { securitySchemeId: string }[]; xCodeSamples: RapiDocXCodeSample[]; xBadges: { color: string; label: string}[], externalDocs: OpenAPIV3.ExternalDocumentationObject, callbacks: OpenAPIV3.CallbackObject}>[]).filter((v) => {
+          ${(tag.paths as RapiDocPath[]).filter((v) => {
             if (this.matchPaths) {
               return pathIsInSearch(this.matchPaths, v, this.matchType);
             }
