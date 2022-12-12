@@ -1,24 +1,33 @@
-import { LitElement, html, css } from 'lit';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
+import { LitElement, html, css, TemplateResult } from 'lit';
+import { property} from 'lit/decorators';
+import { unsafeHTML } from 'lit/directives/unsafe-html'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
-import FontStyles from '~/styles/font-styles';
-import SchemaStyles from '~/styles/schema-styles';
-import BorderStyles from '~/styles/border-styles';
-import CustomStyles from '~/styles/custom-styles';
+import FontStyles from '@rapidoc/styles/font-styles';
+import SchemaStyles from '@rapidoc/styles/schema-styles';
+import BorderStyles from '@rapidoc/styles/border-styles';
+import CustomStyles from '@rapidoc/styles/custom-styles';
+import { ObjectNotationSchema } from '@rapidoc/utils/schema-utils';
 
 export default class SchemaTree extends LitElement {
-  static get properties() {
-    return {
-      data: { type: Object },
-      schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
-      schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
-      allowSchemaDescriptionExpandToggle: { type: String, attribute: 'allow-schema-description-expand-toggle' },
-      schemaHideReadOnly: { type: String, attribute: 'schema-hide-read-only' },
-      schemaHideWriteOnly: { type: String, attribute: 'schema-hide-write-only' },
-    };
-  }
+  @property({ type: Object })
+  public data?: ObjectNotationSchema;
+  
+  @property({ type: Number, attribute: 'schema-expand-level' })
+  public schemaExpandLevel: number = 999;
 
-  connectedCallback() {
+  @property({ type: String, attribute: 'schema-description-expanded' })
+  public schemaDescriptionExpanded?: string;
+  
+  @property({ type: String, attribute: 'allow-schema-description-expand-toggle' })
+  public allowSchemaDescriptionExpandToggle?: string;
+  
+  @property({ type: String, attribute: 'schema-hide-read-only' })
+  public schemaHideReadOnly?: string;
+  
+  @property({ type: String, attribute: 'schema-hide-write-only' })
+  public schemaHideWriteOnly?: string;
+
+  override connectedCallback() {
     super.connectedCallback();
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) { this.schemaExpandLevel = 99999; }
     if (!this.schemaDescriptionExpanded || !'true false'.includes(this.schemaDescriptionExpanded)) { this.schemaDescriptionExpanded = 'false'; }
@@ -26,7 +35,7 @@ export default class SchemaTree extends LitElement {
     if (!this.schemaHideWriteOnly || !'true false'.includes(this.schemaHideWriteOnly)) { this.schemaHideWriteOnly = 'true'; }
   }
 
-  static get styles() {
+  static override get styles() {
     return [
       FontStyles,
       SchemaStyles,
@@ -93,9 +102,9 @@ export default class SchemaTree extends LitElement {
   }
 
   /* eslint-disable indent */
-  render() {
+  override render() {
     return html`
-      <div class="tree ${this.schemaDescriptionExpanded === 'true' ? 'expanded-all-descr' : 'collapsed-all-descr'}" @click="${(e) => this.handleAllEvents(e)}">
+      <div class="tree ${this.schemaDescriptionExpanded === 'true' ? 'expanded-all-descr' : 'collapsed-all-descr'}" @click="${(e: MouseEvent) => this.handleAllEvents(e)}">
         <div class="toolbar">
           <div class="toolbar-item schema-root-type ${this.data?.['::type'] || ''} "> ${this.data?.['::type'] || ''} </div>
           ${this.allowSchemaDescriptionExpandToggle === 'true'
@@ -107,13 +116,13 @@ export default class SchemaTree extends LitElement {
             : ''
           }
         </div>
-        <span part="schema-description" class='m-markdown'> ${unsafeHTML(marked(this.data?.['::description'] || ''))}</span>
+        <span part="schema-description" class='m-markdown'> ${unsafeHTML(marked((this.data && '::description' in this.data) ? (this.data['::description'] as string) : ''))}</span>
         ${this.data
           ? html`
             ${this.generateTree(
-              this.data['::type'] === 'array' ? this.data['::props'] : this.data,
+              (this.data['::type'] === 'array' ? this.data['::props'] : this.data) as ObjectNotationSchema,
               this.data['::type'],
-              this.data['::array-type'] || '',
+              (this.data['::type'] === 'array' ? this.data['::array-type'] : '') as string,
             )}`
           : html`<span class='mono-font' style='color:var(--red)'> Schema not found </span>`
         }
@@ -121,7 +130,7 @@ export default class SchemaTree extends LitElement {
     `;
   }
 
-  generateTree(data, dataType = 'object', arrayType = '', key = '', description = '', schemaLevel = 0, indentLevel = 0, readOrWrite = '') {
+  generateTree(data: ObjectNotationSchema, dataType = 'object', arrayType = '', key = '', description = '', schemaLevel = 0, indentLevel = 0, readOrWrite = ''): TemplateResult<any> | undefined {
     if (this.schemaHideReadOnly === 'true') {
       if (dataType === 'array') {
         if (readOrWrite === 'readonly') {
@@ -171,7 +180,7 @@ export default class SchemaTree extends LitElement {
 
     const leftPadding = 12;
     const minFieldColWidth = 400 - (indentLevel * leftPadding);
-    let openBracket = '';
+    let openBracket: TemplateResult<any> = html``;
     let closeBracket = '';
     const newSchemaLevel = data['::type']?.startsWith('xxx-of') ? schemaLevel : (schemaLevel + 1);
     // const newIndentLevel = dataType === 'xxx-of-option' || data['::type'] === 'xxx-of-option' ? indentLevel : (indentLevel + 1);
@@ -235,27 +244,27 @@ export default class SchemaTree extends LitElement {
             : html`
               ${Object.keys(data).map((dataKey) => html`
                 ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite', '::dataTypeLabel'].includes(dataKey)
-                  ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object'
+                  ? (data[dataKey] as ObjectNotationSchema)['::type'] === 'array' || (data[dataKey] as ObjectNotationSchema)['::type'] === 'object'
                     ? html`${this.generateTree(
-                      data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey],
-                        data[dataKey]['::type'],
-                        data[dataKey]['::array-type'] || '',
+                      ((data[dataKey] as ObjectNotationSchema)['::type'] === 'array' ? (data[dataKey] as ObjectNotationSchema)['::props'] : (data[dataKey])) as ObjectNotationSchema,
+                        (data[dataKey] as ObjectNotationSchema)['::type'],
+                        ((data[dataKey] as ObjectNotationSchema)['::array-type'] || '') as string,
                         dataKey,
-                        data[dataKey]['::description'],
+                        (data[dataKey] as ObjectNotationSchema)['::description'],
                         newSchemaLevel,
                         newIndentLevel,
-                        data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '',
+                        (data[dataKey] as ObjectNotationSchema)['::readwrite'] ? (data[dataKey] as ObjectNotationSchema)['::readwrite'] : '',
                       )}`
                     : ''
                   : html`${this.generateTree(
-                    data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey],
-                    data[dataKey]['::type'],
-                    data[dataKey]['::array-type'] || '',
+                    ((data[dataKey] as ObjectNotationSchema)['::type'] === 'array' ? (data[dataKey] as ObjectNotationSchema)['::props'] : (data[dataKey])) as ObjectNotationSchema,
+                    (data[dataKey] as ObjectNotationSchema)['::type'],
+                    ((data[dataKey] as ObjectNotationSchema)['::array-type'] || '') as string,
                     dataKey,
-                    data[dataKey]?.['::description'] || '',
+                    (data[dataKey] as ObjectNotationSchema)?.['::description'] || '',
                     newSchemaLevel,
                     newIndentLevel,
-                    data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '',
+                    (data[dataKey] as ObjectNotationSchema)['::readwrite'] ? (data[dataKey] as ObjectNotationSchema)['::readwrite'] : '',
                   )}`
                 }
               `)}
@@ -271,7 +280,7 @@ export default class SchemaTree extends LitElement {
 
     // For Primitive types and array of Primitives
     // eslint-disable-next-line no-unused-vars
-    const [type, primitiveReadOrWrite, constraint, defaultValue, allowedValues, pattern, schemaDescription, schemaTitle, deprecated] = data.split('~|~');
+    const [type, primitiveReadOrWrite, constraint, defaultValue, allowedValues, pattern, schemaDescription, schemaTitle, deprecated] = (data as string).split('~|~');
     if (primitiveReadOrWrite === '🆁' && this.schemaHideReadOnly === 'true') {
       return;
     }
@@ -335,38 +344,40 @@ export default class SchemaTree extends LitElement {
   }
   /* eslint-enable indent */
 
-  handleAllEvents(e) {
-    if (e.target.classList.contains('open-bracket')) {
+  handleAllEvents(e: MouseEvent) {
+    const element = e.target as HTMLElement;
+    if (element.classList.contains('open-bracket')) {
       this.toggleObjectExpand(e);
-    } else if (e.target.classList.contains('schema-multiline-toggle')) {
+    } else if (element.classList.contains('schema-multiline-toggle')) {
       this.schemaDescriptionExpanded = (this.schemaDescriptionExpanded === 'true' ? 'false' : 'true');
-    } else if (e.target.classList.contains('descr-expand-toggle')) {
-      const trEl = e.target.closest('.tr');
+    } else if (element.classList.contains('descr-expand-toggle')) {
+      const trEl = element.closest('.tr') as HTMLElement;
       if (trEl) {
         trEl.classList.toggle('expanded-descr');
-        trEl.style.maxHeight = trEl.scrollHeight;
+        trEl.style.maxHeight = `${trEl.scrollHeight}`;
       }
     }
   }
 
-  toggleObjectExpand(e) {
-    const rowEl = e.target.closest('.tr');
+  toggleObjectExpand(e: MouseEvent) {
+    const element = e.target as HTMLElement;
+    const rowEl = element.closest('.tr') as HTMLElement;
     if (rowEl.classList.contains('expanded')) {
       rowEl.classList.replace('expanded', 'collapsed');
-      e.target.innerHTML = e.target.classList.contains('array-of-object')
+      element.innerHTML = element.classList.contains('array-of-object')
         ? '[{...}]'
-        : e.target.classList.contains('array-of-array')
+        : element.classList.contains('array-of-array')
           ? '[[...]]'
-          : e.target.classList.contains('array')
+          : element.classList.contains('array')
             ? '[...]'
             : '{...}';
     } else {
       rowEl.classList.replace('collapsed', 'expanded');
-      e.target.innerHTML = e.target.classList.contains('array-of-object')
+      element.innerHTML = element.classList.contains('array-of-object')
         ? '[{'
-        : e.target.classList.contains('array-of-array')
-          ? `[[ ${e.target.dataset.arrayType}`
-          : e.target.classList.contains('object')
+        : element.classList.contains('array-of-array')
+          ? `[[ ${element.dataset.arrayType}`
+          : element.classList.contains('object')
             ? '{'
             : '[';
     }
