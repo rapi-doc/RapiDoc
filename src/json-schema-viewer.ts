@@ -12,68 +12,131 @@ import 'prismjs/components/prism-http';
 import 'prismjs/components/prism-csharp';
 
 // Styles
-import FontStyles from '~/styles/font-styles';
-import InputStyles from '~/styles/input-styles';
-import FlexStyles from '~/styles/flex-styles';
-import TableStyles from '~/styles/table-styles';
-import PrismStyles from '~/styles/prism-styles';
-import TabStyles from '~/styles/tab-styles';
-import NavStyles from '~/styles/nav-styles';
-import InfoStyles from '~/styles/info-styles';
+import FontStyles from '@rapidoc/styles/font-styles';
+import InputStyles from '@rapidoc/styles/input-styles';
+import FlexStyles from '@rapidoc/styles/flex-styles';
+import TableStyles from '@rapidoc/styles/table-styles';
+import PrismStyles from '@rapidoc/styles/prism-styles';
+import TabStyles from '@rapidoc/styles/tab-styles';
+import NavStyles from '@rapidoc/styles/nav-styles';
+import InfoStyles from '@rapidoc/styles/info-styles';
 
-import EndpointStyles from '~/styles/endpoint-styles';
-import ProcessSpec from '~/utils/spec-parser';
-import jsonSchemaViewerTemplate from '~/templates/json-schema-viewer-template';
+import EndpointStyles from '@rapidoc/styles/endpoint-styles';
+import ProcessSpec from '@rapidoc/utils/spec-parser';
+import jsonSchemaViewerTemplate from '@rapidoc/templates/json-schema-viewer-template';
+import { property } from 'lit/decorators';
+import { RapiDocJSONSchemaViewerElement, ResolvedSpec } from '@rapidoc-types';
 
-export default class JsonSchemaViewer extends LitElement {
-  constructor() {
-    super();
-    this.isMini = false;
-    this.updateRoute = 'false';
-    this.renderStyle = 'focused';
-    this.showHeader = 'true';
-    this.allowAdvancedSearch = 'false';
-    this.selectedExampleForEachSchema = {};
-  }
+export default class JsonSchemaViewer extends LitElement implements RapiDocJSONSchemaViewerElement {
+  // TODO: Typescript migration: existing properties used to be defined in the constructor
+  public isMini = false;
+  public updateRoute = 'false';
+  public renderStyle = 'focused';
+  public allowAdvancedSearch: 'true' | 'false' = 'false';
+  public selectedExampleForEachSchema = {};
 
-  static get properties() {
-    return {
-      // Spec
-      specUrl: { type: String, attribute: 'spec-url' },
+  // TODO Typescript migration: non existing properties used inside the class
+  public pathsExpanded?: 'true' | 'false' | boolean;
+  private matchType?: 'includes';
+  public matchPaths?: string;
+  public loadFailed?: boolean;
+  public resolvedSpec?: ResolvedSpec | null;
+  private generateMissingTags?: 'true' | 'false';
+  private sortTags?: 'true' | 'false';
+  cssClasses?: string | undefined;
+  pageDirection?: 'rtl' | 'ltr' | undefined;
+  layout?: 'row' | 'column' | undefined;
+  navItemSpacing?: 'relaxed' | 'compact' | undefined;
+  responseAreaHeight?: string | undefined;
+  headingText?: string | undefined;
+  onSpecFileChange: () => void = () => console.info('JsonSchemaViewer#onSpecFileChange not implemented');
+  specFile?: string | undefined;
+  onFileLoadClick: () => void = () => console.info('JsonSchemaViewer#onFileLoadClick not implemented');
+  onShowSearchModalClicked: () => void = () => console.info('JsonSchemaViewer#onShowSearchModalClicked not implemented');
+  infoDescriptionHeadingsInNavBar?: 'true' | 'false' | undefined;
+  headerColor?: string | undefined;
+  navBgColor?: string | undefined;
+  navTextColor?: string | undefined;
+  navHoverBgColor?: string | undefined;
+  navHoverTextColor?: string | undefined;
+  navAccentColor?: string | undefined;
+  navAccentTextColor?: string | undefined;
 
-      // Schema Styles
-      schemaStyle: { type: String, attribute: 'schema-style' },
-      schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
-      schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
-      allowSchemaDescriptionExpandToggle: { type: String, attribute: 'allow-schema-description-expand-toggle' },
+  // Spec
+  
+  @property({ type: String, attribute: 'spec-url' },)
+  public specUrl?: string; 
 
-      // Hide/show Sections
-      showHeader: { type: String, attribute: 'show-header' },
-      showSideNav: { type: String, attribute: 'show-side-nav' },
-      showInfo: { type: String, attribute: 'show-info' },
+  // Schema Styles
+  
+  @property({ type: String, attribute: 'schema-style' },)
+  public schemaStyle?: string; 
+  
+  @property({ type: Number, attribute: 'schema-expand-level' },)
+  public schemaExpandLevel?: number; 
+  
+  @property({ type: String, attribute: 'schema-description-expanded' },)
+  public schemaDescriptionExpanded?: 'true' | 'false';
+  
+  @property({ type: String, attribute: 'allow-schema-description-expand-toggle' },)
+  public allowSchemaDescriptionExpandToggle?: 'true' | 'false';
 
-      // Allow or restrict features
-      allowSpecUrlLoad: { type: String, attribute: 'allow-spec-url-load' },
-      allowSpecFileLoad: { type: String, attribute: 'allow-spec-file-load' },
-      allowSpecFileDownload: { type: String, attribute: 'allow-spec-file-download' },
-      allowSearch: { type: String, attribute: 'allow-search' },
+  // Hide/show Sections
+  
+  @property({ type: String, attribute: 'show-header' },)
+  public showHeader?: 'true' | 'false' = 'true'; 
+  
+  @property({ type: String, attribute: 'show-side-nav' },)
+  public showSideNav?: string; 
+  
+  @property({ type: String, attribute: 'show-info' },)
+  public showInfo?: 'true' | 'false'; 
 
-      // Main Colors and Font
-      theme: { type: String },
-      bgColor: { type: String, attribute: 'bg-color' },
-      textColor: { type: String, attribute: 'text-color' },
-      primaryColor: { type: String, attribute: 'primary-color' },
-      fontSize: { type: String, attribute: 'font-size' },
-      regularFont: { type: String, attribute: 'regular-font' },
-      monoFont: { type: String, attribute: 'mono-font' },
-      loadFonts: { type: String, attribute: 'load-fonts' },
+  // Allow or restrict features
+  
+  @property({ type: String, attribute: 'allow-spec-url-load' },)
+  public allowSpecUrlLoad?: 'true' | 'false'; 
+  
+  @property({ type: String, attribute: 'allow-spec-file-load' },)
+  public allowSpecFileLoad?: 'true' | 'false'; 
+  
+  @property({ type: String, attribute: 'allow-spec-file-download' },)
+  public allowSpecFileDownload?: 'true' | 'false'; 
+  
+  @property({ type: String, attribute: 'allow-search' },)
+  public allowSearch?: 'true' | 'false'; 
 
-      // Internal Properties
-      loading: { type: Boolean }, // indicates spec is being loaded
-    };
-  }
+  // Main Colors and Font
+  
+  @property({ type: String },)
+  public theme?: 'dark' | 'light'; 
+  
+  @property({ type: String, attribute: 'bg-color' },)
+  public bgColor?: string; 
+  
+  @property({ type: String, attribute: 'text-color' },)
+  public textColor?: string; 
+  
+  @property({ type: String, attribute: 'primary-color' },)
+  public primaryColor?: string; 
+  
+  @property({ type: String, attribute: 'font-size' },)
+  public fontSize?: 'default' | 'large'; 
+  
+  @property({ type: String, attribute: 'regular-font' },)
+  public regularFont?: string; 
+  
+  @property({ type: String, attribute: 'mono-font' },)
+  public monoFont?: string; 
+  
+  @property({ type: String, attribute: 'load-fonts' },)
+  public loadFonts?: string; 
 
-  static get styles() {
+  // Internal Properties
+  
+  @property({ type: Boolean }) // indicates spec is being loaded
+  public loading?: boolean;
+  static override get styles() {
     return [
       FontStyles,
       InputStyles,
@@ -175,7 +238,7 @@ export default class JsonSchemaViewer extends LitElement {
   }
 
   // Startup
-  connectedCallback() {
+  override connectedCallback() {
     super.connectedCallback();
     const parent = this.parentElement;
     if (parent) {
@@ -243,11 +306,11 @@ export default class JsonSchemaViewer extends LitElement {
     });
   }
 
-  render() {
-    return jsonSchemaViewerTemplate.call(this, true, false, false, this.pathsExpanded);
+  override render() {
+    return jsonSchemaViewerTemplate.call(this, true);
   }
 
-  attributeChangedCallback(name, oldVal, newVal) {
+  override attributeChangedCallback(name: string, oldVal: string | null, newVal: string | null) {
     if (name === 'spec-url') {
       if (oldVal !== newVal) {
         // put it at the end of event-loop to load all the attributes
@@ -260,16 +323,16 @@ export default class JsonSchemaViewer extends LitElement {
   }
 
   onSpecUrlChange() {
-    this.setAttribute('spec-url', this.shadowRoot.getElementById('spec-url').value);
+    this.setAttribute('spec-url', (this.shadowRoot?.getElementById('spec-url') as HTMLInputElement).value);
   }
 
-  onSearchChange(e) {
+  onSearchChange(e: Event) {
     // Todo: Filter Search
-    this.matchPaths = e.target.value;
+    this.matchPaths = (e.target as HTMLInputElement).value;
   }
 
   // Public Method
-  async loadSpec(specUrl) {
+  async loadSpec(specUrl: string | null) {
     if (!specUrl) {
       return;
     }
@@ -287,29 +350,29 @@ export default class JsonSchemaViewer extends LitElement {
         specUrl,
         this.generateMissingTags === 'true',
         this.sortTags === 'true',
-        this.getAttribute('sort-endpoints-by'),
+        this.getAttribute('sort-endpoints-by') as 'method' | 'summary' | 'path' | 'none' | '',
       );
       this.loading = false;
       this.afterSpecParsedAndValidated(spec);
-    } catch (err) {
+    } catch (err: any) {
       this.loading = false;
       this.loadFailed = true;
       this.resolvedSpec = null;
-      console.error(`RapiDoc: Unable to resolve the API spec..  ${err.message}`); // eslint-disable-line no-console
+      console.error(`RapiDoc: Unable to resolve the API spec..  ${err?.message}`); // eslint-disable-line no-console
     }
   }
 
-  async afterSpecParsedAndValidated(spec) {
+  async afterSpecParsedAndValidated(spec?: ResolvedSpec) {
     this.resolvedSpec = spec;
     const specLoadedEvent = new CustomEvent('spec-loaded', { detail: spec });
     this.dispatchEvent(specLoadedEvent);
   }
 
   // Called by anchor tags created using markdown
-  handleHref(e) {
-    if (e.target.tagName.toLowerCase() === 'a') {
-      if (e.target.getAttribute('href').startsWith('#')) {
-        const gotoEl = this.shadowRoot.getElementById(e.target.getAttribute('href').replace('#', ''));
+  handleHref(e: Event) {
+    if ((e.target as HTMLLinkElement).tagName.toLowerCase() === 'a') {
+      if ((e.target as HTMLLinkElement).getAttribute('href')?.startsWith('#')) {
+        const gotoEl =  this.shadowRoot?.getElementById((e.target as HTMLElement)?.getAttribute('href')?.replace('#', '') || '')
         if (gotoEl) {
           gotoEl.scrollIntoView({ behavior: 'auto', block: 'start' });
         }
@@ -318,20 +381,20 @@ export default class JsonSchemaViewer extends LitElement {
   }
 
   // Example Dropdown @change Handler
-  onSelectExample(e) {
-    const exampleContainerEl = e.target.closest('.json-schema-example-panel');
-    const exampleEls = [...exampleContainerEl.querySelectorAll('.example')];
+  onSelectExample(e: Event) {
+    const exampleContainerEl = (e.target as HTMLSelectElement).closest('.json-schema-example-panel') as HTMLElement;
+    const exampleEls = [...exampleContainerEl.querySelectorAll('.example')] as HTMLElement[];
     exampleEls.forEach((v) => {
-      v.style.display = v.dataset.example === e.target.value ? 'flex' : 'none';
+      v.style.display = v.dataset.example === (e.target as HTMLSelectElement).value ? 'flex' : 'none';
     });
   }
 
-  async scrollToEventTarget(event) {
-    const navEl = event.currentTarget;
+  async scrollToEventTarget(event: MouseEvent) {
+    const navEl = event.currentTarget as HTMLElement;
     if (!navEl.dataset.contentId) {
       return;
     }
-    const contentEl = this.shadowRoot.getElementById(navEl.dataset.contentId);
+    const contentEl = this.shadowRoot?.getElementById(navEl.dataset.contentId);
     if (contentEl) {
       contentEl.scrollIntoView({ behavior: 'auto', block: 'start' });
     }
