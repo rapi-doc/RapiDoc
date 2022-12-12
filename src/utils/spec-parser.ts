@@ -7,17 +7,18 @@ import {
   sleep,
 } from '@rapidoc/utils/common-utils';
 import {
+  DocumentModifiedByRapiDoc,
+  RapiDocCallableElement,
   RapiDocDocument,
-  RapidocElement,
   RapiDocMethods,
   RapiDocSecurityScheme,
-  RapiDocServer,
   RapiDocTag,
+  ResolvedSpec,
 } from '@rapidoc/types/rapidoc';
 import { OpenAPIV3 } from 'openapi-types';
 
 export default async function ProcessSpec(
-  this: RapidocElement,
+  this: RapiDocCallableElement,
   specUrl: string,
   generateMissingTags = false,
   sortTags = false,
@@ -26,8 +27,8 @@ export default async function ProcessSpec(
   attrApiKeyLocation = '',
   attrApiKeyValue = '',
   serverUrl = ''
-) {
-  let jsonParsedSpec: RapiDocDocument | undefined;
+): Promise<ResolvedSpec | undefined> {
+  let jsonParsedSpec: DocumentModifiedByRapiDoc | undefined;
   try {
     this.requestUpdate(); // important to show the initial loader
     let specMeta = await OpenApiParser.resolve({
@@ -82,16 +83,18 @@ export default async function ProcessSpec(
         'color:orangered',
         specMeta
       ); // eslint-disable-line no-console
+
+      const info: OpenAPIV3.InfoObject = {
+        title: 'Error loading the spec',
+        version: ' ',
+        description: specMeta.response?.url
+          ? `${specMeta.response?.url} ┃ ${specMeta.response?.status}  ${specMeta.response?.statusText}`
+          : 'Unable to load the Spec',
+      };
       return {
         specLoadError: true,
         isSpecLoading: false,
-        info: {
-          title: 'Error loading the spec',
-          description: specMeta.response?.url
-            ? `${specMeta.response?.url} ┃ ${specMeta.response?.status}  ${specMeta.response?.statusText}`
-            : 'Unable to load the Spec',
-          version: ' ',
-        },
+        info,
         tags: [],
       };
     }
@@ -182,7 +185,8 @@ export default async function ProcessSpec(
   // Updated Security Type Display Text based on Type
   securitySchemes.forEach((securityScheme) => {
     if (securityScheme.type === 'http') {
-      securityScheme.typeDisplay = securityScheme.scheme === 'basic' ? 'HTTP Basic' : 'HTTP Bearer';
+      securityScheme.typeDisplay =
+        securityScheme.scheme === 'basic' ? 'HTTP Basic' : 'HTTP Bearer';
     } else if (securityScheme.type === 'apiKey') {
       securityScheme.typeDisplay = `API Key (${securityScheme.name})`;
     } else if (securityScheme.type === 'oauth2') {
@@ -193,7 +197,7 @@ export default async function ProcessSpec(
   });
 
   // Servers
-  let servers: RapiDocServer[] = [];
+  let servers: DocumentModifiedByRapiDoc['servers'] = [];
   if (jsonParsedSpec?.servers && Array.isArray(jsonParsedSpec.servers)) {
     jsonParsedSpec.servers.forEach((server) => {
       let computedUrl = server.url.trim();
@@ -250,25 +254,17 @@ export default async function ProcessSpec(
 
 function getHeadersFromMarkdown(markdownContent: string) {
   const tokens = marked.lexer(markdownContent);
-  const headers = tokens.filter((token) => token.type === 'heading' && token.depth <= 2);
+  const headers = tokens.filter(
+    (token) => token.type === 'heading' && token.depth <= 2
+  );
   return headers || [];
 }
 
-function getComponents(openApiSpec: RapiDocDocument) {
+function getComponents(openApiSpec: OpenAPIV3.Document) {
   if (!openApiSpec.components) {
     return [];
   }
-  const components: {
-    show: boolean;
-    name: string;
-    description: string;
-    subComponents: {
-      show: boolean;
-      id: string;
-      name: string;
-      component: any;
-    }[];
-  }[] = [];
+  const components: RapiDocDocument['components'] = [];
   Object.entries(openApiSpec.components).forEach(
     ([component, componentValue]) => {
       const subComponents = [];
@@ -356,7 +352,7 @@ function getComponents(openApiSpec: RapiDocDocument) {
 }
 
 function groupByTags(
-  openApiSpec: RapiDocDocument,
+  openApiSpec: DocumentModifiedByRapiDoc,
   sortEndpointsBy: 'method' | 'summary' | 'path' | 'none' | '',
   generateMissingTags = false,
   sortTags = false
@@ -377,7 +373,9 @@ function groupByTags(
           elementId: `tag--${tag.name.replace(invalidCharsRegEx, '-')}`,
           name: tag.name,
           description: tag.description || '',
-          headers: tag.description ? getHeadersFromMarkdown(tag.description) : [],
+          headers: tag.description
+            ? getHeadersFromMarkdown(tag.description)
+            : [],
           paths: [],
           expanded: tag['x-tag-expanded'] !== false,
         }))
@@ -387,7 +385,8 @@ function groupByTags(
   if (openApiSpec.webhooks) {
     for (const [key, value] of Object.entries(openApiSpec.webhooks)) {
       value._type = 'webhook'; // eslint-disable-line no-underscore-dangle
-      pathsAndWebhooks[key] = value;
+      // TODO: typescript migration: replace "as" with proper inferred typings
+      pathsAndWebhooks[key] = value as { _type: 'webhook' };
     }
   }
   // For each path find the tag and push it into the corresponding tag
@@ -536,10 +535,11 @@ function groupByTags(
               security: pathOrHookObj?.security,
               // commonSummary: commonPathProp.summary,
               // commonDescription: commonPathProp.description,
-              xBadges: pathOrHookObj?.['x-badges'] || undefined,
+              // TODO: Typescript migration replace any with proper typings
+              xBadges: (pathOrHookObj as any)?.['x-badges'] || undefined,
               xCodeSamples:
-                pathOrHookObj?.['x-codeSamples'] ||
-                pathOrHookObj?.['x-code-samples'] ||
+                (pathOrHookObj as any)?.['x-codeSamples'] ||
+                (pathOrHookObj as any)?.['x-code-samples'] ||
                 '',
             });
           }); // End of tag path create
@@ -569,6 +569,8 @@ function groupByTags(
     tag.firstPathId = tag.paths[0].elementId;
   });
   return sortTags
-    ? tagsWithSortedPaths.sort((tagA, tagB) => tagA.name.localeCompare(tagB.name))
+    ? tagsWithSortedPaths.sort((tagA, tagB) =>
+        tagA.name.localeCompare(tagB.name)
+      )
     : tagsWithSortedPaths;
 }
