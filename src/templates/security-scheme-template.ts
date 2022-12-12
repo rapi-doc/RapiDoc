@@ -147,6 +147,8 @@ async function fetchAccessToken(this: RapidocElement, tokenUrl: string, clientId
     }
     return false;
   }
+
+  return false;
 }
 
 // Gets invoked when it receives the Authorization Code from the other window via message-event
