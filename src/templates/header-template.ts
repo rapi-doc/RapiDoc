@@ -1,9 +1,9 @@
 import { html } from 'lit';
 import logoTemplate from '@rapidoc/templates/logo-template';
-import { RapidocElement } from '@rapidoc-types';
+import { RapiDocCallableElement } from '@rapidoc-types';
 
 /* eslint-disable indent */
-export default function headerTemplate(this: RapidocElement) {
+export default function headerTemplate(this: RapiDocCallableElement) {
   return html`
   <header class="row main-header regular-font" part="section-header" style="padding:8px 4px 8px 4px;min-height:48px;">
     <div class="only-large-screen-flex" style="align-items: center;">
@@ -45,7 +45,7 @@ export default function headerTemplate(this: RapidocElement) {
         `
       }
       <slot name="header"></slot>
-      ${(this.allowSearch === 'false' || 'read focused'.includes(this.renderStyle))
+      ${(this.allowSearch === 'false' || (this.renderStyle && 'read focused'.includes(this.renderStyle)))
         ? ''
         : html`  
           <input id="search" class="header-input" type="text" part="textbox textbox-header-filter" placeholder="Filter" @change="${this.onSearchChange}" style="max-width:130px;margin-left:10px;" spellcheck="false" >
@@ -53,7 +53,7 @@ export default function headerTemplate(this: RapidocElement) {
         `
       }
       
-      ${(this.allowAdvancedSearch === 'false' || 'read focused'.includes(this.renderStyle))
+      ${(this.allowAdvancedSearch === 'false' || (this.renderStyle && 'read focused'.includes(this.renderStyle)))
         ? ''
         : html`
           <button class="m-btn primary only-large-screen" part="btn btn-fill btn-search" style="margin-left:10px;" @click="${this.onShowSearchModalClicked}">
