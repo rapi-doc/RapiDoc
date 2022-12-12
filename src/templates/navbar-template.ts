@@ -1,14 +1,15 @@
 import { html } from 'lit';
 import { marked } from 'marked';
-import { pathIsInSearch } from '~/utils/common-utils';
+import { pathIsInSearch } from '@rapidoc/utils/common-utils';
+import { RapidocElement } from '@rapidoc-types';
 
-export function expandCollapseNavBarTag(navLinkEl, action = 'toggle') {
+export function expandCollapseNavBarTag(navLinkEl: HTMLElement, action = 'toggle') {
   const tagAndPathEl = navLinkEl?.closest('.nav-bar-tag-and-paths');
-  const pathsUnderTagEl = tagAndPathEl?.querySelector('.nav-bar-paths-under-tag');
+  const pathsUnderTagEl = tagAndPathEl?.querySelector('.nav-bar-paths-under-tag') as HTMLElement;
   if (tagAndPathEl) {
     const isExpanded = tagAndPathEl.classList.contains('expanded');
     if (isExpanded && (action === 'toggle' || action === 'collapse')) {
-      pathsUnderTagEl.style.maxHeight = 0;
+      pathsUnderTagEl.style.maxHeight = '0';
       tagAndPathEl.classList.replace('expanded', 'collapsed');
     } else if (!isExpanded && (action === 'toggle' || action === 'expand')) {
       tagAndPathEl.classList.replace('collapsed', 'expanded');
@@ -17,34 +18,35 @@ export function expandCollapseNavBarTag(navLinkEl, action = 'toggle') {
   }
 }
 
-export function expandCollapseAll(event, action = 'expand-all') {
-  if (!(event.type === 'click' || (event.type === 'keyup' && event.keyCode === 13))) {
+export function expandCollapseAll(event: MouseEvent | KeyboardEvent, action = 'expand-all') {
+  if (!(event.type === 'click' || (event.type === 'keyup' && (event as KeyboardEvent).keyCode === 13))) {
     return;
   }
-  const navEl = event.target.closest('.nav-scroll');
-  const elList = [...navEl.querySelectorAll('.nav-bar-tag-and-paths')];
+
+  const navEl = (event.target as HTMLElement).closest('.nav-scroll') as HTMLElement;
+  const elList = [...navEl.querySelectorAll('.nav-bar-tag-and-paths')]  as HTMLElement[];
   if (action === 'expand-all') {
     elList.forEach((el) => {
-      const navBarPathsUnderTagEl = el.querySelector('.nav-bar-paths-under-tag');
+      const navBarPathsUnderTagEl = el.querySelector('.nav-bar-paths-under-tag') as HTMLElement;
       el.classList.replace('collapsed', 'expanded');
       navBarPathsUnderTagEl.style.maxHeight = `${navBarPathsUnderTagEl?.scrollHeight}px`;
     });
   } else {
     elList.forEach((el) => {
       el.classList.replace('expanded', 'collapsed');
-      el.querySelector('.nav-bar-paths-under-tag').style.maxHeight = 0;
+      (el.querySelector('.nav-bar-paths-under-tag') as HTMLElement).style.maxHeight = '0';
     });
   }
 }
 
-export function navBarClickAndEnterHandler(event) {
-  if (!(event.type === 'click' || (event.type === 'keyup' && event.keyCode === 13))) {
+export function navBarClickAndEnterHandler(this: RapidocElement, event: MouseEvent | KeyboardEvent) {
+  if (!(event.type === 'click' || (event.type === 'keyup' && (event as KeyboardEvent).keyCode === 13))) {
     return;
   }
-  const navEl = event.target;
+  const navEl = event.target as HTMLElement;
   event.stopPropagation();
   if (navEl.dataset?.action === 'navigate') {
-    this.scrollToEventTarget(event, false);
+    this.scrollToEventTarget(event as MouseEvent, false);
   } else if (navEl.dataset?.action === 'expand-all' || (navEl.dataset?.action === 'collapse-all')) {
     expandCollapseAll(event, navEl.dataset.action);
   } else if (navEl.dataset?.action === 'expand-collapse-tag') {
@@ -53,7 +55,7 @@ export function navBarClickAndEnterHandler(event) {
 }
 
 /* eslint-disable indent */
-export default function navbarTemplate() {
+export default function navbarTemplate(this: RapidocElement) {
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) {
     return html`
       <nav class='nav-bar' part='section-navbar'>
@@ -102,7 +104,7 @@ export default function navbarTemplate() {
         </div>
       `
     }
-    ${html`<nav class='nav-scroll' tabindex='-1' part='section-navbar-scroll' @click='${(e) => navBarClickAndEnterHandler.call(this, e)}' @keyup='${(e) => navBarClickAndEnterHandler.call(this, e)}' >
+    ${html`<nav class='nav-scroll' tabindex='-1' part='section-navbar-scroll' @click='${(e: MouseEvent) => navBarClickAndEnterHandler.call(this, e)}' @keyup='${(e: KeyboardEvent) => navBarClickAndEnterHandler.call(this, e)}' >
       ${(this.showInfo === 'false' || !this.resolvedSpec.info)
         ? ''
         : html`
@@ -165,8 +167,8 @@ export default function navbarTemplate() {
       </div>
 
       <!-- TAGS AND PATHS-->
-      ${this.resolvedSpec.tags
-        .filter((tag) => tag.paths.filter((path) => pathIsInSearch(this.matchPaths, path, this.matchType)).length)
+      ${this.resolvedSpec?.tags
+        ?.filter((tag) => tag.paths.filter((path) => pathIsInSearch(this.matchPaths, path, this.matchType)).length)
         .map((tag) => html`
           <div class='nav-bar-tag-and-paths ${(this.renderStyle === 'read' ? 'expanded' : (tag.expanded ? 'expanded' : 'collapsed'))}' >
             ${tag.name === 'General ⦂'
@@ -196,9 +198,9 @@ export default function navbarTemplate() {
                       <div
                         class='nav-bar-h${header.depth} ${this.navActiveItemMarker}'
                         part='section-navbar-item section-navbar-h${header.depth}'
-                        id='link-${tag.elementId}--${new marked.Slugger().slug(header.text)}'
+                        id='link-${tag.elementId}--${new marked.Slugger().slug(header.text || '')}'
                         data-action='navigate'
-                        data-content-id='${tag.elementId}--${new marked.Slugger().slug(header.text)}'
+                        data-content-id='${tag.elementId}--${new marked.Slugger().slug(header.text || '')}'
                         tabindex='0'
                       > ${header.text}</div>`)}
                     </div>`
@@ -223,7 +225,7 @@ export default function navbarTemplate() {
               >
                 <span style = 'display:flex; pointer-events: none; align-items:start; ${p.deprecated ? 'filter:opacity(0.5)' : ''}'>
                   ${html`<span class='nav-method ${this.showMethodInNavBar} ${p.method}' style='pointer-events: none;'>
-                      ${this.showMethodInNavBar === 'as-colored-block' ? p.method.substring(0, 3).toUpperCase() : p.method.toUpperCase()}
+                      ${this.showMethodInNavBar === 'as-colored-block' ? (p.method as string).substring(0, 3).toUpperCase() : (p.method as string).toUpperCase()}
                     </span>`
                   }
                   ${p.isWebhook ? html`<span style='font-weight:bold; pointer-events: none; margin-right:8px; font-size: calc(var(--font-size-small) - 2px)'>WEBHOOK</span>` : ''}
