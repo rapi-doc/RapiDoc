@@ -403,12 +403,12 @@ export default class RapiDoc extends LitElement {
     super.connectedCallback();
     const parent = this.parentElement;
     if (parent) {
-      if (parent.offsetWidth === 0 && parent.style.width === '') {
+      /* if (parent.offsetWidth === 0 && parent.style.width === '') {
         parent.style.width = '100vw';
       }
       if (parent.offsetHeight === 0 && parent.style.height === '') {
         parent.style.height = '100vh';
-      }
+      } */
       if (parent.tagName === 'BODY') {
         if (!parent.style.marginTop) { parent.style.marginTop = '0'; }
         if (!parent.style.marginRight) { parent.style.marginRight = '0'; }
@@ -848,7 +848,7 @@ export default class RapiDoc extends LitElement {
           if (this.updateRoute === 'true') {
             window.history.replaceState(null, null, `${window.location.href.split('#')[0]}${this.routePrefix || '#'}${entry.target.id}`);
           }
-          newNavEl.scrollIntoView({ behavior: 'auto', block: 'center' });
+          // newNavEl.scrollIntoView({ behavior: 'auto', block: 'center' });
           newNavEl.classList.add('active');
         }
         // Remove active class from previous element

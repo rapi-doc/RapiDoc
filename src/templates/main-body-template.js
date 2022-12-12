@@ -69,7 +69,7 @@ export default function mainBodyTemplate(isMini = false, showExpandCollapse = tr
 
     <!-- Header -->
     ${this.showHeader === 'false' ? '' : headerTemplate.call(this)}
-    
+
     <!-- Advanced Search -->
     ${this.allowAdvancedSearch === 'false' ? '' : advancedSearchTemplate.call(this)}
 
