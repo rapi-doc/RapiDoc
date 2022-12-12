@@ -1,3 +1,5 @@
+import { RapiDocPath } from '@rapidoc-types';
+
 /* For Delayed Event Handler Execution */
 export function debounce(this: unknown, fn: () => void, delay: number) {
   let timeoutID: ReturnType<typeof setTimeout>;
@@ -58,13 +60,7 @@ export function componentIsInSearch(
 
 export function pathIsInSearch(
   searchVal: string,
-  path: {
-    method: string;
-    path: string;
-    summary: string;
-    operationId: string;
-    description: string;
-  },
+  path: RapiDocPath,
   matchType = 'includes'
 ) {
   if (matchType === 'includes') {
@@ -208,7 +204,7 @@ export function prettyXml(sourceXmlString) {
 }
 */
 
-export function downloadResource(url: string, fileName: string) {
+export function downloadResource(url: string | undefined, fileName: string) {
   if (url) {
     const a = document.createElement('a');
     document.body.appendChild(a);
@@ -220,7 +216,7 @@ export function downloadResource(url: string, fileName: string) {
   }
 }
 
-export function viewResource(url: string) {
+export function viewResource(url: string | undefined) {
   if (url) {
     const a = document.createElement('a');
     document.body.appendChild(a);
