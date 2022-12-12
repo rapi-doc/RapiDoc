@@ -1,9 +1,16 @@
-import { LitElement, html, css } from 'lit';
+import { LitElement, html, css, TemplateResult } from 'lit';
+import { property } from 'lit/decorators';
 
 export default class TagInput extends LitElement {
+  @property({ type: String },)
+  public placeholder?: string; 
+  
+  @property({ type: Array, attribute: 'value' },)
+  public value?: string[];
+
   /* eslint-disable indent */
-  render() {
-    let tagItemTmpl = '';
+  override render() {
+    let tagItemTmpl: TemplateResult<1> | string = '';
     if (Array.isArray(this.value)) {
       tagItemTmpl = html`${this.value
         .filter((v) => typeof v === 'string' && v.trim() !== '')
@@ -13,20 +20,12 @@ export default class TagInput extends LitElement {
     return html`
       <div class='tags'>
         ${tagItemTmpl}
-        <input type="text" class='editor' @paste="${(e) => this.afterPaste(e)}" @keydown="${this.afterKeyDown}" @blur="${this.onBlur}" placeholder="${this.placeholder || ''}">
+        <input type="text" class='editor' @paste="${(e: ClipboardEvent) => this.afterPaste(e)}" @keydown="${this.afterKeyDown}" @blur="${this.onBlur}" placeholder="${this.placeholder || ''}">
       </div>
     `;
   }
-  /* eslint-enable indent */
 
-  static get properties() {
-    return {
-      placeholder: { type: String },
-      value: { type: Array, attribute: 'value' },
-    };
-  }
-
-  attributeChangedCallback(name, oldVal, newVal) {
+  override attributeChangedCallback(name: string, oldVal: string | null, newVal: string | null) {
     if (name === 'value') {
       if (newVal && oldVal !== newVal) {
         this.value = newVal.split(',').filter((v) => v.trim() !== '');
@@ -35,9 +34,9 @@ export default class TagInput extends LitElement {
     super.attributeChangedCallback(name, oldVal, newVal);
   }
 
-  afterPaste(e) {
-    const clipboardData = e.clipboardData || window.clipboardData;
-    const pastedData = clipboardData.getData('Text');
+  afterPaste(e: ClipboardEvent) {
+    const clipboardData = e.clipboardData || (window as any).clipboardData;
+    const pastedData = clipboardData.getData('Text') as string;
     const pastedArray = pastedData ? pastedData.split(',').filter((v) => v.trim() !== '') : '';
     if (pastedArray) {
       if (Array.isArray(this.value)) {
@@ -49,20 +48,20 @@ export default class TagInput extends LitElement {
     e.preventDefault();
   }
 
-  afterKeyDown(e) {
+  afterKeyDown(e: KeyboardEvent) {
     if (e.keyCode === 13) {
       e.stopPropagation();
       e.preventDefault();
-      if (e.target.value) {
+      if ((e.target as HTMLInputElement).value) {
         if (Array.isArray(this.value)) {
-          this.value = [...this.value, e.target.value];
+          this.value = [...this.value, (e.target as HTMLInputElement).value];
         } else {
-          this.value = [e.target.value];
+          this.value = [(e.target as HTMLInputElement).value];
         }
-        e.target.value = '';
+        (e.target as HTMLInputElement).value = '';
       }
     } else if (e.keyCode === 8) {
-      if (e.target.value.length === 0) {
+      if ((e.target as HTMLInputElement).value.length === 0) {
         if (Array.isArray(this.value) && this.value.length > 0) {
           this.value.splice(-1);
           this.value = [...this.value];
@@ -71,18 +70,18 @@ export default class TagInput extends LitElement {
     }
   }
 
-  onBlur(e) {
-    if (e.target.value) {
+  onBlur(e: Event) {
+    if ((e.target as HTMLInputElement).value) {
       if (Array.isArray(this.value)) {
-        this.value = [...this.value, e.target.value];
+        this.value = [...this.value, (e.target as HTMLInputElement).value];
       } else {
-        this.value = [e.target.value];
+        this.value = [(e.target as HTMLInputElement).value];
       }
-      e.target.value = '';
+      (e.target as HTMLInputElement).value = '';
     }
   }
 
-  static get styles() {
+  static override get styles() {
     return [css`
       .tags {
         display:flex;
