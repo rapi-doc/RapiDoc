@@ -1,5 +1,5 @@
 /* eslint-disable arrow-body-style */
-import { RapidocElement, RapiDocSecurityScheme } from '@rapidoc-types';
+import { RapiDocCallableElement, RapiDocSecurityScheme } from '@rapidoc-types';
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
@@ -10,8 +10,8 @@ const codeChallenge = '4FatVDBJKPAo4JgLLaaQFMUcQPn5CrPRvLlaob9PTYc'; // Base64 e
 
 const localStorageKey = 'rapidoc';
 
-export function applyApiKey(this: RapidocElement, securitySchemeId: string, username = '', password = '', providedApikeyVal = '') {
-  const securityObj = this.resolvedSpec.securitySchemes?.find((v) => (v.securitySchemeId === securitySchemeId));
+export function applyApiKey(this: RapiDocCallableElement, securitySchemeId: string, username = '', password = '', providedApikeyVal = '') {
+  const securityObj = this.resolvedSpec?.securitySchemes?.find((v) => (v.securitySchemeId === securitySchemeId));
   if (!securityObj) {
     return false;
   }
@@ -33,8 +33,8 @@ export function applyApiKey(this: RapidocElement, securitySchemeId: string, user
   return false;
 }
 
-export function onClearAllApiKeys(this: RapidocElement) {
-  this.resolvedSpec.securitySchemes?.forEach((v) => {
+export function onClearAllApiKeys(this: RapiDocCallableElement) {
+  this.resolvedSpec?.securitySchemes?.forEach((v) => {
     v.user = '';
     v.password = '';
     v.value = '';
@@ -51,18 +51,18 @@ function setPersistedApiKeys(obj: unknown) {
   localStorage.setItem(localStorageKey, JSON.stringify(obj));
 }
 
-export function recoverPersistedApiKeys(this: RapidocElement) {
+export function recoverPersistedApiKeys(this: RapiDocCallableElement) {
   const rapidocLs = getPersistedApiKeys.call(this);
   Object.values(rapidocLs).forEach((p) => {
     applyApiKey.call(this, p.securitySchemeId, p.username, p.password, p.value);
   });
 }
 
-function onApiKeyChange(this: RapidocElement, securitySchemeId: string) {
+function onApiKeyChange(this: RapiDocCallableElement, securitySchemeId: string) {
   let apiKeyValue = '';
-  const securityObj = this.resolvedSpec.securitySchemes.find((v) => (v.securitySchemeId === securitySchemeId));
+  const securityObj = this.resolvedSpec?.securitySchemes?.find((v) => (v.securitySchemeId === securitySchemeId));
   if (securityObj) {
-    const trEl = this.shadowRoot.getElementById(`security-scheme-${securitySchemeId}`) as HTMLElement;
+    const trEl = this.shadowRoot?.getElementById(`security-scheme-${securitySchemeId}`) as HTMLElement;
     if (trEl) {
       if (securityObj?.type === 'http' && securityObj.scheme && securityObj.scheme.toLowerCase() === 'basic') {
         const userVal = (trEl.querySelector('.api-key-user') as HTMLInputElement).value.trim();
@@ -82,8 +82,8 @@ function onApiKeyChange(this: RapidocElement, securitySchemeId: string) {
 }
 
 // Updates the OAuth Access Token (API key), so it reflects in UI and gets used in TRY calls
-function updateOAuthKey(this: RapidocElement, securitySchemeId: string, accessToken: string, tokenType = 'Bearer') {
-  const securityObj = this.resolvedSpec.securitySchemes.find((v) => (v.securitySchemeId === securitySchemeId));
+function updateOAuthKey(this: RapiDocCallableElement, securitySchemeId: string, accessToken: string, tokenType = 'Bearer') {
+  const securityObj = this.resolvedSpec?.securitySchemes?.find((v) => (v.securitySchemeId === securitySchemeId));
   if (!securityObj) {
     return;
   }
@@ -93,7 +93,7 @@ function updateOAuthKey(this: RapidocElement, securitySchemeId: string, accessTo
 
 /* eslint-disable no-console */
 // Gets Access-Token in exchange of Authorization Code
-async function fetchAccessToken(this: RapidocElement, tokenUrl: string, clientId: string, clientSecret: string, redirectUrl: string, grantType: 'authorization_code' | 'client_credentials' | 'password', authCode: string, securitySchemeId: string, authFlowDivEl: HTMLElement, sendClientSecretIn = 'header', scopes: string | null = null, username: string | null = null, password: string | null = null) {
+async function fetchAccessToken(this: RapiDocCallableElement, tokenUrl: string, clientId: string, clientSecret: string, redirectUrl: string, grantType: 'authorization_code' | 'client_credentials' | 'password', authCode: string, securitySchemeId: string, authFlowDivEl: HTMLElement, sendClientSecretIn = 'header', scopes: string | null = null, username: string | null = null, password: string | null = null) {
   const respDisplayEl = authFlowDivEl ? authFlowDivEl.querySelector('.oauth-resp-display') : undefined;
   const urlFormParams = new URLSearchParams();
   const headers = new Headers();
@@ -152,7 +152,7 @@ async function fetchAccessToken(this: RapidocElement, tokenUrl: string, clientId
 }
 
 // Gets invoked when it receives the Authorization Code from the other window via message-event
-async function onWindowMessageEvent(this: RapidocElement, msgEvent: MessageEvent, winObj: Window, tokenUrl: string, clientId: string, clientSecret: string, redirectUrl: string, grantType: 'authorization_code' | 'client_credentials' | 'password', sendClientSecretIn: string, securitySchemeId: string, authFlowDivEl: HTMLElement) {
+async function onWindowMessageEvent(this: RapiDocCallableElement, msgEvent: MessageEvent, winObj: Window, tokenUrl: string, clientId: string, clientSecret: string, redirectUrl: string, grantType: 'authorization_code' | 'client_credentials' | 'password', sendClientSecretIn: string, securitySchemeId: string, authFlowDivEl: HTMLElement) {
   sessionStorage.removeItem('winMessageEventActive');
   winObj.close();
   if (msgEvent.data.fake) {
@@ -189,7 +189,7 @@ async function generateCodeChallenge() {
 }
 */
 
-async function onInvokeOAuthFlow(this: RapidocElement, securitySchemeId: string, flowType: string, authUrl: string, tokenUrl: string, e: MouseEvent) {
+async function onInvokeOAuthFlow(this: RapiDocCallableElement, securitySchemeId: string, flowType: string, authUrl: string, tokenUrl: string, e: MouseEvent) {
   const authFlowDivEl = (e.target as HTMLElement).closest('.oauth-flow') as HTMLElement;
   const clientId = authFlowDivEl.querySelector('.oauth-client-id') ? (authFlowDivEl.querySelector('.oauth-client-id') as HTMLInputElement).value.trim() : '';
   const clientSecret = authFlowDivEl.querySelector('.oauth-client-secret') ? (authFlowDivEl.querySelector('.oauth-client-secret') as HTMLInputElement).value.trim() : '';
@@ -266,18 +266,18 @@ async function onInvokeOAuthFlow(this: RapidocElement, securitySchemeId: string,
 
 /* eslint-disable indent */
 
-function oAuthFlowTemplate(this: RapidocElement, flowName: 'authorizationCode' |'clientCredentials' |'implicit' |'password', clientId: string, clientSecret: string, securitySchemeId: string, authFlow: OpenAPIV3.OAuth2SecurityScheme & { authorizationUrl: string, tokenUrl: string, refreshUrl: string, scopes: { [key: string]: string }; 'x-pkce-only'?: boolean }, defaultScopes: string[] = [], receiveTokenIn = 'header') {
+function oAuthFlowTemplate(this: RapiDocCallableElement, flowName: 'authorizationCode' |'clientCredentials' |'implicit' |'password', clientId: string, clientSecret: string, securitySchemeId: string, authFlow: OpenAPIV3.OAuth2SecurityScheme & { authorizationUrl: string, tokenUrl: string, refreshUrl: string, scopes: { [key: string]: string }; 'x-pkce-only'?: boolean }, defaultScopes: string[] = [], receiveTokenIn = 'header') {
   let { authorizationUrl, tokenUrl, refreshUrl } = authFlow;
   const pkceOnly = authFlow['x-pkce-only'] || false;
   const isUrlAbsolute = (url: string) => (url.indexOf('://') > 0 || url.indexOf('//') === 0);
   if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
-    refreshUrl = `${this.selectedServer.computedUrl}/${refreshUrl.replace(/^\//, '')}`;
+    refreshUrl = `${this.selectedServer?.computedUrl}/${refreshUrl.replace(/^\//, '')}`;
   }
   if (tokenUrl && !isUrlAbsolute(tokenUrl)) {
-    tokenUrl = `${this.selectedServer.computedUrl}/${tokenUrl.replace(/^\//, '')}`;
+    tokenUrl = `${this.selectedServer?.computedUrl}/${tokenUrl.replace(/^\//, '')}`;
   }
   if (authorizationUrl && !isUrlAbsolute(authorizationUrl)) {
-    authorizationUrl = `${this.selectedServer.computedUrl}/${authorizationUrl.replace(/^\//, '')}`;
+    authorizationUrl = `${this.selectedServer?.computedUrl}/${authorizationUrl.replace(/^\//, '')}`;
   }
   let flowNameDisplay;
   if (flowName === 'authorizationCode') {
@@ -377,8 +377,8 @@ function oAuthFlowTemplate(this: RapidocElement, flowName: 'authorizationCode' |
   `;
 }
 
-function removeApiKey(this: RapidocElement, securitySchemeId: string) {
-  const securityObj = this.resolvedSpec.securitySchemes?.find((v) => (v.securitySchemeId === securitySchemeId));
+function removeApiKey(this: RapiDocCallableElement, securitySchemeId: string) {
+  const securityObj = this.resolvedSpec?.securitySchemes?.find((v) => (v.securitySchemeId === securitySchemeId));
 
   if(!securityObj) {
     return
@@ -396,14 +396,14 @@ function removeApiKey(this: RapidocElement, securitySchemeId: string) {
   this.requestUpdate();
 }
 
-export default function securitySchemeTemplate(this: RapidocElement) {
+export default function securitySchemeTemplate(this: RapiDocCallableElement) {
   if (!this.resolvedSpec) { return ''; }
   const providedApiKeys = this.resolvedSpec.securitySchemes?.filter((v) => (v.finalKeyValue));
   if (!providedApiKeys) {
     return;
   }
   return html`
-  <section id='auth' part="section-auth" style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;" class = 'observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}'>
+  <section id='auth' part="section-auth" style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;" class = 'observe-me ${this.renderStyle && 'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}'>
     <div class='sub-title regular-font'> AUTHENTICATION </div>
 
     <div class="small-font-size" style="display:flex; align-items: center; min-height:30px">
@@ -520,8 +520,8 @@ export default function securitySchemeTemplate(this: RapidocElement) {
 }
 
 // TODO: typescript migration replace any by proper typings
-export function pathSecurityTemplate(this: RapidocElement, pathSecurity: any) {
-  if (this.resolvedSpec.securitySchemes && pathSecurity) {
+export function pathSecurityTemplate(this: RapiDocCallableElement, pathSecurity: any) {
+  if (this.resolvedSpec?.securitySchemes && pathSecurity) {
     const orSecurityKeys1: {
       securityTypes?: string
       securityDefs: (RapiDocSecurityScheme & { scopes: string })[]
@@ -544,7 +544,7 @@ export function pathSecurityTemplate(this: RapidocElement, pathSecurity: any) {
       } else {
         Object.keys(pSecurity).forEach((pathSecurityKey) => {
           let pathScopes = '';
-          const s = this.resolvedSpec.securitySchemes.find((ss) => ss.securitySchemeId === pathSecurityKey);
+          const s = this.resolvedSpec?.securitySchemes?.find((ss) => ss.securitySchemeId === pathSecurityKey);
           if (pSecurity[pathSecurityKey] && Array.isArray(pSecurity[pathSecurityKey])) {
             pathScopes = pSecurity[pathSecurityKey].join(', ');
           }
