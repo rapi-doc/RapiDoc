@@ -1,10 +1,10 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
-import { rapidocApiKey } from '@rapidoc/utils/common-utils';
-import { pathSecurityTemplate } from '@rapidoc/templates/security-scheme-template';
-import codeSamplesTemplate from '@rapidoc/templates/code-samples-template';
-import callbackTemplate from '@rapidoc/templates/callback-template';
+import { rapidocApiKey } from '../utils/common-utils';
+import { pathSecurityTemplate } from './security-scheme-template';
+import codeSamplesTemplate from './code-samples-template';
+import callbackTemplate from './callback-template';
 import '~/components/api-request';
 import '~/components/api-response';
 import { RapidocElement, RapiDocPath } from '@rapidoc-types';
@@ -44,10 +44,10 @@ export function expandedEndpointBodyTemplate(this: RapidocElement, path: RapiDoc
   const accept = [...acceptContentTypes].join(', ');
 
   // Filter API Keys that are non-empty and are applicable to the the path
-  const nonEmptyApiKeys = this.resolvedSpec.securitySchemes.filter((v) => (v.finalKeyValue && path.security?.some((ps) => (v.securitySchemeId in ps)))) || [];
+  const nonEmptyApiKeys = this.resolvedSpec?.securitySchemes?.filter((v) => (v.finalKeyValue && path.security?.some((ps) => (v.securitySchemeId in ps)))) || [];
 
   // If a RapiDoc API Key is specified on the element and its value is not hyphen(-) then include it for all paths
-  const rapiDocApiKey = this.resolvedSpec.securitySchemes.find((v) => (v.securitySchemeId === rapidocApiKey && v.value !== '-'));
+  const rapiDocApiKey = this.resolvedSpec?.securitySchemes?.find((v) => (v.securitySchemeId === rapidocApiKey && v.value !== '-'));
   if (rapiDocApiKey) {
     nonEmptyApiKeys.push(rapiDocApiKey);
   }
@@ -128,7 +128,7 @@ export function expandedEndpointBodyTemplate(this: RapidocElement, path: RapiDoc
           .request_body = "${path.requestBody}"
           .api_keys = "${nonEmptyApiKeys}"
           .servers = "${path.servers}"
-          server-url = "${path.servers?.[0]?.url || this.selectedServer.computedUrl}"
+          server-url = "${path.servers?.[0]?.url || this.selectedServer?.computedUrl}"
           fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
           allow-try = "${this.allowTry}"
           show-curl-before-try = "${this.showCurlBeforeTry}"

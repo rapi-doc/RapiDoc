@@ -1,6 +1,6 @@
 import { html } from 'lit';
 import { marked } from 'marked';
-import { pathIsInSearch } from '@rapidoc/utils/common-utils';
+import { pathIsInSearch } from '../utils/common-utils';
 import { RapidocElement } from '@rapidoc-types';
 
 export function expandCollapseNavBarTag(navLinkEl: HTMLElement, action = 'toggle') {
@@ -110,14 +110,14 @@ export default function navbarTemplate(this: RapidocElement) {
         : html`
           ${(this.infoDescriptionHeadingsInNavBar === 'true')
             ? html`
-              ${this.resolvedSpec.infoDescriptionHeaders.length > 0
+              ${this.resolvedSpec?.infoDescriptionHeaders?.length
                 ? html`<div class='nav-bar-info ${this.navActiveItemMarker}' id='link-overview' data-content-id='overview' data-action='navigate' tabindex='0' part='section-navbar-item section-navbar-overview'> 
                     ${this.resolvedSpec.info?.title?.trim() || 'Overview'}
                   </div>`
                 : ''
               }
               <div class='overview-headers'>
-                ${this.resolvedSpec.infoDescriptionHeaders.map((header) => html`
+                ${this.resolvedSpec?.infoDescriptionHeaders?.map((header) => html`
                   <div
                     class='nav-bar-h${header.depth} ${this.navActiveItemMarker}' 
                     id='link-overview--${new marked.Slugger().slug(header.text)}'
@@ -128,7 +128,7 @@ export default function navbarTemplate(this: RapidocElement) {
                   </div>`)
                 }
               </div>
-              ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? html`<hr style='border-top: 1px solid var(--nav-hover-bg-color); border-width:1px 0 0 0; margin: 15px 0 0 0'/>` : ''}
+              ${this.resolvedSpec?.infoDescriptionHeaders?.length ? html`<hr style='border-top: 1px solid var(--nav-hover-bg-color); border-width:1px 0 0 0; margin: 15px 0 0 0'/>` : ''}
             `
             : html`<div class='nav-bar-info ${this.navActiveItemMarker}' id='link-overview' data-action='navigate' data-content-id='overview' tabindex='0'> 
               ${this.resolvedSpec.info?.title?.trim() || 'Overview'}
@@ -168,7 +168,7 @@ export default function navbarTemplate(this: RapidocElement) {
 
       <!-- TAGS AND PATHS-->
       ${this.resolvedSpec?.tags
-        ?.filter((tag) => tag.paths.filter((path) => pathIsInSearch(this.matchPaths, path, this.matchType)).length)
+        ?.filter((tag) => tag.paths.filter((path) => pathIsInSearch(this.matchPaths as string, path, this.matchType)).length)
         .map((tag) => html`
           <div class='nav-bar-tag-and-paths ${(this.renderStyle === 'read' ? 'expanded' : (tag.expanded ? 'expanded' : 'collapsed'))}' >
             ${tag.name === 'General ⦂'

@@ -56,6 +56,8 @@ export default class OauthReceiver extends LitElement {
         return decodeURIComponent(pair[1]);
       }
     }
+
+    return '';
   }
 }
 customElements.define('oauth-receiver', OauthReceiver);

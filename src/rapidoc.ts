@@ -12,24 +12,24 @@ import 'prismjs/components/prism-http';
 import 'prismjs/components/prism-csharp';
 
 // Styles
-import FontStyles from '@rapidoc/styles/font-styles';
-import InputStyles from '@rapidoc/styles/input-styles';
-import FlexStyles from '@rapidoc/styles/flex-styles';
-import TableStyles from '@rapidoc/styles/table-styles';
-import EndpointStyles from '@rapidoc/styles/endpoint-styles';
-import PrismStyles from '@rapidoc/styles/prism-styles';
-import TabStyles from '@rapidoc/styles/tab-styles';
-import NavStyles from '@rapidoc/styles/nav-styles';
-import InfoStyles from '@rapidoc/styles/info-styles';
-import CustomStyles from '@rapidoc/styles/custom-styles';
+import FontStyles from './styles/font-styles';
+import InputStyles from './styles/input-styles';
+import FlexStyles from './styles/flex-styles';
+import TableStyles from './styles/table-styles';
+import EndpointStyles from './styles/endpoint-styles';
+import PrismStyles from './styles/prism-styles';
+import TabStyles from './styles/tab-styles';
+import NavStyles from './styles/nav-styles';
+import InfoStyles from './styles/info-styles';
+import CustomStyles from './styles/custom-styles';
 // import { expandCollapseNavBarTag } from '@/templates/navbar-template';
-import { advancedSearch, pathIsInSearch, componentIsInSearch, rapidocApiKey, sleep } from '@rapidoc/utils/common-utils';
-import ProcessSpec from '@rapidoc/utils/spec-parser';
-import mainBodyTemplate from '@rapidoc/templates/main-body-template';
-import { applyApiKey, onClearAllApiKeys } from '@rapidoc/templates/security-scheme-template';
-import { setApiServer } from '@rapidoc/templates/server-template';
-import { property } from 'lit/decorators';
-import { RapidocElement, RapiDocSecurityScheme, RapiDocServer, ResolvedSpec } from '@rapidoc-types';
+import { advancedSearch, pathIsInSearch, componentIsInSearch, rapidocApiKey, sleep } from './utils/common-utils';
+import ProcessSpec from './utils/spec-parser';
+import mainBodyTemplate from './templates/main-body-template';
+import { applyApiKey, onClearAllApiKeys } from './templates/security-scheme-template';
+import { setApiServer } from './templates/server-template';
+import { property } from 'lit/decorators.js';
+import { RapidocElement, RapiDocExamples, RapiDocSchema, RapiDocSecurityScheme, RapiDocServer, ResolvedSpec } from '@rapidoc-types';
 import ApiRequest from './components/api-request';
 import ApiResponse from './components/api-response';
 import { OpenAPIV3 } from 'openapi-types';
@@ -1215,6 +1215,20 @@ export default class RapiDoc extends LitElement implements RapidocElement {
       const searchOptions = [...(eventTargetEl.closest('.advanced-search-options') as HTMLElement).querySelectorAll('input:checked')].map((v) => v.id);
       this.advancedSearchMatches = advancedSearch(searchInputEl.value, this.resolvedSpec?.tags, searchOptions);
     }, delay);
+  }
+  onSelectExample (
+    _event: Event,
+    _jSchemaBody: {
+      elementId: string;
+      name: string;
+      schema: RapiDocSchema;
+      examples: RapiDocExamples;
+      example: string;
+      selectedExample: string;
+      description: string;
+    }
+  ): void {
+    console.info('Not implemented')
   }
 }
 customElements.define('rapi-doc', RapiDoc);

@@ -1,5 +1,5 @@
 import { html } from 'lit';
-import ColorUtils from '@rapidoc/utils/color-utils';
+import ColorUtils from './color-utils';
 import { RapiDocCallableElement, RapiDocTheme } from '@rapidoc-types';
 
 /* Generates an schema object containing type and constraint info */

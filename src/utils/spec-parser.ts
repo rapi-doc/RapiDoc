@@ -5,7 +5,7 @@ import {
   invalidCharsRegEx,
   rapidocApiKey,
   sleep,
-} from '@rapidoc/utils/common-utils';
+} from './common-utils';
 import {
   DocumentModifiedByRapiDoc,
   RapiDocCallableElement,
@@ -14,7 +14,7 @@ import {
   RapiDocSecurityScheme,
   RapiDocTag,
   ResolvedSpec,
-} from '@rapidoc/types/rapidoc';
+} from '../types/rapidoc';
 import { OpenAPIV3 } from 'openapi-types';
 
 export default async function ProcessSpec(
@@ -252,11 +252,11 @@ export default async function ProcessSpec(
   return parsedSpec;
 }
 
-function getHeadersFromMarkdown(markdownContent: string) {
+function getHeadersFromMarkdown(markdownContent: string): marked.Tokens.Heading[] {
   const tokens = marked.lexer(markdownContent);
   const headers = tokens.filter(
     (token) => token.type === 'heading' && token.depth <= 2
-  );
+  ) as marked.Tokens.Heading[];
   return headers || [];
 }
 

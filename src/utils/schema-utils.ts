@@ -76,7 +76,10 @@ export function getTypeInfo(schema: OpenAPIV3.ReferenceObject | RapiDocSchema) {
     pattern: string;
     readOrWriteOnly: string;
     deprecated: string;
-    examples: any;
+    examples?: {
+      [media: string]: OpenAPIV3.ReferenceObject | OpenAPIV3.ExampleObject;
+    };
+    example?: any;
     default: string;
     description: string;
     constrain: string;
@@ -192,7 +195,7 @@ export function getTypeInfo(schema: OpenAPIV3.ReferenceObject | RapiDocSchema) {
   return info;
 }
 
-export function nestExampleIfPresent(example: boolean | number | string) {
+export function nestExampleIfPresent(example?: boolean | number | string | undefined | any) {
   if (typeof example === 'boolean' || typeof example === 'number') {
     return {
       Example: { value: `${example}` },
@@ -204,6 +207,19 @@ export function nestExampleIfPresent(example: boolean | number | string) {
     };
   }
   return example ? { Example: { value: example } } : example;
+}
+
+
+export interface NormalizedExample {
+  value: string | OpenAPIV3.ExampleObject;
+  printableValue: string;
+  summary?: string;
+  description?: string;
+}
+
+export interface NormalizedExamples {
+  exampleVal: string | OpenAPIV3.ExampleObject;
+  exampleList: NormalizedExample[]
 }
 
 /**
@@ -219,9 +235,9 @@ export function nestExampleIfPresent(example: boolean | number | string) {
  *  }]
  * */
 export function normalizeExamples(
-  examples: OpenAPIV3.ExampleObject | OpenAPIV3.ExampleObject[],
+  examples: OpenAPIV3.MediaTypeObject['example'] | OpenAPIV3.MediaTypeObject['examples'],
   dataType = 'string'
-) {
+): NormalizedExamples {
   if (!examples) {
     return {
       exampleVal: '',
@@ -229,7 +245,7 @@ export function normalizeExamples(
     };
   }
   if (examples.constructor === Object) {
-    const exampleList = Object.values(examples)
+    const exampleList = Object.values(examples as OpenAPIV3.ExampleObject)
       .filter((v) => v['x-example-show-value'] !== false)
       .map((v) => ({
         value:
@@ -259,7 +275,7 @@ export function normalizeExamples(
 
   if (dataType === 'array') {
     const [exampleVal] = examples;
-    const exampleList = examples.map((v) => ({
+    const exampleList = examples.map((v: OpenAPIV3.ExampleObject) => ({
       value: v,
       printableValue: getPrintableVal(v),
     }));
@@ -267,7 +283,7 @@ export function normalizeExamples(
   }
 
   const exampleVal = examples[0].toString();
-  const exampleList = examples.map((v) => ({
+  const exampleList = examples.map((v: OpenAPIV3.ExampleObject) => ({
     value: v.toString(),
     printableValue: getPrintableVal(v),
   }));
@@ -645,7 +661,7 @@ export function schemaToSampleObj(
           type: string
           minLength: 10
 
-      The aboove Schem should generate the following 2 examples
+      The above Schema should generate the following 2 examples
 
       Example-1
       {
@@ -1394,16 +1410,18 @@ function getSerializeStyleForContentType(contentType: string) {
   return null;
 }
 
-export function getSchemaFromParam(param: OpenAPIV3.ParameterObject) {
+export function getSchemaFromParam(param: OpenAPIV3.ParameterObject): [RapiDocSchema, null, null] |
+[RapiDocSchema, string | null, OpenAPIV3.MediaTypeObject | null] | [null, null, null] {
   if (param.schema) {
-    return [param.schema, null, null];
+    return [param.schema as RapiDocSchema, null, null];
   }
   if (param.content) {
     // we gonna use the first content-encoding
     for (const contentType of Object.keys(param.content)) {
-      if (param.content[contentType].schema) {
+      const media = param.content[contentType];
+      if (media.schema) {
         return [
-          param.content[contentType].schema,
+          media.schema as RapiDocSchema,
           getSerializeStyleForContentType(contentType),
           param.content[contentType],
         ];

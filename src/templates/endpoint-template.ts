@@ -6,7 +6,7 @@ import '~/components/api-response';
 import codeSamplesTemplate from './code-samples-template';
 import callbackTemplate from './callback-template';
 import { pathSecurityTemplate } from './security-scheme-template';
-import { pathIsInSearch, rapidocApiKey } from '@rapidoc/utils/common-utils';
+import { pathIsInSearch, rapidocApiKey } from '../utils/common-utils';
 import { RapidocElement, RapiDocPath } from '@rapidoc-types';
 
 function toggleExpand(this: RapidocElement, path: RapiDocPath) {
@@ -80,10 +80,10 @@ function endpointBodyTemplate(this: RapidocElement, path: RapiDocPath) {
   }
   const accept = [...acceptContentTypes].join(', ');
   // Filter API Keys that are non-empty and are applicable to the the path
-  const nonEmptyApiKeys = this.resolvedSpec.securitySchemes.filter((v) => (v.finalKeyValue && path.security?.some((ps) => (v.securitySchemeId in ps)))) || [];
+  const nonEmptyApiKeys = this.resolvedSpec?.securitySchemes?.filter((v) => (v.finalKeyValue && path.security?.some((ps) => (v.securitySchemeId in ps)))) || [];
 
   // If a RapiDoc API Key is specified on the element and its value is not hyphen(-) then include it for all paths
-  const rapiDocApiKey = this.resolvedSpec.securitySchemes.find((v) => (v.securitySchemeId === rapidocApiKey && v.value !== '-'));
+  const rapiDocApiKey = this.resolvedSpec?.securitySchemes?.find((v) => (v.securitySchemeId === rapidocApiKey && v.value !== '-'));
   if (rapiDocApiKey) {
     nonEmptyApiKeys.push(rapiDocApiKey);
   }
@@ -140,7 +140,7 @@ function endpointBodyTemplate(this: RapidocElement, path: RapiDocPath) {
           .request_body = "${path.requestBody}"
           .api_keys = "${nonEmptyApiKeys}"
           .servers = "${path.servers}" 
-          server-url = "${Array.isArray(path.servers) && path.servers.length > 0 ? path.servers[0].url : this.selectedServer.computedUrl}" 
+          server-url = "${Array.isArray(path.servers) && path.servers.length > 0 ? path.servers[0].url : this.selectedServer?.computedUrl}" 
           active-schema-tab = "${this.defaultSchemaTab}"
           fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
           allow-try = "${this.allowTry}"

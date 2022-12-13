@@ -67,7 +67,7 @@ export interface ResolvedSpec {
     selectedExample: string;
     description: string;
   }[];
-  infoDescriptionHeaders?: marked.Token[];
+  infoDescriptionHeaders?: marked.Tokens.Heading[];
   components?: {
     show: boolean;
     name: string;
@@ -144,7 +144,7 @@ export interface RapiDocCallableElement {
   allowSpecFileDownload?: 'true' | 'false';
   infoDescriptionHeadingsInNavBar?: 'true' | 'false';
 
-  onSelectExample?: (
+  onSelectExample: (
     event: Event,
     jSchemaBody: {
       elementId: string;
@@ -376,7 +376,9 @@ export type RapiDocSchema = OpenAPIV3.SchemaObject & {
   const?: boolean | number | string;
   enum?: boolean;
   format?: string;
-  examples?: any[];
+  examples?: {
+      [media: string]: OpenAPIV3.ReferenceObject | OpenAPIV3.ExampleObject;
+  };
   items?: RapiDocSchema;
   type?: 'boolean' | 'object' | 'number' | 'string' | 'integer' | string;
 };

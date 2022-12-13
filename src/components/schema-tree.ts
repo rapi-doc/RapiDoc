@@ -1,12 +1,12 @@
 import { LitElement, html, css, TemplateResult } from 'lit';
-import { property} from 'lit/decorators';
-import { unsafeHTML } from 'lit/directives/unsafe-html'; // eslint-disable-line import/extensions
+import { property} from 'lit/decorators.js';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
-import FontStyles from '@rapidoc/styles/font-styles';
-import SchemaStyles from '@rapidoc/styles/schema-styles';
-import BorderStyles from '@rapidoc/styles/border-styles';
-import CustomStyles from '@rapidoc/styles/custom-styles';
-import { ObjectNotationSchema } from '@rapidoc/utils/schema-utils';
+import FontStyles from '../styles/font-styles';
+import SchemaStyles from '../styles/schema-styles';
+import BorderStyles from '../styles/border-styles';
+import CustomStyles from '../styles/custom-styles';
+import { ObjectNotationSchema } from '../utils/schema-utils';
 
 export default class SchemaTree extends LitElement {
   @property({ type: Object })

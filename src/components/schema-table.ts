@@ -1,10 +1,10 @@
 import { LitElement, html, css, TemplateResult } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
-import FontStyles from '@rapidoc/styles/font-styles';
-import SchemaStyles from '@rapidoc/styles/schema-styles';
-import CustomStyles from '@rapidoc/styles/custom-styles';
-import { property } from 'lit/decorators';
+import FontStyles from '../styles/font-styles';
+import SchemaStyles from '../styles/schema-styles';
+import CustomStyles from '../styles/custom-styles';
+import { property } from 'lit/decorators.js';
 
 export default class SchemaTable extends LitElement {
   

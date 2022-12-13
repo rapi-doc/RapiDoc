@@ -3,13 +3,13 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-li
 import { marked } from 'marked';
 
 // Templates
-import overviewTemplate from '@rapidoc/templates/overview-template';
-import headerTemplate from '@rapidoc/templates/header-template';
-import { schemaInObjectNotation, generateExample } from '@rapidoc/utils/schema-utils';
-import '@rapidoc/components/json-tree';
-import '@rapidoc/components/schema-tree';
-import SetTheme from '@rapidoc/utils/theme';
-import { isValidHexColor } from '@rapidoc/utils/color-utils';
+import overviewTemplate from './overview-template';
+import headerTemplate from './header-template';
+import { schemaInObjectNotation, generateExample } from '../utils/schema-utils';
+import '../components/json-tree';
+import '../components/schema-tree';
+import SetTheme from '../utils/theme';
+import { isValidHexColor } from '../utils/color-utils';
 import { RapiDocCallableElement, RapiDocJSONSchemaViewerElement, RapiDocTheme } from '@rapidoc-types';
 
 /* eslint-disable indent */

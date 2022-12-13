@@ -1,6 +1,6 @@
 import { LitElement, html } from 'lit';
-import DialogBoxStyles from '@rapidoc/styles/dialog-box-styles';
-import { property } from 'lit/decorators';
+import DialogBoxStyles from '../styles/dialog-box-styles';
+import { property } from 'lit/decorators.js';
 
 export default class DialogBox extends LitElement {
   @property({ type: String, attribute: 'heading' })

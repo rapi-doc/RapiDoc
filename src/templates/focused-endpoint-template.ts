@@ -1,14 +1,14 @@
 import { html, TemplateResult } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
-import { expandedEndpointBodyTemplate } from '@rapidoc/templates/expanded-endpoint-template';
-import '@rapidoc/components/api-request';
-import '@rapidoc/components/api-response';
-import componentsTemplate from '@rapidoc/templates/components-template';
-import overviewTemplate from '@rapidoc/templates/overview-template';
-import serverTemplate from '@rapidoc/templates/server-template';
-import securitySchemeTemplate from '@rapidoc/templates/security-scheme-template';
-import { expandCollapseNavBarTag } from '@rapidoc/templates/navbar-template';
+import { expandedEndpointBodyTemplate } from './expanded-endpoint-template';
+import '../components/api-request';
+import '../components/api-response';
+import componentsTemplate from './components-template';
+import overviewTemplate from './overview-template';
+import serverTemplate from './server-template';
+import securitySchemeTemplate from './security-scheme-template';
+import { expandCollapseNavBarTag } from './navbar-template';
 import { RapidocElement, RapiDocTag } from '@rapidoc-types';
 
 function headingRenderer(tagElementId: string) {
@@ -29,8 +29,8 @@ function defaultContentTemplate(this: RapidocElement) {
   if (this.showInfo === 'true') {
     return wrapFocusedTemplate(overviewTemplate.call(this));
   }
-  const selectedTagObj = this.resolvedSpec.tags?.[0];
-  const selectedPathObj = this.resolvedSpec.tags?.[0]?.paths[0];
+  const selectedTagObj = this.resolvedSpec?.tags?.[0];
+  const selectedPathObj = this.resolvedSpec?.tags?.[0]?.paths[0];
   return (selectedTagObj && selectedPathObj)
     ? wrapFocusedTemplate(expandedEndpointBodyTemplate.call(this, selectedPathObj, selectedTagObj.name))
     : wrapFocusedTemplate('');
@@ -95,7 +95,7 @@ export default function focusedEndpointTemplate(this: RapidocElement) {
     }
     if (selectedPathObj) {
       // In focused mode we must expand the nav-bar tag element if it is collapsed
-      const newNavEl = this.shadowRoot.getElementById(`link-${focusElId}`) as HTMLElement;
+      const newNavEl = this.shadowRoot?.getElementById(`link-${focusElId}`) as HTMLElement;
       expandCollapseNavBarTag(newNavEl, 'expand');
       focusedTemplate = wrapFocusedTemplate.call(
         this,

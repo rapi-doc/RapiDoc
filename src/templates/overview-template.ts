@@ -1,7 +1,7 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
-import { downloadResource, viewResource } from '@rapidoc/utils/common-utils';
+import { downloadResource, viewResource } from '../utils/common-utils';
 import { RapiDocCallableElement } from '@rapidoc-types';
 
 /* eslint-disable indent */

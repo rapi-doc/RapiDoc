@@ -1,10 +1,10 @@
 import { LitElement, html, css, TemplateResult } from 'lit';
-import { copyToClipboard } from '@rapidoc/utils/common-utils';
-import FontStyles from '@rapidoc/styles/font-styles';
-import BorderStyles from '@rapidoc/styles/border-styles';
-import InputStyles from '@rapidoc/styles/input-styles';
-import CustomStyles from '@rapidoc/styles/custom-styles';
-import { property } from 'lit/decorators';
+import { copyToClipboard } from '../utils/common-utils';
+import FontStyles from '../styles/font-styles';
+import BorderStyles from '../styles/border-styles';
+import InputStyles from '../styles/input-styles';
+import CustomStyles from '../styles/custom-styles';
+import { property } from 'lit/decorators.js';
 
 export default class JsonTree extends LitElement {
   @property({ type: Object })

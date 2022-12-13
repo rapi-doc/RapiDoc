@@ -46,7 +46,7 @@ function serverVarsTemplate(this: RapidocElement) {
             ? html`
             <select
               data-var = "${kv[0]}"
-              @input = ${(e: Event) => { onApiServerVarChange.call(this, e, this.selectedServer); }}
+              @input = ${(e: Event) => { onApiServerVarChange.call(this, e, this.selectedServer as RapiDocServer); }}
             >
             ${Object.entries(kv[1].enum).map((e) => (kv[1].default === e[1]
               ? html`
@@ -69,7 +69,7 @@ function serverVarsTemplate(this: RapidocElement) {
               spellcheck = "false"
               data-var = "${kv[0]}"
               value = "${kv[1].default}"
-              @input = ${(e: Event) => { onApiServerVarChange.call(this, e, this.selectedServer); }}
+              @input = ${(e: Event) => { onApiServerVarChange.call(this, e, this.selectedServer as RapiDocServer); }}
             />`}
           </td>
         </tr>
@@ -86,7 +86,7 @@ function serverVarsTemplate(this: RapidocElement) {
 export default function serverTemplate(this: RapidocElement) {
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) { return ''; }
   return html`
-  <section id = 'servers' part="section-servers" style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;" class='regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
+  <section id = 'servers' part="section-servers" style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;" class='regular-font observe-me ${this.renderStyle && 'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
     <div part = "section-servers-title" class = "sub-title">API SERVER</div>
     <div class = 'mono-font' style='margin: 12px 0; font-size:calc(var(--font-size-small) + 1px);'>
       ${!this.resolvedSpec.servers || this.resolvedSpec.servers?.length === 0
@@ -98,7 +98,7 @@ export default function serverTemplate(this: RapidocElement) {
               id = 'srvr-opt-${i}'
               value = '${server.url}'
               @change = ${() => { setApiServer.call(this, server.url); }}
-              .checked = '${this.selectedServer.url === server.url}'
+              .checked = '${this.selectedServer?.url === server.url}'
               style = 'margin:4px 0; cursor:pointer'
             />
               <label style='cursor:pointer' for='srvr-opt-${i}'>

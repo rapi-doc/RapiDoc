@@ -1,5 +1,5 @@
 import { html } from 'lit';
-import logoTemplate from '@rapidoc/templates/logo-template';
+import logoTemplate from './logo-template';
 import { RapiDocCallableElement } from '@rapidoc-types';
 
 /* eslint-disable indent */

@@ -1,10 +1,10 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
-import { schemaInObjectNotation } from '@rapidoc/utils/schema-utils';
-import '@rapidoc/components/json-tree';
-import '@rapidoc/components/schema-tree';
-import '@rapidoc/components/schema-table';
+import { schemaInObjectNotation } from '../utils/schema-utils';
+import '../components/json-tree';
+import '../components/schema-tree';
+import '../components/schema-table';
 import { RapidocElement, RapiDocSchema } from '@rapidoc-types';
 
 function schemaBodyTemplate(this: RapidocElement, sComponent: { name: string; id: string; component: RapiDocSchema}) {

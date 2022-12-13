@@ -1,17 +1,17 @@
 import { html } from 'lit';
 
 // Templates
-import expandedEndpointTemplate from '@rapidoc/templates/expanded-endpoint-template';
-import focusedEndpointTemplate from '@rapidoc/templates/focused-endpoint-template';
-import overviewTemplate from '@rapidoc/templates/overview-template';
-import endpointTemplate from '@rapidoc/templates/endpoint-template';
-import serverTemplate from '@rapidoc/templates/server-template';
-import securitySchemeTemplate, { recoverPersistedApiKeys } from '@rapidoc/templates/security-scheme-template';
-import headerTemplate from '@rapidoc/templates/header-template';
-import navbarTemplate from '@rapidoc/templates/navbar-template';
+import expandedEndpointTemplate from './expanded-endpoint-template';
+import focusedEndpointTemplate from './focused-endpoint-template';
+import overviewTemplate from './overview-template';
+import endpointTemplate from './endpoint-template';
+import serverTemplate from './server-template';
+import securitySchemeTemplate, { recoverPersistedApiKeys } from './security-scheme-template';
+import headerTemplate from './header-template';
+import navbarTemplate from './navbar-template';
 import advancedSearchTemplate from './advance-search-template';
-import SetTheme from '@rapidoc/utils/theme';
-import { isValidHexColor } from '@rapidoc/utils/color-utils';
+import SetTheme from '../utils/theme';
+import { isValidHexColor } from '../utils/color-utils';
 import { RapidocElement } from '@rapidoc-types';
 
 export default function mainBodyTemplate(this: RapidocElement, isMini = false, showExpandCollapse = true, showTags = true, pathsExpanded = false) {

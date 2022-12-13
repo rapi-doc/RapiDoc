@@ -12,25 +12,25 @@ import 'prismjs/components/prism-http';
 import 'prismjs/components/prism-csharp';
 
 // Styles
-import FontStyles from '@rapidoc/styles/font-styles';
-import InputStyles from '@rapidoc/styles/input-styles';
-import FlexStyles from '@rapidoc/styles/flex-styles';
-import TableStyles from '@rapidoc/styles/table-styles';
-import PrismStyles from '@rapidoc/styles/prism-styles';
-import TabStyles from '@rapidoc/styles/tab-styles';
-import NavStyles from '@rapidoc/styles/nav-styles';
-import InfoStyles from '@rapidoc/styles/info-styles';
+import FontStyles from './styles/font-styles';
+import InputStyles from './styles/input-styles';
+import FlexStyles from './styles/flex-styles';
+import TableStyles from './styles/table-styles';
+import PrismStyles from './styles/prism-styles';
+import TabStyles from './styles/tab-styles';
+import NavStyles from './styles/nav-styles';
+import InfoStyles from './styles/info-styles';
 
-import EndpointStyles from '@rapidoc/styles/endpoint-styles';
-import ProcessSpec from '@rapidoc/utils/spec-parser';
-import jsonSchemaViewerTemplate from '@rapidoc/templates/json-schema-viewer-template';
-import { property } from 'lit/decorators';
+import EndpointStyles from './styles/endpoint-styles';
+import ProcessSpec from './utils/spec-parser';
+import jsonSchemaViewerTemplate from './templates/json-schema-viewer-template';
+import { property } from 'lit/decorators.js';
 import { RapiDocJSONSchemaViewerElement, ResolvedSpec } from '@rapidoc-types';
 
 export default class JsonSchemaViewer extends LitElement implements RapiDocJSONSchemaViewerElement {
   // TODO: Typescript migration: existing properties used to be defined in the constructor
   public isMini = false;
-  public updateRoute = 'false';
+  public updateRoute: 'true' | 'false' = 'false';
   public renderStyle = 'focused';
   public allowAdvancedSearch: 'true' | 'false' = 'false';
   public selectedExampleForEachSchema = {};
@@ -389,7 +389,7 @@ export default class JsonSchemaViewer extends LitElement implements RapiDocJSONS
     });
   }
 
-  async scrollToEventTarget(event: MouseEvent) {
+  async scrollToEventTarget(event: MouseEvent | KeyboardEvent) {
     const navEl = event.currentTarget as HTMLElement;
     if (!navEl.dataset.contentId) {
       return;
