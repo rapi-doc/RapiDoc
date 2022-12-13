@@ -262,14 +262,18 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
   let { authorizationUrl, tokenUrl, refreshUrl } = authFlow;
   const pkceOnly = authFlow['x-pkce-only'] || false;
   const isUrlAbsolute = (url) => (url.indexOf('://') > 0 || url.indexOf('//') === 0);
+  // Calculcate base URL
+  const url = new URL(this.selectedServer.computedUrl);
+  const baseUrl = `${url.protocol}://${url.hostname}`;
+
   if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
-    refreshUrl = `${this.selectedServer.baseUrl}/${refreshUrl.replace(/^\//, '')}`;
+    refreshUrl = `${baseUrl}/${refreshUrl.replace(/^\//, '')}`;
   }
   if (tokenUrl && !isUrlAbsolute(tokenUrl)) {
-    tokenUrl = `${this.selectedServer.baseUrl}/${tokenUrl.replace(/^\//, '')}`;
+    tokenUrl = `${baseUrl}/${tokenUrl.replace(/^\//, '')}`;
   }
   if (authorizationUrl && !isUrlAbsolute(authorizationUrl)) {
-    authorizationUrl = `${this.selectedServer.baseUrl}/${authorizationUrl.replace(/^\//, '')}`;
+    authorizationUrl = `${baseUrl}/${authorizationUrl.replace(/^\//, '')}`;
   }
   let flowNameDisplay;
   if (flowName === 'authorizationCode') {
