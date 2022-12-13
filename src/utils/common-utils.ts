@@ -1,4 +1,5 @@
-import { RapiDocPath } from '@rapidoc-types';
+import { RapiDocPath, RapiDocTag } from '@rapidoc-types';
+import { OpenAPIV3 } from 'openapi-types';
 
 /* For Delayed Event Handler Execution */
 export function debounce(this: unknown, fn: () => void, delay: number) {
@@ -71,22 +72,13 @@ export function pathIsInSearch(
   return regex.test(`${path.method} ${path.path}`);
 }
 
-interface SchemaProps {
-  [key: string]: { 
-    properties?: SchemaProps, 
-    items?: {
-      properties: SchemaProps
-    } 
-  }
-}
-
-export function schemaKeys(schemaProps: SchemaProps | undefined, result = new Set()) {
+export function schemaKeys(schemaProps: OpenAPIV3.SchemaObject | undefined, result = new Set()) {
   if (!schemaProps) {
     return result;
   }
   Object.keys(schemaProps).forEach((key) => {
     result.add(key);
-    const value = schemaProps[key];
+    const value = schemaProps[key as keyof OpenAPIV3.SchemaObject];
     if (value.properties) {
       schemaKeys(value.properties, result);
     } else if (value.items?.properties) {
@@ -98,33 +90,9 @@ export function schemaKeys(schemaProps: SchemaProps | undefined, result = new Se
 
 export function advancedSearch(
   searchVal: string,
-  allSpecTags: {
-    paths: {
-      requestBody: {
-        content?:{
-          [index:string]: {
-            schema?: {
-              properties: SchemaProps
-            }
-          }
-        }
-      };
-      responses: {
-        [index: string]: {
-          description: string;
-        }
-      },
-      summary: string;
-      description: string;
-      parameters: {name: string}[];
-      path: string;
-      elementId: string;
-      method: string;
-      deprecated: boolean;
-    }[];
-  }[],
+  allSpecTags: RapiDocTag[] | undefined,
   searchOptions: string[] = []
-) {
+): { elementId: string; method: string; path: string; summary: string; deprecated?: boolean | undefined; }[] | undefined {
   if (!searchVal.trim() || searchOptions.length === 0) {
     return;
   }
@@ -134,9 +102,9 @@ export function advancedSearch(
     method: string,
     path: string,
     summary: string,
-    deprecated: boolean,
+    deprecated?: boolean,
   }[] = [];
-  allSpecTags.forEach((tag) => {
+  allSpecTags?.forEach((tag) => {
     tag.paths.forEach((path) => {
       let stringToSearch = '';
       if (searchOptions.includes('search-api-path')) {
@@ -146,15 +114,15 @@ export function advancedSearch(
         stringToSearch = `${stringToSearch} ${path.summary || path.description || ''}`;
       }
       if (searchOptions.includes('search-api-params')) {
-        stringToSearch = `${stringToSearch} ${path.parameters?.map((v) => v.name).join(' ') || ''}`;
+        stringToSearch = `${stringToSearch} ${(path.parameters as OpenAPIV3.ParameterObject[])?.map((v) => v.name).join(' ') || ''}`;
       }
 
       if (searchOptions.includes('search-api-request-body') && path.requestBody) {
         let schemaKeySet = new Set();
-        for (const contentType in path.requestBody?.content) {
-          if (path.requestBody.content[contentType].schema?.properties) {
+        for (const contentType in (path.requestBody as OpenAPIV3.RequestBodyObject)?.content) {
+          if (((path.requestBody as OpenAPIV3.RequestBodyObject).content[contentType].schema as OpenAPIV3.SchemaObject)?.properties) {
             schemaKeySet = schemaKeys(
-              path.requestBody.content[contentType].schema?.properties
+              ((path.requestBody as OpenAPIV3.RequestBodyObject).content[contentType].schema  as OpenAPIV3.SchemaObject)?.properties
             );
           }
           stringToSearch = `${stringToSearch} ${[...schemaKeySet].join(' ')}`;
@@ -162,8 +130,8 @@ export function advancedSearch(
       }
 
       if (searchOptions.includes('search-api-resp-descr')) {
-        stringToSearch = `${stringToSearch} ${Object.values(path.responses)
-          .map((v) => v.description || '')
+        stringToSearch = `${stringToSearch} ${Object.values(path.responses as OpenAPIV3.ResponsesObject)
+          .map((v) => (v as OpenAPIV3.ResponseObject).description || '')
           .join(' ')}`;
       }
 
