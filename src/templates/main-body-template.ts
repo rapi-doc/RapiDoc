@@ -12,9 +12,9 @@ import navbarTemplate from './navbar-template';
 import advancedSearchTemplate from './advance-search-template';
 import SetTheme from '../utils/theme';
 import { isValidHexColor } from '../utils/color-utils';
-import { RapidocElement } from '@rapidoc-types';
+import { RapiDocElement } from '@rapidoc-types';
 
-export default function mainBodyTemplate(this: RapidocElement, isMini = false, showExpandCollapse = true, showTags = true, pathsExpanded = false) {
+export default function mainBodyTemplate(this: RapiDocElement, isMini = false, showExpandCollapse = true, showTags = true, pathsExpanded = false) {
   if (!this.resolvedSpec) {
     return '';
   }

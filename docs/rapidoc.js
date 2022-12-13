@@ -5718,7 +5718,7 @@ function getType(str) {
 
 /***/ }),
 
-/***/ 910:
+/***/ 369:
 /***/ ((__unused_webpack_module, __unused_webpack___webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -17667,11 +17667,9 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
                         security: pathOrHookObj === null || pathOrHookObj === void 0 ? void 0 : pathOrHookObj.security,
                         // commonSummary: commonPathProp.summary,
                         // commonDescription: commonPathProp.description,
-                        // TODO: Typescript migration replace any with proper typings
                         xBadges: (pathOrHookObj === null || pathOrHookObj === void 0 ? void 0 : pathOrHookObj['x-badges']) || undefined,
                         xCodeSamples: (pathOrHookObj === null || pathOrHookObj === void 0 ? void 0 : pathOrHookObj['x-codeSamples']) ||
-                            (pathOrHookObj === null || pathOrHookObj === void 0 ? void 0 : pathOrHookObj['x-code-samples']) ||
-                            '',
+                            (pathOrHookObj === null || pathOrHookObj === void 0 ? void 0 : pathOrHookObj['x-code-samples']),
                     });
                 }); // End of tag path create
             }
@@ -19693,6 +19691,14 @@ function getSchemaFromParam(param) {
     return [null, null, null];
 }
 
+;// CONCATENATED MODULE: ./node_modules/@lit/reactive-element/decorators/custom-element.js
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+const custom_element_e=e=>n=>"function"==typeof n?((e,n)=>(customElements.define(e,n),n))(e,n):((e,n)=>{const{kind:t,elements:s}=n;return{kind:t,elements:s,finisher(n){customElements.define(e,n)}}})(e,n);
+
 ;// CONCATENATED MODULE: ./node_modules/@lit/reactive-element/decorators/property.js
 /**
  * @license
@@ -19734,7 +19740,7 @@ var __decorate = (undefined && undefined.__decorate) || function (decorators, ta
 
 
 
-class JsonTree extends lit_element_s {
+let JsonTree = class JsonTree extends lit_element_s {
     static get styles() {
         return [
             font_styles,
@@ -19864,15 +19870,17 @@ class JsonTree extends lit_element_s {
             }
         }
     }
-}
+};
 __decorate([
     property_e({ type: Object })
 ], JsonTree.prototype, "data", void 0);
 __decorate([
     property_e({ type: String, attribute: 'render-style' })
 ], JsonTree.prototype, "renderStyle", void 0);
-// Register the element with the browser
-customElements.define('json-tree', JsonTree);
+JsonTree = __decorate([
+    custom_element_e('json-tree')
+], JsonTree);
+/* harmony default export */ const json_tree = ((/* unused pure expression or super */ null && (JsonTree)));
 
 ;// CONCATENATED MODULE: ./src/styles/schema-styles.ts
 
@@ -20008,7 +20016,7 @@ var schema_tree_decorate = (undefined && undefined.__decorate) || function (deco
 
 
 
-class SchemaTree extends lit_element_s {
+let SchemaTree = class SchemaTree extends lit_element_s {
     constructor() {
         super(...arguments);
         this.schemaExpandLevel = 999;
@@ -20354,7 +20362,7 @@ class SchemaTree extends lit_element_s {
                         : '[';
         }
     }
-}
+};
 schema_tree_decorate([
     property_e({ type: Object })
 ], SchemaTree.prototype, "data", void 0);
@@ -20373,7 +20381,10 @@ schema_tree_decorate([
 schema_tree_decorate([
     property_e({ type: String, attribute: 'schema-hide-write-only' })
 ], SchemaTree.prototype, "schemaHideWriteOnly", void 0);
-customElements.define('schema-tree', SchemaTree);
+SchemaTree = schema_tree_decorate([
+    custom_element_e('schema-tree')
+], SchemaTree);
+/* harmony default export */ const schema_tree = ((/* unused pure expression or super */ null && (SchemaTree)));
 
 ;// CONCATENATED MODULE: ./src/components/tag-input.ts
 var tag_input_decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
@@ -20384,7 +20395,7 @@ var tag_input_decorate = (undefined && undefined.__decorate) || function (decora
 };
 
 
-class TagInput extends lit_element_s {
+let TagInput = class TagInput extends lit_element_s {
     /* eslint-disable indent */
     render() {
         let tagItemTmpl = '';
@@ -20504,15 +20515,17 @@ class TagInput extends lit_element_s {
       }
     `];
     }
-}
+};
 tag_input_decorate([
     property_e({ type: String })
 ], TagInput.prototype, "placeholder", void 0);
 tag_input_decorate([
     property_e({ type: Array, attribute: 'value' })
 ], TagInput.prototype, "value", void 0);
-// Register the element with the browser
-customElements.define('tag-input', TagInput);
+TagInput = tag_input_decorate([
+    custom_element_e('tag-input')
+], TagInput);
+/* harmony default export */ const tag_input = ((/* unused pure expression or super */ null && (TagInput)));
 
 ;// CONCATENATED MODULE: ./src/components/api-request.ts
 var api_request_decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
@@ -20542,7 +20555,7 @@ var api_request_decorate = (undefined && undefined.__decorate) || function (deco
 
 
 
-class ApiRequest extends lit_element_s {
+let ApiRequest = class ApiRequest extends lit_element_s {
     constructor() {
         super(...arguments);
         this.method = 'get';
@@ -22114,7 +22127,7 @@ class ApiRequest extends lit_element_s {
         }
         super.disconnectedCallback();
     }
-}
+};
 api_request_decorate([
     property_e({ type: String, attribute: 'server-url' })
 ], ApiRequest.prototype, "serverUrl", void 0);
@@ -22224,8 +22237,10 @@ api_request_decorate([
 api_request_decorate([
     property_e({ type: String, attribute: 'selected-request-body-example' })
 ], ApiRequest.prototype, "selectedRequestBodyExample", void 0);
-// Register the element with the browser
-customElements.define('api-request', ApiRequest);
+ApiRequest = api_request_decorate([
+    custom_element_e('api-request')
+], ApiRequest);
+/* harmony default export */ const api_request = ((/* unused pure expression or super */ null && (ApiRequest)));
 
 ;// CONCATENATED MODULE: ./src/components/schema-table.ts
 var schema_table_decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
@@ -22241,7 +22256,7 @@ var schema_table_decorate = (undefined && undefined.__decorate) || function (dec
 
 
 
-class SchemaTable extends lit_element_s {
+let SchemaTable = class SchemaTable extends lit_element_s {
     constructor() {
         super(...arguments);
         this.schemaExpandLevel = 999;
@@ -22562,7 +22577,7 @@ class SchemaTable extends lit_element_s {
             target.innerText = '-';
         }
     }
-}
+};
 schema_table_decorate([
     property_e({ type: Number, attribute: 'schema-expand-level' })
 ], SchemaTable.prototype, "schemaExpandLevel", void 0);
@@ -22581,7 +22596,10 @@ schema_table_decorate([
 schema_table_decorate([
     property_e({ type: Object })
 ], SchemaTable.prototype, "data", void 0);
-customElements.define('schema-table', SchemaTable);
+SchemaTable = schema_table_decorate([
+    custom_element_e('schema-table')
+], SchemaTable);
+/* harmony default export */ const schema_table = ((/* unused pure expression or super */ null && (SchemaTable)));
 
 ;// CONCATENATED MODULE: ./src/components/api-response.ts
 var api_response_decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
@@ -22605,7 +22623,7 @@ var api_response_decorate = (undefined && undefined.__decorate) || function (dec
 
 
 
-class ApiResponse extends lit_element_s {
+let ApiResponse = class ApiResponse extends lit_element_s {
     constructor() {
         super(...arguments);
         this.selectedStatus = '';
@@ -22891,7 +22909,7 @@ class ApiResponse extends lit_element_s {
             exportparts = "schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
           > </schema-tree>`}`;
     }
-}
+};
 api_response_decorate([
     property_e({ type: String })
 ], ApiResponse.prototype, "callback", void 0);
@@ -22934,8 +22952,10 @@ api_response_decorate([
 api_response_decorate([
     property_e({ type: String, attribute: 'schema-hide-write-only' })
 ], ApiResponse.prototype, "schemaHideWriteOnly", void 0);
-// Register the element with the browser
-customElements.define('api-response', ApiResponse);
+ApiResponse = api_response_decorate([
+    custom_element_e('api-response')
+], ApiResponse);
+/* harmony default export */ const api_response = ((/* unused pure expression or super */ null && (ApiResponse)));
 
 ;// CONCATENATED MODULE: ./src/templates/expanded-endpoint-template.ts
 
@@ -24151,7 +24171,7 @@ var dialog_box_decorate = (undefined && undefined.__decorate) || function (decor
 
 
 
-class DialogBox extends lit_element_s {
+let DialogBox = class DialogBox extends lit_element_s {
     static get styles() {
         return [dialog_box_styles];
     }
@@ -24206,14 +24226,17 @@ class DialogBox extends lit_element_s {
             composed: true,
         }));
     }
-}
+};
 dialog_box_decorate([
     property_e({ type: String, attribute: 'heading' })
 ], DialogBox.prototype, "heading", void 0);
 dialog_box_decorate([
     property_e({ type: String, attribute: 'show' })
 ], DialogBox.prototype, "show", void 0);
-customElements.define('dialog-box', DialogBox);
+DialogBox = dialog_box_decorate([
+    custom_element_e('dialog-box')
+], DialogBox);
+/* harmony default export */ const dialog_box = ((/* unused pure expression or super */ null && (DialogBox)));
 
 ;// CONCATENATED MODULE: ./src/templates/advance-search-template.ts
 
@@ -24769,7 +24792,7 @@ var rapidoc_decorate = (undefined && undefined.__decorate) || function (decorato
 
 
 
-class RapiDoc extends lit_element_s {
+let RapiDoc = class RapiDoc extends lit_element_s {
     constructor() {
         super();
         const intersectionObserverOptions = {
@@ -25751,7 +25774,7 @@ class RapiDoc extends lit_element_s {
     onSelectExample(_event, _jSchemaBody) {
         console.info('Not implemented');
     }
-}
+};
 rapidoc_decorate([
     property_e({ type: String, attribute: 'heading-text' })
 ], RapiDoc.prototype, "headingText", void 0);
@@ -25965,11 +25988,21 @@ rapidoc_decorate([
 rapidoc_decorate([
     property_e({ type: Array })
 ], RapiDoc.prototype, "advancedSearchMatches", void 0);
-customElements.define('rapi-doc', RapiDoc);
+RapiDoc = rapidoc_decorate([
+    custom_element_e('rapi-doc')
+], RapiDoc);
+/* harmony default export */ const rapidoc = (RapiDoc);
 
 ;// CONCATENATED MODULE: ./src/oauth-receiver.ts
+var oauth_receiver_decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
 
-class OauthReceiver extends lit_element_s {
+
+let OauthReceiver = class OauthReceiver extends lit_element_s {
     connectedCallback() {
         this.receiveAuthParms();
         // TODO: Typescript migration : `this.receiveStorage` does not exists on OauthReceiver
@@ -26024,8 +26057,11 @@ class OauthReceiver extends lit_element_s {
         }
         return '';
     }
-}
-customElements.define('oauth-receiver', OauthReceiver);
+};
+OauthReceiver = oauth_receiver_decorate([
+    custom_element_e('oauth-receiver')
+], OauthReceiver);
+/* harmony default export */ const oauth_receiver = ((/* unused pure expression or super */ null && (OauthReceiver)));
 
 ;// CONCATENATED MODULE: ./src/templates/json-schema-viewer-template.ts
 
@@ -26238,7 +26274,7 @@ var json_schema_viewer_decorate = (undefined && undefined.__decorate) || functio
 
 
 
-class JsonSchemaViewer extends lit_element_s {
+let JsonSchemaViewer = class JsonSchemaViewer extends lit_element_s {
     constructor() {
         super(...arguments);
         // TODO: Typescript migration: existing properties used to be defined in the constructor
@@ -26519,7 +26555,7 @@ class JsonSchemaViewer extends lit_element_s {
             contentEl.scrollIntoView({ behavior: 'auto', block: 'start' });
         }
     }
-}
+};
 json_schema_viewer_decorate([
     property_e({ type: String, attribute: 'spec-url' })
 ], JsonSchemaViewer.prototype, "specUrl", void 0);
@@ -26583,14 +26619,17 @@ json_schema_viewer_decorate([
 json_schema_viewer_decorate([
     property_e({ type: Boolean }) // indicates spec is being loaded
 ], JsonSchemaViewer.prototype, "loading", void 0);
-customElements.define('json-schema-viewer', JsonSchemaViewer);
+JsonSchemaViewer = json_schema_viewer_decorate([
+    custom_element_e('json-schema-viewer')
+], JsonSchemaViewer);
+/* harmony default export */ const json_schema_viewer = ((/* unused pure expression or super */ null && (JsonSchemaViewer)));
 
 ;// CONCATENATED MODULE: ./src/index.ts
 
 // import RapiDocMini from '@rapidoc/rapidoc-mini';
 
 
-/* harmony default export */ const src = ({ RapiDoc: RapiDoc });
+/* harmony default export */ const src = ({ RapiDoc: rapidoc });
 
 
 
@@ -26681,7 +26720,7 @@ customElements.define('json-schema-viewer', JsonSchemaViewer);
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("3f2815adb8ca24f95cf2")
+/******/ 		__webpack_require__.h = () => ("922f118d0c4ae30c9885")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
@@ -27665,7 +27704,7 @@ customElements.define('json-schema-viewer', JsonSchemaViewer);
 /******/ 	// module cache are used so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	var __webpack_exports__ = __webpack_require__(910);
+/******/ 	var __webpack_exports__ = __webpack_require__(369);
 /******/ 	
 /******/ })()
 ;

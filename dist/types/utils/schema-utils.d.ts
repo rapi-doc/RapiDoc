@@ -1,4 +1,4 @@
-import { RapiDocExamples, RapiDocSchema } from '@rapidoc-types';
+import type { RapiDocExamples, RapiDocSchema } from '@rapidoc-types';
 import type { OpenAPIV3 } from 'openapi-types';
 export declare function getPrintableVal(val: unknown): string;
 export declare function getTypeInfo(schema: OpenAPIV3.ReferenceObject | RapiDocSchema): {

@@ -10,11 +10,11 @@ import {
   DocumentModifiedByRapiDoc,
   RapiDocCallableElement,
   RapiDocDocument,
-  RapiDocMethods,
+  HTTPMethods,
   RapiDocSecurityScheme,
   RapiDocTag,
   ResolvedSpec,
-} from '../types/rapidoc';
+} from '@rapidoc-types';
 import { OpenAPIV3 } from 'openapi-types';
 
 export default async function ProcessSpec(
@@ -357,7 +357,7 @@ function groupByTags(
   generateMissingTags = false,
   sortTags = false
 ) {
-  const supportedMethods: RapiDocMethods[] = [
+  const supportedMethods: HTTPMethods[] = [
     'get',
     'put',
     'post',
@@ -535,12 +535,10 @@ function groupByTags(
               security: pathOrHookObj?.security,
               // commonSummary: commonPathProp.summary,
               // commonDescription: commonPathProp.description,
-              // TODO: Typescript migration replace any with proper typings
-              xBadges: (pathOrHookObj as any)?.['x-badges'] || undefined,
+              xBadges: pathOrHookObj?.['x-badges'] || undefined,
               xCodeSamples:
-                (pathOrHookObj as any)?.['x-codeSamples'] ||
-                (pathOrHookObj as any)?.['x-code-samples'] ||
-                '',
+                pathOrHookObj?.['x-codeSamples'] ||
+                pathOrHookObj?.['x-code-samples'],
             });
           }); // End of tag path create
         }

@@ -1,6 +1,7 @@
 import { LitElement, html, css, TemplateResult } from 'lit';
-import { property } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 
+@customElement('tag-input')
 export default class TagInput extends LitElement {
   @property({ type: String },)
   public placeholder?: string; 
@@ -130,5 +131,3 @@ export default class TagInput extends LitElement {
     `];
   }
 }
-// Register the element with the browser
-customElements.define('tag-input', TagInput);

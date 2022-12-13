@@ -9,8 +9,8 @@ import 'prismjs/components/prism-bash';
 import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-http';
 import 'prismjs/components/prism-csharp';
-import { RapidocElement, RapiDocExamples, RapiDocSchema, RapiDocServer, ResolvedSpec } from '@rapidoc-types';
-export default class RapiDoc extends LitElement implements RapidocElement {
+import { RapiDocElement, RapiDocExamples, RapiDocSchema, RapiDocServer, ResolvedSpec } from '@rapidoc-types';
+export default class RapiDoc extends LitElement implements RapiDocElement {
     headingText?: string;
     gotoPath?: string;
     updateRoute?: 'true' | 'false';

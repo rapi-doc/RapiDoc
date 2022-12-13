@@ -1,9 +1,9 @@
-import { RapidocElement } from '@rapidoc-types';
+import { RapiDocElement } from '@rapidoc-types';
 import { html } from 'lit';
 import { OpenAPIV3 } from 'openapi-types';
 
 /* eslint-disable indent */
-export default function callbackTemplate(this: RapidocElement, callbacks: OpenAPIV3.CallbackObject) {
+export default function callbackTemplate(this: RapiDocElement, callbacks: OpenAPIV3.CallbackObject) {
   return html`
     <div class="req-res-title" style="margin-top:12px">CALLBACKS</div>
     ${Object.entries(callbacks).map((kv) => html`

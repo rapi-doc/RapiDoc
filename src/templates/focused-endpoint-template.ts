@@ -9,7 +9,7 @@ import overviewTemplate from './overview-template';
 import serverTemplate from './server-template';
 import securitySchemeTemplate from './security-scheme-template';
 import { expandCollapseNavBarTag } from './navbar-template';
-import { RapidocElement, RapiDocTag } from '@rapidoc-types';
+import { RapiDocElement, RapiDocTag } from '@rapidoc-types';
 
 function headingRenderer(tagElementId: string) {
   const renderer = new marked.Renderer();
@@ -24,7 +24,7 @@ function wrapFocusedTemplate(templateToWrap: TemplateResult<1> | string) {
     </div>`;
 }
 
-function defaultContentTemplate(this: RapidocElement) {
+function defaultContentTemplate(this: RapiDocElement) {
   // In focused mode default content is overview or first path
   if (this.showInfo === 'true') {
     return wrapFocusedTemplate(overviewTemplate.call(this));
@@ -37,7 +37,7 @@ function defaultContentTemplate(this: RapidocElement) {
 }
 
 /* eslint-disable indent */
-function focusedTagBodyTemplate(this: RapidocElement, tag: RapiDocTag) {
+function focusedTagBodyTemplate(this: RapiDocElement, tag: RapiDocTag) {
   return html`
     <h1 id="${tag.elementId}">${tag.name}</h1>
     ${this.onNavTagClick === 'show-description' && tag.description
@@ -55,7 +55,7 @@ function focusedTagBodyTemplate(this: RapidocElement, tag: RapiDocTag) {
   `;
 }
 
-export default function focusedEndpointTemplate(this: RapidocElement) {
+export default function focusedEndpointTemplate(this: RapiDocElement) {
   if (!this.focusedElementId || !this.resolvedSpec) {
     return;
   }

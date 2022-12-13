@@ -1,9 +1,9 @@
-import { RapidocElement } from '@rapidoc-types';
+import { RapiDocElement } from '@rapidoc-types';
 import { html } from 'lit';
 import '~/components/dialog-box';
 
 /* eslint-disable indent */
-export default function searchByPropertiesModalTemplate(this: RapidocElement) {
+export default function searchByPropertiesModalTemplate(this: RapiDocElement) {
   document.addEventListener('close', () => { this.showAdvancedSearchDialog = false; });
   // TODO: Typescript migration the casting is not valid and should be removed but it would provoke errors in onOpenSearchDialog
   //       it should be refactored

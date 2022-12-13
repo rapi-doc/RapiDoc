@@ -1,5 +1,5 @@
 import { LitElement, html, css, TemplateResult } from 'lit';
-import { property} from 'lit/decorators.js';
+import { customElement, property} from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
 import FontStyles from '../styles/font-styles';
@@ -8,6 +8,7 @@ import BorderStyles from '../styles/border-styles';
 import CustomStyles from '../styles/custom-styles';
 import { ObjectNotationSchema } from '../utils/schema-utils';
 
+@customElement('schema-tree')
 export default class SchemaTree extends LitElement {
   @property({ type: Object })
   public data?: ObjectNotationSchema;
@@ -383,4 +384,3 @@ export default class SchemaTree extends LitElement {
     }
   }
 }
-customElements.define('schema-tree', SchemaTree);

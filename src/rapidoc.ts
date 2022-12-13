@@ -28,13 +28,14 @@ import ProcessSpec from './utils/spec-parser';
 import mainBodyTemplate from './templates/main-body-template';
 import { applyApiKey, onClearAllApiKeys } from './templates/security-scheme-template';
 import { setApiServer } from './templates/server-template';
-import { property } from 'lit/decorators.js';
-import { RapidocElement, RapiDocExamples, RapiDocSchema, RapiDocSecurityScheme, RapiDocServer, ResolvedSpec } from '@rapidoc-types';
+import { customElement, property } from 'lit/decorators.js';
+import { RapiDocElement, RapiDocExamples, RapiDocSchema, RapiDocSecurityScheme, RapiDocServer, ResolvedSpec } from '@rapidoc-types';
 import ApiRequest from './components/api-request';
 import ApiResponse from './components/api-response';
 import { OpenAPIV3 } from 'openapi-types';
 
-export default class RapiDoc extends LitElement implements RapidocElement {
+@customElement('rapi-doc')
+export default class RapiDoc extends LitElement implements RapiDocElement {
   // Heading
 
   @property({ type: String, attribute: 'heading-text' })
@@ -1231,4 +1232,3 @@ export default class RapiDoc extends LitElement implements RapidocElement {
     console.info('Not implemented')
   }
 }
-customElements.define('rapi-doc', RapiDoc);

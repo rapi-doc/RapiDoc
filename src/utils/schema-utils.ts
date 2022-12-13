@@ -1,4 +1,4 @@
-import { RapiDocExamples, RapidocObj, RapiDocSchema } from '@rapidoc-types';
+import type { RapiDocExamples, RapiDocObj, RapiDocSchema } from '@rapidoc-types';
 import type { OpenAPIV3 } from 'openapi-types';
 
 // Takes a value as input and provides a printable string to represent null values, spaces, blank string etc
@@ -504,7 +504,7 @@ export function json2xml(obj: any, level = 1) {
   return xmlText;
 }
 
-function addSchemaInfoToExample(schema: RapiDocSchema, obj: RapidocObj) {
+function addSchemaInfoToExample(schema: RapiDocSchema, obj: RapiDocObj) {
   if (typeof obj !== 'object' || obj === null) {
     return;
   }
@@ -522,7 +522,7 @@ function addSchemaInfoToExample(schema: RapiDocSchema, obj: RapidocObj) {
   }
 }
 
-function removeTitlesAndDescriptions(obj: RapidocObj) {
+function removeTitlesAndDescriptions(obj: RapiDocObj) {
   if (typeof obj !== 'object' || obj === null) {
     return;
   }

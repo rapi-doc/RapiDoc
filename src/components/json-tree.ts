@@ -4,8 +4,9 @@ import FontStyles from '../styles/font-styles';
 import BorderStyles from '../styles/border-styles';
 import InputStyles from '../styles/input-styles';
 import CustomStyles from '../styles/custom-styles';
-import { property } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 
+@customElement('json-tree')
 export default class JsonTree extends LitElement {
   @property({ type: Object })
   public data?: any;
@@ -141,5 +142,3 @@ export default class JsonTree extends LitElement {
     }
   }
 }
-// Register the element with the browser
-customElements.define('json-tree', JsonTree);

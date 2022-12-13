@@ -1,7 +1,8 @@
 import { LitElement, html } from 'lit';
 import DialogBoxStyles from '../styles/dialog-box-styles';
-import { property } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 
+@customElement('dialog-box')
 export default class DialogBox extends LitElement {
   @property({ type: String, attribute: 'heading' })
   public heading?: string | null;
@@ -69,5 +70,3 @@ export default class DialogBox extends LitElement {
     }));
   }
 }
-
-customElements.define('dialog-box', DialogBox);

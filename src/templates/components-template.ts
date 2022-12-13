@@ -5,9 +5,9 @@ import { schemaInObjectNotation } from '../utils/schema-utils';
 import '../components/json-tree';
 import '../components/schema-tree';
 import '../components/schema-table';
-import { RapidocElement, RapiDocSchema } from '@rapidoc-types';
+import { RapiDocElement, RapiDocSchema } from '@rapidoc-types';
 
-function schemaBodyTemplate(this: RapidocElement, sComponent: { name: string; id: string; component: RapiDocSchema}) {
+function schemaBodyTemplate(this: RapiDocElement, sComponent: { name: string; id: string; component: RapiDocSchema}) {
   return html`
   <div class='divider'></div>
   <div class='expanded-endpoint-body observe-me ${sComponent.name}' id='cmp--${sComponent.id}' >
@@ -37,7 +37,7 @@ function schemaBodyTemplate(this: RapidocElement, sComponent: { name: string; id
   </div>`;
 }
 
-function componentBodyTemplate(this: RapidocElement, sComponent: { name: string; id: string; component: RapiDocSchema}, componentType: string) {
+function componentBodyTemplate(this: RapiDocElement, sComponent: { name: string; id: string; component: RapiDocSchema}, componentType: string) {
   if (sComponent.id.indexOf('schemas-') !== -1) {
     return schemaBodyTemplate.call(this, sComponent);
   }
@@ -57,7 +57,7 @@ function componentBodyTemplate(this: RapidocElement, sComponent: { name: string;
   `;
 }
 
-export default function componentsTemplate(this: RapidocElement) {
+export default function componentsTemplate(this: RapiDocElement) {
   if (!this.resolvedSpec) { return ''; }
   // TODO: Typescript migration, replace any by proper typing, resolvedSpec.components should not be an array
   return html`

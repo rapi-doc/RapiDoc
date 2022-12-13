@@ -1,9 +1,9 @@
-import { RapidocElement, RapiDocServer } from '@rapidoc-types';
+import { RapiDocElement, RapiDocServer } from '@rapidoc-types';
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
 
-export function setApiServer(this: RapidocElement, serverUrl: string) {
+export function setApiServer(this: RapiDocElement, serverUrl: string) {
   const serverObj = this.resolvedSpec?.servers?.find((s) => s.url === serverUrl);
   if (!serverObj) {
     return false;
@@ -20,7 +20,7 @@ export function setApiServer(this: RapidocElement, serverUrl: string) {
   return true;
 }
 
-function onApiServerVarChange(this: RapidocElement, e: Event, serverObj: RapiDocServer) {
+function onApiServerVarChange(this: RapiDocElement, e: Event, serverObj: RapiDocServer) {
   const inputEls = [...((e.currentTarget as HTMLElement).closest('table') as HTMLTableElement).querySelectorAll('input, select')] as (HTMLInputElement | HTMLSelectElement)[];
   let tempUrl = serverObj.url;
   inputEls.forEach((v) => {
@@ -32,7 +32,7 @@ function onApiServerVarChange(this: RapidocElement, e: Event, serverObj: RapiDoc
 }
 
 /* eslint-disable indent */
-function serverVarsTemplate(this: RapidocElement) {
+function serverVarsTemplate(this: RapiDocElement) {
   // const selectedServerObj = this.resolvedSpec.servers.find((v) => (v.url === this.selectedServer));
   return this.selectedServer && this.selectedServer.variables
     ? html`
@@ -83,7 +83,7 @@ function serverVarsTemplate(this: RapidocElement) {
     : '';
 }
 
-export default function serverTemplate(this: RapidocElement) {
+export default function serverTemplate(this: RapiDocElement) {
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) { return ''; }
   return html`
   <section id = 'servers' part="section-servers" style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;" class='regular-font observe-me ${this.renderStyle && 'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>

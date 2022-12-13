@@ -24,9 +24,10 @@ import InfoStyles from './styles/info-styles';
 import EndpointStyles from './styles/endpoint-styles';
 import ProcessSpec from './utils/spec-parser';
 import jsonSchemaViewerTemplate from './templates/json-schema-viewer-template';
-import { property } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 import { RapiDocJSONSchemaViewerElement, ResolvedSpec } from '@rapidoc-types';
 
+@customElement('json-schema-viewer')
 export default class JsonSchemaViewer extends LitElement implements RapiDocJSONSchemaViewerElement {
   // TODO: Typescript migration: existing properties used to be defined in the constructor
   public isMini = false;
@@ -400,4 +401,3 @@ export default class JsonSchemaViewer extends LitElement implements RapiDocJSONS
     }
   }
 }
-customElements.define('json-schema-viewer', JsonSchemaViewer);

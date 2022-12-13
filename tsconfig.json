@@ -22,6 +22,7 @@
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitOverride": true,
+    "useDefineForClassFields": false,
     "paths": {
       "@rapidoc-types": ["./src/types/rapidoc.d.ts"],
     },

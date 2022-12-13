@@ -85,7 +85,7 @@ export interface ResolvedSpec {
   servers?: RapiDocServer[];
 }
 
-export type RapiDocMethods =
+export type HTTPMethods =
   | 'get'
   | 'put'
   | 'post'
@@ -165,7 +165,7 @@ export interface RapiDocCallableElement {
   dispatchEvent: (event: CustomEvent) => void;
 }
 
-export interface RapidocElement extends RapiDocCallableElement {
+export interface RapiDocElement extends RapiDocCallableElement {
   // resolvedSpec: RapiDocDocument;
   advancedSearchMatches?: {
     elementId: string;
@@ -212,7 +212,7 @@ export interface RapidocElement extends RapiDocCallableElement {
 export interface RapiDocJSONSchemaViewerElement
   extends RapiDocCallableElement {}
 
-export interface DocumentModifiedByRapiDoc<T extends {} = {}>
+export interface DocumentModifiedByRapiDoc<T extends RapiDocExtraOperation = RapiDocExtraOperation>
   extends OpenAPIV3.Document {
   servers?: (OpenAPIV3.ServerObject & {
     computedUrl?: string;
@@ -265,22 +265,10 @@ export interface RapiDocTag {
   'x-tag-expanded'?: boolean;
 }
 
-export type RapiDocOperationObject<T extends {} = {}> =
-  OpenAPIV3.OperationObject<T> & {
-    'x-badges'?: string;
-    'x-codeSamples'?: string;
-    'x-code-samples'?: string;
-  };
-
-export interface RapiDocWebHookValue<T extends {} = {}>
-  extends OpenAPIV3.PathItemObject<T> {
-  _type: string;
-}
-
 interface RapiDocExtraOperation {
-  'x-badges'?: string;
-  'x-codeSamples'?: string;
-  'x-code-samples'?: string;
+  'x-badges'?: { color: string; label: string }[];
+  'x-codeSamples'?: RapiDocXCodeSample[];
+  'x-code-samples'?: RapiDocXCodeSample[];
 }
 
 export interface RapiDocPath {
@@ -292,7 +280,7 @@ export interface RapiDocPath {
   description: string;
   externalDocs?: OpenAPIV3.ExternalDocumentationObject;
   shortSummary: string;
-  method: RapiDocMethods;
+  method: HTTPMethods;
   path: string;
   operationId?: string;
   elementId: string;
@@ -306,7 +294,7 @@ export interface RapiDocPath {
   deprecated?: boolean;
   security?: OpenAPIV3.SecurityRequirementObject[];
   xBadges?: { color: string; label: string }[];
-  xCodeSamples: RapiDocXCodeSample[];
+  xCodeSamples?: RapiDocXCodeSample[];
 }
 
 export interface RapiDocDocument extends ResolvedSpec {
@@ -329,19 +317,13 @@ export interface RapiDocDocument extends ResolvedSpec {
     example: string;
     selectedExample: string;
     description: string;
-  }[] /* 
-  webhooks?: {
-    [index: string]: RapiDocWebHookValue & {
-      [method in OpenAPIV3.HttpMethods]?: OpenAPIV3.OperationObject<T>;
-    };
-  }; */;
+  }[];
   securitySchemes: RapiDocSecurityScheme[];
   infoDescriptionHeaders: marked.Tokens.Heading[];
   components: {
     show: boolean;
     name: string;
     description: string;
-    // securitySchemes: RapiDocSecurityScheme[];
     subComponents: {
       show: boolean;
       id: string;
@@ -383,11 +365,11 @@ export type RapiDocSchema = OpenAPIV3.SchemaObject & {
   type?: 'boolean' | 'object' | 'number' | 'string' | 'integer' | string;
 };
 
-export interface RapidocObj {
+export interface RapiDocObj {
   '::TITLE'?: string;
   '::DESCRIPTION'?: string;
   '::XML_TAG'?: string;
   '::XML_WRAP'?: string;
 
-  [index: string]: RapidocObj | undefined | string;
+  [index: string]: RapiDocObj | undefined | string;
 }

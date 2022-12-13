@@ -27,11 +27,12 @@ import { schemaInObjectNotation,
 import './json-tree';
 import './schema-tree';
 import './tag-input';
-import { property } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 import { OpenAPIV3 } from 'openapi-types';
-import { RapiDocExamples, RapiDocMethods, RapiDocSchema, RapiDocSecurityScheme } from '@rapidoc-types';
+import { RapiDocExamples, HTTPMethods, RapiDocSchema, RapiDocSecurityScheme } from '@rapidoc-types';
 import ApiResponse from './api-response';
 
+@customElement('api-request')
 export default class ApiRequest extends LitElement {
   @property({ type: String, attribute: 'server-url' })
   public serverUrl?: string;
@@ -40,7 +41,7 @@ export default class ApiRequest extends LitElement {
   public servers?: OpenAPIV3.ServerObject[];
   
   @property({ type: String })
-  public method: RapiDocMethods = 'get';
+  public method: HTTPMethods = 'get';
   
   @property({ type: String })
   public path?: string;
@@ -1768,6 +1769,3 @@ export default class ApiRequest extends LitElement {
     super.disconnectedCallback();
   }
 }
-
-// Register the element with the browser
-customElements.define('api-request', ApiRequest);

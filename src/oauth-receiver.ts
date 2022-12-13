@@ -1,5 +1,7 @@
 import { LitElement } from 'lit';
+import { customElement } from 'lit/decorators.js';
 
+@customElement('oauth-receiver')
 export default class OauthReceiver extends LitElement {
   override connectedCallback() {
     this.receiveAuthParms();
@@ -60,4 +62,3 @@ export default class OauthReceiver extends LitElement {
     return '';
   }
 }
-customElements.define('oauth-receiver', OauthReceiver);

@@ -4,11 +4,11 @@ import './json-tree';
 import './schema-tree';
 import './tag-input';
 import { OpenAPIV3 } from 'openapi-types';
-import { RapiDocMethods, RapiDocSchema, RapiDocSecurityScheme } from '@rapidoc-types';
+import { HTTPMethods, RapiDocSchema, RapiDocSecurityScheme } from '@rapidoc-types';
 export default class ApiRequest extends LitElement {
     serverUrl?: string;
     servers?: OpenAPIV3.ServerObject[];
-    method: RapiDocMethods;
+    method: HTTPMethods;
     path?: string;
     security?: [];
     parameters?: (OpenAPIV3.ParameterObject & {

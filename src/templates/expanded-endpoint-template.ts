@@ -7,7 +7,7 @@ import codeSamplesTemplate from './code-samples-template';
 import callbackTemplate from './callback-template';
 import '~/components/api-request';
 import '~/components/api-response';
-import { RapidocElement, RapiDocPath } from '@rapidoc-types';
+import { RapiDocElement, RapiDocPath } from '@rapidoc-types';
 import { OpenAPIV3 } from 'openapi-types';
 
 /* eslint-disable indent */
@@ -34,7 +34,7 @@ function expandCollapseTagDescription(e: MouseEvent) {
   }
 }
 
-export function expandedEndpointBodyTemplate(this: RapidocElement, path: RapiDocPath, tagName = '', tagDescription = '') {
+export function expandedEndpointBodyTemplate(this: RapiDocElement, path: RapiDocPath, tagName = '', tagDescription = '') {
   const acceptContentTypes = new Set();
   for (const respStatus in path.responses) {
     for (const acceptContentType in ((path.responses[respStatus] as OpenAPIV3.ResponseObject)?.content)) {
@@ -171,7 +171,7 @@ export function expandedEndpointBodyTemplate(this: RapidocElement, path: RapiDoc
   `;
 }
 
-export default function expandedEndpointTemplate(this: RapidocElement) {
+export default function expandedEndpointTemplate(this: RapiDocElement) {
   if (!this.resolvedSpec) { return ''; }
   return html`
   ${this.resolvedSpec?.tags?.map((tag) => html`

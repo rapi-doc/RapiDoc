@@ -7,9 +7,9 @@ import codeSamplesTemplate from './code-samples-template';
 import callbackTemplate from './callback-template';
 import { pathSecurityTemplate } from './security-scheme-template';
 import { pathIsInSearch, rapidocApiKey } from '../utils/common-utils';
-import { RapidocElement, RapiDocPath } from '@rapidoc-types';
+import { RapiDocElement, RapiDocPath } from '@rapidoc-types';
 
-function toggleExpand(this: RapidocElement, path: RapiDocPath) {
+function toggleExpand(this: RapiDocElement, path: RapiDocPath) {
   if (path.expanded) {
     path.expanded = false; // collapse
     if (this.updateRoute === 'true') {
@@ -45,7 +45,7 @@ function onExpandCollapseAll(e: MouseEvent, action = 'expand-all') {
 }
 
 /* eslint-disable indent */
-function endpointHeadTemplate(this: RapidocElement, path: RapiDocPath, pathsExpanded = false) {
+function endpointHeadTemplate(this: RapiDocElement, path: RapiDocPath, pathsExpanded = false) {
   return html`
   <summary @click="${() => { toggleExpand.call(this, path); }}" part="section-endpoint-head-${path.expanded ? 'expanded' : 'collapsed'}" class='endpoint-head ${path.method} ${path.deprecated ? 'deprecated' : ''} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
     <div part="section-endpoint-head-method" class="method ${path.method} ${path.deprecated ? 'deprecated' : ''}"> ${path.method} </div> 
@@ -70,7 +70,7 @@ function endpointHeadTemplate(this: RapidocElement, path: RapiDocPath, pathsExpa
   `;
 }
 
-function endpointBodyTemplate(this: RapidocElement, path: RapiDocPath) {
+function endpointBodyTemplate(this: RapiDocElement, path: RapiDocPath) {
   const acceptContentTypes = new Set();
   for (const respStatus in path.responses) {
     // TODO: typescript migration: remove any by proper typing
@@ -184,7 +184,7 @@ function endpointBodyTemplate(this: RapidocElement, path: RapiDocPath) {
   </div>`;
 }
 
-export default function endpointTemplate(this: RapidocElement, showExpandCollapse = true, showTags = true, pathsExpanded = false) {
+export default function endpointTemplate(this: RapiDocElement, showExpandCollapse = true, showTags = true, pathsExpanded = false) {
   if (!this.resolvedSpec) { return ''; }
   return html`
     ${showExpandCollapse

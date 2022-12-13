@@ -12,10 +12,11 @@ import CustomStyles from '../styles/custom-styles';
 import './json-tree';
 import './schema-tree';
 import './schema-table';
-import { property } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 import { OpenAPIV3 } from 'openapi-types';
 import { RapiDocExamples, RapiDocSchema } from '@rapidoc-types';
 
+@customElement('api-response')
 export default class ApiResponse extends LitElement {
   @property({ type: String })
   public callback?: string;
@@ -378,6 +379,3 @@ export default class ApiResponse extends LitElement {
   }
   /* eslint-enable indent */
 }
-
-// Register the element with the browser
-customElements.define('api-response', ApiResponse);

@@ -1,7 +1,7 @@
 import { html } from 'lit';
 import { marked } from 'marked';
 import { pathIsInSearch } from '../utils/common-utils';
-import { RapidocElement } from '@rapidoc-types';
+import { RapiDocElement } from '@rapidoc-types';
 
 export function expandCollapseNavBarTag(navLinkEl: HTMLElement, action = 'toggle') {
   const tagAndPathEl = navLinkEl?.closest('.nav-bar-tag-and-paths');
@@ -39,7 +39,7 @@ export function expandCollapseAll(event: MouseEvent | KeyboardEvent, action = 'e
   }
 }
 
-export function navBarClickAndEnterHandler(this: RapidocElement, event: MouseEvent | KeyboardEvent) {
+export function navBarClickAndEnterHandler(this: RapiDocElement, event: MouseEvent | KeyboardEvent) {
   if (!(event.type === 'click' || (event.type === 'keyup' && (event as KeyboardEvent).keyCode === 13))) {
     return;
   }
@@ -55,7 +55,7 @@ export function navBarClickAndEnterHandler(this: RapidocElement, event: MouseEve
 }
 
 /* eslint-disable indent */
-export default function navbarTemplate(this: RapidocElement) {
+export default function navbarTemplate(this: RapiDocElement) {
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) {
     return html`
       <nav class='nav-bar' part='section-navbar'>

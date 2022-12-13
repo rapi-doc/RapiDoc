@@ -4,8 +4,9 @@ import { marked } from 'marked';
 import FontStyles from '../styles/font-styles';
 import SchemaStyles from '../styles/schema-styles';
 import CustomStyles from '../styles/custom-styles';
-import { property } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 
+@customElement('schema-table')
 export default class SchemaTable extends LitElement {
   
   @property({ type: Number, attribute: 'schema-expand-level' })
@@ -365,4 +366,3 @@ export default class SchemaTable extends LitElement {
     }
   }
 }
-customElements.define('schema-table', SchemaTable);
