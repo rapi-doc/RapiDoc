@@ -233,6 +233,10 @@ export default class ApiRequest extends LitElement {
     //     this.requestUpdate();
     //   }
     // }
+
+    if (this.webhook === 'true') {
+      this.allowTry = 'false';
+    }
   }
 
   async saveExampleState() {
