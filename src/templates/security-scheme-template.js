@@ -264,9 +264,7 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
   const isUrlAbsolute = (url) => (url.indexOf('://') > 0 || url.indexOf('//') === 0);
   // Calculcate base URL
   const url = new URL(this.selectedServer.computedUrl);
-  const baseUrl = url.port === ''
-    ? `${url.protocol}://${url.hostname}`
-    : `${url.protocol}://${url.hostname}:${url.port}`;
+  const baseUrl = url.origin;
 
   if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
     refreshUrl = `${baseUrl}/${refreshUrl.replace(/^\//, '')}`;
