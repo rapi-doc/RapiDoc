@@ -1,7 +1,10 @@
-export default class OauthReceiver extends HTMLElement {
-  connectedCallback() {
+import { LitElement } from 'lit';
+
+export default class OauthReceiver extends LitElement {
+  override connectedCallback() {
     this.receiveAuthParms();
-    window.addEventListener('storage', (e) => this.receiveStorage(e), true);
+      // TODO: Typescript migration : `this.receiveStorage` does not exists on OauthReceiver
+    // window.addEventListener('storage', (e) => this.receiveStorage(e), true);
   }
 
   /**
@@ -28,22 +31,24 @@ export default class OauthReceiver extends HTMLElement {
     }
 
     if (window.opener) {
-      window.opener.postMessage(authData, this.target);
+      // TODO: Typescript migration : `this.target` does not exists on OauthReceiver
+      window.opener.postMessage(authData/* , this.target */);
       return;
     }
     sessionStorage.setItem('rapidoc-oauth-data', JSON.stringify(authData)); // Fallback to session storage if window.opener dont exist
   }
 
-  relayAuthParams(e) {
+  relayAuthParams(e: any) {
     if (window.parent) {
       if (e.key === 'rapidoc-oauth-data') {
         const authData = JSON.parse(e.newValue);
-        window.parent.postMessage(authData, this.target);
+      // TODO: Typescript migration : `this.target` does not exists on OauthReceiver
+        window.parent.postMessage(authData/* , this.target */);
       }
     }
   }
 
-  parseQueryString(queryString, key) {
+  parseQueryString(queryString: string, key: string) {
     const vars = queryString.split('&');
     for (let i = 0; i < vars.length; i++) {
       const pair = vars[i].split('=');
