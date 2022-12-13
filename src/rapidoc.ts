@@ -12,28 +12,278 @@ import 'prismjs/components/prism-http';
 import 'prismjs/components/prism-csharp';
 
 // Styles
-import FontStyles from '~/styles/font-styles';
-import InputStyles from '~/styles/input-styles';
-import FlexStyles from '~/styles/flex-styles';
-import TableStyles from '~/styles/table-styles';
-import EndpointStyles from '~/styles/endpoint-styles';
-import PrismStyles from '~/styles/prism-styles';
-import TabStyles from '~/styles/tab-styles';
-import NavStyles from '~/styles/nav-styles';
-import InfoStyles from '~/styles/info-styles';
-import CustomStyles from '~/styles/custom-styles';
+import FontStyles from '@rapidoc/styles/font-styles';
+import InputStyles from '@rapidoc/styles/input-styles';
+import FlexStyles from '@rapidoc/styles/flex-styles';
+import TableStyles from '@rapidoc/styles/table-styles';
+import EndpointStyles from '@rapidoc/styles/endpoint-styles';
+import PrismStyles from '@rapidoc/styles/prism-styles';
+import TabStyles from '@rapidoc/styles/tab-styles';
+import NavStyles from '@rapidoc/styles/nav-styles';
+import InfoStyles from '@rapidoc/styles/info-styles';
+import CustomStyles from '@rapidoc/styles/custom-styles';
 // import { expandCollapseNavBarTag } from '@/templates/navbar-template';
-import { advancedSearch, pathIsInSearch, componentIsInSearch, rapidocApiKey, sleep } from '~/utils/common-utils';
-import ProcessSpec from '~/utils/spec-parser';
-import mainBodyTemplate from '~/templates/main-body-template';
-import { applyApiKey, onClearAllApiKeys } from '~/templates/security-scheme-template';
-import { setApiServer } from '~/templates/server-template';
+import { advancedSearch, pathIsInSearch, componentIsInSearch, rapidocApiKey, sleep } from '@rapidoc/utils/common-utils';
+import ProcessSpec from '@rapidoc/utils/spec-parser';
+import mainBodyTemplate from '@rapidoc/templates/main-body-template';
+import { applyApiKey, onClearAllApiKeys } from '@rapidoc/templates/security-scheme-template';
+import { setApiServer } from '@rapidoc/templates/server-template';
+import { property } from 'lit/decorators';
+import { RapidocElement, RapiDocSecurityScheme, RapiDocServer, ResolvedSpec } from '@rapidoc-types';
+import ApiRequest from './components/api-request';
+import ApiResponse from './components/api-response';
+import { OpenAPIV3 } from 'openapi-types';
 
-export default class RapiDoc extends LitElement {
+export default class RapiDoc extends LitElement implements RapidocElement {
+  // Heading
+
+  @property({ type: String, attribute: 'heading-text' })
+  public headingText?: string; 
+
+  @property({ type: String, attribute: 'goto-path' })
+  public gotoPath?: string; 
+
+  // Spec
+
+  @property({ type: String, attribute: 'update-route' })
+  public updateRoute?: 'true' | 'false'; 
+
+  @property({ type: String, attribute: 'route-prefix' })
+  public routePrefix?: string; 
+
+  @property({ type: String, attribute: 'spec-url' })
+  public specUrl?: string; 
+
+  @property({ type: String, attribute: 'sort-tags' })
+  public sortTags?: string; 
+
+  @property({ type: String, attribute: 'generate-missing-tags' })
+  public generateMissingTags?: string; 
+
+  @property({ type: String, attribute: 'sort-endpoints-by' })
+  public sortEndpointsBy?: string; 
+
+  @property({ type: String, attribute: false })
+  public specFile?: string; 
+
+  // UI Layouts
+  
+  @property({ type: String })
+  public layout?: 'row' | 'column';
+  
+  @property({ type: String, attribute: 'render-style' })
+  public renderStyle?: string;
+  
+  @property({ type: String, attribute: 'default-schema-tab' })
+  public defaultSchemaTab?: 'schema' | 'model' | 'example';
+  
+  @property({ type: String, attribute: 'response-area-height' })
+  public responseAreaHeight?: string;
+  
+  @property({ type: String, attribute: 'fill-request-fields-with-example' })
+  public fillRequestFieldsWithExample?: 'true' | 'false';
+  
+  @property({ type: String, attribute: 'persist-auth' })
+  public persistAuth?: 'true' | 'false';
+  
+  @property({ type: String, attribute: 'on-nav-tag-click' })
+  public onNavTagClick?: 'show-description' | 'expand-collapse';
+
+  // Schema Styles
+  
+  @property({ type: String, attribute: 'schema-style' })
+  public schemaStyle?: 'tree' | 'table';
+  
+  @property({ type: Number, attribute: 'schema-expand-level' })
+  public schemaExpandLevel?: number;
+  
+  @property({ type: String, attribute: 'schema-description-expanded' })
+  public schemaDescriptionExpanded?: 'true' | 'false';
+  
+  @property({ type: String, attribute: 'schema-hide-read-only' })
+  public schemaHideReadOnly?: 'default' | 'never';
+  
+  @property({ type: String, attribute: 'schema-hide-write-only' })
+  public schemaHideWriteOnly?: 'default' | 'never';
+
+  // API Server
+  
+  @property({ type: String, attribute: 'api-key-name' })
+  public apiKeyName?: string;
+  
+  @property({ type: String, attribute: 'api-key-location' })
+  public apiKeyLocation?: string;
+  
+  @property({ type: String, attribute: 'api-key-value' })
+  public apiKeyValue?: string;
+  
+  @property({ type: String, attribute: 'default-api-server' })
+  public defaultApiServerUrl?: string;
+  
+  @property({ type: String, attribute: 'server-url' })
+  public serverUrl?: string;
+  
+  @property({ type: String, attribute: 'oauth-receiver' })
+  public oauthReceiver?: string;
+
+  // Hide/Show Sections & Enable Disable actions
+  
+  @property({ type: String, attribute: 'show-header' })
+  public showHeader?: 'true' | 'false';
+  
+  @property({ type: String, attribute: 'show-side-nav' })
+  public showSideNav?: 'true' | 'false';
+  
+  @property({ type: String, attribute: 'show-info' })
+  public showInfo?: 'true' | 'false';
+  
+  @property({ type: String, attribute: 'allow-authentication' })
+  public allowAuthentication?: 'true' | 'false';
+  
+  @property({ type: String, attribute: 'allow-try' })
+  public allowTry?: 'true' | 'false';
+  
+  @property({ type: String, attribute: 'show-curl-before-try' })
+  public showCurlBeforeTry?: 'true' | 'false';
+  
+  @property({ type: String, attribute: 'allow-spec-url-load' })
+  public allowSpecUrlLoad?: 'true' | 'false';
+  
+  @property({ type: String, attribute: 'allow-spec-file-load' })
+  public allowSpecFileLoad?: 'true' | 'false';
+  
+  @property({ type: String, attribute: 'allow-spec-file-download' })
+  public allowSpecFileDownload?: 'true' | 'false';
+  
+  @property({ type: String, attribute: 'allow-search' })
+  public allowSearch?: 'true' | 'false';
+  
+  @property({ type: String, attribute: 'allow-advanced-search' })
+  public allowAdvancedSearch?: 'true' | 'false';
+  
+  @property({ type: String, attribute: 'allow-server-selection' })
+  public allowServerSelection?: 'true' | 'false';
+  
+  @property({ type: String, attribute: 'allow-schema-description-expand-toggle' })
+  public allowSchemaDescriptionExpandToggle?: 'true' | 'false';
+  
+  @property({ type: String, attribute: 'show-components' })
+  public showComponents?: 'true' | 'false';
+  
+  @property({ type: String, attribute: 'page-direction' })
+  public pageDirection?: 'rtl' | 'ltr';
+
+  // Main Colors and Font
+  
+  @property({ type: String })
+  public theme?: 'dark' | 'light';
+  
+  @property({ type: String, attribute: 'bg-color' })
+  public bgColor?: string;
+  
+  @property({ type: String, attribute: 'text-color' })
+  public textColor?: string;
+  
+  @property({ type: String, attribute: 'header-color' })
+  public headerColor?: string;
+  
+  @property({ type: String, attribute: 'primary-color' })
+  public primaryColor?: string;
+  
+  @property({ type: String, attribute: 'font-size' })
+  public fontSize?: 'default' | 'large';
+  
+  @property({ type: String, attribute: 'regular-font' })
+  public regularFont?: string;
+  
+  @property({ type: String, attribute: 'mono-font' })
+  public monoFont?: string;
+  
+  @property({ type: String, attribute: 'load-fonts' })
+  public loadFonts?: string;
+  
+  @property({ type: String, attribute: 'css-file' })
+  public cssFile?: string | null;
+  
+  @property({ type: String, attribute: 'css-classes' })
+  public cssClasses?: string;
+
+  // Nav Bar Colors
+  
+  @property({ type: String, attribute: 'nav-bg-color' })
+  public navBgColor?: string; 
+  
+  @property({ type: String, attribute: 'nav-text-color' })
+  public navTextColor?: string; 
+  
+  @property({ type: String, attribute: 'nav-hover-bg-color' })
+  public navHoverBgColor?: string; 
+  
+  @property({ type: String, attribute: 'nav-hover-text-color' })
+  public navHoverTextColor?: string; 
+  
+  @property({ type: String, attribute: 'nav-accent-color' })
+  public navAccentColor?: string; 
+  
+  @property({ type: String, attribute: 'nav-accent-text-color' })
+  public navAccentTextColor?: string; 
+  
+  @property({ type: String, attribute: 'nav-active-item-marker' })
+  public navActiveItemMarker?: string; 
+  
+  @property({ type: String, attribute: 'nav-item-spacing' })
+  public navItemSpacing?: 'default' | 'relaxed' | 'compact';
+  
+  @property({ type: String, attribute: 'show-method-in-nav-bar' })
+  public showMethodInNavBar?: 'false' | 'as-plain-text' | 'as-colored-text' | 'as-colored-block'; 
+  
+  @property({ type: String, attribute: 'use-path-in-nav-bar' })
+  public usePathInNavBar?: 'true' | 'false';
+  
+  @property({ type: String, attribute: 'info-description-headings-in-navbar' })
+  public infoDescriptionHeadingsInNavBar?: 'true' | 'false';
+
+  // Fetch Options
+  @property({ type: String, attribute: 'fetch-credentials' })
+  public fetchCredentials?: '' | 'omit' | 'same-origin' | 'include';
+
+  // Filters
+  @property({ type: String, attribute: 'match-paths' })
+  public matchPaths?: string;
+ 
+  @property({ type: String, attribute: 'match-type' })
+  public matchType?: string; 
+
+  // Internal Properties
+  // indicates spec is being loaded
+  
+  @property({ type: Boolean },)
+  public loading?: boolean;
+  // updating the focusedElementId will automatically render appropriate section in focused mode
+  
+  @property({ type: String },)
+  public focusedElementId?: string;
+  
+  @property({ type: Boolean })
+  public showAdvancedSearchDialog?: boolean;
+  
+  @property({ type: Array })
+  public advancedSearchMatches?: { elementId: string; method: string; path: string; summary: string; deprecated?: boolean | undefined; }[];
+  
+  // 
+  public resolvedSpec?: ResolvedSpec | null;
+  public loadFailed?: boolean;
+  public showSummaryWhenCollapsed?: boolean;
+  private isIntersectionObserverActive?: boolean;
+  private intersectionObserver?: IntersectionObserver;
+  static fontSize: string;
+  public selectedServer?: RapiDocServer;
+  public timeoutId?: ReturnType<typeof setTimeout>;
+
   constructor() {
     super();
     const intersectionObserverOptions = {
-      root: this.getRootNode().host,
+      root: (this.getRootNode() as ShadowRoot).host,
       rootMargin: '-50px 0px -50px 0px', // when the element is visible 100px from bottom
       threshold: 0,
     };
@@ -44,104 +294,7 @@ export default class RapiDoc extends LitElement {
     this.intersectionObserver = new IntersectionObserver((entries) => { this.onIntersect(entries); }, intersectionObserverOptions);
   }
 
-  static get properties() {
-    return {
-      // Heading
-      headingText: { type: String, attribute: 'heading-text' },
-      gotoPath: { type: String, attribute: 'goto-path' },
-
-      // Spec
-      updateRoute: { type: String, attribute: 'update-route' },
-      routePrefix: { type: String, attribute: 'route-prefix' },
-      specUrl: { type: String, attribute: 'spec-url' },
-      sortTags: { type: String, attribute: 'sort-tags' },
-      generateMissingTags: { type: String, attribute: 'generate-missing-tags' },
-      sortEndpointsBy: { type: String, attribute: 'sort-endpoints-by' },
-      specFile: { type: String, attribute: false },
-
-      // UI Layouts
-      layout: { type: String },
-      renderStyle: { type: String, attribute: 'render-style' },
-      defaultSchemaTab: { type: String, attribute: 'default-schema-tab' },
-      responseAreaHeight: { type: String, attribute: 'response-area-height' },
-      fillRequestFieldsWithExample: { type: String, attribute: 'fill-request-fields-with-example' },
-      persistAuth: { type: String, attribute: 'persist-auth' },
-      onNavTagClick: { type: String, attribute: 'on-nav-tag-click' },
-
-      // Schema Styles
-      schemaStyle: { type: String, attribute: 'schema-style' },
-      schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
-      schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
-      schemaHideReadOnly: { type: String, attribute: 'schema-hide-read-only' },
-      schemaHideWriteOnly: { type: String, attribute: 'schema-hide-write-only' },
-
-      // API Server
-      apiKeyName: { type: String, attribute: 'api-key-name' },
-      apiKeyLocation: { type: String, attribute: 'api-key-location' },
-      apiKeyValue: { type: String, attribute: 'api-key-value' },
-      defaultApiServerUrl: { type: String, attribute: 'default-api-server' },
-      serverUrl: { type: String, attribute: 'server-url' },
-      oauthReceiver: { type: String, attribute: 'oauth-receiver' },
-
-      // Hide/Show Sections & Enable Disable actions
-      showHeader: { type: String, attribute: 'show-header' },
-      showSideNav: { type: String, attribute: 'show-side-nav' },
-      showInfo: { type: String, attribute: 'show-info' },
-      allowAuthentication: { type: String, attribute: 'allow-authentication' },
-      allowTry: { type: String, attribute: 'allow-try' },
-      showCurlBeforeTry: { type: String, attribute: 'show-curl-before-try' },
-      allowSpecUrlLoad: { type: String, attribute: 'allow-spec-url-load' },
-      allowSpecFileLoad: { type: String, attribute: 'allow-spec-file-load' },
-      allowSpecFileDownload: { type: String, attribute: 'allow-spec-file-download' },
-      allowSearch: { type: String, attribute: 'allow-search' },
-      allowAdvancedSearch: { type: String, attribute: 'allow-advanced-search' },
-      allowServerSelection: { type: String, attribute: 'allow-server-selection' },
-      allowSchemaDescriptionExpandToggle: { type: String, attribute: 'allow-schema-description-expand-toggle' },
-      showComponents: { type: String, attribute: 'show-components' },
-      pageDirection: { type: String, attribute: 'page-direction' },
-
-      // Main Colors and Font
-      theme: { type: String },
-      bgColor: { type: String, attribute: 'bg-color' },
-      textColor: { type: String, attribute: 'text-color' },
-      headerColor: { type: String, attribute: 'header-color' },
-      primaryColor: { type: String, attribute: 'primary-color' },
-      fontSize: { type: String, attribute: 'font-size' },
-      regularFont: { type: String, attribute: 'regular-font' },
-      monoFont: { type: String, attribute: 'mono-font' },
-      loadFonts: { type: String, attribute: 'load-fonts' },
-      cssFile: { type: String, attribute: 'css-file' },
-      cssClasses: { type: String, attribute: 'css-classes' },
-
-      // Nav Bar Colors
-      navBgColor: { type: String, attribute: 'nav-bg-color' },
-      navTextColor: { type: String, attribute: 'nav-text-color' },
-      navHoverBgColor: { type: String, attribute: 'nav-hover-bg-color' },
-      navHoverTextColor: { type: String, attribute: 'nav-hover-text-color' },
-      navAccentColor: { type: String, attribute: 'nav-accent-color' },
-      navAccentTextColor: { type: String, attribute: 'nav-accent-text-color' },
-      navActiveItemMarker: { type: String, attribute: 'nav-active-item-marker' },
-      navItemSpacing: { type: String, attribute: 'nav-item-spacing' },
-      showMethodInNavBar: { type: String, attribute: 'show-method-in-nav-bar' },
-      usePathInNavBar: { type: String, attribute: 'use-path-in-nav-bar' },
-      infoDescriptionHeadingsInNavBar: { type: String, attribute: 'info-description-headings-in-navbar' },
-
-      // Fetch Options
-      fetchCredentials: { type: String, attribute: 'fetch-credentials' },
-
-      // Filters
-      matchPaths: { type: String, attribute: 'match-paths' },
-      matchType: { type: String, attribute: 'match-type' },
-
-      // Internal Properties
-      loading: { type: Boolean }, // indicates spec is being loaded
-      focusedElementId: { type: String }, // updating the focusedElementId will automatically render appropriate section in focused mode
-      showAdvancedSearchDialog: { type: Boolean },
-      advancedSearchMatches: { type: Object },
-    };
-  }
-
-  static get styles() {
+  static override get styles() {
     return [
       FontStyles,
       InputStyles,
@@ -416,7 +569,7 @@ export default class RapiDoc extends LitElement {
   }
 
   // Startup
-  connectedCallback() {
+  override connectedCallback() {
     super.connectedCallback();
     const parent = this.parentElement;
     if (parent) {
@@ -532,7 +685,7 @@ export default class RapiDoc extends LitElement {
   }
 
   // Cleanup
-  disconnectedCallback() {
+  override disconnectedCallback() {
     if (this.intersectionObserver) {
       this.intersectionObserver.disconnect();
     }
@@ -545,25 +698,25 @@ export default class RapiDoc extends LitElement {
     return renderer;
   }
 
-  render() {
+  override render() {
     // return render(mainBodyTemplate(this), this.shadowRoot, { eventContext: this });
     const cssLinkEl = document.querySelector(`link[href*="${this.cssFile}"]`);
     // adding custom style for RapiDoc
     if (cssLinkEl) {
-      this.shadowRoot.appendChild(cssLinkEl.cloneNode());
+      this.shadowRoot?.appendChild(cssLinkEl.cloneNode());
     }
     return mainBodyTemplate.call(this);
   }
 
   observeExpandedContent() {
     // Main Container
-    const observeOverviewEls = this.shadowRoot.querySelectorAll('.observe-me');
-    observeOverviewEls.forEach((targetEl) => {
-      this.intersectionObserver.observe(targetEl);
+    const observeOverviewEls = this.shadowRoot?.querySelectorAll('.observe-me');
+    observeOverviewEls?.forEach((targetEl) => {
+      this.intersectionObserver?.observe(targetEl);
     });
   }
 
-  attributeChangedCallback(name, oldVal, newVal) {
+  override attributeChangedCallback(name: string, oldVal: string | null, newVal: string | null) {
     if (name === 'spec-url') {
       if (oldVal !== newVal) {
         // put it at the end of event-loop to load all the attributes
@@ -582,14 +735,14 @@ export default class RapiDoc extends LitElement {
           this.observeExpandedContent();
         }, 100);
       } else {
-        this.intersectionObserver.disconnect();
+        this.intersectionObserver?.disconnect();
       }
     }
     if (name === 'api-key-name' || name === 'api-key-location' || name === 'api-key-value') {
       let updateSelectedApiKey = false;
-      let apiKeyName = '';
-      let apiKeyLocation = '';
-      let apiKeyValue = '';
+      let apiKeyName: string | null = '';
+      let apiKeyLocation: string | null = '';
+      let apiKeyValue: string | null = '';
 
       if (name === 'api-key-name') {
         if (this.getAttribute('api-key-location') && this.getAttribute('api-key-value')) {
@@ -616,22 +769,23 @@ export default class RapiDoc extends LitElement {
 
       if (updateSelectedApiKey) {
         if (this.resolvedSpec) {
-          const rapiDocApiKey = this.resolvedSpec.securitySchemes.find((v) => v.securitySchemeId === rapidocApiKey);
+          const rapiDocApiKey = this.resolvedSpec.securitySchemes?.find((v) => v.securitySchemeId === rapidocApiKey);
           if (!rapiDocApiKey) {
-            this.resolvedSpec.securitySchemes.push({
+            this.resolvedSpec.securitySchemes?.push({
               securitySchemeId: rapidocApiKey,
               description: 'api-key provided in rapidoc element attributes',
               type: 'apiKey',
-              name: apiKeyName,
-              in: apiKeyLocation,
-              value: apiKeyValue,
-              finalKeyValue: apiKeyValue,
+              name: apiKeyName as string,
+              in: apiKeyLocation as string,
+              value: apiKeyValue as string,
+              finalKeyValue: apiKeyValue as string,
             });
           } else {
-            rapiDocApiKey.name = apiKeyName;
-            rapiDocApiKey.in = apiKeyLocation;
-            rapiDocApiKey.value = apiKeyValue;
-            rapiDocApiKey.finalKeyValue = apiKeyValue;
+            // TODO Typescript migration check typings
+            (rapiDocApiKey as OpenAPIV3.ApiKeySecurityScheme).name = apiKeyName as string;
+            (rapiDocApiKey as OpenAPIV3.ApiKeySecurityScheme).in = apiKeyLocation as string;
+            (rapiDocApiKey as RapiDocSecurityScheme).value = apiKeyValue as string;
+            (rapiDocApiKey as RapiDocSecurityScheme).finalKeyValue = apiKeyValue as string;
           }
           this.requestUpdate();
         }
@@ -641,33 +795,33 @@ export default class RapiDoc extends LitElement {
   }
 
   onSpecUrlChange() {
-    this.setAttribute('spec-url', this.shadowRoot.getElementById('spec-url').value);
+    this.setAttribute('spec-url', (this.shadowRoot?.getElementById('spec-url') as HTMLInputElement)?.value);
   }
 
-  onSpecFileChange(e) {
-    this.setAttribute('spec-file', this.shadowRoot.getElementById('spec-file').value);
-    const specFile = e.target.files[0];
+  onSpecFileChange(e?: Event) {
+    this.setAttribute('spec-file', (this.shadowRoot?.getElementById('spec-file') as HTMLInputElement)?.value);
+    const specFile = (e?.target as HTMLInputElement).files?.[0];
     const reader = new FileReader();
     reader.onload = () => {
       try {
-        const specObj = JSON.parse(reader.result);
+        const specObj = JSON.parse(reader.result as string);
         this.loadSpec(specObj);
-        this.shadowRoot.getElementById('spec-url').value = '';
+        (this.shadowRoot?.getElementById('spec-url') as HTMLInputElement).value = '';
       } catch (err) {
         console.error('RapiDoc: Unable to read or parse json'); // eslint-disable-line no-console
       }
     };
     // Read the Text file
-    reader.readAsText(specFile);
+    reader.readAsText(specFile as File);
   }
 
   onFileLoadClick() {
-    this.shadowRoot.getElementById('spec-file').click();
+    this.shadowRoot?.getElementById('spec-file')?.click();
   }
 
-  onSearchChange(e) {
-    this.matchPaths = e.target.value;
-    this.resolvedSpec.tags.forEach((tag) => tag.paths.filter((v) => {
+  onSearchChange(e: Event) {
+    this.matchPaths = (e.target as HTMLInputElement).value;
+    this.resolvedSpec?.tags?.forEach((tag) => tag.paths.filter((v) => {
       if (this.matchPaths) {
         // v.expanded = false;
         if (pathIsInSearch(this.matchPaths, v, this.matchType)) {
@@ -675,7 +829,7 @@ export default class RapiDoc extends LitElement {
         }
       }
     }));
-    this.resolvedSpec.components.forEach((component) => component.subComponents.filter((v) => {
+    this.resolvedSpec?.components?.forEach((component) => component.subComponents.filter((v) => {
       v.expanded = false;
       if (!this.matchPaths || componentIsInSearch(this.matchPaths, v)) {
         v.expanded = true;
@@ -685,10 +839,10 @@ export default class RapiDoc extends LitElement {
   }
 
   onClearSearch() {
-    const searchEl = this.shadowRoot.getElementById('nav-bar-search');
+    const searchEl = this.shadowRoot?.getElementById('nav-bar-search') as HTMLInputElement;
     searchEl.value = '';
     this.matchPaths = '';
-    this.resolvedSpec.components.forEach((component) => component.subComponents.filter((v) => {
+    this.resolvedSpec?.components?.forEach((component) => component.subComponents.filter((v) => {
       v.expanded = true;
     }));
   }
@@ -698,7 +852,7 @@ export default class RapiDoc extends LitElement {
   }
 
   // Event Handler on Dialog-Box is opened
-  async onOpenSearchDialog(e) {
+  async onOpenSearchDialog(e: CustomEvent<HTMLElement>) {
     // Set focus to text input
     const inputEl = e.detail.querySelector('input');
     await sleep(0);
@@ -708,7 +862,7 @@ export default class RapiDoc extends LitElement {
   }
 
   // Public Method
-  async loadSpec(specUrl) {
+  async loadSpec(specUrl: string | null) {
     if (!specUrl) {
       return;
     }
@@ -726,15 +880,15 @@ export default class RapiDoc extends LitElement {
         specUrl,
         this.generateMissingTags === 'true',
         this.sortTags === 'true',
-        this.getAttribute('sort-endpoints-by'),
-        this.getAttribute('api-key-name'),
-        this.getAttribute('api-key-location'),
-        this.getAttribute('api-key-value'),
-        this.getAttribute('server-url'),
+        this.getAttribute('sort-endpoints-by') as "" | "none" | "summary" | "path" | "method" | undefined,
+        this.getAttribute('api-key-name') as string,
+        this.getAttribute('api-key-location') as string,
+        this.getAttribute('api-key-value') as string,
+        this.getAttribute('server-url') as string,
       );
       this.loading = false;
       this.afterSpecParsedAndValidated(spec);
-    } catch (err) {
+    } catch (err: any) {
       this.loading = false;
       this.loadFailed = true;
       this.resolvedSpec = null;
@@ -742,7 +896,7 @@ export default class RapiDoc extends LitElement {
     }
   }
 
-  async afterSpecParsedAndValidated(spec) {
+  async afterSpecParsedAndValidated(spec?: ResolvedSpec) {
     this.resolvedSpec = spec;
     this.selectedServer = undefined;
     if (this.defaultApiServerUrl) {
@@ -751,12 +905,12 @@ export default class RapiDoc extends LitElement {
           url: this.serverUrl,
           computedUrl: this.serverUrl,
         };
-      } else if (this.resolvedSpec.servers) {
+      } else if (this.resolvedSpec?.servers) {
         this.selectedServer = this.resolvedSpec.servers.find((v) => (v.url === this.defaultApiServerUrl));
       }
     }
     if (!this.selectedServer) {
-      if (this.resolvedSpec.servers) {
+      if (this.resolvedSpec?.servers) {
         this.selectedServer = this.resolvedSpec.servers[0]; // eslint-disable-line prefer-destructuring
       }
     }
@@ -767,7 +921,7 @@ export default class RapiDoc extends LitElement {
     this.dispatchEvent(specLoadedEvent);
 
     // Initiate IntersectionObserver and put it at the end of event loop, to allow loading all the child elements (must for larger specs)
-    this.intersectionObserver.disconnect();
+    this.intersectionObserver?.disconnect();
     if (this.renderStyle === 'read') {
       await sleep(100);
       this.observeExpandedContent(); // This will auto-highlight the selected nav-item in read-mode
@@ -780,15 +934,17 @@ export default class RapiDoc extends LitElement {
 
     if (elementId) {
       if (this.renderStyle === 'view') {
-        this.expandAndGotoOperation(elementId, true, true);
+        this.expandAndGotoOperation(elementId, true);
       } else {
         this.scrollToPath(elementId);
       }
     } else if (this.renderStyle === 'focused') {
       // If goto-path is provided and no location-hash is present then try to scroll to default element
       if (!this.gotoPath) {
-        const defaultElementId = this.showInfo ? 'overview' : this.resolvedSpec.tags[0]?.paths[0];
-        this.scrollToPath(defaultElementId);
+        const defaultElementId = this.showInfo ? 'overview' : this.resolvedSpec?.tags?.[0]?.paths[0];
+        // TODO: Typescript migration, defaultElementId might not be a string but in this case
+        //       we should refactor scrollToPath
+        this.scrollToPath(defaultElementId as string);
       }
     }
   }
@@ -800,7 +956,7 @@ export default class RapiDoc extends LitElement {
     const { href } = window.location;
 
     // Remove end of string # or /
-    const cleanRouterPrefix = this.routePrefix.replace(/(#|\/)$/, '');
+    const cleanRouterPrefix = this.routePrefix?.replace(/(#|\/)$/, '');
 
     if (!cleanRouterPrefix) {
       return href.split('#')[0];
@@ -824,12 +980,12 @@ export default class RapiDoc extends LitElement {
     return elementId;
   }
 
-  replaceHistoryState(hashId) {
+  replaceHistoryState(hashId: string) {
     const baseURL = this.getComponentBaseURL();
-    window.history.replaceState(null, null, `${baseURL}${this.routePrefix || '#'}${hashId}`);
+    window.history.replaceState(null, '', `${baseURL}${this.routePrefix || '#'}${hashId}`);
   }
 
-  expandAndGotoOperation(elementId, scrollToElement = true) {
+  expandAndGotoOperation(elementId: string, scrollToElement = true) {
     if (!this.resolvedSpec) {
       return;
     }
@@ -839,15 +995,17 @@ export default class RapiDoc extends LitElement {
     if (tmpElementId.startsWith('overview') || tmpElementId === 'servers' || tmpElementId === 'auth') {
       isExpandingNeeded = false;
     } else {
-      for (let i = 0; i < this.resolvedSpec.tags?.length; i++) {
-        const tag = this.resolvedSpec.tags[i];
-        const path = tag.paths?.find((p) => p.elementId === elementId);
+      for (let i = 0; i < (this.resolvedSpec?.tags?.length || 0); i++) {
+        const tag = this.resolvedSpec.tags?.[i];
+        const path = tag?.paths?.find((p) => p.elementId === elementId);
         if (path) {
-          if (path.expanded && tag.expanded) {
+          if (path.expanded && tag?.expanded) {
             isExpandingNeeded = false;
           } else {
             path.expanded = true;
-            tag.expanded = true;
+            if(tag) {
+              tag.expanded = true;
+            }
           }
         }
       }
@@ -858,7 +1016,7 @@ export default class RapiDoc extends LitElement {
         this.requestUpdate();
       }
       window.setTimeout(() => {
-        const gotoEl = this.shadowRoot.getElementById(tmpElementId);
+        const gotoEl = this.shadowRoot?.getElementById(tmpElementId);
         if (gotoEl) {
           gotoEl.scrollIntoView({ behavior: 'auto', block: 'start' });
           if (this.updateRoute === 'true') {
@@ -869,11 +1027,11 @@ export default class RapiDoc extends LitElement {
     }
   }
 
-  isValidTopId(id) {
+  isValidTopId(id: string) {
     return (id.startsWith('overview') || id === 'servers' || id === 'auth');
   }
 
-  isValidPathId(id) {
+  isValidPathId(id: 'overview' | 'servers' | 'auth') {
     if (id === 'overview' && this.showInfo) {
       return true;
     }
@@ -889,15 +1047,15 @@ export default class RapiDoc extends LitElement {
     return this.resolvedSpec?.tags?.find((tag) => tag.paths.find((path) => path.elementId === id));
   }
 
-  onIntersect(entries) {
+  onIntersect(entries: IntersectionObserverEntry[]) {
     if (this.isIntersectionObserverActive === false) {
       return;
     }
 
     entries.forEach((entry) => {
       if (entry.isIntersecting && entry.intersectionRatio > 0) {
-        const oldNavEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active, .operations.active');
-        const newNavEl = this.shadowRoot.getElementById(`link-${entry.target.id}`);
+        const oldNavEl = this.shadowRoot?.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active, .operations.active');
+        const newNavEl = this.shadowRoot?.getElementById(`link-${entry.target.id}`);
 
         // Add active class in the new element
         if (newNavEl) {
@@ -920,10 +1078,10 @@ export default class RapiDoc extends LitElement {
   }
 
   // Called by anchor tags created using markdown
-  handleHref(e) {
-    if (e.target.tagName.toLowerCase() === 'a') {
-      if (e.target.getAttribute('href').startsWith('#')) {
-        const gotoEl = this.shadowRoot.getElementById(e.target.getAttribute('href').replace('#', ''));
+  handleHref(e: Event) {
+    if ((e.target as HTMLElement).tagName.toLowerCase() === 'a') {
+      if ((e.target as HTMLElement).getAttribute('href')?.startsWith('#')) {
+        const gotoEl = this.shadowRoot?.getElementById((e.target as HTMLElement).getAttribute('href')?.replace('#', '') as string);
         if (gotoEl) {
           gotoEl.scrollIntoView({ behavior: 'auto', block: 'start' });
         }
@@ -942,17 +1100,17 @@ export default class RapiDoc extends LitElement {
    *  3. Activate IntersectionObserver (after little delay)
    *
   */
-  async scrollToEventTarget(event, scrollNavItemToView = true) {
-    if (!(event.type === 'click' || (event.type === 'keyup' && event.keyCode === 13))) {
+  async scrollToEventTarget(event: MouseEvent | KeyboardEvent, scrollNavItemToView = true) {
+    if (!(event.type === 'click' || (event.type === 'keyup' && (event as KeyboardEvent).keyCode === 13))) {
       return;
     }
-    const navEl = event.target;
+    const navEl = event.target as HTMLElement;
     if (!navEl.dataset.contentId) {
       return;
     }
     this.isIntersectionObserverActive = false;
     if (this.renderStyle === 'focused') {
-      const requestEl = this.shadowRoot.querySelector('api-request');
+      const requestEl = this.shadowRoot?.querySelector('api-request') as ApiRequest;
       if (requestEl) {
         requestEl.beforeNavigationFocusedMode();
       }
@@ -964,7 +1122,7 @@ export default class RapiDoc extends LitElement {
   }
 
   // Public Method (scrolls to a given path and highlights the left-nav selection)
-  async scrollToPath(elementId, expandPath = true, scrollNavItemToView = true) {
+  async scrollToPath(elementId: string, expandPath = true, scrollNavItemToView = true) {
     if (this.renderStyle === 'focused') {
       // for focused mode update this.focusedElementId to update the rendering, else it wont find the needed html elements
       // focusedElementId will get validated in the template
@@ -972,10 +1130,10 @@ export default class RapiDoc extends LitElement {
       await sleep(0);
     }
     if (this.renderStyle === 'view') {
-      this.expandAndGotoOperation(elementId, expandPath, true);
+      this.expandAndGotoOperation(elementId, expandPath);
     } else {
       let isValidElementId = false;
-      const contentEl = this.shadowRoot.getElementById(elementId);
+      const contentEl = this.shadowRoot?.getElementById(elementId);
       if (contentEl) {
         isValidElementId = true;
         contentEl.scrollIntoView({ behavior: 'auto', block: 'start' });
@@ -985,11 +1143,11 @@ export default class RapiDoc extends LitElement {
       if (isValidElementId) {
         // for focused style it is important to reset request-body-selection and response selection which maintains the state for in case of multiple req-body or multiple response mime-type
         if (this.renderStyle === 'focused') {
-          const requestEl = this.shadowRoot.querySelector('api-request');
+          const requestEl = this.shadowRoot?.querySelector('api-request') as ApiRequest;
           if (requestEl) {
             requestEl.afterNavigationFocusedMode();
           }
-          const responseEl = this.shadowRoot.querySelector('api-response');
+          const responseEl = this.shadowRoot?.querySelector('api-response') as ApiResponse;
           if (responseEl) {
             responseEl.resetSelection();
           }
@@ -1001,14 +1159,14 @@ export default class RapiDoc extends LitElement {
         }
 
         // Update NavBar View and Styles
-        const newNavEl = this.shadowRoot.getElementById(`link-${elementId}`);
+        const newNavEl = this.shadowRoot?.getElementById(`link-${elementId}`);
 
         if (newNavEl) {
           if (scrollNavItemToView) {
             newNavEl.scrollIntoView({ behavior: 'auto', block: 'center' });
           }
           await sleep(0);
-          const oldNavEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active, .operations.active');
+          const oldNavEl = this.shadowRoot?.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active, .operations.active');
           if (oldNavEl) {
             oldNavEl.classList.remove('active');
             oldNavEl.part.remove('active');
@@ -1023,12 +1181,12 @@ export default class RapiDoc extends LitElement {
   }
 
   // Public Method - to update security-scheme of type http
-  setHttpUserNameAndPassword(securitySchemeId, username, password) {
+  setHttpUserNameAndPassword(securitySchemeId: string, username: string, password: string) {
     return applyApiKey.call(this, securitySchemeId, username, password);
   }
 
   // Public Method - to update security-scheme of type apiKey or OAuth
-  setApiKey(securitySchemeId, apiKeyValue) {
+  setApiKey(securitySchemeId: string, apiKeyValue: string) {
     return applyApiKey.call(this, securitySchemeId, '', '', apiKeyValue);
   }
 
@@ -1038,24 +1196,24 @@ export default class RapiDoc extends LitElement {
   }
 
   // Public Method
-  setApiServer(apiServerUrl) {
+  setApiServer(apiServerUrl: string) {
     // return apiServerUrl;
     return setApiServer.call(this, apiServerUrl);
   }
 
   // Event handler for Advanced Search text-inputs and checkboxes
-  onAdvancedSearch(ev, delay) {
-    const eventTargetEl = ev.target;
+  onAdvancedSearch(ev: Event, delay: number) {
+    const eventTargetEl = ev.target as HTMLInputElement;
     clearTimeout(this.timeoutId);
     this.timeoutId = setTimeout(() => {
       let searchInputEl;
       if (eventTargetEl.type === 'text') {
         searchInputEl = eventTargetEl;
       } else {
-        searchInputEl = eventTargetEl.closest('.advanced-search-options').querySelector('input[type=text]');
+        searchInputEl = (eventTargetEl.closest('.advanced-search-options') as HTMLElement).querySelector('input[type=text]') as HTMLInputElement;
       }
-      const searchOptions = [...eventTargetEl.closest('.advanced-search-options').querySelectorAll('input:checked')].map((v) => v.id);
-      this.advancedSearchMatches = advancedSearch(searchInputEl.value, this.resolvedSpec.tags, searchOptions);
+      const searchOptions = [...(eventTargetEl.closest('.advanced-search-options') as HTMLElement).querySelectorAll('input:checked')].map((v) => v.id);
+      this.advancedSearchMatches = advancedSearch(searchInputEl.value, this.resolvedSpec?.tags, searchOptions);
     }, delay);
   }
 }
