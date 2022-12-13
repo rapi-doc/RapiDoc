@@ -77,7 +77,7 @@ if (process.env.NODE_ENV === 'production') {
 
 module.exports = {
   mode: 'production',
-  entry: './src/index.js',
+  entry: './src/index.ts',
   // Enable sourcemaps for debugging webpack's output.
   devtool: 'source-map',
   output: {

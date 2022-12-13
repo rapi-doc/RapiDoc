@@ -4,6 +4,7 @@
     "module": "es2020",
     "lib": ["es2020", "DOM", "DOM.Iterable"],
     "declaration": true,
+    "declarationDir": "dist/types",
     "declarationMap": true,
     "sourceMap": true,
     "inlineSources": true,
@@ -22,7 +23,7 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitOverride": true,
     "paths": {
-      "@rapidoc/*": ["./src/*"],
+      "@rapidoc-types": ["./src/types/rapidoc.d.ts"],
     },
     "plugins": [
       {

@@ -33,7 +33,6 @@
   "module": "dist/rapidoc-min.js",
   "mode": "production",
   "dependencies": {
-    "@apitools/openapi-parser": "0.0.30",
     "base64-arraybuffer": "^1.0.2",
     "buffer": "^6.0.3",
     "lit": "^2.4.1",
@@ -51,9 +50,13 @@
     "lint-fix": "./node_modules/eslint/bin/eslint.js --fix ./src/**"
   },
   "devDependencies": {
+    "@apidevtools/swagger-parser": "^10.1.0",
+    "@apitools/openapi-parser": "0.0.30",
     "@babel/core": "^7.20.5",
     "@babel/eslint-parser": "^7.19.1",
     "@babel/preset-env": "^7.20.2",
+    "@types/marked": "^4.0.7",
+    "@types/prismjs": "^1.26.0",
     "babel-loader": "^9.1.0",
     "babel-plugin-template-html-minifier": "^4.1.0",
     "clean-webpack-plugin": "^4.0.0",
@@ -68,6 +71,7 @@
     "filemanager-webpack-plugin": "^8.0.0",
     "html-webpack-plugin": "^5.5.0",
     "inspectpack": "^4.7.1",
+    "openapi-types": "^12.0.2",
     "source-map-loader": "^4.0.1",
     "style-loader": "^3.3.1",
     "terser-webpack-plugin": "^5.3.6",
