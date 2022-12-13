@@ -1,0 +1,3 @@
+import { RapiDocCallableElement, ResolvedSpec } from '../types/rapidoc';
+export default function ProcessSpec(this: RapiDocCallableElement, specUrl: string, generateMissingTags?: boolean, sortTags?: boolean, sortEndpointsBy?: 'method' | 'summary' | 'path' | 'none' | '', attrApiKey?: string, attrApiKeyLocation?: string, attrApiKeyValue?: string, serverUrl?: string): Promise<ResolvedSpec | undefined>;
+//# sourceMappingURL=spec-parser.d.ts.map

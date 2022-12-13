@@ -1,0 +1,1 @@
+{"version":3,"file":"xml-but-prettier.d.ts","sourceRoot":"","sources":["../../../src/types/xml-but-prettier.ts"],"names":[],"mappings":"AAAA,OAAO,QAAQ,kBAAkB,CAAC;IAChC,MAAM,MAAM,EAAE,CACZ,KAAK,EAAE,MAAM,EACb,OAAO,EAAE;QAAE,mBAAmB,EAAE,OAAO,CAAC;QAAC,QAAQ,EAAE,MAAM,CAAA;KAAE,KACxD,MAAM,CAAC;IACZ,eAAe,MAAM,CAAC;CACvB"}
