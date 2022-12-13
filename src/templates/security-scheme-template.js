@@ -263,13 +263,13 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
   const pkceOnly = authFlow['x-pkce-only'] || false;
   const isUrlAbsolute = (url) => (url.indexOf('://') > 0 || url.indexOf('//') === 0);
   if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
-    refreshUrl = `${this.selectedServer.computedUrl}/${refreshUrl.replace(/^\//, '')}`;
+    refreshUrl = `${this.selectedServer.baseUrl}/${refreshUrl.replace(/^\//, '')}`;
   }
   if (tokenUrl && !isUrlAbsolute(tokenUrl)) {
-    tokenUrl = `${this.selectedServer.computedUrl}/${tokenUrl.replace(/^\//, '')}`;
+    tokenUrl = `${this.selectedServer.baseUrl}/${tokenUrl.replace(/^\//, '')}`;
   }
   if (authorizationUrl && !isUrlAbsolute(authorizationUrl)) {
-    authorizationUrl = `${this.selectedServer.computedUrl}/${authorizationUrl.replace(/^\//, '')}`;
+    authorizationUrl = `${this.selectedServer.baseUrl}/${authorizationUrl.replace(/^\//, '')}`;
   }
   let flowNameDisplay;
   if (flowName === 'authorizationCode') {
@@ -340,11 +340,11 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
             <input type="text" part="textbox textbox-auth-client-id" value = "${clientId || ''}" placeholder="client-id" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} oauth-client-id">
             ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password'
               ? html`
-                <input 
-                  type="password" part="textbox textbox-auth-client-secret" 
-                  value = "${clientSecret || ''}" placeholder="client-secret" spellcheck="false" 
-                  class="oauth2 ${flowName} ${securitySchemeId} 
-                  oauth-client-secret" 
+                <input
+                  type="password" part="textbox textbox-auth-client-secret"
+                  value = "${clientSecret || ''}" placeholder="client-secret" spellcheck="false"
+                  class="oauth2 ${flowName} ${securitySchemeId}
+                  oauth-client-secret"
                   style = "margin:0 5px;${pkceOnly ? 'display:none;' : ''}"
                 >
                 <select style="margin-right:5px;${pkceOnly ? 'display:none;' : ''}" class="${flowName} ${securitySchemeId} oauth-send-client-secret-in">
