@@ -5,7 +5,9 @@ import '~/components/dialog-box';
 /* eslint-disable indent */
 export default function searchByPropertiesModalTemplate(this: RapidocElement) {
   document.addEventListener('close', () => { this.showAdvancedSearchDialog = false; });
-  document.addEventListener('open', this.onOpenSearchDialog);
+  // TODO: Typescript migration the casting is not valid and should be removed but it would provoke errors in onOpenSearchDialog
+  //       it should be refactored
+  document.addEventListener('open', event => this.onOpenSearchDialog(event as CustomEvent<HTMLElement>));
 
   return html`
     <dialog-box 
