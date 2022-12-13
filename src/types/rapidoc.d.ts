@@ -82,16 +82,7 @@ export interface ResolvedSpec {
   }[];
   externalDocs?: OpenAPIV3.ExternalDocumentationObject | undefined;
   securitySchemes?: RapiDocSecurityScheme[];
-  servers?: (OpenAPIV3.ServerObject & {
-    computedUrl?: string | undefined;
-    variables?:
-      | {
-          [variable: string]: OpenAPIV3.ServerVariableObject & {
-            value?: string | undefined;
-          };
-        }
-      | undefined;
-  })[];
+  servers?: RapiDocServer[];
 }
 
 export type RapiDocMethods =
@@ -104,7 +95,13 @@ export type RapiDocMethods =
   | 'options';
 
 export interface RapiDocCallableElement {
+  shadowRoot?: ShadowRoot | null;
   resolvedSpec?: ResolvedSpec | null;
+  selectedServer?: RapiDocServer;
+  updateRoute?: 'true' | 'false';
+  persistAuth?: 'true' | 'false';
+  allowAuthentication?: 'true' | 'false';
+  oauthReceiver?: string;
   bgColor?: string;
   textColor?: string;
   headerColor?: string;
@@ -129,15 +126,15 @@ export interface RapiDocCallableElement {
   layout?: 'row' | 'column';
   monoFont?: string;
   regularFont?: string;
-  navItemSpacing?: 'relaxed' | 'compact';
+  navItemSpacing?: 'default' | 'relaxed' | 'compact';
   responseAreaHeight?: string;
   fontSize?: 'default' | 'large';
   headingText?: string;
   allowSpecUrlLoad?: 'true' | 'false';
-  onSpecUrlChange: () => void;
+  onSpecUrlChange: (event?: Event) => void;
   specUrl?: string;
   allowSpecFileLoad?: 'true' | 'false';
-  onSpecFileChange: () => void;
+  onSpecFileChange: (event?: Event) => void;
   specFile?: string;
   onFileLoadClick: () => void;
   allowSearch?: 'true' | 'false';
@@ -147,7 +144,7 @@ export interface RapiDocCallableElement {
   allowSpecFileDownload?: 'true' | 'false';
   infoDescriptionHeadingsInNavBar?: 'true' | 'false';
 
-  onSelectExample: (
+  onSelectExample?: (
     event: Event,
     jSchemaBody: {
       elementId: string;
@@ -161,7 +158,7 @@ export interface RapiDocCallableElement {
   ) => void;
   handleHref: (event: MouseEvent) => void;
   scrollToEventTarget: (
-    event: MouseEvent,
+    event: MouseEvent | KeyboardEvent,
     scrollNavItemToView: boolean
   ) => void;
   requestUpdate: () => void;
@@ -169,50 +166,51 @@ export interface RapiDocCallableElement {
 }
 
 export interface RapidocElement extends RapiDocCallableElement {
-  shadowRoot: ShadowRoot;
-  renderStyle: string;
-  resolvedSpec: RapiDocDocument;
-  advancedSearchMatches: {
+  // resolvedSpec: RapiDocDocument;
+  advancedSearchMatches?: {
     elementId: string;
-    deprecated: boolean;
     method: string;
     path: string;
     summary: string;
+    deprecated?: boolean | undefined;
   }[];
-  matchPaths: string;
+  matchPaths?: string;
   onAdvancedSearch: (event: Event, value: number) => void;
-  onOpenSearchDialog: (event: Event) => void;
-  showAdvancedSearchDialog: boolean;
-  fillRequestFieldsWithExample: 'true' | 'false';
-  schemaStyle: 'tree' | 'table';
-  defaultSchemaTab: 'schema' | 'example';
-  schemaHideWriteOnly: 'default' | 'never';
-  schemaHideReadOnly: 'default' | 'never';
-  fetchCredentials: 'omit' | 'same-origin' | 'include';
+  onOpenSearchDialog: (event: CustomEvent<HTMLElement>) => void;
+  showAdvancedSearchDialog?: boolean;
+  fillRequestFieldsWithExample?: 'true' | 'false';
+  schemaStyle?: 'tree' | 'table';
+  defaultSchemaTab?: 'schema' | 'model' | 'example';
+  schemaHideWriteOnly?: 'default' | 'never';
+  schemaHideReadOnly?: 'default' | 'never';
+  fetchCredentials?: '' | 'omit' | 'same-origin' | 'include';
   replaceHistoryState: (value: string) => void;
-  updateRoute: 'true' | 'false';
-  routePrefix: string;
-  selectedServer: RapiDocServer;
-  persistAuth: 'true' | 'false';
-  oauthReceiver: string;
-  allowAuthentication: 'true' | 'false';
-  showSummaryWhenCollapsed: boolean;
-  allowTry: 'true' | 'false';
-  showCurlBeforeTry: 'true' | 'false';
-  matchType: string;
+  updateRoute?: 'true' | 'false';
+  routePrefix?: string;
+  selectedServer?: RapiDocServer;
+  persistAuth?: 'true' | 'false';
+  allowAuthentication?: 'true' | 'false';
+  showSummaryWhenCollapsed?: boolean;
+  allowTry?: 'true' | 'false';
+  showCurlBeforeTry?: 'true' | 'false';
+  matchType?: string;
   onClearSearch: (event: MouseEvent) => void;
-  navActiveItemMarker: string;
-  allowServerSelection: 'true' | 'false';
-  onNavTagClick: 'show-description' | 'expand-collapse';
-  usePathInNavBar: 'true' | 'false';
-  showMethodInNavBar: 'as-colored-block';
-  showComponents: 'true' | 'false';
-  focusedElementId: string;
-  showSideNav: 'true' | 'false';
+  navActiveItemMarker?: string;
+  allowServerSelection?: 'true' | 'false';
+  onNavTagClick?: 'show-description' | 'expand-collapse';
+  usePathInNavBar?: 'true' | 'false';
+  showMethodInNavBar?:
+    | 'false'
+    | 'as-plain-text'
+    | 'as-colored-text'
+    | 'as-colored-block';
+  showComponents?: 'true' | 'false';
+  focusedElementId?: string;
+  showSideNav?: 'true' | 'false';
 }
 
-export interface RapiDocJSONSchemaViewerElement extends RapiDocCallableElement {
-}
+export interface RapiDocJSONSchemaViewerElement
+  extends RapiDocCallableElement {}
 
 export interface DocumentModifiedByRapiDoc<T extends {} = {}>
   extends OpenAPIV3.Document {
@@ -239,13 +237,14 @@ export interface DocumentModifiedByRapiDoc<T extends {} = {}>
 }
 
 export interface RapiDocServer extends OpenAPIV3.ServerObject {
-  computedUrl?: string;
-  variables?: {
-    [variable: string]: OpenAPIV3.ServerVariableObject & {
-      default: string;
-      value: string;
-    };
-  };
+  computedUrl?: string | undefined;
+  variables?:
+    | {
+        [variable: string]: OpenAPIV3.ServerVariableObject & {
+          value?: string | undefined;
+        };
+      }
+    | undefined;
 }
 
 export interface RapiDocXCodeSample {
