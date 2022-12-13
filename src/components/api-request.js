@@ -201,6 +201,10 @@ export default class ApiRequest extends LitElement {
           opacity: 1;
         }
 
+        .request-body-container {
+          overflow: auto;
+        }
+
         @media only screen and (min-width: 768px) {
           .textarea {
             padding:8px;
@@ -219,14 +223,19 @@ export default class ApiRequest extends LitElement {
 
   render() {
     return html`
-    <div class="col regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'}">
-      <div>
+    <div class="row-api regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'}">
+      <div class="row-api-left">
         ${guard([this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('path'))}
         ${guard([this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('query'))}
         ${this.requestBodyTemplate()}
         ${guard([this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('header'))}
         ${guard([this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('cookie'))}
         ${this.allowTry === 'false' ? '' : html`${this.apiCallTemplate()}`}
+      </div>
+      <div class="row-api-right">
+        ${securitySchemeTemplate.call(this)}
+        ${serverTemplate.call(this)}
+        ${this.responseMessage === '' ? '' : this.apiResponseTabTemplate()}
       </div>  
     </div>
     `;
@@ -1053,9 +1062,6 @@ export default class ApiRequest extends LitElement {
       }
       <button class="m-btn primary thin-border" part="btn btn-try" @click="${this.onTryClick}">TRY</button>
     </div>
-    ${securitySchemeTemplate.call(this)}
-    ${serverTemplate.call(this)}
-    ${this.responseMessage === '' ? '' : this.apiResponseTabTemplate()}
     `;
   }
   /* eslint-enable indent */

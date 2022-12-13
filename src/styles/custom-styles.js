@@ -123,7 +123,7 @@ export default css`
 }
 
 .header-auth-input {
-  width: 535px;
+  width: 100%;
   height: 44px;
 }
 

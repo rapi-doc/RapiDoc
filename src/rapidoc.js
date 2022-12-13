@@ -169,6 +169,7 @@ export default class RapiDoc extends LitElement {
         height:100%;
         width:100%;
         overflow:hidden;
+        max-width: 2087px;
       }
 
       .main-content { 
@@ -379,6 +380,13 @@ export default class RapiDoc extends LitElement {
         .endpoint-body {
           position: relative;
           padding:36px 0 48px 0;
+        }
+      }
+
+      @media (min-width: 2560px) {
+        .body {
+          padding-left: 316px;
+          padding-right: 221px;
         }
       }
 
