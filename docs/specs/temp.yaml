@@ -14,6 +14,25 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/test"
+  /foo:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: 
+                type: integer
+              patternProperties:
+                S_: 
+                  type: integer
+              properties:
+                foo:
+                  type: string
+                  format: date-time
+                  required: true
+            example:
+              foo: "2025-11-18T12:59:50.033Z"
 components:
   schemas:
     category:

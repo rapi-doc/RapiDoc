@@ -90,9 +90,5 @@ export declare function generateExample(schema: RapiDocSchema, mimeType: string,
     exampleFormat: string;
     exampleValue: string;
 })[];
-export declare function getSchemaFromParam(param: OpenAPIV3.ParameterObject): [RapiDocSchema, null, null] | [
-    RapiDocSchema,
-    string | null,
-    OpenAPIV3.MediaTypeObject | null
-] | [null, null, null];
+export declare function getSchemaFromParam(param: OpenAPIV3.ParameterObject): [RapiDocSchema, null, null] | [RapiDocSchema, string | null, OpenAPIV3.MediaTypeObject | null] | [null, null, null];
 //# sourceMappingURL=schema-utils.d.ts.map

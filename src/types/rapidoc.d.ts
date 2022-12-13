@@ -212,8 +212,9 @@ export interface RapiDocElement extends RapiDocCallableElement {
 export interface RapiDocJSONSchemaViewerElement
   extends RapiDocCallableElement {}
 
-export interface DocumentModifiedByRapiDoc<T extends RapiDocExtraOperation = RapiDocExtraOperation>
-  extends OpenAPIV3.Document {
+export interface DocumentModifiedByRapiDoc<
+  T extends RapiDocExtraOperation = RapiDocExtraOperation
+> extends OpenAPIV3.Document {
   servers?: (OpenAPIV3.ServerObject & {
     computedUrl?: string;
     variables?: {
@@ -359,9 +360,12 @@ export type RapiDocSchema = OpenAPIV3.SchemaObject & {
   enum?: boolean;
   format?: string;
   examples?: {
-      [media: string]: OpenAPIV3.ReferenceObject | OpenAPIV3.ExampleObject;
+    [media: string]: OpenAPIV3.ReferenceObject | OpenAPIV3.ExampleObject;
   };
   items?: RapiDocSchema;
+  patternProperties?: {
+    [key: string]: RapiDocSchema;
+  };
   type?: 'boolean' | 'object' | 'number' | 'string' | 'integer' | string;
 };
 

@@ -1,4 +1,8 @@
-import type { RapiDocExamples, RapiDocObj, RapiDocSchema } from '@rapidoc-types';
+import type {
+  RapiDocExamples,
+  RapiDocObj,
+  RapiDocSchema,
+} from '@rapidoc-types';
 import type { OpenAPIV3 } from 'openapi-types';
 
 // Takes a value as input and provides a printable string to represent null values, spaces, blank string etc
@@ -195,7 +199,9 @@ export function getTypeInfo(schema: OpenAPIV3.ReferenceObject | RapiDocSchema) {
   return info;
 }
 
-export function nestExampleIfPresent(example?: boolean | number | string | undefined | any) {
+export function nestExampleIfPresent(
+  example?: boolean | number | string | undefined | any
+) {
   if (typeof example === 'boolean' || typeof example === 'number') {
     return {
       Example: { value: `${example}` },
@@ -209,7 +215,6 @@ export function nestExampleIfPresent(example?: boolean | number | string | undef
   return example ? { Example: { value: example } } : example;
 }
 
-
 export interface NormalizedExample {
   value: string | OpenAPIV3.ExampleObject;
   printableValue: string;
@@ -219,7 +224,7 @@ export interface NormalizedExample {
 
 export interface NormalizedExamples {
   exampleVal: string | OpenAPIV3.ExampleObject;
-  exampleList: NormalizedExample[]
+  exampleList: NormalizedExample[];
 }
 
 /**
@@ -235,7 +240,9 @@ export interface NormalizedExamples {
  *  }]
  * */
 export function normalizeExamples(
-  examples: OpenAPIV3.MediaTypeObject['example'] | OpenAPIV3.MediaTypeObject['examples'],
+  examples:
+    | OpenAPIV3.MediaTypeObject['example']
+    | OpenAPIV3.MediaTypeObject['examples'],
   dataType = 'string'
 ): NormalizedExamples {
   if (!examples) {
@@ -458,9 +465,9 @@ json2xml- TestCase
   <root>
     <prop1>simple</prop1>
     <prop2>
-      <0> a </0>
-      <1> b </1>
-      <2> c </2>
+      <0>a</0>
+      <1>b</1>
+      <2>c</2>
     </prop2>
     <prop3>
       <ob1>val-1</ob1>
@@ -920,7 +927,10 @@ export interface ObjectNotationSchema {
   '::ONE~OF'?: ObjectNotationSchema;
   [key: `::ANY~OF ${string}`]: ObjectNotationSchema | undefined | string;
   [key: `::ONE~OF ${string}`]: ObjectNotationSchema | undefined | string;
-  [key: `::OPTION~${number}${string}`]: ObjectNotationSchema | undefined | string;
+  [key: `::OPTION~${number}${string}`]:
+    | ObjectNotationSchema
+    | undefined
+    | string;
   [key: `${string}*`]: ObjectNotationSchema | undefined | string;
   [key: string]: ObjectNotationSchema | undefined | string | boolean;
 }
@@ -1009,13 +1019,16 @@ export function schemaInObjectNotation(
         v.anyOf ||
         v.oneOf
       ) {
-        const partialObj: ReturnType<typeof schemaInObjectNotation> = schemaInObjectNotation(v, {});
+        const partialObj: ReturnType<typeof schemaInObjectNotation> =
+          schemaInObjectNotation(v, {});
         objWithAnyOfProps[
           `::OPTION~${index + 1}${v.title ? `~${v.title}` : ''}`
         ] = partialObj;
-        (objWithAnyOfProps[
-          `::OPTION~${index + 1}${v.title ? `~${v.title}` : ''}`
-        ] as ObjectNotationSchema)['::readwrite'] = ''; // xxx-options cannot be read or write only
+        (
+          objWithAnyOfProps[
+            `::OPTION~${index + 1}${v.title ? `~${v.title}` : ''}`
+          ] as ObjectNotationSchema
+        )['::readwrite'] = ''; // xxx-options cannot be read or write only
         objWithAnyOfProps['::type'] = 'xxx-of-option';
       } else if (v.type === 'array' || v.items) {
         // This else-if block never seems to get executed
@@ -1023,9 +1036,11 @@ export function schemaInObjectNotation(
         objWithAnyOfProps[
           `::OPTION~${index + 1}${v.title ? `~${v.title}` : ''}`
         ] = partialObj;
-        (objWithAnyOfProps[
-          `::OPTION~${index + 1}${v.title ? `~${v.title}` : ''}`
-        ] as ObjectNotationSchema)['::readwrite'] = ''; // xxx-options cannot be read or write only
+        (
+          objWithAnyOfProps[
+            `::OPTION~${index + 1}${v.title ? `~${v.title}` : ''}`
+          ] as ObjectNotationSchema
+        )['::readwrite'] = ''; // xxx-options cannot be read or write only
         objWithAnyOfProps['::type'] = 'xxx-of-array';
       } else {
         const prop = `::OPTION~${index + 1}${v.title ? `~${v.title}` : ''}`;
@@ -1162,8 +1177,15 @@ export function schemaInObjectNotation(
         );
       }
     }
+    for (const key in schema.patternProperties) {
+      obj[`[pattern: ${key}]`] = schemaInObjectNotation(
+        schema.patternProperties[key],
+        obj,
+        level + 1
+      );
+    }
     if (schema.additionalProperties) {
-      obj['<any-key>'] = schemaInObjectNotation(
+      obj['[any-key]'] = schemaInObjectNotation(
         schema.additionalProperties as RapiDocSchema,
         {}
       );
@@ -1410,8 +1432,12 @@ function getSerializeStyleForContentType(contentType: string) {
   return null;
 }
 
-export function getSchemaFromParam(param: OpenAPIV3.ParameterObject): [RapiDocSchema, null, null] |
-[RapiDocSchema, string | null, OpenAPIV3.MediaTypeObject | null] | [null, null, null] {
+export function getSchemaFromParam(
+  param: OpenAPIV3.ParameterObject
+):
+  | [RapiDocSchema, null, null]
+  | [RapiDocSchema, string | null, OpenAPIV3.MediaTypeObject | null]
+  | [null, null, null] {
   if (param.schema) {
     return [param.schema as RapiDocSchema, null, null];
   }
