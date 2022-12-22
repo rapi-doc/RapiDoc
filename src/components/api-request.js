@@ -476,10 +476,6 @@ export default class ApiRequest extends LitElement {
               link: '.',
             },
             {
-              title: 'Authentication',
-              link: '.',
-            },
-            {
               title,
               link: '.',
             },
@@ -954,10 +950,12 @@ export default class ApiRequest extends LitElement {
 
     Prism.plugins.customClass.map((className, language) => `${language}-${className}`);
     return html`
-      <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
-        <div style="flex:1"></div>
-        <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
-      </div>
+      <!--
+        <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
+          <div style="flex:1"></div>
+          <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
+        </div>
+      -->
       <div class="tab-panel col" style="border-top: 1px solid #E7E9EE; border-bottom: 1px solid #E7E9EE;">
         <div class="tab-content col m-markdown" style="flex:1; display:flex; margin: 0;">
           <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.curlSyntax.replace(/\\$/, ''), e); }}' part="btn btn-fill"> Copy </button>
@@ -1049,7 +1047,7 @@ export default class ApiRequest extends LitElement {
           }
         </div>
       </div>
-      ${
+      <!-- ${
         this.parameters.length > 0 || this.request_body
           ? html`
             <button class="m-btn thin-border" part="btn btn-outline btn-fill" style="margin-right:5px;" @click="${this.onFillRequestData}" title="Fills with example data (if provided)">
@@ -1059,8 +1057,9 @@ export default class ApiRequest extends LitElement {
               CLEAR
             </button>`
           : ''
-      }
+      } 
       <button class="m-btn primary thin-border" part="btn btn-try" @click="${this.onTryClick}">TRY</button>
+      -->
     </div>
     `;
   }

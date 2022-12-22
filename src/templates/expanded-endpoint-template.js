@@ -71,7 +71,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
         <slot name="${path.elementId}"></slot>`
       }
       ${path.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(path.description))}</div>` : ''}
-      ${pathSecurityTemplate.call(this, path.security)}
+      <!-- ${pathSecurityTemplate.call(this, path.security)} -->
       ${codeSampleTabPanel}
       <div class='expanded-req-resp-container'>
         <api-request
