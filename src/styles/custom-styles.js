@@ -67,7 +67,8 @@ export default css`
   justify-content: space-between;
   align-items: stretch;
   width: auto;
-  height: 28px;
+  height: max-content;
+  min-height: 28px;
   left: 0;
   top: 0;
   border: 1px solid var(--border-color);
@@ -125,6 +126,10 @@ export default css`
 .header-auth-input {
   width: 100%;
   height: 44px;
+}
+
+#copy-baseURL {
+  height: 42px;
 }
 
 `;
