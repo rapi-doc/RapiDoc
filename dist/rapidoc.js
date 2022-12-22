@@ -4142,7 +4142,8 @@ customize their theme. Simply add your css to this file and yarn build.
   justify-content: space-between;
   align-items: stretch;
   width: auto;
-  height: 28px;
+  height: max-content;
+  min-height: 28px;
   left: 0;
   top: 0;
   border: 1px solid var(--border-color);
@@ -4200,6 +4201,10 @@ customize their theme. Simply add your css to this file and yarn build.
 .header-auth-input {
   width: 100%;
   height: 44px;
+}
+
+#copy-baseURL {
+  height: 42px;
 }
 
 `);
@@ -29913,9 +29918,11 @@ function securitySchemeTemplate() {
                 ` : ''}
           `)}
         </div>` : ''}
-    <button class='test-method-button' @click='${this.onTryClick}' >
-      TEST METHOD
-    </button>
+    <!--
+      <button class='test-method-button' @click='${this.onTryClick}' >
+        TEST METHOD
+      </button>
+    -->
     <slot name="auth">
     </slot>
   </section>
@@ -31020,7 +31027,7 @@ class Breadcrumbs extends lit_element_s {
             </svg>
           ` : ''}
 
-          <a class='header' href=${header.link}>${header.title}</a>
+          <span class='header'>${header.title}</span>
         `)}
       </div>
     `;
@@ -31688,9 +31695,6 @@ class ApiRequest extends lit_element_s {
       title: this.schemaShortSummary,
       link: '.'
     }, {
-      title: 'Authentication',
-      link: '.'
-    }, {
       title,
       link: '.'
     }]}
@@ -32138,10 +32142,12 @@ class ApiRequest extends lit_element_s {
     };
     prism_core_default().plugins.customClass.map((className, language) => `${language}-${className}`);
     return $`
-      <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
-        <div style="flex:1"></div>
-        <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
-      </div>
+      <!--
+        <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
+          <div style="flex:1"></div>
+          <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
+        </div>
+      -->
       <div class="tab-panel col" style="border-top: 1px solid #E7E9EE; border-bottom: 1px solid #E7E9EE;">
         <div class="tab-content col m-markdown" style="flex:1; display:flex; margin: 0;">
           <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${e => {
@@ -32225,14 +32231,15 @@ class ApiRequest extends lit_element_s {
                   </div>` : $`<div class="gray-text">Required  <span style="color:var(--red)">(None Applied)</span>`}` : $`<span class="gray-text"> Not Required </span>`}
         </div>
       </div>
-      ${this.parameters.length > 0 || this.request_body ? $`
+      <!-- ${this.parameters.length > 0 || this.request_body ? $`
             <button class="m-btn thin-border" part="btn btn-outline btn-fill" style="margin-right:5px;" @click="${this.onFillRequestData}" title="Fills with example data (if provided)">
               FILL EXAMPLE
             </button>
             <button class="m-btn thin-border" part="btn btn-outline btn-clear" style="margin-right:5px;" @click="${this.onClearRequestData}">
               CLEAR
-            </button>` : ''}
+            </button>` : ''} 
       <button class="m-btn primary thin-border" part="btn btn-try" @click="${this.onTryClick}">TRY</button>
+      -->
     </div>
     `;
   }
@@ -33700,13 +33707,13 @@ class ContentCopyButton extends lit_element_s {
                 gap: 10px;
                 width: 57px;
                 height: 20px;
-                background: linear-gradient(270deg, #FFFFFF 51.22%, rgba(255, 255, 255, 0) 104.88%);
             }
 
             span {
                 flex: 0 0 auto;
-                width: 100%;
-                padding: 4px 8px;
+                width: calc(100% - 28px);
+                padding: 4px 20px 4px 8px;
+                word-break: break-word;
             }
 
             span:hover {
@@ -33949,7 +33956,7 @@ function expandedEndpointBodyTemplate(path, tagName = '') {
           `}
         <slot name="${path.elementId}"></slot>`}
       ${path.description ? $`<div class="m-markdown"> ${unsafe_html_o(marked(path.description))}</div>` : ''}
-      ${pathSecurityTemplate.call(this, path.security)}
+      <!-- ${pathSecurityTemplate.call(this, path.security)} -->
       ${codeSampleTabPanel}
       <div class='expanded-req-resp-container'>
         <api-request
@@ -41940,7 +41947,7 @@ Prism.languages.py = Prism.languages.python;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("fa1822d5acb8b680c254")
+/******/ 		__webpack_require__.h = () => ("3eb3c449ab1d10a73d77")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
