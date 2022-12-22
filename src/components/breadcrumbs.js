@@ -69,7 +69,7 @@ export default class Breadcrumbs extends LitElement {
             </svg>
           ` : ''}
 
-          <a class='header' href=${header.link}>${header.title}</a>
+          <span class='header'>${header.title}</span>
         `)}
       </div>
     `;
