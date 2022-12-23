@@ -31472,7 +31472,7 @@ class ApiRequest extends lit_element_s {
       <div class="row-api-right">
         ${securitySchemeTemplate.call(this)}
         ${serverTemplate.call(this)}
-        ${this.responseMessage === '' ? '' : this.apiResponseTabTemplate()}
+        ${this.apiResponseTabTemplate()}
       </div>  
     </div>
     `;
@@ -31512,7 +31512,7 @@ class ApiRequest extends lit_element_s {
             data-example-type="${paramType === 'array' ? paramType : 'string'}"
             data-example = "${v.value && Array.isArray(v.value) ? (_v$value = v.value) === null || _v$value === void 0 ? void 0 : _v$value.join('~|~') : v.value || ''}"
             @click="${e => {
-        const inputEl = e.target.closest('table').querySelector(`[data-pname="${paramName}"]`);
+        const inputEl = e.target.closest('div').querySelector(`[data-pname="${paramName}"]`);
 
         if (inputEl) {
           if (e.target.dataset.exampleType === 'array') {
@@ -31520,6 +31520,9 @@ class ApiRequest extends lit_element_s {
           } else {
             inputEl.value = e.target.dataset.example;
           }
+
+          updateCurl.call(this, inputEl);
+          this.requestUpdate();
         }
       }}"
           >
@@ -32087,7 +32090,7 @@ class ApiRequest extends lit_element_s {
                             data-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}"
                             data-enum="${v.trim()}"
                             @click="${e => {
-          const inputEl = e.target.closest('table').querySelector(`[data-pname="${fieldName}"]`);
+          const inputEl = e.target.closest('div').querySelector(`[data-pname="${fieldName}"]`);
 
           if (inputEl) {
             if (e.target.dataset.type === 'array') {
@@ -32095,6 +32098,9 @@ class ApiRequest extends lit_element_s {
             } else {
               inputEl.value = e.target.dataset.enum;
             }
+
+            updateCurl.call(this, inputEl);
+            this.requestUpdate();
           }
         }}"
                           > 
@@ -32217,6 +32223,9 @@ class ApiRequest extends lit_element_s {
         this.onTryClick(this.renderRoot.host.shadowRoot.children[0]);
       });
       this.resultLoad = true;
+    } else {
+      const el = this.renderRoot.host.shadowRoot.children[0];
+      updateCurl.call(this, el.target ? el.target : el);
     }
 
     return $`
@@ -41949,7 +41958,7 @@ Prism.languages.py = Prism.languages.python;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("5edfb953ba6212b13d03")
+/******/ 		__webpack_require__.h = () => ("18f7920ca9b3e14a014d")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
