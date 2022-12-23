@@ -235,7 +235,7 @@ export default class ApiRequest extends LitElement {
       <div class="row-api-right">
         ${securitySchemeTemplate.call(this)}
         ${serverTemplate.call(this)}
-        ${this.responseMessage === '' ? '' : this.apiResponseTabTemplate()}
+        ${this.apiResponseTabTemplate()}
       </div>  
     </div>
     `;
@@ -273,13 +273,16 @@ export default class ApiRequest extends LitElement {
             data-example-type="${paramType === 'array' ? paramType : 'string'}"
             data-example = "${v.value && Array.isArray(v.value) ? (v.value?.join('~|~')) : (v.value || '')}"
             @click="${(e) => {
-              const inputEl = e.target.closest('table').querySelector(`[data-pname="${paramName}"]`);
+              const inputEl = e.target.closest('div').querySelector(`[data-pname="${paramName}"]`);
               if (inputEl) {
                 if (e.target.dataset.exampleType === 'array') {
                   inputEl.value = e.target.dataset.example.split('~|~');
                 } else {
                   inputEl.value = e.target.dataset.example;
                 }
+
+                updateCurl.call(this, inputEl);
+                this.requestUpdate();
               }
             }
           }"
@@ -886,13 +889,16 @@ export default class ApiRequest extends LitElement {
                             data-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}"
                             data-enum="${v.trim()}"
                             @click="${(e) => {
-                              const inputEl = e.target.closest('table').querySelector(`[data-pname="${fieldName}"]`);
+                              const inputEl = e.target.closest('div').querySelector(`[data-pname="${fieldName}"]`);
                               if (inputEl) {
                                 if (e.target.dataset.type === 'array') {
                                   inputEl.value = [e.target.dataset.enum];
                                 } else {
                                   inputEl.value = e.target.dataset.enum;
                                 }
+
+                                updateCurl.call(this, inputEl);
+                                this.requestUpdate();
                               }
                             }}"
                           > 
@@ -1024,6 +1030,9 @@ export default class ApiRequest extends LitElement {
     if (!this.resultLoad) {
       this.updateComplete.then(() => { this.onTryClick(this.renderRoot.host.shadowRoot.children[0]); });
       this.resultLoad = true;
+    } else {
+      const el = this.renderRoot.host.shadowRoot.children[0];
+      updateCurl.call(this, el.target ? el.target : el);
     }
 
     return html`
