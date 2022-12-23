@@ -32155,6 +32155,7 @@ class ApiRequest extends lit_element_s {
     }}' part="btn btn-fill"> Copy </button>
           <pre class="code-container" style="white-space:pre;border: none;"><code>${unsafe_html_o(prism_core_default().highlight(this.curlSyntax.trim().replace(/\\$/, ''), (prism_core_default()).languages.shell, 'shell'))}</code></pre>
         </div>
+        <!--
         <div style="background: #F8F7FC; padding-inline: 32px;padding-block: 16px">
           <div class="row" style="width:100%; height:20px; background:#E7E9EE; border-radius:2px;padding-inline:4px;margin-bottom:4px">
             <div style="width:8px;height:8px;border-radius:50%;${this.responseBlobUrl || this.responseText ? 'border: 1px solid #79A479;background: #E6F2E6;' : 'border: 1px solid #DC4C43;background: #F0E6E4;'}"></div>
@@ -32180,6 +32181,7 @@ class ApiRequest extends lit_element_s {
               </div>` : ''} 
               `}
         </div>
+        -->
       </div>`;
   }
 
@@ -41947,7 +41949,7 @@ Prism.languages.py = Prism.languages.python;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("3eb3c449ab1d10a73d77")
+/******/ 		__webpack_require__.h = () => ("5edfb953ba6212b13d03")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
