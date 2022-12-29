@@ -18859,9 +18859,9 @@ json2xml- TestCase
   <root>
     <prop1>simple</prop1>
     <prop2>
-      <0> a </0>
-      <1> b </1>
-      <2> c </2>
+      <0>a</0>
+      <1>b</1>
+      <2>c</2>
     </prop2>
     <prop3>
       <ob1>val-1</ob1>
@@ -21469,40 +21469,42 @@ let ApiRequest = class ApiRequest extends lit_element_s {
         <div style="flex:1"></div>
         <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
       </div>
-      <div class="tab-panel col" style="border-width:0 0 1px 0;">
-        <div id="tab_buttons" class="tab-buttons row" @click="${(e) => {
+      ${this.responseStatus !== 'success' ? '' : `
+        <div class="tab-panel col" style="border-width:0 0 1px 0;">
+          <div id="tab_buttons" class="tab-buttons row" @click="${(e) => {
             if (e.target.classList.contains('tab-btn') === false) {
                 return;
             }
             this.activeResponseTab = e.target.dataset.tab;
         }}">
-          <button class="tab-btn ${this.activeResponseTab === 'response' ? 'active' : ''}" data-tab = 'response' > RESPONSE</button>
-          <button class="tab-btn ${this.activeResponseTab === 'headers' ? 'active' : ''}"  data-tab = 'headers' > RESPONSE HEADERS</button>
-          ${this.showCurlBeforeTry === 'true'
+            <button class="tab-btn ${this.activeResponseTab === 'response' ? 'active' : ''}" data-tab = 'response' > RESPONSE</button>
+            <button class="tab-btn ${this.activeResponseTab === 'headers' ? 'active' : ''}"  data-tab = 'headers' > RESPONSE HEADERS</button>
+            ${this.showCurlBeforeTry === 'true'
             ? ''
             : y `<button class="tab-btn ${this.activeResponseTab === 'curl' ? 'active' : ''}" data-tab = 'curl'>CURL</button>`}
-        </div>
-        ${this.responseIsBlob
+          </div>
+          ${this.responseIsBlob
             ? y `
-            <div class="tab-content col" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};">
-              <button class="m-btn thin-border mar-top-8" style="width:135px" @click='${() => { downloadResource(this.responseBlobUrl, this.respContentDisposition); }}' part="btn btn-outline">
-                DOWNLOAD
-              </button>
-              ${this.responseBlobType === 'view'
+              <div class="tab-content col" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};">
+                <button class="m-btn thin-border mar-top-8" style="width:135px" @click='${() => { downloadResource(this.responseBlobUrl, this.respContentDisposition); }}' part="btn btn-outline">
+                  DOWNLOAD
+                </button>
+                ${this.responseBlobType === 'view'
                 ? y `<button class="m-btn thin-border mar-top-8" style="width:135px"  @click='${() => { viewResource(this.responseBlobUrl); }}' part="btn btn-outline">VIEW (NEW TAB)</button>`
                 : ''}
-            </div>`
+              </div>`
             : y `
-            <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};" >
-              <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.responseText, e); }}' part="btn btn-fill"> Copy </button>
-              <pre style="white-space:pre; min-height:50px; height:var(--resp-area-height, 400px); resize:vertical; overflow:auto">${responseContent}</pre>
-            </div>`}
-        <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};" >
-          <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.responseHeaders, e); }}' part="btn btn-fill"> Copy </button>
-          <pre style="white-space:pre"><code>${unsafe_html_o(prism_default().highlight(this.responseHeaders, (prism_default()).languages.css, 'css'))}</code></pre>
+              <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};" >
+                <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.responseText, e); }}' part="btn btn-fill"> Copy </button>
+                <pre style="white-space:pre; min-height:50px; height:var(--resp-area-height, 400px); resize:vertical; overflow:auto">${responseContent}</pre>
+              </div>`}
+          <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};" >
+            <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.responseHeaders, e); }}' part="btn btn-fill"> Copy </button>
+            <pre style="white-space:pre"><code>${unsafe_html_o(prism_default().highlight(this.responseHeaders, (prism_default()).languages.css, 'css'))}</code></pre>
+          </div>
+          ${this.showCurlBeforeTry === 'true' ? '' : this.curlSyntaxTemplate(this.activeResponseTab === 'curl' ? 'flex' : 'none')}
         </div>
-        ${this.showCurlBeforeTry === 'true' ? '' : this.curlSyntaxTemplate(this.activeResponseTab === 'curl' ? 'flex' : 'none')}
-      </div>`;
+      `}`;
     }
     apiCallTemplate() {
         var _a, _b, _c, _d;
@@ -21973,6 +21975,7 @@ let ApiRequest = class ApiRequest extends lit_element_s {
         }
         catch (err) {
             tryBtnEl.disabled = false;
+            this.responseStatus = 'error';
             if (err.name === 'AbortError') {
                 this.dispatchEvent(new CustomEvent('request-aborted', {
                     bubbles: true,
@@ -22630,7 +22633,6 @@ let ApiResponse = class ApiResponse extends lit_element_s {
     constructor() {
         super(...arguments);
         this.selectedStatus = '';
-        this.selectedMimeType = 'json';
         this.activeSchemaTab = 'schema';
         this.headersForEachRespStatus = {};
         this.mimeResponsesForEachStatus = {};
@@ -26723,7 +26725,7 @@ JsonSchemaViewer = json_schema_viewer_decorate([
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("4af79c96c31039be1dae")
+/******/ 		__webpack_require__.h = () => ("cd4abf5dda7ccf2dac90")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

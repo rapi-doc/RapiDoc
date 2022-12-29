@@ -23,7 +23,7 @@ export default class ApiRequest extends LitElement {
     responseMessage: string | TemplateResult<1>;
     responseText: string;
     responseHeaders: string;
-    responseStatus: string;
+    responseStatus: 'success' | 'error';
     responseUrl: string;
     curlSyntax: string;
     fillRequestFieldsWithExample?: string;
