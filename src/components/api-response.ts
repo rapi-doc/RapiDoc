@@ -42,7 +42,7 @@ export default class ApiResponse extends LitElement {
   public selectedStatus: string = '';
   
   @property({ type: String, attribute: 'selected-mime-type' })
-  public selectedMimeType?: string = 'json';
+  public selectedMimeType?: string;
   
   @property({ type: String, attribute: 'active-schema-tab' })
   public activeSchemaTab: 'example' | 'schema' = 'schema';
