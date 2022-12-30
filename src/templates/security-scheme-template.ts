@@ -559,7 +559,7 @@ export function pathSecurityTemplate(this: RapiDocCallableElement, pathSecurity:
         });
       }
     });
-    return html`<div style="position:absolute; top:3px; right:2px; font-size:var(--font-size-small); line-height: 1.5;">
+    return html`<div class="security-scheme" style="position:absolute; top:3px; right:2px; font-size:var(--font-size-small); line-height: 1.5;">
       <div style="position:relative; display:flex; min-width:350px; max-width:700px; justify-content: flex-end;">
         <svg width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" fill="none" style="stroke:var(--fg3)"> <rect x="5" y="11" width="14" height="10" rx="2" /> <circle cx="12" cy="16" r="1" /> <path d="M8 11v-4a4 4 0 0 1 8 0v4" /></svg>
           ${orSecurityKeys1.map((orSecurityItem1, i) => html`

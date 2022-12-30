@@ -8911,7 +8911,7 @@ var prism_csharp = __webpack_require__(589);
   font-size: var(--font-size-small);
   min-width: 50px;
   color: var(--primary-color-invert);
-  border-radius: 2px;
+  border-radius: var(--border-radius);
   border: none;
   background-color: var(--primary-color);
 }
@@ -18240,7 +18240,7 @@ function pathSecurityTemplate(pathSecurity) {
                 });
             }
         });
-        return y `<div style="position:absolute; top:3px; right:2px; font-size:var(--font-size-small); line-height: 1.5;">
+        return y `<div class="security-scheme" style="position:absolute; top:3px; right:2px; font-size:var(--font-size-small); line-height: 1.5;">
       <div style="position:relative; display:flex; min-width:350px; max-width:700px; justify-content: flex-end;">
         <svg width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" fill="none" style="stroke:var(--fg3)"> <rect x="5" y="11" width="14" height="10" rx="2" /> <circle cx="12" cy="16" r="1" /> <path d="M8 11v-4a4 4 0 0 1 8 0v4" /></svg>
           ${orSecurityKeys1.map((orSecurityItem1, i) => y `
@@ -21582,11 +21582,13 @@ let ApiRequest = class ApiRequest extends lit_element_s {
                 }
             }
         });
+        this.requestUpdate();
     }
     async onClearRequestData(e) {
         const requestPanelEl = e.target.closest('.request-panel');
         const requestPanelInputEls = [...requestPanelEl.querySelectorAll('input, tag-input, textarea:not(.is-hidden)')];
         requestPanelInputEls.forEach((el) => { el.value = ''; });
+        this.requestUpdate();
     }
     buildFetchURL(requestPanelEl) {
         var _a, _b;
@@ -26725,7 +26727,7 @@ JsonSchemaViewer = json_schema_viewer_decorate([
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("fe5d81b755631f81e13b")
+/******/ 		__webpack_require__.h = () => ("dacc47731bbfbc61c51a")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
