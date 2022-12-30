@@ -51,7 +51,7 @@ export default css`
   font-size: var(--font-size-small);
   min-width: 50px;
   color: var(--primary-color-invert);
-  border-radius: 2px;
+  border-radius: var(--border-radius);
   border: none;
   background-color: var(--primary-color);
 }
