@@ -14740,8 +14740,11 @@ class ApiRequest extends lit_element_s {
     //     this.requestUpdate();
     //   }
     // }
-  }
 
+    if (this.webhook === 'true') {
+      this.allowTry = 'false';
+    }
+  }
   async saveExampleState() {
     if (this.renderStyle === 'focused') {
       const reqBodyTextAreaEls = [...this.shadowRoot.querySelectorAll('textarea.request-body-param-user-input')];
@@ -15677,7 +15680,6 @@ class ApiRequest extends lit_element_s {
     }
     let urlQueryParamString = '';
     if (urlQueryParamsMap.size) {
-      urlQueryParamString = '?';
       urlQueryParamsMap.forEach((val, pname) => {
         if (queryParamsWithReservedCharsAllowed.includes(pname)) {
           urlQueryParamString += `${pname}=`;
@@ -15689,7 +15691,9 @@ class ApiRequest extends lit_element_s {
       });
       urlQueryParamString = urlQueryParamString.slice(0, -1);
     }
-    fetchUrl = `${fetchUrl}${urlQueryParamString}`;
+    if (urlQueryParamString.length !== 0) {
+      fetchUrl = `${fetchUrl}${fetchUrl.includes('?') ? '&' : '?'}${urlQueryParamString}`;
+    }
 
     // Add authentication Query-Param if provided
     this.api_keys.filter(v => v.in === 'query').forEach(v => {
@@ -26638,7 +26642,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("8520352ae28b34f075d2")
+/******/ 		__webpack_require__.h = () => ("9cbfc2cf2f2faa60b429")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

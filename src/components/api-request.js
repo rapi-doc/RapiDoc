@@ -1261,7 +1261,6 @@ export default class ApiRequest extends LitElement {
     }
     let urlQueryParamString = '';
     if (urlQueryParamsMap.size) {
-      urlQueryParamString = '?';
       urlQueryParamsMap.forEach((val, pname) => {
         if (queryParamsWithReservedCharsAllowed.includes(pname)) {
           urlQueryParamString += `${pname}=`;
@@ -1273,7 +1272,9 @@ export default class ApiRequest extends LitElement {
       });
       urlQueryParamString = urlQueryParamString.slice(0, -1);
     }
-    fetchUrl = `${fetchUrl}${urlQueryParamString}`;
+    if (urlQueryParamString.length !== 0) {
+      fetchUrl = `${fetchUrl}${fetchUrl.includes('?') ? '&' : '?'}${urlQueryParamString}`;
+    }
 
     // Add authentication Query-Param if provided
     this.api_keys
