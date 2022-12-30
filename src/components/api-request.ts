@@ -1224,12 +1224,14 @@ export default class ApiRequest extends LitElement {
         }
       }
     });
+    this.requestUpdate();
   }
 
   async onClearRequestData(e: Event) {
     const requestPanelEl = (e.target as HTMLElement).closest('.request-panel') as HTMLElement;
     const requestPanelInputEls = [...requestPanelEl.querySelectorAll('input, tag-input, textarea:not(.is-hidden)')] as HTMLInputElement[];
     requestPanelInputEls.forEach((el) => { el.value = ''; });
+    this.requestUpdate();
   }
 
   buildFetchURL(requestPanelEl: HTMLElement) {
