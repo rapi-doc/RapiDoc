@@ -21469,7 +21469,7 @@ let ApiRequest = class ApiRequest extends lit_element_s {
         <div style="flex:1"></div>
         <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
       </div>
-      ${this.responseStatus !== 'success' ? '' : `
+      ${this.responseStatus !== 'success' ? '' : y `
         <div class="tab-panel col" style="border-width:0 0 1px 0;">
           <div id="tab_buttons" class="tab-buttons row" @click="${(e) => {
             if (e.target.classList.contains('tab-btn') === false) {
@@ -26725,7 +26725,7 @@ JsonSchemaViewer = json_schema_viewer_decorate([
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("cd4abf5dda7ccf2dac90")
+/******/ 		__webpack_require__.h = () => ("fe5d81b755631f81e13b")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

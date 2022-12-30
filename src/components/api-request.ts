@@ -1103,7 +1103,7 @@ export default class ApiRequest extends LitElement {
         <div style="flex:1"></div>
         <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
       </div>
-      ${this.responseStatus !== 'success' ? '': `
+      ${this.responseStatus !== 'success' ? '': html`
         <div class="tab-panel col" style="border-width:0 0 1px 0;">
           <div id="tab_buttons" class="tab-buttons row" @click="${(e: MouseEvent) => {
               if ((e.target as HTMLElement).classList.contains('tab-btn') === false) { return; }
