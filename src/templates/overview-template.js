@@ -1,3 +1,4 @@
+import processPathDescription from '~/utils/magic-block-utils';
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
@@ -11,6 +12,8 @@ function headingRenderer() {
 }
 
 export default function overviewTemplate() {
+  this.resolvedSpec.info.description = processPathDescription(this.resolvedSpec.info.description);
+
   return html`
     <section id="overview" part="section-overview"
       class="observe-me ${this.renderStyle === 'view' ? 'section-gap' : 'section-gap--read-mode'}">

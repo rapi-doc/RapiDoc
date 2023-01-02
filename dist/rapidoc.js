@@ -8,7 +8,7 @@
 */******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 305:
+/***/ 586:
 /***/ ((__unused_webpack_module, __unused_webpack___webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -3373,17 +3373,49 @@ input[type="checkbox"]:checked:after {
 ;// CONCATENATED MODULE: ./src/styles/flex-styles.js
 
 /* harmony default export */ const flex_styles = (r`
-.row, .col{
-  display:flex;
-} 
-.row {
-  align-items:center;
-  flex-direction: row;
-}
-.col {
-  align-items:stretch;
-  flex-direction: column;
-}
+  .flex,
+  .row,
+  .col,
+  .row-api {
+    display: flex;
+  }
+  .row-api {
+    align-items: center;
+    flex-direction: row;
+    column-gap: 24px;
+    align-items: flex-start;
+    justify-content: space-evenly;
+  }
+  .col {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .row-api-left {
+    min-width: 0;
+    max-width: 848px;
+    flex: 2 1 0%;
+    justify-content: flex-end;
+  }
+  .row-api-right {
+    min-width: 0;
+    max-width: 702px;
+    flex: 1;
+    justify-content: flex-start;
+  }
+
+  @media (max-width: 1024px) {
+    .row-api {
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+    }
+
+    .row-api-left,
+    .row-api-right {
+      max-width: unset;
+      width: 100%;
+    }
+  }
 `);
 ;// CONCATENATED MODULE: ./src/styles/table-styles.js
 
@@ -3619,6 +3651,73 @@ api-response.view-mode {
 }
 .delete .view-mode-request { 
   border-color:var(--delete-color); 
+}
+
+blockquote {
+  padding: 20px;
+}
+
+blockquote h3 {
+  margin: 0;
+  padding: 0;
+}
+
+blockquote.warning {
+  border-left: 3px solid #f0ad4e;
+  background-color: #fcf8f2;
+}
+
+blockquote.warning h3 {
+  color: #f0ad4e;
+}
+
+blockquote.danger {
+  border-left: 3px solid #d9534f;
+  background-color: #fdf7f7;
+}
+
+blockquote.danger h3 {
+  color: #d9534f;
+}
+
+blockquote.info {
+  border-left: 3px solid #5bc0de;
+  background-color: #e3edf2;
+}
+
+blockquote.info h3 {
+  color: #5bc0de;
+}
+
+blockquote.success {
+  border-left: 3px solid #50af51;
+  background-color: #f3f8f3;
+}
+
+blockquote.success h3 {
+  color: #50af51;
+}
+
+pre {
+  overflow: scroll;
+  max-height: 1000px;
+  margin-top: 15px!important;
+  margin-bottom: 15px!important;
+}
+
+table {
+  border-spacing: 0px;
+  border-collapse: collapse;
+}
+
+table th {
+  border: 1px solid #dfe2e5;
+  padding: 6px 13px;
+}
+
+table td {
+  border: 1px solid #dfe2e5;
+  padding: 6px 13px;
 }
 
 @media only screen and (min-width: 1024px) {
@@ -4043,7 +4142,8 @@ customize their theme. Simply add your css to this file and yarn build.
   justify-content: space-between;
   align-items: stretch;
   width: auto;
-  height: 28px;
+  height: max-content;
+  min-height: 28px;
   left: 0;
   top: 0;
   border: 1px solid var(--border-color);
@@ -4099,8 +4199,12 @@ customize their theme. Simply add your css to this file and yarn build.
 }
 
 .header-auth-input {
-  width: 535px;
+  width: 100%;
   height: 44px;
+}
+
+#copy-baseURL {
+  height: 42px;
 }
 
 `);
@@ -27968,788 +28072,6 @@ const directive_t={ATTRIBUTE:1,CHILD:2,PROPERTY:3,BOOLEAN_ATTRIBUTE:4,EVENT:5,EL
 
 //# sourceMappingURL=unsafe-html.js.map
 
-;// CONCATENATED MODULE: ./src/templates/security-scheme-template.js
-/* eslint-disable arrow-body-style */
-
- // eslint-disable-line import/extensions
-
-
-const codeVerifier = '731DB1C3F7EA533B85E29492D26AA-1234567890-1234567890';
-const codeChallenge = '4FatVDBJKPAo4JgLLaaQFMUcQPn5CrPRvLlaob9PTYc'; // Base64 encoded SHA-256
-
-const localStorageKey = 'rapidoc';
-function applyApiKey(securitySchemeId, username = '', password = '', providedApikeyVal = '') {
-  var _this$resolvedSpec$se, _securityObj$scheme;
-
-  const securityObj = (_this$resolvedSpec$se = this.resolvedSpec.securitySchemes) === null || _this$resolvedSpec$se === void 0 ? void 0 : _this$resolvedSpec$se.find(v => v.securitySchemeId === securitySchemeId);
-
-  if (!securityObj) {
-    return false;
-  }
-
-  let finalApiKeyValue = '';
-
-  if (((_securityObj$scheme = securityObj.scheme) === null || _securityObj$scheme === void 0 ? void 0 : _securityObj$scheme.toLowerCase()) === 'basic') {
-    if (username) {
-      finalApiKeyValue = `Basic ${btoa(`${username}:${password}`)}`;
-    }
-  } else if (providedApikeyVal) {
-    var _securityObj$scheme2;
-
-    securityObj.value = providedApikeyVal;
-    finalApiKeyValue = `${((_securityObj$scheme2 = securityObj.scheme) === null || _securityObj$scheme2 === void 0 ? void 0 : _securityObj$scheme2.toLowerCase()) === 'bearer' ? 'Bearer ' : ''}${providedApikeyVal}`;
-  }
-
-  if (finalApiKeyValue) {
-    securityObj.finalKeyValue = finalApiKeyValue;
-    this.requestUpdate();
-    return true;
-  }
-
-  return false;
-}
-function onClearAllApiKeys() {
-  var _this$resolvedSpec$se2;
-
-  (_this$resolvedSpec$se2 = this.resolvedSpec.securitySchemes) === null || _this$resolvedSpec$se2 === void 0 ? void 0 : _this$resolvedSpec$se2.forEach(v => {
-    v.user = '';
-    v.password = '';
-    v.value = '';
-    v.finalKeyValue = '';
-  });
-  this.requestUpdate();
-}
-
-function getPersistedApiKeys() {
-  return JSON.parse(localStorage.getItem(localStorageKey)) || {};
-}
-
-function setPersistedApiKeys(obj) {
-  localStorage.setItem(localStorageKey, JSON.stringify(obj));
-}
-
-function recoverPersistedApiKeys() {
-  const rapidocLs = getPersistedApiKeys.call(this);
-  Object.values(rapidocLs).forEach(p => {
-    applyApiKey.call(this, p.securitySchemeId, p.username, p.password, p.value);
-  });
-}
-
-function onApiKeyChange(securitySchemeId) {
-  let apiKeyValue = '';
-  const securityObj = this.resolvedSpec.securitySchemes.find(v => v.securitySchemeId === securitySchemeId);
-
-  if (securityObj) {
-    const trEl = this.shadowRoot.getElementById(`security-scheme-${securitySchemeId}`);
-
-    if (trEl) {
-      if (securityObj.type && securityObj.scheme && securityObj.type === 'http' && securityObj.scheme.toLowerCase() === 'basic') {
-        const userVal = trEl.querySelector('.api-key-user').value.trim();
-        const passwordVal = trEl.querySelector('.api-key-password').value.trim();
-        applyApiKey.call(this, securitySchemeId, userVal, passwordVal);
-      } else {
-        apiKeyValue = trEl.querySelector('.api-key-input').value.trim();
-        applyApiKey.call(this, securitySchemeId, '', '', apiKeyValue);
-      }
-
-      if (this.persistAuth === 'true') {
-        const rapidocLs = getPersistedApiKeys.call(this);
-        rapidocLs[securitySchemeId] = securityObj;
-        setPersistedApiKeys.call(this, rapidocLs);
-      }
-    }
-  }
-} // Updates the OAuth Access Token (API key), so it reflects in UI and gets used in TRY calls
-
-
-function updateOAuthKey(securitySchemeId, accessToken, tokenType = 'Bearer') {
-  const securityObj = this.resolvedSpec.securitySchemes.find(v => v.securitySchemeId === securitySchemeId);
-  securityObj.finalKeyValue = `${tokenType.toLowerCase() === 'bearer' ? 'Bearer' : tokenType.toLowerCase() === 'mac' ? 'MAC' : tokenType} ${accessToken}`;
-  this.requestUpdate();
-}
-/* eslint-disable no-console */
-// Gets Access-Token in exchange of Authorization Code
-
-
-async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, grantType, authCode, securitySchemeId, authFlowDivEl, sendClientSecretIn = 'header', scopes = null, username = null, password = null) {
-  const respDisplayEl = authFlowDivEl ? authFlowDivEl.querySelector('.oauth-resp-display') : undefined;
-  const urlFormParams = new URLSearchParams();
-  const headers = new Headers();
-  urlFormParams.append('grant_type', grantType);
-
-  if (grantType !== 'client_credentials' && grantType !== 'password') {
-    urlFormParams.append('redirect_uri', redirectUrl);
-  }
-
-  if (authCode) {
-    urlFormParams.append('code', authCode);
-    urlFormParams.append('code_verifier', codeVerifier); // for PKCE
-  }
-
-  if (sendClientSecretIn === 'header') {
-    headers.set('Authorization', `Basic ${btoa(`${clientId}:${clientSecret}`)}`);
-  } else {
-    urlFormParams.append('client_id', clientId);
-    urlFormParams.append('client_secret', clientSecret);
-  }
-
-  if (grantType === 'password') {
-    urlFormParams.append('username', username);
-    urlFormParams.append('password', password);
-  }
-
-  if (scopes) {
-    urlFormParams.append('scope', scopes);
-  }
-
-  try {
-    const resp = await fetch(tokenUrl, {
-      method: 'POST',
-      headers,
-      body: urlFormParams
-    });
-    const tokenResp = await resp.json();
-
-    if (resp.ok) {
-      if (tokenResp.token_type && tokenResp.access_token) {
-        updateOAuthKey.call(this, securitySchemeId, tokenResp.access_token, tokenResp.token_type);
-
-        if (respDisplayEl) {
-          respDisplayEl.innerHTML = '<span style="color:var(--green)">Access Token Received</span>';
-        }
-
-        return true;
-      }
-    } else {
-      if (respDisplayEl) {
-        respDisplayEl.innerHTML = `<span style="color:var(--red)">${tokenResp.error_description || tokenResp.error_description || 'Unable to get access token'}</span>`;
-      }
-
-      return false;
-    }
-  } catch (err) {
-    if (respDisplayEl) {
-      respDisplayEl.innerHTML = '<span style="color:var(--red)">Failed to get access token</span>';
-    }
-
-    return false;
-  }
-} // Gets invoked when it receives the Authorization Code from the other window via message-event
-
-
-async function onWindowMessageEvent(msgEvent, winObj, tokenUrl, clientId, clientSecret, redirectUrl, grantType, sendClientSecretIn, securitySchemeId, authFlowDivEl) {
-  sessionStorage.removeItem('winMessageEventActive');
-  winObj.close();
-
-  if (msgEvent.data.fake) {
-    return;
-  }
-
-  if (!msgEvent.data) {
-    console.warn('RapiDoc: Received no data with authorization message');
-  }
-
-  if (msgEvent.data.error) {
-    console.warn('RapiDoc: Error while receiving data');
-  }
-
-  if (msgEvent.data) {
-    if (msgEvent.data.responseType === 'code') {
-      // Authorization Code flow
-      fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrl, grantType, msgEvent.data.code, securitySchemeId, authFlowDivEl, sendClientSecretIn);
-    } else if (msgEvent.data.responseType === 'token') {
-      // Implicit flow
-      updateOAuthKey.call(this, securitySchemeId, msgEvent.data.access_token, msgEvent.data.token_type);
-    }
-  }
-} // code_challenge generator for PKCE flow
-// TODO: Implement dynamic generation of code-challenge based on code-verifier
-
-/*
-async function generateCodeChallenge() {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(codeVerifier);
-  const sha256Hash = await window.crypto.subtle.digest('SHA-256', data); // returns Unit8Array
-  // const utf8Decoder = new TextDecoder();
-  // const b64EncodedSha256 = btoa(utf8Decoder.decode(sha256Hash));
-  const b64EncodedSha256 = base64encode(sha256Hash);
-  return b64EncodedSha256;
-}
-*/
-
-
-async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, e) {
-  const authFlowDivEl = e.target.closest('.oauth-flow');
-  const clientId = authFlowDivEl.querySelector('.oauth-client-id') ? authFlowDivEl.querySelector('.oauth-client-id').value.trim() : '';
-  const clientSecret = authFlowDivEl.querySelector('.oauth-client-secret') ? authFlowDivEl.querySelector('.oauth-client-secret').value.trim() : '';
-  const username = authFlowDivEl.querySelector('.api-key-user') ? authFlowDivEl.querySelector('.api-key-user').value.trim() : '';
-  const password = authFlowDivEl.querySelector('.api-key-password') ? authFlowDivEl.querySelector('.api-key-password').value.trim() : '';
-  const sendClientSecretIn = authFlowDivEl.querySelector('.oauth-send-client-secret-in') ? authFlowDivEl.querySelector('.oauth-send-client-secret-in').value.trim() : 'header';
-  const checkedScopeEls = [...authFlowDivEl.querySelectorAll('.scope-checkbox:checked')];
-  const pkceCheckboxEl = authFlowDivEl.querySelector(`#${securitySchemeId}-pkce`);
-  const state = `${Math.random().toString(36)}random`.slice(2, 9);
-  const nonce = `${Math.random().toString(36)}random`.slice(2, 9); // const codeChallenge = await generateCodeChallenge(codeVerifier);
-
-  const redirectUrlObj = new URL(`${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/${this.oauthReceiver}`);
-  let grantType = '';
-  let responseType = '';
-  let newWindow; // clear previous error messages
-
-  const errEls = [...authFlowDivEl.parentNode.querySelectorAll('.oauth-resp-display')];
-  errEls.forEach(v => {
-    v.innerHTML = '';
-  });
-
-  if (flowType === 'authorizationCode' || flowType === 'implicit') {
-    const authUrlObj = new URL(authUrl);
-
-    if (flowType === 'authorizationCode') {
-      grantType = 'authorization_code';
-      responseType = 'code';
-    } else if (flowType === 'implicit') {
-      responseType = 'token';
-    }
-
-    const authCodeParams = new URLSearchParams(authUrlObj.search);
-    const selectedScopes = checkedScopeEls.map(v => v.value).join(' ');
-
-    if (selectedScopes) {
-      authCodeParams.set('scope', selectedScopes);
-    }
-
-    authCodeParams.set('client_id', clientId);
-    authCodeParams.set('redirect_uri', redirectUrlObj.toString());
-    authCodeParams.set('response_type', responseType);
-    authCodeParams.set('state', state);
-    authCodeParams.set('nonce', nonce);
-
-    if (pkceCheckboxEl && pkceCheckboxEl.checked) {
-      authCodeParams.set('code_challenge', codeChallenge);
-      authCodeParams.set('code_challenge_method', 'S256');
-    }
-
-    authCodeParams.set('show_dialog', true);
-    authUrlObj.search = authCodeParams.toString(); // If any older message-event-listener is active then fire a fake message to remove it (these are single time listeners)
-
-    if (sessionStorage.getItem('winMessageEventActive') === 'true') {
-      window.postMessage({
-        fake: true
-      }, this);
-    }
-
-    setTimeout(() => {
-      newWindow = window.open(authUrlObj.toString());
-
-      if (!newWindow) {
-        console.error(`RapiDoc: Unable to open ${authUrlObj.toString()} in a new window`);
-      } else {
-        sessionStorage.setItem('winMessageEventActive', 'true');
-        window.addEventListener('message', msgEvent => onWindowMessageEvent.call(this, msgEvent, newWindow, tokenUrl, clientId, clientSecret, redirectUrlObj.toString(), grantType, sendClientSecretIn, securitySchemeId, authFlowDivEl), {
-          once: true
-        });
-      }
-    }, 10);
-  } else if (flowType === 'clientCredentials') {
-    grantType = 'client_credentials';
-    const selectedScopes = checkedScopeEls.map(v => v.value).join(' ');
-    fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrlObj.toString(), grantType, '', securitySchemeId, authFlowDivEl, sendClientSecretIn, selectedScopes);
-  } else if (flowType === 'password') {
-    grantType = 'password';
-    const selectedScopes = checkedScopeEls.map(v => v.value).join(' ');
-    fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrlObj.toString(), grantType, '', securitySchemeId, authFlowDivEl, sendClientSecretIn, selectedScopes, username, password);
-  }
-}
-/* eslint-enable no-console */
-
-/* eslint-disable indent */
-
-
-function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, authFlow, defaultScopes = [], receiveTokenIn = 'header') {
-  let {
-    authorizationUrl,
-    tokenUrl,
-    refreshUrl
-  } = authFlow;
-
-  const isUrlAbsolute = url => url.indexOf('://') > 0 || url.indexOf('//') === 0;
-
-  if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
-    refreshUrl = `${this.selectedServer.computedUrl}/${refreshUrl.replace(/^\//, '')}`;
-  }
-
-  if (tokenUrl && !isUrlAbsolute(tokenUrl)) {
-    tokenUrl = `${this.selectedServer.computedUrl}/${tokenUrl.replace(/^\//, '')}`;
-  }
-
-  if (authorizationUrl && !isUrlAbsolute(authorizationUrl)) {
-    authorizationUrl = `${this.selectedServer.computedUrl}/${authorizationUrl.replace(/^\//, '')}`;
-  }
-
-  let flowNameDisplay;
-
-  if (flowName === 'authorizationCode') {
-    flowNameDisplay = 'Authorization Code Flow';
-  } else if (flowName === 'clientCredentials') {
-    flowNameDisplay = 'Client Credentials Flow';
-  } else if (flowName === 'implicit') {
-    flowNameDisplay = 'Implicit Flow';
-  } else if (flowName === 'password') {
-    flowNameDisplay = 'Password Flow';
-  } else {
-    flowNameDisplay = flowName;
-  }
-
-  return $`
-    <div class="oauth-flow ${flowName}" style="padding: 12px 0; margin-bottom:12px;">
-      <div class="tiny-title upper" style="margin-bottom:8px;">${flowNameDisplay}</div>
-      ${authorizationUrl ? $`<div style="margin-bottom:5px"><span style="width:75px; display: inline-block;">Auth URL</span> <span class="mono-font"> ${authorizationUrl} </span></div>` : ''}
-      ${tokenUrl ? $`<div style="margin-bottom:5px"><span style="width:75px; display: inline-block;">Token URL</span> <span class="mono-font">${tokenUrl}</span></div>` : ''}
-      ${refreshUrl ? $`<div style="margin-bottom:5px"><span style="width:75px; display: inline-block;">Refresh URL</span> <span class="mono-font">${refreshUrl}</span></div>` : ''}
-      ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit' || flowName === 'password' ? $`
-          ${authFlow.scopes ? $`
-              <span> Scopes </span>
-              <div class= "oauth-scopes" part="section-auth-scopes" style = "width:100%; display:flex; flex-direction:column; flex-wrap:wrap; margin:0 0 10px 24px">
-                ${Object.entries(authFlow.scopes).map((scopeAndDescr, index) => $`
-                  <div class="m-checkbox" style="display:inline-flex; align-items:center">
-                    <input type="checkbox" part="checkbox checkbox-auth-scope" class="scope-checkbox" id="${securitySchemeId}${flowName}${index}" ?checked="${defaultScopes.includes(scopeAndDescr[0])}" value="${scopeAndDescr[0]}">
-                    <label for="${securitySchemeId}${flowName}${index}" style="margin-left:5px; cursor:pointer">
-                      <span class="mono-font">${scopeAndDescr[0]}</span>
-                        ${scopeAndDescr[0] !== scopeAndDescr[1] ? ` - ${scopeAndDescr[1] || ''}` : ''}
-                    </label>
-                  </div>
-                `)}
-              </div>
-            ` : ''}
-          ${flowName === 'password' ? $`
-              <div style="margin:5px 0">
-                <input type="text" value = "" placeholder="username" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} api-key-user" part="textbox textbox-username">
-                <input type="password" value = "" placeholder="password" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} api-key-password" style = "margin:0 5px;" part="textbox textbox-password">
-              </div>` : ''}
-          <div>
-            ${flowName === 'authorizationCode' ? $`
-                <div style="margin: 16px 0 4px">
-                  <input type="checkbox" part="checkbox checkbox-auth-scope" id="${securitySchemeId}-pkce" checked>
-                  <label for="${securitySchemeId}-pkce" style="margin:0 16px 0 4px; line-height:24px; cursor:pointer">
-                   Send Proof Key for Code Exchange (PKCE)
-                  </label>
-                </div>
-              ` : ''}
-            <input type="text" part="textbox textbox-auth-client-id" value = "${clientId || ''}" placeholder="client-id" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} oauth-client-id">
-            ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password' ? $`
-                <input type="password" part="textbox textbox-auth-client-secret" value = "${clientSecret || ''}" placeholder="client-secret" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} oauth-client-secret" style = "margin:0 5px;">
-                ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password' ? $`
-                    <select style="margin-right:5px;" class="${flowName} ${securitySchemeId} oauth-send-client-secret-in">
-                      <option value = 'header' .selected = ${receiveTokenIn === 'header'} > Authorization Header </option>
-                      <option value = 'request-body' .selected = ${receiveTokenIn === 'request-body'}> Request Body </option>
-                    </select>` : ''}` : ''}
-            ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit' || flowName === 'password' ? $`
-                <button class="m-btn thin-border" part="btn btn-outline"
-                  @click="${e => {
-    onInvokeOAuthFlow.call(this, securitySchemeId, flowName, authorizationUrl, tokenUrl, e);
-  }}"
-                > GET TOKEN </button>` : ''}
-          </div>
-          <div class="oauth-resp-display red-text small-font-size"></div>
-          ` : ''}
-    </div>
-  `;
-}
-
-function removeApiKey(securitySchemeId) {
-  var _this$resolvedSpec$se3;
-
-  const securityObj = (_this$resolvedSpec$se3 = this.resolvedSpec.securitySchemes) === null || _this$resolvedSpec$se3 === void 0 ? void 0 : _this$resolvedSpec$se3.find(v => v.securitySchemeId === securitySchemeId);
-  securityObj.user = '';
-  securityObj.password = '';
-  securityObj.value = '';
-  securityObj.finalKeyValue = '';
-
-  if (this.persistAuth === 'true') {
-    const rapidocLs = getPersistedApiKeys.call(this);
-    delete rapidocLs[securityObj.securitySchemeId];
-    setPersistedApiKeys.call(this, rapidocLs);
-  }
-
-  this.requestUpdate();
-}
-
-function handleApiKeyChange(securitySchemeId, apiKey) {
-  if (apiKey === '') removeApiKey.call(this, securitySchemeId);else onApiKeyChange.call(this, securitySchemeId);
-}
-
-function securitySchemeTemplate() {
-  var _this$resolvedSpec$se4;
-
-  if (!this.resolvedSpec) {
-    return '';
-  }
-
-  const providedApiKeys = (_this$resolvedSpec$se4 = this.resolvedSpec.securitySchemes) === null || _this$resolvedSpec$se4 === void 0 ? void 0 : _this$resolvedSpec$se4.filter(v => v.finalKeyValue);
-
-  if (!providedApiKeys) {
-    return;
-  }
-
-  return $`
-  <section id='auth' part="section-auth" style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;" class = 'observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}'>
-    <div class="header-auth-title">Header Auth</div>
-
-    ${this.resolvedSpec.securitySchemes && this.resolvedSpec.securitySchemes.length > 0 ? $`
-        <div id="auth-table">
-          ${this.resolvedSpec.securitySchemes.map(v => $`
-            <div id="security-scheme-${v.securitySchemeId}" class="header-auth-container ${v.type.toLowerCase()}">
-              <div class="header-auth-label">${v.name}</div>
-              ${v.description ? $`
-                  <div class="m-markdown">
-                    ${unsafe_html_o(marked(v.description || ''))}
-                  </div>` : ''}
-
-              ${v.type.toLowerCase() === 'apikey' || v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'bearer' ? $`
-                  <div>
-                    ${v.in !== 'cookie' ? $`
-                        <input
-                          type="text"
-                          spellcheck="false"
-                          value="${v.value}"
-                          class="${v.type} ${v.securitySchemeId} api-key-input header-auth-input"
-                          @change="${e => {
-    handleApiKeyChange.call(this, v.securitySchemeId, e.target.value);
-  }}"
-                        >` : $`<span class="gray-text" style="font-size::var(--font-size-small)"> cookies cannot be set from here</span>`}
-                  </div>` : ''}
-              ${v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'basic' ? $`
-                  <div style="margin-bottom:5px">
-                    Send <code>Authorization</code> in <code>header</code> containing the word <code>Basic</code> followed by a space and a base64 encoded string of <code>username:password</code>.
-                  </div>
-                  <div>
-                    <input
-                      type="text"
-                      value="${v.user}"
-                      spellcheck="false"
-                      placeholder="username"
-                      class="${v.type} ${v.securitySchemeId} api-key-user"
-                      style="width:100px"
-                    >
-                    <input
-                      type="password"
-                      spellcheck="false"
-                      placeholder="password"
-                      value="${v.password}"
-                      class="${v.type} ${v.securitySchemeId} api-key-password"
-                      style="width:100px; margin:0 5px;"
-                    >
-                    <button class="m-btn thin-border"
-                      @click="${e => {
-    onApiKeyChange.call(this, v.securitySchemeId, e);
-  }}"
-                      part="btn btn-outline"
-                    >
-                      ${v.finalKeyValue ? 'UPDATE' : 'SET'}
-                    </button>
-                  </div>` : ''}
-            </div>
-            ${v.type.toLowerCase() === 'oauth2' ? $`
-                <div>
-                  ${Object.keys(v.flows).map(f => oAuthFlowTemplate.call(this, f, v['x-client-id'], v['x-client-secret'], v.securitySchemeId, v.flows[f], v['x-default-scopes'], v['x-receive-token-in']))}
-                </div>
-                ` : ''}
-          `)}
-        </div>` : ''}
-    <button class='test-method-button' @click='${this.onTryClick}'>
-      TEST METHOD
-    </button>
-    <slot name="auth">
-    </slot>
-  </section>
-`;
-}
-function pathSecurityTemplate(pathSecurity) {
-  if (this.resolvedSpec.securitySchemes && pathSecurity) {
-    const orSecurityKeys1 = [];
-    pathSecurity.forEach(pSecurity => {
-      const andSecurityKeys1 = [];
-      const andKeyTypes = [];
-
-      if (Object.keys(pSecurity).length === 0) {
-        orSecurityKeys1.push({
-          securityTypes: 'None',
-          securityDefs: []
-        });
-      } else {
-        Object.keys(pSecurity).forEach(pathSecurityKey => {
-          let pathScopes = '';
-          const s = this.resolvedSpec.securitySchemes.find(ss => ss.securitySchemeId === pathSecurityKey);
-
-          if (pSecurity[pathSecurityKey] && Array.isArray(pSecurity[pathSecurityKey])) {
-            pathScopes = pSecurity[pathSecurityKey].join(', ');
-          }
-
-          if (s) {
-            andKeyTypes.push(s.typeDisplay);
-            andSecurityKeys1.push({ ...s,
-              ...{
-                scopes: pathScopes
-              }
-            });
-          }
-        });
-        orSecurityKeys1.push({
-          securityTypes: andKeyTypes.length > 1 ? `${andKeyTypes[0]} + ${andKeyTypes.length - 1} more` : andKeyTypes[0],
-          securityDefs: andSecurityKeys1
-        });
-      }
-    });
-    return $`<div style="position:absolute; top:3px; right:2px; font-size:var(--font-size-small); line-height: 1.5;">
-      <div style="position:relative; display:flex; min-width:350px; max-width:700px; justify-content: flex-end;">
-        <svg width="16" height="24">
-          <g>
-            <path style="fill: var(--fg3)" d="m13.8,8.5l0,-2.6l0,0c0,-3.2 -2.6,-5.8 -5.8,-5.8s-5.8,2.6 -5.8,5.8l0,0l0,2.6l-2.1,0l0,11.2l16,0l0,-11.2l-2.1,0l-0,0l0,0l0,0l-0,0zm-9.8,-2.6c0,0 0,0 0,0c0,-2.2 1.8,-4 4,-4c2.2,0 4,1.8 4,4c0,0 0,0 0,0l0,2.6l-8.03,0l0,-2.6l0,0l0,0z" />
-          </g>
-        </svg>
-          ${orSecurityKeys1.map((orSecurityItem1, i) => $`
-
-          ${orSecurityItem1.securityTypes ? $`
-              ${i !== 0 ? $`<div style="padding:3px 4px;"> OR </div>` : ''}
-              <div class="tooltip">
-                <div style = "padding:2px 4px; white-space:nowrap; text-overflow:ellipsis;max-width:150px; overflow:hidden;">
-                  ${this.updateRoute === 'true' && this.allowAuthentication === 'true' ? $`<a part="anchor anchor-operation-security" href="#auth"> ${orSecurityItem1.securityTypes} </a>` : $`${orSecurityItem1.securityTypes}`}
-                </div>
-                <div class="tooltip-text" style="position:absolute; color: var(--fg); top:26px; right:0; border:1px solid var(--border-color);padding:2px 4px; display:block;">
-                  ${orSecurityItem1.securityDefs.length > 1 ? $`<div>Requires <b>all</b> of the following </div>` : ''}
-                  <div style="padding-left: 8px">
-                    ${orSecurityItem1.securityDefs.map((andSecurityItem, j) => {
-      const scopeHtml = $`${andSecurityItem.scopes !== '' ? $`
-                          <div>
-                            <b>Required scopes:</b>
-                            <br/>
-                            <div style="margin-left:8px">
-                              ${andSecurityItem.scopes.split(',').map((scope, cnt) => $`${cnt === 0 ? '' : '┃'}<span>${scope}</span>`)}
-                            </div>
-                          </div>` : ''}`;
-      return $`
-                      ${andSecurityItem.type === 'oauth2' ? $`
-                          <div>
-                            ${orSecurityItem1.securityDefs.length > 1 ? $`<b>${j + 1}.</b> &nbsp;` : 'Needs'}
-                            OAuth Token <span style="font-family:var(--font-mono); color:var(--primary-color);">${andSecurityItem.securitySchemeId}</span> in <b>Authorization header</b>
-                            ${scopeHtml}
-                          </div>` : andSecurityItem.type === 'http' ? $`
-                            <div>
-                              ${orSecurityItem1.securityDefs.length > 1 ? $`<b>${j + 1}.</b> &nbsp;` : $`Requires`}
-                              ${andSecurityItem.scheme === 'basic' ? 'Base 64 encoded username:password' : 'Bearer Token'} in <b>Authorization header</b>
-                              ${scopeHtml}
-                            </div>` : $`
-                            <div>
-                              ${orSecurityItem1.securityDefs.length > 1 ? $`<b>${j + 1}.</b> &nbsp;` : $`Requires`}
-                              Token in <b>${andSecurityItem.name} ${andSecurityItem.in}</b>
-                              ${scopeHtml}
-                            </div>`}`;
-    })}
-                  </div>
-                </div>
-              </div>
-            ` : ''}
-        `)}
-      </div>
-    `;
-  }
-
-  return '';
-}
-/* eslint-enable indent */
-;// CONCATENATED MODULE: ./src/templates/code-samples-template.js
-
- // eslint-disable-line import/extensions
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* eslint-disable indent */
-
-function codeSamplesTemplate(xCodeSamples) {
-  return $`
-  <section class="table-title" style="margin-top:24px;">CODE SAMPLES</div>
-  <div class="tab-panel col"
-    @click="${e => {
-    if (!e.target.classList.contains('tab-btn')) {
-      return;
-    }
-
-    const clickedTab = e.target.dataset.tab;
-    const tabButtons = [...e.currentTarget.querySelectorAll('.tab-btn')];
-    const tabContents = [...e.currentTarget.querySelectorAll('.tab-content')];
-    tabButtons.forEach(tabBtnEl => tabBtnEl.classList[tabBtnEl.dataset.tab === clickedTab ? 'add' : 'remove']('active'));
-    tabContents.forEach(tabBodyEl => {
-      tabBodyEl.style.display = tabBodyEl.dataset.tab === clickedTab ? 'block' : 'none';
-    });
-  }}">
-    <div class="tab-buttons row" style="width:100; overflow">
-      ${xCodeSamples.map((v, i) => $`<button class="tab-btn ${i === 0 ? 'active' : ''}" data-tab = '${v.lang}${i}'> ${v.label || v.lang} </button>`)}
-    </div>
-    ${xCodeSamples.map((v, i) => {
-    var _v$lang, _v$lang2, _v$lang3;
-
-    return $`
-      <div class="tab-content m-markdown" style= "display:${i === 0 ? 'block' : 'none'}" data-tab = '${v.lang}${i}'>
-        <button class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${e => {
-      copyToClipboard(v.source, e);
-    }}'> Copy </button>
-        <pre><code class="language">${(prism_core_default()).languages[(_v$lang = v.lang) === null || _v$lang === void 0 ? void 0 : _v$lang.toLowerCase()] ? unsafe_html_o(prism_core_default().highlight(v.source, (prism_core_default()).languages[(_v$lang2 = v.lang) === null || _v$lang2 === void 0 ? void 0 : _v$lang2.toLowerCase()], (_v$lang3 = v.lang) === null || _v$lang3 === void 0 ? void 0 : _v$lang3.toLowerCase())) : v.source}</code></pre>
-      </div>`;
-  })}
-  </section>`;
-}
-/* eslint-enable indent */
-;// CONCATENATED MODULE: ./src/templates/callback-template.js
-
-/* eslint-disable indent */
-
-function callbackTemplate(callbacks) {
-  return $`
-    <div class="req-res-title" style="margin-top:12px">CALLBACKS</div>
-    ${Object.entries(callbacks).map(kv => $`
-      <div class="tiny-title" style="padding: 12px; border:1px solid var(--light-border-color)"> 
-        ${kv[0]}
-        ${Object.entries(kv[1]).map(pathObj => $`
-          <div class="mono-font small-font-size" style="display:flex; margin-left:16px;">
-            <div style="width:100%"> 
-              ${Object.entries(pathObj[1]).map(method => {
-    var _method$, _method$2, _method$3;
-
-    return $`
-                <div>
-                  <div style="margin-top:12px;">
-                    <div class="method method-fg ${method[0]}" style="width:70px; border:none; margin:0; padding:0; line-height:20px; vertical-align: baseline;text-align:left"> 
-                      <span style="font-size:20px;"> &#x2944; </span> 
-                      ${method[0]} 
-                    </div>
-                    <span style="line-height:20px; vertical-align: baseline;">${pathObj[0]} </span>
-                  </div>  
-                  <div class='expanded-req-resp-container'>
-                    <api-request
-                      class = "${this.renderStyle}-mode callback"  
-                      style = "width:100%;"
-                      callback = "true"
-                      method = "${method[0] || ''}", 
-                      path = "${pathObj[0] || ''}" 
-                      .parameters = "${((_method$ = method[1]) === null || _method$ === void 0 ? void 0 : _method$.parameters) || ''}" 
-                      .request_body = "${((_method$2 = method[1]) === null || _method$2 === void 0 ? void 0 : _method$2.requestBody) || ''}"
-                      fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
-                      use-summary-to-list-example = "${this.useSummaryToListExamples}"
-                      allow-try = "false"
-                      render-style="${this.renderStyle}" 
-                      schema-style = "${this.schemaStyle}"
-                      active-schema-tab = "${this.defaultSchemaTab}"
-                      schema-expand-level = "${this.schemaExpandLevel}"
-                      schema-description-expanded = "${this.schemaDescriptionExpanded}"
-                      allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
-                      schema-hide-read-only = "false"
-                      schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : 'true'}"
-                      fetch-credentials = "${this.fetchCredentials}"
-                      exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
-                        file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
-                        anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
-                    > </api-request>
-
-                    <api-response
-                      style = "width:100%;"
-                      class = "${this.renderStyle}-mode"
-                      callback = "true"
-                      .responses="${(_method$3 = method[1]) === null || _method$3 === void 0 ? void 0 : _method$3.responses}"
-                      render-style="${this.renderStyle}"
-                      schema-style="${this.schemaStyle}"
-                      active-schema-tab = "${this.defaultSchemaTab}"
-                      schema-expand-level = "${this.schemaExpandLevel}"
-                      schema-description-expanded = "${this.schemaDescriptionExpanded}"
-                      allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
-                      schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : 'true'}"
-                      schema-hide-write-only = "false"
-                      exportparts = "btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
-                      schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
-                    > </api-response>
-                  </div>
-                </div>  
-              `;
-  })}
-            </div>  
-          </div>  
-        `)}
-      </div>  
-    `)}
-  `;
-}
-/* eslint-enable indent */
-;// CONCATENATED MODULE: ./node_modules/lit-html/directives/guard.js
-
-/**
- * @license
- * Copyright 2018 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
-const guard_e={},guard_i=directive_e(class extends directive_i{constructor(){super(...arguments),this.nt=guard_e}render(r,t){return t()}update(t,[s,e]){if(Array.isArray(s)){if(Array.isArray(this.nt)&&this.nt.length===s.length&&s.every(((r,t)=>r===this.nt[t])))return b}else if(this.nt===s)return b;return this.nt=Array.isArray(s)?Array.from(s):s,this.render(s,e)}});
-//# sourceMappingURL=guard.js.map
-
-;// CONCATENATED MODULE: ./node_modules/lit/directives/guard.js
-
-//# sourceMappingURL=guard.js.map
-
-;// CONCATENATED MODULE: ./src/styles/border-styles.js
-
-/* harmony default export */ const border_styles = (r`
-.border-top {
-  border-top:1px solid var(--border-color);
-}
-.border{
-  border:1px solid var(--border-color);
-  border-radius: var(--border-radius);
-}
-.light-border{
-  border:1px solid var(--light-border-color);
-  border-radius: var(--border-radius);
-}
-.pad-8-16{
-  padding: 8px 16px;
-}
-.pad-top-8{
-  padding-top: 8px;
-}
-.mar-top-8{
-  margin-top: 8px;
-}
-`);
-;// CONCATENATED MODULE: ./src/styles/prism-languages-styles.js
-
-const ShellStyle = r`
-.shell-token.shell-function {
-  color: #2953B2;
-}
-
-.shell-token.shell-method {
-  color: #4A4A4A;
-}
-
-.shell-token.shell-punctuation {
-  color: #4A4A4A;
-}
-
-.shell-token.shell-string {
-  color: var(--green);
-}
-
-`;
-const JavascriptStyle = r``;
-const RubyStyle = r``;
-const PhpStyle = r``;
-const PythonStyle = r``;
-/* harmony default export */ const prism_languages_styles = ([ShellStyle, JavascriptStyle, RubyStyle, PhpStyle, PythonStyle]);
 ;// CONCATENATED MODULE: ./src/utils/schema-utils.js
 /* Generates an schema object containing type and constraint info */
 function getTypeInfo(schema) {
@@ -29792,6 +29114,1107 @@ function getSchemaFromParam(param) {
 
   return [null, null, null];
 }
+;// CONCATENATED MODULE: ./src/utils/update-curl.js
+
+function updateCurl(tryBtnEl) {
+  var _this$closest;
+
+  let curlUrl;
+  let fetchUrl;
+  let curl = '';
+  let curlHeaders = '';
+  let curlData = '';
+  let curlForm = '';
+  let acceptValue = '';
+  let contentTypeValue = '';
+  const fetchOptions = {
+    method: this.method.toUpperCase()
+  }; // Generate URL using Path Params
+
+  const reqHeaders = new Headers();
+  const respEl = (_this$closest = this.closest('.expanded-req-resp-container, .req-resp-container')) === null || _this$closest === void 0 ? void 0 : _this$closest.getElementsByTagName('api-response')[0];
+  const acceptHeader = respEl === null || respEl === void 0 ? void 0 : respEl.selectedMimeType;
+  const requestPanelEl = tryBtnEl.closest('.request-panel');
+  const pathParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='path']")];
+  const queryParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='query']")];
+  const queryParamObjTypeEls = [...requestPanelEl.querySelectorAll("[data-ptype='query-object']")];
+  const headerParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='header']")];
+  const requestBodyContainerEl = requestPanelEl.querySelector('.request-body-container');
+  fetchUrl = this.path; // Generate URL using Path Params
+
+  pathParamEls.map(el => {
+    fetchUrl = fetchUrl.replace(`{${el.dataset.pname}}`, encodeURIComponent(el.value));
+  }); // Query Params
+
+  const urlQueryParamsMap = new Map();
+  const queryParamsWithReservedCharsAllowed = [];
+
+  if (queryParamEls.length > 0) {
+    queryParamEls.forEach(el => {
+      const queryParam = new URLSearchParams();
+
+      if (el.dataset.paramAllowReserved === 'true') {
+        queryParamsWithReservedCharsAllowed.push(el.dataset.pname);
+      }
+
+      if (el.dataset.array === 'false') {
+        if (el.value !== '') {
+          queryParam.append(el.dataset.pname, el.value);
+        }
+      } else {
+        const {
+          paramSerializeStyle,
+          paramSerializeExplode
+        } = el.dataset;
+        let vals = el.value && Array.isArray(el.value) ? el.value : [];
+        vals = Array.isArray(vals) ? vals.filter(v => v !== '') : [];
+
+        if (vals.length > 0) {
+          if (paramSerializeStyle === 'spaceDelimited') {
+            queryParam.append(el.dataset.pname, vals.join(' ').replace(/^\s|\s$/g, ''));
+          } else if (paramSerializeStyle === 'pipeDelimited') {
+            queryParam.append(el.dataset.pname, vals.join('|').replace(/^\||\|$/g, ''));
+          } else if (paramSerializeExplode === 'true') {
+            vals.forEach(v => {
+              queryParam.append(el.dataset.pname, v);
+            });
+          } else {
+            queryParam.append(el.dataset.pname, vals.join(',').replace(/^,|,$/g, ''));
+          }
+        }
+      }
+
+      if (queryParam.toString()) {
+        urlQueryParamsMap.set(el.dataset.pname, queryParam);
+      }
+    });
+  } // Query Params (Dynamic - create from JSON)
+
+
+  if (queryParamObjTypeEls.length > 0) {
+    queryParamObjTypeEls.map(el => {
+      const queryParam = new URLSearchParams();
+
+      try {
+        let queryParamObj = {};
+        const {
+          paramSerializeStyle,
+          paramSerializeExplode
+        } = el.dataset;
+        queryParamObj = Object.assign(queryParamObj, JSON.parse(el.value.replace(/\s+/g, ' ')));
+
+        if (el.dataset.paramAllowReserved === 'true') {
+          queryParamsWithReservedCharsAllowed.push(el.dataset.pname);
+        }
+
+        if ('json xml'.includes(paramSerializeStyle)) {
+          if (paramSerializeStyle === 'json') {
+            queryParam.append(el.dataset.pname, JSON.stringify(queryParamObj));
+          } else if (paramSerializeStyle === 'xml') {
+            queryParam.append(el.dataset.pname, json2xml(queryParamObj));
+          }
+        } else {
+          for (const key in queryParamObj) {
+            if (typeof queryParamObj[key] === 'object') {
+              if (Array.isArray(queryParamObj[key])) {
+                if (paramSerializeStyle === 'spaceDelimited') {
+                  queryParam.append(key, queryParamObj[key].join(' '));
+                } else if (paramSerializeStyle === 'pipeDelimited') {
+                  queryParam.append(key, queryParamObj[key].join('|'));
+                } else if (paramSerializeExplode === 'true') {
+                  // eslint-disable-line no-lonely-if
+                  queryParamObj[key].forEach(v => {
+                    queryParam.append(key, v);
+                  });
+                } else {
+                  queryParam.append(key, queryParamObj[key]);
+                }
+              }
+            } else {
+              queryParam.append(key, queryParamObj[key]);
+            }
+          }
+        }
+      } catch (err) {
+        console.log('RapiDoc: unable to parse %s into object', el.value); // eslint-disable-line no-console
+      }
+
+      if (queryParam.toString()) {
+        urlQueryParamsMap.set(el.dataset.pname, queryParam);
+      }
+    });
+  }
+
+  let urlQueryParamString = '';
+
+  if (urlQueryParamsMap.size) {
+    urlQueryParamString = '?';
+    urlQueryParamsMap.forEach((val, pname) => {
+      if (queryParamsWithReservedCharsAllowed.includes(pname)) {
+        urlQueryParamString += `${pname}=`;
+        urlQueryParamString += val.getAll(pname).join(`&${pname}=`);
+        urlQueryParamString += '&';
+      } else {
+        urlQueryParamString += `${val.toString()}&`;
+      }
+    });
+    urlQueryParamString = urlQueryParamString.slice(0, -1);
+  }
+
+  fetchUrl = `${fetchUrl}${urlQueryParamString}`; // Add authentication Query-Param if provided
+
+  this.api_keys.filter(v => v.in === 'query').forEach(v => {
+    fetchUrl = `${fetchUrl}${fetchUrl.includes('?') ? '&' : '?'}${v.name}=${encodeURIComponent(v.finalKeyValue)}`;
+  }); // Final URL for API call
+  // fetchUrl = `${this.serverUrl.replace(/\/$/, '')}${fetchUrl}`;
+
+  fetchUrl = `${this.selectedServer.computedUrl.replace(/\/$/, '')}${fetchUrl}`;
+
+  if (fetchUrl.startsWith('http') === false) {
+    const url = new URL(fetchUrl, window.location.href);
+    curlUrl = url.href;
+  } else {
+    curlUrl = fetchUrl;
+  }
+
+  curl = `curl --request ${this.method.toUpperCase()} \\\n --url '${curlUrl}' \\\n`; // Add Header Params
+
+  let headerParams = '';
+  const requestBodyType = requestBodyContainerEl ? requestBodyContainerEl.dataset.selectedRequestBodyType : '';
+  headerParamEls.map(el => {
+    if (el.value) {
+      if (el.dataset.pname === 'Accept') acceptValue = el.value;else if (el.dataset.pname === 'Content-Type') contentTypeValue = el.value;else {
+        reqHeaders.append(el.dataset.pname, el.value);
+        headerParams += ` --header '${el.dataset.pname}: ${el.value}' \\\n`;
+      }
+    }
+  });
+
+  if (acceptValue) {
+    reqHeaders.append('Accept', acceptValue);
+    curlHeaders += ` --header "Accept: ${acceptValue}" \\\n`;
+  } else if (acceptHeader) {
+    // Uses the acceptHeader from Response panel
+    reqHeaders.append('Accept', acceptHeader);
+    curlHeaders += ` --header "Accept: ${acceptHeader}" \\\n`;
+  } else if (this.accept) {
+    reqHeaders.append('Accept', this.accept);
+    curlHeaders += ` --header "Accept: ${this.accept}" \\\n`;
+  }
+
+  if (contentTypeValue) {
+    reqHeaders.append('Content-Type', contentTypeValue);
+    curlHeaders += ` --header 'Content-Type: ${contentTypeValue}' \\\n`;
+  } else if (requestBodyContainerEl) {
+    curlHeaders += ` --header "Content-Type: ${requestBodyType}" \\\n`;
+  } // Add Authentication Header if provided
+
+
+  this.resolvedSpec.securitySchemes.forEach(key => {
+    headerParams += ` --header '${key.name}: ${key.value}' \\\n`;
+  });
+  curlHeaders += headerParams; // Request Body Params
+
+  if (requestBodyContainerEl) {
+    if (requestBodyType.includes('form-urlencoded')) {
+      // url-encoded Form Params (dynamic) - Parse JSON and generate Params
+      const formUrlDynamicTextAreaEl = requestPanelEl.querySelector("[data-ptype='dynamic-form']");
+
+      if (formUrlDynamicTextAreaEl) {
+        const val = formUrlDynamicTextAreaEl.value;
+        const formUrlDynParams = new URLSearchParams();
+        let proceed = true;
+        let tmpObj;
+
+        if (val) {
+          try {
+            tmpObj = JSON.parse(val);
+          } catch (err) {
+            proceed = false;
+            console.warn('RapiDoc: Invalid JSON provided', err); // eslint-disable-line no-console
+          }
+        } else {
+          proceed = false;
+        }
+
+        if (proceed) {
+          for (const prop in tmpObj) {
+            formUrlDynParams.append(prop, JSON.stringify(tmpObj[prop]));
+          }
+
+          fetchOptions.body = formUrlDynParams;
+          curlData = ` --data ${formUrlDynParams.toString()} \\\n`;
+        }
+      } else {
+        // url-encoded Form Params (regular)
+        const formUrlEls = [...requestPanelEl.querySelectorAll("[data-ptype='form-urlencode']")];
+        const formUrlParams = new URLSearchParams();
+        formUrlEls.filter(v => v.type !== 'file').forEach(el => {
+          if (el.dataset.array === 'false') {
+            if (el.value) {
+              formUrlParams.append(el.dataset.pname, el.value);
+            }
+          } else {
+            const vals = el.value && Array.isArray(el.value) ? el.value.join(',') : '';
+            formUrlParams.append(el.dataset.pname, vals);
+          }
+        });
+        fetchOptions.body = formUrlParams;
+        curlData = ` -d ${formUrlParams.toString()} \\\n`;
+      }
+    } else if (requestBodyType.includes('form-data')) {
+      const formDataParams = new FormData();
+      const formDataEls = [...requestPanelEl.querySelectorAll("[data-ptype='form-data']")];
+      formDataEls.forEach(el => {
+        if (el.dataset.array === 'false') {
+          if (el.type === 'file' && el.files[0]) {
+            formDataParams.append(el.dataset.pname, el.files[0], el.files[0].name);
+            curlForm += ` -F "${el.dataset.pname}=@${el.files[0].name}" \\\n`;
+          } else if (el.value) {
+            formDataParams.append(el.dataset.pname, el.value);
+            curlForm += ` -F "${el.dataset.pname}=${el.value}" \\\n`;
+          }
+        } else if (el.value && Array.isArray(el.value)) {
+          el.value.forEach(v => {
+            curlForm = `${curlForm} -F "${el.dataset.pname}[]=${v}" \\\n`;
+          });
+          formDataParams.append(el.dataset.pname, el.value.join(','));
+        }
+      });
+      fetchOptions.body = formDataParams;
+    } else if (/^audio\/|^image\/|^video\/|^font\/|tar$|zip$|7z$|rtf$|msword$|excel$|\/pdf$|\/octet-stream$/.test(requestBodyType)) {
+      const bodyParamFileEl = requestPanelEl.querySelector('.request-body-param-file');
+
+      if (bodyParamFileEl !== null && bodyParamFileEl !== void 0 && bodyParamFileEl.files[0]) {
+        fetchOptions.body = bodyParamFileEl.files[0]; // eslint-disable-line prefer-destructuring
+
+        curlData = ` --data-binary @${bodyParamFileEl.files[0].name} \\\n`;
+      }
+    } else if (requestBodyType.includes('json') || requestBodyType.includes('xml') || requestBodyType.includes('text')) {
+      const exampleTextAreaEl = requestPanelEl.querySelector('.request-body-param-user-input');
+
+      if (exampleTextAreaEl !== null && exampleTextAreaEl !== void 0 && exampleTextAreaEl.value) {
+        fetchOptions.body = exampleTextAreaEl.value;
+
+        if (requestBodyType.includes('json')) {
+          try {
+            curlData = ` --data '${JSON.stringify(JSON.parse(exampleTextAreaEl.value))}' \\\n`;
+          } catch (err) {// Ignore.
+          }
+        }
+
+        if (!curlData) {
+          curlData = ` --data '${exampleTextAreaEl.value.replace(/'/g, "'\"'\"'")}' \\\n`;
+        }
+      }
+    } // Common for all request-body
+
+
+    if (!requestBodyType.includes('form-data')) {
+      // For multipart/form-data dont set the content-type to allow creation of browser generated part boundaries
+      reqHeaders.append('Content-Type', requestBodyType);
+    }
+  }
+
+  this.curlSyntax = `${curl}${curlHeaders}${curlData}${curlForm}`;
+  return {
+    fetchUrl,
+    fetchOptions,
+    reqHeaders
+  };
+}
+;// CONCATENATED MODULE: ./src/templates/security-scheme-template.js
+/* eslint-disable arrow-body-style */
+
+ // eslint-disable-line import/extensions
+
+
+
+const codeVerifier = '731DB1C3F7EA533B85E29492D26AA-1234567890-1234567890';
+const codeChallenge = '4FatVDBJKPAo4JgLLaaQFMUcQPn5CrPRvLlaob9PTYc'; // Base64 encoded SHA-256
+
+const localStorageKey = 'rapidoc';
+function applyApiKey(securitySchemeId, username = '', password = '', providedApikeyVal = '') {
+  var _this$resolvedSpec$se, _securityObj$scheme;
+
+  const securityObj = (_this$resolvedSpec$se = this.resolvedSpec.securitySchemes) === null || _this$resolvedSpec$se === void 0 ? void 0 : _this$resolvedSpec$se.find(v => v.securitySchemeId === securitySchemeId);
+
+  if (!securityObj) {
+    return false;
+  }
+
+  let finalApiKeyValue = '';
+
+  if (((_securityObj$scheme = securityObj.scheme) === null || _securityObj$scheme === void 0 ? void 0 : _securityObj$scheme.toLowerCase()) === 'basic') {
+    if (username) {
+      finalApiKeyValue = `Basic ${btoa(`${username}:${password}`)}`;
+    }
+  } else if (providedApikeyVal) {
+    var _securityObj$scheme2;
+
+    securityObj.value = providedApikeyVal;
+    finalApiKeyValue = `${((_securityObj$scheme2 = securityObj.scheme) === null || _securityObj$scheme2 === void 0 ? void 0 : _securityObj$scheme2.toLowerCase()) === 'bearer' ? 'Bearer ' : ''}${providedApikeyVal}`;
+  }
+
+  if (finalApiKeyValue) {
+    securityObj.finalKeyValue = finalApiKeyValue;
+    this.requestUpdate();
+    return true;
+  }
+
+  return false;
+}
+function onClearAllApiKeys() {
+  var _this$resolvedSpec$se2;
+
+  (_this$resolvedSpec$se2 = this.resolvedSpec.securitySchemes) === null || _this$resolvedSpec$se2 === void 0 ? void 0 : _this$resolvedSpec$se2.forEach(v => {
+    v.user = '';
+    v.password = '';
+    v.value = '';
+    v.finalKeyValue = '';
+  });
+  this.requestUpdate();
+}
+
+function getPersistedApiKeys() {
+  return JSON.parse(localStorage.getItem(localStorageKey)) || {};
+}
+
+function setPersistedApiKeys(obj) {
+  localStorage.setItem(localStorageKey, JSON.stringify(obj));
+}
+
+function recoverPersistedApiKeys() {
+  const rapidocLs = getPersistedApiKeys.call(this);
+  Object.values(rapidocLs).forEach(p => {
+    applyApiKey.call(this, p.securitySchemeId, p.username, p.password, p.value);
+  });
+}
+
+function onApiKeyChange(securitySchemeId) {
+  let apiKeyValue = '';
+  const securityObj = this.resolvedSpec.securitySchemes.find(v => v.securitySchemeId === securitySchemeId);
+
+  if (securityObj) {
+    const trEl = this.shadowRoot.getElementById(`security-scheme-${securitySchemeId}`);
+
+    if (trEl) {
+      if (securityObj.type && securityObj.scheme && securityObj.type === 'http' && securityObj.scheme.toLowerCase() === 'basic') {
+        const userVal = trEl.querySelector('.api-key-user').value.trim();
+        const passwordVal = trEl.querySelector('.api-key-password').value.trim();
+        applyApiKey.call(this, securitySchemeId, userVal, passwordVal);
+      } else {
+        apiKeyValue = trEl.querySelector('.api-key-input').value.trim();
+        applyApiKey.call(this, securitySchemeId, '', '', apiKeyValue);
+      }
+
+      if (this.persistAuth === 'true') {
+        const rapidocLs = getPersistedApiKeys.call(this);
+        rapidocLs[securitySchemeId] = securityObj;
+        setPersistedApiKeys.call(this, rapidocLs);
+      }
+    }
+  }
+} // Updates the OAuth Access Token (API key), so it reflects in UI and gets used in TRY calls
+
+
+function updateOAuthKey(securitySchemeId, accessToken, tokenType = 'Bearer') {
+  const securityObj = this.resolvedSpec.securitySchemes.find(v => v.securitySchemeId === securitySchemeId);
+  securityObj.finalKeyValue = `${tokenType.toLowerCase() === 'bearer' ? 'Bearer' : tokenType.toLowerCase() === 'mac' ? 'MAC' : tokenType} ${accessToken}`;
+  this.requestUpdate();
+}
+/* eslint-disable no-console */
+// Gets Access-Token in exchange of Authorization Code
+
+
+async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, grantType, authCode, securitySchemeId, authFlowDivEl, sendClientSecretIn = 'header', scopes = null, username = null, password = null) {
+  const respDisplayEl = authFlowDivEl ? authFlowDivEl.querySelector('.oauth-resp-display') : undefined;
+  const urlFormParams = new URLSearchParams();
+  const headers = new Headers();
+  urlFormParams.append('grant_type', grantType);
+
+  if (grantType !== 'client_credentials' && grantType !== 'password') {
+    urlFormParams.append('redirect_uri', redirectUrl);
+  }
+
+  if (authCode) {
+    urlFormParams.append('code', authCode);
+    urlFormParams.append('code_verifier', codeVerifier); // for PKCE
+  }
+
+  if (sendClientSecretIn === 'header') {
+    headers.set('Authorization', `Basic ${btoa(`${clientId}:${clientSecret}`)}`);
+  } else {
+    urlFormParams.append('client_id', clientId);
+    urlFormParams.append('client_secret', clientSecret);
+  }
+
+  if (grantType === 'password') {
+    urlFormParams.append('username', username);
+    urlFormParams.append('password', password);
+  }
+
+  if (scopes) {
+    urlFormParams.append('scope', scopes);
+  }
+
+  try {
+    const resp = await fetch(tokenUrl, {
+      method: 'POST',
+      headers,
+      body: urlFormParams
+    });
+    const tokenResp = await resp.json();
+
+    if (resp.ok) {
+      if (tokenResp.token_type && tokenResp.access_token) {
+        updateOAuthKey.call(this, securitySchemeId, tokenResp.access_token, tokenResp.token_type);
+
+        if (respDisplayEl) {
+          respDisplayEl.innerHTML = '<span style="color:var(--green)">Access Token Received</span>';
+        }
+
+        return true;
+      }
+    } else {
+      if (respDisplayEl) {
+        respDisplayEl.innerHTML = `<span style="color:var(--red)">${tokenResp.error_description || tokenResp.error_description || 'Unable to get access token'}</span>`;
+      }
+
+      return false;
+    }
+  } catch (err) {
+    if (respDisplayEl) {
+      respDisplayEl.innerHTML = '<span style="color:var(--red)">Failed to get access token</span>';
+    }
+
+    return false;
+  }
+} // Gets invoked when it receives the Authorization Code from the other window via message-event
+
+
+async function onWindowMessageEvent(msgEvent, winObj, tokenUrl, clientId, clientSecret, redirectUrl, grantType, sendClientSecretIn, securitySchemeId, authFlowDivEl) {
+  sessionStorage.removeItem('winMessageEventActive');
+  winObj.close();
+
+  if (msgEvent.data.fake) {
+    return;
+  }
+
+  if (!msgEvent.data) {
+    console.warn('RapiDoc: Received no data with authorization message');
+  }
+
+  if (msgEvent.data.error) {
+    console.warn('RapiDoc: Error while receiving data');
+  }
+
+  if (msgEvent.data) {
+    if (msgEvent.data.responseType === 'code') {
+      // Authorization Code flow
+      fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrl, grantType, msgEvent.data.code, securitySchemeId, authFlowDivEl, sendClientSecretIn);
+    } else if (msgEvent.data.responseType === 'token') {
+      // Implicit flow
+      updateOAuthKey.call(this, securitySchemeId, msgEvent.data.access_token, msgEvent.data.token_type);
+    }
+  }
+} // code_challenge generator for PKCE flow
+// TODO: Implement dynamic generation of code-challenge based on code-verifier
+
+/*
+async function generateCodeChallenge() {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(codeVerifier);
+  const sha256Hash = await window.crypto.subtle.digest('SHA-256', data); // returns Unit8Array
+  // const utf8Decoder = new TextDecoder();
+  // const b64EncodedSha256 = btoa(utf8Decoder.decode(sha256Hash));
+  const b64EncodedSha256 = base64encode(sha256Hash);
+  return b64EncodedSha256;
+}
+*/
+
+
+async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, e) {
+  const authFlowDivEl = e.target.closest('.oauth-flow');
+  const clientId = authFlowDivEl.querySelector('.oauth-client-id') ? authFlowDivEl.querySelector('.oauth-client-id').value.trim() : '';
+  const clientSecret = authFlowDivEl.querySelector('.oauth-client-secret') ? authFlowDivEl.querySelector('.oauth-client-secret').value.trim() : '';
+  const username = authFlowDivEl.querySelector('.api-key-user') ? authFlowDivEl.querySelector('.api-key-user').value.trim() : '';
+  const password = authFlowDivEl.querySelector('.api-key-password') ? authFlowDivEl.querySelector('.api-key-password').value.trim() : '';
+  const sendClientSecretIn = authFlowDivEl.querySelector('.oauth-send-client-secret-in') ? authFlowDivEl.querySelector('.oauth-send-client-secret-in').value.trim() : 'header';
+  const checkedScopeEls = [...authFlowDivEl.querySelectorAll('.scope-checkbox:checked')];
+  const pkceCheckboxEl = authFlowDivEl.querySelector(`#${securitySchemeId}-pkce`);
+  const state = `${Math.random().toString(36)}random`.slice(2, 9);
+  const nonce = `${Math.random().toString(36)}random`.slice(2, 9); // const codeChallenge = await generateCodeChallenge(codeVerifier);
+
+  const redirectUrlObj = new URL(`${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/${this.oauthReceiver}`);
+  let grantType = '';
+  let responseType = '';
+  let newWindow; // clear previous error messages
+
+  const errEls = [...authFlowDivEl.parentNode.querySelectorAll('.oauth-resp-display')];
+  errEls.forEach(v => {
+    v.innerHTML = '';
+  });
+
+  if (flowType === 'authorizationCode' || flowType === 'implicit') {
+    const authUrlObj = new URL(authUrl);
+
+    if (flowType === 'authorizationCode') {
+      grantType = 'authorization_code';
+      responseType = 'code';
+    } else if (flowType === 'implicit') {
+      responseType = 'token';
+    }
+
+    const authCodeParams = new URLSearchParams(authUrlObj.search);
+    const selectedScopes = checkedScopeEls.map(v => v.value).join(' ');
+
+    if (selectedScopes) {
+      authCodeParams.set('scope', selectedScopes);
+    }
+
+    authCodeParams.set('client_id', clientId);
+    authCodeParams.set('redirect_uri', redirectUrlObj.toString());
+    authCodeParams.set('response_type', responseType);
+    authCodeParams.set('state', state);
+    authCodeParams.set('nonce', nonce);
+
+    if (pkceCheckboxEl && pkceCheckboxEl.checked) {
+      authCodeParams.set('code_challenge', codeChallenge);
+      authCodeParams.set('code_challenge_method', 'S256');
+    }
+
+    authCodeParams.set('show_dialog', true);
+    authUrlObj.search = authCodeParams.toString(); // If any older message-event-listener is active then fire a fake message to remove it (these are single time listeners)
+
+    if (sessionStorage.getItem('winMessageEventActive') === 'true') {
+      window.postMessage({
+        fake: true
+      }, this);
+    }
+
+    setTimeout(() => {
+      newWindow = window.open(authUrlObj.toString());
+
+      if (!newWindow) {
+        console.error(`RapiDoc: Unable to open ${authUrlObj.toString()} in a new window`);
+      } else {
+        sessionStorage.setItem('winMessageEventActive', 'true');
+        window.addEventListener('message', msgEvent => onWindowMessageEvent.call(this, msgEvent, newWindow, tokenUrl, clientId, clientSecret, redirectUrlObj.toString(), grantType, sendClientSecretIn, securitySchemeId, authFlowDivEl), {
+          once: true
+        });
+      }
+    }, 10);
+  } else if (flowType === 'clientCredentials') {
+    grantType = 'client_credentials';
+    const selectedScopes = checkedScopeEls.map(v => v.value).join(' ');
+    fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrlObj.toString(), grantType, '', securitySchemeId, authFlowDivEl, sendClientSecretIn, selectedScopes);
+  } else if (flowType === 'password') {
+    grantType = 'password';
+    const selectedScopes = checkedScopeEls.map(v => v.value).join(' ');
+    fetchAccessToken.call(this, tokenUrl, clientId, clientSecret, redirectUrlObj.toString(), grantType, '', securitySchemeId, authFlowDivEl, sendClientSecretIn, selectedScopes, username, password);
+  }
+}
+/* eslint-enable no-console */
+
+/* eslint-disable indent */
+
+
+function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, authFlow, defaultScopes = [], receiveTokenIn = 'header') {
+  let {
+    authorizationUrl,
+    tokenUrl,
+    refreshUrl
+  } = authFlow;
+
+  const isUrlAbsolute = url => url.indexOf('://') > 0 || url.indexOf('//') === 0;
+
+  if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
+    refreshUrl = `${this.selectedServer.computedUrl}/${refreshUrl.replace(/^\//, '')}`;
+  }
+
+  if (tokenUrl && !isUrlAbsolute(tokenUrl)) {
+    tokenUrl = `${this.selectedServer.computedUrl}/${tokenUrl.replace(/^\//, '')}`;
+  }
+
+  if (authorizationUrl && !isUrlAbsolute(authorizationUrl)) {
+    authorizationUrl = `${this.selectedServer.computedUrl}/${authorizationUrl.replace(/^\//, '')}`;
+  }
+
+  let flowNameDisplay;
+
+  if (flowName === 'authorizationCode') {
+    flowNameDisplay = 'Authorization Code Flow';
+  } else if (flowName === 'clientCredentials') {
+    flowNameDisplay = 'Client Credentials Flow';
+  } else if (flowName === 'implicit') {
+    flowNameDisplay = 'Implicit Flow';
+  } else if (flowName === 'password') {
+    flowNameDisplay = 'Password Flow';
+  } else {
+    flowNameDisplay = flowName;
+  }
+
+  return $`
+    <div class="oauth-flow ${flowName}" style="padding: 12px 0; margin-bottom:12px;">
+      <div class="tiny-title upper" style="margin-bottom:8px;">${flowNameDisplay}</div>
+      ${authorizationUrl ? $`<div style="margin-bottom:5px"><span style="width:75px; display: inline-block;">Auth URL</span> <span class="mono-font"> ${authorizationUrl} </span></div>` : ''}
+      ${tokenUrl ? $`<div style="margin-bottom:5px"><span style="width:75px; display: inline-block;">Token URL</span> <span class="mono-font">${tokenUrl}</span></div>` : ''}
+      ${refreshUrl ? $`<div style="margin-bottom:5px"><span style="width:75px; display: inline-block;">Refresh URL</span> <span class="mono-font">${refreshUrl}</span></div>` : ''}
+      ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit' || flowName === 'password' ? $`
+          ${authFlow.scopes ? $`
+              <span> Scopes </span>
+              <div class= "oauth-scopes" part="section-auth-scopes" style = "width:100%; display:flex; flex-direction:column; flex-wrap:wrap; margin:0 0 10px 24px">
+                ${Object.entries(authFlow.scopes).map((scopeAndDescr, index) => $`
+                  <div class="m-checkbox" style="display:inline-flex; align-items:center">
+                    <input type="checkbox" part="checkbox checkbox-auth-scope" class="scope-checkbox" id="${securitySchemeId}${flowName}${index}" ?checked="${defaultScopes.includes(scopeAndDescr[0])}" value="${scopeAndDescr[0]}">
+                    <label for="${securitySchemeId}${flowName}${index}" style="margin-left:5px; cursor:pointer">
+                      <span class="mono-font">${scopeAndDescr[0]}</span>
+                        ${scopeAndDescr[0] !== scopeAndDescr[1] ? ` - ${scopeAndDescr[1] || ''}` : ''}
+                    </label>
+                  </div>
+                `)}
+              </div>
+            ` : ''}
+          ${flowName === 'password' ? $`
+              <div style="margin:5px 0">
+                <input type="text" value = "" placeholder="username" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} api-key-user" part="textbox textbox-username">
+                <input type="password" value = "" placeholder="password" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} api-key-password" style = "margin:0 5px;" part="textbox textbox-password">
+              </div>` : ''}
+          <div>
+            ${flowName === 'authorizationCode' ? $`
+                <div style="margin: 16px 0 4px">
+                  <input type="checkbox" part="checkbox checkbox-auth-scope" id="${securitySchemeId}-pkce" checked>
+                  <label for="${securitySchemeId}-pkce" style="margin:0 16px 0 4px; line-height:24px; cursor:pointer">
+                   Send Proof Key for Code Exchange (PKCE)
+                  </label>
+                </div>
+              ` : ''}
+            <input type="text" part="textbox textbox-auth-client-id" value = "${clientId || ''}" placeholder="client-id" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} oauth-client-id">
+            ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password' ? $`
+                <input type="password" part="textbox textbox-auth-client-secret" value = "${clientSecret || ''}" placeholder="client-secret" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} oauth-client-secret" style = "margin:0 5px;">
+                ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password' ? $`
+                    <select style="margin-right:5px;" class="${flowName} ${securitySchemeId} oauth-send-client-secret-in">
+                      <option value = 'header' .selected = ${receiveTokenIn === 'header'} > Authorization Header </option>
+                      <option value = 'request-body' .selected = ${receiveTokenIn === 'request-body'}> Request Body </option>
+                    </select>` : ''}` : ''}
+            ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'implicit' || flowName === 'password' ? $`
+                <button class="m-btn thin-border" part="btn btn-outline"
+                  @click="${e => {
+    onInvokeOAuthFlow.call(this, securitySchemeId, flowName, authorizationUrl, tokenUrl, e);
+  }}"
+                > GET TOKEN </button>` : ''}
+          </div>
+          <div class="oauth-resp-display red-text small-font-size"></div>
+          ` : ''}
+    </div>
+  `;
+}
+
+function removeApiKey(securitySchemeId) {
+  var _this$resolvedSpec$se3;
+
+  const securityObj = (_this$resolvedSpec$se3 = this.resolvedSpec.securitySchemes) === null || _this$resolvedSpec$se3 === void 0 ? void 0 : _this$resolvedSpec$se3.find(v => v.securitySchemeId === securitySchemeId);
+  securityObj.user = '';
+  securityObj.password = '';
+  securityObj.value = '';
+  securityObj.finalKeyValue = '';
+
+  if (this.persistAuth === 'true') {
+    const rapidocLs = getPersistedApiKeys.call(this);
+    delete rapidocLs[securityObj.securitySchemeId];
+    setPersistedApiKeys.call(this, rapidocLs);
+  }
+
+  this.requestUpdate();
+}
+
+function handleApiKeyChange(e, securitySchemeId, apiKey) {
+  if (apiKey === '') removeApiKey.call(this, securitySchemeId);else onApiKeyChange.call(this, securitySchemeId);
+  updateCurl.call(this, e.target ? e.target : e);
+}
+
+function securitySchemeTemplate() {
+  var _this$resolvedSpec$se4;
+
+  if (!this.resolvedSpec) {
+    return '';
+  }
+
+  const providedApiKeys = (_this$resolvedSpec$se4 = this.resolvedSpec.securitySchemes) === null || _this$resolvedSpec$se4 === void 0 ? void 0 : _this$resolvedSpec$se4.filter(v => v.finalKeyValue);
+
+  if (!providedApiKeys) {
+    return;
+  }
+
+  return $`
+  <section id='auth' part="section-auth" style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;" class = 'observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}'>
+    <div class="header-auth-title">Header Auth</div>
+
+    ${this.resolvedSpec.securitySchemes && this.resolvedSpec.securitySchemes.length > 0 ? $`
+        <div id="auth-table">
+          ${this.resolvedSpec.securitySchemes.map(v => $`
+            <div id="security-scheme-${v.securitySchemeId}" class="header-auth-container ${v.type.toLowerCase()}">
+              <div class="header-auth-label">${v.name}</div>
+              ${v.description ? $`
+                  <div class="m-markdown">
+                    ${unsafe_html_o(marked(v.description || ''))}
+                  </div>` : ''}
+
+              ${v.type.toLowerCase() === 'apikey' || v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'bearer' ? $`
+                  <div>
+                    ${v.in !== 'cookie' ? $`
+                        <input
+                          type="text"
+                          spellcheck="false"
+                          value="${v.value}"
+                          class="${v.type} ${v.securitySchemeId} api-key-input header-auth-input"
+                          @input="${e => {
+    handleApiKeyChange.call(this, e, v.securitySchemeId, e.target.value);
+  }}"
+                        >` : $`<span class="gray-text" style="font-size::var(--font-size-small)"> cookies cannot be set from here</span>`}
+                  </div>` : ''}
+              ${v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'basic' ? $`
+                  <div style="margin-bottom:5px">
+                    Send <code>Authorization</code> in <code>header</code> containing the word <code>Basic</code> followed by a space and a base64 encoded string of <code>username:password</code>.
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      value="${v.user}"
+                      spellcheck="false"
+                      placeholder="username"
+                      class="${v.type} ${v.securitySchemeId} api-key-user"
+                      style="width:100px"
+                      @change = ${e => {
+    updateCurl.call(this, e.target ? e.target : e);
+  }}
+                    >
+                    <input
+                      type="password"
+                      spellcheck="false"
+                      placeholder="password"
+                      value="${v.password}"
+                      class="${v.type} ${v.securitySchemeId} api-key-password"
+                      style="width:100px; margin:0 5px;"
+                      @change = ${e => {
+    updateCurl.call(this, e.target ? e.target : e);
+  }}
+                    >
+                    <button class="m-btn thin-border"
+                      @click="${e => {
+    onApiKeyChange.call(this, v.securitySchemeId, e);
+  }}"
+                      part="btn btn-outline"
+                    >
+                      ${v.finalKeyValue ? 'UPDATE' : 'SET'}
+                    </button>
+                  </div>` : ''}
+            </div>
+            ${v.type.toLowerCase() === 'oauth2' ? $`
+                <div>
+                  ${Object.keys(v.flows).map(f => oAuthFlowTemplate.call(this, f, v['x-client-id'], v['x-client-secret'], v.securitySchemeId, v.flows[f], v['x-default-scopes'], v['x-receive-token-in']))}
+                </div>
+                ` : ''}
+          `)}
+        </div>` : ''}
+    <!--
+      <button class='test-method-button' @click='${this.onTryClick}' >
+        TEST METHOD
+      </button>
+    -->
+    <slot name="auth">
+    </slot>
+  </section>
+`;
+}
+function pathSecurityTemplate(pathSecurity) {
+  if (this.resolvedSpec.securitySchemes && pathSecurity) {
+    const orSecurityKeys1 = [];
+    pathSecurity.forEach(pSecurity => {
+      const andSecurityKeys1 = [];
+      const andKeyTypes = [];
+
+      if (Object.keys(pSecurity).length === 0) {
+        orSecurityKeys1.push({
+          securityTypes: 'None',
+          securityDefs: []
+        });
+      } else {
+        Object.keys(pSecurity).forEach(pathSecurityKey => {
+          let pathScopes = '';
+          const s = this.resolvedSpec.securitySchemes.find(ss => ss.securitySchemeId === pathSecurityKey);
+
+          if (pSecurity[pathSecurityKey] && Array.isArray(pSecurity[pathSecurityKey])) {
+            pathScopes = pSecurity[pathSecurityKey].join(', ');
+          }
+
+          if (s) {
+            andKeyTypes.push(s.typeDisplay);
+            andSecurityKeys1.push({ ...s,
+              ...{
+                scopes: pathScopes
+              }
+            });
+          }
+        });
+        orSecurityKeys1.push({
+          securityTypes: andKeyTypes.length > 1 ? `${andKeyTypes[0]} + ${andKeyTypes.length - 1} more` : andKeyTypes[0],
+          securityDefs: andSecurityKeys1
+        });
+      }
+    });
+    return $`<div style="position:absolute; top:3px; right:2px; font-size:var(--font-size-small); line-height: 1.5;">
+      <div style="position:relative; display:flex; min-width:350px; max-width:700px; justify-content: flex-end;">
+        <svg width="16" height="24">
+          <g>
+            <path style="fill: var(--fg3)" d="m13.8,8.5l0,-2.6l0,0c0,-3.2 -2.6,-5.8 -5.8,-5.8s-5.8,2.6 -5.8,5.8l0,0l0,2.6l-2.1,0l0,11.2l16,0l0,-11.2l-2.1,0l-0,0l0,0l0,0l-0,0zm-9.8,-2.6c0,0 0,0 0,0c0,-2.2 1.8,-4 4,-4c2.2,0 4,1.8 4,4c0,0 0,0 0,0l0,2.6l-8.03,0l0,-2.6l0,0l0,0z" />
+          </g>
+        </svg>
+          ${orSecurityKeys1.map((orSecurityItem1, i) => $`
+
+          ${orSecurityItem1.securityTypes ? $`
+              ${i !== 0 ? $`<div style="padding:3px 4px;"> OR </div>` : ''}
+              <div class="tooltip">
+                <div style = "padding:2px 4px; white-space:nowrap; text-overflow:ellipsis;max-width:150px; overflow:hidden;">
+                  ${this.updateRoute === 'true' && this.allowAuthentication === 'true' ? $`<a part="anchor anchor-operation-security" href="#auth"> ${orSecurityItem1.securityTypes} </a>` : $`${orSecurityItem1.securityTypes}`}
+                </div>
+                <div class="tooltip-text" style="position:absolute; color: var(--fg); top:26px; right:0; border:1px solid var(--border-color);padding:2px 4px; display:block;">
+                  ${orSecurityItem1.securityDefs.length > 1 ? $`<div>Requires <b>all</b> of the following </div>` : ''}
+                  <div style="padding-left: 8px">
+                    ${orSecurityItem1.securityDefs.map((andSecurityItem, j) => {
+      const scopeHtml = $`${andSecurityItem.scopes !== '' ? $`
+                          <div>
+                            <b>Required scopes:</b>
+                            <br/>
+                            <div style="margin-left:8px">
+                              ${andSecurityItem.scopes.split(',').map((scope, cnt) => $`${cnt === 0 ? '' : '┃'}<span>${scope}</span>`)}
+                            </div>
+                          </div>` : ''}`;
+      return $`
+                      ${andSecurityItem.type === 'oauth2' ? $`
+                          <div>
+                            ${orSecurityItem1.securityDefs.length > 1 ? $`<b>${j + 1}.</b> &nbsp;` : 'Needs'}
+                            OAuth Token <span style="font-family:var(--font-mono); color:var(--primary-color);">${andSecurityItem.securitySchemeId}</span> in <b>Authorization header</b>
+                            ${scopeHtml}
+                          </div>` : andSecurityItem.type === 'http' ? $`
+                            <div>
+                              ${orSecurityItem1.securityDefs.length > 1 ? $`<b>${j + 1}.</b> &nbsp;` : $`Requires`}
+                              ${andSecurityItem.scheme === 'basic' ? 'Base 64 encoded username:password' : 'Bearer Token'} in <b>Authorization header</b>
+                              ${scopeHtml}
+                            </div>` : $`
+                            <div>
+                              ${orSecurityItem1.securityDefs.length > 1 ? $`<b>${j + 1}.</b> &nbsp;` : $`Requires`}
+                              Token in <b>${andSecurityItem.name} ${andSecurityItem.in}</b>
+                              ${scopeHtml}
+                            </div>`}`;
+    })}
+                  </div>
+                </div>
+              </div>
+            ` : ''}
+        `)}
+      </div>
+    `;
+  }
+
+  return '';
+}
+/* eslint-enable indent */
+;// CONCATENATED MODULE: ./src/templates/code-samples-template.js
+
+ // eslint-disable-line import/extensions
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* eslint-disable indent */
+
+function codeSamplesTemplate(xCodeSamples) {
+  return $`
+  <section class="table-title" style="margin-top:24px;">CODE SAMPLES</div>
+  <div class="tab-panel col"
+    @click="${e => {
+    if (!e.target.classList.contains('tab-btn')) {
+      return;
+    }
+
+    const clickedTab = e.target.dataset.tab;
+    const tabButtons = [...e.currentTarget.querySelectorAll('.tab-btn')];
+    const tabContents = [...e.currentTarget.querySelectorAll('.tab-content')];
+    tabButtons.forEach(tabBtnEl => tabBtnEl.classList[tabBtnEl.dataset.tab === clickedTab ? 'add' : 'remove']('active'));
+    tabContents.forEach(tabBodyEl => {
+      tabBodyEl.style.display = tabBodyEl.dataset.tab === clickedTab ? 'block' : 'none';
+    });
+  }}">
+    <div class="tab-buttons row" style="width:100; overflow">
+      ${xCodeSamples.map((v, i) => $`<button class="tab-btn ${i === 0 ? 'active' : ''}" data-tab = '${v.lang}${i}'> ${v.label || v.lang} </button>`)}
+    </div>
+    ${xCodeSamples.map((v, i) => {
+    var _v$lang, _v$lang2, _v$lang3;
+
+    return $`
+      <div class="tab-content m-markdown" style= "display:${i === 0 ? 'block' : 'none'}" data-tab = '${v.lang}${i}'>
+        <button class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${e => {
+      copyToClipboard(v.source, e);
+    }}'> Copy </button>
+        <pre><code class="language">${(prism_core_default()).languages[(_v$lang = v.lang) === null || _v$lang === void 0 ? void 0 : _v$lang.toLowerCase()] ? unsafe_html_o(prism_core_default().highlight(v.source, (prism_core_default()).languages[(_v$lang2 = v.lang) === null || _v$lang2 === void 0 ? void 0 : _v$lang2.toLowerCase()], (_v$lang3 = v.lang) === null || _v$lang3 === void 0 ? void 0 : _v$lang3.toLowerCase())) : v.source}</code></pre>
+      </div>`;
+  })}
+  </section>`;
+}
+/* eslint-enable indent */
+;// CONCATENATED MODULE: ./src/templates/callback-template.js
+
+/* eslint-disable indent */
+
+function callbackTemplate(callbacks) {
+  return $`
+    <div class="req-res-title" style="margin-top:12px">CALLBACKS</div>
+    ${Object.entries(callbacks).map(kv => $`
+      <div class="tiny-title" style="padding: 12px; border:1px solid var(--light-border-color)"> 
+        ${kv[0]}
+        ${Object.entries(kv[1]).map(pathObj => $`
+          <div class="mono-font small-font-size" style="display:flex; margin-left:16px;">
+            <div style="width:100%"> 
+              ${Object.entries(pathObj[1]).map(method => {
+    var _method$, _method$2, _method$3;
+
+    return $`
+                <div>
+                  <div style="margin-top:12px;">
+                    <div class="method method-fg ${method[0]}" style="width:70px; border:none; margin:0; padding:0; line-height:20px; vertical-align: baseline;text-align:left"> 
+                      <span style="font-size:20px;"> &#x2944; </span> 
+                      ${method[0]} 
+                    </div>
+                    <span style="line-height:20px; vertical-align: baseline;">${pathObj[0]} </span>
+                  </div>  
+                  <div class='expanded-req-resp-container'>
+                    <api-request
+                      class = "${this.renderStyle}-mode callback"  
+                      style = "width:100%;"
+                      callback = "true"
+                      method = "${method[0] || ''}", 
+                      path = "${pathObj[0] || ''}" 
+                      .parameters = "${((_method$ = method[1]) === null || _method$ === void 0 ? void 0 : _method$.parameters) || ''}" 
+                      .request_body = "${((_method$2 = method[1]) === null || _method$2 === void 0 ? void 0 : _method$2.requestBody) || ''}"
+                      fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
+                      use-summary-to-list-example = "${this.useSummaryToListExamples}"
+                      allow-try = "false"
+                      render-style="${this.renderStyle}" 
+                      schema-style = "${this.schemaStyle}"
+                      active-schema-tab = "${this.defaultSchemaTab}"
+                      schema-expand-level = "${this.schemaExpandLevel}"
+                      schema-description-expanded = "${this.schemaDescriptionExpanded}"
+                      allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+                      schema-hide-read-only = "false"
+                      schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : 'true'}"
+                      fetch-credentials = "${this.fetchCredentials}"
+                      exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
+                        file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
+                        anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+                    > </api-request>
+
+                    <api-response
+                      style = "width:100%;"
+                      class = "${this.renderStyle}-mode"
+                      callback = "true"
+                      .responses="${(_method$3 = method[1]) === null || _method$3 === void 0 ? void 0 : _method$3.responses}"
+                      render-style="${this.renderStyle}"
+                      schema-style="${this.schemaStyle}"
+                      active-schema-tab = "${this.defaultSchemaTab}"
+                      schema-expand-level = "${this.schemaExpandLevel}"
+                      schema-description-expanded = "${this.schemaDescriptionExpanded}"
+                      allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
+                      schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : 'true'}"
+                      schema-hide-write-only = "false"
+                      exportparts = "btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
+                      schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+                    > </api-response>
+                  </div>
+                </div>  
+              `;
+  })}
+            </div>  
+          </div>  
+        `)}
+      </div>  
+    `)}
+  `;
+}
+/* eslint-enable indent */
+;// CONCATENATED MODULE: ./node_modules/lit-html/directives/guard.js
+
+/**
+ * @license
+ * Copyright 2018 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+const guard_e={},guard_i=directive_e(class extends directive_i{constructor(){super(...arguments),this.nt=guard_e}render(r,t){return t()}update(t,[s,e]){if(Array.isArray(s)){if(Array.isArray(this.nt)&&this.nt.length===s.length&&s.every(((r,t)=>r===this.nt[t])))return b}else if(this.nt===s)return b;return this.nt=Array.isArray(s)?Array.from(s):s,this.render(s,e)}});
+//# sourceMappingURL=guard.js.map
+
+;// CONCATENATED MODULE: ./node_modules/lit/directives/guard.js
+
+//# sourceMappingURL=guard.js.map
+
+;// CONCATENATED MODULE: ./src/styles/border-styles.js
+
+/* harmony default export */ const border_styles = (r`
+.border-top {
+  border-top:1px solid var(--border-color);
+}
+.border{
+  border:1px solid var(--border-color);
+  border-radius: var(--border-radius);
+}
+.light-border{
+  border:1px solid var(--light-border-color);
+  border-radius: var(--border-radius);
+}
+.pad-8-16{
+  padding: 8px 16px;
+}
+.pad-top-8{
+  padding-top: 8px;
+}
+.mar-top-8{
+  margin-top: 8px;
+}
+`);
+;// CONCATENATED MODULE: ./src/styles/prism-languages-styles.js
+
+const ShellStyle = r`
+.shell-token.shell-function {
+  color: #2953B2;
+}
+
+.shell-token.shell-method {
+  color: #4A4A4A;
+}
+
+.shell-token.shell-punctuation {
+  color: #4A4A4A;
+}
+
+.shell-token.shell-string {
+  color: var(--green);
+}
+
+`;
+const JavascriptStyle = r``;
+const RubyStyle = r``;
+const PhpStyle = r``;
+const PythonStyle = r``;
+/* harmony default export */ const prism_languages_styles = ([ShellStyle, JavascriptStyle, RubyStyle, PhpStyle, PythonStyle]);
 ;// CONCATENATED MODULE: ./src/components/json-tree.js
 
 
@@ -30604,7 +31027,7 @@ class Breadcrumbs extends lit_element_s {
             </svg>
           ` : ''}
 
-          <a class='header' href=${header.link}>${header.title}</a>
+          <span class='header'>${header.title}</span>
         `)}
       </div>
     `;
@@ -30615,6 +31038,7 @@ customElements.define('bread-crumbs', Breadcrumbs);
 ;// CONCATENATED MODULE: ./src/templates/server-template.js
 
  // eslint-disable-line import/extensions
+
 
 
 function setApiServer(serverUrl) {
@@ -30646,6 +31070,7 @@ function onApiServerVarChange(e, serverObj) {
     tempUrl = tempUrl.replace(regex, v.value);
   });
   serverObj.computedUrl = tempUrl;
+  updateCurl.call(this, e.target ? e.target : e);
   this.requestUpdate();
 }
 /* eslint-disable indent */
@@ -30705,7 +31130,7 @@ function serverTemplate() {
   return $`
   <section id = 'servers' part="section-servers" style="text-align:left; direction:ltr; margin-block: 32px 24px;" class='regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
     <span class="api-base-url">Base URL</span>
-    <div style="margin-block: 16px;">
+    <div style="margin-block: 16px; overflow: auto;">
       ${serverVarsTemplate.call(this)}
     </div>
     <div style="display: flex; align-items: center;">
@@ -30721,6 +31146,7 @@ function serverTemplate() {
  // eslint-disable-line import/extensions
 
  // eslint-disable-line import/extensions
+
 
 
 
@@ -31014,6 +31440,10 @@ class ApiRequest extends lit_element_s {
           opacity: 1;
         }
 
+        .request-body-container {
+          overflow: auto;
+        }
+
         @media only screen and (min-width: 768px) {
           .textarea {
             padding:8px;
@@ -31030,14 +31460,19 @@ class ApiRequest extends lit_element_s {
 
   render() {
     return $`
-    <div class="col regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'}">
-      <div>
+    <div class="row-api regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'}">
+      <div class="row-api-left">
         ${guard_i([this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('path'))}
         ${guard_i([this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('query'))}
         ${this.requestBodyTemplate()}
         ${guard_i([this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('header'))}
         ${guard_i([this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('cookie'))}
         ${this.allowTry === 'false' ? '' : $`${this.apiCallTemplate()}`}
+      </div>
+      <div class="row-api-right">
+        ${securitySchemeTemplate.call(this)}
+        ${serverTemplate.call(this)}
+        ${this.apiResponseTabTemplate()}
       </div>  
     </div>
     `;
@@ -31077,7 +31512,7 @@ class ApiRequest extends lit_element_s {
             data-example-type="${paramType === 'array' ? paramType : 'string'}"
             data-example = "${v.value && Array.isArray(v.value) ? (_v$value = v.value) === null || _v$value === void 0 ? void 0 : _v$value.join('~|~') : v.value || ''}"
             @click="${e => {
-        const inputEl = e.target.closest('table').querySelector(`[data-pname="${paramName}"]`);
+        const inputEl = e.target.closest('div').querySelector(`[data-pname="${paramName}"]`);
 
         if (inputEl) {
           if (e.target.dataset.exampleType === 'array') {
@@ -31085,6 +31520,9 @@ class ApiRequest extends lit_element_s {
           } else {
             inputEl.value = e.target.dataset.example;
           }
+
+          updateCurl.call(this, inputEl);
+          this.requestUpdate();
         }
       }}"
           >
@@ -31240,6 +31678,10 @@ class ApiRequest extends lit_element_s {
                           data-x-fill-example = "${param['x-fill-example'] || 'yes'}"
                           data-array="false"
                           value="${param.schema.default}"
+                          @input = ${e => {
+          updateCurl.call(this, e.target ? e.target : e);
+          this.requestUpdate();
+        }}
                         />`}` : ''}
               <span class="param-description">${unsafe_html_o(marked(param.description || ''))}</span>
               ${this.exampleListTemplate.call(this, param.name, paramSchema.type, example.exampleList)}
@@ -31254,9 +31696,6 @@ class ApiRequest extends lit_element_s {
         <bread-crumbs
           .headers=${[{
       title: this.schemaShortSummary,
-      link: '.'
-    }, {
-      title: 'Authentication',
       link: '.'
     }, {
       title,
@@ -31395,6 +31834,10 @@ class ApiRequest extends lit_element_s {
                     data-example-format = "${v.exampleFormat}"
                     style="width:100%; resize:vertical;"
                     .textContent = "${this.fillRequestFieldsWithExample === 'true' ? v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, null, 2) : ''}"
+                    @input = ${e => {
+            updateCurl.call(this, e.target ? e.target : e);
+            this.requestUpdate();
+          }}
                   ></textarea>
                 </div>  
               `)}
@@ -31626,6 +32069,10 @@ class ApiRequest extends lit_element_s {
                           data-pname = "${fieldName}"
                           data-example = "${Array.isArray(fieldExamples) ? fieldExamples[0] : fieldExamples}"
                           data-array = "false"
+                          @input = ${e => {
+          updateCurl.call(this, e.target ? e.target : e);
+          this.requestUpdate();
+        }}
                         />` : ''}
                     `}`}
           </td>
@@ -31643,7 +32090,7 @@ class ApiRequest extends lit_element_s {
                             data-type="${paramSchema.type === 'array' ? paramSchema.type : 'string'}"
                             data-enum="${v.trim()}"
                             @click="${e => {
-          const inputEl = e.target.closest('table').querySelector(`[data-pname="${fieldName}"]`);
+          const inputEl = e.target.closest('div').querySelector(`[data-pname="${fieldName}"]`);
 
           if (inputEl) {
             if (e.target.dataset.type === 'array') {
@@ -31651,6 +32098,9 @@ class ApiRequest extends lit_element_s {
             } else {
               inputEl.value = e.target.dataset.enum;
             }
+
+            updateCurl.call(this, inputEl);
+            this.requestUpdate();
           }
         }}"
                           > 
@@ -31698,10 +32148,12 @@ class ApiRequest extends lit_element_s {
     };
     prism_core_default().plugins.customClass.map((className, language) => `${language}-${className}`);
     return $`
-      <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
-        <div style="flex:1"></div>
-        <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
-      </div>
+      <!--
+        <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
+          <div style="flex:1"></div>
+          <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
+        </div>
+      -->
       <div class="tab-panel col" style="border-top: 1px solid #E7E9EE; border-bottom: 1px solid #E7E9EE;">
         <div class="tab-content col m-markdown" style="flex:1; display:flex; margin: 0;">
           <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${e => {
@@ -31709,6 +32161,7 @@ class ApiRequest extends lit_element_s {
     }}' part="btn btn-fill"> Copy </button>
           <pre class="code-container" style="white-space:pre;border: none;"><code>${unsafe_html_o(prism_core_default().highlight(this.curlSyntax.trim().replace(/\\$/, ''), (prism_core_default()).languages.shell, 'shell'))}</code></pre>
         </div>
+        <!--
         <div style="background: #F8F7FC; padding-inline: 32px;padding-block: 16px">
           <div class="row" style="width:100%; height:20px; background:#E7E9EE; border-radius:2px;padding-inline:4px;margin-bottom:4px">
             <div style="width:8px;height:8px;border-radius:50%;${this.responseBlobUrl || this.responseText ? 'border: 1px solid #79A479;background: #E6F2E6;' : 'border: 1px solid #DC4C43;background: #F0E6E4;'}"></div>
@@ -31734,6 +32187,7 @@ class ApiRequest extends lit_element_s {
               </div>` : ''} 
               `}
         </div>
+        -->
       </div>`;
   }
 
@@ -31769,6 +32223,9 @@ class ApiRequest extends lit_element_s {
         this.onTryClick(this.renderRoot.host.shadowRoot.children[0]);
       });
       this.resultLoad = true;
+    } else {
+      const el = this.renderRoot.host.shadowRoot.children[0];
+      updateCurl.call(this, el.target ? el.target : el);
     }
 
     return $`
@@ -31785,18 +32242,16 @@ class ApiRequest extends lit_element_s {
                   </div>` : $`<div class="gray-text">Required  <span style="color:var(--red)">(None Applied)</span>`}` : $`<span class="gray-text"> Not Required </span>`}
         </div>
       </div>
-      ${this.parameters.length > 0 || this.request_body ? $`
+      <!-- ${this.parameters.length > 0 || this.request_body ? $`
             <button class="m-btn thin-border" part="btn btn-outline btn-fill" style="margin-right:5px;" @click="${this.onFillRequestData}" title="Fills with example data (if provided)">
               FILL EXAMPLE
             </button>
             <button class="m-btn thin-border" part="btn btn-outline btn-clear" style="margin-right:5px;" @click="${this.onClearRequestData}">
               CLEAR
-            </button>` : ''}
+            </button>` : ''} 
       <button class="m-btn primary thin-border" part="btn btn-try" @click="${this.onTryClick}">TRY</button>
+      -->
     </div>
-    ${securitySchemeTemplate.call(this)}
-    ${serverTemplate.call(this)}
-    ${this.responseMessage === '' ? '' : this.apiResponseTabTemplate()}
     `;
   }
   /* eslint-enable indent */
@@ -31825,313 +32280,14 @@ class ApiRequest extends lit_element_s {
   }
 
   async onTryClick(e) {
-    var _this$closest;
-
     const tryBtnEl = e.target ? e.target : e;
-    let fetchUrl;
-    let curlUrl;
-    let curl = '';
-    let curlHeaders = '';
-    let curlData = '';
-    let curlForm = '';
-    let acceptValue = '';
-    let contentTypeValue = '';
-    const respEl = (_this$closest = this.closest('.expanded-req-resp-container, .req-resp-container')) === null || _this$closest === void 0 ? void 0 : _this$closest.getElementsByTagName('api-response')[0];
-    const acceptHeader = respEl === null || respEl === void 0 ? void 0 : respEl.selectedMimeType;
-    const requestPanelEl = tryBtnEl.closest('.request-panel');
-    const pathParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='path']")];
-    const queryParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='query']")];
-    const queryParamObjTypeEls = [...requestPanelEl.querySelectorAll("[data-ptype='query-object']")];
-    const headerParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='header']")];
-    const requestBodyContainerEl = requestPanelEl.querySelector('.request-body-container');
-    fetchUrl = this.path;
-    const fetchOptions = {
-      method: this.method.toUpperCase()
-    }; // Generate URL using Path Params
-
-    pathParamEls.map(el => {
-      fetchUrl = fetchUrl.replace(`{${el.dataset.pname}}`, encodeURIComponent(el.value));
-    }); // Query Params
-
-    const urlQueryParamsMap = new Map();
-    const queryParamsWithReservedCharsAllowed = [];
-
-    if (queryParamEls.length > 0) {
-      queryParamEls.forEach(el => {
-        const queryParam = new URLSearchParams();
-
-        if (el.dataset.paramAllowReserved === 'true') {
-          queryParamsWithReservedCharsAllowed.push(el.dataset.pname);
-        }
-
-        if (el.dataset.array === 'false') {
-          if (el.value !== '') {
-            queryParam.append(el.dataset.pname, el.value);
-          }
-        } else {
-          const {
-            paramSerializeStyle,
-            paramSerializeExplode
-          } = el.dataset;
-          let vals = el.value && Array.isArray(el.value) ? el.value : [];
-          vals = Array.isArray(vals) ? vals.filter(v => v !== '') : [];
-
-          if (vals.length > 0) {
-            if (paramSerializeStyle === 'spaceDelimited') {
-              queryParam.append(el.dataset.pname, vals.join(' ').replace(/^\s|\s$/g, ''));
-            } else if (paramSerializeStyle === 'pipeDelimited') {
-              queryParam.append(el.dataset.pname, vals.join('|').replace(/^\||\|$/g, ''));
-            } else {
-              if (paramSerializeExplode === 'true') {
-                // eslint-disable-line no-lonely-if
-                vals.forEach(v => {
-                  queryParam.append(el.dataset.pname, v);
-                });
-              } else {
-                queryParam.append(el.dataset.pname, vals.join(',').replace(/^,|,$/g, ''));
-              }
-            }
-          }
-        }
-
-        if (queryParam.toString()) {
-          urlQueryParamsMap.set(el.dataset.pname, queryParam);
-        }
-      });
-    } // Query Params (Dynamic - create from JSON)
-
-
-    if (queryParamObjTypeEls.length > 0) {
-      queryParamObjTypeEls.map(el => {
-        const queryParam = new URLSearchParams();
-
-        try {
-          let queryParamObj = {};
-          const {
-            paramSerializeStyle,
-            paramSerializeExplode
-          } = el.dataset;
-          queryParamObj = Object.assign(queryParamObj, JSON.parse(el.value.replace(/\s+/g, ' ')));
-
-          if (el.dataset.paramAllowReserved === 'true') {
-            queryParamsWithReservedCharsAllowed.push(el.dataset.pname);
-          }
-
-          if ('json xml'.includes(paramSerializeStyle)) {
-            if (paramSerializeStyle === 'json') {
-              queryParam.append(el.dataset.pname, JSON.stringify(queryParamObj));
-            } else if (paramSerializeStyle === 'xml') {
-              queryParam.append(el.dataset.pname, json2xml(queryParamObj));
-            }
-          } else {
-            for (const key in queryParamObj) {
-              if (typeof queryParamObj[key] === 'object') {
-                if (Array.isArray(queryParamObj[key])) {
-                  if (paramSerializeStyle === 'spaceDelimited') {
-                    queryParam.append(key, queryParamObj[key].join(' '));
-                  } else if (paramSerializeStyle === 'pipeDelimited') {
-                    queryParam.append(key, queryParamObj[key].join('|'));
-                  } else {
-                    if (paramSerializeExplode === 'true') {
-                      // eslint-disable-line no-lonely-if
-                      queryParamObj[key].forEach(v => {
-                        queryParam.append(key, v);
-                      });
-                    } else {
-                      queryParam.append(key, queryParamObj[key]);
-                    }
-                  }
-                }
-              } else {
-                queryParam.append(key, queryParamObj[key]);
-              }
-            }
-          }
-        } catch (err) {
-          console.log('RapiDoc: unable to parse %s into object', el.value); // eslint-disable-line no-console
-        }
-
-        if (queryParam.toString()) {
-          urlQueryParamsMap.set(el.dataset.pname, queryParam);
-        }
-      });
-    }
-
-    let urlQueryParamString = '';
-
-    if (urlQueryParamsMap.size) {
-      urlQueryParamString = '?';
-      urlQueryParamsMap.forEach((val, pname) => {
-        if (queryParamsWithReservedCharsAllowed.includes(pname)) {
-          urlQueryParamString += `${pname}=`;
-          urlQueryParamString += val.getAll(pname).join(`&${pname}=`);
-          urlQueryParamString += '&';
-        } else {
-          urlQueryParamString += `${val.toString()}&`;
-        }
-      });
-      urlQueryParamString = urlQueryParamString.slice(0, -1);
-    }
-
-    fetchUrl = `${fetchUrl}${urlQueryParamString}`; // Add authentication Query-Param if provided
-
-    this.api_keys.filter(v => v.in === 'query').forEach(v => {
-      fetchUrl = `${fetchUrl}${fetchUrl.includes('?') ? '&' : '?'}${v.name}=${encodeURIComponent(v.finalKeyValue)}`;
-    }); // Final URL for API call
-    // fetchUrl = `${this.serverUrl.replace(/\/$/, '')}${fetchUrl}`;
-
-    fetchUrl = `${this.selectedServer.computedUrl.replace(/\/$/, '')}${fetchUrl}`;
-
-    if (fetchUrl.startsWith('http') === false) {
-      const url = new URL(fetchUrl, window.location.href);
-      curlUrl = url.href;
-    } else {
-      curlUrl = fetchUrl;
-    }
-
-    curl = `curl --request ${this.method.toUpperCase()} \\\n --url '${curlUrl}' \\\n`;
-    const reqHeaders = new Headers(); // Add Header Params
-
-    let headerParams = '';
-    const requestBodyType = requestBodyContainerEl ? requestBodyContainerEl.dataset.selectedRequestBodyType : '';
-    headerParamEls.map(el => {
-      if (el.value) {
-        if (el.dataset.pname === 'Accept') acceptValue = el.value;else if (el.dataset.pname === 'Content-Type') contentTypeValue = el.value;else {
-          reqHeaders.append(el.dataset.pname, el.value);
-          headerParams += ` --header '${el.dataset.pname}: ${el.value}' \\\n`;
-        }
-      }
-    });
-
-    if (acceptValue) {
-      reqHeaders.append('Accept', acceptValue);
-      curlHeaders += ` --header "Accept: ${acceptValue}" \\\n`;
-    } else if (acceptHeader) {
-      // Uses the acceptHeader from Response panel
-      reqHeaders.append('Accept', acceptHeader);
-      curlHeaders += ` --header "Accept: ${acceptHeader}" \\\n`;
-    } else if (this.accept) {
-      reqHeaders.append('Accept', this.accept);
-      curlHeaders += ` --header "Accept: ${this.accept}" \\\n`;
-    }
-
-    if (contentTypeValue) {
-      reqHeaders.append('Content-Type', contentTypeValue);
-      curlHeaders += ` --header 'Content-Type: ${contentTypeValue}' \\\n`;
-    } else if (requestBodyContainerEl) {
-      curlHeaders += ` --header "Content-Type: ${requestBodyType}" \\\n`;
-    } // Add Authentication Header if provided
-
-
-    this.resolvedSpec.securitySchemes.forEach(key => {
-      headerParams += ` --header '${key.name}: ${key.value}' \\\n`;
-    });
-    curlHeaders += headerParams; // Request Body Params
-
-    if (requestBodyContainerEl) {
-      if (requestBodyType.includes('form-urlencoded')) {
-        // url-encoded Form Params (dynamic) - Parse JSON and generate Params
-        const formUrlDynamicTextAreaEl = requestPanelEl.querySelector("[data-ptype='dynamic-form']");
-
-        if (formUrlDynamicTextAreaEl) {
-          const val = formUrlDynamicTextAreaEl.value;
-          const formUrlDynParams = new URLSearchParams();
-          let proceed = true;
-          let tmpObj;
-
-          if (val) {
-            try {
-              tmpObj = JSON.parse(val);
-            } catch (err) {
-              proceed = false;
-              console.warn('RapiDoc: Invalid JSON provided', err); // eslint-disable-line no-console
-            }
-          } else {
-            proceed = false;
-          }
-
-          if (proceed) {
-            for (const prop in tmpObj) {
-              formUrlDynParams.append(prop, JSON.stringify(tmpObj[prop]));
-            }
-
-            fetchOptions.body = formUrlDynParams;
-            curlData = ` --data ${formUrlDynParams.toString()} \\\n`;
-          }
-        } else {
-          // url-encoded Form Params (regular)
-          const formUrlEls = [...requestPanelEl.querySelectorAll("[data-ptype='form-urlencode']")];
-          const formUrlParams = new URLSearchParams();
-          formUrlEls.filter(v => v.type !== 'file').forEach(el => {
-            if (el.dataset.array === 'false') {
-              if (el.value) {
-                formUrlParams.append(el.dataset.pname, el.value);
-              }
-            } else {
-              const vals = el.value && Array.isArray(el.value) ? el.value.join(',') : '';
-              formUrlParams.append(el.dataset.pname, vals);
-            }
-          });
-          fetchOptions.body = formUrlParams;
-          curlData = ` -d ${formUrlParams.toString()} \\\n`;
-        }
-      } else if (requestBodyType.includes('form-data')) {
-        const formDataParams = new FormData();
-        const formDataEls = [...requestPanelEl.querySelectorAll("[data-ptype='form-data']")];
-        formDataEls.forEach(el => {
-          if (el.dataset.array === 'false') {
-            if (el.type === 'file' && el.files[0]) {
-              formDataParams.append(el.dataset.pname, el.files[0], el.files[0].name);
-              curlForm += ` -F "${el.dataset.pname}=@${el.files[0].name}" \\\n`;
-            } else if (el.value) {
-              formDataParams.append(el.dataset.pname, el.value);
-              curlForm += ` -F "${el.dataset.pname}=${el.value}" \\\n`;
-            }
-          } else if (el.value && Array.isArray(el.value)) {
-            el.value.forEach(v => {
-              curlForm = `${curlForm} -F "${el.dataset.pname}[]=${v}" \\\n`;
-            });
-            formDataParams.append(el.dataset.pname, el.value.join(','));
-          }
-        });
-        fetchOptions.body = formDataParams;
-      } else if (/^audio\/|^image\/|^video\/|^font\/|tar$|zip$|7z$|rtf$|msword$|excel$|\/pdf$|\/octet-stream$/.test(requestBodyType)) {
-        const bodyParamFileEl = requestPanelEl.querySelector('.request-body-param-file');
-
-        if (bodyParamFileEl !== null && bodyParamFileEl !== void 0 && bodyParamFileEl.files[0]) {
-          fetchOptions.body = bodyParamFileEl.files[0]; // eslint-disable-line prefer-destructuring
-
-          curlData = ` --data-binary @${bodyParamFileEl.files[0].name} \\\n`;
-        }
-      } else if (requestBodyType.includes('json') || requestBodyType.includes('xml') || requestBodyType.includes('text')) {
-        const exampleTextAreaEl = requestPanelEl.querySelector('.request-body-param-user-input');
-
-        if (exampleTextAreaEl !== null && exampleTextAreaEl !== void 0 && exampleTextAreaEl.value) {
-          fetchOptions.body = exampleTextAreaEl.value;
-
-          if (requestBodyType.includes('json')) {
-            try {
-              curlData = ` --data '${JSON.stringify(JSON.parse(exampleTextAreaEl.value))}' \\\n`;
-            } catch (err) {// Ignore.
-            }
-          }
-
-          if (!curlData) {
-            curlData = ` --data '${exampleTextAreaEl.value.replace(/'/g, '\'"\'"\'')}' \\\n`;
-          }
-        }
-      } // Common for all request-body
-
-
-      if (!requestBodyType.includes('form-data')) {
-        // For multipart/form-data dont set the content-type to allow creation of browser generated part boundaries
-        reqHeaders.append('Content-Type', requestBodyType);
-      }
-    }
-
+    const {
+      fetchUrl,
+      fetchOptions,
+      reqHeaders
+    } = updateCurl.call(this, tryBtnEl);
     this.responseUrl = '';
     this.responseHeaders = [];
-    this.curlSyntax = '';
     this.responseStatus = 'success';
     this.responseIsBlob = false;
     this.respContentDisposition = '';
@@ -32140,8 +32296,6 @@ class ApiRequest extends lit_element_s {
       URL.revokeObjectURL(this.responseBlobUrl);
       this.responseBlobUrl = '';
     }
-
-    this.curlSyntax = `${curl}${curlHeaders}${curlData}${curlForm}`;
 
     if (this.fetchCredentials) {
       fetchOptions.credentials = this.fetchCredentials;
@@ -33564,13 +33718,13 @@ class ContentCopyButton extends lit_element_s {
                 gap: 10px;
                 width: 57px;
                 height: 20px;
-                background: linear-gradient(270deg, #FFFFFF 51.22%, rgba(255, 255, 255, 0) 104.88%);
             }
 
             span {
                 flex: 0 0 auto;
-                width: 100%;
-                padding: 4px 8px;
+                width: calc(100% - 28px);
+                padding: 4px 20px 4px 8px;
+                word-break: break-word;
             }
 
             span:hover {
@@ -33637,9 +33791,110 @@ content_copy_button_defineProperty(ContentCopyButton, "properties", {
 });
 
 customElements.define('content-copy-button', ContentCopyButton);
+;// CONCATENATED MODULE: ./src/utils/magic-block-utils.js
+
+
+function replacerBlocks(_match, textBefore, blockType, blockContent, textAfter) {
+  var _block$title;
+
+  let replaced = '';
+  if (textBefore) replaced += `${marked(textBefore)}\n\n`;
+
+  try {
+    const block = JSON.parse(decodeURIComponent(blockContent));
+
+    switch (blockType) {
+      case 'code':
+        replaced += marked(block.codes.reduce((prev, curr) => {
+          switch (curr.language) {
+            case 'jsonc':
+              curr.language = 'json';
+              break;
+
+            case 'curl':
+              curr.language = 'curl';
+              break;
+
+            default:
+              break;
+          }
+
+          return `${prev}\n\`\`\`${curr.language}\n${decodeURIComponent(curr.code)}\n\`\`\`\n`;
+        }, ''));
+        break;
+
+      case 'html':
+        replaced += `\n\n${block.html}\n\n`;
+        break;
+
+      case 'image':
+        replaced += block.images.reduce((prev, curr) => `${prev}\n\n<img src="${curr.image[0]}" alt="${curr.image[1]}" style="width:50%;" />`, '');
+        break;
+
+      case 'api-header':
+        replaced += marked(`## ${block.title}`);
+        break;
+
+      case 'callout':
+        replaced += `<blockquote class=${block.type}><h3>${(_block$title = block.title) !== null && _block$title !== void 0 ? _block$title : ''}</h3>${marked(block.body)}</blockquote>`;
+        break;
+
+      case 'embed':
+        replaced += `\n\n${block.html}\n\n`;
+        break;
+
+      case 'parameters':
+        {
+          const {
+            rows,
+            cols
+          } = block;
+          let table = '\n\n';
+
+          for (let i = 0; i < cols; i++) {
+            if (block.data[`h-${i}`]) table += `| ${block.data[`h-${i}`]}`;else table += '|';
+          }
+
+          table += '|\n';
+
+          for (let i = 0; i < cols; i++) table += '| :---';
+
+          for (let i = 0; i < rows; i++) {
+            table += '|\n';
+
+            for (let j = 0; j < cols; j++) {
+              if (block.data[`${i}-${j}`]) table += `| ${block.data[`${i}-${j}`].replace(/\n/gm, '<br />')}`;else table += '|';
+            }
+          }
+
+          table += '|\n';
+          replaced += marked(table);
+        }
+        break;
+
+      default:
+        replaced += '';
+        break;
+    }
+
+    if (textAfter) replaced += marked(textAfter);
+  } catch (err) {
+    replaced += `\n\n<blockquote class="warning"><h3>Work in progress</h3>[block:${blockType}]${blockContent}[/block]</blockquote>\n\n`;
+    if (textAfter) replaced += marked(textAfter);
+  }
+
+  return replaced;
+}
+
+function processPathDescription(description) {
+  const magicBlockRegex = /(?<TextBefore>[^[\]]*)\[block:(?<Type>[^\]]*)\](?<Content>.+?)\[\/block\](?<TextAfter>[^[\]]*)/gms;
+  const replacedMarkdown = description.replace(magicBlockRegex, replacerBlocks);
+  return replacedMarkdown;
+}
 ;// CONCATENATED MODULE: ./src/templates/expanded-endpoint-template.js
 
  // eslint-disable-line import/extensions
+
 
 
 
@@ -33687,6 +33942,7 @@ function expandedEndpointBodyTemplate(path, tagName = '') {
   }
 
   const codeSampleTabPanel = path.xCodeSamples ? codeSamplesTemplate.call(this, path.xCodeSamples) : '';
+  path.description = processPathDescription(path.description);
   return $`
     ${this.renderStyle === 'read' ? $`<div class='divider' part="operation-divider"></div>` : ''}
     <div class='expanded-endpoint-body observe-me ${path.method} ${path.deprecated ? 'deprecated' : ''} ' part="section-operation ${path.elementId}" id='${path.elementId}'>
@@ -33711,7 +33967,7 @@ function expandedEndpointBodyTemplate(path, tagName = '') {
           `}
         <slot name="${path.elementId}"></slot>`}
       ${path.description ? $`<div class="m-markdown"> ${unsafe_html_o(marked(path.description))}</div>` : ''}
-      ${pathSecurityTemplate.call(this, path.security)}
+      <!-- ${pathSecurityTemplate.call(this, path.security)} -->
       ${codeSampleTabPanel}
       <div class='expanded-req-resp-container'>
         <api-request
@@ -33726,6 +33982,8 @@ function expandedEndpointBodyTemplate(path, tagName = '') {
           .request_body = "${path.requestBody}"
           .api_keys = "${nonEmptyApiKeys}"
           .servers = "${path.servers}"
+          .resolvedSpec="${this.resolvedSpec}"
+          .selectedServer="${this.selectedServer}"
           server-url = "${((_path$servers = path.servers) === null || _path$servers === void 0 ? void 0 : (_path$servers$ = _path$servers[0]) === null || _path$servers$ === void 0 ? void 0 : _path$servers$.url) || this.selectedServer.computedUrl}"
           fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
           use-summary-to-list-example = "${this.useSummaryToListExamples}"
@@ -33874,6 +34132,7 @@ function componentsTemplate() {
 /* eslint-enable indent */
 ;// CONCATENATED MODULE: ./src/templates/overview-template.js
 
+
  // eslint-disable-line import/extensions
 
 
@@ -33891,6 +34150,7 @@ function overview_template_headingRenderer() {
 function overviewTemplate() {
   var _this$resolvedSpec, _this$resolvedSpec$in, _this$resolvedSpec$in2, _this$specUrl;
 
+  this.resolvedSpec.info.description = processPathDescription(this.resolvedSpec.info.description);
   return $`
     <section id="overview" part="section-overview"
       class="observe-me ${this.renderStyle === 'view' ? 'section-gap' : 'section-gap--read-mode'}">
@@ -34261,106 +34521,6 @@ function focusedEndpointTemplate() {
   return focusedTemplate;
 }
 /* eslint-enable indent */
-;// CONCATENATED MODULE: ./src/utils/magic-block-utils.js
-
-
-function replacerBlocks(_match, textBefore, blockType, blockContent, textAfter) {
-  var _block$title;
-
-  let replaced = '';
-  if (textBefore) replaced += `${marked(textBefore)}\n\n`;
-
-  try {
-    const block = JSON.parse(decodeURIComponent(blockContent));
-
-    switch (blockType) {
-      case 'code':
-        replaced += marked(block.codes.reduce((prev, curr) => {
-          switch (curr.language) {
-            case 'jsonc':
-              curr.language = 'json';
-              break;
-
-            case 'curl':
-              curr.language = 'curl';
-              break;
-
-            default:
-              break;
-          }
-
-          return `${prev}\n\`\`\`${curr.language}\n${decodeURIComponent(curr.code)}\n\`\`\`\n`;
-        }, ''));
-        break;
-
-      case 'html':
-        replaced += `\n\n${block.html}\n\n`;
-        break;
-
-      case 'image':
-        replaced += block.images.reduce((prev, curr) => `${prev}\n\n<img src="${curr.image[0]}" alt="${curr.image[1]}" style="width:50%;" />`, '');
-        break;
-
-      case 'api-header':
-        replaced += marked(`## ${block.title}`);
-        break;
-
-      case 'callout':
-        replaced += `<blockquote class=${block.type}><h3>${(_block$title = block.title) !== null && _block$title !== void 0 ? _block$title : ''}</h3>${marked(block.body)}</blockquote>`;
-        break;
-
-      case 'embed':
-        replaced += `\n\n${block.html}\n\n`;
-        break;
-
-      case 'parameters':
-        {
-          const {
-            rows,
-            cols
-          } = block;
-          let table = '\n\n';
-
-          for (let i = 0; i < cols; i++) {
-            if (block.data[`h-${i}`]) table += `| ${block.data[`h-${i}`]}`;else table += '|';
-          }
-
-          table += '|\n';
-
-          for (let i = 0; i < cols; i++) table += '| :---';
-
-          for (let i = 0; i < rows; i++) {
-            table += '|\n';
-
-            for (let j = 0; j < cols; j++) {
-              if (block.data[`${i}-${j}`]) table += `| ${block.data[`${i}-${j}`].replace(/\n/gm, '<br />')}`;else table += '|';
-            }
-          }
-
-          table += '|\n';
-          replaced += marked(table);
-        }
-        break;
-
-      default:
-        replaced += '';
-        break;
-    }
-
-    if (textAfter) replaced += marked(textAfter);
-  } catch (err) {
-    replaced += `\n\n<blockquote class="warning"><h3>Work in progress</h3>[block:${blockType}]${blockContent}[/block]</blockquote>\n\n`;
-    if (textAfter) replaced += marked(textAfter);
-  }
-
-  return replaced;
-}
-
-function processPathDescription(description) {
-  const magicBlockRegex = /(?<TextBefore>[^[\]]*)\[block:(?<Type>[^\]]*)\](?<Content>.+?)\[\/block\](?<TextAfter>[^[\]]*)/gms;
-  const replacedMarkdown = description.replace(magicBlockRegex, replacerBlocks);
-  return replacedMarkdown;
-}
 ;// CONCATENATED MODULE: ./src/templates/endpoint-template.js
 
  // eslint-disable-line import/extensions
@@ -34518,73 +34678,6 @@ function endpointBodyTemplate(path) {
         border-width: 1px 0px 1px 1px;
         border-style: solid;
         border-radius: 4px 0px 0px 4px;
-      }
-
-      blockquote {
-        padding: 20px;
-      }
-
-      blockquote h3 {
-        margin: 0;
-        padding: 0;
-      }
-
-      blockquote.warning {
-        border-left: 3px solid #f0ad4e;
-        background-color: #fcf8f2;
-      }
-
-      blockquote.warning h3 {
-        color: #f0ad4e;
-      }
-
-      blockquote.danger {
-        border-left: 3px solid #d9534f;
-        background-color: #fdf7f7;
-      }
-
-      blockquote.danger h3 {
-        color: #d9534f;
-      }
-
-      blockquote.info {
-        border-left: 3px solid #5bc0de;
-        background-color: #e3edf2;
-      }
-
-      blockquote.info h3 {
-        color: #5bc0de;
-      }
-
-      blockquote.success {
-        border-left: 3px solid #50af51;
-        background-color: #f3f8f3;
-      }
-
-      blockquote.success h3 {
-        color: #50af51;
-      }
-
-      pre {
-        overflow: scroll;
-        max-height: 1000px;
-        margin-top: 15px!important;
-        margin-bottom: 15px!important;
-      }
-
-      table {
-        border-spacing: 0px;
-        border-collapse: collapse;
-      }
-
-      table th {
-        border: 1px solid #dfe2e5;
-        padding: 6px 13px;
-      }
-
-      table td {
-        border: 1px solid #dfe2e5;
-        padding: 6px 13px;
       }
   </style>
   <div part="section-endpoint-body-${path.expanded ? 'expanded' : 'collapsed'}" class='endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}'>
@@ -35412,7 +35505,6 @@ function setTheme(baseTheme, theme = {}) {
 
 
 
-
 function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = true, pathsExpanded = false) {
   if (!this.resolvedSpec) {
     return '';
@@ -35474,7 +35566,7 @@ function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = 
 
     <!-- Header -->
     ${this.showHeader === 'false' ? '' : headerTemplate.call(this)}
-    
+
     <!-- Advanced Search -->
     ${this.allowAdvancedSearch === 'false' ? '' : searchByPropertiesModalTemplate.call(this)}
 
@@ -35493,8 +35585,6 @@ function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = 
   }}">
                   ${this.renderStyle === 'focused' ? $`${focusedEndpointTemplate.call(this)}` : $`
                       ${this.showInfo === 'true' ? overviewTemplate.call(this) : ''}
-                      ${this.allowServerSelection === 'true' ? serverTemplate.call(this) : ''}
-                      ${this.allowAuthentication === 'true' ? securitySchemeTemplate.call(this) : ''}
                       <div id="operations-top" class="observe-me">
                         <slot name="operations-top"></slot>
                       </div>  
@@ -35878,6 +35968,7 @@ class RapiDoc extends lit_element_s {
         height:100%;
         width:100%;
         overflow:hidden;
+        max-width: 2087px;
       }
 
       .main-content { 
@@ -36091,6 +36182,13 @@ class RapiDoc extends lit_element_s {
         }
       }
 
+      @media (min-width: 2560px) {
+        .body {
+          padding-left: 316px;
+          padding-right: 221px;
+        }
+      }
+
       @media only screen and (min-width: 1024px) {
         .nav-bar {
           width: ${o(this.fontSize === 'default' ? '300px' : this.fontSize === 'large' ? '315px' : '330px')};
@@ -36111,14 +36209,12 @@ class RapiDoc extends lit_element_s {
     const parent = this.parentElement;
 
     if (parent) {
-      if (parent.offsetWidth === 0 && parent.style.width === '') {
+      /* if (parent.offsetWidth === 0 && parent.style.width === '') {
         parent.style.width = '100vw';
       }
-
       if (parent.offsetHeight === 0 && parent.style.height === '') {
         parent.style.height = '100vh';
-      }
-
+      } */
       if (parent.tagName === 'BODY') {
         if (!parent.style.marginTop) {
           parent.style.marginTop = '0';
@@ -36712,12 +36808,9 @@ class RapiDoc extends lit_element_s {
         if (newNavEl) {
           if (this.updateRoute === 'true') {
             window.history.replaceState(null, null, `${window.location.href.split('#')[0]}${this.routePrefix || '#'}${entry.target.id}`);
-          }
+          } // newNavEl.scrollIntoView({ behavior: 'auto', block: 'center' });
 
-          newNavEl.scrollIntoView({
-            behavior: 'auto',
-            block: 'center'
-          });
+
           newNavEl.classList.add('active');
         } // Remove active class from previous element
 
@@ -41865,7 +41958,7 @@ Prism.languages.py = Prism.languages.python;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("d0dc766d41238896bd26")
+/******/ 		__webpack_require__.h = () => ("18f7920ca9b3e14a014d")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
@@ -42850,7 +42943,7 @@ Prism.languages.py = Prism.languages.python;
 /******/ 	// module cache are used so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	var __webpack_exports__ = __webpack_require__(305);
+/******/ 	var __webpack_exports__ = __webpack_require__(586);
 /******/ 	
 /******/ })()
 ;

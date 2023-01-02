@@ -5,8 +5,7 @@ import expandedEndpointTemplate from '~/templates/expanded-endpoint-template';
 import focusedEndpointTemplate from '~/templates/focused-endpoint-template';
 import overviewTemplate from '~/templates/overview-template';
 import endpointTemplate from '~/templates/endpoint-template';
-import serverTemplate from '~/templates/server-template';
-import securitySchemeTemplate, { recoverPersistedApiKeys } from '~/templates/security-scheme-template';
+import { recoverPersistedApiKeys } from '~/templates/security-scheme-template';
 import headerTemplate from '~/templates/header-template';
 import navbarTemplate from '~/templates/navbar-template';
 import advancedSearchTemplate from '~/templates/advance-search-template';
@@ -69,7 +68,7 @@ export default function mainBodyTemplate(isMini = false, showExpandCollapse = tr
 
     <!-- Header -->
     ${this.showHeader === 'false' ? '' : headerTemplate.call(this)}
-    
+
     <!-- Advanced Search -->
     ${this.allowAdvancedSearch === 'false' ? '' : advancedSearchTemplate.call(this)}
 
@@ -96,8 +95,6 @@ export default function mainBodyTemplate(isMini = false, showExpandCollapse = tr
                     ? html`${focusedEndpointTemplate.call(this)}`
                     : html`
                       ${this.showInfo === 'true' ? overviewTemplate.call(this) : ''}
-                      ${this.allowServerSelection === 'true' ? serverTemplate.call(this) : ''}
-                      ${this.allowAuthentication === 'true' ? securitySchemeTemplate.call(this) : ''}
                       <div id="operations-top" class="observe-me">
                         <slot name="operations-top"></slot>
                       </div>  

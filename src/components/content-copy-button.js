@@ -99,13 +99,13 @@ export class ContentCopyButton extends LitElement {
                 gap: 10px;
                 width: 57px;
                 height: 20px;
-                background: linear-gradient(270deg, #FFFFFF 51.22%, rgba(255, 255, 255, 0) 104.88%);
             }
 
             span {
                 flex: 0 0 auto;
-                width: 100%;
-                padding: 4px 8px;
+                width: calc(100% - 28px);
+                padding: 4px 20px 4px 8px;
+                word-break: break-word;
             }
 
             span:hover {

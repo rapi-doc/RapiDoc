@@ -1,6 +1,7 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
+import updateCurl from '~/utils/update-curl';
 
 export function setApiServer(serverUrl) {
   const serverObj = this.resolvedSpec?.servers.find((s) => s.url === serverUrl);
@@ -27,6 +28,8 @@ function onApiServerVarChange(e, serverObj) {
     tempUrl = tempUrl.replace(regex, v.value);
   });
   serverObj.computedUrl = tempUrl;
+  updateCurl.call(this, e.target ? e.target : e);
+
   this.requestUpdate();
 }
 
@@ -86,7 +89,7 @@ export default function serverTemplate() {
   return html`
   <section id = 'servers' part="section-servers" style="text-align:left; direction:ltr; margin-block: 32px 24px;" class='regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
     <span class="api-base-url">Base URL</span>
-    <div style="margin-block: 16px;">
+    <div style="margin-block: 16px; overflow: auto;">
       ${serverVarsTemplate.call(this)}
     </div>
     <div style="display: flex; align-items: center;">
