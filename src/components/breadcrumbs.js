@@ -1,6 +1,7 @@
 import { LitElement, html, css } from 'lit';
 
 import CustomStyles from '~/styles/custom-styles';
+import cornerArrowSymbol from './assets/corner-arrow-symbol';
 
 export default class Breadcrumbs extends LitElement {
   static get properties() {
@@ -37,6 +38,47 @@ export default class Breadcrumbs extends LitElement {
           margin: 0 2px;
         }
 
+        .tooltip {
+          position: relative;
+          display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+          visibility: hidden;
+          width: max-content;
+          max-width: 150px;
+          padding: 8px;
+
+          border-radius: 4px;
+          box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.1);
+
+          background-color: #FFFFFF;
+          color: #A1A8B3;
+          
+          position: absolute;
+          transform: translateX(-50%);
+          top: 135%;
+          left: 50%;
+          z-index: 1;
+        }
+
+        .tooltip:hover .tooltiptext {
+          visibility: visible;
+          left: 50%;
+          transform: translateX(-50%);
+        }
+
+        .tooltiptext::after {
+          content: "";
+          position: absolute;
+          bottom: 100%;
+          left: 50%;
+          margin-left: -5px;
+          border-width: 5px;
+          border-style: solid;
+          border-color: transparent transparent #fff transparent;
+        }
+
         @media(max-width: 1024px) {
           .header {
             font-size: 12px;
@@ -49,10 +91,21 @@ export default class Breadcrumbs extends LitElement {
   }
 
   render() {
-    const headers = this.headers.map(({ title, link }) => ({
+    let headers = this.headers.map(({ title, link }) => ({
       title: title.slice(0, 25) + (title.length > 25 ? '...' : ''),
       link,
+      hasTooltip: (title.length > 25),
+      tooltip: [{ title, link }],
     }));
+
+    if (headers.length > 3) {
+      const ellipsis = headers.slice(1, -1).reduce((acc, curr) => {
+        acc.tooltip.push({ title: curr.tooltip[0].title, link: curr.tooltip[0].link });
+        return acc;
+      }, { title: '...', link: '', hasTooltip: true, tooltip: [] });
+
+      headers = [headers[0], ellipsis, headers[headers.length - 1]];
+    }
 
     return html`
       <div class='container'>
@@ -68,8 +121,18 @@ export default class Breadcrumbs extends LitElement {
               />
             </svg>
           ` : ''}
-
-          <span class='header'>${header.title}</span>
+          <div class="tooltip">
+            <a class="header" onclick="return false;">${header.title}</a>
+            ${header.hasTooltip ? html`
+              <div class="tooltiptext">
+                ${header.tooltip.map((content) => html`
+                  <div style="display:flex;gap: 5px;">
+                    ${header.tooltip.length > 1 ? cornerArrowSymbol() : ''}
+                    <a class="header" onclick="return false;">${content.title}</a>
+                  </div>
+                `)}
+              </div>` : ''}
+          </div>
         `)}
       </div>
     `;
