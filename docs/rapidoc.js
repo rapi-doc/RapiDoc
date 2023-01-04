@@ -8,7 +8,7 @@
 */******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 766:
+/***/ 483:
 /***/ ((__unused_webpack_module, __unused_webpack___webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -30956,7 +30956,23 @@ class TagInput extends lit_element_s {
 } // Register the element with the browser
 
 customElements.define('tag-input', TagInput);
+;// CONCATENATED MODULE: ./src/components/assets/corner-arrow-symbol.js
+/* eslint-disable max-len */
+
+/* eslint-disable indent */
+
+function cornerArrowSymbol(style) {
+  return $`
+  <div style=${style}>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M13.333 10.6667L5.99967 10.6667C4.16634 10.6667 2.66634 9.20133 2.66634 7.41V7.41L2.66634 7.43L2.66634 4" stroke="#CCCED8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M10.6343 7.96802L13.333 10.6667L10.6343 13.3653" stroke="#CCCED8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+`;
+}
 ;// CONCATENATED MODULE: ./src/components/breadcrumbs.js
+
 
 
 class Breadcrumbs extends lit_element_s {
@@ -30995,6 +31011,47 @@ class Breadcrumbs extends lit_element_s {
           margin: 0 2px;
         }
 
+        .tooltip {
+          position: relative;
+          display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+          visibility: hidden;
+          width: max-content;
+          max-width: 150px;
+          padding: 8px;
+
+          border-radius: 4px;
+          box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.1);
+
+          background-color: #FFFFFF;
+          color: #A1A8B3;
+          
+          position: absolute;
+          transform: translateX(-50%);
+          top: 135%;
+          left: 50%;
+          z-index: 1;
+        }
+
+        .tooltip:hover .tooltiptext {
+          visibility: visible;
+          left: 50%;
+          transform: translateX(-50%);
+        }
+
+        .tooltiptext::after {
+          content: "";
+          position: absolute;
+          bottom: 100%;
+          left: 50%;
+          margin-left: -5px;
+          border-width: 5px;
+          border-style: solid;
+          border-color: transparent transparent #fff transparent;
+        }
+
         @media(max-width: 1024px) {
           .header {
             font-size: 12px;
@@ -31005,13 +31062,35 @@ class Breadcrumbs extends lit_element_s {
   }
 
   render() {
-    const headers = this.headers.map(({
+    let headers = this.headers.map(({
       title,
       link
     }) => ({
       title: title.slice(0, 25) + (title.length > 25 ? '...' : ''),
-      link
+      link,
+      hasTooltip: title.length > 25,
+      tooltip: [{
+        title,
+        link
+      }]
     }));
+
+    if (headers.length > 3) {
+      const ellipsis = headers.slice(1, -1).reduce((acc, curr) => {
+        acc.tooltip.push({
+          title: curr.tooltip[0].title,
+          link: curr.tooltip[0].link
+        });
+        return acc;
+      }, {
+        title: '...',
+        link: '',
+        hasTooltip: true,
+        tooltip: []
+      });
+      headers = [headers[0], ellipsis, headers[headers.length - 1]];
+    }
+
     return $`
       <div class='container'>
         ${headers.map((header, index) => $`
@@ -31026,8 +31105,18 @@ class Breadcrumbs extends lit_element_s {
               />
             </svg>
           ` : ''}
-
-          <span class='header'>${header.title}</span>
+          <div class="tooltip">
+            <a class="header" onclick="return false;">${header.title}</a>
+            ${header.hasTooltip ? $`
+              <div class="tooltiptext">
+                ${header.tooltip.map(content => $`
+                  <div style="display:flex;gap: 5px;">
+                    ${header.tooltip.length > 1 ? cornerArrowSymbol() : ''}
+                    <a class="header" onclick="return false;">${content.title}</a>
+                  </div>
+                `)}
+              </div>` : ''}
+          </div>
         `)}
       </div>
     `;
@@ -41954,7 +42043,7 @@ Prism.languages.py = Prism.languages.python;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("0fe93961e28560558b8e")
+/******/ 		__webpack_require__.h = () => ("4a2adf88280042aba7bb")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
@@ -42939,7 +43028,7 @@ Prism.languages.py = Prism.languages.python;
 /******/ 	// module cache are used so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	var __webpack_exports__ = __webpack_require__(766);
+/******/ 	var __webpack_exports__ = __webpack_require__(483);
 /******/ 	
 /******/ })()
 ;
