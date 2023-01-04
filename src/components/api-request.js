@@ -201,10 +201,6 @@ export default class ApiRequest extends LitElement {
           opacity: 1;
         }
 
-        .request-body-container {
-          overflow: auto;
-        }
-
         @media only screen and (min-width: 768px) {
           .textarea {
             padding:8px;

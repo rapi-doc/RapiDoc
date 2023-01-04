@@ -31,7 +31,7 @@ export default css`
     justify-content: flex-start;
   }
 
-  @media (max-width: 1024px) {
+  @media (max-width: 1280px) {
     .row-api {
       flex-direction: column;
       justify-content: flex-start;
