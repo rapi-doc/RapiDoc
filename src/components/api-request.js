@@ -201,10 +201,6 @@ export default class ApiRequest extends LitElement {
           opacity: 1;
         }
 
-        .request-body-container {
-          overflow: auto;
-        }
-
         @media only screen and (min-width: 768px) {
           .textarea {
             padding:8px;
@@ -411,8 +407,8 @@ export default class ApiRequest extends LitElement {
                               this.activeParameterSchemaTabs = newState;
                             }
                           }}">
+                            <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab = 'schema'>PARAMETERS</button>
                             <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
-                            <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
                           </div>
                           ${this.activeParameterSchemaTabs[param.name] === 'example'
                             ? html`<div class="tab-content col">
@@ -709,8 +705,8 @@ export default class ApiRequest extends LitElement {
           ? html`
             <div class="tab-panel col" style="border-width:0 0 1px 0;">
               <div class="tab-buttons row" @click="${(e) => { if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; } }}">
+                <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>PARAMETERS</button>
                 <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
-                <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
               </div>
               ${this.activeSchemaTab === 'example'
                 ? html`<div class="tab-content col"> ${reqBodyExampleHtml}</div>`
@@ -759,8 +755,8 @@ export default class ApiRequest extends LitElement {
           }
           if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; }
         }}">
+          <button class="v-tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>PARAMETERS</button>
           <button class="v-tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
-          <button class="v-tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
         </div>
       </div>
       ${html`
