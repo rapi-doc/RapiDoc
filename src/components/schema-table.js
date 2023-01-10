@@ -35,27 +35,41 @@ export default class SchemaTable extends LitElement {
         text-align: left;
         line-height: calc(var(--font-size-small) + 6px);
       }
-      .table .tr {
-        width: calc(100% - 5px);
-        padding: 0 0 0 5px;
-        border-bottom: 1px dotted var(--light-border-color);
+      .param-table{
+        border-radius: 4px;
       }
-      .table .td {
+      .param-table .tr {
+        border-bottom: 1px solid var(--light-border-color);
+      }
+      .param-table .td {
         padding: 4px 0;
       }
-      .table .key {
-        width: 240px;
+      .param-table .key {
+        width: 33%;
+        padding: 12px 10px 12px;
+      }
+      .table .key-descr {
+        width: 33%;
+        padding: 0px 10px 12px;
       }
       .key.deprecated .key-label {
         color: var(--red);
       }
-
-      .table .key-type {
+      .key-label {
+        background-color: #f8f7fc;
+        border-radius: 4px;
+        padding: 0.2em 0.4em;
+      }
+      .param-table .key-type {
         white-space: normal;
-        width: 150px;
+        width: 33%;
+        border-left:1px solid var(--light-border-color);
+        border-right:1px solid var(--light-border-color);
+        color:#4A4A4A;
+        padding: 12px 10px 12px;
       }
       .collapsed-descr .tr {
-        max-height: calc(var(--font-size-small) + var(--font-size-small) + 4px);
+        max-height: calc(var(--font-size-small) + var(--font-size-small) + 16px);
       }
 
       .obj-toggle {
@@ -103,11 +117,11 @@ export default class SchemaTable extends LitElement {
           ? html`<span part="schema-description" class='m-markdown'> ${unsafeHTML(marked(this.data['::description'] || ''))}</span>`
           : ''
         }
-        <div style = 'border:1px solid var(--light-border-color)'>
-          <div style='display:flex; background-color: var(--bg2); padding:8px 4px; border-bottom:1px solid var(--light-border-color);'>
-            <div class='key' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Field </div>
-            <div class='key-type' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Type </div>
-            <div class='key-descr' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Description </div>
+        <div class="param-table" style = 'border:1px solid var(--light-border-color); margin-top: 10px; font-size: 14px'>
+          <div style='display:flex; border-bottom:1px solid var(--light-border-color);'>
+            <div class='key' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg); padding: 10px 14px;'> Field </div>
+            <div class='key-type' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg); padding: 10px 14px;'> Type </div>
+            <div class='key-descr' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg); padding: 10px 14px;'> Description </div>
           </div>
           ${this.data
             ? html`
@@ -160,7 +174,7 @@ export default class SchemaTable extends LitElement {
 
     const newSchemaLevel = data['::type']?.startsWith('xxx-of') ? schemaLevel : (schemaLevel + 1);
     const newIndentLevel = dataType === 'xxx-of-option' || data['::type'] === 'xxx-of-option' || key.startsWith('::OPTION') ? indentLevel : (indentLevel + 1);
-    const leftPadding = 16 * newIndentLevel; // 2 space indentation at each level
+    const leftPadding = 10 * newIndentLevel; // 2 space indentation at each level
     if (Object.keys(data).length === 0) {
       return html`<span class="td key object" style='padding-left:${leftPadding}px'>${key}</span>`;
     }
@@ -223,7 +237,7 @@ export default class SchemaTable extends LitElement {
                 ${(data['::type'] || '').includes('xxx-of') ? '' : detailObjType}
                 ${data['::readwrite'] === 'readonly' ? ' 🆁' : data['::readwrite'] === 'writeonly' ? ' 🆆' : ''}
               </div>
-              <div class='td key-descr m-markdown-small' style='line-height:1.7'>${unsafeHTML(marked(description || ''))}</div>
+              <div class='td key-descr' style='line-height:1.7'>${unsafeHTML(marked(description || ''))}</div>
             </div>`
           : html`
               ${data['::type'] === 'array' && dataType === 'array'
@@ -311,9 +325,9 @@ export default class SchemaTable extends LitElement {
         </div>
         ${dataTypeHtml}
         <div class='td key-descr' @click="${() => { this.schemaDescriptionExpanded = 'true'; }}">
-          ${dataType === 'array' ? html`<span class="m-markdown-small">${unsafeHTML(marked(description))}</span>` : ''}
+          ${dataType === 'array' ? html`<span>${unsafeHTML(marked(description))}</span>` : ''}
           ${schemaDescription
-            ? html`<span class="m-markdown-small">
+            ? html`<span>
               ${unsafeHTML(marked(`${schemaTitle ? `**${schemaTitle}:**` : ''} ${schemaDescription} ${constraint || defaultValue || allowedValues || pattern ? '<span  class="more-content">⤵</span>' : ''}`))}
               </span>`
             : schemaTitle

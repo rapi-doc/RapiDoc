@@ -197,14 +197,8 @@ export default class RapiDoc extends LitElement {
       .main-content::-webkit-scrollbar-thumb {
         background-color: var(--border-color);
       }
-
       .section-gap.section-tag {
         border-bottom:1px solid var(--border-color);
-      }
-      .section-gap,
-      .section-gap--focused-mode,
-      .section-gap--read-mode { 
-        padding: 0px 4px; 
       }
       .section-tag-header {
         position:relative;

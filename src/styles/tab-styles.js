@@ -3,6 +3,7 @@ import { css } from 'lit';
 export default css`
 .tab-panel {
   border: none;
+  margin-top: 24px;
 }
 .tab-buttons {
   height:30px;
@@ -18,28 +19,29 @@ export default css`
 }
 .tab-btn {
   border: none;
-  border-bottom: 3px solid transparent; 
+  border-bottom: 1px solid transparent; 
   color: var(--light-fg);
   background-color: transparent;
   white-space: nowrap;
   cursor:pointer;
   outline:none;
   font-family:var(--font-regular); 
-  font-size:var(--font-size-small);
   margin-right:16px;
   padding:1px;
+  font-weight: bold;
+  font-size: 16px;
 }
 .tab-btn.active {
-  border-bottom: 3px solid var(--primary-color); 
+  border-bottom: 1px solid #D71D55; 
   font-weight:bold;
-  color:var(--primary-color);
+  color:#D71D55;
 }
 
 .tab-btn:hover {
-  color:var(--primary-color);
+  color:#c81e51;
 }
 .tab-content {
-  margin:-1px 0 0 0;
+  margin:16px 0 0 0;
   position:relative;
   min-height: 50px;
 }

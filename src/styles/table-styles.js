@@ -52,8 +52,6 @@ export default css`
 .table-title {
   font-size: 16px;
   font-weight: 400;
-  vertical-align: middle;
   line-height: 18px;
-  padding-inline: 16px;
 }
 `;

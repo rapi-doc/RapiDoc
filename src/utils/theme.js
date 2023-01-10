@@ -225,7 +225,7 @@ export default function setTheme(baseTheme, theme = {}) {
     --resp-area-height: ${this.responseAreaHeight};
     --font-size-small:  ${this.fontSize === 'default' ? '12px' : (this.fontSize === 'large' ? '13px' : '14px')};
     --font-size-mono:   ${this.fontSize === 'default' ? '13px' : (this.fontSize === 'large' ? '14px' : '15px')};
-    --font-size-regular: ${this.fontSize === 'default' ? '14px' : (this.fontSize === 'large' ? '15px' : '16px')};
+    --font-size-regular: ${this.fontSize === 'default' ? '16px' : (this.fontSize === 'large' ? '17px' : '18px')};
     --dialog-z-index: 1000;
 
     /* Theme specific styles */  
