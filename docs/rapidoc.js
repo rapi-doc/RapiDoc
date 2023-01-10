@@ -8,7 +8,7 @@
 */******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 483:
+/***/ 556:
 /***/ ((__unused_webpack_module, __unused_webpack___webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -42,7 +42,7 @@ const css_tag_t=window.ShadowRoot&&(void 0===window.ShadyCSS||window.ShadyCSS.na
 var lit_html_t;const lit_html_i=globalThis.trustedTypes,lit_html_s=lit_html_i?lit_html_i.createPolicy("lit-html",{createHTML:t=>t}):void 0,lit_html_e=`lit$${(Math.random()+"").slice(9)}$`,lit_html_o="?"+lit_html_e,lit_html_n=`<${lit_html_o}>`,lit_html_l=document,lit_html_h=(t="")=>lit_html_l.createComment(t),lit_html_r=t=>null===t||"object"!=typeof t&&"function"!=typeof t,d=Array.isArray,u=t=>{var i;return d(t)||"function"==typeof(null===(i=t)||void 0===i?void 0:i[Symbol.iterator])},c=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,v=/-->/g,lit_html_a=/>/g,f=/>|[ 	\n\r](?:([^\s"'>=/]+)([ 	\n\r]*=[ 	\n\r]*(?:[^ 	\n\r"'`<>=]|("|')|))|$)/g,_=/'/g,m=/"/g,g=/^(?:script|style|textarea|title)$/i,p=t=>(i,...s)=>({_$litType$:t,strings:i,values:s}),$=p(1),y=p(2),b=Symbol.for("lit-noChange"),w=Symbol.for("lit-nothing"),T=new WeakMap,x=(t,i,s)=>{var e,o;const n=null!==(e=null==s?void 0:s.renderBefore)&&void 0!==e?e:i;let l=n._$litPart$;if(void 0===l){const t=null!==(o=null==s?void 0:s.renderBefore)&&void 0!==o?o:null;n._$litPart$=l=new N(i.insertBefore(lit_html_h(),t),t,void 0,null!=s?s:{})}return l._$AI(t),l},A=lit_html_l.createTreeWalker(lit_html_l,129,null,!1),C=(t,i)=>{const o=t.length-1,l=[];let h,r=2===i?"<svg>":"",d=c;for(let i=0;i<o;i++){const s=t[i];let o,u,p=-1,$=0;for(;$<s.length&&(d.lastIndex=$,u=d.exec(s),null!==u);)$=d.lastIndex,d===c?"!--"===u[1]?d=v:void 0!==u[1]?d=lit_html_a:void 0!==u[2]?(g.test(u[2])&&(h=RegExp("</"+u[2],"g")),d=f):void 0!==u[3]&&(d=f):d===f?">"===u[0]?(d=null!=h?h:c,p=-1):void 0===u[1]?p=-2:(p=d.lastIndex-u[2].length,o=u[1],d=void 0===u[3]?f:'"'===u[3]?m:_):d===m||d===_?d=f:d===v||d===lit_html_a?d=c:(d=f,h=void 0);const y=d===f&&t[i+1].startsWith("/>")?" ":"";r+=d===c?s+lit_html_n:p>=0?(l.push(o),s.slice(0,p)+"$lit$"+s.slice(p)+lit_html_e+y):s+lit_html_e+(-2===p?(l.push(void 0),i):y)}const u=r+(t[o]||"<?>")+(2===i?"</svg>":"");if(!Array.isArray(t)||!t.hasOwnProperty("raw"))throw Error("invalid template strings array");return[void 0!==lit_html_s?lit_html_s.createHTML(u):u,l]};class E{constructor({strings:t,_$litType$:s},n){let l;this.parts=[];let r=0,d=0;const u=t.length-1,c=this.parts,[v,a]=C(t,s);if(this.el=E.createElement(v,n),A.currentNode=this.el.content,2===s){const t=this.el.content,i=t.firstChild;i.remove(),t.append(...i.childNodes)}for(;null!==(l=A.nextNode())&&c.length<u;){if(1===l.nodeType){if(l.hasAttributes()){const t=[];for(const i of l.getAttributeNames())if(i.endsWith("$lit$")||i.startsWith(lit_html_e)){const s=a[d++];if(t.push(i),void 0!==s){const t=l.getAttribute(s.toLowerCase()+"$lit$").split(lit_html_e),i=/([.?@])?(.*)/.exec(s);c.push({type:1,index:r,name:i[2],strings:t,ctor:"."===i[1]?M:"?"===i[1]?H:"@"===i[1]?I:lit_html_S})}else c.push({type:6,index:r})}for(const i of t)l.removeAttribute(i)}if(g.test(l.tagName)){const t=l.textContent.split(lit_html_e),s=t.length-1;if(s>0){l.textContent=lit_html_i?lit_html_i.emptyScript:"";for(let i=0;i<s;i++)l.append(t[i],lit_html_h()),A.nextNode(),c.push({type:2,index:++r});l.append(t[s],lit_html_h())}}}else if(8===l.nodeType)if(l.data===lit_html_o)c.push({type:2,index:r});else{let t=-1;for(;-1!==(t=l.data.indexOf(lit_html_e,t+1));)c.push({type:7,index:r}),t+=lit_html_e.length-1}r++}}static createElement(t,i){const s=lit_html_l.createElement("template");return s.innerHTML=t,s}}function P(t,i,s=t,e){var o,n,l,h;if(i===b)return i;let d=void 0!==e?null===(o=s._$Cl)||void 0===o?void 0:o[e]:s._$Cu;const u=lit_html_r(i)?void 0:i._$litDirective$;return(null==d?void 0:d.constructor)!==u&&(null===(n=null==d?void 0:d._$AO)||void 0===n||n.call(d,!1),void 0===u?d=void 0:(d=new u(t),d._$AT(t,s,e)),void 0!==e?(null!==(l=(h=s)._$Cl)&&void 0!==l?l:h._$Cl=[])[e]=d:s._$Cu=d),void 0!==d&&(i=P(t,d._$AS(t,i.values),d,e)),i}class V{constructor(t,i){this.v=[],this._$AN=void 0,this._$AD=t,this._$AM=i}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}p(t){var i;const{el:{content:s},parts:e}=this._$AD,o=(null!==(i=null==t?void 0:t.creationScope)&&void 0!==i?i:lit_html_l).importNode(s,!0);A.currentNode=o;let n=A.nextNode(),h=0,r=0,d=e[0];for(;void 0!==d;){if(h===d.index){let i;2===d.type?i=new N(n,n.nextSibling,this,t):1===d.type?i=new d.ctor(n,d.name,d.strings,this,t):6===d.type&&(i=new L(n,this,t)),this.v.push(i),d=e[++r]}h!==(null==d?void 0:d.index)&&(n=A.nextNode(),h++)}return o}m(t){let i=0;for(const s of this.v)void 0!==s&&(void 0!==s.strings?(s._$AI(t,s,i),i+=s.strings.length-2):s._$AI(t[i])),i++}}class N{constructor(t,i,s,e){var o;this.type=2,this._$AH=w,this._$AN=void 0,this._$AA=t,this._$AB=i,this._$AM=s,this.options=e,this._$Cg=null===(o=null==e?void 0:e.isConnected)||void 0===o||o}get _$AU(){var t,i;return null!==(i=null===(t=this._$AM)||void 0===t?void 0:t._$AU)&&void 0!==i?i:this._$Cg}get parentNode(){let t=this._$AA.parentNode;const i=this._$AM;return void 0!==i&&11===t.nodeType&&(t=i.parentNode),t}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(t,i=this){t=P(this,t,i),lit_html_r(t)?t===w||null==t||""===t?(this._$AH!==w&&this._$AR(),this._$AH=w):t!==this._$AH&&t!==b&&this.$(t):void 0!==t._$litType$?this.T(t):void 0!==t.nodeType?this.k(t):u(t)?this.S(t):this.$(t)}A(t,i=this._$AB){return this._$AA.parentNode.insertBefore(t,i)}k(t){this._$AH!==t&&(this._$AR(),this._$AH=this.A(t))}$(t){this._$AH!==w&&lit_html_r(this._$AH)?this._$AA.nextSibling.data=t:this.k(lit_html_l.createTextNode(t)),this._$AH=t}T(t){var i;const{values:s,_$litType$:e}=t,o="number"==typeof e?this._$AC(t):(void 0===e.el&&(e.el=E.createElement(e.h,this.options)),e);if((null===(i=this._$AH)||void 0===i?void 0:i._$AD)===o)this._$AH.m(s);else{const t=new V(o,this),i=t.p(this.options);t.m(s),this.k(i),this._$AH=t}}_$AC(t){let i=T.get(t.strings);return void 0===i&&T.set(t.strings,i=new E(t)),i}S(t){d(this._$AH)||(this._$AH=[],this._$AR());const i=this._$AH;let s,e=0;for(const o of t)e===i.length?i.push(s=new N(this.A(lit_html_h()),this.A(lit_html_h()),this,this.options)):s=i[e],s._$AI(o),e++;e<i.length&&(this._$AR(s&&s._$AB.nextSibling,e),i.length=e)}_$AR(t=this._$AA.nextSibling,i){var s;for(null===(s=this._$AP)||void 0===s||s.call(this,!1,!0,i);t&&t!==this._$AB;){const i=t.nextSibling;t.remove(),t=i}}setConnected(t){var i;void 0===this._$AM&&(this._$Cg=t,null===(i=this._$AP)||void 0===i||i.call(this,t))}}class lit_html_S{constructor(t,i,s,e,o){this.type=1,this._$AH=w,this._$AN=void 0,this.element=t,this.name=i,this._$AM=e,this.options=o,s.length>2||""!==s[0]||""!==s[1]?(this._$AH=Array(s.length-1).fill(new String),this.strings=s):this._$AH=w}get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}_$AI(t,i=this,s,e){const o=this.strings;let n=!1;if(void 0===o)t=P(this,t,i,0),n=!lit_html_r(t)||t!==this._$AH&&t!==b,n&&(this._$AH=t);else{const e=t;let l,h;for(t=o[0],l=0;l<o.length-1;l++)h=P(this,e[s+l],i,l),h===b&&(h=this._$AH[l]),n||(n=!lit_html_r(h)||h!==this._$AH[l]),h===w?t=w:t!==w&&(t+=(null!=h?h:"")+o[l+1]),this._$AH[l]=h}n&&!e&&this.C(t)}C(t){t===w?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,null!=t?t:"")}}class M extends lit_html_S{constructor(){super(...arguments),this.type=3}C(t){this.element[this.name]=t===w?void 0:t}}const k=lit_html_i?lit_html_i.emptyScript:"";class H extends lit_html_S{constructor(){super(...arguments),this.type=4}C(t){t&&t!==w?this.element.setAttribute(this.name,k):this.element.removeAttribute(this.name)}}class I extends lit_html_S{constructor(t,i,s,e,o){super(t,i,s,e,o),this.type=5}_$AI(t,i=this){var s;if((t=null!==(s=P(this,t,i,0))&&void 0!==s?s:w)===b)return;const e=this._$AH,o=t===w&&e!==w||t.capture!==e.capture||t.once!==e.once||t.passive!==e.passive,n=t!==w&&(e===w||o);o&&this.element.removeEventListener(this.name,this,e),n&&this.element.addEventListener(this.name,this,t),this._$AH=t}handleEvent(t){var i,s;"function"==typeof this._$AH?this._$AH.call(null!==(s=null===(i=this.options)||void 0===i?void 0:i.host)&&void 0!==s?s:this.element,t):this._$AH.handleEvent(t)}}class L{constructor(t,i,s){this.element=t,this.type=6,this._$AN=void 0,this._$AM=i,this.options=s}get _$AU(){return this._$AM._$AU}_$AI(t){P(this,t)}}const R={P:"$lit$",L:lit_html_e,V:lit_html_o,I:1,N:C,R:V,D:u,j:P,H:N,O:lit_html_S,F:H,B:I,W:M,Z:L},z=window.litHtmlPolyfillSupport;null==z||z(E,N),(null!==(lit_html_t=globalThis.litHtmlVersions)&&void 0!==lit_html_t?lit_html_t:globalThis.litHtmlVersions=[]).push("2.2.0");
 //# sourceMappingURL=lit-html.js.map
 
-;// CONCATENATED MODULE: ./node_modules/lit-element/lit-element.js
+;// CONCATENATED MODULE: ./node_modules/lit/node_modules/lit-element/lit-element.js
 
 /**
  * @license
@@ -2911,7 +2911,8 @@ var prism_csharp = __webpack_require__(16);
   }
   .regular-font-size { font-size: var(--font-size-regular); }
   .small-font-size { font-size: var(--font-size-small); }
-  .upper { text-transform: uppercase; }
+  .upper { font-size: 14px; text-transform: uppercase; }
+  .operation-tag { font-size: 16px; line-height: 18px; color: #A1A8B3; }
   .primary-text{ color: var(--primary-color); }
   .bold-text { font-weight:bold; }
   .gray-text { color: var(--light-fg); }
@@ -2933,7 +2934,7 @@ var prism_csharp = __webpack_require__(16);
   }
 
   h1{ font-family:var(--font-regular); font-size:28px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
-  h2{ font-family:var(--font-regular); font-size:24px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
+  h2{ font-family:var(--font-regular); font-size:28px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
   h3{ font-family:var(--font-regular); font-size:18px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
   h4{ font-family:var(--font-regular); font-size:16px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
   h5{ font-family:var(--font-regular); font-size:14px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
@@ -2942,7 +2943,6 @@ var prism_csharp = __webpack_require__(16);
   h1,h2,h3,h4,h5,h5{
     margin-block-end: 0.2em;
   }
-  p { margin-block-start: 0.5em; }
   a { color: var(--blue); cursor:pointer; }
   a.inactive-link { 
     color:var(--fg);
@@ -2957,6 +2957,17 @@ var prism_csharp = __webpack_require__(16);
     font-size: calc(var(--font-size-mono) - 1px);
   }
 
+  .m-markdown blockquote {
+    padding: 5px 20px;
+    width: 100%;
+    margin: 20px 0;
+    border-radius: 4px;
+    align-items: center;
+    background: #f8f7fc;
+    border: 1px solid #ccced8;
+    grid-template-columns: 20px 1fr;
+  }
+
   .m-markdown,
   .m-markdown-small {
     display:block;
@@ -2965,7 +2976,6 @@ var prism_csharp = __webpack_require__(16);
   .m-markdown p,
   .m-markdown span {
     font-size: var(--font-size-regular);
-    line-height:calc(var(--font-size-regular) + 8px);
   }
   .m-markdown li {
     font-size: var(--font-size-regular);
@@ -2982,34 +2992,11 @@ var prism_csharp = __webpack_require__(16);
     line-height: calc(var(--font-size-small) + 8px);
   }
 
-  .m-markdown p:not(:first-child) {
-    margin-block-start: 24px;
-  }
-
-  .m-markdown-small p:not(:first-child) {
-    margin-block-start: 12px;
-  }
-  .m-markdown-small p:first-child {
-    margin-block-start: 0;
-  }
-
-  .m-markdown p,
-  .m-markdown-small p {
-    margin-block-end: 0
-  }
-
-  .m-markdown code span {
-    font-size:var(--font-size-mono);
-  }
-
-  .m-markdown-small code,
-  .m-markdown code {
-    padding: 1px 6px;
-    border-radius: 2px;
-    color: var(--inline-code-fg);
-    background-color: var(--bg3);
-    font-size: calc(var(--font-size-mono));
-    line-height: 1.2;
+  code {
+    background-color: #f6f8fa;
+    border-radius: 4px;
+    margin: 0;
+    padding: 0.2em 0.4em;
   }
 
   .m-markdown-small code {
@@ -3136,13 +3123,6 @@ var prism_csharp = __webpack_require__(16);
     font-size: calc(var(--font-size-mono) - 1px);
   }
 
-  .m-markdown blockquote,
-  .m-markdown-small blockquote {
-    margin-inline-start: 0;
-    margin-inline-end: 0;
-    border-left: 3px solid var(--border-color);
-    padding: 6px 0 6px 6px;
-  }
   .m-markdown hr{
     border: 1px solid var(--border-color);
   }
@@ -3206,7 +3186,7 @@ var prism_csharp = __webpack_require__(16);
   background-color: var(--primary-color);
 }
 
-input, textarea, select, button, pre {
+input, textarea, select, pre {
   color: #000000;
   outline: none;
   background-color: var(--input-bg);
@@ -3228,7 +3208,7 @@ input[type="password"] {
   font-weight: 400;
   font-size: var(--font-size-regular);
   transition: border .2s;
-  padding: 12px 16px;
+  padding: 6px 8px;
   line-height: 140%;
 }
 
@@ -3382,7 +3362,6 @@ input[type="checkbox"]:checked:after {
   .row-api {
     align-items: center;
     flex-direction: row;
-    column-gap: 24px;
     align-items: flex-start;
     justify-content: space-evenly;
   }
@@ -3395,12 +3374,14 @@ input[type="checkbox"]:checked:after {
     max-width: 848px;
     flex: 2 1 0%;
     justify-content: flex-end;
+    padding-right: 32px;
   }
   .row-api-right {
     min-width: 0;
     max-width: 702px;
     flex: 1;
     justify-content: flex-start;
+    border-left: 1px solid #E7E9EE;
   }
 
   @media (max-width: 1280px) {
@@ -3471,9 +3452,7 @@ input[type="checkbox"]:checked:after {
 .table-title {
   font-size: 16px;
   font-weight: 400;
-  vertical-align: middle;
   line-height: 18px;
-  padding-inline: 16px;
 }
 `);
 ;// CONCATENATED MODULE: ./src/styles/endpoint-styles.js
@@ -3861,6 +3840,7 @@ pre[class*="language-"] {
 /* harmony default export */ const tab_styles = (r`
 .tab-panel {
   border: none;
+  margin-top: 24px;
 }
 .tab-buttons {
   height:30px;
@@ -3876,28 +3856,29 @@ pre[class*="language-"] {
 }
 .tab-btn {
   border: none;
-  border-bottom: 3px solid transparent; 
+  border-bottom: 1px solid transparent; 
   color: var(--light-fg);
   background-color: transparent;
   white-space: nowrap;
   cursor:pointer;
   outline:none;
   font-family:var(--font-regular); 
-  font-size:var(--font-size-small);
   margin-right:16px;
   padding:1px;
+  font-weight: bold;
+  font-size: 16px;
 }
 .tab-btn.active {
-  border-bottom: 3px solid var(--primary-color); 
+  border-bottom: 1px solid #D71D55; 
   font-weight:bold;
-  color:var(--primary-color);
+  color:#D71D55;
 }
 
 .tab-btn:hover {
-  color:var(--primary-color);
+  color:#c81e51;
 }
 .tab-content {
-  margin:-1px 0 0 0;
+  margin:16px 0 0 0;
   position:relative;
   min-height: 50px;
 }
@@ -4104,6 +4085,7 @@ customize their theme. Simply add your css to this file and yarn build.
 }
 .code-container > code {
   font-size: 12px;
+  line-height: 20px;
 }
 
 .request-card {
@@ -4119,7 +4101,7 @@ customize their theme. Simply add your css to this file and yarn build.
 
 .request-title {
   margin-bottom: 8px;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 400;
   line-height: 18px;
   color: #4A4A4A;
@@ -4177,12 +4159,13 @@ customize their theme. Simply add your css to this file and yarn build.
   border-style: solid;
   border-radius: 4px 0px 0px 4px;
   margin: 4px 0px;
+  text-transform: uppercase;
 }
 
 .header-auth-title {
   color: #4A4A4A;
-  font-size: 16px;
-  line-height: 18px;
+  font-size: 18px;
+  line-height: 20px;
   font-weight: 400;
 }
 
@@ -4193,8 +4176,7 @@ customize their theme. Simply add your css to this file and yarn build.
 .header-auth-label {
   color: var(--fg2);
   margin-bottom: 4px;
-  font-size: var(--font-size-regular);
-  line-height: 19.6px;
+  font-size: 14px;
   font-weight: 400;
 }
 
@@ -29848,7 +29830,7 @@ function securitySchemeTemplate() {
   }
 
   return $`
-  <section id='auth' part="section-auth" style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;" class = 'observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}'>
+  <section id='auth' part="section-auth" style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px; padding-left: 32px;" class = 'observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}'>
     <div class="header-auth-title">Header Auth</div>
 
     ${this.resolvedSpec.securitySchemes && this.resolvedSpec.securitySchemes.length > 0 ? $`
@@ -30391,11 +30373,12 @@ customElements.define('json-tree', JsonTree);
 
 .key-descr {
   font-family:var(--font-regular);
-  color:var(--light-fg);
+  color:#4A4A4A;
   flex-shrink: 1;
   text-overflow: ellipsis;
   overflow: hidden;
   display: none;
+  padding-left: 10px;
 }
 .expanded-descr .key-descr{
   max-height:auto;
@@ -31217,7 +31200,7 @@ function serverTemplate() {
   }
 
   return $`
-  <section id = 'servers' part="section-servers" style="text-align:left; direction:ltr; margin-block: 32px 24px;" class='regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
+  <section id = 'servers' part="section-servers" style="text-align:left; direction:ltr; margin-block: 32px 24px; padding-left: 32px;" class='regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
     <span class="api-base-url">Base URL</span>
     <div style="margin-block: 16px; overflow: auto;">
       ${serverVarsTemplate.call(this)}
@@ -31432,6 +31415,7 @@ class ApiRequest extends lit_element_s {
         *, *:before, *:after { box-sizing: border-box; }
     
         .read-mode {
+          border-top: 1px solid #E7E9EE;
           margin-top: 24px;
         }
 
@@ -31450,7 +31434,7 @@ class ApiRequest extends lit_element_s {
           color: #DC5A41;
         }
         .param-type{
-          font-size: 12px;
+          font-size: 14px;
           font-weight: normal;
           line-height: 16px;
           color: #4A4A4A; 
@@ -31468,11 +31452,11 @@ class ApiRequest extends lit_element_s {
           display:none;
         }
 
-        .param-description p {
+        .param-description {
           font-size: 12px;
           line-height: 16px;
           color: #4A4A4A;
-          margin: 4px 0px 0px;
+          margin: 10px 0px 0px;
         }
 
         .top-gap{margin-top:24px;}
@@ -31586,7 +31570,7 @@ class ApiRequest extends lit_element_s {
 
   exampleListTemplate(paramName, paramType, exampleList = []) {
     return $`
-    ${exampleList.length > 0 ? $`<span style="font-weight:bold">Example: </span>
+    ${exampleList.length > 0 ? $`<span style="font-weight:bold; font-size:12px;">Example: </span>
         ${exampleList.map((v, i) => {
       var _v$value, _v$value2, _v$value3;
 
@@ -31721,8 +31705,8 @@ class ApiRequest extends lit_element_s {
             this.activeParameterSchemaTabs = newState;
           }
         }}">
-                            <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab = 'schema'>PARAMETERS</button>
-                            <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
+                            <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab = 'schema'>Parameters</button>
+                            <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] === 'example' ? 'active' : ''}" data-tab = 'example'>Example </button>
                           </div>
                           ${this.activeParameterSchemaTabs[param.name] === 'example' ? $`<div class="tab-content col">
                               <textarea 
@@ -31991,7 +31975,7 @@ class ApiRequest extends lit_element_s {
       <div class='request-body-container' data-selected-request-body-type="${this.selectedRequestBodyType}">
         <div class="table-title top-gap row">
           REQUEST BODY ${this.request_body.required ? $`<span class="mono-font" style='color:var(--red)'>*</span>` : ''} 
-          <span style = "font-weight:normal; margin-left:5px"> ${this.selectedRequestBodyType}</span>
+          <code style = "font-weight:normal; margin-left:5px"> ${this.selectedRequestBodyType}</code>
           <span style="flex:1"></span>
           ${reqBodyTypeSelectorHtml}
         </div>
@@ -32004,8 +31988,8 @@ class ApiRequest extends lit_element_s {
         this.activeSchemaTab = e.target.dataset.tab;
       }
     }}">
-                <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>PARAMETERS</button>
-                <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
+                <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>Parameters</button>
+                <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>Example</button>
               </div>
               ${this.activeSchemaTab === 'example' ? $`<div class="tab-content col"> ${reqBodyExampleHtml}</div>` : $`<div class="tab-content col"> ${reqBodySchemaHtml}</div>`}
             </div>` : $`  
@@ -32053,8 +32037,8 @@ class ApiRequest extends lit_element_s {
         this.activeSchemaTab = e.target.dataset.tab;
       }
     }}">
-          <button class="v-tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>PARAMETERS</button>
-          <button class="v-tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
+          <button class="v-tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>Parameters</button>
+          <button class="v-tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>Example</button>
         </div>
       </div>
       ${$`
@@ -32244,7 +32228,7 @@ class ApiRequest extends lit_element_s {
           <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${e => {
       copyToClipboard(this.curlSyntax.replace(/\\$/, ''), e);
     }}' part="btn btn-fill"> Copy </button>
-          <pre class="code-container" style="white-space:pre;border: none;"><code>${unsafe_html_o(prism_core_default().highlight(this.curlSyntax.trim().replace(/\\$/, ''), (prism_core_default()).languages.shell, 'shell'))}</code></pre>
+          <pre class="code-container" style="border: none;"><code>${unsafe_html_o(prism_core_default().highlight(this.curlSyntax.trim().replace(/\\$/, ''), (prism_core_default()).languages.shell, 'shell'))}</code></pre>
         </div>
         <!--
         <div style="background: #F8F7FC; padding-inline: 32px;padding-block: 16px">
@@ -32645,27 +32629,41 @@ class SchemaTable extends lit_element_s {
         text-align: left;
         line-height: calc(var(--font-size-small) + 6px);
       }
-      .table .tr {
-        width: calc(100% - 5px);
-        padding: 0 0 0 5px;
-        border-bottom: 1px dotted var(--light-border-color);
+      .param-table{
+        border-radius: 4px;
       }
-      .table .td {
+      .param-table .tr {
+        border-bottom: 1px solid var(--light-border-color);
+      }
+      .param-table .td {
         padding: 4px 0;
       }
-      .table .key {
-        width: 240px;
+      .param-table .key {
+        width: 33%;
+        padding: 12px 10px 12px;
+      }
+      .table .key-descr {
+        width: 33%;
+        padding: 0px 10px 12px;
       }
       .key.deprecated .key-label {
         color: var(--red);
       }
-
-      .table .key-type {
+      .key-label {
+        background-color: #f8f7fc;
+        border-radius: 4px;
+        padding: 0.2em 0.4em;
+      }
+      .param-table .key-type {
         white-space: normal;
-        width: 150px;
+        width: 33%;
+        border-left:1px solid var(--light-border-color);
+        border-right:1px solid var(--light-border-color);
+        color:#4A4A4A;
+        padding: 12px 10px 12px;
       }
       .collapsed-descr .tr {
-        max-height: calc(var(--font-size-small) + var(--font-size-small) + 4px);
+        max-height: calc(var(--font-size-small) + var(--font-size-small) + 16px);
       }
 
       .obj-toggle {
@@ -32710,11 +32708,11 @@ class SchemaTable extends lit_element_s {
             ` : ''}
         </div>
         ${(_this$data3 = this.data) !== null && _this$data3 !== void 0 && _this$data3['::description'] ? $`<span part="schema-description" class='m-markdown'> ${unsafe_html_o(marked(this.data['::description'] || ''))}</span>` : ''}
-        <div style = 'border:1px solid var(--light-border-color)'>
-          <div style='display:flex; background-color: var(--bg2); padding:8px 4px; border-bottom:1px solid var(--light-border-color);'>
-            <div class='key' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Field </div>
-            <div class='key-type' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Type </div>
-            <div class='key-descr' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Description </div>
+        <div class="param-table" style = 'border:1px solid var(--light-border-color); margin-top: 10px; font-size: 14px'>
+          <div style='display:flex; border-bottom:1px solid var(--light-border-color);'>
+            <div class='key' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg); padding: 10px 14px;'> Field </div>
+            <div class='key-type' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg); padding: 10px 14px;'> Type </div>
+            <div class='key-descr' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg); padding: 10px 14px;'> Description </div>
           </div>
           ${this.data ? $`
               ${this.generateTree(this.data['::type'] === 'array' ? this.data['::props'] : this.data, this.data['::type'], this.data['::array-type'])}` : ''}  
@@ -32760,7 +32758,7 @@ class SchemaTable extends lit_element_s {
 
     const newSchemaLevel = (_data$Type = data['::type']) !== null && _data$Type !== void 0 && _data$Type.startsWith('xxx-of') ? schemaLevel : schemaLevel + 1;
     const newIndentLevel = dataType === 'xxx-of-option' || data['::type'] === 'xxx-of-option' || key.startsWith('::OPTION') ? indentLevel : indentLevel + 1;
-    const leftPadding = 16 * newIndentLevel; // 2 space indentation at each level
+    const leftPadding = 10 * newIndentLevel; // 2 space indentation at each level
 
     if (Object.keys(data).length === 0) {
       return $`<span class="td key object" style='padding-left:${leftPadding}px'>${key}</span>`;
@@ -32819,7 +32817,7 @@ class SchemaTable extends lit_element_s {
                 ${(data['::type'] || '').includes('xxx-of') ? '' : detailObjType}
                 ${data['::readwrite'] === 'readonly' ? ' 🆁' : data['::readwrite'] === 'writeonly' ? ' 🆆' : ''}
               </div>
-              <div class='td key-descr m-markdown-small' style='line-height:1.7'>${unsafe_html_o(marked(description || ''))}</div>
+              <div class='td key-descr' style='line-height:1.7'>${unsafe_html_o(marked(description || ''))}</div>
             </div>` : $`
               ${data['::type'] === 'array' && dataType === 'array' ? $`
                   <div class='tr'> 
@@ -32878,8 +32876,8 @@ class SchemaTable extends lit_element_s {
         <div class='td key-descr' @click="${() => {
       this.schemaDescriptionExpanded = 'true';
     }}">
-          ${dataType === 'array' ? $`<span class="m-markdown-small">${unsafe_html_o(marked(description))}</span>` : ''}
-          ${schemaDescription ? $`<span class="m-markdown-small">
+          ${dataType === 'array' ? $`<span>${unsafe_html_o(marked(description))}</span>` : ''}
+          ${schemaDescription ? $`<span>
               ${unsafe_html_o(marked(`${schemaTitle ? `**${schemaTitle}:**` : ''} ${schemaDescription} ${constraint || defaultValue || allowedValues || pattern ? '<span  class="more-content">⤵</span>' : ''}`))}
               </span>` : schemaTitle ? $`${schemaTitle} ${constraint || defaultValue || allowedValues || pattern ? $`<span class="more-content">⤵</span>` : ''}` : ''}
           ${constraint ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Constraints: </span> ${constraint}</div>` : ''}
@@ -33329,8 +33327,8 @@ class ApiResponse extends lit_element_s {
           this.activeSchemaTab = e.target.dataset.tab;
         }
       }}" >
-                      <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' >PARAMETERS</button>
-                      <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
+                      <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' >Parameters</button>
+                      <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>Example </button>
                       <div style="flex:1"></div>
                       ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1 ? $`<span class='small-font-size gray-text' style='align-self:center; margin-top:8px;'> ${Object.keys(this.mimeResponsesForEachStatus[status])[0]} </span>` : $`${this.mimeTypeDropdownTemplate(Object.keys(this.mimeResponsesForEachStatus[status]))}`}
                     </div>
@@ -34031,7 +34029,7 @@ function expandedEndpointBodyTemplate(path, tagName = '') {
   return $`
     ${this.renderStyle === 'read' ? $`<div class='divider' part="operation-divider"></div>` : ''}
     <div class='expanded-endpoint-body observe-me ${path.method} ${path.deprecated ? 'deprecated' : ''} ' part="section-operation ${path.elementId}" id='${path.elementId}'>
-      ${this.renderStyle === 'focused' && tagName !== 'General ⦂' ? $`<h3 class="upper" style="font-weight:bold" part="section-operation-tag"> ${tagName} </h3>` : ''}
+      ${this.renderStyle === 'focused' && tagName !== 'General ⦂' ? $`<h3 class="operation-tag" style="font-weight:bold" part="section-operation-tag"> ${tagName} </h3>` : ''}
       ${path.deprecated ? $`<div class="bold-text red-text"> DEPRECATED </div>` : ''}
       ${$`
         ${path.xBadges && ((_path$xBadges = path.xBadges) === null || _path$xBadges === void 0 ? void 0 : _path$xBadges.length) > 0 ? $`
@@ -35486,7 +35484,7 @@ function setTheme(baseTheme, theme = {}) {
     --resp-area-height: ${this.responseAreaHeight};
     --font-size-small:  ${this.fontSize === 'default' ? '12px' : this.fontSize === 'large' ? '13px' : '14px'};
     --font-size-mono:   ${this.fontSize === 'default' ? '13px' : this.fontSize === 'large' ? '14px' : '15px'};
-    --font-size-regular: ${this.fontSize === 'default' ? '14px' : this.fontSize === 'large' ? '15px' : '16px'};
+    --font-size-regular: ${this.fontSize === 'default' ? '16px' : this.fontSize === 'large' ? '17px' : '18px'};
     --dialog-z-index: 1000;
 
     /* Theme specific styles */  
@@ -36081,14 +36079,8 @@ class RapiDoc extends lit_element_s {
       .main-content::-webkit-scrollbar-thumb {
         background-color: var(--border-color);
       }
-
       .section-gap.section-tag {
         border-bottom:1px solid var(--border-color);
-      }
-      .section-gap,
-      .section-gap--focused-mode,
-      .section-gap--read-mode { 
-        padding: 0px 4px; 
       }
       .section-tag-header {
         position:relative;
@@ -42043,7 +42035,7 @@ Prism.languages.py = Prism.languages.python;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("4a2adf88280042aba7bb")
+/******/ 		__webpack_require__.h = () => ("1721012e0e34a427c976")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
@@ -43028,7 +43020,7 @@ Prism.languages.py = Prism.languages.python;
 /******/ 	// module cache are used so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	var __webpack_exports__ = __webpack_require__(483);
+/******/ 	var __webpack_exports__ = __webpack_require__(556);
 /******/ 	
 /******/ })()
 ;

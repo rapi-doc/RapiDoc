@@ -29,6 +29,7 @@ export default css`
 }
 .code-container > code {
   font-size: 12px;
+  line-height: 20px;
 }
 
 .request-card {
@@ -44,7 +45,7 @@ export default css`
 
 .request-title {
   margin-bottom: 8px;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 400;
   line-height: 18px;
   color: #4A4A4A;
@@ -102,12 +103,13 @@ export default css`
   border-style: solid;
   border-radius: 4px 0px 0px 4px;
   margin: 4px 0px;
+  text-transform: uppercase;
 }
 
 .header-auth-title {
   color: #4A4A4A;
-  font-size: 16px;
-  line-height: 18px;
+  font-size: 18px;
+  line-height: 20px;
   font-weight: 400;
 }
 
@@ -118,8 +120,7 @@ export default css`
 .header-auth-label {
   color: var(--fg2);
   margin-bottom: 4px;
-  font-size: var(--font-size-regular);
-  line-height: 19.6px;
+  font-size: 14px;
   font-weight: 400;
 }
 

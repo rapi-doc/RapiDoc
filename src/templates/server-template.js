@@ -87,7 +87,7 @@ function serverVarsTemplate() {
 export default function serverTemplate() {
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) { return ''; }
   return html`
-  <section id = 'servers' part="section-servers" style="text-align:left; direction:ltr; margin-block: 32px 24px;" class='regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
+  <section id = 'servers' part="section-servers" style="text-align:left; direction:ltr; margin-block: 32px 24px; padding-left: 32px;" class='regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
     <span class="api-base-url">Base URL</span>
     <div style="margin-block: 16px; overflow: auto;">
       ${serverVarsTemplate.call(this)}

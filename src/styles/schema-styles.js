@@ -29,11 +29,12 @@ export default css`
 
 .key-descr {
   font-family:var(--font-regular);
-  color:var(--light-fg);
+  color:#4A4A4A;
   flex-shrink: 1;
   text-overflow: ellipsis;
   overflow: hidden;
   display: none;
+  padding-left: 10px;
 }
 .expanded-descr .key-descr{
   max-height:auto;

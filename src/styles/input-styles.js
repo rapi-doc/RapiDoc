@@ -56,7 +56,7 @@ export default css`
   background-color: var(--primary-color);
 }
 
-input, textarea, select, button, pre {
+input, textarea, select, pre {
   color: #000000;
   outline: none;
   background-color: var(--input-bg);
@@ -78,7 +78,7 @@ input[type="password"] {
   font-weight: 400;
   font-size: var(--font-size-regular);
   transition: border .2s;
-  padding: 12px 16px;
+  padding: 6px 8px;
   line-height: 140%;
 }
 

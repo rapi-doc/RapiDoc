@@ -34,7 +34,8 @@ export default css`
   }
   .regular-font-size { font-size: var(--font-size-regular); }
   .small-font-size { font-size: var(--font-size-small); }
-  .upper { text-transform: uppercase; }
+  .upper { font-size: 14px; text-transform: uppercase; }
+  .operation-tag { font-size: 16px; line-height: 18px; color: #A1A8B3; }
   .primary-text{ color: var(--primary-color); }
   .bold-text { font-weight:bold; }
   .gray-text { color: var(--light-fg); }
@@ -56,7 +57,7 @@ export default css`
   }
 
   h1{ font-family:var(--font-regular); font-size:28px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
-  h2{ font-family:var(--font-regular); font-size:24px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
+  h2{ font-family:var(--font-regular); font-size:28px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
   h3{ font-family:var(--font-regular); font-size:18px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
   h4{ font-family:var(--font-regular); font-size:16px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
   h5{ font-family:var(--font-regular); font-size:14px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
@@ -65,7 +66,6 @@ export default css`
   h1,h2,h3,h4,h5,h5{
     margin-block-end: 0.2em;
   }
-  p { margin-block-start: 0.5em; }
   a { color: var(--blue); cursor:pointer; }
   a.inactive-link { 
     color:var(--fg);
@@ -80,6 +80,17 @@ export default css`
     font-size: calc(var(--font-size-mono) - 1px);
   }
 
+  .m-markdown blockquote {
+    padding: 5px 20px;
+    width: 100%;
+    margin: 20px 0;
+    border-radius: 4px;
+    align-items: center;
+    background: #f8f7fc;
+    border: 1px solid #ccced8;
+    grid-template-columns: 20px 1fr;
+  }
+
   .m-markdown,
   .m-markdown-small {
     display:block;
@@ -88,7 +99,6 @@ export default css`
   .m-markdown p,
   .m-markdown span {
     font-size: var(--font-size-regular);
-    line-height:calc(var(--font-size-regular) + 8px);
   }
   .m-markdown li {
     font-size: var(--font-size-regular);
@@ -105,34 +115,11 @@ export default css`
     line-height: calc(var(--font-size-small) + 8px);
   }
 
-  .m-markdown p:not(:first-child) {
-    margin-block-start: 24px;
-  }
-
-  .m-markdown-small p:not(:first-child) {
-    margin-block-start: 12px;
-  }
-  .m-markdown-small p:first-child {
-    margin-block-start: 0;
-  }
-
-  .m-markdown p,
-  .m-markdown-small p {
-    margin-block-end: 0
-  }
-
-  .m-markdown code span {
-    font-size:var(--font-size-mono);
-  }
-
-  .m-markdown-small code,
-  .m-markdown code {
-    padding: 1px 6px;
-    border-radius: 2px;
-    color: var(--inline-code-fg);
-    background-color: var(--bg3);
-    font-size: calc(var(--font-size-mono));
-    line-height: 1.2;
+  code {
+    background-color: #f6f8fa;
+    border-radius: 4px;
+    margin: 0;
+    padding: 0.2em 0.4em;
   }
 
   .m-markdown-small code {
@@ -259,13 +246,6 @@ export default css`
     font-size: calc(var(--font-size-mono) - 1px);
   }
 
-  .m-markdown blockquote,
-  .m-markdown-small blockquote {
-    margin-inline-start: 0;
-    margin-inline-end: 0;
-    border-left: 3px solid var(--border-color);
-    padding: 6px 0 6px 6px;
-  }
   .m-markdown hr{
     border: 1px solid var(--border-color);
   }
