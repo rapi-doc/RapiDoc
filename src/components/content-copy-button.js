@@ -147,6 +147,7 @@ export class ContentCopyButton extends LitElement {
                 right: 0;
                 display: flex;
                 flex-wrap: nowrap;
+                font-size: 14px;
             }
           `,
         ];

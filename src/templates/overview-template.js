@@ -22,9 +22,9 @@ export default function overviewTemplate() {
           <div id="api-title" part="section-overview-title" style="font-size:32px">
             ${this.resolvedSpec.info.title}
             ${!this.resolvedSpec.info.version ? '' : html`
-              <span style = 'font-size:var(--font-size-small);font-weight:bold'>
+              <code>
                 ${this.resolvedSpec.info.version}
-              </span>`
+              </code>`
             }
           </div>
           <div id="api-info" style="font-size:calc(var(--font-size-regular) - 1px); margin-top:8px;">

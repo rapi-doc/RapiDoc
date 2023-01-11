@@ -2933,17 +2933,17 @@ var prism_csharp = __webpack_require__(16);
     color: var(--yellow); 
   }
 
-  h1{ font-family:var(--font-regular); font-size:28px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
-  h2{ font-family:var(--font-regular); font-size:28px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
-  h3{ font-family:var(--font-regular); font-size:18px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
-  h4{ font-family:var(--font-regular); font-size:16px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
-  h5{ font-family:var(--font-regular); font-size:14px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
-  h6{ font-family:var(--font-regular); font-size:14px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
+  h1{ font-family:var(--font-regular); font-size:2em; padding-top: 0.73em; letter-spacing:normal; font-weight:normal; }
+  h2{ font-family:var(--font-regular); font-size:1.375em; padding-top: 0.73em; letter-spacing:normal; font-weight:normal; }
+  h3{ font-family:var(--font-regular); font-size:1.375em; padding-top: 0.73em; letter-spacing:normal; font-weight:normal; }
+  h4{ font-family:var(--font-regular); font-size:1.35em; padding-top: 0.73em; letter-spacing:normal; font-weight:normal; }
+  h5{ font-family:var(--font-regular); font-size:1.25em; padding-top: 0.73em; letter-spacing:normal; font-weight:normal; }
+  h6{ font-family:var(--font-regular); font-size:1.25em; padding-top: 0.73em; letter-spacing:normal; font-weight:normal; }
 
   h1,h2,h3,h4,h5,h5{
     margin-block-end: 0.2em;
   }
-  a { color: var(--blue); cursor:pointer; }
+  a { color: var(--rebel-pink); cursor:pointer; }
   a.inactive-link { 
     color:var(--fg);
     text-decoration: none;
@@ -3056,7 +3056,8 @@ var prism_csharp = __webpack_require__(16);
 
   .m-markdown-small a,
   .m-markdown a {
-    color:var(--blue);
+    color:var(--rebel-pink);
+    text-decoration: none;
   }
 
   .m-markdown-small img,
@@ -3298,7 +3299,7 @@ textarea::-webkit-scrollbar-thumb {
 .link {
   font-size:var(--font-size-small);
   text-decoration: underline;
-  color:var(--blue);
+  color:var(--rebel-pink);
   font-family:var(--font-mono);
   margin-bottom:2px;
 }
@@ -3790,7 +3791,7 @@ pre[class*="language-"] {
 }
 
 .token.function-name {
-  color: var(--blue);
+  color: var(--rebel-pink);
 }
 
 .token.boolean,
@@ -31140,7 +31141,7 @@ function setApiServer(serverUrl) {
 }
 
 function onApiServerVarChange(e, serverObj) {
-  const inputEls = [...e.currentTarget.closest('table').querySelectorAll('input, select')];
+  const inputEls = [...e.currentTarget.closest('.base-url').querySelectorAll('input, select')];
   let tempUrl = serverObj.url;
   inputEls.forEach(v => {
     const regex = new RegExp(`{${v.dataset.var}}`, 'g');
@@ -31156,7 +31157,7 @@ function onApiServerVarChange(e, serverObj) {
 function serverVarsTemplate() {
   // const selectedServerObj = this.resolvedSpec.servers.find((v) => (v.url === this.selectedServer));
   return this.selectedServer && this.selectedServer.variables ? $`
-    <div class='right-box-container'>
+    <div class='base-url right-box-container'>
       ${Object.entries(this.selectedServer.variables).map(kv => $`
         <div>
           <div class='right-box-label' >${kv[0]}</div>
@@ -33250,7 +33251,7 @@ class ApiResponse extends lit_element_s {
     }
 
     return $`
-      ${Object.keys(this.responses).length >= 1 ? $`<div class='row' style='flex-wrap:wrap'>
+      ${Object.keys(this.responses).length >= 1 ? $`<div class='row' style='flex-wrap:wrap; gap:12px'>
           ${Object.keys(this.responses).map(respStatus => $`
             ${respStatus === '$$ref' // Swagger-Client parser creates '$$ref' object if JSON references are used to create responses - this should be ignored
     ? '' : $`
@@ -33858,6 +33859,7 @@ class ContentCopyButton extends lit_element_s {
                 right: 0;
                 display: flex;
                 flex-wrap: nowrap;
+                font-size: 14px;
             }
           `];
   }
@@ -34251,9 +34253,9 @@ function overviewTemplate() {
           <div id="api-title" part="section-overview-title" style="font-size:32px">
             ${this.resolvedSpec.info.title}
             ${!this.resolvedSpec.info.version ? '' : $`
-              <span style = 'font-size:var(--font-size-small);font-weight:bold'>
+              <code>
                 ${this.resolvedSpec.info.version}
-              </span>`}
+              </code>`}
           </div>
           <div id="api-info" style="font-size:calc(var(--font-size-regular) - 1px); margin-top:8px;">
             ${(_this$resolvedSpec$in = this.resolvedSpec.info.contact) !== null && _this$resolvedSpec$in !== void 0 && _this$resolvedSpec$in.email ? $`<span>${this.resolvedSpec.info.contact.name || 'Email'}: 
@@ -35443,6 +35445,7 @@ function setTheme(baseTheme, theme = {}) {
       // #dedede
       hoverColor: theme.hoverColor || color_utils.color.brightness(bg1, -5),
       // # f1f1f1
+      rebelPink: '#e31c58',
       red: theme.red || '#F06560',
       lightRed: theme.lightRed || '#fff0f0',
       pink: theme.pink ? theme.pink : '#990055',
@@ -35518,6 +35521,7 @@ function setTheme(baseTheme, theme = {}) {
     --input-bg:${newTheme.inputBg};
     --placeholder-color:${newTheme.placeHolder};
     --hover-color:${newTheme.hoverColor};
+    --rebel-pink:${newTheme.rebelPink};
     --red:${newTheme.red};
     --light-red:${newTheme.lightRed};
     --pink:${newTheme.pink};
@@ -42045,7 +42049,7 @@ Prism.languages.py = Prism.languages.python;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("d1d5078cef551e036ca4")
+/******/ 		__webpack_require__.h = () => ("906f9aaff2739a6e511f")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

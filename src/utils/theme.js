@@ -160,6 +160,8 @@ export default function setTheme(baseTheme, theme = {}) {
       placeHolder: theme.placeHolder || ColorUtils.color.brightness(lightFg, 20), // #dedede
       hoverColor: theme.hoverColor || ColorUtils.color.brightness(bg1, -5), // # f1f1f1
 
+      rebelPink: '#e31c58',
+
       red: theme.red || '#F06560',
       lightRed: theme.lightRed || '#fff0f0',
 
@@ -249,6 +251,7 @@ export default function setTheme(baseTheme, theme = {}) {
     --input-bg:${newTheme.inputBg};
     --placeholder-color:${newTheme.placeHolder};
     --hover-color:${newTheme.hoverColor};
+    --rebel-pink:${newTheme.rebelPink};
     --red:${newTheme.red};
     --light-red:${newTheme.lightRed};
     --pink:${newTheme.pink};

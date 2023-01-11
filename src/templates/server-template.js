@@ -21,7 +21,7 @@ export function setApiServer(serverUrl) {
 }
 
 function onApiServerVarChange(e, serverObj) {
-  const inputEls = [...e.currentTarget.closest('table').querySelectorAll('input, select')];
+  const inputEls = [...e.currentTarget.closest('.base-url').querySelectorAll('input, select')];
   let tempUrl = serverObj.url;
   inputEls.forEach((v) => {
     const regex = new RegExp(`{${v.dataset.var}}`, 'g');
@@ -38,7 +38,7 @@ function serverVarsTemplate() {
   // const selectedServerObj = this.resolvedSpec.servers.find((v) => (v.url === this.selectedServer));
   return this.selectedServer && this.selectedServer.variables
     ? html`
-    <div class='right-box-container'>
+    <div class='base-url right-box-container'>
       ${Object.entries(this.selectedServer.variables).map((kv) => html`
         <div>
           <div class='right-box-label' >${kv[0]}</div>
