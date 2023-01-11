@@ -49,7 +49,7 @@ pre[class*="language-"] {
 }
 
 .token.function-name {
-  color: var(--blue);
+  color: var(--rebel-pink);
 }
 
 .token.boolean,

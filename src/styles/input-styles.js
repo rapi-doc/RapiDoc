@@ -168,7 +168,7 @@ textarea::-webkit-scrollbar-thumb {
 .link {
   font-size:var(--font-size-small);
   text-decoration: underline;
-  color:var(--blue);
+  color:var(--rebel-pink);
   font-family:var(--font-mono);
   margin-bottom:2px;
 }
