@@ -19,7 +19,7 @@ export default function setTheme(baseTheme, theme = {}) {
     const lightBg = theme.bg3 ? theme.bg3 : ColorUtils.color.brightness(bg1, 35);
     const fg2 = theme.fg2 ? theme.fg2 : ColorUtils.color.brightness(fg1, -15); // or #ababab
     const fg3 = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, -20); // or #aaa
-    const lightFg = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, -65); // or #777
+    const lightFg = theme.fg3 ? theme.fg3 : '#A1A8B3'; // or #777
     const inlineCodeFg = theme.inlineCodeFg ? theme.inlineCodeFg : '#aaa';
     const selectionBg = '#bbb';
     const selectionFg = '#eee';
@@ -61,7 +61,7 @@ export default function setTheme(baseTheme, theme = {}) {
       headerColorBorder: ColorUtils.color.brightness(headerColor, 10),
 
       borderColor: theme.borderColor || ColorUtils.color.brightness(bg1, 20), // #555
-      lightBorderColor: theme.lightBorderColor || ColorUtils.color.brightness(bg1, 15), // #444
+      lightBorderColor: theme.lightBorderColor || '#e7e9ee', // #444
       codeBorderColor: theme.codeBorderColor || ColorUtils.color.brightness(bg1, 30),
 
       inputBg: theme.inputBg || ColorUtils.color.brightness(bg1, -5), // #2f2f2f
@@ -103,7 +103,7 @@ export default function setTheme(baseTheme, theme = {}) {
     const lightBg = theme.bg3 ? theme.bg3 : ColorUtils.color.brightness(bg1, -45);
     const fg2 = theme.fg2 ? theme.fg2 : '#545454';
     const fg3 = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, 30); // or #666
-    const lightFg = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, 70); // or #999
+    const lightFg = theme.fg3 ? theme.fg3 : '#A1A8B3'; // or #999
     const inlineCodeFg = theme.inlineCodeFg ? theme.inlineCodeFg : 'brown';
 
     const selectionBg = '#444';
@@ -153,7 +153,7 @@ export default function setTheme(baseTheme, theme = {}) {
       headerColorBorder: ColorUtils.color.brightness(headerColor, 10),
 
       borderColor: theme.borderColor || '#B9B9B9',
-      lightBorderColor: theme.lightBorderColor || ColorUtils.color.brightness(bg1, -23),
+      lightBorderColor: theme.lightBorderColor || '#e7e9ee',
       codeBorderColor: theme.codeBorderColor || 'transparent',
 
       inputBg: theme.inputBg || 'rgba(255, 255, 255, 0.0001)',

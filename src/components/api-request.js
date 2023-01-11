@@ -145,7 +145,6 @@ export default class ApiRequest extends LitElement {
           font-size: 12px;
           line-height: 16px;
           color: #4A4A4A;
-          margin: 10px 0px 0px;
         }
 
         .top-gap{margin-top:24px;}
@@ -262,7 +261,7 @@ export default class ApiRequest extends LitElement {
   exampleListTemplate(paramName, paramType, exampleList = []) {
     return html`
     ${(exampleList.length > 0
-      ? html`<span style="font-weight:bold; font-size:12px;">Example: </span>
+      ? html`<span style="font-weight:bold; font-size:12px;margin-top:10px;">Example: </span>
         ${exampleList.map((v, i) => html`
           ${i === 0 ? '' : '┃'}
           ${paramType === 'array' ? '[' : ''}
@@ -400,7 +399,7 @@ export default class ApiRequest extends LitElement {
                       </tag-input>`
                     : paramSchema.type === 'object'
                       ? html`
-                        <div class="tab-panel col" style="border-width:0 0 1px 0;">
+                        <div class="tab-panel col" style="border-width:0 0 1px 0; margin-top: 24px;">
                           <div class="tab-buttons row" @click="${(e) => {
                             if (e.target.tagName.toLowerCase() === 'button') {
                               const newState = { ...this.activeParameterSchemaTabs };
@@ -586,7 +585,7 @@ export default class ApiRequest extends LitElement {
           }
           reqBodyExampleHtml = html`
             ${reqBodyExampleHtml}
-            <div class = 'example-panel border-top pad-top-8'>
+            <div class = 'example-panel pad-top-8'>
               ${reqBodyExamples.length === 1
                 ? ''
                 : html`
@@ -704,7 +703,7 @@ export default class ApiRequest extends LitElement {
         
         ${(this.selectedRequestBodyType.includes('json') || this.selectedRequestBodyType.includes('xml') || this.selectedRequestBodyType.includes('text') || this.selectedRequestBodyType.includes('jose'))
           ? html`
-            <div class="tab-panel col" style="border-width:0 0 1px 0;">
+            <div class="tab-panel col" style="border-width:0 0 1px 0; margin-top: 24px;">
               <div class="tab-buttons row" @click="${(e) => { if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; } }}">
                 <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>Parameters</button>
                 <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>Example</button>
@@ -959,7 +958,7 @@ export default class ApiRequest extends LitElement {
           <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
         </div>
       -->
-      <div class="tab-panel col" style="border-top: 1px solid #E7E9EE; border-bottom: 1px solid #E7E9EE;">
+      <div class="tab-panel col" style="border-top: 1px solid #E7E9EE; border-bottom: 1px solid #E7E9EE; margin-top: 24px;">
         <div class="tab-content col m-markdown" style="flex:1; display:flex; margin: 0;">
           <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.curlSyntax.replace(/\\$/, ''), e); }}' part="btn btn-fill"> Copy </button>
           <pre class="code-container" style="border: none;"><code>${unsafeHTML(Prism.highlight(this.curlSyntax.trim().replace(/\\$/, ''), Prism.languages.shell, 'shell'))}</code></pre>

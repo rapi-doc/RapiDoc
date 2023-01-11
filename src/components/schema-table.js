@@ -37,6 +37,10 @@ export default class SchemaTable extends LitElement {
       }
       .param-table{
         border-radius: 4px;
+        border:1px solid var(--light-border-color);
+        border-bottom: none;
+        margin-top: 10px;
+        font-size: 14px;
       }
       .param-table .tr {
         border-bottom: 1px solid var(--light-border-color);
@@ -117,7 +121,7 @@ export default class SchemaTable extends LitElement {
           ? html`<span part="schema-description" class='m-markdown'> ${unsafeHTML(marked(this.data['::description'] || ''))}</span>`
           : ''
         }
-        <div class="param-table" style = 'border:1px solid var(--light-border-color); margin-top: 10px; font-size: 14px'>
+        <div class="param-table">
           <div style='display:flex; border-bottom:1px solid var(--light-border-color);'>
             <div class='key' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg); padding: 10px 14px;'> Field </div>
             <div class='key-type' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg); padding: 10px 14px;'> Type </div>

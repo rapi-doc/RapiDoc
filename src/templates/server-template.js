@@ -38,11 +38,11 @@ function serverVarsTemplate() {
   // const selectedServerObj = this.resolvedSpec.servers.find((v) => (v.url === this.selectedServer));
   return this.selectedServer && this.selectedServer.variables
     ? html`
-    <table class='m-table'>
+    <div class='right-box-container'>
       ${Object.entries(this.selectedServer.variables).map((kv) => html`
-        <tr>
-          <td style="vertical-align: middle;" >${kv[0]}</td>
-          <td>
+        <div>
+          <div class='right-box-label' >${kv[0]}</div>
+          <div>
             ${kv[1].enum
             ? html`
             <select
@@ -65,6 +65,7 @@ function serverVarsTemplate() {
             </select>`
             : html`
             <input
+              class="right-box-input"
               type = "text"
               part="textbox textbox-server-var"
               spellcheck = "false"
@@ -72,14 +73,14 @@ function serverVarsTemplate() {
               value = "${kv[1].default}"
               @input = ${(e) => { onApiServerVarChange.call(this, e, this.selectedServer); }}
             />`}
-          </td>
-        </tr>
+          </div>
+        </div>
         ${kv[1].description
-          ? html`<tr><td colspan="2" style="border:none"><span class="m-markdown-small"> ${unsafeHTML(marked(kv[1].description))} </span></td></tr>`
+          ? html`<div><div style="border:none; margin-top: 4px"><span class="m-markdown-small"> ${unsafeHTML(marked(kv[1].description))} </span></div></div>`
           : ''
         }
       `)}
-    </table>
+    </div>
     `
     : '';
 }
@@ -87,9 +88,9 @@ function serverVarsTemplate() {
 export default function serverTemplate() {
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) { return ''; }
   return html`
-  <section id = 'servers' part="section-servers" style="text-align:left; direction:ltr; margin-block: 32px 24px; padding-left: 32px;" class='regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
-    <span class="api-base-url">Base URL</span>
-    <div style="margin-block: 16px; overflow: auto;">
+  <section id = 'servers' part="section-servers" class='row-api-right-box regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
+    <span class="right-box-title">Base URL</span>
+    <div>
       ${serverVarsTemplate.call(this)}
     </div>
     <div style="display: flex; align-items: center;">

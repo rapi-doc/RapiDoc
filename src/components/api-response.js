@@ -90,10 +90,10 @@ export default class ApiResponse extends LitElement {
         justify-content: space-between;
         flex: 1 1 auto;
         height: 45px;
-        border-bottom: 1px solid #CCCED8;
+        text-transform: uppercase;
       }
       .resp-modal-content {
-        padding: 24px 16px;
+        padding: 24px 40px;
         background-color: #FFFFFF;
         width: 80%;
         height: 70%;
@@ -110,7 +110,6 @@ export default class ApiResponse extends LitElement {
         overscroll-behavior: contain;
         scrollbar-width: thin;
         scrollbar-color: white white;
-        border-bottom: 1px solid #CCCED8;
       }
       .resp-modal-body:hover {
         scrollbar-color: #CCCED8 white;
@@ -348,14 +347,14 @@ export default class ApiResponse extends LitElement {
                 ? ''
                 : html`  
                   <div class="tab-panel col">
+                    ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1
+                      ? html`<code style = "font-weight:normal; margin-bottom:8px; width:min-content"> ${Object.keys(this.mimeResponsesForEachStatus[status])[0]} </code>`
+                      : html`${this.mimeTypeDropdownTemplate(Object.keys(this.mimeResponsesForEachStatus[status]))}`
+                    }                                                      
                     <div class="tab-buttons row" @click="${(e) => { if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; } }}" >
                       <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' >Parameters</button>
                       <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>Example </button>
                       <div style="flex:1"></div>
-                      ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1
-                        ? html`<span class='small-font-size gray-text' style='align-self:center; margin-top:8px;'> ${Object.keys(this.mimeResponsesForEachStatus[status])[0]} </span>`
-                        : html`${this.mimeTypeDropdownTemplate(Object.keys(this.mimeResponsesForEachStatus[status]))}`
-                      }
                     </div>
                     ${this.activeSchemaTab === 'example'
                       ? html`<div class ='tab-content col' style = 'flex:1;'>
@@ -417,7 +416,7 @@ export default class ApiResponse extends LitElement {
   mimeExampleTemplate(mimeRespDetails) {
     if (!mimeRespDetails) {
       return html`
-        <pre style='color:var(--red)' class = '${this.renderStyle === 'read' ? 'read example-panel border pad-8-16' : 'example-panel border-top'}'> No example provided </pre>
+        <pre style='color:var(--red)' class = '${this.renderStyle === 'read' ? 'read example-panel border pad-8-16' : 'example-panel'}'> No example provided </pre>
       `;
     }
     return html`
@@ -428,19 +427,20 @@ export default class ApiResponse extends LitElement {
               ${mimeRespDetails.examples[0].exampleSummary && mimeRespDetails.examples[0].exampleSummary.length > 80 ? html`<div style="padding: 4px 0"> ${mimeRespDetails.examples[0].exampleSummary} </div>` : ''}
               ${mimeRespDetails.examples[0].exampleDescription ? html`<div class="m-markdown-small" style="padding: 4px 0"> ${unsafeHTML(marked(mimeRespDetails.examples[0].exampleDescription || ''))} </div>` : ''}
               <json-tree 
+                style= 'background: rgb(248, 247, 252); border-radius: 4px; border: 1px solid rgb(231, 233, 238); padding: 16px;'
                 render-style = '${this.renderStyle}'
                 .data="${mimeRespDetails.examples[0].exampleValue}"
-                class = 'example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}'
+                class = 'example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'pad-top-8'}'
                 exportparts = "btn:btn, btn-fill:btn-fill, btn-copy:btn-copy" 
               ></json-tree>`
             : html`
               ${mimeRespDetails.examples[0].exampleSummary && mimeRespDetails.examples[0].exampleSummary.length > 80 ? html`<div style="padding: 4px 0"> ${mimeRespDetails.examples[0].exampleSummary} </div>` : ''}
               ${mimeRespDetails.examples[0].exampleDescription ? html`<div class="m-markdown-small" style="padding: 4px 0"> ${unsafeHTML(marked(mimeRespDetails.examples[0].exampleDescription || ''))} </div>` : ''}
-              <pre class = 'example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}'>${mimeRespDetails.examples[0].exampleValue}</pre>
+              <pre class = 'example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'pad-top-8'}'>${mimeRespDetails.examples[0].exampleValue}</pre>
             `
           }`
         : html`
-          <span class = 'example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}'>
+          <span class = 'example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'pad-top-8'}'>
             <select style="min-width:100px; max-width:100%" @change='${(e) => this.onSelectExample(e)}'>
               ${mimeRespDetails.examples.map((v) => html`<option value="${v.exampleId}" ?selected=${v.exampleId === mimeRespDetails.selectedExample} > 
                 ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary} 

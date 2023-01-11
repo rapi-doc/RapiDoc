@@ -15,8 +15,8 @@ export default function overviewTemplate() {
   this.resolvedSpec.info.description = processPathDescription(this.resolvedSpec.info.description);
 
   return html`
-    <section id="overview" part="section-overview"
-      class="observe-me ${this.renderStyle === 'view' ? 'section-gap' : 'section-gap--read-mode'}">
+    <section part="section-overview" class="observe-me ${this.renderStyle === 'view' ? 'section-gap' : 'section-gap--read-mode'}">
+      <span part="anchor-endpoint" id="overview"></span>
       ${this.resolvedSpec?.info
         ? html`
           <div id="api-title" part="section-overview-title" style="font-size:32px">

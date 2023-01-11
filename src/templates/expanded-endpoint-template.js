@@ -39,7 +39,8 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
   path.description = processPathDescription(path.description);
   return html`
     ${this.renderStyle === 'read' ? html`<div class='divider' part="operation-divider"></div>` : ''}
-    <div class='expanded-endpoint-body observe-me ${path.method} ${path.deprecated ? 'deprecated' : ''} ' part="section-operation ${path.elementId}" id='${path.elementId}'>
+    <div class='expanded-endpoint-body observe-me ${path.method} ${path.deprecated ? 'deprecated' : ''} ' part="section-operation ${path.elementId}">
+    <span part="anchor-endpoint" id='${path.elementId}'></span>
       ${(this.renderStyle === 'focused' && tagName !== 'General ⦂') ? html`<h3 class="operation-tag" style="font-weight:bold" part="section-operation-tag"> ${tagName} </h3>` : ''}
       ${path.deprecated ? html`<div class="bold-text red-text"> DEPRECATED </div>` : ''}
       ${html`
