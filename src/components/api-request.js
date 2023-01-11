@@ -963,7 +963,6 @@ export default class ApiRequest extends LitElement {
           <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.curlSyntax.replace(/\\$/, ''), e); }}' part="btn btn-fill"> Copy </button>
           <pre class="code-container" style="border: none;"><code>${unsafeHTML(Prism.highlight(this.curlSyntax.trim().replace(/\\$/, ''), Prism.languages.shell, 'shell'))}</code></pre>
         </div>
-        <!--
         <div style="background: #F8F7FC; padding-inline: 32px;padding-block: 16px">
           <div class="row" style="width:100%; height:20px; background:#E7E9EE; border-radius:2px;padding-inline:4px;margin-bottom:4px">
             <div style="width:8px;height:8px;border-radius:50%;${this.responseBlobUrl || this.responseText ? 'border: 1px solid #79A479;background: #E6F2E6;' : 'border: 1px solid #DC4C43;background: #F0E6E4;'}"></div>
@@ -995,7 +994,6 @@ export default class ApiRequest extends LitElement {
               `
           }
         </div>
-        -->
       </div>`;
   }
 
@@ -1096,6 +1094,7 @@ export default class ApiRequest extends LitElement {
     const tryBtnEl = e.target ? e.target : e;
 
     const { fetchUrl, fetchOptions, reqHeaders } = updateCurl.call(this, tryBtnEl);
+    const encodedUrl = encodeURIComponent(fetchUrl);
 
     this.responseUrl = '';
     this.responseHeaders = [];
@@ -1114,7 +1113,7 @@ export default class ApiRequest extends LitElement {
     const controller = new AbortController();
     const { signal } = controller;
     fetchOptions.headers = reqHeaders;
-    const fetchRequest = new Request(fetchUrl, fetchOptions);
+    const fetchRequest = new Request(`/api/proxy/${encodedUrl}`, fetchOptions);
     this.dispatchEvent(new CustomEvent('before-try', {
       bubbles: true,
       composed: true,
