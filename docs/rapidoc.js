@@ -3360,6 +3360,7 @@ input[type="checkbox"]:checked:after {
     display: flex;
   }
   .row-api {
+    flex: 1fr 1fr;
     align-items: center;
     flex-direction: row;
     align-items: flex-start;
@@ -3383,6 +3384,12 @@ input[type="checkbox"]:checked:after {
     justify-content: flex-start;
     border-left: 1px solid #E7E9EE;
   }
+  .row-api-right-box{
+    text-align:left; 
+    direction:ltr; 
+    margin-block: 32px 24px; 
+    padding-left: 32px;
+  }
 
   @media (max-width: 1280px) {
     .row-api {
@@ -3390,11 +3397,16 @@ input[type="checkbox"]:checked:after {
       justify-content: flex-start;
       align-items: center;
     }
+    .row-api-right-box{
+      padding-left: 0px;
+    }
 
     .row-api-left,
     .row-api-right {
       max-width: unset;
       width: 100%;
+      border: none;
+      padding: 10px;
     }
   }
 `);
@@ -3840,7 +3852,6 @@ pre[class*="language-"] {
 /* harmony default export */ const tab_styles = (r`
 .tab-panel {
   border: none;
-  margin-top: 24px;
 }
 .tab-buttons {
   height:30px;
@@ -3863,8 +3874,7 @@ pre[class*="language-"] {
   cursor:pointer;
   outline:none;
   font-family:var(--font-regular); 
-  margin-right:16px;
-  padding:1px;
+  width:100%;
   font-weight: bold;
   font-size: 16px;
 }
@@ -4074,11 +4084,6 @@ customize their theme. Simply add your css to this file and yarn build.
   cursor: pointer;
 }
 
-.api-base-url {
-  color: #4A4A4A;
-  font-size: 16px;
-}
-
 .code-container {
   padding-inline: 32px;
   padding-top: 16px;
@@ -4162,25 +4167,25 @@ customize their theme. Simply add your css to this file and yarn build.
   text-transform: uppercase;
 }
 
-.header-auth-title {
+.right-box-title {
   color: #4A4A4A;
   font-size: 18px;
   line-height: 20px;
   font-weight: 400;
 }
 
-.header-auth-container {
+.right-box-container {
   margin-top: 16px;
 }
 
-.header-auth-label {
+.right-box-label {
   color: var(--fg2);
   margin-bottom: 4px;
   font-size: 14px;
   font-weight: 400;
 }
 
-.header-auth-input {
+.right-box-input {
   width: 100%;
   height: 44px;
 }
@@ -29830,14 +29835,14 @@ function securitySchemeTemplate() {
   }
 
   return $`
-  <section id='auth' part="section-auth" style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px; padding-left: 32px;" class = 'observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}'>
-    <div class="header-auth-title">Header Auth</div>
+  <section id='auth' part="section-auth" class = 'row-api-right-box observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}'>
+    <div class="right-box-title">Header Auth</div>
 
     ${this.resolvedSpec.securitySchemes && this.resolvedSpec.securitySchemes.length > 0 ? $`
         <div id="auth-table">
           ${this.resolvedSpec.securitySchemes.map(v => $`
-            <div id="security-scheme-${v.securitySchemeId}" class="header-auth-container ${v.type.toLowerCase()}">
-              <div class="header-auth-label">${v.name}</div>
+            <div id="security-scheme-${v.securitySchemeId}" class="right-box-container ${v.type.toLowerCase()}">
+              <div class="right-box-label">${v.name}</div>
               ${v.description ? $`
                   <div class="m-markdown">
                     ${unsafe_html_o(marked(v.description || ''))}
@@ -29850,7 +29855,7 @@ function securitySchemeTemplate() {
                           type="text"
                           spellcheck="false"
                           value="${v.value}"
-                          class="${v.type} ${v.securitySchemeId} api-key-input header-auth-input"
+                          class="${v.type} ${v.securitySchemeId} api-key-input right-box-input"
                           @input="${e => {
     handleApiKeyChange.call(this, e, v.securitySchemeId, e.target.value);
   }}"
@@ -31151,11 +31156,11 @@ function onApiServerVarChange(e, serverObj) {
 function serverVarsTemplate() {
   // const selectedServerObj = this.resolvedSpec.servers.find((v) => (v.url === this.selectedServer));
   return this.selectedServer && this.selectedServer.variables ? $`
-    <table class='m-table'>
+    <div class='right-box-container'>
       ${Object.entries(this.selectedServer.variables).map(kv => $`
-        <tr>
-          <td style="vertical-align: middle;" >${kv[0]}</td>
-          <td>
+        <div>
+          <div class='right-box-label' >${kv[0]}</div>
+          <div>
             ${kv[1].enum ? $`
             <select
               data-var = "${kv[0]}"
@@ -31175,6 +31180,7 @@ function serverVarsTemplate() {
               />`)}
             </select>` : $`
             <input
+              class="right-box-input"
               type = "text"
               part="textbox textbox-server-var"
               spellcheck = "false"
@@ -31184,11 +31190,11 @@ function serverVarsTemplate() {
     onApiServerVarChange.call(this, e, this.selectedServer);
   }}
             />`}
-          </td>
-        </tr>
-        ${kv[1].description ? $`<tr><td colspan="2" style="border:none"><span class="m-markdown-small"> ${unsafe_html_o(marked(kv[1].description))} </span></td></tr>` : ''}
+          </div>
+        </div>
+        ${kv[1].description ? $`<div><div style="border:none; margin-top: 4px"><span class="m-markdown-small"> ${unsafe_html_o(marked(kv[1].description))} </span></div></div>` : ''}
       `)}
-    </table>
+    </div>
     ` : '';
 }
 
@@ -31200,9 +31206,9 @@ function serverTemplate() {
   }
 
   return $`
-  <section id = 'servers' part="section-servers" style="text-align:left; direction:ltr; margin-block: 32px 24px; padding-left: 32px;" class='regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
-    <span class="api-base-url">Base URL</span>
-    <div style="margin-block: 16px; overflow: auto;">
+  <section id = 'servers' part="section-servers" class='row-api-right-box regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
+    <span class="right-box-title">Base URL</span>
+    <div>
       ${serverVarsTemplate.call(this)}
     </div>
     <div style="display: flex; align-items: center;">
@@ -31456,7 +31462,6 @@ class ApiRequest extends lit_element_s {
           font-size: 12px;
           line-height: 16px;
           color: #4A4A4A;
-          margin: 10px 0px 0px;
         }
 
         .top-gap{margin-top:24px;}
@@ -31570,7 +31575,7 @@ class ApiRequest extends lit_element_s {
 
   exampleListTemplate(paramName, paramType, exampleList = []) {
     return $`
-    ${exampleList.length > 0 ? $`<span style="font-weight:bold; font-size:12px;">Example: </span>
+    ${exampleList.length > 0 ? $`<span style="font-weight:bold; font-size:12px;margin-top:10px;">Example: </span>
         ${exampleList.map((v, i) => {
       var _v$value, _v$value2, _v$value3;
 
@@ -31696,7 +31701,7 @@ class ApiRequest extends lit_element_s {
                         .value = "${Array.isArray(example.exampleVal) ? example.exampleVal : example.exampleVal}"
                       >
                       </tag-input>` : paramSchema.type === 'object' ? $`
-                        <div class="tab-panel col" style="border-width:0 0 1px 0;">
+                        <div class="tab-panel col" style="border-width:0 0 1px 0; margin-top: 24px;">
                           <div class="tab-buttons row" @click="${e => {
           if (e.target.tagName.toLowerCase() === 'button') {
             const newState = { ...this.activeParameterSchemaTabs
@@ -31873,7 +31878,7 @@ class ApiRequest extends lit_element_s {
 
           reqBodyExampleHtml = $`
             ${reqBodyExampleHtml}
-            <div class = 'example-panel border-top pad-top-8'>
+            <div class = 'example-panel pad-top-8'>
               ${reqBodyExamples.length === 1 ? '' : $`
                   <select style="min-width:100px; max-width:100%;  margin-bottom:-1px;" @change='${e => this.onSelectExample(e)}'>
                     ${reqBodyExamples.map(v => $`<option value="${v.exampleId}" ?selected=${v.exampleId === this.selectedRequestBodyExample} > 
@@ -31982,7 +31987,7 @@ class ApiRequest extends lit_element_s {
         ${this.request_body.description ? $`<div class="m-markdown" style="margin-bottom:12px">${unsafe_html_o(marked(this.request_body.description))}</div>` : ''}
         
         ${this.selectedRequestBodyType.includes('json') || this.selectedRequestBodyType.includes('xml') || this.selectedRequestBodyType.includes('text') || this.selectedRequestBodyType.includes('jose') ? $`
-            <div class="tab-panel col" style="border-width:0 0 1px 0;">
+            <div class="tab-panel col" style="border-width:0 0 1px 0; margin-top: 24px;">
               <div class="tab-buttons row" @click="${e => {
       if (e.target.tagName.toLowerCase() === 'button') {
         this.activeSchemaTab = e.target.dataset.tab;
@@ -32223,7 +32228,7 @@ class ApiRequest extends lit_element_s {
           <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
         </div>
       -->
-      <div class="tab-panel col" style="border-top: 1px solid #E7E9EE; border-bottom: 1px solid #E7E9EE;">
+      <div class="tab-panel col" style="border-top: 1px solid #E7E9EE; border-bottom: 1px solid #E7E9EE; margin-top: 24px;">
         <div class="tab-content col m-markdown" style="flex:1; display:flex; margin: 0;">
           <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${e => {
       copyToClipboard(this.curlSyntax.replace(/\\$/, ''), e);
@@ -32631,6 +32636,10 @@ class SchemaTable extends lit_element_s {
       }
       .param-table{
         border-radius: 4px;
+        border:1px solid var(--light-border-color);
+        border-bottom: none;
+        margin-top: 10px;
+        font-size: 14px;
       }
       .param-table .tr {
         border-bottom: 1px solid var(--light-border-color);
@@ -32708,7 +32717,7 @@ class SchemaTable extends lit_element_s {
             ` : ''}
         </div>
         ${(_this$data3 = this.data) !== null && _this$data3 !== void 0 && _this$data3['::description'] ? $`<span part="schema-description" class='m-markdown'> ${unsafe_html_o(marked(this.data['::description'] || ''))}</span>` : ''}
-        <div class="param-table" style = 'border:1px solid var(--light-border-color); margin-top: 10px; font-size: 14px'>
+        <div class="param-table">
           <div style='display:flex; border-bottom:1px solid var(--light-border-color);'>
             <div class='key' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg); padding: 10px 14px;'> Field </div>
             <div class='key-type' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg); padding: 10px 14px;'> Type </div>
@@ -33067,10 +33076,10 @@ class ApiResponse extends lit_element_s {
         justify-content: space-between;
         flex: 1 1 auto;
         height: 45px;
-        border-bottom: 1px solid #CCCED8;
+        text-transform: uppercase;
       }
       .resp-modal-content {
-        padding: 24px 16px;
+        padding: 24px 40px;
         background-color: #FFFFFF;
         width: 80%;
         height: 70%;
@@ -33087,7 +33096,6 @@ class ApiResponse extends lit_element_s {
         overscroll-behavior: contain;
         scrollbar-width: thin;
         scrollbar-color: white white;
-        border-bottom: 1px solid #CCCED8;
       }
       .resp-modal-body:hover {
         scrollbar-color: #CCCED8 white;
@@ -33322,6 +33330,7 @@ class ApiResponse extends lit_element_s {
               </div>
               ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 0 ? '' : $`  
                   <div class="tab-panel col">
+                    ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1 ? $`<code style = "font-weight:normal; margin-bottom:8px; width:min-content"> ${Object.keys(this.mimeResponsesForEachStatus[status])[0]} </code>` : $`${this.mimeTypeDropdownTemplate(Object.keys(this.mimeResponsesForEachStatus[status]))}`}                                                      
                     <div class="tab-buttons row" @click="${e => {
         if (e.target.tagName.toLowerCase() === 'button') {
           this.activeSchemaTab = e.target.dataset.tab;
@@ -33330,7 +33339,6 @@ class ApiResponse extends lit_element_s {
                       <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' >Parameters</button>
                       <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>Example </button>
                       <div style="flex:1"></div>
-                      ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1 ? $`<span class='small-font-size gray-text' style='align-self:center; margin-top:8px;'> ${Object.keys(this.mimeResponsesForEachStatus[status])[0]} </span>` : $`${this.mimeTypeDropdownTemplate(Object.keys(this.mimeResponsesForEachStatus[status]))}`}
                     </div>
                     ${this.activeSchemaTab === 'example' ? $`<div class ='tab-content col' style = 'flex:1;'>
                           ${this.mimeExampleTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
@@ -33394,7 +33402,7 @@ class ApiResponse extends lit_element_s {
   mimeExampleTemplate(mimeRespDetails) {
     if (!mimeRespDetails) {
       return $`
-        <pre style='color:var(--red)' class = '${this.renderStyle === 'read' ? 'read example-panel border pad-8-16' : 'example-panel border-top'}'> No example provided </pre>
+        <pre style='color:var(--red)' class = '${this.renderStyle === 'read' ? 'read example-panel border pad-8-16' : 'example-panel'}'> No example provided </pre>
       `;
     }
 
@@ -33404,16 +33412,17 @@ class ApiResponse extends lit_element_s {
               ${mimeRespDetails.examples[0].exampleSummary && mimeRespDetails.examples[0].exampleSummary.length > 80 ? $`<div style="padding: 4px 0"> ${mimeRespDetails.examples[0].exampleSummary} </div>` : ''}
               ${mimeRespDetails.examples[0].exampleDescription ? $`<div class="m-markdown-small" style="padding: 4px 0"> ${unsafe_html_o(marked(mimeRespDetails.examples[0].exampleDescription || ''))} </div>` : ''}
               <json-tree 
+                style= 'background: rgb(248, 247, 252); border-radius: 4px; border: 1px solid rgb(231, 233, 238); padding: 16px;'
                 render-style = '${this.renderStyle}'
                 .data="${mimeRespDetails.examples[0].exampleValue}"
-                class = 'example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}'
+                class = 'example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'pad-top-8'}'
                 exportparts = "btn:btn, btn-fill:btn-fill, btn-copy:btn-copy" 
               ></json-tree>` : $`
               ${mimeRespDetails.examples[0].exampleSummary && mimeRespDetails.examples[0].exampleSummary.length > 80 ? $`<div style="padding: 4px 0"> ${mimeRespDetails.examples[0].exampleSummary} </div>` : ''}
               ${mimeRespDetails.examples[0].exampleDescription ? $`<div class="m-markdown-small" style="padding: 4px 0"> ${unsafe_html_o(marked(mimeRespDetails.examples[0].exampleDescription || ''))} </div>` : ''}
-              <pre class = 'example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}'>${mimeRespDetails.examples[0].exampleValue}</pre>
+              <pre class = 'example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'pad-top-8'}'>${mimeRespDetails.examples[0].exampleValue}</pre>
             `}` : $`
-          <span class = 'example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}'>
+          <span class = 'example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'pad-top-8'}'>
             <select style="min-width:100px; max-width:100%" @change='${e => this.onSelectExample(e)}'>
               ${mimeRespDetails.examples.map(v => $`<option value="${v.exampleId}" ?selected=${v.exampleId === mimeRespDetails.selectedExample} > 
                 ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary} 
@@ -34028,7 +34037,8 @@ function expandedEndpointBodyTemplate(path, tagName = '') {
   path.description = processPathDescription(path.description);
   return $`
     ${this.renderStyle === 'read' ? $`<div class='divider' part="operation-divider"></div>` : ''}
-    <div class='expanded-endpoint-body observe-me ${path.method} ${path.deprecated ? 'deprecated' : ''} ' part="section-operation ${path.elementId}" id='${path.elementId}'>
+    <div class='expanded-endpoint-body observe-me ${path.method} ${path.deprecated ? 'deprecated' : ''} ' part="section-operation ${path.elementId}">
+    <span part="anchor-endpoint" id='${path.elementId}'></span>
       ${this.renderStyle === 'focused' && tagName !== 'General ⦂' ? $`<h3 class="operation-tag" style="font-weight:bold" part="section-operation-tag"> ${tagName} </h3>` : ''}
       ${path.deprecated ? $`<div class="bold-text red-text"> DEPRECATED </div>` : ''}
       ${$`
@@ -34235,8 +34245,8 @@ function overviewTemplate() {
 
   this.resolvedSpec.info.description = processPathDescription(this.resolvedSpec.info.description);
   return $`
-    <section id="overview" part="section-overview"
-      class="observe-me ${this.renderStyle === 'view' ? 'section-gap' : 'section-gap--read-mode'}">
+    <section part="section-overview" class="observe-me ${this.renderStyle === 'view' ? 'section-gap' : 'section-gap--read-mode'}">
+      <span part="anchor-endpoint" id="overview"></span>
       ${(_this$resolvedSpec = this.resolvedSpec) !== null && _this$resolvedSpec !== void 0 && _this$resolvedSpec.info ? $`
           <div id="api-title" part="section-overview-title" style="font-size:32px">
             ${this.resolvedSpec.info.title}
@@ -35297,7 +35307,7 @@ function setTheme(baseTheme, theme = {}) {
 
     const fg3 = theme.fg3 ? theme.fg3 : color_utils.color.brightness(fg1, -20); // or #aaa
 
-    const lightFg = theme.fg3 ? theme.fg3 : color_utils.color.brightness(fg1, -65); // or #777
+    const lightFg = theme.fg3 ? theme.fg3 : '#A1A8B3'; // or #777
 
     const inlineCodeFg = theme.inlineCodeFg ? theme.inlineCodeFg : '#aaa';
     const selectionBg = '#bbb';
@@ -35336,7 +35346,7 @@ function setTheme(baseTheme, theme = {}) {
       headerColorBorder: color_utils.color.brightness(headerColor, 10),
       borderColor: theme.borderColor || color_utils.color.brightness(bg1, 20),
       // #555
-      lightBorderColor: theme.lightBorderColor || color_utils.color.brightness(bg1, 15),
+      lightBorderColor: theme.lightBorderColor || '#e7e9ee',
       // #444
       codeBorderColor: theme.codeBorderColor || color_utils.color.brightness(bg1, 30),
       inputBg: theme.inputBg || color_utils.color.brightness(bg1, -5),
@@ -35380,7 +35390,7 @@ function setTheme(baseTheme, theme = {}) {
     const fg2 = theme.fg2 ? theme.fg2 : '#545454';
     const fg3 = theme.fg3 ? theme.fg3 : color_utils.color.brightness(fg1, 30); // or #666
 
-    const lightFg = theme.fg3 ? theme.fg3 : color_utils.color.brightness(fg1, 70); // or #999
+    const lightFg = theme.fg3 ? theme.fg3 : '#A1A8B3'; // or #999
 
     const inlineCodeFg = theme.inlineCodeFg ? theme.inlineCodeFg : 'brown';
     const selectionBg = '#444';
@@ -35426,7 +35436,7 @@ function setTheme(baseTheme, theme = {}) {
       headerColorDarker: color_utils.color.brightness(headerColor, -20),
       headerColorBorder: color_utils.color.brightness(headerColor, 10),
       borderColor: theme.borderColor || '#B9B9B9',
-      lightBorderColor: theme.lightBorderColor || color_utils.color.brightness(bg1, -23),
+      lightBorderColor: theme.lightBorderColor || '#e7e9ee',
       codeBorderColor: theme.codeBorderColor || 'transparent',
       inputBg: theme.inputBg || 'rgba(255, 255, 255, 0.0001)',
       placeHolder: theme.placeHolder || color_utils.color.brightness(lightFg, 20),
@@ -42035,7 +42045,7 @@ Prism.languages.py = Prism.languages.python;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("1721012e0e34a427c976")
+/******/ 		__webpack_require__.h = () => ("d1d5078cef551e036ca4")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

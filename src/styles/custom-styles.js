@@ -18,11 +18,6 @@ export default css`
   cursor: pointer;
 }
 
-.api-base-url {
-  color: #4A4A4A;
-  font-size: 16px;
-}
-
 .code-container {
   padding-inline: 32px;
   padding-top: 16px;
@@ -106,25 +101,25 @@ export default css`
   text-transform: uppercase;
 }
 
-.header-auth-title {
+.right-box-title {
   color: #4A4A4A;
   font-size: 18px;
   line-height: 20px;
   font-weight: 400;
 }
 
-.header-auth-container {
+.right-box-container {
   margin-top: 16px;
 }
 
-.header-auth-label {
+.right-box-label {
   color: var(--fg2);
   margin-bottom: 4px;
   font-size: 14px;
   font-weight: 400;
 }
 
-.header-auth-input {
+.right-box-input {
   width: 100%;
   height: 44px;
 }

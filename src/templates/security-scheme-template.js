@@ -389,15 +389,15 @@ export default function securitySchemeTemplate() {
     return;
   }
   return html`
-  <section id='auth' part="section-auth" style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px; padding-left: 32px;" class = 'observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}'>
-    <div class="header-auth-title">Header Auth</div>
+  <section id='auth' part="section-auth" class = 'row-api-right-box observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}'>
+    <div class="right-box-title">Header Auth</div>
 
     ${this.resolvedSpec.securitySchemes && this.resolvedSpec.securitySchemes.length > 0
       ? html`
         <div id="auth-table">
           ${this.resolvedSpec.securitySchemes.map((v) => html`
-            <div id="security-scheme-${v.securitySchemeId}" class="header-auth-container ${v.type.toLowerCase()}">
-              <div class="header-auth-label">${v.name}</div>
+            <div id="security-scheme-${v.securitySchemeId}" class="right-box-container ${v.type.toLowerCase()}">
+              <div class="right-box-label">${v.name}</div>
               ${v.description
                 ? html`
                   <div class="m-markdown">
@@ -415,7 +415,7 @@ export default function securitySchemeTemplate() {
                           type="text"
                           spellcheck="false"
                           value="${v.value}"
-                          class="${v.type} ${v.securitySchemeId} api-key-input header-auth-input"
+                          class="${v.type} ${v.securitySchemeId} api-key-input right-box-input"
                           @input="${(e) => { handleApiKeyChange.call(this, e, v.securitySchemeId, e.target.value); }}"
                         >`
                       : html`<span class="gray-text" style="font-size::var(--font-size-small)"> cookies cannot be set from here</span>`

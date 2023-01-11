@@ -3,7 +3,6 @@ import { css } from 'lit';
 export default css`
 .tab-panel {
   border: none;
-  margin-top: 24px;
 }
 .tab-buttons {
   height:30px;
@@ -26,8 +25,7 @@ export default css`
   cursor:pointer;
   outline:none;
   font-family:var(--font-regular); 
-  margin-right:16px;
-  padding:1px;
+  width:100%;
   font-weight: bold;
   font-size: 16px;
 }
