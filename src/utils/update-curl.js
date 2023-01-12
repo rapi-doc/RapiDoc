@@ -206,11 +206,13 @@ export default function updateCurl(tryBtnEl) {
     reqHeaders.append('Content-Type', contentTypeValue);
     curlHeaders += ` --header 'Content-Type: ${contentTypeValue}' \\\n`;
   } else if (requestBodyContainerEl) {
+    reqHeaders.append('Content-Type', requestBodyType);
     curlHeaders += ` --header "Content-Type: ${requestBodyType}" \\\n`;
   }
 
   // Add Authentication Header if provided
   this.resolvedSpec.securitySchemes.forEach((key) => {
+    reqHeaders.append(key.name, key.value);
     headerParams += ` --header '${key.name}: ${key.value}' \\\n`;
   });
 
