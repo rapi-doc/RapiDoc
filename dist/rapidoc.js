@@ -2999,13 +2999,16 @@ var prism_csharp = __webpack_require__(16);
     padding: 0.2em 0.4em;
   }
 
+  .m-markdown code span {
+    font-size:var(--font-size-mono);
+  }
+
   .m-markdown-small code {
     font-size: calc(var(--font-size-mono) - 1px);
   }
 
   .m-markdown-small pre,
   .m-markdown pre {
-    white-space: pre-wrap;
     overflow-x: auto;
     line-height: normal;
     border-radius: 2px;
@@ -3367,13 +3370,16 @@ input[type="checkbox"]:checked:after {
     align-items: flex-start;
     justify-content: space-evenly;
   }
+  .row {
+    align-items: center;
+  }
   .col {
     align-items: stretch;
     flex-direction: column;
   }
   .row-api-left {
-    min-width: 0;
-    max-width: 848px;
+    min-width: 288px;
+    max-width: 720px;
     flex: 2 1 0%;
     justify-content: flex-end;
     padding-right: 32px;
@@ -29294,11 +29300,13 @@ function updateCurl(tryBtnEl) {
     reqHeaders.append('Content-Type', contentTypeValue);
     curlHeaders += ` --header 'Content-Type: ${contentTypeValue}' \\\n`;
   } else if (requestBodyContainerEl) {
+    reqHeaders.append('Content-Type', requestBodyType);
     curlHeaders += ` --header "Content-Type: ${requestBodyType}" \\\n`;
   } // Add Authentication Header if provided
 
 
   this.resolvedSpec.securitySchemes.forEach(key => {
+    reqHeaders.append(key.name, key.value);
     headerParams += ` --header '${key.name}: ${key.value}' \\\n`;
   });
   curlHeaders += headerParams; // Request Body Params
@@ -29906,11 +29914,9 @@ function securitySchemeTemplate() {
                 ` : ''}
           `)}
         </div>` : ''}
-    <!--
-      <button class='test-method-button' @click='${this.onTryClick}' >
-        TEST METHOD
-      </button>
-    -->
+    <button class='test-method-button' @click='${this.onTryClick}' >
+      TEST METHOD
+    </button>
     <slot name="auth">
     </slot>
   </section>
@@ -31463,6 +31469,7 @@ class ApiRequest extends lit_element_s {
           font-size: 12px;
           line-height: 16px;
           color: #4A4A4A;
+          margin: 10px 0px 0px;
         }
 
         .top-gap{margin-top:24px;}
@@ -32223,12 +32230,10 @@ class ApiRequest extends lit_element_s {
     };
     prism_core_default().plugins.customClass.map((className, language) => `${language}-${className}`);
     return $`
-      <!--
-        <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
-          <div style="flex:1"></div>
-          <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
-        </div>
-      -->
+      <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
+        <div style="flex:1"></div>
+        <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
+      </div>
       <div class="tab-panel col" style="border-top: 1px solid #E7E9EE; border-bottom: 1px solid #E7E9EE; margin-top: 24px;">
         <div class="tab-content col m-markdown" style="flex:1; display:flex; margin: 0;">
           <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${e => {
@@ -32236,12 +32241,12 @@ class ApiRequest extends lit_element_s {
     }}' part="btn btn-fill"> Copy </button>
           <pre class="code-container" style="border: none;"><code>${unsafe_html_o(prism_core_default().highlight(this.curlSyntax.trim().replace(/\\$/, ''), (prism_core_default()).languages.shell, 'shell'))}</code></pre>
         </div>
-        <!--
         <div style="background: #F8F7FC; padding-inline: 32px;padding-block: 16px">
-          <div class="row" style="width:100%; height:20px; background:#E7E9EE; border-radius:2px;padding-inline:4px;margin-bottom:4px">
-            <div style="width:8px;height:8px;border-radius:50%;${this.responseBlobUrl || this.responseText ? 'border: 1px solid #79A479;background: #E6F2E6;' : 'border: 1px solid #DC4C43;background: #F0E6E4;'}"></div>
-            <div style="margin-left:4px; color:#4A596B; font-size:12px; font-weight:500;">${this.responseMessage}</div>
-          </div>
+          ${this.responseMessage ? $`
+              <div class="row" style="width:100%; height:max-content; background:#E7E9EE; border-radius:2px;padding-inline:4px;margin-bottom:4px">
+                <div style="min-width:8px;min-height:8px;width:8px;height:8px;border-radius:50%;${this.responseBlobUrl || this.responseText ? 'border: 1px solid #79A479;background: #E6F2E6;' : 'border: 1px solid #DC4C43;background: #F0E6E4;'}"></div>
+                <div style="margin-left:4px; color:#4A596B; font-size:12px; font-weight:500;">${this.responseMessage}</div>
+              </div>` : ''}
           ${this.responseIsBlob ? $`
               <div class="tab-content col" style="flex:1; display:flex;">
                 <button class="m-btn thin-border mar-top-8" style="width:135px" @click='${e => {
@@ -32253,16 +32258,15 @@ class ApiRequest extends lit_element_s {
       viewResource(this.responseBlobUrl, e);
     }}' part="btn btn-outline">VIEW (NEW TAB)</button>` : ''}
               </div>` : $`
-              ${responseFormat || this.responseText ? $`<div class="tab-content col m-markdown" style="flex:1; display:flex;" >
-                <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${e => {
+              ${responseFormat || this.responseText ? $`<div class="tab-content col m-markdown" style="max-height:500px; flex:1; display:flex;" >
+                <button class="toolbar-btn" style="position:absolute; top:12px; right:16px" @click='${e => {
       copyToClipboard(this.responseText, e);
     }}' part="btn btn-fill"> Copy </button>
-                <pre style="white-space:pre; min-height:50px; height:auto; resize:vertical; overflow:auto">
-                ${responseFormat ? $`<code>${unsafe_html_o(prism_core_default().highlight(this.responseText, (prism_core_default()).languages[responseFormat], responseFormat))}</code>` : `${this.responseText}`}</pre>
+                <pre style="display:flex; white-space:pre; min-height:50px; height:auto; resize:vertical; overflow:auto">
+                ${responseFormat ? $`<code style="padding-top:40px;">${unsafe_html_o(prism_core_default().highlight(this.responseText, (prism_core_default()).languages[responseFormat], responseFormat))}</code>` : `${this.responseText}`}</pre>
               </div>` : ''} 
               `}
         </div>
-        -->
       </div>`;
   }
 
@@ -32361,6 +32365,7 @@ class ApiRequest extends lit_element_s {
       fetchOptions,
       reqHeaders
     } = updateCurl.call(this, tryBtnEl);
+    const encodedUrl = encodeURIComponent(fetchUrl);
     this.responseUrl = '';
     this.responseHeaders = [];
     this.responseStatus = 'success';
@@ -32381,7 +32386,7 @@ class ApiRequest extends lit_element_s {
       signal
     } = controller;
     fetchOptions.headers = reqHeaders;
-    const fetchRequest = new Request(fetchUrl, fetchOptions);
+    const fetchRequest = new Request(`/api/proxy/${encodedUrl}`, fetchOptions);
     this.dispatchEvent(new CustomEvent('before-try', {
       bubbles: true,
       composed: true,
@@ -42049,7 +42054,7 @@ Prism.languages.py = Prism.languages.python;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("906f9aaff2739a6e511f")
+/******/ 		__webpack_require__.h = () => ("2eea4dc1ec67b0d298ee")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
