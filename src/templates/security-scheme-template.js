@@ -16,8 +16,7 @@ export function applyApiKey(securitySchemeId, username = '', password = '', prov
   let finalApiKeyValue = '';
   if (securityObj.scheme?.toLowerCase() === 'basic') {
     if (username) {
-      finalApiKeyValue = Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
-      // finalApiKeyValue = `Basic ${btoa(`${username}:${password}`)}`;
+      finalApiKeyValue = `Basic ${Buffer.from(`${username}:${password}`, 'utf8').toString('base64')}`;
     }
   } else if (providedApikeyVal) {
     securityObj.value = providedApikeyVal;
