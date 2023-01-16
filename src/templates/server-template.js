@@ -88,12 +88,12 @@ function serverVarsTemplate() {
 export default function serverTemplate() {
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) { return ''; }
   return html`
-  <section id = 'servers' part="section-servers" class='row-api-right-box regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
+  <section id = 'servers' part="section-servers" class='server-template row-api-right-box regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
     <span class="right-box-title">Base URL</span>
-    <div>
-      ${serverVarsTemplate.call(this)}
-    </div>
-    <div style="display: flex; align-items: center;">
+    <div style="display: flex; align-items: center;" class="server-template-url">
+      <div class="server-template-vars">
+        ${serverVarsTemplate.call(this)}
+      </div>
       ${this.selectedServer?.computedUrl
         ? html`<div class='label-operation-path-container' style="font-size:14px; border-radius: 4px;">
             <content-copy-button id='copy-baseURL' content='${this.selectedServer?.computedUrl}${this.path}'></content-copy-button>

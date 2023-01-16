@@ -108,9 +108,9 @@ export default css`
   font-weight: 400;
 }
 
-.right-box-container {
+/* .right-box-container {
   margin-top: 16px;
-}
+} */
 
 .right-box-label {
   color: var(--fg2);
@@ -126,6 +126,29 @@ export default css`
 
 #copy-baseURL {
   height: 42px;
+}
+
+.server-template-url {
+  position: relative;
+}
+
+.server-template-url .server-template-vars {
+  visibility: hidden;
+  position: absolute;
+  top: 100%;
+  padding: 10px;
+  
+  background-color: var(--bg);
+
+  border: 1px solid rgb(204, 206, 216);
+  border-radius: 4px;
+  box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.1);
+  
+  z-index: 9999;
+}
+
+.server-template-url:hover .server-template-vars {
+  visibility: visible;
 }
 
 `;
