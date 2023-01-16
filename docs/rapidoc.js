@@ -5718,7 +5718,7 @@ function getType(str) {
 
 /***/ }),
 
-/***/ 369:
+/***/ 337:
 /***/ ((__unused_webpack_module, __unused_webpack___webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -5740,7 +5740,6 @@ const css_tag_t=window,css_tag_e=css_tag_t.ShadowRoot&&(void 0===css_tag_t.Shady
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */var reactive_element_s;const reactive_element_e=window,reactive_element_r=reactive_element_e.trustedTypes,h=reactive_element_r?reactive_element_r.emptyScript:"",reactive_element_o=reactive_element_e.reactiveElementPolyfillSupport,reactive_element_n={toAttribute(t,i){switch(i){case Boolean:t=t?h:null;break;case Object:case Array:t=null==t?t:JSON.stringify(t)}return t},fromAttribute(t,i){let s=t;switch(i){case Boolean:s=null!==t;break;case Number:s=null===t?null:Number(t);break;case Object:case Array:try{s=JSON.parse(t)}catch(t){s=null}}return s}},a=(t,i)=>i!==t&&(i==i||t==t),l={attribute:!0,type:String,converter:reactive_element_n,reflect:!1,hasChanged:a};class d extends HTMLElement{constructor(){super(),this._$Ei=new Map,this.isUpdatePending=!1,this.hasUpdated=!1,this._$El=null,this.u()}static addInitializer(t){var i;this.finalize(),(null!==(i=this.h)&&void 0!==i?i:this.h=[]).push(t)}static get observedAttributes(){this.finalize();const t=[];return this.elementProperties.forEach(((i,s)=>{const e=this._$Ep(s,i);void 0!==e&&(this._$Ev.set(e,s),t.push(e))})),t}static createProperty(t,i=l){if(i.state&&(i.attribute=!1),this.finalize(),this.elementProperties.set(t,i),!i.noAccessor&&!this.prototype.hasOwnProperty(t)){const s="symbol"==typeof t?Symbol():"__"+t,e=this.getPropertyDescriptor(t,s,i);void 0!==e&&Object.defineProperty(this.prototype,t,e)}}static getPropertyDescriptor(t,i,s){return{get(){return this[i]},set(e){const r=this[t];this[i]=e,this.requestUpdate(t,r,s)},configurable:!0,enumerable:!0}}static getPropertyOptions(t){return this.elementProperties.get(t)||l}static finalize(){if(this.hasOwnProperty("finalized"))return!1;this.finalized=!0;const t=Object.getPrototypeOf(this);if(t.finalize(),void 0!==t.h&&(this.h=[...t.h]),this.elementProperties=new Map(t.elementProperties),this._$Ev=new Map,this.hasOwnProperty("properties")){const t=this.properties,i=[...Object.getOwnPropertyNames(t),...Object.getOwnPropertySymbols(t)];for(const s of i)this.createProperty(s,t[s])}return this.elementStyles=this.finalizeStyles(this.styles),!0}static finalizeStyles(i){const s=[];if(Array.isArray(i)){const e=new Set(i.flat(1/0).reverse());for(const i of e)s.unshift(c(i))}else void 0!==i&&s.push(c(i));return s}static _$Ep(t,i){const s=i.attribute;return!1===s?void 0:"string"==typeof s?s:"string"==typeof t?t.toLowerCase():void 0}u(){var t;this._$E_=new Promise((t=>this.enableUpdating=t)),this._$AL=new Map,this._$Eg(),this.requestUpdate(),null===(t=this.constructor.h)||void 0===t||t.forEach((t=>t(this)))}addController(t){var i,s;(null!==(i=this._$ES)&&void 0!==i?i:this._$ES=[]).push(t),void 0!==this.renderRoot&&this.isConnected&&(null===(s=t.hostConnected)||void 0===s||s.call(t))}removeController(t){var i;null===(i=this._$ES)||void 0===i||i.splice(this._$ES.indexOf(t)>>>0,1)}_$Eg(){this.constructor.elementProperties.forEach(((t,i)=>{this.hasOwnProperty(i)&&(this._$Ei.set(i,this[i]),delete this[i])}))}createRenderRoot(){var t;const s=null!==(t=this.shadowRoot)&&void 0!==t?t:this.attachShadow(this.constructor.shadowRootOptions);return S(s,this.constructor.elementStyles),s}connectedCallback(){var t;void 0===this.renderRoot&&(this.renderRoot=this.createRenderRoot()),this.enableUpdating(!0),null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostConnected)||void 0===i?void 0:i.call(t)}))}enableUpdating(t){}disconnectedCallback(){var t;null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostDisconnected)||void 0===i?void 0:i.call(t)}))}attributeChangedCallback(t,i,s){this._$AK(t,s)}_$EO(t,i,s=l){var e;const r=this.constructor._$Ep(t,s);if(void 0!==r&&!0===s.reflect){const h=(void 0!==(null===(e=s.converter)||void 0===e?void 0:e.toAttribute)?s.converter:reactive_element_n).toAttribute(i,s.type);this._$El=t,null==h?this.removeAttribute(r):this.setAttribute(r,h),this._$El=null}}_$AK(t,i){var s;const e=this.constructor,r=e._$Ev.get(t);if(void 0!==r&&this._$El!==r){const t=e.getPropertyOptions(r),h="function"==typeof t.converter?{fromAttribute:t.converter}:void 0!==(null===(s=t.converter)||void 0===s?void 0:s.fromAttribute)?t.converter:reactive_element_n;this._$El=r,this[r]=h.fromAttribute(i,t.type),this._$El=null}}requestUpdate(t,i,s){let e=!0;void 0!==t&&(((s=s||this.constructor.getPropertyOptions(t)).hasChanged||a)(this[t],i)?(this._$AL.has(t)||this._$AL.set(t,i),!0===s.reflect&&this._$El!==t&&(void 0===this._$EC&&(this._$EC=new Map),this._$EC.set(t,s))):e=!1),!this.isUpdatePending&&e&&(this._$E_=this._$Ej())}async _$Ej(){this.isUpdatePending=!0;try{await this._$E_}catch(t){Promise.reject(t)}const t=this.scheduleUpdate();return null!=t&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){var t;if(!this.isUpdatePending)return;this.hasUpdated,this._$Ei&&(this._$Ei.forEach(((t,i)=>this[i]=t)),this._$Ei=void 0);let i=!1;const s=this._$AL;try{i=this.shouldUpdate(s),i?(this.willUpdate(s),null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostUpdate)||void 0===i?void 0:i.call(t)})),this.update(s)):this._$Ek()}catch(t){throw i=!1,this._$Ek(),t}i&&this._$AE(s)}willUpdate(t){}_$AE(t){var i;null===(i=this._$ES)||void 0===i||i.forEach((t=>{var i;return null===(i=t.hostUpdated)||void 0===i?void 0:i.call(t)})),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(t)),this.updated(t)}_$Ek(){this._$AL=new Map,this.isUpdatePending=!1}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$E_}shouldUpdate(t){return!0}update(t){void 0!==this._$EC&&(this._$EC.forEach(((t,i)=>this._$EO(i,this[i],t))),this._$EC=void 0),this._$Ek()}updated(t){}firstUpdated(t){}}d.finalized=!0,d.elementProperties=new Map,d.elementStyles=[],d.shadowRootOptions={mode:"open"},null==reactive_element_o||reactive_element_o({ReactiveElement:d}),(null!==(reactive_element_s=reactive_element_e.reactiveElementVersions)&&void 0!==reactive_element_s?reactive_element_s:reactive_element_e.reactiveElementVersions=[]).push("1.6.1");
-//# sourceMappingURL=reactive-element.js.map
 
 ;// CONCATENATED MODULE: ./node_modules/lit-html/lit-html.js
 /**
@@ -5749,7 +5748,6 @@ const css_tag_t=window,css_tag_e=css_tag_t.ShadowRoot&&(void 0===css_tag_t.Shady
  * SPDX-License-Identifier: BSD-3-Clause
  */
 var lit_html_t;const lit_html_i=window,lit_html_s=lit_html_i.trustedTypes,lit_html_e=lit_html_s?lit_html_s.createPolicy("lit-html",{createHTML:t=>t}):void 0,lit_html_o=`lit$${(Math.random()+"").slice(9)}$`,lit_html_n="?"+lit_html_o,lit_html_l=`<${lit_html_n}>`,lit_html_h=document,lit_html_r=(t="")=>lit_html_h.createComment(t),lit_html_d=t=>null===t||"object"!=typeof t&&"function"!=typeof t,u=Array.isArray,lit_html_c=t=>u(t)||"function"==typeof(null==t?void 0:t[Symbol.iterator]),v=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,lit_html_a=/-->/g,f=/>/g,_=RegExp(">|[ \t\n\f\r](?:([^\\s\"'>=/]+)([ \t\n\f\r]*=[ \t\n\f\r]*(?:[^ \t\n\f\r\"'`<>=]|(\"|')|))|$)","g"),m=/'/g,p=/"/g,$=/^(?:script|style|textarea|title)$/i,g=t=>(i,...s)=>({_$litType$:t,strings:i,values:s}),y=g(1),w=g(2),x=Symbol.for("lit-noChange"),b=Symbol.for("lit-nothing"),T=new WeakMap,A=lit_html_h.createTreeWalker(lit_html_h,129,null,!1),E=(t,i)=>{const s=t.length-1,n=[];let h,r=2===i?"<svg>":"",d=v;for(let i=0;i<s;i++){const s=t[i];let e,u,c=-1,g=0;for(;g<s.length&&(d.lastIndex=g,u=d.exec(s),null!==u);)g=d.lastIndex,d===v?"!--"===u[1]?d=lit_html_a:void 0!==u[1]?d=f:void 0!==u[2]?($.test(u[2])&&(h=RegExp("</"+u[2],"g")),d=_):void 0!==u[3]&&(d=_):d===_?">"===u[0]?(d=null!=h?h:v,c=-1):void 0===u[1]?c=-2:(c=d.lastIndex-u[2].length,e=u[1],d=void 0===u[3]?_:'"'===u[3]?p:m):d===p||d===m?d=_:d===lit_html_a||d===f?d=v:(d=_,h=void 0);const y=d===_&&t[i+1].startsWith("/>")?" ":"";r+=d===v?s+lit_html_l:c>=0?(n.push(e),s.slice(0,c)+"$lit$"+s.slice(c)+lit_html_o+y):s+lit_html_o+(-2===c?(n.push(void 0),i):y)}const u=r+(t[s]||"<?>")+(2===i?"</svg>":"");if(!Array.isArray(t)||!t.hasOwnProperty("raw"))throw Error("invalid template strings array");return[void 0!==lit_html_e?lit_html_e.createHTML(u):u,n]};class C{constructor({strings:t,_$litType$:i},e){let l;this.parts=[];let h=0,d=0;const u=t.length-1,c=this.parts,[v,a]=E(t,i);if(this.el=C.createElement(v,e),A.currentNode=this.el.content,2===i){const t=this.el.content,i=t.firstChild;i.remove(),t.append(...i.childNodes)}for(;null!==(l=A.nextNode())&&c.length<u;){if(1===l.nodeType){if(l.hasAttributes()){const t=[];for(const i of l.getAttributeNames())if(i.endsWith("$lit$")||i.startsWith(lit_html_o)){const s=a[d++];if(t.push(i),void 0!==s){const t=l.getAttribute(s.toLowerCase()+"$lit$").split(lit_html_o),i=/([.?@])?(.*)/.exec(s);c.push({type:1,index:h,name:i[2],strings:t,ctor:"."===i[1]?M:"?"===i[1]?k:"@"===i[1]?H:lit_html_S})}else c.push({type:6,index:h})}for(const i of t)l.removeAttribute(i)}if($.test(l.tagName)){const t=l.textContent.split(lit_html_o),i=t.length-1;if(i>0){l.textContent=lit_html_s?lit_html_s.emptyScript:"";for(let s=0;s<i;s++)l.append(t[s],lit_html_r()),A.nextNode(),c.push({type:2,index:++h});l.append(t[i],lit_html_r())}}}else if(8===l.nodeType)if(l.data===lit_html_n)c.push({type:2,index:h});else{let t=-1;for(;-1!==(t=l.data.indexOf(lit_html_o,t+1));)c.push({type:7,index:h}),t+=lit_html_o.length-1}h++}}static createElement(t,i){const s=lit_html_h.createElement("template");return s.innerHTML=t,s}}function P(t,i,s=t,e){var o,n,l,h;if(i===x)return i;let r=void 0!==e?null===(o=s._$Co)||void 0===o?void 0:o[e]:s._$Cl;const u=lit_html_d(i)?void 0:i._$litDirective$;return(null==r?void 0:r.constructor)!==u&&(null===(n=null==r?void 0:r._$AO)||void 0===n||n.call(r,!1),void 0===u?r=void 0:(r=new u(t),r._$AT(t,s,e)),void 0!==e?(null!==(l=(h=s)._$Co)&&void 0!==l?l:h._$Co=[])[e]=r:s._$Cl=r),void 0!==r&&(i=P(t,r._$AS(t,i.values),r,e)),i}class V{constructor(t,i){this.u=[],this._$AN=void 0,this._$AD=t,this._$AM=i}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}v(t){var i;const{el:{content:s},parts:e}=this._$AD,o=(null!==(i=null==t?void 0:t.creationScope)&&void 0!==i?i:lit_html_h).importNode(s,!0);A.currentNode=o;let n=A.nextNode(),l=0,r=0,d=e[0];for(;void 0!==d;){if(l===d.index){let i;2===d.type?i=new N(n,n.nextSibling,this,t):1===d.type?i=new d.ctor(n,d.name,d.strings,this,t):6===d.type&&(i=new I(n,this,t)),this.u.push(i),d=e[++r]}l!==(null==d?void 0:d.index)&&(n=A.nextNode(),l++)}return o}p(t){let i=0;for(const s of this.u)void 0!==s&&(void 0!==s.strings?(s._$AI(t,s,i),i+=s.strings.length-2):s._$AI(t[i])),i++}}class N{constructor(t,i,s,e){var o;this.type=2,this._$AH=b,this._$AN=void 0,this._$AA=t,this._$AB=i,this._$AM=s,this.options=e,this._$Cm=null===(o=null==e?void 0:e.isConnected)||void 0===o||o}get _$AU(){var t,i;return null!==(i=null===(t=this._$AM)||void 0===t?void 0:t._$AU)&&void 0!==i?i:this._$Cm}get parentNode(){let t=this._$AA.parentNode;const i=this._$AM;return void 0!==i&&11===t.nodeType&&(t=i.parentNode),t}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(t,i=this){t=P(this,t,i),lit_html_d(t)?t===b||null==t||""===t?(this._$AH!==b&&this._$AR(),this._$AH=b):t!==this._$AH&&t!==x&&this.g(t):void 0!==t._$litType$?this.$(t):void 0!==t.nodeType?this.T(t):lit_html_c(t)?this.k(t):this.g(t)}O(t,i=this._$AB){return this._$AA.parentNode.insertBefore(t,i)}T(t){this._$AH!==t&&(this._$AR(),this._$AH=this.O(t))}g(t){this._$AH!==b&&lit_html_d(this._$AH)?this._$AA.nextSibling.data=t:this.T(lit_html_h.createTextNode(t)),this._$AH=t}$(t){var i;const{values:s,_$litType$:e}=t,o="number"==typeof e?this._$AC(t):(void 0===e.el&&(e.el=C.createElement(e.h,this.options)),e);if((null===(i=this._$AH)||void 0===i?void 0:i._$AD)===o)this._$AH.p(s);else{const t=new V(o,this),i=t.v(this.options);t.p(s),this.T(i),this._$AH=t}}_$AC(t){let i=T.get(t.strings);return void 0===i&&T.set(t.strings,i=new C(t)),i}k(t){u(this._$AH)||(this._$AH=[],this._$AR());const i=this._$AH;let s,e=0;for(const o of t)e===i.length?i.push(s=new N(this.O(lit_html_r()),this.O(lit_html_r()),this,this.options)):s=i[e],s._$AI(o),e++;e<i.length&&(this._$AR(s&&s._$AB.nextSibling,e),i.length=e)}_$AR(t=this._$AA.nextSibling,i){var s;for(null===(s=this._$AP)||void 0===s||s.call(this,!1,!0,i);t&&t!==this._$AB;){const i=t.nextSibling;t.remove(),t=i}}setConnected(t){var i;void 0===this._$AM&&(this._$Cm=t,null===(i=this._$AP)||void 0===i||i.call(this,t))}}class lit_html_S{constructor(t,i,s,e,o){this.type=1,this._$AH=b,this._$AN=void 0,this.element=t,this.name=i,this._$AM=e,this.options=o,s.length>2||""!==s[0]||""!==s[1]?(this._$AH=Array(s.length-1).fill(new String),this.strings=s):this._$AH=b}get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}_$AI(t,i=this,s,e){const o=this.strings;let n=!1;if(void 0===o)t=P(this,t,i,0),n=!lit_html_d(t)||t!==this._$AH&&t!==x,n&&(this._$AH=t);else{const e=t;let l,h;for(t=o[0],l=0;l<o.length-1;l++)h=P(this,e[s+l],i,l),h===x&&(h=this._$AH[l]),n||(n=!lit_html_d(h)||h!==this._$AH[l]),h===b?t=b:t!==b&&(t+=(null!=h?h:"")+o[l+1]),this._$AH[l]=h}n&&!e&&this.j(t)}j(t){t===b?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,null!=t?t:"")}}class M extends lit_html_S{constructor(){super(...arguments),this.type=3}j(t){this.element[this.name]=t===b?void 0:t}}const R=lit_html_s?lit_html_s.emptyScript:"";class k extends lit_html_S{constructor(){super(...arguments),this.type=4}j(t){t&&t!==b?this.element.setAttribute(this.name,R):this.element.removeAttribute(this.name)}}class H extends lit_html_S{constructor(t,i,s,e,o){super(t,i,s,e,o),this.type=5}_$AI(t,i=this){var s;if((t=null!==(s=P(this,t,i,0))&&void 0!==s?s:b)===x)return;const e=this._$AH,o=t===b&&e!==b||t.capture!==e.capture||t.once!==e.once||t.passive!==e.passive,n=t!==b&&(e===b||o);o&&this.element.removeEventListener(this.name,this,e),n&&this.element.addEventListener(this.name,this,t),this._$AH=t}handleEvent(t){var i,s;"function"==typeof this._$AH?this._$AH.call(null!==(s=null===(i=this.options)||void 0===i?void 0:i.host)&&void 0!==s?s:this.element,t):this._$AH.handleEvent(t)}}class I{constructor(t,i,s){this.element=t,this.type=6,this._$AN=void 0,this._$AM=i,this.options=s}get _$AU(){return this._$AM._$AU}_$AI(t){P(this,t)}}const L={P:"$lit$",A:lit_html_o,M:lit_html_n,C:1,L:E,R:V,D:lit_html_c,V:P,I:N,H:lit_html_S,N:k,U:H,B:M,F:I},z=lit_html_i.litHtmlPolyfillSupport;null==z||z(C,N),(null!==(lit_html_t=lit_html_i.litHtmlVersions)&&void 0!==lit_html_t?lit_html_t:lit_html_i.litHtmlVersions=[]).push("2.6.1");const Z=(t,i,s)=>{var e,o;const n=null!==(e=null==s?void 0:s.renderBefore)&&void 0!==e?e:i;let l=n._$litPart$;if(void 0===l){const t=null!==(o=null==s?void 0:s.renderBefore)&&void 0!==o?o:null;n._$litPart$=l=new N(i.insertBefore(lit_html_r(),t),t,void 0,null!=s?s:{})}return l._$AI(t),l};
-//# sourceMappingURL=lit-html.js.map
 
 ;// CONCATENATED MODULE: ./node_modules/lit-element/lit-element.js
 
@@ -17753,8 +17751,7 @@ function applyApiKey(securitySchemeId, username = '', password = '', providedApi
     let finalApiKeyValue = '';
     if (securityObj.type === 'http' && ((_c = securityObj.scheme) === null || _c === void 0 ? void 0 : _c.toLowerCase()) === 'basic') {
         if (username) {
-            finalApiKeyValue = Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
-            // finalApiKeyValue = `Basic ${btoa(`${username}:${password}`)}`;
+            finalApiKeyValue = `Basic ${Buffer.from(`${username}:${password}`, 'utf8').toString('base64')}`;
         }
     }
     else if (securityObj.type === 'http' && providedApikeyVal) {
@@ -17767,23 +17764,6 @@ function applyApiKey(securitySchemeId, username = '', password = '', providedApi
         return true;
     }
     return false;
-  }
-  let finalApiKeyValue = '';
-  if (((_securityObj$scheme = securityObj.scheme) === null || _securityObj$scheme === void 0 ? void 0 : _securityObj$scheme.toLowerCase()) === 'basic') {
-    if (username) {
-      finalApiKeyValue = `Basic ${Buffer.from(`${username}:${password}`, 'utf8').toString('base64')}`;
-    }
-  } else if (providedApikeyVal) {
-    var _securityObj$scheme2;
-    securityObj.value = providedApikeyVal;
-    finalApiKeyValue = `${((_securityObj$scheme2 = securityObj.scheme) === null || _securityObj$scheme2 === void 0 ? void 0 : _securityObj$scheme2.toLowerCase()) === 'bearer' ? 'Bearer ' : ''}${providedApikeyVal}`;
-  }
-  if (finalApiKeyValue) {
-    securityObj.finalKeyValue = finalApiKeyValue;
-    this.requestUpdate();
-    return true;
-  }
-  return false;
 }
 function onClearAllApiKeys() {
     var _a, _b;
@@ -17844,45 +17824,55 @@ function updateOAuthKey(securitySchemeId, accessToken, tokenType = 'Bearer') {
 /* eslint-disable no-console */
 // Gets Access-Token in exchange of Authorization Code
 async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, grantType, authCode, securitySchemeId, authFlowDivEl, sendClientSecretIn = 'header', scopes = null, username = null, password = null) {
-  const respDisplayEl = authFlowDivEl ? authFlowDivEl.querySelector('.oauth-resp-display') : undefined;
-  const urlFormParams = new URLSearchParams();
-  const headers = new Headers();
-  urlFormParams.append('grant_type', grantType);
-  if (grantType === 'authorization_code') {
-    urlFormParams.append('client_id', clientId);
-    urlFormParams.append('client_secret', clientSecret);
-  }
-  if (grantType !== 'client_credentials' && grantType !== 'password') {
-    urlFormParams.append('redirect_uri', redirectUrl);
-  }
-  if (authCode) {
-    urlFormParams.append('code', authCode);
-    urlFormParams.append('code_verifier', codeVerifier); // for PKCE
-  }
-
-  if (sendClientSecretIn === 'header') {
-    headers.set('Authorization', `Basic ${Buffer.from(`${clientId}:${clientSecret}`, 'utf8').toString('base64')}`);
-  } else {
-    urlFormParams.append('client_id', clientId);
-    urlFormParams.append('client_secret', clientSecret);
-  }
-  if (grantType === 'password') {
-    urlFormParams.append('username', username);
-    urlFormParams.append('password', password);
-  }
-  if (scopes) {
-    urlFormParams.append('scope', scopes);
-  }
-  try {
-    const resp = await fetch(tokenUrl, {
-      method: 'POST',
-      headers,
-      body: urlFormParams
-    });
-    const tokenResp = await resp.json();
-    if (resp.ok) {
-      if (tokenResp.token_type && tokenResp.access_token) {
-        updateOAuthKey.call(this, securitySchemeId, tokenResp.access_token, tokenResp.token_type);
+    const respDisplayEl = authFlowDivEl ? authFlowDivEl.querySelector('.oauth-resp-display') : undefined;
+    const urlFormParams = new URLSearchParams();
+    const headers = new Headers();
+    urlFormParams.append('grant_type', grantType);
+    if (grantType === 'authorization_code') {
+        urlFormParams.append('client_id', clientId);
+        urlFormParams.append('client_secret', clientSecret);
+    }
+    if (grantType !== 'client_credentials' && grantType !== 'password') {
+        urlFormParams.append('redirect_uri', redirectUrl);
+    }
+    if (authCode) {
+        urlFormParams.append('code', authCode);
+        urlFormParams.append('code_verifier', codeVerifier); // for PKCE
+    }
+    if (sendClientSecretIn === 'header') {
+        headers.set('Authorization', `Basic ${Buffer.from(`${clientId}:${clientSecret}`, 'utf8').toString('base64')}`);
+    }
+    else {
+        urlFormParams.append('client_id', clientId);
+        urlFormParams.append('client_secret', clientSecret);
+    }
+    if (grantType === 'password' && username !== null && password !== null) {
+        urlFormParams.append('username', username);
+        urlFormParams.append('password', password);
+    }
+    if (scopes) {
+        urlFormParams.append('scope', scopes);
+    }
+    try {
+        const resp = await fetch(tokenUrl, { method: 'POST', headers, body: urlFormParams });
+        const tokenResp = await resp.json();
+        if (resp.ok) {
+            if (tokenResp.token_type && tokenResp.access_token) {
+                updateOAuthKey.call(this, securitySchemeId, tokenResp.access_token, tokenResp.token_type);
+                if (respDisplayEl) {
+                    respDisplayEl.innerHTML = '<span style="color:var(--green)">Access Token Received</span>';
+                }
+                return true;
+            }
+        }
+        else {
+            if (respDisplayEl) {
+                respDisplayEl.innerHTML = `<span style="color:var(--red)">${tokenResp.error_description || tokenResp.error_description || 'Unable to get access token'}</span>`;
+            }
+            return false;
+        }
+    }
+    catch (err) {
         if (respDisplayEl) {
             respDisplayEl.innerHTML = '<span style="color:var(--red)">Failed to get access token</span>';
         }
@@ -18001,38 +17991,39 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
 /* eslint-enable no-console */
 /* eslint-disable indent */
 function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, authFlow, defaultScopes = [], receiveTokenIn = 'header') {
-  let {
-    authorizationUrl,
-    tokenUrl,
-    refreshUrl
-  } = authFlow;
-  const pkceOnly = authFlow['x-pkce-only'] || false;
-  const isUrlAbsolute = url => url.indexOf('://') > 0 || url.indexOf('//') === 0;
-  // Calculcate base URL
-  const url = new URL(this.selectedServer.computedUrl);
-  const baseUrl = url.origin;
-  if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
-    refreshUrl = `${baseUrl}/${refreshUrl.replace(/^\//, '')}`;
-  }
-  if (tokenUrl && !isUrlAbsolute(tokenUrl)) {
-    tokenUrl = `${baseUrl}/${tokenUrl.replace(/^\//, '')}`;
-  }
-  if (authorizationUrl && !isUrlAbsolute(authorizationUrl)) {
-    authorizationUrl = `${baseUrl}/${authorizationUrl.replace(/^\//, '')}`;
-  }
-  let flowNameDisplay;
-  if (flowName === 'authorizationCode') {
-    flowNameDisplay = 'Authorization Code Flow';
-  } else if (flowName === 'clientCredentials') {
-    flowNameDisplay = 'Client Credentials Flow';
-  } else if (flowName === 'implicit') {
-    flowNameDisplay = 'Implicit Flow';
-  } else if (flowName === 'password') {
-    flowNameDisplay = 'Password Flow';
-  } else {
-    flowNameDisplay = flowName;
-  }
-  return y`
+    var _a;
+    let { authorizationUrl, tokenUrl, refreshUrl } = authFlow;
+    const pkceOnly = authFlow['x-pkce-only'] || false;
+    const isUrlAbsolute = (url) => (url.indexOf('://') > 0 || url.indexOf('//') === 0);
+    // Calculate base URL
+    const url = new URL(((_a = this.selectedServer) === null || _a === void 0 ? void 0 : _a.computedUrl) || '');
+    const baseUrl = url.origin;
+    if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
+        refreshUrl = `${baseUrl}/${refreshUrl.replace(/^\//, '')}`;
+    }
+    if (tokenUrl && !isUrlAbsolute(tokenUrl)) {
+        tokenUrl = `${baseUrl}/${tokenUrl.replace(/^\//, '')}`;
+    }
+    if (authorizationUrl && !isUrlAbsolute(authorizationUrl)) {
+        authorizationUrl = `${baseUrl}/${authorizationUrl.replace(/^\//, '')}`;
+    }
+    let flowNameDisplay;
+    if (flowName === 'authorizationCode') {
+        flowNameDisplay = 'Authorization Code Flow';
+    }
+    else if (flowName === 'clientCredentials') {
+        flowNameDisplay = 'Client Credentials Flow';
+    }
+    else if (flowName === 'implicit') {
+        flowNameDisplay = 'Implicit Flow';
+    }
+    else if (flowName === 'password') {
+        flowNameDisplay = 'Password Flow';
+    }
+    else {
+        flowNameDisplay = flowName;
+    }
+    return y `
     <div class="oauth-flow ${flowName}" style="padding: 12px 0; margin-bottom:12px;">
       <div class="tiny-title upper" style="margin-bottom:8px;">${flowNameDisplay}</div>
       ${authorizationUrl
@@ -18081,7 +18072,8 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
               `
             : ''}
             <input type="text" part="textbox textbox-auth-client-id" value = "${clientId || ''}" placeholder="client-id" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} oauth-client-id">
-            ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password' ? y`
+            ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password'
+            ? y `
                 <input
                   type="password" part="textbox textbox-auth-client-secret"
                   value = "${clientSecret || ''}" placeholder="client-secret" spellcheck="false"
@@ -18353,7 +18345,7 @@ function codeSamplesTemplate(xCodeSamples) {
         tabContents.forEach((tabBodyEl) => { tabBodyEl.style.display = (tabBodyEl.dataset.tab === clickedTab ? 'block' : 'none'); });
     }}">
     <div class="tab-buttons row" style="width:100;">
-      ${xCodeSamples.map((v, i) => y `<button class="tab-btn ${i === 0 ? 'active' : ''}" data-tab = '${v.lang}${i}'> ${v.label || v.lang} </button>`)}
+      ${xCodeSamples.map((v, i) => y `<button class="tab-btn ${i === 0 ? 'active' : ''}" data-tab = '${v.lang}${i}' part="btn-tab"> ${v.label || v.lang} </button>`)}
     </div>
     ${xCodeSamples.map((v, i) => {
         var _a, _b, _c;
@@ -18411,9 +18403,11 @@ function callbackTemplate(callbacks) {
                       schema-hide-read-only = "false"
                       schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : 'true'}"
                       fetch-credentials = "${this.fetchCredentials}"
-                      exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
-                        file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
-                        anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+                      exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline,
+                                    btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp, file-input:file-input, 
+                                    textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
+                                    anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, 
+                                    schema-multiline-toggle:schema-multiline-toggle, select:select, btn-tab:btn-tab"
                       > </api-request>
 
                     <api-response
@@ -18429,8 +18423,10 @@ function callbackTemplate(callbacks) {
                       allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
                       schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : 'true'}"
                       schema-hide-write-only = "false"
-                      exportparts = "btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
-                      schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+                      exportparts = "btn:btn, btn-response-status:btn-response-status, 
+                                    btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, 
+                                    btn-copy:btn-copy, schema-description:schema-description, 
+                                    schema-multiline-toggle:schema-multiline-toggle btn-tab:btn-tab"
                     > </api-response>
                   </div>
                 </div>  
@@ -20729,34 +20725,24 @@ let ApiRequest = class ApiRequest extends lit_element_s {
     </div>
     `;
     }
-
-    // In focused mode after rendering the request component, update the text-areas(which contains examples) using
-    // the original values from hidden textareas
-    // This is done coz, user may update the dom by editing the textarea's and once the DOM is updated externally change detection wont happen, therefore update the values manually
-
-    // if (this.renderStyle === 'focused') {
-    //   if (changedProperties.size === 1 && changedProperties.has('activeSchemaTab')) {
-    //     // dont update example as only tabs is switched
-    //   } else {
-    //     this.requestUpdate();
-    //   }
-    // }
-
-    if (this.webhook === 'true') {
-      this.allowTry = 'false';
-    }
-  }
-  async saveExampleState() {
-    if (this.renderStyle === 'focused') {
-      const reqBodyTextAreaEls = [...this.shadowRoot.querySelectorAll('textarea.request-body-param-user-input')];
-      reqBodyTextAreaEls.forEach(el => {
-        el.dataset.user_example = el.value;
-      });
-      const exampleTextAreaEls = [...this.shadowRoot.querySelectorAll('textarea[data-ptype="form-data"]')];
-      exampleTextAreaEls.forEach(el => {
-        el.dataset.user_example = el.value;
-      });
-      this.requestUpdate();
+    async updated() {
+        var _a;
+        if (this.showCurlBeforeTry === 'true') {
+            this.applyCURLSyntax((_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.getRootNode());
+        }
+        // In focused mode after rendering the request component, update the text-areas(which contains examples) using
+        // the original values from hidden textareas
+        // This is done coz, user may update the dom by editing the textarea's and once the DOM is updated externally change detection wont happen, therefore update the values manually
+        // if (this.renderStyle === 'focused') {
+        //   if (changedProperties.size === 1 && changedProperties.has('activeSchemaTab')) {
+        //     // dont update example as only tabs is switched
+        //   } else {
+        //     this.requestUpdate();
+        //   }
+        // }
+        if (this.webhook === 'true') {
+            this.allowTry = 'false';
+        }
     }
     async saveExampleState() {
         var _a, _b;
@@ -20942,8 +20928,8 @@ let ApiRequest = class ApiRequest extends lit_element_s {
                                 this.activeParameterSchemaTabs = newState;
                             }
                         }}">
-                        <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
-                        <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
+                        <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] === 'example' ? 'active' : ''}" data-tab = 'example' part="btn-tab">EXAMPLE </button>
+                        <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab = 'schema' part="btn-tab">SCHEMA</button>
                       </div>
                       ${this.activeParameterSchemaTabs[param.name] === 'example'
                             ? y `<div class="tab-content col">
@@ -20977,9 +20963,10 @@ let ApiRequest = class ApiRequest extends lit_element_s {
                               allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
                               schema-hide-read-only = "${(_a = this.schemaHideReadOnly) === null || _a === void 0 ? void 0 : _a.includes(this.method)}"
                               schema-hide-write-only = "${(_b = this.schemaHideWriteOnly) === null || _b === void 0 ? void 0 : _b.includes(this.method)}"
-                              exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
-                                file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
-                                anchor:anchor, anchor-param-example:anchor-param-example"
+                              exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-copy:btn-copy,
+                                            btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp, 
+                                            file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea,
+                                            textarea-param:textarea-param, anchor:anchor, anchor-param-example:anchor-param-example"
                             > </schema-tree>
                           </div>`}
                     </div>`
@@ -21117,7 +21104,7 @@ let ApiRequest = class ApiRequest extends lit_element_s {
         reqBodyTypeSelectorHtml = requestBodyTypes.length === 1
             ? ''
             : y `
-        <select style="min-width:100px; max-width:100%;  margin-bottom:-1px;" @change = '${(e) => this.onMimeTypeChange(e)}'>
+        <select style="min-width:100px; max-width:100%;  margin-bottom:-1px;" @change = '${(e) => this.onMimeTypeChange(e)}' part="select">
           ${requestBodyTypes.map((reqBody) => y `
             <option value = '${reqBody.mimeType}' ?selected = '${reqBody.mimeType === this.selectedRequestBodyType}'>
               ${reqBody.mimeType}
@@ -21143,7 +21130,7 @@ let ApiRequest = class ApiRequest extends lit_element_s {
               ${reqBodyExamples.length === 1
                         ? ''
                         : y `
-                  <select style="min-width:100px; max-width:100%;  margin-bottom:-1px;" @change='${(e) => this.onSelectExample(e)}'>
+                  <select style="min-width:100px; max-width:100%;  margin-bottom:-1px;" @change='${(e) => this.onSelectExample(e)}' part="select">
                     ${reqBodyExamples.map((v) => y `<option value="${v.exampleId}" ?selected=${v.exampleId === this.selectedRequestBodyExample} > 
                       ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary ? v.exampleSummary : v.exampleId} 
                     </option>`)}
@@ -21257,8 +21244,8 @@ let ApiRequest = class ApiRequest extends lit_element_s {
               <div class="tab-buttons row" @click="${(e) => { if (e.target.tagName.toLowerCase() === 'button') {
                 this.activeSchemaTab = e.target.dataset.tab;
             } }}">
-                <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
-                <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
+                <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example' part="btn-tab">EXAMPLE</button>
+                <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' part="btn-tab">SCHEMA</button>
               </div>
               ${y `<div class="tab-content col" style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'};"> ${reqBodyExampleHtml}</div>`}
               ${y `<div class="tab-content col" style="display:${this.activeSchemaTab === 'example' ? 'none' : 'block'};"> ${reqBodySchemaHtml}</div>`}
@@ -21473,7 +21460,7 @@ let ApiRequest = class ApiRequest extends lit_element_s {
     curlSyntaxTemplate(display = 'flex') {
         return y `
       <div class="col m-markdown" style="flex:1; display:${display}; position:relative; max-width: 100%;">
-        <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.curlSyntax.replace(/\\$/, ''), e); }}' part="btn btn-fill"> Copy </button>
+        <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.curlSyntax.replace(/\\$/, ''), e); }}' part="btn btn-copy"> Copy </button>
         <pre style="white-space:pre"><code>${unsafe_html_o(prism_default().highlight(this.curlSyntax.trim().replace(/\\$/, ''), (prism_default()).languages.shell, 'shell'))}</code></pre>
       </div>
       `;
@@ -21514,11 +21501,11 @@ let ApiRequest = class ApiRequest extends lit_element_s {
             }
             this.activeResponseTab = e.target.dataset.tab;
         }}">
-            <button class="tab-btn ${this.activeResponseTab === 'response' ? 'active' : ''}" data-tab = 'response' > RESPONSE</button>
-            <button class="tab-btn ${this.activeResponseTab === 'headers' ? 'active' : ''}"  data-tab = 'headers' > RESPONSE HEADERS</button>
+            <button class="tab-btn ${this.activeResponseTab === 'response' ? 'active' : ''}" data-tab = 'response' part="btn-tab"> RESPONSE</button>
+            <button class="tab-btn ${this.activeResponseTab === 'headers' ? 'active' : ''}"  data-tab = 'headers' part="btn-tab"> RESPONSE HEADERS</button>
             ${this.showCurlBeforeTry === 'true'
             ? ''
-            : y `<button class="tab-btn ${this.activeResponseTab === 'curl' ? 'active' : ''}" data-tab = 'curl'>CURL</button>`}
+            : y `<button class="tab-btn ${this.activeResponseTab === 'curl' ? 'active' : ''}" data-tab = 'curl' part="btn-tab">CURL</button>`}
           </div>
           ${this.responseIsBlob
             ? y `
@@ -21532,11 +21519,11 @@ let ApiRequest = class ApiRequest extends lit_element_s {
               </div>`
             : y `
               <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};" >
-                <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.responseText, e); }}' part="btn btn-fill"> Copy </button>
+                <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.responseText, e); }}' part="btn btn-copy"> Copy </button>
                 <pre style="white-space:pre; min-height:50px; height:var(--resp-area-height, 400px); resize:vertical; overflow:auto">${responseContent}</pre>
               </div>`}
           <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};" >
-            <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.responseHeaders, e); }}' part="btn btn-fill"> Copy </button>
+            <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.responseHeaders, e); }}' part="btn btn-copy"> Copy </button>
             <pre style="white-space:pre"><code>${unsafe_html_o(prism_default().highlight(this.responseHeaders, (prism_default()).languages.css, 'css'))}</code></pre>
           </div>
           ${this.showCurlBeforeTry === 'true' ? '' : this.curlSyntaxTemplate(this.activeResponseTab === 'curl' ? 'flex' : 'none')}
@@ -21548,7 +21535,7 @@ let ApiRequest = class ApiRequest extends lit_element_s {
         let selectServerDropdownHtml = '';
         if (this.servers && this.servers.length > 0) {
             selectServerDropdownHtml = y `
-        <select style="min-width:100px;" @change='${(e) => { this.serverUrl = e.target.value; }}'>
+        <select style="min-width:100px;" @change='${(e) => { this.serverUrl = e.target.value; }}' part="select">
           ${this.servers.map((v) => y `<option value = "${v.url}"> ${v.url} - ${v.description} </option>`)}
         </select>
       `;
@@ -21735,7 +21722,6 @@ let ApiRequest = class ApiRequest extends lit_element_s {
         }
         let urlQueryParamString = '';
         if (urlQueryParamsMap.size) {
-            urlQueryParamString = '?';
             urlQueryParamsMap.forEach((val, pname) => {
                 if (queryParamsWithReservedCharsAllowed.includes(pname)) {
                     urlQueryParamString += `${pname}=`;
@@ -21748,7 +21734,9 @@ let ApiRequest = class ApiRequest extends lit_element_s {
             });
             urlQueryParamString = urlQueryParamString.slice(0, -1);
         }
-        fetchUrl = `${fetchUrl}${urlQueryParamString}`;
+        if (urlQueryParamString.length !== 0) {
+            fetchUrl = `${fetchUrl}${(fetchUrl === null || fetchUrl === void 0 ? void 0 : fetchUrl.includes('?')) ? '&' : '?'}${urlQueryParamString}`;
+        }
         // Add authentication Query-Param if provided
         (_a = this.api_keys) === null || _a === void 0 ? void 0 : _a.filter((v) => (v.in === 'query')).forEach((v) => {
             fetchUrl = `${fetchUrl}${(fetchUrl === null || fetchUrl === void 0 ? void 0 : fetchUrl.includes('?')) ? '&' : '?'}${v.name}=${encodeURIComponent(v.finalKeyValue)}`;
@@ -21879,86 +21867,70 @@ let ApiRequest = class ApiRequest extends lit_element_s {
         }
         return fetchOptions;
     }
-    let urlQueryParamString = '';
-    if (urlQueryParamsMap.size) {
-      urlQueryParamsMap.forEach((val, pname) => {
-        if (queryParamsWithReservedCharsAllowed.includes(pname)) {
-          urlQueryParamString += `${pname}=`;
-          urlQueryParamString += val.getAll(pname).join(`&${pname}=`);
-          urlQueryParamString += '&';
-        } else {
-          urlQueryParamString += `${val.toString()}&`;
+    async onTryClick(e) {
+        const tryBtnEl = e.target;
+        const requestPanelEl = tryBtnEl.closest('.request-panel');
+        const fetchUrl = this.buildFetchURL(requestPanelEl);
+        const fetchOptions = this.buildFetchBodyOptions(requestPanelEl);
+        const reqHeaders = this.buildFetchHeaders(requestPanelEl);
+        this.responseUrl = '';
+        this.responseHeaders = '';
+        this.curlSyntax = this.generateCURLSyntax(fetchUrl, reqHeaders, fetchOptions, requestPanelEl);
+        this.responseStatus = 'success';
+        this.responseIsBlob = false;
+        this.respContentDisposition = '';
+        if (this.responseBlobUrl) {
+            URL.revokeObjectURL(this.responseBlobUrl);
+            this.responseBlobUrl = '';
         }
-      });
-      urlQueryParamString = urlQueryParamString.slice(0, -1);
-    }
-    if (urlQueryParamString.length !== 0) {
-      fetchUrl = `${fetchUrl}${fetchUrl.includes('?') ? '&' : '?'}${urlQueryParamString}`;
-    }
-
-    // Add authentication Query-Param if provided
-    this.api_keys.filter(v => v.in === 'query').forEach(v => {
-      fetchUrl = `${fetchUrl}${fetchUrl.includes('?') ? '&' : '?'}${v.name}=${encodeURIComponent(v.finalKeyValue)}`;
-    });
-    fetchUrl = `${this.serverUrl.replace(/\/$/, '')}${fetchUrl}`;
-    return fetchUrl;
-  }
-  buildFetchHeaders(requestPanelEl) {
-    var _this$closest;
-    const respEl = (_this$closest = this.closest('.expanded-req-resp-container, .req-resp-container')) === null || _this$closest === void 0 ? void 0 : _this$closest.getElementsByTagName('api-response')[0];
-    const headerParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='header']")];
-    const requestBodyContainerEl = requestPanelEl.querySelector('.request-body-container');
-    const acceptHeader = respEl === null || respEl === void 0 ? void 0 : respEl.selectedMimeType;
-    const reqHeaders = new Headers();
-    if (acceptHeader) {
-      // Uses the acceptHeader from Response panel
-      reqHeaders.append('Accept', acceptHeader);
-    } else if (this.accept) {
-      reqHeaders.append('Accept', this.accept);
-    }
-
-    // Add Authentication Header if provided
-    this.api_keys.filter(v => v.in === 'header').forEach(v => {
-      reqHeaders.append(v.name, v.finalKeyValue);
-    });
-
-    // Add Header Params
-    headerParamEls.map(el => {
-      if (el.value) {
-        reqHeaders.append(el.dataset.pname, el.value);
-      }
-    });
-    if (requestBodyContainerEl) {
-      const requestBodyType = requestBodyContainerEl.dataset.selectedRequestBodyType;
-      // Common for all request-body
-      if (!requestBodyType.includes('form-data')) {
-        // For multipart/form-data dont set the content-type to allow creation of browser generated part boundaries
-        reqHeaders.append('Content-Type', requestBodyType);
-      }
-    }
-    return reqHeaders;
-  }
-  buildFetchBodyOptions(requestPanelEl) {
-    const requestBodyContainerEl = requestPanelEl.querySelector('.request-body-container');
-    const fetchOptions = {
-      method: this.method.toUpperCase()
-    };
-    if (requestBodyContainerEl) {
-      const requestBodyType = requestBodyContainerEl.dataset.selectedRequestBodyType;
-      if (requestBodyType.includes('form-urlencoded')) {
-        // url-encoded Form Params (dynamic) - Parse JSON and generate Params
-        const formUrlDynamicTextAreaEl = requestPanelEl.querySelector("[data-ptype='dynamic-form']");
-        if (formUrlDynamicTextAreaEl) {
-          const val = formUrlDynamicTextAreaEl.value;
-          const formUrlDynParams = new URLSearchParams();
-          let proceed = true;
-          let tmpObj;
-          if (val) {
-            try {
-              tmpObj = JSON.parse(val);
-            } catch (err) {
-              proceed = false;
-              console.warn('RapiDoc: Invalid JSON provided', err); // eslint-disable-line no-console
+        if (this.fetchCredentials) {
+            fetchOptions.credentials = this.fetchCredentials;
+        }
+        const controller = new AbortController();
+        const { signal } = controller;
+        fetchOptions.headers = reqHeaders;
+        const tempRequest = { url: fetchUrl, ...fetchOptions };
+        this.dispatchEvent(new CustomEvent('before-try', {
+            bubbles: true,
+            composed: true,
+            detail: {
+                request: tempRequest,
+                controller,
+            },
+        }));
+        const updatedFetchOptions = {
+            method: tempRequest.method,
+            headers: tempRequest.headers,
+            credentials: tempRequest.credentials,
+            body: tempRequest.body,
+        };
+        const fetchRequest = new Request(tempRequest.url, updatedFetchOptions);
+        let fetchResponse;
+        let responseClone;
+        try {
+            let respBlob;
+            let respJson;
+            let respText;
+            tryBtnEl.disabled = true;
+            this.responseText = '⌛';
+            this.responseMessage = '';
+            this.requestUpdate();
+            const startTime = performance.now();
+            fetchResponse = await fetch(fetchRequest, { signal });
+            const endTime = performance.now();
+            responseClone = fetchResponse.clone(); // create a response clone to allow reading response body again (response.json, response.text etc)
+            tryBtnEl.disabled = false;
+            this.responseMessage = y `${fetchResponse.statusText ? `${fetchResponse.statusText}:${fetchResponse.status}` : fetchResponse.status} <div style="color:var(--light-fg)"> Took ${Math.round(endTime - startTime)} milliseconds </div>`;
+            this.responseUrl = fetchResponse.url;
+            const respHeadersObj = {};
+            fetchResponse.headers.forEach((hdrVal, hdr) => {
+                respHeadersObj[hdr] = hdrVal;
+                this.responseHeaders = `${this.responseHeaders}${hdr}: ${hdrVal}\n`;
+            });
+            const contentType = fetchResponse.headers.get('content-type');
+            const respEmpty = (await fetchResponse.clone().text()).length === 0;
+            if (respEmpty) {
+                this.responseText = '';
             }
             else if (contentType) {
                 if (contentType === 'application/x-ndjson') {
@@ -22834,8 +22806,8 @@ let ApiResponse = class ApiResponse extends lit_element_s {
                 <div class="tab-buttons row" @click="${(e) => { if (e.target.tagName.toLowerCase() === 'button') {
                     this.activeSchemaTab = e.target.dataset.tab;
                 } }}" >
-                  <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
-                  <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' >SCHEMA</button>
+                  <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example' part="btn-tab">EXAMPLE </button>
+                  <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' part="btn-tab">SCHEMA</button>
                   <div style="flex:1"></div>
                   ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1
                     ? y `<span class='small-font-size gray-text' style='align-self:center; margin-top:8px;'> ${Object.keys(this.mimeResponsesForEachStatus[status])[0]} </span>`
@@ -23017,6 +22989,34 @@ ApiResponse = api_response_decorate([
 ], ApiResponse);
 /* harmony default export */ const api_response = ((/* unused pure expression or super */ null && (ApiResponse)));
 
+;// CONCATENATED MODULE: ./src/utils/markdown-utils.ts
+/**
+ * When rendering markdown provides an absolute URL for anchor link instead of just the hash url (e.g. #link-to-a-section)
+ * when an <base> HTML tag is present in the page
+ *
+ * @param renderer The markdown Renderer
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base#in-page_anchors
+ */
+function fixRenderedAnchorLinks(renderer) {
+    renderer.link = (href, title, text) => {
+        if (href === null || href === void 0 ? void 0 : href.startsWith('#')) {
+            const baseURL = location.href.replace(/#.*/, '');
+            href = `${baseURL}${href}`;
+        }
+        return `<a href="${href}" title="${title}">${text}</a>`;
+    };
+}
+/**
+ * When rendering markdown provides headings (h1, h2...) with `observe-me` CSS class
+ *
+ * @param renderer The markdown Renderer
+ * @param getId A function to generate the ID attribute of the heading
+ */
+function observeMeRenderedHeading(renderer, getId) {
+    renderer.heading = (text, level, raw, slugger) => `<h${level} class="observe-me" id="${getId(raw, slugger)}">${text}</h${level}>`;
+}
+
 ;// CONCATENATED MODULE: ./src/templates/expanded-endpoint-template.ts
 
  // eslint-disable-line import/extensions
@@ -23027,10 +23027,12 @@ ApiResponse = api_response_decorate([
 
 
 
+
 /* eslint-disable indent */
 function headingRenderer(tagElementId) {
     const renderer = new marked.Renderer();
-    renderer.heading = ((text, level, raw, slugger) => `<h${level} class="observe-me" id="${tagElementId}--${slugger.slug(raw)}">${text}</h${level}>`);
+    observeMeRenderedHeading(renderer, (raw, slugger) => `${tagElementId}--${slugger.slug(raw)}`);
+    fixRenderedAnchorLinks(renderer);
     return renderer;
 }
 function expandCollapseTagDescription(e) {
@@ -23146,9 +23148,11 @@ function expandedEndpointBodyTemplate(path, tagName = '', tagDescription = '') {
           schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
           schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
           fetch-credentials = "${this.fetchCredentials}"
-          exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
-            file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
-            anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+          exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, 
+                        btn-clear:btn-clear, btn-clear-resp:btn-clear-resp, file-input:file-input, textbox:textbox, 
+                        textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, anchor:anchor, 
+                        anchor-param-example:anchor-param-example, schema-description:schema-description, select:select, 
+                        schema-multiline-toggle:schema-multiline-toggle, btn-tab:btn-tab"
         > </api-request>
 
         ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
@@ -23167,8 +23171,9 @@ function expandedEndpointBodyTemplate(path, tagName = '', tagDescription = '') {
           schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
           schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
           selected-status = "${Object.keys(path.responses || {})[0] || ''}"
-          exportparts = "btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
-          schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+          exportparts = "btn:btn, btn-response-status:btn-response-status, 
+                        btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy, 
+                        schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle, btn-tab:btn-tab"
         > </api-response>
       </div>
     </div>
@@ -23281,10 +23286,12 @@ function componentsTemplate() {
  // eslint-disable-line import/extensions
 
 
+
 /* eslint-disable indent */
 function overview_template_headingRenderer() {
     const renderer = new marked.Renderer();
-    renderer.heading = ((text, level, raw, slugger) => `<h${level} class="observe-me" id="overview--${slugger.slug(raw)}">${text}</h${level}>`);
+    observeMeRenderedHeading(renderer, (raw, slugger) => `overview--${slugger.slug(raw)}`);
+    fixRenderedAnchorLinks(renderer);
     return renderer;
 }
 function overviewTemplate() {
@@ -23334,7 +23341,7 @@ function overviewTemplate() {
           ${this.resolvedSpec.info.description
             ? y `${unsafe_html_o(`
                 <div class="m-markdown regular-font">
-                ${marked(this.resolvedSpec.info.description, this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: overview_template_headingRenderer() } : undefined)}
+                ${marked(this.resolvedSpec.info.description, this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: overview_template_headingRenderer(), baseUrl: '/toto' } : { baseUrl: '/toto' })}
               </div>`)}`
             : ''}
           </div>
@@ -23731,9 +23738,11 @@ function navbarTemplate() {
 
 
 
+
 function focused_endpoint_template_headingRenderer(tagElementId) {
     const renderer = new marked.Renderer();
-    renderer.heading = ((text, level, raw, slugger) => `<h${level} class="observe-me" id="${tagElementId}--${slugger.slug(raw)}">${text}</h${level}>`);
+    observeMeRenderedHeading(renderer, (raw, slugger) => `${tagElementId}--${slugger.slug(raw)}`);
+    fixRenderedAnchorLinks(renderer);
     return renderer;
 }
 function wrapFocusedTemplate(templateToWrap) {
@@ -23973,9 +23982,11 @@ function endpointBodyTemplate(path) {
           schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
           schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
           fetch-credentials = "${this.fetchCredentials}"
-          exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
-            file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
-            anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+          exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, 
+                         btn-clear:btn-clear, btn-clear-resp:btn-clear-resp, file-input:file-input, textbox:textbox, 
+                         textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, anchor:anchor, 
+                         anchor-param-example:anchor-param-example, schema-description:schema-description, 
+                         schema-multiline-toggle:schema-multiline-toggle select:select, btn-tab:btn-tab"
           > </api-request>
 
           ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
@@ -23995,9 +24006,11 @@ function endpointBodyTemplate(path) {
           schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
           schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
           selected-status = "${Object.keys(path.responses || {})[0] || ''}"
-          exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, file-input:file-input, 
-          textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, anchor:anchor, anchor-param-example:anchor-param-example, btn-clear-resp:btn-clear-resp,
-          schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+          exportparts = "btn:btn, btn-fill:btn-fill, btn-copy:btn-copy, btn-outline:btn-outline, btn-try:btn-try, 
+                        file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, 
+                        textarea-param:textarea-param, anchor:anchor, anchor-param-example:anchor-param-example, 
+                        btn-clear-resp:btn-clear-resp, schema-description:schema-description, 
+                        schema-multiline-toggle:schema-multiline-toggle, btn-tab:btn-tab"
         > </api-response>
       </div>
   </div>`;
@@ -26780,7 +26793,7 @@ JsonSchemaViewer = json_schema_viewer_decorate([
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("fdf734afd7a6f574c7ff")
+/******/ 		__webpack_require__.h = () => ("be19a2da4f3e8d3d3471")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
@@ -27764,7 +27777,7 @@ JsonSchemaViewer = json_schema_viewer_decorate([
 /******/ 	// module cache are used so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	var __webpack_exports__ = __webpack_require__(369);
+/******/ 	var __webpack_exports__ = __webpack_require__(337);
 /******/ 	
 /******/ })()
 ;

@@ -10,10 +10,12 @@ import serverTemplate from './server-template';
 import securitySchemeTemplate from './security-scheme-template';
 import { expandCollapseNavBarTag } from './navbar-template';
 import { RapiDocElement, RapiDocTag } from '@rapidoc-types';
+import { fixRenderedAnchorLinks, observeMeRenderedHeading } from '../utils/markdown-utils';
 
 function headingRenderer(tagElementId: string) {
   const renderer = new marked.Renderer();
-  renderer.heading = ((text, level, raw, slugger) => `<h${level} class="observe-me" id="${tagElementId}--${slugger.slug(raw)}">${text}</h${level}>`);
+  observeMeRenderedHeading(renderer, (raw: string, slugger: marked.Slugger) => `${tagElementId}--${slugger.slug(raw)}`);
+  fixRenderedAnchorLinks(renderer);
   return renderer;
 }
 

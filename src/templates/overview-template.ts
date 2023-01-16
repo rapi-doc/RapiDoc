@@ -3,11 +3,13 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-li
 import { marked } from 'marked';
 import { downloadResource, viewResource } from '../utils/common-utils';
 import { RapiDocCallableElement } from '@rapidoc-types';
+import { fixRenderedAnchorLinks, observeMeRenderedHeading } from '../utils/markdown-utils';
 
 /* eslint-disable indent */
-function headingRenderer() {
+function headingRenderer(): marked.Renderer<never> {
   const renderer = new marked.Renderer();
-  renderer.heading = ((text, level, raw, slugger) => `<h${level} class="observe-me" id="overview--${slugger.slug(raw)}">${text}</h${level}>`);
+  observeMeRenderedHeading(renderer, (raw: string, slugger: marked.Slugger) => `overview--${slugger.slug(raw)}`);
+  fixRenderedAnchorLinks(renderer);
   return renderer;
 }
 
@@ -66,7 +68,7 @@ export default function overviewTemplate(this: RapiDocCallableElement) {
             ? html`${
               unsafeHTML(`
                 <div class="m-markdown regular-font">
-                ${marked(this.resolvedSpec.info.description, this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer() } : undefined)}
+                ${marked(this.resolvedSpec.info.description, this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer(), baseUrl: '/toto' } : {baseUrl: '/toto'})}
               </div>`)}`
             : ''
           }

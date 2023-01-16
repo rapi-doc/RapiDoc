@@ -9,11 +9,13 @@ import '~/components/api-request';
 import '~/components/api-response';
 import { RapiDocElement, RapiDocPath } from '@rapidoc-types';
 import { OpenAPIV3 } from 'openapi-types';
+import { fixRenderedAnchorLinks, observeMeRenderedHeading } from '../utils/markdown-utils';
 
 /* eslint-disable indent */
-function headingRenderer(tagElementId: string) {
+function headingRenderer(tagElementId: string): marked.Renderer<never> {
   const renderer = new marked.Renderer();
-  renderer.heading = ((text, level, raw, slugger) => `<h${level} class="observe-me" id="${tagElementId}--${slugger.slug(raw)}">${text}</h${level}>`);
+  observeMeRenderedHeading(renderer, (raw: string, slugger: marked.Slugger) => `${tagElementId}--${slugger.slug(raw)}`);
+  fixRenderedAnchorLinks(renderer);
   return renderer;
 }
 
