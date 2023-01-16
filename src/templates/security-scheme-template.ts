@@ -18,8 +18,7 @@ export function applyApiKey(this: RapiDocCallableElement, securitySchemeId: stri
   let finalApiKeyValue = '';
   if (securityObj.type === 'http' && securityObj.scheme?.toLowerCase() === 'basic') {
     if (username) {
-      finalApiKeyValue = Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
-      // finalApiKeyValue = `Basic ${btoa(`${username}:${password}`)}`;
+      finalApiKeyValue = `Basic ${Buffer.from(`${username}:${password}`, 'utf8').toString('base64')}`;
     }
   } else if (securityObj.type === 'http' && providedApikeyVal) {
     securityObj.value = providedApikeyVal;
@@ -110,8 +109,7 @@ async function fetchAccessToken(this: RapiDocCallableElement, tokenUrl: string, 
     urlFormParams.append('code_verifier', codeVerifier); // for PKCE
   }
   if (sendClientSecretIn === 'header') {
-    // headers.set('Authorization', `Basic ${btoa(`${clientId}:${clientSecret}`)}`);
-    headers.set('Authorization', `Basic ${Buffer.from(`${username}:${password}`, 'utf8').toString('base64')}`);
+    headers.set('Authorization', `Basic ${Buffer.from(`${clientId}:${clientSecret}`, 'utf8').toString('base64')}`);
   } else {
     urlFormParams.append('client_id', clientId);
     urlFormParams.append('client_secret', clientSecret);
@@ -269,15 +267,19 @@ async function onInvokeOAuthFlow(this: RapiDocCallableElement, securitySchemeId:
 function oAuthFlowTemplate(this: RapiDocCallableElement, flowName: 'authorizationCode' |'clientCredentials' |'implicit' |'password', clientId: string, clientSecret: string, securitySchemeId: string, authFlow: OpenAPIV3.OAuth2SecurityScheme & { authorizationUrl: string, tokenUrl: string, refreshUrl: string, scopes: { [key: string]: string }; 'x-pkce-only'?: boolean }, defaultScopes: string[] = [], receiveTokenIn = 'header') {
   let { authorizationUrl, tokenUrl, refreshUrl } = authFlow;
   const pkceOnly = authFlow['x-pkce-only'] || false;
-  const isUrlAbsolute = (url: string) => (url.indexOf('://') > 0 || url.indexOf('//') === 0);
+  const isUrlAbsolute = (url) => (url.indexOf('://') > 0 || url.indexOf('//') === 0);
+  // Calculcate base URL
+  const url = new URL(this.selectedServer.computedUrl);
+  const baseUrl = url.origin;
+
   if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
-    refreshUrl = `${this.selectedServer?.computedUrl}/${refreshUrl.replace(/^\//, '')}`;
+    refreshUrl = `${baseUrl}/${refreshUrl.replace(/^\//, '')}`;
   }
   if (tokenUrl && !isUrlAbsolute(tokenUrl)) {
-    tokenUrl = `${this.selectedServer?.computedUrl}/${tokenUrl.replace(/^\//, '')}`;
+    tokenUrl = `${baseUrl}/${tokenUrl.replace(/^\//, '')}`;
   }
   if (authorizationUrl && !isUrlAbsolute(authorizationUrl)) {
-    authorizationUrl = `${this.selectedServer?.computedUrl}/${authorizationUrl.replace(/^\//, '')}`;
+    authorizationUrl = `${baseUrl}/${authorizationUrl.replace(/^\//, '')}`;
   }
   let flowNameDisplay;
   if (flowName === 'authorizationCode') {
@@ -348,11 +350,11 @@ function oAuthFlowTemplate(this: RapiDocCallableElement, flowName: 'authorizatio
             <input type="text" part="textbox textbox-auth-client-id" value = "${clientId || ''}" placeholder="client-id" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} oauth-client-id">
             ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password'
               ? html`
-                <input 
-                  type="password" part="textbox textbox-auth-client-secret" 
-                  value = "${clientSecret || ''}" placeholder="client-secret" spellcheck="false" 
-                  class="oauth2 ${flowName} ${securitySchemeId} 
-                  oauth-client-secret" 
+                <input
+                  type="password" part="textbox textbox-auth-client-secret"
+                  value = "${clientSecret || ''}" placeholder="client-secret" spellcheck="false"
+                  class="oauth2 ${flowName} ${securitySchemeId}
+                  oauth-client-secret"
                   style = "margin:0 5px;${pkceOnly ? 'display:none;' : ''}"
                 >
                 <select style="margin-right:5px;${pkceOnly ? 'display:none;' : ''}" class="${flowName} ${securitySchemeId} oauth-send-client-secret-in">
