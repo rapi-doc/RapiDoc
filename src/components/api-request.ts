@@ -1345,7 +1345,7 @@ export default class ApiRequest extends LitElement {
       urlQueryParamString = urlQueryParamString.slice(0, -1);
     }
     if (urlQueryParamString.length !== 0) {
-      fetchUrl = `${fetchUrl}${fetchUrl.includes('?') ? '&' : '?'}${urlQueryParamString}`;
+      fetchUrl = `${fetchUrl}${fetchUrl?.includes('?') ? '&' : '?'}${urlQueryParamString}`;
     }
 
     // Add authentication Query-Param if provided

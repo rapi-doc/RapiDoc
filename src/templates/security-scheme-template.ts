@@ -267,9 +267,9 @@ async function onInvokeOAuthFlow(this: RapiDocCallableElement, securitySchemeId:
 function oAuthFlowTemplate(this: RapiDocCallableElement, flowName: 'authorizationCode' |'clientCredentials' |'implicit' |'password', clientId: string, clientSecret: string, securitySchemeId: string, authFlow: OpenAPIV3.OAuth2SecurityScheme & { authorizationUrl: string, tokenUrl: string, refreshUrl: string, scopes: { [key: string]: string }; 'x-pkce-only'?: boolean }, defaultScopes: string[] = [], receiveTokenIn = 'header') {
   let { authorizationUrl, tokenUrl, refreshUrl } = authFlow;
   const pkceOnly = authFlow['x-pkce-only'] || false;
-  const isUrlAbsolute = (url) => (url.indexOf('://') > 0 || url.indexOf('//') === 0);
-  // Calculcate base URL
-  const url = new URL(this.selectedServer.computedUrl);
+  const isUrlAbsolute = (url: string) => (url.indexOf('://') > 0 || url.indexOf('//') === 0);
+  // Calculate base URL
+  const url = new URL(this.selectedServer?.computedUrl || '');
   const baseUrl = url.origin;
 
   if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
