@@ -14,13 +14,16 @@ export default css`
     align-items: flex-start;
     justify-content: space-evenly;
   }
+  .row {
+    align-items: center;
+  }
   .col {
     align-items: stretch;
     flex-direction: column;
   }
   .row-api-left {
-    min-width: 0;
-    max-width: 848px;
+    min-width: 288px;
+    max-width: 720px;
     flex: 2 1 0%;
     justify-content: flex-end;
     padding-right: 32px;

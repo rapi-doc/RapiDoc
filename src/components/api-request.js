@@ -145,6 +145,7 @@ export default class ApiRequest extends LitElement {
           font-size: 12px;
           line-height: 16px;
           color: #4A4A4A;
+          margin: 10px 0px 0px;
         }
 
         .top-gap{margin-top:24px;}
@@ -952,23 +953,24 @@ export default class ApiRequest extends LitElement {
 
     Prism.plugins.customClass.map((className, language) => `${language}-${className}`);
     return html`
-      <!--
-        <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
-          <div style="flex:1"></div>
-          <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
-        </div>
-      -->
+      <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
+        <div style="flex:1"></div>
+        <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
+      </div>
       <div class="tab-panel col" style="border-top: 1px solid #E7E9EE; border-bottom: 1px solid #E7E9EE; margin-top: 24px;">
         <div class="tab-content col m-markdown" style="flex:1; display:flex; margin: 0;">
           <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.curlSyntax.replace(/\\$/, ''), e); }}' part="btn btn-fill"> Copy </button>
           <pre class="code-container" style="border: none;"><code>${unsafeHTML(Prism.highlight(this.curlSyntax.trim().replace(/\\$/, ''), Prism.languages.shell, 'shell'))}</code></pre>
         </div>
-        <!--
         <div style="background: #F8F7FC; padding-inline: 32px;padding-block: 16px">
-          <div class="row" style="width:100%; height:20px; background:#E7E9EE; border-radius:2px;padding-inline:4px;margin-bottom:4px">
-            <div style="width:8px;height:8px;border-radius:50%;${this.responseBlobUrl || this.responseText ? 'border: 1px solid #79A479;background: #E6F2E6;' : 'border: 1px solid #DC4C43;background: #F0E6E4;'}"></div>
-            <div style="margin-left:4px; color:#4A596B; font-size:12px; font-weight:500;">${this.responseMessage}</div>
-          </div>
+          ${this.responseMessage
+            ? html`
+              <div class="row" style="width:100%; height:max-content; background:#E7E9EE; border-radius:2px;padding-inline:4px;margin-bottom:4px">
+                <div style="min-width:8px;min-height:8px;width:8px;height:8px;border-radius:50%;${this.responseBlobUrl || this.responseText ? 'border: 1px solid #79A479;background: #E6F2E6;' : 'border: 1px solid #DC4C43;background: #F0E6E4;'}"></div>
+                <div style="margin-left:4px; color:#4A596B; font-size:12px; font-weight:500;">${this.responseMessage}</div>
+              </div>`
+            : ''
+          }
           ${this.responseIsBlob
             ? html`
               <div class="tab-content col" style="flex:1; display:flex;">
@@ -982,11 +984,11 @@ export default class ApiRequest extends LitElement {
               </div>`
             : html`
               ${responseFormat || this.responseText
-                ? html`<div class="tab-content col m-markdown" style="flex:1; display:flex;" >
-                <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.responseText, e); }}' part="btn btn-fill"> Copy </button>
-                <pre style="white-space:pre; min-height:50px; height:auto; resize:vertical; overflow:auto">
+                ? html`<div class="tab-content col m-markdown" style="max-height:500px; flex:1; display:flex;" >
+                <button class="toolbar-btn" style="position:absolute; top:12px; right:16px" @click='${(e) => { copyToClipboard(this.responseText, e); }}' part="btn btn-fill"> Copy </button>
+                <pre style="display:flex; white-space:pre; min-height:50px; height:auto; resize:vertical; overflow:auto">
                 ${responseFormat
-                  ? html`<code>${unsafeHTML(Prism.highlight(this.responseText, Prism.languages[responseFormat], responseFormat))}</code>`
+                  ? html`<code style="padding-top:40px;">${unsafeHTML(Prism.highlight(this.responseText, Prism.languages[responseFormat], responseFormat))}</code>`
                   : `${this.responseText}`
                 }</pre>
               </div>`
@@ -995,7 +997,6 @@ export default class ApiRequest extends LitElement {
               `
           }
         </div>
-        -->
       </div>`;
   }
 
@@ -1096,6 +1097,7 @@ export default class ApiRequest extends LitElement {
     const tryBtnEl = e.target ? e.target : e;
 
     const { fetchUrl, fetchOptions, reqHeaders } = updateCurl.call(this, tryBtnEl);
+    const encodedUrl = encodeURIComponent(fetchUrl);
 
     this.responseUrl = '';
     this.responseHeaders = [];
@@ -1114,7 +1116,7 @@ export default class ApiRequest extends LitElement {
     const controller = new AbortController();
     const { signal } = controller;
     fetchOptions.headers = reqHeaders;
-    const fetchRequest = new Request(fetchUrl, fetchOptions);
+    const fetchRequest = new Request(`/api/proxy/${encodedUrl}`, fetchOptions);
     this.dispatchEvent(new CustomEvent('before-try', {
       bubbles: true,
       composed: true,

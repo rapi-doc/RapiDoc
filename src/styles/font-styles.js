@@ -122,13 +122,16 @@ export default css`
     padding: 0.2em 0.4em;
   }
 
+  .m-markdown code span {
+    font-size:var(--font-size-mono);
+  }
+
   .m-markdown-small code {
     font-size: calc(var(--font-size-mono) - 1px);
   }
 
   .m-markdown-small pre,
   .m-markdown pre {
-    white-space: pre-wrap;
     overflow-x: auto;
     line-height: normal;
     border-radius: 2px;
