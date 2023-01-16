@@ -498,8 +498,8 @@ export default class ApiRequest extends LitElement {
                           this.activeParameterSchemaTabs = newState;
                         }
                       }}">
-                        <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
-                        <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
+                        <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] === 'example' ? 'active' : ''}" data-tab = 'example' part="btn-tab">EXAMPLE </button>
+                        <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab = 'schema' part="btn-tab">SCHEMA</button>
                       </div>
                       ${this.activeParameterSchemaTabs[param.name] === 'example'
                         ? html`<div class="tab-content col">
@@ -533,9 +533,10 @@ export default class ApiRequest extends LitElement {
                               allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
                               schema-hide-read-only = "${this.schemaHideReadOnly?.includes(this.method)}"
                               schema-hide-write-only = "${this.schemaHideWriteOnly?.includes(this.method)}"
-                              exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
-                                file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
-                                anchor:anchor, anchor-param-example:anchor-param-example"
+                              exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-copy:btn-copy,
+                                            btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp, 
+                                            file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea,
+                                            textarea-param:textarea-param, anchor:anchor, anchor-param-example:anchor-param-example"
                             > </schema-tree>
                           </div>`
                         }
@@ -683,7 +684,7 @@ export default class ApiRequest extends LitElement {
     reqBodyTypeSelectorHtml = requestBodyTypes.length === 1
       ? ''
       : html`
-        <select style="min-width:100px; max-width:100%;  margin-bottom:-1px;" @change = '${(e: Event) => this.onMimeTypeChange(e)}'>
+        <select style="min-width:100px; max-width:100%;  margin-bottom:-1px;" @change = '${(e: Event) => this.onMimeTypeChange(e)}' part="select">
           ${requestBodyTypes.map((reqBody) => html`
             <option value = '${reqBody.mimeType}' ?selected = '${reqBody.mimeType === this.selectedRequestBodyType}'>
               ${reqBody.mimeType}
@@ -719,7 +720,7 @@ export default class ApiRequest extends LitElement {
               ${reqBodyExamples.length === 1
                 ? ''
                 : html`
-                  <select style="min-width:100px; max-width:100%;  margin-bottom:-1px;" @change='${(e: Event) => this.onSelectExample(e)}'>
+                  <select style="min-width:100px; max-width:100%;  margin-bottom:-1px;" @change='${(e: Event) => this.onSelectExample(e)}' part="select">
                     ${reqBodyExamples.map((v) => html`<option value="${v.exampleId}" ?selected=${v.exampleId === this.selectedRequestBodyExample} > 
                       ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary ? v.exampleSummary : v.exampleId} 
                     </option>`)}
@@ -838,8 +839,8 @@ export default class ApiRequest extends LitElement {
           ? html`
             <div class="tab-panel col" style="border-width:0 0 1px 0;">
               <div class="tab-buttons row" @click="${(e: MouseEvent) => { if ((e.target as HTMLElement).tagName.toLowerCase() === 'button') { this.activeSchemaTab = (e.target as HTMLElement).dataset.tab; } }}">
-                <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
-                <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
+                <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example' part="btn-tab">EXAMPLE</button>
+                <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' part="btn-tab">SCHEMA</button>
               </div>
               ${html`<div class="tab-content col" style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'};"> ${reqBodyExampleHtml}</div>`}
               ${html`<div class="tab-content col" style="display:${this.activeSchemaTab === 'example' ? 'none' : 'block'};"> ${reqBodySchemaHtml}</div>`}
@@ -1072,7 +1073,7 @@ export default class ApiRequest extends LitElement {
   curlSyntaxTemplate(display = 'flex') {
     return html`
       <div class="col m-markdown" style="flex:1; display:${display}; position:relative; max-width: 100%;">
-        <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e: MouseEvent) => { copyToClipboard(this.curlSyntax.replace(/\\$/, ''), e); }}' part="btn btn-fill"> Copy </button>
+        <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e: MouseEvent) => { copyToClipboard(this.curlSyntax.replace(/\\$/, ''), e); }}' part="btn btn-copy"> Copy </button>
         <pre style="white-space:pre"><code>${unsafeHTML(Prism.highlight(this.curlSyntax.trim().replace(/\\$/, ''), Prism.languages.shell, 'shell'))}</code></pre>
       </div>
       `;
@@ -1109,11 +1110,11 @@ export default class ApiRequest extends LitElement {
               if ((e.target as HTMLElement).classList.contains('tab-btn') === false) { return; }
               this.activeResponseTab = (e.target as HTMLElement).dataset.tab as "response" | "headers" | "curl" | undefined;
           }}">
-            <button class="tab-btn ${this.activeResponseTab === 'response' ? 'active' : ''}" data-tab = 'response' > RESPONSE</button>
-            <button class="tab-btn ${this.activeResponseTab === 'headers' ? 'active' : ''}"  data-tab = 'headers' > RESPONSE HEADERS</button>
+            <button class="tab-btn ${this.activeResponseTab === 'response' ? 'active' : ''}" data-tab = 'response' part="btn-tab"> RESPONSE</button>
+            <button class="tab-btn ${this.activeResponseTab === 'headers' ? 'active' : ''}"  data-tab = 'headers' part="btn-tab"> RESPONSE HEADERS</button>
             ${this.showCurlBeforeTry === 'true'
               ? ''
-              : html`<button class="tab-btn ${this.activeResponseTab === 'curl' ? 'active' : ''}" data-tab = 'curl'>CURL</button>`}
+              : html`<button class="tab-btn ${this.activeResponseTab === 'curl' ? 'active' : ''}" data-tab = 'curl' part="btn-tab">CURL</button>`}
           </div>
           ${this.responseIsBlob
             ? html`
@@ -1128,12 +1129,12 @@ export default class ApiRequest extends LitElement {
               </div>`
             : html`
               <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};" >
-                <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${(e: MouseEvent) => { copyToClipboard(this.responseText, e); }}' part="btn btn-fill"> Copy </button>
+                <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${(e: MouseEvent) => { copyToClipboard(this.responseText, e); }}' part="btn btn-copy"> Copy </button>
                 <pre style="white-space:pre; min-height:50px; height:var(--resp-area-height, 400px); resize:vertical; overflow:auto">${responseContent}</pre>
               </div>`
           }
           <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};" >
-            <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e: MouseEvent) => { copyToClipboard(this.responseHeaders, e); }}' part="btn btn-fill"> Copy </button>
+            <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e: MouseEvent) => { copyToClipboard(this.responseHeaders, e); }}' part="btn btn-copy"> Copy </button>
             <pre style="white-space:pre"><code>${unsafeHTML(Prism.highlight(this.responseHeaders, Prism.languages.css, 'css'))}</code></pre>
           </div>
           ${this.showCurlBeforeTry === 'true' ? '' : this.curlSyntaxTemplate(this.activeResponseTab === 'curl' ? 'flex' : 'none')}
@@ -1146,7 +1147,7 @@ export default class ApiRequest extends LitElement {
 
     if (this.servers && this.servers.length > 0) {
       selectServerDropdownHtml = html`
-        <select style="min-width:100px;" @change='${(e: MouseEvent) => { this.serverUrl = (e.target as HTMLInputElement).value; }}'>
+        <select style="min-width:100px;" @change='${(e: MouseEvent) => { this.serverUrl = (e.target as HTMLInputElement).value; }}' part="select">
           ${this.servers.map((v) => html`<option value = "${v.url}"> ${v.url} - ${v.description} </option>`)}
         </select>
       `;

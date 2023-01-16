@@ -142,9 +142,11 @@ export function expandedEndpointBodyTemplate(this: RapiDocElement, path: RapiDoc
           schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
           schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
           fetch-credentials = "${this.fetchCredentials}"
-          exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
-            file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
-            anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+          exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, 
+                        btn-clear:btn-clear, btn-clear-resp:btn-clear-resp, file-input:file-input, textbox:textbox, 
+                        textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, anchor:anchor, 
+                        anchor-param-example:anchor-param-example, schema-description:schema-description, select:select, 
+                        schema-multiline-toggle:schema-multiline-toggle, btn-tab:btn-tab"
         > </api-request>
 
         ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
@@ -163,8 +165,9 @@ export function expandedEndpointBodyTemplate(this: RapiDocElement, path: RapiDoc
           schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
           schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
           selected-status = "${Object.keys(path.responses || {})[0] || ''}"
-          exportparts = "btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
-          schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+          exportparts = "btn:btn, btn-response-status:btn-response-status, 
+                        btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy, 
+                        schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle, btn-tab:btn-tab"
         > </api-response>
       </div>
     </div>

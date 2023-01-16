@@ -21,7 +21,7 @@ export default function codeSamplesTemplate(xCodeSamples: RapiDocXCodeSample[]) 
       }
     }">
     <div class="tab-buttons row" style="width:100;">
-      ${xCodeSamples.map((v, i) => html`<button class="tab-btn ${i === 0 ? 'active' : ''}" data-tab = '${v.lang}${i}'> ${v.label || v.lang} </button>`)}
+      ${xCodeSamples.map((v, i) => html`<button class="tab-btn ${i === 0 ? 'active' : ''}" data-tab = '${v.lang}${i}' part="btn-tab"> ${v.label || v.lang} </button>`)}
     </div>
     ${xCodeSamples.map((v, i) => html`
       <div class="tab-content m-markdown" style= "display:${i === 0 ? 'block' : 'none'}" data-tab = '${v.lang}${i}'>
