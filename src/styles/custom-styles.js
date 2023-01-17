@@ -63,8 +63,7 @@ export default css`
   justify-content: space-between;
   align-items: stretch;
   width: auto;
-  height: max-content;
-  min-height: 28px;
+  height: 28px;
   left: 0;
   top: 0;
   border: 1px solid var(--border-color);
@@ -124,10 +123,6 @@ export default css`
   height: 44px;
 }
 
-#copy-baseURL {
-  height: 42px;
-}
-
 .server-template-url {
   position: relative;
 }
@@ -144,7 +139,7 @@ export default css`
   border-radius: 4px;
   box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.1);
   
-  z-index: 9999;
+  z-index: 1;
 }
 
 .server-template-url:hover .server-template-vars {

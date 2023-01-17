@@ -56,29 +56,18 @@ export class ContentCopyButton extends LitElement {
 
     render() {
         return html`
-                ${
-                    this.showButton
-                    ? html`
-                    <div @mouseleave="${this.onMouseLeave}" class="content-copy-container">
-                        <span @click="${this.onTextClick}" part="label-operation-path">${this.content}</span>
-                        <button @click="${this.onButtonClick}">
-                            <div class="svg-container">
-                                ${
-                                    this.copied
-                                    ? checkSymbol()
-                                    : copySymbol()
-                                }
-                            </div>
-                        </button>
-                    </div>
-                    `
-                    : html`
-                    <div class="content-copy-container">
-                        <span part="label-operation-path">${this.content}</span>
-                    </div>
-                    <div class='copy-container' @mouseover="${this.onMouseover}"></div>
-                    `
-                }
+                <div @mouseover="${this.onMouseover}" @mouseleave="${this.onMouseLeave}" class="content-copy-container">
+                    <span @click="${this.onTextClick}" part="label-operation-path">${this.content}</span>
+                    <button @click="${this.onButtonClick}" style=${this.showButton ? 'visibility: visible;' : 'visibility: hidden;'}>
+                        <div class="svg-container">
+                            ${
+                                this.copied
+                                ? checkSymbol()
+                                : copySymbol()
+                            }
+                        </div>
+                    </button>
+                </div>
                 ${
                     this.showToast
                     ? html`<toast-component tone="positive" message="Copied to clipboard"></toast-component>`
@@ -99,13 +88,12 @@ export class ContentCopyButton extends LitElement {
                 gap: 10px;
                 width: 57px;
                 height: 20px;
+                background: linear-gradient(270deg, #FFFFFF 51.22%, rgba(255, 255, 255, 0) 104.88%);
             }
 
             span {
-                flex: 0 0 auto;
-                width: calc(100% - 28px);
-                padding: 4px 20px 4px 8px;
-                word-break: break-word;
+                flex: 1 0 auto;
+                padding: 4px 8px;
             }
 
             span:hover {
@@ -148,6 +136,23 @@ export class ContentCopyButton extends LitElement {
                 display: flex;
                 flex-wrap: nowrap;
                 font-size: 14px;
+                white-space: nowrap;
+                overflow-y: hidden;
+                overflow-x: auto;
+            }
+
+            .content-copy-container::-webkit-scrollbar {
+                width: 8px;
+                height: 8px;
+            }
+
+            .content-copy-container::-webkit-scrollbar-track {
+                background:var(--input-bg);
+            }
+            
+            .content-copy-container::-webkit-scrollbar-thumb {
+                border-radius: 2px;
+                background-color: var(--border-color);
             }
           `,
         ];
