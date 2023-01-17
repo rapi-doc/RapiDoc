@@ -146,6 +146,9 @@ export default css`
 }
 
 .base-url {
-  padding: 10px;
+  padding: 10px 10px 0px 10px;
+  max-height: 300px;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 `;
