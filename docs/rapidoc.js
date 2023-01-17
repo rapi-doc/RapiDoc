@@ -20885,7 +20885,7 @@ let ApiRequest = class ApiRequest extends lit_element_s {
             const labelColWidth = 'read focused'.includes(this.renderStyle) ? '200px' : '160px';
             tableRows.push(y `
       <tr title="${param.deprecated ? 'Deprecated' : ''}"> 
-        <td rowspan="${this.allowTry === 'true' ? '1' : '2'}" style="width:${labelColWidth}; min-width:100px;">
+        <td rowspan="${this.allowTry === 'true' ? '1' : '2'}" style="vertical-align:middle; width:${labelColWidth}; min-width:100px;">
           <div class="param-name ${param.deprecated ? 'deprecated' : ''}" >
             ${param.deprecated ? y `<span style='color:var(--red);'>✗</span>` : ''}
             ${param.required ? y `<span style='color:var(--red)'>*</span>` : ''}
@@ -26793,7 +26793,7 @@ JsonSchemaViewer = json_schema_viewer_decorate([
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("be19a2da4f3e8d3d3471")
+/******/ 		__webpack_require__.h = () => ("005ab2c5e4c679f0a000")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

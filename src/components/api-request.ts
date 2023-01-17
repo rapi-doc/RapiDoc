@@ -453,7 +453,7 @@ export default class ApiRequest extends LitElement {
       const labelColWidth = 'read focused'.includes(this.renderStyle) ? '200px' : '160px';
       tableRows.push(html`
       <tr title="${param.deprecated ? 'Deprecated' : ''}"> 
-        <td rowspan="${this.allowTry === 'true' ? '1' : '2'}" style="width:${labelColWidth}; min-width:100px;">
+        <td rowspan="${this.allowTry === 'true' ? '1' : '2'}" style="vertical-align:middle; width:${labelColWidth}; min-width:100px;">
           <div class="param-name ${param.deprecated ? 'deprecated' : ''}" >
             ${param.deprecated ? html`<span style='color:var(--red);'>✗</span>` : ''}
             ${param.required ? html`<span style='color:var(--red)'>*</span>` : ''}
