@@ -107,9 +107,9 @@ export default css`
   font-weight: 400;
 }
 
-/* .right-box-container {
+.right-box-container {
   margin-top: 16px;
-} */
+}
 
 .right-box-label {
   color: var(--fg2);
@@ -131,7 +131,6 @@ export default css`
   visibility: hidden;
   position: absolute;
   top: 100%;
-  padding: 10px;
   
   background-color: var(--bg);
 
@@ -146,4 +145,7 @@ export default css`
   visibility: visible;
 }
 
+.base-url {
+  padding: 10px;
+}
 `;

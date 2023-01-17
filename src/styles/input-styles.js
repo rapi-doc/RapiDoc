@@ -5,7 +5,7 @@ export default css`
 /* Button */
 .m-btn {
   border-radius: var(--border-radius);
-  font-weight: 600;
+  font-weight: 400;
   display: inline-block;
   padding: 6px 16px;
   font-size: var(--font-size-small);

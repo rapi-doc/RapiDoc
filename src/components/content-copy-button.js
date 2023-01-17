@@ -139,6 +139,7 @@ export class ContentCopyButton extends LitElement {
                 white-space: nowrap;
                 overflow-y: hidden;
                 overflow-x: auto;
+                align-items: center;
             }
 
             .content-copy-container::-webkit-scrollbar {

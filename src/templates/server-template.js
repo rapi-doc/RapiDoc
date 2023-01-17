@@ -38,7 +38,7 @@ function serverVarsTemplate() {
   // const selectedServerObj = this.resolvedSpec.servers.find((v) => (v.url === this.selectedServer));
   return this.selectedServer && this.selectedServer.variables
     ? html`
-    <div class='base-url right-box-container'>
+    <div class='base-url'>
       ${Object.entries(this.selectedServer.variables).map((kv) => html`
         <div>
           <div class='right-box-label' >${kv[0]}</div>

@@ -469,7 +469,7 @@ export default function securitySchemeTemplate() {
         </div>`
       : ''
     }
-    <button class='test-method-button' @click='${this.onTryClick}' >
+    <button class='m-btn test-method-button' @click='${this.onTryClick}' >
       TEST METHOD
     </button>
     <slot name="auth">
