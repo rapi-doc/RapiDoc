@@ -23000,11 +23000,13 @@ ApiResponse = api_response_decorate([
  */
 function fixRenderedAnchorLinks(renderer) {
     renderer.link = (href, title, text) => {
+        let isAnchor = false;
         if (href === null || href === void 0 ? void 0 : href.startsWith('#')) {
             const baseURL = location.href.replace(/#.*/, '');
             href = `${baseURL}${href}`;
+            isAnchor = true;
         }
-        return `<a href="${href}" title="${title}">${text}</a>`;
+        return `<a ${isAnchor ? `class="anchor-link"` : ''} href="${href}" ${title ? `title="${title}"` : ''}>${text}</a>`;
     };
 }
 /**
@@ -26793,7 +26795,7 @@ JsonSchemaViewer = json_schema_viewer_decorate([
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("005ab2c5e4c679f0a000")
+/******/ 		__webpack_require__.h = () => ("9a110b58507dd20b2180")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

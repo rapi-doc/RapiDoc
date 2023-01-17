@@ -13,11 +13,13 @@ export function fixRenderedAnchorLinks(renderer: marked.Renderer) {
     title: string | null,
     text: string
   ): string => {
+    let isAnchor = false;
     if (href?.startsWith('#')) {
       const baseURL = location.href.replace(/#.*/, '');
       href = `${baseURL}${href}`;
+      isAnchor = true;
     }
-    return `<a href="${href}" title="${title}">${text}</a>`;
+    return `<a ${isAnchor ? `class="anchor-link"` : ''} href="${href}" ${title ? `title="${title}"` : ''}>${text}</a>`;
   };
 }
 
