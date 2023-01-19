@@ -1,6 +1,6 @@
 {
   "name": "rapidoc",
-  "version": "9.3.4",
+  "version": "9.3.5-beta",
   "description": "RapiDoc - Open API spec viewer with built in console",
   "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
   "homepage": "https://rapidocweb.com",
@@ -62,7 +62,7 @@
     "eslint": "^8.32.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-import-resolver-webpack": "^0.13.2",
-    "eslint-plugin-import": "^2.27.0",
+    "eslint-plugin-import": "^2.27.5",
     "eslint-webpack-plugin": "3.2.0",
     "file-loader": "^6.2.0",
     "filemanager-webpack-plugin": "^8.0.0",

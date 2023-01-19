@@ -1,7 +1,7 @@
 
 /**
 * @preserve
-* RapiDoc 9.3.4 - WebComponent to View OpenAPI docs
+* RapiDoc 9.3.5-beta - WebComponent to View OpenAPI docs
 * License: MIT
 * Repo   : https://github.com/rapi-doc/RapiDoc
 * Author : Mrinmoy Majumdar
@@ -12080,7 +12080,7 @@ async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, g
 
   if (sendClientSecretIn === 'header') {
     headers.set('Authorization', `Basic ${Buffer.from(`${clientId}:${clientSecret}`, 'utf8').toString('base64')}`);
-  } else {
+  } else if (grantType !== 'authorization_code') {
     urlFormParams.append('client_id', clientId);
     urlFormParams.append('client_secret', clientSecret);
   }
@@ -26661,7 +26661,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("fdf734afd7a6f574c7ff")
+/******/ 		__webpack_require__.h = () => ("58f69ab8c977033c5164")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
