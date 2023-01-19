@@ -2,6 +2,7 @@ import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
 import updateCurl from '~/utils/update-curl';
+import '~/components/base-url';
 
 export function setApiServer(serverUrl) {
   const serverObj = this.resolvedSpec?.servers.find((s) => s.url === serverUrl);
@@ -21,9 +22,10 @@ export function setApiServer(serverUrl) {
 }
 
 function onApiServerVarChange(e, serverObj) {
-  const inputEls = [...e.currentTarget.closest('.base-url').querySelectorAll('input, select')];
+  const inputEls = [...e.currentTarget.closest('.server-vars').querySelectorAll('input, select')];
   let tempUrl = serverObj.url;
   inputEls.forEach((v) => {
+    serverObj.variables[v.dataset.var].value = v.value;
     const regex = new RegExp(`{${v.dataset.var}}`, 'g');
     tempUrl = tempUrl.replace(regex, v.value);
   });
@@ -38,7 +40,7 @@ function serverVarsTemplate() {
   // const selectedServerObj = this.resolvedSpec.servers.find((v) => (v.url === this.selectedServer));
   return this.selectedServer && this.selectedServer.variables
     ? html`
-    <div class='base-url'>
+    <div class='server-vars'>
       ${Object.entries(this.selectedServer.variables).map((kv) => html`
         <div>
           <div class='right-box-label' >${kv[0]}</div>
@@ -90,13 +92,14 @@ export default function serverTemplate() {
   return html`
   <section id = 'servers' part="section-servers" class='server-template row-api-right-box regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
     <span class="right-box-title">Base URL</span>
-    <div style="display: flex; align-items: center;" class="server-template-url">
-      <div class="server-template-vars">
-        ${serverVarsTemplate.call(this)}
-      </div>
+    <div style="display: flex; align-items: center;" class="server-template">
       ${this.selectedServer?.computedUrl
-        ? html`<div class='label-operation-path-container' style="height: 32px; font-size:14px; border-radius: 4px;">
-            <content-copy-button id='copy-baseURL' content='${this.selectedServer?.computedUrl}${this.path}'></content-copy-button>
+        ? html`
+            <base-url id='copy-baseURL' content='${this.selectedServer?.url}${this.path}' computedUrl='${this.selectedServer.computedUrl}' .variables='${this.selectedServer?.variables}' style="width: 100%;">
+              <div class="server-template-vars">
+                ${serverVarsTemplate.call(this)}
+              </div>
+            </base-url>
           </div>`
         : ''
       }

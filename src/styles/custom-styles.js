@@ -123,12 +123,11 @@ export default css`
   height: 44px;
 }
 
-.server-template-url {
+.server-template {
   position: relative;
 }
 
-.server-template-url .server-template-vars {
-  visibility: hidden;
+.server-template-vars {
   position: absolute;
   top: 100%;
   
@@ -139,15 +138,13 @@ export default css`
   box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.1);
   
   z-index: 1;
-}
 
-.server-template-url:hover .server-template-vars {
-  visibility: visible;
-}
-
-.base-url {
-  padding: 10px 10px 0px 10px;
   max-height: 300px;
+  max-width: 100%;
+}
+
+.server-vars {
+  padding: 10px 10px 0px 10px;
   overflow-x: hidden;
   overflow-y: auto;
 }
