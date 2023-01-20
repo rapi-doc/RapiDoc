@@ -129,7 +129,7 @@ export default css`
 
 .server-template-vars {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 2px);
   
   background-color: var(--bg);
 
