@@ -21,6 +21,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 const UnminifiedWebpackPlugin = require('unminified-webpack-plugin');
 const path = require('path');
 const ESLintPlugin = require('eslint-webpack-plugin');
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
 
 const rapidocVersion = JSON.stringify(require('./package.json').version).replace(/"/g, '');
 
@@ -52,6 +53,7 @@ const commonPlugins = [
       },
     },
   }),
+  new NodePolyfillPlugin(),
 ];
 
 if (process.env.NODE_ENV === 'production') {
