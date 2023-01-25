@@ -29,7 +29,7 @@ export default css`
     padding-right: 32px;
   }
   .row-api-right {
-    min-width: 0;
+    min-width: 288px;
     max-width: 702px;
     flex: 1;
     justify-content: flex-start;

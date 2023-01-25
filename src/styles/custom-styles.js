@@ -148,4 +148,125 @@ export default css`
   overflow-x: hidden;
   overflow-y: auto;
 }
+
+.language-picker {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 16px 0px;
+  gap: 5px;
+}
+
+.language-picker-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 5px;
+}
+
+.square-language-button {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 4px;
+  gap: 5px;
+
+  width: max-content;
+  min-width: 50px;
+  height: 50px;
+
+  flex: none;
+  order: 1;
+  flex-grow: 0;
+
+  background-color: rgba(0, 0, 0, 0);
+  border: 1px solid rgba(0, 0, 0, 0);
+  border-radius: 4px;
+
+  color: var(--fg2);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+
+  cursor: pointer;
+}
+
+.square-language-button:hover {
+  border: 1px solid rgb(204, 206, 216);
+}
+
+.square-language-button:active {
+  border-color: rgb(59, 59, 59);
+  box-shadow: rgb(255 255 255) 0px 0px 0px 1px, rgb(185 185 185) 0px 0px 0px 3px;
+}
+
+.rectangle-language-button {
+  display: flex;
+  gap: 5px;
+
+  width: 100%;
+  text-align: left;
+
+  background-color: rgba(0, 0, 0, 0);
+  border: 1px solid rgba(0, 0, 0, 0);
+  border-radius: 0px;
+  padding: 6px 6px;
+
+  color: var(--fg2);
+  cursor: pointer;
+}
+
+.rectangle-language-button:hover {
+  background-color: rgb(248, 247, 252);
+}
+
+.rectangle-language-button:active {
+  background-color: rgb(204, 206, 216);
+}
+
+.selected-language {
+  border: 1px solid rgb(248, 247, 252);
+}
+
+.language-show-more {
+  height: 30px;
+  width: 30px;
+  padding: 4px;
+
+  border: 1px solid rgba(0, 0, 0, 0);
+  border-radius: 4px;
+
+  cursor: pointer;
+}
+
+.language-show-more:hover {
+  border: 1px solid rgb(204, 206, 216);
+}
+
+.language-show-more:active {
+  border-color: rgb(59, 59, 59);
+  box-shadow: rgb(255 255 255) 0px 0px 0px 1px, rgb(185 185 185) 0px 0px 0px 3px;
+}
+
+.more-languages-dropdown {
+  position: absolute;
+  top: 105%;
+  right: 0%;
+  min-width: 140px;
+
+  background-color: var(--bg);
+
+  border: 1px solid rgb(204, 206, 216);
+  border-radius: 4px;
+  box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.1);
+  
+  z-index: 1;
+
+  transition: visibility 0.3s linear,opacity 0.3s linear;
+}
 `;
