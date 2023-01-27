@@ -1025,7 +1025,11 @@ export default class ApiRequest extends LitElement {
     `;
 
     if (!this.resultLoad) {
-      this.updateComplete.then(() => { this.onTryClick(this.renderRoot.host.shadowRoot.children[0]); });
+      this.updateComplete.then(() => {
+        const el = this.renderRoot.host.shadowRoot.children[0];
+        updateCurl.call(this, el.target ? el.target : el);
+        this.requestUpdate();
+      });
       this.resultLoad = true;
     } else {
       const el = this.renderRoot.host.shadowRoot.children[0];
