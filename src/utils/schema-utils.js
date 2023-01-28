@@ -15,6 +15,10 @@ export function getPrintableVal(val) {
   if (Array.isArray(val)) {
     return val.map((v) => (v === null ? 'null' : v === '' ? '∅' : v.toString().replace(/^ +| +$/g, (m) => '●'.repeat(m.length)) || '')).join(', ');
   }
+  if (typeof val === 'object') {
+    const keys = Object.keys(val);
+    return `{ ${keys[0]}:${val[keys[0]]}${keys.length > 1 ? ',' : ''} ... }`;
+  }
   return val.toString().replace(/^ +| +$/g, (m) => '●'.repeat(m.length)) || '';
 }
 
@@ -154,7 +158,7 @@ export function normalizeExamples(examples, dataType = 'string') {
         description: v.description || '',
       }));
     const exampleVal = exampleList.length > 0
-      ? exampleList[0].value.toString()
+      ? exampleList[0].value
       : '';
     return { exampleVal, exampleList };
   }
