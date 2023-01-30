@@ -1,11 +1,7 @@
 /* eslint-disable no-use-before-define */
 import OpenApiParser from '@apitools/openapi-parser';
 import { marked } from 'marked';
-import {
-  invalidCharsRegEx,
-  rapidocApiKey,
-  sleep,
-} from './common-utils';
+import { invalidCharsRegEx, rapidocApiKey, sleep } from './common-utils';
 import {
   DocumentModifiedByRapiDoc,
   RapiDocCallableElement,
@@ -252,7 +248,9 @@ export default async function ProcessSpec(
   return parsedSpec;
 }
 
-function getHeadersFromMarkdown(markdownContent: string): marked.Tokens.Heading[] {
+function getHeadersFromMarkdown(
+  markdownContent: string
+): marked.Tokens.Heading[] {
   const tokens = marked.lexer(markdownContent);
   const headers = tokens.filter(
     (token) => token.type === 'heading' && token.depth <= 2
@@ -468,8 +466,8 @@ function groupByTags(
                 finalParameters = commonParams
                   .filter((commonParam) => {
                     if (
-                      (
-                        !pathOrHookObj?.parameters as unknown as OpenAPIV3.ParameterObject[]
+                      !(
+                        pathOrHookObj?.parameters as unknown as OpenAPIV3.ParameterObject[]
                       )?.some(
                         (param) =>
                           commonParam.name === param.name &&

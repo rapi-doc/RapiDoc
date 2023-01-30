@@ -17632,8 +17632,8 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
                             finalParameters = commonParams
                                 .filter((commonParam) => {
                                 var _a;
-                                if ((_a = (!(pathOrHookObj === null || pathOrHookObj === void 0 ? void 0 : pathOrHookObj.parameters))) === null || _a === void 0 ? void 0 : _a.some((param) => commonParam.name === param.name &&
-                                    commonParam.in === param.in)) {
+                                if (!((_a = pathOrHookObj === null || pathOrHookObj === void 0 ? void 0 : pathOrHookObj.parameters) === null || _a === void 0 ? void 0 : _a.some((param) => commonParam.name === param.name &&
+                                    commonParam.in === param.in))) {
                                     return true;
                                 }
                                 return false;
@@ -26795,7 +26795,7 @@ JsonSchemaViewer = json_schema_viewer_decorate([
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("9a110b58507dd20b2180")
+/******/ 		__webpack_require__.h = () => ("8bf230aea5491c9c2ebe")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
