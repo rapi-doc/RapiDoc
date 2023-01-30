@@ -1,7 +1,7 @@
 
 /**
 * @preserve
-* RapiDoc 9.3.4 - WebComponent to View OpenAPI docs
+* RapiDoc 9.3.5-beta - WebComponent to View OpenAPI docs
 * License: MIT
 * Repo   : https://github.com/rapi-doc/RapiDoc
 * Author : Mrinmoy Majumdar
@@ -17842,7 +17842,7 @@ async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, g
     if (sendClientSecretIn === 'header') {
         headers.set('Authorization', `Basic ${Buffer.from(`${clientId}:${clientSecret}`, 'utf8').toString('base64')}`);
     }
-    else {
+    else if (grantType !== 'authorization_code') {
         urlFormParams.append('client_id', clientId);
         urlFormParams.append('client_secret', clientSecret);
     }
@@ -18526,6 +18526,10 @@ function getPrintableVal(val) {
                     .replace(/^ +| +$/g, (m) => '●'.repeat(m.length)) || '')
             .join(', ');
     }
+    if (typeof val === 'object') {
+        const keys = Object.keys(val);
+        return `{ ${keys[0]}:${val[keys[0]]}${keys.length > 1 ? ',' : ''} ... }`;
+    }
     return (val.toString().replace(/^ +| +$/g, (m) => '●'.repeat(m.length)) ||
         '');
 }
@@ -18696,7 +18700,7 @@ function normalizeExamples(examples, dataType = 'string') {
             summary: v.summary || '',
             description: v.description || '',
         }));
-        const exampleVal = exampleList.length > 0 ? exampleList[0].value.toString() : '';
+        const exampleVal = exampleList.length > 0 ? exampleList[0].value : '';
         return { exampleVal, exampleList };
     }
     // This is non-standard way to provide example but will support for now
@@ -20777,7 +20781,7 @@ let ApiRequest = class ApiRequest extends lit_element_s {
     }
     /* eslint-disable indent */
     renderExample(example, paramType, paramName) {
-        var _a;
+        var _a, _b;
         return y `
       ${paramType === 'array' ? '[' : ''}
       <a
@@ -20785,7 +20789,8 @@ let ApiRequest = class ApiRequest extends lit_element_s {
         style="display:inline-block; min-width:24px; text-align:center"
         class="${this.allowTry === 'true' ? '' : 'inactive-link'}"
         data-example-type="${paramType === 'array' ? paramType : 'string'}"
-        data-example="${example.value && Array.isArray(example.value) ? (_a = example.value) === null || _a === void 0 ? void 0 : _a.join('@rapidoc|@rapidoc') : example.value || ''}"
+        data-example="${example.value && Array.isArray(example.value) ? (_a = example.value) === null || _a === void 0 ? void 0 : _a.join('~|~') : (typeof example.value === 'object' ? JSON.stringify(example.value, null, 2) : example.value) || ''}"
+        title="${example.value && Array.isArray(example.value) ? (_b = example.value) === null || _b === void 0 ? void 0 : _b.join('~|~') : (typeof example.value === 'object' ? JSON.stringify(example.value, null, 2) : example.value) || ''}"
         @click="${(e) => {
             var _a;
             const inputEl = e.target.closest('table').querySelector(`[data-pname="${paramName}"]`);
@@ -20944,7 +20949,7 @@ let ApiRequest = class ApiRequest extends lit_element_s {
                             data-param-allow-reserved = "${paramAllowReserved}"
                             data-x-fill-example = "${param['x-fill-example'] || 'yes'}"
                             spellcheck = "false"
-                            .textContent="${param['x-fill-example'] === 'no' ? '' : live_l(this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : '')}"
+                            .textContent="${param['x-fill-example'] === 'no' ? '' : live_l(this.fillRequestFieldsWithExample === 'true' ? (typeof example.exampleVal === 'object' ? JSON.stringify(example.exampleVal, null, 2) : example.exampleVal) : '')}"
                             style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
                             @input=${(e) => {
                                 const requestPanelEl = this.getRequestPanel(e);
@@ -21671,7 +21676,7 @@ let ApiRequest = class ApiRequest extends lit_element_s {
                 const queryParam = new URLSearchParams();
                 try {
                     let queryParamObj = {};
-                    const { paramSerializeStyle, paramSerializeExplode } = el.dataset;
+                    const { paramSerializeStyle, paramSerializeExplode, pname } = el.dataset;
                     queryParamObj = Object.assign(queryParamObj, JSON.parse(el.value.replace(/\s+/g, ' ')));
                     if (el.dataset.paramAllowReserved === 'true') {
                         queryParamsWithReservedCharsAllowed.push(el.dataset.pname);
@@ -21686,28 +21691,29 @@ let ApiRequest = class ApiRequest extends lit_element_s {
                     }
                     else {
                         for (const key in queryParamObj) {
+                            const pKey = `${pname}[${key}]`;
                             if (typeof queryParamObj[key] === 'object') {
                                 if (Array.isArray(queryParamObj[key])) {
                                     if (paramSerializeStyle === 'spaceDelimited') {
-                                        queryParam.append(key, queryParamObj[key].join(' '));
+                                        queryParam.append(pKey, queryParamObj[key].join(' '));
                                     }
                                     else if (paramSerializeStyle === 'pipeDelimited') {
-                                        queryParam.append(key, queryParamObj[key].join('|'));
+                                        queryParam.append(pKey, queryParamObj[key].join('|'));
                                     }
                                     else {
                                         if (paramSerializeExplode === 'true') { // eslint-disable-line no-lonely-if
                                             queryParamObj[key].forEach((v) => {
-                                                queryParam.append(key, v);
+                                                queryParam.append(pKey, v);
                                             });
                                         }
                                         else {
-                                            queryParam.append(key, queryParamObj[key]);
+                                            queryParam.append(pKey, queryParamObj[key]);
                                         }
                                     }
                                 }
                             }
                             else {
-                                queryParam.append(key, queryParamObj[key]);
+                                queryParam.append(pKey, queryParamObj[key]);
                             }
                         }
                     }
@@ -26795,7 +26801,7 @@ JsonSchemaViewer = json_schema_viewer_decorate([
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("8bf230aea5491c9c2ebe")
+/******/ 		__webpack_require__.h = () => ("0b07f78f39ddc8c5561b")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

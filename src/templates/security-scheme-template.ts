@@ -110,7 +110,7 @@ async function fetchAccessToken(this: RapiDocCallableElement, tokenUrl: string, 
   }
   if (sendClientSecretIn === 'header') {
     headers.set('Authorization', `Basic ${Buffer.from(`${clientId}:${clientSecret}`, 'utf8').toString('base64')}`);
-  } else {
+  } else if (grantType !== 'authorization_code') {
     urlFormParams.append('client_id', clientId);
     urlFormParams.append('client_secret', clientSecret);
   }

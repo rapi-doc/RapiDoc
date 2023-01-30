@@ -32,6 +32,12 @@ export function getPrintableVal(val: unknown) {
       )
       .join(', ');
   }
+  if (typeof val === 'object') {
+    const keys = Object.keys(val);
+    return `{ ${keys[0]}:${(val as any)[keys[0]]}${
+      keys.length > 1 ? ',' : ''
+    } ... }`;
+  }
   return (
     val.toString().replace(/^ +| +$/g, (m: string) => '●'.repeat(m.length)) ||
     ''
@@ -263,8 +269,7 @@ export function normalizeExamples(
         summary: v.summary || '',
         description: v.description || '',
       }));
-    const exampleVal =
-      exampleList.length > 0 ? exampleList[0].value.toString() : '';
+    const exampleVal = exampleList.length > 0 ? exampleList[0].value : '';
     return { exampleVal, exampleList };
   }
 

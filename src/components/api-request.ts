@@ -341,7 +341,8 @@ export default class ApiRequest extends LitElement {
         style="display:inline-block; min-width:24px; text-align:center"
         class="${this.allowTry === 'true' ? '' : 'inactive-link'}"
         data-example-type="${paramType === 'array' ? paramType : 'string'}"
-        data-example="${example.value && Array.isArray(example.value) ? example.value?.join('@rapidoc|@rapidoc') : example.value || ''}"
+        data-example="${example.value && Array.isArray(example.value) ? example.value?.join('~|~') : (typeof example.value === 'object' ? JSON.stringify(example.value, null, 2) : example.value) || ''}"
+        title="${example.value && Array.isArray(example.value) ? example.value?.join('~|~') : (typeof example.value === 'object' ? JSON.stringify(example.value, null, 2) : example.value) || ''}"
         @click="${(e: MouseEvent) => {
           const inputEl = ((e.target as HTMLElement).closest('table') as HTMLElement).querySelector(`[data-pname="${paramName}"]`) as HTMLInputElement;
           if (inputEl) {
@@ -514,7 +515,7 @@ export default class ApiRequest extends LitElement {
                             data-param-allow-reserved = "${paramAllowReserved}"
                             data-x-fill-example = "${param['x-fill-example'] || 'yes'}"
                             spellcheck = "false"
-                            .textContent="${param['x-fill-example'] === 'no' ? '' : live(this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : '')}"
+                            .textContent="${param['x-fill-example'] === 'no' ? '' : live(this.fillRequestFieldsWithExample === 'true' ? (typeof example.exampleVal === 'object' ? JSON.stringify(example.exampleVal, null, 2) : example.exampleVal) : '')}"
                             style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
                             @input=${(e: Event) => {
                               const requestPanelEl = this.getRequestPanel(e) as HTMLElement;
@@ -1289,7 +1290,7 @@ export default class ApiRequest extends LitElement {
         const queryParam = new URLSearchParams();
         try {
           let queryParamObj: { [key: string]: string | string[] } = {};
-          const { paramSerializeStyle, paramSerializeExplode } = el.dataset;
+          const { paramSerializeStyle, paramSerializeExplode, pname } = el.dataset;
           queryParamObj = Object.assign(queryParamObj, JSON.parse(el.value.replace(/\s+/g, ' ')));
           if (el.dataset.paramAllowReserved === 'true') {
             queryParamsWithReservedCharsAllowed.push(el.dataset.pname as string);
@@ -1302,24 +1303,25 @@ export default class ApiRequest extends LitElement {
             }
           } else {
             for (const key in queryParamObj) {
+              const pKey = `${pname}[${key}]`;
               if (typeof queryParamObj[key] === 'object') {
                 if (Array.isArray(queryParamObj[key])) {
                   if (paramSerializeStyle === 'spaceDelimited') {
-                    queryParam.append(key, (queryParamObj[key] as string[]).join(' '));
+                    queryParam.append(pKey, (queryParamObj[key] as string[]).join(' '));
                   } else if (paramSerializeStyle === 'pipeDelimited') {
-                    queryParam.append(key, (queryParamObj[key] as string[]).join('|'));
+                    queryParam.append(pKey, (queryParamObj[key] as string[]).join('|'));
                   } else {
                     if (paramSerializeExplode === 'true') { // eslint-disable-line no-lonely-if
                       (queryParamObj[key] as string[]).forEach((v) => {
-                        queryParam.append(key, v);
+                        queryParam.append(pKey, v);
                       });
                     } else {
-                      queryParam.append(key, queryParamObj[key] as string);
+                      queryParam.append(pKey, queryParamObj[key] as string);
                     }
                   }
                 }
               } else {
-                queryParam.append(key, queryParamObj[key] as string);
+                queryParam.append(pKey, queryParamObj[key] as string);
               }
             }
           }
