@@ -31414,10 +31414,11 @@ function base_url_defineProperty(obj, key, value) { if (key in obj) { Object.def
 // eslint-disable-next-line import/prefer-default-export
 
 class BaseUrl extends lit_element_s {
-  constructor(id, content, computedUrl, variables) {
+  constructor(id, url, path, computedUrl, variables) {
     super();
     this.id = id;
-    this.content = content;
+    this.url = url;
+    this.path = path;
     this.computedUrl = computedUrl;
     this.variables = variables;
     this.copied = false;
@@ -31440,12 +31441,12 @@ class BaseUrl extends lit_element_s {
   }
 
   onButtonClick() {
-    navigator.clipboard.writeText(this.computedUrl ? this.computedUrl : this.content);
+    navigator.clipboard.writeText(this.computedUrl + this.path);
     this.copied = true;
   }
 
   onTextClick() {
-    navigator.clipboard.writeText(this.computedUrl ? this.computedUrl : this.content);
+    navigator.clipboard.writeText(this.computedUrl + this.path);
     this.showToast = true;
   }
 
@@ -31459,8 +31460,10 @@ class BaseUrl extends lit_element_s {
   }
 
   parseURL() {
-    if (!this.variables) return this.content;
-    let url = this.content;
+    if (!this.variables) return this.url;
+    let {
+      url
+    } = this;
     const spanVar = '<span class="variable">{var}</span>';
 
     for (const [key, value] of Object.entries(this.variables)) {
@@ -31468,7 +31471,7 @@ class BaseUrl extends lit_element_s {
       url = url.replace(regex, spanVar.replace('{var}', value.value));
     }
 
-    return url;
+    return url + this.path;
   }
 
   render() {
@@ -31603,7 +31606,10 @@ base_url_defineProperty(BaseUrl, "properties", {
   id: {
     type: String
   },
-  content: {
+  url: {
+    type: String
+  },
+  path: {
     type: String
   },
   computedUrl: {
@@ -31721,7 +31727,7 @@ function serverTemplate() {
     <span class="right-box-title">Base URL</span>
     <div style="display: flex; align-items: center;" class="server-template">
       ${(_this$selectedServer = this.selectedServer) !== null && _this$selectedServer !== void 0 && _this$selectedServer.computedUrl ? $`
-            <base-url id='copy-baseURL' content='${(_this$selectedServer2 = this.selectedServer) === null || _this$selectedServer2 === void 0 ? void 0 : _this$selectedServer2.url}${this.path}' computedUrl='${this.selectedServer.computedUrl}' .variables='${(_this$selectedServer3 = this.selectedServer) === null || _this$selectedServer3 === void 0 ? void 0 : _this$selectedServer3.variables}' style="width: 100%;">
+            <base-url id='copy-baseURL' url='${(_this$selectedServer2 = this.selectedServer) === null || _this$selectedServer2 === void 0 ? void 0 : _this$selectedServer2.url}' path='${this.path}' computedUrl='${this.selectedServer.computedUrl}' .variables='${(_this$selectedServer3 = this.selectedServer) === null || _this$selectedServer3 === void 0 ? void 0 : _this$selectedServer3.variables}' style="width: 100%;">
               <div class="server-template-vars">
                 ${serverVarsTemplate.call(this)}
               </div>
@@ -42312,7 +42318,7 @@ Prism.languages.py = Prism.languages.python;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("fc91fef58d96231997f1")
+/******/ 		__webpack_require__.h = () => ("f83462c05a4ef0159651")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
