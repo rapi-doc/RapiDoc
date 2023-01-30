@@ -95,7 +95,7 @@ export default function serverTemplate() {
     <div style="display: flex; align-items: center;" class="server-template">
       ${this.selectedServer?.computedUrl
         ? html`
-            <base-url id='copy-baseURL' content='${this.selectedServer?.url}${this.path}' computedUrl='${this.selectedServer.computedUrl}' .variables='${this.selectedServer?.variables}' style="width: 100%;">
+            <base-url id='copy-baseURL' url='${this.selectedServer?.url}' path='${this.path}' computedUrl='${this.selectedServer.computedUrl}' .variables='${this.selectedServer?.variables}' style="width: 100%;">
               <div class="server-template-vars">
                 ${serverVarsTemplate.call(this)}
               </div>

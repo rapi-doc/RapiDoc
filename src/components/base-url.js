@@ -11,17 +11,19 @@ import './toast-component';
 export class BaseUrl extends LitElement {
     static properties = {
         id: { type: String },
-        content: { type: String },
+        url: { type: String },
+        path: { type: String },
         computedUrl: { type: String },
         copied: { type: Boolean },
         showButton: { type: Boolean },
         showToast: { type: Boolean },
     };
 
-    constructor(id, content, computedUrl, variables) {
+    constructor(id, url, path, computedUrl, variables) {
         super();
         this.id = id;
-        this.content = content;
+        this.url = url;
+        this.path = path;
         this.computedUrl = computedUrl;
         this.variables = variables;
         this.copied = false;
@@ -42,12 +44,12 @@ export class BaseUrl extends LitElement {
     }
 
     onButtonClick() {
-        navigator.clipboard.writeText(this.computedUrl ? this.computedUrl : this.content);
+        navigator.clipboard.writeText(this.computedUrl + this.path);
         this.copied = true;
     }
 
     onTextClick() {
-        navigator.clipboard.writeText(this.computedUrl ? this.computedUrl : this.content);
+        navigator.clipboard.writeText(this.computedUrl + this.path);
         this.showToast = true;
     }
 
@@ -61,9 +63,9 @@ export class BaseUrl extends LitElement {
     }
 
     parseURL() {
-        if (!this.variables) return this.content;
+        if (!this.variables) return this.url;
 
-        let url = this.content;
+        let { url } = this;
         const spanVar = '<span class="variable">{var}</span>';
 
         for (const [key, value] of Object.entries(this.variables)) {
@@ -71,7 +73,7 @@ export class BaseUrl extends LitElement {
             url = url.replace(regex, spanVar.replace('{var}', value.value));
         }
 
-        return url;
+        return url + this.path;
     }
 
     render() {
