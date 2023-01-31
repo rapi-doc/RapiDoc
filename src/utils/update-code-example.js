@@ -3,7 +3,6 @@ import HTTPSnippet from 'httpsnippet';
 
 export default function updateCodeExample(tryBtnEl) {
   let fetchUrl;
-  let curlForm = '';
   let acceptValue = '';
   let contentTypeValue = '';
   const fetchOptions = {
@@ -221,23 +220,27 @@ export default function updateCodeExample(tryBtnEl) {
           ...requestPanelEl.querySelectorAll("[data-ptype='form-urlencode']"),
         ];
         const formUrlParams = new URLSearchParams();
+        const params = [];
         formUrlEls
           .filter((v) => v.type !== 'file')
           .forEach((el) => {
             if (el.dataset.array === 'false') {
               if (el.value) {
                 formUrlParams.append(el.dataset.pname, el.value);
+                params.push({ name: el.dataset.pname, value: el.value });
               }
             } else {
               const vals = el.value && Array.isArray(el.value) ? el.value.join(',') : '';
               formUrlParams.append(el.dataset.pname, vals);
+              params.push({ name: el.dataset.pname, value: vals });
             }
           });
         fetchOptions.body = formUrlParams;
-        postData.params = formUrlParams;
+        postData.params = params;
       }
     } else if (requestBodyType.includes('form-data')) {
       const formDataParams = new FormData();
+      const params = [];
       const formDataEls = [
         ...requestPanelEl.querySelectorAll("[data-ptype='form-data']"),
       ];
@@ -249,19 +252,18 @@ export default function updateCodeExample(tryBtnEl) {
               el.files[0],
               el.files[0].name,
             );
-            curlForm += ` -F "${el.dataset.pname}=@${el.files[0].name}" \\\n`;
+            params.push({ name: el.dataset.pname, value: el.files[0], fileName: el.files[0].name });
           } else if (el.value) {
             formDataParams.append(el.dataset.pname, el.value);
-            curlForm += ` -F "${el.dataset.pname}=${el.value}" \\\n`;
+            params.push({ name: el.dataset.pname, value: el.value });
           }
         } else if (el.value && Array.isArray(el.value)) {
-          el.value.forEach((v) => {
-            curlForm = `${curlForm} -F "${el.dataset.pname}[]=${v}" \\\n`;
-          });
           formDataParams.append(el.dataset.pname, el.value.join(','));
+          params.push({ name: el.dataset.pname, value: el.value.join(',') });
         }
       });
       fetchOptions.body = formDataParams;
+      postData.params = params;
     } else if (
       /^audio\/|^image\/|^video\/|^font\/|tar$|zip$|7z$|rtf$|msword$|excel$|\/pdf$|\/octet-stream$/.test(
         requestBodyType,
