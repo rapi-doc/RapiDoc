@@ -33,30 +33,10 @@ function moreLanguagesTemplate(numberOfButtons, languages) {
   `;
 }
 
-function reorderLanguages(languages) {
-  const reordered = languages;
-
-  const index = languages.findIndex((language) => language.key === this.selectedLanguage);
-  const selectedLanguage = languages[index];
-
-  if (index) {
-    reordered.splice(index, 1);
-    reordered.unshift(selectedLanguage);
-  }
-
-  return reordered;
-}
-
 export default function languagePickerTemplate() {
-  const languages = reorderLanguages.call(this, HTTPSnippet.availableTargets());
+  const selectedLanguages = ['node', 'shell', 'python'];
+  const languages = HTTPSnippet.availableTargets().filter((language) => selectedLanguages.includes(language.key));
   const numberOfButtons = 3;
-
-  /* console.log(this.showMoreLanguages);
-  const elem = this.shadowRoot.querySelector('.row-api-right');
-  if (elem) {
-    const width = elem.offsetWidth;
-    numberOfButtons = Math.floor((width - 50) / 54);
-  } */
 
   return html`
     <section id='language' part="section-language" class='row-api-right-box regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
