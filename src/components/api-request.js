@@ -29,6 +29,8 @@ import '~/components/breadcrumbs';
 
 import serverTemplate from '~/templates/server-template';
 import securitySchemeTemplate from '~/templates/security-scheme-template';
+import languagePickerTemplate from '~/templates/language-picker-template';
+import updateCodeExample from '~/utils/update-code-example';
 
 export default class ApiRequest extends LitElement {
   constructor() {
@@ -40,12 +42,13 @@ export default class ApiRequest extends LitElement {
     this.responseHeaders = '';
     this.responseText = '';
     this.responseUrl = '';
-    this.curlSyntax = '';
+    this.codePreview = '';
     this.activeResponseTab = 'response'; // allowed values: response, headers, curl
     this.selectedRequestBodyType = '';
     this.selectedRequestBodyExample = '';
     this.activeParameterSchemaTabs = {};
     this.showCurlBeforeTry = true;
+    this.selectedLanguage = 'shell';
   }
 
   static get properties() {
@@ -96,6 +99,8 @@ export default class ApiRequest extends LitElement {
       activeResponseTab: { type: String }, // internal tracking of response-tab not exposed as a attribute
       selectedRequestBodyType: { type: String, attribute: 'selected-request-body-type' }, // internal tracking of selected request-body type
       selectedRequestBodyExample: { type: String, attribute: 'selected-request-body-example' }, // internal tracking of selected request-body example
+
+      selectedLanguage: { type: String },
     };
   }
 
@@ -241,6 +246,7 @@ export default class ApiRequest extends LitElement {
         ${this.allowTry === 'false' ? '' : html`${this.apiCallTemplate()}`}
       </div>
       <div class="row-api-right">
+        ${languagePickerTemplate.call(this)}
         ${securitySchemeTemplate.call(this)}
         ${serverTemplate.call(this)}
         ${this.apiResponseTabTemplate()}
@@ -514,7 +520,7 @@ export default class ApiRequest extends LitElement {
                           value="${param.schema.default}"
                           @input = ${(e) => {
                             const requestPanelEl = this.getRequestPanel(e);
-                            this.liveCURLSyntaxUpdate(requestPanelEl);
+                            updateCodeExample.call(this, requestPanelEl);
                           }}
                         />`
                     }`
@@ -694,7 +700,7 @@ export default class ApiRequest extends LitElement {
                     .textContent = "${this.fillRequestFieldsWithExample === 'true' ? (v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, null, 2)) : ''}"
                     @input=${(e) => {
                       const requestPanelEl = this.getRequestPanel(e);
-                      this.liveCURLSyntaxUpdate(requestPanelEl);
+                      updateCodeExample.call(this, requestPanelEl);
                     }}
                   ></textarea>
                 </div>  
@@ -933,7 +939,7 @@ export default class ApiRequest extends LitElement {
                           data-array = "false"
                           @input = ${(e) => {
                             const requestPanelEl = this.getRequestPanel(e);
-                            this.liveCURLSyntaxUpdate(requestPanelEl);
+                            updateCodeExample.call(this, requestPanelEl);
                           }}
                         />`
                       : ''
@@ -968,7 +974,7 @@ export default class ApiRequest extends LitElement {
                                 }
 
                                 const requestPanelEl = this.getRequestPanel(e);
-                                this.liveCURLSyntaxUpdate(requestPanelEl);
+                                updateCodeExample.call(this, requestPanelEl);
                               }
                             }}"
                           > 
@@ -1111,12 +1117,12 @@ export default class ApiRequest extends LitElement {
     if (!this.resultLoad) {
       this.updateComplete.then(() => {
         const el = this.renderRoot.host.shadowRoot.children[0];
-        this.liveCURLSyntaxUpdate(el.target ? el.target : el);
+        updateCodeExample.call(this, el.target ? el.target : el);
       });
       this.resultLoad = true;
     } else {
       const el = this.renderRoot.host.shadowRoot.children[0];
-      this.liveCURLSyntaxUpdate(el.target ? el.target : el);
+      updateCodeExample.call(this, el.target ? el.target : el);
     }
 
     return html`
@@ -1431,14 +1437,13 @@ export default class ApiRequest extends LitElement {
   }
 
   async onTryClick(e) {
-    const tryBtnEl = e.target;
-    const requestPanelEl = tryBtnEl.closest('.request-panel');
-    const fetchUrl = `/api/proxy/${encodeURIComponent(this.buildFetchURL(requestPanelEl))}`;
-    const fetchOptions = this.buildFetchBodyOptions(requestPanelEl);
-    const reqHeaders = this.buildFetchHeaders(requestPanelEl);
+    const tryBtnEl = e.target ? e.target : e;
+
+    const { fetchUrl, fetchOptions, reqHeaders } = updateCodeExample.call(this, tryBtnEl);
+    const encodedUrl = encodeURIComponent(fetchUrl);
+
     this.responseUrl = '';
     this.responseHeaders = [];
-    this.curlSyntax = this.generateCURLSyntax(fetchUrl, reqHeaders, fetchOptions, requestPanelEl);
     this.responseStatus = 'success';
     this.responseIsBlob = false;
 
@@ -1453,7 +1458,7 @@ export default class ApiRequest extends LitElement {
     const controller = new AbortController();
     const { signal } = controller;
     fetchOptions.headers = reqHeaders;
-    const tempRequest = { url: fetchUrl, ...fetchOptions };
+    const tempRequest = { url: encodedUrl, ...fetchOptions };
     this.dispatchEvent(new CustomEvent('before-try', {
       bubbles: true,
       composed: true,
