@@ -41,13 +41,10 @@ export default class SchemaTree extends LitElement {
       .tree .tr:hover{
         background-color:var(--hover-color);
       }
-      .collapsed-descr .tr {
+      .collapsed-all-descr .tr:not(.expanded-descr) {
+        overflow: hidden;
         max-height:calc(var(--font-size-small) + 8px);
       }
-      .collapsed-descr .m-markdown-small p {
-        line-height:calc(var(--font-size-small) + 6px);
-      }
-
       .tree .key {
         max-width: 300px;
       }
@@ -63,7 +60,9 @@ export default class SchemaTree extends LitElement {
       .tr.expanded:hover + .inside-bracket + .close-bracket {
         color: var(--primary-color);
       }
-
+      .inside-bracket.xxx-of-option {
+        border-left: 1px solid transparent;
+      }
       .open-bracket{
         display:inline-block;
         padding: 0 20px 0 0;
@@ -82,17 +81,12 @@ export default class SchemaTree extends LitElement {
       }
       .tr.collapsed + .inside-bracket,
       .tr.collapsed + .inside-bracket + .close-bracket{
+        overflow: hidden;
         display:none;
       }
       .inside-bracket.object,
       .inside-bracket.array {
         border-left: 1px dotted var(--border-color);
-      }
-      .inside-bracket.xxx-of {
-        padding:5px 0px;
-        border-style: dotted;
-        border-width: 0 0 1px 0;
-        border-color:var(--primary-color);
       }`,
       CustomStyles,
     ];
@@ -101,23 +95,19 @@ export default class SchemaTree extends LitElement {
   /* eslint-disable indent */
   render() {
     return html`
-      <div class="tree ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : 'collapsed-descr'}">
+      <div class="tree ${this.schemaDescriptionExpanded === 'true' ? 'expanded-all-descr' : 'collapsed-all-descr'}" @click="${(e) => this.handleAllEvents(e)}">
         <div class="toolbar">
           <div class="toolbar-item schema-root-type ${this.data?.['::type'] || ''} "> ${this.data?.['::type'] || ''} </div>
           ${this.allowSchemaDescriptionExpandToggle === 'true'
             ? html`
               <div style="flex:1"></div>
-              <div part="schema-toolbar-item schema-multiline-toggle" class='toolbar-item' @click='${() => { this.schemaDescriptionExpanded = (this.schemaDescriptionExpanded === 'true' ? 'false' : 'true'); }}'> 
+              <div part="schema-toolbar-item schema-multiline-toggle" class='toolbar-item schema-multiline-toggle'> 
                 ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'}
-              </div>
-            `
+              </div>`
             : ''
           }
         </div>
-        ${this.data?.['::description']
-          ? html`<span part="schema-description" class='m-markdown'> ${unsafeHTML(marked(this.data['::description'] || ''))}</span>`
-          : ''
-        }
+        <span part="schema-description" class='m-markdown'> ${unsafeHTML(marked(this.data?.['::description'] || ''))}</span>
         ${this.data
           ? html`
             ${this.generateTree(
@@ -138,7 +128,7 @@ export default class SchemaTree extends LitElement {
           return;
         }
       }
-      if (data && data['::readwrite'] === 'readonly') {
+      if (data?.['::readwrite'] === 'readonly') {
         return;
       }
     }
@@ -148,7 +138,7 @@ export default class SchemaTree extends LitElement {
           return;
         }
       }
-      if (data && data['::readwrite'] === 'writeonly') {
+      if (data?.['::readwrite'] === 'writeonly') {
         return;
       }
     }
@@ -174,8 +164,7 @@ export default class SchemaTree extends LitElement {
       keyLabel = key.replace('::', '').replace('~', ' ');
     } else if (key.startsWith('::OPTION')) {
       const parts = key.split('~');
-      keyLabel = parts[1]; // eslint-disable-line prefer-destructuring
-      keyDescr = parts[2]; // eslint-disable-line prefer-destructuring
+      [, keyLabel, keyDescr] = parts;
     } else {
       keyLabel = key;
     }
@@ -190,16 +179,16 @@ export default class SchemaTree extends LitElement {
     if (data['::type'] === 'object') {
       if (dataType === 'array') {
         if (schemaLevel < this.schemaExpandLevel) {
-          openBracket = html`<span class="open-bracket array-of-object" @click="${this.toggleObjectExpand}">[{</span>`;
+          openBracket = html`<span class="open-bracket array-of-object" >[{</span>`;
         } else {
-          openBracket = html`<span class="open-bracket array-of-object" @click="${this.toggleObjectExpand}">[{...}]</span>`;
+          openBracket = html`<span class="open-bracket array-of-object">[{...}]</span>`;
         }
         closeBracket = '}]';
       } else {
         if (schemaLevel < this.schemaExpandLevel) {
-          openBracket = html`<span class="open-bracket object" @click="${this.toggleObjectExpand}">{</span>`;
+          openBracket = html`<span class="open-bracket object">{</span>`;
         } else {
-          openBracket = html`<span class="open-bracket object" @click="${this.toggleObjectExpand}">{...}</span>`;
+          openBracket = html`<span class="open-bracket object">{...}</span>`;
         }
         closeBracket = '}';
       }
@@ -207,16 +196,16 @@ export default class SchemaTree extends LitElement {
       if (dataType === 'array') {
         const arrType = arrayType !== 'object' ? arrayType : '';
         if (schemaLevel < this.schemaExpandLevel) {
-          openBracket = html`<span class="open-bracket array-of-array" data-array-type="${arrType}" @click="${this.toggleObjectExpand}">[[ ${arrType} </span>`;
+          openBracket = html`<span class="open-bracket array-of-array" data-array-type="${arrType}">[[ ${arrType} </span>`;
         } else {
-          openBracket = html`<span class="open-bracket array-of-array"  data-array-type="${arrType}" @click="${this.toggleObjectExpand}">[[...]]</span>`;
+          openBracket = html`<span class="open-bracket array-of-array"  data-array-type="${arrType}">[[...]]</span>`;
         }
         closeBracket = ']]';
       } else {
         if (schemaLevel < this.schemaExpandLevel) {
-          openBracket = html`<span class="open-bracket array" @click="${this.toggleObjectExpand}">[</span>`;
+          openBracket = html`<span class="open-bracket array">[</span>`;
         } else {
-          openBracket = html`<span class="open-bracket array" @click="${this.toggleObjectExpand}">[...]</span>`;
+          openBracket = html`<span class="open-bracket array">[...]</span>`;
         }
         closeBracket = ']';
       }
@@ -236,7 +225,6 @@ export default class SchemaTree extends LitElement {
                     </span>`
                   : ''
             }
-            ${data['::type'] === 'xxx-of' && dataType === 'array' ? html`<span style="color:var(--primary-color)">ARRAY</span>` : ''} 
             ${openBracket}
           </div>
           <div class='td key-descr m-markdown-small'>${unsafeHTML(marked(description || ''))}</div>
@@ -246,7 +234,7 @@ export default class SchemaTree extends LitElement {
             ? html`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, data[0]['::readwrite'])}`
             : html`
               ${Object.keys(data).map((dataKey) => html`
-                ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite'].includes(dataKey)
+                ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite', '::dataTypeLabel'].includes(dataKey)
                   ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object'
                     ? html`${this.generateTree(
                       data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey],
@@ -264,7 +252,7 @@ export default class SchemaTree extends LitElement {
                     data[dataKey]['::type'],
                     data[dataKey]['::array-type'] || '',
                     dataKey,
-                    data[dataKey]['::description'],
+                    data[dataKey]?.['::description'] || '',
                     newSchemaLevel,
                     newIndentLevel,
                     data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '',
@@ -282,6 +270,7 @@ export default class SchemaTree extends LitElement {
     }
 
     // For Primitive types and array of Primitives
+    // eslint-disable-next-line no-unused-vars
     const [type, primitiveReadOrWrite, constraint, defaultValue, allowedValues, pattern, schemaDescription, schemaTitle, deprecated] = data.split('~|~');
     if (primitiveReadOrWrite === '🆁' && this.schemaHideReadOnly === 'true') {
       return;
@@ -290,7 +279,7 @@ export default class SchemaTree extends LitElement {
       return;
     }
     const dataTypeCss = type.replace(/┃.*/g, '').replace(/[^a-zA-Z0-9+]/g, '').substring(0, 4).toLowerCase();
-
+    const descrExpander = `${constraint || defaultValue || allowedValues || pattern ? `<span class="descr-expand-toggle ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : ''}">➔</span>` : ''}`;
     let finalReadWriteText = '';
     let finalReadWriteTip = '';
     if (dataType === 'array') {
@@ -302,12 +291,12 @@ export default class SchemaTree extends LitElement {
         finalReadWriteTip = 'Write-Only';
       }
     } else if (primitiveReadOrWrite === '🆁') {
-        finalReadWriteText = '🆁';
-        finalReadWriteTip = 'Read-Only';
-      } else if (primitiveReadOrWrite === '🆆') {
-        finalReadWriteText = '🆆';
-        finalReadWriteTip = 'Write-Only';
-      }
+      finalReadWriteText = '🆁';
+      finalReadWriteTip = 'Read-Only';
+    } else if (primitiveReadOrWrite === '🆆') {
+      finalReadWriteText = '🆆';
+      finalReadWriteTip = 'Write-Only';
+    }
 
     return html`
       <div class = "tr primitive" title="${deprecated ? 'Deprecated' : ''}">
@@ -325,26 +314,40 @@ export default class SchemaTree extends LitElement {
           </span>
         </div>
         <div class='td key-descr'>
-          ${dataType === 'array' ? html`<span class="m-markdown-small">${unsafeHTML(marked(description))}</span>` : ''}
-          ${schemaDescription
-            ? html`<span class="m-markdown-small">
-              ${unsafeHTML(marked(`${schemaTitle ? `**${schemaTitle}:**` : ''} ${schemaDescription} ${constraint || defaultValue || allowedValues || pattern ? '<span class="more-content">⤵</span>' : ''}`))}
+          ${description || schemaTitle || schemaDescription
+            ? html`${html`<span class="m-markdown-small">
+                ${unsafeHTML(marked(dataType === 'array'
+                  ? `${descrExpander} ${description}`
+                  : schemaTitle
+                    ? `${descrExpander} <b>${schemaTitle}:</b> ${schemaDescription}`
+                    : `${descrExpander} ${schemaDescription}`))}
               </span>`
-            : schemaTitle
-              ? html`${schemaTitle} ${constraint || defaultValue || allowedValues || pattern
-                ? html`<span class="more-content">⤵</span>`
-                : ''}`
-              : ''
-          }
+              }`
+            : ''
+          }  
           ${constraint ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Constraints: </span>${constraint}</div>` : ''}
           ${defaultValue ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
-          ${allowedValues ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Allowed: </span>${allowedValues}</div>` : ''}
+          ${allowedValues ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>${type === 'const' ? 'Value' : 'Allowed'}: </span>${allowedValues}</div>` : ''}
           ${pattern ? html`<div style='display:inline-block; line-break: anywhere; margin-right:8px'><span class='bold-text'>Pattern: </span>${pattern}</div>` : ''}
         </div>
       </div>
     `;
   }
   /* eslint-enable indent */
+
+  handleAllEvents(e) {
+    if (e.target.classList.contains('open-bracket')) {
+      this.toggleObjectExpand(e);
+    } else if (e.target.classList.contains('schema-multiline-toggle')) {
+      this.schemaDescriptionExpanded = (this.schemaDescriptionExpanded === 'true' ? 'false' : 'true');
+    } else if (e.target.classList.contains('descr-expand-toggle')) {
+      const trEl = e.target.closest('.tr');
+      if (trEl) {
+        trEl.classList.toggle('expanded-descr');
+        trEl.style.maxHeight = trEl.scrollHeight;
+      }
+    }
+  }
 
   toggleObjectExpand(e) {
     const rowEl = e.target.closest('.tr');

@@ -173,8 +173,11 @@ paths:
       tags:
         - pet
       summary: Update an existing pet
-      description: ''
+      description: This is a description for updating a pet (!!!)
       operationId: updatePet
+      externalDocs:
+        description: Find more info here
+        url: https://rapidocweb.com
       responses:
         '400':
           description: Invalid ID supplied
@@ -742,6 +745,7 @@ components:
               description: Dumb Property
       xml:
         name: Category
+        namespace: https://rapidocweb.com
     Dog:
       description: A representation of a dog
       allOf:
@@ -810,6 +814,7 @@ components:
           writeOnly: true
       xml:
         name: Order
+        namespace: https://rapidocweb.com
     Pet:
       type: object
       required:
@@ -855,7 +860,7 @@ components:
           type: array
           minItems: 1
           xml:
-            name: tag
+            name: tag1
             wrapped: true
           items:
             $ref: '#/components/schemas/Tag'
@@ -871,6 +876,7 @@ components:
           type: string
       xml:
         name: Pet
+        namespace: https://rapidocweb.com
     Tag:
       type: object
       properties:
@@ -884,6 +890,7 @@ components:
           minLength: 1
       xml:
         name: Tag
+        namespace: https://rapidocweb.com
     User:
       type: object
       properties:
@@ -934,6 +941,7 @@ components:
           format: int32
       xml:
         name: User
+        namespace: https://rapidocweb.com
   requestBodies:
     Pet:
       content:

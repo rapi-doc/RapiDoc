@@ -9,68 +9,71 @@ paths:
       tags:
         - Providing Examples
       parameters:
-      - name: 'path-param-1'
-        in: 'path'
-        schema:
-          type: 'string'
-          default: "p1-opt-2"  
-        examples:
-          example1: 
-            value: "p1-opt-1"
-          example2:
-            value: "p1-opt-2"
-      - name: 'path-param-2'
-        in: 'path'
-        schema:
-          type: 'string'
-        examples:
-          example1: 
-            value: "p2-opt-1"
-          example2:
-            value: "p2-opt-2"
-      - name: 'age'
-        description: Single Example
-        in: 'query'
-        schema:
-          type: 'number'
-        example: 24
-      - name: 'country-code'
-        description: Multiple examples _(Notice `us` do not have a summary)_
-        in: 'query'
-        schema:
-          type: 'string'
-        examples:
-          example1: 
-            value: "uk"
-            summary: "United Kingdom"
-          example2:
-            value: "us"
-          example3:
-            value: "ch"
-            summary: "China"
-      - name: 'marital-status'
-        in: 'query'
-        schema:
-          type: 'string'
-          default: "unmarried"  
-        examples:
-          example1: 
-            value: "married"
-          example2:
-            value: "unmarried"
-          example3:
-            value: "widowed"
-      - name: luckyNumbers
-        in: query
-        schema:
-          type: array
-          items:
-            type: number
-          minItems: 4
-          maxItems: 4
+        - name: 'path-param-1'
+          in: 'path'
+          schema:
+            type: 'string'
+            default: "p1-opt-2"  
           examples:
-            - [10]
-            - [10, 20, 30, 40]
+            example1: 
+              value: "p1-opt-1"
+            example2:
+              value: "p1-opt-2"
+        - name: 'path-param-2'
+          in: 'path'
+          schema:
+            type: 'string'
+          examples:
+            example1: 
+              value: "p2-opt-1"
+            example2:
+              value: "p2-opt-2"
+        - name: 'age'
+          description: Single Example
+          in: 'query'
+          schema:
+            type: 'number'
+          example: 24
+        - name: 'country-code'
+          description: Multiple examples _(Notice `us` do not have a summary)_
+          in: 'query'
+          schema:
+            type: 'string'
+            default: " "
+          examples:
+            example1: 
+              value: "uk"
+              summary: "United Kingdom"
+            example2:
+              value: "us"
+            example3:
+              value: "ch"
+              summary: "China"
+        - name: 'marital-status'
+          in: 'query'
+          schema:
+            type: 'string'
+            default: "unmarried"  
+          examples:
+            example1: 
+              value: "married"
+            example2:
+              value: "unmarried"
+            example3:
+              value: "widowed"
+        - name: luckyNumbers
+          in: query
+          schema:
+            type: array
+            items:
+              type: number
+            minItems: 4
+            maxItems: 4
+            examples:
+              - ""
+              - "   "
+              - [10]
+              - [10, 20, 30, 40]
 
   /multiple-examples-by-response-type:
     get:
@@ -616,7 +619,7 @@ components:
       items:
         type: integer
         format: int64
-      example: [1, 2, 3]
+      example: [1, 2, 3, 4]
     ArrayOfInt-2:
       type: array
       items:

@@ -56,6 +56,9 @@ export default class SchemaTable extends LitElement {
         width: 33%;
         padding: 0px 10px 12px;
       }
+      .key .key-label {
+        font-size: var(--font-size-mono);
+      }
       .key.deprecated .key-label {
         color: var(--red);
       }
@@ -72,8 +75,8 @@ export default class SchemaTable extends LitElement {
         color:#4A4A4A;
         padding: 12px 10px 12px;
       }
-      .collapsed-descr .tr {
-        max-height: calc(var(--font-size-small) + var(--font-size-small) + 16px);
+      .collapsed-all-descr .tr:not(.expanded-descr) {
+        max-height: calc(var(--font-size-small) + var(--font-size-small));
       }
 
       .obj-toggle {
@@ -104,13 +107,13 @@ export default class SchemaTable extends LitElement {
   /* eslint-disable indent */
   render() {
     return html`
-      <div class="table ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : 'collapsed-descr'}">
+      <div class="table ${this.schemaDescriptionExpanded === 'true' ? 'expanded-all-descr' : 'collapsed-all-descr'}" @click="${(e) => this.handleAllEvents(e)}">
         <div class='toolbar'>
           <div class="toolbar-item schema-root-type ${this.data?.['::type'] || ''} "> ${this.data?.['::type'] || ''} </div>
           ${this.allowSchemaDescriptionExpandToggle === 'true'
             ? html`
               <div style="flex:1"></div>
-              <div part="schema-multiline-toggle" class='toolbar-item' @click='${() => { this.schemaDescriptionExpanded = (this.schemaDescriptionExpanded === 'true' ? 'false' : 'true'); }}'> 
+              <div part="schema-multiline-toggle" class='toolbar-item schema-multiline-toggle' > 
                 ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'}
               </div>
             `
@@ -201,14 +204,14 @@ export default class SchemaTable extends LitElement {
       if (dataType === 'array') {
         detailObjType = 'array of object'; // Array of Object
       } else {
-        detailObjType = 'object';
+        detailObjType = data['::dataTypeLabel'] || data['::type'];
       }
     } else if (data['::type'] === 'array') {
       if (dataType === 'array') {
         // detailObjType = 'array of array'; // Array of array
         detailObjType = `array of array ${arrayType !== 'object' ? `of ${arrayType}` : ''}`; // Array of array
       } else {
-        detailObjType = 'array';
+        detailObjType = data['::dataTypeLabel'] || data['::type'];
       }
     }
 
@@ -220,11 +223,7 @@ export default class SchemaTable extends LitElement {
               <div class="td key ${data['::deprecated'] ? 'deprecated' : ''}" style='padding-left:${leftPadding}px'>
                 ${(keyLabel || keyDescr)
                   ? html`
-                    <span 
-                      class='obj-toggle ${newSchemaLevel < this.schemaExpandLevel ? 'expanded' : 'collapsed'}'
-                      data-obj='${keyLabel}'
-                      @click= ${(e) => this.toggleObjectExpand(e, keyLabel)} 
-                    >
+                    <span class='obj-toggle ${newSchemaLevel < this.schemaExpandLevel ? 'expanded' : 'collapsed'}' data-obj='${keyLabel}'>
                       ${schemaLevel < this.schemaExpandLevel ? '-' : '+'}
                     </span>`
                   : ''
@@ -244,25 +243,24 @@ export default class SchemaTable extends LitElement {
               <div class='td key-descr' style='line-height:1.7'>${unsafeHTML(marked(description || ''))}</div>
             </div>`
           : html`
-              ${data['::type'] === 'array' && dataType === 'array'
-                ? html`
-                  <div class='tr'> 
-                    <div class='td key'></div> 
-                    <div class='td key-type'>
-                      ${arrayType && arrayType !== 'object' ? `${dataType} of ${arrayType}` : dataType}
-                    </div> 
-                    <div class='td key-descr'></div> 
-                  </div>`
-                : ''
-              }
-          `
+            ${data['::type'] === 'array' && dataType === 'array'
+              ? html`
+                <div class='tr'> 
+                  <div class='td key'></div> 
+                  <div class='td key-type'>
+                    ${arrayType && arrayType !== 'object' ? `${dataType} of ${arrayType}` : dataType}
+                  </div> 
+                  <div class='td key-descr'></div> 
+                </div>`
+              : ''
+            }`
         }
         <div class='object-body'>
         ${Array.isArray(data) && data[0]
           ? html`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, '')}`
           : html`
             ${Object.keys(data).map((dataKey) => html`
-              ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite'].includes(dataKey)
+              ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite', '::dataTypeLabel'].includes(dataKey)
                 ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object'
                   ? html`${this.generateTree(
                     data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey],
@@ -280,7 +278,7 @@ export default class SchemaTable extends LitElement {
                   data[dataKey]['::type'],
                   data[dataKey]['::array-type'] || '',
                   dataKey,
-                  data[dataKey]['::description'],
+                  data[dataKey]?.['::description'] || '',
                   newSchemaLevel,
                   newIndentLevel,
                   data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '',
@@ -294,6 +292,7 @@ export default class SchemaTable extends LitElement {
     }
 
     // For Primitive Data types
+    // eslint-disable-next-line no-unused-vars
     const [type, readOrWriteOnly, constraint, defaultValue, allowedValues, pattern, schemaDescription, schemaTitle, deprecated] = data.split('~|~');
     if (readOrWriteOnly === '🆁' && this.schemaHideReadOnly === 'true') {
       return;
@@ -302,6 +301,7 @@ export default class SchemaTable extends LitElement {
       return;
     }
     const dataTypeCss = type.replace(/┃.*/g, '').replace(/[^a-zA-Z0-9+]/g, '').substring(0, 4).toLowerCase();
+    const descrExpander = `${constraint || defaultValue || allowedValues || pattern ? '<span class="descr-expand-toggle">➔</span>' : ''}`;
     let dataTypeHtml = '';
     if (dataType === 'array') {
       dataTypeHtml = html` 
@@ -328,27 +328,38 @@ export default class SchemaTable extends LitElement {
           }
         </div>
         ${dataTypeHtml}
-        <div class='td key-descr' @click="${() => { this.schemaDescriptionExpanded = 'true'; }}">
-          ${dataType === 'array' ? html`<span>${unsafeHTML(marked(description))}</span>` : ''}
-          ${schemaDescription
-            ? html`<span>
-              ${unsafeHTML(marked(`${schemaTitle ? `**${schemaTitle}:**` : ''} ${schemaDescription} ${constraint || defaultValue || allowedValues || pattern ? '<span  class="more-content">⤵</span>' : ''}`))}
-              </span>`
-            : schemaTitle
-              ? html`${schemaTitle} ${constraint || defaultValue || allowedValues || pattern
-                ? html`<span class="more-content">⤵</span>`
-                : ''}`
-              : ''
+        <div class='td key-descr' style='font-size: var(--font-size-small)'>
+          ${html`<span class="m-markdown-small">
+            ${unsafeHTML(marked(dataType === 'array'
+              ? `${descrExpander} ${description}`
+              : schemaTitle
+                ? `${descrExpander} <b>${schemaTitle}:</b> ${schemaDescription}`
+                : `${descrExpander} ${schemaDescription}`))}
+          </span>`
           }
-          ${constraint ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Constraints: </span> ${constraint}</div>` : ''}
+          ${constraint ? html`<div class='' style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Constraints: </span> ${constraint}</div>` : ''}
           ${defaultValue ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
-          ${allowedValues ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Allowed: </span>${allowedValues}</div>` : ''}
+          ${allowedValues ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>${type === 'const' ? 'Value' : 'Allowed'}: </span>${allowedValues}</div>` : ''}
           ${pattern ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Pattern: </span>${pattern}</div>` : ''}
         </div>
       </div>
     `;
   }
   /* eslint-enable indent */
+
+  handleAllEvents(e) {
+    if (e.target.classList.contains('obj-toggle')) {
+      this.toggleObjectExpand(e);
+    } else if (e.target.classList.contains('schema-multiline-toggle')) {
+      this.schemaDescriptionExpanded = (this.schemaDescriptionExpanded === 'true' ? 'false' : 'true');
+    } else if (e.target.classList.contains('descr-expand-toggle')) {
+      const trEl = e.target.closest('.tr');
+      if (trEl) {
+        trEl.classList.toggle('expanded-descr');
+        trEl.style.maxHeight = trEl.scrollHeight;
+      }
+    }
+  }
 
   toggleObjectExpand(e) {
     const rowEl = e.target.closest('.tr');

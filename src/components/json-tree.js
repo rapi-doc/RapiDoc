@@ -22,6 +22,8 @@ export default class JsonTree extends LitElement {
       :host{
         display:flex;
       }
+      :where(button, input[type="checkbox"], [tabindex="0"]):focus-visible { box-shadow: var(--focus-shadow); }
+      :where(input[type="text"], input[type="password"], select, textarea):focus-visible { border-color: var(--primary-color); }
       .json-tree {
         position: relative;
         font-family: var(--font-mono);
@@ -31,6 +33,7 @@ export default class JsonTree extends LitElement {
         word-break: break-all;
         flex:1;
         line-height: calc(var(--font-size-small) + 6px);
+        min-height: 40px;
         direction: ltr; 
         text-align: left;
       }
@@ -58,8 +61,9 @@ export default class JsonTree extends LitElement {
       .open-bracket.expanded:hover ~ .close-bracket {
         color:var(--primary-color);
       }
-      .inside-bracket{
+      .inside-bracket {
         padding-left:12px;
+        overflow: hidden;
         border-left:1px dotted var(--border-color);
       }
       .open-bracket.collapsed + .inside-bracket,
@@ -87,11 +91,11 @@ export default class JsonTree extends LitElement {
   /* eslint-disable indent */
   render() {
     return html`
-      <div class = "json-tree" >
+      <div class = "json-tree"  @click='${(e) => { if (e.target.classList.contains('btn-copy')) { copyToClipboard(JSON.stringify(this.data, null, 2), e); } else { this.toggleExpand(e); } }}'>
         <div class='toolbar'> 
-          <button class="toolbar-btn" part="btn btn-fill btn-copy" @click='${(e) => { copyToClipboard(JSON.stringify(this.data, null, 2), e); }}'> Copy </button>
+          <button class="toolbar-btn btn-copy" part="btn btn-fill btn-copy"> Copy </button>
         </div>
-        ${this.generateTree(this.data, true)}
+          ${this.generateTree(this.data, true)}
       </div>  
     `;
   }
@@ -106,7 +110,7 @@ export default class JsonTree extends LitElement {
         return html`${(Array.isArray(data) ? '[ ],' : '{ },')}`;
       }
       return html`
-      <div class="open-bracket expanded ${detailType === 'array' ? 'array' : 'object'} " @click="${this.toggleExpand}" > ${detailType === 'array' ? '[' : '{'}</div>
+      <div class="open-bracket expanded ${detailType === 'array' ? 'array' : 'object'}" > ${detailType === 'array' ? '[' : '{'}</div>
       <div class="inside-bracket">
         ${Object.keys(data).map((key, i, a) => html`
           <div class="item"> 
@@ -118,7 +122,6 @@ export default class JsonTree extends LitElement {
       <div class="close-bracket">${detailType === 'array' ? ']' : '}'}${isLast ? '' : ','}</div>
       `;
     }
-
     return (typeof data === 'string' || data instanceof Date)
       ? html`<span class="${typeof data}">"${data}"</span>${isLast ? '' : ','}`
       : html`<span class="${typeof data}">${data}</span>${isLast ? '' : ','}`;
@@ -127,12 +130,14 @@ export default class JsonTree extends LitElement {
 
   toggleExpand(e) {
     const openBracketEl = e.target;
-    if (openBracketEl.classList.contains('expanded')) {
-      openBracketEl.classList.replace('expanded', 'collapsed');
-      e.target.innerHTML = e.target.classList.contains('array') ? '[...]' : '{...}';
-    } else {
-      openBracketEl.classList.replace('collapsed', 'expanded');
-      e.target.innerHTML = e.target.classList.contains('array') ? '[' : '{';
+    if (e.target.classList.contains('open-bracket')) {
+      if (openBracketEl.classList.contains('expanded')) {
+        openBracketEl.classList.replace('expanded', 'collapsed');
+        e.target.innerHTML = e.target.classList.contains('array') ? '[...]' : '{...}';
+      } else {
+        openBracketEl.classList.replace('collapsed', 'expanded');
+        e.target.innerHTML = e.target.classList.contains('array') ? '[' : '{';
+      }
     }
   }
 }

@@ -10,6 +10,7 @@ export default css`
   width: 100%;
   box-sizing: content-box;
   border-bottom: 1px dotted transparent;
+  transition: max-height 0.3s ease-out;
 }
 .td {
   display: block;
@@ -21,8 +22,28 @@ export default css`
   word-break: break-all;
 }
 
-.collapsed-descr .key {
+.collapsed-all-descr .key {
   overflow:hidden;
+}
+.expanded-all-descr .key-descr .descr-expand-toggle {
+  display:none;
+}
+
+.key-descr .descr-expand-toggle {
+  display:inline-block;
+  user-select:none;
+  color: var(--fg);
+  cursor: pointer;
+  transform: rotate(45deg);
+  transition: transform .2s ease;
+}
+
+.expanded-descr .key-descr .descr-expand-toggle {
+  transform: rotate(270deg)
+}
+
+.key-descr .descr-expand-toggle:hover {
+  color: var(--primary-color);
 }
 
 .expanded-descr .more-content { display:none; }
@@ -41,13 +62,6 @@ export default css`
   overflow:hidden;
   display: none;
 }
-.collapsed-descr .tr {
-  max-height:20px;
-}
-
-.tr.xxx-of{
-  border-top: 1px dotted var(--primary-color);
-}
 
 .xxx-of-key {
   font-size: calc(var(--font-size-small) - 2px); 
@@ -62,10 +76,10 @@ export default css`
 }
 
 .xxx-of-descr {
-    font-family: var(--font-regular);
-    color: var(--primary-color);
-    font-size: calc(var(--font-size-small) - 1px);
-    margin-left: 2px;
+  font-family: var(--font-regular);
+  color: var(--primary-color);
+  font-size: calc(var(--font-size-small) - 1px);
+  margin-left: 2px;
 }
 
 .stri, .string, .uri, .url, .byte, .bina, .date, .pass, .ipv4, .ipv4, .uuid, .emai, .host {color:var(--green);}
@@ -73,6 +87,7 @@ export default css`
 .null {color:var(--red);}
 .bool, .boolean{color:var(--orange)}
 .enum {color:var(--purple)}
+.cons {color:var(--purple)}
 .recu {color:var(--brown)}
 .toolbar {
   display:flex;
@@ -90,9 +105,6 @@ export default css`
   color:var(--fg2);
   font-weight: bold;
   text-transform: uppercase;
-}
-.schema-root-type.xxx-of {
-  display:none;
 }
 .toolbar-item:first-of-type { margin:0 2px 0 0;}
 

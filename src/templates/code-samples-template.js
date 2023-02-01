@@ -28,6 +28,7 @@ export default function codeSamplesTemplate(xCodeSamples) {
         <pre><code class="language">${Prism.languages[v.lang?.toLowerCase()] ? unsafeHTML(Prism.highlight(v.source, Prism.languages[v.lang?.toLowerCase()], v.lang?.toLowerCase())) : v.source}</code></pre>
       </div>`)
     }
+  </div>  
   </section>`;
 }
 /* eslint-enable indent */

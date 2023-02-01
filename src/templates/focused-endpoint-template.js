@@ -96,7 +96,10 @@ export default function focusedEndpointTemplate() {
       // In focused mode we must expand the nav-bar tag element if it is collapsed
       const newNavEl = this.shadowRoot.getElementById(`link-${focusElId}`);
       expandCollapseNavBarTag(newNavEl, 'expand');
-      focusedTemplate = wrapFocusedTemplate.call(this, expandedEndpointBodyTemplate.call(this, selectedPathObj, selectedTagObj.name));
+      focusedTemplate = wrapFocusedTemplate.call(
+        this,
+        expandedEndpointBodyTemplate.call(this, selectedPathObj, (selectedTagObj.name || ''), (selectedTagObj.description || '')),
+      );
     } else {
       // if focusedElementId is not found then show the default content (overview or first-path)
       focusedTemplate = defaultContentTemplate.call(this);

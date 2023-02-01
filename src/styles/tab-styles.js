@@ -6,6 +6,7 @@ export default css`
 }
 .tab-buttons {
   height:30px;
+  padding: 4px 4px 0 4px;
   border-bottom: 1px solid var(--light-border-color) ;
   align-items: stretch;
   overflow-y: hidden;

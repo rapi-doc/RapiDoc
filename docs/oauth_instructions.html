@@ -124,7 +124,7 @@
     <p>
       <ul>
         <li>
-          For this demo I am going to use <a href="https://demo.identityserver.io/" target="_blank"> <b>IdentityServer</b> </a>  as the OAuth provider. 
+          For this demo I am going to use <a href="https://demo.duendesoftware.com/" target="_blank"> <b>IdentityServer</b> </a>  as the OAuth provider. 
           This is a demo Identity provider which is pre-configured with some users and supports various oAuth authentication flows
         </li>
         <li>
@@ -182,7 +182,7 @@
       </code>
     </pre>
 
-    <h3> The OpenAPI spec </h3>
+    <h3 id='oauth-demo-spec'> The OpenAPI spec </h3>
     Our demo Identity server provides few sample APIs for testing. 
     <br/>
     Below is the OpenAPI spec which contains couple of APIs protected with identity server. 
@@ -193,21 +193,17 @@
         openapi: 3.0.0
         info:
           title: Identity 4 Server
-          description: Works only on `http://localhost...`
+          description: Test case for oAuth flows
           version: "1.0"
         servers:
-        - url:  https://demo.identityserver.io
+        - url:  https://demo.duendesoftware.com
         paths:
           /api/test:
             get:
               summary: Test API
               security:
                 - short-lived-oauth:
-                  - api
                 - long-lived-oauth:
-                  - api
-                - client-credential-oauth:
-                  - api
               responses:
                 '200':
                   description: Successful operation
@@ -223,12 +219,6 @@
                   - openid
                   - email
                   - profile
-                - client-credential-oauth:
-                  - openid
-                  - email
-                  - profile
-                - basic: []
-                - api-key1: []
               responses:
                 '200':
                   description: Successful operation
@@ -237,45 +227,41 @@
             short-lived-oauth:
               type: oauth2
               description: Provides OAuth token valid for short duration ~75 seconds
-              # vendor-extension x-client-id and x-client-secret to prefill data
+              
+              # pre filling client-id, secret and scopes for (ALL flows)
               x-client-id: interactive.confidential.short
               x-client-secret: secret
+              x-default-scopes:
+                openid
+
               flows:
                 authorizationCode:
-                  authorizationUrl: https://demo.identityserver.io/connect/authorize
+                  authorizationUrl: https://demo.duendesoftware.com/connect/authorize
                   tokenUrl: https://demo.identityserver.io/connect/token
                   scopes:
                     openid: OpenID
                     email: Email 
                     profile: Profile 
-                    api: API 
             long-lived-oauth:
               type: oauth2
               description: Provides an OAuth token thats valid for long durations
-              x-client-id: interactive.confidential
-              x-client-secret: secret
               flows:
                 authorizationCode:
-                  authorizationUrl: https://demo.identityserver.io/connect/authorize
+                  authorizationUrl: https://demo.duendesoftware.com/connect/authorize
                   tokenUrl: https://demo.identityserver.io/connect/token
                   scopes:
                     openid: OpenID
                     email: Email 
                     profile: Profile 
-                    api: API 
-            client-credential-oauth:
-              type: oauth2
-              description: Provides an OAuth token thats valid for long duration
-              x-client-id: m2m
-              x-client-secret: secret
-              flows:
-                clientCredentials:
-                  tokenUrl: https://demo.identityserver.io/connect/token
-                  scopes:
-                    openid: OpenID
-                    email: Email 
-                    profile: Profile 
-                    api: API 
+
+                  # pre filling client-id, secret and scopes for (SPECIFIC flow)
+                  x-client-id: interactive.confidential
+                  x-client-secret: secret
+                  x-default-scopes:
+                    openid
+                  # when x-pkce-only=true, it will not allow to provide or send client_secret through the UI  
+                  x-pkce-only: true
+                  
       </code>
     </pre>
     

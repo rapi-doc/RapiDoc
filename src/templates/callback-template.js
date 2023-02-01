@@ -29,21 +29,20 @@ export default function callbackTemplate(callbacks) {
                       .parameters = "${method[1]?.parameters || ''}" 
                       .request_body = "${method[1]?.requestBody || ''}"
                       fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
-                      use-summary-to-list-example = "${this.useSummaryToListExamples}"
                       allow-try = "false"
                       render-style="${this.renderStyle}" 
                       schema-style = "${this.schemaStyle}"
                       active-schema-tab = "${this.defaultSchemaTab}"
                       schema-expand-level = "${this.schemaExpandLevel}"
                       schema-description-expanded = "${this.schemaDescriptionExpanded}"
-                      allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+                      allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
                       schema-hide-read-only = "false"
                       schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : 'true'}"
                       fetch-credentials = "${this.fetchCredentials}"
-                      exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
+                      exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
                         file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
                         anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
-                    > </api-request>
+                      > </api-request>
 
                     <api-response
                       style = "width:100%;"

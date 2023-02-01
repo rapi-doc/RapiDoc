@@ -3,50 +3,8 @@ info:
   title: Markdown Headings in Navigation Bar
   description: |
     # Documentation
-    So an API apparently uses JSON and shit. Which I don't know anything about, 
-    **I'm not even a developer!** The other guy goes by the name **mrin9** who made it is, but he's not the kind of guy who writes documentations.
-
-    He also thinks I'm slacking off and make him do all the work. Which is definitely not the case. But i guess this one is on me.
-
-    # Our Story
-
-    Well I am into literature, and this mrin9 guy approaches me and asks me do write some documentation for his tool. 
-    Now he made few cool things for me in the past, and call it a `return the favor` pressure, I reluctantly agreed for it.
-
-    ## What is RapiDoc
-
-    I asked him what shit the tool does ? and he goes and tells me that next time, if I have a story to publish, 
-    I should consider publishing it as an **API**. Fuck what? an API ?, 
-    why ...I mean why not publish it as a book so that people like Barack Obama can read it during his retirement days?
-
-    And he says if I do it that way, I have a choice of printing a book out of it, or people can listen it through smart-speakers like Amazon's Alexa 
-
-    **me:** So RapiDoc does that ? <BR/>
-    **mrin9:** No it will show how to use my story API and show it as a JSON, 
-
-    which apparently only the nerds can understand. <br/>
-    So, first you convert your simple plain english that everyone understand to a nerdy language and then you make a tool to show how to use and understand it.
-    **FUCK LOGIC**
-
-    Anyways, not the time to argue, I kept my thoughts to myself just wanna do away with the return favor thingy. Anyways, hang on for some more time, lets finish up with this shit. 
-
-    ## How to use APIs
-    Just do a fucking GET request on `http://dummy.restapiexample.com/api/v1/employees`. You can add some extra parameters to 
-    specify the various criteria. Now do not ask me anything more than that, for the money I am being paid to write this, thats all that you can get.
-
-    By the way, if you are looking for some interesting API documentation, do contact me. (_@mrin9: do not even think of editing this line- thats my PR talk_)
+    This is an example of a multiline heading
     
-    ## Be Cool
-    Lemme tell you that the API link in this sample doc is provided for free by some generous dude, I just documented it using **RapiDoc** for the nerds to poke it,
-    Now, just because you got this power of making the API calls using RapiDoc's built in console, its not cool to bang her(I mean the API) all day long. 
-    I do get how the nerd community take APIs being their personal GF's, but seriously dude, you need to checkout some real interfaces in life.
-
-    # Purpose
-    In case you are wondering whats the purpose of writing this shit? then none of it is about the **FUCKING API**. 
-    
-    ### It is about the ability of RapiDoc to show the markdown headings on the left navigation bar. So checkout the headings on the left nav bar and see all those headings I put in the markdown are added there
-
-    Now, for a sample I have added a *TAG* and an operation under that tag, You will notice that the *Headings of the Tag are also included in the Navigation bar*
 
   version: 1.0.0
 paths:
@@ -62,7 +20,7 @@ paths:
 tags:
   - name: Employees
     description: |-
-      Messages are the fundamental object of the Nylas platform, and the core building block for most email applications. They contain several pieces of information, such as when a message was sent, the sender's address, to whom it was sent, and the message body. They can also contain files (attachments), calendar event invitations, and more.
+      Markdown headings can contain HTML as well as complex markdown
       
       <br>
       <div style="background-color: #F0F0F0;padding: 12px 0px 12px 12px;border-left: 5px solid #F90258;">
@@ -81,27 +39,3 @@ tags:
       | `account_id` | string | Reference to a parent account object. |
       | `thread_id`  | string | Reference to a parent thread object (all messages have a thread). |
       | `tags`       | array  | A list of labels that you like to associate with an employee |
-
-      ## Modifying an employee
-
-      You can make various modification to an employee
-
-      1. Change salary.
-      2. Promote or transfer the employee.
-      3. Update location to a different office.
-      4. Modify labels associated to the employee.
-
-      ## Employee roles
-
-      An Employee can have multiple roles. Roles defines most of the authorizations that an employee is entitled for
-
-      folloing are some of the roles that can be added or revoked from an employee
-
-      - People Manager
-      - Individual Contributor
-      - Accountant
-      - Product Architect
-      - Director
-      - VP
-      - EVP
-      - CEO
