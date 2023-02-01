@@ -63,8 +63,7 @@ export default css`
   justify-content: space-between;
   align-items: stretch;
   width: auto;
-  height: max-content;
-  min-height: 28px;
+  height: 28px;
   left: 0;
   top: 0;
   border: 1px solid var(--border-color);
@@ -124,8 +123,29 @@ export default css`
   height: 44px;
 }
 
-#copy-baseURL {
-  height: 42px;
+.server-template {
+  position: relative;
 }
 
+.server-template-vars {
+  position: absolute;
+  top: calc(100% + 2px);
+  
+  background-color: var(--bg);
+
+  border: 1px solid rgb(204, 206, 216);
+  border-radius: 4px;
+  box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.1);
+  
+  z-index: 1;
+
+  max-height: 300px;
+  max-width: 100%;
+}
+
+.server-vars {
+  padding: 10px 10px 0px 10px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
 `;

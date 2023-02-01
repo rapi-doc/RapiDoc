@@ -1,25 +1,31 @@
 /* eslint-disable max-len */
 import { LitElement, html, css } from 'lit';
 // eslint-disable-next-line import/extensions
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import checkSymbol from './assets/check-symbol';
 import copySymbol from './assets/copy-symbol';
 import './toast-component';
 
 /* eslint-disable indent */
 // eslint-disable-next-line import/prefer-default-export
-export class ContentCopyButton extends LitElement {
+export class BaseUrl extends LitElement {
     static properties = {
         id: { type: String },
-        content: { type: String },
+        url: { type: String },
+        path: { type: String },
+        computedUrl: { type: String },
         copied: { type: Boolean },
         showButton: { type: Boolean },
         showToast: { type: Boolean },
     };
 
-    constructor(id, content) {
+    constructor(id, url, path, computedUrl, variables) {
         super();
         this.id = id;
-        this.content = content;
+        this.url = url;
+        this.path = path;
+        this.computedUrl = computedUrl;
+        this.variables = variables;
         this.copied = false;
         this.showButton = false;
         this.showToast = false;
@@ -38,16 +44,16 @@ export class ContentCopyButton extends LitElement {
     }
 
     onButtonClick() {
-        navigator.clipboard.writeText(this.content);
+        navigator.clipboard.writeText(this.computedUrl + this.path);
         this.copied = true;
     }
 
     onTextClick() {
-        navigator.clipboard.writeText(this.content);
+        navigator.clipboard.writeText(this.computedUrl + this.path);
         this.showToast = true;
     }
 
-    onMouseover() {
+    onMouseOver() {
         this.showButton = true;
     }
 
@@ -56,10 +62,25 @@ export class ContentCopyButton extends LitElement {
         this.copied = false;
     }
 
+    parseURL() {
+        if (!this.variables) return this.url;
+
+        let { url } = this;
+        const spanVar = '<span class="variable">{var}</span>';
+
+        for (const [key, value] of Object.entries(this.variables)) {
+            const regex = new RegExp(`{${key}}`, 'g');
+            url = url.replace(regex, spanVar.replace('{var}', value.value));
+        }
+
+        return url + this.path;
+    }
+
     render() {
         return html`
-                <div @mouseover="${this.onMouseover}" @mouseleave="${this.onMouseLeave}" class="content-copy-container">
-                    <span @click="${this.onTextClick}" part="label-operation-path">${this.content}</span>
+            <div class='container'>
+                <div @mouseover="${this.onMouseOver}" @mouseleave="${this.onMouseLeave}" class="content-copy-container">
+                    ${html`<span @click="${this.onTextClick}" part="label-operation-path" class="url">${unsafeHTML(this.parseURL())}</span>`}
                     <button @click="${this.onButtonClick}" style=${this.showButton ? 'opacity: 1;' : 'opacity: 0.2;'}>
                         <div class="svg-container">
                             ${
@@ -70,11 +91,13 @@ export class ContentCopyButton extends LitElement {
                         </div>
                     </button>
                 </div>
-                ${
-                    this.showToast
-                    ? html`<toast-component tone="positive" message="Copied to clipboard"></toast-component>`
-                    : ''
-                }
+                <slot></slot>
+            </div>
+            ${
+                this.showToast
+                ? html`<toast-component tone="positive" message="Copied to clipboard"></toast-component>`
+                : ''
+            }
         `;
     }
 
@@ -93,13 +116,41 @@ export class ContentCopyButton extends LitElement {
                 background: linear-gradient(270deg, #FFFFFF 51.22%, rgba(255, 255, 255, 0) 104.88%);
             }
 
-            span {
+            .url {
                 flex: 1 0 auto;
                 padding: 4px 8px;
             }
 
-            span:hover {
+            .url:hover {
                 cursor: pointer;
+            }
+
+            .variable {
+                background-color: rgb(248, 247, 252);
+                border: 1px solid rgb(204, 206, 216);
+                border-radius: 4px;
+                padding: 0px 2px;
+            }
+
+            .container {
+                height: 32px;
+                font-size:14px;
+                border: 1px solid var(--border-color);
+                border-radius: 4px;
+                margin: 4px 0px;
+                position: relative;
+            }
+
+            .container slot {
+                visibility: hidden;
+            }
+
+            .container:hover slot {
+                visibility: visible;
+            }
+
+            .container::-webkit-scrollbar {
+                display: none;
             }
 
             button {
@@ -162,4 +213,4 @@ export class ContentCopyButton extends LitElement {
       }
 }
 
-customElements.define('content-copy-button', ContentCopyButton);
+customElements.define('base-url', BaseUrl);

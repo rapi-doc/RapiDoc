@@ -8,7 +8,7 @@
 */******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 483:
+/***/ 552:
 /***/ ((__unused_webpack_module, __unused_webpack___webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -3139,7 +3139,7 @@ var prism_csharp = __webpack_require__(16);
 /* Button */
 .m-btn {
   border-radius: var(--border-radius);
-  font-weight: 600;
+  font-weight: 400;
   display: inline-block;
   padding: 6px 16px;
   font-size: var(--font-size-small);
@@ -4136,8 +4136,7 @@ customize their theme. Simply add your css to this file and yarn build.
   justify-content: space-between;
   align-items: stretch;
   width: auto;
-  height: max-content;
-  min-height: 28px;
+  height: 28px;
   left: 0;
   top: 0;
   border: 1px solid var(--border-color);
@@ -4197,10 +4196,31 @@ customize their theme. Simply add your css to this file and yarn build.
   height: 44px;
 }
 
-#copy-baseURL {
-  height: 42px;
+.server-template {
+  position: relative;
 }
 
+.server-template-vars {
+  position: absolute;
+  top: calc(100% + 2px);
+  
+  background-color: var(--bg);
+
+  border: 1px solid rgb(204, 206, 216);
+  border-radius: 4px;
+  box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.1);
+  
+  z-index: 1;
+
+  max-height: 300px;
+  max-width: 100%;
+}
+
+.server-vars {
+  padding: 10px 10px 0px 10px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
 `);
 ;// CONCATENATED MODULE: ./src/utils/common-utils.js
 /* For Delayed Event Handler Execution */
@@ -29914,7 +29934,7 @@ function securitySchemeTemplate() {
                 ` : ''}
           `)}
         </div>` : ''}
-    <button class='test-method-button' @click='${this.onTryClick}' >
+    <button class='m-btn test-method-button' @click='${this.onTryClick}' >
       TEST METHOD
     </button>
     <slot name="auth">
@@ -31119,9 +31139,498 @@ class Breadcrumbs extends lit_element_s {
 
 }
 customElements.define('bread-crumbs', Breadcrumbs);
+;// CONCATENATED MODULE: ./src/components/assets/check-symbol.js
+/* eslint-disable max-len */
+
+/* eslint-disable indent */
+
+function checkSymbol(dimensions) {
+  var _dimensions$width, _dimensions$height;
+
+  const width = (_dimensions$width = dimensions === null || dimensions === void 0 ? void 0 : dimensions.width) !== null && _dimensions$width !== void 0 ? _dimensions$width : 20;
+  const height = (_dimensions$height = dimensions === null || dimensions === void 0 ? void 0 : dimensions.height) !== null && _dimensions$height !== void 0 ? _dimensions$height : 20;
+  return $`
+      <svg width=${width} height=${height} viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M10 17.5C5.8575 17.5 2.5 14.1425 2.5 10C2.5 5.8575 5.8575 2.5 10 2.5C14.1425 2.5 17.5 5.8575 17.5 10C17.5 14.1425 14.1425 17.5 10 17.5Z" fill="#79A479"/>
+          <path d="M13.3327 8.33337L9.16602 12.5L6.66602 10" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+  `;
+}
+;// CONCATENATED MODULE: ./src/components/assets/copy-symbol.js
+/* eslint-disable max-len */
+
+/* eslint-disable indent */
+
+function copySymbol(style) {
+  return $`
+  <div style=${style}>
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M4.87305 3.12451C4.87305 2.7103 5.20883 2.37451 5.62305 2.37451H16.8736C17.2878 2.37451 17.6236 2.7103 17.6236 3.12451V14.3746C17.6236 14.7888 17.2878 15.1246 16.8736 15.1246C16.4594 15.1246 16.1236 14.7888 16.1236 14.3746V3.87451H5.62305C5.20883 3.87451 4.87305 3.53873 4.87305 3.12451Z" fill="#4A596B"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M2.37305 5.62457C2.37305 5.21036 2.70883 4.87457 3.12305 4.87457H14.3735C14.7877 4.87457 15.1235 5.21036 15.1235 5.62457V16.8746C15.1235 17.2888 14.7877 17.6246 14.3735 17.6246H3.12305C2.70883 17.6246 2.37305 17.2888 2.37305 16.8746V5.62457ZM3.87305 6.37457V16.1246H13.6235V6.37457H3.87305Z" fill="#4A596B"/>
+    </svg>
+  </div>
+`;
+}
+;// CONCATENATED MODULE: ./src/components/assets/close-symbol.js
+/* eslint-disable max-len */
+
+/* eslint-disable indent */
+
+function closeSymbol(dimensions) {
+  var _dimensions$width, _dimensions$height;
+
+  const width = (_dimensions$width = dimensions === null || dimensions === void 0 ? void 0 : dimensions.width) !== null && _dimensions$width !== void 0 ? _dimensions$width : 20;
+  const height = (_dimensions$height = dimensions === null || dimensions === void 0 ? void 0 : dimensions.height) !== null && _dimensions$height !== void 0 ? _dimensions$height : 20;
+  return $`
+    <svg width=${width} height=${height} viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M16.1553 3.46967C16.4482 3.76256 16.4482 4.23744 16.1553 4.53033L4.90533 15.7803C4.61244 16.0732 4.13756 16.0732 3.84467 15.7803C3.55178 15.4874 3.55178 15.0126 3.84467 14.7197L15.0947 3.46967C15.3876 3.17678 15.8624 3.17678 16.1553 3.46967Z" fill="#545454"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M3.84467 3.46967C4.13756 3.17678 4.61244 3.17678 4.90533 3.46967L16.1553 14.7197C16.4482 15.0126 16.4482 15.4874 16.1553 15.7803C15.8624 16.0732 15.3876 16.0732 15.0947 15.7803L3.84467 4.53033C3.55178 4.23744 3.55178 3.76256 3.84467 3.46967Z" fill="#545454"/>
+    </svg>
+  `;
+}
+;// CONCATENATED MODULE: ./src/components/toast-component.js
+function toast_component_defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+/* eslint-disable max-len */
+
+
+ // eslint-disable-next-line import/prefer-default-export
+
+class Toast extends lit_element_s {
+  constructor(tone, message) {
+    super();
+    this.active = true;
+    this.message = message !== null && message !== void 0 ? message : '';
+    this.tone = tone !== null && tone !== void 0 ? tone : 'positive';
+    this.tones = {
+      info: {
+        borderColor: r`#7CBBEA`,
+        bgColor: r`#DEECF7`,
+        icon: checkSymbol
+      },
+      positive: {
+        borderColor: r`#83D187`,
+        bgColor: r`#DFF1E0`,
+        icon: checkSymbol
+      },
+      warning: {
+        borderColor: r`#F5AE70`,
+        bgColor: r`#FFEBD7`,
+        icon: checkSymbol
+      },
+      critical: {
+        borderColor: r`#F49494`,
+        bgColor: r`#F8E3E3`,
+        icon: checkSymbol
+      }
+    };
+  }
+
+  firstUpdated() {
+    const onFadeOut = event => {
+      if (this.renderRoot.querySelectorAll('.toast-active').length > 0 && event.animationName === 'fadeOut') {
+        this.onClose();
+      }
+    };
+
+    this.renderRoot.getElementById('toast').addEventListener('animationend', onFadeOut);
+    this.renderRoot.getElementById('toast').addEventListener('webkitAnimationEnd', onFadeOut);
+  }
+
+  onClose() {
+    this.active = false;
+    const options = {
+      detail: 'closed toast',
+      bubbles: true,
+      composed: true
+    };
+    this.dispatchEvent(new CustomEvent('closed-toast', options));
+  }
+
+  render() {
+    return $`
+            <output role="status" class="toast${this.active ? '-active' : ''}" id="toast"
+                style="border-color: ${this.tones[this.tone].borderColor}; background: ${this.tones[this.tone].bgColor}">
+                <div class="toast-icon-text">
+                    ${this.tones[this.tone].icon({
+      width: 24,
+      height: 24
+    })}
+                    <p class="text">${this.message}</p>
+                </div>
+                <div class="close-button" @click="${this.onClose}">
+                    ${closeSymbol({})}
+                </div>
+            </output>
+        `;
+  }
+
+  static get styles() {
+    return [r`
+            .close-button {
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+                border-radius: 4px;
+                padding: 0px;
+                width: 44px;
+                height: 36px;
+            }
+
+            .close-button:hover {
+                cursor: pointer;
+                background-color: rgba(0, 0, 0, 0.05);
+            }
+
+            .toast-icon-text {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                padding: 0px 0px 0px 4px;
+                gap: 12px;
+                width: auto;
+                min-height: 40px;
+            }
+
+            .text {
+                overflow-wrap: break-word;
+                font-style: normal;
+                font-weight: 400;
+                font-size: 14px;
+                line-height: 20px;
+                display: flex;
+                align-items: center;
+                letter-spacing: 0.002em;
+                color: black;
+                margin: 0;
+            }
+
+            .toast {
+                opacity: 0;
+                pointer-events: none;
+                display: none;
+            }
+
+            .toast-active {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                padding: 16px 16px 16px 20px;
+                gap: 12px;
+                min-width: 16.125rem;
+                width: auto;
+                border: 1px solid;
+                box-shadow: 0px 12px 16px rgba(0, 0, 0, 0.16);
+                border-radius: 4px;
+                position: fixed;
+                overflow: hidden;
+                pointer-events: all;
+                bottom: 32px;
+                right: 50%;
+                transform: translateX(50%);
+                z-index: 1001;
+                -webkit-animation:
+                    fadeIn .3s ease,
+                    slideIn .3s ease,
+                    fadeOut .3s ease 10s forwards;
+                animation:
+                    fadeIn .3s ease,
+                    slideIn .3s ease,
+                    fadeOut .3s ease 10s forwards;
+            }
+
+            @media only screen and (min-width: 768px) {
+                .toast-active {
+                    right: 96px;
+                    transform: none;
+                }
+            }
+            
+            @keyframes slideIn {
+                from { transform: translateY(0, 10px) }
+            }
+
+            @keyframes fadeIn {
+                from { opacity: 0 }
+            }
+            
+            @keyframes fadeOut {
+                to {
+                    opacity: 0;
+                    pointer-events: none;
+                    display: none;
+                }
+            }
+
+            @-webkit-keyframes slideIn {
+                from { transform: translateY(0, 10px) }
+            }
+
+            @-webkit-keyframes fadeIn {
+                from { opacity: 0 }
+            }
+            
+            @-webkit-keyframes fadeOut {
+                to {
+                    opacity: 0;
+                    pointer-events: none;
+                    display: none;
+                }
+            }
+            `];
+  }
+
+}
+
+toast_component_defineProperty(Toast, "properties", {
+  tone: {
+    type: String
+  },
+  tones: {
+    type: {}
+  },
+  message: {
+    type: String
+  },
+  active: {
+    type: Boolean
+  }
+});
+
+customElements.define('toast-component', Toast);
+;// CONCATENATED MODULE: ./src/components/base-url.js
+function base_url_defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+/* eslint-disable max-len */
+ // eslint-disable-next-line import/extensions
+
+
+
+
+
+/* eslint-disable indent */
+// eslint-disable-next-line import/prefer-default-export
+
+class BaseUrl extends lit_element_s {
+  constructor(id, url, path, computedUrl, variables) {
+    super();
+    this.id = id;
+    this.url = url;
+    this.path = path;
+    this.computedUrl = computedUrl;
+    this.variables = variables;
+    this.copied = false;
+    this.showButton = false;
+    this.showToast = false;
+    this.addEventListener('closed-toast', () => {
+      this.showToast = false;
+    });
+  }
+
+  reset() {
+    this.copied = false;
+    this.showButton = false;
+  }
+
+  willUpdate(changedProperties) {
+    if (changedProperties.has('id')) {
+      this.reset();
+    }
+  }
+
+  onButtonClick() {
+    navigator.clipboard.writeText(this.computedUrl + this.path);
+    this.copied = true;
+  }
+
+  onTextClick() {
+    navigator.clipboard.writeText(this.computedUrl + this.path);
+    this.showToast = true;
+  }
+
+  onMouseOver() {
+    this.showButton = true;
+  }
+
+  onMouseLeave() {
+    this.showButton = false;
+    this.copied = false;
+  }
+
+  parseURL() {
+    if (!this.variables) return this.url;
+    let {
+      url
+    } = this;
+    const spanVar = '<span class="variable">{var}</span>';
+
+    for (const [key, value] of Object.entries(this.variables)) {
+      const regex = new RegExp(`{${key}}`, 'g');
+      url = url.replace(regex, spanVar.replace('{var}', value.value));
+    }
+
+    return url + this.path;
+  }
+
+  render() {
+    return $`
+            <div class='container'>
+                <div @mouseover="${this.onMouseOver}" @mouseleave="${this.onMouseLeave}" class="content-copy-container">
+                    ${$`<span @click="${this.onTextClick}" part="label-operation-path" class="url">${unsafe_html_o(this.parseURL())}</span>`}
+                    <button @click="${this.onButtonClick}" style=${this.showButton ? 'opacity: 1;' : 'opacity: 0.2;'}>
+                        <div class="svg-container">
+                            ${this.copied ? checkSymbol() : copySymbol()}
+                        </div>
+                    </button>
+                </div>
+                <slot></slot>
+            </div>
+            ${this.showToast ? $`<toast-component tone="positive" message="Copied to clipboard"></toast-component>` : ''}
+        `;
+  }
+
+  static get styles() {
+    return [r`
+            .svg-container {
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-end;
+                align-items: flex-start;
+                padding: 0px 8px 0px 0px;
+                gap: 10px;
+                width: 57px;
+                height: 20px;
+                background: linear-gradient(270deg, #FFFFFF 51.22%, rgba(255, 255, 255, 0) 104.88%);
+            }
+
+            .url {
+                flex: 1 0 auto;
+                padding: 4px 8px;
+            }
+
+            .url:hover {
+                cursor: pointer;
+            }
+
+            .variable {
+                background-color: rgb(248, 247, 252);
+                border: 1px solid rgb(204, 206, 216);
+                border-radius: 4px;
+                padding: 0px 2px;
+            }
+
+            .container {
+                height: 32px;
+                font-size:14px;
+                border: 1px solid var(--border-color);
+                border-radius: 4px;
+                margin: 4px 0px;
+                position: relative;
+            }
+
+            .container slot {
+                visibility: hidden;
+            }
+
+            .container:hover slot {
+                visibility: visible;
+            }
+
+            .container::-webkit-scrollbar {
+                display: none;
+            }
+
+            button {
+                background: none;
+                color: inherit;
+                border: none;
+                padding: 0;
+                cursor: pointer;
+                outline: inherit;
+                right: 0;
+                display: block;
+                position: -webkit-sticky;
+                position: sticky;
+            }
+
+            .copy-container {
+                width: inherit;
+                height: inherit;
+                opacity: 0;
+                filter: alpha(opacity = 0);
+                position: absolute;
+                top:0; bottom:0; left:0; right:0;
+                display: block;
+                z-index: 2;
+                background: transparent;
+            }
+
+            .content-copy-container {
+                width: inherit;
+                height: inherit;
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                display: flex;
+                flex-wrap: nowrap;
+                font-size: 14px;
+                white-space: nowrap;
+                overflow-y: hidden;
+                overflow-x: auto;
+                align-items: center;
+            }
+
+            .content-copy-container::-webkit-scrollbar {
+                width: 8px;
+                height: 8px;
+            }
+
+            .content-copy-container::-webkit-scrollbar-track {
+                background:var(--input-bg);
+            }
+            
+            .content-copy-container::-webkit-scrollbar-thumb {
+                border-radius: 2px;
+                background-color: var(--border-color);
+            }
+          `];
+  }
+
+}
+
+base_url_defineProperty(BaseUrl, "properties", {
+  id: {
+    type: String
+  },
+  url: {
+    type: String
+  },
+  path: {
+    type: String
+  },
+  computedUrl: {
+    type: String
+  },
+  copied: {
+    type: Boolean
+  },
+  showButton: {
+    type: Boolean
+  },
+  showToast: {
+    type: Boolean
+  }
+});
+
+customElements.define('base-url', BaseUrl);
 ;// CONCATENATED MODULE: ./src/templates/server-template.js
 
  // eslint-disable-line import/extensions
+
 
 
 
@@ -31147,9 +31656,10 @@ function setApiServer(serverUrl) {
 }
 
 function onApiServerVarChange(e, serverObj) {
-  const inputEls = [...e.currentTarget.closest('.base-url').querySelectorAll('input, select')];
+  const inputEls = [...e.currentTarget.closest('.server-vars').querySelectorAll('input, select')];
   let tempUrl = serverObj.url;
   inputEls.forEach(v => {
+    serverObj.variables[v.dataset.var].value = v.value;
     const regex = new RegExp(`{${v.dataset.var}}`, 'g');
     tempUrl = tempUrl.replace(regex, v.value);
   });
@@ -31163,7 +31673,7 @@ function onApiServerVarChange(e, serverObj) {
 function serverVarsTemplate() {
   // const selectedServerObj = this.resolvedSpec.servers.find((v) => (v.url === this.selectedServer));
   return this.selectedServer && this.selectedServer.variables ? $`
-    <div class='base-url right-box-container'>
+    <div class='server-vars'>
       ${Object.entries(this.selectedServer.variables).map(kv => $`
         <div>
           <div class='right-box-label' >${kv[0]}</div>
@@ -31206,21 +31716,22 @@ function serverVarsTemplate() {
 }
 
 function serverTemplate() {
-  var _this$selectedServer, _this$selectedServer2;
+  var _this$selectedServer, _this$selectedServer2, _this$selectedServer3;
 
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) {
     return '';
   }
 
   return $`
-  <section id = 'servers' part="section-servers" class='row-api-right-box regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
+  <section id = 'servers' part="section-servers" class='server-template row-api-right-box regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
     <span class="right-box-title">Base URL</span>
-    <div>
-      ${serverVarsTemplate.call(this)}
-    </div>
-    <div style="display: flex; align-items: center;">
-      ${(_this$selectedServer = this.selectedServer) !== null && _this$selectedServer !== void 0 && _this$selectedServer.computedUrl ? $`<div class='label-operation-path-container' style="font-size:14px; border-radius: 4px;">
-            <content-copy-button id='copy-baseURL' content='${(_this$selectedServer2 = this.selectedServer) === null || _this$selectedServer2 === void 0 ? void 0 : _this$selectedServer2.computedUrl}${this.path}'></content-copy-button>
+    <div style="display: flex; align-items: center;" class="server-template">
+      ${(_this$selectedServer = this.selectedServer) !== null && _this$selectedServer !== void 0 && _this$selectedServer.computedUrl ? $`
+            <base-url id='copy-baseURL' url='${(_this$selectedServer2 = this.selectedServer) === null || _this$selectedServer2 === void 0 ? void 0 : _this$selectedServer2.url}' path='${this.path}' computedUrl='${this.selectedServer.computedUrl}' .variables='${(_this$selectedServer3 = this.selectedServer) === null || _this$selectedServer3 === void 0 ? void 0 : _this$selectedServer3.variables}' style="width: 100%;">
+              <div class="server-template-vars">
+                ${serverVarsTemplate.call(this)}
+              </div>
+            </base-url>
           </div>` : ''}
     </div>
   </section>`;
@@ -32943,23 +33454,6 @@ function cornersOutIcon(dimensions) {
     </svg>
   `;
 }
-;// CONCATENATED MODULE: ./src/components/assets/close-symbol.js
-/* eslint-disable max-len */
-
-/* eslint-disable indent */
-
-function closeSymbol(dimensions) {
-  var _dimensions$width, _dimensions$height;
-
-  const width = (_dimensions$width = dimensions === null || dimensions === void 0 ? void 0 : dimensions.width) !== null && _dimensions$width !== void 0 ? _dimensions$width : 20;
-  const height = (_dimensions$height = dimensions === null || dimensions === void 0 ? void 0 : dimensions.height) !== null && _dimensions$height !== void 0 ? _dimensions$height : 20;
-  return $`
-    <svg width=${width} height=${height} viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M16.1553 3.46967C16.4482 3.76256 16.4482 4.23744 16.1553 4.53033L4.90533 15.7803C4.61244 16.0732 4.13756 16.0732 3.84467 15.7803C3.55178 15.4874 3.55178 15.0126 3.84467 14.7197L15.0947 3.46967C15.3876 3.17678 15.8624 3.17678 16.1553 3.46967Z" fill="#545454"/>
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M3.84467 3.46967C4.13756 3.17678 4.61244 3.17678 4.90533 3.46967L16.1553 14.7197C16.4482 15.0126 16.4482 15.4874 16.1553 15.7803C15.8624 16.0732 15.3876 16.0732 15.0947 15.7803L3.84467 4.53033C3.55178 4.23744 3.55178 3.76256 3.84467 3.46967Z" fill="#545454"/>
-    </svg>
-  `;
-}
 ;// CONCATENATED MODULE: ./src/components/api-response.js
 
  // eslint-disable-line import/extensions
@@ -33489,254 +33983,11 @@ class ApiResponse extends lit_element_s {
 } // Register the element with the browser
 
 customElements.define('api-response', ApiResponse);
-;// CONCATENATED MODULE: ./src/components/assets/check-symbol.js
-/* eslint-disable max-len */
-
-/* eslint-disable indent */
-
-function checkSymbol(dimensions) {
-  var _dimensions$width, _dimensions$height;
-
-  const width = (_dimensions$width = dimensions === null || dimensions === void 0 ? void 0 : dimensions.width) !== null && _dimensions$width !== void 0 ? _dimensions$width : 20;
-  const height = (_dimensions$height = dimensions === null || dimensions === void 0 ? void 0 : dimensions.height) !== null && _dimensions$height !== void 0 ? _dimensions$height : 20;
-  return $`
-      <svg width=${width} height=${height} viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path fill-rule="evenodd" clip-rule="evenodd" d="M10 17.5C5.8575 17.5 2.5 14.1425 2.5 10C2.5 5.8575 5.8575 2.5 10 2.5C14.1425 2.5 17.5 5.8575 17.5 10C17.5 14.1425 14.1425 17.5 10 17.5Z" fill="#79A479"/>
-          <path d="M13.3327 8.33337L9.16602 12.5L6.66602 10" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-  `;
-}
-;// CONCATENATED MODULE: ./src/components/assets/copy-symbol.js
-/* eslint-disable max-len */
-
-/* eslint-disable indent */
-
-function copySymbol(style) {
-  return $`
-  <div style=${style}>
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path fill-rule="evenodd" clip-rule="evenodd" d="M4.87305 3.12451C4.87305 2.7103 5.20883 2.37451 5.62305 2.37451H16.8736C17.2878 2.37451 17.6236 2.7103 17.6236 3.12451V14.3746C17.6236 14.7888 17.2878 15.1246 16.8736 15.1246C16.4594 15.1246 16.1236 14.7888 16.1236 14.3746V3.87451H5.62305C5.20883 3.87451 4.87305 3.53873 4.87305 3.12451Z" fill="#4A596B"/>
-      <path fill-rule="evenodd" clip-rule="evenodd" d="M2.37305 5.62457C2.37305 5.21036 2.70883 4.87457 3.12305 4.87457H14.3735C14.7877 4.87457 15.1235 5.21036 15.1235 5.62457V16.8746C15.1235 17.2888 14.7877 17.6246 14.3735 17.6246H3.12305C2.70883 17.6246 2.37305 17.2888 2.37305 16.8746V5.62457ZM3.87305 6.37457V16.1246H13.6235V6.37457H3.87305Z" fill="#4A596B"/>
-    </svg>
-  </div>
-`;
-}
-;// CONCATENATED MODULE: ./src/components/toast-component.js
-function toast_component_defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-/* eslint-disable max-len */
-
-
- // eslint-disable-next-line import/prefer-default-export
-
-class Toast extends lit_element_s {
-  constructor(tone, message) {
-    super();
-    this.active = true;
-    this.message = message !== null && message !== void 0 ? message : '';
-    this.tone = tone !== null && tone !== void 0 ? tone : 'positive';
-    this.tones = {
-      info: {
-        borderColor: r`#7CBBEA`,
-        bgColor: r`#DEECF7`,
-        icon: checkSymbol
-      },
-      positive: {
-        borderColor: r`#83D187`,
-        bgColor: r`#DFF1E0`,
-        icon: checkSymbol
-      },
-      warning: {
-        borderColor: r`#F5AE70`,
-        bgColor: r`#FFEBD7`,
-        icon: checkSymbol
-      },
-      critical: {
-        borderColor: r`#F49494`,
-        bgColor: r`#F8E3E3`,
-        icon: checkSymbol
-      }
-    };
-  }
-
-  firstUpdated() {
-    const onFadeOut = event => {
-      if (this.renderRoot.querySelectorAll('.toast-active').length > 0 && event.animationName === 'fadeOut') {
-        this.onClose();
-      }
-    };
-
-    this.renderRoot.getElementById('toast').addEventListener('animationend', onFadeOut);
-    this.renderRoot.getElementById('toast').addEventListener('webkitAnimationEnd', onFadeOut);
-  }
-
-  onClose() {
-    this.active = false;
-    const options = {
-      detail: 'closed toast',
-      bubbles: true,
-      composed: true
-    };
-    this.dispatchEvent(new CustomEvent('closed-toast', options));
-  }
-
-  render() {
-    return $`
-            <output role="status" class="toast${this.active ? '-active' : ''}" id="toast"
-                style="border-color: ${this.tones[this.tone].borderColor}; background: ${this.tones[this.tone].bgColor}">
-                <div class="toast-icon-text">
-                    ${this.tones[this.tone].icon({
-      width: 24,
-      height: 24
-    })}
-                    <p class="text">${this.message}</p>
-                </div>
-                <div class="close-button" @click="${this.onClose}">
-                    ${closeSymbol({})}
-                </div>
-            </output>
-        `;
-  }
-
-  static get styles() {
-    return [r`
-            .close-button {
-                display: flex;
-                flex-direction: row;
-                justify-content: center;
-                align-items: center;
-                border-radius: 4px;
-                padding: 0px;
-                width: 44px;
-                height: 36px;
-            }
-
-            .close-button:hover {
-                cursor: pointer;
-                background-color: rgba(0, 0, 0, 0.05);
-            }
-
-            .toast-icon-text {
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                padding: 0px 0px 0px 4px;
-                gap: 12px;
-                width: auto;
-                min-height: 40px;
-            }
-
-            .text {
-                overflow-wrap: break-word;
-                font-style: normal;
-                font-weight: 400;
-                font-size: 14px;
-                line-height: 20px;
-                display: flex;
-                align-items: center;
-                letter-spacing: 0.002em;
-                color: black;
-                margin: 0;
-            }
-
-            .toast {
-                opacity: 0;
-                pointer-events: none;
-                display: none;
-            }
-
-            .toast-active {
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                justify-content: space-between;
-                padding: 16px 16px 16px 20px;
-                gap: 12px;
-                min-width: 16.125rem;
-                width: auto;
-                border: 1px solid;
-                box-shadow: 0px 12px 16px rgba(0, 0, 0, 0.16);
-                border-radius: 4px;
-                position: fixed;
-                overflow: hidden;
-                pointer-events: all;
-                bottom: 32px;
-                right: 50%;
-                transform: translateX(50%);
-                z-index: 1001;
-                -webkit-animation:
-                    fadeIn .3s ease,
-                    slideIn .3s ease,
-                    fadeOut .3s ease 10s forwards;
-                animation:
-                    fadeIn .3s ease,
-                    slideIn .3s ease,
-                    fadeOut .3s ease 10s forwards;
-            }
-
-            @media only screen and (min-width: 768px) {
-                .toast-active {
-                    right: 96px;
-                    transform: none;
-                }
-            }
-            
-            @keyframes slideIn {
-                from { transform: translateY(0, 10px) }
-            }
-
-            @keyframes fadeIn {
-                from { opacity: 0 }
-            }
-            
-            @keyframes fadeOut {
-                to {
-                    opacity: 0;
-                    pointer-events: none;
-                    display: none;
-                }
-            }
-
-            @-webkit-keyframes slideIn {
-                from { transform: translateY(0, 10px) }
-            }
-
-            @-webkit-keyframes fadeIn {
-                from { opacity: 0 }
-            }
-            
-            @-webkit-keyframes fadeOut {
-                to {
-                    opacity: 0;
-                    pointer-events: none;
-                    display: none;
-                }
-            }
-            `];
-  }
-
-}
-
-toast_component_defineProperty(Toast, "properties", {
-  tone: {
-    type: String
-  },
-  tones: {
-    type: {}
-  },
-  message: {
-    type: String
-  },
-  active: {
-    type: Boolean
-  }
-});
-
-customElements.define('toast-component', Toast);
 ;// CONCATENATED MODULE: ./src/components/content-copy-button.js
 function content_copy_button_defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 /* eslint-disable max-len */
+ // eslint-disable-next-line import/extensions
 
 
 
@@ -33783,26 +34034,20 @@ class ContentCopyButton extends lit_element_s {
   }
 
   onMouseLeave() {
-    this.showButton = !!this.copied;
+    this.showButton = false;
+    this.copied = false;
   }
 
   render() {
     return $`
-                ${this.showButton ? $`
-                    <div @mouseleave="${this.onMouseLeave}" class="content-copy-container">
-                        <span @click="${this.onTextClick}" part="label-operation-path">${this.content}</span>
-                        <button @click="${this.onButtonClick}">
-                            <div class="svg-container">
-                                ${this.copied ? checkSymbol() : copySymbol()}
-                            </div>
-                        </button>
-                    </div>
-                    ` : $`
-                    <div class="content-copy-container">
-                        <span part="label-operation-path">${this.content}</span>
-                    </div>
-                    <div class='copy-container' @mouseover="${this.onMouseover}"></div>
-                    `}
+                <div @mouseover="${this.onMouseover}" @mouseleave="${this.onMouseLeave}" class="content-copy-container">
+                    <span @click="${this.onTextClick}" part="label-operation-path">${this.content}</span>
+                    <button @click="${this.onButtonClick}" style=${this.showButton ? 'opacity: 1;' : 'opacity: 0.2;'}>
+                        <div class="svg-container">
+                            ${this.copied ? checkSymbol() : copySymbol()}
+                        </div>
+                    </button>
+                </div>
                 ${this.showToast ? $`<toast-component tone="positive" message="Copied to clipboard"></toast-component>` : ''}
         `;
   }
@@ -33818,13 +34063,12 @@ class ContentCopyButton extends lit_element_s {
                 gap: 10px;
                 width: 57px;
                 height: 20px;
+                background: linear-gradient(270deg, #FFFFFF 51.22%, rgba(255, 255, 255, 0) 104.88%);
             }
 
             span {
-                flex: 0 0 auto;
-                width: calc(100% - 28px);
-                padding: 4px 20px 4px 8px;
-                word-break: break-word;
+                flex: 1 0 auto;
+                padding: 4px 8px;
             }
 
             span:hover {
@@ -33867,6 +34111,24 @@ class ContentCopyButton extends lit_element_s {
                 display: flex;
                 flex-wrap: nowrap;
                 font-size: 14px;
+                white-space: nowrap;
+                overflow-y: hidden;
+                overflow-x: auto;
+                align-items: center;
+            }
+
+            .content-copy-container::-webkit-scrollbar {
+                width: 8px;
+                height: 8px;
+            }
+
+            .content-copy-container::-webkit-scrollbar-track {
+                background:var(--input-bg);
+            }
+            
+            .content-copy-container::-webkit-scrollbar-thumb {
+                border-radius: 2px;
+                background-color: var(--border-color);
             }
           `];
   }
@@ -42056,7 +42318,7 @@ Prism.languages.py = Prism.languages.python;
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("d095d013e9ca51cd8037")
+/******/ 		__webpack_require__.h = () => ("f83462c05a4ef0159651")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
@@ -43041,7 +43303,7 @@ Prism.languages.py = Prism.languages.python;
 /******/ 	// module cache are used so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	var __webpack_exports__ = __webpack_require__(483);
+/******/ 	var __webpack_exports__ = __webpack_require__(552);
 /******/ 	
 /******/ })()
 ;
