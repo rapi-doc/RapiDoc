@@ -1,7 +1,6 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
-import updateCurl from '~/utils/update-curl';
 import '~/components/base-url';
 
 export function setApiServer(serverUrl) {
@@ -30,7 +29,9 @@ function onApiServerVarChange(e, serverObj) {
     tempUrl = tempUrl.replace(regex, v.value);
   });
   serverObj.computedUrl = tempUrl;
-  updateCurl.call(this, e.target ? e.target : e);
+
+  const requestPanelEl = this.getRequestPanel(e);
+  this.liveCURLSyntaxUpdate(requestPanelEl);
 
   this.requestUpdate();
 }

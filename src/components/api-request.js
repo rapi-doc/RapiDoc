@@ -29,7 +29,6 @@ import '~/components/breadcrumbs';
 
 import serverTemplate from '~/templates/server-template';
 import securitySchemeTemplate from '~/templates/security-scheme-template';
-import updateCurl from '~/utils/update-curl';
 
 export default class ApiRequest extends LitElement {
   constructor() {
@@ -318,6 +317,8 @@ export default class ApiRequest extends LitElement {
           const inputEl = e.target.closest('.request-card').querySelector(`[data-pname="${paramName}"]`);
           if (inputEl) {
             inputEl.value = e.target.dataset.exampleType === 'array' ? e.target.dataset.example.split('~|~') : e.target.dataset.example;
+            const requestPanelEl = this.getRequestPanel(e);
+            this.liveCURLSyntaxUpdate(requestPanelEl);
           }
         }}"
       > ${example.printableValue || example.value} </a>
@@ -511,7 +512,10 @@ export default class ApiRequest extends LitElement {
                           data-x-fill-example = "${param['x-fill-example'] || 'yes'}"
                           data-array="false"
                           value="${param.schema.default}"
-                          @input = ${(e) => { updateCurl.call(this, e.target ? e.target : e); this.requestUpdate(); }}
+                          @input = ${(e) => {
+                            const requestPanelEl = this.getRequestPanel(e);
+                            this.liveCURLSyntaxUpdate(requestPanelEl);
+                          }}
                         />`
                     }`
                 : ''
@@ -927,7 +931,10 @@ export default class ApiRequest extends LitElement {
                           data-pname = "${fieldName}"
                           data-example = "${Array.isArray(fieldExamples) ? fieldExamples[0] : fieldExamples}"
                           data-array = "false"
-                          @input = ${(e) => { updateCurl.call(this, e.target ? e.target : e); this.requestUpdate(); }}
+                          @input = ${(e) => {
+                            const requestPanelEl = this.getRequestPanel(e);
+                            this.liveCURLSyntaxUpdate(requestPanelEl);
+                          }}
                         />`
                       : ''
                     }
@@ -960,8 +967,8 @@ export default class ApiRequest extends LitElement {
                                   inputEl.value = e.target.dataset.enum;
                                 }
 
-                                updateCurl.call(this, inputEl);
-                                this.requestUpdate();
+                                const requestPanelEl = this.getRequestPanel(e);
+                                this.liveCURLSyntaxUpdate(requestPanelEl);
                               }
                             }}"
                           > 
@@ -1042,17 +1049,7 @@ export default class ApiRequest extends LitElement {
         <div style="flex:1"></div>
         <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
       </div>
-      <div class="tab-panel col" style="border-width:0 0 1px 0;">
-        <div id="tab_buttons" class="tab-buttons row" @click="${(e) => {
-            if (e.target.classList.contains('tab-btn') === false) { return; }
-            this.activeResponseTab = e.target.dataset.tab;
-        }}">
-          <button class="tab-btn ${this.activeResponseTab === 'response' ? 'active' : ''}" data-tab = 'response' > RESPONSE</button>
-          <button class="tab-btn ${this.activeResponseTab === 'headers' ? 'active' : ''}"  data-tab = 'headers' > RESPONSE HEADERS</button>
-          ${this.showCurlBeforeTry === 'true'
-            ? ''
-            : html`<button class="tab-btn ${this.activeResponseTab === 'curl' ? 'active' : ''}" data-tab = 'curl'>CURL</button>`}
-        </div>
+        ${this.curlSyntaxTemplate('flex')}
         ${this.responseIsBlob
           ? html`
             <div class="tab-content col" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};">
@@ -1065,16 +1062,14 @@ export default class ApiRequest extends LitElement {
               }
             </div>`
           : html`
-            <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};" >
-              <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.responseText, e); }}' part="btn btn-fill"> Copy </button>
-              <pre style="white-space:pre; min-height:50px; height:var(--resp-area-height, 400px); resize:vertical; overflow:auto">${responseContent}</pre>
-            </div>`
+            ${this.responseText ? html`
+              <div class="tab-content col m-markdown" style="max-height:500px; flex:1; display:flex;"  >
+                <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.responseText, e); }}' part="btn btn-fill"> Copy </button>
+                <pre style="display:flex; white-space:pre; min-height:50px; height:auto; resize:vertical; overflow:auto">${responseContent}</pre>
+              </div>`
+              : ''
+            }`
         }
-        <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};" >
-          <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.responseHeaders, e); }}' part="btn btn-fill"> Copy </button>
-          <pre style="white-space:pre"><code>${unsafeHTML(Prism.highlight(this.responseHeaders, Prism.languages.css, 'css'))}</code></pre>
-        </div>
-        ${this.curlSyntaxTemplate('flex')}
       </div>`;
   }
 
@@ -1105,13 +1100,12 @@ export default class ApiRequest extends LitElement {
     if (!this.resultLoad) {
       this.updateComplete.then(() => {
         const el = this.renderRoot.host.shadowRoot.children[0];
-        updateCurl.call(this, el.target ? el.target : el);
-        this.requestUpdate();
+        this.liveCURLSyntaxUpdate(el.target ? el.target : el);
       });
       this.resultLoad = true;
     } else {
       const el = this.renderRoot.host.shadowRoot.children[0];
-      updateCurl.call(this, el.target ? el.target : el);
+      this.liveCURLSyntaxUpdate(el.target ? el.target : el);
     }
 
     return html`
@@ -1151,10 +1145,6 @@ export default class ApiRequest extends LitElement {
       <button class="m-btn primary thin-border" part="btn btn-try" @click="${this.onTryClick}">TRY</button>
       -->
     </div>
-    <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
-      ${this.curlSyntaxTemplate()}
-    </div>
-    ${this.responseMessage === '' ? '' : this.apiResponseTabTemplate()}
     `;
   }
   /* eslint-enable indent */
@@ -1300,8 +1290,8 @@ export default class ApiRequest extends LitElement {
         fetchUrl = `${fetchUrl}${fetchUrl.includes('?') ? '&' : '?'}${v.name}=${encodeURIComponent(v.finalKeyValue)}`;
       });
 
-    fetchUrl = `${this.serverUrl.replace(/\/$/, '')}${fetchUrl}`;
-    fetchUrl = `/api/proxy/${encodeURIComponent(fetchUrl)}`;
+    fetchUrl = `${this.selectedServer.computedUrl.replace(/\/$/, '')}${fetchUrl}`;
+
     return fetchUrl;
   }
 
@@ -1330,6 +1320,11 @@ export default class ApiRequest extends LitElement {
       if (el.value) {
         reqHeaders.append(el.dataset.pname, el.value);
       }
+    });
+
+    // Add Authentication Header if provided
+    this.resolvedSpec.securitySchemes.forEach((key) => {
+      reqHeaders.append(key.name, key.value);
     });
 
     if (requestBodyContainerEl) {
@@ -1427,7 +1422,7 @@ export default class ApiRequest extends LitElement {
   async onTryClick(e) {
     const tryBtnEl = e.target;
     const requestPanelEl = tryBtnEl.closest('.request-panel');
-    const fetchUrl = this.buildFetchURL(requestPanelEl);
+    const fetchUrl = `/api/proxy/${encodeURIComponent(this.buildFetchURL(requestPanelEl))}`;
     const fetchOptions = this.buildFetchBodyOptions(requestPanelEl);
     const reqHeaders = this.buildFetchHeaders(requestPanelEl);
     this.responseUrl = '';

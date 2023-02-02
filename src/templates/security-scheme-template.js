@@ -2,7 +2,6 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
-import updateCurl from '~/utils/update-curl';
 
 const codeVerifier = '731DB1C3F7EA533B85E29492D26AA-1234567890-1234567890';
 const codeChallenge = '4FatVDBJKPAo4JgLLaaQFMUcQPn5CrPRvLlaob9PTYc'; // Base64 encoded SHA-256
@@ -390,7 +389,8 @@ function handleApiKeyChange(e, securitySchemeId, apiKey) {
   if (apiKey === '') removeApiKey.call(this, securitySchemeId);
   else onApiKeyChange.call(this, securitySchemeId);
 
-  updateCurl.call(this, e.target ? e.target : e);
+  const requestPanelEl = this.getRequestPanel(e);
+  this.liveCURLSyntaxUpdate(requestPanelEl);
 }
 
 export default function securitySchemeTemplate() {
@@ -447,7 +447,10 @@ export default function securitySchemeTemplate() {
                       placeholder="username"
                       class="${v.type} ${v.securitySchemeId} api-key-user"
                       style="width:100px"
-                      @change = ${(e) => { updateCurl.call(this, e.target ? e.target : e); }}
+                      @change = ${(e) => {
+                        const requestPanelEl = this.getRequestPanel(e);
+                        this.liveCURLSyntaxUpdate(requestPanelEl);
+                      }}
                     >
                     <input
                       type="password"
@@ -456,7 +459,10 @@ export default function securitySchemeTemplate() {
                       value="${v.password}"
                       class="${v.type} ${v.securitySchemeId} api-key-password"
                       style="width:100px; margin:0 5px;"
-                      @change = ${(e) => { updateCurl.call(this, e.target ? e.target : e); }}
+                      @change = ${(e) => {
+                        const requestPanelEl = this.getRequestPanel(e);
+                        this.liveCURLSyntaxUpdate(requestPanelEl);
+                      }}
                     >
                     <button class="m-btn thin-border"
                       @click="${(e) => { onApiKeyChange.call(this, v.securitySchemeId, e); }}"
