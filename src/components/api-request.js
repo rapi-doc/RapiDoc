@@ -308,7 +308,7 @@ export default class ApiRequest extends LitElement {
       ${paramType === 'array' ? '[' : ''}
       <a
         part="anchor anchor-param-example"
-        style="display:inline-block; min-width:24px; text-align:center"
+        style="display:inline-block; min-width:24px; text-align:left"
         class="${this.allowTry === 'true' ? '' : 'inactive-link'}"
         data-example-type="${paramType === 'array' ? paramType : 'string'}"
         data-example="${example.value && Array.isArray(example.value) ? example.value?.join('~|~') : (typeof example.value === 'object' ? JSON.stringify(example.value, null, 2) : example.value) || ''}"
@@ -347,7 +347,7 @@ export default class ApiRequest extends LitElement {
   exampleListTemplate(paramName, paramType, exampleList = []) {
     return html` ${
       exampleList.length > 0
-        ? html`<span style="font-weight:bold">Examples: </span>
+        ? html`<span style="font-weight:bold; font-size:12px; margin-top: 10px;">Example: </span>
           ${anyExampleWithSummaryOrDescription(exampleList)
             ? this.renderLongFormatExamples(exampleList, paramType, paramName)
             : this.renderShortFormatExamples(exampleList, paramType, paramName)}`
@@ -1020,7 +1020,7 @@ export default class ApiRequest extends LitElement {
     return html`
       <div class="col m-markdown" style="flex:1; display:${display}; position:relative; max-width: 100%;">
         <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.curlSyntax.replace(/\\$/, ''), e); }}' part="btn btn-fill"> Copy </button>
-        <pre style="white-space:pre"><code>${unsafeHTML(Prism.highlight(this.curlSyntax.trim().replace(/\\$/, ''), Prism.languages.shell, 'shell'))}</code></pre>
+        <pre class="code-container" style="white-space:pre; border: none;"><code>${unsafeHTML(Prism.highlight(this.curlSyntax.trim().replace(/\\$/, ''), Prism.languages.shell, 'shell'))}</code></pre>
       </div>
       `;
   }
@@ -1049,27 +1049,38 @@ export default class ApiRequest extends LitElement {
         <div style="flex:1"></div>
         <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
       </div>
+      <div class="tab-panel col" style="border-top: 1px solid #E7E9EE; border-bottom: 1px solid #E7E9EE; margin-top: 24px;">
         ${this.curlSyntaxTemplate('flex')}
-        ${this.responseIsBlob
-          ? html`
-            <div class="tab-content col" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};">
-              <button class="m-btn thin-border mar-top-8" style="width:135px" @click='${(e) => { downloadResource(this.responseBlobUrl, this.respContentDisposition, e); }}' part="btn btn-outline">
-                DOWNLOAD
-              </button>
-              ${this.responseBlobType === 'view'
-                ? html`<button class="m-btn thin-border mar-top-8" style="width:135px"  @click='${(e) => { viewResource(this.responseBlobUrl, e); }}' part="btn btn-outline">VIEW (NEW TAB)</button>`
-                : ''
-              }
-            </div>`
-          : html`
-            ${this.responseText ? html`
-              <div class="tab-content col m-markdown" style="max-height:500px; flex:1; display:flex;"  >
-                <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.responseText, e); }}' part="btn btn-fill"> Copy </button>
-                <pre style="display:flex; white-space:pre; min-height:50px; height:auto; resize:vertical; overflow:auto">${responseContent}</pre>
-              </div>`
+        <div style="background: #F8F7FC; padding-inline: 32px;padding-block: 16px">
+          ${this.responseMessage
+              ? html`
+                <div class="row" style="width:100%; height:max-content; background:#E7E9EE; border-radius:2px;padding-inline:4px;margin-bottom:4px">
+                  <div style="min-width:8px;min-height:8px;width:8px;height:8px;border-radius:50%;${this.responseBlobUrl || this.responseText ? 'border: 1px solid #79A479;background: #E6F2E6;' : 'border: 1px solid #DC4C43;background: #F0E6E4;'}"></div>
+                  <div style="margin-left:4px; color:#4A596B; font-size:12px; font-weight:500;">${this.responseMessage}</div>
+                </div>`
               : ''
-            }`
-        }
+            }
+          ${this.responseIsBlob
+            ? html`
+              <div class="tab-content col" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};">
+                <button class="m-btn thin-border mar-top-8" style="width:135px" @click='${(e) => { downloadResource(this.responseBlobUrl, this.respContentDisposition, e); }}' part="btn btn-outline">
+                  DOWNLOAD
+                </button>
+                ${this.responseBlobType === 'view'
+                  ? html`<button class="m-btn thin-border mar-top-8" style="width:135px"  @click='${(e) => { viewResource(this.responseBlobUrl, e); }}' part="btn btn-outline">VIEW (NEW TAB)</button>`
+                  : ''
+                }
+              </div>`
+            : html`
+              ${this.responseText ? html`
+                <div class="tab-content col m-markdown" style="max-height:500px; flex:1; display:flex;" >
+                  <button class="toolbar-btn" style="position:absolute; top:12px; right:16px" @click='${(e) => { copyToClipboard(this.responseText, e); }}' part="btn btn-fill"> Copy </button>
+                  <pre style="display:flex; white-space:pre; min-height:50px; height:auto; resize:vertical; overflow:auto">${responseContent}</pre>
+                </div>`
+                : ''
+              }`
+          }
+        </div>
       </div>`;
   }
 
@@ -1465,7 +1476,7 @@ export default class ApiRequest extends LitElement {
       let respJson;
       let respText;
       tryBtnEl.disabled = true;
-      this.responseText = '⌛';
+      this.responseText = '';
       this.responseMessage = '';
       this.requestUpdate();
       const startTime = performance.now();
