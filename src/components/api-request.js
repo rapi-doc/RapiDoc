@@ -789,8 +789,8 @@ export default class ApiRequest extends LitElement {
                 <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>Parameters</button>
                 <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>Example</button>
               </div>
-              ${html`<div class="tab-content col" style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'};"> ${reqBodyExampleHtml}</div>`}
-              ${html`<div class="tab-content col" style="display:${this.activeSchemaTab === 'example' ? 'none' : 'block'};"> ${reqBodySchemaHtml}</div>`}
+              <div class="tab-content col" style=${this.activeSchemaTab === 'example' ? 'display:flex;' : 'display:none;'}> ${reqBodyExampleHtml}</div>
+              <div class="tab-content col" style=${this.activeSchemaTab === 'example' ? 'display:none;' : 'display:flex;'}> ${reqBodySchemaHtml}</div>
             </div>`
           : html`  
             ${reqBodyFileInputHtml}
