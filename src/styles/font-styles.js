@@ -123,7 +123,7 @@ export default css`
   }
 
   .m-markdown code span {
-    font-size:var(--font-size-mono);
+    font-size: calc(var(--font-size-mono) - 1px);
   }
 
   .m-markdown-small code {

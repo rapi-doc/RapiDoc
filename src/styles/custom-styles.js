@@ -197,7 +197,7 @@ export default css`
 }
 
 .square-language-button:hover {
-  border: 1px solid rgb(204, 206, 216);
+  border: 1px solid rgb(59, 59, 59);
 }
 
 .square-language-button:active {
@@ -230,7 +230,7 @@ export default css`
 }
 
 .selected-language {
-  border: 1px solid rgb(248, 247, 252);
+  border: 1px solid rgb(204, 206, 216);
 }
 
 .language-show-more {
@@ -245,7 +245,7 @@ export default css`
 }
 
 .language-show-more:hover {
-  border: 1px solid rgb(204, 206, 216);
+  border: 1px solid rgb(59, 59, 59);
 }
 
 .language-show-more:active {
