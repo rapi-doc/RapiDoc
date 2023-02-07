@@ -167,16 +167,6 @@
           </tr>
 
           <tr>
-            <td class="attr-col mono bold right">use-summary-to-list-example </td>
-            <td class="gray">
-              <span class='bold dark-gray'>Allowed:<span class='blue'> true | false </span></span> 
-              When set to true, examples in the request parameters will be listed using their summary or description if avalilable. 
-              By default examples are listed as is 
-            </td>
-            <td class='default-col'>false</td>
-          </tr>
-
-          <tr>
             <td class="attr-col mono bold right">persist-auth </td>
             <td class="gray"><span class='bold dark-gray'>Allowed:<span class='blue'> true | false </span></span> 
               Authentication will be persisted to localStorage 
@@ -324,16 +314,30 @@
             <td class="gray">background color of the navigation item on mouse-over </td>
             <td class='default-col'></td>
           </tr>
-          <tr>
+          <tr id="nav-hover-text-color">
             <td class=" attr-col mono bold right">nav-hover-text-color </td>
             <td class="gray"> text color of the navigation item on mouse-over </td>
             <td class='default-col'></td>
           </tr>
           <tr id="nav-accent-color">
             <td class=" attr-col mono bold right">nav-accent-color </td>
-            <td class="gray"> Current selected item indicator</td>
+            <td class="gray"> Accent color used in navigtion Bar (such as background of active navigation item)</td>
             <td class='default-col'></td>
           </tr>
+
+          <tr id="nav-accent-text-color">
+            <td class=" attr-col mono bold right">nav-accent-text-color </td>
+            <td class="gray"> Text color used in navigtion bar selected items</td>
+            <td class='default-col'></td>
+          </tr>
+
+          <tr id="nav-active-item-marker">
+            <span class='bold dark-gray'>Allowed:<span class='blue'>left-bar | colored-block</span></span>
+            <td class=" attr-col mono bold right">nav-active-item-marker </td>
+            <td class="gray"> Navigation active item indicator styles</td>
+            <td class='default-col'>left-bar</td>
+          </tr>
+
           <tr id="nav-item-spacing">
             <td class=" attr-col mono bold right">nav-item-spacing </td>
             <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> default | compact | relaxed</span></span>
@@ -493,6 +497,13 @@
               &nbsp;|&nbsp; <a href="./examples/try.html">Example</a>
             </td>
             <td>true</td>
+          </tr>
+          <tr id="show-curl-before-try">
+            <td class="mono bold right">show-curl-before-try</td>
+            <td class="gray">
+              If set to 'true', the cURL snippet is displayed between the request and the response without clicking on TRY &nbsp;|&nbsp; <a href="./examples/show-curl-before-try.html">Example</a>
+            </td>
+            <td>false</td>
           </tr>
           <tr>
             <td class="mono bold right">allow-server-selection</td>
@@ -723,13 +734,6 @@
               </pre>
             </td>
           </tr>
-
-          <tr id="scrollTo">
-            <td class="mono bold right">scrollTo(path) </td>
-            <td class="gray" colspan="2">
-              To programmatically provide username and password 
-            </td>
-          </tr>
         </table>
       </div>
 
@@ -786,7 +790,7 @@
               <td class="mono bold right">before-try</td>
               <td class="gray">
                 fired before user clicks try. 
-                Provides a <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request" target="_blank">Request object</a> 
+                Provides a <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request" target="_blank">Request like object</a> 
                 that can be modified before making the final call to the API.<br/> 
                 Also you get an <a href="https://developer.mozilla.org/en-US/docs/Web/API/AbortController" target="_blank"> AbortController object</a> 
                 which can be used for aborting a request 
@@ -797,6 +801,20 @@
                     rapidocEl.addEventListener('before-try', (e) => {
                       if (e.detail.request.method === 'POST') {
                         e.detail.request.headers.append('my-header', 'XYX');
+                      }
+                    });
+                  </code>
+                </pre>
+
+                <br/>
+                Example: Add a query-string param to all GET request
+                <pre class="shadow1 code-block" style = "width:500px">
+                  <code class="language-js">
+                    rapidocEl.addEventListener('before-try', (e) => {
+                      if (e.detail.request.method === 'GET') {
+                        const url = new URL( e.detail.request.url);
+                        url.searchParams.append('delay', '3');
+                        e.detail.request.url = url.searchParams.toString();
                       }
                     });
                   </code>
@@ -1010,17 +1028,35 @@
               </td>
               <td></td>
             </tr>
+            <tr id="x-example-show-value">
+              <td class="mono bold right">x-example-show-value</td>
+              <td class="gray">
+                <span class='bold dark-gray'>Allowed:<span class='blue'> true | false</span></span> -
+                Use this vendor-extension for each request parameter to indicate if the provided example is displayed on the UI
+              </td>
+              <td></td>
+            </tr>
 
             <tr id="x-client-id">
-              <td class="mono bold right"><br/>x-client-id <br/> x-client-secret <br/> x-default-scopes <br/> x-receive-token-in  </td>
+              <td class="mono bold right"><br/>
+                x-client-id <br/> 
+                x-client-secret <br/> 
+                x-default-scopes <br/> 
+                x-receive-token-in <br/> 
+                x-pkce-only 
+              </td>
               <td class="gray">
                 Use these vendor-extensions to pre fill <br/>
                 <span class="mono bold">Client ID</span> <br/> 
                 <span class="mono bold">Client Secret</span> <br/>
-                <span class="mono bold">Scope</span> and <br/>
-                 where token is <span class="mono bold">received</span> (header or request-body) in the UI
+                <span class="mono bold">Default Scopes</span><br/>
+                 where token is <span class="mono bold">received</span> (header or request-body) in the UI <br>
+                 <span class="mono bold">true|false</span> - when true, client-secret wont be send from UI
               </td>
-              <td><a href="./examples/oauth-vendor-extension.html"> Usage Example </a> </td>
+              <td>
+                <a href="./examples/oauth-vendor-extension.html"> Usage Example </a> <br/>
+                <a href="./oauth_instructions.html#oauth-demo-spec"> Sample Spec </a> <br/>
+              </td>
             </tr>
           </table>
         </div>

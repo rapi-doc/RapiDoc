@@ -9,6 +9,7 @@ import InputStyles from '~/styles/input-styles';
 import TabStyles from '~/styles/tab-styles';
 import BorderStyles from '~/styles/border-styles';
 import CustomStyles from '~/styles/custom-styles';
+import '~/components/json-tree';
 import '~/components/schema-tree';
 import '~/components/schema-table';
 import cornersOutIcon from './assets/corners-out-icon';
@@ -51,6 +52,8 @@ export default class ApiResponse extends LitElement {
       InputStyles,
       BorderStyles,
       css`
+      :where(button, input[type="checkbox"], [tabindex="0"]):focus-visible { box-shadow: var(--focus-shadow); }
+      :where(input[type="text"], input[type="password"], select, textarea):focus-visible { border-color: var(--primary-color); }
       .resp-head{
         vertical-align: middle;
         padding:16px 0 8px;
@@ -377,20 +380,20 @@ export default class ApiResponse extends LitElement {
   responseHeaderListTemplate(respHeaders) {
     return html`
       <div style="padding:16px 0 8px 0" class="resp-headers small-font-size bold-text">RESPONSE HEADERS</div> 
-      <table style="border-collapse: collapse; margin-bottom:16px; border:1px solid var(--border-color); border-radius: var(--border-radius)" class="small-font-size mono-font">
+      <table role="presentation" style="border-collapse: collapse; margin-bottom:16px; border:1px solid var(--border-color); border-radius: var(--border-radius)" class="small-font-size mono-font">
         ${respHeaders.map((v) => html`
           <tr>
             <td style="padding:8px; vertical-align: baseline; min-width:120px; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;">
               ${v.name || ''}
             </td> 
             <td style="padding:4px; vertical-align: baseline; padding:0 5px; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;">
-              ${v.content?.['text/plain']?.schema?.type || v.schema.type || ''}
+              ${v.schema?.type || ''}
             </td> 
             <td style="padding:8px; vertical-align: baseline; border-top: 1px solid var(--light-border-color);text-overflow: ellipsis;">
               <div class="m-markdown-small regular-font" >${unsafeHTML(marked(v.description || ''))}</div>
             </td>
             <td style="padding:8px; vertical-align: baseline; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;">
-              ${v.content?.['text/plain']?.example || v.schema?.example || ''}
+              ${v.schema?.example || ''}
             </td>
           </tr>
         `)}
@@ -399,7 +402,7 @@ export default class ApiResponse extends LitElement {
 
   mimeTypeDropdownTemplate(mimeTypes) {
     return html`
-      <select @change="${(e) => { this.selectedMimeType = e.target.value; }}" style='margin-bottom: -1px; z-index:1'>
+      <select aria-label='mime types' @change="${(e) => { this.selectedMimeType = e.target.value; }}" style='margin-bottom: -1px; z-index:1'>
         ${mimeTypes.map((mimeType) => html`<option value='${mimeType}' ?selected = '${mimeType === this.selectedMimeType}'> ${mimeType} </option>`)}
       </select>`;
   }
@@ -440,8 +443,8 @@ export default class ApiResponse extends LitElement {
             `
           }`
         : html`
-          <span class = 'example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'pad-top-8'}'>
-            <select style="min-width:100px; max-width:100%" @change='${(e) => this.onSelectExample(e)}'>
+          <span class = 'example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}'>
+            <select style="min-width:100px; max-width:100%" aria-label='response examples' style="min-width:100px; max-width:100%" @change='${(e) => this.onSelectExample(e)}'>
               ${mimeRespDetails.examples.map((v) => html`<option value="${v.exampleId}" ?selected=${v.exampleId === mimeRespDetails.selectedExample} > 
                 ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary} 
               </option>`)}
@@ -477,22 +480,20 @@ export default class ApiResponse extends LitElement {
       ${this.schemaStyle === 'table'
         ? html`
           <schema-table
-            render-style = "${this.renderStyle}"
             .data = "${mimeRespDetails.schemaTree}"
             schema-expand-level = "${this.schemaExpandLevel}"
             schema-description-expanded = "${this.schemaDescriptionExpanded}"
-            allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+            allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
             schema-hide-read-only = "${this.schemaHideReadOnly}"
             schema-hide-write-only = "${this.schemaHideWriteOnly}"
             exportparts = "schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
-          > </schema-tree> `
+          > </schema-table> `
         : html`
           <schema-tree
-            render-style = "${this.renderStyle}"
             .data = '${mimeRespDetails.schemaTree}'
             schema-expand-level = "${this.schemaExpandLevel}"
             schema-description-expanded = "${this.schemaDescriptionExpanded}"
-            allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+            allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
             schema-hide-read-only = "${this.schemaHideReadOnly}"
             schema-hide-write-only = "${this.schemaHideWriteOnly}"
             exportparts = "schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"

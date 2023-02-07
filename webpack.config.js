@@ -31,7 +31,8 @@ const rapidocBanner = `
 * License: MIT
 * Repo   : https://github.com/rapi-doc/RapiDoc
 * Author : Mrinmoy Majumdar
-*`;
+*/
+`;
 
 const commonPlugins = [
   new webpack.ProvidePlugin({ Buffer: ['buffer', 'Buffer'] }),

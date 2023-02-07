@@ -1,21 +1,63 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
-    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,700i,800,800i,900,900i&display=swap" rel="stylesheet">
-    <!-- script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script -->
-    <script type="module" src="../rapidoc-min.js"></script>
-</head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="Content-Type" content="text/html"/>
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.1.3/dist/flatly/bootstrap.min.css" integrity="sha384-JJl14kOPjuUj+o0fDTJGBSCDKpu1A4BuCmARIetHUvTVmopvVZITFd4AhRMJIlz7" crossorigin="anonymous">
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/rapidoc@9.1.4/dist/rapidoc-min.js" crossorigin="anonymous"></script>
+</head>
 <body>
-    <rapi-doc spec-url="../specs/temp.yaml" 
-        render-style = "focused"
-        schema-style = "tree"
-        show-components = "true"
-        schema-expand-level = "1"
-    >
-    </rapi-doc>
+
+<header>
+    <nav class="navbar navbar-dark bg-dark">
+      <div class="container-fluid">
+        <form class="d-flex">
+          <button 
+            onclick="document.getElementById('rapidoc-pets').setAttribute('spec-url', 'https://petstore.swagger.io/v2/swagger.json')"
+            type="button" 
+            class="btn btn-primary"
+          >
+            Set spec url
+          </button>
+        </form>
+      </div>
+    </nav>
+</header>
+
+<main>
+  <div class="row">
+    <div class="list-group rounded-0 d-none" id="services-swagger-list" role="tablist">
+      <a class="list-group-item list-group-item-action active"
+        id="list-pets"
+        href="#tab-pets"
+        data-bs-toggle="list" role="tab">
+          pets
+      </a>
+    </div>
+    <div class="tab-content" id="nav-tabContent">
+      <div class="tab-pane active show" id="tab-pets" role="tabpanel">
+        <rapi-doc
+          id="rapidoc-pets"
+          route-prefix="#tab-pets/"
+          update-route="true"
+          render-style="read"
+
+          allow-authentication="false"
+          allow-server-selection="false"
+          show-header="false"
+          show-info="true"
+          allow-spec-file-load="false"
+          allow-spec-url-load="false"
+        ></rapi-doc>
+      </div>
+    </div>
+  </div>
+</main>
 </body>
 
 </html>

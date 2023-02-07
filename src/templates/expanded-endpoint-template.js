@@ -91,8 +91,8 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
           .selectedServer="${this.selectedServer}"
           server-url = "${path.servers?.[0]?.url || this.selectedServer.computedUrl}"
           fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
-          use-summary-to-list-example = "${this.useSummaryToListExamples}"
           allow-try = "${this.allowTry}"
+          show-curl-before-try = "${this.showCurlBeforeTry}"
           accept = "${accept}"
           render-style="${this.renderStyle}" 
           schema-style = "${this.schemaStyle}"
@@ -103,7 +103,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
           schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
           schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
           fetch-credentials = "${this.fetchCredentials}"
-          exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
+          exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
             file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
             anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
         > </api-request>
@@ -148,8 +148,8 @@ export default function expandedEndpointTemplate() {
       }
       </div>
     </section>
-    <section class='regular-font section-gap--read-mode' part="section-operations-in-tag">
-      ${tag.paths.map((path) => expandedEndpointBodyTemplate.call(this, path, 'BBB'))}
+    <section class="regular-font section-gap--read-mode" part="section-operations-in-tag">
+      ${tag.paths.map((path) => expandedEndpointBodyTemplate.call(this, path))}
     </section>
     `)
   }

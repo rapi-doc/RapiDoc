@@ -6,12 +6,12 @@ export default class TagInput extends LitElement {
     let tagItemTmpl = '';
     if (Array.isArray(this.value)) {
       tagItemTmpl = html`${this.value
-        .filter((v) => v.trim() !== '')
+        .filter((v) => typeof v === 'string' && v.trim() !== '')
         .map((v) => html`<span class='tag'>${v}</span>`)
       }`;
     }
     return html`
-      <div class='tags' tabindex="0">
+      <div class='tags'>
         ${tagItemTmpl}
         <input type="text" class='editor' @paste="${(e) => this.afterPaste(e)}" @keydown="${this.afterKeyDown}" @blur="${this.onBlur}" placeholder="${this.placeholder || ''}">
       </div>
@@ -84,7 +84,7 @@ export default class TagInput extends LitElement {
 
   static get styles() {
     return [css`
-      .tags{
+      .tags {
         display:flex;
         flex-wrap: wrap;
         outline: none;
@@ -110,7 +110,7 @@ export default class TagInput extends LitElement {
       .tag:hover ~ #cursor {
         display: block;
       }
-      .editor{
+      .editor {
         flex:1;
         border:1px solid transparent;
         color:var(--fg);
@@ -120,6 +120,9 @@ export default class TagInput extends LitElement {
         font-family:inherit;
         background:transparent;
         font-size: calc(var(--font-size-small) + 1px);
+      }
+      .editor:focus-visible {
+        outline: 1px solid;
       }
       .editor::placeholder {
         color: var(--placeholder-color);

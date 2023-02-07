@@ -38,7 +38,9 @@ export default class RapiDoc extends LitElement {
       threshold: 0,
     };
     this.showSummaryWhenCollapsed = true;
-    this.isIntersectionObserverActive = true;
+    // Will activate intersection observer only after spec load and hash analyze
+    // to scroll to the proper element without being reverted by observer behavior
+    this.isIntersectionObserverActive = false;
     this.intersectionObserver = new IntersectionObserver((entries) => { this.onIntersect(entries); }, intersectionObserverOptions);
   }
 
@@ -63,7 +65,6 @@ export default class RapiDoc extends LitElement {
       defaultSchemaTab: { type: String, attribute: 'default-schema-tab' },
       responseAreaHeight: { type: String, attribute: 'response-area-height' },
       fillRequestFieldsWithExample: { type: String, attribute: 'fill-request-fields-with-example' },
-      useSummaryToListExamples: { type: String, attribute: 'use-summary-to-list-example' },
       persistAuth: { type: String, attribute: 'persist-auth' },
       onNavTagClick: { type: String, attribute: 'on-nav-tag-click' },
 
@@ -88,6 +89,7 @@ export default class RapiDoc extends LitElement {
       showInfo: { type: String, attribute: 'show-info' },
       allowAuthentication: { type: String, attribute: 'allow-authentication' },
       allowTry: { type: String, attribute: 'allow-try' },
+      showCurlBeforeTry: { type: String, attribute: 'show-curl-before-try' },
       allowSpecUrlLoad: { type: String, attribute: 'allow-spec-url-load' },
       allowSpecFileLoad: { type: String, attribute: 'allow-spec-file-load' },
       allowSpecFileDownload: { type: String, attribute: 'allow-spec-file-download' },
@@ -118,6 +120,8 @@ export default class RapiDoc extends LitElement {
       navHoverBgColor: { type: String, attribute: 'nav-hover-bg-color' },
       navHoverTextColor: { type: String, attribute: 'nav-hover-text-color' },
       navAccentColor: { type: String, attribute: 'nav-accent-color' },
+      navAccentTextColor: { type: String, attribute: 'nav-accent-text-color' },
+      navActiveItemMarker: { type: String, attribute: 'nav-active-item-marker' },
       navItemSpacing: { type: String, attribute: 'nav-item-spacing' },
       showMethodInNavBar: { type: String, attribute: 'show-method-in-nav-bar' },
       usePathInNavBar: { type: String, attribute: 'use-path-in-nav-bar' },
@@ -164,14 +168,15 @@ export default class RapiDoc extends LitElement {
         background-color:var(--bg);
         font-family:var(--font-regular);
       }
-      .body {
+      :where(button, input[type="checkbox"], [tabindex="0"]):focus-visible { box-shadow: var(--focus-shadow); }
+      :where(input[type="text"], input[type="password"], select, textarea):focus-visible { border-color: var(--primary-color); }
+    .body {
         display:flex;
         height:100%;
         width:100%;
         overflow:hidden;
         max-width: 2087px;
       }
-
       .main-content { 
         margin:0;
         padding: 0; 
@@ -279,11 +284,21 @@ export default class RapiDoc extends LitElement {
         height: 36px;
         animation: spin 2s linear infinite;
       }
-      .expanded-endpoint-body{ 
+      .expanded-endpoint-body { 
         position: relative;
         padding: 6px 0px; 
       }
-      .expanded-endpoint-body.deprecated{ filter:opacity(0.6); }
+      .expanded-endpoint-body .tag-description {
+        background: var(--code-bg);
+        border-radius: var(--border-radius);
+        transition: max-height .2s ease-out;
+      }
+      .expanded-endpoint-body .tag-icon {
+        transition: transform .2s ease-out;
+      }
+      .expanded-endpoint-body .tag-icon.expanded {
+        transform: rotate(180deg);
+      }
       .divider { 
         border-top: 2px solid var(--border-color);
         margin: 24px 0;
@@ -341,6 +356,9 @@ export default class RapiDoc extends LitElement {
         min-width: 30px;
         border-radius: 4px 0 0 4px;
         color: #000;
+      }
+      .colored-block .nav-method.as-colored-block {
+        outline: 1px solid;
       }
 
       .nav-method.as-colored-block.get { background-color: var(--blue); }
@@ -442,7 +460,7 @@ export default class RapiDoc extends LitElement {
     }
 
     if (!this.layout || !'row, column,'.includes(`${this.layout},`)) { this.layout = 'row'; }
-    if (!this.renderStyle || !'read, view, focused,'.includes(`${this.renderStyle},`)) { this.renderStyle = 'read'; }
+    if (!this.renderStyle || !'read, view, focused,'.includes(`${this.renderStyle},`)) { this.renderStyle = 'focused'; }
     if (!this.schemaStyle || !'tree, table,'.includes(`${this.schemaStyle},`)) { this.schemaStyle = 'tree'; }
     if (!this.theme || !'light, dark,'.includes(`${this.theme},`)) {
       this.theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
@@ -459,11 +477,9 @@ export default class RapiDoc extends LitElement {
     if (!this.schemaHideWriteOnly || !'default, never,'.includes(`${this.schemaHideWriteOnly},`)) { this.schemaHideWriteOnly = 'default'; }
 
     if (!this.fillRequestFieldsWithExample || !'true, false,'.includes(`${this.fillRequestFieldsWithExample},`)) { this.fillRequestFieldsWithExample = 'true'; }
-    if (!this.useSummaryToListExamples || !'true, false,'.includes(`${this.useSummaryToListExamples},`)) { this.useSummaryToListExamples = 'false'; }
     if (!this.persistAuth || !'true, false,'.includes(`${this.persistAuth},`)) { this.persistAuth = 'false'; }
-    if (!this.onNavTagClick || !'expand-collapse, show-description,'.includes(`${this.onNavTagClick},`)) { this.onNavTagClick = 'expand-collapse'; }
     if (!this.responseAreaHeight) {
-      this.responseAreaHeight = '300px';
+      this.responseAreaHeight = '400px';
     }
 
     if (!this.allowSearch || !'true, false,'.includes(`${this.allowSearch},`)) { this.allowSearch = 'true'; }
@@ -480,11 +496,14 @@ export default class RapiDoc extends LitElement {
     if (!this.sortTags || !'true, false,'.includes(`${this.sortTags},`)) { this.sortTags = 'false'; }
     if (!this.generateMissingTags || !'true, false,'.includes(`${this.generateMissingTags},`)) { this.generateMissingTags = 'false'; }
     if (!this.sortEndpointsBy || !'method, path, summary, none,'.includes(`${this.sortEndpointsBy},`)) { this.sortEndpointsBy = 'path'; }
+
+    if (!this.onNavTagClick || !'expand-collapse, show-description,'.includes(`${this.onNavTagClick},`)) { this.onNavTagClick = 'expand-collapse'; }
     if (!this.navItemSpacing || !'compact, relaxed, default,'.includes(`${this.navItemSpacing},`)) { this.navItemSpacing = 'default'; }
     if (!this.showMethodInNavBar || !'false, as-plain-text, as-colored-text, as-colored-block,'.includes(`${this.showMethodInNavBar},`)) { this.showMethodInNavBar = 'false'; }
     if (!this.usePathInNavBar || !'true, false,'.includes(`${this.usePathInNavBar},`)) { this.usePathInNavBar = 'false'; }
-    if (!this.fontSize || !'default, large, largest,'.includes(`${this.fontSize},`)) { this.fontSize = 'default'; }
+    if (!this.navActiveItemMarker || !'left-bar, colored-block'.includes(`${this.navActiveItemMarker},`)) { this.navActiveItemMarker = 'left-bar'; }
 
+    if (!this.fontSize || !'default, large, largest,'.includes(`${this.fontSize},`)) { this.fontSize = 'default'; }
     if (!this.showInfo || !'true, false,'.includes(`${this.showInfo},`)) { this.showInfo = 'true'; }
     if (!this.allowServerSelection || !'true, false,'.includes(`${this.allowServerSelection},`)) { this.allowServerSelection = 'true'; }
     if (!this.allowAuthentication || !'true, false,'.includes(`${this.allowAuthentication},`)) { this.allowAuthentication = 'true'; }
@@ -512,9 +531,7 @@ export default class RapiDoc extends LitElement {
     });
 
     window.addEventListener('hashchange', () => {
-      const regEx = new RegExp(`^${this.routePrefix}`, 'i');
-      const elementId = window.location.hash.replace(regEx, '');
-      this.scrollTo(elementId);
+      this.scrollToPath(this.getElementIDFromURL());
     }, true);
   }
 
@@ -558,7 +575,7 @@ export default class RapiDoc extends LitElement {
           await this.loadSpec(newVal);
           // If goto-path is provided and no location-hash is present then try to scroll there
           if (this.gotoPath && !window.location.hash) {
-            this.scrollTo(this.gotoPath);
+            this.scrollToPath(this.gotoPath);
           }
         }, 0);
       }
@@ -627,11 +644,11 @@ export default class RapiDoc extends LitElement {
     super.attributeChangedCallback(name, oldVal, newVal);
   }
 
-  onSepcUrlChange() {
+  onSpecUrlChange() {
     this.setAttribute('spec-url', this.shadowRoot.getElementById('spec-url').value);
   }
 
-  onSepcFileChange(e) {
+  onSpecFileChange(e) {
     this.setAttribute('spec-file', this.shadowRoot.getElementById('spec-file').value);
     const specFile = e.target.files[0];
     const reader = new FileReader();
@@ -760,20 +777,60 @@ export default class RapiDoc extends LitElement {
       this.observeExpandedContent(); // This will auto-highlight the selected nav-item in read-mode
     }
 
+    this.isIntersectionObserverActive = true;
+
     // On first time Spec load, try to navigate to location hash if provided
-    const locationHash = window.location.hash?.substring(1);
-    if (locationHash) {
-      const regEx = new RegExp(`^${this.routePrefix}`, 'i');
-      const elementId = window.location.hash.replace(regEx, '');
+    const elementId = this.getElementIDFromURL();
+
+    if (elementId) {
       if (this.renderStyle === 'view') {
         this.expandAndGotoOperation(elementId, true, true);
       } else {
-        this.scrollTo(elementId);
+        this.scrollToPath(elementId);
       }
     } else if (this.renderStyle === 'focused') {
-      const defaultElementId = this.showInfo ? 'overview' : this.resolvedSpec.tags[0]?.paths[0];
-      this.scrollTo(defaultElementId);
+      // If goto-path is provided and no location-hash is present then try to scroll to default element
+      if (!this.gotoPath) {
+        const defaultElementId = this.showInfo ? 'overview' : this.resolvedSpec.tags[0]?.paths[0];
+        this.scrollToPath(defaultElementId);
+      }
     }
+  }
+
+  /**
+   * Return the URL from where is served the RapiDoc component, removing any hash and route prefix
+   */
+  getComponentBaseURL() {
+    const { href } = window.location;
+
+    // Remove end of string # or /
+    const cleanRouterPrefix = this.routePrefix.replace(/(#|\/)$/, '');
+
+    if (!cleanRouterPrefix) {
+      return href.split('#')[0];
+    }
+
+    const indexOfRoutePrefix = href.lastIndexOf(cleanRouterPrefix);
+
+    if (indexOfRoutePrefix === -1) {
+      return href;
+    }
+
+    return href.slice(0, indexOfRoutePrefix);
+  }
+
+  /**
+   * From the URL return the ID of the element whether it is in the hash or if used a router prefix without a hash
+   */
+  getElementIDFromURL() {
+    const baseURL = this.getComponentBaseURL();
+    const elementId = window.location.href.replace(baseURL + this.routePrefix, '');
+    return elementId;
+  }
+
+  replaceHistoryState(hashId) {
+    const baseURL = this.getComponentBaseURL();
+    window.history.replaceState(null, null, `${baseURL}${this.routePrefix || '#'}${hashId}`);
   }
 
   expandAndGotoOperation(elementId, scrollToElement = true) {
@@ -809,7 +866,7 @@ export default class RapiDoc extends LitElement {
         if (gotoEl) {
           gotoEl.scrollIntoView({ behavior: 'auto', block: 'start' });
           if (this.updateRoute === 'true') {
-            window.history.replaceState(null, null, `${this.routePrefix || '#'}${tmpElementId}`);
+            this.replaceHistoryState(tmpElementId);
           }
         }
       }, isExpandingNeeded ? 150 : 0);
@@ -840,6 +897,7 @@ export default class RapiDoc extends LitElement {
     if (this.isIntersectionObserverActive === false) {
       return;
     }
+
     entries.forEach((entry) => {
       if (entry.isIntersecting && entry.intersectionRatio > 0) {
         const oldNavEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active, .operations.active');
@@ -848,14 +906,18 @@ export default class RapiDoc extends LitElement {
         // Add active class in the new element
         if (newNavEl) {
           if (this.updateRoute === 'true') {
-            window.history.replaceState(null, null, `${window.location.href.split('#')[0]}${this.routePrefix || '#'}${entry.target.id}`);
+            this.replaceHistoryState(entry.target.id);
           }
           // newNavEl.scrollIntoView({ behavior: 'auto', block: 'center' });
           newNavEl.classList.add('active');
+          newNavEl.part.add('section-navbar-active-item');
         }
+
         // Remove active class from previous element
-        if (oldNavEl) {
+        // if it is different from the new one (edge case on loading in read render style)
+        if (oldNavEl && oldNavEl !== newNavEl) {
           oldNavEl.classList.remove('active');
+          oldNavEl.part.remove('section-navbar-active-item');
         }
       }
     });
@@ -885,19 +947,28 @@ export default class RapiDoc extends LitElement {
    *
   */
   async scrollToEventTarget(event, scrollNavItemToView = true) {
-    const navEl = event.currentTarget;
+    if (!(event.type === 'click' || (event.type === 'keyup' && event.keyCode === 13))) {
+      return;
+    }
+    const navEl = event.target;
     if (!navEl.dataset.contentId) {
       return;
     }
     this.isIntersectionObserverActive = false;
-    this.scrollTo(navEl.dataset.contentId, true, scrollNavItemToView);
+    if (this.renderStyle === 'focused') {
+      const requestEl = this.shadowRoot.querySelector('api-request');
+      if (requestEl) {
+        requestEl.beforeNavigationFocusedMode();
+      }
+    }
+    this.scrollToPath(navEl.dataset.contentId, true, scrollNavItemToView);
     setTimeout(() => {
       this.isIntersectionObserverActive = true;
     }, 300);
   }
 
   // Public Method (scrolls to a given path and highlights the left-nav selection)
-  async scrollTo(elementId, expandPath = true, scrollNavItemToView = true) {
+  async scrollToPath(elementId, expandPath = true, scrollNavItemToView = true) {
     if (this.renderStyle === 'focused') {
       // for focused mode update this.focusedElementId to update the rendering, else it wont find the needed html elements
       // focusedElementId will get validated in the template
@@ -920,7 +991,7 @@ export default class RapiDoc extends LitElement {
         if (this.renderStyle === 'focused') {
           const requestEl = this.shadowRoot.querySelector('api-request');
           if (requestEl) {
-            requestEl.resetRequestBodySelection();
+            requestEl.afterNavigationFocusedMode();
           }
           const responseEl = this.shadowRoot.querySelector('api-response');
           if (responseEl) {
@@ -930,7 +1001,7 @@ export default class RapiDoc extends LitElement {
 
         // Update Location Hash
         if (this.updateRoute === 'true') {
-          window.history.replaceState(null, null, `${this.routePrefix || '#'}${elementId}`);
+          this.replaceHistoryState(elementId);
         }
 
         // Update NavBar View and Styles
@@ -944,8 +1015,11 @@ export default class RapiDoc extends LitElement {
           const oldNavEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active, .operations.active');
           if (oldNavEl) {
             oldNavEl.classList.remove('active');
+            oldNavEl.part.remove('active');
+            oldNavEl.part.remove('section-navbar-active-item');
           }
           newNavEl.classList.add('active'); // must add the class after scrolling
+          newNavEl.part.add('section-navbar-active-item');
           // this.requestUpdate();
         }
       }
@@ -984,8 +1058,8 @@ export default class RapiDoc extends LitElement {
       } else {
         searchInputEl = eventTargetEl.closest('.advanced-search-options').querySelector('input[type=text]');
       }
-      const searcOptions = [...eventTargetEl.closest('.advanced-search-options').querySelectorAll('input:checked')].map((v) => v.id);
-      this.advancedSearchMatches = advancedSearch(searchInputEl.value, this.resolvedSpec.tags, searcOptions);
+      const searchOptions = [...eventTargetEl.closest('.advanced-search-options').querySelectorAll('input:checked')].map((v) => v.id);
+      this.advancedSearchMatches = advancedSearch(searchInputEl.value, this.resolvedSpec.tags, searchOptions);
     }, delay);
   }
 }

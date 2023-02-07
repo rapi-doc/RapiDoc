@@ -1,0 +1,47 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "",
+        "version": ""
+    },
+    "components": {
+        "schemas": {
+            "options": {
+                "type": "object",
+                "properties": {
+                    "const": { "type": "string", "const": "a_fixed_value" },
+                    "enum": { "type": "string", "enum": ["a_single_enum_value"] },
+                    "const_array": { "type": "array", "items": { "type": "string", "enum": ["a_single_fixed_value"] } },
+                    "enum_array": { "type": "array", "items": { "type": "string", "const": "a_fixed_value" } }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/consts": {
+            "post": {
+                "summary": "",
+                "description": "",
+                "operationId": "consts",
+                "requestBody": {
+                    "description": "The custom fields collection",
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/options" }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "response",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/options" }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

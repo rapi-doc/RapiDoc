@@ -608,6 +608,7 @@ components:
           default: false
       xml:
         name: Order
+        namespace: 'https://rapidocweb.com'
     User:
       type: object
       properties:
@@ -632,6 +633,7 @@ components:
           description: User Status
       xml:
         name: User
+        namespace: 'https://rapidocweb.com'
     Category:
       type: object
       properties:
@@ -642,6 +644,7 @@ components:
           type: string
       xml:
         name: Category
+        namespace: 'https://rapidocweb.com'
     Tag:
       type: object
       properties:
@@ -652,6 +655,7 @@ components:
           type: string
       xml:
         name: Tag
+        namespace: 'https://rapidocweb.com'
     Pet:
       type: object
       required:
@@ -690,6 +694,7 @@ components:
             - sold
       xml:
         name: Pet
+        namespace: https://rapidocweb.com
     ApiResponse:
       type: object
       properties:

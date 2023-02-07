@@ -137,7 +137,7 @@ export default css`
   border: 2px solid var(--yellow); 
 }
 
-.req-resp-container{
+.req-resp-container {
   display: flex;
   align-items: stretch;
   flex-wrap: wrap;

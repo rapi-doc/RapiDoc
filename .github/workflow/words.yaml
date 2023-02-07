@@ -1,0 +1,22 @@
+name: works
+on:
+  - pull_request
+  
+jobs:
+  words:
+    name: Check Language
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Inclusive Language
+        uses: get-woke/woke-action@v0
+        with:
+          # Cause the check to fail on any broke rules
+          fail-on-error: true
+
+      - name: Profanity Check
+        uses: radiantly/profanity-filter-action@v1.1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}

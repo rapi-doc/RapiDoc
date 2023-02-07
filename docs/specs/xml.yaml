@@ -4,39 +4,59 @@ info:
   version: 1.0.0
   title: Responses as XML 
 paths:
-  /xml-response:
+  /xml-generated-from-schema:
     get:
-      summary: XML Responses
-      description: When response is returned as `xml`, you can provide your own example as `xml - content`
+      summary: XML (Generated From Schema)
+      description: XML example Provided in spec
       responses:
         '200':
           description: Successful operation
           content:
             application/xml:
-              examples:
-                example-1:
-                  summary: XML Example
-                  value: |
-                    <person> 
-                      <age>9</age> 
-                      <fullName> 
-                        <firstName>Mickey</firstName> 
-                        <lastName>Mouse</lastName> 
-                      </fullName>  
-                    </person>
               schema:
-                type: object
-                properties:
-                  age:
-                    description: Person Age
-                    type: integer
-                  fullName:
-                    description: Person Full name
-                    type: object
-                    properties:
-                      firstName:
-                        description: First name
-                        type: string
-                      lastName:
-                        description: Last name
-                        type: string
+                $ref: "#/components/schemas/Pet"
+
+components:
+  schemas:
+    Pet:
+      xml:
+        name: Pet
+        namespace: https://rapidocweb.com
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: object
+          xml:
+            name: Name
+          properties:
+            firstName:
+              type: string
+            lastName:
+              type: string
+        photoUrls:
+          description: The list of URL to a cute photos featuring pet
+          type: array
+          xml:
+            name: PhotoURLs
+            wrapped: true
+          items:
+            type: string
+        tags:
+          description: Tags attached to the pet
+          type: array
+          xml:
+            name: Tags-1
+            wrapped: false
+          items:
+            $ref: '#/components/schemas/Tag'
+    Tag:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+      xml:
+        namespace: https://rapidocweb.com
