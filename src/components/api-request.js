@@ -19,7 +19,6 @@ import { schemaInObjectNotation,
   generateExample,
   normalizeExamples,
   getSchemaFromParam,
-  json2xml,
   nestExampleIfPresent,
   anyExampleWithSummaryOrDescription } from '~/utils/schema-utils';
 import '~/components/json-tree';
@@ -42,7 +41,7 @@ export default class ApiRequest extends LitElement {
     this.responseHeaders = '';
     this.responseText = '';
     this.responseUrl = '';
-    this.codePreview = '';
+    this.codeExample = '';
     this.activeResponseTab = 'response'; // allowed values: response, headers, curl
     this.selectedRequestBodyType = '';
     this.selectedRequestBodyExample = '';
@@ -73,7 +72,7 @@ export default class ApiRequest extends LitElement {
       responseHeaders: { type: String, attribute: false },
       responseStatus: { type: String, attribute: false },
       responseUrl: { type: String, attribute: false },
-      curlSyntax: { type: String, attribute: false },
+      codeExample: { type: String, attribute: false },
       fillRequestFieldsWithExample: { type: String, attribute: 'fill-request-fields-with-example' },
       allowTry: { type: String, attribute: 'allow-try' },
       showCurlBeforeTry: { type: String, attribute: 'show-curl-before-try' },
@@ -257,7 +256,7 @@ export default class ApiRequest extends LitElement {
 
   async updated() {
     if (this.showCurlBeforeTry === 'true') {
-      this.applyCURLSyntax(this.shadowRoot);
+      updateCodeExample.call(this, this.shadowRoot);
     }
 
     // In focused mode after rendering the request component, update the text-areas(which contains examples) using
@@ -324,7 +323,7 @@ export default class ApiRequest extends LitElement {
           if (inputEl) {
             inputEl.value = e.target.dataset.exampleType === 'array' ? e.target.dataset.example.split('~|~') : e.target.dataset.example;
             const requestPanelEl = this.getRequestPanel(e);
-            this.liveCURLSyntaxUpdate(requestPanelEl);
+            updateCodeExample.call(this, requestPanelEl);
           }
         }}"
       > ${example.printableValue || example.value} </a>
@@ -582,7 +581,7 @@ export default class ApiRequest extends LitElement {
       userInputExampleTextareaEl.value = readOnlyExampleEl.innerText;
 
       const requestPanelEl = this.getRequestPanel({ target: selectEl });
-      this.liveCURLSyntaxUpdate(requestPanelEl);
+      updateCodeExample.call(this, requestPanelEl);
     }, 0, exampleDropdownEl);
   }
 
@@ -780,7 +779,7 @@ export default class ApiRequest extends LitElement {
           <span style="flex:1"></span>
           ${reqBodyTypeSelectorHtml}
         </div>
-        ${this.request_body.description ? html`<div class="m-markdown" style="margin-bottom:12px">${unsafeHTML(marked(this.request_body.description))}</div>` : ''}
+        ${this.request_body.description ? html`<div class="m-markdown-mal" style="margin-bottom:12px">${unsafeHTML(marked(this.request_body.description))}</div>` : ''}
         
         ${(this.selectedRequestBodyType.includes('json') || this.selectedRequestBodyType.includes('xml') || this.selectedRequestBodyType.includes('text') || this.selectedRequestBodyType.includes('jose'))
           ? html`
@@ -1022,11 +1021,11 @@ export default class ApiRequest extends LitElement {
     `;
   }
 
-  curlSyntaxTemplate(display = 'flex') {
+  codeExampleTemplate(display = 'flex') {
     return html`
       <div class="col m-markdown" style="flex:1; display:${display}; position:relative; max-width: 100%;">
-        <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.curlSyntax.replace(/\\$/, ''), e); }}' part="btn btn-fill"> Copy </button>
-        <pre class="code-container" style="white-space:pre; border: none;"><code>${unsafeHTML(Prism.highlight(this.curlSyntax.trim().replace(/\\$/, ''), Prism.languages.shell, 'shell'))}</code></pre>
+        <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.codeExample.replace(/\\$/, ''), e); }}' part="btn btn-fill"> Copy </button>
+        <pre class="code-container" style="white-space:pre; border: none;"><code>${unsafeHTML(Prism.highlight(this.codeExample.trim().replace(/\\$/, ''), Prism.languages[this.selectedLanguage], this.selectedLanguage))}</code></pre>
       </div>
       `;
   }
@@ -1056,7 +1055,7 @@ export default class ApiRequest extends LitElement {
         <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
       </div>
       <div class="tab-panel col" style="border-top: 1px solid #E7E9EE; border-bottom: 1px solid #E7E9EE; margin-top: 24px;">
-        ${this.curlSyntaxTemplate('flex')}
+        ${this.codeExampleTemplate('flex')}
         <div style="background: #F8F7FC; padding-inline: 32px;padding-block: 16px">
           ${this.responseMessage
               ? html`
@@ -1186,261 +1185,11 @@ export default class ApiRequest extends LitElement {
     requestPanelInputEls.forEach((el) => { el.value = ''; });
   }
 
-  buildFetchURL(requestPanelEl) {
-    let fetchUrl;
-    const pathParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='path']")];
-    const queryParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='query']")];
-    const queryParamObjTypeEls = [...requestPanelEl.querySelectorAll("[data-ptype='query-object']")];
-    fetchUrl = this.path;
-    // Generate URL using Path Params
-    pathParamEls.map((el) => {
-      fetchUrl = fetchUrl.replace(`{${el.dataset.pname}}`, encodeURIComponent(el.value));
-    });
-
-    // Query Params
-    const urlQueryParamsMap = new Map();
-    const queryParamsWithReservedCharsAllowed = [];
-    if (queryParamEls.length > 0) {
-      queryParamEls.forEach((el) => {
-        const queryParam = new URLSearchParams();
-        if (el.dataset.paramAllowReserved === 'true') {
-          queryParamsWithReservedCharsAllowed.push(el.dataset.pname);
-        }
-        if (el.dataset.array === 'false') {
-          if (el.value !== '') {
-            queryParam.append(el.dataset.pname, el.value);
-          }
-        } else {
-          const { paramSerializeStyle, paramSerializeExplode } = el.dataset;
-          let vals = ((el.value && Array.isArray(el.value)) ? el.value : []);
-          vals = Array.isArray(vals) ? vals.filter((v) => v !== '') : [];
-          if (vals.length > 0) {
-            if (paramSerializeStyle === 'spaceDelimited') {
-              queryParam.append(el.dataset.pname, vals.join(' ').replace(/^\s|\s$/g, ''));
-            } else if (paramSerializeStyle === 'pipeDelimited') {
-              queryParam.append(el.dataset.pname, vals.join('|').replace(/^\||\|$/g, ''));
-            } else {
-              if (paramSerializeExplode === 'true') { // eslint-disable-line no-lonely-if
-                vals.forEach((v) => { queryParam.append(el.dataset.pname, v); });
-              } else {
-                queryParam.append(el.dataset.pname, vals.join(',').replace(/^,|,$/g, ''));
-              }
-            }
-          }
-        }
-        if (queryParam.toString()) {
-          urlQueryParamsMap.set(el.dataset.pname, queryParam);
-        }
-      });
-    }
-
-    // Query Params (Dynamic - create from JSON)
-    if (queryParamObjTypeEls.length > 0) {
-      queryParamObjTypeEls.map((el) => {
-        const queryParam = new URLSearchParams();
-        try {
-          let queryParamObj = {};
-          const { paramSerializeStyle, paramSerializeExplode, pname } = el.dataset;
-          queryParamObj = Object.assign(queryParamObj, JSON.parse(el.value.replace(/\s+/g, ' ')));
-          if (el.dataset.paramAllowReserved === 'true') {
-            queryParamsWithReservedCharsAllowed.push(el.dataset.pname);
-          }
-          if ('json xml'.includes(paramSerializeStyle)) {
-            if (paramSerializeStyle === 'json') {
-              queryParam.append(el.dataset.pname, JSON.stringify(queryParamObj));
-            } else if (paramSerializeStyle === 'xml') {
-              queryParam.append(el.dataset.pname, json2xml(queryParamObj));
-            }
-          } else {
-            for (const key in queryParamObj) {
-              const pKey = `${pname}[${key}]`;
-              if (typeof queryParamObj[key] === 'object') {
-                if (Array.isArray(queryParamObj[key])) {
-                  if (paramSerializeStyle === 'spaceDelimited') {
-                    queryParam.append(pKey, queryParamObj[key].join(' '));
-                  } else if (paramSerializeStyle === 'pipeDelimited') {
-                    queryParam.append(pKey, queryParamObj[key].join('|'));
-                  } else {
-                    if (paramSerializeExplode === 'true') { // eslint-disable-line no-lonely-if
-                      queryParamObj[key].forEach((v) => {
-                        queryParam.append(pKey, v);
-                      });
-                    } else {
-                      queryParam.append(pKey, queryParamObj[key]);
-                    }
-                  }
-                }
-              } else {
-                queryParam.append(pKey, queryParamObj[key]);
-              }
-            }
-          }
-        } catch (err) {
-          console.error('RapiDoc: unable to parse %s into object', el.value); // eslint-disable-line no-console
-        }
-        if (queryParam.toString()) {
-          urlQueryParamsMap.set(el.dataset.pname, queryParam);
-        }
-      });
-    }
-    let urlQueryParamString = '';
-    if (urlQueryParamsMap.size) {
-      urlQueryParamsMap.forEach((val, pname) => {
-        if (queryParamsWithReservedCharsAllowed.includes(pname)) {
-          urlQueryParamString += `${pname}=`;
-          urlQueryParamString += val.getAll(pname).join(`&${pname}=`);
-          urlQueryParamString += '&';
-        } else {
-          urlQueryParamString += `${val.toString()}&`;
-        }
-      });
-      urlQueryParamString = urlQueryParamString.slice(0, -1);
-    }
-    if (urlQueryParamString.length !== 0) {
-      fetchUrl = `${fetchUrl}${fetchUrl.includes('?') ? '&' : '?'}${urlQueryParamString}`;
-    }
-
-    // Add authentication Query-Param if provided
-    this.api_keys
-      .filter((v) => (v.in === 'query'))
-      .forEach((v) => {
-        fetchUrl = `${fetchUrl}${fetchUrl.includes('?') ? '&' : '?'}${v.name}=${encodeURIComponent(v.finalKeyValue)}`;
-      });
-
-    fetchUrl = `${this.selectedServer.computedUrl.replace(/\/$/, '')}${fetchUrl}`;
-
-    return fetchUrl;
-  }
-
-  buildFetchHeaders(requestPanelEl) {
-    const respEl = this.closest('.expanded-req-resp-container, .req-resp-container')?.getElementsByTagName('api-response')[0];
-    const headerParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='header']")];
-    const requestBodyContainerEl = requestPanelEl.querySelector('.request-body-container');
-    const acceptHeader = respEl?.selectedMimeType;
-    const reqHeaders = new Headers();
-    if (acceptHeader) {
-      // Uses the acceptHeader from Response panel
-      reqHeaders.append('Accept', acceptHeader);
-    } else if (this.accept) {
-      reqHeaders.append('Accept', this.accept);
-    }
-
-    // Add Authentication Header if provided
-    this.api_keys
-      .filter((v) => (v.in === 'header'))
-      .forEach((v) => {
-        reqHeaders.append(v.name, v.finalKeyValue);
-      });
-
-    // Add Header Params
-    headerParamEls.map((el) => {
-      if (el.value) {
-        reqHeaders.append(el.dataset.pname, el.value);
-      }
-    });
-
-    // Add Authentication Header if provided
-    this.resolvedSpec.securitySchemes.forEach((key) => {
-      reqHeaders.append(key.name, key.value);
-    });
-
-    if (requestBodyContainerEl) {
-      const requestBodyType = requestBodyContainerEl.dataset.selectedRequestBodyType;
-      // Common for all request-body
-      if (!requestBodyType.includes('form-data')) {
-        // For multipart/form-data dont set the content-type to allow creation of browser generated part boundaries
-        reqHeaders.append('Content-Type', requestBodyType);
-      }
-    }
-
-    return reqHeaders;
-  }
-
-  buildFetchBodyOptions(requestPanelEl) {
-    const requestBodyContainerEl = requestPanelEl.querySelector('.request-body-container');
-    const fetchOptions = {
-      method: this.method.toUpperCase(),
-    };
-    if (requestBodyContainerEl) {
-      const requestBodyType = requestBodyContainerEl.dataset.selectedRequestBodyType;
-      if (requestBodyType.includes('form-urlencoded')) {
-        // url-encoded Form Params (dynamic) - Parse JSON and generate Params
-        const formUrlDynamicTextAreaEl = requestPanelEl.querySelector("[data-ptype='dynamic-form']");
-        if (formUrlDynamicTextAreaEl) {
-          const val = formUrlDynamicTextAreaEl.value;
-          const formUrlDynParams = new URLSearchParams();
-          let proceed = true;
-          let tmpObj;
-          if (val) {
-            try {
-              tmpObj = JSON.parse(val);
-            } catch (err) {
-              proceed = false;
-              console.warn('RapiDoc: Invalid JSON provided', err); // eslint-disable-line no-console
-            }
-          } else {
-            proceed = false;
-          }
-          if (proceed) {
-            for (const prop in tmpObj) {
-              formUrlDynParams.append(prop, JSON.stringify(tmpObj[prop]));
-            }
-            fetchOptions.body = formUrlDynParams;
-          }
-        } else {
-          // url-encoded Form Params (regular)
-          const formUrlEls = [...requestPanelEl.querySelectorAll("[data-ptype='form-urlencode']")];
-          const formUrlParams = new URLSearchParams();
-          formUrlEls
-            .filter((v) => (v.type !== 'file'))
-            .forEach((el) => {
-              if (el.dataset.array === 'false') {
-                if (el.value) {
-                  formUrlParams.append(el.dataset.pname, el.value);
-                }
-              } else {
-                const vals = (el.value && Array.isArray(el.value)) ? el.value.join(',') : '';
-                formUrlParams.append(el.dataset.pname, vals);
-              }
-            });
-          fetchOptions.body = formUrlParams;
-        }
-      } else if (requestBodyType.includes('form-data')) {
-        const formDataParams = new FormData();
-        const formDataEls = [...requestPanelEl.querySelectorAll("[data-ptype='form-data']")];
-        formDataEls.forEach((el) => {
-          if (el.dataset.array === 'false') {
-            if (el.type === 'file' && el.files[0]) {
-              formDataParams.append(el.dataset.pname, el.files[0], el.files[0].name);
-            } else if (el.value) {
-              formDataParams.append(el.dataset.pname, el.value);
-            }
-          } else if (el.value && Array.isArray(el.value)) {
-            formDataParams.append(el.dataset.pname, el.value.join(','));
-          }
-        });
-        fetchOptions.body = formDataParams;
-      } else if (/^audio\/|^image\/|^video\/|^font\/|tar$|zip$|7z$|rtf$|msword$|excel$|\/pdf$|\/octet-stream$/.test(requestBodyType)) {
-        const bodyParamFileEl = requestPanelEl.querySelector('.request-body-param-file');
-        if (bodyParamFileEl?.files[0]) {
-          fetchOptions.body = bodyParamFileEl.files[0]; // eslint-disable-line prefer-destructuring
-        }
-      } else if (requestBodyType.includes('json') || requestBodyType.includes('xml') || requestBodyType.includes('text')) {
-        const exampleTextAreaEl = requestPanelEl.querySelector('.request-body-param-user-input');
-        if (exampleTextAreaEl?.value) {
-          fetchOptions.body = exampleTextAreaEl.value;
-        }
-      }
-    }
-
-    return fetchOptions;
-  }
-
   async onTryClick(e) {
     const tryBtnEl = e.target ? e.target : e;
 
     const { fetchUrl, fetchOptions, reqHeaders } = updateCodeExample.call(this, tryBtnEl);
-    const encodedUrl = encodeURIComponent(fetchUrl);
+    const encodedUrl = `/api/proxy/${encodeURIComponent(fetchUrl)}`;
 
     this.responseUrl = '';
     this.responseHeaders = [];
@@ -1586,88 +1335,8 @@ export default class ApiRequest extends LitElement {
     this.requestUpdate();
   }
 
-  liveCURLSyntaxUpdate(requestPanelEl) {
-    this.applyCURLSyntax(requestPanelEl);
-    this.requestUpdate();
-  }
-
-  onGenerateCURLClick(e) {
-    const requestPanelEl = this.getRequestPanel(e);
-    this.applyCURLSyntax(requestPanelEl);
-  }
-
   getRequestPanel(e) {
     return e.target.closest('.request-panel');
-  }
-
-  applyCURLSyntax(requestPanelEl) {
-    const fetchUrl = this.buildFetchURL(requestPanelEl);
-    const fetchOptions = this.buildFetchBodyOptions(requestPanelEl);
-    const fetchHeaders = this.buildFetchHeaders(requestPanelEl);
-
-    this.curlSyntax = this.generateCURLSyntax(fetchUrl, fetchHeaders, fetchOptions, requestPanelEl);
-  }
-
-  generateCURLSyntax(fetchUrl, fetchHeaders, fetchOptions, requestPanelEl) {
-    let curlUrl;
-    let curl = '';
-    let curlHeaders = '';
-    let curlData = '';
-    let curlForm = '';
-    const requestBodyContainerEl = requestPanelEl.querySelector('.request-body-container');
-
-    if (fetchUrl.startsWith('http') === false) {
-      const url = new URL(fetchUrl, window.location.href);
-      curlUrl = url.href;
-    } else {
-      curlUrl = fetchUrl;
-    }
-
-    curl = `curl -X ${this.method.toUpperCase()} "${curlUrl}" \\\n`;
-
-    curlHeaders = Array.from(fetchHeaders).map(([key, value]) => ` -H "${key}: ${value}"`).join('\\\n');
-    if (curlHeaders) {
-      curlHeaders = `${curlHeaders} \\\n`;
-    }
-    if (fetchOptions.body instanceof URLSearchParams) {
-      curlData = ` -d ${fetchOptions.body.toString()} \\\n`;
-    } else if (fetchOptions.body instanceof File) {
-      curlData = ` --data-binary @${fetchOptions.body.name} \\\n`;
-    } else if (fetchOptions.body instanceof FormData) {
-      curlForm = Array.from(fetchOptions.body).reduce((aggregator, [key, value]) => {
-        if (value instanceof File) {
-          return [...aggregator, ` -F "${key}=@${value.name}"`];
-        }
-
-        const multiple = value.match(/([^,],)/gm);
-
-        if (multiple) {
-          const multipleResults = multiple.map((one) => `-F "${key}[]=${one}"`);
-
-          return [...aggregator, ...multipleResults];
-        }
-
-        return [...aggregator, ` -F "${key}=${value}"`];
-      }, []).join('\\\n');
-    } else if (requestBodyContainerEl && requestBodyContainerEl.dataset.selectedRequestBodyType) {
-      const requestBodyType = requestBodyContainerEl.dataset.selectedRequestBodyType;
-      const exampleTextAreaEl = requestPanelEl.querySelector('.request-body-param-user-input');
-      if (exampleTextAreaEl?.value) {
-        fetchOptions.body = exampleTextAreaEl.value;
-        if (requestBodyType.includes('json')) {
-          try {
-            curlData = ` -d '${JSON.stringify(JSON.parse(exampleTextAreaEl.value))}' \\\n`;
-          } catch (err) {
-            // Ignore.
-          }
-        }
-        if (!curlData) {
-          curlData = ` -d '${exampleTextAreaEl.value.replace(/'/g, '\'"\'"\'')}' \\\n`;
-        }
-      }
-    }
-
-    return `${curl}${curlHeaders}${curlData}${curlForm}`;
   }
 
   onAddRemoveFileInput(e, pname, ptype) {
@@ -1725,7 +1394,7 @@ export default class ApiRequest extends LitElement {
   }
 
   disconnectedCallback() {
-    this.curlSyntax = '';
+    this.codeExample = '';
     // Cleanup ObjectURL for the blob data if this component created one
     if (this.responseBlobUrl) {
       URL.revokeObjectURL(this.responseBlobUrl);

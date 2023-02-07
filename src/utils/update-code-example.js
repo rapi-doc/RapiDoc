@@ -1,56 +1,32 @@
 import { json2xml } from '~/utils/schema-utils';
 import HTTPSnippet from 'httpsnippet';
 
-export default function updateCodeExample(tryBtnEl) {
-  let fetchUrl;
-  let acceptValue = '';
-  let contentTypeValue = '';
-  const fetchOptions = {
-    method: this.method.toUpperCase(),
-  };
-  const reqHeaders = new Headers();
+function buildFetchURL(requestPanelEl) {
+  let fetchUrl = this.path;
+  const queryString = [];
 
-  const respEl = this.closest('.expanded-req-resp-container, .req-resp-container')?.getElementsByTagName('api-response')[0];
-  const acceptHeader = respEl?.selectedMimeType;
-  const requestPanelEl = tryBtnEl.closest('.request-panel');
-  const pathParamEls = [
-    ...requestPanelEl.querySelectorAll("[data-ptype='path']"),
-  ];
-  const queryParamEls = [
-    ...requestPanelEl.querySelectorAll("[data-ptype='query']"),
-  ];
-  const queryParamObjTypeEls = [
-    ...requestPanelEl.querySelectorAll("[data-ptype='query-object']"),
-  ];
-  const headerParamEls = [
-    ...requestPanelEl.querySelectorAll("[data-ptype='header']"),
-  ];
-  const requestBodyContainerEl = requestPanelEl.querySelector(
-    '.request-body-container',
-  );
-  fetchUrl = this.path;
+  const pathParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='path']")];
+  const queryParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='query']")];
+  const queryParamObjTypeEls = [...requestPanelEl.querySelectorAll("[data-ptype='query-object']")];
+
   // Generate URL using Path Params
   pathParamEls.map((el) => {
-    fetchUrl = fetchUrl.replace(
-      `{${el.dataset.pname}}`,
-      encodeURIComponent(el.value),
-    );
+    fetchUrl = fetchUrl.replace(`{${el.dataset.pname}}`, encodeURIComponent(el.value));
   });
 
-  const headers = [];
-  const queryString = [];
-  const postData = { mimeType: '' };
-
   // Query Params
+  const urlQueryParamsMap = new Map();
   const queryParamsWithReservedCharsAllowed = [];
   if (queryParamEls.length > 0) {
     queryParamEls.forEach((el) => {
+      const queryParam = new URLSearchParams();
       if (el.dataset.paramAllowReserved === 'true') {
         queryParamsWithReservedCharsAllowed.push(el.dataset.pname);
       }
       if (el.dataset.array === 'false') {
         if (el.value !== '') {
           queryString.push({ name: el.dataset.pname, value: el.value });
+          queryParam.append(el.dataset.pname, el.value);
         }
       } else {
         const { paramSerializeStyle, paramSerializeExplode } = el.dataset;
@@ -62,22 +38,29 @@ export default function updateCodeExample(tryBtnEl) {
               name: el.dataset.pname,
               value: vals.join(' ').replace(/^\s|\s$/g, ''),
             });
+            queryParam.append(el.dataset.pname, vals.join(' ').replace(/^\s|\s$/g, ''));
           } else if (paramSerializeStyle === 'pipeDelimited') {
-            queryString.pus({
+            queryString.push({
               name: el.dataset.pname,
               value: vals.join('|').replace(/^\||\|$/g, ''),
             });
+            queryParam.append(el.dataset.pname, vals.join('|').replace(/^\||\|$/g, ''));
           } else if (paramSerializeExplode === 'true') {
             vals.forEach((v) => {
               queryString.push({ name: el.dataset.pname, value: v });
+              queryParam.append(el.dataset.pname, v);
             });
           } else {
             queryString.push({
               name: el.dataset.pname,
               value: vals.join(',').replace(/^,|,$/g, ''),
             });
+            queryParam.append(el.dataset.pname, vals.join(',').replace(/^,|,$/g, ''));
           }
         }
+      }
+      if (queryParam.toString()) {
+        urlQueryParamsMap.set(el.dataset.pname, queryParam);
       }
     });
   }
@@ -85,9 +68,10 @@ export default function updateCodeExample(tryBtnEl) {
   // Query Params (Dynamic - create from JSON)
   if (queryParamObjTypeEls.length > 0) {
     queryParamObjTypeEls.map((el) => {
+      const queryParam = new URLSearchParams();
       try {
         let queryParamObj = {};
-        const { paramSerializeStyle, paramSerializeExplode } = el.dataset;
+        const { paramSerializeStyle, paramSerializeExplode, pname } = el.dataset;
         queryParamObj = Object.assign(
           queryParamObj,
           JSON.parse(el.value.replace(/\s+/g, ' ')),
@@ -98,35 +82,62 @@ export default function updateCodeExample(tryBtnEl) {
         if ('json xml'.includes(paramSerializeStyle)) {
           if (paramSerializeStyle === 'json') {
             queryString.push({ name: el.dataset.pname, value: JSON.stringify(queryParamObj) });
+            queryParam.append(el.dataset.pname, JSON.stringify(queryParamObj));
           } else if (paramSerializeStyle === 'xml') {
             queryString.push({ name: el.dataset.pname, value: json2xml(queryParamObj) });
+            queryParam.append(el.dataset.pname, json2xml(queryParamObj));
           }
         } else {
           for (const key in queryParamObj) {
+            const pKey = `${pname}[${key}]`;
             if (typeof queryParamObj[key] === 'object') {
               if (Array.isArray(queryParamObj[key])) {
                 if (paramSerializeStyle === 'spaceDelimited') {
-                  queryString.push({ name: key, value: queryParamObj[key].join(' ') });
+                  queryString.push({ name: pKey, value: queryParamObj[key].join(' ') });
+                  queryParam.append(pKey, queryParamObj[key].join(' '));
                 } else if (paramSerializeStyle === 'pipeDelimited') {
-                  queryString.push({ name: key, value: queryParamObj[key].join('|') });
+                  queryString.push({ name: pKey, value: queryParamObj[key].join('|') });
+                  queryParam.append(pKey, queryParamObj[key].join('|'));
                 } else if (paramSerializeExplode === 'true') {
-                  // eslint-disable-line no-lonely-if
                   queryParamObj[key].forEach((v) => {
-                    queryString.push({ name: key, value: v });
+                    queryString.push({ name: pKey, value: v });
+                    queryParam.append(pKey, v);
                   });
                 } else {
-                  queryString.push({ name: key, value: queryParamObj[key] });
+                  queryString.push({ name: pKey, value: queryParamObj[key] });
+                  queryParam.append(pKey, queryParamObj[key]);
                 }
               }
             } else {
-              queryString.push({ name: key, value: queryParamObj[key] });
+              queryString.push({ name: pKey, value: queryParamObj[key] });
+              queryParam.append(pKey, queryParamObj[key]);
             }
           }
         }
       } catch (err) {
         console.log('RapiDoc: unable to parse %s into object', el.value); // eslint-disable-line no-console
       }
+      if (queryParam.toString()) {
+        urlQueryParamsMap.set(el.dataset.pname, queryParam);
+      }
     });
+  }
+
+  let urlQueryParamString = '';
+  if (urlQueryParamsMap.size) {
+    urlQueryParamsMap.forEach((val, pname) => {
+      if (queryParamsWithReservedCharsAllowed.includes(pname)) {
+        urlQueryParamString += `${pname}=`;
+        urlQueryParamString += val.getAll(pname).join(`&${pname}=`);
+        urlQueryParamString += '&';
+      } else {
+        urlQueryParamString += `${val.toString()}&`;
+      }
+    });
+    urlQueryParamString = urlQueryParamString.slice(0, -1);
+  }
+  if (urlQueryParamString.length !== 0) {
+    fetchUrl = `${fetchUrl}${fetchUrl.includes('?') ? '&' : '?'}${urlQueryParamString}`;
   }
 
   // Add authentication Query-Param if provided
@@ -139,51 +150,19 @@ export default function updateCodeExample(tryBtnEl) {
     });
 
   // Final URL for API call
-  // fetchUrl = `${this.serverUrl.replace(/\/$/, '')}${fetchUrl}`;
   fetchUrl = `${this.selectedServer.computedUrl.replace(/\/$/, '')}${fetchUrl}`;
 
-  // Add Header Params
+  return { fetchUrl, queryString };
+}
+
+function buildFetchOptions(requestPanelEl) {
+  const fetchOptions = { method: this.method.toUpperCase() };
+  const postData = { mimeType: '' };
+
+  const requestBodyContainerEl = requestPanelEl.querySelector('.request-body-container');
   const requestBodyType = requestBodyContainerEl
     ? requestBodyContainerEl.dataset.selectedRequestBodyType
     : '';
-  headerParamEls.map((el) => {
-    if (el.value) {
-      if (el.dataset.pname === 'Accept') acceptValue = el.value;
-      else if (el.dataset.pname === 'Content-Type') contentTypeValue = el.value;
-      else {
-        reqHeaders.append(el.dataset.pname, el.value);
-        headers.push({ name: el.dataset.pname, value: el.value });
-      }
-    }
-  });
-
-  if (acceptValue) {
-    reqHeaders.append('Accept', acceptValue);
-    headers.push({ name: 'Accept', value: acceptValue });
-  } else if (acceptHeader) {
-    // Uses the acceptHeader from Response panel
-    reqHeaders.append('Accept', acceptHeader);
-    headers.push({ name: 'Accept', value: acceptHeader });
-  } else if (this.accept) {
-    reqHeaders.append('Accept', this.accept);
-    headers.push({ name: 'Accept', value: this.accept });
-  }
-
-  if (contentTypeValue) {
-    postData.mimeType = contentTypeValue;
-    reqHeaders.append('Content-Type', contentTypeValue);
-    headers.push({ name: 'Content-Type', value: contentTypeValue });
-  } else if (requestBodyContainerEl) {
-    postData.mimeType = requestBodyType;
-    reqHeaders.append('Content-Type', requestBodyType);
-    headers.push({ name: 'Content-Type', value: requestBodyType });
-  }
-
-  // Add Authentication Header if provided
-  this.resolvedSpec.securitySchemes.forEach((key) => {
-    reqHeaders.append(key.name, key.value);
-    headers.push({ name: key.name, value: key.value });
-  });
 
   // Request Body Params
   if (requestBodyContainerEl) {
@@ -293,7 +272,7 @@ export default function updateCodeExample(tryBtnEl) {
             // Ignore.
           }
         }
-        if (postData.text.length === 0) {
+        if (postData.text && postData.text.length === 0) {
           postData.text = (exampleTextAreaEl.value.replace(
             /'/g,
             "'\"'\"'",
@@ -302,6 +281,73 @@ export default function updateCodeExample(tryBtnEl) {
       }
     }
   }
+
+  if (requestBodyContainerEl) {
+    postData.mimeType = requestBodyType;
+  }
+
+  return { fetchOptions, postData };
+}
+
+function buildFetchHeaders(requestPanelEl) {
+  let acceptValue = '';
+  let contentTypeValue = '';
+
+  const reqHeaders = new Headers();
+  const headers = [];
+
+  const requestBodyContainerEl = requestPanelEl.querySelector('.request-body-container');
+  const headerParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='header']")];
+  const respEl = this.closest('.expanded-req-resp-container, .req-resp-container')?.getElementsByTagName('api-response')[0];
+  const acceptHeader = respEl?.selectedMimeType;
+
+  // Add Header Params
+  headerParamEls.map((el) => {
+    if (el.value) {
+      if (el.dataset.pname === 'Accept') acceptValue = el.value;
+      else if (el.dataset.pname === 'Content-Type') contentTypeValue = el.value;
+      else {
+        reqHeaders.append(el.dataset.pname, el.value);
+        headers.push({ name: el.dataset.pname, value: el.value });
+      }
+    }
+  });
+
+  if (acceptValue) {
+    reqHeaders.append('Accept', acceptValue);
+    headers.push({ name: 'Accept', value: acceptValue });
+  } else if (acceptHeader) {
+    // Uses the acceptHeader from Response panel
+    reqHeaders.append('Accept', acceptHeader);
+    headers.push({ name: 'Accept', value: acceptHeader });
+  } else if (this.accept) {
+    reqHeaders.append('Accept', this.accept);
+    headers.push({ name: 'Accept', value: this.accept });
+  }
+
+  if (contentTypeValue) {
+    reqHeaders.append('Content-Type', contentTypeValue);
+    headers.push({ name: 'Content-Type', value: contentTypeValue });
+  } else if (requestBodyContainerEl) {
+    reqHeaders.append('Content-Type', requestBodyContainerEl.dataset.selectedRequestBodyType);
+    headers.push({ name: 'Content-Type', value: requestBodyContainerEl.dataset.selectedRequestBodyType });
+  }
+
+  // Add Authentication Header if provided
+  this.resolvedSpec.securitySchemes.forEach((key) => {
+    reqHeaders.append(key.name, key.value);
+    headers.push({ name: key.name, value: key.value });
+  });
+
+  return { reqHeaders, headers };
+}
+
+export default function updateCodeExample(tryBtnEl) {
+  const requestPanelEl = tryBtnEl.closest('.request-panel');
+
+  const { fetchUrl, queryString } = buildFetchURL.call(this, requestPanelEl);
+  const { fetchOptions, postData } = buildFetchOptions.call(this, requestPanelEl);
+  const { reqHeaders, headers } = buildFetchHeaders.call(this, requestPanelEl);
 
   const snippet = new HTTPSnippet({
     method: this.method,
@@ -314,7 +360,7 @@ export default function updateCodeExample(tryBtnEl) {
   const options = { indent: '\t' };
   const output = snippet.convert(this.selectedLanguage, options);
 
-  this.codePreview = output;
+  this.codeExample = output;
 
   return { fetchUrl, fetchOptions, reqHeaders };
 }
