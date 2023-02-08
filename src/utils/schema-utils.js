@@ -794,6 +794,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     obj['::type'] = 'object';
     if ((Array.isArray(schema.type) && schema.type.includes('null')) || schema.nullable) {
       obj['::dataTypeLabel'] = 'object or null';
+      obj['::nullable'] = true;
     }
     obj['::deprecated'] = schema.deprecated || false;
     obj['::readwrite'] = schema.readOnly ? 'readonly' : schema.writeOnly ? 'writeonly' : '';
@@ -816,6 +817,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     obj['::type'] = 'array';
     if ((Array.isArray(schema.type) && schema.type.includes('null')) || schema.nullable) {
       obj['::dataTypeLabel'] = 'array or null';
+      obj['::nullable'] = true;
     }
     obj['::deprecated'] = schema.deprecated || false;
     obj['::readwrite'] = schema.readOnly ? 'readonly' : schema.writeOnly ? 'writeonly' : '';
