@@ -2,6 +2,7 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
+import updateCodeExample from '~/utils/update-code-example';
 
 const codeVerifier = '731DB1C3F7EA533B85E29492D26AA-1234567890-1234567890';
 const codeChallenge = '4FatVDBJKPAo4JgLLaaQFMUcQPn5CrPRvLlaob9PTYc'; // Base64 encoded SHA-256
@@ -390,7 +391,7 @@ function handleApiKeyChange(e, securitySchemeId, apiKey) {
   else onApiKeyChange.call(this, securitySchemeId);
 
   const requestPanelEl = this.getRequestPanel(e);
-  this.liveCURLSyntaxUpdate(requestPanelEl);
+  updateCodeExample.call(this, requestPanelEl);
 }
 
 export default function securitySchemeTemplate() {
@@ -449,7 +450,7 @@ export default function securitySchemeTemplate() {
                       style="width:100px"
                       @change = ${(e) => {
                         const requestPanelEl = this.getRequestPanel(e);
-                        this.liveCURLSyntaxUpdate(requestPanelEl);
+                        updateCodeExample.call(this, requestPanelEl);
                       }}
                     >
                     <input
@@ -461,7 +462,7 @@ export default function securitySchemeTemplate() {
                       style="width:100px; margin:0 5px;"
                       @change = ${(e) => {
                         const requestPanelEl = this.getRequestPanel(e);
-                        this.liveCURLSyntaxUpdate(requestPanelEl);
+                        updateCodeExample.call(this, requestPanelEl);
                       }}
                     >
                     <button class="m-btn thin-border"

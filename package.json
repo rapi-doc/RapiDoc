@@ -40,7 +40,9 @@
     "lit": "^2.6.1",
     "marked": "^4.2.12",
     "prismjs": "^1.29.0",
-    "xml-but-prettier": "^1.0.1"
+    "xml-but-prettier": "^1.0.1",
+    "httpsnippet": "^2.0.0",
+    "node-polyfill-webpack-plugin": "^2.0.1"
   },
   "scripts": {
     "build": "NODE_ENV=production webpack --mode=production",

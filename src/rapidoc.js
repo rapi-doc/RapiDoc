@@ -520,6 +520,8 @@ export default class RapiDoc extends LitElement {
     if (!this.cssFile) { this.cssFile = null; }
     if (!this.cssClasses) { this.cssClasses = ''; }
 
+    Prism.languages.node = Prism.languages.javascript;
+
     marked.setOptions({
       highlight: (code, lang) => {
         if (lang === 'curl') lang = 'bash';
