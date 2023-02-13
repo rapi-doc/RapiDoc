@@ -342,6 +342,11 @@ function buildFetchHeaders(requestPanelEl) {
   return { reqHeaders, headers };
 }
 
+function decodeCurlyBrackets(url) {
+  url = url.replace(/\/?%7B/gm, '{').replace(/\/?%7D/gm, '}');
+  return url;
+}
+
 export default function updateCodeExample(tryBtnEl) {
   const requestPanelEl = tryBtnEl.closest('.request-panel');
 
@@ -356,6 +361,9 @@ export default function updateCodeExample(tryBtnEl) {
     headers,
     postData,
   });
+
+  snippet.requests[0].url = decodeCurlyBrackets(snippet.requests[0].url);
+  snippet.requests[0].fullUrl = decodeCurlyBrackets(snippet.requests[0].fullUrl);
 
   const options = { indent: '\t' };
   const output = snippet.convert(this.selectedLanguage, options);
