@@ -21575,6 +21575,10 @@ function buildFetchHeaders(requestPanelEl) {
     headers
   };
 }
+function decodeCurlyBrackets(url) {
+  url = url.replace(/\/?%7B/gm, '{').replace(/\/?%7D/gm, '}');
+  return url;
+}
 function updateCodeExample(tryBtnEl) {
   const requestPanelEl = tryBtnEl.closest('.request-panel');
   const {
@@ -21596,6 +21600,8 @@ function updateCodeExample(tryBtnEl) {
     headers,
     postData
   });
+  snippet.requests[0].url = decodeCurlyBrackets(snippet.requests[0].url);
+  snippet.requests[0].fullUrl = decodeCurlyBrackets(snippet.requests[0].fullUrl);
   const options = {
     indent: '\t'
   };
@@ -23793,7 +23799,7 @@ function onApiServerVarChange(e, serverObj) {
   inputEls.forEach(v => {
     serverObj.variables[v.dataset.var].value = v.value;
     const regex = new RegExp(`{${v.dataset.var}}`, 'g');
-    tempUrl = tempUrl.replace(regex, v.value);
+    tempUrl = tempUrl.replace(regex, v.value.trim());
   });
   serverObj.computedUrl = tempUrl;
   const requestPanelEl = this.getRequestPanel(e);
@@ -54864,7 +54870,7 @@ module.exports = JSON.parse('{"$id":"timings.json#","$schema":"http://json-schem
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("734c3fc8c10fa5b703a9")
+/******/ 		__webpack_require__.h = () => ("63c9113020b1457e7863")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

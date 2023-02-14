@@ -27,7 +27,7 @@ function onApiServerVarChange(e, serverObj) {
   inputEls.forEach((v) => {
     serverObj.variables[v.dataset.var].value = v.value;
     const regex = new RegExp(`{${v.dataset.var}}`, 'g');
-    tempUrl = tempUrl.replace(regex, v.value);
+    tempUrl = tempUrl.replace(regex, v.value.trim());
   });
   serverObj.computedUrl = tempUrl;
 
