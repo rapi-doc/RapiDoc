@@ -1,7 +1,7 @@
 <!doctype html> <!-- Important: must specify -->
 <html>
 <head>
-  <title>RapidDoc API Demo</title>
+  <title>RapiDoc API Demo</title>
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-132775238-1"></script>
   <script>
@@ -161,19 +161,19 @@
 
     function setAttribute(attr, value) {
       if (attr === 'spec-url') { value = specUrls[value]; }
-      rapidDocE.setAttribute(attr, value);
+      rapiDocE.setAttribute(attr, value);
     }
     function updateValue(attr, value) {
       window.localStorage.setItem(attr, value);
       setAttribute(attr, value);
     }
 
-    let rapidDocE;
+    let rapiDocE;
     let sideBarE;
     document.addEventListener('DOMContentLoaded', (event) => {
-      rapidDocE = document.getElementById('thedoc');
+      rapiDocE = document.getElementById('thedoc');
       sideBarE = document.getElementById('sidebar');
-      rapidDocE.addEventListener('before-render', (e) => { initOptions(false, e.detail.spec); });
+      rapiDocE.addEventListener('before-render', (e) => { initOptions(false, e.detail.spec); });
       document.addEventListener('click', onOutsideClick);
       toggleSidebar(event);
     });
@@ -201,7 +201,6 @@
 
     function buildOption(option) {
       let optionLabel = `<h5 class="option-label">${option.label}</h5><span class="option-tip">${option.tip}</span>`;
-      // if (option.tip) { optionLabel += `<span class="option-tip">${option.tip}</span>`; }
 
       return (! option.isBoolean) ?
                 `<tr>
@@ -289,8 +288,8 @@
 
       default-api-server="https://8wznlhux9c.execute-api.us-east-1.amazonaws.com"
     >
-      <img id="logo" slot="logo" width='10%' src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHg9IjBweCIgeT0iMHB4Igp3aWR0aD0iNDgiIGhlaWdodD0iNDgiCnZpZXdCb3g9IjAgMCA0OCA0OCIKc3R5bGU9IiBmaWxsOiMwMDAwMDA7Ij48ZyBpZD0ic3VyZmFjZTEiPjxwYXRoIHN0eWxlPSIgZmlsbDojRkYzRDAwOyIgZD0iTSA0My4xOTkyMTkgMzMuODk4NDM4IEMgNDIuODAwNzgxIDM2IDQxLjEwMTU2MyAzNy42MDE1NjMgMzkgMzcuODk4NDM4IEMgMzUuNjk5MjE5IDM4LjM5ODQzOCAzMC4xOTkyMTkgMzkgMjQgMzkgQyAxNy44OTg0MzggMzkgMTIuMzk4NDM4IDM4LjM5ODQzOCA5IDM3Ljg5ODQzOCBDIDYuODk4NDM4IDM3LjYwMTU2MyA1LjE5OTIxOSAzNiA0LjgwMDc4MSAzMy44OTg0MzggQyA0LjM5ODQzOCAzMS42MDE1NjMgNCAyOC4xOTkyMTkgNCAyNCBDIDQgMTkuODAwNzgxIDQuMzk4NDM4IDE2LjM5ODQzOCA0LjgwMDc4MSAxNC4xMDE1NjMgQyA1LjE5OTIxOSAxMiA2Ljg5ODQzOCAxMC4zOTg0MzggOSAxMC4xMDE1NjMgQyAxMi4zMDA3ODEgOS42MDE1NjMgMTcuODAwNzgxIDkgMjQgOSBDIDMwLjE5OTIxOSA5IDM1LjYwMTU2MyA5LjYwMTU2MyAzOSAxMC4xMDE1NjMgQyA0MS4xMDE1NjMgMTAuMzk4NDM4IDQyLjgwMDc4MSAxMiA0My4xOTkyMTkgMTQuMTAxNTYzIEMgNDMuNjAxNTYzIDE2LjM5ODQzOCA0NC4xMDE1NjMgMTkuODAwNzgxIDQ0LjEwMTU2MyAyNCBDIDQ0IDI4LjE5OTIxOSA0My42MDE1NjMgMzEuNjAxNTYzIDQzLjE5OTIxOSAzMy44OTg0MzggWiAiPjwvcGF0aD48cGF0aCBzdHlsZT0iIGZpbGw6I0ZGRkZGRjsiIGQ9Ik0gMjAgMzEgTCAyMCAxNyBMIDMyIDI0IFogIj48L3BhdGg+PC9nPjwvc3ZnPg=="/>
-      <img id="nav-logo" slot="nav-logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHg9IjBweCIgeT0iMHB4Igp3aWR0aD0iNDgiIGhlaWdodD0iNDgiCnZpZXdCb3g9IjAgMCA0OCA0OCIKc3R5bGU9IiBmaWxsOiMwMDAwMDA7Ij48ZyBpZD0ic3VyZmFjZTEiPjxwYXRoIHN0eWxlPSIgZmlsbDojRkYzRDAwOyIgZD0iTSA0My4xOTkyMTkgMzMuODk4NDM4IEMgNDIuODAwNzgxIDM2IDQxLjEwMTU2MyAzNy42MDE1NjMgMzkgMzcuODk4NDM4IEMgMzUuNjk5MjE5IDM4LjM5ODQzOCAzMC4xOTkyMTkgMzkgMjQgMzkgQyAxNy44OTg0MzggMzkgMTIuMzk4NDM4IDM4LjM5ODQzOCA5IDM3Ljg5ODQzOCBDIDYuODk4NDM4IDM3LjYwMTU2MyA1LjE5OTIxOSAzNiA0LjgwMDc4MSAzMy44OTg0MzggQyA0LjM5ODQzOCAzMS42MDE1NjMgNCAyOC4xOTkyMTkgNCAyNCBDIDQgMTkuODAwNzgxIDQuMzk4NDM4IDE2LjM5ODQzOCA0LjgwMDc4MSAxNC4xMDE1NjMgQyA1LjE5OTIxOSAxMiA2Ljg5ODQzOCAxMC4zOTg0MzggOSAxMC4xMDE1NjMgQyAxMi4zMDA3ODEgOS42MDE1NjMgMTcuODAwNzgxIDkgMjQgOSBDIDMwLjE5OTIxOSA5IDM1LjYwMTU2MyA5LjYwMTU2MyAzOSAxMC4xMDE1NjMgQyA0MS4xMDE1NjMgMTAuMzk4NDM4IDQyLjgwMDc4MSAxMiA0My4xOTkyMTkgMTQuMTAxNTYzIEMgNDMuNjAxNTYzIDE2LjM5ODQzOCA0NC4xMDE1NjMgMTkuODAwNzgxIDQ0LjEwMTU2MyAyNCBDIDQ0IDI4LjE5OTIxOSA0My42MDE1NjMgMzEuNjAxNTYzIDQzLjE5OTIxOSAzMy44OTg0MzggWiAiPjwvcGF0aD48cGF0aCBzdHlsZT0iIGZpbGw6I0ZGRkZGRjsiIGQ9Ik0gMjAgMzEgTCAyMCAxNyBMIDMyIDI0IFogIj48L3BhdGg+PC9nPjwvc3ZnPg=="/>
+      <img id="logo" slot="logo" width='10%' src="../images/logo-outline.svg"/>
+      <img id="nav-logo" slot="nav-logo" src="../images/logo-outline.svg"/>
     </rapi-doc>
   </div>
 
