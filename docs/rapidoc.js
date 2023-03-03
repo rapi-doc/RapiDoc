@@ -24404,6 +24404,15 @@ class ApiRequest extends lit_element_s {
 
       selectedLanguage: {
         type: String
+      },
+      // open-api file download
+      specUrl: {
+        type: String,
+        attribute: 'spec-url'
+      },
+      allowSpecFileDownload: {
+        type: String,
+        attribute: 'allow-spec-file-download'
       }
     };
   }
@@ -24529,6 +24538,7 @@ class ApiRequest extends lit_element_s {
     return lit_html_$`
     <div class="row-api regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'}">
       <div class="row-api-left">
+        ${this.downloadSpecTemplate()}
         ${guard_i([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('path'))}
         ${guard_i([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('query'))}
         ${this.requestBodyTemplate()}
@@ -24594,6 +24604,20 @@ class ApiRequest extends lit_element_s {
       });
       this.requestUpdate();
     }
+  }
+  downloadSpecTemplate() {
+    if (this.specUrl && this.allowSpecFileDownload) {
+      return lit_html_$`
+        <div style="display:flex; margin:12px 0; gap:8px; justify-content: start; flex-wrap: wrap;">
+          <button class="m-btn thin-border" part="btn btn-outline" @click='${e => {
+        downloadResource(this.specUrl, 'openapi-spec.json', e);
+      }}'>Download OpenAPI spec</button>
+            <button class="m-btn thin-border" part="btn btn-outline" @click='${e => {
+        viewResource(this.specUrl, e);
+      }}'>View OpenAPI spec</button>
+        </div>`;
+    }
+    return '';
   }
 
   /* eslint-disable indent */
@@ -26786,6 +26810,8 @@ function expandedEndpointBodyTemplate(path, tagName = '') {
           exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
             file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
             anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+          spec-url="${this.specUrl}"
+          allow-spec-file-download="${this.allowSpecFileDownload}"
         > </api-request>
 
         ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
@@ -54870,7 +54896,7 @@ module.exports = JSON.parse('{"$id":"timings.json#","$schema":"http://json-schem
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("63c9113020b1457e7863")
+/******/ 		__webpack_require__.h = () => ("4db4db9e3b8925a0b4cc")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
