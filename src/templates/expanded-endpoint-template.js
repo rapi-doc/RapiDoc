@@ -106,6 +106,8 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
           exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
             file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
             anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+          spec-url="${this.specUrl}"
+          allow-spec-file-download="${this.allowSpecFileDownload}"
         > </api-request>
 
         ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
