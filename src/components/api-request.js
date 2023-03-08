@@ -100,6 +100,10 @@ export default class ApiRequest extends LitElement {
       selectedRequestBodyExample: { type: String, attribute: 'selected-request-body-example' }, // internal tracking of selected request-body example
 
       selectedLanguage: { type: String },
+
+      // open-api file download
+      specUrl: { type: String, attribute: 'spec-url' },
+      allowSpecFileDownload: { type: String, attribute: 'allow-spec-file-download' },
     };
   }
 
@@ -237,6 +241,7 @@ export default class ApiRequest extends LitElement {
     return html`
     <div class="row-api regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'}">
       <div class="row-api-left">
+        ${this.downloadSpecTemplate()}
         ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('path'))}
         ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('query'))}
         ${this.requestBodyTemplate()}
@@ -305,6 +310,18 @@ export default class ApiRequest extends LitElement {
       });
       this.requestUpdate();
     }
+  }
+
+  downloadSpecTemplate() {
+    if (this.specUrl && this.allowSpecFileDownload) {
+      return html`
+        <div style="display:flex; margin:12px 0; gap:8px; justify-content: start; flex-wrap: wrap;">
+          <button class="m-btn thin-border" part="btn btn-outline" @click='${(e) => { downloadResource(this.specUrl, 'openapi-spec.json', e); }}'>Download OpenAPI spec</button>
+            <button class="m-btn thin-border" part="btn btn-outline" @click='${(e) => { viewResource(this.specUrl, e); }}'>View OpenAPI spec</button>
+        </div>`;
+    }
+
+    return '';
   }
 
   /* eslint-disable indent */
