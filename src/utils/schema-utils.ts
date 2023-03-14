@@ -1160,6 +1160,7 @@ export function schemaInObjectNotation(
       schema.nullable
     ) {
       obj['::dataTypeLabel'] = 'object or null';
+      obj['::nullable'] = true;
     }
     obj['::deprecated'] = schema.deprecated || false;
     obj['::readwrite'] = schema.readOnly
@@ -1208,6 +1209,7 @@ export function schemaInObjectNotation(
       schema.nullable
     ) {
       obj['::dataTypeLabel'] = 'array or null';
+      obj['::nullable'] = true;
     }
     obj['::deprecated'] = schema.deprecated || false;
     obj['::readwrite'] = schema.readOnly

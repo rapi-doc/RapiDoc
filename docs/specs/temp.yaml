@@ -14,6 +14,13 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/test"
+      responses:
+        '200':
+          description: 'Resp'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/testResponse'
   /foo:
     post:
       requestBody:
@@ -156,3 +163,26 @@ components:
           items:
             type: string
             format: url
+    testResponse:
+      type: object
+      required:
+        - url
+        - tags
+      properties:
+        url:
+          type: string
+          nullable: true
+          description: Generated URL
+        tags:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/tag'
+            nullable: true
+        cat:
+          allOf:
+            - $ref: '#/components/schemas/category'
+          nullable: true
+
+
+

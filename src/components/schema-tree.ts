@@ -196,9 +196,9 @@ export default class SchemaTree extends LitElement {
         closeBracket = '}]';
       } else {
         if (schemaLevel < this.schemaExpandLevel) {
-          openBracket = html`<span class="open-bracket object">{</span>`;
+          openBracket = html`<span class="open-bracket object">${data['::nullable'] ? 'null┃' : ''}{</span>`;
         } else {
-          openBracket = html`<span class="open-bracket object">{...}</span>`;
+          openBracket = html`<span class="open-bracket object">${data['::nullable'] ? 'null┃' : ''}{...}</span>`;
         }
         closeBracket = '}';
       }
