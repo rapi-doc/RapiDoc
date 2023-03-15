@@ -87,6 +87,7 @@ function replacerBlocks(_match, textBefore, blockType, blockContent, textAfter) 
 }
 
 export default function processPathDescription(description) {
+  if (!description) return '';
   const magicBlockRegex = /(?<TextBefore>[^[\]]*)\[block:(?<Type>[^\]]*)\](?<Content>.+?)\[\/block\](?<TextAfter>[^[\]]*)/gms;
   const replacedMarkdown = description.replace(magicBlockRegex, replacerBlocks);
 

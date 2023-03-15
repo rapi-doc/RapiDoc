@@ -11907,7 +11907,6 @@ pre[class*="language-"] {
 #api-info {
   font-size: calc(var(--font-size-regular) - 1px);
   margin-top: 8px;
-  margin-left: -15px;
 }
 
 #api-info span:before {
@@ -26704,6 +26703,7 @@ function replacerBlocks(_match, textBefore, blockType, blockContent, textAfter) 
   return replaced;
 }
 function processPathDescription(description) {
+  if (!description) return '';
   const magicBlockRegex = /(?<TextBefore>[^[\]]*)\[block:(?<Type>[^\]]*)\](?<Content>.+?)\[\/block\](?<TextAfter>[^[\]]*)/gms;
   const replacedMarkdown = description.replace(magicBlockRegex, replacerBlocks);
   return replacedMarkdown;
@@ -26946,7 +26946,7 @@ function overview_template_headingRenderer() {
   return renderer;
 }
 function overviewTemplate() {
-  var _this$resolvedSpec, _this$resolvedSpec$in, _this$resolvedSpec$in2, _this$specUrl;
+  var _this$resolvedSpec, _this$resolvedSpec$in, _this$resolvedSpec$in2;
   this.resolvedSpec.info.description = processPathDescription(this.resolvedSpec.info.description);
   return lit_html_$`
     <section part="section-overview" class="observe-me ${this.renderStyle === 'view' ? 'section-gap' : 'section-gap--read-mode'}">
@@ -26968,13 +26968,13 @@ function overviewTemplate() {
                 ${this.resolvedSpec.info.license.url ? lit_html_$`<a href="${this.resolvedSpec.info.license.url}" part="anchor anchor-overview">${this.resolvedSpec.info.license.name}</a>` : this.resolvedSpec.info.license.name} </span>` : ''}
             ${this.resolvedSpec.info.termsOfService ? lit_html_$`<span><a href="${this.resolvedSpec.info.termsOfService}" part="anchor anchor-overview">Terms of Service</a></span>` : ''}
             ${this.specUrl && this.allowSpecFileDownload === 'true' ? lit_html_$`
-                <div style="display:flex; margin:12px 0; gap:8px; justify-content: start;">
-                  <button class="m-btn thin-border" style="min-width:170px" part="btn btn-outline" @click='${e => {
+                <div style="display:flex; margin:12px 0; gap:8px; justify-content: start; flex-wrap: wrap;">
+                  <button class="m-btn thin-border" part="btn btn-outline" @click='${e => {
     downloadResource(this.specUrl, 'openapi-spec', e);
   }}'>Download OpenAPI spec</button>
-                  ${(_this$specUrl = this.specUrl) !== null && _this$specUrl !== void 0 && _this$specUrl.trim().toLowerCase().endsWith('json') ? lit_html_$`<button class="m-btn thin-border" style="width:200px" part="btn btn-outline" @click='${e => {
+                  <button class="m-btn thin-border" part="btn btn-outline" @click='${e => {
     viewResource(this.specUrl, e);
-  }}'>View OpenAPI spec (New Tab)</button>` : ''}
+  }}'>View OpenAPI spec</button>
                 </div>` : ''}
           </div>
           <slot name="overview"></slot>
@@ -54896,7 +54896,7 @@ module.exports = JSON.parse('{"$id":"timings.json#","$schema":"http://json-schem
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("4db4db9e3b8925a0b4cc")
+/******/ 		__webpack_require__.h = () => ("0e761b7f2d0166b291aa")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
