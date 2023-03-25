@@ -82,12 +82,30 @@ export default css`
   margin-left: 2px;
 }
 
-.stri, .string, .uri, .url, .byte, .bina, .date, .pass, .ipv4, .ipv4, .uuid, .emai, .host {color:var(--green);}
-.inte, .numb, .number, .int6, .int3, .floa, .doub, .deci .blue {color:var(--blue);}
-.null {color:var(--red);}
-.bool, .boolean{color:var(--orange)}
-.enum {color:var(--purple)}
-.cons {color:var(--purple)}
+.stri, .string, .uri, .url, .byte, .bina, .date, .pass, .ipv4, .ipv4, .uuid, .emai, .host {
+  color:var(--green);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-mono);
+}
+.inte, .numb, .number, .int6, .int3, .floa, .doub, .deci .blue {
+  color:var(--blue);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-mono);
+}
+.null {color:var(--red);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-mono);
+}
+.bool, .boolean{
+  color:var(--orange);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-mono);
+}
+.enum, .cons {
+  color:var(--purple);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-mono);
+}
 .recu {color:var(--brown)}
 .toolbar {
   display:flex;

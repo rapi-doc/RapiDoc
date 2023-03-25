@@ -6,18 +6,6 @@ customize their theme. Simply add your css to this file and yarn build.
 */
 
 export default css`
-.test-method-button {
-  background: #142032;
-  padding: 6px 16px;
-  color: #FFFFFF;
-  font-size: 14px;
-  line-height: 20px;
-  border-radius: 4px;
-  margin-top: 32px;
-  font-family: var(--font-medium);
-  cursor: pointer;
-}
-
 .code-container {
   padding-inline: 32px;
   padding-top: 16px;

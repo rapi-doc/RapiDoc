@@ -52,9 +52,9 @@ export default function overviewTemplate() {
             }
             ${this.specUrl && this.allowSpecFileDownload === 'true'
               ? html`
-                <div style="display:flex; margin:12px 0; gap:8px; justify-content: start; flex-wrap: wrap;">
-                  <button class="m-btn thin-border" part="btn btn-outline" @click='${(e) => { downloadResource(this.specUrl, 'openapi-spec', e); }}'>Download OpenAPI spec</button>
-                  <button class="m-btn thin-border" part="btn btn-outline" @click='${(e) => { viewResource(this.specUrl, e); }}'>View OpenAPI spec</button>
+                <div style="display:flex; margin:12px 0; gap:8px; justify-content: flex-end; flex-wrap: wrap;">
+                  <button class="m-btn thin-border m-btn-tertiary" part="btn btn-outline" @click='${(e) => { downloadResource(this.specUrl, 'openapi-spec', e); }}'>Download OpenAPI spec</button>
+                  <button class="m-btn m-btn-secondary thin-border" part="btn btn-outline" @click='${(e) => { viewResource(this.specUrl, e); }}'>View OpenAPI spec</button>
                 </div>`
               : ''
             }

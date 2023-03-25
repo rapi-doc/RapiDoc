@@ -4,36 +4,49 @@ import { css } from 'lit';
 export default css`
 /* Button */
 .m-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   border-radius: var(--border-radius);
   font-weight: 400;
-  display: inline-block;
-  padding: 6px 16px;
-  font-size: var(--font-size-small);
-  outline: 0;
-  line-height: 1;
+  padding: 7px 12px 6px;
+  outline: none;
+  border: none;
   text-align: center;
   white-space: nowrap;
-  border: 2px solid var(--primary-color);
-  background-color:transparent;
   transition: background-color 0.2s;
   user-select: none;
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  font-family: var(--font-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
-.m-btn.primary {
+.m-btn-primary {
   background-color: var(--primary-color);
   color: var(--primary-color-invert);
+}
+.m-btn-primary:hover {
+  background-color: #000711;
+}
+.m-btn-secondary{
+  background: #e7e9ee;
+  color: #142032;
+}
+.m-btn-secondary:hover {
+  background: #ccced8;
+}
+.m-btn-tertiary {
+  background: #ffffff;
+  color: #142032;
+}
+.m-btn-tertiary:hover {
+  color: #000711;
 }
 .m-btn.thin-border { border-width: 1px; }
 .m-btn.large { padding:8px 14px; }
 .m-btn.small { padding:5px 12px; }
 .m-btn.tiny { padding:5px 6px; }
 .m-btn.circle { border-radius: 50%; }
-.m-btn:hover { 
-  background-color: var(--primary-color);
-  color: var(--primary-color-invert);
-}
-.m-btn.nav { border: 2px solid var(--nav-accent-color); }
 .m-btn.nav:hover { 
   background-color: var(--nav-accent-color);
 }
@@ -74,9 +87,8 @@ textarea,
 input[type="file"],
 input[type="text"],
 input[type="password"] {
-  font-family: var(--font-regular);
-  font-weight: 400;
-  font-size: var(--font-size-regular);
+  font-family:var(--font-mono); 
+  font-size: var(--font-size-mono);
   transition: border .2s;
   padding: 6px 8px;
   line-height: 140%;
@@ -117,8 +129,7 @@ input[type="password"]:focus,
 textarea:active,
 input[type="text"]:active,
 input[type="password"]:active {
-  border-color: #3B3B3B;
-  box-shadow: 0px 0px 0px 1px #FFFFFF, 0px 0px 0px 3px #B9B9B9;
+  border-color: none;
 }
 
 input[type="file"]{

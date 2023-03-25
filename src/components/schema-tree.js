@@ -227,7 +227,7 @@ export default class SchemaTree extends LitElement {
             }
             ${openBracket}
           </div>
-          <div class='td key-descr m-markdown-small'>${unsafeHTML(marked(description || ''))}</div>
+          <div class='td key-descr'>${unsafeHTML(marked(description || ''))}</div>
         </div>
         <div class='inside-bracket ${data['::type'] || 'no-type-info'}' style='padding-left:${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' ? 0 : leftPadding}px;'>
           ${Array.isArray(data) && data[0]
@@ -315,7 +315,7 @@ export default class SchemaTree extends LitElement {
         </div>
         <div class='td key-descr'>
           ${description || schemaTitle || schemaDescription
-            ? html`${html`<span class="m-markdown-small">
+            ? html`${html`<span>
                 ${unsafeHTML(marked(dataType === 'array'
                   ? `${descrExpander} ${description}`
                   : schemaTitle

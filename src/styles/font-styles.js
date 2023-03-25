@@ -81,7 +81,9 @@ export default css`
   }
 
   .m-markdown blockquote {
-    padding: 5px 20px;
+    display: grid;
+    padding: 20px;
+    gap: 0px 20px;
     width: 100%;
     margin: 20px 0;
     border-radius: 4px;
@@ -89,6 +91,22 @@ export default css`
     background: #f8f7fc;
     border: 1px solid #ccced8;
     grid-template-columns: 20px 1fr;
+  }
+
+  .m-markdown blockquote:before {
+    display: inline-block;
+    height: 20px;
+    width: 20px;
+    content: '';
+    background: url('https://vtex-dev-portal-navigation.fra1.digitaloceanspaces.com/info.svg')
+      no-repeat 0 0;
+    background-size: 20px 20px;
+    position: absolute;
+  }
+
+  blockquote p{
+    grid-column: 2 / -1;
+    margin: 0;
   }
 
   .m-markdown,

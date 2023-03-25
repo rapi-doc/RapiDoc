@@ -119,6 +119,8 @@ export class BaseUrl extends LitElement {
             .url {
                 flex: 1 0 auto;
                 padding: 4px 8px;
+                font-family: var(--font-mono);
+                font-size: var(--font-size-mono)
             }
 
             .url:hover {

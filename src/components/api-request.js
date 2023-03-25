@@ -133,7 +133,7 @@ export default class ApiRequest extends LitElement {
           line-height: 20px;
           color: #545454; 
           margin-block: 24px 4px;
-          font-family: var(--font-mono);
+          font-family: var(--font-regular);
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -142,11 +142,10 @@ export default class ApiRequest extends LitElement {
           color: #DC5A41;
         }
         .param-type{
-          font-size: 14px;
-          font-weight: normal;
           line-height: 16px;
           color: #4A4A4A; 
-          font-family: var(--font-regular);
+          font-family: var(--font-mono);
+          font-size: var(--font-size-mono);
         }
 
         .param-type > span {
@@ -161,10 +160,9 @@ export default class ApiRequest extends LitElement {
         }
 
         .param-description {
-          font-size: 12px;
-          line-height: 16px;
+          font-size: 13px;
+          line-height: 18px;
           color: #4A4A4A;
-          margin: 10px 0px 0px;
         }
 
         .top-gap{margin-top:24px;}
@@ -315,9 +313,9 @@ export default class ApiRequest extends LitElement {
   downloadSpecTemplate() {
     if (this.specUrl && this.allowSpecFileDownload) {
       return html`
-        <div style="display:flex; margin:12px 0; gap:8px; justify-content: start; flex-wrap: wrap;">
-          <button class="m-btn thin-border" part="btn btn-outline" @click='${(e) => { downloadResource(this.specUrl, 'openapi-spec.json', e); }}'>Download OpenAPI spec</button>
-            <button class="m-btn thin-border" part="btn btn-outline" @click='${(e) => { viewResource(this.specUrl, e); }}'>View OpenAPI spec</button>
+        <div style="display:flex; justify-content: flex-end; margin:12px 0; gap:8px; flex-wrap: wrap;">
+          <button class="m-btn m-btn-tertiary thin-border" part="btn btn-outline" @click='${(e) => { downloadResource(this.specUrl, 'openapi-spec.json', e); }}'>Download OpenAPI spec</button>
+            <button class="m-btn m-btn-secondary thin-border" part="btn btn-outline" @click='${(e) => { viewResource(this.specUrl, e); }}'>View OpenAPI spec</button>
         </div>`;
     }
 
@@ -1067,10 +1065,7 @@ export default class ApiRequest extends LitElement {
       }
     }
     return html`
-      <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
-        <div style="flex:1"></div>
-        <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
-      </div>
+      <button style="margin-left: 32px" class="m-btn m-btn-secondary" part="btn btn-outline" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
       <div class="tab-panel col" style="border-top: 1px solid #E7E9EE; border-bottom: 1px solid #E7E9EE; margin-top: 24px;">
         ${this.codeExampleTemplate('flex')}
         <div style="background: #F8F7FC; padding-inline: 32px;padding-block: 16px">
