@@ -23580,7 +23580,7 @@ class BaseUrl extends lit_element_s {
             }
 
             .container {
-                height: 32px;
+                height: 42px;
                 font-size:14px;
                 border: 1px solid var(--border-color);
                 border-radius: 4px;
@@ -25989,6 +25989,7 @@ class ApiResponse extends lit_element_s {
       }
       .resp-box:hover {
         cursor: pointer;
+        box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.1);
       }
       .resp-border{
         border: 1px solid #CCCED8;
@@ -54514,7 +54515,7 @@ module.exports = JSON.parse('{"$id":"timings.json#","$schema":"http://json-schem
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("845e03ba68ea76bf3866")
+/******/ 		__webpack_require__.h = () => ("0ddb492187d91024e609")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

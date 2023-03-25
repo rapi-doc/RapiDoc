@@ -135,7 +135,7 @@ export class BaseUrl extends LitElement {
             }
 
             .container {
-                height: 32px;
+                height: 42px;
                 font-size:14px;
                 border: 1px solid var(--border-color);
                 border-radius: 4px;

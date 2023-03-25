@@ -81,6 +81,7 @@ export default class ApiResponse extends LitElement {
       }
       .resp-box:hover {
         cursor: pointer;
+        box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.1);
       }
       .resp-border{
         border: 1px solid #CCCED8;
