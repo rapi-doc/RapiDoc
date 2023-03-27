@@ -10903,6 +10903,21 @@ var prism_csharp = __webpack_require__(9016);
   border: none;
   background-color: var(--primary-color);
 }
+.copy-code {
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  outline: inherit;
+  display: block;
+}
+.copy-button{
+  opacity: 0.3;
+}
+.check-button, .copy-button:hover{
+  opacity: 1;
+}
 
 input, textarea, select, pre {
   color: #000000;
@@ -22069,9 +22084,23 @@ function pathSecurityTemplate(pathSecurity) {
 }
 
 /* eslint-enable indent */
+;// CONCATENATED MODULE: ./src/components/assets/copy-symbol.js
+/* eslint-disable max-len */
+
+
+/* eslint-disable indent */
+function copySymbol() {
+  return y`
+  <svg class="copy-button" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M4.87305 3.12451C4.87305 2.7103 5.20883 2.37451 5.62305 2.37451H16.8736C17.2878 2.37451 17.6236 2.7103 17.6236 3.12451V14.3746C17.6236 14.7888 17.2878 15.1246 16.8736 15.1246C16.4594 15.1246 16.1236 14.7888 16.1236 14.3746V3.87451H5.62305C5.20883 3.87451 4.87305 3.53873 4.87305 3.12451Z" fill="#4A596B"/>
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M2.37305 5.62457C2.37305 5.21036 2.70883 4.87457 3.12305 4.87457H14.3735C14.7877 4.87457 15.1235 5.21036 15.1235 5.62457V16.8746C15.1235 17.2888 14.7877 17.6246 14.3735 17.6246H3.12305C2.70883 17.6246 2.37305 17.2888 2.37305 16.8746V5.62457ZM3.87305 6.37457V16.1246H13.6235V6.37457H3.87305Z" fill="#4A596B"/>
+  </svg>
+`;
+}
 ;// CONCATENATED MODULE: ./src/templates/code-samples-template.js
 
  // eslint-disable-line import/extensions
+
 
 
 
@@ -22109,9 +22138,9 @@ function codeSamplesTemplate(xCodeSamples) {
     var _v$lang, _v$lang2, _v$lang3;
     return y`
       <div class="tab-content m-markdown" style= "display:${i === 0 ? 'block' : 'none'}" data-tab = '${v.lang}${i}'>
-        <button class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${e => {
+        <button class="copy-code" style = "position:absolute; top:12px; right:8px" @click='${e => {
       copyToClipboard(v.source, e);
-    }}'> Copy </button>
+    }}'> ${copySymbol()} </button>
         <pre><code class="language">${(prism_core_default()).languages[(_v$lang = v.lang) === null || _v$lang === void 0 ? void 0 : _v$lang.toLowerCase()] ? unsafe_html_o(prism_core_default().highlight(v.source, (prism_core_default()).languages[(_v$lang2 = v.lang) === null || _v$lang2 === void 0 ? void 0 : _v$lang2.toLowerCase()], (_v$lang3 = v.lang) === null || _v$lang3 === void 0 ? void 0 : _v$lang3.toLowerCase())) : v.source}</code></pre>
       </div>`;
   })}
@@ -22334,6 +22363,7 @@ const PythonStyle = i`
 
 
 
+
 class JsonTree extends lit_element_s {
   static get properties() {
     return {
@@ -22419,14 +22449,14 @@ class JsonTree extends lit_element_s {
   render() {
     return y`
       <div class = "json-tree"  @click='${e => {
-      if (e.target.classList.contains('btn-copy')) {
-        copyToClipboard(JSON.stringify(this.data, null, 2), e);
-      } else {
+      if (!e.target.classList.contains('copy-code')) {
         this.toggleExpand(e);
       }
     }}'>
         <div class='toolbar'> 
-          <button class="toolbar-btn btn-copy" part="btn btn-fill btn-copy"> Copy </button>
+          <button class="copy-code" part="btn btn-fill btn-copy"  @click='${e => {
+      copyToClipboard(JSON.stringify(this.data, null, 2), e);
+    }}' >  ${copySymbol()} </button>
         </div>
           ${this.generateTree(this.data, true)}
       </div>  
@@ -23235,21 +23265,6 @@ function checkSymbol(dimensions) {
           <path d="M13.3327 8.33337L9.16602 12.5L6.66602 10" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
   `;
-}
-;// CONCATENATED MODULE: ./src/components/assets/copy-symbol.js
-/* eslint-disable max-len */
-
-
-/* eslint-disable indent */
-function copySymbol(style) {
-  return y`
-  <div style=${style}>
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path fill-rule="evenodd" clip-rule="evenodd" d="M4.87305 3.12451C4.87305 2.7103 5.20883 2.37451 5.62305 2.37451H16.8736C17.2878 2.37451 17.6236 2.7103 17.6236 3.12451V14.3746C17.6236 14.7888 17.2878 15.1246 16.8736 15.1246C16.4594 15.1246 16.1236 14.7888 16.1236 14.3746V3.87451H5.62305C5.20883 3.87451 4.87305 3.53873 4.87305 3.12451Z" fill="#4A596B"/>
-      <path fill-rule="evenodd" clip-rule="evenodd" d="M2.37305 5.62457C2.37305 5.21036 2.70883 4.87457 3.12305 4.87457H14.3735C14.7877 4.87457 15.1235 5.21036 15.1235 5.62457V16.8746C15.1235 17.2888 14.7877 17.6246 14.3735 17.6246H3.12305C2.70883 17.6246 2.37305 17.2888 2.37305 16.8746V5.62457ZM3.87305 6.37457V16.1246H13.6235V6.37457H3.87305Z" fill="#4A596B"/>
-    </svg>
-  </div>
-`;
 }
 ;// CONCATENATED MODULE: ./src/components/assets/close-symbol.js
 /* eslint-disable max-len */
@@ -24347,21 +24362,6 @@ class ApiRequest extends lit_element_s {
           border-top: 1px solid #E7E9EE;
           margin-top: 24px;
         }
-        .copy-code {
-          background: none;
-          color: inherit;
-          border: none;
-          padding: 0;
-          cursor: pointer;
-          outline: inherit;
-          display: block;
-        }
-        .copy-button{
-          opacity: 0.3;
-        }
-        .check-button, .copy-button:hover{
-          opacity: 1;
-        }
 
         .param-name {
           font-size: 14px;
@@ -25192,7 +25192,7 @@ class ApiRequest extends lit_element_s {
       <div class="col m-markdown" style="flex:1; display:${display}; position:relative; max-width: 100%;">
         <button class="copy-code" style = "position:absolute; top:12px; right:8px" @click='${e => {
       copyToClipboard(this.codeExample.replace(/\\$/, ''), e);
-    }}' part="btn btn-fill"> ${copySymbol('opacity: 0.3')} </button>
+    }}' part="btn btn-fill"> ${copySymbol()} </button>
         <pre class="code-container" style="white-space:pre; border: none;"><code>${unsafe_html_o(prism_core_default().highlight(this.codeExample.trim().replace(/\\$/, ''), (prism_core_default()).languages[this.selectedLanguage], this.selectedLanguage))}</code></pre>
       </div>
       `;
@@ -25241,7 +25241,7 @@ class ApiRequest extends lit_element_s {
                 <div class="tab-content col m-markdown" style="max-height:500px; flex:1; display:flex;" >
                   <button class="copy-code" style="position:absolute; top:12px; right:16px" @click='${e => {
       copyToClipboard(this.responseText, e);
-    }}' part="btn btn-fill"> ${copySymbol('opacity: 0.3')} </button>
+    }}' part="btn btn-fill"> ${copySymbol()} </button>
                   <pre style="display:flex; white-space:pre; min-height:50px; height:auto; resize:vertical; overflow:auto">${responseContent}</pre>
                 </div>` : ''}`}
         </div>
@@ -54539,7 +54539,7 @@ module.exports = JSON.parse('{"$id":"timings.json#","$schema":"http://json-schem
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("5028bcc225f01383afce")
+/******/ 		__webpack_require__.h = () => ("b728f85a787b380c0347")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

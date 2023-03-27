@@ -4,6 +4,7 @@ import FontStyles from '~/styles/font-styles';
 import BorderStyles from '~/styles/border-styles';
 import InputStyles from '~/styles/input-styles';
 import CustomStyles from '~/styles/custom-styles';
+import copySymbol from './assets/copy-symbol';
 
 export default class JsonTree extends LitElement {
   static get properties() {
@@ -91,9 +92,9 @@ export default class JsonTree extends LitElement {
   /* eslint-disable indent */
   render() {
     return html`
-      <div class = "json-tree"  @click='${(e) => { if (e.target.classList.contains('btn-copy')) { copyToClipboard(JSON.stringify(this.data, null, 2), e); } else { this.toggleExpand(e); } }}'>
+      <div class = "json-tree"  @click='${(e) => { if (!e.target.classList.contains('copy-code')) { this.toggleExpand(e); } }}'>
         <div class='toolbar'> 
-          <button class="toolbar-btn btn-copy" part="btn btn-fill btn-copy"> Copy </button>
+          <button class="copy-code" part="btn btn-fill btn-copy"  @click='${(e) => { copyToClipboard(JSON.stringify(this.data, null, 2), e); }}' >  ${copySymbol()} </button>
         </div>
           ${this.generateTree(this.data, true)}
       </div>  

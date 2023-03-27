@@ -68,6 +68,21 @@ export default css`
   border: none;
   background-color: var(--primary-color);
 }
+.copy-code {
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  outline: inherit;
+  display: block;
+}
+.copy-button{
+  opacity: 0.3;
+}
+.check-button, .copy-button:hover{
+  opacity: 1;
+}
 
 input, textarea, select, pre {
   color: #000000;
