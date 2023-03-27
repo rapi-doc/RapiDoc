@@ -19,6 +19,14 @@ export default function overviewTemplate() {
       <span part="anchor-endpoint" id="overview"></span>
       ${this.resolvedSpec?.info
         ? html`
+          ${this.specUrl && this.allowSpecFileDownload === 'true'
+            ? html`
+              <div style="display:flex; margin-top:18px; gap:8px; justify-content: flex-end; flex-wrap: wrap;">
+                <button class="m-btn thin-border m-btn-tertiary" part="btn btn-outline" @click='${(e) => { downloadResource(this.specUrl, 'openapi-spec', e); }}'>Download OpenAPI spec</button>
+                <button class="m-btn m-btn-secondary thin-border" part="btn btn-outline" @click='${(e) => { viewResource(this.specUrl, e); }}'>View OpenAPI spec</button>
+              </div>`
+            : ''
+          }
           <div id="api-title" part="section-overview-title" style="font-size:32px">
             ${this.resolvedSpec.info.title}
             ${!this.resolvedSpec.info.version ? '' : html`
@@ -48,14 +56,6 @@ export default function overviewTemplate() {
             }
             ${this.resolvedSpec.info.termsOfService
               ? html`<span><a href="${this.resolvedSpec.info.termsOfService}" part="anchor anchor-overview">Terms of Service</a></span>`
-              : ''
-            }
-            ${this.specUrl && this.allowSpecFileDownload === 'true'
-              ? html`
-                <div style="display:flex; margin:12px 0; gap:8px; justify-content: flex-end; flex-wrap: wrap;">
-                  <button class="m-btn thin-border m-btn-tertiary" part="btn btn-outline" @click='${(e) => { downloadResource(this.specUrl, 'openapi-spec', e); }}'>Download OpenAPI spec</button>
-                  <button class="m-btn m-btn-secondary thin-border" part="btn btn-outline" @click='${(e) => { viewResource(this.specUrl, e); }}'>View OpenAPI spec</button>
-                </div>`
               : ''
             }
           </div>

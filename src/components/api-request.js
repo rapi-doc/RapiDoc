@@ -240,7 +240,6 @@ export default class ApiRequest extends LitElement {
     return html`
     <div class="row-api regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'}">
       <div class="row-api-left">
-        ${this.downloadSpecTemplate()}
         ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('path'))}
         ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('query'))}
         ${this.requestBodyTemplate()}
@@ -309,18 +308,6 @@ export default class ApiRequest extends LitElement {
       });
       this.requestUpdate();
     }
-  }
-
-  downloadSpecTemplate() {
-    if (this.specUrl && this.allowSpecFileDownload) {
-      return html`
-        <div style="display:flex; justify-content: flex-end; margin:12px 0; gap:8px; flex-wrap: wrap;">
-          <button class="m-btn m-btn-tertiary thin-border" part="btn btn-outline" @click='${(e) => { downloadResource(this.specUrl, 'openapi-spec.json', e); }}'>Download OpenAPI spec</button>
-            <button class="m-btn m-btn-secondary thin-border" part="btn btn-outline" @click='${(e) => { viewResource(this.specUrl, e); }}'>View OpenAPI spec</button>
-        </div>`;
-    }
-
-    return '';
   }
 
   /* eslint-disable indent */

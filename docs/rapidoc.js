@@ -24472,7 +24472,6 @@ class ApiRequest extends lit_element_s {
     return y`
     <div class="row-api regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'}">
       <div class="row-api-left">
-        ${this.downloadSpecTemplate()}
         ${guard_i([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('path'))}
         ${guard_i([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('query'))}
         ${this.requestBodyTemplate()}
@@ -24538,20 +24537,6 @@ class ApiRequest extends lit_element_s {
       });
       this.requestUpdate();
     }
-  }
-  downloadSpecTemplate() {
-    if (this.specUrl && this.allowSpecFileDownload) {
-      return y`
-        <div style="display:flex; justify-content: flex-end; margin:12px 0; gap:8px; flex-wrap: wrap;">
-          <button class="m-btn m-btn-tertiary thin-border" part="btn btn-outline" @click='${e => {
-        downloadResource(this.specUrl, 'openapi-spec.json', e);
-      }}'>Download OpenAPI spec</button>
-            <button class="m-btn m-btn-secondary thin-border" part="btn btn-outline" @click='${e => {
-        viewResource(this.specUrl, e);
-      }}'>View OpenAPI spec</button>
-        </div>`;
-    }
-    return '';
   }
 
   /* eslint-disable indent */
@@ -26690,7 +26675,7 @@ function expandedEndpointBodyTemplate(path, tagName = '') {
     ${this.renderStyle === 'read' ? y`<div class='divider' part="operation-divider"></div>` : ''}
     <div class='expanded-endpoint-body observe-me ${path.method} ${path.deprecated ? 'deprecated' : ''} ' part="section-operation ${path.elementId}">
     <span part="anchor-endpoint" id='${path.elementId}'></span>
-      ${this.renderStyle === 'focused' && tagName !== 'General ⦂' ? y`<h3 class="operation-tag" style="font-weight:bold" part="section-operation-tag"> ${tagName} </h3>` : ''}
+      ${this.renderStyle === 'focused' && tagName !== 'General ⦂' ? y`<h3 class="operation-tag" style="font-weight:bold; margin-bottom:48px" part="section-operation-tag"> ${tagName} </h3>` : ''}
       ${path.deprecated ? y`<div class="bold-text red-text"> DEPRECATED </div>` : ''}
       ${y`
         ${path.xBadges && ((_path$xBadges = path.xBadges) === null || _path$xBadges === void 0 ? void 0 : _path$xBadges.length) > 0 ? y`
@@ -26698,6 +26683,14 @@ function expandedEndpointBodyTemplate(path, tagName = '') {
               ${path.xBadges.map(v => y`<span style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`)}
             </div>
             ` : ''}
+        ${this.specUrl && this.allowSpecFileDownload ? y`<div style="position:absolute; right:0; top:28px;"><div style="display:flex; justify-content: flex-end; margin:0px 0px 32px; gap:8px; flex-wrap: wrap;">
+                <button class="m-btn m-btn-tertiary thin-border" part="btn btn-outline" @click='${e => {
+    downloadResource(this.specUrl, 'openapi-spec.json', e);
+  }}'>Download OpenAPI spec</button>
+                  <button class="m-btn m-btn-secondary thin-border" part="btn btn-outline" @click='${e => {
+    viewResource(this.specUrl, e);
+  }}'>View OpenAPI spec</button>
+              </div></div>` : ''}
         <h2 part="section-operation-summary"> ${path.shortSummary || `${path.method.toUpperCase()} ${path.path}`}</h2>
         ${path.isWebhook ? y`<span part="section-operation-webhook" style="color:var(--primary-color); font-weight:bold; font-size: var(--font-size-regular);"> WEBHOOK </span>` : y`
             <div class='mono-font regular-font-size label-operation-container' part="section-operation-webhook-method">
@@ -26887,6 +26880,15 @@ function overviewTemplate() {
     <section part="section-overview" class="observe-me ${this.renderStyle === 'view' ? 'section-gap' : 'section-gap--read-mode'}">
       <span part="anchor-endpoint" id="overview"></span>
       ${(_this$resolvedSpec = this.resolvedSpec) !== null && _this$resolvedSpec !== void 0 && _this$resolvedSpec.info ? y`
+          ${this.specUrl && this.allowSpecFileDownload === 'true' ? y`
+              <div style="display:flex; margin-top:18px; gap:8px; justify-content: flex-end; flex-wrap: wrap;">
+                <button class="m-btn thin-border m-btn-tertiary" part="btn btn-outline" @click='${e => {
+    downloadResource(this.specUrl, 'openapi-spec', e);
+  }}'>Download OpenAPI spec</button>
+                <button class="m-btn m-btn-secondary thin-border" part="btn btn-outline" @click='${e => {
+    viewResource(this.specUrl, e);
+  }}'>View OpenAPI spec</button>
+              </div>` : ''}
           <div id="api-title" part="section-overview-title" style="font-size:32px">
             ${this.resolvedSpec.info.title}
             ${!this.resolvedSpec.info.version ? '' : y`
@@ -26902,15 +26904,6 @@ function overviewTemplate() {
             ${this.resolvedSpec.info.license ? y`<span>License: 
                 ${this.resolvedSpec.info.license.url ? y`<a href="${this.resolvedSpec.info.license.url}" part="anchor anchor-overview">${this.resolvedSpec.info.license.name}</a>` : this.resolvedSpec.info.license.name} </span>` : ''}
             ${this.resolvedSpec.info.termsOfService ? y`<span><a href="${this.resolvedSpec.info.termsOfService}" part="anchor anchor-overview">Terms of Service</a></span>` : ''}
-            ${this.specUrl && this.allowSpecFileDownload === 'true' ? y`
-                <div style="display:flex; margin:12px 0; gap:8px; justify-content: flex-end; flex-wrap: wrap;">
-                  <button class="m-btn thin-border m-btn-tertiary" part="btn btn-outline" @click='${e => {
-    downloadResource(this.specUrl, 'openapi-spec', e);
-  }}'>Download OpenAPI spec</button>
-                  <button class="m-btn m-btn-secondary thin-border" part="btn btn-outline" @click='${e => {
-    viewResource(this.specUrl, e);
-  }}'>View OpenAPI spec</button>
-                </div>` : ''}
           </div>
           <slot name="overview"></slot>
           <div id="api-description">
@@ -54539,7 +54532,7 @@ module.exports = JSON.parse('{"$id":"timings.json#","$schema":"http://json-schem
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("b728f85a787b380c0347")
+/******/ 		__webpack_require__.h = () => ("b57743b8cca7e8d80813")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
