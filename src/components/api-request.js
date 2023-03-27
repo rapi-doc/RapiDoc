@@ -30,6 +30,7 @@ import serverTemplate from '~/templates/server-template';
 import securitySchemeTemplate from '~/templates/security-scheme-template';
 import languagePickerTemplate from '~/templates/language-picker-template';
 import updateCodeExample from '~/utils/update-code-example';
+import copySymbol from './assets/copy-symbol';
 
 export default class ApiRequest extends LitElement {
   constructor() {
@@ -125,6 +126,21 @@ export default class ApiRequest extends LitElement {
         .read-mode {
           border-top: 1px solid #E7E9EE;
           margin-top: 24px;
+        }
+        .copy-code {
+          background: none;
+          color: inherit;
+          border: none;
+          padding: 0;
+          cursor: pointer;
+          outline: inherit;
+          display: block;
+        }
+        .copy-button{
+          opacity: 0.3;
+        }
+        .check-button, .copy-button:hover{
+          opacity: 1;
         }
 
         .param-name {
@@ -1039,7 +1055,7 @@ export default class ApiRequest extends LitElement {
   codeExampleTemplate(display = 'flex') {
     return html`
       <div class="col m-markdown" style="flex:1; display:${display}; position:relative; max-width: 100%;">
-        <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.codeExample.replace(/\\$/, ''), e); }}' part="btn btn-fill"> Copy </button>
+        <button class="copy-code" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.codeExample.replace(/\\$/, ''), e); }}' part="btn btn-fill"> ${copySymbol('opacity: 0.3')} </button>
         <pre class="code-container" style="white-space:pre; border: none;"><code>${unsafeHTML(Prism.highlight(this.codeExample.trim().replace(/\\$/, ''), Prism.languages[this.selectedLanguage], this.selectedLanguage))}</code></pre>
       </div>
       `;
@@ -1091,7 +1107,7 @@ export default class ApiRequest extends LitElement {
             : html`
               ${this.responseText ? html`
                 <div class="tab-content col m-markdown" style="max-height:500px; flex:1; display:flex;" >
-                  <button class="toolbar-btn" style="position:absolute; top:12px; right:16px" @click='${(e) => { copyToClipboard(this.responseText, e); }}' part="btn btn-fill"> Copy </button>
+                  <button class="copy-code" style="position:absolute; top:12px; right:16px" @click='${(e) => { copyToClipboard(this.responseText, e); }}' part="btn btn-fill"> ${copySymbol('opacity: 0.3')} </button>
                   <pre style="display:flex; white-space:pre; min-height:50px; height:auto; resize:vertical; overflow:auto">${responseContent}</pre>
                 </div>`
                 : ''

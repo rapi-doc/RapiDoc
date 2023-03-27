@@ -46,6 +46,7 @@ export class BaseUrl extends LitElement {
     onButtonClick() {
         navigator.clipboard.writeText(this.computedUrl + this.path);
         this.copied = true;
+        this.showToast = true;
     }
 
     onTextClick() {

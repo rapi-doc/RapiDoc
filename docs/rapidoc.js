@@ -12107,7 +12107,7 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 function copyToClipboard(data, e) {
-  const btnEl = e.target;
+  const btnEl = e.target.closest('button');
   const textArea = document.createElement('textarea');
   textArea.value = data;
   textArea.style.position = 'fixed'; // avoid scrolling to bottom
@@ -12116,9 +12116,16 @@ function copyToClipboard(data, e) {
   textArea.select();
   try {
     document.execCommand('copy');
-    btnEl.innerText = 'Copied';
+    btnEl.innerHTML = `<svg class="check-button" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M10 17.5C5.8575 17.5 2.5 14.1425 2.5 10C2.5 5.8575 5.8575 2.5 10 2.5C14.1425 2.5 17.5 5.8575 17.5 10C17.5 14.1425 14.1425 17.5 10 17.5Z" fill="#79A479"/>
+    <path d="M13.3327 8.33337L9.16602 12.5L6.66602 10" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`;
     setTimeout(() => {
-      btnEl.innerText = 'Copy';
+      btnEl.innerHTML = `
+        <svg class="copy-button" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="m4.873 3.1245c0-0.41421 0.33578-0.75 0.75-0.75h11.251c0.4142 0 0.75 0.33579 0.75 0.75v11.25c0 0.4142-0.3358 0.75-0.75 0.75s-0.75-0.3358-0.75-0.75v-10.5h-10.501c-0.41422 0-0.75-0.33578-0.75-0.75z" clip-rule="evenodd" fill="#4A596B" fill-rule="evenodd"/>
+        <path d="m2.373 5.6246c0-0.41421 0.33578-0.75 0.75-0.75h11.25c0.4142 0 0.75 0.33579 0.75 0.75v11.25c0 0.4142-0.3358 0.75-0.75 0.75h-11.25c-0.41422 0-0.75-0.3358-0.75-0.75v-11.25zm1.5 0.75v9.75h9.7504v-9.75h-9.7504z" clip-rule="evenodd" fill="#4A596B" fill-rule="evenodd"/>
+        </svg>`;
     }, 5000);
   } catch (err) {
     common_utils_console.error('Unable to copy', err); // eslint-disable-line no-console
@@ -23507,6 +23514,7 @@ class BaseUrl extends lit_element_s {
   onButtonClick() {
     navigator.clipboard.writeText(this.computedUrl + this.path);
     this.copied = true;
+    this.showToast = true;
   }
   onTextClick() {
     navigator.clipboard.writeText(this.computedUrl + this.path);
@@ -24151,6 +24159,7 @@ function languagePickerTemplate() {
 
 
 
+
 class ApiRequest extends lit_element_s {
   constructor() {
     super();
@@ -24337,6 +24346,21 @@ class ApiRequest extends lit_element_s {
         .read-mode {
           border-top: 1px solid #E7E9EE;
           margin-top: 24px;
+        }
+        .copy-code {
+          background: none;
+          color: inherit;
+          border: none;
+          padding: 0;
+          cursor: pointer;
+          outline: inherit;
+          display: block;
+        }
+        .copy-button{
+          opacity: 0.3;
+        }
+        .check-button, .copy-button:hover{
+          opacity: 1;
         }
 
         .param-name {
@@ -25166,9 +25190,9 @@ class ApiRequest extends lit_element_s {
   codeExampleTemplate(display = 'flex') {
     return y`
       <div class="col m-markdown" style="flex:1; display:${display}; position:relative; max-width: 100%;">
-        <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${e => {
+        <button class="copy-code" style = "position:absolute; top:12px; right:8px" @click='${e => {
       copyToClipboard(this.codeExample.replace(/\\$/, ''), e);
-    }}' part="btn btn-fill"> Copy </button>
+    }}' part="btn btn-fill"> ${copySymbol('opacity: 0.3')} </button>
         <pre class="code-container" style="white-space:pre; border: none;"><code>${unsafe_html_o(prism_core_default().highlight(this.codeExample.trim().replace(/\\$/, ''), (prism_core_default()).languages[this.selectedLanguage], this.selectedLanguage))}</code></pre>
       </div>
       `;
@@ -25215,9 +25239,9 @@ class ApiRequest extends lit_element_s {
               </div>` : y`
               ${this.responseText ? y`
                 <div class="tab-content col m-markdown" style="max-height:500px; flex:1; display:flex;" >
-                  <button class="toolbar-btn" style="position:absolute; top:12px; right:16px" @click='${e => {
+                  <button class="copy-code" style="position:absolute; top:12px; right:16px" @click='${e => {
       copyToClipboard(this.responseText, e);
-    }}' part="btn btn-fill"> Copy </button>
+    }}' part="btn btn-fill"> ${copySymbol('opacity: 0.3')} </button>
                   <pre style="display:flex; white-space:pre; min-height:50px; height:auto; resize:vertical; overflow:auto">${responseContent}</pre>
                 </div>` : ''}`}
         </div>
@@ -54515,7 +54539,7 @@ module.exports = JSON.parse('{"$id":"timings.json#","$schema":"http://json-schem
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("0ddb492187d91024e609")
+/******/ 		__webpack_require__.h = () => ("5028bcc225f01383afce")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
