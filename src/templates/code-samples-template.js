@@ -2,6 +2,7 @@ import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import Prism from 'prismjs';
 import { copyToClipboard } from '~/utils/common-utils';
+import copySymbol from '../components/assets/copy-symbol';
 
 /* eslint-disable indent */
 export default function codeSamplesTemplate(xCodeSamples) {
@@ -24,7 +25,7 @@ export default function codeSamplesTemplate(xCodeSamples) {
     </div>
     ${xCodeSamples.map((v, i) => html`
       <div class="tab-content m-markdown" style= "display:${i === 0 ? 'block' : 'none'}" data-tab = '${v.lang}${i}'>
-        <button class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(v.source, e); }}'> Copy </button>
+        <button class="copy-code" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(v.source, e); }}'> ${copySymbol()} </button>
         <pre><code class="language">${Prism.languages[v.lang?.toLowerCase()] ? unsafeHTML(Prism.highlight(v.source, Prism.languages[v.lang?.toLowerCase()], v.lang?.toLowerCase())) : v.source}</code></pre>
       </div>`)
     }

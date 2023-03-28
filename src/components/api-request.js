@@ -30,6 +30,7 @@ import serverTemplate from '~/templates/server-template';
 import securitySchemeTemplate from '~/templates/security-scheme-template';
 import languagePickerTemplate from '~/templates/language-picker-template';
 import updateCodeExample from '~/utils/update-code-example';
+import copySymbol from './assets/copy-symbol';
 
 export default class ApiRequest extends LitElement {
   constructor() {
@@ -133,7 +134,7 @@ export default class ApiRequest extends LitElement {
           line-height: 20px;
           color: #545454; 
           margin-block: 24px 4px;
-          font-family: var(--font-mono);
+          font-family: var(--font-regular);
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -142,11 +143,10 @@ export default class ApiRequest extends LitElement {
           color: #DC5A41;
         }
         .param-type{
-          font-size: 14px;
-          font-weight: normal;
           line-height: 16px;
           color: #4A4A4A; 
-          font-family: var(--font-regular);
+          font-family: var(--font-mono);
+          font-size: var(--font-size-mono);
         }
 
         .param-type > span {
@@ -161,10 +161,9 @@ export default class ApiRequest extends LitElement {
         }
 
         .param-description {
-          font-size: 12px;
-          line-height: 16px;
+          font-size: 13px;
+          line-height: 18px;
           color: #4A4A4A;
-          margin: 10px 0px 0px;
         }
 
         .top-gap{margin-top:24px;}
@@ -241,7 +240,6 @@ export default class ApiRequest extends LitElement {
     return html`
     <div class="row-api regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'}">
       <div class="row-api-left">
-        ${this.downloadSpecTemplate()}
         ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('path'))}
         ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('query'))}
         ${this.requestBodyTemplate()}
@@ -310,18 +308,6 @@ export default class ApiRequest extends LitElement {
       });
       this.requestUpdate();
     }
-  }
-
-  downloadSpecTemplate() {
-    if (this.specUrl && this.allowSpecFileDownload) {
-      return html`
-        <div style="display:flex; margin:12px 0; gap:8px; justify-content: start; flex-wrap: wrap;">
-          <button class="m-btn thin-border" part="btn btn-outline" @click='${(e) => { downloadResource(this.specUrl, 'openapi-spec.json', e); }}'>Download OpenAPI spec</button>
-            <button class="m-btn thin-border" part="btn btn-outline" @click='${(e) => { viewResource(this.specUrl, e); }}'>View OpenAPI spec</button>
-        </div>`;
-    }
-
-    return '';
   }
 
   /* eslint-disable indent */
@@ -1041,7 +1027,7 @@ export default class ApiRequest extends LitElement {
   codeExampleTemplate(display = 'flex') {
     return html`
       <div class="col m-markdown" style="flex:1; display:${display}; position:relative; max-width: 100%;">
-        <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.codeExample.replace(/\\$/, ''), e); }}' part="btn btn-fill"> Copy </button>
+        <button class="copy-code" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.codeExample.replace(/\\$/, ''), e); }}' part="btn btn-fill"> ${copySymbol()} </button>
         <pre class="code-container" style="white-space:pre; border: none;"><code>${unsafeHTML(Prism.highlight(this.codeExample.trim().replace(/\\$/, ''), Prism.languages[this.selectedLanguage], this.selectedLanguage))}</code></pre>
       </div>
       `;
@@ -1067,10 +1053,7 @@ export default class ApiRequest extends LitElement {
       }
     }
     return html`
-      <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
-        <div style="flex:1"></div>
-        <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
-      </div>
+      <button style="margin-left: 32px" class="m-btn m-btn-secondary" part="btn btn-outline" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
       <div class="tab-panel col" style="border-top: 1px solid #E7E9EE; border-bottom: 1px solid #E7E9EE; margin-top: 24px;">
         ${this.codeExampleTemplate('flex')}
         <div style="background: #F8F7FC; padding-inline: 32px;padding-block: 16px">
@@ -1096,7 +1079,7 @@ export default class ApiRequest extends LitElement {
             : html`
               ${this.responseText ? html`
                 <div class="tab-content col m-markdown" style="max-height:500px; flex:1; display:flex;" >
-                  <button class="toolbar-btn" style="position:absolute; top:12px; right:16px" @click='${(e) => { copyToClipboard(this.responseText, e); }}' part="btn btn-fill"> Copy </button>
+                  <button class="copy-code" style="position:absolute; top:12px; right:16px" @click='${(e) => { copyToClipboard(this.responseText, e); }}' part="btn btn-fill"> ${copySymbol()} </button>
                   <pre style="display:flex; white-space:pre; min-height:50px; height:auto; resize:vertical; overflow:auto">${responseContent}</pre>
                 </div>`
                 : ''

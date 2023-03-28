@@ -38,7 +38,7 @@ export default css`
   .row-api-right-box{
     text-align:left; 
     direction:ltr; 
-    margin-block: 32px 24px; 
+    margin-block: 32px 16px; 
     padding-left: 32px;
   }
 

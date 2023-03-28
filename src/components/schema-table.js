@@ -53,7 +53,6 @@ export default class SchemaTable extends LitElement {
         padding: 12px 10px 12px;
       }
       .table .key-descr {
-        width: 33%;
         padding: 0px 10px 12px;
       }
       .key .key-label {
@@ -69,11 +68,13 @@ export default class SchemaTable extends LitElement {
       }
       .param-table .key-type {
         white-space: normal;
-        width: 33%;
+        width: 13%;
         border-left:1px solid var(--light-border-color);
         border-right:1px solid var(--light-border-color);
         color:#4A4A4A;
         padding: 12px 10px 12px;
+        font-family: var(--font-mono);
+        font-size: var(--font-size-mono);
       }
       .collapsed-all-descr .tr:not(.expanded-descr) {
         max-height: calc(var(--font-size-small) + var(--font-size-small));
@@ -328,8 +329,8 @@ export default class SchemaTable extends LitElement {
           }
         </div>
         ${dataTypeHtml}
-        <div class='td key-descr' style='font-size: var(--font-size-small)'>
-          ${html`<span class="m-markdown-small">
+        <div class='td key-descr'>
+          ${html`<span>
             ${unsafeHTML(marked(dataType === 'array'
               ? `${descrExpander} ${description}`
               : schemaTitle

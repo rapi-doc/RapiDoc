@@ -46,6 +46,7 @@ export class BaseUrl extends LitElement {
     onButtonClick() {
         navigator.clipboard.writeText(this.computedUrl + this.path);
         this.copied = true;
+        this.showToast = true;
     }
 
     onTextClick() {
@@ -119,6 +120,8 @@ export class BaseUrl extends LitElement {
             .url {
                 flex: 1 0 auto;
                 padding: 4px 8px;
+                font-family: var(--font-mono);
+                font-size: var(--font-size-mono)
             }
 
             .url:hover {
@@ -133,7 +136,7 @@ export class BaseUrl extends LitElement {
             }
 
             .container {
-                height: 32px;
+                height: 42px;
                 font-size:14px;
                 border: 1px solid var(--border-color);
                 border-radius: 4px;
