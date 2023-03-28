@@ -53,7 +53,6 @@ export default class SchemaTable extends LitElement {
         padding: 12px 10px 12px;
       }
       .table .key-descr {
-        width: 33%;
         padding: 0px 10px 12px;
       }
       .key .key-label {
@@ -69,7 +68,7 @@ export default class SchemaTable extends LitElement {
       }
       .param-table .key-type {
         white-space: normal;
-        width: 33%;
+        width: 13%;
         border-left:1px solid var(--light-border-color);
         border-right:1px solid var(--light-border-color);
         color:#4A4A4A;

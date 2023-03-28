@@ -211,61 +211,29 @@ export default css`
 
   /* Markdown table */
 
-  .m-markdown-small table,
-  .m-markdown table {
-    border-spacing: 0;
-    margin: 10px 0;
-    border-collapse: separate;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    font-size: calc(var(--font-size-small) + 1px);
-    line-height: calc(var(--font-size-small) + 4px);
+  table {
+    border-collapse: collapse;
     max-width: 100%;
+    overflow-x: auto;
+    display: inline-block;
+    margin: 16px 0;
+    border-radius: 4px;
   }
-
-  .m-markdown-small table {
-    font-size: var(--font-size-small);
-    line-height: calc(var(--font-size-small) + 2px);
-    margin: 8px 0;
+  
+  table thead {
+    border: 1px solid #e7e9ef;
+    font-weight: 500;
   }
-
-  .m-markdown-small td, 
-  .m-markdown-small th,
-  .m-markdown td, 
-  .m-markdown th {
-    vertical-align: top;
-    border-top: 1px solid var(--border-color);
-    line-height: calc(var(--font-size-small) + 4px);
+  
+  table td,
+  table th {
+    font-size: 0.875em;
+    border: 1px solid #e7e9ef;
+    padding: 0.5em;
   }
-
-  .m-markdown-small tr:first-child th,
-  .m-markdown tr:first-child th {
-    border-top: 0 none;
-  }
-
-  .m-markdown th, 
-  .m-markdown td { 
-    padding: 10px 12px; 
-  }
-
-  .m-markdown-small th,
-  .m-markdown-small td { 
-    padding: 8px 8px; 
-  }
-
-  .m-markdown th,
-  .m-markdown-small th {
-    font-weight: 600;
-    background-color: var(--bg2);
-    vertical-align: middle;
-  }
-
-  .m-markdown-small table code {
-    font-size: calc(var(--font-size-mono) - 2px);
-  }
-
-  .m-markdown table code {
-    font-size: calc(var(--font-size-mono) - 1px);
+  
+  table tbody tr:nth-of-type(even) {
+    background-color: #f8f7fc;
   }
 
   .m-markdown hr{
