@@ -12718,6 +12718,10 @@ function getPrintableVal(val) {
   if (Array.isArray(val)) {
     return val.map(v => v === null ? 'null' : v === '' ? '∅' : v.toString().replace(/^ +| +$/g, m => '●'.repeat(m.length)) || '').join(', ');
   }
+  if (typeof val === 'object') {
+    const keys = Object.keys(val);
+    return `{ ${keys[0]}:${val[keys[0]]}${keys.length > 1 ? ',' : ''} ... }`;
+  }
   return val.toString().replace(/^ +| +$/g, m => '●'.repeat(m.length)) || '';
 }
 
@@ -12850,7 +12854,7 @@ function normalizeExamples(examples, dataType = 'string') {
       summary: v.summary || '',
       description: v.description || ''
     }));
-    const exampleVal = exampleList.length > 0 ? exampleList[0].value.toString() : '';
+    const exampleVal = exampleList.length > 0 ? exampleList[0].value : '';
     return {
       exampleVal,
       exampleList
@@ -12988,6 +12992,9 @@ function getSampleValueByType(schemaObj) {
           return '2001:0db8:5b96:0000:0000:426f:8e17:642a';
         case 'uuid':
           return [u.substr(0, 8), u.substr(8, 4), `4000-8${u.substr(13, 3)}`, u.substr(16, 12)].join('-');
+        case 'byte':
+          return 'ZXhhbXBsZQ==';
+        // 'example' base64 encoded. See https://spec.openapis.org/oas/v3.0.0#data-types
         default:
           return '';
       }
@@ -13523,6 +13530,7 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     obj['::type'] = 'object';
     if (Array.isArray(schema.type) && schema.type.includes('null') || schema.nullable) {
       obj['::dataTypeLabel'] = 'object or null';
+      obj['::nullable'] = true;
     }
     obj['::deprecated'] = schema.deprecated || false;
     obj['::readwrite'] = schema.readOnly ? 'readonly' : schema.writeOnly ? 'writeonly' : '';
@@ -13547,6 +13555,7 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     obj['::type'] = 'array';
     if (Array.isArray(schema.type) && schema.type.includes('null') || schema.nullable) {
       obj['::dataTypeLabel'] = 'array or null';
+      obj['::nullable'] = true;
     }
     obj['::deprecated'] = schema.deprecated || false;
     obj['::readwrite'] = schema.readOnly ? 'readonly' : schema.writeOnly ? 'writeonly' : '';
@@ -14196,9 +14205,9 @@ class SchemaTree extends lit_element_s {
         closeBracket = '}]';
       } else {
         if (schemaLevel < this.schemaExpandLevel) {
-          openBracket = y`<span class="open-bracket object">{</span>`;
+          openBracket = y`<span class="open-bracket object">${data['::nullable'] ? 'null┃' : ''}{</span>`;
         } else {
-          openBracket = y`<span class="open-bracket object">{...}</span>`;
+          openBracket = y`<span class="open-bracket object">${data['::nullable'] ? 'null┃' : ''}{...}</span>`;
         }
         closeBracket = '}';
       }
@@ -14223,7 +14232,7 @@ class SchemaTree extends lit_element_s {
     if (typeof data === 'object') {
       var _data$Type2;
       return y`
-        <div class="tr ${schemaLevel < this.schemaExpandLevel || (_data$Type2 = data['::type']) !== null && _data$Type2 !== void 0 && _data$Type2.startsWith('xxx-of') ? 'expanded' : 'collapsed'} ${data['::type'] || 'no-type-info'}" title="${data['::deprecated'] ? 'Deprecated' : ''}">
+        <div class="tr ${schemaLevel < this.schemaExpandLevel || (_data$Type2 = data['::type']) !== null && _data$Type2 !== void 0 && _data$Type2.startsWith('xxx-of') ? 'expanded' : 'collapsed'} ${data['::type'] || 'no-type-info'}${data['::nullable'] ? ' nullable' : ''}" title="${data['::deprecated'] ? 'Deprecated' : ''}">
           <div class="td key ${data['::deprecated'] ? 'deprecated' : ''}" style='min-width:${minFieldColWidth}px'>
             ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION') ? y`<span class='key-label xxx-of-key'> ${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>` : keyLabel === '::props' || keyLabel === '::ARRAY~OF' ? '' : schemaLevel > 0 ? y`<span class="key-label" title="${readOrWrite === 'readonly' ? 'Read-Only' : readOrWrite === 'writeonly' ? 'Write-Only' : ''}">
                       ${data['::deprecated'] ? '✗' : ''}
@@ -14238,7 +14247,7 @@ class SchemaTree extends lit_element_s {
               ${Object.keys(data).map(dataKey => {
         var _data$dataKey;
         return y`
-                ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite', '::dataTypeLabel'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? y`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}` : '' : y`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, ((_data$dataKey = data[dataKey]) === null || _data$dataKey === void 0 ? void 0 : _data$dataKey['::description']) || '', newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}`}
+                ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite', '::dataTypeLabel', '::nullable'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? y`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}` : '' : y`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, ((_data$dataKey = data[dataKey]) === null || _data$dataKey === void 0 ? void 0 : _data$dataKey['::description']) || '', newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}`}
               `;
       })}
             `}
@@ -14314,12 +14323,13 @@ class SchemaTree extends lit_element_s {
   }
   toggleObjectExpand(e) {
     const rowEl = e.target.closest('.tr');
+    const nullable = rowEl.classList.contains('nullable');
     if (rowEl.classList.contains('expanded')) {
       rowEl.classList.replace('expanded', 'collapsed');
-      e.target.innerHTML = e.target.classList.contains('array-of-object') ? '[{...}]' : e.target.classList.contains('array-of-array') ? '[[...]]' : e.target.classList.contains('array') ? '[...]' : '{...}';
+      e.target.innerHTML = e.target.classList.contains('array-of-object') ? '[{...}]' : e.target.classList.contains('array-of-array') ? '[[...]]' : e.target.classList.contains('array') ? '[...]' : `${nullable ? 'null┃' : ''}{...}`;
     } else {
       rowEl.classList.replace('collapsed', 'expanded');
-      e.target.innerHTML = e.target.classList.contains('array-of-object') ? '[{' : e.target.classList.contains('array-of-array') ? `[[ ${e.target.dataset.arrayType}` : e.target.classList.contains('object') ? '{' : '[';
+      e.target.innerHTML = e.target.classList.contains('array-of-object') ? '[{' : e.target.classList.contains('array-of-array') ? `[[ ${e.target.dataset.arrayType}` : e.target.classList.contains('object') ? `${nullable ? 'null┃' : ''}{` : '[';
     }
   }
 }
@@ -14796,7 +14806,7 @@ class ApiRequest extends lit_element_s {
 
   /* eslint-disable indent */
   renderExample(example, paramType, paramName) {
-    var _example$value;
+    var _example$value, _example$value2;
     return y`
       ${paramType === 'array' ? '[' : ''}
       <a
@@ -14804,7 +14814,8 @@ class ApiRequest extends lit_element_s {
         style="display:inline-block; min-width:24px; text-align:center"
         class="${this.allowTry === 'true' ? '' : 'inactive-link'}"
         data-example-type="${paramType === 'array' ? paramType : 'string'}"
-        data-example="${example.value && Array.isArray(example.value) ? (_example$value = example.value) === null || _example$value === void 0 ? void 0 : _example$value.join('~|~') : example.value || ''}"
+        data-example="${example.value && Array.isArray(example.value) ? (_example$value = example.value) === null || _example$value === void 0 ? void 0 : _example$value.join('~|~') : (typeof example.value === 'object' ? JSON.stringify(example.value, null, 2) : example.value) || ''}"
+        title="${example.value && Array.isArray(example.value) ? (_example$value2 = example.value) === null || _example$value2 === void 0 ? void 0 : _example$value2.join('~|~') : (typeof example.value === 'object' ? JSON.stringify(example.value, null, 2) : example.value) || ''}"
         @click="${e => {
       const inputEl = e.target.closest('table').querySelector(`[data-pname="${paramName}"]`);
       if (inputEl) {
@@ -14947,7 +14958,7 @@ class ApiRequest extends lit_element_s {
                             data-param-allow-reserved = "${paramAllowReserved}"
                             data-x-fill-example = "${param['x-fill-example'] || 'yes'}"
                             spellcheck = "false"
-                            .textContent="${param['x-fill-example'] === 'no' ? '' : live_l(this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : '')}"
+                            .textContent="${param['x-fill-example'] === 'no' ? '' : live_l(this.fillRequestFieldsWithExample === 'true' ? typeof example.exampleVal === 'object' ? JSON.stringify(example.exampleVal, null, 2) : example.exampleVal : '')}"
                             style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
                             @input=${e => {
         const requestPanelEl = this.getRequestPanel(e);
@@ -15652,7 +15663,8 @@ class ApiRequest extends lit_element_s {
           let queryParamObj = {};
           const {
             paramSerializeStyle,
-            paramSerializeExplode
+            paramSerializeExplode,
+            pname
           } = el.dataset;
           queryParamObj = Object.assign(queryParamObj, JSON.parse(el.value.replace(/\s+/g, ' ')));
           if (el.dataset.paramAllowReserved === 'true') {
@@ -15666,25 +15678,26 @@ class ApiRequest extends lit_element_s {
             }
           } else {
             for (const key in queryParamObj) {
+              const pKey = `${pname}[${key}]`;
               if (typeof queryParamObj[key] === 'object') {
                 if (Array.isArray(queryParamObj[key])) {
                   if (paramSerializeStyle === 'spaceDelimited') {
-                    queryParam.append(key, queryParamObj[key].join(' '));
+                    queryParam.append(pKey, queryParamObj[key].join(' '));
                   } else if (paramSerializeStyle === 'pipeDelimited') {
-                    queryParam.append(key, queryParamObj[key].join('|'));
+                    queryParam.append(pKey, queryParamObj[key].join('|'));
                   } else {
                     if (paramSerializeExplode === 'true') {
                       // eslint-disable-line no-lonely-if
                       queryParamObj[key].forEach(v => {
-                        queryParam.append(key, v);
+                        queryParam.append(pKey, v);
                       });
                     } else {
-                      queryParam.append(key, queryParamObj[key]);
+                      queryParam.append(pKey, queryParamObj[key]);
                     }
                   }
                 }
               } else {
-                queryParam.append(key, queryParamObj[key]);
+                queryParam.append(pKey, queryParamObj[key]);
               }
             }
           }
@@ -16352,7 +16365,7 @@ class SchemaTable extends lit_element_s {
             ${Object.keys(data).map(dataKey => {
         var _data$dataKey;
         return y`
-              ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite', '::dataTypeLabel'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? y`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}` : '' : y`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, ((_data$dataKey = data[dataKey]) === null || _data$dataKey === void 0 ? void 0 : _data$dataKey['::description']) || '', newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}`}
+              ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite', '::dataTypeLabel', '::nullable'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? y`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}` : '' : y`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, ((_data$dataKey = data[dataKey]) === null || _data$dataKey === void 0 ? void 0 : _data$dataKey['::description']) || '', newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}`}
             `;
       })}
           `}
@@ -26661,7 +26674,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("58f69ab8c977033c5164")
+/******/ 		__webpack_require__.h = () => ("0b1edbce53e209316ddc")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
