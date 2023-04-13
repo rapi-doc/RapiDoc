@@ -12,8 +12,6 @@ import CustomStyles from '~/styles/custom-styles';
 import '~/components/json-tree';
 import '~/components/schema-tree';
 import '~/components/schema-table';
-import cornersOutIcon from './assets/corners-out-icon';
-import closeSymbol from './assets/close-symbol';
 
 export default class ApiResponse extends LitElement {
   constructor() {
@@ -54,17 +52,17 @@ export default class ApiResponse extends LitElement {
       css`
       :where(button, input[type="checkbox"], [tabindex="0"]):focus-visible { box-shadow: var(--focus-shadow); }
       :where(input[type="text"], input[type="password"], select, textarea):focus-visible { border-color: var(--primary-color); }
+      .response-panel {
+        padding: 10px;
+        border: 1px solid var(--light-border-color);
+        border-radius: 4px;
+      }
+      .response-panel-header {
+        border-bottom: 1px solid var(--light-border-color);
+      }
       .resp-head{
         vertical-align: middle;
         padding:16px 0 8px;
-      }
-      .resp-head.divider{
-        border-top: 1px solid var(--border-color);
-        margin-top:10px;
-      }
-      .resp-status{ 
-        font-weight:bold;
-        font-size:calc(var(--font-size-small) + 1px);
       }
       .resp-descr{
         font-size:calc(var(--font-size-small) + 1px);
@@ -75,19 +73,22 @@ export default class ApiResponse extends LitElement {
         display: flex;
         flex-direction: row;
         flex: 1 1 auto;
-        justify-content: space-between;
+        justify-content: space-around;
         align-items: center;
-        padding: 24px;
+        column-gap: 12px;
+        padding: 12px;
       }
       .resp-box:hover {
         cursor: pointer;
-        box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.1);
+        color: var(--vtex-pink);
+        font-weight: bold;
       }
-      .resp-border{
-        border: 1px solid #CCCED8;
-        border-radius: 4px;
+      .resp-box.active {
+        font-weight: bold;
+        color: var(--vtex-pink);
+        border-bottom: 2px solid var(--vtex-pink);
       }
-      .resp-modal-header {
+      .resp-title {
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -96,57 +97,36 @@ export default class ApiResponse extends LitElement {
         height: 45px;
         text-transform: uppercase;
       }
-      .resp-modal-content {
+      .resp-content {
         padding: 24px 40px;
-        background-color: #FFFFFF;
-        width: 80%;
-        height: 70%;
-        max-width: 720px;
-        max-height: 1120px;
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-      }
-      .resp-modal-body {
-        height: calc(100% - 45px);
+        max-height: calc(100vh - 5rem - 48px);
         overflow: auto;
-        overscroll-behavior: contain;
+        background-color: #FFFFFF;
+      }
+      .resp-content-body {
+        overflow: auto;
         scrollbar-width: thin;
         scrollbar-color: white white;
       }
-      .resp-modal-body:hover {
+      .resp-content-body:hover {
         scrollbar-color: #CCCED8 white;
       }
-      .resp-modal-body::-webkit-scrollbar {
+      .resp-content-body::-webkit-scrollbar {
         display: block;
         width: 6px;
         height: 6px;
         background-color: white;
       }
-      .resp-modal-body::-webkit-scrollbar-thumb {
+      .resp-content-body::-webkit-scrollbar-thumb {
         border-radius: 4px;
         background: white;
       }
-      .resp-modal-body:hover::-webkit-scrollbar-thumb {
+      .resp-content-body:hover::-webkit-scrollbar-thumb {
         background: #CCCED8;
       }
-      .resp-modal {
+      .resp-content-container {
         display: none;
-        position: fixed;
-        z-index: 10000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
         background-color: rgba(0,0,0,0.1);
-      }
-      .resp-modal-bg {
-        height: 100vh;
-        width: 100vw;
-        position: fixed;
-        overscroll-behavior: contain;
-        overflow: none;
       }
       .top-gap{margin-top:16px;}
       .example-panel{
@@ -158,7 +138,6 @@ export default class ApiResponse extends LitElement {
         margin: 32px 0px;
         display: flex;
         flex-direction: column;
-        row-gap: 24px;
       }
       .dot {
         height: 8px;
@@ -178,21 +157,6 @@ export default class ApiResponse extends LitElement {
       .error {
         background-color: var(--error-color);
       }
-      .close-button {
-          display: flex;
-          flex-direction: row;
-          justify-content: center;
-          align-items: center;
-          border: none;
-          border-radius: 4px;
-          padding: 0px;
-          width: 24px;
-          height: 24px;
-      }
-      .close-button:hover {
-          cursor: pointer;
-          background-color: rgba(0, 0, 0, 0.05);
-      }
       `,
       CustomStyles,
     ];
@@ -200,7 +164,7 @@ export default class ApiResponse extends LitElement {
 
   render() {
     return html`
-    <div class="col regular-font response-panel ${this.renderStyle}-mode">
+    <div class="col regular-font ${this.renderStyle}-mode response-panel">
       ${this.responseTemplate()}
     </div>
     `;
@@ -266,12 +230,12 @@ export default class ApiResponse extends LitElement {
     }
     return html`
       ${Object.keys(this.responses).length >= 1
-        ? html`<div class='row' style='flex-wrap:wrap; gap:12px'>
+        ? html`<div class='row response-panel-header' style='flex-wrap:wrap; gap:12px'>
           ${Object.keys(this.responses).map((respStatus) => html`
             ${respStatus === '$$ref' // Swagger-Client parser creates '$$ref' object if JSON references are used to create responses - this should be ignored
               ? ''
               : html`
-                <div class="resp-box resp-border"
+                <div class="resp-box ${this.selectedStatus === respStatus ? 'active' : ''}"
                   @click="${() => {
                     this.selectedStatus = respStatus;
                     if (this.responses[respStatus].content && Object.keys(this.responses[respStatus].content)[0]) {
@@ -279,19 +243,14 @@ export default class ApiResponse extends LitElement {
                     } else {
                       this.selectedMimeType = undefined;
                     }
-                    this.renderRoot.getElementById(`resp-modal-${respStatus}`).style.display = 'block';
-                    document.body.style.overflow = 'hidden';
                   }}"
                 >
                   <div style='display: flex; flex-direction: row; justify-content: flex-start; align-items: center;'>
-                    <div style="display: flex; justify-content: center; align-items: center; margin-right: 8px">
-                      ${cornersOutIcon()}
-                    </div>
-                    <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} " style="margin: 0">
+                    <div style="margin: 0">
                       ${this.callback === 'true' ? 'Callback Response' : 'Response'}
                     </div>
                   </div>
-                  <div style='display: flex; flex-direction: row; justify-content: flex-end; align-items: center;'>
+                  <div style='display: flex; flex-direction: row; justify-content: flex-end; align-items: center; color: var(--fg)'>
                     <div style='margin-right: 4px'>
                       <span class='dot ${this.getResponseStatusType(respStatus)}'></span>
                     </div>
@@ -308,15 +267,9 @@ export default class ApiResponse extends LitElement {
       </div>
 
       ${Object.keys(this.responses).map((status) => html`
-        <div class="resp-modal" id="resp-modal-${status}">
-          <div class="resp-modal-bg"
-            @click="${() => {
-              this.renderRoot.getElementById(`resp-modal-${status}`).style.display = 'none';
-              document.body.style.overflow = 'auto';
-            }}"
-          ></div>
-          <div class="resp-border resp-modal-content">
-            <div class="resp-modal-header">
+        <div class="resp-content-container" id="resp-content-${status}" style="${this.selectedStatus === status ? 'display: block' : 'display: none'} ">
+          <div class="resp-border resp-content">
+            <div class="resp-title">
               <div style='display: flex; flex-direction: row; justify-content: flex-start; align-items: center;'>
                 <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} " style="margin: 0">
                   ${this.callback === 'true' ? 'Callback Response' : 'Response'}
@@ -329,17 +282,9 @@ export default class ApiResponse extends LitElement {
                 <div>
                   <span>${status}</span>
                 </div>
-                <button class="close-button"
-                  @click="${() => {
-                    this.renderRoot.getElementById(`resp-modal-${status}`).style.display = 'none';
-                    document.body.style.overflow = 'auto';
-                  }}"
-                >
-                  ${closeSymbol()}
-                </button>
               </div>
             </div>
-            <div class="resp-modal-body">
+            <div class="resp-content-body">
               <div class="top-gap">
                 <span class="resp-descr m-markdown ">${unsafeHTML(marked(this.responses[status]?.description || ''))}</span>
                 ${(this.headersForEachRespStatus[status] && this.headersForEachRespStatus[status]?.length > 0)

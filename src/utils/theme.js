@@ -75,6 +75,7 @@ export default function setTheme(baseTheme, theme = {}) {
 
       pink: theme.pink ? theme.pink : '#ffb2b2',
       lightPink: theme.lightPink || ColorUtils.color.brightness(bg1, -10),
+      vtexPink: theme.vtexPink ? theme.vtexPink : '#D71D55',
 
       green: theme.green || '#7ec699',
       lightGreen: theme.lightGreen || ColorUtils.color.brightness(bg1, -10), // #2a2a2a
@@ -170,6 +171,7 @@ export default function setTheme(baseTheme, theme = {}) {
 
       pink: theme.pink ? theme.pink : '#990055',
       lightPink: theme.lightPink ? theme.lightPink : '#ffb2b2',
+      vtexPink: theme.vtexPink ? theme.vtexPink : '#D71D55',
 
       green: theme.green || '#690',
       lightGreen: theme.lightGreen || '#fbfff0',
@@ -261,6 +263,7 @@ export default function setTheme(baseTheme, theme = {}) {
     --light-red:${newTheme.lightRed};
     --pink:${newTheme.pink};
     --light-pink:${newTheme.lightPink};
+    --vtex-pink:${newTheme.vtexPink};
     --green:${newTheme.green};
     --light-green:${newTheme.lightGreen};
     --blue:${newTheme.blue};
