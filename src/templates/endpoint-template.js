@@ -9,6 +9,7 @@ import callbackTemplate from '~/templates/callback-template';
 import { pathSecurityTemplate } from '~/templates/security-scheme-template';
 import { pathIsInSearch, rapidocApiKey } from '~/utils/common-utils';
 import processPathDescription from '~/utils/magic-block-utils';
+import { joinURLandPath } from '~/utils/url';
 
 function toggleExpand(path) {
   if (path.expanded) {
@@ -167,7 +168,7 @@ function endpointBodyTemplate(path) {
           <span class='regular-font upper method-fg bold-text ${path.method}'>${path.method}</span>
         </div>
         <div class='label-operation-path-container'>
-          <content-copy-button id='${path.method}${path.path}' content='${path.path}'></content-copy-button>
+          <content-copy-button id='${path.method}${path.path}' content='${joinURLandPath(this.selectedServer.url, path.path)}'></content-copy-button>
         </div>
       </div>
       ${path.description ? html`<div part="section-endpoint-body-description" class="path-description"> ${unsafeHTML(path.description)}</div>` : ''}
