@@ -179,9 +179,9 @@ export default class SchemaTree extends LitElement {
     if (data['::type'] === 'object') {
       if (dataType === 'array') {
         if (schemaLevel < this.schemaExpandLevel) {
-          openBracket = html`<span class="open-bracket array-of-object" >[{</span>`;
+          openBracket = html`<span class="open-bracket array-of-object" >${data['::nullable'] ? 'null┃' : ''}[{</span>`;
         } else {
-          openBracket = html`<span class="open-bracket array-of-object">[{...}]</span>`;
+          openBracket = html`<span class="open-bracket array-of-object">${data['::nullable'] ? 'null┃' : ''}[{...}]</span>`;
         }
         closeBracket = '}]';
       } else {
@@ -196,16 +196,16 @@ export default class SchemaTree extends LitElement {
       if (dataType === 'array') {
         const arrType = arrayType !== 'object' ? arrayType : '';
         if (schemaLevel < this.schemaExpandLevel) {
-          openBracket = html`<span class="open-bracket array-of-array" data-array-type="${arrType}">[[ ${arrType} </span>`;
+          openBracket = html`<span class="open-bracket array-of-array" data-array-type="${arrType}">${data['::nullable'] ? 'null┃' : ''}[[ ${arrType} </span>`;
         } else {
-          openBracket = html`<span class="open-bracket array-of-array"  data-array-type="${arrType}">[[...]]</span>`;
+          openBracket = html`<span class="open-bracket array-of-array"  data-array-type="${arrType}">${data['::nullable'] ? 'null┃' : ''}[[...]]</span>`;
         }
         closeBracket = ']]';
       } else {
         if (schemaLevel < this.schemaExpandLevel) {
-          openBracket = html`<span class="open-bracket array">[</span>`;
+          openBracket = html`<span class="open-bracket array">${data['::nullable'] ? 'null┃' : ''}[</span>`;
         } else {
-          openBracket = html`<span class="open-bracket array">[...]</span>`;
+          openBracket = html`<span class="open-bracket array">${data['::nullable'] ? 'null┃' : ''}[...]</span>`;
         }
         closeBracket = ']';
       }
@@ -352,25 +352,31 @@ export default class SchemaTree extends LitElement {
   toggleObjectExpand(e) {
     const rowEl = e.target.closest('.tr');
     const nullable = rowEl.classList.contains('nullable');
+    let objectRepr = '';
     if (rowEl.classList.contains('expanded')) {
       rowEl.classList.replace('expanded', 'collapsed');
-      e.target.innerHTML = e.target.classList.contains('array-of-object')
+      objectRepr = e.target.classList.contains('array-of-object')
         ? '[{...}]'
         : e.target.classList.contains('array-of-array')
           ? '[[...]]'
           : e.target.classList.contains('array')
             ? '[...]'
-            : `${nullable ? 'null┃' : ''}{...}`;
+            : '{...}';
     } else {
       rowEl.classList.replace('collapsed', 'expanded');
-      e.target.innerHTML = e.target.classList.contains('array-of-object')
+      objectRepr = e.target.classList.contains('array-of-object')
         ? '[{'
         : e.target.classList.contains('array-of-array')
           ? `[[ ${e.target.dataset.arrayType}`
           : e.target.classList.contains('object')
-            ? `${nullable ? 'null┃' : ''}{`
+            ? '{'
             : '[';
     }
+    if (nullable) {
+      objectRepr = `null┃${objectRepr}`;
+    }
+
+    e.target.innerHTML = objectRepr;
   }
 }
 customElements.define('schema-tree', SchemaTree);

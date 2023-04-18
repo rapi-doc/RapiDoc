@@ -28,10 +28,10 @@ paths:
           application/json:
             schema:
               type: object
-              additionalProperties: 
+              additionalProperties:
                 type: integer
               patternProperties:
-                S_: 
+                S_:
                   type: integer
               properties:
                 foo:
@@ -173,13 +173,28 @@ components:
           type: string
           nullable: true
           description: Generated URL
-        tags:
+        ages:
+          type: array
+          nullable: true
+          items:
+            allOf:
+              - type: string
+            nullable: true
+        tags_array:
           type: array
           items:
             allOf:
               - $ref: '#/components/schemas/tag'
             nullable: true
-        cat:
+        tags_array_array:
+          type: array
+          items:
+            nullable: true
+            type: array
+            items:
+              allOf:
+                - $ref: '#/components/schemas/tag'
+        cat_object:
           allOf:
             - $ref: '#/components/schemas/category'
           nullable: true
