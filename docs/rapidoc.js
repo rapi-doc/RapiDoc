@@ -7746,7 +7746,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 9742:
+/***/ 7948:
 /***/ ((__unused_webpack_module, __unused_webpack___webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -25973,29 +25973,9 @@ class SchemaTable extends lit_element_s {
   }
 }
 customElements.define('schema-table', SchemaTable);
-;// CONCATENATED MODULE: ./src/components/assets/corners-out-icon.js
-/* eslint-disable max-len */
-
-
-/* eslint-disable indent */
-function cornersOutIcon(dimensions) {
-  var _dimensions$width, _dimensions$height;
-  const width = (_dimensions$width = dimensions === null || dimensions === void 0 ? void 0 : dimensions.width) !== null && _dimensions$width !== void 0 ? _dimensions$width : 16;
-  const height = (_dimensions$height = dimensions === null || dimensions === void 0 ? void 0 : dimensions.height) !== null && _dimensions$height !== void 0 ? _dimensions$height : 16;
-  return lit_html_$`
-    <svg width=${width} height=${height} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M9.9 3C9.9 2.66863 10.1686 2.4 10.5 2.4H13C13.3314 2.4 13.6 2.66863 13.6 3V5.5C13.6 5.83137 13.3314 6.1 13 6.1C12.6686 6.1 12.4 5.83137 12.4 5.5V3.6H10.5C10.1686 3.6 9.9 3.33137 9.9 3Z" fill="#A1A8B3"/>
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M3 9.9C3.33137 9.9 3.6 10.1686 3.6 10.5V12.4H5.5C5.83137 12.4 6.1 12.6686 6.1 13C6.1 13.3314 5.83137 13.6 5.5 13.6H3C2.66863 13.6 2.4 13.3314 2.4 13V10.5C2.4 10.1686 2.66863 9.9 3 9.9Z" fill="#A1A8B3"/>
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M13 9.9C13.3314 9.9 13.6 10.1686 13.6 10.5V13C13.6 13.3314 13.3314 13.6 13 13.6H10.5C10.1686 13.6 9.9 13.3314 9.9 13C9.9 12.6686 10.1686 12.4 10.5 12.4H12.4V10.5C12.4 10.1686 12.6686 9.9 13 9.9Z" fill="#A1A8B3"/>
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M2.4 3C2.4 2.66863 2.66863 2.4 3 2.4H5.5C5.83137 2.4 6.1 2.66863 6.1 3C6.1 3.33137 5.83137 3.6 5.5 3.6H3.6V5.5C3.6 5.83137 3.33137 6.1 3 6.1C2.66863 6.1 2.4 5.83137 2.4 5.5V3Z" fill="#A1A8B3"/>
-    </svg>
-  `;
-}
 ;// CONCATENATED MODULE: ./src/components/api-response.js
 
  // eslint-disable-line import/extensions
-
-
 
 
 
@@ -26076,17 +26056,17 @@ class ApiResponse extends lit_element_s {
     return [font_styles, flex_styles, tab_styles, table_styles, input_styles, border_styles, css_tag_r`
       :where(button, input[type="checkbox"], [tabindex="0"]):focus-visible { box-shadow: var(--focus-shadow); }
       :where(input[type="text"], input[type="password"], select, textarea):focus-visible { border-color: var(--primary-color); }
+      .response-panel {
+        padding: 10px;
+        border: 1px solid var(--light-border-color);
+        border-radius: 4px;
+      }
+      .response-panel-header {
+        border-bottom: 1px solid var(--light-border-color);
+      }
       .resp-head{
         vertical-align: middle;
         padding:16px 0 8px;
-      }
-      .resp-head.divider{
-        border-top: 1px solid var(--border-color);
-        margin-top:10px;
-      }
-      .resp-status{ 
-        font-weight:bold;
-        font-size:calc(var(--font-size-small) + 1px);
       }
       .resp-descr{
         font-size:calc(var(--font-size-small) + 1px);
@@ -26097,19 +26077,22 @@ class ApiResponse extends lit_element_s {
         display: flex;
         flex-direction: row;
         flex: 1 1 auto;
-        justify-content: space-between;
+        justify-content: space-around;
         align-items: center;
-        padding: 24px;
+        column-gap: 12px;
+        padding: 12px;
       }
       .resp-box:hover {
         cursor: pointer;
-        box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.1);
+        color: var(--vtex-pink);
+        font-weight: bold;
       }
-      .resp-border{
-        border: 1px solid #CCCED8;
-        border-radius: 4px;
+      .resp-box.active {
+        font-weight: bold;
+        color: var(--vtex-pink);
+        border-bottom: 2px solid var(--vtex-pink);
       }
-      .resp-modal-header {
+      .resp-title {
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -26118,57 +26101,36 @@ class ApiResponse extends lit_element_s {
         height: 45px;
         text-transform: uppercase;
       }
-      .resp-modal-content {
+      .resp-content {
         padding: 24px 40px;
-        background-color: #FFFFFF;
-        width: 80%;
-        height: 70%;
-        max-width: 720px;
-        max-height: 1120px;
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-      }
-      .resp-modal-body {
-        height: calc(100% - 45px);
+        max-height: calc(100vh - 5rem - 48px);
         overflow: auto;
-        overscroll-behavior: contain;
+        background-color: #FFFFFF;
+      }
+      .resp-content-body {
+        overflow: auto;
         scrollbar-width: thin;
         scrollbar-color: white white;
       }
-      .resp-modal-body:hover {
+      .resp-content-body:hover {
         scrollbar-color: #CCCED8 white;
       }
-      .resp-modal-body::-webkit-scrollbar {
+      .resp-content-body::-webkit-scrollbar {
         display: block;
         width: 6px;
         height: 6px;
         background-color: white;
       }
-      .resp-modal-body::-webkit-scrollbar-thumb {
+      .resp-content-body::-webkit-scrollbar-thumb {
         border-radius: 4px;
         background: white;
       }
-      .resp-modal-body:hover::-webkit-scrollbar-thumb {
+      .resp-content-body:hover::-webkit-scrollbar-thumb {
         background: #CCCED8;
       }
-      .resp-modal {
+      .resp-content-container {
         display: none;
-        position: fixed;
-        z-index: 10000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
         background-color: rgba(0,0,0,0.1);
-      }
-      .resp-modal-bg {
-        height: 100vh;
-        width: 100vw;
-        position: fixed;
-        overscroll-behavior: contain;
-        overflow: none;
       }
       .top-gap{margin-top:16px;}
       .example-panel{
@@ -26180,7 +26142,6 @@ class ApiResponse extends lit_element_s {
         margin: 32px 0px;
         display: flex;
         flex-direction: column;
-        row-gap: 24px;
       }
       .dot {
         height: 8px;
@@ -26200,26 +26161,11 @@ class ApiResponse extends lit_element_s {
       .error {
         background-color: var(--error-color);
       }
-      .close-button {
-          display: flex;
-          flex-direction: row;
-          justify-content: center;
-          align-items: center;
-          border: none;
-          border-radius: 4px;
-          padding: 0px;
-          width: 24px;
-          height: 24px;
-      }
-      .close-button:hover {
-          cursor: pointer;
-          background-color: rgba(0, 0, 0, 0.05);
-      }
       `, custom_styles];
   }
   render() {
     return lit_html_$`
-    <div class="col regular-font response-panel ${this.renderStyle}-mode">
+    <div class="col regular-font ${this.renderStyle}-mode response-panel">
       ${this.responseTemplate()}
     </div>
     `;
@@ -26277,11 +26223,11 @@ class ApiResponse extends lit_element_s {
       this.mimeResponsesForEachStatus[statusCode] = allMimeResp;
     }
     return lit_html_$`
-      ${Object.keys(this.responses).length >= 1 ? lit_html_$`<div class='row' style='flex-wrap:wrap; gap:12px'>
+      ${Object.keys(this.responses).length >= 1 ? lit_html_$`<div class='row response-panel-header' style='flex-wrap:wrap; gap:12px'>
           ${Object.keys(this.responses).map(respStatus => lit_html_$`
             ${respStatus === '$$ref' // Swagger-Client parser creates '$$ref' object if JSON references are used to create responses - this should be ignored
     ? '' : lit_html_$`
-                <div class="resp-box resp-border"
+                <div class="resp-box ${this.selectedStatus === respStatus ? 'active' : ''}"
                   @click="${() => {
       this.selectedStatus = respStatus;
       if (this.responses[respStatus].content && Object.keys(this.responses[respStatus].content)[0]) {
@@ -26289,19 +26235,14 @@ class ApiResponse extends lit_element_s {
       } else {
         this.selectedMimeType = undefined;
       }
-      this.renderRoot.getElementById(`resp-modal-${respStatus}`).style.display = 'block';
-      document.body.style.overflow = 'hidden';
     }}"
                 >
                   <div style='display: flex; flex-direction: row; justify-content: flex-start; align-items: center;'>
-                    <div style="display: flex; justify-content: center; align-items: center; margin-right: 8px">
-                      ${cornersOutIcon()}
-                    </div>
-                    <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} " style="margin: 0">
+                    <div style="margin: 0">
                       ${this.callback === 'true' ? 'Callback Response' : 'Response'}
                     </div>
                   </div>
-                  <div style='display: flex; flex-direction: row; justify-content: flex-end; align-items: center;'>
+                  <div style='display: flex; flex-direction: row; justify-content: flex-end; align-items: center; color: var(--fg)'>
                     <div style='margin-right: 4px'>
                       <span class='dot ${this.getResponseStatusType(respStatus)}'></span>
                     </div>
@@ -26316,15 +26257,9 @@ class ApiResponse extends lit_element_s {
       ${Object.keys(this.responses).map(status => {
       var _this$responses$statu3, _this$headersForEachR;
       return lit_html_$`
-        <div class="resp-modal" id="resp-modal-${status}">
-          <div class="resp-modal-bg"
-            @click="${() => {
-        this.renderRoot.getElementById(`resp-modal-${status}`).style.display = 'none';
-        document.body.style.overflow = 'auto';
-      }}"
-          ></div>
-          <div class="resp-border resp-modal-content">
-            <div class="resp-modal-header">
+        <div class="resp-content-container" id="resp-content-${status}" style="${this.selectedStatus === status ? 'display: block' : 'display: none'} ">
+          <div class="resp-border resp-content">
+            <div class="resp-title">
               <div style='display: flex; flex-direction: row; justify-content: flex-start; align-items: center;'>
                 <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} " style="margin: 0">
                   ${this.callback === 'true' ? 'Callback Response' : 'Response'}
@@ -26337,17 +26272,9 @@ class ApiResponse extends lit_element_s {
                 <div>
                   <span>${status}</span>
                 </div>
-                <button class="close-button"
-                  @click="${() => {
-        this.renderRoot.getElementById(`resp-modal-${status}`).style.display = 'none';
-        document.body.style.overflow = 'auto';
-      }}"
-                >
-                  ${closeSymbol()}
-                </button>
               </div>
             </div>
-            <div class="resp-modal-body">
+            <div class="resp-content-body">
               <div class="top-gap">
                 <span class="resp-descr m-markdown ">${unsafe_html_o(marked(((_this$responses$statu3 = this.responses[status]) === null || _this$responses$statu3 === void 0 ? void 0 : _this$responses$statu3.description) || ''))}</span>
                 ${this.headersForEachRespStatus[status] && ((_this$headersForEachR = this.headersForEachRespStatus[status]) === null || _this$headersForEachR === void 0 ? void 0 : _this$headersForEachR.length) > 0 ? lit_html_$`${this.responseHeaderListTemplate(this.headersForEachRespStatus[status])}` : ''}
@@ -28049,6 +27976,7 @@ function setTheme(baseTheme, theme = {}) {
 
       pink: theme.pink ? theme.pink : '#ffb2b2',
       lightPink: theme.lightPink || color_utils.color.brightness(bg1, -10),
+      vtexPink: theme.vtexPink ? theme.vtexPink : '#D71D55',
       green: theme.green || '#7ec699',
       lightGreen: theme.lightGreen || color_utils.color.brightness(bg1, -10),
       // #2a2a2a
@@ -28141,6 +28069,7 @@ function setTheme(baseTheme, theme = {}) {
       lightRed: theme.lightRed || '#fff0f0',
       pink: theme.pink ? theme.pink : '#990055',
       lightPink: theme.lightPink ? theme.lightPink : '#ffb2b2',
+      vtexPink: theme.vtexPink ? theme.vtexPink : '#D71D55',
       green: theme.green || '#690',
       lightGreen: theme.lightGreen || '#fbfff0',
       blue: theme.blue || '#47AFE8',
@@ -28218,6 +28147,7 @@ function setTheme(baseTheme, theme = {}) {
     --light-red:${newTheme.lightRed};
     --pink:${newTheme.pink};
     --light-pink:${newTheme.lightPink};
+    --vtex-pink:${newTheme.vtexPink};
     --green:${newTheme.green};
     --light-green:${newTheme.lightGreen};
     --blue:${newTheme.blue};
@@ -30842,7 +30772,7 @@ customElements.define('json-schema-viewer', JsonSchemaViewer);
 
 /***/ }),
 
-/***/ 258:
+/***/ 9742:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -31015,7 +30945,7 @@ function fromByteArray (uint8) {
 
 
 
-const base64 = __webpack_require__(258)
+const base64 = __webpack_require__(9742)
 const ieee754 = __webpack_require__(645)
 const customInspectSymbol =
   (typeof Symbol === 'function' && typeof Symbol['for'] === 'function') // eslint-disable-line dot-notation
@@ -54931,7 +54861,7 @@ module.exports = JSON.parse('{"$id":"timings.json#","$schema":"http://json-schem
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("fb714748b753add783f3")
+/******/ 		__webpack_require__.h = () => ("d5be772642ce12138e1e")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
@@ -55924,7 +55854,7 @@ module.exports = JSON.parse('{"$id":"timings.json#","$schema":"http://json-schem
 /******/ 	// module cache are used so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	var __webpack_exports__ = __webpack_require__(9742);
+/******/ 	var __webpack_exports__ = __webpack_require__(7948);
 /******/ 	
 /******/ })()
 ;
