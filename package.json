@@ -33,16 +33,16 @@
   "module": "dist/rapidoc-min.js",
   "mode": "production",
   "dependencies": {
-    "@apitools/openapi-parser": "0.0.30",
     "babel-plugin-prismjs": "^2.1.0",
     "base64-arraybuffer": "^1.0.2",
     "buffer": "^6.0.3",
+    "httpsnippet": "^2.0.0",
     "lit": "^2.6.1",
     "marked": "^4.2.12",
+    "node-polyfill-webpack-plugin": "^2.0.1",
     "prismjs": "^1.29.0",
-    "xml-but-prettier": "^1.0.1",
-    "httpsnippet": "^2.0.0",
-    "node-polyfill-webpack-plugin": "^2.0.1"
+    "swagger-parser": "^10.0.3",
+    "xml-but-prettier": "^1.0.1"
   },
   "scripts": {
     "build": "NODE_ENV=production webpack --mode=production",

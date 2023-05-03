@@ -32,7 +32,7 @@ import { setApiServer } from '~/templates/server-template';
 export default class RapiDoc extends LitElement {
   constructor() {
     super();
-    const intersectionObserverOptions = {
+    /* const intersectionObserverOptions = {
       root: this.getRootNode().host,
       rootMargin: '-50px 0px -50px 0px', // when the element is visible 100px from bottom
       threshold: 0,
@@ -40,8 +40,9 @@ export default class RapiDoc extends LitElement {
     this.showSummaryWhenCollapsed = true;
     // Will activate intersection observer only after spec load and hash analyze
     // to scroll to the proper element without being reverted by observer behavior
-    this.isIntersectionObserverActive = false;
     this.intersectionObserver = new IntersectionObserver((entries) => { this.onIntersect(entries); }, intersectionObserverOptions);
+    */
+    this.isIntersectionObserverActive = false;
   }
 
   static get properties() {
@@ -539,9 +540,9 @@ export default class RapiDoc extends LitElement {
 
   // Cleanup
   disconnectedCallback() {
-    if (this.intersectionObserver) {
+    /* if (this.intersectionObserver) {
       this.intersectionObserver.disconnect();
-    }
+    } */
     super.disconnectedCallback();
   }
 
@@ -561,13 +562,13 @@ export default class RapiDoc extends LitElement {
     return mainBodyTemplate.call(this);
   }
 
-  observeExpandedContent() {
+  /* observeExpandedContent() {
     // Main Container
     const observeOverviewEls = this.shadowRoot.querySelectorAll('.observe-me');
     observeOverviewEls.forEach((targetEl) => {
       this.intersectionObserver.observe(targetEl);
     });
-  }
+  } */
 
   attributeChangedCallback(name, oldVal, newVal) {
     if (name === 'spec-url') {
@@ -588,7 +589,7 @@ export default class RapiDoc extends LitElement {
           this.observeExpandedContent();
         }, 100);
       } else {
-        this.intersectionObserver.disconnect();
+        // this.intersectionObserver.disconnect();
       }
     }
     if (name === 'api-key-name' || name === 'api-key-location' || name === 'api-key-value') {
@@ -773,7 +774,7 @@ export default class RapiDoc extends LitElement {
     this.dispatchEvent(specLoadedEvent);
 
     // Initiate IntersectionObserver and put it at the end of event loop, to allow loading all the child elements (must for larger specs)
-    this.intersectionObserver.disconnect();
+    // this.intersectionObserver.disconnect();
     if (this.renderStyle === 'read') {
       await sleep(100);
       this.observeExpandedContent(); // This will auto-highlight the selected nav-item in read-mode

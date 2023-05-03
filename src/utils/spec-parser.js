@@ -1,22 +1,17 @@
 /* eslint-disable no-use-before-define */
-import OpenApiParser from '@apitools/openapi-parser';
+import SwaggerParser from 'swagger-parser';
 import { marked } from 'marked';
-import { invalidCharsRegEx, rapidocApiKey, sleep } from '~/utils/common-utils';
+import { invalidCharsRegEx, rapidocApiKey } from '~/utils/common-utils';
 
 export default async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = false, sortEndpointsBy = '', attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '') {
   let jsonParsedSpec;
   try {
     this.requestUpdate(); // important to show the initial loader
-    let specMeta;
-    if (typeof specUrl === 'string') {
-      specMeta = await OpenApiParser.resolve({ url: specUrl, allowMetaPatches: false }); // Swagger(specUrl);
-    } else {
-      specMeta = await OpenApiParser.resolve({ spec: specUrl, allowMetaPatches: false }); // Swagger({ spec: specUrl });
-    }
-    await sleep(0); // important to show the initial loader (allows for rendering updates)
+    const api = await SwaggerParser.dereference(specUrl);
+    const specMeta = await SwaggerParser.parse(api);
 
     // If  JSON Schema Viewer
-    if (specMeta.resolvedSpec?.jsonSchemaViewer && specMeta.resolvedSpec?.schemaAndExamples) {
+    if (specMeta.jsonSchemaViewer && specMeta.schemaAndExamples) {
       this.dispatchEvent(new CustomEvent('before-render', { detail: { spec: specMeta.resolvedSpec } }));
       const schemaAndExamples = Object.entries(specMeta.resolvedSpec.schemaAndExamples).map((v) => ({ show: true, expanded: true, selectedExample: null, name: v[0], elementId: v[0].replace(invalidCharsRegEx, '-'), ...v[1] }));
       const parsedSpec = {
@@ -37,7 +32,7 @@ export default async function ProcessSpec(specUrl, generateMissingTags = false, 
         isSpecLoading: false,
         info: {
           title: 'Error loading the spec',
-          description: specMeta.response?.url ? `${specMeta.response?.url} ┃ ${specMeta.response?.status}  ${specMeta.response?.statusText}` : 'Unable to load the Spec',
+          description: 'Unable to load the Spec',
           version: ' ',
         },
         tags: [],
