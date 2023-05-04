@@ -1,14 +1,14 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
-import { expandedEndpointBodyTemplate } from '~/templates/expanded-endpoint-template';
-import '~/components/api-request';
-import '~/components/api-response';
-import componentsTemplate from '~/templates/components-template';
-import overviewTemplate from '~/templates/overview-template';
-import serverTemplate from '~/templates/server-template';
-import securitySchemeTemplate from '~/templates/security-scheme-template';
-import { expandCollapseNavBarTag } from '~/templates/navbar-template';
+import { expandedEndpointBodyTemplate } from './expanded-endpoint-template';
+import '../components/api-request';
+import '../components/api-response';
+import componentsTemplate from './components-template';
+import overviewTemplate from './overview-template';
+import serverTemplate from './server-template';
+import securitySchemeTemplate from './security-scheme-template';
+import { expandCollapseNavBarTag } from './navbar-template';
 
 function headingRenderer(tagElementId) {
   const renderer = new marked.Renderer();

@@ -1,32 +1,66 @@
 /* eslint-disable no-use-before-define */
-import SwaggerParser from 'swagger-parser';
-import { marked } from 'marked';
-import { invalidCharsRegEx, rapidocApiKey } from '~/utils/common-utils';
+import SwaggerParser from 'swagger-parser'
+import { marked } from 'marked'
+import { invalidCharsRegEx, rapidocApiKey } from './common-utils'
 
-export default async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = false, sortEndpointsBy = '', attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '') {
-  let jsonParsedSpec;
+export default async function ProcessSpec(
+  specUrl,
+  generateMissingTags = false,
+  sortTags = false,
+  sortEndpointsBy = '',
+  attrApiKey = '',
+  attrApiKeyLocation = '',
+  attrApiKeyValue = '',
+  serverUrl = ''
+) {
+  let jsonParsedSpec
   try {
-    this.requestUpdate(); // important to show the initial loader
-    const api = await SwaggerParser.dereference(specUrl);
-    const specMeta = await SwaggerParser.parse(api);
+    this.requestUpdate() // important to show the initial loader
+    const api = await SwaggerParser.dereference(specUrl)
+    const specMeta = await SwaggerParser.parse(api)
 
-    // If  JSON Schema Viewer
-    if (specMeta.jsonSchemaViewer && specMeta.schemaAndExamples) {
-      this.dispatchEvent(new CustomEvent('before-render', { detail: { spec: specMeta.resolvedSpec } }));
-      const schemaAndExamples = Object.entries(specMeta.resolvedSpec.schemaAndExamples).map((v) => ({ show: true, expanded: true, selectedExample: null, name: v[0], elementId: v[0].replace(invalidCharsRegEx, '-'), ...v[1] }));
+    if (specMeta?.jsonSchemaViewer && specMeta?.schemaAndExamples) {
+      this.dispatchEvent(
+        new CustomEvent('before-render', {
+          detail: { spec: specMeta.resolvedSpec },
+        })
+      )
+      const schemaAndExamples = Object.entries(
+        specMeta.resolvedSpec.schemaAndExamples
+      ).map((v) => ({
+        show: true,
+        expanded: true,
+        selectedExample: null,
+        name: v[0],
+        elementId: v[0].replace(invalidCharsRegEx, '-'),
+        ...v[1],
+      }))
       const parsedSpec = {
         specLoadError: false,
         isSpecLoading: false,
         info: specMeta.resolvedSpec.info,
         schemaAndExamples,
-      };
-      return parsedSpec;
+      }
+      return parsedSpec
     }
-    if (specMeta.spec && (specMeta.spec.components || specMeta.spec.info || specMeta.spec.servers || specMeta.spec.tags || specMeta.spec.paths)) {
-      jsonParsedSpec = specMeta.spec;
-      this.dispatchEvent(new CustomEvent('before-render', { detail: { spec: jsonParsedSpec } }));
+    if (
+      specMeta &&
+      (specMeta.components ||
+        specMeta.info ||
+        specMeta.servers ||
+        specMeta.tags ||
+        specMeta.paths)
+    ) {
+      jsonParsedSpec = specMeta
+      this.dispatchEvent(
+        new CustomEvent('before-render', { detail: { spec: jsonParsedSpec } })
+      )
     } else {
-      console.info('RapiDoc: %c There was an issue while parsing the spec %o ', 'color:orangered', specMeta); // eslint-disable-line no-console
+      console.info(
+        'RapiDoc: %c There was an issue while parsing the spec %o ',
+        'color:orangered',
+        specMeta
+      ) // eslint-disable-line no-console
       return {
         specLoadError: true,
         isSpecLoading: false,
@@ -36,10 +70,14 @@ export default async function ProcessSpec(specUrl, generateMissingTags = false, 
           version: ' ',
         },
         tags: [],
-      };
+      }
     }
   } catch (err) {
-    console.info('RapiDoc: %c There was an issue while parsing the spec %o ', 'color:orangered', err); // eslint-disable-line no-console
+    console.info(
+      'RapiDoc: %c There was an issue while parsing the spec %o ',
+      'color:orangered',
+      err
+    ) // eslint-disable-line no-console
   }
 
   // const pathGroups = groupByPaths(jsonParsedSpec);

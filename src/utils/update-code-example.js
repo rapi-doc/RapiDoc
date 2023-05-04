@@ -1,4 +1,4 @@
-import { json2xml } from '~/utils/schema-utils';
+import { json2xml } from '../utils/schema-utils';
 import HTTPSnippet from 'httpsnippet';
 
 function buildFetchURL(requestPanelEl) {

@@ -2,7 +2,7 @@
 import { LitElement, html, css } from 'lit';
 // eslint-disable-next-line import/extensions
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { joinURLandPath } from '~/utils/url';
+import { joinURLandPath } from '../utils/url';
 import checkSymbol from './assets/check-symbol';
 import copySymbol from './assets/copy-symbol';
 import './toast-component';
