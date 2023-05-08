@@ -217,4 +217,4 @@ export class BaseUrl extends LitElement {
       }
 }
 
-customElements.define('base-url', BaseUrl);
+if (!customElements.get('base-url')) customElements.define('base-url', BaseUrl);

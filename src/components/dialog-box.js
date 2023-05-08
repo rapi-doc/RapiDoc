@@ -70,4 +70,4 @@ export default class DialogBox extends LitElement {
   }
 }
 
-customElements.define('dialog-box', DialogBox);
+if (!customElements.get('dialog-box')) customElements.define('dialog-box', DialogBox);

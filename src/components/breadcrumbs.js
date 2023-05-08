@@ -139,4 +139,4 @@ export default class Breadcrumbs extends LitElement {
   }
 }
 
-customElements.define('bread-crumbs', Breadcrumbs);
+if (!customElements.get('bread-crumbs')) customElements.define('bread-crumbs', Breadcrumbs);

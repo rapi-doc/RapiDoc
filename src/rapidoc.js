@@ -1066,4 +1066,4 @@ export default class RapiDoc extends LitElement {
     }, delay);
   }
 }
-customElements.define('rapi-doc', RapiDoc);
+if (!customElements.get('rapi-doc')) customElements.define('rapi-doc', RapiDoc);

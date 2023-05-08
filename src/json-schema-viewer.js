@@ -338,4 +338,4 @@ export default class JsonSchemaViewer extends LitElement {
     }
   }
 }
-customElements.define('json-schema-viewer', JsonSchemaViewer);
+if (!customElements.get('json-schema-viewer')) customElements.define('json-schema-viewer', JsonSchemaViewer);

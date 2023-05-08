@@ -143,4 +143,4 @@ export default class JsonTree extends LitElement {
   }
 }
 // Register the element with the browser
-customElements.define('json-tree', JsonTree);
+if (!customElements.get('json-tree')) customElements.define('json-tree', JsonTree);

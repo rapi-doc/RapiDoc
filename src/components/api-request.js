@@ -1406,4 +1406,4 @@ export default class ApiRequest extends LitElement {
 }
 
 // Register the element with the browser
-customElements.define('api-request', ApiRequest);
+if (!customElements.get('api-request')) customElements.define('api-request', ApiRequest);

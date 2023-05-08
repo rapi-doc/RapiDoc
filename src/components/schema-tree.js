@@ -372,4 +372,4 @@ export default class SchemaTree extends LitElement {
     }
   }
 }
-customElements.define('schema-tree', SchemaTree);
+if (!customElements.get('schema-tree')) customElements.define('schema-tree', SchemaTree);

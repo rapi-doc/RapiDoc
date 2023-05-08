@@ -450,4 +450,4 @@ export default class ApiResponse extends LitElement {
 }
 
 // Register the element with the browser
-customElements.define('api-response', ApiResponse);
+if (!customElements.get('api-response')) customElements.define('api-response', ApiResponse);

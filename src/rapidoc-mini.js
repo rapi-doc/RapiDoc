@@ -363,4 +363,4 @@ export default class RapiDocMini extends LitElement {
     }
   }
 }
-customElements.define('rapi-doc-mini', RapiDocMini);
+if (!customElements.get('rapi-doc-mini')) customElements.define('rapi-doc-mini', RapiDocMini);
