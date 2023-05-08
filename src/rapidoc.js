@@ -554,11 +554,11 @@ export default class RapiDoc extends LitElement {
 
   render() {
     // return render(mainBodyTemplate(this), this.shadowRoot, { eventContext: this });
-    const cssLinkEl = document.querySelector(`link[href*="${this.cssFile}"]`);
+    /* const cssLinkEl = document.querySelector(`link[href*="${this.cssFile}"]`);
     // adding custom style for RapiDoc
     if (cssLinkEl) {
       this.shadowRoot.appendChild(cssLinkEl.cloneNode());
-    }
+    } */
     return mainBodyTemplate.call(this);
   }
 
