@@ -55,6 +55,7 @@ export default class RapiDoc extends LitElement {
       updateRoute: { type: String, attribute: 'update-route' },
       routePrefix: { type: String, attribute: 'route-prefix' },
       specUrl: { type: String, attribute: 'spec-url' },
+      spec: { type: String, attribute: 'spec' },
       sortTags: { type: String, attribute: 'sort-tags' },
       generateMissingTags: { type: String, attribute: 'generate-missing-tags' },
       sortEndpointsBy: { type: String, attribute: 'sort-endpoints-by' },
@@ -728,9 +729,10 @@ export default class RapiDoc extends LitElement {
       };
       this.loading = true;
       this.loadFailed = false;
-      const spec = await ProcessSpec.call(
+      const processedSpec = await ProcessSpec.call(
         this,
         specUrl,
+        this.spec,
         this.generateMissingTags === 'true',
         this.sortTags === 'true',
         this.getAttribute('sort-endpoints-by'),
@@ -740,7 +742,7 @@ export default class RapiDoc extends LitElement {
         this.getAttribute('server-url'),
       );
       this.loading = false;
-      this.afterSpecParsedAndValidated(spec);
+      this.afterSpecParsedAndValidated(processedSpec);
     } catch (err) {
       this.loading = false;
       this.loadFailed = true;

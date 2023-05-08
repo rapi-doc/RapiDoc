@@ -1,32 +1,36 @@
 /* eslint-disable no-use-before-define */
-import SwaggerParser from 'swagger-parser'
-import { marked } from 'marked'
-import { invalidCharsRegEx, rapidocApiKey } from './common-utils'
+import SwaggerParser from 'swagger-parser';
+import { marked } from 'marked';
+import { invalidCharsRegEx, rapidocApiKey } from './common-utils';
 
 export default async function ProcessSpec(
   specUrl,
+  spec,
   generateMissingTags = false,
   sortTags = false,
   sortEndpointsBy = '',
   attrApiKey = '',
   attrApiKeyLocation = '',
   attrApiKeyValue = '',
-  serverUrl = ''
+  serverUrl = '',
 ) {
-  let jsonParsedSpec
+  let jsonParsedSpec;
+  let specMeta;
   try {
-    this.requestUpdate() // important to show the initial loader
-    const api = await SwaggerParser.dereference(specUrl)
-    const specMeta = await SwaggerParser.parse(api)
-
+    this.requestUpdate(); // important to show the initial loader
+    if (spec) specMeta = JSON.parse(spec);
+    else {
+      const api = await SwaggerParser.dereference(specUrl);
+      specMeta = await SwaggerParser.parse(api);
+    }
     if (specMeta?.jsonSchemaViewer && specMeta?.schemaAndExamples) {
       this.dispatchEvent(
         new CustomEvent('before-render', {
           detail: { spec: specMeta.resolvedSpec },
-        })
-      )
+        }),
+      );
       const schemaAndExamples = Object.entries(
-        specMeta.resolvedSpec.schemaAndExamples
+        specMeta.resolvedSpec.schemaAndExamples,
       ).map((v) => ({
         show: true,
         expanded: true,
@@ -34,33 +38,33 @@ export default async function ProcessSpec(
         name: v[0],
         elementId: v[0].replace(invalidCharsRegEx, '-'),
         ...v[1],
-      }))
+      }));
       const parsedSpec = {
         specLoadError: false,
         isSpecLoading: false,
         info: specMeta.resolvedSpec.info,
         schemaAndExamples,
-      }
-      return parsedSpec
+      };
+      return parsedSpec;
     }
     if (
-      specMeta &&
-      (specMeta.components ||
-        specMeta.info ||
-        specMeta.servers ||
-        specMeta.tags ||
-        specMeta.paths)
+      specMeta
+      && (specMeta.components
+        || specMeta.info
+        || specMeta.servers
+        || specMeta.tags
+        || specMeta.paths)
     ) {
-      jsonParsedSpec = specMeta
+      jsonParsedSpec = specMeta;
       this.dispatchEvent(
-        new CustomEvent('before-render', { detail: { spec: jsonParsedSpec } })
-      )
+        new CustomEvent('before-render', { detail: { spec: jsonParsedSpec } }),
+      );
     } else {
       console.info(
         'RapiDoc: %c There was an issue while parsing the spec %o ',
         'color:orangered',
-        specMeta
-      ) // eslint-disable-line no-console
+        specMeta,
+      ); // eslint-disable-line no-console
       return {
         specLoadError: true,
         isSpecLoading: false,
@@ -70,14 +74,14 @@ export default async function ProcessSpec(
           version: ' ',
         },
         tags: [],
-      }
+      };
     }
   } catch (err) {
     console.info(
       'RapiDoc: %c There was an issue while parsing the spec %o ',
       'color:orangered',
-      err
-    ) // eslint-disable-line no-console
+      err,
+    ); // eslint-disable-line no-console
   }
 
   // const pathGroups = groupByPaths(jsonParsedSpec);
