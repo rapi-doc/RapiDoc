@@ -1,16 +1,16 @@
 import { html } from 'lit';
 
 // Templates
-import expandedEndpointTemplate from '~/templates/expanded-endpoint-template';
-import focusedEndpointTemplate from '~/templates/focused-endpoint-template';
-import overviewTemplate from '~/templates/overview-template';
-import endpointTemplate from '~/templates/endpoint-template';
-import { recoverPersistedApiKeys } from '~/templates/security-scheme-template';
-import headerTemplate from '~/templates/header-template';
-import navbarTemplate from '~/templates/navbar-template';
-import advancedSearchTemplate from '~/templates/advance-search-template';
-import SetTheme from '~/utils/theme';
-import { isValidHexColor } from '~/utils/color-utils';
+import expandedEndpointTemplate from './expanded-endpoint-template';
+import focusedEndpointTemplate from './focused-endpoint-template';
+import overviewTemplate from './overview-template';
+import endpointTemplate from './endpoint-template';
+import { recoverPersistedApiKeys } from './security-scheme-template';
+import headerTemplate from './header-template';
+import navbarTemplate from './navbar-template';
+import advancedSearchTemplate from './advance-search-template';
+import SetTheme from '../utils/theme';
+import { isValidHexColor } from '../utils/color-utils';
 
 export default function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = true, pathsExpanded = false) {
   if (!this.resolvedSpec) {

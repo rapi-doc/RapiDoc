@@ -1,8 +1,8 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
-import '~/components/base-url';
-import updateCodeExample from '~/utils/update-code-example';
+import '../components/base-url';
+import updateCodeExample from '../utils/update-code-example';
 
 export function setApiServer(serverUrl) {
   const serverObj = this.resolvedSpec?.servers.find((s) => s.url === serverUrl);

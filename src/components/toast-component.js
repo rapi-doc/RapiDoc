@@ -196,4 +196,4 @@ export class Toast extends LitElement {
   }
 }
 
-customElements.define('toast-component', Toast);
+if (!customElements.get('toast-component')) customElements.define('toast-component', Toast);

@@ -1,6 +1,6 @@
 import { LitElement, html, css } from 'lit';
 
-import CustomStyles from '~/styles/custom-styles';
+import CustomStyles from '../styles/custom-styles';
 import cornerArrowSymbol from './assets/corner-arrow-symbol';
 
 export default class Breadcrumbs extends LitElement {
@@ -139,4 +139,4 @@ export default class Breadcrumbs extends LitElement {
   }
 }
 
-customElements.define('bread-crumbs', Breadcrumbs);
+if (!customElements.get('bread-crumbs')) customElements.define('bread-crumbs', Breadcrumbs);

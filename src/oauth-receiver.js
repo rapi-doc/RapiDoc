@@ -53,4 +53,4 @@ export default class OauthReceiver extends HTMLElement {
     }
   }
 }
-customElements.define('oauth-receiver', OauthReceiver);
+if (!customElements.get('oauth-receiver')) customElements.define('oauth-receiver', OauthReceiver);

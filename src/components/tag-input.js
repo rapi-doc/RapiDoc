@@ -132,4 +132,4 @@ export default class TagInput extends LitElement {
   }
 }
 // Register the element with the browser
-customElements.define('tag-input', TagInput);
+if (!customElements.get('tag-input')) customElements.define('tag-input', TagInput);

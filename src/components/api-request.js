@@ -4,32 +4,33 @@ import { guard } from 'lit/directives/guard.js'; // eslint-disable-line import/e
 import { marked } from 'marked';
 import formatXml from 'xml-but-prettier';
 import Prism from 'prismjs';
-import TableStyles from '~/styles/table-styles';
-import FlexStyles from '~/styles/flex-styles';
-import InputStyles from '~/styles/input-styles';
-import FontStyles from '~/styles/font-styles';
-import BorderStyles from '~/styles/border-styles';
-import TabStyles from '~/styles/tab-styles';
-import PrismStyles from '~/styles/prism-styles';
-import PrismLanguagesStyles from '~/styles/prism-languages-styles';
-import CustomStyles from '~/styles/custom-styles';
-import { copyToClipboard, downloadResource, viewResource } from '~/utils/common-utils';
+import TableStyles from '../styles/table-styles';
+import FlexStyles from '../styles/flex-styles';
+import InputStyles from '../styles/input-styles';
+import FontStyles from '../styles/font-styles';
+import BorderStyles from '../styles/border-styles';
+import TabStyles from '../styles/tab-styles';
+import PrismStyles from '../styles/prism-styles';
+import PrismLanguagesStyles from '../styles/prism-languages-styles';
+import CustomStyles from '../styles/custom-styles';
+import { copyToClipboard, downloadResource, viewResource } from '../utils/common-utils';
 import { schemaInObjectNotation,
   getTypeInfo,
   generateExample,
   normalizeExamples,
   getSchemaFromParam,
   nestExampleIfPresent,
-  anyExampleWithSummaryOrDescription } from '~/utils/schema-utils';
-import '~/components/json-tree';
-import '~/components/schema-tree';
-import '~/components/tag-input';
-import '~/components/breadcrumbs';
+  anyExampleWithSummaryOrDescription,
+} from '../utils/schema-utils';
+import './json-tree';
+import './schema-tree';
+import './tag-input';
+import './breadcrumbs';
 
-import serverTemplate from '~/templates/server-template';
-import securitySchemeTemplate from '~/templates/security-scheme-template';
-import languagePickerTemplate from '~/templates/language-picker-template';
-import updateCodeExample from '~/utils/update-code-example';
+import serverTemplate from '../templates/server-template';
+import securitySchemeTemplate from '../templates/security-scheme-template';
+import languagePickerTemplate from '../templates/language-picker-template';
+import updateCodeExample from '../utils/update-code-example';
 import copySymbol from './assets/copy-symbol';
 
 export default class ApiRequest extends LitElement {
@@ -1405,4 +1406,4 @@ export default class ApiRequest extends LitElement {
 }
 
 // Register the element with the browser
-customElements.define('api-request', ApiRequest);
+if (!customElements.get('api-request')) customElements.define('api-request', ApiRequest);

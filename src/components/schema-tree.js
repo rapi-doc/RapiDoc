@@ -1,10 +1,10 @@
 import { LitElement, html, css } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
-import FontStyles from '~/styles/font-styles';
-import SchemaStyles from '~/styles/schema-styles';
-import BorderStyles from '~/styles/border-styles';
-import CustomStyles from '~/styles/custom-styles';
+import FontStyles from '../styles/font-styles';
+import SchemaStyles from '../styles/schema-styles';
+import BorderStyles from '../styles/border-styles';
+import CustomStyles from '../styles/custom-styles';
 
 export default class SchemaTree extends LitElement {
   static get properties() {
@@ -372,4 +372,4 @@ export default class SchemaTree extends LitElement {
     }
   }
 }
-customElements.define('schema-tree', SchemaTree);
+if (!customElements.get('schema-tree')) customElements.define('schema-tree', SchemaTree);

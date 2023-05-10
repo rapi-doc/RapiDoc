@@ -1,8 +1,8 @@
-import processPathDescription from '~/utils/magic-block-utils';
+import processPathDescription from '../utils/magic-block-utils';
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
-import { downloadResource, viewResource } from '~/utils/common-utils';
+import { downloadResource, viewResource } from '../utils/common-utils';
 
 /* eslint-disable indent */
 function headingRenderer() {

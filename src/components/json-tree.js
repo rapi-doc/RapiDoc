@@ -1,9 +1,9 @@
 import { LitElement, html, css } from 'lit';
-import { copyToClipboard } from '~/utils/common-utils';
-import FontStyles from '~/styles/font-styles';
-import BorderStyles from '~/styles/border-styles';
-import InputStyles from '~/styles/input-styles';
-import CustomStyles from '~/styles/custom-styles';
+import { copyToClipboard } from '../utils/common-utils';
+import FontStyles from '../styles/font-styles';
+import BorderStyles from '../styles/border-styles';
+import InputStyles from '../styles/input-styles';
+import CustomStyles from '../styles/custom-styles';
 import copySymbol from './assets/copy-symbol';
 
 export default class JsonTree extends LitElement {
@@ -143,4 +143,4 @@ export default class JsonTree extends LitElement {
   }
 }
 // Register the element with the browser
-customElements.define('json-tree', JsonTree);
+if (!customElements.get('json-tree')) customElements.define('json-tree', JsonTree);

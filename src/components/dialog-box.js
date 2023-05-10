@@ -1,5 +1,5 @@
 import { LitElement, html } from 'lit';
-import DialogBoxStyles from '~/styles/dialog-box-styles';
+import DialogBoxStyles from '../styles/dialog-box-styles';
 
 export default class DialogBox extends LitElement {
   static get properties() {
@@ -70,4 +70,4 @@ export default class DialogBox extends LitElement {
   }
 }
 
-customElements.define('dialog-box', DialogBox);
+if (!customElements.get('dialog-box')) customElements.define('dialog-box', DialogBox);

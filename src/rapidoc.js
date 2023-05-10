@@ -12,27 +12,27 @@ import 'prismjs/components/prism-http';
 import 'prismjs/components/prism-csharp';
 
 // Styles
-import FontStyles from '~/styles/font-styles';
-import InputStyles from '~/styles/input-styles';
-import FlexStyles from '~/styles/flex-styles';
-import TableStyles from '~/styles/table-styles';
-import EndpointStyles from '~/styles/endpoint-styles';
-import PrismStyles from '~/styles/prism-styles';
-import TabStyles from '~/styles/tab-styles';
-import NavStyles from '~/styles/nav-styles';
-import InfoStyles from '~/styles/info-styles';
-import CustomStyles from '~/styles/custom-styles';
+import FontStyles from './styles/font-styles';
+import InputStyles from './styles/input-styles';
+import FlexStyles from './styles/flex-styles';
+import TableStyles from './styles/table-styles';
+import EndpointStyles from './styles/endpoint-styles';
+import PrismStyles from './styles/prism-styles';
+import TabStyles from './styles/tab-styles';
+import NavStyles from './styles/nav-styles';
+import InfoStyles from './styles/info-styles';
+import CustomStyles from './styles/custom-styles';
 // import { expandCollapseNavBarTag } from '@/templates/navbar-template';
-import { advancedSearch, pathIsInSearch, componentIsInSearch, rapidocApiKey, sleep } from '~/utils/common-utils';
-import ProcessSpec from '~/utils/spec-parser';
-import mainBodyTemplate from '~/templates/main-body-template';
-import { applyApiKey, onClearAllApiKeys } from '~/templates/security-scheme-template';
-import { setApiServer } from '~/templates/server-template';
+import { advancedSearch, pathIsInSearch, componentIsInSearch, rapidocApiKey, sleep } from './utils/common-utils';
+import ProcessSpec from './utils/spec-parser';
+import mainBodyTemplate from './templates/main-body-template';
+import { applyApiKey, onClearAllApiKeys } from './templates/security-scheme-template';
+import { setApiServer } from './templates/server-template';
 
 export default class RapiDoc extends LitElement {
   constructor() {
     super();
-    const intersectionObserverOptions = {
+    /* const intersectionObserverOptions = {
       root: this.getRootNode().host,
       rootMargin: '-50px 0px -50px 0px', // when the element is visible 100px from bottom
       threshold: 0,
@@ -40,8 +40,9 @@ export default class RapiDoc extends LitElement {
     this.showSummaryWhenCollapsed = true;
     // Will activate intersection observer only after spec load and hash analyze
     // to scroll to the proper element without being reverted by observer behavior
-    this.isIntersectionObserverActive = false;
     this.intersectionObserver = new IntersectionObserver((entries) => { this.onIntersect(entries); }, intersectionObserverOptions);
+    */
+    this.isIntersectionObserverActive = false;
   }
 
   static get properties() {
@@ -54,6 +55,7 @@ export default class RapiDoc extends LitElement {
       updateRoute: { type: String, attribute: 'update-route' },
       routePrefix: { type: String, attribute: 'route-prefix' },
       specUrl: { type: String, attribute: 'spec-url' },
+      spec: { type: String, attribute: 'spec' },
       sortTags: { type: String, attribute: 'sort-tags' },
       generateMissingTags: { type: String, attribute: 'generate-missing-tags' },
       sortEndpointsBy: { type: String, attribute: 'sort-endpoints-by' },
@@ -539,9 +541,9 @@ export default class RapiDoc extends LitElement {
 
   // Cleanup
   disconnectedCallback() {
-    if (this.intersectionObserver) {
+    /* if (this.intersectionObserver) {
       this.intersectionObserver.disconnect();
-    }
+    } */
     super.disconnectedCallback();
   }
 
@@ -553,21 +555,21 @@ export default class RapiDoc extends LitElement {
 
   render() {
     // return render(mainBodyTemplate(this), this.shadowRoot, { eventContext: this });
-    const cssLinkEl = document.querySelector(`link[href*="${this.cssFile}"]`);
+    /* const cssLinkEl = document.querySelector(`link[href*="${this.cssFile}"]`);
     // adding custom style for RapiDoc
     if (cssLinkEl) {
       this.shadowRoot.appendChild(cssLinkEl.cloneNode());
-    }
+    } */
     return mainBodyTemplate.call(this);
   }
 
-  observeExpandedContent() {
+  /* observeExpandedContent() {
     // Main Container
     const observeOverviewEls = this.shadowRoot.querySelectorAll('.observe-me');
     observeOverviewEls.forEach((targetEl) => {
       this.intersectionObserver.observe(targetEl);
     });
-  }
+  } */
 
   attributeChangedCallback(name, oldVal, newVal) {
     if (name === 'spec-url') {
@@ -588,7 +590,7 @@ export default class RapiDoc extends LitElement {
           this.observeExpandedContent();
         }, 100);
       } else {
-        this.intersectionObserver.disconnect();
+        // this.intersectionObserver.disconnect();
       }
     }
     if (name === 'api-key-name' || name === 'api-key-location' || name === 'api-key-value') {
@@ -727,9 +729,10 @@ export default class RapiDoc extends LitElement {
       };
       this.loading = true;
       this.loadFailed = false;
-      const spec = await ProcessSpec.call(
+      const processedSpec = await ProcessSpec.call(
         this,
         specUrl,
+        this.spec,
         this.generateMissingTags === 'true',
         this.sortTags === 'true',
         this.getAttribute('sort-endpoints-by'),
@@ -739,7 +742,7 @@ export default class RapiDoc extends LitElement {
         this.getAttribute('server-url'),
       );
       this.loading = false;
-      this.afterSpecParsedAndValidated(spec);
+      this.afterSpecParsedAndValidated(processedSpec);
     } catch (err) {
       this.loading = false;
       this.loadFailed = true;
@@ -773,7 +776,7 @@ export default class RapiDoc extends LitElement {
     this.dispatchEvent(specLoadedEvent);
 
     // Initiate IntersectionObserver and put it at the end of event loop, to allow loading all the child elements (must for larger specs)
-    this.intersectionObserver.disconnect();
+    // this.intersectionObserver.disconnect();
     if (this.renderStyle === 'read') {
       await sleep(100);
       this.observeExpandedContent(); // This will auto-highlight the selected nav-item in read-mode
@@ -1065,4 +1068,4 @@ export default class RapiDoc extends LitElement {
     }, delay);
   }
 }
-customElements.define('rapi-doc', RapiDoc);
+if (!customElements.get('rapi-doc')) customElements.define('rapi-doc', RapiDoc);
