@@ -4,10 +4,6 @@ export default css`
   .hover-bg:hover{
     background: var(--bg3);
   }
-  ::selection {
-    background: var(--selection-bg);
-    color: var(--selection-fg);
-  }
   .regular-font{ 
     font-family:var(--font-regular); 
   }
@@ -35,7 +31,7 @@ export default css`
   .regular-font-size { font-size: var(--font-size-regular); }
   .small-font-size { font-size: var(--font-size-small); }
   .upper { font-size: 14px; text-transform: uppercase; }
-  .operation-tag { font-size: 16px; line-height: 18px; color: #A1A8B3; }
+  .operation-tag { font-size: 16px; line-height: 18px; color: #6b7785; }
   .primary-text{ color: var(--primary-color); }
   .bold-text { font-weight:bold; }
   .gray-text { color: var(--light-fg); }
@@ -117,6 +113,7 @@ export default css`
   .m-markdown p,
   .m-markdown span {
     font-size: var(--font-size-regular);
+    line-height: 1.375em;
   }
   .m-markdown li {
     font-size: var(--font-size-regular);
@@ -141,7 +138,7 @@ export default css`
   }
 
   .m-markdown code span {
-    font-size: calc(var(--font-size-mono) - 1px);
+    font-size: 14px;
   }
 
   .m-markdown-small code {
@@ -153,12 +150,12 @@ export default css`
     overflow-x: auto;
     line-height: normal;
     border-radius: 2px;
+    font-size: 14px;
     border: 1px solid var(--code-border-color);
   }
 
   .m-markdown pre {
-    paddingBlock: 16px;
-    paddingInline: 32px;
+    padding: 14px;
     background-color: #F8F7FC;
     border: 1px solid #E7E9EE;
     color:var(--code-fg);

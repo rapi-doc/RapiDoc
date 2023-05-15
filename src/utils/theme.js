@@ -1,5 +1,5 @@
 import { html } from 'lit';
-import ColorUtils from '../utils/color-utils';
+import ColorUtils from './color-utils';
 /* Generates an schema object containing type and constraint info */
 export default function setTheme(baseTheme, theme = {}) {
   let newTheme = {};
@@ -21,8 +21,6 @@ export default function setTheme(baseTheme, theme = {}) {
     const fg3 = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, -20); // or #aaa
     const lightFg = theme.fg3 ? theme.fg3 : '#A1A8B3'; // or #777
     const inlineCodeFg = theme.inlineCodeFg ? theme.inlineCodeFg : '#aaa';
-    const selectionBg = '#bbb';
-    const selectionFg = '#eee';
 
     const headerColor = theme.headerColor ? theme.headerColor : ColorUtils.color.brightness(bg1, 10);
 
@@ -48,8 +46,6 @@ export default function setTheme(baseTheme, theme = {}) {
       primaryColor,
       primaryColorTrans,
       primaryColorInvert,
-      selectionBg,
-      selectionFg,
       overlayBg,
       navBgColor,
       navTextColor,
@@ -109,9 +105,6 @@ export default function setTheme(baseTheme, theme = {}) {
     const lightFg = theme.fg3 ? theme.fg3 : '#A1A8B3'; // or #999
     const inlineCodeFg = theme.inlineCodeFg ? theme.inlineCodeFg : 'brown';
 
-    const selectionBg = '#444';
-    const selectionFg = '#eee';
-
     const headerColor = theme.headerColor ? theme.headerColor : ColorUtils.color.brightness(bg1, -180);
 
     /*
@@ -142,8 +135,6 @@ export default function setTheme(baseTheme, theme = {}) {
       primaryColor,
       primaryColorTrans,
       primaryColorInvert,
-      selectionBg,
-      selectionFg,
       overlayBg,
       navBgColor,
       navTextColor,
@@ -191,6 +182,10 @@ export default function setTheme(baseTheme, theme = {}) {
       fgPositive: '#38853C',
       bgPositive: '#DFF1E0',
       borderPositive: '#83D187',
+
+      fgPatch: '#6C6314',
+      bgPatch: '#e9e7da',
+      borderPatch: '#afa871',
 
       fgWarning: '#D56A00',
       bgWarning: '#FFEBD7',
@@ -246,8 +241,6 @@ export default function setTheme(baseTheme, theme = {}) {
     --fg2:${newTheme.fg2};
     --fg3:${newTheme.fg3};
     --light-fg:${newTheme.lightFg};
-    --selection-bg:${newTheme.selectionBg};
-    --selection-fg:${newTheme.selectionFg};
     --overlay-bg:${newTheme.overlayBg};
     
     /* Border Colors */
@@ -300,6 +293,10 @@ export default function setTheme(baseTheme, theme = {}) {
     --get-color:${newTheme.fgPositive};
     --get-bg-color:${newTheme.bgPositive};
     --get-border-color:${newTheme.borderPositive};
+
+    --patch-color:${newTheme.fgPatch};
+    --patch-bg-color:${newTheme.bgPatch};
+    --patch-border-color:${newTheme.borderPatch};
 
     --put-color:${newTheme.fgWarning};
     --put-bg-color:${newTheme.bgWarning};

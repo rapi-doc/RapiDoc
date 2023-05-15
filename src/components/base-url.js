@@ -45,13 +45,13 @@ export class BaseUrl extends LitElement {
     }
 
     onButtonClick() {
-        navigator.clipboard.writeText(joinURLandPath(this.computedUrl + this.path));
+        navigator.clipboard.writeText(joinURLandPath(this.computedUrl, this.path));
         this.copied = true;
         this.showToast = true;
     }
 
     onTextClick() {
-        navigator.clipboard.writeText(joinURLandPath(this.computedUrl + this.path));
+        navigator.clipboard.writeText(joinURLandPath(this.computedUrl, this.path));
         this.showToast = true;
     }
 

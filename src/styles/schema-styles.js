@@ -78,7 +78,6 @@ export default css`
 .xxx-of-descr {
   font-family: var(--font-regular);
   color: var(--primary-color);
-  font-size: calc(var(--font-size-small) - 1px);
   margin-left: 2px;
 }
 

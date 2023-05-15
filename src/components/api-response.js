@@ -325,22 +325,35 @@ export default class ApiResponse extends LitElement {
 
   responseHeaderListTemplate(respHeaders) {
     return html`
-      <div style="padding:16px 0 8px 0" class="resp-headers small-font-size bold-text">RESPONSE HEADERS</div> 
-      <table role="presentation" style="border-collapse: collapse; margin-bottom:16px; border:1px solid var(--border-color); border-radius: var(--border-radius)" class="small-font-size mono-font">
+      <div style="padding:16px 0 8px 0" class="resp-headers bold-text">Response headers</div> 
+      <table role="presentation" style="font-size: 14px" class="mono-font">
         ${respHeaders.map((v) => html`
           <tr>
             <td style="padding:8px; vertical-align: baseline; min-width:120px; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;">
               ${v.name || ''}
             </td> 
-            <td style="padding:4px; vertical-align: baseline; padding:0 5px; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;">
+                  
+            ${v.schema?.type
+              ? html`<td style="padding:4px; vertical-align: baseline; padding:0 5px; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;">
               ${v.schema?.type || ''}
-            </td> 
-            <td style="padding:8px; vertical-align: baseline; border-top: 1px solid var(--light-border-color);text-overflow: ellipsis;">
+            </td> `
+              : ''
+            }
+               
+            ${v.description?.type
+              ? html`<td style="padding:8px; vertical-align: baseline; border-top: 1px solid var(--light-border-color);text-overflow: ellipsis;">
               <div class="m-markdown-small regular-font" >${unsafeHTML(marked(v.description || ''))}</div>
-            </td>
-            <td style="padding:8px; vertical-align: baseline; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;">
-              ${v.schema?.example || ''}
-            </td>
+            </td>`
+              : ''
+            }
+            
+            ${v.schema?.example
+              ? html`
+              <td style="padding:8px; vertical-align: baseline; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;">
+                ${v.schema?.example || ''}
+              </td> `
+              : ''
+            }
           </tr>
         `)}
     </table>`;
@@ -390,7 +403,7 @@ export default class ApiResponse extends LitElement {
           }`
         : html`
           <span class = 'example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}'>
-            <select style="min-width:100px; max-width:100%" aria-label='response examples' style="min-width:100px; max-width:100%" @change='${(e) => this.onSelectExample(e)}'>
+            <select style="min-width:100px; max-width:100%" aria-label='response examples' @change='${(e) => this.onSelectExample(e)}'>
               ${mimeRespDetails.examples.map((v) => html`<option value="${v.exampleId}" ?selected=${v.exampleId === mimeRespDetails.selectedExample} > 
                 ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary} 
               </option>`)}

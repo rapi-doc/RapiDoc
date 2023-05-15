@@ -11,7 +11,7 @@ export default css`
   padding-top: 16px;
 }
 .code-container > code {
-  font-size: 12px;
+  font-size: 14px;
   line-height: 20px;
 }
 
@@ -234,6 +234,20 @@ export default css`
 
 .language-show-more:hover {
   border: 1px solid rgb(59, 59, 59);
+}
+
+.data-example{
+  background: #FFF3F6;
+  border: 1px solid #FFE0EF;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-small);
+  width: max-content;
+  padding: 0.2em 0.4em;
+}
+
+.data-example:hover{
+  border: 1px solid #ffb5cb;
 }
 
 .language-show-more:active {

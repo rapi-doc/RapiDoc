@@ -108,6 +108,7 @@ export class Toast extends LitElement {
             .text {
                 overflow-wrap: break-word;
                 font-style: normal;
+                font-family:var(--font-regular); 
                 font-weight: 400;
                 font-size: 14px;
                 line-height: 20px;

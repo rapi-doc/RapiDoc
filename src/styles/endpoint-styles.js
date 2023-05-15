@@ -50,6 +50,12 @@ export default css`
   background-color:var(--get-bg-color);
   border-color:var(--get-border-color);
 }
+.m-endpoint > .endpoint-head.patch:hover,
+.m-endpoint > .endpoint-head.patch.expanded {
+  color:var(--patch-color); 
+  background-color:var(--patch-bg-color);
+  border-color:var(--patch-border-color);
+}
 .m-endpoint > .endpoint-head.delete:hover,
 .m-endpoint > .endpoint-head.delete.expanded {
   color:var(--delete-color); 

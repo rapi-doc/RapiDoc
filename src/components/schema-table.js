@@ -44,19 +44,21 @@ export default class SchemaTable extends LitElement {
       }
       .param-table .tr {
         border-bottom: 1px solid var(--light-border-color);
+        display: grid;
+        grid-template-columns: 2fr 1fr 4fr;
+        overflow: hidden;
       }
       .param-table .td {
         padding: 4px 0;
       }
       .param-table .key {
-        width: 33%;
         padding: 12px 10px 12px;
       }
       .table .key-descr {
-        padding: 0px 10px 12px;
+        padding: 12px 10px 12px;
       }
-      .key .key-label {
-        font-size: var(--font-size-mono);
+      .table .key-descr p {
+        margin: 0px;
       }
       .key.deprecated .key-label {
         color: var(--red);
@@ -65,21 +67,31 @@ export default class SchemaTable extends LitElement {
         background-color: #f8f7fc;
         border-radius: 4px;
         padding: 0.2em 0.4em;
+        font-family: var(--font-mono);
+        font-size: 12px;
       }
       .param-table .key-type {
-        white-space: normal;
-        width: 13%;
         border-left:1px solid var(--light-border-color);
         border-right:1px solid var(--light-border-color);
-        color:#4A4A4A;
         padding: 12px 10px 12px;
+      }
+      .object-body .key-type {
+        white-space: normal;
+        color:#4A4A4A;
         font-family: var(--font-mono);
-        font-size: var(--font-size-mono);
+        font-size: 12px;
       }
       .collapsed-all-descr .tr:not(.expanded-descr) {
-        max-height: calc(var(--font-size-small) + var(--font-size-small));
+        max-height: calc(var(--font-size-regular) + var(--font-size-regular) + 10px);
       }
-
+      .collapsed-all-descr .tr:not(.expanded-descr) p {
+        text-overflow: ellipsis;
+        display: inline-block;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        width: 98%;
+      }
       .obj-toggle {
         padding: 0 2px;
         border-radius:2px;
@@ -126,10 +138,10 @@ export default class SchemaTable extends LitElement {
           : ''
         }
         <div class="param-table">
-          <div style='display:flex; border-bottom:1px solid var(--light-border-color);'>
-            <div class='key' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg); padding: 10px 14px;'> Field </div>
-            <div class='key-type' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg); padding: 10px 14px;'> Type </div>
-            <div class='key-descr' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg); padding: 10px 14px;'> Description </div>
+          <div style='display:grid; grid-template-columns: 2fr 1fr 4fr; overflow: hidden; border-bottom:1px solid var(--light-border-color);'>
+            <div class='key' style='font-family:var(--font-regular); font-weight:bold;'> Field </div>
+            <div class='key-type' style='font-family:var(--font-regular); font-weight:bold;'> Type </div>
+            <div class='key-descr' style='font-family:var(--font-regular); font-weight:bold;'> Description </div>
           </div>
           ${this.data
             ? html`
@@ -339,7 +351,7 @@ export default class SchemaTable extends LitElement {
           </span>`
           }
           ${constraint ? html`<div class='' style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Constraints: </span> ${constraint}</div>` : ''}
-          ${defaultValue ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
+          ${defaultValue ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px; padding-top: 10px;'> <span class='bold-text'>Default: </span><span class="key-label">${defaultValue}</span></div>` : ''}
           ${allowedValues ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>${type === 'const' ? 'Value' : 'Allowed'}: </span>${allowedValues}</div>` : ''}
           ${pattern ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Pattern: </span>${pattern}</div>` : ''}
         </div>

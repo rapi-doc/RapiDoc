@@ -20,8 +20,7 @@ import { schemaInObjectNotation,
   normalizeExamples,
   getSchemaFromParam,
   nestExampleIfPresent,
-  anyExampleWithSummaryOrDescription,
-} from '../utils/schema-utils';
+  anyExampleWithSummaryOrDescription } from '../utils/schema-utils';
 import './json-tree';
 import './schema-tree';
 import './tag-input';
@@ -318,7 +317,7 @@ export default class ApiRequest extends LitElement {
       <a
         part="anchor anchor-param-example"
         style="display:inline-block; min-width:24px; text-align:left"
-        class="${this.allowTry === 'true' ? '' : 'inactive-link'}"
+        class="data-example ${this.allowTry === 'true' ? '' : 'inactive-link'}"
         data-example-type="${paramType === 'array' ? paramType : 'string'}"
         data-example="${example.value && Array.isArray(example.value) ? example.value?.join('~|~') : (typeof example.value === 'object' ? JSON.stringify(example.value, null, 2) : example.value) || ''}"
         title="${example.value && Array.isArray(example.value) ? example.value?.join('~|~') : (typeof example.value === 'object' ? JSON.stringify(example.value, null, 2) : example.value) || ''}"
@@ -356,10 +355,10 @@ export default class ApiRequest extends LitElement {
   exampleListTemplate(paramName, paramType, exampleList = []) {
     return html` ${
       exampleList.length > 0
-        ? html`<span style="font-weight:bold; font-size:12px; margin-top: 10px;">Example: </span>
+        ? html`<span style="font-size:13px;">Example: 
           ${anyExampleWithSummaryOrDescription(exampleList)
             ? this.renderLongFormatExamples(exampleList, paramType, paramName)
-            : this.renderShortFormatExamples(exampleList, paramType, paramName)}`
+            : this.renderShortFormatExamples(exampleList, paramType, paramName)}</span>`
         : ''
       }`;
   }
@@ -1094,13 +1093,13 @@ export default class ApiRequest extends LitElement {
     let selectServerDropdownHtml = '';
     if (this.servers && this.servers.length > 0) {
       selectServerDropdownHtml = html`
-        <select style="min-width:100px;" @change='${(e) => { this.serverUrl = e.target.value; }}'>
+        <select style="margin-bottom:6px" @change='${(e) => { this.serverUrl = e.target.value; }}'>
           ${this.servers.map((v) => html`<option value = "${v.url}"> ${v.url} - ${v.description} </option>`)}
         </select>
       `;
     }
     const selectedServerHtml = html`
-      <div style="display:flex; flex-direction:column;">
+      <div style="display:flex; flex-direction:column;width: 100%;">
         ${selectServerDropdownHtml}
         ${this.serverUrl
           ? html`
@@ -1127,8 +1126,8 @@ export default class ApiRequest extends LitElement {
 
     return html`
     <div style="display:flex; align-items:flex-end; margin:16px 0; font-size:var(--font-size-small);" part="wrap-request-btn">
-      <div class="hide-in-small-screen" style="flex-direction:column; margin:0; width:calc(100% - 60px);">
-        <div style="display:flex; flex-direction:row; align-items:center; overflow:hidden;"> 
+      <div class="hide-in-small-screen" style="flex-direction:column; margin:0; width:100%;">
+        <div style="display:flex; flex-direction:row; align-items:center; overflow:hidden; width: 100%"> 
           ${selectedServerHtml}
         </div>
         <div style="display:flex;">

@@ -1,15 +1,15 @@
-import { html } from 'lit'
-import { unsafeHTML } from 'lit/directives/unsafe-html.js'
-import { marked } from 'marked'
-import '../components/api-request'
-import '../components/api-response'
-import '../components/content-copy-button'
-import codeSamplesTemplate from './code-samples-template'
-import callbackTemplate from './callback-template'
-import { pathSecurityTemplate } from './security-scheme-template'
-import { pathIsInSearch, rapidocApiKey } from '../utils/common-utils'
-import processPathDescription from '../utils/magic-block-utils'
-import { joinURLandPath } from '../utils/url'
+import { html } from 'lit';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
+import { marked } from 'marked';
+import '../components/api-request';
+import '../components/api-response';
+import '../components/content-copy-button';
+import codeSamplesTemplate from './code-samples-template';
+import callbackTemplate from './callback-template';
+import { pathSecurityTemplate } from './security-scheme-template';
+import { pathIsInSearch, rapidocApiKey } from '../utils/common-utils';
+import processPathDescription from '../utils/magic-block-utils';
+import { joinURLandPath } from '../utils/url';
 
 function toggleExpand(path) {
   if (path.expanded) {

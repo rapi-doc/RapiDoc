@@ -1,5 +1,5 @@
-import { json2xml } from '../utils/schema-utils';
 import HTTPSnippet from 'httpsnippet';
+import { json2xml } from './schema-utils';
 
 function buildFetchURL(requestPanelEl) {
   let fetchUrl = this.path;

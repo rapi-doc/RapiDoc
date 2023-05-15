@@ -36,34 +36,38 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
     nonEmptyApiKeys.push(rapiDocApiKey);
   }
 
+  const docUrl = `https://developers.vtex.com/docs/api-reference/${this.specUrl.split('/')[3]}`;
+
   const codeSampleTabPanel = path.xCodeSamples ? codeSamplesTemplate.call(this, path.xCodeSamples) : '';
   path.description = processPathDescription(path.description);
   return html`
     ${this.renderStyle === 'read' ? html`<div class='divider' part="operation-divider"></div>` : ''}
     <div class='expanded-endpoint-body observe-me ${path.method} ${path.deprecated ? 'deprecated' : ''} ' part="section-operation ${path.elementId}">
     <span part="anchor-endpoint" id='${path.elementId}'></span>
-      ${(this.renderStyle === 'focused' && tagName !== 'General ⦂') ? html`<h3 class="operation-tag" style="font-weight:bold; margin-bottom:48px" part="section-operation-tag"> ${tagName} </h3>` : ''}
+      ${(this.renderStyle === 'focused' && tagName !== 'General ⦂') ? html`
+      <h3 class="operation-tag" style="margin-bottom:32px; color: #6b7785" part="section-operation-tag"> <a href="${docUrl}" style="text-decoration: none; color: #6b7785">${this.resolvedSpec.info.title}</a>  ›  ${tagName} </h3>
+      ` : ''}
       ${path.deprecated ? html`<div class="bold-text red-text"> DEPRECATED </div>` : ''}
       ${html`
         ${path.xBadges && path.xBadges?.length > 0
-          ? html`
+        ? html`
             <div style="display:flex; flex-wrap:wrap; margin-bottom: -24px; font-size: var(--font-size-small);">
               ${path.xBadges.map((v) => (
-                  html`<span style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`
-                ))
-              }
+          html`<span style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`
+        ))
+          }
             </div>
             `
-          : ''
-        }
+        : ''
+      }
         ${(this.specUrl && this.allowSpecFileDownload) ? html`<div style="position:absolute; right:0; top:28px;"><div style="display:flex; justify-content: flex-end; margin:0px 0px 32px; gap:8px; flex-wrap: wrap;">
                 <button class="m-btn m-btn-tertiary thin-border" part="btn btn-outline" @click='${(e) => { downloadResource(this.specUrl, 'openapi-spec.json', e); }}'>Download OpenAPI spec</button>
                   <button class="m-btn m-btn-secondary thin-border" part="btn btn-outline" @click='${(e) => { viewResource(this.specUrl, e); }}'>View OpenAPI spec</button>
               </div></div>` : ''}
         <h2 part="section-operation-summary"> ${path.shortSummary || `${path.method.toUpperCase()} ${path.path}`}</h2>
         ${path.isWebhook
-          ? html`<span part="section-operation-webhook" style="color:var(--primary-color); font-weight:bold; font-size: var(--font-size-regular);"> WEBHOOK </span>`
-          : html`
+        ? html`<span part="section-operation-webhook" style="color:var(--primary-color); font-weight:bold; font-size: var(--font-size-regular);"> WEBHOOK </span>`
+        : html`
             <div class='mono-font regular-font-size label-operation-container' part="section-operation-webhook-method">
               <div class='label-operation-method-container' style='border-color: var(--${path.method}-border-color); background-color: var(--${path.method}-bg-color);'>
                 <span part="label-operation-method" class='regular-font upper method-fg bold-text ${path.method}'>${path.method}</span>
@@ -73,9 +77,9 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
               </div>
             </div>
           `
-        }
-        <slot name="${path.elementId}"></slot>`
       }
+        <slot name="${path.elementId}"></slot>`
+    }
       ${path.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(path.description))}</div>` : ''}
       <!-- ${pathSecurityTemplate.call(this, path.security)} -->
       ${codeSampleTabPanel}
@@ -147,19 +151,18 @@ export default function expandedEndpointTemplate() {
       <div class="title tag" part="section-tag-title label-tag-title">${tag.name}</div>
       <slot name="${tag.elementId}"></slot>
       <div class="regular-font-size">
-      ${
-        unsafeHTML(`
+      ${unsafeHTML(`
           <div class="m-markdown regular-font">
           ${marked(tag.description || '', this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer(tag.elementId) } : undefined)}
         </div>`)
-      }
+    }
       </div>
     </section>
     <section class="regular-font section-gap--read-mode" part="section-operations-in-tag">
       ${tag.paths.map((path) => expandedEndpointBodyTemplate.call(this, path))}
     </section>
     `)
-  }
+    }
 `;
 }
 /* eslint-enable indent */
