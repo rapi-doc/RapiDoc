@@ -72,7 +72,7 @@ export function getTypeInfo(schema) {
     info.description = info.description || '';
   }
   // Set Allowed Values
-  info.allowedValues = schema.const
+  info.allowedValues = schema.const !== undefined
     ? schema.const
     : Array.isArray(schema.enum)
       ? schema.enum.map((v) => (getPrintableVal(v))).join('┃')
@@ -699,6 +699,8 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     // 2. Then show allof/anyof objects
     const objWithAnyOfProps = {};
     const xxxOf = schema.anyOf ? 'anyOf' : 'oneOf';
+    // if it is a oneOf with only constants, it can be interpreted as an enum with labels
+    const xxxOfEnum = schema.oneOf && schema.oneOf.every((v) => (v.type === 'const' && v.const !== undefined));
     schema[xxxOf].forEach((v, index) => {
       if (v.type === 'object' || v.properties || v.allOf || v.anyOf || v.oneOf) {
         const partialObj = schemaInObjectNotation(v, {});
@@ -712,14 +714,24 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
         objWithAnyOfProps[`::OPTION~${index + 1}${v.title ? `~${v.title}` : ''}`]['::readwrite'] = ''; // xxx-options cannot be read or write only
         objWithAnyOfProps['::type'] = 'xxx-of-array';
       } else {
-        const prop = `::OPTION~${index + 1}${v.title ? `~${v.title}` : ''}`;
+        let prop = `::OPTION~${index + 1}${v.title ? `~${v.title}` : ''}`;
+        if (xxxOfEnum) {
+          prop = `::OPTION~ONEOFENUM~${index + 1}${v.title ? `~${v.title}` : ''}${v.description ? `~${v.description}` : ''}`;
+        }
         objWithAnyOfProps[prop] = `${getTypeInfo(v).html}`;
         objWithAnyOfProps['::type'] = 'xxx-of-option';
       }
     });
-    obj[(schema.anyOf ? `::ANY~OF ${suffix}` : `::ONE~OF ${suffix}`)] = objWithAnyOfProps;
-    // obj['::type'] = 'object';
-    obj['::type'] = 'object';
+    let objKey = schema.anyOf ? `::ANY~OF ${suffix}` : `::ONE~OF ${suffix}`;
+
+    if (xxxOfEnum) {
+      obj['::type'] = 'enum';
+      obj['::dataTypeLabel'] = 'enum';
+      objKey = `::ONE~OF~ENUM ${suffix}`;
+    } else {
+      obj['::type'] = 'object';
+    }
+    obj[objKey] = objWithAnyOfProps;
   } else if (Array.isArray(schema.type)) {
     // When a property has multiple types, then check further if any of the types are array or object, if yes then modify the schema using one-of
     // Clone the schema - as it will be modified to replace multi-data-types with one-of;

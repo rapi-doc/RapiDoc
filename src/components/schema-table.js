@@ -167,13 +167,27 @@ export default class SchemaTable extends LitElement {
     let keyLabel = '';
     let keyDescr = '';
     let isOneOfLabel = false;
+    let isOneOfEnum = false;
+    let isOneOfEnumOption = false;
     if (key.startsWith('::ONE~OF') || key.startsWith('::ANY~OF')) {
-      keyLabel = key.replace('::', '').replace('~', ' ');
-      isOneOfLabel = true;
+      if (key.startsWith('::ONE~OF~ENUM')) {
+        isOneOfEnum = true;
+        keyLabel = 'ENUM';
+      } else {
+        keyLabel = key.replace('::', '').replace('~', ' ');
+        isOneOfLabel = true;
+      }
     } else if (key.startsWith('::OPTION')) {
       const parts = key.split('~');
-      keyLabel = parts[1]; // eslint-disable-line prefer-destructuring
-      keyDescr = parts[2]; // eslint-disable-line prefer-destructuring
+      if (parts[1] === 'ONEOFENUM') {
+        isOneOfEnumOption = true;
+        keyLabel = parts[2]; // eslint-disable-line prefer-destructuring
+        keyDescr = parts[3]; // eslint-disable-line prefer-destructuring
+        description = parts[4]; // eslint-disable-line prefer-destructuring
+      } else {
+        keyLabel = parts[1]; // eslint-disable-line prefer-destructuring
+        keyDescr = parts[2]; // eslint-disable-line prefer-destructuring
+      }
     } else {
       keyLabel = key;
     }
@@ -200,7 +214,7 @@ export default class SchemaTable extends LitElement {
           ? html`
             <div class='tr ${newSchemaLevel <= this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type']}' data-obj='${keyLabel}' title="${data['::deprecated'] ? 'Deprecated' : ''}">
               <div class="td key ${data['::deprecated'] ? 'deprecated' : ''}" style='padding-left:${leftPadding}px'>
-                ${(keyLabel || keyDescr)
+                ${!isOneOfEnum && (keyLabel || keyDescr)
                   ? html`
                     <span class='obj-toggle ${newSchemaLevel < this.schemaExpandLevel ? 'expanded' : 'collapsed'}' data-obj='${keyLabel}'>
                       ${schemaLevel < this.schemaExpandLevel ? '-' : '+'}
@@ -287,6 +301,11 @@ export default class SchemaTable extends LitElement {
         <div class='td key-type ${dataTypeCss}' title="${readOrWrite === 'readonly' ? 'Read-Only' : readOrWriteOnly === 'writeonly' ? 'Write-Only' : ''}">
           [${type}] ${readOrWrite === 'readonly' ? '🆁' : readOrWrite === 'writeonly' ? '🆆' : ''}
         </div>`;
+    } else if (isOneOfEnumOption) {
+      dataTypeHtml = html` 
+        <div class='td key-type ${dataTypeCss}' title="${readOrWriteOnly === '🆁' ? 'Read-Only' : readOrWriteOnly === '🆆' ? 'Write-Only' : ''}">
+        <span class='xxx-of-key'>${allowedValues}</span> ${readOrWriteOnly}
+        </div>`;
     } else {
       dataTypeHtml = html` 
         <div class='td key-type ${dataTypeCss}' title="${readOrWriteOnly === '🆁' ? 'Read-Only' : readOrWriteOnly === '🆆' ? 'Write-Only' : ''}">
@@ -302,24 +321,29 @@ export default class SchemaTable extends LitElement {
               <span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span>
               <span style='color:var(--red);'>*</span>`
             : key.startsWith('::OPTION')
-              ? html`<span class='xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>`
+              ? html` ${isOneOfEnumOption ? '' : html`<span class='xxx-of-key'>${keyLabel}</span>`}
+                      <span class="xxx-of-descr">${keyDescr}</span>`
               : html`${keyLabel ? html`<span class="key-label"> ${keyLabel}</span>` : html`<span class="xxx-of-descr">${schemaTitle}</span>`}`
           }
         </div>
         ${dataTypeHtml}
         <div class='td key-descr' style='font-size: var(--font-size-small)'>
-          ${html`<span class="m-markdown-small">
-            ${unsafeHTML(marked(dataType === 'array'
-              ? `${descrExpander} ${description}`
-              : schemaTitle
-                ? `${descrExpander} <b>${schemaTitle}:</b> ${schemaDescription}`
-                : `${descrExpander} ${schemaDescription}`))}
-          </span>`
-          }
-          ${constraint ? html`<div class='' style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Constraints: </span> ${constraint}</div>` : ''}
-          ${defaultValue ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
-          ${allowedValues ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>${type === 'const' ? 'Value' : 'Allowed'}: </span>${allowedValues}</div>` : ''}
-          ${pattern ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Pattern: </span>${pattern}</div>` : ''}
+          ${isOneOfEnumOption
+            ? html`<span class="m-markdown-small">${description}</span>`
+            : html`
+              ${html`<span class="m-markdown-small">
+                ${unsafeHTML(marked(dataType === 'array'
+                  ? `${descrExpander} ${description}`
+                  : schemaTitle
+                    ? `${descrExpander} <b>${schemaTitle}:</b> ${schemaDescription}`
+                    : `${descrExpander} ${schemaDescription}`))}
+              </span>`
+              }
+              ${constraint ? html`<div class='' style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Constraints: </span> ${constraint}</div>` : ''}
+              ${defaultValue ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
+              ${allowedValues ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>${type === 'const' ? 'Value' : 'Allowed'}: </span>${allowedValues}</div>` : ''}
+              ${pattern ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Pattern: </span>${pattern}</div>` : ''}
+            `}
         </div>
       </div>
     `;
