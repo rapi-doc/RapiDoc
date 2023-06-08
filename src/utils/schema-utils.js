@@ -725,7 +725,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     let objKey = schema.anyOf ? `::ANY~OF ${suffix}` : `::ONE~OF ${suffix}`;
 
     if (xxxOfEnum) {
-      obj['::type'] = 'enum';
+      obj['::type'] = 'object';
       obj['::dataTypeLabel'] = 'enum';
       objKey = `::ONE~OF~ENUM ${suffix}`;
     } else {

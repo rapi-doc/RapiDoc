@@ -212,7 +212,7 @@ export default class SchemaTable extends LitElement {
       return html`
         ${newSchemaLevel >= 0 && key
           ? html`
-            <div class='tr ${newSchemaLevel <= this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type']}' data-obj='${keyLabel}' title="${data['::deprecated'] ? 'Deprecated' : ''}">
+            <div class='tr ${isOneOfEnum || newSchemaLevel <= this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type']}' data-obj='${keyLabel}' title="${data['::deprecated'] ? 'Deprecated' : ''}">
               <div class="td key ${data['::deprecated'] ? 'deprecated' : ''}" style='padding-left:${leftPadding}px'>
                 ${!isOneOfEnum && (keyLabel || keyDescr)
                   ? html`
