@@ -15,10 +15,11 @@ info:
         securitySchemes:
           exampleOauth2Flow:
             type: oauth2
-            x-client-id: my-client-id             # <--- when provided it will be pre filled in RapiDoc UI
-            x-client-secret: my-client-secret     # <--- when provided it will be pre filled in RapiDoc UI
-            x-default-scopes: [dog-lover]         # <--- when provided scopes will be pre checked in RapiDoc UI
-            x-receive-token-in: request-body      # <--- can be 'header' or 'request-body' when provided this will be pre selected
+            x-client-id: my-client-id                              # <--- when provided it will be pre filled in RapiDoc UI
+            x-client-secret: my-client-secret                      # <--- when provided it will be pre filled in RapiDoc UI
+            x-default-scopes: [dog-lover]                          # <--- when provided scopes will be pre checked in RapiDoc UI
+            x-receive-token-in: request-body                       # <--- can be 'header' or 'request-body' when provided this will be pre selected
+            x-receive-token-in-options: ["header", "request-body"] # <--- when provided it will limit options available 
             flows:
               authorizationCode:
                 authorizationUrl: /authorize
