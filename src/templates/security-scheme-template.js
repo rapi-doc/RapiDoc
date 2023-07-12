@@ -401,7 +401,7 @@ export default function securitySchemeTemplate() {
           <div class="blue-text"> ${providedApiKeys.length} API key applied </div>
           <div style="flex:1"></div>
           <button class="m-btn thin-border" part="btn btn-outline" @click=${() => { onClearAllApiKeys.call(this); }}>CLEAR ALL API KEYS</button>`
-        : html`<div class="red-text">No API key applied</div>`
+        : html`<div class="red-text">No API key applied - <a href="#auth">Apply one here</a></div>`
       }
     </div>
     ${this.resolvedSpec.securitySchemes && this.resolvedSpec.securitySchemes.length > 0
@@ -411,7 +411,8 @@ export default function securitySchemeTemplate() {
             <tr id="security-scheme-${v.securitySchemeId}" class="${v.type.toLowerCase()}">
               <td style="max-width:500px; overflow-wrap: break-word;">
                 <div style="line-height:28px; margin-bottom:5px;">
-                  <span style="font-weight:bold; font-size:var(--font-size-regular)">${v.typeDisplay}</span>
+                  <span style="font-weight:bold; font-size:var(--font-size-regular)">${this.resolvedSpec.securitySchemes.filter((secScheme) => secScheme.typeDisplay === v.typeDisplay).length > 1 ? `- 
+                  ${v.securitySchemeId}` : null}</span>
                   ${v.finalKeyValue
                     ? html`
                       <span class='blue-text'>  ${v.finalKeyValue ? 'Key Applied' : ''} </span>
@@ -433,13 +434,13 @@ export default function securitySchemeTemplate() {
                     <div style="margin-bottom:5px">
                       ${v.type.toLowerCase() === 'apikey'
                         ? html`Send <code>${v.name}</code> in <code>${v.in}</code>`
-                        : html`Send <code>Authorization</code> in <code>header</code> containing the word <code>Bearer</code> followed by a space and a Token String.`
+                        : html`Send <code>Authorization</code> in <code>header</code> containing the word <code>Bearer</code> followed by a space and the ${e.bearerFormat ?? "Token String"}.`
                       }
                     </div>
                     <div style="max-height:28px;">
                       ${v.in !== 'cookie'
                         ? html`
-                          <input type = "text" value = "${v.value}" class="${v.type} ${v.securitySchemeId} api-key-input" placeholder = "api-token" spellcheck = "false">
+                          <input type = "text" value = "${v.value}" class="${v.type} ${v.securitySchemeId} api-key-input" placeholder = "${e.bearerFormat ?? "api-token"}" spellcheck = "false"> 
                           <button class="m-btn thin-border" style = "margin-left:5px;"
                             part = "btn btn-outline"
                             @click="${(e) => { onApiKeyChange.call(this, v.securitySchemeId, e); }}">
