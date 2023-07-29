@@ -64,7 +64,7 @@ npm install
 # use it in the script tag of your html <script type="text/javascript" src="rapidoc-min.js"></script></body>
 npm run build 
 
-# for developement use yarn serve (this will start an webserver at port 8080, then navigate to localhost:8080) 
+# for development use yarn serve (this will start an webserver at port 8080, then navigate to localhost:8080) 
 npm run serve
 ```
 
