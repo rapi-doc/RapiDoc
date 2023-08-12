@@ -33,7 +33,7 @@
   "module": "dist/rapidoc-min.js",
   "mode": "production",
   "dependencies": {
-    "@apitools/openapi-parser": "0.0.32",
+    "openapi-resolver": "^4.1.35",
     "base64-arraybuffer": "^1.0.2",
     "buffer": "^6.0.3",
     "lit": "^2.7.5",

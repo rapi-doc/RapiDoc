@@ -1,5 +1,5 @@
 /* eslint-disable no-use-before-define */
-import OpenApiParser from '@apitools/openapi-parser';
+import OpenApiResolver from 'openapi-resolver/dist/openapi-resolver.browser';
 import { marked } from 'marked';
 import { invalidCharsRegEx, rapidocApiKey, sleep } from '~/utils/common-utils';
 
@@ -7,44 +7,23 @@ export default async function ProcessSpec(specUrl, generateMissingTags = false, 
   let jsonParsedSpec;
   try {
     this.requestUpdate(); // important to show the initial loader
-    let specMeta;
-    if (typeof specUrl === 'string') {
-      specMeta = await OpenApiParser.resolve({ url: specUrl, allowMetaPatches: false }); // Swagger(specUrl);
-    } else {
-      specMeta = await OpenApiParser.resolve({ spec: specUrl, allowMetaPatches: false }); // Swagger({ spec: specUrl });
-    }
+    jsonParsedSpec = await OpenApiResolver.resolve(specUrl);
+
     await sleep(0); // important to show the initial loader (allows for rendering updates)
 
-    // If  JSON Schema Viewer
-    if (specMeta.resolvedSpec?.jsonSchemaViewer && specMeta.resolvedSpec?.schemaAndExamples) {
-      this.dispatchEvent(new CustomEvent('before-render', { detail: { spec: specMeta.resolvedSpec } }));
-      const schemaAndExamples = Object.entries(specMeta.resolvedSpec.schemaAndExamples).map((v) => ({ show: true, expanded: true, selectedExample: null, name: v[0], elementId: v[0].replace(invalidCharsRegEx, '-'), ...v[1] }));
-      const parsedSpec = {
-        specLoadError: false,
-        isSpecLoading: false,
-        info: specMeta.resolvedSpec.info,
-        schemaAndExamples,
-      };
-      return parsedSpec;
-    }
-    if (specMeta.spec && (specMeta.spec.components || specMeta.spec.info || specMeta.spec.servers || specMeta.spec.tags || specMeta.spec.paths)) {
-      jsonParsedSpec = specMeta.spec;
-      this.dispatchEvent(new CustomEvent('before-render', { detail: { spec: jsonParsedSpec } }));
-    } else {
-      console.info('RapiDoc: %c There was an issue while parsing the spec %o ', 'color:orangered', specMeta); // eslint-disable-line no-console
-      return {
-        specLoadError: true,
-        isSpecLoading: false,
-        info: {
-          title: 'Error loading the spec',
-          description: specMeta.response?.url ? `${specMeta.response?.url} ┃ ${specMeta.response?.status}  ${specMeta.response?.statusText}` : 'Unable to load the Spec',
-          version: ' ',
-        },
-        tags: [],
-      };
-    }
+    this.dispatchEvent(new CustomEvent('before-render', { detail: { spec: jsonParsedSpec } }));
   } catch (err) {
     console.info('RapiDoc: %c There was an issue while parsing the spec %o ', 'color:orangered', err); // eslint-disable-line no-console
+    return {
+      specLoadError: true,
+      isSpecLoading: false,
+      info: {
+        title: 'Error loading the spec',
+        description: err.message || 'Unable to load the Spec',
+        version: ' ',
+      },
+      tags: [],
+    };
   }
 
   // const pathGroups = groupByPaths(jsonParsedSpec);
