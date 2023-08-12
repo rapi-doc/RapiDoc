@@ -223,7 +223,7 @@ export function getSampleValueByType(schemaObj) {
   }
   if (schemaObj.$ref) {
     // Indicates a Circular ref
-    return schemaObj.$ref;
+    return {};
   }
   if (schemaObj.const === false || schemaObj.const === 0 || schemaObj.const === null || schemaObj.const === '') {
     return schemaObj.const;
@@ -231,9 +231,12 @@ export function getSampleValueByType(schemaObj) {
   if (schemaObj.const) {
     return schemaObj.const;
   }
+  if (schemaObj.default) {
+    return schemaObj.default;
+  }
   const typeValue = Array.isArray(schemaObj.type) ? schemaObj.type[0] : schemaObj.type;
   if (!typeValue) {
-    return '?';
+    return null;
   }
   if (typeValue.match(/^integer|^number/g)) {
     const multipleOf = Number.isNaN(Number(schemaObj.multipleOf)) ? undefined : Number(schemaObj.multipleOf);
@@ -297,7 +300,7 @@ export function getSampleValueByType(schemaObj) {
     }
   }
   // If type cannot be determined
-  return '?';
+  return null;
 }
 
 /*
@@ -589,6 +592,11 @@ export function schemaToSampleObj(schema, config = { }) {
           continue;
         }
         obj = mergePropertyExamples(obj, propertyName, schemaToSampleObj(schema.properties[propertyName], config));
+      }
+      if (typeof schema.additionalProperties === 'object') {
+        const propertyName = schema.additionalProperties['x-additionalPropertiesName'] || 'property';
+        obj = mergePropertyExamples(obj, `${propertyName}1`, schemaToSampleObj(schema.additionalProperties, config));
+        obj = mergePropertyExamples(obj, `${propertyName}2`, schemaToSampleObj(schema.additionalProperties, config));
       }
     }
   } else if (schema.type === 'array' || schema.items) {
