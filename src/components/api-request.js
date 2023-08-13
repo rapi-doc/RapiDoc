@@ -1053,10 +1053,14 @@ export default class ApiRequest extends LitElement {
         ${this.responseIsBlob
           ? html`
             <div class="tab-content col" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};">
+              ${this.responseBlobType === 'image'
+                ? html`<img style="max-height:var(--resp-area-height, 400px); object-fit:contain;" class="mar-top-8" src="${this.responseBlobUrl}"></img>`
+                : ''
+              }  
               <button class="m-btn thin-border mar-top-8" style="width:135px" @click='${(e) => { downloadResource(this.responseBlobUrl, this.respContentDisposition, e); }}' part="btn btn-outline">
                 DOWNLOAD
               </button>
-              ${this.responseBlobType === 'view'
+              ${this.responseBlobType === 'view' || this.responseBlobType === 'image'
                 ? html`<button class="m-btn thin-border mar-top-8" style="width:135px"  @click='${(e) => { viewResource(this.responseBlobUrl, e); }}' part="btn btn-outline">VIEW (NEW TAB)</button>`
                 : ''
               }
@@ -1500,6 +1504,9 @@ export default class ApiRequest extends LitElement {
         } else if (/^font\/|tar$|zip$|7z$|rtf$|msword$|excel$|\/pdf$|\/octet-stream$|^application\/vnd\./.test(contentType)) {
           this.responseIsBlob = true;
           this.responseBlobType = 'download';
+        } else if (/^image/.test(contentType)) {
+          this.responseIsBlob = true;
+          this.responseBlobType = 'image';
         } else if (/^audio|^image|^video/.test(contentType)) {
           this.responseIsBlob = true;
           this.responseBlobType = 'view';
