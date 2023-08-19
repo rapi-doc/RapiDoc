@@ -1,0 +1,37 @@
+openapi: 3.0.0
+info:
+  title: Tag displayName (Vendor Extension)
+  version: 1.0.0
+  description: |
+    `x-displayName` is for anotating tag to add a custom name. This name is used
+    instead of the default name from the `name` value in the navigation sidebar
+    and in section heading.
+
+    Below OpenAPI spec shows how to use this extension 
+
+    ```yaml
+    openapi: 3.0.0
+    info:
+      title: Tag DisplayName
+      version: 1.0.0
+    paths:
+      /path:
+        get:
+          summary: Endpoint
+          tags:
+            - xyz-id
+    tags:
+      - name: xyz-id
+        x-displayName: Custom Tag Name
+        description: Custom Tag Description
+    ```
+paths:
+  /path:
+    get:
+      summary: Endpoint
+      tags:
+        - xyz-id
+tags:
+  - name: xyz-id
+    x-displayName: Custom Tag Name
+    description: Custom Tag Description
