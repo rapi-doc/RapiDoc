@@ -1,3 +1,8 @@
+import RandExp from 'randexp';
+
+// Make RandExp determinist
+RandExp.prototype.randInt = (from) => from;
+
 // Takes a value as input and provides a printable string to replresent null values, spaces, blankstring etc
 export function getPrintableVal(val) {
   if (val === undefined) {
@@ -260,7 +265,13 @@ export function getSampleValueByType(schemaObj) {
   if (typeValue.match(/^string/g)) {
     if (schemaObj.enum) { return schemaObj.enum[0]; }
     if (schemaObj.const) { return schemaObj.const; }
-    if (schemaObj.pattern) { return schemaObj.pattern; }
+    if (schemaObj.pattern) {
+      try {
+        return new RandExp(schemaObj.pattern).gen();
+      } catch (error) {
+        return schemaObj.pattern;
+      }
+    }
     if (schemaObj.format) {
       const u = `${Date.now().toString(16)}${Math.random().toString(16)}0`.repeat(16);
       switch (schemaObj.format.toLowerCase()) {
