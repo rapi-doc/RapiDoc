@@ -1191,6 +1191,11 @@ export function schemaInObjectNotation(
       );
     }
     if (schema.additionalProperties) {
+      if (typeof schema.additionalProperties === 'boolean' && schema.additionalProperties === true) {
+        // true and {} are equivalent but a primitive value will not be handled properly by schemaInObjectNotation
+        schema.additionalProperties = {};
+      }
+
       obj['[any-key]'] = schemaInObjectNotation(
         schema.additionalProperties as RapiDocSchema,
         {}
