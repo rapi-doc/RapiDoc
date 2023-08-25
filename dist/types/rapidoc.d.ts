@@ -95,7 +95,7 @@ export default class RapiDoc extends LitElement implements RapiDocElement {
     private intersectionObserver?;
     static fontSize: string;
     selectedServer?: RapiDocServer;
-    timeoutId?: ReturnType<typeof setTimeout>;
+    timeoutId: ReturnType<typeof setTimeout>;
     constructor();
     static get styles(): import("lit").CSSResult[];
     connectedCallback(): void;

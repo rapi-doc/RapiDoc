@@ -259,7 +259,7 @@ export default function navbarTemplate(this: RapiDocElement) {
               </div>
               ${component.subComponents.filter((p) => p.expanded !== false).map((p) => html`
                 <div class='nav-bar-path' data-action='navigate' data-content-id='cmp--${p.id}' id='link-cmp--${p.id}'>
-                  <span> ${p.name} </span>
+                  <span style = 'pointer-events: none;'> ${p.name} </span>
                 </div>`)
               }`
             : ''))

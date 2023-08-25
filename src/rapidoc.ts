@@ -279,7 +279,7 @@ export default class RapiDoc extends LitElement implements RapiDocElement {
   private intersectionObserver?: IntersectionObserver;
   static fontSize: string;
   public selectedServer?: RapiDocServer;
-  public timeoutId?: ReturnType<typeof setTimeout>;
+  public timeoutId!: ReturnType<typeof setTimeout>;
 
   constructor() {
     super();

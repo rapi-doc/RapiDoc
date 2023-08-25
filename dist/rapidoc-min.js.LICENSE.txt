@@ -7,8 +7,14 @@
 
 /*!
  * https://github.com/Starcounter-Jack/JSON-Patch
- * (c) 2017 Joachim Wester
+ * (c) 2017-2021 Joachim Wester
  * MIT license
+ */
+
+/*!
+ * https://github.com/Starcounter-Jack/JSON-Patch
+ * (c) 2017-2022 Joachim Wester
+ * MIT licensed
  */
 
 /*!
@@ -24,8 +30,6 @@
  * Copyright (c) 2014-2015, Jon Schlinkert.
  * Licensed under the MIT License.
  */
-
-/*! https://mths.be/punycode v1.3.2 by @mathias */
 
 /*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
 
