@@ -12278,6 +12278,10 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
             obj[`[pattern: ${key}]`] = schemaInObjectNotation(schema.patternProperties[key], obj, level + 1);
         }
         if (schema.additionalProperties) {
+            if (typeof schema.additionalProperties === 'boolean' && schema.additionalProperties === true) {
+                // true and {} are equivalent but a primitive value will not be handled properly by schemaInObjectNotation
+                schema.additionalProperties = {};
+            }
             obj['[any-key]'] = schemaInObjectNotation(schema.additionalProperties, {});
         }
     }
@@ -19612,7 +19616,7 @@ JsonSchemaViewer = json_schema_viewer_decorate([
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("0b424840756550b7a7e0")
+/******/ 		__webpack_require__.h = () => ("cd7f7834d5c89831c7f9")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
