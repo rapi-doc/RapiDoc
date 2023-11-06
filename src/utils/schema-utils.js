@@ -1,3 +1,8 @@
+import RandExp from 'randexp';
+
+// Make RandExp determinist
+RandExp.prototype.randInt = (from) => from;
+
 // Takes a value as input and provides a printable string to replresent null values, spaces, blankstring etc
 export function getPrintableVal(val) {
   if (val === undefined) {
@@ -223,7 +228,7 @@ export function getSampleValueByType(schemaObj) {
   }
   if (schemaObj.$ref) {
     // Indicates a Circular ref
-    return schemaObj.$ref;
+    return {};
   }
   if (schemaObj.const === false || schemaObj.const === 0 || schemaObj.const === null || schemaObj.const === '') {
     return schemaObj.const;
@@ -231,9 +236,12 @@ export function getSampleValueByType(schemaObj) {
   if (schemaObj.const) {
     return schemaObj.const;
   }
+  if (schemaObj.default) {
+    return schemaObj.default;
+  }
   const typeValue = Array.isArray(schemaObj.type) ? schemaObj.type[0] : schemaObj.type;
   if (!typeValue) {
-    return '?';
+    return null;
   }
   if (typeValue.match(/^integer|^number/g)) {
     const multipleOf = Number.isNaN(Number(schemaObj.multipleOf)) ? undefined : Number(schemaObj.multipleOf);
@@ -257,7 +265,13 @@ export function getSampleValueByType(schemaObj) {
   if (typeValue.match(/^string/g)) {
     if (schemaObj.enum) { return schemaObj.enum[0]; }
     if (schemaObj.const) { return schemaObj.const; }
-    if (schemaObj.pattern) { return schemaObj.pattern; }
+    if (schemaObj.pattern) {
+      try {
+        return new RandExp(schemaObj.pattern).gen();
+      } catch (error) {
+        return schemaObj.pattern;
+      }
+    }
     if (schemaObj.format) {
       const u = `${Date.now().toString(16)}${Math.random().toString(16)}0`.repeat(16);
       switch (schemaObj.format.toLowerCase()) {
@@ -297,7 +311,7 @@ export function getSampleValueByType(schemaObj) {
     }
   }
   // If type cannot be determined
-  return '?';
+  return null;
 }
 
 /*
@@ -589,6 +603,11 @@ export function schemaToSampleObj(schema, config = { }) {
           continue;
         }
         obj = mergePropertyExamples(obj, propertyName, schemaToSampleObj(schema.properties[propertyName], config));
+      }
+      if (typeof schema.additionalProperties === 'object') {
+        const propertyName = schema.additionalProperties['x-additionalPropertiesName'] || 'property';
+        obj = mergePropertyExamples(obj, `${propertyName}1`, schemaToSampleObj(schema.additionalProperties, config));
+        obj = mergePropertyExamples(obj, `${propertyName}2`, schemaToSampleObj(schema.additionalProperties, config));
       }
     }
   } else if (schema.type === 'array' || schema.items) {
