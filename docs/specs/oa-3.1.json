@@ -8,6 +8,7 @@
         "schemas": {
             "options": {
                 "type": "object",
+                "description": "Options",
                 "properties": {
                     "const": { "type": "string", "const": "a_fixed_value" },
                     "enum": { "type": "string", "enum": ["a_single_enum_value"] },
@@ -27,7 +28,10 @@
                     "description": "The custom fields collection",
                     "content": {
                         "application/json": {
-                            "schema": { "$ref": "#/components/schemas/options" }
+                            "schema": { 
+                                "$ref": "#/components/schemas/options",
+                                "description": "Options Description Override"
+                            }
                         }
                     }
                 },
