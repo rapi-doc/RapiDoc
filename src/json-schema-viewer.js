@@ -287,6 +287,7 @@ export default class JsonSchemaViewer extends LitElement {
         specUrl,
         this.generateMissingTags === 'true',
         this.sortTags === 'true',
+        this.sortSchemas === 'true',
         this.getAttribute('sort-endpoints-by'),
       );
       this.loading = false;
