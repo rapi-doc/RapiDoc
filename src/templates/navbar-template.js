@@ -165,9 +165,7 @@ export default function navbarTemplate() {
       </div>
 
       <!-- TAGS AND PATHS-->
-      ${this.resolvedSpec.tags
-        .filter((tag) => tag.paths.filter((path) => pathIsInSearch(this.matchPaths, path, this.matchType)).length)
-        .map((tag) => html`
+      ${this.resolvedSpec.tags.map((tag) => html`
           <div class='nav-bar-tag-and-paths ${(this.renderStyle === 'read' ? 'expanded' : (tag.expanded ? 'expanded' : 'collapsed'))}' >
             ${tag.name === 'General ⦂'
               ? html`<hr style='border:none; border-top: 1px dotted var(--nav-text-color); opacity:0.3; margin:-1px 0 0 0;'/>`
