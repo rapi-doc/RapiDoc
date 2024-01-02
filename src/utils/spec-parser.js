@@ -373,6 +373,7 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
     }); // End of Methods
   }
 
+  /*
   const tagsWithSortedPaths = tags.filter((tag) => tag.paths && tag.paths.length > 0);
   tagsWithSortedPaths.forEach((tag) => {
     if (sortEndpointsBy === 'method') {
@@ -387,4 +388,6 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
     tag.firstPathId = tag.paths[0].elementId;
   });
   return sortTags ? tagsWithSortedPaths.sort((a, b) => a.name.localeCompare(b.name)) : tagsWithSortedPaths;
+  */
+  return tags;
 }
