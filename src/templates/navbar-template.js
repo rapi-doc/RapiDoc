@@ -80,7 +80,7 @@ export default function navbarTemplate() {
                   @change = '${this.onSearchChange}'
                   spellcheck = 'false'
                 >
-                <div style='margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;'>&#x21a9;</div>
+                <div style='margin: 10px 5px 0 -27px; font-size:var(--font-size-regular); cursor:pointer; background: url("./images/search.png") 0% 0% / 15px no-repeat; width: 20px'></div>
               </div>  
               ${this.matchPaths
                 ? html`
