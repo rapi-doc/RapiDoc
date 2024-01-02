@@ -161,7 +161,7 @@ export default function navbarTemplate() {
             : ''
           }  
         </div>
-        <div class='nav-bar-section-title'> OPERATIONS </div>
+        <!--<div class='nav-bar-section-title'> OPERATIONS </div>-->
       </div>
 
       <!-- TAGS AND PATHS-->
