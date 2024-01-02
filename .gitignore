@@ -9,9 +9,11 @@ node_modules
 node_modules/**
 
 # Dist and docs
-dist
-docs
+dist/**
+docs/**
 
+!dist/rapidoc-min.js
+!dist/rapidoc-min.js.map
 
 # Log files
 npm-debug.log*
