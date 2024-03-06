@@ -19,6 +19,12 @@ function headingRenderer(tagElementId: string): marked.Renderer<never> {
   return renderer;
 }
 
+function linkRenderer(): marked.Renderer<never> {
+  const renderer = new marked.Renderer();
+  fixRenderedAnchorLinks(renderer);
+  return renderer;
+}
+
 function expandCollapseTagDescription(e: MouseEvent) {
   const tagDescriptionEl = (((e.target as HTMLElement).closest('.tag-container') as HTMLElement).querySelector('.tag-description') as HTMLElement);
   const tagIconEl = (((e.target as HTMLElement).closest('.tag-container') as HTMLElement).querySelector('.tag-icon') as HTMLElement);
@@ -70,7 +76,7 @@ export function expandedEndpointBodyTemplate(this: RapiDocElement, path: RapiDoc
                   <path d="M12 20h-6a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h8"></path><path d="M18 4v17"></path><path d="M15 18l3 3l3 -3"></path>
                 </svg>
                 <div class="tag-description collapsed" style="max-height:0px; overflow:hidden; margin-top:16px; border:1px solid var(--border-color)"> 
-                  <div class="m-markdown" style="padding:8px"> ${unsafeHTML(marked(tagDescription))}</div>  
+                  <div class="m-markdown" style="padding:8px"> ${unsafeHTML(marked(tagDescription, { renderer: linkRenderer() }))}</div>  
                 </div>`
               : ''
             }  
@@ -103,7 +109,9 @@ export function expandedEndpointBodyTemplate(this: RapiDocElement, path: RapiDoc
         }
         <slot name="${path.elementId}"></slot>`
       }
-      ${path.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(path.description))}</div>` : ''}
+      ${path.description ? html`<div class="m-markdown"> 
+        ${unsafeHTML(marked(path.description, { renderer: linkRenderer() }))}
+        </div>` : ''}
       ${pathSecurityTemplate.call(this, path.security)}
       ${path.externalDocs?.url || path.externalDocs?.description
         ? html`<div style="background-color:var(--bg3); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--border-radius)"> 
