@@ -15858,6 +15858,11 @@ function headingRenderer(tagElementId) {
     fixRenderedAnchorLinks(renderer);
     return renderer;
 }
+function linkRenderer() {
+    const renderer = new marked.Renderer();
+    fixRenderedAnchorLinks(renderer);
+    return renderer;
+}
 function expandCollapseTagDescription(e) {
     const tagDescriptionEl = e.target.closest('.tag-container').querySelector('.tag-description');
     const tagIconEl = e.target.closest('.tag-container').querySelector('.tag-icon');
@@ -15907,7 +15912,7 @@ function expandedEndpointBodyTemplate(path, tagName = '', tagDescription = '') {
                   <path d="M12 20h-6a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h8"></path><path d="M18 4v17"></path><path d="M15 18l3 3l3 -3"></path>
                 </svg>
                 <div class="tag-description collapsed" style="max-height:0px; overflow:hidden; margin-top:16px; border:1px solid var(--border-color)"> 
-                  <div class="m-markdown" style="padding:8px"> ${unsafe_html_o(marked(tagDescription))}</div>  
+                  <div class="m-markdown" style="padding:8px"> ${unsafe_html_o(marked(tagDescription, { renderer: linkRenderer() }))}</div>  
                 </div>`
             : ''}  
           </div>
@@ -15932,7 +15937,9 @@ function expandedEndpointBodyTemplate(path, tagName = '', tagDescription = '') {
             </div>
           `}
         <slot name="${path.elementId}"></slot>`}
-      ${path.description ? lit_html_x `<div class="m-markdown"> ${unsafe_html_o(marked(path.description))}</div>` : ''}
+      ${path.description ? lit_html_x `<div class="m-markdown"> 
+        ${unsafe_html_o(marked(path.description, { renderer: linkRenderer() }))}
+        </div>` : ''}
       ${pathSecurityTemplate.call(this, path.security)}
       ${((_g = path.externalDocs) === null || _g === void 0 ? void 0 : _g.url) || ((_h = path.externalDocs) === null || _h === void 0 ? void 0 : _h.description)
         ? lit_html_x `<div style="background-color:var(--bg3); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--border-radius)"> 
@@ -19616,7 +19623,7 @@ JsonSchemaViewer = json_schema_viewer_decorate([
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("cd7f7834d5c89831c7f9")
+/******/ 		__webpack_require__.h = () => ("a7c2df33f5d46062d5be")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
