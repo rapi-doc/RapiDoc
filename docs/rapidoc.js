@@ -14187,7 +14187,7 @@ let ApiRequest = class ApiRequest extends lit_element_s {
                     data-example = "${Array.isArray(fieldExamples) ? fieldExamples.join('@rapidoc|@rapidoc') : fieldExamples}"
                     data-array = "true"
                     placeholder = "add-multiple &#x21a9;"
-                    .value = "${Array.isArray(fieldExamples) ? Array.isArray(fieldExamples[0]) ? fieldExamples[0] : [fieldExamples[0]] : [fieldExamples]}"
+                    .value = "${Array.isArray(fieldExamples) ? Array.isArray(fieldExamples[0]) ? fieldExamples[0] : fieldExamples : []}"
                   >
                   </tag-input>
                 `
@@ -14330,10 +14330,13 @@ let ApiRequest = class ApiRequest extends lit_element_s {
           ${this.responseIsBlob
             ? lit_html_x `
               <div class="tab-content col" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};">
+                ${this.responseBlobType === 'image'
+                ? lit_html_x `<img style="max-height:var(--resp-area-height, 400px); object-fit:contain;" class="mar-top-8" src="${this.responseBlobUrl}"></img>`
+                : ''}  
                 <button class="m-btn thin-border mar-top-8" style="width:135px" @click='${() => { downloadResource(this.responseBlobUrl, this.respContentDisposition); }}' part="btn btn-outline">
                   DOWNLOAD
                 </button>
-                ${this.responseBlobType === 'view'
+                ${this.responseBlobType === 'view' || this.responseBlobType === 'image'
                 ? lit_html_x `<button class="m-btn thin-border mar-top-8" style="width:135px"  @click='${() => { viewResource(this.responseBlobUrl); }}' part="btn btn-outline">VIEW (NEW TAB)</button>`
                 : ''}
               </div>`
@@ -14739,6 +14742,21 @@ let ApiRequest = class ApiRequest extends lit_element_s {
             const startTime = performance.now();
             fetchResponse = await fetch(fetchRequest, { signal });
             const endTime = performance.now();
+            // Allow to modify response
+            let resolveModifiedResponse; // Create a promise that will be resolved from the event listener
+            const modifiedResponsePromise = new Promise((resolve) => {
+                resolveModifiedResponse = resolve;
+            });
+            this.dispatchEvent(new CustomEvent('fetched-try', {
+                bubbles: true,
+                composed: true,
+                detail: {
+                    request: fetchRequest,
+                    response: fetchResponse,
+                    resolveModifiedResponse: resolveModifiedResponse, // pass the resolver function
+                },
+            }));
+            fetchResponse = await modifiedResponsePromise; // Wait for the modified response
             responseClone = fetchResponse.clone(); // create a response clone to allow reading response body again (response.json, response.text etc)
             tryBtnEl.disabled = false;
             this.responseMessage = lit_html_x `${fetchResponse.statusText ? `${fetchResponse.statusText}:${fetchResponse.status}` : fetchResponse.status} <div style="color:var(--light-fg)"> Took ${Math.round(endTime - startTime)} milliseconds </div>`;
@@ -18141,6 +18159,9 @@ let RapiDoc = class RapiDoc extends lit_element_s {
         if (!this.matchType || !'includes regex'.includes(this.matchType)) {
             this.matchType = 'includes';
         }
+        if (!this.scrollBehavior || !'smooth, auto,'.includes(`${this.scrollBehavior},`)) {
+            this.scrollBehavior = 'auto';
+        }
         if (!this.showAdvancedSearchDialog) {
             this.showAdvancedSearchDialog = false;
         }
@@ -18484,7 +18505,7 @@ let RapiDoc = class RapiDoc extends lit_element_s {
                 var _a;
                 const gotoEl = (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.getElementById(tmpElementId);
                 if (gotoEl) {
-                    gotoEl.scrollIntoView({ behavior: 'auto', block: 'start' });
+                    gotoEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
                     if (this.updateRoute === 'true') {
                         this.replaceHistoryState(tmpElementId);
                     }
@@ -18525,7 +18546,7 @@ let RapiDoc = class RapiDoc extends lit_element_s {
                     if (this.updateRoute === 'true') {
                         this.replaceHistoryState(entry.target.id);
                     }
-                    newNavEl.scrollIntoView({ behavior: 'auto', block: 'center' });
+                    newNavEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'center' });
                     newNavEl.classList.add('active');
                     newNavEl.part.add('section-navbar-active-item');
                 }
@@ -18545,7 +18566,7 @@ let RapiDoc = class RapiDoc extends lit_element_s {
             if ((_a = e.target.getAttribute('href')) === null || _a === void 0 ? void 0 : _a.startsWith('#')) {
                 const gotoEl = (_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.getElementById((_c = e.target.getAttribute('href')) === null || _c === void 0 ? void 0 : _c.replace('#', ''));
                 if (gotoEl) {
-                    gotoEl.scrollIntoView({ behavior: 'auto', block: 'start' });
+                    gotoEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
                 }
             }
         }
@@ -18599,7 +18620,7 @@ let RapiDoc = class RapiDoc extends lit_element_s {
             const contentEl = (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.getElementById(elementId);
             if (contentEl) {
                 isValidElementId = true;
-                contentEl.scrollIntoView({ behavior: 'auto', block: 'start' });
+                contentEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
             }
             else {
                 isValidElementId = false;
@@ -18624,7 +18645,7 @@ let RapiDoc = class RapiDoc extends lit_element_s {
                 const newNavEl = (_d = this.shadowRoot) === null || _d === void 0 ? void 0 : _d.getElementById(`link-${elementId}`);
                 if (newNavEl) {
                     if (scrollNavItemToView) {
-                        newNavEl.scrollIntoView({ behavior: 'auto', block: 'center' });
+                        newNavEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'center' });
                     }
                     await sleep(0);
                     const oldNavEl = (_e = this.shadowRoot) === null || _e === void 0 ? void 0 : _e.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active, .operations.active');
@@ -18804,6 +18825,9 @@ rapidoc_decorate([
 rapidoc_decorate([
     property_n({ type: String, attribute: 'page-direction' })
 ], RapiDoc.prototype, "pageDirection", void 0);
+rapidoc_decorate([
+    property_n({ type: String, attribute: 'scroll-behavior' })
+], RapiDoc.prototype, "scrollBehavior", void 0);
 rapidoc_decorate([
     property_n({ type: String })
 ], RapiDoc.prototype, "theme", void 0);
@@ -19623,7 +19647,7 @@ JsonSchemaViewer = json_schema_viewer_decorate([
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("a7c2df33f5d46062d5be")
+/******/ 		__webpack_require__.h = () => ("026de894e2ad065a7d2f")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

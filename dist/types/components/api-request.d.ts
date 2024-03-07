@@ -45,7 +45,7 @@ export default class ApiRequest extends LitElement {
     responseIsBlob?: any;
     responseBlobUrl?: string | undefined;
     respContentDisposition: string;
-    responseBlobType?: 'download' | 'view' | '';
+    responseBlobType?: 'download' | 'view' | 'image' | '';
     static get styles(): import("lit").CSSResult[];
     render(): TemplateResult<1>;
     updated(): Promise<void>;

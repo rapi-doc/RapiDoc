@@ -53,6 +53,7 @@ export default class RapiDoc extends LitElement implements RapiDocElement {
     allowSchemaDescriptionExpandToggle?: 'true' | 'false';
     showComponents?: 'true' | 'false';
     pageDirection?: 'rtl' | 'ltr';
+    scrollBehavior?: ScrollBehavior;
     theme?: 'dark' | 'light';
     bgColor?: string;
     textColor?: string;
