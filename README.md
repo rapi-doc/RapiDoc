@@ -5,9 +5,6 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square"/>
     <img src="https://img.shields.io/github/size/rapi-doc/rapidoc/dist/rapidoc-min.js.svg?colorB=blue&label=minified&style=flat-square">
     <img src="https://img.shields.io/github/size/rapi-doc/rapidoc/dist/rapidoc-min.js.gz.svg?colorB=blue&label=zip&style=flat-square">
-    <a href="https://discord.gg/X9evUeFY" alt="Join us on Discord">
-        <img src="https://img.shields.io/discord/848913990360629268?style=flat-square" />
-    </a>
     <a href="https://www.webcomponents.org/element/rapidoc" alt="published on webcomponents.org">
         <img src="https://img.shields.io/badge/webcomponents.org-rapidoc-blue.svg?style=social"/>
     </a>
@@ -16,9 +13,7 @@
 # RapiDoc
 Custom Element for Open-API spec viewing
 
-Join the [RapiDoc community on Discord](https://discord.gg/X9evUeFY)
-
-Sponsored by [Zuplo](https://zuplo.link/rapidoc-2) - Get a Stripe-like API experience for your customers in minutes - documentation, rate-limiting and API-key auth in minutes. 
+> Sponsored by [Zuplo](https://zuplo.link/rapidoc-2) - Get a Stripe-like API experience for your customers in minutes - documentation, rate-limiting and API-key auth in minutes. 
 
 ## Features
 - Supports Swagger 2.0, OpenAPI 3.x.x 
@@ -64,7 +59,7 @@ npm install
 # use it in the script tag of your html <script type="text/javascript" src="rapidoc-min.js"></script></body>
 npm run build 
 
-# for developement use yarn serve (this will start an webserver at port 8080, then navigate to localhost:8080) 
+# for development use yarn serve (this will start an webserver at port 8080, then navigate to localhost:8080) 
 npm run serve
 ```
 

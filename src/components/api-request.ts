@@ -149,7 +149,7 @@ export default class ApiRequest extends LitElement {
   public responseIsBlob?: any;
   public responseBlobUrl?: string | undefined;
   public respContentDisposition: string = '';
-  public responseBlobType?: 'download' | 'view' | '';
+  public responseBlobType?: 'download' | 'view' | 'image' | '';
   
   static override get styles() {
     return [
@@ -972,7 +972,7 @@ export default class ApiRequest extends LitElement {
                     data-example = "${Array.isArray(fieldExamples) ? fieldExamples.join('@rapidoc|@rapidoc') : fieldExamples}"
                     data-array = "true"
                     placeholder = "add-multiple &#x21a9;"
-                    .value = "${Array.isArray(fieldExamples) ? Array.isArray(fieldExamples[0]) ? fieldExamples[0] : [fieldExamples[0]] : [fieldExamples]}"
+                    .value = "${Array.isArray(fieldExamples) ? Array.isArray(fieldExamples[0]) ? fieldExamples[0] : fieldExamples : []}"
                   >
                   </tag-input>
                 `
@@ -1120,10 +1120,14 @@ export default class ApiRequest extends LitElement {
           ${this.responseIsBlob
             ? html`
               <div class="tab-content col" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};">
+                ${this.responseBlobType === 'image'
+                  ? html`<img style="max-height:var(--resp-area-height, 400px); object-fit:contain;" class="mar-top-8" src="${this.responseBlobUrl}"></img>`
+                  : ''
+                }  
                 <button class="m-btn thin-border mar-top-8" style="width:135px" @click='${() => { downloadResource(this.responseBlobUrl, this.respContentDisposition); }}' part="btn btn-outline">
                   DOWNLOAD
                 </button>
-                ${this.responseBlobType === 'view'
+                ${this.responseBlobType === 'view' || this.responseBlobType === 'image'
                   ? html`<button class="m-btn thin-border mar-top-8" style="width:135px"  @click='${() => { viewResource(this.responseBlobUrl); }}' part="btn btn-outline">VIEW (NEW TAB)</button>`
                   : ''
                 }
@@ -1533,6 +1537,21 @@ export default class ApiRequest extends LitElement {
       const startTime = performance.now();
       fetchResponse = await fetch(fetchRequest, { signal });
       const endTime = performance.now();
+      // Allow to modify response
+      let resolveModifiedResponse!: (value: Response | PromiseLike<Response>) => void; // Create a promise that will be resolved from the event listener
+      const modifiedResponsePromise: Promise<Response> = new Promise((resolve) => {
+        resolveModifiedResponse = resolve;
+      });
+      this.dispatchEvent(new CustomEvent('fetched-try', {
+        bubbles: true,
+        composed: true,
+        detail: {
+          request: fetchRequest,
+          response: fetchResponse,
+          resolveModifiedResponse: resolveModifiedResponse, // pass the resolver function
+        },
+      }));
+      fetchResponse = await modifiedResponsePromise; // Wait for the modified response
       responseClone = fetchResponse.clone(); // create a response clone to allow reading response body again (response.json, response.text etc)
       tryBtnEl.disabled = false;
       this.responseMessage = html`${fetchResponse.statusText ? `${fetchResponse.statusText}:${fetchResponse.status}` : fetchResponse.status} <div style="color:var(--light-fg)"> Took ${Math.round(endTime - startTime)} milliseconds </div>`;

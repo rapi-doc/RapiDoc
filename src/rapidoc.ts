@@ -173,6 +173,9 @@ export default class RapiDoc extends LitElement implements RapiDocElement {
   
   @property({ type: String, attribute: 'page-direction' })
   public pageDirection?: 'rtl' | 'ltr';
+  
+  @property({ type: String, attribute: 'scroll-behavior' })
+  public scrollBehavior?: ScrollBehavior;
 
   // Main Colors and Font
   
@@ -665,6 +668,7 @@ export default class RapiDoc extends LitElement implements RapiDocElement {
     if (!this.infoDescriptionHeadingsInNavBar || !'true, false,'.includes(`${this.infoDescriptionHeadingsInNavBar},`)) { this.infoDescriptionHeadingsInNavBar = 'false'; }
     if (!this.fetchCredentials || !'omit, same-origin, include,'.includes(`${this.fetchCredentials},`)) { this.fetchCredentials = ''; }
     if (!this.matchType || !'includes regex'.includes(this.matchType)) { this.matchType = 'includes'; }
+    if (!this.scrollBehavior || !'smooth, auto,'.includes(`${this.scrollBehavior},`)) { this.scrollBehavior = 'auto'; }
 
     if (!this.showAdvancedSearchDialog) { this.showAdvancedSearchDialog = false; }
 
@@ -1019,7 +1023,7 @@ export default class RapiDoc extends LitElement implements RapiDocElement {
       window.setTimeout(() => {
         const gotoEl = this.shadowRoot?.getElementById(tmpElementId);
         if (gotoEl) {
-          gotoEl.scrollIntoView({ behavior: 'auto', block: 'start' });
+          gotoEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
           if (this.updateRoute === 'true') {
             this.replaceHistoryState(tmpElementId);
           }
@@ -1063,7 +1067,7 @@ export default class RapiDoc extends LitElement implements RapiDocElement {
           if (this.updateRoute === 'true') {
             this.replaceHistoryState(entry.target.id);
           }
-          newNavEl.scrollIntoView({ behavior: 'auto', block: 'center' });
+          newNavEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'center' });
           newNavEl.classList.add('active');
           newNavEl.part.add('section-navbar-active-item');
         }
@@ -1084,7 +1088,7 @@ export default class RapiDoc extends LitElement implements RapiDocElement {
       if ((e.target as HTMLElement).getAttribute('href')?.startsWith('#')) {
         const gotoEl = this.shadowRoot?.getElementById((e.target as HTMLElement).getAttribute('href')?.replace('#', '') as string);
         if (gotoEl) {
-          gotoEl.scrollIntoView({ behavior: 'auto', block: 'start' });
+          gotoEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
         }
       }
     }
@@ -1137,7 +1141,7 @@ export default class RapiDoc extends LitElement implements RapiDocElement {
       const contentEl = this.shadowRoot?.getElementById(elementId);
       if (contentEl) {
         isValidElementId = true;
-        contentEl.scrollIntoView({ behavior: 'auto', block: 'start' });
+        contentEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
       } else {
         isValidElementId = false;
       }
@@ -1164,7 +1168,7 @@ export default class RapiDoc extends LitElement implements RapiDocElement {
 
         if (newNavEl) {
           if (scrollNavItemToView) {
-            newNavEl.scrollIntoView({ behavior: 'auto', block: 'center' });
+            newNavEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'center' });
           }
           await sleep(0);
           const oldNavEl = this.shadowRoot?.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active, .operations.active');
