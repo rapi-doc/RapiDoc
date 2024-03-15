@@ -14742,21 +14742,6 @@ let ApiRequest = class ApiRequest extends lit_element_s {
             const startTime = performance.now();
             fetchResponse = await fetch(fetchRequest, { signal });
             const endTime = performance.now();
-            // Allow to modify response
-            let resolveModifiedResponse; // Create a promise that will be resolved from the event listener
-            const modifiedResponsePromise = new Promise((resolve) => {
-                resolveModifiedResponse = resolve;
-            });
-            this.dispatchEvent(new CustomEvent('fetched-try', {
-                bubbles: true,
-                composed: true,
-                detail: {
-                    request: fetchRequest,
-                    response: fetchResponse,
-                    resolveModifiedResponse: resolveModifiedResponse, // pass the resolver function
-                },
-            }));
-            fetchResponse = await modifiedResponsePromise; // Wait for the modified response
             responseClone = fetchResponse.clone(); // create a response clone to allow reading response body again (response.json, response.text etc)
             tryBtnEl.disabled = false;
             this.responseMessage = lit_html_x `${fetchResponse.statusText ? `${fetchResponse.statusText}:${fetchResponse.status}` : fetchResponse.status} <div style="color:var(--light-fg)"> Took ${Math.round(endTime - startTime)} milliseconds </div>`;
@@ -19647,7 +19632,7 @@ JsonSchemaViewer = json_schema_viewer_decorate([
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("026de894e2ad065a7d2f")
+/******/ 		__webpack_require__.h = () => ("1dfedd140cce8a1b2b60")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
