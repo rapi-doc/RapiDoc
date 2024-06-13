@@ -55,6 +55,7 @@ export default class RapiDoc extends LitElement {
       routePrefix: { type: String, attribute: 'route-prefix' },
       specUrl: { type: String, attribute: 'spec-url' },
       sortTags: { type: String, attribute: 'sort-tags' },
+      sortSchemas: { type: String, attribute: 'sort-schemas' },
       generateMissingTags: { type: String, attribute: 'generate-missing-tags' },
       sortEndpointsBy: { type: String, attribute: 'sort-endpoints-by' },
       specFile: { type: String, attribute: false },
@@ -492,6 +493,7 @@ export default class RapiDoc extends LitElement {
     if (!this.updateRoute || !'true, false,'.includes(`${this.updateRoute},`)) { this.updateRoute = 'true'; }
     if (!this.routePrefix) { this.routePrefix = '#'; }
     if (!this.sortTags || !'true, false,'.includes(`${this.sortTags},`)) { this.sortTags = 'false'; }
+    if (!this.sortSchemas || !'true, false,'.includes(`${this.sortSchemas},`)) { this.sortSchemas = 'false'; }
     if (!this.generateMissingTags || !'true, false,'.includes(`${this.generateMissingTags},`)) { this.generateMissingTags = 'false'; }
     if (!this.sortEndpointsBy || !'method, path, summary, none,'.includes(`${this.sortEndpointsBy},`)) { this.sortEndpointsBy = 'path'; }
 
@@ -728,6 +730,7 @@ export default class RapiDoc extends LitElement {
         specUrl,
         this.generateMissingTags === 'true',
         this.sortTags === 'true',
+        this.sortSchemas === 'true',
         this.getAttribute('sort-endpoints-by'),
         this.getAttribute('api-key-name'),
         this.getAttribute('api-key-location'),

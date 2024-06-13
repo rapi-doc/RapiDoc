@@ -3,7 +3,7 @@ import OpenApiParser from '@apitools/openapi-parser';
 import { marked } from 'marked';
 import { invalidCharsRegEx, rapidocApiKey, sleep } from '~/utils/common-utils';
 
-export default async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = false, sortEndpointsBy = '', attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '') {
+export default async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = false, sortSchemas = false, sortEndpointsBy = '', attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '') {
   let jsonParsedSpec;
   try {
     this.requestUpdate(); // important to show the initial loader
@@ -53,7 +53,7 @@ export default async function ProcessSpec(specUrl, generateMissingTags = false, 
   const tags = groupByTags(jsonParsedSpec, sortEndpointsBy, generateMissingTags, sortTags);
 
   // Components
-  const components = getComponents(jsonParsedSpec);
+  const components = getComponents(jsonParsedSpec, sortSchemas);
 
   // Info Description Headers
   const infoDescriptionHeaders = jsonParsedSpec.info?.description ? getHeadersFromMarkdown(jsonParsedSpec.info.description) : [];
@@ -162,7 +162,7 @@ function getHeadersFromMarkdown(markdownContent) {
   return headers || [];
 }
 
-function getComponents(openApiSpec) {
+function getComponents(openApiSpec, sortSchemas = false) {
   if (!openApiSpec.components) {
     return [];
   }
@@ -184,6 +184,10 @@ function getComponents(openApiSpec) {
 
     switch (component) {
       case 'schemas':
+        if (sortSchemas) {
+          subComponents.sort((c1, c2) => c1.name.localeCompare(c2.name));
+        }
+
         cmpName = 'Schemas';
         cmpDescription = 'Schemas allows the definition of input and output data types. These types can be objects, but also primitives and arrays.';
         break;
