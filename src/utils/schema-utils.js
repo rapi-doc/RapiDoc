@@ -404,6 +404,9 @@ function addPropertyExampleToObjectExamples(example, obj, propertyKey) {
 }
 
 function mergePropertyExamples(obj, propertyName, propExamples) {
+  if (propExamples == null || Object.keys(propExamples).length === 0) {
+    return obj;
+  }
   // Create an example for each variant of the propertyExample, merging them with the current (parent) example
   let i = 0;
   const maxCombinations = 10;
@@ -436,11 +439,11 @@ export function schemaToSampleObj(schema, config = { }) {
     if (schema.allOf.length === 1 && !schema.allOf[0]?.properties && !schema.allOf[0]?.items) {
       // If allOf has single item and the type is not an object or array, then its a primitive
       if (schema.allOf[0].$ref) {
-        return '{  }';
+        return { 'example-0': '{  }' };
       }
       if (schema.allOf[0].readOnly && config.includeReadOnly) {
         const tempSchema = schema.allOf[0];
-        return getSampleValueByType(tempSchema);
+        return { 'example-0': getSampleValueByType(tempSchema) };
       }
       return;
     }
@@ -587,8 +590,10 @@ export function schemaToSampleObj(schema, config = { }) {
             if (config.useXmlTagForProp) {
               const xmlTagName = schema.properties[propertyName].xml?.name || propertyName;
               if (schema.properties[propertyName].xml?.wrapped) {
-                const wrappedItemSample = JSON.parse(`{ "${xmlTagName}" : { "${xmlTagName}" : ${JSON.stringify(itemSamples['example-0'])} } }`);
-                obj = mergePropertyExamples(obj, xmlTagName, wrappedItemSample);
+                try {
+                  const wrappedItemSample = JSON.parse(`{ "${xmlTagName}" : { "${xmlTagName}" : ${JSON.stringify(itemSamples['example-0'])} } }`);
+                  obj = mergePropertyExamples(obj, xmlTagName, wrappedItemSample);
+                } catch (e) { /* ignore */ }
               } else {
                 obj = mergePropertyExamples(obj, xmlTagName, itemSamples);
               }
