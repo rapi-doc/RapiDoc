@@ -13,6 +13,7 @@ export default function searchByPropertiesModalTemplate() {
     >
       <span class="advanced-search-options">
         <input
+          id="input-advanced-search-dialog"
           style="width:100%; padding-right:20px;"
           type="text"
           part="textbox textbox-search-dialog"
