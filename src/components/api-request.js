@@ -412,6 +412,7 @@ export default class ApiRequest extends LitElement {
               ${paramSchema.type === 'array'
                 ? html`
                   <tag-input class="request-param" 
+                    id = "tag-input-request-param-${param.name}"
                     style = "width:100%" 
                     data-ptype = "${paramType}"
                     data-pname = "${param.name}"
@@ -444,6 +445,7 @@ export default class ApiRequest extends LitElement {
                       ${this.activeParameterSchemaTabs[param.name] === 'example'
                         ? html`<div class="tab-content col">
                           <textarea 
+                            id = "textarea-request-param-${param.name}"
                             class = "textarea request-param"
                             part = "textarea textarea-param"
                             data-ptype = "${paramType}-object"
@@ -482,6 +484,7 @@ export default class ApiRequest extends LitElement {
                     </div>`
                   : html`
                     <input type="${paramSchema.format === 'password' ? 'password' : 'text'}" spellcheck="false" style="width:100%" 
+                      id="input-request-param-${param.name}"
                       class="request-param"
                       part="textbox textbox-param"
                       data-ptype="${paramType}"
@@ -719,7 +722,7 @@ export default class ApiRequest extends LitElement {
         if (reqBody.mimeType === this.selectedRequestBodyType) {
           reqBodyFileInputHtml = html`
             <div class = "small-font-size bold-text row">
-              <input type="file" part="file-input" style="max-width:100%" class="request-body-param-file" data-ptype="${reqBody.mimeType}" spellcheck="false" />
+              <input id="input-request-body-param-file" type="file" part="file-input" style="max-width:100%" class="request-body-param-file" data-ptype="${reqBody.mimeType}" spellcheck="false" />
             </div>  
           `;
         }
