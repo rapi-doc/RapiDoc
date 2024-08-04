@@ -39,6 +39,7 @@
     "lit": "^2.7.5",
     "marked": "^5.1.0",
     "prismjs": "^1.29.0",
+    "randexp": "^0.5.3",
     "xml-but-prettier": "^1.0.1"
   },
   "scripts": {
