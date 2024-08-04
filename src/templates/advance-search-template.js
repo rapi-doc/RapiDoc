@@ -59,9 +59,9 @@ export default function searchByPropertiesModalTemplate() {
           }
         }"
       > 
-        <span class="upper bold-text method-fg ${path.method}">${path.method}</span> 
-        <span>${path.path}</span>
-        <span class="regular-font gray-text">${path.summary}</span>
+        <span style="pointer-events: none" class="upper bold-text method-fg ${path.method}">${path.method}</span> 
+        <span style="pointer-events: none">${path.path}</span>
+        <span style="pointer-events: none" class="regular-font gray-text">${path.summary}</span>
       </div>
     `)
     }
