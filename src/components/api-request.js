@@ -1621,6 +1621,12 @@ export default class ApiRequest extends LitElement {
 
     curl = `curl -X ${this.method.toUpperCase()} "${curlUrl}" \\\n`;
 
+    fetchHeaders.forEach((value, key) =>{
+      let tempHeaderArray = value.split(",");
+      tempHeaderArray = tempHeaderArray.map(el => el.trim()).filter((value, index) => tempHeaderArray.indexOf(value) === index);
+      fetchHeaders.set(key, tempHeaderArray.join(', '));
+    });
+
     curlHeaders = Array.from(fetchHeaders).map(([key, value]) => ` -H "${key}: ${value}"`).join('\\\n');
     if (curlHeaders) {
       curlHeaders = `${curlHeaders} \\\n`;
