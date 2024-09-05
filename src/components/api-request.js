@@ -1623,7 +1623,7 @@ export default class ApiRequest extends LitElement {
 
     fetchHeaders.forEach((value, key) => {
       let tempHeaderArray = value.split(',');
-      tempHeaderArray = tempHeaderArray.map((el) => el.trim()).filter((value, index) => tempHeaderArray.indexOf(value) === index);
+      tempHeaderArray = tempHeaderArray.map((el) => el.trim()).filter((string, index) => tempHeaderArray.indexOf(string) === index);
       fetchHeaders.set(key, tempHeaderArray.join(', '));
     });
 
