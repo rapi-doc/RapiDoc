@@ -36,8 +36,8 @@
     "@apitools/openapi-parser": "0.0.32",
     "base64-arraybuffer": "^1.0.2",
     "buffer": "^6.0.3",
-    "lit": "3.2.0",
-    "marked": "^14.1.2",
+    "lit": "^3.2.0",
+    "marked": "4.3.0",
     "prismjs": "^1.29.0",
     "randexp": "^0.5.3",
     "xml-but-prettier": "^1.0.1"
