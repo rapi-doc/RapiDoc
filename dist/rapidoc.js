@@ -1,7 +1,7 @@
 
 /**
 * @preserve
-* RapiDoc 9.3.5 - WebComponent to View OpenAPI docs
+* RapiDoc 9.3.6 - WebComponent to View OpenAPI docs
 * License: MIT
 * Repo   : https://github.com/rapi-doc/RapiDoc
 * Author : Mrinmoy Majumdar
@@ -8699,7 +8699,7 @@ class ApiRequest extends lit_element_h {
         respHeadersObj[hdr] = hdrVal;
         this.responseHeaders = `${this.responseHeaders}${hdr}: ${hdrVal}\n`;
       });
-      const contentType = fetchResponse.headers.get('content-type');
+      const contentType = fetchResponse.headers.get('content-type').split(';')[0].trim();
       const respEmpty = (await fetchResponse.clone().text()).length === 0;
       if (respEmpty) {
         this.responseText = '';
@@ -9739,7 +9739,7 @@ function expandedEndpointTemplate() {
   return ke`
   ${this.resolvedSpec.tags.map(tag => ke`
     <section id="${tag.elementId}" part="section-tag" class="regular-font section-gap--read-mode observe-me" style="border-top:1px solid var(--primary-color);">
-      <div class="title tag" part="section-tag-title label-tag-title">${tag.displayName}</div>
+      <div class="title tag" part="section-tag-title label-tag-title">${tag.displayName || tag.name}</div>
       <slot name="${tag.elementId}"></slot>
       <div class="regular-font-size">
       ${unsafe_html_ae(`
@@ -10145,7 +10145,7 @@ function navbarTemplate() {
                   data-first-path-id='${tag.firstPathId}'
                   tabindex='0'
                 >
-                  <div style="pointer-events:none;">${tag.displayName}</div>
+                  <div style="pointer-events:none;">${tag.displayName || tag.name}</div>
                   <div class='nav-bar-tag-icon' tabindex='0' data-action='expand-collapse-tag'></div>
                 </div>
               `}
@@ -10252,7 +10252,7 @@ function defaultContentTemplate() {
 /* eslint-disable indent */
 function focusedTagBodyTemplate(tag) {
   return ke`
-    <h1 id="${tag.elementId}">${tag.displayName}</h1>
+    <h1 id="${tag.elementId}">${tag.displayName || tag.name}</h1>
     ${this.onNavTagClick === 'show-description' && tag.description ? ke`
         <div class="m-markdown">
           ${unsafe_html_ae(`
@@ -10501,7 +10501,7 @@ function endpointTemplate(showExpandCollapse = true, showTags = true, pathsExpan
     tag.expanded = !tag.expanded;
     this.requestUpdate();
   }}">
-              <div id='${tag.elementId}' class="sub-title tag" style="color:var(--primary-color)">${tag.displayName}</div>
+              <div id='${tag.elementId}' class="sub-title tag" style="color:var(--primary-color)">${tag.displayName || tag.name}</div>
             </div>
             <div class='section-tag-body'>
               <slot name="${tag.elementId}"></slot>
@@ -20415,7 +20415,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("91e806bab3800f01f702")
+/******/ 		__webpack_require__.h = () => ("f781d73f078a7c1c430d")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

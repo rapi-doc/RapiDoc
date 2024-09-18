@@ -181,7 +181,7 @@ export default function navbarTemplate() {
                   data-first-path-id='${tag.firstPathId}'
                   tabindex='0'
                 >
-                  <div style="pointer-events:none;">${tag.displayName}</div>
+                  <div style="pointer-events:none;">${tag.displayName || tag.name}</div>
                   <div class='nav-bar-tag-icon' tabindex='0' data-action='expand-collapse-tag'></div>
                 </div>
               `

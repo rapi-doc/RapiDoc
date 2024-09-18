@@ -204,7 +204,7 @@ export default function endpointTemplate(showExpandCollapse = true, showTags = t
         ? html` 
           <div class='regular-font section-gap section-tag ${tag.expanded ? 'expanded' : 'collapsed'}'> 
             <div class='section-tag-header' @click="${() => { tag.expanded = !tag.expanded; this.requestUpdate(); }}">
-              <div id='${tag.elementId}' class="sub-title tag" style="color:var(--primary-color)">${tag.displayName}</div>
+              <div id='${tag.elementId}' class="sub-title tag" style="color:var(--primary-color)">${tag.displayName || tag.name}</div>
             </div>
             <div class='section-tag-body'>
               <slot name="${tag.elementId}"></slot>
