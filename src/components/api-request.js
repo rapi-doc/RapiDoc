@@ -1497,7 +1497,7 @@ export default class ApiRequest extends LitElement {
         respHeadersObj[hdr] = hdrVal;
         this.responseHeaders = `${this.responseHeaders}${hdr}: ${hdrVal}\n`;
       });
-      const contentType = fetchResponse.headers.get('content-type');
+      const contentType = fetchResponse.headers.get('content-type').split(';')[0].trim();;
       const respEmpty = (await fetchResponse.clone().text()).length === 0;
       if (respEmpty) {
         this.responseText = '';
