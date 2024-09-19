@@ -855,7 +855,7 @@ export default class ApiRequest extends LitElement {
       ${html`
         <div class="tab-content col" data-tab = 'schema' style="display:${this.activeSchemaTab !== 'example' ? 'block' : 'none'}; padding-left:5px; width:100%;"> 
           <schema-tree
-            .data = '${formdataPartSchema}'
+            .data = "${formdataPartSchema}"
             schema-expand-level = "${this.schemaExpandLevel}"
             schema-description-expanded = "${this.schemaDescriptionExpanded}"
             allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
@@ -1130,7 +1130,7 @@ export default class ApiRequest extends LitElement {
                       : `${this.api_keys.length} API keys applied`
                     } 
                   </div>`
-                : html`<div class="gray-text">Required  <span style="color:var(--red)">(None Applied)</span>`
+                : html`<div class="gray-text">Required  <span style="color:var(--red)">(None Applied)</span> </div>`
               }`
             : html`<span class="gray-text"> Not Required </span>`
           }

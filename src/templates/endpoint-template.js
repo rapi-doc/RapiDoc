@@ -91,7 +91,7 @@ function endpointBodyTemplate(path) {
   <div part="section-endpoint-body-${path.expanded ? 'expanded' : 'collapsed'}" class='endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}'>
     <div class="summary">
       ${path.summary
-        ? html`<div class="title" part="section-endpoint-body-title">${path.summary}<div>`
+        ? html`<div class="title" part="section-endpoint-body-title">${path.summary}</div>`
         : path.shortSummary !== path.description
           ? html`<div class="title" part="section-endpoint-body-title">${path.shortSummary}</div>`
           : ''

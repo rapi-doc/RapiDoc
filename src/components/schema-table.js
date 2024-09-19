@@ -267,7 +267,7 @@ export default class SchemaTable extends LitElement {
             `)}
           `
         }
-        <div>
+        </div>
       `;
     }
 

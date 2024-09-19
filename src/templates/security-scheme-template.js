@@ -601,6 +601,7 @@ export function pathSecurityTemplate(pathSecurity) {
         `)
         }
       </div>
+      </div>
     `;
   }
   return '';

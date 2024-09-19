@@ -92,7 +92,7 @@ export default class ApiResponse extends LitElement {
       </div>
       <div>
         ${this.responseTemplate()}
-      <div>  
+      </div>  
     </div>  
     `;
   }
@@ -165,10 +165,9 @@ export default class ApiResponse extends LitElement {
                   ${respStatus} 
                 </button>`
               }`)
-          }`
+          }</div>`
         : html`<span>${Object.keys(this.responses)[0]}</span>`
       }
-      </div>
 
       ${Object.keys(this.responses).map((status) => html`
         <div style = 'display: ${status === this.selectedStatus ? 'block' : 'none'}' >
@@ -202,7 +201,7 @@ export default class ApiResponse extends LitElement {
                 }
               </div>
             `
-          }`)
+          }</div>`)
         }
     `;
   }
