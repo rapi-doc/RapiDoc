@@ -1,7 +1,7 @@
 
 /**
 * @preserve
-* RapiDoc 9.3.6 - WebComponent to View OpenAPI docs
+* RapiDoc 9.3.7-beta - WebComponent to View OpenAPI docs
 * License: MIT
 * Repo   : https://github.com/rapi-doc/RapiDoc
 * Author : Mrinmoy Majumdar
@@ -5036,8 +5036,8 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
             ` : ''}
           ${flowName === 'password' ? ke`
               <div style="margin:5px 0">
-                <input type="text" value = "" placeholder="username" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} api-key-user" part="textbox textbox-username">
-                <input type="password" value = "" placeholder="password" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} api-key-password" style = "margin:0 5px;" part="textbox textbox-password">
+                <input type="text" value = "" placeholder="username" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} api-key-user" part="textbox textbox-username" id="input-${securitySchemeId}-${flowName}-api-key-user">
+                <input type="password" value = "" placeholder="password" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} api-key-password" style = "margin:0 5px;" part="textbox textbox-password" id="input-${securitySchemeId}-${flowName}-api-key-password">
               </div>` : ''}
           <div>
             ${flowName === 'authorizationCode' ? ke`
@@ -5051,6 +5051,7 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
             <input type="text" part="textbox textbox-auth-client-id" value = "${clientId || ''}" placeholder="client-id" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} oauth-client-id">
             ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password' ? ke`
                 <input
+                  id="${securitySchemeId}-${flowName}-oauth-client-secret"
                   type="password" part="textbox textbox-auth-client-secret"
                   value = "${clientSecret || ''}" placeholder="client-secret" spellcheck="false"
                   class="oauth2 ${flowName} ${securitySchemeId}
@@ -5133,7 +5134,7 @@ function securitySchemeTemplate() {
                     </div>
                     <div style="max-height:28px;">
                       ${v.in !== 'cookie' ? ke`
-                          <input type = "text" value = "${v.value}" class="${v.type} ${v.securitySchemeId} api-key-input" placeholder = "api-token" spellcheck = "false">
+                          <input type = "text" value = "${v.value}" class="${v.type} ${v.securitySchemeId} api-key-input" placeholder = "api-token" spellcheck = "false" id = "${v.type}-${v.securitySchemeId}-api-key-input">
                           <button class="m-btn thin-border" style = "margin-left:5px;"
                             part = "btn btn-outline"
                             @click="${e => {
@@ -5147,8 +5148,8 @@ function securitySchemeTemplate() {
                       Send <code>Authorization</code> in <code>header</code> containing the word <code>Basic</code> followed by a space and a base64 encoded string of <code>username:password</code>.
                     </div>
                     <div>
-                      <input type="text" value = "${v.user}" placeholder="username" spellcheck="false" class="${v.type} ${v.securitySchemeId} api-key-user" style="width:100px">
-                      <input type="password" value = "${v.password}" placeholder="password" spellcheck="false" class="${v.type} ${v.securitySchemeId} api-key-password" style = "width:100px; margin:0 5px;">
+                      <input type="text" value = "${v.user}" placeholder="username" spellcheck="false" class="${v.type} ${v.securitySchemeId} api-key-user" style="width:100px" id = "input-${v.type}-${v.securitySchemeId}-api-key-user">
+                      <input type="password" value = "${v.password}" placeholder="password" spellcheck="false" class="${v.type} ${v.securitySchemeId} api-key-password" style = "width:100px; margin:0 5px;" id = "input-${v.type}-${v.securitySchemeId}-api-key-password">
                       <button class="m-btn thin-border"
                         @click="${e => {
     onApiKeyChange.call(this, v.securitySchemeId, e);
@@ -5259,6 +5260,7 @@ function pathSecurityTemplate(pathSecurity) {
               </div>
             ` : ''}
         `)}
+      </div>
       </div>
     `;
   }
@@ -7684,6 +7686,7 @@ class ApiRequest extends lit_element_h {
             <td style="min-width:100px;" colspan="${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern ? '1' : '2'}">
               ${paramSchema.type === 'array' ? ke`
                   <tag-input class="request-param" 
+                    id = "tag-input-request-param-${param.name}"
                     style = "width:100%" 
                     data-ptype = "${paramType}"
                     data-pname = "${param.name}"
@@ -7712,6 +7715,7 @@ class ApiRequest extends lit_element_h {
                       </div>
                       ${this.activeParameterSchemaTabs[param.name] === 'example' ? ke`<div class="tab-content col">
                           <textarea 
+                            id = "textarea-request-param-${param.name}"
                             class = "textarea request-param"
                             part = "textarea textarea-param"
                             data-ptype = "${paramType}-object"
@@ -7747,6 +7751,7 @@ class ApiRequest extends lit_element_h {
                           </div>`}
                     </div>` : ke`
                     <input type="${paramSchema.format === 'password' ? 'password' : 'text'}" spellcheck="false" style="width:100%" 
+                      id="input-request-param-${param.name}"
                       class="request-param"
                       part="textbox textbox-param"
                       data-ptype="${paramType}"
@@ -7963,7 +7968,7 @@ class ApiRequest extends lit_element_h {
         if (reqBody.mimeType === this.selectedRequestBodyType) {
           reqBodyFileInputHtml = ke`
             <div class = "small-font-size bold-text row">
-              <input type="file" part="file-input" style="max-width:100%" class="request-body-param-file" data-ptype="${reqBody.mimeType}" spellcheck="false" />
+              <input id="input-request-body-param-file" type="file" part="file-input" style="max-width:100%" class="request-body-param-file" data-ptype="${reqBody.mimeType}" spellcheck="false" />
             </div>  
           `;
         }
@@ -8091,7 +8096,7 @@ class ApiRequest extends lit_element_h {
       ${ke`
         <div class="tab-content col" data-tab = 'schema' style="display:${this.activeSchemaTab !== 'example' ? 'block' : 'none'}; padding-left:5px; width:100%;"> 
           <schema-tree
-            .data = '${formdataPartSchema}'
+            .data = "${formdataPartSchema}"
             schema-expand-level = "${this.schemaExpandLevel}"
             schema-description-expanded = "${this.schemaDescriptionExpanded}"
             allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
@@ -8332,7 +8337,7 @@ class ApiRequest extends lit_element_h {
           ${((_this$security = this.security) === null || _this$security === void 0 ? void 0 : _this$security.length) > 0 ? ke`
               ${this.api_keys.length > 0 ? ke`<div style="color:var(--blue); overflow:hidden;"> 
                     ${this.api_keys.length === 1 ? `${(_this$api_keys$ = this.api_keys[0]) === null || _this$api_keys$ === void 0 ? void 0 : _this$api_keys$.typeDisplay} in ${this.api_keys[0].in}` : `${this.api_keys.length} API keys applied`} 
-                  </div>` : ke`<div class="gray-text">Required  <span style="color:var(--red)">(None Applied)</span>`}` : ke`<span class="gray-text"> Not Required </span>`}
+                  </div>` : ke`<div class="gray-text">Required  <span style="color:var(--red)">(None Applied)</span> </div>`}` : ke`<span class="gray-text"> Not Required </span>`}
         </div>
       </div>
       ${this.parameters.length > 0 || this.request_body ? ke`
@@ -9163,7 +9168,7 @@ class SchemaTable extends lit_element_h {
             `;
       })}
           `}
-        <div>
+        </div>
       `;
     }
 
@@ -9360,7 +9365,7 @@ class ApiResponse extends lit_element_h {
       </div>
       <div>
         ${this.responseTemplate()}
-      <div>  
+      </div>  
     </div>  
     `;
   }
@@ -9431,8 +9436,7 @@ class ApiResponse extends lit_element_h {
                   style='margin: 8px 4px 0 0'
                 > 
                   ${respStatus} 
-                </button>`}`)}` : ke`<span>${Object.keys(this.responses)[0]}</span>`}
-      </div>
+                </button>`}`)}</div>` : ke`<span>${Object.keys(this.responses)[0]}</span>`}
 
       ${Object.keys(this.responses).map(status => {
       var _this$responses$statu3, _this$headersForEachR;
@@ -9460,7 +9464,7 @@ class ApiResponse extends lit_element_h {
                       ${this.mimeSchemaTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
                     </div>`}
               </div>
-            `}`;
+            `}</div>`;
     })}
     `;
   }
@@ -10404,7 +10408,7 @@ function endpointBodyTemplate(path) {
   return ke`
   <div part="section-endpoint-body-${path.expanded ? 'expanded' : 'collapsed'}" class='endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}'>
     <div class="summary">
-      ${path.summary ? ke`<div class="title" part="section-endpoint-body-title">${path.summary}<div>` : path.shortSummary !== path.description ? ke`<div class="title" part="section-endpoint-body-title">${path.shortSummary}</div>` : ''}
+      ${path.summary ? ke`<div class="title" part="section-endpoint-body-title">${path.summary}</div>` : path.shortSummary !== path.description ? ke`<div class="title" part="section-endpoint-body-title">${path.shortSummary}</div>` : ''}
       ${path.xBadges && ((_path$xBadges = path.xBadges) === null || _path$xBadges === void 0 ? void 0 : _path$xBadges.length) > 0 ? ke`
           <div style="display:flex; flex-wrap:wrap;font-size: var(--font-size-small);">
             ${path.xBadges.map(v => ke`<span part="endpoint-badge" style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`)}
@@ -10775,6 +10779,7 @@ function searchByPropertiesModalTemplate() {
     >
       <span class="advanced-search-options">
         <input
+          id="input-advanced-search-dialog"
           style="width:100%; padding-right:20px;"
           type="text"
           part="textbox textbox-search-dialog"
@@ -20415,7 +20420,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("f781d73f078a7c1c430d")
+/******/ 		__webpack_require__.h = () => ("d8ece5077f89e99a0230")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
