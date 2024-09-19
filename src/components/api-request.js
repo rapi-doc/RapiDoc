@@ -2,6 +2,7 @@ import { LitElement, html, css } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { guard } from 'lit/directives/guard.js'; // eslint-disable-line import/extensions
 import { live } from 'lit/directives/live.js'; // eslint-disable-line import/extensions
+import {ifDefined} from 'lit/directives/if-defined.js';
 import { marked } from 'marked';
 import formatXml from 'xml-but-prettier';
 import Prism from 'prismjs';
@@ -1063,7 +1064,7 @@ export default class ApiRequest extends LitElement {
           ? html`
             <div class="tab-content col" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};">
               ${this.responseBlobType === 'image'
-                ? html`<img style="max-height:var(--resp-area-height, 400px); object-fit:contain;" class="mar-top-8" src="${this.responseBlobUrl}"></img>`
+                ? html`<img style="max-height:var(--resp-area-height, 400px); object-fit:contain;" class="mar-top-8" src="${ifDefined(this.responseBlobUrl)}"></img>`
                 : ''
               }  
               <button class="m-btn thin-border mar-top-8" style="width:135px" @click='${(e) => { downloadResource(this.responseBlobUrl, this.respContentDisposition, e); }}' part="btn btn-outline">
