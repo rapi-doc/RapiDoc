@@ -1018,7 +1018,7 @@ export default class ApiRequest extends LitElement {
   curlSyntaxTemplate(display = 'flex') {
     return html`
       <div class="col m-markdown" style="flex:1; display:${display}; position:relative; max-width: 100%;">
-        <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.curlSyntax.replace(/\\$/, ''), e); }}' part="btn btn-fill"> Copy </button>
+        <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.curlSyntax.trim().replace(/\\$/, ''), e); }}' part="btn btn-fill"> Copy </button>
         <pre style="white-space:pre"><code>${unsafeHTML(Prism.highlight(this.curlSyntax.trim().replace(/\\$/, ''), Prism.languages.shell, 'shell'))}</code></pre>
       </div>
       `;
@@ -1552,11 +1552,11 @@ export default class ApiRequest extends LitElement {
           if (filenameStarRegexMatch) {
             filenameFromContentDeposition = decodeURIComponent(filenameStarRegexMatch[1]); // the filename* format in the Content-Disposition header follows RFC 5987, which allows encoding non-ASCII characters using percent encoding. so example%20file.pdf becomes example file.pdf
           } else {
-              // Fallback to the regular filename format
-              const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/); // Content-Disposition: attachment; filename=example.pdf
-              if (filenameMatch) {
-                filenameFromContentDeposition = filenameMatch[1];
-              }
+            // Fallback to the regular filename format
+            const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/); // Content-Disposition: attachment; filename=example.pdf
+            if (filenameMatch) {
+              filenameFromContentDeposition = filenameMatch[1];
+            }
           }
           this.respContentDisposition = filenameFromContentDeposition;
           respBlob = await fetchResponse.blob();
