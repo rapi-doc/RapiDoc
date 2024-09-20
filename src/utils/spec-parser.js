@@ -141,7 +141,7 @@ export default async function ProcessSpec(specUrl, generateMissingTags = false, 
   } else {
     jsonParsedSpec.servers = [{ url: 'http://localhost', computedUrl: 'http://localhost' }];
   }
-  servers = jsonParsedSpec.servers;
+  servers = jsonParsedSpec.servers; // eslint-disable-line prefer-destructuring
   const parsedSpec = {
     specLoadError: false,
     isSpecLoading: false,
