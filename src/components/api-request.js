@@ -1547,7 +1547,18 @@ export default class ApiRequest extends LitElement {
         }
         if (this.responseIsBlob) {
           const contentDisposition = fetchResponse.headers.get('content-disposition');
-          this.respContentDisposition = contentDisposition ? contentDisposition.split('filename=')[1].replace(/"|'/g, '') : 'filename';
+          let filenameFromContentDeposition = 'filename';
+          const filenameStarRegexMatch = contentDisposition.match(/filename\*=\s*UTF-8''([^;]+)/); // Support Headers like >>> Content-Disposition: attachment; filename*=UTF-8''example%20file.pdf
+          if (filenameStarRegexMatch) {
+            filenameFromContentDeposition = decodeURIComponent(filenameStarRegexMatch[1]); // the filename* format in the Content-Disposition header follows RFC 5987, which allows encoding non-ASCII characters using percent encoding. so example%20file.pdf becomes example file.pdf
+          } else {
+              // Fallback to the regular filename format
+              const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/); // Content-Disposition: attachment; filename=example.pdf
+              if (filenameMatch) {
+                filenameFromContentDeposition = filenameMatch[1];
+              }
+          }
+          this.respContentDisposition = filenameFromContentDeposition;
           respBlob = await fetchResponse.blob();
           this.responseBlobUrl = URL.createObjectURL(respBlob);
         }
