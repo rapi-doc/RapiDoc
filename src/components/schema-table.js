@@ -199,7 +199,7 @@ export default class SchemaTable extends LitElement {
         ${newSchemaLevel >= 0 && key
           ? html`
             <div class='tr ${newSchemaLevel <= this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type']}' data-obj='${keyLabel}' title="${isDeprecated || data['::deprecated'] ? 'Deprecated' : ''}">
-              <div class="td key ${isDeprecated || data['::deprecated'] ? 'deprecated' : ''}" style='padding-left:${leftPadding}px'>
+              <div class="td key ${(isDeprecated || data['::deprecated']) ? 'deprecated' : ''}" style='padding-left:${leftPadding}px'>
                 ${(keyLabel || keyDescr)
                   ? html`
                     <span class='obj-toggle ${newSchemaLevel < this.schemaExpandLevel ? 'expanded' : 'collapsed'}' data-obj='${keyLabel}'>
@@ -210,8 +210,8 @@ export default class SchemaTable extends LitElement {
                 ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION')
                   ? html`<span class="xxx-of-key" style="margin-left:-6px">${keyLabel}</span><span class="${isOneOfLabel ? 'xxx-of-key' : 'xxx-of-descr'}">${keyDescr}</span>`
                   : keyLabel.endsWith('*')
-                    ? html`<span class="key-label" style="display:inline-block; margin-left:-6px;">${isDeprecated || data['::deprecated'] ? '✗' : ''} ${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>`
-                    : html`<span class="key-label" style="display:inline-block; margin-left:-6px;">${isDeprecated || data['::deprecated'] ? '✗' : ''} ${keyLabel === '::props' ? '' : keyLabel}</span>`
+                    ? html`<span class="key-label" style="display:inline-block; margin-left:-6px;">${(isDeprecated || data['::deprecated']) ? '✗' : ''} ${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>`
+                    : html`<span class="key-label" style="display:inline-block; margin-left:-6px;">${(isDeprecated || data['::deprecated']) ? '✗' : ''} ${keyLabel === '::props' ? '' : keyLabel}</span>`
                 }
                 ${data['::type'] === 'xxx-of' && dataType === 'array' ? html`<span style="color:var(--primary-color)">ARRAY</span>` : ''} 
               </div>
@@ -250,6 +250,7 @@ export default class SchemaTable extends LitElement {
                       newSchemaLevel,
                       newIndentLevel,
                       data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '',
+                      (isDeprecated || data[dataKey]['::deprecated']),
                     )}`
                   : ''
                 : html`${this.generateTree(
@@ -261,7 +262,7 @@ export default class SchemaTable extends LitElement {
                   newSchemaLevel,
                   newIndentLevel,
                   data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '',
-                  isDeprecated || data[dataKey]['::deprecated'],
+                  (isDeprecated || data[dataKey]['::deprecated']),
                 )}`
               }
             `)}

@@ -121,7 +121,7 @@ export default class SchemaTree extends LitElement {
     `;
   }
 
-  generateTree(data, dataType = 'object', arrayType = '', key = '', description = '', schemaLevel = 0, indentLevel = 0, readOrWrite = '') {
+  generateTree(data, dataType = 'object', arrayType = '', key = '', description = '', schemaLevel = 0, indentLevel = 0, readOrWrite = '', isDeprecated = false) {
     if (this.schemaHideReadOnly === 'true') {
       if (dataType === 'array') {
         if (readOrWrite === 'readonly') {
@@ -212,15 +212,15 @@ export default class SchemaTree extends LitElement {
     }
     if (typeof data === 'object') {
       return html`
-        <div class="tr ${schemaLevel < this.schemaExpandLevel || data['::type']?.startsWith('xxx-of') ? 'expanded' : 'collapsed'} ${data['::type'] || 'no-type-info'}${data['::nullable'] ? ' nullable' : ''}" title="${data['::deprecated'] ? 'Deprecated' : ''}">
-          <div class="td key ${data['::deprecated'] ? 'deprecated' : ''}" style='min-width:${minFieldColWidth}px'>
+        <div class="tr ${schemaLevel < this.schemaExpandLevel || data['::type']?.startsWith('xxx-of') ? 'expanded' : 'collapsed'} ${data['::type'] || 'no-type-info'}${data['::nullable'] ? ' nullable' : ''}" title="${(isDeprecated || data['::deprecated']) ? 'Deprecated' : ''}">
+          <div class="td key ${(isDeprecated || data['::deprecated']) ? 'deprecated' : ''}" style='min-width:${minFieldColWidth}px'>
             ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION')
               ? html`<span class='key-label xxx-of-key'> ${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>`
               : keyLabel === '::props' || keyLabel === '::ARRAY~OF'
                 ? ''
                 : schemaLevel > 0
                   ? html`<span class="key-label" title="${readOrWrite === 'readonly' ? 'Read-Only' : readOrWrite === 'writeonly' ? 'Write-Only' : ''}">
-                      ${data['::deprecated'] ? '✗' : ''}
+                      ${(isDeprecated || data['::deprecated']) ? '✗' : ''}
                       ${keyLabel.replace(/\*$/, '')}${keyLabel.endsWith('*') ? html`<span style="color:var(--red)">*</span>` : ''}${readOrWrite === 'readonly' ? html` 🆁` : readOrWrite === 'writeonly' ? html` 🆆` : readOrWrite}:
                     </span>`
                   : ''
@@ -231,7 +231,7 @@ export default class SchemaTree extends LitElement {
         </div>
         <div class='inside-bracket ${data['::type'] || 'no-type-info'}' style='padding-left:${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' ? 0 : leftPadding}px;'>
           ${Array.isArray(data) && data[0]
-            ? html`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, data[0]['::readwrite'])}`
+            ? html`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, data[0]['::readwrite'], (isDeprecated || data[0]['::deprecated']))}`
             : html`
               ${Object.keys(data).map((dataKey) => html`
                 ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite', '::dataTypeLabel', '::nullable'].includes(dataKey)
@@ -245,6 +245,7 @@ export default class SchemaTree extends LitElement {
                         newSchemaLevel,
                         newIndentLevel,
                         data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '',
+                        (isDeprecated || data[dataKey]['::deprecated']),
                       )}`
                     : ''
                   : html`${this.generateTree(
@@ -256,6 +257,7 @@ export default class SchemaTree extends LitElement {
                     newSchemaLevel,
                     newIndentLevel,
                     data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '',
+                    (isDeprecated || data[dataKey]['::deprecated']),
                   )}`
                 }
               `)}
@@ -300,8 +302,8 @@ export default class SchemaTree extends LitElement {
 
     return html`
       <div class = "tr primitive" title="${deprecated ? 'Deprecated' : ''}">
-        <div class="td key ${deprecated}" style='min-width:${minFieldColWidth}px'>
-          ${deprecated ? html`<span style='color:var(--red);'>✗</span>` : ''}
+        <div class="td key ${isDeprecated || deprecated}" style='min-width:${minFieldColWidth}px'>
+          ${isDeprecated || deprecated ? html`<span style='color:var(--red);'>✗</span>` : ''}
           ${keyLabel.endsWith('*')
             ? html`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>:`
             : key.startsWith('::OPTION')
