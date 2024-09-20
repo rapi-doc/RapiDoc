@@ -2,7 +2,7 @@ import { LitElement, html, css } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { guard } from 'lit/directives/guard.js'; // eslint-disable-line import/extensions
 import { live } from 'lit/directives/live.js'; // eslint-disable-line import/extensions
-import {ifDefined} from 'lit/directives/if-defined.js';
+import { ifDefined } from 'lit/directives/if-defined.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
 import formatXml from 'xml-but-prettier';
 import Prism from 'prismjs';

@@ -21,8 +21,8 @@ export default function setTheme(baseTheme, theme = {}) {
     const fg3 = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, -20); // or #aaa
     const lightFg = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, -65); // or #777
     const inlineCodeFg = theme.inlineCodeFg ? theme.inlineCodeFg : '#aaa';
-    const selectionBg = '#bbb';
-    const selectionFg = '#eee';
+    const selectionBg = fg2;
+    const selectionFg = bg2;
 
     const headerColor = theme.headerColor ? theme.headerColor : ColorUtils.color.brightness(bg1, 10);
 
@@ -107,10 +107,8 @@ export default function setTheme(baseTheme, theme = {}) {
     const fg3 = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, 30); // or #666
     const lightFg = theme.fg3 ? theme.fg3 : ColorUtils.color.brightness(fg1, 70); // or #999
     const inlineCodeFg = theme.inlineCodeFg ? theme.inlineCodeFg : 'brown';
-
-    const selectionBg = '#444';
-    const selectionFg = '#eee';
-
+    const selectionBg = fg2;
+    const selectionFg = bg2;
     const headerColor = theme.headerColor ? theme.headerColor : ColorUtils.color.brightness(bg1, -180);
 
     /*
