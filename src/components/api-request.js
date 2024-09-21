@@ -354,7 +354,7 @@ export default class ApiRequest extends LitElement {
       let paramStyle = 'form';
       let paramExplode = true;
       let paramAllowReserved = false;
-      if (paramType === 'query') {
+      if (paramType === 'query' || paramType === 'header' || paramType === 'path') {
         if (param.style && 'form spaceDelimited pipeDelimited'.includes(param.style)) {
           paramStyle = param.style;
         } else if (serializeStyle) {
@@ -443,46 +443,46 @@ export default class ApiRequest extends LitElement {
                         <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
                         <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
                       </div>
-                      ${this.activeParameterSchemaTabs[param.name] === 'example'
-                        ? html`<div class="tab-content col">
-                          <textarea 
-                            id = "textarea-request-param-${param.name}"
-                            class = "textarea request-param"
-                            part = "textarea textarea-param"
-                            data-ptype = "${paramType}-object"
-                            data-pname = "${param.name}"
-                            data-example = "${example.exampleVal}"
-                            data-param-serialize-style = "${paramStyle}"
-                            data-param-serialize-explode = "${paramExplode}"
-                            data-param-allow-reserved = "${paramAllowReserved}"
-                            data-x-fill-example = "${param['x-fill-example'] || 'yes'}"
-                            spellcheck = "false"
-                            .textContent="${param['x-fill-example'] === 'no' ? '' : live(this.fillRequestFieldsWithExample === 'true' ? (typeof example.exampleVal === 'object' ? JSON.stringify(example.exampleVal, null, 2) : example.exampleVal) : '')}"
-                            style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
-                            @input=${(e) => {
-                              const requestPanelEl = this.getRequestPanel(e);
-                              this.liveCURLSyntaxUpdate(requestPanelEl);
-                            }}
-                          ></textarea>
-                        </div>`
-                        : html`
-                          <div class="tab-content col">
-                            <schema-tree
-                              class = 'json'
-                              style = 'display: block'
-                              .data = '${schemaAsObj}'
-                              schema-expand-level = "${this.schemaExpandLevel}"
-                              schema-description-expanded = "${this.schemaDescriptionExpanded}"
-                              allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
-                              schema-hide-read-only = "${this.schemaHideReadOnly.includes(this.method)}"
-                              schema-hide-write-only = "${this.schemaHideWriteOnly.includes(this.method)}"
-                              exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
-                                file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
-                                anchor:anchor, anchor-param-example:anchor-param-example"
-                            > </schema-tree>
-                          </div>`
-                        }
-                    </div>`
+
+                    ${html`<div class="tab-content col" data-tab = 'example' style="display:${this.activeParameterSchemaTabs[param.name] === 'example' ? 'block' : 'none'}; padding-left:5px; width:100%">
+                        <textarea 
+                          id = "textarea-request-param-${param.name}"
+                          class = "textarea request-param"
+                          part = "textarea textarea-param"
+                          data-ptype = "${paramType}-object"
+                          data-pname = "${param.name}"
+                          data-example = "${example.exampleVal}"
+                          data-param-serialize-style = "${paramStyle}"
+                          data-param-serialize-explode = "${paramExplode}"
+                          data-param-allow-reserved = "${paramAllowReserved}"
+                          data-x-fill-example = "${param['x-fill-example'] || 'yes'}"
+                          spellcheck = "false"
+                          .textContent="${param['x-fill-example'] === 'no' ? '' : live(this.fillRequestFieldsWithExample === 'true' ? (typeof example.exampleVal === 'object' ? JSON.stringify(example.exampleVal, null, 2) : example.exampleVal) : '')}"
+                          style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
+                          @input=${(e) => {
+                            const requestPanelEl = this.getRequestPanel(e);
+                            this.liveCURLSyntaxUpdate(requestPanelEl);
+                          }}
+                        ></textarea>
+                      </div>`
+                    }
+                    ${html`<div class="tab-content col" data-tab = 'schema' style="display:${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'block' : 'none'}; padding-left:5px; width:100%;">
+                        <schema-tree
+                          class = 'json'
+                          style = 'display: block'
+                          .data = '${schemaAsObj}'
+                          schema-expand-level = "${this.schemaExpandLevel}"
+                          schema-description-expanded = "${this.schemaDescriptionExpanded}"
+                          allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
+                          schema-hide-read-only = "${this.schemaHideReadOnly.includes(this.method)}"
+                          schema-hide-write-only = "${this.schemaHideWriteOnly.includes(this.method)}"
+                          exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
+                            file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
+                            anchor:anchor, anchor-param-example:anchor-param-example"
+                        > </schema-tree>
+                      </div>`
+                    }
+                  </div>`
                   : html`
                     <input type="${paramSchema.format === 'password' ? 'password' : 'text'}" spellcheck="false" style="width:100%" 
                       id="input-request-param-${param.name}"
@@ -1305,7 +1305,7 @@ export default class ApiRequest extends LitElement {
 
   buildFetchHeaders(requestPanelEl) {
     const respEl = this.closest('.expanded-req-resp-container, .req-resp-container')?.getElementsByTagName('api-response')[0];
-    const headerParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='header']")];
+    const headerParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='header'], [data-ptype='header-object']")];
     const requestBodyContainerEl = requestPanelEl.querySelector('.request-body-container');
     const acceptHeader = respEl?.selectedMimeType;
     const reqHeaders = new Headers();
@@ -1326,7 +1326,38 @@ export default class ApiRequest extends LitElement {
     // Add Header Params
     headerParamEls.map((el) => {
       if (el.value) {
-        reqHeaders.append(el.dataset.pname, el.value);
+        if (el.dataset.ptype === 'header-object') {
+          /* CONVERT
+            a header value from below object style
+              {
+                "key1": "val1",
+                "key2": {
+                  "key2_1": "val2_1",
+                  "key2_2": {
+                    "key2_2_1": "val2_2_1"
+                  }
+                },
+                "key3": "val3"
+              };
+
+            TO >>>
+              key1=val1, key2={"key2_1":"val2_1","key2_2":{"key2_2_1":"val2_2_1"}}, key3=val3
+          */
+          const headerObjVal = JSON.parse(el.value.replace(/\n/g, '').trim());
+          const firstLevelKeySeparator = el.dataset.paramSerializeExplode === 'true' ? '=' : ',';
+          const headerStrVal = Object.keys(headerObjVal)
+            .map((key) => {
+              const value = headerObjVal[key];
+              if (typeof value === 'object') {
+                return `${key}${firstLevelKeySeparator}${JSON.stringify(value)}`;
+              }
+              return `${key}${firstLevelKeySeparator}${value}`;
+            })
+            .join(',');
+          reqHeaders.append(el.dataset.pname, headerStrVal);
+        } else {
+          reqHeaders.append(el.dataset.pname, el.value);
+        }
       }
     });
 
@@ -1338,7 +1369,6 @@ export default class ApiRequest extends LitElement {
         reqHeaders.append('Content-Type', requestBodyType);
       }
     }
-
     return reqHeaders;
   }
 
@@ -1650,7 +1680,7 @@ export default class ApiRequest extends LitElement {
       fetchHeaders.set(key, tempHeaderArray.join(', '));
     });
 
-    curlHeaders = Array.from(fetchHeaders).map(([key, value]) => ` -H "${key}: ${value}"`).join('\\\n');
+    curlHeaders = Array.from(fetchHeaders).map(([key, value]) => ` -H '${key}: ${value}'`).join('\\\n');
     if (curlHeaders) {
       curlHeaders = `${curlHeaders} \\\n`;
     }
