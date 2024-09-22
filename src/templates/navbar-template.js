@@ -45,6 +45,16 @@ export function navBarClickAndEnterHandler(event) {
   event.stopPropagation();
   if (navEl.dataset?.action === 'navigate') {
     this.scrollToEventTarget(event, false);
+    const tagAndPathEl = navEl?.closest('.nav-bar-tag-and-paths');
+    let wasExpanded = false;
+    if (tagAndPathEl) {
+      wasExpanded = tagAndPathEl.classList.contains('expanded');
+    }
+    expandCollapseAll(event, 'collapse-all');
+    expandCollapseNavBarTag(navEl, 'toggle');
+    if (wasExpanded) {
+      expandCollapseNavBarTag(navEl, 'toggle');
+    }
   } else if (navEl.dataset?.action === 'expand-all' || (navEl.dataset?.action === 'collapse-all')) {
     expandCollapseAll(event, navEl.dataset.action);
   } else if (navEl.dataset?.action === 'expand-collapse-tag') {
@@ -182,7 +192,7 @@ export default function navbarTemplate() {
                   tabindex='0'
                 >
                   <div style="pointer-events:none;">${tag.displayName || tag.name}</div>
-                  <div class='nav-bar-tag-icon' tabindex='0' data-action='expand-collapse-tag'></div>
+                  <div class='nav-bar-tag-icon' style="pointer-events:none;"></div>
                 </div>
               `
             }
