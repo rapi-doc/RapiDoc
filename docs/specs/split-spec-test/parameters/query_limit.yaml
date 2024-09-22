@@ -1,0 +1,9 @@
+name: limit
+in: query
+description: |
+  Limit the number of returned results to this number of elements.
+  Must be an integer greater than 0.
+required: false
+schema:
+  type: number
+example: 5

@@ -1,0 +1,63 @@
+<!doctype html>
+<!-- Source: https://rapidocweb.com/index.html -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes"
+    />
+    <link rel="icon" type="image/x-icon" href="/ui/favicon.ico" />
+    <script
+      type="module"
+      src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"
+    ></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto+Mono"
+      rel="stylesheet"
+    />
+    <title>EvE-Scout Backend API v2</title>
+  </head>
+  <body>
+    <rapi-doc
+      spec-url="./openapi.yaml"
+      update-route="true"
+      sort-tags="true"
+      sort-endpoints-by="path"
+      persist-auth="false"
+      theme="dark"
+      bg-color="#191c24"
+      text-color="#aaa"
+      primary-color="#58a7bf"
+      regular-font="Inter"
+      mono-font="Roboto Mono"
+      show-method-in-nav-bar="as-colored-block"
+      nav-bg-color="#191c24"
+      nav-hover-bg-color="#2a2d3a"
+      nav-hover-text-color="#58a7bf"
+      nav-text-color="#aaa"
+      nav-accent-color="red"
+      nav-accent-text-color="orange"
+      nav-item-spacing="compact"
+      render-style="focused"
+      info-description-headings-in-navbar="true"
+      show-header="false"
+      allow-search="false"
+      allow-try="false"
+      allow-server-selection="false"
+      schema-description-expanded="true"
+      default-schema-tab="schema"
+    >
+      <div
+        slot="nav-logo"
+        style="display: flex; align-items: center; justify-content: center"
+      >
+        <img src="./eve-scout-partner.png" style="width: 150px" />
+      </div>
+    </rapi-doc>
+  </body>
+</html>

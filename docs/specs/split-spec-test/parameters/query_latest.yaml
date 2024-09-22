@@ -1,0 +1,6 @@
+name: latest
+in: query
+description: If set to `true` only the latest record per object is returned.
+schema:
+  type: boolean
+example: true

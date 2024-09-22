@@ -1,0 +1,30 @@
+get:
+  parameters:
+    - $ref: "../../parameters/query_limit.yaml"
+    - $ref: "../../parameters/query_string.yaml"
+    - $ref: "../../parameters/query_space.yaml"
+  operationId: listSystemsPublic
+  tags: [Systems]
+  summary: List systems
+  description: |
+    List all systems filtered by the specified parameters
+  x-badges:
+    - color: green
+      label: "public"
+  responses:
+    "200":
+      description: A list of `system` resources, may be empty.
+      headers:
+        Cache-Control:
+          description: "The TTL for this resource is 86400 seconds"
+          schema:
+            type: string
+            example: "max-age=86400"
+      content:
+        application/json:
+          schema:
+            $ref: "../../schemas/systems.yaml"
+    "400":
+      $ref: "../../responses/400.yaml"
+    "503":
+      $ref: "../../responses/503.yaml"

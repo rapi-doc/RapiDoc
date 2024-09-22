@@ -1,0 +1,108 @@
+get:
+  operationId: getUserProperties
+  tags: [Properties]
+  summary: Get Properties
+  description: |
+    Return all properties for the current user, e.g. dark mode on/off, order
+    of table columns, whatever the frontend would like to store per user
+    across sessions.
+  x-badges:
+    - color: orange
+      label: "private"
+  security:
+    - eve-sso: [user]
+  responses:
+    "200":
+      description: A HashMap of properties, may be empty.
+      content:
+        application/json:
+          schema:
+            $ref: "../../schemas/properties.yaml"
+    "401":
+      $ref: "../../responses/401.yaml"
+    "503":
+      $ref: "../../responses/503.yaml"
+put:
+  operationId: setUserProperties
+  tags: [Properties]
+  summary: Replace Properties
+  description: |
+    Replace all properties for the current user.
+  x-badges:
+    - color: orange
+      label: "private"
+  security:
+    - eve-sso: [user]
+  requestBody:
+    description: |
+      Request body should be a HashMap of properties to set.
+    content:
+      application/json:
+        schema:
+          $ref: "../../schemas/properties.yaml"
+    required: true
+  responses:
+    "201":
+      description: |
+        New properties resource has been created. The full set of properties
+        for the current user will be returned in the response body.
+      content:
+        application/json:
+          schema:
+            $ref: "../../schemas/properties.yaml"
+    "200":
+      description: |
+        Existing properties resource has been replaced. The full set of
+        properties for the current user will be returned in the response
+        body.
+      content:
+        application/json:
+          schema:
+            $ref: "../../schemas/properties.yaml"
+    "400":
+      $ref: "../../responses/400.yaml"
+    "401":
+      $ref: "../../responses/401.yaml"
+    "503":
+      $ref: "../../responses/503.yaml"
+patch:
+  operationId: patchUserProperties
+  tags: [Properties]
+  summary: Patch Properties
+  description: |
+    Update properties present in the request body. To remove a property,
+    pass `null` as the value.
+  x-badges:
+    - color: orange
+      label: "private"
+  security:
+    - eve-sso: [user]
+  requestBody:
+    description: |
+      Request body should be a HashMap of properties that should be updated.
+      Pass `null` for properties that should be deleted.
+    content:
+      application/merge-patch+json:
+        schema:
+          $ref: "../../schemas/properties.yaml"
+        example:
+          dark-mode: on
+          timezone: null
+    required: true
+  responses:
+    "200":
+      description: |
+        Properties resource has been patched. The full set of properties for
+        the current user will be returned in the response body.
+      content:
+        application/json:
+          schema:
+            $ref: "../../schemas/properties.yaml"
+          example:
+            dark-mode: on
+    "400":
+      $ref: "../../responses/400.yaml"
+    "401":
+      $ref: "../../responses/401.yaml"
+    "503":
+      $ref: "../../responses/503.yaml"

@@ -1,0 +1,31 @@
+type: object
+properties:
+  jove_observatory:
+    type: boolean
+    required: false
+  region_id:
+    type: integer
+    format: int64
+    required: true
+    example: 10000067
+  region_name:
+    type: string
+    required: true
+    example: Genesis
+  security_status:
+    type: number
+    format: float
+    required: true
+    example: 0.5
+  system_class:
+    required: true
+    $ref: "./system_class.yaml"
+  system_id:
+    type: integer
+    format: int64
+    required: true
+    example: 30005221
+  system_name:
+    type: string
+    required: true
+    example: Zoohen

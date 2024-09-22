@@ -1,0 +1,23 @@
+name: preference
+in: query
+description: |
+  Set the preference on how the route will be calculated. If not specified, it will default to `safer`.
+
+  Route Preference (note that wormholes are always included):
+
+  **safer**
+  Use high security space (0.5 to 1.0) where possible
+
+  **shortest**
+  Use the shortest possible route regardless of system security status
+
+  **shortest-gates**
+  Use the shortest possible route with a preference towards using gates
+required: false
+schema:
+  type: string
+  enum:
+    - prefer-safer
+    - shortest
+    - shortest-gates
+example: prefer-safer

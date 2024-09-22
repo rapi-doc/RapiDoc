@@ -1,0 +1,71 @@
+get:
+  parameters:
+    - $ref: "../../../parameters/query_from_system.yaml"
+  operationId: routeHighSecPublic
+  tags: [Routes]
+  summary: Routes to high-sec
+  description: |
+    Calculate up to five routes to the closest high-sec systems from the provided system.
+    The routing algorithm removes all routes which have overlapping routes, e.g. if
+    e.g. in route A->B->C systems B and C would be high-sec systems, A->B would be returned,
+    while A->B->C would be omitted.
+  x-badges:
+    - color: green
+      label: "public"
+  responses:
+    "200":
+      description: The five shortest routes and their details.
+      headers:
+        Cache-Control:
+          description: "The TTL for this resource is 300 seconds"
+          schema:
+            type: string
+            example: "max-age=300"
+      content:
+        application/json:
+          schema:
+            $ref: "../../../schemas/routes.yaml"
+          example:
+            - from: "Straloin"
+              to: "Ondree"
+              jumps: 1
+              route:
+                - system_id: 30003607
+                  system_name: "Straloin"
+                  region_id: 10000044
+                  region_name: "Solitude"
+                  system_class: "ls"
+                  security_status: 0.2
+                - system_id: 30003603
+                  system_name: "Ondree"
+                  region_id: 10000044
+                  region_name: "Solitude"
+                  system_class: "hs"
+                  security_status: 0.5
+            - from: "Straloin"
+              to: "Eggheron"
+              jumps: 2
+              route:
+                - system_id: 30003607
+                  system_name: "Straloin"
+                  region_id: 10000044
+                  region_name: "Solitude"
+                  system_class: "ls"
+                  security_status: 0.2
+                - system_id: 30003606
+                  system_name: "Toustain"
+                  region_id: 10000044
+                  region_name: "Solitude"
+                  system_class: "ls"
+                  security_status: 0.4
+                - system_id: 30003605
+                  system_name: "Eggheron"
+                  region_id: 10000044
+                  region_name: "Solitude"
+                  system_class: "hs"
+                  security_status: 0.5
+
+    "400":
+      $ref: "../../../responses/400.yaml"
+    "503":
+      $ref: "../../../responses/503.yaml"

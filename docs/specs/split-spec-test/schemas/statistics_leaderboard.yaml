@@ -1,0 +1,44 @@
+type: array
+items:
+  type: object
+  properties:
+    date:
+      description: Date of the data point; if the precision is not daily, it's the first day of the week or month.
+      type: string
+      format: date
+      required: true
+      example: 2023-11-22
+    pilots:
+      type: array
+      items:
+        type: object
+        properties:
+          character_id:
+            description: An EVE character ID
+            type: integer
+            format: int64
+            required: true
+            example: 96293852
+          character_name:
+            description: The character’s name
+            type: string
+            required: true
+            example: "Sky Diamond"
+          signatures:
+            description: Number of signatures scanned during the timespan, including wormholes.
+            type: integer
+            format: int64
+            required: true
+            example: 47
+          wormholes:
+            description: Number of wormhole signatures scanned during the timespan.
+            type: integer
+            format: int64
+            required: true
+            example: 14
+          wormholes_completed:
+            description: Number of wormhole signatures completed during the timespan.
+            type: integer
+            format: int64
+            required: true
+            example: 14

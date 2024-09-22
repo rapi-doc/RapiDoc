@@ -1,0 +1,29 @@
+description: Modify an already existing signature. One or more of the properties may be present.
+type: object
+properties:
+  comment:
+    description: Internal comment for this signature, in case pilots have some special information to share.
+    type: string
+    example: Here there be dragons.
+  in_signature:
+    description: The signature itself.
+    type: string
+    example: TFO-265
+  in_system_name:
+    description: The system in which the signature is found.
+    type: string
+    example: Zoohen
+  set_eol:
+    description: If set to `true`, the signatures expiry time will be recalculated (4h from now)
+    type: boolean
+    example: false
+  wh_exits_outward:
+    description: |
+      If set to `true`, it's expected that the assigned wormhole type is on the Thera/Turnur
+      side of the signature and K162 is on the other side of the signature.
+    type: boolean
+    example: false
+  wh_type:
+    description: The wormhole type for this signature.
+    type: string
+    example: C140

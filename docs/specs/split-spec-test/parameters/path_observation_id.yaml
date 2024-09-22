@@ -1,0 +1,9 @@
+name: tracking-id
+in: path
+description: |
+  The tracking-id uniquely identifies a tracking data record in the database.
+required: true
+schema:
+  type: integer
+  format: int64
+example: 4711

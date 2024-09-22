@@ -1,0 +1,29 @@
+get:
+  operationId: getClaimsCollection
+  parameters:
+    - $ref: "../../parameters/query_system_name_required.yaml"
+  tags: [Claims]
+  summary: List claims
+  description: |
+    List all resources in the `claims` collection filtered by `system-name`.
+  x-badges:
+    - color: orange
+      label: "private"
+  security:
+    - eve-sso: [user]
+  responses:
+    "200":
+      description: List of signatures which are currently claimed.
+      content:
+        application/json:
+          schema:
+            $ref: "../../schemas/claims.yaml"
+          example:
+            - signature_id: 1420
+              exprites_at: "2023-09-25T12:18:47.000Z"
+            - signature_id: 1421
+              exprites_at: "2023-09-25T13:34:13.000Z"
+    "401":
+      $ref: "../../responses/401.yaml"
+    "503":
+      $ref: "../../responses/503.yaml"

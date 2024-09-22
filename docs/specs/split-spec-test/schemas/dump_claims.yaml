@@ -1,0 +1,37 @@
+type: array
+items:
+  type: object
+  properties:
+    cache_key:
+      description: |
+        Unique key of the object in the cache.
+      type: string
+    ttl:
+      description: |
+        Remaining Time To Live (TTL) of the cache object in milliseconds.
+      type: number
+    id:
+      description: |
+        A unique, numeric ID assigned to each claim.
+      type: integer
+      format: int64
+      example: 815
+    signature_id:
+      description: |
+        A unique, numeric ID assigned to this signature when it was added
+        to the system. This is used for PATCH and DELETE operations.
+      type: integer
+      format: int64
+      example: 1420
+    character_id:
+      description: |
+        The in-game character ID of the user that completed scanning for
+        this signature.
+      type: integer
+      format: int64
+      example: 96293852
+    expires_at:
+      description: |
+        The time when the signature will expire.
+      type: string
+      example: "2023-11-12T09:23:44.000Z"

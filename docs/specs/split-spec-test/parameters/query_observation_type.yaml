@@ -1,0 +1,5 @@
+name: tracking_type
+in: query
+description: Filter objects to a specific tracking type.
+schema:
+  $ref: "../schemas/observation_type.yaml"

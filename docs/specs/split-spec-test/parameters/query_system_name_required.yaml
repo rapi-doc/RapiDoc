@@ -1,0 +1,10 @@
+name: system_name
+in: query
+description: Filter by system name, MUST be one of "thera" or "turnur".
+required: true
+schema:
+  type: string
+  enum:
+    - thera
+    - turnur
+example: turnur

@@ -1,0 +1,30 @@
+type: array
+items:
+  type: object
+  properties:
+    method:
+      description: |
+        HTTP method for this data point, like GET, POST etc.
+      type: string
+    path:
+      description: |
+        URI of the endpoint of this data point.
+      type: string
+    status:
+      description: |
+        HTTP status code for this data point.
+      type: integer
+      format: int32
+      example: 200
+    count:
+      description: |
+        Number of times this data point has been called.
+      type: integer
+      format: int32
+      example: 24
+    transaction_time:
+      description: |
+        Transaction time of this endpoint for all its calls in milliseconds.
+      type: integer
+      format: int32
+      example: 3742

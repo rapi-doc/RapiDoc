@@ -1,0 +1,68 @@
+description: Observations record
+type: object
+properties:
+  id:
+    description: |
+      A unique, numeric ID assigned to this observation record when it was added
+      to the system. This is used for operations addressing a single record.
+    type: integer
+    format: int64
+    example: 4711
+  created_at:
+    description: |
+      The date and time when this observation record was initially created.
+    type: string
+    example: "2023-11-03T11:52:00.000Z"
+  created_by_id:
+    description: |
+      The in-game character ID of the user that initially added this
+      record.
+    type: integer
+    format: int64
+    example: 2119526651
+  created_by_name:
+    description: |
+      The in-game character name of the user that initially added this
+      record.
+    type: string
+    example: "Okamainen al'Anzomi"
+  observation_type:
+    $ref: "./observation_type.yaml"
+  observation_category:
+    $ref: "./observation_category.yaml"
+  display_name:
+    description: |
+      A name for the observation which can be displayed to users.
+    type: string
+    example: "Tom's Shuttle"
+  observed_in_person:
+    description: |
+      Flag indicating whether this record was observed in person.
+    type: boolean
+  hours_in_system:
+    description: |
+      Hours the observed object has been in the system.
+    type: integer
+    example: 5
+  system_id:
+    description: |
+      The in-game ID of the system the observed object is located in.
+    type: integer
+    format: int32
+    example: 30000021
+  system_name:
+    description: |
+      The name of the system.
+    type: string
+    example: Kuharah
+  region_id:
+    description: |
+      The in-game ID of the region the observed object is in.
+    type: integer
+    format: int64
+    example: 10000070
+  region_name:
+    description: |
+      The region name where the observed object is in.
+    type: string
+    example: "Pochven"

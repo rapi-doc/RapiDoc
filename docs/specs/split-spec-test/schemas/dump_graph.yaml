@@ -1,0 +1,31 @@
+type: object
+description: |
+  The response for this dump is not in any way complete or well described since it is the raw
+  `export()` of the graphology serialization call.
+
+  All properties listed below are in
+properties:
+  options:
+    type: object
+  attributes:
+    type: object
+  nodes:
+    type: array
+    items:
+      type: object
+      properties:
+        key:
+          type: string
+  edges:
+    type: array
+    items:
+      type: object
+      properties:
+        key:
+          type: string
+        source:
+          type: string
+        target:
+          type: string
+        attributes:
+          type: object

@@ -1,0 +1,14 @@
+post:
+  operationId: postConnectionLoss
+  tags: [Statistics]
+  summary: Track connection loss
+  description: |
+    If a client loses connection to the API, the loss of connection gets tracked via this endpoint.
+  x-badges:
+    - color: orange
+      label: "private"
+  responses:
+    "204":
+      $ref: "../../../../responses/204.yaml"
+    "503":
+      $ref: "../../../../responses/503.yaml"

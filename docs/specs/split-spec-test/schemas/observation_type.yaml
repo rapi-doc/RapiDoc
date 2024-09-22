@@ -1,0 +1,13 @@
+description: The type of the observation.
+type: string
+enum:
+  - electric_a
+  - electric_b
+  - exotic_a
+  - exotic_b
+  - gamma_a
+  - gamma_b
+  - plasma_a
+  - plasma_b
+  - toms_shuttle
+example: gamma_a

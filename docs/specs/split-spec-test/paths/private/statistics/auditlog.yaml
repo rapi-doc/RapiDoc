@@ -1,0 +1,20 @@
+get:
+  operationId: listStatisticsAuditLog
+  tags: [Statistics]
+  summary: List Audit-Log
+  description: |
+    When a signature gets modified, a record is created for insights into the state of the system.
+  security:
+    - eve-sso: [user]
+  responses:
+    "200":
+      description: |
+        An array of objects, where each object is on audit-log record.
+      content:
+        application/json:
+          schema:
+            $ref: "../../../schemas/statistics_auditlog.yaml"
+    "400":
+      $ref: "../../../responses/400.yaml"
+    "503":
+      $ref: "../../../responses/503.yaml"
