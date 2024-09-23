@@ -286,7 +286,7 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
               pathTags.push(pathOrHookNameKey);
             } else {
               // firstWordEndIndex -= 1;
-              pathTags.push(pathOrHookNameKey.substr(0, firstWordEndIndex));
+              pathTags.push(pathOrHookNameKey.substring(0, firstWordEndIndex));
             }
           } else {
             pathTags.push('General ⦂');
