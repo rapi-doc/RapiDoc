@@ -18,10 +18,12 @@ info:
           summary: ...
           description: ...
           x-badges:    # <<< Extension
-            - color: red  # <<< Allowed values (red, green, orange, blue, primary-color)
+            - color: red  # <<< Allowed values (none, red, green, orange, blue, primary-color)
               label: 'Will be Deprecated'
             - color: blue
               label: 'Popular: false'
+            - color: none
+              label: 'Is used for assiging a badge to the operation without showing on the ui'  
         ...
         ...
     ```
@@ -31,7 +33,7 @@ paths:
       summary: Endpoint with red and blue badge
       x-badges:
         - color: red
-          label: 'Beta'
+          label: Beta
         - color: blue
           label: 'Popular: true'
   /badge-2-path:
@@ -39,7 +41,7 @@ paths:
       summary: Endpoint with primary-color
       x-badges:
         - color: primary-color
-          label: 'CORE API'
+          label: CORE API
   /badge-3-path:
     get:
       summary: Endpoint with green and orange badge
@@ -48,6 +50,37 @@ paths:
           label: 'Easy: Yes'
         - color: orange
           label: 'Slow'
+  /badge-none-1:
+    get:
+      summary: Endpoint1 with 'none' badge. (badge wont show)
+      description: |
+        This Endpoint has a **badge-label** of `internal-use-only` assigned to it but the badge is not shown in the UI<br/>
+        `badge` can also be used for removing an Endpoint from the documention
+      x-badges:
+        - color: none
+          label: internal-use-only
+  /badge-none-2:
+    get:
+      summary: Endpoint2 with 'none' badge. (badge wont show)
+      description: |
+        This Endpoint has a **badge-label** of `admin-use-only` assigned to it but the badge is not shown in the UI<br/>
+        `badge` can also be used for removing an Endpoint from the documention
+      x-badges:
+        - color: none
+          label: admin-use-only
+  /badge-none-3:
+    get:
+      summary: Endpoint3 with 'none' badge. (badge wont show)
+      description: |
+        This Endpoint has a **badge-label** of `internal-use-only` and `admin-use-only` assigned, but the badge is not shown in the UI<br/>
+        `badge` can also be used for removing an Endpoint from the documention
+      x-badges:
+        - color: none
+          label: admin-use-only
+        - color: none
+          label: internal-use-only
+
   /no-badges-path:
     get:
       summary: Endpoint with No badges
+      description: This Endpoint has ano badges
