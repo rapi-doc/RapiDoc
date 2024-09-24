@@ -657,7 +657,7 @@ export default class RapiDoc extends LitElement {
         const specObj = JSON.parse(reader.result);
         this.loadSpec(specObj);
         this.shadowRoot.getElementById('spec-url').value = '';
-      } catch (err) {
+      } catch {
         console.error('RapiDoc: Unable to read or parse json'); // eslint-disable-line no-console
       }
     };

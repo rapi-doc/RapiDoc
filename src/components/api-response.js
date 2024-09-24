@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
-import { schemaInObjectNotation, generateExample } from '~/utils/schema-utils';
+import { schemaInObjectNotation, generateExample, standardizeExample } from '~/utils/schema-utils';
 import FontStyles from '~/styles/font-styles';
 import FlexStyles from '~/styles/flex-styles';
 import TableStyles from '~/styles/table-styles';
@@ -121,8 +121,8 @@ export default class ApiResponse extends LitElement {
         const respExamples = generateExample(
           mimeRespObj.schema,
           mimeResp,
-          mimeRespObj.examples,
-          mimeRespObj.example,
+          standardizeExample(mimeRespObj.examples),
+          standardizeExample(mimeRespObj.example),
           this.callback === 'true' || this.webhook === 'true' ? false : true, // eslint-disable-line no-unneeded-ternary
           this.callback === 'true' || this.webhook === 'true' ? true : false, // eslint-disable-line no-unneeded-ternary
           mimeResp.includes('json') ? 'json' : 'text',

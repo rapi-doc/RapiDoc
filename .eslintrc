@@ -38,6 +38,12 @@
     "prefer-destructuring": [
       "error", {"object": true, "array": false}
     ],
+   "no-unused-vars": ["error", {
+      "vars": "all",
+      "args": "after-used",
+      "caughtErrors": "all",
+      "ignoreRestSiblings": false
+    }],
     "object-curly-newline": ["error", {
       "ObjectPattern": { "multiline": true },
       "ImportDeclaration": "never",

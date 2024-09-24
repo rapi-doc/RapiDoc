@@ -134,7 +134,7 @@ async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, g
       }
       return false;
     }
-  } catch (err) {
+  } catch {
     if (respDisplayEl) {
       respDisplayEl.innerHTML = '<span style="color:var(--red)">Failed to get access token</span>';
     }

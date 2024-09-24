@@ -21,7 +21,7 @@ import { schemaInObjectNotation,
   normalizeExamples,
   getSchemaFromParam,
   json2xml,
-  nestExampleIfPresent,
+  standardizeExample,
   anyExampleWithSummaryOrDescription } from '~/utils/schema-utils';
 import '~/components/json-tree';
 import '~/components/schema-tree';
@@ -369,12 +369,12 @@ export default class ApiRequest extends LitElement {
       }
       // openapi 3.1.0 spec based examples (which must be Object(string : { value:any, summary?: string, description?: string})
       const example = normalizeExamples(
-        (param.examples
-          || nestExampleIfPresent(param.example)
-          || nestExampleIfPresent(mimeTypeElem?.example)
-          || mimeTypeElem?.examples
-          || nestExampleIfPresent(paramSchema.examples)
-          || nestExampleIfPresent(paramSchema.example)
+        (standardizeExample(param.examples)
+          || standardizeExample(param.example)
+          || standardizeExample(mimeTypeElem?.example)
+          || standardizeExample(mimeTypeElem?.examples)
+          || standardizeExample(paramSchema.examples)
+          || standardizeExample(paramSchema.example)
         ),
         paramSchema.type,
       );
@@ -382,8 +382,8 @@ export default class ApiRequest extends LitElement {
         example.exampleVal = generateExample(
           declaredParamSchema,
           serializeStyle || 'json',
-          '',
-          '',
+          {},
+          {},
           this.callback === 'true' || this.webhook === 'true' ? true : false, // eslint-disable-line no-unneeded-ternary
           this.callback === 'true' || this.webhook === 'true' ? false : true, // eslint-disable-line no-unneeded-ternary
           true,
@@ -645,8 +645,8 @@ export default class ApiRequest extends LitElement {
           reqBodyExamples = generateExample(
             reqBody.schema,
             reqBody.mimeType,
-            reqBody.examples,
-            reqBody.example,
+            standardizeExample(reqBody.examples),
+            standardizeExample(reqBody.example),
             this.callback === 'true' || this.webhook === 'true' ? true : false, // eslint-disable-line no-unneeded-ternary
             this.callback === 'true' || this.webhook === 'true' ? false : true, // eslint-disable-line no-unneeded-ternary
             'text',
@@ -806,8 +806,8 @@ export default class ApiRequest extends LitElement {
     const formdataPartExample = generateExample(
       fieldSchema,
       'json',
-      fieldSchema.examples,
-      fieldSchema.example,
+      standardizeExample(fieldSchema.examples),
+      standardizeExample(fieldSchema.example),
       this.callback === 'true' || this.webhook === 'true' ? true : false, // eslint-disable-line no-unneeded-ternary
       this.callback === 'true' || this.webhook === 'true' ? false : true, // eslint-disable-line no-unneeded-ternary
       'text',
@@ -1257,7 +1257,7 @@ export default class ApiRequest extends LitElement {
               }
             }
           }
-        } catch (err) {
+        } catch {
           console.error('RapiDoc: unable to parse %s into object', el.value); // eslint-disable-line no-console
         }
         if (queryParam.toString()) {
@@ -1702,7 +1702,7 @@ export default class ApiRequest extends LitElement {
         if (requestBodyType.includes('json')) {
           try {
             curlData = ` -d '${JSON.stringify(JSON.parse(exampleTextAreaEl.value))}' \\\n`;
-          } catch (err) {
+          } catch {
             // Ignore.
           }
         }

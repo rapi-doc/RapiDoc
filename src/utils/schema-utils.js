@@ -120,18 +120,67 @@ export function getTypeInfo(schema) {
   return info;
 }
 
-export function nestExampleIfPresent(example) {
-  if (typeof example === 'boolean' || typeof example === 'number') {
-    return {
-      Example: { value: `${example}` },
-    };
+/**
+ *
+ * @param {*} ex  if the value
+ *  - Is an Object with 'value' property  like
+ *      { 'value': 'example_val1', 'description': 'some description' }
+ *    Returns >>>
+ *      {
+ *        'Example': { 'value' : 'example_val1', 'description': 'some description' },
+ *      }
+ *  - Is an object where each key represents a valid example object (i,e has a value property)
+ *      {
+ *        'example1': { 'value' : 'example_val1', 'description': 'some description' },
+ *        'example2': { 'value' : 'example_val2', 'description': 'some other description' },
+ *        'invalid':  { 'description': 'invalid example object without any value property' }
+ *      }
+ *    Returns >>>
+ *      {
+ *        'example1': { 'value' : 'example_val1', 'description': 'some description' },
+ *        'example2': { 'value' : 'example_val2', 'description': 'some other description' }
+ *      }
+ *      if none of the keys represents an object with 'value' property then return undefined
+ *  - Is an array of premitive values
+ *      ['example_val1', 'example_val2']
+ *    Returns >>>
+ *      {
+ *         'Example1': {value:'value1'}
+ *         'Example2': {value:'value2'}
+ *      }
+ *  - Is a premitive value
+ *      'example_val1'
+ *    Returns >>>
+ *      {
+ *        'Example': { 'value': 'example_val1' }
+ *      }
+ *  - Is undefined
+ *    returns undefined
+ * @returns
+ */
+
+export function standardizeExample(ex) {
+  if (typeof ex === 'object' && !Array.isArray(ex)) {
+    if (ex.value !== undefined) {
+      // Case 1: Single object with 'value' property
+      return { Example: { ...ex } };
+    }
+    // Case 2: Object where each key is an object with a 'value' property
+    const filteredEntries = Object.entries(ex).filter(([_, obj]) => obj.value !== undefined); // eslint-disable-line
+    // If no valid entries found, return JSON.stringify of the input
+    if (filteredEntries.length === 0) {
+      return undefined;
+    }
+    return Object.fromEntries(filteredEntries);
+  } if (Array.isArray(ex)) {
+    // Case 3: Array of primitive values
+    return ex.reduce((acc, value, index) => {
+      acc[`Example${index + 1}`] = { value };
+      return acc;
+    }, {});
   }
-  if (example === '') {
-    return {
-      Example: { value: '' },
-    };
-  }
-  return example ? { Example: { value: example } } : example;
+  // Case 4: Single primitive value
+  return ex ? { Example: { value: ex } } : undefined;
 }
 
 /**
@@ -268,7 +317,7 @@ export function getSampleValueByType(schemaObj) {
     if (schemaObj.pattern) {
       try {
         return new RandExp(schemaObj.pattern).gen();
-      } catch (error) {
+      } catch {
         return schemaObj.pattern;
       }
     }
@@ -857,7 +906,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
 }
 
 /* Create Example object */
-export function generateExample(schema, mimeType, examples = '', example = '', includeReadOnly = true, includeWriteOnly = true, outputType = 'json', includeGeneratedExample = false) {
+export function generateExample(schema, mimeType, examples = {}, example = {}, includeReadOnly = true, includeWriteOnly = true, outputType = 'json', includeGeneratedExample = false) {
   const finalExamples = [];
   // First check if examples is provided
   if (examples) {
@@ -876,7 +925,7 @@ export function generateExample(schema, mimeType, examples = '', example = '', i
               const fixedJsonString = examples[eg].value;
               egContent = JSON.parse(fixedJsonString);
               egFormat = 'json';
-            } catch (err) {
+            } catch {
               egFormat = 'text';
               egContent = examples[eg].value;
             }
@@ -910,7 +959,7 @@ export function generateExample(schema, mimeType, examples = '', example = '', i
         try {
           egContent = JSON.parse(example);
           egFormat = 'json';
-        } catch (err) {
+        } catch {
           egFormat = 'text';
           egContent = example;
         }
