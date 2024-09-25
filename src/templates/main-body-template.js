@@ -13,7 +13,7 @@ import advancedSearchTemplate from '~/templates/advance-search-template';
 import SetTheme from '~/utils/theme';
 import { isValidHexColor } from '~/utils/color-utils';
 
-export default function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = true, pathsExpanded = false) {
+export default function mainBodyTemplate(isMini = false, pathsExpanded = false) {
   if (!this.resolvedSpec) {
     return '';
   }
@@ -104,7 +104,7 @@ export default function mainBodyTemplate(isMini = false, showExpandCollapse = tr
                       </div>  
                       ${this.renderStyle === 'read'
                         ? expandedEndpointTemplate.call(this)
-                        : endpointTemplate.call(this, showExpandCollapse, showTags, pathsExpanded)
+                        : endpointTemplate.call(this, isMini, pathsExpanded)
                       }
                     `
                   }

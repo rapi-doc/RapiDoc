@@ -99,7 +99,7 @@ function jsonSchemaBodyTemplate() {
 
 // Json Schema Root Template
 export default function jsonSchemaViewerTemplate(isMini = false) {
-// export default function jsonSchemaViewerTemplate(isMini = false, showExpandCollapse = true, showTags = true, pathsExpanded = false) {
+// export default function jsonSchemaViewerTemplate(isMini = false, pathsExpanded = false) {
   if (!this.resolvedSpec) {
     return '';
   }

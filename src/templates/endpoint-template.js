@@ -184,11 +184,12 @@ function endpointBodyTemplate(path) {
   </div>`;
 }
 
-export default function endpointTemplate(showExpandCollapse = true, showTags = true, pathsExpanded = false) {
+export default function endpointTemplate(isMini = false, pathsExpanded = false) {
   if (!this.resolvedSpec) { return ''; }
   return html`
-    ${showExpandCollapse
-      ? html`
+    ${isMini
+      ? ''
+      : html`
         <div style="display:flex; justify-content:flex-end;"> 
           <span @click="${(e) => onExpandCollapseAll(e, 'expand-all')}" style="color:var(--primary-color); cursor:pointer;">
             Expand all
@@ -199,11 +200,25 @@ export default function endpointTemplate(showExpandCollapse = true, showTags = t
           </span> 
           &nbsp; sections
         </div>`
-      : ''
     }
     ${this.resolvedSpec.tags.map((tag) => html`
-      ${showTags
-        ? html` 
+      ${isMini
+        ? html`
+          <div class='section-tag-body'>
+          ${tag.paths.filter((v) => {
+            if (this.matchPaths) {
+              return pathIsInSearch(this.matchPaths, v, this.matchType);
+            }
+            return true;
+            }).map((path) => html`
+            <section id='${path.elementId}' class='m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
+              ${endpointHeadTemplate.call(this, path, pathsExpanded)}      
+              ${pathsExpanded || path.expanded ? endpointBodyTemplate.call(this, path) : ''}
+            </section>`)
+          }
+          </div>
+        `
+        : html` 
           <div class='regular-font section-gap section-tag ${tag.expanded ? 'expanded' : 'collapsed'}'> 
             <div class='section-tag-header' @click="${() => { tag.expanded = !tag.expanded; this.requestUpdate(); }}">
               <div id='${tag.elementId}' class="sub-title tag" style="color:var(--primary-color)">${tag.displayName || tag.name}</div>
@@ -225,20 +240,6 @@ export default function endpointTemplate(showExpandCollapse = true, showTags = t
                 </section>`)
               }
             </div>
-          </div>`
-        : html`
-          <div class='section-tag-body'>
-          ${tag.paths.filter((v) => {
-            if (this.matchPaths) {
-              return pathIsInSearch(this.matchPaths, v, this.matchType);
-            }
-            return true;
-            }).map((path) => html`
-            <section id='${path.elementId}' class='m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
-              ${endpointHeadTemplate.call(this, path, pathsExpanded)}      
-              ${pathsExpanded || path.expanded ? endpointBodyTemplate.call(this, path) : ''}
-            </section>`)
-          }
           </div>
         `
       }
