@@ -115,9 +115,10 @@ export default class RapiDocMini extends LitElement {
         color:var(--fg);
         background-color:var(--bg);
         font-family:var(--font-regular);
+        container-type: inline-size;
       }
 
-      @media only screen and (min-width: 768px) {
+      @container (min-width: 768px) {
         .only-large-screen{
           display:block;
         }

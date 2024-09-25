@@ -98,6 +98,7 @@ export default class JsonSchemaViewer extends LitElement {
         color:var(--fg);
         background-color:var(--bg);
         font-family:var(--font-regular);
+        container-type: inline-size;
       }
       .body {
         display:flex;
@@ -163,7 +164,7 @@ export default class JsonSchemaViewer extends LitElement {
         height: 36px;
         animation: spin 2s linear infinite;
       }
-      @media only screen and (min-width: 768px) {
+      @container (min-width: 768px) {
         .only-large-screen{
           display:block;
         }

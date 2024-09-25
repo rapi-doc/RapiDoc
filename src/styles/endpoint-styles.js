@@ -1,6 +1,9 @@
 import { css } from 'lit';
 
 export default css`
+:host {
+  container-type: inline-size;
+}
 .only-large-screen { display:none; }
 .endpoint-head .path{
   display: flex;
@@ -169,7 +172,7 @@ api-response.view-mode {
   border-color:var(--red); 
 }
 
-@media only screen and (min-width: 1024px) {
+@container (min-width: 1024px) {
   .only-large-screen { display:block; }
   .endpoint-head .path{
     font-size: var(--font-size-regular);

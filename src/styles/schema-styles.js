@@ -3,6 +3,9 @@ import { css } from 'lit';
 export default css`
 
 *, *:before, *:after { box-sizing: border-box; }
+:host {
+  container-type: inline-size;
+}
 
 .tr {
   display: flex;
@@ -107,7 +110,7 @@ export default css`
 }
 .toolbar-item:first-of-type { margin:0 2px 0 0;}
 
-@media only screen and (min-width: 500px) {
+@container (min-width: 500px) {
   .key-descr {
     display: block;
   }

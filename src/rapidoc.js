@@ -168,6 +168,7 @@ export default class RapiDoc extends LitElement {
         color:var(--fg);
         background-color:var(--bg);
         font-family:var(--font-regular);
+        container-type: inline-size;
       }
       :where(button, input[type="checkbox"], [tabindex="0"]):focus-visible { box-shadow: var(--focus-shadow); }
       :where(input[type="text"], input[type="password"], select, textarea):focus-visible { border-color: var(--primary-color); }
@@ -375,7 +376,7 @@ export default class RapiDoc extends LitElement {
         background-color: var(--yellow); 
       }
 
-      @media only screen and (min-width: 768px) {
+      @container (min-width: 768px) {
         .nav-bar {
           width: 260px;
           display:flex;
@@ -401,7 +402,7 @@ export default class RapiDoc extends LitElement {
         }
       }
 
-      @media only screen and (min-width: 1024px) {
+      @container (min-width: 1024px) {
         .nav-bar {
           width: ${unsafeCSS(this.fontSize === 'default' ? '300px' : this.fontSize === 'large' ? '315px' : '330px')};
           display:flex;

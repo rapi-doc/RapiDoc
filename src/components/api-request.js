@@ -100,6 +100,9 @@ export default class ApiRequest extends LitElement {
       TabStyles,
       PrismStyles,
       css`
+        :host {
+          container-type: inline-size;
+        }
         *, *:before, *:after { box-sizing: border-box; }
         :where(button, input[type="checkbox"], [tabindex="0"]):focus-visible { box-shadow: var(--focus-shadow); }
         :where(input[type="text"], input[type="password"], select, textarea):focus-visible { border-color: var(--primary-color); }
@@ -184,13 +187,13 @@ export default class ApiRequest extends LitElement {
           opacity: 1;
         }
 
-        @media only screen and (min-width: 768px) {
+        @container (min-width: 768px) {
           .textarea {
             padding:8px;
           }
         }
 
-        @media only screen and (max-width: 470px) {
+        @container (max-width: 470px) {
           .hide-in-small-screen {
             display:none;
           }
