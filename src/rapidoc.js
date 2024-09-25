@@ -12,22 +12,22 @@ import 'prismjs/components/prism-http';
 import 'prismjs/components/prism-csharp';
 
 // Styles
-import FontStyles from '~/styles/font-styles';
-import InputStyles from '~/styles/input-styles';
-import FlexStyles from '~/styles/flex-styles';
-import TableStyles from '~/styles/table-styles';
-import EndpointStyles from '~/styles/endpoint-styles';
-import PrismStyles from '~/styles/prism-styles';
-import TabStyles from '~/styles/tab-styles';
-import NavStyles from '~/styles/nav-styles';
-import InfoStyles from '~/styles/info-styles';
-import CustomStyles from '~/styles/custom-styles';
+import FontStyles from './styles/font-styles.js';
+import InputStyles from './styles/input-styles.js';
+import FlexStyles from './styles/flex-styles.js';
+import TableStyles from './styles/table-styles.js';
+import EndpointStyles from './styles/endpoint-styles.js';
+import PrismStyles from './styles/prism-styles.js';
+import TabStyles from './styles/tab-styles.js';
+import NavStyles from './styles/nav-styles.js';
+import InfoStyles from './styles/info-styles.js';
+import CustomStyles from './styles/custom-styles.js';
 // import { expandCollapseNavBarTag } from '@/templates/navbar-template';
-import { advancedSearch, pathIsInSearch, componentIsInSearch, rapidocApiKey, sleep } from '~/utils/common-utils';
-import ProcessSpec from '~/utils/spec-parser';
-import mainBodyTemplate from '~/templates/main-body-template';
-import { applyApiKey, onClearAllApiKeys } from '~/templates/security-scheme-template';
-import { setApiServer } from '~/templates/server-template';
+import { advancedSearch, pathIsInSearch, componentIsInSearch, rapidocApiKey, sleep } from './utils/common-utils.js';
+import ProcessSpec from './utils/spec-parser.js';
+import mainBodyTemplate from './templates/main-body-template.js';
+import { applyApiKey, onClearAllApiKeys } from './templates/security-scheme-template.js';
+import { setApiServer } from './templates/server-template.js';
 
 export default class RapiDoc extends LitElement {
   constructor() {

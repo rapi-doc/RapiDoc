@@ -1,10 +1,10 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
-import { schemaInObjectNotation } from '~/utils/schema-utils';
-import '~/components/json-tree';
-import '~/components/schema-tree';
-import '~/components/schema-table';
+import { schemaInObjectNotation } from '../utils/schema-utils.js';
+import '../components/json-tree.js';
+import '../components/schema-tree.js';
+import '../components/schema-table.js';
 
 function schemaBodyTemplate(sComponent) {
   return html`

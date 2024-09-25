@@ -6,15 +6,15 @@ import { ifDefined } from 'lit/directives/if-defined.js'; // eslint-disable-line
 import { marked } from 'marked';
 import formatXml from 'xml-but-prettier';
 import Prism from 'prismjs';
-import TableStyles from '~/styles/table-styles';
-import FlexStyles from '~/styles/flex-styles';
-import InputStyles from '~/styles/input-styles';
-import FontStyles from '~/styles/font-styles';
-import BorderStyles from '~/styles/border-styles';
-import TabStyles from '~/styles/tab-styles';
-import PrismStyles from '~/styles/prism-styles';
-import CustomStyles from '~/styles/custom-styles';
-import { copyToClipboard, downloadResource, viewResource } from '~/utils/common-utils';
+import TableStyles from '../styles/table-styles.js';
+import FlexStyles from '../styles/flex-styles.js';
+import InputStyles from '../styles/input-styles.js';
+import FontStyles from '../styles/font-styles.js';
+import BorderStyles from '../styles/border-styles.js';
+import TabStyles from '../styles/tab-styles.js';
+import PrismStyles from '../styles/prism-styles.js';
+import CustomStyles from '../styles/custom-styles.js';
+import { copyToClipboard, downloadResource, viewResource } from '../utils/common-utils.js';
 import { schemaInObjectNotation,
   getTypeInfo,
   generateExample,
@@ -22,10 +22,10 @@ import { schemaInObjectNotation,
   getSchemaFromParam,
   json2xml,
   standardizeExample,
-  anyExampleWithSummaryOrDescription } from '~/utils/schema-utils';
-import '~/components/json-tree';
-import '~/components/schema-tree';
-import '~/components/tag-input';
+  anyExampleWithSummaryOrDescription } from '../utils/schema-utils.js';
+import './json-tree.js';
+import './schema-tree.js';
+import './tag-input.js';
 
 export default class ApiRequest extends LitElement {
   constructor() {

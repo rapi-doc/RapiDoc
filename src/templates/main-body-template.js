@@ -1,17 +1,17 @@
 import { html } from 'lit';
 
 // Templates
-import expandedEndpointTemplate from '~/templates/expanded-endpoint-template';
-import focusedEndpointTemplate from '~/templates/focused-endpoint-template';
-import overviewTemplate from '~/templates/overview-template';
-import endpointTemplate from '~/templates/endpoint-template';
-import serverTemplate from '~/templates/server-template';
-import securitySchemeTemplate, { recoverPersistedApiKeys } from '~/templates/security-scheme-template';
-import headerTemplate from '~/templates/header-template';
-import navbarTemplate from '~/templates/navbar-template';
-import advancedSearchTemplate from '~/templates/advance-search-template';
-import SetTheme from '~/utils/theme';
-import { isValidHexColor } from '~/utils/color-utils';
+import expandedEndpointTemplate from './expanded-endpoint-template.js';
+import focusedEndpointTemplate from './focused-endpoint-template.js';
+import overviewTemplate from './overview-template.js';
+import endpointTemplate from './endpoint-template.js';
+import serverTemplate from './server-template.js';
+import securitySchemeTemplate, { recoverPersistedApiKeys } from './security-scheme-template.js';
+import headerTemplate from './header-template.js';
+import navbarTemplate from './navbar-template.js';
+import advancedSearchTemplate from './advance-search-template.js';
+import SetTheme from '../utils/theme.js';
+import { isValidHexColor } from '../utils/color-utils.js';
 
 export default function mainBodyTemplate(isMini = false, pathsExpanded = false) {
   if (!this.resolvedSpec) {

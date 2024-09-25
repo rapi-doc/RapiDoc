@@ -1,17 +1,17 @@
 import { LitElement, html, css } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
-import { schemaInObjectNotation, generateExample, standardizeExample } from '~/utils/schema-utils';
-import FontStyles from '~/styles/font-styles';
-import FlexStyles from '~/styles/flex-styles';
-import TableStyles from '~/styles/table-styles';
-import InputStyles from '~/styles/input-styles';
-import TabStyles from '~/styles/tab-styles';
-import BorderStyles from '~/styles/border-styles';
-import CustomStyles from '~/styles/custom-styles';
-import '~/components/json-tree';
-import '~/components/schema-tree';
-import '~/components/schema-table';
+import { schemaInObjectNotation, generateExample, standardizeExample } from '../utils/schema-utils.js';
+import FontStyles from '../styles/font-styles.js';
+import FlexStyles from '../styles/flex-styles.js';
+import TableStyles from '../styles/table-styles.js';
+import InputStyles from '../styles/input-styles.js';
+import TabStyles from '../styles/tab-styles.js';
+import BorderStyles from '../styles/border-styles.js';
+import CustomStyles from '../styles/custom-styles.js';
+import './json-tree';
+import './schema-tree';
+import './schema-table';
 
 export default class ApiResponse extends LitElement {
   constructor() {

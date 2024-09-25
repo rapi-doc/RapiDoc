@@ -24,6 +24,7 @@
     "globalThis": false // means it is not writeable
   },
   "rules": {
+    "import/extensions": "ignorePackages",
     "max-len": [1, 300, 2, {"ignoreComments": true}],
     "no-debugger": 0,
     "no-plusplus": 0,

@@ -1,12 +1,12 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
-import '~/components/api-request';
-import '~/components/api-response';
-import codeSamplesTemplate from '~/templates/code-samples-template';
-import callbackTemplate from '~/templates/callback-template';
-import { pathSecurityTemplate } from '~/templates/security-scheme-template';
-import { pathIsInSearch, rapidocApiKey } from '~/utils/common-utils';
+import '../components/api-request.js';
+import '../components/api-response.js';
+import codeSamplesTemplate from './code-samples-template.js';
+import callbackTemplate from './callback-template.js';
+import { pathSecurityTemplate } from './security-scheme-template.js';
+import { pathIsInSearch, rapidocApiKey } from '../utils/common-utils.js';
 
 function toggleExpand(path) {
   if (path.expanded) {

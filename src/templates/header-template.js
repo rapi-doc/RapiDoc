@@ -1,5 +1,5 @@
 import { html } from 'lit';
-import logoTemplate from '~/templates/logo-template';
+import logoTemplate from './logo-template.js';
 
 /* eslint-disable indent */
 export default function headerTemplate() {

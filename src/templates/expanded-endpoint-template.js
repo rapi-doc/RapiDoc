@@ -1,12 +1,12 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
-import { rapidocApiKey } from '~/utils/common-utils';
-import { pathSecurityTemplate } from '~/templates/security-scheme-template';
-import codeSamplesTemplate from '~/templates/code-samples-template';
-import callbackTemplate from '~/templates/callback-template';
-import '~/components/api-request';
-import '~/components/api-response';
+import { rapidocApiKey } from '../utils/common-utils.js';
+import { pathSecurityTemplate } from './security-scheme-template.js';
+import codeSamplesTemplate from './code-samples-template.js';
+import callbackTemplate from './callback-template.js';
+import '../components/api-request.js';
+import '../components/api-response.js';
 
 /* eslint-disable indent */
 function headingRenderer(tagElementId) {

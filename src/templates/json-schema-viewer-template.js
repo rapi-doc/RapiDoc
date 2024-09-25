@@ -3,13 +3,13 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-li
 import { marked } from 'marked';
 
 // Templates
-import overviewTemplate from '~/templates/overview-template';
-import headerTemplate from '~/templates/header-template';
-import { schemaInObjectNotation, generateExample, standardizeExample } from '~/utils/schema-utils';
-import '~/components/json-tree';
-import '~/components/schema-tree';
-import SetTheme from '~/utils/theme';
-import { isValidHexColor } from '~/utils/color-utils';
+import overviewTemplate from './overview-template.js';
+import headerTemplate from './header-template.js';
+import { schemaInObjectNotation, generateExample, standardizeExample } from '../utils/schema-utils.js';
+import '../components/json-tree.js';
+import '../components/schema-tree.js';
+import SetTheme from '../utils/theme.js';
+import { isValidHexColor } from '../utils/color-utils.js';
 
 /* eslint-disable indent */
 // Json Schema Nav Template

@@ -1,5 +1,5 @@
 import { html } from 'lit';
-import ColorUtils from '~/utils/color-utils';
+import ColorUtils from './color-utils.js';
 /* Generates an schema object containing type and constraint info */
 export default function setTheme(baseTheme, theme = {}) {
   let newTheme = {};
