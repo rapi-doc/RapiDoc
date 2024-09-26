@@ -4520,10 +4520,8 @@ function filterPaths(openApiObject, matchPaths = '', matchType = '', removeEndpo
       filteredPaths[pathsKey] = filteredMethods;
     }
   });
-  return {
-    openapi: openApiObject.openapi,
-    paths: filteredPaths
-  };
+  openApiObject.paths = filteredPaths;
+  return openApiObject;
 }
 function getHeadersFromMarkdown(markdownContent) {
   const tokens = marked.lexer(markdownContent);
@@ -12007,10 +12005,10 @@ class RapiDoc extends lit_element_h {
           width: 260px;
           display:flex;
         }
-        .only-large-screen{
+        .only-large-screen {
           display:block;
         }
-        .only-large-screen-flex{
+        .only-large-screen-flex {
           display:flex;
         }
         .section-gap { 
@@ -20610,7 +20608,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("30d68d37249fbebfe7d1")
+/******/ 		__webpack_require__.h = () => ("6a5208e46b33850a49e6")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
