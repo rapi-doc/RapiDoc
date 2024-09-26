@@ -222,10 +222,8 @@ function filterPaths(openApiObject, matchPaths = '', matchType = '', removeEndpo
     }
   });
 
-  return {
-    openapi: openApiObject.openapi,
-    paths: filteredPaths,
-  };
+  openApiObject.paths = filteredPaths;
+  return openApiObject;
 }
 
 function getHeadersFromMarkdown(markdownContent) {
