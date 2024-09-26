@@ -23,7 +23,7 @@ import NavStyles from '~/styles/nav-styles';
 import InfoStyles from '~/styles/info-styles';
 import CustomStyles from '~/styles/custom-styles';
 // import { expandCollapseNavBarTag } from '@/templates/navbar-template';
-import { advancedSearch, pathIsInSearch, componentIsInSearch, rapidocApiKey, sleep } from '~/utils/common-utils';
+import { advancedSearch, getMatchedPaths, getMatchedComponents, rapidocApiKey, sleep } from '~/utils/common-utils';
 import ProcessSpec from '~/utils/spec-parser';
 import mainBodyTemplate from '~/templates/main-body-template';
 import { applyApiKey, onClearAllApiKeys } from '~/templates/security-scheme-template';
@@ -134,12 +134,14 @@ export default class RapiDoc extends LitElement {
       // Filters
       matchPaths: { type: String, attribute: 'match-paths' },
       matchType: { type: String, attribute: 'match-type' },
+      removeEndpointsWithBadgeLabelAs: { type: String, attribute: 'remove-endpoints-with-badge-label-as' },
 
       // Internal Properties
       loading: { type: Boolean }, // indicates spec is being loaded
       focusedElementId: { type: String }, // updating the focusedElementId will automatically render appropriate section in focused mode
       showAdvancedSearchDialog: { type: Boolean },
       advancedSearchMatches: { type: Object },
+      searchVal: { type: String },
     };
   }
 
@@ -514,9 +516,11 @@ export default class RapiDoc extends LitElement {
     if (!this.showComponents || !'true false'.includes(this.showComponents)) { this.showComponents = 'false'; }
     if (!this.infoDescriptionHeadingsInNavBar || !'true, false,'.includes(`${this.infoDescriptionHeadingsInNavBar},`)) { this.infoDescriptionHeadingsInNavBar = 'false'; }
     if (!this.fetchCredentials || !'omit, same-origin, include,'.includes(`${this.fetchCredentials},`)) { this.fetchCredentials = ''; }
-    if (!this.matchType || !'includes regex'.includes(this.matchType)) { this.matchType = 'includes'; }
     if (!this.scrollBehavior || !'smooth, auto,'.includes(`${this.scrollBehavior},`)) { this.scrollBehavior = 'auto'; }
 
+    if (!this.matchType || !'includes regex'.includes(this.matchType)) { this.matchType = 'includes'; }
+    if (!this.matchPaths) { this.matchPaths = ''; }
+    if (!this.removeEndpointsWithBadgeLabelAs) { this.removeEndpointsWithBadgeLabelAs = ''; }
     if (!this.showAdvancedSearchDialog) { this.showAdvancedSearchDialog = false; }
 
     if (!this.cssFile) { this.cssFile = null; }
@@ -578,6 +582,13 @@ export default class RapiDoc extends LitElement {
           if (this.gotoPath && !window.location.hash) {
             this.scrollToPath(this.gotoPath);
           }
+        }, 0);
+      }
+    }
+    if (name === 'match-paths' || name === 'match-type' || name === 'remove-endpoints-with-badge-label-as') {
+      if (oldVal !== newVal) {
+        window.setTimeout(async () => {
+          await this.loadSpec(this.specUrl);
         }, 0);
       }
     }
@@ -671,18 +682,18 @@ export default class RapiDoc extends LitElement {
   }
 
   onSearchChange(e) {
-    this.matchPaths = e.target.value;
-    this.resolvedSpec.tags.forEach((tag) => tag.paths.filter((v) => {
-      if (this.matchPaths) {
-        // v.expanded = false;
-        if (pathIsInSearch(this.matchPaths, v, this.matchType)) {
+    // this.matchPaths = e.target.value;
+    this.searchVal = e.target.value;
+    this.resolvedSpec.tags.forEach((tag) => tag.paths.filter((path) => {
+      if (this.searchVal) {
+        if (getMatchedPaths(this.searchVal, path, tag.name)) {
           tag.expanded = true;
         }
       }
     }));
     this.resolvedSpec.components.forEach((component) => component.subComponents.filter((v) => {
       v.expanded = false;
-      if (!this.matchPaths || componentIsInSearch(this.matchPaths, v)) {
+      if (getMatchedComponents(this.searchVal, v)) {
         v.expanded = true;
       }
     }));
@@ -692,7 +703,7 @@ export default class RapiDoc extends LitElement {
   onClearSearch() {
     const searchEl = this.shadowRoot.getElementById('nav-bar-search');
     searchEl.value = '';
-    this.matchPaths = '';
+    this.searchVal = '';
     this.resolvedSpec.components.forEach((component) => component.subComponents.filter((v) => {
       v.expanded = true;
     }));
@@ -717,7 +728,7 @@ export default class RapiDoc extends LitElement {
     if (!specUrl) {
       return;
     }
-    this.matchPaths = '';
+    this.searchVal = '';
     try {
       this.resolvedSpec = {
         specLoadError: false,
@@ -737,6 +748,9 @@ export default class RapiDoc extends LitElement {
         this.getAttribute('api-key-location'),
         this.getAttribute('api-key-value'),
         this.getAttribute('server-url'),
+        this.matchPaths,
+        this.matchType,
+        this.removeEndpointsWithBadgeLabelAs,
       );
       this.loading = false;
       this.afterSpecParsedAndValidated(spec);

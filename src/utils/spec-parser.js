@@ -3,8 +3,22 @@ import OpenApiParser from '@apitools/openapi-parser';
 import { marked } from 'marked';
 import { invalidCharsRegEx, rapidocApiKey, sleep } from '~/utils/common-utils';
 
-export default async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = false, sortSchemas = false, sortEndpointsBy = '', attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '') {
+export default async function ProcessSpec(
+  specUrl,
+  generateMissingTags = false,
+  sortTags = false,
+  sortSchemas = false,
+  sortEndpointsBy = '',
+  attrApiKey = '',
+  attrApiKeyLocation = '',
+  attrApiKeyValue = '',
+  serverUrl = '',
+  matchPaths = '',
+  matchType = '',
+  removeEndpointsWithBadgeLabelAs = '',
+) {
   let jsonParsedSpec;
+
   try {
     this.requestUpdate(); // important to show the initial loader
     let specMeta;
@@ -15,7 +29,7 @@ export default async function ProcessSpec(specUrl, generateMissingTags = false, 
     }
     await sleep(0); // important to show the initial loader (allows for rendering updates)
 
-    // If  JSON Schema Viewer
+    // If JSON Schema Viewer
     if (specMeta.resolvedSpec?.jsonSchemaViewer && specMeta.resolvedSpec?.schemaAndExamples) {
       this.dispatchEvent(new CustomEvent('before-render', { detail: { spec: specMeta.resolvedSpec } }));
       const schemaAndExamples = Object.entries(specMeta.resolvedSpec.schemaAndExamples).map((v) => ({ show: true, expanded: true, selectedExample: null, name: v[0], elementId: v[0].replace(invalidCharsRegEx, '-'), ...v[1] }));
@@ -27,8 +41,10 @@ export default async function ProcessSpec(specUrl, generateMissingTags = false, 
       };
       return parsedSpec;
     }
+
+    // If RapiDoc or RapiDocMini
     if (specMeta.spec && (specMeta.spec.components || specMeta.spec.info || specMeta.spec.servers || specMeta.spec.tags || specMeta.spec.paths)) {
-      jsonParsedSpec = specMeta.spec;
+      jsonParsedSpec = filterPaths(specMeta.spec, matchPaths, matchType, removeEndpointsWithBadgeLabelAs);
       this.dispatchEvent(new CustomEvent('before-render', { detail: { spec: jsonParsedSpec } }));
     } else {
       console.info('RapiDoc: %c There was an issue while parsing the spec %o ', 'color:orangered', specMeta); // eslint-disable-line no-console
@@ -154,6 +170,62 @@ export default async function ProcessSpec(specUrl, generateMissingTags = false, 
     servers,
   };
   return parsedSpec;
+}
+
+function filterPaths(openApiObject, matchPaths = '', matchType = '', removeEndpointsWithBadgeLabelAs = '') {
+  const filteredPaths = {};
+
+  // Convert the removePathsWithBadgeLabeledAs to an array if provided
+  const labelsToRemove = removeEndpointsWithBadgeLabelAs.split(',').map((label) => label.trim()).filter(Boolean);
+
+  // Helper function to check if a path should be included based on matchPaths
+  function pathMatches(pathsKey, httpMethod) {
+    if (!matchPaths) {
+      return true; // If no matchPaths provided, include everything
+    }
+    const fullPath = `${httpMethod} ${pathsKey}`.toLowerCase(); // Construct "method path" string
+    if (matchType === 'regex') {
+      const regex = new RegExp(matchPaths, 'i');
+      return regex.test(matchPaths.toLowerCase());
+    }
+    return fullPath.includes(matchPaths.toLowerCase());
+  }
+
+  // Helper function to check if the badges contain any label that needs to be removed
+  function containsLabelToRemove(badges) {
+    return badges.some((badge) => labelsToRemove.includes(badge.label));
+  }
+
+  // Loop through the paths in the openApiObject
+  Object.entries(openApiObject.paths).forEach(([pathsKey, methods]) => {
+    const filteredMethods = {};
+
+    Object.entries(methods).forEach(([httpMethod, methodDetails]) => {
+      const badges = methodDetails['x-badges'];
+
+      // Filter by matchPaths
+      if (pathMatches(pathsKey, httpMethod)) {
+        if (badges && Array.isArray(badges)) {
+          // Filter out based on removePathsWithBadgeLabeledAs
+          if (!containsLabelToRemove(badges)) {
+            filteredMethods[httpMethod] = methodDetails;
+          }
+        } else {
+          // No badges present, include the method
+          filteredMethods[httpMethod] = methodDetails;
+        }
+      }
+    });
+
+    if (Object.keys(filteredMethods).length > 0) {
+      filteredPaths[pathsKey] = filteredMethods;
+    }
+  });
+
+  return {
+    openapi: openApiObject.openapi,
+    paths: filteredPaths,
+  };
 }
 
 function getHeadersFromMarkdown(markdownContent) {

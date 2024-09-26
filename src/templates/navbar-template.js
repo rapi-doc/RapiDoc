@@ -1,6 +1,6 @@
 import { html } from 'lit';
 import { marked } from 'marked';
-import { pathIsInSearch } from '~/utils/common-utils';
+import { getMatchedPaths } from '~/utils/common-utils';
 
 export function expandCollapseNavBarTag(navLinkEl, action = 'toggle') {
   const tagAndPathEl = navLinkEl?.closest('.nav-bar-tag-and-paths');
@@ -82,7 +82,7 @@ export default function navbarTemplate() {
                 >
                 <div style='margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;'>&#x21a9;</div>
               </div>  
-              ${this.matchPaths
+              ${this.searchVal
                 ? html`
                   <button @click = '${this.onClearSearch}' class='m-btn thin-border' style='margin-left:5px; color:var(--nav-text-color); width:75px; padding:6px 8px;' part='btn btn-outline btn-clear-filter'>
                     CLEAR
@@ -91,7 +91,7 @@ export default function navbarTemplate() {
               }
             `
           }
-          ${this.allowAdvancedSearch === 'false' || this.matchPaths
+          ${this.allowAdvancedSearch === 'false' || this.searchVal
             ? ''
             : html`
               <button class='m-btn primary' part='btn btn-fill btn-search' style='margin-left:5px; padding:6px 8px; width:75px' @click='${this.onShowSearchModalClicked}'>
@@ -166,7 +166,7 @@ export default function navbarTemplate() {
 
       <!-- TAGS AND PATHS-->
       ${this.resolvedSpec.tags
-        .filter((tag) => tag.paths.filter((path) => pathIsInSearch(this.matchPaths, path, this.matchType)).length)
+        .filter((tag) => tag.paths.filter((path) => getMatchedPaths(this.searchVal, path, tag.name)).length)
         .map((tag) => html`
           <div class='nav-bar-tag-and-paths ${(this.renderStyle === 'read' ? 'expanded' : (tag.expanded ? 'expanded' : 'collapsed'))}' >
             ${tag.name === 'General ⦂'
@@ -208,8 +208,8 @@ export default function navbarTemplate() {
             <div class='nav-bar-paths-under-tag' style='max-height:${(tag.expanded || this.renderStyle === 'read') ? ((tag.paths?.length || 1) * 50) : 0}px;'>
               <!-- Paths in each tag (endpoints) -->
               ${tag.paths.filter((v) => {
-                if (this.matchPaths) {
-                  return pathIsInSearch(this.matchPaths, v, this.matchType);
+                if (this.searchVal) {
+                  return getMatchedPaths(this.searchVal, v, tag.name);
                 }
                 return true;
               }).map((p) => html`

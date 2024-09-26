@@ -49,17 +49,13 @@ export async function wait(ms) {
   });
 }
 
-export function componentIsInSearch(searchVal, component) {
+export function getMatchedComponents(searchVal, component) {
   return component.name.toLowerCase().includes(searchVal.toLowerCase());
 }
 
-export function pathIsInSearch(searchVal, path, matchType = 'includes') {
-  if (matchType === 'includes') {
-    const stringToSearch = `${path.method} ${path.path} ${path.summary || ''} ${path.description || ''} ${path.operationId || ''}`.toLowerCase();
-    return stringToSearch.includes(searchVal.toLowerCase());
-  }
-  const regex = new RegExp(searchVal, 'i');
-  return regex.test(`${path.method} ${path.path}`);
+export function getMatchedPaths(searchVal, path, tagName = '') {
+  const stringToSearch = `${path.method} ${path.path} ${path.summary || ''} ${path.description || ''} ${path.operationId || ''} ${tagName}`.toLowerCase();
+  return stringToSearch.includes(searchVal.toLowerCase());
 }
 
 export function schemaKeys(schemaProps, result = new Set()) {

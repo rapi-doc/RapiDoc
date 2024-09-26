@@ -53,7 +53,7 @@ export default function searchByPropertiesModalTemplate() {
         tabindex = '0'
         @click="${
           (e) => {
-            this.matchPaths = ''; // clear quick filter if applied
+            this.searchVal = ''; // clear quick filter if applied
             this.showAdvancedSearchDialog = false; // Hide Search Dialog
             this.requestUpdate();
             this.scrollToEventTarget(e, true);

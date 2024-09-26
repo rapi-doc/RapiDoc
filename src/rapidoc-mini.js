@@ -84,6 +84,7 @@ export default class RapiDocMini extends LitElement {
       // Filters
       matchPaths: { type: String, attribute: 'match-paths' },
       matchType: { type: String, attribute: 'match-type' },
+      removeEndpointsWithBadgeLabelAs: { type: String, attribute: 'remove-endpoints-with-badge-label-as' },
 
       // Internal Properties
       loading: { type: Boolean }, // indicates spec is being loaded
@@ -182,7 +183,10 @@ export default class RapiDocMini extends LitElement {
     if (!this.sortTags || !'true, false,'.includes(`${this.sortTags},`)) { this.sortTags = 'false'; }
     if (!this.sortEndpointsBy || !'method, path, summary,'.includes(`${this.sortEndpointsBy},`)) { this.sortEndpointsBy = 'path'; }
     if (!this.fontSize || !'default, large, largest,'.includes(`${this.fontSize},`)) { this.fontSize = 'default'; }
+
     if (!this.matchType || !'includes regex'.includes(this.matchType)) { this.matchType = 'includes'; }
+    if (!this.matchPaths) { this.matchPaths = ''; }
+    if (!this.removeEndpointsWithBadgeLabelAs) { this.removeEndpointsWithBadgeLabelAs = ''; }
 
     if (!this.allowSchemaDescriptionExpandToggle || !'true, false,'.includes(`${this.allowSchemaDescriptionExpandToggle},`)) { this.allowSchemaDescriptionExpandToggle = 'true'; }
     if (!this.fetchCredentials || !'omit, same-origin, include,'.includes(`${this.fetchCredentials},`)) { this.fetchCredentials = ''; }
@@ -198,7 +202,7 @@ export default class RapiDocMini extends LitElement {
   }
 
   render() {
-    return mainBodyTemplate.call(this, true, false, false, this.pathsExpanded);
+    return mainBodyTemplate.call(this, true, this.pathsExpanded);
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
@@ -207,6 +211,13 @@ export default class RapiDocMini extends LitElement {
         // put it at the end of event-loop to load all the attributes
         window.setTimeout(async () => {
           await this.loadSpec(newVal);
+        }, 0);
+      }
+    }
+    if (name === 'match-paths' || name === 'match-type' || name === 'remove-endpoints-with-badge-label-as') {
+      if (oldVal !== newVal) {
+        window.setTimeout(async () => {
+          await this.loadSpec(this.specUrl);
         }, 0);
       }
     }
@@ -288,11 +299,15 @@ export default class RapiDocMini extends LitElement {
         specUrl,
         this.generateMissingTags === 'true',
         this.sortTags === 'true',
+        this.sortSchemas === 'true',
         this.getAttribute('sort-endpoints-by'),
         this.getAttribute('api-key-name'),
         this.getAttribute('api-key-location'),
         this.getAttribute('api-key-value'),
         this.getAttribute('server-url'),
+        this.matchPaths,
+        this.matchType,
+        this.removeEndpointsWithBadgeLabelAs,
       );
       this.loading = false;
       this.afterSpecParsedAndValidated(spec);

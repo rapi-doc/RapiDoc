@@ -6,7 +6,7 @@ import '~/components/api-response';
 import codeSamplesTemplate from '~/templates/code-samples-template';
 import callbackTemplate from '~/templates/callback-template';
 import { pathSecurityTemplate } from '~/templates/security-scheme-template';
-import { pathIsInSearch, rapidocApiKey } from '~/utils/common-utils';
+import { getMatchedPaths, rapidocApiKey } from '~/utils/common-utils';
 
 function toggleExpand(path) {
   if (path.expanded) {
@@ -205,9 +205,9 @@ export default function endpointTemplate(isMini = false, pathsExpanded = false) 
       ${isMini
         ? html`
           <div class='section-tag-body'>
-          ${tag.paths.filter((v) => {
-            if (this.matchPaths) {
-              return pathIsInSearch(this.matchPaths, v, this.matchType);
+          ${tag.paths.filter((path) => {
+            if (this.searchVal) {
+              return getMatchedPaths(this.searchVal, path, tag.name);
             }
             return true;
             }).map((path) => html`
@@ -229,8 +229,8 @@ export default function endpointTemplate(isMini = false, pathsExpanded = false) 
                 ${unsafeHTML(marked(tag.description || ''))}
               </div>
               ${tag.paths.filter((v) => {
-                if (this.matchPaths) {
-                  return pathIsInSearch(this.matchPaths, v, this.matchType);
+                if (this.searchVal) {
+                  return getMatchedPaths(this.searchVal, v, tag.name);
                 }
                 return true;
                 }).map((path) => html`

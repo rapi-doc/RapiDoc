@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+  <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src='https://www.googletagmanager.com/gtag/js?id=UA-132775238-1'></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-132775238-1');
+    </script>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes'>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;600&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script type='text/javascript' src='../rapidoc-min.js'></script>
+
+    <link href='../index.css' rel='stylesheet'>
+  </head>
+  <body>
+    <rapi-doc id = "thedoc"
+      spec-url="../specs/filter-test.yaml" 
+      allow-authentication = "false" 
+      show-info = "false"
+      show-header = "false"
+      render-style = "read"
+      match-paths=""
+      match-type="includes"
+      remove-endpoints-with-badge-label-as=""
+    > 
+    <div slot="operations-top" style="display: flex;justify-content: center; margin: 2px 0">
+      <input class='size txt' id='filter-text' value="one" type='text' placeholder='filter text' spellcheck='false' style="width:120px"> 
+      <button class='btn' style="width:100px" onclick='applyFilter("match-paths")' >Match Paths</button>
+      <button class='btn' style="width:100px" onclick='applyFilter("remove-endpoints-with-badge-label-as")' >Remove Badge</button>
+    </div>
+  </rapi-doc>
+  <script>
+    function applyFilter(filterType) {
+      const docEl = document.getElementById('thedoc');
+      const filterText = document.getElementById('filter-text').value || "";
+      if (filterType === 'match-paths') {
+        docEl.setAttribute('remove-endpoints-with-badge-label-as', "");
+        docEl.setAttribute('match-paths', filterText);
+      } else {
+        docEl.setAttribute('remove-endpoints-with-badge-label-as', filterText);
+        docEl.setAttribute('match-paths', "");
+      }
+    }
+  </script>  
+  </body>
+</html>

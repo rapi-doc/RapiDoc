@@ -290,6 +290,9 @@ export default class JsonSchemaViewer extends LitElement {
         this.sortTags === 'true',
         this.sortSchemas === 'true',
         this.getAttribute('sort-endpoints-by'),
+        this.getAttribute('match-paths'),
+        this.getAttribute('match-type'),
+        this.getAttribute('remove-endpoints-with-badge-label-as'),
       );
       this.loading = false;
       this.afterSpecParsedAndValidated(spec);

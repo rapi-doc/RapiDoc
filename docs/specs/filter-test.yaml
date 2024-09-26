@@ -1,0 +1,46 @@
+openapi: 3.0.0
+info:
+  title: Filtering Endpoints
+  description: |
+    Test case to check if the Endpoints are removed using the following attributes
+      - `match-paths`
+      - `remove-endpoints-with-badge-label-as`
+paths:
+  /path-1:
+    get:
+      x-badges:
+      - color: red
+        label: Beta
+      - color: blue
+        label: one
+    put:
+      x-badges:
+      - color: red
+        label: Beta
+      - color: green
+        label: two
+  /path-2:
+    get:
+      x-badges:
+      - color: primary-color
+        label: two
+    post:
+      x-badges:
+      - color: primary-color
+        label: three
+  /path-3:
+    get:
+      x-badges:
+      - color: green
+        label: two
+      - color: orange
+        label: Slow
+  /path-with-hidden-badge:
+    get:
+      description: Contains a badge `four`
+      x-badges:
+      - color: none
+        label: four
+  /no-badges-path:
+    get:
+      summary: Endpoint with No badges
