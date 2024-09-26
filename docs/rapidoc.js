@@ -3513,6 +3513,9 @@ input[type="checkbox"]:checked:after {
 ;// CONCATENATED MODULE: ./src/styles/endpoint-styles.js
 
 /* harmony default export */ const endpoint_styles = (i`
+:host {
+  container-type: inline-size;
+}
 .only-large-screen { display:none; }
 .endpoint-head .path{
   display: flex;
@@ -3681,7 +3684,7 @@ api-response.view-mode {
   border-color:var(--red); 
 }
 
-@media only screen and (min-width: 1024px) {
+@container (min-width: 1024px) {
   .only-large-screen { display:block; }
   .endpoint-head .path{
     font-size: var(--font-size-regular);
@@ -4137,16 +4140,12 @@ async function wait(ms) {
     setTimeout(resolve, ms);
   });
 }
-function componentIsInSearch(searchVal, component) {
+function getMatchedComponents(searchVal, component) {
   return component.name.toLowerCase().includes(searchVal.toLowerCase());
 }
-function pathIsInSearch(searchVal, path, matchType = 'includes') {
-  if (matchType === 'includes') {
-    const stringToSearch = `${path.method} ${path.path} ${path.summary || ''} ${path.description || ''} ${path.operationId || ''}`.toLowerCase();
-    return stringToSearch.includes(searchVal.toLowerCase());
-  }
-  const regex = new RegExp(searchVal, 'i');
-  return regex.test(`${path.method} ${path.path}`);
+function getMatchedPaths(searchVal, path, tagName = '') {
+  const stringToSearch = `${path.method} ${path.path} ${path.summary || ''} ${path.description || ''} ${path.operationId || ''} ${tagName}`.toLowerCase();
+  return stringToSearch.includes(searchVal.toLowerCase());
 }
 function schemaKeys(schemaProps, result = new Set()) {
   if (!schemaProps) {
@@ -4282,7 +4281,7 @@ parse:function(e,t){if("string"!=typeof e)throw new TypeError("argument str must
 
 
 
-async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = false, sortSchemas = false, sortEndpointsBy = '', attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '') {
+async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = false, sortSchemas = false, sortEndpointsBy = '', attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '', matchPaths = '', matchType = '', removeEndpointsWithBadgeLabelAs = '') {
   var _jsonParsedSpec$info, _jsonParsedSpec$compo;
   let jsonParsedSpec;
   try {
@@ -4302,7 +4301,7 @@ async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = fals
     }
     await sleep(0); // important to show the initial loader (allows for rendering updates)
 
-    // If  JSON Schema Viewer
+    // If JSON Schema Viewer
     if ((_specMeta$resolvedSpe = specMeta.resolvedSpec) !== null && _specMeta$resolvedSpe !== void 0 && _specMeta$resolvedSpe.jsonSchemaViewer && (_specMeta$resolvedSpe2 = specMeta.resolvedSpec) !== null && _specMeta$resolvedSpe2 !== void 0 && _specMeta$resolvedSpe2.schemaAndExamples) {
       this.dispatchEvent(new CustomEvent('before-render', {
         detail: {
@@ -4325,8 +4324,10 @@ async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = fals
       };
       return parsedSpec;
     }
+
+    // If RapiDoc or RapiDocMini
     if (specMeta.spec && (specMeta.spec.components || specMeta.spec.info || specMeta.spec.servers || specMeta.spec.tags || specMeta.spec.paths)) {
-      jsonParsedSpec = specMeta.spec;
+      jsonParsedSpec = filterPaths(specMeta.spec, matchPaths, matchType, removeEndpointsWithBadgeLabelAs);
       this.dispatchEvent(new CustomEvent('before-render', {
         detail: {
           spec: jsonParsedSpec
@@ -4471,6 +4472,58 @@ async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = fals
     servers
   };
   return parsedSpec;
+}
+function filterPaths(openApiObject, matchPaths = '', matchType = '', removeEndpointsWithBadgeLabelAs = '') {
+  const filteredPaths = {};
+
+  // Convert the removePathsWithBadgeLabeledAs to an array if provided
+  const labelsToRemove = removeEndpointsWithBadgeLabelAs.split(',').map(label => label.trim()).filter(Boolean);
+
+  // Helper function to check if a path should be included based on matchPaths
+  function pathMatches(pathsKey, httpMethod) {
+    if (!matchPaths) {
+      return true; // If no matchPaths provided, include everything
+    }
+    const fullPath = `${httpMethod} ${pathsKey}`.toLowerCase(); // Construct "method path" string
+    if (matchType === 'regex') {
+      const regex = new RegExp(matchPaths, 'i');
+      return regex.test(matchPaths.toLowerCase());
+    }
+    return fullPath.includes(matchPaths.toLowerCase());
+  }
+
+  // Helper function to check if the badges contain any label that needs to be removed
+  function containsLabelToRemove(badges) {
+    return badges.some(badge => labelsToRemove.includes(badge.label));
+  }
+
+  // Loop through the paths in the openApiObject
+  Object.entries(openApiObject.paths).forEach(([pathsKey, methods]) => {
+    const filteredMethods = {};
+    Object.entries(methods).forEach(([httpMethod, methodDetails]) => {
+      const badges = methodDetails['x-badges'];
+
+      // Filter by matchPaths
+      if (pathMatches(pathsKey, httpMethod)) {
+        if (badges && Array.isArray(badges)) {
+          // Filter out based on removePathsWithBadgeLabeledAs
+          if (!containsLabelToRemove(badges)) {
+            filteredMethods[httpMethod] = methodDetails;
+          }
+        } else {
+          // No badges present, include the method
+          filteredMethods[httpMethod] = methodDetails;
+        }
+      }
+    });
+    if (Object.keys(filteredMethods).length > 0) {
+      filteredPaths[pathsKey] = filteredMethods;
+    }
+  });
+  return {
+    openapi: openApiObject.openapi,
+    paths: filteredPaths
+  };
 }
 function getHeadersFromMarkdown(markdownContent) {
   const tokens = marked.lexer(markdownContent);
@@ -4852,7 +4905,7 @@ async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, g
       }
       return false;
     }
-  } catch (err) {
+  } catch {
     if (respDisplayEl) {
       respDisplayEl.innerHTML = '<span style="color:var(--red)">Failed to get access token</span>';
     }
@@ -5569,26 +5622,79 @@ function getTypeInfo(schema) {
   info.html = `${info.type}~|~${info.readOrWriteOnly}~|~${info.constrain}~|~${info.default}~|~${info.allowedValues}~|~${info.pattern}~|~${info.description}~|~${schema.title || ''}~|~${info.deprecated ? 'deprecated' : ''}`;
   return info;
 }
-function nestExampleIfPresent(example) {
-  if (typeof example === 'boolean' || typeof example === 'number') {
-    return {
-      Example: {
-        value: `${example}`
-      }
-    };
-  }
-  if (example === '') {
-    return {
-      Example: {
-        value: ''
-      }
-    };
-  }
-  return example ? {
-    Example: {
-      value: example
+
+/**
+ *
+ * @param {*} ex  if the value
+ *  - Is an Object with 'value' property  like
+ *      { 'value': 'example_val1', 'description': 'some description' }
+ *    Returns >>>
+ *      {
+ *        'Example': { 'value' : 'example_val1', 'description': 'some description' },
+ *      }
+ *  - Is an object where each key represents a valid example object (i,e has a value property)
+ *      {
+ *        'example1': { 'value' : 'example_val1', 'description': 'some description' },
+ *        'example2': { 'value' : 'example_val2', 'description': 'some other description' },
+ *        'invalid':  { 'description': 'invalid example object without any value property' }
+ *      }
+ *    Returns >>>
+ *      {
+ *        'example1': { 'value' : 'example_val1', 'description': 'some description' },
+ *        'example2': { 'value' : 'example_val2', 'description': 'some other description' }
+ *      }
+ *      if none of the keys represents an object with 'value' property then return undefined
+ *  - Is an array of premitive values
+ *      ['example_val1', 'example_val2']
+ *    Returns >>>
+ *      {
+ *         'Example1': {value:'value1'}
+ *         'Example2': {value:'value2'}
+ *      }
+ *  - Is a premitive value
+ *      'example_val1'
+ *    Returns >>>
+ *      {
+ *        'Example': { 'value': 'example_val1' }
+ *      }
+ *  - Is undefined
+ *    returns undefined
+ * @returns
+ */
+
+function standardizeExample(ex) {
+  if (typeof ex === 'object' && !Array.isArray(ex)) {
+    if (ex.value !== undefined) {
+      // Case 1: Single object with 'value' property
+      return {
+        Example: {
+          ...ex
+        }
+      };
     }
-  } : example;
+    // Case 2: Object where each key is an object with a 'value' property
+    const filteredEntries = Object.entries(ex).filter(([_, obj]) => obj.value !== undefined); // eslint-disable-line
+    // If no valid entries found, return JSON.stringify of the input
+    if (filteredEntries.length === 0) {
+      return undefined;
+    }
+    return Object.fromEntries(filteredEntries);
+  }
+  if (Array.isArray(ex)) {
+    // Case 3: Array of primitive values
+    return ex.reduce((acc, value, index) => {
+      acc[`Example${index + 1}`] = {
+        value
+      };
+      return acc;
+    }, {});
+  }
+  // Case 4: Single primitive value
+  return ex ? {
+    Example: {
+      value: ex
+    }
+  } : undefined;
 }
 
 /**
@@ -5731,7 +5837,7 @@ function getSampleValueByType(schemaObj) {
     if (schemaObj.pattern) {
       try {
         return new (randexp_default())(schemaObj.pattern).gen();
-      } catch (error) {
+      } catch {
         return schemaObj.pattern;
       }
     }
@@ -6349,7 +6455,7 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
 }
 
 /* Create Example object */
-function generateExample(schema, mimeType, examples = '', example = '', includeReadOnly = true, includeWriteOnly = true, outputType = 'json', includeGeneratedExample = false) {
+function generateExample(schema, mimeType, examples = {}, example = {}, includeReadOnly = true, includeWriteOnly = true, outputType = 'json', includeGeneratedExample = false) {
   const finalExamples = [];
   // First check if examples is provided
   if (examples) {
@@ -6368,7 +6474,7 @@ function generateExample(schema, mimeType, examples = '', example = '', includeR
               const fixedJsonString = examples[eg].value;
               egContent = JSON.parse(fixedJsonString);
               egFormat = 'json';
-            } catch (err) {
+            } catch {
               egFormat = 'text';
               egContent = examples[eg].value;
             }
@@ -6401,7 +6507,7 @@ function generateExample(schema, mimeType, examples = '', example = '', includeR
         try {
           egContent = JSON.parse(example);
           egFormat = 'json';
-        } catch (err) {
+        } catch {
           egFormat = 'text';
           egContent = example;
         }
@@ -6679,6 +6785,9 @@ customElements.define('json-tree', JsonTree);
 /* harmony default export */ const schema_styles = (i`
 
 *, *:before, *:after { box-sizing: border-box; }
+:host {
+  container-type: inline-size;
+}
 
 .tr {
   display: flex;
@@ -6783,7 +6892,7 @@ customElements.define('json-tree', JsonTree);
 }
 .toolbar-item:first-of-type { margin:0 2px 0 0;}
 
-@media only screen and (min-width: 500px) {
+@container (min-width: 500px) {
   .key-descr {
     display: block;
   }
@@ -7414,6 +7523,9 @@ class ApiRequest extends lit_element_h {
   }
   static get styles() {
     return [table_styles, input_styles, font_styles, flex_styles, border_styles, tab_styles, prism_styles, i`
+        :host {
+          container-type: inline-size;
+        }
         *, *:before, *:after { box-sizing: border-box; }
         :where(button, input[type="checkbox"], [tabindex="0"]):focus-visible { box-shadow: var(--focus-shadow); }
         :where(input[type="text"], input[type="password"], select, textarea):focus-visible { border-color: var(--primary-color); }
@@ -7498,13 +7610,13 @@ class ApiRequest extends lit_element_h {
           opacity: 1;
         }
 
-        @media only screen and (min-width: 768px) {
+        @container (min-width: 768px) {
           .textarea {
             padding:8px;
           }
         }
 
-        @media only screen and (max-width: 470px) {
+        @container (max-width: 470px) {
           .hide-in-small-screen {
             display:none;
           }
@@ -7669,9 +7781,9 @@ class ApiRequest extends lit_element_h {
         }
       }
       // openapi 3.1.0 spec based examples (which must be Object(string : { value:any, summary?: string, description?: string})
-      const example = normalizeExamples(param.examples || nestExampleIfPresent(param.example) || nestExampleIfPresent(mimeTypeElem === null || mimeTypeElem === void 0 ? void 0 : mimeTypeElem.example) || (mimeTypeElem === null || mimeTypeElem === void 0 ? void 0 : mimeTypeElem.examples) || nestExampleIfPresent(paramSchema.examples) || nestExampleIfPresent(paramSchema.example), paramSchema.type);
+      const example = normalizeExamples(standardizeExample(param.examples) || standardizeExample(param.example) || standardizeExample(mimeTypeElem === null || mimeTypeElem === void 0 ? void 0 : mimeTypeElem.example) || standardizeExample(mimeTypeElem === null || mimeTypeElem === void 0 ? void 0 : mimeTypeElem.examples) || standardizeExample(paramSchema.examples) || standardizeExample(paramSchema.example), paramSchema.type);
       if (!example.exampleVal && paramSchema.type === 'object') {
-        example.exampleVal = generateExample(declaredParamSchema, serializeStyle || 'json', '', '', this.callback === 'true' || this.webhook === 'true' ? true : false,
+        example.exampleVal = generateExample(declaredParamSchema, serializeStyle || 'json', {}, {}, this.callback === 'true' || this.webhook === 'true' ? true : false,
         // eslint-disable-line no-unneeded-ternary
         this.callback === 'true' || this.webhook === 'true' ? false : true,
         // eslint-disable-line no-unneeded-ternary
@@ -7905,7 +8017,7 @@ class ApiRequest extends lit_element_h {
       if (this.selectedRequestBodyType.includes('json') || this.selectedRequestBodyType.includes('xml') || this.selectedRequestBodyType.includes('text') || this.selectedRequestBodyType.includes('jose')) {
         // Generate Example
         if (reqBody.mimeType === this.selectedRequestBodyType) {
-          reqBodyExamples = generateExample(reqBody.schema, reqBody.mimeType, reqBody.examples, reqBody.example, this.callback === 'true' || this.webhook === 'true' ? true : false,
+          reqBodyExamples = generateExample(reqBody.schema, reqBody.mimeType, standardizeExample(reqBody.examples), standardizeExample(reqBody.example), this.callback === 'true' || this.webhook === 'true' ? true : false,
           // eslint-disable-line no-unneeded-ternary
           this.callback === 'true' || this.webhook === 'true' ? false : true,
           // eslint-disable-line no-unneeded-ternary
@@ -8051,7 +8163,7 @@ class ApiRequest extends lit_element_h {
     var _formdataPartExample$;
     // This template is used when form-data param should be send as a object (application/json, application/xml)
     const formdataPartSchema = schemaInObjectNotation(fieldSchema, {});
-    const formdataPartExample = generateExample(fieldSchema, 'json', fieldSchema.examples, fieldSchema.example, this.callback === 'true' || this.webhook === 'true' ? true : false,
+    const formdataPartExample = generateExample(fieldSchema, 'json', standardizeExample(fieldSchema.examples), standardizeExample(fieldSchema.example), this.callback === 'true' || this.webhook === 'true' ? true : false,
     // eslint-disable-line no-unneeded-ternary
     this.callback === 'true' || this.webhook === 'true' ? false : true,
     // eslint-disable-line no-unneeded-ternary
@@ -8475,7 +8587,7 @@ class ApiRequest extends lit_element_h {
               }
             }
           }
-        } catch (err) {
+        } catch {
           console.error('RapiDoc: unable to parse %s into object', el.value); // eslint-disable-line no-console
         }
         if (queryParam.toString()) {
@@ -8900,7 +9012,7 @@ class ApiRequest extends lit_element_h {
         if (requestBodyType.includes('json')) {
           try {
             curlData = ` -d '${JSON.stringify(JSON.parse(exampleTextAreaEl.value))}' \\\n`;
-          } catch (err) {
+          } catch {
             // Ignore.
           }
         }
@@ -9430,7 +9542,7 @@ class ApiResponse extends lit_element_h {
         // Generate Schema
         const schemaTree = schemaInObjectNotation(mimeRespObj.schema, {});
         // Generate Example
-        const respExamples = generateExample(mimeRespObj.schema, mimeResp, mimeRespObj.examples, mimeRespObj.example, this.callback === 'true' || this.webhook === 'true' ? false : true,
+        const respExamples = generateExample(mimeRespObj.schema, mimeResp, standardizeExample(mimeRespObj.examples), standardizeExample(mimeRespObj.example), this.callback === 'true' || this.webhook === 'true' ? false : true,
         // eslint-disable-line no-unneeded-ternary
         this.callback === 'true' || this.webhook === 'true' ? true : false,
         // eslint-disable-line no-unneeded-ternary
@@ -9699,7 +9811,7 @@ function expandedEndpointBodyTemplate(path, tagName = '', tagDescription = '') {
       ${ke`
         ${path.xBadges && ((_path$xBadges = path.xBadges) === null || _path$xBadges === void 0 ? void 0 : _path$xBadges.length) > 0 ? ke`
             <div style="display:flex; flex-wrap:wrap; margin-bottom: -24px; font-size: var(--font-size-small);">
-              ${path.xBadges.map(v => ke`<span style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`)}
+              ${path.xBadges.map(v => v.color === 'none' ? '' : ke`<span style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`)}
             </div>
             ` : ''}
         <h2 part="section-operation-summary"> ${path.shortSummary || `${path.method.toUpperCase()} ${path.path}`}</h2>
@@ -10116,12 +10228,12 @@ function navbarTemplate() {
                 >
                 <div style='margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;'>&#x21a9;</div>
               </div>  
-              ${this.matchPaths ? ke`
+              ${this.searchVal ? ke`
                   <button @click = '${this.onClearSearch}' class='m-btn thin-border' style='margin-left:5px; color:var(--nav-text-color); width:75px; padding:6px 8px;' part='btn btn-outline btn-clear-filter'>
                     CLEAR
                   </button>` : ''}
             `}
-          ${this.allowAdvancedSearch === 'false' || this.matchPaths ? '' : ke`
+          ${this.allowAdvancedSearch === 'false' || this.searchVal ? '' : ke`
               <button class='m-btn primary' part='btn btn-fill btn-search' style='margin-left:5px; padding:6px 8px; width:75px' @click='${this.onShowSearchModalClicked}'>
                 SEARCH
               </button>
@@ -10172,7 +10284,7 @@ function navbarTemplate() {
       </div>
 
       <!-- TAGS AND PATHS-->
-      ${this.resolvedSpec.tags.filter(tag => tag.paths.filter(path => pathIsInSearch(this.matchPaths, path, this.matchType)).length).map(tag => {
+      ${this.resolvedSpec.tags.filter(tag => tag.paths.filter(path => getMatchedPaths(this.searchVal, path, tag.name)).length).map(tag => {
     var _tag$paths;
     return ke`
           <div class='nav-bar-tag-and-paths ${this.renderStyle === 'read' ? 'expanded' : tag.expanded ? 'expanded' : 'collapsed'}' >
@@ -10206,8 +10318,8 @@ function navbarTemplate() {
             <div class='nav-bar-paths-under-tag' style='max-height:${tag.expanded || this.renderStyle === 'read' ? (((_tag$paths = tag.paths) === null || _tag$paths === void 0 ? void 0 : _tag$paths.length) || 1) * 50 : 0}px;'>
               <!-- Paths in each tag (endpoints) -->
               ${tag.paths.filter(v => {
-      if (this.matchPaths) {
-        return pathIsInSearch(this.matchPaths, v, this.matchType);
+      if (this.searchVal) {
+        return getMatchedPaths(this.searchVal, v, tag.name);
       }
       return true;
     }).map(p => ke`
@@ -10448,7 +10560,7 @@ function endpointBodyTemplate(path) {
       ${path.summary ? ke`<div class="title" part="section-endpoint-body-title">${path.summary}</div>` : path.shortSummary !== path.description ? ke`<div class="title" part="section-endpoint-body-title">${path.shortSummary}</div>` : ''}
       ${path.xBadges && ((_path$xBadges = path.xBadges) === null || _path$xBadges === void 0 ? void 0 : _path$xBadges.length) > 0 ? ke`
           <div style="display:flex; flex-wrap:wrap;font-size: var(--font-size-small);">
-            ${path.xBadges.map(v => ke`<span part="endpoint-badge" style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`)}
+            ${path.xBadges.map(v => v.color === 'none' ? '' : ke`<span part="endpoint-badge" style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`)}
           </div>
           ` : ''}
 
@@ -10519,12 +10631,12 @@ function endpointBodyTemplate(path) {
       </div>
   </div>`;
 }
-function endpointTemplate(showExpandCollapse = true, showTags = true, pathsExpanded = false) {
+function endpointTemplate(isMini = false, pathsExpanded = false) {
   if (!this.resolvedSpec) {
     return '';
   }
   return ke`
-    ${showExpandCollapse ? ke`
+    ${isMini ? '' : ke`
         <div style="display:flex; justify-content:flex-end;"> 
           <span @click="${e => onExpandCollapseAll(e, 'expand-all')}" style="color:var(--primary-color); cursor:pointer;">
             Expand all
@@ -10534,9 +10646,22 @@ function endpointTemplate(showExpandCollapse = true, showTags = true, pathsExpan
             Collapse all
           </span> 
           &nbsp; sections
-        </div>` : ''}
+        </div>`}
     ${this.resolvedSpec.tags.map(tag => ke`
-      ${showTags ? ke` 
+      ${isMini ? ke`
+          <div class='section-tag-body'>
+          ${tag.paths.filter(path => {
+    if (this.searchVal) {
+      return getMatchedPaths(this.searchVal, path, tag.name);
+    }
+    return true;
+  }).map(path => ke`
+            <section id='${path.elementId}' class='m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
+              ${endpointHeadTemplate.call(this, path, pathsExpanded)}      
+              ${pathsExpanded || path.expanded ? endpointBodyTemplate.call(this, path) : ''}
+            </section>`)}
+          </div>
+        ` : ke` 
           <div class='regular-font section-gap section-tag ${tag.expanded ? 'expanded' : 'collapsed'}'> 
             <div class='section-tag-header' @click="${() => {
     tag.expanded = !tag.expanded;
@@ -10550,8 +10675,8 @@ function endpointTemplate(showExpandCollapse = true, showTags = true, pathsExpan
                 ${unsafe_html_ae(marked(tag.description || ''))}
               </div>
               ${tag.paths.filter(v => {
-    if (this.matchPaths) {
-      return pathIsInSearch(this.matchPaths, v, this.matchType);
+    if (this.searchVal) {
+      return getMatchedPaths(this.searchVal, v, tag.name);
     }
     return true;
   }).map(path => ke`
@@ -10560,18 +10685,6 @@ function endpointTemplate(showExpandCollapse = true, showTags = true, pathsExpan
                   ${pathsExpanded || path.expanded ? endpointBodyTemplate.call(this, path) : ''}
                 </section>`)}
             </div>
-          </div>` : ke`
-          <div class='section-tag-body'>
-          ${tag.paths.filter(v => {
-    if (this.matchPaths) {
-      return pathIsInSearch(this.matchPaths, v, this.matchType);
-    }
-    return true;
-  }).map(path => ke`
-            <section id='${path.elementId}' class='m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
-              ${endpointHeadTemplate.call(this, path, pathsExpanded)}      
-              ${pathsExpanded || path.expanded ? endpointBodyTemplate.call(this, path) : ''}
-            </section>`)}
           </div>
         `}
   `)}`;
@@ -10855,7 +10968,7 @@ function searchByPropertiesModalTemplate() {
         data-content-id='${path.elementId}'
         tabindex = '0'
         @click="${e => {
-    this.matchPaths = ''; // clear quick filter if applied
+    this.searchVal = ''; // clear quick filter if applied
     this.showAdvancedSearchDialog = false; // Hide Search Dialog
     this.requestUpdate();
     this.scrollToEventTarget(e, true);
@@ -11217,7 +11330,7 @@ function setTheme(baseTheme, theme = {}) {
 
 
 
-function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = true, pathsExpanded = false) {
+function mainBodyTemplate(isMini = false, pathsExpanded = false) {
   if (!this.resolvedSpec) {
     return '';
   }
@@ -11297,7 +11410,7 @@ function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = 
                       <div id='operations-top' class='observe-me'>
                         <slot name='operations-top'></slot>
                       </div>  
-                      ${this.renderStyle === 'read' ? expandedEndpointTemplate.call(this) : endpointTemplate.call(this, showExpandCollapse, showTags, pathsExpanded)}
+                      ${this.renderStyle === 'read' ? expandedEndpointTemplate.call(this) : endpointTemplate.call(this, isMini, pathsExpanded)}
                     `}
                   </div>
                 `}`}
@@ -11642,6 +11755,10 @@ class RapiDoc extends lit_element_h {
         type: String,
         attribute: 'match-type'
       },
+      removeEndpointsWithBadgeLabelAs: {
+        type: String,
+        attribute: 'remove-endpoints-with-badge-label-as'
+      },
       // Internal Properties
       loading: {
         type: Boolean
@@ -11656,6 +11773,9 @@ class RapiDoc extends lit_element_h {
       },
       advancedSearchMatches: {
         type: Object
+      },
+      searchVal: {
+        type: String
       }
     };
   }
@@ -11674,6 +11794,7 @@ class RapiDoc extends lit_element_h {
         color:var(--fg);
         background-color:var(--bg);
         font-family:var(--font-regular);
+        container-type: inline-size;
       }
       :where(button, input[type="checkbox"], [tabindex="0"]):focus-visible { box-shadow: var(--focus-shadow); }
       :where(input[type="text"], input[type="password"], select, textarea):focus-visible { border-color: var(--primary-color); }
@@ -11881,7 +12002,7 @@ class RapiDoc extends lit_element_h {
         background-color: var(--yellow); 
       }
 
-      @media only screen and (min-width: 768px) {
+      @container (min-width: 768px) {
         .nav-bar {
           width: 260px;
           display:flex;
@@ -11907,7 +12028,7 @@ class RapiDoc extends lit_element_h {
         }
       }
 
-      @media only screen and (min-width: 1024px) {
+      @container (min-width: 1024px) {
         .nav-bar {
           width: ${r(this.fontSize === 'default' ? '300px' : this.fontSize === 'large' ? '315px' : '330px')};
           display:flex;
@@ -12083,11 +12204,17 @@ class RapiDoc extends lit_element_h {
     if (!this.fetchCredentials || !'omit, same-origin, include,'.includes(`${this.fetchCredentials},`)) {
       this.fetchCredentials = '';
     }
+    if (!this.scrollBehavior || !'smooth, auto,'.includes(`${this.scrollBehavior},`)) {
+      this.scrollBehavior = 'auto';
+    }
     if (!this.matchType || !'includes regex'.includes(this.matchType)) {
       this.matchType = 'includes';
     }
-    if (!this.scrollBehavior || !'smooth, auto,'.includes(`${this.scrollBehavior},`)) {
-      this.scrollBehavior = 'auto';
+    if (!this.matchPaths) {
+      this.matchPaths = '';
+    }
+    if (!this.removeEndpointsWithBadgeLabelAs) {
+      this.removeEndpointsWithBadgeLabelAs = '';
     }
     if (!this.showAdvancedSearchDialog) {
       this.showAdvancedSearchDialog = false;
@@ -12149,6 +12276,13 @@ class RapiDoc extends lit_element_h {
           if (this.gotoPath && !window.location.hash) {
             this.scrollToPath(this.gotoPath);
           }
+        }, 0);
+      }
+    }
+    if (name === 'match-paths' || name === 'match-type' || name === 'remove-endpoints-with-badge-label-as') {
+      if (oldVal !== newVal) {
+        window.setTimeout(async () => {
+          await this.loadSpec(this.specUrl);
         }, 0);
       }
     }
@@ -12225,7 +12359,7 @@ class RapiDoc extends lit_element_h {
         const specObj = JSON.parse(reader.result);
         this.loadSpec(specObj);
         this.shadowRoot.getElementById('spec-url').value = '';
-      } catch (err) {
+      } catch {
         console.error('RapiDoc: Unable to read or parse json'); // eslint-disable-line no-console
       }
     };
@@ -12236,18 +12370,18 @@ class RapiDoc extends lit_element_h {
     this.shadowRoot.getElementById('spec-file').click();
   }
   onSearchChange(e) {
-    this.matchPaths = e.target.value;
-    this.resolvedSpec.tags.forEach(tag => tag.paths.filter(v => {
-      if (this.matchPaths) {
-        // v.expanded = false;
-        if (pathIsInSearch(this.matchPaths, v, this.matchType)) {
+    // this.matchPaths = e.target.value;
+    this.searchVal = e.target.value;
+    this.resolvedSpec.tags.forEach(tag => tag.paths.filter(path => {
+      if (this.searchVal) {
+        if (getMatchedPaths(this.searchVal, path, tag.name)) {
           tag.expanded = true;
         }
       }
     }));
     this.resolvedSpec.components.forEach(component => component.subComponents.filter(v => {
       v.expanded = false;
-      if (!this.matchPaths || componentIsInSearch(this.matchPaths, v)) {
+      if (getMatchedComponents(this.searchVal, v)) {
         v.expanded = true;
       }
     }));
@@ -12256,7 +12390,7 @@ class RapiDoc extends lit_element_h {
   onClearSearch() {
     const searchEl = this.shadowRoot.getElementById('nav-bar-search');
     searchEl.value = '';
-    this.matchPaths = '';
+    this.searchVal = '';
     this.resolvedSpec.components.forEach(component => component.subComponents.filter(v => {
       v.expanded = true;
     }));
@@ -12280,7 +12414,7 @@ class RapiDoc extends lit_element_h {
     if (!specUrl) {
       return;
     }
-    this.matchPaths = '';
+    this.searchVal = '';
     try {
       this.resolvedSpec = {
         specLoadError: false,
@@ -12289,7 +12423,7 @@ class RapiDoc extends lit_element_h {
       };
       this.loading = true;
       this.loadFailed = false;
-      const spec = await ProcessSpec.call(this, specUrl, this.generateMissingTags === 'true', this.sortTags === 'true', this.sortSchemas === 'true', this.getAttribute('sort-endpoints-by'), this.getAttribute('api-key-name'), this.getAttribute('api-key-location'), this.getAttribute('api-key-value'), this.getAttribute('server-url'));
+      const spec = await ProcessSpec.call(this, specUrl, this.generateMissingTags === 'true', this.sortTags === 'true', this.sortSchemas === 'true', this.getAttribute('sort-endpoints-by'), this.getAttribute('api-key-name'), this.getAttribute('api-key-location'), this.getAttribute('api-key-value'), this.getAttribute('server-url'), this.matchPaths, this.matchType, this.removeEndpointsWithBadgeLabelAs);
       this.loading = false;
       this.afterSpecParsedAndValidated(spec);
     } catch (err) {
@@ -12792,6 +12926,10 @@ class RapiDocMini extends lit_element_h {
         type: String,
         attribute: 'match-type'
       },
+      removeEndpointsWithBadgeLabelAs: {
+        type: String,
+        attribute: 'remove-endpoints-with-badge-label-as'
+      },
       // Internal Properties
       loading: {
         type: Boolean
@@ -12813,9 +12951,10 @@ class RapiDocMini extends lit_element_h {
         color:var(--fg);
         background-color:var(--bg);
         font-family:var(--font-regular);
+        container-type: inline-size;
       }
 
-      @media only screen and (min-width: 768px) {
+      @container (min-width: 768px) {
         .only-large-screen{
           display:block;
         }
@@ -12905,6 +13044,12 @@ class RapiDocMini extends lit_element_h {
     if (!this.matchType || !'includes regex'.includes(this.matchType)) {
       this.matchType = 'includes';
     }
+    if (!this.matchPaths) {
+      this.matchPaths = '';
+    }
+    if (!this.removeEndpointsWithBadgeLabelAs) {
+      this.removeEndpointsWithBadgeLabelAs = '';
+    }
     if (!this.allowSchemaDescriptionExpandToggle || !'true, false,'.includes(`${this.allowSchemaDescriptionExpandToggle},`)) {
       this.allowSchemaDescriptionExpandToggle = 'true';
     }
@@ -12921,7 +13066,7 @@ class RapiDocMini extends lit_element_h {
     });
   }
   render() {
-    return mainBodyTemplate.call(this, true, false, false, this.pathsExpanded);
+    return mainBodyTemplate.call(this, true, this.pathsExpanded);
   }
   attributeChangedCallback(name, oldVal, newVal) {
     if (name === 'spec-url') {
@@ -12929,6 +13074,13 @@ class RapiDocMini extends lit_element_h {
         // put it at the end of event-loop to load all the attributes
         window.setTimeout(async () => {
           await this.loadSpec(newVal);
+        }, 0);
+      }
+    }
+    if (name === 'match-paths' || name === 'match-type' || name === 'remove-endpoints-with-badge-label-as') {
+      if (oldVal !== newVal) {
+        window.setTimeout(async () => {
+          await this.loadSpec(this.specUrl);
         }, 0);
       }
     }
@@ -13002,7 +13154,7 @@ class RapiDocMini extends lit_element_h {
       this.loading = true;
       this.loadFailed = false;
       this.requestUpdate();
-      const spec = await ProcessSpec.call(this, specUrl, this.generateMissingTags === 'true', this.sortTags === 'true', this.getAttribute('sort-endpoints-by'), this.getAttribute('api-key-name'), this.getAttribute('api-key-location'), this.getAttribute('api-key-value'), this.getAttribute('server-url'));
+      const spec = await ProcessSpec.call(this, specUrl, this.generateMissingTags === 'true', this.sortTags === 'true', this.sortSchemas === 'true', this.getAttribute('sort-endpoints-by'), this.getAttribute('api-key-name'), this.getAttribute('api-key-location'), this.getAttribute('api-key-value'), this.getAttribute('server-url'), this.matchPaths, this.matchType, this.removeEndpointsWithBadgeLabelAs);
       this.loading = false;
       this.afterSpecParsedAndValidated(spec);
     } catch (err) {
@@ -13188,7 +13340,7 @@ function jsonSchemaBodyTemplate() {
     <div style="font-size:var(--font-size-regular);">
     ${this.resolvedSpec.schemaAndExamples.map(jSchemaBody => {
     var _examplesObj$;
-    const examplesObj = generateExample(jSchemaBody.schema, 'json', jSchemaBody.examples, jSchemaBody.example, true, false, 'json', true);
+    const examplesObj = generateExample(jSchemaBody.schema, 'json', standardizeExample(jSchemaBody.examples), standardizeExample(jSchemaBody.example), true, false, 'json', true);
     jSchemaBody.selectedExample = (_examplesObj$ = examplesObj[0]) === null || _examplesObj$ === void 0 ? void 0 : _examplesObj$.exampleId;
     return ke`
         <section id='${jSchemaBody.elementId}' class='json-schema-and-example regular-font' style="display:flex; flex-direction: column; border:1px solid var(--border-color); margin-bottom:32px; border-top: 5px solid var(--border-color)">
@@ -13232,7 +13384,7 @@ function jsonSchemaBodyTemplate() {
 
 // Json Schema Root Template
 function jsonSchemaViewerTemplate(isMini = false) {
-  // export default function jsonSchemaViewerTemplate(isMini = false, showExpandCollapse = true, showTags = true, pathsExpanded = false) {
+  // export default function jsonSchemaViewerTemplate(isMini = false, pathsExpanded = false) {
   if (!this.resolvedSpec) {
     return '';
   }
@@ -13454,6 +13606,7 @@ class JsonSchemaViewer extends lit_element_h {
         color:var(--fg);
         background-color:var(--bg);
         font-family:var(--font-regular);
+        container-type: inline-size;
       }
       .body {
         display:flex;
@@ -13519,7 +13672,7 @@ class JsonSchemaViewer extends lit_element_h {
         height: 36px;
         animation: spin 2s linear infinite;
       }
-      @media only screen and (min-width: 768px) {
+      @container (min-width: 768px) {
         .only-large-screen{
           display:block;
         }
@@ -13652,7 +13805,7 @@ class JsonSchemaViewer extends lit_element_h {
       this.loading = true;
       this.loadFailed = false;
       this.requestUpdate();
-      const spec = await ProcessSpec.call(this, specUrl, this.generateMissingTags === 'true', this.sortTags === 'true', this.sortSchemas === 'true', this.getAttribute('sort-endpoints-by'));
+      const spec = await ProcessSpec.call(this, specUrl, this.generateMissingTags === 'true', this.sortTags === 'true', this.sortSchemas === 'true', this.getAttribute('sort-endpoints-by'), this.getAttribute('match-paths'), this.getAttribute('match-type'), this.getAttribute('remove-endpoints-with-badge-label-as'));
       this.loading = false;
       this.afterSpecParsedAndValidated(spec);
     } catch (err) {
@@ -20457,7 +20610,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("cf2bfd0b28802cc536db")
+/******/ 		__webpack_require__.h = () => ("30d68d37249fbebfe7d1")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
