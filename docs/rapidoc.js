@@ -2969,14 +2969,14 @@ var prism_csharp = __webpack_require__(651);
 ;// CONCATENATED MODULE: ./src/styles/font-styles.js
 
 /* harmony default export */ const font_styles = (i`
-  .hover-bg:hover{
+  .hover-bg:hover {
     background: var(--bg3);
   }
   ::selection {
     background: var(--selection-bg);
     color: var(--selection-fg);
   }
-  .regular-font{ 
+  .regular-font { 
     font-family:var(--font-regular); 
   }
   .mono-font { 
@@ -2986,7 +2986,7 @@ var prism_csharp = __webpack_require__(651);
     font-size: calc(var(--font-size-small) + 18px);
     font-weight: normal 
   }
-  .sub-title{ font-size: 20px;}
+  .sub-title{ font-size: 20px; }
   .req-res-title {
     font-family: var(--font-regular);
     font-size: calc(var(--font-size-small) + 4px);
@@ -3001,11 +3001,11 @@ var prism_csharp = __webpack_require__(651);
   .regular-font-size { font-size: var(--font-size-regular); }
   .small-font-size { font-size: var(--font-size-small); }
   .upper { text-transform: uppercase; }
-  .primary-text{ color: var(--primary-color); }
+  .primary-text { color: var(--primary-color); }
   .bold-text { font-weight:bold; }
   .gray-text { color: var(--light-fg); }
-  .red-text {color: var(--red)}
-  .blue-text {color: var(--blue)}
+  .red-text { color: var(--red) }
+  .blue-text { color: var(--blue) }
   .multiline {
     overflow: scroll;
     max-height: var(--resp-area-height, 400px);
@@ -3021,14 +3021,14 @@ var prism_csharp = __webpack_require__(651);
     color: var(--yellow); 
   }
 
-  h1{ font-family:var(--font-regular); font-size:28px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
-  h2{ font-family:var(--font-regular); font-size:24px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
-  h3{ font-family:var(--font-regular); font-size:18px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
-  h4{ font-family:var(--font-regular); font-size:16px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
-  h5{ font-family:var(--font-regular); font-size:14px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
-  h6{ font-family:var(--font-regular); font-size:14px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
+  h1 { font-family:var(--font-regular); font-size:28px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
+  h2 { font-family:var(--font-regular); font-size:24px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
+  h3 { font-family:var(--font-regular); font-size:18px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
+  h4 { font-family:var(--font-regular); font-size:16px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
+  h5 { font-family:var(--font-regular); font-size:14px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
+  h6 { font-family:var(--font-regular); font-size:14px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
 
-  h1,h2,h3,h4,h5,h5{
+  h1,h2,h3,h4,h5,h5 {
     margin-block-end: 0.2em;
   }
   p { margin-block-start: 0.5em; }
@@ -3274,14 +3274,14 @@ var prism_csharp = __webpack_require__(651);
 .m-btn.nav:hover { 
   background-color: var(--nav-accent-color);
 }
-.m-btn:disabled{ 
+.m-btn:disabled { 
   background-color: var(--bg3);
   color: var(--fg3);
   border-color: var(--fg3);
   cursor: not-allowed;
   opacity: 0.4;
 }
-.toolbar-btn{
+.toolbar-btn {
   cursor: pointer;
   padding: 4px;
   margin:0 2px;
@@ -3440,7 +3440,7 @@ input[type="checkbox"]:checked:after {
 ;// CONCATENATED MODULE: ./src/styles/flex-styles.js
 
 /* harmony default export */ const flex_styles = (i`
-.row, .col{
+.row, .col {
   display:flex;
 } 
 .row {
@@ -3517,7 +3517,7 @@ input[type="checkbox"]:checked:after {
   container-type: inline-size;
 }
 .only-large-screen { display:none; }
-.endpoint-head .path{
+.endpoint-head .path {
   display: flex;
   font-family:var(--font-mono);
   font-size: var(--font-size-small);
@@ -3536,7 +3536,7 @@ input[type="checkbox"]:checked:after {
   display:none;
 }
 
-.m-endpoint.expanded{margin-bottom:16px; }
+.m-endpoint.expanded { margin-bottom:16px; }
 .m-endpoint > .endpoint-head{
   border-width:1px 1px 1px 5px;
   border-style:solid;
@@ -3548,7 +3548,7 @@ input[type="checkbox"]:checked:after {
   cursor: pointer;
 }
 .m-endpoint > .endpoint-head.put:hover,
-.m-endpoint > .endpoint-head.put.expanded{
+.m-endpoint > .endpoint-head.put.expanded {
   border-color:var(--orange); 
   background-color:var(--light-orange); 
 }
@@ -3593,20 +3593,20 @@ input[type="checkbox"]:checked:after {
 }
 .m-endpoint .endpoint-body.delete{ border-color:var(--red); }
 .m-endpoint .endpoint-body.put{ border-color:var(--orange); }
-.m-endpoint .endpoint-body.post{border-color:var(--green);}
-.m-endpoint .endpoint-body.get{ border-color:var(--blue); }
+.m-endpoint .endpoint-body.post { border-color:var(--green); }
+.m-endpoint .endpoint-body.get { border-color:var(--blue); }
 .m-endpoint .endpoint-body.head,
 .m-endpoint .endpoint-body.patch,
 .m-endpoint .endpoint-body.options { 
   border-color:var(--yellow); 
 }
 
-.m-endpoint .endpoint-body.deprecated{ 
+.m-endpoint .endpoint-body.deprecated { 
   border-color:var(--border-color);
   filter:opacity(0.6);
 }
 
-.endpoint-head .deprecated{
+.endpoint-head .deprecated {
   color: var(--light-fg);
   filter:opacity(0.6);
 }
@@ -3614,13 +3614,13 @@ input[type="checkbox"]:checked:after {
 .summary{
   padding:8px 8px;
 }
-.summary .title{
+.summary .title {
   font-size:calc(var(--font-size-regular) + 2px);
   margin-bottom: 6px;
   word-break: break-all;
 }
 
-.endpoint-head .method{
+.endpoint-head .method {
   padding:2px 5px;
   vertical-align: middle;
   font-size:var(--font-size-small);
@@ -3895,7 +3895,7 @@ pre[class*="language-"] {
   flex-wrap:nowrap;
   word-break:break-word;
 }
-::slotted([slot=nav-logo]){
+::slotted([slot=nav-logo]) {
   padding:16px 16px 0 16px;
 }
 .nav-scroll {
@@ -5499,10 +5499,10 @@ var dist_default = /*#__PURE__*/__webpack_require__.n(dist);
 .pad-8-16{
   padding: 8px 16px;
 }
-.pad-top-8{
+.pad-top-8 {
   padding-top: 8px;
 }
-.mar-top-8{
+.mar-top-8 {
   margin-top: 8px;
 }
 `);
@@ -6864,13 +6864,13 @@ customElements.define('json-tree', JsonTree);
   margin-left: 2px;
 }
 
-.stri, .string, .uri, .url, .byte, .bina, .date, .pass, .ipv4, .ipv4, .uuid, .emai, .host {color:var(--green);}
-.inte, .numb, .number, .int6, .int3, .floa, .doub, .deci .blue {color:var(--blue);}
-.null {color:var(--red);}
-.bool, .boolean{color:var(--orange)}
-.enum {color:var(--purple)}
-.cons {color:var(--purple)}
-.recu {color:var(--brown)}
+.stri, .string, .uri, .url, .byte, .bina, .date, .pass, .ipv4, .ipv4, .uuid, .emai, .host { color:var(--green); }
+.inte, .numb, .number, .int6, .int3, .floa, .doub, .deci .blue { color:var(--blue); }
+.null { color:var(--red); }
+.bool, .boolean { color:var(--orange) }
+.enum { color:var(--purple) }
+.cons { color:var(--purple) }
+.recu { color:var(--brown) }
 .toolbar {
   display:flex;
   width:100%;
@@ -6894,7 +6894,7 @@ customElements.define('json-tree', JsonTree);
   .key-descr {
     display: block;
   }
-  .expanded-descr .key-descr{
+  .expanded-descr .key-descr {
     display: block;
   }
 }
@@ -11841,11 +11841,11 @@ class RapiDoc extends lit_element_h {
         cursor: n-resize;
         padding: 12px 0;
       }
-      .collapsed .section-tag-header:hover{
+      .collapsed .section-tag-header:hover {
         cursor: s-resize;
       }
 
-      .section-tag-header:hover{
+      .section-tag-header:hover {
         background-image: linear-gradient(to right, rgba(0,0,0,0), var(--border-color), rgba(0,0,0,0));
       }
 
@@ -11880,7 +11880,7 @@ class RapiDoc extends lit_element_h {
         margin-left:5px; 
       }
       .only-large-screen-flex,
-      .only-large-screen{
+      .only-large-screen {
         display:none;
       }
       .tag.title {
@@ -12953,10 +12953,10 @@ class RapiDocMini extends lit_element_h {
       }
 
       @container (min-width: 768px) {
-        .only-large-screen{
+        .only-large-screen {
           display:block;
         }
-        .only-large-screen-flex{
+        .only-large-screen-flex {
           display:flex;
         }
       }`];
@@ -13674,7 +13674,7 @@ class JsonSchemaViewer extends lit_element_h {
         .only-large-screen{
           display:block;
         }
-        .only-large-screen-flex{
+        .only-large-screen-flex {
           display:flex;
         }
       }`];
@@ -20608,7 +20608,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("6a5208e46b33850a49e6")
+/******/ 		__webpack_require__.h = () => ("a8edc2f38b9fc832343a")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

@@ -219,11 +219,11 @@ export default class RapiDoc extends LitElement {
         cursor: n-resize;
         padding: 12px 0;
       }
-      .collapsed .section-tag-header:hover{
+      .collapsed .section-tag-header:hover {
         cursor: s-resize;
       }
 
-      .section-tag-header:hover{
+      .section-tag-header:hover {
         background-image: linear-gradient(to right, rgba(0,0,0,0), var(--border-color), rgba(0,0,0,0));
       }
 
@@ -258,7 +258,7 @@ export default class RapiDoc extends LitElement {
         margin-left:5px; 
       }
       .only-large-screen-flex,
-      .only-large-screen{
+      .only-large-screen {
         display:none;
       }
       .tag.title {
@@ -383,10 +383,10 @@ export default class RapiDoc extends LitElement {
           width: 260px;
           display:flex;
         }
-        .only-large-screen{
+        .only-large-screen {
           display:block;
         }
-        .only-large-screen-flex{
+        .only-large-screen-flex {
           display:flex;
         }
         .section-gap { 

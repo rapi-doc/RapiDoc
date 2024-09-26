@@ -84,13 +84,13 @@ export default css`
   margin-left: 2px;
 }
 
-.stri, .string, .uri, .url, .byte, .bina, .date, .pass, .ipv4, .ipv4, .uuid, .emai, .host {color:var(--green);}
-.inte, .numb, .number, .int6, .int3, .floa, .doub, .deci .blue {color:var(--blue);}
-.null {color:var(--red);}
-.bool, .boolean{color:var(--orange)}
-.enum {color:var(--purple)}
-.cons {color:var(--purple)}
-.recu {color:var(--brown)}
+.stri, .string, .uri, .url, .byte, .bina, .date, .pass, .ipv4, .ipv4, .uuid, .emai, .host { color:var(--green); }
+.inte, .numb, .number, .int6, .int3, .floa, .doub, .deci .blue { color:var(--blue); }
+.null { color:var(--red); }
+.bool, .boolean { color:var(--orange) }
+.enum { color:var(--purple) }
+.cons { color:var(--purple) }
+.recu { color:var(--brown) }
 .toolbar {
   display:flex;
   width:100%;
@@ -114,7 +114,7 @@ export default css`
   .key-descr {
     display: block;
   }
-  .expanded-descr .key-descr{
+  .expanded-descr .key-descr {
     display: block;
   }
 }

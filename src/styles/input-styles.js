@@ -37,14 +37,14 @@ export default css`
 .m-btn.nav:hover { 
   background-color: var(--nav-accent-color);
 }
-.m-btn:disabled{ 
+.m-btn:disabled { 
   background-color: var(--bg3);
   color: var(--fg3);
   border-color: var(--fg3);
   cursor: not-allowed;
   opacity: 0.4;
 }
-.toolbar-btn{
+.toolbar-btn {
   cursor: pointer;
   padding: 4px;
   margin:0 2px;

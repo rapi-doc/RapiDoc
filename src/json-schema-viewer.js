@@ -168,7 +168,7 @@ export default class JsonSchemaViewer extends LitElement {
         .only-large-screen{
           display:block;
         }
-        .only-large-screen-flex{
+        .only-large-screen-flex {
           display:flex;
         }
       }`,

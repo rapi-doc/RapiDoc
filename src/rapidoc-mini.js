@@ -120,10 +120,10 @@ export default class RapiDocMini extends LitElement {
       }
 
       @container (min-width: 768px) {
-        .only-large-screen{
+        .only-large-screen {
           display:block;
         }
-        .only-large-screen-flex{
+        .only-large-screen-flex {
           display:flex;
         }
       }`,
