@@ -435,6 +435,38 @@
             </td>
             <td>false</td>
           </tr>
+
+          <tr>
+            <td class="attr-col mono bold right">match-paths</td>
+            <td class="gray">
+              If you want to show only few selected APIs based on the target audience, 
+              you may use this attribute to define which paths should be rendered. 
+              The filter can be a simple substring match for a path or can be a complex regex expression. 
+              Wheather to use substring match or regex match is specified through <span class="mono"> match-type</span> 
+              attribute 
+              &nbsp;|&nbsp; <a href="./examples/filter-test.html">Example</a>
+            </td>
+            <td>(empty)</td>
+          </tr>
+          <tr>
+            <td class="attr-col mono bold right">match-type</td>
+            <td class="gray"> 
+              <span class='bold dark-gray'>Allowed:<span class='blue'> includes | regex</span></span> -
+              Defines how <span class="mono"> match-paths</span> is used for filtering
+            </td>
+            <td>includes</td>
+          </tr>
+          <tr>
+            <td class="attr-col mono bold right">remove-endpoints-with-badge-label-as</td>
+            <td class="gray">
+              Comma separated badge labels to be removed from the spec.
+              <br/>
+              You may use vendor-extension <span class="mono">x-badges</span> to assign badges to endpoints. 
+              This attributes helps in removing the endpoints which matches a badge label
+              &nbsp;|&nbsp; <a href="./examples/filter-test.html">Example</a>
+            </td>
+            <td>includes</td>
+          </tr>
           <tr>
             <td class="attr-col mono bold right">show-components</td>
             <td class="gray">
@@ -1014,9 +1046,18 @@
               <td style="width:130px;"><a href="./examples/code-samples.html"> Usage Example </a> </td>
             </tr>
             <tr id="x-badges">
-              <td class="mono bold right" style="width:130px;" >x-badges </td>
-              <td class="gray"> Use this vendor-extension to annotate end-points with short color coded lables </td>
-              <td style="width:130px;"><a href="./examples/badges.html"> Usage Example </a> </td>
+              <td class="mono bold right" style="width:130px;">x-badges </td>
+              <td class="gray"> Use this vendor-extension to annotate end-points with short color coded lables. 
+                You can also assign badges to endpoints and then 
+                use them with <span class="mono bold">remove-endpoints-with-badge-label-as</span> 
+                attribute to remove them from your API documentation. 
+                This allows you to show the same API spec to different groups of audiences. 
+                Like you want to hide internal APIs for your customers but show then to your developers
+              </td>
+              <td style="width:130px;">
+                <a href="./examples/badges.html"> Badge Example </a><br/>
+                <a href="./examples/filter-test.html"> Filter by badge Example </a> 
+              </td>
             </tr>
 
             <tr>

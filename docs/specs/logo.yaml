@@ -1,0 +1,68 @@
+openapi: 3.0.0
+info:
+  title: Providing Logo
+  description: |
+    Shows how Logos can be inserted using `<slots>` there is a slot named `nav-logo`
+    <br/><br/>
+    ```html
+      <!--  using <div slot="nav-logo"> inside <rapi-doc> element -->
+      <rapi-doc spec-url = "..." >
+        <div slot="nav-logo" style="display: flex; align-items: center; justify-content: center;"> 
+          <img src="../images/dog.png" style="width:40px;"> 
+        </div>
+      </rapi-doc>
+    ```   
+paths:
+  /pet:
+    post:
+      tags:
+        - pet
+      summary: Add a new pet to the store
+    put:
+      tags:
+        - pet
+      summary: Update an existing pet
+  /pet/findByStatus:
+    get:
+      tags:
+        - pet
+      summary: Finds Pets by status
+      description: Multiple status values can be provided with comma separated strings
+  /pet/findByTags:
+    get:
+      tags:
+        - pet
+      summary: Finds Pets by tags
+      deprecated: true
+  /store/order:
+    post:
+      tags:
+        - store
+      summary: Place an order for a pet
+  /store/order/{orderId}:
+    get:
+      tags:
+        - store
+      summary: Find purchase order by ID
+    delete:
+      tags:
+        - store
+      summary: Delete purchase order by ID
+  /user:
+    post:
+      tags:
+        - user
+      summary: Create user
+  /user/{username}:
+    get:
+      tags:
+        - user
+      summary: Get user by user name
+    delete:
+      tags:
+        - user
+      summary: Delete user
+servers:
+  - url: https://petstore.swagger.io/v2
+  - url: http://petstore.swagger.io/v2
+
