@@ -261,7 +261,7 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
   const pkceOnly = authFlow['x-pkce-only'] || false;
   const isUrlAbsolute = (url) => (url.indexOf('://') > 0 || url.indexOf('//') === 0);
   // Calculcate base URL
-  const url = new URL(this.selectedServer.computedUrl);
+  const url = new URL(this.selectedServer?.computedUrl);
   const baseUrl = url.origin;
 
   if (refreshUrl && !isUrlAbsolute(refreshUrl)) {

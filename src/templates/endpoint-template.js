@@ -140,7 +140,7 @@ function endpointBodyTemplate(path) {
           .request_body = "${path.requestBody}"
           .api_keys = "${nonEmptyApiKeys}"
           .servers = "${path.servers}" 
-          server-url = "${path.servers && path.servers.length > 0 ? path.servers[0].url : this.selectedServer.computedUrl}" 
+          server-url = "${path.servers && path.servers.length > 0 ? path.servers[0].url : this.selectedServer?.computedUrl}" 
           active-schema-tab = "${this.defaultSchemaTab}"
           fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
           allow-try = "${this.allowTry}"
