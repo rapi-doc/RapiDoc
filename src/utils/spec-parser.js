@@ -128,7 +128,7 @@ export default async function ProcessSpec(
 
   // Servers
   let servers = [];
-  if (jsonParsedSpec.servers && Array.isArray(jsonParsedSpec.servers)) {
+  if (jsonParsedSpec.servers && Array.isArray(jsonParsedSpec.servers) && jsonParsedSpec.servers.length > 0) {
     jsonParsedSpec.servers.forEach((v) => {
       let computedUrl = v.url.trim();
       if (!(computedUrl.startsWith('http') || computedUrl.startsWith('//') || computedUrl.startsWith('{'))) {
@@ -315,7 +315,7 @@ function getComponents(openApiSpec, sortSchemas = false) {
 
 function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, sortTags = false) {
   const supportedMethods = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options']; // this is also used for ordering endpoints by methods
-  const tags = openApiSpec.tags && Array.isArray(openApiSpec.tags)
+  const tags = openApiSpec.tags && Array.isArray(openApiSpec.tags) && openApiSpec.tags.length > 0
     ? openApiSpec.tags.map((v) => ({
       show: true,
       elementId: `tag--${v.name.replace(invalidCharsRegEx, '-')}`,

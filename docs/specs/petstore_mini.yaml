@@ -63,7 +63,15 @@ paths:
       tags:
         - user
       summary: Delete user
-servers:
-  - url: https://petstore.swagger.io/v2
-  - url: http://petstore.swagger.io/v2
-
+servers: []
+components:
+  ApiResponse:
+    httpResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+        type:
+          type: string
+        message:
+          type: string
