@@ -4477,7 +4477,7 @@ function filterPaths(openApiObject, matchPaths = '', matchType = '', removeEndpo
   const filteredPaths = {};
 
   // Convert the removePathsWithBadgeLabeledAs to an array if provided
-  const labelsToRemove = removeEndpointsWithBadgeLabelAs.split(',').map(label => label.trim()).filter(Boolean);
+  const labelsToRemove = removeEndpointsWithBadgeLabelAs.split(',').map(label => label.trim().toLowerCase()).filter(Boolean);
 
   // Helper function to check if a path should be included based on matchPaths
   function pathMatches(pathsKey, httpMethod) {
@@ -4494,7 +4494,7 @@ function filterPaths(openApiObject, matchPaths = '', matchType = '', removeEndpo
 
   // Helper function to check if the badges contain any label that needs to be removed
   function containsLabelToRemove(badges) {
-    return badges.some(badge => labelsToRemove.includes(badge.label));
+    return badges.some(badge => labelsToRemove.includes(badge === null || badge === void 0 ? void 0 : badge.label.toLowerCase()));
   }
 
   // Loop through the paths in the openApiObject
@@ -20608,7 +20608,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("a8edc2f38b9fc832343a")
+/******/ 		__webpack_require__.h = () => ("6a8ecdcb581007f75e38")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
