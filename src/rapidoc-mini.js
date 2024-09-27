@@ -67,6 +67,7 @@ export default class RapiDocMini extends LitElement {
       oauthReceiver: { type: String, attribute: 'oauth-receiver' },
 
       allowTry: { type: String, attribute: 'allow-try' },
+      showCurlBeforeTry: { type: String, attribute: 'show-curl-before-try' },
 
       // Main Colors and Font
       theme: { type: String },
