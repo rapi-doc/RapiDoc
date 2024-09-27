@@ -1,7 +1,7 @@
 
 /**
 * @preserve
-* RapiDoc 9.3.7-beta - WebComponent to View OpenAPI docs
+* RapiDoc 9.3.7 - WebComponent to View OpenAPI docs
 * License: MIT
 * Repo   : https://github.com/rapi-doc/RapiDoc
 * Author : Mrinmoy Majumdar
@@ -4418,7 +4418,7 @@ async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = fals
 
   // Servers
   let servers = [];
-  if (jsonParsedSpec.servers && Array.isArray(jsonParsedSpec.servers)) {
+  if (jsonParsedSpec.servers && Array.isArray(jsonParsedSpec.servers) && jsonParsedSpec.servers.length > 0) {
     jsonParsedSpec.servers.forEach(v => {
       let computedUrl = v.url.trim();
       if (!(computedUrl.startsWith('http') || computedUrl.startsWith('//') || computedUrl.startsWith('{'))) {
@@ -4605,7 +4605,7 @@ function getComponents(openApiSpec, sortSchemas = false) {
 }
 function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, sortTags = false) {
   const supportedMethods = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options']; // this is also used for ordering endpoints by methods
-  const tags = openApiSpec.tags && Array.isArray(openApiSpec.tags) ? openApiSpec.tags.map(v => ({
+  const tags = openApiSpec.tags && Array.isArray(openApiSpec.tags) && openApiSpec.tags.length > 0 ? openApiSpec.tags.map(v => ({
     show: true,
     elementId: `tag--${v.name.replace(invalidCharsRegEx, '-')}`,
     name: v.name,
@@ -5027,6 +5027,7 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
 /* eslint-disable indent */
 
 function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, authFlow, defaultScopes = [], receiveTokenIn = 'header', receiveTokenInOptions = undefined) {
+  var _this$selectedServer;
   let {
     authorizationUrl,
     tokenUrl,
@@ -5035,7 +5036,7 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
   const pkceOnly = authFlow['x-pkce-only'] || false;
   const isUrlAbsolute = url => url.indexOf('://') > 0 || url.indexOf('//') === 0;
   // Calculcate base URL
-  const url = new URL(this.selectedServer.computedUrl);
+  const url = new URL((_this$selectedServer = this.selectedServer) === null || _this$selectedServer === void 0 ? void 0 : _this$selectedServer.computedUrl);
   const baseUrl = url.origin;
   if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
     refreshUrl = `${baseUrl}/${refreshUrl.replace(/^\//, '')}`;
@@ -9764,7 +9765,7 @@ function expandCollapseTagDescription(e) {
   }
 }
 function expandedEndpointBodyTemplate(path, tagName = '', tagDescription = '') {
-  var _path$xBadges, _path$externalDocs, _path$externalDocs2, _path$externalDocs3, _path$externalDocs4, _path$externalDocs5, _path$externalDocs6, _path$servers;
+  var _path$xBadges, _path$externalDocs, _path$externalDocs2, _path$externalDocs3, _path$externalDocs4, _path$externalDocs5, _path$externalDocs6, _path$servers, _this$selectedServer;
   const acceptContentTypes = new Set();
   for (const respStatus in path.responses) {
     for (const acceptContentType in (_path$responses$respS = path.responses[respStatus]) === null || _path$responses$respS === void 0 ? void 0 : _path$responses$respS.content) {
@@ -9841,7 +9842,7 @@ function expandedEndpointBodyTemplate(path, tagName = '', tagDescription = '') {
           .request_body = "${path.requestBody}"
           .api_keys = "${nonEmptyApiKeys}"
           .servers = "${path.servers}"
-          server-url = "${((_path$servers = path.servers) === null || _path$servers === void 0 || (_path$servers = _path$servers[0]) === null || _path$servers === void 0 ? void 0 : _path$servers.url) || this.selectedServer.computedUrl}"
+          server-url = "${((_path$servers = path.servers) === null || _path$servers === void 0 || (_path$servers = _path$servers[0]) === null || _path$servers === void 0 ? void 0 : _path$servers.url) || ((_this$selectedServer = this.selectedServer) === null || _this$selectedServer === void 0 ? void 0 : _this$selectedServer.computedUrl)}"
           fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
           allow-try = "${this.allowTry}"
           show-curl-before-try = "${this.showCurlBeforeTry}"
@@ -10531,7 +10532,7 @@ function endpointHeadTemplate(path, pathsExpanded = false) {
   `;
 }
 function endpointBodyTemplate(path) {
-  var _path$xBadges, _path$externalDocs, _path$externalDocs2, _path$externalDocs3, _path$externalDocs4, _path$externalDocs5, _path$externalDocs6;
+  var _path$xBadges, _path$externalDocs, _path$externalDocs2, _path$externalDocs3, _path$externalDocs4, _path$externalDocs5, _path$externalDocs6, _this$selectedServer;
   const acceptContentTypes = new Set();
   for (const respStatus in path.responses) {
     for (const acceptContentType in (_path$responses$respS = path.responses[respStatus]) === null || _path$responses$respS === void 0 ? void 0 : _path$responses$respS.content) {
@@ -10586,7 +10587,7 @@ function endpointBodyTemplate(path) {
           .request_body = "${path.requestBody}"
           .api_keys = "${nonEmptyApiKeys}"
           .servers = "${path.servers}" 
-          server-url = "${path.servers && path.servers.length > 0 ? path.servers[0].url : this.selectedServer.computedUrl}" 
+          server-url = "${path.servers && path.servers.length > 0 ? path.servers[0].url : (_this$selectedServer = this.selectedServer) === null || _this$selectedServer === void 0 ? void 0 : _this$selectedServer.computedUrl}" 
           active-schema-tab = "${this.defaultSchemaTab}"
           fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
           allow-try = "${this.allowTry}"
@@ -20608,7 +20609,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("6a8ecdcb581007f75e38")
+/******/ 		__webpack_require__.h = () => ("ab239753a7c115a89c24")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
