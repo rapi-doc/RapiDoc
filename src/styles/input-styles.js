@@ -15,10 +15,10 @@ export default css`
   white-space: nowrap;
   border: 2px solid var(--primary-color);
   background-color:transparent;
-  transition: background-color 0.2s;
   user-select: none;
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  transition-duration: 0.75s;
 }
 .m-btn.primary {
   background-color: var(--primary-color);
@@ -43,6 +43,11 @@ export default css`
   border-color: var(--fg3);
   cursor: not-allowed;
   opacity: 0.4;
+}
+.m-btn:active {
+  filter: brightness(75%);
+  transform: scale(0.95);
+  transition:scale 0s;
 }
 .toolbar-btn {
   cursor: pointer;
