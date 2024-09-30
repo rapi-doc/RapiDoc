@@ -48,9 +48,6 @@ export default class SchemaTree extends LitElement {
       .tree .key {
         max-width: 300px;
       }
-      .key.deprecated .key-label {
-        color: var(--red);
-      }
       .tr.expanded:hover > .td.key > .open-bracket {
         color: var(--primary-color);
       }
