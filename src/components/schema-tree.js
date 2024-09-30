@@ -220,7 +220,10 @@ export default class SchemaTree extends LitElement {
                 ? ''
                 : schemaLevel > 0
                   ? html`<span class="key-label" title="${readOrWrite === 'readonly' ? 'Read-Only' : readOrWrite === 'writeonly' ? 'Write-Only' : ''}">
-                      ${(isDeprecated || data['::deprecated']) ? '✗' : ''}
+                      ${(isDeprecated || data['::deprecated'])
+                        ? html`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--red); margin-right:-6px"><path d="M2 2L8 8M2 8L8 2"/></svg>`
+                        : ''
+                      }
                       ${keyLabel.replace(/\*$/, '')}${keyLabel.endsWith('*') ? html`<span style="color:var(--red)">*</span>` : ''}${readOrWrite === 'readonly' ? html` 🆁` : readOrWrite === 'writeonly' ? html` 🆆` : readOrWrite}:
                     </span>`
                   : ''
@@ -303,7 +306,10 @@ export default class SchemaTree extends LitElement {
     return html`
       <div class = "tr primitive" title="${deprecated ? 'Deprecated' : ''}">
         <div class="td key ${isDeprecated || deprecated}" style='min-width:${minFieldColWidth}px'>
-          ${isDeprecated || deprecated ? html`<span style='color:var(--red);'>✗</span>` : ''}
+          ${isDeprecated || deprecated
+            ? html`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--red); margin-right:-6px"><path d="M2 2L8 8M2 8L8 2"/></svg>`
+            : ''
+          }
           ${keyLabel.endsWith('*')
             ? html`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>:`
             : key.startsWith('::OPTION')

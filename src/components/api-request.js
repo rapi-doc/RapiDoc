@@ -203,6 +203,7 @@ export default class ApiRequest extends LitElement {
     ];
   }
 
+  /* eslint-disable indent */
   render() {
     return html`
     <div class="col regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'}">
@@ -215,6 +216,7 @@ export default class ApiRequest extends LitElement {
         ${this.requestBodyTemplate()}
         ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('header'))}
         ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('cookie'))}
+        //TODO: if this.allowTry === 'false' then it may be a good idea to show a complete curl syntax generated using schema and examples
         ${this.allowTry === 'false' ? '' : html`${this.apiCallTemplate()}`}
       </div>  
     </div>
@@ -274,7 +276,6 @@ export default class ApiRequest extends LitElement {
     }
   }
 
-  /* eslint-disable indent */
   renderExample(example, paramType, paramName) {
     return html`
       ${paramType === 'array' ? '[' : ''}
@@ -399,7 +400,10 @@ export default class ApiRequest extends LitElement {
       <tr title="${param.deprecated ? 'Deprecated' : ''}"> 
         <td rowspan="${this.allowTry === 'true' ? '1' : '2'}" style="width:${labelColWidth}; min-width:100px;">
           <div class="param-name ${param.deprecated ? 'deprecated' : ''}" >
-            ${param.deprecated ? html`<span style='color:var(--red);'>✗</span>` : ''}
+            ${param.deprecated
+              ? html`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--red); margin-right:-6px"><path d="M2 2L8 8M2 8L8 2"/></svg>`
+              : ''
+            }
             ${param.required ? html`<span style='color:var(--red)'>*</span>` : ''}
             ${param.name}
           </div>
