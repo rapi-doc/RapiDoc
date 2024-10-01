@@ -1528,11 +1528,12 @@ export default class ApiRequest extends LitElement {
         respHeadersObj[hdr] = hdrVal;
         this.responseHeaders = `${this.responseHeaders}${hdr}: ${hdrVal}\n`;
       });
-      const contentType = fetchResponse.headers.get('content-type').split(';')[0].trim();
+      let contentType = fetchResponse.headers.get('content-type');
       const respEmpty = (await fetchResponse.clone().text()).length === 0;
       if (respEmpty) {
         this.responseText = '';
       } else if (contentType) {
+        contentType = contentType.split(';')[0].trim();
         if (contentType === 'application/x-ndjson') {
           this.responseText = await fetchResponse.text();
         } else if (contentType.includes('json')) {
