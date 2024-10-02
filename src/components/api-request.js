@@ -216,7 +216,6 @@ export default class ApiRequest extends LitElement {
         ${this.requestBodyTemplate()}
         ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('header'))}
         ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('cookie'))}
-        //TODO: if this.allowTry === 'false' then it may be a good idea to show a complete curl syntax generated using schema and examples
         ${this.allowTry === 'false' ? '' : html`${this.apiCallTemplate()}`}
       </div>  
     </div>
