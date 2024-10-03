@@ -105,6 +105,7 @@ export default class RapiDocMini extends LitElement {
       InfoStyles,
       css`
       :host {
+        all: initial;
         display:flex;
         flex-direction: column;
         min-width:360px;

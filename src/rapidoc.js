@@ -158,6 +158,7 @@ export default class RapiDoc extends LitElement {
       InfoStyles,
       css`
       :host {
+        all: initial;
         display:flex;
         flex-direction: column;
         min-width:360px;
@@ -174,7 +175,7 @@ export default class RapiDoc extends LitElement {
       }
       :where(button, input[type="checkbox"], [tabindex="0"]):focus-visible { box-shadow: var(--focus-shadow); }
       :where(input[type="text"], input[type="password"], select, textarea):focus-visible { border-color: var(--primary-color); }
-    .body {
+      .body {
         display:flex;
         height:100%;
         width:100%;
