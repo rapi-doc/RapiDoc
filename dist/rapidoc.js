@@ -3252,10 +3252,10 @@ var prism_csharp = __webpack_require__(651);
   white-space: nowrap;
   border: 2px solid var(--primary-color);
   background-color:transparent;
-  transition: background-color 0.2s;
   user-select: none;
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  transition-duration: 0.75s;
 }
 .m-btn.primary {
   background-color: var(--primary-color);
@@ -3280,6 +3280,11 @@ var prism_csharp = __webpack_require__(651);
   border-color: var(--fg3);
   cursor: not-allowed;
   opacity: 0.4;
+}
+.m-btn:active {
+  filter: brightness(75%);
+  transform: scale(0.95);
+  transition:scale 0s;
 }
 .toolbar-btn {
   cursor: pointer;
@@ -5157,7 +5162,7 @@ function securitySchemeTemplate() {
     </div>
     ${this.resolvedSpec.securitySchemes && this.resolvedSpec.securitySchemes.length > 0 ? ke`
         <table role="presentation" id="auth-table" class='m-table padded-12' style="width:100%;">
-          ${this.resolvedSpec.securitySchemes.map(v => ke`
+          ${this.resolvedSpec.securitySchemes.filter(v => v.scheme && v.type).map(v => ke`
             <tr id="security-scheme-${v.securitySchemeId}" class="${v.type.toLowerCase()}">
               <td style="max-width:500px; overflow-wrap: break-word;">
                 <div style="line-height:28px; margin-bottom:5px;">
@@ -5324,7 +5329,7 @@ function pathSecurityTemplate(pathSecurity) {
 function codeSamplesTemplate(xCodeSamples) {
   return ke`
   <section class="table-title" style="margin-top:24px;">CODE SAMPLES</div>
-  <div class="tab-panel col"
+  <div part="tab-panel" class="tab-panel col"
     @click="${e => {
     if (!e.target.classList.contains('tab-btn')) {
       return;
@@ -5337,8 +5342,8 @@ function codeSamplesTemplate(xCodeSamples) {
       tabBodyEl.style.display = tabBodyEl.dataset.tab === clickedTab ? 'block' : 'none';
     });
   }}">
-    <div class="tab-buttons row" style="width:100; overflow">
-      ${xCodeSamples.map((v, i) => ke`<button class="tab-btn ${i === 0 ? 'active' : ''}" data-tab = '${v.lang}${i}'> ${v.label || v.lang} </button>`)}
+    <div part="tab-btn-row" class="tab-buttons row" style="width:100; overflow">
+      ${xCodeSamples.map((v, i) => ke`<button part="tab-btn" class="tab-btn ${i === 0 ? 'active' : ''}" data-tab = '${v.lang}${i}'> ${v.label || v.lang} </button>`)}
     </div>
     ${xCodeSamples.map((v, i) => {
     var _v$lang, _v$lang2, _v$lang3;
@@ -5399,6 +5404,7 @@ function callbackTemplate(callbacks) {
                       schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : 'true'}"
                       fetch-credentials = "${this.fetchCredentials}"
                       exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
+                        tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-coontent:tab-content, 
                         file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
                         anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
                       > </api-request>
@@ -5417,7 +5423,8 @@ function callbackTemplate(callbacks) {
                       schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : 'true'}"
                       schema-hide-write-only = "false"
                       exportparts = "btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
-                      schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+                        tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-coontent:tab-content, 
+                        schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
                     > </api-response>
                   </div>
                 </div>  
@@ -6741,7 +6748,7 @@ class JsonTree extends lit_element_h {
   }
   generateTree(data, isLast = false) {
     if (data === null) {
-      return ke`<div class="null" style="display:inline;">null</div>`;
+      return ke`<span class="null">null</span>${isLast ? '' : ','}`;
     }
     if (typeof data === 'object' && data instanceof Date === false) {
       const detailType = Array.isArray(data) ? 'array' : 'pure_object';
@@ -6969,9 +6976,6 @@ class SchemaTree extends lit_element_h {
       .tree .key {
         max-width: 300px;
       }
-      .key.deprecated .key-label {
-        color: var(--red);
-      }
       .tr.expanded:hover > .td.key > .open-bracket {
         color: var(--primary-color);
       }
@@ -7118,7 +7122,7 @@ class SchemaTree extends lit_element_h {
         <div class="tr ${schemaLevel < this.schemaExpandLevel || (_data$Type2 = data['::type']) !== null && _data$Type2 !== void 0 && _data$Type2.startsWith('xxx-of') ? 'expanded' : 'collapsed'} ${data['::type'] || 'no-type-info'}${data['::nullable'] ? ' nullable' : ''}" title="${isDeprecated || data['::deprecated'] ? 'Deprecated' : ''}">
           <div class="td key ${isDeprecated || data['::deprecated'] ? 'deprecated' : ''}" style='min-width:${minFieldColWidth}px'>
             ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION') ? ke`<span class='key-label xxx-of-key'> ${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>` : keyLabel === '::props' || keyLabel === '::ARRAY~OF' ? '' : schemaLevel > 0 ? ke`<span class="key-label" title="${readOrWrite === 'readonly' ? 'Read-Only' : readOrWrite === 'writeonly' ? 'Write-Only' : ''}">
-                      ${isDeprecated || data['::deprecated'] ? '✗' : ''}
+                      ${isDeprecated || data['::deprecated'] ? ke`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--red); margin-right:-6px"><path d="M2 2L8 8M2 8L8 2"/></svg>` : ''}
                       ${keyLabel.replace(/\*$/, '')}${keyLabel.endsWith('*') ? ke`<span style="color:var(--red)">*</span>` : ''}${readOrWrite === 'readonly' ? ke` 🆁` : readOrWrite === 'writeonly' ? ke` 🆆` : readOrWrite}:
                     </span>` : ''}
             ${openBracket}
@@ -7170,7 +7174,7 @@ class SchemaTree extends lit_element_h {
     return ke`
       <div class = "tr primitive" title="${deprecated ? 'Deprecated' : ''}">
         <div class="td key ${isDeprecated || deprecated}" style='min-width:${minFieldColWidth}px'>
-          ${isDeprecated || deprecated ? ke`<span style='color:var(--red);'>✗</span>` : ''}
+          ${isDeprecated || deprecated ? ke`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--red); margin-right:-6px"><path d="M2 2L8 8M2 8L8 2"/></svg>` : ''}
           ${keyLabel.endsWith('*') ? ke`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>:` : key.startsWith('::OPTION') ? ke`<span class='key-label xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>` : ke`<span class="key-label">${keyLabel}:</span>`}
           <span class="${dataTypeCss}" title="${finalReadWriteTip}"> 
             ${dataType === 'array' ? `[${type}]` : `${type}`}
@@ -7622,6 +7626,8 @@ class ApiRequest extends lit_element_h {
         }
       `, custom_styles];
   }
+
+  /* eslint-disable indent */
   render() {
     return ke`
     <div class="col regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'}">
@@ -7689,8 +7695,6 @@ class ApiRequest extends lit_element_h {
       this.requestUpdate();
     }
   }
-
-  /* eslint-disable indent */
   renderExample(example, paramType, paramName) {
     var _example$value, _example$value2;
     return ke`
@@ -7793,7 +7797,7 @@ class ApiRequest extends lit_element_h {
       <tr title="${param.deprecated ? 'Deprecated' : ''}"> 
         <td rowspan="${this.allowTry === 'true' ? '1' : '2'}" style="width:${labelColWidth}; min-width:100px;">
           <div class="param-name ${param.deprecated ? 'deprecated' : ''}" >
-            ${param.deprecated ? ke`<span style='color:var(--red);'>✗</span>` : ''}
+            ${param.deprecated ? ke`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--red); margin-right:-6px"><path d="M2 2L8 8M2 8L8 2"/></svg>` : ''}
             ${param.required ? ke`<span style='color:var(--red)'>*</span>` : ''}
             ${param.name}
           </div>
@@ -7819,8 +7823,8 @@ class ApiRequest extends lit_element_h {
                     .value="${param['x-fill-example'] === 'no' ? [] : live_Ft(this.fillRequestFieldsWithExample === 'true' ? Array.isArray(example.exampleVal) ? example.exampleVal : [example.exampleVal] : [])}"
                   >
                   </tag-input>` : paramSchema.type === 'object' ? ke`
-                    <div class="tab-panel col" style="border-width:0 0 1px 0;">
-                      <div class="tab-buttons row" @click="${e => {
+                    <div part="tab-panel" class="tab-panel col" style="border-width:0 0 1px 0;">
+                      <div part="tab-btn-row" class="tab-buttons row" @click="${e => {
         if (e.target.tagName.toLowerCase() === 'button') {
           const newState = {
             ...this.activeParameterSchemaTabs
@@ -7829,11 +7833,11 @@ class ApiRequest extends lit_element_h {
           this.activeParameterSchemaTabs = newState;
         }
       }}">
-                        <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
-                        <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
+                        <button part="tab-btn" class="tab-btn ${this.activeParameterSchemaTabs[param.name] === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
+                        <button part="tab-btn" class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
                       </div>
 
-                    ${ke`<div class="tab-content col" data-tab = 'example' style="display:${this.activeParameterSchemaTabs[param.name] === 'example' ? 'block' : 'none'}; padding-left:5px; width:100%">
+                    ${ke`<div part="tab-content" class="tab-content col" data-tab = 'example' style="display:${this.activeParameterSchemaTabs[param.name] === 'example' ? 'block' : 'none'}; padding-left:5px; width:100%">
                         <textarea 
                           id = "textarea-request-param-${param.name}"
                           class = "textarea request-param"
@@ -7854,7 +7858,7 @@ class ApiRequest extends lit_element_h {
       }}
                         ></textarea>
                       </div>`}
-                    ${ke`<div class="tab-content col" data-tab = 'schema' style="display:${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'block' : 'none'}; padding-left:5px; width:100%;">
+                    ${ke`<div part="tab-content" class="tab-content col" data-tab = 'schema' style="display:${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'block' : 'none'}; padding-left:5px; width:100%;">
                         <schema-tree
                           class = 'json'
                           style = 'display: block'
@@ -8141,17 +8145,17 @@ class ApiRequest extends lit_element_h {
         ${this.request_body.description ? ke`<div class="m-markdown" style="margin-bottom:12px">${unsafe_html_ae(marked(this.request_body.description))}</div>` : ''}
         
         ${this.selectedRequestBodyType.includes('json') || this.selectedRequestBodyType.includes('xml') || this.selectedRequestBodyType.includes('text') || this.selectedRequestBodyType.includes('jose') ? ke`
-            <div class="tab-panel col" style="border-width:0 0 1px 0;">
-              <div class="tab-buttons row" @click="${e => {
+            <div part="tab-panel" class="tab-panel col" style="border-width:0 0 1px 0;">
+              <div part="tab-btn-row" class="tab-buttons row" @click="${e => {
       if (e.target.tagName.toLowerCase() === 'button') {
         this.activeSchemaTab = e.target.dataset.tab;
       }
     }}">
-                <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
-                <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
+                <button part="tab-btn" class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
+                <button part="tab-btn" class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
               </div>
-              ${ke`<div class="tab-content col" style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'};"> ${reqBodyExampleHtml}</div>`}
-              ${ke`<div class="tab-content col" style="display:${this.activeSchemaTab === 'example' ? 'none' : 'block'};"> ${reqBodySchemaHtml}</div>`}
+              ${ke`<div part="tab-content" class="tab-content col" style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'};"> ${reqBodyExampleHtml}</div>`}
+              ${ke`<div part="tab-content" class="tab-content col" style="display:${this.activeSchemaTab === 'example' ? 'none' : 'block'};"> ${reqBodySchemaHtml}</div>`}
             </div>` : ke`  
             ${reqBodyFileInputHtml}
             ${reqBodyFormHtml}`}
@@ -8168,7 +8172,7 @@ class ApiRequest extends lit_element_h {
     // eslint-disable-line no-unneeded-ternary
     'text', false);
     return ke`
-      <div class="tab-panel row" style="min-height:220px; border-left: 6px solid var(--light-border-color); align-items: stretch;">
+      <div part="tab-panel" class="tab-panel row" style="min-height:220px; border-left: 6px solid var(--light-border-color); align-items: stretch;">
         <div style="width:24px; background-color:var(--light-border-color)">
           <div class="row" style="flex-direction:row-reverse; width:160px; height:24px; transform:rotate(270deg) translateX(-160px); transform-origin:top left; display:block;" @click="${e => {
       if (e.target.classList.contains('v-tab-btn')) {
@@ -8385,19 +8389,19 @@ class ApiRequest extends lit_element_h {
         <div style="flex:1"></div>
         <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
       </div>
-      <div class="tab-panel col" style="border-width:0 0 1px 0;">
-        <div id="tab_buttons" class="tab-buttons row" @click="${e => {
+      <div part="tab-panel" class="tab-panel col" style="border-width:0 0 1px 0;">
+        <div id="tab_buttons" part="tab-btn-row" class="tab-buttons row" @click="${e => {
       if (e.target.classList.contains('tab-btn') === false) {
         return;
       }
       this.activeResponseTab = e.target.dataset.tab;
     }}">
-          <button class="tab-btn ${this.activeResponseTab === 'response' ? 'active' : ''}" data-tab = 'response' > RESPONSE</button>
-          <button class="tab-btn ${this.activeResponseTab === 'headers' ? 'active' : ''}"  data-tab = 'headers' > RESPONSE HEADERS</button>
-          ${this.showCurlBeforeTry === 'true' ? '' : ke`<button class="tab-btn ${this.activeResponseTab === 'curl' ? 'active' : ''}" data-tab = 'curl'>CURL</button>`}
+          <button part="tab-btn" class="tab-btn ${this.activeResponseTab === 'response' ? 'active' : ''}" data-tab = 'response' > RESPONSE</button>
+          <button part="tab-btn" class="tab-btn ${this.activeResponseTab === 'headers' ? 'active' : ''}"  data-tab = 'headers' > RESPONSE HEADERS</button>
+          ${this.showCurlBeforeTry === 'true' ? '' : ke`<button part="tab-btn" class="tab-btn ${this.activeResponseTab === 'curl' ? 'active' : ''}" data-tab = 'curl'>CURL</button>`}
         </div>
         ${this.responseIsBlob ? ke`
-            <div class="tab-content col" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};">
+            <div part="tab-content" class="tab-content col" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};">
               ${this.responseBlobType === 'image' ? ke`<img style="max-height:var(--resp-area-height, 400px); object-fit:contain;" class="mar-top-8" src="${if_defined_to(this.responseBlobUrl)}"></img>` : ''}  
               <button class="m-btn thin-border mar-top-8" style="width:135px" @click='${e => {
       downloadResource(this.responseBlobUrl, this.respContentDisposition, e);
@@ -8408,13 +8412,13 @@ class ApiRequest extends lit_element_h {
       viewResource(this.responseBlobUrl, e);
     }}' part="btn btn-outline">VIEW (NEW TAB)</button>` : ''}
             </div>` : ke`
-            <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};" >
+            <div part="tab-content" class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};" >
               <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${e => {
       copyToClipboard(this.responseText, e);
     }}' part="btn btn-fill"> Copy </button>
               <pre style="white-space:pre; min-height:50px; height:var(--resp-area-height, 400px); resize:vertical; overflow:auto">${responseContent}</pre>
             </div>`}
-        <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};" >
+        <div part="tab-content" class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};" >
           <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${e => {
       copyToClipboard(this.responseHeaders, e);
     }}' part="btn btn-fill"> Copy </button>
@@ -8841,11 +8845,12 @@ class ApiRequest extends lit_element_h {
         respHeadersObj[hdr] = hdrVal;
         this.responseHeaders = `${this.responseHeaders}${hdr}: ${hdrVal}\n`;
       });
-      const contentType = fetchResponse.headers.get('content-type').split(';')[0].trim();
+      let contentType = fetchResponse.headers.get('content-type');
       const respEmpty = (await fetchResponse.clone().text()).length === 0;
       if (respEmpty) {
         this.responseText = '';
       } else if (contentType) {
+        contentType = contentType.split(';')[0].trim();
         if (contentType === 'application/x-ndjson') {
           this.responseText = await fetchResponse.text();
         } else if (contentType.includes('json')) {
@@ -9290,7 +9295,7 @@ class SchemaTable extends lit_element_h {
                     <span class='obj-toggle ${newSchemaLevel < this.schemaExpandLevel ? 'expanded' : 'collapsed'}' data-obj='${keyLabel}'>
                       ${schemaLevel < this.schemaExpandLevel ? '-' : '+'}
                     </span>` : ''}
-                ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION') ? ke`<span class="xxx-of-key" style="margin-left:-6px">${keyLabel}</span><span class="${isOneOfLabel ? 'xxx-of-key' : 'xxx-of-descr'}">${keyDescr}</span>` : keyLabel.endsWith('*') ? ke`<span class="key-label" style="display:inline-block; margin-left:-6px;">${isDeprecated || data['::deprecated'] ? '✗' : ''} ${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>` : ke`<span class="key-label" style="display:inline-block; margin-left:-6px;">${isDeprecated || data['::deprecated'] ? '✗' : ''} ${keyLabel === '::props' ? '' : keyLabel}</span>`}
+                ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION') ? ke`<span class="xxx-of-key" style="margin-left:-6px">${keyLabel}</span><span class="${isOneOfLabel ? 'xxx-of-key' : 'xxx-of-descr'}">${keyDescr}</span>` : keyLabel.endsWith('*') ? ke`<span class="key-label" style="display:inline-block; margin-left:-6px;">${isDeprecated || data['::deprecated'] ? ke`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--red); margin-right:-6px"><path d="M2 2L8 8M2 8L8 2"/></svg>` : ''} ${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>` : ke`<span class="key-label" style="display:inline-block; margin-left:-6px;">${isDeprecated || data['::deprecated'] ? ke`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--red); margin-right:-6px"><path d="M2 2L8 8M2 8L8 2"/></svg>` : ''} ${keyLabel === '::props' ? '' : keyLabel}</span>`}
                 ${data['::type'] === 'xxx-of' && dataType === 'array' ? ke`<span style="color:var(--primary-color)">ARRAY</span>` : ''} 
               </div>
               <div class='td key-type' title="${data['::readwrite'] === 'readonly' ? 'Read-Only' : data['::readwrite'] === 'writeonly' ? 'Write-Only' : ''}">
@@ -9346,7 +9351,7 @@ class SchemaTable extends lit_element_h {
     return ke`
       <div class = "tr primitive" title="${isDeprecated || deprecated ? 'Deprecated' : ''}">
         <div class="td key ${isDeprecated || deprecated ? 'deprecated' : ''}" style='padding-left:${leftPadding}px'>
-          ${isDeprecated || deprecated ? ke`<span style='color:var(--red);'>✗</span>` : ''}
+          ${isDeprecated || deprecated ? ke`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--red); margin-right:-6px"><path d="M2 2L8 8M2 8L8 2"/></svg>` : ''}
           ${(_keyLabel = keyLabel) !== null && _keyLabel !== void 0 && _keyLabel.endsWith('*') ? ke`
               <span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span>
               <span style='color:var(--red);'>*</span>` : key.startsWith('::OPTION') ? ke`<span class='xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>` : ke`${keyLabel ? ke`<span class="key-label"> ${keyLabel}</span>` : ke`<span class="xxx-of-descr">${schemaTitle}</span>`}`}
@@ -9595,20 +9600,20 @@ class ApiResponse extends lit_element_h {
             ${this.headersForEachRespStatus[status] && ((_this$headersForEachR = this.headersForEachRespStatus[status]) === null || _this$headersForEachR === void 0 ? void 0 : _this$headersForEachR.length) > 0 ? ke`${this.responseHeaderListTemplate(this.headersForEachRespStatus[status])}` : ''}
           </div>
           ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 0 ? '' : ke`  
-              <div class="tab-panel col">
-                <div class="tab-buttons row" @click="${e => {
+              <div part="tab-panel" class="tab-panel col">
+                <div part="tab-btn-row" class="tab-buttons row" @click="${e => {
         if (e.target.tagName.toLowerCase() === 'button') {
           this.activeSchemaTab = e.target.dataset.tab;
         }
       }}" >
-                  <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
-                  <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' >SCHEMA</button>
+                  <button part="tab-btn" class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
+                  <button part="tab-btn" class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' >SCHEMA</button>
                   <div style="flex:1"></div>
                   ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1 ? ke`<span class='small-font-size gray-text' style='align-self:center; margin-top:8px;'> ${Object.keys(this.mimeResponsesForEachStatus[status])[0]} </span>` : ke`${this.mimeTypeDropdownTemplate(Object.keys(this.mimeResponsesForEachStatus[status]))}`}
                 </div>
-                ${this.activeSchemaTab === 'example' ? ke`<div class ='tab-content col' style = 'flex:1;'>
+                ${this.activeSchemaTab === 'example' ? ke`<div part="tab-content" class ='tab-content col' style = 'flex:1;'>
                       ${this.mimeExampleTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
-                    </div>` : ke`<div class ='tab-content col' style = 'flex:1;'>
+                    </div>` : ke`<div part="tab-content" class ='tab-content col' style = 'flex:1;'>
                       ${this.mimeSchemaTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
                     </div>`}
               </div>
@@ -9857,6 +9862,7 @@ function expandedEndpointBodyTemplate(path, tagName = '', tagDescription = '') {
           schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
           fetch-credentials = "${this.fetchCredentials}"
           exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
+            tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-coontent:tab-content, 
             file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
             anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
         > </api-request>
@@ -9878,7 +9884,8 @@ function expandedEndpointBodyTemplate(path, tagName = '', tagDescription = '') {
           schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
           selected-status = "${Object.keys(path.responses || {})[0] || ''}"
           exportparts = "btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
-          schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+            tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-coontent:tab-content, 
+            schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
         > </api-response>
       </div>
     </div>
@@ -10602,6 +10609,7 @@ function endpointBodyTemplate(path) {
           schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
           fetch-credentials = "${this.fetchCredentials}"
           exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
+            tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-coontent:tab-content, 
             file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
             anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
           > </api-request>
@@ -10624,8 +10632,9 @@ function endpointBodyTemplate(path) {
           schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
           selected-status = "${Object.keys(path.responses || {})[0] || ''}"
           exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, file-input:file-input, 
-          textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, anchor:anchor, anchor-param-example:anchor-param-example, btn-clear-resp:btn-clear-resp,
-          schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+            textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, anchor:anchor, anchor-param-example:anchor-param-example, btn-clear-resp:btn-clear-resp,
+            tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-coontent:tab-content, 
+            schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
         > </api-response>
       </div>
   </div>`;
@@ -10696,7 +10705,7 @@ function endpointTemplate(isMini = false, pathsExpanded = false) {
 function logoTemplate(style) {
   return ke`
   <div style=${style}>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="1 0 511 512">
+    <svg viewBox="1 0 511 512">
       <path d="M351 411a202 202 0 01-350 0 203 203 0 01333-24 203 203 0 0117 24zm0 0" fill="#adc165"/>
       <path d="M334 387a202 202 0 01-216-69 202 202 0 01216 69zm78 32H85a8 8 0 01-8-8 8 8 0 018-8h327a8 8 0 017 8 8 8 0 01-7 8zm0 0" fill="#99aa52"/>
       <path d="M374 338l-5 30a202 202 0 01-248-248 203 203 0 01253 218zm0 0" fill="#ffc73b"/>
@@ -11350,23 +11359,11 @@ function mainBodyTemplate(isMini = false, pathsExpanded = false) {
   };
   /* eslint-disable indent */
   if (this.resolvedSpec.specLoadError) {
-    if (isMini) {
-      return ke`
-        ${this.theme === 'dark' ? setTheme.call(this, 'dark', newTheme) : setTheme.call(this, 'light', newTheme)}
-        <div style='display:flex; align-items:center; border:1px dashed var(--border-color); height:42px; padding:5px; font-size:var(--font-size-small); color:var(--red); font-family:var(--font-mono)'> ${this.resolvedSpec.info.description} </div>
-      `;
-    }
     return ke`
       ${this.theme === 'dark' ? setTheme.call(this, 'dark', newTheme) : setTheme.call(this, 'light', newTheme)}
-      <!-- Header -->
-      ${headerTemplate.call(this)}
-      <main class='main-content regular-font' part='section-main-content'>
-        <slot></slot>
-        <div style='margin:24px; text-align: center;'>
-          <h1 style='color: var(--red)'> ${this.resolvedSpec.info.title} </h1>
-          <div style='font-family:var(--font-mono)'> ${this.resolvedSpec.info.description} </div>
-        </div>
-      </main>  
+      <div id="spec-not-found" style='display:flex; align-items:center; justify-content: center; border:1px dashed var(--border-color); height:42px; padding:5px; font-size:var(--font-size-small); color:var(--red); font-family:var(--font-mono)'> 
+        ${this.resolvedSpec.info.description} 
+      </div>
     `;
   }
   if (this.resolvedSpec.isSpecLoading) {
@@ -11781,6 +11778,7 @@ class RapiDoc extends lit_element_h {
   static get styles() {
     return [font_styles, input_styles, flex_styles, table_styles, endpoint_styles, prism_styles, tab_styles, nav_styles, info_styles, i`
       :host {
+        all: initial;
         display:flex;
         flex-direction: column;
         min-width:360px;
@@ -11797,7 +11795,7 @@ class RapiDoc extends lit_element_h {
       }
       :where(button, input[type="checkbox"], [tabindex="0"]):focus-visible { box-shadow: var(--focus-shadow); }
       :where(input[type="text"], input[type="password"], select, textarea):focus-visible { border-color: var(--primary-color); }
-    .body {
+      .body {
         display:flex;
         height:100%;
         width:100%;
@@ -12879,6 +12877,10 @@ class RapiDocMini extends lit_element_h {
         type: String,
         attribute: 'allow-try'
       },
+      showCurlBeforeTry: {
+        type: String,
+        attribute: 'show-curl-before-try'
+      },
       // Main Colors and Font
       theme: {
         type: String
@@ -12938,6 +12940,7 @@ class RapiDocMini extends lit_element_h {
   static get styles() {
     return [font_styles, input_styles, flex_styles, table_styles, endpoint_styles, prism_styles, tab_styles, nav_styles, info_styles, i`
       :host {
+        all: initial;
         display:flex;
         flex-direction: column;
         min-width:360px;
@@ -13593,6 +13596,7 @@ class JsonSchemaViewer extends lit_element_h {
   static get styles() {
     return [font_styles, input_styles, flex_styles, table_styles, endpoint_styles, prism_styles, tab_styles, nav_styles, info_styles, i`
       :host {
+        all: initial;
         display:flex;
         flex-direction: column;
         min-width:360px;
@@ -20609,7 +20613,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("ab239753a7c115a89c24")
+/******/ 		__webpack_require__.h = () => ("4fbef47d920867fbcef0")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
