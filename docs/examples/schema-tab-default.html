@@ -1,39 +1,20 @@
 <!doctype html>
 <html>
   <head>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-132775238-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'UA-132775238-1');
-    </script>
-
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;600&family=Roboto+Mono&display=swap" rel="stylesheet">
-    <link href='../index.css' rel='stylesheet'>
-    <script type="module" src="../rapidoc-min.js"></script>
-    <style>
-      rapi-doc{
-        width:100%;
-      }
-    </style>
+    <script src="./load-rapidoc-and-other-common-scripts.js"></script>
   </head>
   <body>
     <rapi-doc 
       id = "thedoc"
       spec-url="https://petstore.swagger.io/v2/swagger.json" 
-      allow-authentication = "false" 
       show-info = "false"
       show-header = "false"
-      render-style = "read"
-      allow-try = "false" 
-      regular-font = 'Open Sans'
-      mono-font = "Roboto Mono"
-      default-schema-tab = 'example'
+      allow-authentication = "false" 
+      allow-server-selection = "false"
+      default-schema-tab = "schema"
+      schema-style='table'
     > 
       <div slot="nav-logo">
         <div style="text-align: center; padding: 0 0 12px 0; color:#47AFE8"> Default Schema Tab </div>
