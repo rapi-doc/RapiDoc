@@ -181,10 +181,10 @@ export default class ApiResponse extends LitElement {
           ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 0
             ? ''
             : html`  
-              <div class="tab-panel col">
-                <div class="tab-buttons row" @click="${(e) => { if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; } }}" >
-                  <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
-                  <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' >SCHEMA</button>
+              <div part="tab-panel" class="tab-panel col">
+                <div part="tab-btn-row" class="tab-buttons row" @click="${(e) => { if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; } }}" >
+                  <button part="tab-btn" class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
+                  <button part="tab-btn" class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' >SCHEMA</button>
                   <div style="flex:1"></div>
                   ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1
                     ? html`<span class='small-font-size gray-text' style='align-self:center; margin-top:8px;'> ${Object.keys(this.mimeResponsesForEachStatus[status])[0]} </span>`
@@ -192,10 +192,10 @@ export default class ApiResponse extends LitElement {
                   }
                 </div>
                 ${this.activeSchemaTab === 'example'
-                  ? html`<div class ='tab-content col' style = 'flex:1;'>
+                  ? html`<div part="tab-content" class ='tab-content col' style = 'flex:1;'>
                       ${this.mimeExampleTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
                     </div>`
-                  : html`<div class ='tab-content col' style = 'flex:1;'>
+                  : html`<div part="tab-content" class ='tab-content col' style = 'flex:1;'>
                       ${this.mimeSchemaTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
                     </div>`
                 }

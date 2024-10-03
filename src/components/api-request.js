@@ -438,19 +438,19 @@ export default class ApiRequest extends LitElement {
                   </tag-input>`
                 : paramSchema.type === 'object'
                   ? html`
-                    <div class="tab-panel col" style="border-width:0 0 1px 0;">
-                      <div class="tab-buttons row" @click="${(e) => {
+                    <div part="tab-panel" class="tab-panel col" style="border-width:0 0 1px 0;">
+                      <div part="tab-btn-row" class="tab-buttons row" @click="${(e) => {
                         if (e.target.tagName.toLowerCase() === 'button') {
                           const newState = { ...this.activeParameterSchemaTabs };
                           newState[param.name] = e.target.dataset.tab;
                           this.activeParameterSchemaTabs = newState;
                         }
                       }}">
-                        <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
-                        <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
+                        <button part="tab-btn" class="tab-btn ${this.activeParameterSchemaTabs[param.name] === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
+                        <button part="tab-btn" class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
                       </div>
 
-                    ${html`<div class="tab-content col" data-tab = 'example' style="display:${this.activeParameterSchemaTabs[param.name] === 'example' ? 'block' : 'none'}; padding-left:5px; width:100%">
+                    ${html`<div part="tab-content" class="tab-content col" data-tab = 'example' style="display:${this.activeParameterSchemaTabs[param.name] === 'example' ? 'block' : 'none'}; padding-left:5px; width:100%">
                         <textarea 
                           id = "textarea-request-param-${param.name}"
                           class = "textarea request-param"
@@ -472,7 +472,7 @@ export default class ApiRequest extends LitElement {
                         ></textarea>
                       </div>`
                     }
-                    ${html`<div class="tab-content col" data-tab = 'schema' style="display:${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'block' : 'none'}; padding-left:5px; width:100%;">
+                    ${html`<div part="tab-content" class="tab-content col" data-tab = 'schema' style="display:${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'block' : 'none'}; padding-left:5px; width:100%;">
                         <schema-tree
                           class = 'json'
                           style = 'display: block'
@@ -790,13 +790,13 @@ export default class ApiRequest extends LitElement {
         
         ${(this.selectedRequestBodyType.includes('json') || this.selectedRequestBodyType.includes('xml') || this.selectedRequestBodyType.includes('text') || this.selectedRequestBodyType.includes('jose'))
           ? html`
-            <div class="tab-panel col" style="border-width:0 0 1px 0;">
-              <div class="tab-buttons row" @click="${(e) => { if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; } }}">
-                <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
-                <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
+            <div part="tab-panel" class="tab-panel col" style="border-width:0 0 1px 0;">
+              <div part="tab-btn-row" class="tab-buttons row" @click="${(e) => { if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; } }}">
+                <button part="tab-btn" class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
+                <button part="tab-btn" class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
               </div>
-              ${html`<div class="tab-content col" style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'};"> ${reqBodyExampleHtml}</div>`}
-              ${html`<div class="tab-content col" style="display:${this.activeSchemaTab === 'example' ? 'none' : 'block'};"> ${reqBodySchemaHtml}</div>`}
+              ${html`<div part="tab-content" class="tab-content col" style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'};"> ${reqBodyExampleHtml}</div>`}
+              ${html`<div part="tab-content" class="tab-content col" style="display:${this.activeSchemaTab === 'example' ? 'none' : 'block'};"> ${reqBodySchemaHtml}</div>`}
             </div>`
           : html`  
             ${reqBodyFileInputHtml}
@@ -821,7 +821,7 @@ export default class ApiRequest extends LitElement {
     );
 
     return html`
-      <div class="tab-panel row" style="min-height:220px; border-left: 6px solid var(--light-border-color); align-items: stretch;">
+      <div part="tab-panel" class="tab-panel row" style="min-height:220px; border-left: 6px solid var(--light-border-color); align-items: stretch;">
         <div style="width:24px; background-color:var(--light-border-color)">
           <div class="row" style="flex-direction:row-reverse; width:160px; height:24px; transform:rotate(270deg) translateX(-160px); transform-origin:top left; display:block;" @click="${(e) => {
           if (e.target.classList.contains('v-tab-btn')) {
@@ -1055,20 +1055,20 @@ export default class ApiRequest extends LitElement {
         <div style="flex:1"></div>
         <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
       </div>
-      <div class="tab-panel col" style="border-width:0 0 1px 0;">
-        <div id="tab_buttons" class="tab-buttons row" @click="${(e) => {
+      <div part="tab-panel" class="tab-panel col" style="border-width:0 0 1px 0;">
+        <div id="tab_buttons" part="tab-btn-row" class="tab-buttons row" @click="${(e) => {
             if (e.target.classList.contains('tab-btn') === false) { return; }
             this.activeResponseTab = e.target.dataset.tab;
         }}">
-          <button class="tab-btn ${this.activeResponseTab === 'response' ? 'active' : ''}" data-tab = 'response' > RESPONSE</button>
-          <button class="tab-btn ${this.activeResponseTab === 'headers' ? 'active' : ''}"  data-tab = 'headers' > RESPONSE HEADERS</button>
+          <button part="tab-btn" class="tab-btn ${this.activeResponseTab === 'response' ? 'active' : ''}" data-tab = 'response' > RESPONSE</button>
+          <button part="tab-btn" class="tab-btn ${this.activeResponseTab === 'headers' ? 'active' : ''}"  data-tab = 'headers' > RESPONSE HEADERS</button>
           ${this.showCurlBeforeTry === 'true'
             ? ''
-            : html`<button class="tab-btn ${this.activeResponseTab === 'curl' ? 'active' : ''}" data-tab = 'curl'>CURL</button>`}
+            : html`<button part="tab-btn" class="tab-btn ${this.activeResponseTab === 'curl' ? 'active' : ''}" data-tab = 'curl'>CURL</button>`}
         </div>
         ${this.responseIsBlob
           ? html`
-            <div class="tab-content col" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};">
+            <div part="tab-content" class="tab-content col" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};">
               ${this.responseBlobType === 'image'
                 ? html`<img style="max-height:var(--resp-area-height, 400px); object-fit:contain;" class="mar-top-8" src="${ifDefined(this.responseBlobUrl)}"></img>`
                 : ''
@@ -1082,12 +1082,12 @@ export default class ApiRequest extends LitElement {
               }
             </div>`
           : html`
-            <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};" >
+            <div part="tab-content" class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};" >
               <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.responseText, e); }}' part="btn btn-fill"> Copy </button>
               <pre style="white-space:pre; min-height:50px; height:var(--resp-area-height, 400px); resize:vertical; overflow:auto">${responseContent}</pre>
             </div>`
         }
-        <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};" >
+        <div part="tab-content" class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};" >
           <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.responseHeaders, e); }}' part="btn btn-fill"> Copy </button>
           <pre style="white-space:pre"><code>${unsafeHTML(Prism.highlight(this.responseHeaders, Prism.languages.css, 'css'))}</code></pre>
         </div>

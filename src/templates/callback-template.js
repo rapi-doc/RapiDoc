@@ -40,6 +40,7 @@ export default function callbackTemplate(callbacks) {
                       schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : 'true'}"
                       fetch-credentials = "${this.fetchCredentials}"
                       exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
+                        tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-coontent:tab-content, 
                         file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
                         anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
                       > </api-request>
@@ -58,7 +59,8 @@ export default function callbackTemplate(callbacks) {
                       schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : 'true'}"
                       schema-hide-write-only = "false"
                       exportparts = "btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
-                      schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+                        tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-coontent:tab-content, 
+                        schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
                     > </api-response>
                   </div>
                 </div>  
