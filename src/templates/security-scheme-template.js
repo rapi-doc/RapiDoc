@@ -409,7 +409,7 @@ export default function securitySchemeTemplate() {
       ? html`
         <table role="presentation" id="auth-table" class='m-table padded-12' style="width:100%;">
           ${this.resolvedSpec.securitySchemes
-          .filter((v) => v.scheme && v.type)
+          .filter((v) => v.type)
           .map((v) => html`
             <tr id="security-scheme-${v.securitySchemeId}" class="${v.type.toLowerCase()}">
               <td style="max-width:500px; overflow-wrap: break-word;">
@@ -431,7 +431,7 @@ export default function securitySchemeTemplate() {
                   : ''
                 }
 
-                ${(v.type.toLowerCase() === 'apikey') || (v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'bearer')
+                ${(v.type.toLowerCase() === 'apikey') || (v.type.toLowerCase() === 'http' && v.scheme?.toLowerCase() === 'bearer')
                   ? html`
                     <div style="margin-bottom:5px">
                       ${v.type.toLowerCase() === 'apikey'
@@ -453,7 +453,7 @@ export default function securitySchemeTemplate() {
                     </div>`
                   : ''
                 }
-                ${v.type.toLowerCase() === 'http' && v.scheme.toLowerCase() === 'basic'
+                ${v.type.toLowerCase() === 'http' && v.scheme?.toLowerCase() === 'basic'
                   ? html`
                     <div style="margin-bottom:5px">
                       Send <code>Authorization</code> in <code>header</code> containing the word <code>Basic</code> followed by a space and a base64 encoded string of <code>username:password</code>.
