@@ -4411,7 +4411,7 @@ async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = fals
   // Updated Security Type Display Text based on Type
   securitySchemes.forEach(v => {
     if (v.type === 'http') {
-      v.typeDisplay = v.scheme === 'basic' ? 'HTTP Basic' : 'HTTP Bearer';
+      v.typeDisplay = v.scheme === 'basic' ? 'HTTP Basic' : `HTTP Bearer ${v.name}`;
     } else if (v.type === 'apiKey') {
       v.typeDisplay = `API Key (${v.name})`;
     } else if (v.type === 'oauth2') {
@@ -5300,7 +5300,7 @@ function pathSecurityTemplate(pathSecurity) {
                           </div>` : andSecurityItem.type === 'http' ? ke`
                             <div>
                               ${orSecurityItem1.securityDefs.length > 1 ? ke`<b>${j + 1}.</b> &nbsp;` : ke`Requires`}
-                              ${andSecurityItem.scheme === 'basic' ? 'Base 64 encoded username:password' : 'Bearer Token'} in <b>Authorization header</b>
+                              ${andSecurityItem.scheme === 'basic' ? 'Base 64 encoded username:password' : `Bearer Token' <b> ${andSecurityItem.name} </b>`} in <b>Authorization header</b>
                               ${scopeHtml}
                             </div>` : ke`
                             <div>
@@ -20618,7 +20618,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("2337278d415d81467132")
+/******/ 		__webpack_require__.h = () => ("1bee2f4916b63fa55437")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
