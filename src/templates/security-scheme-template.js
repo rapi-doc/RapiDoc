@@ -583,7 +583,10 @@ export function pathSecurityTemplate(pathSecurity) {
                           ? html`
                             <div>
                               ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : html`Requires`}
-                              ${andSecurityItem.scheme === 'basic' ? 'Base 64 encoded username:password' : 'Bearer Token'} in <b>Authorization header</b>
+                              ${andSecurityItem.scheme === 'basic'
+                                ? 'Base 64 encoded username:password'
+                                : `Bearer Token' <b> ${andSecurityItem.name} </b>`
+                              } in <b>Authorization header</b>
                               ${scopeHtml}
                             </div>`
                           : html`
