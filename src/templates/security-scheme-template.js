@@ -423,28 +423,15 @@ export default function securitySchemeTemplate() {
                     : ''
                   }
                 </div>
-                ${v.description
+                ${v.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(v.description || ''))}</div>` : ''}
+                ${(v.type.toLowerCase() === 'apikey')
                   ? html`
-                    <div class="m-markdown">
-                      ${unsafeHTML(marked(v.description || ''))}
-                    </div>`
-                  : ''
-                }
-
-                ${(v.type.toLowerCase() === 'apikey') || (v.type.toLowerCase() === 'http' && v.scheme?.toLowerCase() === 'bearer')
-                  ? html`
-                    <div style="margin-bottom:5px">
-                      ${v.type.toLowerCase() === 'apikey'
-                        ? html`Send <code>${v.name}</code> in <code>${v.in}</code>`
-                        : html`Send <code>Authorization</code> in <code>header</code> containing the word <code>Bearer</code> followed by a space and a Token String.`
-                      }
-                    </div>
+                    <div style="margin-bottom:5px"> Send <code>${v.name}</code> in <code>${v.in}</code> </div>
                     <div style="max-height:28px;">
                       ${v.in !== 'cookie'
                         ? html`
                           <input type = "text" value = "${v.value}" class="${v.type} ${v.securitySchemeId} api-key-input" placeholder = "api-token" spellcheck = "false" id = "${v.type}-${v.securitySchemeId}-api-key-input">
-                          <button class="m-btn thin-border" style = "margin-left:5px;"
-                            part = "btn btn-outline"
+                          <button class="m-btn thin-border" style = "margin-left:5px;" part = "btn btn-outline"
                             @click="${(e) => { onApiKeyChange.call(this, v.securitySchemeId, e); }}">
                             ${v.finalKeyValue ? 'UPDATE' : 'SET'}
                           </button>`
@@ -465,6 +452,18 @@ export default function securitySchemeTemplate() {
                         @click="${(e) => { onApiKeyChange.call(this, v.securitySchemeId, e); }}"
                         part = "btn btn-outline"
                       >
+                        ${v.finalKeyValue ? 'UPDATE' : 'SET'}
+                      </button>
+                    </div>`
+                  : ''
+                }
+                ${v.type.toLowerCase() === 'http' && v.scheme?.toLowerCase() === 'bearer'
+                  ? html`
+                    <div style="margin-bottom:5px"> Send <code>Authorization</code> in <code>header</code> containing the word <code>Bearer</code> followed by a space and token value</div>
+                    <div style="max-height:28px;">
+                      <input type = "text" value = "${v.value}" class="${v.type} ${v.securitySchemeId} api-key-input" placeholder = "api-token" spellcheck = "false" id = "${v.type}-${v.securitySchemeId}-api-key-input">
+                      <button class="m-btn thin-border" style = "margin-left:5px;" part = "btn btn-outline"
+                        @click="${(e) => { onApiKeyChange.call(this, v.securitySchemeId, e); }}">
                         ${v.finalKeyValue ? 'UPDATE' : 'SET'}
                       </button>
                     </div>`
@@ -585,7 +584,7 @@ export function pathSecurityTemplate(pathSecurity) {
                               ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : html`Requires`}
                               ${andSecurityItem.scheme === 'basic'
                                 ? 'Base 64 encoded username:password'
-                                : html`Bearer Token <b> ${andSecurityItem.name} </b>`
+                                : html`Bearer Token <b> ${andSecurityItem.nameId} </b>`
                               } in <b>Authorization header</b>
                               ${scopeHtml}
                             </div>`
