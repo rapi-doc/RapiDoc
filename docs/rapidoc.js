@@ -4378,18 +4378,18 @@ async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = fals
           securitySchemeId: kv[0],
           ...kv[1]
         };
+        securityObj.in = 'header';
+        securityObj.name = 'Authorization'; // Name of the header/cookie/api-key
+        securityObj.nameId = kv[1].name || kv[0]; // Name of the security-scheme
+        securityObj.user = '';
+        securityObj.password = '';
+        securityObj.clientId = '';
+        securityObj.clientSecret = '';
         securityObj.value = '';
         securityObj.finalKeyValue = '';
-        if (kv[1].type === 'apiKey' || kv[1].type === 'http') {
+        if (kv[1].type === 'apiKey') {
           securityObj.in = kv[1].in || 'header';
           securityObj.name = kv[1].name || 'Authorization';
-          securityObj.user = '';
-          securityObj.password = '';
-        } else if (kv[1].type === 'oauth2') {
-          securityObj.in = 'header';
-          securityObj.name = 'Authorization';
-          securityObj.clientId = '';
-          securityObj.clientSecret = '';
         }
         securitySchemes.push(securityObj);
       }
@@ -4402,6 +4402,9 @@ async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = fals
       type: 'apiKey',
       oAuthFlow: '',
       name: attrApiKey,
+      // Name of the header/cookie/api-key
+      nameId: attrApiKey,
+      // Name of the security-scheme
       in: attrApiKeyLocation,
       value: attrApiKeyValue,
       finalKeyValue: attrApiKeyValue
@@ -4411,7 +4414,7 @@ async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = fals
   // Updated Security Type Display Text based on Type
   securitySchemes.forEach(v => {
     if (v.type === 'http') {
-      v.typeDisplay = v.scheme === 'basic' ? 'HTTP Basic' : `HTTP Bearer ${v.name}`;
+      v.typeDisplay = v.scheme === 'basic' ? 'HTTP Basic' : `HTTP Bearer ${v.nameId}`;
     } else if (v.type === 'apiKey') {
       v.typeDisplay = `API Key (${v.name})`;
     } else if (v.type === 'oauth2') {
@@ -5176,27 +5179,20 @@ function securitySchemeTemplate() {
     }}>REMOVE</button>
                       ` : ''}
                 </div>
-                ${v.description ? ke`
-                    <div class="m-markdown">
-                      ${unsafe_html_ae(marked(v.description || ''))}
-                    </div>` : ''}
-
-                ${v.type.toLowerCase() === 'apikey' || v.type.toLowerCase() === 'http' && ((_v$scheme = v.scheme) === null || _v$scheme === void 0 ? void 0 : _v$scheme.toLowerCase()) === 'bearer' ? ke`
-                    <div style="margin-bottom:5px">
-                      ${v.type.toLowerCase() === 'apikey' ? ke`Send <code>${v.name}</code> in <code>${v.in}</code>` : ke`Send <code>Authorization</code> in <code>header</code> containing the word <code>Bearer</code> followed by a space and a Token String.`}
-                    </div>
+                ${v.description ? ke`<div class="m-markdown"> ${unsafe_html_ae(marked(v.description || ''))}</div>` : ''}
+                ${v.type.toLowerCase() === 'apikey' ? ke`
+                    <div style="margin-bottom:5px"> Send <code>${v.name}</code> in <code>${v.in}</code> </div>
                     <div style="max-height:28px;">
                       ${v.in !== 'cookie' ? ke`
                           <input type = "text" value = "${v.value}" class="${v.type} ${v.securitySchemeId} api-key-input" placeholder = "api-token" spellcheck = "false" id = "${v.type}-${v.securitySchemeId}-api-key-input">
-                          <button class="m-btn thin-border" style = "margin-left:5px;"
-                            part = "btn btn-outline"
+                          <button class="m-btn thin-border" style = "margin-left:5px;" part = "btn btn-outline"
                             @click="${e => {
       onApiKeyChange.call(this, v.securitySchemeId, e);
     }}">
                             ${v.finalKeyValue ? 'UPDATE' : 'SET'}
                           </button>` : ke`<span class="gray-text" style="font-size::var(--font-size-small)"> cookies cannot be set from here</span>`}
                     </div>` : ''}
-                ${v.type.toLowerCase() === 'http' && ((_v$scheme2 = v.scheme) === null || _v$scheme2 === void 0 ? void 0 : _v$scheme2.toLowerCase()) === 'basic' ? ke`
+                ${v.type.toLowerCase() === 'http' && ((_v$scheme = v.scheme) === null || _v$scheme === void 0 ? void 0 : _v$scheme.toLowerCase()) === 'basic' ? ke`
                     <div style="margin-bottom:5px">
                       Send <code>Authorization</code> in <code>header</code> containing the word <code>Basic</code> followed by a space and a base64 encoded string of <code>username:password</code>.
                     </div>
@@ -5209,6 +5205,17 @@ function securitySchemeTemplate() {
     }}"
                         part = "btn btn-outline"
                       >
+                        ${v.finalKeyValue ? 'UPDATE' : 'SET'}
+                      </button>
+                    </div>` : ''}
+                ${v.type.toLowerCase() === 'http' && ((_v$scheme2 = v.scheme) === null || _v$scheme2 === void 0 ? void 0 : _v$scheme2.toLowerCase()) === 'bearer' ? ke`
+                    <div style="margin-bottom:5px"> Send <code>Authorization</code> in <code>header</code> containing the word <code>Bearer</code> followed by a space and token value</div>
+                    <div style="max-height:28px;">
+                      <input type = "text" value = "${v.value}" class="${v.type} ${v.securitySchemeId} api-key-input" placeholder = "api-token" spellcheck = "false" id = "${v.type}-${v.securitySchemeId}-api-key-input">
+                      <button class="m-btn thin-border" style = "margin-left:5px;" part = "btn btn-outline"
+                        @click="${e => {
+      onApiKeyChange.call(this, v.securitySchemeId, e);
+    }}">
                         ${v.finalKeyValue ? 'UPDATE' : 'SET'}
                       </button>
                     </div>` : ''}
@@ -5300,12 +5307,12 @@ function pathSecurityTemplate(pathSecurity) {
                           </div>` : andSecurityItem.type === 'http' ? ke`
                             <div>
                               ${orSecurityItem1.securityDefs.length > 1 ? ke`<b>${j + 1}.</b> &nbsp;` : ke`Requires`}
-                              ${andSecurityItem.scheme === 'basic' ? 'Base 64 encoded username:password' : `Bearer Token' <b> ${andSecurityItem.name} </b>`} in <b>Authorization header</b>
+                              ${andSecurityItem.scheme === 'basic' ? 'Base 64 encoded username:password' : ke`Bearer Token <b> ${andSecurityItem.nameId} </b>`} in <b>Authorization header</b>
                               ${scopeHtml}
                             </div>` : ke`
                             <div>
                               ${orSecurityItem1.securityDefs.length > 1 ? ke`<b>${j + 1}.</b> &nbsp;` : ke`Requires`}
-                              Token in <b>${andSecurityItem.name} ${andSecurityItem.in}</b>
+                              ${ke`Token in <b>${andSecurityItem.name} ${andSecurityItem.in}</b>`}
                               ${scopeHtml}
                             </div>`}`;
     })}
@@ -20618,7 +20625,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("1bee2f4916b63fa55437")
+/******/ 		__webpack_require__.h = () => ("f17c7c5976ec7bb77608")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
