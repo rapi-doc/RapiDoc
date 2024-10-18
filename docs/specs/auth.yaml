@@ -35,12 +35,18 @@ paths:
       security:
       - api_key1: []
       - api_key2: []
-  /fake-api-that-need-basic-and-apikey:
+  /fake-api-that-need-basic-and-bearer-token-a:
     get:
-      description: API that need API Key and HTTP Basic 
+      description: API that need HTTP Basic and Bearer Token A
       security:
       - http-basic: []
-      - http-bearer: []
+      - http-bearer-a: []
+  /fake-api-that-need-basic-and-bearer-token-b:
+    get:
+      description: API that need HTTP Basic and Bearer Token B
+      security:
+      - http-basic: []
+      - http-bearer-b: []
   /fake-api-that-with-complex-security:
     get:
       description: API with a complex security requirements
@@ -57,9 +63,14 @@ components:
     http-basic:
       type: http
       scheme: basic
-    http-bearer:
+    http-bearer-a:
       type: http
       scheme: bearer
+      name: token-a
+    http-bearer-b:
+      type: http
+      scheme: bearer
+      name: token-b
     api_key1:
       type: apiKey
       name: Authorization
@@ -69,8 +80,7 @@ components:
       name: specialKey
       in: header
     api_key_cookie:
-      description: API Key that should be sent in cookie
-        authorization filters.
+      description: API Key that should be sent in cookie authorization filters.
       type: apiKey
       name: api_key_cookie
       in: cookie
@@ -87,7 +97,9 @@ components:
         3. Create some users in MS Active Directory
         4. Provide permissions to your APP to access MS Graph API which allow you to query the users from MS Active Directory
 
-        **OAUTH FLOWS** - There are 4 different OAuth flows. checkout how various oauth flows utilizes `client-id` and `client-secret`
+        **OAUTH FLOWS** 
+        
+        - There are 4 different OAuth flows. checkout how various oauth flows utilizes `client-id` and `client-secret`
         - **Authorization Code**  - Requires `client-id` and `client-secret`
         - **Client Credentials** - Requires `client-id` and `client-secret`
         - **Implicit** - Requires only `client-id`

@@ -3,20 +3,22 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
-    <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;600&family=Roboto+Mono&display=swap" rel="stylesheet">
-    <style>
-      .size { width: 100px; height: 30px;  font-size:13px; margin: 0 2px; padding: 0 8px; border-radius: 2px; outline:none; color: #fff;}
-      .txt {background-color: #2e2e2e; border: 1px solid #2069e0;}
-      .table{ border:1px solid #444; border-collapse: collapse;}
-      .table td{ font-size:12px; font-family: 'Roboto Mono'; border: 1px solid #444; padding:8px;}
-      .table th{ font-size:11px; font-family: 'Open Sans'; border: 1px solid #444; padding:8px; background: #222;}
-      datalist {
-        background-color: #222;
-        border: 1px solid #2069e0;
-      }
-    </style>
+    <script src="./load-rapidoc-and-other-common-scripts.js"></script>
   </head>
+  <style>
+    table {
+      padding: 8px;
+    }
+    th {
+      height: 36px;
+      background-color: rgba(0, 0, 0, 0.2);
+      text-align: left
+    }
+    tr {
+      height: 28px;
+    }
+
+  </style>
   <body>
     <rapi-doc id="thedoc"
       spec-url="../specs/auth.yaml"
@@ -36,23 +38,26 @@
           <div style="margin:24px 0 8px 0">
             RapiDoc provides you with two helper methods which you can use to supply security keys programatically. You can use one of these method based on the security scheme type
           </div>
-          <table class="table" style="border:1px solid #444; font-family:'Roboto Mono';">
-            <tr> <th>SCHEME-TYPE</th><th>METHOD USED TO UPDATE</th></tr>
-            <tr> <td>basic</td><td>setHttpUserNameAndPassword('http-basic', 'newUserName', 'newPassword')</td></tr>
-            <tr> <td>other than basic</td><td style="border-bottom: 1px dashed #383838;" rowspan="3">setApiKey('api_key1', 'newApiToken')</td></tr>
+          <table class="table" style="border:1px solid #444;width:100%">
+            <tr> <th style="width:180px; height: 36px;
+              background-color: rgba(0, 0, 0, 0.2);
+              text-align: left;">SCHEME-TYPE</th><th>METHOD USED TO UPDATE</th></tr>
+            <tr> <td>basic</td><td class="mono">setHttpUserNameAndPassword('http-basic', 'newUserName', 'newPassword')</td></tr>
+            <tr> <td>other than basic</td><td class="mono" rowspan="3">setApiKey('api_key1', 'newApiToken')</td></tr>
           </table>
 
           <div style="margin:24px 0 8px 0">
             The table below list all the scurity schemes included in this spec. Check the corrosponding method that can be used to supply an access-token
           </div>
-          <table class="table" style="border:1px solid #444; font-family:'Roboto Mono'">
-            <tr><th>SECURITY SCHEME</th><th>SCHEME TYPE</th><th>METHOD USED TO UPDATE</th></tr>
-            <tr> <td>http-basic</td><td>basic</td> <td>setHttpUserNameAndPassword('http-basic', 'newUserName', 'newPassword')</td></tr>
-            <tr> <td>http-bearer</td><td>bearer</td> <td>setApiKey('http-bearer', 'newToken')</td></tr>
-            <tr> <td>api_key1</td><td> <span style="color:#777"> (not-specified)</span></td> <td>setApiKey('api_key1', 'newToken')</td></tr>
-            <tr> <td>api_key2</td><td> <span style="color:#777"> (not-specified)</span></td> <td>setApiKey('api_key2', 'newToken')</td></tr>
-            <tr> <td>ms-oauth</td><td> <span style="color:#777"> (not-specified)</span></td> <td>setApiKey('ms-oauth', 'newToken')</td></tr>
-            <tr> <td>api_key_cookie</td><td> <span style="color:#777"> (not-specified)</span></td> 
+          <table class="table" style="border:1px solid #444; width:100%">
+            <tr> <th style="width:180px">SECURITY SCHEME</th><th>SCHEME TYPE</th><th>METHOD USED TO UPDATE</th></tr>
+            <tr> <td>http-basic</td>  <td>basic</td> <td class="mono">setHttpUserNameAndPassword('http-basic', 'newUserName', 'newPassword')</td></tr>
+            <tr> <td>http-bearer</td> <td> <span style="color:#777"> (not-specified)</span></td> <td class="mono">setApiKey('http-bearer-a', 'newToken')</td></tr>
+            <tr> <td>http-bearer</td> <td> <span style="color:#777"> (not-specified)</span></td> <td class="mono">setApiKey('http-bearer-b', 'newToken')</td></tr>
+            <tr> <td>api_key1   </td> <td> <span style="color:#777"> (not-specified)</span></td> <td class="mono">setApiKey('api_key1', 'newToken')</td></tr>
+            <tr> <td>api_key2   </td> <td> <span style="color:#777"> (not-specified)</span></td> <td class="mono">setApiKey('api_key2', 'newToken')</td></tr>
+            <tr> <td>ms-oauth   </td> <td> <span style="color:#777"> (not-specified)</span></td> <td class="mono">setApiKey('ms-oauth', 'newToken')</td></tr>
+            <tr> <td>api_key_cookie</td> <td> <span style="color:#777"> (not-specified)</span></td> 
               <td> <span style="color:#777"> (wont work as this scheme sends api-key in a cookie, and rapidoc dont create/read cookies)</span></td>
             </tr>
           </table>
@@ -71,22 +76,23 @@
               </td>
             </tr>
             <tr>
-              <td> API Key</td>
+              <td>HTTP Bearer / API Key</td>
               <td>
                 <select class='size txt' style="width:138px" id='api-security-scheme-id' placeholder='Security Scheme ID'>
                   <option value="api_key1">api_key1</option>
                   <option value="api_key2">api_key2</option>
-                  <option value="http-bearer">http-bearer</option>
+                  <option value="http-bearer-a">Bearer token-a</option>
+                  <option value="http-bearer-b">Bearer token-b</option>
                   <option value="ms-oauth">ms-oauth</option>
                   <option value="invalid-key">invalid-key</option>
                 </select>
 
-                <input class='size txt' id='api-key-value' type='text' value="new-token"  placeholder='API Key Value' spellcheck='false' > 
+                <input class='txt' style="width:225px" id='api-key-value' type='text' value="new-token"  placeholder='API Key Value' spellcheck='false' > 
                 <button class='size btn' style="display: inline;" onclick='setSecurity(event, "apikey")'>Apply</button>
               </td>
             </tr>
             <tr>
-              <td colspan="2"><button class='size btn' style="width:200px" onclick='clearSecurityKeys(event)'>Clear all Keys</button></td>
+              <td colspan="2"><button class='size btn' style="width:200px; margin:auto" onclick='clearSecurityKeys(event)'>Clear all Keys</button></td>
             </tr>  
           </table>
           <div style="margin:32px 0 16px 0; color:#777; font-weight:bold">

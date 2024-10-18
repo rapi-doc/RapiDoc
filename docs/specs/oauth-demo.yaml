@@ -31,9 +31,9 @@ components:
       description: Provides an OAuth token thats valid for long durations
       flows:
         authorizationCode:
-          authorizationUrl: https://demo.duendesoftware.com/connect/authorize
-          tokenUrl: https://demo.duendesoftware.com/connect/token
-
+          # using relative url for authorizationCode and token
+          authorizationUrl: /connect/authorize
+          tokenUrl: /connect/token
           # pre filling client-id, secret and scopes for a specific flow using vendor extension
           x-client-id: interactive.confidential
           x-client-secret: secret
