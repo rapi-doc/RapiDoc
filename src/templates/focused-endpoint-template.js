@@ -66,7 +66,7 @@ export default function focusedEndpointTemplate() {
   if (focusElId.startsWith('overview') && this.showInfo === 'true') {
     focusedTemplate = overviewTemplate.call(this);
   } else if (focusElId === 'auth' && this.allowAuthentication === 'true') {
-    focusedTemplate = securitySchemeTemplate.call(this);
+    focusedTemplate = securitySchemeTemplate.call(this, this.allowTry);
   } else if (focusElId === 'servers' && this.allowServerSelection === 'true') {
     focusedTemplate = serverTemplate.call(this);
   } else if (focusElId === 'operations-top') {
