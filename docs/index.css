@@ -43,7 +43,7 @@ h1,h2,h3 {
   font-weight:300; 
 }
 
-.mono, code { font-family: 'Roboto Mono', monospace; }
+.mono, code { font-family: 'Roboto Mono', Monaco, Consolas, monospace; }
 .bold { font-weight:700; }
 .right { text-align: right; }
 .left { text-align: left; }
@@ -273,7 +273,7 @@ h1,h2,h3 {
   line-height: normal;
 }
 
-.txt{
+.txt {
   width: 100px;
   height: 30px;
   font-size:13px;
