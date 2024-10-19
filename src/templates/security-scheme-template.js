@@ -260,18 +260,34 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
   let { authorizationUrl, tokenUrl, refreshUrl } = authFlow;
   const pkceOnly = authFlow['x-pkce-only'] || false;
   const isUrlAbsolute = (url) => (url.indexOf('://') > 0 || url.indexOf('//') === 0);
-  // Calculcate base URL
+  /*
+  Calculcate Relative URL based on the following logic
+  IF this.selectedServer?.computedUrl ends with slash and the refreshUrl / tokenUrl / authorizationUrl do not start with slash
+  THEN Relative URL is concatenate else use this.selectedServer?.computedUrl + refreshUrl / tokenUrl / authorizationUrl
+  ELSE Relative URL is concatenate else use (origin of this.selectedServer?.computedUrl) + refreshUrl / tokenUrl / authorizationUrl
+  */
   const url = new URL(this.selectedServer?.computedUrl);
-  const baseUrl = url.origin;
-
+  const originUrl = url.origin;
   if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
-    refreshUrl = `${baseUrl}/${refreshUrl.replace(/^\//, '')}`;
+    if (this.selectedServer?.computedUrl.trim().endsWith('/') && !refreshUrl.trim().startsWith('/')) {
+      refreshUrl = `${this.selectedServer?.computedUrl.trim()}${tokenUrl.trim()}`;
+    } else {
+      refreshUrl = `${originUrl}/${refreshUrl.replace(/^\//, '')}`;
+    }
   }
   if (tokenUrl && !isUrlAbsolute(tokenUrl)) {
-    tokenUrl = `${baseUrl}/${tokenUrl.replace(/^\//, '')}`;
+    if (this.selectedServer?.computedUrl.trim().endsWith('/') && !tokenUrl.trim().startsWith('/')) {
+      tokenUrl = `${this.selectedServer?.computedUrl.trim()}${tokenUrl.trim()}`;
+    } else {
+      tokenUrl = `${originUrl}/${tokenUrl.replace(/^\//, '')}`;
+    }
   }
   if (authorizationUrl && !isUrlAbsolute(authorizationUrl)) {
-    authorizationUrl = `${baseUrl}/${authorizationUrl.replace(/^\//, '')}`;
+    if (this.selectedServer?.computedUrl.trim().endsWith('/') && !authorizationUrl.trim().startsWith('/')) {
+      authorizationUrl = `${this.selectedServer?.computedUrl.trim()}${authorizationUrl.trim()}`;
+    } else {
+      authorizationUrl = `${originUrl}/${authorizationUrl.replace(/^\//, '')}`;
+    }
   }
   let flowNameDisplay;
   if (flowName === 'authorizationCode') {
