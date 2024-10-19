@@ -700,6 +700,9 @@ function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
   if (schema.maxItems) {
     markdown = `${markdown} <b>Max Items:</b> ${schema.maxItems}`;
   }
+  if (schema.uniqueItems === true) {
+    markdown = `${markdown} <b>Must have unique items</b>`;
+  }
   if (level > 0 && schema.items?.description) {
     let itemsMarkdown = '';
     if (schema.items.minProperties) {
