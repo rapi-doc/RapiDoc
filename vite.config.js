@@ -3,14 +3,19 @@ import { resolve } from 'path';
 import fs from 'fs-extra';
 import banner from 'vite-plugin-banner';
 import pkg from './package.json';
+import minifyHTML from 'rollup-plugin-minify-html-literals';
 
 export default defineConfig({
   resolve: {
     alias: {
-      '~': resolve(__dirname, 'src'), // Example alias
+      '~': resolve(__dirname, './src'), // Example alias
     },
   },
   plugins: [
+    minifyHTML.default({
+      include:["./src/*", "./src/styles/*", "./src/templates/*", "./src/components/*"],
+      exclude:["./src/utils/*"]
+    }),
     banner(`/*!
      * @license
      * ${pkg.name} v${pkg.version}

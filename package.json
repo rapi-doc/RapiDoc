@@ -36,9 +36,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint './src/**/*.js'",
-    "format" :"prettier --config .prettierrc --check './src/**/*.{js,html,css}'",
+    "format": "prettier --config .prettierrc --check './src/**/*.{js,html,css}'",
     "format-fix": "prettier --config .prettierrc --write './src/**/*.{js,html,css}'",
-    "analyze" : "lit-analyzer src"
+    "analyze": "lit-analyzer src"
   },
   "dependencies": {
     "@apitools/openapi-parser": "0.0.33",
@@ -59,6 +59,7 @@
     "fs-extra": "^11.2.0",
     "globals": "^15.11.0",
     "prettier": "^3.3.3",
+    "rollup-plugin-minify-html-literals": "^1.2.6",
     "vite": "^5.4.9",
     "vite-plugin-banner": "^0.8.0",
     "vite-plugin-list-directory-contents": "^1.4.5"
