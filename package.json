@@ -33,7 +33,7 @@
   "module": "dist/rapidoc-min.js",
   "mode": "production",
   "dependencies": {
-    "@apitools/openapi-parser": "0.0.33",
+    "@apitools/openapi-parser": "0.0.36",
     "base64-arraybuffer": "^1.0.2",
     "buffer": "^6.0.3",
     "lit": "^3.2.1",
@@ -52,9 +52,9 @@
     "lint-fix": "./node_modules/eslint/bin/eslint.js --fix ./src/**"
   },
   "devDependencies": {
-    "@babel/core": "^7.25.8",
-    "@babel/eslint-parser": "^7.25.8",
-    "@babel/preset-env": "^7.25.8",
+    "@babel/core": "^7.25.9",
+    "@babel/eslint-parser": "^7.25.9",
+    "@babel/preset-env": "^7.25.9",
     "babel-loader": "^9.2.1",
     "babel-plugin-template-html-minifier": "^4.1.0",
     "clean-webpack-plugin": "^4.0.0",
@@ -67,7 +67,7 @@
     "eslint-webpack-plugin": "4.2.0",
     "file-loader": "^6.2.0",
     "filemanager-webpack-plugin": "^8.0.0",
-    "html-webpack-plugin": "^5.6.0",
+    "html-webpack-plugin": "^5.6.3",
     "inspectpack": "^4.7.1",
     "style-loader": "^4.0.0",
     "terser-webpack-plugin": "^5.3.10",
@@ -75,7 +75,7 @@
     "webpack": "^5.95.0",
     "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "4.11.1"
+    "webpack-dev-server": "5.1.0"
   },
   "engines": {
     "node": ">=18.16.0"

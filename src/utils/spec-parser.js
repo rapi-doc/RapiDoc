@@ -1,4 +1,5 @@
 /* eslint-disable no-use-before-define */
+/* eslint import/no-unresolved: [2, { commonjs: true, amd: true }] */
 import OpenApiParser from '@apitools/openapi-parser';
 import { marked } from 'marked';
 import { invalidCharsRegEx, rapidocApiKey, sleep } from '~/utils/common-utils';
