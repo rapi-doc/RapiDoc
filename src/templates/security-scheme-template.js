@@ -424,10 +424,9 @@ export default function securitySchemeTemplate(allowTry = 'true') {
               <button class="m-btn thin-border" part="btn btn-outline" @click=${() => { onClearAllApiKeys.call(this); }}>CLEAR ALL API KEYS</button>`
             : html`<div class="red-text">No API key applied</div>`
           }
-        `
+        </div>`
       : ''
     }
-    </div>
     ${this.resolvedSpec.securitySchemes && this.resolvedSpec.securitySchemes.length > 0
       ? html`
         <table role="presentation" id="auth-table" class='m-table padded-12' style="width:100%;">
