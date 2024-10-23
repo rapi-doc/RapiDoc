@@ -186,8 +186,8 @@ function filterPaths(openApiObject, matchPaths = '', matchType = '', removeEndpo
     }
     const fullPath = `${httpMethod} ${pathsKey}`.toLowerCase(); // Construct "method path" string
     if (matchType === 'regex') {
-      const regex = new RegExp(matchPaths, 'i');
-      return regex.test(matchPaths.toLowerCase());
+      const matchPathsRegex = new RegExp(matchPaths, 'i');
+      return matchPathsRegex.test(fullPath);
     }
     return fullPath.includes(matchPaths.toLowerCase());
   }
