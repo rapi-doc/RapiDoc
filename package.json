@@ -41,7 +41,7 @@
     "analyze": "lit-analyzer src"
   },
   "dependencies": {
-    "@apitools/openapi-parser": "0.0.33",
+    "@apitools/openapi-parser": "0.0.36",
     "base64-arraybuffer": "^1.0.2",
     "buffer": "^6.0.3",
     "lit": "^3.2.1",
