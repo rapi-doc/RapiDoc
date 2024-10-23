@@ -4494,8 +4494,8 @@ function filterPaths(openApiObject, matchPaths = '', matchType = '', removeEndpo
     }
     const fullPath = `${httpMethod} ${pathsKey}`.toLowerCase(); // Construct "method path" string
     if (matchType === 'regex') {
-      const regex = new RegExp(matchPaths, 'i');
-      return regex.test(matchPaths.toLowerCase());
+      const matchPathsRegex = new RegExp(matchPaths, 'i');
+      return matchPathsRegex.test(fullPath);
     }
     return fullPath.includes(matchPaths.toLowerCase());
   }
@@ -6284,6 +6284,9 @@ function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
   }
   if (schema.maxItems) {
     markdown = `${markdown} <b>Max Items:</b> ${schema.maxItems}`;
+  }
+  if (schema.uniqueItems === true) {
+    markdown = `${markdown} <b>Must have unique items</b>`;
   }
   if (level > 0 && (_schema$items4 = schema.items) !== null && _schema$items4 !== void 0 && _schema$items4.description) {
     let itemsMarkdown = '';
@@ -20651,7 +20654,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("7586b38a118ecf1a0c1f")
+/******/ 		__webpack_require__.h = () => ("22c9d62f8e8c4ceae47b")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
