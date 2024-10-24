@@ -41,7 +41,7 @@ export function getTypeInfo(schema) {
     const schemaNode = schema.$ref.substring(n + 1);
     dataType = `{recursive: ${schemaNode}} `;
   } else if (schema.type) {
-    dataType = Array.isArray(schema.type) ? schema.type.join(schema.length === 2 ? ' or ' : '┃') : schema.type;
+    dataType = Array.isArray(schema.type) ? schema.type.join('┃') : schema.type;
     if (schema.format || schema.enum || schema.const) {
       dataType = dataType.replace('string', schema.enum ? 'enum' : schema.const ? 'const' : schema.format);
     }
@@ -813,7 +813,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     });
     let multiPrimitiveTypes;
     if (primitiveType.length > 0) {
-      subSchema.type = primitiveType.join(primitiveType.length === 2 ? ' or ' : '┃');
+      subSchema.type = primitiveType.join('┃');
       multiPrimitiveTypes = getTypeInfo(subSchema);
       if (complexTypes.length === 0) {
         return `${multiPrimitiveTypes?.html || ''}`;
@@ -866,7 +866,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     obj['::description'] = generateMarkdownForArrayAndObjectDescription(schema, level);
     obj['::type'] = 'object';
     if ((Array.isArray(schema.type) && schema.type.includes('null')) || schema.nullable) {
-      obj['::dataTypeLabel'] = 'object or null';
+      obj['::dataTypeLabel'] = 'object ┃ null';
       obj['::nullable'] = true;
     }
     obj['::deprecated'] = schema.deprecated || false;
@@ -889,7 +889,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     obj['::description'] = generateMarkdownForArrayAndObjectDescription(schema, level);
     obj['::type'] = 'array';
     if ((Array.isArray(schema.type) && schema.type.includes('null')) || schema.nullable) {
-      obj['::dataTypeLabel'] = 'array or null';
+      obj['::dataTypeLabel'] = 'array ┃ null';
       obj['::nullable'] = true;
     }
     obj['::deprecated'] = schema.deprecated || false;
