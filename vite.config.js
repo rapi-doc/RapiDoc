@@ -1,9 +1,11 @@
+//@ts-check1
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import fs from 'fs-extra';
 import banner from 'vite-plugin-banner';
 import pkg from './package.json';
 import minifyHTML from 'rollup-plugin-minify-html-literals';
+import { transform } from 'esbuild';
 
 export default defineConfig({
   resolve: {
@@ -23,7 +25,7 @@ export default defineConfig({
      * SPDX-License-Identifier: ${pkg.license}
      */`),
     {
-      name: 'copy-rapidoc-min-js',
+      name: 'copy-rapidoc-min-js-to-docs',
       closeBundle: async () => {
         const rapidocMinJs = 'rapidoc-min.js';
         const distRapidocMinJsPath = resolve(__dirname, 'dist', rapidocMinJs);
@@ -34,6 +36,18 @@ export default defineConfig({
         console.log('\x1b[36m%s\x1b[0m', `Copied from ${distRapidocMinJsPath} to ${docsRapidocMinJsPath}`);
       },
     },
+    {
+      name: 'minifyEs',
+      renderChunk: {
+        order: 'post',
+        async handler(code, chunk, outputOptions) {
+          if (outputOptions.format === 'es' && chunk.fileName.endsWith('-min.js')) {
+            return await transform(code, { minify: true });
+          }
+          return code;
+        },
+      }
+    }
   ],
   server: {
     fs: {
@@ -42,6 +56,14 @@ export default defineConfig({
     },
   },
   build: {
+    lib: {
+      entry: resolve(__dirname, 'src/index.js'),
+      formats: ['es', 'esm'],
+      fileName: (format) => ({
+        es: `${pkg.name}.js`,
+        esm: `${pkg.name}-min.js`,
+      })[format]
+    },
     sourcemap: true,
     minify: true,
     rollupOptions: {
