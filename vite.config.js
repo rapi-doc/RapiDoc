@@ -15,8 +15,8 @@ export default defineConfig({
   },
   plugins: [
     minifyHTML.default({
-      include:["./src/*", "./src/styles/*", "./src/templates/*", "./src/components/*"],
-      exclude:["./src/utils/*"]
+      include: ['./src/*', './src/styles/*', './src/templates/*', './src/components/*'],
+      exclude: ['./src/utils/*'],
     }),
     banner(`/*!
      * @license
@@ -46,8 +46,8 @@ export default defineConfig({
           }
           return code;
         },
-      }
-    }
+      },
+    },
   ],
   server: {
     fs: {
@@ -59,10 +59,11 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, 'src/index.js'),
       formats: ['es', 'esm'],
-      fileName: (format) => ({
-        es: `${pkg.name}.js`,
-        esm: `${pkg.name}-min.js`,
-      })[format]
+      fileName: (format) =>
+        ({
+          es: `${pkg.name}.js`,
+          esm: `${pkg.name}-min.js`,
+        })[format],
     },
     sourcemap: true,
     minify: true,
