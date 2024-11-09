@@ -32,9 +32,9 @@
   "type": "module",
   "module": "dist/rapidoc-min.js",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
     "lint": "eslint './src/**/*.js'",
     "format": "prettier --config .prettierrc --check './src/**/*.{js,html,css}'",
     "format-fix": "prettier --config .prettierrc --write './src/**/*.{js,html,css}'",
@@ -51,8 +51,9 @@
     "xml-but-prettier": "^1.0.1"
   },
   "devDependencies": {
-    "@eslint/js": "^9.13.0",
-    "eslint": "^9.13.0",
+    "@eslint/js": "^9.14.0",
+    "astro": "^5.0.0-beta.7",
+    "eslint": "^9.14.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-lit": "^1.15.0",
     "eslint-plugin-prettier": "^5.2.1",
@@ -60,9 +61,7 @@
     "globals": "^15.11.0",
     "prettier": "^3.3.3",
     "rollup-plugin-minify-html-literals": "^1.2.6",
-    "vite": "^5.4.9",
-    "vite-plugin-banner": "^0.8.0",
-    "vite-plugin-list-directory-contents": "^1.4.5"
+    "vite-plugin-banner": "^0.8.0"
   },
   "engines": {
     "node": ">=18.16.0"
