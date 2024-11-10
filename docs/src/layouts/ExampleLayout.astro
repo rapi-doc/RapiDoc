@@ -1,8 +1,9 @@
 ---
+import { GTAG_ID } from '../utils/googleAnalytics';
+
 interface Props {
   title: string;
 }
-
 const { title } = Astro.props;
 ---
 
@@ -11,6 +12,16 @@ const { title } = Astro.props;
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+    
+    <!-- Google Analytics -->
+    <script async src={`https://www.googletagmanager.com/gtag/js?id=${GTAG_ID}`}></script>
+    <script define:vars={{ gtagId: GTAG_ID }} is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', gtagId);
+    </script>
+
     <title>{title}</title>
   </head>
   <body>
