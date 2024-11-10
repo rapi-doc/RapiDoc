@@ -1,0 +1,41 @@
+openapi: 3.0.0
+info:
+  title: Markdown Headings in Navigation Bar
+  description: |
+    # Documentation
+    This is an example of a multiline heading
+    
+
+  version: 1.0.0
+paths:
+  /employees:
+    get:
+      summary: Get list of employees
+      tags:
+        - Employees
+      responses:
+        '200':
+          description: List of employees
+
+tags:
+  - name: Employees
+    description: |-
+      Markdown headings can contain HTML as well as complex markdown
+      
+      <br>
+      <div style="background-color: #F0F0F0;padding: 12px 0px 12px 12px;border-left: 5px solid #F90258;">
+        Markdown do not support colors or fancy HTML designs. However, if you need you can put some html directly inside the markup with some inline styling.
+        This TIP box i designed using raw HTML inside the markdown
+      </div>  
+      <br>
+     
+      # The Employee Object
+
+      Responses from the `/employees` endpoint are encoded as UTF-8 JSON objects with the following attributes:
+
+      | Attribute    | Type   | Description  |
+      |-------------:|--------|:-------------|
+      | `id`         | string | A globally unique identifier. |
+      | `account_id` | string | Reference to a parent account object. |
+      | `thread_id`  | string | Reference to a parent thread object (all messages have a thread). |
+      | `tags`       | array  | A list of labels that you like to associate with an employee |

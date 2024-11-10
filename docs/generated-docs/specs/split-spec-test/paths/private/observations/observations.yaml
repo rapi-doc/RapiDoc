@@ -1,0 +1,20 @@
+parameters:
+  - $ref: "../../../parameters/path_observation_id.yaml"
+delete:
+  operationId: deleteObservationRecord
+  tags: [Observations]
+  summary: Delete Observation Record
+  description: |
+    Delete a specific observation record.
+  x-badges:
+    - color: orange
+      label: "private"
+  security:
+    - esrc-auth: []
+  responses:
+    "204":
+      $ref: "../../../responses/204.yaml"
+    "401":
+      $ref: "../../../responses/401.yaml"
+    "503":
+      $ref: "../../../responses/503.yaml"

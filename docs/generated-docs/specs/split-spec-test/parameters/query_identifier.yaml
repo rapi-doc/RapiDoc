@@ -1,0 +1,7 @@
+name: identifier
+in: query
+description: The search query to match against the beginning of the identifier.
+required: false
+schema:
+  type: string
+example: z

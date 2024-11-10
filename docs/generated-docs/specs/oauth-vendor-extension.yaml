@@ -1,0 +1,75 @@
+openapi: 3.0.0
+info:
+  title: Petstore API
+  description: |
+    Example to show how to use `x-client-id`, `x-client-secret` and `x-default-scopes` vendor extensions to pre fill them in the UI.
+
+    Below is the Open API spec snippet that shows its usage,
+    and if you check the authentication section you will find that client-id and client-secret are pre-filled, the user just needs to click on `GET TOKEN`.
+    Also notice that the scope `dog-lover` is already checked
+    ```yaml
+      openapi: 3.0.0
+      ...
+      ...
+      components:
+        securitySchemes:
+          exampleOauth2Flow:
+            type: oauth2
+            x-client-id: my-client-id                              # <--- when provided it will be pre filled in RapiDoc UI
+            x-client-secret: my-client-secret                      # <--- when provided it will be pre filled in RapiDoc UI
+            x-default-scopes: [dog-lover]                          # <--- when provided scopes will be pre checked in RapiDoc UI
+            x-receive-token-in: request-body                       # <--- can be 'header' or 'request-body' when provided this will be pre selected
+            x-receive-token-in-options: ["header", "request-body"] # <--- when provided it will limit options available 
+            flows:
+              authorizationCode:
+                authorizationUrl: /authorize
+                tokenUrl: /access_token
+                scopes:
+                  dog-lover: "always required"
+                  owner: "optional"
+    ```
+  version: "1.0"
+security:
+  - exampleOauth2Flow: []
+paths:
+  '/dogs':
+    get:
+      summary: Return an array of the petstore's dogs.
+      responses:
+        '200':
+          description: A successful request returns an array of dogs.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  dogs:
+                    type: array
+                    example: "[Rex, Lassie, Beethoven]"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+components:
+  securitySchemes:
+    exampleOauth2Flow:
+      type: oauth2
+      description: You authorize requests, by providing client credentials.
+      x-client-id: my-client-id
+      x-client-secret: my-client-secret
+      x-default-scopes:
+        - dog-lover
+      x-receive-token-in: request-body  
+      flows:
+        authorizationCode:
+          authorizationUrl: /authorize
+          tokenUrl: /access_token
+          scopes:
+            dog-lover: "always required"
+            owner: "optional"
+        clientCredentials:
+          tokenUrl: '/token'
+          scopes:
+            dog-lover: "always required"
+            owner: "optional"
+

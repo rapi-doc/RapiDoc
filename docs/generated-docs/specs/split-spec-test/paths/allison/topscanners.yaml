@@ -1,0 +1,41 @@
+get:
+  operationId: allisonTopScanner
+  security:
+    - allison-auth: []
+  tags: [Allison]
+  summary: Top Scanner
+  description: |
+    This endpoint returns the scanners with the most completed signatures during the past day
+    for Thera and Turnur.
+
+    Statistics are calculated based on the last complete 24-hour period, running from
+    11:00 on one day to 11:00 the following day.
+  x-badges:
+    - color: orange
+      label: "private"
+  responses:
+    "200":
+      description: Expected response to a valid request
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../../schemas/topscanner.yaml"
+          example:
+            [
+              {
+                character_id: 96293852,
+                character_name: "Sky Diamond",
+                scans: 5,
+                system_name: "Thera",
+              },
+              {
+                character_id: 2114254786,
+                character_name: "Tekufah",
+                scans: 23,
+                system_name: "Turnur",
+              },
+            ]
+    "401":
+      $ref: "../../responses/401.yaml"

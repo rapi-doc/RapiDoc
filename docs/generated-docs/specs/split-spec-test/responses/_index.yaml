@@ -1,0 +1,16 @@
+status400:
+  $ref: "./400.yaml"
+status401:
+  $ref: "./401.yaml"
+status403:
+  $ref: "./403.yaml"
+status404:
+  $ref: "./404.yaml"
+status409:
+  $ref: "./409.yaml"
+status500:
+  $ref: "./500.yaml"
+status501:
+  $ref: "./501.yaml"
+status503:
+  $ref: "./503.yaml"

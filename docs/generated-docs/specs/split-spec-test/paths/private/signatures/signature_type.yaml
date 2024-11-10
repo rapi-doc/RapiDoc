@@ -1,0 +1,46 @@
+parameters:
+  - $ref: "../../../parameters/path_signature_id.yaml"
+put:
+  operationId: putSignature
+  tags: [Signatures]
+  summary: Switch Signature Type
+  description: |
+    Switch the type of the signature (`signature_type`) and change the "state" of the signature.
+
+    The behaviour is identical to [Bulk Add Signatures](#post-/v2/private/signatures) as long as
+    the type is "unknown", except that it can change the signature type of a single signature later on.
+
+    If the current type is "wormhole", all data except create data, update data and the comment
+    get purged.
+
+    When the signature type is set to "wormhole", the signature can be modified via
+    [Patch Signature](#patch-/v2/private/signatures/-signature-id-) later on.
+  x-badges:
+    - color: orange
+      label: "private"
+  security:
+    - eve-sso: [user]
+  requestBody:
+    description: |
+      The request body contains the new `signature_type`.
+    content:
+      application/merge-patch+json:
+        schema:
+          $ref: "../../../schemas/signature_type_change.yaml"
+  responses:
+    "200":
+      description: |
+        Following a successful put, the updated resource representation is
+        returned in the response body.
+      content:
+        application/json:
+          schema:
+            $ref: "../../../schemas/signature_representation.yaml"
+    "400":
+      $ref: "../../../responses/400.yaml"
+    "401":
+      $ref: "../../../responses/401.yaml"
+    "404":
+      $ref: "../../../responses/404.yaml"
+    "503":
+      $ref: "../../../responses/503.yaml"

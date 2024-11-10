@@ -1,0 +1,50 @@
+get:
+  operationId: getUsersCurrent
+  tags: [Users]
+  summary: Users Profile
+  description: |
+    Provide the profile of the user. In case the pilot is online and undocked, `system` provides
+    their current location.
+
+    The online status gets updated every 60 seconds, while location gets updated every 5 seconds.
+
+    If the frontend wants to work with the pilots location, it should fetch this endpoint every 5 seconds,
+    otherwise, for [`/v2/private/users/online`](#get-/v2/private/users/online) to work properly,
+    it should fetch it every 60 seconds.
+  x-badges:
+    - color: orange
+      label: "private"
+  security:
+    - eve-sso: [user]
+  responses:
+    "200":
+      description: Expected response to a valid request
+      headers:
+        Cache-Control:
+          description: "The TTL for this resource is 5 seconds"
+          schema:
+            type: string
+            example: "max-age=5"
+      content:
+        application/json:
+          schema:
+            $ref: "../../../schemas/users_current.yaml"
+          example:
+            character_id: 96293852
+            character_name: "Sky Diamond"
+            online: true
+            roles: ["admin", "user"]
+            signatures_last_update: "2023-12-05T14:31:45.342Z"
+            system:
+              {
+                "system_id": 30005221,
+                "system_name": "Zoohen",
+                "region_id": 10000067,
+                "region_name": "Genesis",
+                "system_class": "hs",
+                "security_status": 0.5,
+              }
+    "401":
+      $ref: "../../../responses/401.yaml"
+    "503":
+      $ref: "../../../responses/503.yaml"

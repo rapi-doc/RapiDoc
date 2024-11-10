@@ -1,0 +1,7 @@
+name: from
+in: query
+description: System name where the route starts.
+required: true
+schema:
+  type: string
+example: Zoohen

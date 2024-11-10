@@ -1,0 +1,88 @@
+claim:
+  $ref: "./claim.yaml"
+claims:
+  $ref: "./claims.yaml"
+dumpClaims:
+  $ref: "./dump_claims.yaml"
+dumpObservations:
+  $ref: "./dump_observations.yaml"
+dumpSignatures:
+  $ref: "./dump_signatures.yaml"
+dumpUsers:
+  $ref: "./dump_users.yaml"
+error:
+  $ref: "./error.yaml"
+health:
+  $ref: "./health.yaml"
+Properties:
+  $ref: "./properties.yaml"
+PublicSystem:
+  $ref: "./public_system.yaml"
+PublicWormhole:
+  $ref: "./public_wormhole.yaml"
+Route:
+  $ref: "./route.yaml"
+Routes:
+  $ref: "./routes.yaml"
+RouteSystems:
+  $ref: "./route_systems.yaml"
+SignatureModification:
+  $ref: "./signature_modification.yaml"
+SignaturePsw:
+  $ref: "./signature_psw.yaml"
+SignatureRepresentation:
+  $ref: "./signature_representation.yaml"
+SignaturesPsw:
+  $ref: "./signatures_psw.yaml"
+SignaturesRepresentation:
+  $ref: "./signatures_representation.yaml"
+StatisticsDailyGoal:
+  $ref: "./statistics_daily_goal.yaml"
+StatisticsDailyGoals:
+  $ref: "./statistics_daily_goals.yaml"
+StatisticsDonations:
+  $ref: "./statistics_donations.yaml"
+StatisticsDonor:
+  $ref: "./statistics_donor.yaml"
+StatisticsDonors:
+  $ref: "./statistics_donors.yaml"
+StatisticsLeaderboard:
+  $ref: "./statistics_leaderboard.yaml"
+StatisticsPayoutStatistics:
+  $ref: "./statistics_payout_statistics.yaml"
+StatisticsPayouts:
+  $ref: "./statistics_payouts.yaml"
+StatisticsPayoutsPilot:
+  $ref: "./statistics_payouts_pilot.yaml"
+StatisticsPayoutsPilots:
+  $ref: "./statistics_payouts_pilots.yaml"
+StatisticsScan:
+  $ref: "./statistics_scan.yaml"
+StatisticsScans:
+  $ref: "./statistics_scans.yaml"
+Status:
+  $ref: "./status.yaml"
+TrackCreateById:
+  $ref: "./observation_create_by_id.yaml"
+TrackCreateByName:
+  $ref: "./observation_create_by_name.yaml"
+Tracking:
+  $ref: "./observation_representation.yaml"
+TrackingType:
+  $ref: "./observation_type.yaml"
+SystemClass:
+  $ref: "./system_class.yaml"
+Systems:
+  $ref: "./systems.yaml"
+ToggleSwitch:
+  $ref: "./toggle_switch.yaml"
+TopScanner:
+  $ref: "./topscanner.yaml"
+TopStormChaser:
+  $ref: "./topstormchaser.yaml"
+UsersCurrent:
+  $ref: "./users_current.yaml"
+UsersOnline:
+  $ref: "./users_online.yaml"
+Wormholes:
+  $ref: "./wormholetypes.yaml"

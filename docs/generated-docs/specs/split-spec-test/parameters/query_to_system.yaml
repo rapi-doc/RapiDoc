@@ -1,0 +1,7 @@
+name: to
+in: query
+description: System name where the route goes to.
+required: true
+schema:
+  type: string
+example: Jita

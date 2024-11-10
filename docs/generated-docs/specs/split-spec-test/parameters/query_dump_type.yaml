@@ -1,0 +1,16 @@
+name: dump_type
+in: query
+description: Which cache should be dumped.
+required: true
+schema:
+  type: string
+  enum:
+    - claims
+    - graph
+    - observations
+    - performance_log
+    - signatures
+    - users
+    - users_location_l1
+    - users_location_l2
+example: signatures

@@ -1,0 +1,8 @@
+name: date_end
+in: query
+description: End of the timeframe to analyze formatted YYYY-MM-DD.
+required: true
+schema:
+  type: string
+  format: date
+example: 2023-09-13

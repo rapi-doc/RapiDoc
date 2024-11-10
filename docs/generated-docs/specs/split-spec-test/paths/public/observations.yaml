@@ -1,0 +1,29 @@
+get:
+  operationId: listObservationsPublic
+  tags: [Observations]
+  summary: List Public Observations Records
+  description: |
+    List observation records for all objects we track
+  x-badges:
+    - color: green
+      label: "public"
+  responses:
+    "200":
+      description: |
+        A list of `observation` resources, it will always have the latest data for each of the objects we track.
+      headers:
+        Cache-Control:
+          description: "The TTL for this resource is 3600 seconds"
+          schema:
+            type: string
+            example: "max-age=3600"
+      content:
+        application/json:
+          schema:
+            array:
+            items:
+              $ref: "../../schemas/observation_representation.yaml"
+    "400":
+      $ref: "../../responses/400.yaml"
+    "503":
+      $ref: "../../responses/503.yaml"

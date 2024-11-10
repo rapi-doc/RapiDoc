@@ -1,0 +1,177 @@
+openapi: 3.1.0
+info:
+  title: Event Handling
+  version: "1.0"
+  description: |
+    
+    ### The code demonstrate how some events can be used. Listed below are some common use cases
+
+    - `before-render` - Good place to twaek the OpenAPI spec if needed. In this example the Title above is dynamically created 
+    - `before-try` - Good place to twaek the AJAX request sucha as adding a request header or abort the request
+    - `after-try` - Good place to inspect the response received
+
+    #### To test it out go ahead and click TRY below, you will notice all `POST` requests are aborted and `GET` are success <br/><br/>
+
+
+    ```markup
+    <!doctype html>
+
+    <html>
+      <body>
+        <rapi-doc id = "thedoc" spec-url = "..."> </rapi-doc>
+      
+        <script>
+          document.addEventListener('DOMContentLoaded', (event) => {
+            let docEl = document.getElementById("thedoc");
+
+            // Add various event listeners
+
+            // 1. before-render (Dynamically changes the Title of this Spec)
+            docEl.addEventListener('before-render', (e) => {
+              e.detail.spec.info.title = "EVENTS - This text is updated during `before-render` event";
+            });
+
+            // 2. before-try (Adds a querystring param to all GET calls)
+            docEl.addEventListener('before-try', (e) => {
+              if (e.detail.request.method === 'GET') {
+                const url = new URL( e.detail.request.url);
+                url.searchParams.append('delay', '3');
+                e.detail.request.url = url.searchParams.toString();
+              }
+            });
+
+            // 3. before-try (Aborts all post calls)
+            docEl.addEventListener('before-try', (e) => {
+              if (e.detail.request.method === 'POST') {
+                e.detail.controller.abort();
+              }
+            });
+
+            // 4. after-try
+            docEl.addEventListener('after-try', (e) => {
+              console.log("Hello from 'after-try' event ");
+            });
+
+            // 5. request-aborted
+            docEl.addEventListener('request-aborted', (e) => {
+              calert("POST Requests are aborted in 'before-try' event ");
+            });
+
+          })
+        </script>
+      </body> 
+
+    </html>
+    ```
+servers:
+  - url: https://reqres.in/api/
+paths:
+  /users:
+    get:
+      description: List of users (paginated)
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            examples: 
+              - 1
+              - 2
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Description of **User** object
+                properties:
+                  page:
+                    description: Current Page number
+                    type: integer
+                  per_page:
+                    description: Number of records per page
+                    type: integer
+                  total:
+                    description: Total number of records
+                    type: integer
+                  total_pages:
+                    type: integer
+                  data:
+                    type: array
+                    description: List of users
+                    items:
+                      $ref: '#/components/schemas/user'
+                  support:
+                    $ref: '#/components/schemas/support'
+    post:
+      description: Create a user
+      parameters:
+        - name: delay
+          in: query
+          schema:
+            type: integer
+            examples: 
+              - 1
+              - 10
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/userInput"
+      responses:
+        201:
+          description: User creation response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/userInput'
+                  - $ref: '#/components/schemas/createUserResponse'
+
+components:
+  schemas:
+    user:
+      type: object
+      properties:
+        id:
+          description: User ID
+          type: integer
+        email:
+          description: User Email
+          type: string
+        first_name:
+          description: First Name
+          type: string
+        last_name:
+          description: Last Name
+          type: string
+        avatar:
+          description: Avatar URL
+          type: string
+    support:
+      type: object
+      properties:
+        url:
+          description: Support URL
+          type: string
+        text:
+          description: Support URL - Description
+          type: string
+    userInput:
+      type: object
+      description: user object with `name` and `job` properties
+      properties:
+        name:
+          description: User Name
+          type: string
+        job:
+          description: Job
+          type: string
+    createUserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        createdAt:
+          type: string

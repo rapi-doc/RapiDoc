@@ -1,0 +1,22 @@
+description: |
+  Data available in the probe scan window (PSW), which is used to create new signatures.
+type: object
+required:
+  - out_signature
+  - signature_type
+properties:
+  out_signature:
+    description: The signature itself.
+    type: string
+    example: NBY-045
+  signature_type:
+    description: The type of the signature.
+    type: string
+    enum:
+      - combat
+      - data
+      - gas
+      - relic
+      - unknown
+      - wormhole
+    example: wormhole

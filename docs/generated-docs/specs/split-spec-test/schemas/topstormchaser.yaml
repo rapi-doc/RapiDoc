@@ -1,0 +1,16 @@
+type: object
+properties:
+  character_id:
+    description: An EVE character ID
+    type: integer
+    format: int64
+    required: true
+    example: 96293852
+  character_name:
+    description: The character’s name
+    type: string
+    required: true
+    example: "Sky Diamond"
+  storms_reported:
+    description: Number of storm reports
+    type: number

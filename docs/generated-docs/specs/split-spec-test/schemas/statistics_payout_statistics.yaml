@@ -1,0 +1,32 @@
+type: object
+properties:
+  wormholes:
+    description: Number of scanned wormhole connections.
+    type: number
+    format: integer
+    example: 214
+  signatures:
+    description: Number of scanned cosmic signatures including wormholes.
+    type: number
+    format: integer
+    example: 743
+  connections_to_hs:
+    description: How many wormholes led to high-sec.
+    type: number
+    format: integer
+    example: 36
+  connections_to_ls:
+    description: How many wormholes led to low-sec.
+    type: number
+    format: integer
+    example: 45
+  connections_to_ns:
+    description: How many wormholes led to null-sec.
+    type: number
+    format: integer
+    example: 25
+  connections_to_jspace:
+    description: How many wormholes led to j-space.
+    type: number
+    format: integer
+    example: 67

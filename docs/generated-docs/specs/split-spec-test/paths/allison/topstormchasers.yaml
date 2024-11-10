@@ -1,0 +1,32 @@
+get:
+  operationId: allisonTopStormChasers
+  security:
+    - allison-auth: []
+  tags: [Allison]
+  summary: Top Storm Chasers
+  description: |
+    This endpoint returns the storm chasers during the last period, sorted by the number of
+    their actions.
+
+    Statistics are calculated based on the last complete 24-hour period, running from
+    11:00 on one day to 11:00 the following day.
+  x-badges:
+    - color: orange
+      label: "private"
+  responses:
+    "200":
+      description: Expected response to a valid request
+      content:
+        application/json:
+          schema:
+            array:
+              item:
+                $ref: "../../schemas/topstormchaser.yaml"
+          example:
+            {
+              character_id: 96293852,
+              character_name: "Sky Diamond",
+              reports: 12,
+            }
+    "401":
+      $ref: "../../responses/401.yaml"

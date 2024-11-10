@@ -1,0 +1,76 @@
+/v2/auth/callback:
+  $ref: "./auth/callback.yaml"
+/v2/auth/login:
+  $ref: "./auth/login.yaml"
+/v2/auth/login/director:
+  $ref: "./auth/login/director.yaml"
+/v2/auth/logout:
+  $ref: "./auth/logout.yaml"
+/v2/health:
+  $ref: "./health.yaml"
+/v2/private/allison/cachedump:
+  $ref: "./allison/cachedump.yaml"
+/v2/private/allison/logs:
+  $ref: "./allison/logs.yaml"
+/v2/private/allison/maintenance:
+  $ref: "./allison/maintenance.yaml"
+/v2/private/allison/signaturedump:
+  $ref: "./allison/signaturedump.yaml"
+/v2/private/allison/status:
+  $ref: "./allison/status.yaml"
+/v2/private/allison/topscanners:
+  $ref: "./allison/topscanners.yaml"
+/v2/private/allison/topstormchasers:
+  $ref: "./allison/topstormchasers.yaml"
+/v2/private/claims:
+  $ref: "./private/claims.yaml"
+/v2/private/claims/{signature-id}:
+  $ref: "./private/claims/claims.yaml"
+/v2/private/properties:
+  $ref: "./private/properties.yaml"
+/v2/private/signatures:
+  $ref: "./private/signatures.yaml"
+/v2/private/signatures/{signature-id}:
+  $ref: "./private/signatures/signatures.yaml"
+/v2/private/signatures/{signature-id}/type:
+  $ref: "./private/signatures/signature_type.yaml"
+/v2/private/statistics/auditlog:
+  $ref: "./private/statistics/auditlog.yaml"
+/v2/private/statistics/leaderboard:
+  $ref: "./private/statistics/leaderboard.yaml"
+/v2/private/statistics/payouts/scans:
+  $ref: "./private/statistics/payouts/scans.yaml"
+/v2/private/statistics/payouts/storms:
+  $ref: "./private/statistics/payouts/storms.yaml"
+/v2/private/observations:
+  $ref: "./private/observations.yaml"
+/v2/private/observations/{observation-id}:
+  $ref: "./private/observations/observations.yaml"
+/v2/private/users/corporation:
+  $ref: "./private/users/corporation.yaml"
+/v2/private/users/current:
+  $ref: "./private/users/current.yaml"
+/v2/private/users/online:
+  $ref: "./private/users/online.yaml"
+/v2/public/routes:
+  $ref: "./public/routes.yaml"
+/v2/public/routes/highsec:
+  $ref: "./public/routes/highsec.yaml"
+/v2/public/routes/joveobservatories:
+  $ref: "./public/routes/joveobservatories.yaml"
+/v2/public/routes/signatures:
+  $ref: "./public/routes/signatures.yaml"
+/v2/public/signatures:
+  $ref: "./public/signatures.yaml"
+/v2/public/statistics/donations:
+  $ref: "./public/statistics/donations.yaml"
+/v2/public/statistics/scans:
+  $ref: "./public/statistics/scans.yaml"
+/v2/private/statistics/track/connection_loss:
+  $ref: "./private/statistics/track/connection_loss.yaml"
+/v2/public/systems:
+  $ref: "./public/systems.yaml"
+/v2/public/observations:
+  $ref: "./public/observations.yaml"
+/v2/public/wormholetypes:
+  $ref: "./public/wormholetypes.yaml"

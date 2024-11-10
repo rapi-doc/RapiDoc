@@ -1,0 +1,42 @@
+get:
+  parameters:
+    - $ref: "../../../parameters/query_precision.yaml"
+    - $ref: "../../../parameters/query_system_name_optional.yaml"
+    - name: examples
+      in: query
+      description: |
+        Optional parameter which generates a randomly created result for testing.
+
+        ATTENTION: This is available on non-production system only!
+      required: false
+      schema:
+        type: boolean
+      example: true
+  operationId: listStatisticsScans
+  tags: [Statistics]
+  summary: List scanning statistics
+  description: |
+    List how many signatures and wormholes specifically have been scanned in Thera and Turnur by
+    our pilots to provide this service.
+  x-badges:
+    - color: green
+      label: "public"
+  responses:
+    "200":
+      description: |
+        A list of `scans` by date. If the precision is `weekly` or `monthly` the date is that of the first
+        day of the week or month.
+      headers:
+        Cache-Control:
+          description: "The TTL for this resource is 3600 seconds"
+          schema:
+            type: string
+            example: "max-age=3600"
+      content:
+        application/json:
+          schema:
+            $ref: "../../../schemas/statistics_scans.yaml"
+    "400":
+      $ref: "../../../responses/400.yaml"
+    "503":
+      $ref: "../../../responses/503.yaml"

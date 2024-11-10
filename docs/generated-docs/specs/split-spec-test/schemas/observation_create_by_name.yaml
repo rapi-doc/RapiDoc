@@ -1,0 +1,20 @@
+description: |
+  Data required to create a new tracking record.
+type: object
+properties:
+  character_id:
+    description: An EVE character ID
+    type: integer
+    format: int64
+    example: 96293852
+  observation_type:
+    $ref: "./observation_type.yaml"
+  observed_in_person:
+    description: |
+      Flag indicating whether the tracked object was observed in person.
+    type: boolean
+  system_name:
+    description: |
+      The name of the system the tracked object is located in.
+    type: string
+    example: D61A-G

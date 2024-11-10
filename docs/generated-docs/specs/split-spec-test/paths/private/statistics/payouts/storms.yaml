@@ -1,0 +1,28 @@
+get:
+  parameters:
+    - $ref: "../../../../parameters/query_date_start.yaml"
+    - $ref: "../../../../parameters/query_date_end.yaml"
+    - $ref: "../../../../parameters/query_budget.yaml"
+  operationId: listStatisticsPayoutsStorms
+  tags: [Statistics]
+  summary: List payout storm statistics
+  description: |
+    Calculate the distribution of payouts for a specified timeframe and budget. Pilots earn payouts
+    per observed storm.
+  x-badges:
+    - color: orange
+      label: "private"
+  security:
+    - eve-sso: [admin]
+  responses:
+    "200":
+      description: |
+        An object containing data per participating pilot.
+      content:
+        application/json:
+          schema:
+            $ref: "../../../../schemas/statistics_payouts.yaml"
+    "400":
+      $ref: "../../../../responses/400.yaml"
+    "503":
+      $ref: "../../../../responses/503.yaml"

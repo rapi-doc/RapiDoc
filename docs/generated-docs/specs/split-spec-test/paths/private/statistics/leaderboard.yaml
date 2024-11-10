@@ -1,0 +1,23 @@
+get:
+  parameters:
+    - $ref: "../../../parameters/query_precision.yaml"
+    - $ref: "../../../parameters/query_system_name_optional.yaml"
+  operationId: listStatisticsLeaderboard
+  tags: [Statistics]
+  summary: List leaderboard statistics
+  description: |
+    Calculate the leaderboard for the provided period of time.
+  security:
+    - eve-sso: [user]
+  responses:
+    "200":
+      description: |
+        An object containing data per participating pilot.
+      content:
+        application/json:
+          schema:
+            $ref: "../../../schemas/statistics_leaderboard.yaml"
+    "400":
+      $ref: "../../../responses/400.yaml"
+    "503":
+      $ref: "../../../responses/503.yaml"

@@ -1,0 +1,116 @@
+get:
+  parameters:
+    - $ref: "../../parameters/query_from_system.yaml"
+    - $ref: "../../parameters/query_to_system.yaml"
+    - $ref: "../../parameters/query_routing_preference.yaml"
+  operationId: routeSinglePublic
+  tags: [Routes]
+  summary: Route from A to B
+  description: |
+    Calculate the route from system A to B. In case there are shortcuts through wormhole connections,
+    those are used, unless you set `prefer_safer` to `true`.
+  x-badges:
+    - color: green
+      label: "public"
+  responses:
+    "200":
+      description: The calculated route and its details.
+      headers:
+        Cache-Control:
+          description: "The TTL for this resource is 300 seconds"
+          schema:
+            type: string
+            example: "max-age=300"
+      content:
+        application/json:
+          schema:
+            $ref: "../../schemas/routes.yaml"
+          example:
+            - from: "Zoohen"
+              to: "Serren"
+              jumps: 1
+              route:
+                - system_id: 30005221
+                  system_name: "Zoohen"
+                  region_id: 10000067
+                  region_name: "Genesis"
+                  system_class: "hs"
+                  security_status: 0.5
+                - system_id: 30005222
+                  system_name: "Serren"
+                  region_id: 10000067
+                  region_name: "Genesis"
+                  system_class: "hs"
+                  security_status: 0.5
+    "400":
+      $ref: "../../responses/400.yaml"
+    "503":
+      $ref: "../../responses/503.yaml"
+
+post:
+  operationId: routeMultiplePublic
+  tags: [Routes]
+  summary: Multi target routing
+  description: |
+    Calculate the routes from system A to a maximum of 250 different systems.
+    Duplicates in the target systems get removed.
+    In case there are shortcuts through wormhole connections, those are used, unless you set
+    `prefer_safer` to `true`.
+  x-badges:
+    - color: green
+      label: "public"
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: "../../schemas/route_request.yaml"
+  responses:
+    "200":
+      description: The calculated routes and their details.
+      content:
+        application/json:
+          schema:
+            $ref: "../../schemas/routes.yaml"
+          example:
+            - from: "Zoohen"
+              to: "Bania"
+              jumps: 2
+              route:
+                - system_id: 30005221
+                  system_name: "Zoohen"
+                  region_id: 10000067
+                  region_name: "Genesis"
+                  system_class: "hs"
+                  security_status: 0.5
+                - system_id: 30005289
+                  system_name: "Nasreri"
+                  region_id: 10000067
+                  region_name: "Genesis"
+                  system_class: "hs"
+                  security_status: 0.5
+                - system_id: 30005294
+                  system_name: "Bania"
+                  region_id: 10000067
+                  region_name: "Genesis"
+                  system_class: "hs"
+                  security_status: 0.5
+            - from: "Zoohen"
+              to: "Serren"
+              jumps: 1
+              route:
+                - system_id: 30005221
+                  system_name: "Zoohen"
+                  region_id: 10000067
+                  region_name: "Genesis"
+                  system_class: "hs"
+                  security_status: 0.5
+                - system_id: 30005222
+                  system_name: "Serren"
+                  region_id: 10000067
+                  region_name: "Genesis"
+                  system_class: "hs"
+                  security_status: 0.5
+    "400":
+      $ref: "../../responses/400.yaml"
+    "503":
+      $ref: "../../responses/503.yaml"

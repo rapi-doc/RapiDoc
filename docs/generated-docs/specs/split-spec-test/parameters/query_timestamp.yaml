@@ -1,0 +1,8 @@
+name: timestamp
+in: query
+description: Timestamp in the past to analyze.
+required: true
+schema:
+  type: string
+  format: timestamp
+example: 2023-09-29T10:07:24.213Z

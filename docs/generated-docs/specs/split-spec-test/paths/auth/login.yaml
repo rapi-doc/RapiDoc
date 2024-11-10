@@ -1,0 +1,21 @@
+get:
+  parameters:
+    - $ref: "../../parameters/query_return_to.yaml"
+  operationId: authLogin
+  tags: [Authentication]
+  summary: Login
+  description: |
+    Initiate the EVE-SSO login process and create a server-side session for
+    the user.
+
+    This endpoint has to be called directly and does not support cross-origin resource sharing (CORS).
+  x-badges:
+    - color: orange
+      label: "private"
+  responses:
+    "302":
+      description: Redirect to EVE-SSO to handle the login.
+    "400":
+      $ref: "../../responses/400.yaml"
+    "503":
+      $ref: "../../responses/503.yaml"

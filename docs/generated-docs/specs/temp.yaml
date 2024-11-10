@@ -1,0 +1,18 @@
+openapi: 3.1.0
+info:
+  title: test
+  version: '1.0'
+servers: []
+paths:
+  /abc-path:
+    get:
+      summary: ABC-1 Path with tags
+      tags:
+        - One
+        - two
+  /xyz-path:
+    get:
+      summary: XYZ-1 Path with tags
+      tags:
+        - two
+        - three

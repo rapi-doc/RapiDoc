@@ -1,0 +1,17 @@
+get:
+  operationId: health
+  tags: [Healthcheck]
+  summary: Healthcheck
+  description: Report the process health to the Azure App Service environment.
+  x-badges:
+    - color: green
+      label: "public"
+  responses:
+    "200":
+      description: Expected response to a valid request
+      content:
+        application/json:
+          schema:
+            $ref: "../schemas/health.yaml"
+          example:
+            api_version: "v2.0.41"

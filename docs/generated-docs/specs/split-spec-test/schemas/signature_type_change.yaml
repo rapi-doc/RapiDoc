@@ -1,0 +1,13 @@
+description: Change the signature type of an existing signature.
+type: object
+properties:
+  signature_type:
+    description: The type of the signature.
+    type: string
+    enum:
+      - combat
+      - data
+      - gas
+      - relic
+      - unknown
+      - wormhole
