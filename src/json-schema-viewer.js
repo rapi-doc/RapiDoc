@@ -11,7 +11,7 @@ import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-http';
 import 'prismjs/components/prism-csharp';
 import 'prismjs/components/prism-typescript';
-import 'prismjs/components/prism-jsdoc';
+// import 'prismjs/components/prism-jsdoc'; // generates console error
 
 // Styles
 import FontStyles from '~/styles/font-styles';

@@ -9,7 +9,7 @@ const { title } = Astro.props;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{title}</title>
-    <script src="/assets/rapidoc-min.js"></script>
+    <script is:inline type="module" src="/assets/rapidoc-min.js"></script>
   </head>
   <body>
     <slot />

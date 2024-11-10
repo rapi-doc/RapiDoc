@@ -1,11 +1,11 @@
 ---
 // docs/src/pages/examples/basic.astro
+import Layout from '../../layouts/Layout.astro';
 ---
 <html>
-  <head>
-    <script type="module" src="/assets/rapidoc-min.js"></script>
-  </head>
   <body>
-    <rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme = "dark"> </rapi-doc>
+    <Layout>
+      <rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme = "dark"> </rapi-doc>
+    </Layout>
   </body>
 </html>
