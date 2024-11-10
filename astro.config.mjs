@@ -5,7 +5,7 @@ import fs from 'fs-extra';
 import bannerPlugin from 'vite-plugin-banner';
 import minifyHTML from 'rollup-plugin-minify-html-literals';
 import { build } from 'vite';
-import pkg from './package.json' assert { type: "json" };
+import pkg from './package.json'
 import { transform } from 'esbuild';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -27,7 +27,7 @@ const sharedPlugins = [
     name: 'minifyEs',
     renderChunk: {
       order: 'post',
-      async handler(code, chunk, outputOptions) {
+      async handler(code) {
         return await transform(code, { 
           minify: true,
           drop: ['console','debugger'],
@@ -41,7 +41,7 @@ const sharedPlugins = [
 export default defineConfig({
   // Astro Related config 
   srcDir: './docs/src',
-  outDir: './docs/dist',
+  outDir: './docs/generated-docs',
   publicDir: './docs/public',
   site: 'https://rapidocweb.com',
   build: {
@@ -80,11 +80,11 @@ export default defineConfig({
             plugins: sharedPlugins
           });
           
-          // After building WebComponent copy it to docs/dist/assets
-          await fs.ensureDir(resolve(__dirname, 'docs/dist/assets'));
+          // After building WebComponent copy it to docs/generated-docs/rapidoc
+          await fs.ensureDir(resolve(__dirname, 'docs/generated-docs/rapidoc'));
           await fs.copy(
             resolve(__dirname, 'dist/rapidoc-min.js'),
-            resolve(__dirname, 'docs/dist/assets/rapidoc-min.js')
+            resolve(__dirname, 'docs/generated-docs/rapidoc/rapidoc-min.js')
           );
         }
       },
@@ -93,7 +93,7 @@ export default defineConfig({
         apply: 'serve', // Only run during dev not build
         configureServer(server) {
           server.middlewares.use((req, res, next) => {
-            if (req.url === '/assets/rapidoc-min.js') {
+            if (req.url === '/rapidoc/rapidoc-min.js') {
               // Redirect to the source file in development
               req.url = '/src/index.js';
             }
