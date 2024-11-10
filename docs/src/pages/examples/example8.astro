@@ -1,16 +1,12 @@
 ---
 import ExampleLayout from '../../layouts/ExampleLayout.astro';
-import { getSpecUrl } from '../../utils/getSpecUrl';
-
-const specUrl = getSpecUrl(Astro.url);
 ---
 
 <ExampleLayout>
-  <script is:inline slot="script">
-    function setApiKey() {
+  <script slot="script" is:inline>
+    function setApiKey(){
       const docEl = document.getElementById('thedoc');
       const keyInputEl = document.getElementById('key-val-input');
-
       docEl.setAttribute('api-key-name','api_key');
       docEl.setAttribute('api-key-location','header');
       docEl.setAttribute('api-key-value', keyInputEl.value);
@@ -19,14 +15,12 @@ const specUrl = getSpecUrl(Astro.url);
       } else {
         document.getElementById('header-msg').innerHTML = "<span style='color:orangered'>Removed Key</span>"
       }
-  }
+    }
   </script>
-
-  <rapi-doc
-    id="thedoc"
-    spec-url={specUrl}
-    show-info = "true"
-    allow-authentication = "true"
+  <rapi-doc id='thedoc' 
+    spec-url='https://petstore.swagger.io/v2/swagger.json'
+    allow-authentication = "false"
+    allow-spec-file-load = "false"
     api-key-name = "api_key"
     api-key-location = "header"
     api-key-value = "-"

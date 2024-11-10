@@ -1,0 +1,23 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+import { getSpecUrl } from '../../utils/getSpecUrl';
+
+const specUrl = getSpecUrl(Astro.url);
+---
+
+<ExampleLayout>
+  <rapi-doc id = "thedoc"
+    spec-url={specUrl}
+    show-header = "false"
+    show-info = "false"
+    allow-server-selection = "false"
+    allow-authentication = "false" 
+    render-style = "read"
+    allow-try = "false" 
+  >
+    <div slot="nav-logo" style="width:100%; display: flex;justify-content: center;">
+      <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('schema-style', 'table')" >Table</button>
+      <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('schema-style', 'tree')" >Tree</button>
+    </div>
+  </rapi-doc>
+</ExampleLayout>

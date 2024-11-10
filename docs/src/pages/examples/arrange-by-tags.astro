@@ -1,0 +1,17 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+import { getSpecUrl } from '../../utils/getSpecUrl';
+
+const specUrl = getSpecUrl(Astro.url);
+---
+
+<ExampleLayout>
+  <rapi-doc spec-url={specUrl}
+    show-header = "false"
+    show-info = "true"
+    allow-server-selection = "false"
+    allow-authentication = "false" 
+    render-style = "read"
+    allow-try = "false" 
+  > </rapi-doc>
+</ExampleLayout>

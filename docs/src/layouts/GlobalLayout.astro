@@ -1,0 +1,26 @@
+---
+import '../styles/examples.css';
+import { GTAG_ID } from '../utils/googleAnalytics';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+    <slot name="head" />
+    <!-- Google Analytics  -->
+    <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${GTAG_ID}`}></script>
+    <script define:vars={{ gtagId: GTAG_ID }} is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', gtagId);
+    </script>
+    <slot name="script" />
+    <title>RapiDoc Example</title>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
