@@ -1,0 +1,40 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+import { getSpecUrl } from '../../utils/getSpecUrl';
+
+const specUrl = getSpecUrl(Astro.url);
+---
+
+<ExampleLayout>
+  <script is:inline slot="script">
+    function setApiKey() {
+      const docEl = document.getElementById('thedoc');
+      const keyInputEl = document.getElementById('key-val-input');
+
+      docEl.setAttribute('api-key-name','api_key');
+      docEl.setAttribute('api-key-location','header');
+      docEl.setAttribute('api-key-value', keyInputEl.value);
+      if (keyInputEl.value.trim()) {
+        document.getElementById('header-msg').innerHTML = "<span style='color:lime'>Auth Key Applied</span>";
+      } else {
+        document.getElementById('header-msg').innerHTML = "<span style='color:orangered'>Removed Key</span>"
+      }
+  }
+  </script>
+
+  <rapi-doc
+    spec-url={specUrl}
+    show-info = "true"
+    allow-authentication = "true"
+    api-key-name = "api_key"
+    api-key-location = "header"
+    api-key-value = "-"
+    render-style="read"
+  > 
+    <div slot='header' style="display: flex;"> 
+      <input class='txt' id='key-val-input' type='text' placeholder='API Key' value='special-key' spellcheck='false' >
+      <button class='btn' onclick='setApiKey()'>SET KEY</button>
+      <span id="header-msg"></span>
+    </div>
+  </rapi-doc>
+</ExampleLayout>
