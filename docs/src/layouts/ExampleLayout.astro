@@ -1,11 +1,6 @@
 ---
 import '../styles/examples.css';
 import { GTAG_ID } from '../utils/googleAnalytics';
-
-interface Props {
-  title: string;
-}
-const { title } = Astro.props;
 ---
 
 <!DOCTYPE html>
@@ -22,8 +17,8 @@ const { title } = Astro.props;
       gtag('js', new Date());
       gtag('config', gtagId);
     </script>
-
-    <title>{title}</title>
+    <slot name="script" />
+    <title>RapiDoc Example</title>
   </head>
   <body>
     <slot />

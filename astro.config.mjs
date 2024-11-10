@@ -42,6 +42,7 @@ export default defineConfig({
   // Astro Related config 
   srcDir: './docs/src',
   outDir: './docs/dist',
+  publicDir: './docs/public',
   site: 'https://rapidocweb.com',
   build: {
     format: 'file'
