@@ -1,5 +1,5 @@
 ---
-import '../styles/examples.css';
+import '../styles/global.css';
 import { GTAG_ID } from '../utils/googleAnalytics';
 ---
 
@@ -8,6 +8,14 @@ import { GTAG_ID } from '../utils/googleAnalytics';
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Exo:wght@300;500&display=swap" rel="stylesheet">
+  
+
     <slot name="head" />
     <!-- Google Analytics  -->
     <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${GTAG_ID}`}></script>

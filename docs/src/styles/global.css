@@ -1,5 +1,5 @@
 body, button {
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'Lato', 'Open Sans', sans-serif;
   font-size: 14px;
   line-height: 24px;
   color: #333;
@@ -8,6 +8,7 @@ body, button {
   margin: 0;
   display: block;
 }
+
 .flex-col {
   display: flex;
   padding: 48px 8px;
@@ -16,7 +17,7 @@ body, button {
   justify-content: center;
 }
 
-a { color:#0055fd; text-decoration: none;}
+a { color:#0055fd; text-decoration: none; }
 
 a.zuplo-button {
   background-color:#FF00BD; 
@@ -26,9 +27,9 @@ a.zuplo-button {
   font-size: large; 
   font-family:exo; 
   padding: 3px 15px 3px 15px;
-   box-shadow: 1px 1px 2px #00000044; 
-   text-decoration: none;
-   white-space: nowrap;
+  box-shadow: 1px 1px 2px #00000044; 
+  text-decoration: none;
+  white-space: nowrap;
 }
 
 a.zuplo-button:hover {
@@ -64,13 +65,6 @@ h1,h2,h3 {
   padding: 6px 24px;
 }
 
-.banner {
-  position:relative;
-  text-align:center;
-  background: linear-gradient(60deg, rgba(84,58,183,1) 0%, rgba(0,172,193,1) 100%);
-  color:white;
-}
-
 .flex { /*Flexbox for containers*/
   display: flex;
   justify-content: center;
@@ -78,42 +72,10 @@ h1,h2,h3 {
   text-align: center;
 }
 
-.waves {
-  position:relative;
-  width: 100%;
-  height:15vh;
-  margin-bottom:-7px; /*Fix for safari gap*/
-  min-height:100px;
-  max-height:150px;
-}
-
-.parallax > use {
-  animation: animate-wave 25s cubic-bezier(.55,.5,.45,.5) 120s;
-}
-.parallax > use:nth-child(1) {
-  animation-delay: -2s;
-  animation-duration: 45s;
-}
-.parallax > use:nth-child(2) {
-  animation-delay: -3s;
-  animation-duration: 55s;
-}
-.parallax > use:nth-child(3) {
-  animation-delay: -4s;
-  animation-duration: 65s;
-}
-@keyframes animate-wave {
-  0% {
-    transform: translate3d(-90px,0,0);
-  }
-  100% { 
-    transform: translate3d(85px,0,0);
-  }
-}
-
 .section-text {
   background: url('./images/bg-shape1.svg') right top no-repeat;;
 }
+
 /*Shrinking for mobile*/
 @media (max-width: 768px) {
   .waves {
@@ -143,7 +105,7 @@ h1,h2,h3 {
 }
 
 .logo { display:none }
-.code-block{
+.code-block {
   font-size:12px;
   width:320px;
   border-radius:4px;

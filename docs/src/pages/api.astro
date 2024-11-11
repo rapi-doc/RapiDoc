@@ -1,0 +1,81 @@
+---
+import GlobalLayout from '../layouts/GlobalLayout.astro';
+import Waves from '../components/Waves.astro';
+import { apiData } from '../data/api';
+---
+
+<GlobalLayout>
+<Waves/>
+<div class="page-header"></div>
+<div class="level-1">
+  <h1>API</h1>
+  
+  <!-- Attributes Section -->
+  <div class="level-2">
+    <h2 id={apiData.Attributes.id}>Attributes</h2>
+    {apiData.Attributes.items.map(group => {
+      const [title, content] = Object.entries(group)[0];
+      return (
+        <div class="level-3">
+          <h3 id={content.id}>{title}</h3>
+          <table>
+            {content.items.map(item => (
+              <tr id={item.id}>
+                <td>{item.name}</td>
+                <td set:html={item.description} />
+                <td>{item.default}</td>
+              </tr>
+            ))}
+          </table>
+        </div>
+      );
+    })}
+  </div>
+
+  <!-- Methods Section -->
+  <div class="level-2">
+    <h2 id={apiData.Methods.id}>Methods</h2>
+    <table>
+      {apiData.Methods.items.map(method => (
+        <tr id={method.id}>
+          <td>{method.name}</td>
+          <td set:html={method.description} />
+        </tr>
+      ))}
+    </table>
+  </div>
+
+  <!-- Events Section -->
+  <div class="level-2">
+    <h2 id={apiData.Events.id}>Events</h2>
+    <table>
+      {apiData.Events.items.map(event => (
+        <tr id={event.id}>
+          <td>{event.name}</td>
+          <td set:html={event.description} />
+        </tr>
+      ))}
+    </table>
+  </div>
+</div>
+</GlobalLayout>
+
+<style>
+  .level-1 {
+    /* Add your styles */
+  }
+  .level-2 {
+    margin-top: 2rem;
+  }
+  .level-3 {
+    margin-top: 1.5rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  td {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+  }
+</style>

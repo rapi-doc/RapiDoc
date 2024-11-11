@@ -1,14 +1,3 @@
-body, button {
-  font-family: 'Open Sans', sans-serif;
-  font-size: 14px;
-  line-height: 24px;
-  color: #333;
-  font-weight: 500;
-  background: #fff;
-  margin: 0;
-  display: block;
-}
-
 a { color:#0055fd; text-decoration: none;}
 .btn {
   width: 90px;
