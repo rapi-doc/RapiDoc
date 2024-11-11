@@ -42,8 +42,10 @@
   },
   "dependencies": {
     "@apitools/openapi-parser": "0.0.36",
+    "@types/js-yaml": "^4.0.9",
     "base64-arraybuffer": "^1.0.2",
     "buffer": "^6.0.3",
+    "js-yaml": "^4.1.0",
     "lit": "^3.2.1",
     "marked": "4.3.0",
     "prismjs": "^1.29.0",
