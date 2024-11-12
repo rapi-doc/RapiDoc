@@ -2,14 +2,16 @@
 interface Props {
   page: 'home' | 'examples' | 'api' | 'quickstart' | 'example-list' | 'other'; 
   showWaves?: boolean;
+  height?:number
+  hiddenOverflow?: boolean
 }
 
 // Destructure the props using the defined interface
-const { page, showWaves = false } = Astro.props;
+const { page, height, showWaves = false, hiddenOverflow = true } = Astro.props;
 ---
 
-<div  class="banner" style="max-height:400px; overflow:hidden;">
-  <div class="topbar">
+<div  class="banner" style={`max-height:${page === 'home' ? '500':'400'}px; overflow:${hiddenOverflow ? 'hidden' :'visible'}`} >
+  <div class="topbar" style= {height != undefined ? `height: ${height}px;` : undefined}>
     <div class="header">
       <a class="menu-item" data-action="url" href="./index.html">
         <img class="logo" src="./assets/images/logo.png" style="width:36px;height:36px;margin-right:10px;" href="./index.html"/>
@@ -25,6 +27,7 @@ const { page, showWaves = false } = Astro.props;
       </nav>
     </div>
   </div>
+  <slot/>
   {showWaves && (
     <!--Waves Container-->
     <div>
