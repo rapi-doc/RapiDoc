@@ -16,8 +16,8 @@ import TopBar from '../components/TopBar.astro';
     <div class="card span-2">Card 8</div>
     <div class="card">Card 9</div>
     
-    <div class="card" style="height:250px" >
-      <div class="go-corner"/>
+    <div class="card" style="height:150px" >
+      <div class="card-corner"/>
       <div class="card-header">
         <img src="./assets/images/color-circle.png">
         Themes
@@ -28,14 +28,22 @@ import TopBar from '../components/TopBar.astro';
     </div>
     
     <div class="card">
-      <div class="go-corner" />
       <div class="card-header">
-        RENDERING MODES
+        Rendering Modes
       </div>
       <div class="card-links">
-       <div class="card-link"> View </div>
-       <div class="card-link"> Read </div>
-       <div class="card-link"> Focused </div>
+       <div class="card-link"> 
+        <div class="link-corner"/>
+        View 
+      </div>
+       <div class="card-link"> 
+        <div class="link-corner"/>
+        Read 
+      </div>
+       <div class="card-link"> 
+        <div class="link-corner"/>
+        Focused 
+      </div>
       </div>
 
 
@@ -66,13 +74,11 @@ import TopBar from '../components/TopBar.astro';
   * {
     transition: all 0.3s ease-out;
   }
-  .go-corner::before {
-    content: "➜";
-  }
   .card {
     display: block;
     position: relative;
-    border: 1px solid #777;
+    border: 1px solid var(--border-color);
+    background-color: var(--card-bg-color);
     // border-image: linear-gradient(45deg, turquoise, greenyellow) 4;
     border-radius: 4px;
     padding: 16px;
@@ -89,40 +95,71 @@ import TopBar from '../components/TopBar.astro';
     }
     & .card-body {
       font-weight: 300; 
-      color: var(--fg-color-2);
+      color: var(--fg-color-muted);
     }
     & .card-links {
       display: flex;
       font-weight: 300; 
       gap: 10px;
-      color: var(--fg-color-2);
-      & .card-link {
-        border: 1px solid #CD3D73;
-        border-radius: 5px;
-        padding:4px 12px;
-       
-        font-weight: 300; 
-        color: var(--fg-color-2);
-      }
-    }
-    & .go-corner {
-      position: absolute;
-      overflow: hidden;
-      top: 0;
-      right: 0;
-      height: 100%;
-      width: 20px;
-      padding: 4px 6px 4px 4px;
-      transform: skew(5deg);
-      margin-right: -60px;
-      background-image: linear-gradient(-45deg, #8F479A 1%, #DC2A74 100%);
+      color: var(--fg-color-muted);
     }
     &:hover {
-      border: 1px solid #CD3D73;
-      & .go-corner {
+      cursor: pointer;
+      border: 1px solid var(--border-color-hover);
+      & > .card-corner {
         margin-right: -16px;
       }
     }
+  }
+
+  .card-link {
+    display: block;
+    position: relative;
+    overflow: hidden;
+    color:var(--link-color);
+    font-weight: 700;
+    border: 1px solid #cb6f3199;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-weight: 300;
+    &:hover {
+      cursor: pointer;
+      border: 1px solid var(--border-color-hover);
+      border-top-right-radius: 0px;
+      border-bottom-right-radius: 0px;
+      & .link-corner {
+        margin-right: -8px;
+      }
+    }
+  }
+
+  .card-corner {
+    position: absolute;
+    overflow: hidden;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 20px;
+    color: var(--bg-color);
+    padding: 4px 6px 4px 4px;
+    transform: skew(5deg);
+    margin-right: -60px;
+    background-image: linear-gradient(-45deg, #8d8044 1%, #e17945 100%);
+    &::before {
+      content: "➜";
+    }
+  }
+
+  .link-corner {
+    position: absolute;
+    overflow: hidden;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 16px;
+    transform: skew(15deg);
+    margin-right: -30px;
+    background-image: linear-gradient(-45deg, #8d8044 1%, #e17945 100%);
   }
 
   .card.span-2 {

@@ -1,16 +1,27 @@
 :root {
-  --fg-color: #ddd;
-  --fg-color-2: #aaa;
-  --bg-color: #333;
+  --fg-color: #b0b0b0;
+  --fg-color-muted: #9198a1;
+  --bg-color:#000;
+  --link-color:#f57e2e;
   --banner-text-color: #fff;
+  --border-color: #3d444d;
+  --border-color-muted: #3d444db3;
+  --border-color-hover: #e17945;
+  --border-color-link: #e17945bb;
+  --card-bg-color: #31384055;
+  --rapidoc-gradient: linear-gradient(60deg, 
+    rgb(193, 0, 0) 0%, 
+    rgb(187, 175, 3) 40%,
+    rgb(222, 122, 0) 90%
+  );
 }
 body, button {
   font-family: 'Lato', 'Open Sans', sans-serif;
   font-size: 14px;
   line-height: 24px;
-  color: #333;
+  color: var(--fg-color);
+  background: var(--bg-color);
   font-weight: 500;
-  background: #fff;
   margin: 0;
   display: block;
 }

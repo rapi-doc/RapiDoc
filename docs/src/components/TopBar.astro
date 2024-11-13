@@ -36,9 +36,9 @@ const { page, height, showWaves = false, hiddenOverflow = true } = Astro.props;
           <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
         </defs>
         <g class="parallax">
-          <use xlink:href="#gentle-wave" x="48" y="0" fill="rgba(255,255,255,0.2" />
-          <use xlink:href="#gentle-wave" x="48" y="3" fill="rgba(255,255,255,0.5)" />
-          <use xlink:href="#gentle-wave" x="48" y="7" fill="var(--bg-color)" />
+          <use xlink:href="#gentle-wave" x="48" y="0" fill="color-mix(in srgb, var(--bg-color) 20%, transparent)" />
+          <use xlink:href="#gentle-wave" x="48" y="3" fill="color-mix(in srgb, var(--bg-color) 70%, transparent)" />
+          <use xlink:href="#gentle-wave" x="48" y="7" fill="color-mix(in srgb, var(--bg-color) 100%, transparent)" />
         </g>
       </svg>
     </div>
@@ -50,7 +50,7 @@ const { page, height, showWaves = false, hiddenOverflow = true } = Astro.props;
 .banner {
   position:relative;
   text-align:center;
-  background: linear-gradient(60deg, rgba(84,58,183,1) 0%, rgba(0,172,193,1) 100%);
+  background: var(--rapidoc-gradient);
   color: var(--banner-text-color);
 }
 .product-name {
@@ -94,19 +94,19 @@ const { page, height, showWaves = false, hiddenOverflow = true } = Astro.props;
 
 .parallax {
   & > use {
-    animation: animate-wave 25s cubic-bezier(.55,.5,.45,.5) 120s;
+    animation: animate-wave cubic-bezier(.55,.5,.55,.5);
   }
   & > use:nth-child(1) {
     animation-delay: -2s;
-    animation-duration: 45s;
+    animation-duration: 122s;
   }
   & > use:nth-child(2) {
-    animation-delay: -3s;
-    animation-duration: 55s;
+    animation-delay: -8s;
+    animation-duration: 128s;
   }
   & > use:nth-child(3) {
     animation-delay: -4s;
-    animation-duration: 65s;
+    animation-duration: 124s;
   }
 }
 @keyframes animate-wave {
