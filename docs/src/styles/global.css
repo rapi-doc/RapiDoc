@@ -1,3 +1,9 @@
+:root {
+  --fg-color: #ddd;
+  --fg-color-2: #aaa;
+  --bg-color: #333;
+  --banner-text-color: #fff;
+}
 body, button {
   font-family: 'Lato', 'Open Sans', sans-serif;
   font-size: 14px;

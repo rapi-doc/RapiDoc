@@ -36,9 +36,9 @@ const { page, height, showWaves = false, hiddenOverflow = true } = Astro.props;
           <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
         </defs>
         <g class="parallax">
-          <use xlink:href="#gentle-wave" x="48" y="0" fill="rgba(255,255,255,0.7" />
+          <use xlink:href="#gentle-wave" x="48" y="0" fill="rgba(255,255,255,0.2" />
           <use xlink:href="#gentle-wave" x="48" y="3" fill="rgba(255,255,255,0.5)" />
-          <use xlink:href="#gentle-wave" x="48" y="7" fill="#fff" />
+          <use xlink:href="#gentle-wave" x="48" y="7" fill="var(--bg-color)" />
         </g>
       </svg>
     </div>
@@ -51,13 +51,13 @@ const { page, height, showWaves = false, hiddenOverflow = true } = Astro.props;
   position:relative;
   text-align:center;
   background: linear-gradient(60deg, rgba(84,58,183,1) 0%, rgba(0,172,193,1) 100%);
-  color:white;
+  color: var(--banner-text-color);
 }
 .product-name {
   font-weight: 300;
   font-size: 32px;
   line-height: 40px;
-  color: #fff;
+  color: var(--banner-text-color);
 }
 .banner-content{
   font-weight: 300;

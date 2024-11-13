@@ -8,16 +8,16 @@ import { GTAG_ID } from '../utils/googleAnalytics';
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Lato:300,400&display=swap" rel="stylesheet">
+    <!-- Fonts - START -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Exo:wght@300;500&display=swap" rel="stylesheet">
-  
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+    <!-- Fonts - END -->
 
     <slot name="head" />
-    <!-- Google Analytics  -->
+    <!-- Google Analytics - START -->
     <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${GTAG_ID}`}></script>
     <script define:vars={{ gtagId: GTAG_ID }} is:inline>
       window.dataLayer = window.dataLayer || [];
@@ -25,6 +25,7 @@ import { GTAG_ID } from '../utils/googleAnalytics';
       gtag('js', new Date());
       gtag('config', gtagId);
     </script>
+     <!-- Google Analytics - END -->
     <slot name="script" />
     <title>RapiDoc Example</title>
   </head>
@@ -32,3 +33,10 @@ import { GTAG_ID } from '../utils/googleAnalytics';
     <slot />
   </body>
 </html>
+
+<style>
+  body {
+    background-color: var(--bg-color);
+    color: var(--fg-color);
+  }
+</style>  
