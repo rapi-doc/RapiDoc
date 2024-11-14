@@ -18,8 +18,6 @@ interface ApiData {
   Events: ApiSection;
 }
 
-// If you're using the YAML directly, you'll need to import it
-// Make sure you have the yaml package installed: npm install js-yaml
 import yaml from 'js-yaml';
 import fs from 'fs';
 

@@ -1,0 +1,19 @@
+examples:
+  - How to Use:
+      img: ./assets/images/info.png
+      href: ./quickstart.html
+      description: How to Use
+  - Themes:
+      img: ./assets/images/theme.png
+      href: ./examples/theme.html
+      description: Easily change you themes
+  - Rendering Modes:
+      description: 3 different rendering styles to choose from
+      subExamples:
+        - Read:
+            href: ./examples/example1.html
+        - View:
+            href: ./examples/example2.html
+        - Focused:
+            href: ./examples/example3.html
+

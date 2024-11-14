@@ -1,25 +1,25 @@
 Attributes:
-  id: "attributes"
+  id: attributes
   items:
-    - "General":
-        id: attr-general
-        items:
-          - name: attr1-name
-            id: attr1
-            description: attr1 description may contain <b> HTML </b>
-            default: attr1-val
-          - name: attr2-name
-            id: attr2
-            description: attr2 description
-            default: attr2-val
-    - "Colors And Font":
+    - General:
+      id: attr-general
+      items:
+        - name: attr1-name
+          id: attr1
+          description: attr1 description may contain <b> HTML </b>
+          default: attr1-val
+        - name: attr2-name
+          id: attr2
+          description: attr2 description
+          default: attr2-val
+    - Colors And Font:
         id: attr-colors
         items:
           - name: attr3-name
             id: attr3
             description: attr3 description
             default: attr3-val
-    - "Layout":
+    - Layout:
         id: attr-layout
         items:
           - name: attr4-name

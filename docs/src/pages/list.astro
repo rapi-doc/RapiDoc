@@ -1,11 +1,42 @@
 ---
 import GlobalLayout from '../layouts/GlobalLayout.astro';
 import TopBar from '../components/TopBar.astro';
+import { exampleListData, SubExample } from '../data/example-list';
+// console.log(JSON.stringify(exampleListData, null, 2));
 ---
 
 <GlobalLayout>
   <TopBar page="example-list" showWaves = {true} />
+
   <div class="card-grid">
+    {
+      exampleListData.examples.map(example => {
+        const [exampleTitle, exampleObj] = Object.entries(example)[0];
+        return (
+          <a class="card" href={exampleObj.href || undefined}  >
+            { exampleObj.href && (<div class="card-corner"/>)}  
+            <div class="card-header">
+              {exampleObj.img && (<img src={exampleObj.img} />)}  
+              {exampleTitle}
+            </div>
+            { exampleObj.description && (<div class="card-body"> {exampleObj.description} </div>)}
+            { exampleObj.subExamples && (
+              <form class="card-buttons"> 
+                {exampleObj.subExamples.map(subExample => { 
+                  const [subExampleTitle, subExampleObj] = Object.entries(subExample)[0];
+                  return (
+                    <button class="card-btn" formaction={subExampleObj.href}>
+                      <div class="card-btn-corner"/>
+                      {subExampleTitle}
+                    </button>
+                  )}
+                )}
+              </form>
+            )}
+          </a>
+        )
+      })
+    }
     <div class="card"><b>Card 1</b><br/> with longer content that takes up more space</div>
     <div class="card">Card 2</div>
     <div class="card span-2">Card 3 with longer content that takes up more space</div>
@@ -74,7 +105,8 @@ import TopBar from '../components/TopBar.astro';
   * {
     transition: all 0.3s ease-out;
   }
-  .card {
+  a.card {
+    color: currentColor;
     display: block;
     position: relative;
     border: 1px solid var(--border-color);
@@ -87,8 +119,9 @@ import TopBar from '../components/TopBar.astro';
       display: flex;
       font-weight: 900;
       margin-bottom: 12px;
+      line-height: 32px;
       & img {
-        height: 24px;
+        height: 32px;
         width: auto;
         margin-right: 12px;
       }
@@ -97,14 +130,13 @@ import TopBar from '../components/TopBar.astro';
       font-weight: 300; 
       color: var(--fg-color-muted);
     }
-    & .card-links {
+    & .card-buttons {
       display: flex;
       font-weight: 300; 
       gap: 10px;
-      color: var(--fg-color-muted);
     }
     &:hover {
-      cursor: pointer;
+      text-decoration: none;
       border: 1px solid var(--border-color-hover);
       & > .card-corner {
         margin-right: -16px;
@@ -112,22 +144,23 @@ import TopBar from '../components/TopBar.astro';
     }
   }
 
-  .card-link {
+  .card-btn {
+    color:var(--link-color);
     display: block;
     position: relative;
     overflow: hidden;
-    color:var(--link-color);
-    font-weight: 700;
     border: 1px solid #cb6f3199;
+    font-weight: 700;
     border-radius: 6px;
     padding: 8px 12px;
     font-weight: 300;
     &:hover {
+      text-decoration: none;
       cursor: pointer;
       border: 1px solid var(--border-color-hover);
       border-top-right-radius: 0px;
       border-bottom-right-radius: 0px;
-      & .link-corner {
+      & .card-btn-corner {
         margin-right: -8px;
       }
     }
@@ -150,7 +183,7 @@ import TopBar from '../components/TopBar.astro';
     }
   }
 
-  .link-corner {
+  .card-btn-corner {
     position: absolute;
     overflow: hidden;
     top: 0;
