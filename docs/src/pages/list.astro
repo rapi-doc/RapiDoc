@@ -13,7 +13,7 @@ import { exampleListData, SubExample } from '../data/example-list';
       exampleListData.examples.map(example => {
         const [exampleTitle, exampleObj] = Object.entries(example)[0];
         return (
-          <a class="card" href={exampleObj.href || undefined}  >
+          <a class="card" href={exampleObj.href || undefined} >
             { exampleObj.href && (<div class="card-corner"/>)}  
             <div class="card-header">
               {exampleObj.img && (<img src={exampleObj.img} />)}  

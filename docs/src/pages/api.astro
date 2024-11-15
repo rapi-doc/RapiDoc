@@ -1,7 +1,10 @@
 ---
 import GlobalLayout from '../layouts/GlobalLayout.astro';
 import TopBar from '../components/TopBar.astro';
-import { apiData } from '../data/api';
+import { rapidocApiData, RapidocAttribute } from '../data/rapidoc-api';
+
+import GithubSlugger from 'github-slugger'
+const slugger = new GithubSlugger();
 ---
 
 <GlobalLayout>
@@ -9,24 +12,92 @@ import { apiData } from '../data/api';
     <img class="banner-img" style="transform: rotate(5deg);" class="shadow3" src="./assets/images/light_ss.png">
   </TopBar>
   <h1> API </h1>
+
+  <!-- Attributes -->
+  <h2> Attributes </h2>
+  {
+    rapidocApiData.Attributes.map(attGroup => { 
+      const [attrGroupTitle, attrGroupItems] = Object.entries(attGroup)[0] as [string, RapidocAttribute[]];
+      const attrGroupHref = slugger.slug(attrGroupTitle);
+      return (
+        <h3>{attrGroupHref}</h3>
+        <table>
+          {
+            attrGroupItems.map(attr => {
+            return (
+              <tr>
+                <td>{attr.name}</td>
+                <td>{attr.description}</td>
+              </tr>
+            )}
+          )}
+        </table>
+      )
+    })
+  }
+
+  <!-- Methods -->
+  <h2> Methods </h2>
+  <table>
+  {
+    rapidocApiData.Methods.items.map(method => { 
+      return (
+        <tr>
+          <td>{method.name}</td>
+          <td>{method.description}</td>
+        </tr>
+      )}
+    )
+  }
+  </table>
+
+  <!-- Events -->
+  <h2> Events </h2>
+  <table>
+  {
+    rapidocApiData.Events.items.map(rapidocEvent => { 
+      return (
+        <tr>
+          <td>{rapidocEvent.name}</td>
+          <td>{rapidocEvent.description}</td>
+        </tr>
+      )}
+    )
+  }
+  </table>
+
+  <!-- Slots -->
+  <h2> Slots </h2>
+  <table>
+  {
+    rapidocApiData.Slots.items.map(slot => { 
+      return (
+        <tr>
+          <td>{slot.name}</td>
+          <td>{slot.description}</td>
+        </tr>
+      )}
+    )
+  }
+  </table>
+
+  <!-- Vendor Extensions -->
+  <h2> Slots </h2>
+  <table>
+  {
+    rapidocApiData.Extensions.items.map(extension => { 
+      return (
+        <tr>
+          <td>{extension.name}</td>
+          <td>{extension.description}</td>
+        </tr>
+      )}
+    )
+  }
+  </table>
+
 </GlobalLayout>
 
 <style>
-  .level-1 {
-    /* Add your styles */
-  }
-  .level-2 {
-    margin-top: 2rem;
-  }
-  .level-3 {
-    margin-top: 1.5rem;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  td {
-    padding: 0.5rem;
-    border: 1px solid #ddd;
-  }
+ 
 </style>
