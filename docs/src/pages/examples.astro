@@ -4,10 +4,8 @@ import TopBar from '../components/TopBar.astro';
 ---
 
 <GlobalLayout>
-  <TopBar page="examples" showWaves = {false} >
-    <div class="hide-in-mobile">
-      <img style="width:740px" class="shadow3" src="./assets/images/rapi-mode-read.png">
-    </div>
+  <TopBar slot="topbar" page="examples" showWaves = {false} >
+    <img class="banner-img shadow3" style="transform: rotate(-5deg)"" src="./assets/images/rapi-mode-read.png">
   </TopBar>
   <h1>Examples</h1>
 </GlobalLayout>

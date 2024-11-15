@@ -30,6 +30,9 @@ import { GTAG_ID } from '../utils/googleAnalytics';
     <title>RapiDoc Example</title>
   </head>
   <body>
-    <slot />
+    <slot name="topbar" />
+    <main>
+      <slot />
+    </main>
   </body>
 </html>

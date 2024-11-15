@@ -6,7 +6,7 @@ import { exampleListData, SubExample } from '../data/example-list';
 ---
 
 <GlobalLayout>
-  <TopBar page="example-list" showWaves = {true} />
+  <TopBar slot="topbar" page="example-list" showWaves = {true} />
 
   <div class="card-grid">
     {
@@ -23,7 +23,7 @@ import { exampleListData, SubExample } from '../data/example-list';
             { exampleObj.subExamples && (
               <form class="card-buttons"> 
                 {exampleObj.subExamples.map(subExample => { 
-                  const [subExampleTitle, subExampleObj] = Object.entries(subExample)[0];
+                  const [subExampleTitle, subExampleObj] = Object.entries(subExample)[0] as [string, SubExample];
                   return (
                     <button class="card-btn" formaction={subExampleObj.href}>
                       <div class="card-btn-corner"/>
@@ -37,48 +37,53 @@ import { exampleListData, SubExample } from '../data/example-list';
         )
       })
     }
-    <div class="card"><b>Card 1</b><br/> with longer content that takes up more space</div>
-    <div class="card">Card 2</div>
-    <div class="card span-2">Card 3 with longer content that takes up more space</div>
-    <div class="card">Card 4 with longer content that takes up more space</div>
-    <div class="card">Card 5</div>
-    <div class="card">Card 6</div>
-    <div class="card">Card 7 with longer content that takes up more space</div>
-    <div class="card span-2">Card 8</div>
-    <div class="card">Card 9</div>
-    
-    <div class="card" style="height:150px" >
-      <div class="card-corner"/>
+    <a class="card span-2">
       <div class="card-header">
-        <img src="./assets/images/color-circle.png">
-        Themes
+        Card With Col Span 2
       </div>
       <div class="card-body">
-        Card 10 with longer content that takes up more space 
+         This is a Sample Card Body which should span acreoss two columns. This card dont have a HREF 
       </div>
-    </div>
-    
-    <div class="card">
+    </a>
+    <a class="card" href="./examples/example1.html">
+      <div class="card-corner"/>
       <div class="card-header">
-        Rendering Modes
+        Regular Card
       </div>
-      <div class="card-links">
-       <div class="card-link"> 
-        <div class="link-corner"/>
-        View 
+      <div class="card-body">
+         This is a Sample Card Body and has a HREF
       </div>
-       <div class="card-link"> 
-        <div class="link-corner"/>
-        Read 
-      </div>
-       <div class="card-link"> 
-        <div class="link-corner"/>
-        Focused 
-      </div>
-      </div>
+    </a>
 
+    <a class="card bg-image" href="./examples/example1.html" style="background-image:url(/assets/images/wave_bg2-min.png);  background-size: 100% 30%">
+      <div class="card-corner"/>
+      <div class="card-header">
+        Regular Card
+      </div>
+      <div class="card-body">
+         This is a Sample Card Body and has a HREF
+      </div>
+    </a>
 
-    </div>
+    <a class="card bg-image" href="./examples/example1.html" style="background-image:url(/assets/images/card_bg1.png); background-size: auto 100%">
+      <div class="card-corner"/>
+      <div class="card-header">
+        Regular Card
+      </div>
+      <div class="card-body">
+         This is a Sample Card Body and has a HREF
+      </div>
+    </a>
+    <a class="card bg-image" href="./examples/example1.html" style="background-image:url(/assets/images/card_bg3.png); background-size: 10% auto">
+      <div class="card-corner"/>
+      <div class="card-header">
+        Regular Card
+      </div>
+      <div class="card-body">
+         This is a Sample Card Body and has a HREF
+      </div>
+    </a>
+
 
   </div>
 </GlobalLayout>
@@ -96,7 +101,7 @@ import { exampleListData, SubExample } from '../data/example-list';
   .card-grid {
     display: grid;
     font-family: Nunito, 'Open Sans', sans-serif;
-    grid-template-columns: repeat(auto-fill, minmax(var(--card-width), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(var(--card-width), 1fr));
     grid-auto-rows: minmax(var(--card-height), auto);
     grid-gap: var(--card-gap);
     margin: var(--desktop-margin);
@@ -142,6 +147,12 @@ import { exampleListData, SubExample } from '../data/example-list';
         margin-right: -16px;
       }
     }
+  }
+
+  .bg-image {
+    background-repeat: no-repeat;
+    background-position: 130% -30px;
+    background-size: 100% 20%;   
   }
 
   .card-btn {
@@ -199,15 +210,4 @@ import { exampleListData, SubExample } from '../data/example-list';
     grid-column: span 2;
   }
 
-  @media (max-width: 768px) {
-    .card-grid {
-      margin: var(--tablet-margin);
-    }
-  }
-
-  @media (max-width: 480px) {
-    .card-grid {
-      margin: var(--mobile-margin);
-    }
-  }
 </style>

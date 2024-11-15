@@ -8,6 +8,9 @@
   --border-color-muted: #3d444db3;
   --border-color-hover: #e17945;
   --border-color-link: #e17945bb;
+  --desktop-margin: 60px;
+  --tablet-margin: 20px;
+  --mobile-margin: 5px;
   --card-bg-color: #31384055;
   --rapidoc-gradient: linear-gradient(60deg, 
     rgb(193, 0, 0) 0%, 
@@ -22,8 +25,14 @@ body, button {
   color: var(--fg-color);
   background: var(--bg-color);
   font-weight: 500;
-  margin: 0;
+  margin: 5px;
   display: block;
+}
+main {
+  margin: 0 var(--mobile-margin);
+}
+.banner-img {
+  width:250px;
 }
 
 .flex-col {
@@ -91,20 +100,6 @@ h1,h2,h3 {
 
 .section-text {
   background: url('./images/bg-shape1.svg') right top no-repeat;;
-}
-
-/*Shrinking for mobile*/
-@media (max-width: 768px) {
-  .waves {
-    height:40px;
-    min-height:40px;
-  }
-  .content {
-    height:30vh;
-  }
-  h1 {
-    font-size:24px;
-  }
 }
 
 .banner-content {
@@ -265,45 +260,31 @@ h1,h2,h3 {
   outline:none;
 }
 
-@media only screen and (min-width: 768px){
+@media only screen and (min-width: 768px) {
+  main {
+    margin: 0 var(--tablet-margin);
+  }
+  .banner-img { width:500px; }
   .hide-in-mobile { display:block; }
   .header { justify-content:left }
-  .menu   { display:flex; }
   .logo   { display:block; }
-  .code-block{
-    font-size:12px;
-    width:650px;
-  }
-  
-  .menu-item {
-    margin-left: 20px;
-    margin-right: 0;
-  }
-  .banner-1 {
-    padding: 40px 32px 80px 32px;
-  }    
-  .features {
-    padding:175px 32px 24px 32px;
-  }
-  
-  .demo {
-    padding-top: 80px;
-    padding-bottom: 80px;
-  }
-  
+  .code-block { font-size:12px; width:650px; }
+  .menu   { display:flex; }
+  .menu-item { margin-left: 20px; margin-right: 0; }
+  .banner-1 { padding: 40px 32px 80px 32px; }    
+  .features { padding:175px 32px 24px 32px; }
+  .demo { padding-top: 80px; padding-bottom: 80px; }
 }
 
 @media only screen and (min-width: 800px) {
+  main {
+    margin: 0 var(--desktop-margin);
+  }
+  .banner-img { width:740px; }
   .hide-in-mobile { display:block; }
   .menu { display:flex; }
   .logo { display:block; }
-  .code-block{
-    font-size:14px;
-    width:730px;
-  }
-  .menu-item {
-    margin-left: 24px;
-    margin-right: 0;
-  }
+  .code-block{ font-size:14px; width:730px;}
+  .menu-item { margin-left: 24px; margin-right: 0; }
 }
 

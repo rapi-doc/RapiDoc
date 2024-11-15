@@ -10,11 +10,11 @@ interface Props {
 const { page, height, showWaves = false, hiddenOverflow = true } = Astro.props;
 ---
 
-<div  class="banner" style={`max-height:${page === 'home' ? '500':'400'}px; overflow:${hiddenOverflow ? 'hidden' :'visible'}`} >
+<div class="banner" style={`max-height:${page === 'home' ? '500':'300'}px; overflow:${hiddenOverflow ? 'hidden' :'visible'}`} >
   <div class="topbar" style= {height != undefined ? `height: ${height}px;` : undefined}>
     <div class="header">
       <a class="menu-item" data-action="url" href="./index.html">
-        <img class="logo" src="./assets/images/logo.png" style="width:36px;height:36px;margin-right:10px;" href="./index.html"/>
+        <img class="logo" src="./assets/images/logo.png" style="width:36px;height:36px;margin-right:10px;"/>
       </a>
       <div class="product-name">RapiDoc</div>
       <div class="menu" style="flex:1"></div>
@@ -23,6 +23,7 @@ const { page, height, showWaves = false, hiddenOverflow = true } = Astro.props;
         { page !== 'quickstart' && <a class="menu-item" href="./quickstart.html"> Quick Start </a> }
         { page !== 'examples' && <a class="menu-item" href="./examples.html"> Examples </a> }
         { page !== 'api' && <a class="menu-item" href="./api.html"> API </a> }
+        <a class="menu-item" href="./list.html"> List </a>
         <a class="menu-item hide-in-mobile" data-action="url" href="https://github.com/rapi-doc/RapiDoc"> GitHub </a>
       </nav>
     </div>
@@ -53,6 +54,7 @@ const { page, height, showWaves = false, hiddenOverflow = true } = Astro.props;
   background: var(--rapidoc-gradient);
   color: var(--banner-text-color);
 }
+
 .product-name {
   font-weight: 300;
   font-size: 32px;
@@ -79,10 +81,9 @@ const { page, height, showWaves = false, hiddenOverflow = true } = Astro.props;
 .waves {
   position:relative;
   width: 100%;
-  height:15vh;
-  margin-bottom:-7px; /*Fix for safari gap*/
-  min-height:100px;
-  max-height:150px;
+  margin-bottom:-8px;
+  min-height:64px;
+  max-height:64px;
 }
 .header {
   display: flex;
