@@ -1,33 +1,36 @@
 ---
 import GlobalLayout from '../layouts/GlobalLayout.astro';
-import TopBar from '../components/TopBar.astro';
+import PageBanner from '../components/PageBanner.astro';
 import { rapidocApiData, RapidocAttribute } from '../data/rapidoc-api';
 
 import GithubSlugger from 'github-slugger'
 const slugger = new GithubSlugger();
+
+import '../styles/table.css';
 ---
 
 <GlobalLayout>
-  <TopBar slot="topbar" page="api" showWaves={false}>
+  <PageBanner slot="topbar" page="api" showWaves={false}>
     <img class="banner-img" style="transform: rotate(5deg);" class="shadow3" src="./assets/images/light_ss.png">
-  </TopBar>
+  </PageBanner>
   <h1> API </h1>
 
   <!-- Attributes -->
-  <h2> Attributes </h2>
+  <h2 class="api-section-anchor" id="attributes"> Attributes </h2>
   {
     rapidocApiData.Attributes.map(attGroup => { 
       const [attrGroupTitle, attrGroupItems] = Object.entries(attGroup)[0] as [string, RapidocAttribute[]];
       const attrGroupHref = slugger.slug(attrGroupTitle);
       return (
-        <h3>{attrGroupHref}</h3>
-        <table>
+        <h3 class="api-section-anchor" id={`./api#${attrGroupHref}`}>{attrGroupTitle}</h3>
+        <table class="m-table">
           {
             attrGroupItems.map(attr => {
             return (
               <tr>
-                <td>{attr.name}</td>
-                <td>{attr.description}</td>
+                <td class="name-col mono bold right">{attr.name}</td>
+                <td class="gray">{attr.description}</td>
+                <td class="default-col">{attr.default}</td>
               </tr>
             )}
           )}
@@ -37,14 +40,14 @@ const slugger = new GithubSlugger();
   }
 
   <!-- Methods -->
-  <h2> Methods </h2>
-  <table>
+  <h2 class="api-section-anchor" id="methods"> Methods </h2>
+  <table class="m-table">
   {
     rapidocApiData.Methods.items.map(method => { 
       return (
         <tr>
-          <td>{method.name}</td>
-          <td>{method.description}</td>
+          <td class="name-col mono bold right">{method.name}</td>
+          <td class="gray">{method.description}</td>
         </tr>
       )}
     )
@@ -52,14 +55,14 @@ const slugger = new GithubSlugger();
   </table>
 
   <!-- Events -->
-  <h2> Events </h2>
-  <table>
+  <h2 class="api-section-anchor" id="events"> Events </h2>
+  <table class="m-table">
   {
     rapidocApiData.Events.items.map(rapidocEvent => { 
       return (
         <tr>
-          <td>{rapidocEvent.name}</td>
-          <td>{rapidocEvent.description}</td>
+          <td class="name-col mono bold right">{rapidocEvent.name}</td>
+          <td class="gray">{rapidocEvent.description}</td>
         </tr>
       )}
     )
@@ -67,14 +70,14 @@ const slugger = new GithubSlugger();
   </table>
 
   <!-- Slots -->
-  <h2> Slots </h2>
-  <table>
+  <h2 class="api-section-anchor" id="slots"> Slots </h2>
+  <table class="m-table">
   {
     rapidocApiData.Slots.items.map(slot => { 
       return (
         <tr>
-          <td>{slot.name}</td>
-          <td>{slot.description}</td>
+          <td class="name-col mono bold right">{slot.name}</td>
+          <td class="gray">{slot.description}</td>
         </tr>
       )}
     )
@@ -82,14 +85,14 @@ const slugger = new GithubSlugger();
   </table>
 
   <!-- Vendor Extensions -->
-  <h2> Slots </h2>
-  <table>
+  <h2 class="api-section-anchor" id="extensions"> Vendor Extensions </h2>
+  <table class="m-table">
   {
     rapidocApiData.Extensions.items.map(extension => { 
       return (
         <tr>
-          <td>{extension.name}</td>
-          <td>{extension.description}</td>
+          <td class="name-col mono bold right">{extension.name}</td>
+          <td class="gray">{extension.description}</td>
         </tr>
       )}
     )

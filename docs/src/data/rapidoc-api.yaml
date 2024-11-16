@@ -6,14 +6,20 @@ Attributes:
     - name: attr2-name
       description: attr2 description
       default: attr2-val
-  - Colors And Font:
     - name: attr3-name
-      description: attr3 description
-      default: attr3-val
-  - Layout:
+      description: attr3 description is a very long description to test flex coloumn functionality
+      default: attr1-val
+  - Colors And Font:
     - name: attr4-name
       description: attr4 description
       default: attr4-val
+    - name: attr5-name
+      description: attr5 is also a very long description for testing
+      default: attr5-val
+  - Layout:
+    - name: attr6-name
+      description: attr6 description
+      default: attr6-val
 Methods:
   description: How to use methods
   items:

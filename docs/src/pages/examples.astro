@@ -1,12 +1,12 @@
 ---
 import GlobalLayout from '../layouts/GlobalLayout.astro';
-import TopBar from '../components/TopBar.astro';
+import PageBanner from '../components/PageBanner.astro';
 ---
 
 <GlobalLayout>
-  <TopBar slot="topbar" page="examples" showWaves = {false} >
+  <PageBanner slot="topbar" page="examples" showWaves = {false} >
     <img class="banner-img shadow3" style="transform: rotate(-5deg)" src="./assets/images/rapi-mode-read.png" />
-  </TopBar>
+  </PageBanner>
   <h1>Examples</h1>
 </GlobalLayout>
 

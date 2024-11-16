@@ -1,0 +1,114 @@
+---
+interface Props {
+  page: 'home' | 'examples' | 'api' | 'quickstart' | 'example-list' | 'other'; 
+  showWaves?: boolean;
+  height?:number
+  hiddenOverflow?: boolean
+}
+
+// Destructure the props using the defined interface
+const { page, height, showWaves = false, hiddenOverflow = true } = Astro.props;
+---
+
+<div class="banner" style={`max-height:${page === 'home' ? '500':'300'}px; overflow:${hiddenOverflow ? 'hidden' :'visible'}`} >
+  <div class="banner-content" style={height != undefined ? `height: ${height}px;` : undefined}>
+    <div class="banner-bar">
+      <a class="banner-bar-link" data-action="url" href="./index.html">
+        <img class="logo" src="./assets/images/logo.png" style="width:36px;height:36px;margin-right:10px;"/>
+      </a>
+      <div class="product-name">RapiDoc</div>
+      <div style="flex:1"></div>
+      <nav style="width:max-content">
+        { page !== 'home' && <a class="banner-bar-link" href="./index.html"> Home </a> }
+        { page !== 'quickstart' && <a class="banner-bar-link" href="./quickstart.html"> Quick Start </a> }
+        { page !== 'examples' && <a class="banner-bar-link" href="./examples.html"> Examples </a> }
+        { page !== 'api' && <a class="banner-bar-link" href="./api.html"> API </a> }
+        <a class="banner-bar-link hide-in-mobile" href="./list.html"> List </a>
+        <a class="banner-bar-link hide-in-mobile" data-action="url" href="https://github.com/rapi-doc/RapiDoc"> GitHub </a>
+      </nav>
+    </div>
+  </div>
+  <slot/>
+  {showWaves && (
+    <!--Waves Container-->
+    <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
+      <defs>
+        <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+      </defs>
+      <g class="parallax">
+        <use xlink:href="#gentle-wave" x="48" y="0" fill="color-mix(in srgb, var(--bg-color) 20%, transparent)" />
+        <use xlink:href="#gentle-wave" x="48" y="3" fill="color-mix(in srgb, var(--bg-color) 70%, transparent)" />
+        <use xlink:href="#gentle-wave" x="48" y="7" fill="color-mix(in srgb, var(--bg-color) 100%, transparent)" />
+      </g>
+    </svg>
+    <!--Waves end-->
+  )}
+</div>
+
+<style>
+.banner {
+  position:relative;
+  text-align:center;
+  background: var(--rapidoc-gradient);
+  color: var(--banner-text-color);
+  & .banner-content {
+    padding: 6px 24px;
+    & .banner-bar {
+      display: flex;
+      align-items: center;
+      height: 60px;
+      justify-content: center;
+      & .banner-bar-link {
+        color: var(--banner-text-color);
+        margin-right: 12px;
+        font-weight: 300;
+        text-decoration: none;
+        position: relative;
+        &:hover {
+          color:#fff;
+        }
+      }
+    }
+  }
+}
+
+.product-name {
+  font-weight: 300;
+  font-size: 32px;
+  line-height: 40px;
+  color: var(--banner-text-color);
+}
+.waves {
+  position:relative;
+  width: 100%;
+  margin-bottom:-8px;
+  min-height:64px;
+  max-height:64px;
+}
+
+.parallax {
+  & > use {
+    animation: animate-wave cubic-bezier(.55,.5,.55,.5);
+  }
+  & > use:nth-child(1) {
+    animation-delay: -2s;
+    animation-duration: 122s;
+  }
+  & > use:nth-child(2) {
+    animation-delay: -8s;
+    animation-duration: 128s;
+  }
+  & > use:nth-child(3) {
+    animation-delay: -4s;
+    animation-duration: 124s;
+  }
+}
+@keyframes animate-wave {
+  0% {
+    transform: translate3d(-90px,0,0);
+  }
+  100% { 
+    transform: translate3d(85px,0,0);
+  }
+}
+</style>

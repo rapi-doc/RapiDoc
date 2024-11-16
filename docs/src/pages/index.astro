@@ -1,24 +1,20 @@
 ---
 import GlobalLayout from '../layouts/GlobalLayout.astro';
-import TopBar from '../components/TopBar.astro';
+import PageBanner from '../components/PageBanner.astro';
 ---
 
 <GlobalLayout>
-  <TopBar slot="topbar" page="home" showWaves = {true} height={380} hiddenOverflow={false}>
+  <PageBanner slot="topbar" page="home" showWaves = {true} height={380} hiddenOverflow={false}>
     <div style="position:absolute; top:48px; width:100vw; z-index:10">
-      <div>
-        <div class="banner-content">
-          <h1 class="banner-title">OpenAPI Documentation</h1>
-          <p style="font-size:20px; margin:16px; color:#caecff; ">
-            Create beautiful, customizable, interactive API documentation from OpenAPI Specification
-          </p>
-        </div>
+      <h1 class="banner-title">OpenAPI Documentation</h1>
+      <div style="font-weight:300; font-size:20px; margin:16px;">
+        Create beautiful, customizable, interactive API documentation from OpenAPI Specification
       </div>
       <div style="display:flex; justify-content: center;">
         <img class="banner-img shadow3" src="./assets/images/dark_ss.png">
       </div>
     </div>
-  </TopBar>
+  </PageBanner>
   <h1>Home</h1>
 </GlobalLayout>
 

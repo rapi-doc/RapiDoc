@@ -1,0 +1,26 @@
+.m-table {
+  width: 100%;
+  table-layout: fixed; /* Ensure columns take specified widths */
+  border-spacing: 0;
+  border-collapse: separate;
+  border: 1px solid var(--border-color);
+  border-radius: 2px;
+  margin: 0;
+  & td {
+    vertical-align: baseline;
+  }
+  & .name-col {
+    width: 150px;
+  }
+  
+  & .default-col {
+    width: 100px;
+  }
+  
+  & .description-col {
+    min-width: 200px;
+    width: auto;
+    overflow-wrap: break-word; /* Prevents overflow by breaking long words */
+  }
+}
+.table-title { margin: 12px 0 5px 0; font-weight:bold; }
