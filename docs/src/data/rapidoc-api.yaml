@@ -2,6 +2,10 @@ Attributes:
   - General:
     - name: attr1-name
       description: attr1 description with <b> HTML </b>
+      allowed:
+        - one
+        - two
+        - three
       default: attr1-val
     - name: attr2-name
       description: attr2 description

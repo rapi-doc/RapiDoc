@@ -4,12 +4,18 @@
   border-spacing: 0;
   border-collapse: separate;
   border: 1px solid var(--border-color);
-  border-radius: 2px;
+  border-radius: 4px;
   margin: 0;
+  tr:hover {
+    background-color: #222222aa;
+  }
   & td {
+    padding: 5px;
     vertical-align: baseline;
+    border-bottom: 1px solid #222;
   }
   & .name-col {
+    color: var(--accent-color);
     width: 150px;
   }
   

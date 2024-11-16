@@ -29,7 +29,14 @@ import '../styles/table.css';
             return (
               <tr>
                 <td class="name-col mono bold right">{attr.name}</td>
-                <td class="gray">{attr.description}</td>
+                <td class="gray">
+                  <span class="mono orange">
+                    {attr.allowed && <b >ALLOWED:</b>}
+                    {attr.allowed && attr.allowed.map((v,i,a) => <b>{v} {i < a.length-1 ? '|' : ''} </b>)} 
+                  </span>
+                
+                  {attr.description}
+                </td>
                 <td class="default-col">{attr.default}</td>
               </tr>
             )}
