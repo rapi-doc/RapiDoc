@@ -1,36 +1,260 @@
 Attributes:
   - General:
-    - name: attr1-name
-      description: attr1 description with <b> HTML </b>
+    - name: spec-url
+      description: URL of the OpenAPI spec to view.
+      default: (empty)
+    - name: update-route
+      description: Setting true will update the URL on the browser's location whenever a new section is visited either by scrolling or clicking.
+      allowed: ["true", "false"]
+      default: true
+    - name: route-prefix
+      description: Allows adding a custom prefix to routes to support third-party routing needs.
+      default: "#"
+    - name: sort-tags
+      description: To list tags in alphabetical order. Otherwise, tags will be ordered based on their specification in the spec.
+      allowed: ["true", "false"]
+      default: false
+    - name: sort-schemas
+      description: To list schemas in alphabetical order. Only has an effect if focused render-style and show-components are applied.
+      allowed: ["true", "false"]
+      default: false
+    - name: sort-endpoints-by
+      description: Sort endpoints within each tag by path, method, or summary. 'none' leaves the sort order unmodified.
       allowed:
-        - one
-        - two
-        - three
-      default: attr1-val
-    - name: attr2-name
-      description: attr2 description
-      default: attr2-val
-    - name: attr3-name
-      description: attr3 description is a very long description to test flex coloumn functionality
-      default: attr1-val
-  - Colors And Font:
-    - name: attr4-name
-      description: attr4 description
-      default: attr4-val
-    - name: attr5-name
-      description: attr5 is also a very long description for testing
-      default: attr5-val
-  - Layout:
-    - name: attr6-name
-      description: attr6 description
-      default: attr6-val
+        - path
+        - method
+        - summary
+        - none
+      default: path
+    - name: heading-text
+      description: Heading text on the top-left corner.
+      default: (empty)
+    - name: goto-path
+      description: Initial location on the document identified by method and path (e.g., 'get-/user/login').
+      default: (empty)
+    - name: fill-request-fields-with-example
+      description: Request fields will be filled with example values (if provided in spec).
+      allowed: ["true", "false"]
+      default: true
+    - name: persist-auth
+      description: Authentication will be persisted to localStorage.
+      allowed: ["true", "false"]
+      default: false
+  - UI Colors and Fonts:
+    - name: theme
+      description: Base theme used for UI components.
+      allowed:
+        - light
+        - dark
+      default: dark
+    - name: bg-color
+      description: Hex color code for the main background.
+      default: Dark Theme, Light Theme
+    - name: text-color
+      description: Hex color code for text.
+      default: Dark Theme, Light Theme
+    - name: header-color
+      description: Hex color code for the header's background.
+      default: "#444444"
+    - name: primary-color
+      description: Hex color code used for controls such as buttons and tabs.
+      default: "#FF791A"
+    - name: load-fonts
+      description: RapiDoc will attempt to load fonts from CDN. Set to false if not intended.
+      allowed: ["true", "false"]
+      default: true
+    - name: regular-font
+      description: Font name(s) for regular text.
+      default: Open Sans, Avenir, Segoe UI, Arial, sans-serif
+    - name: mono-font
+      description: Font name(s) for mono-spaced text.
+      default: Monaco, 'Andale Mono', 'Roboto Mono', 'Consolas' monospace
+    - name: font-size
+      description: Sets the relative font sizes for the document.
+      allowed:
+        - default
+        - large
+        - largest
+      default: default
+
+  - Navigation bar settings:
+    - name: show-method-in-nav-bar
+      description: Shows API method names in the navigation bar.
+      allowed:
+        - "false"
+        - as-plain-text
+        - as-colored-text
+        - as-colored-block
+      default: false
+    - name: use-path-in-nav-bar
+      description: Show API paths in the navigation bar instead of summary/description.
+      allowed: ["true", "false"]
+      default: false
+    - name: nav-bg-color
+      description: Navigation bar's background color.
+      default: (empty)
+    - name: nav-text-color
+      description: Navigation bar's text color.
+      default: (empty)
+    - name: nav-accent-color
+      description: Accent color used in the navigation bar.
+      default: (empty)
+    - name: nav-active-item-marker
+      description: Navigation active item indicator styles.
+      allowed:
+        - left-bar
+        - colored-block
+      default: left-bar
+    - name: on-nav-tag-click
+      description: Determines the behavior of clicking on a tag in the navigation bar.
+      allowed:
+        - expand-collapse
+        - show-description
+      default: expand-collapse
+    - name: layout
+      description: Controls the layout of request/response sections.
+      allowed:
+        - row
+        - column
+      default: row
+    - name: render-style
+      description: Determines the display style of API docs.
+      allowed:
+        - read
+        - view
+        - focused
+      default: read
+    - name: response-area-height
+      description: Controls the height of the response textarea.
+      default: 300px
+
+  - Hide/Show Sections:
+    - name: show-info
+      description: Show or hide the document's info section.
+      allowed: ["true", "false"]
+      default: true
+    - name: show-header
+      description: Show or hide the header.
+      allowed: ["true", "false"]
+      default: true
+    - name: allow-authentication
+      description: Enable authentication feature in the UI.
+      allowed: ["true", "false"]
+      default: true
+    - name: show-components
+      description: Show or hide components such as schemas.
+      allowed: ["true", "false"]
+      default: false
+    - name: show-header-icons
+      description: Show or hide icons in the header.
+      allowed: ["true", "false"]
+      default: true
+    - name: allow-server-selection
+      description: Allow users to switch between different servers defined in the OpenAPI spec.
+      allowed: ["true", "false"]
+      default: true
+    - name: allow-schema-description-expand-toggle
+      description: allow or hide the ability to expand/collapse field descriptions in the schema
+      allowed: ["true", "false"]
+      default: true  
+  - Schema Section Settings:
+    - name: schema-style
+      description: Two different ways to display object-schemas in the responses and request bodies
+      allowed:
+        - tree
+        - table
+      default: tree
+    - name: schema-expand-level
+      description: Schemas are expanded by default, use this attribute to control how many levels in the schema should be expanded
+      default: 999
+    - name: schema-description-expanded
+      description: >
+        Constraint and descriptions information of fields in the schema are collapsed to show only the first line. 
+        Set it to true if you want them to fully expanded
+      allowed: ["true", "false"]
+      default: false
+    - name: schema-hide-read-only
+      description: >
+        default will show read-only schema attributes in Responses, and in Requests of Webhook / Callback 
+        If you do not want to hide read-only fields in schema then you may set it to 'never' Note:This do not effect example generation. 
+      allowed:
+        - default
+        - never
+      default: default
+    - name: schema-hide-write-only
+      description: >
+        default will show write-only schema attributes in Requests, and in Responses of Webhook / Callback
+        If you do not want to hide write-only fields in schema then you may set it to 'never'
+        Note:This do not effect example generation.
+      allowed:
+        - default
+        - never
+      default: default
+    - name: default-schema-tab
+      description: > 
+        The schemas are displayed in two tabs - Model and Example. 
+        This option allows you to pick the default tab that you would like to be active
+      allowed:
+        - schema
+        - example
+      default: schema
+  - API Server & calls:
+    - name: server-url
+      description: >
+        OpenAPI spec has a provision for providing the server url. 
+        The UI will list all the server URLs provided in the spec. 
+        The user can then select one URL to which he or she intends to send API calls while trying out the apis. However, 
+        if you want to provide an API server of your own which is not listed in the spec, you can use this property to provide one. 
+        It is helpful in the cases where the same spec is shared between multiple environment say Dev and Test and each have their own API server.
+      default: (empty)
+    - name: default-api-server
+      description: >
+        If you have multiple api-server listed in the spec, use this attribute to select the default API server, 
+        where all the API calls will goto. This can be changed later from the UI
+      default: (empty)
+    - name: api-key-name
+      description: Name of the API key that will be send while trying out the APIs
+      default: (empty)
+    - name: api-key-location
+      allowed:
+        - schema
+        - example
+      description: determines how you want to send the api-key.
+      default: (empty)
+    - name: api-key-value
+      description: Value of the API key that will be send while trying out the APIs. This can also be provided/overwritten from UI.
+      default: (empty)
+    - name: fetch-credentials
+      allowed:
+        - schema
+        - example
+      description: >
+        enables passing credentials/cookies in cross domain calls, as defined in the Fetch standard, 
+        in CORS requests that are sent by the browser
+      default: (empty)
+
 Methods:
   description: How to use methods
   items:
-    - name: method1-name
-      description: method1 description with <b> HTML </b>
-    - name: method2-name
-      description: method2 description
+    - name: loadSpec()
+      description: >
+        To programmatically load spec. The method takes
+        either a string containing the url of the specs
+        or a JSON object representing a valid spec
+    - name: scrollToPath(path)
+      description: >
+        To programmatically scroll to a section (identified by combination method and path). path should be provided in the format of {method}-{path} 
+        for instance you want to scrollTo GET /user/login you should provide the location as get-/user/login
+    - name: setHttpUserNameAndPassword (securitySchemeId, username, password)
+      description: >
+        To programmatically provide username and password. securitySchemeId should be a valid securityScheme which you have defined in the spec
+    - name: setApiKey(securitySchemeId, token)
+      description: >
+        To programmatically provide api-key. securitySchemeId should be a valid securityScheme which you have defined in the spec
+    - name: setApiServer(apiServerUrl)
+      description: >
+        To programmatically set API Server. apiServerUrl should be a valid server url which you have defined in the spec
+
 Events:
   description: How to use Events
   items:
