@@ -1,7 +1,11 @@
 Attributes:
   - General:
     - name: spec-url
-      description: URL of the OpenAPI spec to view.
+      description: >
+        URL of the OpenAPI spec to view.
+      code: |
+        <div class="a"> This is a sample syntax </div>
+        <div class="b"> next Line </div>
       default: (empty)
     - name: update-route
       description: Setting true will update the URL on the browser's location whenever a new section is visited either by scrolling or clicking.

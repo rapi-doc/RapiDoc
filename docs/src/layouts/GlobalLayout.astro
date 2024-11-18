@@ -16,6 +16,10 @@ import { GTAG_ID } from '../utils/googleAnalytics';
     <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
     <!-- Fonts - END -->
 
+    <!-- Prism Code Highlight -->
+    <link rel="stylesheet" href="/assets/prismjs/prism.css">
+    <script is:inline src="/assets/prismjs/prism.js"></script>
+
     <slot name="head" />
     <!-- Google Analytics - START -->
     <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${GTAG_ID}`}></script>
