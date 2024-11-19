@@ -14,6 +14,13 @@
     vertical-align: baseline;
     border-bottom: 1px solid #222;
   }
+  /* Code block inside table */
+  & pre {
+    max-width:var(--code-block-width);
+    border:1px solid var(--border-color);
+    margin-bottom: 24px;
+  }
+  /* List inside table */
   & ul {
     padding-inline-start: 10px;
     margin-block-start: 0px;
@@ -24,19 +31,45 @@
     font-family: 'Roboto Mono', Monaco, Consolas, monospace;
     color: var(--color-salmon);
     text-align: right;
-    width: 320px;
+    overflow-wrap: anywhere;
+    width: 150px;
   }
   
   & .default-col {
     font-family: 'Roboto Mono', Monaco, Consolas, monospace;
     color: var(--color-yellow);
-    width: 200px;
+    width: 100px;
+    border-left: 1px solid var(--border-color-muted);
   }
   
   & .description-col {
-    min-width: 200px;
+    min-width: 150px;
     width: auto;
     overflow-wrap: break-word; /* Prevents overflow by breaking long words */
   }
 }
 .table-title { margin: 12px 0 5px 0; font-weight:bold; }
+
+@media only screen and (min-width: 768px) {
+  .m-table {
+    & pre { max-width:var(--code-block-width);}
+    & .name-col { 
+      width: 200px;  
+      overflow-wrap: break-word; 
+    }
+    & .default-col { width: 150px; }
+    & .description-col { min-width: 150px; }
+  }
+
+
+@media only screen and (min-width: 800px) {
+  .m-table {
+    & pre { max-width:var(--code-block-width);}
+    & .name-col { 
+      width: 320px;  
+      overflow-wrap: break-word; 
+    }
+    & .default-col { width: 200px; }
+    & .description-col { min-width: 200px; }
+  }
+}

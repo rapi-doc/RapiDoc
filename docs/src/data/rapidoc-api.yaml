@@ -417,7 +417,7 @@ Methods:
         To programmatically provide <span class="mono fg-color">api-key. securitySchemeId</span> should be a valid securityScheme which you have defined in the spec
     - name: setApiServer(apiServerUrl)
       description: >
-        To programmatically set API Server.  <span class="mono fg-color">apiServerUrl</span> should be a valid server url which you have defined in the spec
+        To programmatically set API Server. <span class="mono fg-color">apiServerUrl</span> should be a valid server url which you have defined in the spec
       code: |
         <html>
           ...
@@ -438,21 +438,126 @@ Methods:
 Events:
   description: How to use Events
   items:
-    - name: event1-name
-      description: event1 description
-    - name: event2-name
-      description: event2 description
+    - name: before-render
+      description: fired before rendering, provides spec object which can be modified and the changes will be reflected in rendering
+    - name: spec-loaded
+      description: fired after the spec is parsed, and rendered. Provides an object representing the spec.
+    - name: spec-loaded
+      description: >
+        fired before user clicks try. Provides a 
+        <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request"> Request like object </a>
+        that can be modified before making the final call to the API.
+        Also you get an <a href="https://developer.mozilla.org/en-US/docs/Web/API/AbortController"> AbortController object </a> 
+        which can be used for aborting a request 
+        <br/><br/>
+        <span class="yellow"> Example: </span> To add a custom header before making a try call
+        <pre><code class="language-js">
+          rapidocEl.addEventListener('before-try', (e) => {
+            if (e.detail.request.method === 'POST') {
+              e.detail.request.headers.append('my-header', 'XYX');
+            }
+          });
+        </code></pre>
+        
+        
+        <span class="yellow"> Example: </span> Add a query-string param to all GET request
+        <pre><code class="language-js">
+          rapidocEl.addEventListener('before-try', (e) => {
+            if (e.detail.request.method === 'GET') {
+              const url = new URL( e.detail.request.url);
+              url.searchParams.append('delay', '3');
+              e.detail.request.url = url.searchParams.toString();
+            }
+          });
+        </code></pre>
+
+        <span class="yellow"> Example: </span> To abort a (Try)request - Below example aborts all DELETE calls
+        <pre><code class="language-js">
+          rapidocEl.addEventListener('before-try', (e) => {
+            if (e.detail.request.method === 'DELETE') {
+              e.detail.controller.abort();
+            }
+          });
+        </code></pre>
+    - name: after-try
+      description: >
+        fired after try (API-call) is completed and provides a 
+        <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request">request</a> and 
+        <a href="https://developer.mozilla.org/en-US/docs/Web/API/Response">response</a>
+        object In case of an error it will provide an request and err object
+    - name: request-aborted	
+      description: fired when user aborts the request
+    - name: api-server-change
+      description: fires when you change the API server
+
+
 Slots:
-  description: How to use Slots
+  description: How to use Events
   items:
-    - name: slot1-name
-      description: slot1 description
-    - name: slot1-name
-      description: slot1 description
+    - name: (default)
+      description: any content placed inside <rapi-doc> tag, will be shown immediately under the header and above the info section
+    - name: logo
+      description: use this slot to replace the logo on the header
+    - name: header
+      description: contents appear at the header after the spec-url input
+    - name: footer
+      description: contents appear at the bottom of the spec
+    - name: nav-logo
+      description: contents appear at the top of Side navigation bar usually used for logo. (only available in read-mode)
+    - name: overview
+      description: >
+        contents appear at overview section - top of the document. You can link to this section using 
+        <span class="mono yellow">#overview</span>
+    - name: servers
+      description: >
+        contents appear at server section which is under the overview slot. 
+        You can link to this section using <span class="mono yellow">#servers</span>
+    - name: auth
+      description: >
+        contents appear at authentication section which is under the overview > servers slot. 
+        You can link to this section using <span class="mono yellow">#auth</span>
+    - name: operations-top
+      description: >
+        contents appear at the top of all the operations but below overview > servers > auth section. Use this section to provide content that applies to all the operations. 
+        You can link this section using <span class="mono yellow"> #operations-top </span>
+    - name: tag--{tag-name}
+      description: each tag is identified by a name, this slot can be used to insert HTML content under various tags
+    - name: "{method}-{path}"	
+      description: >
+        each path is identified by an id. which is in the format of {method}-{path}, and certain invalid characters such as {, }, 
+        \#, space is replaced by hyphen (-). Use this slot to insert HTML content into a specifi tag
 Extensions:
   description: How to use Vendor Extensions
   items:
-    - name: extension1-name
-      description: extension1 description
-    - name: extension2-name
-      description: extension2 description     
+    - name: x-code-sample
+      description: Use this vendor-extension to provide code samples in various languages
+      rowspan: 2
+    - name: x-codeSample
+    - name: x-badges
+      description: >
+        Use this vendor-extension to annotate end-points with short color coded lables. 
+        You can also assign badges to endpoints and then use them with <span class="mono yellow"> remove-endpoints-with-badge-label-as</span> attribute 
+        to remove them from your API documentation. This allows you to show the same API spec to different groups of audiences. 
+        Like you want to hide internal APIs for your customers but show then to your developers
+    - name: x-tag-expanded	
+      description: >
+        Use this vendor-extension to expand or collapse paths under a tag (applies only in view and focused render-style)
+    - name: x-fill-example
+      allowed:
+        - yes
+        - no
+      description: >
+        Use this vendor-extension for each request parameter to indicate if the provided example is auto populated on the UI
+        if this behaviour needs to be applied for all the examples then see fill-request-fields-with-example
+    - name: x-example-show-value
+      allowed: ["true", "false"]
+      description: Use this vendor-extension for each request parameter to indicate if the provided example is displayed on the UI
+    - name: x-client-id
+      rowspan: 4
+      description: Use these vendor-extensions to pre fill
+    - name: x-client-secret
+    - name: x-default-scopes
+    - name: x-receive-token-in
+    - name: x-pkce-only
+      allowed: ["true", "false"]
+      description: when true, client-secret wont be send from UI

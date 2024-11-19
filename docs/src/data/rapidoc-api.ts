@@ -58,10 +58,12 @@ interface RapidocSlotSection {
 // Extentions
 interface RapidocExtension {
   name: string;
-  description: string;
+  allowed?: string[];
+  description?: string;
   example?:string
   code?: string;
   hidden?: boolean;
+  rowspan?: string;
 }
 interface RapidocExtensionSection {
   description: string;

@@ -35,10 +35,10 @@ import '../styles/table.css';
                   </div>
                   <Fragment set:html={attr.description} />
                   { attr.example && <br/> <a href={attr.example}> Example </a> }
-                  { attr.code &&  <pre style="min-width:650px"> <code class="language-html"> {attr.code} </code> </pre> }
+                  { attr.code && <pre> <code class="language-html"> {attr.code} </code> </pre>}
                 </td>
                 <td class="default-col">
-                   { attr.default &&  <Fragment set:html={attr.default} /> }
+                   { attr.default && <Fragment set:html={attr.default} /> }
                 </td>
               </tr>
             )}
@@ -59,7 +59,7 @@ import '../styles/table.css';
           <td class="gray">
             <Fragment set:html={method.description} />
             { method.example && <div> <Fragment set:html={method.example} /> </div> }
-            { method.code &&  <pre> <code class="language-html"> {method.code} </code></pre> }
+            { method.code && <pre><code class="language-html"> {method.code} </code></pre> }
           </td>
         </tr>
       )}
@@ -69,6 +69,39 @@ import '../styles/table.css';
 
   <!-- Events -->
   <h2 class="api-section-anchor" id="events"> Events </h2>
+
+  <div style="max-width:740px; margin: 5px auto;">
+    <div>Below is an example on how to handle events using plain JS</div>
+    <pre style="border:1px solid Var(--border-color);"> 
+      <code class="language-html">
+        {`
+        <html>
+          ...
+            <rapi-doc id="the-doc" spec-url = "https://.../spec.yaml"> </rapi-doc>
+
+            <script>
+              window.addEventListener('DOMContentLoaded', (event) => {
+                /*
+                  Ensure that the DOM is loaded, then add the event listener.
+                  here we are listenig to 'before-try' event which fires when the user clicks
+                  on TRY, it then modifies the POST requests by adding a custom header
+                */
+                const rapidocEl = document.getElementById('the-doc');
+                rapidocEl.addEventListener('before-try', (e) => {
+                  if (e.detail.request.method === 'POST') {
+                    e.detail.request.headers.append('custom-token', 'AAA.BBB.CCC');
+                  }
+                });
+              });
+            </script>
+          ...
+        </html>
+        `}
+      </code>
+    </pre>
+    <div>For further information refer to this <a href="examples/events.html#overview">Example</a> of Event Handling In RapiDoc</div>
+  </div>
+
   <table class="m-table">
   {
     rapidocApiData.Events.items.map(rapidocEvent => { 
@@ -78,7 +111,7 @@ import '../styles/table.css';
           <td class="gray">
             <Fragment set:html={rapidocEvent.description} />
             { rapidocEvent.example && <div> <Fragment set:html={rapidocEvent.example} /> </div> }
-            { rapidocEvent.code &&  <pre> <code class="language-html"> {rapidocEvent.code} </code></pre> }
+            { rapidocEvent.code && <pre><code class="language-html"> {rapidocEvent.code} </code></pre> }
           </td>
         </tr>
       )}
@@ -88,6 +121,37 @@ import '../styles/table.css';
 
   <!-- Slots -->
   <h2 class="api-section-anchor" id="slots"> Slots </h2>
+
+  <div style="max-width:740px; margin: 5px auto;">
+    <div>
+      <span class="mono yellow">slots</span> are predefined placeholders inside a RapiDoc component. 
+      You can use these slots to place your custom html in certain desired locations inside RapiDoc. 
+      Below is an example on how to inject HTML/CSS/JS at various locations in RapiDoc
+    </div>
+
+    <pre style="border:1px solid Var(--border-color);"> 
+      <code class="language-html">
+        {`
+        <html>
+          ...
+          <rapi-doc spec-url = "https://petstore.swagger.io/v2/swagger.json">
+            <div> <!-- HTML Elements without slot attribute goes into default location-->
+              <h1> My HTML Heading  </h1>
+            </div>
+
+            <!-- provide slot attribute to place an element at desired location -->
+            <img slot="nav-logo" src="https://via.placeholder.com/100" style="width:50px; height:50px"/>
+
+          </rapi-doc>
+          ...
+        </html>
+        `}
+      </code>
+    </pre>
+
+
+  </div>  
+
   <table class="m-table">
   {
     rapidocApiData.Slots.items.map(slot => { 
@@ -97,7 +161,7 @@ import '../styles/table.css';
           <td class="gray">
             <Fragment set:html={slot.description} />
             { slot.example && <div> <Fragment set:html={slot.example} /> </div> }
-            { slot.code &&  <pre> <code class="language-html"> {slot.code} </code></pre> }
+            { slot.code && <pre><code class="language-html"> {slot.code} </code></pre> }
           </td>
         </tr>
       )}
@@ -106,18 +170,25 @@ import '../styles/table.css';
   </table>
 
   <!-- Vendor Extensions -->
-  <h2 class="api-section-anchor" id="extensions"> Vendor Extensions </h2>
+  <h2 class="api-section-anchor" id="extensions"> Supported vendor extensions </h2>
   <table class="m-table">
   {
     rapidocApiData.Extensions.items.map(extension => { 
       return (
         <tr>
           <td class="name-col mono right">{extension.name}</td>
-          <td class="gray">
-            <Fragment set:html={extension.description} />
-            { extension.example && <div> <Fragment set:html={extension.example} /> </div> }
-            { extension.code &&  <pre> <code class="language-html"> {extension.code} </code></pre> }
-          </td>
+          {extension.description && (
+            <td class="gray" rowspan={extension.rowspan || '1'}>
+              <div class="mono yellow">
+                { extension.allowed && <b class="small-font yellow-dim" style="font-family:Nunito;">Allowed : </b> }
+                { extension.allowed && extension.allowed.map((v,i,a) => <span>{v} {i < a.length-1 ? '|' : ''} </span>) } 
+              </div>
+
+              { extension.description && <Fragment set:html={extension.description} /> }
+              { extension.example && <div> <Fragment set:html={extension.example} /> </div> }
+              { extension.code && <pre><code class="language-html"> {extension.code} </code></pre> }
+            </td>
+          )}
         </tr>
       )}
     )

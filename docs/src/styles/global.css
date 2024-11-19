@@ -22,6 +22,7 @@
     rgb(222, 122, 0) 90%
   );
 
+  --code-block-width: 675px;
   --color-yellow: #e8bf6a; 
   --color-yellow-dim:#a98a4c;
   --color-salmon: #e07372;
