@@ -126,7 +126,7 @@ Attributes:
         - as-plain-text
         - as-colored-text
         - as-colored-block
-      description: Shows API method names in the navigation bar.
+      description: shows API Method names in the navigation bar (if you customized nav-background make sure there is a proper contrast) 
       default: "false"
     - name: use-path-in-nav-bar
       allowed: ["true", "false"]
@@ -245,7 +245,6 @@ Attributes:
         - regex
       description: Defines how match-paths is used for filtering
       default: includes
-      example: examples/filter-test.html
     - name: remove-endpoints-with-badge-label-as
       description: >
         Comma separated badge labels to be removed from the spec.
@@ -262,7 +261,7 @@ Attributes:
       allowed: ["true", "false"]
       description: > 
         show/hide the header. If you do not want your user to open any other api spec, other than the current one, 
-        then set this attribute to false
+        then set this attribute to <span class="mono fg-color">false</span>
       default: true
     - name: allow-authentication
       allowed: ["true", "false"]
@@ -272,6 +271,34 @@ Attributes:
         instead want them to use a pre-generated api-key then you may hide authentication section by 
         setting this attribute to false and provide the api-key details using various api-key-???? attributes.
       default: true
+    - name: allow-spec-url-load
+      allowed: ["true", "false"]
+      description: If set to <span class="mono fg-color">false</span>, user will not be able to load any spec url from the UI.
+      default: true
+    - name: allow-spec-file-load
+      allowed: ["true", "false"]
+      description: If set to <span class="mono fg-color">false</span>, user will not be able to load any spec file from the local drive. This attribute is applicable only when the device width is more than 768px, else this feature is not available
+      default: true
+    - name: allow-spec-file-download	
+      allowed: ["true", "false"]
+      description: If set to  <span class="mono fg-color">true</span>, it provide buttons in the overview section to download the spec or open it in a new tab.
+      default: "false"
+    - name: allow-search
+      allowed: ["true", "false"]
+      description: Provides quick filtering of API
+      default: true
+    - name: allow-advanced-search	
+      allowed: ["true", "false"]
+      description: Provides advanced search functionality, to search through API-paths, API-description, API-parameters and API-Responses 
+      default: true
+    - name: allow-try
+      allowed: ["true", "false"]
+      description: The 'TRY' feature allows you to make REST calls to the API server. To disable this feature, set it to <span class="mono fg-color">false</span>. 
+      default: true
+    - name: show-curl-before-try
+      allowed: ["true", "false"]
+      description: If set to  <span class="mono fg-color">true</span>, the cURL snippet is displayed between the request and the response without clicking on TRY
+      default: "false"
     - name: allow-server-selection
       allowed: ["true", "false"]
       description: Allow users to switch between different servers defined in the OpenAPI spec.
