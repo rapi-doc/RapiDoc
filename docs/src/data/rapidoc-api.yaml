@@ -4,9 +4,6 @@ Attributes:
       description: >
         URL of the OpenAPI spec to view.
       default: (empty)  
-      code: |
-        <div class="a"> This is a sample syntax </div>
-        <div class="b"> next Line </div>
     - name: update-route
       description: Setting true will update the URL on the browser's location whenever a new section is visited either by scrolling or clicking.
       allowed: ["true", "false"]
@@ -128,6 +125,7 @@ Attributes:
         - as-colored-block
       description: shows API Method names in the navigation bar (if you customized nav-background make sure there is a proper contrast) 
       default: "false"
+      example: examples/nav-item-with-method.html
     - name: use-path-in-nav-bar
       allowed: ["true", "false"]
       description: >
@@ -138,9 +136,11 @@ Attributes:
           If you like to show the API method as well then use <span class="mono yellow"> show-method-in-nav-bar</span> attribute
         </div>  
       default: "false"
+      example: examples/nav-item-as-path.html
     - name: nav-bg-color
       description: Navigation bar's background color.
       default: (empty)
+      example: examples/nav-bg-color.html
     - name: nav-text-color
       description: Navigation bar's text color.
       default: (empty)
@@ -229,7 +229,7 @@ Attributes:
       description: >
         Include headers from info -> description section to the Navigation bar (applies to read mode only)
         Will get the headers from the markdown in info - description (h1 and h2) into the menu on the left (in read mode) 
-        along with links to them. This option allows users to add navigation bar items using Markdown  
+        along with links to them. This option allows users to add navigation bar items using Markdown
       default: "false"
       example: examples/markdown-headings.html
     - name: match-paths
@@ -289,16 +289,19 @@ Attributes:
       default: true
     - name: allow-advanced-search	
       allowed: ["true", "false"]
-      description: Provides advanced search functionality, to search through API-paths, API-description, API-parameters and API-Responses 
+      description: Provides advanced search functionality, to search through API-paths, API-description, API-parameters and API-Responses
+      example: examples/search-by-params.html
       default: true
     - name: allow-try
       allowed: ["true", "false"]
       description: The 'TRY' feature allows you to make REST calls to the API server. To disable this feature, set it to <span class="mono fg-color">false</span>. 
       default: true
+      example: examples/try.html
     - name: show-curl-before-try
       allowed: ["true", "false"]
       description: If set to  <span class="mono fg-color">true</span>, the cURL snippet is displayed between the request and the response without clicking on TRY
       default: "false"
+      example: examples/show-curl-before-try.html
     - name: allow-server-selection
       allowed: ["true", "false"]
       description: Allow users to switch between different servers defined in the OpenAPI spec.
@@ -315,9 +318,11 @@ Attributes:
         - table
       description: Two different ways to display object-schemas in the responses and request bodies
       default: tree
+      example: examples/schema-table.html
     - name: schema-expand-level
       description: Schemas are expanded by default, use this attribute to control how many levels in the schema should be expanded
       default: 999
+      example: examples/schema-expand-level.html
     - name: schema-description-expanded
       allowed: ["true", "false"]
       description: >
@@ -333,6 +338,7 @@ Attributes:
         If you do not want to hide read-only fields in schema then you may set it to 'never' 
         <span class="orange">Note:This do not effect example generation.</span>
       default: default
+      example: examples/schema-read-and-write-only.html
     - name: schema-hide-write-only
       allowed:
         - default
@@ -342,6 +348,7 @@ Attributes:
         If you do not want to hide write-only fields in schema then you may set it to 'never'
         <span class="orange"> Note: This do not effect example generation.</span>
       default: default
+      example: examples/schema-read-and-write-only.html
     - name: default-schema-tab
       allowed:
         - schema
@@ -379,11 +386,12 @@ Attributes:
       default: (empty)
     - name: fetch-credentials
       allowed:
-        - schema
-        - example
+        - header
+        - query
       description: >
-        enables passing credentials/cookies in cross domain calls, as defined in the Fetch standard, 
-        in CORS requests that are sent by the browser
+        Enables passing credentials/cookies in cross domain calls, as defined in the 
+        <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials"> Fetch standard, in CORS requests</a> 
+        that are sent by the browser
       default: (empty)
 
 Methods:
@@ -394,19 +402,38 @@ Methods:
         To programmatically load spec. The method takes
         either a string containing the url of the specs
         or a JSON object representing a valid spec
+      example: https://github.com/rapi-doc/RapiDoc/blob/master/docs/examples/example9.html  
     - name: scrollToPath(path)
       description: >
-        To programmatically scroll to a section (identified by combination method and path). path should be provided in the format of {method}-{path} 
-        for instance you want to scrollTo GET /user/login you should provide the location as get-/user/login
+        To programmatically scroll to a section (identified by combination method and path). <span class="mono fg-color">path</span> 
+        should be provided in the format of <span class="mono fg-color">{method}-{path}</span>
+        for instance you want to scroll to <span class="mono fg-color">GET /user/login</span> you should provide the location as <span class="mono fg-color">get-/user/login</span>
+      example: examples/collapsable-focused.html  
     - name: setHttpUserNameAndPassword (securitySchemeId, username, password)
       description: >
-        To programmatically provide username and password. securitySchemeId should be a valid securityScheme which you have defined in the spec
+        To programmatically provide username and password. <span class="mono fg-color">securitySchemeId</span> should be a valid securityScheme which you have defined in the spec
     - name: setApiKey(securitySchemeId, token)
       description: >
-        To programmatically provide api-key. securitySchemeId should be a valid securityScheme which you have defined in the spec
+        To programmatically provide <span class="mono fg-color">api-key. securitySchemeId</span> should be a valid securityScheme which you have defined in the spec
     - name: setApiServer(apiServerUrl)
       description: >
-        To programmatically set API Server. apiServerUrl should be a valid server url which you have defined in the spec
+        To programmatically set API Server.  <span class="mono fg-color">apiServerUrl</span> should be a valid server url which you have defined in the spec
+      code: |
+        <html>
+          ...
+          <rapi-doc id="the-doc" spec-url = "https://.../spec.yaml"> </rapi-doc>
+          <script>
+            window.addEventListener('DOMContentLoaded', (event) => {
+              const rapidocEl = document.getElementById('the-doc');
+              rapidocEl.addEventListener('spec-loaded', (e) => {
+                rapidocEl.setApiServer(globalThis.origin + "/api");
+                // Sets the server to http://localhost:8080/api
+                // you must have defined this server in your spec
+              });
+            });
+          </script>
+          ...
+        </html>
 
 Events:
   description: How to use Events

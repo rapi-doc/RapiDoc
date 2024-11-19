@@ -35,7 +35,7 @@ import '../styles/table.css';
                   </div>
                   <Fragment set:html={attr.description} />
                   { attr.example && <br/> <a href={attr.example}> Example </a> }
-                  { attr.code &&  <pre> <code class="language-html"> {attr.code} </code> </pre> }
+                  { attr.code &&  <pre style="min-width:650px"> <code class="language-html"> {attr.code} </code> </pre> }
                 </td>
                 <td class="default-col">
                    { attr.default &&  <Fragment set:html={attr.default} /> }
