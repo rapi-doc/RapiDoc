@@ -24,20 +24,22 @@ import '../styles/table.css';
         <h3 class="api-section-anchor" id={`./api#${attrGroupHref}`}>{attrGroupTitle}</h3>
         <table class="m-table">
           {
-            attrGroupItems.map(attr => {
+            attrGroupItems.filter(attr => attr.hidden !== true).map(attr => {
             return (
               <tr>
-                <td class="name-col mono bold right">{attr.name}</td>
+                <td class="name-col">{attr.name}</td>
                 <td class="gray">
-                  <div class="mono orange">
-                    { attr.allowed && <b >ALLOWED:</b> }
-                    { attr.allowed && attr.allowed.map((v,i,a) => <b>{v} {i < a.length-1 ? '|' : ''} </b>) } 
+                  <div class="mono yellow">
+                    { attr.allowed && <b class="small-font yellow-dim" style="font-family:Nunito;">Allowed : </b> }
+                    { attr.allowed && attr.allowed.map((v,i,a) => <span>{v} {i < a.length-1 ? '|' : ''} </span>) } 
                   </div>
                   <Fragment set:html={attr.description} />
-                  { attr.example && <div> <Fragment set:html={attr.example} /> </div> }
+                  { attr.example && <br/> <a href={attr.example}> Example </a> }
                   { attr.code &&  <pre> <code class="language-html"> {attr.code} </code> </pre> }
                 </td>
-                <td class="default-col">{ attr.default }</td>
+                <td class="default-col">
+                   { attr.default &&  <Fragment set:html={attr.default} /> }
+                </td>
               </tr>
             )}
           )}
@@ -53,7 +55,7 @@ import '../styles/table.css';
     rapidocApiData.Methods.items.map(method => { 
       return (
         <tr>
-          <td class="name-col mono bold right">{method.name}</td>
+          <td class="name-col bold right">{method.name}</td>
           <td class="gray">
             <Fragment set:html={method.description} />
             { method.example && <div> <Fragment set:html={method.example} /> </div> }
@@ -72,7 +74,7 @@ import '../styles/table.css';
     rapidocApiData.Events.items.map(rapidocEvent => { 
       return (
         <tr>
-          <td class="name-col mono bold right">{rapidocEvent.name}</td>
+          <td class="name-col mono right">{rapidocEvent.name}</td>
           <td class="gray">
             <Fragment set:html={rapidocEvent.description} />
             { rapidocEvent.example && <div> <Fragment set:html={rapidocEvent.example} /> </div> }
@@ -91,7 +93,7 @@ import '../styles/table.css';
     rapidocApiData.Slots.items.map(slot => { 
       return (
         <tr>
-          <td class="name-col mono bold right">{slot.name}</td>
+          <td class="name-col mono right">{slot.name}</td>
           <td class="gray">
             <Fragment set:html={slot.description} />
             { slot.example && <div> <Fragment set:html={slot.example} /> </div> }
@@ -110,7 +112,7 @@ import '../styles/table.css';
     rapidocApiData.Extensions.items.map(extension => { 
       return (
         <tr>
-          <td class="name-col mono bold right">{extension.name}</td>
+          <td class="name-col mono right">{extension.name}</td>
           <td class="gray">
             <Fragment set:html={extension.description} />
             { extension.example && <div> <Fragment set:html={extension.example} /> </div> }

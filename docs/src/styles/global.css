@@ -21,6 +21,10 @@
     rgb(187, 175, 3) 40%,
     rgb(222, 122, 0) 90%
   );
+
+  --color-yellow: #e8bf6a; 
+  --color-yellow-dim:#a98a4c;
+  --color-salmon: #e07372;
 }
 body, button {
   font-family: 'Lato', 'Open Sans', sans-serif;
@@ -37,6 +41,7 @@ main {
   margin: 0 var(--mobile-margin);
 }
 a {
+  color: #3e83bb;
   text-decoration: none;
   &:hover {
     text-decoration: none;
@@ -52,11 +57,15 @@ h1,h2,h3 {
 .bold { font-weight:700; }
 .right { text-align: right; }
 .left { text-align: left; }
+.fg-color {color: var(--fg-color) }
 .gray { color:#777; }
 .dark-gray { color:#444; }
 .light-gray { color:#aaa; }
 .blue { color:steelblue; }
-.orange { color:rgb(184, 79, 41); }
+.orange { color:#de7650; }
+.yellow {color: var(--color-yellow) }
+.yellow-dim {color:var(--color-yellow-dim) }
+.salmon {color:var(--color-salmon)}
 .small-font {font-size:12px;}
 .descr {
   font-size:13px;

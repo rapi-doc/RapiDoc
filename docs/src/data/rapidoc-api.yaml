@@ -3,10 +3,10 @@ Attributes:
     - name: spec-url
       description: >
         URL of the OpenAPI spec to view.
+      default: (empty)  
       code: |
         <div class="a"> This is a sample syntax </div>
         <div class="b"> next Line </div>
-      default: (empty)
     - name: update-route
       description: Setting true will update the URL on the browser's location whenever a new section is visited either by scrolling or clicking.
       allowed: ["true", "false"]
@@ -15,48 +15,71 @@ Attributes:
       description: Allows adding a custom prefix to routes to support third-party routing needs.
       default: "#"
     - name: sort-tags
-      description: To list tags in alphabetical order. Otherwise, tags will be ordered based on their specification in the spec.
+      description: > 
+        To list tags in alphabetic order, otherwise tags will be ordered 
+        based on how it is specified under the <span class="mono yellow">tags</span> section in the spec.
       allowed: ["true", "false"]
-      default: false
+      default: "false"
     - name: sort-schemas
-      description: To list schemas in alphabetical order. Only has an effect if focused render-style and show-components are applied.
+      description: >
+        To list schemas in alphabetic order, 
+        otherwise schemas will be ordered based on how it is specified under the <span class="mono yellow">schemas</span> section in the spec. 
+        <span class="orange bold">Note :</span>Only has an effect if 
+        <span class="mono yellow">render-style=focused</span> and <span class="mono yellow">show-components=true</span>
       allowed: ["true", "false"]
-      default: false
+      default: "false"
     - name: sort-endpoints-by
-      description: Sort endpoints within each tag by path, method, or summary. 'none' leaves the sort order unmodified.
       allowed:
         - path
         - method
         - summary
         - none
+      description: Sort endpoints within each tag by path, method, or summary. 'none' leaves the sort order unmodified.
+      example: examples/arrange-by-tags.html
       default: path
     - name: heading-text
       description: Heading text on the top-left corner.
       default: (empty)
     - name: goto-path
-      description: Initial location on the document identified by method and path (e.g., 'get-/user/login').
+      description: >
+        Initial location on the document (identified by method and path) where you want to go after the spec is loaded.
+        <span class="mono yellow">goto-path</span> should be in the form of <span class="mono fg-color">{method}-{path}</span>
+        for instance you want the user to land on <span class="mono fg-color">GET /user/login</span> path 
+        you should provide the location as <span class="mono fg-color">get-/user/login</span>
       default: (empty)
     - name: fill-request-fields-with-example
-      description: Request fields will be filled with example values (if provided in spec).
       allowed: ["true", "false"]
+      description: Request fields will be filled with example values (if provided in spec).
       default: true
     - name: persist-auth
-      description: Authentication will be persisted to localStorage.
       allowed: ["true", "false"]
-      default: false
+      description: Authentication will be persisted to localStorage.
+      default: "false"
+  
   - UI Colors and Fonts:
     - name: theme
-      description: Base theme used for UI components.
+      description: > 
+        Is the base theme, which is used for calculating colors for various UI components. 
+        <span class="mono yellow">theme, bg-color</span> and <span class="mono yellow">text-color</span> 
+        are the base attributes for generating a custom theme
       allowed:
         - light
         - dark
       default: dark
     - name: bg-color
       description: Hex color code for the main background.
-      default: Dark Theme, Light Theme
+      default: |
+        <ul style = "font-family: Nunito; color:var(--color-yellow-dim)">
+          <li> Dark Theme : <span class="mono yellow"> #333 </span> </li>
+          <li> Light Theme : <span class="mono yellow"> #fff </span> </li>
+        </ul>
     - name: text-color
       description: Hex color code for text.
-      default: Dark Theme, Light Theme
+      default: |
+        <ul style = "font-family: Nunito; color:var(--color-yellow-dim)">
+          <li> Dark Theme : <span class="mono yellow"> #bbb </span> </li>
+          <li> Light Theme : <span class="mono yellow"> #444 </span> </li>
+        </ul>
     - name: header-color
       description: Hex color code for the header's background.
       default: "#444444"
@@ -64,144 +87,243 @@ Attributes:
       description: Hex color code used for controls such as buttons and tabs.
       default: "#FF791A"
     - name: load-fonts
-      description: RapiDoc will attempt to load fonts from CDN. Set to false if not intended.
       allowed: ["true", "false"]
+      description: RapiDoc will attempt to load fonts from CDN. Set to false if not intended.
       default: true
     - name: regular-font
       description: Font name(s) for regular text.
-      default: Open Sans, Avenir, Segoe UI, Arial, sans-serif
+      default: >
+        <span style="font-family: Nunito; font-size:13px"> Open Sans, Avenir, Segoe UI, Arial, sans-serif </span>
     - name: mono-font
       description: Font name(s) for mono-spaced text.
-      default: Monaco, 'Andale Mono', 'Roboto Mono', 'Consolas' monospace
+      default: >
+        <span style="font-family: Nunito; font-size:13px"> Monaco, 'Andale Mono', 'Roboto Mono', 'Consolas' monospace </span>
     - name: font-size
-      description: Sets the relative font sizes for the document.
       allowed:
         - default
         - large
         - largest
+      description: Sets the relative font sizes for the document.
       default: default
+      example: examples/font-size.html
+    - name: css-file & css-classes
+      hidden: true
+      description: > 
+        These two attributes go together which helps to inject your own CSS class.
+        It creates <span class="yellow mono"> &lt;link&gt;</span>tag in your html and link to your external css file
+        <ul>
+          <li> provide the name of css file in <span class="yellow mono">css-file</span> attribute </li>
+          <li> 
+            provide names of all the CSS class names that you would like to apply to RapiDoc Element separated by a space in 
+            <span class="yellow mono">css-classes</span> attribute 
+          </li>
+        </ul>
 
   - Navigation bar settings:
     - name: show-method-in-nav-bar
-      description: Shows API method names in the navigation bar.
       allowed:
         - "false"
         - as-plain-text
         - as-colored-text
         - as-colored-block
-      default: false
+      description: Shows API method names in the navigation bar.
+      default: "false"
     - name: use-path-in-nav-bar
-      description: Show API paths in the navigation bar instead of summary/description.
       allowed: ["true", "false"]
-      default: false
+      description: >
+        Show API paths in the navigation bar instead of summary/description.
+        <div class="orange"> 
+          <span class="bold yellow-dim">NOTE: </span> 
+          Setting this value to <span class="mono yellow"> true </span>wont automatically display the API Method in the path<br/>
+          If you like to show the API method as well then use <span class="mono yellow"> show-method-in-nav-bar</span> attribute
+        </div>  
+      default: "false"
     - name: nav-bg-color
       description: Navigation bar's background color.
       default: (empty)
     - name: nav-text-color
       description: Navigation bar's text color.
       default: (empty)
+    - name: nav-hover-bg-color
+      description: background color of the navigation item on mouse-over
+    - name: nav-hover-text-color
+      description: text color of the navigation item on mouse-over	
     - name: nav-accent-color
-      description: Accent color used in the navigation bar.
-      default: (empty)
+      description: Accent color used in navigation Bar (such as background of active navigation item)
+    - name: nav-accent-text-color	
+      description: Text color used in navigation bar selected items
     - name: nav-active-item-marker
-      description: Navigation active item indicator styles.
       allowed:
         - left-bar
         - colored-block
+      description: Navigation active item indicator styles.
       default: left-bar
+    - name: nav-item-spacing
+      allowed:
+        - default
+        - compact
+        - relaxed
+      description: Controls navigation item spacing
+      default: default
+      example: examples/navbar-spacing.html
     - name: on-nav-tag-click
-      description: Determines the behavior of clicking on a tag in the navigation bar.
       allowed:
         - expand-collapse
         - show-description
+      description: >
+        Determines the behavior of clicking on a tag in the navigation bar. 
+        It can either expand-collapse the tag or take you to the tag's description page.<br/>
+        <span class="orange">Note: applies only to <span class="mono yellow">render-style = focused</span>
       default: expand-collapse
+
+  - UI Layout & Placement:
     - name: layout
-      description: Controls the layout of request/response sections.
       allowed:
         - row
         - column
+      description: > 
+        Layout helps in placement of request/response sections. 
+        In column layout, request & response sections are placed one below the other, In row layout they are placed side by side. 
+        This attribute is applicable only when the device width is more than 768px and the render-style is 'view'.
       default: row
     - name: render-style
-      description: Determines the display style of API docs.
       allowed:
         - read
         - view
         - focused
+      description: >
+        determines display of api-docs. Currently there are three modes supported.
+        <ul>
+          <li> 
+            <span class="yellow"> view </span> friendly for quick exploring (expand/collapse the section of your interest) |  
+            <a href="examples/example1.html">Example</a>  
+          </li>
+          <li> 
+            <span class="yellow"> read </span> suitable for reading (like a continuous web-page)  |
+            <a href="examples/read-mode.html">Example</a>  
+          </li>
+          <li> 
+            <span class="yellow"> focused </span> similar to read but focuses on a single endpoint at a time (good for large specs)  |
+            <a href="examples/focused-mode.html">Example</a>  
+          </li>
+        </ul>  
       default: read
     - name: response-area-height
-      description: Controls the height of the response textarea.
+      description: >
+        <span class="yellow-dim">Allowed: </span> valid CSS height value such as 400px, 50%, 60vh etc <br/>
+        Controls the height of the response textarea.
       default: 300px
 
   - Hide/Show Sections:
     - name: show-info
-      description: Show or hide the document's info section.
       allowed: ["true", "false"]
+      description: >
+        show/hide the documents info section
+        Info section contains information about the spec, such as the title and description of the spec, 
+        the version, terms of services etc. In certain situation you may not need to show this section. 
+        For instance you are embedding this element inside a another help document.
+        Chances are, the help doc may already have this info, in that case you may want to hide this section.
       default: true
-    - name: show-header
-      description: Show or hide the header.
+    - name: info-description-headings-in-navbar
       allowed: ["true", "false"]
+      description: >
+        Include headers from info -> description section to the Navigation bar (applies to read mode only)
+        Will get the headers from the markdown in info - description (h1 and h2) into the menu on the left (in read mode) 
+        along with links to them. This option allows users to add navigation bar items using Markdown  
+      default: "false"
+      example: examples/markdown-headings.html
+    - name: match-paths
+      description: >
+        if you want to show only few selected APIs based on the target audience, you may use this attribute to define 
+        which paths should be rendered. The filter can be a simple substring match for a path or can be a complex regex expression. 
+        Wheather to use substring match or regex match is specified through match-type attribute
+      default: (empty)
+      example: examples/filter-test.html
+    - name: match-type
+      allowed:
+        - includes
+        - regex
+      description: Defines how match-paths is used for filtering
+      default: includes
+      example: examples/filter-test.html
+    - name: remove-endpoints-with-badge-label-as
+      description: >
+        Comma separated badge labels to be removed from the spec.
+        You may use vendor-extension x-badges to assign badges to endpoints. 
+        This attributes helps in removing the endpoints which matches a badge label 
+      example: examples/filter-test.html
+    - name: show-components
+      allowed: ["true", "false"]
+      description: >
+        show/hide the components section both in document and menu (available only in focused render-style)
+        Will show the components section containing schemas, responses, examples, requestBodies, headers, securitySchemes, links and callbacks
+      default: "false"
+    - name: show-header
+      allowed: ["true", "false"]
+      description: > 
+        show/hide the header. If you do not want your user to open any other api spec, other than the current one, 
+        then set this attribute to false
       default: true
     - name: allow-authentication
-      description: Enable authentication feature in the UI.
       allowed: ["true", "false"]
-      default: true
-    - name: show-components
-      description: Show or hide components such as schemas.
-      allowed: ["true", "false"]
-      default: false
-    - name: show-header-icons
-      description: Show or hide icons in the header.
-      allowed: ["true", "false"]
+      description: >
+        Authentication feature, allows the user to select one of the authentication mechanism thats available in the spec. 
+        It can be http-basic, http-bearer or api-key. If you do not want your users to go through the authentication process, 
+        instead want them to use a pre-generated api-key then you may hide authentication section by 
+        setting this attribute to false and provide the api-key details using various api-key-???? attributes.
       default: true
     - name: allow-server-selection
-      description: Allow users to switch between different servers defined in the OpenAPI spec.
       allowed: ["true", "false"]
+      description: Allow users to switch between different servers defined in the OpenAPI spec.
       default: true
     - name: allow-schema-description-expand-toggle
-      description: allow or hide the ability to expand/collapse field descriptions in the schema
       allowed: ["true", "false"]
+      description: allow or hide the ability to expand/collapse field descriptions in the schema
       default: true  
+  
   - Schema Section Settings:
     - name: schema-style
-      description: Two different ways to display object-schemas in the responses and request bodies
       allowed:
         - tree
         - table
+      description: Two different ways to display object-schemas in the responses and request bodies
       default: tree
     - name: schema-expand-level
       description: Schemas are expanded by default, use this attribute to control how many levels in the schema should be expanded
       default: 999
     - name: schema-description-expanded
+      allowed: ["true", "false"]
       description: >
         Constraint and descriptions information of fields in the schema are collapsed to show only the first line. 
         Set it to true if you want them to fully expanded
-      allowed: ["true", "false"]
-      default: false
+      default: "false"
     - name: schema-hide-read-only
-      description: >
-        default will show read-only schema attributes in Responses, and in Requests of Webhook / Callback 
-        If you do not want to hide read-only fields in schema then you may set it to 'never' Note:This do not effect example generation. 
       allowed:
         - default
         - never
+      description: >
+        default will show read-only schema attributes in Responses, and in Requests of Webhook / Callback 
+        If you do not want to hide read-only fields in schema then you may set it to 'never' 
+        <span class="orange">Note:This do not effect example generation.</span>
       default: default
     - name: schema-hide-write-only
+      allowed:
+        - default
+        - never
       description: >
         default will show write-only schema attributes in Requests, and in Responses of Webhook / Callback
         If you do not want to hide write-only fields in schema then you may set it to 'never'
-        Note:This do not effect example generation.
-      allowed:
-        - default
-        - never
+        <span class="orange"> Note: This do not effect example generation.</span>
       default: default
     - name: default-schema-tab
-      description: > 
-        The schemas are displayed in two tabs - Model and Example. 
-        This option allows you to pick the default tab that you would like to be active
       allowed:
         - schema
         - example
+      description: > 
+        The schemas are displayed in two tabs - Model and Example. 
+        This option allows you to pick the default tab that you would like to be active
       default: schema
+  
   - API Server & calls:
     - name: server-url
       description: >

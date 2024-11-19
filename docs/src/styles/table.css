@@ -14,12 +14,22 @@
     vertical-align: baseline;
     border-bottom: 1px solid #222;
   }
+  & ul {
+    padding-inline-start: 10px;
+    margin-block-start: 0px;
+    margin-block-end: 5px;
+    list-style-type: square;
+  }
   & .name-col {
-    color: var(--accent-color);
-    width: 350px;
+    font-family: 'Roboto Mono', Monaco, Consolas, monospace;
+    color: var(--color-salmon);
+    text-align: right;
+    width: 320px;
   }
   
   & .default-col {
+    font-family: 'Roboto Mono', Monaco, Consolas, monospace;
+    color: var(--color-yellow);
     width: 200px;
   }
   
