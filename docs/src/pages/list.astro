@@ -7,85 +7,86 @@ import { exampleListData, SubExample } from '../data/example-list';
 
 <GlobalLayout>
   <PageBanner slot="topbar" page="example-list" showWaves = {true} />
-
-  <div class="card-grid">
-    {
-      exampleListData.examples.map(example => {
-        const [exampleTitle, exampleObj] = Object.entries(example)[0];
-        return (
-          <a class="card" href={exampleObj.href || undefined} >
-            { exampleObj.href && (<div class="card-corner"/>)}  
-            <div class="card-header">
-              {exampleObj.img && (<img src={exampleObj.img} />)}  
-              {exampleTitle}
-            </div>
-            { exampleObj.description && (<div class="card-body"> {exampleObj.description} </div>)}
-            { exampleObj.subExamples && (
-              <form class="card-buttons"> 
-                {exampleObj.subExamples.map(subExample => { 
-                  const [subExampleTitle, subExampleObj] = Object.entries(subExample)[0] as [string, SubExample];
-                  return (
-                    <button class="card-btn" formaction={subExampleObj.href}>
-                      <div class="card-btn-corner"/>
-                      {subExampleTitle}
-                    </button>
+  <main>
+    <div class="card-grid">
+      {
+        exampleListData.examples.map(example => {
+          const [exampleTitle, exampleObj] = Object.entries(example)[0];
+          return (
+            <a class="card" href={exampleObj.href || undefined} >
+              { exampleObj.href && (<div class="card-corner"/>)}  
+              <div class="card-header">
+                {exampleObj.img && (<img src={exampleObj.img} />)}  
+                {exampleTitle}
+              </div>
+              { exampleObj.description && (<div class="card-body"> {exampleObj.description} </div>)}
+              { exampleObj.subExamples && (
+                <form class="card-buttons"> 
+                  {exampleObj.subExamples.map(subExample => { 
+                    const [subExampleTitle, subExampleObj] = Object.entries(subExample)[0] as [string, SubExample];
+                    return (
+                      <button class="card-btn" formaction={subExampleObj.href}>
+                        <div class="card-btn-corner"/>
+                        {subExampleTitle}
+                      </button>
+                    )}
                   )}
-                )}
-              </form>
-            )}
-          </a>
-        )
-      })
-    }
-    <a class="card span-2">
-      <div class="card-header">
-        Card With Col Span 2
-      </div>
-      <div class="card-body">
-         This is a Sample Card Body which should span acreoss two columns. This card dont have a HREF 
-      </div>
-    </a>
-    <a class="card" href="./examples/example1.html">
-      <div class="card-corner"/>
-      <div class="card-header">
-        Regular Card
-      </div>
-      <div class="card-body">
-         This is a Sample Card Body and has a HREF
-      </div>
-    </a>
+                </form>
+              )}
+            </a>
+          )
+        })
+      }
+      <a class="card span-2">
+        <div class="card-header">
+          Card With Col Span 2
+        </div>
+        <div class="card-body">
+          This is a Sample Card Body which should span acreoss two columns. This card dont have a HREF 
+        </div>
+      </a>
+      <a class="card" href="./examples/example1.html">
+        <div class="card-corner"/>
+        <div class="card-header">
+          Regular Card
+        </div>
+        <div class="card-body">
+          This is a Sample Card Body and has a HREF
+        </div>
+      </a>
 
-    <a class="card bg-image" href="./examples/example1.html" style="background-image:url(/assets/images/wave_bg2-min.png);  background-size: 100% 30%">
-      <div class="card-corner"/>
-      <div class="card-header">
-        Regular Card
-      </div>
-      <div class="card-body">
-         This is a Sample Card Body and has a HREF
-      </div>
-    </a>
+      <a class="card bg-image" href="./examples/example1.html" style="background-image:url(/assets/images/wave_bg2-min.png);  background-size: 100% 30%">
+        <div class="card-corner"/>
+        <div class="card-header">
+          Regular Card
+        </div>
+        <div class="card-body">
+          This is a Sample Card Body and has a HREF
+        </div>
+      </a>
 
-    <a class="card bg-image" href="./examples/example1.html" style="background-image:url(/assets/images/card_bg1.png); background-size: auto 100%">
-      <div class="card-corner"/>
-      <div class="card-header">
-        Regular Card
-      </div>
-      <div class="card-body">
-         This is a Sample Card Body and has a HREF
-      </div>
-    </a>
-    <a class="card bg-image" href="./examples/example1.html" style="background-image:url(/assets/images/card_bg3.png); background-size: 10% auto">
-      <div class="card-corner"/>
-      <div class="card-header">
-        Regular Card
-      </div>
-      <div class="card-body">
-         This is a Sample Card Body and has a HREF
-      </div>
-    </a>
+      <a class="card bg-image" href="./examples/example1.html" style="background-image:url(/assets/images/card_bg1.png); background-size: auto 100%">
+        <div class="card-corner"/>
+        <div class="card-header">
+          Regular Card
+        </div>
+        <div class="card-body">
+          This is a Sample Card Body and has a HREF
+        </div>
+      </a>
+      <a class="card bg-image" href="./examples/example1.html" style="background-image:url(/assets/images/card_bg3.png); background-size: 10% auto">
+        <div class="card-corner"/>
+        <div class="card-header">
+          Regular Card
+        </div>
+        <div class="card-body">
+          This is a Sample Card Body and has a HREF
+        </div>
+      </a>
 
 
-  </div>
+    </div>
+  </main>  
 </GlobalLayout>
 
 <style>
@@ -93,9 +94,6 @@ import { exampleListData, SubExample } from '../data/example-list';
     --card-width: 250px;
     --card-height: 50px;
     --card-gap: 20px;
-    --desktop-margin: 40px;
-    --tablet-margin: 20px;
-    --mobile-margin: 0;
   }
 
   .card-grid {

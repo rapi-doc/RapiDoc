@@ -6,11 +6,18 @@
   border: 1px solid var(--border-color);
   border-radius: 4px;
   margin: 0;
+  font-size: 12px;
   tr:hover {
     background-color: #222222aa;
   }
+  & th {
+    padding: 10px 8px;
+    background-color: #55555588;
+    font-weight:800;
+    color: #eee;
+  }
   & td {
-    padding: 5px;
+    padding: 8px;
     vertical-align: baseline;
     border-bottom: 1px solid #222;
   }
@@ -28,23 +35,21 @@
     list-style-type: square;
   }
   & .name-col {
-    font-family: 'Roboto Mono', Monaco, Consolas, monospace;
-    color: var(--color-salmon);
     text-align: right;
     overflow-wrap: anywhere;
-    width: 150px;
+    width: 120px;
   }
   
   & .default-col {
-    font-family: 'Roboto Mono', Monaco, Consolas, monospace;
-    color: var(--color-yellow);
-    width: 100px;
+    width: 80px;
+    text-align: left;
     border-left: 1px solid var(--border-color-muted);
   }
   
   & .description-col {
     min-width: 150px;
     width: auto;
+    text-align: left;
     overflow-wrap: break-word; /* Prevents overflow by breaking long words */
   }
 }
@@ -52,24 +57,40 @@
 
 @media only screen and (min-width: 768px) {
   .m-table {
+    font-size: 13px;
+    & th { font-size: 15px !important; }
     & pre { max-width:var(--code-block-width);}
     & .name-col { 
       width: 200px;  
       overflow-wrap: break-word; 
     }
-    & .default-col { width: 150px; }
-    & .description-col { min-width: 150px; }
+    & .default-col { width: 120px; }
+    & .description-col { 
+      min-width: 150px; 
+      font-size: 14px;
+    }
   }
+}
 
 
-@media only screen and (min-width: 800px) {
+@media only screen and (min-width: 1024px) {
   .m-table {
+    font-size: 13px;
+    & th { font-size: 15px !important; }
     & pre { max-width:var(--code-block-width);}
     & .name-col { 
-      width: 320px;  
+      width: 320px;
+      font-size: 14px;
       overflow-wrap: break-word; 
     }
-    & .default-col { width: 200px; }
-    & .description-col { min-width: 200px; }
+    & .default-col { 
+      width: 150px; 
+      font-size: 14px;
+      overflow-wrap: break-word; 
+    }
+    & .description-col { 
+      min-width: 200px;
+      font-size: 16px;
+    }
   }
 }

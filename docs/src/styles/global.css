@@ -1,7 +1,7 @@
 :root {
   --fg-color: #b0b0b0;
   --fg-color-muted: #9198a1;
-  --bg-color:#000;
+  --bg-color:#1a1a1a;
   --accent-color: #e07372;
   --link-color:#f57e2e;
   --banner-text-color: #000;
@@ -12,9 +12,10 @@
   --border-color-hover: #e17945;
   --border-color-link: #e17945bb;
   
-  --desktop-margin: 60px;
+  --desktop-margin: 120px;
   --tablet-margin: 20px;
   --mobile-margin: 5px;
+
   --card-bg-color: #31384055;
   --rapidoc-gradient: linear-gradient(60deg, 
     rgb(193, 0, 0) 0%, 
@@ -29,12 +30,12 @@
 }
 body, button {
   font-family: 'Lato', 'Open Sans', sans-serif;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 24px;
   color: var(--fg-color);
   background: var(--bg-color);
   font-weight: 500;
-  margin: 5px;
+  margin: 0;
   display: block;
 }
 
@@ -51,7 +52,10 @@ a {
 h1,h2,h3 {
   margin-block-start: 1em;
   margin-block-end: 0.2em;
-  font-weight:300; 
+  font-weight:700; 
+}
+hr {
+  border-color: var(--border-color);
 }
 
 .mono, code { font-family: 'Roboto Mono', Monaco, Consolas, monospace; }
@@ -140,7 +144,7 @@ h1,h2,h3 {
   .code-block { font-size:12px; width:650px; }
 }
 
-@media only screen and (min-width: 800px) {
+@media only screen and (min-width: 1024px) {
   main {
     margin: 0 var(--desktop-margin);
   }
