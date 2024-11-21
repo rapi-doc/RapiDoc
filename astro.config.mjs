@@ -7,6 +7,8 @@ import minifyHTML from 'rollup-plugin-minify-html-literals';
 import { build } from 'vite';
 import pkg from './package.json'
 import { transform } from 'esbuild';
+import { watch } from 'fs';
+import { globSync } from 'glob';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -98,6 +100,20 @@ export default defineConfig({
               req.url = '/src/index.js';
             }
             next();
+          });
+
+          // Astro dont watch for yaml changes out of the box. So This code Watch for yaml changes and relods in dev mode
+          const yamlFiles = globSync(resolve(__dirname, './docs/src/data/**/*.yaml'));
+          yamlFiles.forEach(file => {
+            watch(file, (eventType) => {
+              if (eventType === 'change') {
+                server.moduleGraph.invalidateAll();
+                server.ws.send({
+                  type: 'full-reload',
+                  path: '*'
+                });
+              }
+            });
           });
         }
       }
