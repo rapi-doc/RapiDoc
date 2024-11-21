@@ -1,5 +1,5 @@
 Attributes:
-  - General:
+  - General Attributes:
     - name: spec-url
       description: >
         URL of the OpenAPI spec to view.
@@ -53,7 +53,7 @@ Attributes:
       description: Authentication will be persisted to localStorage.
       default: "false"
   
-  - UI Colors and Fonts:
+  - UI Colors and Fonts Attributes:
     - name: theme
       description: > 
         Is the base theme, which is used for calculating colors for various UI components. 
@@ -116,7 +116,7 @@ Attributes:
           </li>
         </ul>
 
-  - Navigation bar settings:
+  - Navigation bar settings Attributes:
     - name: show-method-in-nav-bar
       allowed:
         - "false"
@@ -176,7 +176,7 @@ Attributes:
         <span class="orange">Note: applies only to <span class="mono yellow">render-style = focused</span>
       default: expand-collapse
 
-  - UI Layout & Placement:
+  - UI Layout and Placement Attributes:
     - name: layout
       allowed:
         - row
@@ -214,7 +214,7 @@ Attributes:
         Controls the height of the response textarea.
       default: 300px
 
-  - Hide/Show Sections:
+  - Hide and Show Attributes:
     - name: show-info
       allowed: ["true", "false"]
       description: >
@@ -311,7 +311,7 @@ Attributes:
       description: allow or hide the ability to expand/collapse field descriptions in the schema
       default: true  
   
-  - Schema Section Settings:
+  - Schema Section Attributes:
     - name: schema-style
       allowed:
         - tree
@@ -358,7 +358,7 @@ Attributes:
         This option allows you to pick the default tab that you would like to be active
       default: schema
   
-  - API Server & calls:
+  - API Server Atrributes:
     - name: server-url
       description: >
         OpenAPI spec has a provision for providing the server url. 

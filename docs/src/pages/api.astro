@@ -14,211 +14,236 @@ import '../styles/table.css';
   </PageBanner>
   <main>
     <h1>RapiDoc API Reference</h1>
-    <p> Explore all Rapidoc Internals: Attributes, Methods, Events, Slots and Vendor Extentions. </p>
+    <span> Explore all Rapidoc Internals: Attributes, Methods, Events, Slots and Vendor Extentions. </span>
     <hr/>
-    <!-- Attributes-->
-    <h2 class="api-section-anchor" id="attributes"> Attributes </h2>
-    {
-      rapidocApiData.Attributes.map(attGroup => { 
-        const [attrGroupTitle, attrGroupItems] = Object.entries(attGroup)[0] as [string, RapidocAttribute[]];
-        const attrGroupHref = slugger.slug(attrGroupTitle);
-        return (
-          <h3 class="api-section-anchor" id={`./api#${attrGroupHref}`}>{attrGroupTitle}</h3>
-          <table class="m-table">
-            <tr>
-              <th class="name-col">Attribute Name</th>
-              <th class="description-col">Description</th>
-              <th class="default-col">Default</th>
-            </tr>
-            {
-              attrGroupItems.filter(attr => attr.hidden !== true).map(attr => {
-              return (
-                <tr>
-                  <td class="name-col mono salmon">{attr.name}</td>
-                  <td class="description-col">
-                    <div class="mono yellow small-font">
-                      { attr.allowed && <b class="yellow-dim" style="font-family:Nunito;">Allowed : </b> }
-                      { attr.allowed && attr.allowed.map((v,i,a) => <span>{v} {i < a.length-1 ? '|' : ''} </span>) } 
-                    </div>
-                    <Fragment set:html={attr.description} />
-                    { attr.example && <br/> <a href={attr.example}> Example </a> }
-                    { attr.code && <pre> <code class="language-html"> {attr.code} </code> </pre>}
-                  </td>
-                  <td class="default-col mono yellow">
-                    { attr.default && <Fragment set:html={attr.default} /> }
-                  </td>
-                </tr>
-              )}
-            )}
-          </table>
-        )
-      })
-    }
-
-    <!-- Methods -->
-    <h2 class="api-section-anchor" id="methods"> Methods </h2>
-    <table class="m-table">
-      <tr>
-        <th class="name-col">Method Name</th>
-        <th class="description-col"></th>Description</th>
-      </tr>
-      {
-        rapidocApiData.Methods.items.map(method => { 
-          return (
-            <tr>
-              <td class="name-col mono salmon">{method.name}</td>
-              <td class="description-col">
-                <Fragment set:html={method.description} />
-                { method.example && <div> <Fragment set:html={method.example} /> </div> }
-                { method.code && <pre><code class="language-html"> {method.code} </code></pre> }
-              </td>
-            </tr>
-          )}
-        )
-      }
-    </table>
-
-    <!-- Events -->
-    <h2 class="api-section-anchor" id="events"> Events </h2>
-
-    <div style="max-width:740px; margin: 5px auto;">
-      <div>Below is an example on how to handle events using plain JS</div>
-      <pre style="border:1px solid Var(--border-color);"> 
-        <code class="language-html">
-          {`
-          <html>
-            ...
-              <rapi-doc id="the-doc" spec-url = "https://.../spec.yaml"> </rapi-doc>
-
-              <script>
-                window.addEventListener('DOMContentLoaded', (event) => {
-                  /*
-                    Ensure that the DOM is loaded, then add the event listener.
-                    here we are listenig to 'before-try' event which fires when the user clicks
-                    on TRY, it then modifies the POST requests by adding a custom header
-                  */
-                  const rapidocEl = document.getElementById('the-doc');
-                  rapidocEl.addEventListener('before-try', (e) => {
-                    if (e.detail.request.method === 'POST') {
-                      e.detail.request.headers.append('custom-token', 'AAA.BBB.CCC');
-                    }
-                  });
-                });
-              </script>
-            ...
-          </html>
-          `}
-        </code>
-      </pre>
-      <div>For further information refer to this <a href="examples/events.html#overview">Example</a> of Event Handling In RapiDoc</div>
-    </div>
-
-    <table class="m-table">
-      <tr>
-        <th class="name-col">Event Name</th>
-        <th class="description-col">Description</th>
-      </tr>
-      {
-        rapidocApiData.Events.items.map(rapidocEvent => { 
-          return (
-            <tr>
-              <td class="name-col mono salmon">{rapidocEvent.name}</td>
-              <td class="description-col">
-                <Fragment set:html={rapidocEvent.description} />
-                { rapidocEvent.example && <div> <Fragment set:html={rapidocEvent.example} /> </div> }
-                { rapidocEvent.code && <pre><code class="language-html"> {rapidocEvent.code} </code></pre> }
-              </td>
-            </tr>
-          )}
-        )
-      }
-    </table>
-
-    <!-- Slots -->
-    <h2 class="api-section-anchor" id="slots"> Slots </h2>
-
-    <div style="max-width:740px; margin: 5px auto;">
-      <div>
-        <span class="mono yellow">slots</span> are predefined placeholders inside a RapiDoc component. 
-        You can use these slots to place your custom html in certain desired locations inside RapiDoc. 
-        Below is an example on how to inject HTML/CSS/JS at various locations in RapiDoc
+    <div style="display:flex;  flex-direction: column; height: 100%;width: 100%;">
+      <!-- Attributes-->
+      <div class="attributes-head">
+        <h2 class="api-section-anchor" id="attributes"> Attributes </h2>
       </div>
-
-      <pre style="border:1px solid Var(--border-color);"> 
-        <code class="language-html">
-          {`
-          <html>
-            ...
-            <rapi-doc spec-url = "https://petstore.swagger.io/v2/swagger.json">
-              <div> <!-- HTML Elements without slot attribute goes into default location-->
-                <h1> My HTML Heading  </h1>
-              </div>
-
-              <!-- provide slot attribute to place an element at desired location -->
-              <img slot="nav-logo" src="https://via.placeholder.com/100" style="width:50px; height:50px"/>
-
-            </rapi-doc>
-            ...
-          </html>
-          `}
-        </code>
-      </pre>
-    </div>  
-
-    <table class="m-table">
-      <tr>
-        <th class="name-col">Slot Name</th>
-        <th class="description-col">Description</th>
-      </tr>
       {
-        rapidocApiData.Slots.items.map(slot => { 
+        rapidocApiData.Attributes.map(attGroup => { 
+          const [attrGroupTitle, attrGroupItems] = Object.entries(attGroup)[0] as [string, RapidocAttribute[]];
+          const attrGroupHref = slugger.slug(attrGroupTitle);
           return (
-            <tr>
-              <td class="name-col mono salmon">{slot.name}</td>
-              <td class="description-col">
-                <Fragment set:html={slot.description} />
-                { slot.example && <div> <Fragment set:html={slot.example} /> </div> }
-                { slot.code && <pre><code class="language-html"> {slot.code} </code></pre> }
-              </td>
-            </tr>
-          )}
-        )
-      }
-    </table>
-
-    <!-- Vendor Extensions -->
-    <h2 class="api-section-anchor" id="extensions"> Supported vendor extensions </h2>
-    <table class="m-table">
-      <tr>
-        <th class="name-col">Extension Name</th>
-        <th class="description-col">Description</th>
-      </tr>
-      {
-        rapidocApiData.Extensions.items.map(extension => { 
-          return (
-            <tr>
-              <td class="name-col mono salmon">{extension.name}</td>
-              {extension.description && (
-                <td class="description-col" rowspan={extension.rowspan || '1'}>
-                  <div class="mono yellow">
-                    { extension.allowed && <b class="small-font yellow-dim" style="font-family:Nunito;">Allowed : </b> }
-                    { extension.allowed && extension.allowed.map((v,i,a) => <span>{v} {i < a.length-1 ? '|' : ''} </span>) } 
-                  </div>
-
-                  { extension.description && <Fragment set:html={extension.description} /> }
-                  { extension.example && <div> <Fragment set:html={extension.example} /> </div> }
-                  { extension.code && <pre><code class="language-html"> {extension.code} </code></pre> }
-                </td>
+            <h3 class="api-section-anchor" id={`./api#${attrGroupHref}`}>{attrGroupTitle}</h3>
+            <table class="m-table">
+              <tr>
+                <th class="name-col">Attribute Name</th>
+                <th class="description-col">Description</th>
+                <th class="default-col">Default</th>
+              </tr>
+              {
+                attrGroupItems.filter(attr => attr.hidden !== true).map(attr => {
+                return (
+                  <tr>
+                    <td class="name-col mono salmon">{attr.name}</td>
+                    <td class="description-col">
+                      <div class="mono yellow small-font">
+                        { attr.allowed && <b class="yellow-dim" style="font-family:Nunito;">Allowed : </b> }
+                        { attr.allowed && attr.allowed.map((v,i,a) => <span>{v} {i < a.length-1 ? '|' : ''} </span>) } 
+                      </div>
+                      <Fragment set:html={attr.description} />
+                      { attr.example && <br/> <a href={attr.example}> Example </a> }
+                      { attr.code && <pre> <code class="language-html"> {attr.code} </code> </pre>}
+                    </td>
+                    <td class="default-col mono yellow">
+                      { attr.default && <Fragment set:html={attr.default} /> }
+                    </td>
+                  </tr>
+                )}
               )}
-            </tr>
-          )}
-        )
+            </table>
+          )
+        })
       }
-    </table>
 
+      <!-- Methods -->
+      <div class="methods-head">
+        <h2 class="api-section-anchor" id="methods"> Methods </h2>
+      </div> 
+      <table class="m-table">
+        <tr>
+          <th class="name-col">Method Name</th>
+          <th class="description-col">Description</th>
+        </tr>
+        {
+          rapidocApiData.Methods.items.map(method => { 
+            return (
+              <tr>
+                <td class="name-col mono salmon">{method.name}</td>
+                <td class="description-col">
+                  <Fragment set:html={method.description} />
+                  { method.example && <div> <Fragment set:html={method.example} /> </div> }
+                  { method.code && <pre><code class="language-html"> {method.code} </code></pre> }
+                </td>
+              </tr>
+            )}
+          )
+        }
+      </table>
+
+      <!-- Events -->
+      <div class="events-head">
+        <h2 class="api-section-anchor" id="events"> Events </h2>
+        <div>Below is an example on how to handle events using plain JS</div>
+        <pre style="border:1px solid Var(--border-color);"> 
+          <code class="language-html">
+            {`
+            <html>
+              ...
+                <rapi-doc id="the-doc" spec-url = "https://.../spec.yaml"> </rapi-doc>
+
+                <script>
+                  window.addEventListener('DOMContentLoaded', (event) => {
+                    /*
+                      Ensure that the DOM is loaded, then add the event listener.
+                      here we are listenig to 'before-try' event which fires when the user clicks
+                      on TRY, it then modifies the POST requests by adding a custom header
+                    */
+                    const rapidocEl = document.getElementById('the-doc');
+                    rapidocEl.addEventListener('before-try', (e) => {
+                      if (e.detail.request.method === 'POST') {
+                        e.detail.request.headers.append('custom-token', 'AAA.BBB.CCC');
+                      }
+                    });
+                  });
+                </script>
+              ...
+            </html>
+            `}
+          </code>
+        </pre>
+        <div>For further information refer to this <a href="examples/events.html#overview">Example</a> of Event Handling In RapiDoc</div>
+      </div>  
+      <table class="m-table">
+        <tr>
+          <th class="name-col">Event Name</th>
+          <th class="description-col">Description</th>
+        </tr>
+        {
+          rapidocApiData.Events.items.map(rapidocEvent => { 
+            return (
+              <tr>
+                <td class="name-col mono salmon">{rapidocEvent.name}</td>
+                <td class="description-col">
+                  <Fragment set:html={rapidocEvent.description} />
+                  { rapidocEvent.example && <div> <Fragment set:html={rapidocEvent.example} /> </div> }
+                  { rapidocEvent.code && <pre><code class="language-html"> {rapidocEvent.code} </code></pre> }
+                </td>
+              </tr>
+            )}
+          )
+        }
+      </table>
+
+      <!-- Slots -->
+      <div class="events-head">
+        <h2 class="api-section-anchor" id="slots"> Slots </h2>
+        <div>
+          <span class="mono yellow">slots</span> are predefined placeholders inside a RapiDoc component. 
+          You can use these slots to place your custom html in certain desired locations inside RapiDoc. 
+          Below is an example on how to inject HTML/CSS/JS at various locations in RapiDoc
+        </div>
+
+        <pre style="border:1px solid Var(--border-color);"> 
+          <code class="language-html">
+            {`
+            <html>
+              ...
+              <rapi-doc spec-url = "https://petstore.swagger.io/v2/swagger.json">
+                <div> <!-- HTML Elements without slot attribute goes into default location-->
+                  <h1> My HTML Heading  </h1>
+                </div>
+
+                <!-- provide slot attribute to place an element at desired location -->
+                <img slot="nav-logo" src="https://via.placeholder.com/100" style="width:50px; height:50px"/>
+
+              </rapi-doc>
+              ...
+            </html>
+            `}
+          </code>
+        </pre>
+      </div>  
+      <table class="m-table">
+        <tr>
+          <th class="name-col">Slot Name</th>
+          <th class="description-col">Description</th>
+        </tr>
+        {
+          rapidocApiData.Slots.items.map(slot => { 
+            return (
+              <tr>
+                <td class="name-col mono salmon">{slot.name}</td>
+                <td class="description-col">
+                  <Fragment set:html={slot.description} />
+                  { slot.example && <div> <Fragment set:html={slot.example} /> </div> }
+                  { slot.code && <pre><code class="language-html"> {slot.code} </code></pre> }
+                </td>
+              </tr>
+            )}
+          )
+        }
+      </table>
+
+      <!-- Vendor Extensions -->
+      <div class="extensions-head">
+        <h2 class="api-section-anchor" id="extensions"> Supported vendor extensions </h2>
+      </div>  
+      <table class="m-table">
+        <tr>
+          <th class="name-col">Extension Name</th>
+          <th class="description-col">Description</th>
+        </tr>
+        {
+          rapidocApiData.Extensions.items.map(extension => { 
+            return (
+              <tr>
+                <td class="name-col mono salmon">{extension.name}</td>
+                {extension.description && (
+                  <td class="description-col" rowspan={extension.rowspan || '1'}>
+                    <div class="mono yellow">
+                      { extension.allowed && <b class="small-font yellow-dim" style="font-family:Nunito;">Allowed : </b> }
+                      { extension.allowed && extension.allowed.map((v,i,a) => <span>{v} {i < a.length-1 ? '|' : ''} </span>) } 
+                    </div>
+
+                    { extension.description && <Fragment set:html={extension.description} /> }
+                    { extension.example && <div> <Fragment set:html={extension.example} /> </div> }
+                    { extension.code && <pre><code class="language-html"> {extension.code} </code></pre> }
+                  </td>
+                )}
+              </tr>
+            )}
+          )
+        }
+      </table>
+    </div>  
   </main>  
 </GlobalLayout>
 
+
+<script>
+  const mainEl = document.querySelector("main");
+  mainEl.addEventListener("click", function(e:MouseEvent) {
+    const target = e.target as HTMLElement;
+    if(target && target.id ) {
+      // target.scrollIntoView({behavior: "smooth"});
+      window.location.hash = target.id
+    }
+  });
+</script>
+
 <style>
- 
+  h2[id]:hover, h3[id]:hover {
+    cursor: pointer;
+    &::after{
+      cursor: pointer;
+      margin-left: 5px;
+      color: var(--color-salmon);
+      display: inline-block;
+      content: "#";
+    }
+  }
+
 </style>

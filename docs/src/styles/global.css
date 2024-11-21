@@ -30,7 +30,7 @@
 }
 body, button {
   font-family: 'Lato', 'Open Sans', sans-serif;
-  font-size: 15px;
+  font-size: 14px;
   line-height: 24px;
   color: var(--fg-color);
   background: var(--bg-color);
@@ -49,11 +49,25 @@ a {
     text-decoration: none;
   }
 }
-h1,h2,h3 {
-  margin-block-start: 1em;
-  margin-block-end: 0.2em;
+h1 { 
+  font-size: 2em;
   font-weight:700; 
+  margin-block-start: 2em;
+  margin-block-end: 0.5em;
 }
+h2 { 
+  font-size: 1.8em;
+  font-weight:500; 
+  margin-block-start: 1.25em;
+  margin-block-end: 0.4em;
+}
+h3 { 
+  font-size: 1.2em;
+  font-weight:400; 
+  margin-block-start: 1em;
+  margin-block-end: 0.3em;
+}
+
 hr {
   border-color: var(--border-color);
 }
@@ -135,6 +149,7 @@ hr {
 }
 
 @media only screen and (min-width: 768px) {
+  body { font-size: 15px; }
   main {
     margin: 0 var(--tablet-margin);
   }
@@ -145,6 +160,7 @@ hr {
 }
 
 @media only screen and (min-width: 1024px) {
+  body { font-size: 16px; }
   main {
     margin: 0 var(--desktop-margin);
   }

@@ -38,6 +38,7 @@ import { exampleListData, SubExample } from '../data/example-list';
         })
       }
       <a class="card span-2">
+        <div class="card-corner"/>
         <div class="card-header">
           Card With Col Span 2
         </div>
@@ -91,7 +92,7 @@ import { exampleListData, SubExample } from '../data/example-list';
 
 <style>
   :root {
-    --card-width: 250px;
+    --card-width: 290px;
     --card-height: 50px;
     --card-gap: 20px;
   }
@@ -120,9 +121,9 @@ import { exampleListData, SubExample } from '../data/example-list';
     overflow: hidden;
     & .card-header {
       display: flex;
-      font-weight: 900;
+      font-weight: 700;
       margin-bottom: 12px;
-      line-height: 32px;
+      line-height: 2em;
       & img {
         height: 32px;
         width: auto;
