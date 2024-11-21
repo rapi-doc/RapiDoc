@@ -36,7 +36,7 @@ import '../styles/table.css';
               {
                 attrGroupItems.filter(attr => attr.hidden !== true).map(attr => {
                 return (
-                  <tr>
+                  <tr id={attr.name}>
                     <td class="name-col mono salmon">{attr.name}</td>
                     <td class="description-col">
                       <div class="mono yellow small-font">
@@ -70,7 +70,7 @@ import '../styles/table.css';
         {
           rapidocApiData.Methods.items.map(method => { 
             return (
-              <tr>
+              <tr id={method.name}>
                 <td class="name-col mono salmon">{method.name}</td>
                 <td class="description-col">
                   <Fragment set:html={method.description} />
@@ -114,7 +114,6 @@ import '../styles/table.css';
             `}
           </code>
         </pre>
-        <div>For further information refer to this <a href="examples/events.html#overview">Example</a> of Event Handling In RapiDoc</div>
       </div>  
       <table class="m-table">
         <tr>
@@ -124,7 +123,7 @@ import '../styles/table.css';
         {
           rapidocApiData.Events.items.map(rapidocEvent => { 
             return (
-              <tr>
+              <tr id={rapidocEvent.name}>
                 <td class="name-col mono salmon">{rapidocEvent.name}</td>
                 <td class="description-col">
                   <Fragment set:html={rapidocEvent.description} />
@@ -136,6 +135,8 @@ import '../styles/table.css';
           )
         }
       </table>
+      <div>For further information refer to this <a href="examples/events.html#overview">Example</a> of Event Handling In RapiDoc</div>
+
 
       <!-- Slots -->
       <div class="events-head">
@@ -174,7 +175,7 @@ import '../styles/table.css';
         {
           rapidocApiData.Slots.items.map(slot => { 
             return (
-              <tr>
+              <tr id={slot.name}>
                 <td class="name-col mono salmon">{slot.name}</td>
                 <td class="description-col">
                   <Fragment set:html={slot.description} />
@@ -186,6 +187,12 @@ import '../styles/table.css';
           )
         }
       </table>
+      <div>
+        For further information refer to these examples 
+        <a href="examples/logo.html">Logo slot</a> |
+        <a href="examples/mix-html.html"> Default and Footer slot</a> |
+        <a href="examples/slots.html">All Slots</a>
+      </div>
 
       <!-- Vendor Extensions -->
       <div class="extensions-head">
@@ -199,7 +206,7 @@ import '../styles/table.css';
         {
           rapidocApiData.Extensions.items.map(extension => { 
             return (
-              <tr>
+              <tr id={extension.name}>
                 <td class="name-col mono salmon">{extension.name}</td>
                 {extension.description && (
                   <td class="description-col" rowspan={extension.rowspan || '1'}>
@@ -228,8 +235,8 @@ import '../styles/table.css';
   mainEl.addEventListener("click", function(e:MouseEvent) {
     const target = e.target as HTMLElement;
     if(target && target.id ) {
-      // target.scrollIntoView({behavior: "smooth"});
-      window.location.hash = target.id
+      location.hash = target.id;
+      target.scrollIntoView({behavior: "smooth"});
     }
   });
 </script>

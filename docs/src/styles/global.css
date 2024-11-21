@@ -1,6 +1,7 @@
 :root {
   --fg-color: #b0b0b0;
   --fg-color-muted: #9198a1;
+  --fg-color-bright: #efefef;
   --bg-color:#1a1a1a;
   --accent-color: #e07372;
   --link-color:#f57e2e;
@@ -37,6 +38,7 @@ body, button {
   font-weight: 500;
   margin: 0;
   display: block;
+  scroll-behavior: smooth;
 }
 
 main {
@@ -54,12 +56,14 @@ h1 {
   font-weight:700; 
   margin-block-start: 2em;
   margin-block-end: 0.5em;
+  color: var(--fg-color-bright);
 }
 h2 { 
   font-size: 1.8em;
   font-weight:500; 
   margin-block-start: 1.25em;
   margin-block-end: 0.4em;
+  color: var(--fg-color-bright);
 }
 h3 { 
   font-size: 1.2em;

@@ -5,7 +5,7 @@
   border-collapse: separate;
   border: 1px solid var(--border-color);
   border-radius: 4px;
-  margin: 0;
+  margin: 8px 0 0 0;
   font-size: 12px;
   tr:hover {
     background-color: #222222aa;
