@@ -14,7 +14,7 @@ import { exampleListData, SubExample } from '../data/example-list';
           const [exampleTitle, exampleObj] = Object.entries(example)[0];
           return (
             <a 
-              class={`card ${exampleObj.isDoc ? 'is-doc':''}`} 
+              class={`card ${exampleObj.isDoc ? 'is-doc':''} ${exampleObj.isWide ? 'wide':''}`} 
               style={`${exampleObj.isDoc ? "background-image: url('/assets/images/card_bg1.png')":''}`}
               href={exampleObj.href || undefined} 
             >
@@ -41,7 +41,7 @@ import { exampleListData, SubExample } from '../data/example-list';
           )
         })
       }
-      <a class="card span-2">
+      <a class="card wide">
         <div class="card-corner"/>
         <div class="card-header">
           Card With Col Span 2
@@ -60,7 +60,7 @@ import { exampleListData, SubExample } from '../data/example-list';
         </div>
       </a>
 
-      <a class="card bg-image" href="./examples/example1.html" style="background-image:url(/assets/images/wave_bg2-min.png);  background-size: 100% 30%">
+      <a class="card bg-image" href="./examples/example1.html">
         <div class="card-corner"/>
         <div class="card-header">
           Regular Card
@@ -79,7 +79,7 @@ import { exampleListData, SubExample } from '../data/example-list';
           This is a Sample Card Body and has a HREF
         </div>
       </a>
-      <a class="card bg-image" href="./examples/example1.html" style="background-image:url(/assets/images/card_bg3.png); background-size: 10% auto">
+      <a class="card bg-image" href="./examples/example1.html">
         <div class="card-corner"/>
         <div class="card-header">
           Regular Card
@@ -226,7 +226,7 @@ import { exampleListData, SubExample } from '../data/example-list';
     background-image: linear-gradient(-45deg, #8d8044 1%, #e17945 100%);
   }
 
-  .card.span-2 {
+  .card.wide {
     grid-column: span 2;
   }
 

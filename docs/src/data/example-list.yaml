@@ -1,13 +1,13 @@
 examples:
   - How to Use:
-      img: ./assets/images/info.png
-      href: ./quickstart.html
-      description: How to Use
+      img: /assets/images/info.png
+      href: /quickstart.html
+      description: Examples showing how to use RapiDoc in vanila HTML, React and Vue frameworks
       isDoc: true
-  - Themes:
-      img: ./assets/images/theme.png
-      href: ./examples/theme.html
-      description: Easily change you themes
+  - A Pet-Store Example:
+      img: /assets/images/dog.png
+      href: /examples/petstore-extended.html
+      description: An example showing how RapiDoc renders an sample Pet-Store OpenAPI spec
   - Rendering Modes:
       description: 3 different rendering styles to choose from
       subExamples:
@@ -17,4 +17,21 @@ examples:
             href: ./examples/example2.html
         - Focused:
             href: ./examples/example3.html
+  - Dark & Light Themes:
+      img: /assets/images/dark-n-light.png
+      description: An example showing how RapiDoc renders an sample Pet-Store OpenAPI spec
+      isWide: true
+      subExamples:
+        - Dark Read:
+            href: ./examples/example1.html
+        - Dark View:
+            href: ./examples/example2.html
+        - Light Read:
+            href: ./examples/example3.html
+        - Light View:
+            href: ./examples/example3.html
+  - Themes:
+      img: ./assets/images/theme.png
+      href: ./examples/theme.html
+      description: Easily change you themes
 
