@@ -3,6 +3,7 @@ examples:
       img: ./assets/images/info.png
       href: ./quickstart.html
       description: How to Use
+      isDoc: true
   - Themes:
       img: ./assets/images/theme.png
       href: ./examples/theme.html

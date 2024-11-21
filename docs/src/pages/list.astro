@@ -13,7 +13,11 @@ import { exampleListData, SubExample } from '../data/example-list';
         exampleListData.examples.map(example => {
           const [exampleTitle, exampleObj] = Object.entries(example)[0];
           return (
-            <a class="card" href={exampleObj.href || undefined} >
+            <a 
+              class={`card ${exampleObj.isDoc ? 'is-doc':''}`} 
+              style={`${exampleObj.isDoc ? "background-image: url('/assets/images/card_bg1.png')":''}`}
+              href={exampleObj.href || undefined} 
+            >
               { exampleObj.href && (<div class="card-corner"/>)}  
               <div class="card-header">
                 {exampleObj.img && (<img src={exampleObj.img} />)}  
@@ -66,7 +70,7 @@ import { exampleListData, SubExample } from '../data/example-list';
         </div>
       </a>
 
-      <a class="card bg-image" href="./examples/example1.html" style="background-image:url(/assets/images/card_bg1.png); background-size: auto 100%">
+      <a class="card bg-image" href="./examples/example1.html">
         <div class="card-corner"/>
         <div class="card-header">
           Regular Card
@@ -109,6 +113,7 @@ import { exampleListData, SubExample } from '../data/example-list';
   * {
     transition: all 0.3s ease-out;
   }
+
   a.card {
     color: currentColor;
     display: block;
@@ -119,6 +124,9 @@ import { exampleListData, SubExample } from '../data/example-list';
     border-radius: 4px;
     padding: 16px;
     overflow: hidden;
+    background-repeat:no-repeat;
+    background-position: 130% -50px; 
+    background-size: auto 90%;
     & .card-header {
       display: flex;
       font-weight: 700;
@@ -145,6 +153,19 @@ import { exampleListData, SubExample } from '../data/example-list';
       & > .card-corner {
         margin-right: -16px;
       }
+    }
+    &.is-doc::after {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      inset-inline-end: 0;
+      width: 80px;
+      height: 80px;
+      background: #7033f3;
+      border-radius: 100%;
+      filter: blur(2rem);
+      opacity: .5;
     }
   }
 

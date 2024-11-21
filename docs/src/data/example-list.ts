@@ -9,6 +9,7 @@ interface ExampleItem {
   img?: string;
   description?: string;
   subExamples?: SubExampleList[];
+  isDoc?: boolean;
 }
 
 interface SubExampleList {
