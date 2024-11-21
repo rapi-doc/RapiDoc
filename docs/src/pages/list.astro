@@ -23,9 +23,9 @@ import { exampleListData, SubExample } from '../data/example-list';
                 {exampleObj.img && (<img src={exampleObj.img} />)}  
                 {exampleTitle}
               </div>
-              { exampleObj.description && (<div class="card-body"> {exampleObj.description} </div>)}
+              { exampleObj.description && (<div class="card-body" set:html={exampleObj.description}></div>)}
               { exampleObj.subExamples && (
-                <form class="card-buttons"> 
+                <form class="card-buttons">
                   {exampleObj.subExamples.map(subExample => { 
                     const [subExampleTitle, subExampleObj] = Object.entries(subExample)[0] as [string, SubExample];
                     return (
@@ -41,55 +41,6 @@ import { exampleListData, SubExample } from '../data/example-list';
           )
         })
       }
-      <a class="card wide">
-        <div class="card-corner"/>
-        <div class="card-header">
-          Card With Col Span 2
-        </div>
-        <div class="card-body">
-          This is a Sample Card Body which should span acreoss two columns. This card dont have a HREF 
-        </div>
-      </a>
-      <a class="card" href="./examples/example1.html">
-        <div class="card-corner"/>
-        <div class="card-header">
-          Regular Card
-        </div>
-        <div class="card-body">
-          This is a Sample Card Body and has a HREF
-        </div>
-      </a>
-
-      <a class="card bg-image" href="./examples/example1.html">
-        <div class="card-corner"/>
-        <div class="card-header">
-          Regular Card
-        </div>
-        <div class="card-body">
-          This is a Sample Card Body and has a HREF
-        </div>
-      </a>
-
-      <a class="card bg-image" href="./examples/example1.html">
-        <div class="card-corner"/>
-        <div class="card-header">
-          Regular Card
-        </div>
-        <div class="card-body">
-          This is a Sample Card Body and has a HREF
-        </div>
-      </a>
-      <a class="card bg-image" href="./examples/example1.html">
-        <div class="card-corner"/>
-        <div class="card-header">
-          Regular Card
-        </div>
-        <div class="card-body">
-          This is a Sample Card Body and has a HREF
-        </div>
-      </a>
-
-
     </div>
   </main>  
 </GlobalLayout>
@@ -146,6 +97,7 @@ import { exampleListData, SubExample } from '../data/example-list';
       display: flex;
       font-weight: 300; 
       gap: 10px;
+      margin-top:6px;
     }
     &:hover {
       text-decoration: none;
@@ -183,7 +135,7 @@ import { exampleListData, SubExample } from '../data/example-list';
     border: 1px solid #cb6f3199;
     font-weight: 700;
     border-radius: 6px;
-    padding: 8px 12px;
+    padding: 4px 10px;
     font-weight: 300;
     &:hover {
       text-decoration: none;
