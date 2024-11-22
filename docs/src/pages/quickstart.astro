@@ -8,6 +8,81 @@ import PageBanner from '../components/PageBanner.astro';
   <main>
     <h1>Quickstart</h1>
     <hr style="margin-bottom:2rem;"/>
+
+    <h2> Vanilla HTML</h2>  
+    Just copy the below code and save it in an html file. Then open it using a browser (you do not need any server)
+    <br/>
+    <a href="https://codesandbox.io/s/vanilla-js-template-98gc2?file=/index.html"> 
+      https://codesandbox.io/s/vanilla-js-template-98gc2?file=/index.html 
+    </a>
+    <pre class="code-block"><code class="language-html">
+      {`
+      <!doctype html> <!-- Important: must specify -->
+      <html>
+        <head>
+          <meta charset="utf-8"> <!-- Important: rapi-doc uses utf8 characters -->
+          <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+        </head>
+        <body>
+          <rapi-doc spec-url = "https://petstore.swagger.io/v2/swagger.json"> </rapi-doc>
+        </body>
+      </html>
+      `}
+    </code></pre>
+    <div> If you do not want to depend on the CDN, just download it from there and store it in a place that you can access </div>
+
+    <hr/>
+    <h2> In JavaScript Apps (integration with other frameworks)</h2>
+    <h3 class="yellow"> Install RapiDoc</h3>
+    <pre class="shadow code-block" ><code class="language-javascript" style="border-radius:4px">
+      npm install rapidoc
+      // (feel free to use yarn)
+    </code></pre>
+    <div>You can now use the Web Components like any other HTML tag. (Just do an import for it to be recognized by the browser)</div>
+    <hr/>
+
+    <h3 class="yellow"> Usage in React</h3>
+    <a href="https://codesandbox.io/s/upbeat-sea-4tfo7?file=/src/App.js"> https://codesandbox.io/s/upbeat-sea-4tfo7?file=/src/App.js </a>
+
+    <pre class="shadow code-block" > <code class="language-js" style="border-radius:4px">
+      {`
+        import React, { Component } from 'react';
+        import 'rapidoc'; // <-- import rapidoc
+
+        export class MyApiDoc extends Component {
+          render() {
+            return &lt;rapi-doc 
+              spec-url = "https://petstore.swagger.io/v2/swagger.json" 
+              render-style = "read"
+              style = {{ height: "100vh", width: "100%" }}
+            &gt;
+            &lt;/rapi-doc&gt;
+          }
+        }
+      `}
+    </code></pre>
+    <hr/>
+
+    <h3 class="yellow"> Usage in Vue</h3>
+    <a href="https://codesandbox.io/s/nostalgic-sky-jlts7?file=/src/App.vue"> https://codesandbox.io/s/nostalgic-sky-jlts7?file=/src/App.vue </a>
+
+    <pre class="shadow code-block" ><code class="language-js" style="border-radius:4px">
+      {`
+      <template>
+        <rapi-doc
+          spec-url = "https://petstore.swagger.io/v2/swagger.json"
+          render-style = "read"
+          style = "height:100vh; width:100%"
+        > </rapi-doc>
+      </template>
+
+      <script>
+        import 'rapidoc';
+      </script>
+      `}
+    </code></pre>
+  </div>
+
   </main>
 </GlobalLayout>
 

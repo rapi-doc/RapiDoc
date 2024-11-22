@@ -16,7 +16,7 @@ import '../styles/table.css';
     <h1>RapiDoc API Reference</h1>
     <span> Explore all Rapidoc Internals: Attributes, Methods, Events, Slots and Vendor Extentions. </span>
     <hr/>
-    <div style="display:flex;  flex-direction: column; height: 100%;width: 100%;">
+    <div style="display:flex; flex-direction: column; height: 100%;width: 100%;">
       <!-- Attributes-->
       <div class="attributes-head">
         <h2 class="api-section-anchor" id="attributes"> Attributes </h2>
@@ -45,7 +45,7 @@ import '../styles/table.css';
                       </div>
                       <Fragment set:html={attr.description} />
                       { attr.example && <br/> <a href={attr.example}> Example </a> }
-                      { attr.code && <pre> <code class="language-html"> {attr.code} </code> </pre>}
+                      { attr.code && <pre><code class="language-html"> {attr.code} </code></pre>}
                     </td>
                     <td class="default-col mono yellow">
                       { attr.default && <Fragment set:html={attr.default} /> }

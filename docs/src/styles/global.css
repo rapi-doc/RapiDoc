@@ -43,6 +43,7 @@ body, button {
 
 main {
   margin: 0 var(--mobile-margin);
+  padding-bottom: 3rem;
 }
 a {
   color: #3e83bb;
@@ -52,14 +53,14 @@ a {
   }
 }
 h1 { 
-  font-size: 2em;
+  font-size: 2.3rem;
   font-weight:700; 
   margin-block-start: 2em;
   margin-block-end: 0.5em;
   color: var(--fg-color-bright);
 }
 h2 { 
-  font-size: 1.8em;
+  font-size: 1.6rem;
   font-weight:500; 
   margin-block-start: 1.25em;
   margin-block-end: 0.4em;
@@ -74,6 +75,16 @@ h3 {
 
 hr {
   border-color: var(--border-color);
+}
+pre {
+  &.code-block {
+    background-color: #0a0a0a;
+    max-width:calc(var(--code-block-width) + 50px);
+    border:1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+
 }
 
 .mono, code { font-family: 'Roboto Mono', Monaco, Consolas, monospace; }
