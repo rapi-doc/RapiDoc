@@ -8,6 +8,8 @@ import { exampleListData, SubExample } from '../data/example-list';
 <GlobalLayout>
   <PageBanner slot="topbar" page="example-list" showWaves = {true} />
   <main>
+    <h1> List of Examples and Documentation </h1>
+    <hr style="margin-bottom:2rem;"/>
     <div class="card-grid">
       {
         exampleListData.examples.map(example => {
@@ -18,12 +20,15 @@ import { exampleListData, SubExample } from '../data/example-list';
               style={`${exampleObj.isDoc ? "background-image: url('/assets/images/card_bg1.png')":''}`}
               href={exampleObj.href || undefined} 
             >
-              { exampleObj.href && (<div class="card-corner"/>)}  
-              <div class="card-header">
-                {exampleObj.img && (<img src={exampleObj.img} />)}  
-                {exampleTitle}
-              </div>
-              { exampleObj.description && (<div class="card-body" set:html={exampleObj.description}></div>)}
+              { exampleObj.href && (<div class="card-corner"/>)}
+              { (exampleObj.isDoc ?? false) === false && (
+                <div class="card-header">
+                  {exampleObj.img && (<img src={exampleObj.img} />)}  
+                  {exampleTitle}
+                </div>
+              )}
+              { (exampleObj.isDoc ?? false) === false && exampleObj.description && (<div class="card-body" set:html={exampleObj.description}></div>)}
+              { exampleObj.isDoc === true && (<div class="card-doc-title" set:html={exampleTitle}/> <span set:html={exampleObj.description || ''}/>)}
               { exampleObj.subExamples && (
                 <form class="card-buttons">
                   {exampleObj.subExamples.map(subExample => { 
@@ -47,7 +52,7 @@ import { exampleListData, SubExample } from '../data/example-list';
 
 <style>
   :root {
-    --card-width: 290px;
+    --card-width: 260px;
     --card-height: 50px;
     --card-gap: 20px;
   }
@@ -55,10 +60,10 @@ import { exampleListData, SubExample } from '../data/example-list';
   .card-grid {
     display: grid;
     font-family: Nunito, 'Open Sans', sans-serif;
+    grid-template-columns: 1fr;
     grid-template-columns: repeat(auto-fit, minmax(var(--card-width), 1fr));
     grid-auto-rows: minmax(var(--card-height), auto);
     grid-gap: var(--card-gap);
-    margin: var(--desktop-margin);
   }
 
   * {
@@ -75,9 +80,10 @@ import { exampleListData, SubExample } from '../data/example-list';
     border-radius: 4px;
     padding: 16px;
     overflow: hidden;
+    min-width:200px;
     background-repeat:no-repeat;
-    background-position: 130% -50px; 
-    background-size: auto 90%;
+    background-position: calc(100% + 40px) -50px; 
+    background-size: auto 128px;
     & .card-header {
       display: flex;
       font-weight: 700;
@@ -106,18 +112,28 @@ import { exampleListData, SubExample } from '../data/example-list';
         margin-right: -16px;
       }
     }
-    &.is-doc::after {
-      content: '';
-      display: block;
-      position: absolute;
-      top: 0;
-      inset-inline-end: 0;
-      width: 80px;
-      height: 80px;
-      background: #7033f3;
-      border-radius: 100%;
-      filter: blur(2rem);
-      opacity: .5;
+    &.is-doc {
+      align-content: center;
+      text-align: center;
+      & .card-doc-title {
+        font-size: 1.5rem;
+        font-weight:700;
+        margin-bottom: 5px;
+        color: var(--color-yellow);
+      }
+      &::after {
+        content: '';
+        display: block;
+        position: absolute;
+        top: 0;
+        inset-inline-end: 0;
+        width: 80px;
+        height: 80px;
+        background: #7033f3;
+        border-radius: 100%;
+        filter: blur(2rem);
+        opacity: .5;
+      }
     }
   }
 
@@ -128,11 +144,11 @@ import { exampleListData, SubExample } from '../data/example-list';
   }
 
   .card-btn {
-    color:var(--link-color);
+    color:var(--color-yellow);
     display: block;
     position: relative;
     overflow: hidden;
-    border: 1px solid #cb6f3199;
+    border: 1px solid var(--color-yellow);
     font-weight: 700;
     border-radius: 6px;
     padding: 4px 10px;
@@ -180,6 +196,12 @@ import { exampleListData, SubExample } from '../data/example-list';
 
   .card.wide {
     grid-column: span 2;
+  }
+  
+  @media (max-width: 425px) {
+    .card-grid {
+      grid-template-columns: 1fr;
+    }
   }
 
 </style>

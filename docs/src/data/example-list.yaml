@@ -2,7 +2,7 @@ examples:
   - How to Use:
       img: /assets/images/info.png
       href: /quickstart.html
-      description: Examples showing how to use RapiDoc in vanila HTML, React and Vue frameworks
+      description: RapiDoc usage with vanila HTML, React and Vue
       isDoc: true
   - A Pet-Store Example:
       img: /assets/images/dog.png
@@ -17,6 +17,10 @@ examples:
             href: ./examples/example2.html
         - Focused:
             href: ./examples/example3.html
+  - Built In Console:
+      img: /assets/images/terminal.png
+      href: /examples/try.html
+      description: Call and Test APIs from RapiDoc
   - Dark & Light Themes:
       img: /assets/images/dark-n-light.png
       description: An example showing how RapiDoc renders an sample Pet-Store OpenAPI spec
@@ -62,10 +66,6 @@ examples:
   - Schema & Example Views:
       href: /examples/schema-tab-default.html
       description: Define your default view Schema or Example
-  - Built In Console:
-      img: /assets/images/terminal.png
-      href: /examples/try.html
-      description: Call and Tes API from the document
   - Navigation Item Spacing:
       href: /examples/schema-tab-default.html
       description: >
@@ -84,7 +84,133 @@ examples:
       img: /assets/images/markdown.png
       href: /examples/markdown.html
       description: Supports markdown syntax. 
+  - Markdown Headings in Navigation Bar:
+      href: /examples/markdown-headings.html
+      description: Conver headings in Markdown to links on navigation bar
+  - Tags with Focused mode:
+      href: /examples/markdown-headings.html
+      description: Tags in focused mode expand/collapse navigation section
+  - Performance Tips:
+      href: /performance.html
+      description: Tips to improve Performance
+      isDoc: true
   - Links :
       img: /assets/images/link.png
       href: /examples/links.html
       description: Provide External and Internal links to varius sections of document. 
+  - Syntax Highlighting:
+      img: /assets/images/code-highlight.png
+      href: /examples/links.html
+      description: Supports syntax highlighting in markdown for several languages
+  - Code Samples:
+      href: /examples/code-samples.html
+      description: > 
+        Support for <span class="mono yellow small-font"> x-code-samples </span>(vendor extension) in endpoint definition
+  - Endpoint Badges:
+      img: /assets/images/badge.png
+      href: /examples/badges.html
+      description: >
+        Annotate endpoints with short color coded labels using <span class="mono yellow small-font">x-badges</span> vendor extension
+  - Add Your Examples:
+      href: /examples/examples-multiple.html
+      description: Provide multiple request and response examples for your APIs
+  - File Upload:
+      href: /examples/file-upload.html
+      description: APIs accepting binary data
+  - Binary Response:
+      href: /examples/binary-response.html
+      description: APIs responding with binary data 
+  - Multipart Formdata:
+      href: /examples/multipart-formdata.html
+      description: Submit mixed content such as file(binary) and plain-text using multipart-formdata
+  - Multiple Request Body:
+      href: /examples/request-body-multiple.html
+      description: APIs accepting multiple request bodies
+  - Arrange Enpoints Using Tags:
+      href: /examples/arrange-by-tags.html
+      description: Tags can be used to arrange navigation section
+  - Dynamic Parameters:
+      description: Parameters need not be predefined in the Spec. They can be dynamic as well.
+      subExamples:
+        - Query Params:
+            href: /examples/dynamic-query-params.html
+        - Form Params:
+            href: /examples/dynamic-form-params.html
+  - Advanced Search:
+      href: /examples/search-by-params.html
+      description: Take control of searching by enabeling/disabeling advanced search feature
+  - OAuth:
+      href: /examples/oauth-demo.html
+      description: Basic demonstration of OAuth support in RapiDoc
+  - OAuth Setup:
+      href: /oauth-setup.html
+      description: How to setup OAuth with RapiDoc
+      isDoc: true
+  - OAuth Extensions:
+      href: /examples/oauth-vendor-extension.html
+      description: >
+        Pre fill <span class="mono small-font">client-id & client-secret</span> with vendor extension 
+        <span class="mono yellow small-font">x-client-id</span> and <span class="mono yellow small-font">x-client-secret</span>, 
+        and pre select desired scopes with vendor extension <span class="mono yellow small-font">x-default-scopes</span>
+  - Authentication (Multiple):
+      href: /examples/auth.html
+      description: Demonstrate various and complex authentication setup for APIs
+  - API Key as RapiDoc Attribute:
+      href: /examples/api-key.html
+      description: Declaratively provide API Key as RapiDoc Attribute, Which can further be programatically altered
+  - Additional Properties:
+      href: /examples/additional-props.html
+      description: Apart from fixed predefined properties, schema can contain additional properties
+  - Mixing HTML:
+      href: /mix-html.html
+      isDoc: true
+  - Embed RapiDoc In HTML:
+      href: /examples/example4.html
+      description: <span class="mono yellow small-font"> &lt;rapi-doc&gt; </span> element can co-exist with other HTML content
+  - Embed HTML In RapiDoc:
+      href: /examples/mix-html.html
+      description: Custom HTML content can be inserted in various sections of RapiDoc
+  - JSON Object as OpenAPI Spec:
+      href: /examples/example9.html
+      description: >
+        Programmatically load a JSON object
+        <span class="yellow"> *should not contain external JSON refs</span>
+  - Define API server using template:
+      href: /examples/server-vars.html
+      description: Define API server using templates and variables, to dynamically connect to different servers
+  - Callback:
+      img: /assets/images/callback.png
+      href: /examples/callback.html
+      description: Sample API with <span class="yellow small-font bold"> CALLBACK </span> definition
+  - Webhook:
+      img: /assets/images/webhook.png
+      href: /examples/open-api-3-1.html
+      description: Sample API with <span class="yellow small-font bold"> WEBHOOK </span> definition
+  - Multiple DataTypes:
+      href: /examples/open-api-3-1.html
+      description: OpenAPI 3.1.0 allows each field to have multiple data-types in accordance to JSON schema standard
+  - Spec split into multiple files:
+      img: assets/images/multifile.png
+      href: /examples/multi-datatypes.html
+      description: Large specs split into multiple files referring each other with JSON refs
+  - RapiDoc Mini:
+      href: /rapidoc-mini.html
+      description: Pluck selected APIs from OpenAPI Spec and integrate into your own blogs and documentations
+      isDoc: true
+  - Schema Composition:
+      description: Compose complex schema using the following
+      subExamples:
+        - ONE OF:
+            href: /examples/oneof.html
+        - ANY OF:
+            href: /examples/anyof.html
+        - ALL OF:
+            href: /examples/allof.html
+  - Mock API:
+      href: /examples/mock.html
+      description: Using a Mocking API service performing realtime request and response
+  - Playground:
+      img: /assets/images/playground.png
+      href: /examples/api-demo.html
+      description: Demo showing various RapiDoc configuration options 
+
