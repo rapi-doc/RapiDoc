@@ -43,20 +43,21 @@
  
  /* Code blocks */
  pre[class*="language-"] {
-	 padding: 1em;
-	 margin: .5em 0;
+	 padding: 1rem;
+	 margin: .5rem 0;
 	 overflow: auto;
  }
  
  :not(pre) > code[class*="language-"],
  pre[class*="language-"] {
-	 background:#1A1A1C;
+	 background:#0a0a0a;
+	 font-size:.88rem;
  }
  
  /* Inline code */
  :not(pre) > code[class*="language-"] {
-	 padding: .1em;
-	 border-radius: .3em;
+	 padding: .1rem;
+	 border-radius: .3rem;
  }
  
  .token.comment,

@@ -33,7 +33,7 @@ import '../styles/table.css';
         <li>If you are using version 2 of OpenAPI spec (swagger 2.0), then pre convert it to OpenAPI 3.x. 
           When you provide a swagger 2.0 spec to RapiDoc, it attempts to convert it into OpenAPI 3.x which is a very high resource consuming operation.
         </li>
-        <li> Use <span class="mono blue">render-style as "view" or "focused"</span>
+        <li> Use <span class="mono yellow">render-style as "view" or "focused"</span>
           these rendering styles are very fast as they use lazy rendering of the views
         </li>
 
@@ -41,30 +41,32 @@ import '../styles/table.css';
     </p>
 
     <table class="m-table">
-      <tr> <th style="text-align:left">A large spec is used for the below performance test cases</th></tr>
+      <tr> 
+        <th style="text-align:left">A large spec is used for the below performance test cases</th>
+      </tr>
       <tr>
-        <td class="mono-bold"> 
-          <a href="./tests/perf-v2.html">Swagger 2.0 (<span style="color:orangered">CAUTION !!! </span>- browser may become unresponsive ) </a> 
-          <span class="gray descr"> Most of the time is taken by swagger 2 to OpenAPI conversion</span>  
+        <td> 
+          <a href="./tests/perf-v2.html">Swagger 2.0 (Slow Performance)</a> 
+          <span> Most of the time is taken by swagger 2 to OpenAPI conversion</span>  
         </td>
       </tr>
       <tr>
-        <td class="mono-bold"> 
+        <td> 
           <a href="./tests/perf-v3-read.html">OpenAPI 3.0 - Read Mode (okay performance)</a> 
-          <span class="gray descr"> The above spec pre-converted to OpenAPI 3 - read-mode renders everything in one large page, resulting into very large DOM, the user interactions like expand collapse are not much snappier</span>  
+          <span> The above spec pre-converted to OpenAPI 3 - read-mode renders everything in one large page, resulting into very large DOM, the user interactions like expand collapse are not much snappier</span>  
         </td>
       </tr>
 
       <tr>
-        <td class="mono-bold"> 
+        <td> 
           <a href="./tests/perf-v3-view.html">OpenAPI 3.0 - View Mode (fast) </a> 
-          <span class="gray descr">initial load is quick and user interaction is snappy, DOM is a bit larger than focused mode but very small compared to read mode</span>  
+          <span>initial load is quick and user interaction is snappy, DOM is a bit larger than focused mode but very small compared to read mode</span>  
         </td>
       </tr>
       <tr>
-        <td class="mono-bold"> 
+        <td> 
           <a href="./tests/perf-v3-focused.html">OpenAPI 3.0 - Focused Mode (fastest)</a> 
-          <span class="gray descr">loads only the section that user is viewing, resulting into a small DOM footprint and snappier interactions</span>  
+          <span>loads only the section that user is viewing, resulting into a small DOM footprint and snappier interactions</span>  
         </td>
       </tr>
     </table>

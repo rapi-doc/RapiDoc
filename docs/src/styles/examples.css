@@ -1,4 +1,4 @@
-a { color:#0055fd; text-decoration: none;}
+a { color:var(--link-color); text-decoration: none;}
 .btn {
   width: 90px;
   height: 32px;
@@ -26,17 +26,6 @@ a { color:#0055fd; text-decoration: none;}
     line-height: normal;
   }
 }
-.txt {
-  width: 100px;
-  height: 30px;
-  font-size:13px;
-  background-color: #333;
-  border: 1px solid #47AFE8;
-  color: #fff;
-  padding:0 8px;
-  margin: 0 2px;
-  border-radius: 2px;
-  outline:none;
-}
+
 
 

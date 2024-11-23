@@ -6,11 +6,12 @@
   border: 1px solid var(--border-color);
   border-radius: 4px;
   margin: 8px 0 0 0;
-  font-size: 12px;
+  font-size: 1rem;
   tr:hover {
     background-color: #222222aa;
   }
   & th {
+    font-size: .9rem;
     padding: 10px 8px;
     background-color: #55555588;
     font-weight:800;
@@ -19,11 +20,11 @@
   & td {
     padding: 8px;
     vertical-align: baseline;
-    border-bottom: 1px solid #222;
+    border-bottom: 1px solid var(--border-color);
   }
   /* Code block inside table */
-  & pre {
-    max-width:var(--code-block-width);
+  & pre[class*="language-"] {
+    max-width: calc(var(--code-block-width) - 100px);
     border:1px solid var(--border-color);
     margin-bottom: 24px;
   }
@@ -35,12 +36,14 @@
     list-style-type: square;
   }
   & .name-col {
+    font-size: .85rem;
     text-align: right;
     overflow-wrap: anywhere;
     width: 120px;
   }
   
   & .default-col {
+    font-size: .85rem;
     width: 80px;
     text-align: left;
     border-left: 1px solid var(--border-color-muted);
@@ -57,40 +60,31 @@
 
 @media only screen and (min-width: 768px) {
   .m-table {
-    font-size: 13px;
-    & th { font-size: 15px !important; }
-    & pre { max-width:var(--code-block-width);}
     & .name-col { 
-      width: 200px;  
+      width: 200px;
       overflow-wrap: break-word; 
     }
-    & .default-col { width: 120px; }
+    & .default-col { 
+      width: 120px; 
+    }
     & .description-col { 
       min-width: 150px; 
-      font-size: 14px;
     }
   }
 }
 
-
 @media only screen and (min-width: 1024px) {
   .m-table {
-    font-size: 13px;
-    & th { font-size: 15px !important; }
-    & pre { max-width:var(--code-block-width);}
     & .name-col { 
       width: 320px;
-      font-size: 14px;
       overflow-wrap: break-word; 
     }
     & .default-col { 
       width: 150px; 
-      font-size: 14px;
       overflow-wrap: break-word; 
     }
     & .description-col { 
       min-width: 200px;
-      font-size: 16px;
     }
   }
 }
