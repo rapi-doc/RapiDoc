@@ -4,11 +4,203 @@ import PageBanner from '../components/PageBanner.astro';
 ---
 
 <GlobalLayout>
+  <script slot="script" is:inline type="module" src="/rapidoc/rapidoc-min.js"></script>
   <PageBanner slot="topbar" page="example-list" showWaves = {true} />
   <main>
     <h1>Rapidoc Mini</h1>
     <hr style="margin-bottom:2rem;"/>
-  </main>
+    <p> 
+      <span class="mono yellow">{`<rapi-doc-mini>`}</rapi-doc-mini></span> 
+      a unique way to expose your API documentation which can seamlesly integrate with any HTML based documetation.
+      <p>
+        There are various styles and needs how one would like to document their APIs. 
+        such as 
+        <ul>
+          <li>
+            All the APIs are documented in one central place. This is where <span class="mono yellow">{`<rapi-doc>`}</span> fits in. 
+            However for the rest of bullets listed below <span class="mono yellow">{`<rapi-doc-mini>`}</span> is your friend
+          </li>
+          <li>
+          Expose just a few important APIs such as authentication etc as a part of a blog, to provide an initial understanding to your audience
+          </li>
+          <li>
+            A step by step tutorial where in each step shows you a few APIs 
+          </li>
+          <li>
+            Or you are explaining a business case which uses microservices, 
+            where each microservice has its own APIs and the ask is to pick few APIs from each of theses microservice show how they work together in a single document
+          </li>
+        </ul>
+      </p>  
+    </p>
+
+    <h2>Usage in a blog style writing</h2>
+    <p style="flex:1">
+      It is fairly common to write specifically about few APIs to provide an initial understanding to your users. 
+      However in those cases you run the risk of your writeup getting outdated when the actual API changes its shape.
+    </p>
+    <p>
+      <span class="mono yellow">{`<rapi-doc-mini>`}</span> 
+      gives you this amazing capability to extract and expose any part of you Open-API spec including a built in API console to try out. 
+      As an example shown below is how I am exposing a set of APIs in this writeup. 
+      It is a very powerful and yet very easy to use tool that comes with many advantages, 
+      inluding syntax highlighting, built-in console, markdown support and many others. 
+      <br/>
+      <b>Below is the markup that you will put in your html </b>
+      <br/>
+      <pre class="code-block" style="width:575px"><code class="language-html">{`<rapi-doc-mini
+  spec-url = "https://petstore.swagger.io/v2/swagger.json"
+  paths-expanded = "false"
+  theme = "dark"
+  bg-color = "#1a1a1a"
+> </rapi-doc-mini>`}</code></pre>
+      Above HTML snippet will result in generating an API doc as shown below. Notice how it blends seamlessly with this writeup as if its a part of this page. 
+      Go ahead and play with the below APIs, make live request and watch the responses, all from this very blog.
+    </p>
+    <rapi-doc-mini
+      style= "min-width:600px; margin: 1.5rem 0"
+      spec-url="./specs/mock.yaml"
+      theme = "dark"
+      paths-expanded = "false"
+      bg-color = "#1a1a1a"
+    > </rapi-doc-mini>
+    <br/>
+    <h3> Placement, Resize and Style</h3>
+    <span>
+      If needed it can be resized to fit the layout needs. 
+      Just like how you would use an <span class="mono yellow">{`<img>`}</span> tag, in the same way you can use <b>{`<rapi-doc-mini>`}</b>
+      and place and style per your needs.<br/>
+      like shown below, I reduced its width, applied a thick border and attached some shadow
+    </span>
+    <br/><br/>
+    <rapi-doc-mini
+      style = "width:600px; border-radius:8px; border: 2px solid var(--color-yellow); padding:8px;"
+      spec-url="./specs/mock.yaml"
+      theme = "dark"
+      bg-color = "#1a1a1a"
+      schema-style = 'table'
+      layout = "column"
+      paths-expanded = "false"
+    > </rapi-doc-mini>
+   
+    <br/><br/>
+    <h3>Pick only specific APIs from OpenAPI spec</h3>
+    Instead of showing entire open-api spec you can just extract and choose to show what you need to show. This is done using <b>match-paths</b> attribute.
+    <br/>Example below uses the same OpenAPI spec as we used above, but showing only the paths that we intend to
+
+    <pre class="code-block" style="width:590px"><code class="language-html">{`<rapi-doc-mini
+  style = "width:600px; border:1px solid tomato; border-radius:8px; padding:8px"
+  spec-url = "../specs/mock.yaml"
+  theme = "dark"
+  bg-color = "#1a1a1a"
+  paths-expanded = "false"
+  match-paths = "post /users"
+> </rapi-doc-mini>`}</code></pre>
+    <br/> 
+    <rapi-doc-mini
+      style= "min-width:600px; width:600px; border:1px solid tomato; border-radius:8px; padding:8px"
+      spec-url="./specs/mock.yaml"
+      theme = "dark"
+      bg-color = "#1a1a1a"
+      paths-expanded = "false"
+      match-paths = "post /users"
+    > </rapi-doc-mini>
+    <br/>
+    <h3>More complex RegEx based filtering of API is possible too (match-paths & match-type)</h3>
+    <span>
+      Here we are using regular RegEx to select the paths which is either 
+      <span class="mono yellow"> get /users/{`{userId}`}</span> &nbsp;&nbsp;or&nbsp;&nbsp; 
+      <span class="mono yellow"> post /users</span>
+    </span>
+    <pre class="code-block" style="width:590px"> <code class="language-html">{`<rapi-doc-mini
+  style= "width:600px; border:1px solid #444;"
+  spec-url = "./specs/mock.yaml"
+  theme = "dark"
+  bg-color = "#1a1a1a"
+  schema-style = 'table'
+  paths-expanded = "false"
+  match-paths = "^get /users/\{userId\}$|^post /users$"
+  match-type = "regex"
+> </rapi-doc-mini>`}</code></pre>
+
+    <br/> 
+    <rapi-doc-mini
+      style= "min-width:600px; width:600px; border-radius:8px; border:1px solid var(--color-salmon); padding:8px;"
+      spec-url="./specs/mock.yaml"
+      theme = "dark"
+      bg-color = "#1a1a1a"
+      schema-style = 'table'
+      paths-expanded = "false"
+      match-paths = "^get /users/\{userId\}$|^post /users$"
+      match-type = "regex"
+    > </rapi-doc-mini>
+
+    <h3>Show it Minimzed or Expanded</h3>
+    <span>
+      If expand/collapse is not your style, then have it always expanded and make it more natural and integrated part of your writeup.
+    </span>  
+    <br> Use the attribute <span class="mono yellow">paths-expanded = "true"</span> to achive this <br/><br/>
+  
+    <rapi-doc-mini
+      style= "min-width:600px; width:600px;"
+      spec-url="./specs/mock.yaml"
+      theme = "dark"
+      bg-color = "#1a1a1a"
+      schema-style = 'table'
+      sort-endpoints-by = "method"
+      layout = "column"
+      paths-expanded = "true"
+      match-paths = "post /users"
+    > </rapi-doc-mini>
+    
+
+  <h3>Include APIs from multiple specs</h3>
+  <p>
+    Pretty common with micro services, where you like to explain a business flow by consuming APIs from multiple services. 
+    Each of these services may be having their own OpenAPI spec. 
+    The ask is to pluk some APIs from different services and makeup a story. <br>
+    Do not rewrite the API specific functionality again, make use of the existing OpenAPI spec and Use <span class="mono yellow">{`<rapi-doc-mini>`}</span> to pluck and document APIs from differenct specs
+  </p>
+  <rapi-doc-mini
+    style= "width:600px; border-radius: 8px; border: 1px solid var(--color-yellow); padding: 5px"
+    id = "thedoc" 
+    spec-url="./specs/code-highlight.yaml"
+    theme = "dark"
+     bg-color = "#1a1a1a"
+    schema-style = 'table'
+    sort-endpoints-by = "method"
+    layout = "column"
+    match-paths = "get /code"
+  > </rapi-doc-mini>
+
+  <h3>Use a different theme </h3>
+  <rapi-doc-mini
+    style= "width:600px; border-radius: 8px; border: 1px solid var(--color-yellow); padding: 5px"
+    id = "thedoc" 
+    spec-url="./specs/petstore.json"
+    theme = "dark"
+    bg-color = "#44506999"
+    text-color = "#C9D7DD"
+    schema-style = 'table'
+    sort-endpoints-by = "method"
+    layout = "column"
+    match-paths = "/store"
+  > </rapi-doc-mini>
+
+  <h3>Handling non available specs</h3>
+  <rapi-doc-mini
+    style= "width:600px; border-radius: 4px; margin-bottom: 16px;"
+    theme = "dark"
+    id = "thedoc" 
+    spec-url="./specs/fake-non-existing.json"
+  > </rapi-doc-mini>
+  <rapi-doc-mini
+    style= "width:600px; border-radius: 4px; margin-bottom: 16px;"
+    theme = "light"
+    id = "thedoc" 
+    spec-url="./specs/fake-non-existing.json"
+  > </rapi-doc-mini>
+</main>
 </GlobalLayout>
 
 <style>

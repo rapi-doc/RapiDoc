@@ -32,7 +32,7 @@
 body, button {
   font-family: 'Lato', 'Open Sans', sans-serif;
   font-size: 14px;
-  line-height: 24px;
+  line-height: 1.6rem;
   color: var(--fg-color);
   background: var(--bg-color);
   font-weight: 500;
@@ -46,7 +46,7 @@ main {
   padding-bottom: 3rem;
 }
 a {
-  color: #3e83bb;
+  color: #6ebcfc;
   text-decoration: none;
   &:hover {
     text-decoration: none;
