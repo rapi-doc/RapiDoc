@@ -1,21 +1,19 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
-    <script src="./load-rapidoc-and-other-common-scripts.js"></script>
-  </head>
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+import { getSpecUrl } from '../../utils/getSpecUrl';
+const specUrl = getSpecUrl(Astro.url);
+---
 
-  <body>
-    <rapi-doc
-      id = "thedoc"
-      show-info = "true"
-      spec-url = "../specs/petstore_extended.yaml"
-      show-header="false" 
-      render-style="focused"
-      allow-try="false" 
-      show-method-in-nav-bar = "as-colored-block"
-    > 
+<ExampleLayout>
+  <rapi-doc
+    spec-url={specUrl}
+    id = "thedoc"
+    show-info = "true"
+    show-header="false" 
+    render-style="focused"
+    allow-try="false" 
+    show-method-in-nav-bar = "as-colored-block"
+  >
     <div slot="nav-logo">
       <div style="text-align: center; padding: 0 0 8px 0; color:#47AFE8"> Navigation Item Text </div>
       <div style="width:100%; display: flex;justify-content: center;">
@@ -37,5 +35,4 @@
       </div>
     </div>
   </rapi-doc>
-  </body>
-</html>
+</ExampleLayout>

@@ -66,14 +66,14 @@ examples:
   - Schema & Example Views:
       href: /examples/schema-tab-default.html
       description: Define your default view Schema or Example
-  - Navigation Item Spacing:
-      href: /examples/schema-tab-default.html
+  - Show Components:
+      href: /examples/show-components.html
       description: >
-        Define how would you like to space navigation items <br/>
-        <span class="mono yellow small-font"> Compact | Default | Relaxed </span>
+        Apart from the Main Spec you can also display Components definitions. 
+        (Available only in  <span class="mono yellow small-font">focused</span> mode)
   - Navigation Styles:
       img: /assets/images/navbar.png
-      href: /examples/nav-item-with-method.html
+      href: /examples/nav-styles.html
       description: >
         Define content and styling of Navigation with ease
   - Slots - HTML Injection:
