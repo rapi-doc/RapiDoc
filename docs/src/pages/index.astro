@@ -15,13 +15,322 @@ import PageBanner from '../components/PageBanner.astro';
       </div>
     </div>
   </PageBanner>
-  <main>
-    <h1>Home</h1>
+
+  <main style="background: linear-gradient(#000000 0%, #111111 30vh, #292929 100vh);" >
+    <div class="features" id="features" >
+      <div class="feature">
+        <object type="image/svg+xml" data="/assets/images/webcomponent.svg" style="width:64px; height:64px;"> </object>
+        <div class="feature-info">
+          <div class="feature-title"> Web Component Standard</div>
+          <div class="feature-descr"> 
+            Free of any frameworks, setups, configs, build steps or packaging.
+            Can be used with any framework or just with vanilla javascript
+          </div>
+        </div>
+      </div>
+  
+      <div class="feature">
+        <object class="feature-icon" type="image/svg+xml" data="/assets/images/easy.svg"> </object>
+        <div class="feature-info">
+          <div class="feature-title"> Easy Usage</div>
+          <div class="feature-descr"> 
+            Use It just like any other HTML Tag, Change its attribute using JavaScript and see
+            it react to those changes. Basic knowledge of HTML is all that's required 
+          </div>
+        </div>
+      </div>
+  
+      <div class="feature">
+        <object class="feature-icon" type="image/svg+xml" data="/assets/images/mask.svg"> </object>
+        <div class="feature-info">
+          <div class="feature-title"> Fully Customizable</div>
+          <div class="feature-descr"> 
+            Style it to your heart's content. Change font, logo, colors and theme. 
+            Inject external HTML or embed into another HTML document.
+          </div>
+        </div>
+      </div>
+      <div class="feature">
+        <object class="feature-icon" type="image/svg+xml" data="/assets/images/fast.svg"> </object>
+        <div class="feature-info">
+          <div class="feature-title"> Small And Fast</div>
+          <div class="feature-descr"> 
+            Minimal dependencies, no runtime and no virtual DOM ensures lowest memory consumption, 
+            Just native and raw speed of modern browser.
+          </div>
+        </div>
+      </div>
+  
+      <div class="feature">
+        <object class="feature-icon" type="image/svg+xml" data="/assets/images/gears.svg"> </object>
+        <div class="feature-info">
+          <div class="feature-title"> Seamlessly interoperable</div>
+          <div class="feature-descr"> 
+            Loved by tech writers, designers, dev-ops, testers and developers alike, 
+            due to its simplicity, interoperability and powerful features.
+            No special build-steps, runtime or framework required
+          </div>
+        </div>
+      </div>
+  
+      <div class="feature">
+        <object  class="feature-icon" type="image/svg+xml" data="/assets/images/console.svg"> </object>
+        <div class="feature-info">
+          <div class="feature-title"> Integrated Console</div>
+          <div class="feature-descr"> 
+            Comes with built in console to Try out the APIs. Supports authentication mechanism. 
+            No validation ensures, you can test negative cases.
+          </div>
+        </div>
+      </div>
+  
+      <div class="feature">
+        <object class="feature-icon" type="image/svg+xml" data="/assets/images/mouse.svg"> </object>
+        <div class="feature-info">
+          <div class="feature-title"> Better Usability</div>
+          <div class="feature-descr"> 
+              Browse the spec with minimal clicks. All models & examples are expanded by default, eliminates the need to click and reveal.
+              Requests and Responses are pre-populated with sample data.
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--     
+    <div style="width:100%; height:500px">Div1</div>
+    <div style="width:100%; height:500px">Div2</div>
+    -->
+
+    <!-- Slider 
+    <div class="section" style="flex-direction: column;align-items: center;">
+      <h2 style="text-align:center;"> Create your own themes with simplicity </h2>
+
+      <div style="display:flex;justify-content: space-around;">
+        <div id="slider" class="beer-slider shadow3" data-beer-label="">
+          <img src="/assets/images/dark_ss.png" alt="">
+          <div class="beer-reveal" data-beer-label="">
+            <img src="/assets/images/light_ss.png" alt="">
+          </div>
+        </div>
+      </div>
+      <div style='margin-top:32px; font-size:20px'>
+        <a href="./examples/themes.html"> Click for demo showing various color schemes </a> 
+      </div>
+    </div>
+    -->
+
+    <div class="section" style="flex-direction: column;">
+      <div id="comparison">
+        <figure>
+          <div id="divisor"></div>
+        </figure>
+        <input id="slider" type="range" min="0" max="100" value="50" oninput="moveDivisor()">
+      </div>
+    </div>
+
+
+
+    <!-- Section 1 -->
+    <div class="section" style="background-color: #333333;">
+      <div class="section-left section-text">
+        <h2> Match Your Brand</h2>
+        <div> Put your own Logo, Change Header Color, Fonts, Button and Text Colors to match your Brand, 
+          in an extremely easy way without writing any css/js/html. 
+          You can also control them using JavaScript to dynamically change 
+        </div>
+      </div>
+      <img class="section-right section-img shadow3" src="/assets/images/rapi-brand.png" />
+    </div>
+    
+    <div class="section" style="background-color: #222222;">
+      <img class="section-left section-img shadow3" src="/assets/images/rapi-mode-read.png" />
+      <div class="section-right section-text">
+        <h2> Multiple Rendering Styles</h2>
+        <div> While the default rendering style (view mode) is loved by programmers for quick exploration, 
+          RapiDoc also gives you an option to present API documentation to external audience which is more suitable to read like an Wiki
+        </div>
+      </div>
+    </div>
+  
+    <div class="section" style="background-color: #333333;">
+      <div class="section-left section-text">
+        <h2> Supports Markdown</h2>
+        <div> 
+          Comes with a builtin markdown rendering engine, 
+          Enhance your API documentation even more by including markdown syntax. 
+          Add tables, lists, code-snippets, and many other formatting options.
+        </div>
+      </div>
+      <img class="section-right section-img shadow3" src="/assets/images/rapi-markdown.png" />
+    </div>
+  
+    <div class="section" style="background-color: #555;">
+      <div class="section-center" style="margin:32px 0; ">
+        <div style="display:flex; flex-direction: column;align-items: center; text-align: center;">
+          <h2 style="margin-top:0"> Two beautiful ways to show object models</h2>
+          <div class="section-text" style="text-align: center;">
+            RapiDocs ability to show object models is loved by many. 
+            Allows two distinctive styles, tabular and tree, both are suited for 
+            large and small schemas representation that allows object/array folding.
+          </div>
+        </div>  
+        <div style="display: flex; justify-content: center; gap:8px; flex-wrap: wrap; margin:16px; ">
+          <img id='schema-table-img' class="shadow3" src="/assets//images/rapi-schema-table.png" />
+          <img id='schema-tree-img'class="shadow3" src="/assets/images/rapi-schema-tree.png" />
+        </div>
+      </div>  
+    </div>
+
   </main>  
 </GlobalLayout>
-
-<style>
-  :root {
-    --bg-color:#000;
+<script>
+  const divisor = document.getElementById("divisor"),
+  slider = document.getElementById("slider") as HTMLInputElement;
+  slider.addEventListener("input", function() {
+    moveDivisor();
+  })
+  function moveDivisor() { 
+    divisor.style.width = `${slider.value}%`;
   }
+</script>
+<style>
+:root {
+  --bg-color:#000;
+}
+main {
+  margin: 32px 0;
+  background-size:100vw 100px;
+}
+
+.features {
+  display:flex;
+  flex-wrap:wrap;
+  margin: 0 32px;
+  justify-content: center;
+  & .feature {
+    display:flex;
+    flex:1;
+    max-width:320px;
+    min-width:320px;
+    margin:0 8px 24px 8px;
+    & .feature-icon {
+      width:4rem;
+      height:4rem;
+    }
+    & .feature-info {
+      display:flex;
+      flex-direction: column;
+      margin-left:12px;
+      text-align:left;
+      & .feature-title {
+        color: var(--color-yellow);
+        font-size:1.2rem; 
+      }
+      & .feature-descr { 
+        font-size:14px; 
+      }
+    }
+  }
+}
+.section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 32px;
+  flex-direction:column;
+  & .section-img { 
+    width: 300px; 
+  }
+  & .section-text {
+    margin: 32px;
+    text-align: center;
+  }
+}
+#schema-table-img, #schema-tree-img  { height: 200px; }
+/* Slider Start */
+
+div#comparison { 
+  width: 800px;
+  height: 531px;
+  max-width: 800px;
+  max-height: 600px;
+  overflow: hidden; 
+}
+div#comparison figure { 
+  background-image: url(/assets/images/dark_ss.png); 
+  background-size:cover;
+  position: relative;
+  width: 100%; 
+  height: 100%;
+  margin: 0; 
+}
+div#comparison figure div { 
+  background-image: url(/assets/images/light_ss.png);
+  background-size: cover;
+  position: absolute;
+  width: 50%; 
+  height: 100%;
+  overflow: hidden;
+  bottom: 0;
+}
+
+input[type=range] {
+  -webkit-appearance:none;
+  -moz-appearance:none;
+  position: relative;
+  top: -100px; left: -8px;
+  background-color: rgba(255,255,255,0.1);
+  width: 102%; 
+}
+input[type=range]:focus { 
+  outline: none; 
+}
+input[type=range]:active { 
+  outline: none;  
+}
+
+input[type=range]::-moz-range-track { 
+  -moz-appearance:none;
+  height:50px;
+  width: 98%;
+  background-color: #00000aa;
+  position: relative;
+  outline: none;    
+}
+
+input[type=range]::active { 
+  border: none; 
+  outline: none;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none;
+  -moz-appearance: none;
+  width: 36px; 
+  height: 36px;  
+  background: #7737a6;
+  border-radius: 100%;
+}
+/* Slider End */
+
+@media only screen and (min-width: 768px) {
+  main { margin: 128px 0; }
+  .section {
+    padding: 80px 32px;
+    flex-direction:row;
+    & .section-img { width: 500px; }
+    & .section-text { text-align: left; }
+  }
+  #schema-table-img, #schema-tree-img  { height: 250px; }
+}
+
+@media only screen and (min-width: 1024px) {
+  main { margin: 300px 0 32px 0; }
+  .section {
+    padding: 120px 64px;
+    flex-direction:row;
+    & .section-img { width: 700px; }
+    & .section-text { text-align: left; }
+  }
+  #schema-table-img, #schema-tree-img  { height: 340px; }
+}
 </style>

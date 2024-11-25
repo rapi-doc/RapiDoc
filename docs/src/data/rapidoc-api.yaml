@@ -553,11 +553,13 @@ Extensions:
       allowed: ["true", "false"]
       description: Use this vendor-extension for each request parameter to indicate if the provided example is displayed on the UI
     - name: x-client-id
-      rowspan: 4
-      description: Use these vendor-extensions to pre fill
+      description: Use this vendor-extensions to pre fill <span class="yellow mono"> client-id </span> in RapiDoc UI
     - name: x-client-secret
+      description: Use this vendor-extensions to pre fill <span class="yellow mono"> client-secret </span> in RapiDoc UI
     - name: x-default-scopes
+      description: Use this vendor-extensions to pre fill <span class="yellow mono"> default-scopes </span> in RapiDoc UI
     - name: x-receive-token-in
+      description: This is to define where the token is received in RapiDOc UI  <span class="yellow mono">(header or request-body)</span>
     - name: x-pkce-only
       allowed: ["true", "false"]
-      description: when true, client-secret wont be send from UI
+      description: when true, client-secret wont be send from RapiDoc UI

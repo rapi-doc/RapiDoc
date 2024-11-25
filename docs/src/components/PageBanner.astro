@@ -33,12 +33,12 @@ const { page, height, showWaves = false, hiddenOverflow = true } = Astro.props;
     <!--Waves Container-->
     <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
       <defs>
-        <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+        <path id="wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
       </defs>
       <g class="parallax">
-        <use xlink:href="#gentle-wave" x="48" y="0" fill="color-mix(in srgb, var(--bg-color) 20%, transparent)" />
-        <use xlink:href="#gentle-wave" x="48" y="3" fill="color-mix(in srgb, var(--bg-color) 70%, transparent)" />
-        <use xlink:href="#gentle-wave" x="48" y="7" fill="color-mix(in srgb, var(--bg-color) 100%, transparent)" />
+        <use xlink:href="#wave" x="48" y="0" fill="color-mix(in srgb, var(--bg-color) 20%, transparent)" />
+        <use xlink:href="#wave" x="48" y="3" fill="color-mix(in srgb, var(--bg-color) 50%, transparent)" />
+        <use xlink:href="#wave" x="48" y="7" fill="color-mix(in srgb, var(--bg-color) 100%, transparent)" />
       </g>
     </svg>
     <!--Waves end-->
@@ -89,18 +89,19 @@ const { page, height, showWaves = false, hiddenOverflow = true } = Astro.props;
 .parallax {
   & > use {
     animation: animate-wave cubic-bezier(.55,.5,.55,.5);
+    animation-iteration-count: 1.55; /* keep the animation count always at "*.55" for a smooth finish */
   }
   & > use:nth-child(1) {
     animation-delay: -2s;
-    animation-duration: 122s;
+    animation-duration: 12s;
   }
   & > use:nth-child(2) {
     animation-delay: -8s;
-    animation-duration: 128s;
+    animation-duration: 18s;
   }
   & > use:nth-child(3) {
     animation-delay: -4s;
-    animation-duration: 124s;
+    animation-duration: 14s;
   }
 }
 @keyframes animate-wave {

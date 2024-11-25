@@ -65,21 +65,21 @@ a {
 h1 { 
   font-size: 2.3rem;
   font-weight:700; 
-  margin-block-start: 2rem;
+  margin-block-start: 2.5rem;
   margin-block-end: 0.5rem;
   color: var(--fg-color-bright);
 }
 h2 { 
   font-size: 1.6rem;
   font-weight:500; 
-  margin-block-start: 1.25rem;
+  margin-block-start: 2rem;
   margin-block-end: 0.4rem;
   color: var(--fg-color-bright);
 }
 h3 { 
   font-size: 1.2em;
   font-weight:400; 
-  margin-block-start: 1rem;
+  margin-block-start: 1.5rem;
   margin-block-end: 0.3rem;
 }
 p {
