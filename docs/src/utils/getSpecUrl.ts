@@ -1,3 +1,5 @@
+// Gets the associatec specs url baed on the path (page name). 
+// If the page Name has a mapping then uses the map to get the spec Name else it is {pageName}.yaml
 const exampleToSpecMap = {
   "example1": "example1.json",
   "example2": "example2.yaml",

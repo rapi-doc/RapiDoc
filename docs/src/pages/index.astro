@@ -95,28 +95,6 @@ import PageBanner from '../components/PageBanner.astro';
         </div>
       </div>
     </div>
-    <!--     
-    <div style="width:100%; height:500px">Div1</div>
-    <div style="width:100%; height:500px">Div2</div>
-    -->
-
-    <!-- Slider 
-    <div class="section" style="flex-direction: column;align-items: center;">
-      <h2 style="text-align:center;"> Create your own themes with simplicity </h2>
-
-      <div style="display:flex;justify-content: space-around;">
-        <div id="slider" class="beer-slider shadow3" data-beer-label="">
-          <img src="/assets/images/dark_ss.png" alt="">
-          <div class="beer-reveal" data-beer-label="">
-            <img src="/assets/images/light_ss.png" alt="">
-          </div>
-        </div>
-      </div>
-      <div style='margin-top:32px; font-size:20px'>
-        <a href="./examples/themes.html"> Click for demo showing various color schemes </a> 
-      </div>
-    </div>
-    -->
 
     <div class="section" style="flex-direction: column;">
       <div id="comparison">
@@ -126,8 +104,6 @@ import PageBanner from '../components/PageBanner.astro';
         <input id="slider" type="range" min="0" max="100" value="50" oninput="moveDivisor()">
       </div>
     </div>
-
-
 
     <!-- Section 1 -->
     <div class="section" style="background-color: #333333;">
@@ -167,7 +143,7 @@ import PageBanner from '../components/PageBanner.astro';
       <div class="section-center" style="margin:32px 0; ">
         <div style="display:flex; flex-direction: column;align-items: center; text-align: center;">
           <h2 style="margin-top:0"> Two beautiful ways to show object models</h2>
-          <div class="section-text" style="text-align: center;">
+          <div style="text-align: center;">
             RapiDocs ability to show object models is loved by many. 
             Allows two distinctive styles, tabular and tree, both are suited for 
             large and small schemas representation that allows object/array folding.
@@ -178,6 +154,30 @@ import PageBanner from '../components/PageBanner.astro';
           <img id='schema-tree-img'class="shadow3" src="/assets/images/rapi-schema-tree.png" />
         </div>
       </div>  
+    </div>
+
+    <div id="qstart" class="section" style="flex-direction: column; gap:16px;">
+      <h2> Quickstart (<a style="font-size:16px" href="./examples/example2.html">DEMO</a>)</h2> 
+      Just copy the below code and save it in an html file. Then open it using a browser 
+      <pre class="code-block">
+        <code class="language-html">
+          {`
+          !doctype html> <!-- Important: must specify -->
+          <html>
+          <head>
+            <meta charset="utf-8"> <!-- Important: rapi-doc uses utf8 characters -->
+            <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+          </head>
+          <body>
+            <rapi-doc
+              spec-url="https://raw.githubusercontent.com/mrin9/RapiDoc/master/docs/specs/petstore_extended.yaml"
+              theme = "dark"
+            > </rapi-doc>
+          </body>
+          </html>
+          `}
+        </code>
+      </pre>
     </div>
 
   </main>  
@@ -233,19 +233,38 @@ main {
 }
 .section {
   display: flex;
+  position: relative;
   align-items: center;
   justify-content: center;
   padding: 80px 32px;
   flex-direction:column;
+  backdrop-filter: saturate(180%) blur(200px);
+  gap: 3rem;
   & .section-img { 
     width: 300px; 
   }
   & .section-text {
-    margin: 32px;
+    position: relative;
     text-align: center;
+    &::after {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      inset-inline-end: 0;
+      width: 100px;
+      height: 100px;
+      background: #7033f3;
+      border-radius: 100%;
+      filter: blur(2rem);
+      opacity: .5;
+    }
   }
 }
-#schema-table-img, #schema-tree-img  { height: 200px; }
+#schema-table-img, #schema-tree-img  { 
+  width: 300px;
+  height: auto;
+}
 /* Slider Start */
 
 div#comparison { 
@@ -315,22 +334,22 @@ input[type=range]::-webkit-slider-thumb {
 @media only screen and (min-width: 768px) {
   main { margin: 128px 0; }
   .section {
-    padding: 80px 32px;
+    padding: 64px 32px;
     flex-direction:row;
     & .section-img { width: 500px; }
     & .section-text { text-align: left; }
   }
-  #schema-table-img, #schema-tree-img  { height: 250px; }
+  #schema-table-img, #schema-tree-img  { width: 320px; }
 }
 
 @media only screen and (min-width: 1024px) {
   main { margin: 300px 0 32px 0; }
   .section {
-    padding: 120px 64px;
+    padding: 120px 80px;
     flex-direction:row;
     & .section-img { width: 700px; }
     & .section-text { text-align: left; }
   }
-  #schema-table-img, #schema-tree-img  { height: 340px; }
+  #schema-table-img, #schema-tree-img  { width: 360px; }
 }
 </style>
