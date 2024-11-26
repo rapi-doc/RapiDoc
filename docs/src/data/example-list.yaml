@@ -84,9 +84,9 @@ examples:
       img: /assets/images/markdown.png
       href: /examples/markdown.html
       description: Supports markdown syntax. 
-  - Markdown Headings in Navigation Bar:
+  - Markdown Headings in Navigation:
       href: /examples/markdown-headings.html
-      description: Conver headings in Markdown to links on navigation bar
+      description: Convert headings in Markdown to links on navigation bar
   - Tags with Focused mode:
       href: /examples/markdown-headings.html
       description: Tags in focused mode expand/collapse navigation section
