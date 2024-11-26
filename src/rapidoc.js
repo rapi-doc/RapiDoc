@@ -260,10 +260,10 @@ export default class RapiDoc extends LitElement {
         .collapsed .section-tag-body {
           display: none;
         }
-
-        .logo {
+        ::slotted([slot='logo']) {
           height: 36px;
-          width: 36px;
+          width: auto;
+          object-fit: contain;
           margin-left: 5px;
         }
         .only-large-screen-flex,

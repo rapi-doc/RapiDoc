@@ -29,8 +29,11 @@ export default css`
   flex-wrap:nowrap;
   word-break:break-word;
 }
-::slotted([slot=nav-logo]) {
+::slotted([slot='nav-logo']) {
+  height:60px; 
+  width:auto; 
   padding:16px 16px 0 16px;
+  object-fit:contain;
 }
 .nav-scroll {
   overflow-x: hidden;
