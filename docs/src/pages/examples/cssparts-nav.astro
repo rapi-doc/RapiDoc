@@ -1,0 +1,23 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+import { getSpecUrl } from '../../utils/getSpecUrl';
+
+const specUrl = getSpecUrl(Astro.url);
+---
+<ExampleLayout>
+  <rapi-doc
+    id = "thedoc"
+    spec-url = "/specs/petstore-extended.yaml"
+    theme="dark" 
+    primary-color="#f54c47"
+    bg-color="#2e3746"
+    text-color = "#bacdee"
+    show-header = "false"
+  > </rapi-doc>
+</ExampleLayout>
+
+<style>
+  rapi-doc::part(section-navbar) {
+    background: linear-gradient(90deg,#3d4e70, #2e3747);
+  }
+</style>
