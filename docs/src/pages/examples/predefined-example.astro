@@ -6,12 +6,13 @@ const specUrl = getSpecUrl(Astro.url);
 ---
 
 <ExampleLayout>
-  <rapi-doc
+  <rapi-doc 
     id = "thedoc"
     spec-url = {specUrl}
-    show-info = "false"
+    show-info = "true"
     show-header = "false"
-    allow-authentication = 'false'
-    allow-server-selection = 'false'
+    allow-server-selection = "false"
+    allow-authentication = "false" 
+    allow-try = "false" 
   > </rapi-doc>
 </ExampleLayout>

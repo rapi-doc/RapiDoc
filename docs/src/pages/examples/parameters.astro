@@ -8,17 +8,16 @@ const specUrl = getSpecUrl(Astro.url);
 <ExampleLayout>
   <rapi-doc 
     id = "thedoc"
-    spec-url = "/specs/petstore.yaml"
-    show-info = "false"
+    spec-url = {specUrl}
     show-header = "false"
-    allow-authentication = "false" 
+    show-info = "false"
     allow-server-selection = "false"
-    default-schema-tab = "schema"
-    schema-style='table'
+    allow-authentication = "false"
+    render-style = "read"
   > 
 
     <div slot="nav-logo" style="display:flex; flex-direction: column; align-items: center; ">
-      <button class='btn large' style="width:200px" onclick="toggleDefaultSchemaTab()">Toggle Default Schema Tab</button>
+      <button class='btn large' style="width:150px" onclick="toggleReadMode()">Toggle Read Mode</button>
     </div>
 
   </rapi-doc>
@@ -29,11 +28,11 @@ const specUrl = getSpecUrl(Astro.url);
     return document.getElementById("thedoc");
   }
   
-  function toggleDefaultSchemaTab () {
-    if (getRapiDoc().getAttribute('default-schema-tab') === 'example') {
-      getRapiDoc().setAttribute('default-schema-tab', 'schema');
+  function toggleReadMode () {
+    if (getRapiDoc().getAttribute('allow-try') === 'false') {
+      getRapiDoc().setAttribute('allow-try', 'true');
     } else {
-      getRapiDoc().setAttribute('default-schema-tab', 'example');
+      getRapiDoc().setAttribute('allow-try', 'false');
     }
   }
 </script>

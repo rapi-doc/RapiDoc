@@ -187,11 +187,11 @@ examples:
       href: /examples/open-api-3-1.html
       description: Sample API with <span class="yellow small-font bold"> WEBHOOK </span> definition
   - Multiple DataTypes:
-      href: /examples/open-api-3-1.html
+      href: /examples/multi-datatypes.html
       description: OpenAPI 3.1.0 allows each field to have multiple data-types in accordance to JSON schema standard
   - Spec split into multiple files:
       img: assets/images/multifile.png
-      href: /examples/multi-datatypes.html
+      href: /examples/external-refs.html
       description: Large specs split into multiple files referring each other with JSON refs
   - RapiDoc Mini:
       href: /rapidoc-mini.html
