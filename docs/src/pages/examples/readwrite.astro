@@ -8,18 +8,18 @@ const specUrl = getSpecUrl(Astro.url);
 <ExampleLayout>
   <rapi-doc 
     id = "thedoc"
-    spec-url = "/specs/petstore.yaml"
-    show-info = "false"
+    spec-url = {specUrl}
     show-header = "false"
-    allow-authentication = "false" 
+    show-info = "false"
     allow-server-selection = "false"
+    allow-authentication = "false"
+    render-style = "read"
     default-schema-tab = "schema"
-    schema-style='table'
   > 
 
     <div slot="nav-logo"  style="width:100%; display: flex; flex-direction:column;">
       <div style="display: flex;justify-content: center; margin: 2px 0">
-        <button class='btn large' style="width:200px" onclick="toggleDefaultSchemaTab()">Toggle Default Schema Tab</button>
+        <button class='btn large' style="width:150px" onclick="toggleSchemaStyle()">Toggle Schema Style</button>
       </div>
     </div>
 
@@ -31,11 +31,11 @@ const specUrl = getSpecUrl(Astro.url);
     return document.getElementById("thedoc");
   }
   
-  function toggleDefaultSchemaTab () {
-    if (getRapiDoc().getAttribute('default-schema-tab') === 'example') {
-      getRapiDoc().setAttribute('default-schema-tab', 'schema');
+  function toggleSchemaStyle () {
+    if (getRapiDoc().getAttribute('schema-style') === 'table') {
+      getRapiDoc().setAttribute('schema-style', 'tree');
     } else {
-      getRapiDoc().setAttribute('default-schema-tab', 'example');
+      getRapiDoc().setAttribute('schema-style', 'table');
     }
   }
 </script>
