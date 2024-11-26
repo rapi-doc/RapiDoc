@@ -61,12 +61,13 @@ const specUrl = getSpecUrl(Astro.url);
     }, 5000)
   }
   </script>
-  <rapi-doc id="thedoc"
-    spec-url="../specs/auth-test1.yaml"
+  <rapi-doc 
+    id = "thedoc"
+    spec-url = "../specs/auth-test1.yaml"
     show-info = "true"
     theme = "dark"
-    render-style="read" 
-    show-header="false" 
+    render-style = "read" 
+    show-header = "false" 
   >
     <div slot='operations-top'>
       <div style="font-size:14px; border:0; background-color: #282828; border-radius:4px; padding:16px; margin:16px 75px">

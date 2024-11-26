@@ -62,14 +62,15 @@ const specUrl = getSpecUrl(Astro.url);
     }
   </script>
 
-  <rapi-doc id="thedoc"
-    spec-url="../specs/auth.yaml"
+  <rapi-doc 
+    id = "thedoc"
+    spec-url = "../specs/auth.yaml"
     show-info = "false"
     show-header = "false"
     allow-server-selection = "true"
     allow-authentication = "true" 
-    render-style="read" 
-    allow-try="false"
+    render-style = "read" 
+    allow-try = "false"
   >
     <div slot="nav-logo">
       <div slot="nav-logo" style="width:100%; display: flex; flex-direction:column;">
