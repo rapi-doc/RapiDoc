@@ -7,8 +7,13 @@ const exampleToSpecMap = {
 }
 export function getSpecUrl(url: URL): string {
   const baseUrl = '../specs';
-  const pageName = url.pathname.substring(url.pathname.lastIndexOf('/')+1, url.pathname.lastIndexOf('.'));
+  const fileNameLastIndex = url.pathname.lastIndexOf('.')
+  let pageName = '';
+  if (fileNameLastIndex > 0 ) {
+    pageName = url.pathname.substring(url.pathname.lastIndexOf('/')+1, fileNameLastIndex);
+  } else {
+    pageName = url.pathname.substring(url.pathname.lastIndexOf('/')+1);
+  }
   const specFile = exampleToSpecMap[pageName] || `${pageName}.yaml`;
-  
   return `${baseUrl}/${specFile}`;
 }
