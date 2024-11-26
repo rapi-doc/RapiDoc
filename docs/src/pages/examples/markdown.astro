@@ -1,0 +1,31 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+import { getSpecUrl } from '../../utils/getSpecUrl';
+
+const specUrl = getSpecUrl(Astro.url);
+---
+
+<ExampleLayout>
+  <rapi-doc 
+    id = "thedoc"
+    spec-url = {specUrl}
+    show-header = "false"
+    allow-server-selection = "false"
+    allow-authentication = "false" 
+    allow-try = "false" 
+    schema-style = "table"
+  > 
+
+    <div slot="nav-logo" style="width:100%; display: flex; flex-direction:column;">
+      <div style="display: flex;justify-content: center; margin: 2px 0">
+        <button class='btn' onclick="document.getElementById('thedoc').setAttribute('theme', 'dark')" >Dark</button>
+        <button class='btn' onclick="document.getElementById('thedoc').setAttribute('theme', 'light')" >Light</button>
+      </div>
+      <div style="display: flex;justify-content: center; margin: 2px 0">
+        <button class='btn' onclick="document.getElementById('thedoc').setAttribute('font-size', 'default')" >Default Font</button>
+        <button class='btn' onclick="document.getElementById('thedoc').setAttribute('font-size', 'large')" >Large Font</button>
+        <button class='btn' onclick="document.getElementById('thedoc').setAttribute('font-size', 'largest')" >Largest Font</button>
+      </div>
+    </div>
+  </rapi-doc>
+</ExampleLayout>

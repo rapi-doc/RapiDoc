@@ -1,0 +1,27 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+import { getSpecUrl } from '../../utils/getSpecUrl';
+
+const specUrl = getSpecUrl(Astro.url);
+---
+
+<ExampleLayout>
+  <rapi-doc 
+    id = "thedoc"
+    spec-url = {specUrl}
+    show-header = "false"
+    show-info = "true"
+    allow-server-selection = "true"
+    allow-authentication = "true" 
+    render-style = "read"
+    info-description-headings-in-navbar='true'
+  > 
+    <div style="display:flex; margin:8px 5px;">
+      <div style="flex:1"></div>
+      <div> 
+        <a href="https://mrin9.github.io/RapiDoc/">RapiDoc </a>&nbsp;|&nbsp; 
+        <a href="#get-/users/-userId-">Get Users </a>
+      </div>
+    </div>
+  </rapi-doc>
+</ExampleLayout>

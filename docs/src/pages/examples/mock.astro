@@ -1,0 +1,42 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+import { getSpecUrl } from '../../utils/getSpecUrl';
+
+const specUrl = getSpecUrl(Astro.url);
+---
+
+<ExampleLayout>
+  <rapi-doc 
+    id = "thedoc"
+    spec-url = {specUrl}
+    show-header="false"
+    allow-authentication = "false"
+  > </rapi-doc>
+</ExampleLayout>
+
+<script is:inline>
+  document.addEventListener('readystatechange', (event) => {
+    let docEl = document.getElementById("thedoc");
+
+    docEl.addEventListener('before-render', (e) => {
+      e.detail.spec.info.description = "This description is updated using java-script on `before-render` event";
+    });
+
+    docEl.addEventListener('after-try', (e) => {
+      console.log('Try Complete:', e.detail);
+    });
+    /*
+    docEl.addEventListener('before-try', (e) => {
+      // e.detail.controller.abort('Reason to abort');
+      setTimeout(() => {
+        e.detail.controller.abort('Reason to abort');
+      }, 100);
+    });
+
+    docEl.addEventListener('Request Aborted:', (e) => {
+      console.log('Request Aborted', e);
+    });
+    */
+
+  })
+</script>

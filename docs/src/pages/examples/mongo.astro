@@ -1,0 +1,10 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+import { getSpecUrl } from '../../utils/getSpecUrl';
+
+const specUrl = getSpecUrl(Astro.url);
+---
+
+<ExampleLayout>
+  <json-schema-viewer id="thedoc" spec-url = "/specs/mongo.yaml"  ></json-schema-viewer>
+</ExampleLayout>

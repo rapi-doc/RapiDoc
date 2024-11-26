@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: Providing Logo
   description: |
-    Shows how COmpany logos can be inserted using `<slots>` there is a slot named `nav-logo`
+    Shows how Company logos can be inserted using `<slots>` there is a slot named `nav-logo`
 
     ```html
       <!-- Only loads the paths which has `users` in it -->

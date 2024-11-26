@@ -1,0 +1,17 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+import { getSpecUrl } from '../../utils/getSpecUrl';
+
+const specUrl = getSpecUrl(Astro.url);
+---
+
+<ExampleLayout>
+  <rapi-doc 
+    id = "thedoc"
+    spec-url = "/specs/petstore-extended.yaml"
+    show-header = "false"
+    render-style = "read"
+    show-info = "true"
+    show-curl-before-try="true"
+  > </rapi-doc>
+</ExampleLayout>

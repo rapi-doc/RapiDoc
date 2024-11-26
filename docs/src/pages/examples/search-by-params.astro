@@ -1,0 +1,46 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+import { getSpecUrl } from '../../utils/getSpecUrl';
+
+const specUrl = getSpecUrl(Astro.url);
+---
+
+<ExampleLayout>
+  <rapi-doc 
+    id = "thedoc"
+    spec-url = "/specs/petstore-extended.yaml"
+    show-info = "true"
+    show-header= "true"
+    allow-advanced-search= "true"
+    allow-try = "false"
+    use-path-in-nav-bar = "true"
+  > 
+
+    <div slot="nav-logo">
+      <div style="display:flex; align-items:center;font-size:12px; font-weight:bold;color:#fafafa">
+        Search &nbsp;
+        <button class='btn medium' onclick="onSearchChange('none')" >None</button>
+        <button class='btn medium' onclick="onSearchChange('quick')" >Quick</button>
+        <button class='btn medium' onclick="onSearchChange('advanced')" >Advanced</button>
+      </div>
+    </div>
+
+  </rapi-doc>
+</ExampleLayout>
+
+
+<script is:inline>
+  function onSearchChange(option){
+    const docEl = document.getElementById('thedoc');
+    if (option === 'advanced') {
+      docEl.setAttribute('allow-search', 'false');
+      docEl.setAttribute('allow-advanced-search', 'true');
+    } else if (option==='quick'){
+      docEl.setAttribute('allow-search', 'true');
+      docEl.setAttribute('allow-advanced-search', 'false');
+    } else if (option === 'none') {
+      docEl.setAttribute('allow-search', 'false');
+      docEl.setAttribute('allow-advanced-search', 'false');
+    }
+  }
+</script>
