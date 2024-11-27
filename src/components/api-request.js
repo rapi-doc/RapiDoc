@@ -1204,7 +1204,7 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
           @click="${(e) => {
             copyToClipboard(this.curlSyntax.trim().replace(/\\$/, ''), e);
           }}"
-          part="btn btn-fill"
+          part="btn btn-fill btn-copy"
         >
           Copy
         </button>
@@ -1313,7 +1313,7 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
                 @click="${(e) => {
                   copyToClipboard(this.responseText, e);
                 }}"
-                part="btn btn-fill"
+                part="btn btn-fill btn-copy"
               >
                 Copy
               </button>
@@ -1332,7 +1332,7 @@ ${responseContent}</pre
             @click="${(e) => {
               copyToClipboard(this.responseHeaders, e);
             }}"
-            part="btn btn-fill"
+            part="btn btn-fill btn-copy"
           >
             Copy
           </button>

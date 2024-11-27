@@ -28,6 +28,7 @@ export default function codeSamplesTemplate(xCodeSamples) {
         html` <div class="tab-content m-markdown" style="display:${i === 0 ? 'block' : 'none'}" data-tab="${v.lang}${i}">
           <button
             class="toolbar-btn"
+            part="btn btn-fill btn-copy"
             style="position:absolute; top:12px; right:8px"
             @click="${(e) => {
               copyToClipboard(v.source, e);
