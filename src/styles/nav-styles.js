@@ -20,7 +20,7 @@ export default css`
     height: 100%;
     overflow: hidden;
     color: var(--nav-text-color);
-    background-color: var(--nav-bg-color);
+    background: var(--nav-bg-color);
     background-blend-mode: multiply;
     line-height: calc(var(--font-size-small) + 4px);
     display: none;
@@ -107,7 +107,7 @@ export default css`
     background: transparent;
   }
   .nav-scroll::-webkit-scrollbar-thumb {
-    background-color: var(--nav-hover-bg-color);
+    background: var(--nav-hover-bg-color);
   }
 
   .nav-bar-tag {
@@ -164,7 +164,7 @@ export default css`
   }
   .nav-bar-section.operations:hover {
     color: var(--nav-hover-text-color);
-    background-color: var(--nav-hover-bg-color);
+    background: var(--nav-hover-bg-color);
   }
 
   .nav-bar-section:first-child {
@@ -190,7 +190,7 @@ export default css`
   .nav-bar-tag.colored-block.active,
   .nav-bar-path.colored-block.active,
   .nav-bar-section.colored-block.operations.active {
-    background-color: var(--nav-accent-color);
+    background: var(--nav-accent-color);
     color: var(--nav-accent-text-color);
     border-radius: 0;
   }
@@ -201,6 +201,6 @@ export default css`
   .nav-bar-tag:hover,
   .nav-bar-path:hover {
     color: var(--nav-hover-text-color);
-    background-color: var(--nav-hover-bg-color);
+    background: var(--nav-hover-bg-color);
   }
 `;

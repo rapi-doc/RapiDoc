@@ -42,22 +42,22 @@ export default css`
   .m-endpoint > .endpoint-head.put:hover,
   .m-endpoint > .endpoint-head.put.expanded {
     border-color: var(--orange);
-    background-color: var(--light-orange);
+    background: var(--light-orange);
   }
   .m-endpoint > .endpoint-head.post:hover,
   .m-endpoint > .endpoint-head.post.expanded {
     border-color: var(--green);
-    background-color: var(--light-green);
+    background: var(--light-green);
   }
   .m-endpoint > .endpoint-head.get:hover,
   .m-endpoint > .endpoint-head.get.expanded {
     border-color: var(--blue);
-    background-color: var(--light-blue);
+    background: var(--light-blue);
   }
   .m-endpoint > .endpoint-head.delete:hover,
   .m-endpoint > .endpoint-head.delete.expanded {
     border-color: var(--red);
-    background-color: var(--light-red);
+    background: var(--light-red);
   }
 
   .m-endpoint > .endpoint-head.head:hover,
@@ -67,7 +67,7 @@ export default css`
   .m-endpoint > .endpoint-head.options:hover,
   .m-endpoint > .endpoint-head.options.expanded {
     border-color: var(--yellow);
-    background-color: var(--light-yellow);
+    background: var(--light-yellow);
   }
 
   .m-endpoint > .endpoint-head.deprecated:hover,

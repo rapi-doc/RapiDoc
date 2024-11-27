@@ -73,7 +73,7 @@ export default css`
   .xxx-of-key {
     font-size: calc(var(--font-size-small) - 2px);
     font-weight: bold;
-    background-color: var(--primary-color);
+    background: var(--primary-color);
     color: var(--primary-color-invert);
     border-radius: 2px;
     line-height: calc(var(--font-size-small) + 6px);

@@ -98,7 +98,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
                   v.color === 'none'
                     ? ''
                     : html`<span
-                        style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})"
+                        style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px; background: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})"
                         >${v.label}</span
                       >`
                 )}
@@ -127,7 +127,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
       ${path.description ? html`<div class="m-markdown">${unsafeHTML(marked(path.description))}</div>` : ''}
       ${pathSecurityTemplate.call(this, path.security)}
       ${path.externalDocs?.url || path.externalDocs?.description
-        ? html`<div style="background-color:var(--bg3); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--border-radius)">
+        ? html`<div style="background:var(--bg3); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--border-radius)">
             <div class="m-markdown">${unsafeHTML(marked(path.externalDocs?.description || ''))}</div>
             ${path.externalDocs?.url
               ? html`<a

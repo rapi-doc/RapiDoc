@@ -56,7 +56,7 @@ export default class JsonTree extends LitElement {
         }
         .open-bracket:hover {
           color: var(--primary-color);
-          background-color: var(--hover-color);
+          background: var(--hover-color);
           border: 1px solid var(--border-color);
         }
         .open-bracket.expanded:hover ~ .inside-bracket {

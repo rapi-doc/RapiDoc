@@ -24,7 +24,6 @@ import TabStyles from '~/styles/tab-styles';
 import NavStyles from '~/styles/nav-styles';
 import InfoStyles from '~/styles/info-styles';
 import CustomStyles from '~/styles/custom-styles';
-// import { expandCollapseNavBarTag } from '@/templates/navbar-template';
 import { advancedSearch, getMatchedPaths, getMatchedComponents, rapidocApiKey, sleep } from '~/utils/common-utils';
 import ProcessSpec from '~/utils/spec-parser';
 import mainBodyTemplate from '~/templates/main-body-template';
@@ -173,7 +172,7 @@ export default class RapiDoc extends LitElement {
           overflow: hidden;
           letter-spacing: normal;
           color: var(--fg);
-          background-color: var(--bg);
+          background: var(--bg);
           font-family: var(--font-regular);
           container-type: inline-size;
         }
@@ -212,7 +211,7 @@ export default class RapiDoc extends LitElement {
           background: transparent;
         }
         .main-content::-webkit-scrollbar-thumb {
-          background-color: var(--border-color);
+          background: var(--border-color);
         }
 
         .section-gap.section-tag {
@@ -260,6 +259,14 @@ export default class RapiDoc extends LitElement {
         .collapsed .section-tag-body {
           display: none;
         }
+        ::slotted([slot='custom-header']) {
+          padding: 4px 12px;
+          max-height: 40px;
+          overflow: hidden;
+          background: var(--header-bg);
+          color: var(--header-fg);
+          text-align: center;
+        }
         ::slotted([slot='logo']) {
           height: 36px;
           width: auto;
@@ -274,9 +281,8 @@ export default class RapiDoc extends LitElement {
           text-transform: uppercase;
         }
         .main-header {
-          background-color: var(--header-bg);
+          background: var(--header-bg);
           color: var(--header-fg);
-          width: 100%;
         }
         .header-title {
           font-size: calc(var(--font-size-regular) + 8px);
@@ -338,7 +344,7 @@ export default class RapiDoc extends LitElement {
           max-width: 400px;
           position: absolute;
           z-index: 1;
-          background-color: var(--bg2);
+          background: var(--bg2);
           visibility: hidden;
 
           overflow-wrap: break-word;
@@ -403,21 +409,21 @@ export default class RapiDoc extends LitElement {
         }
 
         .nav-method.as-colored-block.get {
-          background-color: var(--blue);
+          background: var(--blue);
         }
         .nav-method.as-colored-block.put {
-          background-color: var(--orange);
+          background: var(--orange);
         }
         .nav-method.as-colored-block.post {
-          background-color: var(--green);
+          background: var(--green);
         }
         .nav-method.as-colored-block.delete {
-          background-color: var(--red);
+          background: var(--red);
         }
         .nav-method.as-colored-block.head,
         .nav-method.as-colored-block.patch,
         .nav-method.as-colored-block.options {
-          background-color: var(--yellow);
+          background: var(--yellow);
         }
 
         @container (min-width: 768px) {

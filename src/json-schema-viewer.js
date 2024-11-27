@@ -99,7 +99,7 @@ export default class JsonSchemaViewer extends LitElement {
           overflow: hidden;
           letter-spacing: normal;
           color: var(--fg);
-          background-color: var(--bg);
+          background: var(--bg);
           font-family: var(--font-regular);
           container-type: inline-size;
         }
@@ -136,10 +136,10 @@ export default class JsonSchemaViewer extends LitElement {
           background: transparent;
         }
         .main-content::-webkit-scrollbar-thumb {
-          background-color: var(--border-color);
+          background: var(--border-color);
         }
         .main-header {
-          background-color: var(--header-bg);
+          background: var(--header-bg);
           color: var(--header-fg);
           width: 100%;
         }

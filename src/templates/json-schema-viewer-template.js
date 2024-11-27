@@ -20,7 +20,7 @@ function jsonSchemaNavTemplate() {
         <input
           id="nav-bar-search"
           part="textbox textbox-nav-filter"
-          style="width:100%; height: 26px; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)"
+          style="width:100%; height: 26px; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background:var(--nav-hover-bg-color)"
           type="text"
           placeholder="Filter"
           @change="${this.onSearchChange}"
@@ -87,7 +87,7 @@ function jsonSchemaBodyTemplate() {
             </div>
             <div
               class="json-schema-example-panel"
-              style="width:400px; background-color: var(--input-bg); padding:16px 0 16px 16px; border-left: 1px dashed var(--border-color);"
+              style="width:400px; background: var(--input-bg); padding:16px 0 16px 16px; border-left: 1px dashed var(--border-color);"
             >
               ${examplesObj.length > 1
                 ? html`<select style="min-width:100px; max-width:100%" @change="${(e) => this.onSelectExample(e, jSchemaBody)}">

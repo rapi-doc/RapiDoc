@@ -965,7 +965,7 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
         class="tab-panel row"
         style="min-height:220px; border-left: 6px solid var(--light-border-color); align-items: stretch;"
       >
-        <div style="width:24px; background-color:var(--light-border-color)">
+        <div style="width:24px; background:var(--light-border-color)">
           <div
             class="row"
             style="flex-direction:row-reverse; width:160px; height:24px; transform:rotate(270deg) translateX(-160px); transform-origin:top left; display:block;"

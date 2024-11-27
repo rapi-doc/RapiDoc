@@ -38,7 +38,7 @@ export default css`
     line-height: calc(var(--font-size-small) + 18px);
     font-weight: 600;
     letter-spacing: normal;
-    background-color: var(--bg2);
+    background: var(--bg2);
     vertical-align: bottom;
     border-bottom: 1px solid var(--light-border-color);
   }

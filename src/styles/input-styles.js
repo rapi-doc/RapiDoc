@@ -13,7 +13,7 @@ export default css`
     text-align: center;
     white-space: nowrap;
     border: 2px solid var(--primary-color);
-    background-color: transparent;
+    background: transparent;
     user-select: none;
     cursor: pointer;
     box-shadow:
@@ -22,7 +22,7 @@ export default css`
     transition-duration: 0.75s;
   }
   .m-btn.primary {
-    background-color: var(--primary-color);
+    background: var(--primary-color);
     color: var(--primary-color-invert);
   }
   .m-btn.thin-border {
@@ -41,17 +41,17 @@ export default css`
     border-radius: 50%;
   }
   .m-btn:hover {
-    background-color: var(--primary-color);
+    background: var(--primary-color);
     color: var(--primary-color-invert);
   }
   .m-btn.nav {
     border: 2px solid var(--nav-accent-color);
   }
   .m-btn.nav:hover {
-    background-color: var(--nav-accent-color);
+    background: var(--nav-accent-color);
   }
   .m-btn:disabled {
-    background-color: var(--bg3);
+    background: var(--bg3);
     color: var(--fg3);
     border-color: var(--fg3);
     cursor: not-allowed;
@@ -71,7 +71,7 @@ export default css`
     color: var(--primary-color-invert);
     border-radius: 2px;
     border: none;
-    background-color: var(--primary-color);
+    background: var(--primary-color);
   }
 
   input,
@@ -81,7 +81,7 @@ export default css`
   pre {
     color: var(--fg);
     outline: none;
-    background-color: var(--input-bg);
+    background: var(--input-bg);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
   }
@@ -142,7 +142,7 @@ export default css`
     cursor: pointer;
     padding: 3px 8px;
     border: 1px solid var(--primary-color);
-    background-color: var(--primary-color);
+    background: var(--primary-color);
     color: var(--primary-color-invert);
     border-radius: var(--border-radius);
     -webkit-appearance: none;
@@ -168,7 +168,7 @@ export default css`
   pre::-webkit-scrollbar-thumb,
   textarea::-webkit-scrollbar-thumb {
     border-radius: 2px;
-    background-color: var(--border-color);
+    background: var(--border-color);
   }
 
   .link {
@@ -183,7 +183,7 @@ export default css`
   input[type='checkbox'] {
     appearance: none;
     display: inline-block;
-    background-color: var(--light-bg);
+    background: var(--light-bg);
     border: 1px solid var(--light-bg);
     border-radius: 9px;
     cursor: pointer;
@@ -200,7 +200,7 @@ export default css`
   /* Toggle Thumb */
   input[type='checkbox']:after {
     position: absolute;
-    background-color: var(--bg);
+    background: var(--bg);
     border: 1px solid var(--light-bg);
     border-radius: 8px;
     content: '';
@@ -217,7 +217,7 @@ export default css`
 
   /* Toggle Body - Checked */
   input[type='checkbox']:checked {
-    background-color: var(--green);
+    background: var(--green);
     border-color: var(--green);
   }
   /* Toggle Thumb - Checked*/

@@ -80,7 +80,7 @@ export default function navbarTemplate() {
                       <input
                         id="nav-bar-search"
                         part="textbox textbox-nav-filter"
-                        style="width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)"
+                        style="width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background:var(--nav-hover-bg-color)"
                         type="text"
                         placeholder="Filter"
                         @change="${this.onSearchChange}"

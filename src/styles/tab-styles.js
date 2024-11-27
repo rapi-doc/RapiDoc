@@ -15,13 +15,13 @@ export default css`
   }
   .tab-buttons::-webkit-scrollbar {
     height: 1px;
-    background-color: var(--border-color);
+    background: var(--border-color);
   }
   .tab-btn {
     border: none;
     border-bottom: 3px solid transparent;
     color: var(--light-fg);
-    background-color: transparent;
+    background: transparent;
     white-space: nowrap;
     cursor: pointer;
     outline: none;

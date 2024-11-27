@@ -8,7 +8,7 @@ export default css`
   }
 
   .dialog-box-overlay {
-    background-color: var(--overlay-bg);
+    background: var(--overlay-bg);
     position: fixed;
     left: 0;
     top: 0;
@@ -26,7 +26,7 @@ export default css`
     display: flex;
     flex-direction: column;
     width: 70vw;
-    background-color: var(--bg2);
+    background: var(--bg2);
     color: var(--fg2);
     border-radius: 4px;
     max-height: 500px;
@@ -57,7 +57,7 @@ export default css`
     color: var(--fg);
     border: none;
     outline: none;
-    background-color: transparent;
+    background: transparent;
     cursor: pointer;
     border: 1px solid transparent;
     border-radius: 50%;

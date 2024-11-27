@@ -59,7 +59,7 @@ export default function mainBodyTemplate(isMini = false, pathsExpanded = false) 
 
   return html`
     ${this.theme === 'dark' ? SetTheme.call(this, 'dark', newTheme) : SetTheme.call(this, 'light', newTheme)}
-
+    <slot name="custom-header"></slot>
     <!-- Header -->
     ${this.showHeader === 'false' ? '' : headerTemplate.call(this)}
 

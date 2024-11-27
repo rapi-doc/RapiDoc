@@ -200,7 +200,7 @@ export default css`
     padding: 1px 6px;
     border-radius: 2px;
     color: var(--inline-code-fg);
-    background-color: var(--bg3);
+    background: var(--bg3);
     font-size: calc(var(--font-size-mono));
     line-height: 1.2;
   }
@@ -220,14 +220,14 @@ export default css`
 
   .m-markdown pre {
     padding: 12px;
-    background-color: var(--code-bg);
+    background: var(--code-bg);
     color: var(--code-fg);
   }
 
   .m-markdown-small pre {
     margin-top: 4px;
     padding: 2px 4px;
-    background-color: var(--bg3);
+    background: var(--bg3);
     color: var(--fg2);
   }
 
@@ -239,13 +239,12 @@ export default css`
 
   .m-markdown pre code {
     color: var(--code-fg);
-    background-color: var(--code-bg);
-    background-color: transparent;
+    background: var(--code-bg);
   }
 
   .m-markdown-small pre code {
     color: var(--fg2);
-    background-color: var(--bg3);
+    background: var(--bg3);
   }
 
   .m-markdown ul,
@@ -315,7 +314,7 @@ export default css`
   .m-markdown th,
   .m-markdown-small th {
     font-weight: 600;
-    background-color: var(--bg2);
+    background: var(--bg2);
     vertical-align: middle;
   }
 

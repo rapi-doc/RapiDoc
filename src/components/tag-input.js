@@ -107,7 +107,7 @@ export default class TagInput extends LitElement {
         }
         .tag {
           border: 1px solid var(--border-color);
-          background-color: var(--bg3);
+          background: var(--bg3);
           color: var(--fg3);
           border-radius: var(--border-radius);
           word-break: break-all;
