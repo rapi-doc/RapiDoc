@@ -8,69 +8,141 @@ export default css`
     background: var(--selection-bg);
     color: var(--selection-fg);
   }
-  .regular-font { 
-    font-family:var(--font-regular); 
+  .regular-font {
+    font-family: var(--font-regular);
   }
-  .mono-font { 
-    font-family:var(--font-mono); 
+  .mono-font {
+    font-family: var(--font-mono);
   }
-  .title { 
+  .title {
     font-size: calc(var(--font-size-small) + 18px);
-    font-weight: normal 
+    font-weight: normal;
   }
-  .sub-title{ font-size: 20px; }
+  .sub-title {
+    font-size: 20px;
+  }
   .req-res-title {
     font-family: var(--font-regular);
     font-size: calc(var(--font-size-small) + 4px);
-    font-weight:bold;
-    margin-bottom:8px;
-    text-align:left;
+    font-weight: bold;
+    margin-bottom: 8px;
+    text-align: left;
   }
-  .tiny-title { 
-    font-size:calc(var(--font-size-small) + 1px); 
-    font-weight:bold; 
+  .tiny-title {
+    font-size: calc(var(--font-size-small) + 1px);
+    font-weight: bold;
   }
-  .regular-font-size { font-size: var(--font-size-regular); }
-  .small-font-size { font-size: var(--font-size-small); }
-  .upper { text-transform: uppercase; }
-  .primary-text { color: var(--primary-color); }
-  .bold-text { font-weight:bold; }
-  .gray-text { color: var(--light-fg); }
-  .red-text { color: var(--red) }
-  .blue-text { color: var(--blue) }
+  .regular-font-size {
+    font-size: var(--font-size-regular);
+  }
+  .small-font-size {
+    font-size: var(--font-size-small);
+  }
+  .upper {
+    text-transform: uppercase;
+  }
+  .primary-text {
+    color: var(--primary-color);
+  }
+  .bold-text {
+    font-weight: bold;
+  }
+  .gray-text {
+    color: var(--light-fg);
+  }
+  .red-text {
+    color: var(--red);
+  }
+  .blue-text {
+    color: var(--blue);
+  }
   .multiline {
     overflow: scroll;
     max-height: var(--resp-area-height, 400px);
-    color: var(--fg3);  
+    color: var(--fg3);
   }
-  .method-fg.put { color: var(--orange); }
-  .method-fg.post { color: var(--green); }
-  .method-fg.get { color: var(--blue); }
-  .method-fg.delete { color: var(--red); }
-  .method-fg.options, 
-  .method-fg.head, 
-  .method-fg.patch { 
-    color: var(--yellow); 
+  .method-fg.put {
+    color: var(--orange);
+  }
+  .method-fg.post {
+    color: var(--green);
+  }
+  .method-fg.get {
+    color: var(--blue);
+  }
+  .method-fg.delete {
+    color: var(--red);
+  }
+  .method-fg.options,
+  .method-fg.head,
+  .method-fg.patch {
+    color: var(--yellow);
   }
 
-  h1 { font-family:var(--font-regular); font-size:28px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
-  h2 { font-family:var(--font-regular); font-size:24px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
-  h3 { font-family:var(--font-regular); font-size:18px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
-  h4 { font-family:var(--font-regular); font-size:16px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
-  h5 { font-family:var(--font-regular); font-size:14px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
-  h6 { font-family:var(--font-regular); font-size:14px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
+  h1 {
+    font-family: var(--font-regular);
+    font-size: 28px;
+    padding-top: 10px;
+    letter-spacing: normal;
+    font-weight: normal;
+  }
+  h2 {
+    font-family: var(--font-regular);
+    font-size: 24px;
+    padding-top: 10px;
+    letter-spacing: normal;
+    font-weight: normal;
+  }
+  h3 {
+    font-family: var(--font-regular);
+    font-size: 18px;
+    padding-top: 10px;
+    letter-spacing: normal;
+    font-weight: normal;
+  }
+  h4 {
+    font-family: var(--font-regular);
+    font-size: 16px;
+    padding-top: 10px;
+    letter-spacing: normal;
+    font-weight: normal;
+  }
+  h5 {
+    font-family: var(--font-regular);
+    font-size: 14px;
+    padding-top: 10px;
+    letter-spacing: normal;
+    font-weight: normal;
+  }
+  h6 {
+    font-family: var(--font-regular);
+    font-size: 14px;
+    padding-top: 10px;
+    letter-spacing: normal;
+    font-weight: normal;
+  }
 
-  h1,h2,h3,h4,h5,h5 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h5 {
     margin-block-end: 0.2em;
   }
-  p { margin-block-start: 0.5em; }
-  a { color: var(--blue); cursor:pointer; }
-  a.inactive-link { 
-    color:var(--fg);
-    text-decoration: none;
-    cursor:text;
+  p {
+    margin-block-start: 0.5em;
   }
-  
+  a {
+    color: var(--blue);
+    cursor: pointer;
+  }
+  a.inactive-link {
+    color: var(--fg);
+    text-decoration: none;
+    cursor: text;
+  }
+
   code,
   pre {
     margin: 0px;
@@ -80,19 +152,19 @@ export default css`
 
   .m-markdown,
   .m-markdown-small {
-    display:block;
+    display: block;
   }
 
   .m-markdown p,
   .m-markdown span {
     font-size: var(--font-size-regular);
-    line-height:calc(var(--font-size-regular) + 8px);
+    line-height: calc(var(--font-size-regular) + 8px);
   }
   .m-markdown li {
     font-size: var(--font-size-regular);
-    line-height:calc(var(--font-size-regular) + 10px);
+    line-height: calc(var(--font-size-regular) + 10px);
   }
-  
+
   .m-markdown-small p,
   .m-markdown-small span,
   .m-markdown-small li {
@@ -116,11 +188,11 @@ export default css`
 
   .m-markdown p,
   .m-markdown-small p {
-    margin-block-end: 0
+    margin-block-end: 0;
   }
 
   .m-markdown code span {
-    font-size:var(--font-size-mono);
+    font-size: var(--font-size-mono);
   }
 
   .m-markdown-small code,
@@ -149,7 +221,7 @@ export default css`
   .m-markdown pre {
     padding: 12px;
     background-color: var(--code-bg);
-    color:var(--code-fg);
+    color: var(--code-fg);
   }
 
   .m-markdown-small pre {
@@ -161,8 +233,8 @@ export default css`
 
   .m-markdown-small pre code,
   .m-markdown pre code {
-    border:none;
-    padding:0;
+    border: none;
+    padding: 0;
   }
 
   .m-markdown pre code {
@@ -188,12 +260,12 @@ export default css`
 
   .m-markdown-small a,
   .m-markdown a {
-    color:var(--blue);
+    color: var(--blue);
   }
 
   .m-markdown-small img,
-  .m-markdown img { 
-    max-width: 100%; 
+  .m-markdown img {
+    max-width: 100%;
   }
 
   /* Markdown table */
@@ -216,9 +288,9 @@ export default css`
     margin: 8px 0;
   }
 
-  .m-markdown-small td, 
+  .m-markdown-small td,
   .m-markdown-small th,
-  .m-markdown td, 
+  .m-markdown td,
   .m-markdown th {
     vertical-align: top;
     border-top: 1px solid var(--border-color);
@@ -230,14 +302,14 @@ export default css`
     border-top: 0 none;
   }
 
-  .m-markdown th, 
-  .m-markdown td { 
-    padding: 10px 12px; 
+  .m-markdown th,
+  .m-markdown td {
+    padding: 10px 12px;
   }
 
   .m-markdown-small th,
-  .m-markdown-small td { 
-    padding: 8px 8px; 
+  .m-markdown-small td {
+    padding: 8px 8px;
   }
 
   .m-markdown th,
@@ -262,7 +334,7 @@ export default css`
     border-left: 3px solid var(--border-color);
     padding: 6px 0 6px 6px;
   }
-  .m-markdown hr{
+  .m-markdown hr {
     border: 1px solid var(--border-color);
   }
 `;

@@ -10,7 +10,8 @@ export default class OauthReceiver extends HTMLElement {
    */
   receiveAuthParms() {
     let authData = {};
-    if (document.location.search) { // Applies to authorizationCode flow
+    if (document.location.search) {
+      // Applies to authorizationCode flow
       const params = new URLSearchParams(document.location.search);
       const code = params.get('code');
       const error = params.get('error');
@@ -21,10 +22,11 @@ export default class OauthReceiver extends HTMLElement {
         state,
         responseType: 'code',
       };
-    } else if (window.location.hash) { // Applies to Implicit flow
-      const token_type = this.parseQueryString(window.location.hash.substring(1), 'token_type'); // eslint-disable-line camelcase
-      const access_token = this.parseQueryString(window.location.hash.substring(1), 'access_token'); // eslint-disable-line camelcase
-      authData = { token_type, access_token, responseType: 'token' }; // eslint-disable-line camelcase
+    } else if (window.location.hash) {
+      // Applies to Implicit flow
+      const token_type = this.parseQueryString(window.location.hash.substring(1), 'token_type');
+      const access_token = this.parseQueryString(window.location.hash.substring(1), 'access_token');
+      authData = { token_type, access_token, responseType: 'token' };
     }
 
     if (window.opener) {

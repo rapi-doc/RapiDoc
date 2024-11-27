@@ -14,7 +14,6 @@ export const invalidCharsRegEx = /[\s#:?&={}]/g; // used for generating valid ht
 export const rapidocApiKey = '_rapidoc_api_key';
 
 export function sleep(ms) {
-  // eslint-disable-next-line no-promise-executor-return
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
@@ -33,7 +32,7 @@ export function copyToClipboard(data, e) {
       btnEl.innerText = 'Copy';
     }, 5000);
   } catch (err) {
-    console.error('Unable to copy', err); // eslint-disable-line no-console
+    console.error('Unable to copy', err);
   }
   document.body.removeChild(textArea);
 }
@@ -54,7 +53,8 @@ export function getMatchedComponents(searchVal, component) {
 }
 
 export function getMatchedPaths(searchVal, path, tagName = '') {
-  const stringToSearch = `${path.method} ${path.path} ${path.summary || ''} ${path.description || ''} ${path.operationId || ''} ${tagName}`.toLowerCase();
+  const stringToSearch =
+    `${path.method} ${path.path} ${path.summary || ''} ${path.description || ''} ${path.operationId || ''} ${tagName}`.toLowerCase();
   return stringToSearch.includes(searchVal.toLowerCase());
 }
 
@@ -103,7 +103,9 @@ export function advancedSearch(searchVal, allSpecTags, searchOptions = []) {
       }
 
       if (searchOptions.includes('search-api-resp-descr')) {
-        stringToSearch = `${stringToSearch} ${Object.values(path.responses).map((v) => v.description || '').join(' ')}`;
+        stringToSearch = `${stringToSearch} ${Object.values(path.responses)
+          .map((v) => v.description || '')
+          .join(' ')}`;
       }
 
       if (stringToSearch.toLowerCase().includes(searchVal.trim().toLowerCase())) {

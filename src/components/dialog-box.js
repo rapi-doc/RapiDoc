@@ -30,23 +30,22 @@ export default class DialogBox extends LitElement {
       if (name === 'show') {
         this.show = newVal;
         if (newVal === 'true') {
-          document.dispatchEvent(new CustomEvent('open', {
-            bubbles: true,
-            composed: true,
-            detail: this,
-          }));
+          document.dispatchEvent(
+            new CustomEvent('open', {
+              bubbles: true,
+              composed: true,
+              detail: this,
+            })
+          );
         }
       }
     }
     super.attributeChangedCallback(name, oldVal, newVal);
   }
 
-  /* eslint-disable indent */
   render() {
-    return html`
-    ${this.show === 'true'
-      ? html`
-        <div class="dialog-box-overlay">
+    return html` ${this.show === 'true'
+      ? html` <div class="dialog-box-overlay">
           <div class="dialog-box">
             <header class="dialog-box-header">
               <span class="dialog-box-title">${this.heading}</span>
@@ -57,16 +56,16 @@ export default class DialogBox extends LitElement {
             </div>
           </div>
         </div>`
-      : ''
-    }`;
+      : ''}`;
   }
-  /* eslint-enable indent */
 
   onClose() {
-    document.dispatchEvent(new CustomEvent('close', {
-      bubbles: true,
-      composed: true,
-    }));
+    document.dispatchEvent(
+      new CustomEvent('close', {
+        bubbles: true,
+        composed: true,
+      })
+    );
   }
 }
 

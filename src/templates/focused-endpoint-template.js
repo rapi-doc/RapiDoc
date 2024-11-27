@@ -1,5 +1,5 @@
 import { html } from 'lit';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { marked } from 'marked';
 import { expandedEndpointBodyTemplate } from '~/templates/expanded-endpoint-template';
 import '~/components/api-request';
@@ -12,15 +12,13 @@ import { expandCollapseNavBarTag } from '~/templates/navbar-template';
 
 function headingRenderer(tagElementId) {
   const renderer = new marked.Renderer();
-  renderer.heading = ((text, level, raw, slugger) => `<h${level} class="observe-me" id="${tagElementId}--${slugger.slug(raw)}">${text}</h${level}>`);
+  renderer.heading = (text, level, raw, slugger) =>
+    `<h${level} class="observe-me" id="${tagElementId}--${slugger.slug(raw)}">${text}</h${level}>`;
   return renderer;
 }
 
 function wrapFocusedTemplate(templateToWrap) {
-  return html`
-    <div class='regular-font section-gap--focused-mode' part="section-operations-in-tag">
-      ${templateToWrap}
-    </div>`;
+  return html` <div class="regular-font section-gap--focused-mode" part="section-operations-in-tag">${templateToWrap}</div>`;
 }
 
 function defaultContentTemplate() {
@@ -30,27 +28,22 @@ function defaultContentTemplate() {
   }
   const selectedTagObj = this.resolvedSpec.tags[0];
   const selectedPathObj = this.resolvedSpec.tags[0]?.paths[0];
-  return (selectedTagObj && selectedPathObj)
+  return selectedTagObj && selectedPathObj
     ? wrapFocusedTemplate(expandedEndpointBodyTemplate.call(this, selectedPathObj, selectedTagObj.name))
     : wrapFocusedTemplate('');
 }
 
-/* eslint-disable indent */
 function focusedTagBodyTemplate(tag) {
   return html`
     <h1 id="${tag.elementId}">${tag.displayName || tag.name}</h1>
     ${this.onNavTagClick === 'show-description' && tag.description
-      ? html`
-        <div class="m-markdown">
-          ${
-            unsafeHTML(`
+      ? html` <div class="m-markdown">
+          ${unsafeHTML(`
             <div class="m-markdown regular-font">
               ${marked(tag.description || '', this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer(tag.elementId) } : undefined)}
-            </div>`)
-          }
+            </div>`)}
         </div>`
-      : ''
-    }
+      : ''}
   `;
 }
 
@@ -70,8 +63,7 @@ export default function focusedEndpointTemplate() {
   } else if (focusElId === 'servers' && this.allowServerSelection === 'true') {
     focusedTemplate = serverTemplate.call(this);
   } else if (focusElId === 'operations-top') {
-    focusedTemplate = html`
-    <div id="operations-top" class="observe-me">
+    focusedTemplate = html` <div id="operations-top" class="observe-me">
       <slot name="operations-top"></slot>
     </div>`;
   } else if (focusElId.startsWith('cmp--') && this.showComponents === 'true') {
@@ -98,7 +90,7 @@ export default function focusedEndpointTemplate() {
       expandCollapseNavBarTag(newNavEl, 'expand');
       focusedTemplate = wrapFocusedTemplate.call(
         this,
-        expandedEndpointBodyTemplate.call(this, selectedPathObj, (selectedTagObj.name || ''), (selectedTagObj.description || '')),
+        expandedEndpointBodyTemplate.call(this, selectedPathObj, selectedTagObj.name || '', selectedTagObj.description || '')
       );
     } else {
       // if focusedElementId is not found then show the default content (overview or first-path)
@@ -107,4 +99,3 @@ export default function focusedEndpointTemplate() {
   }
   return focusedTemplate;
 }
-/* eslint-enable indent */

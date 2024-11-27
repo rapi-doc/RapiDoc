@@ -18,7 +18,9 @@ export function getPrintableVal(val) {
     return `${val}`;
   }
   if (Array.isArray(val)) {
-    return val.map((v) => (v === null ? 'null' : v === '' ? '∅' : v.toString().replace(/^ +| +$/g, (m) => '●'.repeat(m.length)) || '')).join(', ');
+    return val
+      .map((v) => (v === null ? 'null' : v === '' ? '∅' : v.toString().replace(/^ +| +$/g, (m) => '●'.repeat(m.length)) || ''))
+      .join(', ');
   }
   if (typeof val === 'object') {
     const keys = Object.keys(val);
@@ -59,8 +61,8 @@ export function getTypeInfo(schema) {
   const info = {
     type: dataType,
     format: schema.format || '',
-    pattern: (schema.pattern && !schema.enum) ? schema.pattern : '',
-    readOrWriteOnly: (schema.readOnly ? '🆁' : schema.writeOnly ? '🆆' : ''),
+    pattern: schema.pattern && !schema.enum ? schema.pattern : '',
+    readOrWriteOnly: schema.readOnly ? '🆁' : schema.writeOnly ? '🆆' : '',
     deprecated: schema.deprecated ? '❌' : '',
     examples: schema.examples || schema.example,
     default: getPrintableVal(schema.default),
@@ -77,11 +79,7 @@ export function getTypeInfo(schema) {
     info.description = info.description || '';
   }
   // Set Allowed Values
-  info.allowedValues = schema.const
-    ? schema.const
-    : Array.isArray(schema.enum)
-      ? schema.enum.map((v) => (getPrintableVal(v))).join('┃')
-      : '';
+  info.allowedValues = schema.const ? schema.const : Array.isArray(schema.enum) ? schema.enum.map((v) => getPrintableVal(v)).join('┃') : '';
 
   if (dataType === 'array' && schema.items) {
     const arrayItemType = schema.items?.type;
@@ -92,7 +90,7 @@ export function getTypeInfo(schema) {
     info.allowedValues = schema.items.const
       ? schema.const
       : Array.isArray(schema.items?.enum)
-        ? schema.items.enum.map((v) => (getPrintableVal(v))).join('┃')
+        ? schema.items.enum.map((v) => getPrintableVal(v)).join('┃')
         : '';
   }
   if (dataType.match(/integer|number/g)) {
@@ -100,7 +98,10 @@ export function getTypeInfo(schema) {
       constrain += schema.minimum !== undefined ? `Min ${schema.minimum}` : `More than ${schema.exclusiveMinimum}`;
     }
     if (schema.maximum !== undefined || schema.exclusiveMaximum !== undefined) {
-      constrain += schema.maximum !== undefined ? `${constrain ? '┃' : ''}Max ${schema.maximum}` : `${constrain ? '┃' : ''}Less than ${schema.exclusiveMaximum}`;
+      constrain +=
+        schema.maximum !== undefined
+          ? `${constrain ? '┃' : ''}Max ${schema.maximum}`
+          : `${constrain ? '┃' : ''}Less than ${schema.exclusiveMaximum}`;
     }
     if (schema.multipleOf !== undefined) {
       constrain += `${constrain ? '┃' : ''} multiple of ${schema.multipleOf}`;
@@ -172,7 +173,8 @@ export function standardizeExample(ex) {
       return undefined;
     }
     return Object.fromEntries(filteredEntries);
-  } if (Array.isArray(ex)) {
+  }
+  if (Array.isArray(ex)) {
     // Case 3: Array of primitive values
     return ex.reduce((acc, value, index) => {
       acc[`Example${index + 1}`] = { value };
@@ -204,16 +206,14 @@ export function normalizeExamples(examples, dataType = 'string') {
   }
   if (examples.constructor === Object) {
     const exampleList = Object.values(examples)
-      .filter((v) => (v['x-example-show-value'] !== false))
+      .filter((v) => v['x-example-show-value'] !== false)
       .map((v) => ({
-        value: (typeof v.value === 'boolean' || typeof v.value === 'number' ? `${v.value}` : (v.value || '')),
+        value: typeof v.value === 'boolean' || typeof v.value === 'number' ? `${v.value}` : v.value || '',
         printableValue: getPrintableVal(v.value),
         summary: v.summary || '',
         description: v.description || '',
       }));
-    const exampleVal = exampleList.length > 0
-      ? exampleList[0].value
-      : '';
+    const exampleVal = exampleList.length > 0 ? exampleList[0].value : '';
     return { exampleVal, exampleList };
   }
 
@@ -251,15 +251,19 @@ export function anyExampleWithSummaryOrDescription(examples) {
 }
 
 export function getSampleValueByType(schemaObj) {
-  const example = schemaObj.examples
-    ? schemaObj.examples[0]
-    : schemaObj.example === null
-      ? null
-      : schemaObj.example || undefined;
-  if (example === '') { return ''; }
-  if (example === null) { return null; }
-  if (example === 0) { return 0; }
-  if (example === false) { return false; }
+  const example = schemaObj.examples ? schemaObj.examples[0] : schemaObj.example === null ? null : schemaObj.example || undefined;
+  if (example === '') {
+    return '';
+  }
+  if (example === null) {
+    return null;
+  }
+  if (example === 0) {
+    return 0;
+  }
+  if (example === false) {
+    return false;
+  }
   if (example instanceof Date) {
     switch (schemaObj.format.toLowerCase()) {
       case 'date':
@@ -270,7 +274,9 @@ export function getSampleValueByType(schemaObj) {
         return example.toISOString();
     }
   }
-  if (example) { return example; }
+  if (example) {
+    return example;
+  }
 
   if (Object.keys(schemaObj).length === 0) {
     return null;
@@ -309,11 +315,19 @@ export function getSampleValueByType(schemaObj) {
       : minimumPossibleVal;
     return finalVal;
   }
-  if (typeValue.match(/^boolean/g)) { return false; }
-  if (typeValue.match(/^null/g)) { return null; }
+  if (typeValue.match(/^boolean/g)) {
+    return false;
+  }
+  if (typeValue.match(/^null/g)) {
+    return null;
+  }
   if (typeValue.match(/^string/g)) {
-    if (schemaObj.enum) { return schemaObj.enum[0]; }
-    if (schemaObj.const) { return schemaObj.const; }
+    if (schemaObj.enum) {
+      return schemaObj.enum[0];
+    }
+    if (schemaObj.const) {
+      return schemaObj.const;
+    }
     if (schemaObj.pattern) {
       try {
         return new RandExp(schemaObj.pattern).gen();
@@ -328,11 +342,11 @@ export function getSampleValueByType(schemaObj) {
         case 'uri':
           return 'http://example.com';
         case 'date':
-          return (new Date(0)).toISOString().split('T')[0];
+          return new Date(0).toISOString().split('T')[0];
         case 'time':
-          return (new Date(0)).toISOString().split('T')[1];
+          return new Date(0).toISOString().split('T')[1];
         case 'date-time':
-          return (new Date(0)).toISOString();
+          return new Date(0).toISOString();
         case 'duration':
           return 'P3Y6M4DT12H30M5S'; // P=Period 3-Years 6-Months 4-Days 12-Hours 30-Minutes 5-Seconds
         case 'email':
@@ -394,7 +408,7 @@ export function json2xml(obj, level = 1) {
     return `\n${indent}${obj.toString()}`;
   }
   for (const prop in obj) {
-    const tagNameOrProp = (obj[prop]['::XML_TAG'] || prop);
+    const tagNameOrProp = obj[prop]['::XML_TAG'] || prop;
     let tagName = '';
     if (Array.isArray(obj[prop])) {
       tagName = tagNameOrProp[0]['::XML_TAG'] || `${prop}`;
@@ -474,7 +488,7 @@ function mergePropertyExamples(obj, propertyName, propExamples) {
 }
 
 /* For changing JSON-Schema to a Sample Object, as per the schema (to generate examples based on schema) */
-export function schemaToSampleObj(schema, config = { }) {
+export function schemaToSampleObj(schema, config = {}) {
   let obj = {};
   if (!schema) {
     return;
@@ -593,9 +607,15 @@ export function schemaToSampleObj(schema, config = { }) {
           commonObj = schema;
           break;
         }
-        if (schema.properties[propertyName].deprecated && !config.includeDeprecated) { continue; }
-        if (schema.properties[propertyName].readOnly && !config.includeReadOnly) { continue; }
-        if (schema.properties[propertyName].writeOnly && !config.includeWriteOnly) { continue; }
+        if (schema.properties[propertyName].deprecated && !config.includeDeprecated) {
+          continue;
+        }
+        if (schema.properties[propertyName].readOnly && !config.includeReadOnly) {
+          continue;
+        }
+        if (schema.properties[propertyName].writeOnly && !config.includeWriteOnly) {
+          continue;
+        }
         commonObj = mergePropertyExamples(commonObj, propertyName, schemaToSampleObj(schema.properties[propertyName], config));
       }
     }
@@ -623,20 +643,29 @@ export function schemaToSampleObj(schema, config = { }) {
       obj['example-0'] = schema.example;
     } else {
       for (const propertyName in schema.properties) {
-        if (schema.properties[propertyName]?.deprecated && !config.includeDeprecated) { continue; }
-        if (schema.properties[propertyName]?.readOnly && !config.includeReadOnly) { continue; }
-        if (schema.properties[propertyName]?.writeOnly && !config.includeWriteOnly) { continue; }
+        if (schema.properties[propertyName]?.deprecated && !config.includeDeprecated) {
+          continue;
+        }
+        if (schema.properties[propertyName]?.readOnly && !config.includeReadOnly) {
+          continue;
+        }
+        if (schema.properties[propertyName]?.writeOnly && !config.includeWriteOnly) {
+          continue;
+        }
         if (schema.properties[propertyName]?.type === 'array' || schema.properties[propertyName]?.items) {
           if (schema.properties[propertyName].example) {
             addPropertyExampleToObjectExamples(schema.properties[propertyName].example, obj, propertyName);
-          } else if (schema.properties[propertyName]?.items?.example) { // schemas and properties support single example but not multiple examples.
+          } else if (schema.properties[propertyName]?.items?.example) {
+            // schemas and properties support single example but not multiple examples.
             addPropertyExampleToObjectExamples([schema.properties[propertyName].items.example], obj, propertyName);
           } else {
             const itemSamples = schemaToSampleObj(schema.properties[propertyName].items, config);
             if (config.useXmlTagForProp) {
               const xmlTagName = schema.properties[propertyName].xml?.name || propertyName;
               if (schema.properties[propertyName].xml?.wrapped) {
-                const wrappedItemSample = JSON.parse(`{ "${xmlTagName}" : { "${xmlTagName}" : ${JSON.stringify(itemSamples['example-0'])} } }`);
+                const wrappedItemSample = JSON.parse(
+                  `{ "${xmlTagName}" : { "${xmlTagName}" : ${JSON.stringify(itemSamples['example-0'])} } }`
+                );
                 obj = mergePropertyExamples(obj, xmlTagName, wrappedItemSample);
               } else {
                 obj = mergePropertyExamples(obj, xmlTagName, itemSamples);
@@ -663,7 +692,8 @@ export function schemaToSampleObj(schema, config = { }) {
     if (schema.items || schema.example) {
       if (schema.example) {
         obj['example-0'] = schema.example;
-      } else if (schema.items?.example) { // schemas and properties support single example but not multiple examples.
+      } else if (schema.items?.example) {
+        // schemas and properties support single example but not multiple examples.
         obj['example-0'] = [schema.items.example];
       } else {
         const samples = schemaToSampleObj(schema.items, config);
@@ -684,7 +714,8 @@ export function schemaToSampleObj(schema, config = { }) {
 }
 
 function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
-  let markdown = ((schema.description || schema.title) && (schema.minItems || schema.maxItems)) ? '<span class="descr-expand-toggle">➔</span>' : '';
+  let markdown =
+    (schema.description || schema.title) && (schema.minItems || schema.maxItems) ? '<span class="descr-expand-toggle">➔</span>' : '';
   if (schema.title) {
     if (schema.description) {
       markdown = `${markdown} <b>${schema.title}:</b> ${schema.description}<br/>`;
@@ -738,10 +769,10 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     schema.allOf.map((v, i) => {
       if (v.type === 'object' || v.properties || v.allOf || v.anyOf || v.oneOf) {
         const propSuffix = (v.anyOf || v.oneOf) && i > 0 ? i : '';
-        const partialObj = schemaInObjectNotation(v, {}, (level + 1), propSuffix);
+        const partialObj = schemaInObjectNotation(v, {}, level + 1, propSuffix);
         Object.assign(objWithAllProps, partialObj);
       } else if (v.type === 'array' || v.items) {
-        const partialObj = schemaInObjectNotation(v, {}, (level + 1));
+        const partialObj = schemaInObjectNotation(v, {}, level + 1);
         Object.assign(objWithAllProps, partialObj);
       } else if (v.type) {
         const prop = `prop${Object.keys(objWithAllProps).length}`;
@@ -761,9 +792,9 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
       // obj['::deprecated'] = schema.deprecated || false;
       for (const key in schema.properties) {
         if (schema.required && schema.required.includes(key)) {
-          obj[`${key}*`] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
+          obj[`${key}*`] = schemaInObjectNotation(schema.properties[key], {}, level + 1);
         } else {
-          obj[key] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
+          obj[key] = schemaInObjectNotation(schema.properties[key], {}, level + 1);
         }
       }
     }
@@ -788,7 +819,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
         objWithAnyOfProps['::type'] = 'xxx-of-option';
       }
     });
-    obj[(schema.anyOf ? `::ANY~OF ${suffix}` : `::ONE~OF ${suffix}`)] = objWithAnyOfProps;
+    obj[schema.anyOf ? `::ANY~OF ${suffix}` : `::ONE~OF ${suffix}`] = objWithAnyOfProps;
     // obj['::type'] = 'object';
     obj['::type'] = 'object';
   } else if (Array.isArray(schema.type)) {
@@ -800,7 +831,11 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     subSchema.type.forEach((v) => {
       if (v.match(/integer|number|string|null|boolean/g)) {
         primitiveType.push(v);
-      } else if (v === 'array' && typeof subSchema.items?.type === 'string' && subSchema.items?.type.match(/integer|number|string|null|boolean/g)) {
+      } else if (
+        v === 'array' &&
+        typeof subSchema.items?.type === 'string' &&
+        subSchema.items?.type.match(/integer|number|string|null|boolean/g)
+      ) {
         // Array with primitive types should also be treated as primitive type
         if (subSchema.items.type === 'string' && subSchema.items.format) {
           primitiveType.push(`[${subSchema.items.format}]`);
@@ -843,9 +878,9 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
           };
           for (const key in schema.properties) {
             if (schema.required && schema.required.includes(key)) {
-              objTypeOption[`${key}*`] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
+              objTypeOption[`${key}*`] = schemaInObjectNotation(schema.properties[key], {}, level + 1);
             } else {
-              objTypeOption[key] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
+              objTypeOption[key] = schemaInObjectNotation(schema.properties[key], {}, level + 1);
             }
           }
           multiTypeOptions[`::OPTION~${i + 1}`] = objTypeOption;
@@ -854,14 +889,15 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
             '::title': schema.title || '',
             '::description': schema.description || '',
             '::type': 'array',
-            '::props': schemaInObjectNotation(schema.items, {}, (level + 1)),
+            '::props': schemaInObjectNotation(schema.items, {}, level + 1),
           };
         }
       });
       multiTypeOptions[`::OPTION~${complexTypes.length + 1}`] = multiPrimitiveTypes?.html || '';
       obj['::ONE~OF'] = multiTypeOptions;
     }
-  } else if (schema.type === 'object' || schema.properties) { // If Object
+  } else if (schema.type === 'object' || schema.properties) {
+    // If Object
     obj['::title'] = schema.title || '';
     obj['::description'] = generateMarkdownForArrayAndObjectDescription(schema, level);
     obj['::type'] = 'object';
@@ -873,18 +909,19 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     obj['::readwrite'] = schema.readOnly ? 'readonly' : schema.writeOnly ? 'writeonly' : '';
     for (const key in schema.properties) {
       if (schema.required && schema.required.includes(key)) {
-        obj[`${key}*`] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
+        obj[`${key}*`] = schemaInObjectNotation(schema.properties[key], {}, level + 1);
       } else {
-        obj[key] = schemaInObjectNotation(schema.properties[key], {}, (level + 1));
+        obj[key] = schemaInObjectNotation(schema.properties[key], {}, level + 1);
       }
     }
     for (const key in schema.patternProperties) {
-      obj[`[pattern: ${key}]`] = schemaInObjectNotation(schema.patternProperties[key], obj, (level + 1));
+      obj[`[pattern: ${key}]`] = schemaInObjectNotation(schema.patternProperties[key], obj, level + 1);
     }
     if (schema.additionalProperties) {
       obj['[any-key]'] = schemaInObjectNotation(schema.additionalProperties, {});
     }
-  } else if (schema.type === 'array' || schema.items) { // If Array
+  } else if (schema.type === 'array' || schema.items) {
+    // If Array
     obj['::title'] = schema.title || '';
     obj['::description'] = generateMarkdownForArrayAndObjectDescription(schema, level);
     obj['::type'] = 'array';
@@ -897,7 +934,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     if (schema.items?.items) {
       obj['::array-type'] = schema.items.items.type;
     }
-    obj['::props'] = schemaInObjectNotation(schema.items, {}, (level + 1));
+    obj['::props'] = schemaInObjectNotation(schema.items, {}, level + 1);
   } else {
     const typeObj = getTypeInfo(schema);
     if (typeObj?.html) {
@@ -909,7 +946,16 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
 }
 
 /* Create Example object */
-export function generateExample(schema, mimeType, examples = {}, example = {}, includeReadOnly = true, includeWriteOnly = true, outputType = 'json', includeGeneratedExample = false) {
+export function generateExample(
+  schema,
+  mimeType,
+  examples = {},
+  example = {},
+  includeReadOnly = true,
+  includeWriteOnly = true,
+  outputType = 'json',
+  includeGeneratedExample = false
+) {
   const finalExamples = [];
   // First check if examples is provided
   if (examples) {
@@ -991,21 +1037,33 @@ export function generateExample(schema, mimeType, examples = {}, example = {}, i
           exampleDescription: '',
           exampleType: mimeType,
           exampleValue: schema.example,
-          exampleFormat: ((mimeType?.toLowerCase().includes('json') && typeof schema.example === 'object') ? 'json' : 'text'),
+          exampleFormat: mimeType?.toLowerCase().includes('json') && typeof schema.example === 'object' ? 'json' : 'text',
         });
-      } else if (mimeType?.toLowerCase().includes('json') || mimeType?.toLowerCase().includes('text') || mimeType?.toLowerCase().includes('*/*') || mimeType?.toLowerCase().includes('xml')) {
+      } else if (
+        mimeType?.toLowerCase().includes('json') ||
+        mimeType?.toLowerCase().includes('text') ||
+        mimeType?.toLowerCase().includes('*/*') ||
+        mimeType?.toLowerCase().includes('xml')
+      ) {
         let xmlRootStart = '';
         let xmlRootEnd = '';
         let exampleFormat = '';
         let exampleValue = '';
         if (mimeType?.toLowerCase().includes('xml')) {
-          xmlRootStart = schema.xml?.name ? `<${schema.xml.name} ${schema.xml.namespace ? `xmlns="${schema.xml.namespace}"` : ''}>` : '<root>';
+          xmlRootStart = schema.xml?.name
+            ? `<${schema.xml.name} ${schema.xml.namespace ? `xmlns="${schema.xml.namespace}"` : ''}>`
+            : '<root>';
           xmlRootEnd = schema.xml?.name ? `</${schema.xml.name}>` : '</root>';
           exampleFormat = 'text';
         } else {
           exampleFormat = outputType;
         }
-        const samples = schemaToSampleObj(schema, { includeReadOnly, includeWriteOnly, deprecated: true, useXmlTagForProp: mimeType?.toLowerCase().includes('xml') });
+        const samples = schemaToSampleObj(schema, {
+          includeReadOnly,
+          includeWriteOnly,
+          deprecated: true,
+          useXmlTagForProp: mimeType?.toLowerCase().includes('xml'),
+        });
         let i = 0;
         for (const samplesKey in samples) {
           if (!samples[samplesKey]) {

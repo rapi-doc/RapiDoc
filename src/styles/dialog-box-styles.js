@@ -1,7 +1,11 @@
 import { css } from 'lit';
 
 export default css`
-  *, *:before, *:after { box-sizing: border-box; }
+  *,
+  *:before,
+  *:after {
+    box-sizing: border-box;
+  }
 
   .dialog-box-overlay {
     background-color: var(--overlay-bg);
@@ -13,7 +17,7 @@ export default css`
     overflow: hidden;
     z-index: var(--dialog-z-index);
   }
-  
+
   .dialog-box {
     position: fixed;
     top: 100px;
@@ -28,9 +32,11 @@ export default css`
     max-height: 500px;
     overflow: hidden;
     border: 1px solid var(--border-color);
-    box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+    box-shadow:
+      0 14px 28px rgba(0, 0, 0, 0.25),
+      0 10px 10px rgba(0, 0, 0, 0.22);
   }
-  
+
   .dialog-box-header {
     position: sticky;
     top: 0;
@@ -43,7 +49,7 @@ export default css`
     border-bottom: 1px solid var(--light-border-color);
     overflow: hidden;
   }
-  
+
   .dialog-box-header button {
     font-size: 1.5rem;
     font-weight: 700;
@@ -52,7 +58,7 @@ export default css`
     border: none;
     outline: none;
     background-color: transparent;
-    cursor:pointer;
+    cursor: pointer;
     border: 1px solid transparent;
     border-radius: 50%;
     margin-right: -8px;
@@ -63,13 +69,13 @@ export default css`
 
   .dialog-box-content {
     padding: 16px;
-    display:block;
+    display: block;
     overflow: auto;
     height: 100%;
   }
 
   .dialog-box-title {
     flex-grow: 1;
-    font-size:24px;
+    font-size: 24px;
   }
 `;

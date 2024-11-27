@@ -87,94 +87,95 @@ export default class JsonSchemaViewer extends LitElement {
       NavStyles,
       InfoStyles,
       css`
-      :host {
-        all: initial;
-        display:flex;
-        flex-direction: column;
-        min-width:360px;
-        width:100%;
-        height:100%;
-        margin:0;
-        padding:0;
-        overflow: hidden;
-        letter-spacing:normal;
-        color:var(--fg);
-        background-color:var(--bg);
-        font-family:var(--font-regular);
-        container-type: inline-size;
-      }
-      .body {
-        display:flex;
-        height:100%;
-        width:100%;
-        overflow:hidden;
-      }
-      .nav-bar {
-        width: 230px;
-        display:flex;
-      }
+        :host {
+          all: initial;
+          display: flex;
+          flex-direction: column;
+          min-width: 360px;
+          width: 100%;
+          height: 100%;
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
+          letter-spacing: normal;
+          color: var(--fg);
+          background-color: var(--bg);
+          font-family: var(--font-regular);
+          container-type: inline-size;
+        }
+        .body {
+          display: flex;
+          height: 100%;
+          width: 100%;
+          overflow: hidden;
+        }
+        .nav-bar {
+          width: 230px;
+          display: flex;
+        }
 
-      .main-content { 
-        margin:0;
-        padding: 16px; 
-        display:block;
-        flex:1;
-        height:100%;
-        overflow-y: auto;
-        overflow-x: hidden;
-        scrollbar-width: thin;
-        scrollbar-color: var(--border-color) transparent;
-      }
-      .main-content-inner--view-mode {
-        padding: 0 8px;
-      }
-      .main-content::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-      }
-      .main-content::-webkit-scrollbar-track {
-        background:transparent;
-      }
-      .main-content::-webkit-scrollbar-thumb {
-        background-color: var(--border-color);
-      }
-      .main-header {
-        background-color:var(--header-bg);
-        color:var(--header-fg);
-        width:100%;
-      }
-      .header-title {
-        font-size:calc(var(--font-size-regular) + 8px); 
-        padding:0 8px;
-      }
-      input.header-input{
-        background:var(--header-color-darker);
-        color:var(--header-fg);
-        border:1px solid var(--header-color-border);
-        flex:1; 
-        padding-right:24px;
-        border-radius:3px;
-      }
-      input.header-input::placeholder {
-        opacity:0.4;
-      }
-      .loader {
-        margin: 16px auto 16px auto; 
-        border: 4px solid var(--bg3);
-        border-radius: 50%;
-        border-top: 4px solid var(--primary-color);
-        width: 36px;
-        height: 36px;
-        animation: spin 2s linear infinite;
-      }
-      @container (min-width: 768px) {
-        .only-large-screen{
-          display:block;
+        .main-content {
+          margin: 0;
+          padding: 16px;
+          display: block;
+          flex: 1;
+          height: 100%;
+          overflow-y: auto;
+          overflow-x: hidden;
+          scrollbar-width: thin;
+          scrollbar-color: var(--border-color) transparent;
         }
-        .only-large-screen-flex {
-          display:flex;
+        .main-content-inner--view-mode {
+          padding: 0 8px;
         }
-      }`,
+        .main-content::-webkit-scrollbar {
+          width: 8px;
+          height: 8px;
+        }
+        .main-content::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .main-content::-webkit-scrollbar-thumb {
+          background-color: var(--border-color);
+        }
+        .main-header {
+          background-color: var(--header-bg);
+          color: var(--header-fg);
+          width: 100%;
+        }
+        .header-title {
+          font-size: calc(var(--font-size-regular) + 8px);
+          padding: 0 8px;
+        }
+        input.header-input {
+          background: var(--header-color-darker);
+          color: var(--header-fg);
+          border: 1px solid var(--header-color-border);
+          flex: 1;
+          padding-right: 24px;
+          border-radius: 3px;
+        }
+        input.header-input::placeholder {
+          opacity: 0.4;
+        }
+        .loader {
+          margin: 16px auto 16px auto;
+          border: 4px solid var(--bg3);
+          border-radius: 50%;
+          border-top: 4px solid var(--primary-color);
+          width: 36px;
+          height: 36px;
+          animation: spin 2s linear infinite;
+        }
+        @container (min-width: 768px) {
+          .only-large-screen {
+            display: block;
+          }
+          .only-large-screen-flex {
+            display: flex;
+          }
+        }
+      `,
     ];
   }
 
@@ -190,10 +191,18 @@ export default class JsonSchemaViewer extends LitElement {
         parent.style.height = '100vh';
       }
       if (parent.tagName === 'BODY') {
-        if (!parent.style.marginTop) { parent.style.marginTop = '0'; }
-        if (!parent.style.marginRight) { parent.style.marginRight = '0'; }
-        if (!parent.style.marginBottom) { parent.style.marginBottom = '0'; }
-        if (!parent.style.marginLeft) { parent.style.marginLeft = '0'; }
+        if (!parent.style.marginTop) {
+          parent.style.marginTop = '0';
+        }
+        if (!parent.style.marginRight) {
+          parent.style.marginRight = '0';
+        }
+        if (!parent.style.marginBottom) {
+          parent.style.marginBottom = '0';
+        }
+        if (!parent.style.marginLeft) {
+          parent.style.marginLeft = '0';
+        }
       }
     }
 
@@ -202,40 +211,65 @@ export default class JsonSchemaViewer extends LitElement {
         family: 'Open Sans',
         style: 'normal',
         weight: '300',
-        unicodeRange: 'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD',
+        unicodeRange:
+          'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD',
       };
       const fontWeight300 = new FontFace(
         'Open Sans',
         "url(https://fonts.gstatic.com/s/opensans/v18/mem5YaGs126MiZpBA-UN_r8OUuhpKKSTjw.woff2) format('woff2')",
-        fontDescriptor,
+        fontDescriptor
       );
       fontDescriptor.weight = '600';
       const fontWeight600 = new FontFace(
         'Open Sans',
         "url(https://fonts.gstatic.com/s/opensans/v18/mem5YaGs126MiZpBA-UNirkOUuhpKKSTjw.woff2) format('woff2')",
-        fontDescriptor,
+        fontDescriptor
       );
-      fontWeight300.load().then((font) => { document.fonts.add(font); });
-      fontWeight600.load().then((font) => { document.fonts.add(font); });
+      fontWeight300.load().then((font) => {
+        document.fonts.add(font);
+      });
+      fontWeight600.load().then((font) => {
+        document.fonts.add(font);
+      });
     }
 
     this.renderStyle = 'focused';
     this.pathsExpanded = this.pathsExpanded === 'true';
 
-    if (!this.showInfo || !'true, false,'.includes(`${this.showInfo},`)) { this.showInfo = 'true'; }
-    if (!this.showSideNav || !'true false'.includes(this.showSideNav)) { this.showSideNav = 'true'; }
-    if (!this.showHeader || !'true, false,'.includes(`${this.showHeader},`)) { this.showHeader = 'true'; }
-
-    if (!this.schemaStyle || !'tree, table,'.includes(`${this.schemaStyle},`)) { this.schemaStyle = 'tree'; }
-    if (!this.theme || !'light, dark,'.includes(`${this.theme},`)) {
-      this.theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+    if (!this.showInfo || !'true, false,'.includes(`${this.showInfo},`)) {
+      this.showInfo = 'true';
     }
-    if (!this.allowSearch || !'true, false,'.includes(`${this.allowSearch},`)) { this.allowSearch = 'true'; }
-    if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) { this.schemaExpandLevel = 99999; }
-    if (!this.schemaDescriptionExpanded || !'true, false,'.includes(`${this.schemaDescriptionExpanded},`)) { this.schemaDescriptionExpanded = 'false'; }
-    if (!this.fontSize || !'default, large, largest,'.includes(`${this.fontSize},`)) { this.fontSize = 'default'; }
-    if (!this.matchType || !'includes regex'.includes(this.matchType)) { this.matchType = 'includes'; }
-    if (!this.allowSchemaDescriptionExpandToggle || !'true, false,'.includes(`${this.allowSchemaDescriptionExpandToggle},`)) { this.allowSchemaDescriptionExpandToggle = 'true'; }
+    if (!this.showSideNav || !'true false'.includes(this.showSideNav)) {
+      this.showSideNav = 'true';
+    }
+    if (!this.showHeader || !'true, false,'.includes(`${this.showHeader},`)) {
+      this.showHeader = 'true';
+    }
+
+    if (!this.schemaStyle || !'tree, table,'.includes(`${this.schemaStyle},`)) {
+      this.schemaStyle = 'tree';
+    }
+    if (!this.theme || !'light, dark,'.includes(`${this.theme},`)) {
+      this.theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    }
+    if (!this.allowSearch || !'true, false,'.includes(`${this.allowSearch},`)) {
+      this.allowSearch = 'true';
+    }
+    if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) {
+      this.schemaExpandLevel = 99999;
+    }
+    if (!this.schemaDescriptionExpanded || !'true, false,'.includes(`${this.schemaDescriptionExpanded},`)) {
+      this.schemaDescriptionExpanded = 'false';
+    }
+    if (!this.fontSize || !'default, large, largest,'.includes(`${this.fontSize},`)) {
+      this.fontSize = 'default';
+    }
+    if (!this.matchType || !'includes regex'.includes(this.matchType)) {
+      this.matchType = 'includes';
+    }
+    if (!this.allowSchemaDescriptionExpandToggle || !'true, false,'.includes(`${this.allowSchemaDescriptionExpandToggle},`)) {
+      this.allowSchemaDescriptionExpandToggle = 'true';
+    }
 
     marked.setOptions({
       highlight: (code, lang) => {
@@ -295,7 +329,7 @@ export default class JsonSchemaViewer extends LitElement {
         this.getAttribute('sort-endpoints-by'),
         this.getAttribute('match-paths'),
         this.getAttribute('match-type'),
-        this.getAttribute('remove-endpoints-with-badge-label-as'),
+        this.getAttribute('remove-endpoints-with-badge-label-as')
       );
       this.loading = false;
       this.afterSpecParsedAndValidated(spec);
@@ -303,7 +337,7 @@ export default class JsonSchemaViewer extends LitElement {
       this.loading = false;
       this.loadFailed = true;
       this.resolvedSpec = null;
-      console.error(`RapiDoc: Unable to resolve the API spec..  ${err.message}`); // eslint-disable-line no-console
+      console.error(`RapiDoc: Unable to resolve the API spec..  ${err.message}`);
     }
   }
 

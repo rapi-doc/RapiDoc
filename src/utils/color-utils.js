@@ -22,7 +22,7 @@ export default {
     },
     luminanace(hexColorCode) {
       const rgb = this.getRgb(hexColorCode);
-      return (rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114);
+      return rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114;
     },
     invert(hexColorCode) {
       return this.luminanace(hexColorCode) > 135 ? '#000' : '#fff'; // compare with `>=128`, but giving little more preference to white over black
@@ -49,7 +49,7 @@ export default {
     hasGoodContrast(hexColorCode1, hexColorCode2) {
       const lum1 = this.luminanace(hexColorCode1);
       const lum2 = this.luminanace(hexColorCode2);
-      return (lum1 - lum2);
+      return lum1 - lum2;
     },
   },
 };

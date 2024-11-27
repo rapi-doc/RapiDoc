@@ -32,12 +32,15 @@ export default function mainBodyTemplate(isMini = false, pathsExpanded = false) 
     navAccentColor: isValidHexColor(this.navAccentColor) ? this.navAccentColor : '',
     navAccentTextColor: isValidHexColor(this.navAccentTextColor) ? this.navAccentTextColor : '',
   };
-  /* eslint-disable indent */
+
   if (this.resolvedSpec.specLoadError) {
     return html`
       ${this.theme === 'dark' ? SetTheme.call(this, 'dark', newTheme) : SetTheme.call(this, 'light', newTheme)}
-      <div id="spec-not-found" style='display:flex; align-items:center; justify-content: center; border:1px dashed var(--border-color); height:42px; padding:5px; font-size:var(--font-size-small); color:var(--red); font-family:var(--font-mono)'> 
-        ${this.resolvedSpec.info.description} 
+      <div
+        id="spec-not-found"
+        style="display:flex; align-items:center; justify-content: center; border:1px dashed var(--border-color); height:42px; padding:5px; font-size:var(--font-size-small); color:var(--red); font-family:var(--font-mono)"
+      >
+        ${this.resolvedSpec.info.description}
       </div>
     `;
   }
@@ -45,10 +48,10 @@ export default function mainBodyTemplate(isMini = false, pathsExpanded = false) 
   if (this.resolvedSpec.isSpecLoading) {
     return html`
       ${this.theme === 'dark' ? SetTheme.call(this, 'dark', newTheme) : SetTheme.call(this, 'light', newTheme)}
-      <main class='main-content regular-font' part='section-main-content'>
+      <main class="main-content regular-font" part="section-main-content">
         <slot></slot>
-        <div class='main-content-inner--${this.renderStyle}-mode'>
-          <div class='loader'></div>
+        <div class="main-content-inner--${this.renderStyle}-mode">
+          <div class="loader"></div>
         </div>
       </main>
     `;
@@ -59,52 +62,49 @@ export default function mainBodyTemplate(isMini = false, pathsExpanded = false) 
 
     <!-- Header -->
     ${this.showHeader === 'false' ? '' : headerTemplate.call(this)}
-    
+
     <!-- Advanced Search -->
     ${this.allowAdvancedSearch === 'false' ? '' : advancedSearchTemplate.call(this)}
 
-    <div id='the-main-body' class='body ${this.cssClasses}' dir='${this.pageDirection}' >
+    <div id="the-main-body" class="body ${this.cssClasses}" dir="${this.pageDirection}">
       <!-- Side Nav -->
-      ${((this.renderStyle === 'read' || this.renderStyle === 'focused')
-          && this.showSideNav === 'true'
-          && this.resolvedSpec
-        ) ? navbarTemplate.call(this) : ''
-      }
+      ${(this.renderStyle === 'read' || this.renderStyle === 'focused') && this.showSideNav === 'true' && this.resolvedSpec
+        ? navbarTemplate.call(this)
+        : ''}
 
       <!-- Main Content -->
-      <main class='main-content regular-font' tabindex='-1' part='section-main-content'>
+      <main class="main-content regular-font" tabindex="-1" part="section-main-content">
         <slot></slot>
-        <div class='main-content-inner--${this.renderStyle}-mode'>
+        <div class="main-content-inner--${this.renderStyle}-mode">
           ${this.loading === true
-            ? html`<div class='loader'></div>`
-            : html`
-              ${this.loadFailed === true
-                ? html`<div style='text-align: center;margin: 16px;'> Unable to load the Spec</div>`
+            ? html`<div class="loader"></div>`
+            : html` ${this.loadFailed === true
+                ? html`<div style="text-align: center;margin: 16px;">Unable to load the Spec</div>`
                 : html`
-                  <div class='operations-root' @click='${(e) => { this.handleHref(e); }}'>
-                  ${this.renderStyle === 'focused'
-                    ? html`${focusedEndpointTemplate.call(this)}`
-                    : html`
-                      ${this.showInfo === 'true' ? overviewTemplate.call(this) : ''}
-                      ${this.allowServerSelection === 'true' ? serverTemplate.call(this) : ''}
-                      ${this.allowAuthentication === 'true' ? securitySchemeTemplate.call(this, this.allowTry) : ''}
-                      <div id='operations-top' class='observe-me'>
-                        <slot name='operations-top'></slot>
-                      </div>  
-                      ${this.renderStyle === 'read'
-                        ? expandedEndpointTemplate.call(this)
-                        : endpointTemplate.call(this, isMini, pathsExpanded)
-                      }
-                    `
-                  }
-                  </div>
-                `
-              }`
-          }
+                    <div
+                      class="operations-root"
+                      @click="${(e) => {
+                        this.handleHref(e);
+                      }}"
+                    >
+                      ${this.renderStyle === 'focused'
+                        ? html`${focusedEndpointTemplate.call(this)}`
+                        : html`
+                            ${this.showInfo === 'true' ? overviewTemplate.call(this) : ''}
+                            ${this.allowServerSelection === 'true' ? serverTemplate.call(this) : ''}
+                            ${this.allowAuthentication === 'true' ? securitySchemeTemplate.call(this, this.allowTry) : ''}
+                            <div id="operations-top" class="observe-me">
+                              <slot name="operations-top"></slot>
+                            </div>
+                            ${this.renderStyle === 'read'
+                              ? expandedEndpointTemplate.call(this)
+                              : endpointTemplate.call(this, isMini, pathsExpanded)}
+                          `}
+                    </div>
+                  `}`}
         </div>
-        <slot name='footer'></slot>
+        <slot name="footer"></slot>
       </main>
-    </div>  
+    </div>
   `;
 }
-/* eslint-enable indent */

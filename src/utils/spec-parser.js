@@ -1,5 +1,3 @@
-/* eslint-disable no-use-before-define */
-/* eslint import/no-unresolved: [2, { commonjs: true, amd: true }] */
 import OpenApiParser from '@apitools/openapi-parser';
 import { marked } from 'marked';
 import { invalidCharsRegEx, rapidocApiKey, sleep } from '~/utils/common-utils';
@@ -16,7 +14,7 @@ export default async function ProcessSpec(
   serverUrl = '',
   matchPaths = '',
   matchType = '',
-  removeEndpointsWithBadgeLabelAs = '',
+  removeEndpointsWithBadgeLabelAs = ''
 ) {
   let jsonParsedSpec;
 
@@ -33,7 +31,14 @@ export default async function ProcessSpec(
     // If JSON Schema Viewer
     if (specMeta.resolvedSpec?.jsonSchemaViewer && specMeta.resolvedSpec?.schemaAndExamples) {
       this.dispatchEvent(new CustomEvent('before-render', { detail: { spec: specMeta.resolvedSpec } }));
-      const schemaAndExamples = Object.entries(specMeta.resolvedSpec.schemaAndExamples).map((v) => ({ show: true, expanded: true, selectedExample: null, name: v[0], elementId: v[0].replace(invalidCharsRegEx, '-'), ...v[1] }));
+      const schemaAndExamples = Object.entries(specMeta.resolvedSpec.schemaAndExamples).map((v) => ({
+        show: true,
+        expanded: true,
+        selectedExample: null,
+        name: v[0],
+        elementId: v[0].replace(invalidCharsRegEx, '-'),
+        ...v[1],
+      }));
       const parsedSpec = {
         specLoadError: false,
         isSpecLoading: false,
@@ -44,24 +49,29 @@ export default async function ProcessSpec(
     }
 
     // If RapiDoc or RapiDocMini
-    if (specMeta.spec && (specMeta.spec.components || specMeta.spec.info || specMeta.spec.servers || specMeta.spec.tags || specMeta.spec.paths)) {
+    if (
+      specMeta.spec &&
+      (specMeta.spec.components || specMeta.spec.info || specMeta.spec.servers || specMeta.spec.tags || specMeta.spec.paths)
+    ) {
       jsonParsedSpec = filterPaths(specMeta.spec, matchPaths, matchType, removeEndpointsWithBadgeLabelAs);
       this.dispatchEvent(new CustomEvent('before-render', { detail: { spec: jsonParsedSpec } }));
     } else {
-      console.info('RapiDoc: %c There was an issue while parsing the spec %o ', 'color:orangered', specMeta); // eslint-disable-line no-console
+      console.info('RapiDoc: %c There was an issue while parsing the spec %o ', 'color:orangered', specMeta);
       return {
         specLoadError: true,
         isSpecLoading: false,
         info: {
           title: 'Error loading the spec',
-          description: specMeta.response?.url ? `${specMeta.response?.url} ┃ ${specMeta.response?.status}  ${specMeta.response?.statusText}` : 'Unable to load the Spec',
+          description: specMeta.response?.url
+            ? `${specMeta.response?.url} ┃ ${specMeta.response?.status}  ${specMeta.response?.statusText}`
+            : 'Unable to load the Spec',
           version: ' ',
         },
         tags: [],
       };
     }
   } catch (err) {
-    console.info('RapiDoc: %c There was an issue while parsing the spec %o ', 'color:orangered', err); // eslint-disable-line no-console
+    console.info('RapiDoc: %c There was an issue while parsing the spec %o ', 'color:orangered', err);
   }
 
   // const pathGroups = groupByPaths(jsonParsedSpec);
@@ -159,7 +169,7 @@ export default async function ProcessSpec(
   } else {
     jsonParsedSpec.servers = [{ url: 'http://localhost', computedUrl: 'http://localhost' }];
   }
-  servers = jsonParsedSpec.servers; // eslint-disable-line prefer-destructuring
+  servers = jsonParsedSpec.servers;
   const parsedSpec = {
     specLoadError: false,
     isSpecLoading: false,
@@ -178,7 +188,10 @@ function filterPaths(openApiObject, matchPaths = '', matchType = '', removeEndpo
   const filteredPaths = {};
 
   // Convert the removePathsWithBadgeLabeledAs to an array if provided
-  const labelsToRemove = removeEndpointsWithBadgeLabelAs.split(',').map((label) => label.trim().toLowerCase()).filter(Boolean);
+  const labelsToRemove = removeEndpointsWithBadgeLabelAs
+    .split(',')
+    .map((label) => label.trim().toLowerCase())
+    .filter(Boolean);
 
   // Helper function to check if a path should be included based on matchPaths
   function pathMatches(pathsKey, httpMethod) {
@@ -261,11 +274,13 @@ function getComponents(openApiSpec, sortSchemas = false) {
         }
 
         cmpName = 'Schemas';
-        cmpDescription = 'Schemas allows the definition of input and output data types. These types can be objects, but also primitives and arrays.';
+        cmpDescription =
+          'Schemas allows the definition of input and output data types. These types can be objects, but also primitives and arrays.';
         break;
       case 'responses':
         cmpName = 'Responses';
-        cmpDescription = 'Describes responses from an API Operation, including design-time, static links to operations based on the response.';
+        cmpDescription =
+          'Describes responses from an API Operation, including design-time, static links to operations based on the response.';
         break;
       case 'parameters':
         cmpName = 'Parameters';
@@ -285,17 +300,20 @@ function getComponents(openApiSpec, sortSchemas = false) {
         break;
       case 'securitySchemes':
         cmpName = 'Security Schemes';
-        // eslint-disable-next-line max-len
-        cmpDescription = 'Defines a security scheme that can be used by the operations. Supported schemes are HTTP authentication, an API key (either as a header, a cookie parameter or as a query parameter), OAuth2\'s common flows(implicit, password, client credentials and authorization code) as defined in RFC6749, and OpenID Connect Discovery.';
+
+        cmpDescription =
+          "Defines a security scheme that can be used by the operations. Supported schemes are HTTP authentication, an API key (either as a header, a cookie parameter or as a query parameter), OAuth2's common flows(implicit, password, client credentials and authorization code) as defined in RFC6749, and OpenID Connect Discovery.";
         break;
       case 'links':
         cmpName = 'Links';
-        cmpDescription = 'Links represent a possible design-time link for a response. The presence of a link does not guarantee the caller\'s ability to successfully invoke it, rather it provides a known relationship and traversal mechanism between responses and other operations.';
+        cmpDescription =
+          "Links represent a possible design-time link for a response. The presence of a link does not guarantee the caller's ability to successfully invoke it, rather it provides a known relationship and traversal mechanism between responses and other operations.";
         break;
       case 'callbacks':
         cmpName = 'Callbacks';
-        // eslint-disable-next-line max-len
-        cmpDescription = 'A map of possible out-of band callbacks related to the parent operation. Each value in the map is a Path Item Object that describes a set of requests that may be initiated by the API provider and the expected responses. The key value used to identify the path item object is an expression, evaluated at runtime, that identifies a URL to use for the callback operation.';
+
+        cmpDescription =
+          'A map of possible out-of band callbacks related to the parent operation. Each value in the map is a Path Item Object that describes a set of requests that may be initiated by the API provider and the expected responses. The key value used to identify the path item object is an expression, evaluated at runtime, that identifies a URL to use for the callback operation.';
         break;
       default:
         cmpName = component;
@@ -317,23 +335,24 @@ function getComponents(openApiSpec, sortSchemas = false) {
 
 function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, sortTags = false) {
   const supportedMethods = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options']; // this is also used for ordering endpoints by methods
-  const tags = openApiSpec.tags && Array.isArray(openApiSpec.tags) && openApiSpec.tags.length > 0
-    ? openApiSpec.tags.map((v) => ({
-      show: true,
-      elementId: `tag--${v.name.replace(invalidCharsRegEx, '-')}`,
-      name: v.name,
-      displayName: v['x-displayName'] || v.name,
-      description: v.description || '',
-      headers: v.description ? getHeadersFromMarkdown(v.description) : [],
-      paths: [],
-      expanded: v['x-tag-expanded'] !== false,
-    }))
-    : [];
+  const tags =
+    openApiSpec.tags && Array.isArray(openApiSpec.tags) && openApiSpec.tags.length > 0
+      ? openApiSpec.tags.map((v) => ({
+          show: true,
+          elementId: `tag--${v.name.replace(invalidCharsRegEx, '-')}`,
+          name: v.name,
+          displayName: v['x-displayName'] || v.name,
+          description: v.description || '',
+          headers: v.description ? getHeadersFromMarkdown(v.description) : [],
+          paths: [],
+          expanded: v['x-tag-expanded'] !== false,
+        }))
+      : [];
 
   const pathsAndWebhooks = openApiSpec.paths || {};
   if (openApiSpec.webhooks) {
     for (const [key, value] of Object.entries(openApiSpec.webhooks)) {
-      value._type = 'webhook'; // eslint-disable-line no-underscore-dangle
+      value._type = 'webhook';
       pathsAndWebhooks[key] = value;
     }
   }
@@ -344,7 +363,7 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
       servers: pathsAndWebhooks[pathOrHookName].servers || [],
       parameters: pathsAndWebhooks[pathOrHookName].parameters || [],
     };
-    const isWebhook = pathsAndWebhooks[pathOrHookName]._type === 'webhook'; // eslint-disable-line no-underscore-dangle
+    const isWebhook = pathsAndWebhooks[pathOrHookName]._type === 'webhook';
     supportedMethods.forEach((methodName) => {
       if (pathsAndWebhooks[pathOrHookName][methodName]) {
         const pathOrHookObj = openApiSpec.paths[pathOrHookName][methodName];
@@ -370,7 +389,7 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
           let specTagsItem;
 
           if (openApiSpec.tags) {
-            specTagsItem = openApiSpec.tags.find((v) => (v.name.toLowerCase() === tag.toLowerCase()));
+            specTagsItem = openApiSpec.tags.find((v) => v.name.toLowerCase() === tag.toLowerCase());
           }
 
           tagObj = tags.find((v) => v.name === tag);
@@ -382,7 +401,7 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
               description: specTagsItem?.description || '',
               headers: specTagsItem?.description ? getHeadersFromMarkdown(specTagsItem.description) : [],
               paths: [],
-              expanded: (specTagsItem ? specTagsItem['x-tag-expanded'] !== false : true),
+              expanded: specTagsItem ? specTagsItem['x-tag-expanded'] !== false : true,
             };
             tags.push(tagObj);
           }
@@ -396,11 +415,13 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
           let finalParameters = [];
           if (commonParams) {
             if (pathOrHookObj.parameters) {
-              finalParameters = commonParams.filter((commonParam) => {
-                if (!pathOrHookObj.parameters.some((param) => (commonParam.name === param.name && commonParam.in === param.in))) {
-                  return commonParam;
-                }
-              }).concat(pathOrHookObj.parameters);
+              finalParameters = commonParams
+                .filter((commonParam) => {
+                  if (!pathOrHookObj.parameters.some((param) => commonParam.name === param.name && commonParam.in === param.in)) {
+                    return commonParam;
+                  }
+                })
+                .concat(pathOrHookObj.parameters);
             } else {
               finalParameters = commonParams.slice(0);
             }
@@ -422,8 +443,8 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
             expanded: false,
             isWebhook,
             expandedAtLeastOnce: false,
-            summary: (pathOrHookObj.summary || ''),
-            description: (pathOrHookObj.description || ''),
+            summary: pathOrHookObj.summary || '',
+            description: pathOrHookObj.description || '',
             externalDocs: pathOrHookObj.externalDocs,
             shortSummary,
             method: methodName,
@@ -442,7 +463,7 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
             xBadges: pathOrHookObj['x-badges'] || undefined,
             xCodeSamples: pathOrHookObj['x-codeSamples'] || pathOrHookObj['x-code-samples'] || '',
           });
-        });// End of tag path create
+        }); // End of tag path create
       }
     }); // End of Methods
   }
@@ -452,7 +473,7 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
     if (sortEndpointsBy === 'method') {
       tag.paths.sort((a, b) => supportedMethods.indexOf(a.method).toString().localeCompare(supportedMethods.indexOf(b.method)));
     } else if (sortEndpointsBy === 'summary') {
-      tag.paths.sort((a, b) => (a.shortSummary).localeCompare(b.shortSummary));
+      tag.paths.sort((a, b) => a.shortSummary.localeCompare(b.shortSummary));
     } else if (sortEndpointsBy === 'path') {
       tag.paths.sort((a, b) => a.path.localeCompare(b.path));
     } else if (sortEndpointsBy === 'none') {
