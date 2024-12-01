@@ -26,18 +26,7 @@ import ExampleLayout from '../../layouts/ExampleLayout.astro';
           getRapiDoc().setAttribute('primary-color', '#FF3D00' );
         }
       } else if(attr==="spec-url") {
-        arr = [
-           "https://petstore.swagger.io/v2/swagger.json" 
-          ,"https://api.apis.guru/v2/specs/apideck.com/crm/0.0.1/openapi.yaml"
-          ,"https://api.apis.guru/v2/specs/atlassian.com/jira/1001.0.0-SNAPSHOT/openapi.yaml",
-          ,"https://api.apis.guru/v2/specs/googleapis.com/managedidentities/v1beta1/openapi.yaml"
-          ,"https://api.apis.guru/v2/specs/azure.com/azureactivedirectory/2017-04-01/swagger.yaml"
-          ,"https://api.apis.guru/v2/specs/gitlab.com/v3/swagger.yaml"
-          ,"https://api.apis.guru/v2/specs/quotes.rest/3.1/openapi.yaml"
-          ,"https://api.apis.guru/v2/specs/azure.com/workloadmonitor-Microsoft.WorkloadMonitor/2018-08-31-preview/swagger.json"
-          ,"https://api.apis.guru/v2/specs/api2cart.com/1.1/openapi.yaml"
-          ,"https://api.apis.guru/v2/specs/chompthis.com/1.0.0-oas3/openapi.yaml"
-        ];
+        arr = ["/specs/petstore.yaml" ,"/specs/youtube.yaml" ];
       } else {
         return;
       }
@@ -101,7 +90,7 @@ import ExampleLayout from '../../layouts/ExampleLayout.astro';
     }
   </script>
 
-  <rapi-doc id="thedoc" spec-url="petstore-mini.yaml"> 
+  <rapi-doc id="thedoc" spec-url="/specs/petstore.yaml"> 
     <div style="display:flex; margin:10px; justify-content:center;flex-wrap: wrap;">
       <button class="btn square" onclick="changeAttr('header-color')">Change Header Color</button>
       <button class="btn square" onclick="changeRenderStyle()">Render Style</button>

@@ -1,10 +1,10 @@
-openapi: 3.1.0
+openapi: 3.0.3
 info:
-  title: Swagger Petstore - OpenAPI 3.1
-  description: This is a sample Pet Store Server based on the OpenAPI 3.1.0 specification. 
+  title: Swagger Petstore - OpenAPI 3.0
+  description: This is a sample Pet Store Server based on the OpenAPI 3.0.3 specification.
   termsOfService: http://example.com/terms/
   contact:
-    email: apiteam@example.com
+    email: contact@example.com
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
@@ -599,22 +599,22 @@ components:
         id:
           type: integer
           format: int64
-          examples: [10]
+          example: 10
         petId:
           type: integer
           format: int64
-          examples: [198772]
+          example: 198772
         quantity:
           type: integer
           format: int32
-          examples: [7]
+          example: 7
         shipDate:
           type: string
           format: date-time
         status:
           type: string
           description: Order Status
-          examples: [approved]
+          example: approved
           enum:
             - placed
             - approved
@@ -629,10 +629,10 @@ components:
         id:
           type: integer
           format: int64
-          examples: [100000]
+          example: 100000
         username:
           type: string
-          examples: [fehguy]
+          example: fehguy
         address:
           type: array
           xml:
@@ -647,16 +647,16 @@ components:
       properties:
         street:
           type: string
-          examples: [437 Lytton]
+          example: 437 Lytton
         city:
           type: string
-          examples: [Palo Alto]
+          example: Palo Alto
         state:
           type: string
-          examples: [CA]
+          example: CA
         zip:
           type: string
-          examples: ['94301']
+          example: '94301'
       xml:
         name: address
     Category:
@@ -665,10 +665,10 @@ components:
         id:
           type: integer
           format: int64
-          examples: [1]
+          example: 1
         name:
           type: string
-          examples: [Dogs]
+          example: Dogs
       xml:
         name: category
     User:
@@ -677,30 +677,30 @@ components:
         id:
           type: integer
           format: int64
-          examples: [10]
+          example: 10
         username:
           type: string
-          examples: [theUser]
+          example: theUser
         firstName:
           type: string
-          examples: [John]
+          example: John
         lastName:
           type: string
-          examples: [James]
+          example: James
         email:
           type: string
-          examples: [john@email.com]
+          example: john@email.com
         password:
           type: string
-          examples: ['12345']
+          example: '12345'
         phone:
           type: string
-          examples: ['12345']
+          example: '12345'
         userStatus:
           type: integer
           description: User Status
           format: int32
-          examples: [1]
+          example: 1
       xml:
         name: user
     Tag:
@@ -722,10 +722,10 @@ components:
         id:
           type: integer
           format: int64
-          examples: [10]
+          example: 10
         name:
           type: string
-          examples: [doggie]
+          example: doggie
         category:
           $ref: '#/components/schemas/Category'
         photoUrls:

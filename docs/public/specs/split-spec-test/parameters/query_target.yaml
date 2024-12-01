@@ -1,6 +1,0 @@
-name: target
-in: query
-description: The filter matching the target system class.
-required: false
-schema:
-  $ref: "../schemas/system_class.yaml"

@@ -1,6 +1,0 @@
-name: source
-in: query
-description: The filter matching the source system class.
-required: false
-schema:
-  $ref: "../schemas/system_class.yaml"

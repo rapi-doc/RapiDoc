@@ -20,7 +20,7 @@ import ExampleLayout from '../../layouts/ExampleLayout.astro';
   <div id="rapiddoc-container">
     <rapi-doc 
       id = "thedoc"
-      spec-url = "/specs/petstore-mini.yaml"
+      spec-url = "/specs/petstore.yaml"
       sort-tags="false"
       sort-endpoints-by="method"
       heading-text="Demo"
@@ -34,7 +34,7 @@ import ExampleLayout from '../../layouts/ExampleLayout.astro';
 
 <script is:inline>
   const specUrls = {
-    'PetStore'  : '/specs/petstore-mini.yaml',
+    'PetStore'  : '/specs/petstore.yaml',
     'Jira'      : 'https://api.apis.guru/v2/specs/atlassian.com/jira/1001.0.0-SNAPSHOT/openapi.yaml',
     'YouTube'   : 'https://api.apis.guru/v2/specs/googleapis.com/youtube/v3/openapi.yaml',
     'AzureAD'   : 'https://api.apis.guru/v2/specs/azure.com/azureactivedirectory/2017-04-01/swagger.yaml',

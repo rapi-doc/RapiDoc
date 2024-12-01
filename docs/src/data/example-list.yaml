@@ -6,7 +6,7 @@ examples:
       isDoc: true
   - A Pet-Store Example:
       img: /assets/images/dog.png
-      href: /examples/petstore-extended.html
+      href: /examples/petstore.html
       description: An example showing how RapiDoc renders an sample Pet-Store OpenAPI spec
   - Rendering Modes:
       description: 3 different rendering options to choose

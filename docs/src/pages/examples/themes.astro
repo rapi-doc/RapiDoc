@@ -8,7 +8,7 @@ const specUrl = getSpecUrl(Astro.url);
 <ExampleLayout>
   <rapi-doc 
     id = "thedoc"
-    spec-url = "/specs/petstore-extended.yaml"
+    spec-url = "/specs/petstore.yaml"
     show-header = "false"
     render-style = "read"
     show-info = "true"
@@ -170,9 +170,9 @@ const specUrl = getSpecUrl(Astro.url);
   function changeSpec() {
     let docEl = getRapiDoc();
     if (docEl.getAttribute('spec-url').includes('bitbucket')){
-      docEl.setAttribute('spec-url',"../specs/petstore_extended.yaml");
+      docEl.setAttribute('spec-url',"/specs/petstore.yaml");
     } else {
-      docEl.setAttribute('spec-url',"../specs/bitbucket.json");
+      docEl.setAttribute('spec-url',"/specs/youtube.yaml");
     }
   }
 
