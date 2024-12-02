@@ -9,43 +9,39 @@ examples:
       href: /examples/petstore.html
       description: An example showing how RapiDoc renders an sample Pet-Store OpenAPI spec
   - Rendering Modes:
-      description: 3 different rendering options to choose
+      description: 3 different rendering styles to choose
       subExamples:
         - Read:
-            href: ./examples/example1.html
+            href: /examples/render-read.html
         - View:
-            href: ./examples/example2.html
+            href: /examples/render-view.html
         - Focused:
-            href: ./examples/example3.html
+            href: /examples/render-focused.html
   - Built In Console:
       img: /assets/images/terminal.png
       href: /examples/try.html
       description: Call and Test APIs from RapiDoc
   - Dark & Light Themes:
       img: /assets/images/dark-n-light.png
-      description: An example showing how RapiDoc renders an sample Pet-Store OpenAPI spec
+      description: Support for light and Dark theme.
       isWide: true
       subExamples:
-        - Dark Read:
-            href: ./examples/example1.html
-        - Dark View:
-            href: ./examples/example2.html
-        - Light Read:
-            href: ./examples/example3.html
-        - Light View:
-            href: ./examples/example3.html
+        - Read (Light and Dark):
+            href: /examples/render-read-light.html
+        - View (Light and Dark):
+            href: /examples/render-view-light.html
   - Theme With Colors:
       img: ./assets/images/theme.png
-      href: ./examples/theme.html
+      href: ./examples/themes.html
       description: Apply colors to various parts of documentation to match your brand
   - Fonts:
       img: ./assets/images/font.png
       description: Easily change font and sizes 
       subExamples:
         - Font Family:
-            href: ./examples/example1.html
+            href: ./examples/font.html
         - Font Size:
-            href: ./examples/example2.html
+            href: ./examples/font-size.html
   - Logo:
       img: ./assets/images/logo.png
       href: /examples/logo.html

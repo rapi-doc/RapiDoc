@@ -27,15 +27,12 @@ const specUrl = getSpecUrl(Astro.url);
 </ExampleLayout>
 
 <script is:inline>
-  function getRapiDoc() {
-    return document.getElementById("thedoc");
-  }
-  
   function toggleSchemaStyle () {
-    if (getRapiDoc().getAttribute('schema-style') === 'table') {
-      getRapiDoc().setAttribute('schema-style', 'tree');
+    const doc = document.getElementById("thedoc");
+    if (doc.getAttribute('schema-style') === 'table') {
+      doc.setAttribute('schema-style', 'tree');
     } else {
-      getRapiDoc().setAttribute('schema-style', 'table');
+      doc.setAttribute('schema-style', 'table');
     }
   }
 </script>
