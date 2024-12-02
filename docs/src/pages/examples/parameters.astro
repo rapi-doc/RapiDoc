@@ -16,23 +16,20 @@ const specUrl = getSpecUrl(Astro.url);
     render-style = "read"
   > 
 
-    <div slot="nav-logo" style="display:flex; flex-direction: column; align-items: center; ">
-      <button class='btn large' style="width:150px" onclick="toggleReadMode()">Toggle Read Mode</button>
+    <div slot="nav-logo" style="display:flex; flex-direction:column; align-items:center; ">
+      <button class='btn' style="width:130px" onclick="toggleReadMode()">Toggle Read Mode</button>
     </div>
 
   </rapi-doc>
 </ExampleLayout>
 
 <script is:inline>
-  function getRapiDoc() {
-    return document.getElementById("thedoc");
-  }
-  
   function toggleReadMode () {
-    if (getRapiDoc().getAttribute('allow-try') === 'false') {
-      getRapiDoc().setAttribute('allow-try', 'true');
+    const doc = document.getElementById("thedoc");
+    if (doc.getAttribute('allow-try') === 'false') {
+      doc.setAttribute('allow-try', 'true');
     } else {
-      getRapiDoc().setAttribute('allow-try', 'false');
+      doc.setAttribute('allow-try', 'false');
     }
   }
 </script>

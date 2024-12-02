@@ -13,18 +13,26 @@ const specUrl = getSpecUrl(Astro.url);
     show-header = "false"
     allow-server-selection = "false"
     allow-authentication = "false" 
+    render-style = "read"
   > 
 
-    <div slot="nav-logo">
-      <div slot="nav-logo" style="width:100%; display: flex; flex-direction:column;">
-        <div style="text-align: center; padding: 20px 0 12px 0; color:#47AFE8"> Allow TRY</div>
-        <div style="display: flex;justify-content: center; margin: 2px 0">
-          <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('allow-try', 'true')" >Yes</button>
-          <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('allow-try', 'false')" >No</button>
-        </div>
-      </div>
+  <div slot="nav-logo"  style="width:100%; display: flex; flex-direction:column;">
+    <div style="display: flex;justify-content: center; margin: 2px 0">
+      <button class='btn large' style="width:150px" onclick="toggleTry()">Toggle Try</button>
     </div>
+  </div>
 
 
   </rapi-doc>
 </ExampleLayout>
+
+<script is:inline>
+  function toggleTry () {
+    const doc = document.getElementById("thedoc");
+    if (doc.getAttribute('allow-try') === 'false') {
+      doc.setAttribute('allow-try', 'true');
+    } else {
+      doc.setAttribute('allow-try', 'false');
+    }
+  }
+</script>

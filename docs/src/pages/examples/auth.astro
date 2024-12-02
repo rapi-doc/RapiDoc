@@ -16,7 +16,8 @@ const specUrl = getSpecUrl(Astro.url);
       padding: 10px 6px;
     }
   </style>
-  <script slot="script" is:inline>
+  
+  <script is:inline>
     function setApiServer(ev) {
       const docEl = document.getElementById('thedoc');
       const trEl = ev.target.closest('tr');
@@ -60,6 +61,16 @@ const specUrl = getSpecUrl(Astro.url);
         ev.target.style.backgroundColor = '#2069e0';
       }, 5000)
     }
+
+    function toggleReadMode () {
+      const doc = document.getElementById("thedoc");
+      if (doc.getAttribute('allow-try') === 'false') {
+        doc.setAttribute('allow-try', 'true');
+      } else {
+        doc.setAttribute('allow-try', 'false');
+      }
+    }
+
   </script>
 
   <rapi-doc 
@@ -71,14 +82,8 @@ const specUrl = getSpecUrl(Astro.url);
     allow-authentication = "true" 
     render-style = "read" 
   >
-    <div slot="nav-logo">
-      <div slot="nav-logo" style="width:100%; display: flex; flex-direction:column;">
-        <div class="blue" style="text-align: center; padding: 20px 0 12px 0;"> Allow TRY </div>
-        <div style="display: flex;justify-content: center; margin: 2px 0">
-          <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('allow-try', 'true')" >True</button>
-          <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('allow-try', 'false')" >False</button>
-        </div>
-      </div>
+    <div slot="nav-logo" style="display:flex; flex-direction:column; align-items:center; ">
+      <button class='btn' style="width:130px" onclick="toggleReadMode()">Toggle Read Mode</button>
     </div>
 
     <div slot='operations-top'>

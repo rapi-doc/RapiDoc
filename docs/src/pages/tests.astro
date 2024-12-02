@@ -1,16 +1,62 @@
 ---
 import GlobalLayout from '../layouts/GlobalLayout.astro';
 import PageBanner from '../components/PageBanner.astro';
+import { testListData, TestItem } from '../data/tests';
+import '../styles/table.css';
+console.log(JSON.stringify(testListData, null, 2));
 ---
 
 <GlobalLayout>
   <PageBanner slot="topbar" page="example-list" showWaves = {true} />
   <main>
-    <h1>List of Tests</h1>
+    <h1> List of Tests </h1>
     <hr/>
+    <div style="display:flex; flex-direction: column; height: 100%;width: 100%;">
+      <!-- Basic Tests-->
+      <h2 id="basic-tests"> Basic Tests </h2>
+      <table class="m-table">
+        <tr>
+          <th class="name-col">Test Name</th>
+          <th class="description-col">Validates</th>
+        </tr>
+        {
+          testListData.basic.map(testGroup => { 
+            const [testName, testItem] = Object.entries(testGroup)[0] as [string, TestItem];
+            if (((testItem && testItem.hidden) || false) !== true) {
+                return (
+                <tr>
+                  <td class="name-col"><a href={`/tests/${testName}`}> {(testItem && testItem.title) || testName}</a></td>
+                  <td class="description-col mono yellow small-font">{ testItem && testItem.validates.join(', ') || ''}</td>
+                </tr>
+                )
+              }
+            })
+        }
+      </table>
+
+
+      <h2 id="basic-tests"> Advanced Tests </h2>
+      <table class="m-table">
+        <tr>
+          <th class="name-col">Test Name</th>
+          <th class="description-col">Validates</th>
+        </tr>
+        {
+          testListData.advanced.map(testGroup => { 
+            const [testName, testItem] = Object.entries(testGroup)[0] as [string, TestItem];
+            if (((testItem && testItem.hidden) || false) !== true) {
+                return (
+                <tr>
+                  <td class="name-col">{(testItem && testItem.title) || testName}</td>
+                  <td class="description-col">{ testItem && testItem.validates.join(', ') || ''}</td>
+                </tr>
+                )
+              }
+            })
+        }
+
+      </table>
+
+    </div>  
   </main>
-</GlobalLayout>
-
-<style>
-
-</style>
+</GlobalLayout>    

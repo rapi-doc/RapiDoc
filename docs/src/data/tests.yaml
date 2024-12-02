@@ -1,0 +1,85 @@
+basic:
+  - hidden-test:
+      title: some-name
+      hidden: true
+      validates:
+        - something
+  - hide-show-sections:
+      title: Hide & Show various sections
+      validates:
+        - show-info
+        - show-header
+        - allow-authentication
+        - allow-server-selection
+        - allow-try
+  - hide-show-spec:
+      title: Hide and Show Spec Operations
+      validates:
+        - allow-spec-url-load
+        - allow-spec-file-load
+        - allow-spec-file-download
+  - font:
+      validates:
+        - regular-font
+        - mono-font
+        - font-size
+  - theme-n-color:
+      validates:
+        - theme
+        - bg-color
+        - text-color
+        - primary-color
+        - nav-bg-color
+        - nav-text-color
+  - search:
+      title: Control Search Operations
+      validates:
+        - allow-search
+        - allow-advanced-search
+  - schema:
+      title: Schema Configurations
+      validates:
+        - schema-style
+        - default-schema-tab
+        - schema-expand-level
+        - schema-description-expanded
+        - allow-schema-description-expand-toggle
+  - nav-styles:
+      title: Navigation Style
+      validates:
+        - use-path-in-nav-bar
+        - show-method-in-nav-bar
+        - nav-active-item-marker
+        - nav-item-spacing
+  - show-components:
+      validates:
+        - show-components
+
+advanced:
+  - Request Parameters:
+      validates:
+        - Various request parameters types
+        - Request body as JSON
+        - Request body as FORM DATA
+  - Data Types:
+      validates:
+        - Request Body accepting a JSON
+        - Schema with primitive properties
+        - Schema with multiple nested objects and primitive
+        - Request and Response parameters with various Data Types having constraints and deprecations
+  - Fill Request Parameters:
+  - Schema Title and Descriptions:
+      validates:
+        - Rendering of Titles and descriptions provided in the schema
+  - Schema with readonly and writeonly properties:
+      validates:
+        - Request doesn't show the read-only and Response doesn't show write-only properties
+  - Schema with readonly and writeonly properties custom behaviour:
+      validates:
+        - schema-hide-read-only
+        - schema-hide-write-only
+  - Nested Refs:
+  - Array and Object Nesting:
+  - Circular References:
+  - Read Mode without a Navigation Bar:
+  - one-of combinations:

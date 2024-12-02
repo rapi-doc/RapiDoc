@@ -96,7 +96,7 @@ examples:
       description: Provide External and Internal links to varius sections of document. 
   - Syntax Highlighting:
       img: /assets/images/code-highlight.png
-      href: /examples/links.html
+      href: /examples/code-highlight.html
       description: Supports syntax highlighting in markdown for several languages
   - Code Samples:
       href: /examples/code-samples.html
@@ -157,15 +157,9 @@ examples:
   - Additional Properties:
       href: /examples/additional-props.html
       description: Apart from fixed predefined properties, schema can contain additional properties
-  - Mixing HTML:
-      href: /mix-html.html
-      isDoc: true
   - Embed RapiDoc In HTML:
-      href: /examples/example4.html
+      href: /examples/embed-rapidoc-in-html.html
       description: <span class="mono yellow small-font"> &lt;rapi-doc&gt; </span> element can co-exist with other HTML content
-  - Embed HTML In RapiDoc:
-      href: /examples/mix-html.html
-      description: Custom HTML content can be inserted in various sections of RapiDoc
   - JSON Object as OpenAPI Spec:
       href: /examples/example9.html
       description: >
@@ -207,6 +201,6 @@ examples:
       description: Using a Mocking API service performing realtime request and response
   - Playground:
       img: /assets/images/playground.png
-      href: /examples/api-demo.html
+      href: /examples/rapidoc-demo.html
       description: Demo showing various RapiDoc configuration options 
 

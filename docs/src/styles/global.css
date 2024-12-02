@@ -11,6 +11,7 @@
   --color-yellow: #e8bf6a; 
   --color-yellow-dim:#a98a4c;
   --color-salmon: #e07372;
+  --color-green: #72e084;
   --color-blue: #6ebcfc; 
 
   /* Border Colors */
@@ -117,34 +118,6 @@ pre {
 .hide-in-mobile { display:none; }
 .banner-img { width: 300px; }
 .logo { display:none }
-
-.btn {
-  width: 90px;
-  height: 32px;
-  padding: 2px;
-  font-size: .8rem;
-  background-color: #008CBA;
-  color: #fff;
-  border: none;
-  margin: 0 2px;
-  border-radius: 2px;
-  cursor:pointer;
-  outline:none;
-  &.medium {
-    width: 75px;
-    height: 28px
-  }
-  &.small {
-    width: 60px;
-    height: 24px
-  }
-  &.square {
-    width: 70px;
-    height: 70px;
-    font-size: 12px;
-    line-height: normal;
-  }
-}
 
 @media only screen and (min-width: 768px) {
   body { font-size: 15px; }

@@ -1,5 +1,3 @@
-// type definition for our RapiDocs API Docu
-  
 interface ExampleList {
   [key: string]: ExampleItem[];
 }

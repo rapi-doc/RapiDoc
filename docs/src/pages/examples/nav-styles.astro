@@ -8,13 +8,15 @@ const specUrl = getSpecUrl(Astro.url);
   <rapi-doc
     spec-url={specUrl}
     id = "thedoc"
-    show-info = "true"
-    show-header="false" 
-    render-style="focused"
-    allow-try="false" 
+    show-info = "false"
+    show-header = "false" 
+    allow-authentication = "false" 
+    allow-server-selection = "false"
+    render-style = "focused"
+    allow-try = "false" 
     show-method-in-nav-bar = "as-colored-block"
   >
-    <div slot="nav-logo" style="height:330px; display:flex; flex-direction: column; align-items:center; gap:12px; font-size:12px; background: #222">
+    <div slot="nav-logo" style="min-height:180px; display:flex; flex-direction: column; align-items:center; gap:12px; font-size:12px; background: #222; padding:10px">
       <div style="display:flex; flex-direction:column; align-items:center; gap:2px"> 
         <span>Navigation Item Text </span>
         <div style="display:flex; flex-direction:row; align-items:center; gap:2px"> 
