@@ -1,0 +1,25 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+import { getSpecUrl } from '../../utils/getSpecUrl';
+
+const specUrl = getSpecUrl(Astro.url);
+---
+<ExampleLayout>
+  <rapi-doc
+    id = "thedoc"
+    spec-url = "/specs-test/long-paths-n-descriptions.yaml"
+    default-schema-tab = "schema"
+    use-path-in-nav-bar = "true"
+    render-style = "read"
+    show-header = "false"
+    show-info = "false"
+    allow-server-selection = "false"
+    allow-authentication = "false" 
+  > 
+
+    <div slot="nav-logo" style="display:flex; flex-direction:row; align-items:center; justify-content: center;">
+      <button class='btn' onclick="toggleSchemaStyle()">Toggle Schema Style</button>
+    </div>
+
+  </rapi-doc>
+</ExampleLayout>

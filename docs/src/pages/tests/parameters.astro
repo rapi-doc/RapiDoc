@@ -1,0 +1,24 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+import { getSpecUrl } from '../../utils/getSpecUrl';
+
+const specUrl = getSpecUrl(Astro.url);
+---
+
+<ExampleLayout>
+  <rapi-doc 
+    id = "thedoc"
+    spec-url = "/specs-test/parameters.yaml"
+    show-header = "false"
+    show-info = "false"
+    allow-server-selection = "false"
+    allow-authentication = "false"
+    render-style = "read"
+  > 
+
+    <div slot="nav-logo" style="display:flex; flex-direction:column; align-items:center; ">
+      <button class='btn' onclick="toggle('allow-try')">Toggle Allow Try</button>
+    </div>
+
+  </rapi-doc>
+</ExampleLayout>

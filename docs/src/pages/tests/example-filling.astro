@@ -4,14 +4,15 @@ import { getSpecUrl } from '../../utils/getSpecUrl';
 
 const specUrl = getSpecUrl(Astro.url);
 ---
+
 <ExampleLayout>
-  <rapi-doc
+  <rapi-doc 
     id = "thedoc"
-    spec-url = {specUrl}
-    show-header = "false"
+    spec-url = "/specs-test/example-filling.yaml"
+    allow-authentication = "false" 
     show-info = "false"
+    show-header = "false"
     allow-server-selection = "false"
-    allow-authentication = "false"
-    render-style = "read"
-> </rapi-doc>
+    allow-try = "true" 
+  > </rapi-doc>
 </ExampleLayout>

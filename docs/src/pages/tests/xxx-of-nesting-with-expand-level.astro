@@ -8,14 +8,13 @@ const specUrl = getSpecUrl(Astro.url);
 <ExampleLayout>
   <rapi-doc 
     id = "thedoc"
-    spec-url = {specUrl}
-    show-info = "false"
+    spec-url = "/specs-test/xxx-of-nesting-with-expand-level.yaml" 
+    default-schema-tab = "schema"
+    render-style = "read"
+    show-info = "true"
     show-header = "false"
     allow-authentication = "false" 
     allow-server-selection = "false"
-    render-style = "read"
-    default-schema-tab = "schema"
-    allow-try = "false" 
   > 
 
     <div slot="nav-logo" style="height:120px; display:flex; flex-direction:column; align-items:center; gap:8px;">

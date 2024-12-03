@@ -8,9 +8,12 @@ const specUrl = getSpecUrl(Astro.url);
 <ExampleLayout>
   <rapi-doc 
     id = "thedoc"
-    spec-url = {specUrl}
-    show-header="false" 
-    allow-authentication = "false" 
+    spec-url = "/specs-test/example-generation-too-many.yaml"
     render-style = "read"
+    allow-authentication = "false" 
+    show-info = "true"
+    show-header = "false"
+    allow-server-selection = "false"
+    allow-try = "true" 
   > </rapi-doc>
 </ExampleLayout>

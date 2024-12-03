@@ -6,7 +6,7 @@ paths:
   /books:
     get:
       summary: List all books 
-      description: here the `related_books` schema is same as `books` schema, creating a circular reference, it should show `recursive` in the model
+      description: here the `related_books` schema is same as `books` schema, creating a circular reference, it should show `recursive` in the schema
       tags:
         - Circular References
       responses:

@@ -8,7 +8,7 @@ const specUrl = getSpecUrl(Astro.url);
 <ExampleLayout>
   <rapi-doc 
     id = "thedoc"
-    spec-url = {specUrl}
+    spec-url = "/specs-test/filtering-paths.yaml"
     show-header = "false"
     show-info = "true"
     allow-server-selection="false"
@@ -39,7 +39,7 @@ const specUrl = getSpecUrl(Astro.url);
             > 
           </td>
           <td>
-            <button class='btn' style="width:170px" onclick='applyFilter("match-by-path")'>Show Only Matching Paths</button>
+            <button class='btn' style="width:190px" onclick='applyFilter("match-by-path")'>Show Only Matching Paths</button>
           </td>
         </tr>
         <tr>
@@ -57,7 +57,7 @@ const specUrl = getSpecUrl(Astro.url);
             > 
           </td>
           <td>
-            <button class='btn' style="width:170px" onclick='applyFilter("remove-by-badge")'>Remove Matching Badges</button>
+            <button class='btn' style="width:190px" onclick='applyFilter("remove-by-badge")'>Remove Matching Badges</button>
           </td>
         </tr>
       </table>

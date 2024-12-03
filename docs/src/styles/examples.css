@@ -3,6 +3,18 @@ rapi-doc:not(:defined) {
 }
 
 a { color:var(--link-color); text-decoration: none;}
+.txt {
+  width: 100px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-family: 'Roboto Mono';
+  background-color: #333333aa;
+  border: 1px solid var(--color-green);
+  color: var(--color-green);
+  margin: 0 2px;
+  border-radius: 2px;
+  outline: none;
+}
 .btn {
   padding: 8px 12px;
   font-size: 13px;

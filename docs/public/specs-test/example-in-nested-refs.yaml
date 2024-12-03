@@ -36,10 +36,10 @@ components:
         - $ref: '#/components/schemas/EditableBankAccountParams'
         - $ref: '#/components/schemas/ReadOnlyBankAccountParams'
       example:
-        name: 'account-name'
-        type: StandardBankAccount
-        url: 'https://api.freeagent.com/v2/bank_accounts/4093'
-        current_balance: 28742
+        name: my-example-account-name
+        type: my-example-savings-account
+        url: https://example.com/my-example-account
+        current_balance: 9999
     ListBankAccountsResponse:
       title: ListBankAccountsResponse
       type: object

@@ -51,35 +51,103 @@ basic:
         - show-method-in-nav-bar
         - nav-active-item-marker
         - nav-item-spacing
+  - nav-hidden:
+      title: Hide Side Navigation Bar
+      validates:
+        - show-side-nav
   - show-components:
       validates:
         - show-components
+  - deprecated-items:
+      title: Deprecated items should be marked properly
+      validates:
+        - Deprecated paths and properties in schema are annotated
+  - long-schemas:
+      title: Large Schemas
+      validates:
+        - How large Schemas are rendered
+  - long-paths-n-descriptions:
+      title: Long Paths And Descriptions
+      validates:
+        - How long Paths and descriptions are rendered
+  - override-descriptions-in-refs:
+      title: Override descriptions in refs
+      validates:
+        - When a schema is created using refs, it can override the refs descriptions
 
 advanced:
-  - Request Parameters:
+  - parameters:
+      title: Request Parameters
       validates:
         - Various request parameters types
         - Request body as JSON
         - Request body as FORM DATA
-  - Data Types:
+  - data-types:
+      title: Data Types
       validates:
         - Request Body accepting a JSON
         - Schema with primitive properties
         - Schema with multiple nested objects and primitive
         - Request and Response parameters with various Data Types having constraints and deprecations
-  - Fill Request Parameters:
-  - Schema Title and Descriptions:
+  - data-types-multiple:
+      title: Data Types (Fields with multiple types)
+      validates:
+        - Fields with multiple types
+  - example-filling:
+      title: Filling Request parameters using examples
+  - example-in-nested-refs:
+      title: Providing Examples in Nested Refs
+  - example-generation-too-many:
+      title: Possibility of auto generating too many examples
+      validates:
+        - When there is a possibility to generate too many examples, It should limit to only 10 
+  - schema-title-and-descriptions:
+      title: Schema Title and Descriptions
       validates:
         - Rendering of Titles and descriptions provided in the schema
-  - Schema with readonly and writeonly properties:
+  - read-n-write-only-fields-in-schema:
+      title: Schema with readonly and writeonly properties
       validates:
-        - Request doesn't show the read-only and Response doesn't show write-only properties
-  - Schema with readonly and writeonly properties custom behaviour:
+        - Read-Only fields are properly annotated in Schema
+        - Write-Only fields are properly annotated in Schema
+  - read-n-write-only-fields-display-in-request-n-response:
+      title: Hide or Display Read & Write Only fields in Request, Response, callback and Webhooks
       validates:
-        - schema-hide-read-only
-        - schema-hide-write-only
-  - Nested Refs:
-  - Array and Object Nesting:
-  - Circular References:
-  - Read Mode without a Navigation Bar:
-  - one-of combinations:
+        - By default read-only properties in Request should not be shown
+        - By default write-only properties in Response should not be shown
+        - Default behaviour of read-only and write-only is opposite in Callbacks & Webhooks
+        - The display of read and write only properties in schemas can be altered
+  - array-and-object-nesting:
+      title:  Array and Object Nesting
+      validates:
+        - Multiple level of nesting of arrays and object
+  - circular-refs:
+      title: Circular Refs
+      validates:
+        - Cercular References should be dealt 
+  - xxx-of-combinations:
+      title: One-Of, All-Of, Any-Of Commbinations
+  - xxx-of-with-refs:
+      title: One-Of, All-Of, Any-Of with Refs
+  - xxx-of-nesting:
+      title: One-Of, All-Of, Any-Of Nesting
+      validates:
+        - Nesting of One-Of, All-Of, Any-Of
+  - xxx-of-nesting-with-expand-level:
+      title: One-Of, All-Of, Any-Of Nesting with Schema expand level
+      validates:
+        - schema-expand-level should work with `xxx-of` operators
+  - xxx-of-titles:
+      title: One-Of, All-Of, Any-Of with Titles
+      validates:
+        - One-Of, All-Of, Any-Of operators can have titles associated with them, whch should be displayed in Schema
+  - request-header-as-object:
+      title: Sending JSON object in request header
+      validates:
+        - Request-Header value can be sent as JSON object
+  - filtering-paths:
+      title: Filtering out paths from the spec
+      validates:
+        - match-paths
+        - match-type
+        - remove-endpoints-with-badge-label-as

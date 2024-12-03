@@ -26,7 +26,7 @@ import '../styles/table.css';
                 return (
                 <tr>
                   <td class="name-col"><a href={`/tests/${testName}`}> {(testItem && testItem.title) || testName}</a></td>
-                  <td class="description-col mono yellow small-font">{ testItem && testItem.validates.join(', ') || ''}</td>
+                  <td class="description-col mono yellow small-font">{ testItem && testItem.validates?.join(', ') || ''}</td>
                 </tr>
                 )
               }
@@ -47,8 +47,8 @@ import '../styles/table.css';
             if (((testItem && testItem.hidden) || false) !== true) {
                 return (
                 <tr>
-                  <td class="name-col">{(testItem && testItem.title) || testName}</td>
-                  <td class="description-col">{ testItem && testItem.validates.join(', ') || ''}</td>
+                  <td class="name-col"><a href={`/tests/${testName}`}> {(testItem && testItem.title) || testName}</a></td>
+                  <td class="description-col">{ testItem && testItem.validates?.join(', ') || ''}</td>
                 </tr>
                 )
               }

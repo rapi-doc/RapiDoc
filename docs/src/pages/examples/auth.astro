@@ -115,16 +115,16 @@ const specUrl = getSpecUrl(Astro.url);
           <tr>
             <td> HTTP Basic</td>
             <td> 
-              <input class='size txt' id='http-security-scheme-id' value="http-basic" type='text' placeholder='Security Scheme ID' spellcheck='false' style="width:120px"> 
-              <input class='size txt' id='http-username' type='text' value="new-username"  placeholder='User name' spellcheck='false' > 
-              <input class='size txt' id='http-password' type='text' value="new-pwd"  placeholder='Password' spellcheck='false' > 
-              <button class='size btn' style="display: inline;" onclick='setSecurity(event, "http")'>Apply</button>
+              <input class='txt' id='http-security-scheme-id' value="http-basic" type='text' placeholder='Security Scheme ID'  style="width:140px" spellcheck='false'> 
+              <input class='txt' id='http-username' type='text' value="new-username" placeholder='User name' spellcheck='false' > 
+              <input class='txt' id='http-password' type='text' value="new-pwd" placeholder='Password' spellcheck='false' > 
+              <button class='btn' style="display: inline;" onclick='setSecurity(event, "http")'>Apply</button>
             </td>
           </tr>
           <tr>
             <td>HTTP Bearer / API Key</td>
             <td>
-              <select class='size txt' style="width:138px" id='api-security-scheme-id'>
+              <select class='txt' style="width:165px" id='api-security-scheme-id'>
                 <option value="api_key1">api_key1</option>
                 <option value="api_key2">api_key2</option>
                 <option value="http-bearer-a">Bearer token-a</option>
@@ -133,13 +133,13 @@ const specUrl = getSpecUrl(Astro.url);
                 <option value="invalid-key">invalid-key</option>
               </select>
 
-              <input class='txt' style="width:225px" id='api-key-value' type='text' value="new-token"  placeholder='API Key Value' spellcheck='false' > 
-              <button class='size btn' style="display: inline;" onclick='setSecurity(event, "apikey")'>Apply</button>
+              <input class='txt' style="width:235px" id='api-key-value' type='text' value="new-token"  placeholder='API Key Value' spellcheck='false' > 
+              <button class='btn' style="display: inline;" onclick='setSecurity(event, "apikey")'>Apply</button>
             </td>
           </tr>
           <tr>
             <td colspan="2" style="text-align: right;">
-              <button class='size btn' style="display:inline; background-color:IndianRed" onclick='clearSecurityKeys(event)'>Clear All Keys</button></td>
+              <button class='btn' style="display:inline; background-color: var(--color-salmon)" onclick='clearSecurityKeys(event)'>Clear All Keys</button></td>
           </tr>  
         </table>
         <div style="margin:32px 0 16px 0; color:#777; font-weight:bold">
