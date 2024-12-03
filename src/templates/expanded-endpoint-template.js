@@ -120,7 +120,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
                 style="text-align:left; direction:ltr; padding: 8px 0; color:var(--fg3)"
               >
                 <span part="label-operation-method" class="regular-font upper method-fg bold-text ${path.method}">${path.method}</span>
-                <span part="label-operation-path">${path.path}</span>
+                <span style="overflow-wrap: break-word;" part="label-operation-path">${path.path}</span>
               </div>
             `}
         <slot name="${path.elementId}"></slot>`}

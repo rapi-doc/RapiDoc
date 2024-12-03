@@ -250,10 +250,7 @@ export default function navbarTemplate() {
                           )}
                         </div>`}`
                   : ''}
-                <div
-                  class="nav-bar-paths-under-tag"
-                  style="max-height:${tag.expanded || this.renderStyle === 'read' ? (tag.paths?.length || 1) * 50 : 0}px;"
-                >
+                <div class="nav-bar-paths-under-tag">
                   <!-- Paths in each tag (endpoints) -->
                   ${tag.paths
                     .filter((v) => {
