@@ -1,0 +1,40 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+import { getSpecUrl } from '../../utils/getSpecUrl';
+
+const specUrl = getSpecUrl(Astro.url);
+---
+
+<ExampleLayout>
+  <rapi-doc 
+    id = "thedoc"
+    spec-url = "/specs/schema.yaml"
+    show-info = "false"
+    show-header = "false"
+    allow-authentication = "false" 
+    allow-server-selection = "false"
+    render-style = "read"
+    default-schema-tab = "schema"
+    schema-description-expanded = "false"
+    schema-style='table'
+  > 
+
+    <div class="control-panel" slot="custom-header">
+      <button class='btn' onclick="toggleSchemaStyle()">Toggle Schema Style</button>
+      <button class='btn' onclick="toggleDefaultSchemaTab()">Toggle Defalt Schema Tab</button>
+      <button class='btn' onclick="toggle('allow-schema-description-expand-toggle')">Schema Description Expand/Collapse</button>
+      <button class='btn' onclick="toggle('schema-description-expanded')">Schema Description Expanded</button>
+      <div style="flex:1"></div>
+    </div>
+  </rapi-doc>
+</ExampleLayout>
+
+<script is:inline>
+  function toggleDefaultSchemaTab() {
+    if (rapidocEl.getAttribute('default-schema-tab') === 'schema') {
+      rapidocEl.setAttribute('default-schema-tab', 'example');
+    } else {
+      rapidocEl.setAttribute('default-schema-tab', 'schema');
+    }
+  }
+</script>

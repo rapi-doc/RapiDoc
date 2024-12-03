@@ -43,12 +43,12 @@ const specUrl = getSpecUrl(Astro.url);
                 <td class= "mono" style="width:175px"> schema-hide-read-only </td> 
                 <td style="width:95px"> 
                   <span>
-                    <input type="radio" id="default" name="readonly" value="default" onclick="setSchemaAttr('schema-hide-read-only', this.value)">
+                    <input type="radio" id="default" name="readonly" value="default" onclick="rapidocEl.setAttribute('schema-hide-read-only', this.value)">
                     <label for="default">default</label>
                   </span>
                   <br/>
                   <span>
-                    <input type="radio" id="never" name="readonly" value="never" onclick="setSchemaAttr('schema-hide-read-only', this.value)">
+                    <input type="radio" id="never" name="readonly" value="never" onclick="rapidocEl.setAttribute('schema-hide-read-only', this.value)">
                     <label for="never">never</label>
                   </span>
                 </td>
@@ -65,12 +65,12 @@ const specUrl = getSpecUrl(Astro.url);
                 <td class= "mono"> schema-hide-write-only </td> 
                 <td> 
                   <span>
-                    <input type="radio" id="default" name="writeonly" value="default" onclick="setSchemaAttr('schema-hide-write-only', this.value)" >
+                    <input type="radio" id="default" name="writeonly" value="default" onclick="rapidocEl.setAttribute('schema-hide-write-only', this.value)" >
                     <label for="default">default</label>
                   </span>
                   <br/>
                   <span>
-                    <input type="radio" id="never" name="writeonly" value="never" onclick="setSchemaAttr('schema-hide-write-only', this.value)">
+                    <input type="radio" id="never" name="writeonly" value="never" onclick="rapidocEl.setAttribute('schema-hide-write-only', this.value)">
                     <label for="never">never</label>
                   </span>
                 </td>
@@ -85,40 +85,10 @@ const specUrl = getSpecUrl(Astro.url);
         </div>
       </div>  
     </span>
-
-
   </rapi-doc>
 </ExampleLayout>
 
-<script is:inline>
-  function getRapiDoc(){
-    return document.getElementById("thedoc");
-  }
-
-  function toggleSchemaStyle () {
-    if (getRapiDoc().getAttribute('schema-style') === 'table') {
-      getRapiDoc().setAttribute('schema-style', 'tree');
-    } else {
-      getRapiDoc().setAttribute('schema-style', 'table');
-    }
-  }
-
-  function setSchemaAttr(attrName, attrValue) {
-    getRapiDoc().setAttribute(attrName, attrValue);
-  }
-</script>
-
 <style>
-  .btn {
-    width: 180px;
-    height: 40px;
-    background-color: #0184cb;
-    color: #fff;
-    border: none;
-    border-radius: 2px;
-    outline:none;
-  }
-
   table {
     font-family: 'Lato', 'Open Sans', sans-serif;
     border-collapse: collapse;

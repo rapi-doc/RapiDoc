@@ -114,6 +114,7 @@ pre {
 .yellow-dim {color:var(--color-yellow-dim) }
 .salmon {color:var(--color-salmon)}
 .blue { color:var(--color-blue) }
+.green {color: var(--color-green) }
 
 .hide-in-mobile { display:none; }
 .banner-img { width: 300px; }

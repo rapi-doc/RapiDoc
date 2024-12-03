@@ -1,0 +1,13 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+---
+<ExampleLayout>
+  <rapi-doc id = "thedoc" spec-url = "/specs/petstore.yaml" regular-font="Open Sans'"  mono-font="Sono" render-style="read"> 
+    <div class="control-panel" slot="custom-header">
+      <button class='btn' onclick="toggle('allow-search')">Toggle Search</button>
+      <button class='btn' onclick="toggle('allow-advanced-search')">Toggle Adcanced Search</button>
+      <div style="flex:1"></div>
+      <button class='btn yellow' onclick="toggleRenderStyle()">Toggle Render Style</button>
+    </div>
+  </rapi-doc>
+</ExampleLayout>

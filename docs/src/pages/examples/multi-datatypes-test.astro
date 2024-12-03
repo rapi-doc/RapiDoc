@@ -15,14 +15,8 @@ const specUrl = getSpecUrl(Astro.url);
     allow-server-selection = "false"
     schema-style = "tree"
   > 
-
-    <div slot="nav-logo" style="width:100%; display: flex; flex-direction:column;">
-      <div style="display: flex;justify-content:center; align-items:center; margin:2px 0">
-        <span> Schema Style</span>
-        <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('schema-style', 'tree')" >Tree</button>
-        <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('schema-style', 'table')" >Table</button>
-      </div>
+    <div slot="nav-logo" style="display:flex; flex-direction:column; align-items: center;">
+      <button class='btn' style="width:150px" onclick="toggleSchemaStyle()">Toggle Schema Style</button>
     </div>  
-
   </rapi-doc>
 </ExampleLayout>

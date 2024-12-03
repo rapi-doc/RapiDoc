@@ -8,4 +8,48 @@ import GlobalLayout from '../layouts/GlobalLayout.astro';
   <script slot="script" is:inline type="module" src="/rapidoc/rapidoc-min.js"></script>
   <slot slot="script" name="script" /> <!-- allows to attach script into this slot which is further slotted into the script section of GlobalLayout -->
   <slot/>
+  <script is:inline>
+    let rapidocEl; // Define rapidocEl at global level
+
+    document.addEventListener('readystatechange', (event) => {
+      rapidocEl = document.getElementById("thedoc");
+    })
+
+    function toggle(attrName) {
+      if (rapidocEl.getAttribute(attrName) === 'false') {
+        rapidocEl.setAttribute(attrName, true);
+      } else {
+        rapidocEl.setAttribute(attrName, false);
+      }
+    }
+
+    function toggleTheme() {
+      if (rapidocEl.getAttribute('theme') === 'dark') {
+        rapidocEl.setAttribute('theme', 'light');
+      } else {
+        rapidocEl.setAttribute('theme', 'dark');
+      }
+    }
+
+    function toggleRenderStyle() {
+      if (rapidocEl.getAttribute('render-style') === 'view') {
+        rapidocEl.setAttribute('render-style', 'focused');
+      } else if (rapidocEl.getAttribute('render-style') === 'focused') {
+        rapidocEl.setAttribute('render-style', 'read');
+      } else if (rapidocEl.getAttribute('render-style') === 'read') {
+        rapidocEl.setAttribute('render-style', 'view');
+      } else {
+        rapidocEl.setAttribute('render-style', 'view');
+      }
+    }
+
+    function toggleSchemaStyle() {
+      if (rapidocEl.getAttribute('schema-style') === 'table') {
+        rapidocEl.setAttribute('schema-style', 'tree');
+      } else {
+        rapidocEl.setAttribute('schema-style', 'table');
+      }
+    }
+
+  </script>
 </GlobalLayout>

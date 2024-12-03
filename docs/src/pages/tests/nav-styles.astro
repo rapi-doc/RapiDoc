@@ -6,7 +6,7 @@ const specUrl = getSpecUrl(Astro.url);
 
 <ExampleLayout>
   <rapi-doc
-    spec-url={specUrl}
+    spec-url = "/specs/petstore.yaml"
     id = "thedoc"
     show-info = "false"
     show-header = "false" 
@@ -17,25 +17,25 @@ const specUrl = getSpecUrl(Astro.url);
     show-method-in-nav-bar = "as-colored-block"
   >
     <div slot="nav-logo" style="min-height:180px; display:flex; flex-direction: column; align-items:center; gap:12px; font-size:12px; background: #222; padding:10px">
-      <div style="display:flex; flex-direction:column; align-items:center; gap:5px"> 
-        <span class="green">Navigation Item Text </span>
-        <div style="display:flex; flex-direction:row; align-items:center; gap:5px"> 
+      <div style="display:flex; flex-direction:column; align-items:center; gap:2px"> 
+        <span>Navigation Item Text </span>
+        <div style="display:flex; flex-direction:row; align-items:center; gap:2px"> 
           <button class='btn' onclick="rapidocEl.setAttribute('use-path-in-nav-bar', 'true')" >Path</button>
           <button class='btn' onclick="rapidocEl.setAttribute('use-path-in-nav-bar', 'false')" >Summary</button>
         </div>  
       </div>
-      <div style="display:flex; flex-direction:column; align-items:center; gap:5px"> 
-        <span class="green"> Display Method on NavBar as </span>
-        <div style="display:flex; flex-direction:row; align-items:center; gap:5px"> 
+      <div style="display:flex; flex-direction:column; align-items:center; gap:2px"> 
+        <span> Display Method on NavBar as </span>
+        <div style="display:flex; flex-direction:row; align-items:center; gap:2px"> 
           <button class='btn' onclick="rapidocEl.setAttribute('show-method-in-nav-bar', 'false')" >None</button>
           <button class='btn' onclick="rapidocEl.setAttribute('show-method-in-nav-bar', 'as-plain-text')" >Plain</button>
           <button class='btn' onclick="rapidocEl.setAttribute('show-method-in-nav-bar', 'as-colored-text')" >Colored</button>
           <button class='btn' onclick="rapidocEl.setAttribute('show-method-in-nav-bar', 'as-colored-block')" >Block</button>
         </div>  
       </div>
-      <div style="display:flex; flex-direction:column; align-items:center; gap:5px"> 
-        <span class="green"> Active Nav Item Marker </span>
-        <div style="display:flex; flex-direction:row; align-items:center; gap:5px"> 
+      <div style="display:flex; flex-direction:column; align-items:center; gap:2px"> 
+        <span> Active Nav Item Marker </span>
+        <div style="display:flex; flex-direction:row; align-items:center; gap:2px"> 
           <button class='btn' onclick="rapidocEl.setAttribute('nav-active-item-marker', 'left-bar')" >Left Bar</button>
           <button class='btn' onclick="rapidocEl.setAttribute('nav-active-item-marker', 'colored-block')" >Colored Block</button>
         </div>

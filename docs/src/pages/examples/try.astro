@@ -11,23 +11,9 @@ import ExampleLayout from '../../layouts/ExampleLayout.astro';
     allow-authentication = "false"
     render-style = "read"
   > 
-    <div slot="nav-logo" style="display:flex; justify-content:center;">
-      <button class='btn' style="width:150px" onclick="toggleAllowTry()">Toggle Allow Try</button>
+    <div slot="nav-logo" style="display:flex; flex-direction:column; align-items:center; ">
+      <button class='btn' onclick="toggle('allow-try')">Toggle Allow Try</button>
     </div>
   </rapi-doc>
 
 </ExampleLayout>
-
-<script is:inline>
-  function getRapiDoc() {
-    return document.getElementById("thedoc");
-  }
-  
-  function toggleAllowTry () {
-    if (getRapiDoc().getAttribute('allow-try') === 'false' ) {
-      getRapiDoc().setAttribute('allow-try', 'true');
-    } else {
-      getRapiDoc().setAttribute('allow-try', 'false');
-    }
-  }
-</script>

@@ -10,7 +10,7 @@ import ExampleLayout from '../../layouts/ExampleLayout.astro';
     theme = "light"
   > 
 
-    <div slot="nav-logo"  style="width:100%; display: flex; flex-direction:column;">
+    <div class="control-panel" slot="custom-header">
       <div style="display: flex;justify-content: center; margin: 2px 0">
         <button class='btn large' style="width:110px" onclick="toggleTheme()">Toggle Theme</button>
       </div>
@@ -19,13 +19,3 @@ import ExampleLayout from '../../layouts/ExampleLayout.astro';
   </rapi-doc>
 </ExampleLayout>
 
-<script is:inline>
-  function toggleTheme () {
-    const doc = document.getElementById("thedoc");
-    if (doc.getAttribute('theme') === 'light') {
-      doc.setAttribute('theme', 'dark');
-    } else {
-      doc.setAttribute('theme', 'light');
-    }
-  }
-</script>

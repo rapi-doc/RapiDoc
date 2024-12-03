@@ -18,21 +18,9 @@ const specUrl = getSpecUrl(Astro.url);
 
   <div slot="nav-logo"  style="width:100%; display: flex; flex-direction:column;">
     <div style="display: flex;justify-content: center; margin: 2px 0">
-      <button class='btn large' style="width:150px" onclick="toggleTry()">Toggle Try</button>
+      <button class='btn' style="width:150px" onclick="toggle('allow-try')">Toggle Try</button>
     </div>
   </div>
 
-
   </rapi-doc>
 </ExampleLayout>
-
-<script is:inline>
-  function toggleTry () {
-    const doc = document.getElementById("thedoc");
-    if (doc.getAttribute('allow-try') === 'false') {
-      doc.setAttribute('allow-try', 'true');
-    } else {
-      doc.setAttribute('allow-try', 'false');
-    }
-  }
-</script>

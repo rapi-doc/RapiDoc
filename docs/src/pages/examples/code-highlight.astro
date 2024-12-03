@@ -12,22 +12,12 @@ const specUrl = getSpecUrl(Astro.url);
     show-info = "false"
     allow-server-selection = "false"
     allow-authentication = "false"
+    theme = "dark"
     render-style = "read"
   > 
     <div slot="nav-logo" style="display:flex; flex-direction:column; align-items:center; ">
-      <button class='btn' style="width:100px" onclick="toggleTheme()">Toggle Theme</button>
+      <button class='btn' onclick="toggleTheme()">Toggle Theme</button>
     </div>
 
   </rapi-doc>
 </ExampleLayout>
-
-<script is:inline>
-  function toggleTheme () {
-    const doc = document.getElementById("thedoc");
-    if (doc.getAttribute('theme') === 'light') {
-      doc.setAttribute('theme', 'dark');
-    } else {
-      doc.setAttribute('theme', 'light');
-    }
-  }
-</script>

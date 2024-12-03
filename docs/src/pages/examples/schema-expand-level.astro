@@ -16,30 +16,16 @@ const specUrl = getSpecUrl(Astro.url);
     render-style = "read"
     default-schema-tab = "schema"
   > 
-    <div slot="nav-logo" style="height:100px">
-      <div style="text-align: center; padding:0 0 12px 0;"> Default Schema expand level </div>
-      <div style="width:100%; display:flex; justify-content:center;">
-        <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('schema-expand-level', '1')" >1</button>
-        <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('schema-expand-level', '2')" >2</button>
-        <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('schema-expand-level', '3')" >3</button>
-      </div>
-      <div style="width:100%; display:flex; justify-content:center; margin-top:3px">
-        <button class='btn large' style="width:150px" onclick="toggleSchemaStyle()">Toggle Schema Style</button>
+
+    <div slot="nav-logo" style="height:120px; display:flex; flex-direction:column; align-items:center; gap:8px;">
+      <button class='btn' style="width:150px; margin-bottom:16px" onclick="toggleSchemaStyle()">Toggle Schema Style</button>
+      <div>Schema Expand Level </div>
+      <div style="display:flex; flex-direction:row; align-items:center;  justify-content:center; gap:5px">
+        <button class='btn' onclick="rapidocEl.setAttribute('schema-expand-level', '1')" >1</button>
+        <button class='btn' onclick="rapidocEl.setAttribute('schema-expand-level', '2')" >2</button>
+        <button class='btn' onclick="rapidocEl.setAttribute('schema-expand-level', '3')" >3</button>
       </div>
     </div>
+    
   </rapi-doc>
 </ExampleLayout>
-
-<script is:inline>
-  function getRapiDoc() {
-    return document.getElementById("thedoc");
-  }
-  
-  function toggleSchemaStyle () {
-    if (getRapiDoc().getAttribute('schema-style') === 'table') {
-      getRapiDoc().setAttribute('schema-style', 'tree');
-    } else {
-      getRapiDoc().setAttribute('schema-style', 'table');
-    }
-  }
-</script>

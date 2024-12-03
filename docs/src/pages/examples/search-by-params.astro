@@ -16,13 +16,11 @@ const specUrl = getSpecUrl(Astro.url);
     use-path-in-nav-bar = "true"
   > 
 
-    <div slot="nav-logo">
-      <div style="display:flex; align-items:center;font-size:12px; font-weight:bold;color:#fafafa">
-        Search &nbsp;
-        <button class='btn medium' onclick="onSearchChange('none')" >None</button>
-        <button class='btn medium' onclick="onSearchChange('quick')" >Quick</button>
-        <button class='btn medium' onclick="onSearchChange('advanced')" >Advanced</button>
-      </div>
+    <div slot="nav-logo" style="display:flex; flex-direction:row; align-items:center; gap:5px">
+      <span class="green">Search:</span>
+      <button class='btn' onclick="onSearchChange('none')" >None</button>
+      <button class='btn' onclick="onSearchChange('quick')" >Filter</button>
+      <button class='btn' onclick="onSearchChange('advanced')" >Search</button>
     </div>
 
   </rapi-doc>

@@ -56,17 +56,6 @@ const specUrl = getSpecUrl(Astro.url);
 
 
 <script is:inline>
-  function getRapiDoc() {
-    return document.getElementById("thedoc");
-  }
-
-  function toggleSchemaStyle() {
-    if (getRapiDoc().getAttribute('schema-style') === 'table') {
-      getRapiDoc().setAttribute('schema-style', 'tree');
-    } else {
-      getRapiDoc().setAttribute('schema-style', 'table');
-    }
-  }
 
   function toggleReadOnly(value) {
     const el = document.getElementById('read-only-' + value);
@@ -81,10 +70,10 @@ const specUrl = getSpecUrl(Astro.url);
     });
 
     if (optionsStr.trim() === '') {
-      getRapiDoc().removeAttribute('schema-hide-read-only');
-      getRapiDoc().connectedCallback();
+      rapidocEl.removeAttribute('schema-hide-read-only');
+      rapidocEl.connectedCallback();
     } else {
-      getRapiDoc().setAttribute('schema-hide-read-only', optionsStr);
+      rapidocEl.setAttribute('schema-hide-read-only', optionsStr);
     }
   }
 
@@ -94,19 +83,19 @@ const specUrl = getSpecUrl(Astro.url);
       Array.prototype.forEach.call(options, function (el) {
         el.checked = false;
       });
-      getRapiDoc().setAttribute('schema-hide-read-only', 'never');
+      rapidocEl.setAttribute('schema-hide-read-only', 'never');
     } else {
-      getRapiDoc().removeAttribute('schema-hide-read-only');
-      getRapiDoc().connectedCallback();
+      rapidocEl.removeAttribute('schema-hide-read-only');
+      rapidocEl.connectedCallback();
     }
   }
 
   function toggleNeverHideWriteOnly(neverBox) {
     if (neverBox.checked) {
-      getRapiDoc().setAttribute('schema-hide-write-only', 'never');
+      rapidocEl.setAttribute('schema-hide-write-only', 'never');
     } else {
-      getRapiDoc().removeAttribute('schema-hide-write-only');
-      getRapiDoc().connectedCallback();
+      rapidocEl.removeAttribute('schema-hide-write-only');
+      rapidocEl.connectedCallback();
     }
   }
 </script>

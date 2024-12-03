@@ -9,22 +9,22 @@ const specUrl = getSpecUrl(Astro.url);
   <rapi-doc 
     id = "thedoc"
     spec-url = {specUrl}
+    theme = "dark"
     show-header = "false"
     allow-server-selection = "false"
     allow-authentication = "false" 
     render-style = "read"
   > 
 
-    <div slot="nav-logo" style="display:flex; flex-direction:column; height:80px">
-      <div style="display: flex;justify-content: center; margin: 2px 0">
-        <button class='btn' onclick="document.getElementById('thedoc').setAttribute('theme', 'dark')" >Dark</button>
-        <button class='btn' onclick="document.getElementById('thedoc').setAttribute('theme', 'light')" >Light</button>
-      </div>
-      <div style="display: flex;justify-content: center; margin: 2px 0">
-        <button class='btn' onclick="document.getElementById('thedoc').setAttribute('font-size', 'default')" >Default Font</button>
-        <button class='btn' onclick="document.getElementById('thedoc').setAttribute('font-size', 'large')" >Large Font</button>
-        <button class='btn' onclick="document.getElementById('thedoc').setAttribute('font-size', 'largest')" >Largest Font</button>
+    <div slot="nav-logo" style="height:120px; display:flex; flex-direction:column; align-items:center; gap:8px;">
+      <button class='btn' style="margin-bottom:16px" onclick="toggleTheme()">Toggle Theme</button>
+      <div class="green">Font Size </div>
+      <div style="display:flex; flex-direction:row; align-items:center;  justify-content:center; gap:5px">
+        <button class='btn' onclick="rapidocEl.setAttribute('font-size', 'default')" >Default</button>
+        <button class='btn' onclick="rapidocEl.setAttribute('font-size', 'large')" >Large</button>
+        <button class='btn' onclick="rapidocEl.setAttribute('font-size', 'largest')" >Largest</button>
       </div>
     </div>
+
   </rapi-doc>
 </ExampleLayout>

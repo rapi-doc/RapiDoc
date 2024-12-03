@@ -26,13 +26,13 @@ basic:
   - theme-n-color:
       validates:
         - theme
-        - bg-color
-        - text-color
         - primary-color
+        - header-color
         - nav-bg-color
         - nav-text-color
+        - nav-accent-color
   - search:
-      title: Control Search Operations
+      title: Allow Search
       validates:
         - allow-search
         - allow-advanced-search

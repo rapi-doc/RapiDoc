@@ -14,26 +14,11 @@ const specUrl = getSpecUrl(Astro.url);
     allow-authentication = "false" 
     allow-server-selection = "false"
     default-schema-tab = "schema"
-
   > 
 
     <div slot="nav-logo" style="display:flex; flex-direction:column; align-items: center;">
-      <button class='btn large' style="width:150px" onclick="toggleSchemaStyle()">Toggle Schema Style</button>
+      <button class='btn' style="width:150px" onclick="toggleSchemaStyle()">Toggle Schema Style</button>
     </div>  
 
   </rapi-doc>
 </ExampleLayout>
-
-<script is:inline>
-  function getRapiDoc() {
-    return document.getElementById("thedoc");
-  }
-  
-  function toggleSchemaStyle () {
-    if (getRapiDoc().getAttribute('schema-style') === 'table') {
-      getRapiDoc().setAttribute('schema-style', 'tree');
-    } else {
-      getRapiDoc().setAttribute('schema-style', 'table');
-    }
-  }
-</script>

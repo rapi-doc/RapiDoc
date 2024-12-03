@@ -17,8 +17,8 @@ const specUrl = getSpecUrl(Astro.url);
     <div slot = "nav-logo" style = "width:100%; display: flex; flex-direction:column;">
       <div style = "text-align: center; padding: 0 0 12px 0; color:#47AFE8"> Schema Display Style </div>
       <div style = "display: flex;justify-content: center; margin: 2px 0">
-        <button class = 'btn medium' onclick="document.getElementById('thedoc').setAttribute('schema-style', 'tree')" >Tree</button>
-        <button class = 'btn medium' onclick="document.getElementById('thedoc').setAttribute('schema-style', 'table')" >Table</button>
+        <button class = 'btn medium' onclick="rapidocEl.setAttribute('schema-style', 'tree')" >Tree</button>
+        <button class = 'btn medium' onclick="rapidocEl.setAttribute('schema-style', 'table')" >Table</button>
       </div>
     </div>
   </rapi-doc>

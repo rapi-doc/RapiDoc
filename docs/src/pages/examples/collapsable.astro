@@ -13,29 +13,17 @@ const specUrl = getSpecUrl(Astro.url);
     allow-server-selection = "false"
     show-info = "true"
   > 
-    <div style = "padding:16px; display: flex;justify-content: center; align-items: center;">
-      <span>Use</span> <span class='mono' style="margin: 0 5px;">scrollToPath(path:string)</span> <span> method to goto : </span>
+
+    <div class="control-panel" slot="custom-header">
+      <div style = "padding:16px; display: flex;justify-content: center; align-items: center;">
+        <span>Use</span> <span class='mono yellow' style="margin: 0 5px;">scrollToPath(path:string)</span> <span> method to goto : </span>
+      </div>
+      <button class="btn" onclick = "rapidocEl.scrollToPath('overview')">Overview</button>
+      <button class="btn" onclick = "rapidocEl.scrollToPath('get-/path1-in-closed-tag')">valid path (in collapsed tag)</button>
+      <button class="btn" onclick = "rapidocEl.scrollToPath('an-incorrect-path')">non-existant path</button>
+      <div style="flex:1"></div>
+      <button class='btn yellow' onclick="toggleRenderStyle()">Toggle Render Style</button>
     </div>
-    <div style = "padding:16px; display: flex;justify-content: center; align-items: center;">
-      <button class = "btn normal" onclick = "scrollToPathCaller('overview')">
-        Overview
-      </button>
-      <button class = "btn normal" style = "width:190px" onclick = "scrollToPathCaller('get-/path1-in-closed-tag')">
-        valid path (in collapsed tag)
-      </button>
-      <button class = "btn normal" style = "width:140px" onclick = "scrollToPathCaller('an-incorrect-path')">
-        non-existant path
-      </button>
-    </div>
+
   </rapi-doc>
 </ExampleLayout>
-
-<script>
-  function getRapiDoc() {
-    return document.getElementById("thedoc");
-  }  
-  function scrollToPathCaller(path) {
-    let docEl = getRapiDoc() as any;
-    docEl.scrollToPath(path);
-  }
-</script>

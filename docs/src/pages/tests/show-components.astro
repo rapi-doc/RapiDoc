@@ -4,22 +4,14 @@ import { getSpecUrl } from '../../utils/getSpecUrl';
 
 const specUrl = getSpecUrl(Astro.url);
 ---
-
 <ExampleLayout>
   <rapi-doc
-    id = "thedoc"
-    spec-url = {specUrl}
+    spec-url="/specs/show-components.yaml"
     show-header = "false"
     show-info = "false"
     allow-server-selection = "false"
     allow-authentication = "false" 
-    theme = "dark"
-    render-style = "read"
-  > 
-
-    <div slot="nav-logo" style="display:flex; flex-direction:column; align-items:center; ">
-      <button class='btn' onclick="toggleTheme()">Toggle Theme</button>
-    </div>
-
-</rapi-doc>
+    render-style = "focused" 
+    show-components = "true"
+  > </rapi-doc>
 </ExampleLayout>

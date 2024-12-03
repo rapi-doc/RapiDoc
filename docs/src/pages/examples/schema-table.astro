@@ -18,29 +18,15 @@ const specUrl = getSpecUrl(Astro.url);
     schema-style='table'
   > 
 
-    <div slot="nav-logo" style="height:110px; display:flex; flex-direction:column; align-items:center;">
-      <button class='btn large' style="width:150px" onclick="toggleSchemaStyle()">Toggle Schema Style</button>
-      <div style="text-align:center; margin:24px 0 8px;"> Font Size </div>
-      <div style="display:flex; justify-content:center; margin: 2px 0">
-        <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('font-size', 'default')" >Default</button>
-        <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('font-size', 'large')" >Large</button>
-        <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('font-size', 'largest')" >Largest</button>
+    <div slot="nav-logo" style="height:120px; display:flex; flex-direction:column; align-items:center; gap:8px;">
+      <button class='btn' style="width:150px; margin-bottom:16px" onclick="toggleSchemaStyle()">Toggle Schema Style</button>
+      <div>Font Size </div>
+      <div style="display:flex; flex-direction:row; align-items:center;  justify-content:center; gap:5px">
+        <button class='btn' onclick="rapidocEl.setAttribute('font-size', 'default')" >Default</button>
+        <button class='btn' onclick="rapidocEl.setAttribute('font-size', 'large')" >Large</button>
+        <button class='btn' onclick="rapidocEl.setAttribute('font-size', 'largest')" >Largest</button>
       </div>
     </div>
 
   </rapi-doc>
 </ExampleLayout>
-
-<script is:inline>
-  function getRapiDoc() {
-    return document.getElementById("thedoc");
-  }
-  
-  function toggleSchemaStyle () {
-    if (getRapiDoc().getAttribute('schema-style') === 'table') {
-      getRapiDoc().setAttribute('schema-style', 'tree');
-    } else {
-      getRapiDoc().setAttribute('schema-style', 'table');
-    }
-  }
-</script>
