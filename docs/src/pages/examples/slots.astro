@@ -14,12 +14,17 @@ const specUrl = getSpecUrl(Astro.url);
     show-info = "true"
   > 
 
+    <p slot="fixed-header" style="margin:0; padding:16px 36px; background-color:rgb(90, 205, 163); color:#333; text-align:center;" > 
+      <b>fixed-header</b> slot| <span style="font-size:12px"> Good place for contents that you always want to be visible. will not scroll out of view</span>
+    </p>
+
+
     <p style="margin:0; padding:16px 36px; background-color:tomato; color:#fff; text-align:center;" > 
       <b> default</b> slot | <span style="font-size:12px"> A good place to provide internal and external links, Sign In buttons etc</span>
     </p>
 
     <span slot="overview" >
-      <p style="margin-top:10px; padding:16px 36px; background-color:MediumSeaGreen; color:#fff; text-align:center;" > 
+      <p style="margin-top:10px; padding:16px 36px; background-color:MediumSeaGreen; color:#333; text-align:center;" > 
         <b> overview</b> slot | <span style="font-size:12px"> good for business flow explenation</span>
       </p>
       <div style="display:flex; flex-direction:column; align-items: center; font-size:13px; color: #777;">
@@ -65,15 +70,27 @@ const specUrl = getSpecUrl(Astro.url);
 
 
     <p slot="tag--user" style="margin-top:10px; padding:16px 36px; background-color:#ac7339; color:#fff; text-align:center;" > 
-      <b> tag--user</b> slot
+      <b>dynamic slot</b> | 
+      <span style="font-size:12px">
+        The slot is created using tag name defined in the spec using the format: <span style="font-size:13px" class="mono">tag--&#123;tag-name&#125;</span><br/>
+        This slot name is <span style="font-size:13px" class="mono">tag--user</span>
+      </span>
     </p>
 
     <p slot="tag--Create-User" style="margin-top:10px; padding:16px 36px; background-color:#ac7339; color:#fff; text-align:center;" > 
-      <b> tag--Create-User</b> slot
+      <b>dynamic slot</b> | 
+      <span style="font-size:12px">
+        The slot is created using tag name defined in the spec using the format: <span style="font-size:13px" class="mono">tag--&#123;tag-name&#125;</span><br/>
+        This slot name is <span style="font-size:13px" class="mono">tag--Create-User</span>
+      </span>
     </p>
 
     <p slot="post-/users" style="margin-top:10px; padding:16px 36px; background-color:orangered; color:#fff; text-align:center;" > 
-      <b> post-/users</b> slot | <span style="font-size:12px"> Inject HTML content specific to a path if needed</span>
+      <b>dynamic slot</b> | 
+      <span style="font-size:12px">
+        The slot is created using method and path defined in the spec. <br/>
+        This slot name is <span style="font-size:13px" class="mono">post-/users</span>
+      </span>
     </p>
 
     <p slot="footer" style="margin:0; padding:16px 36px; background-color:orange; color:#fff; text-align:center;" > 

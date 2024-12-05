@@ -5,7 +5,7 @@ import ExampleLayout from '../../layouts/ExampleLayout.astro';
 <ExampleLayout>
   <rapi-doc id = "thedoc" spec-url = "/specs-test/petstore.yaml"> 
 
-    <div class="control-panel" slot="custom-header">
+    <div class="control-panel" slot="fixed-header">
       <button class='btn' onclick="toggle('show-header')">Toggle Header</button>
       <button class='btn' onclick="toggle('show-info')">Toggle Info</button>
       <button class='btn' onclick="toggle('allow-server-selection')">Toggle Server Selection</button>

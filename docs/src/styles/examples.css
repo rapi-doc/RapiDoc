@@ -51,8 +51,9 @@ a { color:var(--link-color); text-decoration: none;}
   align-items: center;
   gap: 5px;
   height: 40px;
-  padding: 16px;
-  border: 2px solid var(--color-green);
+  border-bottom: 1px solid #777;
+  background: #000000aa;
+  padding: 16px 12px;
 }
 
 

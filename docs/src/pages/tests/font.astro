@@ -4,7 +4,7 @@ import ExampleLayout from '../../layouts/ExampleLayout.astro';
 <ExampleLayout>
   <rapi-doc id = "thedoc" spec-url = "/specs-test/petstore.yaml" regular-font="Open Sans'"  mono-font="Sono" render-style="read"> 
 
-    <div class="control-panel" slot="custom-header">
+    <div class="control-panel" slot="fixed-header">
       <button class='btn' onclick="changeFont('regular-font')">Change Regular Font</button>
       <button class='btn' onclick="changeFont('mono-font')">Change Mono Font</button>
       <span class="green" style="margin-left:36px"> Font Sizes:</span>
