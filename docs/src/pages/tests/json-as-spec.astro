@@ -1,0 +1,58 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+import { getSpecUrl } from '../../utils/getSpecUrl';
+
+const specUrl = getSpecUrl(Astro.url);
+---
+
+<ExampleLayout>
+  <rapi-doc id = "thedoc"> </rapi-doc>
+</ExampleLayout>
+
+<script is:inline>
+document.addEventListener('DOMContentLoaded', (event) => {
+  let docEl = document.getElementById("thedoc");
+  let strSpec = `
+  {
+    "openapi": "3.1.0",
+    "info": {
+      "title": "Minimal Open API Spec",
+      "version": "1.0.0"
+    },
+    "servers": [
+      { "url": "http://localhost:8080" }
+    ],
+    "paths": {
+      "/users": {
+        "get": {
+          "summary": "Retrieves a list of users",
+          "responses": {
+            "200": {
+              "description": "A list of users"
+            }
+          }
+        }
+      },
+      "/users/{userId}": {
+        "get": {
+          "summary": "Retrieves a specific user",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "userId",
+              "schema": { "type": "integer" }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The user"
+            }
+          }
+        }
+      }
+    }
+  }`;
+  let objSpec = JSON.parse(strSpec);
+  docEl.loadSpec(objSpec);
+});
+</script>

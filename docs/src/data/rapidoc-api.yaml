@@ -31,7 +31,9 @@ Attributes:
         - method
         - summary
         - none
-      description: Sort endpoints within each tag by path, method, or summary. 'none' leaves the sort order unmodified.
+      description: >
+        Sort endpoints within each tag by path, method, or summary. 'none' leaves the sort order unmodified.<br/>
+         <span class="green"> ⓘ This is a static attribute. It won't have any effect if changed using JavaScript after the spec is rendered</span>
       example: examples/arrange-by-tags.html
       default: path
     - name: heading-text

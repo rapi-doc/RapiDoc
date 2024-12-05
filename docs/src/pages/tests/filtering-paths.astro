@@ -64,7 +64,7 @@ const specUrl = getSpecUrl(Astro.url);
     </div>
   </rapi-doc>
 
-  <script slot="script">
+  <script is:inline>
     function applyFilter(filterType) {
       const docEl = document.getElementById('thedoc');
       const filterText = document.getElementById(filterType).value || "";

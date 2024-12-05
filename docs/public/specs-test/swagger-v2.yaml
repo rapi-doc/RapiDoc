@@ -1,4 +1,4 @@
-swagger: 2.0
+swagger: "2.0"
 info:
   description: This is a sample Pet Store Server based on the OpenAPI 2.0 specification.
   version: 1.0.0

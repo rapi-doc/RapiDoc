@@ -9,11 +9,35 @@ const specUrl = getSpecUrl(Astro.url);
   <rapi-doc 
     id = "thedoc"
     spec-url = {specUrl}
+    render-style = "read"
+    sort-endpoints-by = "summary"
     show-header = "false"
     show-info = "true"
     allow-server-selection = "false"
     allow-authentication = "false" 
-    render-style = "read"
-    allow-try = "false" 
-  > </rapi-doc>
+  > 
+
+    <div slot="nav-logo" style="height:200px;">
+      <ul style="font-size:13px; line-height:18px; display:grid; gap:12px;" class="green">
+        <li> Tags are sorted based on <span class="mono yellow">tags</span> section in the OpenAPI Spec </li>
+        <li> 
+          Paths within each tag is sorted using the <span class="mono yellow">summary</span>. 
+          This is done using RapiDocs attribure <span class="mono yellow">sort-endpoints-by</span> 
+          and the available options to sort them are by <span class="mono yellow">summary | path | method | none</span> 
+        </li>
+      </ul>
+
+      <div style="display:flex; flex-direction:row; align-items:center; gap:5px; justify-content:center;">
+        Navigation Text:
+        <button class='btn' onclick="rapidocEl.setAttribute('use-path-in-nav-bar', 'true')" >Path</button>
+        <button class='btn' onclick="rapidocEl.setAttribute('use-path-in-nav-bar', 'false')" >Summary</button>
+      </div>  
+    </div>
+  </rapi-doc>
 </ExampleLayout>
+
+<style>
+  rapi-doc::part(section-navbar-tag){ 
+    color: salmon
+  }
+</style>

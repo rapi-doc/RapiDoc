@@ -151,3 +151,8 @@ advanced:
         - match-paths
         - match-type
         - remove-endpoints-with-badge-label-as
+  - swagger-v2:
+      title: Limited support for swagger 2.0
+      validates:
+        - Limited support for Swagger V2 from RapiDoc 9.3.9 onwards
+        - Should Display all Paths, Request and response
