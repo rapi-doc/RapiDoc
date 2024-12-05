@@ -1,13 +1,28 @@
-import OpenApiParser from '@apitools/openapi-parser';
+// import OpenApiParser from '@apitools/openapi-parser';
+import SwaggerClient from 'swagger-client';
 import { marked } from 'marked';
 import { invalidCharsRegEx, rapidocApiKey, sleep } from '~/utils/common-utils';
+
+// Interceptor that checks if its a direct markdown file then allow it to be parsed
+function responseInterceptor(val) {
+  if (
+    val.ok &&
+    val.text &&
+    val.parseError &&
+    val.parseError.name === 'YAMLException' &&
+    (!val.headers['content-type'] || val.headers['content-type'].match('text/plain'))
+  ) {
+    val.body = val.text;
+  }
+  return val;
+}
 
 export default async function ProcessSpec(
   specUrl,
   generateMissingTags = false,
   sortTags = false,
   sortSchemas = false,
-  sortEndpointsBy = '',
+  sortEndpointsBy = 'none',
   attrApiKey = '',
   attrApiKeyLocation = '',
   attrApiKeyValue = '',
@@ -17,20 +32,31 @@ export default async function ProcessSpec(
   removeEndpointsWithBadgeLabelAs = ''
 ) {
   let jsonParsedSpec;
-
+  let specMeta;
   try {
     this.requestUpdate(); // important to show the initial loader
-    let specMeta;
     if (typeof specUrl === 'string') {
-      specMeta = await OpenApiParser.resolve({ url: specUrl, allowMetaPatches: false }); // Swagger(specUrl);
+      specMeta = await SwaggerClient.resolve({
+        url: specUrl,
+        disableInterfaces: true,
+        requestInterceptor: responseInterceptor,
+      });
     } else {
-      specMeta = await OpenApiParser.resolve({ spec: specUrl, allowMetaPatches: false }); // Swagger({ spec: specUrl });
+      specMeta = await SwaggerClient.resolve({
+        spec: specUrl,
+        disableInterfaces: true,
+        requestInterceptor: responseInterceptor,
+      });
     }
     await sleep(0); // important to show the initial loader (allows for rendering updates)
 
     // If JSON Schema Viewer
-    if (specMeta.resolvedSpec?.jsonSchemaViewer && specMeta.resolvedSpec?.schemaAndExamples) {
-      this.dispatchEvent(new CustomEvent('before-render', { detail: { spec: specMeta.resolvedSpec } }));
+    /*
+    if (resolvedMeta.errors && resolvedMeta.errors.length > 0) {
+      console.info('RapiDoc: %c There was an issue while parsing the spec %o ', 'color:orangered', resolvedMeta.errors);
+    } else {
+      // specMeta = ;
+      this.dispatchEvent(new CustomEvent('before-render', { detail: { spec: resolvedMeta.spec } }));
       const schemaAndExamples = Object.entries(specMeta.resolvedSpec.schemaAndExamples).map((v) => ({
         show: true,
         expanded: true,
@@ -47,6 +73,7 @@ export default async function ProcessSpec(
       };
       return parsedSpec;
     }
+    */
 
     // If RapiDoc or RapiDocMini
     if (
@@ -56,22 +83,36 @@ export default async function ProcessSpec(
       jsonParsedSpec = filterPaths(specMeta.spec, matchPaths, matchType, removeEndpointsWithBadgeLabelAs);
       this.dispatchEvent(new CustomEvent('before-render', { detail: { spec: jsonParsedSpec } }));
     } else {
-      console.info('RapiDoc: %c There was an issue while parsing the spec %o ', 'color:orangered', specMeta);
+      console.info('RapiDoc: %c Invalid Spec Definition %o ', 'color:orangered', specMeta);
       return {
         specLoadError: true,
         isSpecLoading: false,
         info: {
-          title: 'Error loading the spec',
-          description: specMeta.response?.url
-            ? `${specMeta.response?.url} ┃ ${specMeta.response?.status}  ${specMeta.response?.statusText}`
-            : 'Unable to load the Spec',
-          version: ' ',
+          title: 'Invalid Spec Definition',
+          description: 'Invalid Spec Definition',
+          version: '',
         },
         tags: [],
       };
     }
   } catch (err) {
-    console.info('RapiDoc: %c There was an issue while parsing the spec %o ', 'color:orangered', err);
+    let errDescr;
+    console.info('RapiDoc: %c There was an issue while loading/parsing the spec %o ', 'color:orangered', err);
+    if (err.statusCode === 404 || err.status === 404) {
+      errDescr = err.response?.url ? `${err.response?.url} ┃ Not Found (${err.response?.status})` : 'Spec Not Found ┃ 404';
+    } else {
+      errDescr = `Unable to load ${err.response?.url} ┃ ${err.response?.status}`;
+    }
+    return {
+      specLoadError: true,
+      isSpecLoading: false,
+      info: {
+        title: 'Error loading the spec',
+        description: errDescr,
+        version: '',
+      },
+      tags: [],
+    };
   }
 
   // const pathGroups = groupByPaths(jsonParsedSpec);
@@ -333,7 +374,7 @@ function getComponents(openApiSpec, sortSchemas = false) {
   return components || [];
 }
 
-function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, sortTags = false) {
+function groupByTags(openApiSpec, sortEndpointsBy = 'none', generateMissingTags = false, sortTags = false) {
   const supportedMethods = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options']; // this is also used for ordering endpoints by methods
   const tags =
     openApiSpec.tags && Array.isArray(openApiSpec.tags) && openApiSpec.tags.length > 0
@@ -469,17 +510,17 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
   }
 
   const tagsWithSortedPaths = tags.filter((tag) => tag.paths && tag.paths.length > 0);
-  tagsWithSortedPaths.forEach((tag) => {
-    if (sortEndpointsBy === 'method') {
-      tag.paths.sort((a, b) => supportedMethods.indexOf(a.method).toString().localeCompare(supportedMethods.indexOf(b.method)));
-    } else if (sortEndpointsBy === 'summary') {
-      tag.paths.sort((a, b) => a.shortSummary.localeCompare(b.shortSummary));
-    } else if (sortEndpointsBy === 'path') {
-      tag.paths.sort((a, b) => a.path.localeCompare(b.path));
-    } else if (sortEndpointsBy === 'none') {
-      // don't sort if sortEndpointsBy is 'none'
-    }
-    tag.firstPathId = tag.paths[0].elementId;
-  });
+  if (sortEndpointsBy !== 'none') {
+    tagsWithSortedPaths.forEach((tag) => {
+      if (sortEndpointsBy === 'method') {
+        tag.paths.sort((a, b) => supportedMethods.indexOf(a.method).toString().localeCompare(supportedMethods.indexOf(b.method)));
+      } else if (sortEndpointsBy === 'summary') {
+        tag.paths.sort((a, b) => a.shortSummary.localeCompare(b.shortSummary));
+      } else if (sortEndpointsBy === 'path') {
+        tag.paths.sort((a, b) => a.path.localeCompare(b.path));
+      }
+      tag.firstPathId = tag.paths[0].elementId;
+    });
+  }
   return sortTags ? tagsWithSortedPaths.sort((a, b) => a.name.localeCompare(b.name)) : tagsWithSortedPaths;
 }

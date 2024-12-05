@@ -160,6 +160,9 @@ export default class RapiDoc extends LitElement {
       NavStyles,
       InfoStyles,
       css`
+        rapi-doc:not(:defined) {
+          display: none;
+        }
         :host {
           all: initial;
           display: flex;
