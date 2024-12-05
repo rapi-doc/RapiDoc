@@ -262,7 +262,7 @@ export default class RapiDoc extends LitElement {
         .collapsed .section-tag-body {
           display: none;
         }
-        ::slotted([slot='custom-header']) {
+        ::slotted([slot='fixed-header']) {
           padding: 4px 12px;
           max-height: 40px;
           overflow: hidden;
