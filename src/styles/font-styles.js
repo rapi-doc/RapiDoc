@@ -200,7 +200,6 @@ export default css`
     padding: 1px 6px;
     border-radius: 2px;
     color: var(--inline-code-fg);
-    background: var(--bg3);
     font-size: calc(var(--font-size-mono));
     line-height: 1.2;
   }
@@ -239,7 +238,6 @@ export default css`
 
   .m-markdown pre code {
     color: var(--code-fg);
-    background: var(--code-bg);
   }
 
   .m-markdown-small pre code {
