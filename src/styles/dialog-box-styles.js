@@ -7,30 +7,17 @@ export default css`
     box-sizing: border-box;
   }
 
-  .dialog-box-overlay {
-    background: var(--overlay-bg);
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-    z-index: var(--dialog-z-index);
-  }
-
   .dialog-box {
-    position: fixed;
+    position: absolute;
     top: 100px;
-    left: 50%;
-    transform: translate(-50%, 0%);
-    display: flex;
-    flex-direction: column;
-    width: 70vw;
     background: var(--bg2);
+    padding: 0;
     color: var(--fg2);
     border-radius: 4px;
-    max-height: 500px;
-    overflow: hidden;
+    max-height: 70vh;
+    height: 70vh;
+    max-width: 70vw;
+    width: 70vw;
     border: 1px solid var(--border-color);
     box-shadow:
       0 14px 28px rgba(0, 0, 0, 0.25),
@@ -41,6 +28,8 @@ export default css`
     position: sticky;
     top: 0;
     align-self: stretch;
+    z-index: 10;
+    backdrop-filter: blur(12px);
     display: flex;
     align-items: center;
     padding: 0px 16px;

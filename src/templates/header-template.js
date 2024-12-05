@@ -66,7 +66,7 @@ export default function headerTemplate() {
               class="m-btn primary only-large-screen"
               part="btn btn-fill btn-search"
               style="margin-left:10px;"
-              @click="${this.onShowSearchModalClicked}"
+              @click="${this.onShowAdvancedSearchClicked}"
             >
               Search
             </button>

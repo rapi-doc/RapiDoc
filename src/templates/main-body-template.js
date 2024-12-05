@@ -9,7 +9,7 @@ import serverTemplate from '~/templates/server-template';
 import securitySchemeTemplate, { recoverPersistedApiKeys } from '~/templates/security-scheme-template';
 import headerTemplate from '~/templates/header-template';
 import navbarTemplate from '~/templates/navbar-template';
-import advancedSearchTemplate from '~/templates/advance-search-template';
+import advancedSearchDialogTemplate from '~/templates/advanced-search-dialog-template';
 import SetTheme from '~/utils/theme';
 import { isValidHexColor } from '~/utils/color-utils';
 
@@ -64,7 +64,7 @@ export default function mainBodyTemplate(isMini = false, pathsExpanded = false) 
     ${this.showHeader === 'false' ? '' : headerTemplate.call(this)}
 
     <!-- Advanced Search -->
-    ${this.allowAdvancedSearch === 'false' ? '' : advancedSearchTemplate.call(this)}
+    ${this.allowAdvancedSearch === 'false' ? '' : advancedSearchDialogTemplate.call(this)}
 
     <div id="the-main-body" class="body ${this.cssClasses}" dir="${this.pageDirection}">
       <!-- Side Nav -->

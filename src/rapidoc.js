@@ -24,6 +24,8 @@ import TabStyles from '~/styles/tab-styles';
 import NavStyles from '~/styles/nav-styles';
 import InfoStyles from '~/styles/info-styles';
 import CustomStyles from '~/styles/custom-styles';
+import DialogBoxStyles from '~/styles/dialog-box-styles';
+
 import { advancedSearch, getMatchedPaths, getMatchedComponents, rapidocApiKey, sleep } from '~/utils/common-utils';
 import ProcessSpec from '~/utils/spec-parser';
 import mainBodyTemplate from '~/templates/main-body-template';
@@ -142,7 +144,6 @@ export default class RapiDoc extends LitElement {
       // Internal Properties
       loading: { type: Boolean }, // indicates spec is being loaded
       focusedElementId: { type: String }, // updating the focusedElementId will automatically render appropriate section in focused mode
-      showAdvancedSearchDialog: { type: Boolean },
       advancedSearchMatches: { type: Object },
       searchVal: { type: String },
     };
@@ -159,6 +160,7 @@ export default class RapiDoc extends LitElement {
       TabStyles,
       NavStyles,
       InfoStyles,
+      DialogBoxStyles,
       css`
         rapi-doc:not(:defined) {
           display: none;
@@ -666,10 +668,6 @@ export default class RapiDoc extends LitElement {
     if (!this.removeEndpointsWithBadgeLabelAs) {
       this.removeEndpointsWithBadgeLabelAs = '';
     }
-    if (!this.showAdvancedSearchDialog) {
-      this.showAdvancedSearchDialog = false;
-    }
-
     if (!this.cssFile) {
       this.cssFile = null;
     }
@@ -870,18 +868,11 @@ export default class RapiDoc extends LitElement {
     );
   }
 
-  onShowSearchModalClicked() {
-    this.showAdvancedSearchDialog = true;
+  onShowAdvancedSearchClicked() {
+    this.shadowRoot.getElementById('advanced-search-dialog').showModal();
   }
-
-  // Event Handler on Dialog-Box is opened
-  async onOpenSearchDialog(e) {
-    // Set focus to text input
-    const inputEl = e.detail.querySelector('input');
-    await sleep(0);
-    if (inputEl) {
-      inputEl.focus();
-    }
+  onAdvancedSearchClose() {
+    this.shadowRoot.getElementById('advanced-search-dialog').close();
   }
 
   // Public Method

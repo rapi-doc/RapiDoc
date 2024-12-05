@@ -106,7 +106,7 @@ export default function navbarTemplate() {
                       class="m-btn primary"
                       part="btn btn-fill btn-search"
                       style="margin-left:5px; padding:6px 8px; width:75px"
-                      @click="${this.onShowSearchModalClicked}"
+                      @click="${this.onShowAdvancedSearchClicked}"
                     >
                       SEARCH
                     </button>
