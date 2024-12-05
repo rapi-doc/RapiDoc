@@ -60,6 +60,7 @@ export default css`
   }
   .collapsed .nav-bar-paths-under-tag {
     visibility: hidden;
+    max-height: 0;
   }
 
   .nav-bar-expand-all {

@@ -32,7 +32,7 @@ export function expandCollapseAll(event, action = 'expand-all') {
   } else {
     elList.forEach((el) => {
       el.classList.replace('expanded', 'collapsed');
-      el.querySelector('.nav-bar-paths-under-tag').style.maxHeight = 0;
+      // el.querySelector('.nav-bar-paths-under-tag').style.maxHeight = 0;
     });
   }
 }
