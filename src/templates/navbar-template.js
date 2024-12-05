@@ -45,6 +45,11 @@ export function navBarClickAndEnterHandler(event) {
   event.stopPropagation();
   if (navEl.dataset?.action === 'navigate') {
     this.scrollToEventTarget(event, false);
+    const navBarEl = event.currentTarget.closest('#nav-bar');
+    // hide the navigation bar incase of floating navigation
+    if (navBarEl.classList.contains('floating-nav')) {
+      navBarEl.classList.remove('floating-nav');
+    }
   } else if (navEl.dataset?.action === 'expand-all' || navEl.dataset?.action === 'collapse-all') {
     expandCollapseAll(event, navEl.dataset.action);
   } else if (navEl.dataset?.action === 'expand-collapse-tag') {
@@ -61,7 +66,8 @@ export default function navbarTemplate() {
     `;
   }
   return html`
-    <nav class="nav-bar ${this.renderStyle}" part="section-navbar">
+    <button id="nav-bar-btn" part="btn-navbar" class="btn" @click="${this.onOpenNavBarToggle}">☰</button>
+    <nav id="nav-bar" class="nav-bar ${this.renderStyle}" part="section-navbar">
       <slot name="nav-logo" class="logo"></slot>
       ${this.allowSearch === 'false' && this.allowAdvancedSearch === 'false'
         ? ''
@@ -103,6 +109,7 @@ export default function navbarTemplate() {
                 ? ''
                 : html`
                     <button
+                      id="advanced-search-btn"
                       class="m-btn primary"
                       part="btn btn-fill btn-search"
                       style="margin-left:5px; padding:6px 8px; width:75px"

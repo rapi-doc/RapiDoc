@@ -188,6 +188,7 @@ export default class RapiDoc extends LitElement {
           border-color: var(--primary-color);
         }
         .body {
+          position: relative;
           display: flex;
           height: 100%;
           width: 100%;
@@ -436,6 +437,12 @@ export default class RapiDoc extends LitElement {
             width: 260px;
             display: flex;
           }
+          #nav-bar-btn {
+            display: none;
+          }
+          #advanced-search-btn {
+            display: block;
+          }
           .only-large-screen {
             display: block;
           }
@@ -461,6 +468,12 @@ export default class RapiDoc extends LitElement {
           .nav-bar {
             width: ${unsafeCSS(this.fontSize === 'default' ? '300px' : this.fontSize === 'large' ? '315px' : '330px')};
             display: flex;
+          }
+          #nav-bar-btn {
+            display: none;
+          }
+          #advanced-search-btn {
+            display: block;
           }
           .section-gap--focused-mode {
             padding: 12px 80px 12px 80px;
@@ -866,6 +879,11 @@ export default class RapiDoc extends LitElement {
         v.expanded = true;
       })
     );
+  }
+
+  onOpenNavBarToggle() {
+    const navBarEL = this.shadowRoot.getElementById('nav-bar');
+    navBarEL.classList.toggle('floating-nav');
   }
 
   onShowAdvancedSearchClicked() {
