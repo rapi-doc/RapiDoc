@@ -7,7 +7,7 @@ import '~/components/schema-tree';
 import '~/components/schema-table';
 
 function schemaBodyTemplate(sComponent) {
-  return html` <div class="divider"></div>
+  return html`<div class="divider"></div>
     <div class="expanded-endpoint-body observe-me ${sComponent.name}" id="cmp--${sComponent.id}">
       <div style="font-weight:bold">
         ${sComponent.name} <span style="color:var(--light-fg); font-size:var(--font-size-small); font-weight:400;"> Schema </span>
@@ -23,7 +23,7 @@ function schemaBodyTemplate(sComponent) {
             exportparts="schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
           >
           </schema-table>`
-        : html` <schema-tree
+        : html`<schema-tree
             .data="${schemaInObjectNotation(sComponent.component, {})}"
             schema-expand-level="${this.schemaExpandLevel}"
             schema-description-expanded="${this.schemaDescriptionExpanded}"
@@ -49,7 +49,7 @@ function componentBodyTemplate(sComponent, componentType) {
           <span style="color:var(--light-fg); font-size:var(--font-size-small); font-weight:400"> ${componentType} </span>
         </div>
         ${sComponent.component
-          ? html` <div class="mono-font regular-font-size" style="padding: 8px 0; color:var(--fg2)">
+          ? html`<div class="mono-font regular-font-size" style="padding: 8px 0; color:var(--fg2)">
               <json-tree class="border tree" render-style="${this.renderStyle}" .data="${sComponent.component}"> </json-tree>
             </div>`
           : ''}

@@ -102,9 +102,6 @@ export default class ApiRequest extends LitElement {
       TabStyles,
       PrismStyles,
       css`
-        :host {
-          container-type: inline-size;
-        }
         *,
         *:before,
         *:after {
@@ -218,33 +215,31 @@ export default class ApiRequest extends LitElement {
   }
 
   render() {
-    return html`
-      <div
-        class="col regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true'
-          ? 'read-mode'
-          : 'view-mode'}"
-      >
-        <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} ">
-          ${this.callback === 'true' ? 'CALLBACK REQUEST' : 'REQUEST'}
-        </div>
-        <div>
-          ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () =>
-            this.inputParametersTemplate('path')
-          )}
-          ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () =>
-            this.inputParametersTemplate('query')
-          )}
-          ${this.requestBodyTemplate()}
-          ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () =>
-            this.inputParametersTemplate('header')
-          )}
-          ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () =>
-            this.inputParametersTemplate('cookie')
-          )}
-          ${this.allowTry === 'false' ? '' : html`${this.apiCallTemplate()}`}
-        </div>
+    return html`<div
+      class="col regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true'
+        ? 'read-mode'
+        : 'view-mode'}"
+    >
+      <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} ">
+        ${this.callback === 'true' ? 'CALLBACK REQUEST' : 'REQUEST'}
       </div>
-    `;
+      <div>
+        ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () =>
+          this.inputParametersTemplate('path')
+        )}
+        ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () =>
+          this.inputParametersTemplate('query')
+        )}
+        ${this.requestBodyTemplate()}
+        ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () =>
+          this.inputParametersTemplate('header')
+        )}
+        ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () =>
+          this.inputParametersTemplate('cookie')
+        )}
+        ${this.allowTry === 'false' ? '' : html`${this.apiCallTemplate()}`}
+      </div>
+    </div>`;
   }
 
   async updated() {
@@ -334,12 +329,11 @@ export default class ApiRequest extends LitElement {
   renderLongFormatExamples(exampleList, paramType, paramName) {
     return html` <ul style="list-style-type: disclosure-closed;">
       ${exampleList.map(
-        (v) => html`
-          <li>
+        (v) =>
+          html`<li>
             ${this.renderExample(v, paramType, paramName)} ${v.summary?.length > 0 ? html`<span>&lpar;${v.summary}&rpar;</span>` : ''}
             ${v.description?.length > 0 ? html`<p>${unsafeHTML(marked(v.description))}</p>` : ''}
-          </li>
-        `
+          </li>`
       )}
     </ul>`;
   }
@@ -442,7 +436,7 @@ export default class ApiRequest extends LitElement {
                 colspan="${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern ? '1' : '2'}"
               >
                 ${paramSchema.type === 'array'
-                  ? html` <tag-input
+                  ? html`<tag-input
                       class="request-param"
                       id="tag-input-request-param-${param.name}"
                       style="width:100%"
@@ -467,7 +461,7 @@ export default class ApiRequest extends LitElement {
                     >
                     </tag-input>`
                   : paramSchema.type === 'object'
-                    ? html` <div part="tab-panel" class="tab-panel col" style="border-width:0 0 1px 0;">
+                    ? html`<div part="tab-panel" class="tab-panel col" style="border-width:0 0 1px 0;">
                         <div
                           part="tab-btn-row"
                           class="tab-buttons row"
@@ -1271,7 +1265,7 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
               </button>`}
         </div>
         ${this.responseIsBlob
-          ? html` <div
+          ? html`<div
               part="tab-content"
               class="tab-content col"
               style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};"
@@ -1302,7 +1296,7 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
                   </button>`
                 : ''}
             </div>`
-          : html` <div
+          : html`<div
               part="tab-content"
               class="tab-content col m-markdown"
               style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};"
@@ -1346,18 +1340,15 @@ ${responseContent}</pre
     const selectedServerHtml = html`
       <div style="display:flex; flex-direction:column;">
         ${this.serverUrl
-          ? html`
-              <div style="display:flex; align-items:baseline;">
-                <div style="font-weight:bold; padding-right:5px;">API Server</div>
-                <span class="gray-text"> ${this.serverUrl} </span>
-              </div>
-            `
+          ? html`<div style="display:flex; align-items:baseline;">
+              <div style="font-weight:bold; padding-right:5px;">API Server</div>
+              <span class="gray-text"> ${this.serverUrl} </span>
+            </div>`
           : ''}
       </div>
     `;
 
-    return html`
-      <div style="display:flex; align-items:flex-end; margin:16px 0; font-size:var(--font-size-small);" part="wrap-request-btn">
+    return html`<div style="display:flex; align-items:flex-end; margin:16px 0; font-size:var(--font-size-small);" part="wrap-request-btn">
         <div class="hide-in-small-screen" style="flex-direction:column; margin:0; width:calc(100% - 60px);">
           <div style="display:flex; flex-direction:row; align-items:center; overflow:hidden;">${selectedServerHtml}</div>
           <div style="display:flex;">
@@ -1397,8 +1388,7 @@ ${responseContent}</pre
       <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
         ${this.showCurlBeforeTry === 'true' ? this.curlSyntaxTemplate() : ''}
       </div>
-      ${this.responseMessage === '' ? '' : this.apiResponseTabTemplate()}
-    `;
+      ${this.responseMessage === '' ? '' : this.apiResponseTabTemplate()} `;
   }
   async onFillRequestData(e) {
     const requestPanelEl = e.target.closest('.request-panel');

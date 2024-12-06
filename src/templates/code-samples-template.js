@@ -25,7 +25,7 @@ export default function codeSamplesTemplate(xCodeSamples) {
     </div>
     ${xCodeSamples.map(
       (v, i) =>
-        html` <div class="tab-content m-markdown" style="display:${i === 0 ? 'block' : 'none'}" data-tab="${v.lang}${i}">
+        html`<div class="tab-content m-markdown" style="display:${i === 0 ? 'block' : 'none'}" data-tab="${v.lang}${i}">
           <button
             class="toolbar-btn"
             part="btn btn-fill btn-copy"

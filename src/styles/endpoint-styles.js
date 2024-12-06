@@ -1,9 +1,6 @@
 import { css } from 'lit';
 
 export default css`
-  :host {
-    container-type: inline-size;
-  }
   .only-large-screen {
     display: none;
   }

@@ -6,10 +6,6 @@ export default css`
   *:after {
     box-sizing: border-box;
   }
-  :host {
-    container-type: inline-size;
-  }
-
   .tr {
     display: flex;
     flex: none;

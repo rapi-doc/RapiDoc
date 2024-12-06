@@ -16,7 +16,7 @@ const __dirname = dirname(__filename);
 const sharedPlugins = [
   minifyHTML.default({
     include: ["./src/*", "./src/styles/*", "./src/templates/*", "./src/components/*"],
-    exclude: ["./src/utils/*"]
+    exclude: ["./src/utils/*", "src/rapidoc.js"]
   }),
   bannerPlugin(`/*!
    * @license

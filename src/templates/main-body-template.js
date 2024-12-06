@@ -34,31 +34,26 @@ export default function mainBodyTemplate(isMini = false, pathsExpanded = false) 
   };
 
   if (this.resolvedSpec.specLoadError) {
-    return html`
-      ${this.theme === 'dark' ? SetTheme.call(this, 'dark', newTheme) : SetTheme.call(this, 'light', newTheme)}
+    return html` ${this.theme === 'dark' ? SetTheme.call(this, 'dark', newTheme) : SetTheme.call(this, 'light', newTheme)}
       <div
         id="spec-not-found"
         style="display:flex; align-items:center; justify-content: center; border:1px dashed var(--border-color); padding:12px; overflow-wrap: anywhere; font-size:var(--font-size-small); color:var(--red); font-family:var(--font-mono)"
       >
         ${this.resolvedSpec.info.description}
-      </div>
-    `;
+      </div>`;
   }
 
   if (this.resolvedSpec.isSpecLoading) {
-    return html`
-      ${this.theme === 'dark' ? SetTheme.call(this, 'dark', newTheme) : SetTheme.call(this, 'light', newTheme)}
+    return html` ${this.theme === 'dark' ? SetTheme.call(this, 'dark', newTheme) : SetTheme.call(this, 'light', newTheme)}
       <main class="main-content regular-font" part="section-main-content">
         <slot></slot>
         <div class="main-content-inner--${this.renderStyle}-mode">
           <div class="loader"></div>
         </div>
-      </main>
-    `;
+      </main>`;
   }
 
-  return html`
-    ${this.theme === 'dark' ? SetTheme.call(this, 'dark', newTheme) : SetTheme.call(this, 'light', newTheme)}
+  return html` ${this.theme === 'dark' ? SetTheme.call(this, 'dark', newTheme) : SetTheme.call(this, 'light', newTheme)}
     <slot name="fixed-header"></slot>
     <!-- Header -->
     ${this.showHeader === 'false' ? '' : headerTemplate.call(this)}
@@ -105,6 +100,5 @@ export default function mainBodyTemplate(isMini = false, pathsExpanded = false) 
         </div>
         <slot name="footer"></slot>
       </main>
-    </div>
-  `;
+    </div>`;
 }

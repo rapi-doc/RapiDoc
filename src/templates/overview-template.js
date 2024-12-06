@@ -22,7 +22,7 @@ export default function overviewTemplate() {
               ${this.resolvedSpec.info.title}
               ${!this.resolvedSpec.info.version
                 ? ''
-                : html` <span style="font-size:var(--font-size-small);font-weight:bold"> ${this.resolvedSpec.info.version} </span>`}
+                : html`<span style="font-size:var(--font-size-small);font-weight:bold"> ${this.resolvedSpec.info.version} </span>`}
             </div>
             <div id="api-info" style="font-size:calc(var(--font-size-regular) - 1px); margin-top:8px;">
               ${this.resolvedSpec.info.contact?.email
@@ -55,7 +55,7 @@ export default function overviewTemplate() {
                 ? html`<span><a href="${this.resolvedSpec.info.termsOfService}" part="anchor anchor-overview">Terms of Service</a></span>`
                 : ''}
               ${this.specUrl && this.allowSpecFileDownload === 'true'
-                ? html` <div style="display:flex; margin:12px 0; gap:8px; justify-content: start;">
+                ? html`<div style="display:flex; margin:12px 0; gap:8px; justify-content: start;">
                     <button
                       class="m-btn thin-border"
                       style="min-width:170px"
@@ -86,8 +86,8 @@ export default function overviewTemplate() {
               ${this.resolvedSpec.info.description
                 ? html`${unsafeHTML(`
                 <div class="m-markdown regular-font">
-                ${marked(this.resolvedSpec.info.description, this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer() } : undefined)}
-              </div>`)}`
+                  ${marked(this.resolvedSpec.info.description, this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer() } : undefined)}
+                </div>`)}`
                 : ''}
             </div>
           `

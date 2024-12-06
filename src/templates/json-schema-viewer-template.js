@@ -49,8 +49,7 @@ function jsonSchemaNavTemplate() {
 
 // Json Schema Body Template
 function jsonSchemaBodyTemplate() {
-  return html`
-    ${this.showInfo === 'true' ? overviewTemplate.call(this) : ''}
+  return html` ${this.showInfo === 'true' ? overviewTemplate.call(this) : ''}
     <div style="font-size:var(--font-size-regular);">
       ${this.resolvedSpec.schemaAndExamples.map((jSchemaBody) => {
         const examplesObj = generateExample(
@@ -64,7 +63,7 @@ function jsonSchemaBodyTemplate() {
           true
         );
         jSchemaBody.selectedExample = examplesObj[0]?.exampleId;
-        return html` <section
+        return html`<section
           id="${jSchemaBody.elementId}"
           class="json-schema-and-example regular-font"
           style="display:flex; flex-direction: column; border:1px solid var(--border-color); margin-bottom:32px; border-top: 5px solid var(--border-color)"
@@ -101,7 +100,7 @@ function jsonSchemaBodyTemplate() {
                 : html`<div style="font-size: var(--font-size-small);font-weight:700; margin:5px 0">${examplesObj[0].exampleSummary}</div>`}
               ${examplesObj.map(
                 (v) =>
-                  html` <json-tree
+                  html`<json-tree
                     .data="${v.exampleValue}"
                     data-example="${v.exampleId}"
                     class="example"
@@ -112,8 +111,7 @@ function jsonSchemaBodyTemplate() {
           </div>
         </section>`;
       })}
-    </div>
-  `;
+    </div>`;
 }
 
 // Json Schema Root Template

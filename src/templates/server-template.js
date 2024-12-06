@@ -52,8 +52,8 @@ function serverVarsTemplate() {
                       >
                         ${Object.entries(kv[1].enum).map((e) =>
                           kv[1].default === e[1]
-                            ? html` <option selected label=${e[1]} value=${e[1]}></option>`
-                            : html` <option label=${e[1]} value=${e[1]}></option>`
+                            ? html`<option selected label=${e[1]} value=${e[1]}></option>`
+                            : html`<option label=${e[1]} value=${e[1]}></option>`
                         )}
                       </select>`
                     : html` <input
@@ -86,7 +86,7 @@ export default function serverTemplate() {
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) {
     return '';
   }
-  return html` <section
+  return html`<section
     id="servers"
     part="section-servers"
     style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;"

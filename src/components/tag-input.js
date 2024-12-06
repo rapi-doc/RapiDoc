@@ -8,19 +8,17 @@ export default class TagInput extends LitElement {
         .filter((v) => typeof v === 'string' && v.trim() !== '')
         .map((v) => html`<span class="tag">${v}</span>`)}`;
     }
-    return html`
-      <div class="tags">
-        ${tagItemTmpl}
-        <input
-          type="text"
-          class="editor"
-          @paste="${(e) => this.afterPaste(e)}"
-          @keydown="${this.afterKeyDown}"
-          @blur="${this.onBlur}"
-          placeholder="${this.placeholder || ''}"
-        />
-      </div>
-    `;
+    return html`<div class="tags">
+      ${tagItemTmpl}
+      <input
+        type="text"
+        class="editor"
+        @paste="${(e) => this.afterPaste(e)}"
+        @keydown="${this.afterKeyDown}"
+        @blur="${this.onBlur}"
+        placeholder="${this.placeholder || ''}"
+      />
+    </div>`;
   }
 
   static get properties() {

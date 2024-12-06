@@ -99,30 +99,28 @@ export default class SchemaTree extends LitElement {
   }
 
   render() {
-    return html`
-      <div
-        class="tree ${this.schemaDescriptionExpanded === 'true' ? 'expanded-all-descr' : 'collapsed-all-descr'}"
-        @click="${(e) => this.handleAllEvents(e)}"
-      >
-        <div class="toolbar">
-          <div class="toolbar-item schema-root-type ${this.data?.['::type'] || ''} ">${this.data?.['::type'] || ''}</div>
-          ${this.allowSchemaDescriptionExpandToggle === 'true'
-            ? html` <div style="flex:1"></div>
-                <div part="schema-toolbar-item schema-multiline-toggle" class="toolbar-item schema-multiline-toggle">
-                  ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'}
-                </div>`
-            : ''}
-        </div>
-        <span part="schema-description" class="m-markdown"> ${unsafeHTML(marked(this.data?.['::description'] || ''))}</span>
-        ${this.data
-          ? html` ${this.generateTree(
-              this.data['::type'] === 'array' ? this.data['::props'] : this.data,
-              this.data['::type'],
-              this.data['::array-type'] || ''
-            )}`
-          : html`<span class="mono-font" style="color:var(--red)"> Schema not found </span>`}
+    return html` <div
+      class="tree ${this.schemaDescriptionExpanded === 'true' ? 'expanded-all-descr' : 'collapsed-all-descr'}"
+      @click="${(e) => this.handleAllEvents(e)}"
+    >
+      <div class="toolbar">
+        <div class="toolbar-item schema-root-type ${this.data?.['::type'] || ''} ">${this.data?.['::type'] || ''}</div>
+        ${this.allowSchemaDescriptionExpandToggle === 'true'
+          ? html` <div style="flex:1"></div>
+              <div part="schema-toolbar-item schema-multiline-toggle" class="toolbar-item schema-multiline-toggle">
+                ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'}
+              </div>`
+          : ''}
       </div>
-    `;
+      <span part="schema-description" class="m-markdown"> ${unsafeHTML(marked(this.data?.['::description'] || ''))}</span>
+      ${this.data
+        ? html` ${this.generateTree(
+            this.data['::type'] === 'array' ? this.data['::props'] : this.data,
+            this.data['::type'],
+            this.data['::array-type'] || ''
+          )}`
+        : html`<span class="mono-font" style="color:var(--red)"> Schema not found </span>`}
+    </div>`;
   }
 
   generateTree(
@@ -224,8 +222,7 @@ export default class SchemaTree extends LitElement {
       }
     }
     if (typeof data === 'object') {
-      return html`
-        <div
+      return html`<div
           class="tr ${schemaLevel < this.schemaExpandLevel || data['::type']?.startsWith('xxx-of') ? 'expanded' : 'collapsed'} ${data[
             '::type'
           ] || 'no-type-info'}${data['::nullable'] ? ' nullable' : ''}"
@@ -313,8 +310,7 @@ export default class SchemaTree extends LitElement {
                 )}
               `}
         </div>
-        ${data['::type'] && data['::type'].includes('xxx-of') ? '' : html`<div class="close-bracket">${closeBracket}</div>`}
-      `;
+        ${data['::type'] && data['::type'].includes('xxx-of') ? '' : html`<div class="close-bracket">${closeBracket}</div>`} `;
     }
 
     // For Primitive types and array of Primitives

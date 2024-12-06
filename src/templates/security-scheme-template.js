@@ -416,7 +416,7 @@ function oAuthFlowTemplate(
                 >
                   ${Object.entries(authFlow.scopes).map(
                     (scopeAndDescr, index) =>
-                      html` <div class="m-checkbox" style="display:inline-flex; align-items:center">
+                      html`<div class="m-checkbox" style="display:inline-flex; align-items:center">
                         <input
                           type="checkbox"
                           part="checkbox checkbox-auth-scope"
@@ -457,9 +457,9 @@ function oAuthFlowTemplate(
               </div>`
             : ''}
           ${allowTry === 'true'
-            ? html` <div>
+            ? html`<div>
                   ${flowName === 'authorizationCode'
-                    ? html` <div style="margin: 16px 0 4px">
+                    ? html`<div style="margin: 16px 0 4px">
                         <input
                           type="checkbox"
                           part="checkbox checkbox-auth-scope"
@@ -559,9 +559,9 @@ export default function securitySchemeTemplate(allowTry = 'true') {
     >
       <div class="sub-title regular-font">AUTHENTICATION</div>
       ${allowTry === 'true'
-        ? html` <div class="small-font-size" style="display:flex; align-items: center; min-height:30px">
+        ? html`<div class="small-font-size" style="display:flex; align-items: center; min-height:30px">
             ${providedApiKeys.length > 0
-              ? html` <div class="blue-text">${providedApiKeys.length} API key applied</div>
+              ? html`<div class="blue-text">${providedApiKeys.length} API key applied</div>
                   <div style="flex:1"></div>
                   <button
                     class="m-btn thin-border"
@@ -586,8 +586,7 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                       <div style="line-height:28px; margin-bottom:5px;">
                         <span style="font-weight:bold; font-size:var(--font-size-regular)">${v.typeDisplay}</span>
                         ${v.finalKeyValue
-                          ? html`
-                              <span class="blue-text"> ${v.finalKeyValue ? 'Key Applied' : ''} </span>
+                          ? html`<span class="blue-text"> ${v.finalKeyValue ? 'Key Applied' : ''} </span>
                               <button
                                 class="m-btn thin-border small"
                                 part="btn btn-outline"
@@ -596,8 +595,7 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                                 }}
                               >
                                 REMOVE
-                              </button>
-                            `
+                              </button>`
                           : ''}
                       </div>
                       ${v.description ? html`<div class="m-markdown">${unsafeHTML(marked(v.description || ''))}</div>` : ''}
@@ -668,7 +666,7 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                               : ''}`
                         : ''}
                       ${v.type.toLowerCase() === 'http' && v.scheme?.toLowerCase() === 'bearer'
-                        ? html` <div style="margin-bottom:5px">
+                        ? html`<div style="margin-bottom:5px">
                               Send <code>Authorization</code> in <code>header</code> containing the word <code>Bearer</code> followed by a
                               space and token value
                             </div>
@@ -698,26 +696,24 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                     </td>
                   </tr>
                   ${v.type.toLowerCase() === 'oauth2'
-                    ? html`
-                        <tr>
-                          <td style="border:none; padding-left:48px">
-                            ${Object.keys(v.flows).map((f) =>
-                              oAuthFlowTemplate.call(
-                                this,
-                                f,
-                                v.flows[f]['x-client-id'] || v['x-client-id'] || '',
-                                v.flows[f]['x-client-secret'] || v['x-client-secret'] || '',
-                                v.securitySchemeId,
-                                v.flows[f],
-                                v.flows[f]['x-default-scopes'] || v['x-default-scopes'],
-                                v.flows[f]['x-receive-token-in'] || v['x-receive-token-in'],
-                                v.flows[f]['x-receive-token-in-options'] || v['x-receive-token-in-options'],
-                                allowTry
-                              )
-                            )}
-                          </td>
-                        </tr>
-                      `
+                    ? html`<tr>
+                        <td style="border:none; padding-left:48px">
+                          ${Object.keys(v.flows).map((f) =>
+                            oAuthFlowTemplate.call(
+                              this,
+                              f,
+                              v.flows[f]['x-client-id'] || v['x-client-id'] || '',
+                              v.flows[f]['x-client-secret'] || v['x-client-secret'] || '',
+                              v.securitySchemeId,
+                              v.flows[f],
+                              v.flows[f]['x-default-scopes'] || v['x-default-scopes'],
+                              v.flows[f]['x-receive-token-in'] || v['x-receive-token-in'],
+                              v.flows[f]['x-receive-token-in-options'] || v['x-receive-token-in-options'],
+                              allowTry
+                            )
+                          )}
+                        </td>
+                      </tr>`
                     : ''}
                 `
               )}
@@ -804,14 +800,14 @@ export function pathSecurityTemplate(pathSecurity) {
                           return html` ${andSecurityItem.type === 'oauth2'
                             ? html` <div>
                                 ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : 'Needs'} OAuth Token
-                                <span style="font-family:var(--font-mono); color:var(--primary-color);"
-                                  >${andSecurityItem.securitySchemeId}</span
-                                >
+                                <span style="font-family:var(--font-mono); color:var(--primary-color);">
+                                  ${andSecurityItem.securitySchemeId}
+                                </span>
                                 in <b>Authorization header</b>
                                 ${scopeHtml}
                               </div>`
                             : andSecurityItem.type === 'http'
-                              ? html` <div>
+                              ? html`<div>
                                   ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : html`Requires`}
                                   ${andSecurityItem.scheme === 'basic'
                                     ? 'Base 64 encoded username:password'
@@ -819,7 +815,7 @@ export function pathSecurityTemplate(pathSecurity) {
                                   in <b>Authorization header</b>
                                   ${scopeHtml}
                                 </div>`
-                              : html` <div>
+                              : html`<div>
                                   ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : html`Requires`}
                                   ${html`Token in <b>${andSecurityItem.name} ${andSecurityItem.in}</b>`} ${scopeHtml}
                                 </div>`}`;

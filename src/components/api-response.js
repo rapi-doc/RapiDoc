@@ -92,14 +92,12 @@ export default class ApiResponse extends LitElement {
   }
 
   render() {
-    return html`
-      <div class="col regular-font response-panel ${this.renderStyle}-mode">
-        <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} ">
-          ${this.callback === 'true' ? 'CALLBACK RESPONSE' : 'RESPONSE'}
-        </div>
-        <div>${this.responseTemplate()}</div>
+    return html`<div class="col regular-font response-panel ${this.renderStyle}-mode">
+      <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} ">
+        ${this.callback === 'true' ? 'CALLBACK RESPONSE' : 'RESPONSE'}
       </div>
-    `;
+      <div>${this.responseTemplate()}</div>
+    </div> `;
   }
 
   resetSelection() {
@@ -155,7 +153,7 @@ export default class ApiResponse extends LitElement {
               (respStatus) =>
                 html` ${respStatus === '$$ref' // Swagger-Client parser creates '$$ref' object if JSON references are used to create responses - this should be ignored
                   ? ''
-                  : html` <button
+                  : html`<button
                       @click="${() => {
                         this.selectedStatus = respStatus;
                         if (this.responses[respStatus].content && Object.keys(this.responses[respStatus].content)[0]) {
@@ -177,7 +175,7 @@ export default class ApiResponse extends LitElement {
         : html`<span>${Object.keys(this.responses)[0]}</span>`}
       ${Object.keys(this.responses).map(
         (status) =>
-          html` <div style="display: ${status === this.selectedStatus ? 'block' : 'none'}">
+          html`<div style="display: ${status === this.selectedStatus ? 'block' : 'none'}">
             <div class="top-gap">
               <span class="resp-descr m-markdown ">${unsafeHTML(marked(this.responses[status]?.description || ''))}</span>
               ${this.headersForEachRespStatus[status] && this.headersForEachRespStatus[status]?.length > 0
@@ -186,54 +184,52 @@ export default class ApiResponse extends LitElement {
             </div>
             ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 0
               ? ''
-              : html`
-                  <div part="tab-panel" class="tab-panel col">
-                    <div
-                      part="tab-btn-row"
-                      class="tab-buttons row"
-                      @click="${(e) => {
-                        if (e.target.tagName.toLowerCase() === 'button') {
-                          this.activeSchemaTab = e.target.dataset.tab;
-                        }
-                      }}"
-                    >
-                      <button part="tab-btn" class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab="example">
-                        EXAMPLE
-                      </button>
-                      <button part="tab-btn" class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab="schema">
-                        SCHEMA
-                      </button>
-                      <div style="flex:1"></div>
-                      ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1
-                        ? html`<span class="small-font-size gray-text" style="align-self:center; margin-top:8px;">
-                            ${Object.keys(this.mimeResponsesForEachStatus[status])[0]}
-                          </span>`
-                        : html`${this.mimeTypeDropdownTemplate(Object.keys(this.mimeResponsesForEachStatus[status]))}`}
-                    </div>
-                    ${this.activeSchemaTab === 'example'
-                      ? html`<div part="tab-content" class="tab-content col" style="flex:1;">
-                          ${this.mimeExampleTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
-                        </div>`
-                      : html`<div part="tab-content" class="tab-content col" style="flex:1;">
-                          ${this.mimeSchemaTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
-                        </div>`}
+              : html`<div part="tab-panel" class="tab-panel col">
+                  <div
+                    part="tab-btn-row"
+                    class="tab-buttons row"
+                    @click="${(e) => {
+                      if (e.target.tagName.toLowerCase() === 'button') {
+                        this.activeSchemaTab = e.target.dataset.tab;
+                      }
+                    }}"
+                  >
+                    <button part="tab-btn" class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab="example">
+                      EXAMPLE
+                    </button>
+                    <button part="tab-btn" class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab="schema">
+                      SCHEMA
+                    </button>
+                    <div style="flex:1"></div>
+                    ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1
+                      ? html`<span class="small-font-size gray-text" style="align-self:center; margin-top:8px;">
+                          ${Object.keys(this.mimeResponsesForEachStatus[status])[0]}
+                        </span>`
+                      : html`${this.mimeTypeDropdownTemplate(Object.keys(this.mimeResponsesForEachStatus[status]))}`}
                   </div>
-                `}
+                  ${this.activeSchemaTab === 'example'
+                    ? html`<div part="tab-content" class="tab-content col" style="flex:1;">
+                        ${this.mimeExampleTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
+                      </div>`
+                    : html`<div part="tab-content" class="tab-content col" style="flex:1;">
+                        ${this.mimeSchemaTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
+                      </div>`}
+                </div> `}
           </div>`
       )}
     `;
   }
 
   responseHeaderListTemplate(respHeaders) {
-    return html` <div style="padding:16px 0 8px 0" class="resp-headers small-font-size bold-text">RESPONSE HEADERS</div>
+    return html`<div style="padding:16px 0 8px 0" class="resp-headers small-font-size bold-text">RESPONSE HEADERS</div>
       <table
         role="presentation"
         style="border-collapse: collapse; margin-bottom:16px; border:1px solid var(--border-color); border-radius: var(--border-radius)"
         class="small-font-size mono-font"
       >
         ${respHeaders.map(
-          (v) => html`
-            <tr>
+          (v) =>
+            html` <tr>
               <td
                 style="padding:8px; vertical-align: baseline; min-width:120px; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;"
               >
@@ -250,14 +246,13 @@ export default class ApiResponse extends LitElement {
               <td style="padding:8px; vertical-align: baseline; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;">
                 ${v.schema?.example || ''}
               </td>
-            </tr>
-          `
+            </tr>`
         )}
       </table>`;
   }
 
   mimeTypeDropdownTemplate(mimeTypes) {
-    return html` <select
+    return html`<select
       aria-label="mime types"
       @change="${(e) => {
         this.selectedMimeType = e.target.value;
@@ -342,7 +337,7 @@ ${mimeRespDetails.examples[0].exampleValue}</pre
                       ? html`<div class="m-markdown-small" style="padding: 4px 0">${unsafeHTML(marked(v.exampleDescription || ''))}</div>`
                       : ''}
                     ${v.exampleFormat === 'json'
-                      ? html` <json-tree
+                      ? html`<json-tree
                           render-style="${this.renderStyle}"
                           .data="${v.exampleValue}"
                           exportparts="btn:btn, btn-fill:btn-fill, btn-copy:btn-copy"
@@ -375,7 +370,7 @@ ${mimeRespDetails.examples[0].exampleValue}</pre
           >
           </schema-table>
         `
-      : html` <schema-tree
+      : html`<schema-tree
           .data="${mimeRespDetails.schemaTree}"
           schema-expand-level="${this.schemaExpandLevel}"
           schema-description-expanded="${this.schemaDescriptionExpanded}"

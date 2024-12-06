@@ -18,7 +18,7 @@ function headingRenderer(tagElementId) {
 }
 
 function wrapFocusedTemplate(templateToWrap) {
-  return html` <div class="regular-font section-gap--focused-mode" part="section-operations-in-tag">${templateToWrap}</div>`;
+  return html`<div class="regular-font section-gap--focused-mode" part="section-operations-in-tag">${templateToWrap}</div>`;
 }
 
 function defaultContentTemplate() {
@@ -37,11 +37,10 @@ function focusedTagBodyTemplate(tag) {
   return html`
     <h1 id="${tag.elementId}">${tag.displayName || tag.name}</h1>
     ${this.onNavTagClick === 'show-description' && tag.description
-      ? html` <div class="m-markdown">
-          ${unsafeHTML(`
-            <div class="m-markdown regular-font">
-              ${marked(tag.description || '', this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer(tag.elementId) } : undefined)}
-            </div>`)}
+      ? html`<div class="m-markdown">
+          ${unsafeHTML(`<div class="m-markdown regular-font">
+            ${marked(tag.description || '', this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer(tag.elementId) } : undefined)}
+          </div>`)}
         </div>`
       : ''}
   `;
@@ -63,9 +62,7 @@ export default function focusedEndpointTemplate() {
   } else if (focusElId === 'servers' && this.allowServerSelection === 'true') {
     focusedTemplate = serverTemplate.call(this);
   } else if (focusElId === 'operations-top') {
-    focusedTemplate = html` <div id="operations-top" class="observe-me">
-      <slot name="operations-top"></slot>
-    </div>`;
+    focusedTemplate = html`<div id="operations-top" class="observe-me"><slot name="operations-top"></slot></div>`;
   } else if (focusElId.startsWith('cmp--') && this.showComponents === 'true') {
     focusedTemplate = componentsTemplate.call(this);
   } else if (focusElId.startsWith('tag--')) {

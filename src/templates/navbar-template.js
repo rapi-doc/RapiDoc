@@ -59,11 +59,9 @@ export function navBarClickAndEnterHandler(event) {
 
 export default function navbarTemplate() {
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) {
-    return html`
-      <nav class="nav-bar" part="section-navbar">
-        <slot name="nav-logo" class="logo"></slot>
-      </nav>
-    `;
+    return html`<nav class="nav-bar" part="section-navbar">
+      <slot name="nav-logo" class="logo"></slot>
+    </nav>`;
   }
   return html`
     <button id="nav-bar-btn" part="btn-navbar" class="btn" @click="${this.onOpenNavBarToggle}">☰</button>
@@ -205,7 +203,7 @@ export default function navbarTemplate() {
         >
           <div style="font-size:16px; display:flex; margin-left:10px;">
             ${this.renderStyle === 'focused'
-              ? html` <div class="nav-bar-expand-all" data-action="expand-all" tabindex="0" title="Expand all">▸</div>
+              ? html`<div class="nav-bar-expand-all" data-action="expand-all" tabindex="0" title="Expand all">▸</div>
                   <div class="nav-bar-collapse-all" data-action="collapse-all" tabindex="0" title="Collapse all">▸</div>`
               : ''}
           </div>
@@ -216,8 +214,10 @@ export default function navbarTemplate() {
         ${this.resolvedSpec.tags
           .filter((tag) => tag.paths.filter((path) => getMatchedPaths(this.searchVal, path, tag.name)).length)
           .map(
-            (tag) => html`
-              <div class="nav-bar-tag-and-paths ${this.renderStyle === 'read' ? 'expanded' : tag.expanded ? 'expanded' : 'collapsed'}">
+            (tag) =>
+              html` <div
+                class="nav-bar-tag-and-paths ${this.renderStyle === 'read' ? 'expanded' : tag.expanded ? 'expanded' : 'collapsed'}"
+              >
                 ${tag.name === 'General ⦂'
                   ? html`<hr style="border:none; border-top: 1px dotted var(--nav-text-color); opacity:0.3; margin:-1px 0 0 0;" />`
                   : html`
@@ -295,8 +295,7 @@ export default function navbarTemplate() {
                         </div>`
                     )}
                 </div>
-              </div>
-            `
+              </div>`
           )}
 
         <!-- COMPONENTS -->

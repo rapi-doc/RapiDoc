@@ -214,14 +214,14 @@ export default class SchemaTable extends LitElement {
     if (typeof data === 'object') {
       return html`
         ${newSchemaLevel >= 0 && key
-          ? html` <div
+          ? html`<div
               class="tr ${newSchemaLevel <= this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type']}"
               data-obj="${keyLabel}"
               title="${isDeprecated || data['::deprecated'] ? 'Deprecated' : ''}"
             >
               <div class="td key ${isDeprecated || data['::deprecated'] ? 'deprecated' : ''}" style="padding-left:${leftPadding}px">
                 ${keyLabel || keyDescr
-                  ? html` <span
+                  ? html`<span
                       class="obj-toggle ${newSchemaLevel < this.schemaExpandLevel ? 'expanded' : 'collapsed'}"
                       data-obj="${keyLabel}"
                     >
@@ -260,7 +260,7 @@ export default class SchemaTable extends LitElement {
               <div class="td key-descr m-markdown-small" style="line-height:1.7">${unsafeHTML(marked(description || ''))}</div>
             </div>`
           : html` ${data['::type'] === 'array' && dataType === 'array'
-              ? html` <div class="tr">
+              ? html`<div class="tr">
                   <div class="td key"></div>
                   <div class="td key-type">${arrayType && arrayType !== 'object' ? `${dataType} of ${arrayType}` : dataType}</div>
                   <div class="td key-descr"></div>
@@ -331,14 +331,14 @@ export default class SchemaTable extends LitElement {
     const descrExpander = `${constraint || defaultValue || allowedValues || pattern ? '<span class="descr-expand-toggle">➔</span>' : ''}`;
     let dataTypeHtml = '';
     if (dataType === 'array') {
-      dataTypeHtml = html` <div
+      dataTypeHtml = html`<div
         class="td key-type ${dataTypeCss}"
         title="${readOrWrite === 'readonly' ? 'Read-Only' : readOrWriteOnly === 'writeonly' ? 'Write-Only' : ''}"
       >
         [${type}] ${readOrWrite === 'readonly' ? '🆁' : readOrWrite === 'writeonly' ? '🆆' : ''}
       </div>`;
     } else {
-      dataTypeHtml = html` <div
+      dataTypeHtml = html`<div
         class="td key-type ${dataTypeCss}"
         title="${readOrWriteOnly === '🆁' ? 'Read-Only' : readOrWriteOnly === '🆆' ? 'Write-Only' : ''}"
       >
@@ -354,8 +354,7 @@ export default class SchemaTable extends LitElement {
               </svg>`
             : ''}
           ${keyLabel?.endsWith('*')
-            ? html` <span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span>
-                <span style="color:var(--red);">*</span>`
+            ? html`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span> <span style="color:var(--red);">*</span>`
             : key.startsWith('::OPTION')
               ? html`<span class="xxx-of-key">${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>`
               : html`${keyLabel
