@@ -1,6 +1,7 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { marked } from 'marked';
+import Slugger from 'github-slugger';
 import { rapidocApiKey } from '~/utils/common-utils';
 import { pathSecurityTemplate } from '~/templates/security-scheme-template';
 import codeSamplesTemplate from '~/templates/code-samples-template';
@@ -9,9 +10,14 @@ import '~/components/api-request';
 import '~/components/api-response';
 
 function headingRenderer(tagElementId) {
+  const slugger = new Slugger();
   const renderer = new marked.Renderer();
+  /*
   renderer.heading = (text, level, raw, slugger) =>
     `<h${level} class="observe-me" id="${tagElementId}--${slugger.slug(raw)}">${text}</h${level}>`;
+  return renderer;
+  */
+  renderer.heading = (text, level, raw) => `<h${level} class="observe-me" id="${tagElementId}--${slugger.slug(raw)}">${text}</h${level}>`;
   return renderer;
 }
 

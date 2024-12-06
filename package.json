@@ -47,7 +47,8 @@
     "github-slugger": "^2.0.0",
     "js-yaml": "^4.1.0",
     "lit": "^3.2.1",
-    "marked": "4.3.0",
+    "marked": "15.0.3",
+    "marked-gfm-heading-id": "^4.1.1",
     "prismjs": "^1.29.0",
     "randexp": "^0.5.3",
     "swagger-client": "^3.32.2",
@@ -55,7 +56,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.16.0",
-    "astro": "^5.0.1",
+    "astro": "^5.0.3",
     "eslint": "^9.16.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-lit": "^1.15.0",

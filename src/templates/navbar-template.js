@@ -1,5 +1,5 @@
 import { html } from 'lit';
-import { marked } from 'marked';
+import Slugger from 'github-slugger';
 import { getMatchedPaths } from '~/utils/common-utils';
 
 export function expandCollapseNavBarTag(navLinkEl, action = 'toggle') {
@@ -58,6 +58,7 @@ export function navBarClickAndEnterHandler(event) {
 }
 
 export default function navbarTemplate() {
+  const slugger = new Slugger();
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) {
     return html`<nav class="nav-bar" part="section-navbar">
       <slot name="nav-logo" class="logo"></slot>
@@ -143,17 +144,17 @@ export default function navbarTemplate() {
                         </div>`
                       : ''}
                     <div class="overview-headers">
-                      ${this.resolvedSpec.infoDescriptionHeaders.map(
-                        (header) =>
-                          html` <div
-                            class="nav-bar-h${header.depth} ${this.navActiveItemMarker}"
-                            id="link-overview--${new marked.Slugger().slug(header.text)}"
-                            data-action="navigate"
-                            data-content-id="overview--${new marked.Slugger().slug(header.text)}"
-                          >
-                            ${header.text}
-                          </div>`
-                      )}
+                      ${this.resolvedSpec.infoDescriptionHeaders.map((header) => {
+                        const headerElId = slugger.slug(header.text);
+                        return html`<div
+                          class="nav-bar-h${header.depth} ${this.navActiveItemMarker}"
+                          id="link-overview--${headerElId}"
+                          data-action="navigate"
+                          data-content-id="overview--${headerElId}"
+                        >
+                          ${header.text}
+                        </div>`;
+                      })}
                     </div>
                     ${this.resolvedSpec.infoDescriptionHeaders.length > 0
                       ? html`<hr style="border-top: 1px solid var(--nav-hover-bg-color); border-width:1px 0 0 0; margin: 15px 0 0 0" />`
@@ -247,9 +248,9 @@ export default function navbarTemplate() {
                               html` <div
                                 class="nav-bar-h${header.depth} ${this.navActiveItemMarker}"
                                 part="section-navbar-item section-navbar-h${header.depth}"
-                                id="link-${tag.elementId}--${new marked.Slugger().slug(header.text)}"
+                                id="link-${tag.elementId}--${slugger.slug(header.text)}"
                                 data-action="navigate"
-                                data-content-id="${tag.elementId}--${new marked.Slugger().slug(header.text)}"
+                                data-content-id="${tag.elementId}--${slugger.slug(header.text)}"
                                 tabindex="0"
                               >
                                 ${header.text}

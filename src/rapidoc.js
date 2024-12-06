@@ -1,5 +1,6 @@
 import { css, LitElement, unsafeCSS } from 'lit';
 import { marked } from 'marked';
+import Slugger from 'github-slugger';
 import Prism from 'prismjs';
 import 'prismjs/components/prism-css';
 import 'prismjs/components/prism-yaml';
@@ -716,7 +717,9 @@ export default class RapiDoc extends LitElement {
 
   infoDescriptionHeadingRenderer() {
     const renderer = new marked.Renderer();
-    renderer.heading = (text, level, raw, slugger) => `<h${level} class="observe-me" id="${slugger.slug(raw)}">${text}</h${level}>`;
+    const slugger = new Slugger();
+    // renderer.heading = (text, level, raw, slugger) => `<h${level} class="observe-me" id="${slugger.slug(raw)}">${text}</h${level}>`;
+    renderer.heading = (text, level, raw) => `<h${level} class="observe-me" id="${slugger.slug(raw)}">${text}</h${level}>`;
     return renderer;
   }
 

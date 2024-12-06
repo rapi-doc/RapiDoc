@@ -1,11 +1,14 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import Slugger from 'github-slugger';
 import { marked } from 'marked';
 import { downloadResource, viewResource } from '~/utils/common-utils';
 
 function headingRenderer() {
+  const slugger = new Slugger();
   const renderer = new marked.Renderer();
-  renderer.heading = (text, level, raw, slugger) => `<h${level} class="observe-me" id="overview--${slugger.slug(raw)}">${text}</h${level}>`;
+  // renderer.heading = (text, level, raw, slugger) => `<h${level} class="observe-me" id="overview--${slugger.slug(raw)}">${text}</h${level}>`;
+  renderer.heading = ({ text, depth }) => `<h${depth} class="observe-me" id="overview--${slugger.slug(text)}">${text}</h${depth}>`;
   return renderer;
 }
 

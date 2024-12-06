@@ -1,6 +1,7 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { marked } from 'marked';
+import Slugger from 'github-slugger';
 import { expandedEndpointBodyTemplate } from '~/templates/expanded-endpoint-template';
 import '~/components/api-request';
 import '~/components/api-response';
@@ -12,8 +13,9 @@ import { expandCollapseNavBarTag } from '~/templates/navbar-template';
 
 function headingRenderer(tagElementId) {
   const renderer = new marked.Renderer();
-  renderer.heading = (text, level, raw, slugger) =>
-    `<h${level} class="observe-me" id="${tagElementId}--${slugger.slug(raw)}">${text}</h${level}>`;
+  const slugger = new Slugger();
+  // renderer.heading = (text, level, raw, slugger) => `<h${level} class="observe-me" id="${tagElementId}--${slugger.slug(raw)}">${text}</h${level}>`;
+  renderer.heading = ({ text, depth }) => `<h${depth} class="observe-me" id="${tagElementId}--${slugger.slug(text)}">${text}</h${depth}>`;
   return renderer;
 }
 

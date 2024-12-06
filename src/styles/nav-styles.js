@@ -205,7 +205,7 @@ export default css`
     display: none;
   }
   .nav-bar-h2 {
-    margin-left: 12px;
+    padding-left: 28px;
   }
 
   .nav-bar-h1.left-bar.active,
