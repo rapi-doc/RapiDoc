@@ -1,0 +1,35 @@
+openapi: 3.0.0
+info:
+  title: Minimum Reproduction
+  version: "1"
+paths:
+  /path:
+    get:
+      operationId: get.path
+      parameters:
+        - name: param1
+          in: query
+          # expect param1 to be sent as json
+          content:
+            abcd:
+              schema:
+                type: object
+                example:
+                  age: 10 
+                  name: 
+                    first: John
+                    last: doe
+                          
+        - name: param2
+          in: query
+          # expect param2 to be sent as ?param2=["air", "water"] but instead sending as ?param2=air&param2=watter
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  enum:
+                  - air
+                  - water
+                  - land
