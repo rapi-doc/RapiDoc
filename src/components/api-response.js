@@ -1,5 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import DOMPurify from 'dompurify';
 import { marked } from 'marked';
 import { schemaInObjectNotation, generateExample, standardizeExample } from '~/utils/schema-utils';
 import FontStyles from '~/styles/font-styles';
@@ -177,7 +178,11 @@ export default class ApiResponse extends LitElement {
         (status) =>
           html`<div style="display: ${status === this.selectedStatus ? 'block' : 'none'}">
             <div class="top-gap">
-              <span class="resp-descr m-markdown ">${unsafeHTML(marked(this.responses[status]?.description || ''))}</span>
+              <span class="resp-descr m-markdown"
+                >${unsafeHTML(
+                  DOMPurify.sanitize(marked(this.responses[status]?.description || ''), { USE_PROFILES: { html: true } })
+                )}</span
+              >
               ${this.headersForEachRespStatus[status] && this.headersForEachRespStatus[status]?.length > 0
                 ? html`${this.responseHeaderListTemplate(this.headersForEachRespStatus[status])}`
                 : ''}
@@ -241,7 +246,9 @@ export default class ApiResponse extends LitElement {
                 ${v.schema?.type || ''}
               </td>
               <td style="padding:8px; vertical-align: baseline; border-top: 1px solid var(--light-border-color);text-overflow: ellipsis;">
-                <div class="m-markdown-small regular-font">${unsafeHTML(marked(v.description || ''))}</div>
+                <div class="m-markdown-small regular-font">
+                  ${unsafeHTML(DOMPurify.sanitize(marked(v.description || ''), { USE_PROFILES: { html: true } }))}
+                </div>
               </td>
               <td style="padding:8px; vertical-align: baseline; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;">
                 ${v.schema?.example || ''}
@@ -293,7 +300,9 @@ export default class ApiResponse extends LitElement {
                   : ''}
                 ${mimeRespDetails.examples[0].exampleDescription
                   ? html`<div class="m-markdown-small" style="padding: 4px 0">
-                      ${unsafeHTML(marked(mimeRespDetails.examples[0].exampleDescription || ''))}
+                      ${unsafeHTML(DOMPurify.sanitize(marked(mimeRespDetails.examples[0].exampleDescription || '')), {
+                        USE_PROFILES: { html: true },
+                      })}
                     </div>`
                   : ''}
                 <json-tree
@@ -308,7 +317,9 @@ export default class ApiResponse extends LitElement {
                   : ''}
                 ${mimeRespDetails.examples[0].exampleDescription
                   ? html`<div class="m-markdown-small" style="padding: 4px 0">
-                      ${unsafeHTML(marked(mimeRespDetails.examples[0].exampleDescription || ''))}
+                      ${unsafeHTML(
+                        DOMPurify.sanitize(marked(mimeRespDetails.examples[0].exampleDescription || ''), { USE_PROFILES: { html: true } })
+                      )}
                     </div>`
                   : ''}
                 <pre class="example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}">
@@ -334,7 +345,9 @@ ${mimeRespDetails.examples[0].exampleValue}</pre
                   >
                     ${v.exampleSummary && v.exampleSummary.length > 80 ? html`<div style="padding: 4px 0">${v.exampleSummary}</div>` : ''}
                     ${v.exampleDescription
-                      ? html`<div class="m-markdown-small" style="padding: 4px 0">${unsafeHTML(marked(v.exampleDescription || ''))}</div>`
+                      ? html`<div class="m-markdown-small" style="padding: 4px 0">
+                          ${unsafeHTML(DOMPurify.sanitize(marked(v.exampleDescription || ''), { USE_PROFILES: { html: true } }))}
+                        </div>`
                       : ''}
                     ${v.exampleFormat === 'json'
                       ? html`<json-tree

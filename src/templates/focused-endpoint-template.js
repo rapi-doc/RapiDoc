@@ -1,5 +1,6 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import DOMPurify from 'dompurify';
 import { marked } from 'marked';
 import Slugger from 'github-slugger';
 import { expandedEndpointBodyTemplate } from '~/templates/expanded-endpoint-template';
@@ -41,7 +42,13 @@ function focusedTagBodyTemplate(tag) {
     ${this.onNavTagClick === 'show-description' && tag.description
       ? html`<div class="m-markdown">
           ${unsafeHTML(`<div class="m-markdown regular-font">
-            ${marked(tag.description || '', this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer(tag.elementId) } : undefined)}
+            ${DOMPurify.sanitize(
+              marked(
+                tag.description || '',
+                this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer(tag.elementId) } : undefined
+              ),
+              { USE_PROFILES: { html: true } }
+            )}
           </div>`)}
         </div>`
       : ''}

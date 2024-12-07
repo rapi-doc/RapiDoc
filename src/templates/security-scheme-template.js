@@ -1,5 +1,6 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import DOMPurify from 'dompurify';
 import { marked } from 'marked';
 
 const codeVerifier = '731DB1C3F7EA533B85E29492D26AA-1234567890-1234567890';
@@ -598,7 +599,11 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                               </button>`
                           : ''}
                       </div>
-                      ${v.description ? html`<div class="m-markdown">${unsafeHTML(marked(v.description || ''))}</div>` : ''}
+                      ${v.description
+                        ? html`<div class="m-markdown">
+                            ${unsafeHTML(DOMPurify.sanitize(marked(v.description || ''), { USE_PROFILES: { html: true } }))}
+                          </div>`
+                        : ''}
                       ${v.type.toLowerCase() === 'apikey'
                         ? html` <div style="margin-bottom:5px">Send <code>${v.name}</code> in <code>${v.in}</code></div>
                             ${allowTry === 'true'

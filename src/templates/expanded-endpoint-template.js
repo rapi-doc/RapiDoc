@@ -1,5 +1,6 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import DOMPurify from 'dompurify';
 import { marked } from 'marked';
 import Slugger from 'github-slugger';
 import { rapidocApiKey } from '~/utils/common-utils';
@@ -90,7 +91,9 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
                       class="tag-description collapsed"
                       style="max-height:0px; overflow:hidden; margin-top:16px; border:1px solid var(--border-color)"
                     >
-                      <div class="m-markdown" style="padding:8px">${unsafeHTML(marked(tagDescription))}</div>
+                      <div class="m-markdown" style="padding:8px">
+                        ${unsafeHTML(DOMPurify.sanitize(marked(tagDescription), { USE_PROFILES: { html: true } }))}
+                      </div>
                     </div>`
                 : ''}
             </div>
@@ -130,11 +133,15 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
               </div>
             `}
         <slot name="${path.elementId}"></slot>`}
-      ${path.description ? html`<div class="m-markdown">${unsafeHTML(marked(path.description))}</div>` : ''}
+      ${path.description
+        ? html`<div class="m-markdown">${unsafeHTML(DOMPurify.sanitize(marked(path.description), { USE_PROFILES: { html: true } }))}</div>`
+        : ''}
       ${pathSecurityTemplate.call(this, path.security)}
       ${path.externalDocs?.url || path.externalDocs?.description
         ? html`<div style="background:var(--bg3); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--border-radius)">
-            <div class="m-markdown">${unsafeHTML(marked(path.externalDocs?.description || ''))}</div>
+            <div class="m-markdown">
+              ${unsafeHTML(DOMPurify.sanitize(marked(path.externalDocs?.description || ''), { USE_PROFILES: { html: true } }))}
+            </div>
             ${path.externalDocs?.url
               ? html`<a
                   style="font-family:var(--font-mono); font-size:var(--font-size-small)"
@@ -225,7 +232,13 @@ export default function expandedEndpointTemplate() {
           <div class="regular-font-size">
             ${unsafeHTML(`
           <div class="m-markdown regular-font">
-          ${marked(tag.description || '', this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer(tag.elementId) } : undefined)}
+          ${DOMPurify.sanitize(
+            marked(
+              tag.description || '',
+              this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer(tag.elementId) } : undefined
+            ),
+            { USE_PROFILES: { html: true } }
+          )}
         </div>`)}
           </div>
         </section>

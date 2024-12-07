@@ -1,5 +1,6 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import DOMPurify from 'dompurify';
 import { marked } from 'marked';
 import { schemaInObjectNotation } from '~/utils/schema-utils';
 import '~/components/json-tree';
@@ -72,7 +73,11 @@ export default function componentsTemplate() {
         >
           <div class="title tag">${component.name}</div>
           <div class="regular-font-size">
-            ${unsafeHTML(`<div class='m-markdown regular-font'>${marked(component.description ? component.description : '')}</div>`)}
+            ${unsafeHTML(
+              `<div class='m-markdown regular-font'>${DOMPurify.sanitize(marked(component.description || ''), {
+                USE_PROFILES: { html: true },
+              })}</div>`
+            )}
           </div>
         </div>
         <div class="regular-font section-gap--read-mode">

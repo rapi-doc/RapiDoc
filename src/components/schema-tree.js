@@ -1,5 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import DOMPurify from 'dompurify';
 import { marked } from 'marked';
 import FontStyles from '~/styles/font-styles';
 import SchemaStyles from '~/styles/schema-styles';
@@ -112,7 +113,9 @@ export default class SchemaTree extends LitElement {
               </div>`
           : ''}
       </div>
-      <span part="schema-description" class="m-markdown"> ${unsafeHTML(marked(this.data?.['::description'] || ''))}</span>
+      <span part="schema-description" class="m-markdown">
+        ${unsafeHTML(DOMPurify.sanitize(marked(this.data?.['::description'] || ''), { USE_PROFILES: { html: true } }))}</span
+      >
       ${this.data
         ? html` ${this.generateTree(
             this.data['::type'] === 'array' ? this.data['::props'] : this.data,
@@ -250,7 +253,9 @@ export default class SchemaTree extends LitElement {
                   : ''}
             ${openBracket}
           </div>
-          <div class="td key-descr m-markdown-small">${unsafeHTML(marked(description || ''))}</div>
+          <div class="td key-descr m-markdown-small">
+            ${unsafeHTML(DOMPurify.sanitize(marked(description || ''), { USE_PROFILES: { html: true } }))}
+          </div>
         </div>
         <div
           class="inside-bracket ${data['::type'] || 'no-type-info'}"
@@ -367,12 +372,15 @@ export default class SchemaTree extends LitElement {
           ${description || schemaTitle || schemaDescription
             ? html`${html`<span class="m-markdown-small">
                 ${unsafeHTML(
-                  marked(
-                    dataType === 'array'
-                      ? `${descrExpander} ${description}`
-                      : schemaTitle
-                        ? `${descrExpander} <b>${schemaTitle}:</b> ${schemaDescription}`
-                        : `${descrExpander} ${schemaDescription}`
+                  DOMPurify.sanitize(
+                    marked(
+                      dataType === 'array'
+                        ? `${descrExpander} ${description}`
+                        : schemaTitle
+                          ? `${descrExpander} <b>${schemaTitle}:</b> ${schemaDescription}`
+                          : `${descrExpander} ${schemaDescription}`
+                    ),
+                    { USE_PROFILES: { html: true } }
                   )
                 )}
               </span>`}`

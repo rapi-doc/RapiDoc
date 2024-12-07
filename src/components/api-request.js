@@ -1,5 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import DOMPurify from 'dompurify';
 import { guard } from 'lit/directives/guard.js';
 import { live } from 'lit/directives/live.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
@@ -332,7 +333,9 @@ export default class ApiRequest extends LitElement {
         (v) =>
           html`<li>
             ${this.renderExample(v, paramType, paramName)} ${v.summary?.length > 0 ? html`<span>&lpar;${v.summary}&rpar;</span>` : ''}
-            ${v.description?.length > 0 ? html`<p>${unsafeHTML(marked(v.description))}</p>` : ''}
+            ${v.description?.length > 0
+              ? html`<p>${unsafeHTML(DOMPurify.sanitize(marked(v.description), { USE_PROFILES: { html: true } }))}</p>`
+              : ''}
           </li>`
       )}
     </ul>`;
@@ -607,7 +610,9 @@ export default class ApiRequest extends LitElement {
         <tr>
           ${this.allowTry === 'true' ? html`<td style="border:none"></td>` : ''}
           <td colspan="2" style="border:none">
-            <span class="m-markdown-small">${unsafeHTML(marked(param.description || ''))}</span>
+            <span class="m-markdown-small">
+              ${unsafeHTML(DOMPurify.sanitize(marked(param.description || ''), { USE_PROFILES: { html: true } }))}
+            </span>
             ${this.exampleListTemplate.call(this, param.name, paramSchema.type, example.exampleList)}
           </td>
         </tr>
@@ -765,7 +770,9 @@ export default class ApiRequest extends LitElement {
                     >
                       ${v.exampleSummary && v.exampleSummary.length > 80 ? html`<div style="padding: 4px 0">${v.exampleSummary}</div>` : ''}
                       ${v.exampleDescription
-                        ? html`<div class="m-markdown-small" style="padding: 4px 0">${unsafeHTML(marked(v.exampleDescription || ''))}</div>`
+                        ? html`<div class="m-markdown-small" style="padding: 4px 0">
+                            ${unsafeHTML(DOMPurify.sanitize(marked(v.exampleDescription || ''), { USE_PROFILES: { html: true } }))}
+                          </div>`
                         : ''}
                       <!-- This pre(hidden) is to store the original example value, this will remain unchanged when users switches from one example to another, its is used to populate the editable textarea -->
                       <pre
@@ -896,7 +903,9 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
           ${reqBodyTypeSelectorHtml}
         </div>
         ${this.request_body.description
-          ? html`<div class="m-markdown" style="margin-bottom:12px">${unsafeHTML(marked(this.request_body.description))}</div>`
+          ? html`<div class="m-markdown" style="margin-bottom:12px">
+              ${unsafeHTML(DOMPurify.sanitize(marked(this.request_body.description), { USE_PROFILES: { html: true } }))}
+            </div>`
           : ''}
         ${this.selectedRequestBodyType.includes('json') ||
         this.selectedRequestBodyType.includes('xml') ||
@@ -1161,7 +1170,9 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
                   <tr>
                     <td style="border:none"></td>
                     <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;">
-                      <span class="m-markdown-small">${unsafeHTML(marked(fieldSchema.description || ''))}</span>
+                      <span class="m-markdown-small">
+                        ${unsafeHTML(DOMPurify.sanitize(marked(fieldSchema.description || '')), { USE_PROFILES: { html: true } })}
+                      </span>
                       ${this.exampleListTemplate.call(this, fieldName, paramSchema.type, example.exampleList)}
                     </td>
                   </tr>
@@ -1185,7 +1196,11 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
         .textContent="${exampleValue}"
         style="width:100%"
       ></textarea>
-      ${schema.description ? html`<span class="m-markdown-small">${unsafeHTML(marked(schema.description))}</span>` : ''}
+      ${schema.description
+        ? html`<span class="m-markdown-small">
+            ${unsafeHTML(DOMPurify.sanitize(marked(schema.description), { USE_PROFILES: { html: true } }))}
+          </span>`
+        : ''}
     `;
   }
 

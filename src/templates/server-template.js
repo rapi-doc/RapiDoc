@@ -1,5 +1,6 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import DOMPurify from 'dompurify';
 import { marked } from 'marked';
 
 export function setApiServer(serverUrl) {
@@ -71,7 +72,9 @@ function serverVarsTemplate() {
               ${kv[1].description
                 ? html`<tr>
                     <td colspan="2" style="border:none">
-                      <span class="m-markdown-small"> ${unsafeHTML(marked(kv[1].description))} </span>
+                      <span class="m-markdown-small">
+                        ${unsafeHTML(DOMPurify.sanitize(marked(kv[1].description), { USE_PROFILES: { html: true } }))}
+                      </span>
                     </td>
                   </tr>`
                 : ''}

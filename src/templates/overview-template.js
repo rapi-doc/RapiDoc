@@ -1,5 +1,6 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import DOMPurify from 'dompurify';
 import Slugger from 'github-slugger';
 import { marked } from 'marked';
 import { downloadResource, viewResource } from '~/utils/common-utils';
@@ -87,10 +88,17 @@ export default function overviewTemplate() {
             <slot name="overview"></slot>
             <div id="api-description">
               ${this.resolvedSpec.info.description
-                ? html`${unsafeHTML(`
-                <div class="m-markdown regular-font">
-                  ${marked(this.resolvedSpec.info.description, this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer() } : undefined)}
-                </div>`)}`
+                ? html`${unsafeHTML(
+                    DOMPurify.sanitize(
+                      `<div class="m-markdown regular-font">
+                        ${marked(
+                          this.resolvedSpec.info.description,
+                          this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer() } : undefined
+                        )}
+                      </div>`,
+                      { USE_PROFILES: { html: true } }
+                    )
+                  )}`
                 : ''}
             </div>
           `

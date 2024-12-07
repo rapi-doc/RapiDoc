@@ -1,5 +1,6 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import DOMPurify from 'dompurify';
 import { marked } from 'marked';
 import '~/components/api-request';
 import '~/components/api-response';
@@ -125,11 +126,15 @@ function endpointBodyTemplate(path) {
           `
         : ''}
       ${path.description
-        ? html`<div part="section-endpoint-body-description" class="m-markdown">${unsafeHTML(marked(path.description))}</div>`
+        ? html`<div part="section-endpoint-body-description" class="m-markdown">
+            ${unsafeHTML(DOMPurify.sanitize(marked(path.description), { USE_PROFILES: { html: true } }))}
+          </div>`
         : ''}
       ${path.externalDocs?.url || path.externalDocs?.description
         ? html`<div style="background:var(--bg3); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--border-radius)">
-            <div class="m-markdown">${unsafeHTML(marked(path.externalDocs?.description || ''))}</div>
+            <div class="m-markdown">
+              ${unsafeHTML(DOMPurify.sanitize(marked(path.externalDocs?.description || ''), { USE_PROFILES: { html: true } }))}
+            </div>
             ${path.externalDocs?.url
               ? html`<a
                   style="font-family:var(--font-mono); font-size:var(--font-size-small)"
@@ -158,7 +163,7 @@ function endpointBodyTemplate(path) {
           .request_body="${path.requestBody}"
           .api_keys="${nonEmptyApiKeys}"
           .servers="${path.servers}"
-          server-url="${path.servers && path.servers.length > 0 ? path.servers[0].url : this.selectedServer?.computedUrl}"
+          server-url="${path.servers?.length > 0 ? path.servers[0].url : this.selectedServer?.computedUrl}"
           active-schema-tab="${this.defaultSchemaTab}"
           fill-request-fields-with-example="${this.fillRequestFieldsWithExample}"
           allow-try="${this.allowTry}"
@@ -210,9 +215,9 @@ export default function endpointTemplate(isMini = false, pathsExpanded = false) 
   if (!this.resolvedSpec) {
     return '';
   }
-  return html` ${isMini
+  return html`${isMini
     ? ''
-    : html` <div style="display:flex; justify-content:flex-end;">
+    : html`<div style="display:flex; justify-content:flex-end;">
         <span @click="${(e) => onExpandCollapseAll(e, 'expand-all')}" style="color:var(--primary-color); cursor:pointer;">
           Expand all
         </span>
@@ -260,7 +265,7 @@ export default function endpointTemplate(isMini = false, pathsExpanded = false) 
               <div class="section-tag-body">
                 <slot name="${tag.elementId}"></slot>
                 <div class="regular-font regular-font-size m-markdown" style="padding-bottom:12px">
-                  ${unsafeHTML(marked(tag.description || ''))}
+                  ${unsafeHTML(DOMPurify.sanitize(marked(tag.description || ''), { USE_PROFILES: { html: true } }))}
                 </div>
                 ${tag.paths
                   .filter((v) => {
