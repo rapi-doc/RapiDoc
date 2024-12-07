@@ -1,0 +1,154 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes"><!-- Fonts - START --><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Sono:wght@200..800&display=swap" rel="stylesheet"><!-- Fonts - END --><!-- Prism Code Highlight --><link rel="stylesheet" href="/assets/prismjs/prism.css"><script src="/assets/prismjs/prism.js"></script><!-- Google Analytics - START --><script async src="https://www.googletagmanager.com/gtag/js?id=UA-132775238-1"></script><script>(function(){const gtagId = "UA-132775238-1";
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', gtagId);
+    })();</script><!-- Google Analytics - END --><script type="module" src="/rapidoc/rapidoc-min.js"></script><title>RapiDoc Example</title><style>rapi-doc:not(:defined){opacity:0}a{color:var(--link-color);text-decoration:none}.txt{width:100px;padding:8px 12px;font-size:12px;font-family:Roboto Mono;background-color:#333a;border:1px solid var(--color-green);color:var(--color-green);margin:0 2px;border-radius:2px;outline:none}.btn{padding:8px 12px;font-size:13px;font-weight:700;line-height:normal;background:var(--color-green);color:#333;border:none;border-radius:2px;cursor:pointer;outline:none;&.yellow{background:var(--color-yellow);color:#333}&.small{width:60px;height:24px}&.medium{width:75px;height:28px}&.square{width:70px;height:70px;font-size:12px;line-height:normal}}.control-panel{display:flex;align-items:center;gap:5px;height:40px;border-bottom:1px solid #777;background:#000a;padding:16px 12px}
+.theme-btn[data-astro-cid-h6t5feru]{width:48px;height:48px;color:#444;font-size:12px;display:block;margin:2px;border-radius:4px;cursor:pointer;outline:none;font-size:30px;line-height:normal}.side-nav[data-astro-cid-h6t5feru]{display:flex;line-height:normal;margin:2px;padding:2px;align-items:stretch;height:44px;cursor:pointer;border-radius:2px;background:#fff}.dark[data-astro-cid-h6t5feru]{background-color:#424242;color:#bbb;border:2px solid #BBB}.night[data-astro-cid-h6t5feru]{background-color:#23282e;color:#aec2e0;border:2px solid #aec2e0}.mud[data-astro-cid-h6t5feru]{background-color:#4f4544;color:#c3b8b7;border:2px solid #c3b8b7}.cofee[data-astro-cid-h6t5feru]{background-color:#45403b;color:#ceb8a0;border:2px solid #ceb8a0}.forest[data-astro-cid-h6t5feru]{background-color:#475153;color:#bdd6db;border:2px solid #BDD6DB}.olive[data-astro-cid-h6t5feru]{background-color:#393e40;color:#acc7c8;border:2px solid #acc7c8}.outerspace[data-astro-cid-h6t5feru]{background-color:#3c4042;color:#cad9e3;border:2px solid #CAD9E3}.ebony[data-astro-cid-h6t5feru]{background-color:#3a3f4a;color:#dee3ec;border:2px solid #dee3ec}.light[data-astro-cid-h6t5feru]{background-color:#f0f0f0;color:#626262;border:2px solid #626262}.snow[data-astro-cid-h6t5feru]{background-color:#ebebeb;color:#737373;border:2px solid #737373}.green[data-astro-cid-h6t5feru]{background-color:#eaeee8;color:#557d39;border:2px solid #557d39}.blue[data-astro-cid-h6t5feru]{background-color:#dde2e8;color:#315681;border:2px solid #315681}.beige[data-astro-cid-h6t5feru]{background-color:#eee9de;color:#524627;border:2px solid #524627}
+:root{--fg-color: #b0b0b0;--fg-color-mute: #9198a1;--fg-color-bright: #efefef;--bg-color:#1a1a1a;--accent-color: #e07372;--link-color:#6ebcfc;--banner-text-color: #000;--color-yellow: #e8bf6a;--color-yellow-dim:#a98a4c;--color-salmon: #e07372;--color-green: #72e084;--color-blue: #6ebcfc;--border-color: #3d444d;--border-color-muted: #3d444db3;--border-color-hover: #e17945;--border-color-link: #e17945bb;--desktop-margin: 120px;--tablet-margin: 20px;--mobile-margin: 5px;--card-bg-color: #31384055;--code-block-width: 725px;--code-block-bg-color: #0a0a0a;--rapidoc-gradient: linear-gradient(60deg, rgb(193, 0, 0) 0%, rgb(187, 175, 3) 40%, rgb(222, 122, 0) 90% )}body,button{font-family:Lato,Open Sans,sans-serif;font-size:14px;line-height:1.6rem;color:var(--fg-color);background:var(--bg-color);font-weight:500;margin:0;display:block;scroll-behavior:smooth}main{margin:0 var(--mobile-margin);padding-bottom:3rem}a{color:var(--link-color);text-decoration:none;&:hover{text-decoration:none}}h1{font-size:2.3rem;font-weight:700;margin-block-start:2.5rem;margin-block-end:.5rem;color:var(--fg-color-bright)}h2{font-size:1.6rem;font-weight:500;margin-block-start:2rem;margin-block-end:.4rem;color:var(--fg-color-bright)}h3{font-size:1.2em;font-weight:400;margin-block-start:1.5rem;margin-block-end:.3rem}p{margin-top:1rem}hr{margin:1rem 0 1.5rem;border-color:var(--border-color)}pre{&.code-block{background:var(--code-block-bg-color);max-width:var(--code-block-width);border:1px solid var(--border-color);border-radius:8px;margin-bottom:.8rem}}.mono,code{font-family:Roboto Mono,Monaco,Consolas,monospace}.bold{font-weight:700}.right{text-align:right}.left{text-align:left}.small-font{font-size:.85rem}.fg-color{color:var(--fg-color)}.fg-color-mute{color:var(--fg-color-mute)}.fg-color-bright{color:var(--fg-color-bright)}.yellow{color:var(--color-yellow)}.yellow-dim{color:var(--color-yellow-dim)}.salmon{color:var(--color-salmon)}.blue{color:var(--color-blue)}.green{color:var(--color-green)}.hide-in-mobile{display:none}.banner-img{width:300px}.logo{display:none}@media only screen and (min-width: 768px){body{font-size:15px}main{margin:0 var(--tablet-margin)}.banner-img{width:500px}.hide-in-mobile{display:inline-block}.logo{display:block}.code-block{font-size:12px;width:650px}}@media only screen and (min-width: 1024px){body{font-size:16px}main{margin:0 var(--desktop-margin)}.banner-img{width:740px}.hide-in-mobile{display:inline-block}.logo{display:block}.code-block{font-size:14px;width:730px}}
+</style></head> <body>         <rapi-doc id="thedoc" spec-url="/specs/petstore.yaml" show-header="false" render-style="read" show-info="true" data-astro-cid-h6t5feru="true"> <div class="control-panel" slot="fixed-header" style="background: #555; border-width:0" data-astro-cid-h6t5feru> <button class="theme-btn dark" onclick="changeTheme('dark')" data-astro-cid-h6t5feru>&#9782; </button> <button class="theme-btn night" onclick="changeTheme('night')" data-astro-cid-h6t5feru> &#9782; </button> <button class="theme-btn mud" onclick="changeTheme('mud')" data-astro-cid-h6t5feru> &#9782; </button> <button class="theme-btn cofee" onclick="changeTheme('cofee')" data-astro-cid-h6t5feru> &#9782; </button> <button class="theme-btn forest" onclick="changeTheme('forest')" data-astro-cid-h6t5feru> &#9782; </button> <button class="theme-btn olive" onclick="changeTheme('olive')" data-astro-cid-h6t5feru> &#9782; </button> <button class="theme-btn outerspace" onclick="changeTheme('outerspace')" data-astro-cid-h6t5feru> &#9782; </button> <button class="theme-btn ebony" onclick="changeTheme('ebony')" data-astro-cid-h6t5feru> &#9782; </button> <button class="theme-btn light" onclick="changeTheme('light')" data-astro-cid-h6t5feru> &#9782; </button> <button class="theme-btn snow" onclick="changeTheme('snow')" data-astro-cid-h6t5feru> &#9782; </button> <button class="theme-btn green" onclick="changeTheme('green')" data-astro-cid-h6t5feru> &#9782; </button> <button class="theme-btn blue" onclick="changeTheme('blue')" data-astro-cid-h6t5feru> &#9782; </button> <button class="theme-btn beige" onclick="changeTheme('beige')" data-astro-cid-h6t5feru> &#9782; </button> <div class="side-nav" style="background:#3f4d67" onclick="changeTheme('darkbluenav')" data-astro-cid-h6t5feru> <div style="width:20px;" data-astro-cid-h6t5feru></div> <div style="background: #f9f9fa; padding:0px 4px; font-size:30px; color:#5c7096" data-astro-cid-h6t5feru> &#9782;</div> </div> <div class="side-nav" style="background:#666699" onclick="changeTheme('purplenav')" data-astro-cid-h6t5feru> <div style="width:20px;" data-astro-cid-h6t5feru></div> <div style="background: #fff9fb; padding:0px 4px; font-size:30px; color:#ea526f" data-astro-cid-h6t5feru> &#9782;</div> </div> <div class="side-nav" style="background:#ccc;" onclick="changeTheme('lightgraynav')" data-astro-cid-h6t5feru> <div style="width:20px;" data-astro-cid-h6t5feru></div> <div style="background: #fff; padding:0px 4px; font-size:30px; color:#F63C41" data-astro-cid-h6t5feru> &#9782;</div> </div> <div class="side-nav" style="background:#3e4b54" onclick="changeTheme('graynav')" data-astro-cid-h6t5feru> <div style="width:20px;" data-astro-cid-h6t5feru></div> <div style="background: #fff; padding:0px 4px; font-size:30px; color:#444" data-astro-cid-h6t5feru> &#9782;</div> </div> <div style="flex:1" data-astro-cid-h6t5feru></div> <button class="btn yellow" onclick="toggleRenderStyle()" data-astro-cid-h6t5feru>Toggle Render Style</button> </div> </rapi-doc>  <script>
+    let rapidocEl; // Define rapidocEl at global level
+
+    document.addEventListener('readystatechange', (event) => {
+      rapidocEl = document.getElementById("thedoc");
+    })
+
+    function toggle(attrName) {
+      if (rapidocEl.getAttribute(attrName) === 'false') {
+        rapidocEl.setAttribute(attrName, true);
+      } else {
+        rapidocEl.setAttribute(attrName, false);
+      }
+    }
+
+    function toggleTheme() {
+      if (rapidocEl.getAttribute('theme') === 'dark') {
+        rapidocEl.setAttribute('theme', 'light');
+      } else {
+        rapidocEl.setAttribute('theme', 'dark');
+      }
+    }
+
+    function toggleRenderStyle() {
+      if (rapidocEl.getAttribute('render-style') === 'view') {
+        rapidocEl.setAttribute('render-style', 'focused');
+      } else if (rapidocEl.getAttribute('render-style') === 'focused') {
+        rapidocEl.setAttribute('render-style', 'read');
+      } else if (rapidocEl.getAttribute('render-style') === 'read') {
+        rapidocEl.setAttribute('render-style', 'view');
+      } else {
+        rapidocEl.setAttribute('render-style', 'view');
+      }
+    }
+
+    function toggleSchemaStyle() {
+      if (rapidocEl.getAttribute('schema-style') === 'table') {
+        rapidocEl.setAttribute('schema-style', 'tree');
+      } else {
+        rapidocEl.setAttribute('schema-style', 'table');
+      }
+    }
+
+  </script>  </body></html> <script>
+  function changeTheme(themeName) {
+    rapidocEl.setAttribute('show-header','');
+    rapidocEl.setAttribute('bg-color','');
+    rapidocEl.setAttribute('text-color','');
+    rapidocEl.setAttribute('nav-bg-color','');
+    rapidocEl.setAttribute('nav-text-color','');
+    rapidocEl.setAttribute('nav-hover-bg-color','');
+    rapidocEl.setAttribute('nav-hover-text-color','');
+    rapidocEl.setAttribute('nav-accent-color','');
+    rapidocEl.setAttribute('primary-color','');
+    if (themeName === 'dark'){
+      rapidocEl.setAttribute('theme','dark');
+      rapidocEl.setAttribute('bg-color','#333');
+      rapidocEl.setAttribute('text-color','#BBB');
+    } else if (themeName === 'light'){
+      rapidocEl.setAttribute('theme','light');
+      rapidocEl.setAttribute('bg-color','#FFF');
+      rapidocEl.setAttribute('text-color','#444');
+    } else if (themeName === 'night') {
+      rapidocEl.setAttribute('theme','dark');
+      rapidocEl.setAttribute('bg-color','#14191f');
+      rapidocEl.setAttribute('text-color','#aec2e0');
+    } else if (themeName === 'mud') {
+      rapidocEl.setAttribute('theme','dark');
+      rapidocEl.setAttribute('bg-color','#403635');
+      rapidocEl.setAttribute('text-color','#c3b8b7');
+    } else if (themeName === 'cofee') {
+      rapidocEl.setAttribute('theme','dark');
+      rapidocEl.setAttribute('bg-color','#36312C');
+      rapidocEl.setAttribute('text-color','#ceb8a0');
+    } else if (themeName === 'forest') {
+      rapidocEl.setAttribute('theme','dark');
+      rapidocEl.setAttribute('bg-color','#384244');
+      rapidocEl.setAttribute('text-color','#BDD6DB');
+    } else if (themeName === 'olive') {
+      rapidocEl.setAttribute('theme','dark');
+      rapidocEl.setAttribute('bg-color','#2a2f31');
+      rapidocEl.setAttribute('text-color','#acc7c8');
+    } else if (themeName === 'outerspace') {
+      rapidocEl.setAttribute('theme','dark');
+      rapidocEl.setAttribute('bg-color','#2D3133');
+      rapidocEl.setAttribute('text-color','#CAD9E3');
+    } else if (themeName === 'ebony') {
+      rapidocEl.setAttribute('theme','dark');
+      rapidocEl.setAttribute('bg-color','#2B303B');
+      rapidocEl.setAttribute('text-color','#dee3ec');
+    } else if (themeName === 'snow') {
+      rapidocEl.setAttribute('theme','light');
+      rapidocEl.setAttribute('bg-color','#FAFAFA');
+      rapidocEl.setAttribute('text-color','#555');
+    } else if (themeName === 'green') {
+      rapidocEl.setAttribute('theme','light');
+      rapidocEl.setAttribute('bg-color','#f9fdf7');
+      rapidocEl.setAttribute('text-color','#375F1B');
+    } else if (themeName === 'blue') {
+      rapidocEl.setAttribute('theme','light');
+      rapidocEl.setAttribute('bg-color','#ecf1f7');
+      rapidocEl.setAttribute('text-color','#133863');
+    } else if (themeName === 'beige') {
+      rapidocEl.setAttribute('show-header','true');
+      rapidocEl.setAttribute('theme','light');
+      rapidocEl.setAttribute('bg-color','#fdf8ed');
+      rapidocEl.setAttribute('text-color','#342809');
+    } else if (themeName === 'graynav') {
+      getRapiDoc().setAttribute('render-style', 'read' );
+      rapidocEl.setAttribute('show-header','false');
+      rapidocEl.setAttribute('theme','light');
+      rapidocEl.setAttribute('nav-bg-color','#3e4b54');
+      rapidocEl.setAttribute('nav-accent-color','#fd6964');
+      rapidocEl.setAttribute('primary-color','#ea526f');
+    }  else if (themeName === 'purplenav') {
+      getRapiDoc().setAttribute('render-style', 'read' );
+      rapidocEl.setAttribute('show-header','false');
+      rapidocEl.setAttribute('theme','light');
+      rapidocEl.setAttribute('nav-accent-color','#ffd8e7');
+      rapidocEl.setAttribute('nav-bg-color','#666699');
+      rapidocEl.setAttribute('primary-color','#ea526f');
+      rapidocEl.setAttribute('bg-color','#fff9fb');
+    } else if (themeName === 'lightgraynav') {
+      getRapiDoc().setAttribute('render-style', 'read' );
+      rapidocEl.setAttribute('show-header','false');
+      rapidocEl.setAttribute('theme','light');
+      rapidocEl.setAttribute('nav-bg-color','#fafafa');
+      rapidocEl.setAttribute('nav-hover-text-color','#9b0700');
+      rapidocEl.setAttribute('nav-hover-bg-color','#ffebea');
+      rapidocEl.setAttribute('primary-color','#F63C41');
+      rapidocEl.setAttribute('bg-color','#ffffff');
+    } else if (themeName === 'darkbluenav') {
+      getRapiDoc().setAttribute('render-style', 'read' );
+      rapidocEl.setAttribute('show-header','false');
+      rapidocEl.setAttribute('theme','light');
+      rapidocEl.setAttribute('bg-color','#f9f9fa');
+      rapidocEl.setAttribute('nav-bg-color','#3f4d67');
+      rapidocEl.setAttribute('nav-text-color','#a9b7d0');
+      rapidocEl.setAttribute('nav-hover-bg-color','#333f54');
+      rapidocEl.setAttribute('nav-hover-text-color','#fff');
+      rapidocEl.setAttribute('nav-accent-color','#f87070');
+      rapidocEl.setAttribute('primary-color','#5c7096');
+    }
+  }
+</script> 

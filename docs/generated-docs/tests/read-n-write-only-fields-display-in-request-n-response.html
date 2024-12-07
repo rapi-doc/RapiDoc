@@ -1,0 +1,63 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes"><!-- Fonts - START --><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Sono:wght@200..800&display=swap" rel="stylesheet"><!-- Fonts - END --><!-- Prism Code Highlight --><link rel="stylesheet" href="/assets/prismjs/prism.css"><script src="/assets/prismjs/prism.js"></script><!-- Google Analytics - START --><script async src="https://www.googletagmanager.com/gtag/js?id=UA-132775238-1"></script><script>(function(){const gtagId = "UA-132775238-1";
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', gtagId);
+    })();</script><!-- Google Analytics - END --><script type="module" src="/rapidoc/rapidoc-min.js"></script><title>RapiDoc Example</title><style>rapi-doc:not(:defined){opacity:0}a{color:var(--link-color);text-decoration:none}.txt{width:100px;padding:8px 12px;font-size:12px;font-family:Roboto Mono;background-color:#333a;border:1px solid var(--color-green);color:var(--color-green);margin:0 2px;border-radius:2px;outline:none}.btn{padding:8px 12px;font-size:13px;font-weight:700;line-height:normal;background:var(--color-green);color:#333;border:none;border-radius:2px;cursor:pointer;outline:none;&.yellow{background:var(--color-yellow);color:#333}&.small{width:60px;height:24px}&.medium{width:75px;height:28px}&.square{width:70px;height:70px;font-size:12px;line-height:normal}}.control-panel{display:flex;align-items:center;gap:5px;height:40px;border-bottom:1px solid #777;background:#000a;padding:16px 12px}
+table[data-astro-cid-4xtgl3o7]{font-family:Lato,Open Sans,sans-serif;border-collapse:collapse;border-radius:12px}th[data-astro-cid-4xtgl3o7],td[data-astro-cid-4xtgl3o7]{padding:8px}
+:root{--fg-color: #b0b0b0;--fg-color-mute: #9198a1;--fg-color-bright: #efefef;--bg-color:#1a1a1a;--accent-color: #e07372;--link-color:#6ebcfc;--banner-text-color: #000;--color-yellow: #e8bf6a;--color-yellow-dim:#a98a4c;--color-salmon: #e07372;--color-green: #72e084;--color-blue: #6ebcfc;--border-color: #3d444d;--border-color-muted: #3d444db3;--border-color-hover: #e17945;--border-color-link: #e17945bb;--desktop-margin: 120px;--tablet-margin: 20px;--mobile-margin: 5px;--card-bg-color: #31384055;--code-block-width: 725px;--code-block-bg-color: #0a0a0a;--rapidoc-gradient: linear-gradient(60deg, rgb(193, 0, 0) 0%, rgb(187, 175, 3) 40%, rgb(222, 122, 0) 90% )}body,button{font-family:Lato,Open Sans,sans-serif;font-size:14px;line-height:1.6rem;color:var(--fg-color);background:var(--bg-color);font-weight:500;margin:0;display:block;scroll-behavior:smooth}main{margin:0 var(--mobile-margin);padding-bottom:3rem}a{color:var(--link-color);text-decoration:none;&:hover{text-decoration:none}}h1{font-size:2.3rem;font-weight:700;margin-block-start:2.5rem;margin-block-end:.5rem;color:var(--fg-color-bright)}h2{font-size:1.6rem;font-weight:500;margin-block-start:2rem;margin-block-end:.4rem;color:var(--fg-color-bright)}h3{font-size:1.2em;font-weight:400;margin-block-start:1.5rem;margin-block-end:.3rem}p{margin-top:1rem}hr{margin:1rem 0 1.5rem;border-color:var(--border-color)}pre{&.code-block{background:var(--code-block-bg-color);max-width:var(--code-block-width);border:1px solid var(--border-color);border-radius:8px;margin-bottom:.8rem}}.mono,code{font-family:Roboto Mono,Monaco,Consolas,monospace}.bold{font-weight:700}.right{text-align:right}.left{text-align:left}.small-font{font-size:.85rem}.fg-color{color:var(--fg-color)}.fg-color-mute{color:var(--fg-color-mute)}.fg-color-bright{color:var(--fg-color-bright)}.yellow{color:var(--color-yellow)}.yellow-dim{color:var(--color-yellow-dim)}.salmon{color:var(--color-salmon)}.blue{color:var(--color-blue)}.green{color:var(--color-green)}.hide-in-mobile{display:none}.banner-img{width:300px}.logo{display:none}@media only screen and (min-width: 768px){body{font-size:15px}main{margin:0 var(--tablet-margin)}.banner-img{width:500px}.hide-in-mobile{display:inline-block}.logo{display:block}.code-block{font-size:12px;width:650px}}@media only screen and (min-width: 1024px){body{font-size:16px}main{margin:0 var(--desktop-margin)}.banner-img{width:740px}.hide-in-mobile{display:inline-block}.logo{display:block}.code-block{font-size:14px;width:730px}}
+</style></head> <body>         <rapi-doc id="thedoc" spec-url="/specs-test/read-n-write-only-fields-display-in-request-n-response.yaml" show-header="false" show-info="false" allow-server-selection="false" allow-authentication="false" render-style="read" schema-style="table" default-schema-tab="schema" data-astro-cid-4xtgl3o7="true"> <span slot="operations-top" data-astro-cid-4xtgl3o7> <div style="font-size:.8rem; margin:16px; padding:16px; background-color:#444; color:#fff; border-radius:4px" data-astro-cid-4xtgl3o7> <div style="display:flex; gap:16px" data-astro-cid-4xtgl3o7> <div style="display:block" data-astro-cid-4xtgl3o7> <b data-astro-cid-4xtgl3o7> SCHEMA </b><br data-astro-cid-4xtgl3o7> <pre style="padding:12px; background-color:#222;width: 400px; border-radius:4px" data-astro-cid-4xtgl3o7><code class="language-js" style="font-size:.8rem;" data-astro-cid-4xtgl3o7>{
+  user: {
+    type      : &quot;object&quot;,
+    properties: {
+      id       : { type: &quot;string&quot;, readOnly: true },
+      name     : { type: &quot;string&quot; },
+      password : { type: &quot;string&quot;, writeOnly: true}
+    }
+  }
+}</code></pre> </div> <div data-astro-cid-4xtgl3o7> <b data-astro-cid-4xtgl3o7> ATTRIBUTES </b><br data-astro-cid-4xtgl3o7> <table style="border:1px solid #aaa; margin-top:8px; " data-astro-cid-4xtgl3o7> <tr style="border-top:1px solid #aaa;" data-astro-cid-4xtgl3o7> <td class="mono" style="width:175px" data-astro-cid-4xtgl3o7> schema-hide-read-only </td> <td style="width:95px" data-astro-cid-4xtgl3o7> <span data-astro-cid-4xtgl3o7> <input type="radio" id="default" name="readonly" value="default" onclick="rapidocEl.setAttribute('schema-hide-read-only', this.value)" data-astro-cid-4xtgl3o7> <label for="default" data-astro-cid-4xtgl3o7>default</label> </span> <br data-astro-cid-4xtgl3o7> <span data-astro-cid-4xtgl3o7> <input type="radio" id="never" name="readonly" value="never" onclick="rapidocEl.setAttribute('schema-hide-read-only', this.value)" data-astro-cid-4xtgl3o7> <label for="never" data-astro-cid-4xtgl3o7>never</label> </span> </td> <td rowspan="2" style="border-left: 1px solid #aaa;" data-astro-cid-4xtgl3o7>By default
+<ul data-astro-cid-4xtgl3o7> <li data-astro-cid-4xtgl3o7>If a schema is used in Request all the read-only properties are hidden</li> <li data-astro-cid-4xtgl3o7>If a schema is used in Response all the write-only properties are hidden</li> <li data-astro-cid-4xtgl3o7>In Case of WEBHOOKS and CALLBACKS the behavior is opposite</li> <li data-astro-cid-4xtgl3o7>You may use the attributes on the left to define alternative behavior</li> </ul> </td> </tr> <tr style="border-top:1px solid #aaa;" data-astro-cid-4xtgl3o7> <td class="mono" data-astro-cid-4xtgl3o7> schema-hide-write-only </td> <td data-astro-cid-4xtgl3o7> <span data-astro-cid-4xtgl3o7> <input type="radio" id="default" name="writeonly" value="default" onclick="rapidocEl.setAttribute('schema-hide-write-only', this.value)" data-astro-cid-4xtgl3o7> <label for="default" data-astro-cid-4xtgl3o7>default</label> </span> <br data-astro-cid-4xtgl3o7> <span data-astro-cid-4xtgl3o7> <input type="radio" id="never" name="writeonly" value="never" onclick="rapidocEl.setAttribute('schema-hide-write-only', this.value)" data-astro-cid-4xtgl3o7> <label for="never" data-astro-cid-4xtgl3o7>never</label> </span> </td> </tr> <tr style="border-top:3px solid #aaa;" data-astro-cid-4xtgl3o7> <td colspan="3" style="text-align: center;" data-astro-cid-4xtgl3o7> <button class="btn" onclick="toggleSchemaStyle()" data-astro-cid-4xtgl3o7>Toggle Schema Style</button> </td> </tr> </table> </div> </div> </div> </span> </rapi-doc>  <script>
+    let rapidocEl; // Define rapidocEl at global level
+
+    document.addEventListener('readystatechange', (event) => {
+      rapidocEl = document.getElementById("thedoc");
+    })
+
+    function toggle(attrName) {
+      if (rapidocEl.getAttribute(attrName) === 'false') {
+        rapidocEl.setAttribute(attrName, true);
+      } else {
+        rapidocEl.setAttribute(attrName, false);
+      }
+    }
+
+    function toggleTheme() {
+      if (rapidocEl.getAttribute('theme') === 'dark') {
+        rapidocEl.setAttribute('theme', 'light');
+      } else {
+        rapidocEl.setAttribute('theme', 'dark');
+      }
+    }
+
+    function toggleRenderStyle() {
+      if (rapidocEl.getAttribute('render-style') === 'view') {
+        rapidocEl.setAttribute('render-style', 'focused');
+      } else if (rapidocEl.getAttribute('render-style') === 'focused') {
+        rapidocEl.setAttribute('render-style', 'read');
+      } else if (rapidocEl.getAttribute('render-style') === 'read') {
+        rapidocEl.setAttribute('render-style', 'view');
+      } else {
+        rapidocEl.setAttribute('render-style', 'view');
+      }
+    }
+
+    function toggleSchemaStyle() {
+      if (rapidocEl.getAttribute('schema-style') === 'table') {
+        rapidocEl.setAttribute('schema-style', 'tree');
+      } else {
+        rapidocEl.setAttribute('schema-style', 'table');
+      }
+    }
+
+  </script>  </body></html> 

@@ -1,0 +1,355 @@
+openapi: 3.0.0
+info:
+  description: Contains all data types
+  version: 1.0.0
+  title: Testing different data-types
+paths:
+  /nested-object-in-request-body:
+    post:
+      tags:
+        - Test with various data types
+      summary: Request Body accepting a JSON
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/person"
+  /nested-object:
+    get:
+      tags:
+        - Test with various data types
+      summary: Nested object
+      description: Response schema is made up of multiple nested object, For simple schema check out [simple object](#get-/simple-object)
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Description of **Person** object (Person must be bold)
+                properties:
+                  age:
+                    description: Person's **Age** (age must be bold)
+                    type: integer
+                  fullName:
+                    description: Person's Full name
+                    type: object
+                    properties:
+                      firstName:
+                        description: _First name_ (First name should be italics)
+                        type: string
+                      lastName:
+                        description: |
+                          `Last name` (last name must be monospaced)
+                        type: string
+                  dependentIds:
+                    type: array
+                    description: IDs of Dependents .
+                    items:
+                      type: integer
+                  dependentNames:
+                    type: array
+                    description: Full Name of **Dependents** (Dependents must be bold).
+                    items:
+                      type: object
+                      properties:
+                        firstNameParts:
+                          description: Parts of **First Name** (First Name must be bold)
+                          type: object
+                          properties:
+                            firstName:
+                              description: This is a very very long description to test how will it show up on a API spec renderer tool such as RapiDoc. This lable must be big enough to wrap into next line 
+                              type: string
+                            aLongFieldForTestingHowItShowsUpInSchemaModelWhenItEncountersLongField:
+                              description: Dependent Last Name
+                              type: string
+                        dependentLastName:
+                          description: Dependent Last Name
+                          type: string
+                  hobbies:
+                    type: array
+                    description: array of objects
+                    items:
+                      type: object
+
+  /simple-object:
+    get:
+      tags:
+        - Test with various data types
+      summary: Simple object
+      description: Response schema is a simple object, which contains only primitive properties. For complex schema check out [nested object](#get-/nested-object)
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    description: Person Name
+                    type: string
+                  age:
+                    description: Person Age
+                    type: integer
+                    minimum: 1
+                    maximum: 100
+
+
+  /person:
+    post:
+      tags:
+        - Test with various data types
+      summary: Data Types with constraints
+      description: Request-Parameters and Response-Schema contains various data types and constrains. Check out how is it desplayed below
+      parameters:
+        - name: height
+          in: query
+          description: height (in inches)
+          required: true
+          example: 70
+          schema:
+            type: integer
+            format: int32
+            minimum: 12
+            maximum: 120
+        - name: full-name
+          in: query
+          description: Name of a person
+          required: true
+          schema:
+            type: string
+            minimum: 3
+          examples:
+            empty:
+              value:
+              summary: No Name
+            male-name:
+              value: James
+              summary: Male name
+              description: |
+                `Lorem ipsum dolor sit amet` consectetur adipisicing elit.
+
+                1. Animi alias iste
+                1. minus iure
+                1. assumenda quisquam
+                1. qui cum id ab nesciunt
+
+                _Impedit voluptatum asperiores obcaecati blanditiis_ perferendis error repudiandae odit, veniam ab culpa exercitationem eaque,
+
+                > repellat **laboriosam sequi dolor doloribus** voluptas
+
+                 natus hic fugiat incidunt.
+
+                - laborum odio dolore
+                - corrupti tenetur
+                - nostrum aut sunt,
+
+                quis vel neque. Vitae maxime aut assumenda ipsum.
+            female-name:
+              value: Ria
+              summary: Female Name
+            gender-nutral-name:
+              value: Charlie
+              summary: Gender Neutral Name
+
+        - name: social-connection
+          in: query
+          description: facebook, linkedin, github, instagram, twitter etc 
+          schema:
+            type: string
+            format: url
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+            format: email
+        - name: email-password
+          in: query
+          required: true
+          schema:
+            type: string
+            format: password
+        - name: date-of-birth
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: phone-deprecated
+          in: query
+          x-fill-example: no
+          example: 0012345
+          deprecated: true
+          schema:
+            type: string
+            pattern: '/^\+(?:[0-9]-?){6,14}[0-9]$/'
+        - name: marital-status
+          in: query
+          required: true
+          example: married
+          schema:
+            type: string
+            enum:
+              - married
+              - unmarried
+              - widowed
+              - unknown
+            default: unknown
+        - name: interests
+          in: query
+          required: true
+          description: __Exploded Array__ will send separate querystring parameter for each items eg - `interests=computers&interests=movies`
+          schema:
+            type: array
+            example: 
+              - computers
+              - reading
+              - ['music', 'movies']
+            minItems: 1
+            maxItems: 3
+            items:
+              type: string
+              enum:
+                - computers
+                - hiking
+                - swiming
+                - movies
+                - music
+                - dancing
+                - reading
+                - painting
+              default: hiking   
+        - name: tags
+          in: query
+          description: __Not Exploded Array__ will send a single querystring parameter with comma separated string eg - `tags=tall,dark,handsome`
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/person'
+components:
+  schemas:
+    category:
+      type: object
+      properties:
+        catId:
+          description: Category ID
+          allOf:
+            - $ref: '#/components/schemas/id'
+        name:
+          description: Category name
+          type: string
+          deprecated: true
+    id:
+      type: string
+      format: uuid
+    person:
+      type: object
+      required:
+        - name
+        - photoUrls
+      properties:
+        primaryEmail:
+          type: string
+          format: email
+        dob:
+          description: Date of Birth
+          type: string
+          format: date
+        id:
+          title: Unique ID
+          description: SSN
+          allOf:
+            - $ref: '#/components/schemas/id'
+        category:
+          title: Person Category
+          description: Categories this person belongs to
+          allOf:
+            - $ref: '#/components/schemas/category'
+        country:
+          type: object
+          deprecated: true
+          properties:
+            countryCode:
+              type: string
+            countryName:
+              type: string
+        dependentIds:
+          type: array
+          deprecated: true
+          description: IDs of Dependents .
+          items:
+            type: integer
+          example:
+            - 278
+            - 279
+            - 280
+            - 281
+        name:
+          description: Name of the person
+          type: string
+          minLength: 4
+          examples:
+            empty:
+              value:
+              summary: No Name
+            male-name:
+              value: James
+              summary: Male name
+            female-name:
+              value: Ria
+              summary: Female Name
+            gender-nutral-name:
+              value: Charlie
+              summary: Gender Neutral Name
+        photoUrls:
+          description: The list of URL to a cute photos featuring pet
+          type: array
+          maxItems: 20
+          items:
+            type: string
+            format: url
+        tags:
+          title: TAGS
+          description: Tags attached to the person
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/tag'
+        maritalStatus:
+          type: string
+          description: Marital status in case of adult
+          enum:
+            - married
+            - unmarried
+            - widowed
+        phone:
+          description: phone number in international format
+          type: string
+          pattern: '/^\+(?:[0-9]-?){6,14}[0-9]$/'
+          example: +1-202-555-0192
+          nullable: true
+    tag:
+      type: object
+      properties:
+        id:
+          description: Tag ID
+          allOf:
+            - $ref: '#/components/schemas/id'
+        name:
+          description: Tag name
+          type: string
+          minLength: 1

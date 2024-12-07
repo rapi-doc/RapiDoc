@@ -1,0 +1,199 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes"><!-- Fonts - START --><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Sono:wght@200..800&display=swap" rel="stylesheet"><!-- Fonts - END --><!-- Prism Code Highlight --><link rel="stylesheet" href="/assets/prismjs/prism.css"><script src="/assets/prismjs/prism.js"></script><!-- Google Analytics - START --><script async src="https://www.googletagmanager.com/gtag/js?id=UA-132775238-1"></script><script>(function(){const gtagId = "UA-132775238-1";
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', gtagId);
+    })();</script><!-- Google Analytics - END --><script type="module" src="/rapidoc/rapidoc-min.js"></script><title>RapiDoc Example</title><style>rapi-doc:not(:defined){opacity:0}a{color:var(--link-color);text-decoration:none}.txt{width:100px;padding:8px 12px;font-size:12px;font-family:Roboto Mono;background-color:#333a;border:1px solid var(--color-green);color:var(--color-green);margin:0 2px;border-radius:2px;outline:none}.btn{padding:8px 12px;font-size:13px;font-weight:700;line-height:normal;background:var(--color-green);color:#333;border:none;border-radius:2px;cursor:pointer;outline:none;&.yellow{background:var(--color-yellow);color:#333}&.small{width:60px;height:24px}&.medium{width:75px;height:28px}&.square{width:70px;height:70px;font-size:12px;line-height:normal}}.control-panel{display:flex;align-items:center;gap:5px;height:40px;border-bottom:1px solid #777;background:#000a;padding:16px 12px}
+[data-astro-cid-6jkdfnte]{padding:0;margin:0;box-sizing:border-box}#rapiddoc-container[data-astro-cid-6jkdfnte]{transition:margin-right .1s ease-in}.rapiddoc-container--push[data-astro-cid-6jkdfnte]{margin-right:300px}#sidebar[data-astro-cid-6jkdfnte]{font-family:Open Sans,sans-serif;background-color:#525252;width:300px;height:100vh;padding:0;right:0;position:fixed;transition:transform .2s ease-in;z-index:9999}.sidebar--isHidden[data-astro-cid-6jkdfnte]{transform:translate(100%);transition:transform .2s ease-out!important;.close-btn{transform:rotate(90deg)}}#sidebar[data-astro-cid-6jkdfnte] .section-header[data-astro-cid-6jkdfnte]{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;min-height:70px;padding:0 20px}#sidebar[data-astro-cid-6jkdfnte] .section-header[data-astro-cid-6jkdfnte] .section-title[data-astro-cid-6jkdfnte]{font-size:18px!important;color:#fff;font-weight:600!important;margin:0!important}.section-header-actions[data-astro-cid-6jkdfnte] a[data-astro-cid-6jkdfnte]{color:#d6d6e5;font-size:14px;margin-right:8px}.section-body[data-astro-cid-6jkdfnte]{padding:10px 20px;height:calc(100% - 69px);overflow-y:auto}.option-label[data-astro-cid-6jkdfnte]{color:#fff;margin-top:5px;margin-bottom:2px!important}.option-tip[data-astro-cid-6jkdfnte]{color:#ccc;font-size:12px}.close-btn[data-astro-cid-6jkdfnte]{all:unset;font-size:24px;padding:4px;color:#fff;cursor:pointer;position:absolute;left:-36px;width:36px;height:36px;background-color:#eb3b3e;display:flex;align-items:center;transform:rotate(270deg);justify-content:center}label[data-astro-cid-6jkdfnte] input[data-astro-cid-6jkdfnte][type=checkbox],input[data-astro-cid-6jkdfnte][type=radio]+span[data-astro-cid-6jkdfnte]{color:#fff;font-size:14px}
+:root{--fg-color: #b0b0b0;--fg-color-mute: #9198a1;--fg-color-bright: #efefef;--bg-color:#1a1a1a;--accent-color: #e07372;--link-color:#6ebcfc;--banner-text-color: #000;--color-yellow: #e8bf6a;--color-yellow-dim:#a98a4c;--color-salmon: #e07372;--color-green: #72e084;--color-blue: #6ebcfc;--border-color: #3d444d;--border-color-muted: #3d444db3;--border-color-hover: #e17945;--border-color-link: #e17945bb;--desktop-margin: 120px;--tablet-margin: 20px;--mobile-margin: 5px;--card-bg-color: #31384055;--code-block-width: 725px;--code-block-bg-color: #0a0a0a;--rapidoc-gradient: linear-gradient(60deg, rgb(193, 0, 0) 0%, rgb(187, 175, 3) 40%, rgb(222, 122, 0) 90% )}body,button{font-family:Lato,Open Sans,sans-serif;font-size:14px;line-height:1.6rem;color:var(--fg-color);background:var(--bg-color);font-weight:500;margin:0;display:block;scroll-behavior:smooth}main{margin:0 var(--mobile-margin);padding-bottom:3rem}a{color:var(--link-color);text-decoration:none;&:hover{text-decoration:none}}h1{font-size:2.3rem;font-weight:700;margin-block-start:2.5rem;margin-block-end:.5rem;color:var(--fg-color-bright)}h2{font-size:1.6rem;font-weight:500;margin-block-start:2rem;margin-block-end:.4rem;color:var(--fg-color-bright)}h3{font-size:1.2em;font-weight:400;margin-block-start:1.5rem;margin-block-end:.3rem}p{margin-top:1rem}hr{margin:1rem 0 1.5rem;border-color:var(--border-color)}pre{&.code-block{background:var(--code-block-bg-color);max-width:var(--code-block-width);border:1px solid var(--border-color);border-radius:8px;margin-bottom:.8rem}}.mono,code{font-family:Roboto Mono,Monaco,Consolas,monospace}.bold{font-weight:700}.right{text-align:right}.left{text-align:left}.small-font{font-size:.85rem}.fg-color{color:var(--fg-color)}.fg-color-mute{color:var(--fg-color-mute)}.fg-color-bright{color:var(--fg-color-bright)}.yellow{color:var(--color-yellow)}.yellow-dim{color:var(--color-yellow-dim)}.salmon{color:var(--color-salmon)}.blue{color:var(--color-blue)}.green{color:var(--color-green)}.hide-in-mobile{display:none}.banner-img{width:300px}.logo{display:none}@media only screen and (min-width: 768px){body{font-size:15px}main{margin:0 var(--tablet-margin)}.banner-img{width:500px}.hide-in-mobile{display:inline-block}.logo{display:block}.code-block{font-size:12px;width:650px}}@media only screen and (min-width: 1024px){body{font-size:16px}main{margin:0 var(--desktop-margin)}.banner-img{width:740px}.hide-in-mobile{display:inline-block}.logo{display:block}.code-block{font-size:14px;width:730px}}
+</style></head> <body>         <div id="sidebar" class="sidebar--isHidden" data-astro-cid-6jkdfnte> <div class="section-header" data-astro-cid-6jkdfnte> <h3 class="section-title" data-astro-cid-6jkdfnte>Options</h3> <div class="section-header-actions" data-astro-cid-6jkdfnte> <a href="javascript:void(0);" onclick="initOptions(true)" data-astro-cid-6jkdfnte>Reset</a> <button class="close-btn" id="close-btn" onclick="toggleSidebar(event)" data-astro-cid-6jkdfnte>⌵</button> </div> </div> <div class="section-body" id="settings-container" data-astro-cid-6jkdfnte> <table id="settings-table" style="border-collapse: collapse" data-astro-cid-6jkdfnte></table> </div> </div> <div id="rapiddoc-container" data-astro-cid-6jkdfnte> <rapi-doc id="thedoc" spec-url="/specs/petstore.yaml" sort-tags="false" sort-endpoints-by="method" heading-text="Demo" show-header="false" data-astro-cid-6jkdfnte="true"> <img id="logo" slot="logo" src="/assets/images/logo-outline.svg" data-astro-cid-6jkdfnte> <img id="nav-logo" slot="nav-logo" src="/assets/images/logo-outline.svg" data-astro-cid-6jkdfnte> </rapi-doc> </div>  <script>
+    let rapidocEl; // Define rapidocEl at global level
+
+    document.addEventListener('readystatechange', (event) => {
+      rapidocEl = document.getElementById("thedoc");
+    })
+
+    function toggle(attrName) {
+      if (rapidocEl.getAttribute(attrName) === 'false') {
+        rapidocEl.setAttribute(attrName, true);
+      } else {
+        rapidocEl.setAttribute(attrName, false);
+      }
+    }
+
+    function toggleTheme() {
+      if (rapidocEl.getAttribute('theme') === 'dark') {
+        rapidocEl.setAttribute('theme', 'light');
+      } else {
+        rapidocEl.setAttribute('theme', 'dark');
+      }
+    }
+
+    function toggleRenderStyle() {
+      if (rapidocEl.getAttribute('render-style') === 'view') {
+        rapidocEl.setAttribute('render-style', 'focused');
+      } else if (rapidocEl.getAttribute('render-style') === 'focused') {
+        rapidocEl.setAttribute('render-style', 'read');
+      } else if (rapidocEl.getAttribute('render-style') === 'read') {
+        rapidocEl.setAttribute('render-style', 'view');
+      } else {
+        rapidocEl.setAttribute('render-style', 'view');
+      }
+    }
+
+    function toggleSchemaStyle() {
+      if (rapidocEl.getAttribute('schema-style') === 'table') {
+        rapidocEl.setAttribute('schema-style', 'tree');
+      } else {
+        rapidocEl.setAttribute('schema-style', 'table');
+      }
+    }
+
+  </script>  </body></html> <script>
+  const specUrls = {
+    'PetStore'  : '/specs/petstore.yaml',
+    'Jira'      : 'https://api.apis.guru/v2/specs/atlassian.com/jira/1001.0.0-SNAPSHOT/openapi.yaml',
+    'YouTube'   : 'https://api.apis.guru/v2/specs/googleapis.com/youtube/v3/openapi.yaml',
+    'AzureAD'   : 'https://api.apis.guru/v2/specs/azure.com/azureactivedirectory/2017-04-01/swagger.yaml',
+    'Gitlab'    : 'https://api.apis.guru/v2/specs/gitlab.com/v3/swagger.yaml',
+    'TheySaidSo': 'https://api.apis.guru/v2/specs/quotes.rest/3.1/openapi.yaml',
+    'API2Cart'  : 'https://api.apis.guru/v2/specs/api2cart.com/1.1/openapi.yaml',
+    'Chomp'     : 'https://api.apis.guru/v2/specs/chompthis.com/1.0.0-oas3/openapi.yaml'
+  };
+
+  const primaryColors = ['#2D87E2','#34A853','#3B5998','#66757F','#7B0099','#7CBB00','#8B9DC3','#FBBC05','#FF3D00','#FF6961','#FF9900','#F0F0F0'];
+  const options = [ // order of items control the order of appearance in the options sidebar
+    { attr: 'theme'                           , default: 1, values: ['dark','light']                                      , label: 'Theme'                                , tip: ''                                              },
+    { attr: 'show-header'                     , default: 0, values: ['true','false']                                      , label: 'Show Header'                          , tip: ''                                              },
+    { attr: 'allow-spec-url-load'             , default: 0, values: ['true','false']                                      , label: 'Show Spec URL Load'                   , tip: ''                                              },
+    { attr: 'allow-spec-file-load'            , default: 0, values: ['true','false']                                      , label: 'Show Spec File Load'                  , tip: ''                                              },
+    { attr: 'spec-url'                        , default: 0, values: Object.keys(specUrls)                                 , label: 'OpenAPI Specs'                        , tip: '(Dynamically change logo and header text)'                                              },
+    { attr: 'font-size'                       , default: 1, values: ['default','large','largest']                         , label: 'Font Size'                            , tip: ''                                              },
+    { attr: 'regular-font'                    , default: 0, values: ['Open Sans','Courier New','Nunito']                  , label: 'Font'                                 , tip: ''                                              },
+    { attr: 'render-style'                    , default: 2, values: ['view','read','focused']                             , label: 'Display Mode'                         , tip: ''                                              },
+    { attr: 'primary-color'                   , default: 1, values: primaryColors                                         , label: 'Change Primary Color'                 , tip: ''                                              },
+    { attr: 'nav-item-spacing'                , default: 0, values: ['compact','default','relaxed']                       , label: 'Nav Spacing'                          , tip: ''                                              },
+    { attr: 'nav-active-item-marker'          , default: 1, values: ['left-bar','colored-block']                          , label: 'Highlight selected Nav Item'          , tip: '(Select an Endpoint after changing)'           },
+    { attr: 'show-info'                       , default: 0, values: ['true','false']                                      , label: 'Show Info Section'                    , tip: ''                                              },
+    { attr: 'allow-authentication'            , default: 0, values: ['true','false']                                      , label: 'Show Auth Section'                    , tip: ''                                              },
+    { attr: 'persist-auth'                    , default: 1, values: ['true','false']                                      , label: 'Store Authentication'                 , tip: '(WARN: Keys will be stored in localStorage)'   },
+    { attr: 'allow-search'                    , default: 0, values: ['true','false']                                      , label: 'Show Search'                          , tip: ''                                              },
+    { attr: 'allow-advanced-search'           , default: 0, values: ['true','false']                                      , label: 'Show Advanced Search'                 , tip: ''                                              },
+    { attr: 'show-components'                 , default: 0, values: ['true','false']                                      , label: 'Show Components'                      , tip: `(Only in 'focus' mode. Security Schemes, Schemas, Responses)` },
+    { attr: 'use-path-in-nav-bar'             , default: 1, values: ['true','false']                                      , label: 'Display Endpoint Path'                , tip: '(or Summary)'                                  },
+    { attr: 'show-method-in-nav-bar'          , default: 2, values: ['as-plain-text','as-colored-text','as-colored-block'], label: 'Endpoint Method'                      , tip: ''                                              },
+    { attr: 'sort-endpoints-by'               , default: 0, values: ['path','method','summary','none']                    , label: 'Sort Endpoints by'                    , tip: `(Not working)`                                 },
+    { attr: 'default-schema-tab'              , default: 1, values: ['model','example']                                   , label: 'Default tab to show'                  , tip: ''                                              },
+    { attr: 'schema-style'                    , default: 0, values: ['table','tree']                                      , label: 'Schema Style'                         , tip: ''                                              },
+    { attr: 'schema-expand-level'             , default: 0, values: ['1','2','9']                                         , label: 'Schema Levels to expand'              , tip: ''                                              },
+    { attr: 'schema-hide-read-only'           , default: 0, values: ['default','never']                                   , label: 'Hide read only fields in Request body', tip: ''                                              },
+    { attr: 'schema-description-expanded'     , default: 0, values: ['true','false']                                      , label: 'Multiline Schema descriptions'        , tip: ''                                              },
+    { attr: 'allow-schema-description-expand-toggle', default: 0, values: ['true','false']                                , label: 'Show Multiline descriptions toggle'   , tip: ''                                              },
+    { attr: 'fill-request-fields-with-example', default: 1, values: ['true','false']                                      , label: 'Fill Examples by Default'             , tip: '(Or click on required example to populate it)' },
+    { attr: 'layout'                          , default: 0, values: ['row','column']                                      , label: 'ReqRes Layout'                        , tip: `(Only in 'read' mode)`                         },
+    { attr: 'allow-try'                       , default: 0, values: ['true','false']                                      , label: 'Allow API Invocaiton'                 , tip: ''                                              },
+    { attr: 'show-curl-before-try'            , default: 0, values: ['true','false']                                      , label: 'Always show cURL'                     , tip: '(Display cURL without invoking API)'        },
+    { attr: 'response-area-height'            , default: 0, values: ['100px','200px','300px','400px','500px']             , label: 'Response area height'                 , tip: ''                                              },
+  ];
+
+  function setAttribute(attr, value) {
+    if (attr === 'spec-url') { value = specUrls[value]; }
+    rapiDocE.setAttribute(attr, value);
+  }
+  function updateValue(attr, value) {
+    window.localStorage.setItem(attr, value);
+    setAttribute(attr, value);
+  }
+
+  let rapiDocE;
+  let sideBarE;
+  document.addEventListener('readystatechange', (event) => {
+    rapiDocE = document.getElementById('thedoc');
+    sideBarE = document.getElementById('sidebar');
+    rapiDocE.addEventListener('before-render', (e) => { initOptions(false, e.detail.spec); });
+    document.addEventListener('click', onOutsideClick);
+    toggleSidebar(event);
+  });
+
+  function initOptions(reset, specObject) {
+    const settingsE = document.getElementById('settings-table');
+    settingsE.innerHTML = '';
+    for (const option of options) {
+      option.isBoolean = (option.values[0] == 'true');
+      option.defaultVal = option.values[option.default];
+      if (reset) {
+        window.localStorage.clear(option.attr);
+        option.currentValue = option.defaultVal;
+      } else {
+        option.currentValue = window.localStorage.getItem(option.attr) ?? option.defaultVal;
+      }
+      setAttribute(option.attr, option.currentValue);
+      settingsE.innerHTML += buildOption(option);
+    }
+    setAttribute('heading-text', specObject.info.title);
+    const logoUrl = specObject.info['x-logo']?.url ?? '../images/logo-outline.svg';
+    document.getElementById('logo').setAttribute('src', logoUrl);
+    document.getElementById('nav-logo').setAttribute('src', logoUrl);
+  }
+
+  function buildOption(option) {
+    let optionLabel = `<h5 class="option-label">${option.label}</h5><span class="option-tip">${option.tip}</span>`;
+
+    return (! option.isBoolean) 
+    ? `<tr>
+        <td colspan="2">${optionLabel}</td>
+      </tr>
+      <tr style="border-bottom: 1px dashed #323248">
+        <td style="padding-bottom: 5px" colspan="2">${getOptionControl(option)}</td>
+      </tr>`
+    : `<tr style="border-bottom: 1px dashed #323248">
+        <td style="padding-bottom: 5px">${optionLabel}</td>
+        <td style="padding-bottom: 5px">${getOptionControl(option)}</td>
+      </tr>
+    `;
+  }
+
+  function getOptionControl(option) {
+    if (option.isBoolean) {
+      return `
+        <label>
+          <input type="checkbox"
+            ${option.currentValue == 'true' ? 'checked' : ''}
+            onchange="updateValue('${option.attr}', event.target.checked)"
+          />
+        </label>
+      `;
+    }
+
+    let control = '<div style="display: flex; flex-wrap: wrap;">';
+    for (const value of option.values) {
+      control += `
+        <label style="display: flex; align-items: center; margin-right: 6px; margin-bottom: 6px">
+          <input type="radio"
+            name="${option.attr}_radio"
+            ${option.currentValue == value ? 'checked' : ''}
+            value="${value}"
+            onclick="updateValue('${option.attr}', event.target.value)"
+          />
+          <span style="padding-left: 4px;">${value}</span>
+        </label>
+      `;
+    }
+    control += '</div>';
+    return control;
+  }
+
+  function toggleSidebar(event) {
+    event.stopPropagation();
+    const rapidDocContainerE = document.getElementById('rapiddoc-container');
+    rapidDocContainerE.classList.toggle('rapiddoc-container--push');
+    sideBarE.classList.toggle('sidebar--isHidden');
+  }
+
+  function onOutsideClick(event) {
+    if (!sideBarE.contains(event.target) && !sideBarE.classList.contains('sidebar--isHidden')) {
+      toggleSidebar(event);
+    }
+  }
+</script> 
