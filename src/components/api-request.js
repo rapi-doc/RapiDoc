@@ -1937,9 +1937,21 @@ ${responseContent}</pre
     curl = `curl -X ${this.method.toUpperCase()} "${curlUrl}" \\\n`;
 
     fetchHeaders.forEach((value, key) => {
-      let tempHeaderArray = value.split(',');
-      tempHeaderArray = tempHeaderArray.map((el) => el.trim()).filter((string, index) => tempHeaderArray.indexOf(string) === index);
-      fetchHeaders.set(key, tempHeaderArray.join(', '));
+      const seenValues = [];
+      const newValue = value
+        .split(',')
+        .map((val) => {
+          const normalizedValue = val.trim().toLowerCase();
+          if (seenValues.includes(normalizedValue)) {
+            return null;
+          } else {
+            seenValues.push(normalizedValue);
+            return val;
+          }
+        })
+        .filter((val) => val !== null)
+        .join(',');
+      fetchHeaders.set(key, newValue);
     });
 
     curlHeaders = Array.from(fetchHeaders)
