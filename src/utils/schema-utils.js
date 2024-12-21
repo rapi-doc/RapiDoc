@@ -250,12 +250,31 @@ export function anyExampleWithSummaryOrDescription(examples) {
   return examples.some((x) => x.summary?.length > 0 || x.description?.length > 0);
 }
 
+/**
+ * Returns the first example in the given schema.
+ * Returns `undefined` if `schema` is undefined or if there are no examples
+ * at the top level of the `schema`.
+ */
+function getFirstExample(schema) {
+  // Note: The 'example' property was deprecated in 3.1.0 in favor of the JSON Schema 'examples' keyword
+  // In order, try:
+  // - examples
+  // - example
+  // Fall back to undefined.
+  // Make sure to support `null` examples.
+  let firstExample;
+  if (schema) {
+    if (schema.examples && schema.examples.length >= 1) {
+      firstExample = schema.examples[0];
+    } else {
+      firstExample = schema.example;
+    }
+  }
+  return firstExample;
+}
+
 export function getSampleValueByType(schemaObj) {
-  const example = schemaObj.examples
-    ? schemaObj.examples[0]
-    : schemaObj.example === null
-      ? null
-      : schemaObj.example || undefined;
+  const example = getFirstExample(schemaObj);
   if (example === '') { return ''; }
   if (example === null) { return null; }
   if (example === 0) { return 0; }
@@ -589,7 +608,8 @@ export function schemaToSampleObj(schema, config = { }) {
     if (schema.type === 'object' || schema.properties) {
       commonObj = { 'example-0': {} };
       for (const propertyName in schema.properties) {
-        if (schema.example) {
+        const example = getFirstExample(schema);
+        if (example) {
           commonObj = schema;
           break;
         }
@@ -619,18 +639,20 @@ export function schemaToSampleObj(schema, config = { }) {
   } else if (schema.type === 'object' || schema.properties) {
     obj['example-0'] = {};
     addSchemaInfoToExample(schema, obj['example-0']);
-    if (schema.example) {
-      obj['example-0'] = schema.example;
+    const firstExample = getFirstExample(schema);
+    if (firstExample) {
+      obj['example-0'] = firstExample;
     } else {
       for (const propertyName in schema.properties) {
         if (schema.properties[propertyName]?.deprecated && !config.includeDeprecated) { continue; }
         if (schema.properties[propertyName]?.readOnly && !config.includeReadOnly) { continue; }
         if (schema.properties[propertyName]?.writeOnly && !config.includeWriteOnly) { continue; }
         if (schema.properties[propertyName]?.type === 'array' || schema.properties[propertyName]?.items) {
-          if (schema.properties[propertyName].example) {
-            addPropertyExampleToObjectExamples(schema.properties[propertyName].example, obj, propertyName);
-          } else if (schema.properties[propertyName]?.items?.example) { // schemas and properties support single example but not multiple examples.
-            addPropertyExampleToObjectExamples([schema.properties[propertyName].items.example], obj, propertyName);
+          const propExample = getFirstExample(schema.properties[propertyName]);
+          if (propExample) {
+            addPropertyExampleToObjectExamples(propExample, obj, propertyName);
+          } else if (getFirstExample(schema.properties[propertyName]?.items)) { // schemas and properties support single example but not multiple examples.
+            addPropertyExampleToObjectExamples([getFirstExample(schema.properties[propertyName].items)], obj, propertyName);
           } else {
             const itemSamples = schemaToSampleObj(schema.properties[propertyName].items, config);
             if (config.useXmlTagForProp) {
@@ -660,11 +682,11 @@ export function schemaToSampleObj(schema, config = { }) {
       }
     }
   } else if (schema.type === 'array' || schema.items) {
-    if (schema.items || schema.example) {
-      if (schema.example) {
-        obj['example-0'] = schema.example;
-      } else if (schema.items?.example) { // schemas and properties support single example but not multiple examples.
-        obj['example-0'] = [schema.items.example];
+    if (schema.items || getFirstExample(schema)) {
+      if (getFirstExample(schema)) {
+        obj['example-0'] = getFirstExample(schema);
+      } else if (getFirstExample(schema.items)) { // schemas and properties support single example but not multiple examples.
+        obj['example-0'] = [getFirstExample(schema.items)];
       } else {
         const samples = schemaToSampleObj(schema.items, config);
         let i = 0;
@@ -983,15 +1005,15 @@ export function generateExample(schema, mimeType, examples = {}, example = {}, i
   // If schema-level examples are not provided or includeGeneratedExample === true then generate one based on the schema field types
   if (finalExamples.length === 0 || includeGeneratedExample === true) {
     if (schema) {
-      if (schema.example) {
-        // Note: Deprecated: The 'example' property has been deprecated in 3.1.0 in favor of the JSON Schema 'examples' keyword
+      const firstExample = getFirstExample(schema);
+      if (firstExample) {
         finalExamples.push({
           exampleId: 'Example',
           exampleSummary: '',
           exampleDescription: '',
           exampleType: mimeType,
-          exampleValue: schema.example,
-          exampleFormat: ((mimeType?.toLowerCase().includes('json') && typeof schema.example === 'object') ? 'json' : 'text'),
+          exampleValue: firstExample,
+          exampleFormat: ((mimeType?.toLowerCase().includes('json') && typeof firstExample === 'object') ? 'json' : 'text'),
         });
       } else if (mimeType?.toLowerCase().includes('json') || mimeType?.toLowerCase().includes('text') || mimeType?.toLowerCase().includes('*/*') || mimeType?.toLowerCase().includes('xml')) {
         let xmlRootStart = '';
