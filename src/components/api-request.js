@@ -527,7 +527,13 @@ export default class ApiRequest extends LitElement {
                         const inputEl = e.target.closest('table').querySelector(`[data-pname="${param.name}"]`);
                         if (inputEl) {
                           if (e.target.dataset.type === 'array') {
-                            inputEl.value = [e.target.dataset.enum];
+                            if (e.ctrlKey) {
+                              inputEl.value = !Array.isArray(inputEl.value) ? [e.target.dataset.enum]
+                                : inputEl.value.includes(e.target.dataset.enum) ? inputEl.value.filter((val) => val !== e.target.dataset.enum)
+                                : [...inputEl.value, e.target.dataset.enum];
+                            } else {
+                                inputEl.value = [e.target.dataset.enum];
+                            }
                           } else {
                             inputEl.value = e.target.dataset.enum;
                           }
