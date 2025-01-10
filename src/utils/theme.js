@@ -214,6 +214,9 @@ export default function setTheme(baseTheme, theme = {}) {
       --font-size-mono: ${this.fontSize === 'default' ? '13px' : this.fontSize === 'large' ? '14px' : '15px'};
       --font-size-regular: ${this.fontSize === 'default' ? '14px' : this.fontSize === 'large' ? '15px' : '16px'};
       --dialog-z-index: 1000;
+      --table-schema-key-width: 240px;
+      --table-schema-key-text-overflow: ellipsis;
+      --table-schema-key-whitespace: nowrap;
 
       --focus-shadow: 0 0 0 1px transparent, 0 0 0 3px ${newTheme.primaryColorTrans};
 

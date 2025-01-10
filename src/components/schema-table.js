@@ -52,7 +52,9 @@ export default class SchemaTable extends LitElement {
           padding: 4px 0;
         }
         .table .key {
-          width: 240px;
+          width: var(--table-schema-key-width, 240px);
+          text-overflow: var(--table-schema-key-text-overflow, ellipsis);
+          white-space: var(--table-schema-key-whitespace, nowrap);
         }
         .key .key-label {
           font-size: var(--font-size-mono);
@@ -217,7 +219,7 @@ export default class SchemaTable extends LitElement {
           ? html`<div
               class="tr ${newSchemaLevel <= this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type']}"
               data-obj="${keyLabel}"
-              title="${isDeprecated || data['::deprecated'] ? 'Deprecated' : ''}"
+              title="${isDeprecated || data['::deprecated'] ? `Deprecated ${keyLabel}` : keyLabel}"
             >
               <div class="td key ${isDeprecated || data['::deprecated'] ? 'deprecated' : ''}" style="padding-left:${leftPadding}px">
                 ${keyLabel || keyDescr
