@@ -1989,7 +1989,7 @@ ${responseContent}</pre
         fetchOptions.body = exampleTextAreaEl.value;
         if (requestBodyType.includes('json')) {
           try {
-            curlData = ` -d '${JSON.stringify(JSON.parse(exampleTextAreaEl.value))}' \\\n`;
+            curlData = ` -d '${JSON.stringify(JSON.parse(exampleTextAreaEl.value.replace(/'/g, "'\\''")))}' \\\n`;
           } catch {
             // Ignore.
           }
