@@ -7227,6 +7227,12 @@ customElements.define('schema-tree', SchemaTree);
 ;// ./src/components/tag-input.js
 
 class TagInput extends lit_element_h {
+  connectedCallback() {
+    var _this$initialValue;
+    this.value = (_this$initialValue = this.initialValue) !== null && _this$initialValue !== void 0 ? _this$initialValue : [];
+    super.connectedCallback();
+  }
+
   /* eslint-disable indent */
   render() {
     let tagItemTmpl = '';
@@ -7242,6 +7248,18 @@ class TagInput extends lit_element_h {
   }
   /* eslint-enable indent */
 
+  get value() {
+    /* eslint-disable-next-line no-underscore-dangle */
+    return this._value;
+  }
+  set value(newValue) {
+    /* eslint-disable no-underscore-dangle */
+    const oldValue = this._value;
+    this._value = newValue;
+    /* eslint-enable no-underscore-dangle */
+    this.requestUpdate('value', oldValue);
+    this.sendContentChanged();
+  }
   static get properties() {
     return {
       placeholder: {
@@ -7252,6 +7270,12 @@ class TagInput extends lit_element_h {
         attribute: 'value'
       }
     };
+  }
+  sendContentChanged() {
+    this.dispatchEvent(new CustomEvent('contentChanged', {
+      bubbles: true,
+      composed: true
+    }));
   }
   attributeChangedCallback(name, oldVal, newVal) {
     if (name === 'value') {
@@ -8281,7 +8305,7 @@ class ApiRequest extends lit_element_h {
                     data-example = "${Array.isArray(fieldExamples) ? fieldExamples.join('~|~') : fieldExamples}"
                     data-array = "true"
                     placeholder = "add-multiple &#x21a9;"
-                    .value = "${Array.isArray(fieldExamples) ? Array.isArray(fieldExamples[0]) ? fieldExamples[0] : fieldExamples : []}"
+                    .initialValue = "${Array.isArray(fieldExamples) ? Array.isArray(fieldExamples[0]) ? fieldExamples[0] : fieldExamples : []}"
                   >
                   </tag-input>
                 ` : ke`
@@ -8321,6 +8345,8 @@ class ApiRequest extends lit_element_h {
               inputEl.value = e.target.dataset.enum;
             }
           }
+          const event = new Event('input');
+          inputEl.dispatchEvent(event);
         }}"
                           > 
                             ${v} 
@@ -8746,7 +8772,9 @@ class ApiRequest extends lit_element_h {
               formDataParams.append(el.dataset.pname, el.value);
             }
           } else if (el.value && Array.isArray(el.value)) {
-            formDataParams.append(el.dataset.pname, el.value.join(','));
+            for (const value of el.value) {
+              formDataParams.append(`${el.dataset.pname}[]`, value);
+            }
           }
         });
         fetchOptions.body = formDataParams;
@@ -9006,11 +9034,6 @@ class ApiRequest extends lit_element_h {
         if (value instanceof File) {
           return [...aggregator, ` -F "${key}=@${value.name}"`];
         }
-        const multiple = value.match(/([^,],)/gm);
-        if (multiple) {
-          const multipleResults = multiple.map(one => `-F "${key}[]=${one}"`);
-          return [...aggregator, ...multipleResults];
-        }
         return [...aggregator, ` -F "${key}=${value}"`];
       }, []).join('\\\n');
     } else if (requestBodyContainerEl && requestBodyContainerEl.dataset.selectedRequestBodyType) {
@@ -9080,6 +9103,23 @@ class ApiRequest extends lit_element_h {
     if (this.responseBlobUrl) {
       URL.revokeObjectURL(this.responseBlobUrl);
       this.responseBlobUrl = '';
+    }
+  }
+  firstUpdated() {
+    if (this.showCurlBeforeTry === 'true') {
+      this.shadowRoot.querySelectorAll('tag-input').forEach(el => {
+        el.addEventListener('contentChanged', (/* event */
+        ) => {
+          this.applyCURLSyntax(this.shadowRoot);
+        });
+      });
+      this.shadowRoot.querySelectorAll('input').forEach(el => {
+        window.console.log('registerEvent', el);
+        el.addEventListener('input', (/* event */
+        ) => {
+          this.applyCURLSyntax(this.shadowRoot);
+        });
+      });
     }
   }
   disconnectedCallback() {
@@ -20618,7 +20658,7 @@ function getType(str) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("2337278d415d81467132")
+/******/ 		__webpack_require__.h = () => ("c481f218d5a06495517e")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
