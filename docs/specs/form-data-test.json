@@ -1,0 +1,42 @@
+{
+  "openapi": "3.0.3",
+  "paths": {
+    "/api/form-data-test": {
+      "post": {
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "allOf": [
+                  { "$ref": "#/components/schemas/FormDataTestRequest" }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "FormDataTestRequest": {
+        "properties": {
+          "items": { "type": "array", "items": { "type": "string" } },
+          "itemType": {
+            "type": "string",
+            "enum": [
+              "typeA",
+              "typeB",
+              "typeC",
+              "typeD",
+              "typeE"
+            ]
+          }
+        },
+        "type": "object"
+      }
+    }
+  }
+}

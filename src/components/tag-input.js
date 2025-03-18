@@ -1,6 +1,11 @@
 import { LitElement, html, css } from 'lit';
 
 export default class TagInput extends LitElement {
+  connectedCallback() {
+    this.value = this.initialValue ?? [];
+    super.connectedCallback();
+  }
+
   /* eslint-disable indent */
   render() {
     let tagItemTmpl = '';
@@ -19,11 +24,29 @@ export default class TagInput extends LitElement {
   }
   /* eslint-enable indent */
 
+  get value() {
+    /* eslint-disable-next-line no-underscore-dangle */
+    return this._value;
+  }
+
+  set value(newValue) {
+    /* eslint-disable no-underscore-dangle */
+    const oldValue = this._value;
+    this._value = newValue;
+    /* eslint-enable no-underscore-dangle */
+    this.requestUpdate('value', oldValue);
+    this.sendContentChanged();
+  }
+
   static get properties() {
     return {
       placeholder: { type: String },
       value: { type: Array, attribute: 'value' },
     };
+  }
+
+  sendContentChanged() {
+    this.dispatchEvent(new CustomEvent('contentChanged', { bubbles: true, composed: true }));
   }
 
   attributeChangedCallback(name, oldVal, newVal) {

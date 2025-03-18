@@ -924,7 +924,7 @@ export default class ApiRequest extends LitElement {
                     data-example = "${Array.isArray(fieldExamples) ? fieldExamples.join('~|~') : fieldExamples}"
                     data-array = "true"
                     placeholder = "add-multiple &#x21a9;"
-                    .value = "${Array.isArray(fieldExamples) ? Array.isArray(fieldExamples[0]) ? fieldExamples[0] : fieldExamples : []}"
+                    .initialValue = "${Array.isArray(fieldExamples) ? Array.isArray(fieldExamples[0]) ? fieldExamples[0] : fieldExamples : []}"
                   >
                   </tag-input>
                 `
@@ -975,6 +975,8 @@ export default class ApiRequest extends LitElement {
                                   inputEl.value = e.target.dataset.enum;
                                 }
                               }
+                              const event = new Event('input');
+                              inputEl.dispatchEvent(event);
                             }}"
                           > 
                             ${v} 
@@ -1428,7 +1430,9 @@ export default class ApiRequest extends LitElement {
               formDataParams.append(el.dataset.pname, el.value);
             }
           } else if (el.value && Array.isArray(el.value)) {
-            formDataParams.append(el.dataset.pname, el.value.join(','));
+            for (const value of el.value) {
+              formDataParams.append(`${el.dataset.pname}[]`, value);
+            }
           }
         });
         fetchOptions.body = formDataParams;
@@ -1693,14 +1697,6 @@ export default class ApiRequest extends LitElement {
           return [...aggregator, ` -F "${key}=@${value.name}"`];
         }
 
-        const multiple = value.match(/([^,],)/gm);
-
-        if (multiple) {
-          const multipleResults = multiple.map((one) => `-F "${key}[]=${one}"`);
-
-          return [...aggregator, ...multipleResults];
-        }
-
         return [...aggregator, ` -F "${key}=${value}"`];
       }, []).join('\\\n');
     } else if (requestBodyContainerEl && requestBodyContainerEl.dataset.selectedRequestBodyType) {
@@ -1775,6 +1771,23 @@ export default class ApiRequest extends LitElement {
     if (this.responseBlobUrl) {
       URL.revokeObjectURL(this.responseBlobUrl);
       this.responseBlobUrl = '';
+    }
+  }
+
+  firstUpdated() {
+    if (this.showCurlBeforeTry === 'true') {
+      this.shadowRoot.querySelectorAll('tag-input').forEach((el) => {
+        el.addEventListener('contentChanged', (/* event */) => {
+          this.applyCURLSyntax(this.shadowRoot);
+        });
+      });
+
+      this.shadowRoot.querySelectorAll('input').forEach((el) => {
+        window.console.log('registerEvent', el);
+        el.addEventListener('input', (/* event */) => {
+          this.applyCURLSyntax(this.shadowRoot);
+        });
+      });
     }
   }
 
