@@ -104,7 +104,7 @@ export default css`
   background-color: var(--nav-hover-bg-color);
 }
 
-.nav-bar-tag {
+.nav-bar .nav-bar-tag {
   font-size: var(--font-size-regular);
   color: var(--nav-accent-color);
   border-left:4px solid transparent;
