@@ -840,9 +840,11 @@ export default class RapiDoc extends LitElement {
    * From the URL return the ID of the element whether it is in the hash or if used a router prefix without a hash
    */
   getElementIDFromURL() {
-    const baseURL = this.getComponentBaseURL();
-    const elementId = window.location.href.replace(baseURL + this.routePrefix, '');
-    return elementId;
+    const baseURLWithPrefix = this.getComponentBaseURL() + this.routePrefix;
+    if (window.location.href.startsWith(baseURLWithPrefix)) {
+      return window.location.href.replace(baseURLWithPrefix, '');
+    }
+    return undefined;
   }
 
   replaceHistoryState(hashId) {
