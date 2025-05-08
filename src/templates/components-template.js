@@ -21,6 +21,7 @@ function schemaBodyTemplate(sComponent) {
         schema-hide-read-only = "false"
         schema-hide-write-only = "${this.schemaHideWriteOnly}"
         exportparts = "schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+        style="display:block;"
       > </schema-table>`
     : html`
       <schema-tree
@@ -31,6 +32,7 @@ function schemaBodyTemplate(sComponent) {
         schema-hide-read-only = "false"
         schema-hide-write-only = "${this.schemaHideWriteOnly}"
         exportparts = "schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+        style="display:block;"
       > </schema-tree>`
 }
   </div>`;
