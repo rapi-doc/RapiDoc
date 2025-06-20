@@ -26,23 +26,6 @@ function toggleExpand(path) {
   this.requestUpdate();
 }
 
-export function expandCollapseAll(operationsRootEl, action = 'expand-all') {
-  const elList = [...operationsRootEl.querySelectorAll('.section-tag')];
-  if (action === 'expand-all') {
-    elList.map((el) => {
-      el.classList.replace('collapsed', 'expanded');
-    });
-  } else {
-    elList.map((el) => {
-      el.classList.replace('expanded', 'collapsed');
-    });
-  }
-}
-
-function onExpandCollapseAll(e, action = 'expand-all') {
-  expandCollapseAll.call(this, e.target.closest('.operations-root'), action);
-}
-
 /* eslint-disable indent */
 function endpointHeadTemplate(path, pathsExpanded = false) {
   return html`
@@ -188,16 +171,22 @@ function endpointBodyTemplate(path) {
 
 export default function endpointTemplate(isMini = false, pathsExpanded = false) {
   if (!this.resolvedSpec) { return ''; }
+  const onExpandCollapseAll = (action) => {
+    this.resolvedSpec.tags.map((tag) => {
+      tag.expanded = action === 'expand-all';
+    });
+    this.requestUpdate();
+  };
   return html`
     ${isMini
       ? ''
       : html`
         <div style="display:flex; justify-content:flex-end;"> 
-          <span @click="${(e) => onExpandCollapseAll(e, 'expand-all')}" style="color:var(--primary-color); cursor:pointer;">
+          <span @click="${() => onExpandCollapseAll('expand-all')}" style="color:var(--primary-color); cursor:pointer;">
             Expand all
           </span> 
           &nbsp;|&nbsp; 
-          <span @click="${(e) => onExpandCollapseAll(e, 'collapse-all')}" style="color:var(--primary-color); cursor:pointer;" >
+          <span @click="${() => onExpandCollapseAll('collapse-all')}" style="color:var(--primary-color); cursor:pointer;" >
             Collapse all
           </span> 
           &nbsp; sections
