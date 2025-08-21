@@ -133,10 +133,10 @@ export default class JsonTree extends LitElement {
     if (e.target.classList.contains('open-bracket')) {
       if (openBracketEl.classList.contains('expanded')) {
         openBracketEl.classList.replace('expanded', 'collapsed');
-        e.target.innerHTML = e.target.classList.contains('array') ? '[...]' : '{...}';
+        e.target.innerHTML = e.target.classList.contains('one-of') ? '...' : e.target.classList.contains('array') ? '[...]' : '{...}';
       } else {
         openBracketEl.classList.replace('collapsed', 'expanded');
-        e.target.innerHTML = e.target.classList.contains('array') ? '[' : '{';
+        e.target.innerHTML = e.target.classList.contains('one-of') ? '&nbsp;' : e.target.classList.contains('array') ? '[' : '{';
       }
     }
   }

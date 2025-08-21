@@ -173,7 +173,15 @@ export default class SchemaTree extends LitElement {
     const newSchemaLevel = data['::type']?.startsWith('xxx-of') ? schemaLevel : (schemaLevel + 1);
     // const newIndentLevel = dataType === 'xxx-of-option' || data['::type'] === 'xxx-of-option' ? indentLevel : (indentLevel + 1);
     const newIndentLevel = dataType === 'xxx-of-option' || data['::type'] === 'xxx-of-option' || key.startsWith('::OPTION') ? indentLevel : (indentLevel + 1);
-    if (data['::type'] === 'object') {
+
+    if (data['::ONE~OF'] !== undefined || data['::ONE~OF '] !== undefined) {
+      if (schemaLevel < this.schemaExpandLevel) {
+        openBracket = html`<span class="open-bracket one-of">${data['::nullable'] ? 'null┃' : ''}&nbsp;</span>`;
+      } else {
+        openBracket = html`<span class="open-bracket one-of">${data['::nullable'] ? 'null┃' : ''}...</span>`;
+      }
+      closeBracket = '';
+    } else if (data['::type'] === 'object') {
       if (dataType === 'array') {
         if (schemaLevel < this.schemaExpandLevel) {
           openBracket = html`<span class="open-bracket array-of-object" >[{</span>`;
@@ -359,7 +367,7 @@ export default class SchemaTree extends LitElement {
     const nullable = rowEl.classList.contains('nullable');
     if (rowEl.classList.contains('expanded')) {
       rowEl.classList.replace('expanded', 'collapsed');
-      e.target.innerHTML = e.target.classList.contains('array-of-object')
+      e.target.innerHTML = e.target.classList.contains('one-of') ? '...' : e.target.classList.contains('array-of-object')
         ? '[{...}]'
         : e.target.classList.contains('array-of-array')
           ? '[[...]]'
@@ -368,7 +376,7 @@ export default class SchemaTree extends LitElement {
             : `${nullable ? 'null┃' : ''}{...}`;
     } else {
       rowEl.classList.replace('collapsed', 'expanded');
-      e.target.innerHTML = e.target.classList.contains('array-of-object')
+      e.target.innerHTML = e.target.classList.contains('one-of') ? '&nbsp;' : e.target.classList.contains('array-of-object')
         ? '[{'
         : e.target.classList.contains('array-of-array')
           ? `[[ ${e.target.dataset.arrayType}`
