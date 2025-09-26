@@ -36,14 +36,18 @@ export function getTypeInfo(schema) {
   let constrain = '';
   // let examples;
 
+  const enumValues = schema.enum || schema['x-extensible-enum'];
   if (schema.$ref) {
     const n = schema.$ref.lastIndexOf('/');
     const schemaNode = schema.$ref.substring(n + 1);
     dataType = `{recursive: ${schemaNode}} `;
   } else if (schema.type) {
     dataType = Array.isArray(schema.type) ? schema.type.join('┃') : schema.type;
-    if (schema.format || schema.enum || schema.const) {
-      dataType = dataType.replace('string', schema.enum ? 'enum' : schema.const ? 'const' : schema.format);
+    if (schema.format || schema.enum || schema.const || schema['x-extensible-enum']) {
+      dataType = dataType.replace(
+        'string',
+        schema.enum ? 'enum' : schema.const ? 'const' : schema['x-extensible-enum'] ? 'x-extensible-enum' : schema.format,
+      );
     }
     if (schema.nullable) {
       dataType += '┃null';
@@ -79,20 +83,21 @@ export function getTypeInfo(schema) {
   // Set Allowed Values
   info.allowedValues = schema.const
     ? schema.const
-    : Array.isArray(schema.enum)
-      ? schema.enum.map((v) => (getPrintableVal(v))).join('┃')
+    : Array.isArray(enumValues)
+      ? enumValues.map((v) => (getPrintableVal(v))).join('┃')
       : '';
 
   if (dataType === 'array' && schema.items) {
     const arrayItemType = schema.items?.type;
     const arrayItemDefault = getPrintableVal(schema.items.default);
+    const arrayEnumValues = schema.items?.enum || schema.items?.['x-extensible-enum'];
 
     info.arrayType = `${schema.type} of ${Array.isArray(arrayItemType) ? arrayItemType.join('') : arrayItemType}`;
     info.default = arrayItemDefault;
     info.allowedValues = schema.items.const
       ? schema.const
-      : Array.isArray(schema.items?.enum)
-        ? schema.items.enum.map((v) => (getPrintableVal(v))).join('┃')
+      : Array.isArray(arrayEnumValues)
+        ? arrayEnumValues.map((v) => (getPrintableVal(v))).join('┃')
         : '';
   }
   if (dataType.match(/integer|number/g)) {

@@ -1,0 +1,61 @@
+openapi: 3.0.0
+info:
+  title: x-extensible-enum Example
+  description: Example API demonstrating x-extensible-enum usage.
+  version: 1.0.0
+tags:
+  - name: Person
+    description: Operations related to people
+servers:
+  - url: https://api.example.com
+paths:
+  /people:
+    post:
+      summary: Create person
+      description: Create a new person with various attributes including hobbies and marital status.
+      operationId: createPerson
+      tags:
+        - Person
+      requestBody:
+        description: Person object that needs to be added
+        content: 
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                hobbies:
+                  type: array
+                  minItems: 1
+                  maxItems: 3
+                  items:
+                    type: string
+                    x-extensible-enum:
+                      - computers
+                      - hiking
+                      - swimming
+                      - movies
+                      - music
+                      - dancing
+                      - reading
+                      - painting
+                    default: hiking   
+                tags:
+                  type: array
+                  items:
+                    type: string
+                maritalStatus:
+                  type: string
+                  enum:
+                    - married
+                    - unmarried
+                    - widowed
+              required:
+                - name
+                - hobbies
+      responses:
+        "200":
+          description: successful operation
+        "404":
+          description: not found
