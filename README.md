@@ -43,13 +43,6 @@ Custom Element for Open-API spec viewing
 - Supported on Chrome, FireFox and Safari. (Not yet tested on Edge)
 
 
-## Documentation
-[Check out the usage and demos](https://rapi-doc.github.io/RapiDoc/)
-
-## Examples
-[Examples and Test cases](https://rapi-doc.github.io/RapiDoc/list.html)
-
-
 ## Build Process
 ```bash
 # Clone / Download the project then
