@@ -63,40 +63,50 @@ export default function mainBodyTemplate(isMini = false, pathsExpanded = false) 
 
     <div id="the-main-body" class="body ${this.cssClasses}" dir="${this.pageDirection}">
       <!-- Side Nav -->
-      ${(this.renderStyle === 'read' || this.renderStyle === 'focused') && this.showSideNav === 'true' && this.resolvedSpec
-        ? navbarTemplate.call(this)
-        : ''}
+      ${
+        (this.renderStyle === 'read' || this.renderStyle === 'focused') && this.showSideNav === 'true' && this.resolvedSpec
+          ? navbarTemplate.call(this)
+          : ''
+      }
 
       <!-- Main Content -->
       <main class="main-content regular-font" tabindex="-1" part="section-main-content">
         <slot></slot>
         <div class="main-content-inner--${this.renderStyle}-mode">
-          ${this.loading === true
-            ? html`<div class="loader"></div>`
-            : html` ${this.loadFailed === true
-                ? html`<div style="text-align: center;margin: 16px;">Unable to load the Spec</div>`
-                : html`
-                    <div
-                      class="operations-root"
-                      @click="${(e) => {
-                        this.handleHref(e);
-                      }}"
-                    >
-                      ${this.renderStyle === 'focused'
-                        ? html`${focusedEndpointTemplate.call(this)}`
-                        : html`
-                            ${this.showInfo === 'true' ? overviewTemplate.call(this) : ''}
-                            ${this.allowServerSelection === 'true' ? serverTemplate.call(this) : ''}
-                            ${this.allowAuthentication === 'true' ? securitySchemeTemplate.call(this, this.allowTry) : ''}
-                            <div id="operations-top" class="observe-me">
-                              <slot name="operations-top"></slot>
-                            </div>
-                            ${this.renderStyle === 'read'
-                              ? expandedEndpointTemplate.call(this)
-                              : endpointTemplate.call(this, isMini, pathsExpanded)}
-                          `}
-                    </div>
-                  `}`}
+          ${
+            this.loading === true
+              ? html`<div class="loader"></div>`
+              : html` ${
+                  this.loadFailed === true
+                    ? html`<div style="text-align: center;margin: 16px;">Unable to load the Spec</div>`
+                    : html`
+                        <div
+                          class="operations-root"
+                          @click="${(e) => {
+                            this.handleHref(e);
+                          }}"
+                        >
+                          ${
+                            this.renderStyle === 'focused'
+                              ? html`${focusedEndpointTemplate.call(this)}`
+                              : html`
+                                  ${this.showInfo === 'true' ? overviewTemplate.call(this) : ''}
+                                  ${this.allowServerSelection === 'true' ? serverTemplate.call(this) : ''}
+                                  ${this.allowAuthentication === 'true' ? securitySchemeTemplate.call(this, this.allowTry) : ''}
+                                  <div id="operations-top" class="observe-me">
+                                    <slot name="operations-top"></slot>
+                                  </div>
+                                  ${
+                                    this.renderStyle === 'read'
+                                      ? expandedEndpointTemplate.call(this)
+                                      : endpointTemplate.call(this, isMini, pathsExpanded)
+                                  }
+                                `
+                          }
+                        </div>
+                      `
+                }`
+          }
         </div>
         <slot name="footer"></slot>
       </main>

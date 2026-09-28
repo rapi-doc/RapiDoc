@@ -91,16 +91,20 @@ function jsonSchemaBodyTemplate() {
               class="json-schema-example-panel"
               style="width:400px; background: var(--input-bg); padding:16px 0 16px 16px; border-left: 1px dashed var(--border-color);"
             >
-              ${examplesObj.length > 1
-                ? html`<select style="min-width:100px; max-width:100%" @change="${(e) => this.onSelectExample(e, jSchemaBody)}">
-                    ${examplesObj.map(
-                      (v) =>
-                        html` <option value="${v.exampleId}" ?selected=${v.exampleId === jSchemaBody.selectedExample}>
-                          ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary}
-                        </option>`
-                    )}
-                  </select>`
-                : html`<div style="font-size: var(--font-size-small);font-weight:700; margin:5px 0">${examplesObj[0].exampleSummary}</div>`}
+              ${
+                examplesObj.length > 1
+                  ? html`<select style="min-width:100px; max-width:100%" @change="${(e) => this.onSelectExample(e, jSchemaBody)}">
+                      ${examplesObj.map(
+                        (v) =>
+                          html` <option value="${v.exampleId}" ?selected=${v.exampleId === jSchemaBody.selectedExample}>
+                            ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary}
+                          </option>`
+                      )}
+                    </select>`
+                  : html`<div style="font-size: var(--font-size-small);font-weight:700; margin:5px 0">
+                      ${examplesObj[0].exampleSummary}
+                    </div>`
+              }
               ${examplesObj.map(
                 (v) =>
                   html`<json-tree
@@ -187,20 +191,24 @@ export default function jsonSchemaViewerTemplate(isMini = false) {
       <main class="main-content regular-font" part="section-main-content">
         <slot></slot>
         <div class="main-content-inner--${this.renderStyle}-mode">
-          ${this.loading === true
-            ? html`<div class="loader"></div>`
-            : html` ${this.loadFailed === true
-                ? html`<div style="text-align: center;margin: 16px;">Unable to load the Spec</div>`
-                : html`
-                    <div
-                      class="operations-root"
-                      @click="${(e) => {
-                        this.handleHref(e);
-                      }}"
-                    >
-                      ${jsonSchemaBodyTemplate.call(this)}
-                    </div>
-                  `}`}
+          ${
+            this.loading === true
+              ? html`<div class="loader"></div>`
+              : html` ${
+                  this.loadFailed === true
+                    ? html`<div style="text-align: center;margin: 16px;">Unable to load the Spec</div>`
+                    : html`
+                        <div
+                          class="operations-root"
+                          @click="${(e) => {
+                            this.handleHref(e);
+                          }}"
+                        >
+                          ${jsonSchemaBodyTemplate.call(this)}
+                        </div>
+                      `
+                }`
+          }
         </div>
         <slot name="footer"></slot>
       </main>

@@ -39,9 +39,10 @@ function defaultContentTemplate() {
 function focusedTagBodyTemplate(tag) {
   return html`
     <h1 id="${tag.elementId}">${tag.displayName || tag.name}</h1>
-    ${this.onNavTagClick === 'show-description' && tag.description
-      ? html`<div class="m-markdown">
-          ${unsafeHTML(`<div class="m-markdown regular-font">
+    ${
+      this.onNavTagClick === 'show-description' && tag.description
+        ? html`<div class="m-markdown">
+            ${unsafeHTML(`<div class="m-markdown regular-font">
             ${DOMPurify.sanitize(
               marked(
                 tag.description || '',
@@ -50,8 +51,9 @@ function focusedTagBodyTemplate(tag) {
               { USE_PROFILES: { html: true } }
             )}
           </div>`)}
-        </div>`
-      : ''}
+          </div>`
+        : ''
+    }
   `;
 }
 

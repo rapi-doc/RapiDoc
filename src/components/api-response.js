@@ -148,32 +148,36 @@ export default class ApiResponse extends LitElement {
       this.mimeResponsesForEachStatus[statusCode] = allMimeResp;
     }
     return html`
-      ${Object.keys(this.responses).length > 1
-        ? html`<div class="row" style="flex-wrap:wrap">
-            ${Object.keys(this.responses).map(
-              (respStatus) =>
-                html` ${respStatus === '$$ref' // Swagger-Client parser creates '$$ref' object if JSON references are used to create responses - this should be ignored
-                  ? ''
-                  : html`<button
-                      @click="${() => {
-                        this.selectedStatus = respStatus;
-                        if (this.responses[respStatus].content && Object.keys(this.responses[respStatus].content)[0]) {
-                          this.selectedMimeType = Object.keys(this.responses[respStatus].content)[0];
-                        } else {
-                          this.selectedMimeType = undefined;
-                        }
-                      }}"
-                      class="m-btn small ${this.selectedStatus === respStatus ? 'primary' : ''}"
-                      part="btn ${this.selectedStatus === respStatus
-                        ? 'btn-response-status btn-selected-response-status'
-                        : ' btn-response-status'}"
-                      style="margin: 8px 4px 0 0"
-                    >
-                      ${respStatus}
-                    </button>`}`
-            )}
-          </div>`
-        : html`<span>${Object.keys(this.responses)[0]}</span>`}
+      ${
+        Object.keys(this.responses).length > 1
+          ? html`<div class="row" style="flex-wrap:wrap">
+              ${Object.keys(this.responses).map(
+                (respStatus) =>
+                  html` ${
+                    respStatus === '$$ref' // Swagger-Client parser creates '$$ref' object if JSON references are used to create responses - this should be ignored
+                      ? ''
+                      : html`<button
+                          @click="${() => {
+                            this.selectedStatus = respStatus;
+                            if (this.responses[respStatus].content && Object.keys(this.responses[respStatus].content)[0]) {
+                              this.selectedMimeType = Object.keys(this.responses[respStatus].content)[0];
+                            } else {
+                              this.selectedMimeType = undefined;
+                            }
+                          }}"
+                          class="m-btn small ${this.selectedStatus === respStatus ? 'primary' : ''}"
+                          part="btn ${
+                            this.selectedStatus === respStatus ? 'btn-response-status btn-selected-response-status' : ' btn-response-status'
+                          }"
+                          style="margin: 8px 4px 0 0"
+                        >
+                          ${respStatus}
+                        </button>`
+                  }`
+              )}
+            </div>`
+          : html`<span>${Object.keys(this.responses)[0]}</span>`
+      }
       ${Object.keys(this.responses).map(
         (status) =>
           html`<div style="display: ${status === this.selectedStatus ? 'block' : 'none'}">
@@ -183,43 +187,51 @@ export default class ApiResponse extends LitElement {
                   DOMPurify.sanitize(marked(this.responses[status]?.description || ''), { USE_PROFILES: { html: true } })
                 )}</span
               >
-              ${this.headersForEachRespStatus[status] && this.headersForEachRespStatus[status]?.length > 0
-                ? html`${this.responseHeaderListTemplate(this.headersForEachRespStatus[status])}`
-                : ''}
+              ${
+                this.headersForEachRespStatus[status] && this.headersForEachRespStatus[status]?.length > 0
+                  ? html`${this.responseHeaderListTemplate(this.headersForEachRespStatus[status])}`
+                  : ''
+              }
             </div>
-            ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 0
-              ? ''
-              : html`<div part="tab-panel" class="tab-panel col">
-                  <div
-                    part="tab-btn-row"
-                    class="tab-buttons row"
-                    @click="${(e) => {
-                      if (e.target.tagName.toLowerCase() === 'button') {
-                        this.activeSchemaTab = e.target.dataset.tab;
+            ${
+              Object.keys(this.mimeResponsesForEachStatus[status]).length === 0
+                ? ''
+                : html`<div part="tab-panel" class="tab-panel col">
+                    <div
+                      part="tab-btn-row"
+                      class="tab-buttons row"
+                      @click="${(e) => {
+                        if (e.target.tagName.toLowerCase() === 'button') {
+                          this.activeSchemaTab = e.target.dataset.tab;
+                        }
+                      }}"
+                    >
+                      <button part="tab-btn" class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab="example">
+                        EXAMPLE
+                      </button>
+                      <button part="tab-btn" class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab="schema">
+                        SCHEMA
+                      </button>
+                      <div style="flex:1"></div>
+                      ${
+                        Object.keys(this.mimeResponsesForEachStatus[status]).length === 1
+                          ? html`<span class="small-font-size gray-text" style="align-self:center; margin-top:8px;">
+                              ${Object.keys(this.mimeResponsesForEachStatus[status])[0]}
+                            </span>`
+                          : html`${this.mimeTypeDropdownTemplate(Object.keys(this.mimeResponsesForEachStatus[status]))}`
                       }
-                    }}"
-                  >
-                    <button part="tab-btn" class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab="example">
-                      EXAMPLE
-                    </button>
-                    <button part="tab-btn" class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab="schema">
-                      SCHEMA
-                    </button>
-                    <div style="flex:1"></div>
-                    ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1
-                      ? html`<span class="small-font-size gray-text" style="align-self:center; margin-top:8px;">
-                          ${Object.keys(this.mimeResponsesForEachStatus[status])[0]}
-                        </span>`
-                      : html`${this.mimeTypeDropdownTemplate(Object.keys(this.mimeResponsesForEachStatus[status]))}`}
-                  </div>
-                  ${this.activeSchemaTab === 'example'
-                    ? html`<div part="tab-content" class="tab-content col" style="flex:1;">
-                        ${this.mimeExampleTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
-                      </div>`
-                    : html`<div part="tab-content" class="tab-content col" style="flex:1;">
-                        ${this.mimeSchemaTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
-                      </div>`}
-                </div> `}
+                    </div>
+                    ${
+                      this.activeSchemaTab === 'example'
+                        ? html`<div part="tab-content" class="tab-content col" style="flex:1;">
+                            ${this.mimeExampleTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
+                          </div>`
+                        : html`<div part="tab-content" class="tab-content col" style="flex:1;">
+                            ${this.mimeSchemaTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
+                          </div>`
+                    }
+                  </div> `
+            }
           </div>`
       )}
     `;
@@ -288,79 +300,95 @@ export default class ApiResponse extends LitElement {
           style="color:var(--red)"
           class="${this.renderStyle === 'read' ? 'read example-panel border pad-8-16' : 'example-panel border-top'}"
         >
- No example provided </pre
-        >
+ No example provided </pre>
       `;
     }
     return html`
-      ${mimeRespDetails.examples.length === 1
-        ? html` ${mimeRespDetails.examples[0].exampleFormat === 'json'
-            ? html` ${mimeRespDetails.examples[0].exampleSummary && mimeRespDetails.examples[0].exampleSummary.length > 80
-                  ? html`<div style="padding: 4px 0">${mimeRespDetails.examples[0].exampleSummary}</div>`
-                  : ''}
-                ${mimeRespDetails.examples[0].exampleDescription
-                  ? html`<div class="m-markdown-small" style="padding: 4px 0">
-                      ${unsafeHTML(DOMPurify.sanitize(marked(mimeRespDetails.examples[0].exampleDescription || '')), {
-                        USE_PROFILES: { html: true },
-                      })}
-                    </div>`
-                  : ''}
-                <json-tree
-                  render-style="${this.renderStyle}"
-                  .data="${mimeRespDetails.examples[0].exampleValue}"
-                  class="example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}"
-                  exportparts="btn:btn, btn-fill:btn-fill, btn-copy:btn-copy"
-                ></json-tree>`
-            : html`
-                ${mimeRespDetails.examples[0].exampleSummary && mimeRespDetails.examples[0].exampleSummary.length > 80
-                  ? html`<div style="padding: 4px 0">${mimeRespDetails.examples[0].exampleSummary}</div>`
-                  : ''}
-                ${mimeRespDetails.examples[0].exampleDescription
-                  ? html`<div class="m-markdown-small" style="padding: 4px 0">
-                      ${unsafeHTML(
-                        DOMPurify.sanitize(marked(mimeRespDetails.examples[0].exampleDescription || ''), { USE_PROFILES: { html: true } })
-                      )}
-                    </div>`
-                  : ''}
-                <pre class="example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}">
-${mimeRespDetails.examples[0].exampleValue}</pre
-                >
-              `}`
-        : html`
-            <span class="example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}">
-              <select aria-label="response examples" style="min-width:100px; max-width:100%" @change="${(e) => this.onSelectExample(e)}">
+      ${
+        mimeRespDetails.examples.length === 1
+          ? html` ${
+              mimeRespDetails.examples[0].exampleFormat === 'json'
+                ? html` ${
+                      mimeRespDetails.examples[0].exampleSummary && mimeRespDetails.examples[0].exampleSummary.length > 80
+                        ? html`<div style="padding: 4px 0">${mimeRespDetails.examples[0].exampleSummary}</div>`
+                        : ''
+                    }
+                    ${
+                      mimeRespDetails.examples[0].exampleDescription
+                        ? html`<div class="m-markdown-small" style="padding: 4px 0">
+                            ${unsafeHTML(DOMPurify.sanitize(marked(mimeRespDetails.examples[0].exampleDescription || '')), {
+                              USE_PROFILES: { html: true },
+                            })}
+                          </div>`
+                        : ''
+                    }
+                    <json-tree
+                      render-style="${this.renderStyle}"
+                      .data="${mimeRespDetails.examples[0].exampleValue}"
+                      class="example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}"
+                      exportparts="btn:btn, btn-fill:btn-fill, btn-copy:btn-copy"
+                    ></json-tree>`
+                : html`
+                    ${
+                      mimeRespDetails.examples[0].exampleSummary && mimeRespDetails.examples[0].exampleSummary.length > 80
+                        ? html`<div style="padding: 4px 0">${mimeRespDetails.examples[0].exampleSummary}</div>`
+                        : ''
+                    }
+                    ${
+                      mimeRespDetails.examples[0].exampleDescription
+                        ? html`<div class="m-markdown-small" style="padding: 4px 0">
+                            ${unsafeHTML(
+                              DOMPurify.sanitize(marked(mimeRespDetails.examples[0].exampleDescription || ''), {
+                                USE_PROFILES: { html: true },
+                              })
+                            )}
+                          </div>`
+                        : ''
+                    }
+                    <pre class="example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}">
+${mimeRespDetails.examples[0].exampleValue}</pre>
+                  `
+            }`
+          : html`
+              <span class="example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}">
+                <select aria-label="response examples" style="min-width:100px; max-width:100%" @change="${(e) => this.onSelectExample(e)}">
+                  ${mimeRespDetails.examples.map(
+                    (v) =>
+                      html`<option value="${v.exampleId}" ?selected=${v.exampleId === mimeRespDetails.selectedExample}>
+                        ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary}
+                      </option>`
+                  )}
+                </select>
                 ${mimeRespDetails.examples.map(
-                  (v) =>
-                    html`<option value="${v.exampleId}" ?selected=${v.exampleId === mimeRespDetails.selectedExample}>
-                      ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary}
-                    </option>`
+                  (v) => html`
+                    <div
+                      class="example"
+                      data-example="${v.exampleId}"
+                      style="display: ${v.exampleId === mimeRespDetails.selectedExample ? 'block' : 'none'}"
+                    >
+                      ${v.exampleSummary && v.exampleSummary.length > 80 ? html`<div style="padding: 4px 0">${v.exampleSummary}</div>` : ''}
+                      ${
+                        v.exampleDescription
+                          ? html`<div class="m-markdown-small" style="padding: 4px 0">
+                              ${unsafeHTML(DOMPurify.sanitize(marked(v.exampleDescription || ''), { USE_PROFILES: { html: true } }))}
+                            </div>`
+                          : ''
+                      }
+                      ${
+                        v.exampleFormat === 'json'
+                          ? html`<json-tree
+                              render-style="${this.renderStyle}"
+                              .data="${v.exampleValue}"
+                              exportparts="btn:btn, btn-fill:btn-fill, btn-copy:btn-copy"
+                            ></json-tree>`
+                          : html`<pre>${v.exampleValue}</pre>`
+                      }
+                    </div>
+                  `
                 )}
-              </select>
-              ${mimeRespDetails.examples.map(
-                (v) => html`
-                  <div
-                    class="example"
-                    data-example="${v.exampleId}"
-                    style="display: ${v.exampleId === mimeRespDetails.selectedExample ? 'block' : 'none'}"
-                  >
-                    ${v.exampleSummary && v.exampleSummary.length > 80 ? html`<div style="padding: 4px 0">${v.exampleSummary}</div>` : ''}
-                    ${v.exampleDescription
-                      ? html`<div class="m-markdown-small" style="padding: 4px 0">
-                          ${unsafeHTML(DOMPurify.sanitize(marked(v.exampleDescription || ''), { USE_PROFILES: { html: true } }))}
-                        </div>`
-                      : ''}
-                    ${v.exampleFormat === 'json'
-                      ? html`<json-tree
-                          render-style="${this.renderStyle}"
-                          .data="${v.exampleValue}"
-                          exportparts="btn:btn, btn-fill:btn-fill, btn-copy:btn-copy"
-                        ></json-tree>`
-                      : html`<pre>${v.exampleValue}</pre>`}
-                  </div>
-                `
-              )}
-            </span>
-          `}
+              </span>
+            `
+      }
     `;
   }
 
@@ -370,9 +398,21 @@ ${mimeRespDetails.examples[0].exampleValue}</pre
         <pre style="color:var(--red)" class="${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top'}"> Schema not found</pre>
       `;
     }
-    return html` ${this.schemaStyle === 'table'
-      ? html`
-          <schema-table
+    return html` ${
+      this.schemaStyle === 'table'
+        ? html`
+            <schema-table
+              .data="${mimeRespDetails.schemaTree}"
+              schema-expand-level="${this.schemaExpandLevel}"
+              schema-description-expanded="${this.schemaDescriptionExpanded}"
+              allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
+              schema-hide-read-only="${this.schemaHideReadOnly}"
+              schema-hide-write-only="${this.schemaHideWriteOnly}"
+              exportparts="schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+            >
+            </schema-table>
+          `
+        : html`<schema-tree
             .data="${mimeRespDetails.schemaTree}"
             schema-expand-level="${this.schemaExpandLevel}"
             schema-description-expanded="${this.schemaDescriptionExpanded}"
@@ -381,18 +421,8 @@ ${mimeRespDetails.examples[0].exampleValue}</pre
             schema-hide-write-only="${this.schemaHideWriteOnly}"
             exportparts="schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
           >
-          </schema-table>
-        `
-      : html`<schema-tree
-          .data="${mimeRespDetails.schemaTree}"
-          schema-expand-level="${this.schemaExpandLevel}"
-          schema-description-expanded="${this.schemaDescriptionExpanded}"
-          allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
-          schema-hide-read-only="${this.schemaHideReadOnly}"
-          schema-hide-write-only="${this.schemaHideWriteOnly}"
-          exportparts="schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
-        >
-        </schema-tree>`}`;
+          </schema-tree>`
+    }`;
   }
 }
 

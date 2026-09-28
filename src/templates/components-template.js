@@ -13,27 +13,29 @@ function schemaBodyTemplate(sComponent) {
       <div style="font-weight:bold">
         ${sComponent.name} <span style="color:var(--light-fg); font-size:var(--font-size-small); font-weight:400;"> Schema </span>
       </div>
-      ${this.schemaStyle === 'table'
-        ? html` <schema-table
-            .data="${schemaInObjectNotation(sComponent.component, {})}"
-            schema-expand-level="${this.schemaExpandLevel}"
-            schema-description-expanded="${this.schemaDescriptionExpanded}"
-            allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
-            schema-hide-read-only="false"
-            schema-hide-write-only="${this.schemaHideWriteOnly}"
-            exportparts="schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
-          >
-          </schema-table>`
-        : html`<schema-tree
-            .data="${schemaInObjectNotation(sComponent.component, {})}"
-            schema-expand-level="${this.schemaExpandLevel}"
-            schema-description-expanded="${this.schemaDescriptionExpanded}"
-            allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
-            schema-hide-read-only="false"
-            schema-hide-write-only="${this.schemaHideWriteOnly}"
-            exportparts="schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
-          >
-          </schema-tree>`}
+      ${
+        this.schemaStyle === 'table'
+          ? html` <schema-table
+              .data="${schemaInObjectNotation(sComponent.component, {})}"
+              schema-expand-level="${this.schemaExpandLevel}"
+              schema-description-expanded="${this.schemaDescriptionExpanded}"
+              allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
+              schema-hide-read-only="false"
+              schema-hide-write-only="${this.schemaHideWriteOnly}"
+              exportparts="schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+            >
+            </schema-table>`
+          : html`<schema-tree
+              .data="${schemaInObjectNotation(sComponent.component, {})}"
+              schema-expand-level="${this.schemaExpandLevel}"
+              schema-description-expanded="${this.schemaDescriptionExpanded}"
+              allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
+              schema-hide-read-only="false"
+              schema-hide-write-only="${this.schemaHideWriteOnly}"
+              exportparts="schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+            >
+            </schema-tree>`
+      }
     </div>`;
 }
 
@@ -49,11 +51,13 @@ function componentBodyTemplate(sComponent, componentType) {
           ${sComponent.name}
           <span style="color:var(--light-fg); font-size:var(--font-size-small); font-weight:400"> ${componentType} </span>
         </div>
-        ${sComponent.component
-          ? html`<div class="mono-font regular-font-size" style="padding: 8px 0; color:var(--fg2)">
-              <json-tree class="border tree" render-style="${this.renderStyle}" .data="${sComponent.component}"> </json-tree>
-            </div>`
-          : ''}
+        ${
+          sComponent.component
+            ? html`<div class="mono-font regular-font-size" style="padding: 8px 0; color:var(--fg2)">
+                <json-tree class="border tree" render-style="${this.renderStyle}" .data="${sComponent.component}"> </json-tree>
+              </div>`
+            : ''
+        }
       `}
     </div>
   `;

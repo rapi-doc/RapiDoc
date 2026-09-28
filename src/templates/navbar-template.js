@@ -68,57 +68,64 @@ export default function navbarTemplate() {
     <button id="nav-bar-btn" part="btn-navbar" class="btn" @click="${this.onOpenNavBarToggle}">☰</button>
     <nav id="nav-bar" class="nav-bar ${this.renderStyle}" part="section-navbar">
       <slot name="nav-logo" class="logo"></slot>
-      ${this.allowSearch === 'false' && this.allowAdvancedSearch === 'false'
-        ? ''
-        : html`
-            <div
-              style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 24px 12px 24px; ${this
-                .allowAdvancedSearch === 'false'
-                ? 'border-bottom: 1px solid var(--nav-hover-bg-color)'
-                : ''}"
-              part="section-navbar-search"
-            >
-              ${this.allowSearch === 'false'
-                ? ''
-                : html`
-                    <div style="display:flex; flex:1; line-height:22px;">
-                      <input
-                        id="nav-bar-search"
-                        part="textbox textbox-nav-filter"
-                        style="width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background:var(--nav-hover-bg-color)"
-                        type="text"
-                        placeholder="Filter"
-                        @change="${this.onSearchChange}"
-                        spellcheck="false"
-                      />
-                      <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div>
-                    </div>
-                    ${this.searchVal
-                      ? html` <button
-                          @click="${this.onClearSearch}"
-                          class="m-btn thin-border"
-                          style="margin-left:5px; color:var(--nav-text-color); width:75px; padding:6px 8px;"
-                          part="btn btn-outline btn-clear-filter"
+      ${
+        this.allowSearch === 'false' && this.allowAdvancedSearch === 'false'
+          ? ''
+          : html`
+              <div
+                style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 24px 12px 24px; ${
+                  this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''
+                }"
+                part="section-navbar-search"
+              >
+                ${
+                  this.allowSearch === 'false'
+                    ? ''
+                    : html`
+                        <div style="display:flex; flex:1; line-height:22px;">
+                          <input
+                            id="nav-bar-search"
+                            part="textbox textbox-nav-filter"
+                            style="width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background:var(--nav-hover-bg-color)"
+                            type="text"
+                            placeholder="Filter"
+                            @change="${this.onSearchChange}"
+                            spellcheck="false"
+                          />
+                          <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div>
+                        </div>
+                        ${
+                          this.searchVal
+                            ? html` <button
+                                @click="${this.onClearSearch}"
+                                class="m-btn thin-border"
+                                style="margin-left:5px; color:var(--nav-text-color); width:75px; padding:6px 8px;"
+                                part="btn btn-outline btn-clear-filter"
+                              >
+                                CLEAR
+                              </button>`
+                            : ''
+                        }
+                      `
+                }
+                ${
+                  this.allowAdvancedSearch === 'false' || this.searchVal
+                    ? ''
+                    : html`
+                        <button
+                          id="advanced-search-btn"
+                          class="m-btn primary"
+                          part="btn btn-fill btn-search"
+                          style="margin-left:5px; padding:6px 8px; width:75px"
+                          @click="${this.onShowAdvancedSearchClicked}"
                         >
-                          CLEAR
-                        </button>`
-                      : ''}
-                  `}
-              ${this.allowAdvancedSearch === 'false' || this.searchVal
-                ? ''
-                : html`
-                    <button
-                      id="advanced-search-btn"
-                      class="m-btn primary"
-                      part="btn btn-fill btn-search"
-                      style="margin-left:5px; padding:6px 8px; width:75px"
-                      @click="${this.onShowAdvancedSearchClicked}"
-                    >
-                      SEARCH
-                    </button>
-                  `}
-            </div>
-          `}
+                          SEARCH
+                        </button>
+                      `
+                }
+              </div>
+            `
+      }
       ${html`<nav
         class="nav-scroll"
         tabindex="-1"
@@ -126,74 +133,88 @@ export default function navbarTemplate() {
         @click="${(e) => navBarClickAndEnterHandler.call(this, e)}"
         @keyup="${(e) => navBarClickAndEnterHandler.call(this, e)}"
       >
-        ${this.showInfo === 'false' || !this.resolvedSpec.info
-          ? ''
-          : html`
-              ${this.infoDescriptionHeadingsInNavBar === 'true'
-                ? html`
-                    ${this.resolvedSpec.infoDescriptionHeaders.length > 0
-                      ? html`<div
-                          class="nav-bar-info ${this.navActiveItemMarker}"
-                          id="link-overview"
-                          data-content-id="overview"
-                          data-action="navigate"
-                          tabindex="0"
-                          part="section-navbar-item section-navbar-overview"
-                        >
-                          ${this.resolvedSpec.info?.title?.trim() || 'Overview'}
-                        </div>`
-                      : ''}
-                    <div class="overview-headers">
-                      ${this.resolvedSpec.infoDescriptionHeaders.map((header) => {
-                        const headerElId = slugger.slug(header.text);
-                        return html`<div
-                          class="nav-bar-h${header.depth} ${this.navActiveItemMarker}"
-                          id="link-overview--${headerElId}"
-                          data-action="navigate"
-                          data-content-id="overview--${headerElId}"
-                        >
-                          ${header.text}
-                        </div>`;
-                      })}
-                    </div>
-                    ${this.resolvedSpec.infoDescriptionHeaders.length > 0
-                      ? html`<hr style="border-top: 1px solid var(--nav-hover-bg-color); border-width:1px 0 0 0; margin: 15px 0 0 0" />`
-                      : ''}
-                  `
-                : html`<div
-                    class="nav-bar-info ${this.navActiveItemMarker}"
-                    id="link-overview"
-                    data-action="navigate"
-                    data-content-id="overview"
-                    tabindex="0"
-                  >
-                    ${this.resolvedSpec.info?.title?.trim() || 'Overview'}
-                  </div>`}
-            `}
-        ${this.allowServerSelection === 'false'
-          ? ''
-          : html`<div
-              class="nav-bar-info ${this.navActiveItemMarker}"
-              id="link-servers"
-              data-action="navigate"
-              data-content-id="servers"
-              tabindex="0"
-              part="section-navbar-item section-navbar-servers"
-            >
-              API Servers
-            </div>`}
-        ${this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes
-          ? ''
-          : html`<div
-              class="nav-bar-info ${this.navActiveItemMarker}"
-              id="link-auth"
-              data-action="navigate"
-              data-content-id="auth"
-              tabindex="0"
-              part="section-navbar-item section-navbar-auth"
-            >
-              Authentication
-            </div>`}
+        ${
+          this.showInfo === 'false' || !this.resolvedSpec.info
+            ? ''
+            : html`
+                ${
+                  this.infoDescriptionHeadingsInNavBar === 'true'
+                    ? html`
+                        ${
+                          this.resolvedSpec.infoDescriptionHeaders.length > 0
+                            ? html`<div
+                                class="nav-bar-info ${this.navActiveItemMarker}"
+                                id="link-overview"
+                                data-content-id="overview"
+                                data-action="navigate"
+                                tabindex="0"
+                                part="section-navbar-item section-navbar-overview"
+                              >
+                                ${this.resolvedSpec.info?.title?.trim() || 'Overview'}
+                              </div>`
+                            : ''
+                        }
+                        <div class="overview-headers">
+                          ${this.resolvedSpec.infoDescriptionHeaders.map((header) => {
+                            const headerElId = slugger.slug(header.text);
+                            return html`<div
+                              class="nav-bar-h${header.depth} ${this.navActiveItemMarker}"
+                              id="link-overview--${headerElId}"
+                              data-action="navigate"
+                              data-content-id="overview--${headerElId}"
+                            >
+                              ${header.text}
+                            </div>`;
+                          })}
+                        </div>
+                        ${
+                          this.resolvedSpec.infoDescriptionHeaders.length > 0
+                            ? html`<hr
+                                style="border-top: 1px solid var(--nav-hover-bg-color); border-width:1px 0 0 0; margin: 15px 0 0 0"
+                              />`
+                            : ''
+                        }
+                      `
+                    : html`<div
+                        class="nav-bar-info ${this.navActiveItemMarker}"
+                        id="link-overview"
+                        data-action="navigate"
+                        data-content-id="overview"
+                        tabindex="0"
+                      >
+                        ${this.resolvedSpec.info?.title?.trim() || 'Overview'}
+                      </div>`
+                }
+              `
+        }
+        ${
+          this.allowServerSelection === 'false'
+            ? ''
+            : html`<div
+                class="nav-bar-info ${this.navActiveItemMarker}"
+                id="link-servers"
+                data-action="navigate"
+                data-content-id="servers"
+                tabindex="0"
+                part="section-navbar-item section-navbar-servers"
+              >
+                API Servers
+              </div>`
+        }
+        ${
+          this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes
+            ? ''
+            : html`<div
+                class="nav-bar-info ${this.navActiveItemMarker}"
+                id="link-auth"
+                data-action="navigate"
+                data-content-id="auth"
+                tabindex="0"
+                part="section-navbar-item section-navbar-auth"
+              >
+                Authentication
+              </div>`
+        }
 
         <div
           id="link-operations-top"
@@ -203,10 +224,12 @@ export default function navbarTemplate() {
           part="section-navbar-item section-navbar-operations-top"
         >
           <div style="font-size:16px; display:flex; margin-left:10px;">
-            ${this.renderStyle === 'focused'
-              ? html`<div class="nav-bar-expand-all" data-action="expand-all" tabindex="0" title="Expand all">▸</div>
-                  <div class="nav-bar-collapse-all" data-action="collapse-all" tabindex="0" title="Collapse all">▸</div>`
-              : ''}
+            ${
+              this.renderStyle === 'focused'
+                ? html`<div class="nav-bar-expand-all" data-action="expand-all" tabindex="0" title="Expand all">▸</div>
+                    <div class="nav-bar-collapse-all" data-action="collapse-all" tabindex="0" title="Collapse all">▸</div>`
+                : ''
+            }
           </div>
           <div class="nav-bar-section-title">OPERATIONS</div>
         </div>
@@ -219,45 +242,55 @@ export default function navbarTemplate() {
               html` <div
                 class="nav-bar-tag-and-paths ${this.renderStyle === 'read' ? 'expanded' : tag.expanded ? 'expanded' : 'collapsed'}"
               >
-                ${tag.name === 'General ⦂'
-                  ? html`<hr style="border:none; border-top: 1px dotted var(--nav-text-color); opacity:0.3; margin:-1px 0 0 0;" />`
-                  : html`
-                      <div
-                        class="nav-bar-tag ${this.navActiveItemMarker}"
-                        part="section-navbar-item section-navbar-tag"
-                        id="link-${tag.elementId}"
-                        data-action="${(this.renderStyle === 'read' ? 'navigate' : this.onNavTagClick === 'show-description')
-                          ? 'navigate'
-                          : 'expand-collapse-tag'}"
-                        data-content-id="${(this.renderStyle === 'read' ? `${tag.elementId}` : this.onNavTagClick === 'show-description')
-                          ? `${tag.elementId}`
-                          : ''}"
-                        data-first-path-id="${tag.firstPathId}"
-                        tabindex="0"
-                      >
-                        <div style="pointer-events:none;">${tag.displayName || tag.name}</div>
-                        <div class="nav-bar-tag-icon" tabindex="0" data-action="expand-collapse-tag"></div>
-                      </div>
-                    `}
-                ${this.infoDescriptionHeadingsInNavBar === 'true'
-                  ? html` ${this.renderStyle === 'focused' && this.onNavTagClick === 'expand-collapse'
-                      ? ''
-                      : html` <div class="tag-headers">
-                          ${tag.headers.map(
-                            (header) =>
-                              html` <div
-                                class="nav-bar-h${header.depth} ${this.navActiveItemMarker}"
-                                part="section-navbar-item section-navbar-h${header.depth}"
-                                id="link-${tag.elementId}--${slugger.slug(header.text)}"
-                                data-action="navigate"
-                                data-content-id="${tag.elementId}--${slugger.slug(header.text)}"
-                                tabindex="0"
-                              >
-                                ${header.text}
-                              </div>`
-                          )}
-                        </div>`}`
-                  : ''}
+                ${
+                  tag.name === 'General ⦂'
+                    ? html`<hr style="border:none; border-top: 1px dotted var(--nav-text-color); opacity:0.3; margin:-1px 0 0 0;" />`
+                    : html`
+                        <div
+                          class="nav-bar-tag ${this.navActiveItemMarker}"
+                          part="section-navbar-item section-navbar-tag"
+                          id="link-${tag.elementId}"
+                          data-action="${
+                            (this.renderStyle === 'read' ? 'navigate' : this.onNavTagClick === 'show-description')
+                              ? 'navigate'
+                              : 'expand-collapse-tag'
+                          }"
+                          data-content-id="${
+                            (this.renderStyle === 'read' ? `${tag.elementId}` : this.onNavTagClick === 'show-description')
+                              ? `${tag.elementId}`
+                              : ''
+                          }"
+                          data-first-path-id="${tag.firstPathId}"
+                          tabindex="0"
+                        >
+                          <div style="pointer-events:none;">${tag.displayName || tag.name}</div>
+                          <div class="nav-bar-tag-icon" tabindex="0" data-action="expand-collapse-tag"></div>
+                        </div>
+                      `
+                }
+                ${
+                  this.infoDescriptionHeadingsInNavBar === 'true'
+                    ? html` ${
+                        this.renderStyle === 'focused' && this.onNavTagClick === 'expand-collapse'
+                          ? ''
+                          : html` <div class="tag-headers">
+                              ${tag.headers.map(
+                                (header) =>
+                                  html` <div
+                                    class="nav-bar-h${header.depth} ${this.navActiveItemMarker}"
+                                    part="section-navbar-item section-navbar-h${header.depth}"
+                                    id="link-${tag.elementId}--${slugger.slug(header.text)}"
+                                    data-action="navigate"
+                                    data-content-id="${tag.elementId}--${slugger.slug(header.text)}"
+                                    tabindex="0"
+                                  >
+                                    ${header.text}
+                                  </div>`
+                              )}
+                            </div>`
+                      }`
+                    : ''
+                }
                 <div class="nav-bar-paths-under-tag">
                   <!-- Paths in each tag (endpoints) -->
                   ${tag.paths
@@ -279,19 +312,25 @@ export default function navbarTemplate() {
                         >
                           <span style="display:flex; pointer-events: none; align-items:start; ${p.deprecated ? 'filter:opacity(0.5)' : ''}">
                             ${html`<span class="nav-method ${this.showMethodInNavBar} ${p.method}" style="pointer-events: none;">
-                              ${this.showMethodInNavBar === 'as-colored-block'
-                                ? p.method.substring(0, 3).toUpperCase()
-                                : p.method.toUpperCase()}
+                              ${
+                                this.showMethodInNavBar === 'as-colored-block'
+                                  ? p.method.substring(0, 3).toUpperCase()
+                                  : p.method.toUpperCase()
+                              }
                             </span>`}
-                            ${p.isWebhook
-                              ? html`<span
-                                  style="font-weight:bold; pointer-events: none; margin-right:8px; font-size: calc(var(--font-size-small) - 2px)"
-                                  >WEBHOOK</span
-                                >`
-                              : ''}
-                            ${this.usePathInNavBar === 'true'
-                              ? html`<span style="pointer-events: none;" class="mono-font">${p.path}</span>`
-                              : p.summary || p.shortSummary}
+                            ${
+                              p.isWebhook
+                                ? html`<span
+                                    style="font-weight:bold; pointer-events: none; margin-right:8px; font-size: calc(var(--font-size-small) - 2px)"
+                                    >WEBHOOK</span
+                                  >`
+                                : ''
+                            }
+                            ${
+                              this.usePathInNavBar === 'true'
+                                ? html`<span style="pointer-events: none;" class="mono-font">${p.path}</span>`
+                                : p.summary || p.shortSummary
+                            }
                           </span>
                         </div>`
                     )}
@@ -300,33 +339,35 @@ export default function navbarTemplate() {
           )}
 
         <!-- COMPONENTS -->
-        ${this.resolvedSpec.components && this.showComponents === 'true' && this.renderStyle === 'focused'
-          ? html` <div id="link-components" class="nav-bar-section components">
-                <div></div>
-                <div class="nav-bar-section-title">COMPONENTS</div>
-              </div>
-              ${this.resolvedSpec.components.map((component) =>
-                component.subComponents.length
-                  ? html` <div
-                        class="nav-bar-tag"
-                        part="section-navbar-item section-navbar-tag"
-                        data-action="navigate"
-                        data-content-id="cmp--${component.name.toLowerCase()}"
-                        id="link-cmp--${component.name.toLowerCase()}"
-                      >
-                        ${component.name}
-                      </div>
-                      ${component.subComponents
-                        .filter((p) => p.expanded !== false)
-                        .map(
-                          (p) =>
-                            html` <div class="nav-bar-path" data-action="navigate" data-content-id="cmp--${p.id}" id="link-cmp--${p.id}">
-                              <span style="pointer-events: none;"> ${p.name} </span>
-                            </div>`
-                        )}`
-                  : ''
-              )}`
-          : ''}
+        ${
+          this.resolvedSpec.components && this.showComponents === 'true' && this.renderStyle === 'focused'
+            ? html` <div id="link-components" class="nav-bar-section components">
+                  <div></div>
+                  <div class="nav-bar-section-title">COMPONENTS</div>
+                </div>
+                ${this.resolvedSpec.components.map((component) =>
+                  component.subComponents.length
+                    ? html` <div
+                          class="nav-bar-tag"
+                          part="section-navbar-item section-navbar-tag"
+                          data-action="navigate"
+                          data-content-id="cmp--${component.name.toLowerCase()}"
+                          id="link-cmp--${component.name.toLowerCase()}"
+                        >
+                          ${component.name}
+                        </div>
+                        ${component.subComponents
+                          .filter((p) => p.expanded !== false)
+                          .map(
+                            (p) =>
+                              html` <div class="nav-bar-path" data-action="navigate" data-content-id="cmp--${p.id}" id="link-cmp--${p.id}">
+                                <span style="pointer-events: none;"> ${p.name} </span>
+                              </div>`
+                          )}`
+                    : ''
+                )}`
+            : ''
+        }
       </nav>`}
     </nav>
   `;

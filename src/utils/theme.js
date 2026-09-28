@@ -203,11 +203,13 @@ export default function setTheme(baseTheme, theme = {}) {
       --font-mono: ${this.monoFont || 'Monaco, "Andale Mono", "Roboto Mono", Consolas, monospace'};
       --font-regular: ${this.regularFont || '"Open Sans", Avenir, "Segoe UI", Arial, sans-serif'};
       --scroll-bar-width: 8px;
-      --nav-item-padding: ${this.navItemSpacing === 'relaxed'
-        ? '10px 16px 10px 10px'
-        : this.navItemSpacing === 'compact'
-          ? '5px 16px 5px 10px'
-          : '7px 16px 7px 10px'};
+      --nav-item-padding: ${
+        this.navItemSpacing === 'relaxed'
+          ? '10px 16px 10px 10px'
+          : this.navItemSpacing === 'compact'
+            ? '5px 16px 5px 10px'
+            : '7px 16px 7px 10px'
+      };
 
       --resp-area-height: ${this.responseAreaHeight};
       --font-size-small: ${this.fontSize === 'default' ? '12px' : this.fontSize === 'large' ? '13px' : '14px'};

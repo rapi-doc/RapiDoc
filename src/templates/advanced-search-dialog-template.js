@@ -75,9 +75,9 @@ export default function advancedSearchDialogTemplate() {
         (path) => html`
           <div
             class="mono-font small-font-size hover-bg"
-            style="padding: 5px; cursor: pointer; border-bottom: 1px solid var(--light-border-color); ${path.deprecated
-              ? 'filter:opacity(0.5);'
-              : ''}"
+            style="padding: 5px; cursor: pointer; border-bottom: 1px solid var(--light-border-color); ${
+              path.deprecated ? 'filter:opacity(0.5);' : ''
+            }"
             data-content-id="${path.elementId}"
             tabindex="0"
             @click="${(e) => {

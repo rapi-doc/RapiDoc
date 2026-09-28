@@ -66,94 +66,110 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
       part="section-operation ${path.elementId}"
       id="${path.elementId}"
     >
-      ${this.renderStyle === 'focused' && tagName !== 'General ⦂'
-        ? html`
-            <div class="tag-container" part="section-operation-tag">
-              <span class="upper" style="font-weight:bold; font-size:18px;"> ${tagName} </span>
-              ${tagDescription
-                ? html` <svg
-                      class="tag-icon collapsed"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      stroke-width="2"
-                      fill="none"
-                      style="stroke:var(--primary-color); vertical-align:top; cursor:pointer"
-                      @click="${(e) => {
-                        expandCollapseTagDescription.call(this, e);
-                      }}"
-                    >
-                      <path d="M12 20h-6a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h8"></path>
-                      <path d="M18 4v17"></path>
-                      <path d="M15 18l3 3l3 -3"></path>
-                    </svg>
-                    <div
-                      class="tag-description collapsed"
-                      style="max-height:0px; overflow:hidden; margin-top:16px; border:1px solid var(--border-color)"
-                    >
-                      <div class="m-markdown" style="padding:8px">
-                        ${unsafeHTML(DOMPurify.sanitize(marked(tagDescription), { USE_PROFILES: { html: true } }))}
-                      </div>
-                    </div>`
-                : ''}
-            </div>
-          `
-        : ''}
-      ${path.deprecated ? html`<div class="bold-text red-text">DEPRECATED</div>` : ''}
-      ${html` ${path.xBadges && path.xBadges?.length > 0
+      ${
+        this.renderStyle === 'focused' && tagName !== 'General ⦂'
           ? html`
-              <div style="display:flex; flex-wrap:wrap; margin-bottom: -24px; font-size: var(--font-size-small);">
-                ${path.xBadges.map((v) =>
-                  v.color === 'none'
-                    ? ''
-                    : html`<span
-                        style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px; background: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})"
-                        >${v.label}</span
-                      >`
-                )}
+              <div class="tag-container" part="section-operation-tag">
+                <span class="upper" style="font-weight:bold; font-size:18px;"> ${tagName} </span>
+                ${
+                  tagDescription
+                    ? html` <svg
+                          class="tag-icon collapsed"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          stroke-width="2"
+                          fill="none"
+                          style="stroke:var(--primary-color); vertical-align:top; cursor:pointer"
+                          @click="${(e) => {
+                            expandCollapseTagDescription.call(this, e);
+                          }}"
+                        >
+                          <path d="M12 20h-6a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h8"></path>
+                          <path d="M18 4v17"></path>
+                          <path d="M15 18l3 3l3 -3"></path>
+                        </svg>
+                        <div
+                          class="tag-description collapsed"
+                          style="max-height:0px; overflow:hidden; margin-top:16px; border:1px solid var(--border-color)"
+                        >
+                          <div class="m-markdown" style="padding:8px">
+                            ${unsafeHTML(DOMPurify.sanitize(marked(tagDescription), { USE_PROFILES: { html: true } }))}
+                          </div>
+                        </div>`
+                    : ''
+                }
               </div>
             `
-          : ''}
+          : ''
+      }
+      ${path.deprecated ? html`<div class="bold-text red-text">DEPRECATED</div>` : ''}
+      ${html` ${
+          path.xBadges && path.xBadges?.length > 0
+            ? html`
+                <div style="display:flex; flex-wrap:wrap; margin-bottom: -24px; font-size: var(--font-size-small);">
+                  ${path.xBadges.map((v) =>
+                    v.color === 'none'
+                      ? ''
+                      : html`<span
+                          style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px; background: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})"
+                          >${v.label}</span
+                        >`
+                  )}
+                </div>
+              `
+            : ''
+        }
         <h2 part="section-operation-summary">${path.shortSummary || `${path.method.toUpperCase()} ${path.path}`}</h2>
-        ${path.isWebhook
-          ? html`<span
-              part="section-operation-webhook"
-              style="color:var(--primary-color); font-weight:bold; font-size: var(--font-size-regular);"
-            >
-              WEBHOOK
-            </span>`
-          : html`
-              <div
-                part="section-operation-webhook-method"
-                class="mono-font regular-font-size"
-                style="text-align:left; direction:ltr; padding: 8px 0; color:var(--fg3)"
+        ${
+          path.isWebhook
+            ? html`<span
+                part="section-operation-webhook"
+                style="color:var(--primary-color); font-weight:bold; font-size: var(--font-size-regular);"
               >
-                <span part="label-operation-method" class="regular-font upper method-fg bold-text ${path.method}">${path.method}</span>
-                <span style="overflow-wrap: break-word;" part="label-operation-path">${path.path}</span>
-              </div>
-            `}
-        <slot name="${path.elementId}"></slot>`}
-      ${path.description
-        ? html`<div class="m-markdown">${unsafeHTML(DOMPurify.sanitize(marked(path.description), { USE_PROFILES: { html: true } }))}</div>`
-        : ''}
-      ${pathSecurityTemplate.call(this, path.security)}
-      ${path.externalDocs?.url || path.externalDocs?.description
-        ? html`<div style="background:var(--bg3); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--border-radius)">
-            <div class="m-markdown">
-              ${unsafeHTML(DOMPurify.sanitize(marked(path.externalDocs?.description || ''), { USE_PROFILES: { html: true } }))}
-            </div>
-            ${path.externalDocs?.url
-              ? html`<a
-                  style="font-family:var(--font-mono); font-size:var(--font-size-small)"
-                  href="${path.externalDocs?.url}"
-                  target="_blank"
+                WEBHOOK
+              </span>`
+            : html`
+                <div
+                  part="section-operation-webhook-method"
+                  class="mono-font regular-font-size"
+                  style="text-align:left; direction:ltr; padding: 8px 0; color:var(--fg3)"
                 >
-                  ${path.externalDocs?.url}
-                  <div style="transform: rotate(270deg) scale(1.5); display: inline-block; margin-left:5px">⇲</div>
-                </a>`
-              : ''}
-          </div>`
-        : ''}
+                  <span part="label-operation-method" class="regular-font upper method-fg bold-text ${path.method}">${path.method}</span>
+                  <span style="overflow-wrap: break-word;" part="label-operation-path">${path.path}</span>
+                </div>
+              `
+        }
+        <slot name="${path.elementId}"></slot>`}
+      ${
+        path.description
+          ? html`<div class="m-markdown">
+              ${unsafeHTML(DOMPurify.sanitize(marked(path.description), { USE_PROFILES: { html: true } }))}
+            </div>`
+          : ''
+      }
+      ${pathSecurityTemplate.call(this, path.security)}
+      ${
+        path.externalDocs?.url || path.externalDocs?.description
+          ? html`<div style="background:var(--bg3); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--border-radius)">
+              <div class="m-markdown">
+                ${unsafeHTML(DOMPurify.sanitize(marked(path.externalDocs?.description || ''), { USE_PROFILES: { html: true } }))}
+              </div>
+              ${
+                path.externalDocs?.url
+                  ? html`<a
+                      style="font-family:var(--font-mono); font-size:var(--font-size-small)"
+                      href="${path.externalDocs?.url}"
+                      target="_blank"
+                    >
+                      ${path.externalDocs?.url}
+                      <div style="transform: rotate(270deg) scale(1.5); display: inline-block; margin-left:5px">⇲</div>
+                    </a>`
+                  : ''
+              }
+            </div>`
+          : ''
+      }
       ${codeSampleTabPanel}
       <div class="expanded-req-resp-container">
         <api-request

@@ -106,23 +106,27 @@ export default class SchemaTree extends LitElement {
     >
       <div class="toolbar">
         <div class="toolbar-item schema-root-type ${this.data?.['::type'] || ''} ">${this.data?.['::type'] || ''}</div>
-        ${this.allowSchemaDescriptionExpandToggle === 'true'
-          ? html` <div style="flex:1"></div>
-              <div part="schema-toolbar-item schema-multiline-toggle" class="toolbar-item schema-multiline-toggle">
-                ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'}
-              </div>`
-          : ''}
+        ${
+          this.allowSchemaDescriptionExpandToggle === 'true'
+            ? html` <div style="flex:1"></div>
+                <div part="schema-toolbar-item schema-multiline-toggle" class="toolbar-item schema-multiline-toggle">
+                  ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'}
+                </div>`
+            : ''
+        }
       </div>
       <span part="schema-description" class="m-markdown">
         ${unsafeHTML(DOMPurify.sanitize(marked(this.data?.['::description'] || ''), { USE_PROFILES: { html: true } }))}</span
       >
-      ${this.data
-        ? html` ${this.generateTree(
-            this.data['::type'] === 'array' ? this.data['::props'] : this.data,
-            this.data['::type'],
-            this.data['::array-type'] || ''
-          )}`
-        : html`<span class="mono-font" style="color:var(--red)"> Schema not found </span>`}
+      ${
+        this.data
+          ? html` ${this.generateTree(
+              this.data['::type'] === 'array' ? this.data['::props'] : this.data,
+              this.data['::type'],
+              this.data['::array-type'] || ''
+            )}`
+          : html`<span class="mono-font" style="color:var(--red)"> Schema not found </span>`
+      }
     </div>`;
   }
 
@@ -161,11 +165,13 @@ export default class SchemaTree extends LitElement {
     if (!data) {
       return html`<div class="null" style="display:inline;">
         <span class="key-label xxx-of-key"> ${key.replace('::OPTION~', '')}</span>
-        ${dataType === 'array'
-          ? html`<span class="mono-font"> [ ] </span>`
-          : dataType === 'object'
-            ? html`<span class="mono-font"> { } </span>`
-            : html`<span class="mono-font"> schema undefined </span>`}
+        ${
+          dataType === 'array'
+            ? html`<span class="mono-font"> [ ] </span>`
+            : dataType === 'object'
+              ? html`<span class="mono-font"> { } </span>`
+              : html`<span class="mono-font"> schema undefined </span>`
+        }
       </div>`;
     }
     if (Object.keys(data).length === 0) {
@@ -226,31 +232,35 @@ export default class SchemaTree extends LitElement {
     }
     if (typeof data === 'object') {
       return html`<div
-          class="tr ${schemaLevel < this.schemaExpandLevel || data['::type']?.startsWith('xxx-of') ? 'expanded' : 'collapsed'} ${data[
-            '::type'
-          ] || 'no-type-info'}${data['::nullable'] ? ' nullable' : ''}"
+          class="tr ${schemaLevel < this.schemaExpandLevel || data['::type']?.startsWith('xxx-of') ? 'expanded' : 'collapsed'} ${
+            data['::type'] || 'no-type-info'
+          }${data['::nullable'] ? ' nullable' : ''}"
           title="${isDeprecated || data['::deprecated'] ? 'Deprecated' : ''}"
         >
           <div class="td key ${isDeprecated || data['::deprecated'] ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
-            ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION')
-              ? html`<span class="key-label xxx-of-key"> ${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>`
-              : keyLabel === '::props' || keyLabel === '::ARRAY~OF'
-                ? ''
-                : schemaLevel > 0
-                  ? html`<span
-                      class="key-label"
-                      title="${readOrWrite === 'readonly' ? 'Read-Only' : readOrWrite === 'writeonly' ? 'Write-Only' : ''}"
-                    >
-                      ${isDeprecated || data['::deprecated']
-                        ? html`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--red); margin-right:-6px">
-                            <path d="M2 2L8 8M2 8L8 2" />
-                          </svg>`
-                        : ''}
-                      ${keyLabel.replace(/\*$/, '')}${keyLabel.endsWith('*')
-                        ? html`<span style="color:var(--red)">*</span>`
-                        : ''}${readOrWrite === 'readonly' ? html` 🆁` : readOrWrite === 'writeonly' ? html` 🆆` : readOrWrite}:
-                    </span>`
-                  : ''}
+            ${
+              data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION')
+                ? html`<span class="key-label xxx-of-key"> ${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>`
+                : keyLabel === '::props' || keyLabel === '::ARRAY~OF'
+                  ? ''
+                  : schemaLevel > 0
+                    ? html`<span
+                        class="key-label"
+                        title="${readOrWrite === 'readonly' ? 'Read-Only' : readOrWrite === 'writeonly' ? 'Write-Only' : ''}"
+                      >
+                        ${
+                          isDeprecated || data['::deprecated']
+                            ? html`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--red); margin-right:-6px">
+                                <path d="M2 2L8 8M2 8L8 2" />
+                              </svg>`
+                            : ''
+                        }
+                        ${keyLabel.replace(/\*$/, '')}${
+                          keyLabel.endsWith('*') ? html`<span style="color:var(--red)">*</span>` : ''
+                        }${readOrWrite === 'readonly' ? html` 🆁` : readOrWrite === 'writeonly' ? html` 🆆` : readOrWrite}:
+                      </span>`
+                    : ''
+            }
             ${openBracket}
           </div>
           <div class="td key-descr m-markdown-small">
@@ -261,59 +271,63 @@ export default class SchemaTree extends LitElement {
           class="inside-bracket ${data['::type'] || 'no-type-info'}"
           style="padding-left:${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' ? 0 : leftPadding}px;"
         >
-          ${Array.isArray(data) && data[0]
-            ? html`${this.generateTree(
-                data[0],
-                'xxx-of-option',
-                '',
-                '::ARRAY~OF',
-                '',
-                newSchemaLevel,
-                newIndentLevel,
-                data[0]['::readwrite'],
-                isDeprecated || data[0]['::deprecated']
-              )}`
-            : html`
-                ${Object.keys(data).map(
-                  (dataKey) => html`
-                    ${[
-                      '::title',
-                      '::description',
-                      '::type',
-                      '::props',
-                      '::deprecated',
-                      '::array-type',
-                      '::readwrite',
-                      '::dataTypeLabel',
-                      '::nullable',
-                    ].includes(dataKey)
-                      ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object'
-                        ? html`${this.generateTree(
-                            data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey],
-                            data[dataKey]['::type'],
-                            data[dataKey]['::array-type'] || '',
-                            dataKey,
-                            data[dataKey]['::description'],
-                            newSchemaLevel,
-                            newIndentLevel,
-                            data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '',
-                            isDeprecated || data[dataKey]['::deprecated']
-                          )}`
-                        : ''
-                      : html`${this.generateTree(
-                          data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey],
-                          data[dataKey]['::type'],
-                          data[dataKey]['::array-type'] || '',
-                          dataKey,
-                          data[dataKey]?.['::description'] || '',
-                          newSchemaLevel,
-                          newIndentLevel,
-                          data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '',
-                          isDeprecated || data[dataKey]['::deprecated']
-                        )}`}
-                  `
-                )}
-              `}
+          ${
+            Array.isArray(data) && data[0]
+              ? html`${this.generateTree(
+                  data[0],
+                  'xxx-of-option',
+                  '',
+                  '::ARRAY~OF',
+                  '',
+                  newSchemaLevel,
+                  newIndentLevel,
+                  data[0]['::readwrite'],
+                  isDeprecated || data[0]['::deprecated']
+                )}`
+              : html`
+                  ${Object.keys(data).map(
+                    (dataKey) => html`
+                      ${
+                        [
+                          '::title',
+                          '::description',
+                          '::type',
+                          '::props',
+                          '::deprecated',
+                          '::array-type',
+                          '::readwrite',
+                          '::dataTypeLabel',
+                          '::nullable',
+                        ].includes(dataKey)
+                          ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object'
+                            ? html`${this.generateTree(
+                                data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey],
+                                data[dataKey]['::type'],
+                                data[dataKey]['::array-type'] || '',
+                                dataKey,
+                                data[dataKey]['::description'],
+                                newSchemaLevel,
+                                newIndentLevel,
+                                data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '',
+                                isDeprecated || data[dataKey]['::deprecated']
+                              )}`
+                            : ''
+                          : html`${this.generateTree(
+                              data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey],
+                              data[dataKey]['::type'],
+                              data[dataKey]['::array-type'] || '',
+                              dataKey,
+                              data[dataKey]?.['::description'] || '',
+                              newSchemaLevel,
+                              newIndentLevel,
+                              data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '',
+                              isDeprecated || data[dataKey]['::deprecated']
+                            )}`
+                      }
+                    `
+                  )}
+                `
+          }
         </div>
         ${data['::type'] && data['::type'].includes('xxx-of') ? '' : html`<div class="close-bracket">${closeBracket}</div>`} `;
     }
@@ -354,57 +368,71 @@ export default class SchemaTree extends LitElement {
     return html`
       <div class="tr primitive" title="${deprecated ? 'Deprecated' : ''}">
         <div class="td key ${isDeprecated || deprecated}" style="min-width:${minFieldColWidth}px">
-          ${isDeprecated || deprecated
-            ? html`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--red); margin-right:-6px">
-                <path d="M2 2L8 8M2 8L8 2" />
-              </svg>`
-            : ''}
-          ${keyLabel.endsWith('*')
-            ? html`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style="color:var(--red);">*</span>:`
-            : key.startsWith('::OPTION')
-              ? html`<span class="key-label xxx-of-key">${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>`
-              : html`<span class="key-label">${keyLabel}:</span>`}
+          ${
+            isDeprecated || deprecated
+              ? html`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--red); margin-right:-6px">
+                  <path d="M2 2L8 8M2 8L8 2" />
+                </svg>`
+              : ''
+          }
+          ${
+            keyLabel.endsWith('*')
+              ? html`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style="color:var(--red);">*</span>:`
+              : key.startsWith('::OPTION')
+                ? html`<span class="key-label xxx-of-key">${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>`
+                : html`<span class="key-label">${keyLabel}:</span>`
+          }
           <span class="${dataTypeCss}" title="${finalReadWriteTip}">
             ${dataType === 'array' ? `[${type}]` : `${type}`} ${finalReadWriteText}
           </span>
         </div>
         <div class="td key-descr">
-          ${description || schemaTitle || schemaDescription
-            ? html`${html`<span class="m-markdown-small">
-                ${unsafeHTML(
-                  DOMPurify.sanitize(
-                    marked(
-                      dataType === 'array'
-                        ? `${descrExpander} ${description}`
-                        : schemaTitle
-                          ? `${descrExpander} <b>${schemaTitle}:</b> ${schemaDescription}`
-                          : `${descrExpander} ${schemaDescription}`
-                    ),
-                    { USE_PROFILES: { html: true } }
-                  )
-                )}
-              </span>`}`
-            : ''}
-          ${constraint
-            ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px">
-                <span class="bold-text">Constraints: </span>${constraint}
-              </div>`
-            : ''}
-          ${defaultValue
-            ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px">
-                <span class="bold-text">Default: </span>${defaultValue}
-              </div>`
-            : ''}
-          ${allowedValues
-            ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px">
-                <span class="bold-text">${type === 'const' ? 'Value' : 'Allowed'}: </span>${allowedValues}
-              </div>`
-            : ''}
-          ${pattern
-            ? html`<div style="display:inline-block; line-break: anywhere; margin-right:8px">
-                <span class="bold-text">Pattern: </span>${pattern}
-              </div>`
-            : ''}
+          ${
+            description || schemaTitle || schemaDescription
+              ? html`${html`<span class="m-markdown-small">
+                  ${unsafeHTML(
+                    DOMPurify.sanitize(
+                      marked(
+                        dataType === 'array'
+                          ? `${descrExpander} ${description}`
+                          : schemaTitle
+                            ? `${descrExpander} <b>${schemaTitle}:</b> ${schemaDescription}`
+                            : `${descrExpander} ${schemaDescription}`
+                      ),
+                      { USE_PROFILES: { html: true } }
+                    )
+                  )}
+                </span>`}`
+              : ''
+          }
+          ${
+            constraint
+              ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px">
+                  <span class="bold-text">Constraints: </span>${constraint}
+                </div>`
+              : ''
+          }
+          ${
+            defaultValue
+              ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px">
+                  <span class="bold-text">Default: </span>${defaultValue}
+                </div>`
+              : ''
+          }
+          ${
+            allowedValues
+              ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px">
+                  <span class="bold-text">${type === 'const' ? 'Value' : 'Allowed'}: </span>${allowedValues}
+                </div>`
+              : ''
+          }
+          ${
+            pattern
+              ? html`<div style="display:inline-block; line-break: anywhere; margin-right:8px">
+                  <span class="bold-text">Pattern: </span>${pattern}
+                </div>`
+              : ''
+          }
         </div>
       </div>
     `;
