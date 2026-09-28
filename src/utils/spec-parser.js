@@ -1,20 +1,94 @@
-// import OpenApiParser from '@apitools/openapi-parser';
-import SwaggerClient from 'swagger-client';
+import { dereference, load, upgrade } from '@scalar/openapi-parser';
 import { marked } from 'marked';
 import { invalidCharsRegEx, rapidocApiKey, sleep } from '~/utils/common-utils';
 
-// Interceptor that checks if its a direct markdown file then allow it to be parsed
-function responseInterceptor(val) {
-  if (
-    val.ok &&
-    val.text &&
-    val.parseError &&
-    val.parseError.name === 'YAMLException' &&
-    (!val.headers['content-type'] || val.headers['content-type'].match('text/plain'))
-  ) {
-    val.body = val.text;
+function isUrlLike(value) {
+  if (typeof value !== 'string') {
+    return false;
   }
-  return val;
+  const trimmed = value.trim();
+  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+    return false;
+  }
+  if (trimmed.includes('\n')) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Custom browser fetch plugin for `@scalar/openapi-parser`'s `load()` method.
+ *
+ * Provides browser-native `fetch` support for loading specifications and resolving
+ * relative and external `$ref` files across browser and SSR/Node environments.
+ *
+ * @param {string} [baseUrl] - The base URL or document path to resolve relative references against.
+ * @returns {import('@scalar/openapi-parser').LoadPlugin} A plugin object conforming to the `@scalar/openapi-parser` plugin interface:
+ *   - `check(value)`: Determines whether this plugin handles the given reference/URL.
+ *   - `resolvePath(parentPath, reference)`: Resolves relative reference paths against parent document URLs.
+ *   - `get(value)`: Fetches file content as text using browser `fetch()`.
+ */
+function createBrowserFetchPlugin(baseUrl) {
+  // Determine root origin/URL; guard for non-browser environments (SSR / test runners)
+  const windowLocation = typeof window !== 'undefined' && window.location?.href ? window.location.href : 'http://localhost/';
+  const base = baseUrl ? new URL(baseUrl, windowLocation) : new URL(windowLocation);
+
+  return {
+    // Determines if the reference should be fetched by this plugin (ignores inlined JSON/YAML and '#/...' local refs)
+    check(value) {
+      if (typeof value !== 'string' || value.startsWith('#')) {
+        return false;
+      }
+      return isUrlLike(value);
+    },
+    // Resolves relative $ref paths (e.g. '../common/models.yaml') against their parent document URL
+    resolvePath(parentPath, reference) {
+      if (reference.startsWith('http://') || reference.startsWith('https://')) {
+        return reference;
+      }
+      const parentUrl = parentPath && (parentPath.startsWith('http://') || parentPath.startsWith('https://')) ? new URL(parentPath) : base;
+      return new URL(reference, parentUrl).href;
+    },
+    // Fetches the target URL via native fetch and returns the raw specification text
+    async get(value) {
+      const targetUrl = value.startsWith('http://') || value.startsWith('https://') ? value : new URL(value, base).href;
+      const resp = await fetch(targetUrl);
+      if (!resp.ok) {
+        const error = new Error(`Failed to load ${targetUrl} (${resp.status})`);
+        error.status = resp.status;
+        error.statusCode = resp.status;
+        error.response = resp;
+        error.url = targetUrl;
+        throw error;
+      }
+      return await resp.text();
+    },
+  };
+}
+
+function breakCircularRefs(node, activeRefs = new Set()) {
+  if (!node || typeof node !== 'object') {
+    return node;
+  }
+  const ref = node['x-ref'];
+  if (ref) {
+    if (activeRefs.has(ref)) {
+      return { $ref: ref };
+    }
+    activeRefs = new Set(activeRefs);
+    activeRefs.add(ref);
+  }
+  if (Array.isArray(node)) {
+    return node.map((item) => breakCircularRefs(item, activeRefs));
+  }
+  const result = {};
+  for (const key of Object.keys(node)) {
+    if (key === 'x-ref') {
+      continue;
+    }
+    result[key] = breakCircularRefs(node[key], activeRefs);
+  }
+  return result;
 }
 
 export default async function ProcessSpec(
@@ -32,58 +106,43 @@ export default async function ProcessSpec(
   removeEndpointsWithBadgeLabelAs = ''
 ) {
   let jsonParsedSpec;
-  let specMeta;
   try {
     this.requestUpdate(); // important to show the initial loader
-    if (typeof specUrl === 'string') {
-      specMeta = await SwaggerClient.resolve({
-        url: specUrl,
-        disableInterfaces: true,
-        requestInterceptor: responseInterceptor,
-      });
-    } else {
-      specMeta = await SwaggerClient.resolve({
-        spec: specUrl,
-        disableInterfaces: true,
-        requestInterceptor: responseInterceptor,
-      });
+
+    const fetchPlugin = createBrowserFetchPlugin(typeof specUrl === 'string' && isUrlLike(specUrl) ? specUrl : undefined);
+    const loaded = await load(specUrl, { plugins: [fetchPlugin] });
+
+    if (loaded.errors && loaded.errors.length > 0 && !loaded.specification) {
+      const firstErr = loaded.errors[0];
+      const error = new Error(firstErr.message || 'Error loading specification');
+      error.status = 404;
+      throw error;
     }
+
+    const dereferenceOptions = {
+      onDereference: ({ schema: dereferencedSchema, ref }) => {
+        dereferencedSchema['x-ref'] = ref;
+      },
+    };
+
+    let schema;
+    if (loaded.specification?.swagger && String(loaded.specification.swagger).startsWith('2')) {
+      const upgraded = upgrade(loaded.filesystem);
+      const derefResult = await dereference(upgraded.specification, dereferenceOptions);
+      schema = breakCircularRefs(derefResult.schema);
+    } else {
+      const derefResult = await dereference(loaded.filesystem, dereferenceOptions);
+      schema = breakCircularRefs(derefResult.schema);
+    }
+
     await sleep(0); // important to show the initial loader (allows for rendering updates)
 
-    // If JSON Schema Viewer
-    /*
-    if (resolvedMeta.errors && resolvedMeta.errors.length > 0) {
-      console.info('RapiDoc: %c There was an issue while parsing the spec %o ', 'color:orangered', resolvedMeta.errors);
-    } else {
-      // specMeta = ;
-      this.dispatchEvent(new CustomEvent('before-render', { detail: { spec: resolvedMeta.spec } }));
-      const schemaAndExamples = Object.entries(specMeta.resolvedSpec.schemaAndExamples).map((v) => ({
-        show: true,
-        expanded: true,
-        selectedExample: null,
-        name: v[0],
-        elementId: v[0].replace(invalidCharsRegEx, '-'),
-        ...v[1],
-      }));
-      const parsedSpec = {
-        specLoadError: false,
-        isSpecLoading: false,
-        info: specMeta.resolvedSpec.info,
-        schemaAndExamples,
-      };
-      return parsedSpec;
-    }
-    */
-
     // If RapiDoc or RapiDocMini
-    if (
-      specMeta.spec &&
-      (specMeta.spec.components || specMeta.spec.info || specMeta.spec.servers || specMeta.spec.tags || specMeta.spec.paths)
-    ) {
-      jsonParsedSpec = filterPaths(specMeta.spec, matchPaths, matchType, removeEndpointsWithBadgeLabelAs);
+    if (schema && (schema.components || schema.info || schema.servers || schema.tags || schema.paths)) {
+      jsonParsedSpec = filterPaths(schema, matchPaths, matchType, removeEndpointsWithBadgeLabelAs);
       this.dispatchEvent(new CustomEvent('before-render', { detail: { spec: jsonParsedSpec } }));
     } else {
-      console.info('RapiDoc: %c Invalid Spec Definition %o ', 'color:orangered', specMeta);
+      console.info('RapiDoc: %c Invalid Spec Definition %o ', 'color:orangered', schema);
       return {
         specLoadError: true,
         isSpecLoading: false,
@@ -99,9 +158,12 @@ export default async function ProcessSpec(
     let errDescr;
     console.info('RapiDoc: %c There was an issue while loading/parsing the spec %o ', 'color:orangered', err);
     if (err.statusCode === 404 || err.status === 404) {
-      errDescr = err.response?.url ? `${err.response?.url} ┃ Not Found (${err.response?.status})` : 'Spec Not Found ┃ 404';
+      errDescr =
+        err.response?.url || err.url
+          ? `${err.response?.url || err.url} ┃ Not Found (${err.response?.status || err.status})`
+          : 'Spec Not Found ┃ 404';
     } else {
-      errDescr = `Unable to load ${err.response?.url} ┃ ${err.response?.status}`;
+      errDescr = `Unable to load ${err.response?.url || err.url || (typeof specUrl === 'string' ? specUrl : '')} ┃ ${err.response?.status || err.status || err.message}`;
     }
     return {
       specLoadError: true,
@@ -185,7 +247,7 @@ export default async function ProcessSpec(
     jsonParsedSpec.servers.forEach((v) => {
       let computedUrl = v.url.trim();
       if (!(computedUrl.startsWith('http') || computedUrl.startsWith('//') || computedUrl.startsWith('{'))) {
-        if (window.location.origin.startsWith('http')) {
+        if (typeof window !== 'undefined' && window.location?.origin?.startsWith('http')) {
           v.url = window.location.origin + v.url;
           computedUrl = v.url;
         }
@@ -205,7 +267,7 @@ export default async function ProcessSpec(
     }
   } else if (serverUrl) {
     jsonParsedSpec.servers = [{ url: serverUrl, computedUrl: serverUrl }];
-  } else if (window.location.origin.startsWith('http')) {
+  } else if (typeof window !== 'undefined' && window.location?.origin?.startsWith('http')) {
     jsonParsedSpec.servers = [{ url: window.location.origin, computedUrl: window.location.origin }];
   } else {
     jsonParsedSpec.servers = [{ url: 'http://localhost', computedUrl: 'http://localhost' }];

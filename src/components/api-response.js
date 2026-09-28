@@ -154,7 +154,7 @@ export default class ApiResponse extends LitElement {
               ${Object.keys(this.responses).map(
                 (respStatus) =>
                   html` ${
-                    respStatus === '$$ref' // Swagger-Client parser creates '$$ref' object if JSON references are used to create responses - this should be ignored
+                    respStatus === '$$ref' // Ignore '$$ref' if present from legacy reference parsing
                       ? ''
                       : html`<button
                           @click="${() => {
