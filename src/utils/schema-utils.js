@@ -1,7 +1,88 @@
-import RandExp from 'randexp';
+/**
+ * Generates a deterministic sample string matching common regex patterns in OpenAPI schemas.
+ * Falls back to the pattern string if an unexpected error occurs.
+ */
+export function patternSampleGenerator(pattern) {
+  if (!pattern || typeof pattern !== 'string') {
+    return '';
+  }
 
-// Make RandExp determinist
-RandExp.prototype.randInt = (from) => from;
+  try {
+    let p = pattern.trim();
+    if (p.startsWith('^')) p = p.slice(1);
+    if (p.endsWith('$') && !p.endsWith('\\$')) p = p.slice(0, -1);
+
+    // Resolve simple group alternations: (opt1|opt2|opt3) -> opt1
+    p = p.replace(/\((?:\?:)?([^()|]+)(?:\|[^()]+)*\)/g, '$1');
+
+    // Tokenizer matching
+    const tokenRegex = /(\[[^\]]+\]|\\[dwsDWS]|\\[^]|\.|[^\\[\]{}()+*?|])(?:\{(\d+)(?:,\d*)?\}|([+*?]))?/g;
+
+    let result = '';
+    let match;
+
+    while ((match = tokenRegex.exec(p)) !== null) {
+      const token = match[1];
+      const count = match[2];
+      const quantifier = match[3];
+
+      let rep = 1;
+      if (count !== undefined) {
+        rep = parseInt(count, 10);
+      } else if (quantifier === '+') {
+        rep = 1;
+      } else if (quantifier === '*' || quantifier === '?') {
+        rep = 0;
+      }
+
+      rep = Math.min(Math.max(0, rep), 50);
+
+      let sampleChar = 'a';
+      if (token === '\\d') {
+        sampleChar = '0';
+      } else if (token === '\\D') {
+        sampleChar = 'a';
+      } else if (token === '\\w') {
+        sampleChar = 'a';
+      } else if (token === '\\W') {
+        sampleChar = '_';
+      } else if (token === '\\s') {
+        sampleChar = ' ';
+      } else if (token === '\\S') {
+        sampleChar = 'a';
+      } else if (token === '.') {
+        sampleChar = 'a';
+      } else if (token.startsWith('\\')) {
+        sampleChar = token.slice(1);
+      } else if (token.startsWith('[')) {
+        const inner = token.slice(1, -1);
+        if (inner.startsWith('^')) {
+          sampleChar = inner.includes('a') ? '0' : 'a';
+        } else if (/[1-9]/.test(inner) && !inner.includes('0')) {
+          sampleChar = '1';
+        } else if (/[0-9]/.test(inner) && !/[a-zA-Z]/.test(inner)) {
+          sampleChar = '0';
+        } else if (/[0-9]/.test(inner) && /[a-fA-F]/.test(inner) && !/[g-zG-Z]/.test(inner)) {
+          sampleChar = '0';
+        } else if (/[A-Z]/.test(inner) && !/[a-z]/.test(inner)) {
+          sampleChar = 'A';
+        } else if (/[a-z]/.test(inner)) {
+          sampleChar = 'a';
+        } else if (inner.length > 0) {
+          sampleChar = inner[0];
+        }
+      } else {
+        sampleChar = token;
+      }
+
+      result += sampleChar.repeat(rep);
+    }
+
+    return result || pattern;
+  } catch {
+    return pattern;
+  }
+}
 
 // Takes a value as input and provides a printable string to replresent null values, spaces, blankstring etc
 export function getPrintableVal(val) {
@@ -350,7 +431,7 @@ export function getSampleValueByType(schemaObj) {
     }
     if (schemaObj.pattern) {
       try {
-        return new RandExp(schemaObj.pattern).gen();
+        return patternSampleGenerator(schemaObj.pattern);
       } catch {
         return schemaObj.pattern;
       }

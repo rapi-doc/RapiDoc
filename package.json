@@ -46,9 +46,7 @@
     "github-slugger": "^2.0.0",
     "lit": "^3.2.1",
     "marked": "15.0.6",
-    "microlighter": "^2.2.0",
-    "randexp": "^0.5.3",
-    "xml-but-prettier": "^1.0.1"
+    "microlighter": "^2.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",

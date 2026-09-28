@@ -5,7 +5,7 @@ import { guard } from 'lit/directives/guard.js';
 import { live } from 'lit/directives/live.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { marked } from 'marked';
-import formatXml from 'xml-but-prettier';
+import { formatXml } from '~/utils/xml-utils';
 import { scheduleHighlight } from '~/utils/highlighter';
 import TableStyles from '~/styles/table-styles';
 import FlexStyles from '~/styles/flex-styles';
