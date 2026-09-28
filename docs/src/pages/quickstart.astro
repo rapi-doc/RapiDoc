@@ -66,8 +66,7 @@ import PageBanner from '../components/PageBanner.astro';
     <h3 class="yellow"> Usage in Vue</h3>
     <a href="https://codesandbox.io/s/nostalgic-sky-jlts7?file=/src/App.vue"> https://codesandbox.io/s/nostalgic-sky-jlts7?file=/src/App.vue </a>
 
-    <pre class="shadow code-block" ><code class="language-js" style="border-radius:4px">
-      {`
+    <pre class="shadow code-block"><code class="language-html" style="border-radius:4px" is:raw>
       <template>
         <rapi-doc
           spec-url = "https://petstore.swagger.io/v2/swagger.json"
@@ -79,9 +78,7 @@ import PageBanner from '../components/PageBanner.astro';
       <script>
         import 'rapidoc';
       </script>
-      `}
     </code></pre>
-  </div>
 
   </main>
 </GlobalLayout>

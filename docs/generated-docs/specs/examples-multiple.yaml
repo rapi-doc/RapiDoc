@@ -74,6 +74,38 @@ paths:
               - "   "
               - [10]
               - [10, 20, 30, 40]
+  /support-for-example-and-examples-keyword:
+    post:
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  array_field:
+                    description: List of Strings
+                    examples:
+                      - ['An example', 'Yet another example']
+                      - ['red', 'green', 'blue']
+                    items:
+                      type: string
+                    type: array
+                  array_field_single_example:
+                    description: List of Strings single example
+                    example:
+                      - Deprecated but included in output
+                    items:
+                      type: string
+                    type: array
+                  string_field:
+                    description: String Field
+                    examples:
+                      - Included in output
+                      - Missing from output since only one example is displayed
+                    type: string
 
   /multiple-examples-by-response-type:
     get:

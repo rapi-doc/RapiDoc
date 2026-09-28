@@ -29,8 +29,8 @@ const { page, height, showWaves = false, hiddenOverflow = true } = Astro.props;
     </div>
   </div>
   <slot/>
+  <!--Waves Container-->
   {showWaves && (
-    <!--Waves Container-->
     <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
       <defs>
         <path id="wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
@@ -41,8 +41,8 @@ const { page, height, showWaves = false, hiddenOverflow = true } = Astro.props;
         <use xlink:href="#wave" x="48" y="7" fill="color-mix(in srgb, var(--bg-color) 100%, transparent)" />
       </g>
     </svg>
-    <!--Waves end-->
   )}
+  <!--Waves end-->
 </div>
 
 <style>
