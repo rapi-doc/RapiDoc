@@ -182,11 +182,7 @@ export default class ApiResponse extends LitElement {
         (status) =>
           html`<div style="display: ${status === this.selectedStatus ? 'block' : 'none'}">
             <div class="top-gap">
-              <span class="resp-descr m-markdown"
-                >${unsafeHTML(
-                  sanitizeHTML(marked(this.responses[status]?.description || ''))
-                )}</span
-              >
+              <span class="resp-descr m-markdown">${unsafeHTML(sanitizeHTML(marked(this.responses[status]?.description || '')))}</span>
               ${
                 this.headersForEachRespStatus[status] && this.headersForEachRespStatus[status]?.length > 0
                   ? html`${this.responseHeaderListTemplate(this.headersForEachRespStatus[status])}`
@@ -258,9 +254,7 @@ export default class ApiResponse extends LitElement {
                 ${v.schema?.type || ''}
               </td>
               <td style="padding:8px; vertical-align: baseline; border-top: 1px solid var(--light-border-color);text-overflow: ellipsis;">
-                <div class="m-markdown-small regular-font">
-                  ${unsafeHTML(sanitizeHTML(marked(v.description || '')))}
-                </div>
+                <div class="m-markdown-small regular-font">${unsafeHTML(sanitizeHTML(marked(v.description || '')))}</div>
               </td>
               <td style="padding:8px; vertical-align: baseline; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;">
                 ${v.schema?.example || ''}
@@ -337,9 +331,7 @@ export default class ApiResponse extends LitElement {
                     ${
                       mimeRespDetails.examples[0].exampleDescription
                         ? html`<div class="m-markdown-small" style="padding: 4px 0">
-                            ${unsafeHTML(
-                              sanitizeHTML(marked(mimeRespDetails.examples[0].exampleDescription || ''))
-                            )}
+                            ${unsafeHTML(sanitizeHTML(marked(mimeRespDetails.examples[0].exampleDescription || '')))}
                           </div>`
                         : ''
                     }

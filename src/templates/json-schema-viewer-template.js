@@ -71,9 +71,7 @@ function jsonSchemaBodyTemplate() {
         >
           <div style="padding:16px; border-bottom: 1px solid var(--border-color)">
             <div style="font-size:var(--font-size-small); font-weight:bold">${jSchemaBody.name}</div>
-            <span class="json-schema-description m-markdown "
-              >${unsafeHTML(sanitizeHTML(marked(jSchemaBody.description || '')))}</span
-            >
+            <span class="json-schema-description m-markdown ">${unsafeHTML(sanitizeHTML(marked(jSchemaBody.description || '')))}</span>
           </div>
           <div style="display:flex; flex-direction: row; gap:16px;">
             <div class="json-schema-def" style="flex:1; padding:16px 0 16px 16px; ">

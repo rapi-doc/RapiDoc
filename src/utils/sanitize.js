@@ -5,9 +5,14 @@ export function sanitizeHTML(htmlString) {
 
   // Use native Sanitizer API if supported
   if (typeof window !== 'undefined' && window.Sanitizer && Element.prototype.setHTML) {
-    const el = document.createElement('div');
-    el.setHTML(htmlString, { sanitizer: new window.Sanitizer() });
-    return el.innerHTML;
+    try {
+      const el = document.createElement('div');
+      const sanitizer = new window.Sanitizer({ allowAttributes: { '*': ['*'] } });
+      el.setHTML(htmlString, { sanitizer });
+      return el.innerHTML;
+    } catch {
+      // If Sanitizer with options throws, fall through to fallback shim
+    }
   }
 
   // Minimal shim for unsupported browsers to prevent basic XSS
@@ -33,11 +38,11 @@ export function sanitizeHTML(htmlString) {
       const attr = el.attributes[j];
       const attrName = attr.name.toLowerCase();
       const attrValue = attr.value.toLowerCase();
-      
+
       if (attrName.startsWith('on')) {
         el.removeAttribute(attr.name);
       } else if (
-        (attrName === 'href' || attrName === 'src') && 
+        (attrName === 'href' || attrName === 'src') &&
         (attrValue.includes('javascript:') || attrValue.includes('data:text/html'))
       ) {
         el.removeAttribute(attr.name);

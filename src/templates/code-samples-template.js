@@ -1,7 +1,7 @@
 import { html } from 'lit';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import Prism from 'prismjs';
+
 import { copyToClipboard } from '~/utils/common-utils';
+import { scheduleHighlight } from '~/utils/highlighter';
 
 export default function codeSamplesTemplate(xCodeSamples) {
   return html`
@@ -19,6 +19,7 @@ export default function codeSamplesTemplate(xCodeSamples) {
       tabContents.forEach((tabBodyEl) => {
         tabBodyEl.style.display = tabBodyEl.dataset.tab === clickedTab ? 'block' : 'none';
       });
+      scheduleHighlight(e.currentTarget.getRootNode()?.host?.shadowRoot || e.currentTarget);
     }}">
     <div part="tab-btn-row" class="tab-buttons row" style="width:100; overflow">
       ${xCodeSamples.map((v, i) => html`<button part="tab-btn" class="tab-btn ${i === 0 ? 'active' : ''}" data-tab="${v.lang}${i}">${v.label || v.lang}</button>`)}
@@ -36,11 +37,7 @@ export default function codeSamplesTemplate(xCodeSamples) {
           >
             Copy
           </button>
-          <pre><code class="language">${
-            Prism.languages[v.lang?.toLowerCase()]
-              ? unsafeHTML(Prism.highlight(v.source, Prism.languages[v.lang?.toLowerCase()], v.lang?.toLowerCase()))
-              : v.source
-          }</code></pre>
+          <pre><code class="language-${v.lang?.toLowerCase()}">${v.source}</code></pre>
         </div>`
     )}
   </div>  

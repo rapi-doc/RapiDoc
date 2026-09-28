@@ -46,7 +46,7 @@
     "github-slugger": "^2.0.0",
     "lit": "^3.2.1",
     "marked": "15.0.6",
-    "prismjs": "^1.29.0",
+    "microlighter": "^2.2.0",
     "randexp": "^0.5.3",
     "xml-but-prettier": "^1.0.1"
   },

@@ -145,9 +145,7 @@ function endpointBodyTemplate(path) {
       ${
         path.externalDocs?.url || path.externalDocs?.description
           ? html`<div style="background:var(--bg3); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--border-radius)">
-              <div class="m-markdown">
-                ${unsafeHTML(sanitizeHTML(marked(path.externalDocs?.description || '')))}
-              </div>
+              <div class="m-markdown">${unsafeHTML(sanitizeHTML(marked(path.externalDocs?.description || '')))}</div>
               ${
                 path.externalDocs?.url
                   ? html`<a

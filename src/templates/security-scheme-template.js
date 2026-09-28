@@ -632,13 +632,7 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                               : ''
                           }
                         </div>
-                        ${
-                          v.description
-                            ? html`<div class="m-markdown">
-                                ${unsafeHTML(sanitizeHTML(marked(v.description || '')))}
-                              </div>`
-                            : ''
-                        }
+                        ${v.description ? html`<div class="m-markdown">${unsafeHTML(sanitizeHTML(marked(v.description || '')))}</div>` : ''}
                         ${
                           v.type.toLowerCase() === 'apikey'
                             ? html` <div style="margin-bottom:5px">Send <code>${v.name}</code> in <code>${v.in}</code></div>

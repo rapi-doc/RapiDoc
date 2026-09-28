@@ -93,9 +93,24 @@ export default function setTheme(baseTheme, theme = {}) {
 
       codeBg: theme.codeBg || ColorUtils.color.opacity(ColorUtils.color.brightness(bg1, -15), 0.7),
       codeFg: theme.codeFg || '#aaa',
-      codePropertyColor: theme.codePropertyColor || '#f8c555',
-      codeKeywordColor: theme.codeKeywordColor || '#cc99cd',
-      codeOperatorColor: theme.codeOperatorColor || '#67cdcc',
+      codePropertyColor: theme.codePropertyColor || '#79c0ff',
+      codeKeywordColor: theme.codeKeywordColor || '#ff7b72',
+      codeOperatorColor: theme.codeOperatorColor || '#c9d1d9',
+
+      /* GitHub Dark Syntax Theme */
+      syntaxComment: '#8b949e',
+      syntaxKeyword: '#ff7b72',
+      syntaxOperator: '#c9d1d9',
+      syntaxString: '#a5d6ff',
+      syntaxConstant: '#79c0ff',
+      syntaxFunction: '#d2a8ff',
+      syntaxType: '#d2a8ff',
+      syntaxVariable: '#ffa657',
+      syntaxProperty: '#79c0ff',
+      syntaxTag: '#7ee787',
+      syntaxSelector: '#d2a8ff',
+      syntaxInserted: '#7ee787',
+      syntaxDeleted: '#ff7b72',
     };
   } else {
     const bg1 = theme.bg1 ? theme.bg1 : '#fafbfc';
@@ -184,9 +199,24 @@ export default function setTheme(baseTheme, theme = {}) {
 
       codeBg: theme.codeBg || ColorUtils.color.opacity(ColorUtils.color.brightness(bg1, -15), 0.7),
       codeFg: theme.codeFg || '#666',
-      codePropertyColor: theme.codePropertyColor || '#905',
-      codeKeywordColor: theme.codeKeywordColor || '#07a',
-      codeOperatorColor: theme.codeOperatorColor || '#9a6e3a',
+      codePropertyColor: theme.codePropertyColor || '#0550ae',
+      codeKeywordColor: theme.codeKeywordColor || '#cf222e',
+      codeOperatorColor: theme.codeOperatorColor || '#24292f',
+
+      /* GitHub Light Syntax Theme */
+      syntaxComment: '#6e7781',
+      syntaxKeyword: '#cf222e',
+      syntaxOperator: '#24292f',
+      syntaxString: '#0a3069',
+      syntaxConstant: '#0550ae',
+      syntaxFunction: '#8250df',
+      syntaxType: '#8250df',
+      syntaxVariable: '#953800',
+      syntaxProperty: '#0550ae',
+      syntaxTag: '#116329',
+      syntaxSelector: '#8250df',
+      syntaxInserted: '#116329',
+      syntaxDeleted: '#cf222e',
     };
   }
   return html` <style>
@@ -291,6 +321,21 @@ export default function setTheme(baseTheme, theme = {}) {
       --code-property-color: ${newTheme.codePropertyColor};
       --code-keyword-color: ${newTheme.codeKeywordColor};
       --code-operator-color: ${newTheme.codeOperatorColor};
+
+      /* GitHub Syntax Highlighting Theme */
+      --syntax-comment: ${newTheme.syntaxComment};
+      --syntax-keyword: ${newTheme.syntaxKeyword};
+      --syntax-operator: ${newTheme.syntaxOperator};
+      --syntax-string: ${newTheme.syntaxString};
+      --syntax-constant: ${newTheme.syntaxConstant};
+      --syntax-function: ${newTheme.syntaxFunction};
+      --syntax-type: ${newTheme.syntaxType};
+      --syntax-variable: ${newTheme.syntaxVariable};
+      --syntax-property: ${newTheme.syntaxProperty};
+      --syntax-tag: ${newTheme.syntaxTag};
+      --syntax-selector: ${newTheme.syntaxSelector};
+      --syntax-inserted: ${newTheme.syntaxInserted};
+      --syntax-deleted: ${newTheme.syntaxDeleted};
     }
   </style>`;
 }

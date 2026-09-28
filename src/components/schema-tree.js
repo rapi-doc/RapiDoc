@@ -115,9 +115,7 @@ export default class SchemaTree extends LitElement {
             : ''
         }
       </div>
-      <span part="schema-description" class="m-markdown">
-        ${unsafeHTML(sanitizeHTML(marked(this.data?.['::description'] || '')))}</span
-      >
+      <span part="schema-description" class="m-markdown"> ${unsafeHTML(sanitizeHTML(marked(this.data?.['::description'] || '')))}</span>
       ${
         this.data
           ? html` ${this.generateTree(
@@ -263,9 +261,7 @@ export default class SchemaTree extends LitElement {
             }
             ${openBracket}
           </div>
-          <div class="td key-descr m-markdown-small">
-            ${unsafeHTML(sanitizeHTML(marked(description || '')))}
-          </div>
+          <div class="td key-descr m-markdown-small">${unsafeHTML(sanitizeHTML(marked(description || '')))}</div>
         </div>
         <div
           class="inside-bracket ${data['::type'] || 'no-type-info'}"
@@ -391,13 +387,15 @@ export default class SchemaTree extends LitElement {
             description || schemaTitle || schemaDescription
               ? html`${html`<span class="m-markdown-small">
                   ${unsafeHTML(
-                    sanitizeHTML(marked(
+                    sanitizeHTML(
+                      marked(
                         dataType === 'array'
                           ? `${descrExpander} ${description}`
                           : schemaTitle
                             ? `${descrExpander} <b>${schemaTitle}:</b> ${schemaDescription}`
                             : `${descrExpander} ${schemaDescription}`
-                      ))
+                      )
+                    )
                   )}
                 </span>`}`
               : ''

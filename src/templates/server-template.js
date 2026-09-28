@@ -75,9 +75,7 @@ function serverVarsTemplate() {
                 kv[1].description
                   ? html`<tr>
                       <td colspan="2" style="border:none">
-                        <span class="m-markdown-small">
-                          ${unsafeHTML(sanitizeHTML(marked(kv[1].description)))}
-                        </span>
+                        <span class="m-markdown-small"> ${unsafeHTML(sanitizeHTML(marked(kv[1].description)))} </span>
                       </td>
                     </tr>`
                   : ''

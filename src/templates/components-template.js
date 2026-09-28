@@ -77,9 +77,7 @@ export default function componentsTemplate() {
         >
           <div class="title tag">${component.name}</div>
           <div class="regular-font-size">
-            ${unsafeHTML(
-              `<div class='m-markdown regular-font'>${sanitizeHTML(marked(component.description || ''))}</div>`
-            )}
+            ${unsafeHTML(`<div class='m-markdown regular-font'>${sanitizeHTML(marked(component.description || ''))}</div>`)}
           </div>
         </div>
         <div class="regular-font section-gap--read-mode">

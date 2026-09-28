@@ -1,18 +1,7 @@
 import { css, LitElement, unsafeCSS } from 'lit';
 import { marked } from 'marked';
 import Slugger from 'github-slugger';
-import Prism from 'prismjs';
-import 'prismjs/components/prism-css';
-import 'prismjs/components/prism-yaml';
-import 'prismjs/components/prism-go';
-import 'prismjs/components/prism-java';
-import 'prismjs/components/prism-json';
-import 'prismjs/components/prism-bash';
-import 'prismjs/components/prism-python';
-import 'prismjs/components/prism-http';
-import 'prismjs/components/prism-csharp';
-import 'prismjs/components/prism-typescript';
-// import 'prismjs/components/prism-jsdoc'; // generates console error
+import { scheduleHighlight } from '~/utils/highlighter';
 
 // Styles
 import FontStyles from '~/styles/font-styles';
@@ -20,7 +9,7 @@ import InputStyles from '~/styles/input-styles';
 import FlexStyles from '~/styles/flex-styles';
 import TableStyles from '~/styles/table-styles';
 import EndpointStyles from '~/styles/endpoint-styles';
-import PrismStyles from '~/styles/prism-styles';
+import MicrolighterStyles from '~/styles/microlighter-styles';
 import TabStyles from '~/styles/tab-styles';
 import NavStyles from '~/styles/nav-styles';
 import InfoStyles from '~/styles/info-styles';
@@ -157,7 +146,7 @@ export default class RapiDoc extends LitElement {
       FlexStyles,
       TableStyles,
       EndpointStyles,
-      PrismStyles,
+      MicrolighterStyles,
       TabStyles,
       NavStyles,
       InfoStyles,
@@ -689,15 +678,6 @@ export default class RapiDoc extends LitElement {
       this.cssClasses = '';
     }
 
-    marked.setOptions({
-      highlight: (code, lang) => {
-        if (Prism.languages[lang]) {
-          return Prism.highlight(code, Prism.languages[lang], lang);
-        }
-        return code;
-      },
-    });
-
     window.addEventListener(
       'hashchange',
       () => {
@@ -731,6 +711,11 @@ export default class RapiDoc extends LitElement {
       this.shadowRoot.appendChild(cssLinkEl.cloneNode());
     }
     return mainBodyTemplate.call(this);
+  }
+
+  updated(changedProperties) {
+    super.updated?.(changedProperties);
+    scheduleHighlight(this.shadowRoot);
   }
 
   observeExpandedContent() {

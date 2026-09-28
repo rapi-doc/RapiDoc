@@ -1,24 +1,12 @@
 import { css, LitElement } from 'lit';
-import { marked } from 'marked';
-import Prism from 'prismjs';
-import 'prismjs/components/prism-css';
-import 'prismjs/components/prism-yaml';
-import 'prismjs/components/prism-go';
-import 'prismjs/components/prism-java';
-import 'prismjs/components/prism-json';
-import 'prismjs/components/prism-bash';
-import 'prismjs/components/prism-python';
-import 'prismjs/components/prism-http';
-import 'prismjs/components/prism-csharp';
-import 'prismjs/components/prism-typescript';
-// import 'prismjs/components/prism-jsdoc'; // generates console error
+import { scheduleHighlight } from '~/utils/highlighter';
 
 // Styles
 import FontStyles from '~/styles/font-styles';
 import InputStyles from '~/styles/input-styles';
 import FlexStyles from '~/styles/flex-styles';
 import TableStyles from '~/styles/table-styles';
-import PrismStyles from '~/styles/prism-styles';
+import MicrolighterStyles from '~/styles/microlighter-styles';
 import TabStyles from '~/styles/tab-styles';
 import NavStyles from '~/styles/nav-styles';
 import InfoStyles from '~/styles/info-styles';
@@ -101,7 +89,7 @@ export default class RapiDocMini extends LitElement {
       FlexStyles,
       TableStyles,
       EndpointStyles,
-      PrismStyles,
+      MicrolighterStyles,
       TabStyles,
       NavStyles,
       InfoStyles,
@@ -242,19 +230,15 @@ export default class RapiDocMini extends LitElement {
     if (!this.fetchCredentials || !'omit, same-origin, include,'.includes(`${this.fetchCredentials},`)) {
       this.fetchCredentials = '';
     }
-
-    marked.setOptions({
-      highlight: (code, lang) => {
-        if (Prism.languages[lang]) {
-          return Prism.highlight(code, Prism.languages[lang], lang);
-        }
-        return code;
-      },
-    });
   }
 
   render() {
     return mainBodyTemplate.call(this, true, this.pathsExpanded);
+  }
+
+  updated(changedProperties) {
+    super.updated?.(changedProperties);
+    scheduleHighlight(this.shadowRoot);
   }
 
   attributeChangedCallback(name, oldVal, newVal) {

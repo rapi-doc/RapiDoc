@@ -6,14 +6,14 @@ import { live } from 'lit/directives/live.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { marked } from 'marked';
 import formatXml from 'xml-but-prettier';
-import Prism from 'prismjs';
+import { scheduleHighlight } from '~/utils/highlighter';
 import TableStyles from '~/styles/table-styles';
 import FlexStyles from '~/styles/flex-styles';
 import InputStyles from '~/styles/input-styles';
 import FontStyles from '~/styles/font-styles';
 import BorderStyles from '~/styles/border-styles';
 import TabStyles from '~/styles/tab-styles';
-import PrismStyles from '~/styles/prism-styles';
+import MicrolighterStyles from '~/styles/microlighter-styles';
 import CustomStyles from '~/styles/custom-styles';
 import { copyToClipboard, downloadResource, viewResource } from '~/utils/common-utils';
 import {
@@ -101,7 +101,7 @@ export default class ApiRequest extends LitElement {
       FlexStyles,
       BorderStyles,
       TabStyles,
-      PrismStyles,
+      MicrolighterStyles,
       css`
         *,
         *:before,
@@ -247,6 +247,7 @@ export default class ApiRequest extends LitElement {
     if (this.showCurlBeforeTry === 'true') {
       this.applyCURLSyntax(this.shadowRoot);
     }
+    scheduleHighlight(this.getRootNode()?.host?.shadowRoot || this.shadowRoot);
 
     // In focused mode after rendering the request component, update the text-areas(which contains examples) using
     // the original values from hidden textareas
@@ -337,11 +338,7 @@ export default class ApiRequest extends LitElement {
         (v) =>
           html`<li>
             ${this.renderExample(v, paramType, paramName)} ${v.summary?.length > 0 ? html`<span>&lpar;${v.summary}&rpar;</span>` : ''}
-            ${
-              v.description?.length > 0
-                ? html`<p>${unsafeHTML(sanitizeHTML(marked(v.description)))}</p>`
-                : ''
-            }
+            ${v.description?.length > 0 ? html`<p>${unsafeHTML(sanitizeHTML(marked(v.description)))}</p>` : ''}
           </li>`
       )}
     </ul>`;
@@ -636,9 +633,7 @@ export default class ApiRequest extends LitElement {
         <tr>
           ${this.allowTry === 'true' ? html`<td style="border:none"></td>` : ''}
           <td colspan="2" style="border:none">
-            <span class="m-markdown-small">
-              ${unsafeHTML(sanitizeHTML(marked(param.description || '')))}
-            </span>
+            <span class="m-markdown-small"> ${unsafeHTML(sanitizeHTML(marked(param.description || '')))} </span>
             ${this.exampleListTemplate.call(this, param.name, paramSchema.type, example.exampleList)}
           </td>
         </tr>
@@ -1214,9 +1209,7 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
                     <tr>
                       <td style="border:none"></td>
                       <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;">
-                        <span class="m-markdown-small">
-                          ${unsafeHTML(sanitizeHTML(marked(fieldSchema.description || '')))}
-                        </span>
+                        <span class="m-markdown-small"> ${unsafeHTML(sanitizeHTML(marked(fieldSchema.description || '')))} </span>
                         ${this.exampleListTemplate.call(this, fieldName, paramSchema.type, example.exampleList)}
                       </td>
                     </tr>
@@ -1241,13 +1234,7 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
         .textContent="${exampleValue}"
         style="width:100%"
       ></textarea>
-      ${
-        schema.description
-          ? html`<span class="m-markdown-small">
-              ${unsafeHTML(sanitizeHTML(marked(schema.description)))}
-            </span>`
-          : ''
-      }
+      ${schema.description ? html`<span class="m-markdown-small"> ${unsafeHTML(sanitizeHTML(marked(schema.description)))} </span>` : ''}
     `;
   }
 
@@ -1264,9 +1251,7 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
         >
           Copy
         </button>
-        <pre style="white-space:pre"><code>${unsafeHTML(
-          Prism.highlight(this.curlSyntax.trim().replace(/\\$/, ''), Prism.languages.shell, 'shell')
-        )}</code></pre>
+        <pre style="white-space:pre"><code class="language-shell">${this.curlSyntax.trim().replace(/\\$/, '')}</code></pre>
       </div>
     `;
   }
@@ -1275,27 +1260,14 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
     let responseFormat = '';
     let responseContent = '';
     if (!this.responseIsBlob) {
-      if (this.responseHeaders.includes('application/x-ndjson')) {
+      if (this.responseHeaders.includes('application/x-ndjson') || this.responseHeaders.includes('json')) {
         responseFormat = 'json';
-        const prismLines = this.responseText
-          .split('\n')
-          .map((q) => Prism.highlight(q, Prism.languages[responseFormat], responseFormat))
-          .join('\n');
-        responseContent = html`<code>${unsafeHTML(prismLines)}</code>`;
-      } else if (this.responseHeaders.includes('json')) {
-        responseFormat = 'json';
-        responseContent = html`<code
-          >${unsafeHTML(Prism.highlight(this.responseText, Prism.languages[responseFormat], responseFormat))}</code
-        >`;
       } else if (this.responseHeaders.includes('html') || this.responseHeaders.includes('xml')) {
         responseFormat = 'html';
-        responseContent = html`<code
-          >${unsafeHTML(Prism.highlight(this.responseText, Prism.languages[responseFormat], responseFormat))}</code
-        >`;
       } else {
         responseFormat = 'text';
-        responseContent = html`<code>${this.responseText}</code>`;
       }
+      responseContent = html`<code class="language-${responseFormat}">${this.responseText}</code>`;
     }
     return html` <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
         <div class="response-message ${this.responseStatus}">Response Status: ${this.responseMessage}</div>
@@ -1399,7 +1371,7 @@ ${responseContent}</pre>
           >
             Copy
           </button>
-          <pre style="white-space:pre"><code>${unsafeHTML(Prism.highlight(this.responseHeaders, Prism.languages.css, 'css'))}</code></pre>
+          <pre style="white-space:pre"><code class="language-css">${this.responseHeaders}</code></pre>
         </div>
         ${this.showCurlBeforeTry === 'true' ? '' : this.curlSyntaxTemplate(this.activeResponseTab === 'curl' ? 'flex' : 'none')}
       </div>`;

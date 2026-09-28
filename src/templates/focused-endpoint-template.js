@@ -43,10 +43,12 @@ function focusedTagBodyTemplate(tag) {
       this.onNavTagClick === 'show-description' && tag.description
         ? html`<div class="m-markdown">
             ${unsafeHTML(`<div class="m-markdown regular-font">
-            ${sanitizeHTML(marked(
+            ${sanitizeHTML(
+              marked(
                 tag.description || '',
                 this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer(tag.elementId) } : undefined
-              ))}
+              )
+            )}
           </div>`)}
           </div>`
         : ''

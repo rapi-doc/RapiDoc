@@ -93,9 +93,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
                           class="tag-description collapsed"
                           style="max-height:0px; overflow:hidden; margin-top:16px; border:1px solid var(--border-color)"
                         >
-                          <div class="m-markdown" style="padding:8px">
-                            ${unsafeHTML(sanitizeHTML(marked(tagDescription)))}
-                          </div>
+                          <div class="m-markdown" style="padding:8px">${unsafeHTML(sanitizeHTML(marked(tagDescription)))}</div>
                         </div>`
                     : ''
                 }
@@ -141,20 +139,12 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
               `
         }
         <slot name="${path.elementId}"></slot>`}
-      ${
-        path.description
-          ? html`<div class="m-markdown">
-              ${unsafeHTML(sanitizeHTML(marked(path.description)))}
-            </div>`
-          : ''
-      }
+      ${path.description ? html`<div class="m-markdown">${unsafeHTML(sanitizeHTML(marked(path.description)))}</div>` : ''}
       ${pathSecurityTemplate.call(this, path.security)}
       ${
         path.externalDocs?.url || path.externalDocs?.description
           ? html`<div style="background:var(--bg3); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--border-radius)">
-              <div class="m-markdown">
-                ${unsafeHTML(sanitizeHTML(marked(path.externalDocs?.description || '')))}
-              </div>
+              <div class="m-markdown">${unsafeHTML(sanitizeHTML(marked(path.externalDocs?.description || '')))}</div>
               ${
                 path.externalDocs?.url
                   ? html`<a
@@ -248,10 +238,12 @@ export default function expandedEndpointTemplate() {
           <div class="regular-font-size">
             ${unsafeHTML(`
           <div class="m-markdown regular-font">
-          ${sanitizeHTML(marked(
+          ${sanitizeHTML(
+            marked(
               tag.description || '',
               this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer(tag.elementId) } : undefined
-            ))}
+            )
+          )}
         </div>`)}
           </div>
         </section>
