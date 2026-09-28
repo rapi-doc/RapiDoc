@@ -3,7 +3,8 @@ import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 import fs from 'fs-extra';
 import bannerPlugin from 'vite-plugin-banner';
-import minifyHTML from 'rollup-plugin-minify-html-literals';
+import minifyHTML from '@lit-labs/rollup-plugin-minify-html-literals';
+import { visualizer } from 'rollup-plugin-visualizer';
 import { build } from 'vite';
 import pkg from './package.json'
 import { transform } from 'esbuild';
@@ -14,9 +15,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const sharedPlugins = [
-  minifyHTML.default({
-    include: ["./src/*", "./src/styles/*", "./src/templates/*", "./src/components/*"],
-    exclude: ["./src/utils/*", "src/rapidoc.js"]
+  minifyHTML({
+    include: ['src/**/*.js'],
   }),
   bannerPlugin(`/*!
    * @license
@@ -25,20 +25,35 @@ const sharedPlugins = [
    * SPDX-License-Identifier: ${pkg.license}
    */`),
    {
-    // This plugin is added coz in vite library mode The generated bundle is not minified 
+    // Minify the final generated ESM bundle using esbuild and drop console/debugger
     name: 'minifyEs',
-    renderChunk: {
-      order: 'post',
-      async handler(code) {
-        return await transform(code, { 
-          minify: true,
-          drop: ['console','debugger'],
-          format: 'esm',
-        });
-      },
+    async generateBundle(options, bundle) {
+      for (const fileName of Object.keys(bundle)) {
+        const chunk = bundle[fileName];
+        if (chunk.type === 'chunk') {
+          const result = await transform(chunk.code, { 
+            minify: true,
+            drop: ['console', 'debugger'],
+            format: 'esm',
+          });
+          chunk.code = result.code;
+        }
+      }
     },
-  }
+  },
+  ...(process.env.ANALYZE === 'true' ? [
+    visualizer({
+      filename: resolve(__dirname, 'dist/stats.html'),
+      title: 'RapiDoc Bundle Analysis',
+      open: true,
+      gzipSize: true,
+      brotliSize: true,
+      template: 'treemap',
+    })
+  ] : []),
 ];
+
+let rapidocBuilt = false;
 
 export default defineConfig({
   // Astro Related config 
@@ -54,7 +69,8 @@ export default defineConfig({
   vite: {
     resolve: {
       alias: { 
-        '~': resolve(__dirname, './src')
+        '~': resolve(__dirname, './src'),
+        'rapidoc': resolve(__dirname, './src/index.js')
       },
     },
     plugins: [
@@ -62,6 +78,8 @@ export default defineConfig({
         name: 'build-rapidoc',
         apply: 'build', // Only run during build, not during dev
         async buildStart() {
+          if (rapidocBuilt) return;
+          rapidocBuilt = true;
           await build({
             configFile: false,
             build: {
@@ -72,6 +90,11 @@ export default defineConfig({
               },
               outDir: resolve(__dirname, 'dist'),
               emptyOutDir: true,
+              rolldownOptions: {
+                output: {
+                  minify: true,
+                },
+              },
             },
             resolve: {
               alias: {
@@ -108,7 +131,8 @@ export default defineConfig({
             watch(file, (eventType) => {
               if (eventType === 'change') {
                 server.moduleGraph.invalidateAll();
-                server.ws.send({
+                const hot = server.hot || server.ws;
+                hot.send({
                   type: 'full-reload',
                   path: '*'
                 });

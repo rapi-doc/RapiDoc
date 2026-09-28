@@ -34,6 +34,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "build:size": "ANALYZE=true astro build",
     "preview": "astro preview",
     "lint": "eslint './src/**/*.js'",
     "format": "prettier --config .prettierrc --check './src/**/*.{js,html,css}'",
@@ -56,20 +57,22 @@
     "xml-but-prettier": "^1.0.1"
   },
   "devDependencies": {
-    "@eslint/js": "^9.18.0",
-    "astro": "^5.1.9",
-    "eslint": "^9.18.0",
+    "@eslint/js": "^9.20.0",
+    "@lit-labs/rollup-plugin-minify-html-literals": "^0.2.0",
+    "astro": "^7.3.5",
+    "eslint": "^9.20.1",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-lit": "^1.15.0",
     "eslint-plugin-prettier": "^5.2.3",
     "fs-extra": "^11.3.0",
     "glob": "^11.0.1",
     "globals": "^15.14.0",
-    "prettier": "^3.4.2",
-    "rollup-plugin-minify-html-literals": "^1.2.6",
-    "vite-plugin-banner": "^0.8.0"
+    "lit-analyzer": "^2.0.3",
+    "prettier": "^3.5.2",
+    "rollup-plugin-visualizer": "^7.1.1",
+    "vite-plugin-banner": "^0.8.1"
   },
   "engines": {
-    "node": ">=18.16.0"
+    "node": ">=22.12.0"
   }
 }
