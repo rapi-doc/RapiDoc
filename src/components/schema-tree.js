@@ -1,6 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import DOMPurify from 'dompurify';
+import { sanitizeHTML } from '../utils/sanitize.js';
 import { marked } from 'marked';
 import FontStyles from '~/styles/font-styles';
 import SchemaStyles from '~/styles/schema-styles';
@@ -116,7 +116,7 @@ export default class SchemaTree extends LitElement {
         }
       </div>
       <span part="schema-description" class="m-markdown">
-        ${unsafeHTML(DOMPurify.sanitize(marked(this.data?.['::description'] || ''), { USE_PROFILES: { html: true } }))}</span
+        ${unsafeHTML(sanitizeHTML(marked(this.data?.['::description'] || '')))}</span
       >
       ${
         this.data
@@ -264,7 +264,7 @@ export default class SchemaTree extends LitElement {
             ${openBracket}
           </div>
           <div class="td key-descr m-markdown-small">
-            ${unsafeHTML(DOMPurify.sanitize(marked(description || ''), { USE_PROFILES: { html: true } }))}
+            ${unsafeHTML(sanitizeHTML(marked(description || '')))}
           </div>
         </div>
         <div
@@ -391,16 +391,13 @@ export default class SchemaTree extends LitElement {
             description || schemaTitle || schemaDescription
               ? html`${html`<span class="m-markdown-small">
                   ${unsafeHTML(
-                    DOMPurify.sanitize(
-                      marked(
+                    sanitizeHTML(marked(
                         dataType === 'array'
                           ? `${descrExpander} ${description}`
                           : schemaTitle
                             ? `${descrExpander} <b>${schemaTitle}:</b> ${schemaDescription}`
                             : `${descrExpander} ${schemaDescription}`
-                      ),
-                      { USE_PROFILES: { html: true } }
-                    )
+                      ))
                   )}
                 </span>`}`
               : ''

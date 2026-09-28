@@ -1,6 +1,6 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import DOMPurify from 'dompurify';
+import { sanitizeHTML } from '../utils/sanitize.js';
 import { marked } from 'marked';
 
 export function setApiServer(serverUrl) {
@@ -76,7 +76,7 @@ function serverVarsTemplate() {
                   ? html`<tr>
                       <td colspan="2" style="border:none">
                         <span class="m-markdown-small">
-                          ${unsafeHTML(DOMPurify.sanitize(marked(kv[1].description), { USE_PROFILES: { html: true } }))}
+                          ${unsafeHTML(sanitizeHTML(marked(kv[1].description)))}
                         </span>
                       </td>
                     </tr>`

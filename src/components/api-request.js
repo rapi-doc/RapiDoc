@@ -1,6 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import DOMPurify from 'dompurify';
+import { sanitizeHTML } from '../utils/sanitize.js';
 import { guard } from 'lit/directives/guard.js';
 import { live } from 'lit/directives/live.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
@@ -339,7 +339,7 @@ export default class ApiRequest extends LitElement {
             ${this.renderExample(v, paramType, paramName)} ${v.summary?.length > 0 ? html`<span>&lpar;${v.summary}&rpar;</span>` : ''}
             ${
               v.description?.length > 0
-                ? html`<p>${unsafeHTML(DOMPurify.sanitize(marked(v.description), { USE_PROFILES: { html: true } }))}</p>`
+                ? html`<p>${unsafeHTML(sanitizeHTML(marked(v.description)))}</p>`
                 : ''
             }
           </li>`
@@ -637,7 +637,7 @@ export default class ApiRequest extends LitElement {
           ${this.allowTry === 'true' ? html`<td style="border:none"></td>` : ''}
           <td colspan="2" style="border:none">
             <span class="m-markdown-small">
-              ${unsafeHTML(DOMPurify.sanitize(marked(param.description || ''), { USE_PROFILES: { html: true } }))}
+              ${unsafeHTML(sanitizeHTML(marked(param.description || '')))}
             </span>
             ${this.exampleListTemplate.call(this, param.name, paramSchema.type, example.exampleList)}
           </td>
@@ -800,7 +800,7 @@ export default class ApiRequest extends LitElement {
                       ${
                         v.exampleDescription
                           ? html`<div class="m-markdown-small" style="padding: 4px 0">
-                              ${unsafeHTML(DOMPurify.sanitize(marked(v.exampleDescription || ''), { USE_PROFILES: { html: true } }))}
+                              ${unsafeHTML(sanitizeHTML(marked(v.exampleDescription || '')))}
                             </div>`
                           : ''
                       }
@@ -936,7 +936,7 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
         ${
           this.request_body.description
             ? html`<div class="m-markdown" style="margin-bottom:12px">
-                ${unsafeHTML(DOMPurify.sanitize(marked(this.request_body.description), { USE_PROFILES: { html: true } }))}
+                ${unsafeHTML(sanitizeHTML(marked(this.request_body.description)))}
               </div>`
             : ''
         }
@@ -1215,7 +1215,7 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
                       <td style="border:none"></td>
                       <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;">
                         <span class="m-markdown-small">
-                          ${unsafeHTML(DOMPurify.sanitize(marked(fieldSchema.description || '')), { USE_PROFILES: { html: true } })}
+                          ${unsafeHTML(sanitizeHTML(marked(fieldSchema.description || '')))}
                         </span>
                         ${this.exampleListTemplate.call(this, fieldName, paramSchema.type, example.exampleList)}
                       </td>
@@ -1244,7 +1244,7 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
       ${
         schema.description
           ? html`<span class="m-markdown-small">
-              ${unsafeHTML(DOMPurify.sanitize(marked(schema.description), { USE_PROFILES: { html: true } }))}
+              ${unsafeHTML(sanitizeHTML(marked(schema.description)))}
             </span>`
           : ''
       }

@@ -1,6 +1,6 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import DOMPurify from 'dompurify';
+import { sanitizeHTML } from '../utils/sanitize.js';
 import { marked } from 'marked';
 
 const codeVerifier = '731DB1C3F7EA533B85E29492D26AA-1234567890-1234567890';
@@ -635,7 +635,7 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                         ${
                           v.description
                             ? html`<div class="m-markdown">
-                                ${unsafeHTML(DOMPurify.sanitize(marked(v.description || ''), { USE_PROFILES: { html: true } }))}
+                                ${unsafeHTML(sanitizeHTML(marked(v.description || '')))}
                               </div>`
                             : ''
                         }

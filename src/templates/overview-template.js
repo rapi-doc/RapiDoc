@@ -1,6 +1,6 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import DOMPurify from 'dompurify';
+import { sanitizeHTML } from '../utils/sanitize.js';
 import Slugger from 'github-slugger';
 import { marked } from 'marked';
 import { downloadResource, viewResource } from '~/utils/common-utils';
@@ -109,15 +109,12 @@ export default function overviewTemplate() {
                 ${
                   this.resolvedSpec.info.description
                     ? html`${unsafeHTML(
-                        DOMPurify.sanitize(
-                          `<div class="m-markdown regular-font">
+                        sanitizeHTML(`<div class="m-markdown regular-font">
                         ${marked(
                           this.resolvedSpec.info.description,
                           this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer() } : undefined
                         )}
-                      </div>`,
-                          { USE_PROFILES: { html: true } }
-                        )
+                      </div>`)
                       )}`
                     : ''
                 }

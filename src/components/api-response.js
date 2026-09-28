@@ -1,6 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import DOMPurify from 'dompurify';
+import { sanitizeHTML } from '../utils/sanitize.js';
 import { marked } from 'marked';
 import { schemaInObjectNotation, generateExample, standardizeExample } from '~/utils/schema-utils';
 import FontStyles from '~/styles/font-styles';
@@ -184,7 +184,7 @@ export default class ApiResponse extends LitElement {
             <div class="top-gap">
               <span class="resp-descr m-markdown"
                 >${unsafeHTML(
-                  DOMPurify.sanitize(marked(this.responses[status]?.description || ''), { USE_PROFILES: { html: true } })
+                  sanitizeHTML(marked(this.responses[status]?.description || ''))
                 )}</span
               >
               ${
@@ -259,7 +259,7 @@ export default class ApiResponse extends LitElement {
               </td>
               <td style="padding:8px; vertical-align: baseline; border-top: 1px solid var(--light-border-color);text-overflow: ellipsis;">
                 <div class="m-markdown-small regular-font">
-                  ${unsafeHTML(DOMPurify.sanitize(marked(v.description || ''), { USE_PROFILES: { html: true } }))}
+                  ${unsafeHTML(sanitizeHTML(marked(v.description || '')))}
                 </div>
               </td>
               <td style="padding:8px; vertical-align: baseline; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;">
@@ -316,7 +316,7 @@ export default class ApiResponse extends LitElement {
                     ${
                       mimeRespDetails.examples[0].exampleDescription
                         ? html`<div class="m-markdown-small" style="padding: 4px 0">
-                            ${unsafeHTML(DOMPurify.sanitize(marked(mimeRespDetails.examples[0].exampleDescription || '')), {
+                            ${unsafeHTML(sanitizeHTML(marked(mimeRespDetails.examples[0].exampleDescription || '')), {
                               USE_PROFILES: { html: true },
                             })}
                           </div>`
@@ -338,9 +338,7 @@ export default class ApiResponse extends LitElement {
                       mimeRespDetails.examples[0].exampleDescription
                         ? html`<div class="m-markdown-small" style="padding: 4px 0">
                             ${unsafeHTML(
-                              DOMPurify.sanitize(marked(mimeRespDetails.examples[0].exampleDescription || ''), {
-                                USE_PROFILES: { html: true },
-                              })
+                              sanitizeHTML(marked(mimeRespDetails.examples[0].exampleDescription || ''))
                             )}
                           </div>`
                         : ''
@@ -370,7 +368,7 @@ ${mimeRespDetails.examples[0].exampleValue}</pre>
                       ${
                         v.exampleDescription
                           ? html`<div class="m-markdown-small" style="padding: 4px 0">
-                              ${unsafeHTML(DOMPurify.sanitize(marked(v.exampleDescription || ''), { USE_PROFILES: { html: true } }))}
+                              ${unsafeHTML(sanitizeHTML(marked(v.exampleDescription || '')))}
                             </div>`
                           : ''
                       }

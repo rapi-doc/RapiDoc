@@ -42,23 +42,18 @@
     "analyze": "lit-analyzer src"
   },
   "dependencies": {
-    "@types/js-yaml": "^4.0.9",
-    "base64-arraybuffer": "^1.0.2",
-    "buffer": "^6.0.3",
-    "dompurify": "^3.2.3",
+    "@scalar/openapi-parser": "^0.29.7",
     "github-slugger": "^2.0.0",
-    "js-yaml": "^4.1.0",
     "lit": "^3.2.1",
     "marked": "15.0.6",
-    "marked-gfm-heading-id": "^4.1.1",
     "prismjs": "^1.29.0",
     "randexp": "^0.5.3",
-    "@scalar/openapi-parser": "^0.29.7",
     "xml-but-prettier": "^1.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",
     "@lit-labs/rollup-plugin-minify-html-literals": "^0.2.0",
+    "@types/js-yaml": "^4.0.9",
     "astro": "^7.3.5",
     "eslint": "^9.20.1",
     "eslint-config-prettier": "^10.0.1",
@@ -67,6 +62,7 @@
     "fs-extra": "^11.3.0",
     "glob": "^11.0.1",
     "globals": "^15.14.0",
+    "js-yaml": "^4.1.0",
     "lit-analyzer": "^2.0.3",
     "prettier": "^3.5.2",
     "rollup-plugin-visualizer": "^7.1.1",

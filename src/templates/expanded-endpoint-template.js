@@ -1,6 +1,6 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import DOMPurify from 'dompurify';
+import { sanitizeHTML } from '../utils/sanitize.js';
 import { marked } from 'marked';
 import Slugger from 'github-slugger';
 import { rapidocApiKey } from '~/utils/common-utils';
@@ -94,7 +94,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
                           style="max-height:0px; overflow:hidden; margin-top:16px; border:1px solid var(--border-color)"
                         >
                           <div class="m-markdown" style="padding:8px">
-                            ${unsafeHTML(DOMPurify.sanitize(marked(tagDescription), { USE_PROFILES: { html: true } }))}
+                            ${unsafeHTML(sanitizeHTML(marked(tagDescription)))}
                           </div>
                         </div>`
                     : ''
@@ -144,7 +144,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
       ${
         path.description
           ? html`<div class="m-markdown">
-              ${unsafeHTML(DOMPurify.sanitize(marked(path.description), { USE_PROFILES: { html: true } }))}
+              ${unsafeHTML(sanitizeHTML(marked(path.description)))}
             </div>`
           : ''
       }
@@ -153,7 +153,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
         path.externalDocs?.url || path.externalDocs?.description
           ? html`<div style="background:var(--bg3); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--border-radius)">
               <div class="m-markdown">
-                ${unsafeHTML(DOMPurify.sanitize(marked(path.externalDocs?.description || ''), { USE_PROFILES: { html: true } }))}
+                ${unsafeHTML(sanitizeHTML(marked(path.externalDocs?.description || '')))}
               </div>
               ${
                 path.externalDocs?.url
@@ -248,13 +248,10 @@ export default function expandedEndpointTemplate() {
           <div class="regular-font-size">
             ${unsafeHTML(`
           <div class="m-markdown regular-font">
-          ${DOMPurify.sanitize(
-            marked(
+          ${sanitizeHTML(marked(
               tag.description || '',
               this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer(tag.elementId) } : undefined
-            ),
-            { USE_PROFILES: { html: true } }
-          )}
+            ))}
         </div>`)}
           </div>
         </section>

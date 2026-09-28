@@ -1,6 +1,6 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import DOMPurify from 'dompurify';
+import { sanitizeHTML } from '../utils/sanitize.js';
 import { marked } from 'marked';
 import '~/components/api-request';
 import '~/components/api-response';
@@ -138,7 +138,7 @@ function endpointBodyTemplate(path) {
       ${
         path.description
           ? html`<div part="section-endpoint-body-description" class="m-markdown">
-              ${unsafeHTML(DOMPurify.sanitize(marked(path.description), { USE_PROFILES: { html: true } }))}
+              ${unsafeHTML(sanitizeHTML(marked(path.description)))}
             </div>`
           : ''
       }
@@ -146,7 +146,7 @@ function endpointBodyTemplate(path) {
         path.externalDocs?.url || path.externalDocs?.description
           ? html`<div style="background:var(--bg3); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--border-radius)">
               <div class="m-markdown">
-                ${unsafeHTML(DOMPurify.sanitize(marked(path.externalDocs?.description || ''), { USE_PROFILES: { html: true } }))}
+                ${unsafeHTML(sanitizeHTML(marked(path.externalDocs?.description || '')))}
               </div>
               ${
                 path.externalDocs?.url
@@ -284,7 +284,7 @@ export default function endpointTemplate(isMini = false, pathsExpanded = false) 
                 <div class="section-tag-body">
                   <slot name="${tag.elementId}"></slot>
                   <div class="regular-font regular-font-size m-markdown" style="padding-bottom:12px">
-                    ${unsafeHTML(DOMPurify.sanitize(marked(tag.description || ''), { USE_PROFILES: { html: true } }))}
+                    ${unsafeHTML(sanitizeHTML(marked(tag.description || '')))}
                   </div>
                   ${tag.paths
                     .filter((v) => {

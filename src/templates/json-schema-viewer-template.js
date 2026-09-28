@@ -1,6 +1,6 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import DOMPurify from 'dompurify';
+import { sanitizeHTML } from '../utils/sanitize.js';
 import { marked } from 'marked';
 
 // Templates
@@ -72,7 +72,7 @@ function jsonSchemaBodyTemplate() {
           <div style="padding:16px; border-bottom: 1px solid var(--border-color)">
             <div style="font-size:var(--font-size-small); font-weight:bold">${jSchemaBody.name}</div>
             <span class="json-schema-description m-markdown "
-              >${unsafeHTML(DOMPurify.sanitize(marked(jSchemaBody.description || ''), { USE_PROFILES: { html: true } }))}</span
+              >${unsafeHTML(sanitizeHTML(marked(jSchemaBody.description || '')))}</span
             >
           </div>
           <div style="display:flex; flex-direction: row; gap:16px;">
