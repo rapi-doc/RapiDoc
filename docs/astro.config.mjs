@@ -124,14 +124,46 @@ export default defineConfig({
         },
       },
       {
-        name: 'serve-source-in-dev',
+        name: 'serve-rapidoc-in-dev',
         apply: 'serve',
-        configureServer(server) {
+        async configureServer(server) {
+          // Ensure rapidoc is built before serving
+          if (!fs.existsSync(rapidocDistFile)) {
+            await viteBuild({
+              configFile: resolve(rapidocPkgPath, 'vite.config.mjs'),
+            });
+          }
+
+          // Serve the bundled rapidoc-min.js directly
           server.middlewares.use((req, res, next) => {
-            if (req.url === '/rapidoc/rapidoc-min.js') {
-              req.url = '/@fs' + resolve(rapidocSrcPath, 'index.js');
+            if (req.url && req.url.split('?')[0] === '/rapidoc/rapidoc-min.js') {
+              res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+              res.setHeader('Cache-Control', 'no-cache');
+              res.end(fs.readFileSync(rapidocDistFile));
+              return;
             }
             next();
+          });
+
+          // Watch rapidoc source changes, rebuild bundle, and reload
+          let rebuilding = false;
+          watch(rapidocSrcPath, { recursive: true }, async () => {
+            if (rebuilding) return;
+            rebuilding = true;
+            try {
+              await viteBuild({
+                configFile: resolve(rapidocPkgPath, 'vite.config.mjs'),
+              });
+              const hot = server.hot || server.ws;
+              hot?.send({
+                type: 'full-reload',
+                path: '*',
+              });
+            } catch (e) {
+              console.error('Error rebuilding rapidoc:', e);
+            } finally {
+              rebuilding = false;
+            }
           });
 
           // Watch yaml changes and trigger reload
