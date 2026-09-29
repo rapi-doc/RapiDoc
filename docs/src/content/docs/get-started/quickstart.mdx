@@ -1,0 +1,259 @@
+---
+title: Quickstart & Framework Integration
+description: Learn how to install and integrate RapiDoc in pure HTML, React, Vue, Angular, Svelte, and modern bundlers.
+---
+
+import { Tabs, TabItem, Aside, Steps } from '@astrojs/starlight/components';
+
+RapiDoc is packaged as a standard W3C Web Component (Custom Element). This means it runs natively across all modern browsers and can be integrated into virtually any web framework without specialized wrappers or adapters.
+
+---
+
+## 1. Installation
+
+<Tabs>
+  <TabItem label="CDN (Zero Setup)">
+Add the ES module script tag inside the `<head>` of your HTML document:
+
+```html
+<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+```
+
+<Aside type="note">
+For production environments, we recommend pinning the specific version (e.g. `https://unpkg.com/rapidoc@9.3.9/dist/rapidoc-min.js`) or self-hosting the bundle.
+</Aside>
+  </TabItem>
+
+  <TabItem label="NPM / Package Managers">
+Install RapiDoc into your application bundle:
+
+```bash
+# npm
+npm install rapidoc
+
+# pnpm
+pnpm add rapidoc
+
+# yarn
+yarn add rapidoc
+```
+
+Then register the element by importing it in your JavaScript or TypeScript entry file:
+
+```typescript
+import 'rapidoc';
+```
+  </TabItem>
+</Tabs>
+
+---
+
+## 2. Basic HTML Integration
+
+The simplest way to use RapiDoc is by embedding the `<rapi-doc>` tag directly in your markup:
+
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>API Documentation</title>
+    <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      rapi-doc {
+        width: 100vw;
+        height: 100vh;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <rapi-doc
+      spec-url="https://petstore.swagger.io/v2/swagger.json"
+      theme="dark"
+      render-style="read"
+      show-header="true"
+      allow-try="true"
+    ></rapi-doc>
+  </body>
+</html>
+```
+
+<Aside type="tip" title="Sizing the Component">
+By default, `<rapi-doc>` behaves like a block element. To fill the viewport cleanly, set `display: block; width: 100%; height: 100vh;` in your CSS.
+</Aside>
+
+---
+
+## 3. Integrating with Modern Frameworks
+
+Because Custom Elements are a standard browser feature, they seamlessly accept attributes and properties in modern web frameworks.
+
+### React / Next.js
+
+In React 18 and Next.js (App Router), Custom Elements must be loaded exclusively on the client side since browsers execute Web Component definitions in client DOM.
+
+<Tabs>
+  <TabItem label="React (Client Component)">
+```tsx
+import React, { useEffect, useState } from 'react';
+
+export default function ApiDocs() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // Dynamic import ensures Web Component executes in browser environment
+    import('rapidoc');
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return <div>Loading API Documentation...</div>;
+
+  return (
+    <div style={{ width: '100vw', height: '100vh' }}>
+      {/* @ts-ignore custom element JSX declaration */}
+      <rapi-doc
+        spec-url="https://petstore.swagger.io/v2/swagger.json"
+        theme="dark"
+        render-style="view"
+        show-header="false"
+        style={{ width: '100%', height: '100%', display: 'block' }}
+      />
+    </div>
+  );
+}
+```
+  </TabItem>
+
+  <TabItem label="TypeScript JSX Support">
+To prevent TypeScript from throwing `Property 'rapi-doc' does not exist on type 'JSX.IntrinsicElements'`, add this declaration in a `rapidoc.d.ts` file in your `src/` directory:
+
+```typescript
+// src/rapidoc.d.ts
+declare namespace JSX {
+  interface IntrinsicElements {
+    'rapi-doc': React.DetailedHTMLProps<
+      React.HTMLAttributes<HTMLElement> & {
+        'spec-url'?: string;
+        'theme'?: 'light' | 'dark';
+        'render-style'?: 'read' | 'view' | 'focused';
+        'show-header'?: 'true' | 'false' | boolean;
+        'allow-try'?: 'true' | 'false' | boolean;
+        'primary-color'?: string;
+        'bg-color'?: string;
+        'text-color'?: string;
+        [key: string]: any;
+      },
+      HTMLElement
+    >;
+  }
+}
+```
+  </TabItem>
+</Tabs>
+
+---
+
+### Vue 3 / Nuxt
+
+Vue provides first-class support for Custom Elements. Tell Vue compiler to treat `<rapi-doc>` as a custom element rather than a missing Vue component:
+
+<Tabs>
+  <TabItem label="Vite / Vue 3 Config">
+```javascript
+// vite.config.js
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+
+export default defineConfig({
+  plugins: [
+    vue({
+      template: {
+        compilerOptions: {
+          // Tell Vue to ignore custom element tags starting with 'rapi-'
+          isCustomElement: (tag) => tag.startsWith('rapi-'),
+        },
+      },
+    }),
+  ],
+});
+```
+  </TabItem>
+
+  <TabItem label="Vue Component">
+```vue
+<template>
+  <div class="docs-wrapper">
+    <rapi-doc
+      spec-url="https://petstore.swagger.io/v2/swagger.json"
+      theme="dark"
+      render-style="focused"
+      style="height: 100vh; width: 100%; display: block;"
+    ></rapi-doc>
+  </div>
+</template>
+
+<script setup>
+import { onMounted } from 'vue';
+
+onMounted(async () => {
+  // Register web component on mount
+  await import('rapidoc');
+});
+</script>
+
+<style scoped>
+.docs-wrapper {
+  width: 100vw;
+  height: 100vh;
+}
+</style>
+```
+  </TabItem>
+</Tabs>
+
+---
+
+### Angular
+
+In Angular, add `CUSTOM_ELEMENTS_SCHEMA` to your module or standalone component:
+
+```typescript
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import 'rapidoc';
+
+@Component({
+  selector: 'app-api-docs',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <rapi-doc
+      spec-url="https://petstore.swagger.io/v2/swagger.json"
+      theme="dark"
+      render-style="view"
+      style="height: 100vh; width: 100%; display: block;">
+    </rapi-doc>
+  `,
+})
+export class ApiDocsComponent {}
+```
+
+---
+
+## 4. Essential Attributes Reference
+
+Here are the most frequently used attributes when initializing RapiDoc:
+
+| Attribute | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `spec-url` | `string` | `""` | URL of the OpenAPI / Swagger JSON or YAML specification. |
+| `theme` | `string` | `"light"` | Primary visual mode: `'light'` or `'dark'`. |
+| `render-style` | `string` | `"view"` | Layout mode: `'read'`, `'view'`, or `'focused'`. |
+| `show-header` | `boolean` | `true` | Displays the top navigation bar with search, server selection, and auth controls. |
+| `allow-try` | `boolean` | `true` | Allows developers to execute interactive API requests directly from the UI. |
+| `allow-authentication` | `boolean` | `true` | Shows security and API key authentication panels. |
+| `primary-color` | `string` | `"#ff791a"` | Accent color used for buttons, method badges, and active states. |

@@ -1,0 +1,62 @@
+---
+import GlobalLayout from '../layouts/GlobalLayout.astro';
+import PageBanner from '../components/PageBanner.astro';
+import { testListData, TestItem } from '../page-data/tests';
+import '../styles/table.css';
+---
+
+<GlobalLayout>
+  <PageBanner slot="topbar" page="example-list" showWaves = {true} />
+  <main>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h1> List of Tests (Classic View) </h1>
+      <a href="/tests" style="color: #6ebcfc; font-size: 14px; text-decoration: underline;">Switch to Modern View →</a>
+    </div>
+    <hr/>
+    <div style="display:flex; flex-direction: column; height: 100%;width: 100%;">
+      <!-- Basic Tests-->
+      <h2 id="basic-tests"> Basic Tests </h2>
+      <table class="m-table">
+        <tr>
+          <th class="name-col">Test Name</th>
+          <th class="description-col">Validates</th>
+        </tr>
+        {
+          testListData.basic.map(testGroup => { 
+            const [testName, testItem] = Object.entries(testGroup)[0] as [string, TestItem];
+            if (((testItem && testItem.hidden) || false) !== true) {
+              return (
+                <tr>
+                  <td class="name-col"><a href={`/tests/${testName}`}> {(testItem && testItem.title) || testName}</a></td>
+                  <td class="description-col mono yellow small-font">{ testItem && testItem.validates?.join(', ') || ''}</td>
+                </tr>
+              );
+            }
+          })
+        }
+      </table>
+
+      <!-- Advanced Tests -->
+      <h2 id="advanced-tests"> Advanced Tests </h2>
+      <table class="m-table">
+        <tr>
+          <th class="name-col">Test Name</th>
+          <th class="description-col">Validates</th>
+        </tr>
+        {
+          testListData.advanced.map(testGroup => { 
+            const [testName, testItem] = Object.entries(testGroup)[0] as [string, TestItem];
+            if (((testItem && testItem.hidden) || false) !== true) {
+              return (
+                <tr>
+                  <td class="name-col"><a href={`/tests/${testName}`}> {(testItem && testItem.title) || testName}</a></td>
+                  <td class="description-col">{ testItem && testItem.validates?.join(', ') || ''}</td>
+                </tr>
+              );
+            }
+          })
+        }
+      </table>
+    </div>  
+  </main>
+</GlobalLayout>

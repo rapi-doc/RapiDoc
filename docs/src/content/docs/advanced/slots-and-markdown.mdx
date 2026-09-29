@@ -1,0 +1,80 @@
+---
+title: HTML Slots & Markdown Injection
+description: Inject custom HTML, logos, and auth notices using Web Component slots, and embed interactive HTML inside OpenAPI markdown descriptions.
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+RapiDoc provides built-in extension points through standard Web Component `<slot>` elements. This allows you to inject brand logos, corporate announcement banners, or custom authorization widgets directly into RapiDoc's internal layout without modifying source code.
+
+---
+
+## 1. Web Component Named Slots
+
+Because `<rapi-doc>` is a custom element, any child elements you place inside it can target specific internal slot locations using the standard HTML `slot="..."` attribute.
+
+```html
+<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json">
+
+  <!-- 1. Named Slot: Custom Brand Logo in Sidebar -->
+  <div slot="nav-logo" style="display: flex; align-items: center; gap: 8px; padding: 12px 16px;">
+    <img src="/brand/logo.svg" alt="Company Logo" width="32" height="32" />
+    <span style="font-weight: 700; color: #38bdf8; font-size: 16px;">Acme Cloud API</span>
+  </div>
+
+  <!-- 2. Named Slot: Auth Notice in Security Modal -->
+  <div slot="auth" style="background: rgba(6, 182, 212, 0.1); border: 1px solid #06b6d4; padding: 12px; border-radius: 6px; margin-bottom: 16px;">
+    <p style="margin: 0; font-size: 13px; color: #e2e8f0;">
+      🔑 <strong>Need an API Key?</strong> Generate test tokens in the 
+      <a href="https://console.company.com" target="_blank" style="color: #38bdf8;">Developer Dashboard</a>.
+    </p>
+  </div>
+
+  <!-- 3. Default Slot: Renders as a custom banner above the main content -->
+  <div style="background: linear-gradient(90deg, #1e293b, #0f172a); padding: 16px; border-radius: 8px; margin: 16px;">
+    <h3 style="margin: 0; color: #f8fafc;">✨ Welcome to Version 2.4</h3>
+    <p style="margin: 4px 0 0; color: #94a3b8; font-size: 14px;">Review our changelog for breaking migration notes.</p>
+  </div>
+
+</rapi-doc>
+```
+
+### Available Slot Names
+
+| Slot Name | Placement | Typical Use Case |
+| :--- | :--- | :--- |
+| *(default)* | Top of the main content canvas (below header) | Announcements, release banners, deprecation warnings. |
+| `nav-logo` | Top-left corner of the sidebar navigation | Custom corporate branding logo and wordmark. |
+| `auth` | Top of the interactive Authentication / Security dialog | Instructions on obtaining API keys or internal approvals. |
+| `header` | Inside the top utility bar | Custom buttons or external navigation links. |
+| `footer` | Bottom of the documentation canvas | Legal notices, copyright, privacy policy links. |
+
+---
+
+## 2. Embedding HTML in OpenAPI Markdown
+
+RapiDoc's markdown engine permits standard HTML formatting inside OpenAPI description fields. You can use this to enrich documentation with interactive elements:
+
+```yaml
+openapi: 3.0.0
+info:
+  title: Payments Gateway API
+  version: 2.1.0
+  description: |
+    Welcome to the Payment Gateway API.
+
+    <div style="display: flex; gap: 12px; margin: 16px 0;">
+      <a href="https://status.payments.com" style="background: #10b981; color: #fff; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 600;">
+        🟢 Systems Operational
+      </a>
+      <a href="https://github.com/company/sdks" style="background: #1e293b; color: #38bdf8; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 600;">
+        📦 Download Official SDKs
+      </a>
+    </div>
+
+    Use this API to process credit card payments, authorize refunds, and manage subscriptions.
+```
+
+<Aside type="tip" title="Custom Code Highlighting">
+Any fenced code blocks (```python, ```typescript, etc.) inside markdown descriptions are automatically syntax-highlighted by RapiDoc using its built-in code engine.
+</Aside>

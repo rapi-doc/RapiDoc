@@ -1,0 +1,82 @@
+---
+title: Large Spec Optimization & Tuning
+description: Strategies for optimizing OpenAPI rendering speed, handling 10MB+ files, and avoiding common performance bottlenecks.
+---
+
+import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+RapiDoc is among the fastest OpenAPI documentation renderers available in the web ecosystem. However, enterprise specifications with hundreds of models, deep polymorphic inheritance, and thousands of endpoints can stress browser CPU and memory if not tuned properly.
+
+This guide outlines practical optimizations to ensure instantaneous loads and fluid 60 FPS interactions.
+
+---
+
+## 1. What Makes a Spec "Large"?
+
+A common misconception is that raw file size is the primary factor in rendering speed. In practice, browser bottlenecks are driven by structural complexity:
+
+| Factor | Impact on Rendering | Explanation |
+| :--- | :--- | :--- |
+| **Raw Markdown / Text** | Low | A 5MB spec containing extensive markdown descriptions parses quickly and has minimal impact on DOM rendering. |
+| **Repeated `$ref` Schemas** | Medium to High | Hundreds of endpoints referencing the same complex schema multiply internal validation trees. |
+| **Deep `$ref` Nesting** | High | Schemas nested 5+ levels deep force recursive parser traversal. |
+| **Circular References** | High | Objects referencing parent models can trigger unbounded loops if not properly resolved. |
+| **Swagger 2.0 Format** | Extreme | Passing Swagger 2.0 forces client-side conversion to OpenAPI 3.x on the user's device. |
+
+---
+
+## 2. Eliminate Runtime Swagger 2.0 Conversion
+
+When RapiDoc receives a Swagger 2.0 specification, it must dynamically convert it to OpenAPI 3.x in JavaScript before rendering. For large specs, this conversion alone can take **1,500ms to 4,000ms of single-threaded CPU time**.
+
+<Aside type="danger" title="Always Pre-Convert Swagger 2.0 in CI/CD">
+Never serve raw Swagger 2.0 specs to client browsers. Pre-convert them to OpenAPI 3.0 during your CI/CD build step.
+</Aside>
+
+### Pre-conversion with Node CLI
+
+<Steps>
+1. Install `swagger2openapi`:
+   ```bash
+   npm install -g swagger2openapi
+   ```
+
+2. Convert the specification:
+   ```bash
+   swagger2openapi swagger.json --outfile openapi3.json --yaml false
+   ```
+
+3. Provide the converted file directly to RapiDoc:
+   ```html
+   <rapi-doc spec-url="/specs/openapi3.json"></rapi-doc>
+   ```
+</Steps>
+
+---
+
+## 3. Choose the Right Render Mode
+
+The single most impactful setting for large specifications is `render-style`:
+
+- **Avoid `render-style="read"` for large specs**: In `read` mode, RapiDoc renders all operations, schemas, parameters, and tables into one enormous DOM tree simultaneously. With 200+ endpoints, this creates tens of thousands of DOM elements, causing noticeable layout thrashing and sluggish scrolling.
+- **Use `render-style="view"`**: Renders endpoints in collapsible accordion groups, keeping inactive sections lightweight.
+- **Use `render-style="focused"` for 500+ endpoints**: Only the currently active endpoint is mounted in the DOM. Switching between endpoints is instant because RapiDoc simply re-renders a single isolated card rather than managing an extensive document tree.
+
+---
+
+## 4. Enable Schema Lazy-Loading
+
+By default, complex schemas with nested models can expand automatically. For large enterprise specifications, configure RapiDoc to collapse schemas until requested by the user:
+
+```html
+<rapi-doc
+  spec-url="/api/enterprise-spec.json"
+  render-style="focused"
+  schema-expand-level="1"
+  default-schema-tab="schema"
+  show-components="false"
+></rapi-doc>
+```
+
+- `schema-expand-level="1"`: Prevents recursive auto-expansion of deeply nested sub-objects until the user clicks expand.
+- `default-schema-tab="schema"`: Avoids generating heavy example mock objects simultaneously with the schema tree.

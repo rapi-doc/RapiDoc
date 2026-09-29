@@ -1,0 +1,83 @@
+---
+title: RapiDoc Documentation
+description: Build fast, beautiful, and fully customizable OpenAPI documentation with standard Web Components.
+---
+
+import { Card, CardGrid, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+**RapiDoc** is an ultra-fast, zero-dependency OpenAPI documentation renderer built on native Web Components. It transforms any OpenAPI 3.x (and 2.0) specification into an interactive, beautifully styled developer portal that embeds seamlessly into any web stack.
+
+<Aside type="tip" title="Why RapiDoc?">
+Unlike traditional heavy documentation frameworks, RapiDoc is a single native HTML element (`<rapi-doc>`). Because it uses the browser's Shadow DOM, styles never leak into or out of the component, guaranteeing rock-solid stability in complex enterprise portals.
+</Aside>
+
+---
+
+## Core Capabilities
+
+<CardGrid stagger>
+  <Card title="Zero Dependencies" icon="puzzle">
+    Built directly on web standards with no React, Vue, or heavy client bundle dependencies. Load it from a CDN or install via npm.
+  </Card>
+  <Card title="Tailored Theming" icon="pencil">
+    Customize colors, typography, and dark/light modes using simple HTML attributes, or gain pixel-level control with modern CSS `::part()` pseudo-elements.
+  </Card>
+  <Card title="3 Distinct Render Modes" icon="laptop">
+    Choose between **Read** (continuous scrolling), **View** (collapsible categories), or **Focused** (lazy-loaded single endpoint view for massive specs).
+  </Card>
+  <Card title="Full JavaScript SDK" icon="seti:javascript">
+    Control RapiDoc programmatically at runtime: intercept network requests (`before-try`), inject auth credentials dynamically, and control navigation via code.
+  </Card>
+</CardGrid>
+
+---
+
+## 30-Second Quickstart
+
+Include the script tag, drop in the `<rapi-doc>` element, and you have a fully functional interactive API explorer.
+
+<Tabs>
+  <TabItem label="HTML (CDN)">
+```html
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <!-- Load RapiDoc Web Component -->
+    <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+  </head>
+  <body>
+    <rapi-doc
+      spec-url="https://petstore.swagger.io/v2/swagger.json"
+      theme="dark"
+      render-style="read"
+      show-header="false"
+    ></rapi-doc>
+  </body>
+</html>
+```
+  </TabItem>
+  <TabItem label="NPM / Bundlers">
+```bash
+# Install via your preferred package manager
+npm install rapidoc
+```
+
+```javascript
+// Import into your application entrypoint
+import 'rapidoc';
+```
+  </TabItem>
+</Tabs>
+
+---
+
+## Documentation Roadmap
+
+Dive deeper into RapiDoc by exploring our dedicated guides:
+
+- **[Getting Started & Frameworks](/docs/get-started/quickstart/)**: Integrate with React, Vue, Angular, Svelte, Next.js, and Astro.
+- **[Theming & Deep Styling](/docs/theming/overview/)**: Master attributes, Google Fonts, and the Shadow DOM `::part()` selector.
+- **[Programmatic API & JavaScript Control](/docs/programmatic-api/lifecycle-and-methods/)**: Call runtime methods and listen to lifecycle events.
+- **[Performance & Large Spec Tuning](/docs/performance/large-specs/)**: Keep rendering instant even with 10MB+ specs and thousands of schemas.
+- **[OAuth 2.0 Integration](/docs/advanced/oauth-setup/)**: Configure interactive authentication and tokens.

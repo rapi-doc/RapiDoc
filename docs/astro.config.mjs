@@ -1,4 +1,5 @@
 import { defineConfig } from 'astro/config';
+import starlight from '@astrojs/starlight';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 import fs from 'fs-extra';
@@ -17,12 +18,76 @@ let rapidocBuilt = false;
 
 export default defineConfig({
   srcDir: './src',
-  outDir: './generated-docs',
+  outDir: './dist',
   publicDir: './public',
   site: 'https://rapidocweb.com',
   build: {
     format: 'directory',
   },
+  integrations: [
+    starlight({
+      title: 'RapiDoc',
+      disable404Route: true,
+      logo: {
+        src: './src/assets/logo.png',
+      },
+      social: [
+        { icon: 'github', label: 'GitHub', href: 'https://github.com/rapi-doc/RapiDoc' },
+      ],
+      customCss: [
+        './src/styles/starlight-custom.css',
+      ],
+      components: {
+        SiteTitle: './src/components/DocsSiteTitle.astro',
+        ThemeProvider: './src/components/ForceDarkTheme.astro',
+        ThemeSelect: './src/components/EmptyComponent.astro',
+      },
+      expressiveCode: {
+        themes: ['github-dark'],
+        useStarlightDarkModeSwitch: false,
+      },
+      sidebar: [
+        {
+          label: 'Getting Started',
+          items: [
+            { label: 'Introduction', slug: 'docs' },
+            { label: 'Quickstart & Frameworks', slug: 'docs/get-started/quickstart' },
+            { label: 'OpenAPI Spec Support', slug: 'docs/get-started/openapi-support' },
+          ],
+        },
+        {
+          label: 'Theming & Deep Styling',
+          items: [
+            { label: 'Theming Overview', slug: 'docs/theming/overview' },
+            { label: 'CSS Parts (::part)', slug: 'docs/theming/css-parts' },
+            { label: 'Pre-built Themes & Recipes', slug: 'docs/theming/prebuilt-themes' },
+          ],
+        },
+        {
+          label: 'Programmatic API',
+          items: [
+            { label: 'JavaScript API & Lifecycle', slug: 'docs/programmatic-api/lifecycle-and-methods' },
+            { label: 'Event Hooks & Interception', slug: 'docs/programmatic-api/event-hooks' },
+          ],
+        },
+        {
+          label: 'Performance Tips',
+          items: [
+            { label: 'Large Spec Optimization', slug: 'docs/performance/large-specs' },
+            { label: 'Render Modes & Benchmarks', slug: 'docs/performance/render-modes' },
+          ],
+        },
+        {
+          label: 'Advanced Guides',
+          items: [
+            { label: 'OAuth 2.0 Integration', slug: 'docs/advanced/oauth-setup' },
+            { label: 'HTML Slots & Custom UI', slug: 'docs/advanced/slots-and-markdown' },
+            { label: 'RapiDoc Mini Widget', slug: 'docs/advanced/rapidoc-mini' },
+          ],
+        },
+      ],
+    }),
+  ],
   vite: {
     resolve: {
       alias: {
@@ -51,10 +116,10 @@ export default defineConfig({
           }
 
           // Copy rapidoc-min.js to docs output directory
-          await fs.ensureDir(resolve(__dirname, 'generated-docs/rapidoc'));
+          await fs.ensureDir(resolve(__dirname, 'dist/rapidoc'));
           await fs.copy(
             rapidocDistFile,
-            resolve(__dirname, 'generated-docs/rapidoc/rapidoc-min.js')
+            resolve(__dirname, 'dist/rapidoc/rapidoc-min.js')
           );
         },
       },
@@ -70,7 +135,7 @@ export default defineConfig({
           });
 
           // Watch yaml changes and trigger reload
-          const yamlFiles = globSync(resolve(__dirname, './src/data/**/*.yaml'));
+          const yamlFiles = globSync(resolve(__dirname, './src/page-data/**/*.yaml'));
           yamlFiles.forEach((file) => {
             watch(file, (eventType) => {
               if (eventType === 'change') {

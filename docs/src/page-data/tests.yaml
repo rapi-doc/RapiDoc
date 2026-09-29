@@ -1,0 +1,168 @@
+basic:
+  - hidden-test:
+      title: some-name
+      hidden: true
+      validates:
+        - something
+  - hide-show-sections:
+      title: Hide & Show Section Controls
+      validates:
+        - show-info
+        - show-header
+        - allow-authentication
+        - allow-server-selection
+        - allow-try
+  - hide-show-spec:
+      title: Spec Loading & Export Controls
+      validates:
+        - allow-spec-url-load
+        - allow-spec-file-load
+        - allow-spec-file-download
+  - font:
+      title: Custom Fonts & Typographic Scaling
+      validates:
+        - regular-font
+        - mono-font
+        - font-size
+  - theme-n-color:
+      title: Theme Modes & Color Palettes
+      validates:
+        - theme
+        - primary-color
+        - header-color
+        - nav-bg-color
+        - nav-text-color
+        - nav-accent-color
+  - search:
+      title: Search & Advanced Search Filters
+      validates:
+        - allow-search
+        - allow-advanced-search
+  - schema:
+      title: Schema Display Configurations
+      validates:
+        - schema-style
+        - default-schema-tab
+        - schema-expand-level
+        - schema-description-expanded
+        - allow-schema-description-expand-toggle
+  - nav-styles:
+      title: Sidebar Navigation Layout Styles
+      validates:
+        - use-path-in-nav-bar
+        - show-method-in-nav-bar
+        - nav-active-item-marker
+        - nav-item-spacing
+  - nav-hidden:
+      title: Full-Width Canvas (Hidden Sidebar)
+      validates:
+        - show-side-nav
+  - show-components:
+      title: Standalone Components Section Visibility
+      validates:
+        - show-components
+  - deprecated-items:
+      title: Deprecated Endpoints & Schema Properties
+      validates:
+        - Visual strike-through and deprecation notices on legacy operations and schema fields
+  - long-schemas:
+      title: Extensive & Deep Enterprise Schemas
+      validates:
+        - Performance and readability when rendering deeply structured enterprise schemas
+  - long-paths-n-descriptions:
+      title: Long Endpoint Paths & Multi-paragraph Descriptions
+      validates:
+        - Layout responsiveness, word wrapping, and formatting for lengthy routes and descriptions
+  - override-descriptions-in-refs:
+      title: Local Description Overrides in Schema References ($ref)
+      validates:
+        - Schema properties using $ref correctly display local description overrides
+
+advanced:
+  - parameters:
+      title: Request Parameters & Body Encodings
+      validates:
+        - Path, query, and header parameter parsing
+        - Request bodies formatted as JSON
+        - Multipart and form-data payload submissions
+  - data-types:
+      title: Primitive & Complex Data Types
+      validates:
+        - JSON request bodies with primitive and nested object types
+        - Complex schemas with multiple levels of nested objects and primitives
+        - Request and response parameters with constraints, validation rules, and deprecations
+  - data-types-multiple:
+      title: "Multi-Type Fields (type: [string, number])"
+      validates:
+        - Schema properties supporting multiple simultaneous data types
+  - example-filling:
+      title: Pre-Filling Request Forms from OpenAPI Examples
+      validates:
+        - Automatic population of parameter inputs and request payloads from spec examples
+  - example-in-nested-refs:
+      title: Example Values inside Nested Schema References
+      validates:
+        - Resolving and displaying example values defined within nested $ref schemas
+  - example-generation-too-many:
+      title: Large Example Arrays & Combinatorial Limits
+      validates:
+        - Automatic capping of combinatorial generated examples to prevent memory overhead
+  - schema-title-and-descriptions:
+      title: Sub-Schema Titles & Markdown Descriptions
+      validates:
+        - Proper rendering of distinct titles and markdown formatting across sub-schemas
+  - read-n-write-only-fields-in-schema:
+      title: Read-Only and Write-Only Property Annotations
+      validates:
+        - Clear annotations for readOnly and writeOnly fields in schema tables and trees
+  - read-n-write-only-fields-display-in-request-n-response:
+      title: Contextual Read/Write Field Visibility (Requests vs. Responses)
+      validates:
+        - Hiding read-only fields from request payloads by default
+        - Hiding write-only fields from response bodies by default
+        - Context-dependent handling for Webhooks and Callbacks
+        - Configuration overrides for read/write field display
+  - array-and-object-nesting:
+      title: Deep Array & Object Nesting Trees
+      validates:
+        - Multi-level hierarchical nesting of complex arrays, tuples, and objects
+  - circular-refs:
+      title: Circular Schema Reference Resolution
+      validates:
+        - Safe cycle detection and graceful termination without UI freeze or infinite recursion
+  - xxx-of-combinations:
+      title: One-Of, All-Of, and Any-Of Polymorphic Combinations
+      validates:
+        - Complex polymorph schemas combining oneOf, allOf, and anyOf operators simultaneously
+  - xxx-of-with-refs:
+      title: Composite Schemas with External References ($ref)
+      validates:
+        - Schema composition where branches reference external schema models
+  - xxx-of-nesting:
+      title: Nested Composition Operators
+      validates:
+        - Hierarchical nesting of oneOf, allOf, and anyOf structures
+  - xxx-of-nesting-with-expand-level:
+      title: Composite Schemas with Expand Level Control
+      validates:
+        - Verification that schema-expand-level applies recursively across composite structures
+  - xxx-of-titles:
+      title: Composite Schemas with Custom Tab Titles
+      validates:
+        - Rendering designated sub-schema titles on polymorphic tab selectors
+  - request-header-as-object:
+      title: Serialized JSON Object in HTTP Request Headers
+      validates:
+        - Serializing and transmitting structured JSON objects directly in custom headers
+  - filtering-paths:
+      title: Dynamic Path Matching & Endpoint Filtering
+      validates:
+        - match-paths regex and glob filtering
+        - match-type inclusion/exclusion rules
+        - remove-endpoints-with-badge-label-as tagging filters
+  - swagger-v2:
+      title: Legacy Swagger 2.0 Backward Compatibility
+      validates:
+        - Full backwards compatibility with Swagger/OpenAPI 2.0 specs in RapiDoc 9.3.9+
+        - Accurate path, parameter, and response visualization for v2 documents
+

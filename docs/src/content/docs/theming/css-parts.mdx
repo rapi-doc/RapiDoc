@@ -1,0 +1,126 @@
+---
+title: Advanced Styling with CSS Parts (::part)
+description: Master CSS Shadow Parts (::part()) to customize internal elements inside RapiDoc's Shadow DOM, including gradients, sidebars, buttons, and code blocks.
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+While standard attributes handle core colors and fonts, modern web applications often demand bespoke layouts—such as custom glassmorphism, multi-stop gradient navigation panels, custom borders, and custom buttons.
+
+Because RapiDoc uses Web Components, standard external CSS cannot pierce the Shadow DOM boundary. To solve this cleanly, RapiDoc exposes **CSS Shadow Parts**. Using the standard CSS `::part()` pseudo-element selector, you can target and style internal elements directly from your parent stylesheet.
+
+---
+
+## How `::part()` Works
+
+In your regular external CSS file, select `<rapi-doc>` followed by `::part(part-name)`:
+
+```css
+/* Target the sidebar navigation panel inside RapiDoc */
+rapi-doc::part(section-navbar) {
+  background: linear-gradient(180deg, #090d16 0%, #030712 100%);
+  border-right: 1px solid rgba(56, 189, 248, 0.15);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+}
+```
+
+---
+
+## Exposed CSS Parts Catalog
+
+RapiDoc exposes clean, semantic parts organized by functional zones:
+
+### 1. Navigation Sidebar Parts
+
+| Part Name | Target Element | Description |
+| :--- | :--- | :--- |
+| `section-navbar` | `<nav>` | The outer left-hand navigation sidebar container. |
+| `section-navbar-search` | `<div>` | Container wrapping the search input field in the sidebar. |
+| `textbox-nav-filter` | `<input>` | The search / filter text input box inside the sidebar. |
+| `section-navbar-scroll` | `<div>` | The scrollable container holding paths and tags. |
+| `section-navbar-item` | `<div>` | Common class for all interactive items in the sidebar. |
+| `section-navbar-tag` | `<div>` | Section headers representing OpenAPI tags. |
+| `section-navbar-path` | `<div>` | Individual endpoint items (e.g. `GET /users`). |
+| `btn-navbar` | `<button>` | Mobile hamburger toggle button to open/close sidebar. |
+
+### 2. Main Content & Overview Parts
+
+| Part Name | Target Element | Description |
+| :--- | :--- | :--- |
+| `section-main-content` | `<main>` | The primary document canvas wrapper. |
+| `section-overview` | `<div>` | Top section containing API Title, Version, and Markdown description. |
+| `section-overview-title`| `<div>` | The main API Title heading. |
+| `anchor-overview` | `<a>` | Contact, License, and Terms of Service links. |
+
+### 3. Interactive Code Samples & Tabs
+
+| Part Name | Target Element | Description |
+| :--- | :--- | :--- |
+| `tab-btn-row` | `<div>` | Container row holding multi-language code sample tabs. |
+| `tab-btn` | `<button>` | Individual tab buttons for switching languages (e.g. cURL, Python, Node). |
+| `tab-panel` | `<div>` | The active panel displaying the selected code sample. |
+| `btn-copy` | `<button>` | "Copy to clipboard" button inside code blocks. |
+
+### 4. Buttons & Form Controls
+
+| Part Name | Target Element | Description |
+| :--- | :--- | :--- |
+| `btn` | `<button>` | Common base part for buttons throughout RapiDoc. |
+| `btn-fill` | `<button>` | Solid fill buttons (e.g. "TRY", "EXECUTE"). |
+| `btn-outline` | `<button>` | Outlined secondary buttons. |
+| `textbox` | `<input>` | Text input fields across parameter tables and auth panels. |
+
+---
+
+## Practical Styling Recipes
+
+### Recipe 1: Frosted Glass Sidebar with Neon Accents
+
+```css
+/* Add modern backdrop blur and subtle border */
+rapi-doc::part(section-navbar) {
+  background: rgba(10, 15, 26, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Style the filter input inside the sidebar */
+rapi-doc::part(textbox-nav-filter) {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 8px;
+  color: #f8fafc;
+  padding: 8px 12px;
+}
+
+rapi-doc::part(textbox-nav-filter):focus {
+  border-color: #06b6d4;
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+}
+```
+
+### Recipe 2: Custom "TRY" and Action Buttons
+
+```css
+/* Style primary action buttons with vibrant gradient and glow */
+rapi-doc::part(btn-fill) {
+  background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+  color: #ffffff;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.25);
+}
+
+rapi-doc::part(btn-fill):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(6, 182, 212, 0.4);
+}
+```
+
+<Aside type="tip" title="Combining Attributes and CSS Parts">
+The best pattern is setting your foundational colors (such as `theme="dark"` and `bg-color="#090d16"`) using HTML attributes, and reserving `::part()` for high-impact visual flourishes like gradients, backdrop filters, and custom borders.
+</Aside>

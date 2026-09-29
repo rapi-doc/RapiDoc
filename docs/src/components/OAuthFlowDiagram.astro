@@ -1,0 +1,64 @@
+---
+// Component: OAuthFlowDiagram.astro
+// High-resolution architectural flow diagram for OAuth 2.0 Authorization Code flow in RapiDoc.
+---
+
+<div class="oauth-diagram-wrapper not-content" aria-label="OAuth 2.0 Authorization Code Flow Diagram">
+  <figure class="diagram-figure">
+    <img
+      src="/assets/images/oauth-flow-diagram.jpg"
+      alt="OAuth 2.0 Authorization Code Flow Diagram: Showing step-by-step communication between index.html with rapi-doc, oauth-receiver.html popup, and the Authorization Server token and authorize endpoints."
+      width="1344"
+      height="768"
+      loading="eager"
+      decoding="async"
+      class="oauth-diagram-img"
+    />
+    <figcaption class="diagram-caption">
+      Figure 1: RapiDoc OAuth 2.0 Authorization Code flow with <code>&lt;oauth-receiver&gt;</code> popup relay and PKCE token exchange.
+    </figcaption>
+  </figure>
+</div>
+
+<style>
+  .oauth-diagram-wrapper {
+    margin: 2.25rem 0;
+    width: 100%;
+  }
+
+  .diagram-figure {
+    margin: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .oauth-diagram-img {
+    width: 100%;
+    max-width: 960px;
+    height: auto;
+    border-radius: 16px;
+    border: 1px solid var(--sl-color-hairline);
+    box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.45);
+    display: block;
+    background-color: #070a12;
+  }
+
+  .diagram-caption {
+    margin-top: 0.85rem;
+    font-size: 0.82rem;
+    color: var(--sl-color-gray-4);
+    text-align: center;
+    font-family: var(--sl-font-system);
+  }
+
+  .diagram-caption code {
+    font-family: var(--sl-font-mono);
+    color: var(--sl-color-accent);
+    background: var(--sl-color-accent-low);
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+    font-size: 0.8em;
+  }
+</style>

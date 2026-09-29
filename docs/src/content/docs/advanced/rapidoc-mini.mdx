@@ -1,0 +1,59 @@
+---
+title: RapiDoc Mini (Embedded Endpoint Cards)
+description: Embed lightweight, standalone single-endpoint API cards into blogs, changelogs, and technical guides with rapi-doc-mini.
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+While `<rapi-doc>` provides a complete full-page documentation portal with sidebars and navigation, **`<rapi-doc-mini>`** is a dedicated lightweight web component designed to render a **single isolated endpoint**.
+
+It is ideal for embedding interactive "TRY" cards directly inside tutorials, changelogs, markdown blog posts, or internal wiki pages.
+
+---
+
+## 1. Quick Example
+
+To embed a single endpoint, specify the `spec-url`, target `path`, and HTTP `method`:
+
+```html
+<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+
+<div style="max-width: 800px; margin: 40px auto;">
+  <h2>Quick Test: Retrieve Pet by ID</h2>
+  <p>Execute this request directly from the card below:</p>
+
+  <!-- RapiDoc Mini Element -->
+  <rapi-doc-mini
+    spec-url="https://petstore.swagger.io/v2/swagger.json"
+    path="/pet/{petId}"
+    method="get"
+    theme="dark"
+    allow-try="true"
+    match-paths="/pet/{petId}"
+  ></rapi-doc-mini>
+</div>
+```
+
+---
+
+## 2. Key Attributes for `rapi-doc-mini`
+
+| Attribute | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `spec-url` | `string` | `""` | URL to the OpenAPI specification. |
+| `path` | `string` | `""` | The path pattern to render (e.g. `/users/{id}`). |
+| `method` | `string` | `""` | HTTP method to display (`get`, `post`, `put`, `delete`, `patch`). |
+| `theme` | `string` | `"light"` | Visual theme preset (`"light"` or `"dark"`). |
+| `allow-try` | `boolean` | `true` | Enables interactive execution and live server response preview. |
+| `schema-expand-level` | `number` | `1` | Default expansion depth for request and response schema bodies. |
+
+---
+
+## 3. When to Use `rapi-doc-mini` vs. Full `rapi-doc`
+
+| Use Case | Recommended Component |
+| :--- | :--- |
+| Full API developer portal / comprehensive reference | `<rapi-doc render-style="view">` |
+| Embedding an interactive API call inside a blog post or tutorial | `<rapi-doc-mini>` |
+| Highlighting a new endpoint in a product release announcement | `<rapi-doc-mini>` |
+| Micro-frontend with dedicated endpoint widgets | `<rapi-doc-mini>` |

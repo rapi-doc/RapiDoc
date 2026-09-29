@@ -11,6 +11,7 @@
     "preview": "astro preview"
   },
   "dependencies": {
+    "@astrojs/starlight": "^0.42.4",
     "rapidoc": "*"
   },
   "devDependencies": {

@@ -1,0 +1,207 @@
+---
+import GlobalLayout from '../layouts/GlobalLayout.astro';
+import PageBanner from '../components/PageBanner.astro';
+import { exampleListData, SubExample } from '../page-data/example-list';
+// console.log(JSON.stringify(exampleListData, null, 2));
+---
+
+<GlobalLayout>
+  <PageBanner slot="topbar" page="example-list" showWaves = {true} />
+  <main>
+    <h1> List of Examples and Documentation </h1>
+    <hr/>
+    <div class="card-grid">
+      {
+        exampleListData.examples.map(example => {
+          const [exampleTitle, exampleObj] = Object.entries(example)[0];
+          return (
+            <a 
+              class={`card ${exampleObj.isDoc ? 'is-doc':''} ${exampleObj.isWide ? 'wide':''}`} 
+              style={`${exampleObj.isDoc ? "background-image: url('/assets/images/card_bg1.png')":''}`}
+              href={exampleObj.href || undefined} 
+            >
+              { exampleObj.href && (<div class="card-corner"/>)}
+              { (exampleObj.isDoc ?? false) === false && (
+                <div class="card-header">
+                  {exampleObj.img && (<img src={exampleObj.img} />)}  
+                  {exampleTitle}
+                </div>
+              )}
+              { (exampleObj.isDoc ?? false) === false && exampleObj.description && (<div class="card-body" set:html={exampleObj.description}></div>)}
+              { exampleObj.isDoc === true && (<div class="card-doc-title" set:html={exampleTitle}/> <span set:html={exampleObj.description || ''}/>)}
+              { exampleObj.subExamples && (
+                <form class="card-buttons">
+                  {exampleObj.subExamples.map(subExample => { 
+                    const [subExampleTitle, subExampleObj] = Object.entries(subExample)[0] as [string, SubExample];
+                    return (
+                      <button class="card-btn" formaction={subExampleObj.href}>
+                        <div class="card-btn-corner"/>
+                        {subExampleTitle}
+                      </button>
+                    )}
+                  )}
+                </form>
+              )}
+            </a>
+          )
+        })
+      }
+    </div>
+  </main>  
+</GlobalLayout>
+
+<style>
+  :root {
+    --card-width: 260px;
+    --card-height: 50px;
+    --card-gap: 20px;
+  }
+
+  .card-grid {
+    display: grid;
+    font-family: Nunito, 'Open Sans', sans-serif;
+    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(var(--card-width), 1fr));
+    grid-auto-rows: minmax(var(--card-height), auto);
+    grid-gap: var(--card-gap);
+  }
+
+  * {
+    transition: all 0.3s ease-out;
+  }
+
+  a.card {
+    color: currentColor;
+    display: block;
+    position: relative;
+    border: 1px solid var(--border-color);
+    background-color: var(--card-bg-color);
+    /* border-image: linear-gradient(45deg, turquoise, greenyellow) 4; */
+    border-radius: 4px;
+    padding: 16px;
+    overflow: hidden;
+    min-width:200px;
+    background-repeat:no-repeat;
+    background-position: calc(100% + 40px) -50px; 
+    background-size: auto 128px;
+    & .card-header {
+      display: flex;
+      font-weight: 700;
+      margin-bottom: 12px;
+      line-height: 2em;
+      & img {
+        height: 32px;
+        width: auto;
+        margin-right: 12px;
+      }
+    }
+    & .card-body {
+      font-weight: 300; 
+      color: var(--fg-color-mute);
+    }
+    & .card-buttons {
+      display: flex;
+      font-weight: 300; 
+      gap: 10px;
+      margin-top:6px;
+    }
+    &:hover {
+      text-decoration: none;
+      border: 1px solid var(--border-color-hover);
+      & > .card-corner {
+        margin-right: -16px;
+      }
+    }
+    &.is-doc {
+      align-content: center;
+      text-align: center;
+      & .card-doc-title {
+        font-size: 1.5rem;
+        font-weight:700;
+        margin-bottom: 5px;
+        color: var(--color-yellow);
+      }
+      &::after {
+        content: '';
+        display: block;
+        position: absolute;
+        top: 0;
+        inset-inline-end: 0;
+        width: 80px;
+        height: 80px;
+        background: #7033f3;
+        border-radius: 100%;
+        filter: blur(2rem);
+        opacity: .5;
+      }
+    }
+  }
+
+  .bg-image {
+    background-repeat: no-repeat;
+    background-position: 130% -30px;
+    background-size: 100% 20%;   
+  }
+
+  .card-btn {
+    color:var(--color-yellow);
+    display: block;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--color-yellow);
+    font-weight: 700;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-weight: 300;
+    &:hover {
+      text-decoration: none;
+      cursor: pointer;
+      border: 1px solid var(--border-color-hover);
+      border-top-right-radius: 0px;
+      border-bottom-right-radius: 0px;
+      & .card-btn-corner {
+        margin-right: -8px;
+      }
+    }
+  }
+
+  .card-corner {
+    position: absolute;
+    overflow: hidden;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 20px;
+    color: var(--bg-color);
+    padding: 4px 6px 4px 4px;
+    transform: skew(6deg);
+    margin-right: -55px;
+    background-image: linear-gradient(-45deg, #8d8044 1%, #e17945 100%);
+    &::before {
+      content: "➜";
+    }
+  }
+
+  .card-btn-corner {
+    position: absolute;
+    overflow: hidden;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 16px;
+    transform: skew(15deg);
+    margin-right: -30px;
+    background-image: linear-gradient(-45deg, #8d8044 1%, #e17945 100%);
+  }
+
+  .card.wide {
+    grid-column: span 2;
+  }
+  
+  @media (max-width: 425px) {
+    .card-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+</style>

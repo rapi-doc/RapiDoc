@@ -9,6 +9,7 @@ interface ExampleItem {
   subExamples?: SubExampleList[];
   isWide?: boolean;
   isDoc?: boolean;
+  category?: string;
 }
 
 interface SubExampleList {

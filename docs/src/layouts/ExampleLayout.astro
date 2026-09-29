@@ -1,12 +1,28 @@
 ---
 import '../styles/examples.css';
 import GlobalLayout from '../layouts/GlobalLayout.astro';
+
+const pathname = Astro.url.pathname;
+const isTest = pathname.startsWith('/tests');
+const backUrl = isTest ? '/tests' : '/list';
+const backText = isTest ? '← Back to Tests' : '← Back to Examples';
 ---
 
 <GlobalLayout>
   <slot slot="head" name="head" /> <!-- allows to attach stylesheets into this slot which is further slotted into the head section of GlobalLayout -->
   <script slot="script" is:inline type="module" src="/rapidoc/rapidoc-min.js"></script>
   <slot slot="script" name="script" /> <!-- allows to attach script into this slot which is further slotted into the script section of GlobalLayout -->
+  
+  <!-- Floating quick return link back to Tests or Examples hub -->
+  <aside class="rd-floating-pill-container" aria-label="Navigation return">
+    <a href={backUrl} class="rd-floating-pill">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M19 12H5m7 7-7-7 7-7"/>
+      </svg>
+      <span>{backText}</span>
+    </a>
+  </aside>
+
   <slot/>
   <script is:inline>
     let rapidocEl; // Define rapidocEl at global level
@@ -50,6 +66,41 @@ import GlobalLayout from '../layouts/GlobalLayout.astro';
         rapidocEl.setAttribute('schema-style', 'table');
       }
     }
-
   </script>
+
+  <style>
+    .rd-floating-pill-container {
+      position: fixed;
+      top: 14px;
+      right: 18px;
+      z-index: 99999;
+      pointer-events: none;
+    }
+    .rd-floating-pill {
+      pointer-events: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      color: #94a3b8;
+      font-size: 12.5px;
+      font-weight: 600;
+      text-decoration: none;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .rd-floating-pill:hover {
+      color: #fff;
+      border-color: rgba(16, 185, 129, 0.5);
+      background: rgba(15, 23, 42, 0.95);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+    }
+  </style>
 </GlobalLayout>

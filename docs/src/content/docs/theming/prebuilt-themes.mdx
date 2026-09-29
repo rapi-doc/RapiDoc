@@ -1,0 +1,131 @@
+---
+title: Pre-built Themes & Style Recipes
+description: Ready-to-use themes and copy-paste color palettes for RapiDoc, including Midnight Cyan, Fintech Emerald, and Clean Minimal Light.
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+Looking for a sleek, cohesive look without designing color tokens from scratch? Below are tested, production-ready themes you can drop directly into your `<rapi-doc>` tag.
+
+---
+
+## 1. Midnight Cyan (Modern Developer Portal)
+
+Inspired by cutting-edge developer tools and dark terminal palettes. Features deep slate backgrounds, high-contrast typography, and glowing cyan accents.
+
+<Tabs>
+  <TabItem label="HTML Attributes">
+```html
+<rapi-doc
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
+  theme="dark"
+  bg-color="#06090e"
+  text-color="#94a3b8"
+  primary-color="#06b6d4"
+  header-color="#0b111e"
+  nav-bg-color="#080c14"
+  nav-text-color="#cbd5e1"
+  nav-hover-bg-color="rgba(255, 255, 255, 0.05)"
+  nav-hover-text-color="#38bdf8"
+  nav-accent-color="#06b6d4"
+  regular-font="'Inter', sans-serif"
+  mono-font="'JetBrains Mono', monospace"
+></rapi-doc>
+```
+  </TabItem>
+
+  <TabItem label="CSS Enhancements">
+```css
+/* Add subtle border styling */
+rapi-doc::part(section-navbar) {
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+rapi-doc::part(textbox-nav-filter) {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 6px;
+  color: #f8fafc;
+}
+```
+  </TabItem>
+</Tabs>
+
+---
+
+## 2. Fintech Emerald (Enterprise Banking & Payments)
+
+A serious, polished dark charcoal theme accented with vivid emerald green, ideal for payments, banking, and security infrastructure APIs.
+
+<Tabs>
+  <TabItem label="HTML Attributes">
+```html
+<rapi-doc
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
+  theme="dark"
+  bg-color="#0f172a"
+  text-color="#94a3b8"
+  primary-color="#10b981"
+  header-color="#020617"
+  nav-bg-color="#090d16"
+  nav-text-color="#cbd5e1"
+  nav-hover-bg-color="rgba(16, 185, 129, 0.1)"
+  nav-hover-text-color="#34d399"
+  nav-accent-color="#10b981"
+  regular-font="'Inter', sans-serif"
+  mono-font="'Fira Code', monospace"
+></rapi-doc>
+```
+  </TabItem>
+
+  <TabItem label="CSS Enhancements">
+```css
+rapi-doc::part(btn-fill) {
+  background: #10b981;
+  color: #020617;
+  font-weight: 600;
+  border-radius: 6px;
+}
+```
+  </TabItem>
+</Tabs>
+
+---
+
+## 3. Clean Minimalist Light (Stripe Aesthetic)
+
+Crisp, high-readability light theme tailored for public API documentation and enterprise software portals.
+
+<Tabs>
+  <TabItem label="HTML Attributes">
+```html
+<rapi-doc
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
+  theme="light"
+  bg-color="#ffffff"
+  text-color="#334155"
+  primary-color="#2563eb"
+  header-color="#f8fafc"
+  nav-bg-color="#f8fafc"
+  nav-text-color="#475569"
+  nav-hover-bg-color="#f1f5f9"
+  nav-hover-text-color="#0f172a"
+  nav-accent-color="#2563eb"
+  regular-font="'Inter', -apple-system, sans-serif"
+  mono-font="'JetBrains Mono', monospace"
+></rapi-doc>
+```
+  </TabItem>
+
+  <TabItem label="CSS Enhancements">
+```css
+rapi-doc::part(section-navbar) {
+  border-right: 1px solid #e2e8f0;
+}
+rapi-doc::part(textbox-nav-filter) {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+}
+```
+  </TabItem>
+</Tabs>

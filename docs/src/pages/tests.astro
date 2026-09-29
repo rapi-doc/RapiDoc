@@ -1,62 +1,977 @@
 ---
 import GlobalLayout from '../layouts/GlobalLayout.astro';
-import PageBanner from '../components/PageBanner.astro';
-import { testListData, TestItem } from '../data/tests';
-import '../styles/table.css';
-// console.log(JSON.stringify(testListData, null, 2));
+import SiteNavbar from '../components/SiteNavbar.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { testListData, TestItem } from '../page-data/tests';
+
+// Extract visible test suites
+const basicTests = testListData.basic
+  .map(group => {
+    const [slug, item] = Object.entries(group)[0] as [string, TestItem];
+    return { slug, ...item };
+  })
+  .filter(t => !t.hidden);
+
+const advancedTests = testListData.advanced
+  .map(group => {
+    const [slug, item] = Object.entries(group)[0] as [string, TestItem];
+    return { slug, ...item };
+  })
+  .filter(t => !t.hidden);
+
+const totalTests = basicTests.length + advancedTests.length;
+
+let totalAssertions = 0;
+[...basicTests, ...advancedTests].forEach(t => {
+  totalAssertions += t.validates?.length || 1;
+});
 ---
 
 <GlobalLayout>
-  <PageBanner slot="topbar" page="example-list" showWaves = {true} />
-  <main>
-    <h1> List of Tests </h1>
-    <hr/>
-    <div style="display:flex; flex-direction: column; height: 100%;width: 100%;">
-      <!-- Basic Tests-->
-      <h2 id="basic-tests"> Basic Tests </h2>
-      <table class="m-table">
-        <tr>
-          <th class="name-col">Test Name</th>
-          <th class="description-col">Validates</th>
-        </tr>
-        {
-          testListData.basic.map(testGroup => { 
-            const [testName, testItem] = Object.entries(testGroup)[0] as [string, TestItem];
-            if (((testItem && testItem.hidden) || false) !== true) {
-                return (
-                <tr>
-                  <td class="name-col"><a href={`/tests/${testName}`}> {(testItem && testItem.title) || testName}</a></td>
-                  <td class="description-col mono yellow small-font">{ testItem && testItem.validates?.join(', ') || ''}</td>
+  <!-- Ambient background glow elements inspired by modern developer portals -->
+  <div class="ambient-glow glow-emerald"></div>
+  <div class="ambient-glow glow-indigo"></div>
+  <div class="ambient-glow glow-cyan"></div>
+
+  <!-- Reusable Frosted Glass Navigation -->
+  <SiteNavbar activePage="tests" />
+
+  <main class="rd-tests-main">
+    <!-- Hero Header -->
+    <header class="rd-tests-header">
+      <div class="rd-badge-pill">
+        <span class="rd-badge-pulse"></span>
+        <span class="rd-badge-text">Automated Edge Case Validation Hub</span>
+      </div>
+
+      <h1 class="rd-page-title">
+        RapiDoc <span class="text-gradient">Test Matrix</span>
+      </h1>
+
+      <p class="rd-page-subtitle">
+        Comprehensive test harness validating complex schemas, circular references, polymorphic combinations (<code>oneOf</code>, <code>allOf</code>, <code>anyOf</code>), deep object nesting, and edge-case rendering performance.
+      </p>
+
+      <!-- Key Metrics Counter Bar -->
+      <div class="rd-stats-bar">
+        <a href="#basic-suite" class="rd-stat-card">
+          <span class="rd-stat-value">{totalTests}</span>
+          <span class="rd-stat-label">Total Test Suites</span>
+        </a>
+        <a href="#basic-suite" class="rd-stat-card">
+          <span class="rd-stat-value">{basicTests.length}</span>
+          <span class="rd-stat-label">Basic UI Tests</span>
+        </a>
+        <a href="#advanced-suite" class="rd-stat-card">
+          <span class="rd-stat-value">{advancedTests.length}</span>
+          <span class="rd-stat-label">Advanced Schema Tests</span>
+        </a>
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">{totalAssertions}+</span>
+          <span class="rd-stat-label">Validated Assertions</span>
+        </div>
+      </div>
+
+      <!-- Live Search & Interactive Filter Bar -->
+      <div class="rd-search-section">
+        <div class="rd-search-wrapper">
+          <svg class="rd-search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            id="tests-search"
+            type="text"
+            placeholder="Search test suites, attributes, or edge cases (e.g. circular, swagger, schema, header, oneOf)..."
+            autocomplete="off"
+            class="rd-search-input"
+          />
+          <button id="clear-tests-search" class="rd-clear-btn" aria-label="Clear search" style="display: none;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Section Navigation Pills -->
+        <div class="rd-nav-pills">
+          <a href="#all" class="rd-pill active" data-section="all">All Test Suites ({totalTests})</a>
+          <a href="#basic-suite" class="rd-pill" data-section="basic">Basic Controls ({basicTests.length})</a>
+          <a href="#advanced-suite" class="rd-pill" data-section="advanced">Advanced & Polymorphic ({advancedTests.length})</a>
+          <a href="/tests-classic" class="rd-pill rd-pill-classic" title="View classic test matrix layout">Classic View ↗</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Empty Search State -->
+    <div id="tests-empty-state" class="rd-empty-state" style="display: none;">
+      <div class="rd-empty-icon">🔍</div>
+      <h3 class="rd-empty-title">No matching test suites found <span id="empty-query-text" class="text-gradient"></span></h3>
+      <p class="rd-empty-desc">Try searching for a different keyword, feature, or reset the filter.</p>
+      <button id="reset-tests-search-btn" class="rd-btn rd-btn-primary">Reset Search</button>
+    </div>
+
+    <!-- Main Content Container -->
+    <div class="rd-tests-content" id="tests-content">
+      
+      <!-- ================= BASIC TESTS SECTION ================= -->
+      <section id="basic-suite" class="rd-tests-section" data-section-type="basic">
+        <div class="rd-section-header">
+          <div class="rd-section-badge">UI & Configuration Verification</div>
+          <h2 class="rd-section-title">
+            <a href="#basic-suite" class="rd-anchor-link">
+              Basic Feature Suites
+              <span class="rd-hash">#</span>
+            </a>
+          </h2>
+          <p class="rd-section-desc">
+            Verifies basic Web Component behavior, including section toggles, spec load operations, typography scaling, color themes, schema display modes, and navigation layouts.
+          </p>
+        </div>
+
+        <div class="rd-table-container">
+          <table class="rd-tests-table">
+            <thead>
+              <tr>
+                <th class="col-title">Test Suite & Live Preview</th>
+                <th class="col-validates">Validation Scope & Assertions</th>
+                <th class="col-category">Category</th>
+              </tr>
+            </thead>
+            <tbody>
+              {basicTests.map(test => (
+                <tr class="rd-test-row" id={test.slug} data-section="basic" data-name={test.slug.toLowerCase()}>
+                  <td class="col-title">
+                    <div class="rd-title-cell">
+                      <a href={`/tests/${test.slug}`} class="rd-item-name-link" title="Open live test preview">
+                        <span class="rd-item-name">{test.title || test.slug}</span>
+                      </a>
+                      
+                      <div class="rd-slug-row">
+                        <code class="rd-slug-badge">/tests/{test.slug}</code>
+                        <a href={`/tests/${test.slug}`} class="rd-launch-badge" target="_blank" rel="noopener">
+                          <span>Launch Test</span>
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M7 17l9.2-9.2M17 17V8H8"/>
+                          </svg>
+                        </a>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td class="col-validates">
+                    {test.validates && test.validates.length > 0 ? (
+                      <div class="rd-validates-container">
+                        <div class="rd-tags-list">
+                          {test.validates.map(v => (
+                            <code class="rd-val-tag">{v}</code>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <span class="rd-empty-val">Standard basic functionality verification</span>
+                    )}
+                  </td>
+
+                  <td class="col-category">
+                    <span class="rd-badge-cat rd-cat-basic">Basic</span>
+                  </td>
                 </tr>
-                )
-              }
-            })
-        }
-      </table>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
+      <!-- ================= ADVANCED TESTS SECTION ================= -->
+      <section id="advanced-suite" class="rd-tests-section" data-section-type="advanced">
+        <div class="rd-section-header">
+          <div class="rd-section-badge">Edge Cases & Polymorphism</div>
+          <h2 class="rd-section-title">
+            <a href="#advanced-suite" class="rd-anchor-link">
+              Advanced Schemas & Edge Cases
+              <span class="rd-hash">#</span>
+            </a>
+          </h2>
+          <p class="rd-section-desc">
+            Stress-tests complex enterprise OpenAPI requirements: deep object and array nesting, circular schema references, multi-type fields, polymorphic operators (<code>oneOf</code>, <code>allOf</code>, <code>anyOf</code>), custom header objects, and legacy Swagger 2.0 schemas.
+          </p>
+        </div>
 
-      <h2 id="basic-tests"> Advanced Tests </h2>
-      <table class="m-table">
-        <tr>
-          <th class="name-col">Test Name</th>
-          <th class="description-col">Validates</th>
-        </tr>
-        {
-          testListData.advanced.map(testGroup => { 
-            const [testName, testItem] = Object.entries(testGroup)[0] as [string, TestItem];
-            if (((testItem && testItem.hidden) || false) !== true) {
+        <div class="rd-table-container">
+          <table class="rd-tests-table">
+            <thead>
+              <tr>
+                <th class="col-title">Test Suite & Live Preview</th>
+                <th class="col-validates">Validation Scope & Assertions</th>
+                <th class="col-category">Category</th>
+              </tr>
+            </thead>
+            <tbody>
+              {advancedTests.map(test => {
+                const isPolymorphic = test.slug.includes('xxx-of') || test.slug.includes('circular');
+                const catLabel = isPolymorphic ? 'Polymorphic' : 'Advanced';
+                const catClass = isPolymorphic ? 'rd-cat-poly' : 'rd-cat-advanced';
+
                 return (
-                <tr>
-                  <td class="name-col"><a href={`/tests/${testName}`}> {(testItem && testItem.title) || testName}</a></td>
-                  <td class="description-col">{ testItem && testItem.validates?.join(', ') || ''}</td>
-                </tr>
-                )
-              }
-            })
-        }
+                  <tr class="rd-test-row" id={test.slug} data-section="advanced" data-name={test.slug.toLowerCase()}>
+                    <td class="col-title">
+                      <div class="rd-title-cell">
+                        <a href={`/tests/${test.slug}`} class="rd-item-name-link" title="Open live test preview">
+                          <span class="rd-item-name">{test.title || test.slug}</span>
+                        </a>
 
-      </table>
+                        <div class="rd-slug-row">
+                          <code class="rd-slug-badge">/tests/{test.slug}</code>
+                          <a href={`/tests/${test.slug}`} class="rd-launch-badge" target="_blank" rel="noopener">
+                            <span>Launch Test</span>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                              <path d="M7 17l9.2-9.2M17 17V8H8"/>
+                            </svg>
+                          </a>
+                        </div>
+                      </div>
+                    </td>
 
-    </div>  
+                    <td class="col-validates">
+                      {test.validates && test.validates.length > 0 ? (
+                        <div class="rd-validates-container">
+                          <div class="rd-tags-list">
+                            {test.validates.map(v => (
+                              <code class="rd-val-tag">{v}</code>
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        <span class="rd-empty-val">Polymorphic and composite schema edge case test</span>
+                      )}
+                    </td>
+
+                    <td class="col-category">
+                      <span class={`rd-badge-cat ${catClass}`}>{catLabel}</span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
   </main>
-</GlobalLayout>    
+
+  <!-- Reusable Modern Footer -->
+  <SiteFooter />
+
+  <!-- Client-side Interactive Search & Category Filter Script -->
+  <script>
+    function setupTestsSearch() {
+      const searchInput = document.getElementById('tests-search') as HTMLInputElement | null;
+      const clearBtn = document.getElementById('clear-tests-search') as HTMLButtonElement | null;
+      const emptyState = document.getElementById('tests-empty-state') as HTMLElement | null;
+      const emptyQueryText = document.getElementById('empty-query-text') as HTMLElement | null;
+      const resetBtn = document.getElementById('reset-tests-search-btn') as HTMLButtonElement | null;
+      const filterPills = document.querySelectorAll('.rd-nav-pills .rd-pill') as NodeListOf<HTMLAnchorElement>;
+      const testRows = document.querySelectorAll('.rd-test-row') as NodeListOf<HTMLElement>;
+      const testSections = document.querySelectorAll('.rd-tests-section') as NodeListOf<HTMLElement>;
+
+      if (!searchInput || testRows.length === 0) return;
+
+      let activeSectionFilter = 'all';
+
+      function filterTests() {
+        const rawQuery = (searchInput ? searchInput.value : '') || '';
+        const trimmedQuery = rawQuery.trim().toLowerCase();
+        const searchTerms = trimmedQuery ? trimmedQuery.split(/\s+/).filter(Boolean) : [];
+        let visibleCount = 0;
+
+        // Toggle clear button
+        if (clearBtn) {
+          clearBtn.style.display = trimmedQuery.length > 0 ? 'flex' : 'none';
+        }
+
+        // Filter individual rows
+        testRows.forEach(row => {
+          const rowSection = row.dataset.section || '';
+          const matchesSection = activeSectionFilter === 'all' || rowSection === activeSectionFilter;
+
+          // Search across entire visible row text (title, path, validation tags)
+          const rowText = (row.textContent || '').toLowerCase();
+          const matchesQuery = searchTerms.length === 0 || searchTerms.every(term => rowText.includes(term));
+
+          if (matchesSection && matchesQuery) {
+            row.style.display = '';
+            visibleCount++;
+          } else {
+            row.style.display = 'none';
+          }
+        });
+
+        // Hide empty sections or sections filtered out by pill
+        testSections.forEach(section => {
+          const sectionType = section.dataset.sectionType || '';
+          const sectionMatches = activeSectionFilter === 'all' || activeSectionFilter === sectionType;
+          const rows = section.querySelectorAll<HTMLElement>('.rd-test-row');
+          const hasVisibleRow = Array.from(rows).some(r => r.style.display !== 'none');
+
+          section.style.display = (sectionMatches && hasVisibleRow) ? '' : 'none';
+        });
+
+        // Toggle empty state
+        if (emptyState) {
+          emptyState.style.display = visibleCount === 0 ? 'flex' : 'none';
+          if (emptyQueryText) {
+            emptyQueryText.textContent = trimmedQuery ? `for "${trimmedQuery}"` : '';
+          }
+        }
+      }
+
+      // Live search input events
+      searchInput.addEventListener('input', filterTests);
+      searchInput.addEventListener('search', filterTests);
+      searchInput.addEventListener('keyup', (e) => {
+        if (e.key === 'Escape') {
+          searchInput.value = '';
+          filterTests();
+          searchInput.blur();
+        }
+      });
+
+      // Keyboard shortcut "/" to focus search
+      window.addEventListener('keydown', (e) => {
+        if (
+          e.key === '/' &&
+          document.activeElement !== searchInput &&
+          !(document.activeElement instanceof HTMLInputElement) &&
+          !(document.activeElement instanceof HTMLTextAreaElement)
+        ) {
+          e.preventDefault();
+          searchInput.focus();
+          searchInput.select();
+        }
+      });
+
+      // Clear button
+      if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+          searchInput.value = '';
+          filterTests();
+          searchInput.focus();
+        });
+      }
+
+      // Reset button in empty state
+      if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+          searchInput.value = '';
+          activeSectionFilter = 'all';
+          filterPills.forEach(p => p.classList.remove('active'));
+          const allPill = document.querySelector('.rd-pill[data-section="all"]');
+          if (allPill) allPill.classList.add('active');
+          filterTests();
+          searchInput.focus();
+        });
+      }
+
+      // Category filter pills
+      filterPills.forEach(pill => {
+        pill.addEventListener('click', (e) => {
+          const section = pill.dataset.section;
+          if (!section) return; // Allow normal link to classic view
+          e.preventDefault();
+
+          filterPills.forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+          activeSectionFilter = section;
+          filterTests();
+
+          if (section !== 'all') {
+            const targetSec = document.getElementById(`${section}-suite`);
+            if (targetSec && targetSec.style.display !== 'none') {
+              targetSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }
+        });
+      });
+
+      // Initial filter check
+      filterTests();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupTestsSearch);
+    } else {
+      setupTestsSearch();
+    }
+  </script>
+</GlobalLayout>
+
+<style>
+/* CSS Variables & Theme Foundations */
+:root {
+  --rd-emerald: #10b981;
+  --rd-emerald-glow: rgba(16, 185, 129, 0.25);
+  --rd-cyan: #06b6d4;
+  --rd-cyan-glow: rgba(6, 182, 212, 0.25);
+  --rd-indigo: #6366f1;
+  --rd-surface: rgba(15, 23, 42, 0.65);
+  --rd-surface-card: rgba(11, 17, 33, 0.7);
+  --rd-surface-hover: rgba(22, 32, 58, 0.85);
+  --rd-glass-border: rgba(255, 255, 255, 0.08);
+  --rd-text-primary: #f8fafc;
+  --rd-text-secondary: #94a3b8;
+  --rd-text-muted: #64748b;
+  --rd-font-mono: 'Roboto Mono', Monaco, 'Andale Mono', monospace;
+}
+
+/* Ambient Radial Glows */
+.ambient-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(140px);
+  pointer-events: none;
+  opacity: 0.18;
+  z-index: 0;
+}
+.glow-emerald {
+  top: 100px;
+  left: 15%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, var(--rd-emerald) 0%, transparent 70%);
+}
+.glow-indigo {
+  top: 600px;
+  right: 15%;
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, var(--rd-indigo) 0%, transparent 70%);
+}
+.glow-cyan {
+  top: 1400px;
+  left: 20%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, var(--rd-cyan) 0%, transparent 70%);
+}
+
+/* Page Layout */
+.rd-tests-main {
+  position: relative;
+  z-index: 1;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 48px 24px 96px 24px;
+}
+
+/* Header Section */
+.rd-tests-header {
+  text-align: center;
+  max-width: 860px;
+  margin: 0 auto 56px auto;
+}
+
+.rd-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  margin-bottom: 20px;
+}
+.rd-badge-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--rd-emerald);
+  box-shadow: 0 0 10px var(--rd-emerald);
+  animation: pulse-dot 2s infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+.rd-badge-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #34d399;
+  letter-spacing: 0.02em;
+}
+
+.rd-page-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--rd-text-primary);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  margin: 0 0 18px 0;
+}
+.text-gradient {
+  background: linear-gradient(135deg, #34d399 0%, #10b981 50%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.rd-page-subtitle {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--rd-text-secondary);
+  margin: 0 auto 36px auto;
+}
+.rd-page-subtitle code {
+  font-family: var(--rd-font-mono);
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+/* Stats Counter Bar */
+.rd-stats-bar {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 40px;
+}
+@media (min-width: 640px) {
+  .rd-stats-bar {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.rd-stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 12px;
+  background: var(--rd-surface);
+  border: 1px solid var(--rd-glass-border);
+  border-radius: 12px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.rd-stat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(16, 185, 129, 0.4);
+  background: var(--rd-surface-hover);
+  box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.5);
+}
+.rd-stat-value {
+  font-size: 26px;
+  font-weight: 800;
+  color: #fff;
+  font-family: var(--rd-font-mono);
+  background: linear-gradient(135deg, #fff 0%, #34d399 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.rd-stat-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--rd-text-muted);
+  margin-top: 4px;
+}
+
+/* Search Bar & Nav Pills */
+.rd-search-section {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: center;
+}
+.rd-search-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 680px;
+}
+.rd-search-icon {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--rd-text-muted);
+  pointer-events: none;
+}
+.rd-search-input {
+  width: 100%;
+  padding: 16px 48px 16px 52px;
+  font-size: 15px;
+  color: #fff;
+  background: rgba(10, 15, 30, 0.85);
+  border: 1px solid var(--rd-glass-border);
+  border-radius: 14px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  outline: none;
+  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+.rd-search-input:focus {
+  border-color: var(--rd-emerald);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2), 0 4px 24px -4px rgba(0, 0, 0, 0.6);
+}
+.rd-search-input::placeholder {
+  color: var(--rd-text-muted);
+}
+.rd-clear-btn {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: var(--rd-text-secondary);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.rd-clear-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+/* Nav Pills */
+.rd-nav-pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.rd-pill {
+  padding: 7px 15px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--rd-text-secondary);
+  background: var(--rd-surface);
+  border: 1px solid var(--rd-glass-border);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.rd-pill:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--rd-surface-hover);
+}
+.rd-pill.active {
+  color: #fff;
+  background: rgba(16, 185, 129, 0.15);
+  border-color: var(--rd-emerald);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+}
+.rd-pill-classic {
+  color: #eab308;
+  background: rgba(234, 179, 8, 0.1);
+  border-color: rgba(234, 179, 8, 0.25);
+}
+.rd-pill-classic:hover {
+  border-color: #eab308;
+  color: #fde047;
+}
+
+/* Empty Search State */
+.rd-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+  background: var(--rd-surface);
+  border: 1px dashed var(--rd-glass-border);
+  border-radius: 16px;
+  margin: 40px auto;
+  text-align: center;
+}
+.rd-empty-icon {
+  font-size: 44px;
+  margin-bottom: 16px;
+}
+.rd-empty-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 8px 0;
+}
+.rd-empty-desc {
+  font-size: 14px;
+  color: var(--rd-text-secondary);
+  margin: 0 0 20px 0;
+}
+.rd-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border: none;
+}
+.rd-btn-primary {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+}
+.rd-btn-primary:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+  transform: translateY(-1px);
+}
+
+/* Content Container & Sections */
+.rd-tests-content {
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+}
+.rd-tests-section {
+  scroll-margin-top: 100px;
+}
+.rd-section-header {
+  margin-bottom: 24px;
+}
+.rd-section-badge {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #34d399;
+  margin-bottom: 8px;
+}
+.rd-section-title {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+  margin: 0 0 10px 0;
+}
+.rd-section-desc {
+  font-size: 15.5px;
+  line-height: 1.65;
+  color: var(--rd-text-secondary);
+  max-width: 840px;
+  margin: 0;
+}
+.rd-section-desc code {
+  font-family: var(--rd-font-mono);
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Anchor Links */
+.rd-anchor-link {
+  color: inherit;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.rd-hash {
+  color: var(--rd-text-muted);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  font-weight: 400;
+}
+.rd-anchor-link:hover .rd-hash {
+  opacity: 1;
+  color: #34d399;
+}
+
+/* Table Design */
+.rd-table-container {
+  width: 100%;
+  overflow-x: auto;
+  background: var(--rd-surface-card);
+  border: 1px solid var(--rd-glass-border);
+  border-radius: 14px;
+  box-shadow: 0 8px 30px -10px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  margin-bottom: 24px;
+}
+.rd-tests-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.rd-tests-table thead tr {
+  background: rgba(15, 23, 42, 0.85);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+.rd-tests-table th {
+  padding: 16px 20px;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+.rd-tests-table tbody tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  transition: background-color 0.15s ease;
+  scroll-margin-top: 110px;
+}
+.rd-tests-table tbody tr:last-child {
+  border-bottom: none;
+}
+.rd-tests-table tbody tr:hover {
+  background: var(--rd-surface-hover);
+}
+.rd-tests-table td {
+  padding: 20px 20px;
+  vertical-align: top;
+}
+
+/* Columns */
+.col-title {
+  width: 32%;
+  min-width: 260px;
+}
+.col-validates {
+  width: 54%;
+  min-width: 320px;
+}
+.col-category {
+  width: 14%;
+  min-width: 120px;
+  text-align: right;
+}
+
+/* Title Cell */
+.rd-title-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.rd-item-name-link {
+  text-decoration: none;
+  display: inline-block;
+}
+.rd-item-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #f1f5f9;
+  letter-spacing: -0.01em;
+  transition: color 0.15s ease;
+}
+.rd-item-name-link:hover .rd-item-name {
+  color: #34d399;
+}
+.rd-slug-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.rd-slug-badge {
+  font-family: var(--rd-font-mono);
+  font-size: 11.5px;
+  color: var(--rd-text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+.rd-launch-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+.rd-launch-badge:hover {
+  background: rgba(56, 189, 248, 0.2);
+  color: #7dd3fc;
+  border-color: #38bdf8;
+  transform: translateY(-1px);
+}
+
+/* Validates Container */
+.rd-validates-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rd-tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.rd-val-tag {
+  font-family: var(--rd-font-mono);
+  font-size: 12.5px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  line-height: 1.4;
+  word-break: break-word;
+}
+.rd-empty-val {
+  color: var(--rd-text-muted);
+  font-size: 14px;
+  font-style: italic;
+}
+
+/* Category Badges */
+.rd-badge-cat {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.rd-cat-basic {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+.rd-cat-advanced {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+.rd-cat-poly {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+  .rd-page-title {
+    font-size: 3.2rem;
+  }
+}
+</style>

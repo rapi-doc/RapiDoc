@@ -1,0 +1,126 @@
+---
+interface Props {
+  currentPath?: string;
+}
+
+const { currentPath = '' } = Astro.props;
+---
+
+<footer class="rd-footer">
+  <div class="rd-footer-container">
+    <div class="rd-footer-col">
+      <div class="rd-footer-brand">
+        <img src="/assets/images/logo.png" alt="RapiDoc" width="28" height="28" />
+        <span class="rd-footer-brand-title">RapiDoc</span>
+      </div>
+      <p class="rd-footer-tagline">
+        The modern, framework-agnostic OpenAPI Web Component for developers and product leaders.
+      </p>
+      <div class="rd-footer-meta">
+        MIT License © {new Date().getFullYear()} Mrinmoy Majumdar
+      </div>
+    </div>
+
+    <div class="rd-footer-links-group">
+      <div class="rd-footer-link-col">
+        <span class="rd-footer-heading">Documentation</span>
+        <a href="/quickstart">Quickstart</a>
+        <a href="/list">Examples & Docs</a>
+        <a href="/api">Attributes & API</a>
+        <a href="/tests">Test Matrix & Edge Cases</a>
+        <a href="/performance">Performance Tips</a>
+      </div>
+      <div class="rd-footer-link-col">
+        <span class="rd-footer-heading">Theming & Modes</span>
+        <a href="/examples/render-view">View Mode</a>
+        <a href="/examples/render-read">Read Mode</a>
+        <a href="/examples/render-focused">Focused Mode</a>
+        <a href="/styling">Advanced Styling</a>
+      </div>
+      <div class="rd-footer-link-col">
+        <span class="rd-footer-heading">Community</span>
+        <a href="https://github.com/rapi-doc/RapiDoc" target="_blank" rel="noopener">GitHub Repository</a>
+        <a href="https://github.com/rapi-doc/RapiDoc/issues" target="_blank" rel="noopener">Issue Tracker</a>
+        <a href="/tests">Interactive Tests</a>
+        <a href="/list-classic">Classic View</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+.rd-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(4, 7, 15, 0.85);
+  padding: 56px 24px 40px 24px;
+  font-size: 13.5px;
+  position: relative;
+  z-index: 1;
+}
+.rd-footer-container {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+}
+.rd-footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.rd-footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.rd-footer-brand-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}
+.rd-footer-tagline {
+  color: #94a3b8;
+  font-size: 13px;
+  line-height: 1.5;
+  max-width: 320px;
+  margin: 0;
+}
+.rd-footer-meta {
+  color: #64748b;
+  font-size: 12px;
+}
+.rd-footer-links-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 28px;
+}
+.rd-footer-link-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.rd-footer-heading {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #fff;
+  margin-bottom: 4px;
+}
+.rd-footer-link-col a {
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 13px;
+  transition: color 0.15s ease;
+}
+.rd-footer-link-col a:hover {
+  color: #10b981;
+}
+
+@media (min-width: 768px) {
+  .rd-footer-container {
+    grid-template-columns: 1.3fr 2fr;
+  }
+}
+</style>
