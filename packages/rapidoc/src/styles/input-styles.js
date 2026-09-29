@@ -135,6 +135,7 @@ export default css`
     min-height: calc(var(--font-size-small) + 18px);
   }
 
+  input[type='file']::file-selector-button,
   input[type='file']::-webkit-file-upload-button {
     font-family: var(--font-regular);
     font-size: var(--font-size-small);

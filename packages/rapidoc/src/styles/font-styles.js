@@ -17,9 +17,11 @@ export default css`
   .title {
     font-size: calc(var(--font-size-small) + 18px);
     font-weight: normal;
+    text-wrap: balance;
   }
   .sub-title {
     font-size: 20px;
+    text-wrap: balance;
   }
   .req-res-title {
     font-family: var(--font-regular);
@@ -27,6 +29,7 @@ export default css`
     font-weight: bold;
     margin-bottom: 8px;
     text-align: left;
+    text-wrap: balance;
   }
   .tiny-title {
     font-size: calc(var(--font-size-small) + 1px);
@@ -127,8 +130,9 @@ export default css`
   h3,
   h4,
   h5,
-  h5 {
+  h6 {
     margin-block-end: 0.2em;
+    text-wrap: balance;
   }
   p {
     margin-block-start: 0.5em;

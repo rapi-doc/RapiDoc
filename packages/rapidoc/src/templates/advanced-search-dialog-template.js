@@ -16,7 +16,7 @@ export default function advancedSearchDialogTemplate() {
           spellcheck="false"
           @keyup="${(e) => this.onAdvancedSearch(e, 400)}"
         />
-        <div style="display:flex; margin:8px 0 24px;">
+        <div style="display:flex; gap:16px; flex-wrap:wrap; margin:8px 0 24px;">
           <div>
             <input
               style="cursor:pointer;"
@@ -28,7 +28,7 @@ export default function advancedSearchDialogTemplate() {
             />
             <label for="search-api-path" style="cursor:pointer;"> API Path </label>
           </div>
-          <div style="margin-left: 16px;">
+          <div>
             <input
               style="cursor:pointer;"
               type="checkbox"
@@ -39,7 +39,7 @@ export default function advancedSearchDialogTemplate() {
             />
             <label style="cursor:pointer;" for="search-api-descr"> API Description </label>
           </div>
-          <div style="margin-left: 16px;">
+          <div>
             <input
               style="cursor:pointer;"
               type="checkbox"
@@ -49,7 +49,7 @@ export default function advancedSearchDialogTemplate() {
             />
             <label style="cursor:pointer;" for="search-api-params"> API Parameters </label>
           </div>
-          <div style="margin-left: 16px;">
+          <div>
             <input
               style="cursor:pointer;"
               type="checkbox"
@@ -59,7 +59,7 @@ export default function advancedSearchDialogTemplate() {
             />
             <label style="cursor:pointer;" for="search-api-request-body"> Request Body Parameters </label>
           </div>
-          <div style="margin-left: 16px;">
+          <div>
             <input
               style="cursor:pointer;"
               type="checkbox"
