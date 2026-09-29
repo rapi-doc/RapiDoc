@@ -79,9 +79,9 @@ interface RapidocApi {
 }
 
 import yaml from 'js-yaml';
-import fs from 'fs';
+import { readDataYaml } from '../utils/readDataYaml';
 
-const rapidocApiData = yaml.load(fs.readFileSync('./docs/src/data/rapidoc-api.yaml', 'utf8')) as RapidocApi;
+const rapidocApiData = yaml.load(readDataYaml('rapidoc-api.yaml')) as RapidocApi;
 
 export { rapidocApiData };
 export type { RapidocAttribute, AttributesGroup, RapidocMethod, RapidocEvent, RapidocApi };

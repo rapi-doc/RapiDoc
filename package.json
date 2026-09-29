@@ -1,70 +1,35 @@
 {
-  "name": "rapidoc",
+  "name": "rapidoc-monorepo",
   "version": "9.3.9-beta",
-  "description": "RapiDoc - Open API spec viewer with built in console",
-  "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
-  "homepage": "https://rapidocweb.com",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/rapi-doc/RapiDoc.git"
-  },
-  "license": "MIT",
-  "keywords": [
-    "OpenAPI",
-    "OpenAPI Specification",
-    "Swagger",
-    "JSON-Schema",
-    "API",
-    "REST",
-    "documentation",
-    "Custom Element",
-    "Web Component",
-    "rapidoc",
-    "swagger",
-    "swagger ui",
-    "openapi ui",
-    "openapi themes",
-    "openapi viewer",
-    "openapi renderer",
-    "openapi explorer",
-    "swagger themes"
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "docs"
   ],
   "type": "module",
-  "module": "dist/rapidoc-min.js",
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
-    "build:size": "ANALYZE=true astro build",
-    "preview": "astro preview",
-    "lint": "eslint './src/**/*.js'",
-    "format": "prettier --config .prettierrc --check './src/**/*.{js,html,css}'",
-    "format-fix": "prettier --config .prettierrc --write './src/**/*.{js,html,css}'",
-    "analyze": "lit-analyzer src"
-  },
-  "dependencies": {
-    "@scalar/openapi-parser": "^0.29.7",
-    "github-slugger": "^2.0.0",
-    "lit": "^3.2.1",
-    "marked": "15.0.6",
-    "microlighter": "^2.2.0"
+    "dev": "npm run dev --workspace=docs",
+    "stop": "npm run stop --workspace=docs",
+    "build": "npm run build --workspace=rapidoc && npm run build --workspace=docs",
+    "build:rapidoc": "npm run build --workspace=rapidoc",
+    "build:size": "npm run build:size --workspace=rapidoc",
+    "build:docs": "npm run build --workspace=docs",
+    "preview": "npm run preview --workspace=docs",
+    "lint": "npm run lint --workspace=rapidoc",
+    "format": "prettier --config .prettierrc --check './packages/**/*.{js,html,css}' './docs/src/**/*.{js,astro,html,css}'",
+    "format-fix": "prettier --config .prettierrc --write './packages/**/*.{js,html,css}' './docs/src/**/*.{js,astro,html,css}'",
+    "analyze": "npm run analyze --workspace=rapidoc",
+    "publish:rapidoc": "npm publish --workspace=rapidoc"
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",
-    "@lit-labs/rollup-plugin-minify-html-literals": "^0.2.0",
-    "@types/js-yaml": "^4.0.9",
-    "astro": "^7.3.5",
     "eslint": "^9.20.1",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-lit": "^1.15.0",
     "eslint-plugin-prettier": "^5.2.3",
-    "fs-extra": "^11.3.0",
-    "glob": "^11.0.1",
     "globals": "^15.14.0",
-    "js-yaml": "^4.1.0",
     "lit-analyzer": "^2.0.3",
-    "prettier": "^3.5.2",
-    "rollup-plugin-visualizer": "^7.1.1",
-    "vite-plugin-banner": "^0.8.1"
+    "prettier": "^3.5.2"
   },
   "engines": {
     "node": ">=22.12.0"

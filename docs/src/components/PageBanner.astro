@@ -13,17 +13,17 @@ const { page, height, showWaves = false, hiddenOverflow = true } = Astro.props;
 <div class="banner" style={`max-height:${page === 'home' ? '500':'300'}px; overflow:${hiddenOverflow ? 'hidden' :'visible'}`} >
   <div class="banner-content" style={height != undefined ? `height: ${height}px;` : undefined}>
     <div class="banner-bar">
-      <a class="banner-bar-link" data-action="url" href="./index.html">
-        <img class="logo" src="./assets/images/logo.png" style="width:36px;height:36px;margin-right:10px;"/>
+      <a class="banner-bar-link" data-action="url" href="/">
+        <img class="logo" src="/assets/images/logo.png" style="width:36px;height:36px;margin-right:10px;"/>
       </a>
       <div class="product-name">RapiDoc</div>
       <div style="flex:1"></div>
       <nav style="width:max-content">
-        { page !== 'home' && <a class="banner-bar-link" href="./index.html"> Home </a> }
-        { page !== 'quickstart' && <a class="banner-bar-link" href="./quickstart.html"> Quick Start </a> }
-        { page !== 'examples' && <a class="banner-bar-link" href="./examples.html"> Examples </a> }
-        { page !== 'api' && <a class="banner-bar-link" href="./api.html"> API </a> }
-        <a class="banner-bar-link hide-in-mobile" href="./list.html"> List </a>
+        { page !== 'home' && <a class="banner-bar-link" href="/"> Home </a> }
+        { page !== 'quickstart' && <a class="banner-bar-link" href="/quickstart"> Quick Start </a> }
+        { page !== 'examples' && <a class="banner-bar-link" href="/examples"> Examples </a> }
+        { page !== 'api' && <a class="banner-bar-link" href="/api"> API </a> }
+        <a class="banner-bar-link hide-in-mobile" href="/list"> List </a>
         <a class="banner-bar-link hide-in-mobile" data-action="url" href="https://github.com/rapi-doc/RapiDoc"> GitHub </a>
       </nav>
     </div>

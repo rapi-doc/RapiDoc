@@ -21,8 +21,8 @@ interface SubExample {
 
   
 import yaml from 'js-yaml';
-import fs from 'fs';
+import { readDataYaml } from '../utils/readDataYaml';
 
-const exampleListData = yaml.load(fs.readFileSync('./docs/src/data/example-list.yaml', 'utf8')) as ExampleList;
+const exampleListData = yaml.load(readDataYaml('example-list.yaml')) as ExampleList;
 export { exampleListData };
 export type { ExampleList, ExampleItem, SubExampleList, SubExample };

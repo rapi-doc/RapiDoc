@@ -34,7 +34,7 @@ Attributes:
       description: >
         Sort endpoints within each tag by path, method, or summary. 'none' leaves the sort order unmodified.<br/>
          <span class="green"> ⓘ This is a static attribute. It won't have any effect if changed using JavaScript after the spec is rendered</span>
-      example: examples/arrange-by-tags.html
+      example: /examples/arrange-by-tags
       default: path
     - name: heading-text
       description: Heading text on the top-left corner.
@@ -104,7 +104,7 @@ Attributes:
         - largest
       description: Sets the relative font sizes for the document.
       default: default
-      example: examples/font-size.html
+      example: /examples/font-size
     - name: css-file & css-classes
       hidden: true
       description: > 
@@ -127,7 +127,7 @@ Attributes:
         - as-colored-block
       description: shows API Method names in the navigation bar (if you customized nav-background make sure there is a proper contrast) 
       default: "false"
-      example: examples/nav-item-with-method.html
+      example: /examples/nav-item-with-method
     - name: use-path-in-nav-bar
       allowed: ["true", "false"]
       description: >
@@ -138,11 +138,11 @@ Attributes:
           If you like to show the API method as well then use <span class="mono yellow"> show-method-in-nav-bar</span> attribute
         </div>  
       default: "false"
-      example: examples/nav-item-as-path.html
+      example: /examples/nav-item-as-path
     - name: nav-bg-color
       description: Navigation bar's background color.
       default: (empty)
-      example: examples/nav-bg-color.html
+      example: /examples/nav-bg-color
     - name: nav-text-color
       description: Navigation bar's text color.
       default: (empty)
@@ -167,7 +167,7 @@ Attributes:
         - relaxed
       description: Controls navigation item spacing
       default: default
-      example: examples/navbar-spacing.html
+      example: /examples/navbar-spacing
     - name: on-nav-tag-click
       allowed:
         - expand-collapse
@@ -198,15 +198,15 @@ Attributes:
         <ul>
           <li> 
             <span class="yellow"> view </span> friendly for quick exploring (expand/collapse the section of your interest) |  
-            <a href="examples/example1.html">Example</a>  
+            <a href="/examples/example1">Example</a>  
           </li>
           <li> 
             <span class="yellow"> read </span> suitable for reading (like a continuous web-page)  |
-            <a href="examples/read-mode.html">Example</a>  
+            <a href="/examples/read-mode">Example</a>  
           </li>
           <li> 
             <span class="yellow"> focused </span> similar to read but focuses on a single endpoint at a time (good for large specs)  |
-            <a href="examples/focused-mode.html">Example</a>  
+            <a href="/examples/focused-mode">Example</a>  
           </li>
         </ul>  
       default: read
@@ -233,14 +233,14 @@ Attributes:
         Will get the headers from the markdown in info - description (h1 and h2) into the menu on the left (in read mode) 
         along with links to them. This option allows users to add navigation bar items using Markdown
       default: "false"
-      example: examples/markdown-headings.html
+      example: /examples/markdown-headings
     - name: match-paths
       description: >
         if you want to show only few selected APIs based on the target audience, you may use this attribute to define 
         which paths should be rendered. The filter can be a simple substring match for a path or can be a complex regex expression. 
         Wheather to use substring match or regex match is specified through match-type attribute
       default: (empty)
-      example: examples/filter-test.html
+      example: /examples/filter-test
     - name: match-type
       allowed:
         - includes
@@ -252,7 +252,7 @@ Attributes:
         Comma separated badge labels to be removed from the spec.
         You may use vendor-extension x-badges to assign badges to endpoints. 
         This attributes helps in removing the endpoints which matches a badge label 
-      example: examples/filter-test.html
+      example: /examples/filter-test
     - name: show-components
       allowed: ["true", "false"]
       description: >
@@ -292,18 +292,18 @@ Attributes:
     - name: allow-advanced-search	
       allowed: ["true", "false"]
       description: Provides advanced search functionality, to search through API-paths, API-description, API-parameters and API-Responses
-      example: examples/search-by-params.html
+      example: /examples/search-by-params
       default: true
     - name: allow-try
       allowed: ["true", "false"]
       description: The 'TRY' feature allows you to make REST calls to the API server. To disable this feature, set it to <span class="mono fg-color">false</span>. 
       default: true
-      example: examples/try.html
+      example: /examples/try
     - name: show-curl-before-try
       allowed: ["true", "false"]
       description: If set to  <span class="mono fg-color">true</span>, the cURL snippet is displayed between the request and the response without clicking on TRY
       default: "false"
-      example: examples/show-curl-before-try.html
+      example: /examples/show-curl-before-try
     - name: allow-server-selection
       allowed: ["true", "false"]
       description: Allow users to switch between different servers defined in the OpenAPI spec.
@@ -320,11 +320,11 @@ Attributes:
         - table
       description: Two different ways to display object-schemas in the responses and request bodies
       default: tree
-      example: examples/schema-table.html
+      example: /examples/schema-table
     - name: schema-expand-level
       description: Schemas are expanded by default, use this attribute to control how many levels in the schema should be expanded
       default: 999
-      example: examples/schema-expand-level.html
+      example: /examples/schema-expand-level
     - name: schema-description-expanded
       allowed: ["true", "false"]
       description: >
@@ -340,7 +340,7 @@ Attributes:
         If you do not want to hide read-only fields in schema then you may set it to 'never' 
         <span class="orange">Note:This do not effect example generation.</span>
       default: default
-      example: examples/schema-read-and-write-only.html
+      example: /examples/schema-read-and-write-only
     - name: schema-hide-write-only
       allowed:
         - default
@@ -350,7 +350,7 @@ Attributes:
         If you do not want to hide write-only fields in schema then you may set it to 'never'
         <span class="orange"> Note: This do not effect example generation.</span>
       default: default
-      example: examples/schema-read-and-write-only.html
+      example: /examples/schema-read-and-write-only
     - name: default-schema-tab
       allowed:
         - schema
@@ -410,7 +410,7 @@ Methods:
         To programmatically scroll to a section (identified by combination method and path). <span class="mono fg-color">path</span> 
         should be provided in the format of <span class="mono fg-color">{method}-{path}</span>
         for instance you want to scroll to <span class="mono fg-color">GET /user/login</span> you should provide the location as <span class="mono fg-color">get-/user/login</span>
-      example: examples/collapsable-focused.html  
+      example: /examples/collapsable-focused  
     - name: setHttpUserNameAndPassword (securitySchemeId, username, password)
       description: >
         To programmatically provide username and password. <span class="mono fg-color">securitySchemeId</span> should be a valid securityScheme which you have defined in the spec

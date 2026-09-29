@@ -9,8 +9,8 @@ interface TestItem {
 }
 
 import yaml from 'js-yaml';
-import fs from 'fs';
+import { readDataYaml } from '../utils/readDataYaml';
 
-const testListData = yaml.load(fs.readFileSync('./docs/src/data/tests.yaml', 'utf8')) as TestList;
+const testListData = yaml.load(readDataYaml('tests.yaml')) as TestList;
 export { testListData };
 export type { TestList, TestItem };
