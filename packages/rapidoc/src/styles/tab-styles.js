@@ -27,7 +27,7 @@ export default css`
     outline: none;
     font-family: var(--font-regular);
     font-size: var(--font-size-small);
-    margin-right: 16px;
+    margin-inline-end: 16px;
     padding: 1px;
   }
   .tab-btn.active {

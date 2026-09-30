@@ -71,22 +71,11 @@ export default function setTheme(baseTheme, theme = {}) {
       hoverColor: theme.hoverColor || ColorUtils.color.brightness(bg1, -10), // #2a2a2a
 
       red: theme.red ? theme.red : '#F06560',
-      lightRed: theme.lightRed ? theme.lightRed : ColorUtils.color.brightness(bg1, -10), // #2a2a2a
-
       pink: theme.pink ? theme.pink : '#ffb2b2',
-      lightPink: theme.lightPink || ColorUtils.color.brightness(bg1, -10),
-
       green: theme.green || '#7ec699',
-      lightGreen: theme.lightGreen || ColorUtils.color.brightness(bg1, -10), // #2a2a2a
-
       blue: theme.blue || '#71b7ff',
-      lightBlue: theme.lightBlue || ColorUtils.color.brightness(bg1, -10), // #2a2a2a
-
       orange: theme.orange ? theme.orange : '#f08d49',
-      lightOrange: theme.lightOrange || ColorUtils.color.brightness(bg1, -10), // #2a2a2a
-
       yellow: theme.yellow || '#827717',
-      lightYellow: theme.lightYellow || ColorUtils.color.brightness(bg1, -10), // #2a2a2a
 
       purple: theme.purple || '#786FF1',
       brown: theme.brown || '#D4AC0D',
@@ -177,22 +166,11 @@ export default function setTheme(baseTheme, theme = {}) {
       hoverColor: theme.hoverColor || ColorUtils.color.brightness(bg1, -5), // # f1f1f1
 
       red: theme.red || '#F06560',
-      lightRed: theme.lightRed || '#fff0f0',
-
       pink: theme.pink ? theme.pink : '#990055',
-      lightPink: theme.lightPink ? theme.lightPink : '#ffb2b2',
-
       green: theme.green || '#690',
-      lightGreen: theme.lightGreen || '#fbfff0',
-
       blue: theme.blue || '#47AFE8',
-      lightBlue: theme.lightBlue || '#eff8fd',
-
       orange: theme.orange || '#FF9900',
-      lightOrange: theme.lightOrange || '#fff5e6',
-
       yellow: theme.yellow || '#827717',
-      lightYellow: theme.lightYellow || '#fff5cc',
 
       purple: theme.purple || '#786FF1',
       brown: theme.brown || '#D4AC0D',
@@ -250,9 +228,7 @@ export default function setTheme(baseTheme, theme = {}) {
       --table-schema-key-text-overflow: ellipsis;
       --table-schema-key-whitespace: nowrap;
 
-      --focus-shadow: 0 0 0 1px transparent, 0 0 0 3px ${newTheme.primaryColorTrans};
-
-      /* Theme specific styles */
+      --focus-shadow: 0 0 0 1px transparent, 0 0 0 3px var(--primary-color-trans);
       --bg: ${newTheme.bg1};
       --bg2: ${newTheme.bg2};
       --bg3: ${newTheme.bg3};
@@ -274,17 +250,11 @@ export default function setTheme(baseTheme, theme = {}) {
       --placeholder-color: ${newTheme.placeHolder};
       --hover-color: ${newTheme.hoverColor};
       --red: ${newTheme.red};
-      --light-red: ${newTheme.lightRed};
       --pink: ${newTheme.pink};
-      --light-pink: ${newTheme.lightPink};
       --green: ${newTheme.green};
-      --light-green: ${newTheme.lightGreen};
       --blue: ${newTheme.blue};
-      --light-blue: ${newTheme.lightBlue};
       --orange: ${newTheme.orange};
-      --light-orange: ${newTheme.lightOrange};
       --yellow: ${newTheme.yellow};
-      --light-yellow: ${newTheme.lightYellow};
       --purple: ${newTheme.purple};
       --brown: ${newTheme.brown};
 

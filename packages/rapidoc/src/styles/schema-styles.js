@@ -82,7 +82,7 @@ export default css`
     font-family: var(--font-regular);
     color: var(--primary-color);
     font-size: calc(var(--font-size-small) - 1px);
-    margin-left: 2px;
+    margin-inline-start: 2px;
   }
 
   .stri,

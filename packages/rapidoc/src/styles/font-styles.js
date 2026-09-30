@@ -28,7 +28,7 @@ export default css`
     font-size: calc(var(--font-size-small) + 4px);
     font-weight: bold;
     margin-bottom: 8px;
-    text-align: left;
+    text-align: start;
     text-wrap: balance;
   }
   .tiny-title {
@@ -332,7 +332,7 @@ export default css`
   .m-markdown-small blockquote {
     margin-inline-start: 0;
     margin-inline-end: 0;
-    border-left: 3px solid var(--border-color);
+    border-inline-start: 3px solid var(--border-color);
     padding: 6px 0 6px 6px;
   }
   .m-markdown hr {

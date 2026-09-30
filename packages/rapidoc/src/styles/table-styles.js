@@ -29,7 +29,7 @@ export default css`
 
   .m-table td:not([align]),
   .m-table th:not([align]) {
-    text-align: left;
+    text-align: start;
   }
 
   .m-table th {

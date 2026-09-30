@@ -39,22 +39,22 @@ export default css`
   .m-endpoint > .endpoint-head.put:hover,
   .m-endpoint > .endpoint-head.put.expanded {
     border-color: var(--orange);
-    background: var(--light-orange, color-mix(in srgb, var(--orange) 10%, transparent));
+    background: color-mix(in srgb, var(--orange) 10%, transparent);
   }
   .m-endpoint > .endpoint-head.post:hover,
   .m-endpoint > .endpoint-head.post.expanded {
     border-color: var(--green);
-    background: var(--light-green, color-mix(in srgb, var(--green) 10%, transparent));
+    background: color-mix(in srgb, var(--green) 10%, transparent);
   }
   .m-endpoint > .endpoint-head.get:hover,
   .m-endpoint > .endpoint-head.get.expanded {
     border-color: var(--blue);
-    background: var(--light-blue, color-mix(in srgb, var(--blue) 10%, transparent));
+    background: color-mix(in srgb, var(--blue) 10%, transparent);
   }
   .m-endpoint > .endpoint-head.delete:hover,
   .m-endpoint > .endpoint-head.delete.expanded {
     border-color: var(--red);
-    background: var(--light-red, color-mix(in srgb, var(--red) 10%, transparent));
+    background: color-mix(in srgb, var(--red) 10%, transparent);
   }
 
   .m-endpoint > .endpoint-head.head:hover,
@@ -64,7 +64,7 @@ export default css`
   .m-endpoint > .endpoint-head.options:hover,
   .m-endpoint > .endpoint-head.options.expanded {
     border-color: var(--yellow);
-    background: var(--light-yellow, color-mix(in srgb, var(--yellow) 10%, transparent));
+    background: color-mix(in srgb, var(--yellow) 10%, transparent);
   }
 
   .m-endpoint > .endpoint-head.deprecated:hover,
@@ -129,7 +129,7 @@ export default css`
     text-align: center;
     font-weight: bold;
     text-transform: uppercase;
-    margin-right: 5px;
+    margin-inline-end: 5px;
   }
   .endpoint-head .method.delete {
     border: 2px solid var(--red);

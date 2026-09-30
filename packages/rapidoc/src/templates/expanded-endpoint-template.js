@@ -110,7 +110,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
                     v.color === 'none'
                       ? ''
                       : html`<span
-                          style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px; background: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})"
+                          style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px; background: color-mix(in srgb, var(--${v.color}) 10%, transparent); color:var(--${v.color}); border:1px solid var(--${v.color})"
                           >${v.label}</span
                         >`
                   )}

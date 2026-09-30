@@ -99,7 +99,7 @@ export default css`
   .nav-bar-expand-all {
     transform: rotate(90deg);
     cursor: pointer;
-    margin-right: 10px;
+    margin-inline-end: 10px;
   }
   .nav-bar-collapse-all {
     transform: rotate(270deg);
@@ -147,7 +147,7 @@ export default css`
   .nav-bar-tag {
     font-size: var(--font-size-regular);
     color: var(--nav-accent-color);
-    border-left: 4px solid transparent;
+    border-inline-start: 4px solid transparent;
     font-weight: bold;
     padding: 15px 15px 15px 10px;
     text-transform: capitalize;
@@ -166,7 +166,7 @@ export default css`
     border-radius: 4px;
     color: var(--nav-text-color);
     background: transparent;
-    border-left: 4px solid transparent;
+    border-inline-start: 4px solid transparent;
   }
 
   .nav-bar-h1,
@@ -205,7 +205,7 @@ export default css`
     display: none;
   }
   .nav-bar-h2 {
-    padding-left: 28px;
+    padding-inline-start: 28px;
   }
 
   .nav-bar-h1.left-bar.active,
@@ -214,7 +214,7 @@ export default css`
   .nav-bar-tag.left-bar.active,
   .nav-bar-path.left-bar.active,
   .nav-bar-section.left-bar.operations.active {
-    border-left: 4px solid var(--nav-accent-color);
+    border-inline-start: 4px solid var(--nav-accent-color);
     color: var(--nav-hover-text-color);
   }
 

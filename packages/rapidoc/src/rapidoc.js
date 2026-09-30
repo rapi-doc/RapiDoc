@@ -183,6 +183,7 @@ export default class RapiDoc extends LitElement {
           height: 100%;
           width: 100%;
           overflow: hidden;
+          background: var(--bg);
         }
         .main-content {
           margin: 0;

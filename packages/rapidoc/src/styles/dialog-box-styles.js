@@ -50,7 +50,7 @@ export default css`
     cursor: pointer;
     border: 1px solid transparent;
     border-radius: 50%;
-    margin-right: -8px;
+    margin-inline-end: -8px;
   }
   .dialog-box-header button:hover {
     border-color: var(--primary-color);
