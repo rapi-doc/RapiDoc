@@ -35,6 +35,11 @@ export default css`
   align-items: center;
   cursor: pointer;
 }
+.m-endpoint > .endpoint-head:hover,
+.m-endpoint > .endpoint-head.expanded {
+  border-color:var(--primary-color);
+  background-color:var(--light-primary-color, var(--light-bg));
+}
 .m-endpoint > .endpoint-head.put:hover,
 .m-endpoint > .endpoint-head.put.expanded {
   border-color:var(--orange); 
@@ -78,6 +83,7 @@ export default css`
   border-width:0px 1px 1px 5px;
   border-style:solid;
   box-shadow: 0px 4px 3px -3px rgba(0, 0, 0, 0.15);
+  border-color:var(--primary-color);
 }
 .m-endpoint .endpoint-body.delete{ border-color:var(--red); }
 .m-endpoint .endpoint-body.put{ border-color:var(--orange); }
@@ -85,7 +91,9 @@ export default css`
 .m-endpoint .endpoint-body.get { border-color:var(--blue); }
 .m-endpoint .endpoint-body.head,
 .m-endpoint .endpoint-body.patch,
-.m-endpoint .endpoint-body.options { 
+.m-endpoint .endpoint-body.options,
+.m-endpoint .endpoint-body.trace,
+.m-endpoint .endpoint-body.query { 
   border-color:var(--yellow); 
 }
 
@@ -121,6 +129,7 @@ export default css`
   font-weight: bold;
   text-transform:uppercase;
   margin-right:5px;
+  border: 2px solid var(--primary-color);
 }
 .endpoint-head .method.delete{ border: 2px solid var(--red);}
 .endpoint-head .method.put{ border: 2px solid var(--orange); }
@@ -129,7 +138,9 @@ export default css`
 .endpoint-head .method.get.deprecated{ border: 2px solid var(--border-color); }
 .endpoint-head .method.head,
 .endpoint-head .method.patch,
-.endpoint-head .method.options { 
+.endpoint-head .method.options,
+.endpoint-head .method.trace,
+.endpoint-head .method.query { 
   border: 2px solid var(--yellow); 
 }
 
@@ -154,9 +165,14 @@ api-response.view-mode {
   border-style:dashed;
 }
 
+.view-mode-request {
+  border-color:var(--primary-color);
+}
 .head .view-mode-request,
 .patch .view-mode-request,
-.options .view-mode-request { 
+.options .view-mode-request,
+.trace .view-mode-request,
+.query .view-mode-request { 
   border-color:var(--yellow); 
 }
 .put .view-mode-request { 

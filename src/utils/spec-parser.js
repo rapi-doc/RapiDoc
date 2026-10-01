@@ -4,6 +4,50 @@ import OpenApiParser from '@apitools/openapi-parser';
 import { marked } from 'marked';
 import { invalidCharsRegEx, rapidocApiKey, sleep } from '~/utils/common-utils';
 
+const fixedOperationFields = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace', 'query']; // this is also used for ordering endpoints by methods
+
+function isFixedOperationField(methodName) {
+  return fixedOperationFields.includes(methodName.toLowerCase());
+}
+
+function getOperationEntries(pathItem) {
+  const entries = fixedOperationFields
+    .filter((methodName) => pathItem[methodName])
+    .map((methodName) => [methodName, pathItem[methodName]]);
+
+  Object.entries(pathItem.additionalOperations || {}).forEach(([methodName, operation]) => {
+    if (!isFixedOperationField(methodName) && operation && typeof operation === 'object') {
+      entries.push([methodName, operation]);
+    }
+  });
+
+  return entries;
+}
+
+function setOperationEntry(pathItem, methodName, operation) {
+  if (isFixedOperationField(methodName)) {
+    pathItem[methodName.toLowerCase()] = operation;
+    return;
+  }
+
+  pathItem.additionalOperations = {
+    ...pathItem.additionalOperations,
+    [methodName]: operation,
+  };
+}
+
+function methodSortIndex(methodName) {
+  const index = fixedOperationFields.indexOf(methodName.toLowerCase());
+  return index === -1 ? fixedOperationFields.length : index;
+}
+
+function compareMethods(methodA, methodB) {
+  const indexA = methodSortIndex(methodA);
+  const indexB = methodSortIndex(methodB);
+
+  return indexA === indexB ? methodA.localeCompare(methodB) : indexA - indexB;
+}
+
 export default async function ProcessSpec(
   specUrl,
   generateMissingTags = false,
@@ -202,7 +246,7 @@ function filterPaths(openApiObject, matchPaths = '', matchType = '', removeEndpo
   Object.entries(openApiObject.paths).forEach(([pathsKey, methods]) => {
     const filteredMethods = {};
 
-    Object.entries(methods).forEach(([httpMethod, methodDetails]) => {
+    getOperationEntries(methods).forEach(([httpMethod, methodDetails]) => {
       const badges = methodDetails['x-badges'];
 
       // Filter by matchPaths
@@ -210,11 +254,11 @@ function filterPaths(openApiObject, matchPaths = '', matchType = '', removeEndpo
         if (badges && Array.isArray(badges)) {
           // Filter out based on removePathsWithBadgeLabeledAs
           if (!containsLabelToRemove(badges)) {
-            filteredMethods[httpMethod] = methodDetails;
+            setOperationEntry(filteredMethods, httpMethod, methodDetails);
           }
         } else {
           // No badges present, include the method
-          filteredMethods[httpMethod] = methodDetails;
+          setOperationEntry(filteredMethods, httpMethod, methodDetails);
         }
       }
     });
@@ -316,7 +360,6 @@ function getComponents(openApiSpec, sortSchemas = false) {
 }
 
 function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, sortTags = false) {
-  const supportedMethods = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options']; // this is also used for ordering endpoints by methods
   const tags = openApiSpec.tags && Array.isArray(openApiSpec.tags) && openApiSpec.tags.length > 0
     ? openApiSpec.tags.map((v) => ({
       show: true,
@@ -345,112 +388,109 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
       parameters: pathsAndWebhooks[pathOrHookName].parameters || [],
     };
     const isWebhook = pathsAndWebhooks[pathOrHookName]._type === 'webhook'; // eslint-disable-line no-underscore-dangle
-    supportedMethods.forEach((methodName) => {
-      if (pathsAndWebhooks[pathOrHookName][methodName]) {
-        const pathOrHookObj = openApiSpec.paths[pathOrHookName][methodName];
-        // If path.methods are tagged, else generate it from path
-        const pathTags = pathOrHookObj.tags || [];
-        if (pathTags.length === 0) {
-          if (generateMissingTags) {
-            const pathOrHookNameKey = pathOrHookName.replace(/^\/+|\/+$/g, '');
-            const firstWordEndIndex = pathOrHookNameKey.indexOf('/');
-            if (firstWordEndIndex === -1) {
-              pathTags.push(pathOrHookNameKey);
-            } else {
-              // firstWordEndIndex -= 1;
-              pathTags.push(pathOrHookNameKey.substring(0, firstWordEndIndex));
-            }
+    getOperationEntries(pathsAndWebhooks[pathOrHookName]).forEach(([methodName, pathOrHookObj]) => {
+      // If path.methods are tagged, else generate it from path
+      const pathTags = pathOrHookObj.tags || [];
+      if (pathTags.length === 0) {
+        if (generateMissingTags) {
+          const pathOrHookNameKey = pathOrHookName.replace(/^\/+|\/+$/g, '');
+          const firstWordEndIndex = pathOrHookNameKey.indexOf('/');
+          if (firstWordEndIndex === -1) {
+            pathTags.push(pathOrHookNameKey);
           } else {
-            pathTags.push('General ⦂');
+            // firstWordEndIndex -= 1;
+            pathTags.push(pathOrHookNameKey.substring(0, firstWordEndIndex));
+          }
+        } else {
+          pathTags.push('General ⦂');
+        }
+      }
+
+      pathTags.forEach((tag) => {
+        let tagObj;
+        let specTagsItem;
+
+        if (openApiSpec.tags) {
+          specTagsItem = openApiSpec.tags.find((v) => (v.name.toLowerCase() === tag.toLowerCase()));
+        }
+
+        tagObj = tags.find((v) => v.name === tag);
+        if (!tagObj) {
+          tagObj = {
+            show: true,
+            elementId: `tag--${tag.replace(invalidCharsRegEx, '-')}`,
+            name: tag,
+            description: specTagsItem?.description || '',
+            headers: specTagsItem?.description ? getHeadersFromMarkdown(specTagsItem.description) : [],
+            paths: [],
+            expanded: (specTagsItem ? specTagsItem['x-tag-expanded'] !== false : true),
+          };
+          tags.push(tagObj);
+        }
+
+        // Generate a short summary which is broken
+        let shortSummary = (pathOrHookObj.summary || pathOrHookObj.description || `${methodName.toUpperCase()} ${pathOrHookName}`).trim();
+        if (shortSummary.length > 100) {
+          [shortSummary] = shortSummary.split(/[.|!|?]\s|[\r?\n]/); // take the first line (period or carriage return)
+        }
+        // Merge Common Parameters with This methods parameters
+        let finalParameters = [];
+        if (commonParams) {
+          if (pathOrHookObj.parameters) {
+            finalParameters = commonParams.filter((commonParam) => {
+              if (!pathOrHookObj.parameters.some((param) => (commonParam.name === param.name && commonParam.in === param.in))) {
+                return commonParam;
+              }
+            }).concat(pathOrHookObj.parameters);
+          } else {
+            finalParameters = commonParams.slice(0);
+          }
+        } else {
+          finalParameters = pathOrHookObj.parameters ? pathOrHookObj.parameters.slice(0) : [];
+        }
+
+        // Filter callbacks to contain only objects.
+        if (pathOrHookObj.callbacks) {
+          for (const [callbackName, callbackConfig] of Object.entries(pathOrHookObj.callbacks)) {
+            const filteredCallbacks = Object.entries(callbackConfig).filter((entry) => typeof entry[1] === 'object') || [];
+            pathOrHookObj.callbacks[callbackName] = Object.fromEntries(filteredCallbacks);
           }
         }
 
-        pathTags.forEach((tag) => {
-          let tagObj;
-          let specTagsItem;
-
-          if (openApiSpec.tags) {
-            specTagsItem = openApiSpec.tags.find((v) => (v.name.toLowerCase() === tag.toLowerCase()));
-          }
-
-          tagObj = tags.find((v) => v.name === tag);
-          if (!tagObj) {
-            tagObj = {
-              show: true,
-              elementId: `tag--${tag.replace(invalidCharsRegEx, '-')}`,
-              name: tag,
-              description: specTagsItem?.description || '',
-              headers: specTagsItem?.description ? getHeadersFromMarkdown(specTagsItem.description) : [],
-              paths: [],
-              expanded: (specTagsItem ? specTagsItem['x-tag-expanded'] !== false : true),
-            };
-            tags.push(tagObj);
-          }
-
-          // Generate a short summary which is broken
-          let shortSummary = (pathOrHookObj.summary || pathOrHookObj.description || `${methodName.toUpperCase()} ${pathOrHookName}`).trim();
-          if (shortSummary.length > 100) {
-            [shortSummary] = shortSummary.split(/[.|!|?]\s|[\r?\n]/); // take the first line (period or carriage return)
-          }
-          // Merge Common Parameters with This methods parameters
-          let finalParameters = [];
-          if (commonParams) {
-            if (pathOrHookObj.parameters) {
-              finalParameters = commonParams.filter((commonParam) => {
-                if (!pathOrHookObj.parameters.some((param) => (commonParam.name === param.name && commonParam.in === param.in))) {
-                  return commonParam;
-                }
-              }).concat(pathOrHookObj.parameters);
-            } else {
-              finalParameters = commonParams.slice(0);
-            }
-          } else {
-            finalParameters = pathOrHookObj.parameters ? pathOrHookObj.parameters.slice(0) : [];
-          }
-
-          // Filter callbacks to contain only objects.
-          if (pathOrHookObj.callbacks) {
-            for (const [callbackName, callbackConfig] of Object.entries(pathOrHookObj.callbacks)) {
-              const filteredCallbacks = Object.entries(callbackConfig).filter((entry) => typeof entry[1] === 'object') || [];
-              pathOrHookObj.callbacks[callbackName] = Object.fromEntries(filteredCallbacks);
-            }
-          }
-
-          // Update Responses
-          tagObj.paths.push({
-            show: true,
-            expanded: false,
-            isWebhook,
-            expandedAtLeastOnce: false,
-            summary: (pathOrHookObj.summary || ''),
-            description: (pathOrHookObj.description || ''),
-            externalDocs: pathOrHookObj.externalDocs,
-            shortSummary,
-            method: methodName,
-            path: pathOrHookName,
-            operationId: pathOrHookObj.operationId,
-            elementId: `${methodName}-${pathOrHookName.replace(invalidCharsRegEx, '-')}`,
-            servers: pathOrHookObj.servers ? commonPathProp.servers.concat(pathOrHookObj.servers) : commonPathProp.servers,
-            parameters: finalParameters,
-            requestBody: pathOrHookObj.requestBody,
-            responses: pathOrHookObj.responses,
-            callbacks: pathOrHookObj.callbacks,
-            deprecated: pathOrHookObj.deprecated,
-            security: pathOrHookObj.security,
-            // commonSummary: commonPathProp.summary,
-            // commonDescription: commonPathProp.description,
-            xBadges: pathOrHookObj['x-badges'] || undefined,
-            xCodeSamples: pathOrHookObj['x-codeSamples'] || pathOrHookObj['x-code-samples'] || '',
-          });
-        });// End of tag path create
-      }
+        // Update Responses
+        tagObj.paths.push({
+          show: true,
+          expanded: false,
+          isWebhook,
+          expandedAtLeastOnce: false,
+          summary: (pathOrHookObj.summary || ''),
+          description: (pathOrHookObj.description || ''),
+          externalDocs: pathOrHookObj.externalDocs,
+          shortSummary,
+          method: methodName,
+          path: pathOrHookName,
+          operationId: pathOrHookObj.operationId,
+          elementId: `${methodName}-${pathOrHookName.replace(invalidCharsRegEx, '-')}`,
+          servers: pathOrHookObj.servers ? commonPathProp.servers.concat(pathOrHookObj.servers) : commonPathProp.servers,
+          parameters: finalParameters,
+          requestBody: pathOrHookObj.requestBody,
+          responses: pathOrHookObj.responses,
+          callbacks: pathOrHookObj.callbacks,
+          deprecated: pathOrHookObj.deprecated,
+          security: pathOrHookObj.security,
+          // commonSummary: commonPathProp.summary,
+          // commonDescription: commonPathProp.description,
+          xBadges: pathOrHookObj['x-badges'] || undefined,
+          xCodeSamples: pathOrHookObj['x-codeSamples'] || pathOrHookObj['x-code-samples'] || '',
+        });
+      });// End of tag path create
     }); // End of Methods
   }
 
   const tagsWithSortedPaths = tags.filter((tag) => tag.paths && tag.paths.length > 0);
   tagsWithSortedPaths.forEach((tag) => {
     if (sortEndpointsBy === 'method') {
-      tag.paths.sort((a, b) => supportedMethods.indexOf(a.method).toString().localeCompare(supportedMethods.indexOf(b.method)));
+      tag.paths.sort((a, b) => compareMethods(a.method, b.method));
     } else if (sortEndpointsBy === 'summary') {
       tag.paths.sort((a, b) => (a.shortSummary).localeCompare(b.shortSummary));
     } else if (sortEndpointsBy === 'path') {
