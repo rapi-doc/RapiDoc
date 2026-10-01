@@ -422,7 +422,7 @@ export default class ApiRequest extends LitElement {
           true,
           'text',
           false
-        )[0].exampleValue;
+        )[0]?.exampleValue || '';
       }
       const labelColWidth = 'read focused'.includes(this.renderStyle) ? '200px' : '160px';
       tableRows.push(html`
@@ -1043,7 +1043,7 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
             data-ptype="${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
             data-pname="${fieldName}"
             data-example="${formdataPartExample[0]?.exampleValue || ''}"
-            .textContent="${this.fillRequestFieldsWithExample === 'true' ? formdataPartExample[0].exampleValue : ''}"
+            .textContent="${this.fillRequestFieldsWithExample === 'true' ? formdataPartExample[0]?.exampleValue || '' : ''}"
             spellcheck="false"
           ></textarea>
         </div>`}

@@ -288,7 +288,7 @@ export default class ApiResponse extends LitElement {
   }
 
   mimeExampleTemplate(mimeRespDetails) {
-    if (!mimeRespDetails) {
+    if (!mimeRespDetails || !mimeRespDetails.examples || mimeRespDetails.examples.length === 0) {
       return html`
         <pre
           style="color:var(--red)"
