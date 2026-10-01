@@ -1,307 +1,1354 @@
 ---
 import GlobalLayout from '../layouts/GlobalLayout.astro';
-import PageBanner from '../components/PageBanner.astro';
+import SiteNavbar from '../components/SiteNavbar.astro';
 import SiteFooter from '../components/SiteFooter.astro';
-import '../styles/table.css';
+import CodeBlock from '../components/CodeBlock.astro';
+import { stylingData } from '../page-data/styling-data';
+
+const totalParts = stylingData.parts.reduce((acc, cat) => acc + cat.items.length, 0);
+const totalVariables = stylingData.variables.reduce((acc, cat) => acc + cat.items.length, 0);
+const totalCategories = stylingData.parts.length;
+
+const navRecipeCode = `<style>
+  /* Target the navigation sidebar using ::part() */
+  rapi-doc::part(section-navbar) {
+    background: linear-gradient(90deg, #3d4e70, #2e3746);
+  }
+</style>
+
+<rapi-doc
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
+  theme="dark"
+  primary-color="#f54c47"
+  bg-color="#2e3746"
+  text-color="#bacdee"
+  show-header="false"
+></rapi-doc>`;
+
+const serverRecipeCode = `<style>
+  /* Style the Overview Title and Servers panel */
+  rapi-doc::part(section-overview-title) {
+    color: #9b2f80;
+  }
+  rapi-doc::part(section-servers) {
+    background: #6b5b95;
+    color: #d1c2e4;
+    margin: 0 24px;
+    border-radius: 8px;
+  }
+  rapi-doc::part(label-selected-server) {
+    color: #ffffff;
+    font-weight: 600;
+  }
+</style>
+
+<rapi-doc
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
+  show-header="false"
+  nav-bg-color="#423368"
+  primary-color="#df75c4"
+  bg-color="#fae4f5"
+></rapi-doc>`;
+
+const buttonRecipeCode = `<style>
+  /* Customize buttons and the primary TRY trigger */
+  rapi-doc::part(btn) {
+    border-radius: 14px;
+    transition: all 0.2s ease;
+  }
+  rapi-doc::part(btn-try) {
+    background-color: #eab308;
+    color: #0f172a;
+    border-color: #eab308;
+    font-weight: 700;
+  }
+  rapi-doc::part(btn-selected-response-status) {
+    background-color: #eab308;
+    color: #0f172a;
+    border-color: #eab308;
+  }
+</style>
+
+<rapi-doc
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
+  show-header="false"
+  nav-bg-color="#423368"
+  primary-color="#df75c4"
+  bg-color="#fae4f5"
+></rapi-doc>`;
 ---
 
 <GlobalLayout>
-  <PageBanner slot="topbar" page="example-list" showWaves = {true} />
-  <main>
-    <h1>Advance Styling with RapiDoc</h1>
-    <hr/>
-    <span>
-      <p>
-        If you've worked with themes in a web application, you know how difficult it can be.
-        RapiDoc is used in many corporates for API documentation, and every organization has its style guide to follow.
+  <!-- Ambient background glow elements -->
+  <div class="ambient-glow glow-emerald"></div>
+  <div class="ambient-glow glow-indigo"></div>
+  <div class="ambient-glow glow-cyan"></div>
+
+  <!-- Site Navbar -->
+  <SiteNavbar activePage="other" />
+
+  <main class="rd-styling-main">
+    <!-- Hero Header -->
+    <header class="rd-styling-hero">
+      <div class="rd-badge-pill">
+        <span class="rd-badge-pulse"></span>
+        <span class="rd-badge-text">Design System & Shadow DOM Customization</span>
+      </div>
+
+      <h1 class="rd-page-title">
+        Advanced Styling <span class="text-gradient">in RapiDoc</span>
+      </h1>
+
+      <p class="rd-page-subtitle">
+        Designing enterprise-grade API documentation requires strict alignment with corporate brand standards, design tokens, and audience expectations. Discover how RapiDoc balances bulletproof Shadow DOM encapsulation with complete styling freedom through CSS Shadow Parts (<code class="mono-code">::part()</code>) and CSS Custom Properties.
       </p>
-      <p>
-        Apart from aligning to an organizational style guide, theming can also be helpful to layout information based on the target audience. 
-        That is to say, API documentation for a regular API developer can be very differently laid out than for an end-user. 
-        In one case the regular API user may be more interested in APIs request and response schema, 
-        whereas a new user would be looking for detailed descriptions usage examples code snippets, etc.
+
+      <!-- Stats Metric Counter Cards -->
+      <div class="rd-stats-bar">
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">5</span>
+          <span class="rd-stat-label">Theming Approaches</span>
+        </div>
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">{totalParts}</span>
+          <span class="rd-stat-label">CSS Shadow Parts</span>
+        </div>
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">{totalVariables}</span>
+          <span class="rd-stat-label">CSS Custom Properties</span>
+        </div>
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">{totalCategories}</span>
+          <span class="rd-stat-label">Functional UI Zones</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- The 5 Theming Mechanisms Overview Grid -->
+    <section class="rd-mechanisms-section">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Architecture & Isolation</div>
+        <h2 class="rd-section-title">The 5 Ways to Theme RapiDoc</h2>
+        <p class="rd-section-desc">
+          Because <code class="mono-code">&lt;rapi-doc&gt;</code> is built as a standard W3C Web Component, its markup and styles reside inside an isolated <strong>Shadow DOM</strong>. External stylesheet rules and third-party CSS resets cannot bleed in, and RapiDoc styles will never bleed out. You have five complementary mechanisms to achieve your desired aesthetic:
+        </p>
+      </div>
+
+      <div class="rd-cards-grid">
+        <div class="rd-feature-card">
+          <div class="rd-card-icon">🎨</div>
+          <h3 class="rd-card-title">1. HTML Attributes</h3>
+          <p class="rd-card-desc">
+            Quick, declarative configuration directly on the element. Customize base themes (<code class="mono-code">theme="dark"</code>), brand colors, header palettes, font families, and sidebar layout modes with zero CSS.
+          </p>
+        </div>
+
+        <div class="rd-feature-card rd-feature-highlight">
+          <div class="rd-card-icon">⚡</div>
+          <h3 class="rd-card-title">2. CSS Shadow Parts</h3>
+          <p class="rd-card-desc">
+            Target internal elements across the Shadow boundary using <code class="mono-code">rapi-doc::part(...)</code>. Unlock bespoke visual flourishes such as multi-stop gradients, backdrop filters, and custom borders.
+          </p>
+        </div>
+
+        <div class="rd-feature-card">
+          <div class="rd-card-icon">🎛️</div>
+          <h3 class="rd-card-title">3. CSS Custom Properties</h3>
+          <p class="rd-card-desc">
+            Override design tokens such as <code class="mono-code">--border-radius</code>, <code class="mono-code">--scroll-bar-width</code>, typography scale presets, and syntax highlighting colors directly in CSS.
+          </p>
+        </div>
+
+        <div class="rd-feature-card">
+          <div class="rd-card-icon">🧩</div>
+          <h3 class="rd-card-title">4. Named HTML Slots</h3>
+          <p class="rd-card-desc">
+            Inject arbitrary HTML markup, custom brand logos, banners, search widgets, navigation elements, or authorization scripts into predefined slots inside RapiDoc.
+          </p>
+        </div>
+
+        <div class="rd-feature-card">
+          <div class="rd-card-icon">📝</div>
+          <h3 class="rd-card-title">5. Markdown HTML Injection</h3>
+          <p class="rd-card-desc">
+            Embed HTML tags directly within OpenAPI markdown descriptions (summaries, parameters, schemas) to render formatted tables, diagrams, callouts, or video embeds.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Practical Showcase & Recipes -->
+    <section class="rd-recipes-section">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Practical Recipes</div>
+        <h2 class="rd-section-title">Deep Styling Recipes with CSS Parts</h2>
+        <p class="rd-section-desc">
+          Explore real-world examples demonstrating how to combine declarative attributes with targeted <code class="mono-code">::part()</code> selectors to produce state-of-the-art documentation portals.
+        </p>
+      </div>
+
+      <!-- Recipe 1: Navigation Bar Gradient -->
+      <div class="rd-recipe-card">
+        <div class="rd-recipe-content">
+          <div class="rd-recipe-tag">Recipe 1</div>
+          <h3 class="rd-recipe-heading">Multi-Stop Gradient Sidebar Navigation</h3>
+          <p class="rd-recipe-text">
+            While the <code class="mono-code">nav-bg-color</code> attribute accepts solid colors, applying multi-stop CSS gradients or glassmorphic blur requires piercing the Shadow DOM. By selecting <code class="mono-code">rapi-doc::part(section-navbar)</code>, you can apply rich background gradients while keeping text and icons perfectly legible.
+          </p>
+          <div class="rd-recipe-action">
+            <a href="/examples/cssparts-nav" target="_blank" class="rd-btn rd-btn-primary">
+              <span>View Interactive Demo</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14m-7-7 7 7-7 7"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+        <div class="rd-recipe-visual">
+          <div class="rd-screenshot-frame">
+            <img src="/assets/images/theme/rapidoc-csspart-nav.png" alt="RapiDoc CSS Part Navigation Example" />
+          </div>
+          <div class="rd-recipe-code">
+            <CodeBlock code={navRecipeCode} lang="html" filename="gradient-navbar.html" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Recipe 2: Servers & Overview Title -->
+      <div class="rd-recipe-card">
+        <div class="rd-recipe-content">
+          <div class="rd-recipe-tag">Recipe 2</div>
+          <h3 class="rd-recipe-heading">Branded API Servers & Environment Card</h3>
+          <p class="rd-recipe-text">
+            Emphasize active deployment environments by applying unique background tones, padding, and rounded borders to the server selection container using <code class="mono-code">rapi-doc::part(section-servers)</code> and <code class="mono-code">rapi-doc::part(label-selected-server)</code>.
+          </p>
+          <div class="rd-recipe-action">
+            <a href="/examples/cssparts-servers" target="_blank" class="rd-btn rd-btn-primary">
+              <span>View Interactive Demo</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14m-7-7 7 7-7 7"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+        <div class="rd-recipe-visual">
+          <div class="rd-screenshot-frame">
+            <img src="/assets/images/theme/rapidoc-csspart-server.png" alt="RapiDoc CSS Part Server Example" />
+          </div>
+          <div class="rd-recipe-code">
+            <CodeBlock code={serverRecipeCode} lang="html" filename="branded-servers.html" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Recipe 3: Custom Action & Try Buttons -->
+      <div class="rd-recipe-card">
+        <div class="rd-recipe-content">
+          <div class="rd-recipe-tag">Recipe 3</div>
+          <h3 class="rd-recipe-heading">Customized Buttons & Console Triggers</h3>
+          <p class="rd-recipe-text">
+            Match your application's button styles by styling base buttons (<code class="mono-code">btn</code>), solid primary actions (<code class="mono-code">btn-try</code>), and active response status code selectors (<code class="mono-code">btn-selected-response-status</code>) with custom corner radiuses, hover animations, and high-contrast palettes.
+          </p>
+          <div class="rd-recipe-action">
+            <a href="/examples/cssparts-btn" target="_blank" class="rd-btn rd-btn-primary">
+              <span>View Interactive Demo</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14m-7-7 7 7-7 7"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+        <div class="rd-recipe-visual">
+          <div class="rd-screenshot-frame">
+            <img src="/assets/images/theme/rapidoc-csspart-btn.png" alt="RapiDoc CSS Part Buttons Example" />
+          </div>
+          <div class="rd-recipe-code">
+            <CodeBlock code={buttonRecipeCode} lang="html" filename="custom-buttons.html" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Comprehensive Reference Catalog -->
+    <section class="rd-catalog-section" id="reference-catalog">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Reference Guide</div>
+        <h2 class="rd-section-title">Complete Parts & Variables Catalog</h2>
+        <p class="rd-section-desc">
+          Search and filter every CSS Shadow Part and CSS Custom Property exposed by RapiDoc. Data is synchronized directly with our shared design system specification.
+        </p>
+      </div>
+
+      <!-- Main Mode Switcher Tabs (Parts vs Variables) -->
+      <div class="rd-mode-switcher">
+        <button class="rd-mode-tab active" data-mode="parts" id="tab-parts">
+          <span class="mode-icon">⚡</span>
+          <span>CSS Shadow Parts</span>
+          <span class="mode-badge">{totalParts}</span>
+        </button>
+        <button class="rd-mode-tab" data-mode="variables" id="tab-variables">
+          <span class="mode-icon">🎛️</span>
+          <span>CSS Custom Properties</span>
+          <span class="mode-badge">{totalVariables}</span>
+        </button>
+      </div>
+
+      <!-- Live Search & Interactive Filter Controls -->
+      <div class="rd-filter-controls">
+        <div class="rd-search-wrapper">
+          <svg class="rd-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            id="styling-search-input"
+            type="text"
+            placeholder="Search parts, variables, HTML targets, or keywords (e.g. section-navbar, --border-radius, btn, try)..."
+            autocomplete="off"
+            class="rd-search-input"
+          />
+          <button id="clear-search-btn" class="rd-clear-btn" aria-label="Clear search" style="display: none;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Category Filter Pills -->
+        <div class="rd-nav-pills" id="parts-category-pills">
+          <button class="rd-pill active" data-category="all">All Categories</button>
+          {stylingData.parts.map(cat => (
+            <button class="rd-pill" data-category={cat.category}>{cat.category}</button>
+          ))}
+        </div>
+
+        <div class="rd-nav-pills" id="variables-category-pills" style="display: none;">
+          <button class="rd-pill active" data-category="all">All Categories</button>
+          {stylingData.variables.map(cat => (
+            <button class="rd-pill" data-category={cat.category}>{cat.category}</button>
+          ))}
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div id="catalog-empty-state" class="rd-empty-state" style="display: none;">
+        <div class="rd-empty-icon">🔍</div>
+        <h3 class="rd-empty-title">No matching styling items found <span id="empty-query-text" class="text-gradient"></span></h3>
+        <p class="rd-empty-desc">Try searching for a different keyword, part name, or reset your active category filter.</p>
+        <button id="reset-search-btn" class="rd-btn rd-btn-primary">Reset Filter</button>
+      </div>
+
+      <!-- Parts View Container -->
+      <div id="parts-catalog-container" class="rd-catalog-grid">
+        {stylingData.parts.map(cat => (
+          <div class="rd-catalog-group" data-category={cat.category}>
+            <div class="rd-group-header">
+              <h3 class="rd-group-title">{cat.category}</h3>
+              <p class="rd-group-desc">{cat.description}</p>
+            </div>
+            <div class="rd-table-wrapper">
+              <table class="rd-catalog-table">
+                <thead>
+                  <tr>
+                    <th class="col-name">Part Name (<code>::part</code>)</th>
+                    <th class="col-target">HTML Element</th>
+                    <th class="col-desc">Description & Purpose</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cat.items.map(item => (
+                    <tr class="rd-catalog-row" data-name={item.name} data-target={item.target} data-desc={item.description} data-category={cat.category}>
+                      <td class="col-name">
+                        <button class="rd-copy-pill" data-copy={`rapi-doc::part(${item.name})`} title="Click to copy ::part selector">
+                          <code>::{item.name}</code>
+                          <svg class="copy-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                          </svg>
+                        </button>
+                      </td>
+                      <td class="col-target">
+                        <span class="rd-target-badge">{item.target}</span>
+                      </td>
+                      <td class="col-desc">
+                        {item.description}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <!-- Variables View Container -->
+      <div id="variables-catalog-container" class="rd-catalog-grid" style="display: none;">
+        {stylingData.variables.map(cat => (
+          <div class="rd-catalog-group" data-category={cat.category}>
+            <div class="rd-group-header">
+              <h3 class="rd-group-title">{cat.category}</h3>
+              <p class="rd-group-desc">{cat.description}</p>
+            </div>
+            <div class="rd-table-wrapper">
+              <table class="rd-catalog-table">
+                <thead>
+                  <tr>
+                    <th class="col-name">Custom Property</th>
+                    <th class="col-default">Default / Calculated Value</th>
+                    <th class="col-desc">Description & Purpose</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cat.items.map(item => (
+                    <tr class="rd-catalog-row" data-name={item.name} data-default={item.default} data-desc={item.description} data-category={cat.category}>
+                      <td class="col-name">
+                        <button class="rd-copy-pill var-pill" data-copy={`${item.name}`} title="Click to copy variable">
+                          <code>{item.name}</code>
+                          <svg class="copy-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                          </svg>
+                        </button>
+                      </td>
+                      <td class="col-default">
+                        <span class="rd-default-badge">{item.default}</span>
+                      </td>
+                      <td class="col-desc">
+                        {item.description}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- Theming Best Practices Pro-Tip Box -->
+    <div class="rd-tip-box">
+      <div class="rd-tip-badge">Design Best Practice</div>
+      <h3 class="rd-tip-title">Recommended Theming Architecture</h3>
+      <p class="rd-tip-text">
+        For maximum maintainability and rendering speed, define baseline color palettes and fonts declaratively using HTML attributes (<code class="mono-code">theme="dark"</code>, <code class="mono-code">bg-color</code>, <code class="mono-code">regular-font</code>), configure global spacing and border geometries using CSS Variables (<code class="mono-code">--border-radius</code>), and reserve <code class="mono-code">::part()</code> selectors for high-impact visual customizations such as navigation gradients, backdrop filters, and custom button states.
       </p>
-    </span>
-
-    <h2>Theming options</h2>
-    <span>
-      <p> 
-        When you insert <span class="yellow mono bold"> {`<rapi-doc>`}</span> element in an HTML, 
-        It is important to note that none of the existing style or css declarations will affect RapiDoc 
-        as this is a native web-component and they inherently provide style encapsulation
-      </p>
-      <p>
-        Well, this may be good for <span class="yellow mono bold"> {`<rapi-doc>`}</span> as its styles won't get accidentally messed up, 
-        but it also makes it harder to change the styles of internal elements. 
-        However, listed below are some of the options which you may use to achieve your desired styling
-        <ul>
-          <li> RapiDoc attributes</li>
-          <li> CSS Parts</li>
-          <li> Inject custom HTML, CSS and JS using <span class="yellow mono bold"> {`<slot>`}</span></li>
-          <li> Inject HTML using markdown</li>
-          <li> CSS vars</li>
-        </ul>
-      </p>
-    </span>
-
-    In This section will be focusing on CSS Parts 
-    <h2>CSS Parts</h2>
-    <p>
-      While most of the styling needs can be taken care of by attributes, 
-      but if a very specific need is there to target and style a particular section in the document 
-      then RapiDoc provides many CSS parts that can be used to style them
-    </p>
-    <p>
-      For instance, you can change the background and text color of the side navigation bar, 
-      but what if, when you need to apply a mix of multiple colors with a gradient? 
-      To achieve this you can use CSS to target specific sections of RapiDoc using <span class="mono bold">::part</span> selector
-    </p>
-    
-    <img style="width:750px;margin:16px 0; border: 2px solid #497aab;border-radius: 8px; display:block" src="/assets/images/theme/rapidoc-csspart-nav.png" />
-    
-    <span>
-      Below code snippet uses <span class="mono yellow"> rapi-doc::part(nav-bar)</span> 
-      selector to target the navigation bar and renders a gardient navigation bar | &nbsp;
-      <a href="/examples/cssparts-nav" target="_blank"> Demo</a>
-    </span>
-    <pre class="code-block">
-      <code class="language-html">
-        {`
-          <html>
-          ...
-            <style>
-              rapi-doc::part(section-navbar) { /* <<< targets navigation bar */
-                background: linear-gradient(90deg, #3d4e70, #2e3746);
-              }
-            </style>
-
-            <rapi-doc spec-url = "https://petstore.swagger.io/v2/swagger.json"
-              theme = "dark"
-              primary-color = "#f54c47"
-              bg-color = "#2e3746"
-              text-color = "#bacdee"
-              show-header = "false"
-            > </rapi-doc>
-          ...
-          </html>
-        `}
-      </code>
-    </pre>
-
-    <p>
-      Likewise, there are many <span class="mono yellow">::part</span> selectors you can use that RapiDoc exposes for styling. 
-      Let's take another example and this time we would highlight the Servers section by giving it an alternate background color as shown below
-      <img style="width:750px;margin:16px 0; border: 2px solid #713795;border-radius: 8px; display:block" src="/assets/images/theme/rapidoc-csspart-server.png" />
-      <span>
-        And the code to achieve it is shown below | <a href="/examples/cssparts-servers" target="_blank"> Demo</a>
-      </span>
-      <pre class="code-block">
-        <code class="language-html">
-        {`
-          <html>
-            ...
-            <style>
-              rapi-doc::part(section-overview-title) { /* <<< targets the Spec Title */
-                color: #9b2f80;
-              }
-              rapi-doc::part(section-servers) { /* <<< targets the server div */
-                background: #6b5b95;
-                color:#d1c2e4;
-                margin:0 24px;
-                border-radius: 8px;
-              }
-              rapi-doc::part(label-selected-server) { /* <<< targets selected server label */
-                color: #fff;
-              }
-            </style>
-
-            <rapi-doc  spec-url = "https://petstore.swagger.io/v2/swagger.json"
-              show-header = "false"
-              nav-bg-color = "#423368"
-              primary-color ="#df75c4"
-              bg-color = "#fae4f5"
-            > </rapi-doc>
-            ...
-          </html>          
-        `}
-        </code>
-      </pre>
-    </p>
-
-    <p>
-      Another Example to change the button styles | <a href="/examples/cssparts-btn" target="_blank"> Demo</a>
-      <pre class="code-block">
-        <code class="language-html">
-          {`
-          <html>
-            ...
-            <style>
-              rapi-doc::part(btn){ border-radius: 15px; }
-              rapi-doc::part(btn-try) {
-                background-color: yellow;
-                color: #333;
-                border-color: yellow;
-              }
-              rapi-doc::part(btn-selected-response-status) {
-                background-color: yellow;
-                color: #333;
-                border-color: yellow;
-              }
-            </style>
-            <rapi-doc  spec-url = "https://petstore.swagger.io/v2/swagger.json"
-              show-header = "false"
-              nav-bg-color = "#423368"
-              primary-color ="#df75c4"
-              bg-color = "#fae4f5"
-            > </rapi-doc>
-            ...
-          </html>
-          `}
-        </code>
-      </pre>
-    </p>
-
-    <p>
-      Following are the list of <span class="mono yellow">css ::part</span> provided by rapidoc. The names of these parts should be self explenatory
-      <table class="m-table">
-        <tr> <td class="heading-row">Sections</td></tr>
-        <tr>
-          <td class="mono">
-            section-navbar, section-navbar-search section-navbar-item, section-navbar-active-item, section-header section-main-content, section-logo, section-overview, label-overview-title, 
-            section-auth, section-auth-scopes, section-servers, section-tag, section-operations-in-tag, section-operation
-          </td>
-        </tr>
-        <tr> <td class="heading-row">Containers/ Wrappers</td></tr>
-        <tr> <td class="mono">wrap-request-btn</td></tr>
-        <tr> <td class="heading-row">Labels</td></tr>
-        <tr>
-          <td class="mono">
-            label-header-title, label-overview-title, label-selected-server, label-tag-title, 
-            label-operation-method, label-operation-path
-          </td>
-        </tr>
-
-        <tr> <td class="heading-row">Buttons</td></tr>
-        <tr>
-          <td class="mono">
-            btn, btn-fill, btn-outline, btn-search, btn-try, btn-fill, btn-clear, btn-copy, btn-clear-resp, 
-          </td>
-        </tr>
-
-        <tr> <td class="heading-row">Tab Panels</td></tr>
-        <tr>
-          <td class="mono">tab-panel, tab-btn, tab-btn-row, tab-content </td>
-        </tr>
-
-        <tr> <td class="heading-row">Checkboxes/ Toggles</td></tr>
-        <tr>
-          <td class="mono">checkbox checkbox-auth-scope</td>
-        </tr>
-
-        <tr> <td class="heading-row">Inputs</td></tr>
-        <tr>
-          <td class="mono">textbox, textbox-param, textarea, textarea-param, file-input</td>
-        </tr>
-        <tr><td class="heading-row">Anchors</td></tr>
-        <tr>
-          <td class="mono"> anchor, anchor-overview, anchor-param-example</td>
-        </tr>
-      </table>
-    </p>
-
-    <h2>CSS Variables</h2>
-    <p>RapiDoc uses many CSS variables style its content. These CSS variables can be changed directly in HTML</p>
-    <pre class="code-block"><code class="language-css">
-      /* General div Properties */
-      --border-radius
-      --layout
-      --scroll-bar-width
-      --nav-item-padding
-      --resp-area-height
-      --dialog-z-index
-
-      /* Font */
-      --font-mono
-      --font-regular
-      --font-size-small
-      --font-size-mono
-      --font-size-regular
-
-      /* Background and Foreground Colors */
-      --bg
-      --bg2
-      --bg3
-      --light-bg
-      --fg
-      --fg2
-      --fg3
-      --light-fg
-      --selection-bg
-      --selection-fg
-      --overlay-bg
-
-      /* Border Colors */
-      --border-color
-      --light-border-color
-      --code-border-color
-
-      /* Primary Colors */  
-      --primary-color
-      --primary-color-invert
-      --primary-color-trans
-
-      /* Nav Colors */  
-      --nav-bg-color
-      --nav-text-color
-      --nav-hover-bg-color
-      --nav-hover-text-color
-      --nav-accent-color
-      --nav-accent-text-color
-      --nav-get-color
-      --nav-put-color
-      --nav-post-color
-      --nav-delete-color
-      --nav-head-color
-
-      /* Header Color */
-      --header-bg
-      --header-fg
-      --header-color-darker
-      --header-color-border
-
-      /* Input Colors */
-      --input-bg
-      --placeholder-color
-      --hover-color
-      --focus-shadow
-
-      --red
-      --pink
-      --green
-      --blue
-      --orange
-      --yellow
-      --purple
-      --brown
-  
-      /* Code Syntax Color*/
-      --code-bg
-      --code-fg
-      --inline-code-fg
-      --code-property-color
-      --code-keyword-color
-      --code-operator-color
-    </code></pre>
+    </div>
   </main>
+
   <SiteFooter />
+
+  <script>
+    function setupStylingSearch() {
+      let activeMode = 'parts'; // 'parts' | 'variables'
+      let activeCategory = 'all';
+
+      const searchInput = document.getElementById('styling-search-input') as HTMLInputElement | null;
+      const clearSearchBtn = document.getElementById('clear-search-btn');
+      const resetSearchBtn = document.getElementById('reset-search-btn');
+      const emptyState = document.getElementById('catalog-empty-state');
+      const emptyQueryText = document.getElementById('empty-query-text');
+
+      const tabParts = document.getElementById('tab-parts');
+      const tabVariables = document.getElementById('tab-variables');
+      const partsPills = document.getElementById('parts-category-pills');
+      const variablesPills = document.getElementById('variables-category-pills');
+      const partsContainer = document.getElementById('parts-catalog-container');
+      const variablesContainer = document.getElementById('variables-catalog-container');
+
+      function switchMode(mode: 'parts' | 'variables') {
+        activeMode = mode;
+        activeCategory = 'all';
+
+        if (mode === 'parts') {
+          tabParts?.classList.add('active');
+          tabVariables?.classList.remove('active');
+          if (partsPills) partsPills.style.display = 'flex';
+          if (variablesPills) variablesPills.style.display = 'none';
+          if (partsContainer) partsContainer.style.display = 'flex';
+          if (variablesContainer) variablesContainer.style.display = 'none';
+        } else {
+          tabVariables?.classList.add('active');
+          tabParts?.classList.remove('active');
+          if (partsPills) partsPills.style.display = 'none';
+          if (variablesPills) variablesPills.style.display = 'flex';
+          if (partsContainer) partsContainer.style.display = 'none';
+          if (variablesContainer) variablesContainer.style.display = 'flex';
+        }
+
+        // Reset pill active state
+        document.querySelectorAll('.rd-pill').forEach(pill => {
+          if (pill.getAttribute('data-category') === 'all') {
+            pill.classList.add('active');
+          } else {
+            pill.classList.remove('active');
+          }
+        });
+
+        filterCatalog();
+      }
+
+      tabParts?.addEventListener('click', () => switchMode('parts'));
+      tabVariables?.addEventListener('click', () => switchMode('variables'));
+
+      // Category Pill Click Handlers
+      document.querySelectorAll('.rd-pill').forEach(pill => {
+        pill.addEventListener('click', (e) => {
+          const category = pill.getAttribute('data-category') || 'all';
+          const parent = pill.parentElement;
+          if (parent) {
+            parent.querySelectorAll('.rd-pill').forEach(p => p.classList.remove('active'));
+          }
+          pill.classList.add('active');
+          activeCategory = category;
+          filterCatalog();
+        });
+      });
+
+      function filterCatalog() {
+        const query = (searchInput?.value || '').toLowerCase().trim();
+        if (clearSearchBtn) {
+          clearSearchBtn.style.display = query.length > 0 ? 'flex' : 'none';
+        }
+
+        const activeContainer = activeMode === 'parts' ? partsContainer : variablesContainer;
+        if (!activeContainer) return;
+
+        let totalVisibleInActive = 0;
+        const groups = activeContainer.querySelectorAll('.rd-catalog-group');
+
+        groups.forEach(groupEl => {
+          const group = groupEl as HTMLElement;
+          const groupCategory = group.getAttribute('data-category') || '';
+          const categoryMatches = activeCategory === 'all' || activeCategory === groupCategory;
+
+          let groupVisibleCount = 0;
+          const rows = group.querySelectorAll('.rd-catalog-row');
+
+          rows.forEach(rowEl => {
+            const row = rowEl as HTMLElement;
+            if (!categoryMatches) {
+              row.style.display = 'none';
+              return;
+            }
+
+            if (!query) {
+              row.style.display = '';
+              groupVisibleCount++;
+              totalVisibleInActive++;
+              return;
+            }
+
+            const name = (row.getAttribute('data-name') || '').toLowerCase();
+            const desc = (row.getAttribute('data-desc') || '').toLowerCase();
+            const target = (row.getAttribute('data-target') || '').toLowerCase();
+            const defVal = (row.getAttribute('data-default') || '').toLowerCase();
+
+            if (name.includes(query) || desc.includes(query) || target.includes(query) || defVal.includes(query)) {
+              row.style.display = '';
+              groupVisibleCount++;
+              totalVisibleInActive++;
+            } else {
+              row.style.display = 'none';
+            }
+          });
+
+          // Show/hide group container if it has visible rows
+          group.style.display = groupVisibleCount > 0 ? 'flex' : 'none';
+        });
+
+        // Empty state toggle
+        if (emptyState) {
+          if (totalVisibleInActive === 0) {
+            emptyState.style.display = 'flex';
+            if (emptyQueryText) {
+              emptyQueryText.textContent = query ? `for "${query}"` : '';
+            }
+          } else {
+            emptyState.style.display = 'none';
+          }
+        }
+      }
+
+      searchInput?.addEventListener('input', filterCatalog);
+
+      clearSearchBtn?.addEventListener('click', () => {
+        if (searchInput) searchInput.value = '';
+        filterCatalog();
+        searchInput?.focus();
+      });
+
+      resetSearchBtn?.addEventListener('click', () => {
+        if (searchInput) searchInput.value = '';
+        activeCategory = 'all';
+        document.querySelectorAll('.rd-pill').forEach(pill => {
+          if (pill.getAttribute('data-category') === 'all') {
+            pill.classList.add('active');
+          } else {
+            pill.classList.remove('active');
+          }
+        });
+        filterCatalog();
+      });
+
+      // Quick copy button on pills
+      document.querySelectorAll('.rd-copy-pill').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const textToCopy = btn.getAttribute('data-copy');
+          if (textToCopy) {
+            await navigator.clipboard.writeText(textToCopy);
+            const originalTitle = btn.getAttribute('title') || '';
+            btn.setAttribute('title', 'Copied to clipboard!');
+            btn.classList.add('copied');
+            setTimeout(() => {
+              btn.setAttribute('title', originalTitle);
+              btn.classList.remove('copied');
+            }, 1800);
+          }
+        });
+      });
+
+      // Initial filter run
+      filterCatalog();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupStylingSearch);
+    } else {
+      setupStylingSearch();
+    }
+  </script>
 </GlobalLayout>
 
 <style>
-  .m-table td.heading-row {
-    font-size: 1.2rem;
-    font-weight: 800;
-    border-bottom-width:0;
-    color: var(--color-yellow);
-  }
+:root {
+  --rd-emerald: #10b981;
+  --rd-emerald-glow: rgba(16, 185, 129, 0.25);
+  --rd-cyan: #06b6d4;
+  --rd-cyan-glow: rgba(6, 182, 212, 0.25);
+  --rd-indigo: #6366f1;
+  --rd-purple: #a855f7;
+  --rd-surface: rgba(15, 23, 42, 0.65);
+  --rd-surface-card: rgba(11, 17, 33, 0.7);
+  --rd-surface-hover: rgba(22, 32, 58, 0.85);
+  --rd-glass-border: rgba(255, 255, 255, 0.08);
+  --rd-text-primary: #f8fafc;
+  --rd-text-secondary: #94a3b8;
+  --rd-text-muted: #64748b;
+  --rd-font-mono: 'Roboto Mono', Monaco, 'Andale Mono', monospace;
+}
 
+/* Ambient Radial Glows */
+.ambient-glow {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.16;
+  filter: blur(140px);
+}
+.glow-emerald {
+  top: 100px;
+  left: 15%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, var(--rd-emerald) 0%, transparent 70%);
+}
+.glow-indigo {
+  top: 550px;
+  right: 15%;
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, var(--rd-indigo) 0%, transparent 70%);
+}
+.glow-cyan {
+  top: 1300px;
+  left: 20%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, var(--rd-cyan) 0%, transparent 70%);
+}
+
+.rd-styling-main {
+  position: relative;
+  z-index: 1;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 48px 24px 96px 24px;
+}
+
+/* Hero Section */
+.rd-styling-hero {
+  text-align: center;
+  max-width: 900px;
+  margin: 0 auto 64px auto;
+}
+
+.rd-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 6px 14px;
+  border-radius: 9999px;
+  margin-bottom: 20px;
+}
+.rd-badge-pulse {
+  width: 8px;
+  height: 8px;
+  background: var(--rd-emerald);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--rd-emerald);
+  animation: pulse-dot 2s infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+.rd-badge-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #34d399;
+  letter-spacing: 0.02em;
+}
+
+.rd-page-title {
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: var(--rd-text-primary);
+  line-height: 1.18;
+  letter-spacing: -0.03em;
+  margin: 0 0 18px 0;
+}
+.text-gradient {
+  background: linear-gradient(135deg, #34d399 0%, #10b981 50%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.rd-page-subtitle {
+  font-size: 1.08rem;
+  line-height: 1.68;
+  color: var(--rd-text-secondary);
+  margin: 0 auto 40px auto;
+}
+.mono-code {
+  font-family: var(--rd-font-mono);
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+/* Stats Counter Grid */
+.rd-stats-bar {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+@media (min-width: 640px) {
+  .rd-stats-bar {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.rd-stat-card {
+  background: var(--rd-surface);
+  border: 1px solid var(--rd-glass-border);
+  border-radius: 12px;
+  padding: 18px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.2s ease;
+}
+.rd-stat-card:hover {
+  background: var(--rd-surface-hover);
+  border-color: rgba(16, 185, 129, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.5);
+}
+.rd-stat-value {
+  font-size: 28px;
+  font-weight: 800;
+  font-family: var(--rd-font-mono);
+  background: linear-gradient(135deg, #fff 0%, #34d399 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.rd-stat-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--rd-text-muted);
+  margin-top: 4px;
+}
+
+/* Section Common Headers */
+.rd-section-header {
+  margin-bottom: 32px;
+}
+.rd-section-badge {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #34d399;
+  margin-bottom: 8px;
+}
+.rd-section-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+  margin: 0 0 12px 0;
+}
+.rd-section-desc {
+  font-size: 15.5px;
+  color: var(--rd-text-secondary);
+  line-height: 1.65;
+  max-width: 860px;
+  margin: 0;
+}
+
+/* Theming Approaches Cards Grid */
+.rd-mechanisms-section {
+  margin-bottom: 80px;
+}
+.rd-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 18px;
+}
+@media (min-width: 640px) {
+  .rd-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1024px) {
+  .rd-cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.rd-feature-card {
+  background: var(--rd-surface-card);
+  border: 1px solid var(--rd-glass-border);
+  border-radius: 14px;
+  padding: 26px 22px;
+  display: flex;
+  flex-direction: column;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.25s ease;
+}
+.rd-feature-card:hover {
+  background: var(--rd-surface-hover);
+  border-color: rgba(56, 189, 248, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.6);
+}
+.rd-feature-highlight {
+  border-color: rgba(16, 185, 129, 0.35);
+  background: rgba(16, 185, 129, 0.05);
+}
+.rd-feature-highlight:hover {
+  border-color: var(--rd-emerald);
+  box-shadow: 0 10px 30px -8px rgba(16, 185, 129, 0.3);
+}
+.rd-card-icon {
+  font-size: 28px;
+  margin-bottom: 14px;
+}
+.rd-card-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 10px 0;
+}
+.rd-card-desc {
+  font-size: 14px;
+  color: var(--rd-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Recipes Section */
+.rd-recipes-section {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+  margin-bottom: 88px;
+}
+.rd-recipe-card {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  background: var(--rd-surface-card);
+  border: 1px solid var(--rd-glass-border);
+  border-radius: 16px;
+  padding: 32px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 12px 36px -12px rgba(0, 0, 0, 0.6);
+}
+@media (min-width: 900px) {
+  .rd-recipe-card {
+    grid-template-columns: 42% 58%;
+    align-items: center;
+  }
+}
+.rd-recipe-tag {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  padding: 3px 10px;
+  border-radius: 6px;
+  display: inline-block;
+  margin-bottom: 12px;
+}
+.rd-recipe-heading {
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.01em;
+  margin: 0 0 14px 0;
+  line-height: 1.3;
+}
+.rd-recipe-text {
+  font-size: 14.5px;
+  color: var(--rd-text-secondary);
+  line-height: 1.65;
+  margin: 0 0 24px 0;
+}
+.rd-recipe-action {
+  display: flex;
+}
+.rd-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.rd-btn-primary {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+}
+.rd-btn-primary:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+}
+
+.rd-recipe-visual {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.rd-screenshot-frame {
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+.rd-screenshot-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+.rd-screenshot-frame:hover img {
+  transform: scale(1.02);
+}
+
+/* Reference Catalog Section */
+.rd-catalog-section {
+  margin-bottom: 80px;
+}
+.rd-mode-switcher {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.rd-mode-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border-radius: 12px;
+  background: var(--rd-surface);
+  border: 1px solid var(--rd-glass-border);
+  color: var(--rd-text-secondary);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.rd-mode-tab:hover {
+  color: #fff;
+  background: var(--rd-surface-hover);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+.rd-mode-tab.active {
+  color: #fff;
+  background: rgba(16, 185, 129, 0.15);
+  border-color: var(--rd-emerald);
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.25);
+}
+.mode-badge {
+  font-family: var(--rd-font-mono);
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+.rd-mode-tab.active .mode-badge {
+  background: rgba(16, 185, 129, 0.3);
+  color: #34d399;
+}
+
+/* Filter Controls */
+.rd-filter-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-bottom: 32px;
+}
+.rd-search-wrapper {
+  position: relative;
+  width: 100%;
+}
+.rd-search-icon {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--rd-text-muted);
+  pointer-events: none;
+}
+.rd-search-input {
+  width: 100%;
+  padding: 16px 48px 16px 50px;
+  background: rgba(10, 15, 30, 0.85);
+  border: 1px solid var(--rd-glass-border);
+  border-radius: 14px;
+  color: #fff;
+  font-size: 15px;
+  outline: none;
+  box-sizing: border-box;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+}
+.rd-search-input:focus {
+  border-color: var(--rd-emerald);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2), 0 4px 24px -4px rgba(0, 0, 0, 0.6);
+}
+.rd-search-input::placeholder {
+  color: var(--rd-text-muted);
+}
+.rd-clear-btn {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: var(--rd-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.rd-clear-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+
+.rd-nav-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.rd-pill {
+  padding: 7px 14px;
+  border-radius: 8px;
+  background: var(--rd-surface);
+  border: 1px solid var(--rd-glass-border);
+  color: var(--rd-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.rd-pill:hover {
+  color: #fff;
+  background: var(--rd-surface-hover);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+.rd-pill.active {
+  color: #fff;
+  background: rgba(16, 185, 129, 0.15);
+  border-color: var(--rd-emerald);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+}
+
+/* Empty Search State */
+.rd-empty-state {
+  background: var(--rd-surface);
+  border: 1px dashed var(--rd-glass-border);
+  border-radius: 16px;
+  padding: 64px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 32px 0;
+}
+.rd-empty-icon {
+  font-size: 40px;
+  margin-bottom: 16px;
+}
+.rd-empty-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 8px 0;
+}
+.rd-empty-desc {
+  font-size: 14px;
+  color: var(--rd-text-secondary);
+  margin: 0 0 20px 0;
+}
+
+/* Catalog Table Layouts */
+.rd-catalog-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+.rd-catalog-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.rd-group-header {
+  margin-bottom: 4px;
+}
+.rd-group-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #f8fafc;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.01em;
+}
+.rd-group-desc {
+  font-size: 0.92rem;
+  color: var(--rd-text-secondary);
+  margin: 0;
+}
+
+.rd-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--rd-glass-border);
+  border-radius: 14px;
+  background: var(--rd-surface-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 30px -10px rgba(0, 0, 0, 0.5);
+}
+.rd-catalog-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.rd-catalog-table thead tr {
+  background: rgba(15, 23, 42, 0.85);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.rd-catalog-table th {
+  padding: 14px 20px;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+.rd-catalog-table th code {
+  color: #38bdf8;
+  text-transform: none;
+}
+.rd-catalog-table tbody tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background-color 0.15s ease;
+}
+.rd-catalog-table tbody tr:last-child {
+  border-bottom: none;
+}
+.rd-catalog-table tbody tr:hover {
+  background: var(--rd-surface-hover);
+}
+.rd-catalog-table td {
+  padding: 16px 20px;
+  vertical-align: middle;
+  font-size: 14px;
+}
+
+.col-name {
+  width: 32%;
+  min-width: 240px;
+}
+.col-target {
+  width: 18%;
+  min-width: 140px;
+}
+.col-default {
+  width: 26%;
+  min-width: 200px;
+}
+.col-desc {
+  width: 50%;
+  min-width: 300px;
+  color: #cbd5e1;
+  line-height: 1.55;
+}
+
+/* Copyable Pills */
+.rd-copy-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 10px;
+  border-radius: 7px;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  color: #38bdf8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.rd-copy-pill:hover {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+  transform: translateY(-1px);
+}
+.rd-copy-pill.var-pill {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.25);
+  color: #34d399;
+}
+.rd-copy-pill.var-pill:hover {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: var(--rd-emerald);
+}
+.rd-copy-pill.copied {
+  background: rgba(16, 185, 129, 0.3) !important;
+  border-color: #10b981 !important;
+  color: #fff !important;
+}
+.rd-copy-pill code {
+  font-family: var(--rd-font-mono);
+  font-size: 13px;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+}
+.copy-svg {
+  opacity: 0.6;
+  transition: opacity 0.15s ease;
+}
+.rd-copy-pill:hover .copy-svg {
+  opacity: 1;
+}
+
+.rd-target-badge {
+  font-family: var(--rd-font-mono);
+  font-size: 12px;
+  color: #c084fc;
+  background: rgba(168, 85, 247, 0.12);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: inline-block;
+}
+.rd-default-badge {
+  font-family: var(--rd-font-mono);
+  font-size: 12px;
+  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: inline-block;
+  word-break: break-all;
+}
+
+/* Pro-Tip Card */
+.rd-tip-box {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(6, 182, 212, 0.08) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4);
+}
+.rd-tip-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 3px 10px;
+  border-radius: 6px;
+  display: inline-block;
+  margin-bottom: 12px;
+}
+.rd-tip-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 10px 0;
+}
+.rd-tip-text {
+  font-size: 14.5px;
+  color: var(--rd-text-secondary);
+  line-height: 1.7;
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .rd-page-title {
+    font-size: 3.2rem;
+  }
+}
 </style>

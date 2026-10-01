@@ -1,19 +1,21 @@
 ---
-title: Advanced Styling with CSS Parts (::part)
-description: Master CSS Shadow Parts (::part()) to customize internal elements inside RapiDoc's Shadow DOM, including gradients, sidebars, buttons, and code blocks.
+title: Advanced Styling with CSS Parts & Variables
+description: Master CSS Shadow Parts (::part()) and CSS Custom Properties to customize internal elements inside RapiDoc's Shadow DOM, including gradients, sidebars, buttons, and code blocks.
 ---
 
 import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import CssPartsCatalog from '../../../components/CssPartsCatalog.astro';
+import CssVariablesCatalog from '../../../components/CssVariablesCatalog.astro';
 
-While standard attributes handle core colors and fonts, modern web applications often demand bespoke layouts—such as custom glassmorphism, multi-stop gradient navigation panels, custom borders, and custom buttons.
+While standard attributes handle core colors and fonts, modern web applications often demand bespoke layouts—such as custom glassmorphism, multi-stop gradient navigation panels, custom borders, and branded buttons.
 
-Because RapiDoc uses Web Components, standard external CSS cannot pierce the Shadow DOM boundary. To solve this cleanly, RapiDoc exposes **CSS Shadow Parts**. Using the standard CSS `::part()` pseudo-element selector, you can target and style internal elements directly from your parent stylesheet.
+Because RapiDoc is implemented as a standard W3C Web Component, standard external CSS selectors cannot pierce the Shadow DOM encapsulation boundary. To provide complete design freedom while preserving stability, RapiDoc exposes **CSS Shadow Parts** (`::part()`) and **CSS Custom Properties** (Variables).
 
 ---
 
-## How `::part()` Works
+## 1. How `::part()` Works
 
-In your regular external CSS file, select `<rapi-doc>` followed by `::part(part-name)`:
+In your parent application stylesheet or `<style>` block, select `<rapi-doc>` followed by `::part(part-name)`:
 
 ```css
 /* Target the sidebar navigation panel inside RapiDoc */
@@ -26,53 +28,34 @@ rapi-doc::part(section-navbar) {
 
 ---
 
-## Exposed CSS Parts Catalog
+## 2. Complete CSS Shadow Parts Catalog
 
-RapiDoc exposes clean, semantic parts organized by functional zones:
+Below is the complete catalog of all semantic CSS parts exposed by RapiDoc, automatically loaded from the shared styling specification:
 
-### 1. Navigation Sidebar Parts
-
-| Part Name | Target Element | Description |
-| :--- | :--- | :--- |
-| `section-navbar` | `<nav>` | The outer left-hand navigation sidebar container. |
-| `section-navbar-search` | `<div>` | Container wrapping the search input field in the sidebar. |
-| `textbox-nav-filter` | `<input>` | The search / filter text input box inside the sidebar. |
-| `section-navbar-scroll` | `<div>` | The scrollable container holding paths and tags. |
-| `section-navbar-item` | `<div>` | Common class for all interactive items in the sidebar. |
-| `section-navbar-tag` | `<div>` | Section headers representing OpenAPI tags. |
-| `section-navbar-path` | `<div>` | Individual endpoint items (e.g. `GET /users`). |
-| `btn-navbar` | `<button>` | Mobile hamburger toggle button to open/close sidebar. |
-
-### 2. Main Content & Overview Parts
-
-| Part Name | Target Element | Description |
-| :--- | :--- | :--- |
-| `section-main-content` | `<main>` | The primary document canvas wrapper. |
-| `section-overview` | `<div>` | Top section containing API Title, Version, and Markdown description. |
-| `section-overview-title`| `<div>` | The main API Title heading. |
-| `anchor-overview` | `<a>` | Contact, License, and Terms of Service links. |
-
-### 3. Interactive Code Samples & Tabs
-
-| Part Name | Target Element | Description |
-| :--- | :--- | :--- |
-| `tab-btn-row` | `<div>` | Container row holding multi-language code sample tabs. |
-| `tab-btn` | `<button>` | Individual tab buttons for switching languages (e.g. cURL, Python, Node). |
-| `tab-panel` | `<div>` | The active panel displaying the selected code sample. |
-| `btn-copy` | `<button>` | "Copy to clipboard" button inside code blocks. |
-
-### 4. Buttons & Form Controls
-
-| Part Name | Target Element | Description |
-| :--- | :--- | :--- |
-| `btn` | `<button>` | Common base part for buttons throughout RapiDoc. |
-| `btn-fill` | `<button>` | Solid fill buttons (e.g. "TRY", "EXECUTE"). |
-| `btn-outline` | `<button>` | Outlined secondary buttons. |
-| `textbox` | `<input>` | Text input fields across parameter tables and auth panels. |
+<CssPartsCatalog />
 
 ---
 
-## Practical Styling Recipes
+## 3. CSS Custom Properties (Variables)
+
+In addition to Shadow Parts, RapiDoc exposes a comprehensive set of CSS variables on `:host`. You can override these variables on `<rapi-doc>` or any ancestor container in your stylesheet or inline styles:
+
+```css
+rapi-doc {
+  --border-radius: 8px;
+  --font-mono: 'JetBrains Mono', monospace;
+  --primary-color: #10b981;
+  --nav-bg-color: #0b1121;
+}
+```
+
+Below is the complete catalog of CSS custom properties exposed by RapiDoc:
+
+<CssVariablesCatalog />
+
+---
+
+## 4. Practical Styling Recipes
 
 ### Recipe 1: Frosted Glass Sidebar with Neon Accents
 
@@ -121,6 +104,6 @@ rapi-doc::part(btn-fill):hover {
 }
 ```
 
-<Aside type="tip" title="Combining Attributes and CSS Parts">
-The best pattern is setting your foundational colors (such as `theme="dark"` and `bg-color="#090d16"`) using HTML attributes, and reserving `::part()` for high-impact visual flourishes like gradients, backdrop filters, and custom borders.
+<Aside type="tip" title="Combining Attributes, Variables, and CSS Parts">
+The recommended architecture is setting your foundational colors and typography using HTML attributes and CSS variables, and reserving `::part()` for high-impact visual customizations such as gradients, backdrop filters, and custom container borders.
 </Aside>

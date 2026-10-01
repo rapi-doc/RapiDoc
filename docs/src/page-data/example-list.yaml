@@ -1,7 +1,7 @@
 examples:
   - How to Use:
       img: /assets/images/info.png
-      href: /quickstart
+      href: /docs/get-started/quickstart
       description: Step-by-step guide to integrating RapiDoc with vanilla HTML, React, Vue, and modern JavaScript frameworks.
       isDoc: true
       category: Guides & Docs
