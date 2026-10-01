@@ -1,0 +1,35 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+---
+
+<ExampleLayout>
+  <rapi-doc 
+    id = "thedoc"
+    spec-url = "/specs-test/no-example-provided.yaml"
+    show-header = "false"
+    show-info = "true"
+    allow-server-selection = "false"
+    allow-authentication = "false" 
+    render-style = "read"
+    schema-style = "table"
+    theme = "dark"
+  >
+    <div slot="nav-logo" style="display:flex; flex-direction:column; align-items:center; gap: 8px;">
+      <button class='btn' onclick="toggleRenderStyle()">Toggle Render Style</button>
+      <button class='btn' onclick="toggleSchemaStyle()">Toggle Schema Style</button>
+    </div>
+  </rapi-doc>
+</ExampleLayout>
+
+<script is:inline>
+  function toggleRenderStyle() {
+    const el = document.getElementById('thedoc');
+    const current = el.getAttribute('render-style');
+    el.setAttribute('render-style', current === 'read' ? 'focused' : 'read');
+  }
+  function toggleSchemaStyle() {
+    const el = document.getElementById('thedoc');
+    const current = el.getAttribute('schema-style');
+    el.setAttribute('schema-style', current === 'table' ? 'tree' : 'table');
+  }
+</script>

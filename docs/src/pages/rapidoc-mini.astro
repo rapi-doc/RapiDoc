@@ -1,208 +1,1163 @@
 ---
 import GlobalLayout from '../layouts/GlobalLayout.astro';
-import PageBanner from '../components/PageBanner.astro';
+import SiteNavbar from '../components/SiteNavbar.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import CodeBlock from '../components/CodeBlock.astro';
+import RapidocMiniComparisonTable from '../components/RapidocMiniComparisonTable.astro';
+
+const basicMiniCode = `<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+
+<rapi-doc-mini
+  spec-url="/specs/mock.yaml"
+  theme="dark"
+  bg-color="#1a1a1a"
+  paths-expanded="false"
+> </rapi-doc-mini>`;
+
+const matchPathsCode = `<rapi-doc-mini
+  spec-url="/specs/mock.yaml"
+  theme="dark"
+  bg-color="#1a1a1a"
+  paths-expanded="false"
+  match-paths="post /users"
+> </rapi-doc-mini>`;
+
+const regexMatchCode = `<rapi-doc-mini
+  spec-url="/specs/mock.yaml"
+  theme="dark"
+  bg-color="#1a1a1a"
+  schema-style="table"
+  paths-expanded="false"
+  match-paths="^get /users/{userId}$|^post /users$"
+  match-type="regex"
+> </rapi-doc-mini>`;
+
+const expandedCode = `<rapi-doc-mini
+  spec-url="/specs/mock.yaml"
+  theme="dark"
+  bg-color="#1a1a1a"
+  schema-style="table"
+  layout="column"
+  paths-expanded="true"
+  match-paths="post /users"
+> </rapi-doc-mini>`;
+
+const microservicesCode = `<!-- Service A: Code Highlighting Service -->
+<rapi-doc-mini
+  spec-url="/specs/code-highlight.yaml"
+  theme="dark"
+  bg-color="#1a1a1a"
+  match-paths="get /code"
+  paths-expanded="false"
+> </rapi-doc-mini>
+
+<!-- Service B: Store & Inventory Service -->
+<rapi-doc-mini
+  spec-url="/specs/petstore.json"
+  theme="dark"
+  bg-color="#1a1a1a"
+  match-paths="/store"
+  paths-expanded="false"
+> </rapi-doc-mini>`;
+
+const specNotFoundCode = `<!-- Graceful error rendering when a spec is unavailable or returns 404 -->
+<rapi-doc-mini
+  spec-url="/specs/fake-non-existing.json"
+  theme="dark"
+  bg-color="#1a1a1a"
+> </rapi-doc-mini>`;
+
+const customStylingCode = `<!-- Custom width, golden border, table schema, and padding -->
+<rapi-doc-mini
+  style="max-width: 650px; width: 100%; border: 2px solid #eab308; border-radius: 8px; padding: 12px; margin: 16px 0;"
+  spec-url="/specs/mock.yaml"
+  theme="dark"
+  bg-color="#1a1a1a"
+  schema-style="table"
+  layout="column"
+  paths-expanded="false"
+> </rapi-doc-mini>
+
+<!-- Compact single-endpoint card with salmon accent border -->
+<rapi-doc-mini
+  style="max-width: 650px; width: 100%; border: 1px solid #f87171; border-radius: 6px; padding: 8px; margin: 16px 0;"
+  spec-url="/specs/mock.yaml"
+  theme="dark"
+  bg-color="#1a1a1a"
+  match-paths="post /users"
+  paths-expanded="false"
+> </rapi-doc-mini>`;
+
+const attributes = [
+  {
+    name: 'spec-url',
+    type: 'String',
+    default: '(empty)',
+    desc: 'URL of the OpenAPI specification file (JSON or YAML) to load and render.'
+  },
+  {
+    name: 'match-paths',
+    type: 'String',
+    default: '(empty)',
+    desc: 'Target path and HTTP method filter to selectively render specific endpoints (e.g. "post /users" or "/store").'
+  },
+  {
+    name: 'match-type',
+    type: 'includes | regex',
+    default: 'includes',
+    desc: 'Matching strategy for match-paths. Set to "regex" for regular expression matching.'
+  },
+  {
+    name: 'paths-expanded',
+    type: 'true | false',
+    default: 'false',
+    desc: 'Controls whether matching endpoints are expanded by default or rendered as collapsible items.'
+  },
+  {
+    name: 'layout',
+    type: 'row | column',
+    default: 'row',
+    desc: 'Internal layout of endpoint details (side-by-side parameters and console, or stacked in a column).'
+  },
+  {
+    name: 'schema-style',
+    type: 'tree | table',
+    default: 'tree',
+    desc: 'Visual representation of request and response JSON schemas: interactive tree or structured table.'
+  },
+  {
+    name: 'schema-expand-level',
+    type: 'Number',
+    default: '999',
+    desc: 'Initial expansion depth for nested schema models and properties.'
+  },
+  {
+    name: 'theme',
+    type: 'dark | light',
+    default: 'dark',
+    desc: 'Base color theme preset for the component.'
+  },
+  {
+    name: 'bg-color',
+    type: 'Hex / CSS color',
+    default: '#1a1a1a',
+    desc: 'Custom background color for the component container, allowing seamless blending with your page.'
+  },
+  {
+    name: 'text-color',
+    type: 'Hex / CSS color',
+    default: '(theme default)',
+    desc: 'Base text color for endpoint descriptions, labels, and parameters.'
+  },
+  {
+    name: 'primary-color',
+    type: 'Hex / CSS color',
+    default: '#f3705a',
+    desc: 'Accent highlight color used for primary buttons, active tabs, and HTTP method badges.'
+  },
+  {
+    name: 'allow-try',
+    type: 'true | false',
+    default: 'true',
+    desc: 'Enables or disables the interactive "TRY" execution console.'
+  },
+  {
+    name: 'show-curl-before-try',
+    type: 'true | false',
+    default: 'false',
+    desc: 'Generates and displays copyable cURL commands directly in the card before execution.'
+  },
+  {
+    name: 'api-key-name',
+    type: 'String',
+    default: '(empty)',
+    desc: 'Name of the API key header or query parameter to include in interactive requests.'
+  },
+  {
+    name: 'api-key-location',
+    type: 'header | query',
+    default: 'header',
+    desc: 'Target location where the API key value will be injected.'
+  },
+  {
+    name: 'api-key-value',
+    type: 'String',
+    default: '(empty)',
+    desc: 'Value of the API key or bearer authorization token.'
+  },
+  {
+    name: 'server-url',
+    type: 'String',
+    default: '(from spec)',
+    desc: 'Overrides the base API server URL for all requests made from the widget.'
+  },
+  {
+    name: 'regular-font',
+    type: 'String',
+    default: '(system font)',
+    desc: 'Custom font family for body text and labels (e.g. "Outfit, sans-serif").'
+  },
+  {
+    name: 'mono-font',
+    type: 'String',
+    default: '(monospace)',
+    desc: 'Custom font family for code blocks, payloads, and parameter definitions.'
+  }
+];
 ---
 
 <GlobalLayout>
+  <!-- RapiDoc Component Registration -->
   <script slot="script" is:inline type="module" src="/rapidoc/rapidoc-min.js"></script>
-  <PageBanner slot="topbar" page="example-list" showWaves = {true} />
-  <main>
-    <h1>Rapidoc Mini</h1>
-    <hr/>
-    <p> 
-      <span class="mono yellow">{`<rapi-doc-mini>`}</span> 
-      a unique way to expose your API documentation which can seamlesly integrate with any HTML based documetation.
-      <p>
-        There are various styles and needs how one would like to document their APIs. 
-        such as 
-        <ul>
-          <li>
-            All the APIs are documented in one central place. This is where <span class="mono yellow">{`<rapi-doc>`}</span> fits in. 
-            However for the rest of bullets listed below <span class="mono yellow">{`<rapi-doc-mini>`}</span> is your friend
-          </li>
-          <li>
-          Expose just a few important APIs such as authentication etc as a part of a blog, to provide an initial understanding to your audience
-          </li>
-          <li>
-            A step by step tutorial where in each step shows you a few APIs 
-          </li>
-          <li>
-            Or you are explaining a business case which uses microservices, 
-            where each microservice has its own APIs and the ask is to pick few APIs from each of theses microservice show how they work together in a single document
-          </li>
-        </ul>
-      </p>  
-    </p>
 
-    <h2>Usage in a blog style writing</h2>
-    <p style="flex:1">
-      It is fairly common to write specifically about few APIs to provide an initial understanding to your users. 
-      However in those cases you run the risk of your writeup getting outdated when the actual API changes its shape.
-    </p>
-    <p>
-      <span class="mono yellow">{`<rapi-doc-mini>`}</span> 
-      gives you this amazing capability to extract and expose any part of you Open-API spec including a built in API console to try out. 
-      As an example shown below is how I am exposing a set of APIs in this writeup. 
-      It is a very powerful and yet very easy to use tool that comes with many advantages, 
-      inluding syntax highlighting, built-in console, markdown support and many others. 
-      <br/>
-      <b>Below is the markup that you will put in your html </b>
-      <br/>
-      <pre class="code-block" style="width:575px"><code class="language-html">{`<rapi-doc-mini
-  spec-url = "https://petstore.swagger.io/v2/swagger.json"
-  paths-expanded = "false"
-  theme = "dark"
-  bg-color = "#1a1a1a"
-> </rapi-doc-mini>`}</code></pre>
-      Above HTML snippet will result in generating an API doc as shown below. Notice how it blends seamlessly with this writeup as if its a part of this page. 
-      Go ahead and play with the below APIs, make live request and watch the responses, all from this very blog.
-    </p>
-    <rapi-doc-mini
-      style= "min-width:600px; margin: 1.5rem 0"
-      spec-url="./specs/mock.yaml"
-      theme = "dark"
-      paths-expanded = "false"
-      bg-color = "#1a1a1a"
-    > </rapi-doc-mini>
-    <br/>
-    <h3> Placement, Resize and Style</h3>
-    <span>
-      If needed it can be resized to fit the layout needs. 
-      Just like how you would use an <span class="mono yellow">{`<img>`}</span> tag, in the same way you can use <b>{`<rapi-doc-mini>`}</b>
-      and place and style per your needs.<br/>
-      like shown below, I reduced its width, applied a thick border and attached some shadow
-    </span>
-    <br/><br/>
-    <rapi-doc-mini
-      style = "width:600px; border-radius:8px; border: 2px solid var(--color-yellow); padding:8px;"
-      spec-url="./specs/mock.yaml"
-      theme = "dark"
-      bg-color = "#1a1a1a"
-      schema-style = 'table'
-      layout = "column"
-      paths-expanded = "false"
-    > </rapi-doc-mini>
-   
-    <br/><br/>
-    <h3>Pick only specific APIs from OpenAPI spec</h3>
-    Instead of showing entire open-api spec you can just extract and choose to show what you need to show. This is done using <b>match-paths</b> attribute.
-    <br/>Example below uses the same OpenAPI spec as we used above, but showing only the paths that we intend to
+  <!-- Ambient background glow elements -->
+  <div class="ambient-glow glow-emerald"></div>
+  <div class="ambient-glow glow-indigo"></div>
+  <div class="ambient-glow glow-cyan"></div>
 
-    <pre class="code-block" style="width:590px"><code class="language-html">{`<rapi-doc-mini
-  style = "width:600px; border:1px solid tomato; border-radius:8px; padding:8px"
-  spec-url = "../specs/mock.yaml"
-  theme = "dark"
-  bg-color = "#1a1a1a"
-  paths-expanded = "false"
-  match-paths = "post /users"
-> </rapi-doc-mini>`}</code></pre>
-    <br/> 
-    <rapi-doc-mini
-      style= "min-width:600px; width:600px; border:1px solid tomato; border-radius:8px; padding:8px"
-      spec-url="./specs/mock.yaml"
-      theme = "dark"
-      bg-color = "#1a1a1a"
-      paths-expanded = "false"
-      match-paths = "post /users"
-    > </rapi-doc-mini>
-    <br/>
-    <h3>More complex RegEx based filtering of API is possible too (match-paths & match-type)</h3>
-    <span>
-      Here we are using regular RegEx to select the paths which is either 
-      <span class="mono yellow"> get /users/{`{userId}`}</span> &nbsp;&nbsp;or&nbsp;&nbsp; 
-      <span class="mono yellow"> post /users</span>
-    </span>
-    <pre class="code-block" style="width:590px"> <code class="language-html">{`<rapi-doc-mini
-  style= "width:600px; border:1px solid #444;"
-  spec-url = "./specs/mock.yaml"
-  theme = "dark"
-  bg-color = "#1a1a1a"
-  schema-style = 'table'
-  paths-expanded = "false"
-  match-paths = "^get /users/\{userId\}$|^post /users$"
-  match-type = "regex"
-> </rapi-doc-mini>`}</code></pre>
+  <!-- Reusable Frosted Glass Navigation -->
+  <SiteNavbar activePage="rapidoc-mini" />
 
-    <br/> 
-    <rapi-doc-mini
-      style= "min-width:600px; width:600px; border-radius:8px; border:1px solid var(--color-salmon); padding:8px;"
-      spec-url="./specs/mock.yaml"
-      theme = "dark"
-      bg-color = "#1a1a1a"
-      schema-style = 'table'
-      paths-expanded = "false"
-      match-paths = "^get /users/\{userId\}$|^post /users$"
-      match-type = "regex"
-    > </rapi-doc-mini>
+  <main class="rd-mini-main">
+    <!-- Hero Header -->
+    <header class="rd-mini-header">
+      <div class="rd-badge-pill">
+        <span class="rd-badge-pulse"></span>
+        <span class="rd-badge-text">Standalone Endpoint Web Component</span>
+      </div>
 
-    <h3>Show it Minimzed or Expanded</h3>
-    <span>
-      If expand/collapse is not your style, then have it always expanded and make it more natural and integrated part of your writeup.
-    </span>  
-    <br> Use the attribute <span class="mono yellow">paths-expanded = "true"</span> to achive this <br/><br/>
-  
-    <rapi-doc-mini
-      style= "min-width:600px; width:600px;"
-      spec-url="./specs/mock.yaml"
-      theme = "dark"
-      bg-color = "#1a1a1a"
-      schema-style = 'table'
-      sort-endpoints-by = "method"
-      layout = "column"
-      paths-expanded = "true"
-      match-paths = "post /users"
-    > </rapi-doc-mini>
-    
+      <h1 class="rd-page-title">
+        RapiDoc <span class="text-gradient">Mini</span>
+      </h1>
 
-  <h3>Include APIs from multiple specs</h3>
-  <p>
-    Pretty common with micro services, where you like to explain a business flow by consuming APIs from multiple services. 
-    Each of these services may be having their own OpenAPI spec. 
-    The ask is to pluk some APIs from different services and makeup a story. <br>
-    Do not rewrite the API specific functionality again, make use of the existing OpenAPI spec and Use <span class="mono yellow">{`<rapi-doc-mini>`}</span> to pluck and document APIs from differenct specs
-  </p>
-  <rapi-doc-mini
-    style= "width:600px; border-radius: 8px; border: 1px solid var(--color-yellow); padding: 5px"
-    id = "thedoc" 
-    spec-url="./specs/code-highlight.yaml"
-    theme = "dark"
-     bg-color = "#1a1a1a"
-    schema-style = 'table'
-    sort-endpoints-by = "method"
-    layout = "column"
-    match-paths = "get /code"
-  > </rapi-doc-mini>
+      <p class="rd-page-subtitle">
+        <code>&lt;rapi-doc-mini&gt;</code> is a lightweight, zero-iframe Web Component designed to embed live, interactive OpenAPI endpoints directly into technical blog posts, markdown tutorials, changelogs, and microservice workflows without visual clutter.
+      </p>
 
-  <h3>Use a different theme </h3>
-  <rapi-doc-mini
-    style= "width:600px; border-radius: 8px; border: 1px solid var(--color-yellow); padding: 5px"
-    id = "thedoc" 
-    spec-url="./specs/petstore.json"
-    theme = "dark"
-    bg-color = "#44506999"
-    text-color = "#C9D7DD"
-    schema-style = 'table'
-    sort-endpoints-by = "method"
-    layout = "column"
-    match-paths = "/store"
-  > </rapi-doc-mini>
+      <!-- Key Metrics / Feature Badges -->
+      <div class="rd-stats-bar">
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">100%</span>
+          <span class="rd-stat-label">No &lt;iframe&gt; Friction</span>
+        </div>
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">Granular</span>
+          <span class="rd-stat-label">Path & RegEx Filtering</span>
+        </div>
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">Live TRY</span>
+          <span class="rd-stat-label">Interactive Console</span>
+        </div>
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">Multi-Spec</span>
+          <span class="rd-stat-label">Microservice Mashup</span>
+        </div>
+      </div>
+    </header>
 
-  <h3>Handling non available specs</h3>
-  <rapi-doc-mini
-    style= "width:600px; border-radius: 4px; margin-bottom: 16px;"
-    theme = "dark"
-    id = "thedoc" 
-    spec-url="./specs/fake-non-existing.json"
-  > </rapi-doc-mini>
-  <rapi-doc-mini
-    style= "width:600px; border-radius: 4px; margin-bottom: 16px;"
-    theme = "light"
-    id = "thedoc" 
-    spec-url="./specs/fake-non-existing.json"
-  > </rapi-doc-mini>
-</main>
+    <!-- Why RapiDoc Mini Grid -->
+    <section class="rd-section">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Why RapiDoc Mini</div>
+        <h2 class="rd-section-title">The Problem with Traditional API Documentation</h2>
+      </div>
+
+      <div class="rd-usecase-grid">
+        <div class="rd-usecase-card">
+          <div class="rd-card-icon">📝</div>
+          <h3>Blog & Tutorial Writing</h3>
+          <p>
+            Static markdown code snippets and screenshots go stale the moment an API schema changes. <code>&lt;rapi-doc-mini&gt;</code> reads directly from your source OpenAPI spec, guaranteeing your code examples and live consoles are always 100% up to date.
+          </p>
+        </div>
+
+        <div class="rd-usecase-card">
+          <div class="rd-card-icon">🧩</div>
+          <h3>Step-by-Step Onboarding</h3>
+          <p>
+            When guiding a developer through a multistep journey (e.g. Register &rarr; Verify &rarr; Transact), you don't want to overwhelm them with 100 irrelevant endpoints. Pluck and display only the relevant endpoint at each step.
+          </p>
+        </div>
+
+        <div class="rd-usecase-card">
+          <div class="rd-card-icon">⚡</div>
+          <h3>Microservice Storytelling</h3>
+          <p>
+            Modern architectures divide APIs across dozens of microservices. <code>&lt;rapi-doc-mini&gt;</code> allows you to pluck 1 endpoint from Billing, 1 from Identity, and 1 from Catalog into a unified narrative without merging backend specs.
+          </p>
+        </div>
+
+        <div class="rd-usecase-card">
+          <div class="rd-card-icon">📢</div>
+          <h3>Release Notes & Changelogs</h3>
+          <p>
+            Announce a new or deprecated endpoint in your product changelog by embedding the live interactive card directly into the release announcement with a working "TRY" console.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= DEMO 1: ESSENTIAL EMBED ================= -->
+    <section class="rd-section" id="blog-style">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Interactive Demo 1</div>
+        <h2 class="rd-section-title">Seamless Blog & Guide Embedding</h2>
+      </div>
+
+      <p class="rd-section-desc">
+        Just like an <code>&lt;img&gt;</code> tag, <code>&lt;rapi-doc-mini&gt;</code> drops directly into any HTML flow. Notice how it blends seamlessly with the page background, allowing you to trigger live API requests without being trapped inside an iframe or nested card:
+      </p>
+
+      <div class="rd-single-col-demo">
+        <CodeBlock code={basicMiniCode} lang="html" filename="blog-embed.html" />
+
+        <div class="rd-live-wrapper">
+          <div class="rd-live-indicator">
+            <span class="rd-live-dot"></span>
+            <span>Live Component Output (Blended with Page)</span>
+          </div>
+
+          <!-- RapiDoc Mini rendered directly on page surface -->
+          <rapi-doc-mini
+            class="rd-mini-element"
+            spec-url="/specs/mock.yaml"
+            theme="dark"
+            paths-expanded="false"
+            bg-color="#1a1a1a"
+          > </rapi-doc-mini>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= DEMO 2: CUSTOM STYLING & SIZING ================= -->
+    <section class="rd-section" id="styling-sizing">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Interactive Demo 2</div>
+        <h2 class="rd-section-title">Placement, Sizing &amp; Custom CSS Styling</h2>
+      </div>
+
+      <p class="rd-section-desc">
+        Just like an <code>&lt;img&gt;</code> or <code>&lt;div&gt;</code> tag, <code>&lt;rapi-doc-mini&gt;</code> can be styled with standard CSS. You can easily constrain its <code>width</code>, apply custom <code>border</code> and <code>border-radius</code>, adjust <code>padding</code>, or attach box shadows to fit your exact layout requirements:
+      </p>
+
+      <div class="rd-single-col-demo">
+        <CodeBlock code={customStylingCode} lang="html" filename="custom-styling.html" />
+
+        <div class="rd-live-wrapper">
+          <div class="rd-live-indicator">
+            <span class="rd-live-dot" style="background: #eab308; box-shadow: 0 0 8px #eab308;"></span>
+            <span>Custom Width (650px), Golden Border &amp; Padding</span>
+          </div>
+
+          <rapi-doc-mini
+            style="max-width: 650px; width: 100%; border: 2px solid #eab308; border-radius: 8px; padding: 12px; margin: 0 0 24px 0;"
+            spec-url="/specs/mock.yaml"
+            theme="dark"
+            bg-color="#1a1a1a"
+            schema-style="table"
+            layout="column"
+            paths-expanded="false"
+          > </rapi-doc-mini>
+
+          <div class="rd-live-indicator" style="margin-top: 16px;">
+            <span class="rd-live-dot" style="background: #f87171; box-shadow: 0 0 8px #f87171;"></span>
+            <span>Single-Endpoint Card with Salmon Accent Border</span>
+          </div>
+
+          <rapi-doc-mini
+            style="max-width: 650px; width: 100%; border: 1px solid #f87171; border-radius: 6px; padding: 8px; margin: 0 0 24px 0;"
+            spec-url="/specs/mock.yaml"
+            theme="dark"
+            bg-color="#1a1a1a"
+            match-paths="post /users"
+            paths-expanded="false"
+          > </rapi-doc-mini>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= DEMO 3: PATH FILTERING ================= -->
+    <section class="rd-section" id="path-filtering">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Interactive Demo 3</div>
+        <h2 class="rd-section-title">Selective Endpoint Filtering with <code>match-paths</code></h2>
+      </div>
+
+      <p class="rd-section-desc">
+        Instead of rendering an entire specification, use <code>match-paths</code> to extract and display only the exact endpoint needed for your narrative (e.g. <code>match-paths="post /users"</code>):
+      </p>
+
+      <div class="rd-single-col-demo">
+        <CodeBlock code={matchPathsCode} lang="html" filename="filter-endpoint.html" />
+
+        <div class="rd-live-wrapper">
+          <div class="rd-live-indicator">
+            <span class="rd-live-dot"></span>
+            <span>Filtered Output: Only POST /users</span>
+          </div>
+
+          <rapi-doc-mini
+            class="rd-mini-element"
+            spec-url="/specs/mock.yaml"
+            theme="dark"
+            paths-expanded="false"
+            bg-color="#1a1a1a"
+            match-paths="post /users"
+          > </rapi-doc-mini>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= DEMO 4: REGEX FILTERING ================= -->
+    <section class="rd-section" id="regex-filtering">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Interactive Demo 4</div>
+        <h2 class="rd-section-title">Multi-Endpoint Selection with RegEx</h2>
+      </div>
+
+      <p class="rd-section-desc">
+        Set <code>match-type="regex"</code> to craft powerful regular expression filters. Below, we match both <code>GET /users/{'{userId}'}</code> and <code>POST /users</code> simultaneously while rendering schemas as clean data tables:
+      </p>
+
+      <div class="rd-single-col-demo">
+        <CodeBlock code={regexMatchCode} lang="html" filename="regex-filter.html" />
+
+        <div class="rd-live-wrapper">
+          <div class="rd-live-indicator">
+            <span class="rd-live-dot"></span>
+            <span>RegEx Match: GET /users/{'{userId}'} &amp; POST /users</span>
+          </div>
+
+          <rapi-doc-mini
+            class="rd-mini-element"
+            spec-url="/specs/mock.yaml"
+            theme="dark"
+            bg-color="#1a1a1a"
+            schema-style="table"
+            paths-expanded="false"
+            match-paths={`^get /users/{userId}$|^post /users$`}
+            match-type="regex"
+          > </rapi-doc-mini>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= DEMO 5: ALWAYS EXPANDED ================= -->
+    <section class="rd-section" id="always-expanded">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Interactive Demo 5</div>
+        <h2 class="rd-section-title">Always-Expanded Inline Mode (<code>paths-expanded="true"</code>)</h2>
+      </div>
+
+      <p class="rd-section-desc">
+        If click-to-expand accordion controls do not fit your article flow, set <code>paths-expanded="true"</code> to render parameters, request body schemas, and the live test console fully expanded:
+      </p>
+
+      <div class="rd-single-col-demo">
+        <CodeBlock code={expandedCode} lang="html" filename="expanded-mode.html" />
+
+        <div class="rd-live-wrapper">
+          <div class="rd-live-indicator">
+            <span class="rd-live-dot"></span>
+            <span>Fully Expanded Inline View</span>
+          </div>
+
+          <rapi-doc-mini
+            class="rd-mini-element"
+            spec-url="/specs/mock.yaml"
+            theme="dark"
+            bg-color="#1a1a1a"
+            schema-style="table"
+            sort-endpoints-by="method"
+            layout="column"
+            paths-expanded="true"
+            match-paths="post /users"
+          > </rapi-doc-mini>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= DEMO 6: MICROSERVICES MASHUP ================= -->
+    <section class="rd-section" id="microservices">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Interactive Demo 6</div>
+        <h2 class="rd-section-title">Multi-Spec Microservice Integration</h2>
+      </div>
+
+      <p class="rd-section-desc">
+        Seamlessly weave endpoints from multiple independent OpenAPI specs into a cohesive story. Below, we embed an endpoint from a Syntax Highlighting service alongside an endpoint from a Petstore service in the same article:
+      </p>
+
+      <div class="rd-single-col-demo">
+        <CodeBlock code={microservicesCode} lang="html" filename="microservices-flow.html" />
+
+        <div class="rd-live-wrapper">
+          <div class="rd-live-indicator">
+            <span class="rd-live-dot"></span>
+            <span>Microservice A: Code Highlighting Spec (/specs/code-highlight.yaml)</span>
+          </div>
+
+          <rapi-doc-mini
+            class="rd-mini-element"
+            spec-url="/specs/code-highlight.yaml"
+            theme="dark"
+            bg-color="#1a1a1a"
+            schema-style="table"
+            layout="column"
+            match-paths="get /code"
+            paths-expanded="false"
+          > </rapi-doc-mini>
+
+          <div class="rd-live-indicator" style="margin-top: 24px;">
+            <span class="rd-live-dot" style="background: #a855f7; box-shadow: 0 0 8px #a855f7;"></span>
+            <span>Microservice B: Petstore Inventory Spec (/specs/petstore.json)</span>
+          </div>
+
+          <rapi-doc-mini
+            class="rd-mini-element"
+            spec-url="/specs/petstore.json"
+            theme="dark"
+            bg-color="#1a1a1a"
+            schema-style="table"
+            layout="column"
+            match-paths="/store"
+            paths-expanded="false"
+          > </rapi-doc-mini>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= DEMO 7: SPEC NOT FOUND ERROR ================= -->
+    <section class="rd-section" id="error-handling">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Interactive Demo 7</div>
+        <h2 class="rd-section-title">Handling Unavailable Specs (404 / Network Errors)</h2>
+      </div>
+
+      <p class="rd-section-desc">
+        If an OpenAPI spec URL is missing, invalid, or returns a 404 HTTP status, <code>&lt;rapi-doc-mini&gt;</code> renders a clean built-in error message without throwing unhandled exceptions or breaking your page layout:
+      </p>
+
+      <div class="rd-single-col-demo">
+        <CodeBlock code={specNotFoundCode} lang="html" filename="spec-not-found.html" />
+
+        <div class="rd-live-wrapper">
+          <div class="rd-live-indicator">
+            <span class="rd-live-dot" style="background: #ef4444; box-shadow: 0 0 8px #ef4444;"></span>
+            <span>Graceful Error State (Non-Existent Spec URL)</span>
+          </div>
+
+          <rapi-doc-mini
+            class="rd-mini-element"
+            spec-url="/specs/fake-non-existing.json"
+            theme="dark"
+            bg-color="#1a1a1a"
+          > </rapi-doc-mini>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ATTRIBUTES REFERENCE TABLE ================= -->
+    <section class="rd-section" id="attributes-reference">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">API Reference</div>
+        <h2 class="rd-section-title">Supported <code>&lt;rapi-doc-mini&gt;</code> Attributes</h2>
+      </div>
+
+      <p class="rd-section-desc">
+        Configure any of the following HTML attributes directly on the custom element tag to control filtering, theming, layout, and authorization:
+      </p>
+
+      <div class="rd-table-container">
+        <table class="rd-api-table">
+          <thead>
+            <tr>
+              <th class="col-name">Attribute</th>
+              <th class="col-type">Type / Allowed</th>
+              <th class="col-default">Default</th>
+              <th class="col-desc">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {attributes.map(attr => (
+              <tr class="rd-api-row">
+                <td class="col-name">
+                  <code class="rd-attr-name">{attr.name}</code>
+                </td>
+                <td class="col-type">
+                  <span class="rd-type-tag">{attr.type}</span>
+                </td>
+                <td class="col-default">
+                  <span class="rd-default-tag">{attr.default}</span>
+                </td>
+                <td class="col-desc">
+                  <div class="rd-attr-desc">{attr.desc}</div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= COMPONENT COMPARISON ================= -->
+    <section class="rd-section" id="comparison">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Architecture</div>
+        <h2 class="rd-section-title">Component Comparison: <code>&lt;rapi-doc&gt;</code> vs. <code>&lt;rapi-doc-mini&gt;</code></h2>
+      </div>
+
+      <p class="rd-section-desc">
+        Understanding when to use the comprehensive full-portal <code>&lt;rapi-doc&gt;</code> component versus the lightweight, embeddable <code>&lt;rapi-doc-mini&gt;</code> widget:
+      </p>
+
+      <RapidocMiniComparisonTable />
+    </section>
+
+    <!-- Bottom Navigation / Callout -->
+    <section class="rd-bottom-callout">
+      <div class="rd-callout-glow"></div>
+      <div class="rd-callout-content">
+        <div class="rd-callout-badge">Next Steps</div>
+        <h2 class="rd-callout-title">Ready to Integrate RapiDoc?</h2>
+        <p class="rd-callout-desc">
+          Check out our Quick Reference for copy-paste integration recipes, or explore the complete API reference for full-portal documentation options.
+        </p>
+        <div class="rd-callout-actions">
+          <a href="/examples" class="rd-btn rd-btn-primary rd-btn-lg">
+            <span>Quick Reference Guide</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M5 12h14m-7-7 7 7-7 7" />
+            </svg>
+          </a>
+          <a href="/api" class="rd-btn rd-btn-secondary rd-btn-lg">
+            <span>Full API Specification</span>
+          </a>
+          <a href="/docs/advanced/rapidoc-mini" class="rd-btn rd-btn-ghost rd-btn-lg">
+            <span>Starlight Docs Guide ↗</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <SiteFooter />
 </GlobalLayout>
 
 <style>
+/* CSS Variables & Tokens */
+:root {
+  --rd-emerald: #10b981;
+  --rd-emerald-glow: rgba(16, 185, 129, 0.25);
+  --rd-cyan: #06b6d4;
+  --rd-cyan-glow: rgba(6, 182, 212, 0.25);
+  --rd-indigo: #6366f1;
+  --rd-surface: rgba(15, 23, 42, 0.65);
+  --rd-surface-card: rgba(11, 17, 33, 0.75);
+  --rd-surface-hover: rgba(22, 32, 58, 0.85);
+  --rd-glass-border: rgba(255, 255, 255, 0.08);
+  --rd-glass-border-hover: rgba(16, 185, 129, 0.4);
+  --rd-text-primary: #f8fafc;
+  --rd-text-secondary: #94a3b8;
+  --rd-text-muted: #64748b;
+  --rd-font-mono: 'Roboto Mono', Monaco, 'Andale Mono', monospace;
+}
 
+/* Ambient Radial Glows */
+.ambient-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(140px);
+  pointer-events: none;
+  opacity: 0.18;
+  z-index: 0;
+}
+.glow-emerald {
+  top: 100px;
+  left: 10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, var(--rd-emerald) 0%, transparent 70%);
+}
+.glow-indigo {
+  top: 700px;
+  right: 10%;
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, var(--rd-indigo) 0%, transparent 70%);
+}
+.glow-cyan {
+  top: 1500px;
+  left: 15%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, var(--rd-cyan) 0%, transparent 70%);
+}
+
+/* Page Layout - Single Column Flow */
+.rd-mini-main {
+  position: relative;
+  z-index: 1;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 48px 24px 96px 24px;
+}
+
+/* Hero Header */
+.rd-mini-header {
+  text-align: center;
+  max-width: 860px;
+  margin: 0 auto 64px auto;
+}
+
+.rd-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  margin-bottom: 20px;
+}
+
+.rd-badge-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--rd-emerald);
+  box-shadow: 0 0 10px var(--rd-emerald);
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.rd-badge-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #34d399;
+  letter-spacing: 0.02em;
+}
+
+.rd-page-title {
+  font-size: clamp(32px, 5vw, 54px);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  margin: 0 0 18px 0;
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #34d399 0%, #38bdf8 50%, #818cf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.rd-page-subtitle {
+  font-size: clamp(16px, 2vw, 18.5px);
+  color: var(--rd-text-secondary);
+  line-height: 1.6;
+  margin: 0 auto 36px auto;
+}
+
+.rd-page-subtitle code {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+/* Stats Counter Bar */
+.rd-stats-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  margin: 0 auto;
+}
+
+.rd-stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  background: var(--rd-surface-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--rd-glass-border);
+  border-radius: 12px;
+  min-width: 150px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.rd-stat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.rd-stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  font-family: var(--rd-font-mono);
+  line-height: 1.2;
+}
+
+.rd-stat-label {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--rd-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 4px;
+}
+
+/* Sections */
+.rd-section {
+  margin-bottom: 72px;
+}
+
+.rd-section-header {
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rd-section-badge {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.rd-section-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.rd-section-title code {
+  color: #38bdf8;
+  font-size: 0.9em;
+}
+
+.rd-section-desc {
+  font-size: 15.5px;
+  color: var(--rd-text-secondary);
+  line-height: 1.65;
+  margin: 0 0 20px 0;
+}
+
+/* Use Case Grid */
+.rd-usecase-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.rd-usecase-card {
+  background: var(--rd-surface-card);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--rd-glass-border);
+  border-radius: 16px;
+  padding: 24px;
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+.rd-usecase-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.rd-card-icon {
+  font-size: 32px;
+  margin-bottom: 14px;
+}
+
+.rd-usecase-card h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 8px 0;
+}
+
+.rd-usecase-card p {
+  font-size: 13.5px;
+  color: var(--rd-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.rd-usecase-card code {
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+
+/* Single-Column Demo Layout */
+.rd-single-col-demo {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.rd-live-wrapper {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.rd-live-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #34d399;
+  letter-spacing: 0.02em;
+  margin-bottom: 12px;
+}
+
+.rd-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 8px #34d399;
+}
+
+/* The element itself: 100% width, no card wrap, blends naturally with the page */
+.rd-mini-element {
+  display: block;
+  width: 100%;
+  margin: 0 0 24px 0;
+  background: #1a1a1a;
+  border-radius: 0;
+}
+
+/* Table Reference */
+.rd-table-container {
+  overflow-x: auto;
+  border: 1px solid var(--rd-glass-border);
+  border-radius: 16px;
+  background: var(--rd-surface-card);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+
+.rd-api-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13.5px;
+}
+
+.rd-api-table th {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 14px 20px;
+  color: #fff;
+  font-weight: 600;
+  text-align: left;
+  border-bottom: 1px solid var(--rd-glass-border);
+}
+
+.rd-api-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  vertical-align: top;
+  text-align: left;
+}
+
+.rd-api-table tr:last-child td {
+  border-bottom: none;
+}
+
+.rd-attr-name {
+  color: #38bdf8;
+  font-family: var(--rd-font-mono);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.rd-type-tag {
+  display: inline-block;
+  font-family: var(--rd-font-mono);
+  font-size: 11.5px;
+  color: #a78bfa;
+  background: rgba(167, 139, 250, 0.1);
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid rgba(167, 139, 250, 0.2);
+}
+
+.rd-default-tag {
+  font-family: var(--rd-font-mono);
+  font-size: 11.5px;
+  color: #94a3b8;
+}
+
+.rd-attr-desc {
+  color: var(--rd-text-secondary);
+  line-height: 1.5;
+}
+
+/* Bottom Callout */
+.rd-bottom-callout {
+  position: relative;
+  overflow: hidden;
+  margin-top: 60px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(6, 182, 212, 0.08) 50%, rgba(99, 102, 241, 0.08) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 48px 36px;
+  text-align: center;
+}
+
+.rd-callout-glow {
+  position: absolute;
+  top: -50%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 500px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, transparent 70%);
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+.rd-callout-content {
+  position: relative;
+  z-index: 1;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.rd-callout-badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #38bdf8;
+  margin-bottom: 12px;
+}
+
+.rd-callout-title {
+  font-size: clamp(24px, 3.5vw, 32px);
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 14px 0;
+  letter-spacing: -0.02em;
+}
+
+.rd-callout-desc {
+  font-size: 15px;
+  color: var(--rd-text-secondary);
+  line-height: 1.6;
+  margin: 0 0 28px 0;
+}
+
+.rd-callout-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+}
+
+/* Button Variants */
+.rd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.rd-btn-lg {
+  padding: 12px 24px;
+  font-size: 15px;
+}
+
+.rd-btn-primary {
+  background: var(--rd-emerald);
+  color: #04120c;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+}
+
+.rd-btn-primary:hover {
+  background: #34d399;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+  transform: translateY(-2px);
+}
+
+.rd-btn-secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.rd-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.rd-btn-ghost {
+  background: transparent;
+  color: var(--rd-text-secondary);
+  border-color: transparent;
+}
+
+.rd-btn-ghost:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+@media (max-width: 640px) {
+  .rd-mini-main {
+    padding: 32px 16px 64px 16px;
+  }
+  .rd-stats-bar {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .rd-stat-card {
+    min-width: unset;
+  }
+  .rd-bottom-callout {
+    padding: 32px 20px;
+  }
+  .rd-callout-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .rd-callout-actions .rd-btn {
+    width: 100%;
+  }
+}
 </style>

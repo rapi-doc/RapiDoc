@@ -1,0 +1,102 @@
+openapi: 3.0.3
+info:
+  title: Petstore & Platform API
+  version: 1.0.0
+  description: Sample OpenAPI specification powering the RapiDoc interactive homepage demonstration.
+servers:
+  - url: https://petstore.swagger.io/v2
+    description: Public Live Petstore Sandbox (CORS enabled)
+paths:
+  /pet/{petId}:
+    get:
+      summary: Find pet by ID
+      description: Returns a single pet with tags, category, and inventory status. Execute this live request using pet ID `1` or `2`.
+      operationId: getPetById
+      parameters:
+        - name: petId
+          in: path
+          description: Numeric ID of the pet to retrieve
+          required: true
+          schema:
+            type: integer
+            format: int64
+            default: 1
+            example: 1
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+              example:
+                id: 1
+                name: "Apollo"
+                category:
+                  id: 1
+                  name: "Canine"
+                photoUrls:
+                  - "https://images.unsplash.com/photo-1543466835-00a7907e9de1"
+                tags:
+                  - id: 101
+                    name: "vaccinated"
+                  - id: 102
+                    name: "friendly"
+                status: "available"
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Pet not found
+components:
+  schemas:
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: "Canine"
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 101
+        name:
+          type: string
+          example: "vaccinated"
+    Pet:
+      type: object
+      required:
+        - name
+        - photoUrls
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        category:
+          $ref: '#/components/schemas/Category'
+        name:
+          type: string
+          example: "Apollo"
+        photoUrls:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        status:
+          type: string
+          description: Pet status in the store
+          enum:
+            - available
+            - pending
+            - sold
+          example: "available"

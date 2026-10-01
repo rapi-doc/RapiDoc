@@ -1,59 +1,153 @@
 ---
 title: RapiDoc Mini (Embedded Endpoint Cards)
-description: Embed lightweight, standalone single-endpoint API cards into blogs, changelogs, and technical guides with rapi-doc-mini.
+description: Embed lightweight, zero-iframe standalone OpenAPI endpoint widgets into blogs, step-by-step guides, changelogs, and microservices workflows with <rapi-doc-mini>.
 ---
 
 import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import RapidocMiniComparisonTable from '../../../components/RapidocMiniComparisonTable.astro';
 
-While `<rapi-doc>` provides a complete full-page documentation portal with sidebars and navigation, **`<rapi-doc-mini>`** is a dedicated lightweight web component designed to render a **single isolated endpoint**.
+While `<rapi-doc>` provides a full-page documentation portal with sidebars, global navigation, and search modals, **`<rapi-doc-mini>`** is a dedicated lightweight Web Component designed to render **isolated endpoints or filtered sub-groups**.
 
-It is ideal for embedding interactive "TRY" cards directly inside tutorials, changelogs, markdown blog posts, or internal wiki pages.
+It is ideal for embedding interactive "TRY" cards directly inside tutorials, changelogs, markdown blog posts, or internal wiki pages without using clunky `<iframe>` wrappers.
+
+<Aside type="tip">
+  Want to see `<rapi-doc-mini>` running live with interactive examples? Check out our dedicated [RapiDoc Mini Showcase & Live Lab](/rapidoc-mini).
+</Aside>
 
 ---
 
-## 1. Quick Example
+## 1. Quickstart
 
-To embed a single endpoint, specify the `spec-url`, target `path`, and HTTP `method`:
+Import the ES module from unpkg or your local build, then specify `spec-url` and use `match-paths` to isolate the target endpoint:
 
 ```html
-<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
-
-<div style="max-width: 800px; margin: 40px auto;">
-  <h2>Quick Test: Retrieve Pet by ID</h2>
-  <p>Execute this request directly from the card below:</p>
-
-  <!-- RapiDoc Mini Element -->
-  <rapi-doc-mini
-    spec-url="https://petstore.swagger.io/v2/swagger.json"
-    path="/pet/{petId}"
-    method="get"
-    theme="dark"
-    allow-try="true"
-    match-paths="/pet/{petId}"
-  ></rapi-doc-mini>
-</div>
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+  </head>
+  <body>
+    <!-- Renders only the POST /users endpoint from the OpenAPI specification -->
+    <rapi-doc-mini
+      spec-url="https://petstore.swagger.io/v2/swagger.json"
+      match-paths="post /user"
+      theme="dark"
+      bg-color="#0f172a"
+      paths-expanded="false"
+    > </rapi-doc-mini>
+  </body>
+</html>
 ```
 
 ---
 
-## 2. Key Attributes for `rapi-doc-mini`
+## 2. Core Capabilities & Filtering Recipes
 
-| Attribute | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `spec-url` | `string` | `""` | URL to the OpenAPI specification. |
-| `path` | `string` | `""` | The path pattern to render (e.g. `/users/{id}`). |
-| `method` | `string` | `""` | HTTP method to display (`get`, `post`, `put`, `delete`, `patch`). |
-| `theme` | `string` | `"light"` | Visual theme preset (`"light"` or `"dark"`). |
-| `allow-try` | `boolean` | `true` | Enables interactive execution and live server response preview. |
-| `schema-expand-level` | `number` | `1` | Default expansion depth for request and response schema bodies. |
+<Tabs>
+  <TabItem label="Single Endpoint">
+    Extract a single path and HTTP method:
+
+    ```html
+    <rapi-doc-mini
+      spec-url="https://petstore.swagger.io/v2/swagger.json"
+      match-paths="get /pet/{petId}"
+      theme="dark"
+      allow-try="true"
+    ></rapi-doc-mini>
+    ```
+  </TabItem>
+
+  <TabItem label="RegEx Multi-Path Filter">
+    Match multiple endpoints using regular expressions by setting `match-type="regex"`:
+
+    ```html
+    <rapi-doc-mini
+      spec-url="/specs/mock.yaml"
+      match-paths="^get /users/\{userId\}$|^post /users$"
+      match-type="regex"
+      schema-style="table"
+      theme="dark"
+    ></rapi-doc-mini>
+    ```
+  </TabItem>
+
+  <TabItem label="Always Expanded">
+    Render parameters, models, and execution console inline without accordion toggling:
+
+    ```html
+    <rapi-doc-mini
+      spec-url="/specs/mock.yaml"
+      match-paths="post /users"
+      paths-expanded="true"
+      layout="column"
+      theme="dark"
+    ></rapi-doc-mini>
+    ```
+  </TabItem>
+
+  <TabItem label="Microservice Mashup">
+    Embed endpoints from different services side-by-side to tell a complete business flow:
+
+    ```html
+    <!-- Identity Service Spec -->
+    <rapi-doc-mini
+      spec-url="https://api.example.com/auth/openapi.yaml"
+      match-paths="post /oauth/token"
+      theme="dark"
+    ></rapi-doc-mini>
+
+    <!-- Payment Service Spec -->
+    <rapi-doc-mini
+      spec-url="https://api.example.com/billing/openapi.yaml"
+      match-paths="post /charges"
+      theme="dark"
+    ></rapi-doc-mini>
+    ```
+  </TabItem>
+
+  <TabItem label="Error Handling (Spec Not Found)">
+    When a spec URL is invalid or returns a 404, `<rapi-doc-mini>` displays an inline error message rather than crashing the page:
+
+    ```html
+    <rapi-doc-mini
+      spec-url="/specs/non-existing-spec.json"
+      theme="dark"
+      bg-color="#1a1a1a"
+    ></rapi-doc-mini>
+    ```
+  </TabItem>
+</Tabs>
 
 ---
 
-## 3. When to Use `rapi-doc-mini` vs. Full `rapi-doc`
+## 3. Configuration Attributes
 
-| Use Case | Recommended Component |
-| :--- | :--- |
-| Full API developer portal / comprehensive reference | `<rapi-doc render-style="view">` |
-| Embedding an interactive API call inside a blog post or tutorial | `<rapi-doc-mini>` |
-| Highlighting a new endpoint in a product release announcement | `<rapi-doc-mini>` |
-| Micro-frontend with dedicated endpoint widgets | `<rapi-doc-mini>` |
+Every attribute can be set statically in HTML or updated dynamically at runtime via JavaScript `element.setAttribute(...)`.
+
+| Attribute | Type / Options | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `spec-url` | `String` | `""` | URL to the OpenAPI specification (JSON or YAML). |
+| `match-paths` | `String` | `""` | Target path and method filter (e.g. `"post /users"` or `"/store"`). |
+| `match-type` | `includes` \| `regex` | `includes` | Matching strategy for `match-paths`. |
+| `paths-expanded` | `true` \| `false` | `false` | When `true`, renders operation details expanded by default. |
+| `layout` | `row` \| `column` | `row` | Internal flex alignment of parameters and response console. |
+| `schema-style` | `tree` \| `table` | `tree` | Schema rendering mode: collapsible tree or structured table. |
+| `schema-expand-level` | `Number` | `999` | Default expansion depth for request and response schema models. |
+| `theme` | `dark` \| `light` | `dark` | Base theme preset. |
+| `bg-color` | `Hex / CSS color` | `(preset)` | Background surface color for the widget container. |
+| `text-color` | `Hex / CSS color` | `(preset)` | Primary text and label color. |
+| `primary-color` | `Hex / CSS color` | `#f3705a` | Accent color for buttons, badges, and active tabs. |
+| `allow-try` | `true` \| `false` | `true` | Toggles the interactive execution test console. |
+| `show-curl-before-try`| `true` \| `false` | `false` | Displays copyable cURL syntax before executing a request. |
+| `api-key-name` | `String` | `""` | Name of the authentication header or query parameter. |
+| `api-key-location` | `header` \| `query` | `header` | Location for the API credential. |
+| `api-key-value` | `String` | `""` | Active API token or bearer secret. |
+| `server-url` | `String` | `(from spec)` | Overrides the target server URL for live requests. |
+| `sort-endpoints-by` | `path` \| `method` \| `summary` \| `none` | `none` | Sorting order for operations when multiple paths match. |
+
+---
+
+## 4. Component Comparison: `<rapi-doc>` vs. `<rapi-doc-mini>`
+
+<RapidocMiniComparisonTable />

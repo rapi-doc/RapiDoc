@@ -1,0 +1,103 @@
+---
+import { comparisonData } from '../page-data/rapidoc-mini-comparison';
+---
+
+<div class="rd-comparison-container not-content">
+  <table class="rd-comparison-table">
+    <thead>
+      <tr>
+        <th class="col-feature">Feature / Goal</th>
+        <th class="col-rapidoc"><code>&lt;rapi-doc&gt;</code></th>
+        <th class="col-mini"><code>&lt;rapi-doc-mini&gt;</code></th>
+      </tr>
+    </thead>
+    <tbody>
+      {comparisonData.comparison.map(item => (
+        <tr>
+          <td class="col-feature font-semibold">
+            {item.feature}
+          </td>
+          <td class="col-rapidoc">
+            {item.rapidoc}
+          </td>
+          <td class="col-mini">
+            {item.rapidocMini}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+<style>
+.rd-comparison-container {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  background: rgba(11, 17, 33, 0.7);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  margin: 20px 0;
+}
+
+.rd-comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+}
+
+.rd-comparison-table th {
+  background: rgba(255, 255, 255, 0.04);
+  padding: 14px 20px;
+  color: #fff;
+  font-weight: 600;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  white-space: nowrap;
+}
+
+.rd-comparison-table th code {
+  color: #38bdf8;
+  font-size: 13px;
+}
+
+.rd-comparison-table td {
+  padding: 14px 20px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
+  line-height: 1.55;
+}
+
+.rd-comparison-table tr:last-child td {
+  border-bottom: none;
+}
+
+.col-feature {
+  color: #f8fafc;
+  font-weight: 600;
+  min-width: 180px;
+  text-align: left;
+}
+
+.col-rapidoc {
+  min-width: 260px;
+  text-align: left;
+}
+
+.col-mini {
+  min-width: 260px;
+  color: #cbd5e1;
+  text-align: left;
+}
+
+@media (max-width: 640px) {
+  .rd-comparison-table th,
+  .rd-comparison-table td {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+}
+</style>

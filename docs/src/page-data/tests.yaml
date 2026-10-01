@@ -107,6 +107,14 @@ advanced:
       title: Large Example Arrays & Combinatorial Limits
       validates:
         - Automatic capping of combinatorial generated examples to prevent memory overhead
+  - no-example-provided:
+      title: Fallback State for Schemas Without Examples
+      validates:
+        - Graceful rendering of "No example provided" fallback notice
+        - Schemas with allOf primitives lacking explicit examples
+        - Response schemas containing only writeOnly properties
+        - Binary and non-JSON payloads without example values
+        - Empty schema objects with no properties
   - schema-title-and-descriptions:
       title: Sub-Schema Titles & Markdown Descriptions
       validates:
