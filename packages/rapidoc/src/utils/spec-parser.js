@@ -1,6 +1,6 @@
 import { dereference, load, upgrade } from '@scalar/openapi-parser';
 import { marked } from 'marked';
-import { invalidCharsRegEx, rapidocApiKey, sleep } from '~/utils/common-utils';
+import { invalidCharsRegEx, rapidocApiKey, sleep } from './common-utils.js';
 
 function isUrlLike(value) {
   if (typeof value !== 'string') {
@@ -66,29 +66,62 @@ function createBrowserFetchPlugin(baseUrl) {
   };
 }
 
-function breakCircularRefs(node, activeRefs = new Set()) {
-  if (!node || typeof node !== 'object') {
-    return node;
-  }
-  const ref = node['x-ref'];
-  if (ref) {
-    if (activeRefs.has(ref)) {
-      return { $ref: ref };
+function breakCircularRefs(root) {
+  const seen = new WeakMap();
+  const ancestors = new WeakSet();
+
+  function walk(node, activeRefs = new Set(), currentRef = null) {
+    if (!node || typeof node !== 'object') {
+      return node;
     }
-    activeRefs = new Set(activeRefs);
-    activeRefs.add(ref);
-  }
-  if (Array.isArray(node)) {
-    return node.map((item) => breakCircularRefs(item, activeRefs));
-  }
-  const result = {};
-  for (const key of Object.keys(node)) {
-    if (key === 'x-ref') {
-      continue;
+
+    const ref = node['x-ref'];
+    if (ref) {
+      if (activeRefs.has(ref)) {
+        return { $ref: ref };
+      }
     }
-    result[key] = breakCircularRefs(node[key], activeRefs);
+
+    // Cycle detection via object identity (in active ancestor chain)
+    if (ancestors.has(node)) {
+      return { $ref: ref || currentRef || '#/components/schemas/Circular' };
+    }
+
+    // Memoization for non-cycle nodes (preserves DAG sharing & linear O(V+E) time)
+    if (seen.has(node)) {
+      return seen.get(node);
+    }
+
+    ancestors.add(node);
+    let childActiveRefs = activeRefs;
+    if (ref) {
+      childActiveRefs = new Set(activeRefs);
+      childActiveRefs.add(ref);
+    }
+
+    let clone;
+    if (Array.isArray(node)) {
+      clone = [];
+      seen.set(node, clone);
+      for (let i = 0; i < node.length; i++) {
+        clone.push(walk(node[i], childActiveRefs, ref || currentRef));
+      }
+    } else {
+      clone = {};
+      seen.set(node, clone);
+      for (const key of Object.keys(node)) {
+        if (key === 'x-ref') {
+          continue;
+        }
+        clone[key] = walk(node[key], childActiveRefs, ref || currentRef);
+      }
+    }
+
+    ancestors.delete(node);
+    return clone;
   }
-  return result;
+
+  return walk(root);
 }
 
 export default async function ProcessSpec(
