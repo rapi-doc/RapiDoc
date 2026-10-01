@@ -10,12 +10,15 @@
 
     gtag('config', 'UA-132775238-1');
   </script>
-  <script data-ad-client="ca-pub-3841792756480152" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script data-ad-client="ca-pub-3841792756480152" async
+    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
-  <meta name="description" content="RapiDoc is Web Component for viewing Swagger & OpenAPI Spec. Supports themes, styling and various rendering styles">
-  <meta name="keywords" content="RapiDoc, ReDoc, Swagger, SwaggerUI, Custom Element, async-api, Web Component, web-hooks, OpenAPI, REST, themes, dark mode, markdown, API documentation, oauth, oauth2">
+  <meta name="description"
+    content="RapiDoc is Web Component for viewing Swagger & OpenAPI Spec. Supports themes, styling and various rendering styles">
+  <meta name="keywords"
+    content="RapiDoc, ReDoc, Swagger, SwaggerUI, Custom Element, async-api, Web Component, web-hooks, OpenAPI, REST, themes, dark mode, markdown, API documentation, oauth, oauth2">
 
   <link rel="shortcut icon" type="image/png" href="./images/logo.png" />
 
@@ -53,20 +56,10 @@
       flex-direction: column;
       align-items: center;
     }
-    
   </style>
 </head>
 
 <body>
-  <div style="background-color: white; font-family: exo;font-weight: lighter; font-size:large; display:flex; flex-direction: row; align-items: center;justify-content: space-between">
-    <div style="padding:15px 20px 15px 20px; ">
-      Get a Stripe like API experience for your customers in minutes - documentation, rate-limiting and API-key auth with <a style="font-weight:bold; color:#FF00BD" href="https://zuplo.link/rapidoc-1">zuplo</a>
-    </div>
-    <div style="padding:2px 20px 2px 20px; ">
-      <a class="zuplo-button" href="https://zuplo.link/rapidoc-1">Start free</a>
-    </div>
-  </div>
-
   <div class="banner" style="max-height:400px; overflow:hidden;">
     <div class="topbar">
       <div class="header">
@@ -83,11 +76,12 @@
           <a class="menu-item" data-action="url" href="./api.html"> API </a>
           <a class="menu-item" data-action="url" href="https://github.com/rapi-doc/RapiDoc"> GitHub </a>
         </nav>
-      </div>  
+      </div>
     </div>
     <!--Waves Container-->
     <div>
-      <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
+      <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none"
+        shape-rendering="auto">
         <defs>
           <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
         </defs>
@@ -104,52 +98,61 @@
   <div style="margin:24px 48px; max-width:730px; width:850px">
     <h1> Setting up OAuth with RapiDoc</h1>
     <h2> Demo </h2>
-      <ul>
-        <li> Here is a minimal sample spec containing OAuth Authentication schemes (<a href="https://github.com/rapi-doc/RapiDoc/blob/master/docs/specs/oauth.yaml" target="_blank"> view </a> )</li>
-        <li> Here is how it is rendered in RapiDoc (<a href="./examples/oauth-demo.html"> view </a>)</li>
-      </ul>  
+    <ul>
+      <li> Here is a minimal sample spec containing OAuth Authentication schemes (<a
+          href="https://github.com/rapi-doc/RapiDoc/blob/master/docs/specs/oauth.yaml" target="_blank"> view </a> )</li>
+      <li> Here is how it is rendered in RapiDoc (<a href="./examples/oauth-demo.html"> view </a>)</li>
+    </ul>
     <h2> Short Version </h2>
     <ul>
       <li> Register your app with an Authorization Provider such as Microsoft Active Directory </li>
-      <li> Create <span class='mono orange'> index.html </span>containing <span class='mono orange'> &lt;rapi-doc&gt;</span> element (<a href="#index-html"> view </a>)</li> 
-      <li> Create another html and name it <span class='mono orange'> oauth-receiver.html </span> containing <span class='mono orange'> &lt;oauth-receiver&gt;</span> element (<a href="#auth-receiver-html"> view </a>)</li>
+      <li> Create <span class='mono orange'> index.html </span>containing <span class='mono orange'>
+          &lt;rapi-doc&gt;</span> element (<a href="#index-html"> view </a>)</li>
+      <li> Create another html and name it <span class='mono orange'> oauth-receiver.html </span> containing <span
+          class='mono orange'> &lt;oauth-receiver&gt;</span> element (<a href="#auth-receiver-html"> view </a>)</li>
     </ul>
     You are all set !!!
     <h2> The Long story </h2>
 
-    <h3> Overall flow  (Authorization Code)</h3>
+    <h3> Overall flow (Authorization Code)</h3>
     <img style="width:720px" src="./images/oauth-auth-code.png" />
 
     <h3>Register client with Authorization Server</h3>
     <p>
-      <ul>
-        <li>
-          For this demo I am going to use <a href="https://demo.duendesoftware.com/" target="_blank"> <b>IdentityServer</b> </a>  as the OAuth provider. 
-          This is a demo Identity provider which is pre-configured with some users and supports various oAuth authentication flows
-        </li>
-        <li>
-          <b>Register OAuth Client with identity Provider:</b> Normally you need to register your client application with the Identity provider which will provide you with a <span class='mono bold'> client-id and client-secret</span>
-          but in our case we donot need to do so because our demo identity server is pre-configured with some sample client-id and secret 
-        </li>
-      </ul>
+    <ul>
+      <li>
+        For this demo I am going to use <a href="https://demo.duendesoftware.com/" target="_blank">
+          <b>IdentityServer</b> </a> as the OAuth provider.
+        This is a demo Identity provider which is pre-configured with some users and supports various oAuth
+        authentication flows
+      </li>
+      <li>
+        <b>Register OAuth Client with identity Provider:</b> Normally you need to register your client application with
+        the Identity provider which will provide you with a <span class='mono bold'> client-id and client-secret</span>
+        but in our case we donot need to do so because our demo identity server is pre-configured with some sample
+        client-id and secret
+      </li>
+    </ul>
     </p>
 
     <h3> Setup RapiDoc </h3>
-    Below are the two files that you need to have<br/>
+    Below are the two files that you need to have<br />
     <ul>
-      <li> 
-          <span class="mono bold">index.html </span> 
-          <span class="gray"> (I am using the name index.html but you are free to use any name, it is the html that contain &lt;rapi-doc&gt; element) </span>
+      <li>
+        <span class="mono bold">index.html </span>
+        <span class="gray"> (I am using the name index.html but you are free to use any name, it is the html that
+          contain &lt;rapi-doc&gt; element) </span>
       </li>
-      <li> 
+      <li>
         <span class="mono bold">oauth-receiver.html </span>
-        <span class="gray">(It is important that you name this file exactly as oauth-receiver.html and place in the same location where the above file is)</span>
+        <span class="gray">(It is important that you name this file exactly as oauth-receiver.html and place in the same
+          location where the above file is)</span>
       </li>
     </ul>
-    <br/>
+    <br />
 
-    <a id='index-html' class="blue mono">index.html</a> 
-    (This is our main file that contains the  <span class='mono'> &lt;rapi-doc&gt;</span>  element )
+    <a id='index-html' class="blue mono">index.html</a>
+    (This is our main file that contains the <span class='mono'> &lt;rapi-doc&gt;</span> element )
     <pre>
       <code class="language-html code-block">
         &lt;!doctype html&gt;
@@ -162,13 +165,13 @@
         &lt;/body&gt;
       </code>
     </pre>
-    <br/>
+    <br />
 
-    <a id='auth-receiver-html' class="blue mono"> oauth-receiver.html </a><br/>
-    the <span class='mono orange'> &lt;oauth-receiver&gt;</span> custom element in this file, 
-    requests for an Authorization Code from Authorization Server by providing client_id and redirect URL. 
+    <a id='auth-receiver-html' class="blue mono"> oauth-receiver.html </a><br />
+    the <span class='mono orange'> &lt;oauth-receiver&gt;</span> custom element in this file,
+    requests for an Authorization Code from Authorization Server by providing client_id and redirect URL.
     Upon receiving a valid auth-code, it passes to <span class='mono orange'> &lt;rapi-doc&gt;</span> element.
-    RapiDoc, then uses this Auth-Code to request for the <span class="orange">Access Token </span>. 
+    RapiDoc, then uses this Auth-Code to request for the <span class="orange">Access Token </span>.
     <pre>
       <code class="language-html code-block">
         &lt;!doctype html&gt;
@@ -183,10 +186,11 @@
     </pre>
 
     <h3 id='oauth-demo-spec'> The OpenAPI spec </h3>
-    Our demo Identity server provides few sample APIs for testing. 
-    <br/>
-    Below is the OpenAPI spec which contains couple of APIs protected with identity server. 
-    You can check out how these are rendered through RapiDoc and how rapidoc exchanges oAuth tokens with the demo IdentityServer
+    Our demo Identity server provides few sample APIs for testing.
+    <br />
+    Below is the OpenAPI spec which contains couple of APIs protected with identity server.
+    You can check out how these are rendered through RapiDoc and how rapidoc exchanges oAuth tokens with the demo
+    IdentityServer
     | <a href="./examples/oauth-demo.html" target="_blank"> Demo </a>
     <pre>
       <code class="language-yaml code-block">
@@ -264,8 +268,8 @@
                   
       </code>
     </pre>
-    
-    
+
+
 
 
 

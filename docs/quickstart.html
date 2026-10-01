@@ -5,19 +5,22 @@
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-132775238-1"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+    function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
 
     gtag('config', 'UA-132775238-1');
   </script>
-  <script data-ad-client="ca-pub-3841792756480152" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-  
+  <script data-ad-client="ca-pub-3841792756480152" async
+    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
-  <meta name="description" content="RapiDoc is Web Component for viewing Swagger & OpenAPI Spec. Supports themes, styling and various rendering styles">
-  <meta name="keywords" content="RapiDoc, ReDoc, Swagger, SwaggerUI, Custom Element, Web Component, OpenAPI,REST, themes, dark mode, markdown, API documentation">
+  <meta name="description"
+    content="RapiDoc is Web Component for viewing Swagger & OpenAPI Spec. Supports themes, styling and various rendering styles">
+  <meta name="keywords"
+    content="RapiDoc, ReDoc, Swagger, SwaggerUI, Custom Element, Web Component, OpenAPI,REST, themes, dark mode, markdown, API documentation">
 
-  <link rel="shortcut icon" type="image/png" href="./images/logo.png"/>
+  <link rel="shortcut icon" type="image/png" href="./images/logo.png" />
 
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700" rel="stylesheet">
@@ -34,31 +37,25 @@
   <link rel="stylesheet" href="index.css">
   <title>RapiDoc - Examples & Demo</title>
   <style>
-    .section-heading{
-      padding:36px 10px 5px 10px;
-      margin:0;
+    .section-heading {
+      padding: 36px 10px 5px 10px;
+      margin: 0;
     }
-    #main-img{
-      width:740px;
+
+    #main-img {
+      width: 740px;
     }
   </style>
 </head>
 
 <body>
-  <div style="background-color: white; font-family: exo;font-weight: lighter; font-size:large; display:flex; flex-direction: row; align-items: center;justify-content: space-between">
-    <div style="padding:15px 20px 15px 20px; ">
-      Get a Stripe like API experience for your customers in minutes - documentation, rate-limiting and API-key auth with <a style="font-weight:bold; color:#FF00BD" href="https://zuplo.link/rapidoc-1">zuplo</a>
-    </div>
-    <div style="padding:2px 20px 2px 20px; ">
-      <a class="zuplo-button" href="https://zuplo.link/rapidoc-1">Start free</a>
-    </div>
-  </div>
   <div class="banner" style="max-height:400px; overflow:hidden;">
     <div class='topbar'>
       <div class="header">
         <a class="menu-item" data-action="url" href="./index.html">
-          <img class="logo" src="./images/logo.png" style="width:36px;height:36px;margin-right:10px;" href="./index.html"/>
-        </a>  
+          <img class="logo" src="./images/logo.png" style="width:36px;height:36px;margin-right:10px;"
+            href="./index.html" />
+        </a>
         <div class="product-name">RapiDoc</div>
         <div class="menu" style="flex:1"></div>
         <nav class="menu" onclick="goToSection(event)">
@@ -72,7 +69,8 @@
 
     <!--Waves Container-->
     <div>
-      <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
+      <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none"
+        shape-rendering="auto">
         <defs>
           <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
         </defs>
@@ -84,15 +82,16 @@
       </svg>
     </div>
     <!--Waves end-->
-  
+
   </div>
 
 
   <!-- Start of Examples -->
   <div class="flex-col">
-    <h2> Vanilla HTML</h2>  
+    <h2> Vanilla HTML</h2>
     Just copy the below code and save it in an html file. Then open it using a browser (you do not need any server)
-    <a href="https://codesandbox.io/s/vanilla-js-template-98gc2?file=/index.html"> https://codesandbox.io/s/vanilla-js-template-98gc2?file=/index.html </a>
+    <a href="https://codesandbox.io/s/vanilla-js-template-98gc2?file=/index.html">
+      https://codesandbox.io/s/vanilla-js-template-98gc2?file=/index.html </a>
     <pre class="shadow code-block">
       <code class="language-html" style="border-radius:4px">
         &lt;!doctype html&gt; &lt;!-- Important: must specify --&gt;
@@ -107,27 +106,30 @@
         &lt;/html&gt;
       </code>
     </pre>
-    <div> If you do not want to depend on the CDN, just download it from there and store it in a place that you can access </div>
+    <div> If you do not want to depend on the CDN, just download it from there and store it in a place that you can
+      access </div>
 
 
-    <br/><br/>
+    <br /><br />
     <img src="./images/divider1.png" style="width:300px">
     <h2> In JavaScript Apps (integration with other frameworks)</h2>
 
     <h3> Install RapiDoc</h3>
-    <pre class="shadow code-block" >
+    <pre class="shadow code-block">
       <code class="language-javascript" style="border-radius:4px">
         npm install rapidoc
         // (feel free to use yarn)
       </code>
     </pre>
-    <div>You can now use the Web Components like any other HTML tag. (Just do an import for it to be recognized by the browser)</div>
-    <br/>
+    <div>You can now use the Web Components like any other HTML tag. (Just do an import for it to be recognized by the
+      browser)</div>
+    <br />
     <img src="./images/divider1.png" style="width:300px">
 
     <h3> Usage in React</h3>
-    <a href="https://codesandbox.io/s/upbeat-sea-4tfo7?file=/src/App.js"> https://codesandbox.io/s/upbeat-sea-4tfo7?file=/src/App.js </a>
-    <pre class="shadow code-block" >
+    <a href="https://codesandbox.io/s/upbeat-sea-4tfo7?file=/src/App.js">
+      https://codesandbox.io/s/upbeat-sea-4tfo7?file=/src/App.js </a>
+    <pre class="shadow code-block">
       <code class="language-js" style="border-radius:4px">
         import React, { Component } from 'react';
         import 'rapidoc'; // <-- import rapidoc
@@ -144,13 +146,14 @@
         }
       </code>
     </pre>
-    <br/>
+    <br />
     <img src="./images/divider1.png" style="width:300px">
 
     <h3> Usage in Vue (Single File Component)</h3>
-    <a href="https://codesandbox.io/s/nostalgic-sky-jlts7?file=/src/App.vue"> https://codesandbox.io/s/nostalgic-sky-jlts7?file=/src/App.vue </a>
+    <a href="https://codesandbox.io/s/nostalgic-sky-jlts7?file=/src/App.vue">
+      https://codesandbox.io/s/nostalgic-sky-jlts7?file=/src/App.vue </a>
 
-    <pre class="shadow code-block" >
+    <pre class="shadow code-block">
       <code class="language-js" style="border-radius:4px">
         &lt;template&gt;
           &lt;rapi-doc 
@@ -165,7 +168,7 @@
         &lt;/script&gt;
       </code>
     </pre>
-    <br/>
+    <br />
   </div>
   <!-- End of Examples -->
 
@@ -177,15 +180,15 @@
   </div>
 
   <script>
-    function goToSection(e){
-      if (e.target.dataset.action==='url'){
+    function goToSection(e) {
+      if (e.target.dataset.action === 'url') {
         return;
       }
 
       e.preventDefault();
       var gotoEl = document.getElementById(e.target.getAttribute('href').substring(1));
-      if (gotoEl){
-        gotoEl.scrollIntoView({ block: 'start',  behavior: 'smooth' });
+      if (gotoEl) {
+        gotoEl.scrollIntoView({ block: 'start', behavior: 'smooth' });
       }
     }
   </script>

@@ -1,23 +1,27 @@
 <!doctype html>
 <html>
+
 <head>
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-132775238-1"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+    function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
 
     gtag('config', 'UA-132775238-1');
   </script>
-  <script data-ad-client="ca-pub-3841792756480152" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script data-ad-client="ca-pub-3841792756480152" async
+    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
-  <meta name="description" content="RapiDoc is a Web Component for viewing Swagger & OpenAPI Spec. Supports themes, styling and various rendering styles">
-  <meta name="keywords" content="RapiDoc, openapi viewer, openapi to html, openapi renderer, ReDoc, Swagger, SwaggerUI, Custom Element, Web Component, OpenAPI, REST, themes, dark mode, markdown, API documentation">
+  <meta name="description"
+    content="RapiDoc is a Web Component for viewing Swagger & OpenAPI Spec. Supports themes, styling and various rendering styles">
+  <meta name="keywords"
+    content="RapiDoc, openapi viewer, openapi to html, openapi renderer, ReDoc, Swagger, SwaggerUI, Custom Element, Web Component, OpenAPI, REST, themes, dark mode, markdown, API documentation">
 
-  <link rel="shortcut icon" type="image/png" href="./images/logo.png"/>
+  <link rel="shortcut icon" type="image/png" href="./images/logo.png" />
 
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700" rel="stylesheet">
@@ -34,30 +38,23 @@
   <title>RapiDoc - Web Component based Swagger & OpenAPI Spec Viewer</title>
   <style>
     .m-table {
-      width:100%;
+      width: 100%;
     }
-    #main-img{
-      width:740px;
+
+    #main-img {
+      width: 740px;
     }
   </style>
 </head>
 
 <body>
 
-  <div style="background-color: white; font-family: exo;font-weight: lighter; font-size:large; display:flex; flex-direction: row; align-items: center;justify-content: space-between">
-    <div style="padding:15px 20px 15px 20px; ">
-      Get a Stripe like API experience for your customers in minutes - documentation, rate-limiting and API-key auth with <a style="font-weight:bold; color:#FF00BD" href="https://zuplo.link/rapidoc-1">zuplo</a>
-    </div>
-    <div style="padding:2px 20px 2px 20px; ">
-      <a class="zuplo-button" href="https://zuplo.link/rapidoc-1">Start free</a>
-    </div>
-  </div>
-
   <div class="banner" id="banner" style="max-height:400px; overflow:hidden">
     <div class='topbar'>
       <div class="header">
         <a class="menu-item" data-action="url" href="./index.html">
-          <img class="logo" src="./images/logo.png" style="width:36px;height:36px;margin-right:10px;" href="./index.html"/>
+          <img class="logo" src="./images/logo.png" style="width:36px;height:36px;margin-right:10px;"
+            href="./index.html" />
         </a>
         <div class="product-name">RapiDoc</div>
         <div class="menu" style="flex:1"></div>
@@ -79,23 +76,23 @@
   <div class="flex-col" id="api">
     <div style="display:flex; flex-direction: column;">
       <div style="display:flex; font-size:20px; font-weight: 300; align-self: center; margin: -12px 0 24px 0">
-        <a style ="color:orangered"  href="#att"> Attributes</a> &nbsp; |  &nbsp;
-        <a style ="color:orangered" href="#methods">  Methods</a> &nbsp; |  &nbsp;
-        <a style ="color:orangered" href="#events"> Events</a> &nbsp; |  &nbsp;
-        <a style ="color:orangered" href="#slots"> Slots</a> &nbsp; |  &nbsp;
-        <a style ="color:orangered" href="./css-parts.html"> Advanced Styling </a> &nbsp; |  &nbsp;
-        <a style ="color:orangered" href="#vendor-extensions"> Vendor Extensions </a> 
+        <a style="color:orangered" href="#att"> Attributes</a> &nbsp; | &nbsp;
+        <a style="color:orangered" href="#methods"> Methods</a> &nbsp; | &nbsp;
+        <a style="color:orangered" href="#events"> Events</a> &nbsp; | &nbsp;
+        <a style="color:orangered" href="#slots"> Slots</a> &nbsp; | &nbsp;
+        <a style="color:orangered" href="./css-parts.html"> Advanced Styling </a> &nbsp; | &nbsp;
+        <a style="color:orangered" href="#vendor-extensions"> Vendor Extensions </a>
       </div>
 
       <a id="att"></a>
       <h2> Attributes</h2>
       <div style="display:flex">
-        <a href="#att-general"> General</a> &nbsp; |  &nbsp;
-        <a href="#att-colors">  Colors & Fonts</a> &nbsp; |  &nbsp;
-        <a href="#att-nav"> Navigation Bar</a> &nbsp; |  &nbsp;
-        <a href="#att-layout"> Layout</a> &nbsp; |  &nbsp;
-        <a href="#att-sections"> Sections</a> &nbsp; |  &nbsp;
-        <a href="#att-schema"> Schema</a> &nbsp; |  &nbsp;
+        <a href="#att-general"> General</a> &nbsp; | &nbsp;
+        <a href="#att-colors"> Colors & Fonts</a> &nbsp; | &nbsp;
+        <a href="#att-nav"> Navigation Bar</a> &nbsp; | &nbsp;
+        <a href="#att-layout"> Layout</a> &nbsp; | &nbsp;
+        <a href="#att-sections"> Sections</a> &nbsp; | &nbsp;
+        <a href="#att-schema"> Schema</a> &nbsp; | &nbsp;
         <a href="#att-server"> API Server</a>
       </div>
 
@@ -111,29 +108,35 @@
           <tr id="update-route">
             <td class="attr-col mono bold right">update-route </td>
             <td class="gray">
-              Allowed:<span class='blue'> true | false</span> 
-              setting true will update the url on browser's location whenever a new section is visited either by scrolling or clicking
+              Allowed:<span class='blue'> true | false</span>
+              setting true will update the url on browser's location whenever a new section is visited either by
+              scrolling or clicking
             </td>
             <td class='default-col'>true</td>
           </tr>
           <tr>
             <td class="attr-col mono bold right">route-prefix </td>
             <td class="gray">
-              routes for each operation/api is generated based on the api path. however you may add a custom prefix to these routes to support third party routing needs 
+              routes for each operation/api is generated based on the api path. however you may add a custom prefix to
+              these routes to support third party routing needs
             </td>
             <td class='default-col'>#</td>
           </tr>
           <tr>
             <td class="attr-col mono bold right">sort-tags </td>
-            <td class="gray"><span class='bold dark-gray'>Allowed:<span class='blue'> true | false</span></span> To list tags in alphabetic order,
-              otherwise tags will be ordered based on how it is specified under the <span class = "mono blue bold">tags</span> section in the spec.
+            <td class="gray"><span class='bold dark-gray'>Allowed:<span class='blue'> true | false</span></span> To list
+              tags in alphabetic order,
+              otherwise tags will be ordered based on how it is specified under the <span
+                class="mono blue bold">tags</span> section in the spec.
             </td>
             <td class='default-col'>false</td>
           </tr>
           <tr>
             <td class="attr-col mono bold right">sort-schemas </td>
-            <td class="gray"><span class='bold dark-gray'>Allowed:<span class='blue'> true | false</span></span> To list schemas in alphabetic order,
-              otherwise schemas will be ordered based on how it is specified under the <span class = "mono blue bold">schemas</span> section in the spec.
+            <td class="gray"><span class='bold dark-gray'>Allowed:<span class='blue'> true | false</span></span> To list
+              schemas in alphabetic order,
+              otherwise schemas will be ordered based on how it is specified under the <span
+                class="mono blue bold">schemas</span> section in the spec.
               Only has an effect if focused render-style and show-components are applied.
             </td>
             <td class='default-col'>false</td>
@@ -141,8 +144,9 @@
           <tr>
             <td class="attr-col mono bold right">sort-endpoints-by </td>
             <td class="gray"><span class='bold dark-gray'>
-              Allowed:<span class='blue'> path | method | summary | none </span></span>
-              Sort endpoints within each tag by path, method or summary. <span class="mono">none</span> leaves the sort order unmodified.
+                Allowed:<span class='blue'> path | method | summary | none </span></span>
+              Sort endpoints within each tag by path, method or summary. <span class="mono">none</span> leaves the sort
+              order unmodified.
               &nbsp;|&nbsp; <a href="./examples/arrange-by-tags.html">Example</a>
             </td>
             <td class='default-col'>path</td>
@@ -155,11 +159,12 @@
           <tr id="goto-path">
             <td class="mono bold right">goto-path</td>
             <td class="gray">
-              Initial location on the document (identified by method and path) where you want to go after the spec is loaded.
-              <br/>
+              Initial location on the document (identified by method and path) where you want to go after the spec is
+              loaded.
+              <br />
               <span class='mono blue bold'>goto-path</span> should be in the form of {method}-{path}
-              <br/>
-              for instance you want to scrollTo <span class = "mono"> GET /user/login </span>
+              <br />
+              for instance you want to scrollTo <span class="mono"> GET /user/login </span>
               you should provide the location as <span class="mono dark-gray"> get-/user/login</span>
             </td>
             <td>(empty)</td>
@@ -168,7 +173,7 @@
           <tr id="fill-request-fields-with-example">
             <td class="attr-col mono bold right">fill-request-fields-with-example </td>
             <td class="gray">
-              <span class='bold dark-gray'>Allowed:<span class='blue'> true | false </span></span> 
+              <span class='bold dark-gray'>Allowed:<span class='blue'> true | false </span></span>
               Request fields will be filled with example value (if provided in spec)
             </td>
             <td class='default-col'>true</td>
@@ -176,8 +181,8 @@
 
           <tr>
             <td class="attr-col mono bold right">persist-auth </td>
-            <td class="gray"><span class='bold dark-gray'>Allowed:<span class='blue'> true | false </span></span> 
-              Authentication will be persisted to localStorage 
+            <td class="gray"><span class='bold dark-gray'>Allowed:<span class='blue'> true | false </span></span>
+              Authentication will be persisted to localStorage
             </td>
             <td class='default-col'>false</td>
           </tr>
@@ -191,7 +196,7 @@
             <td class=" attr-col mono bold right">theme </td>
             <td class="gray">
               <span class='bold dark-gray'>Allowed:<span class='blue'> light | dark</span></span>
-              <br/> Is the base theme, which is used for calculating colors for various UI components.
+              <br /> Is the base theme, which is used for calculating colors for various UI components.
               'theme', 'bg-color' and 'text-color' are the base attributes for generating a custom theme
             </td>
             <td class='default-col' style="min-width:150px">dark</td>
@@ -202,8 +207,18 @@
             <td class="gray">Hex color code for main background</td>
             <td class='small-font'>
               <table class="no-border-table">
-                <tr> <td> Dark Theme</td><td  class='small-font mono'> <div class="color-box" style="background-color: #333;"> </div> #333</td></tr>
-                <tr> <td> Light Theme</td><td class='small-font mono'> <div class="color-box" style="background-color: #fff;"> </div> #fff</td></tr>
+                <tr>
+                  <td> Dark Theme</td>
+                  <td class='small-font mono'>
+                    <div class="color-box" style="background-color: #333;"> </div> #333
+                  </td>
+                </tr>
+                <tr>
+                  <td> Light Theme</td>
+                  <td class='small-font mono'>
+                    <div class="color-box" style="background-color: #fff;"> </div> #fff
+                  </td>
+                </tr>
               </table>
             </td>
           </tr>
@@ -213,8 +228,18 @@
             <td class="gray">Hex color code for text</td>
             <td class='small-font'>
               <table class="no-border-table">
-                <tr> <td> Dark Theme</td><td  class='small-font mono'> <div class="color-box" style="background-color: #bbb;"> </div> #bbb</td></tr>
-                <tr> <td> Light Theme</td><td class='small-font mono'> <div class="color-box" style="background-color: #444;"> </div> #444</td></tr>
+                <tr>
+                  <td> Dark Theme</td>
+                  <td class='small-font mono'>
+                    <div class="color-box" style="background-color: #bbb;"> </div> #bbb
+                  </td>
+                </tr>
+                <tr>
+                  <td> Light Theme</td>
+                  <td class='small-font mono'>
+                    <div class="color-box" style="background-color: #444;"> </div> #444
+                  </td>
+                </tr>
               </table>
             </td>
           </tr>
@@ -258,37 +283,43 @@
           <tr>
             <td class="mono bold right">font-size </td>
             <td class="gray">
-              <span class='bold dark-gray'>Allowed:<span class='blue'> default | large  | largest </span></span>
-              <br/> sets the relative font sizes for the entire document  &nbsp;|&nbsp; <a href="./examples/font-size.html">Example</a>
+              <span class='bold dark-gray'>Allowed:<span class='blue'> default | large | largest </span></span>
+              <br /> sets the relative font sizes for the entire document &nbsp;|&nbsp; <a
+                href="./examples/font-size.html">Example</a>
             </td>
             <td class='small-font'>default</td>
           </tr>
 
           <tr>
-            <td class="mono bold right">css-file<br/>css-classes</td>
+            <td class="mono bold right">css-file<br />css-classes</td>
             <td class="gray" colspan="2">
-              These two attributes go together which helps to inject your own CSS class.<br/>
+              These two attributes go together which helps to inject your own CSS class.<br />
               <ul style="margin-block-start: 0; padding-inline-start: 15px;">
                 <li>create a &lt;link&gt; tag in your html and link to your external css file </li>
-                <li> 
-                  provide the name of css file in <span class='bold mono' style="color:#333"> css-file </span> attribute <br/>
-                  and provide names of all the CSS class names that you would like to apply to RapiDoc Element separated by a space in 
+                <li>
+                  provide the name of css file in <span class='bold mono' style="color:#333"> css-file </span> attribute
+                  <br />
+                  and provide names of all the CSS class names that you would like to apply to RapiDoc Element separated
+                  by a space in
                   <span class='bold mono' style="color:#333"> css-classes </span> attribute
                 </li>
-              </ul>             
+              </ul>
             </td>
           </tr>
         </table>
 
 
         <a id="att-nav"></a>
-        <div class='table-title' id="nav-bar-colors"> Navigation bar settings (only applicable in <span class="mono bold">read</span> and <span class="mono bold">focused</span> render style)</div>
+        <div class='table-title' id="nav-bar-colors"> Navigation bar settings (only applicable in <span
+            class="mono bold">read</span> and <span class="mono bold">focused</span> render style)</div>
         <table class="m-table">
           <tr>
             <td class=" attr-col mono bold right">show-method-in-nav-bar </td>
             <td class="gray">
-              <span class='bold dark-gray'>Allowed:<span class='blue'> false | as-plain-text | as-colored-text | as-colored-block</span></span>
-              shows API Method names in the navigation bar (if you customized nav-background make sure there is a proper contrast)
+              <span class='bold dark-gray'>Allowed:<span class='blue'> false | as-plain-text | as-colored-text |
+                  as-colored-block</span></span>
+              shows API Method names in the navigation bar (if you customized nav-background make sure there is a proper
+              contrast)
               &nbsp;|&nbsp; <a href="./examples/nav-item-with-method.html">Example</a>
             </td>
             <td class='default-col'>false</td>
@@ -300,7 +331,8 @@
               <span class='bold dark-gray'>Allowed:<span class='blue'> true | false</span></span>
               set true to show API paths in the navigation bar instead of summary/description
               &nbsp;|&nbsp; <a href="./examples/nav-item-as-path.html">Example</a>
-              <br/><b>*</b>If you like to show the API method too in the path you should use <span class="mono bold"> show-method-in-nav-bar </span>
+              <br /><b>*</b>If you like to show the API method too in the path you should use <span class="mono bold">
+                show-method-in-nav-bar </span>
             </td>
             <td class='default-col'>false</td>
           </tr>
@@ -349,7 +381,8 @@
 
           <tr id="nav-item-spacing">
             <td class=" attr-col mono bold right">nav-item-spacing </td>
-            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> default | compact | relaxed</span></span>
+            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> default | compact |
+                  relaxed</span></span>
               Controls navigation item spacing
               &nbsp;|&nbsp; <a href="./examples/navbar-spacing.html">Example</a>
             </td>
@@ -357,7 +390,8 @@
           </tr>
           <tr id="on-nav-tag-click">
             <td class="mono bold right">on-nav-tag-click</td>
-            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> expand-collapse | show-description</span></span> -
+            <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> expand-collapse |
+                  show-description</span></span> -
               applies only to focused render-style. It determines the behavior of clicking on a Tag in navigation bar.
               It can either expand-collapse the tag or take you to the tag's description page.
             </td>
@@ -372,28 +406,33 @@
           <tr>
             <td class="attr-col mono bold right"> layout </td>
             <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> row | column</span></span>
-              Layout helps in placement of request/response sections. In column layout, request & response sections are placed one below the other,
+              Layout helps in placement of request/response sections. In column layout, request & response sections are
+              placed one below the other,
               In row layout they are placed side by side.
-              This attribute is applicable only when the device width is more than 768px and the render-style  is 'view'.
+              This attribute is applicable only when the device width is more than 768px and the render-style is 'view'.
             </td>
             <td class='default-col'>row</td>
           </tr>
           <tr>
             <td class="mono bold right">render-style </td>
-            <td class="gray"><span class='bold dark-gray'>Allowed:<span class='blue'> read | view | focused</span></span> -
+            <td class="gray"><span class='bold dark-gray'>Allowed:<span class='blue'> read | view |
+                  focused</span></span> -
               determines display of api-docs. Currently there are three modes supported.
               <ul>
                 <li>
                   <span class="mono blue">view</span>
-                  <span>friendly for quick exploring (expand/collapse the section of your interest) &nbsp;|&nbsp; <a href="./examples/example1.html">Example</a></span>
+                  <span>friendly for quick exploring (expand/collapse the section of your interest) &nbsp;|&nbsp; <a
+                      href="./examples/example1.html">Example</a></span>
                 </li>
                 <li>
                   <span class="mono blue">read</span>
-                  <span>suitable for reading (like a continuous web-page) &nbsp;|&nbsp; <a href="./examples/read-mode.html">Example</a> </span>
+                  <span>suitable for reading (like a continuous web-page) &nbsp;|&nbsp; <a
+                      href="./examples/read-mode.html">Example</a> </span>
                 </li>
                 <li>
                   <span class="mono blue">focused</span>
-                  <span>similar to read but focuses on a single endpoint at a time (good for large specs) &nbsp;|&nbsp; <a href="./examples/focused-mode.html">Example</a></span>
+                  <span>similar to read but focuses on a single endpoint at a time (good for large specs) &nbsp;|&nbsp;
+                    <a href="./examples/focused-mode.html">Example</a></span>
                 </li>
 
               </ul>
@@ -404,7 +443,8 @@
           <tr>
             <td class="mono bold right">response-area-height</td>
             <td class="gray">
-              <span class='bold dark-gray'>Allowed:<span class='blue'> valid css height value such as 400px, 50%, 60vh etc</span></span> -
+              <span class='bold dark-gray'>Allowed:<span class='blue'> valid css height value such as 400px, 50%, 60vh
+                  etc</span></span> -
               Use this value to control the height of response textarea
             </td>
             <td>300px</td>
@@ -417,9 +457,11 @@
           <tr>
             <td class="attr-col mono bold right">show-info</td>
             <td class="gray">
-              show/hide the documents info section<br/>
-              Info section contains information about the spec, such as the title and description of the spec, the version, terms of services etc.
-              In certain situation you may not need to show this section. For instance you are embedding this element inside a another help document.
+              show/hide the documents info section<br />
+              Info section contains information about the spec, such as the title and description of the spec, the
+              version, terms of services etc.
+              In certain situation you may not need to show this section. For instance you are embedding this element
+              inside a another help document.
               Chances are, the help doc may already have this info, in that case you may want to hide this section.
             </td>
             <td>true</td>
@@ -428,8 +470,9 @@
             <td class="attr-col mono bold right">info-description-headings-in-navbar</td>
             <td class="gray">
               Include headers from info -> description section to the Navigation bar (applies to read mode only)
-              <br/>
-              Will get the headers from the markdown in info - description (h1 and h2) into the menu on the left (in read mode) along with links to them.
+              <br />
+              Will get the headers from the markdown in info - description (h1 and h2) into the menu on the left (in
+              read mode) along with links to them.
               This option allows users to add navigation bar items using Markdown
               &nbsp;|&nbsp; <a href="./examples/markdown-headings.html">Example</a>
             </td>
@@ -439,18 +482,18 @@
           <tr>
             <td class="attr-col mono bold right">match-paths</td>
             <td class="gray">
-              If you want to show only few selected APIs based on the target audience, 
-              you may use this attribute to define which paths should be rendered. 
-              The filter can be a simple substring match for a path or can be a complex regex expression. 
-              Wheather to use substring match or regex match is specified through <span class="mono"> match-type</span> 
-              attribute 
+              If you want to show only few selected APIs based on the target audience,
+              you may use this attribute to define which paths should be rendered.
+              The filter can be a simple substring match for a path or can be a complex regex expression.
+              Wheather to use substring match or regex match is specified through <span class="mono"> match-type</span>
+              attribute
               &nbsp;|&nbsp; <a href="./examples/filter-test.html">Example</a>
             </td>
             <td>(empty)</td>
           </tr>
           <tr>
             <td class="attr-col mono bold right">match-type</td>
-            <td class="gray"> 
+            <td class="gray">
               <span class='bold dark-gray'>Allowed:<span class='blue'> includes | regex</span></span> -
               Defines how <span class="mono"> match-paths</span> is used for filtering
             </td>
@@ -460,8 +503,8 @@
             <td class="attr-col mono bold right">remove-endpoints-with-badge-label-as</td>
             <td class="gray">
               Comma separated badge labels to be removed from the spec.
-              <br/>
-              You may use vendor-extension <span class="mono">x-badges</span> to assign badges to endpoints. 
+              <br />
+              You may use vendor-extension <span class="mono">x-badges</span> to assign badges to endpoints.
               This attributes helps in removing the endpoints which matches a badge label
               &nbsp;|&nbsp; <a href="./examples/filter-test.html">Example</a>
             </td>
@@ -472,23 +515,27 @@
             <td class="gray">
               show/hide the components section both in document and menu
               (available only in focused render-style)
-              <br/>
-              Will show the components section containing schemas, responses, examples, requestBodies, headers, securitySchemes, links and callbacks
+              <br />
+              Will show the components section containing schemas, responses, examples, requestBodies, headers,
+              securitySchemes, links and callbacks
             </td>
             <td>false</td>
           </tr>
           <tr>
             <td class="mono bold right">show-header </td>
-            <td class="gray">show/hide the header.<br/>
-              If you do not want your user to open any other api spec, other than the current one, then set this attribute to false</td>
+            <td class="gray">show/hide the header.<br />
+              If you do not want your user to open any other api spec, other than the current one, then set this
+              attribute to false</td>
             <td class='default-col'> true</td>
           </tr>
           <tr>
             <td class="mono bold right">allow-authentication</td>
             <td class="gray">
-              Authentication feature, allows the user to select one of the authentication mechanism thats available in the spec.
+              Authentication feature, allows the user to select one of the authentication mechanism thats available in
+              the spec.
               It can be http-basic, http-bearer or api-key.
-              If you do not want your users to go through the authentication process, instead want them to use a pre-generated api-key
+              If you do not want your users to go through the authentication process, instead want them to use a
+              pre-generated api-key
               then you may hide authentication section by setting this attribute to false
               and provide the api-key details using various api-key-???? attributes.</td>
             <td>true</td>
@@ -504,7 +551,8 @@
             <td class="mono bold right">allow-spec-file-load</td>
             <td class="gray">
               If set to 'false', user will not be able to load any spec file from the local drive.
-              This attribute is applicable only when the device width is more than 768px, else this feature is not available
+              This attribute is applicable only when the device width is more than 768px, else this feature is not
+              available
             </td>
             <td>true</td>
           </tr>
@@ -518,15 +566,16 @@
           <tr>
             <td class="mono bold right">allow-search</td>
             <td class="gray">
-                Provides quick filtering of API
+              Provides quick filtering of API
             </td>
             <td>true</td>
           </tr>
           <tr>
             <td class="mono bold right">allow-advanced-search</td>
             <td class="gray">
-                Provides advanced search functionality, to search through API-paths, API-description, API-parameters and API-Responses
-                &nbsp;|&nbsp; <a href="./examples/search-by-params.html">Example</a>
+              Provides advanced search functionality, to search through API-paths, API-description, API-parameters and
+              API-Responses
+              &nbsp;|&nbsp; <a href="./examples/search-by-params.html">Example</a>
             </td>
             <td>true</td>
           </tr>
@@ -542,15 +591,19 @@
           <tr id="show-curl-before-try">
             <td class="mono bold right">show-curl-before-try</td>
             <td class="gray">
-              If set to 'true', the cURL snippet is displayed between the request and the response without clicking on TRY &nbsp;|&nbsp; <a href="./examples/show-curl-before-try.html">Example</a>
+              If set to 'true', the cURL snippet is displayed between the request and the response without clicking on
+              TRY &nbsp;|&nbsp; <a href="./examples/show-curl-before-try.html">Example</a>
             </td>
             <td>false</td>
           </tr>
           <tr>
             <td class="mono bold right">allow-server-selection</td>
             <td class="gray">
-              If set to 'false', user will not be able to see or select API server (Server List will be hidden, however users will be able to see the server url near the 'TRY' button, to know in advance where the TRY will send the request).
-              The URL specified in the server-url attribute will be used if set, else the first server in the API specification file will be used.
+              If set to 'false', user will not be able to see or select API server (Server List will be hidden, however
+              users will be able to see the server url near the 'TRY' button, to know in advance where the TRY will send
+              the request).
+              The URL specified in the server-url attribute will be used if set, else the first server in the API
+              specification file will be used.
             </td>
             <td>true</td>
           </tr>
@@ -577,7 +630,8 @@
           <tr id="schema-expand-level">
             <td class="attr-col mono bold right">schema-expand-level </td>
             <td class="gray">
-              Schemas are expanded by default, use this attribute to control how many levels in the schema should be expanded
+              Schemas are expanded by default, use this attribute to control how many levels in the schema should be
+              expanded
               &nbsp;|&nbsp; <a href="./examples/schema-expand-level.html">Example</a>
             </td>
             <td>999</td>
@@ -594,9 +648,9 @@
             <td class="mono bold right">schema-hide-read-only </td>
             <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> default | never </span></span> -
               default will show read-only schema attributes in Responses, and in Requests of Webhook / Callback
-              <br/>
+              <br />
               If you do not want to hide read-only fields in schema then you may set it to 'never'
-              <br/>
+              <br />
               <b>Note:</b>This do not effect example generation.
               &nbsp;|&nbsp; <a href="./examples/schema-read-and-write-only.html">Example</a>
             </td>
@@ -606,9 +660,9 @@
             <td class="mono bold right">schema-hide-write-only </td>
             <td class="gray"> <span class='bold dark-gray'>Allowed:<span class='blue'> default | never </span></span> -
               default will show write-only schema attributes in Requests, and in Responses of Webhook / Callback
-              <br/>
+              <br />
               If you do not want to hide write-only fields in schema then you may set it to 'never'
-              <br/>
+              <br />
               <b>Note:</b>This do not effect example generation.
               &nbsp;|&nbsp; <a href="./examples/schema-read-and-write-only.html">Example</a>
             </td>
@@ -630,33 +684,38 @@
         <a id="att-server"></a>
         <div class='table-title' id='api-servers'> API Server & calls</div>
         <table class="m-table">
-          <tr id ="server-url">
+          <tr id="server-url">
             <td class="mono bold right">server-url</td>
             <td class="gray">
-              OpenAPI spec has a provision for providing the server url. The UI will list all the server URLs provided in the spec.
+              OpenAPI spec has a provision for providing the server url. The UI will list all the server URLs provided
+              in the spec.
               The user can then select one URL to which he or she intends to send API calls while trying out the apis.
-              However, if you want to provide an API server of your own which is not listed in the spec, you can use this property to provide one.
-              It is helpful in the cases where the same spec is shared between multiple environment say Dev and Test and each have their own API server.
+              However, if you want to provide an API server of your own which is not listed in the spec, you can use
+              this property to provide one.
+              It is helpful in the cases where the same spec is shared between multiple environment say Dev and Test and
+              each have their own API server.
             </td>
             <td>(empty)</td>
           </tr>
           <tr id="default-api-server">
             <td class="mono bold right">default-api-server</td>
             <td class="gray">
-              If you have multiple api-server listed in the spec, use this attribute to select the default API server, where all the API calls will goto.
+              If you have multiple api-server listed in the spec, use this attribute to select the default API server,
+              where all the API calls will goto.
               This can be changed later from the UI
             </td>
             <td>(empty)</td>
           </tr>
-          <tr >
+          <tr>
             <td colspan="3" style="border-bottom-style:dashed; text-align: center;">
-              <br/>
-              When providing API key using RapiDoc element, make sure that you provide all the 3 attributes with some default values
+              <br />
+              When providing API key using RapiDoc element, make sure that you provide all the 3 attributes with some
+              default values
               <span class="mono blue">api-key-name, api-key-location & api-key-value</span>
-              <br/>
+              <br />
               Set <span class="mono blue">api-key-value</span> to "<span class="mono blue">-</span>"
               if you are unsure of its value, and like to fill in later using JavaScript
-              <br/><br/>
+              <br /><br />
             </td>
 
           </tr>
@@ -685,8 +744,9 @@
             <td class="mono bold right">fetch-credentials</td>
             <td class="gray">
               <span class='bold dark-gray'>Allowed:<span class='blue'> omit | same-origin | include</span></span>
-              enables passing credentials/cookies in cross domain calls, as defined in the 
-              <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials">Fetch standard, in CORS requests </a>
+              enables passing credentials/cookies in cross domain calls, as defined in the
+              <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials">Fetch standard, in CORS
+                requests </a>
               that are sent by the browser
             </td>
             <td>(empty)</td>
@@ -711,15 +771,16 @@
                 <li> or a JSON object representing a valid spec</li>
               </ul>
             </td>
-            <td> <a href="https://github.com/rapi-doc/RapiDoc/blob/master/docs/examples/example9.html"> Example </a></td>
+            <td> <a href="https://github.com/rapi-doc/RapiDoc/blob/master/docs/examples/example9.html"> Example </a>
+            </td>
           </tr>
           <tr id="scrollTo">
             <td class="mono bold right">scrollToPath(path) </td>
             <td class="gray" colspan="2">
               To programmatically scroll to a section (identified by combination method and path).
-              <br/>
+              <br />
               <span class='mono blue'>path</span> should be provided in the format of {method}-{path}
-              for instance you want to scrollTo <span class = "mono">GET /user/login</span>
+              for instance you want to scrollTo <span class="mono">GET /user/login</span>
               you should provide the location as <span class=" mono dark-gray"> get-/user/login</span>
               &nbsp;|&nbsp; <a href="./examples/collapsable-focused.html">Example</a>
             </td>
@@ -728,33 +789,36 @@
           <tr id="setHttpUserNameAndPassword">
             <td class="mono bold right" style="text-align: left;">
               setHttpUserNameAndPassword(<br>
-                &nbsp;&nbsp;securitySchemeId,<br/>
-                &nbsp;&nbsp;username,<br/>
-                &nbsp;&nbsp;password<br/>
-              ) 
+              &nbsp;&nbsp;securitySchemeId,<br />
+              &nbsp;&nbsp;username,<br />
+              &nbsp;&nbsp;password<br />
+              )
             </td>
             <td class="gray" colspan="2">
-              To programmatically provide username and password.  <span class='mono blue'>securitySchemeId</span> should be a valid securityScheme which you have defined in the spec
+              To programmatically provide username and password. <span class='mono blue'>securitySchemeId</span> should
+              be a valid securityScheme which you have defined in the spec
             </td>
           </tr>
           <tr id="setApiKey">
-            <td class="mono bold right" style="text-align: left;">setApiKey(<br/>
-              &nbsp;&nbsp;securitySchemeId, token<br/>
-            ) 
+            <td class="mono bold right" style="text-align: left;">setApiKey(<br />
+              &nbsp;&nbsp;securitySchemeId, token<br />
+              )
             </td>
             <td class="gray" colspan="2">
-              To programmatically provide api-key. <span class='mono blue'>securitySchemeId</span> should be a valid securityScheme which you have defined in the spec
+              To programmatically provide api-key. <span class='mono blue'>securitySchemeId</span> should be a valid
+              securityScheme which you have defined in the spec
             </td>
           </tr>
           <tr id="setApiServer">
             <td class="mono bold right" style="border-bottom:none;">setApiServer(apiServerUrl) </td>
             <td class="gray" colspan="2" style="border-bottom:none;">
-              To programmatically set API Server.  <span class='mono blue'>apiServerUrl</span> should be a valid server url which you have defined in the spec
+              To programmatically set API Server. <span class='mono blue'>apiServerUrl</span> should be a valid server
+              url which you have defined in the spec
             </td>
           </tr>
           <tr>
             <td colspan="3">
-              <pre class="shadow1 code-block" style = "width:600px; margin: 0 auto;">
+              <pre class="shadow1 code-block" style="width:600px; margin: 0 auto;">
                 <code class="language-html">
                   &lt;html&gt;
                   ...        
@@ -818,7 +882,8 @@
             <tr id="before-render">
               <td class="mono bold right">before-render</td>
               <td class="gray">
-                fired before rendering, provides spec object which can be modified and the changes will be reflected in rendering
+                fired before rendering, provides spec object which can be modified and the changes will be reflected in
+                rendering
               </td>
             </tr>
             <tr id="spec-loaded">
@@ -830,14 +895,16 @@
             <tr id="before-try">
               <td class="mono bold right">before-try</td>
               <td class="gray">
-                fired before user clicks try. 
-                Provides a <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request" target="_blank">Request like object</a> 
-                that can be modified before making the final call to the API.<br/> 
-                Also you get an <a href="https://developer.mozilla.org/en-US/docs/Web/API/AbortController" target="_blank"> AbortController object</a> 
-                which can be used for aborting a request 
-                <br/>
-                Example: To add a custom header before making a try call  
-                <pre class="shadow1 code-block" style = "width:500px">
+                fired before user clicks try.
+                Provides a <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request" target="_blank">Request
+                  like object</a>
+                that can be modified before making the final call to the API.<br />
+                Also you get an <a href="https://developer.mozilla.org/en-US/docs/Web/API/AbortController"
+                  target="_blank"> AbortController object</a>
+                which can be used for aborting a request
+                <br />
+                Example: To add a custom header before making a try call
+                <pre class="shadow1 code-block" style="width:500px">
                   <code class="language-js">
                     rapidocEl.addEventListener('before-try', (e) => {
                       if (e.detail.request.method === 'POST') {
@@ -847,9 +914,9 @@
                   </code>
                 </pre>
 
-                <br/>
+                <br />
                 Example: Add a query-string param to all GET request
-                <pre class="shadow1 code-block" style = "width:500px">
+                <pre class="shadow1 code-block" style="width:500px">
                   <code class="language-js">
                     rapidocEl.addEventListener('before-try', (e) => {
                       if (e.detail.request.method === 'GET') {
@@ -861,9 +928,9 @@
                   </code>
                 </pre>
 
-                <br/>
+                <br />
                 Example: To abort a (Try)request - Below example aborts all DELETE calls
-                <pre class="shadow1 code-block" style = "width:500px">
+                <pre class="shadow1 code-block" style="width:500px">
                   <code class="language-js">
                     rapidocEl.addEventListener('before-try', (e) => {
                       if (e.detail.request.method === 'DELETE') {
@@ -878,11 +945,11 @@
             <tr id="after-try">
               <td class="mono bold right">after-try</td>
               <td class="gray">
-                fired after try (API-call) is completed and provides a 
+                fired after try (API-call) is completed and provides a
                 <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request" target="_blank">request</a> and
                 <a href="https://developer.mozilla.org/en-US/docs/Web/API/Response" target="_blank">response</a> object
                 In case of an error it will provide an <span> request</span> and <span> err</span> object
-                
+
               </td>
             </tr>
             <tr id="request-aborted">
@@ -895,19 +962,22 @@
               <td class="mono bold right">api-server-change</td>
               <td class="gray">fires when you change the API server </td>
             </tr>
-            <tr><td colspan="2" style = "text-align: center;">
-              Working <a href="./examples/events.html"> Example </a> of Event Handling In RapiDoc
-            </td></tr>
+            <tr>
+              <td colspan="2" style="text-align: center;">
+                Working <a href="./examples/events.html"> Example </a> of Event Handling In RapiDoc
+              </td>
+            </tr>
           </table>
         </div>
 
         <a id="slots"></a>
         <h2>Slots</h2>
         <div style="width:710px">
-          <span class="mono bold">slots</span> 
+          <span class="mono bold">slots</span>
           <span>
-            are predefined placeholders inside a RapiDoc component. You can use these slots to place your custom html in certain desired locations inside RapiDoc.
-            Below is an example on how to inject HTML/CSS/JS at various locations in RapiDoc 
+            are predefined placeholders inside a RapiDoc component. You can use these slots to place your custom html in
+            certain desired locations inside RapiDoc.
+            Below is an example on how to inject HTML/CSS/JS at various locations in RapiDoc
           </span>
           <pre class="shadow1 code-block" style="max-width: calc(100% - 8px)">
             <code class="language-html">
@@ -935,7 +1005,8 @@
             </tr>
             <tr>
               <td class="mono bold right">(default)</td>
-              <td class="gray">any content placed inside <code>&lt;rapi-doc&gt;</code> tag, will be shown immediately under the header and above the info section </td>
+              <td class="gray">any content placed inside <code>&lt;rapi-doc&gt;</code> tag, will be shown immediately
+                under the header and above the info section </td>
             </tr>
             <tr>
               <td class="mono bold right">logo</td>
@@ -951,31 +1022,39 @@
             </tr>
             <tr>
               <td class="mono bold right">nav-logo</td>
-              <td class="gray"> contents appear at the top of Side navigation bar usually used for logo. (only available in read-mode)</td>
+              <td class="gray"> contents appear at the top of Side navigation bar usually used for logo. (only available
+                in read-mode)</td>
             </tr>
 
             <tr>
               <td class="mono bold right">overview</td>
-              <td class="gray"> contents appear at overview section - top of the document. You can link to this section using <span class="mono blue"> #overview </span>
-              </td> </td>
+              <td class="gray"> contents appear at overview section - top of the document. You can link to this section
+                using <span class="mono blue"> #overview </span>
+              </td>
+              </td>
             </tr>
             <tr>
               <td class="mono bold right">servers</td>
-              <td class="gray"> contents appear at server section which is under the overview slot. You can link to this section using <span class="mono blue"> #servers </span> </td>
+              <td class="gray"> contents appear at server section which is under the overview slot. You can link to this
+                section using <span class="mono blue"> #servers </span> </td>
             </tr>
             <tr>
               <td class="mono bold right">auth</td>
-              <td class="gray"> contents appear at authentication section which is under the overview > servers slot. You can link to this section using <span class="mono blue"> #auth </span></td>
+              <td class="gray"> contents appear at authentication section which is under the overview > servers slot.
+                You can link to this section using <span class="mono blue"> #auth </span></td>
             </tr>
             <tr>
               <td class="mono bold right">operations-top</td>
-              <td class="gray"> contents appear at the top of all the operations but below overview > servers > auth section. 
-                Use this section to provide content that applies to all the operations. You can link this section using <span class="mono blue"> #operations-top </span>
+              <td class="gray"> contents appear at the top of all the operations but below overview > servers > auth
+                section.
+                Use this section to provide content that applies to all the operations. You can link this section using
+                <span class="mono blue"> #operations-top </span>
               </td>
             </tr>
             <tr>
               <td class="mono bold right">tag--{tag-name}</td>
-              <td class="gray"> each tag is identified by a name, this slot can be used to insert HTML content under various tags</td>
+              <td class="gray"> each tag is identified by a name, this slot can be used to insert HTML content under
+                various tags</td>
             </tr>
             <tr>
               <td class="mono bold right">{method}-{path}</td>
@@ -1005,7 +1084,8 @@
             <tr>
               <td class="gray">
                 <span>
-                  Developers can providing their own style overrides in <span class="mono blue">src/styles/custom-styles.js</span>.
+                  Developers can providing their own style overrides in <span
+                    class="mono blue">src/styles/custom-styles.js</span>.
                   This is provided as a clean way into add custom style overrides without making changes to the codebase
                 </span>
                 <pre class="shadow1 code-block">
@@ -1028,8 +1108,9 @@
                     npm run build
                   </code>
                 </pre>
-                generated <span class="mono bold">rapidoc-min.js</span>  in <span class="mono bold">dist</span> folder will have your styles
-                <br/>
+                generated <span class="mono bold">rapidoc-min.js</span> in <span class="mono bold">dist</span> folder
+                will have your styles
+                <br />
               </td>
             </tr>
           </table>
@@ -1040,30 +1121,31 @@
         <div class="table-block">
           <table class="m-table">
             <tr id="x-code-sample">
-              <td class="mono bold right" style="width:160px;" >x-code-sample <br/> x-codeSample </td>
+              <td class="mono bold right" style="width:160px;">x-code-sample <br /> x-codeSample </td>
               <td class="gray"> Use this vendor-extension to provide code samples in various languages
               </td>
               <td style="width:130px;"><a href="./examples/code-samples.html"> Usage Example </a> </td>
             </tr>
             <tr id="x-badges">
               <td class="mono bold right" style="width:130px;">x-badges </td>
-              <td class="gray"> Use this vendor-extension to annotate end-points with short color coded lables. 
-                You can also assign badges to endpoints and then 
-                use them with <span class="mono bold">remove-endpoints-with-badge-label-as</span> 
-                attribute to remove them from your API documentation. 
-                This allows you to show the same API spec to different groups of audiences. 
+              <td class="gray"> Use this vendor-extension to annotate end-points with short color coded lables.
+                You can also assign badges to endpoints and then
+                use them with <span class="mono bold">remove-endpoints-with-badge-label-as</span>
+                attribute to remove them from your API documentation.
+                This allows you to show the same API spec to different groups of audiences.
                 Like you want to hide internal APIs for your customers but show then to your developers
               </td>
               <td style="width:130px;">
-                <a href="./examples/badges.html"> Badge Example </a><br/>
-                <a href="./examples/filter-test.html"> Filter by badge Example </a> 
+                <a href="./examples/badges.html"> Badge Example </a><br />
+                <a href="./examples/filter-test.html"> Filter by badge Example </a>
               </td>
             </tr>
 
             <tr>
               <td class="mono bold right">x-tag-expanded</td>
               <td class="gray">
-                Use this vendor-extension to expand or collapse paths under a tag (applies only in view and focused render-style)
+                Use this vendor-extension to expand or collapse paths under a tag (applies only in view and focused
+                render-style)
               </td>
               <td><a href="./examples/collapsable.html"> Usage Example </a> </td>
             </tr>
@@ -1072,9 +1154,11 @@
               <td class="mono bold right">x-fill-example</td>
               <td class="gray">
                 <span class='bold dark-gray'>Allowed:<span class='blue'> yes | no</span></span> -
-                Use this vendor-extension for each request parameter to indicate if the provided example is auto populated on the UI
-                <br/> 
-                if this behaviour needs to be applied for all the examples then see <a href="#fill-request-fields-with-example"> fill-request-fields-with-example</a> 
+                Use this vendor-extension for each request parameter to indicate if the provided example is auto
+                populated on the UI
+                <br />
+                if this behaviour needs to be applied for all the examples then see <a
+                  href="#fill-request-fields-with-example"> fill-request-fields-with-example</a>
               </td>
               <td></td>
             </tr>
@@ -1082,37 +1166,38 @@
               <td class="mono bold right">x-example-show-value</td>
               <td class="gray">
                 <span class='bold dark-gray'>Allowed:<span class='blue'> true | false</span></span> -
-                Use this vendor-extension for each request parameter to indicate if the provided example is displayed on the UI
+                Use this vendor-extension for each request parameter to indicate if the provided example is displayed on
+                the UI
               </td>
               <td></td>
             </tr>
 
             <tr id="x-client-id">
-              <td class="mono bold right"><br/>
-                x-client-id <br/> 
-                x-client-secret <br/> 
-                x-default-scopes <br/> 
-                x-receive-token-in <br/> 
-                x-pkce-only 
+              <td class="mono bold right"><br />
+                x-client-id <br />
+                x-client-secret <br />
+                x-default-scopes <br />
+                x-receive-token-in <br />
+                x-pkce-only
               </td>
               <td class="gray">
-                Use these vendor-extensions to pre fill <br/>
-                <span class="mono bold">Client ID</span> <br/> 
-                <span class="mono bold">Client Secret</span> <br/>
-                <span class="mono bold">Default Scopes</span><br/>
-                 where token is <span class="mono bold">received</span> (header or request-body) in the UI <br>
-                 <span class="mono bold">true|false</span> - when true, client-secret wont be send from UI
+                Use these vendor-extensions to pre fill <br />
+                <span class="mono bold">Client ID</span> <br />
+                <span class="mono bold">Client Secret</span> <br />
+                <span class="mono bold">Default Scopes</span><br />
+                where token is <span class="mono bold">received</span> (header or request-body) in the UI <br>
+                <span class="mono bold">true|false</span> - when true, client-secret wont be send from UI
               </td>
               <td>
-                <a href="./examples/oauth-vendor-extension.html"> Usage Example </a> <br/>
-                <a href="./oauth_instructions.html#oauth-demo-spec"> Sample Spec </a> <br/>
+                <a href="./examples/oauth-vendor-extension.html"> Usage Example </a> <br />
+                <a href="./oauth_instructions.html#oauth-demo-spec"> Sample Spec </a> <br />
               </td>
             </tr>
           </table>
         </div>
       </div>
     </div>
-  </div>  
+  </div>
   <!-- End of API -->
 
   <div id="footer" class="footer">
@@ -1123,15 +1208,15 @@
   </div>
 
   <script>
-    function goToSection(e){
-      if (e.target.dataset.action==='url'){
+    function goToSection(e) {
+      if (e.target.dataset.action === 'url') {
         return;
       }
 
       e.preventDefault();
       var gotoEl = document.getElementById(e.target.getAttribute('href').substring(1));
-      if (gotoEl){
-        gotoEl.scrollIntoView({ block: 'start',  behavior: 'smooth' });
+      if (gotoEl) {
+        gotoEl.scrollIntoView({ block: 'start', behavior: 'smooth' });
       }
     }
   </script>

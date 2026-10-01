@@ -1,23 +1,27 @@
 <!doctype html>
 <html>
+
 <head>
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-132775238-1"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+    function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
 
     gtag('config', 'UA-132775238-1');
   </script>
-  <script data-ad-client="ca-pub-3841792756480152" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-  
+  <script data-ad-client="ca-pub-3841792756480152" async
+    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
-  <meta name="description" content="RapiDoc is Web Component for viewing Swagger & OpenAPI Spec. Supports themes, styling and various rendering styles">
-  <meta name="keywords" content="RapiDoc, ReDoc, Swagger, SwaggerUI, Custom Element, Web Component, OpenAPI,REST, themes, dark mode, markdown, API documentation">
+  <meta name="description"
+    content="RapiDoc is Web Component for viewing Swagger & OpenAPI Spec. Supports themes, styling and various rendering styles">
+  <meta name="keywords"
+    content="RapiDoc, ReDoc, Swagger, SwaggerUI, Custom Element, Web Component, OpenAPI,REST, themes, dark mode, markdown, API documentation">
 
-  <link rel="shortcut icon" type="image/png" href="./images/logo.png"/>
+  <link rel="shortcut icon" type="image/png" href="./images/logo.png" />
 
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700" rel="stylesheet">
@@ -34,31 +38,25 @@
   <link rel="stylesheet" href="index.css">
   <title>RapiDoc - Examples & Demo</title>
   <style>
-    .section-heading{
-      padding:36px 10px 5px 10px;
-      margin:0;
+    .section-heading {
+      padding: 36px 10px 5px 10px;
+      margin: 0;
     }
-    #main-img{
-      width:740px;
+
+    #main-img {
+      width: 740px;
     }
   </style>
 </head>
 
 <body>
-  <div style="background-color: white; font-family: exo;font-weight: lighter; font-size:large; display:flex; flex-direction: row; align-items: center;justify-content: space-between">
-    <div style="padding:15px 20px 15px 20px; ">
-      Get a Stripe like API experience for your customers in minutes - documentation, rate-limiting and API-key auth with <a style="font-weight:bold; color:#FF00BD" href="https://zuplo.link/rapidoc-1">zuplo</a>
-    </div>
-    <div style="padding:2px 20px 2px 20px; ">
-      <a class="zuplo-button" href="https://zuplo.link/rapidoc-1">Start free</a>
-    </div>
-  </div>
   <div class="banner" style="max-height:400px; overflow:hidden;">
     <div class='topbar'>
       <div class="header">
         <a class="menu-item" data-action="url" href="./index.html">
-          <img class="logo" src="./images/logo.png" style="width:36px;height:36px;margin-right:10px;" href="./index.html"/>
-        </a>  
+          <img class="logo" src="./images/logo.png" style="width:36px;height:36px;margin-right:10px;"
+            href="./index.html" />
+        </a>
         <div class="product-name">RapiDoc</div>
         <div class="menu" style="flex:1"></div>
         <nav class="menu" onclick="goToSection(event)">
@@ -69,7 +67,7 @@
         </nav>
       </div>
     </div>
-  
+
     <div class="hide-in-mobile">
       <img id='main-img' class="shadow3" src="./images/rapi-mode-read.png" />
     </div>
@@ -77,12 +75,12 @@
 
   <!-- Start of Examples -->
   <div class="flex-col">
-   
-    <h2 class="section-heading"> Examples & Demos</h2> 
+
+    <h2 class="section-heading"> Examples & Demos</h2>
     <h3><a href="./list.html">List of all examples</a></h3>
 
-    <h2> Basic (<a style="font-size:16px" href="./examples/example1.html">DEMO</a>)</h2> 
-    Just copy the below code and save it in an html file. Then open it using a browser 
+    <h2> Basic (<a style="font-size:16px" href="./examples/example1.html">DEMO</a>)</h2>
+    Just copy the below code and save it in an html file. Then open it using a browser
     <pre class="shadow code-block">
       <code class="language-html" style="border-radius:4px">
         &lt;!doctype html&gt; &lt;!-- Important: must specify --&gt;
@@ -100,8 +98,8 @@
     </code>
   </pre>
 
-  <h2 class="section-heading"> Dark Theme (<a style="font-size:16px" href="./examples/example2.html">DEMO</a>)</h2> 
-  <pre class="shadow code-block" >
+    <h2 class="section-heading"> Dark Theme (<a style="font-size:16px" href="./examples/example2.html">DEMO</a>)</h2>
+    <pre class="shadow code-block">
     <code class="language-html" style="border-radius:4px">
       &lt;rapi-doc 
         spec-url="https://petstore.swagger.io/v2/swagger.json"
@@ -110,10 +108,10 @@
       &lt;/rapi-doc&gt;
     </code>
   </pre>
-  <br/>
+    <br />
 
-  <h2 class="section-heading"> Read Mode (<a style="font-size:16px" href="./examples/read-mode.html">DEMO</a>)</h2> 
-  <pre class="shadow code-block" >
+    <h2 class="section-heading"> Read Mode (<a style="font-size:16px" href="./examples/read-mode.html">DEMO</a>)</h2>
+    <pre class="shadow code-block">
     <code class="language-html" style="border-radius:4px">
       &lt;rapi-doc 
         spec-url="https://petstore.swagger.io/v2/swagger.json"
@@ -122,11 +120,12 @@
       &lt;/rapi-doc&gt;
     </code>
   </pre>
-  <br/>
+    <br />
 
 
-  <h2 class="section-heading"> Schema Style: Tabular (<a style="font-size:16px" href="./examples/schema-table.html">DEMO</a>)</h2> 
-  <pre class="shadow code-block" >
+    <h2 class="section-heading"> Schema Style: Tabular (<a style="font-size:16px"
+        href="./examples/schema-table.html">DEMO</a>)</h2>
+    <pre class="shadow code-block">
     <code class="language-html">
       &lt;rapi-doc 
         spec-url="https://petstore.swagger.io/v2/swagger.json"
@@ -136,10 +135,11 @@
       &lt;/rapi-doc&gt;
     </code>
   </pre>
-  <br/>
+    <br />
 
-  <h2 class="section-heading"> Change Header Color With Dark Theme (<a style="font-size:16px" href="./examples/example3.html">DEMO</a>)</h2> 
-  <pre class="shadow code-block" >
+    <h2 class="section-heading"> Change Header Color With Dark Theme (<a style="font-size:16px"
+        href="./examples/example3.html">DEMO</a>)</h2>
+    <pre class="shadow code-block">
     <code class="language-html">
       &lt;rapi-doc 
         spec-url="https://petstore.swagger.io/v2/swagger.json"
@@ -149,10 +149,11 @@
       &lt;/rapi-doc&gt;
     </code>
   </pre>
-  <br/>
+    <br />
 
-  <h2 class="section-heading"> Integrate with other HTML document - No &lt;iframe&gt; (<a style="font-size:16px" href="./examples/example4.html">DEMO</a>)</h2> 
-  <pre class="shadow code-block">
+    <h2 class="section-heading"> Integrate with other HTML document - No &lt;iframe&gt; (<a style="font-size:16px"
+        href="./examples/example4.html">DEMO</a>)</h2>
+    <pre class="shadow code-block">
     <code class="language-html">
       &lt;rapi-doc 
         spec-url = "https://petstore.swagger.io/v2/swagger.json"
@@ -168,10 +169,10 @@
       &lt;/rapi-doc&gt;
     </code>
   </pre>
-  <br/>
-  
-  <h2 class="section-heading"> Change Font  (<a style="font-size:16px" href="./examples/font.html">DEMO</a>)</h2> 
-  <pre class="shadow code-block">
+    <br />
+
+    <h2 class="section-heading"> Change Font (<a style="font-size:16px" href="./examples/font.html">DEMO</a>)</h2>
+    <pre class="shadow code-block">
     <code class="language-html">
       &lt;head&gt;
         &lt;link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet"&gt;
@@ -187,10 +188,10 @@
       &lt;/body&gt;
     </code>
   </pre>
-  <br/>
+    <br />
 
-  <h2 class="section-heading"> Change Logo (<a style="font-size:16px" href="./examples/example6.html">DEMO</a>)</h2> 
-  <pre class="shadow code-block">
+    <h2 class="section-heading"> Change Logo (<a style="font-size:16px" href="./examples/example6.html">DEMO</a>)</h2>
+    <pre class="shadow code-block">
     <code class="language-html">
       &lt;rapi-doc
         spec-url = "https://api.apis.guru/v2/specs/googleapis.com/youtube/v3/openapi.yaml"
@@ -204,10 +205,11 @@
       &lt;/rapi-doc&gt;
     </code>
   </pre>
-  <br/>
+    <br />
 
-  <h2 class="section-heading"> Add HTML content inside the spec (<a style="font-size:16px" href="./examples/mix-html.html">DEMO</a>)</h2> 
-  <pre class="shadow code-block" >
+    <h2 class="section-heading"> Add HTML content inside the spec (<a style="font-size:16px"
+        href="./examples/mix-html.html">DEMO</a>)</h2>
+    <pre class="shadow code-block">
     <code class="language-html" >
       &lt;rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json"&gt;
 
@@ -228,12 +230,13 @@
       &lt;/rapi-doc&gt;
     </code>
   </pre>
-  <br/>
+    <br />
 
-  <h2 class="section-heading"> Mix your own HTML (<a style="font-size:16px" href="./examples/example8.html">DEMO</a>)</h2> 
-  The below example adds a single click authorization functionality to swagger's petstore spec. <br/>
-  (Look for the blue button and the text-box on the header which is added by the below html)
-  <pre class="shadow code-block">
+    <h2 class="section-heading"> Mix your own HTML (<a style="font-size:16px" href="./examples/example8.html">DEMO</a>)
+    </h2>
+    The below example adds a single click authorization functionality to swagger's petstore spec. <br />
+    (Look for the blue button and the text-box on the header which is added by the below html)
+    <pre class="shadow code-block">
     <code class="language-html">
       &lt;!doctype html&gt;
       &lt;html&gt;
@@ -301,32 +304,33 @@
       &lt;/html&gt;
     </code>
   </pre>
-  <br/>
+    <br />
 
-  <div style="font-size:20px"> Playground - change attributes using JavaScript &nbsp; <a href="./examples/example100.html">DEMO</a> </div>
+    <div style="font-size:20px"> Playground - change attributes using JavaScript &nbsp; <a
+        href="./examples/example100.html">DEMO</a> </div>
 
-</div>  
-<div id="footer" class="footer">
-  <div class="footer-item"> MIT Licence</div>
-  <div class="footer-item"> <a href="https://github.com/rapi-doc/RapiDoc"> GitHub</a></div>
-  <div class="footer-item"> <a href="https://mrin9.github.io/RapiPdf/"> RapiPDF</a></div>
-  <div class="footer-item hide-in-mobile"> <a href="https://www.npmjs.com/package/rapidoc"> npm</a></div>
-</div>
+  </div>
+  <div id="footer" class="footer">
+    <div class="footer-item"> MIT Licence</div>
+    <div class="footer-item"> <a href="https://github.com/rapi-doc/RapiDoc"> GitHub</a></div>
+    <div class="footer-item"> <a href="https://mrin9.github.io/RapiPdf/"> RapiPDF</a></div>
+    <div class="footer-item hide-in-mobile"> <a href="https://www.npmjs.com/package/rapidoc"> npm</a></div>
+  </div>
 
-<!-- End of Examples -->
+  <!-- End of Examples -->
 
   <script>
-  function goToSection(e){
-    if (e.target.dataset.action==='url'){
-      return;
-    }
+    function goToSection(e) {
+      if (e.target.dataset.action === 'url') {
+        return;
+      }
 
-    e.preventDefault();
-    var gotoEl = document.getElementById(e.target.getAttribute('href').substring(1));
-    if (gotoEl){
-      gotoEl.scrollIntoView({ block: 'start',  behavior: 'smooth' });
+      e.preventDefault();
+      var gotoEl = document.getElementById(e.target.getAttribute('href').substring(1));
+      if (gotoEl) {
+        gotoEl.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      }
     }
-  }
   </script>
 </body>
 
