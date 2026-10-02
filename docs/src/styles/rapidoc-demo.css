@@ -1,0 +1,566 @@
+/* RapiDoc Demo & Controls Drawer Styling */
+
+/* Page & Host Background */
+html,
+body {
+  background-color: #060913 !important;
+  color: #cbd5e1;
+  overflow-x: hidden;
+}
+
+/* Main Container with subtle ambient gradient matching website */
+#rapiddoc-container {
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  background-color: #060913;
+  background-image:
+    radial-gradient(
+      ellipse 80% 50% at 50% -20%,
+      rgba(16, 185, 129, 0.09) 0%,
+      transparent 65%
+    ),
+    radial-gradient(
+      ellipse 60% 40% at 90% 40%,
+      rgba(139, 92, 246, 0.05) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 50% 30% at 10% 85%,
+      rgba(6, 182, 212, 0.05) 0%,
+      transparent 55%
+    );
+}
+
+#thedoc {
+  width: 100%;
+  height: 100vh;
+}
+
+/* Ambient Glow Elements */
+.ambient-glow {
+  position: fixed;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.12;
+}
+.glow-emerald {
+  top: -40px;
+  left: 20%;
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, #10b981 0%, transparent 70%);
+}
+.glow-cyan {
+  top: 500px;
+  right: 5%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
+}
+.glow-indigo {
+  top: 900px;
+  left: 10%;
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
+}
+
+/* Animated Flame Border Keyframes */
+@keyframes flame-pulse-glow {
+  0%,
+  100% {
+    box-shadow:
+      -3px 0 14px rgba(255, 69, 0, 0.75),
+      -6px 0 28px rgba(255, 140, 0, 0.5),
+      0 0 10px rgba(255, 215, 0, 0.4),
+      inset 1px 0 8px rgba(255, 100, 0, 0.35);
+  }
+  50% {
+    box-shadow:
+      -5px 0 24px rgba(255, 80, 0, 0.95),
+      -9px 0 40px rgba(255, 160, 0, 0.75),
+      0 0 16px rgba(255, 230, 0, 0.6),
+      inset 1px 0 12px rgba(255, 140, 0, 0.5);
+  }
+}
+
+@keyframes flame-border-sweep {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Docked Right Edge Tab Button with Animated Flame Border */
+.rd-edge-tab {
+  position: fixed !important;
+  right: 0 !important;
+  top: 96px !important;
+  z-index: 9999 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  height: 38px !important;
+  padding: 0 16px 0 14px !important;
+  background: linear-gradient(
+    135deg,
+    rgba(28, 14, 8, 0.94) 0%,
+    rgba(15, 23, 42, 0.96) 100%
+  ) !important;
+  color: #ffffff !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  border-radius: 9999px 0 0 9999px !important;
+  border: 1.5px solid transparent !important;
+  border-right: none !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  animation: flame-pulse-glow 2.2s infinite ease-in-out !important;
+  transition:
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.25s ease !important;
+}
+
+/* Animated multi-stop flame border gradient */
+.rd-edge-tab::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: -2px 0 -2px -2px !important;
+  border-radius: 9999px 0 0 9999px !important;
+  padding: 2px 0 2px 2px !important;
+  background: linear-gradient(
+    90deg,
+    #ff1a00,
+    #ff6600,
+    #ffcc00,
+    #ff3300,
+    #ff1a00
+  ) !important;
+  background-size: 250% 100% !important;
+  animation: flame-border-sweep 2.5s linear infinite !important;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0) !important;
+  -webkit-mask-composite: xor !important;
+  mask-composite: exclude !important;
+  pointer-events: none !important;
+}
+
+.rd-edge-tab svg {
+  color: #ff9900 !important;
+  filter: drop-shadow(0 0 5px rgba(255, 120, 0, 0.85)) !important;
+  transition: transform 0.25s ease !important;
+}
+
+.rd-edge-tab:hover {
+  transform: translateX(-4px) scale(1.04) !important;
+  box-shadow:
+    -5px 0 26px rgba(255, 90, 0, 1),
+    -10px 0 44px rgba(255, 170, 0, 0.85),
+    inset 0 0 14px rgba(255, 140, 0, 0.6) !important;
+}
+
+.rd-edge-tab:hover svg {
+  transform: rotate(45deg);
+}
+
+/* Overlapping Drawer Layer - Native Modal Dialog with Frosted Glass */
+dialog.sidebar-dialog {
+  position: fixed !important;
+  inset: 0 0 0 auto !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 410px !important;
+  max-width: calc(100vw - 20px) !important;
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  border: none !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.14) !important;
+  background: rgba(8, 13, 26, 0.72) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  box-shadow:
+    -12px 0 40px rgba(0, 0, 0, 0.55),
+    inset 1px 0 0 rgba(255, 255, 255, 0.08) !important;
+  color: #f1f5f9 !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', sans-serif !important;
+  outline: none !important;
+  z-index: 100000 !important;
+  overflow: hidden !important;
+  transform: translateX(100%);
+  transition:
+    transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    display 0.28s ease allow-discrete,
+    overlay 0.28s ease allow-discrete;
+}
+
+dialog.sidebar-dialog[open] {
+  transform: translateX(0);
+}
+
+@starting-style {
+  dialog.sidebar-dialog[open] {
+    transform: translateX(100%);
+  }
+}
+
+/* Modal Backdrop - Minimal fade, NO blur so Main RapiDoc remains visible */
+dialog.sidebar-dialog::backdrop {
+  background: rgba(3, 7, 18, 0.1) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  opacity: 0;
+  transition:
+    opacity 0.25s ease,
+    display 0.25s ease allow-discrete,
+    overlay 0.25s ease allow-discrete;
+}
+
+dialog.sidebar-dialog[open]::backdrop {
+  opacity: 1;
+}
+
+@starting-style {
+  dialog.sidebar-dialog[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+/* Inner Drawer Structure */
+.sidebar-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Section Header */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.35);
+  flex-shrink: 0;
+}
+
+.section-title-wrap {
+  display: flex;
+  align-items: center;
+}
+
+.title-with-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title {
+  font-size: 15.5px;
+  font-weight: 700;
+  color: #f8fafc;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.badge-live {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+}
+
+.section-subtitle {
+  font-size: 11.5px;
+  color: #64748b;
+  margin-top: 2px;
+  margin-bottom: 0;
+}
+
+.section-header-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+/* Reset and Close buttons with identical 32px height */
+.rd-action-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  height: 32px !important;
+  box-sizing: border-box !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #cbd5e1 !important;
+  padding: 0 12px !important;
+  border-radius: 7px !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  font-family: inherit !important;
+  line-height: 1 !important;
+}
+
+.rd-action-btn:hover {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.28) !important;
+}
+
+.rd-action-btn.reset-btn:hover {
+  color: #34d399 !important;
+  border-color: rgba(16, 185, 129, 0.5) !important;
+  background: rgba(16, 185, 129, 0.14) !important;
+}
+
+.rd-action-btn.close-btn {
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  font-size: 14px !important;
+}
+
+.rd-action-btn.close-btn:hover {
+  color: #f87171 !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
+  background: rgba(239, 68, 68, 0.15) !important;
+}
+
+/* Section Body with Sleek Scrollbar */
+.section-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px 28px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+.section-body::-webkit-scrollbar {
+  width: 6px;
+}
+.section-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.section-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+}
+.section-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.4);
+}
+
+/* Modern Option Cards */
+.settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rd-option-card {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.2s ease;
+}
+.rd-option-card:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.rd-option-card--boolean {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.rd-option-card--multi {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rd-option-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.rd-option-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e2e8f0;
+  letter-spacing: -0.01em;
+}
+
+.rd-option-tip {
+  font-size: 11.5px;
+  color: #64748b;
+  margin-top: 2px;
+  line-height: 1.35;
+}
+
+/* Modern iOS-Style Toggle Switch */
+.rd-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.rd-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+.rd-slider {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 9999px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.rd-slider::before {
+  position: absolute;
+  content: '';
+  height: 18px;
+  width: 18px;
+  left: 2px;
+  bottom: 2px;
+  background-color: #f1f5f9;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  transition:
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.2s ease;
+}
+.rd-switch input:checked + .rd-slider {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-color: rgba(16, 185, 129, 0.6);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+}
+.rd-switch input:checked + .rd-slider::before {
+  transform: translateX(20px);
+  background-color: #ffffff;
+}
+.rd-switch:hover .rd-slider {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Segmented Pill Chips for Multi-choice */
+.rd-chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.rd-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 11px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+.rd-chip input[type='radio'] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+}
+.rd-chip .chip-text {
+  font-size: 12px;
+  font-weight: 500;
+  color: #94a3b8;
+  transition: color 0.2s ease;
+}
+.rd-chip:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+.rd-chip:hover .chip-text {
+  color: #f1f5f9;
+}
+.rd-chip.active {
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(16, 185, 129, 0.55);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+}
+.rd-chip.active .chip-text {
+  color: #34d399;
+  font-weight: 600;
+}
+
+/* Color Swatches Grid */
+.rd-color-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 2px 0;
+}
+
+.rd-color-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.rd-color-chip input[type='radio'] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.rd-color-chip .color-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.rd-color-chip:hover {
+  transform: scale(1.15);
+}
+.rd-color-chip.active {
+  transform: scale(1.18);
+}
+.rd-color-chip.active .color-swatch {
+  box-shadow:
+    0 0 0 2px #080d1a,
+    0 0 0 4px #10b981,
+    0 0 10px rgba(16, 185, 129, 0.5);
+}
