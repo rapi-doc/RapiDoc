@@ -125,13 +125,13 @@ export function getTypeInfo(schema) {
     dataType = `{recursive: ${schemaNode}} `;
   } else if (schema.type) {
     dataType = Array.isArray(schema.type) ? schema.type.join('┃') : schema.type;
-    if (schema.format || schema.enum || schema.const) {
-      dataType = dataType.replace('string', schema.enum ? 'enum' : schema.const ? 'const' : schema.format);
+    if (schema.format || schema.enum || schema.const !== undefined) {
+      dataType = dataType.replace('string', schema.enum ? 'enum' : schema.const !== undefined ? 'const' : schema.format);
     }
     if (schema.nullable) {
       dataType += '┃null';
     }
-  } else if (schema.const) {
+  } else if (schema.const !== undefined) {
     dataType = 'const';
   } else if (Object.keys(schema).length === 0) {
     dataType = 'any';
@@ -160,7 +160,12 @@ export function getTypeInfo(schema) {
     info.description = info.description || '';
   }
   // Set Allowed Values
-  info.allowedValues = schema.const ? schema.const : Array.isArray(schema.enum) ? schema.enum.map((v) => getPrintableVal(v)).join('┃') : '';
+  info.allowedValues =
+    schema.const !== undefined
+      ? getPrintableVal(schema.const)
+      : Array.isArray(schema.enum)
+        ? schema.enum.map((v) => getPrintableVal(v)).join('┃')
+        : '';
 
   if (dataType === 'array' && schema.items) {
     const arrayItemType = schema.items?.type;
@@ -168,11 +173,12 @@ export function getTypeInfo(schema) {
 
     info.arrayType = `${schema.type} of ${Array.isArray(arrayItemType) ? arrayItemType.join('') : arrayItemType}`;
     info.default = arrayItemDefault;
-    info.allowedValues = schema.items.const
-      ? schema.const
-      : Array.isArray(schema.items?.enum)
-        ? schema.items.enum.map((v) => getPrintableVal(v)).join('┃')
-        : '';
+    info.allowedValues =
+      schema.items.const !== undefined
+        ? getPrintableVal(schema.items.const)
+        : Array.isArray(schema.items?.enum)
+          ? schema.items.enum.map((v) => getPrintableVal(v)).join('┃')
+          : '';
   }
   if (dataType.match(/integer|number/g)) {
     if (schema.minimum !== undefined || schema.exclusiveMinimum !== undefined) {

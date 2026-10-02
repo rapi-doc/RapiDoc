@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { generateExample } from '../../packages/rapidoc/src/utils/schema-utils.js';
+import { generateExample, getTypeInfo } from '../../packages/rapidoc/src/utils/schema-utils.js';
 
 describe('generateExample', () => {
   it('should use single "example" when "examples" is undefined', () => {
@@ -249,6 +249,59 @@ describe('generateExample', () => {
     assert.strictEqual(ex1[0].exampleValue.id, '3fa85f64-5717-4562-b3fc-2c963f66afa6');
     assert.strictEqual(ex2[0].exampleValue.id, '3fa85f64-5717-4562-b3fc-2c963f66afa6');
     assert.strictEqual(ex1[0].exampleValue.id, ex2[0].exampleValue.id);
+  });
+});
+
+describe('getTypeInfo', () => {
+  it('should format non-string const values as strings in allowedValues', () => {
+    const numSchema = { type: 'number', const: 1 };
+    const info = getTypeInfo(numSchema);
+    assert.strictEqual(info.allowedValues, '1');
+    assert.strictEqual(typeof info.allowedValues, 'string');
+    // Ensure .split('┃') works without throwing TypeError
+    assert.deepStrictEqual(info.allowedValues.split('┃'), ['1']);
+  });
+
+  it('should preserve falsy const values (0, false, empty string)', () => {
+    const zeroSchema = { type: 'integer', const: 0 };
+    const zeroInfo = getTypeInfo(zeroSchema);
+    assert.strictEqual(zeroInfo.allowedValues, '0');
+
+    const falseSchema = { type: 'boolean', const: false };
+    const falseInfo = getTypeInfo(falseSchema);
+    assert.strictEqual(falseInfo.allowedValues, 'false');
+
+    const emptyStrSchema = { type: 'string', const: '' };
+    const emptyStrInfo = getTypeInfo(emptyStrSchema);
+    assert.strictEqual(emptyStrInfo.allowedValues, '∅');
+  });
+
+  it('should identify dataType as const when schema has const without explicit type', () => {
+    const constSchema = { const: 1 };
+    const info = getTypeInfo(constSchema);
+    assert.strictEqual(info.type, 'const');
+    assert.strictEqual(info.allowedValues, '1');
+
+    const zeroSchema = { const: 0 };
+    const zeroInfo = getTypeInfo(zeroSchema);
+    assert.strictEqual(zeroInfo.type, 'const');
+    assert.strictEqual(zeroInfo.allowedValues, '0');
+  });
+
+  it('should correctly format const in array items', () => {
+    const arraySchema = {
+      type: 'array',
+      items: { type: 'number', const: 42 },
+    };
+    const info = getTypeInfo(arraySchema);
+    assert.strictEqual(info.allowedValues, '42');
+
+    const zeroArraySchema = {
+      type: 'array',
+      items: { type: 'integer', const: 0 },
+    };
+    const zeroInfo = getTypeInfo(zeroArraySchema);
+    assert.strictEqual(zeroInfo.allowedValues, '0');
   });
 });
 
