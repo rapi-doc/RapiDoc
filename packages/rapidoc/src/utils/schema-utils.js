@@ -133,21 +133,45 @@ export function getTypeInfo(schema) {
     }
   } else if (schema.const !== undefined) {
     dataType = 'const';
+  } else if (schema.anyOf || schema.oneOf) {
+    const subSchemas = (schema.anyOf || schema.oneOf).filter(Boolean);
+    const subTypes = [];
+    subSchemas.forEach((s) => {
+      const sInfo = getTypeInfo(s);
+      if (sInfo?.type && sInfo.type !== '{missing-type-info}') {
+        sInfo.type.split('┃').forEach((t) => {
+          const trimmed = t.trim();
+          if (trimmed && !subTypes.includes(trimmed)) {
+            subTypes.push(trimmed);
+          }
+        });
+      }
+    });
+    dataType = subTypes.length > 0 ? subTypes.join('┃') : '{missing-type-info}';
   } else if (Object.keys(schema).length === 0) {
     dataType = 'any';
   } else {
     dataType = '{missing-type-info}';
   }
 
+  const effectiveSchema =
+    schema.anyOf || schema.oneOf
+      ? {
+          ...((schema.anyOf || schema.oneOf).find((s) => s && s.type && s.type !== 'null') || (schema.anyOf || schema.oneOf)[0] || {}),
+          ...schema,
+        }
+      : schema;
+
   const info = {
     type: dataType,
-    format: schema.format || '',
-    pattern: schema.pattern && !schema.enum ? schema.pattern : '',
-    readOrWriteOnly: schema.readOnly ? '🆁' : schema.writeOnly ? '🆆' : '',
-    deprecated: schema.deprecated ? '❌' : '',
-    examples: schema.examples || schema.example,
-    default: getPrintableVal(schema.default),
-    description: schema.description || '',
+    format: schema.format || effectiveSchema.format || '',
+    pattern:
+      (schema.pattern || effectiveSchema.pattern) && !schema.enum && !effectiveSchema.enum ? schema.pattern || effectiveSchema.pattern : '',
+    readOrWriteOnly: schema.readOnly ? '🆁' : schema.writeOnly ? '🆆' : effectiveSchema.readOnly ? '🆁' : effectiveSchema.writeOnly ? '🆆' : '',
+    deprecated: schema.deprecated || effectiveSchema.deprecated ? '❌' : '',
+    examples: schema.examples || schema.example || effectiveSchema.examples || effectiveSchema.example,
+    default: getPrintableVal(schema.default !== undefined ? schema.default : effectiveSchema.default),
+    description: schema.description || effectiveSchema.description || '',
     constrain: '',
     allowedValues: '',
     arrayType: '',
@@ -165,42 +189,69 @@ export function getTypeInfo(schema) {
       ? getPrintableVal(schema.const)
       : Array.isArray(schema.enum)
         ? schema.enum.map((v) => getPrintableVal(v)).join('┃')
-        : '';
+        : effectiveSchema.const !== undefined
+          ? getPrintableVal(effectiveSchema.const)
+          : Array.isArray(effectiveSchema.enum)
+            ? effectiveSchema.enum.map((v) => getPrintableVal(v)).join('┃')
+            : '';
 
-  if (dataType === 'array' && schema.items) {
-    const arrayItemType = schema.items?.type;
-    const arrayItemDefault = getPrintableVal(schema.items.default);
+  if (!info.allowedValues && (schema.anyOf || schema.oneOf)) {
+    const subValues = [];
+    (schema.anyOf || schema.oneOf).forEach((s) => {
+      const sVal =
+        s.const !== undefined ? getPrintableVal(s.const) : Array.isArray(s.enum) ? s.enum.map((v) => getPrintableVal(v)).join('┃') : '';
+      if (sVal && !subValues.includes(sVal)) {
+        subValues.push(sVal);
+      }
+    });
+    if (subValues.length > 0) {
+      info.allowedValues = subValues.join('┃');
+    }
+  }
 
-    info.arrayType = `${schema.type} of ${Array.isArray(arrayItemType) ? arrayItemType.join('') : arrayItemType}`;
-    info.default = arrayItemDefault;
-    info.allowedValues =
-      schema.items.const !== undefined
-        ? getPrintableVal(schema.items.const)
-        : Array.isArray(schema.items?.enum)
-          ? schema.items.enum.map((v) => getPrintableVal(v)).join('┃')
-          : '';
+  const itemsSchema = schema.items || effectiveSchema.items;
+  if ((dataType === 'array' || dataType.split('┃').includes('array')) && itemsSchema) {
+    const arrayItemType = itemsSchema?.type;
+    const arrayItemDefault = getPrintableVal(itemsSchema.default);
+
+    info.arrayType = `${schema.type || 'array'} of ${Array.isArray(arrayItemType) ? arrayItemType.join('') : arrayItemType || ''}`;
+    if (!info.default) {
+      info.default = arrayItemDefault;
+    }
+    if (!info.allowedValues) {
+      info.allowedValues =
+        itemsSchema.const !== undefined
+          ? getPrintableVal(itemsSchema.const)
+          : Array.isArray(itemsSchema?.enum)
+            ? itemsSchema.enum.map((v) => getPrintableVal(v)).join('┃')
+            : '';
+    }
   }
   if (dataType.match(/integer|number/g)) {
-    if (schema.minimum !== undefined || schema.exclusiveMinimum !== undefined) {
-      constrain += schema.minimum !== undefined ? `Min ${schema.minimum}` : `More than ${schema.exclusiveMinimum}`;
+    const minVal = schema.minimum !== undefined ? schema.minimum : effectiveSchema.minimum;
+    const excMinVal = schema.exclusiveMinimum !== undefined ? schema.exclusiveMinimum : effectiveSchema.exclusiveMinimum;
+    if (minVal !== undefined || excMinVal !== undefined) {
+      constrain += minVal !== undefined ? `Min ${minVal}` : `More than ${excMinVal}`;
     }
-    if (schema.maximum !== undefined || schema.exclusiveMaximum !== undefined) {
-      constrain +=
-        schema.maximum !== undefined
-          ? `${constrain ? '┃' : ''}Max ${schema.maximum}`
-          : `${constrain ? '┃' : ''}Less than ${schema.exclusiveMaximum}`;
+    const maxVal = schema.maximum !== undefined ? schema.maximum : effectiveSchema.maximum;
+    const excMaxVal = schema.exclusiveMaximum !== undefined ? schema.exclusiveMaximum : effectiveSchema.exclusiveMaximum;
+    if (maxVal !== undefined || excMaxVal !== undefined) {
+      constrain += maxVal !== undefined ? `${constrain ? '┃' : ''}Max ${maxVal}` : `${constrain ? '┃' : ''}Less than ${excMaxVal}`;
     }
-    if (schema.multipleOf !== undefined) {
-      constrain += `${constrain ? '┃' : ''} multiple of ${schema.multipleOf}`;
+    const multVal = schema.multipleOf !== undefined ? schema.multipleOf : effectiveSchema.multipleOf;
+    if (multVal !== undefined) {
+      constrain += `${constrain ? '┃' : ''} multiple of ${multVal}`;
     }
   }
   if (dataType.match(/string/g)) {
-    if (schema.minLength !== undefined && schema.maxLength !== undefined) {
-      constrain += `${constrain ? '┃' : ''}${schema.minLength} to ${schema.maxLength} chars`;
-    } else if (schema.minLength !== undefined) {
-      constrain += `${constrain ? '┃' : ''}Min ${schema.minLength} chars`;
-    } else if (schema.maxLength !== undefined) {
-      constrain += `Max ${constrain ? '┃' : ''}${schema.maxLength} chars`;
+    const minLen = schema.minLength !== undefined ? schema.minLength : effectiveSchema.minLength;
+    const maxLen = schema.maxLength !== undefined ? schema.maxLength : effectiveSchema.maxLength;
+    if (minLen !== undefined && maxLen !== undefined) {
+      constrain += `${constrain ? '┃' : ''}${minLen} to ${maxLen} chars`;
+    } else if (minLen !== undefined) {
+      constrain += `${constrain ? '┃' : ''}Min ${minLen} chars`;
+    } else if (maxLen !== undefined) {
+      constrain += `Max ${constrain ? '┃' : ''}${maxLen} chars`;
     }
   }
   info.constrain = constrain;

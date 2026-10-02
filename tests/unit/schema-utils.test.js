@@ -303,5 +303,68 @@ describe('getTypeInfo', () => {
     const zeroInfo = getTypeInfo(zeroArraySchema);
     assert.strictEqual(zeroInfo.allowedValues, '0');
   });
+
+  it('should resolve anyOf with nullable primitive as string┃null', () => {
+    const schema = {
+      anyOf: [{ type: 'string' }, { type: 'null' }],
+      description: 'The information package identifier.',
+      title: 'Informationpackageidentifier',
+    };
+    const info = getTypeInfo(schema);
+    assert.strictEqual(info.type, 'string┃null');
+    assert.strictEqual(info.description, 'The information package identifier.');
+  });
+
+  it('should resolve anyOf with format (e.g. uuid┃null)', () => {
+    const schema = {
+      anyOf: [{ type: 'string', format: 'uuid' }, { type: 'null' }],
+      description: 'User identifier',
+    };
+    const info = getTypeInfo(schema);
+    assert.strictEqual(info.type, 'uuid┃null');
+    assert.strictEqual(info.format, 'uuid');
+    assert.strictEqual(info.description, 'User identifier');
+  });
+
+  it('should resolve oneOf with multiple primitives (e.g. integer┃string)', () => {
+    const schema = {
+      oneOf: [{ type: 'integer' }, { type: 'string' }],
+    };
+    const info = getTypeInfo(schema);
+    assert.strictEqual(info.type, 'integer┃string');
+  });
+
+  it('should inherit constraints from non-null subschema in anyOf', () => {
+    const schema = {
+      anyOf: [
+        {
+          type: 'string',
+          minLength: 5,
+          maxLength: 20,
+          pattern: '^[a-z]+$',
+        },
+        { type: 'null' },
+      ],
+    };
+    const info = getTypeInfo(schema);
+    assert.strictEqual(info.type, 'string┃null');
+    assert.strictEqual(info.pattern, '^[a-z]+$');
+    assert.strictEqual(info.constrain, '5 to 20 chars');
+  });
+
+  it('should inherit allowedValues from enum in anyOf', () => {
+    const schema = {
+      anyOf: [
+        {
+          type: 'string',
+          enum: ['pending', 'completed'],
+        },
+        { type: 'null' },
+      ],
+    };
+    const info = getTypeInfo(schema);
+    assert.strictEqual(info.type, 'enum┃null');
+    assert.strictEqual(info.allowedValues, 'pending┃completed');
+  });
 });
 

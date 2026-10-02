@@ -413,7 +413,7 @@ export default class ApiRequest extends LitElement {
           standardizeExample(paramSchema.example),
         paramSchema.type
       );
-      if (!example.exampleVal && paramSchema.type === 'object') {
+      if (!example.exampleVal && (paramSchema.type === 'object' || paramSchema.type.split('┃').includes('object'))) {
         example.exampleVal =
           generateExample(
             declaredParamSchema,
@@ -442,7 +442,11 @@ export default class ApiRequest extends LitElement {
               ${param.required ? html`<span style="color:var(--red)">*</span>` : ''} ${param.name}
             </div>
             <div class="param-type">
-              ${paramSchema.type === 'array' ? `${paramSchema.arrayType}` : `${paramSchema.format ? paramSchema.format : paramSchema.type}`}
+              ${
+                paramSchema.type === 'array' || paramSchema.type.split('┃').includes('array')
+                  ? `${paramSchema.arrayType || paramSchema.type}`
+                  : `${paramSchema.format && !paramSchema.type.includes('┃') ? paramSchema.format : paramSchema.type}`
+              }
             </div>
           </td>
           ${
@@ -452,7 +456,8 @@ export default class ApiRequest extends LitElement {
                   colspan="${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern ? '1' : '2'}"
                 >
                   ${
-                    paramSchema.type === 'array'
+                    paramSchema.type === 'array' ||
+                    (paramSchema.type.split('┃').includes('array') && !paramSchema.type.split('┃').includes('object'))
                       ? html`<tag-input
                           class="request-param"
                           id="tag-input-request-param-${param.name}"
@@ -479,7 +484,7 @@ export default class ApiRequest extends LitElement {
                           }"
                         >
                         </tag-input>`
-                      : paramSchema.type === 'object'
+                      : paramSchema.type === 'object' || paramSchema.type.split('┃').includes('object')
                         ? html`<div part="tab-panel" class="tab-panel col" style="border-width:0 0 1px 0;">
                             <div
                               part="tab-btn-row"
