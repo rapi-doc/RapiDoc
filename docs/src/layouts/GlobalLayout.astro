@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import { GTAG_ID } from '../utils/googleAnalytics';
+import GoogleAnalytics from '../components/GoogleAnalytics.astro';
 ---
 
 <!DOCTYPE html>
@@ -18,15 +18,7 @@ import { GTAG_ID } from '../utils/googleAnalytics';
     <script is:inline src="/assets/prismjs/prism.js"></script>
 
     <slot name="head" />
-    <!-- Google Analytics - START -->
-    <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${GTAG_ID}`}></script>
-    <script define:vars={{ gtagId: GTAG_ID }} is:inline>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', gtagId);
-    </script>
-     <!-- Google Analytics - END -->
+    <GoogleAnalytics />
     <slot name="script" />
     <title>RapiDoc Example</title>
   </head>

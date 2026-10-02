@@ -6,6 +6,7 @@ import fs from 'fs-extra';
 import { watch } from 'fs';
 import { globSync } from 'glob';
 import { build as viteBuild } from 'vite';
+import { GTAG_ID } from './src/utils/googleAnalytics.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -28,6 +29,24 @@ export default defineConfig({
     starlight({
       title: 'RapiDoc',
       disable404Route: true,
+      head: [
+        {
+          tag: 'script',
+          attrs: {
+            async: true,
+            src: `https://www.googletagmanager.com/gtag/js?id=${GTAG_ID}`,
+          },
+        },
+        {
+          tag: 'script',
+          content: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GTAG_ID}');
+          `,
+        },
+      ],
       logo: {
         src: './src/assets/logo.png',
       },
@@ -115,12 +134,23 @@ export default defineConfig({
             });
           }
 
-          // Copy rapidoc-min.js to docs output directory
+          // Copy rapidoc-min.js to docs output directory (dist)
           await fs.ensureDir(resolve(__dirname, 'dist/rapidoc'));
           await fs.copy(
             rapidocDistFile,
             resolve(__dirname, 'dist/rapidoc/rapidoc-min.js')
           );
+
+          // Automatically sync rapidoc-min.js to generated-docs as well
+          const genDocsDir = resolve(__dirname, 'generated-docs');
+          if (fs.existsSync(genDocsDir)) {
+            const genRapidocDir = resolve(genDocsDir, 'rapidoc');
+            await fs.ensureDir(genRapidocDir);
+            await fs.copy(
+              rapidocDistFile,
+              resolve(genRapidocDir, 'rapidoc-min.js')
+            );
+          }
         },
       },
       {

@@ -1,4 +1,6 @@
 ---
+import GoogleAnalytics from '../../components/GoogleAnalytics.astro';
+
 // Dedicated capture page to generate pixel-perfect, high-contrast dark and light screenshots
 const theme = Astro.url.searchParams.get('theme') || 'dark';
 const isDark = theme === 'dark';
@@ -9,6 +11,7 @@ const isDark = theme === 'dark';
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <GoogleAnalytics />
   <script type="module" src="/rapidoc/rapidoc-min.js"></script>
   <style>
     body {

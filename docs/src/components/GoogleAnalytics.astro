@@ -1,0 +1,19 @@
+---
+import { GTAG_ID } from '../utils/googleAnalytics';
+
+interface Props {
+  id?: string;
+}
+
+const { id = GTAG_ID } = Astro.props;
+---
+
+<!-- Google Analytics - START -->
+<script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${id}`}></script>
+<script define:vars={{ gtagId: id }} is:inline>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', gtagId);
+</script>
+<!-- Google Analytics - END -->

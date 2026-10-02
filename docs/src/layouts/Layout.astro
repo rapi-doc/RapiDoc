@@ -1,4 +1,6 @@
 ---
+import GoogleAnalytics from '../components/GoogleAnalytics.astro';
+
 const { title } = Astro.props;
 ---
 
@@ -8,6 +10,7 @@ const { title } = Astro.props;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{title}</title>
+    <GoogleAnalytics />
     <script is:inline type="module" src="/rapidoc/rapidoc-min.js"></script>
   </head>
   <body>
