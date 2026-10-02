@@ -1,6 +1,6 @@
 ---
 interface Props {
-  activePage?: 'home' | 'docs' | 'list' | 'examples' | 'api' | 'tests' | 'rapidoc-mini' | 'other';
+  activePage?: 'home' | 'docs' | 'showcase' | 'quickstart' | 'list' | 'examples' | 'api' | 'tests' | 'rapidoc-mini' | 'other';
 }
 
 const { activePage = 'other' } = Astro.props;
@@ -16,10 +16,10 @@ const { activePage = 'other' } = Astro.props;
 
     <nav class="rd-nav-links">
       <a href="/" class={`rd-nav-link ${activePage === 'home' ? 'active' : ''}`}>Home</a>
-      <a href="/examples" class={`rd-nav-link ${activePage === 'examples' ? 'active' : ''}`}>Quick Reference</a>
+      <a href="/quickstart" class={`rd-nav-link ${activePage === 'quickstart' || activePage === 'examples' ? 'active' : ''}`}>Quick Start</a>
       <a href="/api" class={`rd-nav-link ${activePage === 'api' ? 'active' : ''}`}>API</a>
       <a href="/rapidoc-mini" class={`rd-nav-link ${activePage === 'rapidoc-mini' ? 'active' : ''}`}>RapiDoc Mini</a>
-      <a href="/list" class={`rd-nav-link ${activePage === 'list' ? 'active' : ''}`}>Showcase</a>
+      <a href="/showcase" class={`rd-nav-link ${activePage === 'showcase' || activePage === 'list' ? 'active' : ''}`}>Showcase</a>
       <a href="/docs" class={`rd-nav-link ${activePage === 'docs' ? 'active' : ''}`}>Docs</a>
       <a href="/tests" class={`rd-nav-link ${activePage === 'tests' ? 'active' : ''}`}>Tests</a>
     </nav>

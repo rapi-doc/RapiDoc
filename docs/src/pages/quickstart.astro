@@ -258,10 +258,10 @@ export function ApiDocsPortal() {
   },
   {
     id: 'top-footer-slots',
-    title: 'Overview Banners & Custom Footers (mix-html)',
+    title: 'Overview Banners & Custom Footers (Slots)',
     category: 'Slots & Custom HTML',
     summary: 'Inject rich HTML content above the API specification overview and at the very bottom of the document using default and footer slots.',
-    demoUrl: '/mix-html',
+    demoUrl: '/examples/slots',
     code: `<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json">
   <!-- Default slot: Renders at the top, right before the API spec -->
   <div style="background: rgba(37, 99, 235, 0.08); border-left: 4px solid #3b82f6; padding: 16px; border-radius: 6px; margin: 16px 0;">
@@ -276,7 +276,7 @@ export function ApiDocsPortal() {
 </rapi-doc>`,
     lang: 'html',
     filename: 'slots-content.html',
-    tags: ['slot', 'footer', 'banner', 'overview', 'mix-html']
+    tags: ['slot', 'footer', 'banner', 'overview', 'html']
   },
 
   // ================= JAVASCRIPT & DOM INTERACTION =================
@@ -421,7 +421,7 @@ const categories = [
   <div class="ambient-glow glow-cyan"></div>
 
   <!-- Reusable Frosted Glass Navigation -->
-  <SiteNavbar activePage="examples" />
+  <SiteNavbar activePage="quickstart" />
 
   <main class="rd-ref-main">
     <!-- Hero Header -->
@@ -432,7 +432,7 @@ const categories = [
       </div>
 
       <h1 class="rd-page-title">
-        RapiDoc <span class="text-gradient">Quick Reference</span>
+        RapiDoc <span class="text-gradient">Quick Start</span>
       </h1>
 
       <p class="rd-page-subtitle">
@@ -588,7 +588,7 @@ const categories = [
           Explore over 50+ live demonstrations covering OpenAPI 3.1 features, OAuth2 workflows, custom schemas, and performance benchmarks in our gallery.
         </p>
         <div class="rd-callout-actions">
-          <a href="/list" class="rd-btn rd-btn-primary rd-btn-lg">
+          <a href="/showcase" class="rd-btn rd-btn-primary rd-btn-lg">
             <span>Browse Full Showcase Gallery</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <path d="M5 12h14m-7-7 7 7-7 7" />

@@ -25,9 +25,16 @@ export interface CssVariableCategory {
   items: CssVariableItem[];
 }
 
+export interface SlotItem {
+  name: string;
+  placement: string;
+  description: string;
+}
+
 export interface StylingData {
   parts: CssPartCategory[];
   variables: CssVariableCategory[];
+  slots: SlotItem[];
 }
 
 const stylingData = yaml.load(readDataYaml('styling-data.yaml')) as StylingData;

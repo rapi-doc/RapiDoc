@@ -11,18 +11,36 @@ RapiDoc provides built-in extension points through standard Web Component `<slot
 
 ## 1. Web Component Named Slots
 
-Because `<rapi-doc>` is a custom element, any child elements you place inside it can target specific internal slot locations using the standard HTML `slot="..."` attribute.
+Because `<rapi-doc>` is a custom element encapsulated in a Shadow DOM, external DOM elements cannot be arbitrarily injected into its tree. Standard Web Component `<slot>` elements expose designated insertion zones where you can target specific internal locations using the HTML `slot="..."` attribute.
 
 ```html
 <rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json">
 
-  <!-- 1. Named Slot: Custom Brand Logo in Sidebar -->
-  <div slot="nav-logo" style="display: flex; align-items: center; gap: 8px; padding: 12px 16px;">
-    <img src="/brand/logo.svg" alt="Company Logo" width="32" height="32" />
-    <span style="font-weight: 700; color: #38bdf8; font-size: 16px;">Acme Cloud API</span>
+  <!-- 1. Brand Logo in Header -->
+  <div slot="logo" style="display: flex; align-items: center; gap: 8px;">
+    <img src="/brand/logo.svg" alt="Company Logo" width="28" height="28" />
+    <span style="font-weight: 700; color: #38bdf8;">Acme API</span>
   </div>
 
-  <!-- 2. Named Slot: Auth Notice in Security Modal -->
+  <!-- 2. Header Utility Link -->
+  <div slot="header">
+    <a href="https://github.com/company/repo" target="_blank" style="color: #cbd5e1; text-decoration: none; font-size: 13px;">
+      GitHub Repo ↗
+    </a>
+  </div>
+
+  <!-- 3. Fixed Banner (Always visible, does not scroll out of view) -->
+  <div slot="fixed-header" style="background: #10b981; color: #042f2e; text-align: center; padding: 8px; font-weight: 600; font-size: 13px;">
+    🚀 Maintenance window scheduled for Sunday at 02:00 UTC.
+  </div>
+
+  <!-- 4. Default Slot: Announcement Banner at top of document canvas -->
+  <div style="background: linear-gradient(90deg, #1e293b, #0f172a); padding: 16px; border-radius: 8px; margin: 16px; border: 1px solid #334155;">
+    <h4 style="margin: 0; color: #f8fafc;">✨ Welcome to Acme Cloud API v2.4</h4>
+    <p style="margin: 4px 0 0; color: #94a3b8; font-size: 13px;">Review our updated authentication guides and deprecation timelines.</p>
+  </div>
+
+  <!-- 5. Auth Notice in Security Modal -->
   <div slot="auth" style="background: rgba(6, 182, 212, 0.1); border: 1px solid #06b6d4; padding: 12px; border-radius: 6px; margin-bottom: 16px;">
     <p style="margin: 0; font-size: 13px; color: #e2e8f0;">
       🔑 <strong>Need an API Key?</strong> Generate test tokens in the 
@@ -30,30 +48,67 @@ Because `<rapi-doc>` is a custom element, any child elements you place inside it
     </p>
   </div>
 
-  <!-- 3. Default Slot: Renders as a custom banner above the main content -->
-  <div style="background: linear-gradient(90deg, #1e293b, #0f172a); padding: 16px; border-radius: 8px; margin: 16px;">
-    <h3 style="margin: 0; color: #f8fafc;">✨ Welcome to Version 2.4</h3>
-    <p style="margin: 4px 0 0; color: #94a3b8; font-size: 14px;">Review our changelog for breaking migration notes.</p>
+  <!-- 6. Overview Section Slot -->
+  <div slot="overview" style="margin-top: 12px; padding: 12px; background: rgba(56, 189, 248, 0.08); border-left: 3px solid #38bdf8; border-radius: 4px;">
+    <p style="margin: 0; font-size: 13px; color: #cbd5e1;">
+      Need assistance integrating our APIs? Join our <a href="https://discord.gg" target="_blank" style="color: #38bdf8;">Developer Discord</a>.
+    </p>
   </div>
+
+  <!-- 7. Corporate Footer -->
+  <footer slot="footer" style="text-align: center; padding: 24px; color: #64748b; font-size: 12px; border-top: 1px solid #1e293b;">
+    © 2026 Acme Corp. All rights reserved. • <a href="/terms" style="color: #94a3b8;">Terms of Service</a> • <a href="/privacy" style="color: #94a3b8;">Privacy Policy</a>
+  </footer>
 
 </rapi-doc>
 ```
 
-### Available Slot Names
+### Complete Slots Reference
 
-| Slot Name | Placement | Typical Use Case |
+The table below outlines all available slot locations defined in RapiDoc's layout architecture:
+
+| Slot Name | Physical Placement | Description & Common Use Cases |
 | :--- | :--- | :--- |
-| *(default)* | Top of the main content canvas (below header) | Announcements, release banners, deprecation warnings. |
-| `nav-logo` | Top-left corner of the sidebar navigation | Custom corporate branding logo and wordmark. |
-| `auth` | Top of the interactive Authentication / Security dialog | Instructions on obtaining API keys or internal approvals. |
-| `header` | Inside the top utility bar | Custom buttons or external navigation links. |
-| `footer` | Bottom of the documentation canvas | Legal notices, copyright, privacy policy links. |
+| `(default)` | Below header, above Overview section | Un-slotted child elements placed directly inside `<rapi-doc>`. Renders at the top of the main canvas. Ideal for system status alerts, migration warnings, or welcome banners. |
+| `fixed-header` | Fixed at the very top of document viewport | Contents that remain permanently pinned at the top and do not scroll out of view. |
+| `logo` | Top utility header (left) | Replaces the default RapiDoc brand logo with your custom company logo image, SVG, or interactive home link. |
+| `header` | Top utility header (right) | Renders custom HTML or buttons after the spec URL input bar. Ideal for GitHub links, external documentation, or environment selectors. |
+| `footer` | Bottom of document canvas | Appends custom markup at the very end of the documentation. Ideal for corporate copyright notices, terms of service, and support contacts. |
+| `nav-logo` | Top of sidebar navigation | Custom branding image or wordmark placed at the top of the sticky sidebar (available in `read` render-style). |
+| `auth` | Inside Authentication / Security modal | Displays custom guidance, API key generation instructions, or company SSO login buttons inside the auth dialog. |
+| `overview` | Inside Overview summary panel | Custom HTML injected inside the API overview card directly underneath the document title and description. |
+| `servers` | Inside Server configuration card | Custom HTML injected inside the server selector panel. Ideal for environment advisories or uptime links. |
+| `operations-top` | Directly above operations list | Global notices, common request headers, or standard query parameter rules applicable across all API calls. |
+| `tag--{tag-name}` | Underneath specific tag section | Custom HTML injected below a tag group header. Format as `tag--{name}` (e.g. `slot="tag--Pet"`). |
+| `{method}-{path}` | Inside specific operation card | Custom HTML injected into a single endpoint section. Format as `{method}-{path}` with hyphens (e.g. `slot="get-/pet/-petId-"`). |
+
+<Aside type="tip" title="Interactive Blueprint">
+You can explore an interactive blueprint of all slot insertion zones on the [Advanced Styling Page](/styling#slots) or test live slot behaviors in the [Interactive Slots Demo](/examples/slots).
+</Aside>
+
+### Dynamic Tag & Endpoint Slots
+
+In addition to structural container slots, RapiDoc automatically provisions dynamic slot names for every tag group and operation card based on its schema element ID:
+
+- **Tag Groups**: Target a specific tag heading using `slot="tag--{tag-name}"`. For example, to inject documentation specifically underneath the `Pet` tag group:
+  ```html
+  <div slot="tag--Pet" style="padding: 10px 16px; background: rgba(16, 185, 129, 0.1); border-radius: 6px;">
+    <strong>Pet Operations Guidance:</strong> All pet IDs must conform to UUID v4 formats.
+  </div>
+  ```
+
+- **Individual Operations**: Target an individual operation card using `slot="{method}-{path}"` where path parameters and slashes are preserved:
+  ```html
+  <div slot="get-/pet/-petId-" style="padding: 8px 12px; background: rgba(56, 189, 248, 0.1); border-radius: 6px;">
+    💡 <em>Tip:</em> Responses for this endpoint are cached at our edge nodes for 60 seconds.
+  </div>
+  ```
 
 ---
 
 ## 2. Embedding HTML in OpenAPI Markdown
 
-RapiDoc's markdown engine permits standard HTML formatting inside OpenAPI description fields. You can use this to enrich documentation with interactive elements:
+RapiDoc's markdown engine parses standard HTML5 markup embedded directly within OpenAPI description fields (`info.description`, tag descriptions, operation descriptions, parameter schemas). This enables API authors to enrich specifications with interactive badges, collapsible accordions, warning callouts, and embedded media:
 
 ```yaml
 openapi: 3.0.0
@@ -71,6 +126,13 @@ info:
         📦 Download Official SDKs
       </a>
     </div>
+
+    <details style="margin: 16px 0; padding: 12px; background: #0f172a; border-radius: 6px; border: 1px solid #334155;">
+      <summary style="cursor: pointer; font-weight: 600; color: #38bdf8;">Rate Limiting & Tier Quotas</summary>
+      <p style="margin: 8px 0 0; font-size: 13px; color: #cbd5e1;">
+        Production environments permit up to 10,000 requests per minute per API token. Sandbox environments are throttled to 100 requests per minute.
+      </p>
+    </details>
 
     Use this API to process credit card payments, authorize refunds, and manage subscriptions.
 ```

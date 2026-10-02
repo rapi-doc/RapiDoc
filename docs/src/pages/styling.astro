@@ -76,6 +76,119 @@ const buttonRecipeCode = `<style>
   primary-color="#df75c4"
   bg-color="#fae4f5"
 ></rapi-doc>`;
+
+const attributeRecipeCode = `<rapi-doc
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
+  theme="dark"
+  bg-color="#0b1121"
+  text-color="#94a3b8"
+  primary-color="#10b981"
+  header-color="#060913"
+  nav-bg-color="#0f172a"
+  nav-text-color="#cbd5e1"
+  nav-hover-bg-color="#1e293b"
+  nav-hover-text-color="#ffffff"
+  nav-accent-color="#10b981"
+  regular-font="Inter, -apple-system, sans-serif"
+  mono-font="Roboto Mono, monospace"
+  font-size="default"
+  render-style="focused"
+  schema-style="table"
+  schema-expand-level="1"
+  show-header="true"
+  allow-try="true"
+></rapi-doc>`;
+
+const slotsRecipeCode = `<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json">
+  <!-- 1. Default (unnamed) Slot: Announcement banner at top of document -->
+  <div style="background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(6,182,212,0.12)); border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 14px 20px; margin: 16px 24px; display: flex; align-items: center; justify-content: space-between;">
+    <div>
+      <strong style="color: #34d399; font-size: 14.5px;">🚀 API v2.4 Live in Production</strong>
+      <p style="margin: 4px 0 0 0; color: #94a3b8; font-size: 13px;">Review our changelog for non-breaking deprecation updates.</p>
+    </div>
+    <a href="https://status.example.com" target="_blank" style="background: #10b981; color: #fff; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-size: 12.5px; font-weight: 600;">Status Page ↗</a>
+  </div>
+
+  <!-- 2. Logo Slot: Custom brand logo in top utility header -->
+  <div slot="logo" style="display: flex; align-items: center; gap: 8px; margin-left: 12px;">
+    <img src="/assets/images/logo.png" width="30" height="30" alt="Logo" />
+    <span style="font-size: 18px; font-weight: 700; color: #fff;">Acme API</span>
+  </div>
+
+  <!-- 3. Header Slot: Custom action buttons in top utility header -->
+  <div slot="header" style="display: flex; gap: 10px; margin-right: 16px;">
+    <a href="https://github.com/org/repo" target="_blank" style="color: #94a3b8; text-decoration: none; font-size: 13px; padding: 6px 12px; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px;">GitHub SDK</a>
+    <a href="/console" style="color: #10b981; text-decoration: none; font-size: 13px; font-weight: 600; padding: 6px 12px; background: rgba(16,185,129,0.15); border-radius: 6px;">Developer Portal</a>
+  </div>
+
+  <!-- 4. Auth Slot: Guidance notice in authentication modal -->
+  <div slot="auth" style="background: rgba(56, 189, 248, 0.08); border-left: 3px solid #38bdf8; padding: 12px 16px; border-radius: 4px; margin-bottom: 16px;">
+    <p style="margin: 0; font-size: 13px; color: #e2e8f0;">
+      🔑 <strong>Need an API Key?</strong> Sign up at <a href="https://dashboard.example.com" target="_blank" style="color: #38bdf8;">dashboard.example.com</a> to retrieve your Bearer token.
+    </p>
+  </div>
+
+  <!-- 5. Footer Slot: Legal notices and support contacts -->
+  <div slot="footer" style="text-align: center; padding: 32px 0; color: #64748b; font-size: 13px; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 48px;">
+    Acme Cloud Platform © 2026 • <a href="/terms" style="color: #94a3b8;">Terms</a> • <a href="/privacy" style="color: #94a3b8;">Privacy</a> • Contact <a href="mailto:api@example.com" style="color: #10b981;">api@example.com</a>
+  </div>
+</rapi-doc>`;
+
+const markdownRecipeYaml = `openapi: 3.0.3
+info:
+  title: Payments & Billing Gateway API
+  version: 2.1.0
+  description: |
+    ### Welcome to the Payments Gateway
+    
+    <!-- 1. Custom Action Badges & External Link Buttons -->
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin: 16px 0;">
+      <a href="https://status.example.com" style="background: #10b981; color: #fff; padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+        <span>🟢 Systems Operational (99.99%)</span>
+      </a>
+      <a href="https://github.com/my-org/sdks" style="background: rgba(255,255,255,0.08); color: #38bdf8; padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 12px; font-weight: 600;">
+        <span>📦 Download Official SDKs</span>
+      </a>
+    </div>
+
+    <!-- 2. Rich Alert / Notice Callout Box -->
+    <div style="background: rgba(234, 179, 8, 0.1); border-left: 4px solid #eab308; padding: 14px 18px; border-radius: 6px; margin: 16px 0;">
+      <strong style="color: #fde047;">⚠️ Deprecation Notice:</strong>
+      <span style="color: #e2e8f0; font-size: 13.5px; margin-left: 6px;">
+        The <code>/v1/charge</code> endpoint will be sunset on December 31, 2026. Please migrate to <code>/v2/payments</code>.
+      </span>
+    </div>
+
+    <!-- 3. Native HTML Collapsible Accordion -->
+    <details style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px 16px; margin: 16px 0;">
+      <summary style="cursor: pointer; font-weight: 600; color: #38bdf8;">
+        Click to view Rate Limits & Webhook Retry Architecture
+      </summary>
+      <div style="margin-top: 12px; font-size: 13px; color: #94a3b8; line-height: 1.6;">
+        Standard tier tokens permit up to <strong>500 requests per second</strong>. When rate limits are exceeded, RapiDoc console and API responses will return HTTP status <code>429 Too Many Requests</code> with a <code>Retry-After</code> response header.
+      </div>
+    </details>`;
+
+const stylingAttributes = [
+  { name: 'theme', type: 'string', default: 'dark', allowed: 'light | dark', desc: 'Base color scheme and background theme of the documentation portal.' },
+  { name: 'bg-color', type: 'hex/rgb', default: 'dark: #090d16', allowed: 'CSS color', desc: 'Background color of the entire main documentation canvas.' },
+  { name: 'text-color', type: 'hex/rgb', default: '#94a3b8', allowed: 'CSS color', desc: 'Default typography color for body text, summaries, and schema descriptions.' },
+  { name: 'primary-color', type: 'hex/rgb', default: '#ff791a', allowed: 'CSS color', desc: 'Primary brand accent color used for active tabs, links, schema outlines, and interactive highlights.' },
+  { name: 'header-color', type: 'hex/rgb', default: '#060913', allowed: 'CSS color', desc: 'Background color of the top utility header bar.' },
+  { name: 'nav-bg-color', type: 'hex/rgb', default: 'inherit', allowed: 'CSS color', desc: 'Background color of the sticky sidebar navigation panel.' },
+  { name: 'nav-text-color', type: 'hex/rgb', default: '#cbd5e1', allowed: 'CSS color', desc: 'Color of text and icons in the sidebar navigation.' },
+  { name: 'nav-hover-bg-color', type: 'hex/rgb', default: 'rgba(...)', allowed: 'CSS color', desc: 'Background color when hovering over sidebar navigation items.' },
+  { name: 'nav-hover-text-color', type: 'hex/rgb', default: '#ffffff', allowed: 'CSS color', desc: 'Text color when hovering over sidebar navigation items.' },
+  { name: 'nav-accent-color', type: 'hex/rgb', default: '#10b981', allowed: 'CSS color', desc: 'Accent highlight color applied to the actively viewed/selected navigation link.' },
+  { name: 'regular-font', type: 'string', default: 'Open Sans', allowed: 'Font family', desc: 'Custom font family applied to all body text, headings, and UI controls.' },
+  { name: 'mono-font', type: 'string', default: 'Monaco', allowed: 'Font family', desc: 'Monospace font family applied to code snippets, parameters, and schema structures.' },
+  { name: 'font-size', type: 'string', default: 'default', allowed: 'default | large | largest', desc: 'Global typography scale modifier.' },
+  { name: 'render-style', type: 'string', default: 'view', allowed: 'view | read | focused', desc: 'Primary document layout mode (multi-column view, continuous document read, or single-operation focused).' },
+  { name: 'schema-style', type: 'string', default: 'tree', allowed: 'tree | table', desc: 'Visualization presentation style for request and response models.' },
+  { name: 'show-header', type: 'boolean', default: 'true', allowed: 'true | false', desc: 'Toggles visibility of the top header bar.' },
+];
+
+const slotsData = stylingData.slots;
 ---
 
 <GlobalLayout>
@@ -135,52 +248,149 @@ const buttonRecipeCode = `<style>
       </div>
 
       <div class="rd-cards-grid">
-        <div class="rd-feature-card">
+        <a href="#attributes" class="rd-feature-card">
           <div class="rd-card-icon">🎨</div>
           <h3 class="rd-card-title">1. HTML Attributes</h3>
           <p class="rd-card-desc">
             Quick, declarative configuration directly on the element. Customize base themes (<code class="mono-code">theme="dark"</code>), brand colors, header palettes, font families, and sidebar layout modes with zero CSS.
           </p>
-        </div>
+          <div class="rd-card-action">
+            <span>Explore Attributes</span>
+            <span class="action-arrow">↓</span>
+          </div>
+        </a>
 
-        <div class="rd-feature-card rd-feature-highlight">
+        <a href="#css-parts" class="rd-feature-card rd-feature-highlight">
           <div class="rd-card-icon">⚡</div>
           <h3 class="rd-card-title">2. CSS Shadow Parts</h3>
           <p class="rd-card-desc">
             Target internal elements across the Shadow boundary using <code class="mono-code">rapi-doc::part(...)</code>. Unlock bespoke visual flourishes such as multi-stop gradients, backdrop filters, and custom borders.
           </p>
-        </div>
+          <div class="rd-card-action">
+            <span>Explore CSS Parts</span>
+            <span class="action-arrow">↓</span>
+          </div>
+        </a>
 
-        <div class="rd-feature-card">
+        <a href="#reference-catalog" class="rd-feature-card" id="card-css-vars">
           <div class="rd-card-icon">🎛️</div>
           <h3 class="rd-card-title">3. CSS Custom Properties</h3>
           <p class="rd-card-desc">
             Override design tokens such as <code class="mono-code">--border-radius</code>, <code class="mono-code">--scroll-bar-width</code>, typography scale presets, and syntax highlighting colors directly in CSS.
           </p>
-        </div>
+          <div class="rd-card-action">
+            <span>Explore CSS Variables</span>
+            <span class="action-arrow">↓</span>
+          </div>
+        </a>
 
-        <div class="rd-feature-card">
+        <a href="#slots" class="rd-feature-card">
           <div class="rd-card-icon">🧩</div>
           <h3 class="rd-card-title">4. Named HTML Slots</h3>
           <p class="rd-card-desc">
             Inject arbitrary HTML markup, custom brand logos, banners, search widgets, navigation elements, or authorization scripts into predefined slots inside RapiDoc.
           </p>
-        </div>
+          <div class="rd-card-action">
+            <span>Explore HTML Slots</span>
+            <span class="action-arrow">↓</span>
+          </div>
+        </a>
 
-        <div class="rd-feature-card">
+        <a href="#markdown" class="rd-feature-card">
           <div class="rd-card-icon">📝</div>
           <h3 class="rd-card-title">5. Markdown HTML Injection</h3>
           <p class="rd-card-desc">
             Embed HTML tags directly within OpenAPI markdown descriptions (summaries, parameters, schemas) to render formatted tables, diagrams, callouts, or video embeds.
           </p>
+          <div class="rd-card-action">
+            <span>Explore Markdown HTML</span>
+            <span class="action-arrow">↓</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- ================= 1. HTML ATTRIBUTES SECTION ================= -->
+    <section class="rd-section-block" id="attributes">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Theming Mechanism 1</div>
+        <h2 class="rd-section-title">Styling with Declarative HTML Attributes</h2>
+        <p class="rd-section-desc">
+          HTML attributes provide the foundational styling layer for RapiDoc. Because they are declared directly on the <code class="mono-code">&lt;rapi-doc&gt;</code> element with zero build tools or stylesheets required, attributes are the fastest way to customize color schemes, header themes, fonts, and layout modes.
+        </p>
+      </div>
+
+      <div class="rd-recipe-card rd-mb-40">
+        <div class="rd-recipe-top">
+          <div class="rd-recipe-header-text">
+            <div class="rd-recipe-tag">Quickstart Snippet</div>
+            <h3 class="rd-recipe-heading">Declarative Brand Customization</h3>
+            <p class="rd-recipe-text">
+              Configure baseline brand styling including high-contrast dark themes, custom primary accents, navigation sidebar colors, and font families in a single declarative tag.
+            </p>
+          </div>
+          <div class="rd-recipe-action">
+            <a href="/api#attributes" class="rd-btn rd-btn-secondary">
+              <span>View All 62 HTML Attributes in API Reference ↗</span>
+            </a>
+          </div>
         </div>
+        <div class="rd-recipe-split">
+          <div class="rd-screenshot-frame">
+            <div class="rd-frame-header">
+              <span class="frame-dot red"></span>
+              <span class="frame-dot yellow"></span>
+              <span class="frame-dot green"></span>
+              <span class="frame-title">Live Theme Preview</span>
+            </div>
+            <div class="rd-screenshot-body">
+              <img src="/assets/images/rapi-brand.png" alt="RapiDoc Brand Customization Preview" />
+            </div>
+          </div>
+          <div class="rd-recipe-code">
+            <CodeBlock code={attributeRecipeCode} lang="html" filename="declarative-styling.html" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Core Styling Attributes Reference Table -->
+      <div class="rd-table-wrapper">
+        <table class="rd-catalog-table">
+          <thead>
+            <tr>
+              <th class="col-attr-name">Attribute</th>
+              <th class="col-attr-type">Type / Allowed</th>
+              <th class="col-attr-default">Default</th>
+              <th class="col-attr-desc">Description & Styling Effect</th>
+            </tr>
+          </thead>
+          <tbody>
+            {stylingAttributes.map(attr => (
+              <tr class="rd-catalog-row">
+                <td class="col-attr-name">
+                  <div class="rd-item-pill">
+                    <span class="rd-pill-name">{attr.name}</span>
+                  </div>
+                </td>
+                <td class="col-attr-type">
+                  <span class="rd-type-tag">{attr.type}</span>
+                  <div class="rd-allowed-text">{attr.allowed}</div>
+                </td>
+                <td class="col-attr-default">
+                  <code class="rd-default-badge">{attr.default}</code>
+                </td>
+                <td class="col-attr-desc">{attr.desc}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </section>
 
     <!-- Practical Showcase & Recipes -->
-    <section class="rd-recipes-section">
+    <section class="rd-recipes-section" id="css-parts">
       <div class="rd-section-header">
-        <div class="rd-section-badge">Practical Recipes</div>
+        <div class="rd-section-badge">Theming Mechanism 2</div>
         <h2 class="rd-section-title">Deep Styling Recipes with CSS Parts</h2>
         <p class="rd-section-desc">
           Explore real-world examples demonstrating how to combine declarative attributes with targeted <code class="mono-code">::part()</code> selectors to produce state-of-the-art documentation portals.
@@ -189,12 +399,14 @@ const buttonRecipeCode = `<style>
 
       <!-- Recipe 1: Navigation Bar Gradient -->
       <div class="rd-recipe-card">
-        <div class="rd-recipe-content">
-          <div class="rd-recipe-tag">Recipe 1</div>
-          <h3 class="rd-recipe-heading">Multi-Stop Gradient Sidebar Navigation</h3>
-          <p class="rd-recipe-text">
-            While the <code class="mono-code">nav-bg-color</code> attribute accepts solid colors, applying multi-stop CSS gradients or glassmorphic blur requires piercing the Shadow DOM. By selecting <code class="mono-code">rapi-doc::part(section-navbar)</code>, you can apply rich background gradients while keeping text and icons perfectly legible.
-          </p>
+        <div class="rd-recipe-top">
+          <div class="rd-recipe-header-text">
+            <div class="rd-recipe-tag">Recipe 1</div>
+            <h3 class="rd-recipe-heading">Multi-Stop Gradient Sidebar Navigation</h3>
+            <p class="rd-recipe-text">
+              While the <code class="mono-code">nav-bg-color</code> attribute accepts solid colors, applying multi-stop CSS gradients or glassmorphic blur requires piercing the Shadow DOM. By selecting <code class="mono-code">rapi-doc::part(section-navbar)</code>, you can apply rich background gradients while keeping text and icons perfectly legible.
+            </p>
+          </div>
           <div class="rd-recipe-action">
             <a href="/examples/cssparts-nav" target="_blank" class="rd-btn rd-btn-primary">
               <span>View Interactive Demo</span>
@@ -204,9 +416,17 @@ const buttonRecipeCode = `<style>
             </a>
           </div>
         </div>
-        <div class="rd-recipe-visual">
+        <div class="rd-recipe-split">
           <div class="rd-screenshot-frame">
-            <img src="/assets/images/theme/rapidoc-csspart-nav.png" alt="RapiDoc CSS Part Navigation Example" />
+            <div class="rd-frame-header">
+              <span class="frame-dot red"></span>
+              <span class="frame-dot yellow"></span>
+              <span class="frame-dot green"></span>
+              <span class="frame-title">Sidebar Gradient Preview</span>
+            </div>
+            <div class="rd-screenshot-body">
+              <img src="/assets/images/theme/rapidoc-csspart-nav.png" alt="RapiDoc CSS Part Navigation Example" />
+            </div>
           </div>
           <div class="rd-recipe-code">
             <CodeBlock code={navRecipeCode} lang="html" filename="gradient-navbar.html" />
@@ -216,12 +436,14 @@ const buttonRecipeCode = `<style>
 
       <!-- Recipe 2: Servers & Overview Title -->
       <div class="rd-recipe-card">
-        <div class="rd-recipe-content">
-          <div class="rd-recipe-tag">Recipe 2</div>
-          <h3 class="rd-recipe-heading">Branded API Servers & Environment Card</h3>
-          <p class="rd-recipe-text">
-            Emphasize active deployment environments by applying unique background tones, padding, and rounded borders to the server selection container using <code class="mono-code">rapi-doc::part(section-servers)</code> and <code class="mono-code">rapi-doc::part(label-selected-server)</code>.
-          </p>
+        <div class="rd-recipe-top">
+          <div class="rd-recipe-header-text">
+            <div class="rd-recipe-tag">Recipe 2</div>
+            <h3 class="rd-recipe-heading">Branded API Servers & Environment Card</h3>
+            <p class="rd-recipe-text">
+              Emphasize active deployment environments by applying unique background tones, padding, and rounded borders to the server selection container using <code class="mono-code">rapi-doc::part(section-servers)</code> and <code class="mono-code">rapi-doc::part(label-selected-server)</code>.
+            </p>
+          </div>
           <div class="rd-recipe-action">
             <a href="/examples/cssparts-servers" target="_blank" class="rd-btn rd-btn-primary">
               <span>View Interactive Demo</span>
@@ -231,9 +453,17 @@ const buttonRecipeCode = `<style>
             </a>
           </div>
         </div>
-        <div class="rd-recipe-visual">
+        <div class="rd-recipe-split">
           <div class="rd-screenshot-frame">
-            <img src="/assets/images/theme/rapidoc-csspart-server.png" alt="RapiDoc CSS Part Server Example" />
+            <div class="rd-frame-header">
+              <span class="frame-dot red"></span>
+              <span class="frame-dot yellow"></span>
+              <span class="frame-dot green"></span>
+              <span class="frame-title">Custom Server Card Preview</span>
+            </div>
+            <div class="rd-screenshot-body">
+              <img src="/assets/images/theme/rapidoc-csspart-server.png" alt="RapiDoc CSS Part Server Example" />
+            </div>
           </div>
           <div class="rd-recipe-code">
             <CodeBlock code={serverRecipeCode} lang="html" filename="branded-servers.html" />
@@ -243,12 +473,14 @@ const buttonRecipeCode = `<style>
 
       <!-- Recipe 3: Custom Action & Try Buttons -->
       <div class="rd-recipe-card">
-        <div class="rd-recipe-content">
-          <div class="rd-recipe-tag">Recipe 3</div>
-          <h3 class="rd-recipe-heading">Customized Buttons & Console Triggers</h3>
-          <p class="rd-recipe-text">
-            Match your application's button styles by styling base buttons (<code class="mono-code">btn</code>), solid primary actions (<code class="mono-code">btn-try</code>), and active response status code selectors (<code class="mono-code">btn-selected-response-status</code>) with custom corner radiuses, hover animations, and high-contrast palettes.
-          </p>
+        <div class="rd-recipe-top">
+          <div class="rd-recipe-header-text">
+            <div class="rd-recipe-tag">Recipe 3</div>
+            <h3 class="rd-recipe-heading">Customized Buttons & Console Triggers</h3>
+            <p class="rd-recipe-text">
+              Match your application's button styles by styling base buttons (<code class="mono-code">btn</code>), solid primary actions (<code class="mono-code">btn-try</code>), and active response status code selectors (<code class="mono-code">btn-selected-response-status</code>) with custom corner radiuses, hover animations, and high-contrast palettes.
+            </p>
+          </div>
           <div class="rd-recipe-action">
             <a href="/examples/cssparts-btn" target="_blank" class="rd-btn rd-btn-primary">
               <span>View Interactive Demo</span>
@@ -258,9 +490,17 @@ const buttonRecipeCode = `<style>
             </a>
           </div>
         </div>
-        <div class="rd-recipe-visual">
+        <div class="rd-recipe-split">
           <div class="rd-screenshot-frame">
-            <img src="/assets/images/theme/rapidoc-csspart-btn.png" alt="RapiDoc CSS Part Buttons Example" />
+            <div class="rd-frame-header">
+              <span class="frame-dot red"></span>
+              <span class="frame-dot yellow"></span>
+              <span class="frame-dot green"></span>
+              <span class="frame-title">Styled Buttons Preview</span>
+            </div>
+            <div class="rd-screenshot-body">
+              <img src="/assets/images/theme/rapidoc-csspart-btn.png" alt="RapiDoc CSS Part Buttons Example" />
+            </div>
           </div>
           <div class="rd-recipe-code">
             <CodeBlock code={buttonRecipeCode} lang="html" filename="custom-buttons.html" />
@@ -425,6 +665,249 @@ const buttonRecipeCode = `<style>
             </div>
           </div>
         ))}
+      </div>
+    </section>
+
+    <!-- ================= 4. NAMED HTML SLOTS SECTION ================= -->
+    <section class="rd-section-block" id="slots">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Theming Mechanism 4</div>
+        <h2 class="rd-section-title">Inserting Custom HTML with Web Component Slots</h2>
+        <p class="rd-section-desc">
+          Because RapiDoc is encapsulated in a Shadow DOM, external DOM elements cannot be arbitrarily injected into its tree. Standard Web Component <code class="mono-code">&lt;slot&gt;</code> elements solve this by exposing designated insertion zones where you can inject custom HTML markup—such as release notices, company logos, interactive header buttons, custom auth instructions, and enterprise footers.
+        </p>
+      </div>
+
+      <!-- Visual Slot Layout Architecture Wireframe -->
+      <div class="rd-slot-wireframe-card">
+        <div class="rd-wireframe-header">
+          <span class="wireframe-badge">Visual Blueprint</span>
+          <span class="wireframe-title">RapiDoc Shadow DOM Slot Insertion Zones</span>
+        </div>
+        <div class="rd-wireframe-diagram">
+          <!-- Top Utility Bar -->
+          <div class="wf-row wf-header-bar">
+            <div class="wf-zone wf-zone-logo">
+              <span class="wf-slot-tag">slot="logo"</span>
+              <span class="wf-slot-note">Brand Logo / Home link</span>
+            </div>
+            <div class="wf-zone wf-zone-spec">
+              <span class="wf-static-label">spec-url input / search</span>
+            </div>
+            <div class="wf-zone wf-zone-header">
+              <span class="wf-slot-tag">slot="header"</span>
+              <span class="wf-slot-note">Custom actions, links, dark mode triggers</span>
+            </div>
+          </div>
+
+          <!-- Unnamed Default Slot Notice -->
+          <div class="wf-row wf-default-zone">
+            <div class="wf-zone wf-zone-default">
+              <span class="wf-slot-tag">&lt;element&gt; (default slot - unnamed)</span>
+              <span class="wf-slot-note">Broadcast announcements, system maintenance banners, breaking change alerts</span>
+            </div>
+          </div>
+
+          <!-- Main Layout Body -->
+          <div class="wf-body-split">
+            <!-- Sidebar (read mode) -->
+            <div class="wf-col wf-sidebar">
+              <div class="wf-zone wf-zone-nav-logo">
+                <span class="wf-slot-tag">slot="nav-logo"</span>
+                <span class="wf-slot-note">Sidebar wordmark & branding</span>
+              </div>
+              <div class="wf-zone wf-zone-nav-list">
+                <span class="wf-static-label">Sidebar Navigation Links</span>
+              </div>
+            </div>
+
+            <!-- Content Canvas -->
+            <div class="wf-col wf-canvas">
+              <div class="wf-zone wf-zone-overview">
+                <span class="wf-slot-tag">slot="overview"</span>
+                <span class="wf-slot-note">Under API title in Overview</span>
+              </div>
+              <div class="wf-zone wf-zone-servers">
+                <span class="wf-slot-tag">slot="servers"</span>
+                <span class="wf-slot-note">Server configuration card</span>
+              </div>
+              <div class="wf-zone wf-zone-auth">
+                <span class="wf-slot-tag">slot="auth"</span>
+                <span class="wf-slot-note">Security modal / Auth guidance</span>
+              </div>
+              <div class="wf-zone wf-zone-ops">
+                <span class="wf-slot-tag">slot="operations-top"</span>
+                <span class="wf-slot-note">Header above all endpoints</span>
+              </div>
+              <div class="wf-row wf-ops-sub">
+                <div class="wf-zone wf-zone-tag">
+                  <span class="wf-slot-tag">slot="tag--{'{name}'}"</span>
+                  <span class="wf-slot-note">Under tag group</span>
+                </div>
+                <div class="wf-zone wf-zone-endpoint">
+                  <span class="wf-slot-tag">slot="{'{method}-{path}'}"</span>
+                  <span class="wf-slot-note">Inside operation card</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer Bar -->
+          <div class="wf-row wf-footer-bar">
+            <div class="wf-zone wf-zone-footer">
+              <span class="wf-slot-tag">slot="footer"</span>
+              <span class="wf-slot-note">Corporate copyright, privacy policies, legal notices, contact info</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slots Code Implementation Card -->
+      <div class="rd-recipe-card rd-mb-40">
+        <div class="rd-recipe-top">
+          <div class="rd-recipe-header-text">
+            <div class="rd-recipe-tag">Multi-Slot Implementation</div>
+            <h3 class="rd-recipe-heading">Branded Portal with Slots</h3>
+            <p class="rd-recipe-text">
+              Combine the un-slotted default banner with targeted <code class="mono-code">slot="logo"</code>, <code class="mono-code">slot="header"</code>, <code class="mono-code">slot="auth"</code>, and <code class="mono-code">slot="footer"</code> elements to seamlessly blend RapiDoc into your company application ecosystem.
+            </p>
+          </div>
+          <div class="rd-recipe-action">
+            <a href="/examples/slots" target="_blank" class="rd-btn rd-btn-primary">
+              <span>Launch Interactive Slots Demo ↗</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14m-7-7 7 7-7 7"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+        <div class="rd-recipe-split">
+          <div class="rd-screenshot-frame">
+            <div class="rd-frame-header">
+              <span class="frame-dot red"></span>
+              <span class="frame-dot yellow"></span>
+              <span class="frame-dot green"></span>
+              <span class="frame-title">Live Slots Output</span>
+            </div>
+            <div class="rd-screenshot-body">
+              <img src="/assets/images/theme/rapidoc-slots.png" alt="RapiDoc Web Component Slots Example" />
+            </div>
+          </div>
+          <div class="rd-recipe-code">
+            <CodeBlock code={slotsRecipeCode} lang="html" filename="multi-slot-portal.html" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Complete Slots Reference Table -->
+      <div class="rd-table-wrapper">
+        <table class="rd-catalog-table">
+          <thead>
+            <tr>
+              <th class="col-slot-name">Slot Name</th>
+              <th class="col-slot-placement">Physical Placement</th>
+              <th class="col-slot-desc">Description & Common Use Cases</th>
+            </tr>
+          </thead>
+          <tbody>
+            {slotsData.map(slot => (
+              <tr class="rd-catalog-row">
+                <td class="col-slot-name">
+                  <div class="rd-item-pill">
+                    <span class="rd-pill-name">{slot.name}</span>
+                  </div>
+                </td>
+                <td class="col-slot-placement">
+                  <span class="rd-placement-badge">{slot.placement}</span>
+                </td>
+                <td class="col-slot-desc">{slot.description || slot.desc}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= 5. MARKDOWN HTML INJECTION SECTION ================= -->
+    <section class="rd-section-block" id="markdown">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Theming Mechanism 5</div>
+        <h2 class="rd-section-title">Embedding Custom HTML in OpenAPI Markdown</h2>
+        <p class="rd-section-desc">
+          RapiDoc’s built-in markdown engine parses standard HTML5 markup embedded directly within OpenAPI description fields (<code class="mono-code">info.description</code>, tag descriptions, operation descriptions, parameter schemas). This enables API authors to embed status badges, interactive callouts, collapsible accordions, and rich media directly from their OpenAPI spec.
+        </p>
+      </div>
+
+      <!-- Markdown Capabilities Highlights Grid -->
+      <div class="rd-md-features-grid">
+        <div class="rd-md-card">
+          <div class="rd-md-icon">🟢</div>
+          <h4 class="rd-md-title">Interactive Badges & CTAs</h4>
+          <p class="rd-md-text">
+            Embed live system status pills, SDK download links, or Discord community invites directly at the top of your API documentation.
+          </p>
+        </div>
+        <div class="rd-md-card">
+          <div class="rd-md-icon">🗂️</div>
+          <h4 class="rd-md-title">Collapsible &lt;details&gt;</h4>
+          <p class="rd-md-text">
+            Condense dense rate-limiting rules, troubleshooting guides, or JSON payload schemas with native HTML <code class="mono-code">&lt;details&gt;</code> and <code class="mono-code">&lt;summary&gt;</code> tags.
+          </p>
+        </div>
+        <div class="rd-md-card">
+          <div class="rd-md-icon">⚠️</div>
+          <h4 class="rd-md-title">Deprecation Alerts & Callouts</h4>
+          <p class="rd-md-text">
+            Add high-visibility warning callouts with inline styling (<code class="mono-code">style="..."</code>) to highlight migration timelines and auth updates.
+          </p>
+        </div>
+        <div class="rd-md-card">
+          <div class="rd-md-icon">📹</div>
+          <h4 class="rd-md-title">Embedded Videos & Media</h4>
+          <p class="rd-md-text">
+            Include tutorial videos via <code class="mono-code">&lt;iframe&gt;</code>, architecture diagrams, audio explanations, or custom responsive tables.
+          </p>
+        </div>
+      </div>
+
+      <!-- Markdown Code Recipe Card -->
+      <div class="rd-recipe-card rd-mb-40">
+        <div class="rd-recipe-top">
+          <div class="rd-recipe-header-text">
+            <div class="rd-recipe-tag">OpenAPI YAML Recipe</div>
+            <h3 class="rd-recipe-heading">HTML-Enriched OpenAPI Specification</h3>
+            <p class="rd-recipe-text">
+              Because RapiDoc renders OpenAPI markdown natively inside the client browser, all standard HTML tags and inline CSS styles are supported seamlessly with zero server-side pre-rendering required.
+            </p>
+          </div>
+          <div class="rd-recipe-action" style="gap: 12px; flex-wrap: wrap;">
+            <a href="/examples/markdown" target="_blank" class="rd-btn rd-btn-primary">
+              <span>View Markdown Demo ↗</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14m-7-7 7 7-7 7"/>
+              </svg>
+            </a>
+            <a href="/examples/markdown-headings" target="_blank" class="rd-btn rd-btn-secondary">
+              <span>Markdown Headings Demo ↗</span>
+            </a>
+          </div>
+        </div>
+        <div class="rd-recipe-split">
+          <div class="rd-screenshot-frame">
+            <div class="rd-frame-header">
+              <span class="frame-dot red"></span>
+              <span class="frame-dot yellow"></span>
+              <span class="frame-dot green"></span>
+              <span class="frame-title">Rendered Output</span>
+            </div>
+            <div class="rd-screenshot-body">
+              <img src="/assets/images/rapi-markdown.png" alt="RapiDoc OpenAPI Markdown HTML Example" />
+            </div>
+          </div>
+          <div class="rd-recipe-code">
+            <CodeBlock code={markdownRecipeYaml} lang="yaml" filename="openapi-markdown.yaml" />
+          </div>
+        </div>
       </div>
     </section>
 
@@ -612,6 +1095,26 @@ const buttonRecipeCode = `<style>
 
       // Initial filter run
       filterCatalog();
+
+      // Handle URL hash changes or direct navigation
+      function handleHash() {
+        const hash = window.location.hash.toLowerCase();
+        if (hash === '#css-vars' || hash === '#variables' || hash === '#custom-properties') {
+          switchMode('variables');
+          filterCatalog();
+        } else if (hash === '#css-parts' || hash === '#parts') {
+          switchMode('parts');
+          filterCatalog();
+        }
+      }
+      window.addEventListener('hashchange', handleHash);
+      handleHash();
+
+      // Card click for #card-css-vars
+      document.getElementById('card-css-vars')?.addEventListener('click', () => {
+        switchMode('variables');
+        filterCatalog();
+      });
     }
 
     if (document.readyState === 'loading') {
@@ -847,12 +1350,36 @@ const buttonRecipeCode = `<style>
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   transition: all 0.25s ease;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
 }
 .rd-feature-card:hover {
   background: var(--rd-surface-hover);
-  border-color: rgba(56, 189, 248, 0.3);
+  border-color: rgba(56, 189, 248, 0.4);
   transform: translateY(-3px);
   box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.6);
+}
+.rd-card-action {
+  margin-top: auto;
+  padding-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #38bdf8;
+  transition: all 0.2s ease;
+}
+.rd-feature-card:hover .rd-card-action {
+  color: #fff;
+  transform: translateX(3px);
+}
+.action-arrow {
+  transition: transform 0.2s ease;
+}
+.rd-feature-card:hover .action-arrow {
+  transform: translateY(2px);
 }
 .rd-feature-highlight {
   border-color: rgba(16, 185, 129, 0.35);
@@ -887,9 +1414,9 @@ const buttonRecipeCode = `<style>
   margin-bottom: 88px;
 }
 .rd-recipe-card {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
   background: var(--rd-surface-card);
   border: 1px solid var(--rd-glass-border);
   border-radius: 16px;
@@ -898,10 +1425,24 @@ const buttonRecipeCode = `<style>
   -webkit-backdrop-filter: blur(12px);
   box-shadow: 0 12px 36px -12px rgba(0, 0, 0, 0.6);
 }
+.rd-recipe-top {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 @media (min-width: 900px) {
-  .rd-recipe-card {
-    grid-template-columns: 42% 58%;
-    align-items: center;
+  .rd-recipe-top {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 32px;
+  }
+  .rd-recipe-header-text {
+    flex: 1;
+  }
+  .rd-recipe-action {
+    flex-shrink: 0;
+    margin-top: 4px;
   }
 }
 .rd-recipe-tag {
@@ -922,17 +1463,105 @@ const buttonRecipeCode = `<style>
   font-weight: 800;
   color: #fff;
   letter-spacing: -0.01em;
-  margin: 0 0 14px 0;
+  margin: 0 0 12px 0;
   line-height: 1.3;
 }
 .rd-recipe-text {
   font-size: 14.5px;
   color: var(--rd-text-secondary);
   line-height: 1.65;
-  margin: 0 0 24px 0;
+  margin: 0;
 }
 .rd-recipe-action {
   display: flex;
+  align-items: center;
+}
+.rd-recipe-split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  align-items: stretch;
+}
+@media (min-width: 900px) {
+  .rd-recipe-split {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.rd-recipe-code {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.rd-recipe-code :global(.code-wrapper) {
+  margin: 0 !important;
+  height: 100% !important;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+}
+.rd-recipe-code :global(.code-body) {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 480px;
+}
+.rd-screenshot-frame {
+  width: 100%;
+  height: 100%;
+  background: #090d16;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+}
+.rd-frame-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 13px;
+  color: #8b949e;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.frame-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.frame-dot.red { background-color: #ff5f56; }
+.frame-dot.yellow { background-color: #ffbd2e; }
+.frame-dot.green { background-color: #27c93f; }
+.frame-title {
+  margin-left: 8px;
+  font-family: var(--rd-font-mono);
+  font-size: 12px;
+  color: #94a3b8;
+}
+.rd-screenshot-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0d1117;
+  overflow: hidden;
+  min-height: 280px;
+  max-height: 480px;
+}
+.rd-screenshot-body img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top left;
+  transition: transform 0.3s ease;
+}
+.rd-screenshot-frame:hover img {
+  transform: scale(1.02);
 }
 .rd-btn {
   display: inline-flex;
@@ -956,29 +1585,6 @@ const buttonRecipeCode = `<style>
   background: linear-gradient(135deg, #059669 0%, #047857 100%);
   transform: translateY(-1px);
   box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
-}
-
-.rd-recipe-visual {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.rd-screenshot-frame {
-  width: 100%;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-}
-.rd-screenshot-frame img {
-  display: block;
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-}
-.rd-screenshot-frame:hover img {
-  transform: scale(1.02);
 }
 
 /* Reference Catalog Section */
@@ -1344,6 +1950,287 @@ const buttonRecipeCode = `<style>
   color: var(--rd-text-secondary);
   line-height: 1.7;
   margin: 0;
+}
+
+.rd-section-block {
+  margin-bottom: 88px;
+  scroll-margin-top: 80px;
+}
+.rd-recipes-section, .rd-catalog-section {
+  scroll-margin-top: 80px;
+}
+.rd-mb-40 {
+  margin-bottom: 40px;
+}
+
+/* Attributes & Slots Table Columns */
+.col-attr-name {
+  width: 26%;
+  min-width: 180px;
+}
+.col-attr-type {
+  width: 22%;
+  min-width: 160px;
+}
+.col-attr-default {
+  width: 18%;
+  min-width: 130px;
+}
+.col-attr-desc {
+  width: 34%;
+  min-width: 260px;
+  color: #cbd5e1;
+  line-height: 1.55;
+}
+
+.rd-item-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  color: #38bdf8;
+  font-family: var(--rd-font-mono);
+  font-size: 13px;
+  font-weight: 600;
+}
+.rd-type-tag {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #a855f7;
+  background: rgba(168, 85, 247, 0.12);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  padding: 2px 7px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 4px;
+}
+.rd-allowed-text {
+  font-size: 12px;
+  color: var(--rd-text-muted);
+  font-family: var(--rd-font-mono);
+}
+
+.col-slot-name {
+  width: 22%;
+  min-width: 160px;
+}
+.col-slot-placement {
+  width: 32%;
+  min-width: 220px;
+}
+.col-slot-desc {
+  width: 46%;
+  min-width: 280px;
+  color: #cbd5e1;
+  line-height: 1.55;
+}
+.rd-placement-badge {
+  font-size: 12.5px;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+/* Slot Layout Blueprint Wireframe */
+.rd-slot-wireframe-card {
+  background: var(--rd-surface-card);
+  border: 1px solid var(--rd-glass-border);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 40px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+.rd-wireframe-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.wireframe-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  padding: 3px 10px;
+  border-radius: 6px;
+}
+.wireframe-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+}
+.rd-wireframe-diagram {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: rgba(5, 8, 16, 0.9);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 20px;
+}
+.wf-row {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+.wf-header-bar {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+.wf-zone {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(16, 185, 129, 0.06);
+  border: 1px dashed rgba(16, 185, 129, 0.35);
+  transition: all 0.2s ease;
+}
+.wf-zone:hover {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: var(--rd-emerald);
+  transform: translateY(-1px);
+}
+.wf-zone-spec {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  align-items: center;
+  justify-content: center;
+}
+.wf-static-label {
+  font-size: 12px;
+  color: var(--rd-text-muted);
+  font-family: var(--rd-font-mono);
+}
+.wf-slot-tag {
+  font-family: var(--rd-font-mono);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #34d399;
+}
+.wf-slot-note {
+  font-size: 11.5px;
+  color: var(--rd-text-secondary);
+}
+.wf-default-zone .wf-zone {
+  width: 100%;
+  background: rgba(56, 189, 248, 0.06);
+  border-color: rgba(56, 189, 248, 0.35);
+}
+.wf-default-zone .wf-slot-tag {
+  color: #38bdf8;
+}
+.wf-body-split {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 12px;
+}
+@media (max-width: 768px) {
+  .wf-body-split {
+    grid-template-columns: 1fr;
+  }
+}
+.wf-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.wf-sidebar {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 12px;
+}
+.wf-canvas {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 14px;
+}
+.wf-ops-sub {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.wf-footer-bar .wf-zone {
+  width: 100%;
+  background: rgba(168, 85, 247, 0.06);
+  border-color: rgba(168, 85, 247, 0.35);
+}
+.wf-footer-bar .wf-slot-tag {
+  color: #c084fc;
+}
+
+/* Markdown Features Highlights Grid */
+.rd-md-features-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+@media (min-width: 640px) {
+  .rd-md-features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1024px) {
+  .rd-md-features-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.rd-md-card {
+  background: var(--rd-surface-card);
+  border: 1px solid var(--rd-glass-border);
+  border-radius: 12px;
+  padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.rd-md-icon {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+.rd-md-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+.rd-md-text {
+  font-size: 13px;
+  color: var(--rd-text-secondary);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.rd-btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.rd-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #fff;
+  transform: translateY(-1px);
 }
 
 @media (min-width: 768px) {

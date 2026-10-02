@@ -4,8 +4,8 @@ import GlobalLayout from '../layouts/GlobalLayout.astro';
 
 const pathname = Astro.url.pathname;
 const isTest = pathname.startsWith('/tests');
-const backUrl = isTest ? '/tests' : '/list';
-const backText = isTest ? '← Back to Tests' : '← Back to Examples';
+const backUrl = isTest ? '/tests' : '/showcase';
+const backText = isTest ? '← Back to Tests' : '← Back to Showcase';
 ---
 
 <GlobalLayout>
