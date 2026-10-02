@@ -234,4 +234,21 @@ describe('generateExample', () => {
     assert.ok(sample.rightPlayer && typeof sample.rightPlayer === 'object');
     assert.ok(sample.leftPlayer.eyeColor !== undefined);
   });
+
+  it('should generate deterministic UUID examples across repeated invocations', () => {
+    const uuidSchema = {
+      type: 'object',
+      properties: {
+        id: { type: 'string', format: 'uuid' },
+      },
+    };
+
+    const ex1 = generateExample(uuidSchema, 'application/json');
+    const ex2 = generateExample(uuidSchema, 'application/json');
+
+    assert.strictEqual(ex1[0].exampleValue.id, '3fa85f64-5717-4562-b3fc-2c963f66afa6');
+    assert.strictEqual(ex2[0].exampleValue.id, '3fa85f64-5717-4562-b3fc-2c963f66afa6');
+    assert.strictEqual(ex1[0].exampleValue.id, ex2[0].exampleValue.id);
+  });
 });
+

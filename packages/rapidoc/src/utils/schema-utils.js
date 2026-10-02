@@ -437,7 +437,6 @@ export function getSampleValueByType(schemaObj) {
       }
     }
     if (schemaObj.format) {
-      const u = `${Date.now().toString(16)}${Math.random().toString(16)}0`.repeat(16);
       switch (schemaObj.format.toLowerCase()) {
         case 'url':
         case 'uri':
@@ -461,7 +460,7 @@ export function getSampleValueByType(schemaObj) {
         case 'ipv6':
           return '2001:0db8:5b96:0000:0000:426f:8e17:642a';
         case 'uuid':
-          return [u.substring(0, 8), u.substring(8, 12), `4000-8${u.substring(13, 16)}`, u.substring(16, 28)].join('-');
+          return '3fa85f64-5717-4562-b3fc-2c963f66afa6';
         case 'byte':
           return 'ZXhhbXBsZQ=='; // 'example' base64 encoded. See https://spec.openapis.org/oas/v3.0.0#data-types
         default:

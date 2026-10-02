@@ -243,9 +243,11 @@ export default class ApiRequest extends LitElement {
     </div>`;
   }
 
-  async updated() {
+  async updated(changedProperties) {
     if (this.showCurlBeforeTry === 'true') {
-      this.applyCURLSyntax(this.shadowRoot);
+      if (!changedProperties || !changedProperties.has('curlSyntax') || changedProperties.size > 1) {
+        this.applyCURLSyntax(this.shadowRoot);
+      }
     }
     scheduleHighlight(this.getRootNode()?.host?.shadowRoot || this.shadowRoot);
 
@@ -1953,7 +1955,10 @@ ${responseContent}</pre>
     const fetchOptions = this.buildFetchBodyOptions(requestPanelEl);
     const fetchHeaders = this.buildFetchHeaders(requestPanelEl);
 
-    this.curlSyntax = this.generateCURLSyntax(fetchUrl, fetchHeaders, fetchOptions, requestPanelEl);
+    const newCurlSyntax = this.generateCURLSyntax(fetchUrl, fetchHeaders, fetchOptions, requestPanelEl);
+    if (this.curlSyntax !== newCurlSyntax) {
+      this.curlSyntax = newCurlSyntax;
+    }
   }
 
   generateCURLSyntax(fetchUrl, fetchHeaders, fetchOptions, requestPanelEl) {
@@ -2026,7 +2031,7 @@ ${responseContent}</pre>
         fetchOptions.body = exampleTextAreaEl.value;
         if (requestBodyType.includes('json')) {
           try {
-            curlData = ` -d '${JSON.stringify(JSON.parse(exampleTextAreaEl.value.replace(/'/g, "'\\''")))}' \\\n`;
+            curlData = ` -d '${JSON.stringify(JSON.parse(exampleTextAreaEl.value)).replace(/'/g, "'\\''")}' \\\n`;
           } catch {
             // Ignore.
           }
