@@ -8,6 +8,19 @@ const codeChallenge = '4FatVDBJKPAo4JgLLaaQFMUcQPn5CrPRvLlaob9PTYc'; // Base64 e
 
 const localStorageKey = 'rapidoc';
 
+function toBase64(str) {
+  try {
+    const bytes = new TextEncoder().encode(str);
+    let binary = '';
+    for (let i = 0; i < bytes.byteLength; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
+  } catch {
+    return btoa(str);
+  }
+}
+
 export function applyApiKey(securitySchemeId, username = '', password = '', providedApikeyVal = '') {
   const securityObj = this.resolvedSpec.securitySchemes?.find((v) => v.securitySchemeId === securitySchemeId);
   if (!securityObj) {
@@ -16,7 +29,7 @@ export function applyApiKey(securitySchemeId, username = '', password = '', prov
   let finalApiKeyValue = '';
   if (securityObj.scheme?.toLowerCase() === 'basic') {
     if (username) {
-      finalApiKeyValue = `Basic ${Buffer.from(`${username}:${password}`, 'utf8').toString('base64')}`;
+      finalApiKeyValue = `Basic ${toBase64(`${username}:${password}`)}`;
     }
   } else if (providedApikeyVal) {
     securityObj.value = providedApikeyVal;
@@ -116,7 +129,7 @@ async function fetchAccessToken(
     urlFormParams.append('code_verifier', codeVerifier); // for PKCE
   }
   if (sendClientSecretIn === 'header') {
-    headers.set('Authorization', `Basic ${Buffer.from(`${clientId}:${clientSecret}`, 'utf8').toString('base64')}`);
+    headers.set('Authorization', `Basic ${toBase64(`${clientId}:${clientSecret}`)}`);
   } else if (grantType !== 'authorization_code') {
     urlFormParams.append('client_id', clientId);
     urlFormParams.append('client_secret', clientSecret);
