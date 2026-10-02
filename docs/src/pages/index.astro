@@ -128,15 +128,15 @@ EXPOSE 80
               <div class="rd-persona-item">
                 <span class="rd-persona-bullet">✓</span>
                 <div>
-                  <strong>Embedded & Container Ready:</strong> Tiny ~400KB bundle with zero SSR/Node overhead. Bundles directly into micro-containers
-                  and Go/Rust/Java/Python servers.
+                  <strong>Container Ready:</strong> Tiny ~480KB bundle with zero SSR/Node overhead. Bundles directly into Browser and micro-containers
+                  with Go/Rust/Java/Python servers.
                 </div>
               </div>
               <div class="rd-persona-item">
                 <span class="rd-persona-bullet">✓</span>
                 <div>
-                  <strong>Tree & Tabular Schemas:</strong> Auto-expanded models with folding — no tedious 20-click accordions to inspect nested
-                  response schemas.
+                  <strong>Built In Mock Server:</strong>Prototype client frontends, simulate multi-status responses, and test network
+                  latency before backend APIs exist
                 </div>
               </div>
             </div>
@@ -252,7 +252,7 @@ EXPOSE 80
         <div class="rd-metric-desc">W3C Web Component: React, Vue, Svelte, or pure HTML</div>
       </div>
       <div class="rd-metric-card">
-        <div class="rd-metric-number">~400<span class="rd-unit">KB</span></div>
+        <div class="rd-metric-number">~480<span class="rd-unit">KB</span></div>
         <div class="rd-metric-label">Ultra-Light Bundle</div>
         <div class="rd-metric-desc">Powered by Lit. Zero Virtual DOM diffing overhead</div>
       </div>
@@ -377,6 +377,31 @@ EXPOSE 80
         </p>
       </div>
 
+      <!-- Card: In-Browser Mock Server -->
+      <div class="rd-bento-card">
+        <div class="rd-bento-badge">Zero Setup</div>
+        <div class="rd-bento-icon-box">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"
+            ></path>
+          </svg>
+        </div>
+        <h3 class="rd-bento-title">In-Browser Mock Server</h3>
+        <p class="rd-bento-text">
+          Frontend teams can prototype before the backend is built. Seamlessly intercepts in-page <code>fetch()</code> calls and generates realistic
+          mock responses from OpenAPI examples or schemas with multi-status and latency simulation.
+        </p>
+        <a
+          href="/mock-server"
+          style="color: #10b981; font-size: 13.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; text-decoration: none;"
+        >
+          Explore Mock Server
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            ><path d="M5 12h14M12 5l7 7-7 7"></path></svg
+          >
+        </a>
+      </div>
+
       <!-- Card 3: Embedded Containers -->
       <div class="rd-bento-card">
         <div class="rd-bento-badge">Microservices & Edge</div>
@@ -485,6 +510,21 @@ EXPOSE 80
               <td><span class="rd-cross">✕</span> Paid / Separate Add-on</td>
               <td><span class="rd-check">✓</span> Built-in client</td>
               <td><span class="rd-partial">~</span> Basic (rigid validation)</td>
+            </tr>
+
+            <tr>
+              <td class="rd-td-feature">
+                <strong>In-Browser Mock Server</strong>
+                <span>Zero-setup frontend prototyping & testing</span>
+              </td>
+              <td class="rd-td-highlight">
+                <span class="rd-check">✓</span>
+                <strong>Built-In Mock Server</strong><br />
+                <span class="rd-dim">Zero config, schema-driven, multi-status & latency simulation</span>
+              </td>
+              <td><span class="rd-cross">✕</span> Requires Prism / External CLI</td>
+              <td><span class="rd-cross">✕</span> No mock server</td>
+              <td><span class="rd-cross">✕</span> No mock server</td>
             </tr>
 
             <tr>
@@ -1096,9 +1136,12 @@ EXPOSE 80
     display: flex;
     align-items: flex-start;
     gap: 10px;
-    font-size: 13px;
+    font-size: 1rem;
     line-height: 1.5;
     color: #cbd5e1;
+    strong {
+      color: var(--rd-emerald);
+    }
   }
   .rd-persona-bullet {
     color: var(--rd-emerald);

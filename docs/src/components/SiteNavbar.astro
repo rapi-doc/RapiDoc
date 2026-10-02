@@ -1,6 +1,6 @@
 ---
 interface Props {
-  activePage?: 'home' | 'docs' | 'showcase' | 'quickstart' | 'list' | 'examples' | 'api' | 'tests' | 'rapidoc-mini' | 'other';
+  activePage?: 'home' | 'docs' | 'showcase' | 'quickstart' | 'list' | 'examples' | 'api' | 'tests' | 'rapidoc-mini' | 'mock-server' | 'other';
 }
 
 const { activePage = 'other' } = Astro.props;
@@ -19,6 +19,7 @@ const { activePage = 'other' } = Astro.props;
       <a href="/quickstart" class={`rd-nav-link ${activePage === 'quickstart' || activePage === 'examples' ? 'active' : ''}`}>Quick Start</a
       >
       <a href="/api" class={`rd-nav-link ${activePage === 'api' ? 'active' : ''}`}>API</a>
+      <a href="/mock-server" class={`rd-nav-link ${activePage === 'mock-server' ? 'active' : ''}`}>Mock Server</a>
       <a href="/rapidoc-mini" class={`rd-nav-link ${activePage === 'rapidoc-mini' ? 'active' : ''}`}>RapiDoc Mini</a>
       <a href="/showcase" class={`rd-nav-link ${activePage === 'showcase' || activePage === 'list' ? 'active' : ''}`}>Showcase</a>
       <a href="/docs" class={`rd-nav-link ${activePage === 'docs' ? 'active' : ''}`}>Docs</a>

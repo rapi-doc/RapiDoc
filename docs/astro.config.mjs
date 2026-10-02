@@ -99,6 +99,7 @@ export default defineConfig({
         {
           label: 'Advanced Guides',
           items: [
+            { label: 'In-Browser Mock Server', slug: 'docs/advanced/mock-server' },
             { label: 'OAuth 2.0 Integration', slug: 'docs/advanced/oauth-setup' },
             { label: 'HTML Slots & Custom UI', slug: 'docs/advanced/slots-and-markdown' },
             { label: 'RapiDoc Mini Widget', slug: 'docs/advanced/rapidoc-mini' },

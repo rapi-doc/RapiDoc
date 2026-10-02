@@ -1055,125 +1055,126 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
   return obj;
 }
 
+/**
+ * Helper to consistently format raw example values according to mimeType and outputType.
+ */
+function formatExampleContent(rawVal, mimeType = '', outputType = 'json') {
+  let content = rawVal;
+  let format = 'text';
+
+  if (mimeType?.toLowerCase().includes('json')) {
+    if (outputType === 'text') {
+      content = typeof rawVal === 'string' ? rawVal : JSON.stringify(rawVal, undefined, 2);
+      format = 'text';
+    } else if (typeof rawVal === 'object' && rawVal !== null) {
+      content = rawVal;
+      format = 'json';
+    } else if (typeof rawVal === 'string') {
+      try {
+        content = JSON.parse(rawVal);
+        format = 'json';
+      } catch {
+        content = rawVal;
+        format = 'text';
+      }
+    } else {
+      content = rawVal;
+      format = 'json';
+    }
+  } else {
+    content = typeof rawVal === 'object' && rawVal !== null ? JSON.stringify(rawVal, undefined, 2) : String(rawVal ?? '');
+    format = 'text';
+  }
+
+  return { content, format };
+}
+
 /* Create Example object */
 export function generateExample(
   schema,
-  mimeType,
-  examples = {},
-  example = {},
+  mimeType = '',
+  examples = null,
+  example = null,
   includeReadOnly = true,
   includeWriteOnly = true,
   outputType = 'json',
   includeGeneratedExample = false
 ) {
   const finalExamples = [];
-  // First check if examples is provided
-  if (examples) {
+  const isJson = mimeType?.toLowerCase().includes('json');
+  const isXml = mimeType?.toLowerCase().includes('xml');
+
+  // 1. Process multiple examples (examples map)
+  if (examples && typeof examples === 'object' && Object.keys(examples).length > 0) {
     for (const eg in examples) {
-      let egContent = '';
-      let egFormat = 'json';
-      if (mimeType?.toLowerCase().includes('json')) {
-        if (outputType === 'text') {
-          egContent = typeof examples[eg].value === 'string' ? examples[eg].value : JSON.stringify(examples[eg].value, undefined, 2);
-          egFormat = 'text';
-        } else {
-          egContent = examples[eg].value;
-          if (typeof examples[eg].value === 'string') {
-            try {
-              // const fixedJsonString = examples[eg].value.replace((/([\w]+)(:)/g), '"$1"$2').replace((/'/g), '"');
-              const fixedJsonString = examples[eg].value;
-              egContent = JSON.parse(fixedJsonString);
-              egFormat = 'json';
-            } catch {
-              egFormat = 'text';
-              egContent = examples[eg].value;
-            }
-          }
-        }
-      } else {
-        egContent = examples[eg].value;
-        egFormat = 'text';
-      }
+      const rawVal = examples[eg]?.value !== undefined ? examples[eg].value : examples[eg];
+      const { content, format } = formatExampleContent(rawVal, mimeType, outputType);
 
       finalExamples.push({
         exampleId: eg,
-        exampleSummary: examples[eg].summary || eg,
-        exampleDescription: examples[eg].description || '',
+        exampleSummary: examples[eg]?.summary || eg,
+        exampleDescription: examples[eg]?.description || '',
         exampleType: mimeType,
-        exampleValue: egContent,
-        exampleFormat: egFormat,
+        exampleValue: content,
+        exampleFormat: format,
       });
     }
-  } else if (example) {
-    let egContent = '';
-    let egFormat = 'json';
-    if (mimeType?.toLowerCase().includes('json')) {
-      if (outputType === 'text') {
-        egContent = typeof example === 'string' ? example : JSON.stringify(example, undefined, 2);
-        egFormat = 'text';
-      } else if (typeof example === 'object') {
-        egContent = example;
-        egFormat = 'json';
-      } else if (typeof example === 'string') {
-        try {
-          egContent = JSON.parse(example);
-          egFormat = 'json';
-        } catch {
-          egFormat = 'text';
-          egContent = example;
-        }
-      }
-    } else {
-      egContent = example;
-      egFormat = 'text';
-    }
+  }
+  // 2. Process single example (when examples is absent or empty)
+  else if (example !== null && example !== undefined && (typeof example !== 'object' || Object.keys(example).length > 0)) {
+    const rawVal = example?.value !== undefined ? example.value : example;
+    const { content, format } = formatExampleContent(rawVal, mimeType, outputType);
+
     finalExamples.push({
       exampleId: 'Example',
-      exampleSummary: '',
-      exampleDescription: '',
+      exampleSummary: example?.summary || '',
+      exampleDescription: example?.description || '',
       exampleType: mimeType,
-      exampleValue: egContent,
-      exampleFormat: egFormat,
+      exampleValue: content,
+      exampleFormat: format,
     });
   }
-  // If schema-level examples are not provided or includeGeneratedExample === true then generate one based on the schema field types
+
+  // 3. Fallback to schema-level example or schema-generated sample
   if (finalExamples.length === 0 || includeGeneratedExample === true) {
     if (schema) {
       const firstExample = getFirstExample(schema);
-      if (firstExample) {
+      if (firstExample !== undefined && firstExample !== null) {
+        const { content, format } = formatExampleContent(firstExample, mimeType, outputType);
         finalExamples.push({
           exampleId: 'Example',
           exampleSummary: '',
           exampleDescription: '',
           exampleType: mimeType,
-          exampleValue: firstExample,
-          exampleFormat: mimeType?.toLowerCase().includes('json') && typeof firstExample === 'object' ? 'json' : 'text',
+          exampleValue: content,
+          exampleFormat: format,
         });
       } else if (
-        mimeType?.toLowerCase().includes('json') ||
+        isJson ||
+        isXml ||
         mimeType?.toLowerCase().includes('text') ||
-        mimeType?.toLowerCase().includes('*/*') ||
-        mimeType?.toLowerCase().includes('xml')
+        mimeType?.toLowerCase().includes('yaml') ||
+        mimeType?.toLowerCase().includes('*/*')
       ) {
         let xmlRootStart = '';
         let xmlRootEnd = '';
-        let exampleFormat = '';
-        let exampleValue = '';
-        if (mimeType?.toLowerCase().includes('xml')) {
+        let exampleFormat = outputType;
+
+        if (isXml) {
           xmlRootStart = schema.xml?.name
-            ? `<${schema.xml.name} ${schema.xml.namespace ? `xmlns="${schema.xml.namespace}"` : ''}>`
+            ? `<${schema.xml.name}${schema.xml.namespace ? ` xmlns="${schema.xml.namespace}"` : ''}>`
             : '<root>';
           xmlRootEnd = schema.xml?.name ? `</${schema.xml.name}>` : '</root>';
           exampleFormat = 'text';
-        } else {
-          exampleFormat = outputType;
         }
+
         const samples = schemaToSampleObj(schema, {
           includeReadOnly,
           includeWriteOnly,
           deprecated: true,
-          useXmlTagForProp: mimeType?.toLowerCase().includes('xml'),
+          useXmlTagForProp: isXml,
         });
+
         let i = 0;
         for (const samplesKey in samples) {
           if (!samples[samplesKey]) {
@@ -1181,7 +1182,9 @@ export function generateExample(
           }
           const summary = samples[samplesKey]['::TITLE'] || `Example ${++i}`;
           const description = samples[samplesKey]['::DESCRIPTION'] || '';
-          if (mimeType?.toLowerCase().includes('xml')) {
+          let exampleValue = '';
+
+          if (isXml) {
             exampleValue = `<?xml version="1.0" encoding="UTF-8"?>\n${xmlRootStart}${json2xml(samples[samplesKey], 1)}\n${xmlRootEnd}`;
           } else {
             removeTitlesAndDescriptions(samples[samplesKey]);
@@ -1217,7 +1220,7 @@ export function generateExample(
         });
       }
     } else {
-      // No Example or Schema provided (should never reach here)
+      // No Example or Schema provided
       finalExamples.push({
         exampleId: 'Example',
         exampleSummary: '',
@@ -1228,6 +1231,7 @@ export function generateExample(
       });
     }
   }
+
   return finalExamples;
 }
 

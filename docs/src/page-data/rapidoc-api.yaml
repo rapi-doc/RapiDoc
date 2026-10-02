@@ -366,6 +366,34 @@ Attributes:
         <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials" target="_blank" rel="noopener">Fetch Standard</a>, enabling transmission of cookies and Authorization headers in CORS requests.
       default: (empty)
 
+  - Mock Server Attributes:
+    - name: mock-server
+      allowed: ["true", "false"]
+      description: >
+        Enables the built-in, zero-dependency in-browser mock server. Transparently intercepts outgoing network requests (both RapiDoc's Try console and host application fetch/XHR calls) and serves mock responses based on OpenAPI examples or generated from schemas.
+      default: "false"
+    - name: mock-server-status-code
+      description: >
+        Preferred HTTP status code (or comma-separated list of codes, e.g. "200, 404, 500") to simulate. If left empty, the mock server automatically picks the first available 2xx response in the spec.
+      default: (empty)
+    - name: mock-server-status-strategy
+      allowed:
+        - first
+        - cycle
+        - random
+      description: >
+        Selection strategy when multiple status codes are specified in <span class="mono yellow">mock-server-status-code</span>. 'first' always returns the first code; 'cycle' round-robins sequentially per endpoint (ideal for testing retry and backoff logic); 'random' selects a code randomly for chaos and resilience testing.
+      default: first
+    - name: mock-server-delay
+      description: >
+        Simulated network latency in milliseconds before resolving mock responses. Useful for testing client loading spinners and optimistic UI updates.
+      default: 0
+    - name: mock-server-log
+      allowed: ["true", "false"]
+      description: >
+        Logs intercepted requests, matched OpenAPI routes, and synthesized status codes to the browser DevTools console.
+      default: "true"
+
 Methods:
   description: JavaScript methods exposed directly on the `<rapi-doc>` DOM element for programmatic control.
   items:

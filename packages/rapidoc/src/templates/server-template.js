@@ -97,7 +97,19 @@ export default function serverTemplate() {
     style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;"
     class="regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}"
   >
-    <div part="section-servers-title" class="sub-title">API SERVER</div>
+    <div part="section-servers-title" class="sub-title" style="display:flex; align-items:center; gap:8px;">
+      API SERVER
+      ${
+        this.mockServer === 'true'
+          ? html`<span
+              style="font-size:var(--font-size-small); font-weight:bold; color:var(--green, #10b981); border:1px solid var(--green, #10b981); border-radius:4px; padding:1px 6px; letter-spacing:0.5px;"
+              title="In-browser mock server is active"
+            >
+              MOCK ACTIVE
+            </span>`
+          : ''
+      }
+    </div>
     <div class="mono-font" style="margin: 12px 0; font-size:calc(var(--font-size-small) + 1px);">
       ${
         !this.resolvedSpec.servers || this.resolvedSpec.servers?.length === 0
@@ -124,7 +136,10 @@ export default function serverTemplate() {
               )}
             `
       }
-      <div class="table-title primary-text" part="label-selected-server">SELECTED: ${this.selectedServer?.computedUrl || 'none'}</div>
+      <div class="table-title primary-text" part="label-selected-server">
+        SELECTED: ${this.selectedServer?.computedUrl || 'none'}
+        ${this.mockServer === 'true' ? html`<span style="color:var(--green, #10b981); margin-left:6px;">(Mocked)</span>` : ''}
+      </div>
     </div>
     <slot name="servers"></slot>
     ${serverVarsTemplate.call(this)}

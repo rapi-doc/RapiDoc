@@ -18,6 +18,7 @@ import DialogBoxStyles from '~/styles/dialog-box-styles';
 
 import { advancedSearch, getMatchedPaths, getMatchedComponents, rapidocApiKey, sleep } from '~/utils/common-utils';
 import ProcessSpec from '~/utils/spec-parser';
+import { enableMockServer, disableMockServer, updateMockConfig } from '~/utils/mock-interceptor';
 import mainBodyTemplate from '~/templates/main-body-template';
 import { applyApiKey, onClearAllApiKeys } from '~/templates/security-scheme-template';
 import { setApiServer } from '~/templates/server-template';
@@ -78,6 +79,13 @@ export default class RapiDoc extends LitElement {
       defaultApiServerUrl: { type: String, attribute: 'default-api-server' },
       serverUrl: { type: String, attribute: 'server-url' },
       oauthReceiver: { type: String, attribute: 'oauth-receiver' },
+
+      // Mock Server
+      mockServer: { type: String, attribute: 'mock-server' },
+      mockServerStatusCode: { type: String, attribute: 'mock-server-status-code' },
+      mockServerStatusStrategy: { type: String, attribute: 'mock-server-status-strategy' },
+      mockServerDelay: { type: Number, attribute: 'mock-server-delay' },
+      mockServerLog: { type: String, attribute: 'mock-server-log' },
 
       // Hide/Show Sections & Enable Disable actions
       showHeader: { type: String, attribute: 'show-header' },
@@ -693,6 +701,9 @@ export default class RapiDoc extends LitElement {
     if (this.intersectionObserver) {
       this.intersectionObserver.disconnect();
     }
+    if (this.mockServer === 'true') {
+      disableMockServer();
+    }
     super.disconnectedCallback();
   }
 
@@ -717,6 +728,32 @@ export default class RapiDoc extends LitElement {
   updated(changedProperties) {
     super.updated?.(changedProperties);
     scheduleHighlight(this.shadowRoot);
+
+    if (changedProperties.has('mockServer')) {
+      if (this.mockServer === 'true' && this.resolvedSpec) {
+        enableMockServer(this.resolvedSpec, {
+          statusCode: this.mockServerStatusCode,
+          statusStrategy: this.mockServerStatusStrategy,
+          delay: this.mockServerDelay,
+          log: this.mockServerLog,
+        });
+      } else if (this.mockServer !== 'true') {
+        disableMockServer();
+      }
+    }
+    if (
+      changedProperties.has('mockServerStatusCode') ||
+      changedProperties.has('mockServerStatusStrategy') ||
+      changedProperties.has('mockServerDelay') ||
+      changedProperties.has('mockServerLog')
+    ) {
+      updateMockConfig({
+        statusCode: this.mockServerStatusCode,
+        statusStrategy: this.mockServerStatusStrategy,
+        delay: this.mockServerDelay,
+        log: this.mockServerLog,
+      });
+    }
   }
 
   observeExpandedContent() {
@@ -943,6 +980,15 @@ export default class RapiDoc extends LitElement {
     while (!(await this.updateComplete));
     const specLoadedEvent = new CustomEvent('spec-loaded', { detail: spec });
     this.dispatchEvent(specLoadedEvent);
+
+    if (this.mockServer === 'true') {
+      enableMockServer(this.resolvedSpec, {
+        statusCode: this.mockServerStatusCode,
+        statusStrategy: this.mockServerStatusStrategy,
+        delay: this.mockServerDelay,
+        log: this.mockServerLog,
+      });
+    }
 
     // Initiate IntersectionObserver and put it at the end of event loop, to allow loading all the child elements (must for larger specs)
     this.intersectionObserver.disconnect();

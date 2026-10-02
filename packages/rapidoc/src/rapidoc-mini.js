@@ -14,6 +14,7 @@ import InfoStyles from '~/styles/info-styles';
 import EndpointStyles from '~/styles/endpoint-styles';
 import { rapidocApiKey } from '~/utils/common-utils';
 import ProcessSpec from '~/utils/spec-parser';
+import { enableMockServer, disableMockServer, updateMockConfig } from '~/utils/mock-interceptor';
 import mainBodyTemplate from '~/templates/main-body-template';
 import { applyApiKey, onClearAllApiKeys } from '~/templates/security-scheme-template';
 import { setApiServer } from '~/templates/server-template';
@@ -55,6 +56,13 @@ export default class RapiDocMini extends LitElement {
       defaultApiServerUrl: { type: String, attribute: 'default-api-server' },
       serverUrl: { type: String, attribute: 'server-url' },
       oauthReceiver: { type: String, attribute: 'oauth-receiver' },
+
+      // Mock Server
+      mockServer: { type: String, attribute: 'mock-server' },
+      mockServerStatusCode: { type: String, attribute: 'mock-server-status-code' },
+      mockServerStatusStrategy: { type: String, attribute: 'mock-server-status-strategy' },
+      mockServerDelay: { type: Number, attribute: 'mock-server-delay' },
+      mockServerLog: { type: String, attribute: 'mock-server-log' },
 
       allowTry: { type: String, attribute: 'allow-try' },
       showCurlBeforeTry: { type: String, attribute: 'show-curl-before-try' },
@@ -232,6 +240,13 @@ export default class RapiDocMini extends LitElement {
     }
   }
 
+  disconnectedCallback() {
+    if (this.mockServer === 'true') {
+      disableMockServer();
+    }
+    super.disconnectedCallback();
+  }
+
   render() {
     return mainBodyTemplate.call(this, true, this.pathsExpanded);
   }
@@ -239,6 +254,32 @@ export default class RapiDocMini extends LitElement {
   updated(changedProperties) {
     super.updated?.(changedProperties);
     scheduleHighlight(this.shadowRoot);
+
+    if (changedProperties.has('mockServer')) {
+      if (this.mockServer === 'true' && this.resolvedSpec) {
+        enableMockServer(this.resolvedSpec, {
+          statusCode: this.mockServerStatusCode,
+          statusStrategy: this.mockServerStatusStrategy,
+          delay: this.mockServerDelay,
+          log: this.mockServerLog,
+        });
+      } else if (this.mockServer !== 'true') {
+        disableMockServer();
+      }
+    }
+    if (
+      changedProperties.has('mockServerStatusCode') ||
+      changedProperties.has('mockServerStatusStrategy') ||
+      changedProperties.has('mockServerDelay') ||
+      changedProperties.has('mockServerLog')
+    ) {
+      updateMockConfig({
+        statusCode: this.mockServerStatusCode,
+        statusStrategy: this.mockServerStatusStrategy,
+        delay: this.mockServerDelay,
+        log: this.mockServerLog,
+      });
+    }
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
@@ -399,6 +440,15 @@ export default class RapiDocMini extends LitElement {
     while (!(await this.updateComplete));
     const specLoadedEvent = new CustomEvent('spec-loaded', { detail: spec });
     this.dispatchEvent(specLoadedEvent);
+
+    if (this.mockServer === 'true') {
+      enableMockServer(this.resolvedSpec, {
+        statusCode: this.mockServerStatusCode,
+        statusStrategy: this.mockServerStatusStrategy,
+        delay: this.mockServerDelay,
+        log: this.mockServerLog,
+      });
+    }
   }
 
   // Called by anchor tags created using markdown

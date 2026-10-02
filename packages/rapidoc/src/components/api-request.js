@@ -412,17 +412,18 @@ export default class ApiRequest extends LitElement {
         paramSchema.type
       );
       if (!example.exampleVal && paramSchema.type === 'object') {
-        example.exampleVal = generateExample(
-          declaredParamSchema,
-          serializeStyle || 'json',
-          {},
-          {},
-          this.callback === 'true' || this.webhook === 'true' ? true : false,
-          this.callback === 'true' || this.webhook === 'true' ? false : true,
-          true,
-          'text',
-          false
-        )[0]?.exampleValue || '';
+        example.exampleVal =
+          generateExample(
+            declaredParamSchema,
+            serializeStyle || 'json',
+            {},
+            {},
+            this.callback === 'true' || this.webhook === 'true' ? true : false,
+            this.callback === 'true' || this.webhook === 'true' ? false : true,
+            true,
+            'text',
+            false
+          )[0]?.exampleValue || '';
       }
       const labelColWidth = 'read focused'.includes(this.renderStyle) ? '200px' : '160px';
       tableRows.push(html`

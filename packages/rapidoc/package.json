@@ -41,7 +41,8 @@
     "lint": "eslint './src/**/*.js'",
     "format": "prettier --check './src/**/*.{js,html,css}'",
     "format-fix": "prettier --write './src/**/*.{js,html,css}'",
-    "analyze": "lit-analyzer src"
+    "analyze": "lit-analyzer src",
+    "test": "node --test ../../tests/unit/*.test.js"
   },
   "dependencies": {
     "@scalar/openapi-parser": "^0.29.7",

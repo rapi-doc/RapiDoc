@@ -1,0 +1,1137 @@
+---
+import GlobalLayout from '../layouts/GlobalLayout.astro';
+import SiteNavbar from '../components/SiteNavbar.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import CodeBlock from '../components/CodeBlock.astro';
+
+const basicMockCode = `<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+
+<!-- Enable the built-in mock server with a single attribute -->
+<rapi-doc
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
+  mock-server="true"
+  mock-server-delay="300"
+  mock-server-log="true"
+  theme="dark"
+> </rapi-doc>`;
+
+const multiStatusCode = `<!-- Cycle through 200, 429, and 500 to test retry logic and banners -->
+<rapi-doc
+  spec-url="/specs/mock.yaml"
+  mock-server="true"
+  mock-server-status-code="200, 429, 500"
+  mock-server-status-strategy="cycle"
+  mock-server-delay="400"
+> </rapi-doc>`;
+
+const reactViteCode = `// src/App.jsx - Seamless frontend prototyping without waiting for backend
+import React, { useEffect, useState } from 'react';
+
+export default function App() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Intercepted in-page by RapiDoc! Resolves instantly from OpenAPI spec
+    fetch('/api/users')
+      .then((res) => res.json())
+      .then((data) => {
+        setUsers(data.data || []);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <div className="spinner">Simulating network latency...</div>;
+
+  return (
+    <div>
+      <h2>User Directory (Mocked from OpenAPI)</h2>
+      <ul>
+        {users.map(u => <li key={u.id}>{u.first_name} {u.last_name} ({u.email})</li>)}
+      </ul>
+    </div>
+  );
+}`;
+
+const mockAttributes = [
+  {
+    name: 'mock-server',
+    type: 'true | false',
+    default: 'false',
+    desc: 'Activates the in-browser mock server interceptor. Transparently intercepts outgoing network requests (both in-doc TRY console and host application fetch/XHR calls) and synthesizes realistic mock responses directly from your OpenAPI specification.'
+  },
+  {
+    name: 'mock-server-status-code',
+    type: 'String',
+    default: '(auto)',
+    desc: 'Target HTTP status code or comma-separated list of codes (e.g. "200, 404, 500") to simulate. If omitted, the mock server automatically picks the first available 2xx response in the spec.'
+  },
+  {
+    name: 'mock-server-status-strategy',
+    type: 'first | cycle | random',
+    default: 'first',
+    desc: "Selection strategy when multiple status codes are provided in mock-server-status-code. 'first' always returns the first code; 'cycle' round-robins sequentially per endpoint (ideal for testing retry and backoff algorithms); 'random' selects a code randomly for chaos and resilience testing."
+  },
+  {
+    name: 'mock-server-delay',
+    type: 'Number (ms)',
+    default: '0',
+    desc: 'Simulated network latency in milliseconds before resolving mock responses. Perfect for testing loading skeletons, button disabled states, and race conditions.'
+  },
+  {
+    name: 'mock-server-log',
+    type: 'true | false',
+    default: 'true',
+    desc: 'Logs intercepted requests, matched OpenAPI routes, and synthesized status codes directly to the browser DevTools console.'
+  }
+];
+---
+
+<GlobalLayout>
+  <!-- RapiDoc Component Registration -->
+  <script slot="script" is:inline type="module" src="/rapidoc/rapidoc-min.js"></script>
+
+  <!-- Ambient background glow elements -->
+  <div class="ambient-glow glow-emerald"></div>
+  <div class="ambient-glow glow-cyan"></div>
+  <div class="ambient-glow glow-indigo"></div>
+
+  <!-- Reusable Navigation -->
+  <SiteNavbar activePage="mock-server" />
+
+  <main class="rd-mock-main">
+    <!-- Hero Header -->
+    <header class="rd-mock-header">
+      <div class="rd-badge-pill">
+        <span class="rd-badge-pulse"></span>
+        <span class="rd-badge-text">Zero-Dependency In-Browser Mocking</span>
+      </div>
+
+      <h1 class="rd-page-title">
+        In-Browser <span class="text-gradient">Mock Server</span>
+      </h1>
+
+      <p class="rd-page-subtitle">
+        Prototype client frontends, simulate multi-status responses, and test network latency before backend APIs exist. No Prism, no Docker, zero external CLI processes — built directly into your single RapiDoc bundle.
+      </p>
+
+      <!-- Key Metrics / Feature Badges -->
+      <div class="rd-stats-bar">
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">100%</span>
+          <span class="rd-stat-label">In-Browser Interception</span>
+        </div>
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">0</span>
+          <span class="rd-stat-label">External Dependencies</span>
+        </div>
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">Multi-Code</span>
+          <span class="rd-stat-label">Cycle & Chaos Simulation</span>
+        </div>
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">Zero CORS</span>
+          <span class="rd-stat-label">Origin Friction Eliminated</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ================= INTERACTIVE TESTBED & LIVE PLAYGROUND ================= -->
+    <section class="rd-section" id="interactive-demo">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Live Interactive Playground</div>
+        <h2 class="rd-section-title">Test In-Page Fetch Interception Live</h2>
+        <p class="rd-section-desc">
+          The <code>&lt;rapi-doc&gt;</code> element below is mounted with <code>mock-server="true"</code>. Use the live test controls to trigger actual <code>window.fetch()</code> requests from this page, and see them intercepted and resolved with mock data in real time!
+        </p>
+      </div>
+
+      <div class="rd-playground-grid">
+        <!-- Interactive Fetch Client Card -->
+        <div class="rd-client-card">
+          <div class="rd-card-header">
+            <span class="rd-card-dot green"></span>
+            <span class="rd-card-title">Frontend <code>fetch()</code> Tester</span>
+            <span class="rd-badge-mock-active">INTERCEPTOR READY</span>
+          </div>
+
+          <div class="rd-card-body">
+            <div class="rd-form-group">
+              <label for="endpoint-select">Target OpenAPI Endpoint:</label>
+              <select id="endpoint-select" class="rd-select">
+                <option value="https://reqres.in/api/users">GET https://reqres.in/api/users (List Paginated)</option>
+                <option value="https://reqres.in/api/users/2">GET https://reqres.in/api/users/2 (Single User)</option>
+                <option value="https://reqres.in/api/users" data-method="POST">POST https://reqres.in/api/users (Create User)</option>
+              </select>
+            </div>
+
+            <div class="rd-form-row">
+              <div class="rd-form-group">
+                <label for="status-select">Status Code Simulation:</label>
+                <select id="status-select" class="rd-select">
+                  <option value="">Auto (First 2xx)</option>
+                  <option value="200">200 OK</option>
+                  <option value="400">400 Bad Request</option>
+                  <option value="404">404 Not Found</option>
+                  <option value="500">500 Server Error</option>
+                  <option value="200, 400, 500" data-strategy="cycle">Cycle (200 &rarr; 400 &rarr; 500)</option>
+                  <option value="200, 500" data-strategy="random">Random Chaos (200 / 500)</option>
+                </select>
+              </div>
+
+              <div class="rd-form-group">
+                <label for="delay-select">Simulated Latency:</label>
+                <select id="delay-select" class="rd-select">
+                  <option value="0">0ms (Instant)</option>
+                  <option value="300" selected>300ms (Fast 4G)</option>
+                  <option value="800">800ms (Slow Network)</option>
+                  <option value="1500">1500ms (High Latency)</option>
+                </select>
+              </div>
+            </div>
+
+            <button id="send-fetch-btn" class="rd-fetch-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <span>Execute In-Page <code>fetch()</code></span>
+            </button>
+
+            <!-- Response Viewer -->
+            <div class="rd-response-box">
+              <div class="rd-response-header">
+                <div class="rd-response-meta">
+                  <span class="rd-meta-label">Status:</span>
+                  <span id="res-status" class="rd-status-badge badge-pending">Ready</span>
+                  <span class="rd-meta-label" style="margin-left: 10px;">Time:</span>
+                  <span id="res-time" class="rd-time-badge">0ms</span>
+                </div>
+                <span class="rd-response-origin">Intercepted in-memory</span>
+              </div>
+              <pre id="res-body" class="rd-response-body"><code>// Click "Execute In-Page fetch()" above to test interception...</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Embedded Live RapiDoc Instance -->
+        <div class="rd-rapidoc-embed-card">
+          <div class="rd-card-header">
+            <span class="rd-card-dot blue"></span>
+            <span class="rd-card-title">Live <code>&lt;rapi-doc mock-server="true"&gt;</code></span>
+            <span class="rd-badge-doc-active">MOCK ACTIVE BADGE IN UI</span>
+          </div>
+          <div class="rd-embed-container">
+            <rapi-doc
+              id="live-mock-rapidoc"
+              spec-url="/specs/mock.yaml"
+              mock-server="true"
+              mock-server-delay="300"
+              mock-server-log="true"
+              theme="dark"
+              bg-color="#0b1121"
+              render-style="view"
+              show-header="true"
+              allow-try="true"
+              show-info="false"
+              style="height: 520px; width: 100%; display: block;"
+            ></rapi-doc>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= WHY BUILT-IN MOCKING MATTERS ================= -->
+    <section class="rd-section">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Architecture & DX</div>
+        <h2 class="rd-section-title">The Problem with Traditional API Mocking</h2>
+      </div>
+
+      <div class="rd-usecase-grid">
+        <div class="rd-usecase-card">
+          <div class="rd-card-icon">🚫</div>
+          <h3>The Cross-Origin CORS Trap</h3>
+          <p>
+            External mock servers like Prism or WireMock listen on separate ports (e.g. <code>localhost:4010</code>). Frontend developers spend hours debugging Preflight <code>OPTIONS</code> requests and CORS header misconfigurations instead of shipping features.
+          </p>
+        </div>
+
+        <div class="rd-usecase-card">
+          <div class="rd-card-icon">📦</div>
+          <h3>Heavy Containers & Node Services</h3>
+          <p>
+            Running Docker or dedicated CLI processes requires team-wide environment setup, npm package management, and port allocation across multiple repositories.
+          </p>
+        </div>
+
+        <div class="rd-usecase-card">
+          <div class="rd-card-icon">⚡</div>
+          <h3>Zero-Dependency Native Interception</h3>
+          <p>
+            RapiDoc intercepts <code>window.fetch</code> and <code>XMLHttpRequest</code> directly inside the browser runtime. There is nothing to install, compile, or boot.
+          </p>
+        </div>
+
+        <div class="rd-usecase-card">
+          <div class="rd-card-icon">🎯</div>
+          <h3>Unified Source of Truth</h3>
+          <p>
+            Mock data is generated on the fly from the exact same OpenAPI specification that powers your documentation. When the spec evolves, the mock responses update instantly.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= COMPARISON MATRIX ================= -->
+    <section class="rd-section" id="comparison">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Tooling Comparison</div>
+        <h2 class="rd-section-title">RapiDoc vs Dedicated Mock Solutions</h2>
+      </div>
+
+      <div class="rd-table-container">
+        <table class="rd-compare-table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th class="col-highlight">RapiDoc Built-In</th>
+              <th>Prism (Stoplight)</th>
+              <th>MSW (Mock Service Worker)</th>
+              <th>WireMock / Docker</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="col-feature">Setup Complexity</td>
+              <td class="col-highlight"><span class="rd-check">✓</span> 1 HTML attribute</td>
+              <td>Node CLI / Docker container</td>
+              <td>Requires service worker script asset</td>
+              <td>Heavy JVM / Docker container</td>
+            </tr>
+            <tr>
+              <td class="col-feature">Single Bundle Distribution</td>
+              <td class="col-highlight"><span class="rd-check">✓</span> Included in rapidoc-min.js</td>
+              <td><span class="rd-cross">✕</span> Separate CLI</td>
+              <td><span class="rd-cross">✕</span> Separate SW worker file</td>
+              <td><span class="rd-cross">✕</span> Standalone container</td>
+            </tr>
+            <tr>
+              <td class="col-feature">CORS Issues</td>
+              <td class="col-highlight"><span class="rd-check">✓</span> Zero (In-browser intercept)</td>
+              <td><span class="rd-cross">✕</span> Cross-origin port headaches</td>
+              <td><span class="rd-check">✓</span> Handled by worker</td>
+              <td><span class="rd-cross">✕</span> Manual CORS headers required</td>
+            </tr>
+            <tr>
+              <td class="col-feature">Works via CDN Script</td>
+              <td class="col-highlight"><span class="rd-check">✓</span> Yes (unpkg / jsdelivr)</td>
+              <td><span class="rd-cross">✕</span> No</td>
+              <td><span class="rd-cross">✕</span> No (SW domain restriction)</td>
+              <td><span class="rd-cross">✕</span> No</td>
+            </tr>
+            <tr>
+              <td class="col-feature">Interactive API Docs Included</td>
+              <td class="col-highlight"><span class="rd-check">✓</span> Full RapiDoc UI</td>
+              <td><span class="rd-cross">✕</span> Mock only</td>
+              <td><span class="rd-cross">✕</span> Mock only</td>
+              <td><span class="rd-cross">✕</span> Mock only</td>
+            </tr>
+            <tr>
+              <td class="col-feature">Multi-Status & Chaos (Cycle/Random)</td>
+              <td class="col-highlight"><span class="rd-check">✓</span> Built-in strategies</td>
+              <td>Limited</td>
+              <td>Manual handler coding</td>
+              <td>Requires scenario rules</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= CODE RECIPES ================= -->
+    <section class="rd-section" id="recipes">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Integration Recipes</div>
+        <h2 class="rd-section-title">How to Use in Your Application</h2>
+      </div>
+
+      <div class="rd-recipe-card">
+        <h3>1. Standard HTML & Documentation Portals</h3>
+        <p>Drop the script tag onto your page and turn on mocking with <code>mock-server="true"</code>:</p>
+        <CodeBlock code={basicMockCode} lang="html" filename="index.html" />
+      </div>
+
+      <div class="rd-recipe-card" style="margin-top: 24px;">
+        <h3>2. Testing Resilience & Retry Logic with Multi-Status Codes</h3>
+        <p>Simulate intermittent failures or verify error notifications by cycling through multiple HTTP status codes:</p>
+        <CodeBlock code={multiStatusCode} lang="html" filename="chaos-testing.html" />
+      </div>
+
+      <div class="rd-recipe-card" style="margin-top: 24px;">
+        <h3>3. React, Vite, or Vue Frontend Prototyping</h3>
+        <p>Mount RapiDoc in your development environment to unblock UI components before backend development finishes:</p>
+        <CodeBlock code={reactViteCode} lang="jsx" filename="UserProfile.jsx" />
+      </div>
+    </section>
+
+    <!-- ================= ATTRIBUTES REFERENCE ================= -->
+    <section class="rd-section" id="attributes">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">API Reference</div>
+        <h2 class="rd-section-title">Mock Server Attributes</h2>
+      </div>
+
+      <div class="rd-table-container">
+        <table class="rd-api-table">
+          <thead>
+            <tr>
+              <th class="col-name">Attribute</th>
+              <th class="col-type">Type / Allowed</th>
+              <th class="col-default">Default</th>
+              <th class="col-desc">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {mockAttributes.map(attr => (
+              <tr class="rd-api-row">
+                <td class="col-name">
+                  <code class="rd-attr-name">{attr.name}</code>
+                </td>
+                <td class="col-type">
+                  <span class="rd-type-tag">{attr.type}</span>
+                </td>
+                <td class="col-default">
+                  <span class="rd-default-tag">{attr.default}</span>
+                </td>
+                <td class="col-desc">
+                  <div class="rd-attr-desc">{attr.desc}</div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= CALL TO ACTION ================= -->
+    <section class="rd-cta-section">
+      <div class="rd-cta-card">
+        <h2>Ready for In-Depth Technical Details?</h2>
+        <p>
+          Read our complete Starlight guide on mock response resolution hierarchies, write-only attribute omission, and programmatic control.
+        </p>
+        <div class="rd-cta-buttons">
+          <a href="/docs/advanced/mock-server" class="rd-btn rd-btn-primary">
+            Explore Detailed Guide &rarr;
+          </a>
+          <a href="/api" class="rd-btn rd-btn-ghost">
+            View Complete API Reference
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <SiteFooter />
+</GlobalLayout>
+
+<script>
+  // Interactive testbed script for fetch testing
+  window.addEventListener('DOMContentLoaded', () => {
+    const endpointSelect = document.getElementById('endpoint-select');
+    const statusSelect = document.getElementById('status-select');
+    const delaySelect = document.getElementById('delay-select');
+    const sendBtn = document.getElementById('send-fetch-btn');
+    const resStatus = document.getElementById('res-status');
+    const resTime = document.getElementById('res-time');
+    const resBody = document.getElementById('res-body');
+    const rapidocEl = document.getElementById('live-mock-rapidoc');
+
+    function syncRapidocAttributes() {
+      if (!rapidocEl) return;
+      const statusVal = statusSelect.value;
+      const delayVal = delaySelect.value;
+      const selectedOption = statusSelect.options[statusSelect.selectedIndex];
+      const strategy = selectedOption.getAttribute('data-strategy') || 'first';
+
+      if (statusVal) {
+        rapidocEl.setAttribute('mock-server-status-code', statusVal);
+      } else {
+        rapidocEl.removeAttribute('mock-server-status-code');
+      }
+      rapidocEl.setAttribute('mock-server-status-strategy', strategy);
+      rapidocEl.setAttribute('mock-server-delay', delayVal);
+    }
+
+    statusSelect?.addEventListener('change', syncRapidocAttributes);
+    delaySelect?.addEventListener('change', syncRapidocAttributes);
+
+    sendBtn?.addEventListener('click', async () => {
+      syncRapidocAttributes();
+
+      const url = endpointSelect.value;
+      const selectedOpt = endpointSelect.options[endpointSelect.selectedIndex];
+      const method = selectedOpt.getAttribute('data-method') || 'GET';
+
+      resStatus.className = 'rd-status-badge badge-pending';
+      resStatus.textContent = 'Fetching...';
+      resTime.textContent = '...';
+      resBody.textContent = `Sending ${method} request to ${url} ...`;
+
+      const startTime = performance.now();
+      try {
+        const fetchOptions = { method };
+        if (method === 'POST') {
+          fetchOptions.headers = { 'Content-Type': 'application/json' };
+          fetchOptions.body = JSON.stringify({ name: 'morpheus', job: 'leader' });
+        }
+
+        const response = await fetch(url, fetchOptions);
+        const elapsed = Math.round(performance.now() - startTime);
+
+        const statusClass = response.ok ? 'badge-2xx' : (response.status >= 500 ? 'badge-5xx' : 'badge-4xx');
+        resStatus.className = `rd-status-badge ${statusClass}`;
+        resStatus.textContent = `${response.status} ${response.statusText || 'OK'}`;
+        resTime.textContent = `${elapsed}ms`;
+
+        const contentType = response.headers.get('content-type') || '';
+        if (contentType.includes('json')) {
+          const data = await response.json();
+          resBody.textContent = JSON.stringify(data, null, 2);
+        } else {
+          const text = await response.text();
+          resBody.textContent = text;
+        }
+      } catch (err) {
+        const elapsed = Math.round(performance.now() - startTime);
+        resStatus.className = 'rd-status-badge badge-5xx';
+        resStatus.textContent = 'Failed';
+        resTime.textContent = `${elapsed}ms`;
+        resBody.textContent = `Error executing fetch: ${err.message}`;
+      }
+    });
+  });
+</script>
+
+<style>
+:root {
+  --rd-emerald: #10b981;
+  --rd-emerald-glow: rgba(16, 185, 129, 0.25);
+  --rd-cyan: #06b6d4;
+  --rd-cyan-glow: rgba(6, 182, 212, 0.25);
+  --rd-indigo: #6366f1;
+  --rd-surface: rgba(15, 23, 42, 0.65);
+  --rd-surface-card: rgba(11, 17, 33, 0.75);
+  --rd-surface-hover: rgba(22, 32, 58, 0.85);
+  --rd-glass-border: rgba(255, 255, 255, 0.08);
+  --rd-glass-border-hover: rgba(16, 185, 129, 0.4);
+  --rd-text-primary: #f8fafc;
+  --rd-text-secondary: #94a3b8;
+  --rd-text-muted: #64748b;
+  --rd-font-mono: 'Roboto Mono', Monaco, 'Andale Mono', monospace;
+}
+
+/* Ambient Radial Glows */
+.ambient-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(140px);
+  pointer-events: none;
+  opacity: 0.18;
+  z-index: 0;
+}
+.glow-emerald {
+  top: 100px;
+  left: 10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, var(--rd-emerald) 0%, transparent 70%);
+}
+.glow-indigo {
+  top: 800px;
+  right: 10%;
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, var(--rd-indigo) 0%, transparent 70%);
+}
+.glow-cyan {
+  top: 1600px;
+  left: 15%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, var(--rd-cyan) 0%, transparent 70%);
+}
+
+.rd-mock-main {
+  position: relative;
+  z-index: 1;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 48px 24px 96px 24px;
+}
+
+/* Hero Header */
+.rd-mock-header {
+  text-align: center;
+  max-width: 860px;
+  margin: 0 auto 64px auto;
+}
+
+.rd-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  margin-bottom: 20px;
+}
+
+.rd-badge-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--rd-emerald);
+  box-shadow: 0 0 10px var(--rd-emerald);
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.rd-badge-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #34d399;
+  letter-spacing: 0.02em;
+}
+
+.rd-page-title {
+  font-size: clamp(32px, 5vw, 54px);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.15;
+  margin-bottom: 20px;
+  letter-spacing: -0.02em;
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.rd-page-subtitle {
+  font-size: clamp(16px, 2vw, 19px);
+  color: var(--rd-text-secondary);
+  line-height: 1.6;
+  margin-bottom: 36px;
+}
+
+/* Stats Bar */
+.rd-stats-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.rd-stat-card {
+  background: var(--rd-surface);
+  border: 1px solid var(--rd-glass-border);
+  padding: 16px 20px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  backdrop-filter: blur(8px);
+}
+
+.rd-stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--rd-emerald);
+  margin-bottom: 4px;
+  font-family: var(--rd-font-mono);
+}
+
+.rd-stat-label {
+  font-size: 13px;
+  color: var(--rd-text-secondary);
+  font-weight: 500;
+}
+
+/* Sections */
+.rd-section {
+  margin-bottom: 80px;
+}
+
+.rd-section-header {
+  margin-bottom: 32px;
+}
+
+.rd-section-badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--rd-emerald);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.rd-section-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 12px;
+}
+
+.rd-section-desc {
+  font-size: 16px;
+  color: var(--rd-text-secondary);
+  line-height: 1.6;
+  max-width: 820px;
+}
+
+/* Playground Grid */
+.rd-playground-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: stretch;
+}
+
+@media (max-width: 960px) {
+  .rd-playground-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.rd-client-card, .rd-rapidoc-embed-card {
+  background: var(--rd-surface-card);
+  border: 1px solid var(--rd-glass-border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+}
+
+.rd-card-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid var(--rd-glass-border);
+}
+
+.rd-card-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+.rd-card-dot.green { background: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
+.rd-card-dot.blue { background: #06b6d4; box-shadow: 0 0 8px rgba(6, 182, 212, 0.5); }
+
+.rd-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e2e8f0;
+  flex: 1;
+}
+
+.rd-badge-mock-active {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.rd-badge-doc-active {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(6, 182, 212, 0.2);
+  color: #67e8f9;
+  border: 1px solid rgba(6, 182, 212, 0.4);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.rd-card-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+}
+
+.rd-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rd-form-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--rd-text-secondary);
+}
+
+.rd-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.rd-select {
+  background: #060913;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f1f5f9;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.rd-select:focus {
+  border-color: var(--rd-emerald);
+}
+
+.rd-fetch-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #fff;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+  transition: all 0.2s ease;
+}
+
+.rd-fetch-btn:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+  transform: translateY(-1px);
+}
+
+/* Response Box */
+.rd-response-box {
+  background: #060913;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.rd-response-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.rd-response-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.rd-meta-label {
+  color: var(--rd-text-muted);
+}
+
+.rd-status-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-family: var(--rd-font-mono);
+}
+
+.badge-pending {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
+}
+
+.badge-2xx {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.badge-4xx {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.badge-5xx {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.rd-time-badge {
+  font-size: 11px;
+  font-family: var(--rd-font-mono);
+  color: #38bdf8;
+}
+
+.rd-response-origin {
+  font-size: 11px;
+  color: #64748b;
+  font-style: italic;
+}
+
+.rd-response-body {
+  margin: 0;
+  padding: 12px;
+  font-family: var(--rd-font-mono);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #cbd5e1;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.rd-embed-container {
+  padding: 8px;
+  background: #0b1121;
+}
+
+/* Use cases grid */
+.rd-usecase-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.rd-usecase-card {
+  background: var(--rd-surface-card);
+  border: 1px solid var(--rd-glass-border);
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.2s ease;
+}
+
+.rd-usecase-card:hover {
+  border-color: var(--rd-glass-border-hover);
+  transform: translateY(-2px);
+}
+
+.rd-card-icon {
+  font-size: 28px;
+  margin-bottom: 12px;
+}
+
+.rd-usecase-card h3 {
+  font-size: 18px;
+  color: #fff;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.rd-usecase-card p {
+  font-size: 14px;
+  color: var(--rd-text-secondary);
+  line-height: 1.6;
+}
+
+/* Table styles */
+.rd-table-container {
+  overflow-x: auto;
+  border: 1px solid var(--rd-glass-border);
+  border-radius: 12px;
+  background: var(--rd-surface-card);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+.rd-compare-table, .rd-api-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.rd-compare-table th, .rd-api-table th {
+  padding: 14px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid var(--rd-glass-border);
+}
+
+.rd-compare-table td, .rd-api-table td {
+  padding: 14px 18px;
+  font-size: 14px;
+  color: #cbd5e1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.col-highlight {
+  background: rgba(16, 185, 129, 0.05);
+  color: #fff !important;
+  font-weight: 600;
+}
+
+.col-feature {
+  font-weight: 600;
+  color: #f1f5f9 !important;
+}
+
+.rd-check {
+  color: #10b981;
+  font-weight: 700;
+  margin-right: 4px;
+}
+
+.rd-cross {
+  color: #ef4444;
+  font-weight: 700;
+  margin-right: 4px;
+}
+
+.rd-attr-name {
+  font-family: var(--rd-font-mono);
+  color: #38bdf8;
+  font-size: 13px;
+}
+
+.rd-type-tag {
+  font-family: var(--rd-font-mono);
+  font-size: 12px;
+  background: rgba(99, 102, 241, 0.15);
+  color: #a5b4fc;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.rd-default-tag {
+  font-family: var(--rd-font-mono);
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.rd-attr-desc {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #94a3b8;
+}
+
+/* Recipes */
+.rd-recipe-card {
+  background: var(--rd-surface-card);
+  border: 1px solid var(--rd-glass-border);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.rd-recipe-card h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.rd-recipe-card p {
+  font-size: 14px;
+  color: var(--rd-text-secondary);
+  margin-bottom: 16px;
+}
+
+/* CTA Section */
+.rd-cta-section {
+  margin-top: 80px;
+}
+
+.rd-cta-card {
+  text-align: center;
+  background: radial-gradient(circle at center, rgba(16, 185, 129, 0.1) 0%, rgba(15, 23, 42, 0.8) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 16px;
+  padding: 48px 24px;
+  box-shadow: 0 10px 40px -10px rgba(16, 185, 129, 0.2);
+}
+
+.rd-cta-card h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 12px;
+}
+
+.rd-cta-card p {
+  font-size: 16px;
+  color: var(--rd-text-secondary);
+  max-width: 600px;
+  margin: 0 auto 28px auto;
+  line-height: 1.6;
+}
+
+.rd-cta-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.rd-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.rd-btn-primary {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+}
+
+.rd-btn-primary:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+  transform: translateY(-1px);
+}
+
+.rd-btn-ghost {
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.rd-btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+</style>
