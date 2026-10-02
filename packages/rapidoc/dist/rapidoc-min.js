@@ -1,6 +1,6 @@
 /*!
  * @license
- * rapidoc v10.0.1
+ * rapidoc v10.1.0
  * (c) 2026 Mrinmoy Majumdar <mrin9@yahoo.com>
  * SPDX-License-Identifier: MIT
  */

@@ -1,6 +1,6 @@
 {
   "name": "rapidoc",
-  "version": "10.0.1",
+  "version": "10.1.0",
   "description": "RapiDoc - Open API spec viewer with built in console",
   "author": "Mrinmoy Majumdar <mrin9@yahoo.com>",
   "homepage": "https://rapidocui.com",
@@ -27,7 +27,8 @@
     "openapi viewer",
     "openapi renderer",
     "openapi explorer",
-    "swagger themes"
+    "swagger themes",
+    "Mock Server"
   ],
   "type": "module",
   "main": "dist/rapidoc-min.js",
