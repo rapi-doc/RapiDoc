@@ -1,0 +1,9 @@
+{
+  "name": "rapidoc-portal",
+  "version": "0.1.0",
+  "description": "PocketBase developer portal for hosting and securing OpenAPI specs with RapiDoc",
+  "type": "module",
+  "scripts": {
+    "dev": "echo 'PocketBase portal coming soon'"
+  }
+}

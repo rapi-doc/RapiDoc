@@ -1,0 +1,36 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+import { getSpecUrl } from '../../utils/getSpecUrl';
+
+const specUrl = getSpecUrl(Astro.url);
+---
+
+<ExampleLayout>
+  <rapi-doc 
+    id = "thedoc"
+    spec-url = "/specs/petstore.yaml"
+    show-info = "false"
+    show-header = "false"
+    allow-authentication = "false" 
+    allow-server-selection = "false"
+    default-schema-tab = "schema"
+    schema-style='table'
+  > 
+
+    <div slot="nav-logo" style="display:flex; flex-direction:column; align-items:center; ">
+      <button class='btn' style="width:200px" onclick="toggleDefaultSchemaTab()">Toggle Default Schema Tab</button>
+    </div>
+
+  </rapi-doc>
+</ExampleLayout>
+
+<script is:inline>
+  
+  function toggleDefaultSchemaTab () {
+    if (rapidocEl.getAttribute('default-schema-tab') === 'example') {
+      rapidocEl.setAttribute('default-schema-tab', 'schema');
+    } else {
+      rapidocEl.setAttribute('default-schema-tab', 'example');
+    }
+  }
+</script>

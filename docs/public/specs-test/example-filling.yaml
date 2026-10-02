@@ -1,0 +1,52 @@
+openapi: 3.1.0
+info:
+  title: Minimum Reproduction
+paths:
+  /path:
+    get:
+      operationId: get.path
+      parameters:
+        - name: param1
+          in: query
+          description: string example
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+          examples: 
+            - example1
+        - name: param2
+          in: query
+          description: array examples 
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+          examples:
+            - example1
+            - example2
+            - ['example1', 'example2']
+        - name: param3
+          in: query
+          description: boolean `true` example
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: boolean
+          examples: 
+            - true
+        - name: param4
+          in: query
+          description: boolean `false` example
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: boolean
+          examples: 
+           - false

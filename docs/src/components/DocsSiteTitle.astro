@@ -1,0 +1,104 @@
+---
+const { siteTitleHref } = Astro.locals.starlightRoute;
+---
+
+<div class="rd-docs-header-left">
+  <a href="/" class="site-title sl-flex">
+    <img src="/assets/images/logo.png" alt="RapiDoc Logo" class="rd-brand-logo" />
+    <span class="rd-brand-name">RapiDoc</span>
+    <span class="rd-brand-badge">Docs</span>
+  </a>
+
+  <nav class="rd-docs-nav-links">
+    <a href="/" class="rd-nav-item">Home</a>
+    <a href="/docs" class="rd-nav-item active">Docs</a>
+    <a href="/api" class="rd-nav-item">API Spec</a>
+    <a href="/quickstart" class="rd-nav-item">Quick Start</a>
+    <a href="/showcase" class="rd-nav-item">Showcase</a>
+    <a href="/tests" class="rd-nav-item">Tests</a>
+  </nav>
+</div>
+
+<style>
+  .rd-docs-header-left {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    min-width: 0;
+  }
+
+  .site-title {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--sl-color-white);
+    transition: opacity 0.2s ease;
+  }
+
+  .site-title:hover {
+    opacity: 0.9;
+  }
+
+  .rd-brand-logo {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+  }
+
+  .rd-brand-name {
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--sl-color-white) 40%, var(--sl-color-gray-2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .rd-brand-badge {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: var(--sl-color-accent-low);
+    border: 1px solid var(--sl-color-accent);
+    color: var(--sl-color-accent);
+    padding: 0.15rem 0.5rem;
+    border-radius: 9999px;
+  }
+
+  .rd-docs-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .rd-nav-item {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--sl-color-gray-3);
+    text-decoration: none;
+    padding: 0.35rem 0.7rem;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+  }
+
+  .rd-nav-item:hover {
+    color: var(--sl-color-white);
+    background: var(--sl-color-hairline);
+  }
+
+  .rd-nav-item.active {
+    color: var(--sl-color-accent);
+    background: var(--sl-color-accent-low);
+    font-weight: 600;
+  }
+
+  @media (max-width: 960px) {
+    .rd-docs-nav-links {
+      display: none;
+    }
+  }
+</style>

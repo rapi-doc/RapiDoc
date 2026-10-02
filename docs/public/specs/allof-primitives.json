@@ -1,0 +1,80 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "all-of Models",
+    "description": "Spec containing model composition using all-of. Checkout the model definition under the RESPONSE section"
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/employee": {
+      "get": {
+        "tags": [
+          "Employee Details"
+        ],
+        "summary": "List of employees",
+        "operationId": "empDetails",
+        "responses": {
+          "200": {
+            "description": "Checkout the model tab to view object schemas defined using all-of",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/employee"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "employee": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "Id": {
+          "type": "string",
+          "description": "Employee ID"
+        },
+        "Employee": {
+          "description": "Employee Details (Worker or Manager)",
+          "allOf": [
+            { "$ref": "#/definitions/name"},
+            { "$ref": "#/definitions/job"},
+            { "$ref": "#/definitions/dob"},
+            { "$ref": "#/definitions/salary"}
+          ]
+        }
+      }
+    },
+    "name": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "firstName": { "type": "string", "description": "First name" },
+        "lastName": { "type": "string", "description": "Last Name" }
+      }
+    },
+    "job": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "jobTitle": { "type": "string", "description": "Job title" },
+        "department": { "type": "string", "description": "Department name"}
+      }
+    },
+    "dob": {"type": "string", "format": "date", "description": "Date of birth"},
+    "salary": {"type": "number", "description": "Salary per annum"}
+  },
+  "tags": [
+    {
+      "name": "Employee Details",
+      "description": "Employee Details"
+    }
+  ]
+}

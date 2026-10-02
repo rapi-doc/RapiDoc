@@ -1,0 +1,196 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+import { getSpecUrl } from '../../utils/getSpecUrl';
+
+const specUrl = getSpecUrl(Astro.url);
+---
+
+<ExampleLayout>
+  <rapi-doc 
+    id = "thedoc"
+    spec-url = "/specs/petstore.yaml"
+    show-header = "false"
+    render-style = "read"
+    show-info = "true"
+  > 
+
+    <div class="control-panel" slot="fixed-header" style="background: #555; border-width:0">
+      <button class="theme-btn dark" onclick="changeTheme('dark')">&#9782; </button>
+      <button class="theme-btn night" onclick="changeTheme('night')"> &#9782; </button>
+      <button class="theme-btn mud" onclick="changeTheme('mud')"> &#9782; </button>
+      <button class="theme-btn cofee" onclick="changeTheme('cofee')"> &#9782; </button>
+      <button class="theme-btn forest" onclick="changeTheme('forest')"> &#9782; </button>
+      <button class="theme-btn olive" onclick="changeTheme('olive')"> &#9782; </button>
+      <button class="theme-btn outerspace" onclick="changeTheme('outerspace')"> &#9782; </button>
+      <button class="theme-btn ebony" onclick="changeTheme('ebony')"> &#9782; </button>
+
+      <button class="theme-btn light" onclick="changeTheme('light')"> &#9782; </button>
+      <button class="theme-btn snow" onclick="changeTheme('snow')"> &#9782; </button>
+      <button class="theme-btn green" onclick="changeTheme('green')"> &#9782; </button>
+      <button class="theme-btn blue" onclick="changeTheme('blue')"> &#9782; </button>
+      <button class="theme-btn beige" onclick="changeTheme('beige')"> &#9782; </button>
+      <div class = 'side-nav'  style="background:#3f4d67" onclick="changeTheme('darkbluenav')" >
+        <div style='width:20px;'></div>
+        <div style='background: #f9f9fa; padding:0px 4px; font-size:30px; color:#5c7096'> &#9782;</div>
+      </div>
+      <div class = 'side-nav'  style="background:#666699" onclick="changeTheme('purplenav')" >
+        <div style='width:20px;'></div>
+        <div style='background: #fff9fb; padding:0px 4px; font-size:30px; color:#ea526f'> &#9782;</div>
+      </div>
+      <div class = 'side-nav'  style="background:#ccc;" onclick="changeTheme('lightgraynav')" >
+        <div style='width:20px;'></div>
+        <div style='background: #fff; padding:0px 4px; font-size:30px; color:#F63C41'> &#9782;</div>
+      </div>
+      <div class = 'side-nav'  style="background:#3e4b54" onclick="changeTheme('graynav')" >
+        <div style='width:20px;'></div>
+        <div style='background: #fff; padding:0px 4px; font-size:30px; color:#444'> &#9782;</div>
+      </div>
+      <div style="flex:1"></div>
+      <button class='btn yellow' onclick="toggleRenderStyle()">Toggle Render Style</button>
+    </div>
+
+  </rapi-doc>
+</ExampleLayout>
+
+<script is:inline>
+  function changeTheme(themeName) {
+    rapidocEl.setAttribute('show-header','');
+    rapidocEl.setAttribute('bg-color','');
+    rapidocEl.setAttribute('text-color','');
+    rapidocEl.setAttribute('nav-bg-color','');
+    rapidocEl.setAttribute('nav-text-color','');
+    rapidocEl.setAttribute('nav-hover-bg-color','');
+    rapidocEl.setAttribute('nav-hover-text-color','');
+    rapidocEl.setAttribute('nav-accent-color','');
+    rapidocEl.setAttribute('primary-color','');
+    if (themeName === 'dark'){
+      rapidocEl.setAttribute('theme','dark');
+      rapidocEl.setAttribute('bg-color','#333');
+      rapidocEl.setAttribute('text-color','#BBB');
+    } else if (themeName === 'light'){
+      rapidocEl.setAttribute('theme','light');
+      rapidocEl.setAttribute('bg-color','#FFF');
+      rapidocEl.setAttribute('text-color','#444');
+    } else if (themeName === 'night') {
+      rapidocEl.setAttribute('theme','dark');
+      rapidocEl.setAttribute('bg-color','#14191f');
+      rapidocEl.setAttribute('text-color','#aec2e0');
+    } else if (themeName === 'mud') {
+      rapidocEl.setAttribute('theme','dark');
+      rapidocEl.setAttribute('bg-color','#403635');
+      rapidocEl.setAttribute('text-color','#c3b8b7');
+    } else if (themeName === 'cofee') {
+      rapidocEl.setAttribute('theme','dark');
+      rapidocEl.setAttribute('bg-color','#36312C');
+      rapidocEl.setAttribute('text-color','#ceb8a0');
+    } else if (themeName === 'forest') {
+      rapidocEl.setAttribute('theme','dark');
+      rapidocEl.setAttribute('bg-color','#384244');
+      rapidocEl.setAttribute('text-color','#BDD6DB');
+    } else if (themeName === 'olive') {
+      rapidocEl.setAttribute('theme','dark');
+      rapidocEl.setAttribute('bg-color','#2a2f31');
+      rapidocEl.setAttribute('text-color','#acc7c8');
+    } else if (themeName === 'outerspace') {
+      rapidocEl.setAttribute('theme','dark');
+      rapidocEl.setAttribute('bg-color','#2D3133');
+      rapidocEl.setAttribute('text-color','#CAD9E3');
+    } else if (themeName === 'ebony') {
+      rapidocEl.setAttribute('theme','dark');
+      rapidocEl.setAttribute('bg-color','#2B303B');
+      rapidocEl.setAttribute('text-color','#dee3ec');
+    } else if (themeName === 'snow') {
+      rapidocEl.setAttribute('theme','light');
+      rapidocEl.setAttribute('bg-color','#FAFAFA');
+      rapidocEl.setAttribute('text-color','#555');
+    } else if (themeName === 'green') {
+      rapidocEl.setAttribute('theme','light');
+      rapidocEl.setAttribute('bg-color','#f9fdf7');
+      rapidocEl.setAttribute('text-color','#375F1B');
+    } else if (themeName === 'blue') {
+      rapidocEl.setAttribute('theme','light');
+      rapidocEl.setAttribute('bg-color','#ecf1f7');
+      rapidocEl.setAttribute('text-color','#133863');
+    } else if (themeName === 'beige') {
+      rapidocEl.setAttribute('show-header','true');
+      rapidocEl.setAttribute('theme','light');
+      rapidocEl.setAttribute('bg-color','#fdf8ed');
+      rapidocEl.setAttribute('text-color','#342809');
+    } else if (themeName === 'graynav') {
+      getRapiDoc().setAttribute('render-style', 'read' );
+      rapidocEl.setAttribute('show-header','false');
+      rapidocEl.setAttribute('theme','light');
+      rapidocEl.setAttribute('nav-bg-color','#3e4b54');
+      rapidocEl.setAttribute('nav-accent-color','#fd6964');
+      rapidocEl.setAttribute('primary-color','#ea526f');
+    }  else if (themeName === 'purplenav') {
+      getRapiDoc().setAttribute('render-style', 'read' );
+      rapidocEl.setAttribute('show-header','false');
+      rapidocEl.setAttribute('theme','light');
+      rapidocEl.setAttribute('nav-accent-color','#ffd8e7');
+      rapidocEl.setAttribute('nav-bg-color','#666699');
+      rapidocEl.setAttribute('primary-color','#ea526f');
+      rapidocEl.setAttribute('bg-color','#fff9fb');
+    } else if (themeName === 'lightgraynav') {
+      getRapiDoc().setAttribute('render-style', 'read' );
+      rapidocEl.setAttribute('show-header','false');
+      rapidocEl.setAttribute('theme','light');
+      rapidocEl.setAttribute('nav-bg-color','#fafafa');
+      rapidocEl.setAttribute('nav-hover-text-color','#9b0700');
+      rapidocEl.setAttribute('nav-hover-bg-color','#ffebea');
+      rapidocEl.setAttribute('primary-color','#F63C41');
+      rapidocEl.setAttribute('bg-color','#ffffff');
+    } else if (themeName === 'darkbluenav') {
+      getRapiDoc().setAttribute('render-style', 'read' );
+      rapidocEl.setAttribute('show-header','false');
+      rapidocEl.setAttribute('theme','light');
+      rapidocEl.setAttribute('bg-color','#f9f9fa');
+      rapidocEl.setAttribute('nav-bg-color','#3f4d67');
+      rapidocEl.setAttribute('nav-text-color','#a9b7d0');
+      rapidocEl.setAttribute('nav-hover-bg-color','#333f54');
+      rapidocEl.setAttribute('nav-hover-text-color','#fff');
+      rapidocEl.setAttribute('nav-accent-color','#f87070');
+      rapidocEl.setAttribute('primary-color','#5c7096');
+    }
+  }
+</script>
+
+<style>
+  .theme-btn {
+    width: 48px;
+    height: 48px;
+    color: #444;
+    font-size: 12px;
+    display: block;
+    margin: 2px;
+    border-radius: 4px;
+    cursor:pointer;
+    outline:none;
+    font-size:30px;
+    line-height: normal;
+  }
+  .side-nav {
+    display:flex;
+    line-height: normal;
+    margin: 2px;
+    padding:2px;
+    align-items: stretch;
+    height:44px; cursor: pointer; 
+    border-radius:2px; 
+    background: #fff;
+  }
+  .dark{ background-color: #424242; color :#BBB; border: 2px solid #BBB;}
+  .night{ background-color: #23282e; color :#aec2e0; border: 2px solid #aec2e0;}
+  .mud{ background-color: #4f4544; color :#c3b8b7; border: 2px solid #c3b8b7;}
+  .cofee{ background-color: #45403b; color :#ceb8a0; border: 2px solid #ceb8a0;}
+  .forest{ background-color: #475153; color :#BDD6DB; border: 2px solid #BDD6DB;}
+  .olive{ background-color: #393e40; color :#acc7c8; border: 2px solid #acc7c8;}
+  .outerspace{ background-color: #3c4042; color :#CAD9E3; border: 2px solid #CAD9E3;}
+  .ebony{ background-color: #3a3f4a; color :#dee3ec; border: 2px solid #dee3ec;}
+
+  .light{ background-color: #f0f0f0; color :#626262; border: 2px solid #626262; }
+  .snow{ background-color: #ebebeb; color :#737373; border: 2px solid #737373;  }
+  .green{ background-color: #eaeee8; color :#557d39; border: 2px solid #557d39; }
+  .blue{ background-color: #dde2e8; color :#315681; border: 2px solid #315681;  }
+  .beige{ background-color: #eee9de; color :#524627; border: 2px solid #524627; }
+</style>

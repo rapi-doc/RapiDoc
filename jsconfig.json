@@ -6,6 +6,8 @@
     // Relative to "baseUrl"
     "paths": {
       "~/*": ["./src/*"],
-    }
+    },
+    "target": "esnext",
+    "module": "esnext",
   }
 }

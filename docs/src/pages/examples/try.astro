@@ -1,0 +1,19 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+---
+
+<ExampleLayout>
+  <rapi-doc spec-url="../specs/mock.yaml"
+    id = "thedoc"
+    show-header = "false"
+    show-info = "true"
+    allow-server-selection = "true"
+    allow-authentication = "false"
+    render-style = "read"
+  > 
+    <div slot="nav-logo" style="display:flex; flex-direction:column; align-items:center; ">
+      <button class='btn' onclick="toggle('allow-try')">Toggle Allow Try</button>
+    </div>
+  </rapi-doc>
+
+</ExampleLayout>

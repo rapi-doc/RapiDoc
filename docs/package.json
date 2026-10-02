@@ -1,0 +1,24 @@
+{
+  "name": "docs",
+  "version": "1.0.0",
+  "description": "RapiDoc Documentation & Examples Site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev --force",
+    "stop": "astro dev stop || pkill -f 'astro dev' || true",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.42.4",
+    "rapidoc": "*"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "astro": "^7.3.5",
+    "fs-extra": "^11.3.0",
+    "glob": "^11.0.1",
+    "js-yaml": "^4.1.0"
+  }
+}

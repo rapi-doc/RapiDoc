@@ -1,0 +1,290 @@
+examples:
+  - How to Use:
+      img: /assets/images/info.png
+      href: /docs/get-started/quickstart
+      description: Step-by-step guide to integrating RapiDoc with vanilla HTML, React, Vue, and modern JavaScript frameworks.
+      isDoc: true
+      category: Guides & Docs
+
+  - A Pet-Store Example:
+      img: /assets/images/dog.png
+      href: /examples/petstore
+      description: Interactive showcase demonstrating how RapiDoc renders a complete Petstore OpenAPI 3.0 specification.
+      category: Layouts & Views
+
+  - Rendering Modes:
+      description: Choose between 3 distinct presentation styles to best fit your audience.
+      category: Layouts & Views
+      subExamples:
+        - Read Mode:
+            href: /examples/render-read
+        - View Mode:
+            href: /examples/render-view
+        - Focused Mode:
+            href: /examples/render-focused
+
+  - Built In Console:
+      img: /assets/images/terminal.png
+      href: /examples/try
+      description: Call and test live API endpoints directly within the documentation, with support for negative and edge-case testing.
+      category: Console & Interactive
+
+  - Dark & Light Themes:
+      img: /assets/images/dark-n-light.png
+      description: First-class support for high-contrast Light and Dark themes with seamless runtime switching.
+      isWide: true
+      category: Theming & Branding
+      subExamples:
+        - Read Mode (Dark / Light):
+            href: /examples/render-read-light
+        - View Mode (Dark / Light):
+            href: /examples/render-view-light
+
+  - Theme With Colors:
+      img: ./assets/images/theme.png
+      href: /examples/themes
+      description: Match your corporate brand by customizing primary accents, headers, backgrounds, and text colors.
+      category: Theming & Branding
+
+  - Fonts:
+      img: ./assets/images/font.png
+      description: Easily customize typography with Google Fonts, custom system fonts, and granular font size scales.
+      category: Theming & Branding
+      subExamples:
+        - Font Family:
+            href: /examples/font
+        - Font Size:
+            href: /examples/font-size
+
+  - Logo:
+      img: ./assets/images/logo.png
+      href: /examples/logo
+      description: Brand your documentation by embedding custom logos or vector SVG graphics in the header.
+      category: Theming & Branding
+
+  - Header Style:
+      img: ./assets/images/header.png
+      href: /examples/header-color
+      description: Customize the top header background, border styling, and title appearance.
+      category: Theming & Branding
+
+  - Advance Styling:
+      img: /assets/images/style.png
+      href: /styling
+      description: "Comprehensive guide on advanced styling using CSS Shadow Parts (::part), CSS custom properties, and slots."
+      isDoc: true
+      category: Guides & Docs
+
+  - Schema Display:
+      img: /assets/images/schema-style.png
+      href: /examples/schema-table
+      description: "Inspect data models using two distinct representations: an expandable Tree view or structured Tabular view."
+      category: Layouts & Views
+
+  - Schema & Example Views:
+      href: /examples/schema-tab-default
+      description: Set whether the data model schema or sample payload example is displayed by default on load.
+      category: Layouts & Views
+
+  - Show Components:
+      href: /examples/show-components
+      description: Expose and browse standalone schema definitions, request bodies, and security components in focused mode.
+      category: Layouts & Views
+
+  - Navigation Styles:
+      img: /assets/images/navbar.png
+      href: /examples/nav-styles
+      description: Customize navigation sidebar styles, item spacing, active indicators, and endpoint grouping.
+      category: Layouts & Views
+
+  - Slots - HTML Injection:
+      img: /assets/images/slot.png
+      href: /examples/slots
+      description: Inject custom HTML content, warning banners, company logos, and navigation links into Shadow DOM slots.
+      category: Advanced & Extensibility
+
+  - Markdown:
+      img: /assets/images/markdown.png
+      href: /examples/markdown
+      description: Rich Markdown rendering inside API descriptions, including tables, formatted lists, and callout blocks.
+      category: Layouts & Views
+
+  - Markdown Headings in Navigation:
+      href: /examples/markdown-headings
+      description: Automatically convert Markdown headers inside descriptions into interactive navigation links.
+      category: Layouts & Views
+
+  - Tags with Focused mode:
+      href: /examples/tag-focused-mode
+      description: Organize and collapse endpoint operations into expandable tag categories within focused mode.
+      category: Layouts & Views
+
+  - Performance Tips:
+      href: /performance
+      description: Best practices for optimizing rendering speed and DOM performance when loading massive OpenAPI specifications.
+      isDoc: true
+      category: Guides & Docs
+
+  - Links:
+      img: /assets/images/link.png
+      href: /examples/links
+      description: Create deep cross-references and external links between operations, schemas, and external documentation.
+      category: Advanced & Extensibility
+
+  - Syntax Highlighting:
+      img: /assets/images/code-highlight.png
+      href: /examples/code-highlight
+      description: Built-in syntax highlighting for cURL, JavaScript, Python, Go, and 20+ programming languages.
+      category: Console & Interactive
+
+  - Code Samples:
+      href: /examples/code-samples
+      description: Display multi-language code snippets on operations using the OpenAPI x-code-samples vendor extension.
+      category: Console & Interactive
+
+  - Endpoint Badges:
+      img: /assets/images/badge.png
+      href: /examples/badges
+      description: Annotate operations with custom color-coded status badges (Beta, Deprecated, Internal) using x-badges.
+      category: Layouts & Views
+
+  - Add Your Examples:
+      href: /examples/examples-multiple
+      description: Provide multiple request and response payload examples to illustrate edge cases and error scenarios.
+      category: OpenAPI 3.1 & Schemas
+
+  - File Upload:
+      href: /examples/file-upload
+      description: Interactive testing for endpoints accepting binary files, document uploads, and streaming data.
+      category: Console & Interactive
+
+  - Binary Response:
+      href: /examples/binary-response
+      description: Handle and download binary responses such as PDF documents, image assets, and archive files.
+      category: Console & Interactive
+
+  - Multipart Formdata:
+      href: /examples/multipart-formdata
+      description: Submit mixed content combining binary files with structured JSON fields using multipart/form-data.
+      category: Console & Interactive
+
+  - Multiple Request Body:
+      href: /examples/request-body-multiple
+      description: Document endpoints supporting alternate payload formats such as JSON, XML, or plain text.
+      category: OpenAPI 3.1 & Schemas
+
+  - Arrange Endpoints Using Tags:
+      href: /examples/arrange-by-tags
+      description: Structure and order operations by logical tags to create clean, intuitive navigation groups.
+      category: Layouts & Views
+
+  - Dynamic Parameters:
+      description: Inject dynamic query, path, and header parameters at runtime without pre-specifying them in the schema.
+      category: Advanced & Extensibility
+      subExamples:
+        - Query Params:
+            href: /examples/dynamic-query-params
+        - Form Params:
+            href: /examples/dynamic-form-params
+
+  - Advanced Search:
+      href: /examples/search-by-params
+      description: Enhance search capability to filter operations by parameter names, descriptions, and HTTP verbs.
+      category: Layouts & Views
+
+  - OAuth:
+      href: /examples/oauth-demo
+      description: Interactive OAuth 2.0 demonstration covering implicit flow, authorization code, and token refresh.
+      category: Security & Auth
+
+  - OAuth Setup:
+      href: /oauth-setup
+      description: Comprehensive guide for setting up OAuth 2.0 and OpenID Connect identity providers in RapiDoc.
+      isDoc: true
+      category: Guides & Docs
+
+  - OAuth Extensions:
+      href: /examples/oauth-vendor-extension
+      description: Pre-populate client IDs, client secrets, and default scopes using x-client-id and x-default-scopes vendor extensions.
+      category: Security & Auth
+
+  - Authentication (Multiple):
+      href: /examples/auth
+      description: Configure complex multi-layered security schemes including API Keys, Bearer JWT, and Basic Auth.
+      category: Security & Auth
+
+  - API Key as RapiDoc Attribute:
+      href: /examples/api-key
+      description: Declaratively set and programmatically update API keys via DOM attributes or JavaScript properties.
+      category: Security & Auth
+
+  - Additional Properties:
+      href: /examples/additional-props
+      description: Define and validate open dictionary schemas with dynamic keys using OpenAPI additionalProperties.
+      category: OpenAPI 3.1 & Schemas
+
+  - Embed RapiDoc In HTML:
+      href: /examples/embed-rapidoc-in-html
+      description: Seamlessly co-exist with existing HTML pages, headers, footers, and enterprise design systems.
+      category: Advanced & Extensibility
+
+  - JSON Object as OpenAPI Spec:
+      href: /tests/json-as-spec
+      description: Pass in-memory JavaScript objects directly to RapiDoc without needing an external URL or file fetch.
+      category: Advanced & Extensibility
+
+  - Define API Server Using Template:
+      href: /examples/server-vars
+      description: Support dynamic multi-environment server URLs using variable substitution and template parameters.
+      category: OpenAPI 3.1 & Schemas
+
+  - Callback:
+      img: /assets/images/callback.png
+      href: /examples/callback
+      description: Document asynchronous webhooks and subscription callbacks triggered by client requests.
+      category: OpenAPI 3.1 & Schemas
+
+  - Webhook:
+      img: /assets/images/webhook.png
+      href: /examples/open-api-3-1
+      description: OpenAPI 3.1 top-level webhook definitions for server-initiated asynchronous events.
+      category: OpenAPI 3.1 & Schemas
+
+  - Multiple DataTypes:
+      href: /examples/multi-datatypes
+      description: Utilize OpenAPI 3.1 multi-type declarations conforming to the latest JSON Schema specifications.
+      category: OpenAPI 3.1 & Schemas
+
+  - Spec Split into Multiple Files:
+      img: assets/images/multifile.png
+      href: /examples/external-refs
+      description: Modularize enterprise API catalogs by splitting schemas and operations across multiple linked JSON/YAML files.
+      category: Advanced & Extensibility
+
+  - RapiDoc Mini:
+      href: /rapidoc-mini
+      description: Embed standalone, isolated endpoint cards directly into technical blog posts and markdown tutorials.
+      isDoc: true
+      category: Guides & Docs
+
+  - Schema Composition:
+      description: Model polymorphic inheritance and data variations using oneOf, anyOf, and allOf schema combinations.
+      category: OpenAPI 3.1 & Schemas
+      subExamples:
+        - ONE OF:
+            href: /examples/oneof
+        - ANY OF:
+            href: /examples/anyof
+        - ALL OF:
+            href: /examples/allof
+
+  - Mock API:
+      href: /examples/mock
+      description: Connect to live mock servers for realistic sandbox testing without deploying backend infrastructure.
+      category: Console & Interactive
+
+  - Playground:
+      img: /assets/images/playground.png
+      href: /examples/rapidoc-demo
+      description: Interactive sandbox allowing you to toggle and test every RapiDoc attribute in real time.
+      category: Layouts & Views

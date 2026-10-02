@@ -1,0 +1,18 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+import { getSpecUrl } from '../../utils/getSpecUrl';
+
+const specUrl = getSpecUrl(Astro.url);
+---
+
+<ExampleLayout>
+  <rapi-doc 
+    id = "thedoc"
+    spec-url = {specUrl}
+    show-header = "false"
+    allow-server-selection = "false"
+    allow-api-list-style-selection = "false"
+    on-nav-tag-click = "show-description"
+    info-description-headings-in-navbar = "true"
+  > </rapi-doc>
+</ExampleLayout>

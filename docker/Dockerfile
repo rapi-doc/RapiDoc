@@ -40,7 +40,7 @@ ENV SPEC_URL="http://petstore.swagger.io/v2/swagger.json"
 ENV PORT=80
 
 # copy files to the nginx folder
-COPY --from=build-stage /app/dist /usr/share/nginx/html
+COPY --from=build-stage /app/packages/rapidoc/dist /usr/share/nginx/html
 COPY docker/index.tpl.html /usr/share/nginx/html/index.html
 COPY logo.png /usr/share/nginx/html/favicon.png
 COPY docker/nginx.conf /etc/nginx/

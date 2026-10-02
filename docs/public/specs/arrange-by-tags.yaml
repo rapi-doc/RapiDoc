@@ -1,0 +1,104 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Arranging Endpoints by Tags
+  description: >
+    Following OpenAPI spec demonstrates how to arrange the paths using tags. (even though the paths are defined in random order in the spec but they are shown in the order as they are defined under `tags` section)
+
+      - If there are multiple paths inside a tag, they can be further sorted. Use `sort-endpoints-by` property which can accept `path`, `method`, `summary` or `none`
+      - If you do not want to specify tag order, but follow certain naming conventions for tags in the spec you may use `sort-tags` property in RapiDoc element to sort tags alphabetically
+
+    ```yaml
+      openapi: 3.0.0
+      info:
+        title: Arranging by Tags
+        version: 1.0.0
+
+      tags:  # <<<<<< Define the order of the Tags using tags object at root level
+        - name: The First Tag
+        - name: And Second Tag
+        - name: 3rd Tag
+
+      paths:
+        /path-3.1:
+          get:
+            summary: A2. Belongs to 3rd tag (path-3.1)
+            tags:
+              - 3rd Tag
+        /path-3.2:
+          get:
+            summary: A1. Belongs to 3rd tag (path-3.2)
+            tags:
+              - 3rd Tag
+
+        /path-1.1:
+          get:
+            summary: B1. Belongs to 1st tag (path-1.1)
+            tags:
+              - The First Tag
+
+        /path-2.1:
+          get:
+            summary: C2. Belongs to 2nd tag (path-2.1)
+            tags:
+              - And Second Tag
+        /path-2.2:
+          get:
+            summary: C1. Belongs to 2nd tag (path-2.2)
+            tags:
+              - And Second Tag
+
+        /a-path-in-1st-n-3rd:
+          get:
+            summary: D1. Belongs to 1st & 3rd tag (a-path-in-1st-n-3rd)
+            tags:             # <<<<<< Paths can belong to multiple tags
+              - The First Tag
+              - 3rd Tag
+        /no-tag/path:
+          get:
+            summary: This path do not have any tag
+
+    ```
+paths:
+  /path-3.1:
+    get:
+      summary: A2. Belongs to 3rd tag (path-3.1)
+      tags:
+        - 3rd Tag
+  /path-3.2:
+    get:
+      summary: A1. Belongs to 3rd tag (path-3.2)
+      tags:
+        - 3rd Tag
+
+  /path-1.1:
+    get:
+      summary: B1. Belongs to 1st tag (path-1.1)
+      tags:
+        - The First Tag
+
+  /path-2.1:
+    get:
+      summary:  C2. Belongs to 2nd tag (path-2.1)
+      tags:
+        - And Second Tag
+  /path-2.2:
+    get:
+      summary:  C1. Belongs to 2nd tag (path-2.2)
+      tags:
+        - And Second Tag
+
+  /a-path-in-1st-n-3rd:
+    get:
+      summary: D1. Belongs to 1st & 3rd tag (a-path-in-1st-n-3rd)
+      tags:
+        - The First Tag
+        - 3rd Tag
+  /no-tag/path:
+    get:
+      summary: This path do not have any tag
+
+tags:
+  - name: The First Tag
+  - name: And Second Tag
+  - name: 3rd Tag

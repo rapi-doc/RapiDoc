@@ -1,5 +1,0 @@
-description: Not Implemented
-content:
-  application/json:
-    schema:
-      $ref: "../schemas/error.yaml"

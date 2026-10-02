@@ -1,0 +1,682 @@
+openapi: 3.0.0
+info:
+  title: Syntax Highlighting
+  version: 1.0.0
+  description: |
+
+    RapiDoc automatically highlights code blocks in markdown descriptions. To apply syntax highlighting, wrap your code in a fenced code block with three backticks followed by the language tag:
+
+    ````markdown
+    ```js
+    const greeting = "Hello, World!";
+    console.log(greeting);
+    ```
+    ````
+
+    ### SUPPORTED LANGUAGES
+
+    <div style="display: flex; flex-wrap: wrap; gap: 20px; margin: 20px 0 32px 0;">
+      <div style="flex: 1 1 180px; min-width: 160px;">
+        <table style="width: 100%; border-collapse: collapse; border: 1px solid var(--border-color); border-radius: var(--border-radius); font-size: var(--font-size-small, 13px); overflow: hidden;">
+          <thead>
+            <tr style="background: var(--bg2); border-bottom: 1px solid var(--border-color);">
+              <th style="text-align: left; padding: 7px 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg2);">WEB</th>
+              <th style="text-align: right; padding: 7px 10px; font-size: 11px; font-weight: 600; color: var(--light-fg);">Tag</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">HTML</td><td style="padding: 5px 10px; text-align: right;"><code>html</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">CSS</td><td style="padding: 5px 10px; text-align: right;"><code>css</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">JavaScript</td><td style="padding: 5px 10px; text-align: right;"><code>js</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">TypeScript</td><td style="padding: 5px 10px; text-align: right;"><code>ts</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">TSX</td><td style="padding: 5px 10px; text-align: right;"><code>tsx</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">Astro</td><td style="padding: 5px 10px; text-align: right;"><code>astro</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">Svelte</td><td style="padding: 5px 10px; text-align: right;"><code>svelte</code></td></tr>
+            <tr><td style="padding: 5px 10px;">Vue</td><td style="padding: 5px 10px; text-align: right;"><code>vue</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="flex: 1 1 180px; min-width: 160px;">
+        <table style="width: 100%; border-collapse: collapse; border: 1px solid var(--border-color); border-radius: var(--border-radius); font-size: var(--font-size-small, 13px); overflow: hidden;">
+          <thead>
+            <tr style="background: var(--bg2); border-bottom: 1px solid var(--border-color);">
+              <th style="text-align: left; padding: 7px 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg2);">SYSTEMS</th>
+              <th style="text-align: right; padding: 7px 10px; font-size: 11px; font-weight: 600; color: var(--light-fg);">Tag</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">C</td><td style="padding: 5px 10px; text-align: right;"><code>c</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">C++</td><td style="padding: 5px 10px; text-align: right;"><code>cpp</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">Rust</td><td style="padding: 5px 10px; text-align: right;"><code>rust</code></td></tr>
+            <tr><td style="padding: 5px 10px;">Go</td><td style="padding: 5px 10px; text-align: right;"><code>go</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="flex: 1 1 180px; min-width: 160px;">
+        <table style="width: 100%; border-collapse: collapse; border: 1px solid var(--border-color); border-radius: var(--border-radius); font-size: var(--font-size-small, 13px); overflow: hidden;">
+          <thead>
+            <tr style="background: var(--bg2); border-bottom: 1px solid var(--border-color);">
+              <th style="text-align: left; padding: 7px 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg2);">APPLICATION</th>
+              <th style="text-align: right; padding: 7px 10px; font-size: 11px; font-weight: 600; color: var(--light-fg);">Tag</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">Java</td><td style="padding: 5px 10px; text-align: right;"><code>java</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">C#</td><td style="padding: 5px 10px; text-align: right;"><code>cs</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">Kotlin</td><td style="padding: 5px 10px; text-align: right;"><code>kotlin</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">Objective-C</td><td style="padding: 5px 10px; text-align: right;"><code>objc</code></td></tr>
+            <tr><td style="padding: 5px 10px;">PHP</td><td style="padding: 5px 10px; text-align: right;"><code>php</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="flex: 1 1 180px; min-width: 160px;">
+        <table style="width: 100%; border-collapse: collapse; border: 1px solid var(--border-color); border-radius: var(--border-radius); font-size: var(--font-size-small, 13px); overflow: hidden;">
+          <thead>
+            <tr style="background: var(--bg2); border-bottom: 1px solid var(--border-color);">
+              <th style="text-align: left; padding: 7px 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg2);">SCRIPTING</th>
+              <th style="text-align: right; padding: 7px 10px; font-size: 11px; font-weight: 600; color: var(--light-fg);">Tag</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">Python</td><td style="padding: 5px 10px; text-align: right;"><code>py</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">Ruby</td><td style="padding: 5px 10px; text-align: right;"><code>rb</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">Bash</td><td style="padding: 5px 10px; text-align: right;"><code>sh</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">Perl</td><td style="padding: 5px 10px; text-align: right;"><code>perl</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">PowerShell</td><td style="padding: 5px 10px; text-align: right;"><code>ps1</code></td></tr>
+            <tr><td style="padding: 5px 10px;">R</td><td style="padding: 5px 10px; text-align: right;"><code>r</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="flex: 1 1 180px; min-width: 160px;">
+        <table style="width: 100%; border-collapse: collapse; border: 1px solid var(--border-color); border-radius: var(--border-radius); font-size: var(--font-size-small, 13px); overflow: hidden;">
+          <thead>
+            <tr style="background: var(--bg2); border-bottom: 1px solid var(--border-color);">
+              <th style="text-align: left; padding: 7px 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg2);">DATA & DOCS</th>
+              <th style="text-align: right; padding: 7px 10px; font-size: 11px; font-weight: 600; color: var(--light-fg);">Tag</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">JSON</td><td style="padding: 5px 10px; text-align: right;"><code>json</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">YAML</td><td style="padding: 5px 10px; text-align: right;"><code>yml</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">TOML</td><td style="padding: 5px 10px; text-align: right;"><code>toml</code></td></tr>
+            <tr style="border-bottom: 1px solid var(--light-border-color);"><td style="padding: 5px 10px;">Markdown</td><td style="padding: 5px 10px; text-align: right;"><code>md</code></td></tr>
+            <tr><td style="padding: 5px 10px;">HTTP</td><td style="padding: 5px 10px; text-align: right;"><code>http</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    **No Highlight**
+    ```
+    $ curl -X POST -is -u username:password 
+      -H "Content-Type: application/json" https://example.com
+      -d '{
+        "target": {
+          "ref_type": "branch", 
+          "type": "pipeline_ref_target", 
+          "ref_name": "master"
+        }
+      }'
+    ```
+
+    **SHELL / BASH** `bash` `shell` `sh` `curl`
+    ```bash
+    #!/usr/bin/env bash
+    # Deploy script
+    API_URL="https://api.example.com/v1"
+    response=$(curl -s -X POST "$API_URL/orders" \
+      -H "Authorization: Bearer $TOKEN" \
+      -H "Content-Type: application/json" \
+      -d '{"item": "book", "qty": 2}')
+    echo "Response: $response"
+    ```
+
+    **MARKUP / HTML** `html` `markup` `xml` `svg`
+    ```html
+    <!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8">
+        <title>RapiDoc Demo</title>
+        <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+      </head>
+      <body>
+        <rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json" theme="dark"></rapi-doc>
+      </body>
+    </html>
+    ```
+
+    **CSS** `css`
+    ```css
+    :root {
+      --primary-color: #0550ae;
+      --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    rapi-doc::part(section-navbar) {
+      background-color: #0d1117;
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .custom-badge {
+      display: inline-flex;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      color: white;
+    }
+    ```
+
+    **JSON** `json`
+    ```json
+    {
+      "id": 101,
+      "title": "Syntax Highlighting Demo",
+      "author": {
+        "name": "RapiDoc",
+        "verified": true
+      },
+      "tags": ["openapi", "docs", "web-components"],
+      "views": 42000
+    }
+    ```
+
+    **YAML** `yaml` `yml`
+    ```yaml
+    openapi: 3.0.0
+    info:
+      title: Petstore API
+      version: 1.0.0
+      description: Sample specification for testing syntax highlighting.
+    paths:
+      /pets:
+        get:
+          summary: List all pets
+          responses:
+            '200':
+              description: An array of pets
+    ```
+
+    **TOML** `toml`
+    ```toml
+    [package]
+    name = "rapidoc-demo"
+    version = "1.0.0"
+    edition = "2024"
+
+    [dependencies]
+    serde = { version = "1.0", features = ["derive"] }
+    tokio = { version = "1.0", features = ["full"] }
+    ```
+
+    **HTTP** `http`
+    ```http
+    POST /v2/pet HTTP/1.1
+    Host: petstore.swagger.io
+    Authorization: Bearer dG9rZW4xMjM=
+    Content-Type: application/json; charset=utf-8
+    Content-Length: 68
+
+    {
+      "id": 1,
+      "name": "Doggie",
+      "status": "available"
+    }
+    ```
+
+    **MARKDOWN** `markdown` `md`
+    ```markdown
+    # Project Title
+
+    A brief description of what this project does.
+
+    ## Features
+    - **Fast**: Zero runtime overhead.
+    - *Flexible*: Supports 28+ languages out of the box.
+
+    > Note: Powered by native CSS Custom Highlight API.
+    ```
+
+    **JAVASCRIPT** `javascript` `js`
+    ```javascript
+    import { Router } from 'express';
+
+    const router = Router();
+
+    // Async handler with error catching
+    router.get('/users/:id', async (req, res) => {
+      try {
+        const user = await database.findUser(req.params.id);
+        if (!user) {
+          return res.status(404).json({ error: 'User not found' });
+        }
+        return res.json({ success: true, data: user });
+      } catch (err) {
+        console.error('Database query failed:', err);
+        return res.status(500).json({ error: err.message });
+      }
+    });
+    ```
+
+    **TYPESCRIPT** `typescript` `ts`
+    ```typescript
+    interface UserProfile {
+      readonly id: string;
+      name: string;
+      email?: string;
+      role: 'admin' | 'editor' | 'viewer';
+    }
+
+    export async function fetchProfile<T extends UserProfile>(userId: string): Promise<T> {
+      const response = await fetch(`/api/users/${userId}`);
+      if (!response.ok) {
+        throw new Error(`Failed to load profile: ${response.statusText}`);
+      }
+      return (await response.json()) as T;
+    }
+    ```
+
+    **TSX / JSX** `tsx`
+    ```tsx
+    import React, { useState, useEffect } from 'react';
+
+    interface CounterProps {
+      initialCount?: number;
+      step?: number;
+    }
+
+    export const Counter: React.FC<CounterProps> = ({ initialCount = 0, step = 1 }) => {
+      const [count, setCount] = useState<number>(initialCount);
+
+      return (
+        <div className="counter-container">
+          <span className="count-label">Count: {count}</span>
+          <button type="button" onClick={() => setCount((prev) => prev + step)}>
+            Increment
+          </button>
+        </div>
+      );
+    };
+    ```
+
+    **PYTHON** `python` `py`
+    ```python
+    from typing import Optional
+    from pydantic import BaseModel
+    from fastapi import FastAPI, HTTPException
+
+    app = FastAPI(title="Pet Store")
+
+    class Item(BaseModel):
+        name: str
+        price: float
+        is_offer: Optional[bool] = None
+
+    @app.post("/items/{item_id}", response_model=Item)
+    async def create_item(item_id: int, item: Item):
+        if item_id < 0:
+            raise HTTPException(status_code=400, detail="Invalid ID")
+        return item
+    ```
+
+    **JAVA** `java`
+    ```java
+    package com.example.service;
+
+    import java.util.List;
+    import java.util.Optional;
+
+    public class OrderService {
+        private final OrderRepository repository;
+
+        public OrderService(OrderRepository repository) {
+            this.repository = repository;
+        }
+
+        public Optional<Order> findById(Long id) {
+            if (id == null) {
+                throw new IllegalArgumentException("ID cannot be null");
+            }
+            return repository.findById(id);
+        }
+    }
+    ```
+
+    **KOTLIN** `kotlin`
+    ```kotlin
+    data class Customer(val id: Long, val name: String, val email: String)
+
+    class CustomerRepository {
+        private val customers = mutableListOf<Customer>()
+
+        fun findById(id: Long): Customer? = customers.find { it.id == id }
+
+        suspend fun save(customer: Customer) {
+            customers.add(customer)
+            println("Saved customer: ${customer.name}")
+        }
+    }
+    ```
+
+    **C** `c`
+    ```c
+    #include <stdio.h>
+    #include <stdlib.h>
+
+    int main(int argc, char *argv[]) {
+        int numbers[] = {10, 20, 30, 40, 50};
+        int count = sizeof(numbers) / sizeof(numbers[0]);
+
+        for (int i = 0; i < count; i++) {
+            printf("Index: %d, Value: %d\n", i, numbers[i]);
+        }
+        return 0;
+    }
+    ```
+
+    **C++** `cpp`
+    ```cpp
+    #include <iostream>
+    #include <vector>
+    #include <memory>
+
+    template <typename T>
+    class Container {
+    private:
+        std::vector<T> elements;
+    public:
+        void add(const T& item) { elements.push_back(item); }
+        size_t size() const noexcept { return elements.size(); }
+    };
+
+    int main() {
+        auto container = std::make_unique<Container<int>>();
+        container->add(42);
+        std::cout << "Size: " << container->size() << std::endl;
+        return 0;
+    }
+    ```
+
+    **C#** `csharp` `cs`
+    ```csharp
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+
+    namespace PetStore.Services
+    {
+        public class PetService : IPetService
+        {
+            public async Task<IEnumerable<Pet>> GetAvailablePetsAsync()
+            {
+                var pets = new List<Pet>
+                {
+                    new Pet { Id = 1, Name = "Buddy", Status = "Available" },
+                    new Pet { Id = 2, Name = "Max", Status = "Available" }
+                };
+                return await Task.FromResult(pets);
+            }
+        }
+    }
+    ```
+
+    **GO** `go`
+    ```go
+    package main
+
+    import (
+        "encoding/json"
+        "net/http"
+    )
+
+    type Response struct {
+        Status  string `json:"status"`
+        Message string `json:"message"`
+    }
+
+    func healthHandler(w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(Response{
+            Status:  "ok",
+            Message: "Service running smoothly",
+        })
+    }
+    ```
+
+    **RUST** `rust`
+    ```rust
+    use std::collections::HashMap;
+
+    #[derive(Debug, Clone, PartialEq)]
+    pub struct Cache<K, V> {
+        store: HashMap<K, V>,
+    }
+
+    impl<K: std::hash::Hash + Eq, V> Cache<K, V> {
+        pub fn new() -> Self {
+            Self { store: HashMap::new() }
+        }
+
+        pub fn insert(&mut self, key: K, value: V) -> Option<V> {
+            self.store.insert(key, value)
+        }
+    }
+    ```
+
+    **PHP** `php`
+    ```php
+    <?php
+
+    namespace App\Controllers;
+
+    use App\Models\User;
+    use Psr\Http\Message\ResponseInterface as Response;
+    use Psr\Http\Message\ServerRequestInterface as Request;
+
+    class UserController {
+        public function getProfile(Request $request, Response $response, array $args): Response {
+            $user = User::find($args['id']);
+            $payload = json_encode(['data' => $user]);
+            $response->getBody()->write($payload);
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+    }
+    ```
+
+    **RUBY** `ruby` `rb`
+    ```ruby
+    class OrderProcessor
+      attr_reader :order, :status
+
+      def initialize(order)
+        @order = order
+        @status = :pending
+      end
+
+      def process!
+        return false unless @order.valid?
+
+        @status = :completed
+        puts "Order #{@order.id} processed successfully."
+        true
+      end
+    end
+    ```
+
+    **PERL** `perl`
+    ```perl
+    #!/usr/bin/perl
+    use strict;
+    use warnings;
+
+    my %fruits = (
+        apple  => 'red',
+        banana => 'yellow',
+        orange => 'orange'
+    );
+
+    while (my ($name, $color) = each %fruits) {
+        print "$name is $color\n";
+    }
+    ```
+
+    **R** `r`
+    ```r
+    # Data visualization example
+    library(ggplot2)
+
+    data <- data.frame(
+      category = c("A", "B", "C", "D"),
+      values = c(23, 45, 12, 67)
+    )
+
+    plot <- ggplot(data, aes(x = category, y = values, fill = category)) +
+      geom_bar(stat = "identity") +
+      theme_minimal() +
+      labs(title = "Category Breakdown", x = "Category", y = "Value")
+    ```
+
+    **OBJECTIVE-C** `objective-c`
+    ```objective-c
+    #import <Foundation/Foundation.h>
+
+    @interface Person : NSObject
+    @property (nonatomic, copy) NSString *name;
+    @property (nonatomic, assign) NSInteger age;
+    - (void)sayHello;
+    @end
+
+    @implementation Person
+    - (void)sayHello {
+        NSLog(@"Hello, my name is %@ and I am %ld years old.", self.name, (long)self.age);
+    }
+    @end
+    ```
+
+    **POWERSHELL** `powershell`
+    ```powershell
+    # Get all running services with status
+    $services = Get-Service | Where-Object { $_.Status -eq "Running" }
+
+    foreach ($service in $services) {
+        Write-Host "Service: $($service.DisplayName) is currently active" -ForegroundColor Green
+    }
+    ```
+
+    **VUE** `vue`
+    ```vue
+    <template>
+      <div class="user-card">
+        <h2>{{ username }}</h2>
+        <button @click="incrementLikes">Likes: {{ likes }}</button>
+      </div>
+    </template>
+
+    <script setup>
+    import { ref } from 'vue';
+
+    const props = defineProps({
+      username: { type: String, required: true }
+    });
+
+    const likes = ref(0);
+    const incrementLikes = () => likes.value++;
+    </script>
+    ```
+
+    **SVELTE** `svelte`
+    ```svelte
+    <script>
+      let count = 0;
+      function handleClick() {
+        count += 1;
+      }
+    </script>
+
+    <button on:click={handleClick}>
+      Clicks: {count}
+    </button>
+
+    <style>
+      button {
+        color: #ff3e00;
+        font-weight: bold;
+      }
+    </style>
+    ```
+
+    **ASTRO** `astro`
+    ```astro
+    ---
+    // Component Script (Frontmatter)
+    const { title = "Default Title" } = Astro.props;
+    const items = ["Item 1", "Item 2", "Item 3"];
+    ---
+
+    <div class="card">
+      <h1>{title}</h1>
+      <ul>
+        {items.map((item) => <li>{item}</li>)}
+      </ul>
+    </div>
+    ```
+
+paths:
+  /code:
+    get:
+      summary: Syntax Highlighting in Markdown
+      description: |
+        Syntax Highlighting in **OPERATION DESCRIPTION**
+        ```http
+        POST /pet HTTP/1.1
+        Host: example.org
+        Content-Type: application/json; charset=utf-8
+        Content-Length: 137
+
+        {
+          "status": "ok",
+          "extended": true,
+          "results": [
+            {"value": 0, "type": "int64"},
+            {"value": 1.0e+3, "type": "decimal"}
+          ]
+        }
+        ```
+
+    post:
+      summary: Request body
+      requestBody:
+        description: |
+          Syntax Highlighting in **REQUEST BODY**
+          ```js
+          function add(x, y) {
+            const answer = x + y;
+            return answer;
+          }
+
+          for (let i = 0; i < 10; i++){
+            console.log(3, i); // prints in console
+          }
+          ```
+
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Price"
+    
+      responses:
+        '200':
+          description: Successful
+
+components:
+  schemas:
+    Price:
+      type: object
+      properties:
+        amount:
+          type: integer
+        currency:
+          type: string

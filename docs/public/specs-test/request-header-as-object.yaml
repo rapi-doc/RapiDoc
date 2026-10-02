@@ -1,0 +1,68 @@
+openapi: 3.0.0
+info:
+  title: Test case for request headers
+  description: Send request headers as key/value pair using object notation
+  version: 1.0.0
+paths:
+  /api/login:
+    post:
+      summary: Login with secret
+      parameters:
+        - name: x-api-key
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: x-user-scope
+          in: header
+          schema:
+            $ref: '#/components/schemas/loginHeader'
+          example: |
+            {
+              "generalScope": "read",
+              "userScope": {
+                "allowed": ["read", "update"],
+                "forbidden" : ["delete", "write"]
+              }
+            }
+          explode: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/loginBody'
+        required: true
+      responses:
+        '201':
+          description: A user was successfully authenticated.
+        '404':
+          description: A user failed to login.
+components:
+  schemas:
+    loginHeader:
+      type: object
+      properties:
+        generalScope:
+          type: string
+        userScope:
+          type: object
+          properties:
+            allowed:
+              type:
+                array
+              items:
+                type:
+                  string
+            forbidden:
+              type:
+                array
+              items:
+                type:
+                  string
+    loginBody:
+      type: object
+      properties:
+        id:
+          type: string
+        password:
+          type: string

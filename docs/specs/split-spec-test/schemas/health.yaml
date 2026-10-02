@@ -1,5 +1,0 @@
-type: object
-properties:
-  api_version:
-    description: Version of the API.
-    type: string

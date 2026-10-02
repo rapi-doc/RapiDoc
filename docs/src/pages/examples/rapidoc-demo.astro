@@ -1,0 +1,487 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+import '../../styles/rapidoc-demo.css';
+---
+
+<ExampleLayout>
+  <!-- Ambient background glow elements matching website aesthetics -->
+  <div class="ambient-glow glow-emerald"></div>
+  <div class="ambient-glow glow-cyan"></div>
+  <div class="ambient-glow glow-indigo"></div>
+
+  <!-- Docked Right Edge Tab Button with Flame Border -->
+  <button id="edge-toggle-btn" class="rd-edge-tab" onclick="openSidebar()" aria-label="Open Controls Drawer" title="Open Demo Controls">
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <line x1="4" y1="21" x2="4" y2="14"></line>
+      <line x1="4" y1="10" x2="4" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="12"></line>
+      <line x1="12" y1="8" x2="12" y2="3"></line>
+      <line x1="20" y1="21" x2="20" y2="16"></line>
+      <line x1="20" y1="12" x2="20" y2="3"></line>
+      <line x1="1" y1="14" x2="7" y2="14"></line>
+      <line x1="9" y1="8" x2="15" y2="8"></line>
+      <line x1="17" y1="16" x2="23" y2="16"></line>
+    </svg>
+    <span>Options</span>
+  </button>
+
+  <!-- Modern Overlapping Layer Drawer as Native Dialog with Frosted Glass -->
+  <dialog id="sidebar-dialog" class="sidebar-dialog" closedby="any" aria-label="Demo Configuration Controls">
+    <div class="sidebar-wrapper">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div>
+            <div class="title-with-badge">
+              <h3 class="section-title">Playground Controls</h3>
+              <span class="badge-live">Live</span>
+            </div>
+            <p class="section-subtitle">Real-time interactive RapiDoc properties</p>
+          </div>
+        </div>
+        <div class="section-header-actions">
+          <button class="rd-action-btn reset-btn" onclick="initOptions(true)" title="Reset all options to default">
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+              <path d="M3 3v5h5"></path>
+            </svg>
+            <span>Reset</span>
+          </button>
+          <button class="rd-action-btn close-btn" onclick="closeSidebar()" aria-label="Close Controls Drawer" title="Close Drawer (Esc)">
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="section-body" id="settings-scroll-container">
+        <div id="settings-container" class="settings-list"></div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Main RapiDoc Container -->
+  <div id="rapiddoc-container">
+    <rapi-doc
+      id="thedoc"
+      spec-url="/specs/petstore.yaml"
+      sort-tags="false"
+      sort-endpoints-by="method"
+      heading-text="Demo"
+      show-header="false"
+      theme="dark"
+      bg-color="#060913"
+      nav-bg-color="#080d1a"
+      nav-text-color="#94a3b8"
+      nav-hover-bg-color="#111827"
+      nav-hover-text-color="#ffffff"
+      nav-accent-color="#10b981"
+      primary-color="#10b981"
+      text-color="#cbd5e1"
+    >
+      <img id="logo" slot="logo" src="/assets/images/logo-outline.svg" alt="RapiDoc Logo" />
+      <img id="nav-logo" slot="nav-logo" src="/assets/images/logo-outline.svg" alt="RapiDoc Logo" />
+    </rapi-doc>
+  </div>
+</ExampleLayout>
+
+<script is:inline>
+  const specUrls = {
+    PetStore: '/specs/petstore.yaml',
+    Jira: 'https://api.apis.guru/v2/specs/atlassian.com/jira/1001.0.0-SNAPSHOT/openapi.yaml',
+    YouTube: 'https://api.apis.guru/v2/specs/googleapis.com/youtube/v3/openapi.yaml',
+    AzureAD: 'https://api.apis.guru/v2/specs/azure.com/azureactivedirectory/2017-04-01/swagger.yaml',
+    Gitlab: 'https://api.apis.guru/v2/specs/gitlab.com/v3/swagger.yaml',
+    TheySaidSo: 'https://api.apis.guru/v2/specs/quotes.rest/3.1/openapi.yaml',
+    API2Cart: 'https://api.apis.guru/v2/specs/api2cart.com/1.1/openapi.yaml',
+    Chomp: 'https://api.apis.guru/v2/specs/chompthis.com/1.0.0-oas3/openapi.yaml',
+  };
+
+  // Primary colors matching modern web gradients & brand palette
+  const primaryColors = [
+    '#10b981', // Website Emerald (Signature)
+    '#06b6d4', // Cyan
+    '#8b5cf6', // Violet
+    '#3b82f6', // Electric Blue
+    '#f59e0b', // Amber
+    '#ef4444', // Red
+    '#ec4899', // Pink
+    '#6366f1', // Indigo
+    '#2D87E2', // Sky Blue
+    '#7B0099', // Purple
+    '#FBBC05', // Yellow
+    '#FF6961', // Coral
+    '#F0F0F0', // Slate Light
+  ];
+
+  const options = [
+    { attr: 'theme', default: 0, values: ['dark', 'light'], label: 'Theme', tip: 'Dark matches website palette' },
+    {
+      attr: 'primary-color',
+      default: 0,
+      values: primaryColors,
+      label: 'Primary Accent Color',
+      tip: 'Emerald (#10b981) matches website identity',
+    },
+    {
+      attr: 'render-style',
+      default: 1,
+      values: ['view', 'read', 'focused'],
+      label: 'Display Mode',
+      tip: 'Read mode gives full documentation view',
+    },
+    { attr: 'show-header', default: 0, values: ['true', 'false'], label: 'Show Header', tip: '' },
+    { attr: 'allow-spec-url-load', default: 0, values: ['true', 'false'], label: 'Show Spec URL Load', tip: '' },
+    { attr: 'allow-spec-file-load', default: 0, values: ['true', 'false'], label: 'Show Spec File Load', tip: '' },
+    { attr: 'spec-url', default: 0, values: Object.keys(specUrls), label: 'OpenAPI Specs', tip: 'Dynamically switch spec source' },
+    { attr: 'font-size', default: 0, values: ['default', 'large', 'largest'], label: 'Font Size', tip: '' },
+    { attr: 'regular-font', default: 0, values: ['Open Sans', 'Courier New', 'Nunito'], label: 'Font Family', tip: '' },
+    { attr: 'nav-item-spacing', default: 1, values: ['compact', 'default', 'relaxed'], label: 'Navigation Spacing', tip: '' },
+    {
+      attr: 'nav-active-item-marker',
+      default: 0,
+      values: ['left-bar', 'colored-block'],
+      label: 'Highlight Selected Nav Item',
+      tip: 'Select an endpoint to see active marker',
+    },
+    { attr: 'show-info', default: 0, values: ['true', 'false'], label: 'Show Info Section', tip: '' },
+    { attr: 'allow-authentication', default: 0, values: ['true', 'false'], label: 'Show Auth Section', tip: '' },
+    {
+      attr: 'persist-auth',
+      default: 1,
+      values: ['true', 'false'],
+      label: 'Store Authentication',
+      tip: 'Keys saved in browser localStorage',
+    },
+    { attr: 'allow-search', default: 0, values: ['true', 'false'], label: 'Show Search', tip: '' },
+    { attr: 'allow-advanced-search', default: 0, values: ['true', 'false'], label: 'Show Advanced Search', tip: '' },
+    {
+      attr: 'show-components',
+      default: 0,
+      values: ['true', 'false'],
+      label: 'Show Components',
+      tip: 'Schemas & security schemes (focused mode)',
+    },
+    {
+      attr: 'use-path-in-nav-bar',
+      default: 1,
+      values: ['true', 'false'],
+      label: 'Display Endpoint Path',
+      tip: 'Show path or summary in sidebar',
+    },
+    {
+      attr: 'show-method-in-nav-bar',
+      default: 1,
+      values: ['as-plain-text', 'as-colored-text', 'as-colored-block'],
+      label: 'Endpoint Method Style',
+      tip: '',
+    },
+    { attr: 'default-schema-tab', default: 1, values: ['model', 'example'], label: 'Default Schema Tab', tip: '' },
+    { attr: 'schema-style', default: 0, values: ['table', 'tree'], label: 'Schema Style', tip: '' },
+    { attr: 'schema-expand-level', default: 0, values: ['1', '2', '9'], label: 'Schema Expand Levels', tip: '' },
+    { attr: 'schema-hide-read-only', default: 0, values: ['default', 'never'], label: 'Hide Read-Only in Request Body', tip: '' },
+    { attr: 'schema-description-expanded', default: 1, values: ['true', 'false'], label: 'Multiline Schema Descriptions', tip: '' },
+    { attr: 'allow-schema-description-expand-toggle', default: 0, values: ['true', 'false'], label: 'Show Multiline Toggle', tip: '' },
+    {
+      attr: 'fill-request-fields-with-example',
+      default: 1,
+      values: ['true', 'false'],
+      label: 'Fill Examples by Default',
+      tip: 'Populate parameters with sample data',
+    },
+    { attr: 'layout', default: 0, values: ['row', 'column'], label: 'Req/Res Layout', tip: 'Layout arrangement in read mode' },
+    {
+      attr: 'allow-try',
+      default: 0,
+      values: ['true', 'false'],
+      label: 'Allow API Invocation (Try)',
+      tip: 'Live interactive endpoint testing',
+    },
+    {
+      attr: 'show-curl-before-try',
+      default: 0,
+      values: ['true', 'false'],
+      label: 'Always Show cURL',
+      tip: 'Display cURL command without invoking API',
+    },
+    {
+      attr: 'response-area-height',
+      default: 0,
+      values: ['100px', '200px', '300px', '400px', '500px'],
+      label: 'Response Area Height',
+      tip: '',
+    },
+  ];
+
+  let rapiDocE;
+  let dialogE;
+  let cachedSpecObject = null;
+
+  function applyTheme(themeName) {
+    if (!rapiDocE) return;
+    const currentPrimary = window.localStorage.getItem('primary-color') || '#10b981';
+    if (themeName === 'dark') {
+      rapiDocE.setAttribute('theme', 'dark');
+      rapiDocE.setAttribute('bg-color', '#060913');
+      rapiDocE.setAttribute('nav-bg-color', '#080d1a');
+      rapiDocE.setAttribute('nav-text-color', '#94a3b8');
+      rapiDocE.setAttribute('nav-hover-bg-color', '#111827');
+      rapiDocE.setAttribute('nav-hover-text-color', '#ffffff');
+      rapiDocE.setAttribute('nav-accent-color', currentPrimary);
+      rapiDocE.setAttribute('primary-color', currentPrimary);
+      rapiDocE.setAttribute('text-color', '#cbd5e1');
+    } else {
+      rapiDocE.setAttribute('theme', 'light');
+      rapiDocE.setAttribute('bg-color', '#ffffff');
+      rapiDocE.setAttribute('nav-bg-color', '#f8fafc');
+      rapiDocE.setAttribute('nav-text-color', '#475569');
+      rapiDocE.setAttribute('nav-hover-bg-color', '#f1f5f9');
+      rapiDocE.setAttribute('nav-hover-text-color', '#0f172a');
+      rapiDocE.setAttribute('nav-accent-color', currentPrimary);
+      rapiDocE.setAttribute('primary-color', currentPrimary);
+      rapiDocE.setAttribute('text-color', '#1e293b');
+    }
+  }
+
+  function setAttribute(attr, value) {
+    if (!rapiDocE) return;
+    if (attr === 'theme') {
+      applyTheme(value);
+      return;
+    }
+    if (attr === 'primary-color') {
+      rapiDocE.setAttribute('primary-color', value);
+      rapiDocE.setAttribute('nav-accent-color', value);
+      return;
+    }
+    if (attr === 'spec-url') {
+      value = specUrls[value] || value;
+    }
+    rapiDocE.setAttribute(attr, value);
+  }
+
+  function updateValue(attr, value) {
+    if (typeof value === 'boolean') {
+      value = value ? 'true' : 'false';
+    }
+    window.localStorage.setItem(attr, value);
+    setAttribute(attr, value);
+
+    const option = options.find((o) => o.attr === attr);
+    if (option) {
+      option.currentValue = value;
+    }
+
+    // Sync UI radio selection highlights
+    const inputs = document.querySelectorAll(`input[name="${attr}_radio"]`);
+    inputs.forEach((input) => {
+      const parentLabel = input.closest('label');
+      if (parentLabel) {
+        if (input.value === value) {
+          parentLabel.classList.add('active');
+          input.checked = true;
+        } else {
+          parentLabel.classList.remove('active');
+          input.checked = false;
+        }
+      }
+    });
+  }
+
+  function openSidebar() {
+    dialogE = document.getElementById('sidebar-dialog');
+    if (dialogE && !dialogE.open) {
+      dialogE.showModal();
+    }
+  }
+
+  function closeSidebar() {
+    dialogE = document.getElementById('sidebar-dialog');
+    if (dialogE && dialogE.open) {
+      dialogE.close();
+    }
+  }
+
+  function initOptions(reset, specObject) {
+    const spec = specObject || cachedSpecObject;
+    const settingsContainer = document.getElementById('settings-container');
+    if (!settingsContainer) return;
+
+    settingsContainer.innerHTML = '';
+
+    for (const option of options) {
+      option.isBoolean = option.values[0] === 'true';
+      option.defaultVal = option.values[option.default];
+      if (reset) {
+        window.localStorage.removeItem(option.attr);
+        option.currentValue = option.defaultVal;
+      } else {
+        option.currentValue = window.localStorage.getItem(option.attr) ?? option.defaultVal;
+      }
+
+      setAttribute(option.attr, option.currentValue);
+      settingsContainer.appendChild(buildOptionElement(option));
+    }
+
+    if (spec && spec.info) {
+      if (spec.info.title) {
+        setAttribute('heading-text', spec.info.title);
+      }
+      const logoUrl = spec.info['x-logo']?.url ?? '/assets/images/logo-outline.svg';
+      const logoEl = document.getElementById('logo');
+      const navLogoEl = document.getElementById('nav-logo');
+      if (logoEl) logoEl.setAttribute('src', logoUrl);
+      if (navLogoEl) navLogoEl.setAttribute('src', logoUrl);
+    }
+  }
+
+  function buildOptionElement(option) {
+    const cardEl = document.createElement('div');
+    cardEl.className = `rd-option-card ${option.isBoolean ? 'rd-option-card--boolean' : 'rd-option-card--multi'}`;
+
+    const infoEl = document.createElement('div');
+    infoEl.className = 'rd-option-info';
+
+    const labelEl = document.createElement('div');
+    labelEl.className = 'rd-option-label';
+    labelEl.textContent = option.label;
+    infoEl.appendChild(labelEl);
+
+    if (option.tip) {
+      const tipEl = document.createElement('div');
+      tipEl.className = 'rd-option-tip';
+      tipEl.textContent = option.tip;
+      infoEl.appendChild(tipEl);
+    }
+
+    cardEl.appendChild(infoEl);
+
+    const controlWrapper = document.createElement('div');
+    controlWrapper.className = 'rd-control-wrapper';
+
+    if (option.isBoolean) {
+      const isChecked = option.currentValue === 'true';
+      controlWrapper.innerHTML = `
+        <label class="rd-switch" title="Toggle ${option.label}">
+          <input type="checkbox"
+            ${isChecked ? 'checked' : ''}
+            data-attr="${option.attr}"
+          />
+          <span class="rd-slider"></span>
+        </label>
+      `;
+      const checkbox = controlWrapper.querySelector('input');
+      checkbox.addEventListener('change', (e) => {
+        updateValue(option.attr, e.target.checked);
+      });
+    } else if (option.attr === 'primary-color') {
+      controlWrapper.className = 'rd-control-wrapper rd-color-grid';
+      for (const color of option.values) {
+        const isSelected = option.currentValue === color;
+        const colorLabel = document.createElement('label');
+        colorLabel.className = `rd-color-chip ${isSelected ? 'active' : ''}`;
+        colorLabel.title = color;
+        colorLabel.innerHTML = `
+          <input type="radio"
+            name="${option.attr}_radio"
+            value="${color}"
+            ${isSelected ? 'checked' : ''}
+          />
+          <span class="color-swatch" style="background-color: ${color};"></span>
+        `;
+        const radio = colorLabel.querySelector('input');
+        radio.addEventListener('change', (e) => {
+          updateValue(option.attr, e.target.value);
+        });
+        controlWrapper.appendChild(colorLabel);
+      }
+    } else {
+      controlWrapper.className = 'rd-control-wrapper rd-chip-group';
+      for (const val of option.values) {
+        const isSelected = option.currentValue === val;
+        const chipLabel = document.createElement('label');
+        chipLabel.className = `rd-chip ${isSelected ? 'active' : ''}`;
+        chipLabel.innerHTML = `
+          <input type="radio"
+            name="${option.attr}_radio"
+            value="${val}"
+            ${isSelected ? 'checked' : ''}
+          />
+          <span class="chip-text">${val}</span>
+        `;
+        const radio = chipLabel.querySelector('input');
+        radio.addEventListener('change', (e) => {
+          updateValue(option.attr, e.target.value);
+        });
+        controlWrapper.appendChild(chipLabel);
+      }
+    }
+
+    cardEl.appendChild(controlWrapper);
+    return cardEl;
+  }
+
+  function setup() {
+    rapiDocE = document.getElementById('thedoc');
+    dialogE = document.getElementById('sidebar-dialog');
+
+    if (rapiDocE) {
+      rapiDocE.addEventListener('before-render', (e) => {
+        cachedSpecObject = e.detail?.spec;
+        initOptions(false, cachedSpecObject);
+      });
+    }
+
+    // Light-dismiss fallback for browsers without native closedby support
+    if (dialogE && !('closedBy' in HTMLDialogElement.prototype)) {
+      dialogE.addEventListener('click', (event) => {
+        if (event.target !== dialogE) return;
+        const rect = dialogE.getBoundingClientRect();
+        const isDialogContent =
+          rect.top <= event.clientY &&
+          event.clientY <= rect.top + rect.height &&
+          rect.left <= event.clientX &&
+          event.clientX <= rect.left + rect.width;
+        if (!isDialogContent) {
+          dialogE.close();
+        }
+      });
+    }
+
+    initOptions(false);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setup);
+  } else {
+    setup();
+  }
+</script>

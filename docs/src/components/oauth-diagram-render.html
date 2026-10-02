@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 1240px;
+      height: 740px;
+      background: #070a12;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #f8fafc;
+      overflow: hidden;
+      padding: 20px;
+    }
+
+    .canvas {
+      width: 1200px;
+      height: 700px;
+      position: relative;
+      background: #090d18;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      padding: 24px;
+    }
+
+    /* Columns / Zones */
+    .zone {
+      position: absolute;
+      top: 24px;
+      bottom: 24px;
+      width: 380px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .client-zone {
+      left: 24px;
+    }
+
+    .server-zone {
+      right: 24px;
+    }
+
+    .zone-header {
+      margin-bottom: 18px;
+    }
+
+    .zone-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .zone-title {
+      font-size: 16.5px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: #f8fafc;
+      white-space: nowrap;
+    }
+
+    .zone-badge {
+      font-size: 10px;
+      text-transform: uppercase;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-client {
+      background: rgba(6, 182, 212, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(6, 182, 212, 0.35);
+    }
+
+    .badge-server {
+      background: rgba(168, 85, 247, 0.15);
+      color: #c084fc;
+      border: 1px solid rgba(168, 85, 247, 0.35);
+    }
+
+    .zone-subtitle {
+      font-size: 11.5px;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+
+    /* Windows / Cards */
+    .card {
+      background: #04070e;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      position: absolute;
+      width: 340px;
+    }
+
+    .card-top {
+      top: 76px;
+      height: 205px;
+    }
+
+    .card-bottom {
+      top: 418px;
+      height: 205px;
+    }
+
+    .window-header {
+      height: 34px;
+      background: #0c121e;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #f59e0b; }
+    .dot-green { background: #10b981; }
+
+    .window-title {
+      font-family: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, monospace;
+      font-size: 12px;
+      font-weight: 600;
+      color: #e2e8f0;
+      margin-left: 6px;
+    }
+
+    .window-chip {
+      margin-left: auto;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 4px;
+      letter-spacing: 0.04em;
+    }
+
+    .chip-blue {
+      background: rgba(14, 165, 233, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(14, 165, 233, 0.3);
+    }
+
+    .chip-amber {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .card-body {
+      padding: 14px 16px;
+      font-family: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, monospace;
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+
+    .code-dim { color: #64748b; }
+    .code-cyan { color: #06b6d4; font-weight: 600; }
+    .code-amber { color: #f59e0b; }
+    .code-green { color: #10b981; }
+
+    .card-status-bar {
+      margin-top: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .btn-start {
+      background: #0f172a;
+      border: 1.5px solid #06b6d4;
+      color: #38bdf8;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.25);
+    }
+
+    .btn-auth {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1.5px solid #10b981;
+      color: #34d399;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 9999px;
+    }
+
+    /* Server cards */
+    .server-card-body {
+      padding: 14px 16px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .server-method-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .method-badge {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .method-post {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+    }
+
+    .method-get {
+      background: rgba(14, 165, 233, 0.2);
+      color: #38bdf8;
+    }
+
+    .endpoint-name {
+      font-family: ui-monospace, monospace;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #f1f5f9;
+    }
+
+    .server-checklist {
+      list-style: none;
+      font-size: 11.5px;
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+
+    .server-checklist li {
+      position: relative;
+      padding-left: 14px;
+    }
+
+    .server-checklist li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: #64748b;
+    }
+
+    .server-result {
+      font-size: 11.5px;
+      font-weight: 700;
+      padding-top: 6px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .result-green { color: #34d399; }
+    .result-cyan { color: #38bdf8; }
+
+    /* Central Flow Corridor */
+    .flow-corridor {
+      position: absolute;
+      left: 404px;
+      right: 404px;
+      top: 0;
+      bottom: 0;
+    }
+
+    /* Flow rows */
+    .flow-row {
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .flow-row-4 { top: 120px; }
+    .flow-row-5 { top: 200px; }
+    .flow-row-1 { top: 460px; }
+    .flow-row-2 { top: 540px; }
+
+    .flow-label {
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .label-cyan { color: #38bdf8; }
+    .label-green { color: #34d399; }
+
+    .step-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 800;
+      color: #06090e;
+      flex-shrink: 0;
+    }
+
+    .pill-cyan { background: #06b6d4; box-shadow: 0 0 8px rgba(6, 182, 212, 0.45); }
+    .pill-green { background: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.45); }
+    .pill-amber { background: #f59e0b; box-shadow: 0 0 8px rgba(245, 158, 11, 0.45); }
+
+    .flow-sub {
+      font-size: 10.5px;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+
+    /* Arrow Lines */
+    .arrow-container {
+      width: 100%;
+      height: 16px;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .arrow-line {
+      height: 2px;
+      width: 100%;
+      position: relative;
+    }
+
+    .line-cyan-dashed {
+      border-top: 2.5px dashed #06b6d4;
+    }
+
+    .line-green-solid {
+      background: #10b981;
+      height: 2.5px;
+    }
+
+    .head-right {
+      position: absolute;
+      right: -2px;
+      top: -5px;
+      width: 0;
+      height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+    }
+
+    .head-right.cyan {
+      border-left: 8px solid #06b6d4;
+    }
+
+    .head-left {
+      position: absolute;
+      left: -2px;
+      top: -5px;
+      width: 0;
+      height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+    }
+
+    .head-left.green {
+      border-right: 8px solid #10b981;
+    }
+
+    /* Vertical client connectors (Carefully staggered to avoid overlap) */
+    .vertical-corridor {
+      position: absolute;
+      top: 281px;
+      height: 137px;
+      width: 340px;
+      left: 20px;
+    }
+
+    /* Down arrow: positioned at x=52px */
+    .v-line-left {
+      position: absolute;
+      left: 52px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      border-left: 2.5px dashed #f59e0b;
+    }
+
+    .v-head-down {
+      position: absolute;
+      left: -5px;
+      bottom: -1px;
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 8px solid #f59e0b;
+    }
+
+    /* Staggered HIGHER at top: 18px */
+    .v-label-left {
+      position: absolute;
+      left: 64px;
+      top: 18px;
+      font-size: 11px;
+      color: #fbbf24;
+      font-weight: 700;
+      line-height: 1.35;
+      background: #090e1a;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      padding: 4px 8px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    /* Up arrow: positioned at x=280px */
+    .v-line-right {
+      position: absolute;
+      left: 280px;
+      top: 0;
+      bottom: 0;
+      width: 2.5px;
+      background: #10b981;
+    }
+
+    .v-head-up {
+      position: absolute;
+      left: -4px;
+      top: -1px;
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-bottom: 8px solid #10b981;
+    }
+
+    .v-pill-step3 {
+      position: absolute;
+      left: 271px;
+      top: 76px;
+    }
+
+    /* Staggered LOWER at top: 70px */
+    .v-label-right {
+      position: absolute;
+      right: 76px;
+      top: 68px;
+      font-size: 11px;
+      color: #34d399;
+      font-weight: 700;
+      text-align: right;
+      line-height: 1.35;
+      background: #090e1a;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 4px 8px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <!-- ZONE 1: CLIENT (BROWSER) -->
+    <div class="zone client-zone">
+      <div class="zone-header">
+        <div class="zone-title-row">
+          <span class="zone-title">OAuth Client (Browser)</span>
+          <span class="zone-badge badge-client">Client Side</span>
+        </div>
+        <div class="zone-subtitle">Hosted on your documentation domain</div>
+      </div>
+
+      <!-- CARD 1: index.html -->
+      <div class="card card-top">
+        <div class="window-header">
+          <div class="dot dot-red"></div>
+          <div class="dot dot-yellow"></div>
+          <div class="dot dot-green"></div>
+          <span class="window-title">index.html</span>
+          <span class="window-chip chip-blue">Main Window</span>
+        </div>
+        <div class="card-body">
+          <div class="code-dim">&lt;html&gt;</div>
+          <div style="padding-left: 12px;">
+            <span class="code-cyan">&lt;rapi-doc</span>
+            <span class="code-amber">spec-url</span>=<span class="code-green">"..."</span><span class="code-cyan">&gt;</span>
+          </div>
+          <div class="code-dim">&lt;/html&gt;</div>
+
+          <div class="card-status-bar">
+            <span class="btn-start">▶ START</span>
+            <span class="btn-auth">✓ Authenticated</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- VERTICAL CONNECTORS BETWEEN CARDS (Non-overlapping staggered layout) -->
+      <div class="vertical-corridor">
+        <!-- Downward arrow: opens popup -->
+        <div class="v-line-left">
+          <div class="v-head-down"></div>
+        </div>
+        <div class="v-label-left">
+          opens popup window<br>
+          <span style="font-size: 9.5px; color: #94a3b8; font-weight: 400;">in new browser window</span>
+        </div>
+
+        <!-- Upward arrow: passes Auth Code (Step 3) -->
+        <div class="v-line-right">
+          <div class="v-head-up"></div>
+        </div>
+        <span class="step-pill pill-green v-pill-step3">3</span>
+        <div class="v-label-right">
+          passes Auth Code<br>
+          <span style="font-size: 9.5px; color: #94a3b8; font-weight: 400;">via window.postMessage()</span>
+        </div>
+      </div>
+
+      <!-- CARD 2: oauth-receiver.html -->
+      <div class="card card-bottom">
+        <div class="window-header">
+          <div class="dot dot-red"></div>
+          <div class="dot dot-yellow"></div>
+          <div class="dot dot-green"></div>
+          <span class="window-title">oauth-receiver.html</span>
+          <span class="window-chip chip-amber">Popup Window</span>
+        </div>
+        <div class="card-body">
+          <div class="code-dim">&lt;html&gt;</div>
+          <div style="padding-left: 12px;">
+            <span class="code-cyan">&lt;oauth-receiver&gt;&lt;/oauth-receiver&gt;</span>
+          </div>
+          <div class="code-dim">&lt;/html&gt;</div>
+
+          <div style="margin-top: 14px; font-size: 11px; color: #94a3b8; font-family: sans-serif; line-height: 1.45;">
+            Built-in RapiDoc callback receiver.<br>
+            Extracts auth code &amp; automatically self-closes.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CORRIDOR: CROSS-ORIGIN FLOW STEPS (392px wide, ample breathing room) -->
+    <div class="flow-corridor">
+      <!-- STEP 4 -->
+      <div class="flow-row flow-row-4">
+        <div class="flow-label label-cyan">
+          <span class="step-pill pill-cyan">4</span>
+          <span>&lt;rapi-doc&gt; requests Access Token</span>
+        </div>
+        <div class="arrow-container">
+          <div class="arrow-line line-cyan-dashed">
+            <div class="head-right cyan"></div>
+          </div>
+        </div>
+        <div class="flow-sub">POST /token (Auth Code + PKCE / Secret)</div>
+      </div>
+
+      <!-- STEP 5 -->
+      <div class="flow-row flow-row-5">
+        <div class="flow-label label-green">
+          <span class="step-pill pill-green">5</span>
+          <span>Access Token is returned</span>
+        </div>
+        <div class="arrow-container">
+          <div class="arrow-line line-green-solid">
+            <div class="head-left green"></div>
+          </div>
+        </div>
+        <div class="flow-sub">Stored in memory for interactive TRY requests</div>
+      </div>
+
+      <!-- STEP 1 -->
+      <div class="flow-row flow-row-1">
+        <div class="flow-label label-cyan">
+          <span class="step-pill pill-cyan">1</span>
+          <span>&lt;oauth-receiver&gt; requests Auth Code</span>
+        </div>
+        <div class="arrow-container">
+          <div class="arrow-line line-cyan-dashed">
+            <div class="head-right cyan"></div>
+          </div>
+        </div>
+        <div class="flow-sub">Redirect to /authorize (client_id, scopes, redirect_uri)</div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="flow-row flow-row-2">
+        <div class="flow-label label-green">
+          <span class="step-pill pill-green">2</span>
+          <span>Redirects with Auth Code</span>
+        </div>
+        <div class="arrow-container">
+          <div class="arrow-line line-green-solid">
+            <div class="head-left green"></div>
+          </div>
+        </div>
+        <div class="flow-sub">Callback to popup with ?code=...&amp;state=...</div>
+      </div>
+    </div>
+
+    <!-- ZONE 2: AUTHORIZATION SERVER -->
+    <div class="zone server-zone">
+      <div class="zone-header">
+        <div class="zone-title-row">
+          <span class="zone-title">Authorization Server (IdP)</span>
+          <span class="zone-badge badge-server">Identity Provider</span>
+        </div>
+        <div class="zone-subtitle">IdentityServer, Okta, Keycloak, Auth0, Azure AD</div>
+      </div>
+
+      <!-- CARD 3: Token Endpoint -->
+      <div class="card card-top">
+        <div class="window-header">
+          <span class="method-badge method-post">POST</span>
+          <span class="endpoint-name">/token (Token Endpoint)</span>
+        </div>
+        <div class="server-card-body">
+          <div style="font-size: 12px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px;">
+            Validates Token Request:
+          </div>
+          <ul class="server-checklist">
+            <li>Authorization code &amp; redirect_uri</li>
+            <li>client_id &amp; client_secret (or PKCE verifier)</li>
+          </ul>
+          <div class="server-result result-green">
+            ✔ Issues Access Token &amp; Refresh Token
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 4: Authorize Endpoint -->
+      <div class="card card-bottom">
+        <div class="window-header">
+          <span class="method-badge method-get">GET</span>
+          <span class="endpoint-name">/authorize (Authorize Endpoint)</span>
+        </div>
+        <div class="server-card-body">
+          <div style="font-size: 12px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px;">
+            Authenticates User &amp; Validates:
+          </div>
+          <ul class="server-checklist">
+            <li>User credentials &amp; MFA challenge</li>
+            <li>Requested scopes &amp; redirect_uri</li>
+          </ul>
+          <div class="server-result result-cyan">
+            ✔ Generates temporary Authorization Code
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
