@@ -1,6 +1,5 @@
 {
   "name": "rapidoc-monorepo",
-  "version": "9.3.9-beta",
   "private": true,
   "workspaces": [
     "packages/*",
