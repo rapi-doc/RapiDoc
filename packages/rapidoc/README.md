@@ -187,7 +187,7 @@ When code is pushed to `master` or `main`, the [deploy-docs.yml](file:///Users/m
 
 OpenAPI specs are organized inside `docs/public/` based on their visibility and purpose:
 
-* **`docs/public/specs/`**: Public showcase specs referenced in [example-list.yaml](file:///Users/mrin/work/astro-rapidoc/docs/src/data/example-list.yaml) and displayed on `rapidocweb.com` (e.g., `petstore.yaml`, `code-highlight.yaml`, `auth.yaml`).
+* **`docs/public/specs/`**: Public showcase specs referenced in [example-list.yaml](file:///Users/mrin/work/astro-rapidoc/docs/src/data/example-list.yaml) and displayed on `rapidocui.com` (e.g., `petstore.yaml`, `code-highlight.yaml`, `auth.yaml`).
 * **`docs/public/specs-test/`**: Internal edge-case and boundary specs used for UI verification and regression tests (e.g., `circular-refs.yaml`, `xxx-of-combinations.yaml`).
 * **`docs/public/specs-test/parser/`**: Malformed or invalid specs used to test CLI validation and error reporting (e.g., `invalid-syntax.yaml`, `missing-info.yaml`, `broken-ref.yaml`).
 
