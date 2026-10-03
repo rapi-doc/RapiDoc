@@ -1,0 +1,22 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+import { getSpecUrl } from '../../utils/getSpecUrl';
+
+const specUrl = getSpecUrl(Astro.url);
+---
+
+<ExampleLayout>
+  <rapi-doc 
+    id="thedoc"
+    spec-url="/specs-test/oneof-duplicate-examples.yaml" 
+    default-schema-tab="example"
+    render-style="read"
+    show-header="false"
+    allow-authentication="false" 
+    allow-server-selection="false"
+  > 
+    <div slot="nav-logo" style="display:flex; flex-direction:row; align-items:center; justify-content: center;">
+      <button class='btn' onclick="toggleSchemaStyle()">Toggle Schema Style</button>
+    </div>
+  </rapi-doc>
+</ExampleLayout>

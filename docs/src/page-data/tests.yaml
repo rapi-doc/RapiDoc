@@ -158,6 +158,12 @@ advanced:
       title: Composite Schemas with Custom Tab Titles
       validates:
         - Rendering designated sub-schema titles on polymorphic tab selectors
+  - oneof-duplicate-examples:
+      title: Polymorphic oneOf with Nested oneOf Example Deduplication
+      validates:
+        - Request body EXAMPLE dropdown displays each top-level variant exactly once
+        - Nested oneOf in sub-properties do not create duplicate parent variant dropdown entries
+        - Clean polymorphic schema example generation with discriminator mapping
   - request-header-as-object:
       title: Serialized JSON Object in HTTP Request Headers
       validates:

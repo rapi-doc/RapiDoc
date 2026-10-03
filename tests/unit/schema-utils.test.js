@@ -208,6 +208,51 @@ describe('generateExample', () => {
     assert.strictEqual(ex2[0].exampleValue.id, '3fa85f64-5717-4562-b3fc-2c963f66afa6');
     assert.strictEqual(ex1[0].exampleValue.id, ex2[0].exampleValue.id);
   });
+
+  it('should generate exactly one example per top-level oneOf variant when nested oneOf exists', () => {
+    const reproSchema = {
+      oneOf: [
+        {
+          title: 'PlainVariant',
+          type: 'object',
+          properties: {
+            kind: { type: 'string', enum: ['plain'] },
+            value: { type: 'string' },
+          },
+        },
+        {
+          title: 'NestedOneOfVariant',
+          type: 'object',
+          properties: {
+            kind: { type: 'string', enum: ['nested'] },
+            entry: {
+              oneOf: [{ type: 'string' }, { type: 'object', properties: { id: { type: 'string' } } }],
+            },
+          },
+        },
+      ],
+    };
+
+    const examples = generateExample(reproSchema, 'application/json');
+    assert.strictEqual(examples.length, 2, `Expected 2 examples, got ${examples.length}`);
+    assert.strictEqual(examples[0].exampleSummary, 'PlainVariant');
+    assert.strictEqual(examples[1].exampleSummary, 'NestedOneOfVariant');
+    assert.deepStrictEqual(examples[0].exampleValue, { kind: 'plain', value: 'string' });
+    assert.deepStrictEqual(examples[1].exampleValue, { kind: 'nested', entry: 'string' });
+  });
+
+  it('should merge properties across allOf schemas without overwriting prior objects', () => {
+    const allOfSchema = {
+      allOf: [
+        { type: 'object', properties: { first: { type: 'string' } } },
+        { type: 'object', properties: { second: { type: 'integer' } } },
+      ],
+    };
+
+    const examples = generateExample(allOfSchema, 'application/json');
+    assert.strictEqual(examples.length, 1);
+    assert.deepStrictEqual(examples[0].exampleValue, { first: 'string', second: 0 });
+  });
 });
 
 describe('getTypeInfo', () => {
