@@ -17,7 +17,7 @@ import MicrolighterStyles from '~/styles/microlighter-styles';
 import CustomStyles from '~/styles/custom-styles';
 import { copyToClipboard, downloadResource, viewResource } from '~/utils/common-utils';
 import {
-  schemaInObjectNotation,
+  schemaToAST,
   getTypeInfo,
   generateExample,
   normalizeExamples,
@@ -384,7 +384,7 @@ export default class ApiRequest extends LitElement {
       if (!paramSchema) {
         continue;
       }
-      const schemaAsObj = schemaInObjectNotation(declaredParamSchema, {});
+      const schemaAsObj = schemaToAST(declaredParamSchema);
       // let exampleVal = '';
       // let exampleList = [];
       let paramStyle = 'form';
@@ -893,7 +893,7 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
         reqBody.mimeType.includes('text') ||
         this.selectedRequestBodyType.includes('jose')
       ) {
-        schemaAsObj = schemaInObjectNotation(reqBody.schema, {});
+        schemaAsObj = schemaToAST(reqBody.schema);
         if (this.schemaStyle === 'table') {
           reqBodySchemaHtml = html`
             ${reqBodySchemaHtml}
@@ -990,7 +990,7 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
 
   formDataParamAsObjectTemplate(fieldName, fieldSchema, mimeType) {
     // This template is used when form-data param should be send as a object (application/json, application/xml)
-    const formdataPartSchema = schemaInObjectNotation(fieldSchema, {});
+    const formdataPartSchema = schemaToAST(fieldSchema);
     const formdataPartExample = generateExample(
       fieldSchema,
       'json',

@@ -24,16 +24,7 @@ describe('generateExample', () => {
 
   it('should use single "example" with { value: ... } wrapper', () => {
     const singleExample = { value: { id: 202, title: 'Document' }, summary: 'Doc Example' };
-    const result = generateExample(
-      undefined,
-      'application/json',
-      null,
-      singleExample,
-      true,
-      true,
-      'json',
-      false
-    );
+    const result = generateExample(undefined, 'application/json', null, singleExample, true, true, 'json', false);
 
     assert.strictEqual(result.length, 1);
     assert.deepStrictEqual(result[0].exampleValue, { id: 202, title: 'Document' });
@@ -45,16 +36,7 @@ describe('generateExample', () => {
       dog: { summary: 'A Dog', value: { type: 'dog', barks: true } },
       cat: { summary: 'A Cat', value: { type: 'cat', meows: true } },
     };
-    const result = generateExample(
-      undefined,
-      'application/json',
-      examplesMap,
-      undefined,
-      true,
-      true,
-      'json',
-      false
-    );
+    const result = generateExample(undefined, 'application/json', examplesMap, undefined, true, true, 'json', false);
 
     assert.strictEqual(result.length, 2);
     assert.strictEqual(result[0].exampleId, 'dog');
@@ -78,41 +60,17 @@ describe('generateExample', () => {
 
   it('should respect falsy schema-level examples (0, false, empty string)', () => {
     // Boolean false
-    const boolResult = generateExample(
-      { type: 'boolean', example: false },
-      'application/json',
-      null,
-      null,
-      true,
-      true,
-      'json'
-    );
+    const boolResult = generateExample({ type: 'boolean', example: false }, 'application/json', null, null, true, true, 'json');
     assert.strictEqual(boolResult.length, 1);
     assert.strictEqual(boolResult[0].exampleValue, false);
 
     // Number 0
-    const zeroResult = generateExample(
-      { type: 'integer', example: 0 },
-      'application/json',
-      null,
-      null,
-      true,
-      true,
-      'json'
-    );
+    const zeroResult = generateExample({ type: 'integer', example: 0 }, 'application/json', null, null, true, true, 'json');
     assert.strictEqual(zeroResult.length, 1);
     assert.strictEqual(zeroResult[0].exampleValue, 0);
 
     // Empty string
-    const emptyStrResult = generateExample(
-      { type: 'string', example: '' },
-      'text/plain',
-      null,
-      null,
-      true,
-      true,
-      'text'
-    );
+    const emptyStrResult = generateExample({ type: 'string', example: '' }, 'text/plain', null, null, true, true, 'text');
     assert.strictEqual(emptyStrResult.length, 1);
     assert.strictEqual(emptyStrResult[0].exampleValue, '');
   });
@@ -367,4 +325,3 @@ describe('getTypeInfo', () => {
     assert.strictEqual(info.allowedValues, 'pending┃completed');
   });
 });
-

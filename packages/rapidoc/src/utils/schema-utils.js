@@ -874,25 +874,26 @@ export function schemaToSampleObj(schema, config = {}, level = 0) {
 }
 
 function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
-  let markdown =
-    (schema.description || schema.title) && (schema.minItems || schema.maxItems) ? '<span class="descr-expand-toggle">➔</span>' : '';
+  let mainText = '';
   if (schema.title) {
     if (schema.description) {
-      markdown = `${markdown} <b>${schema.title}:</b> ${schema.description}<br/>`;
+      mainText = `<b>${schema.title}:</b> ${schema.description}`;
     } else {
-      markdown = `${markdown} ${schema.title}<br/>`;
+      mainText = schema.title;
     }
   } else if (schema.description) {
-    markdown = `${markdown} ${schema.description}<br/>`;
+    mainText = schema.description;
   }
+
+  const extraParts = [];
   if (schema.minItems) {
-    markdown = `${markdown} <b>Min Items:</b> ${schema.minItems}`;
+    extraParts.push(`<b>Min Items:</b> ${schema.minItems}`);
   }
   if (schema.maxItems) {
-    markdown = `${markdown} <b>Max Items:</b> ${schema.maxItems}`;
+    extraParts.push(`<b>Max Items:</b> ${schema.maxItems}`);
   }
   if (schema.uniqueItems === true) {
-    markdown = `${markdown} <b>Must have unique items</b>`;
+    extraParts.push(`<b>Must have unique items</b>`);
   }
   if (level > 0 && schema.items?.description) {
     let itemsMarkdown = '';
@@ -902,9 +903,16 @@ function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
     if (schema.items.maxProperties) {
       itemsMarkdown = `${itemsMarkdown} <b>Max Properties:</b> ${schema.items.maxProperties}`;
     }
-    markdown = `${markdown} ⮕ ${itemsMarkdown} [ ${schema.items.description} ] `;
+    extraParts.push(`⮕ ${itemsMarkdown} [ ${schema.items.description} ]`);
   }
-  return markdown;
+
+  if (mainText && extraParts.length > 0) {
+    return `${mainText.trim()}\n\n${extraParts.join(' ')}`;
+  }
+  if (mainText) {
+    return mainText.trim();
+  }
+  return extraParts.join(' ');
 }
 /**
  * For changing OpenAPI-Schema to an Object Notation,
@@ -1116,9 +1124,334 @@ function handleMultiTypeSchema(schema, baseObj = {}, level = 0) {
   return Object.assign({}, baseObj);
 }
 
+function createObjectAST(schema, level, name, isRequired) {
+  const isNullable = schema.nullable || (Array.isArray(schema.type) && schema.type.includes('null')) || false;
+  const properties = [];
+  if (schema.properties) {
+    for (const key in schema.properties) {
+      const isPropReq = Array.isArray(schema.required) && schema.required.includes(key);
+      const child = schemaToAST(schema.properties[key], level + 1, key, isPropReq);
+      if (child) properties.push(child);
+    }
+  }
+
+  const patternProperties = [];
+  if (schema.patternProperties) {
+    for (const key in schema.patternProperties) {
+      const child = schemaToAST(schema.patternProperties[key], level + 1, `[pattern: ${key}]`, false);
+      if (child) patternProperties.push(child);
+    }
+  }
+
+  let additionalProperties = null;
+  if (schema.additionalProperties && typeof schema.additionalProperties === 'object') {
+    additionalProperties = schemaToAST(schema.additionalProperties, level + 1, '[any-key]', false);
+  }
+
+  return {
+    kind: 'object',
+    name,
+    title: schema.title || '',
+    description: generateMarkdownForArrayAndObjectDescription(schema, level),
+    required: isRequired,
+    deprecated: schema.deprecated || false,
+    readOnly: schema.readOnly || false,
+    writeOnly: schema.writeOnly || false,
+    nullable: isNullable,
+    dataTypeLabel: isNullable ? 'object ┃ null' : 'object',
+    properties,
+    patternProperties,
+    additionalProperties,
+  };
+}
+
+function createArrayAST(schema, level, name, isRequired) {
+  const isNullable = schema.nullable || (Array.isArray(schema.type) && schema.type.includes('null')) || false;
+  let itemsNode = null;
+  if (schema.items) {
+    itemsNode = schemaToAST(schema.items, level + 1, '', false);
+  }
+
+  let arrayType = '';
+  if (schema.items?.items) {
+    arrayType = schema.items.items.type || '';
+  } else if (schema.items?.type && typeof schema.items.type === 'string') {
+    arrayType = schema.items.type;
+  }
+
+  return {
+    kind: 'array',
+    name,
+    title: schema.title || '',
+    description: generateMarkdownForArrayAndObjectDescription(schema, level),
+    required: isRequired,
+    deprecated: schema.deprecated || false,
+    readOnly: schema.readOnly || false,
+    writeOnly: schema.writeOnly || false,
+    nullable: isNullable,
+    dataTypeLabel: isNullable ? 'array ┃ null' : 'array',
+    arrayType,
+    minItems: schema.minItems,
+    maxItems: schema.maxItems,
+    uniqueItems: schema.uniqueItems || false,
+    items: itemsNode,
+  };
+}
+
+function createPrimitiveAST(schema, name, isRequired) {
+  const typeInfo = getTypeInfo(schema) || {};
+  return {
+    kind: 'primitive',
+    name,
+    type: typeInfo.type || schema.type || '',
+    format: typeInfo.format || schema.format || '',
+    pattern: typeInfo.pattern || schema.pattern || '',
+    constraints: typeInfo.constrain || '',
+    defaultValue: typeInfo.default !== undefined && typeInfo.default !== '' ? String(typeInfo.default) : '',
+    allowedValues: typeInfo.allowedValues || '',
+    description: (schema.description || typeInfo.description || '').trim(),
+    title: (schema.title || '').trim(),
+    required: isRequired,
+    deprecated: schema.deprecated || !!typeInfo.deprecated,
+    readOnly: schema.readOnly || typeInfo.readOrWriteOnly === 'readonly',
+    writeOnly: schema.writeOnly || typeInfo.readOrWriteOnly === 'writeonly',
+    html: typeInfo.html || '',
+  };
+}
+
+/**
+ * Transforms an OpenAPI Schema into a strongly-typed Abstract Syntax Tree (AST) node.
+ *
+ * @param {object} schema - OpenAPI/JSON Schema object
+ * @param {number} [level=0] - Recursion depth
+ * @param {string} [name=''] - Property or field name
+ * @param {boolean} [isRequired=false] - Whether this property is required
+ * @param {string} [suffix=''] - Suffix used for union composition
+ * @returns {object|null} Typed SchemaNode AST
+ */
+export function schemaToAST(schema, level = 0, name = '', isRequired = false, suffix = '') {
+  if (!schema) {
+    return null;
+  }
+  if (level > 8) {
+    return {
+      kind: 'object',
+      name,
+      type: schema.type || 'object',
+      title: schema.title || '',
+      description: schema.description || '',
+      required: isRequired,
+      truncated: true,
+    };
+  }
+
+  // 1. allOf
+  if (schema.allOf) {
+    if (schema.allOf.length === 1 && !schema.allOf[0].properties && !schema.allOf[0].items) {
+      const mergedSchema = {
+        ...schema.allOf[0],
+        ...schema,
+        title: schema.title || schema.allOf[0].title || '',
+        description: schema.description || schema.allOf[0].description || '',
+      };
+      delete mergedSchema.allOf;
+      return schemaToAST(mergedSchema, level, name, isRequired);
+    }
+
+    const mergedProps = [];
+    const mergedPatternProps = [];
+    let mergedAdditionalProps = null;
+    const unionChildren = [];
+    let mergedTitle = schema.title || '';
+    let mergedDescription = schema.description || '';
+    let mergedDeprecated = schema.deprecated || false;
+    let mergedReadOnly = schema.readOnly || false;
+    let mergedWriteOnly = schema.writeOnly || false;
+    let mergedNullable = schema.nullable || false;
+
+    schema.allOf.forEach((sub, i) => {
+      if (sub.title && !mergedTitle) mergedTitle = sub.title;
+      if (sub.description && !mergedDescription) mergedDescription = sub.description;
+      if (sub.deprecated) mergedDeprecated = true;
+      if (sub.readOnly) mergedReadOnly = true;
+      if (sub.writeOnly) mergedWriteOnly = true;
+      if (sub.nullable) mergedNullable = true;
+
+      if (sub.type === 'object' || sub.properties || sub.allOf || sub.anyOf || sub.oneOf) {
+        const subSuffix = (sub.anyOf || sub.oneOf) && i > 0 ? `${i}` : '';
+        const subAst = schemaToAST(sub, level + 1, '', false, subSuffix);
+        if (subAst) {
+          if (subAst.kind === 'object') {
+            if (subAst.properties) mergedProps.push(...subAst.properties);
+            if (subAst.patternProperties) mergedPatternProps.push(...subAst.patternProperties);
+            if (subAst.additionalProperties) mergedAdditionalProps = subAst.additionalProperties;
+          } else if (subAst.kind === 'union') {
+            unionChildren.push(subAst);
+          }
+        }
+      } else if (sub.type === 'array' || sub.items) {
+        const subAst = schemaToAST(sub, level + 1);
+        if (subAst) {
+          mergedProps.push(subAst);
+        }
+      } else if (sub.type) {
+        const propName = `prop${mergedProps.length}`;
+        mergedProps.push(schemaToAST(sub, level + 1, propName, false));
+      }
+    });
+
+    return {
+      kind: 'object',
+      name,
+      title: mergedTitle,
+      description: generateMarkdownForArrayAndObjectDescription({ ...schema, title: mergedTitle, description: mergedDescription }, level),
+      required: isRequired,
+      deprecated: mergedDeprecated,
+      readOnly: mergedReadOnly,
+      writeOnly: mergedWriteOnly,
+      nullable: mergedNullable,
+      dataTypeLabel: mergedNullable ? 'object ┃ null' : 'object',
+      properties: mergedProps,
+      patternProperties: mergedPatternProps,
+      additionalProperties: mergedAdditionalProps,
+      unions: unionChildren,
+    };
+  }
+
+  // 2. anyOf / oneOf
+  if (schema.anyOf || schema.oneOf) {
+    const operator = schema.anyOf ? 'anyOf' : 'oneOf';
+    const rawOptions = schema.anyOf || schema.oneOf;
+    const options = rawOptions
+      .map((opt, idx) => {
+        const optTitle = opt.title || '';
+        const optAst = schemaToAST(opt, level + 1, optTitle || `Option ${idx + 1}`, false);
+        if (optAst) {
+          optAst.readOnly = false;
+          optAst.writeOnly = false;
+          optAst.optionIndex = idx + 1;
+          optAst.optionTitle = optTitle;
+        }
+        return optAst;
+      })
+      .filter(Boolean);
+
+    let baseProps = [];
+    if (schema.type === 'object' || schema.properties) {
+      if (schema.properties) {
+        for (const key in schema.properties) {
+          const isReq = Array.isArray(schema.required) && schema.required.includes(key);
+          const propNode = schemaToAST(schema.properties[key], level + 1, key, isReq);
+          if (propNode) baseProps.push(propNode);
+        }
+      }
+    }
+
+    return {
+      kind: 'union',
+      operator,
+      name,
+      suffix,
+      title: schema.title || '',
+      description: schema.description || '',
+      required: isRequired,
+      properties: baseProps,
+      options,
+    };
+  }
+
+  // 3. Multi-type array (OpenAPI 3.1)
+  if (Array.isArray(schema.type)) {
+    if (schema.type.length === 2 && schema.type.includes('null')) {
+      if (schema.type.includes('object')) {
+        return createObjectAST(schema, level, name, isRequired);
+      }
+      if (schema.type.includes('array')) {
+        return createArrayAST(schema, level, name, isRequired);
+      }
+    }
+
+    const subSchema = typeof structuredClone === 'function' ? structuredClone(schema) : JSON.parse(JSON.stringify(schema));
+    const primitiveType = [];
+    const complexTypes = [];
+
+    subSchema.type.forEach((v) => {
+      if (v.match(/integer|number|string|null|boolean/g)) {
+        primitiveType.push(v);
+      } else if (
+        v === 'array' &&
+        typeof subSchema.items?.type === 'string' &&
+        subSchema.items?.type.match(/integer|number|string|null|boolean/g)
+      ) {
+        if (subSchema.items.type === 'string' && subSchema.items.format) {
+          primitiveType.push(`[${subSchema.items.format}]`);
+        } else {
+          primitiveType.push(`[${subSchema.items.type}]`);
+        }
+      } else {
+        complexTypes.push(v);
+      }
+    });
+
+    if (complexTypes.length === 0 && primitiveType.length > 0) {
+      subSchema.type = primitiveType.join('┃');
+      return createPrimitiveAST(subSchema, name, isRequired);
+    }
+
+    if (complexTypes.length > 0) {
+      const options = [];
+      let optionIndex = 1;
+      complexTypes.forEach((v) => {
+        if (v === 'object') {
+          const objNode = createObjectAST(schema, level + 1, schema.title || `Option ${optionIndex}`, false);
+          objNode.optionIndex = optionIndex++;
+          objNode.optionTitle = schema.title || '';
+          options.push(objNode);
+        } else if (v === 'array') {
+          const arrNode = createArrayAST(schema, level + 1, schema.title || `Option ${optionIndex}`, false);
+          arrNode.optionIndex = optionIndex++;
+          arrNode.optionTitle = schema.title || '';
+          options.push(arrNode);
+        }
+      });
+
+      if (primitiveType.length > 0) {
+        subSchema.type = primitiveType.join('┃');
+        const primNode = createPrimitiveAST(subSchema, `Option ${optionIndex}`, false);
+        primNode.optionIndex = optionIndex++;
+        options.push(primNode);
+      }
+
+      return {
+        kind: 'union',
+        operator: 'oneOf',
+        name,
+        title: schema.title || '',
+        description: schema.description || '',
+        required: isRequired,
+        options,
+      };
+    }
+  }
+
+  // 4. Object
+  if (schema.type === 'object' || schema.properties) {
+    return createObjectAST(schema, level, name, isRequired);
+  }
+
+  // 5. Array
+  if (schema.type === 'array' || schema.items) {
+    return createArrayAST(schema, level, name, isRequired);
+  }
+
+  // 6. Primitive
+  return createPrimitiveAST(schema, name, isRequired);
+}
+
 /**
  * For changing OpenAPI-Schema to an Object Notation,
  * This Object would further be an input to UI Components to generate an Object-Tree
+ * @deprecated Use schemaToAST instead.
  * @param {object} schema - Schema object from OpenAPI spec
  * @param {object} [obj={}] - base object to populate (defaults to new object)
  * @param {number} [level=0] - recursion level

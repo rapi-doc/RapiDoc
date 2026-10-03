@@ -7,6 +7,17 @@ import SchemaStyles from '~/styles/schema-styles';
 import BorderStyles from '~/styles/border-styles';
 import CustomStyles from '~/styles/custom-styles';
 
+function hasMultilineDescription(desc) {
+  if (!desc || typeof desc !== 'string') {
+    return false;
+  }
+  const cleaned = desc
+    .trim()
+    .replace(/<br\s*\/?>$/i, '')
+    .trim();
+  return cleaned.includes('<br') || cleaned.includes('\n');
+}
+
 export default class SchemaTree extends LitElement {
   static get properties() {
     return {
@@ -54,6 +65,9 @@ export default class SchemaTree extends LitElement {
           overflow: hidden;
           max-height: calc(var(--font-size-small) + 8px);
         }
+        .tree .tr.expanded-descr {
+          max-height: none;
+        }
         .tree .key {
           max-width: 300px;
         }
@@ -100,12 +114,23 @@ export default class SchemaTree extends LitElement {
   }
 
   render() {
+    if (!this.data) {
+      return html`
+        <div class="tree">
+          <span class="mono-font" style="color:var(--red)"> Schema not found </span>
+        </div>
+      `;
+    }
+
+    const rootType = this.data.kind === 'primitive' ? this.data.type : this.data.kind || '';
+    const rootDescription = this.data.description || '';
+
     return html` <div
       class="tree ${this.schemaDescriptionExpanded === 'true' ? 'expanded-all-descr' : 'collapsed-all-descr'}"
       @click="${(e) => this.handleAllEvents(e)}"
     >
       <div class="toolbar">
-        <div class="toolbar-item schema-root-type ${this.data?.['::type'] || ''} ">${this.data?.['::type'] || ''}</div>
+        <div class="toolbar-item schema-root-type ${rootType} ">${rootType}</div>
         ${
           this.allowSchemaDescriptionExpandToggle === 'true'
             ? html` <div style="flex:1"></div>
@@ -115,322 +140,313 @@ export default class SchemaTree extends LitElement {
             : ''
         }
       </div>
-      <span part="schema-description" class="m-markdown"> ${unsafeHTML(sanitizeHTML(marked(this.data?.['::description'] || '')))}</span>
-      ${
-        this.data
-          ? html` ${this.generateTree(
-              this.data['::type'] === 'array' ? this.data['::props'] : this.data,
-              this.data['::type'],
-              this.data['::array-type'] || ''
-            )}`
-          : html`<span class="mono-font" style="color:var(--red)"> Schema not found </span>`
-      }
+      <span part="schema-description" class="m-markdown"> ${unsafeHTML(sanitizeHTML(marked(rootDescription)))}</span>
+      ${this.renderAST(this.data)}
     </div>`;
   }
 
-  generateTree(
-    data,
-    dataType = 'object',
-    arrayType = '',
-    key = '',
-    description = '',
-    schemaLevel = 0,
-    indentLevel = 0,
-    readOrWrite = '',
-    isDeprecated = false
-  ) {
-    if (this.schemaHideReadOnly === 'true') {
-      if (dataType === 'array') {
-        if (readOrWrite === 'readonly') {
-          return;
-        }
-      }
-      if (data?.['::readwrite'] === 'readonly') {
-        return;
-      }
-    }
-    if (this.schemaHideWriteOnly === 'true') {
-      if (dataType === 'array') {
-        if (readOrWrite === 'writeonly') {
-          return;
-        }
-      }
-      if (data?.['::readwrite'] === 'writeonly') {
-        return;
-      }
+  renderAST(node, parentType = '', schemaLevel = 0, indentLevel = 0) {
+    if (!node) {
+      return '';
     }
 
-    if (!data) {
-      return html`<div class="null" style="display:inline;">
-        <span class="key-label xxx-of-key"> ${key.replace('::OPTION~', '')}</span>
-        ${
-          dataType === 'array'
-            ? html`<span class="mono-font"> [ ] </span>`
-            : dataType === 'object'
-              ? html`<span class="mono-font"> { } </span>`
-              : html`<span class="mono-font"> schema undefined </span>`
-        }
-      </div>`;
+    if (this.schemaHideReadOnly === 'true' && node.readOnly) {
+      return '';
     }
-    if (Object.keys(data).length === 0) {
-      return html`<span class="key object">${key}:{ }</span>`;
-    }
-    let keyLabel = '';
-    let keyDescr = '';
-    if (key.startsWith('::ONE~OF') || key.startsWith('::ANY~OF')) {
-      keyLabel = key.replace('::', '').replace('~', ' ');
-    } else if (key.startsWith('::OPTION')) {
-      const parts = key.split('~');
-      [, keyLabel, keyDescr] = parts;
-    } else {
-      keyLabel = key;
+    if (this.schemaHideWriteOnly === 'true' && node.writeOnly) {
+      return '';
     }
 
     const leftPadding = 12;
     const minFieldColWidth = 400 - indentLevel * leftPadding;
-    let openBracket = '';
-    let closeBracket = '';
-    const newSchemaLevel = data['::type']?.startsWith('xxx-of') ? schemaLevel : schemaLevel + 1;
-    // const newIndentLevel = dataType === 'xxx-of-option' || data['::type'] === 'xxx-of-option' ? indentLevel : (indentLevel + 1);
-    const newIndentLevel =
-      dataType === 'xxx-of-option' || data['::type'] === 'xxx-of-option' || key.startsWith('::OPTION') ? indentLevel : indentLevel + 1;
-    if (data['::type'] === 'object') {
-      if (dataType === 'array') {
-        if (schemaLevel < this.schemaExpandLevel) {
-          openBracket = html`<span class="open-bracket array-of-object">[{</span>`;
-        } else {
-          openBracket = html`<span class="open-bracket array-of-object">[{...}]</span>`;
-        }
-        closeBracket = '}]';
-      } else {
-        if (schemaLevel < this.schemaExpandLevel) {
-          openBracket = html`<span class="open-bracket object">${data['::nullable'] ? 'null┃' : ''}{</span>`;
-        } else {
-          openBracket = html`<span class="open-bracket object">${data['::nullable'] ? 'null┃' : ''}{...}</span>`;
-        }
-        closeBracket = '}';
+    const isExpanded = schemaLevel < this.schemaExpandLevel;
+    const readWriteBadge = node.readOnly ? html` 🆁` : node.writeOnly ? html` 🆆` : '';
+    const readWriteTip = node.readOnly ? 'Read-Only' : node.writeOnly ? 'Write-Only' : '';
+    const deprecatedIcon = node.deprecated
+      ? html`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--red); margin-right:-6px">
+          <path d="M2 2L8 8M2 8L8 2" />
+        </svg>`
+      : '';
+
+    // 1. Array kind
+    if (node.kind === 'array') {
+      const items = node.items;
+      if (!items) {
+        return html`
+          <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} array" title="${node.deprecated ? 'Deprecated' : ''}">
+            <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
+              ${deprecatedIcon}
+              ${node.name ? html`<span class="key-label" title="${readWriteTip}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
+              <span class="open-bracket array">[ ]</span>
+            </div>
+            <div class="td key-descr m-markdown-small">${unsafeHTML(sanitizeHTML(marked(node.description || '')))}</div>
+          </div>
+        `;
       }
-    } else if (data['::type'] === 'array') {
-      if (dataType === 'array') {
-        const arrType = arrayType !== 'object' ? arrayType : '';
-        if (schemaLevel < this.schemaExpandLevel) {
-          openBracket = html`<span class="open-bracket array-of-array" data-array-type="${arrType}">[[ ${arrType} </span>`;
-        } else {
-          openBracket = html`<span class="open-bracket array-of-array" data-array-type="${arrType}">[[...]]</span>`;
-        }
-        closeBracket = ']]';
-      } else {
-        if (schemaLevel < this.schemaExpandLevel) {
-          openBracket = html`<span class="open-bracket array">[</span>`;
-        } else {
-          openBracket = html`<span class="open-bracket array">[...]</span>`;
-        }
-        closeBracket = ']';
+
+      // If array of primitives
+      if (items.kind === 'primitive') {
+        const itemType = items.type || 'string';
+        const dataTypeCss = itemType
+          .replace(/┃.*/g, '')
+          .replace(/[^a-zA-Z0-9+]/g, '')
+          .substring(0, 4)
+          .toLowerCase();
+        const hasText = !!(node.description || items.description);
+        const hasItemChips = !!(items.constraints || items.defaultValue || items.allowedValues || items.pattern);
+        const hasExtra = hasItemChips || hasMultilineDescription(node.description) || hasMultilineDescription(items.description);
+        const descrExpander =
+          hasText && hasExtra
+            ? html`<span class="descr-expand-toggle ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : ''}">➔</span>`
+            : '';
+
+        const detailChips = html`
+          ${items.constraints ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Constraints: </span>${items.constraints}</div>` : ''}
+          ${items.defaultValue ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Default: </span>${items.defaultValue}</div>` : ''}
+          ${items.allowedValues ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">${items.type === 'const' ? 'Value' : 'Allowed'}: </span>${items.allowedValues}</div>` : ''}
+          ${items.pattern ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Pattern: </span>${items.pattern}</div>` : ''}
+        `;
+
+        return html`
+          <div class="tr primitive" title="${node.deprecated || items.deprecated ? 'Deprecated' : ''}">
+            <div class="td key ${node.deprecated || items.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
+              ${deprecatedIcon}
+              ${node.name ? html`<span class="key-label" title="${readWriteTip}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}:</span>` : ''}
+              <span class="${dataTypeCss}" title="${readWriteTip}">[${itemType}]${readWriteBadge}</span>
+            </div>
+            <div class="td key-descr">
+              ${
+                hasText
+                  ? html`<span class="m-markdown-small"
+                      >${descrExpander} ${unsafeHTML(sanitizeHTML(marked(node.description || items.description)))}</span
+                    >`
+                  : ''
+              }
+              ${hasText && hasItemChips ? html`<div class="item-details">${detailChips}</div>` : detailChips}
+            </div>
+          </div>
+        `;
       }
+
+      // If array of objects
+      if (items.kind === 'object') {
+        const openBracket = isExpanded
+          ? html`<span class="open-bracket array-of-object">[{</span>`
+          : html`<span class="open-bracket array-of-object">[{...}]</span>`;
+        const closeBracket = '}]';
+
+        const hasExtra = hasMultilineDescription(node.description);
+        const descrExpander = hasExtra
+          ? html`<span class="descr-expand-toggle ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : ''}">➔</span>`
+          : '';
+
+        return html`
+          <div
+            class="tr ${isExpanded ? 'expanded' : 'collapsed'} object ${items.nullable ? 'nullable' : ''}"
+            title="${node.deprecated || items.deprecated ? 'Deprecated' : ''}"
+          >
+            <div class="td key ${node.deprecated || items.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
+              ${deprecatedIcon}
+              ${node.name ? html`<span class="key-label" title="${readWriteTip}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
+              ${openBracket}
+            </div>
+            <div class="td key-descr m-markdown-small">
+              ${descrExpander} ${unsafeHTML(sanitizeHTML(marked(node.description || items.description || '')))}
+            </div>
+          </div>
+          <div class="inside-bracket object" style="padding-left:${leftPadding}px;">
+            ${items.properties?.map((p) => this.renderAST(p, 'object', schemaLevel + 1, indentLevel + 1))}
+            ${items.patternProperties?.map((p) => this.renderAST(p, 'object', schemaLevel + 1, indentLevel + 1))}
+            ${items.additionalProperties ? this.renderAST(items.additionalProperties, 'object', schemaLevel + 1, indentLevel + 1) : ''}
+            ${items.unions?.map((u) => this.renderAST(u, 'object', schemaLevel + 1, indentLevel + 1))}
+          </div>
+          <div class="close-bracket">${closeBracket}</div>
+        `;
+      }
+
+      // If array of arrays
+      if (items.kind === 'array') {
+        const arrType = node.arrayType !== 'object' ? node.arrayType : '';
+        const openBracket = isExpanded
+          ? html`<span class="open-bracket array-of-array" data-array-type="${arrType}">[[ ${arrType} </span>`
+          : html`<span class="open-bracket array-of-array" data-array-type="${arrType}">[[...]]</span>`;
+        const closeBracket = ']]';
+
+        const hasExtra = hasMultilineDescription(node.description);
+        const descrExpander = hasExtra
+          ? html`<span class="descr-expand-toggle ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : ''}">➔</span>`
+          : '';
+
+        return html`
+          <div
+            class="tr ${isExpanded ? 'expanded' : 'collapsed'} array ${node.nullable ? 'nullable' : ''}"
+            title="${node.deprecated ? 'Deprecated' : ''}"
+          >
+            <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
+              ${deprecatedIcon}
+              ${node.name ? html`<span class="key-label" title="${readWriteTip}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
+              ${openBracket}
+            </div>
+            <div class="td key-descr m-markdown-small">${descrExpander} ${unsafeHTML(sanitizeHTML(marked(node.description || '')))}</div>
+          </div>
+          <div class="inside-bracket array" style="padding-left:${leftPadding}px;">
+            ${this.renderAST(items, 'array', schemaLevel + 1, indentLevel + 1)}
+          </div>
+          <div class="close-bracket">${closeBracket}</div>
+        `;
+      }
+
+      // If array of unions or others
+      const hasText = !!node.description;
+      const hasExtra = hasMultilineDescription(node.description);
+      const descrExpander =
+        hasText && hasExtra
+          ? html`<span class="descr-expand-toggle ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : ''}">➔</span>`
+          : '';
+      return html`
+        <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} array" title="${node.deprecated ? 'Deprecated' : ''}">
+          <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
+            ${deprecatedIcon}
+            ${node.name ? html`<span class="key-label" title="${readWriteTip}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
+            <span class="open-bracket array">[</span>
+          </div>
+          <div class="td key-descr m-markdown-small">${descrExpander} ${unsafeHTML(sanitizeHTML(marked(node.description || '')))}</div>
+        </div>
+        <div class="inside-bracket array" style="padding-left:${leftPadding}px;">
+          ${this.renderAST(items, 'array', schemaLevel + 1, indentLevel + 1)}
+        </div>
+        <div class="close-bracket">]</div>
+      `;
     }
-    if (typeof data === 'object') {
-      return html`<div
-          class="tr ${schemaLevel < this.schemaExpandLevel || data['::type']?.startsWith('xxx-of') ? 'expanded' : 'collapsed'} ${
-            data['::type'] || 'no-type-info'
-          }${data['::nullable'] ? ' nullable' : ''}"
-          title="${isDeprecated || data['::deprecated'] ? 'Deprecated' : ''}"
+
+    // 2. Object kind
+    if (node.kind === 'object') {
+      const openBracket = isExpanded
+        ? html`<span class="open-bracket object">${node.nullable ? 'null┃' : ''}{</span>`
+        : html`<span class="open-bracket object">${node.nullable ? 'null┃' : ''}{...}</span>`;
+      const closeBracket = '}';
+
+      const hasExtra = hasMultilineDescription(node.description);
+      const descrExpander = hasExtra
+        ? html`<span class="descr-expand-toggle ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : ''}">➔</span>`
+        : '';
+
+      return html`
+        <div
+          class="tr ${isExpanded ? 'expanded' : 'collapsed'} object ${node.nullable ? 'nullable' : ''}"
+          title="${node.deprecated ? 'Deprecated' : ''}"
         >
-          <div class="td key ${isDeprecated || data['::deprecated'] ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
-            ${
-              data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION')
-                ? html`<span class="key-label xxx-of-key"> ${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>`
-                : keyLabel === '::props' || keyLabel === '::ARRAY~OF'
-                  ? ''
-                  : schemaLevel > 0
-                    ? html`<span
-                        class="key-label"
-                        title="${readOrWrite === 'readonly' ? 'Read-Only' : readOrWrite === 'writeonly' ? 'Write-Only' : ''}"
-                      >
-                        ${
-                          isDeprecated || data['::deprecated']
-                            ? html`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--red); margin-right:-6px">
-                                <path d="M2 2L8 8M2 8L8 2" />
-                              </svg>`
-                            : ''
-                        }
-                        ${keyLabel.replace(/\*$/, '')}${
-                          keyLabel.endsWith('*') ? html`<span style="color:var(--red)">*</span>` : ''
-                        }${readOrWrite === 'readonly' ? html` 🆁` : readOrWrite === 'writeonly' ? html` 🆆` : readOrWrite}:
-                      </span>`
-                    : ''
-            }
+          <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
+            ${deprecatedIcon}
+            ${node.name ? html`<span class="key-label" title="${readWriteTip}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
             ${openBracket}
           </div>
-          <div class="td key-descr m-markdown-small">${unsafeHTML(sanitizeHTML(marked(description || '')))}</div>
+          <div class="td key-descr m-markdown-small">${descrExpander} ${unsafeHTML(sanitizeHTML(marked(node.description || '')))}</div>
         </div>
-        <div
-          class="inside-bracket ${data['::type'] || 'no-type-info'}"
-          style="padding-left:${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' ? 0 : leftPadding}px;"
-        >
-          ${
-            Array.isArray(data) && data[0]
-              ? html`${this.generateTree(
-                  data[0],
-                  'xxx-of-option',
-                  '',
-                  '::ARRAY~OF',
-                  '',
-                  newSchemaLevel,
-                  newIndentLevel,
-                  data[0]['::readwrite'],
-                  isDeprecated || data[0]['::deprecated']
-                )}`
-              : html`
-                  ${Object.keys(data).map(
-                    (dataKey) => html`
-                      ${
-                        [
-                          '::title',
-                          '::description',
-                          '::type',
-                          '::props',
-                          '::deprecated',
-                          '::array-type',
-                          '::readwrite',
-                          '::dataTypeLabel',
-                          '::nullable',
-                        ].includes(dataKey)
-                          ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object'
-                            ? html`${this.generateTree(
-                                data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey],
-                                data[dataKey]['::type'],
-                                data[dataKey]['::array-type'] || '',
-                                dataKey,
-                                data[dataKey]['::description'],
-                                newSchemaLevel,
-                                newIndentLevel,
-                                data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '',
-                                isDeprecated || data[dataKey]['::deprecated']
-                              )}`
-                            : ''
-                          : html`${this.generateTree(
-                              data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey],
-                              data[dataKey]['::type'],
-                              data[dataKey]['::array-type'] || '',
-                              dataKey,
-                              data[dataKey]?.['::description'] || '',
-                              newSchemaLevel,
-                              newIndentLevel,
-                              data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '',
-                              isDeprecated || data[dataKey]['::deprecated']
-                            )}`
-                      }
-                    `
-                  )}
-                `
-          }
+        <div class="inside-bracket object" style="padding-left:${leftPadding}px;">
+          ${node.properties?.map((p) => this.renderAST(p, 'object', schemaLevel + 1, indentLevel + 1))}
+          ${node.patternProperties?.map((p) => this.renderAST(p, 'object', schemaLevel + 1, indentLevel + 1))}
+          ${node.additionalProperties ? this.renderAST(node.additionalProperties, 'object', schemaLevel + 1, indentLevel + 1) : ''}
+          ${node.unions?.map((u) => this.renderAST(u, 'object', schemaLevel + 1, indentLevel + 1))}
         </div>
-        ${data['::type'] && data['::type'].includes('xxx-of') ? '' : html`<div class="close-bracket">${closeBracket}</div>`} `;
+        <div class="close-bracket">${closeBracket}</div>
+      `;
     }
 
-    // For Primitive types and array of Primitives
-    const [type, primitiveReadOrWrite, constraint, defaultValue, allowedValues, pattern, schemaDescription, schemaTitle, deprecated] =
-      data.split('~|~');
-    if (primitiveReadOrWrite === '🆁' && this.schemaHideReadOnly === 'true') {
-      return;
-    }
-    if (primitiveReadOrWrite === '🆆' && this.schemaHideWriteOnly === 'true') {
-      return;
-    }
-    const dataTypeCss = type
-      .replace(/┃.*/g, '')
-      .replace(/[^a-zA-Z0-9+]/g, '')
-      .substring(0, 4)
-      .toLowerCase();
-    const descrExpander = `${constraint || defaultValue || allowedValues || pattern ? `<span class="descr-expand-toggle ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : ''}">➔</span>` : ''}`;
-    let finalReadWriteText = '';
-    let finalReadWriteTip = '';
-    if (dataType === 'array') {
-      if (readOrWrite === 'readonly') {
-        finalReadWriteText = '🆁';
-        finalReadWriteTip = 'Read-Only';
-      } else if (readOrWrite === 'writeonly') {
-        finalReadWriteText = '🆆';
-        finalReadWriteTip = 'Write-Only';
-      }
-    } else if (primitiveReadOrWrite === '🆁') {
-      finalReadWriteText = '🆁';
-      finalReadWriteTip = 'Read-Only';
-    } else if (primitiveReadOrWrite === '🆆') {
-      finalReadWriteText = '🆆';
-      finalReadWriteTip = 'Write-Only';
+    // 3. Union kind (oneOf / anyOf)
+    if (node.kind === 'union') {
+      const opLabel = (node.operator === 'anyOf' ? 'ANY OF' : 'ONE OF') + (node.suffix ? ` ${node.suffix}` : '');
+      const newIndent = parentType === 'xxx-of-option' ? indentLevel : indentLevel + 1;
+      const hasText = !!node.description;
+      const hasExtra = hasMultilineDescription(node.description);
+      const descrExpander =
+        hasText && hasExtra
+          ? html`<span class="descr-expand-toggle ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : ''}">➔</span>`
+          : '';
+
+      return html`
+        ${node.properties?.map((p) => this.renderAST(p, 'object', schemaLevel, indentLevel))}
+        <div class="tr expanded xxx-of-option">
+          <div class="td key" style="min-width:${minFieldColWidth}px">
+            <span class="key-label xxx-of-key">${opLabel}</span>
+          </div>
+          <div class="td key-descr m-markdown-small">${descrExpander} ${unsafeHTML(sanitizeHTML(marked(node.description || '')))}</div>
+        </div>
+        <div class="inside-bracket xxx-of-option" style="padding-left:0px;">
+          ${node.options?.map(
+            (opt, i) => html`
+              <div>
+                <div class="tr expanded xxx-of-option">
+                  <div class="td key" style="min-width:${minFieldColWidth}px">
+                    <span class="key-label xxx-of-key">OPTION ${opt.optionIndex || i + 1}</span>
+                    ${opt.optionTitle ? html`<span class="xxx-of-descr">${opt.optionTitle}</span>` : ''}
+                  </div>
+                </div>
+                ${this.renderAST(opt, 'xxx-of-option', schemaLevel, newIndent)}
+              </div>
+            `
+          )}
+        </div>
+      `;
     }
 
-    return html`
-      <div class="tr primitive" title="${deprecated ? 'Deprecated' : ''}">
-        <div class="td key ${isDeprecated || deprecated}" style="min-width:${minFieldColWidth}px">
-          ${
-            isDeprecated || deprecated
-              ? html`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--red); margin-right:-6px">
-                  <path d="M2 2L8 8M2 8L8 2" />
-                </svg>`
-              : ''
-          }
-          ${
-            keyLabel.endsWith('*')
-              ? html`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style="color:var(--red);">*</span>:`
-              : key.startsWith('::OPTION')
-                ? html`<span class="key-label xxx-of-key">${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>`
-                : html`<span class="key-label">${keyLabel}:</span>`
-          }
-          <span class="${dataTypeCss}" title="${finalReadWriteTip}">
-            ${dataType === 'array' ? `[${type}]` : `${type}`} ${finalReadWriteText}
-          </span>
-        </div>
-        <div class="td key-descr">
-          ${
-            description || schemaTitle || schemaDescription
-              ? html`${html`<span class="m-markdown-small">
-                  ${unsafeHTML(
-                    sanitizeHTML(
-                      marked(
-                        dataType === 'array'
-                          ? `${descrExpander} ${description}`
-                          : schemaTitle
-                            ? `${descrExpander} <b>${schemaTitle}:</b> ${schemaDescription}`
-                            : `${descrExpander} ${schemaDescription}`
+    // 4. Primitive kind
+    if (node.kind === 'primitive') {
+      const dataTypeCss = (node.type || '')
+        .replace(/┃.*/g, '')
+        .replace(/[^a-zA-Z0-9+]/g, '')
+        .substring(0, 4)
+        .toLowerCase();
+      const hasText = !!(node.description || node.title);
+      const hasDetailChips = !!(node.constraints || node.defaultValue || node.allowedValues || node.pattern);
+      const hasExtra = hasDetailChips || hasMultilineDescription(node.description);
+      const descrExpander =
+        hasText && hasExtra
+          ? html`<span class="descr-expand-toggle ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : ''}">➔</span>`
+          : '';
+
+      const detailChips = html`
+        ${node.constraints ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Constraints: </span>${node.constraints}</div>` : ''}
+        ${node.defaultValue ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Default: </span>${node.defaultValue}</div>` : ''}
+        ${node.allowedValues ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">${node.type === 'const' ? 'Value' : 'Allowed'}: </span>${node.allowedValues}</div>` : ''}
+        ${node.pattern ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Pattern: </span>${node.pattern}</div>` : ''}
+      `;
+
+      return html`
+        <div class="tr primitive" title="${node.deprecated ? 'Deprecated' : ''}">
+          <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
+            ${deprecatedIcon}
+            ${node.name ? html`<span class="key-label">${node.name}${node.required ? html`<span style="color:var(--red);">*</span>` : ''}:</span>` : ''}
+            <span class="${dataTypeCss}" title="${readWriteTip}">
+              ${parentType === 'array' ? `[${node.type}]` : node.type}${readWriteBadge}
+            </span>
+          </div>
+          <div class="td key-descr">
+            ${
+              hasText
+                ? html`<span class="m-markdown-small"
+                    >${descrExpander}
+                    ${unsafeHTML(
+                      sanitizeHTML(
+                        marked(
+                          node.title
+                            ? node.description
+                              ? `<b>${node.title}:</b> ${node.description}`
+                              : `<b>${node.title}</b>`
+                            : node.description
+                        )
                       )
-                    )
-                  )}
-                </span>`}`
-              : ''
-          }
-          ${
-            constraint
-              ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px">
-                  <span class="bold-text">Constraints: </span>${constraint}
-                </div>`
-              : ''
-          }
-          ${
-            defaultValue
-              ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px">
-                  <span class="bold-text">Default: </span>${defaultValue}
-                </div>`
-              : ''
-          }
-          ${
-            allowedValues
-              ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px">
-                  <span class="bold-text">${type === 'const' ? 'Value' : 'Allowed'}: </span>${allowedValues}
-                </div>`
-              : ''
-          }
-          ${
-            pattern
-              ? html`<div style="display:inline-block; line-break: anywhere; margin-right:8px">
-                  <span class="bold-text">Pattern: </span>${pattern}
-                </div>`
-              : ''
-          }
+                    )}</span
+                  >`
+                : ''
+            }
+            ${hasText && hasDetailChips ? html`<div class="item-details">${detailChips}</div>` : detailChips}
+          </div>
         </div>
-      </div>
-    `;
+      `;
+    }
+
+    return '';
   }
 
   handleAllEvents(e) {
@@ -442,7 +458,11 @@ export default class SchemaTree extends LitElement {
       const trEl = e.target.closest('.tr');
       if (trEl) {
         trEl.classList.toggle('expanded-descr');
-        trEl.style.maxHeight = trEl.scrollHeight;
+        if (trEl.classList.contains('expanded-descr')) {
+          trEl.style.maxHeight = `${trEl.scrollHeight}px`;
+        } else {
+          trEl.style.maxHeight = '';
+        }
       }
     }
   }

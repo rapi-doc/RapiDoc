@@ -6,7 +6,7 @@ import { marked } from 'marked';
 // Templates
 import overviewTemplate from '~/templates/overview-template';
 import headerTemplate from '~/templates/header-template';
-import { schemaInObjectNotation, generateExample, standardizeExample } from '~/utils/schema-utils';
+import { schemaToAST, generateExample, standardizeExample } from '~/utils/schema-utils';
 import '~/components/json-tree';
 import '~/components/schema-tree';
 import SetTheme from '~/utils/theme';
@@ -76,7 +76,7 @@ function jsonSchemaBodyTemplate() {
           <div style="display:flex; flex-direction: row; gap:16px;">
             <div class="json-schema-def" style="flex:1; padding:16px 0 16px 16px; ">
               <schema-tree
-                .data="${schemaInObjectNotation(jSchemaBody.schema, {})}"
+                .data="${schemaToAST(jSchemaBody.schema)}"
                 schema-expand-level="${this.schemaExpandLevel}"
                 schema-description-expanded="${this.schemaDescriptionExpanded}"
                 allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"

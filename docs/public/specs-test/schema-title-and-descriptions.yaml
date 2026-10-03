@@ -94,3 +94,150 @@ paths:
                         value:
                           type: integer
                           minimum: 20
+
+  /markdown-tables:
+    get:
+      summary: Markdown Tables in Response Schema
+      responses:
+        '200':
+          description: Response Schema field contains Markdown tables
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Description of `Person` object (Person must be monospaced)
+                properties:
+                  id:
+                    nullable: true
+                    description: |
+                      | Heading 1 | Left-Justified | Centered | Right-Justified |
+                      | --------- | :------------- | :------: | --------------: |
+                      | text | text | text | text |
+                      | text | text | text | text |
+                      | text | text | text | text |
+                    type: integer
+                  fullName:
+                    nullable: true
+                    description: |
+                      | Heading 1 | Left-Justified | Centered | Right-Justified |
+                      | --------- | :------------- | :------: | --------------: |
+                      | text | text | text | text |
+                      | text | text | text | text |
+                      | text | text | text | text |
+                    type: object
+                  hobbies:
+                    type: array
+                    nullable: true
+                    minItems: 1
+                    maxItems: 1
+                    description: |
+                      | Heading 1 | Left-Justified | Centered | Right-Justified |
+                      | --------- | :------------- | :------: | --------------: |
+                      | text | text | text | text |
+                      | text | text | text | text |
+                      | text | text | text | text |
+                    items:
+                      type: string
+                  dependentNames:
+                    type: array
+                    minItems: 1
+                    maxItems: 1
+                    description: |
+                      | Heading 1 | Left-Justified | Centered | Right-Justified |
+                      | --------- | :------------- | :------: | --------------: |
+                      | text | text | text | text |
+                      | text | text | text | text |
+                      | text | text | text | text |
+                    items:
+                      type: object
+    post:
+      summary: Markdown Tables in Request Body (multipart/form-data)
+      description: Sending data using `multipart/form-data` with schemas and markdown tables
+      requestBody:
+        description: Request body using `multipart/form-data` with markdown tables in property descriptions
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              description: Multipart form payload with schema descriptions and markdown tables
+              required:
+                - photoPart
+              properties:
+                photoPart:
+                  type: string
+                  format: binary
+                  description: |
+                    Profile photo or document file
+                    | Format | Max Size |
+                    | ------ | -------- |
+                    | PNG, JPEG | 10 MB |
+                id:
+                  type: integer
+                  nullable: true
+                  description: |
+                    | Heading 1 | Left-Justified | Centered | Right-Justified |
+                    | --------- | :------------- | :------: | --------------: |
+                    | text | text | text | text |
+                    | text | text | text | text |
+                    | text | text | text | text |
+                fullName:
+                  type: object
+                  nullable: true
+                  description: |
+                    | Heading 1 | Left-Justified | Centered | Right-Justified |
+                    | --------- | :------------- | :------: | --------------: |
+                    | text | text | text | text |
+                    | text | text | text | text |
+                    | text | text | text | text |
+                address:
+                  type: object
+                  description: |
+                    Address object with nested properties
+                    | Field | Type |
+                    | ----- | ---- |
+                    | street | string |
+                    | city | string |
+                  properties:
+                    street:
+                      type: string
+                      description: Street address
+                    city:
+                      type: string
+                      description: City name
+                hobbies:
+                  type: array
+                  nullable: true
+                  minItems: 1
+                  maxItems: 1
+                  description: |
+                    | Heading 1 | Left-Justified | Centered | Right-Justified |
+                    | --------- | :------------- | :------: | --------------: |
+                    | text | text | text | text |
+                    | text | text | text | text |
+                    | text | text | text | text |
+                  items:
+                    type: string
+                dependentNames:
+                  type: array
+                  minItems: 1
+                  maxItems: 1
+                  description: |
+                    | Heading 1 | Left-Justified | Centered | Right-Justified |
+                    | --------- | :------------- | :------: | --------------: |
+                    | text | text | text | text |
+                    | text | text | text | text |
+                    | text | text | text | text |
+                  items:
+                    type: object
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success

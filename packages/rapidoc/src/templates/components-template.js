@@ -2,7 +2,7 @@ import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { sanitizeHTML } from '../utils/sanitize.js';
 import { marked } from 'marked';
-import { schemaInObjectNotation } from '~/utils/schema-utils';
+import { schemaToAST } from '~/utils/schema-utils';
 import '~/components/json-tree';
 import '~/components/schema-tree';
 import '~/components/schema-table';
@@ -16,7 +16,7 @@ function schemaBodyTemplate(sComponent) {
       ${
         this.schemaStyle === 'table'
           ? html` <schema-table
-              .data="${schemaInObjectNotation(sComponent.component, {})}"
+              .data="${schemaToAST(sComponent.component)}"
               schema-expand-level="${this.schemaExpandLevel}"
               schema-description-expanded="${this.schemaDescriptionExpanded}"
               allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
@@ -26,7 +26,7 @@ function schemaBodyTemplate(sComponent) {
             >
             </schema-table>`
           : html`<schema-tree
-              .data="${schemaInObjectNotation(sComponent.component, {})}"
+              .data="${schemaToAST(sComponent.component)}"
               schema-expand-level="${this.schemaExpandLevel}"
               schema-description-expanded="${this.schemaDescriptionExpanded}"
               allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"

@@ -38,9 +38,30 @@ export default css`
     cursor: pointer;
     transform: rotate(45deg);
     transition: transform 0.2s ease;
+    margin-right: 4px;
   }
 
-  .expanded-descr .key-descr .descr-expand-toggle {
+  .key-descr .m-markdown-small {
+    display: inline-block;
+    vertical-align: top;
+    max-width: 100%;
+  }
+  .key-descr .m-markdown-small p {
+    display: inline;
+    margin: 0;
+  }
+  .key-descr .m-markdown-small p + p {
+    display: block;
+    margin-top: 4px;
+  }
+
+  .key-descr .item-details {
+    display: block;
+    margin-top: 2px;
+  }
+
+  .expanded-descr .key-descr .descr-expand-toggle,
+  .key-descr .descr-expand-toggle.expanded-descr {
     transform: rotate(270deg);
   }
 
