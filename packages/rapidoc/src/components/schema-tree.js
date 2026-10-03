@@ -398,7 +398,14 @@ export default class SchemaTree extends LitElement {
         .substring(0, 4)
         .toLowerCase();
       const hasText = !!(node.description || node.title);
-      const hasDetailChips = !!(node.constraints || node.defaultValue || node.allowedValues || node.pattern);
+      const hasDetailChips = !!(
+        node.constraints ||
+        node.defaultValue ||
+        node.allowedValues ||
+        node.pattern ||
+        node.contentMediaType ||
+        node.contentEncoding
+      );
       const hasExtra = hasDetailChips || hasMultilineDescription(node.description);
       const descrExpander =
         hasText && hasExtra
@@ -410,6 +417,8 @@ export default class SchemaTree extends LitElement {
         ${node.defaultValue ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Default: </span>${node.defaultValue}</div>` : ''}
         ${node.allowedValues ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">${node.type === 'const' ? 'Value' : 'Allowed'}: </span>${node.allowedValues}</div>` : ''}
         ${node.pattern ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Pattern: </span>${node.pattern}</div>` : ''}
+        ${node.contentMediaType ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Media-Type: </span>${node.contentMediaType}</div>` : ''}
+        ${node.contentEncoding ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Encoding: </span>${node.contentEncoding}</div>` : ''}
       `;
 
       return html`

@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { generateExample, getTypeInfo } from '../../packages/rapidoc/src/utils/schema-utils.js';
+import { generateExample, getTypeInfo, isBinaryFileField } from '../../packages/rapidoc/src/utils/schema-utils.js';
 
 describe('generateExample', () => {
   it('should use single "example" when "examples" is undefined', () => {
@@ -369,4 +369,94 @@ describe('getTypeInfo', () => {
     assert.strictEqual(info.type, 'enum┃null');
     assert.strictEqual(info.allowedValues, 'pending┃completed');
   });
+
+  it('should capture contentMediaType, contentEncoding, and contentSchema', () => {
+    const schema = {
+      type: 'string',
+      contentMediaType: 'application/json',
+      contentEncoding: 'base64',
+      contentSchema: {
+        type: 'object',
+        properties: { id: { type: 'integer' } },
+      },
+    };
+    const info = getTypeInfo(schema);
+    assert.strictEqual(info.type, 'string');
+    assert.strictEqual(info.contentMediaType, 'application/json');
+    assert.strictEqual(info.contentEncoding, 'base64');
+    assert.deepStrictEqual(info.contentSchema, {
+      type: 'object',
+      properties: { id: { type: 'integer' } },
+    });
+  });
 });
+
+describe('isBinaryFileField', () => {
+  it('should return true for format: binary (OpenAPI 3.0)', () => {
+    assert.strictEqual(isBinaryFileField({ type: 'string', format: 'binary' }), true);
+  });
+
+  it('should return true for contentEncoding: binary', () => {
+    assert.strictEqual(isBinaryFileField({ type: 'string', contentEncoding: 'binary' }), true);
+  });
+
+  it('should return true for contentMediaType without contentEncoding base64 (OpenAPI 3.1)', () => {
+    assert.strictEqual(isBinaryFileField({ type: 'string', contentMediaType: 'image/png' }), true);
+    assert.strictEqual(isBinaryFileField({ type: 'string', contentMediaType: 'application/pdf' }), true);
+  });
+
+  it('should return false for base64 encoded strings', () => {
+    assert.strictEqual(
+      isBinaryFileField({ type: 'string', contentMediaType: 'image/png', contentEncoding: 'base64' }),
+      false
+    );
+    assert.strictEqual(isBinaryFileField({ type: 'string', contentEncoding: 'base64' }), false);
+  });
+
+  it('should return false for regular primitive schemas', () => {
+    assert.strictEqual(isBinaryFileField({ type: 'string' }), false);
+    assert.strictEqual(isBinaryFileField({ type: 'integer' }), false);
+    assert.strictEqual(isBinaryFileField(null), false);
+  });
+});
+
+describe('generateExample with contentEncoding and contentMediaType', () => {
+  it('should generate base64 example string when contentEncoding is base64', () => {
+    const result = generateExample(
+      { type: 'string', contentMediaType: 'image/png', contentEncoding: 'base64' },
+      'application/json',
+      null,
+      null,
+      true,
+      true,
+      'json'
+    );
+    assert.strictEqual(result.length, 1);
+    assert.strictEqual(result[0].exampleValue, 'ZXhhbXBsZQ==');
+  });
+
+  it('should generate serialized JSON string example when contentMediaType is application/json with contentSchema', () => {
+    const result = generateExample(
+      {
+        type: 'string',
+        contentMediaType: 'application/json',
+        contentSchema: {
+          type: 'object',
+          properties: {
+            name: { type: 'string', default: 'Alice' },
+          },
+        },
+      },
+      'application/json',
+      null,
+      null,
+      true,
+      true,
+      'json'
+    );
+    assert.strictEqual(result.length, 1);
+    const parsed = JSON.parse(result[0].exampleValue);
+    assert.strictEqual(parsed.name, 'Alice');
+  });
+});
+

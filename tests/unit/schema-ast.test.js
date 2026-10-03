@@ -80,6 +80,18 @@ describe('schemaToAST', () => {
       assert.strictEqual(ast.kind, 'primitive');
       assert.strictEqual(ast.defaultValue, 'hello');
     });
+
+    it('should capture contentMediaType and contentEncoding in primitive AST', () => {
+      const ast = schemaToAST({
+        type: 'string',
+        contentMediaType: 'image/png',
+        contentEncoding: 'base64',
+      });
+      assert.strictEqual(ast.kind, 'primitive');
+      assert.strictEqual(ast.type, 'string');
+      assert.strictEqual(ast.contentMediaType, 'image/png');
+      assert.strictEqual(ast.contentEncoding, 'base64');
+    });
   });
 
   describe('object schemas', () => {

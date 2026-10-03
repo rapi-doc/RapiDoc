@@ -179,4 +179,13 @@ advanced:
       validates:
         - Full backwards compatibility with Swagger/OpenAPI 2.0 specs in RapiDoc 9.3.9+
         - Accurate path, parameter, and response visualization for v2 documents
+  - openapi-3.1-content-media-type:
+      title: OpenAPI 3.1 Binary & Media Types (contentMediaType & contentEncoding)
+      validates:
+        - Multipart single-file uploads with contentMediaType (e.g. image/png)
+        - Multi-file array uploads with items.contentMediaType (e.g. application/pdf)
+        - Base64 encoded payload strings with contentEncoding base64 and contentMediaType
+        - Embedded structured JSON payload strings with contentSchema validation
+        - Detail chips rendering for Media-Type and Encoding in Tree and Table views
+
 

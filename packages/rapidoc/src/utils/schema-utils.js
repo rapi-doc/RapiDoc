@@ -110,6 +110,18 @@ export function getPrintableVal(val) {
   return val.toString().replace(/^ +| +$/g, (m) => '●'.repeat(m.length)) || '';
 }
 
+/* Helper to detect binary file fields across OpenAPI 3.0 and 3.1 */
+export function isBinaryFileField(schema) {
+  if (!schema) {
+    return false;
+  }
+  return (
+    schema.format === 'binary' ||
+    schema.contentEncoding === 'binary' ||
+    (Boolean(schema.contentMediaType) && schema.contentEncoding !== 'base64')
+  );
+}
+
 /* Generates an schema object containing type and constraint info */
 export function getTypeInfo(schema) {
   if (!schema) {
@@ -165,6 +177,9 @@ export function getTypeInfo(schema) {
   const info = {
     type: dataType,
     format: schema.format || effectiveSchema.format || '',
+    contentMediaType: schema.contentMediaType || effectiveSchema.contentMediaType || '',
+    contentEncoding: schema.contentEncoding || effectiveSchema.contentEncoding || '',
+    contentSchema: schema.contentSchema || effectiveSchema.contentSchema || null,
     pattern:
       (schema.pattern || effectiveSchema.pattern) && !schema.enum && !effectiveSchema.enum ? schema.pattern || effectiveSchema.pattern : '',
     readOrWriteOnly: schema.readOnly ? '🆁' : schema.writeOnly ? '🆆' : effectiveSchema.readOnly ? '🆁' : effectiveSchema.writeOnly ? '🆆' : '',
@@ -493,6 +508,30 @@ export function getSampleValueByType(schemaObj) {
         return schemaObj.pattern;
       }
     }
+    if (schemaObj.contentEncoding) {
+      switch (schemaObj.contentEncoding.toLowerCase()) {
+        case 'base64':
+          return 'ZXhhbXBsZQ=='; // 'example' base64 encoded
+        case 'binary':
+        case '7bit':
+        case '8bit':
+        case 'quoted-printable':
+          return 'string';
+      }
+    }
+    if (schemaObj.contentMediaType) {
+      if (schemaObj.contentMediaType.toLowerCase() === 'application/json') {
+        if (schemaObj.contentSchema) {
+          const sample = schemaToSampleObj(schemaObj.contentSchema);
+          const sampleVal = sample?.['example-0'] ?? sample;
+          return JSON.stringify(sampleVal);
+        }
+        return '{}';
+      }
+      if (schemaObj.contentMediaType.startsWith('text/')) {
+        return 'text content';
+      }
+    }
     if (schemaObj.format) {
       switch (schemaObj.format.toLowerCase()) {
         case 'url':
@@ -519,7 +558,10 @@ export function getSampleValueByType(schemaObj) {
         case 'uuid':
           return '3fa85f64-5717-4562-b3fc-2c963f66afa6';
         case 'byte':
+        case 'base64':
           return 'ZXhhbXBsZQ=='; // 'example' base64 encoded. See https://spec.openapis.org/oas/v3.0.0#data-types
+        case 'binary':
+          return 'binary';
         default:
           return '';
       }
@@ -1022,8 +1064,8 @@ function handleMultiTypeSchema(schema, baseObj = {}, level = 0) {
       typeof subSchema.items?.type === 'string' &&
       subSchema.items?.type.match(/integer|number|string|null|boolean/g)
     ) {
-      if (subSchema.items.type === 'string' && subSchema.items.format) {
-        primitiveType.push(`[${subSchema.items.format}]`);
+      if (subSchema.items.type === 'string' && (subSchema.items.format || subSchema.items.contentMediaType)) {
+        primitiveType.push(`[${subSchema.items.format || subSchema.items.contentMediaType}]`);
       } else {
         primitiveType.push(`[${subSchema.items.type}]`);
       }
@@ -1161,6 +1203,9 @@ function createPrimitiveAST(schema, name, isRequired) {
     name,
     type: typeInfo.type || schema.type || '',
     format: typeInfo.format || schema.format || '',
+    contentMediaType: typeInfo.contentMediaType || schema.contentMediaType || '',
+    contentEncoding: typeInfo.contentEncoding || schema.contentEncoding || '',
+    contentSchema: typeInfo.contentSchema || schema.contentSchema || null,
     pattern: typeInfo.pattern || schema.pattern || '',
     constraints: typeInfo.constrain || '',
     defaultValue: typeInfo.default !== undefined && typeInfo.default !== '' ? String(typeInfo.default) : '',
@@ -1339,8 +1384,8 @@ export function schemaToAST(schema, level = 0, name = '', isRequired = false, su
         typeof subSchema.items?.type === 'string' &&
         subSchema.items?.type.match(/integer|number|string|null|boolean/g)
       ) {
-        if (subSchema.items.type === 'string' && subSchema.items.format) {
-          primitiveType.push(`[${subSchema.items.format}]`);
+        if (subSchema.items.type === 'string' && (subSchema.items.format || subSchema.items.contentMediaType)) {
+          primitiveType.push(`[${subSchema.items.format || subSchema.items.contentMediaType}]`);
         } else {
           primitiveType.push(`[${subSchema.items.type}]`);
         }

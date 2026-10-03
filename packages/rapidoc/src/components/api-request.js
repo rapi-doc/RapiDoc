@@ -19,6 +19,7 @@ import { copyToClipboard, downloadResource, viewResource } from '~/utils/common-
 import {
   schemaToAST,
   getTypeInfo,
+  isBinaryFileField,
   generateExample,
   normalizeExamples,
   getSchemaFromParam,
@@ -169,7 +170,13 @@ export default class ApiRequest extends LitElement {
         }
 
         .file-input-container {
-          align-items: flex-end;
+          align-items: flex-start;
+          width: 100%;
+        }
+        .file-input-container .input-set {
+          width: 100%;
+          display: flex;
+          align-items: center;
         }
         .file-input-container .input-set:first-child .file-input-remove-btn {
           visibility: hidden;
@@ -445,7 +452,7 @@ export default class ApiRequest extends LitElement {
               ${
                 paramSchema.type === 'array' || paramSchema.type.split('┃').includes('array')
                   ? `${paramSchema.arrayType || paramSchema.type}`
-                  : `${paramSchema.format && !paramSchema.type.includes('┃') ? paramSchema.format : paramSchema.type}`
+                  : `${paramSchema.format && !paramSchema.type.includes('┃') ? paramSchema.format : paramSchema.contentMediaType && !paramSchema.type.includes('┃') ? paramSchema.contentMediaType : paramSchema.type}`
               }
             </div>
           </td>
@@ -1096,7 +1103,7 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
                     schema.required?.includes(fieldName) || fieldSchema.required ? html`<span style="color:var(--red);">*</span>` : ''
                   }
                 </div>
-                <div class="param-type">${paramSchema.type}</div>
+                <div class="param-type">${paramSchema.format && !paramSchema.type.includes('┃') ? paramSchema.format : paramSchema.contentMediaType && !paramSchema.type.includes('┃') ? paramSchema.contentMediaType : paramSchema.type}</div>
               </td>
               <td
                 style="${
@@ -1106,14 +1113,14 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
               >
                 ${
                   fieldType === 'array'
-                    ? fieldSchema.items?.format === 'binary'
+                    ? isBinaryFileField(fieldSchema.items)
                       ? html`
                           <div
                             class="file-input-container col"
-                            style="align-items:flex-end;"
+                            style="align-items:flex-start; width:100%;"
                             @click="${(e) => this.onAddRemoveFileInput(e, fieldName, mimeType)}"
                           >
-                            <div class="input-set row">
+                            <div class="input-set row" style="width:100%;">
                               <input
                                 type="file"
                                 part="file-input"
@@ -1128,7 +1135,7 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
                             <button
                               class="m-btn primary file-input-add-btn"
                               part="btn btn-fill"
-                              style="margin:2px 25px 0 0; padding:2px 6px;"
+                              style="margin:4px 0 0 0; padding:2px 8px; align-self:flex-start;"
                             >
                               ADD
                             </button>
@@ -1157,7 +1164,7 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
                                   ? html`<input
                                       .value="${this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : ''}"
                                       spellcheck="false"
-                                      type="${fieldSchema.format === 'binary' ? 'file' : fieldSchema.format === 'password' ? 'password' : 'text'}"
+                                      type="${isBinaryFileField(fieldSchema) ? 'file' : fieldSchema.format === 'password' ? 'password' : 'text'}"
                                       part="textbox textbox-param"
                                       style="width:100%"
                                       data-ptype="${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
@@ -2072,11 +2079,13 @@ ${responseContent}</pre>
     // Container
     const newInputContainerEl = document.createElement('div');
     newInputContainerEl.setAttribute('class', 'input-set row');
+    newInputContainerEl.style = 'width:100%; margin-top:4px;';
 
     // File Input
     const newInputEl = document.createElement('input');
     newInputEl.type = 'file';
-    newInputEl.style = 'width:200px; margin-top:2px;';
+    newInputEl.style = 'width:100%;';
+    newInputEl.setAttribute('part', 'file-input');
     newInputEl.setAttribute('data-pname', pname);
     newInputEl.setAttribute('data-ptype', ptype.includes('form-urlencode') ? 'form-urlencode' : 'form-data');
     newInputEl.setAttribute('data-array', 'false');
