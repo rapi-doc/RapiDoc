@@ -788,121 +788,123 @@ export default function securitySchemeTemplate(allowTry = 'true') {
   `;
 }
 
+function renderSecuritySchemeDetail(andSecurityItem, isMultiple, j) {
+  const scopeHtml = andSecurityItem.scopes
+    ? html`
+        <div>
+          <b>Required scopes:</b><br />
+          <div style="margin-left:8px">
+            ${andSecurityItem.scopes
+              .split(',')
+              .map((scope, cnt) => html`${cnt === 0 ? '' : '┃'}<span>${scope.trim()}</span>`)}
+          </div>
+        </div>`
+    : '';
+
+  if (andSecurityItem.type === 'oauth2') {
+    return html`
+      <div>
+        ${isMultiple ? html`<b>${j + 1}.</b> &nbsp;` : 'Needs '}OAuth Token
+        <span style="font-family:var(--font-mono); color:var(--primary-color);">${andSecurityItem.securitySchemeId}</span>
+        in <b>Authorization header</b>
+        ${scopeHtml}
+      </div>`;
+  }
+
+  if (andSecurityItem.type === 'http') {
+    return html`
+      <div>
+        ${isMultiple ? html`<b>${j + 1}.</b> &nbsp;` : 'Requires '}
+        ${andSecurityItem.scheme === 'basic' ? 'Base 64 encoded username:password' : html`Bearer Token <b>${andSecurityItem.nameId}</b>`}
+        in <b>Authorization header</b>
+        ${scopeHtml}
+      </div>`;
+  }
+
+  return html`
+    <div>
+      ${isMultiple ? html`<b>${j + 1}.</b> &nbsp;` : 'Requires '}
+      Token in <b>${andSecurityItem.name} ${andSecurityItem.in}</b>
+      ${scopeHtml}
+    </div>`;
+}
+
 export function pathSecurityTemplate(pathSecurity) {
-  if (this.resolvedSpec.securitySchemes && pathSecurity) {
-    const orSecurityKeys1 = [];
-    if (Array.isArray(pathSecurity)) {
-      if (pathSecurity.length === 0) {
-        return '';
+  if (!this.resolvedSpec.securitySchemes || !Array.isArray(pathSecurity) || pathSecurity.length === 0) {
+    return '';
+  }
+
+  const isOptional = pathSecurity.some((p) => !p || Object.keys(p).length === 0);
+  const activeSecurity = pathSecurity.filter((p) => p && Object.keys(p).length > 0);
+
+  if (activeSecurity.length === 0) {
+    return '';
+  }
+
+  const orSecurityKeys = [];
+  activeSecurity.forEach((pSecurity) => {
+    const andSecurityKeys = [];
+    const andKeyTypes = [];
+    Object.keys(pSecurity).forEach((pathSecurityKey) => {
+      let pathScopes = '';
+      const s = this.resolvedSpec.securitySchemes.find((ss) => ss.securitySchemeId === pathSecurityKey);
+      if (pSecurity[pathSecurityKey] && Array.isArray(pSecurity[pathSecurityKey])) {
+        pathScopes = pSecurity[pathSecurityKey].join(', ');
       }
-    } else {
-      return '';
-    }
-    pathSecurity.forEach((pSecurity) => {
-      const andSecurityKeys1 = [];
-      const andKeyTypes = [];
-      if (Object.keys(pSecurity).length === 0) {
-        orSecurityKeys1.push({
-          securityTypes: 'None',
-          securityDefs: [],
-        });
-      } else {
-        Object.keys(pSecurity).forEach((pathSecurityKey) => {
-          let pathScopes = '';
-          const s = this.resolvedSpec.securitySchemes.find((ss) => ss.securitySchemeId === pathSecurityKey);
-          if (pSecurity[pathSecurityKey] && Array.isArray(pSecurity[pathSecurityKey])) {
-            pathScopes = pSecurity[pathSecurityKey].join(', ');
-          }
-          if (s) {
-            andKeyTypes.push(s.typeDisplay);
-            andSecurityKeys1.push({ ...s, ...{ scopes: pathScopes } });
-          }
-        });
-        orSecurityKeys1.push({
-          securityTypes: andKeyTypes.length > 1 ? `${andKeyTypes[0]} + ${andKeyTypes.length - 1} more` : andKeyTypes[0],
-          securityDefs: andSecurityKeys1,
-        });
+      if (s) {
+        andKeyTypes.push(s.typeDisplay);
+        andSecurityKeys.push({ ...s, scopes: pathScopes });
       }
     });
-    return html`<div style="position:absolute; top:3px; right:2px; font-size:var(--font-size-small); line-height: 1.5;">
-      <div style="position:relative; display:flex; min-width:350px; max-width:700px; justify-content: flex-end;">
+
+    const displayType = andKeyTypes.length > 1 ? `${andKeyTypes[0]} + ${andKeyTypes.length - 1} more` : andKeyTypes[0];
+    orSecurityKeys.push({
+      securityTypes: isOptional ? `${displayType} (Optional)` : displayType,
+      securityDefs: andSecurityKeys,
+    });
+  });
+
+  return html`
+    <div style="position:absolute; top:3px; right:2px; font-size:var(--font-size-small); line-height:1.5;">
+      <div style="position:relative; display:flex; min-width:350px; max-width:700px; justify-content:flex-end;">
         <svg width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" fill="none" style="stroke:var(--fg3)">
           <rect x="5" y="11" width="14" height="10" rx="2" />
           <circle cx="12" cy="16" r="1" />
           <path d="M8 11v-4a4 4 0 0 1 8 0v4" />
         </svg>
-        ${orSecurityKeys1.map(
-          (orSecurityItem1, i) => html`
-            ${
-              orSecurityItem1.securityTypes
-                ? html`
-                    ${i !== 0 ? html`<div style="padding:3px 4px;">OR</div>` : ''}
-                    <div class="tooltip">
-                      <div style="padding:2px 4px; white-space:nowrap; text-overflow:ellipsis;max-width:150px; overflow:hidden;">
-                        ${
-                          this.updateRoute === 'true' && this.allowAuthentication === 'true'
-                            ? html`<a part="anchor anchor-operation-security" href="#auth"> ${orSecurityItem1.securityTypes} </a>`
-                            : html`${orSecurityItem1.securityTypes}`
-                        }
-                      </div>
-                      <div
-                        class="tooltip-text"
-                        style="position:absolute; color: var(--fg); top:26px; right:0; border:1px solid var(--border-color);padding:2px 4px; display:block;"
-                      >
-                        ${orSecurityItem1.securityDefs.length > 1 ? html`<div>Requires <b>all</b> of the following</div>` : ''}
-                        <div style="padding-left: 8px">
-                          ${orSecurityItem1.securityDefs.map((andSecurityItem, j) => {
-                            const scopeHtml = html`${
-                              andSecurityItem.scopes !== ''
-                                ? html` <div>
-                                    <b>Required scopes:</b>
-                                    <br />
-                                    <div style="margin-left:8px">
-                                      ${andSecurityItem.scopes
-                                        .split(',')
-                                        .map((scope, cnt) => html`${cnt === 0 ? '' : '┃'}<span>${scope}</span>`)}
-                                    </div>
-                                  </div>`
-                                : ''
-                            }`;
+        ${orSecurityKeys.map((orItem, i) => {
+          if (!orItem.securityTypes) {
+            return '';
+          }
+          const isMultiple = orItem.securityDefs.length > 1;
+          const labelHtml =
+            this.updateRoute === 'true' && this.allowAuthentication === 'true' && orItem.securityDefs.length > 0
+              ? html`<a part="anchor anchor-operation-security" href="#auth">${orItem.securityTypes}</a>`
+              : html`${orItem.securityTypes}`;
 
-                            return html` ${
-                              andSecurityItem.type === 'oauth2'
-                                ? html` <div>
-                                    ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : 'Needs'} OAuth Token
-                                    <span style="font-family:var(--font-mono); color:var(--primary-color);">
-                                      ${andSecurityItem.securitySchemeId}
-                                    </span>
-                                    in <b>Authorization header</b>
-                                    ${scopeHtml}
-                                  </div>`
-                                : andSecurityItem.type === 'http'
-                                  ? html`<div>
-                                      ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : html`Requires`}
-                                      ${
-                                        andSecurityItem.scheme === 'basic'
-                                          ? 'Base 64 encoded username:password'
-                                          : html`Bearer Token <b> ${andSecurityItem.nameId} </b>`
-                                      }
-                                      in <b>Authorization header</b>
-                                      ${scopeHtml}
-                                    </div>`
-                                  : html`<div>
-                                      ${orSecurityItem1.securityDefs.length > 1 ? html`<b>${j + 1}.</b> &nbsp;` : html`Requires`}
-                                      ${html`Token in <b>${andSecurityItem.name} ${andSecurityItem.in}</b>`} ${scopeHtml}
-                                    </div>`
-                            }`;
-                          })}
-                        </div>
+          return html`
+            ${i !== 0 ? html`<div style="padding:3px 4px;">OR</div>` : ''}
+            <div class="tooltip" style="${orItem.securityDefs.length === 0 ? 'cursor:default;' : ''}">
+              <div style="padding:2px 4px; white-space:nowrap; text-overflow:ellipsis; max-width:150px; overflow:hidden;">
+                ${labelHtml}
+              </div>
+              ${orItem.securityDefs.length > 0
+                ? html`
+                    <div
+                      class="tooltip-text"
+                      style="position:absolute; color:var(--fg); top:26px; right:0; border:1px solid var(--border-color); padding:4px 6px; display:block;"
+                    >
+                      ${isMultiple ? html`<div>Requires <b>all</b> of the following:</div>` : ''}
+                      <div style="padding-left:${isMultiple ? '8px' : '0'};">
+                        ${orItem.securityDefs.map((secDef, j) => renderSecuritySchemeDetail(secDef, isMultiple, j))}
                       </div>
                     </div>
                   `
-                : ''
-            }
-          `
-        )}
+                : ''}
+            </div>
+          `;
+        })}
       </div>
-    </div> `;
-  }
-  return '';
+    </div>
+  `;
 }

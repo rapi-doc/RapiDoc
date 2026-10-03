@@ -58,6 +58,12 @@ paths:
       - api_key_cookie: []
       - api_key1: ['a-scope1', 'a-scope2']
         api_key2: []
+  /fake-api-with-optional-security:
+    get:
+      description: API with optional security (HTTP Basic OR None)
+      security:
+        - http-basic: []
+        - {}
 components:
   securitySchemes:
     http-basic:

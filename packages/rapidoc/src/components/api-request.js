@@ -1422,7 +1422,7 @@ ${responseContent}</pre>
           <div style="display:flex;">
             <div style="font-weight:bold; padding-right:5px;">Authentication</div>
             ${
-              this.security?.length > 0
+              this.security?.length > 0 && !this.security.every((s) => !s || Object.keys(s).length === 0)
                 ? html` ${
                     this.api_keys.length > 0
                       ? html`<div style="color:var(--blue); overflow:hidden;">
@@ -1432,7 +1432,9 @@ ${responseContent}</pre>
                               : `${this.api_keys.length} API keys applied`
                           }
                         </div>`
-                      : html`<div class="gray-text">Required <span style="color:var(--red)">(None Applied)</span></div>`
+                      : this.security.some((s) => !s || Object.keys(s).length === 0)
+                        ? html`<div class="gray-text">Optional <span class="gray-text">(None Applied)</span></div>`
+                        : html`<div class="gray-text">Required <span style="color:var(--red)">(None Applied)</span></div>`
                   }`
                 : html`<span class="gray-text"> Not Required </span>`
             }
