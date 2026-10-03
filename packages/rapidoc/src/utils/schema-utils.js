@@ -233,7 +233,7 @@ export function getTypeInfo(schema) {
       '';
     const arrayItemDefault = getPrintableVal(itemsSchema.default);
 
-    info.arrayType = arrayItemType ? `array [${arrayItemType}]` : `${schema.type || 'array'}`;
+    info.arrayType = arrayItemType ? `array of ${arrayItemType}` : `${schema.type || 'array'}`;
     if (!info.default) {
       info.default = arrayItemDefault;
     }
