@@ -914,201 +914,247 @@ function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
  * @param {number} level - recursion level
  * @param {string} suffix - used for suffixing property names to avoid duplicate props during object composion
  */
-export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
+/**
+ * Helper to populate schema properties into a target object notation.
+ */
+function populateProperties(target, schema, level) {
+  if (schema.properties) {
+    for (const key in schema.properties) {
+      const propKey = schema.required && schema.required.includes(key) ? `${key}*` : key;
+      target[propKey] = schemaInObjectNotation(schema.properties[key], {}, level + 1);
+    }
+  }
+  if (schema.patternProperties) {
+    for (const key in schema.patternProperties) {
+      target[`[pattern: ${key}]`] = schemaInObjectNotation(schema.patternProperties[key], {}, level + 1);
+    }
+  }
+  if (schema.additionalProperties) {
+    target['[any-key]'] = schemaInObjectNotation(schema.additionalProperties, {}, level + 1);
+  }
+}
+
+function handleObjectSchema(schema, baseObj = {}, level = 0) {
+  const obj = Object.assign({}, baseObj);
+  obj['::title'] = schema.title || '';
+  obj['::description'] = generateMarkdownForArrayAndObjectDescription(schema, level);
+  obj['::type'] = 'object';
+  if ((Array.isArray(schema.type) && schema.type.includes('null')) || schema.nullable) {
+    obj['::dataTypeLabel'] = 'object ┃ null';
+    obj['::nullable'] = true;
+  }
+  obj['::deprecated'] = schema.deprecated || false;
+  obj['::readwrite'] = schema.readOnly ? 'readonly' : schema.writeOnly ? 'writeonly' : '';
+  populateProperties(obj, schema, level);
+  return obj;
+}
+
+function handleArraySchema(schema, baseObj = {}, level = 0) {
+  const obj = Object.assign({}, baseObj);
+  obj['::title'] = schema.title || '';
+  obj['::description'] = generateMarkdownForArrayAndObjectDescription(schema, level);
+  obj['::type'] = 'array';
+  if ((Array.isArray(schema.type) && schema.type.includes('null')) || schema.nullable) {
+    obj['::dataTypeLabel'] = 'array ┃ null';
+    obj['::nullable'] = true;
+  }
+  obj['::deprecated'] = schema.deprecated || false;
+  obj['::readwrite'] = schema.readOnly ? 'readonly' : schema.writeOnly ? 'writeonly' : '';
+  if (schema.items?.items) {
+    obj['::array-type'] = schema.items.items.type;
+  }
+  obj['::props'] = schema.items ? schemaInObjectNotation(schema.items, {}, level + 1) : undefined;
+  return obj;
+}
+
+function handleAllOfSchema(schema, baseObj = {}, level = 0) {
+  if (schema.allOf.length === 1 && !schema.allOf[0].properties && !schema.allOf[0].items) {
+    // If allOf has single item and the type is not an object or array, then its a primitive
+    return `${getTypeInfo(schema.allOf[0]).html}`;
+  }
+
+  const objWithAllProps = Object.assign({}, baseObj);
+  schema.allOf.forEach((v, i) => {
+    if (v.type === 'object' || v.properties || v.allOf || v.anyOf || v.oneOf) {
+      const propSuffix = (v.anyOf || v.oneOf) && i > 0 ? `${i}` : '';
+      const partialObj = schemaInObjectNotation(v, {}, level + 1, propSuffix);
+      Object.assign(objWithAllProps, partialObj);
+    } else if (v.type === 'array' || v.items) {
+      const partialObj = schemaInObjectNotation(v, {}, level + 1);
+      Object.assign(objWithAllProps, partialObj);
+    } else if (v.type) {
+      const prop = `prop${Object.keys(objWithAllProps).length}`;
+      const typeObj = getTypeInfo(v);
+      objWithAllProps[prop] = `${typeObj.html}`;
+    }
+  });
+
+  return objWithAllProps;
+}
+
+function handleAnyOrOneOfSchema(schema, baseObj = {}, level = 0, suffix = '') {
+  const obj = Object.assign({}, baseObj);
+  obj['::description'] = schema.description || '';
+
+  // 1. First iterate the regular properties if defined
+  if (schema.type === 'object' || schema.properties) {
+    obj['::type'] = 'object';
+    populateProperties(obj, schema, level);
+  }
+
+  // 2. Then build anyOf / oneOf option entries
+  const objWithAnyOfProps = {};
+  const xxxOf = schema.anyOf ? 'anyOf' : 'oneOf';
+  schema[xxxOf].forEach((v, index) => {
+    const optKey = `::OPTION~${index + 1}${v.title ? `~${v.title}` : ''}`;
+    if (v.type === 'object' || v.properties || v.allOf || v.anyOf || v.oneOf) {
+      const partialObj = schemaInObjectNotation(v, {}, level + 1);
+      objWithAnyOfProps[optKey] = partialObj;
+      if (typeof partialObj === 'object' && partialObj !== null) {
+        partialObj['::readwrite'] = ''; // xxx-options cannot be read or write only
+      }
+      objWithAnyOfProps['::type'] = 'xxx-of-option';
+    } else if (v.type === 'array' || v.items) {
+      const partialObj = schemaInObjectNotation(v, {}, level + 1);
+      objWithAnyOfProps[optKey] = partialObj;
+      if (typeof partialObj === 'object' && partialObj !== null) {
+        partialObj['::readwrite'] = '';
+      }
+      objWithAnyOfProps['::type'] = 'xxx-of-array';
+    } else {
+      objWithAnyOfProps[optKey] = `${getTypeInfo(v).html}`;
+      objWithAnyOfProps['::type'] = 'xxx-of-option';
+    }
+  });
+
+  const operatorKey = schema.anyOf ? '::ANY~OF' : '::ONE~OF';
+  const fullKey = suffix ? `${operatorKey} ${suffix}` : operatorKey;
+  obj[fullKey] = objWithAnyOfProps;
+  obj['::type'] = 'object';
+
+  return obj;
+}
+
+function handleMultiTypeSchema(schema, baseObj = {}, level = 0) {
+  // Recognize OpenAPI 3.1 nullable object and array
+  if (schema.type.length === 2 && schema.type.includes('null')) {
+    if (schema.type.includes('object')) {
+      return handleObjectSchema(schema, baseObj, level);
+    }
+    if (schema.type.includes('array')) {
+      return handleArraySchema(schema, baseObj, level);
+    }
+  }
+
+  const subSchema = typeof structuredClone === 'function' ? structuredClone(schema) : JSON.parse(JSON.stringify(schema));
+  const primitiveType = [];
+  const complexTypes = [];
+
+  subSchema.type.forEach((v) => {
+    if (v.match(/integer|number|string|null|boolean/g)) {
+      primitiveType.push(v);
+    } else if (
+      v === 'array' &&
+      typeof subSchema.items?.type === 'string' &&
+      subSchema.items?.type.match(/integer|number|string|null|boolean/g)
+    ) {
+      if (subSchema.items.type === 'string' && subSchema.items.format) {
+        primitiveType.push(`[${subSchema.items.format}]`);
+      } else {
+        primitiveType.push(`[${subSchema.items.type}]`);
+      }
+    } else {
+      complexTypes.push(v);
+    }
+  });
+
+  let multiPrimitiveTypes;
+  if (primitiveType.length > 0) {
+    subSchema.type = primitiveType.join('┃');
+    multiPrimitiveTypes = getTypeInfo(subSchema);
+    if (complexTypes.length === 0) {
+      return `${multiPrimitiveTypes?.html || ''}`;
+    }
+  }
+
+  if (complexTypes.length > 0) {
+    const obj = Object.assign({}, baseObj);
+    obj['::type'] = 'object';
+    const multiTypeOptions = {
+      '::type': 'xxx-of-option',
+    };
+
+    let optionIndex = 1;
+    complexTypes.forEach((v) => {
+      if (v === 'object') {
+        const objTypeOption = {
+          '::title': schema.title || '',
+          '::description': schema.description || '',
+          '::type': 'object',
+          '::deprecated': schema.deprecated || false,
+        };
+        populateProperties(objTypeOption, schema, level);
+        multiTypeOptions[`::OPTION~${optionIndex++}`] = objTypeOption;
+      } else if (v === 'array') {
+        multiTypeOptions[`::OPTION~${optionIndex++}`] = {
+          '::title': schema.title || '',
+          '::description': schema.description || '',
+          '::type': 'array',
+          '::props': schemaInObjectNotation(schema.items, {}, level + 1),
+        };
+      }
+    });
+
+    if (primitiveType.length > 0 && multiPrimitiveTypes?.html) {
+      multiTypeOptions[`::OPTION~${optionIndex++}`] = multiPrimitiveTypes.html;
+    }
+
+    obj['::ONE~OF'] = multiTypeOptions;
+    return obj;
+  }
+
+  return Object.assign({}, baseObj);
+}
+
+/**
+ * For changing OpenAPI-Schema to an Object Notation,
+ * This Object would further be an input to UI Components to generate an Object-Tree
+ * @param {object} schema - Schema object from OpenAPI spec
+ * @param {object} [obj={}] - base object to populate (defaults to new object)
+ * @param {number} [level=0] - recursion level
+ * @param {string} [suffix=''] - used for suffixing property names to avoid duplicate props during object composition
+ */
+export function schemaInObjectNotation(schema, obj = {}, level = 0, suffix = '') {
   if (!schema) {
     return;
   }
   if (level > 8) {
     return {
+      ...obj,
       '::type': schema.type || 'object',
       '::description': schema.description || '',
     };
   }
   if (schema.allOf) {
-    const objWithAllProps = {};
-    if (schema.allOf.length === 1 && !schema.allOf[0].properties && !schema.allOf[0].items) {
-      // If allOf has single item and the type is not an object or array, then its a primitive
-      const tempSchema = schema.allOf[0];
-      return `${getTypeInfo(tempSchema).html}`;
-    }
-    // If allOf is an array of multiple elements, then all the keys makes a single object
-    schema.allOf.map((v, i) => {
-      if (v.type === 'object' || v.properties || v.allOf || v.anyOf || v.oneOf) {
-        const propSuffix = (v.anyOf || v.oneOf) && i > 0 ? i : '';
-        const partialObj = schemaInObjectNotation(v, {}, level + 1, propSuffix);
-        Object.assign(objWithAllProps, partialObj);
-      } else if (v.type === 'array' || v.items) {
-        const partialObj = schemaInObjectNotation(v, {}, level + 1);
-        Object.assign(objWithAllProps, partialObj);
-      } else if (v.type) {
-        const prop = `prop${Object.keys(objWithAllProps).length}`;
-        const typeObj = getTypeInfo(v);
-        objWithAllProps[prop] = `${typeObj.html}`;
-      } else {
-        return '';
-      }
-    });
-    obj = objWithAllProps;
-  } else if (schema.anyOf || schema.oneOf) {
-    obj['::description'] = schema.description || '';
-    // 1. First iterate the regular properties
-    if (schema.type === 'object' || schema.properties) {
-      obj['::description'] = schema.description || '';
-      obj['::type'] = 'object';
-      // obj['::deprecated'] = schema.deprecated || false;
-      for (const key in schema.properties) {
-        if (schema.required && schema.required.includes(key)) {
-          obj[`${key}*`] = schemaInObjectNotation(schema.properties[key], {}, level + 1);
-        } else {
-          obj[key] = schemaInObjectNotation(schema.properties[key], {}, level + 1);
-        }
-      }
-    }
-    // 2. Then show allof/anyof objects
-    const objWithAnyOfProps = {};
-    const xxxOf = schema.anyOf ? 'anyOf' : 'oneOf';
-    schema[xxxOf].forEach((v, index) => {
-      if (v.type === 'object' || v.properties || v.allOf || v.anyOf || v.oneOf) {
-        const partialObj = schemaInObjectNotation(v, {}, level + 1);
-        objWithAnyOfProps[`::OPTION~${index + 1}${v.title ? `~${v.title}` : ''}`] = partialObj;
-        objWithAnyOfProps[`::OPTION~${index + 1}${v.title ? `~${v.title}` : ''}`]['::readwrite'] = ''; // xxx-options cannot be read or write only
-        objWithAnyOfProps['::type'] = 'xxx-of-option';
-      } else if (v.type === 'array' || v.items) {
-        // This else-if block never seems to get executed
-        const partialObj = schemaInObjectNotation(v, {}, level + 1);
-        objWithAnyOfProps[`::OPTION~${index + 1}${v.title ? `~${v.title}` : ''}`] = partialObj;
-        objWithAnyOfProps[`::OPTION~${index + 1}${v.title ? `~${v.title}` : ''}`]['::readwrite'] = ''; // xxx-options cannot be read or write only
-        objWithAnyOfProps['::type'] = 'xxx-of-array';
-      } else {
-        const prop = `::OPTION~${index + 1}${v.title ? `~${v.title}` : ''}`;
-        objWithAnyOfProps[prop] = `${getTypeInfo(v).html}`;
-        objWithAnyOfProps['::type'] = 'xxx-of-option';
-      }
-    });
-    obj[schema.anyOf ? `::ANY~OF ${suffix}` : `::ONE~OF ${suffix}`] = objWithAnyOfProps;
-    // obj['::type'] = 'object';
-    obj['::type'] = 'object';
-  } else if (Array.isArray(schema.type)) {
-    // When a property has multiple types, then check further if any of the types are array or object, if yes then modify the schema using one-of
-    // Clone the schema - as it will be modified to replace multi-data-types with one-of;
-    const subSchema = JSON.parse(JSON.stringify(schema));
-    const primitiveType = [];
-    const complexTypes = [];
-    subSchema.type.forEach((v) => {
-      if (v.match(/integer|number|string|null|boolean/g)) {
-        primitiveType.push(v);
-      } else if (
-        v === 'array' &&
-        typeof subSchema.items?.type === 'string' &&
-        subSchema.items?.type.match(/integer|number|string|null|boolean/g)
-      ) {
-        // Array with primitive types should also be treated as primitive type
-        if (subSchema.items.type === 'string' && subSchema.items.format) {
-          primitiveType.push(`[${subSchema.items.format}]`);
-        } else {
-          primitiveType.push(`[${subSchema.items.type}]`);
-        }
-      } else {
-        complexTypes.push(v);
-      }
-    });
-    let multiPrimitiveTypes;
-    if (primitiveType.length > 0) {
-      subSchema.type = primitiveType.join('┃');
-      multiPrimitiveTypes = getTypeInfo(subSchema);
-      if (complexTypes.length === 0) {
-        return `${multiPrimitiveTypes?.html || ''}`;
-      }
-    }
-    if (complexTypes.length > 0) {
-      obj['::type'] = 'object';
-      const multiTypeOptions = {
-        '::type': 'xxx-of-option',
-      };
-
-      // Generate ONE-OF options for complexTypes
-      complexTypes.forEach((v, i) => {
-        if (v === 'null') {
-          multiTypeOptions[`::OPTION~${i + 1}`] = 'NULL~|~~|~~|~~|~~|~~|~~|~~|~';
-        } else if ('integer, number, string, boolean,'.includes(`${v},`)) {
-          subSchema.type = Array.isArray(v) ? v.join('┃') : v;
-          const primitiveTypeInfo = getTypeInfo(subSchema);
-          multiTypeOptions[`::OPTION~${i + 1}`] = primitiveTypeInfo.html;
-        } else if (v === 'object') {
-          // If object type iterate all the properties and create an object-type-option
-          const objTypeOption = {
-            '::title': schema.title || '',
-            '::description': schema.description || '',
-            '::type': 'object',
-            '::deprecated': schema.deprecated || false,
-          };
-          for (const key in schema.properties) {
-            if (schema.required && schema.required.includes(key)) {
-              objTypeOption[`${key}*`] = schemaInObjectNotation(schema.properties[key], {}, level + 1);
-            } else {
-              objTypeOption[key] = schemaInObjectNotation(schema.properties[key], {}, level + 1);
-            }
-          }
-          multiTypeOptions[`::OPTION~${i + 1}`] = objTypeOption;
-        } else if (v === 'array') {
-          multiTypeOptions[`::OPTION~${i + 1}`] = {
-            '::title': schema.title || '',
-            '::description': schema.description || '',
-            '::type': 'array',
-            '::props': schemaInObjectNotation(schema.items, {}, level + 1),
-          };
-        }
-      });
-      multiTypeOptions[`::OPTION~${complexTypes.length + 1}`] = multiPrimitiveTypes?.html || '';
-      obj['::ONE~OF'] = multiTypeOptions;
-    }
-  } else if (schema.type === 'object' || schema.properties) {
-    // If Object
-    obj['::title'] = schema.title || '';
-    obj['::description'] = generateMarkdownForArrayAndObjectDescription(schema, level);
-    obj['::type'] = 'object';
-    if ((Array.isArray(schema.type) && schema.type.includes('null')) || schema.nullable) {
-      obj['::dataTypeLabel'] = 'object ┃ null';
-      obj['::nullable'] = true;
-    }
-    obj['::deprecated'] = schema.deprecated || false;
-    obj['::readwrite'] = schema.readOnly ? 'readonly' : schema.writeOnly ? 'writeonly' : '';
-    for (const key in schema.properties) {
-      if (schema.required && schema.required.includes(key)) {
-        obj[`${key}*`] = schemaInObjectNotation(schema.properties[key], {}, level + 1);
-      } else {
-        obj[key] = schemaInObjectNotation(schema.properties[key], {}, level + 1);
-      }
-    }
-    for (const key in schema.patternProperties) {
-      obj[`[pattern: ${key}]`] = schemaInObjectNotation(schema.patternProperties[key], {}, level + 1);
-    }
-    if (schema.additionalProperties) {
-      obj['[any-key]'] = schemaInObjectNotation(schema.additionalProperties, {}, level + 1);
-    }
-  } else if (schema.type === 'array' || schema.items) {
-    // If Array
-    obj['::title'] = schema.title || '';
-    obj['::description'] = generateMarkdownForArrayAndObjectDescription(schema, level);
-    obj['::type'] = 'array';
-    if ((Array.isArray(schema.type) && schema.type.includes('null')) || schema.nullable) {
-      obj['::dataTypeLabel'] = 'array ┃ null';
-      obj['::nullable'] = true;
-    }
-    obj['::deprecated'] = schema.deprecated || false;
-    obj['::readwrite'] = schema.readOnly ? 'readonly' : schema.writeOnly ? 'writeonly' : '';
-    if (schema.items?.items) {
-      obj['::array-type'] = schema.items.items.type;
-    }
-    obj['::props'] = schemaInObjectNotation(schema.items, {}, level + 1);
-  } else {
-    const typeObj = getTypeInfo(schema);
-    if (typeObj?.html) {
-      return `${typeObj.html}`;
-    }
-    return '';
+    return handleAllOfSchema(schema, obj, level);
   }
-  return obj;
+  if (schema.anyOf || schema.oneOf) {
+    return handleAnyOrOneOfSchema(schema, obj, level, suffix);
+  }
+  if (Array.isArray(schema.type)) {
+    return handleMultiTypeSchema(schema, obj, level);
+  }
+  if (schema.type === 'object' || schema.properties) {
+    return handleObjectSchema(schema, obj, level);
+  }
+  if (schema.type === 'array' || schema.items) {
+    return handleArraySchema(schema, obj, level);
+  }
+  const typeObj = getTypeInfo(schema);
+  if (typeObj?.html) {
+    return `${typeObj.html}`;
+  }
+  return '';
 }
 
 /**
