@@ -226,10 +226,14 @@ export function getTypeInfo(schema) {
 
   const itemsSchema = schema.items || effectiveSchema.items;
   if ((dataType === 'array' || dataType.split('┃').includes('array')) && itemsSchema) {
-    const arrayItemType = itemsSchema?.type;
+    const arrayItemType =
+      itemsSchema.format ||
+      itemsSchema.contentMediaType ||
+      (Array.isArray(itemsSchema?.type) ? itemsSchema.type.join('┃') : itemsSchema?.type) ||
+      '';
     const arrayItemDefault = getPrintableVal(itemsSchema.default);
 
-    info.arrayType = `${schema.type || 'array'} of ${Array.isArray(arrayItemType) ? arrayItemType.join('') : arrayItemType || ''}`;
+    info.arrayType = arrayItemType ? `[${arrayItemType}]` : `${schema.type || 'array'}`;
     if (!info.default) {
       info.default = arrayItemDefault;
     }

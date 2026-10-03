@@ -186,14 +186,21 @@ export default class SchemaTree extends LitElement {
 
       // If array of primitives
       if (items.kind === 'primitive') {
-        const itemType = items.type || 'string';
+        const itemType = items.format || items.contentMediaType || items.type || 'string';
         const dataTypeCss = itemType
           .replace(/┃.*/g, '')
           .replace(/[^a-zA-Z0-9+]/g, '')
           .substring(0, 4)
           .toLowerCase();
         const hasText = !!(node.description || items.description);
-        const hasItemChips = !!(items.constraints || items.defaultValue || items.allowedValues || items.pattern);
+        const hasItemChips = !!(
+          items.constraints ||
+          items.defaultValue ||
+          items.allowedValues ||
+          items.pattern ||
+          items.contentMediaType ||
+          items.contentEncoding
+        );
         const hasExtra = hasItemChips || hasMultilineDescription(node.description) || hasMultilineDescription(items.description);
         const descrExpander =
           hasText && hasExtra
@@ -205,6 +212,8 @@ export default class SchemaTree extends LitElement {
           ${items.defaultValue ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Default: </span>${items.defaultValue}</div>` : ''}
           ${items.allowedValues ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">${items.type === 'const' ? 'Value' : 'Allowed'}: </span>${items.allowedValues}</div>` : ''}
           ${items.pattern ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Pattern: </span>${items.pattern}</div>` : ''}
+          ${items.contentMediaType ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Media-Type: </span>${items.contentMediaType}</div>` : ''}
+          ${items.contentEncoding ? html`<div style="display:inline-block; line-break:anywhere; margin-right:8px"><span class="bold-text">Encoding: </span>${items.contentEncoding}</div>` : ''}
         `;
 
         return html`

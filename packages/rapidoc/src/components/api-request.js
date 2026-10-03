@@ -1103,7 +1103,13 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
                     schema.required?.includes(fieldName) || fieldSchema.required ? html`<span style="color:var(--red);">*</span>` : ''
                   }
                 </div>
-                <div class="param-type">${paramSchema.format && !paramSchema.type.includes('┃') ? paramSchema.format : paramSchema.contentMediaType && !paramSchema.type.includes('┃') ? paramSchema.contentMediaType : paramSchema.type}</div>
+                <div class="param-type">
+                  ${
+                    paramSchema.type === 'array' || paramSchema.type.split('┃').includes('array')
+                      ? `${paramSchema.arrayType || paramSchema.type}`
+                      : `${paramSchema.format && !paramSchema.type.includes('┃') ? paramSchema.format : paramSchema.contentMediaType && !paramSchema.type.includes('┃') ? paramSchema.contentMediaType : paramSchema.type}`
+                  }
+                </div>
               </td>
               <td
                 style="${
