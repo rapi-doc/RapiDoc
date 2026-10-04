@@ -108,7 +108,7 @@ async function fetchAccessToken(
   authCode,
   securitySchemeId,
   authFlowDivEl,
-  sendClientSecretIn = 'header',
+  sendClientSecretIn = 'request-body',
   scopes = null,
   username = null,
   password = null
@@ -117,10 +117,6 @@ async function fetchAccessToken(
   const urlFormParams = new URLSearchParams();
   const headers = new Headers();
   urlFormParams.append('grant_type', grantType);
-  if (grantType === 'authorization_code') {
-    urlFormParams.append('client_id', clientId);
-    urlFormParams.append('client_secret', clientSecret);
-  }
   if (grantType !== 'client_credentials' && grantType !== 'password') {
     urlFormParams.append('redirect_uri', redirectUrl);
   }
@@ -128,11 +124,15 @@ async function fetchAccessToken(
     urlFormParams.append('code', authCode);
     urlFormParams.append('code_verifier', codeVerifier); // for PKCE
   }
-  if (sendClientSecretIn === 'header') {
+  if (sendClientSecretIn === 'header' && clientSecret) {
     headers.set('Authorization', `Basic ${toBase64(`${clientId}:${clientSecret}`)}`);
-  } else if (grantType !== 'authorization_code') {
-    urlFormParams.append('client_id', clientId);
-    urlFormParams.append('client_secret', clientSecret);
+  } else {
+    if (clientId) {
+      urlFormParams.append('client_id', clientId);
+    }
+    if (clientSecret) {
+      urlFormParams.append('client_secret', clientSecret);
+    }
   }
   if (grantType === 'password') {
     urlFormParams.append('username', username);
@@ -237,7 +237,7 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
   const password = authFlowDivEl.querySelector('.api-key-password') ? authFlowDivEl.querySelector('.api-key-password').value.trim() : '';
   const sendClientSecretIn = authFlowDivEl.querySelector('.oauth-send-client-secret-in')
     ? authFlowDivEl.querySelector('.oauth-send-client-secret-in').value.trim()
-    : 'header';
+    : 'request-body';
   const checkedScopeEls = [...authFlowDivEl.querySelectorAll('.scope-checkbox:checked')];
   const pkceCheckboxEl = authFlowDivEl.querySelector(`#${securitySchemeId}-pkce`);
   const state = `${Math.random().toString(36).slice(2, 9)}random${Math.random().toString(36).slice(2, 9)}`;
@@ -354,7 +354,7 @@ function oAuthFlowTemplate(
   securitySchemeId,
   authFlow,
   defaultScopes = [],
-  receiveTokenIn = 'header',
+  receiveTokenIn = 'request-body',
   receiveTokenInOptions = undefined,
   allowTry = 'true'
 ) {
@@ -526,15 +526,13 @@ function oAuthFlowTemplate(
                                 class="${flowName} ${securitySchemeId} oauth-send-client-secret-in"
                               >
                                 ${
-                                  !receiveTokenInOptions || receiveTokenInOptions.includes('header')
-                                    ? html`<option value="header" .selected=${receiveTokenIn === 'header'}>Authorization Header</option>`
+                                  !receiveTokenInOptions || receiveTokenInOptions.includes('request-body')
+                                    ? html`<option value="request-body" .selected=${receiveTokenIn === 'request-body'}>Request Body</option>`
                                     : ''
                                 }
                                 ${
-                                  !receiveTokenInOptions || receiveTokenInOptions.includes('request-body')
-                                    ? html` <option value="request-body" .selected=${receiveTokenIn === 'request-body'}>
-                                        Request Body
-                                      </option>`
+                                  !receiveTokenInOptions || receiveTokenInOptions.includes('header')
+                                    ? html`<option value="header" .selected=${receiveTokenIn === 'header'}>Authorization Header</option>`
                                     : ''
                                 }
                               </select>`
