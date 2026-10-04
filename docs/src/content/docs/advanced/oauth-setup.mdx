@@ -157,7 +157,8 @@ RapiDoc provides custom OpenAPI vendor extensions to streamline the developer ex
 | `x-client-secret` | `string` | — | Pre-populates the Client Secret field *(intended for testing/sandbox environments only)*. |
 | `x-default-scopes` | `string` or `array` | — | Pre-selects default scopes in the permissions checklist. |
 | `x-pkce-only` | `boolean` | `false` | When set to `true`, enforces PKCE and hides the client secret field entirely from the UI. |
-| `x-receive-token-in` | `string` | `header` | Specifies where the access token is delivered (`header` or `request-body`). |
+| `x-receive-token-in` | `string` | `request-body` | Specifies whether client credentials are sent in the `request-body` (`client_secret_post`) or `header` (`client_secret_basic`). |
+| `x-receive-token-in-options` | `array` | `["request-body", "header"]` | Restricts the client authentication options available in the UI dropdown. |
 
 ### Complete Specification Example
 
@@ -195,6 +196,7 @@ components:
       x-client-id: interactive.confidential.short
       x-client-secret: demo-secret-key-12345
       x-default-scopes: openid email
+      x-receive-token-in: request-body # Default: request-body ('request-body' | 'header')
       
       flows:
         authorizationCode:
@@ -212,5 +214,6 @@ components:
 <Aside type="caution" title="Common Configuration Gotchas">
   - **Redirect URI Mismatch**: Ensure the redirect URI registered in your IdP console exactly matches the URL where `oauth-receiver.html` is served (including protocol and port, e.g. `http://localhost:4321/oauth-receiver.html`).
   - **CORS on Token Endpoint**: The authorization server's `/token` endpoint must return standard CORS headers (`Access-Control-Allow-Origin: *` or your documentation origin) because `<rapi-doc>` performs a browser-side `fetch` POST request to exchange the code for a token.
+  - **Client Authentication (Header vs Request Body)**: By default, RapiDoc sends client credentials in the POST `request-body` (`client_secret_post`) to minimize browser CORS preflight friction. If your authorization server strictly requires HTTP Basic authentication (`client_secret_basic`), set `x-receive-token-in: header` or switch the dropdown in the UI.
   - **Production Security**: Never commit production client secrets into public OpenAPI specifications. Use `x-pkce-only: true` for public documentation and reserve `x-client-secret` strictly for mock or sandbox instances.
 </Aside>

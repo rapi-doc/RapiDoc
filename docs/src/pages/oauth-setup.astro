@@ -149,9 +149,15 @@ const vendorExtensionsList = [
   },
   {
     name: 'x-receive-token-in',
-    type: 'header | request-body',
+    type: 'request-body | header',
     level: 'Scheme or Flow',
-    description: 'Specifies whether the access token should be passed in request headers or body. Default is header.'
+    description: 'Specifies whether client credentials should be passed in request body (client_secret_post) or Authorization header (client_secret_basic) when calling the tokenUrl. Default is request-body.'
+  },
+  {
+    name: 'x-receive-token-in-options',
+    type: 'array',
+    level: 'Scheme or Flow',
+    description: 'Limits the client authentication options available in the UI dropdown (e.g. ["request-body", "header"]).'
   }
 ];
 
@@ -597,22 +603,19 @@ const flowSteps = [
         <div class="rd-section-badge">Troubleshooting Guide</div>
         <h2 class="rd-section-title">Common Gotchas & Solutions</h2>
         <p class="rd-section-desc">
-          Running into issues during setup? Here are the top four configuration issues and how to resolve them quickly.
+          Running into issues during setup? Here are the top five configuration issues and how to resolve them quickly.
         </p>
       </div>
 
       <div class="rd-pitfalls-grid">
         <!-- Pitfall 1 -->
         <div class="rd-pitfall-card">
-          <div class="rd-pitfall-header">
-            <span class="rd-pitfall-icon warning">⚠️</span>
-            <h3 class="rd-pitfall-title">Redirect URI Mismatch</h3>
-          </div>
+          <h3 class="rd-pitfall-title">Redirect URI Mismatch</h3>
           <p class="rd-pitfall-desc">
             Your Identity Provider returns an error like <em>"Invalid redirect_uri"</em> or <em>"redirect_uri_mismatch"</em>.
           </p>
-          <div class="rd-solution-box">
-            <strong>Solution:</strong> Ensure the redirect URI registered in your IdP console matches the exact URL of <code>oauth-receiver.html</code>, including protocol, port, and trailing path:
+          <div class="rd-pitfall-solution">
+            <strong class="rd-solution-label">Solution:</strong> Ensure the redirect URI registered in your IdP console matches the exact URL of <code>oauth-receiver.html</code>, including protocol, port, and trailing path:
             <ul>
               <li>Exact port required: <code>http://localhost:3000/oauth-receiver.html</code></li>
               <li>Case sensitivity: <code>oauth-receiver.html</code> (all lowercase)</li>
@@ -622,15 +625,12 @@ const flowSteps = [
 
         <!-- Pitfall 2 -->
         <div class="rd-pitfall-card">
-          <div class="rd-pitfall-header">
-            <span class="rd-pitfall-icon error">🚫</span>
-            <h3 class="rd-pitfall-title">CORS Error on Token Endpoint</h3>
-          </div>
+          <h3 class="rd-pitfall-title">CORS Error on Token Endpoint</h3>
           <p class="rd-pitfall-desc">
             The authorization code is acquired, but the browser console displays a CORS network failure when calling <code>tokenUrl</code>.
           </p>
-          <div class="rd-solution-box">
-            <strong>Solution:</strong> Because RapiDoc runs entirely in the browser, your IdP's <code>tokenUrl</code> must respond with standard CORS headers:
+          <div class="rd-pitfall-solution">
+            <strong class="rd-solution-label">Solution:</strong> Because RapiDoc runs entirely in the browser, your IdP's <code>tokenUrl</code> must respond with standard CORS headers:
             <ul>
               <li><code class="mono-code">Access-Control-Allow-Origin: *</code> (or your docs origin)</li>
               <li>Ensure your client registration is set to <strong>SPA / Public Web</strong> in Auth0, Okta, or Azure AD.</li>
@@ -640,15 +640,12 @@ const flowSteps = [
 
         <!-- Pitfall 3 -->
         <div class="rd-pitfall-card">
-          <div class="rd-pitfall-header">
-            <span class="rd-pitfall-icon warning">🪟</span>
-            <h3 class="rd-pitfall-title">Popup Window Blocked</h3>
-          </div>
+          <h3 class="rd-pitfall-title">Popup Window Blocked</h3>
           <p class="rd-pitfall-desc">
             Clicking Authorize does not open the authentication window.
           </p>
-          <div class="rd-solution-box">
-            <strong>Solution:</strong> Browsers restrict popups that are not triggered by a direct user gesture:
+          <div class="rd-pitfall-solution">
+            <strong class="rd-solution-label">Solution:</strong> Browsers restrict popups that are not triggered by a direct user gesture:
             <ul>
               <li>Always trigger authorization by clicking the <strong>"Authorize"</strong> button directly.</li>
               <li>Check your browser address bar for popup blocking indicators and click "Always allow popups from this site".</li>
@@ -658,19 +655,32 @@ const flowSteps = [
 
         <!-- Pitfall 4 -->
         <div class="rd-pitfall-card">
-          <div class="rd-pitfall-header">
-            <span class="rd-pitfall-icon security">🔒</span>
-            <h3 class="rd-pitfall-title">Client Secret Exposure</h3>
-          </div>
+          <h3 class="rd-pitfall-title">Client Secret Exposure</h3>
           <p class="rd-pitfall-desc">
             Committing client secrets into public OpenAPI specs compromises security.
           </p>
-          <div class="rd-solution-box">
-            <strong>Solution:</strong> Use PKCE for public documentation:
+          <div class="rd-pitfall-solution">
+            <strong class="rd-solution-label">Solution:</strong> Use PKCE for public documentation:
             <ul>
               <li>Add <code class="mono-code">x-pkce-only: true</code> under the flow definition.</li>
               <li>This removes the client secret input from the UI and relies on dynamic cryptographic code challenges (RFC 7636).</li>
               <li>Only use <code class="mono-code">x-client-secret</code> in internal mock or test sandboxes.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Pitfall 5 -->
+        <div class="rd-pitfall-card">
+          <h3 class="rd-pitfall-title">Multiple Credentials / Auth Method Mismatch</h3>
+          <p class="rd-pitfall-desc">
+            Your Identity Provider (e.g. OpenIddict, Duende, Keycloak) returns <em>"Multiple client credentials cannot be specified"</em> or rejects token exchange.
+          </p>
+          <div class="rd-pitfall-solution">
+            <strong class="rd-solution-label">Solution:</strong> RFC 6749 Section 2.3.1 mandates using only one client authentication method per token request:
+            <ul>
+              <li><strong>Default (Request Body):</strong> RapiDoc defaults to sending client credentials in the POST body (<code class="mono-code">client_secret_post</code>) to prevent browser CORS preflight failures.</li>
+              <li><strong>Strict Basic Auth IdPs:</strong> If your server strictly requires HTTP Basic (<code class="mono-code">client_secret_basic</code>), add <code class="mono-code">x-receive-token-in: header</code> under your security scheme or select "Authorization Header" in the UI.</li>
+              <li><strong>Public Clients (PKCE):</strong> For browser SPAs without a secret, use <code class="mono-code">x-pkce-only: true</code>; RapiDoc will transmit only <code class="mono-code">client_id</code> and <code class="mono-code">code_verifier</code> in the body without an Authorization header.</li>
             </ul>
           </div>
         </div>
@@ -1216,6 +1226,8 @@ const flowSteps = [
   color: #34d399;
   background: rgba(16, 185, 129, 0.1);
   border-color: rgba(16, 185, 129, 0.2);
+  white-space: nowrap;
+  display: inline-block;
 }
 
 /* Tables */
@@ -1245,6 +1257,30 @@ const flowSteps = [
   padding: 12px 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   color: #cbd5e1;
+  vertical-align: middle;
+}
+
+.rd-table th:nth-child(1),
+.rd-table td:nth-child(1) {
+  white-space: nowrap;
+  width: 220px;
+}
+
+.rd-table th:nth-child(2),
+.rd-table td:nth-child(2) {
+  white-space: nowrap;
+  width: 190px;
+}
+
+.rd-table th:nth-child(3),
+.rd-table td:nth-child(3) {
+  white-space: nowrap;
+  width: 140px;
+}
+
+.rd-table th:nth-child(4),
+.rd-table td:nth-child(4) {
+  width: auto;
 }
 
 .rd-table tr:last-child td {
@@ -1255,6 +1291,8 @@ const flowSteps = [
   font-family: var(--rd-font-mono);
   font-size: 12px;
   color: #f59e0b;
+  white-space: nowrap;
+  display: inline-block;
 }
 
 .rd-level-tag {
@@ -1263,6 +1301,8 @@ const flowSteps = [
   background: rgba(255, 255, 255, 0.04);
   padding: 2px 6px;
   border-radius: 4px;
+  white-space: nowrap;
+  display: inline-block;
 }
 
 /* Test Steps */
@@ -1352,48 +1392,38 @@ const flowSteps = [
   backdrop-filter: blur(12px);
 }
 
-.rd-pitfall-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.rd-pitfall-icon {
-  font-size: 20px;
-}
-
 .rd-pitfall-title {
   font-size: 16px;
   font-weight: 700;
   color: #fff;
-  margin: 0;
+  margin: 0 0 10px 0;
 }
 
 .rd-pitfall-desc {
   font-size: 13.5px;
   color: #94a3b8;
   line-height: 1.55;
-  margin: 0 0 16px 0;
+  margin: 0 0 14px 0;
 }
 
-.rd-solution-box {
-  background: rgba(255, 255, 255, 0.02);
-  border-left: 3px solid #10b981;
-  padding: 12px 14px;
-  border-radius: 0 8px 8px 0;
+.rd-pitfall-solution {
   font-size: 13px;
-  line-height: 1.55;
+  line-height: 1.6;
   color: #cbd5e1;
 }
 
-.rd-solution-box ul {
-  margin: 6px 0 0 0;
+.rd-solution-label {
+  font-weight: 700;
+  color: #34d399;
+}
+
+.rd-pitfall-solution ul {
+  margin: 8px 0 0 0;
   padding-left: 18px;
   color: #94a3b8;
 }
 
-.rd-solution-box li {
+.rd-pitfall-solution li {
   margin-bottom: 4px;
 }
 

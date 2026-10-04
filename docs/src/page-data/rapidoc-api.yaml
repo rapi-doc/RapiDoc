@@ -541,7 +541,11 @@ Extensions:
     - name: x-default-scopes
       description: Pre-fills default OAuth2 permission scopes in authentication modals.
     - name: x-receive-token-in
-      description: Defines whether OAuth2 access tokens are received via HTTP header or request body (<span class="yellow mono">header</span> or <span class="yellow mono">request-body</span>).
+      default: request-body
+      allowed: ["request-body", "header"]
+      description: Defines whether client credentials (client_id / client_secret) are sent via request body or HTTP Authorization header (<span class="yellow mono">request-body</span> or <span class="yellow mono">header</span>). Default is <span class="yellow mono">request-body</span>.
+    - name: x-receive-token-in-options
+      description: Restricts the client authentication options available in the UI dropdown (e.g. <code>["request-body", "header"]</code>).
     - name: x-pkce-only
       allowed: ["true", "false"]
       description: When set to "true", enforces Proof Key for Code Exchange (PKCE) flow and prevents client secrets from being transmitted from the browser.
