@@ -5,6 +5,7 @@ const exampleToSpecMap: Record<string, string> = {
   "example2": "example2.yaml",
   "example3": "some-example.yaml",
   "multi-datatypes-test": "multi-datatypes.yaml",
+  "dry-run": "dryrun.yaml",
 };
 
 export function getSpecUrl(url: URL): string {

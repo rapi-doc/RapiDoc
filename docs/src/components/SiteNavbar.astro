@@ -1,6 +1,6 @@
 ---
 interface Props {
-  activePage?: 'home' | 'docs' | 'showcase' | 'quickstart' | 'list' | 'examples' | 'api' | 'tests' | 'rapidoc-mini' | 'mock-server' | 'other';
+  activePage?: 'home' | 'docs' | 'showcase' | 'quickstart' | 'list' | 'examples' | 'api' | 'tests' | 'rapidoc-mini' | 'mock-server' | 'dry-run' | 'other';
 }
 
 const { activePage = 'other' } = Astro.props;
@@ -24,6 +24,10 @@ const { activePage = 'other' } = Astro.props;
       <a href="/showcase" class={`rd-nav-link ${activePage === 'showcase' || activePage === 'list' ? 'active' : ''}`}>Showcase</a>
       <a href="/docs" class={`rd-nav-link ${activePage === 'docs' ? 'active' : ''}`}>Docs</a>
       <a href="/tests" class={`rd-nav-link ${activePage === 'tests' ? 'active' : ''}`}>Tests</a>
+      <a href="/dry-run" class={`rd-nav-link rd-nav-link-dryrun ${activePage === 'dry-run' ? 'active' : ''}`} title="Developer Spec Sandbox">
+        <span>Dry Run</span>
+        <span class="rd-dev-pill">DEV</span>
+      </a>
     </nav>
 
     <div class="rd-nav-actions">
@@ -104,6 +108,31 @@ const { activePage = 'other' } = Astro.props;
   }
   .rd-nav-link.active {
     color: #10b981;
+  }
+  .rd-nav-link-dryrun {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .rd-dev-pill {
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    font-family: 'Roboto Mono', monospace;
+    line-height: 1.2;
+    transition: all 0.2s ease;
+  }
+  .rd-nav-link-dryrun:hover .rd-dev-pill,
+  .rd-nav-link-dryrun.active .rd-dev-pill {
+    background: rgba(245, 158, 11, 0.25);
+    border-color: rgba(245, 158, 11, 0.6);
+    color: #fbbf24;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.25);
   }
   .rd-nav-actions {
     display: flex;

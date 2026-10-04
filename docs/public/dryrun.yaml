@@ -1,0 +1,98 @@
+openapi: 3.1.0
+info:
+  title: Dry Run Development Spec
+  version: 1.0.0
+  description: |
+    ### ⚡ Developer Sandbox for RapiDoc
+    This spec is loaded by default on the `/dry-run` development page.
+    - Edit `docs/public/dryrun.yaml` in your editor to test changes.
+    - Or use the **Live Editor Drawer** on this page to paste any snippet.
+    - Spec auto-reloads whenever you switch focus back to this browser tab.
+paths:
+  /users:
+    get:
+      summary: List users
+      description: Returns a list of mock users to test response table/tree rendering.
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of records to return
+          schema:
+            type: integer
+            default: 10
+        - name: role
+          in: query
+          description: Filter users by role
+          schema:
+            type: string
+            enum: [admin, member, guest]
+      responses:
+        '200':
+          description: Successful user list response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    post:
+      summary: Create a user
+      description: Create a new user with validation schemas.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserInput'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+components:
+  schemas:
+    User:
+      type: object
+      required:
+        - id
+        - name
+        - email
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "d3b07384-d113-40ee-a764-9549f0d0d885"
+        name:
+          type: string
+          example: "Alex Developer"
+        email:
+          type: string
+          format: email
+          example: "alex@example.com"
+        role:
+          type: string
+          enum: [admin, member, guest]
+          example: "admin"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-10-03T12:00:00Z"
+    CreateUserInput:
+      type: object
+      required:
+        - name
+        - email
+      properties:
+        name:
+          type: string
+          example: "Jane Doe"
+        email:
+          type: string
+          format: email
+          example: "jane@example.com"
+        role:
+          type: string
+          enum: [admin, member, guest]
+          default: "member"
