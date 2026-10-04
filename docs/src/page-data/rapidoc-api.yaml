@@ -600,7 +600,40 @@ Extensions:
       description: When set to "true", enforces Proof Key for Code Exchange (PKCE) flow and prevents client secrets from being transmitted from the browser.
     - name: x-authorize-params
       description: >
-        Object or query string defining custom parameters appended to the OAuth2 authorizationUrl query string (e.g. proxy launch tokens, prompt, audience). Supported at both security scheme and individual flow levels.
+        Object or query string defining custom parameters appended to the OAuth2 authorizationUrl query string (e.g. proxy launch tokens, prompt, audience). Supported at both security scheme and individual flow levels.<br/><br/>
+        <span class="yellow">Example:</span>
+        <pre><code class="language-yaml">
+        components:
+          securitySchemes:
+            oauth-flow:
+              type: oauth2
+              flows:
+                authorizationCode:
+                  authorizationUrl: https://auth.example.com/oauth2/authorize
+                  tokenUrl: https://auth.example.com/oauth2/token
+                  x-authorize-params:
+                    launch: xyz123
+                    prompt: consent
+                    audience: https://api.mycompany.com
+                  scopes:
+                    read: Read access
+        </code></pre>
     - name: x-token-params
       description: >
-        Object or form parameters sent in the POST request body to the OAuth2 tokenUrl (e.g. custom proxy fields, resource, audience). Supported at both security scheme and individual flow levels.
+        Object or form parameters sent in the POST request body to the OAuth2 tokenUrl (e.g. custom proxy fields, resource, audience). Supported at both security scheme and individual flow levels.<br/><br/>
+        <span class="yellow">Example:</span>
+        <pre><code class="language-yaml">
+        components:
+          securitySchemes:
+            oauth-flow:
+              type: oauth2
+              flows:
+                authorizationCode:
+                  authorizationUrl: https://auth.example.com/oauth2/authorize
+                  tokenUrl: https://auth.example.com/oauth2/token
+                  x-token-params:
+                    audience: https://api.mycompany.com
+                    resource: urn:my:resource:server
+                  scopes:
+                    read: Read access
+        </code></pre>
