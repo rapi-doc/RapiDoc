@@ -50,10 +50,11 @@ export default class RapiDoc extends LitElement {
   constructor() {
     super();
     const intersectionObserverOptions = {
-      rootMargin: '0px 0px -65% 0px', // Target the top 35% reading zone of viewport
+      rootMargin: '0px 0px -50% 0px', // Target the top 50% reading zone of viewport
       threshold: 0,
     };
     this.showSummaryWhenCollapsed = true;
+    this._intersectingElements = new Map();
     // Will activate intersection observer only after spec load and hash analyze
     // to scroll to the proper element without being reverted by observer behavior
     this.isIntersectionObserverActive = false;
@@ -1019,6 +1020,9 @@ export default class RapiDoc extends LitElement {
 
     // Initiate IntersectionObserver and put it at the end of event loop, to allow loading all the child elements (must for larger specs)
     this.intersectionObserver.disconnect();
+    if (this._intersectingElements) {
+      this._intersectingElements.clear();
+    }
     if (this.renderStyle === 'read') {
       await sleep(100);
       this.observeExpandedContent(); // This will auto-highlight the selected nav-item in read-mode
@@ -1148,19 +1152,52 @@ export default class RapiDoc extends LitElement {
       return;
     }
 
-    const visibleEntries = entries.filter((entry) => entry.isIntersecting && entry.intersectionRatio > 0);
-    if (visibleEntries.length === 0) {
+    if (!this._intersectingElements) {
+      this._intersectingElements = new Map();
+    }
+
+    for (const entry of entries) {
+      if (entry.isIntersecting && entry.intersectionRatio > 0) {
+        this._intersectingElements.set(entry.target.id, entry.target);
+      } else {
+        this._intersectingElements.delete(entry.target.id);
+      }
+    }
+
+    if (this._intersectingElements.size === 0) {
       return;
     }
 
-    // Pick the topmost entry in the reading zone
-    const bestEntry = visibleEntries.reduce((best, curr) => {
-      const bestTop = best.boundingClientRect.top;
-      const currTop = curr.boundingClientRect.top;
-      return currTop < bestTop ? curr : best;
-    });
+    const activeCandidates = Array.from(this._intersectingElements.values()).filter((el) => el.isConnected);
+    if (activeCandidates.length === 0) {
+      return;
+    }
 
-    const targetId = bestEntry.target.id;
+    const visibleHeadings = [];
+    const scrolledPast = [];
+
+    for (const el of activeCandidates) {
+      const top = el.getBoundingClientRect().top;
+      if (top >= 0) {
+        visibleHeadings.push({ el, top });
+      } else {
+        scrolledPast.push({ el, top });
+      }
+    }
+
+    let bestEl;
+    if (visibleHeadings.length > 0) {
+      // Preference to the topmost heading visible in the viewport/reading zone
+      visibleHeadings.sort((a, b) => a.top - b.top);
+      bestEl = visibleHeadings[0].el;
+    } else {
+      // If all visible candidates have their headings scrolled past top (< 0),
+      // pick the one whose top is closest to 0 (the section currently filling the reading area)
+      scrolledPast.sort((a, b) => b.top - a.top);
+      bestEl = scrolledPast[0].el;
+    }
+
+    const targetId = bestEl.id;
     const newNavEl = this.shadowRoot.getElementById(`link-${targetId}`);
     if (!newNavEl || newNavEl.classList.contains('active')) {
       return;
@@ -1243,6 +1280,9 @@ export default class RapiDoc extends LitElement {
       return;
     }
     this.isIntersectionObserverActive = false;
+    if (this._intersectingElements) {
+      this._intersectingElements.clear();
+    }
     if (this.renderStyle === 'focused') {
       const requestEl = this.shadowRoot.querySelector('api-request');
       if (requestEl) {
