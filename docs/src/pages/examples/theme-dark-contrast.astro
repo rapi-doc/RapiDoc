@@ -265,25 +265,11 @@ import GlobalLayout from '../../layouts/GlobalLayout.astro';
 
   /* Frosted glass search panel in the sidebar */
   rapi-doc::part(section-navbar-search) {
-    position: relative;
-    z-index: 10;
-    background: rgba(6, 9, 19, 0.65) !important;
-    backdrop-filter: blur(14px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(14px) saturate(180%) !important;
+    background: rgba(6, 9, 19, 0.75) !important;
+    backdrop-filter: blur(12px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow:
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.06),
-      0 4px 16px -2px rgba(0, 0, 0, 0.4);
-  }
-
-  /*
-   * Allow nav items to scroll under the search header:
-   * Pull the scroll container up to sit behind the search bar,
-   * while padding the top so items initially begin right below it.
-   */
-  rapi-doc::part(section-navbar-scroll) {
-    margin-top: -54px;
-    padding-top: 58px;
+    box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.4);
   }
 
   rapi-doc::part(textbox-nav-filter) {
@@ -318,13 +304,6 @@ import GlobalLayout from '../../layouts/GlobalLayout.astro';
     border-color: #ff8a65;
     color: #ffffff;
     box-shadow: 0 0 12px rgba(255, 112, 67, 0.3);
-  }
-
-  /* Navbar items with subtle rounded corners and hover effect */
-  rapi-doc::part(section-navbar-item) {
-    border-radius: 6px;
-    margin: 1px 8px;
-    transition: all 0.15s ease;
   }
 
   /* Operation divider in Read Mode */
