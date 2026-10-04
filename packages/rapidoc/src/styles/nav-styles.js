@@ -3,6 +3,78 @@ import { css } from 'lit';
 export default css`
   #advanced-search-btn {
     display: none;
+    margin-left: 5px;
+    padding: 6px 8px;
+    width: 75px;
+  }
+  .btn-clear-filter {
+    margin-left: 5px;
+    color: var(--nav-text-color);
+    width: 75px;
+    padding: 6px 8px;
+  }
+  .nav-bar-search-container {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: stretch;
+    padding: 8px 16px 12px 16px;
+    background: rgba(15, 23, 42, 0.7);
+    background: color-mix(in srgb, var(--nav-bg-color, #080c14) 75%, transparent);
+    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
+    box-sizing: border-box;
+    width: 100%;
+  }
+  .nav-bar-search-container.has-bottom-border {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid color-mix(in srgb, var(--nav-text-color, #fff) 10%, transparent);
+  }
+  .nav-bar-search-input-wrapper {
+    display: flex;
+    flex: 1;
+    position: relative;
+    line-height: 22px;
+  }
+  .nav-bar-search-input {
+    width: 100%;
+    padding: 6px 28px 6px 10px;
+    color: var(--nav-hover-text-color);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid color-mix(in srgb, var(--nav-text-color, #fff) 12%, transparent);
+    border-radius: var(--border-radius, 6px);
+    background: rgba(255, 255, 255, 0.05);
+    background: color-mix(in srgb, var(--nav-bg-color, #080c14) 40%, transparent);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    font-size: calc(var(--font-size-small) + 1px);
+    box-sizing: border-box;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
+  }
+  .nav-bar-search-input:focus {
+    outline: none;
+    border-color: var(--nav-accent-color);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--nav-accent-color) 25%, transparent);
+  }
+  .nav-bar-search-icon {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: var(--font-size-regular);
+    cursor: pointer;
+    color: var(--nav-text-color);
+    opacity: 0.6;
+    user-select: none;
+  }
+  .nav-bar-search-icon:hover {
+    opacity: 1;
+    color: var(--nav-hover-text-color);
   }
   #nav-bar-btn {
     position: absolute;

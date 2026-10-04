@@ -17,19 +17,21 @@ function jsonSchemaNavTemplate() {
   return html`
     <nav class="nav-bar" part="section-navbar">
       <slot name="nav-logo" class="logo"></slot>
-      <div style="display:flex;line-height:22px; padding:8px">
-        <input
-          id="nav-bar-search"
-          part="textbox textbox-nav-filter"
-          style="width:100%; height: 26px; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background:var(--nav-hover-bg-color)"
-          type="text"
-          placeholder="Filter"
-          @change="${this.onSearchChange}"
-          spellcheck="false"
-        />
-        <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div>
-      </div>
       <nav style="flex:1" class="nav-scroll" part="section-navbar-scroll">
+        <div class="nav-bar-search-container has-bottom-border" part="section-navbar-search">
+          <div class="nav-bar-search-input-wrapper">
+            <input
+              id="nav-bar-search"
+              part="textbox textbox-nav-filter"
+              class="nav-bar-search-input"
+              type="text"
+              placeholder="Filter"
+              @change="${this.onSearchChange}"
+              spellcheck="false"
+            />
+            <div class="nav-bar-search-icon" @click="${this.onSearchChange}">&#x21a9;</div>
+          </div>
+        </div>
         ${this.resolvedSpec.schemaAndExamples.map(
           (v) =>
             html` <div

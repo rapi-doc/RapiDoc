@@ -42,6 +42,10 @@ export function navBarClickAndEnterHandler(event) {
     return;
   }
   const navEl = event.target;
+  // Ignore clicks or enter inside the search / filter controls
+  if (navEl.closest('#nav-bar-search') || navEl.closest('#advanced-search-btn') || navEl.closest('[part~="btn-clear-filter"]')) {
+    return;
+  }
   event.stopPropagation();
   if (navEl.dataset?.action === 'navigate') {
     this.scrollToEventTarget(event, false);
@@ -68,71 +72,67 @@ export default function navbarTemplate() {
     <button id="nav-bar-btn" part="btn-navbar" class="btn" @click="${this.onOpenNavBarToggle}">☰</button>
     <nav id="nav-bar" class="nav-bar ${this.renderStyle}" part="section-navbar">
       <slot name="nav-logo" class="logo"></slot>
-      ${
-        this.allowSearch === 'false' && this.allowAdvancedSearch === 'false'
-          ? ''
-          : html`
-              <div
-                style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 24px 12px 24px; ${
-                  this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''
-                }"
-                part="section-navbar-search"
-              >
-                ${
-                  this.allowSearch === 'false'
-                    ? ''
-                    : html`
-                        <div style="display:flex; flex:1; line-height:22px;">
-                          <input
-                            id="nav-bar-search"
-                            part="textbox textbox-nav-filter"
-                            style="width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background:var(--nav-hover-bg-color)"
-                            type="text"
-                            placeholder="Filter"
-                            @change="${this.onSearchChange}"
-                            spellcheck="false"
-                          />
-                          <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div>
-                        </div>
-                        ${
-                          this.searchVal
-                            ? html` <button
-                                @click="${this.onClearSearch}"
-                                class="m-btn thin-border"
-                                style="margin-left:5px; color:var(--nav-text-color); width:75px; padding:6px 8px;"
-                                part="btn btn-outline btn-clear-filter"
-                              >
-                                CLEAR
-                              </button>`
-                            : ''
-                        }
-                      `
-                }
-                ${
-                  this.allowAdvancedSearch === 'false' || this.searchVal
-                    ? ''
-                    : html`
-                        <button
-                          id="advanced-search-btn"
-                          class="m-btn primary"
-                          part="btn btn-fill btn-search"
-                          style="margin-left:5px; padding:6px 8px; width:75px"
-                          @click="${this.onShowAdvancedSearchClicked}"
-                        >
-                          SEARCH
-                        </button>
-                      `
-                }
-              </div>
-            `
-      }
-      ${html`<nav
+      <nav
         class="nav-scroll"
         tabindex="-1"
         part="section-navbar-scroll"
         @click="${(e) => navBarClickAndEnterHandler.call(this, e)}"
         @keyup="${(e) => navBarClickAndEnterHandler.call(this, e)}"
       >
+        ${
+          this.allowSearch === 'false' && this.allowAdvancedSearch === 'false'
+            ? ''
+            : html`
+                <div
+                  class="nav-bar-search-container ${this.allowAdvancedSearch === 'false' ? 'has-bottom-border' : ''}"
+                  part="section-navbar-search"
+                >
+                  ${
+                    this.allowSearch === 'false'
+                      ? ''
+                      : html`
+                          <div class="nav-bar-search-input-wrapper">
+                            <input
+                              id="nav-bar-search"
+                              part="textbox textbox-nav-filter"
+                              class="nav-bar-search-input"
+                              type="text"
+                              placeholder="Filter"
+                              @change="${this.onSearchChange}"
+                              spellcheck="false"
+                            />
+                            <div class="nav-bar-search-icon" @click="${this.onSearchChange}">&#x21a9;</div>
+                          </div>
+                          ${
+                            this.searchVal
+                              ? html` <button
+                                  @click="${this.onClearSearch}"
+                                  class="m-btn thin-border btn-clear-filter"
+                                  part="btn btn-outline btn-clear-filter"
+                                >
+                                  CLEAR
+                                </button>`
+                              : ''
+                          }
+                        `
+                  }
+                  ${
+                    this.allowAdvancedSearch === 'false' || this.searchVal
+                      ? ''
+                      : html`
+                          <button
+                            id="advanced-search-btn"
+                            class="m-btn primary"
+                            part="btn btn-fill btn-search"
+                            @click="${this.onShowAdvancedSearchClicked}"
+                          >
+                            SEARCH
+                          </button>
+                        `
+                  }
+                </div>
+              `
+        }
         ${
           this.showInfo === 'false' || !this.resolvedSpec.info
             ? ''
@@ -368,7 +368,7 @@ export default function navbarTemplate() {
                 )}`
             : ''
         }
-      </nav>`}
+      </nav>
     </nav>
   `;
 }
