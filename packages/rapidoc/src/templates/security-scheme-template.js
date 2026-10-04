@@ -21,6 +21,52 @@ function toBase64(str) {
   }
 }
 
+function normalizeParams(params) {
+  const result = new URLSearchParams();
+  if (!params) {
+    return result;
+  }
+  if (params instanceof URLSearchParams) {
+    for (const [k, v] of params.entries()) {
+      result.set(k, v);
+    }
+    return result;
+  }
+  if (typeof params === 'object') {
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== null) {
+        result.set(k, String(v));
+      }
+    });
+    return result;
+  }
+  if (typeof params === 'string') {
+    const trimmed = params.trim();
+    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+      try {
+        const obj = JSON.parse(trimmed);
+        if (typeof obj === 'object' && obj !== null) {
+          Object.entries(obj).forEach(([k, v]) => {
+            if (v !== undefined && v !== null) {
+              result.set(k, String(v));
+            }
+          });
+          return result;
+        }
+      } catch {
+        // Not valid JSON, fall back to URLSearchParams
+      }
+    }
+    const cleanStr = trimmed.startsWith('?') ? trimmed.slice(1) : trimmed;
+    const parsed = new URLSearchParams(cleanStr);
+    for (const [k, v] of parsed.entries()) {
+      result.set(k, v);
+    }
+    return result;
+  }
+  return result;
+}
+
 export function applyApiKey(securitySchemeId, username = '', password = '', providedApikeyVal = '') {
   const securityObj = this.resolvedSpec.securitySchemes?.find((v) => v.securitySchemeId === securitySchemeId);
   if (!securityObj) {
@@ -111,39 +157,80 @@ async function fetchAccessToken(
   sendClientSecretIn = 'request-body',
   scopes = null,
   username = null,
-  password = null
+  password = null,
+  tokenParamsSpec = null
 ) {
   const respDisplayEl = authFlowDivEl ? authFlowDivEl.querySelector('.oauth-resp-display') : undefined;
   const urlFormParams = new URLSearchParams();
   const headers = new Headers();
-  urlFormParams.append('grant_type', grantType);
+
+  // Merge vendor extension x-token-params (if any)
+  const specTokenParams = normalizeParams(tokenParamsSpec);
+  for (const [k, v] of specTokenParams.entries()) {
+    urlFormParams.set(k, v);
+  }
+
+  // Merge additional-token-params property/attribute on <rapi-doc> (if any)
+  const attrTokenParams = normalizeParams(this.additionalTokenParams);
+  for (const [k, v] of attrTokenParams.entries()) {
+    urlFormParams.set(k, v);
+  }
+
+  urlFormParams.set('grant_type', grantType);
   if (grantType !== 'client_credentials' && grantType !== 'password') {
-    urlFormParams.append('redirect_uri', redirectUrl);
+    urlFormParams.set('redirect_uri', redirectUrl);
   }
   if (authCode) {
-    urlFormParams.append('code', authCode);
-    urlFormParams.append('code_verifier', codeVerifier); // for PKCE
+    urlFormParams.set('code', authCode);
+    urlFormParams.set('code_verifier', codeVerifier); // for PKCE
   }
   if (sendClientSecretIn === 'header' && clientSecret) {
     headers.set('Authorization', `Basic ${toBase64(`${clientId}:${clientSecret}`)}`);
   } else {
     if (clientId) {
-      urlFormParams.append('client_id', clientId);
+      urlFormParams.set('client_id', clientId);
     }
     if (clientSecret) {
-      urlFormParams.append('client_secret', clientSecret);
+      urlFormParams.set('client_secret', clientSecret);
     }
   }
   if (grantType === 'password') {
-    urlFormParams.append('username', username);
-    urlFormParams.append('password', password);
+    urlFormParams.set('username', username);
+    urlFormParams.set('password', password);
   }
   if (scopes) {
-    urlFormParams.append('scope', scopes);
+    urlFormParams.set('scope', scopes);
+  }
+
+  const requestDetail = {
+    method: 'POST',
+    headers,
+    body: urlFormParams,
+  };
+  const beforeTokenEvent = new CustomEvent('before-token-request', {
+    bubbles: true,
+    composed: true,
+    cancelable: true,
+    detail: {
+      securitySchemeId,
+      grantType,
+      tokenUrl,
+      params: urlFormParams,
+      headers,
+      request: requestDetail,
+    },
+  });
+  const notCancelled = this.dispatchEvent(beforeTokenEvent);
+  if (!notCancelled) {
+    return false;
   }
 
   try {
-    const resp = await fetch(tokenUrl, { method: 'POST', headers, body: urlFormParams });
+    const resp = await fetch(tokenUrl, {
+      method: requestDetail.method || 'POST',
+      headers: requestDetail.headers || headers,
+      body: requestDetail.body || urlFormParams,
+    });
     const tokenResp = await resp.json();
     if (resp.ok) {
       if (tokenResp.token_type && tokenResp.access_token) {
@@ -155,7 +242,7 @@ async function fetchAccessToken(
       }
     } else {
       if (respDisplayEl) {
-        respDisplayEl.innerHTML = `<span style="color:var(--red)">${tokenResp.error_description || tokenResp.error_description || 'Unable to get access token'}</span>`;
+        respDisplayEl.innerHTML = `<span style="color:var(--red)">${tokenResp.error_description || tokenResp.error || 'Unable to get access token'}</span>`;
       }
       return false;
     }
@@ -178,7 +265,8 @@ async function onWindowMessageEvent(
   grantType,
   sendClientSecretIn,
   securitySchemeId,
-  authFlowDivEl
+  authFlowDivEl,
+  tokenParamsSpec = null
 ) {
   sessionStorage.removeItem('winMessageEventActive');
   winObj.close();
@@ -204,7 +292,11 @@ async function onWindowMessageEvent(
         msgEvent.data.code,
         securitySchemeId,
         authFlowDivEl,
-        sendClientSecretIn
+        sendClientSecretIn,
+        null,
+        null,
+        null,
+        tokenParamsSpec
       );
     } else if (msgEvent.data.responseType === 'token') {
       // Implicit flow
@@ -227,7 +319,15 @@ async function generateCodeChallenge() {
 }
 */
 
-async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, e) {
+async function onInvokeOAuthFlow(
+  securitySchemeId,
+  flowType,
+  authUrl,
+  tokenUrl,
+  e,
+  authorizeParamsSpec = null,
+  tokenParamsSpec = null
+) {
   const authFlowDivEl = e.target.closest('.oauth-flow');
   const clientId = authFlowDivEl.querySelector('.oauth-client-id') ? authFlowDivEl.querySelector('.oauth-client-id').value.trim() : '';
   const clientSecret = authFlowDivEl.querySelector('.oauth-client-secret')
@@ -265,6 +365,19 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
       responseType = 'token';
     }
     const authCodeParams = new URLSearchParams(authUrlObj.search);
+
+    // Merge vendor extension x-authorize-params (if any)
+    const specAuthParams = normalizeParams(authorizeParamsSpec);
+    for (const [k, v] of specAuthParams.entries()) {
+      authCodeParams.set(k, v);
+    }
+
+    // Merge additional-authorize-params property/attribute on <rapi-doc> (if any)
+    const attrAuthParams = normalizeParams(this.additionalAuthorizeParams);
+    for (const [k, v] of attrAuthParams.entries()) {
+      authCodeParams.set(k, v);
+    }
+
     const selectedScopes = checkedScopeEls.map((v) => v.value).join(' ');
     if (selectedScopes) {
       authCodeParams.set('scope', selectedScopes);
@@ -279,6 +392,23 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
       authCodeParams.set('code_challenge_method', 'S256');
     }
     authCodeParams.set('show_dialog', true);
+
+    const beforeAuthorizeEvent = new CustomEvent('before-authorize', {
+      bubbles: true,
+      composed: true,
+      cancelable: true,
+      detail: {
+        securitySchemeId,
+        flowType,
+        authUrl,
+        authParams: authCodeParams,
+      },
+    });
+    const notCancelled = this.dispatchEvent(beforeAuthorizeEvent);
+    if (!notCancelled) {
+      return;
+    }
+
     authUrlObj.search = authCodeParams.toString();
     // If any older message-event-listener is active then fire a fake message to remove it (these are single time listeners)
     if (sessionStorage.getItem('winMessageEventActive') === 'true') {
@@ -304,7 +434,8 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
               grantType,
               sendClientSecretIn,
               securitySchemeId,
-              authFlowDivEl
+              authFlowDivEl,
+              tokenParamsSpec
             ),
           { once: true }
         );
@@ -324,7 +455,10 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
       securitySchemeId,
       authFlowDivEl,
       sendClientSecretIn,
-      selectedScopes
+      selectedScopes,
+      null,
+      null,
+      tokenParamsSpec
     );
   } else if (flowType === 'password') {
     grantType = 'password';
@@ -342,7 +476,8 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
       sendClientSecretIn,
       selectedScopes,
       username,
-      password
+      password,
+      tokenParamsSpec
     );
   }
 }
@@ -356,7 +491,9 @@ function oAuthFlowTemplate(
   defaultScopes = [],
   receiveTokenIn = 'request-body',
   receiveTokenInOptions = undefined,
-  allowTry = 'true'
+  allowTry = 'true',
+  authorizeParams = null,
+  tokenParams = null
 ) {
   let { authorizationUrl, tokenUrl, refreshUrl } = authFlow;
   const pkceOnly = authFlow['x-pkce-only'] || false;
@@ -547,7 +684,16 @@ function oAuthFlowTemplate(
                               class="m-btn thin-border"
                               part="btn btn-outline"
                               @click="${(e) => {
-                                onInvokeOAuthFlow.call(this, securitySchemeId, flowName, authorizationUrl, tokenUrl, e);
+                                onInvokeOAuthFlow.call(
+                                  this,
+                                  securitySchemeId,
+                                  flowName,
+                                  authorizationUrl,
+                                  tokenUrl,
+                                  e,
+                                  authorizeParams,
+                                  tokenParams
+                                );
                               }}"
                             >
                               GET TOKEN
@@ -769,7 +915,9 @@ export default function securitySchemeTemplate(allowTry = 'true') {
                                   v.flows[f]['x-default-scopes'] || v['x-default-scopes'],
                                   v.flows[f]['x-receive-token-in'] || v['x-receive-token-in'],
                                   v.flows[f]['x-receive-token-in-options'] || v['x-receive-token-in-options'],
-                                  allowTry
+                                  allowTry,
+                                  v.flows[f]['x-authorize-params'] || v['x-authorize-params'] || null,
+                                  v.flows[f]['x-token-params'] || v['x-token-params'] || null
                                 )
                               )}
                             </td>

@@ -19,6 +19,29 @@ import mainBodyTemplate from '~/templates/main-body-template';
 import { applyApiKey, onClearAllApiKeys } from '~/templates/security-scheme-template';
 import { setApiServer } from '~/templates/server-template';
 
+const paramsConverter = {
+  fromAttribute: (attr) => {
+    if (!attr) {
+      return null;
+    }
+    const trimmed = attr.trim();
+    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+      try {
+        return JSON.parse(trimmed);
+      } catch {
+        return trimmed;
+      }
+    }
+    return trimmed;
+  },
+  toAttribute: (prop) => {
+    if (typeof prop === 'object' && prop !== null) {
+      return JSON.stringify(prop);
+    }
+    return prop;
+  },
+};
+
 export default class RapiDocMini extends LitElement {
   constructor() {
     super();
@@ -56,6 +79,8 @@ export default class RapiDocMini extends LitElement {
       defaultApiServerUrl: { type: String, attribute: 'default-api-server' },
       serverUrl: { type: String, attribute: 'server-url' },
       oauthReceiver: { type: String, attribute: 'oauth-receiver' },
+      additionalAuthorizeParams: { type: Object, attribute: 'additional-authorize-params', converter: paramsConverter },
+      additionalTokenParams: { type: Object, attribute: 'additional-token-params', converter: paramsConverter },
 
       // Mock Server
       mockServer: { type: String, attribute: 'mock-server' },
