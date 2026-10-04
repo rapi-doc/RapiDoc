@@ -371,11 +371,23 @@ Attributes:
       default: oauth-receiver.html
     - name: additional-authorize-params
       description: >
-        Additional parameters to append to the OAuth2 authorization URL query string (e.g. proxy launch tokens, audience, prompt). Can be provided as a JSON object, JSON string, or URL query string.
+        Custom query parameters appended to the OAuth2 authorization URL query string (e.g. proxy launch tokens, prompt, audience).<br/><br/>
+        <strong>Supported Formats:</strong>
+        <ul>
+          <li><strong>JSON String</strong> (recommended for HTML attributes):<br/><code>additional-authorize-params='{"launch": "xyz123", "prompt": "consent"}'</code></li>
+          <li><strong>URL Query String</strong>:<br/><code>additional-authorize-params="launch=xyz123&amp;prompt=consent"</code></li>
+          <li><strong>JavaScript Object</strong> (via property):<br/><code>rapidocEl.additionalAuthorizeParams = { launch: 'xyz123', prompt: 'consent' };</code></li>
+        </ul>
       default: (empty)
     - name: additional-token-params
       description: >
-        Additional parameters to include in the POST request body to the OAuth2 token endpoint (e.g. custom proxy parameters, resource, audience). Can be provided as a JSON object, JSON string, or URL query string.
+        Custom parameters included in the POST request body sent to the OAuth2 token endpoint (e.g. custom proxy parameters, resource, audience).<br/><br/>
+        <strong>Supported Formats:</strong>
+        <ul>
+          <li><strong>JSON String</strong> (recommended for HTML attributes):<br/><code>additional-token-params='{"audience": "https://api.example.com", "resource": "urn:my:api"}'</code></li>
+          <li><strong>URL-Encoded String</strong>:<br/><code>additional-token-params="audience=https%3A%2F%2Fapi.example.com"</code></li>
+          <li><strong>JavaScript Object</strong> (via property):<br/><code>rapidocEl.additionalTokenParams = { audience: 'https://api.example.com' };</code></li>
+        </ul>
       default: (empty)
 
   - Mock Server Attributes:

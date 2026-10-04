@@ -226,14 +226,34 @@ When working with an authorization proxy (such as a Keycloak or SMART-on-FHIR pr
 
 ### Method 1: HTML Attributes on `<rapi-doc>`
 
-Pass parameters directly as attributes on the `<rapi-doc>` element. Accepts JSON objects or query strings:
+Pass parameters directly via attributes on `<rapi-doc>`. Both attributes support **JSON format** (recommended), **URL query strings**, or **JavaScript property assignment**:
 
+#### 1. JSON String (Recommended in HTML)
+Wrap JSON in single quotes so attribute values can contain double quotes cleanly:
 ```html
 <rapi-doc
   spec-url="/openapi.json"
   additional-authorize-params='{"launch": "xyz123", "prompt": "consent"}'
   additional-token-params='{"audience": "https://api.example.com", "resource": "urn:my:api"}'
 ></rapi-doc>
+```
+
+#### 2. URL-Encoded Query String
+Standard key-value pairs separated by `&`:
+```html
+<rapi-doc
+  spec-url="/openapi.json"
+  additional-authorize-params="launch=xyz123&prompt=consent"
+  additional-token-params="audience=https%3A%2F%2Fapi.example.com"
+></rapi-doc>
+```
+
+#### 3. JavaScript Property Assignment
+Assign standard JavaScript objects directly to the DOM element properties:
+```javascript
+const rapidocEl = document.querySelector('rapi-doc');
+rapidocEl.additionalAuthorizeParams = { launch: 'xyz123', prompt: 'consent' };
+rapidocEl.additionalTokenParams = { audience: 'https://api.example.com' };
 ```
 
 ### Method 2: Programmatic Lifecycle Events
