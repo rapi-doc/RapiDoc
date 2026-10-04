@@ -40,10 +40,6 @@ import GlobalLayout from '../../layouts/GlobalLayout.astro';
       primary-color="#ff7043"
       bg-color="#0b0f19"
       text-color="#f8fafc"
-      nav-bg-color="#060913"
-      nav-text-color="#94a3b8"
-      nav-hover-bg-color="#111827"
-      nav-hover-text-color="#ffffff"
     >
     </rapi-doc>
   </div>
@@ -214,26 +210,19 @@ import GlobalLayout from '../../layouts/GlobalLayout.astro';
    */
   rapi-doc::part(section-navbar) {
     background-color: #060913;
-    background-image:
-      /* Very subtle warm reflection centered at the middle of the right border (y=50%) */
-      radial-gradient(
-        ellipse 25px 30% at 100% 50%,
-        rgba(255, 112, 67, 0.08) 0%,
-        transparent 100%
-      ),
-      linear-gradient(180deg, rgba(6, 9, 19, 0.98) 0%, rgba(10, 15, 26, 0.98) 100%);
     /* 1px crisp border that fades at the top and bottom and peaks gracefully at y=50% */
     border-right: 1px solid transparent;
     border-image: linear-gradient(
-      to bottom,
-      transparent 0%,
-      rgba(255, 112, 67, 0.05) 15%,
-      rgba(255, 112, 67, 0.55) 35%,
-      #ff8a65 50%,
-      rgba(255, 112, 67, 0.55) 65%,
-      rgba(255, 112, 67, 0.05) 85%,
-      transparent 100%
-    ) 1;
+        to bottom,
+        transparent 0%,
+        rgba(255, 112, 67, 0.05) 15%,
+        rgba(255, 112, 67, 0.55) 35%,
+        #ff8a65 50%,
+        rgba(255, 112, 67, 0.55) 65%,
+        rgba(255, 112, 67, 0.05) 85%,
+        transparent 100%
+      )
+      1;
     position: relative;
     z-index: 10;
   }
@@ -246,17 +235,8 @@ import GlobalLayout from '../../layouts/GlobalLayout.astro';
     background-color: #0b0f19;
     background-image:
       /* Delicate edge aura hugging the boundary (x=0) without washing over the content */
-      radial-gradient(
-        ellipse 45px 35% at 0% 50%,
-        rgba(255, 112, 67, 0.12) 0%,
-        rgba(255, 112, 67, 0.04) 55%,
-        transparent 100%
-      ),
-      radial-gradient(
-        ellipse 18px 20% at 0% 50%,
-        rgba(255, 138, 101, 0.16) 0%,
-        transparent 100%
-      ),
+      radial-gradient(ellipse 45px 35% at 0% 50%, rgba(218, 94, 56, 0.12) 0%, rgba(255, 112, 67, 0.04) 55%, transparent 100%),
+      radial-gradient(ellipse 18px 20% at 0% 50%, rgba(255, 138, 101, 0.16) 0%, transparent 100%),
       /* Very faint dark-theme ambient background tints in distant corners */
       radial-gradient(ellipse 60% 40% at 85% 15%, rgba(255, 112, 67, 0.03) 0%, transparent 60%),
       radial-gradient(ellipse 50% 40% at 75% 85%, rgba(245, 158, 11, 0.02) 0%, transparent 60%);
@@ -264,11 +244,14 @@ import GlobalLayout from '../../layouts/GlobalLayout.astro';
   }
 
   /* Frosted glass search panel in the sidebar */
+  rapi-doc::part(section-navbar) {
+    background: #0b0f19 !important;
+  }
+
   rapi-doc::part(section-navbar-search) {
-    background: rgba(6, 9, 19, 0.75) !important;
+    background: #0b0f19 !important;
     backdrop-filter: blur(12px) saturate(180%) !important;
     -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.4);
   }
 
@@ -307,10 +290,6 @@ import GlobalLayout from '../../layouts/GlobalLayout.astro';
   }
 
   /* Operation divider in Read Mode */
-  rapi-doc::part(operation-divider) {
-    border-top: 1px solid rgba(255, 255, 255, 0.07);
-    margin: 36px 0 20px 0;
-  }
 
   /* Try / Action buttons */
   rapi-doc::part(btn-try) {
@@ -326,5 +305,23 @@ import GlobalLayout from '../../layouts/GlobalLayout.astro';
     background: rgba(255, 112, 67, 0.25);
     border-color: #ff8a65;
     box-shadow: 0 0 16px rgba(255, 112, 67, 0.35);
+  }
+  /*
+   * Tag section header in Read Mode:
+   * Top border that fades to transparent at left and right edges and peaks brightly at the center.
+   */
+  rapi-doc::part(section-tag) {
+    border-top: 1px solid transparent !important;
+    border-image: linear-gradient(
+        to right,
+        transparent 0%,
+        rgba(255, 112, 67, 0.08) 15%,
+        rgba(255, 112, 67, 0.65) 35%,
+        #ff8a65 50%,
+        rgba(255, 112, 67, 0.65) 65%,
+        rgba(255, 112, 67, 0.08) 85%,
+        transparent 100%
+      )
+      1 !important;
   }
 </style>
