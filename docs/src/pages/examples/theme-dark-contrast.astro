@@ -2,13 +2,14 @@
 import GlobalLayout from '../../layouts/GlobalLayout.astro';
 ---
 
-<GlobalLayout 
+<GlobalLayout
   title="High-Contrast Dark Theme Showcase | RapiDoc"
   description="High-contrast dark theme preset showcase for RapiDoc OpenAPI documentation."
 >
+  <script slot="script" is:inline type="module" src="/rapidoc/rapidoc-min.js"></script>
   <div class="glow-container">
-    <div class="radial-glow glow-emerald"></div>
-    <div class="radial-glow glow-cyan"></div>
+    <div class="radial-glow glow-orange"></div>
+    <div class="radial-glow glow-amber"></div>
   </div>
 
   <div class="theme-toolbar">
@@ -27,21 +28,22 @@ import GlobalLayout from '../../layouts/GlobalLayout.astro';
       id="thedoc"
       spec-url="/specs/petstore.yaml"
       theme="dark"
-      render-style="view"
+      render-style="read"
       schema-style="tree"
       show-header="false"
-      show-info="false"
+      show-info="true"
       show-components="false"
-      allow-server-selection="false"
-      allow-authentication="false"
-      primary-color="#10b981"
+      allow-server-selection="true"
+      allow-authentication="true"
+      use-path-in-nav-bar="true"
+      show-method-in-nav-bar="as-colored-text"
+      primary-color="#ff7043"
       bg-color="#0b0f19"
       text-color="#f8fafc"
       nav-bg-color="#060913"
       nav-text-color="#94a3b8"
       nav-hover-bg-color="#111827"
       nav-hover-text-color="#ffffff"
-      nav-accent-color="#10b981"
     >
     </rapi-doc>
   </div>
@@ -66,138 +68,284 @@ import GlobalLayout from '../../layouts/GlobalLayout.astro';
 </script>
 
 <style>
-:root {
-  --page-bg: #060913;
-}
-body {
-  background: var(--page-bg) !important;
-  color: #f8fafc !important;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-}
+  :root {
+    --page-bg: #060913;
+  }
+  body {
+    background: var(--page-bg) !important;
+    color: #f8fafc !important;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
 
-/* Subtle radial glows */
-.glow-container {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  overflow: hidden;
-}
-.radial-glow {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(140px);
-  opacity: 0.15;
-}
-.glow-emerald {
-  top: -100px;
-  right: 15%;
-  width: 550px;
-  height: 550px;
-  background: radial-gradient(circle, #10b981 0%, transparent 70%);
-}
-.glow-cyan {
-  bottom: 50px;
-  left: 10%;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
-}
+  /* Subtle background radial glows in warm RapiDoc orange tones */
+  .glow-container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .radial-glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(140px);
+    opacity: 0.16;
+  }
+  .glow-orange {
+    top: -100px;
+    right: 15%;
+    width: 550px;
+    height: 550px;
+    background: radial-gradient(circle, #ff7043 0%, transparent 70%);
+  }
+  .glow-amber {
+    bottom: 50px;
+    left: 10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, #f59e0b 0%, transparent 70%);
+  }
 
-/* Top toolbar */
-.theme-toolbar {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: rgba(6, 9, 19, 0.85);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 12px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-.toolbar-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.theme-badge {
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  padding: 4px 10px;
-  border-radius: 6px;
-}
-.theme-badge.dark {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.3);
-}
-.theme-hint {
-  font-size: 12.5px;
-  color: #94a3b8;
-}
-.toolbar-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.theme-switch-btn {
-  background: #10b981;
-  color: #042f2e;
-  font-weight: 700;
-  font-size: 12.5px;
-  padding: 6px 14px;
-  border-radius: 6px;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-.theme-switch-btn:hover {
-  background: #34d399;
-}
-.theme-home-btn {
-  color: #94a3b8;
-  font-size: 12.5px;
-  text-decoration: none;
-}
-.theme-home-btn:hover {
-  color: #fff;
-}
+  /* Top toolbar */
+  .theme-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(6, 9, 19, 0.88);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .theme-badge {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+  .theme-badge.dark {
+    background: rgba(255, 112, 67, 0.14);
+    color: #ff8a65;
+    border: 1px solid rgba(255, 112, 67, 0.35);
+  }
+  .theme-hint {
+    font-size: 12.5px;
+    color: #94a3b8;
+  }
+  .toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .theme-switch-btn {
+    background: #ff7043;
+    color: #0c0a09;
+    font-weight: 700;
+    font-size: 12.5px;
+    padding: 6px 14px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  .theme-switch-btn:hover {
+    background: #ff8a65;
+  }
+  .theme-home-btn {
+    color: #94a3b8;
+    font-size: 12.5px;
+    text-decoration: none;
+  }
+  .theme-home-btn:hover {
+    color: #fff;
+  }
 
-/* RapiDoc Document Frame */
-.doc-frame {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  height: calc(100vh - 58px);
-}
-rapi-doc {
-  width: 100%;
-  height: 100%;
+  /* RapiDoc Document Frame */
+  .doc-frame {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: calc(100vh - 58px);
+  }
+  rapi-doc {
+    width: 100%;
+    height: 100%;
 
-  /* High contrast dark custom CSS properties */
-  --bg: #0b0f19;
-  --bg2: #111827;
-  --bg3: #1f2937;
-  --fg: #f8fafc;
-  --fg2: #f1f5f9;
-  --fg3: #e2e8f0;
-  --light-fg: #94a3b8;
-  --border-color: #334155;
-  --light-border-color: #1e293b;
-  --code-bg: #030712;
-  --code-fg: #f8fafc;
-  --input-bg: #111827;
-  --primary-color: #10b981;
-  --blue: #38bdf8;
-  --green: #34d399;
-  --orange: #fbbf24;
-  --red: #f87171;
-}
+    /* High contrast dark custom CSS properties */
+    --bg: #0b0f19;
+    --bg2: #111827;
+    --bg3: #1f2937;
+    --fg: #f8fafc;
+    --fg2: #f1f5f9;
+    --fg3: #e2e8f0;
+    --light-fg: #94a3b8;
+    --border-color: #334155;
+    --light-border-color: #1e293b;
+    --code-bg: #030712;
+    --code-fg: #f8fafc;
+    --input-bg: #111827;
+    --primary-color: #ff7043;
+    --primary-color-invert: #ffffff;
+    --blue: #38bdf8;
+    --green: #34d399;
+    --orange: #ff7043;
+    --red: #f87171;
+  }
+
+  /* ==========================================================================
+     CSS Shadow Parts (::part) Styling - Nuxt-Style Vertical Border Glow
+     ========================================================================== */
+
+  /*
+   * Left-nav (Sidebar) with Nuxt-style vertical neon border line.
+   * Fades to transparent at top and bottom ends and glows in the middle.
+   */
+  rapi-doc::part(section-navbar) {
+    background-color: #060913;
+    background-image:
+      /* Very subtle warm reflection centered at the middle of the right border (y=50%) */
+      radial-gradient(
+        ellipse 25px 30% at 100% 50%,
+        rgba(255, 112, 67, 0.08) 0%,
+        transparent 100%
+      ),
+      linear-gradient(180deg, rgba(6, 9, 19, 0.98) 0%, rgba(10, 15, 26, 0.98) 100%);
+    /* 1px crisp border that fades at the top and bottom and peaks gracefully at y=50% */
+    border-right: 1px solid transparent;
+    border-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(255, 112, 67, 0.05) 15%,
+      rgba(255, 112, 67, 0.55) 35%,
+      #ff8a65 50%,
+      rgba(255, 112, 67, 0.55) 65%,
+      rgba(255, 112, 67, 0.05) 85%,
+      transparent 100%
+    ) 1;
+    position: relative;
+    z-index: 10;
+  }
+
+  /*
+   * Main Content Canvas with subtle Nuxt-style vertical edge aura.
+   * Tight 45px spread along the border (y=50%), never overwhelming the text.
+   */
+  rapi-doc::part(section-main-content) {
+    background-color: #0b0f19;
+    background-image:
+      /* Delicate edge aura hugging the boundary (x=0) without washing over the content */
+      radial-gradient(
+        ellipse 45px 35% at 0% 50%,
+        rgba(255, 112, 67, 0.12) 0%,
+        rgba(255, 112, 67, 0.04) 55%,
+        transparent 100%
+      ),
+      radial-gradient(
+        ellipse 18px 20% at 0% 50%,
+        rgba(255, 138, 101, 0.16) 0%,
+        transparent 100%
+      ),
+      /* Very faint dark-theme ambient background tints in distant corners */
+      radial-gradient(ellipse 60% 40% at 85% 15%, rgba(255, 112, 67, 0.03) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 75% 85%, rgba(245, 158, 11, 0.02) 0%, transparent 60%);
+    background-attachment: scroll, scroll, scroll, scroll;
+  }
+
+  /* Frosted glass search panel in the sidebar */
+  rapi-doc::part(section-navbar-search) {
+    position: relative;
+    z-index: 10;
+    background: rgba(6, 9, 19, 0.65) !important;
+    backdrop-filter: blur(14px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(180%) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.06),
+      0 4px 16px -2px rgba(0, 0, 0, 0.4);
+  }
+
+  /*
+   * Allow nav items to scroll under the search header:
+   * Pull the scroll container up to sit behind the search bar,
+   * while padding the top so items initially begin right below it.
+   */
+  rapi-doc::part(section-navbar-scroll) {
+    margin-top: -54px;
+    padding-top: 58px;
+  }
+
+  rapi-doc::part(textbox-nav-filter) {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 6px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #f8fafc !important;
+    transition: all 0.2s ease;
+  }
+
+  rapi-doc::part(textbox-nav-filter):focus {
+    border-color: #ff7043 !important;
+    box-shadow: 0 0 12px rgba(255, 112, 67, 0.35);
+    background: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  rapi-doc::part(btn-search) {
+    background: rgba(255, 112, 67, 0.18);
+    border: 1px solid rgba(255, 112, 67, 0.38);
+    color: #ff8a65;
+    border-radius: 6px;
+    font-weight: 600;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
+  }
+
+  rapi-doc::part(btn-search):hover {
+    background: rgba(255, 112, 67, 0.3);
+    border-color: #ff8a65;
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(255, 112, 67, 0.3);
+  }
+
+  /* Navbar items with subtle rounded corners and hover effect */
+  rapi-doc::part(section-navbar-item) {
+    border-radius: 6px;
+    margin: 1px 8px;
+    transition: all 0.15s ease;
+  }
+
+  /* Operation divider in Read Mode */
+  rapi-doc::part(operation-divider) {
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    margin: 36px 0 20px 0;
+  }
+
+  /* Try / Action buttons */
+  rapi-doc::part(btn-try) {
+    background: rgba(255, 112, 67, 0.15);
+    color: #ff8a65;
+    border: 1px solid rgba(255, 112, 67, 0.35);
+    border-radius: 6px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  rapi-doc::part(btn-try):hover {
+    background: rgba(255, 112, 67, 0.25);
+    border-color: #ff8a65;
+    box-shadow: 0 0 16px rgba(255, 112, 67, 0.35);
+  }
 </style>

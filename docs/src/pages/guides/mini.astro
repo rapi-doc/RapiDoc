@@ -268,7 +268,15 @@ const attributes = [
 
       <div class="rd-usecase-grid">
         <div class="rd-usecase-card">
-          <div class="rd-card-icon">📝</div>
+          <div class="rd-card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+          </div>
           <h3>Blog & Tutorial Writing</h3>
           <p>
             Static markdown code snippets and screenshots go stale the moment an API schema changes. <code>&lt;rapi-doc-mini&gt;</code> reads directly from your source OpenAPI spec, guaranteeing your code examples and live consoles are always 100% up to date.
@@ -276,7 +284,13 @@ const attributes = [
         </div>
 
         <div class="rd-usecase-card">
-          <div class="rd-card-icon">🧩</div>
+          <div class="rd-card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+              <polyline points="2 17 12 22 22 17"/>
+              <polyline points="2 12 12 17 22 12"/>
+            </svg>
+          </div>
           <h3>Step-by-Step Onboarding</h3>
           <p>
             When guiding a developer through a multistep journey (e.g. Register &rarr; Verify &rarr; Transact), you don't want to overwhelm them with 100 irrelevant endpoints. Pluck and display only the relevant endpoint at each step.
@@ -284,7 +298,15 @@ const attributes = [
         </div>
 
         <div class="rd-usecase-card">
-          <div class="rd-card-icon">⚡</div>
+          <div class="rd-card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="18" r="3"/>
+              <circle cx="6" cy="6" r="3"/>
+              <circle cx="18" cy="6" r="3"/>
+              <path d="M6 9v12"/>
+              <path d="M18 9a9 9 0 0 1-9 9H6"/>
+            </svg>
+          </div>
           <h3>Microservice Storytelling</h3>
           <p>
             Modern architectures divide APIs across dozens of microservices. <code>&lt;rapi-doc-mini&gt;</code> allows you to pluck 1 endpoint from Billing, 1 from Identity, and 1 from Catalog into a unified narrative without merging backend specs.
@@ -292,7 +314,12 @@ const attributes = [
         </div>
 
         <div class="rd-usecase-card">
-          <div class="rd-card-icon">📢</div>
+          <div class="rd-card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+          </div>
           <h3>Release Notes & Changelogs</h3>
           <p>
             Announce a new or deprecated endpoint in your product changelog by embedding the live interactive card directly into the release announcement with a working "TRY" console.
@@ -651,16 +678,16 @@ const attributes = [
 <style>
 /* CSS Variables & Tokens */
 :root {
-  --rd-emerald: #10b981;
-  --rd-emerald-glow: rgba(16, 185, 129, 0.25);
-  --rd-cyan: #06b6d4;
-  --rd-cyan-glow: rgba(6, 182, 212, 0.25);
-  --rd-indigo: #6366f1;
+  --rd-emerald: var(--rd-accent);
+  --rd-emerald-glow: var(--rd-accent-glow);
+  --rd-cyan: var(--rd-logo-yellow, #f59e0b);
+  --rd-cyan-glow: rgba(245, 158, 11, 0.25);
+  --rd-indigo: var(--rd-accent-light);
   --rd-surface: rgba(15, 23, 42, 0.65);
   --rd-surface-card: rgba(11, 17, 33, 0.75);
   --rd-surface-hover: rgba(22, 32, 58, 0.85);
   --rd-glass-border: rgba(255, 255, 255, 0.08);
-  --rd-glass-border-hover: rgba(16, 185, 129, 0.4);
+  --rd-glass-border-hover: var(--rd-accent-border);
   --rd-text-primary: #f8fafc;
   --rd-text-secondary: #94a3b8;
   --rd-text-muted: #64748b;
@@ -681,21 +708,21 @@ const attributes = [
   left: 10%;
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, var(--rd-emerald) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--rd-accent) 0%, transparent 70%);
 }
 .glow-indigo {
   top: 700px;
   right: 10%;
   width: 550px;
   height: 550px;
-  background: radial-gradient(circle, var(--rd-indigo) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--rd-logo-yellow, #f59e0b) 0%, transparent 70%);
 }
 .glow-cyan {
   top: 1500px;
   left: 15%;
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, var(--rd-cyan) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--rd-accent-glow) 0%, transparent 70%);
 }
 
 /* Page Layout - Single Column Flow */
@@ -720,8 +747,8 @@ const attributes = [
   gap: 8px;
   padding: 6px 14px;
   border-radius: 9999px;
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  background: var(--rd-accent-dim);
+  border: 1px solid var(--rd-accent-border);
   margin-bottom: 20px;
 }
 
@@ -729,21 +756,21 @@ const attributes = [
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--rd-emerald);
-  box-shadow: 0 0 10px var(--rd-emerald);
+  background: var(--rd-accent);
+  box-shadow: 0 0 10px var(--rd-accent);
   animation: pulse-dot 2s infinite;
 }
 
 @keyframes pulse-dot {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 var(--rd-accent-glow); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px transparent; }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 transparent; }
 }
 
 .rd-badge-text {
   font-size: 13px;
   font-weight: 600;
-  color: #34d399;
+  color: var(--rd-accent-light);
   letter-spacing: 0.02em;
 }
 
@@ -757,7 +784,7 @@ const attributes = [
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, #34d399 0%, #38bdf8 50%, #818cf8 100%);
+  background: var(--rapidoc-logo-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
@@ -793,18 +820,22 @@ const attributes = [
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  text-align: center;
+  height: 100%;
+  box-sizing: border-box;
   padding: 12px 20px;
   background: var(--rd-surface-card);
   backdrop-filter: blur(12px);
   border: 1px solid var(--rd-glass-border);
   border-radius: 12px;
   min-width: 150px;
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .rd-stat-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: var(--rd-accent-border);
+  box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.5), 0 0 16px var(--rd-accent-glow);
 }
 
 .rd-stat-value {
@@ -843,9 +874,9 @@ const attributes = [
   font-weight: 700;
   padding: 3px 9px;
   border-radius: 6px;
-  background: rgba(16, 185, 129, 0.12);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  background: var(--rd-accent-dim);
+  color: var(--rd-accent-light);
+  border: 1px solid var(--rd-accent-border);
 }
 
 .rd-section-title {
@@ -886,13 +917,29 @@ const attributes = [
 
 .rd-usecase-card:hover {
   transform: translateY(-3px);
-  border-color: rgba(255, 255, 255, 0.18);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  border-color: var(--rd-accent-border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 16px var(--rd-accent-glow);
 }
 
 .rd-card-icon {
-  font-size: 32px;
-  margin-bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--rd-accent-dim);
+  border: 1px solid var(--rd-accent-border);
+  color: var(--rd-accent-light);
+  margin-bottom: 16px;
+  transition: all 0.2s ease;
+}
+
+.rd-usecase-card:hover .rd-card-icon {
+  background: var(--rd-accent);
+  color: #04120c;
+  box-shadow: 0 0 16px var(--rd-accent-glow);
+  transform: scale(1.05);
 }
 
 .rd-usecase-card h3 {
@@ -910,8 +957,8 @@ const attributes = [
 }
 
 .rd-usecase-card code {
-  color: #34d399;
-  background: rgba(16, 185, 129, 0.1);
+  color: var(--rd-accent-light);
+  background: var(--rd-accent-dim);
   padding: 2px 5px;
   border-radius: 4px;
 }
@@ -935,7 +982,7 @@ const attributes = [
   gap: 8px;
   font-size: 12px;
   font-weight: 600;
-  color: #34d399;
+  color: var(--rd-accent-light);
   letter-spacing: 0.02em;
   margin-bottom: 12px;
 }
@@ -944,8 +991,8 @@ const attributes = [
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #34d399;
-  box-shadow: 0 0 8px #34d399;
+  background: var(--rd-accent);
+  box-shadow: 0 0 8px var(--rd-accent);
 }
 
 /* The element itself: 100% width, no card wrap, blends naturally with the page */
@@ -1028,7 +1075,7 @@ const attributes = [
   overflow: hidden;
   margin-top: 60px;
   border-radius: 20px;
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(6, 182, 212, 0.08) 50%, rgba(99, 102, 241, 0.08) 100%);
+  background: linear-gradient(135deg, var(--rd-accent-dim) 0%, rgba(245, 158, 11, 0.08) 50%, rgba(99, 102, 241, 0.08) 100%);
   border: 1px solid rgba(255, 255, 255, 0.12);
   padding: 48px 36px;
   text-align: center;
@@ -1042,7 +1089,7 @@ const attributes = [
   width: 500px;
   height: 300px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--rd-accent-glow) 0%, transparent 70%);
   filter: blur(80px);
   pointer-events: none;
 }
@@ -1108,15 +1155,18 @@ const attributes = [
 }
 
 .rd-btn-primary {
-  background: var(--rd-emerald);
-  color: #04120c;
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+  background: var(--rd-accent-dim);
+  border: 1px solid var(--rd-accent-border);
+  color: var(--rd-accent-light) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 .rd-btn-primary:hover {
-  background: #34d399;
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
-  transform: translateY(-2px);
+  background: rgba(16, 185, 129, 0.22);
+  border-color: var(--rd-accent);
+  color: #fff !important;
+  box-shadow: 0 4px 16px var(--rd-accent-glow);
+  transform: translateY(-1px);
 }
 
 .rd-btn-secondary {

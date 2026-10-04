@@ -3,13 +3,31 @@
      RapiDoc Design System Tokens
      ========================================================================== */
 
-  /* Primary Accent & Brand */
+  /* --------------------------------------------------------------------------
+     [THEME 1 - Emerald / Cyan Palette]
+     -------------------------------------------------------------------------- */
   --rd-accent: #10b981;
   --rd-accent-hover: #059669;
   --rd-accent-light: #34d399;
   --rd-accent-dim: rgba(16, 185, 129, 0.12);
   --rd-accent-border: rgba(16, 185, 129, 0.28);
   --rd-accent-glow: rgba(16, 185, 129, 0.35);
+  --rapidoc-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --rapidoc-logo-gradient: linear-gradient(135deg, #34d399 0%, #10b981 50%, #06b6d4 100%);
+
+  /* --------------------------------------------------------------------------
+     [THEME 2 - RapiDoc Warm Orange Brand Theme]
+     Uncomment below to activate warm orange palette:
+  -------------------------------------------------------------------------- 
+  --rd-accent: #ff7043;
+  --rd-accent-hover: #ea580c;
+  --rd-accent-light: #ff8a65;
+  --rd-accent-dim: rgba(255, 112, 67, 0.14);
+  --rd-accent-border: rgba(255, 112, 67, 0.32);
+  --rd-accent-glow: rgba(255, 112, 67, 0.4);
+  --rapidoc-gradient: linear-gradient(135deg, #ff7043 0%, #f59e0b 100%);
+  --rapidoc-logo-gradient: linear-gradient(135deg, #ff7043 0%, #fb923c 45%, #f59e0b 100%);
+  -------------------------------------------------------------------------- */
 
   /* Surfaces & Backgrounds */
   --rd-bg: #060913;
@@ -28,12 +46,12 @@
   /* Borders */
   --rd-border: rgba(255, 255, 255, 0.08);
   --rd-border-hover: rgba(255, 255, 255, 0.16);
-  --rd-border-accent: rgba(16, 185, 129, 0.4);
+  --rd-border-accent: var(--rd-accent-border);
 
-  /* Shadows */
+  /* Shadows & Glows */
   --rd-shadow-card: 0 4px 20px rgba(0, 0, 0, 0.3);
-  --rd-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 24px rgba(16, 185, 129, 0.15);
-  --rd-shadow-glow: 0 0 30px rgba(16, 185, 129, 0.2);
+  --rd-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 24px var(--rd-accent-glow);
+  --rd-shadow-glow: 0 0 30px var(--rd-accent-glow);
 
   /* Radii */
   --rd-radius-sm: 6px;
@@ -53,28 +71,30 @@
   --fg-color-bright: var(--rd-text-bright);
   --bg-color: var(--rd-bg);
   --accent-color: var(--rd-accent);
-  --link-color: #38bdf8;
+  --link-color: var(--rd-accent-light);
   --border-color: var(--rd-border);
   --border-color-muted: rgba(255, 255, 255, 0.05);
-  --color-green: var(--rd-accent);
+  --color-green: #84cc16;
   --color-yellow: #f59e0b;
   --color-yellow-dim: #a98a4c;
-  --color-salmon: #f87171;
+  --color-salmon: #ff7043;
   --color-blue: #38bdf8;
   --card-bg-color: var(--rd-bg-card);
   --code-block-width: 725px;
   --code-block-bg-color: var(--rd-bg-surface);
-  --rapidoc-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
 }
 
 /* ==========================================================================
    Base Styles
    ========================================================================== */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-body, button {
+body,
+button {
   font-family: var(--rd-font-sans);
   font-size: 15px;
   line-height: 1.6;
@@ -93,16 +113,17 @@ a {
 }
 
 a:hover {
-  color: #7dd3fc;
+  color: var(--rd-accent-light);
 }
 
-.mono, code {
+.mono,
+code {
   font-family: var(--rd-font-mono);
 }
 
-/* Gradient text accent */
+/* Gradient text accent reflecting the active theme gradient */
 .text-gradient {
-  background: linear-gradient(135deg, #10b981 0%, #38bdf8 100%);
+  background: var(--rapidoc-logo-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -114,31 +135,37 @@ a:hover {
   position: fixed;
   border-radius: 50%;
   filter: blur(120px);
-  opacity: 0.15;
+  opacity: 0.16;
   pointer-events: none;
   z-index: 0;
 }
 
-.glow-emerald {
+/* Top Right: Primary Theme Glow */
+.glow-emerald,
+.glow-orange {
   width: 500px;
   height: 500px;
-  background: #10b981;
+  background: radial-gradient(circle, var(--rd-accent) 0%, transparent 70%);
   top: -100px;
   right: -100px;
 }
 
-.glow-indigo {
+/* Mid Left: Secondary Theme Glow (Subtle Indigo) */
+.glow-indigo,
+.glow-gold {
   width: 600px;
   height: 600px;
-  background: #6366f1;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, transparent 70%);
   top: 30%;
   left: -200px;
 }
 
-.glow-cyan {
-  width: 450px;
-  height: 450px;
-  background: #06b6d4;
+/* Bottom Right: Tertiary Theme Glow (Subtle Cyan) */
+.glow-cyan,
+.glow-green {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.18) 0%, transparent 70%);
   bottom: 10%;
   right: -100px;
 }
@@ -184,8 +211,17 @@ a:hover {
 }
 
 @keyframes pulse-glow {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.85); }
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
 }
 
 .rd-page-title {
@@ -226,7 +262,7 @@ a:hover {
 .rd-stats-bar {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
   gap: 12px;
   margin-bottom: 36px;
@@ -236,6 +272,9 @@ a:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 100%;
   padding: 10px 18px;
   border-radius: var(--rd-radius-md);
   background: var(--rd-bg-card);
@@ -245,13 +284,14 @@ a:hover {
   text-decoration: none;
   transition: var(--rd-transition);
   min-width: 110px;
+  box-sizing: border-box;
 }
 
 .rd-stat-card:hover {
   background: var(--rd-bg-card-hover);
   border-color: var(--rd-border-accent);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.2);
+  box-shadow: 0 6px 20px var(--rd-accent-glow);
 }
 
 .rd-stat-value {
@@ -385,4 +425,71 @@ a:hover {
 .rd-clear-btn:hover {
   background: rgba(255, 255, 255, 0.16);
   color: var(--rd-text-bright);
+}
+
+/* ==========================================================================
+   Standardized Buttons & Interactive Actions
+   ========================================================================== */
+.rd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: var(--rd-radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--rd-transition);
+  border: 1px solid transparent;
+  line-height: 1.3;
+}
+
+.rd-btn-primary {
+  background: var(--rd-accent-dim);
+  border: 1px solid var(--rd-accent-border);
+  color: var(--rd-accent-light) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.rd-btn-primary:hover,
+.rd-btn-primary:focus {
+  background: rgba(16, 185, 129, 0.22);
+  border-color: var(--rd-accent);
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px var(--rd-accent-glow);
+  transform: translateY(-1px);
+}
+
+.rd-btn-secondary,
+.rd-btn-glass {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--rd-text-bright) !important;
+  border: 1px solid var(--rd-border);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.rd-btn-secondary:hover,
+.rd-btn-glass:hover,
+.rd-btn-secondary:focus,
+.rd-btn-glass:focus {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--rd-border-hover);
+  color: #ffffff !important;
+  transform: translateY(-1px);
+}
+
+.rd-btn-ghost {
+  background: transparent;
+  color: var(--rd-text-muted) !important;
+  border: 1px solid var(--rd-border);
+}
+
+.rd-btn-ghost:hover,
+.rd-btn-ghost:focus {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--rd-text-bright) !important;
+  border-color: var(--rd-border-hover);
 }

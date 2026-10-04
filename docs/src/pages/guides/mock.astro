@@ -161,42 +161,129 @@ const mockAttributes = [
 
           <div class="rd-card-body">
             <div class="rd-form-group">
-              <label for="endpoint-select">Target OpenAPI Endpoint:</label>
-              <select id="endpoint-select" class="rd-select">
-                <option value="https://reqres.in/api/users">GET https://reqres.in/api/users (List Paginated)</option>
-                <option value="https://reqres.in/api/users/2">GET https://reqres.in/api/users/2 (Single User)</option>
-                <option value="https://reqres.in/api/users" data-method="POST">POST https://reqres.in/api/users (Create User)</option>
-              </select>
+              <label>Target OpenAPI Endpoint:</label>
+              <div class="rd-custom-select" id="endpoint-custom-select">
+                <button type="button" class="rd-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="rd-select-value">GET https://reqres.in/api/users (List Paginated)</span>
+                  <svg class="rd-select-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </button>
+                <div class="rd-select-menu" role="listbox">
+                  <div class="rd-select-option selected" role="option" aria-selected="true" data-value="https://reqres.in/api/users" data-method="GET">
+                    <span>GET https://reqres.in/api/users (List Paginated)</span>
+                    <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  </div>
+                  <div class="rd-select-option" role="option" aria-selected="false" data-value="https://reqres.in/api/users/2" data-method="GET">
+                    <span>GET https://reqres.in/api/users/2 (Single User)</span>
+                    <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  </div>
+                  <div class="rd-select-option" role="option" aria-selected="false" data-value="https://reqres.in/api/users" data-method="POST">
+                    <span>POST https://reqres.in/api/users (Create User)</span>
+                    <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  </div>
+                </div>
+                <!-- Native hidden select for DOM & script access -->
+                <select id="endpoint-select" class="rd-sr-select" tabindex="-1" aria-hidden="true">
+                  <option value="https://reqres.in/api/users" selected>GET https://reqres.in/api/users (List Paginated)</option>
+                  <option value="https://reqres.in/api/users/2">GET https://reqres.in/api/users/2 (Single User)</option>
+                  <option value="https://reqres.in/api/users" data-method="POST">POST https://reqres.in/api/users (Create User)</option>
+                </select>
+              </div>
             </div>
 
             <div class="rd-form-row">
               <div class="rd-form-group">
-                <label for="status-select">Status Code Simulation:</label>
-                <select id="status-select" class="rd-select">
-                  <option value="">Auto (First 2xx)</option>
-                  <option value="200">200 OK</option>
-                  <option value="400">400 Bad Request</option>
-                  <option value="404">404 Not Found</option>
-                  <option value="500">500 Server Error</option>
-                  <option value="200, 400, 500" data-strategy="cycle">Cycle (200 &rarr; 400 &rarr; 500)</option>
-                  <option value="200, 500" data-strategy="random">Random Chaos (200 / 500)</option>
-                </select>
+                <label>Status Code Simulation:</label>
+                <div class="rd-custom-select" id="status-custom-select">
+                  <button type="button" class="rd-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+                    <span class="rd-select-value">Auto (First 2xx)</span>
+                    <svg class="rd-select-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </button>
+                  <div class="rd-select-menu" role="listbox">
+                    <div class="rd-select-option selected" role="option" aria-selected="true" data-value="" data-strategy="first">
+                      <span>Auto (First 2xx)</span>
+                      <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div class="rd-select-option" role="option" aria-selected="false" data-value="200">
+                      <span>200 OK</span>
+                      <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div class="rd-select-option" role="option" aria-selected="false" data-value="400">
+                      <span>400 Bad Request</span>
+                      <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div class="rd-select-option" role="option" aria-selected="false" data-value="404">
+                      <span>404 Not Found</span>
+                      <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div class="rd-select-option" role="option" aria-selected="false" data-value="500">
+                      <span>500 Server Error</span>
+                      <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div class="rd-select-option" role="option" aria-selected="false" data-value="200, 400, 500" data-strategy="cycle">
+                      <span>Cycle (200 &rarr; 400 &rarr; 500)</span>
+                      <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div class="rd-select-option" role="option" aria-selected="false" data-value="200, 500" data-strategy="random">
+                      <span>Random Chaos (200 / 500)</span>
+                      <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                  </div>
+                  <select id="status-select" class="rd-sr-select" tabindex="-1" aria-hidden="true">
+                    <option value="" selected>Auto (First 2xx)</option>
+                    <option value="200">200 OK</option>
+                    <option value="400">400 Bad Request</option>
+                    <option value="404">404 Not Found</option>
+                    <option value="500">500 Server Error</option>
+                    <option value="200, 400, 500" data-strategy="cycle">Cycle (200 &rarr; 400 &rarr; 500)</option>
+                    <option value="200, 500" data-strategy="random">Random Chaos (200 / 500)</option>
+                  </select>
+                </div>
               </div>
 
               <div class="rd-form-group">
-                <label for="delay-select">Simulated Latency:</label>
-                <select id="delay-select" class="rd-select">
-                  <option value="0">0ms (Instant)</option>
-                  <option value="300" selected>300ms (Fast 4G)</option>
-                  <option value="800">800ms (Slow Network)</option>
-                  <option value="1500">1500ms (High Latency)</option>
-                </select>
+                <label>Simulated Latency:</label>
+                <div class="rd-custom-select" id="delay-custom-select">
+                  <button type="button" class="rd-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+                    <span class="rd-select-value">300ms (Fast 4G)</span>
+                    <svg class="rd-select-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </button>
+                  <div class="rd-select-menu" role="listbox">
+                    <div class="rd-select-option" role="option" aria-selected="false" data-value="0">
+                      <span>0ms (Instant)</span>
+                      <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div class="rd-select-option selected" role="option" aria-selected="true" data-value="300">
+                      <span>300ms (Fast 4G)</span>
+                      <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div class="rd-select-option" role="option" aria-selected="false" data-value="800">
+                      <span>800ms (Slow Network)</span>
+                      <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div class="rd-select-option" role="option" aria-selected="false" data-value="1500">
+                      <span>1500ms (High Latency)</span>
+                      <svg class="rd-option-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                  </div>
+                  <select id="delay-select" class="rd-sr-select" tabindex="-1" aria-hidden="true">
+                    <option value="0">0ms (Instant)</option>
+                    <option value="300" selected>300ms (Fast 4G)</option>
+                    <option value="800">800ms (Slow Network)</option>
+                    <option value="1500">1500ms (High Latency)</option>
+                  </select>
+                </div>
               </div>
             </div>
 
             <button id="send-fetch-btn" class="rd-fetch-btn">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="6 3 20 12 6 21 6 3"></polygon>
               </svg>
               <span>Execute In-Page <code>fetch()</code></span>
             </button>
@@ -253,7 +340,12 @@ const mockAttributes = [
 
       <div class="rd-usecase-grid">
         <div class="rd-usecase-card">
-          <div class="rd-card-icon">🚫</div>
+          <div class="rd-card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+            </svg>
+          </div>
           <h3>The Cross-Origin CORS Trap</h3>
           <p>
             External mock servers like Prism or WireMock listen on separate ports (e.g. <code>localhost:4010</code>). Frontend developers spend hours debugging Preflight <code>OPTIONS</code> requests and CORS header misconfigurations instead of shipping features.
@@ -261,7 +353,13 @@ const mockAttributes = [
         </div>
 
         <div class="rd-usecase-card">
-          <div class="rd-card-icon">📦</div>
+          <div class="rd-card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+              <line x1="12" y1="22.08" x2="12" y2="12"/>
+            </svg>
+          </div>
           <h3>Heavy Containers & Node Services</h3>
           <p>
             Running Docker or dedicated CLI processes requires team-wide environment setup, npm package management, and port allocation across multiple repositories.
@@ -269,7 +367,11 @@ const mockAttributes = [
         </div>
 
         <div class="rd-usecase-card">
-          <div class="rd-card-icon">⚡</div>
+          <div class="rd-card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+          </div>
           <h3>Zero-Dependency Native Interception</h3>
           <p>
             RapiDoc intercepts <code>window.fetch</code> and <code>XMLHttpRequest</code> directly inside the browser runtime. There is nothing to install, compile, or boot.
@@ -277,7 +379,13 @@ const mockAttributes = [
         </div>
 
         <div class="rd-usecase-card">
-          <div class="rd-card-icon">🎯</div>
+          <div class="rd-card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <circle cx="12" cy="12" r="6"/>
+              <circle cx="12" cy="12" r="2"/>
+            </svg>
+          </div>
           <h3>Unified Source of Truth</h3>
           <p>
             Mock data is generated on the fly from the exact same OpenAPI specification that powers your documentation. When the spec evolves, the mock responses update instantly.
@@ -442,14 +550,78 @@ const mockAttributes = [
 <script>
   // Interactive testbed script for fetch testing
   window.addEventListener('DOMContentLoaded', () => {
-    const endpointSelect = document.getElementById('endpoint-select');
-    const statusSelect = document.getElementById('status-select');
-    const delaySelect = document.getElementById('delay-select');
+    const endpointSelect = document.getElementById('endpoint-select') as HTMLSelectElement | null;
+    const statusSelect = document.getElementById('status-select') as HTMLSelectElement | null;
+    const delaySelect = document.getElementById('delay-select') as HTMLSelectElement | null;
     const sendBtn = document.getElementById('send-fetch-btn');
     const resStatus = document.getElementById('res-status');
     const resTime = document.getElementById('res-time');
     const resBody = document.getElementById('res-body');
     const rapidocEl = document.getElementById('live-mock-rapidoc');
+
+    // Setup custom styled dropdown logic
+    function setupCustomSelect(containerId: string, selectEl: HTMLSelectElement | null) {
+      const container = document.getElementById(containerId);
+      if (!container || !selectEl) return;
+
+      const trigger = container.querySelector('.rd-select-trigger') as HTMLButtonElement | null;
+      const valDisplay = container.querySelector('.rd-select-value');
+      const options = container.querySelectorAll('.rd-select-option');
+
+      trigger?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = container.classList.contains('is-open');
+        document.querySelectorAll('.rd-custom-select.is-open').forEach(el => {
+          if (el !== container) el.classList.remove('is-open');
+        });
+        container.classList.toggle('is-open', !isOpen);
+        trigger.setAttribute('aria-expanded', (!isOpen).toString());
+      });
+
+      options.forEach((opt, idx) => {
+        opt.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const text = opt.querySelector('span')?.textContent ?? '';
+          if (valDisplay) valDisplay.textContent = text;
+
+          options.forEach(o => {
+            o.classList.remove('selected');
+            o.setAttribute('aria-selected', 'false');
+          });
+          opt.classList.add('selected');
+          opt.setAttribute('aria-selected', 'true');
+          container.classList.remove('is-open');
+          trigger?.setAttribute('aria-expanded', 'false');
+
+          // Sync underlying native select option by exact index
+          if (selectEl.options[idx]) {
+            selectEl.selectedIndex = idx;
+            selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        });
+      });
+    }
+
+    setupCustomSelect('endpoint-custom-select', endpointSelect);
+    setupCustomSelect('status-custom-select', statusSelect);
+    setupCustomSelect('delay-custom-select', delaySelect);
+
+    // Global click-away and Escape dismiss for custom dropdowns
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.rd-custom-select.is-open').forEach(el => {
+        el.classList.remove('is-open');
+        el.querySelector('.rd-select-trigger')?.setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.rd-custom-select.is-open').forEach(el => {
+          el.classList.remove('is-open');
+          el.querySelector('.rd-select-trigger')?.setAttribute('aria-expanded', 'false');
+        });
+      }
+    });
 
     function syncRapidocAttributes() {
       if (!rapidocEl) return;
@@ -519,16 +691,16 @@ const mockAttributes = [
 
 <style>
 :root {
-  --rd-emerald: #10b981;
-  --rd-emerald-glow: rgba(16, 185, 129, 0.25);
-  --rd-cyan: #06b6d4;
-  --rd-cyan-glow: rgba(6, 182, 212, 0.25);
-  --rd-indigo: #6366f1;
+  --rd-emerald: var(--rd-accent);
+  --rd-emerald-glow: var(--rd-accent-glow);
+  --rd-cyan: var(--rd-logo-yellow, #f59e0b);
+  --rd-cyan-glow: rgba(245, 158, 11, 0.25);
+  --rd-indigo: var(--rd-accent-light);
   --rd-surface: rgba(15, 23, 42, 0.65);
   --rd-surface-card: rgba(11, 17, 33, 0.75);
   --rd-surface-hover: rgba(22, 32, 58, 0.85);
   --rd-glass-border: rgba(255, 255, 255, 0.08);
-  --rd-glass-border-hover: rgba(16, 185, 129, 0.4);
+  --rd-glass-border-hover: var(--rd-accent-border);
   --rd-text-primary: #f8fafc;
   --rd-text-secondary: #94a3b8;
   --rd-text-muted: #64748b;
@@ -549,21 +721,21 @@ const mockAttributes = [
   left: 10%;
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, var(--rd-emerald) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--rd-accent) 0%, transparent 70%);
 }
 .glow-indigo {
   top: 800px;
   right: 10%;
   width: 550px;
   height: 550px;
-  background: radial-gradient(circle, var(--rd-indigo) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--rd-logo-yellow, #f59e0b) 0%, transparent 70%);
 }
 .glow-cyan {
   top: 1600px;
   left: 15%;
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, var(--rd-cyan) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--rd-accent-glow) 0%, transparent 70%);
 }
 
 .rd-mock-main {
@@ -587,8 +759,8 @@ const mockAttributes = [
   gap: 8px;
   padding: 6px 14px;
   border-radius: 9999px;
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  background: var(--rd-accent-dim);
+  border: 1px solid var(--rd-accent-border);
   margin-bottom: 20px;
 }
 
@@ -596,21 +768,21 @@ const mockAttributes = [
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--rd-emerald);
-  box-shadow: 0 0 10px var(--rd-emerald);
+  background: var(--rd-accent);
+  box-shadow: 0 0 10px var(--rd-accent);
   animation: pulse-dot 2s infinite;
 }
 
 @keyframes pulse-dot {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 var(--rd-accent-glow); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px transparent; }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 transparent; }
 }
 
 .rd-badge-text {
   font-size: 13px;
   font-weight: 600;
-  color: #34d399;
+  color: var(--rd-accent-light);
   letter-spacing: 0.02em;
 }
 
@@ -624,7 +796,7 @@ const mockAttributes = [
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+  background: var(--rapidoc-logo-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -652,15 +824,29 @@ const mockAttributes = [
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 100%;
+  box-sizing: border-box;
   backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+}
+
+.rd-stat-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--rd-accent-border);
+  box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.5), 0 0 16px var(--rd-accent-glow);
 }
 
 .rd-stat-value {
   font-size: 24px;
   font-weight: 700;
-  color: var(--rd-emerald);
-  margin-bottom: 4px;
+  color: #fff;
   font-family: var(--rd-font-mono);
+  background: linear-gradient(135deg, #fff 0%, var(--rd-accent-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 4px;
 }
 
 .rd-stat-label {
@@ -797,43 +983,159 @@ const mockAttributes = [
   gap: 12px;
 }
 
-.rd-select {
-  background: #060913;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #f1f5f9;
-  padding: 9px 12px;
-  border-radius: 8px;
-  font-size: 13px;
-  outline: none;
-  font-family: inherit;
-  transition: border-color 0.2s;
+.rd-sr-select {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
-.rd-select:focus {
-  border-color: var(--rd-emerald);
+.rd-custom-select {
+  position: relative;
+  width: 100%;
+}
+
+.rd-select-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 13px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: #f1f5f9;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.rd-select-trigger:hover {
+  background: rgba(22, 32, 58, 0.9);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.rd-custom-select.is-open .rd-select-trigger {
+  border-color: var(--rd-accent);
+  box-shadow: 0 0 0 2px var(--rd-accent-dim);
+  background: rgba(15, 23, 42, 0.98);
+}
+
+.rd-select-value {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rd-select-chevron {
+  color: #94a3b8;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.rd-custom-select.is-open .rd-select-chevron {
+  transform: rotate(180deg);
+  color: var(--rd-accent-light);
+}
+
+.rd-select-menu {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: #090e1a;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  padding: 4px;
+  box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(16, 185, 129, 0.15);
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 220px;
+  overflow-y: auto;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.rd-custom-select.is-open .rd-select-menu {
+  display: flex;
+}
+
+.rd-select-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.rd-select-option:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.rd-select-option.selected {
+  background: var(--rd-accent-dim);
+  color: var(--rd-accent-light);
+  font-weight: 600;
+}
+
+.rd-option-check {
+  display: none;
+  color: var(--rd-accent-light);
+  flex-shrink: 0;
+}
+
+.rd-select-option.selected .rd-option-check {
+  display: block;
 }
 
 .rd-fetch-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  align-self: flex-start;
   gap: 8px;
-  padding: 10px 18px;
+  padding: 8px 18px;
   border-radius: 8px;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: #fff;
-  border: none;
-  font-size: 14px;
+  background: var(--rd-accent-dim);
+  border: 1px solid var(--rd-accent-border);
+  color: var(--rd-accent-light);
+  font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
-  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .rd-fetch-btn:hover {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+  background: rgba(16, 185, 129, 0.22);
+  border-color: var(--rd-accent);
+  color: #fff !important;
+  box-shadow: 0 4px 16px var(--rd-accent-glow);
   transform: translateY(-1px);
+}
+
+.rd-fetch-btn:active {
+  transform: translateY(0);
 }
 
 /* Response Box */
@@ -881,9 +1183,9 @@ const mockAttributes = [
 }
 
 .badge-2xx {
-  background: rgba(16, 185, 129, 0.2);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.4);
+  background: var(--rd-accent-dim);
+  color: var(--rd-accent-light);
+  border: 1px solid var(--rd-accent-border);
 }
 
 .badge-4xx {
@@ -947,8 +1249,24 @@ const mockAttributes = [
 }
 
 .rd-card-icon {
-  font-size: 28px;
-  margin-bottom: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--rd-accent-dim);
+  border: 1px solid var(--rd-accent-border);
+  color: var(--rd-accent-light);
+  margin-bottom: 16px;
+  transition: all 0.2s ease;
+}
+
+.rd-usecase-card:hover .rd-card-icon {
+  background: var(--rd-accent);
+  color: #04120c;
+  box-shadow: 0 0 16px var(--rd-accent-glow);
+  transform: scale(1.05);
 }
 
 .rd-usecase-card h3 {
@@ -996,7 +1314,7 @@ const mockAttributes = [
 }
 
 .col-highlight {
-  background: rgba(16, 185, 129, 0.05);
+  background: var(--rd-accent-dim);
   color: #fff !important;
   font-weight: 600;
 }
@@ -1007,7 +1325,7 @@ const mockAttributes = [
 }
 
 .rd-check {
-  color: #10b981;
+  color: var(--rd-accent);
   font-weight: 700;
   margin-right: 4px;
 }
@@ -1073,11 +1391,11 @@ const mockAttributes = [
 
 .rd-cta-card {
   text-align: center;
-  background: radial-gradient(circle at center, rgba(16, 185, 129, 0.1) 0%, rgba(15, 23, 42, 0.8) 100%);
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: radial-gradient(circle at center, var(--rd-accent-dim) 0%, rgba(15, 23, 42, 0.8) 100%);
+  border: 1px solid var(--rd-accent-border);
   border-radius: 16px;
   padding: 48px 24px;
-  box-shadow: 0 10px 40px -10px rgba(16, 185, 129, 0.2);
+  box-shadow: 0 10px 40px -10px var(--rd-accent-glow);
 }
 
 .rd-cta-card h2 {
@@ -1117,14 +1435,17 @@ const mockAttributes = [
 }
 
 .rd-btn-primary {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: #fff;
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+  background: var(--rd-accent-dim);
+  border: 1px solid var(--rd-accent-border);
+  color: var(--rd-accent-light) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 .rd-btn-primary:hover {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+  background: rgba(16, 185, 129, 0.22);
+  border-color: var(--rd-accent);
+  color: #fff !important;
+  box-shadow: 0 4px 16px var(--rd-accent-glow);
   transform: translateY(-1px);
 }
 
@@ -1135,7 +1456,8 @@ const mockAttributes = [
 }
 
 .rd-btn-ghost:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff !important;
+  border-color: rgba(255, 255, 255, 0.25);
 }
 </style>

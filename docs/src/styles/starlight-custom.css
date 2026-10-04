@@ -14,9 +14,10 @@
 html {
   color-scheme: dark !important;
 
-  --sl-color-accent-low: rgba(6, 182, 212, 0.15);
-  --sl-color-accent: #06b6d4;
-  --sl-color-accent-high: #67e8f9;
+  /* Dynamic Theme mapping from global.css tokens */
+  --sl-color-accent-low: var(--rd-accent-dim);
+  --sl-color-accent: var(--rd-accent);
+  --sl-color-accent-high: var(--rd-accent-light);
   
   --sl-color-white: #f8fafc;
   --sl-color-gray-1: #f1f5f9;
@@ -38,8 +39,8 @@ html {
 
   --rd-heading-grad-start: #ffffff;
   --rd-heading-grad-end: #94a3b8;
-  --rd-body-glow-1: rgba(6, 182, 212, 0.12);
-  --rd-body-glow-2: rgba(16, 185, 129, 0.08);
+  --rd-body-glow-1: var(--rd-accent-dim);
+  --rd-body-glow-2: rgba(245, 158, 11, 0.10);
 
   /* Typography */
   --sl-font-system: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;

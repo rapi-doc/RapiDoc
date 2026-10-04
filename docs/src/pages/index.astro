@@ -240,8 +240,7 @@ EXPOSE 80
               allow-try="true"
               theme="dark"
               bg-color="#090d16"
-              text-color="#f8fafc"
-              primary-color="#10b981"></rapi-doc-mini>
+              text-color="#f8fafc"></rapi-doc-mini>
           </div>
         </div>
       </div>
@@ -274,59 +273,44 @@ EXPOSE 80
     </div>
   </section>
 
-  <!-- Interactive Dual Theme Comparison Slider -->
-  <section class="rd-slider-section">
-    <div class="rd-section-header">
-      <span class="rd-sub-tag">Visual Polish</span>
+  <!-- Dark & Light Modes Showcase Section -->
+  <section class="rd-theme-card-section">
+    <div class="rd-theme-card">
+      <div class="rd-badge-pill" style="margin-bottom: 16px;">
+        <span class="rd-badge-pulse"></span>
+        <span class="rd-badge-text">Visual Polish</span>
+      </div>
       <h2 class="rd-section-title">Dark & Light Modes Done Right</h2>
-      <p class="rd-section-desc">Drag the interactive slider below to inspect RapiDoc's pixel-perfect dark and light themes.</p>
-      <div class="rd-live-theme-links">
-        <a href="/examples/theme-dark-contrast" target="_blank" class="rd-pill-link">
-          <span class="dot-dark"></span> High-Contrast Dark Demo ↗
+      <p class="rd-section-desc" style="max-width: 640px; margin: 0 auto 28px auto;">
+        RapiDoc provides pixel-perfect high-contrast dark and light themes out of the box, engineered for crystal-clear readability, WCAG AA compliance, and effortless enterprise brand pairing.
+      </p>
+      <div class="rd-theme-card-actions">
+        <a href="/examples/theme-dark-contrast" target="_blank" class="rd-btn rd-btn-primary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <span>High-Contrast Dark Demo</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M5 12h14m-7-7 7 7-7 7"/>
+          </svg>
         </a>
-        <a href="/examples/theme-light-contrast" target="_blank" class="rd-pill-link">
-          <span class="dot-light"></span> High-Contrast Light Demo ↗
+        <a href="/examples/theme-light-contrast" target="_blank" class="rd-btn rd-btn-primary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <span>High-Contrast Light Demo</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M5 12h14m-7-7 7 7-7 7"/>
+          </svg>
         </a>
-      </div>
-    </div>
-
-    <div class="rd-slider-wrapper">
-      <div class="rd-compare-slider" id="theme-compare-slider">
-        <!-- Base Image: Dark Theme -->
-        <img src="/assets/images/dark_ss.png" alt="RapiDoc Dark Theme" class="rd-compare-base-img" draggable="false" />
-
-        <!-- Overlay Image: Light Theme (Pixel-aligned via clip-path) -->
-        <div class="rd-compare-clipped" id="compare-clipped">
-          <img src="/assets/images/light_ss.png" alt="RapiDoc Light Theme" class="rd-compare-overlay-img" draggable="false" />
-        </div>
-
-        <!-- Draggable Handle Bar & Thumb -->
-        <div
-          class="rd-compare-divider"
-          id="compare-divider"
-          role="slider"
-          aria-label="Theme comparison slider"
-          aria-valuenow="50"
-          aria-valuemin="0"
-          aria-valuemax="100"
-          tabindex="0"
-        >
-          <div class="rd-divider-line"></div>
-          <div class="rd-divider-button">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path d="m9 18-6-6 6-6"></path>
-              <path d="m15 6 6 6-6 6"></path>
-            </svg>
-          </div>
-          <div class="rd-divider-line"></div>
-        </div>
-
-        <!-- Badges -->
-        <div class="rd-slider-badge badge-dark">Dark Theme</div>
-        <div class="rd-slider-badge badge-light">Light Theme</div>
-      </div>
-      <div class="rd-slider-instructions">
-        <span>← Drag handle or click anywhere to compare themes →</span>
       </div>
     </div>
   </section>
@@ -398,7 +382,7 @@ EXPOSE 80
         </p>
         <a
           href="/guides/mock"
-          style="color: #10b981; font-size: 13.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; text-decoration: none;"
+          style="color: var(--rd-accent); font-size: 13.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; text-decoration: none;"
         >
           Explore Mock Server
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
@@ -675,69 +659,6 @@ EXPOSE 80
 </GlobalLayout>
 
 <script>
-  // Pixel-Perfect Theme Slider Logic (using CSS clip-path for exact alignment)
-  const sliderContainer = document.getElementById('theme-compare-slider');
-  const compareClipped = document.getElementById('compare-clipped');
-  const compareDivider = document.getElementById('compare-divider');
-
-  if (sliderContainer && compareClipped && compareDivider) {
-    let isDragging = false;
-
-    function setSliderPosition(percentage: number) {
-      const clamped = Math.max(0, Math.min(100, percentage));
-      compareClipped.style.clipPath = `polygon(${clamped}% 0, 100% 0, 100% 100%, ${clamped}% 100%)`;
-      compareDivider.style.left = `${clamped}%`;
-      compareDivider.setAttribute('aria-valuenow', clamped.toFixed(0));
-    }
-
-    function handlePointer(clientX: number) {
-      const rect = sliderContainer.getBoundingClientRect();
-      const pos = ((clientX - rect.left) / rect.width) * 100;
-      setSliderPosition(pos);
-    }
-
-    sliderContainer.addEventListener('pointerdown', (e) => {
-      isDragging = true;
-      try {
-        sliderContainer.setPointerCapture(e.pointerId);
-      } catch (_) {}
-      handlePointer(e.clientX);
-    });
-
-    sliderContainer.addEventListener('pointermove', (e) => {
-      if (isDragging) {
-        handlePointer(e.clientX);
-      }
-    });
-
-    const stopDragging = (e: PointerEvent) => {
-      if (isDragging) {
-        isDragging = false;
-        try {
-          sliderContainer.releasePointerCapture(e.pointerId);
-        } catch (_) {}
-      }
-    };
-
-    sliderContainer.addEventListener('pointerup', stopDragging);
-    sliderContainer.addEventListener('pointercancel', stopDragging);
-
-    // Keyboard Accessibility (Left/Right arrow keys)
-    compareDivider.addEventListener('keydown', (e) => {
-      const current = parseFloat(compareDivider.getAttribute('aria-valuenow') || '50');
-      if (e.key === 'ArrowLeft') {
-        setSliderPosition(current - 5);
-        e.preventDefault();
-      } else if (e.key === 'ArrowRight') {
-        setSliderPosition(current + 5);
-        e.preventDefault();
-      }
-    });
-
-    // Initialize at 50%
-    setSliderPosition(50);
-  }
-
   // Persona Switcher
   const devTab = document.getElementById('tab-dev');
   const pmTab = document.getElementById('tab-pm');
@@ -800,6 +721,13 @@ EXPOSE 80
   const previewWindow = document.getElementById('preview-window');
   const miniEl = document.getElementById('homepage-rapi-mini');
 
+  const getAccentColor = () => getComputedStyle(document.documentElement).getPropertyValue('--rd-accent').trim() || '#10b981';
+
+  // Initialize miniEl primary color on load
+  if (miniEl) {
+    miniEl.setAttribute('primary-color', getAccentColor());
+  }
+
   btnDark?.addEventListener('click', () => {
     btnDark.classList.add('active');
     btnLight?.classList.remove('active');
@@ -809,7 +737,7 @@ EXPOSE 80
       miniEl.setAttribute('theme', 'dark');
       miniEl.setAttribute('bg-color', '#090d16');
       miniEl.setAttribute('text-color', '#f8fafc');
-      miniEl.setAttribute('primary-color', '#10b981');
+      miniEl.setAttribute('primary-color', getAccentColor());
     }
   });
 
@@ -822,7 +750,7 @@ EXPOSE 80
       miniEl.setAttribute('theme', 'light');
       miniEl.setAttribute('bg-color', '#ffffff');
       miniEl.setAttribute('text-color', '#0f172a');
-      miniEl.setAttribute('primary-color', '#10b981');
+      miniEl.setAttribute('primary-color', getAccentColor());
     }
   });
 </script>
@@ -834,9 +762,9 @@ EXPOSE 80
     --rd-surface: rgba(255, 255, 255, 0.025);
     --rd-surface-hover: rgba(255, 255, 255, 0.05);
     --rd-glass-border: rgba(255, 255, 255, 0.08);
-    --rd-glass-border-hover: rgba(16, 185, 129, 0.4);
-    --rd-emerald: #10b981;
-    --rd-emerald-dim: #059669;
+    --rd-glass-border-hover: var(--rd-border-accent);
+    --rd-emerald: var(--rd-accent);
+    --rd-emerald-dim: var(--rd-accent-hover);
     --rd-cyan: #06b6d4;
     --rd-purple: #8b5cf6;
     --rd-text-primary: #f8fafc;
@@ -969,13 +897,16 @@ EXPOSE 80
     border: none;
   }
   .rd-btn-primary {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: #fff;
-    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+    background: var(--rd-accent-dim);
+    border: 1px solid var(--rd-accent-border);
+    color: var(--rd-accent-light) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
   }
   .rd-btn-primary:hover {
-    background: linear-gradient(135deg, #059669 0%, #047857 100%);
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+    background: rgba(16, 185, 129, 0.22);
+    border-color: var(--rd-accent);
+    color: #ffffff !important;
+    box-shadow: 0 4px 16px var(--rd-accent-glow);
     transform: translateY(-1px);
   }
   .rd-btn-ghost {
@@ -1032,16 +963,16 @@ EXPOSE 80
     width: fit-content;
     padding: 6px 14px;
     border-radius: 20px;
-    background: rgba(16, 185, 129, 0.08);
-    border: 1px solid rgba(16, 185, 129, 0.25);
+    background: var(--rd-accent-dim);
+    border: 1px solid var(--rd-accent-border);
     margin-bottom: 20px;
   }
   .rd-badge-pulse {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: var(--rd-emerald);
-    box-shadow: 0 0 10px var(--rd-emerald);
+    background: var(--rd-accent);
+    box-shadow: 0 0 10px var(--rd-accent);
     animation: pulse-dot 2s infinite ease-in-out;
   }
   @keyframes pulse-dot {
@@ -1058,7 +989,7 @@ EXPOSE 80
   .rd-badge-text {
     font-size: 13px;
     font-weight: 600;
-    color: #a7f3d0;
+    color: var(--rd-accent-light);
     letter-spacing: 0.01em;
   }
 
@@ -1072,7 +1003,7 @@ EXPOSE 80
     margin: 0 0 18px 0;
   }
   .rd-gradient-text {
-    background: linear-gradient(135deg, #34d399 0%, #38bdf8 50%, #818cf8 100%);
+    background: var(--rapidoc-logo-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -1124,7 +1055,7 @@ EXPOSE 80
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
   .rd-persona-tab.active svg {
-    color: var(--rd-emerald);
+    color: var(--rd-accent);
   }
   .rd-persona-content {
     display: none;
@@ -1145,11 +1076,11 @@ EXPOSE 80
     line-height: 1.5;
     color: #cbd5e1;
     strong {
-      color: var(--rd-emerald);
+      color: #fff;
     }
   }
   .rd-persona-bullet {
-    color: var(--rd-emerald);
+    color: var(--rd-accent);
     font-weight: 800;
     font-size: 14px;
     margin-top: 1px;
@@ -1175,7 +1106,7 @@ EXPOSE 80
     font-size: 13px;
   }
   .rd-terminal-prompt {
-    color: var(--rd-emerald);
+    color: var(--rd-accent);
     font-weight: 700;
   }
   .rd-terminal-code {
@@ -1200,25 +1131,33 @@ EXPOSE 80
   }
 
   /* Right Column: Interactive RapiDoc Mini Preview Window */
+  .rd-hero-right {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
   .rd-preview-window {
     background: #090d16;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px 12px 0 0;
+    border-radius: 12px;
     overflow: hidden;
     box-shadow:
       0 20px 50px -10px rgba(0, 0, 0, 0.6),
-      0 0 0 1px rgba(16, 185, 129, 0.15);
+      0 0 0 1px var(--rd-accent-border);
     transition:
       background 0.3s ease,
       border-color 0.3s ease,
       box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
   }
   .rd-preview-window.theme-light {
     background: #ffffff;
     border-color: rgba(0, 0, 0, 0.12);
     box-shadow:
       0 20px 50px -10px rgba(0, 0, 0, 0.15),
-      0 0 0 1px rgba(16, 185, 129, 0.25);
+      0 0 0 1px var(--rd-accent-border);
   }
 
   .rd-preview-header {
@@ -1254,7 +1193,7 @@ EXPOSE 80
     background: #f59e0b;
   }
   .rd-dot.green {
-    background: #10b981;
+    background: var(--rd-logo-green, #84cc16);
   }
 
   .rd-preview-left {
@@ -1300,9 +1239,9 @@ EXPOSE 80
   }
   .rd-chip:hover,
   .rd-chip.active {
-    background: rgba(16, 185, 129, 0.15);
-    color: #a7f3d0;
-    border-color: rgba(16, 185, 129, 0.35);
+    background: var(--rd-accent-dim);
+    color: var(--rd-accent-light);
+    border-color: var(--rd-accent-border);
   }
   .rd-preview-window.theme-light .rd-chip {
     background: #f1f5f9;
@@ -1311,19 +1250,27 @@ EXPOSE 80
   }
   .rd-preview-window.theme-light .rd-chip:hover,
   .rd-preview-window.theme-light .rd-chip.active {
-    background: #10b981;
+    background: var(--rd-accent);
     color: #ffffff;
-    border-color: #10b981;
+    border-color: var(--rd-accent);
   }
 
   /* Surface Area */
   .rd-mini-surface {
     background: #090d16;
-    max-height: 580px;
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
-    border-radius: 0;
+    border-radius: 0 0 12px 12px;
     transition: background 0.3s ease;
+    display: flex;
+    flex-direction: column;
+  }
+  .rd-mini-surface rapi-doc-mini {
+    display: block;
+    width: 100%;
+    flex: 1;
   }
   .rd-preview-window.theme-light .rd-mini-surface {
     background: #ffffff;
@@ -1378,7 +1325,7 @@ EXPOSE 80
       transform 0.2s ease;
   }
   .rd-metric-card:hover {
-    border-color: rgba(16, 185, 129, 0.3);
+    border-color: var(--rd-accent-border);
     transform: translateY(-2px);
   }
   .rd-metric-number {
@@ -1390,7 +1337,7 @@ EXPOSE 80
   }
   .rd-metric-number .rd-unit {
     font-size: 1.3rem;
-    color: var(--rd-emerald);
+    color: var(--rd-accent);
   }
   .rd-metric-label {
     font-size: 14.5px;
@@ -1416,7 +1363,7 @@ EXPOSE 80
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: var(--rd-emerald);
+    color: var(--rd-accent);
     margin-bottom: 8px;
   }
   .rd-section-title {
@@ -1433,174 +1380,33 @@ EXPOSE 80
     margin: 0;
   }
 
-  /* Interactive Slider Section */
-  .rd-slider-section {
+  /* Theme Showcase Card Section */
+  .rd-theme-card-section {
     position: relative;
     z-index: 1;
-    max-width: 1000px;
+    max-width: 900px;
     margin: 0 auto;
-    padding: 40px 24px 80px 24px;
+    padding: 32px 24px 72px 24px;
   }
-  .rd-live-theme-links {
+  .rd-theme-card {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--rd-glass-border);
+    border-radius: 16px;
+    padding: 48px 32px;
+    text-align: center;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.5);
     display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .rd-theme-card-actions {
+    display: flex;
+    align-items: center;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 16px;
-  }
-  .rd-pill-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 14px;
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--rd-glass-border);
-    color: var(--rd-text-secondary);
-    font-size: 12.5px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.2s ease;
-  }
-  .rd-pill-link:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: #fff;
-    border-color: rgba(16, 185, 129, 0.4);
-  }
-  .dot-dark {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #10b981;
-  }
-  .dot-light {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #38bdf8;
-  }
-
-  .rd-slider-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-  }
-  .rd-compare-slider {
-    position: relative;
-    width: 100%;
-    max-width: 920px;
-    aspect-ratio: 16 / 10;
-    border-radius: 16px;
-    overflow: hidden;
-    border: 1px solid var(--rd-glass-border);
-    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.6);
-    user-select: none;
-    cursor: ew-resize;
-    background: #090d16;
-  }
-  .rd-compare-base-img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    pointer-events: none;
-    display: block;
-  }
-  .rd-compare-clipped {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%);
-    transition: clip-path 0.05s ease-out;
-  }
-  .rd-compare-overlay-img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    pointer-events: none;
-    display: block;
-  }
-  .rd-compare-divider {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 50%;
-    width: 44px;
-    margin-left: -22px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: ew-resize;
-    z-index: 10;
-    transition: left 0.05s ease-out;
-  }
-  .rd-compare-divider:focus-visible {
-    outline: none;
-  }
-  .rd-compare-divider:focus-visible .rd-divider-button {
-    box-shadow: 0 0 0 3px var(--rd-emerald);
-  }
-  .rd-divider-line {
-    flex: 1;
-    width: 2px;
-    background: #10b981;
-    box-shadow: 0 0 10px rgba(16, 185, 129, 0.8);
-  }
-  .rd-divider-button {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: #10b981;
-    border: 3px solid #060913;
-    color: #042f2e;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
-    flex-shrink: 0;
-    cursor: grab;
-  }
-  .rd-compare-slider:active .rd-divider-button {
-    cursor: grabbing;
-    transform: scale(1.08);
-  }
-  .rd-slider-badge {
-    position: absolute;
-    top: 14px;
-    z-index: 5;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 11.5px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    pointer-events: none;
-  }
-  .badge-dark {
-    left: 14px;
-    background: rgba(0, 0, 0, 0.6);
-    color: #a7f3d0;
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    backdrop-filter: blur(8px);
-  }
-  .badge-light {
-    right: 14px;
-    background: rgba(255, 255, 255, 0.85);
-    color: #0f172a;
-    border: 1px solid #cbd5e1;
-    backdrop-filter: blur(8px);
-  }
-  .rd-slider-instructions {
-    margin-top: 16px;
-    font-size: 12.5px;
-    font-weight: 500;
-    color: var(--rd-text-muted);
+    gap: 16px;
   }
 
   /* Bento Grid Section */
@@ -1645,19 +1451,19 @@ EXPOSE 80
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: var(--rd-emerald);
+    color: var(--rd-accent);
     margin-bottom: 12px;
   }
   .rd-bento-icon-box {
     width: 44px;
     height: 44px;
     border-radius: 10px;
-    background: rgba(16, 185, 129, 0.1);
-    border: 1px solid rgba(16, 185, 129, 0.2);
+    background: var(--rd-accent-dim);
+    border: 1px solid var(--rd-accent-border);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--rd-emerald);
+    color: var(--rd-accent);
     margin-bottom: 16px;
   }
   .rd-bento-title {
@@ -1729,12 +1535,12 @@ EXPOSE 80
   }
   .rd-th-highlight,
   .rd-td-highlight {
-    background: rgba(16, 185, 129, 0.04);
-    border-left: 1px solid rgba(16, 185, 129, 0.2);
-    border-right: 1px solid rgba(16, 185, 129, 0.2);
+    background: var(--rd-accent-dim);
+    border-left: 1px solid var(--rd-accent-border);
+    border-right: 1px solid var(--rd-accent-border);
   }
   .rd-th-highlight {
-    color: var(--rd-emerald) !important;
+    color: var(--rd-accent) !important;
     font-size: 15px !important;
   }
   .rd-td-feature {
@@ -1749,7 +1555,7 @@ EXPOSE 80
     color: var(--rd-text-muted);
   }
   .rd-check {
-    color: var(--rd-emerald);
+    color: var(--rd-accent);
     font-weight: 800;
     font-size: 16px;
     margin-right: 4px;
@@ -1829,8 +1635,8 @@ EXPOSE 80
   }
   .rd-cta-card {
     position: relative;
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(6, 182, 212, 0.08) 50%, rgba(139, 92, 246, 0.1) 100%);
-    border: 1px solid rgba(16, 185, 129, 0.3);
+    background: linear-gradient(135deg, var(--rd-accent-dim) 0%, rgba(255, 255, 255, 0.02) 50%, var(--rd-accent-dim) 100%);
+    border: 1px solid var(--rd-accent-border);
     border-radius: 20px;
     padding: 56px 32px;
     text-align: center;
@@ -1923,7 +1729,7 @@ EXPOSE 80
     transition: color 0.15s ease;
   }
   .rd-footer-link-col a:hover {
-    color: var(--rd-emerald);
+    color: var(--rd-accent);
   }
 
   /* Media Queries for Responsive Design */
@@ -1936,6 +1742,7 @@ EXPOSE 80
     }
     .rd-hero-container {
       grid-template-columns: 1.15fr 1fr;
+      align-items: stretch;
     }
     .rd-footer-container {
       grid-template-columns: 1.3fr 2fr;

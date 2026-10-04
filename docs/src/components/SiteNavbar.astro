@@ -156,13 +156,16 @@ const current = resolveActiveNavKey(pathname, activePage);
     border: none;
   }
   .rd-btn-primary {
-    background: var(--rapidoc-gradient);
-    color: var(--rd-text-bright);
-    box-shadow: 0 4px 14px var(--rd-accent-glow);
+    background: var(--rd-accent-dim);
+    border: 1px solid var(--rd-accent-border);
+    color: var(--rd-accent-light) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
   }
   .rd-btn-primary:hover {
-    background: linear-gradient(135deg, var(--rd-accent-hover) 0%, #047857 100%);
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+    background: rgba(16, 185, 129, 0.22);
+    border-color: var(--rd-accent);
+    color: #ffffff !important;
+    box-shadow: 0 4px 16px var(--rd-accent-glow);
     transform: translateY(-1px);
   }
   .rd-btn-ghost {

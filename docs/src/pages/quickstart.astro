@@ -22,7 +22,8 @@ const recipes: Recipe[] = [
     id: 'minimal-html',
     title: 'Zero-Config HTML Embed',
     category: 'Getting Started',
-    summary: 'The simplest way to embed RapiDoc. Import the ES module directly from a CDN (unpkg or jsdelivr) and add the <rapi-doc> custom element with your OpenAPI spec URL. No build tools or backend server required.',
+    summary:
+      'The simplest way to embed RapiDoc. Import the ES module directly from a CDN (unpkg or jsdelivr) and add the <rapi-doc> custom element with your OpenAPI spec URL. No build tools or backend server required.',
     demoUrl: '/examples/petstore',
     code: `<!doctype html>
 <html lang="en">
@@ -38,13 +39,14 @@ const recipes: Recipe[] = [
 </html>`,
     lang: 'html',
     filename: 'index.html',
-    tags: ['CDN', 'HTML5', 'Zero-Config', 'Quickstart']
+    tags: ['CDN', 'HTML5', 'Zero-Config', 'Quickstart'],
   },
   {
     id: 'npm-frameworks',
     title: 'Modern Bundlers & Frameworks (React, Vue, Vite)',
     category: 'Getting Started',
-    summary: 'Install RapiDoc as an npm dependency. Because it is a standardized W3C Web Component, it runs natively inside React, Vue, Svelte, Angular, Astro, Next.js, and Vite without framework-specific wrappers.',
+    summary:
+      'Install RapiDoc as an npm dependency. Because it is a standardized W3C Web Component, it runs natively inside React, Vue, Svelte, Angular, Astro, Next.js, and Vite without framework-specific wrappers.',
     demoUrl: '/docs/get-started/quickstart',
     code: `// 1. Install via npm or yarn:
 // npm install rapidoc
@@ -64,7 +66,7 @@ export function ApiDocsPortal() {
 }`,
     lang: 'javascript',
     filename: 'App.jsx',
-    tags: ['npm', 'React', 'Vue', 'Vite', 'Bundler']
+    tags: ['npm', 'React', 'Vue', 'Vite', 'Bundler'],
   },
 
   // ================= LAYOUT & MODES =================
@@ -72,7 +74,8 @@ export function ApiDocsPortal() {
     id: 'focused-layout',
     title: 'Focused Layout (Sidebar + Active Operation)',
     category: 'Layout & Modes',
-    summary: 'Displays a high-performance sidebar navigation on the left and renders only the currently selected endpoint on the right. Employs lazy DOM instantiation for lightning-fast speeds even with 10MB+ specs.',
+    summary:
+      'Displays a high-performance sidebar navigation on the left and renders only the currently selected endpoint on the right. Employs lazy DOM instantiation for lightning-fast speeds even with 10MB+ specs.',
     demoUrl: '/examples/render-focused',
     code: `<rapi-doc
   spec-url="https://raw.githubusercontent.com/mrin9/RapiDoc/master/docs/specs/petstore.yaml"
@@ -82,13 +85,14 @@ export function ApiDocsPortal() {
 </rapi-doc>`,
     lang: 'html',
     filename: 'focused-mode.html',
-    tags: ['render-style', 'focused', 'performance', 'sidebar']
+    tags: ['render-style', 'focused', 'performance', 'sidebar'],
   },
   {
     id: 'read-layout',
     title: 'Read Layout (Continuous Document Reader)',
     category: 'Layout & Modes',
-    summary: 'Renders all endpoints sequentially into a continuous, printable technical document. Ideal for comprehensive API reference manuals, product guides, and technical whitepapers.',
+    summary:
+      'Renders all endpoints sequentially into a continuous, printable technical document. Ideal for comprehensive API reference manuals, product guides, and technical whitepapers.',
     demoUrl: '/examples/render-read',
     code: `<rapi-doc
   spec-url="https://raw.githubusercontent.com/mrin9/RapiDoc/master/docs/specs/petstore.yaml"
@@ -97,13 +101,14 @@ export function ApiDocsPortal() {
 </rapi-doc>`,
     lang: 'html',
     filename: 'read-mode.html',
-    tags: ['render-style', 'read', 'documentation', 'scroll']
+    tags: ['render-style', 'read', 'documentation', 'scroll'],
   },
   {
     id: 'view-layout',
     title: 'View Layout (Collapsible Accordion Operations)',
     category: 'Layout & Modes',
-    summary: 'Presents API tags and operations as an expandable/collapsible accordion hierarchy. Balances overview density with focused exploration.',
+    summary:
+      'Presents API tags and operations as an expandable/collapsible accordion hierarchy. Balances overview density with focused exploration.',
     demoUrl: '/examples/render-view',
     code: `<rapi-doc
   spec-url="https://raw.githubusercontent.com/mrin9/RapiDoc/master/docs/specs/petstore.yaml"
@@ -112,13 +117,14 @@ export function ApiDocsPortal() {
 </rapi-doc>`,
     lang: 'html',
     filename: 'view-mode.html',
-    tags: ['render-style', 'view', 'accordion', 'collapsible']
+    tags: ['render-style', 'view', 'accordion', 'collapsible'],
   },
   {
     id: 'schema-tabular',
     title: 'Tabular Schema View (Data Contract Rows)',
     category: 'Layout & Modes',
-    summary: 'Switches complex JSON schema models in request bodies and response payloads from interactive collapsible tree views to clean, structured data tables.',
+    summary:
+      'Switches complex JSON schema models in request bodies and response payloads from interactive collapsible tree views to clean, structured data tables.',
     demoUrl: '/examples/schema-table',
     code: `<rapi-doc
   spec-url="https://raw.githubusercontent.com/mrin9/RapiDoc/master/docs/specs/petstore.yaml"
@@ -128,7 +134,7 @@ export function ApiDocsPortal() {
 </rapi-doc>`,
     lang: 'html',
     filename: 'tabular-schemas.html',
-    tags: ['schema-style', 'table', 'models', 'types']
+    tags: ['schema-style', 'table', 'models', 'types'],
   },
 
   // ================= THEMING & BRANDING =================
@@ -136,7 +142,8 @@ export function ApiDocsPortal() {
     id: 'theming-palette',
     title: 'Light Theme & Custom Brand Palette',
     category: 'Theming & Branding',
-    summary: 'Tailor RapiDoc to match your brand identity. Configure background surfaces, header colors, primary action buttons, and sidebar navigation accents.',
+    summary:
+      'Tailor RapiDoc to match your brand identity. Configure background surfaces, header colors, primary action buttons, and sidebar navigation accents.',
     demoUrl: '/examples/header-color',
     code: `<rapi-doc
   spec-url="https://raw.githubusercontent.com/mrin9/RapiDoc/master/docs/specs/petstore.yaml"
@@ -151,13 +158,14 @@ export function ApiDocsPortal() {
 </rapi-doc>`,
     lang: 'html',
     filename: 'branded-theme.html',
-    tags: ['theme', 'colors', 'light', 'branding', 'palette']
+    tags: ['theme', 'colors', 'light', 'branding', 'palette'],
   },
   {
     id: 'custom-fonts',
     title: 'Custom Typography & Google Web Fonts',
     category: 'Theming & Branding',
-    summary: 'Apply modern typography using Google Fonts or custom font faces. Set regular-font for general interface text and mono-font for code payloads and parameter definitions.',
+    summary:
+      'Apply modern typography using Google Fonts or custom font faces. Set regular-font for general interface text and mono-font for code payloads and parameter definitions.',
     demoUrl: '/examples/font',
     code: `<!doctype html>
 <html>
@@ -179,13 +187,14 @@ export function ApiDocsPortal() {
 </html>`,
     lang: 'html',
     filename: 'custom-fonts.html',
-    tags: ['fonts', 'typography', 'Google Fonts', 'styling']
+    tags: ['fonts', 'typography', 'Google Fonts', 'styling'],
   },
   {
     id: 'embed-no-iframe',
     title: 'Seamless In-Page Embedding (No <iframe>)',
     category: 'Theming & Branding',
-    summary: 'Because RapiDoc is a native custom element, you can seamlessly integrate it directly into existing dashboards or web applications. Disable header bars, server selectors, and intro banners to merge cleanly into your layout.',
+    summary:
+      'Because RapiDoc is a native custom element, you can seamlessly integrate it directly into existing dashboards or web applications. Disable header bars, server selectors, and intro banners to merge cleanly into your layout.',
     demoUrl: '/examples/alongside-html-content',
     code: `<!-- Direct embedding inside your dashboard grid without any <iframe> -->
 <div class="api-portal-container" style="display: flex; height: 100vh;">
@@ -209,7 +218,7 @@ export function ApiDocsPortal() {
 </div>`,
     lang: 'html',
     filename: 'embedded-dashboard.html',
-    tags: ['embedding', 'no-iframe', 'dashboard', 'integration']
+    tags: ['embedding', 'no-iframe', 'dashboard', 'integration'],
   },
 
   // ================= SLOTS & CUSTOM HTML =================
@@ -233,13 +242,14 @@ export function ApiDocsPortal() {
 </rapi-doc>`,
     lang: 'html',
     filename: 'custom-logo.html',
-    tags: ['slot', 'nav-logo', 'branding', 'logo']
+    tags: ['slot', 'nav-logo', 'branding', 'logo'],
   },
   {
     id: 'header-slot',
     title: 'Custom Header Actions & Controls (header Slot)',
     category: 'Slots & Custom HTML',
-    summary: 'Inject custom UI components directly into the top navigation bar. Perfect for environment switchers, quick links to external developer portals, or custom login modals.',
+    summary:
+      'Inject custom UI components directly into the top navigation bar. Perfect for environment switchers, quick links to external developer portals, or custom login modals.',
     demoUrl: '/examples/header',
     code: `<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json">
   <!-- Custom controls injected into the top header bar -->
@@ -254,13 +264,14 @@ export function ApiDocsPortal() {
 </rapi-doc>`,
     lang: 'html',
     filename: 'custom-header.html',
-    tags: ['slot', 'header', 'actions', 'custom-ui']
+    tags: ['slot', 'header', 'actions', 'custom-ui'],
   },
   {
     id: 'top-footer-slots',
     title: 'Overview Banners & Custom Footers (Slots)',
     category: 'Slots & Custom HTML',
-    summary: 'Inject rich HTML content above the API specification overview and at the very bottom of the document using default and footer slots.',
+    summary:
+      'Inject rich HTML content above the API specification overview and at the very bottom of the document using default and footer slots.',
     demoUrl: '/examples/slots',
     code: `<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json">
   <!-- Default slot: Renders at the top, right before the API spec -->
@@ -276,7 +287,7 @@ export function ApiDocsPortal() {
 </rapi-doc>`,
     lang: 'html',
     filename: 'slots-content.html',
-    tags: ['slot', 'footer', 'banner', 'overview', 'html']
+    tags: ['slot', 'footer', 'banner', 'overview', 'html'],
   },
 
   // ================= JAVASCRIPT & DOM INTERACTION =================
@@ -284,7 +295,8 @@ export function ApiDocsPortal() {
     id: 'reactive-attributes',
     title: 'Reactive Attribute Updates via JavaScript',
     category: 'JavaScript & DOM Interaction',
-    summary: 'RapiDoc reacts immediately to runtime attribute changes. Use standard document.querySelector("rapi-doc").setAttribute(...) to dynamically switch specifications, toggle dark mode, or supply API credentials.',
+    summary:
+      'RapiDoc reacts immediately to runtime attribute changes. Use standard document.querySelector("rapi-doc").setAttribute(...) to dynamically switch specifications, toggle dark mode, or supply API credentials.',
     demoUrl: '/examples/example100',
     code: `const rapidocEl = document.querySelector('rapi-doc');
 
@@ -300,7 +312,7 @@ rapidocEl.setAttribute('api-key-location', 'header');
 rapidocEl.setAttribute('api-key-value', 'Bearer YOUR_JWT_TOKEN');`,
     lang: 'javascript',
     filename: 'reactive-attributes.js',
-    tags: ['javascript', 'setAttribute', 'reactive', 'api-key', 'dynamic']
+    tags: ['javascript', 'setAttribute', 'reactive', 'api-key', 'dynamic'],
   },
   {
     id: 'dom-methods',
@@ -321,13 +333,14 @@ doc.setApiServer('https://staging-api.example.com/v1');
 doc.setHttpUserNameAndPassword('basic_auth', 'admin_user', 'super_secret_pw');`,
     lang: 'javascript',
     filename: 'dom-methods.js',
-    tags: ['methods', 'scrollToPath', 'setApiServer', 'DOM', 'controller']
+    tags: ['methods', 'scrollToPath', 'setApiServer', 'DOM', 'controller'],
   },
   {
     id: 'lifecycle-events',
     title: 'Intercept Requests & Lifecycle Event Listeners',
     category: 'JavaScript & DOM Interaction',
-    summary: 'Listen to custom lifecycle events on <rapi-doc> to intercept outgoing "TRY" requests, inject authorization headers or HMAC signatures, and log server changes.',
+    summary:
+      'Listen to custom lifecycle events on <rapi-doc> to intercept outgoing "TRY" requests, inject authorization headers or HMAC signatures, and log server changes.',
     demoUrl: '/examples/events',
     code: `const doc = document.querySelector('rapi-doc');
 
@@ -350,13 +363,14 @@ doc.addEventListener('api-server-change', (e) => {
 });`,
     lang: 'javascript',
     filename: 'lifecycle-events.js',
-    tags: ['events', 'before-try', 'intercept', 'headers', 'telemetry']
+    tags: ['events', 'before-try', 'intercept', 'headers', 'telemetry'],
   },
   {
     id: 'interactive-auth-widget',
     title: 'Interactive Authorization Widget (Slots + JS)',
     category: 'JavaScript & DOM Interaction',
-    summary: 'A complete working example combining custom HTML header injection with JavaScript to create a 1-click token authorization bar.',
+    summary:
+      'A complete working example combining custom HTML header injection with JavaScript to create a 1-click token authorization bar.',
     demoUrl: '/examples/example8',
     code: `<!doctype html>
 <html>
@@ -400,8 +414,8 @@ doc.addEventListener('api-server-change', (e) => {
 </html>`,
     lang: 'html',
     filename: 'interactive-auth.html',
-    tags: ['interactive', 'auth', 'slot', 'header', 'JavaScript']
-  }
+    tags: ['interactive', 'auth', 'slot', 'header', 'JavaScript'],
+  },
 ];
 
 const categories = [
@@ -410,7 +424,7 @@ const categories = [
   'Layout & Modes',
   'Theming & Branding',
   'Slots & Custom HTML',
-  'JavaScript & DOM Interaction'
+  'JavaScript & DOM Interaction',
 ];
 ---
 
@@ -440,7 +454,8 @@ const categories = [
       </h1>
 
       <p class="rd-page-subtitle">
-        Curated integration recipes showing how to embed <code>&lt;rapi-doc&gt;</code> into your HTML, configure themes and layout modes, inject custom slots, and programmatically interact with DOM methods and lifecycle events.
+        Curated integration recipes showing how to embed <code>&lt;rapi-doc&gt;</code> into your HTML, configure themes and layout modes, inject
+        custom slots, and programmatically interact with DOM methods and lifecycle events.
       </p>
 
       <!-- Key Metrics Counter Bar -->
@@ -491,17 +506,14 @@ const categories = [
 
         <!-- Category Navigation Pills -->
         <div class="rd-nav-pills" id="category-pills">
-          {categories.map((cat, idx) => (
-            <button
-              class={`rd-pill ${idx === 0 ? 'active' : ''}`}
-              data-category={cat}
-            >
-              {cat}
-            </button>
-          ))}
-          <a href="/examples/example100" class="rd-pill rd-pill-playground" target="_blank" rel="noopener">
-            JS Playground ↗
-          </a>
+          {
+            categories.map((cat, idx) => (
+              <button class={`rd-pill ${idx === 0 ? 'active' : ''}`} data-category={cat}>
+                {cat}
+              </button>
+            ))
+          }
+          <a href="/examples/example100" class="rd-pill rd-pill-playground" target="_blank" rel="noopener"> JS Playground ↗ </a>
         </div>
       </div>
     </header>
@@ -520,66 +532,70 @@ const categories = [
 
     <!-- Recipes Grid -->
     <div class="rd-recipes-container" id="recipes-list">
-      {categories.filter(c => c !== 'All').map(cat => {
-        const catRecipes = recipes.filter(r => r.category === cat);
-        const sectionId = cat.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      {
+        categories
+          .filter((c) => c !== 'All')
+          .map((cat) => {
+            const catRecipes = recipes.filter((r) => r.category === cat);
+            const sectionId = cat.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
-        return (
-          <section class="rd-category-section" id={sectionId} data-category-group={cat}>
-            <div class="rd-section-header">
-              <div class="rd-section-badge">{cat}</div>
-              <h2 class="rd-section-title">
-                <a href={`#${sectionId}`} class="rd-anchor-link">
-                  {cat}
-                  <span class="rd-hash">#</span>
-                </a>
-              </h2>
-            </div>
+            return (
+              <section class="rd-category-section" id={sectionId} data-category-group={cat}>
+                <div class="rd-section-header">
+                  <div class="rd-section-badge">{cat}</div>
+                  <h2 class="rd-section-title">
+                    <a href={`#${sectionId}`} class="rd-anchor-link">
+                      {cat}
+                      <span class="rd-hash">#</span>
+                    </a>
+                  </h2>
+                </div>
 
-            <div class="rd-recipes-grid">
-              {catRecipes.map(recipe => (
-                <article
-                  class="rd-recipe-card"
-                  id={recipe.id}
-                  data-category={recipe.category}
-                  data-recipe-name={recipe.title.toLowerCase()}
-                  data-tags={recipe.tags.join(' ').toLowerCase()}
-                >
-                  <div class="rd-card-topbar">
-                    <div class="rd-card-heading">
-                      <a href={`#${recipe.id}`} class="rd-recipe-link" title="Copy direct link to this recipe">
-                        <h3 class="rd-recipe-title">{recipe.title}</h3>
-                        <span class="rd-recipe-hash">#</span>
-                      </a>
-                    </div>
+                <div class="rd-recipes-grid">
+                  {catRecipes.map((recipe) => (
+                    <article
+                      class="rd-recipe-card"
+                      id={recipe.id}
+                      data-category={recipe.category}
+                      data-recipe-name={recipe.title.toLowerCase()}
+                      data-tags={recipe.tags.join(' ').toLowerCase()}
+                    >
+                      <div class="rd-card-topbar">
+                        <div class="rd-card-heading">
+                          <a href={`#${recipe.id}`} class="rd-recipe-link" title="Copy direct link to this recipe">
+                            <h3 class="rd-recipe-title">{recipe.title}</h3>
+                            <span class="rd-recipe-hash">#</span>
+                          </a>
+                        </div>
 
-                    {recipe.demoUrl && (
-                      <a href={recipe.demoUrl} class="rd-demo-btn" target="_blank" rel="noopener">
-                        <span>Launch Demo</span>
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                          <path d="M7 17l9.2-9.2M17 17V8H8" />
-                        </svg>
-                      </a>
-                    )}
-                  </div>
+                        {recipe.demoUrl && (
+                          <a href={recipe.demoUrl} class="rd-demo-btn" target="_blank" rel="noopener">
+                            <span>Launch Demo</span>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                              <path d="M7 17l9.2-9.2M17 17V8H8" />
+                            </svg>
+                          </a>
+                        )}
+                      </div>
 
-                  <p class="rd-recipe-summary">{recipe.summary}</p>
+                      <p class="rd-recipe-summary">{recipe.summary}</p>
 
-                  <div class="rd-tags-list">
-                    {recipe.tags.map(tag => (
-                      <span class="rd-tag-badge">{tag}</span>
-                    ))}
-                  </div>
+                      <div class="rd-tags-list">
+                        {recipe.tags.map((tag) => (
+                          <span class="rd-tag-badge">{tag}</span>
+                        ))}
+                      </div>
 
-                  <div class="rd-code-container">
-                    <CodeBlock code={recipe.code} lang={recipe.lang} filename={recipe.filename} />
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
-        );
-      })}
+                      <div class="rd-code-container">
+                        <CodeBlock code={recipe.code} lang={recipe.lang} filename={recipe.filename} />
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            );
+          })
+      }
     </div>
 
     <!-- Quick Jump Callout to Showcase & Sandbox -->
@@ -589,13 +605,14 @@ const categories = [
         <div class="rd-callout-badge">Interactive Sandboxes & Exploration</div>
         <h2 class="rd-callout-title">Looking for Complete Working Examples?</h2>
         <p class="rd-callout-desc">
-          Explore over 50+ live demonstrations covering OpenAPI 3.1 features, OAuth2 workflows, custom schemas, and performance benchmarks in our gallery.
+          Explore over 50+ live demonstrations covering OpenAPI 3.1 features, OAuth2 workflows, custom schemas, and performance benchmarks
+          in our gallery.
         </p>
         <div class="rd-callout-actions">
           <a href="/showcase" class="rd-btn rd-btn-primary rd-btn-lg">
             <span>Browse Full Showcase Gallery</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path d="M5 12h14m-7-7 7 7-7 7" />
+              <path d="M5 12h14m-7-7 7 7-7 7"></path>
             </svg>
           </a>
           <a href="/examples/example100" class="rd-btn rd-btn-secondary rd-btn-lg" target="_blank" rel="noopener">
@@ -640,13 +657,13 @@ const categories = [
         }
 
         // Filter individual recipe cards
-        recipeCards.forEach(card => {
+        recipeCards.forEach((card) => {
           const cardCat = card.dataset.category || '';
           const matchesCategory = activeCategory === 'All' || cardCat === activeCategory;
 
           // Search across card title, summary, tags, and code
           const cardText = (card.textContent || '').toLowerCase();
-          const matchesQuery = searchTerms.length === 0 || searchTerms.every(term => cardText.includes(term));
+          const matchesQuery = searchTerms.length === 0 || searchTerms.every((term) => cardText.includes(term));
 
           if (matchesCategory && matchesQuery) {
             card.style.display = '';
@@ -657,13 +674,13 @@ const categories = [
         });
 
         // Hide empty category sections
-        categorySections.forEach(section => {
+        categorySections.forEach((section) => {
           const sectionCat = section.dataset.categoryGroup || '';
           const matchesCategory = activeCategory === 'All' || sectionCat === activeCategory;
           const cards = section.querySelectorAll<HTMLElement>('.rd-recipe-card');
-          const hasVisibleCards = Array.from(cards).some(c => c.style.display !== 'none');
+          const hasVisibleCards = Array.from(cards).some((c) => c.style.display !== 'none');
 
-          section.style.display = (matchesCategory && hasVisibleCards) ? '' : 'none';
+          section.style.display = matchesCategory && hasVisibleCards ? '' : 'none';
         });
 
         // Toggle empty state
@@ -707,12 +724,12 @@ const categories = [
       }
 
       // Category filter pills
-      filterPills.forEach(pill => {
+      filterPills.forEach((pill) => {
         pill.addEventListener('click', () => {
           const cat = pill.dataset.category;
           if (!cat) return;
 
-          filterPills.forEach(p => p.classList.remove('active'));
+          filterPills.forEach((p) => p.classList.remove('active'));
           pill.classList.add('active');
           activeCategory = cat;
           filterRecipes();
@@ -728,7 +745,7 @@ const categories = [
       });
 
       // Smooth scroll and copy link on anchor click
-      document.querySelectorAll('.rd-anchor-link, .rd-recipe-link').forEach(link => {
+      document.querySelectorAll('.rd-anchor-link, .rd-recipe-link').forEach((link) => {
         link.addEventListener('click', (e) => {
           const href = (link as HTMLAnchorElement).getAttribute('href');
           if (href && href.startsWith('#')) {
@@ -756,630 +773,648 @@ const categories = [
 </GlobalLayout>
 
 <style>
-/* CSS Variables & Design Tokens */
-:root {
-  --rd-emerald: #10b981;
-  --rd-emerald-glow: rgba(16, 185, 129, 0.25);
-  --rd-cyan: #06b6d4;
-  --rd-cyan-glow: rgba(6, 182, 212, 0.25);
-  --rd-indigo: #6366f1;
-  --rd-surface: rgba(15, 23, 42, 0.65);
-  --rd-surface-card: rgba(11, 17, 33, 0.7);
-  --rd-surface-hover: rgba(22, 32, 58, 0.85);
-  --rd-glass-border: rgba(255, 255, 255, 0.08);
-  --rd-glass-border-hover: rgba(16, 185, 129, 0.4);
-  --rd-text-primary: #f8fafc;
-  --rd-text-secondary: #94a3b8;
-  --rd-text-muted: #64748b;
-  --rd-font-mono: 'Roboto Mono', Monaco, 'Andale Mono', monospace;
-}
-
-/* Ambient Radial Glows */
-.ambient-glow {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(140px);
-  pointer-events: none;
-  opacity: 0.18;
-  z-index: 0;
-}
-.glow-emerald {
-  top: 100px;
-  left: 12%;
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, var(--rd-emerald) 0%, transparent 70%);
-}
-.glow-indigo {
-  top: 650px;
-  right: 12%;
-  width: 550px;
-  height: 550px;
-  background: radial-gradient(circle, var(--rd-indigo) 0%, transparent 70%);
-}
-.glow-cyan {
-  top: 1400px;
-  left: 18%;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, var(--rd-cyan) 0%, transparent 70%);
-}
-
-/* Page Layout */
-.rd-ref-main {
-  position: relative;
-  z-index: 1;
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 48px 24px 96px 24px;
-}
-
-/* Hero Header */
-.rd-ref-header {
-  text-align: center;
-  max-width: 860px;
-  margin: 0 auto 56px auto;
-}
-
-.rd-badge-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 14px;
-  border-radius: 9999px;
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.25);
-  margin-bottom: 20px;
-}
-
-.rd-badge-pulse {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--rd-emerald);
-  box-shadow: 0 0 10px var(--rd-emerald);
-  animation: pulse-dot 2s infinite;
-}
-
-@keyframes pulse-dot {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-}
-
-.rd-badge-text {
-  font-size: 13px;
-  font-weight: 600;
-  color: #34d399;
-  letter-spacing: 0.02em;
-}
-
-.rd-page-title {
-  font-size: clamp(32px, 5vw, 52px);
-  font-weight: 800;
-  color: #fff;
-  line-height: 1.15;
-  letter-spacing: -0.03em;
-  margin: 0 0 18px 0;
-}
-
-.text-gradient {
-  background: linear-gradient(135deg, #34d399 0%, #38bdf8 50%, #818cf8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  display: inline-block;
-}
-
-.rd-page-subtitle {
-  font-size: clamp(16px, 2vw, 18px);
-  color: var(--rd-text-secondary);
-  line-height: 1.6;
-  margin: 0 auto 36px auto;
-}
-
-.rd-page-subtitle code {
-  color: #38bdf8;
-  background: rgba(56, 189, 248, 0.1);
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 0.9em;
-  border: 1px solid rgba(56, 189, 248, 0.2);
-}
-
-/* Stats Counter Bar */
-.rd-stats-bar {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 14px;
-  margin: 0 auto 40px auto;
-}
-
-.rd-stat-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 20px;
-  background: var(--rd-surface-card);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--rd-glass-border);
-  border-radius: 12px;
-  text-decoration: none;
-  min-width: 140px;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.rd-stat-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--rd-glass-border-hover);
-  box-shadow: 0 10px 25px -5px var(--rd-emerald-glow);
-  background: var(--rd-surface-hover);
-}
-
-.rd-stat-value {
-  font-size: 22px;
-  font-weight: 700;
-  color: #fff;
-  font-family: var(--rd-font-mono);
-  line-height: 1.2;
-}
-
-.rd-stat-label {
-  font-size: 11.5px;
-  font-weight: 500;
-  color: var(--rd-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-top: 4px;
-}
-
-/* Search & Filter Controls */
-.rd-search-section {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  align-items: center;
-  width: 100%;
-}
-
-.rd-search-wrapper {
-  position: relative;
-  width: 100%;
-  max-width: 760px;
-}
-
-.rd-search-icon {
-  position: absolute;
-  left: 18px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #64748b;
-  pointer-events: none;
-}
-
-.rd-search-input {
-  width: 100%;
-  padding: 15px 48px 15px 50px;
-  background: rgba(15, 23, 42, 0.8);
-  backdrop-filter: blur(16px);
-  border: 1px solid var(--rd-glass-border);
-  border-radius: 14px;
-  font-size: 15px;
-  color: #fff;
-  box-sizing: border-box;
-  transition: all 0.25s ease;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
-}
-
-.rd-search-input:focus {
-  outline: none;
-  border-color: var(--rd-emerald);
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2), 0 8px 30px rgba(0, 0, 0, 0.6);
-  background: rgba(15, 23, 42, 0.95);
-}
-
-.rd-search-input::placeholder {
-  color: #64748b;
-}
-
-.rd-clear-btn {
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.08);
-  border: none;
-  border-radius: 50%;
-  width: 26px;
-  height: 26px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #94a3b8;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.rd-clear-btn:hover {
-  background: rgba(255, 255, 255, 0.16);
-  color: #fff;
-}
-
-/* Category Filter Pills */
-.rd-nav-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
-  max-width: 900px;
-}
-
-.rd-pill {
-  padding: 7px 15px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--rd-glass-border);
-  border-radius: 9999px;
-  color: var(--rd-text-secondary);
-  font-size: 13px;
-  font-weight: 500;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.rd-pill:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.15);
-}
-
-.rd-pill.active {
-  background: var(--rd-emerald);
-  border-color: var(--rd-emerald);
-  color: #04120c;
-  font-weight: 600;
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
-}
-
-.rd-pill-playground {
-  background: rgba(56, 189, 248, 0.1);
-  border-color: rgba(56, 189, 248, 0.25);
-  color: #38bdf8;
-}
-.rd-pill-playground:hover {
-  background: rgba(56, 189, 248, 0.2);
-  color: #7dd3fc;
-  border-color: rgba(56, 189, 248, 0.4);
-}
-
-/* Empty State */
-.rd-empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 80px 24px;
-  background: var(--rd-surface-card);
-  border: 1px dashed var(--rd-glass-border);
-  border-radius: 16px;
-  text-align: center;
-  margin: 40px auto;
-  max-width: 600px;
-}
-
-.rd-empty-icon {
-  font-size: 44px;
-  margin-bottom: 16px;
-}
-
-.rd-empty-title {
-  font-size: 20px;
-  color: #fff;
-  margin: 0 0 10px 0;
-}
-
-.rd-empty-desc {
-  font-size: 14px;
-  color: var(--rd-text-secondary);
-  margin: 0 0 24px 0;
-  line-height: 1.5;
-}
-
-/* Category Section */
-.rd-category-section {
-  margin-bottom: 64px;
-}
-
-.rd-section-header {
-  margin-bottom: 24px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.rd-section-badge {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-weight: 700;
-  padding: 3px 9px;
-  border-radius: 6px;
-  background: rgba(16, 185, 129, 0.12);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.25);
-}
-
-.rd-section-title {
-  font-size: 26px;
-  font-weight: 700;
-  color: #fff;
-  margin: 0;
-  letter-spacing: -0.02em;
-}
-
-.rd-anchor-link, .rd-recipe-link {
-  text-decoration: none;
-  color: inherit;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.rd-hash, .rd-recipe-hash {
-  opacity: 0;
-  color: var(--rd-emerald);
-  font-weight: 400;
-  transition: opacity 0.2s ease;
-}
-
-.rd-anchor-link:hover .rd-hash,
-.rd-recipe-link:hover .rd-recipe-hash {
-  opacity: 1;
-}
-
-/* Recipes Grid */
-.rd-recipes-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
-}
-
-/* Recipe Card */
-.rd-recipe-card {
-  background: var(--rd-surface-card);
-  backdrop-filter: blur(16px);
-  border: 1px solid var(--rd-glass-border);
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
-  transition: border-color 0.25s ease, box-shadow 0.25s ease;
-}
-
-.rd-recipe-card:hover {
-  border-color: rgba(255, 255, 255, 0.16);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
-}
-
-.rd-card-topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  margin-bottom: 12px;
-}
-
-.rd-card-heading {
-  flex: 1;
-}
-
-.rd-recipe-title {
-  font-size: 19px;
-  font-weight: 700;
-  color: #fff;
-  margin: 0;
-  letter-spacing: -0.01em;
-}
-
-.rd-demo-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(16, 185, 129, 0.12);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  padding: 5px 12px;
-  border-radius: 9999px;
-  font-size: 12px;
-  font-weight: 600;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: all 0.2s ease;
-}
-
-.rd-demo-btn:hover {
-  background: var(--rd-emerald);
-  color: #04120c;
-  box-shadow: 0 0 14px rgba(16, 185, 129, 0.4);
-  transform: translateY(-1px);
-}
-
-.rd-recipe-summary {
-  font-size: 14.5px;
-  color: var(--rd-text-secondary);
-  line-height: 1.6;
-  margin: 0 0 14px 0;
-}
-
-.rd-tags-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 16px;
-}
-
-.rd-tag-badge {
-  font-size: 11px;
-  font-family: var(--rd-font-mono);
-  background: rgba(255, 255, 255, 0.05);
-  color: #cbd5e1;
-  padding: 2px 7px;
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.rd-code-container {
-  width: 100%;
-}
-
-/* Sandbox Callout Section */
-.rd-sandbox-callout {
-  position: relative;
-  overflow: hidden;
-  margin-top: 60px;
-  border-radius: 20px;
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(6, 182, 212, 0.08) 50%, rgba(99, 102, 241, 0.08) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  padding: 48px 36px;
-  text-align: center;
-}
-
-.rd-callout-glow {
-  position: absolute;
-  top: -50%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 500px;
-  height: 300px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, transparent 70%);
-  filter: blur(80px);
-  pointer-events: none;
-}
-
-.rd-callout-content {
-  position: relative;
-  z-index: 1;
-  max-width: 680px;
-  margin: 0 auto;
-}
-
-.rd-callout-badge {
-  display: inline-block;
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #38bdf8;
-  margin-bottom: 12px;
-}
-
-.rd-callout-title {
-  font-size: clamp(24px, 3.5vw, 32px);
-  font-weight: 800;
-  color: #fff;
-  margin: 0 0 14px 0;
-  letter-spacing: -0.02em;
-}
-
-.rd-callout-desc {
-  font-size: 15px;
-  color: var(--rd-text-secondary);
-  line-height: 1.6;
-  margin: 0 0 28px 0;
-}
-
-.rd-callout-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 14px;
-}
-
-/* Button Variants */
-.rd-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px 20px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid transparent;
-}
-
-.rd-btn-lg {
-  padding: 12px 24px;
-  font-size: 15px;
-}
-
-.rd-btn-primary {
-  background: var(--rd-emerald);
-  color: #04120c;
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
-}
-
-.rd-btn-primary:hover {
-  background: #34d399;
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
-  transform: translateY(-2px);
-}
-
-.rd-btn-secondary {
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.12);
-}
-
-.rd-btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
-}
-
-.rd-btn-ghost {
-  background: transparent;
-  color: var(--rd-text-secondary);
-  border-color: transparent;
-}
-
-.rd-btn-ghost:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.06);
-}
-
-/* Responsive Breakpoints */
-@media (max-width: 768px) {
+  /* CSS Variables & Design Tokens */
+  :root {
+    --rd-emerald: var(--rd-accent);
+    --rd-emerald-glow: var(--rd-accent-glow);
+    --rd-cyan: #06b6d4;
+    --rd-cyan-glow: rgba(6, 182, 212, 0.25);
+    --rd-indigo: #6366f1;
+    --rd-surface: rgba(15, 23, 42, 0.65);
+    --rd-surface-card: rgba(11, 17, 33, 0.7);
+    --rd-surface-hover: rgba(22, 32, 58, 0.85);
+    --rd-glass-border: rgba(255, 255, 255, 0.08);
+    --rd-glass-border-hover: var(--rd-border-accent);
+    --rd-text-primary: #f8fafc;
+    --rd-text-secondary: #94a3b8;
+    --rd-text-muted: #64748b;
+    --rd-font-mono: 'Roboto Mono', Monaco, 'Andale Mono', monospace;
+  }
+
+  /* Ambient Radial Glows */
+  .ambient-glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(140px);
+    pointer-events: none;
+    opacity: 0.18;
+    z-index: 0;
+  }
+  .glow-emerald {
+    top: 100px;
+    left: 12%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, var(--rd-accent) 0%, transparent 70%);
+  }
+  .glow-indigo {
+    top: 650px;
+    right: 12%;
+    width: 550px;
+    height: 550px;
+    background: radial-gradient(circle, var(--rd-logo-yellow, #f59e0b) 0%, transparent 70%);
+  }
+  .glow-cyan {
+    top: 1400px;
+    left: 18%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, var(--rd-logo-green, #84cc16) 0%, transparent 70%);
+  }
+
+  /* Page Layout */
   .rd-ref-main {
-    padding: 32px 16px 64px 16px;
+    position: relative;
+    z-index: 1;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 48px 24px 96px 24px;
   }
+
+  /* Hero Header */
+  .rd-ref-header {
+    text-align: center;
+    max-width: 860px;
+    margin: 0 auto 56px auto;
+  }
+
+  .rd-badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    background: var(--rd-accent-dim);
+    border: 1px solid var(--rd-accent-border);
+    margin-bottom: 20px;
+  }
+
+  .rd-badge-pulse {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--rd-accent);
+    box-shadow: 0 0 10px var(--rd-accent);
+    animation: pulse-dot 2s infinite;
+  }
+
+  @keyframes pulse-dot {
+    0% {
+      transform: scale(0.95);
+      box-shadow: 0 0 0 0 var(--rd-accent-glow);
+    }
+    70% {
+      transform: scale(1);
+      box-shadow: 0 0 0 6px transparent;
+    }
+    100% {
+      transform: scale(0.95);
+      box-shadow: 0 0 0 0 transparent;
+    }
+  }
+
+  .rd-badge-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--rd-accent-light);
+    letter-spacing: 0.02em;
+  }
+
+  .rd-page-title {
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    margin: 0 0 18px 0;
+  }
+
+  .text-gradient {
+    background: var(--rapidoc-logo-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+  }
+
+  .rd-page-subtitle {
+    font-size: clamp(16px, 2vw, 18px);
+    color: var(--rd-text-secondary);
+    line-height: 1.6;
+    margin: 0 auto 36px auto;
+  }
+
+  .rd-page-subtitle code {
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    border: 1px solid rgba(56, 189, 248, 0.2);
+  }
+
+  /* Stats Counter Bar */
   .rd-stats-bar {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+    margin: 0 auto 40px auto;
   }
+
   .rd-stat-card {
-    min-width: unset;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    background: var(--rd-surface-card);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--rd-glass-border);
+    border-radius: 12px;
+    text-decoration: none;
+    min-width: 140px;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
+
+  .rd-stat-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--rd-glass-border-hover);
+    box-shadow: 0 8px 20px -8px var(--rd-emerald-glow);
+    background: var(--rd-surface-hover);
+  }
+
+  .rd-stat-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    font-family: var(--rd-font-mono);
+    line-height: 1.2;
+  }
+
+  .rd-stat-label {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--rd-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 4px;
+  }
+
+  /* Search & Filter Controls */
+  .rd-search-section {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    align-items: center;
+    width: 100%;
+  }
+
+  .rd-search-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 760px;
+  }
+
+  .rd-search-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+    pointer-events: none;
+  }
+
+  .rd-search-input {
+    width: 100%;
+    padding: 15px 48px 15px 50px;
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--rd-glass-border);
+    border-radius: 14px;
+    font-size: 15px;
+    color: #fff;
+    box-sizing: border-box;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+  }
+
+  .rd-search-input:focus {
+    outline: none;
+    border-color: var(--rd-emerald);
+    box-shadow:
+      0 0 0 3px rgba(16, 185, 129, 0.2),
+      0 8px 30px rgba(0, 0, 0, 0.6);
+    background: rgba(15, 23, 42, 0.95);
+  }
+
+  .rd-search-input::placeholder {
+    color: #64748b;
+  }
+
+  .rd-clear-btn {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .rd-clear-btn:hover {
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
+  }
+
+  /* Category Filter Pills */
+  .rd-nav-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    max-width: 900px;
+  }
+
+  .rd-pill {
+    padding: 7px 15px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--rd-glass-border);
+    border-radius: 9999px;
+    color: var(--rd-text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .rd-pill:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .rd-pill.active {
+    background: var(--rd-emerald);
+    border-color: var(--rd-emerald);
+    color: #04120c;
+    font-weight: 600;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+  }
+
+  .rd-pill-playground {
+    background: rgba(56, 189, 248, 0.1);
+    border-color: rgba(56, 189, 248, 0.25);
+    color: #38bdf8;
+  }
+  .rd-pill-playground:hover {
+    background: rgba(56, 189, 248, 0.2);
+    color: #7dd3fc;
+    border-color: rgba(56, 189, 248, 0.4);
+  }
+
+  /* Empty State */
+  .rd-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 24px;
+    background: var(--rd-surface-card);
+    border: 1px dashed var(--rd-glass-border);
+    border-radius: 16px;
+    text-align: center;
+    margin: 40px auto;
+    max-width: 600px;
+  }
+
+  .rd-empty-icon {
+    font-size: 44px;
+    margin-bottom: 16px;
+  }
+
+  .rd-empty-title {
+    font-size: 20px;
+    color: #fff;
+    margin: 0 0 10px 0;
+  }
+
+  .rd-empty-desc {
+    font-size: 14px;
+    color: var(--rd-text-secondary);
+    margin: 0 0 24px 0;
+    line-height: 1.5;
+  }
+
+  /* Category Section */
+  .rd-category-section {
+    margin-bottom: 64px;
+  }
+
+  .rd-section-header {
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .rd-section-badge {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 6px;
+    background: rgba(16, 185, 129, 0.12);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.25);
+  }
+
+  .rd-section-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+
+  .rd-anchor-link,
+  .rd-recipe-link {
+    text-decoration: none;
+    color: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .rd-hash,
+  .rd-recipe-hash {
+    opacity: 0;
+    color: var(--rd-emerald);
+    font-weight: 400;
+    transition: opacity 0.2s ease;
+  }
+
+  .rd-anchor-link:hover .rd-hash,
+  .rd-recipe-link:hover .rd-recipe-hash {
+    opacity: 1;
+  }
+
+  /* Recipes Grid */
+  .rd-recipes-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  /* Recipe Card */
+  .rd-recipe-card {
+    background: var(--rd-surface-card);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--rd-glass-border);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+    transition:
+      border-color 0.25s ease,
+      box-shadow 0.25s ease;
+  }
+
+  .rd-recipe-card:hover {
+    border-color: rgba(255, 255, 255, 0.16);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  }
+
   .rd-card-topbar {
-    flex-direction: column;
+    display: flex;
+    justify-content: space-between;
     align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 12px;
   }
+
+  .rd-card-heading {
+    flex: 1;
+  }
+
+  .rd-recipe-title {
+    font-size: 19px;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
   .rd-demo-btn {
-    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(16, 185, 129, 0.12);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    padding: 5px 12px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.2s ease;
   }
+
+  .rd-demo-btn:hover {
+    background: var(--rd-emerald);
+    color: #04120c;
+    box-shadow: 0 0 14px rgba(16, 185, 129, 0.4);
+    transform: translateY(-1px);
+  }
+
+  .rd-recipe-summary {
+    font-size: 14.5px;
+    color: var(--rd-text-secondary);
+    line-height: 1.6;
+    margin: 0 0 14px 0;
+  }
+
+  .rd-tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .rd-tag-badge {
+    font-size: 11px;
+    font-family: var(--rd-font-mono);
+    background: rgba(255, 255, 255, 0.05);
+    color: #cbd5e1;
+    padding: 2px 7px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .rd-code-container {
+    width: 100%;
+  }
+
+  /* Sandbox Callout Section */
   .rd-sandbox-callout {
-    padding: 32px 20px;
+    position: relative;
+    overflow: hidden;
+    margin-top: 60px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(6, 182, 212, 0.08) 50%, rgba(99, 102, 241, 0.08) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 48px 36px;
+    text-align: center;
   }
+
+  .rd-callout-glow {
+    position: absolute;
+    top: -50%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 500px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, transparent 70%);
+    filter: blur(80px);
+    pointer-events: none;
+  }
+
+  .rd-callout-content {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .rd-callout-badge {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #38bdf8;
+    margin-bottom: 12px;
+  }
+
+  .rd-callout-title {
+    font-size: clamp(24px, 3.5vw, 32px);
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 14px 0;
+    letter-spacing: -0.02em;
+  }
+
+  .rd-callout-desc {
+    font-size: 15px;
+    color: var(--rd-text-secondary);
+    line-height: 1.6;
+    margin: 0 0 28px 0;
+  }
+
   .rd-callout-actions {
-    flex-direction: column;
-    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
   }
-  .rd-callout-actions .rd-btn {
-    width: 100%;
+
+  /* Button Variants */
+  .rd-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
   }
-}
+
+  .rd-btn-lg {
+    padding: 12px 24px;
+    font-size: 15px;
+  }
+
+  .rd-btn-primary {
+    background: var(--rd-accent-dim);
+    border: 1px solid var(--rd-accent-border);
+    color: var(--rd-accent-light) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  }
+
+  .rd-btn-primary:hover {
+    background: rgba(16, 185, 129, 0.22);
+    border-color: var(--rd-accent);
+    color: #ffffff !important;
+    box-shadow: 0 4px 16px var(--rd-accent-glow);
+    transform: translateY(-1px);
+  }
+
+  .rd-btn-secondary {
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .rd-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+  }
+
+  .rd-btn-ghost {
+    background: transparent;
+    color: var(--rd-text-secondary);
+    border-color: transparent;
+  }
+
+  .rd-btn-ghost:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  /* Responsive Breakpoints */
+  @media (max-width: 768px) {
+    .rd-ref-main {
+      padding: 32px 16px 64px 16px;
+    }
+    .rd-stats-bar {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .rd-stat-card {
+      min-width: unset;
+    }
+    .rd-card-topbar {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .rd-demo-btn {
+      align-self: flex-start;
+    }
+    .rd-sandbox-callout {
+      padding: 32px 20px;
+    }
+    .rd-callout-actions {
+      flex-direction: column;
+      width: 100%;
+    }
+    .rd-callout-actions .rd-btn {
+      width: 100%;
+    }
+  }
 </style>

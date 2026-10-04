@@ -68,38 +68,7 @@ body {
   background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
 }
 
-/* Animated Flame Border Keyframes */
-@keyframes flame-pulse-glow {
-  0%,
-  100% {
-    box-shadow:
-      -3px 0 14px rgba(255, 69, 0, 0.75),
-      -6px 0 28px rgba(255, 140, 0, 0.5),
-      0 0 10px rgba(255, 215, 0, 0.4),
-      inset 1px 0 8px rgba(255, 100, 0, 0.35);
-  }
-  50% {
-    box-shadow:
-      -5px 0 24px rgba(255, 80, 0, 0.95),
-      -9px 0 40px rgba(255, 160, 0, 0.75),
-      0 0 16px rgba(255, 230, 0, 0.6),
-      inset 1px 0 12px rgba(255, 140, 0, 0.5);
-  }
-}
-
-@keyframes flame-border-sweep {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-/* Docked Right Edge Tab Button with Animated Flame Border */
+/* Docked Right Edge Tab Button - Subtle & Refined */
 .rd-edge-tab {
   position: fixed !important;
   right: 0 !important;
@@ -110,62 +79,35 @@ body {
   gap: 8px !important;
   height: 38px !important;
   padding: 0 16px 0 14px !important;
-  background: linear-gradient(
-    135deg,
-    rgba(28, 14, 8, 0.94) 0%,
-    rgba(15, 23, 42, 0.96) 100%
-  ) !important;
+  background: rgba(15, 23, 42, 0.92) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
   color: #ffffff !important;
   font-size: 13px !important;
-  font-weight: 700 !important;
+  font-weight: 600 !important;
   cursor: pointer !important;
   border-radius: 9999px 0 0 9999px !important;
-  border: 1.5px solid transparent !important;
+  border: 1px solid rgba(245, 158, 11, 0.35) !important;
   border-right: none !important;
+  box-shadow: -2px 0 12px rgba(245, 158, 11, 0.15) !important;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-  animation: flame-pulse-glow 2.2s infinite ease-in-out !important;
   transition:
-    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 0.25s ease !important;
-}
-
-/* Animated multi-stop flame border gradient */
-.rd-edge-tab::before {
-  content: '' !important;
-  position: absolute !important;
-  inset: -2px 0 -2px -2px !important;
-  border-radius: 9999px 0 0 9999px !important;
-  padding: 2px 0 2px 2px !important;
-  background: linear-gradient(
-    90deg,
-    #ff1a00,
-    #ff6600,
-    #ffcc00,
-    #ff3300,
-    #ff1a00
-  ) !important;
-  background-size: 250% 100% !important;
-  animation: flame-border-sweep 2.5s linear infinite !important;
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0) !important;
-  -webkit-mask-composite: xor !important;
-  mask-composite: exclude !important;
-  pointer-events: none !important;
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease !important;
 }
 
 .rd-edge-tab svg {
-  color: #ff9900 !important;
-  filter: drop-shadow(0 0 5px rgba(255, 120, 0, 0.85)) !important;
-  transition: transform 0.25s ease !important;
+  color: #fbbf24 !important;
+  transition: transform 0.2s ease !important;
 }
 
 .rd-edge-tab:hover {
-  transform: translateX(-4px) scale(1.04) !important;
-  box-shadow:
-    -5px 0 26px rgba(255, 90, 0, 1),
-    -10px 0 44px rgba(255, 170, 0, 0.85),
-    inset 0 0 14px rgba(255, 140, 0, 0.6) !important;
+  transform: translateX(-3px) !important;
+  background: rgba(22, 34, 60, 0.96) !important;
+  border-color: rgba(245, 158, 11, 0.6) !important;
+  box-shadow: -4px 0 18px rgba(245, 158, 11, 0.25) !important;
 }
 
 .rd-edge-tab:hover svg {

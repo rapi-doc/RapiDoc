@@ -87,7 +87,7 @@ rapi-doc {
 .dr-segmented-group {
   display: inline-flex !important;
   align-items: center !important;
-  background: rgba(0, 0, 0, 0.28) !important;
+  background: rgba(0, 0, 0, 0.35) !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
   border-radius: 9999px !important;
   padding: 2px !important;
@@ -100,7 +100,7 @@ rapi-doc {
   justify-content: center !important;
   padding: 5px 8px !important;
   border-radius: 9999px !important;
-  border: none !important;
+  border: 1px solid transparent !important;
   background: transparent !important;
   color: #94a3b8 !important;
   cursor: pointer !important;
@@ -108,15 +108,42 @@ rapi-doc {
   line-height: 1 !important;
 }
 
+.dr-seg-btn svg {
+  display: block !important;
+  width: 14px !important;
+  height: 14px !important;
+  stroke: currentColor !important;
+  fill: none !important;
+  transition: stroke 0.15s ease !important;
+}
+
 .dr-seg-btn:hover {
   color: #ffffff !important;
-  background: rgba(255, 255, 255, 0.08) !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+
+.dr-seg-btn:hover svg {
+  stroke: #ffffff !important;
 }
 
 .dr-seg-btn.active {
-  color: #10b981 !important;
-  background: rgba(16, 185, 129, 0.2) !important;
-  box-shadow: 0 0 8px rgba(16, 185, 129, 0.25) !important;
+  color: var(--rd-accent-light, #34d399) !important;
+  background: var(--rd-accent-dim, rgba(16, 185, 129, 0.2)) !important;
+  border-color: var(--rd-accent-border, rgba(16, 185, 129, 0.4)) !important;
+  box-shadow: 0 0 8px var(--rd-accent-glow, rgba(16, 185, 129, 0.35)) !important;
+}
+
+.dr-seg-btn.active svg {
+  stroke: var(--rd-accent-light, #34d399) !important;
+}
+
+.dr-seg-btn.active:hover {
+  color: #ffffff !important;
+  background: var(--rd-accent-dim, rgba(16, 185, 129, 0.3)) !important;
+}
+
+.dr-seg-btn.active:hover svg {
+  stroke: #ffffff !important;
 }
 
 /* Slide-Over Spec Editor Drawer */
@@ -261,14 +288,14 @@ rapi-doc {
 }
 
 .dr-btn-primary {
-  background: #10b981 !important;
+  background: var(--rd-accent) !important;
   color: #ffffff !important;
   font-weight: 600 !important;
   border: none !important;
 }
 
 .dr-btn-primary:hover {
-  background: #059669 !important;
+  background: var(--rd-accent-hover) !important;
 }
 
 /* Drag & Drop Overlay */

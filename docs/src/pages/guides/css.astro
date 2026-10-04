@@ -247,12 +247,28 @@ const slotsData = stylingData.slots;
       <!-- Main Mode Switcher Tabs (Parts vs Variables) -->
       <div class="rd-mode-switcher">
         <button class="rd-mode-tab active" data-mode="parts" id="tab-parts">
-          <span class="mode-icon">⚡</span>
+          <span class="mode-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+          </span>
           <span>CSS Shadow Parts</span>
           <span class="mode-badge">{totalParts}</span>
         </button>
         <button class="rd-mode-tab" data-mode="variables" id="tab-variables">
-          <span class="mode-icon">🎛️</span>
+          <span class="mode-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" y1="21" x2="4" y2="14"></line>
+              <line x1="4" y1="10" x2="4" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12" y2="3"></line>
+              <line x1="20" y1="21" x2="20" y2="16"></line>
+              <line x1="20" y1="12" x2="20" y2="3"></line>
+              <line x1="1" y1="14" x2="7" y2="14"></line>
+              <line x1="9" y1="8" x2="15" y2="8"></line>
+              <line x1="17" y1="16" x2="23" y2="16"></line>
+            </svg>
+          </span>
           <span>CSS Custom Properties</span>
           <span class="mode-badge">{totalVariables}</span>
         </button>
@@ -298,7 +314,12 @@ const slotsData = stylingData.slots;
 
       <!-- Empty State -->
       <div id="catalog-empty-state" class="rd-empty-state" style="display: none;">
-        <div class="rd-empty-icon">🔍</div>
+        <div class="rd-empty-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
         <h3 class="rd-empty-title">No matching styling items found <span id="empty-query-text" class="text-gradient"></span></h3>
         <p class="rd-empty-desc">Try searching for a different keyword, part name, or reset your active category filter.</p>
         <button id="reset-search-btn" class="rd-btn rd-btn-primary">Reset Filter</button>
@@ -498,7 +519,7 @@ const slotsData = stylingData.slots;
           </div>
           <div class="rd-recipe-action">
             <a href="/examples/slots" target="_blank" class="rd-btn rd-btn-primary">
-              <span>Launch Interactive Slots Demo ↗</span>
+              <span>Launch Interactive Slots Demo</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <path d="M5 12h14m-7-7 7 7-7 7"/>
               </svg>
@@ -564,28 +585,56 @@ const slotsData = stylingData.slots;
       <!-- Markdown Capabilities Highlights Grid -->
       <div class="rd-md-features-grid">
         <div class="rd-md-card">
-          <div class="rd-md-icon">🟢</div>
+          <div class="rd-md-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+              <line x1="7" y1="7" x2="7.01" y2="7"></line>
+            </svg>
+          </div>
           <h4 class="rd-md-title">Interactive Badges & CTAs</h4>
           <p class="rd-md-text">
             Embed live system status pills, SDK download links, or Discord community invites directly at the top of your API documentation.
           </p>
         </div>
         <div class="rd-md-card">
-          <div class="rd-md-icon">🗂️</div>
+          <div class="rd-md-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+              <polyline points="2 17 12 22 22 17"></polyline>
+              <polyline points="2 12 12 17 22 12"></polyline>
+            </svg>
+          </div>
           <h4 class="rd-md-title">Collapsible &lt;details&gt;</h4>
           <p class="rd-md-text">
             Condense dense rate-limiting rules, troubleshooting guides, or JSON payload schemas with native HTML <code class="mono-code">&lt;details&gt;</code> and <code class="mono-code">&lt;summary&gt;</code> tags.
           </p>
         </div>
         <div class="rd-md-card">
-          <div class="rd-md-icon">⚠️</div>
+          <div class="rd-md-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </div>
           <h4 class="rd-md-title">Deprecation Alerts & Callouts</h4>
           <p class="rd-md-text">
             Add high-visibility warning callouts with inline styling (<code class="mono-code">style="..."</code>) to highlight migration timelines and auth updates.
           </p>
         </div>
         <div class="rd-md-card">
-          <div class="rd-md-icon">📹</div>
+          <div class="rd-md-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+              <line x1="7" y1="2" x2="7" y2="22"></line>
+              <line x1="17" y1="2" x2="17" y2="22"></line>
+              <line x1="2" y1="12" x2="22" y2="12"></line>
+              <line x1="2" y1="7" x2="7" y2="7"></line>
+              <line x1="2" y1="17" x2="7" y2="17"></line>
+              <line x1="17" y1="17" x2="22" y2="17"></line>
+              <line x1="17" y1="7" x2="22" y2="7"></line>
+            </svg>
+          </div>
           <h4 class="rd-md-title">Embedded Videos & Media</h4>
           <p class="rd-md-text">
             Include tutorial videos via <code class="mono-code">&lt;iframe&gt;</code>, architecture diagrams, audio explanations, or custom responsive tables.
@@ -605,13 +654,16 @@ const slotsData = stylingData.slots;
           </div>
           <div class="rd-recipe-action" style="gap: 12px; flex-wrap: wrap;">
             <a href="/examples/markdown" target="_blank" class="rd-btn rd-btn-primary">
-              <span>View Markdown Demo ↗</span>
+              <span>View Markdown Demo</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <path d="M5 12h14m-7-7 7 7-7 7"/>
               </svg>
             </a>
             <a href="/examples/markdown-headings" target="_blank" class="rd-btn rd-btn-secondary">
-              <span>Markdown Headings Demo ↗</span>
+              <span>Markdown Headings Demo</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14m-7-7 7 7-7 7"/>
+              </svg>
             </a>
           </div>
         </div>
