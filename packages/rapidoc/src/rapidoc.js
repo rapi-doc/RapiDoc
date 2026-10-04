@@ -50,8 +50,7 @@ export default class RapiDoc extends LitElement {
   constructor() {
     super();
     const intersectionObserverOptions = {
-      root: this.getRootNode().host,
-      rootMargin: '-50px 0px -50px 0px', // when the element is visible 100px from bottom
+      rootMargin: '0px 0px -65% 0px', // Target the top 35% reading zone of viewport
       threshold: 0,
     };
     this.showSummaryWhenCollapsed = true;
@@ -723,6 +722,9 @@ export default class RapiDoc extends LitElement {
 
   // Cleanup
   disconnectedCallback() {
+    if (this._intersectionRaf) {
+      cancelAnimationFrame(this._intersectionRaf);
+    }
     if (this.intersectionObserver) {
       this.intersectionObserver.disconnect();
     }
@@ -1146,29 +1148,55 @@ export default class RapiDoc extends LitElement {
       return;
     }
 
-    entries.forEach((entry) => {
-      if (entry.isIntersecting && entry.intersectionRatio > 0) {
-        const oldNavEl = this.shadowRoot.querySelector(
-          '.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active, .operations.active'
-        );
-        const newNavEl = this.shadowRoot.getElementById(`link-${entry.target.id}`);
+    const visibleEntries = entries.filter((entry) => entry.isIntersecting && entry.intersectionRatio > 0);
+    if (visibleEntries.length === 0) {
+      return;
+    }
 
-        // Add active class in the new element
-        if (newNavEl) {
-          if (this.updateRoute === 'true') {
-            this.replaceHistoryState(entry.target.id);
-          }
-          newNavEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'center' });
-          newNavEl.classList.add('active');
-          newNavEl.part.add('section-navbar-active-item');
-        }
+    // Pick the topmost entry in the reading zone
+    const bestEntry = visibleEntries.reduce((best, curr) => {
+      const bestTop = best.boundingClientRect.top;
+      const currTop = curr.boundingClientRect.top;
+      return currTop < bestTop ? curr : best;
+    });
 
-        // Remove active class from previous element
-        // if it is different from the new one (edge case on loading in read render style)
-        if (oldNavEl && oldNavEl !== newNavEl) {
-          oldNavEl.classList.remove('active');
-          oldNavEl.part.remove('section-navbar-active-item');
+    const targetId = bestEntry.target.id;
+    const newNavEl = this.shadowRoot.getElementById(`link-${targetId}`);
+    if (!newNavEl || newNavEl.classList.contains('active')) {
+      return;
+    }
+
+    if (this._intersectionRaf) {
+      cancelAnimationFrame(this._intersectionRaf);
+    }
+
+    this._intersectionRaf = requestAnimationFrame(() => {
+      const oldNavEl = this.shadowRoot.querySelector(
+        '.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active, .operations.active'
+      );
+
+      if (oldNavEl && oldNavEl !== newNavEl) {
+        oldNavEl.classList.remove('active');
+        oldNavEl.part.remove('section-navbar-active-item');
+      }
+
+      newNavEl.classList.add('active');
+      newNavEl.part.add('section-navbar-active-item');
+
+      // Scroll sidebar only if the active item is out of view
+      const navScrollEl = newNavEl.closest('.nav-scroll');
+      if (navScrollEl) {
+        const scrollRect = navScrollEl.getBoundingClientRect();
+        const itemRect = newNavEl.getBoundingClientRect();
+        const isOutOfView = itemRect.top < scrollRect.top + 40 || itemRect.bottom > scrollRect.bottom - 40;
+        if (isOutOfView) {
+          const behavior = this.scrollBehavior === 'auto' ? 'auto' : 'smooth';
+          newNavEl.scrollIntoView({ behavior, block: 'nearest' });
         }
+      }
+
+      if (this.updateRoute === 'true') {
+        this.replaceHistoryState(targetId);
       }
     });
   }
@@ -1214,7 +1242,7 @@ export default class RapiDoc extends LitElement {
     this.scrollToPath(navEl.dataset.contentId, true, scrollNavItemToView);
     setTimeout(() => {
       this.isIntersectionObserverActive = true;
-    }, 300);
+    }, 500);
   }
 
   // Public Method (scrolls to a given path and highlights the left-nav selection)
