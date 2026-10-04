@@ -1,11 +1,7 @@
 ---
-// docs/src/pages/examples/basic.astro
-import Layout from '../../layouts/Layout.astro';
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
 ---
-<html>
-  <body>
-    <Layout>
-      <rapi-doc id = "thedoc" spec-url = "/specs/petstore.yaml" theme = "dark"> </rapi-doc>
-    </Layout>
-  </body>
-</html>
+
+<ExampleLayout>
+  <rapi-doc id="thedoc" spec-url="/specs/petstore.yaml" theme="dark"> </rapi-doc>
+</ExampleLayout>

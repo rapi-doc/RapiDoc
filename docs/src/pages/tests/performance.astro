@@ -1,0 +1,1937 @@
+---
+import GlobalLayout from '../../layouts/GlobalLayout.astro';
+import SiteNavbar from '../../components/SiteNavbar.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import { benchmarkData } from '../../page-data/performance-benchmarks';
+import { rapidocBuildInfo } from '../../page-data/rapidoc-build-info';
+
+const swaggerConvertCode = `# Optional: Only required if using legacy Swagger 2.0 specs
+# 1. Install swagger2openapi globally
+npm install -g swagger2openapi
+
+# 2. Convert Swagger 2.0 to OpenAPI 3.0 during CI/CD build
+swagger2openapi swagger.json --outfile openapi3.json --yaml false
+
+# 3. Supply pre-converted spec directly to RapiDoc (zero browser conversion overhead)
+<rapi-doc spec-url="/specs/openapi3.json"></rapi-doc>`;
+
+const renderModeCode = `<!-- Switch from "read" to "focused" or "view" mode for 100+ endpoints -->
+<rapi-doc
+  spec-url="/specs/enterprise-large-spec.json"
+  render-style="focused"
+  schema-style="table"
+></rapi-doc>`;
+
+const tuningConfigCode = `<!-- Optimal configuration for 5MB+ mega specifications -->
+<rapi-doc
+  spec-url="/specs/enterprise-huge-spec.json"
+  render-style="focused"
+  schema-style="table"
+  schema-expand-level="1"
+  default-schema-tab="schema"
+  show-header="false"
+  theme="dark"
+  bg-color="#0a0f1d"
+  primary-color="#10b981"
+  allow-try="true"
+></rapi-doc>`;
+
+const miniSnippetCode = `<!-- Pluck and render only a specific endpoint from a multi-megabyte spec -->
+<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+
+<rapi-doc-mini
+  spec-url="/specs/enterprise-huge-spec.json"
+  match-paths="get /users/{id}"
+  theme="dark"
+></rapi-doc-mini>`;
+
+const esmImportCode = `// Native ES Module import in modern frameworks
+import 'rapidoc';
+
+// Or in vanilla HTML with zero bundlers:
+<script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>`;
+---
+
+<GlobalLayout 
+  title="Performance Benchmarks & Large Spec Optimization | RapiDoc"
+  description="Compare RapiDoc rendering speed, memory consumption, and bundle size against Swagger UI and Redoc. Learn tuning techniques for multi-megabyte OpenAPI specs."
+  keywords="RapiDoc performance, OpenAPI benchmark, Swagger UI speed comparison, Redoc alternative performance, large OpenAPI specs"
+>
+  <!-- Ambient background glow elements -->
+  <div class="ambient-glow glow-emerald"></div>
+  <div class="ambient-glow glow-cyan"></div>
+  <div class="ambient-glow glow-purple"></div>
+
+  <!-- RapiDoc Component Registration for Interactive Benchmark -->
+  <script slot="script" is:inline type="module" src="/rapidoc/rapidoc-min.js"></script>
+
+  <!-- Site Navbar -->
+  <SiteNavbar activePage="tests" />
+
+  <main class="rd-perf-page">
+    <!-- Hero Section -->
+    <header class="rd-perf-hero">
+      <div class="rd-badge-pill">
+        <span class="rd-badge-pulse"></span>
+        <span class="rd-badge-text">Architecture & High-Scale Benchmarks</span>
+      </div>
+
+      <h1 class="rd-hero-title">
+        Engineered for Speed. <br/>
+        <span class="rd-gradient-text">Zero DOM Bloat at Any Scale.</span>
+      </h1>
+
+      <p class="rd-hero-subtitle">
+        Discover how RapiDoc parses and renders multi-megabyte OpenAPI specifications in under 500 milliseconds using native W3C Web Components, a pure ESM distribution, the CSS Custom Highlight API, and a non-blocking streaming engine.
+      </p>
+
+      <!-- Key Performance Indicators (KPIs) -->
+      <div class="rd-kpi-grid">
+        <div class="rd-kpi-card">
+          <div class="rd-kpi-val">~{rapidocBuildInfo.bundle.gzip.formatted}</div>
+          <div class="rd-kpi-label">Self-Contained Bundle</div>
+          <div class="rd-kpi-desc">Gzipped single script ({rapidocBuildInfo.bundle.minified.formatted} minified). Zero external stylesheets, no font downloads, no framework overhead.</div>
+        </div>
+
+        <div class="rd-kpi-card">
+          <div class="rd-kpi-val">0 <span class="rd-kpi-unit">ms</span></div>
+          <div class="rd-kpi-label">Virtual DOM Diffing</div>
+          <div class="rd-kpi-desc">Native W3C Web Component. Reactive direct DOM updates with zero tree diffing lag or memory leaks.</div>
+        </div>
+
+        <div class="rd-kpi-card">
+          <div class="rd-kpi-val">0 <span class="rd-kpi-unit">Elements</span></div>
+          <div class="rd-kpi-label">Nested Code Token Spans</div>
+          <div class="rd-kpi-desc">W3C CSS Custom Highlight API paints syntax directly on raw text. No 50,000-span DOM explosion.</div>
+        </div>
+
+        <div class="rd-kpi-card">
+          <div class="rd-kpi-val">&lt; 450 <span class="rd-kpi-unit">ms</span></div>
+          <div class="rd-kpi-label">900+ Endpoints Rendered</div>
+          <div class="rd-kpi-desc">Sub-half-second initial paint on massive 4.8MB enterprise specifications with 2,500+ schemas.</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Interactive Live Benchmark Studio -->
+    <section class="rd-section" id="live-benchmark">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Live Interactive Lab</div>
+        <h2 class="rd-section-title">Benchmark Real Large Specs</h2>
+        <p class="rd-section-desc">
+          Test real OpenAPI specifications live in your browser. Measure exact parsing and rendering times with high-precision browser timers.
+        </p>
+      </div>
+
+      <div class="rd-benchmark-studio">
+        <!-- Control Bar -->
+        <div class="rd-studio-controls">
+          <div class="rd-control-group">
+            <span class="rd-control-label" id="label-spec-select">Select Specification:</span>
+            <div class="rd-custom-select" id="custom-spec-dropdown">
+              <button 
+                type="button" 
+                class="rd-custom-select-trigger" 
+                aria-haspopup="listbox" 
+                aria-expanded="false" 
+                aria-labelledby="label-spec-select"
+              >
+                <span class="rd-selected-text">Mega API Matrix (900+ Operations, 4.8 MB)</span>
+                <svg class="rd-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+              <div class="rd-custom-select-menu" role="listbox">
+                <div 
+                  class="rd-select-option" 
+                  data-value="petstore" 
+                  data-label="Swagger Petstore (Baseline, 24 KB)"
+                  data-size="24 KB" 
+                  data-ops="20" 
+                  data-schemas="6" 
+                  data-url="/specs/petstore-3-0-3.yaml"
+                  role="option"
+                  tabindex="0"
+                >
+                  <div class="rd-option-main">
+                    <span class="rd-option-label">Swagger Petstore</span>
+                    <span class="rd-option-badge">Baseline, 24 KB</span>
+                  </div>
+                  <svg class="rd-option-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+
+                <div 
+                  class="rd-select-option" 
+                  data-value="enterprise" 
+                  data-label="Enterprise Cluster (Deep Schemas, 3.2 MB)"
+                  data-size="3.2 MB" 
+                  data-ops="38" 
+                  data-schemas="3,010" 
+                  data-url="/specs/large-spec2-v3.json"
+                  role="option"
+                  tabindex="0"
+                >
+                  <div class="rd-option-main">
+                    <span class="rd-option-label">Enterprise Cluster</span>
+                    <span class="rd-option-badge">Deep Schemas, 3.2 MB</span>
+                  </div>
+                  <svg class="rd-option-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+
+                <div 
+                  class="rd-select-option is-selected" 
+                  data-value="mega" 
+                  data-label="Mega API Matrix (900+ Operations, 4.8 MB)"
+                  data-size="4.8 MB" 
+                  data-ops="917" 
+                  data-schemas="2,511" 
+                  data-url="/specs/large-spec-v3.json"
+                  role="option"
+                  aria-selected="true"
+                  tabindex="0"
+                >
+                  <div class="rd-option-main">
+                    <span class="rd-option-label">Mega API Matrix</span>
+                    <span class="rd-option-badge">900+ Operations, 4.8 MB</span>
+                  </div>
+                  <svg class="rd-option-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rd-control-group">
+            <span class="rd-control-label" id="label-mode-select">Render Mode:</span>
+            <div class="rd-custom-select" id="custom-mode-dropdown">
+              <button 
+                type="button" 
+                class="rd-custom-select-trigger" 
+                aria-haspopup="listbox" 
+                aria-expanded="false" 
+                aria-labelledby="label-mode-select"
+              >
+                <span class="rd-selected-text">Focused (Fastest - 1 active endpoint)</span>
+                <svg class="rd-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+              <div class="rd-custom-select-menu" role="listbox">
+                <div 
+                  class="rd-select-option is-selected" 
+                  data-value="focused"
+                  data-label="Focused (Fastest - 1 active endpoint)"
+                  role="option"
+                  aria-selected="true"
+                  tabindex="0"
+                >
+                  <div class="rd-option-main">
+                    <span class="rd-option-label">Focused</span>
+                    <span class="rd-option-badge">Fastest - 1 active endpoint</span>
+                  </div>
+                  <svg class="rd-option-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+
+                <div 
+                  class="rd-select-option" 
+                  data-value="view"
+                  data-label="View (Collapsible sections)"
+                  role="option"
+                  tabindex="0"
+                >
+                  <div class="rd-option-main">
+                    <span class="rd-option-label">View</span>
+                    <span class="rd-option-badge">Collapsible sections</span>
+                  </div>
+                  <svg class="rd-option-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+
+                <div 
+                  class="rd-select-option" 
+                  data-value="read"
+                  data-label="Read (Full linear document)"
+                  role="option"
+                  tabindex="0"
+                >
+                  <div class="rd-option-main">
+                    <span class="rd-option-label">Read</span>
+                    <span class="rd-option-badge">Full linear document</span>
+                  </div>
+                  <svg class="rd-option-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button id="benchmark-run-btn" class="rd-btn rd-btn-primary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            <span>Run Benchmark</span>
+          </button>
+        </div>
+
+        <!-- Live Scoreboard -->
+        <div class="rd-scoreboard">
+          <div class="rd-score-item">
+            <span class="rd-score-label">Spec File Size</span>
+            <span class="rd-score-val" id="stat-size">4.8 MB</span>
+          </div>
+          <div class="rd-score-item">
+            <span class="rd-score-label">Total Operations</span>
+            <span class="rd-score-val" id="stat-ops">917</span>
+          </div>
+          <div class="rd-score-item">
+            <span class="rd-score-label">Schema Models</span>
+            <span class="rd-score-val" id="stat-schemas">2,511</span>
+          </div>
+          <div class="rd-score-item highlight-score">
+            <span class="rd-score-label">Render & Parse Time</span>
+            <span class="rd-score-val text-emerald" id="stat-timer">Ready to test</span>
+          </div>
+        </div>
+
+        <!-- Benchmark Output Sandbox -->
+        <div class="rd-sandbox-frame">
+          <div class="rd-sandbox-header">
+            <div class="rd-window-dots">
+              <span class="rd-dot red"></span>
+              <span class="rd-dot yellow"></span>
+              <span class="rd-dot green"></span>
+            </div>
+            <span class="rd-sandbox-status" id="sandbox-status">Click "Run Benchmark" to render live</span>
+          </div>
+          <div class="rd-sandbox-viewport" id="benchmark-viewport">
+            <div class="rd-placeholder-state" id="benchmark-placeholder">
+              <div class="rd-placeholder-icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+              </div>
+              <h3>Interactive Performance Sandbox</h3>
+              <p>Choose an enterprise specification above and click <strong>Run Benchmark</strong> to load and time RapiDoc live.</p>
+            </div>
+            <div id="benchmark-host" style="display: none; width: 100%; height: 600px;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Large Spec Benchmark Comparison Table -->
+    <section class="rd-section">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Empirical Results</div>
+        <h2 class="rd-section-title">Tested Specifications & Benchmark Metrics</h2>
+        <p class="rd-section-desc">
+          Measured in Chromium on Apple Silicon (M-series) running single-threaded JavaScript execution:
+        </p>
+      </div>
+
+      <div class="rd-table-container">
+        <table class="rd-perf-table">
+          <thead>
+            <tr>
+              <th>Specification</th>
+              <th>Format</th>
+              <th>File Size</th>
+              <th>Operations</th>
+              <th>Schemas</th>
+              <th>Focused Mode</th>
+              <th>View Mode</th>
+              <th>Read Mode</th>
+              <th>DOM Nodes (Focused)</th>
+              <th>Scroll Stability</th>
+            </tr>
+          </thead>
+          <tbody>
+            {benchmarkData.benchmarks.map((item) => (
+              <tr>
+                <td class="font-semibold text-white">
+                  <div>{item.name}</div>
+                  <span class="rd-table-sub">{item.subtitle}</span>
+                </td>
+                <td><code>{item.format}</code></td>
+                <td>{item.fileSize}</td>
+                <td>{item.operations}</td>
+                <td>{item.schemas}</td>
+                <td><span class="rd-pill-fast rd-pill-focused">{item.focusedModeTime}</span></td>
+                <td><span class="rd-pill-fast rd-pill-view">{item.viewModeTime}</span></td>
+                <td><span class="rd-pill-fast rd-pill-read">{item.readModeTime}</span></td>
+                <td>{item.domNodesFocused}</td>
+                <td><span class="text-emerald">{item.scrollStability}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Architectural Deep-Dive Grid -->
+    <section class="rd-section" id="architecture">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Engineering Deep Dive</div>
+        <h2 class="rd-section-title">Why RapiDoc Outperforms Traditional Documentation</h2>
+        <p class="rd-section-desc">
+          Four foundational engineering breakthroughs that enable instantaneous loads and flat memory profiles:
+        </p>
+      </div>
+
+      <div class="rd-arch-grid">
+        <!-- Card 1: Bundle Size & Zero CSS downloads -->
+        <div class="rd-arch-card">
+          <div class="rd-card-header">
+            <span class="rd-card-badge badge-emerald">Design & Tooling</span>
+            <span class="rd-card-time">~{rapidocBuildInfo.bundle.gzip.formatted} gzipped</span>
+          </div>
+          <div class="rd-card-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path>
+              <path d="m3.3 7 8.7 5 8.7-5"></path>
+              <path d="M12 22V12"></path>
+            </svg>
+          </div>
+          <h3 class="rd-card-title">Ultra-Lean Bundle by Design</h3>
+          <p class="rd-card-desc">
+            The ~{rapidocBuildInfo.bundle.gzip.formatted} gzipped size is not from post-build compression tricks, but deliberate design and tooling choices. By relying on native browser standards, lightweight Lit primitives, and zero third-party UI framework runtimes or external CSS stylesheets, RapiDoc stays lean and bloat-free.
+          </p>
+          <div class="rd-card-tags">
+            <span class="rd-card-tag">Deliberate Architecture</span>
+            <span class="rd-card-tag">Zero External CSS</span>
+            <span class="rd-card-tag">No Framework Bloat</span>
+          </div>
+        </div>
+
+        <!-- Card 2: Modern ESM Distribution -->
+        <div class="rd-arch-card">
+          <div class="rd-card-header">
+            <span class="rd-card-badge badge-blue">Modern Runtime</span>
+            <span class="rd-card-time">Native ES Modules</span>
+          </div>
+          <div class="rd-card-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+          </div>
+          <h3 class="rd-card-title">Native ESM Build (Modern JS)</h3>
+          <p class="rd-card-desc">
+            RapiDoc is compiled and distributed as standard ECMAScript Modules (ESM), fully aligned with modern browser engines and modern bundlers (Vite, Rollup, Webpack 5).
+          </p>
+          <div class="rd-card-tags">
+            <span class="rd-card-tag">Native Browser Loading</span>
+            <span class="rd-card-tag">HTTP/2 Streaming</span>
+            <span class="rd-card-tag">Universal Frameworks</span>
+          </div>
+        </div>
+
+        <!-- Card 3: Native Web Component & Zero VDOM Diffing -->
+        <div class="rd-arch-card">
+          <div class="rd-card-header">
+            <span class="rd-card-badge badge-purple">DOM Engine</span>
+            <span class="rd-card-time">0 ms VDOM Diffing</span>
+          </div>
+          <div class="rd-card-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5.5 8.5 9 12l-3.5 3.5L2 12l3.5-3.5Z"></path>
+              <path d="m12 2 3.5 3.5L12 9 8.5 5.5 12 2Z"></path>
+              <path d="M18.5 8.5 22 12l-3.5 3.5L15 12l3.5-3.5Z"></path>
+              <path d="m12 15 3.5 3.5L12 22l-3.5-3.5L12 15Z"></path>
+            </svg>
+          </div>
+          <h3 class="rd-card-title">Native Web Component</h3>
+          <p class="rd-card-desc">
+            Built on W3C Web Component standards powered by Lit. Traditional React or Vue documentation tools must create and reconcile an internal Virtual DOM tree for every endpoint and schema expansion.
+          </p>
+          <div class="rd-card-tags">
+            <span class="rd-card-tag">Direct DOM Updates</span>
+            <span class="rd-card-tag">Zero GC Stalls</span>
+            <span class="rd-card-tag">True Shadow DOM</span>
+          </div>
+        </div>
+
+        <!-- Card 4: CSS Custom Highlight API -->
+        <div class="rd-arch-card">
+          <div class="rd-card-header">
+            <span class="rd-card-badge badge-cyan">Syntax Rendering</span>
+            <span class="rd-card-time">W3C Highlight API</span>
+          </div>
+          <div class="rd-card-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle>
+              <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle>
+              <circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle>
+              <circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle>
+              <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path>
+            </svg>
+          </div>
+          <h3 class="rd-card-title">CSS Custom Highlight API</h3>
+          <p class="rd-card-desc">
+            Syntax highlighters like Prism.js and Highlight.js shred code snippets into thousands of nested <code>&lt;span&gt;</code> elements. On large 2MB payloads, this generates 50,000+ DOM nodes, freezing the browser.
+          </p>
+          <div class="rd-card-tags">
+            <span class="rd-card-tag">Zero Extra Nodes</span>
+            <span class="rd-card-tag">Flat Memory Footprint</span>
+            <span class="rd-card-tag">GPU Accelerated</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Code Highlighting Comparison Visual -->
+    <section class="rd-section">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">DOM Architecture Comparison</div>
+        <h2 class="rd-section-title">Traditional Highlighting vs. RapiDoc Highlighting</h2>
+        <p class="rd-section-desc">
+          How RapiDoc prevents the "DOM Explosion" problem on multi-megabyte API payloads:
+        </p>
+      </div>
+
+      <div class="rd-compare-columns">
+        <div class="rd-compare-col bad">
+          <div class="rd-compare-head">
+            <span class="rd-cross-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+              </svg>
+            </span>
+            <div>
+              <h3>Traditional Highlighters (Prism / Highlight.js)</h3>
+              <span class="rd-dom-stat">~45,000 DOM Nodes on 2MB JSON</span>
+            </div>
+          </div>
+          <div class="rd-compare-code">
+            <pre><code>{`<!-- Explodes into thousands of DOM nodes -->
+<pre class="highlight">
+  <span class="token punctuation">{</span>
+    <span class="token property">"id"</span><span class="token punctuation">:</span> <span class="token number">101</span><span class="token punctuation">,</span>
+    <span class="token property">"name"</span><span class="token punctuation">:</span> <span class="token string">"Enterprise"</span><span class="token punctuation">,</span>
+    <span class="token property">"data"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>
+      <span class="token punctuation">{</span> <span class="token property">"item"</span><span class="token punctuation">:</span> <span class="token number">1</span> <span class="token punctuation">}</span>
+      <!-- Repeated 10,000 times = Browser Freeze -->
+    <span class="token punctuation">]</span>
+  <span class="token punctuation">}</span>
+</pre>`}</code></pre>
+          </div>
+          <p class="rd-compare-note">
+            <svg class="rd-inline-icon text-amber" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <span>Each token creates a JavaScript DOM wrapper object, triggering high memory pressure, layout recalculations, and Garbage Collection freezes.</span>
+          </p>
+        </div>
+
+        <div class="rd-compare-col good">
+          <div class="rd-compare-head">
+            <span class="rd-check-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="9 12 11 14 15 10"></polyline>
+              </svg>
+            </span>
+            <div>
+              <h3>RapiDoc CSS Custom Highlight API</h3>
+              <span class="rd-dom-stat text-emerald">Exactly 1 DOM Node on 2MB JSON</span>
+            </div>
+          </div>
+          <div class="rd-compare-code">
+            <pre><code>{`<!-- Exactly ONE single text node in DOM -->
+<pre class="m-code">
+  {
+    "id": 101,
+    "name": "Enterprise",
+    "data": [
+      { "item": 1 }
+    ]
+  }
+</pre>
+
+/* Painted directly via GPU CSS Ranges */
+::highlight(property) { color: #38bdf8; }
+::highlight(number)   { color: #f59e0b; }
+::highlight(string)   { color: #34d399; }`}</code></pre>
+          </div>
+          <p class="rd-compare-note">
+            <svg class="rd-inline-icon text-emerald" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <span>The text is never shredded into HTML tags. The browser engine styles the text ranges natively at the compositor level with zero DOM overhead.</span>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Best Practices Tuning Guide -->
+    <section class="rd-section" id="best-practices">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Tuning Guide</div>
+        <h2 class="rd-section-title">Best Practices for 10MB+ Enterprise Documentation</h2>
+        <p class="rd-section-desc">
+          Four critical tips to keep large enterprise specifications loading instantaneously:
+        </p>
+      </div>
+
+      <div class="rd-steps-flow">
+        <!-- Step 01 -->
+        <div class="rd-step-item">
+          <div class="rd-step-indicator">
+            <span class="rd-step-num">01</span>
+            <div class="rd-step-line"></div>
+          </div>
+          <div class="rd-step-content">
+            <div class="rd-step-title-wrap">
+              <h3 class="rd-step-title">Pre-Convert Swagger 2.0 to OpenAPI 3.x in CI/CD</h3>
+              <span class="rd-step-tag tag-conditional">Only If on Outdated Specs</span>
+            </div>
+            <p class="rd-step-desc">
+              <strong>Applicable only if your services still produce legacy Swagger 2.0 specs:</strong> Modern OpenAPI 3.0 and 3.1 specifications require zero conversion and are parsed natively without any delay. However, if RapiDoc receives an outdated Swagger 2.0 document, it must dynamically convert it in the browser on the fly, consuming <strong>1,500ms to 4,000ms of CPU time</strong> on large files. If you maintain legacy Swagger 2.0 specs, convert them once during your build/CI pipeline instead of having every user's browser convert it:
+            </p>
+            <div class="rd-step-code">
+              <CodeBlock code={swaggerConvertCode} lang="bash" filename="CI/CD Pipeline (Bash)" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 02 -->
+        <div class="rd-step-item">
+          <div class="rd-step-indicator">
+            <span class="rd-step-num">02</span>
+            <div class="rd-step-line"></div>
+          </div>
+          <div class="rd-step-content">
+            <h3 class="rd-step-title">Use Focused or View Render Modes</h3>
+            <p class="rd-step-desc">
+              In <code>render-style="read"</code>, every single endpoint and schema table is mounted into the DOM at once. For specifications with over 100 endpoints, switch to <code>view</code> or <code>focused</code>:
+            </p>
+            <ul class="rd-step-bullets">
+              <li class="rd-step-bullet-item">
+                <span class="rd-bullet-tag tag-focused">Focused Mode</span>
+                <span>Mounts only the single active endpoint in the DOM. Ideal for 500+ endpoint portals.</span>
+              </li>
+              <li class="rd-step-bullet-item">
+                <span class="rd-bullet-tag tag-view">View Mode</span>
+                <span>Groups operations into collapsible accordions, rendering endpoint details on demand.</span>
+              </li>
+            </ul>
+            <div class="rd-step-code">
+              <CodeBlock code={renderModeCode} lang="html" filename="Render Style Configuration (HTML)" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 03 -->
+        <div class="rd-step-item">
+          <div class="rd-step-indicator">
+            <span class="rd-step-num">03</span>
+            <div class="rd-step-line"></div>
+          </div>
+          <div class="rd-step-content">
+            <h3 class="rd-step-title">Tune Schema Auto-Expansion Depth</h3>
+            <p class="rd-step-desc">
+              Deeply nested polymorphic schemas can cause recursive model unfolding. Cap automatic expansion to level 1 or 2 using <code>schema-expand-level="1"</code> to preserve DOM efficiency and keep memory flat:
+            </p>
+            <div class="rd-step-code">
+              <CodeBlock code={tuningConfigCode} lang="html" filename="Production Mega-Spec Configuration (HTML)" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 04 -->
+        <div class="rd-step-item">
+          <div class="rd-step-indicator">
+            <span class="rd-step-num">04</span>
+            <div class="rd-step-line"></div>
+          </div>
+          <div class="rd-step-content">
+            <h3 class="rd-step-title">Use &lt;rapi-doc-mini&gt; for Targeted Endpoint Cards</h3>
+            <p class="rd-step-desc">
+              When embedding a single endpoint into a tutorial, changelog, or microservice documentation, avoid mounting a full developer portal. Use <code>&lt;rapi-doc-mini&gt;</code> to pluck and render only the exact endpoint needed:
+            </p>
+            <div class="rd-step-code">
+              <CodeBlock code={miniSnippetCode} lang="html" filename="Targeted Endpoint Embed (HTML)" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom Callout -->
+    <section class="rd-bottom-callout">
+      <div class="rd-callout-glow"></div>
+      <div class="rd-callout-content">
+        <h2 class="rd-callout-title">Ready to Experience True Documentation Speed?</h2>
+        <p class="rd-callout-desc">
+          Integrate RapiDoc into your application in seconds with zero framework dependencies.
+        </p>
+        <div class="rd-callout-actions">
+          <a href="/quickstart" class="rd-btn rd-btn-primary rd-btn-lg">Explore Quick Start →</a>
+          <a href="/rapidoc-mini" class="rd-btn rd-btn-glass rd-btn-lg">Discover RapiDoc Mini →</a>
+          <a href="/tests" class="rd-btn rd-btn-ghost rd-btn-lg">View Test Matrix</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <SiteFooter />
+</GlobalLayout>
+
+<script>
+  // Interactive Benchmark Logic with Custom Dropdowns
+  const specDropdown = document.getElementById('custom-spec-dropdown');
+  const specTrigger = specDropdown?.querySelector('.rd-custom-select-trigger') as HTMLButtonElement | null;
+  const specText = specDropdown?.querySelector('.rd-selected-text');
+  const specOptions = specDropdown?.querySelectorAll<HTMLElement>('.rd-select-option');
+
+  const modeDropdown = document.getElementById('custom-mode-dropdown');
+  const modeTrigger = modeDropdown?.querySelector('.rd-custom-select-trigger') as HTMLButtonElement | null;
+  const modeText = modeDropdown?.querySelector('.rd-selected-text');
+  const modeOptions = modeDropdown?.querySelectorAll<HTMLElement>('.rd-select-option');
+
+  const runBtn = document.getElementById('benchmark-run-btn');
+  const statSize = document.getElementById('stat-size');
+  const statOps = document.getElementById('stat-ops');
+  const statSchemas = document.getElementById('stat-schemas');
+  const statTimer = document.getElementById('stat-timer');
+  const statusMsg = document.getElementById('sandbox-status');
+  const placeholder = document.getElementById('benchmark-placeholder');
+  const host = document.getElementById('benchmark-host');
+
+  let currentSpec = {
+    value: 'mega',
+    url: '/specs/large-spec-v3.json',
+    size: '4.8 MB',
+    ops: '917',
+    schemas: '2,511',
+    label: 'Mega API Matrix (900+ Operations, 4.8 MB)'
+  };
+
+  let currentMode = 'focused';
+
+  function updateScoreboard() {
+    if (statSize) statSize.textContent = currentSpec.size;
+    if (statOps) statOps.textContent = currentSpec.ops;
+    if (statSchemas) statSchemas.textContent = currentSpec.schemas;
+  }
+
+  // Toggle Spec Dropdown
+  specTrigger?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = specDropdown?.classList.toggle('is-open');
+    specTrigger.setAttribute('aria-expanded', String(isOpen));
+    modeDropdown?.classList.remove('is-open');
+    modeTrigger?.setAttribute('aria-expanded', 'false');
+  });
+
+  // Toggle Mode Dropdown
+  modeTrigger?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = modeDropdown?.classList.toggle('is-open');
+    modeTrigger.setAttribute('aria-expanded', String(isOpen));
+    specDropdown?.classList.remove('is-open');
+    specTrigger?.setAttribute('aria-expanded', 'false');
+  });
+
+  // Spec Selection
+  specOptions?.forEach((opt) => {
+    opt.addEventListener('click', () => {
+      const val = opt.getAttribute('data-value') || '';
+      const url = opt.getAttribute('data-url') || '';
+      const size = opt.getAttribute('data-size') || '';
+      const ops = opt.getAttribute('data-ops') || '';
+      const schemas = opt.getAttribute('data-schemas') || '';
+      const label = opt.getAttribute('data-label') || opt.querySelector('.rd-option-label')?.textContent || '';
+
+      currentSpec = { value: val, url, size, ops, schemas, label };
+
+      if (specText) specText.textContent = label;
+
+      specOptions.forEach((o) => {
+        o.classList.remove('is-selected');
+        o.removeAttribute('aria-selected');
+      });
+      opt.classList.add('is-selected');
+      opt.setAttribute('aria-selected', 'true');
+
+      specDropdown?.classList.remove('is-open');
+      specTrigger?.setAttribute('aria-expanded', 'false');
+
+      updateScoreboard();
+    });
+  });
+
+  // Mode Selection
+  modeOptions?.forEach((opt) => {
+    opt.addEventListener('click', () => {
+      const val = opt.getAttribute('data-value') || 'focused';
+      const label = opt.getAttribute('data-label') || opt.querySelector('.rd-option-label')?.textContent || '';
+
+      currentMode = val;
+      if (modeText) modeText.textContent = label;
+
+      modeOptions.forEach((o) => {
+        o.classList.remove('is-selected');
+        o.removeAttribute('aria-selected');
+      });
+      opt.classList.add('is-selected');
+      opt.setAttribute('aria-selected', 'true');
+
+      modeDropdown?.classList.remove('is-open');
+      modeTrigger?.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  // Close dropdowns on outside click
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (!target.closest('#custom-spec-dropdown')) {
+      specDropdown?.classList.remove('is-open');
+      specTrigger?.setAttribute('aria-expanded', 'false');
+    }
+    if (!target.closest('#custom-mode-dropdown')) {
+      modeDropdown?.classList.remove('is-open');
+      modeTrigger?.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  // Close dropdowns on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      specDropdown?.classList.remove('is-open');
+      specTrigger?.setAttribute('aria-expanded', 'false');
+      modeDropdown?.classList.remove('is-open');
+      modeTrigger?.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  // Initialize Scoreboard
+  updateScoreboard();
+
+  // Execute Live Benchmark
+  runBtn?.addEventListener('click', () => {
+    if (!host) return;
+
+    if (placeholder) placeholder.style.display = 'none';
+    host.style.display = 'block';
+
+    if (statusMsg) {
+      statusMsg.textContent = 'Parsing specification & rendering DOM...';
+      statusMsg.className = 'rd-sandbox-status status-loading';
+    }
+
+    if (statTimer) {
+      statTimer.textContent = 'Measuring...';
+      statTimer.className = 'rd-score-val text-amber';
+    }
+
+    // High precision timing start
+    const startTime = performance.now();
+
+    // Create fresh rapi-doc element to avoid caching artifacts
+    host.innerHTML = '';
+    const rapidocEl = document.createElement('rapi-doc');
+    rapidocEl.setAttribute('spec-url', currentSpec.url);
+    rapidocEl.setAttribute('render-style', currentMode);
+    rapidocEl.setAttribute('schema-style', 'table');
+    rapidocEl.setAttribute('theme', 'dark');
+    rapidocEl.setAttribute('bg-color', '#090d16');
+    rapidocEl.setAttribute('primary-color', '#10b981');
+    rapidocEl.setAttribute('show-header', 'false');
+    rapidocEl.setAttribute('allow-try', 'true');
+    rapidocEl.setAttribute('schema-expand-level', '1');
+    rapidocEl.style.width = '100%';
+    rapidocEl.style.height = '100%';
+
+    rapidocEl.addEventListener('spec-loaded', () => {
+      const elapsed = Math.round(performance.now() - startTime);
+      if (statTimer) {
+        statTimer.textContent = `${elapsed} ms`;
+        statTimer.className = 'rd-score-val text-emerald pulse';
+      }
+      if (statusMsg) {
+        statusMsg.textContent = `Completed in ${elapsed} ms (${currentMode} mode)`;
+        statusMsg.className = 'rd-sandbox-status status-success';
+      }
+    }, { once: true });
+
+    host.appendChild(rapidocEl);
+  });
+</script>
+
+<style>
+:root {
+  --rd-font-mono: 'Roboto Mono', Monaco, 'Andale Mono', monospace;
+}
+
+/* Core Page Layout */
+.rd-perf-page {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1240px;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 40px 24px 80px 24px;
+}
+
+/* Ambient Radial Glows */
+.ambient-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(140px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.16;
+}
+.glow-emerald {
+  top: -80px;
+  left: 20%;
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, #10b981 0%, transparent 70%);
+}
+.glow-cyan {
+  top: 600px;
+  right: 10%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
+}
+.glow-purple {
+  top: 1400px;
+  left: 5%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
+}
+
+/* Hero Section */
+.rd-perf-hero {
+  text-align: center;
+  max-width: 860px;
+  margin: 0 auto 64px auto;
+}
+.rd-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  margin-bottom: 20px;
+}
+.rd-badge-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981;
+  animation: pulse-dot 2s infinite ease-in-out;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+.rd-badge-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #a7f3d0;
+}
+
+.rd-hero-title {
+  font-size: 3rem;
+  line-height: 1.25;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+  margin: 0 0 18px 0;
+}
+.rd-gradient-text {
+  background: linear-gradient(135deg, #34d399 0%, #38bdf8 50%, #818cf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.rd-hero-subtitle {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #94a3b8;
+  margin: 0 0 40px 0;
+}
+
+/* KPI Banner */
+.rd-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  text-align: left;
+}
+.rd-kpi-card {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 22px 20px;
+  backdrop-filter: blur(12px);
+  transition: all 0.2s ease;
+}
+.rd-kpi-card:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(16, 185, 129, 0.3);
+  transform: translateY(-2px);
+}
+.rd-kpi-val {
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+.rd-kpi-unit {
+  font-size: 1.1rem;
+  color: #10b981;
+}
+.rd-kpi-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin-bottom: 6px;
+}
+.rd-kpi-desc {
+  font-size: 12.5px;
+  color: #94a3b8;
+  line-height: 1.45;
+}
+
+/* Sections */
+.rd-section {
+  margin-bottom: 88px;
+}
+.rd-section-header {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 40px auto;
+}
+.rd-section-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  margin-bottom: 12px;
+}
+.rd-section-title {
+  font-size: 2.2rem;
+  line-height: 1.3;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+  margin: 0 0 12px 0;
+}
+.rd-section-desc {
+  font-size: 15px;
+  color: #94a3b8;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Benchmark Studio */
+.rd-benchmark-studio {
+  background: #090d16;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  position: relative;
+  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(16, 185, 129, 0.15);
+}
+.rd-studio-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 24px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px 16px 0 0;
+  position: relative;
+  z-index: 30;
+}
+.rd-control-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.rd-control-label {
+  font-size: 13px;
+  color: #94a3b8;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Custom Modern Dropdowns */
+.rd-custom-select {
+  position: relative;
+  user-select: none;
+}
+
+.rd-custom-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  min-width: 220px;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.rd-custom-select-trigger:hover {
+  background: rgba(22, 32, 58, 0.95);
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.rd-custom-select.is-open .rd-custom-select-trigger {
+  border-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  background: rgba(22, 32, 58, 0.95);
+}
+
+.rd-select-arrow {
+  color: #94a3b8;
+  transition: transform 0.2s ease, color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.rd-custom-select.is-open .rd-select-arrow {
+  transform: rotate(180deg);
+  color: #10b981;
+}
+
+.rd-custom-select-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 100%;
+  width: max-content;
+  max-width: 440px;
+  background: rgba(11, 17, 33, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(16, 185, 129, 0.15);
+  backdrop-filter: blur(20px);
+  z-index: 100;
+  display: none;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.rd-custom-select.is-open .rd-custom-select-menu {
+  display: flex;
+  animation: dropdown-pop 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes dropdown-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.rd-select-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  outline: none;
+}
+
+.rd-select-option:hover,
+.rd-select-option:focus {
+  background: rgba(16, 185, 129, 0.12);
+}
+
+.rd-option-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.rd-option-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+.rd-option-badge {
+  font-size: 11.5px;
+  color: #94a3b8;
+  font-family: var(--rd-font-mono, monospace);
+}
+
+.rd-option-check {
+  color: #10b981;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  flex-shrink: 0;
+}
+
+.rd-select-option.is-selected {
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.rd-select-option.is-selected .rd-option-label {
+  color: #34d399;
+}
+
+.rd-select-option.is-selected .rd-option-badge {
+  color: #a7f3d0;
+}
+
+.rd-select-option.is-selected .rd-option-check {
+  opacity: 1;
+}
+
+.rd-scoreboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  padding: 16px 24px;
+  background: rgba(0, 0, 0, 0.25);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.rd-score-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.rd-score-label {
+  font-size: 11.5px;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+.rd-score-val {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #f8fafc;
+  font-family: var(--rd-font-mono);
+}
+.highlight-score .rd-score-val {
+  font-size: 1.35rem;
+}
+.text-emerald { color: #34d399 !important; }
+.text-amber { color: #fbbf24 !important; }
+
+/* Sandbox */
+.rd-sandbox-frame {
+  background: #060913;
+}
+.rd-sandbox-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.rd-window-dots {
+  display: flex;
+  gap: 6px;
+}
+.rd-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.rd-dot.red { background: #ef4444; }
+.rd-dot.yellow { background: #f59e0b; }
+.rd-dot.green { background: #10b981; }
+
+.rd-sandbox-status {
+  font-size: 12px;
+  color: #64748b;
+  font-family: var(--rd-font-mono);
+}
+.rd-sandbox-status.status-loading {
+  color: #fbbf24;
+}
+.rd-sandbox-status.status-success {
+  color: #34d399;
+}
+
+.rd-sandbox-viewport {
+  position: relative;
+  min-height: 480px;
+  background: #090d16;
+}
+.rd-placeholder-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 480px;
+  text-align: center;
+  padding: 32px;
+}
+.rd-placeholder-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px auto;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+}
+.rd-placeholder-state h3 {
+  color: #f8fafc;
+  font-size: 1.3rem;
+  margin: 0 0 8px 0;
+}
+.rd-placeholder-state p {
+  color: #94a3b8;
+  max-width: 440px;
+  line-height: 1.5;
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Empirical Table */
+.rd-table-container {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  background: rgba(11, 17, 33, 0.7);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+.rd-perf-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13.5px;
+}
+.rd-perf-table th {
+  background: rgba(255, 255, 255, 0.04);
+  padding: 14px 18px;
+  color: #ffffff;
+  font-weight: 700;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  white-space: nowrap;
+}
+.rd-perf-table td {
+  padding: 14px 18px;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
+}
+.rd-perf-table tr:last-child td {
+  border-bottom: none;
+}
+.rd-table-sub {
+  display: block;
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 400;
+}
+.rd-pill-fast {
+  display: inline-block;
+  font-family: var(--rd-font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.rd-pill-focused {
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+.rd-pill-view {
+  color: #38bdf8;
+  background: rgba(6, 182, 212, 0.1);
+  border: 1px solid rgba(6, 182, 212, 0.25);
+}
+.rd-pill-read {
+  color: #c084fc;
+  background: rgba(168, 85, 247, 0.1);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+}
+
+/* Architecture Grid */
+.rd-arch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 28px;
+}
+
+.rd-arch-card {
+  display: flex;
+  flex-direction: column;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 28px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.rd-arch-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.6), transparent);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.rd-arch-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.5), 0 0 24px rgba(16, 185, 129, 0.15);
+  background: rgba(15, 23, 42, 0.85);
+}
+
+.rd-arch-card:hover::before {
+  opacity: 1;
+}
+
+.rd-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.rd-card-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 9px;
+  border-radius: 6px;
+}
+
+.badge-emerald {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-blue {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.badge-purple {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.badge-cyan {
+  background: rgba(6, 182, 212, 0.15);
+  color: #22d3ee;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.rd-card-time {
+  font-size: 11.5px;
+  color: #64748b;
+}
+
+.rd-card-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #10b981;
+  margin-bottom: 16px;
+  transition: all 0.2s ease;
+}
+
+.rd-arch-card:hover .rd-card-icon-wrap {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #34d399;
+}
+
+.rd-card-title {
+  font-size: 19px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 10px;
+  letter-spacing: -0.02em;
+}
+
+.rd-card-desc {
+  font-size: 13.5px;
+  color: #94a3b8;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.rd-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.rd-card-tag {
+  font-size: 11px;
+  font-family: var(--rd-font-mono, monospace);
+  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+/* Code Highlighting Comparison Visual */
+.rd-compare-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+  width: 100%;
+}
+@media (min-width: 860px) {
+  .rd-compare-columns {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+.rd-compare-col {
+  border-radius: 14px;
+  padding: 24px;
+  backdrop-filter: blur(10px);
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.rd-compare-col.bad {
+  background: rgba(239, 68, 68, 0.03);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+.rd-compare-col.good {
+  background: rgba(16, 185, 129, 0.03);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.05);
+}
+.rd-compare-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.rd-cross-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ef4444;
+  flex-shrink: 0;
+}
+.rd-check-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #10b981;
+  flex-shrink: 0;
+}
+.rd-compare-head h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 2px 0;
+}
+.rd-dom-stat {
+  font-size: 12px;
+  font-weight: 600;
+  color: #f87171;
+  font-family: var(--rd-font-mono);
+}
+.rd-compare-code {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+.rd-compare-code pre {
+  margin: 0 0 14px 0;
+  background: #090d16;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 14px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #cbd5e1;
+  overflow-x: auto;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.rd-compare-code pre::-webkit-scrollbar {
+  height: 6px;
+}
+.rd-compare-code pre::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+.rd-compare-code pre::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+.rd-compare-code pre::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+.rd-compare-code code {
+  font-family: var(--rd-font-mono);
+  display: block;
+  min-width: 0;
+}
+.rd-inline-icon {
+  display: inline-block;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.rd-compare-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  margin: 0;
+  color: #94a3b8;
+}
+
+/* Sequential Flow for Best Practices */
+.rd-steps-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+  max-width: 1040px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.rd-step-item {
+  display: flex;
+  gap: 28px;
+  position: relative;
+  padding-bottom: 36px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.rd-step-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.rd-step-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.rd-step-num {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #10b981;
+  font-family: var(--rd-font-mono);
+  font-size: 1.15rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+}
+
+.rd-step-line {
+  flex: 1;
+  width: 2px;
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.3) 0%, rgba(255, 255, 255, 0.05) 100%);
+  margin-top: 14px;
+}
+
+.rd-step-item:last-child .rd-step-line {
+  display: none;
+}
+
+.rd-step-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.rd-step-title-wrap {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.rd-step-tag {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 10px;
+  border-radius: 6px;
+}
+
+.rd-step-tag.tag-conditional {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #fbbf24;
+}
+
+.rd-step-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.rd-step-desc {
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: #94a3b8;
+  margin: 0 0 16px 0;
+}
+
+.rd-step-desc code {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: var(--rd-font-mono);
+}
+
+.rd-step-desc strong {
+  color: #f8fafc;
+}
+
+.rd-step-bullets {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 0 20px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rd-step-bullet-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #cbd5e1;
+}
+
+.rd-bullet-tag {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.rd-bullet-tag.tag-focused {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #34d399;
+}
+
+.rd-bullet-tag.tag-view {
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #38bdf8;
+}
+
+.rd-step-code {
+  width: 100%;
+  min-width: 0;
+  margin-top: 14px;
+}
+
+@media (max-width: 768px) {
+  .rd-step-item {
+    flex-direction: column;
+    gap: 14px;
+  }
+  .rd-step-line {
+    display: none;
+  }
+  .rd-step-num {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+}
+
+/* Bottom Callout */
+.rd-bottom-callout {
+  position: relative;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(6, 182, 212, 0.08) 50%, rgba(139, 92, 246, 0.1) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 20px;
+  padding: 56px 32px;
+  text-align: center;
+  overflow: hidden;
+  backdrop-filter: blur(16px);
+  margin-top: 40px;
+}
+.rd-callout-glow {
+  position: absolute;
+  top: -50%;
+  left: 30%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, transparent 70%);
+  pointer-events: none;
+}
+.rd-callout-title {
+  font-size: 2.2rem;
+  line-height: 1.3;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+  margin: 0 0 12px 0;
+}
+.rd-callout-desc {
+  font-size: 15px;
+  color: #cbd5e1;
+  max-width: 580px;
+  margin: 0 auto 28px auto;
+  line-height: 1.6;
+}
+.rd-callout-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+/* Button & Utilities */
+.rd-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border: none;
+}
+.rd-btn-primary {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+}
+.rd-btn-primary:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+  transform: translateY(-1px);
+}
+.rd-btn-ghost {
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.rd-btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+.rd-btn-glass {
+  background: rgba(255, 255, 255, 0.04);
+  color: #f1f5f9;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+}
+.rd-btn-glass:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+.rd-btn-lg {
+  padding: 12px 24px;
+  font-size: 15px;
+  border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+  .rd-hero-title { font-size: 2.3rem; line-height: 1.25; }
+  .rd-section-title { font-size: 1.8rem; line-height: 1.3; }
+  .rd-studio-controls { flex-direction: column; align-items: stretch; }
+  .rd-control-group { flex-direction: column; align-items: flex-start; }
+  .rd-custom-select,
+  .rd-custom-select-trigger,
+  .rd-custom-select-menu {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+</style>

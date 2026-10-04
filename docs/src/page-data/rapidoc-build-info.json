@@ -1,0 +1,21 @@
+{
+  "name": "rapidoc",
+  "version": "10.1.0",
+  "versionTag": "v10.1.0",
+  "versionShort": "v10.1",
+  "buildTime": "2026-10-04T08:31:29.105Z",
+  "bundle": {
+    "minified": {
+      "bytes": 500691,
+      "formatted": "489 KB",
+      "kb": 489,
+      "exactKb": 489
+    },
+    "gzip": {
+      "bytes": 132203,
+      "formatted": "129 KB",
+      "kb": 129,
+      "exactKb": 129.1
+    }
+  }
+}

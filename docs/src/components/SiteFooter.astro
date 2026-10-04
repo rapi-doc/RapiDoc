@@ -1,4 +1,6 @@
 ---
+import { rapidocBuildInfo } from '../page-data/rapidoc-build-info';
+
 interface Props {
   currentPath?: string;
 }
@@ -15,28 +17,40 @@ const { currentPath = '' } = Astro.props;
       </div>
       <p class="rd-footer-tagline">The modern, framework-agnostic OpenAPI Web Component for developers and product leaders.</p>
       <div class="rd-footer-meta">
-        MIT License © {new Date().getFullYear()} Mrinmoy Majumdar
+        {rapidocBuildInfo.versionTag} • MIT License © {new Date().getFullYear()} Mrinmoy Majumdar
       </div>
     </div>
 
     <div class="rd-footer-links-group">
       <div class="rd-footer-link-col">
-        <span class="rd-footer-heading">Documentation</span>
-        <a href="/quickstart">Quick Start</a>
-        <a href="/api">API (Attributes, Methods & Events)</a>
-        <a href="/oauth-setup">OAuth Setup</a>
+        <span class="rd-footer-heading">Getting Started</span>
+        <a href="/quickstart">QuickStart</a>
+        <a href="/api">API Reference</a>
+        <a href="/docs">Documentation</a>
+        <a href="/guides">All Guides</a>
       </div>
       <div class="rd-footer-link-col">
-        <span class="rd-footer-heading">Theming & Modes</span>
-        <a href="/styling">Styling</a>
-        <a href="/examples/rapidoc-demo">Playground</a>
-        <a href="/rapidoc-mini">RapiDoc Mini</a>
+        <span class="rd-footer-heading">Guides & Recipes</span>
+        <a href="/guides/mock">Mock Server</a>
+        <a href="/guides/oauth">OAuth 2.0 Setup</a>
+        <a href="/guides/theme">Theme & Colors</a>
+        <a href="/guides/css">Custom CSS</a>
+        <a href="/guides/mini">RapiDoc Mini</a>
       </div>
       <div class="rd-footer-link-col">
-        <span class="rd-footer-heading">Performance</span>
-        <a href="/tests">Test Matrix & Edge Cases</a>
-        <a href="/performance">Performance Benchmarks</a>
-        <a href="/showcase">Showcase</a>
+        <span class="rd-footer-heading">Explore & Test</span>
+        <a href="/showcase">Showcase Gallery</a>
+        <a href="/examples/rapidoc-demo">Live Configurator</a>
+        <a href="/sandbox">Spec Sandbox</a>
+        <a href="/tests">Test Matrix</a>
+        <a href="/tests/performance">Performance</a>
+      </div>
+      <div class="rd-footer-link-col">
+        <span class="rd-footer-heading">Community</span>
+        <a href="https://github.com/rapi-doc/RapiDoc" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://www.npmjs.com/package/rapidoc" target="_blank" rel="noopener">NPM Package</a>
+        <a href="https://github.com/rapi-doc/RapiDoc/releases" target="_blank" rel="noopener">Releases</a>
+        <a href="https://github.com/rapi-doc/RapiDoc/issues" target="_blank" rel="noopener">Issues</a>
       </div>
     </div>
   </div>
@@ -44,7 +58,7 @@ const { currentPath = '' } = Astro.props;
 
 <style>
   .rd-footer {
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid var(--rd-border);
     background: rgba(4, 7, 15, 0.85);
     padding: 56px 24px 40px 24px;
     font-size: 13.5px;
@@ -52,7 +66,7 @@ const { currentPath = '' } = Astro.props;
     z-index: 1;
   }
   .rd-footer-container {
-    max-width: 1240px;
+    max-width: var(--rd-max-width);
     margin: 0 auto;
     display: grid;
     grid-template-columns: 1fr;
@@ -71,17 +85,17 @@ const { currentPath = '' } = Astro.props;
   .rd-footer-brand-title {
     font-size: 18px;
     font-weight: 700;
-    color: #fff;
+    color: var(--rd-text-bright);
   }
   .rd-footer-tagline {
-    color: #94a3b8;
+    color: var(--rd-text-muted);
     font-size: 13px;
     line-height: 1.5;
     max-width: 320px;
     margin: 0;
   }
   .rd-footer-meta {
-    color: #64748b;
+    color: var(--rd-text-dim);
     font-size: 12px;
   }
   .rd-footer-links-group {
@@ -99,17 +113,17 @@ const { currentPath = '' } = Astro.props;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #fff;
+    color: var(--rd-text-bright);
     margin-bottom: 4px;
   }
   .rd-footer-link-col a {
-    color: #94a3b8;
+    color: var(--rd-text-muted);
     text-decoration: none;
     font-size: 13px;
     transition: color 0.15s ease;
   }
   .rd-footer-link-col a:hover {
-    color: #10b981;
+    color: var(--rd-accent);
   }
 
   @media (min-width: 768px) {

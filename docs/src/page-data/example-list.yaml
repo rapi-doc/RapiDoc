@@ -70,7 +70,7 @@ examples:
 
   - Advance Styling:
       img: /assets/images/style.png
-      href: /styling
+      href: /guides/theme
       description: "Comprehensive guide on advanced styling using CSS Shadow Parts (::part), CSS custom properties, and slots."
       isDoc: true
       category: Guides & Docs
@@ -120,7 +120,7 @@ examples:
       category: Layouts & Views
 
   - Performance Tips:
-      href: /performance
+      href: /tests/performance
       description: Best practices for optimizing rendering speed and DOM performance when loading massive OpenAPI specifications.
       isDoc: true
       category: Guides & Docs
@@ -198,7 +198,7 @@ examples:
       category: Security & Auth
 
   - OAuth Setup:
-      href: /oauth-setup
+      href: /guides/oauth
       description: Comprehensive guide for setting up OAuth 2.0 and OpenID Connect identity providers in RapiDoc.
       isDoc: true
       category: Guides & Docs
@@ -262,7 +262,7 @@ examples:
       category: Advanced & Extensibility
 
   - RapiDoc Mini:
-      href: /rapidoc-mini
+      href: /guides/mini
       description: Embed standalone, isolated endpoint cards directly into technical blog posts and markdown tutorials.
       isDoc: true
       category: Guides & Docs
@@ -283,8 +283,8 @@ examples:
       description: Connect to live mock servers for realistic sandbox testing without deploying backend infrastructure.
       category: Console & Interactive
 
-  - Playground:
+  - Live Configurator:
       img: /assets/images/playground.png
       href: /examples/rapidoc-demo
-      description: Interactive sandbox allowing you to toggle and test every RapiDoc attribute in real time.
-      category: Layouts & Views
+      description: Interactive drawer allowing you to toggle and test every RapiDoc attribute in real time.
+      category: Console & Interactive

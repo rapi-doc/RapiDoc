@@ -1,9 +1,15 @@
 ---
+import { rapidocBuildInfo } from '../page-data/rapidoc-build-info';
+import { NAV_LINKS, resolveActiveNavKey, isNavActive, type NavPageKey } from '../page-data/nav';
+import Icon from './Icon.astro';
+
 interface Props {
-  activePage?: 'home' | 'docs' | 'showcase' | 'quickstart' | 'list' | 'examples' | 'api' | 'tests' | 'rapidoc-mini' | 'mock-server' | 'dry-run' | 'other';
+  activePage?: NavPageKey;
 }
 
 const { activePage = 'other' } = Astro.props;
+const pathname = Astro.url.pathname;
+const current = resolveActiveNavKey(pathname, activePage);
 ---
 
 <header class="rd-navbar">
@@ -11,34 +17,31 @@ const { activePage = 'other' } = Astro.props;
     <a href="/" class="rd-brand">
       <img src="/assets/images/logo.png" alt="RapiDoc Logo" class="rd-logo" />
       <span class="rd-brand-name">RapiDoc</span>
-      <span class="rd-version-badge">v9.3</span>
+      <span class="rd-version-badge" title={`RapiDoc ${rapidocBuildInfo.versionTag} (${rapidocBuildInfo.bundle.minified.formatted})`}>
+        {rapidocBuildInfo.versionShort}
+      </span>
     </a>
 
     <nav class="rd-nav-links">
-      <a href="/" class={`rd-nav-link ${activePage === 'home' ? 'active' : ''}`}>Home</a>
-      <a href="/quickstart" class={`rd-nav-link ${activePage === 'quickstart' || activePage === 'examples' ? 'active' : ''}`}>Quick Start</a
-      >
-      <a href="/api" class={`rd-nav-link ${activePage === 'api' ? 'active' : ''}`}>API</a>
-      <a href="/mock-server" class={`rd-nav-link ${activePage === 'mock-server' ? 'active' : ''}`}>Mock Server</a>
-      <a href="/rapidoc-mini" class={`rd-nav-link ${activePage === 'rapidoc-mini' ? 'active' : ''}`}>RapiDoc Mini</a>
-      <a href="/showcase" class={`rd-nav-link ${activePage === 'showcase' || activePage === 'list' ? 'active' : ''}`}>Showcase</a>
-      <a href="/docs" class={`rd-nav-link ${activePage === 'docs' ? 'active' : ''}`}>Docs</a>
-      <a href="/tests" class={`rd-nav-link ${activePage === 'tests' ? 'active' : ''}`}>Tests</a>
-      <a href="/dry-run" class={`rd-nav-link rd-nav-link-dryrun ${activePage === 'dry-run' ? 'active' : ''}`} title="Developer Spec Sandbox">
-        <span>Dry Run</span>
-        <span class="rd-dev-pill">DEV</span>
-      </a>
+      {NAV_LINKS.map((item) => {
+        const active = isNavActive(item, current, pathname);
+        return (
+          <a
+            href={item.href}
+            class={`rd-nav-link ${item.pill ? 'rd-nav-link-dryrun' : ''} ${active ? 'active' : ''}`}
+            title={item.title}
+          >
+            <span>{item.label}</span>
+            {item.pill && <span class="rd-dev-pill">{item.pill}</span>}
+          </a>
+        );
+      })}
     </nav>
 
     <div class="rd-nav-actions">
+      <slot name="search" />
       <a href="https://github.com/rapi-doc/RapiDoc" target="_blank" rel="noopener" class="rd-btn rd-btn-ghost rd-github-btn">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-          <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
-            d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-          ></path>
-        </svg>
+        <Icon name="github" size={18} />
         <span class="hide-mobile">GitHub</span>
       </a>
     </div>
@@ -52,11 +55,11 @@ const { activePage = 'other' } = Astro.props;
     z-index: 100;
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    background: rgba(6, 9, 19, 0.8);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--rd-bg-glass);
+    border-bottom: 1px solid var(--rd-border);
   }
   .rd-nav-container {
-    max-width: 1240px;
+    max-width: var(--rd-max-width);
     margin: 0 auto;
     padding: 14px 24px;
     display: flex;
@@ -72,22 +75,22 @@ const { activePage = 'other' } = Astro.props;
   .rd-logo {
     width: 32px;
     height: 32px;
-    filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.4));
+    filter: drop-shadow(0 0 10px var(--rd-accent-glow));
   }
   .rd-brand-name {
     font-size: 20px;
     font-weight: 700;
-    color: #fff;
+    color: var(--rd-text-bright);
     letter-spacing: -0.02em;
   }
   .rd-version-badge {
     font-size: 11px;
     padding: 2px 7px;
     border-radius: 12px;
-    background: rgba(16, 185, 129, 0.15);
-    color: #10b981;
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    font-family: 'Roboto Mono', monospace;
+    background: var(--rd-accent-dim);
+    color: var(--rd-accent);
+    border: 1px solid var(--rd-accent-border);
+    font-family: var(--rd-font-mono);
     font-weight: 600;
   }
   .rd-nav-links {
@@ -96,7 +99,7 @@ const { activePage = 'other' } = Astro.props;
     gap: 24px;
   }
   .rd-nav-link {
-    color: #94a3b8;
+    color: var(--rd-text-muted);
     font-size: 14px;
     text-decoration: none;
     font-weight: 500;
@@ -104,10 +107,10 @@ const { activePage = 'other' } = Astro.props;
   }
   .rd-nav-link:hover,
   .rd-nav-link.active {
-    color: #fff;
+    color: var(--rd-text-bright);
   }
   .rd-nav-link.active {
-    color: #10b981;
+    color: var(--rd-accent);
   }
   .rd-nav-link-dryrun {
     display: inline-flex;
@@ -123,9 +126,9 @@ const { activePage = 'other' } = Astro.props;
     border: 1px solid rgba(245, 158, 11, 0.3);
     font-weight: 700;
     letter-spacing: 0.05em;
-    font-family: 'Roboto Mono', monospace;
+    font-family: var(--rd-font-mono);
     line-height: 1.2;
-    transition: all 0.2s ease;
+    transition: var(--rd-transition);
   }
   .rd-nav-link-dryrun:hover .rd-dev-pill,
   .rd-nav-link-dryrun.active .rd-dev-pill {
@@ -149,27 +152,27 @@ const { activePage = 'other' } = Astro.props;
     font-weight: 600;
     text-decoration: none;
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: var(--rd-transition);
     border: none;
   }
   .rd-btn-primary {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: #fff;
-    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+    background: var(--rapidoc-gradient);
+    color: var(--rd-text-bright);
+    box-shadow: 0 4px 14px var(--rd-accent-glow);
   }
   .rd-btn-primary:hover {
-    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    background: linear-gradient(135deg, var(--rd-accent-hover) 0%, #047857 100%);
     box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
     transform: translateY(-1px);
   }
   .rd-btn-ghost {
     background: transparent;
-    color: #94a3b8;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--rd-text-muted);
+    border: 1px solid var(--rd-border);
   }
   .rd-btn-ghost:hover {
     background: rgba(255, 255, 255, 0.05);
-    color: #fff;
+    color: var(--rd-text-bright);
   }
   .hide-mobile {
     display: inline;

@@ -4,19 +4,20 @@ import SiteNavbar from '../components/SiteNavbar.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import { exampleListData, SubExample } from '../page-data/example-list';
 
-// Extract unique categories for filter tabs
-const allExamples = exampleListData.examples.map(example => {
-  const [title, obj] = Object.entries(example)[0];
-  return {
-    title,
-    ...obj,
-    category: obj.category || (obj.isDoc ? 'Guides & Docs' : 'Layouts & Views')
-  };
-});
+// Extract unique categories for filter tabs (examples only)
+const allExamples = exampleListData.examples
+  .map(example => {
+    const [title, obj] = Object.entries(example)[0];
+    return {
+      title,
+      ...obj,
+      category: obj.category || 'Layouts & Views'
+    };
+  })
+  .filter(item => !item.isDoc);
 
 const categories = [
   'All',
-  'Guides & Docs',
   'Theming & Branding',
   'Layouts & Views',
   'Console & Interactive',
@@ -89,6 +90,7 @@ const categories = [
             {cat}
           </button>
         ))}
+        <a href="/guides" class="rd-cat-pill rd-pill-guides" title="Explore architecture and integration guides">Guides ↗</a>
         <a href="/tests" class="rd-cat-pill rd-pill-tests" title="Explore automated schema & feature test suites">Test Suites ↗</a>
       </div>
     </div>

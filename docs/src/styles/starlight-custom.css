@@ -48,7 +48,7 @@ html {
   /* Sizing */
   --sl-sidebar-width: 18.5rem;
   --sl-content-width: 52rem;
-  --sl-nav-height: 3.5rem;
+  --sl-nav-height: 61px;
 }
 
 /* --------------------------------------------------------------------------
@@ -67,13 +67,15 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   3. Header Navigation Bar
+   3. Header Navigation Bar (Unified with SiteNavbar)
    -------------------------------------------------------------------------- */
 header.header {
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  background: var(--sl-color-bg-nav) !important;
-  border-bottom: 1px solid var(--sl-color-hairline) !important;
+  padding: 0 !important;
+  height: auto !important;
+  border-bottom: none !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 /* --------------------------------------------------------------------------

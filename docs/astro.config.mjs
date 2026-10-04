@@ -25,6 +25,15 @@ export default defineConfig({
   build: {
     format: 'directory',
   },
+  redirects: {
+    '/mock-server': '/guides/mock',
+    '/oauth-setup': '/guides/oauth',
+    '/rapidoc-mini': '/guides/mini',
+    '/styling': '/guides/theme',
+    '/performance': '/tests/performance',
+    '/dry-run': '/sandbox',
+    '/dryrun': '/sandbox',
+  },
   integrations: [
     starlight({
       title: 'RapiDoc',
@@ -57,7 +66,7 @@ export default defineConfig({
         './src/styles/starlight-custom.css',
       ],
       components: {
-        SiteTitle: './src/components/DocsSiteTitle.astro',
+        Header: './src/components/DocsHeader.astro',
         ThemeProvider: './src/components/ForceDarkTheme.astro',
         ThemeSelect: './src/components/EmptyComponent.astro',
       },

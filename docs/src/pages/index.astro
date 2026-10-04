@@ -3,6 +3,7 @@ import GlobalLayout from '../layouts/GlobalLayout.astro';
 import CodeBlock from '../components/CodeBlock.astro';
 import SiteNavbar from '../components/SiteNavbar.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+import { rapidocBuildInfo } from '../page-data/rapidoc-build-info';
 
 const vanillaCode = `<!doctype html>
 <html>
@@ -132,7 +133,7 @@ EXPOSE 80
               <div class="rd-persona-item">
                 <span class="rd-persona-bullet">✓</span>
                 <div>
-                  <strong>Container Ready:</strong> Tiny ~480KB bundle with zero SSR/Node overhead. Bundles directly into Browser and micro-containers
+                  <strong>Container Ready:</strong> Tiny ~{rapidocBuildInfo.bundle.minified.formatted} bundle ({rapidocBuildInfo.bundle.gzip.formatted} gzipped) with zero SSR/Node overhead. Bundles directly into Browser and micro-containers
                   with Go/Rust/Java/Python servers.
                 </div>
               </div>
@@ -256,9 +257,9 @@ EXPOSE 80
         <div class="rd-metric-desc">W3C Web Component: React, Vue, Svelte, or pure HTML</div>
       </div>
       <div class="rd-metric-card">
-        <div class="rd-metric-number">~480<span class="rd-unit">KB</span></div>
+        <div class="rd-metric-number">~{rapidocBuildInfo.bundle.gzip.formatted}</div>
         <div class="rd-metric-label">Ultra-Light Bundle</div>
-        <div class="rd-metric-desc">Powered by Lit. Zero Virtual DOM diffing overhead</div>
+        <div class="rd-metric-desc">Gzipped single bundle ({rapidocBuildInfo.bundle.minified.formatted} minified). Zero VDOM diffing overhead</div>
       </div>
       <div class="rd-metric-card">
         <div class="rd-metric-number">100<span class="rd-unit">%</span></div>
@@ -396,7 +397,7 @@ EXPOSE 80
           mock responses from OpenAPI examples or schemas with multi-status and latency simulation.
         </p>
         <a
-          href="/mock-server"
+          href="/guides/mock"
           style="color: #10b981; font-size: 13.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; text-decoration: none;"
         >
           Explore Mock Server
@@ -569,7 +570,7 @@ EXPOSE 80
               <td class="rd-td-highlight">
                 <span class="rd-check">✓</span>
                 <strong>High Performance</strong><br />
-                <span class="rd-dim">~400KB single bundle, zero SSR</span>
+                <span class="rd-dim">~{rapidocBuildInfo.bundle.gzip.formatted} gzip ({rapidocBuildInfo.bundle.minified.formatted} min), zero SSR</span>
               </td>
               <td>Heavy bundle size</td>
               <td>Vue runtime overhead</td>

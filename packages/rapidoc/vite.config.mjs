@@ -6,6 +6,7 @@ import minifyHTML from '@lit-labs/rollup-plugin-minify-html-literals';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { transform } from 'esbuild';
 import pkg from './package.json' with { type: 'json' };
+import { captureBuildInfo } from '../../scripts/capture-build-info.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -35,6 +36,12 @@ export default defineConfig({
             chunk.code = result.code;
           }
         }
+      },
+    },
+    {
+      name: 'record-build-info',
+      closeBundle() {
+        captureBuildInfo();
       },
     },
     ...(process.env.ANALYZE === 'true' ? [
