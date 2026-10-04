@@ -15,10 +15,26 @@ import GlobalLayout from '../../layouts/GlobalLayout.astro';
   <div class="theme-toolbar">
     <div class="toolbar-left">
       <span class="theme-badge dark">HIGH-CONTRAST DARK THEME</span>
-      <span class="theme-hint">Ready for high-res screenshot (1600x900 or 1440x900 recommended)</span>
     </div>
     <div class="toolbar-right">
-      <a href="/examples/theme-light-contrast" class="theme-switch-btn">Switch to Light Theme →</a>
+      <a
+        href="/examples/theme-light-contrast"
+        class="theme-icon-btn"
+        title="Switch to Light Theme"
+        aria-label="Switch to Light Theme"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+      </a>
       <a href="/" class="theme-home-btn">← Back to Home</a>
     </div>
   </div>
@@ -146,18 +162,24 @@ import GlobalLayout from '../../layouts/GlobalLayout.astro';
     align-items: center;
     gap: 12px;
   }
-  .theme-switch-btn {
-    background: #ff7043;
-    color: #0c0a09;
-    font-weight: 700;
-    font-size: 12.5px;
-    padding: 6px 14px;
+  .theme-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
     border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: transparent;
+    color: #94a3b8;
     text-decoration: none;
     transition: all 0.2s ease;
   }
-  .theme-switch-btn:hover {
-    background: #ff8a65;
+  .theme-icon-btn:hover {
+    color: #ff8a65;
+    border-color: rgba(255, 112, 67, 0.5);
+    background: rgba(255, 112, 67, 0.12);
+    box-shadow: 0 0 10px rgba(255, 112, 67, 0.25);
   }
   .theme-home-btn {
     color: #94a3b8;
@@ -235,12 +257,11 @@ import GlobalLayout from '../../layouts/GlobalLayout.astro';
     background-color: #0b0f19;
     background-image:
       /* Faint warm gradient aura at top-right corner */
-      radial-gradient(ellipse 550px 420px at 100% 0%, rgba(255, 112, 67, 0.15) 0%, rgba(245, 158, 11, 0.06) 45%, transparent 75%),
+      radial-gradient(ellipse 200px 220px at 100% 0%, rgba(255, 112, 67, 0.15) 0%, rgba(245, 158, 11, 0.06) 45%, transparent 75%),
       /* Delicate edge aura hugging the boundary (x=0) without washing over the content */
       radial-gradient(ellipse 50px 35% at 0% 50%, rgba(218, 94, 56, 0.06) 0%, rgba(255, 112, 67, 0.04) 55%, transparent 100%),
       radial-gradient(ellipse 30px 20% at 0% 50%, rgba(255, 138, 101, 0.1) 0%, transparent 100%),
-      /* Faint ambient glow in bottom area */
-      radial-gradient(ellipse 50% 40% at 75% 85%, rgba(245, 158, 11, 0.02) 0%, transparent 60%);
+      /* Faint ambient glow in bottom area */ radial-gradient(ellipse 50% 40% at 75% 85%, rgba(245, 158, 11, 0.02) 0%, transparent 60%);
     background-attachment: scroll, scroll, scroll, scroll;
   }
 
@@ -254,7 +275,6 @@ import GlobalLayout from '../../layouts/GlobalLayout.astro';
   rapi-doc::part(textbox-nav-filter) {
     background: rgba(255, 255, 255, 0.06) !important;
     border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    border-radius: 6px;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     color: #f8fafc !important;
@@ -271,8 +291,6 @@ import GlobalLayout from '../../layouts/GlobalLayout.astro';
     background: rgba(255, 112, 67, 0.18);
     border: 1px solid rgba(255, 112, 67, 0.38);
     color: #ff8a65;
-    border-radius: 6px;
-    font-weight: 600;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     transition: all 0.2s ease;
@@ -292,8 +310,6 @@ import GlobalLayout from '../../layouts/GlobalLayout.astro';
     background: rgba(255, 112, 67, 0.15);
     color: #ff8a65;
     border: 1px solid rgba(255, 112, 67, 0.35);
-    border-radius: 6px;
-    font-weight: 600;
     transition: all 0.2s ease;
   }
 
