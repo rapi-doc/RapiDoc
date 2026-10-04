@@ -22,16 +22,12 @@ export default css`
     justify-content: center;
     align-items: stretch;
     padding: 8px 16px 12px 16px;
-    background: rgba(15, 23, 42, 0.7);
-    background: color-mix(in srgb, var(--nav-bg-color, #080c14) 75%, transparent);
-    backdrop-filter: blur(12px) saturate(150%);
-    -webkit-backdrop-filter: blur(12px) saturate(150%);
+    background: var(--nav-bg-color);
     box-sizing: border-box;
     width: 100%;
   }
   .nav-bar-search-container.has-bottom-border {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    border-bottom: 1px solid color-mix(in srgb, var(--nav-text-color, #fff) 10%, transparent);
+    border-bottom: 1px solid var(--nav-hover-bg-color);
   }
   .nav-bar-search-input-wrapper {
     display: flex;
@@ -43,13 +39,9 @@ export default css`
     width: 100%;
     padding: 6px 28px 6px 10px;
     color: var(--nav-hover-text-color);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border: 1px solid color-mix(in srgb, var(--nav-text-color, #fff) 12%, transparent);
+    border: 1px solid var(--nav-accent-color);
     border-radius: var(--border-radius, 6px);
-    background: rgba(255, 255, 255, 0.05);
-    background: color-mix(in srgb, var(--nav-bg-color, #080c14) 40%, transparent);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    background: var(--nav-hover-bg-color);
     font-size: calc(var(--font-size-small) + 1px);
     box-sizing: border-box;
     transition:
@@ -146,6 +138,7 @@ export default css`
     overflow-y: overlay;
     scrollbar-width: thin;
     scrollbar-color: var(--nav-hover-bg-color) transparent;
+    scroll-padding-top: 60px;
   }
 
   .nav-bar-tag {
