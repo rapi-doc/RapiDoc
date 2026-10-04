@@ -3,17 +3,24 @@ import { GTAG_ID } from '../utils/googleAnalytics';
 
 interface Props {
   id?: string;
+  title?: string;
 }
 
-const { id = GTAG_ID } = Astro.props;
+const { id = GTAG_ID, title } = Astro.props;
 ---
 
 <!-- Google Analytics - START -->
 <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${id}`}></script>
-<script define:vars={{ gtagId: id }} is:inline>
+<script define:vars={{ gtagId: id, pageTitle: title }} is:inline>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', gtagId);
+  if (pageTitle) {
+    gtag('config', gtagId, {
+      page_title: pageTitle,
+    });
+  } else {
+    gtag('config', gtagId);
+  }
 </script>
 <!-- Google Analytics - END -->

@@ -1,6 +1,36 @@
 ---
 import '../styles/global.css';
 import GoogleAnalytics from '../components/GoogleAnalytics.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  keywords?: string;
+  image?: string;
+  canonicalUrl?: string;
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description = "RapiDoc is a modern, fast, and customizable web component for viewing OpenAPI 3.0 & 3.1 and Swagger API specifications with an interactive console.",
+  keywords = "OpenAPI, Swagger, API documentation, Web Component, OpenAPI 3.1, REST API, API Console, RapiDoc",
+  image = "/assets/images/logo.png",
+  canonicalUrl,
+  noindex = false,
+} = Astro.props;
+
+// Compute clean page title
+const siteName = "RapiDoc";
+let pageTitle = title || "RapiDoc - Modern OpenAPI Spec Viewer & Console Web Component";
+if (title && !title.includes("RapiDoc")) {
+  pageTitle = `${title} | ${siteName}`;
+}
+
+const siteUrl = Astro.site ? Astro.site.toString().replace(/\/$/, '') : 'https://rapidocweb.com';
+const currentPath = Astro.url.pathname;
+const fullCanonicalUrl = canonicalUrl || `${siteUrl}${currentPath}`;
+const fullImageUrl = image.startsWith('http') ? image : `${siteUrl}${image.startsWith('/') ? '' : '/'}${image}`;
 ---
 
 <!DOCTYPE html>
@@ -8,19 +38,47 @@ import GoogleAnalytics from '../components/GoogleAnalytics.astro';
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <!-- Primary SEO Meta Tags -->
+    <title>{pageTitle}</title>
+    <meta name="title" content={pageTitle} />
+    <meta name="description" content={description} />
+    {keywords && <meta name="keywords" content={keywords} />}
+    <link rel="canonical" href={fullCanonicalUrl} />
+    {noindex ? (
+      <meta name="robots" content="noindex, nofollow" />
+    ) : (
+      <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    )}
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={fullCanonicalUrl} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={fullImageUrl} />
+    <meta property="og:site_name" content={siteName} />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary" />
+    <meta property="twitter:url" content={fullCanonicalUrl} />
+    <meta property="twitter:title" content={pageTitle} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={fullImageUrl} />
+
     <!-- Fonts - START -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Sono:wght@200..800&display=swap" rel="stylesheet">    <!-- Fonts - END -->
+    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Sono:wght@200..800&display=swap" rel="stylesheet">
+    <!-- Fonts - END -->
 
     <!-- Prism Code Highlight -->
     <link rel="stylesheet" href="/assets/prismjs/prism.css">
     <script is:inline src="/assets/prismjs/prism.js"></script>
 
     <slot name="head" />
-    <GoogleAnalytics />
+    <GoogleAnalytics title={pageTitle} />
     <slot name="script" />
-    <title>RapiDoc Example</title>
   </head>
   <body>
     <slot name="topbar"/>

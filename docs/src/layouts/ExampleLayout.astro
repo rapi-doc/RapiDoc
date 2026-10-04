@@ -1,14 +1,70 @@
 ---
 import '../styles/examples.css';
 import GlobalLayout from '../layouts/GlobalLayout.astro';
+import { exampleListData } from '../page-data/example-list';
+import { testListData } from '../page-data/tests';
+
+interface Props {
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+}
+
+const { title: propTitle, description: propDescription, noindex: propNoindex } = Astro.props;
 
 const pathname = Astro.url.pathname;
 const isTest = pathname.startsWith('/tests');
 const backUrl = isTest ? '/tests' : '/showcase';
 const backText = isTest ? '← Back to Tests' : '← Back to Showcase';
+
+// Extract slug (e.g. /examples/render-read/ -> render-read)
+const segments = pathname.replace(/\/+$/, '').split('/').filter(Boolean);
+let slug = segments[segments.length - 1] || '';
+if (slug === 'index' || slug === 'index.html') {
+  slug = segments[segments.length - 2] || '';
+}
+
+function formatSlug(s: string): string {
+  return s
+    .split('-')
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
+let autoTitle = '';
+let autoDescription = '';
+
+if (isTest) {
+  let foundTitle = '';
+  const allTests = [...(testListData?.basic || []), ...(testListData?.advanced || [])];
+  for (const item of allTests) {
+    if (item[slug]?.title) {
+      foundTitle = item[slug].title;
+      break;
+    }
+  }
+  const cleanTitle = foundTitle || formatSlug(slug);
+  autoTitle = `${cleanTitle} | RapiDoc Tests`;
+  autoDescription = `OpenAPI schema edge case and rendering validation test for ${cleanTitle} in RapiDoc.`;
+} else {
+  let foundTitle = '';
+  for (const group of exampleListData?.examples || []) {
+    if (group[slug]) {
+      foundTitle = Object.keys(group)[0] || '';
+      break;
+    }
+  }
+  const cleanTitle = foundTitle || formatSlug(slug);
+  autoTitle = `${cleanTitle} - Interactive OpenAPI Example | RapiDoc`;
+  autoDescription = `Interactive live example demonstrating ${cleanTitle} configuration and features in RapiDoc OpenAPI viewer.`;
+}
+
+const finalTitle = propTitle || autoTitle;
+const finalDescription = propDescription || autoDescription;
+const finalNoindex = propNoindex !== undefined ? propNoindex : isTest;
 ---
 
-<GlobalLayout>
+<GlobalLayout title={finalTitle} description={finalDescription} noindex={finalNoindex}>
   <slot slot="head" name="head" /> <!-- allows to attach stylesheets into this slot which is further slotted into the head section of GlobalLayout -->
   <script slot="script" is:inline type="module" src="/rapidoc/rapidoc-min.js"></script>
   <slot slot="script" name="script" /> <!-- allows to attach script into this slot which is further slotted into the script section of GlobalLayout -->

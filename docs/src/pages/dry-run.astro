@@ -3,6 +3,8 @@ import GoogleAnalytics from '../components/GoogleAnalytics.astro';
 import '../styles/dry-run.css';
 
 const defaultSpec = '/specs/dryrun.yaml';
+  const pageTitle = 'Interactive OpenAPI Spec Sandbox & Live Dry-Run Editor | RapiDoc';
+  const pageDescription = 'Test, edit, and preview OpenAPI 3.x and Swagger 2.0 specs live in your browser using RapiDoc. Upload local files, toggle render styles, and live edit YAML/JSON.';
 ---
 
 <!DOCTYPE html>
@@ -10,8 +12,13 @@ const defaultSpec = '/specs/dryrun.yaml';
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
-  <title>RapiDoc - Dry Run Spec Sandbox</title>
-  <GoogleAnalytics />
+  <title>{pageTitle}</title>
+  <meta name="description" content={pageDescription}>
+  <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site || 'https://rapidocweb.com').toString()}>
+  <meta property="og:title" content={pageTitle}>
+  <meta property="og:description" content={pageDescription}>
+  <meta property="og:type" content="website">
+  <GoogleAnalytics title={pageTitle} />
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
