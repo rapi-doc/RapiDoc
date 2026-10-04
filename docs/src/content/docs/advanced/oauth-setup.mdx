@@ -159,6 +159,8 @@ RapiDoc provides custom OpenAPI vendor extensions to streamline the developer ex
 | `x-pkce-only` | `boolean` | `false` | When set to `true`, enforces PKCE and hides the client secret field entirely from the UI. |
 | `x-receive-token-in` | `string` | `request-body` | Specifies whether client credentials are sent in the `request-body` (`client_secret_post`) or `header` (`client_secret_basic`). |
 | `x-receive-token-in-options` | `array` | `["request-body", "header"]` | Restricts the client authentication options available in the UI dropdown. |
+| `x-authorize-params` | `object` or `string` | — | Custom query parameters appended to `authorizationUrl` (e.g. proxy launch tokens, prompt, audience). |
+| `x-token-params` | `object` or `string` | — | Custom parameters sent in POST body to `tokenUrl` (e.g. proxy parameters, audience, resource). |
 
 ### Complete Specification Example
 
@@ -187,6 +189,15 @@ components:
           # Enforce PKCE: removes Client Secret input from UI
           x-pkce-only: true
 
+          # Custom parameters sent to authorizationUrl (e.g., proxy launch parameter)
+          x-authorize-params:
+            launch: xyz123
+            prompt: consent
+
+          # Custom parameters sent in POST body to tokenUrl
+          x-token-params:
+            audience: https://api.example.com
+
     # 2. Confidential / Sandbox Client Flow
     confidential-sandbox:
       type: oauth2
@@ -205,6 +216,52 @@ components:
           scopes:
             openid: OpenID Connect identity
             email: User email address
+```
+
+---
+
+## Custom Parameters for IdP Proxies & Multi-Tenant Gateways
+
+When working with an authorization proxy (such as a Keycloak or SMART-on-FHIR proxy that reads/stores a `launch` parameter) or an authorization server requiring custom token parameters (such as `audience` or `resource`), you can pass parameters through attributes or intercept requests dynamically using custom DOM events:
+
+### Method 1: HTML Attributes on `<rapi-doc>`
+
+Pass parameters directly as attributes on the `<rapi-doc>` element. Accepts JSON objects or query strings:
+
+```html
+<rapi-doc
+  spec-url="/openapi.json"
+  additional-authorize-params='{"launch": "xyz123", "prompt": "consent"}'
+  additional-token-params='{"audience": "https://api.example.com", "resource": "urn:my:api"}'
+></rapi-doc>
+```
+
+### Method 2: Programmatic Lifecycle Events
+
+Attach event listeners to `<rapi-doc>` to inject dynamic runtime tokens or modify request headers before requests are dispatched:
+
+```html
+<script>
+  const rapidocEl = document.querySelector('rapi-doc');
+
+  // 1. Intercept before opening the OAuth authorization popup window
+  rapidocEl.addEventListener('before-authorize', (e) => {
+    const { securitySchemeId, flowType, authUrl, authParams } = e.detail;
+    // authParams is a live URLSearchParams instance
+    authParams.set('launch', sessionStorage.getItem('launch_token') || 'test-launch');
+    authParams.set('tenant_id', window.currentTenantId);
+    console.log('Opening authorization window with params:', authParams.toString());
+  });
+
+  // 2. Intercept before sending POST request to the token endpoint
+  rapidocEl.addEventListener('before-token-request', (e) => {
+    const { securitySchemeId, grantType, tokenUrl, params, headers, request } = e.detail;
+    // params is a live URLSearchParams instance for the POST body
+    params.set('resource', 'https://api.mycompany.com');
+    // headers is a live Headers instance
+    headers.set('X-Client-Device-ID', 'device-12345');
+  });
+</script>
 ```
 
 ---

@@ -104,6 +104,15 @@ const vendorExtensionsCode = `components:
           # Enforces PKCE: Hides client secret field entirely from the UI
           x-pkce-only: true
 
+          # Custom query parameters sent to authorizationUrl (e.g. proxy launch parameters)
+          x-authorize-params:
+            launch: xyz123
+            prompt: consent
+
+          # Custom parameters sent in POST body to tokenUrl
+          x-token-params:
+            audience: https://api.example.com
+
     # Scheme 2: Sandbox / Confidential Client (With Pre-filled Test Secret)
     sandbox-oauth:
       type: oauth2
@@ -113,6 +122,7 @@ const vendorExtensionsCode = `components:
       x-client-id: interactive.confidential.short
       x-client-secret: secret
       x-default-scopes: openid email
+      x-receive-token-in: request-body
       
       flows:
         authorizationCode:
@@ -121,6 +131,36 @@ const vendorExtensionsCode = `components:
           scopes:
             openid: OpenID Connect
             email: Email address`;
+
+const customParamsCode = `<!-- Option 1: Static / Semi-Static via HTML Attributes -->
+<rapi-doc 
+  spec-url="/specs/api.yaml"
+  additional-authorize-params='{"launch": "xyz123", "prompt": "consent"}'
+  additional-token-params='{"audience": "https://api.example.com"}'
+></rapi-doc>
+
+<!-- Option 2: Dynamic Programmatic Interception via Events -->
+<script>
+  const rapidocEl = document.querySelector('rapi-doc');
+
+  // Intercept & inject dynamic query parameters before opening the authorization window
+  rapidocEl.addEventListener('before-authorize', (e) => {
+    const { securitySchemeId, flowType, authUrl, authParams } = e.detail;
+    // authParams is a live URLSearchParams instance
+    authParams.set('launch', sessionStorage.getItem('launch_context') || 'default-launch');
+    authParams.set('tenant', window.currentTenantId);
+    console.log('Opening authorization URL with customized params:', authParams.toString());
+  });
+
+  // Intercept & inject dynamic body parameters or headers before calling the token endpoint
+  rapidocEl.addEventListener('before-token-request', (e) => {
+    const { securitySchemeId, grantType, tokenUrl, params, headers } = e.detail;
+    // params is a live URLSearchParams instance for the POST request body
+    params.set('resource', 'https://api.mycompany.com');
+    // headers is a live Headers instance
+    headers.set('X-Device-Fingerprint', getDeviceFingerprint());
+  });
+</script>`;
 
 const vendorExtensionsList = [
   {
@@ -158,6 +198,18 @@ const vendorExtensionsList = [
     type: 'array',
     level: 'Scheme or Flow',
     description: 'Limits the client authentication options available in the UI dropdown (e.g. ["request-body", "header"]).'
+  },
+  {
+    name: 'x-authorize-params',
+    type: 'object | string',
+    level: 'Scheme or Flow',
+    description: 'Custom query parameters appended to authorizationUrl (e.g. proxy launch parameters, audience, prompt).'
+  },
+  {
+    name: 'x-token-params',
+    type: 'object | string',
+    level: 'Scheme or Flow',
+    description: 'Custom parameters included in the POST request body to tokenUrl (e.g. custom IdP proxy fields, audience, resource).'
   }
 ];
 
@@ -538,6 +590,14 @@ const flowSteps = [
           <div style="margin-top: 1.5rem;">
             <h4>Specification Example with Vendor Extensions:</h4>
             <CodeBlock code={vendorExtensionsCode} lang="yaml" filename="openapi-with-extensions.yaml" />
+          </div>
+
+          <div style="margin-top: 2rem;">
+            <h4>Customizing Parameters via Attributes & Dynamic Events:</h4>
+            <p>
+              When working with Identity Provider proxies (such as Keycloak proxies requiring a <code class="mono-code">launch</code> context token), multi-tenant auth gateways, or token endpoints requiring custom parameters (<code class="mono-code">audience</code>, <code class="mono-code">resource</code>), you can customize parameters statically using attributes or dynamically via DOM lifecycle events:
+            </p>
+            <CodeBlock code={customParamsCode} lang="html" filename="custom-oauth-params.html" />
           </div>
         </div>
       </div>

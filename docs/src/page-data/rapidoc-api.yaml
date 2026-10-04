@@ -365,6 +365,18 @@ Attributes:
         Configures credentials mode for cross-origin browser Fetch requests as defined in the
         <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials" target="_blank" rel="noopener">Fetch Standard</a>, enabling transmission of cookies and Authorization headers in CORS requests.
       default: (empty)
+    - name: oauth-receiver
+      description: >
+        Relative or absolute path to the OAuth receiver HTML file for handling authorization redirection callbacks.
+      default: oauth-receiver.html
+    - name: additional-authorize-params
+      description: >
+        Additional parameters to append to the OAuth2 authorization URL query string (e.g. proxy launch tokens, audience, prompt). Can be provided as a JSON object, JSON string, or URL query string.
+      default: (empty)
+    - name: additional-token-params
+      description: >
+        Additional parameters to include in the POST request body to the OAuth2 token endpoint (e.g. custom proxy parameters, resource, audience). Can be provided as a JSON object, JSON string, or URL query string.
+      default: (empty)
 
   - Mock Server Attributes:
     - name: mock-server
@@ -478,6 +490,31 @@ Events:
       description: Dispatched when an in-flight API try request is aborted by the user or programmatically via AbortController.
     - name: api-server-change
       description: Dispatched when the active target API server is modified in the dropdown.
+    - name: before-authorize
+      description: >
+        Dispatched immediately before opening the OAuth authorization popup window.
+        Provides <span class="mono yellow">e.detail.securitySchemeId</span>, <span class="mono yellow">e.detail.flowType</span>, <span class="mono yellow">e.detail.authUrl</span>, and mutable <span class="mono yellow">e.detail.authParams</span> (<a href="https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams" target="_blank" rel="noopener">URLSearchParams</a>).
+        Calling <span class="mono yellow">e.preventDefault()</span> cancels opening the authorization window.
+        <br/><br/>
+        <span class="yellow">Example:</span> Dynamically inject a launch token or proxy parameter:
+        <pre><code class="language-js">
+        rapidocEl.addEventListener('before-authorize', (e) => {
+          e.detail.authParams.set('launch', 'xyz123');
+        });
+        </code></pre>
+    - name: before-token-request
+      description: >
+        Dispatched immediately before sending the POST request to the OAuth2 token endpoint.
+        Provides <span class="mono yellow">e.detail.securitySchemeId</span>, <span class="mono yellow">e.detail.grantType</span>, <span class="mono yellow">e.detail.tokenUrl</span>, mutable <span class="mono yellow">e.detail.params</span> (<a href="https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams" target="_blank" rel="noopener">URLSearchParams</a>), <span class="mono yellow">e.detail.headers</span> (<a href="https://developer.mozilla.org/en-US/docs/Web/API/Headers" target="_blank" rel="noopener">Headers</a>), and mutable <span class="mono yellow">e.detail.request</span>.
+        Calling <span class="mono yellow">e.preventDefault()</span> cancels the token request.
+        <br/><br/>
+        <span class="yellow">Example:</span> Add a custom token audience or header:
+        <pre><code class="language-js">
+        rapidocEl.addEventListener('before-token-request', (e) => {
+          e.detail.params.set('audience', 'https://api.mycompany.com');
+          e.detail.headers.set('X-Client-Version', '1.0.0');
+        });
+        </code></pre>
 
 Slots:
   description: Standard HTML Web Component placeholders inside `<rapi-doc>` allowing seamless injection of custom markup, branding, and navigation elements.
@@ -549,3 +586,9 @@ Extensions:
     - name: x-pkce-only
       allowed: ["true", "false"]
       description: When set to "true", enforces Proof Key for Code Exchange (PKCE) flow and prevents client secrets from being transmitted from the browser.
+    - name: x-authorize-params
+      description: >
+        Object or query string defining custom parameters appended to the OAuth2 authorizationUrl query string (e.g. proxy launch tokens, prompt, audience). Supported at both security scheme and individual flow levels.
+    - name: x-token-params
+      description: >
+        Object or form parameters sent in the POST request body to the OAuth2 tokenUrl (e.g. custom proxy fields, resource, audience). Supported at both security scheme and individual flow levels.
