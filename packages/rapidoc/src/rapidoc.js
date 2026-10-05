@@ -1296,6 +1296,11 @@ export default class RapiDoc extends LitElement {
   }
 
   // Public Method (scrolls to a given path and highlights the left-nav selection)
+  async scrollTo(elementId) {
+    return this.scrollToPath(elementId);
+  }
+
+  // Public Method (scrolls to a given path and highlights the left-nav selection)
   async scrollToPath(elementId, expandPath = true, scrollNavItemToView = true) {
     if (this.renderStyle === 'focused') {
       // for focused mode update this.focusedElementId to update the rendering, else it wont find the needed html elements

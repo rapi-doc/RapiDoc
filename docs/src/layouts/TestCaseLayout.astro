@@ -6,12 +6,19 @@ interface Props {
   description?: string;
   noindex?: boolean;
   specUrl?: string;
-  preset?: 'all' | 'minimal' | 'schema' | 'nav' | 'sections' | 'none' | 'auto';
+  preset?: 'all' | 'minimal' | 'schema' | 'nav' | 'sections' | 'colors' | 'demo' | 'none' | 'auto';
   controls?: string[];
   rapidocProps?: Record<string, any>;
   autoRenderRapiDoc?: boolean;
+  tuckedRight?: boolean;
   controllerTitle?: string;
   showController?: boolean;
+  showBackPill?: boolean;
+  controllerSize?: 'small' | 'medium' | 'large' | string;
+  controllerFontSize?: string;
+  size?: 'small' | 'medium' | 'large' | string;
+  fontSize?: string | number;
+  showMethods?: boolean;
 }
 
 const {
@@ -23,9 +30,18 @@ const {
   controls,
   rapidocProps = {},
   autoRenderRapiDoc = true,
+  tuckedRight,
   controllerTitle,
   showController = true,
+  showBackPill,
+  controllerSize,
+  controllerFontSize,
+  size: propSize,
+  fontSize: propFontSize,
 } = Astro.props;
+
+const effectiveSize = propSize || controllerSize;
+const effectiveFontSize = propFontSize || controllerFontSize;
 ---
 
 <ExampleLayout
@@ -37,8 +53,15 @@ const {
   controls={controls}
   rapidocProps={rapidocProps}
   autoRenderRapiDoc={autoRenderRapiDoc}
+  tuckedRight={tuckedRight}
   controllerTitle={controllerTitle}
   showController={showController}
+  showBackPill={showBackPill}
+  size={effectiveSize}
+  fontSize={effectiveFontSize}
+  controllerSize={effectiveSize}
+  controllerFontSize={effectiveFontSize}
+  showMethods={Astro.props.showMethods}
 >
   <slot name="head" slot="head" />
   <slot name="script" slot="script" />
