@@ -26,7 +26,10 @@ export default defineConfig({
     format: 'directory',
   },
   redirects: {
+    '/css': '/guides/css',
     '/mini': '/guides/mini',
+    '/mock': '/guides/mock',
+    '/oauth': '/guides/oauth',
     '/theme': '/guides/theme',
     '/perf': '/tests/performance',
   },
