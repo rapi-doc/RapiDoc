@@ -26,13 +26,9 @@ export default defineConfig({
     format: 'directory',
   },
   redirects: {
-    '/mock-server': '/guides/mock',
-    '/oauth-setup': '/guides/oauth',
-    '/rapidoc-mini': '/guides/mini',
-    '/styling': '/guides/theme',
-    '/performance': '/tests/performance',
-    '/dry-run': '/sandbox',
-    '/dryrun': '/sandbox',
+    '/mini': '/guides/mini',
+    '/theme': '/guides/theme',
+    '/perf': '/tests/performance',
   },
   integrations: [
     starlight({

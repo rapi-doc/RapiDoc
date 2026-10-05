@@ -1,6 +1,6 @@
 ---
 interface Props {
-  page: 'home' | 'quickstart' | 'examples' | 'api' | 'showcase' | 'example-list' | 'other'; 
+  page: 'home' | 'quickstart' | 'examples' | 'api' | 'example-list' | 'other'; 
   showWaves?: boolean;
   height?:number
   hiddenOverflow?: boolean
@@ -22,7 +22,7 @@ const { page, height, showWaves = false, hiddenOverflow = true } = Astro.props;
         { page !== 'home' && <a class="banner-bar-link" href="/"> Home </a> }
         { page !== 'quickstart' && page !== 'examples' && <a class="banner-bar-link" href="/quickstart"> Quick Start </a> }
         { page !== 'api' && <a class="banner-bar-link" href="/api"> API </a> }
-        <a class="banner-bar-link hide-in-mobile" href="/showcase"> Showcase </a>
+        <a class="banner-bar-link hide-in-mobile" href="/examples"> Examples </a>
         <a class="banner-bar-link hide-in-mobile" data-action="url" href="https://github.com/rapi-doc/RapiDoc"> GitHub </a>
       </nav>
     </div>

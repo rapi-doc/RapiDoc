@@ -41,11 +41,11 @@ export const NAV_LINKS: NavItem[] = [
     matchPrefixes: ['/guides'],
   },
   {
-    key: 'showcase',
-    label: 'Showcase',
-    href: '/showcase',
-    matchKeys: ['showcase', 'examples', 'list'],
-    matchPrefixes: ['/showcase', '/examples'],
+    key: 'examples',
+    label: 'Examples',
+    href: '/examples',
+    matchKeys: ['examples'],
+    matchPrefixes: ['/examples'],
   },
   {
     key: 'docs',
@@ -67,8 +67,8 @@ export const NAV_LINKS: NavItem[] = [
     href: '/sandbox',
     title: 'Developer Spec Sandbox',
     pill: 'DEV',
-    matchKeys: ['sandbox', 'dry-run'],
-    matchPrefixes: ['/sandbox', '/dry-run', '/dryrun'],
+    matchKeys: ['sandbox'],
+    matchPrefixes: ['/sandbox'],
   },
 ];
 
@@ -80,10 +80,10 @@ export function resolveActiveNavKey(pathname: string, activePage: NavPageKey = '
   if (pathname.startsWith('/quickstart')) return 'quickstart';
   if (pathname.startsWith('/api')) return 'api';
   if (pathname.startsWith('/guides')) return 'guides';
-  if (pathname.startsWith('/showcase') || pathname.startsWith('/examples')) return 'showcase';
+  if (pathname.startsWith('/examples')) return 'examples';
   if (pathname.startsWith('/docs')) return 'docs';
   if (pathname.startsWith('/tests')) return 'tests';
-  if (pathname.startsWith('/sandbox') || pathname.startsWith('/dry-run') || pathname.startsWith('/dryrun')) return 'sandbox';
+  if (pathname.startsWith('/sandbox')) return 'sandbox';
   return 'other';
 }
 

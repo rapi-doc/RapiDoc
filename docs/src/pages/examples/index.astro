@@ -1,8 +1,8 @@
 ---
-import GlobalLayout from '../layouts/GlobalLayout.astro';
-import SiteNavbar from '../components/SiteNavbar.astro';
-import SiteFooter from '../components/SiteFooter.astro';
-import { exampleListData, SubExample } from '../page-data/example-list';
+import GlobalLayout from '../../layouts/GlobalLayout.astro';
+import SiteNavbar from '../../components/SiteNavbar.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import { exampleListData, SubExample } from '../../page-data/example-list';
 
 // Extract unique categories for filter tabs (examples only)
 const allExamples = exampleListData.examples
@@ -28,9 +28,9 @@ const categories = [
 ---
 
 <GlobalLayout 
-  title="Interactive Showcase & OpenAPI Examples Gallery | RapiDoc"
+  title="Interactive OpenAPI Examples Gallery | RapiDoc"
   description="Explore interactive examples, themes, layout styles (Read, View, Focused), and advanced configuration patterns for RapiDoc OpenAPI documentation."
-  keywords="RapiDoc showcase, OpenAPI examples, Swagger UI themes, interactive API console, Swagger alternatives"
+  keywords="RapiDoc examples, OpenAPI examples, Swagger UI themes, interactive API console, Swagger alternatives"
 >
   <!-- Ambient background glow elements inspired by Nuxt.com -->
   <div class="ambient-glow glow-emerald"></div>
@@ -38,7 +38,7 @@ const categories = [
   <div class="ambient-glow glow-cyan"></div>
 
   <!-- Frosted Glass Navigation (Reusable Component) -->
-  <SiteNavbar activePage="showcase" />
+  <SiteNavbar activePage="examples" />
 
   <!-- Hero Header -->
   <main class="rd-list-main">
