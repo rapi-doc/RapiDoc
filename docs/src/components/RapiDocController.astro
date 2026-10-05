@@ -1,0 +1,692 @@
+---
+interface ControlOption {
+  label: string;
+  val: string;
+}
+
+interface SegmentedControl {
+  type: 'segmented';
+  attr: string;
+  label: string;
+  options: ControlOption[];
+}
+
+interface ToggleControl {
+  type: 'toggle';
+  attr: string;
+  label: string;
+}
+
+type ControlDef = SegmentedControl | ToggleControl;
+
+const CONTROL_REGISTRY: Record<string, ControlDef> = {
+  'render-style': {
+    type: 'segmented',
+    attr: 'render-style',
+    label: 'Render Mode',
+    options: [
+      { label: 'Read', val: 'read' },
+      { label: 'View', val: 'view' },
+      { label: 'Focused', val: 'focused' },
+    ],
+  },
+  'schema-style': {
+    type: 'segmented',
+    attr: 'schema-style',
+    label: 'Schema Style',
+    options: [
+      { label: 'Table', val: 'table' },
+      { label: 'Tree', val: 'tree' },
+    ],
+  },
+  'theme': {
+    type: 'segmented',
+    attr: 'theme',
+    label: 'Theme',
+    options: [
+      { label: 'Dark', val: 'dark' },
+      { label: 'Light', val: 'light' },
+    ],
+  },
+  'default-schema-tab': {
+    type: 'segmented',
+    attr: 'default-schema-tab',
+    label: 'Schema Tab',
+    options: [
+      { label: 'Schema', val: 'schema' },
+      { label: 'Example', val: 'example' },
+    ],
+  },
+  'schema-expand-level': {
+    type: 'segmented',
+    attr: 'schema-expand-level',
+    label: 'Expand Level',
+    options: [
+      { label: '1', val: '1' },
+      { label: '2', val: '2' },
+      { label: '3', val: '3' },
+      { label: 'All', val: 'all' },
+    ],
+  },
+  'use-path-in-nav-bar': {
+    type: 'segmented',
+    attr: 'use-path-in-nav-bar',
+    label: 'Nav Text',
+    options: [
+      { label: 'Path', val: 'true' },
+      { label: 'Summary', val: 'false' },
+    ],
+  },
+  'show-method-in-nav-bar': {
+    type: 'segmented',
+    attr: 'show-method-in-nav-bar',
+    label: 'Method Tag',
+    options: [
+      { label: 'None', val: 'false' },
+      { label: 'Plain', val: 'as-plain-text' },
+      { label: 'Colored', val: 'as-colored-text' },
+      { label: 'Block', val: 'as-colored-block' },
+    ],
+  },
+  'nav-active-item-marker': {
+    type: 'segmented',
+    attr: 'nav-active-item-marker',
+    label: 'Nav Marker',
+    options: [
+      { label: 'Left Bar', val: 'left-bar' },
+      { label: 'Block', val: 'colored-block' },
+    ],
+  },
+  'font-size': {
+    type: 'segmented',
+    attr: 'font-size',
+    label: 'Font Size',
+    options: [
+      { label: 'Default', val: 'default' },
+      { label: 'Large', val: 'large' },
+      { label: 'Largest', val: 'largest' },
+    ],
+  },
+  'show-header': { type: 'toggle', attr: 'show-header', label: 'Header' },
+  'show-info': { type: 'toggle', attr: 'show-info', label: 'Info' },
+  'allow-try': { type: 'toggle', attr: 'allow-try', label: 'Try Console' },
+  'allow-server-selection': { type: 'toggle', attr: 'allow-server-selection', label: 'Servers' },
+  'allow-authentication': { type: 'toggle', attr: 'allow-authentication', label: 'Auth' },
+  'show-components': { type: 'toggle', attr: 'show-components', label: 'Components' },
+  'schema-description-expanded': { type: 'toggle', attr: 'schema-description-expanded', label: 'Desc Expanded' },
+  'allow-schema-description-expand-toggle': {
+    type: 'toggle',
+    attr: 'allow-schema-description-expand-toggle',
+    label: 'Desc Toggle',
+  },
+};
+
+const PRESETS: Record<string, string[]> = {
+  all: ['render-style', 'schema-style', 'theme', 'show-header', 'show-info', 'allow-try', 'allow-server-selection'],
+  minimal: ['render-style', 'schema-style', 'theme'],
+  schema: ['schema-style', 'default-schema-tab', 'schema-expand-level', 'schema-description-expanded'],
+  nav: ['use-path-in-nav-bar', 'show-method-in-nav-bar', 'nav-active-item-marker'],
+  sections: ['show-header', 'show-info', 'allow-server-selection', 'allow-authentication', 'allow-try', 'show-components'],
+  none: [],
+};
+
+interface Props {
+  targetId?: string;
+  preset?: 'all' | 'minimal' | 'schema' | 'nav' | 'sections' | 'none';
+  controls?: string[];
+  initialAttrs?: Record<string, string | boolean | number>;
+  position?: 'bottom' | 'top';
+  specUrl?: string;
+  title?: string;
+}
+
+const {
+  targetId = 'thedoc',
+  preset = 'minimal',
+  controls: propControls,
+  initialAttrs = {},
+  position = 'bottom',
+  specUrl,
+  title = 'Controls',
+} = Astro.props;
+
+// Determine active control keys
+const baseList = propControls && propControls.length > 0 ? propControls : PRESETS[preset] || PRESETS.minimal;
+const activeControlKeys = Array.from(new Set(baseList));
+
+const activeControls: ControlDef[] = activeControlKeys
+  .map(k => CONTROL_REGISTRY[k])
+  .filter((c): c is ControlDef => Boolean(c));
+
+const initialAttrsJson = JSON.stringify(initialAttrs);
+---
+
+<aside
+  class={`rd-controller-hud position-${position}`}
+  id={`rd-hud-${targetId}`}
+  data-target={targetId}
+  data-initial-attrs={initialAttrsJson}
+  aria-label="RapiDoc Interactive Controller"
+>
+  <!-- Collapsed badge / Expand trigger -->
+  <button type="button" class="rd-hud-trigger" aria-expanded="false" title="Open interactive controls HUD">
+    <span class="rd-hud-status-dot" aria-hidden="true"></span>
+    <span class="rd-hud-trigger-icon">🎛️</span>
+    <span class="rd-hud-trigger-title">{title}</span>
+    <span class="rd-hud-toggle-icon">▲</span>
+  </button>
+
+  <!-- Expanded controls drawer / panel -->
+  <div class="rd-hud-panel">
+    <div class="rd-hud-header">
+      <div class="rd-hud-title-group">
+        <span class="rd-hud-status-dot" aria-hidden="true"></span>
+        <span class="rd-hud-badge">HUD CONTROLLER</span>
+        {specUrl && (
+          <a href={specUrl} target="_blank" rel="noopener noreferrer" class="rd-spec-link" title="Open active OpenAPI spec file">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            <span>Spec</span>
+          </a>
+        )}
+      </div>
+
+      <button type="button" class="rd-hud-minimize-btn" title="Minimize controller HUD" aria-label="Minimize controller">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div class="rd-hud-body">
+      {activeControls.map(ctrl => {
+        if (ctrl.type === 'segmented') {
+          return (
+            <div class="rd-hud-group" data-group-attr={ctrl.attr}>
+              <span class="rd-hud-group-label">{ctrl.label}</span>
+              <div class="rd-hud-segmented" role="radiogroup" aria-label={ctrl.label}>
+                {ctrl.options.map(opt => (
+                  <button
+                    type="button"
+                    class="rd-seg-btn"
+                    data-attr={ctrl.attr}
+                    data-val={opt.val}
+                    title={`Set ${ctrl.attr} to ${opt.val}`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        }
+
+        if (ctrl.type === 'toggle') {
+          return (
+            <div class="rd-hud-group rd-hud-toggle-group">
+              <button
+                type="button"
+                class="rd-toggle-btn"
+                data-attr={ctrl.attr}
+                title={`Toggle ${ctrl.attr}`}
+              >
+                <span class="rd-toggle-check">✓</span>
+                <span class="rd-toggle-label">{ctrl.label}</span>
+              </button>
+            </div>
+          );
+        }
+
+        return null;
+      })}
+
+      <!-- Slot for custom, test-specific action buttons or inputs -->
+      <slot />
+    </div>
+  </div>
+</aside>
+
+<script is:inline>
+  (function initRapiDocController() {
+    function setupController(hud) {
+      if (hud.__rdInitialized) return;
+      hud.__rdInitialized = true;
+
+      const targetId = hud.getAttribute('data-target') || 'thedoc';
+      const triggerBtn = hud.querySelector('.rd-hud-trigger');
+      const minimizeBtn = hud.querySelector('.rd-hud-minimize-btn');
+      const statusDots = hud.querySelectorAll('.rd-hud-status-dot');
+
+      // Toggle expanded/collapsed state
+      function setCollapsed(collapsed) {
+        if (collapsed) {
+          hud.classList.add('is-collapsed');
+          triggerBtn.setAttribute('aria-expanded', 'false');
+        } else {
+          hud.classList.remove('is-collapsed');
+          triggerBtn.setAttribute('aria-expanded', 'true');
+        }
+      }
+
+      triggerBtn?.addEventListener('click', e => {
+        e.stopPropagation();
+        setCollapsed(false);
+      });
+
+      minimizeBtn?.addEventListener('click', e => {
+        e.stopPropagation();
+        setCollapsed(true);
+      });
+
+      // Keyboard shortcut Cmd+K or Ctrl+K to toggle HUD
+      window.addEventListener('keydown', e => {
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+          e.preventDefault();
+          setCollapsed(!hud.classList.contains('is-collapsed'));
+        }
+      });
+
+      // Find the target RapiDoc element
+      function getTarget() {
+        return document.getElementById(targetId);
+      }
+
+      // Sync active state of segmented and toggle buttons
+      function syncControllerState() {
+        const target = getTarget();
+        if (!target) return;
+
+        // Sync segmented buttons
+        hud.querySelectorAll('.rd-seg-btn').forEach(btn => {
+          const attr = btn.getAttribute('data-attr');
+          const val = btn.getAttribute('data-val');
+          const currentVal = target.getAttribute(attr);
+          if (currentVal !== null && String(currentVal) === String(val)) {
+            btn.classList.add('is-active');
+            btn.setAttribute('aria-checked', 'true');
+          } else {
+            btn.classList.remove('is-active');
+            btn.setAttribute('aria-checked', 'false');
+          }
+        });
+
+        // Sync toggle buttons
+        hud.querySelectorAll('.rd-toggle-btn').forEach(btn => {
+          const attr = btn.getAttribute('data-attr');
+          const currentVal = target.getAttribute(attr);
+          // RapiDoc considers absent or "true" as true depending on default, but explicitly 'false' is off
+          const isOff = currentVal === 'false';
+          if (!isOff && currentVal !== null) {
+            btn.classList.add('is-active');
+          } else if (currentVal === null) {
+            // Check default presence or treat as inactive
+            btn.classList.remove('is-active');
+          } else {
+            btn.classList.remove('is-active');
+          }
+        });
+      }
+
+      // Handle user clicks on segmented buttons
+      hud.addEventListener('click', e => {
+        const segBtn = e.target.closest('.rd-seg-btn');
+        if (segBtn) {
+          const attr = segBtn.getAttribute('data-attr');
+          const val = segBtn.getAttribute('data-val');
+          const target = getTarget();
+          if (target && attr) {
+            target.setAttribute(attr, val);
+            syncControllerState();
+          }
+          return;
+        }
+
+        const toggleBtn = e.target.closest('.rd-toggle-btn');
+        if (toggleBtn) {
+          const attr = toggleBtn.getAttribute('data-attr');
+          const target = getTarget();
+          if (target && attr) {
+            const currentVal = target.getAttribute(attr);
+            const newVal = currentVal === 'false' ? 'true' : 'false';
+            target.setAttribute(attr, newVal);
+            syncControllerState();
+          }
+          return;
+        }
+      });
+
+      // Hook into target RapiDoc events and mutations
+      function attachToTarget() {
+        const target = getTarget();
+        if (!target) {
+          setTimeout(attachToTarget, 100);
+          return;
+        }
+
+        // Apply initial attrs if provided and not already on element
+        try {
+          const rawInitial = hud.getAttribute('data-initial-attrs');
+          if (rawInitial) {
+            const initial = JSON.parse(rawInitial);
+            Object.entries(initial).forEach(([key, val]) => {
+              if (!target.hasAttribute(key)) {
+                target.setAttribute(key, String(val));
+              }
+            });
+          }
+        } catch (_) {}
+
+        // Listen for RapiDoc lifecycle events to update status dot
+        target.addEventListener('spec-loaded', () => {
+          statusDots.forEach(dot => dot.classList.add('is-loaded'));
+        });
+
+        target.addEventListener('after-render', () => {
+          statusDots.forEach(dot => dot.classList.add('is-ready'));
+          syncControllerState();
+        });
+
+        // MutationObserver to observe any external changes to rapidoc attributes
+        const observer = new MutationObserver(() => {
+          syncControllerState();
+        });
+        observer.observe(target, { attributes: true });
+
+        // Initial sync
+        syncControllerState();
+        // Fallback sync after web component upgrade
+        if (customElements?.whenDefined) {
+          customElements.whenDefined('rapi-doc').then(() => {
+            syncControllerState();
+          });
+        }
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', attachToTarget);
+      } else {
+        attachToTarget();
+      }
+    }
+
+    document.querySelectorAll('.rd-controller-hud').forEach(setupController);
+  })();
+</script>
+
+<style>
+  .rd-controller-hud {
+    position: fixed;
+    z-index: 99990;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+  }
+
+  .rd-controller-hud.position-bottom {
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .rd-controller-hud.position-top {
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  /* Trigger pill shown when collapsed */
+  .rd-hud-trigger {
+    display: none;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 14px;
+    border-radius: 9999px;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    color: #e2e8f0;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    transition: all 0.2s ease;
+  }
+
+  .rd-hud-trigger:hover {
+    background: rgba(15, 23, 42, 0.98);
+    border-color: rgba(234, 88, 12, 0.5);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 28px rgba(234, 88, 12, 0.25);
+  }
+
+  .rd-hud-trigger-title {
+    letter-spacing: 0.02em;
+  }
+
+  .rd-hud-toggle-icon {
+    font-size: 10px;
+    opacity: 0.6;
+    margin-left: 2px;
+  }
+
+  /* Status indicator dot */
+  .rd-hud-status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #64748b;
+    display: inline-block;
+    transition: background 0.3s ease;
+  }
+
+  .rd-hud-status-dot.is-loaded {
+    background: #38bdf8;
+    box-shadow: 0 0 8px #38bdf8;
+  }
+
+  .rd-hud-status-dot.is-ready {
+    background: #10b981;
+    box-shadow: 0 0 8px #10b981;
+  }
+
+  /* Main HUD panel */
+  .rd-hud-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 16px;
+    background: rgba(15, 23, 42, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.06);
+    max-width: 92vw;
+  }
+
+  /* Collapsed state behavior */
+  .rd-controller-hud.is-collapsed .rd-hud-panel {
+    display: none;
+  }
+
+  .rd-controller-hud.is-collapsed .rd-hud-trigger {
+    display: inline-flex;
+  }
+
+  /* Header inside HUD panel */
+  .rd-hud-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 6px;
+  }
+
+  .rd-hud-title-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .rd-hud-badge {
+    font-size: 10px;
+    font-weight: 700;
+    color: #94a3b8;
+    letter-spacing: 0.06em;
+  }
+
+  .rd-spec-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #cbd5e1;
+    font-size: 10.5px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+
+  .rd-spec-link:hover {
+    color: #fff;
+    background: rgba(234, 88, 12, 0.2);
+    border-color: rgba(234, 88, 12, 0.4);
+  }
+
+  .rd-hud-minimize-btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 3px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+  }
+
+  .rd-hud-minimize-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+
+  /* Body flex row wrapping controls */
+  .rd-hud-body {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .rd-hud-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .rd-hud-group-label {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: #94a3b8;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  /* Segmented pills */
+  .rd-hud-segmented {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 2px;
+    gap: 2px;
+  }
+
+  .rd-seg-btn {
+    padding: 4px 9px;
+    font-size: 11.5px;
+    font-weight: 500;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .rd-seg-btn:hover {
+    color: #e2e8f0;
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .rd-seg-btn.is-active {
+    background: #ea580c;
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 1px 6px rgba(234, 88, 12, 0.4);
+  }
+
+  /* Toggle buttons */
+  .rd-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 9px;
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    font-size: 11.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .rd-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.09);
+    color: #f1f5f9;
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .rd-toggle-btn.is-active {
+    background: rgba(16, 185, 129, 0.18);
+    border-color: rgba(16, 185, 129, 0.45);
+    color: #34d399;
+    font-weight: 600;
+  }
+
+  .rd-toggle-check {
+    font-size: 10px;
+    opacity: 0.4;
+    transition: opacity 0.15s ease;
+  }
+
+  .rd-toggle-btn.is-active .rd-toggle-check {
+    opacity: 1;
+  }
+
+  @media (max-width: 768px) {
+    .rd-controller-hud {
+      width: calc(100vw - 24px);
+      left: 12px !important;
+      transform: none !important;
+    }
+    .rd-hud-panel {
+      max-height: 40vh;
+      overflow-y: auto;
+    }
+  }
+</style>

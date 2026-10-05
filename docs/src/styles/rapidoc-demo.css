@@ -15,21 +15,9 @@ body {
   position: relative;
   background-color: #060913;
   background-image:
-    radial-gradient(
-      ellipse 80% 50% at 50% -20%,
-      rgba(16, 185, 129, 0.09) 0%,
-      transparent 65%
-    ),
-    radial-gradient(
-      ellipse 60% 40% at 90% 40%,
-      rgba(139, 92, 246, 0.05) 0%,
-      transparent 55%
-    ),
-    radial-gradient(
-      ellipse 50% 30% at 10% 85%,
-      rgba(6, 182, 212, 0.05) 0%,
-      transparent 55%
-    );
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(16, 185, 129, 0.09) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 40% at 90% 40%, rgba(139, 92, 246, 0.05) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 30% at 10% 85%, rgba(6, 182, 212, 0.05) 0%, transparent 55%);
 }
 
 #thedoc {
@@ -137,8 +125,7 @@ dialog.sidebar-dialog {
     -12px 0 40px rgba(0, 0, 0, 0.55),
     inset 1px 0 0 rgba(255, 255, 255, 0.08) !important;
   color: #f1f5f9 !important;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    'Helvetica Neue', sans-serif !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif !important;
   outline: none !important;
   z-index: 100000 !important;
   overflow: hidden !important;

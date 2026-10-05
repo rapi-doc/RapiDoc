@@ -1,0 +1,20 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+---
+
+<ExampleLayout
+  title="Interactive Controller Showcase | RapiDoc"
+  description="Demonstrates using the floating RapiDocController HUD in showcase pages."
+  specUrl="/specs/petstore.yaml"
+  autoRenderRapiDoc={true}
+  preset="minimal"
+  controls={['render-style', 'schema-style', 'theme', 'show-header', 'allow-try']}
+  rapidocProps={{
+    'render-style': 'read',
+    'schema-style': 'table',
+    'theme': 'dark',
+    'show-info': 'true',
+    'show-header': 'false',
+    'allow-try': 'true',
+  }}
+/>

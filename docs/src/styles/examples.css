@@ -2,7 +2,10 @@ rapi-doc:not(:defined) {
   opacity: 0;
 }
 
-a { color:var(--link-color); text-decoration: none;}
+a {
+  color: var(--link-color);
+  text-decoration: none;
+}
 .txt {
   width: 100px;
   padding: 8px 12px;
@@ -24,19 +27,19 @@ a { color:var(--link-color); text-decoration: none;}
   color: #fff;
   border: none;
   border-radius: 2px;
-  cursor:pointer;
-  outline:none;
+  cursor: pointer;
+  outline: none;
   &.yellow {
     background: var(--color-yellow);
     color: #1e293b;
   }
   &.small {
     width: 60px;
-    height: 24px
+    height: 24px;
   }
   &.medium {
     width: 75px;
-    height: 28px
+    height: 28px;
   }
   &.square {
     width: 70px;
@@ -55,5 +58,3 @@ a { color:var(--link-color); text-decoration: none;}
   background: #000000aa;
   padding: 16px 12px;
 }
-
-

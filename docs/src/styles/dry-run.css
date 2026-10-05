@@ -1,12 +1,13 @@
 /* Dry Run Page Styles */
-html, body {
+html,
+body {
   margin: 0 !important;
   padding: 0 !important;
   width: 100vw !important;
   height: 100vh !important;
   overflow: hidden !important;
   background: #1a1a1a !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
 * {
@@ -39,7 +40,9 @@ rapi-doc {
   -webkit-backdrop-filter: blur(16px) !important;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55) !important;
   user-select: none !important;
-  transition: opacity 0.2s ease, transform 0.2s ease !important;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease !important;
 }
 
 .dr-btn {
@@ -358,7 +361,9 @@ rapi-doc {
   background: rgba(30, 41, 59, 0.96) !important;
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
-  transition: opacity 0.3s ease, transform 0.3s ease !important;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease !important;
 }
 
 .dr-toast.fade-out {

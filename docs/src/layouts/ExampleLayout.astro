@@ -2,6 +2,8 @@
 import '../styles/examples.css';
 import GlobalLayout from '../layouts/GlobalLayout.astro';
 import Icon from '../components/Icon.astro';
+import RapiDocController from '../components/RapiDocController.astro';
+import { getSpecUrl } from '../utils/getSpecUrl';
 import { exampleListData } from '../page-data/example-list';
 import { testListData } from '../page-data/tests';
 
@@ -9,9 +11,27 @@ interface Props {
   title?: string;
   description?: string;
   noindex?: boolean;
+  specUrl?: string;
+  preset?: 'all' | 'minimal' | 'schema' | 'nav' | 'sections' | 'none' | 'auto';
+  controls?: string[];
+  rapidocProps?: Record<string, any>;
+  autoRenderRapiDoc?: boolean;
+  controllerTitle?: string;
+  showController?: boolean;
 }
 
-const { title: propTitle, description: propDescription, noindex: propNoindex } = Astro.props;
+const {
+  title: propTitle,
+  description: propDescription,
+  noindex: propNoindex,
+  specUrl: propSpecUrl,
+  preset: propPreset,
+  controls: propControls,
+  rapidocProps = {},
+  autoRenderRapiDoc = false,
+  controllerTitle,
+  showController,
+} = Astro.props;
 
 const pathname = Astro.url.pathname;
 const isTest = pathname.startsWith('/tests');
@@ -34,6 +54,7 @@ function formatSlug(s: string): string {
 
 let autoTitle = '';
 let autoDescription = '';
+let foundValidates: string[] = [];
 
 if (isTest) {
   let foundTitle = '';
@@ -41,6 +62,7 @@ if (isTest) {
   for (const item of allTests) {
     if (item[slug]?.title) {
       foundTitle = item[slug].title;
+      foundValidates = item[slug].validates || [];
       break;
     }
   }
@@ -63,6 +85,27 @@ if (isTest) {
 const finalTitle = propTitle || autoTitle;
 const finalDescription = propDescription || autoDescription;
 const finalNoindex = propNoindex !== undefined ? propNoindex : isTest;
+
+// Resolve spec URL automatically from convention if not provided
+const finalSpecUrl = propSpecUrl || getSpecUrl(Astro.url);
+
+// Determine controller preset and active controls
+const shouldShowController =
+  showController === true ||
+  Boolean(propPreset && propPreset !== 'none') ||
+  Boolean(propControls && propControls.length > 0);
+
+let effectivePreset = propPreset;
+let effectiveControls = propControls;
+
+if (propPreset === 'auto' || (!propPreset && shouldShowController)) {
+  if (foundValidates.length > 0 && !propControls) {
+    effectiveControls = foundValidates;
+    effectivePreset = undefined;
+  } else if (!propControls) {
+    effectivePreset = 'minimal';
+  }
+}
 ---
 
 <GlobalLayout title={finalTitle} description={finalDescription} noindex={finalNoindex}>
@@ -78,7 +121,30 @@ const finalNoindex = propNoindex !== undefined ? propNoindex : isTest;
     </a>
   </aside>
 
-  <slot/>
+  {autoRenderRapiDoc ? (
+    <rapi-doc
+      id={rapidocProps?.id || 'thedoc'}
+      spec-url={finalSpecUrl}
+      {...rapidocProps}
+    >
+      <slot />
+    </rapi-doc>
+  ) : (
+    <slot />
+  )}
+
+  {shouldShowController && (
+    <RapiDocController
+      targetId={rapidocProps?.id || 'thedoc'}
+      preset={effectivePreset as any}
+      controls={effectiveControls}
+      initialAttrs={rapidocProps}
+      specUrl={finalSpecUrl}
+      title={controllerTitle || (isTest ? 'Test Controls' : 'Controls')}
+    >
+      <slot name="controller" slot="default" />
+    </RapiDocController>
+  )}
   <script is:inline>
     let rapidocEl; // Define rapidocEl at global level
 

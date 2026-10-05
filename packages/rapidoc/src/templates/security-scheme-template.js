@@ -319,15 +319,7 @@ async function generateCodeChallenge() {
 }
 */
 
-async function onInvokeOAuthFlow(
-  securitySchemeId,
-  flowType,
-  authUrl,
-  tokenUrl,
-  e,
-  authorizeParamsSpec = null,
-  tokenParamsSpec = null
-) {
+async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, e, authorizeParamsSpec = null, tokenParamsSpec = null) {
   const authFlowDivEl = e.target.closest('.oauth-flow');
   const clientId = authFlowDivEl.querySelector('.oauth-client-id') ? authFlowDivEl.querySelector('.oauth-client-id').value.trim() : '';
   const clientSecret = authFlowDivEl.querySelector('.oauth-client-secret')
@@ -664,7 +656,9 @@ function oAuthFlowTemplate(
                               >
                                 ${
                                   !receiveTokenInOptions || receiveTokenInOptions.includes('request-body')
-                                    ? html`<option value="request-body" .selected=${receiveTokenIn === 'request-body'}>Request Body</option>`
+                                    ? html`<option value="request-body" .selected=${receiveTokenIn === 'request-body'}>
+                                        Request Body
+                                      </option>`
                                     : ''
                                 }
                                 ${
@@ -936,43 +930,36 @@ export default function securitySchemeTemplate(allowTry = 'true') {
 
 function renderSecuritySchemeDetail(andSecurityItem, isMultiple, j) {
   const scopeHtml = andSecurityItem.scopes
-    ? html`
-        <div>
-          <b>Required scopes:</b><br />
-          <div style="margin-left:8px">
-            ${andSecurityItem.scopes
-              .split(',')
-              .map((scope, cnt) => html`${cnt === 0 ? '' : '┃'}<span>${scope.trim()}</span>`)}
-          </div>
-        </div>`
+    ? html` <div>
+        <b>Required scopes:</b><br />
+        <div style="margin-left:8px">
+          ${andSecurityItem.scopes.split(',').map((scope, cnt) => html`${cnt === 0 ? '' : '┃'}<span>${scope.trim()}</span>`)}
+        </div>
+      </div>`
     : '';
 
   if (andSecurityItem.type === 'oauth2') {
-    return html`
-      <div>
-        ${isMultiple ? html`<b>${j + 1}.</b> &nbsp;` : 'Needs '}OAuth Token
-        <span style="font-family:var(--font-mono); color:var(--primary-color);">${andSecurityItem.securitySchemeId}</span>
-        in <b>Authorization header</b>
-        ${scopeHtml}
-      </div>`;
+    return html` <div>
+      ${isMultiple ? html`<b>${j + 1}.</b> &nbsp;` : 'Needs '}OAuth Token
+      <span style="font-family:var(--font-mono); color:var(--primary-color);">${andSecurityItem.securitySchemeId}</span>
+      in <b>Authorization header</b>
+      ${scopeHtml}
+    </div>`;
   }
 
   if (andSecurityItem.type === 'http') {
-    return html`
-      <div>
-        ${isMultiple ? html`<b>${j + 1}.</b> &nbsp;` : 'Requires '}
-        ${andSecurityItem.scheme === 'basic' ? 'Base 64 encoded username:password' : html`Bearer Token <b>${andSecurityItem.nameId}</b>`}
-        in <b>Authorization header</b>
-        ${scopeHtml}
-      </div>`;
-  }
-
-  return html`
-    <div>
+    return html` <div>
       ${isMultiple ? html`<b>${j + 1}.</b> &nbsp;` : 'Requires '}
-      Token in <b>${andSecurityItem.name} ${andSecurityItem.in}</b>
+      ${andSecurityItem.scheme === 'basic' ? 'Base 64 encoded username:password' : html`Bearer Token <b>${andSecurityItem.nameId}</b>`} in
+      <b>Authorization header</b>
       ${scopeHtml}
     </div>`;
+  }
+
+  return html` <div>
+    ${isMultiple ? html`<b>${j + 1}.</b> &nbsp;` : 'Requires '} Token in <b>${andSecurityItem.name} ${andSecurityItem.in}</b>
+    ${scopeHtml}
+  </div>`;
 }
 
 export function pathSecurityTemplate(pathSecurity) {
@@ -1031,22 +1018,22 @@ export function pathSecurityTemplate(pathSecurity) {
           return html`
             ${i !== 0 ? html`<div style="padding:3px 4px;">OR</div>` : ''}
             <div class="tooltip" style="${orItem.securityDefs.length === 0 ? 'cursor:default;' : ''}">
-              <div style="padding:2px 4px; white-space:nowrap; text-overflow:ellipsis; max-width:150px; overflow:hidden;">
-                ${labelHtml}
-              </div>
-              ${orItem.securityDefs.length > 0
-                ? html`
-                    <div
-                      class="tooltip-text"
-                      style="position:absolute; color:var(--fg); top:26px; right:0; border:1px solid var(--border-color); padding:4px 6px; display:block;"
-                    >
-                      ${isMultiple ? html`<div>Requires <b>all</b> of the following:</div>` : ''}
-                      <div style="padding-left:${isMultiple ? '8px' : '0'};">
-                        ${orItem.securityDefs.map((secDef, j) => renderSecuritySchemeDetail(secDef, isMultiple, j))}
+              <div style="padding:2px 4px; white-space:nowrap; text-overflow:ellipsis; max-width:150px; overflow:hidden;">${labelHtml}</div>
+              ${
+                orItem.securityDefs.length > 0
+                  ? html`
+                      <div
+                        class="tooltip-text"
+                        style="position:absolute; color:var(--fg); top:26px; right:0; border:1px solid var(--border-color); padding:4px 6px; display:block;"
+                      >
+                        ${isMultiple ? html`<div>Requires <b>all</b> of the following:</div>` : ''}
+                        <div style="padding-left:${isMultiple ? '8px' : '0'};">
+                          ${orItem.securityDefs.map((secDef, j) => renderSecuritySchemeDetail(secDef, isMultiple, j))}
+                        </div>
                       </div>
-                    </div>
-                  `
-                : ''}
+                    `
+                  : ''
+              }
             </div>
           `;
         })}

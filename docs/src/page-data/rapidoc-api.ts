@@ -6,7 +6,7 @@ interface RapidocAttribute {
   allowed?: string[];
   description: string;
   default?: string;
-  example?: string
+  example?: string;
   code?: string;
   hidden?: boolean;
 }
@@ -19,7 +19,7 @@ interface AttributesGroup {
 interface RapidocMethod {
   name: string;
   description: string;
-  example?:string
+  example?: string;
   code?: string;
   hidden?: boolean;
 }
@@ -33,7 +33,7 @@ interface RapidocMethodSection {
 interface RapidocEvent {
   name: string;
   description: string;
-  example?:string
+  example?: string;
   code?: string;
   hidden?: boolean;
 }
@@ -46,7 +46,7 @@ interface RapidocEventSection {
 interface RapidocSlot {
   name: string;
   description: string;
-  example?:string
+  example?: string;
   code?: string;
   hidden?: boolean;
 }
@@ -60,7 +60,7 @@ interface RapidocExtension {
   name: string;
   allowed?: string[];
   description?: string;
-  example?:string
+  example?: string;
   code?: string;
   hidden?: boolean;
   rowspan?: string;

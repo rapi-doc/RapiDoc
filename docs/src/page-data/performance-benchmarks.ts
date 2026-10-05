@@ -21,8 +21,6 @@ export interface PerformanceBenchmarksData {
   benchmarks: BenchmarkSpecItem[];
 }
 
-const benchmarkData = yaml.load(
-  readDataYaml('performance-benchmarks.yaml')
-) as PerformanceBenchmarksData;
+const benchmarkData = yaml.load(readDataYaml('performance-benchmarks.yaml')) as PerformanceBenchmarksData;
 
 export { benchmarkData };

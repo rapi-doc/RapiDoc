@@ -1,16 +1,5 @@
 export type NavPageKey =
-  | 'home'
-  | 'docs'
-  | 'showcase'
-  | 'quickstart'
-  | 'list'
-  | 'examples'
-  | 'api'
-  | 'guides'
-  | 'tests'
-  | 'sandbox'
-  | 'dry-run'
-  | 'other';
+  'home' | 'docs' | 'showcase' | 'quickstart' | 'list' | 'examples' | 'api' | 'guides' | 'tests' | 'sandbox' | 'dry-run' | 'other';
 
 export interface NavItem {
   key: string;

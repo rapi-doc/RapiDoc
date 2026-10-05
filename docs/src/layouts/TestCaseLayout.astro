@@ -1,0 +1,47 @@
+---
+import ExampleLayout from './ExampleLayout.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+  specUrl?: string;
+  preset?: 'all' | 'minimal' | 'schema' | 'nav' | 'sections' | 'none' | 'auto';
+  controls?: string[];
+  rapidocProps?: Record<string, any>;
+  autoRenderRapiDoc?: boolean;
+  controllerTitle?: string;
+  showController?: boolean;
+}
+
+const {
+  title,
+  description,
+  noindex,
+  specUrl,
+  preset = 'auto',
+  controls,
+  rapidocProps = {},
+  autoRenderRapiDoc = true,
+  controllerTitle,
+  showController = true,
+} = Astro.props;
+---
+
+<ExampleLayout
+  title={title}
+  description={description}
+  noindex={noindex}
+  specUrl={specUrl}
+  preset={preset}
+  controls={controls}
+  rapidocProps={rapidocProps}
+  autoRenderRapiDoc={autoRenderRapiDoc}
+  controllerTitle={controllerTitle}
+  showController={showController}
+>
+  <slot name="head" slot="head" />
+  <slot name="script" slot="script" />
+  <slot name="controller" slot="controller" />
+  <slot />
+</ExampleLayout>

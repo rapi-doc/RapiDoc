@@ -20,7 +20,6 @@ interface SubExample {
   href: string;
 }
 
-  
 import yaml from 'js-yaml';
 import { readDataYaml } from '../utils/readDataYaml';
 

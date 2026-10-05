@@ -11,8 +11,6 @@ export interface RapidocMiniComparisonData {
   comparison: ComparisonItem[];
 }
 
-const comparisonData = yaml.load(
-  readDataYaml('rapidoc-mini-comparison.yaml')
-) as RapidocMiniComparisonData;
+const comparisonData = yaml.load(readDataYaml('rapidoc-mini-comparison.yaml')) as RapidocMiniComparisonData;
 
 export { comparisonData };
