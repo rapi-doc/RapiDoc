@@ -1,0 +1,1277 @@
+---
+import {
+  CONTROL_REGISTRY,
+  CATEGORY_TITLES,
+  PRESETS,
+  resolveActiveControls,
+  groupControlsByCategory,
+  type ControlOption,
+  type ControlCategory,
+  type SegmentedControl,
+  type ToggleControl,
+  type ControlDef,
+  type ControllerPreset,
+} from './controller-registry';
+
+export type { ControlOption, ControlCategory, SegmentedControl, ToggleControl, ControlDef, ControllerPreset };
+
+interface Props {
+  targetId?: string;
+  preset?: 'all' | 'minimal' | 'schema' | 'nav' | 'sections' | 'colors' | 'demo' | 'none';
+  controls?: string[];
+  initialAttrs?: Record<string, string | boolean | number>;
+  specUrl?: string;
+  title?: string;
+  subtitle?: string;
+  showMethods?: boolean;
+  defaultOpen?: boolean;
+  size?: 'small' | 'medium' | 'large' | (string & {}) | number;
+}
+
+const {
+  targetId = 'thedoc',
+  preset = 'minimal',
+  controls: propControls,
+  initialAttrs = {},
+  specUrl,
+  title = 'Options',
+  subtitle = 'RapiDoc properties',
+  showMethods = (preset === 'all' || preset === 'demo'),
+  defaultOpen = false,
+  size = 'medium',
+} = Astro.props;
+
+let baseFontSize = '13px';
+if (size != null) {
+  const s = String(size).trim();
+  if (s === 'small') baseFontSize = '12px';
+  else if (s === 'large') baseFontSize = '14px';
+  else if (s === 'medium') baseFontSize = '13px';
+  else if (/^\d+(\.\d+)?$/.test(s)) baseFontSize = `${s}px`;
+  else if (s) baseFontSize = s;
+}
+
+// Determine active controls
+const activeControls = resolveActiveControls(propControls, preset);
+const groupedControls = groupControlsByCategory(activeControls);
+
+const initialAttrsJson = JSON.stringify(initialAttrs);
+const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 7)}`;
+---
+
+<div
+  class="rd-pretty-controller-root"
+  id={instanceId}
+  data-target={targetId}
+  data-initial-attrs={initialAttrsJson}
+  data-default-open={defaultOpen ? 'true' : 'false'}
+  style={`--rd-ctrl-font-size: ${baseFontSize};`}
+>
+  <!-- Docked Right Edge Tab Button -->
+  <button
+    type="button"
+    class="rd-pretty-edge-tab"
+    aria-label="Open RapiDoc Options Drawer"
+    title={`Open ${title} (Cmd+K)`}
+  >
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <line x1="4" y1="21" x2="4" y2="14"></line>
+      <line x1="4" y1="10" x2="4" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="12"></line>
+      <line x1="12" y1="8" x2="12" y2="3"></line>
+      <line x1="20" y1="21" x2="20" y2="16"></line>
+      <line x1="20" y1="12" x2="20" y2="3"></line>
+      <line x1="1" y1="14" x2="7" y2="14"></line>
+      <line x1="9" y1="8" x2="15" y2="8"></line>
+      <line x1="17" y1="16" x2="23" y2="16"></line>
+    </svg>
+    <span class="rd-tab-label">{title}</span>
+    <span class="rd-pretty-status-dot" aria-hidden="true"></span>
+  </button>
+
+  <!-- Modern Overlapping Layer Drawer with Frosted Glass -->
+  <aside class="rd-pretty-drawer" aria-label={title} aria-hidden="true">
+    <div class="rd-pretty-wrapper">
+      <!-- Section Header -->
+      <div class="rd-pretty-header">
+        <div class="rd-pretty-title-wrap">
+          <div>
+            <div class="rd-title-with-badge">
+              <h3 class="rd-pretty-title">{title}</h3>
+            </div>
+            {subtitle && <p class="rd-pretty-subtitle">{subtitle}</p>}
+          </div>
+        </div>
+
+        <div class="rd-pretty-header-actions">
+          {specUrl && (
+            <a
+              href={specUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="rd-pretty-action-btn rd-pretty-spec-btn"
+              title="Open active OpenAPI spec file"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              <span>Spec</span>
+            </a>
+          )}
+
+          <!-- API Raw Attribute Mode Toggle -->
+          <button
+            type="button"
+            class="rd-pretty-action-btn rd-pretty-label-mode-btn"
+            title="Toggle between Human-Friendly Labels and Raw OpenAPI Attributes"
+            aria-label="Toggle Raw OpenAPI Attributes Mode"
+          >
+            <span class="rd-label-btn-text">API</span>
+          </button>
+
+          <!-- Reset Button -->
+          <button
+            type="button"
+            class="rd-pretty-action-btn rd-pretty-reset-btn"
+            title="Reset all options to default"
+          >
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+              <path d="M3 3v5h5"></path>
+            </svg>
+            <span>Reset</span>
+          </button>
+
+          <!-- Close Drawer Button -->
+          <button
+            type="button"
+            class="rd-pretty-action-btn rd-pretty-close-btn"
+            aria-label="Close Controls Drawer"
+            title="Close Drawer (Esc)"
+          >
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Scrollable Drawer Body with Fluid Cards -->
+      <div class="rd-pretty-body">
+        {groupedControls.map(group => {
+          const segmentedControls = group.controls.filter((c): c is SegmentedControl => c.type === 'segmented');
+          const toggleControls = group.controls.filter((c): c is ToggleControl => c.type === 'toggle');
+
+          return (
+            <div class="rd-pretty-category-section" data-category={group.id}>
+              <div class="rd-pretty-category-divider">
+                <span class="rd-pretty-category-tag">{group.title}</span>
+              </div>
+
+              <div class="rd-pretty-settings-list">
+                {/* Segmented Controls (Multi-choice chips or Color swatches) */}
+                {segmentedControls.map(ctrl => {
+                  const isColor = ctrl.attr === 'primary-color' || ctrl.options.some(o => Boolean(o.dotColor));
+
+                  return (
+                    <div class="rd-option-card rd-option-card--multi" data-control-attr={ctrl.attr}>
+                      <div class="rd-option-info">
+                        <div
+                          class="rd-option-label"
+                          data-human={ctrl.label}
+                          data-raw={ctrl.attr}
+                          title={`Attribute: ${ctrl.attr}`}
+                        >
+                          {ctrl.label}
+                        </div>
+                        {ctrl.tip && <div class="rd-option-tip">{ctrl.tip}</div>}
+                      </div>
+
+                      <div
+                        class={`rd-control-wrapper ${isColor ? 'rd-color-grid' : 'rd-chip-group'}`}
+                        role="radiogroup"
+                        aria-label={ctrl.label}
+                      >
+                        {ctrl.options.map(opt => {
+                          if (isColor && opt.dotColor) {
+                            return (
+                              <label
+                                class="rd-color-chip"
+                                title={`${ctrl.label}: ${opt.label} (${ctrl.attr}="${opt.rawVal}")`}
+                              >
+                                <input
+                                  type="radio"
+                                  name={`rd_${instanceId}_${ctrl.attr}`}
+                                  class="rd-radio-input"
+                                  data-attr={ctrl.attr}
+                                  value={opt.rawVal}
+                                  data-is-default={opt.isDefault ? 'true' : undefined}
+                                />
+                                <span class="color-swatch" style={`background-color: ${opt.dotColor};`} />
+                              </label>
+                            );
+                          }
+
+                          return (
+                            <label
+                              class="rd-chip"
+                              title={`${ctrl.label}: ${opt.label} (${ctrl.attr}="${opt.rawVal}")`}
+                            >
+                              <input
+                                type="radio"
+                                name={`rd_${instanceId}_${ctrl.attr}`}
+                                class="rd-radio-input"
+                                data-attr={ctrl.attr}
+                                value={opt.rawVal}
+                                data-is-default={opt.isDefault ? 'true' : undefined}
+                              />
+                              {opt.dotColor && (
+                                <span class="chip-color-dot" style={`background-color: ${opt.dotColor};`} />
+                              )}
+                              <span
+                                class="chip-text"
+                                data-human={opt.label}
+                                data-raw={opt.rawVal || 'default'}
+                              >
+                                {opt.label}
+                              </span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Boolean / Toggle Controls */}
+                {toggleControls.map(ctrl => (
+                  <div class="rd-option-card rd-option-card--boolean" data-control-attr={ctrl.attr}>
+                    <div class="rd-option-info">
+                      <div
+                        class="rd-option-label"
+                        data-human={ctrl.label}
+                        data-raw={ctrl.attr}
+                        title={`Attribute: ${ctrl.attr}`}
+                      >
+                        {ctrl.label}
+                      </div>
+                      {ctrl.tip && <div class="rd-option-tip">{ctrl.tip}</div>}
+                    </div>
+
+                    <div class="rd-control-wrapper">
+                      <label class="rd-switch" title={`Toggle ${ctrl.label} (${ctrl.attr})`}>
+                        <input
+                          type="checkbox"
+                          class="rd-toggle-input"
+                          data-attr={ctrl.attr}
+                          data-default-on={ctrl.defaultOn ? 'true' : undefined}
+                        />
+                        <span class="rd-slider"></span>
+                      </label>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Methods Section */}
+        {showMethods && (
+          <div class="rd-pretty-category-section rd-pretty-methods-section" data-category="methods">
+            <div class="rd-pretty-category-divider">
+              <span class="rd-pretty-category-tag">Methods & Actions</span>
+            </div>
+
+            <div class="rd-pretty-settings-list">
+              <!-- loadSpec -->
+              <div class="rd-option-card rd-option-card--multi" data-method="loadSpec">
+                <div class="rd-option-info">
+                  <div class="rd-option-label" data-human="Load Spec" data-raw="loadSpec(url)">
+                    Load Spec
+                  </div>
+                  <div class="rd-option-tip">Switch the active OpenAPI specification document</div>
+                </div>
+                <div class="rd-control-wrapper rd-chip-group">
+                  <button
+                    type="button"
+                    class="rd-chip rd-method-spec-btn is-active"
+                    data-spec-url="/specs/petstore.yaml"
+                    title="loadSpec('/specs/petstore.yaml')"
+                  >
+                    <span class="chip-text" data-human="Petstore" data-raw="petstore.yaml">Petstore</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="rd-chip rd-method-spec-btn"
+                    data-spec-url="/specs/open-api-3-1.yaml"
+                    title="loadSpec('/specs/open-api-3-1.yaml')"
+                  >
+                    <span class="chip-text" data-human="OpenAPI 3.1" data-raw="open-api-3-1.yaml">OpenAPI 3.1</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- scrollTo -->
+              <div class="rd-option-card rd-option-card--multi" data-method="scrollTo">
+                <div class="rd-option-info">
+                  <div class="rd-option-label" data-human="Scroll To Path" data-raw="scrollTo(path)">
+                    Scroll To Path
+                  </div>
+                  <div class="rd-option-tip">Smoothly scroll to an endpoint or section ID</div>
+                </div>
+                <div class="rd-method-input-row">
+                  <input
+                    type="text"
+                    class="rd-method-input rd-scroll-path-input"
+                    value="get-/user/login"
+                    placeholder="e.g. get-/user/login"
+                    aria-label="Path to scroll to"
+                    spellcheck="false"
+                  />
+                  <button type="button" class="rd-pretty-action-btn rd-scroll-exec-btn">
+                    <span data-human="Scroll" data-raw="Call">Scroll</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <!-- Slot for custom, test-specific action buttons or inputs -->
+        <div class="rd-pretty-slot-container">
+          <slot />
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script is:inline>
+  (function initPrettyRapiDocControllers() {
+    function setupController(root) {
+      if (root.__rdPrettyInitialized) return;
+      root.__rdPrettyInitialized = true;
+
+      const targetId = root.getAttribute('data-target') || 'thedoc';
+      let initialAttrs = {};
+      try {
+        const rawInitial = root.getAttribute('data-initial-attrs');
+        if (rawInitial) {
+          initialAttrs = JSON.parse(rawInitial);
+        }
+      } catch (_) {}
+
+      const edgeTab = root.querySelector('.rd-pretty-edge-tab');
+      const drawer = root.querySelector('.rd-pretty-drawer');
+      const closeBtn = root.querySelector('.rd-pretty-close-btn');
+      const resetBtn = root.querySelector('.rd-pretty-reset-btn');
+      const labelModeBtn = root.querySelector('.rd-pretty-label-mode-btn');
+      const statusDots = root.querySelectorAll('.rd-pretty-status-dot');
+
+      const storageKeyOpen = `rd_pretty_open_${window.location.pathname}`;
+      const storageKeyRaw = `rd_ctrl_raw_labels`;
+
+      function openDrawer() {
+        if (!drawer) return;
+        drawer.classList.add('is-open');
+        drawer.setAttribute('aria-hidden', 'false');
+        root.classList.add('is-drawer-open');
+        edgeTab?.setAttribute('aria-expanded', 'true');
+        sessionStorage.setItem(storageKeyOpen, 'true');
+      }
+
+      function closeDrawer() {
+        if (!drawer) return;
+        drawer.classList.remove('is-open');
+        drawer.setAttribute('aria-hidden', 'true');
+        root.classList.remove('is-drawer-open');
+        edgeTab?.setAttribute('aria-expanded', 'false');
+        sessionStorage.setItem(storageKeyOpen, 'false');
+      }
+
+      edgeTab?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openDrawer();
+      });
+
+      closeBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeDrawer();
+      });
+
+      // Label mode toggle
+      function setLabelMode(isRaw) {
+        if (isRaw) {
+          root.classList.add('is-raw-labels');
+          labelModeBtn?.setAttribute('aria-pressed', 'true');
+        } else {
+          root.classList.remove('is-raw-labels');
+          labelModeBtn?.setAttribute('aria-pressed', 'false');
+        }
+
+        root.querySelectorAll('[data-human][data-raw]').forEach((el) => {
+          el.textContent = isRaw ? el.getAttribute('data-raw') : el.getAttribute('data-human');
+        });
+      }
+
+      labelModeBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const nowRaw = !root.classList.contains('is-raw-labels');
+        localStorage.setItem(storageKeyRaw, String(nowRaw));
+        setLabelMode(nowRaw);
+      });
+
+      if (localStorage.getItem(storageKeyRaw) === 'true') {
+        setLabelMode(true);
+      } else {
+        setLabelMode(false);
+      }
+
+      // Keyboard shortcuts: Cmd+K / Ctrl+K toggles, Escape closes
+      window.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+          e.preventDefault();
+          if (drawer?.classList.contains('is-open')) {
+            closeDrawer();
+          } else {
+            openDrawer();
+          }
+        } else if (e.key === 'Escape' && drawer?.classList.contains('is-open')) {
+          closeDrawer();
+        }
+      });
+
+      function getTarget() {
+        return document.getElementById(targetId);
+      }
+
+      function executeScrollTo() {
+        const target = getTarget();
+        if (!target) return;
+        const input = root.querySelector('.rd-scroll-path-input');
+        if (!input) return;
+        let path = input.value.trim();
+        if (!path) return;
+
+        // Normalize spaces or colons like "get /user/login" or "get: /user/login" -> "get-/user/login"
+        path = path.replace(/^(\w+)[\s:]+(\/.*)$/i, (_, m, p) => `${m.toLowerCase()}-${p}`);
+
+        // Auto-prefix helper if raw path without method or tag prefix is given
+        if (target.shadowRoot && !target.shadowRoot.getElementById(path)) {
+          const cleanPath = path.startsWith('/') ? path : `/${path}`;
+          const candidates = [
+            `get-${cleanPath}`,
+            `post-${cleanPath}`,
+            `put-${cleanPath}`,
+            `delete-${cleanPath}`,
+            `patch-${cleanPath}`,
+            `tag--${path.replace(/^tag--/, '')}`,
+          ];
+          for (const cand of candidates) {
+            if (target.shadowRoot.getElementById(cand)) {
+              path = cand;
+              break;
+            }
+          }
+        }
+
+        if (typeof target.scrollToPath === 'function') {
+          target.scrollToPath(path);
+        } else if (typeof target.scrollTo === 'function') {
+          target.scrollTo(path);
+        }
+      }
+
+      const scrollInput = root.querySelector('.rd-scroll-path-input');
+      scrollInput?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          e.stopPropagation();
+          executeScrollTo();
+        }
+      });
+
+      // Synchronize controller UI from the target element attributes
+      function syncControllerState() {
+        const target = getTarget();
+        if (!target) return;
+
+        // Sync radio chips & color chips
+        root.querySelectorAll('.rd-radio-input').forEach((input) => {
+          const attr = input.getAttribute('data-attr');
+          const val = input.value ?? '';
+          if (!attr) return;
+
+          const currentVal = target.getAttribute(attr);
+          let isMatching = false;
+
+          if (currentVal !== null && currentVal !== '') {
+            isMatching = String(currentVal).toLowerCase() === String(val).toLowerCase();
+          } else {
+            isMatching = input.getAttribute('data-is-default') === 'true';
+          }
+
+          input.checked = isMatching;
+          const parentLabel = input.closest('.rd-chip, .rd-color-chip');
+          if (parentLabel) {
+            if (isMatching) {
+              parentLabel.classList.add('active');
+            } else {
+              parentLabel.classList.remove('active');
+            }
+          }
+        });
+
+        // Sync boolean toggle inputs
+        root.querySelectorAll('.rd-toggle-input').forEach((input) => {
+          const attr = input.getAttribute('data-attr');
+          if (!attr) return;
+          const currentVal = target.getAttribute(attr);
+          const defaultOn = input.getAttribute('data-default-on') === 'true';
+          const isActive = currentVal === 'true' || (currentVal !== 'false' && (currentVal !== null ? true : defaultOn));
+
+          input.checked = isActive;
+        });
+
+        // Sync active spec option if present
+        const currentSpecUrl = target.getAttribute('spec-url') || '';
+        root.querySelectorAll('.rd-method-spec-btn').forEach((btn) => {
+          const btnSpec = btn.getAttribute('data-spec-url') || '';
+          const isActive = Boolean(
+            btnSpec &&
+              currentSpecUrl &&
+              (currentSpecUrl === btnSpec ||
+                currentSpecUrl.endsWith(btnSpec) ||
+                btnSpec.endsWith(currentSpecUrl) ||
+                (btnSpec.includes('petstore') && currentSpecUrl.includes('petstore')) ||
+                (btnSpec.includes('open-api-3-1') && currentSpecUrl.includes('open-api-3-1')))
+          );
+          if (isActive) {
+            btn.classList.add('is-active');
+            btn.setAttribute('aria-checked', 'true');
+          } else {
+            btn.classList.remove('is-active');
+            btn.setAttribute('aria-checked', 'false');
+          }
+        });
+      }
+
+      // Handle user interactions inside controller
+      root.addEventListener('change', (e) => {
+        const target = getTarget();
+        if (!target) return;
+
+        // Radio change
+        if (e.target.matches('.rd-radio-input')) {
+          const attr = e.target.getAttribute('data-attr');
+          const val = e.target.value ?? '';
+          if (attr) {
+            if (val === '') {
+              target.removeAttribute(attr);
+            } else {
+              target.setAttribute(attr, val);
+            }
+            syncControllerState();
+          }
+          return;
+        }
+
+        // Toggle change
+        if (e.target.matches('.rd-toggle-input')) {
+          const attr = e.target.getAttribute('data-attr');
+          if (attr) {
+            const newVal = e.target.checked ? 'true' : 'false';
+            target.setAttribute(attr, newVal);
+            syncControllerState();
+          }
+          return;
+        }
+      });
+
+      root.addEventListener('click', (e) => {
+        const methodSpecBtn = e.target.closest('.rd-method-spec-btn');
+        if (methodSpecBtn) {
+          const specToLoad = methodSpecBtn.getAttribute('data-spec-url');
+          const target = getTarget();
+          if (target && specToLoad) {
+            target.setAttribute('spec-url', specToLoad);
+            if (typeof target.loadSpec === 'function') {
+              target.loadSpec(specToLoad);
+            }
+            syncControllerState();
+          }
+          return;
+        }
+
+        const scrollExecBtn = e.target.closest('.rd-scroll-exec-btn');
+        if (scrollExecBtn) {
+          executeScrollTo();
+          return;
+        }
+      });
+
+      // Reset functionality
+      resetBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const target = getTarget();
+        if (!target) return;
+
+        // Reset to initialAttrs or clear attributes
+        root.querySelectorAll('.rd-radio-input, .rd-toggle-input').forEach((input) => {
+          const attr = input.getAttribute('data-attr');
+          if (!attr) return;
+
+          if (initialAttrs && Object.prototype.hasOwnProperty.call(initialAttrs, attr)) {
+            const initialVal = String(initialAttrs[attr]);
+            target.setAttribute(attr, initialVal);
+          } else {
+            target.removeAttribute(attr);
+          }
+        });
+
+        syncControllerState();
+      });
+
+      function attachToTarget() {
+        const target = getTarget();
+        if (!target) {
+          setTimeout(attachToTarget, 100);
+          return;
+        }
+
+        try {
+          if (initialAttrs) {
+            Object.entries(initialAttrs).forEach(([key, val]) => {
+              if (!target.hasAttribute(key) && val !== undefined && val !== null) {
+                target.setAttribute(key, String(val));
+              }
+            });
+          }
+        } catch (_) {}
+
+        target.addEventListener('spec-loaded', () => {
+          statusDots.forEach((dot) => dot.classList.add('is-loaded'));
+        });
+
+        target.addEventListener('after-render', () => {
+          statusDots.forEach((dot) => dot.classList.add('is-ready'));
+          syncControllerState();
+        });
+
+        const observer = new MutationObserver(() => {
+          syncControllerState();
+        });
+        observer.observe(target, { attributes: true });
+
+        syncControllerState();
+        if (customElements?.whenDefined) {
+          customElements.whenDefined('rapi-doc').then(() => {
+            syncControllerState();
+          });
+        }
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', attachToTarget);
+      } else {
+        attachToTarget();
+      }
+
+      // Check default open preference or session persistence
+      const isDefaultOpen = root.getAttribute('data-default-open') === 'true';
+      const sessionState = sessionStorage.getItem(storageKeyOpen);
+      if (sessionState === 'true' || (sessionState === null && isDefaultOpen)) {
+        openDrawer();
+      }
+    }
+
+    document.querySelectorAll('.rd-pretty-controller-root').forEach(setupController);
+  })();
+</script>
+
+<style is:global>
+  /* ==========================================================================
+     PrettyRapiDocController Component Styling
+     Scoped to .rd-pretty-controller-root and .rd-pretty-drawer
+     ========================================================================== */
+
+  .rd-pretty-controller-root {
+    --rd-ctrl-font-size: 13px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    font-size: var(--rd-ctrl-font-size);
+    box-sizing: border-box;
+  }
+
+  .rd-pretty-controller-root *,
+  .rd-pretty-drawer * {
+    box-sizing: border-box;
+  }
+
+  /* Docked Right Edge Tab Button - Matches rapidoc-demo.astro .rd-edge-tab */
+  .rd-pretty-edge-tab {
+    position: fixed !important;
+    right: 0 !important;
+    top: 96px !important;
+    z-index: 99990 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    height: 38px !important;
+    padding: 0 16px 0 14px !important;
+    background: rgba(15, 23, 42, 0.92) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    color: #ffffff !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    border-radius: 9999px 0 0 9999px !important;
+    border: 1px solid rgba(245, 158, 11, 0.35) !important;
+    border-right: none !important;
+    box-shadow: -2px 0 14px rgba(245, 158, 11, 0.18) !important;
+    font-family: inherit !important;
+    transition:
+      transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.2s ease,
+      background 0.2s ease,
+      box-shadow 0.2s ease !important;
+    user-select: none;
+    -webkit-user-select: none;
+    outline: none !important;
+  }
+
+  .rd-pretty-edge-tab svg {
+    color: #fbbf24 !important;
+    transition: transform 0.2s ease !important;
+    flex-shrink: 0;
+  }
+
+  .rd-pretty-edge-tab:hover {
+    transform: translateX(-3px) !important;
+    background: rgba(22, 34, 60, 0.96) !important;
+    border-color: rgba(245, 158, 11, 0.6) !important;
+    box-shadow: -4px 0 20px rgba(245, 158, 11, 0.28) !important;
+  }
+
+  .rd-pretty-edge-tab:hover svg {
+    transform: rotate(45deg);
+  }
+
+  .rd-tab-label {
+    white-space: nowrap;
+  }
+
+  /* Status Dot */
+  .rd-pretty-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #64748b;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .rd-pretty-status-dot.is-loaded {
+    background-color: #38bdf8;
+    box-shadow: 0 0 6px #38bdf8;
+  }
+
+  .rd-pretty-status-dot.is-ready {
+    background-color: #10b981;
+    box-shadow: 0 0 6px #10b981;
+  }
+
+  /* Overlapping Drawer Layer - Non-modal side drawer with frosted glass */
+  .rd-pretty-drawer {
+    position: fixed !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 420px !important;
+    max-width: calc(100vw - 20px) !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    border: none !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.14) !important;
+    background: rgba(8, 13, 26, 0.82) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    box-shadow:
+      -12px 0 40px rgba(0, 0, 0, 0.55),
+      inset 1px 0 0 rgba(255, 255, 255, 0.08) !important;
+    color: #f1f5f9 !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif !important;
+    outline: none !important;
+    z-index: 100000 !important;
+    overflow: hidden !important;
+    transform: translateX(100%);
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+      visibility 0.28s ease;
+  }
+
+  .rd-pretty-drawer.is-open {
+    transform: translateX(0);
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .rd-pretty-controller-root.is-drawer-open .rd-pretty-edge-tab {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: translateX(20px) !important;
+  }
+
+  /* Inner Drawer Structure */
+  .rd-pretty-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  /* Header */
+  .rd-pretty-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(15, 23, 42, 0.45);
+    flex-shrink: 0;
+  }
+
+  .rd-pretty-title-wrap {
+    display: flex;
+    align-items: center;
+  }
+
+  .rd-title-with-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .rd-pretty-title {
+    font-size: 15.5px;
+    font-weight: 700;
+    color: #f8fafc;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+
+  .rd-pretty-subtitle {
+    font-size: 11.5px;
+    color: #64748b;
+    margin-top: 2px;
+    margin-bottom: 0;
+  }
+
+  .rd-pretty-header-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+  }
+
+  /* Header action buttons */
+  .rd-pretty-action-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    height: 30px !important;
+    box-sizing: border-box !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: #cbd5e1 !important;
+    padding: 0 10px !important;
+    border-radius: 7px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    font-family: inherit !important;
+    line-height: 1 !important;
+    text-decoration: none !important;
+  }
+
+  .rd-pretty-action-btn:hover {
+    color: #fff !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    border-color: rgba(255, 255, 255, 0.28) !important;
+  }
+
+  .rd-pretty-action-btn.rd-pretty-reset-btn:hover {
+    color: #34d399 !important;
+    border-color: rgba(16, 185, 129, 0.5) !important;
+    background: rgba(16, 185, 129, 0.14) !important;
+  }
+
+  .rd-pretty-action-btn.rd-pretty-close-btn {
+    width: 30px !important;
+    height: 30px !important;
+    padding: 0 !important;
+    font-size: 14px !important;
+  }
+
+  .rd-pretty-action-btn.rd-pretty-close-btn:hover {
+    color: #f87171 !important;
+    border-color: rgba(239, 68, 68, 0.4) !important;
+    background: rgba(239, 68, 68, 0.15) !important;
+  }
+
+  /* API button active state */
+  .is-raw-labels .rd-pretty-label-mode-btn {
+    background: rgba(16, 185, 129, 0.18) !important;
+    border-color: rgba(16, 185, 129, 0.5) !important;
+    color: #34d399 !important;
+  }
+
+  /* Body */
+  .rd-pretty-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px 32px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  }
+
+  .rd-pretty-body::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .rd-pretty-body::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .rd-pretty-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 9999px;
+  }
+
+  .rd-pretty-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(16, 185, 129, 0.4);
+  }
+
+  /* Category Section & Dividers */
+  .rd-pretty-category-section {
+    margin-bottom: 30px;
+  }
+
+  .rd-pretty-category-divider {
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .rd-pretty-category-tag {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94a3b8;
+    padding: 3px 8px;
+  }
+
+  .rd-pretty-settings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  /* Option Cards */
+  .rd-option-card {
+    padding: 11px 13px;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: all 0.2s ease;
+  }
+
+  .rd-option-card:hover {
+    background: rgba(255, 255, 255, 0.045);
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .rd-option-card--boolean {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .rd-option-card--multi {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .rd-option-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .rd-option-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #e2e8f0;
+    letter-spacing: -0.01em;
+  }
+
+  .is-raw-labels .rd-option-label {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 12px;
+    color: #38bdf8;
+  }
+
+  .rd-option-tip {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 2px;
+    line-height: 1.35;
+  }
+
+  /* Modern iOS Switch Toggle */
+  .rd-switch {
+    position: relative;
+    display: inline-block;
+    width: 42px;
+    height: 22px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  .rd-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+  }
+
+  .rd-slider {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 9999px;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .rd-slider::before {
+    position: absolute;
+    content: '';
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: #f1f5f9;
+    border-radius: 50%;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    transition:
+      transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 0.2s ease;
+  }
+
+  .rd-switch input:checked + .rd-slider {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border-color: rgba(16, 185, 129, 0.6);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+  }
+
+  .rd-switch input:checked + .rd-slider::before {
+    transform: translateX(20px);
+    background-color: #ffffff;
+  }
+
+  .rd-switch:hover .rd-slider {
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  /* Segmented Pill Chips for Multi-choice */
+  .rd-chip-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .rd-chip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 11px;
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    user-select: none;
+    font-family: inherit;
+    line-height: normal;
+  }
+
+  .rd-chip input[type='radio'] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
+  }
+
+  .rd-chip .chip-text {
+    font-size: 12px;
+    font-weight: 500;
+    color: #94a3b8;
+    transition: color 0.2s ease;
+  }
+
+  .rd-chip:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+
+  .rd-chip:hover .chip-text {
+    color: #f1f5f9;
+  }
+
+  .rd-chip.active,
+  .rd-chip.is-active {
+    background: rgba(16, 185, 129, 0.16) !important;
+    border-color: rgba(16, 185, 129, 0.55) !important;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.2) !important;
+  }
+
+  .rd-chip.active .chip-text,
+  .rd-chip.is-active .chip-text {
+    color: #34d399 !important;
+    font-weight: 600;
+  }
+
+  .chip-color-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Color Swatches Grid */
+  .rd-color-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 2px 0;
+  }
+
+  .rd-color-chip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .rd-color-chip input[type='radio'] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .rd-color-chip .color-swatch {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .rd-color-chip:hover {
+    transform: scale(1.15);
+  }
+
+  .rd-color-chip.active {
+    transform: scale(1.18);
+  }
+
+  .rd-color-chip.active .color-swatch {
+    box-shadow:
+      0 0 0 2px #080d1a,
+      0 0 0 4px #10b981,
+      0 0 10px rgba(16, 185, 129, 0.5);
+  }
+
+  /* Method inputs */
+  .rd-method-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .rd-method-input {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: #e2e8f0;
+    font-size: 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .rd-method-input:focus {
+    border-color: #38bdf8;
+    box-shadow: 0 0 8px rgba(56, 189, 248, 0.25);
+  }
+
+  .rd-pretty-slot-container {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .rd-pretty-slot-container:empty {
+    display: none;
+  }
+</style>

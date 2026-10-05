@@ -14,11 +14,9 @@ interface Props {
   controllerTitle?: string;
   showController?: boolean;
   showBackPill?: boolean;
-  controllerSize?: 'small' | 'medium' | 'large' | string;
-  controllerFontSize?: string;
-  size?: 'small' | 'medium' | 'large' | string;
-  fontSize?: string | number;
+  controllerSize?: 'small' | 'medium' | 'large' | (string & {}) | number;
   showMethods?: boolean;
+  controller?: 'default' | 'pretty' | 'hud' | 'drawer' | ((_props: any) => any);
 }
 
 const {
@@ -35,13 +33,9 @@ const {
   showController = true,
   showBackPill,
   controllerSize,
-  controllerFontSize,
-  size: propSize,
-  fontSize: propFontSize,
+  showMethods,
+  controller,
 } = Astro.props;
-
-const effectiveSize = propSize || controllerSize;
-const effectiveFontSize = propFontSize || controllerFontSize;
 ---
 
 <ExampleLayout
@@ -57,11 +51,9 @@ const effectiveFontSize = propFontSize || controllerFontSize;
   controllerTitle={controllerTitle}
   showController={showController}
   showBackPill={showBackPill}
-  size={effectiveSize}
-  fontSize={effectiveFontSize}
-  controllerSize={effectiveSize}
-  controllerFontSize={effectiveFontSize}
-  showMethods={Astro.props.showMethods}
+  controllerSize={controllerSize}
+  showMethods={showMethods}
+  controller={controller}
 >
   <slot name="head" slot="head" />
   <slot name="script" slot="script" />

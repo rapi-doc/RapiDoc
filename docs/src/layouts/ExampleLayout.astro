@@ -3,6 +3,7 @@ import '../styles/examples.css';
 import GlobalLayout from '../layouts/GlobalLayout.astro';
 import Icon from '../components/Icon.astro';
 import RapiDocController from '../components/RapiDocController.astro';
+import PrettyRapiDocController from '../components/PrettyRapiDocController.astro';
 import { getSpecUrl } from '../utils/getSpecUrl';
 import { exampleListData } from '../page-data/example-list';
 import { testListData } from '../page-data/tests';
@@ -20,11 +21,9 @@ interface Props {
   controllerTitle?: string;
   showController?: boolean;
   showBackPill?: boolean;
-  controllerSize?: 'small' | 'medium' | 'large' | string;
-  controllerFontSize?: string;
-  size?: 'small' | 'medium' | 'large' | string;
-  fontSize?: string | number;
+  controllerSize?: 'small' | 'medium' | 'large' | (string & {}) | number;
   showMethods?: boolean;
+  controller?: 'default' | 'pretty' | 'hud' | 'drawer' | ((_props: any) => any);
 }
 
 const {
@@ -40,14 +39,17 @@ const {
   controllerTitle,
   showController,
   showBackPill = true,
-  controllerSize,
-  controllerFontSize,
-  size: propSize,
-  fontSize: propFontSize,
+  controllerSize = 'medium',
+  showMethods,
+  controller = 'default',
 } = Astro.props;
 
-const effectiveSize = propSize || controllerSize;
-const effectiveFontSize = propFontSize || controllerFontSize;
+let ControllerComponent: any = RapiDocController;
+if (controller === 'pretty' || controller === 'drawer') {
+  ControllerComponent = PrettyRapiDocController;
+} else if (typeof controller !== 'string' && controller) {
+  ControllerComponent = controller;
+}
 
 const pathname = Astro.url.pathname;
 const isTest = pathname.startsWith('/tests');
@@ -153,20 +155,19 @@ if (propPreset === 'auto' || (!propPreset && shouldShowController)) {
 
   {
     shouldShowController && (
-      <RapiDocController
+      <ControllerComponent
         targetId={rapidocProps?.id || 'thedoc'}
         preset={effectivePreset as any}
         controls={effectiveControls}
         initialAttrs={rapidocProps}
         specUrl={finalSpecUrl}
-        tuckedRight={Astro.props.tuckedRight}
+        tuckedRight={tuckedRight}
         title={controllerTitle || 'OPTIONS'}
-        size={effectiveSize}
-        fontSize={effectiveFontSize}
-        showMethods={Astro.props.showMethods}
+        size={controllerSize}
+        showMethods={showMethods}
       >
         <slot name="controller" slot="default" />
-      </RapiDocController>
+      </ControllerComponent>
     )
   }
 

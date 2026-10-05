@@ -1,447 +1,19 @@
 ---
-interface ControlOption {
-  label: string;
-  rawVal: string;
-  dotColor?: string;
-  isDefault?: boolean;
-}
+import {
+  CONTROL_REGISTRY,
+  CATEGORY_TITLES,
+  PRESETS,
+  resolveActiveControls,
+  groupControlsByCategory,
+  type ControlOption,
+  type ControlCategory,
+  type SegmentedControl,
+  type ToggleControl,
+  type ControlDef,
+  type ControllerPreset,
+} from './controller-registry';
 
-type ControlCategory = 'appearance' | 'theming' | 'navigation' | 'schema' | 'sections';
-
-interface SegmentedControl {
-  type: 'segmented';
-  attr: string;
-  label: string;
-  category: ControlCategory;
-  options: ControlOption[];
-}
-
-interface ToggleControl {
-  type: 'toggle';
-  attr: string;
-  label: string;
-  category: ControlCategory;
-  defaultOn?: boolean;
-}
-
-type ControlDef = SegmentedControl | ToggleControl;
-
-const CONTROL_REGISTRY: Record<string, ControlDef> = {
-  // Appearance & Layout
-  'render-style': {
-    type: 'segmented',
-    attr: 'render-style',
-    label: 'Render Style',
-    category: 'appearance',
-    options: [
-      { label: 'Read', rawVal: 'read' },
-      { label: 'View', rawVal: 'view', isDefault: true },
-      { label: 'Focused', rawVal: 'focused' },
-    ],
-  },
-  'schema-style': {
-    type: 'segmented',
-    attr: 'schema-style',
-    label: 'Schema Style',
-    category: 'appearance',
-    options: [
-      { label: 'Table', rawVal: 'table', isDefault: true },
-      { label: 'Tree', rawVal: 'tree' },
-    ],
-  },
-  'font-size': {
-    type: 'segmented',
-    attr: 'font-size',
-    label: 'Font Size',
-    category: 'appearance',
-    options: [
-      { label: 'Default', rawVal: 'default', isDefault: true },
-      { label: 'Large', rawVal: 'large' },
-      { label: 'Largest', rawVal: 'largest' },
-    ],
-  },
-  'layout': {
-    type: 'segmented',
-    attr: 'layout',
-    label: 'Req/Res Layout',
-    category: 'appearance',
-    options: [
-      { label: 'Row', rawVal: 'row', isDefault: true },
-      { label: 'Column', rawVal: 'column' },
-    ],
-  },
-  'heading-text': {
-    type: 'segmented',
-    attr: 'heading-text',
-    label: 'Heading Text',
-    category: 'appearance',
-    options: [
-      { label: 'Default', rawVal: '', isDefault: true },
-      { label: 'API Explorer', rawVal: 'API Explorer' },
-    ],
-  },
-
-  // Colors & Fonts
-  'theme': {
-    type: 'segmented',
-    attr: 'theme',
-    label: 'Theme',
-    category: 'theming',
-    options: [
-      { label: 'Dark', rawVal: 'dark', isDefault: true },
-      { label: 'Light', rawVal: 'light' },
-    ],
-  },
-  'primary-color': {
-    type: 'segmented',
-    attr: 'primary-color',
-    label: 'Primary Color',
-    category: 'theming',
-    options: [
-      { label: 'Default', rawVal: '', dotColor: '#f76b39', isDefault: true },
-      { label: 'Emerald', rawVal: '#10b981', dotColor: '#10b981' },
-      { label: 'Blue', rawVal: '#3b82f6', dotColor: '#3b82f6' },
-    ],
-  },
-  'regular-font': {
-    type: 'segmented',
-    attr: 'regular-font',
-    label: 'Regular Font',
-    category: 'theming',
-    options: [
-      { label: 'Default', rawVal: '', isDefault: true },
-      { label: 'Nunito', rawVal: 'Nunito' },
-      { label: 'Roboto Mono', rawVal: 'Roboto Mono' },
-    ],
-  },
-  'bg-color': {
-    type: 'segmented',
-    attr: 'bg-color',
-    label: 'Background',
-    category: 'theming',
-    options: [
-      { label: 'Default', rawVal: '', dotColor: '#333333', isDefault: true },
-      { label: 'Obsidian', rawVal: '#060913', dotColor: '#060913' },
-      { label: 'Navy', rawVal: '#0f172a', dotColor: '#0f172a' },
-    ],
-  },
-  'mono-font': {
-    type: 'segmented',
-    attr: 'mono-font',
-    label: 'Mono Font',
-    category: 'theming',
-    options: [
-      { label: 'Default', rawVal: '', isDefault: true },
-      { label: 'Courier', rawVal: 'Courier' },
-    ],
-  },
-  'text-color': {
-    type: 'segmented',
-    attr: 'text-color',
-    label: 'Text Color',
-    category: 'theming',
-    options: [
-      { label: 'Default', rawVal: '', dotColor: '#d1d5db', isDefault: true },
-      { label: 'Slate', rawVal: '#94a3b8', dotColor: '#94a3b8' },
-      { label: 'Ice', rawVal: '#e0f2fe', dotColor: '#e0f2fe' },
-    ],
-  },
-  'header-color': {
-    type: 'segmented',
-    attr: 'header-color',
-    label: 'Header Color',
-    category: 'theming',
-    options: [
-      { label: 'Default', rawVal: '', dotColor: '#1e293b', isDefault: true },
-      { label: 'Charcoal', rawVal: '#111827', dotColor: '#111827' },
-      { label: 'Navy', rawVal: '#0f172a', dotColor: '#0f172a' },
-    ],
-  },
-
-  // Navigation & Methods
-  'use-path-in-nav-bar': {
-    type: 'segmented',
-    attr: 'use-path-in-nav-bar',
-    label: 'Nav Text',
-    category: 'navigation',
-    options: [
-      { label: 'Path', rawVal: 'true' },
-      { label: 'Summary', rawVal: 'false', isDefault: true },
-    ],
-  },
-  'show-method-in-nav-bar': {
-    type: 'segmented',
-    attr: 'show-method-in-nav-bar',
-    label: 'Method Display',
-    category: 'navigation',
-    options: [
-      { label: 'None', rawVal: 'false', isDefault: true },
-      { label: 'Plain', rawVal: 'as-plain-text' },
-      { label: 'Colored', rawVal: 'as-colored-text' },
-      { label: 'Block', rawVal: 'as-colored-block' },
-    ],
-  },
-  'nav-active-item-marker': {
-    type: 'segmented',
-    attr: 'nav-active-item-marker',
-    label: 'Nav Marker',
-    category: 'navigation',
-    options: [
-      { label: 'Left Bar', rawVal: 'left-bar', isDefault: true },
-      { label: 'Block', rawVal: 'colored-block' },
-    ],
-  },
-  'nav-item-spacing': {
-    type: 'segmented',
-    attr: 'nav-item-spacing',
-    label: 'Nav Spacing',
-    category: 'navigation',
-    options: [
-      { label: 'Compact', rawVal: 'compact' },
-      { label: 'Default', rawVal: 'default', isDefault: true },
-      { label: 'Relaxed', rawVal: 'relaxed' },
-    ],
-  },
-  'nav-bg-color': {
-    type: 'segmented',
-    attr: 'nav-bg-color',
-    label: 'Nav Bg Color',
-    category: 'navigation',
-    options: [
-      { label: 'Default', rawVal: '', dotColor: '#222222', isDefault: true },
-      { label: 'Navy', rawVal: '#080d1a', dotColor: '#080d1a' },
-      { label: 'Slate', rawVal: '#111827', dotColor: '#111827' },
-    ],
-  },
-  'nav-accent-color': {
-    type: 'segmented',
-    attr: 'nav-accent-color',
-    label: 'Nav Accent',
-    category: 'navigation',
-    options: [
-      { label: 'Default', rawVal: '', dotColor: '#f76b39', isDefault: true },
-      { label: 'Emerald', rawVal: '#10b981', dotColor: '#10b981' },
-      { label: 'Orange', rawVal: '#ea580c', dotColor: '#ea580c' },
-    ],
-  },
-  'sort-tags': {
-    type: 'segmented',
-    attr: 'sort-tags',
-    label: 'Sort Tags',
-    category: 'navigation',
-    options: [
-      { label: 'False', rawVal: 'false', isDefault: true },
-      { label: 'True', rawVal: 'true' },
-    ],
-  },
-  'update-route': {
-    type: 'segmented',
-    attr: 'update-route',
-    label: 'Update Route',
-    category: 'navigation',
-    options: [
-      { label: 'True', rawVal: 'true', isDefault: true },
-      { label: 'False', rawVal: 'false' },
-    ],
-  },
-  'route-prefix': {
-    type: 'segmented',
-    attr: 'route-prefix',
-    label: 'Route Prefix',
-    category: 'navigation',
-    options: [
-      { label: '#', rawVal: '#', isDefault: true },
-      { label: '#/', rawVal: '#/' },
-      { label: '#!', rawVal: '#!' },
-    ],
-  },
-  'on-nav-tag-click': {
-    type: 'segmented',
-    attr: 'on-nav-tag-click',
-    label: 'Tag Click',
-    category: 'navigation',
-    options: [
-      { label: 'Expand', rawVal: 'expand-collapse', isDefault: true },
-      { label: 'Description', rawVal: 'show-description' },
-    ],
-  },
-  'nav-text-color': {
-    type: 'segmented',
-    attr: 'nav-text-color',
-    label: 'Nav Text Color',
-    category: 'navigation',
-    options: [
-      { label: 'Default', rawVal: '', dotColor: '#cbd5e1', isDefault: true },
-      { label: 'Silver', rawVal: '#e2e8f0', dotColor: '#e2e8f0' },
-      { label: 'Cyan', rawVal: '#7dd3fc', dotColor: '#7dd3fc' },
-    ],
-  },
-  'nav-hover-bg-color': {
-    type: 'segmented',
-    attr: 'nav-hover-bg-color',
-    label: 'Nav Hover Bg',
-    category: 'navigation',
-    options: [
-      { label: 'Default', rawVal: '', dotColor: '#334155', isDefault: true },
-      { label: 'Ghost', rawVal: 'rgba(255, 255, 255, 0.08)', dotColor: '#383d47' },
-      { label: 'Cyan Tint', rawVal: 'rgba(6, 182, 212, 0.15)', dotColor: '#0e3a47' },
-    ],
-  },
-  'nav-hover-text-color': {
-    type: 'segmented',
-    attr: 'nav-hover-text-color',
-    label: 'Nav Hover Text',
-    category: 'navigation',
-    options: [
-      { label: 'Default', rawVal: '', dotColor: '#ffffff', isDefault: true },
-      { label: 'Cyan', rawVal: '#38bdf8', dotColor: '#38bdf8' },
-      { label: 'Emerald', rawVal: '#34d399', dotColor: '#34d399' },
-    ],
-  },
-
-  // Schema & Models
-  'default-schema-tab': {
-    type: 'segmented',
-    attr: 'default-schema-tab',
-    label: 'Schema Tab',
-    category: 'schema',
-    options: [
-      { label: 'Schema', rawVal: 'schema' },
-      { label: 'Example', rawVal: 'example', isDefault: true },
-    ],
-  },
-  'schema-expand-level': {
-    type: 'segmented',
-    attr: 'schema-expand-level',
-    label: 'Expand Level',
-    category: 'schema',
-    options: [
-      { label: '1', rawVal: '1' },
-      { label: '2', rawVal: '2' },
-      { label: '3', rawVal: '3' },
-      { label: 'All', rawVal: 'all', isDefault: true },
-    ],
-  },
-  'schema-hide-read-only': {
-    type: 'segmented',
-    attr: 'schema-hide-read-only',
-    label: 'Hide Read-Only',
-    category: 'schema',
-    options: [
-      { label: 'Default', rawVal: 'default', isDefault: true },
-      { label: 'Never', rawVal: 'never' },
-    ],
-  },
-  'schema-hide-write-only': {
-    type: 'segmented',
-    attr: 'schema-hide-write-only',
-    label: 'Hide Write-Only',
-    category: 'schema',
-    options: [
-      { label: 'Default', rawVal: 'default', isDefault: true },
-      { label: 'Never', rawVal: 'never' },
-    ],
-  },
-  'schema-description-expanded': {
-    type: 'toggle',
-    attr: 'schema-description-expanded',
-    label: 'Desc Expanded',
-    category: 'schema',
-  },
-  'allow-schema-description-expand-toggle': {
-    type: 'toggle',
-    attr: 'allow-schema-description-expand-toggle',
-    label: 'Desc Toggle',
-    category: 'schema',
-    defaultOn: true,
-  },
-  'fill-request-fields-with-example': {
-    type: 'toggle',
-    attr: 'fill-request-fields-with-example',
-    label: 'Fill Examples',
-    category: 'schema',
-    defaultOn: true,
-  },
-
-  // Sections & Toggles
-  'show-header': { type: 'toggle', attr: 'show-header', label: 'Header', category: 'sections', defaultOn: true },
-  'show-info': { type: 'toggle', attr: 'show-info', label: 'Info', category: 'sections', defaultOn: true },
-  'allow-try': { type: 'toggle', attr: 'allow-try', label: 'Try Console', category: 'sections', defaultOn: true },
-  'show-curl-before-try': { type: 'toggle', attr: 'show-curl-before-try', label: 'Show cURL', category: 'sections' },
-  'allow-server-selection': { type: 'toggle', attr: 'allow-server-selection', label: 'Servers', category: 'sections', defaultOn: true },
-  'allow-authentication': { type: 'toggle', attr: 'allow-authentication', label: 'Auth', category: 'sections', defaultOn: true },
-  'persist-auth': { type: 'toggle', attr: 'persist-auth', label: 'Persist Auth', category: 'sections' },
-  'allow-search': { type: 'toggle', attr: 'allow-search', label: 'Search', category: 'sections', defaultOn: true },
-  'allow-advanced-search': { type: 'toggle', attr: 'allow-advanced-search', label: 'Adv Search', category: 'sections', defaultOn: true },
-  'show-components': { type: 'toggle', attr: 'show-components', label: 'Components', category: 'sections' },
-  'allow-spec-url-load': { type: 'toggle', attr: 'allow-spec-url-load', label: 'Spec URL Load', category: 'sections', defaultOn: true },
-  'allow-spec-file-load': { type: 'toggle', attr: 'allow-spec-file-load', label: 'Spec File Load', category: 'sections', defaultOn: true },
-  'allow-spec-file-download': { type: 'toggle', attr: 'allow-spec-file-download', label: 'Spec Download', category: 'sections' },
-  'mock-server': { type: 'toggle', attr: 'mock-server', label: 'Mock Server', category: 'sections' },
-};
-
-const CATEGORY_TITLES = {
-  appearance: 'Display & Layout',
-  theming: 'Colors & Fonts',
-  navigation: 'Sidebar & Navigation',
-  schema: 'Schema & Models',
-  sections: 'Interactive Sections',
-};
-
-const PRESETS: Record<string, string[]> = {
-  all: Object.keys(CONTROL_REGISTRY),
-  demo: Object.keys(CONTROL_REGISTRY),
-  minimal: ['render-style', 'schema-style', 'theme'],
-  colors: [
-    'theme',
-    'primary-color',
-    'regular-font',
-    'bg-color',
-    'text-color',
-    'header-color',
-    'mono-font',
-    'nav-bg-color',
-    'nav-accent-color',
-  ],
-  schema: [
-    'schema-style',
-    'default-schema-tab',
-    'schema-expand-level',
-    'schema-description-expanded',
-    'allow-schema-description-expand-toggle',
-    'schema-hide-read-only',
-    'schema-hide-write-only',
-    'fill-request-fields-with-example',
-  ],
-  nav: [
-    'use-path-in-nav-bar',
-    'show-method-in-nav-bar',
-    'on-nav-tag-click',
-    'nav-active-item-marker',
-    'nav-item-spacing',
-    'nav-bg-color',
-    'nav-text-color',
-    'nav-hover-bg-color',
-    'nav-hover-text-color',
-    'nav-accent-color',
-    'sort-tags',
-    'update-route',
-    'route-prefix',
-  ],
-  sections: [
-    'show-header',
-    'show-info',
-    'allow-server-selection',
-    'allow-authentication',
-    'allow-try',
-    'show-curl-before-try',
-    'show-components',
-    'allow-search',
-    'allow-spec-file-download',
-    'mock-server',
-  ],
-  none: [],
-};
+export type { ControlOption, ControlCategory, SegmentedControl, ToggleControl, ControlDef, ControllerPreset };
 
 interface Props {
   targetId?: string;
@@ -452,8 +24,7 @@ interface Props {
   tuckedRight?: boolean;
   specUrl?: string;
   title?: string;
-  size?: 'small' | 'medium' | 'large' | string;
-  fontSize?: string | number;
+  size?: 'small' | 'medium' | 'large' | (string & {}) | number;
   showMethods?: boolean;
 }
 
@@ -467,38 +38,22 @@ const {
   specUrl,
   title = 'OPTIONS',
   size = 'medium',
-  fontSize,
   showMethods = (preset === 'all' || preset === 'demo'),
 } = Astro.props;
 
-let baseFontSize = fontSize != null ? String(fontSize).trim() : '';
-if (baseFontSize) {
-  if (/^\d+(\.\d+)?$/.test(baseFontSize)) {
-    baseFontSize = `${baseFontSize}px`;
-  }
-} else {
-  if (size === 'small') baseFontSize = '11px';
-  else if (size === 'large') baseFontSize = '14px';
-  else baseFontSize = '12px';
+let baseFontSize = '12px';
+if (size != null) {
+  const s = String(size).trim();
+  if (s === 'small') baseFontSize = '11px';
+  else if (s === 'large') baseFontSize = '14px';
+  else if (s === 'medium') baseFontSize = '12px';
+  else if (/^\d+(\.\d+)?$/.test(s)) baseFontSize = `${s}px`;
+  else if (s) baseFontSize = s;
 }
 
-// Determine active control keys
-const baseList = propControls && propControls.length > 0 ? propControls : PRESETS[preset] || PRESETS.minimal;
-const activeControlKeys = Array.from(new Set(baseList));
-
-const activeControls: ControlDef[] = activeControlKeys
-  .map(k => CONTROL_REGISTRY[k])
-  .filter((c): c is ControlDef => Boolean(c));
-
-// Group controls by category
-const categories = ['appearance', 'theming', 'navigation', 'schema', 'sections'] as const;
-const groupedControls = categories
-  .map(cat => ({
-    id: cat,
-    title: CATEGORY_TITLES[cat],
-    controls: activeControls.filter(c => c.category === cat),
-  }))
-  .filter(g => g.controls.length > 0);
+// Determine active controls
+const activeControls = resolveActiveControls(propControls, preset);
+const groupedControls = groupControlsByCategory(activeControls);
 
 const initialAttrsJson = JSON.stringify(initialAttrs);
 ---
@@ -854,19 +409,32 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
         let path = input.value.trim();
         if (!path) return;
 
+        // Normalize spaces or colons like "get /user/login" or "get: /user/login" -> "get-/user/login"
+        path = path.replace(/^(\w+)[\s:]+(\/.*)$/i, (_, m, p) => `${m.toLowerCase()}-${p}`);
+
         // Auto-prefix helper if raw path without method or tag prefix is given
         if (target.shadowRoot && !target.shadowRoot.getElementById(path)) {
-          if (target.shadowRoot.getElementById('get-' + path)) {
-            path = 'get-' + path;
-          } else if (target.shadowRoot.getElementById('tag--' + path)) {
-            path = 'tag--' + path;
+          const cleanPath = path.startsWith('/') ? path : `/${path}`;
+          const candidates = [
+            `get-${cleanPath}`,
+            `post-${cleanPath}`,
+            `put-${cleanPath}`,
+            `delete-${cleanPath}`,
+            `patch-${cleanPath}`,
+            `tag--${path.replace(/^tag--/, '')}`,
+          ];
+          for (const cand of candidates) {
+            if (target.shadowRoot.getElementById(cand)) {
+              path = cand;
+              break;
+            }
           }
         }
 
-        if (typeof target.scrollTo === 'function') {
-          target.scrollTo(path);
-        } else if (typeof target.scrollToPath === 'function') {
+        if (typeof target.scrollToPath === 'function') {
           target.scrollToPath(path);
+        } else if (typeof target.scrollTo === 'function') {
+          target.scrollTo(path);
         }
       }
 
