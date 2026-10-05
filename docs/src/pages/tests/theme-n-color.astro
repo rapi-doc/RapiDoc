@@ -1,25 +1,29 @@
 ---
-import ExampleLayout from '../../layouts/ExampleLayout.astro';
+import TestCaseLayout from '../../layouts/TestCaseLayout.astro';
 ---
 
-<ExampleLayout>
-  <rapi-doc 
-    id = "thedoc" 
-    spec-url = "/specs-test/petstore.yaml" 
-    theme = "dark"
-    primary-color = "#2b96db"
-    header-color = "#3e4b54"
-    nav-bg-color = '#3e4b54'
-    nav-text-color = '#a9b7d0'
-    nav-hover-bg-color = '#333f54'
-    nav-hover-text-color = '#fff'
-    nav-accent-color = '#f87070'
-  > 
-    <div class="control-panel" slot="fixed-header">
-      <button class='btn' onclick="toggleTheme()">Toggle Theme</button>
-      <div style="flex:1"></div>
-      <button class='btn yellow' onclick="toggleRenderStyle()">Toggle Render Style</button>
-    </div>
-  </rapi-doc>
-</ExampleLayout>
-
+<TestCaseLayout
+  preset="colors"
+  controls={[
+    'theme',
+    'render-style',
+    'primary-color',
+    'header-color',
+    'nav-bg-color',
+    'nav-text-color',
+    'nav-hover-bg-color',
+    'nav-hover-text-color',
+    'nav-accent-color',
+  ]}
+  rapidocProps={{
+    'spec-url': '/specs-test/petstore.yaml',
+    theme: 'dark',
+    'primary-color': '#2b96db',
+    'header-color': '#3e4b54',
+    'nav-bg-color': '#3e4b54',
+    'nav-text-color': '#a9b7d0',
+    'nav-hover-bg-color': '#333f54',
+    'nav-hover-text-color': '#fff',
+    'nav-accent-color': '#f87070',
+  }}
+/>

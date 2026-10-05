@@ -1,32 +1,16 @@
 ---
-import ExampleLayout from '../../layouts/ExampleLayout.astro';
-import { getSpecUrl } from '../../utils/getSpecUrl';
-
-const specUrl = getSpecUrl(Astro.url);
+import TestCaseLayout from '../../layouts/TestCaseLayout.astro';
 ---
 
-<ExampleLayout>
-  <rapi-doc 
-    id = "thedoc"
-    spec-url = "/specs-test/xxx-of-nesting-with-expand-level.yaml" 
-    default-schema-tab = "schema"
-    render-style = "read"
-    show-info = "true"
-    show-header = "false"
-    allow-authentication = "false" 
-    allow-server-selection = "false"
-  > 
-
-    <div slot="nav-logo" style="height:120px; display:flex; flex-direction:column; align-items:center; gap:8px;">
-      <button class='btn' style="width:150px; margin-bottom:16px" onclick="toggleSchemaStyle()">Toggle Schema Style</button>
-      <div>Schema Expand Level </div>
-      <div style="display:flex; flex-direction:row; align-items:center;  justify-content:center; gap:5px">
-        <button class='btn' onclick="rapidocEl.setAttribute('schema-expand-level', '1')" >1</button>
-        <button class='btn' onclick="rapidocEl.setAttribute('schema-expand-level', '2')" >2</button>
-        <button class='btn' onclick="rapidocEl.setAttribute('schema-expand-level', '3')" >3</button>
-      </div>
-    </div>
-
-  </rapi-doc>
-</ExampleLayout>
-
+<TestCaseLayout
+  preset="schema"
+  rapidocProps={{
+    'spec-url': '/specs-test/xxx-of-nesting-with-expand-level.yaml',
+    'default-schema-tab': 'schema',
+    'render-style': 'read',
+    'show-info': 'true',
+    'show-header': 'false',
+    'allow-authentication': 'false',
+    'allow-server-selection': 'false',
+  }}
+/>

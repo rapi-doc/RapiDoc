@@ -5,7 +5,7 @@ import { getSpecUrl } from '../../utils/getSpecUrl';
 const specUrl = getSpecUrl(Astro.url);
 ---
 
-<ExampleLayout>
+<ExampleLayout controls={['theme', 'render-style', 'primary-color', 'bg-color', 'nav-bg-color', 'nav-accent-color']}>
   <rapi-doc 
     id = "thedoc"
     spec-url = "/specs/petstore.yaml"
@@ -45,8 +45,6 @@ const specUrl = getSpecUrl(Astro.url);
         <div style='width:20px;'></div>
         <div style='background: #fff; padding:0px 4px; font-size:30px; color:#444'> &#9782;</div>
       </div>
-      <div style="flex:1"></div>
-      <button class='btn yellow' onclick="toggleRenderStyle()">Toggle Render Style</button>
     </div>
 
   </rapi-doc>
@@ -54,6 +52,8 @@ const specUrl = getSpecUrl(Astro.url);
 
 <script is:inline>
   function changeTheme(themeName) {
+    const rapidocEl = document.getElementById('thedoc');
+    if (!rapidocEl) return;
     rapidocEl.setAttribute('show-header','');
     rapidocEl.setAttribute('bg-color','');
     rapidocEl.setAttribute('text-color','');

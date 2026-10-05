@@ -5,20 +5,15 @@ import { getSpecUrl } from '../../utils/getSpecUrl';
 const specUrl = getSpecUrl(Astro.url);
 ---
 
-<ExampleLayout>
-  <rapi-doc 
-    id = "thedoc"
-    spec-url = {specUrl}
-    show-info = "false"
-    show-header = "false"
-    allow-authentication = "false" 
-    allow-server-selection = "false"
-    default-schema-tab = "schema"
-  > 
-
-    <div slot="nav-logo" style="display:flex; flex-direction:column; align-items: center;">
-      <button class='btn' style="width:150px" onclick="toggleSchemaStyle()">Toggle Schema Style</button>
-    </div>  
-
-  </rapi-doc>
-</ExampleLayout>
+<ExampleLayout
+  autoRenderRapiDoc={true}
+  preset="schema"
+  rapidocProps={{
+    'spec-url': specUrl,
+    'show-info': 'false',
+    'show-header': 'false',
+    'allow-authentication': 'false',
+    'allow-server-selection': 'false',
+    'default-schema-tab': 'schema',
+  }}
+/>

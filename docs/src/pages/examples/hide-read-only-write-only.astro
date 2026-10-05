@@ -5,17 +5,17 @@ import { getSpecUrl } from '../../utils/getSpecUrl';
 const specUrl = getSpecUrl(Astro.url);
 ---
 
-<ExampleLayout>
+<ExampleLayout preset="schema">
   <rapi-doc 
-    id = "thedoc"
-    spec-url = {specUrl}
-    show-info = "false"
-    show-header = "false"
-    allow-authentication = "false"
-    allow-server-selection = 'false'
-    allow-try = "false"
-    default-schema-tab = "schema"
-    schema-style = "table"
+    id="thedoc"
+    spec-url={specUrl}
+    show-info="false"
+    show-header="false"
+    allow-authentication="false"
+    allow-server-selection="false"
+    allow-try="false"
+    default-schema-tab="schema"
+    schema-style="table"
   > 
     <div slot="nav-logo" style="display:flex; flex-direction: column; align-items: center; height:180px; gap:16px">
       <div style="text-align:center;">
@@ -45,17 +45,15 @@ const specUrl = getSpecUrl(Astro.url);
         <div>
           <input type="checkbox" id="write-only-never" onclick="toggleNeverHideWriteOnly(this)"/><label for="write-only-never">never</label>
         </div>
-      </div>  
-
-      <button class="btn" style="width:150px" onclick="toggleSchemaStyle()">Toggle Schema Style</button>
-
+      </div>
     </div>  
-
   </rapi-doc>
 </ExampleLayout>
 
-
 <script is:inline>
+  function getDoc() {
+    return document.getElementById('thedoc');
+  }
 
   function toggleReadOnly(value) {
     const el = document.getElementById('read-only-' + value);
@@ -69,33 +67,39 @@ const specUrl = getSpecUrl(Astro.url);
       }
     });
 
+    const doc = getDoc();
+    if (!doc) return;
     if (optionsStr.trim() === '') {
-      rapidocEl.removeAttribute('schema-hide-read-only');
-      rapidocEl.connectedCallback();
+      doc.removeAttribute('schema-hide-read-only');
+      doc.connectedCallback?.();
     } else {
-      rapidocEl.setAttribute('schema-hide-read-only', optionsStr);
+      doc.setAttribute('schema-hide-read-only', optionsStr);
     }
   }
 
   function toggleNeverHideReadOnly(neverBox) {
     const options = document.getElementsByClassName('read-only-option');
+    const doc = getDoc();
+    if (!doc) return;
     if (neverBox.checked) {
       Array.prototype.forEach.call(options, function (el) {
         el.checked = false;
       });
-      rapidocEl.setAttribute('schema-hide-read-only', 'never');
+      doc.setAttribute('schema-hide-read-only', 'never');
     } else {
-      rapidocEl.removeAttribute('schema-hide-read-only');
-      rapidocEl.connectedCallback();
+      doc.removeAttribute('schema-hide-read-only');
+      doc.connectedCallback?.();
     }
   }
 
   function toggleNeverHideWriteOnly(neverBox) {
+    const doc = getDoc();
+    if (!doc) return;
     if (neverBox.checked) {
-      rapidocEl.setAttribute('schema-hide-write-only', 'never');
+      doc.setAttribute('schema-hide-write-only', 'never');
     } else {
-      rapidocEl.removeAttribute('schema-hide-write-only');
-      rapidocEl.connectedCallback();
+      doc.removeAttribute('schema-hide-write-only');
+      doc.connectedCallback?.();
     }
   }
 </script>

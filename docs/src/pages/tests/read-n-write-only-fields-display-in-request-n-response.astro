@@ -1,11 +1,11 @@
 ---
-import ExampleLayout from '../../layouts/ExampleLayout.astro';
+import TestCaseLayout from '../../layouts/TestCaseLayout.astro';
 import { getSpecUrl } from '../../utils/getSpecUrl';
 
 const specUrl = getSpecUrl(Astro.url);
 ---
 
-<ExampleLayout>
+<TestCaseLayout preset="schema" autoRenderRapiDoc={false}>
   <rapi-doc 
     id = "thedoc"
     spec-url = "/specs-test/read-n-write-only-fields-display-in-request-n-response.yaml"
@@ -65,19 +65,14 @@ const specUrl = getSpecUrl(Astro.url);
                 <td class= "mono"> schema-hide-write-only </td> 
                 <td> 
                   <span>
-                    <input type="radio" id="default" name="writeonly" value="default" onclick="rapidocEl.setAttribute('schema-hide-write-only', this.value)" >
+                    <input type="radio" id="default" name="writeonly" value="default" onclick="document.getElementById('thedoc').setAttribute('schema-hide-write-only', this.value)" >
                     <label for="default">default</label>
                   </span>
                   <br/>
                   <span>
-                    <input type="radio" id="never" name="writeonly" value="never" onclick="rapidocEl.setAttribute('schema-hide-write-only', this.value)">
+                    <input type="radio" id="never" name="writeonly" value="never" onclick="document.getElementById('thedoc').setAttribute('schema-hide-write-only', this.value)">
                     <label for="never">never</label>
                   </span>
-                </td>
-              </tr>
-              <tr style = "border-top:3px solid #aaa;">
-                <td colspan="3" style="text-align: center;"> 
-                  <button class="btn" onclick="toggleSchemaStyle()">Toggle Schema Style</button>
                 </td>
               </tr>
             </table>  
@@ -86,7 +81,7 @@ const specUrl = getSpecUrl(Astro.url);
       </div>  
     </span>
   </rapi-doc>
-</ExampleLayout>
+</TestCaseLayout>
 
 <style>
   table {

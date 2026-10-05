@@ -1,23 +1,15 @@
 ---
-import ExampleLayout from '../../layouts/ExampleLayout.astro';
-import { getSpecUrl } from '../../utils/getSpecUrl';
-
-const specUrl = getSpecUrl(Astro.url);
+import TestCaseLayout from '../../layouts/TestCaseLayout.astro';
 ---
 
-<ExampleLayout>
-  <rapi-doc 
-    id = "thedoc"
-    spec-url = "/specs-test/array-and-object-nesting.yaml"
-    show-header = "false"
-    show-info = "false"
-    allow-server-selection = "false"
-    allow-authentication = "false" 
-    render-style = "read"
-  >
-
-    <div slot="nav-logo" style="display:flex; flex-direction:column; align-items:center; ">
-      <button class='btn' onclick="toggleSchemaStyle()">Toggle Schema Style</button>
-    </div>
-  </rapi-doc>
-</ExampleLayout>
+<TestCaseLayout
+  preset="schema"
+  rapidocProps={{
+    'spec-url': '/specs-test/array-and-object-nesting.yaml',
+    'show-header': 'false',
+    'show-info': 'false',
+    'allow-server-selection': 'false',
+    'allow-authentication': 'false',
+    'render-style': 'read',
+  }}
+/>
