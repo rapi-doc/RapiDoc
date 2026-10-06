@@ -32,6 +32,15 @@ export default defineConfig({
     '/oauth': '/guides/oauth',
     '/theme': '/guides/theme',
     '/perf': '/tests/performance',
+    '/font': '/examples/font',
+    '/examples/font-size': '/examples/font',
+    '/examples/render-read-light': '/examples/render-styles',
+    '/examples/render-view-light': '/examples/render-styles',
+    '/examples/schema-table': '/examples/schema-styles',
+    '/examples/schema-tab-default': '/examples/schema-styles',
+    '/examples/search-by-params': '/examples/search',
+    '/examples/mock': '/examples/reqres',
+    '/examples/header-color': '/examples/themes',
   },
   integrations: [
     starlight({
@@ -58,12 +67,8 @@ export default defineConfig({
       logo: {
         src: './src/assets/logo.png',
       },
-      social: [
-        { icon: 'github', label: 'GitHub', href: 'https://github.com/rapi-doc/RapiDoc' },
-      ],
-      customCss: [
-        './src/styles/starlight-custom.css',
-      ],
+      social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/rapi-doc/RapiDoc' }],
+      customCss: ['./src/styles/starlight-custom.css'],
       components: {
         Header: './src/components/DocsHeader.astro',
         ThemeProvider: './src/components/ForceDarkTheme.astro',
@@ -109,6 +114,7 @@ export default defineConfig({
           items: [
             { label: 'In-Browser Mock Server', slug: 'docs/advanced/mock-server' },
             { label: 'OAuth 2.0 Integration', slug: 'docs/advanced/oauth-setup' },
+            { label: 'Markdown Links & Navigation', slug: 'docs/advanced/linking-and-navigation' },
             { label: 'HTML Slots & Custom UI', slug: 'docs/advanced/slots-and-markdown' },
             { label: 'RapiDoc Mini Widget', slug: 'docs/advanced/rapidoc-mini' },
           ],
@@ -120,7 +126,7 @@ export default defineConfig({
     resolve: {
       alias: {
         '~': rapidocSrcPath,
-        'rapidoc': resolve(rapidocSrcPath, 'index.js'),
+        rapidoc: resolve(rapidocSrcPath, 'index.js'),
       },
     },
     server: {
@@ -145,20 +151,14 @@ export default defineConfig({
 
           // Copy rapidoc-min.js to docs output directory (dist)
           await fs.ensureDir(resolve(__dirname, 'dist/rapidoc'));
-          await fs.copy(
-            rapidocDistFile,
-            resolve(__dirname, 'dist/rapidoc/rapidoc-min.js')
-          );
+          await fs.copy(rapidocDistFile, resolve(__dirname, 'dist/rapidoc/rapidoc-min.js'));
 
           // Automatically sync rapidoc-min.js to generated-docs as well
           const genDocsDir = resolve(__dirname, 'generated-docs');
           if (fs.existsSync(genDocsDir)) {
             const genRapidocDir = resolve(genDocsDir, 'rapidoc');
             await fs.ensureDir(genRapidocDir);
-            await fs.copy(
-              rapidocDistFile,
-              resolve(genRapidocDir, 'rapidoc-min.js')
-            );
+            await fs.copy(rapidocDistFile, resolve(genRapidocDir, 'rapidoc-min.js'));
           }
         },
       },

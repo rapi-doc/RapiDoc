@@ -1,35 +1,15 @@
 ---
 import ExampleLayout from '../../layouts/ExampleLayout.astro';
-import { getSpecUrl } from '../../utils/getSpecUrl';
-
-const specUrl = getSpecUrl(Astro.url);
 ---
 
-<ExampleLayout>
-  <rapi-doc 
-    id = "thedoc"
-    spec-url = "/specs/petstore.yaml" 
-    show-header = "false"
-    render-style = "read"
-    show-info = "true"
-    regular-font = "Nunito"
-  > 
-    <div slot="nav-logo"  style="width:100%; display: flex; flex-direction:column;">
-      <div style="display: flex;justify-content: center; margin: 2px 0">
-        <button class='btn large' style="width:110px" onclick="changeFont()">Change Font</button>
-      </div>
-    </div>
-
-  </rapi-doc>
-</ExampleLayout>
-
-<script is:inline>
-  function changeFont() {
-    const doc = document.getElementById("thedoc");
-    if (doc.getAttribute('regular-font') === "Nunito"){
-      doc.setAttribute('regular-font',"'Open Sans'");
-    } else {
-      doc.setAttribute('regular-font',"Nunito");
-    }
-  }
-</script>
+<ExampleLayout
+  autoRenderRapiDoc={true}
+  controls={['font-size', 'regular-font', 'mono-font', 'theme']}
+  rapidocProps={{
+    'spec-url': '/specs/petstore.yaml',
+    'show-header': 'false',
+    'show-info': 'true',
+    'render-style': 'read',
+    'regular-font': 'Nunito',
+  }}
+/>

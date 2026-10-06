@@ -4,14 +4,18 @@ import { getSpecUrl } from '../../utils/getSpecUrl';
 
 const specUrl = getSpecUrl(Astro.url);
 ---
-<ExampleLayout>
-  <rapi-doc
-    spec-url={specUrl}
-    show-header = "false"
-    show-info = "false"
-    allow-server-selection = "false"
-    allow-authentication = "false" 
-    render-style = "focused" 
-    show-components = "true"
-  > </rapi-doc>
-</ExampleLayout>
+
+<ExampleLayout
+  autoRenderRapiDoc={true}
+  controls={['show-components']}
+  rapidocProps={{
+    'spec-url': specUrl,
+    'show-info': 'false',
+    'show-header': 'false',
+    'allow-authentication': 'false',
+    'allow-server-selection': 'false',
+    'render-style': 'focused',
+    'default-schema-tab': 'schema',
+    'show-components': 'true',
+  }}
+/>

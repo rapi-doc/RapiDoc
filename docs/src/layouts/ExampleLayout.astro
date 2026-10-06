@@ -54,7 +54,7 @@ if (controller === 'pretty' || controller === 'drawer') {
 const pathname = Astro.url.pathname;
 const isTest = pathname.startsWith('/tests');
 const backUrl = isTest ? '/tests' : '/examples';
-const backText = isTest ? '← Back to Tests' : '← Back to Examples';
+const backText = isTest ? 'Back to Tests' : 'Back to Examples';
 
 // Extract slug (e.g. /examples/render-read/ -> render-read)
 const segments = pathname.replace(/\/+$/, '').split('/').filter(Boolean);
@@ -109,7 +109,8 @@ const finalSpecUrl = propSpecUrl || getSpecUrl(Astro.url);
 
 // Determine controller preset and active controls
 const shouldShowController =
-  showController === true || Boolean(propPreset && propPreset !== 'none') || Boolean(propControls && propControls.length > 0);
+  showController !== false &&
+  (showController === true || Boolean(propPreset && propPreset !== 'none') || Boolean(propControls && propControls.length > 0));
 
 let effectivePreset = propPreset;
 let effectiveControls = propControls;

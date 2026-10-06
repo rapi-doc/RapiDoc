@@ -23,19 +23,17 @@ const current = resolveActiveNavKey(pathname, activePage);
     </a>
 
     <nav class="rd-nav-links">
-      {NAV_LINKS.map((item) => {
-        const active = isNavActive(item, current, pathname);
-        return (
-          <a
-            href={item.href}
-            class={`rd-nav-link ${item.pill ? 'rd-nav-link-dryrun' : ''} ${active ? 'active' : ''}`}
-            title={item.title}
-          >
-            <span>{item.label}</span>
-            {item.pill && <span class="rd-dev-pill">{item.pill}</span>}
-          </a>
-        );
-      })}
+      {
+        NAV_LINKS.map((item) => {
+          const active = isNavActive(item, current, pathname);
+          return (
+            <a href={item.href} class={`rd-nav-link ${item.pill ? 'rd-nav-link-dryrun' : ''} ${active ? 'active' : ''}`} title={item.title}>
+              <span>{item.label}</span>
+              {item.pill && <span class="rd-dev-pill">{item.pill}</span>}
+            </a>
+          );
+        })
+      }
     </nav>
 
     <div class="rd-nav-actions">
@@ -54,7 +52,6 @@ const current = resolveActiveNavKey(pathname, activePage);
     top: 0;
     z-index: 100;
     backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
     background: var(--rd-bg-glass);
     border-bottom: 1px solid var(--rd-border);
   }

@@ -3,12 +3,12 @@ import ExampleLayout from '../../layouts/ExampleLayout.astro';
 ---
 
 <ExampleLayout
-  title="Pretty Controller Showcase | RapiDoc"
+  title="Pretty RapiDocController"
   description="Demonstrates using the drawer-style PrettyRapiDocController"
   specUrl="/specs/petstore.yaml"
   autoRenderRapiDoc={true}
   controller="pretty"
-  preset="schema"
+  preset="all"
   rapidocProps={{
     'render-style': 'read',
     'schema-style': 'table',

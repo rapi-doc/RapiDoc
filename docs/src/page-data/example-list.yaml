@@ -16,11 +16,11 @@ examples:
       description: Choose between 3 distinct presentation styles to best fit your audience.
       category: Layouts & Views
       subExamples:
-        - Read Mode:
+        - Read:
             href: /examples/render-read
-        - View Mode:
+        - View:
             href: /examples/render-view
-        - Focused Mode:
+        - Focused:
             href: /examples/render-focused
 
   - Built In Console:
@@ -29,16 +29,12 @@ examples:
       description: Call and test live API endpoints directly within the documentation, with support for negative and edge-case testing.
       category: Console & Interactive
 
-  - Dark & Light Themes:
+  - Render Styles:
       img: /assets/images/dark-n-light.png
-      description: First-class support for high-contrast Light and Dark themes with seamless runtime switching.
+      href: /examples/render-styles
+      description: First-class support for high-contrast Light and Dark themes with seamless runtime switching across render modes.
       isWide: true
       category: Theming & Branding
-      subExamples:
-        - Read Mode (Dark / Light):
-            href: /examples/render-read-light
-        - View Mode (Dark / Light):
-            href: /examples/render-view-light
 
   - Theme With Colors:
       img: ./assets/images/theme.png
@@ -48,24 +44,14 @@ examples:
 
   - Fonts:
       img: ./assets/images/font.png
+      href: /examples/font
       description: Easily customize typography with Google Fonts, custom system fonts, and granular font size scales.
       category: Theming & Branding
-      subExamples:
-        - Font Family:
-            href: /examples/font
-        - Font Size:
-            href: /examples/font-size
 
   - Logo:
       img: ./assets/images/logo.png
       href: /examples/logo
       description: Brand your documentation by embedding custom logos or vector SVG graphics in the header.
-      category: Theming & Branding
-
-  - Header Style:
-      img: ./assets/images/header.png
-      href: /examples/header-color
-      description: Customize the top header background, border styling, and title appearance.
       category: Theming & Branding
 
   - Advance Styling:
@@ -75,15 +61,10 @@ examples:
       isDoc: true
       category: Guides & Docs
 
-  - Schema Display:
+  - Schema Styles:
       img: /assets/images/schema-style.png
-      href: /examples/schema-table
-      description: "Inspect data models using two distinct representations: an expandable Tree view or structured Tabular view."
-      category: Layouts & Views
-
-  - Schema & Example Views:
-      href: /examples/schema-tab-default
-      description: Set whether the data model schema or sample payload example is displayed by default on load.
+      href: /examples/schema-styles
+      description: "Inspect data models using Tree or Tabular representations, and toggle between Schema and Example views."
       category: Layouts & Views
 
   - Show Components:
@@ -188,7 +169,7 @@ examples:
             href: /examples/dynamic-form-params
 
   - Advanced Search:
-      href: /examples/search-by-params
+      href: /examples/search
       description: Enhance search capability to filter operations by parameter names, descriptions, and HTTP verbs.
       category: Layouts & Views
 
@@ -279,7 +260,7 @@ examples:
             href: /examples/allof
 
   - Mock API:
-      href: /examples/mock
+      href: /examples/reqres
       description: Connect to live mock servers for realistic sandbox testing without deploying backend infrastructure.
       category: Console & Interactive
 

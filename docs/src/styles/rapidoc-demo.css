@@ -34,6 +34,7 @@ body {
   filter: blur(120px);
   opacity: 0.12;
 }
+
 .glow-emerald {
   top: -40px;
   left: 20%;
@@ -41,6 +42,7 @@ body {
   height: 550px;
   background: radial-gradient(circle, #10b981 0%, transparent 70%);
 }
+
 .glow-cyan {
   top: 500px;
   right: 5%;
@@ -48,6 +50,7 @@ body {
   height: 500px;
   background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
 }
+
 .glow-indigo {
   top: 900px;
   left: 10%;
@@ -286,16 +289,20 @@ dialog.sidebar-dialog[open]::backdrop {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
 }
+
 .section-body::-webkit-scrollbar {
   width: 6px;
 }
+
 .section-body::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .section-body::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.15);
   border-radius: 9999px;
 }
+
 .section-body::-webkit-scrollbar-thumb:hover {
   background: rgba(16, 185, 129, 0.4);
 }
@@ -314,6 +321,7 @@ dialog.sidebar-dialog[open]::backdrop {
   border: 1px solid rgba(255, 255, 255, 0.06);
   transition: all 0.2s ease;
 }
+
 .rd-option-card:hover {
   background: rgba(255, 255, 255, 0.04);
   border-color: rgba(255, 255, 255, 0.12);
@@ -360,12 +368,14 @@ dialog.sidebar-dialog[open]::backdrop {
   flex-shrink: 0;
   cursor: pointer;
 }
+
 .rd-switch input {
   opacity: 0;
   width: 0;
   height: 0;
   position: absolute;
 }
+
 .rd-slider {
   position: absolute;
   inset: 0;
@@ -374,6 +384,7 @@ dialog.sidebar-dialog[open]::backdrop {
   border-radius: 9999px;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
 .rd-slider::before {
   position: absolute;
   content: '';
@@ -388,15 +399,18 @@ dialog.sidebar-dialog[open]::backdrop {
     transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
     background-color 0.2s ease;
 }
-.rd-switch input:checked + .rd-slider {
+
+.rd-switch input:checked+.rd-slider {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   border-color: rgba(16, 185, 129, 0.6);
   box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
 }
-.rd-switch input:checked + .rd-slider::before {
+
+.rd-switch input:checked+.rd-slider::before {
   transform: translateX(20px);
   background-color: #ffffff;
 }
+
 .rd-switch:hover .rd-slider {
   border-color: rgba(255, 255, 255, 0.3);
 }
@@ -414,12 +428,14 @@ dialog.sidebar-dialog[open]::backdrop {
   align-items: center;
   padding: 5px 11px;
   border-radius: 7px;
+  corner-shape: squircle;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.09);
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
 }
+
 .rd-chip input[type='radio'] {
   position: absolute;
   opacity: 0;
@@ -427,24 +443,29 @@ dialog.sidebar-dialog[open]::backdrop {
   width: 0;
   height: 0;
 }
+
 .rd-chip .chip-text {
   font-size: 12px;
   font-weight: 500;
   color: #94a3b8;
   transition: color 0.2s ease;
 }
+
 .rd-chip:hover {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.18);
 }
+
 .rd-chip:hover .chip-text {
   color: #f1f5f9;
 }
+
 .rd-chip.active {
   background: rgba(16, 185, 129, 0.16);
   border-color: rgba(16, 185, 129, 0.55);
   box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
 }
+
 .rd-chip.active .chip-text {
   color: #34d399;
   font-weight: 600;
@@ -469,11 +490,13 @@ dialog.sidebar-dialog[open]::backdrop {
   cursor: pointer;
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
 .rd-color-chip input[type='radio'] {
   position: absolute;
   opacity: 0;
   pointer-events: none;
 }
+
 .rd-color-chip .color-swatch {
   width: 20px;
   height: 20px;
@@ -481,12 +504,15 @@ dialog.sidebar-dialog[open]::backdrop {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
 .rd-color-chip:hover {
   transform: scale(1.15);
 }
+
 .rd-color-chip.active {
   transform: scale(1.18);
 }
+
 .rd-color-chip.active .color-swatch {
   box-shadow:
     0 0 0 2px #080d1a,

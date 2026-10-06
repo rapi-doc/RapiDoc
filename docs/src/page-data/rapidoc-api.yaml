@@ -97,7 +97,7 @@ Attributes:
         - largest
       description: Sets the relative base font size for the entire documentation viewport.
       default: default
-      example: /examples/font-size
+      example: /examples/font
     - name: css-file & css-classes
       hidden: true
       description: >
@@ -221,7 +221,7 @@ Attributes:
         Filters and renders only endpoints matching a specific substring or regular expression, enabling audience segmentation (e.g., showing only public endpoints).
         The matching strategy is configured via <span class="mono yellow">match-type</span>.
       default: (empty)
-      example: /examples/search-by-params
+      example: /examples/search
     - name: match-type
       allowed:
         - includes
@@ -268,7 +268,7 @@ Attributes:
     - name: allow-advanced-search
       allowed: ["true", "false"]
       description: Enables deep multi-property search modal, indexing paths, descriptions, parameter names, and response schemas.
-      example: /examples/search-by-params
+      example: /examples/search
       default: true
     - name: allow-try
       allowed: ["true", "false"]
@@ -296,7 +296,7 @@ Attributes:
         - table
       description: Controls the visual representation of complex JSON schemas in request and response panels. 'tree' provides an interactive collapsible tree view; 'table' renders structured tabular rows.
       default: tree
-      example: /examples/schema-table
+      example: /examples/schema-styles
     - name: schema-expand-level
       description: Initial depth level for auto-expanding complex nested schema properties and sub-objects (default 999 expands all levels).
       default: 999

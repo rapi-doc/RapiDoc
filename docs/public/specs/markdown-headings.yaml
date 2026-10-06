@@ -3,8 +3,54 @@ info:
   title: Markdown Headings in Navigation Bar
   description: |
     # Documentation
-    This is an example of a multiline heading
+    So an API apparently exchanges things called JSON objects and status codes. 
+    I don't know much about any of that—**I'm not even a developer!** 
+    The developer goes by **mrin9**, but as you might have guessed, he's not exactly thrilled about writing prose.
+
+    He also claims I'm slacking off and making him do all the heavy lifting. Which is slander. But fine, here we are.
+
+    # Our Story
+
+    I write fiction. One afternoon, mrin9 shows up with coffee and asks if I could "whip up a little documentation" for his project. 
+    He once helped fix my Wi-Fi, so under intense "returning the favor" peer pressure, I reluctantly agreed.
+
+    ## What is RapiDoc
+
+    I asked him what this tool actually does. He looked at me with a straight face and suggested that the next time I write a novel, 
+    I should consider publishing it as an **API**. 
     
+    Excuse me? An API? Why on earth wouldn't I just print a paperback so normal people can read it on a hammock?
+
+    He patiently explained: "Because if it's an API, someone could print it, or have smart speakers read it, or build an app around it!"
+
+    **Me:** "So RapiDoc does that?" <br/>
+    **mrin9:** "No, RapiDoc renders the spec so developers can inspect the JSON."
+
+    Brilliant. First, you convert plain English that everyone understands into curly brackets that only machines comprehend. 
+    Then, you build an entire tool to translate the curly brackets back into human-readable pages. 
+    **Peak developer logic.**
+
+    Anyway, who am I to argue? Let's just get through this favor so I can go back to writing sentences with actual adjectives.
+
+    ## How to use APIs
+    Apparently, you fire off a `GET` request to `http://dummy.restapiexample.com/api/v1/employees`. You can tack on query parameters 
+    if you want to get fancy. Don't ask me for more details than that—for the rate I'm being paid for this, you're lucky to get valid YAML.
+
+    *(By the way, if you need someone to write whimsical technical docs, hire me. @mrin9: do not edit this out, this is my portfolio now.)*
+    
+    ## Be Cool
+    The sample API endpoint is graciously hosted on the internet for developers to test against. 
+    Just because RapiDoc gives you an interactive "TRY" console with shiny buttons doesn't mean you should hammer the server with 10,000 requests a minute. 
+    Be polite to shared servers, touch some grass, and remember there's an entire outside world beyond HTTP status 200.
+
+    # Purpose
+    Now, in case you were wondering why you just read this entire monologue: 
+    none of it was actually about the API.
+    
+    ### Look at the navigation bar on the left!
+    Notice how all the markdown headings (`#`, `##`, `###`) written throughout this description automatically appeared as structured navigation items in RapiDoc's sidebar?
+
+    Even better: scroll down to the **Employees** tag below. You will notice that the headings inside the tag description are nested neatly in the navigation bar too!
 
   version: 1.0.0
 paths:
@@ -20,14 +66,12 @@ paths:
 tags:
   - name: Employees
     description: |-
-      Markdown headings can contain HTML as well as complex markdown
+      Markdown headings can contain HTML as well as complex markdown formatting.
       
-      <br>
-      <div style="background-color: #F0F0F0;padding: 12px 0px 12px 12px;border-left: 5px solid #F90258;">
-        Markdown do not support colors or fancy HTML designs. However, if you need you can put some html directly inside the markup with some inline styling.
-        This TIP box i designed using raw HTML inside the markdown
-      </div>  
-      <br>
+      <div style="background-color: var(--bg2, rgba(128, 128, 128, 0.3)); color: var(--fg, currentColor); padding: 12px 16px; border-left: 5px solid #F90258; border-radius: 0 4px 4px 0; margin: 12px 0;">
+        Markdown doesn't natively support colors or callout containers. However, you can drop raw HTML directly inside the markdown with inline styling.
+        This TIP box was designed using inline HTML inside the markdown description!
+      </div>
      
       # The Employee Object
 
@@ -37,5 +81,29 @@ tags:
       |-------------:|--------|:-------------|
       | `id`         | string | A globally unique identifier. |
       | `account_id` | string | Reference to a parent account object. |
-      | `thread_id`  | string | Reference to a parent thread object (all messages have a thread). |
-      | `tags`       | array  | A list of labels that you like to associate with an employee |
+      | `thread_id`  | string | Reference to an assigned project thread. |
+      | `tags`       | array  | A list of labels associated with an employee. |
+
+      ## Modifying an employee
+
+      You can perform various operations on an employee record:
+
+      1. Change salary.
+      2. Promote or transfer the employee.
+      3. Update location to a different office.
+      4. Modify labels associated with the employee.
+
+      ## Employee roles
+
+      An Employee can have multiple roles defining their permissions and workspace access.
+
+      Following are some of the roles that can be assigned or revoked:
+
+      - People Manager
+      - Individual Contributor
+      - Accountant
+      - Product Architect
+      - Director
+      - VP
+      - EVP
+      - CEO

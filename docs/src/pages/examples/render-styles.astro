@@ -4,10 +4,11 @@ import ExampleLayout from '../../layouts/ExampleLayout.astro';
 
 <ExampleLayout
   autoRenderRapiDoc={true}
-  preset="colors"
+  controls={['render-style']}
   rapidocProps={{
     'spec-url': '/specs/petstore.yaml',
-    'render-style': 'view',
-    theme: 'light',
+    'render-style': 'read',
+    'default-schema-tab': 'schema',
+    theme: 'dark',
   }}
 />

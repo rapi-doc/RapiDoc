@@ -133,8 +133,9 @@ EXPOSE 80
               <div class="rd-persona-item">
                 <span class="rd-persona-bullet">✓</span>
                 <div>
-                  <strong>Container Ready:</strong> Tiny ~{rapidocBuildInfo.bundle.minified.formatted} bundle ({rapidocBuildInfo.bundle.gzip.formatted} gzipped) with zero SSR/Node overhead. Bundles directly into Browser and micro-containers
-                  with Go/Rust/Java/Python servers.
+                  <strong>Container Ready:</strong> Tiny ~{rapidocBuildInfo.bundle.minified.formatted} bundle ({
+                    rapidocBuildInfo.bundle.gzip.formatted
+                  } gzipped) with zero SSR/Node overhead. Bundles directly into Browser and micro-containers with Go/Rust/Java/Python servers.
                 </div>
               </div>
               <div class="rd-persona-item">
@@ -258,7 +259,9 @@ EXPOSE 80
       <div class="rd-metric-card">
         <div class="rd-metric-number">~{rapidocBuildInfo.bundle.gzip.formatted}</div>
         <div class="rd-metric-label">Ultra-Light Bundle</div>
-        <div class="rd-metric-desc">Gzipped single bundle ({rapidocBuildInfo.bundle.minified.formatted} minified). Zero VDOM diffing overhead</div>
+        <div class="rd-metric-desc">
+          Gzipped single bundle ({rapidocBuildInfo.bundle.minified.formatted} minified). Zero VDOM diffing overhead
+        </div>
       </div>
       <div class="rd-metric-card">
         <div class="rd-metric-number">100<span class="rd-unit">%</span></div>
@@ -282,20 +285,39 @@ EXPOSE 80
       </div>
       <h2 class="rd-section-title">Dark & Light Modes Done Right</h2>
       <p class="rd-section-desc" style="max-width: 640px; margin: 0 auto 28px auto;">
-        RapiDoc provides pixel-perfect high-contrast dark and light themes out of the box, engineered for crystal-clear readability, WCAG AA compliance, and effortless enterprise brand pairing.
+        RapiDoc provides pixel-perfect high-contrast dark and light themes out of the box, engineered for crystal-clear readability, WCAG AA
+        compliance, and effortless enterprise brand pairing.
       </p>
       <div class="rd-theme-card-actions">
         <a href="/examples/theme-dark-contrast" target="_blank" class="rd-btn rd-btn-primary">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
           </svg>
           <span>High-Contrast Dark Demo</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M5 12h14m-7-7 7 7-7 7"/>
+            <path d="M5 12h14m-7-7 7 7-7 7"></path>
           </svg>
         </a>
         <a href="/examples/theme-light-contrast" target="_blank" class="rd-btn rd-btn-primary">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <circle cx="12" cy="12" r="5"></circle>
             <line x1="12" y1="1" x2="12" y2="3"></line>
             <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -308,7 +330,7 @@ EXPOSE 80
           </svg>
           <span>High-Contrast Light Demo</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M5 12h14m-7-7 7 7-7 7"/>
+            <path d="M5 12h14m-7-7 7 7-7 7"></path>
           </svg>
         </a>
       </div>
@@ -554,7 +576,9 @@ EXPOSE 80
               <td class="rd-td-highlight">
                 <span class="rd-check">✓</span>
                 <strong>High Performance</strong><br />
-                <span class="rd-dim">~{rapidocBuildInfo.bundle.gzip.formatted} gzip ({rapidocBuildInfo.bundle.minified.formatted} min), zero SSR</span>
+                <span class="rd-dim"
+                  >~{rapidocBuildInfo.bundle.gzip.formatted} gzip ({rapidocBuildInfo.bundle.minified.formatted} min), zero SSR</span
+                >
               </td>
               <td>Heavy bundle size</td>
               <td>Vue runtime overhead</td>
@@ -822,7 +846,6 @@ EXPOSE 80
     top: 0;
     z-index: 100;
     backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
     background: rgba(6, 9, 19, 0.75);
     border-bottom: 1px solid var(--rd-glass-border);
   }
