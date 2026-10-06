@@ -25,6 +25,9 @@ export default defineConfig({
   build: {
     format: 'directory',
   },
+  devToolbar: {
+    enabled: false,
+  },
   redirects: {
     '/css': '/guides/css',
     '/mini': '/guides/mini',
