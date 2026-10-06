@@ -69,7 +69,6 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
   <!-- Collapsed badge / Expand trigger -->
   <button type="button" class="rd-hud-trigger" aria-expanded="false" title={`Open ${title}`}>
     <span class="rd-hud-status-dot" aria-hidden="true"></span>
-    <span class="rd-hud-trigger-icon">🎛️</span>
     <span class="rd-hud-trigger-title">{title}</span>
     <span class="rd-hud-toggle-icon">▲</span>
   </button>
@@ -145,12 +144,31 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
             <div class="rd-hud-section-content">
               {segmentedControls.map(ctrl => (
                 <div class="rd-hud-link-row" data-control-attr={ctrl.attr}>
-                  <span
-                    class="rd-control-label"
-                    data-human={`${ctrl.label} :`}
-                    data-raw={`${ctrl.attr} :`}
-                    title={`Attribute: ${ctrl.attr}`}
-                  >{ctrl.label} :</span>
+                  <span class="rd-control-label-wrap">
+                    <span
+                      class="rd-control-label"
+                      data-human={`${ctrl.label} :`}
+                      data-raw={`${ctrl.attr} :`}
+                      data-tooltip={ctrl.tip || `Attribute: ${ctrl.attr}`}
+                      tabindex="0"
+                    >{ctrl.label} :</span>
+                    {ctrl.info && (
+                      <button
+                        type="button"
+                        class="rd-control-info-icon"
+                        aria-label={`Info: ${ctrl.info}`}
+                        data-tooltip={ctrl.info}
+                        data-tooltip-type="info"
+                        tabindex="0"
+                      >
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <line x1="12" y1="16" x2="12" y2="12"></line>
+                          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                      </button>
+                    )}
+                  </span>
 
                   <span class="rd-link-options" role="radiogroup" aria-label={ctrl.label}>
                     {ctrl.options.map((opt, idx) => (
@@ -163,7 +181,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
                           data-attr={ctrl.attr}
                           data-val={opt.rawVal}
                           data-is-default={opt.isDefault ? 'true' : undefined}
-                          title={`${ctrl.attr}="${opt.rawVal}"`}
+                          data-tooltip={`${ctrl.attr}="${opt.rawVal}"`}
                         >
                           {opt.dotColor && (
                             <span class="rd-color-dot" style={`background-color: ${opt.dotColor};`} aria-hidden="true" />
@@ -189,7 +207,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
                       class="rd-toggle-chip"
                       data-attr={ctrl.attr}
                       data-default-on={ctrl.defaultOn ? 'true' : undefined}
-                      title={`Toggle ${ctrl.attr}`}
+                      data-tooltip={ctrl.tip || `Toggle ${ctrl.attr}`}
                     >
                       <span class="rd-toggle-check" aria-hidden="true">✓</span>
                       <span
@@ -197,6 +215,23 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
                         data-human={ctrl.label}
                         data-raw={ctrl.attr}
                       >{ctrl.label}</span>
+                      {ctrl.info && (
+                        <button
+                          type="button"
+                          class="rd-control-info-icon rd-toggle-info-btn"
+                          aria-label={`Info: ${ctrl.info}`}
+                          data-tooltip={ctrl.info}
+                          data-tooltip-type="info"
+                          tabindex="0"
+                          onclick="event.stopPropagation();"
+                        >
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                          </svg>
+                        </button>
+                      )}
                     </span>
                   ))}
                 </div>
@@ -279,6 +314,19 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
 
       <!-- Slot for custom, test-specific action buttons or inputs -->
       <slot />
+    </div>
+  </div>
+
+  <!-- Single CSS Anchor Positioning Tooltip -->
+  <div
+    id={`rd-tooltip-${targetId}`}
+    class="rd-hud-tooltip"
+    role="tooltip"
+    aria-hidden="true"
+  >
+    <div class="rd-tooltip-inner">
+      <span class="rd-tooltip-badge" aria-hidden="true"></span>
+      <span class="rd-tooltip-text"></span>
     </div>
   </div>
 </aside>
@@ -378,6 +426,119 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
       } else {
         setLabelMode(false);
       }
+
+      // =========================================================================
+      // Single Viewport-Safe Tooltip Engine
+      // =========================================================================
+      const tooltipEl = hud.querySelector('.rd-hud-tooltip');
+      const tooltipInner = tooltipEl?.querySelector('.rd-tooltip-inner');
+      const tooltipText = tooltipEl?.querySelector('.rd-tooltip-text');
+      const tooltipBadge = tooltipEl?.querySelector('.rd-tooltip-badge');
+
+      // Hoist tooltip to document.body so it is never clipped by transforms or overflow
+      if (tooltipEl && tooltipEl.parentElement !== document.body) {
+        document.body.appendChild(tooltipEl);
+      }
+
+      let currentAnchorEl = null;
+
+      function updateTooltipPosition(targetEl) {
+        if (!tooltipEl || !targetEl) return;
+        const rect = targetEl.getBoundingClientRect();
+        const tooltipWidth = tooltipInner?.offsetWidth || 220;
+        const tooltipHeight = tooltipInner?.offsetHeight || 30;
+
+        // Center horizontally over target
+        let left = rect.left + rect.width / 2 - tooltipWidth / 2;
+        // Default position: ABOVE the trigger with an 8px gap (never cuts off at bottom of screen!)
+        let top = rect.top - tooltipHeight - 8;
+
+        // If too close to viewport top, flip below the trigger
+        if (top < 8) {
+          top = rect.bottom + 8;
+        }
+
+        // Viewport horizontal boundary constraints
+        if (left < 12) left = 12;
+        if (left + tooltipWidth > window.innerWidth - 12) {
+          left = window.innerWidth - tooltipWidth - 12;
+        }
+
+        tooltipEl.style.setProperty('left', `${Math.round(left)}px`, 'important');
+        tooltipEl.style.setProperty('top', `${Math.round(top)}px`, 'important');
+      }
+
+      function showTooltip(targetEl) {
+        if (!tooltipEl || !targetEl) return;
+        const text = targetEl.getAttribute('data-tooltip');
+        if (!text) return;
+
+        const type = targetEl.getAttribute('data-tooltip-type') || 'default';
+        tooltipEl.setAttribute('data-type', type);
+        if (tooltipBadge) {
+          tooltipBadge.textContent = type === 'info' ? 'Info' : 'Tip';
+        }
+        if (tooltipText) {
+          tooltipText.textContent = text;
+        }
+
+        currentAnchorEl = targetEl;
+        tooltipEl.classList.add('is-visible');
+        tooltipEl.setAttribute('aria-hidden', 'false');
+
+        updateTooltipPosition(targetEl);
+      }
+
+      function hideTooltip(targetEl) {
+        if (!tooltipEl) return;
+        if (targetEl && targetEl === currentAnchorEl) {
+          currentAnchorEl = null;
+        }
+        tooltipEl.classList.remove('is-visible');
+        tooltipEl.setAttribute('aria-hidden', 'true');
+      }
+
+      hud.addEventListener('pointerover', e => {
+        const trigger = e.target.closest('[data-tooltip]');
+        if (trigger && hud.contains(trigger)) {
+          showTooltip(trigger);
+        }
+      });
+
+      hud.addEventListener('pointerout', e => {
+        const trigger = e.target.closest('[data-tooltip]');
+        if (trigger && (!e.relatedTarget || !trigger.contains(e.relatedTarget))) {
+          hideTooltip(trigger);
+        }
+      });
+
+      hud.addEventListener('focusin', e => {
+        const trigger = e.target.closest('[data-tooltip]');
+        if (trigger && hud.contains(trigger)) {
+          showTooltip(trigger);
+        }
+      });
+
+      hud.addEventListener('focusout', e => {
+        const trigger = e.target.closest('[data-tooltip]');
+        if (trigger) {
+          hideTooltip(trigger);
+        }
+      });
+
+      // Keep position updated if the controller body or page scrolls
+      const hudBody = hud.querySelector('.rd-hud-body');
+      hudBody?.addEventListener('scroll', () => {
+        if (currentAnchorEl) {
+          updateTooltipPosition(currentAnchorEl);
+        }
+      }, { passive: true });
+
+      window.addEventListener('scroll', () => {
+        if (currentAnchorEl) {
+          updateTooltipPosition(currentAnchorEl);
+        }
+      }, { passive: true });
 
       window.addEventListener('keydown', e => {
         if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
@@ -671,11 +832,10 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
     align-items: center;
     gap: 0.6em;
     padding: 0.55em 1.25em;
-    border-radius: 9999px;
+    border-radius: 10px 10px 4px 4px;
     background: rgba(15, 23, 42, 0.94);
     border: 1px solid rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
     color: #e2e8f0;
     font-size: 1em;
     font-weight: 700;
@@ -810,6 +970,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
     color: #cbd5e1 !important;
     padding: 0.28em 0.65em !important;
     border-radius: 0.4em !important;
+    corner-shape: squircle !important;
     font-size: 0.9em !important;
     font-weight: 600 !important;
     transition: all 0.15s ease !important;
@@ -933,6 +1094,12 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
     line-height: 1.4;
   }
 
+  .rd-controller-hud .rd-control-label-wrap {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.35em !important;
+  }
+
   .rd-controller-hud .rd-control-label {
     font-size: 0.88em;
     font-weight: 700;
@@ -940,6 +1107,112 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
     letter-spacing: 0.04em;
     text-transform: uppercase;
     white-space: nowrap;
+    cursor: default;
+    outline: none;
+  }
+
+  .rd-controller-hud .rd-control-label:focus-visible {
+    color: #f1f5f9;
+  }
+
+  /* Info Icon beside label */
+  .rd-controller-hud .rd-control-info-icon {
+    all: unset !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    color: #38bdf8 !important;
+    opacity: 0.75 !important;
+    padding: 0.1em !important;
+    border-radius: 50% !important;
+    line-height: 1 !important;
+    outline: none !important;
+    transition: opacity 0.15s ease, color 0.15s ease, transform 0.15s ease !important;
+  }
+
+  .rd-controller-hud .rd-control-info-icon:hover,
+  .rd-controller-hud .rd-control-info-icon:focus-visible {
+    opacity: 1 !important;
+    color: #7dd3fc !important;
+    transform: scale(1.15) !important;
+  }
+
+  .rd-controller-hud .rd-control-info-icon svg {
+    pointer-events: none !important;
+  }
+
+  .rd-controller-hud .rd-toggle-info-btn {
+    margin-left: 0.2em !important;
+    padding: 0 !important;
+  }
+
+  /* ==========================================================================
+     Single Viewport-Safe Floating Tooltip Styles
+     ========================================================================== */
+  .rd-hud-tooltip {
+    all: unset !important;
+    position: fixed !important;
+    z-index: 1000000 !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateY(2px) !important;
+    transition: opacity 0.14s ease, transform 0.14s ease, visibility 0.14s !important;
+    box-sizing: border-box !important;
+    width: max-content !important;
+    max-width: 340px !important;
+  }
+
+  .rd-hud-tooltip.is-visible {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+  }
+
+  .rd-hud-tooltip .rd-tooltip-inner {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.45em !important;
+    padding: 0.35em 0.7em !important;
+    border-radius: 0.45em !important;
+    background: rgba(15, 23, 42, 0.96) !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    color: #f1f5f9 !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    line-height: 1.35 !important;
+    white-space: nowrap !important;
+    max-width: 320px !important;
+  }
+
+  /* Info Notice Tooltip Variant */
+  .rd-hud-tooltip[data-type="info"] .rd-tooltip-inner {
+    border-color: rgba(56, 189, 248, 0.45) !important;
+    background: rgba(12, 28, 48, 0.96) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.55), 0 0 12px rgba(56, 189, 248, 0.2) !important;
+  }
+
+  .rd-hud-tooltip .rd-tooltip-badge {
+    display: none !important;
+    font-size: 9.5px !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    padding: 0.1em 0.4em !important;
+    border-radius: 0.25em !important;
+    background: rgba(56, 189, 248, 0.25) !important;
+    color: #7dd3fc !important;
+    border: 1px solid rgba(56, 189, 248, 0.4) !important;
+    flex-shrink: 0 !important;
+    line-height: 1.2 !important;
+  }
+
+  .rd-hud-tooltip[data-type="info"] .rd-tooltip-badge {
+    display: inline-block !important;
   }
 
   .rd-controller-hud .rd-link-options {
@@ -1084,6 +1357,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
     gap: 0.4em !important;
     flex: 1 1 0% !important;
     min-width: 0 !important;
+    margin-inline-start: 6px !important;
   }
 
   .rd-controller-hud .rd-method-input {
@@ -1091,7 +1365,8 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
     min-width: 0 !important;
     background: rgba(15, 23, 42, 0.6) !important;
     border: 1px solid rgba(255, 255, 255, 0.14) !important;
-    border-radius: 0.35em !important;
+    border-radius: 6px !important;
+    corner-shape:squircle !important;
     color: #f1f5f9 !important;
     font-size: 0.9em !important;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
@@ -1116,7 +1391,8 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
     font-weight: 600 !important;
     color: #ffffff !important;
     background: #ea580c !important;
-    border-radius: 0.35em !important;
+    border-radius: 6px !important;
+    corner-shape:squircle !important;
     border: 1px solid rgba(255, 255, 255, 0.15) !important;
     cursor: pointer !important;
     white-space: nowrap !important;

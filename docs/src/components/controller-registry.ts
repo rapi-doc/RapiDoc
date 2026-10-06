@@ -12,6 +12,7 @@ export interface SegmentedControl {
   attr: string;
   label: string;
   tip?: string;
+  info?: string;
   category: ControlCategory;
   options: ControlOption[];
 }
@@ -21,6 +22,7 @@ export interface ToggleControl {
   attr: string;
   label: string;
   tip?: string;
+  info?: string;
   category: ControlCategory;
   defaultOn?: boolean;
 }
@@ -288,6 +290,7 @@ export const CONTROL_REGISTRY: Record<string, ControlDef> = {
     attr: 'on-nav-tag-click',
     label: 'Tag Click',
     tip: 'Behavior when clicking a tag header in the sidebar',
+    info: 'Works only when render-style = focused',
     category: 'navigation',
     options: [
       { label: 'Expand', rawVal: 'expand-collapse', isDefault: true },
@@ -516,7 +519,7 @@ export const CATEGORY_TITLES: Record<ControlCategory, string> = {
   appearance: 'Display & Layout',
   theming: 'Colors & Fonts',
   navigation: 'Sidebar & Navigation',
-  schema: 'Schema & Models',
+  schema: 'Schema',
   sections: 'Interactive Sections',
 };
 

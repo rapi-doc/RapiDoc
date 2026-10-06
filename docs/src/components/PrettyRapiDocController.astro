@@ -206,13 +206,35 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
                   return (
                     <div class="rd-option-card rd-option-card--multi" data-control-attr={ctrl.attr}>
                       <div class="rd-option-info">
-                        <div
-                          class="rd-option-label"
-                          data-human={ctrl.label}
-                          data-raw={ctrl.attr}
-                          title={`Attribute: ${ctrl.attr}`}
-                        >
-                          {ctrl.label}
+                        <div class="rd-option-label-row">
+                          <div
+                            class="rd-option-label"
+                            data-human={ctrl.label}
+                            data-raw={ctrl.attr}
+                            title={`Attribute: ${ctrl.attr}`}
+                          >
+                            {ctrl.label}
+                          </div>
+                          {ctrl.info && (
+                            <span class="rd-option-info-badge">
+                              <svg
+                                width="12"
+                                height="12"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2.2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true"
+                              >
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="16" x2="12" y2="12" />
+                                <line x1="12" y1="8" x2="12.01" y2="8" />
+                              </svg>
+                              <span class="rd-option-info-text">{ctrl.info}</span>
+                            </span>
+                          )}
                         </div>
                         {ctrl.tip && <div class="rd-option-tip">{ctrl.tip}</div>}
                       </div>
@@ -277,13 +299,35 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
                 {toggleControls.map(ctrl => (
                   <div class="rd-option-card rd-option-card--boolean" data-control-attr={ctrl.attr}>
                     <div class="rd-option-info">
-                      <div
-                        class="rd-option-label"
-                        data-human={ctrl.label}
-                        data-raw={ctrl.attr}
-                        title={`Attribute: ${ctrl.attr}`}
-                      >
-                        {ctrl.label}
+                      <div class="rd-option-label-row">
+                        <div
+                          class="rd-option-label"
+                          data-human={ctrl.label}
+                          data-raw={ctrl.attr}
+                          title={`Attribute: ${ctrl.attr}`}
+                        >
+                          {ctrl.label}
+                        </div>
+                        {ctrl.info && (
+                          <span class="rd-option-info-badge">
+                            <svg
+                              width="12"
+                              height="12"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2.2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              aria-hidden="true"
+                            >
+                              <circle cx="12" cy="12" r="10" />
+                              <line x1="12" y1="16" x2="12" y2="12" />
+                              <line x1="12" y1="8" x2="12.01" y2="8" />
+                            </svg>
+                            <span class="rd-option-info-text">{ctrl.info}</span>
+                          </span>
+                        )}
                       </div>
                       {ctrl.tip && <div class="rd-option-tip">{ctrl.tip}</div>}
                     </div>
@@ -751,12 +795,11 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
     padding: 0 16px 0 14px !important;
     background: rgba(15, 23, 42, 0.92) !important;
     backdrop-filter: blur(14px) !important;
-    -webkit-backdrop-filter: blur(14px) !important;
     color: #ffffff !important;
     font-size: 13px !important;
     font-weight: 600 !important;
     cursor: pointer !important;
-    border-radius: 9999px 0 0 9999px !important;
+    border-radius: 30px 0 0 8px !important;
     border: 1px solid rgba(245, 158, 11, 0.35) !important;
     border-right: none !important;
     box-shadow: -2px 0 14px rgba(245, 158, 11, 0.18) !important;
@@ -828,7 +871,6 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
     border-left: 1px solid rgba(255, 255, 255, 0.14) !important;
     background: rgba(8, 13, 26, 0.82) !important;
     backdrop-filter: blur(24px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
     box-shadow:
       -12px 0 40px rgba(0, 0, 0, 0.55),
       inset 1px 0 0 rgba(255, 255, 255, 0.08) !important;
@@ -922,6 +964,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
     color: #cbd5e1 !important;
     padding: 0 10px !important;
     border-radius: 7px !important;
+    corner-shape:squircle !important;
     font-size: 12px !important;
     font-weight: 600 !important;
     cursor: pointer !important;
@@ -1047,6 +1090,36 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
     min-width: 0;
   }
 
+  .rd-option-label-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .rd-option-info-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.08);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    padding: 1px 6px;
+    border-radius: 4px;
+    line-height: 1.35;
+  }
+
+  .rd-option-info-badge svg {
+    flex-shrink: 0;
+    color: #38bdf8;
+  }
+
+  .rd-option-info-text {
+    white-space: normal;
+  }
+
   .rd-option-label {
     font-size: 13px;
     font-weight: 600;
@@ -1137,6 +1210,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
     gap: 5px;
     padding: 5px 11px;
     border-radius: 7px;
+    corner-shape:squircle;
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.09);
     cursor: pointer;
