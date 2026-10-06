@@ -262,6 +262,17 @@ export const CONTROL_REGISTRY: Record<string, ControlDef> = {
       { label: 'True', rawVal: 'true' },
     ],
   },
+  'info-description-headings-in-navbar': {
+    type: 'segmented',
+    attr: 'info-description-headings-in-navbar',
+    label: 'Nav Headings',
+    tip: 'Extract H1 and H2 markdown headings into sidebar navigation',
+    category: 'navigation',
+    options: [
+      { label: 'True', rawVal: 'true' },
+      { label: 'False', rawVal: 'false', isDefault: true },
+    ],
+  },
   'update-route': {
     type: 'segmented',
     attr: 'update-route',

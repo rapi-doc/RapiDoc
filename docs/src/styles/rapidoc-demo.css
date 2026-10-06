@@ -400,13 +400,13 @@ dialog.sidebar-dialog[open]::backdrop {
     background-color 0.2s ease;
 }
 
-.rd-switch input:checked+.rd-slider {
+.rd-switch input:checked + .rd-slider {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   border-color: rgba(16, 185, 129, 0.6);
   box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
 }
 
-.rd-switch input:checked+.rd-slider::before {
+.rd-switch input:checked + .rd-slider::before {
   transform: translateX(20px);
   background-color: #ffffff;
 }
