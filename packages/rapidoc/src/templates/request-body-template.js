@@ -92,7 +92,6 @@ export function formDataParamAsObjectTemplate(fieldName, fieldSchema, mimeType) 
           schema-expand-level="${this.schemaExpandLevel}"
           schema-description-expanded="${this.schemaDescriptionExpanded}"
           allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
-          ,
         >
         </schema-tree>
       </div>`}

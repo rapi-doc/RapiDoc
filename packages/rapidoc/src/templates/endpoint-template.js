@@ -170,6 +170,7 @@ function endpointBodyTemplate(path) {
     <div class="req-resp-container">
       <div style="display:flex; flex-direction:column" class="view-mode-request ${this.layout}-layout">
         <api-request
+          .config="${this.config}"
           class="${this.renderStyle}-mode ${this.layout}-layout"
           style="width:100%;"
           webhook="${path.isWebhook}"
@@ -181,19 +182,7 @@ function endpointBodyTemplate(path) {
           .api_keys="${nonEmptyApiKeys}"
           .servers="${path.servers}"
           server-url="${path.servers?.length > 0 ? path.servers[0].url : this.selectedServer?.computedUrl}"
-          active-schema-tab="${this.defaultSchemaTab}"
-          fill-request-fields-with-example="${this.fillRequestFieldsWithExample}"
-          allow-try="${this.allowTry}"
-          show-curl-before-try="${this.showCurlBeforeTry}"
           accept="${accept}"
-          render-style="${this.renderStyle}"
-          schema-style="${this.schemaStyle}"
-          schema-expand-level="${this.schemaExpandLevel}"
-          schema-description-expanded="${this.schemaDescriptionExpanded}"
-          allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
-          schema-hide-read-only="${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
-          schema-hide-write-only="${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
-          fetch-credentials="${this.fetchCredentials}"
           exportparts="wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
           tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-coontent:tab-content, 
           file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
@@ -205,18 +194,11 @@ function endpointBodyTemplate(path) {
       </div>
 
       <api-response
+        .config="${this.config}"
         class="${this.renderStyle}-mode"
         style="width:100%;"
         webhook="${path.isWebhook}"
         .responses="${path.responses}"
-        active-schema-tab="${this.defaultSchemaTab}"
-        render-style="${this.renderStyle}"
-        schema-style="${this.schemaStyle}"
-        schema-expand-level="${this.schemaExpandLevel}"
-        schema-description-expanded="${this.schemaDescriptionExpanded}"
-        allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
-        schema-hide-read-only="${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
-        schema-hide-write-only="${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
         selected-status="${Object.keys(path.responses || {})[0] || ''}"
         exportparts="btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, file-input:file-input, 
         textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, anchor:anchor, anchor-param-example:anchor-param-example, btn-clear-resp:btn-clear-resp,

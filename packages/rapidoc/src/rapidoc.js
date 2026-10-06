@@ -753,6 +753,23 @@ export default class RapiDoc extends LitElement {
     return mainBodyTemplate.call(this);
   }
 
+  get config() {
+    return {
+      renderStyle: this.renderStyle,
+      schemaStyle: this.schemaStyle,
+      defaultSchemaTab: this.defaultSchemaTab,
+      schemaExpandLevel: this.schemaExpandLevel,
+      schemaDescriptionExpanded: this.schemaDescriptionExpanded,
+      allowSchemaDescriptionExpandToggle: this.allowSchemaDescriptionExpandToggle,
+      schemaHideReadOnly: this.schemaHideReadOnly,
+      schemaHideWriteOnly: this.schemaHideWriteOnly,
+      fillRequestFieldsWithExample: this.fillRequestFieldsWithExample,
+      allowTry: this.allowTry,
+      showCurlBeforeTry: this.showCurlBeforeTry,
+      fetchCredentials: this.fetchCredentials,
+    };
+  }
+
   updated(changedProperties) {
     super.updated?.(changedProperties);
     scheduleHighlight(this.shadowRoot);

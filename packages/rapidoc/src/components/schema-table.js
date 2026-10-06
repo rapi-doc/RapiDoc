@@ -20,6 +20,7 @@ function hasMultilineDescription(desc) {
 export default class SchemaTable extends LitElement {
   static get properties() {
     return {
+      config: { type: Object },
       schemaExpandLevel: { type: Number, attribute: 'schema-expand-level' },
       schemaDescriptionExpanded: { type: String, attribute: 'schema-description-expanded' },
       allowSchemaDescriptionExpandToggle: { type: String, attribute: 'allow-schema-description-expand-toggle' },
@@ -29,8 +30,15 @@ export default class SchemaTable extends LitElement {
     };
   }
 
-  connectedCallback() {
-    super.connectedCallback();
+  willUpdate(changedProperties) {
+    super.willUpdate?.(changedProperties);
+    if (this.config) {
+      this.schemaExpandLevel ??= this.config.schemaExpandLevel;
+      this.schemaDescriptionExpanded ??= this.config.schemaDescriptionExpanded;
+      this.allowSchemaDescriptionExpandToggle ??= this.config.allowSchemaDescriptionExpandToggle;
+      this.schemaHideReadOnly ??= this.config.schemaHideReadOnly;
+      this.schemaHideWriteOnly ??= this.config.schemaHideWriteOnly;
+    }
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) {
       this.schemaExpandLevel = 99999;
     }

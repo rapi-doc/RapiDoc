@@ -29,6 +29,7 @@ export default function callbackTemplate(callbacks) {
                         </div>
                         <div class="expanded-req-resp-container">
                           <api-request
+                            .config="${this.config}"
                             class="${this.renderStyle}-mode callback"
                             style="width:100%;"
                             callback="true"
@@ -36,17 +37,9 @@ export default function callbackTemplate(callbacks) {
                             path="${pathObj[0] || ''}"
                             .parameters="${method[1]?.parameters || ''}"
                             .request_body="${method[1]?.requestBody || ''}"
-                            fill-request-fields-with-example="${this.fillRequestFieldsWithExample}"
                             allow-try="false"
-                            render-style="${this.renderStyle}"
-                            schema-style="${this.schemaStyle}"
-                            active-schema-tab="${this.defaultSchemaTab}"
-                            schema-expand-level="${this.schemaExpandLevel}"
-                            schema-description-expanded="${this.schemaDescriptionExpanded}"
-                            allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
                             schema-hide-read-only="false"
                             schema-hide-write-only="${this.schemaHideWriteOnly === 'never' ? 'false' : 'true'}"
-                            fetch-credentials="${this.fetchCredentials}"
                             exportparts="wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
                             tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-coontent:tab-content, 
                             file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
@@ -55,16 +48,11 @@ export default function callbackTemplate(callbacks) {
                           </api-request>
 
                           <api-response
+                            .config="${this.config}"
                             style="width:100%;"
                             class="${this.renderStyle}-mode"
                             callback="true"
                             .responses="${method[1]?.responses}"
-                            render-style="${this.renderStyle}"
-                            schema-style="${this.schemaStyle}"
-                            active-schema-tab="${this.defaultSchemaTab}"
-                            schema-expand-level="${this.schemaExpandLevel}"
-                            schema-description-expanded="${this.schemaDescriptionExpanded}"
-                            allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
                             schema-hide-read-only="${this.schemaHideReadOnly === 'never' ? 'false' : 'true'}"
                             schema-hide-write-only="false"
                             exportparts="btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,

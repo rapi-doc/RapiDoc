@@ -166,6 +166,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
       ${codeSampleTabPanel}
       <div class="expanded-req-resp-container">
         <api-request
+          .config="${this.config}"
           class="${this.renderStyle}-mode"
           style="width:100%;"
           webhook="${path.isWebhook}"
@@ -177,19 +178,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
           .api_keys="${nonEmptyApiKeys}"
           .servers="${path.servers}"
           server-url="${path.servers?.[0]?.url || this.selectedServer?.computedUrl}"
-          fill-request-fields-with-example="${this.fillRequestFieldsWithExample}"
-          allow-try="${this.allowTry}"
-          show-curl-before-try="${this.showCurlBeforeTry}"
           accept="${accept}"
-          render-style="${this.renderStyle}"
-          schema-style="${this.schemaStyle}"
-          active-schema-tab="${this.defaultSchemaTab}"
-          schema-expand-level="${this.schemaExpandLevel}"
-          schema-description-expanded="${this.schemaDescriptionExpanded}"
-          allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
-          schema-hide-read-only="${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
-          schema-hide-write-only="${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
-          fetch-credentials="${this.fetchCredentials}"
           exportparts="wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
           tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-coontent:tab-content, 
           file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
@@ -200,18 +189,11 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
         ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
 
         <api-response
+          .config="${this.config}"
           class="${this.renderStyle}-mode"
           style="width:100%;"
           webhook="${path.isWebhook}"
           .responses="${path.responses}"
-          render-style="${this.renderStyle}"
-          schema-style="${this.schemaStyle}"
-          active-schema-tab="${this.defaultSchemaTab}"
-          schema-expand-level="${this.schemaExpandLevel}"
-          schema-description-expanded="${this.schemaDescriptionExpanded}"
-          allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
-          schema-hide-read-only="${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
-          schema-hide-write-only="${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
           selected-status="${Object.keys(path.responses || {})[0] || ''}"
           exportparts="btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
           tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-coontent:tab-content, 

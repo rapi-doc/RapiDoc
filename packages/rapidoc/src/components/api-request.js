@@ -38,6 +38,7 @@ export default class ApiRequest extends LitElement {
 
   static get properties() {
     return {
+      config: { type: Object },
       serverUrl: { type: String, attribute: 'server-url' },
       servers: { type: Array },
       method: { type: String },
@@ -839,6 +840,24 @@ export default class ApiRequest extends LitElement {
     if (this.responseBlobUrl) {
       URL.revokeObjectURL(this.responseBlobUrl);
       this.responseBlobUrl = '';
+    }
+  }
+
+  willUpdate(changedProperties) {
+    super.willUpdate?.(changedProperties);
+    if (this.config) {
+      this.renderStyle ??= this.config.renderStyle;
+      this.schemaStyle ??= this.config.schemaStyle;
+      this.schemaExpandLevel ??= this.config.schemaExpandLevel;
+      this.schemaDescriptionExpanded ??= this.config.schemaDescriptionExpanded;
+      this.allowSchemaDescriptionExpandToggle ??= this.config.allowSchemaDescriptionExpandToggle;
+      this.schemaHideReadOnly ??= this.config.schemaHideReadOnly === 'never' ? 'false' : this.webhook === 'true' ? 'false' : 'true';
+      this.schemaHideWriteOnly ??= this.config.schemaHideWriteOnly === 'never' ? 'false' : this.webhook === 'true' ? 'true' : 'false';
+      this.fillRequestFieldsWithExample ??= this.config.fillRequestFieldsWithExample;
+      this.allowTry ??= this.config.allowTry;
+      this.showCurlBeforeTry ??= this.config.showCurlBeforeTry;
+      this.fetchCredentials ??= this.config.fetchCredentials;
+      this.activeSchemaTab ??= this.config.defaultSchemaTab || 'example';
     }
   }
 

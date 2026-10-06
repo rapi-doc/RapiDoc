@@ -25,6 +25,7 @@ export default class ApiResponse extends LitElement {
 
   static get properties() {
     return {
+      config: { type: Object },
       callback: { type: String },
       webhook: { type: String },
       responses: { type: Object },
@@ -90,6 +91,20 @@ export default class ApiResponse extends LitElement {
       `,
       CustomStyles,
     ];
+  }
+
+  willUpdate(changedProperties) {
+    super.willUpdate?.(changedProperties);
+    if (this.config) {
+      this.renderStyle ??= this.config.renderStyle;
+      this.schemaStyle ??= this.config.schemaStyle;
+      this.schemaExpandLevel ??= this.config.schemaExpandLevel;
+      this.schemaDescriptionExpanded ??= this.config.schemaDescriptionExpanded;
+      this.allowSchemaDescriptionExpandToggle ??= this.config.allowSchemaDescriptionExpandToggle;
+      this.schemaHideReadOnly ??= this.config.schemaHideReadOnly === 'never' ? 'false' : this.webhook === 'true' ? 'true' : 'false';
+      this.schemaHideWriteOnly ??= this.config.schemaHideWriteOnly === 'never' ? 'false' : this.webhook === 'true' ? 'false' : 'true';
+      this.activeSchemaTab ??= this.config.defaultSchemaTab || 'schema';
+    }
   }
 
   render() {
