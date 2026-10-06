@@ -11,12 +11,12 @@
     "preview": "astro preview"
   },
   "dependencies": {
-    "@astrojs/starlight": "^0.42.4",
+    "@astrojs/starlight": "^0.42.5",
     "rapidoc": "*"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
-    "astro": "^7.3.5",
+    "astro": "^7.3.6",
     "fs-extra": "^11.3.0",
     "glob": "^11.0.1",
     "js-yaml": "^4.1.0"
