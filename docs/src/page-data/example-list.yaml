@@ -259,7 +259,7 @@ examples:
         - ALL OF:
             href: /examples/allof
 
-  - Mock API:
+  - Request/Response Demo:
       href: /examples/reqres
       description: Connect to live mock servers for realistic sandbox testing without deploying backend infrastructure.
       category: Console & Interactive

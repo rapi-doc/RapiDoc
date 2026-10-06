@@ -26,12 +26,14 @@ The `docs/astro.config.mjs` integrates Vite plugins that bridge `docs` and `pack
 1. **Auto-Build on Start/Build (`build-rapidoc`)**:
    - Checks if `packages/rapidoc/dist/rapidoc-min.js` exists. If missing, triggers a Vite build of `packages/rapidoc`.
    - Copies `rapidoc-min.js` into `docs/dist/rapidoc/` and `docs/generated-docs/rapidoc/`.
-2. **Live Watch in Dev (`serve-rapidoc-in-dev`)**:
-   - Dev middleware directly serves `packages/rapidoc/dist/rapidoc-min.js` at `/rapidoc/rapidoc-min.js`.
-   - Recursively watches `packages/rapidoc/src/`. When changes occur, automatically rebuilds the RapiDoc bundle and issues a full browser reload.
+2. **Live Unminified Source in Dev (`serve-rapidoc-in-dev`)**:
+   - Dev middleware dynamically serves live unminified ESM directly from `packages/rapidoc/src/index.js` at `/rapidoc/rapidoc-min.js` and `/rapidoc/rapidoc.js`.
+   - Preserves all `console.*` outputs, `debugger` breakpoints, and sourcemaps with exact line numbers for effortless debugging.
+   - Watches `packages/rapidoc/src/` and triggers instant browser reload upon changes without needing slow bundle recompilation.
    - Watches `src/page-data/**/*.yaml` and triggers module cache invalidation and reload upon change.
 3. **Aliases**:
    - `~` resolves to `packages/rapidoc/src`
+   - `~/rapidoc` resolves to `packages/rapidoc/src/rapidoc.js`
    - `rapidoc` resolves to `packages/rapidoc/src/index.js`
 
 ---

@@ -35,6 +35,7 @@ Run these commands from `packages/rapidoc` (or from the monorepo root using `--w
 | Command | Purpose |
 | :--- | :--- |
 | `npm run build` | Builds the production bundle to `dist/rapidoc-min.js` |
+| `npm run build:dev` | Builds the unminified bundle with sourcemaps & console logs intact |
 | `npm run build:size` | Builds with `ANALYZE=true` and generates `dist/stats.html` treemap |
 | `npm run lint` | Runs ESLint against `src/**/*.js` |
 | `npm run format` | Checks Prettier formatting for `src/**/*.{js,html,css}` |

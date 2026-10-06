@@ -127,6 +127,9 @@ export default defineConfig({
     resolve: {
       alias: {
         '~': rapidocSrcPath,
+        '~/rapidoc': resolve(rapidocSrcPath, 'rapidoc.js'),
+        '~/rapidoc-mini': resolve(rapidocSrcPath, 'rapidoc-mini.js'),
+        '~/oauth-receiver': resolve(rapidocSrcPath, 'oauth-receiver.js'),
         rapidoc: resolve(rapidocSrcPath, 'index.js'),
       },
     },
@@ -167,43 +170,25 @@ export default defineConfig({
         name: 'serve-rapidoc-in-dev',
         apply: 'serve',
         async configureServer(server) {
-          // Ensure rapidoc is built before serving
-          if (!fs.existsSync(rapidocDistFile)) {
-            await viteBuild({
-              configFile: resolve(rapidocPkgPath, 'vite.config.mjs'),
-            });
-          }
-
-          // Serve the bundled rapidoc-min.js directly
+          // Serve live unminified RapiDoc module directly from src
           server.middlewares.use((req, res, next) => {
-            if (req.url && req.url.split('?')[0] === '/rapidoc/rapidoc-min.js') {
+            const pathname = req.url ? req.url.split('?')[0] : '';
+            if (pathname === '/rapidoc/rapidoc-min.js' || pathname === '/rapidoc/rapidoc.js') {
               res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
               res.setHeader('Cache-Control', 'no-cache');
-              res.end(fs.readFileSync(rapidocDistFile));
+              res.end(`import '/@fs${resolve(rapidocSrcPath, 'index.js')}';\n`);
               return;
             }
             next();
           });
 
-          // Watch rapidoc source changes, rebuild bundle, and reload
-          let rebuilding = false;
-          watch(rapidocSrcPath, { recursive: true }, async () => {
-            if (rebuilding) return;
-            rebuilding = true;
-            try {
-              await viteBuild({
-                configFile: resolve(rapidocPkgPath, 'vite.config.mjs'),
-              });
-              const hot = server.hot || server.ws;
-              hot?.send({
-                type: 'full-reload',
-                path: '*',
-              });
-            } catch (e) {
-              console.error('Error rebuilding rapidoc:', e);
-            } finally {
-              rebuilding = false;
-            }
+          // Watch rapidoc source changes and trigger page reload
+          watch(rapidocSrcPath, { recursive: true }, () => {
+            const hot = server.hot || server.ws;
+            hot?.send({
+              type: 'full-reload',
+              path: '*',
+            });
           });
 
           // Watch yaml changes and trigger reload

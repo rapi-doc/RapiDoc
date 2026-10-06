@@ -11,6 +11,7 @@
     "stop": "npm run stop --workspace=docs",
     "build": "npm run build --workspace=rapidoc && npm run build --workspace=docs",
     "build:rapidoc": "npm run build --workspace=rapidoc",
+    "build:rapidoc:dev": "npm run build:dev --workspace=rapidoc",
     "build:size": "npm run build:size --workspace=rapidoc",
     "build:docs": "npm run build --workspace=docs",
     "preview": "npm run preview --workspace=docs",
