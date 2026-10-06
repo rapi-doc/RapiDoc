@@ -6,7 +6,6 @@ import { live } from 'lit/directives/live.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { marked } from 'marked';
-import { formatXml } from '~/utils/xml-utils';
 import { scheduleHighlight } from '~/utils/highlighter';
 import TableStyles from '~/styles/table-styles';
 import FlexStyles from '~/styles/flex-styles';
@@ -31,6 +30,7 @@ import {
 import '~/components/json-tree';
 import '~/components/schema-tree';
 import '~/components/tag-input';
+import { processFetchResponse } from '../utils/response-utils.js';
 
 export default class ApiRequest extends LitElement {
   constructor() {
@@ -50,6 +50,7 @@ export default class ApiRequest extends LitElement {
     this.selectedRequestBodyExample = '';
     this.activeParameterSchemaTabs = {};
     this.fileInputKeys = {};
+    this.loading = false;
   }
 
   static get properties() {
@@ -102,6 +103,7 @@ export default class ApiRequest extends LitElement {
       selectedRequestBodyType: { state: true },
       selectedRequestBodyExample: { state: true },
       fileInputKeys: { state: true },
+      loading: { state: true },
     };
   }
 
@@ -1416,6 +1418,7 @@ ${responseContent}</pre>
                   class="m-btn thin-border"
                   part="btn btn-outline btn-fill"
                   style="margin-right:5px;"
+                  ?disabled="${this.loading}"
                   @click="${this.onFillRequestData}"
                   title="Fills with example data (if provided)"
                 >
@@ -1425,13 +1428,22 @@ ${responseContent}</pre>
                   class="m-btn thin-border"
                   part="btn btn-outline btn-clear"
                   style="margin-right:5px;"
+                  ?disabled="${this.loading}"
                   @click="${this.onClearRequestData}"
                 >
                   CLEAR
                 </button>`
             : ''
         }
-        <button class="m-btn primary thin-border" part="btn btn-try" @click="${this.onTryClick}">TRY</button>
+        <button
+          class="m-btn primary thin-border"
+          part="btn btn-try"
+          ?disabled="${this.loading}"
+          aria-busy="${this.loading}"
+          @click="${this.onTryClick}"
+        >
+          ${this.loading ? 'TRYING...' : 'TRY'}
+        </button>
       </div>
       <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
         ${this.showCurlBeforeTry === 'true' ? this.curlSyntaxTemplate() : ''}
@@ -1737,8 +1749,8 @@ ${responseContent}</pre>
   }
 
   async onTryClick(e) {
-    const tryBtnEl = e.target;
-    const requestPanelEl = tryBtnEl.closest('.request-panel');
+    const tryBtnEl = e?.target;
+    const requestPanelEl = tryBtnEl ? this.getRequestPanel(e) : this.shadowRoot.querySelector('.request-panel');
     const fetchUrl = this.buildFetchURL(requestPanelEl);
     const fetchOptions = this.buildFetchBodyOptions(requestPanelEl);
     const reqHeaders = this.buildFetchHeaders(requestPanelEl);
@@ -1757,6 +1769,7 @@ ${responseContent}</pre>
       fetchOptions.credentials = this.fetchCredentials;
     }
     const controller = new AbortController();
+    this.activeAbortController = controller;
     const { signal } = controller;
     fetchOptions.headers = reqHeaders;
     const tempRequest = { url: fetchUrl, ...fetchOptions };
@@ -1781,17 +1794,13 @@ ${responseContent}</pre>
     let fetchResponse;
     let responseClone;
     try {
-      let respBlob;
-      let respJson;
-      let respText;
-      tryBtnEl.disabled = true;
+      this.loading = true;
       this.responseText = '⌛';
       this.responseMessage = '';
       const startTime = performance.now();
       fetchResponse = await fetch(fetchRequest, { signal });
       const endTime = performance.now();
       responseClone = fetchResponse.clone(); // create a response clone to allow reading response body again (response.json, response.text etc)
-      tryBtnEl.disabled = false;
       this.responseMessage = html`${fetchResponse.statusText ? `${fetchResponse.statusText}:${fetchResponse.status}` : fetchResponse.status}
         <div style="color:var(--light-fg)">Took ${Math.round(endTime - startTime)} milliseconds</div>`;
       this.responseUrl = fetchResponse.url;
@@ -1800,73 +1809,14 @@ ${responseContent}</pre>
         respHeadersObj[hdr] = hdrVal;
         this.responseHeaders = `${this.responseHeaders}${hdr}: ${hdrVal}\n`;
       });
-      let contentType = fetchResponse.headers.get('content-type');
-      const respEmpty = (await fetchResponse.clone().text()).length === 0;
-      if (respEmpty) {
-        this.responseText = '';
-      } else if (contentType) {
-        contentType = contentType.split(';')[0].trim();
-        if (contentType === 'application/x-ndjson') {
-          this.responseText = await fetchResponse.text();
-        } else if (contentType.includes('json')) {
-          if (/charset=[^"']+/.test(contentType)) {
-            const encoding = contentType.split('charset=')[1];
-            const buffer = await fetchResponse.arrayBuffer();
-            try {
-              respText = new TextDecoder(encoding).decode(buffer);
-            } catch {
-              respText = new TextDecoder('utf-8').decode(buffer);
-            }
-            try {
-              respJson = JSON.parse(respText);
-              this.responseText = JSON.stringify(respJson, null, 2);
-            } catch {
-              this.responseText = respText;
-            }
-          } else {
-            respJson = await fetchResponse.json();
-            this.responseText = JSON.stringify(respJson, null, 2);
-          }
-        } else if (/^font\/|tar$|zip$|7z$|rtf$|msword$|excel$|\/pdf$|\/octet-stream$|^application\/vnd\./.test(contentType)) {
-          this.responseIsBlob = true;
-          this.responseBlobType = 'download';
-        } else if (/^image/.test(contentType)) {
-          this.responseIsBlob = true;
-          this.responseBlobType = 'image';
-        } else if (/^audio|^image|^video/.test(contentType)) {
-          this.responseIsBlob = true;
-          this.responseBlobType = 'view';
-        } else {
-          respText = await fetchResponse.text();
-          if (contentType.includes('xml')) {
-            this.responseText = formatXml(respText, { textNodesOnSameLine: true, indentor: '  ' });
-          } else {
-            this.responseText = respText;
-          }
-        }
-        if (this.responseIsBlob) {
-          const contentDisposition = fetchResponse.headers.get('content-disposition') || '';
-          let filenameFromContentDeposition = 'filename';
-          if (contentDisposition) {
-            const filenameStarRegexMatch = contentDisposition.match(/filename\*=\s*UTF-8''([^;]+)/); // Support Headers like >>> Content-Disposition: attachment; filename*=UTF-8''example%20file.pdf
-            if (filenameStarRegexMatch) {
-              filenameFromContentDeposition = decodeURIComponent(filenameStarRegexMatch[1]); // the filename* format in the Content-Disposition header follows RFC 5987, which allows encoding non-ASCII characters using percent encoding. so example%20file.pdf becomes example file.pdf
-            } else {
-              // Fallback to the regular filename format
-              const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/); // Content-Disposition: attachment; filename=example.pdf
-              if (filenameMatch) {
-                filenameFromContentDeposition = filenameMatch[1];
-              }
-            }
-          }
-          this.respContentDisposition = filenameFromContentDeposition;
-          respBlob = await fetchResponse.blob();
-          this.responseBlobUrl = URL.createObjectURL(respBlob);
-        }
-      } else {
-        respText = await fetchResponse.text();
-        this.responseText = respText;
-      }
+
+      const processed = await processFetchResponse(fetchResponse);
+      this.responseText = processed.responseText;
+      this.responseIsBlob = processed.responseIsBlob;
+      this.responseBlobType = processed.responseBlobType;
+      this.responseBlobUrl = processed.responseBlobUrl;
+      this.respContentDisposition = processed.respContentDisposition;
+
       this.dispatchEvent(
         new CustomEvent('after-try', {
           bubbles: true,
@@ -1875,13 +1825,12 @@ ${responseContent}</pre>
             request: fetchRequest,
             response: responseClone,
             responseHeaders: respHeadersObj,
-            responseBody: respJson || respText || respBlob,
+            responseBody: processed.respJson || processed.respText || processed.respBlob,
             responseStatus: responseClone.ok,
           },
         })
       );
     } catch (err) {
-      tryBtnEl.disabled = false;
       if (err.name === 'AbortError') {
         this.dispatchEvent(
           new CustomEvent('request-aborted', {
@@ -1908,6 +1857,9 @@ ${responseContent}</pre>
         );
         this.responseMessage = `${err.message} (CORS or Network Issue)`;
       }
+    } finally {
+      this.loading = false;
+      this.activeAbortController = null;
     }
   }
 
@@ -2054,6 +2006,10 @@ ${responseContent}</pre>
 
   disconnectedCallback() {
     this.curlSyntax = '';
+    if (this.activeAbortController) {
+      this.activeAbortController.abort();
+      this.activeAbortController = null;
+    }
     // Cleanup ObjectURL for the blob data if this component created one
     if (this.responseBlobUrl) {
       URL.revokeObjectURL(this.responseBlobUrl);
