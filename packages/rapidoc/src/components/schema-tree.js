@@ -167,17 +167,19 @@ export default class SchemaTree extends LitElement {
           <path d="M2 2L8 8M2 8L8 2" />
         </svg>`
       : '';
+    const nullClass = node.nullable ? 'nullable' : '';
 
     // 1. Array kind
     if (node.kind === 'array') {
+      const nullMarker = node.nullable ? 'null┃' : '';
       const items = node.items;
       if (!items) {
         return html`
-          <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} array" title="${node.deprecated ? 'Deprecated' : ''}">
+          <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} array ${nullClass}" title="${node.deprecated ? 'Deprecated' : ''}">
             <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
               ${deprecatedIcon}
               ${node.name ? html`<span class="key-label" title="${readWriteTip}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
-              <span class="open-bracket array">[ ]</span>
+              <span class="open-bracket array">${nullMarker}[ ]</span>
             </div>
             <div class="td key-descr m-markdown-small">${unsafeHTML(sanitizeHTML(marked(node.description || '')))}</div>
           </div>
@@ -217,11 +219,11 @@ export default class SchemaTree extends LitElement {
         `;
 
         return html`
-          <div class="tr primitive" title="${node.deprecated || items.deprecated ? 'Deprecated' : ''}">
+          <div class="tr primitive ${nullClass}" title="${node.deprecated || items.deprecated ? 'Deprecated' : ''}">
             <div class="td key ${node.deprecated || items.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
               ${deprecatedIcon}
               ${node.name ? html`<span class="key-label" title="${readWriteTip}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}:</span>` : ''}
-              <span class="${dataTypeCss}" title="${readWriteTip}">[${itemType}]${readWriteBadge}</span>
+              <span class="${dataTypeCss}" title="${readWriteTip}">${nullMarker}[${itemType}]${readWriteBadge}</span>
             </div>
             <div class="td key-descr">
               ${
@@ -240,8 +242,8 @@ export default class SchemaTree extends LitElement {
       // If array of objects
       if (items.kind === 'object') {
         const openBracket = isExpanded
-          ? html`<span class="open-bracket array-of-object">[{</span>`
-          : html`<span class="open-bracket array-of-object">[{...}]</span>`;
+          ? html`<span class="open-bracket array-of-object">${nullMarker}[{</span>`
+          : html`<span class="open-bracket array-of-object">${nullMarker}[{...}]</span>`;
         const closeBracket = '}]';
 
         const hasExtra = hasMultilineDescription(node.description);
@@ -251,7 +253,7 @@ export default class SchemaTree extends LitElement {
 
         return html`
           <div
-            class="tr ${isExpanded ? 'expanded' : 'collapsed'} object ${items.nullable ? 'nullable' : ''}"
+            class="tr ${isExpanded ? 'expanded' : 'collapsed'} object ${nullClass}"
             title="${node.deprecated || items.deprecated ? 'Deprecated' : ''}"
           >
             <div class="td key ${node.deprecated || items.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
@@ -277,8 +279,8 @@ export default class SchemaTree extends LitElement {
       if (items.kind === 'array') {
         const arrType = node.arrayType !== 'object' ? node.arrayType : '';
         const openBracket = isExpanded
-          ? html`<span class="open-bracket array-of-array" data-array-type="${arrType}">[[ ${arrType} </span>`
-          : html`<span class="open-bracket array-of-array" data-array-type="${arrType}">[[...]]</span>`;
+          ? html`<span class="open-bracket array-of-array" data-array-type="${arrType}">${nullMarker}[[ ${arrType} </span>`
+          : html`<span class="open-bracket array-of-array" data-array-type="${arrType}">${nullMarker}[[...]]</span>`;
         const closeBracket = ']]';
 
         const hasExtra = hasMultilineDescription(node.description);
@@ -288,7 +290,7 @@ export default class SchemaTree extends LitElement {
 
         return html`
           <div
-            class="tr ${isExpanded ? 'expanded' : 'collapsed'} array ${node.nullable ? 'nullable' : ''}"
+            class="tr ${isExpanded ? 'expanded' : 'collapsed'} array ${nullClass}"
             title="${node.deprecated ? 'Deprecated' : ''}"
           >
             <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
@@ -313,11 +315,11 @@ export default class SchemaTree extends LitElement {
           ? html`<span class="descr-expand-toggle ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : ''}">➔</span>`
           : '';
       return html`
-        <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} array" title="${node.deprecated ? 'Deprecated' : ''}">
+        <div class="tr ${isExpanded ? 'expanded' : 'collapsed'} array ${nullClass}" title="${node.deprecated ? 'Deprecated' : ''}">
           <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
             ${deprecatedIcon}
             ${node.name ? html`<span class="key-label" title="${readWriteTip}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
-            <span class="open-bracket array">[</span>
+            <span class="open-bracket array">${nullMarker}[</span>
           </div>
           <div class="td key-descr m-markdown-small">${descrExpander} ${unsafeHTML(sanitizeHTML(marked(node.description || '')))}</div>
         </div>
@@ -330,9 +332,10 @@ export default class SchemaTree extends LitElement {
 
     // 2. Object kind
     if (node.kind === 'object') {
+      const nullMarker = node.nullable ? 'null┃' : '';
       const openBracket = isExpanded
-        ? html`<span class="open-bracket object">${node.nullable ? 'null┃' : ''}{</span>`
-        : html`<span class="open-bracket object">${node.nullable ? 'null┃' : ''}{...}</span>`;
+        ? html`<span class="open-bracket object">${nullMarker}{</span>`
+        : html`<span class="open-bracket object">${nullMarker}{...}</span>`;
       const closeBracket = '}';
 
       const hasExtra = hasMultilineDescription(node.description);
@@ -342,7 +345,7 @@ export default class SchemaTree extends LitElement {
 
       return html`
         <div
-          class="tr ${isExpanded ? 'expanded' : 'collapsed'} object ${node.nullable ? 'nullable' : ''}"
+          class="tr ${isExpanded ? 'expanded' : 'collapsed'} object ${nullClass}"
           title="${node.deprecated ? 'Deprecated' : ''}"
         >
           <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
@@ -375,7 +378,7 @@ export default class SchemaTree extends LitElement {
 
       return html`
         ${node.properties?.map((p) => this.renderAST(p, 'object', schemaLevel, indentLevel))}
-        <div class="tr expanded xxx-of-option">
+        <div class="tr expanded xxx-of-option ${nullClass}">
           <div class="td key" style="min-width:${minFieldColWidth}px">
             <span class="key-label xxx-of-key">${opLabel}</span>
           </div>
@@ -487,25 +490,29 @@ export default class SchemaTree extends LitElement {
 
   toggleObjectExpand(e) {
     const rowEl = e.target.closest('.tr');
-    const nullable = rowEl.classList.contains('nullable');
+    const nullMarker = rowEl.classList.contains('nullable') ? 'null┃' : '';
     if (rowEl.classList.contains('expanded')) {
       rowEl.classList.replace('expanded', 'collapsed');
-      e.target.innerHTML = e.target.classList.contains('array-of-object')
-        ? '[{...}]'
-        : e.target.classList.contains('array-of-array')
-          ? '[[...]]'
-          : e.target.classList.contains('array')
-            ? '[...]'
-            : `${nullable ? 'null┃' : ''}{...}`;
+      e.target.innerHTML =
+        nullMarker +
+        (e.target.classList.contains('array-of-object')
+          ? '[{...}]'
+          : e.target.classList.contains('array-of-array')
+            ? '[[...]]'
+            : e.target.classList.contains('array')
+              ? '[...]'
+              : '{...}');
     } else {
       rowEl.classList.replace('collapsed', 'expanded');
-      e.target.innerHTML = e.target.classList.contains('array-of-object')
-        ? '[{'
-        : e.target.classList.contains('array-of-array')
-          ? `[[ ${e.target.dataset.arrayType}`
-          : e.target.classList.contains('object')
-            ? `${nullable ? 'null┃' : ''}{`
-            : '[';
+      e.target.innerHTML =
+        nullMarker +
+        (e.target.classList.contains('array-of-object')
+          ? '[{'
+          : e.target.classList.contains('array-of-array')
+            ? `[[ ${e.target.dataset.arrayType}`
+            : e.target.classList.contains('object')
+              ? '{'
+              : '[');
     }
   }
 }
