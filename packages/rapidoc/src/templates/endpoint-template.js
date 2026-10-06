@@ -1,3 +1,6 @@
+/**
+ * Renders individual API operation rows and expanded panels (summary, description, parameters, request, response, try-it console).
+ */
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { sanitizeHTML } from '../utils/sanitize.js';

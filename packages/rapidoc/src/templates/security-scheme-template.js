@@ -1,3 +1,6 @@
+/**
+ * Renders the authentication modal dialog supporting API Keys, HTTP Basic/Bearer, OAuth2 flows, and OpenID Connect.
+ */
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { sanitizeHTML } from '../utils/sanitize.js';

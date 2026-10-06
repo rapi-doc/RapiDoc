@@ -1,3 +1,6 @@
+/**
+ * Renders the API server selector dropdown and server variable configuration form.
+ */
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { sanitizeHTML } from '../utils/sanitize.js';

@@ -1,3 +1,6 @@
+/**
+ * Renders the top-level main layout shell, orchestrating header, navbar, content panels, and modal dialogs based on renderStyle.
+ */
 import { html } from 'lit';
 
 // Templates

@@ -108,6 +108,12 @@ export default class SchemaTree extends LitElement {
         .inside-bracket.array {
           border-left: 1px dotted var(--border-color);
         }
+        .tr.expanded .open-bracket .open-bracket-collapsed {
+          display: none;
+        }
+        .tr.collapsed .open-bracket .open-bracket-expanded {
+          display: none;
+        }
       `,
       CustomStyles,
     ];
@@ -239,9 +245,9 @@ export default class SchemaTree extends LitElement {
 
       // If array of objects
       if (items.kind === 'object') {
-        const openBracket = isExpanded
-          ? html`<span class="open-bracket array-of-object">[{</span>`
-          : html`<span class="open-bracket array-of-object">[{...}]</span>`;
+        const openBracket = html`<span class="open-bracket array-of-object"
+          ><span class="open-bracket-expanded">[{</span><span class="open-bracket-collapsed">[{...}]</span></span
+        >`;
         const closeBracket = '}]';
 
         const hasExtra = hasMultilineDescription(node.description);
@@ -276,9 +282,9 @@ export default class SchemaTree extends LitElement {
       // If array of arrays
       if (items.kind === 'array') {
         const arrType = node.arrayType !== 'object' ? node.arrayType : '';
-        const openBracket = isExpanded
-          ? html`<span class="open-bracket array-of-array" data-array-type="${arrType}">[[ ${arrType} </span>`
-          : html`<span class="open-bracket array-of-array" data-array-type="${arrType}">[[...]]</span>`;
+        const openBracket = html`<span class="open-bracket array-of-array" data-array-type="${arrType}"
+          ><span class="open-bracket-expanded">[[ ${arrType} </span><span class="open-bracket-collapsed">[[...]]</span></span
+        >`;
         const closeBracket = ']]';
 
         const hasExtra = hasMultilineDescription(node.description);
@@ -317,7 +323,9 @@ export default class SchemaTree extends LitElement {
           <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="min-width:${minFieldColWidth}px">
             ${deprecatedIcon}
             ${node.name ? html`<span class="key-label" title="${readWriteTip}">${node.name}${node.required ? html`<span style="color:var(--red)">*</span>` : ''}${readWriteBadge}:</span>` : ''}
-            <span class="open-bracket array">[</span>
+            <span class="open-bracket array"
+              ><span class="open-bracket-expanded">[</span><span class="open-bracket-collapsed">[...]</span></span
+            >
           </div>
           <div class="td key-descr m-markdown-small">${descrExpander} ${unsafeHTML(sanitizeHTML(marked(node.description || '')))}</div>
         </div>
@@ -330,9 +338,9 @@ export default class SchemaTree extends LitElement {
 
     // 2. Object kind
     if (node.kind === 'object') {
-      const openBracket = isExpanded
-        ? html`<span class="open-bracket object">${node.nullable ? 'null┃' : ''}{</span>`
-        : html`<span class="open-bracket object">${node.nullable ? 'null┃' : ''}{...}</span>`;
+      const openBracket = html`<span class="open-bracket object"
+        >${node.nullable ? 'null┃' : ''}<span class="open-bracket-expanded">{</span><span class="open-bracket-collapsed">{...}</span></span
+      >`;
       const closeBracket = '}';
 
       const hasExtra = hasMultilineDescription(node.description);
@@ -468,8 +476,9 @@ export default class SchemaTree extends LitElement {
   }
 
   handleAllEvents(e) {
-    if (e.target.classList.contains('open-bracket')) {
-      this.toggleObjectExpand(e);
+    const openBracketEl = e.target.closest('.open-bracket');
+    if (openBracketEl) {
+      this.toggleObjectExpand(openBracketEl);
     } else if (e.target.classList.contains('schema-multiline-toggle')) {
       this.schemaDescriptionExpanded = this.schemaDescriptionExpanded === 'true' ? 'false' : 'true';
     } else if (e.target.classList.contains('descr-expand-toggle')) {
@@ -485,27 +494,15 @@ export default class SchemaTree extends LitElement {
     }
   }
 
-  toggleObjectExpand(e) {
-    const rowEl = e.target.closest('.tr');
-    const nullable = rowEl.classList.contains('nullable');
+  toggleObjectExpand(openBracketEl) {
+    const rowEl = openBracketEl.closest('.tr');
+    if (!rowEl) {
+      return;
+    }
     if (rowEl.classList.contains('expanded')) {
       rowEl.classList.replace('expanded', 'collapsed');
-      e.target.innerHTML = e.target.classList.contains('array-of-object')
-        ? '[{...}]'
-        : e.target.classList.contains('array-of-array')
-          ? '[[...]]'
-          : e.target.classList.contains('array')
-            ? '[...]'
-            : `${nullable ? 'null┃' : ''}{...}`;
     } else {
       rowEl.classList.replace('collapsed', 'expanded');
-      e.target.innerHTML = e.target.classList.contains('array-of-object')
-        ? '[{'
-        : e.target.classList.contains('array-of-array')
-          ? `[[ ${e.target.dataset.arrayType}`
-          : e.target.classList.contains('object')
-            ? `${nullable ? 'null┃' : ''}{`
-            : '[';
     }
   }
 }

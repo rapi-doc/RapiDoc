@@ -74,6 +74,12 @@ export default class JsonTree extends LitElement {
         .open-bracket.collapsed + .inside-bracket + .close-bracket {
           display: none;
         }
+        .open-bracket.expanded .open-bracket-collapsed {
+          display: none;
+        }
+        .open-bracket.collapsed .open-bracket-expanded {
+          display: none;
+        }
 
         .string {
           color: var(--green);
@@ -133,7 +139,10 @@ export default class JsonTree extends LitElement {
         return html`${Array.isArray(data) ? '[ ],' : '{ },'}`;
       }
       return html`
-        <div class="open-bracket expanded ${detailType === 'array' ? 'array' : 'object'}">${detailType === 'array' ? '[' : '{'}</div>
+        <div class="open-bracket expanded ${detailType === 'array' ? 'array' : 'object'}">
+          <span class="open-bracket-expanded">${detailType === 'array' ? '[' : '{'}</span>
+          <span class="open-bracket-collapsed">${detailType === 'array' ? '[...]' : '{...}'}</span>
+        </div>
         <div class="inside-bracket">
           ${Object.keys(data).map(
             (key, i, a) =>
@@ -151,14 +160,12 @@ export default class JsonTree extends LitElement {
   }
 
   toggleExpand(e) {
-    const openBracketEl = e.target;
-    if (e.target.classList.contains('open-bracket')) {
+    const openBracketEl = e.target.closest('.open-bracket');
+    if (openBracketEl) {
       if (openBracketEl.classList.contains('expanded')) {
         openBracketEl.classList.replace('expanded', 'collapsed');
-        e.target.innerHTML = e.target.classList.contains('array') ? '[...]' : '{...}';
       } else {
         openBracketEl.classList.replace('collapsed', 'expanded');
-        e.target.innerHTML = e.target.classList.contains('array') ? '[' : '{';
       }
     }
   }

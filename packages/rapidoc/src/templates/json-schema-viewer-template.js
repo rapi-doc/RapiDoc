@@ -1,3 +1,6 @@
+/**
+ * Renders standalone JSON Schema Viewer interface with navigation sidebar, schema AST tree, and sample example generator.
+ */
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { sanitizeHTML } from '../utils/sanitize.js';

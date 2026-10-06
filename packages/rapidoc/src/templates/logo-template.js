@@ -1,3 +1,6 @@
+/**
+ * Renders default RapiDoc SVG branding logo.
+ */
 import { html } from 'lit';
 
 export default function logoTemplate(style) {

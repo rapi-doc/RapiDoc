@@ -1,3 +1,6 @@
+/**
+ * Renders all API operations in an expanded continuous documentation layout grouped by tags.
+ */
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { sanitizeHTML } from '../utils/sanitize.js';

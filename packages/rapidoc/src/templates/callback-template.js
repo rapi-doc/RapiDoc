@@ -1,3 +1,6 @@
+/**
+ * Renders OpenAPI callback requests and nested response definitions within an endpoint.
+ */
 import { html } from 'lit';
 
 export default function callbackTemplate(callbacks) {

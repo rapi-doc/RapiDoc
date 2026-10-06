@@ -1,3 +1,6 @@
+/**
+ * Renders reusable OpenAPI component definitions (schemas, models) in the document.
+ */
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { sanitizeHTML } from '../utils/sanitize.js';

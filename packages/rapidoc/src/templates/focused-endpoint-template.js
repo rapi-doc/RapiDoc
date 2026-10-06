@@ -1,3 +1,6 @@
+/**
+ * Renders the single active API operation, overview, or component in focused (3-column) rendering mode.
+ */
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { sanitizeHTML } from '../utils/sanitize.js';

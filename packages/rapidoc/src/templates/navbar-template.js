@@ -1,3 +1,6 @@
+/**
+ * Renders the sidebar navigation panel with search filter, tag groupings, method badges, and link routing.
+ */
 import { html } from 'lit';
 import Slugger from 'github-slugger';
 import { getMatchedPaths } from '~/utils/common-utils';

@@ -400,4 +400,45 @@ describe('api-request Lit Component Tests', () => {
     // Zero page errors
     assert.equal(pageErrors.length, 0);
   });
+
+  it('supports schema tree collapse and tab switching without ChildPart errors', async () => {
+    const postRequest = page.locator('api-request[method="post"][path="/users/{userId}"]');
+    await postRequest.waitFor({ state: 'visible' });
+
+    // Switch to SCHEMA tab in request body
+    const schemaTabBtn = postRequest.locator('.request-body-container button[data-tab="schema"]');
+    await schemaTabBtn.click();
+
+    // Verify schema-tree is visible
+    const schemaTree = postRequest.locator('.request-body-container schema-tree');
+    await schemaTree.waitFor({ state: 'visible' });
+
+    // Click on open-bracket to collapse the schema tree object
+    const openBracket = schemaTree.locator('.open-bracket.object').first();
+    await openBracket.waitFor({ state: 'visible' });
+    await openBracket.click();
+
+    // Verify row is collapsed
+    const rowEl = schemaTree.locator('.tr.object').first();
+    const classAttrAfterCollapse = await rowEl.getAttribute('class');
+    assert.ok(classAttrAfterCollapse.includes('collapsed'), 'Expected row to be collapsed');
+
+    // Switch tab back to EXAMPLE
+    const exampleTabBtn = postRequest.locator('.request-body-container button[data-tab="example"]');
+    await exampleTabBtn.click();
+
+    // Switch tab back to SCHEMA again
+    await schemaTabBtn.click();
+
+    // Click open-bracket to expand again
+    await openBracket.click();
+    const classAttrAfterExpand = await rowEl.getAttribute('class');
+    assert.ok(classAttrAfterExpand.includes('expanded'), 'Expected row to be expanded');
+
+    // Switch back to EXAMPLE tab once more
+    await exampleTabBtn.click();
+
+    // Ensure zero page errors occurred (specifically avoiding ChildPart marker ejection errors)
+    assert.equal(pageErrors.length, 0);
+  });
 });

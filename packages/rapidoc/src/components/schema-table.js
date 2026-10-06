@@ -98,9 +98,18 @@ export default class SchemaTable extends LitElement {
           font-size: calc(var(--font-size-small) + 4px);
           font-family: var(--font-mono);
           background-clip: border-box;
+          min-width: 14px;
+          text-align: center;
+          user-select: none;
         }
         .obj-toggle:hover {
           border-color: var(--primary-color);
+        }
+        .tr.expanded .obj-toggle::after {
+          content: '-';
+        }
+        .tr.collapsed .obj-toggle::after {
+          content: '+';
         }
         .tr.expanded + .object-body {
           display: block;
@@ -275,7 +284,7 @@ export default class SchemaTable extends LitElement {
           title="${node.deprecated ? `Deprecated ${node.name}` : node.name || ''}"
         >
           <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="padding-left:${leftPadding}px">
-            ${node.name && hasChildren ? html`<span class="obj-toggle ${isExpanded ? 'expanded' : 'collapsed'}" data-obj="${node.name}">${isExpanded ? '-' : '+'}</span>` : ''}
+            ${node.name && hasChildren ? html`<span class="obj-toggle" data-obj="${node.name}"></span>` : ''}
             <span class="key-label" style="display:inline-block; ${hasChildren ? 'margin-left:-6px;' : ''}">
               ${deprecatedIcon}${node.name || ''}
             </span>
@@ -340,7 +349,7 @@ export default class SchemaTable extends LitElement {
                   title="${node.deprecated ? `Deprecated ${node.name}` : node.name}"
                 >
                   <div class="td key ${node.deprecated ? 'deprecated' : ''}" style="padding-left:${leftPadding}px">
-                    ${hasChildren ? html`<span class="obj-toggle ${isExpanded ? 'expanded' : 'collapsed'}" data-obj="${node.name}">${isExpanded ? '-' : '+'}</span>` : ''}
+                    ${hasChildren ? html`<span class="obj-toggle" data-obj="${node.name}"></span>` : ''}
                     <span class="key-label" style="display:inline-block; ${hasChildren ? 'margin-left:-6px;' : ''}">
                       ${deprecatedIcon}${node.name}
                     </span>
@@ -502,14 +511,13 @@ export default class SchemaTable extends LitElement {
 
   toggleObjectExpand(e) {
     const rowEl = e.target.closest('.tr');
+    if (!rowEl) {
+      return;
+    }
     if (rowEl.classList.contains('expanded')) {
-      rowEl.classList.add('collapsed');
-      rowEl.classList.remove('expanded');
-      e.target.innerText = '+';
+      rowEl.classList.replace('expanded', 'collapsed');
     } else {
-      rowEl.classList.remove('collapsed');
-      rowEl.classList.add('expanded');
-      e.target.innerText = '-';
+      rowEl.classList.replace('collapsed', 'expanded');
     }
   }
 }

@@ -1,3 +1,6 @@
+/**
+ * Renders the top navigation header with logo, title, search trigger, server selector, theme switcher, and auth controls.
+ */
 import { html } from 'lit';
 import logoTemplate from '~/templates/logo-template';
 

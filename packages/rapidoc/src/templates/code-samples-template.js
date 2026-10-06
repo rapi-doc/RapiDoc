@@ -1,3 +1,6 @@
+/**
+ * Renders multi-language code snippets and custom x-codeSamples / x-code-samples tab panels.
+ */
 import { html } from 'lit';
 
 import { copyToClipboard } from '~/utils/common-utils';

@@ -1,3 +1,6 @@
+/**
+ * Renders the API specification overview header with metadata, description markdown, contact, license, and download links.
+ */
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { sanitizeHTML } from '../utils/sanitize.js';

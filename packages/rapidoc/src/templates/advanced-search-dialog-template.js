@@ -1,3 +1,6 @@
+/**
+ * Renders the modal search dialog for full-text search across paths, operation summaries, descriptions, and tags.
+ */
 import { html } from 'lit';
 export default function advancedSearchDialogTemplate() {
   return html`<dialog id="advanced-search-dialog" class="dialog-box">
