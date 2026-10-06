@@ -17,8 +17,8 @@
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
     "astro": "^7.3.6",
-    "fs-extra": "^11.3.0",
-    "glob": "^11.0.1",
+    "fs-extra": "^11.4.1",
+    "glob": "^13.0.6",
     "js-yaml": "^4.1.0"
   }
 }

@@ -47,15 +47,15 @@
     "test": "node --test ../../tests/unit/*.test.js"
   },
   "dependencies": {
-    "@scalar/openapi-parser": "^0.29.7",
+    "@scalar/openapi-parser": "^0.29.11",
     "github-slugger": "^2.0.0",
     "lit": "^3.3.3",
-    "marked": "15.0.6",
+    "marked": "^18.1.0",
     "microlighter": "^2.2.0"
   },
   "devDependencies": {
     "@lit-labs/rollup-plugin-minify-html-literals": "^0.2.0",
-    "esbuild": "^0.25.0",
+    "esbuild": "^0.28.2",
     "rollup-plugin-visualizer": "^7.1.1",
     "vite": "^8.3.3",
     "vite-plugin-banner": "^0.8.1"
