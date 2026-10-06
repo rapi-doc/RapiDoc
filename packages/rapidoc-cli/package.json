@@ -10,6 +10,6 @@
     "start": "node src/index.js"
   },
   "dependencies": {
-    "@scalar/openapi-parser": "^0.29.7"
+    "@scalar/openapi-parser": "^0.29.11"
   }
 }

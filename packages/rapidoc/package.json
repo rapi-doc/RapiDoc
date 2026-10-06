@@ -47,7 +47,7 @@
     "test": "node --test ../../tests/unit/*.test.js"
   },
   "dependencies": {
-    "@scalar/openapi-parser": "^0.29.7",
+    "@scalar/openapi-parser": "^0.29.11",
     "github-slugger": "^2.0.0",
     "lit": "^3.2.1",
     "marked": "15.0.6",
