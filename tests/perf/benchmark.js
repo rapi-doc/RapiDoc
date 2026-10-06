@@ -2,10 +2,10 @@
 
 /**
  * RapiDoc Performance & Large Spec Benchmark Runner
- * 
+ *
  * Measures OpenAPI specification loading, dereferencing, circular reference breaking,
  * and full ProcessSpec execution times across small, medium, and massive specifications.
- * 
+ *
  * Usage:
  *   node tests/perf/benchmark.js
  *   npm run test:perf

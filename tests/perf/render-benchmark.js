@@ -2,11 +2,11 @@
 
 /**
  * RapiDoc Browser Rendering Performance Benchmark
- * 
+ *
  * Uses puppeteer-core to launch headless Chrome and measures real in-browser
  * specification loading, DOM generation, and visual paint times across
  * Focused, View, and Read render modes.
- * 
+ *
  * Usage:
  *   node tests/perf/render-benchmark.js
  *   npm run test:render
@@ -16,7 +16,7 @@ import fs from 'fs';
 import path from 'path';
 import http from 'http';
 import { fileURLToPath } from 'url';
-import puppeteer from 'puppeteer-core';
+import { chromium } from 'playwright-core';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,7 +25,7 @@ const rootDir = path.resolve(__dirname, '../..');
 // Find system Chrome/Chromium executable
 function findChromeExecutable() {
   if (process.env.CHROME_PATH) return process.env.CHROME_PATH;
-  if (process.env.PUPPETEER_EXECUTABLE_PATH) return process.env.PUPPETEER_EXECUTABLE_PATH;
+  if (process.env.PLAYWRIGHT_CHROME_PATH) return process.env.PLAYWRIGHT_CHROME_PATH;
 
   const candidates = [
     '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
@@ -45,9 +45,7 @@ function findChromeExecutable() {
     }
   }
 
-  throw new Error(
-    'No Chrome/Chromium binary found. Please install Chrome or set the CHROME_PATH environment variable.'
-  );
+  throw new Error('No Chrome/Chromium binary found. Please install Chrome or set the CHROME_PATH environment variable.');
 }
 
 // Specifications to benchmark with calibrated budgets
@@ -172,20 +170,15 @@ async function run() {
   const baseUrl = `http://127.0.0.1:${port}`;
   console.log(`Test Harness Server running on: ${baseUrl}\n`);
 
-  // 2. Launch headless Chrome via puppeteer-core
-  const browser = await puppeteer.launch({
+  // 2. Launch headless Chrome via playwright-core
+  const browser = await chromium.launch({
     executablePath: chromePath,
     headless: true,
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-gpu',
-      '--disable-dev-shm-usage',
-    ],
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu', '--disable-dev-shm-usage'],
   });
 
-  const page = await browser.newPage();
-  await page.setViewport({ width: 1440, height: 900 });
+  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const page = await context.newPage();
 
   page.on('console', (msg) => {
     if (msg.type() === 'error' || msg.text().includes('Issue') || msg.text().includes('Invalid')) {
@@ -210,7 +203,7 @@ async function run() {
 
         // Run in-browser benchmark with safety timeout
         const result = await Promise.race([
-          page.evaluate((url, m) => window.benchmarkRender(url, m), specUrl, mode),
+          page.evaluate(({ url, m }) => window.benchmarkRender(url, m), { url: specUrl, m: mode }),
           new Promise((_, reject) => setTimeout(() => reject(new Error('Render timeout exceeded 10s')), 10000)),
         ]);
 

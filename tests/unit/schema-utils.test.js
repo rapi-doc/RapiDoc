@@ -406,10 +406,7 @@ describe('isBinaryFileField', () => {
   });
 
   it('should return false for base64 encoded strings', () => {
-    assert.strictEqual(
-      isBinaryFileField({ type: 'string', contentMediaType: 'image/png', contentEncoding: 'base64' }),
-      false
-    );
+    assert.strictEqual(isBinaryFileField({ type: 'string', contentMediaType: 'image/png', contentEncoding: 'base64' }), false);
     assert.strictEqual(isBinaryFileField({ type: 'string', contentEncoding: 'base64' }), false);
   });
 
@@ -459,4 +456,3 @@ describe('generateExample with contentEncoding and contentMediaType', () => {
     assert.strictEqual(parsed.name, 'Alice');
   });
 });
-

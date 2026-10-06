@@ -4,6 +4,7 @@ import { sanitizeHTML } from '../utils/sanitize.js';
 import { guard } from 'lit/directives/guard.js';
 import { live } from 'lit/directives/live.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
+import { repeat } from 'lit/directives/repeat.js';
 import { marked } from 'marked';
 import { formatXml } from '~/utils/xml-utils';
 import { scheduleHighlight } from '~/utils/highlighter';
@@ -40,10 +41,15 @@ export default class ApiRequest extends LitElement {
     this.responseText = '';
     this.responseUrl = '';
     this.curlSyntax = '';
+    this.responseIsBlob = false;
+    this.responseBlobType = '';
+    this.responseBlobUrl = '';
+    this.respContentDisposition = '';
     this.activeResponseTab = 'response'; // allowed values: response, headers, curl
     this.selectedRequestBodyType = '';
     this.selectedRequestBodyExample = '';
     this.activeParameterSchemaTabs = {};
+    this.fileInputKeys = {};
   }
 
   static get properties() {
@@ -60,12 +66,6 @@ export default class ApiRequest extends LitElement {
       accept: { type: String },
       callback: { type: String },
       webhook: { type: String },
-      responseMessage: { type: String, attribute: false },
-      responseText: { type: String, attribute: false },
-      responseHeaders: { type: String, attribute: false },
-      responseStatus: { type: String, attribute: false },
-      responseUrl: { type: String, attribute: false },
-      curlSyntax: { type: String, attribute: false },
       fillRequestFieldsWithExample: { type: String, attribute: 'fill-request-fields-with-example' },
       allowTry: { type: String, attribute: 'allow-try' },
       showCurlBeforeTry: { type: String, attribute: 'show-curl-before-try' },
@@ -87,10 +87,21 @@ export default class ApiRequest extends LitElement {
       schemaHideWriteOnly: { type: String, attribute: 'schema-hide-write-only' },
       fetchCredentials: { type: String, attribute: 'fetch-credentials' },
 
-      // properties for internal tracking
-      activeResponseTab: { type: String }, // internal tracking of response-tab not exposed as a attribute
-      selectedRequestBodyType: { type: String, attribute: 'selected-request-body-type' }, // internal tracking of selected request-body type
-      selectedRequestBodyExample: { type: String, attribute: 'selected-request-body-example' }, // internal tracking of selected request-body example
+      // Internal reactive state
+      responseMessage: { state: true },
+      responseText: { state: true },
+      responseHeaders: { state: true },
+      responseStatus: { state: true },
+      responseUrl: { state: true },
+      curlSyntax: { state: true },
+      responseIsBlob: { state: true },
+      responseBlobType: { state: true },
+      responseBlobUrl: { state: true },
+      respContentDisposition: { state: true },
+      activeResponseTab: { state: true },
+      selectedRequestBodyType: { state: true },
+      selectedRequestBodyExample: { state: true },
+      fileInputKeys: { state: true },
     };
   }
 
@@ -258,51 +269,8 @@ export default class ApiRequest extends LitElement {
     }
     scheduleHighlight(this.getRootNode()?.host?.shadowRoot || this.shadowRoot);
 
-    // In focused mode after rendering the request component, update the text-areas(which contains examples) using
-    // the original values from hidden textareas
-    // This is done coz, user may update the dom by editing the textarea's and once the DOM is updated externally change detection wont happen, therefore update the values manually
-
-    // if (this.renderStyle === 'focused') {
-    //   if (changedProperties.size === 1 && changedProperties.has('activeSchemaTab')) {
-    //     // dont update example as only tabs is switched
-    //   } else {
-    //     this.requestUpdate();
-    //   }
-    // }
-
     if (this.webhook === 'true') {
       this.allowTry = 'false';
-    }
-  }
-
-  async saveExampleState() {
-    if (this.renderStyle === 'focused') {
-      const reqBodyTextAreaEls = [...this.shadowRoot.querySelectorAll('textarea.request-body-param-user-input')];
-      reqBodyTextAreaEls.forEach((el) => {
-        el.dataset.user_example = el.value;
-      });
-      const exampleTextAreaEls = [...this.shadowRoot.querySelectorAll('textarea[data-ptype="form-data"]')];
-      exampleTextAreaEls.forEach((el) => {
-        el.dataset.user_example = el.value;
-      });
-      this.requestUpdate();
-    }
-  }
-
-  async updateExamplesFromDataAttr() {
-    // In focused mode after rendering the request component, update the text-areas(which contains examples) using
-    // the original values from hidden textareas
-    // This is done coz, user may update the dom by editing the textarea's and once the DOM is updated externally change detection wont happen, therefore update the values manually
-    if (this.renderStyle === 'focused') {
-      const reqBodyTextAreaEls = [...this.shadowRoot.querySelectorAll('textarea.request-body-param-user-input')];
-      reqBodyTextAreaEls.forEach((el) => {
-        el.value = el.dataset.user_example || el.dataset.example;
-      });
-      const exampleTextAreaEls = [...this.shadowRoot.querySelectorAll('textarea[data-ptype="form-data"]')];
-      exampleTextAreaEls.forEach((el) => {
-        el.value = el.dataset.user_example || el.dataset.example;
-      });
-      this.requestUpdate();
     }
   }
 
@@ -666,15 +634,12 @@ export default class ApiRequest extends LitElement {
   }
 
   // This method is called before navigation change in focused mode
-  async beforeNavigationFocusedMode() {
-    // this.saveExampleState();
-  }
+  async beforeNavigationFocusedMode() {}
 
   // This method is called after navigation change in focused mode
   async afterNavigationFocusedMode() {
     this.selectedRequestBodyType = '';
     this.selectedRequestBodyExample = '';
-    this.updateExamplesFromDataAttr();
     this.clearResponseData();
   }
 
@@ -834,13 +799,13 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
                         data-example="${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, null, 2)}"
                         data-example-format="${v.exampleFormat}"
                         style="width:100%; resize:vertical;"
-                        .value="${live(
+                        .value="${
                           this.fillRequestFieldsWithExample === 'true'
                             ? v.exampleFormat === 'text'
                               ? v.exampleValue
                               : JSON.stringify(v.exampleValue, null, 2)
                             : ''
-                        )}"
+                        }"
                         @input=${(e) => {
                           const requestPanelEl = this.getRequestPanel(e);
                           this.liveCURLSyntaxUpdate(requestPanelEl);
@@ -1121,27 +1086,32 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
                   fieldType === 'array'
                     ? isBinaryFileField(fieldSchema.items)
                       ? html`
-                          <div
-                            class="file-input-container col"
-                            style="align-items:flex-start; width:100%;"
-                            @click="${(e) => this.onAddRemoveFileInput(e, fieldName, mimeType)}"
-                          >
-                            <div class="input-set row" style="width:100%;">
-                              <input
-                                type="file"
-                                part="file-input"
-                                style="width:100%"
-                                data-pname="${fieldName}"
-                                data-ptype="${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
-                                data-array="false"
-                                data-file-array="true"
-                              />
-                              <button class="file-input-remove-btn">&#x2715;</button>
-                            </div>
+                          <div class="file-input-container col" style="align-items:flex-start; width:100%;">
+                            ${repeat(
+                              this.fileInputKeys[fieldName] ?? [0],
+                              (key) => key,
+                              (key, index) => html`
+                                <div class="input-set row" style="width:100%; margin-top: ${index > 0 ? '4px' : '0'};">
+                                  <input
+                                    type="file"
+                                    part="file-input"
+                                    style="width:100%"
+                                    data-pname="${fieldName}"
+                                    data-ptype="${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
+                                    data-array="false"
+                                    data-file-array="true"
+                                  />
+                                  <button class="file-input-remove-btn" @click="${() => this.onRemoveFileInput(fieldName, key)}">
+                                    &#x2715;
+                                  </button>
+                                </div>
+                              `
+                            )}
                             <button
                               class="m-btn primary file-input-add-btn"
                               part="btn btn-fill"
                               style="margin:4px 0 0 0; padding:2px 8px; align-self:flex-start;"
+                              @click="${() => this.onAddFileInput(fieldName)}"
                             >
                               ADD
                             </button>
@@ -1817,27 +1787,9 @@ ${responseContent}</pre>
       tryBtnEl.disabled = true;
       this.responseText = '⌛';
       this.responseMessage = '';
-      this.requestUpdate();
       const startTime = performance.now();
       fetchResponse = await fetch(fetchRequest, { signal });
       const endTime = performance.now();
-      // Allow to modify response
-      /*
-      let resolveModifiedResponse; // Create a promise that will be resolved from the event listener
-      const modifiedResponsePromise = new Promise((resolve) => {
-        resolveModifiedResponse = resolve;
-      });
-      this.dispatchEvent(new CustomEvent('fetched-try', {
-        bubbles: true,
-        composed: true,
-        detail: {
-          request: fetchRequest,
-          response: fetchResponse,
-          resolveModifiedResponse, // pass the resolver function
-        },
-      }));
-      fetchResponse = await modifiedResponsePromise; // Wait for the modified response
-      */
       responseClone = fetchResponse.clone(); // create a response clone to allow reading response body again (response.json, response.text etc)
       tryBtnEl.disabled = false;
       this.responseMessage = html`${fetchResponse.statusText ? `${fetchResponse.statusText}:${fetchResponse.status}` : fetchResponse.status}
@@ -1957,12 +1909,10 @@ ${responseContent}</pre>
         this.responseMessage = `${err.message} (CORS or Network Issue)`;
       }
     }
-    this.requestUpdate();
   }
 
   liveCURLSyntaxUpdate(requestPanelEl) {
     this.applyCURLSyntax(requestPanelEl);
-    this.requestUpdate();
   }
 
   onGenerateCURLClick(e) {
@@ -2069,45 +2019,21 @@ ${responseContent}</pre>
     return `${curl}${curlHeaders}${curlData}${curlForm}`;
   }
 
-  onAddRemoveFileInput(e, pname, ptype) {
-    if (e.target.tagName.toLowerCase() !== 'button') {
-      return;
-    }
+  onAddFileInput(fieldName) {
+    const currentKeys = this.fileInputKeys[fieldName] ?? [0];
+    const nextKey = currentKeys.length > 0 ? Math.max(...currentKeys) + 1 : 0;
+    this.fileInputKeys = {
+      ...this.fileInputKeys,
+      [fieldName]: [...currentKeys, nextKey],
+    };
+  }
 
-    if (e.target.classList.contains('file-input-remove-btn')) {
-      // Remove File Input Set
-      const el = e.target.closest('.input-set');
-      el.remove();
-      return;
-    }
-    const el = e.target.closest('.file-input-container');
-
-    // Add File Input Set
-
-    // Container
-    const newInputContainerEl = document.createElement('div');
-    newInputContainerEl.setAttribute('class', 'input-set row');
-    newInputContainerEl.style = 'width:100%; margin-top:4px;';
-
-    // File Input
-    const newInputEl = document.createElement('input');
-    newInputEl.type = 'file';
-    newInputEl.style = 'width:100%;';
-    newInputEl.setAttribute('part', 'file-input');
-    newInputEl.setAttribute('data-pname', pname);
-    newInputEl.setAttribute('data-ptype', ptype.includes('form-urlencode') ? 'form-urlencode' : 'form-data');
-    newInputEl.setAttribute('data-array', 'false');
-    newInputEl.setAttribute('data-file-array', 'true');
-
-    // Remover Button
-    const newRemoveBtnEl = document.createElement('button');
-    newRemoveBtnEl.setAttribute('class', 'file-input-remove-btn');
-    newRemoveBtnEl.innerHTML = '&#x2715;';
-
-    newInputContainerEl.appendChild(newInputEl);
-    newInputContainerEl.appendChild(newRemoveBtnEl);
-    el.insertBefore(newInputContainerEl, e.target);
-    // el.appendChild(newInputContainerEl);
+  onRemoveFileInput(fieldName, keyToRemove) {
+    const currentKeys = this.fileInputKeys[fieldName] ?? [0];
+    this.fileInputKeys = {
+      ...this.fileInputKeys,
+      [fieldName]: currentKeys.filter((k) => k !== keyToRemove),
+    };
   }
 
   clearResponseData() {
@@ -2119,6 +2045,7 @@ ${responseContent}</pre>
     this.responseIsBlob = false;
     this.responseBlobType = '';
     this.respContentDisposition = '';
+    this.fileInputKeys = {};
     if (this.responseBlobUrl) {
       URL.revokeObjectURL(this.responseBlobUrl);
       this.responseBlobUrl = '';
