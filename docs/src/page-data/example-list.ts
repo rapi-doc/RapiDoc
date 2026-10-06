@@ -20,7 +20,7 @@ interface SubExample {
   href: string;
 }
 
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 import { readDataYaml } from '../utils/readDataYaml';
 
 const exampleListData = yaml.load(readDataYaml('example-list.yaml')) as ExampleList;

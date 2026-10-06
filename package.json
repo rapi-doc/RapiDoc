@@ -26,10 +26,10 @@
     "test:unit": "node --test tests/unit/*.test.js"
   },
   "devDependencies": {
-    "@eslint/js": "^9.20.0",
-    "eslint": "^9.20.1",
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.12.0",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-lit": "^1.15.0",
+    "eslint-plugin-lit": "^2.3.1",
     "eslint-plugin-prettier": "^5.5.6",
     "globals": "^17.13.0",
     "lit-analyzer": "^2.0.3",

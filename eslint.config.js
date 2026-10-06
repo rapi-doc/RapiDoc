@@ -36,6 +36,7 @@ export default [
       ],
       ...eslintConfigPrettier.rules, // Disable conflicting ESLint rules
       'lit/attribute-value-entities': 'off',
+      'no-useless-assignment': 'warn',
       'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
       'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     },

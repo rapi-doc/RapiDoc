@@ -8,7 +8,7 @@ interface TestItem {
   hidden?: boolean;
 }
 
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 import { readDataYaml } from '../utils/readDataYaml';
 
 const testListData = yaml.load(readDataYaml('tests.yaml')) as TestList;
