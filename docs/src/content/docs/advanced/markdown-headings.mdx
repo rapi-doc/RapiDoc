@@ -10,7 +10,8 @@ By default, RapiDoc displays your API's tags and endpoints in the sidebar naviga
 This feature is enabled with a single attribute: `info-description-headings-in-navbar="true"`.
 
 <Aside type="tip" title="Interactive Showcase & Live Demo">
-  Experience this feature in action on the [Markdown Headings Demo Page](/examples/markdown-headings) and inspect the underlying OpenAPI definition in [`docs/public/specs/markdown-headings.yaml`](/specs/markdown-headings.yaml).
+  Experience this feature in action on the [Markdown Headings Demo Page](/examples/markdown-headings) and inspect the underlying OpenAPI
+  definition in [`docs/public/specs/markdown-headings.yaml`](/specs/markdown-headings.yaml).
 </Aside>
 
 ---
@@ -18,9 +19,9 @@ This feature is enabled with a single attribute: `info-description-headings-in-n
 ## Quick Setup in 2 Steps
 
 <Steps>
-1. **Enable the Attribute on `<rapi-doc>`**
+1. **Enable the Attribute on `<rapi-doc>`**:
 
-   Add `info-description-headings-in-navbar="true"` and ensure your render style is set to `read` (or `focused`):
+   Add `info-description-headings-in-navbar="true"` and set `render-style="read"` (or `focused`):
 
    ```html
    <rapi-doc
@@ -31,7 +32,7 @@ This feature is enabled with a single attribute: `info-description-headings-in-n
    </rapi-doc>
    ```
 
-2. **Add `#` and `##` Headings in Your OpenAPI Spec**
+2. **Add `#` and `##` Headings in Your OpenAPI Spec**:
 
    Write standard Markdown headings inside `info.description` or any tag's `description`:
 
@@ -60,10 +61,12 @@ RapiDoc scans two distinct locations in your OpenAPI specification for Markdown 
 
 <CardGrid>
   <Card title="1. Info Description (`info.description`)" icon="document">
-    Headings are inserted under the **Overview** menu item at the top of the sidebar. Ideal for architecture overviews, quickstarts, and global guidelines.
+    Headings are inserted under the **Overview** menu item at the top of the sidebar. Ideal for architecture overviews, quickstarts, and
+    global guidelines.
   </Card>
   <Card title="2. Tag Descriptions (`tags[].description`)" icon="list-format">
-    Headings are inserted nested under the respective **Tag Group** in the sidebar. Ideal for object schemas, lifecycle rules, or tag-specific workflows.
+    Headings are inserted nested under the respective **Tag Group** in the sidebar. Ideal for object schemas, lifecycle rules, or
+    tag-specific workflows.
   </Card>
 </CardGrid>
 
@@ -120,15 +123,16 @@ paths:
 
 RapiDoc intentionally filters headings by depth to keep your navigation tree organized and uncluttered:
 
-| Markdown Syntax | Level | Display in Navbar | Placement & Behavior |
-| :--- | :--- | :--- | :--- |
-| `# Title` | **H1** | ✅ **Included** | Top-level item under Overview or Tag. Uses `nav-bar-h1` style. |
-| `## Subtitle` | **H2** | ✅ **Included** | Indented sub-item under the parent topic. Uses `nav-bar-h2` style. |
-| `### Section` | **H3** | ❌ Excluded | Stays in the main reading canvas only. Keeps the sidebar concise. |
-| `#### Detail` | **H4+** | ❌ Excluded | Stays in the main reading canvas only. |
+| Markdown Syntax | Level   | Display in Navbar | Placement & Behavior                                               |
+| :-------------- | :------ | :---------------- | :----------------------------------------------------------------- |
+| `# Title`       | **H1**  | ✅ **Included**   | Top-level item under Overview or Tag. Uses `nav-bar-h1` style.     |
+| `## Subtitle`   | **H2**  | ✅ **Included**   | Indented sub-item under the parent topic. Uses `nav-bar-h2` style. |
+| `### Section`   | **H3**  | ❌ Excluded       | Stays in the main reading canvas only. Keeps the sidebar concise.  |
+| `#### Detail`   | **H4+** | ❌ Excluded       | Stays in the main reading canvas only.                             |
 
 <Aside type="note" title="Why are H3+ excluded?">
-  Sidebar navigation is meant to be a high-level table of contents. Excluding H3 and deeper headings prevents the sidebar from becoming overwhelmed by granular sub-sections while allowing your main documentation body to use rich heading structures.
+  Sidebar navigation is meant to be a high-level table of contents. Excluding H3 and deeper headings prevents the sidebar from becoming
+  overwhelmed by granular sub-sections while allowing your main documentation body to use rich heading structures.
 </Aside>
 
 ---
@@ -158,14 +162,15 @@ You can use these anchor hashes in your own emails, internal documentation, or e
 
 ## Render Mode Compatibility
 
-| Render Mode | Supported? | Description |
-| :--- | :---: | :--- |
-| **Read Mode** (`render-style="read"`) | ✅ **Recommended** | Displays the full sticky sidebar with all Overview headings and Tag headings alongside operations. |
-| **Focused Mode** (`render-style="focused"`) | ✅ Supported | Headings appear under Overview and under active tags when `on-nav-tag-click="show-description"`. |
-| **View Mode** (`render-style="view"`) | ❌ N/A | View mode uses horizontal tabs for endpoints rather than a persistent sidebar navigation bar. |
+| Render Mode                                 |     Supported?     | Description                                                                                        |
+| :------------------------------------------ | :----------------: | :------------------------------------------------------------------------------------------------- |
+| **Read Mode** (`render-style="read"`)       | ✅ **Recommended** | Displays the full sticky sidebar with all Overview headings and Tag headings alongside operations. |
+| **Focused Mode** (`render-style="focused"`) |    ✅ Supported    | Headings appear under Overview and under active tags when `on-nav-tag-click="show-description"`.   |
+| **View Mode** (`render-style="view"`)       |       ❌ N/A       | View mode uses horizontal tabs for endpoints rather than a persistent sidebar navigation bar.      |
 
 <Aside type="caution" title="Ensure Info Section is Visible">
-  Sidebar headings for the overview section require the info card to be enabled. If you set `show-info="false"`, the overview headings will not be rendered in the sidebar.
+  Sidebar headings for the overview section require the info card to be enabled. If you set `show-info="false"`, the overview headings will
+  not be rendered in the sidebar.
 </Aside>
 
 ---
@@ -176,12 +181,12 @@ Because RapiDoc uses Shadow DOM encapsulation, custom CSS targeting internal ele
 
 RapiDoc exposes specific shadow parts for navbar heading items:
 
-| Part Selector | Description |
-| :--- | :--- |
-| `rapi-doc::part(section-navbar-item)` | Targets all navbar navigation items (Overview, tags, headings, endpoints). |
-| `rapi-doc::part(section-navbar-overview)` | Targets the main Overview header item. |
-| `rapi-doc::part(section-navbar-h1)` | Targets all level-1 (`#`) heading items in the sidebar. |
-| `rapi-doc::part(section-navbar-h2)` | Targets all level-2 (`##`) heading items in the sidebar. |
+| Part Selector                             | Description                                                                |
+| :---------------------------------------- | :------------------------------------------------------------------------- |
+| `rapi-doc::part(section-navbar-item)`     | Targets all navbar navigation items (Overview, tags, headings, endpoints). |
+| `rapi-doc::part(section-navbar-overview)` | Targets the main Overview header item.                                     |
+| `rapi-doc::part(section-navbar-h1)`       | Targets all level-1 (`#`) heading items in the sidebar.                    |
+| `rapi-doc::part(section-navbar-h2)`       | Targets all level-2 (`##`) heading items in the sidebar.                   |
 
 ### Example: Customizing Heading Typography & Indentation
 
