@@ -348,19 +348,14 @@ export const highlightAllCode = (rootNode = document) => {
     const grammar = grammars[lang];
     if (!grammar) return;
 
-    // Clean up any dynamic Lit marker comment nodes inside <code> so only pure text remains
-    Array.from(codeBlock.childNodes).forEach((child) => {
-      if (child.nodeType === Node.COMMENT_NODE) {
-        codeBlock.removeChild(child);
-      }
-    });
-    codeBlock.normalize();
-
-    const node = codeBlock.firstChild;
-    if (!node || node.nodeType !== Node.TEXT_NODE) return;
+    // Scan all text nodes without mutating or removing Lit marker comment nodes
+    const textNodes = Array.from(codeBlock.childNodes).filter((child) => child.nodeType === Node.TEXT_NODE && child.data?.length > 0);
+    if (textNodes.length === 0) return;
 
     matches = new Map();
-    scanRegion(node, grammar.patterns, 0, node.data.length, grammar);
+    textNodes.forEach((node) => {
+      scanRegion(node, grammar.patterns, 0, node.data.length, grammar);
+    });
   });
 
   highlights.forEach((ranges, category) => {

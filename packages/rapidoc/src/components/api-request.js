@@ -540,7 +540,7 @@ export default class ApiRequest extends LitElement {
                                 data-param-allow-reserved="${paramAllowReserved}"
                                 data-x-fill-example="${param['x-fill-example'] || 'yes'}"
                                 spellcheck="false"
-                                .textContent="${
+                                .value="${
                                   param['x-fill-example'] === 'no'
                                     ? ''
                                     : live(
@@ -834,13 +834,13 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
                         data-example="${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, null, 2)}"
                         data-example-format="${v.exampleFormat}"
                         style="width:100%; resize:vertical;"
-                        .textContent="${
+                        .value="${live(
                           this.fillRequestFieldsWithExample === 'true'
                             ? v.exampleFormat === 'text'
                               ? v.exampleValue
                               : JSON.stringify(v.exampleValue, null, 2)
                             : ''
-                        }"
+                        )}"
                         @input=${(e) => {
                           const requestPanelEl = this.getRequestPanel(e);
                           this.liveCURLSyntaxUpdate(requestPanelEl);
@@ -1060,7 +1060,7 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
             data-ptype="${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
             data-pname="${fieldName}"
             data-example="${formdataPartExample[0]?.exampleValue || ''}"
-            .textContent="${this.fillRequestFieldsWithExample === 'true' ? formdataPartExample[0]?.exampleValue || '' : ''}"
+            .value="${live(this.fillRequestFieldsWithExample === 'true' ? formdataPartExample[0]?.exampleValue || '' : '')}"
             spellcheck="false"
           ></textarea>
         </div>`}
@@ -1256,7 +1256,7 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
         spellcheck="false"
         data-pname="dynamic-form"
         data-ptype="${mimeType}"
-        .textContent="${exampleValue}"
+        .value="${live(exampleValue)}"
         style="width:100%"
       ></textarea>
       ${schema.description ? html`<span class="m-markdown-small"> ${unsafeHTML(sanitizeHTML(marked(schema.description)))} </span>` : ''}
