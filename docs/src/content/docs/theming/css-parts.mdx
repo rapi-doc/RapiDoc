@@ -42,10 +42,10 @@ In addition to Shadow Parts, RapiDoc exposes a comprehensive set of CSS variable
 
 ```css
 rapi-doc {
-  --border-radius: 8px;
+  --radius: 8px;
   --font-mono: 'JetBrains Mono', monospace;
-  --primary-color: #10b981;
-  --nav-bg-color: #0b1121;
+  --primary: #10b981;
+  --background: #0b1121;
 }
 ```
 
@@ -105,5 +105,6 @@ rapi-doc::part(btn-fill):hover {
 ```
 
 <Aside type="tip" title="Combining Attributes, Variables, and CSS Parts">
-The recommended architecture is setting your foundational colors and typography using HTML attributes and CSS variables, and reserving `::part()` for high-impact visual customizations such as gradients, backdrop filters, and custom container borders.
+  The recommended architecture is setting your foundational colors and typography using HTML attributes and CSS variables, and reserving
+  `::part()` for high-impact visual customizations such as gradients, backdrop filters, and custom container borders.
 </Aside>

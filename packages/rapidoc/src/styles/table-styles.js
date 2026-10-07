@@ -4,8 +4,8 @@ export default css`
   .m-table {
     border-spacing: 0;
     border-collapse: separate;
-    border: 1px solid var(--light-border-color);
-    border-radius: var(--border-radius);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     margin: 0;
     max-width: 100%;
     direction: ltr;
@@ -33,19 +33,19 @@ export default css`
   }
 
   .m-table th {
-    color: var(--fg2);
+    color: var(--card-foreground);
     font-size: var(--font-size-small);
     line-height: calc(var(--font-size-small) + 18px);
     font-weight: 600;
     letter-spacing: normal;
-    background: var(--bg2);
+    background: var(--card);
     vertical-align: bottom;
-    border-bottom: 1px solid var(--light-border-color);
+    border-bottom: 1px solid var(--border);
   }
 
   .m-table > tbody > tr > td,
   .m-table > tr > td {
-    border-top: 1px solid var(--light-border-color);
+    border-top: 1px solid var(--border);
     text-overflow: ellipsis;
     overflow: hidden;
   }

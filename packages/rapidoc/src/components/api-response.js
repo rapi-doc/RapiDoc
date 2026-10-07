@@ -56,14 +56,14 @@ export default class ApiResponse extends LitElement {
           box-shadow: var(--focus-shadow);
         }
         :where(input[type='text'], input[type='password'], select, textarea):focus-visible {
-          border-color: var(--primary-color);
+          border-color: var(--primary);
         }
         .resp-head {
           vertical-align: middle;
           padding: 16px 0 8px;
         }
         .resp-head.divider {
-          border-top: 1px solid var(--border-color);
+          border-top: 1px solid var(--border);
           margin-top: 10px;
         }
         .resp-status {
@@ -72,7 +72,7 @@ export default class ApiResponse extends LitElement {
         }
         .resp-descr {
           font-size: calc(var(--font-size-small) + 1px);
-          color: var(--light-fg);
+          color: var(--muted-foreground);
           text-align: left;
         }
         .top-gap {

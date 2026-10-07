@@ -23,6 +23,9 @@ export default css`
     display: none;
   }
 
+  .m-endpoint {
+    border-radius: min(var(--radius), 1rem);
+  }
   .m-endpoint.expanded {
     margin-bottom: 16px;
   }
@@ -31,10 +34,15 @@ export default css`
     border-style: solid;
     border-color: transparent;
     border-top-color: var(--light-border-color);
+    border-radius: min(var(--radius), 1rem);
     display: flex;
     padding: 6px 16px;
     align-items: center;
     cursor: pointer;
+  }
+  .m-endpoint > .endpoint-head.expanded {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
   }
   .m-endpoint > .endpoint-head.put:hover,
   .m-endpoint > .endpoint-head.put.expanded {
@@ -78,6 +86,8 @@ export default css`
     padding: 16px 0px 0 0px;
     border-width: 0px 1px 1px 5px;
     border-style: solid;
+    border-bottom-left-radius: min(var(--radius), 1rem);
+    border-bottom-right-radius: min(var(--radius), 1rem);
     box-shadow: 0px 4px 3px -3px rgba(0, 0, 0, 0.15);
   }
   .m-endpoint .endpoint-body.delete {
@@ -124,7 +134,7 @@ export default css`
     height: calc(var(--font-size-small) + 16px);
     line-height: calc(var(--font-size-small) + 8px);
     width: 60px;
-    border-radius: 2px;
+    border-radius: var(--radius);
     display: inline-block;
     text-align: center;
     font-weight: bold;

@@ -92,7 +92,7 @@ advanced:
         - Complex schemas with multiple levels of nested objects and primitives
         - Request and response parameters with constraints, validation rules, and deprecations
   - data-types-multiple:
-      title: "Multi-Type Fields (type: [string, number])"
+      title: 'Multi-Type Fields (type: [string, number])'
       validates:
         - Schema properties supporting multiple simultaneous data types
   - example-filling:
@@ -187,5 +187,3 @@ advanced:
         - Base64 encoded payload strings with contentEncoding base64 and contentMediaType
         - Embedded structured JSON payload strings with contentSchema validation
         - Detail chips rendering for Media-Type and Encoding in Tree and Table views
-
-

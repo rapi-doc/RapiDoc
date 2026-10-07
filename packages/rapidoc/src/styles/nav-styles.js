@@ -40,7 +40,7 @@ export default css`
     padding: 6px 28px 6px 10px;
     color: var(--nav-hover-text-color);
     border: 1px solid var(--nav-accent-color);
-    border-radius: var(--border-radius, 6px);
+    border-radius: var(--radius);
     background: var(--nav-hover-bg-color);
     font-size: calc(var(--font-size-small) + 1px);
     box-sizing: border-box;
@@ -228,7 +228,7 @@ export default css`
     cursor: pointer;
     width: 100%;
     border: none;
-    border-radius: 4px;
+    border-radius: var(--radius);
     color: var(--nav-text-color);
     background: transparent;
     border-inline-start: 4px solid transparent;

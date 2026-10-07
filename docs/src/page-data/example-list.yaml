@@ -57,14 +57,14 @@ examples:
   - Advance Styling:
       img: /assets/images/style.png
       href: /guides/theme
-      description: "Comprehensive guide on advanced styling using CSS Shadow Parts (::part), CSS custom properties, and slots."
+      description: 'Comprehensive guide on advanced styling using CSS Shadow Parts (::part), CSS custom properties, and slots.'
       isDoc: true
       category: Guides & Docs
 
   - Schema Styles:
       img: /assets/images/schema-style.png
       href: /examples/schema-styles
-      description: "Inspect data models using Tree or Tabular representations, and toggle between Schema and Example views."
+      description: 'Inspect data models using Tree or Tabular representations, and toggle between Schema and Example views.'
       category: Layouts & Views
 
   - Show Components:

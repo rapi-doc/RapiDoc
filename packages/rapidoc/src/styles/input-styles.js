@@ -3,63 +3,63 @@ import { css } from 'lit';
 export default css`
   /* Button */
   .m-btn {
-    border-radius: var(--border-radius);
+    border-radius: var(--radius);
     font-weight: 600;
     display: inline-block;
-    padding: 6px 16px;
+    padding: 0.4em 1em;
     font-size: var(--font-size-small);
     outline: 0;
     line-height: 1;
     text-align: center;
     white-space: nowrap;
-    border: 2px solid var(--primary-color);
+    border: 1px solid var(--primary);
     background: transparent;
     user-select: none;
     cursor: pointer;
     box-shadow:
       0 1px 3px rgba(0, 0, 0, 0.12),
       0 1px 2px rgba(0, 0, 0, 0.24);
-    transition-duration: 0.75s;
+    transition-duration: 0.2s;
   }
   .m-btn.primary {
-    background: var(--primary-color);
-    color: var(--primary-color-invert);
+    background: var(--primary);
+    color: var(--primary-foreground);
   }
   .m-btn.thin-border {
     border-width: 1px;
   }
   .m-btn.large {
-    padding: 8px 14px;
+    padding: 0.55em 1.1em;
   }
   .m-btn.small {
-    padding: 5px 12px;
+    padding: 0.35em 0.85em;
   }
   .m-btn.tiny {
-    padding: 5px 6px;
+    padding: 0.3em 0.5em;
   }
   .m-btn.circle {
     border-radius: 50%;
   }
   .m-btn:hover {
-    background: var(--primary-color);
-    color: var(--primary-color-invert);
+    background: var(--primary);
+    color: var(--primary-foreground);
   }
   .m-btn.nav {
-    border: 2px solid var(--nav-accent-color);
+    border: 1px solid var(--primary);
   }
   .m-btn.nav:hover {
-    background: var(--nav-accent-color);
+    background: var(--primary);
   }
   .m-btn:disabled {
-    background: var(--bg3);
-    color: var(--fg3);
-    border-color: var(--fg3);
+    background: var(--muted);
+    color: var(--muted-foreground);
+    border-color: var(--border);
     cursor: not-allowed;
     opacity: 0.4;
   }
   .m-btn:active {
-    filter: brightness(75%);
-    transform: scale(0.95);
+    filter: brightness(85%);
+    transform: scale(0.97);
     transition: scale 0s;
   }
   .toolbar-btn {
@@ -68,10 +68,10 @@ export default css`
     margin: 0 2px;
     font-size: var(--font-size-small);
     min-width: 50px;
-    color: var(--primary-color-invert);
-    border-radius: 2px;
+    color: var(--primary-foreground);
+    border-radius: var(--radius);
     border: none;
-    background: var(--primary-color);
+    background: var(--primary);
   }
 
   input,
@@ -79,11 +79,11 @@ export default css`
   select,
   button,
   pre {
-    color: var(--fg);
+    color: var(--foreground);
     outline: none;
-    background: var(--input-bg);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
+    background: var(--input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
   }
   button {
     font-family: var(--font-regular);
@@ -117,13 +117,13 @@ export default css`
   }
 
   select:hover {
-    border-color: var(--primary-color);
+    border-color: var(--primary);
   }
 
   textarea::placeholder,
   input[type='text']::placeholder,
   input[type='password']::placeholder {
-    color: var(--placeholder-color);
+    color: var(--muted-foreground);
     opacity: 1;
   }
 
@@ -131,8 +131,9 @@ export default css`
     font-family: var(--font-regular);
     padding: 2px;
     cursor: pointer;
-    border: 1px solid var(--primary-color);
-    min-height: calc(var(--font-size-small) + 18px);
+    border: 1px solid var(--primary);
+    border-radius: var(--radius);
+    min-height: calc(var(--font-size-small) + 1.125rem);
   }
 
   input[type='file']::file-selector-button,
@@ -142,17 +143,17 @@ export default css`
     outline: none;
     cursor: pointer;
     padding: 3px 8px;
-    border: 1px solid var(--primary-color);
-    background: var(--primary-color);
-    color: var(--primary-color-invert);
-    border-radius: var(--border-radius);
+    border: 1px solid var(--primary);
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border-radius: var(--radius);
     -webkit-appearance: none;
   }
 
   pre,
   textarea {
     scrollbar-width: thin;
-    scrollbar-color: var(--border-color) var(--input-bg);
+    scrollbar-color: var(--border) var(--input);
   }
 
   pre::-webkit-scrollbar,

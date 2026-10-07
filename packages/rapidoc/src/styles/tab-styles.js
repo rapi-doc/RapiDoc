@@ -7,7 +7,7 @@ export default css`
   .tab-buttons {
     height: 30px;
     padding: 4px 4px 0 4px;
-    border-bottom: 1px solid var(--light-border-color);
+    border-bottom: 1px solid var(--border);
     align-items: stretch;
     overflow-y: hidden;
     overflow-x: auto;
@@ -15,12 +15,12 @@ export default css`
   }
   .tab-buttons::-webkit-scrollbar {
     height: 1px;
-    background: var(--border-color);
+    background: var(--border);
   }
   .tab-btn {
     border: none;
-    border-bottom: 3px solid transparent;
-    color: var(--light-fg);
+    border-bottom: 2px solid transparent;
+    color: var(--muted-foreground);
     background: transparent;
     white-space: nowrap;
     cursor: pointer;
@@ -28,16 +28,17 @@ export default css`
     font-family: var(--font-regular);
     font-size: var(--font-size-small);
     margin-inline-end: 16px;
-    padding: 1px;
+    padding: 2px 4px;
+    transition: color 0.15s ease;
   }
   .tab-btn.active {
-    border-bottom: 3px solid var(--primary-color);
-    font-weight: bold;
-    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary);
+    font-weight: 600;
+    color: var(--primary);
   }
 
   .tab-btn:hover {
-    color: var(--primary-color);
+    color: var(--primary);
   }
   .tab-content {
     margin: -1px 0 0 0;

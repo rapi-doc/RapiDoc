@@ -80,13 +80,13 @@ export default class SchemaTree extends LitElement {
           max-width: 300px;
         }
         .tr.expanded:hover > .td.key > .open-bracket {
-          color: var(--primary-color);
+          color: var(--primary);
         }
         .tr.expanded:hover + .inside-bracket {
-          border-left: 1px solid var(--fg3);
+          border-left: 1px solid var(--muted-foreground);
         }
         .tr.expanded:hover + .inside-bracket + .close-bracket {
-          color: var(--primary-color);
+          color: var(--primary);
         }
         .inside-bracket.xxx-of-option {
           border-left: 1px solid transparent;
@@ -96,12 +96,12 @@ export default class SchemaTree extends LitElement {
           padding: 0 20px 0 0;
           cursor: pointer;
           border: 1px solid transparent;
-          border-radius: 3px;
+          border-radius: var(--radius);
         }
         .open-bracket:hover {
-          color: var(--primary-color);
-          background: var(--hover-color);
-          border: 1px solid var(--border-color);
+          color: var(--primary);
+          background: var(--muted);
+          border: 1px solid var(--border);
         }
         .close-bracket {
           display: inline-block;

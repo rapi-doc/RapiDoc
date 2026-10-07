@@ -12,6 +12,7 @@ import NavStyles from '~/styles/nav-styles';
 import InfoStyles from '~/styles/info-styles';
 
 import EndpointStyles from '~/styles/endpoint-styles';
+import ThemeTokens, { applyCustomTheme, applyCustomFonts } from '~/styles/theme-tokens';
 import { rapidocApiKey } from '~/utils/common-utils';
 import ProcessSpec from '~/utils/spec-parser';
 import { enableMockServer, disableMockServer, updateMockConfig } from '~/utils/mock-interceptor';
@@ -93,11 +94,10 @@ export default class RapiDocMini extends LitElement {
       showCurlBeforeTry: { type: String, attribute: 'show-curl-before-try' },
 
       // Main Colors and Font
-      theme: { type: String },
-      bgColor: { type: String, attribute: 'bg-color' },
-      textColor: { type: String, attribute: 'text-color' },
-      primaryColor: { type: String, attribute: 'primary-color' },
-      fontSize: { type: String, attribute: 'font-size' },
+      theme: { type: String, reflect: true },
+      colorScheme: { type: String, attribute: 'color-scheme', reflect: true },
+      radius: { type: String, reflect: true },
+      scale: { type: String, reflect: true },
       regularFont: { type: String, attribute: 'regular-font' },
       monoFont: { type: String, attribute: 'mono-font' },
       loadFonts: { type: String, attribute: 'load-fonts' },
@@ -117,6 +117,7 @@ export default class RapiDocMini extends LitElement {
 
   static get styles() {
     return [
+      ThemeTokens,
       FontStyles,
       InputStyles,
       FlexStyles,
@@ -196,9 +197,32 @@ export default class RapiDocMini extends LitElement {
     if (!this.schemaStyle || !'tree, table,'.includes(`${this.schemaStyle},`)) {
       this.schemaStyle = 'tree';
     }
-    if (!this.theme || !'light, dark,'.includes(`${this.theme},`)) {
-      this.theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    if (!this.theme) {
+      this.theme = 'amber';
     }
+    if (!this.colorScheme || !'dark, light, system,'.includes(`${this.colorScheme},`)) {
+      this.colorScheme = 'dark';
+    }
+    if (!this.radius || !'none, sm, md, lg, full,'.includes(`${this.radius},`)) {
+      this.radius = 'sm';
+    }
+    if (!this.scale || !'sm, default, lg,'.includes(`${this.scale},`)) {
+      this.scale = 'default';
+    }
+    if (!this.getAttribute('theme')) {
+      this.setAttribute('theme', this.theme);
+    }
+    if (!this.getAttribute('color-scheme')) {
+      this.setAttribute('color-scheme', this.colorScheme);
+    }
+    if (!this.getAttribute('radius')) {
+      this.setAttribute('radius', this.radius);
+    }
+    if (!this.getAttribute('scale')) {
+      this.setAttribute('scale', this.scale);
+    }
+    applyCustomTheme(this, this.theme);
+    applyCustomFonts(this, this.regularFont, this.monoFont);
     if (!this.defaultSchemaTab || !'example, schema, model,'.includes(`${this.defaultSchemaTab},`)) {
       this.defaultSchemaTab = 'example';
     } else if (this.defaultSchemaTab === 'model') {
@@ -242,9 +266,6 @@ export default class RapiDocMini extends LitElement {
     }
     if (!this.sortEndpointsBy || !'method, path, summary,'.includes(`${this.sortEndpointsBy},`)) {
       this.sortEndpointsBy = 'path';
-    }
-    if (!this.fontSize || !'default, large, largest,'.includes(`${this.fontSize},`)) {
-      this.fontSize = 'default';
     }
 
     if (!this.matchType || !'includes regex'.includes(this.matchType)) {
@@ -296,6 +317,13 @@ export default class RapiDocMini extends LitElement {
   updated(changedProperties) {
     super.updated?.(changedProperties);
     scheduleHighlight(this.shadowRoot);
+
+    if (changedProperties.has('theme')) {
+      applyCustomTheme(this, this.theme);
+    }
+    if (changedProperties.has('regularFont') || changedProperties.has('monoFont')) {
+      applyCustomFonts(this, this.regularFont, this.monoFont);
+    }
 
     if (changedProperties.has('mockServer')) {
       if (this.mockServer === 'true' && this.resolvedSpec) {

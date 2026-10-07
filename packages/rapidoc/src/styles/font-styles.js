@@ -15,19 +15,19 @@ export default css`
     font-family: var(--font-mono);
   }
   .title {
-    font-size: calc(var(--font-size-small) + 18px);
+    font-size: calc(var(--font-size-small) + 1.125rem);
     font-weight: normal;
     text-wrap: balance;
   }
   .sub-title {
-    font-size: 20px;
+    font-size: 1.25rem;
     text-wrap: balance;
   }
   .req-res-title {
     font-family: var(--font-regular);
-    font-size: calc(var(--font-size-small) + 4px);
+    font-size: calc(var(--font-size-small) + 0.25rem);
     font-weight: bold;
-    margin-bottom: 8px;
+    margin-bottom: 0.5rem;
     text-align: start;
     text-wrap: balance;
   }
@@ -45,13 +45,13 @@ export default css`
     text-transform: uppercase;
   }
   .primary-text {
-    color: var(--primary-color);
+    color: var(--primary);
   }
   .bold-text {
     font-weight: bold;
   }
   .gray-text {
-    color: var(--light-fg);
+    color: var(--muted-foreground);
   }
   .red-text {
     color: var(--red);
@@ -62,65 +62,65 @@ export default css`
   .multiline {
     overflow: scroll;
     max-height: var(--resp-area-height, 400px);
-    color: var(--fg3);
+    color: var(--muted-foreground);
   }
   .method-fg.put {
-    color: var(--orange);
+    color: var(--method-put);
   }
   .method-fg.post {
-    color: var(--green);
+    color: var(--method-post);
   }
   .method-fg.get {
-    color: var(--blue);
+    color: var(--method-get);
   }
   .method-fg.delete {
-    color: var(--red);
+    color: var(--method-delete);
   }
   .method-fg.options,
   .method-fg.head,
   .method-fg.patch {
-    color: var(--yellow);
+    color: var(--method-patch);
   }
 
   h1 {
     font-family: var(--font-regular);
-    font-size: 28px;
-    padding-top: 10px;
+    font-size: 1.75rem;
+    padding-top: 0.625rem;
     letter-spacing: normal;
     font-weight: normal;
   }
   h2 {
     font-family: var(--font-regular);
-    font-size: 24px;
-    padding-top: 10px;
+    font-size: 1.5rem;
+    padding-top: 0.625rem;
     letter-spacing: normal;
     font-weight: normal;
   }
   h3 {
     font-family: var(--font-regular);
-    font-size: 18px;
-    padding-top: 10px;
+    font-size: 1.25rem;
+    padding-top: 0.625rem;
     letter-spacing: normal;
     font-weight: normal;
   }
   h4 {
     font-family: var(--font-regular);
-    font-size: 16px;
-    padding-top: 10px;
+    font-size: 1rem;
+    padding-top: 0.625rem;
     letter-spacing: normal;
     font-weight: normal;
   }
   h5 {
     font-family: var(--font-regular);
-    font-size: 14px;
-    padding-top: 10px;
+    font-size: 0.875rem;
+    padding-top: 0.625rem;
     letter-spacing: normal;
     font-weight: normal;
   }
   h6 {
     font-family: var(--font-regular);
-    font-size: 14px;
-    padding-top: 10px;
+    font-size: 0.75rem;
+    padding-top: 0.625rem;
     letter-spacing: normal;
     font-weight: normal;
   }
@@ -202,7 +202,7 @@ export default css`
   .m-markdown-small code,
   .m-markdown code {
     padding: 1px 6px;
-    border-radius: 2px;
+    border-radius: var(--radius);
     color: var(--inline-code-fg);
     font-size: calc(var(--font-size-mono));
     line-height: 1.2;
@@ -217,7 +217,7 @@ export default css`
     white-space: pre-wrap;
     overflow-x: auto;
     line-height: normal;
-    border-radius: 2px;
+    border-radius: var(--radius);
     border: 1px solid var(--code-border-color);
   }
 

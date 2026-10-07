@@ -12,6 +12,7 @@ import NavStyles from '~/styles/nav-styles';
 import InfoStyles from '~/styles/info-styles';
 
 import EndpointStyles from '~/styles/endpoint-styles';
+import ThemeTokens, { applyCustomTheme, applyCustomFonts } from '~/styles/theme-tokens';
 import ProcessSpec from '~/utils/spec-parser';
 import jsonSchemaViewerTemplate from '~/templates/json-schema-viewer-template';
 
@@ -49,11 +50,10 @@ export default class JsonSchemaViewer extends LitElement {
       allowSearch: { type: String, attribute: 'allow-search' },
 
       // Main Colors and Font
-      theme: { type: String },
-      bgColor: { type: String, attribute: 'bg-color' },
-      textColor: { type: String, attribute: 'text-color' },
-      primaryColor: { type: String, attribute: 'primary-color' },
-      fontSize: { type: String, attribute: 'font-size' },
+      theme: { type: String, reflect: true },
+      colorScheme: { type: String, attribute: 'color-scheme', reflect: true },
+      radius: { type: String, reflect: true },
+      scale: { type: String, reflect: true },
       regularFont: { type: String, attribute: 'regular-font' },
       monoFont: { type: String, attribute: 'mono-font' },
       loadFonts: { type: String, attribute: 'load-fonts' },
@@ -65,6 +65,7 @@ export default class JsonSchemaViewer extends LitElement {
 
   static get styles() {
     return [
+      ThemeTokens,
       FontStyles,
       InputStyles,
       FlexStyles,
@@ -237,21 +238,32 @@ export default class JsonSchemaViewer extends LitElement {
     if (!this.schemaStyle || !'tree, table,'.includes(`${this.schemaStyle},`)) {
       this.schemaStyle = 'tree';
     }
-    if (!this.theme || !'light, dark,'.includes(`${this.theme},`)) {
-      this.theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    if (!this.theme) {
+      this.theme = 'amber';
     }
-    if (!this.allowSearch || !'true, false,'.includes(`${this.allowSearch},`)) {
-      this.allowSearch = 'true';
+    if (!this.colorScheme || !'dark, light, system,'.includes(`${this.colorScheme},`)) {
+      this.colorScheme = 'dark';
     }
-    if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) {
-      this.schemaExpandLevel = 99999;
+    if (!this.radius || !'none, sm, md, lg, full,'.includes(`${this.radius},`)) {
+      this.radius = 'sm';
     }
-    if (!this.schemaDescriptionExpanded || !'true, false,'.includes(`${this.schemaDescriptionExpanded},`)) {
-      this.schemaDescriptionExpanded = 'false';
+    if (!this.scale || !'sm, default, lg,'.includes(`${this.scale},`)) {
+      this.scale = 'default';
     }
-    if (!this.fontSize || !'default, large, largest,'.includes(`${this.fontSize},`)) {
-      this.fontSize = 'default';
+    if (!this.getAttribute('theme')) {
+      this.setAttribute('theme', this.theme);
     }
+    if (!this.getAttribute('color-scheme')) {
+      this.setAttribute('color-scheme', this.colorScheme);
+    }
+    if (!this.getAttribute('radius')) {
+      this.setAttribute('radius', this.radius);
+    }
+    if (!this.getAttribute('scale')) {
+      this.setAttribute('scale', this.scale);
+    }
+    applyCustomTheme(this, this.theme);
+    applyCustomFonts(this, this.regularFont, this.monoFont);
     if (!this.matchType || !'includes regex'.includes(this.matchType)) {
       this.matchType = 'includes';
     }
@@ -267,6 +279,13 @@ export default class JsonSchemaViewer extends LitElement {
   updated(changedProperties) {
     super.updated?.(changedProperties);
     scheduleHighlight(this.shadowRoot);
+
+    if (changedProperties.has('theme')) {
+      applyCustomTheme(this, this.theme);
+    }
+    if (changedProperties.has('regularFont') || changedProperties.has('monoFont')) {
+      applyCustomFonts(this, this.regularFont, this.monoFont);
+    }
   }
 
   attributeChangedCallback(name, oldVal, newVal) {

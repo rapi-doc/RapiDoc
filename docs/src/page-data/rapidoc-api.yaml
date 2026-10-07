@@ -1,422 +1,408 @@
 Attributes:
   - General Attributes:
-    - name: spec-url
-      description: URL of the OpenAPI specification file (JSON or YAML) to load and render.
-      default: (empty)
-    - name: update-route
-      description: When set to "true", automatically updates the browser's URL address hash as the user scrolls through or clicks on different sections.
-      allowed: ["true", "false"]
-      default: true
-    - name: route-prefix
-      description: Custom prefix prepended to route hashes to integrate seamlessly with third-party routers (e.g. #/).
-      default: "#"
-    - name: sort-tags
-      description: >
-        Sorts tags in alphabetical order. When set to "false", preserves the tag order defined in the OpenAPI specification.
-      allowed: ["true", "false"]
-      default: "false"
-    - name: sort-schemas
-      description: >
-        Sorts component schemas alphabetically. When set to "false", preserves the order defined in the spec.
-        <span class="orange bold">Note:</span> Only has an effect if <span class="mono yellow">render-style="focused"</span> and <span class="mono yellow">show-components="true"</span>.
-      allowed: ["true", "false"]
-      default: "false"
-    - name: sort-endpoints-by
-      allowed:
-        - path
-        - method
-        - summary
-        - none
-      description: >
-        Sorts endpoints within each tag group by path, HTTP method, or summary. 'none' leaves the sort order unmodified.<br/>
-        <span class="green">ⓘ This is a static initialization attribute. It will not have any effect if modified using JavaScript after the spec is rendered.</span>
-      example: /examples/arrange-by-tags
-      default: path
-    - name: heading-text
-      description: Custom title text displayed on the top-left corner of the header.
-      default: (empty)
-    - name: goto-path
-      description: >
-        Target endpoint location to navigate to automatically after the specification finishes loading.
-        Must be provided in the format of <span class="mono fg-color">{method}-{path}</span> (e.g., to focus on <span class="mono fg-color">GET /user/login</span>, provide <span class="mono fg-color">get-/user/login</span>).
-      default: (empty)
-    - name: fill-request-fields-with-example
-      allowed: ["true", "false"]
-      description: Pre-populates interactive request parameter inputs and request body fields using example values defined in the OpenAPI spec.
-      default: true
-    - name: persist-auth
-      allowed: ["true", "false"]
-      description: Persists authenticated user credentials (API keys, tokens) in localStorage across browser sessions and page reloads.
-      default: "false"
-  
+      - name: spec-url
+        description: URL of the OpenAPI specification file (JSON or YAML) to load and render.
+        default: (empty)
+      - name: update-route
+        description: When set to "true", automatically updates the browser's URL address hash as the user scrolls through or clicks on different sections.
+        allowed: ['true', 'false']
+        default: true
+      - name: route-prefix
+        description: Custom prefix prepended to route hashes to integrate seamlessly with third-party routers (e.g. #/).
+        default: '#'
+      - name: sort-tags
+        description: >
+          Sorts tags in alphabetical order. When set to "false", preserves the tag order defined in the OpenAPI specification.
+        allowed: ['true', 'false']
+        default: 'false'
+      - name: sort-schemas
+        description: >
+          Sorts component schemas alphabetically. When set to "false", preserves the order defined in the spec.
+          <span class="orange bold">Note:</span> Only has an effect if <span class="mono yellow">render-style="focused"</span> and <span class="mono yellow">show-components="true"</span>.
+        allowed: ['true', 'false']
+        default: 'false'
+      - name: sort-endpoints-by
+        allowed:
+          - path
+          - method
+          - summary
+          - none
+        description: >
+          Sorts endpoints within each tag group by path, HTTP method, or summary. 'none' leaves the sort order unmodified.<br/>
+          <span class="green">ⓘ This is a static initialization attribute. It will not have any effect if modified using JavaScript after the spec is rendered.</span>
+        example: /examples/arrange-by-tags
+        default: path
+      - name: heading-text
+        description: Custom title text displayed on the top-left corner of the header.
+        default: (empty)
+      - name: goto-path
+        description: >
+          Target endpoint location to navigate to automatically after the specification finishes loading.
+          Must be provided in the format of <span class="mono fg-color">{method}-{path}</span> (e.g., to focus on <span class="mono fg-color">GET /user/login</span>, provide <span class="mono fg-color">get-/user/login</span>).
+        default: (empty)
+      - name: fill-request-fields-with-example
+        allowed: ['true', 'false']
+        description: Pre-populates interactive request parameter inputs and request body fields using example values defined in the OpenAPI spec.
+        default: true
+      - name: persist-auth
+        allowed: ['true', 'false']
+        description: Persists authenticated user credentials (API keys, tokens) in localStorage across browser sessions and page reloads.
+        default: 'false'
+
   - UI Colors and Fonts Attributes:
-    - name: theme
-      description: >
-        Base UI theme color mode used for calculating shades, contrasts, and UI components.
-        Combine <span class="mono yellow">theme</span> with <span class="mono yellow">bg-color</span> and <span class="mono yellow">text-color</span> for custom corporate branding.
-      allowed:
-        - light
-        - dark
-      default: dark
-    - name: bg-color
-      description: Hex color code for the main document canvas background.
-      default: |
-        <ul style="font-family: Nunito; color:var(--color-yellow-dim)">
-          <li> Dark Theme : <span class="mono yellow"> #333 </span> </li>
-          <li> Light Theme : <span class="mono yellow"> #fff </span> </li>
-        </ul>
-    - name: text-color
-      description: Hex color code for primary body text.
-      default: |
-        <ul style="font-family: Nunito; color:var(--color-yellow-dim)">
-          <li> Dark Theme : <span class="mono yellow"> #bbb </span> </li>
-          <li> Light Theme : <span class="mono yellow"> #444 </span> </li>
-        </ul>
-    - name: header-color
-      description: Hex color code for the top header background bar.
-      default: "#444444"
-    - name: primary-color
-      description: Primary accent color used for interactive controls such as buttons, active tabs, and highlights.
-      default: "#FF791A"
-    - name: load-fonts
-      allowed: ["true", "false"]
-      description: Automatically loads default fonts from Google Fonts CDN. Set to "false" for air-gapped, offline, or enterprise intranet environments.
-      default: true
-    - name: regular-font
-      description: Font family name(s) for headings and standard body copy.
-      default: >
-        <span style="font-family: Nunito; font-size:13px"> Open Sans, Avenir, Segoe UI, Arial, sans-serif </span>
-    - name: mono-font
-      description: Font family name(s) for code snippets, JSON payloads, and monospace parameters.
-      default: >
-        <span style="font-family: Nunito; font-size:13px"> Monaco, 'Andale Mono', 'Roboto Mono', 'Consolas', monospace </span>
-    - name: font-size
-      allowed:
-        - default
-        - large
-        - largest
-      description: Sets the relative base font size for the entire documentation viewport.
-      default: default
-      example: /examples/font
-    - name: css-file & css-classes
-      hidden: true
-      description: >
-        Allows injecting custom external CSS stylesheets and classes directly into the shadow DOM.
-        <ul>
-          <li>Provide the stylesheet URL in the <span class="yellow mono">css-file</span> attribute.</li>
-          <li>Provide space-separated CSS class names in the <span class="yellow mono">css-classes</span> attribute.</li>
-        </ul>
+      - name: theme
+        description: >
+          Semantic color theme preset or custom brand color hex/css value. Pre-built presets match modern shadcn/ui color tokens.
+        allowed:
+          - amber
+          - graphite
+          - slate
+          - emerald
+          - violet
+          - rose
+          - blue
+          - '(or custom hex color e.g. #2563eb)'
+        default: amber
+        example: /examples/themes
+      - name: color-scheme
+        allowed:
+          - dark
+          - light
+          - system
+        description: Base color scheme mode. 'system' automatically matches the user's OS preference.
+        default: dark
+      - name: radius
+        allowed:
+          - none
+          - sm
+          - md
+          - lg
+          - full
+        description: Corner radius scale applied across cards, buttons, badges, inputs, and dialogs.
+        default: sm
+      - name: scale
+        allowed:
+          - sm
+          - default
+          - lg
+        description: Relative scale factor for typography and UI elements across the documentation portal.
+        default: default
+      - name: load-fonts
+        allowed: ['true', 'false']
+        description: Automatically loads default Open Sans font from Google Fonts CDN. Set to "false" for air-gapped, offline, or enterprise intranet environments.
+        default: true
+      - name: regular-font
+        description: Font family name(s) for headings and standard body copy.
+        default: >
+          <span style="font-family: Nunito; font-size:13px"> Open Sans, Avenir, Segoe UI, Arial, sans-serif </span>
+      - name: mono-font
+        description: Font family name(s) for code snippets, JSON payloads, and monospace parameters.
+        default: >
+          <span style="font-family: Nunito; font-size:13px"> Monaco, 'Andale Mono', 'Roboto Mono', 'Consolas', monospace </span>
+      - name: css-file & css-classes
+        hidden: true
+        description: >
+          Allows injecting custom external CSS stylesheets and classes directly into the shadow DOM.
+          <ul>
+            <li>Provide the stylesheet URL in the <span class="yellow mono">css-file</span> attribute.</li>
+            <li>Provide space-separated CSS class names in the <span class="yellow mono">css-classes</span> attribute.</li>
+          </ul>
 
   - Navigation bar settings Attributes:
-    - name: show-method-in-nav-bar
-      allowed:
-        - "false"
-        - as-plain-text
-        - as-colored-text
-        - as-colored-block
-      description: Displays HTTP methods (GET, POST, etc.) alongside endpoint items in the navigation sidebar. Ensure sufficient contrast if customizing nav-bg-color.
-      default: "false"
-      example: /examples/nav-item-with-method
-    - name: use-path-in-nav-bar
-      allowed: ["true", "false"]
-      description: >
-        Displays raw API URL paths in the navigation bar instead of operation summaries.
-        <div class="orange">
-          <span class="bold yellow-dim">NOTE: </span>
-          Setting this to <span class="mono yellow">true</span> displays the path only. To display the HTTP method alongside the path, also configure <span class="mono yellow">show-method-in-nav-bar</span>.
-        </div>
-      default: "false"
-      example: /examples/nav-item-as-path
-    - name: nav-bg-color
-      description: Background color for the sidebar navigation panel.
-      default: (empty)
-      example: /examples/nav-bg-color
-    - name: nav-text-color
-      description: Text color for unselected sidebar navigation items.
-      default: (empty)
-    - name: nav-hover-bg-color
-      description: Background highlight color of navigation items on mouse hover.
-    - name: nav-hover-text-color
-      description: Text color of navigation items on mouse hover.
-    - name: nav-accent-color
-      description: Accent background color used in the navigation bar for active/selected items.
-    - name: nav-accent-text-color
-      description: Text color used for active/selected navigation items.
-    - name: nav-active-item-marker
-      allowed:
-        - left-bar
-        - colored-block
-      description: Visual indicator style for the currently active navigation item.
-      default: left-bar
-    - name: nav-item-spacing
-      allowed:
-        - default
-        - compact
-        - relaxed
-      description: Controls vertical density and padding between sidebar navigation items.
-      default: default
-      example: /examples/navbar-spacing
-    - name: on-nav-tag-click
-      allowed:
-        - expand-collapse
-        - show-description
-      description: >
-        Configures sidebar tag click behavior: either toggles expand/collapse of nested operations, or navigates directly to the tag description section.<br/>
-        <span class="orange">Note: Applies only to <span class="mono yellow">render-style="focused"</span>.</span>
-      default: expand-collapse
+      - name: show-method-in-nav-bar
+        allowed:
+          - 'false'
+          - as-plain-text
+          - as-colored-text
+          - as-colored-block
+        description: Displays HTTP methods (GET, POST, etc.) alongside endpoint items in the navigation sidebar. Ensure sufficient contrast if customizing nav-bg-color.
+        default: 'false'
+        example: /examples/nav-item-with-method
+      - name: use-path-in-nav-bar
+        allowed: ['true', 'false']
+        description: >
+          Displays raw API URL paths in the navigation bar instead of operation summaries.
+          <div class="orange">
+            <span class="bold yellow-dim">NOTE: </span>
+            Setting this to <span class="mono yellow">true</span> displays the path only. To display the HTTP method alongside the path, also configure <span class="mono yellow">show-method-in-nav-bar</span>.
+          </div>
+        default: 'false'
+        example: /examples/nav-item-as-path
+      - name: nav-active-item-marker
+        allowed:
+          - left-bar
+          - colored-block
+        description: Visual indicator style for the currently active navigation item.
+        default: left-bar
+      - name: nav-item-spacing
+        allowed:
+          - default
+          - compact
+          - relaxed
+        description: Controls vertical density and padding between sidebar navigation items.
+        default: default
+        example: /examples/navbar-spacing
+      - name: on-nav-tag-click
+        allowed:
+          - expand-collapse
+          - show-description
+        description: >
+          Configures sidebar tag click behavior: either toggles expand/collapse of nested operations, or navigates directly to the tag description section.<br/>
+          <span class="orange">Note: Applies only to <span class="mono yellow">render-style="focused"</span>.</span>
+        default: expand-collapse
 
   - UI Layout and Placement Attributes:
-    - name: layout
-      allowed:
-        - row
-        - column
-      description: >
-        Controls the multi-column orientation of request parameters and response panels on desktop screens (>768px).
-        In 'row' layout, request and response sections sit side-by-side; in 'column' layout, they stack vertically.
-        Applicable when <span class="mono yellow">render-style="view"</span>.
-      default: row
-    - name: render-style
-      allowed:
-        - read
-        - view
-        - focused
-      description: >
-        Controls the overall documentation presentation layout. Three distinct modes are supported:
-        <ul>
-          <li>
-            <span class="yellow">view</span>: Optimized for interactive exploration with collapsible operations |
-            <a href="/examples/render-view">Example</a>
-          </li>
-          <li>
-            <span class="yellow">read</span>: Continuous narrative page layout, ideal for reading through API specifications from top to bottom |
-            <a href="/examples/render-read">Example</a>
-          </li>
-          <li>
-            <span class="yellow">focused</span>: Displays a single endpoint at a time with a dedicated sidebar, ideal for large enterprise schemas |
-            <a href="/examples/render-focused">Example</a>
-          </li>
-        </ul>
-      default: read
-    - name: response-area-height
-      description: >
-        <span class="yellow-dim">Allowed: </span>Any valid CSS height value (e.g. 400px, 50%, 60vh).<br/>
-        Controls the vertical height of the interactive response payload viewer.
-      default: 300px
+      - name: layout
+        allowed:
+          - row
+          - column
+        description: >
+          Controls the multi-column orientation of request parameters and response panels on desktop screens (>768px).
+          In 'row' layout, request and response sections sit side-by-side; in 'column' layout, they stack vertically.
+          Applicable when <span class="mono yellow">render-style="view"</span>.
+        default: row
+      - name: render-style
+        allowed:
+          - read
+          - view
+          - focused
+        description: >
+          Controls the overall documentation presentation layout. Three distinct modes are supported:
+          <ul>
+            <li>
+              <span class="yellow">view</span>: Optimized for interactive exploration with collapsible operations |
+              <a href="/examples/render-view">Example</a>
+            </li>
+            <li>
+              <span class="yellow">read</span>: Continuous narrative page layout, ideal for reading through API specifications from top to bottom |
+              <a href="/examples/render-read">Example</a>
+            </li>
+            <li>
+              <span class="yellow">focused</span>: Displays a single endpoint at a time with a dedicated sidebar, ideal for large enterprise schemas |
+              <a href="/examples/render-focused">Example</a>
+            </li>
+          </ul>
+        default: read
+      - name: response-area-height
+        description: >
+          <span class="yellow-dim">Allowed: </span>Any valid CSS height value (e.g. 400px, 50%, 60vh).<br/>
+          Controls the vertical height of the interactive response payload viewer.
+        default: 300px
 
   - Hide and Show Attributes:
-    - name: show-info
-      allowed: ["true", "false"]
-      description: >
-        Toggles visibility of the OpenAPI document info section (title, description, version, terms of service).
-        Useful when embedding `<rapi-doc>` into an existing developer portal or knowledge base that already contains its own header.
-      default: true
-    - name: info-description-headings-in-navbar
-      allowed: ["true", "false"]
-      description: >
-        Extracts Markdown headings (H1 and H2) from the specification's info description and adds them to the sidebar navigation menu (read mode only).
-      default: "false"
-      example: /examples/markdown-headings
-    - name: match-paths
-      description: >
-        Filters and renders only endpoints matching a specific substring or regular expression, enabling audience segmentation (e.g., showing only public endpoints).
-        The matching strategy is configured via <span class="mono yellow">match-type</span>.
-      default: (empty)
-      example: /examples/search
-    - name: match-type
-      allowed:
-        - includes
-        - regex
-      description: Defines whether match-paths filters by simple substring inclusion or regular expression pattern matching.
-      default: includes
-    - name: remove-endpoints-with-badge-label-as
-      description: >
-        Comma-separated badge labels to exclude from the rendered documentation.
-        Works in tandem with the <span class="mono yellow">x-badges</span> vendor extension to filter out internal, beta, or deprecated endpoints from customer-facing views.
-      example: /examples/badges
-    - name: show-components
-      allowed: ["true", "false"]
-      description: >
-        Toggles the components section (schemas, responses, examples, request bodies, headers, security schemes) in both the document body and sidebar menu (available in focused render-style).
-      default: "false"
-    - name: show-header
-      allowed: ["true", "false"]
-      description: >
-        Toggles the top navigation header bar. Set to <span class="mono fg-color">false</span> to prevent users from loading alternative spec URLs or to seamlessly embed inside existing layouts.
-      default: true
-    - name: allow-authentication
-      allowed: ["true", "false"]
-      description: >
-        Controls the display of interactive authentication controls (HTTP Basic, Bearer Token, API Key, OAuth2).
-        Disable to hide authentication dialogs when using hardcoded or pre-authenticated API keys.
-      default: true
-    - name: allow-spec-url-load
-      allowed: ["true", "false"]
-      description: When set to <span class="mono fg-color">false</span>, disables the input field allowing users to load arbitrary external OpenAPI specification URLs.
-      default: true
-    - name: allow-spec-file-load
-      allowed: ["true", "false"]
-      description: When set to <span class="mono fg-color">false</span>, hides the file picker allowing users to upload and preview local OpenAPI spec files (desktop viewports >768px).
-      default: true
-    - name: allow-spec-file-download
-      allowed: ["true", "false"]
-      description: When set to <span class="mono fg-color">true</span>, displays convenient buttons in the overview section to download the raw OpenAPI specification file or view it in a new tab.
-      default: "false"
-    - name: allow-search
-      allowed: ["true", "false"]
-      description: Enables the instant search and filtering input in the navigation sidebar.
-      default: true
-    - name: allow-advanced-search
-      allowed: ["true", "false"]
-      description: Enables deep multi-property search modal, indexing paths, descriptions, parameter names, and response schemas.
-      example: /examples/search
-      default: true
-    - name: allow-try
-      allowed: ["true", "false"]
-      description: Enables the interactive "TRY" console allowing users to test live API calls directly from their browser.
-      default: true
-      example: /examples/try
-    - name: show-curl-before-try
-      allowed: ["true", "false"]
-      description: When set to <span class="mono fg-color">true</span>, generates and displays copyable cURL commands directly within the endpoint documentation prior to clicking "TRY".
-      default: "false"
-      example: /examples/show-curl-before-try
-    - name: allow-server-selection
-      allowed: ["true", "false"]
-      description: Enables the dropdown allowing users to switch between target servers declared in the OpenAPI spec.
-      default: true
-    - name: allow-schema-description-expand-toggle
-      allowed: ["true", "false"]
-      description: Shows or hides the button allowing users to toggle between single-line summary and multi-line detailed schema property descriptions.
-      default: true
-  
+      - name: show-info
+        allowed: ['true', 'false']
+        description: >
+          Toggles visibility of the OpenAPI document info section (title, description, version, terms of service).
+          Useful when embedding `<rapi-doc>` into an existing developer portal or knowledge base that already contains its own header.
+        default: true
+      - name: info-description-headings-in-navbar
+        allowed: ['true', 'false']
+        description: >
+          Extracts Markdown headings (H1 and H2) from the specification's info description and adds them to the sidebar navigation menu (read mode only).
+        default: 'false'
+        example: /examples/markdown-headings
+      - name: match-paths
+        description: >
+          Filters and renders only endpoints matching a specific substring or regular expression, enabling audience segmentation (e.g., showing only public endpoints).
+          The matching strategy is configured via <span class="mono yellow">match-type</span>.
+        default: (empty)
+        example: /examples/search
+      - name: match-type
+        allowed:
+          - includes
+          - regex
+        description: Defines whether match-paths filters by simple substring inclusion or regular expression pattern matching.
+        default: includes
+      - name: remove-endpoints-with-badge-label-as
+        description: >
+          Comma-separated badge labels to exclude from the rendered documentation.
+          Works in tandem with the <span class="mono yellow">x-badges</span> vendor extension to filter out internal, beta, or deprecated endpoints from customer-facing views.
+        example: /examples/badges
+      - name: show-components
+        allowed: ['true', 'false']
+        description: >
+          Toggles the components section (schemas, responses, examples, request bodies, headers, security schemes) in both the document body and sidebar menu (available in focused render-style).
+        default: 'false'
+      - name: show-header
+        allowed: ['true', 'false']
+        description: >
+          Toggles the top navigation header bar. Set to <span class="mono fg-color">false</span> to prevent users from loading alternative spec URLs or to seamlessly embed inside existing layouts.
+        default: true
+      - name: allow-authentication
+        allowed: ['true', 'false']
+        description: >
+          Controls the display of interactive authentication controls (HTTP Basic, Bearer Token, API Key, OAuth2).
+          Disable to hide authentication dialogs when using hardcoded or pre-authenticated API keys.
+        default: true
+      - name: allow-spec-url-load
+        allowed: ['true', 'false']
+        description: When set to <span class="mono fg-color">false</span>, disables the input field allowing users to load arbitrary external OpenAPI specification URLs.
+        default: true
+      - name: allow-spec-file-load
+        allowed: ['true', 'false']
+        description: When set to <span class="mono fg-color">false</span>, hides the file picker allowing users to upload and preview local OpenAPI spec files (desktop viewports >768px).
+        default: true
+      - name: allow-spec-file-download
+        allowed: ['true', 'false']
+        description: When set to <span class="mono fg-color">true</span>, displays convenient buttons in the overview section to download the raw OpenAPI specification file or view it in a new tab.
+        default: 'false'
+      - name: allow-search
+        allowed: ['true', 'false']
+        description: Enables the instant search and filtering input in the navigation sidebar.
+        default: true
+      - name: allow-advanced-search
+        allowed: ['true', 'false']
+        description: Enables deep multi-property search modal, indexing paths, descriptions, parameter names, and response schemas.
+        example: /examples/search
+        default: true
+      - name: allow-try
+        allowed: ['true', 'false']
+        description: Enables the interactive "TRY" console allowing users to test live API calls directly from their browser.
+        default: true
+        example: /examples/try
+      - name: show-curl-before-try
+        allowed: ['true', 'false']
+        description: When set to <span class="mono fg-color">true</span>, generates and displays copyable cURL commands directly within the endpoint documentation prior to clicking "TRY".
+        default: 'false'
+        example: /examples/show-curl-before-try
+      - name: allow-server-selection
+        allowed: ['true', 'false']
+        description: Enables the dropdown allowing users to switch between target servers declared in the OpenAPI spec.
+        default: true
+      - name: allow-schema-description-expand-toggle
+        allowed: ['true', 'false']
+        description: Shows or hides the button allowing users to toggle between single-line summary and multi-line detailed schema property descriptions.
+        default: true
+
   - Schema Section Attributes:
-    - name: schema-style
-      allowed:
-        - tree
-        - table
-      description: Controls the visual representation of complex JSON schemas in request and response panels. 'tree' provides an interactive collapsible tree view; 'table' renders structured tabular rows.
-      default: tree
-      example: /examples/schema-styles
-    - name: schema-expand-level
-      description: Initial depth level for auto-expanding complex nested schema properties and sub-objects (default 999 expands all levels).
-      default: 999
-      example: /examples/schema-expand-level
-    - name: schema-description-expanded
-      allowed: ["true", "false"]
-      description: >
-        Controls whether schema field constraints, validation rules, and descriptions are fully expanded by default or collapsed to a single line.
-      default: "false"
-    - name: schema-hide-read-only
-      allowed:
-        - default
-        - never
-      description: >
-        'default' hides read-only properties in request bodies while displaying them in response models and webhook callbacks.
-        Set to 'never' to always display read-only fields across all payloads.
-        <span class="orange">Note: This does not affect example generation.</span>
-      default: default
-      example: /examples/hide-read-only-write-only
-    - name: schema-hide-write-only
-      allowed:
-        - default
-        - never
-      description: >
-        'default' hides write-only properties in response bodies while displaying them in request payloads.
-        Set to 'never' to always display write-only fields across all payloads.
-        <span class="orange">Note: This does not affect example generation.</span>
-      default: default
-      example: /examples/hide-read-only-write-only
-    - name: default-schema-tab
-      allowed:
-        - schema
-        - example
-      description: >
-        Selects which tab is active by default for request and response payloads: 'schema' (data contract model) or 'example' (sample JSON payload).
-      default: schema
-  
+      - name: schema-style
+        allowed:
+          - tree
+          - table
+        description: Controls the visual representation of complex JSON schemas in request and response panels. 'tree' provides an interactive collapsible tree view; 'table' renders structured tabular rows.
+        default: tree
+        example: /examples/schema-styles
+      - name: schema-expand-level
+        description: Initial depth level for auto-expanding complex nested schema properties and sub-objects (default 999 expands all levels).
+        default: 999
+        example: /examples/schema-expand-level
+      - name: schema-description-expanded
+        allowed: ['true', 'false']
+        description: >
+          Controls whether schema field constraints, validation rules, and descriptions are fully expanded by default or collapsed to a single line.
+        default: 'false'
+      - name: schema-hide-read-only
+        allowed:
+          - default
+          - never
+        description: >
+          'default' hides read-only properties in request bodies while displaying them in response models and webhook callbacks.
+          Set to 'never' to always display read-only fields across all payloads.
+          <span class="orange">Note: This does not affect example generation.</span>
+        default: default
+        example: /examples/hide-read-only-write-only
+      - name: schema-hide-write-only
+        allowed:
+          - default
+          - never
+        description: >
+          'default' hides write-only properties in response bodies while displaying them in request payloads.
+          Set to 'never' to always display write-only fields across all payloads.
+          <span class="orange">Note: This does not affect example generation.</span>
+        default: default
+        example: /examples/hide-read-only-write-only
+      - name: default-schema-tab
+        allowed:
+          - schema
+          - example
+        description: >
+          Selects which tab is active by default for request and response payloads: 'schema' (data contract model) or 'example' (sample JSON payload).
+        default: schema
+
   - API Server Attributes:
-    - name: server-url
-      description: >
-        Custom API server base URL. Overrides the servers array defined in the OpenAPI specification.
-        Particularly useful when sharing a single spec across development, staging, and production environments.
-      default: (empty)
-    - name: default-api-server
-      description: >
-        Selects which server URL from the spec's servers list should be selected by default.
-      default: (empty)
-    - name: api-key-name
-      description: Name of the header or query parameter used when transmitting the API key in interactive console requests.
-      default: (empty)
-    - name: api-key-location
-      allowed:
-        - header
-        - query
-      description: Specifies whether the API key is passed as an HTTP request header or query parameter.
-      default: header
-    - name: api-key-value
-      description: Pre-configured API key value sent during interactive console requests. Can also be set or overwritten directly in the UI.
-      default: (empty)
-    - name: fetch-credentials
-      allowed:
-        - omit
-        - same-origin
-        - include
-      description: >
-        Configures credentials mode for cross-origin browser Fetch requests as defined in the
-        <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials" target="_blank" rel="noopener">Fetch Standard</a>, enabling transmission of cookies and Authorization headers in CORS requests.
-      default: (empty)
-    - name: oauth-receiver
-      description: >
-        Relative or absolute path to the OAuth receiver HTML file for handling authorization redirection callbacks.
-      default: oauth-receiver.html
-    - name: additional-authorize-params
-      description: >
-        Custom query parameters appended to the OAuth2 authorization URL query string (e.g. proxy launch tokens, prompt, audience).<br/><br/>
-        <strong>Supported Formats:</strong>
-        <ul>
-          <li><strong>JSON String</strong> (recommended for HTML attributes):<br/><code>additional-authorize-params='{"launch": "xyz123", "prompt": "consent"}'</code></li>
-          <li><strong>URL Query String</strong>:<br/><code>additional-authorize-params="launch=xyz123&amp;prompt=consent"</code></li>
-          <li><strong>JavaScript Object</strong> (via property):<br/><code>rapidocEl.additionalAuthorizeParams = { launch: 'xyz123', prompt: 'consent' };</code></li>
-        </ul>
-      default: (empty)
-    - name: additional-token-params
-      description: >
-        Custom parameters included in the POST request body sent to the OAuth2 token endpoint (e.g. custom proxy parameters, resource, audience).<br/><br/>
-        <strong>Supported Formats:</strong>
-        <ul>
-          <li><strong>JSON String</strong> (recommended for HTML attributes):<br/><code>additional-token-params='{"audience": "https://api.example.com", "resource": "urn:my:api"}'</code></li>
-          <li><strong>URL-Encoded String</strong>:<br/><code>additional-token-params="audience=https%3A%2F%2Fapi.example.com"</code></li>
-          <li><strong>JavaScript Object</strong> (via property):<br/><code>rapidocEl.additionalTokenParams = { audience: 'https://api.example.com' };</code></li>
-        </ul>
-      default: (empty)
+      - name: server-url
+        description: >
+          Custom API server base URL. Overrides the servers array defined in the OpenAPI specification.
+          Particularly useful when sharing a single spec across development, staging, and production environments.
+        default: (empty)
+      - name: default-api-server
+        description: >
+          Selects which server URL from the spec's servers list should be selected by default.
+        default: (empty)
+      - name: api-key-name
+        description: Name of the header or query parameter used when transmitting the API key in interactive console requests.
+        default: (empty)
+      - name: api-key-location
+        allowed:
+          - header
+          - query
+        description: Specifies whether the API key is passed as an HTTP request header or query parameter.
+        default: header
+      - name: api-key-value
+        description: Pre-configured API key value sent during interactive console requests. Can also be set or overwritten directly in the UI.
+        default: (empty)
+      - name: fetch-credentials
+        allowed:
+          - omit
+          - same-origin
+          - include
+        description: >
+          Configures credentials mode for cross-origin browser Fetch requests as defined in the
+          <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials" target="_blank" rel="noopener">Fetch Standard</a>, enabling transmission of cookies and Authorization headers in CORS requests.
+        default: (empty)
+      - name: oauth-receiver
+        description: >
+          Relative or absolute path to the OAuth receiver HTML file for handling authorization redirection callbacks.
+        default: oauth-receiver.html
+      - name: additional-authorize-params
+        description: >
+          Custom query parameters appended to the OAuth2 authorization URL query string (e.g. proxy launch tokens, prompt, audience).<br/><br/>
+          <strong>Supported Formats:</strong>
+          <ul>
+            <li><strong>JSON String</strong> (recommended for HTML attributes):<br/><code>additional-authorize-params='{"launch": "xyz123", "prompt": "consent"}'</code></li>
+            <li><strong>URL Query String</strong>:<br/><code>additional-authorize-params="launch=xyz123&amp;prompt=consent"</code></li>
+            <li><strong>JavaScript Object</strong> (via property):<br/><code>rapidocEl.additionalAuthorizeParams = { launch: 'xyz123', prompt: 'consent' };</code></li>
+          </ul>
+        default: (empty)
+      - name: additional-token-params
+        description: >
+          Custom parameters included in the POST request body sent to the OAuth2 token endpoint (e.g. custom proxy parameters, resource, audience).<br/><br/>
+          <strong>Supported Formats:</strong>
+          <ul>
+            <li><strong>JSON String</strong> (recommended for HTML attributes):<br/><code>additional-token-params='{"audience": "https://api.example.com", "resource": "urn:my:api"}'</code></li>
+            <li><strong>URL-Encoded String</strong>:<br/><code>additional-token-params="audience=https%3A%2F%2Fapi.example.com"</code></li>
+            <li><strong>JavaScript Object</strong> (via property):<br/><code>rapidocEl.additionalTokenParams = { audience: 'https://api.example.com' };</code></li>
+          </ul>
+        default: (empty)
 
   - Mock Server Attributes:
-    - name: mock-server
-      allowed: ["true", "false"]
-      description: >
-        Enables the built-in, zero-dependency in-browser mock server. Transparently intercepts outgoing network requests (both RapiDoc's Try console and host application fetch/XHR calls) and serves mock responses based on OpenAPI examples or generated from schemas.
-      default: "false"
-    - name: mock-server-status-code
-      description: >
-        Preferred HTTP status code (or comma-separated list of codes, e.g. "200, 404, 500") to simulate. If left empty, the mock server automatically picks the first available 2xx response in the spec.
-      default: (empty)
-    - name: mock-server-status-strategy
-      allowed:
-        - first
-        - cycle
-        - random
-      description: >
-        Selection strategy when multiple status codes are specified in <span class="mono yellow">mock-server-status-code</span>. 'first' always returns the first code; 'cycle' round-robins sequentially per endpoint (ideal for testing retry and backoff logic); 'random' selects a code randomly for chaos and resilience testing.
-      default: first
-    - name: mock-server-delay
-      description: >
-        Simulated network latency in milliseconds before resolving mock responses. Useful for testing client loading spinners and optimistic UI updates.
-      default: 0
-    - name: mock-server-log
-      allowed: ["true", "false"]
-      description: >
-        Logs intercepted requests, matched OpenAPI routes, and synthesized status codes to the browser DevTools console.
-      default: "true"
+      - name: mock-server
+        allowed: ['true', 'false']
+        description: >
+          Enables the built-in, zero-dependency in-browser mock server. Transparently intercepts outgoing network requests (both RapiDoc's Try console and host application fetch/XHR calls) and serves mock responses based on OpenAPI examples or generated from schemas.
+        default: 'false'
+      - name: mock-server-status-code
+        description: >
+          Preferred HTTP status code (or comma-separated list of codes, e.g. "200, 404, 500") to simulate. If left empty, the mock server automatically picks the first available 2xx response in the spec.
+        default: (empty)
+      - name: mock-server-status-strategy
+        allowed:
+          - first
+          - cycle
+          - random
+        description: >
+          Selection strategy when multiple status codes are specified in <span class="mono yellow">mock-server-status-code</span>. 'first' always returns the first code; 'cycle' round-robins sequentially per endpoint (ideal for testing retry and backoff logic); 'random' selects a code randomly for chaos and resilience testing.
+        default: first
+      - name: mock-server-delay
+        description: >
+          Simulated network latency in milliseconds before resolving mock responses. Useful for testing client loading spinners and optimistic UI updates.
+        default: 0
+      - name: mock-server-log
+        allowed: ['true', 'false']
+        description: >
+          Logs intercepted requests, matched OpenAPI routes, and synthesized status codes to the browser DevTools console.
+        default: 'true'
 
 Methods:
   description: JavaScript methods exposed directly on the `<rapi-doc>` DOM element for programmatic control.
@@ -555,7 +541,7 @@ Slots:
         Custom HTML displayed directly above the operations list. Use this slot to provide global announcements, common headers, or usage instructions applicable across all API calls. Link directly using <span class="mono yellow">#operations-top</span>.
     - name: tag--{tag-name}
       description: Inserts custom HTML content underneath a specific tag grouping identified by tag name.
-    - name: "{method}-{path}"
+    - name: '{method}-{path}'
       description: >
         Inserts custom HTML into a specific endpoint section. Identified by <span class="mono yellow">{method}-{path}</span>, where special characters such as brackets, spaces, and hashes are replaced by hyphens (e.g. <span class="mono yellow">get-/pet/-petId-</span>).
 
@@ -575,13 +561,13 @@ Extensions:
         Controls whether endpoints grouped under a tag start expanded or collapsed (applies in view and focused render styles).
     - name: x-fill-example
       allowed:
-        - "yes"
-        - "no"
+        - 'yes'
+        - 'no'
       description: >
         Specifies whether a parameter's example value should be automatically populated in the interactive console input.
         To configure this behavior globally for all parameters, see <span class="mono yellow">fill-request-fields-with-example</span>.
     - name: x-example-show-value
-      allowed: ["true", "false"]
+      allowed: ['true', 'false']
       description: Specifies whether parameter example values should be visibly rendered on the documentation card.
     - name: x-client-id
       description: Pre-fills the OAuth2 client ID in authentication modals.
@@ -591,12 +577,12 @@ Extensions:
       description: Pre-fills default OAuth2 permission scopes in authentication modals.
     - name: x-receive-token-in
       default: request-body
-      allowed: ["request-body", "header"]
+      allowed: ['request-body', 'header']
       description: Defines whether client credentials (client_id / client_secret) are sent via request body or HTTP Authorization header (<span class="yellow mono">request-body</span> or <span class="yellow mono">header</span>). Default is <span class="yellow mono">request-body</span>.
     - name: x-receive-token-in-options
       description: Restricts the client authentication options available in the UI dropdown (e.g. <code>["request-body", "header"]</code>).
     - name: x-pkce-only
-      allowed: ["true", "false"]
+      allowed: ['true', 'false']
       description: When set to "true", enforces Proof Key for Code Exchange (PKCE) flow and prevents client secrets from being transmitted from the browser.
     - name: x-authorize-params
       description: >

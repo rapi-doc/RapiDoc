@@ -1,4 +1,4 @@
-import { css, LitElement, unsafeCSS } from 'lit';
+import { css, LitElement } from 'lit';
 import { marked } from 'marked';
 import Slugger from 'github-slugger';
 import { scheduleHighlight } from '~/utils/highlighter';
@@ -15,6 +15,7 @@ import NavStyles from '~/styles/nav-styles';
 import InfoStyles from '~/styles/info-styles';
 import CustomStyles from '~/styles/custom-styles';
 import DialogBoxStyles from '~/styles/dialog-box-styles';
+import ThemeTokens, { applyCustomTheme, applyCustomFonts } from '~/styles/theme-tokens';
 
 import { advancedSearch, getMatchedPaths, getMatchedComponents, rapidocApiKey, sleep } from '~/utils/common-utils';
 import ProcessSpec from '~/utils/spec-parser';
@@ -131,27 +132,19 @@ export default class RapiDoc extends LitElement {
       scrollBehavior: { type: String, attribute: 'scroll-behavior' },
 
       // Main Colors and Font
-      theme: { type: String },
-      bgColor: { type: String, attribute: 'bg-color' },
-      textColor: { type: String, attribute: 'text-color' },
-      headerColor: { type: String, attribute: 'header-color' },
-      primaryColor: { type: String, attribute: 'primary-color' },
-      fontSize: { type: String, attribute: 'font-size' },
+      theme: { type: String, reflect: true },
+      colorScheme: { type: String, attribute: 'color-scheme', reflect: true },
+      radius: { type: String, reflect: true },
+      scale: { type: String, reflect: true },
       regularFont: { type: String, attribute: 'regular-font' },
       monoFont: { type: String, attribute: 'mono-font' },
       loadFonts: { type: String, attribute: 'load-fonts' },
       cssFile: { type: String, attribute: 'css-file' },
       cssClasses: { type: String, attribute: 'css-classes' },
 
-      // Nav Bar Colors
-      navBgColor: { type: String, attribute: 'nav-bg-color' },
-      navTextColor: { type: String, attribute: 'nav-text-color' },
-      navHoverBgColor: { type: String, attribute: 'nav-hover-bg-color' },
-      navHoverTextColor: { type: String, attribute: 'nav-hover-text-color' },
-      navAccentColor: { type: String, attribute: 'nav-accent-color' },
-      navAccentTextColor: { type: String, attribute: 'nav-accent-text-color' },
+      // Nav Bar
+      navItemSpacing: { type: String, attribute: 'nav-item-spacing', reflect: true },
       navActiveItemMarker: { type: String, attribute: 'nav-active-item-marker' },
-      navItemSpacing: { type: String, attribute: 'nav-item-spacing' },
       showMethodInNavBar: { type: String, attribute: 'show-method-in-nav-bar' },
       usePathInNavBar: { type: String, attribute: 'use-path-in-nav-bar' },
       infoDescriptionHeadingsInNavBar: { type: String, attribute: 'info-description-headings-in-navbar' },
@@ -174,6 +167,7 @@ export default class RapiDoc extends LitElement {
 
   static get styles() {
     return [
+      ThemeTokens,
       FontStyles,
       InputStyles,
       FlexStyles,
@@ -431,7 +425,7 @@ export default class RapiDoc extends LitElement {
         .nav-method.as-colored-block {
           padding: 1px 4px;
           min-width: 30px;
-          border-radius: 4px 0 0 4px;
+          border-radius: var(--radius) 0 0 var(--radius);
           color: #000;
         }
         .colored-block .nav-method.as-colored-block {
@@ -490,7 +484,7 @@ export default class RapiDoc extends LitElement {
 
         @container (min-width: 1024px) {
           .nav-bar {
-            width: ${unsafeCSS(this.fontSize === 'default' ? '300px' : this.fontSize === 'large' ? '315px' : '330px')};
+            width: var(--nav-width, 18.75rem);
             display: flex;
           }
           #nav-bar-btn {
@@ -574,9 +568,35 @@ export default class RapiDoc extends LitElement {
     if (!this.schemaStyle || !'tree, table,'.includes(`${this.schemaStyle},`)) {
       this.schemaStyle = 'tree';
     }
-    if (!this.theme || !'light, dark,'.includes(`${this.theme},`)) {
-      this.theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    if (!this.theme) {
+      this.theme = 'amber';
     }
+    if (!this.colorScheme || !'dark, light, system,'.includes(`${this.colorScheme},`)) {
+      this.colorScheme = 'dark';
+    }
+    if (!this.radius || !'none, sm, md, lg, full,'.includes(`${this.radius},`)) {
+      this.radius = 'sm';
+    }
+    if (!this.scale || !'sm, default, lg,'.includes(`${this.scale},`)) {
+      this.scale = 'default';
+    }
+    if (!this.navItemSpacing || !'compact, default, relaxed,'.includes(`${this.navItemSpacing},`)) {
+      this.navItemSpacing = 'default';
+    }
+    if (!this.getAttribute('theme')) {
+      this.setAttribute('theme', this.theme);
+    }
+    if (!this.getAttribute('color-scheme')) {
+      this.setAttribute('color-scheme', this.colorScheme);
+    }
+    if (!this.getAttribute('radius')) {
+      this.setAttribute('radius', this.radius);
+    }
+    if (!this.getAttribute('scale')) {
+      this.setAttribute('scale', this.scale);
+    }
+    applyCustomTheme(this, this.theme);
+    applyCustomFonts(this, this.regularFont, this.monoFont);
     if (!this.defaultSchemaTab || !'example, schema, model,'.includes(`${this.defaultSchemaTab},`)) {
       this.defaultSchemaTab = 'example';
     } else if (this.defaultSchemaTab === 'model') {
@@ -662,10 +682,6 @@ export default class RapiDoc extends LitElement {
     }
     if (!this.navActiveItemMarker || !'left-bar, colored-block'.includes(`${this.navActiveItemMarker},`)) {
       this.navActiveItemMarker = 'left-bar';
-    }
-
-    if (!this.fontSize || !'default, large, largest,'.includes(`${this.fontSize},`)) {
-      this.fontSize = 'default';
     }
     if (!this.showInfo || !'true, false,'.includes(`${this.showInfo},`)) {
       this.showInfo = 'true';
@@ -773,6 +789,13 @@ export default class RapiDoc extends LitElement {
   updated(changedProperties) {
     super.updated?.(changedProperties);
     scheduleHighlight(this.shadowRoot);
+
+    if (changedProperties.has('theme')) {
+      applyCustomTheme(this, this.theme);
+    }
+    if (changedProperties.has('regularFont') || changedProperties.has('monoFont')) {
+      applyCustomFonts(this, this.regularFont, this.monoFont);
+    }
 
     if (changedProperties.has('mockServer')) {
       if (this.mockServer === 'true' && this.resolvedSpec) {

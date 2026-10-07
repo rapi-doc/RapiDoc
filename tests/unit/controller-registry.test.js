@@ -12,7 +12,9 @@ test('controller-registry', async (t) => {
   await t.test('CONTROL_REGISTRY contains core controls and valid attributes', () => {
     assert.ok(CONTROL_REGISTRY['render-style']);
     assert.ok(CONTROL_REGISTRY['theme']);
-    assert.ok(CONTROL_REGISTRY['primary-color']);
+    assert.ok(CONTROL_REGISTRY['color-scheme']);
+    assert.ok(CONTROL_REGISTRY['radius']);
+    assert.ok(CONTROL_REGISTRY['scale']);
     assert.ok(CONTROL_REGISTRY['schema-style']);
     assert.ok(CONTROL_REGISTRY['allow-try']);
 

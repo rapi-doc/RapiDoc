@@ -10,15 +10,15 @@ export default css`
   .dialog-box {
     position: absolute;
     top: 100px;
-    background: var(--bg2);
+    background: var(--card);
     padding: 0;
-    color: var(--fg2);
-    border-radius: 4px;
+    color: var(--card-foreground);
+    border-radius: var(--radius);
     max-height: 70vh;
     height: 70vh;
     max-width: 70vw;
     width: 70vw;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border);
     box-shadow:
       0 14px 28px rgba(0, 0, 0, 0.25),
       0 10px 10px rgba(0, 0, 0, 0.22);
@@ -35,7 +35,7 @@ export default css`
     padding: 0px 16px;
     min-height: 60px;
     max-height: 60px;
-    border-bottom: 1px solid var(--light-border-color);
+    border-bottom: 1px solid var(--border);
     overflow: hidden;
   }
 
@@ -43,7 +43,7 @@ export default css`
     font-size: 1.5rem;
     font-weight: 700;
     line-height: 1;
-    color: var(--fg);
+    color: var(--foreground);
     border: none;
     outline: none;
     background: transparent;
@@ -53,11 +53,11 @@ export default css`
     margin-inline-end: -8px;
   }
   .dialog-box-header button:hover {
-    border-color: var(--primary-color);
+    border-color: var(--primary);
   }
 
   .dialog-box-content {
-    padding: 16px;
+    padding: 1rem;
     display: block;
     overflow: auto;
     height: 100%;

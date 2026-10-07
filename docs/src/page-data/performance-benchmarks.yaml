@@ -6,10 +6,10 @@ benchmarks:
     fileSize: 24 KB
     operations: 20
     schemas: 6
-    focusedModeTime: "~50 ms"
-    viewModeTime: "~35 ms"
-    readModeTime: "~45 ms"
-    domNodesFocused: "~135 nodes"
+    focusedModeTime: '~50 ms'
+    viewModeTime: '~35 ms'
+    readModeTime: '~45 ms'
+    domNodesFocused: '~135 nodes'
     scrollStability: 60 FPS
     badge: Baseline
 
@@ -20,10 +20,10 @@ benchmarks:
     fileSize: 3.21 MB
     operations: 38
     schemas: 3,010
-    focusedModeTime: "~115 ms"
-    viewModeTime: "~115 ms"
-    readModeTime: "~9.1 s"
-    domNodesFocused: "~243 nodes"
+    focusedModeTime: '~115 ms'
+    viewModeTime: '~115 ms'
+    readModeTime: '~9.1 s'
+    domNodesFocused: '~243 nodes'
     scrollStability: 60 FPS
     badge: Deep Schema
 
@@ -34,9 +34,9 @@ benchmarks:
     fileSize: 4.77 MB
     operations: 917
     schemas: 2,511
-    focusedModeTime: "~135 ms"
-    viewModeTime: "~140 ms"
-    readModeTime: "~1.65 s"
-    domNodesFocused: "~3,813 nodes"
+    focusedModeTime: '~135 ms'
+    viewModeTime: '~140 ms'
+    readModeTime: '~1.65 s'
+    domNodesFocused: '~3,813 nodes'
     scrollStability: 60 FPS
     badge: 900+ Endpoints

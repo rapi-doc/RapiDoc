@@ -26,7 +26,7 @@ export default class JsonTree extends LitElement {
           box-shadow: var(--focus-shadow);
         }
         :where(input[type='text'], input[type='password'], select, textarea):focus-visible {
-          border-color: var(--primary-color);
+          border-color: var(--primary);
         }
         .json-tree {
           position: relative;
@@ -47,23 +47,23 @@ export default class JsonTree extends LitElement {
           padding: 0 20px 0 0;
           cursor: pointer;
           border: 1px solid transparent;
-          border-radius: 3px;
+          border-radius: var(--radius);
         }
         .close-bracket {
           border: 1px solid transparent;
-          border-radius: 3px;
+          border-radius: var(--radius);
           display: inline-block;
         }
         .open-bracket:hover {
-          color: var(--primary-color);
-          background: var(--hover-color);
-          border: 1px solid var(--border-color);
+          color: var(--primary);
+          background: var(--muted);
+          border: 1px solid var(--border);
         }
         .open-bracket.expanded:hover ~ .inside-bracket {
-          border-left: 1px solid var(--fg3);
+          border-left: 1px solid var(--muted-foreground);
         }
         .open-bracket.expanded:hover ~ .close-bracket {
-          color: var(--primary-color);
+          color: var(--primary);
         }
         .inside-bracket {
           padding-left: 12px;

@@ -66,7 +66,7 @@ export default css`
   }
 
   .key-descr .descr-expand-toggle:hover {
-    color: var(--primary-color);
+    color: var(--primary);
   }
 
   .expanded-descr .more-content {
@@ -75,7 +75,7 @@ export default css`
 
   .key-descr {
     font-family: var(--font-regular);
-    color: var(--light-fg);
+    color: var(--muted-foreground);
     flex-shrink: 1;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -90,9 +90,9 @@ export default css`
   .xxx-of-key {
     font-size: calc(var(--font-size-small) - 2px);
     font-weight: bold;
-    background: var(--primary-color);
-    color: var(--primary-color-invert);
-    border-radius: 2px;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border-radius: var(--radius);
     line-height: calc(var(--font-size-small) + 6px);
     padding: 0px 5px;
     margin-bottom: 1px;
@@ -101,7 +101,7 @@ export default css`
 
   .xxx-of-descr {
     font-family: var(--font-regular);
-    color: var(--primary-color);
+    color: var(--primary);
     font-size: calc(var(--font-size-small) - 1px);
     margin-inline-start: 2px;
   }
@@ -151,7 +151,7 @@ export default css`
     display: flex;
     width: 100%;
     padding: 2px 0;
-    color: var(--primary-color);
+    color: var(--primary);
   }
   .toolbar-item {
     cursor: pointer;
@@ -160,7 +160,7 @@ export default css`
   }
   .schema-root-type {
     cursor: auto;
-    color: var(--fg2);
+    color: var(--card-foreground);
     font-weight: bold;
     text-transform: uppercase;
   }

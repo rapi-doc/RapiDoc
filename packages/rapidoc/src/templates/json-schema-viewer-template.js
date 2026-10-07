@@ -12,8 +12,6 @@ import headerTemplate from '~/templates/header-template';
 import { schemaToAST, generateExample, standardizeExample } from '~/utils/schema-utils';
 import '~/components/json-tree';
 import '~/components/schema-tree';
-import SetTheme from '~/utils/theme';
-import { isValidHexColor } from '~/utils/color-utils';
 
 // Json Schema Nav Template
 function jsonSchemaNavTemplate() {
@@ -130,23 +128,9 @@ export default function jsonSchemaViewerTemplate(isMini = false) {
   if (!this.resolvedSpec) {
     return '';
   }
-  const newTheme = {
-    bg1: isValidHexColor(this.bgColor) ? this.bgColor : '',
-    fg1: isValidHexColor(this.textColor) ? this.textColor : '',
-    headerColor: isValidHexColor(this.headerColor) ? this.headerColor : '',
-    primaryColor: isValidHexColor(this.primaryColor) ? this.primaryColor : '',
-    navBgColor: isValidHexColor(this.navBgColor) ? this.navBgColor : '',
-    navTextColor: isValidHexColor(this.navTextColor) ? this.navTextColor : '',
-    navHoverBgColor: isValidHexColor(this.navHoverBgColor) ? this.navHoverBgColor : '',
-    navHoverTextColor: isValidHexColor(this.navHoverTextColor) ? this.navHoverTextColor : '',
-    navAccentColor: isValidHexColor(this.navAccentColor) ? this.navAccentColor : '',
-    navAccenttextColor: isValidHexColor(this.navAccentTextColor) ? this.navAccentTextColor : '',
-  };
-
   if (this.resolvedSpec.specLoadError) {
     if (isMini) {
       return html`
-        ${this.theme === 'dark' ? SetTheme.call(this, 'dark', newTheme) : SetTheme.call(this, 'light', newTheme)}
         <div
           style="display:flex; align-items:center; border:1px dashed var(--border-color); height:42px; padding:5px; font-size:var(--font-size-small); color:var(--red); font-family:var(--font-mono)"
         >
@@ -155,7 +139,6 @@ export default function jsonSchemaViewerTemplate(isMini = false) {
       `;
     }
     return html`
-      ${this.theme === 'dark' ? SetTheme.call(this, 'dark', newTheme) : SetTheme.call(this, 'light', newTheme)}
       <!-- Header -->
       ${headerTemplate.call(this)}
       <h1>Header</h1>
@@ -170,7 +153,6 @@ export default function jsonSchemaViewerTemplate(isMini = false) {
   }
   if (this.resolvedSpec.isSpecLoading) {
     return html`
-      ${this.theme === 'dark' ? SetTheme.call(this, 'dark', newTheme) : SetTheme.call(this, 'light', newTheme)}
       <main class="main-content regular-font" part="section-main-content">
         <slot></slot>
         <div class="main-content-inner--${this.renderStyle}-mode">
@@ -181,8 +163,6 @@ export default function jsonSchemaViewerTemplate(isMini = false) {
   }
 
   return html`
-    ${this.theme === 'dark' ? SetTheme.call(this, 'dark', newTheme) : SetTheme.call(this, 'light', newTheme)}
-
     <!-- Header -->
     ${this.showHeader === 'false' ? '' : headerTemplate.call(this)}
 

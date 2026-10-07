@@ -8,64 +8,65 @@ import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 One of RapiDoc's biggest strengths is its styling model. Because RapiDoc is implemented as a standard Web Component, its internal markup and stylesheet reside inside an **encapsulated Shadow DOM**.
 
 <Aside type="tip" title="Why Shadow DOM Encapsulation Matters">
-In large web applications, global CSS rules (such as CSS resets, utility frameworks, or third-party component libraries) frequently clash with embedded documentation widgets. With Shadow DOM:
-- External CSS cannot accidentally break RapiDoc's internal elements.
-- Internal RapiDoc styles will never bleed out into your parent application.
+  In large web applications, global CSS rules (such as CSS resets, utility frameworks, or third-party component libraries) frequently clash
+  with embedded documentation widgets. With Shadow DOM: - External CSS cannot accidentally break RapiDoc's internal elements. - Internal
+  RapiDoc styles will never bleed out into your parent application.
 </Aside>
 
 To style RapiDoc, you have two primary mechanisms:
+
 1. **Attribute-based Configuration**: Simple, declarative HTML attributes for colors, fonts, and layout settings.
 2. **CSS Shadow Parts (`::part()`)**: Deep, granular styling using modern CSS pseudo-elements for gradients, borders, and custom UI components.
 
 ---
 
-## 1. Attribute-Based Color Theming
+## 1. Simplified Attribute-Based Theming
 
-You can customize the entire color palette by setting attributes directly on the `<rapi-doc>` tag:
+RapiDoc v11 provides a streamlined theming interface powered by semantic design tokens aligned with shadcn/ui. You can customize the entire appearance with just 3 primary attributes:
 
 ```html
-<rapi-doc
-  spec-url="https://api.example.com/openapi.json"
-  theme="dark"
-  bg-color="#0b0f19"
-  text-color="#94a3b8"
-  primary-color="#06b6d4"
-  header-color="#0f172a"
-  nav-bg-color="#070a13"
-  nav-text-color="#cbd5e1"
-  nav-hover-bg-color="#1e293b"
-  nav-hover-text-color="#38bdf8"
-  nav-accent-color="#06b6d4"
-></rapi-doc>
+<rapi-doc spec-url="https://api.example.com/openapi.json" theme="amber" color-scheme="dark" radius="sm" scale="default"></rapi-doc>
 ```
 
-### Color Attribute Reference
+### Core Attribute Reference
 
-| Attribute | Default (Light) | Default (Dark) | Description |
-| :--- | :--- | :--- | :--- |
-| `theme` | `"light"` | `"dark"` | Base theme preset (`"light"` or `"dark"`). |
-| `bg-color` | `#ffffff` | `#333333` | Background color of the main documentation canvas. |
-| `text-color` | `#444444` | `#cccccc` | Body and description text color. |
-| `primary-color` | `#ff791a` | `#f48135` | Accent color for buttons, badges, method indicators, and active links. |
-| `header-color` | `#444444` | `#111111` | Background color of the top utility header bar. |
-| `nav-bg-color` | `transparent`| `transparent`| Background color of the left navigation sidebar. |
-| `nav-text-color` | `#444444` | `#cccccc` | Text color of items inside the sidebar. |
-| `nav-hover-bg-color` | `rgba(0,0,0,0.05)` | `rgba(255,255,255,0.05)` | Background color of sidebar items on hover. |
-| `nav-hover-text-color` | `#000000` | `#ffffff` | Text color of sidebar items on hover. |
-| `nav-accent-color` | `#ff791a` | `#f48135` | Color of the active indicator border and active item text in the sidebar. |
+| Attribute          | Options                                                                                | Default     | Description                                                                                 |
+| :----------------- | :------------------------------------------------------------------------------------- | :---------- | :------------------------------------------------------------------------------------------ |
+| `theme`            | `amber`, `graphite`, `slate`, `emerald`, `violet`, `rose`, `blue`, or any `#hex` color | `"amber"`   | Color palette preset matching shadcn/ui themes, or a custom brand color hex/css value.      |
+| `color-scheme`     | `dark`, `light`, `system`                                                              | `"dark"`    | UI color mode. `"system"` automatically matches the user's OS dark/light mode preference.   |
+| `radius`           | `none`, `sm`, `md`, `lg`, `full`                                                       | `"sm"`      | Corner radius scale applied across cards, method badges, buttons, inputs, and dialogs.      |
+| `scale`            | `sm`, `default`, `lg`                                                                  | `"default"` | Component scaling factor adjusting typography, margins, and control heights proportionally. |
+| `nav-item-spacing` | `compact`, `default`, `relaxed`                                                        | `"default"` | Sidebar item vertical density and padding, decoupled from font size scaling.                |
+
+### Custom Brand Colors
+
+You can supply your own brand color directly into the `theme` attribute without configuring multiple color variables:
+
+```html
+<!-- Use your exact corporate brand color -->
+<rapi-doc spec-url="https://api.example.com/openapi.json" theme="#2563eb" color-scheme="dark" radius="md"></rapi-doc>
+```
 
 ---
 
 ## 2. Typography & Custom Web Fonts
 
-RapiDoc lets you specify custom font families for regular text and code blocks. You can load any Google Font or corporate web font in your parent document, then point RapiDoc to it:
+RapiDoc uses high-quality defaults out of the box:
+
+- **Regular Font**: `"Open Sans", Avenir, "Segoe UI", Arial, sans-serif`
+- **Monospace Font**: `Monaco, "Andale Mono", "Roboto Mono", Consolas, monospace`
+
+You can customize font families using `regular-font` and `mono-font` attributes:
 
 ```html
 <head>
   <!-- 1. Load Google Fonts in your document head -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet"
+  />
 </head>
 
 <body>
@@ -74,37 +75,36 @@ RapiDoc lets you specify custom font families for regular text and code blocks. 
     spec-url="https://petstore.swagger.io/v2/swagger.json"
     regular-font="'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
     mono-font="'JetBrains Mono', 'Fira Code', monospace"
-    font-size="default"
+    scale="default"
   ></rapi-doc>
 </body>
 ```
 
-### Font Size Presets
+### Scale Presets
 
-RapiDoc provides three built-in scale options for the `font-size` attribute:
+The `scale` attribute controls typography, base sizing, and proportional margins:
 
-- `font-size="default"`: Balanced standard scale (14px base, ideal for desktop portals).
-- `font-size="large"`: Increased scale (16px base, optimal for high-density reading and accessibility).
-- `font-size="largest"`: Maximum readability scale (18px base).
+- `scale="sm"`: Compact scale (13px base), ideal for embedded panels and dense developer portals.
+- `scale="default"`: Balanced standard scale (14px base, standard desktop layout).
+- `scale="lg"`: High-readability scale (15px base), optimal for accessibility and presentation modes.
 
 ---
 
 ## 3. Dynamic Theme Switching at Runtime
 
-Because `<rapi-doc>` is a standard DOM element, you can dynamically switch between light and dark modes or update colors using vanilla JavaScript or framework state:
+Because `<rapi-doc>` is a standard DOM element, you can dynamically switch themes or color schemes at runtime with vanilla JavaScript:
 
 ```javascript
 const doc = document.querySelector('rapi-doc');
 
-function toggleTheme(isDark) {
-  if (isDark) {
-    doc.setAttribute('theme', 'dark');
-    doc.setAttribute('bg-color', '#06090e');
-    doc.setAttribute('text-color', '#94a3b8');
-  } else {
-    doc.setAttribute('theme', 'light');
-    doc.setAttribute('bg-color', '#ffffff');
-    doc.setAttribute('text-color', '#334155');
-  }
+// Switch preset and mode
+function applyTheme(preset, isDark) {
+  doc.setAttribute('theme', preset); // 'emerald', 'violet', etc.
+  doc.setAttribute('color-scheme', isDark ? 'dark' : 'light');
+}
+
+// Switch corner radius
+function setRadius(size) {
+  doc.setAttribute('radius', size); // 'none', 'sm', 'md', 'lg', 'full'
 }
 ```
