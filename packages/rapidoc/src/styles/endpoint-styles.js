@@ -175,6 +175,7 @@ export default css`
     display: flex;
     flex-direction: column;
     gap: 16px;
+    min-width: 0;
   }
 
   .view-mode-request,
@@ -207,7 +208,7 @@ export default css`
     border-color: var(--red);
   }
 
-  @container (min-width: 1024px) {
+  @container (min-width: 860px) {
     .only-large-screen {
       display: block;
     }
@@ -241,7 +242,7 @@ export default css`
     :host([layout='row']) .expanded-req-resp-container > api-response,
     .expanded-req-resp-container.row-layout > api-request,
     .expanded-req-resp-container.row-layout > api-response {
-      flex: 1;
+      flex: 1 1 0%;
       min-width: 0;
     }
     api-response.view-mode {

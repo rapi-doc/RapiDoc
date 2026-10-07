@@ -220,6 +220,7 @@ export default class RapiDoc extends LitElement {
           overflow-x: hidden;
           scrollbar-width: thin;
           scrollbar-color: var(--border) transparent;
+          container-type: inline-size;
         }
 
         .main-content-inner--view-mode {

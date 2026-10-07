@@ -159,10 +159,13 @@ export function apiCallTemplate() {
     </div>
   `;
 
-  return html`<div style="display:flex; align-items:flex-end; margin:16px 0; font-size:var(--font-size-small);" part="wrap-request-btn">
-      <div class="hide-in-small-screen" style="flex-direction:column; margin:0; width:calc(100% - 60px);">
+  return html`<div
+      style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px 8px; margin:16px 0; font-size:var(--font-size-small);"
+      part="wrap-request-btn"
+    >
+      <div class="hide-in-small-screen" style="display:flex; flex-direction:column; margin:0; flex:1 1 180px; min-width:0;">
         <div style="display:flex; flex-direction:row; align-items:center; overflow:hidden;">${selectedServerHtml}</div>
-        <div style="display:flex;">
+        <div style="display:flex; flex-wrap:wrap;">
           <div style="font-weight:bold; padding-right:5px;">Authentication</div>
           ${
             this.security?.length > 0 && !this.security.every((s) => !s || Object.keys(s).length === 0)
@@ -183,38 +186,38 @@ export function apiCallTemplate() {
           }
         </div>
       </div>
-      ${
-        this.parameters.length > 0 || this.request_body
-          ? html` <button
-                class="m-btn thin-border"
-                part="btn btn-outline btn-fill"
-                style="margin-right:5px;"
-                ?disabled="${this.loading}"
-                @click="${this.onFillRequestData}"
-                title="Fills with example data (if provided)"
-              >
-                FILL EXAMPLE
-              </button>
-              <button
-                class="m-btn thin-border"
-                part="btn btn-outline btn-clear"
-                style="margin-right:5px;"
-                ?disabled="${this.loading}"
-                @click="${this.onClearRequestData}"
-              >
-                CLEAR
-              </button>`
-          : ''
-      }
-      <button
-        class="m-btn primary thin-border"
-        part="btn btn-try"
-        ?disabled="${this.loading}"
-        aria-busy="${this.loading}"
-        @click="${this.onTryClick}"
-      >
-        ${this.loading ? 'TRYING...' : 'TRY'}
-      </button>
+      <div style="display:flex; flex-wrap:wrap; align-items:center; gap:6px; flex-shrink:0;">
+        ${
+          this.parameters.length > 0 || this.request_body
+            ? html` <button
+                  class="m-btn thin-border"
+                  part="btn btn-outline btn-fill"
+                  ?disabled="${this.loading}"
+                  @click="${this.onFillRequestData}"
+                  title="Fills with example data (if provided)"
+                >
+                  FILL EXAMPLE
+                </button>
+                <button
+                  class="m-btn thin-border"
+                  part="btn btn-outline btn-clear"
+                  ?disabled="${this.loading}"
+                  @click="${this.onClearRequestData}"
+                >
+                  CLEAR
+                </button>`
+            : ''
+        }
+        <button
+          class="m-btn primary thin-border"
+          part="btn btn-try"
+          ?disabled="${this.loading}"
+          aria-busy="${this.loading}"
+          @click="${this.onTryClick}"
+        >
+          ${this.loading ? 'TRYING...' : 'TRY'}
+        </button>
+      </div>
     </div>
     <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
       ${this.showCurlBeforeTry === 'true' ? curlSyntaxTemplate.call(this) : ''}
