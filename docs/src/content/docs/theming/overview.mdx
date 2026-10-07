@@ -32,7 +32,7 @@ RapiDoc v11 provides a streamlined theming interface powered by semantic design 
 
 | Attribute          | Options                                                                                | Default     | Description                                                                                 |
 | :----------------- | :------------------------------------------------------------------------------------- | :---------- | :------------------------------------------------------------------------------------------ |
-| `theme`            | `amber`, `graphite`, `slate`, `emerald`, `violet`, `rose`, `blue`, or any `#hex` color | `"amber"`   | Color palette preset matching shadcn/ui themes, or a custom brand color hex/css value.      |
+| `theme`            | `default`, `amber`, `graphite`, `modern`, or any `#hex` color | `"default"` | Color palette preset matching tweakcn / shadcn themes, or a custom brand color hex/css value. |
 | `color-scheme`     | `dark`, `light`, `system`                                                              | `"dark"`    | UI color mode. `"system"` automatically matches the user's OS dark/light mode preference.   |
 | `radius`           | `none`, `sm`, `md`, `lg`, `full`                                                       | `"sm"`      | Corner radius scale applied across cards, method badges, buttons, inputs, and dialogs.      |
 | `scale`            | `sm`, `default`, `lg`                                                                  | `"default"` | Component scaling factor adjusting typography, margins, and control heights proportionally. |
@@ -53,10 +53,10 @@ You can supply your own brand color directly into the `theme` attribute without 
 
 RapiDoc uses high-quality defaults out of the box:
 
-- **Regular Font**: `"Open Sans", Avenir, "Segoe UI", Arial, sans-serif`
-- **Monospace Font**: `Monaco, "Andale Mono", "Roboto Mono", Consolas, monospace`
+- **Regular / Sans Font**: `--font-sans` or `--font-regular` (default: `"Open Sans", Avenir, "Segoe UI", Arial, sans-serif`)
+- **Monospace Font**: `--font-mono` (default: `Monaco, "Andale Mono", "Roboto Mono", Consolas, monospace`)
 
-You can customize font families using `regular-font` and `mono-font` attributes:
+Typography is configured directly via standard CSS custom properties or shadcn theme variables on `<rapi-doc>`:
 
 ```html
 <head>
@@ -67,14 +67,19 @@ You can customize font families using `regular-font` and `mono-font` attributes:
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
     rel="stylesheet"
   />
+
+  <style>
+    /* 2. Style typography using standard or shadcn CSS variables */
+    rapi-doc {
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+  </style>
 </head>
 
 <body>
-  <!-- 2. Configure regular-font and mono-font attributes -->
   <rapi-doc
     spec-url="https://petstore.swagger.io/v2/swagger.json"
-    regular-font="'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
-    mono-font="'JetBrains Mono', 'Fira Code', monospace"
     scale="default"
   ></rapi-doc>
 </body>
@@ -99,7 +104,7 @@ const doc = document.querySelector('rapi-doc');
 
 // Switch preset and mode
 function applyTheme(preset, isDark) {
-  doc.setAttribute('theme', preset); // 'emerald', 'violet', etc.
+  doc.setAttribute('theme', preset); // 'amber', 'graphite', 'modern', etc.
   doc.setAttribute('color-scheme', isDark ? 'dark' : 'light');
 }
 

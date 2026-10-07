@@ -94,7 +94,7 @@ export default class JsonTree extends LitElement {
           color: var(--purple);
         }
         .object {
-          color: var(--fg);
+          color: var(--foreground);
         }
         .toolbar {
           position: absolute;

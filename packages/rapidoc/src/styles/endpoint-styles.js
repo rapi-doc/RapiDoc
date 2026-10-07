@@ -168,7 +168,13 @@ export default css`
     align-items: stretch;
     flex-wrap: wrap;
     flex-direction: column;
-    border-top: 1px solid var(--light-border-color);
+    border-top: 1px solid var(--border-color);
+  }
+
+  .expanded-req-resp-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
   }
 
   .view-mode-request,
@@ -218,6 +224,25 @@ export default css`
     .req-resp-container {
       flex-direction: var(--layout, row);
       flex-wrap: nowrap;
+    }
+    :host([layout='column']) .req-resp-container,
+    .req-resp-container.column-layout {
+      flex-direction: column !important;
+    }
+    :host([layout='column']) .view-mode-request,
+    .view-mode-request.column-layout {
+      border-width: 0 0 1px 0;
+    }
+    :host([layout='row']) .expanded-req-resp-container,
+    .expanded-req-resp-container.row-layout {
+      flex-direction: row;
+    }
+    :host([layout='row']) .expanded-req-resp-container > api-request,
+    :host([layout='row']) .expanded-req-resp-container > api-response,
+    .expanded-req-resp-container.row-layout > api-request,
+    .expanded-req-resp-container.row-layout > api-response {
+      flex: 1;
+      min-width: 0;
     }
     api-response.view-mode {
       padding: 16px;

@@ -34,7 +34,7 @@ export default css`
   .key-descr .descr-expand-toggle {
     display: inline-block;
     user-select: none;
-    color: var(--fg);
+    color: var(--foreground);
     cursor: pointer;
     transform: rotate(45deg);
     transition: transform 0.2s ease;

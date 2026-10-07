@@ -343,7 +343,7 @@ export default function navbarTemplate() {
 
         <!-- COMPONENTS -->
         ${
-          this.resolvedSpec.components && this.showComponents === 'true' && this.renderStyle === 'focused'
+          this.resolvedSpec.components && this.showComponents === 'true'
             ? html` <div id="link-components" class="nav-bar-section components">
                   <div></div>
                   <div class="nav-bar-section-title">COMPONENTS</div>

@@ -641,6 +641,20 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
           const attr = e.target.getAttribute('data-attr');
           const val = e.target.value ?? '';
           if (attr) {
+            if (attr === 'regular-font') {
+              if (val === '') {
+                target.style.removeProperty('--font-sans');
+                target.style.removeProperty('--font-regular');
+              } else {
+                target.style.setProperty('--font-sans', val);
+              }
+            } else if (attr === 'mono-font') {
+              if (val === '') {
+                target.style.removeProperty('--font-mono');
+              } else {
+                target.style.setProperty('--font-mono', val);
+              }
+            }
             if (val === '') {
               target.removeAttribute(attr);
             } else {
@@ -699,8 +713,15 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
           if (initialAttrs && Object.prototype.hasOwnProperty.call(initialAttrs, attr)) {
             const initialVal = String(initialAttrs[attr]);
             target.setAttribute(attr, initialVal);
+            if (attr === 'regular-font') target.style.setProperty('--font-sans', initialVal);
+            if (attr === 'mono-font') target.style.setProperty('--font-mono', initialVal);
           } else {
             target.removeAttribute(attr);
+            if (attr === 'regular-font') {
+              target.style.removeProperty('--font-sans');
+              target.style.removeProperty('--font-regular');
+            }
+            if (attr === 'mono-font') target.style.removeProperty('--font-mono');
           }
         });
 
@@ -721,6 +742,12 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
                 target.setAttribute(key, String(val));
               }
             });
+          }
+          if (target.hasAttribute('regular-font')) {
+            target.style.setProperty('--font-sans', target.getAttribute('regular-font'));
+          }
+          if (target.hasAttribute('mono-font')) {
+            target.style.setProperty('--font-mono', target.getAttribute('mono-font'));
           }
         } catch (_) {}
 

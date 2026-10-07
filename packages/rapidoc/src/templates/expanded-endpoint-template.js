@@ -134,7 +134,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
                 <div
                   part="section-operation-webhook-method"
                   class="mono-font regular-font-size"
-                  style="text-align:left; direction:ltr; padding: 8px 0; color:var(--fg3)"
+                  style="text-align:left; direction:ltr; padding: 8px 0; color:var(--muted-foreground)"
                 >
                   <span part="label-operation-method" class="regular-font upper method-fg bold-text ${path.method}">${path.method}</span>
                   <span style="overflow-wrap: break-word;" part="label-operation-path">${path.path}</span>
@@ -146,7 +146,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
       ${pathSecurityTemplate.call(this, path.security)}
       ${
         path.externalDocs?.url || path.externalDocs?.description
-          ? html`<div style="background:var(--bg3); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--card-radius)">
+          ? html`<div style="background:var(--muted); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--card-radius)">
               <div class="m-markdown">${unsafeHTML(sanitizeHTML(marked(path.externalDocs?.description || '')))}</div>
               ${
                 path.externalDocs?.url
@@ -164,7 +164,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
           : ''
       }
       ${codeSampleTabPanel}
-      <div class="expanded-req-resp-container">
+      <div class="expanded-req-resp-container ${this.layout}-layout">
         <api-request
           .config="${this.config}"
           class="${this.renderStyle}-mode"
@@ -178,7 +178,19 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
           .api_keys="${nonEmptyApiKeys}"
           .servers="${path.servers}"
           server-url="${path.servers?.[0]?.url || this.selectedServer?.computedUrl}"
+          fill-request-fields-with-example="${this.fillRequestFieldsWithExample}"
+          allow-try="${this.allowTry}"
+          show-curl-before-try="${this.showCurlBeforeTry}"
           accept="${accept}"
+          render-style="${this.renderStyle}"
+          schema-style="${this.schemaStyle}"
+          active-schema-tab="${this.defaultSchemaTab}"
+          schema-expand-level="${this.schemaExpandLevel}"
+          schema-description-expanded="${this.schemaDescriptionExpanded}"
+          allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
+          schema-hide-read-only="${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
+          schema-hide-write-only="${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
+          fetch-credentials="${this.fetchCredentials}"
           exportparts="wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
           tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-coontent:tab-content, 
           file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
@@ -194,6 +206,14 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
           style="width:100%;"
           webhook="${path.isWebhook}"
           .responses="${path.responses}"
+          render-style="${this.renderStyle}"
+          schema-style="${this.schemaStyle}"
+          active-schema-tab="${this.defaultSchemaTab}"
+          schema-expand-level="${this.schemaExpandLevel}"
+          schema-description-expanded="${this.schemaDescriptionExpanded}"
+          allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
+          schema-hide-read-only="${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
+          schema-hide-write-only="${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
           selected-status="${Object.keys(path.responses || {})[0] || ''}"
           exportparts="btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
           tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-coontent:tab-content, 

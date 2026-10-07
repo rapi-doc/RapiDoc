@@ -76,8 +76,8 @@ export default css`
     line-height: 30px;
     width: 50px;
     height: 50px;
-    background: var(--bg2);
-    color: var(--fg1);
+    background: var(--card);
+    color: var(--foreground);
     border: 1px solid var(--border-color);
     border-radius: 4px;
     cursor: pointer;
@@ -200,7 +200,7 @@ export default css`
     transition: transform 0.2s ease-out 0s;
   }
   .nav-scroll::-webkit-scrollbar {
-    width: var(--scroll-bar-width, 8px);
+    width: 8px;
   }
   .nav-scroll::-webkit-scrollbar-track {
     background: transparent;

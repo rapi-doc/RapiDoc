@@ -2,7 +2,7 @@ import { css } from 'lit';
 
 export default css`
   .hover-bg:hover {
-    background: var(--bg3);
+    background: var(--muted);
   }
   ::selection {
     background: var(--selection-bg);
@@ -142,7 +142,7 @@ export default css`
     cursor: pointer;
   }
   a.inactive-link {
-    color: var(--fg);
+    color: var(--foreground);
     text-decoration: none;
     cursor: text;
   }
@@ -230,8 +230,8 @@ export default css`
   .m-markdown-small pre {
     margin-top: 4px;
     padding: 2px 4px;
-    background: var(--bg3);
-    color: var(--fg2);
+    background: var(--muted);
+    color: var(--card-foreground);
   }
 
   .m-markdown-small pre code,
@@ -245,8 +245,8 @@ export default css`
   }
 
   .m-markdown-small pre code {
-    color: var(--fg2);
-    background: var(--bg3);
+    color: var(--card-foreground);
+    background: var(--muted);
   }
 
   .m-markdown ul,
@@ -316,7 +316,7 @@ export default css`
   .m-markdown th,
   .m-markdown-small th {
     font-weight: 600;
-    background: var(--bg2);
+    background: var(--card);
     vertical-align: middle;
   }
 

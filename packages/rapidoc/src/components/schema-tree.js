@@ -33,12 +33,13 @@ export default class SchemaTree extends LitElement {
 
   willUpdate(changedProperties) {
     super.willUpdate?.(changedProperties);
-    if (this.config) {
-      this.schemaExpandLevel ??= this.config.schemaExpandLevel;
-      this.schemaDescriptionExpanded ??= this.config.schemaDescriptionExpanded;
-      this.allowSchemaDescriptionExpandToggle ??= this.config.allowSchemaDescriptionExpandToggle;
-      this.schemaHideReadOnly ??= this.config.schemaHideReadOnly;
-      this.schemaHideWriteOnly ??= this.config.schemaHideWriteOnly;
+    if (this.config && changedProperties.has('config')) {
+      if (this.config.schemaExpandLevel !== undefined) this.schemaExpandLevel = this.config.schemaExpandLevel;
+      if (this.config.schemaDescriptionExpanded !== undefined) this.schemaDescriptionExpanded = this.config.schemaDescriptionExpanded;
+      if (this.config.allowSchemaDescriptionExpandToggle !== undefined)
+        this.allowSchemaDescriptionExpandToggle = this.config.allowSchemaDescriptionExpandToggle;
+      if (this.config.schemaHideReadOnly !== undefined) this.schemaHideReadOnly = this.config.schemaHideReadOnly;
+      if (this.config.schemaHideWriteOnly !== undefined) this.schemaHideWriteOnly = this.config.schemaHideWriteOnly;
     }
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) {
       this.schemaExpandLevel = 99999;

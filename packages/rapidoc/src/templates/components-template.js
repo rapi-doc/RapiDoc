@@ -56,7 +56,7 @@ function componentBodyTemplate(sComponent, componentType) {
         </div>
         ${
           sComponent.component
-            ? html`<div class="mono-font regular-font-size" style="padding: 8px 0; color:var(--fg2)">
+            ? html`<div class="mono-font regular-font-size" style="padding: 8px 0; color:var(--card-foreground)">
                 <json-tree class="border tree" render-style="${this.renderStyle}" .data="${sComponent.component}"> </json-tree>
               </div>`
             : ''

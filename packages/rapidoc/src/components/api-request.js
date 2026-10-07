@@ -125,7 +125,7 @@ export default class ApiRequest extends LitElement {
           line-height: var(--font-size-small);
         }
         .param-name {
-          color: var(--fg);
+          color: var(--foreground);
           font-family: var(--font-mono);
         }
         .param-name.deprecated {
@@ -199,7 +199,7 @@ export default class ApiRequest extends LitElement {
         }
         .v-tab-btn.active {
           font-weight: bold;
-          background: var(--bg);
+          background: var(--background);
           opacity: 1;
         }
 
@@ -845,19 +845,23 @@ export default class ApiRequest extends LitElement {
 
   willUpdate(changedProperties) {
     super.willUpdate?.(changedProperties);
-    if (this.config) {
-      this.renderStyle ??= this.config.renderStyle;
-      this.schemaStyle ??= this.config.schemaStyle;
-      this.schemaExpandLevel ??= this.config.schemaExpandLevel;
-      this.schemaDescriptionExpanded ??= this.config.schemaDescriptionExpanded;
-      this.allowSchemaDescriptionExpandToggle ??= this.config.allowSchemaDescriptionExpandToggle;
-      this.schemaHideReadOnly ??= this.config.schemaHideReadOnly === 'never' ? 'false' : this.webhook === 'true' ? 'false' : 'true';
-      this.schemaHideWriteOnly ??= this.config.schemaHideWriteOnly === 'never' ? 'false' : this.webhook === 'true' ? 'true' : 'false';
-      this.fillRequestFieldsWithExample ??= this.config.fillRequestFieldsWithExample;
-      this.allowTry ??= this.config.allowTry;
-      this.showCurlBeforeTry ??= this.config.showCurlBeforeTry;
-      this.fetchCredentials ??= this.config.fetchCredentials;
-      this.activeSchemaTab ??= this.config.defaultSchemaTab || 'example';
+    if (this.config && changedProperties.has('config')) {
+      if (this.config.renderStyle) this.renderStyle = this.config.renderStyle;
+      if (this.config.schemaStyle) this.schemaStyle = this.config.schemaStyle;
+      if (this.config.schemaExpandLevel !== undefined) this.schemaExpandLevel = this.config.schemaExpandLevel;
+      if (this.config.schemaDescriptionExpanded !== undefined) this.schemaDescriptionExpanded = this.config.schemaDescriptionExpanded;
+      if (this.config.allowSchemaDescriptionExpandToggle !== undefined)
+        this.allowSchemaDescriptionExpandToggle = this.config.allowSchemaDescriptionExpandToggle;
+      if (this.config.schemaHideReadOnly !== undefined)
+        this.schemaHideReadOnly = this.config.schemaHideReadOnly === 'never' ? 'false' : this.webhook === 'true' ? 'false' : 'true';
+      if (this.config.schemaHideWriteOnly !== undefined)
+        this.schemaHideWriteOnly = this.config.schemaHideWriteOnly === 'never' ? 'false' : this.webhook === 'true' ? 'true' : 'false';
+      if (this.config.fillRequestFieldsWithExample !== undefined)
+        this.fillRequestFieldsWithExample = this.config.fillRequestFieldsWithExample;
+      if (this.config.allowTry !== undefined) this.allowTry = this.config.allowTry;
+      if (this.config.showCurlBeforeTry !== undefined) this.showCurlBeforeTry = this.config.showCurlBeforeTry;
+      if (this.config.fetchCredentials !== undefined) this.fetchCredentials = this.config.fetchCredentials;
+      if (this.config.defaultSchemaTab) this.activeSchemaTab = this.config.defaultSchemaTab;
     }
   }
 

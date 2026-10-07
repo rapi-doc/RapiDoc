@@ -15,7 +15,7 @@ import NavStyles from '~/styles/nav-styles';
 import InfoStyles from '~/styles/info-styles';
 import CustomStyles from '~/styles/custom-styles';
 import DialogBoxStyles from '~/styles/dialog-box-styles';
-import ThemeTokens, { applyCustomTheme, applyCustomFonts } from '~/styles/theme-tokens';
+import ThemeTokens, { applyCustomTheme } from '~/styles/theme-tokens';
 
 import { advancedSearch, getMatchedPaths, getMatchedComponents, rapidocApiKey, sleep } from '~/utils/common-utils';
 import ProcessSpec from '~/utils/spec-parser';
@@ -81,7 +81,7 @@ export default class RapiDoc extends LitElement {
       specFile: { type: String, attribute: false },
 
       // UI Layouts
-      layout: { type: String },
+      layout: { type: String, reflect: true },
       renderStyle: { type: String, attribute: 'render-style' },
       defaultSchemaTab: { type: String, attribute: 'default-schema-tab' },
       responseAreaHeight: { type: String, attribute: 'response-area-height' },
@@ -136,8 +136,6 @@ export default class RapiDoc extends LitElement {
       colorScheme: { type: String, attribute: 'color-scheme', reflect: true },
       radius: { type: String, reflect: true },
       scale: { type: String, reflect: true },
-      regularFont: { type: String, attribute: 'regular-font' },
-      monoFont: { type: String, attribute: 'mono-font' },
       loadFonts: { type: String, attribute: 'load-fonts' },
       cssFile: { type: String, attribute: 'css-file' },
       cssClasses: { type: String, attribute: 'css-classes' },
@@ -193,8 +191,8 @@ export default class RapiDoc extends LitElement {
           padding: 0;
           overflow: hidden;
           letter-spacing: normal;
-          color: var(--fg);
-          background: var(--bg);
+          color: var(--foreground);
+          background: var(--background);
           font-family: var(--font-regular);
           container-type: inline-size;
         }
@@ -210,7 +208,7 @@ export default class RapiDoc extends LitElement {
           height: 100%;
           width: 100%;
           overflow: hidden;
-          background: var(--bg);
+          background: var(--background);
         }
         .main-content {
           margin: 0;
@@ -325,7 +323,7 @@ export default class RapiDoc extends LitElement {
         }
         .loader {
           margin: 16px auto 16px auto;
-          border: 4px solid var(--bg3);
+          border: 4px solid var(--muted);
           border-radius: 50%;
           border-top: 4px solid var(--primary-color);
           width: 36px;
@@ -360,15 +358,15 @@ export default class RapiDoc extends LitElement {
           margin-left: 2px;
         }
         .tooltip a {
-          color: var(--fg2);
+          color: var(--card-foreground);
           text-decoration: none;
         }
         .tooltip-text {
-          color: var(--fg2);
+          color: var(--card-foreground);
           max-width: 400px;
           position: absolute;
           z-index: 1;
-          background: var(--bg2);
+          background: var(--card);
           visibility: hidden;
 
           overflow-wrap: break-word;
@@ -596,7 +594,6 @@ export default class RapiDoc extends LitElement {
       this.setAttribute('scale', this.scale);
     }
     applyCustomTheme(this, this.theme);
-    applyCustomFonts(this, this.regularFont, this.monoFont);
     if (!this.defaultSchemaTab || !'example, schema, model,'.includes(`${this.defaultSchemaTab},`)) {
       this.defaultSchemaTab = 'example';
     } else if (this.defaultSchemaTab === 'model') {
@@ -759,6 +756,13 @@ export default class RapiDoc extends LitElement {
     return renderer;
   }
 
+  willUpdate(changedProperties) {
+    super.willUpdate?.(changedProperties);
+    if (this.defaultSchemaTab === 'model') {
+      this.defaultSchemaTab = 'schema';
+    }
+  }
+
   render() {
     // return render(mainBodyTemplate(this), this.shadowRoot, { eventContext: this });
     const cssLinkEl = document.querySelector(`link[href*="${this.cssFile}"]`);
@@ -792,9 +796,6 @@ export default class RapiDoc extends LitElement {
 
     if (changedProperties.has('theme')) {
       applyCustomTheme(this, this.theme);
-    }
-    if (changedProperties.has('regularFont') || changedProperties.has('monoFont')) {
-      applyCustomFonts(this, this.regularFont, this.monoFont);
     }
 
     if (changedProperties.has('mockServer')) {

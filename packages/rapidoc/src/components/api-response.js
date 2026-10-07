@@ -95,15 +95,18 @@ export default class ApiResponse extends LitElement {
 
   willUpdate(changedProperties) {
     super.willUpdate?.(changedProperties);
-    if (this.config) {
-      this.renderStyle ??= this.config.renderStyle;
-      this.schemaStyle ??= this.config.schemaStyle;
-      this.schemaExpandLevel ??= this.config.schemaExpandLevel;
-      this.schemaDescriptionExpanded ??= this.config.schemaDescriptionExpanded;
-      this.allowSchemaDescriptionExpandToggle ??= this.config.allowSchemaDescriptionExpandToggle;
-      this.schemaHideReadOnly ??= this.config.schemaHideReadOnly === 'never' ? 'false' : this.webhook === 'true' ? 'true' : 'false';
-      this.schemaHideWriteOnly ??= this.config.schemaHideWriteOnly === 'never' ? 'false' : this.webhook === 'true' ? 'false' : 'true';
-      this.activeSchemaTab ??= this.config.defaultSchemaTab || 'schema';
+    if (this.config && changedProperties.has('config')) {
+      if (this.config.renderStyle) this.renderStyle = this.config.renderStyle;
+      if (this.config.schemaStyle) this.schemaStyle = this.config.schemaStyle;
+      if (this.config.schemaExpandLevel !== undefined) this.schemaExpandLevel = this.config.schemaExpandLevel;
+      if (this.config.schemaDescriptionExpanded !== undefined) this.schemaDescriptionExpanded = this.config.schemaDescriptionExpanded;
+      if (this.config.allowSchemaDescriptionExpandToggle !== undefined)
+        this.allowSchemaDescriptionExpandToggle = this.config.allowSchemaDescriptionExpandToggle;
+      if (this.config.schemaHideReadOnly !== undefined)
+        this.schemaHideReadOnly = this.config.schemaHideReadOnly === 'never' ? 'false' : this.webhook === 'true' ? 'true' : 'false';
+      if (this.config.schemaHideWriteOnly !== undefined)
+        this.schemaHideWriteOnly = this.config.schemaHideWriteOnly === 'never' ? 'false' : this.webhook === 'true' ? 'false' : 'true';
+      if (this.config.defaultSchemaTab) this.activeSchemaTab = this.config.defaultSchemaTab;
     }
   }
 

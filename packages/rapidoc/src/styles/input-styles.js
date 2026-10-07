@@ -206,7 +206,7 @@ export default css`
   /* Toggle Thumb */
   input[type='checkbox']:after {
     position: absolute;
-    background: var(--bg);
+    background: var(--background);
     border: 1px solid var(--light-bg);
     border-radius: 8px;
     content: '';

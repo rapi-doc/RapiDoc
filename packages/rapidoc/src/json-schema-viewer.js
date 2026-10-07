@@ -12,7 +12,7 @@ import NavStyles from '~/styles/nav-styles';
 import InfoStyles from '~/styles/info-styles';
 
 import EndpointStyles from '~/styles/endpoint-styles';
-import ThemeTokens, { applyCustomTheme, applyCustomFonts } from '~/styles/theme-tokens';
+import ThemeTokens, { applyCustomTheme } from '~/styles/theme-tokens';
 import ProcessSpec from '~/utils/spec-parser';
 import jsonSchemaViewerTemplate from '~/templates/json-schema-viewer-template';
 
@@ -54,8 +54,6 @@ export default class JsonSchemaViewer extends LitElement {
       colorScheme: { type: String, attribute: 'color-scheme', reflect: true },
       radius: { type: String, reflect: true },
       scale: { type: String, reflect: true },
-      regularFont: { type: String, attribute: 'regular-font' },
-      monoFont: { type: String, attribute: 'mono-font' },
       loadFonts: { type: String, attribute: 'load-fonts' },
 
       // Internal Properties
@@ -87,8 +85,8 @@ export default class JsonSchemaViewer extends LitElement {
           padding: 0;
           overflow: hidden;
           letter-spacing: normal;
-          color: var(--fg);
-          background: var(--bg);
+          color: var(--foreground);
+          background: var(--background);
           font-family: var(--font-regular);
           container-type: inline-size;
         }
@@ -149,7 +147,7 @@ export default class JsonSchemaViewer extends LitElement {
         }
         .loader {
           margin: 16px auto 16px auto;
-          border: 4px solid var(--bg3);
+          border: 4px solid var(--muted);
           border-radius: 50%;
           border-top: 4px solid var(--primary-color);
           width: 36px;
@@ -263,7 +261,6 @@ export default class JsonSchemaViewer extends LitElement {
       this.setAttribute('scale', this.scale);
     }
     applyCustomTheme(this, this.theme);
-    applyCustomFonts(this, this.regularFont, this.monoFont);
     if (!this.matchType || !'includes regex'.includes(this.matchType)) {
       this.matchType = 'includes';
     }
@@ -282,9 +279,6 @@ export default class JsonSchemaViewer extends LitElement {
 
     if (changedProperties.has('theme')) {
       applyCustomTheme(this, this.theme);
-    }
-    if (changedProperties.has('regularFont') || changedProperties.has('monoFont')) {
-      applyCustomFonts(this, this.regularFont, this.monoFont);
     }
   }
 

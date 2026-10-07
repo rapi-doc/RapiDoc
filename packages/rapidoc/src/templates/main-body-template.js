@@ -13,6 +13,7 @@ import securitySchemeTemplate, { recoverPersistedApiKeys } from '~/templates/sec
 import headerTemplate from '~/templates/header-template';
 import navbarTemplate from '~/templates/navbar-template';
 import advancedSearchDialogTemplate from '~/templates/advanced-search-dialog-template';
+import componentsTemplate from '~/templates/components-template';
 
 export default function mainBodyTemplate(isMini = false, pathsExpanded = false) {
   if (!this.resolvedSpec) {
@@ -87,6 +88,7 @@ export default function mainBodyTemplate(isMini = false, pathsExpanded = false) 
                                       ? expandedEndpointTemplate.call(this)
                                       : endpointTemplate.call(this, isMini, pathsExpanded)
                                   }
+                                  ${this.showComponents === 'true' ? componentsTemplate.call(this) : ''}
                                 `
                           }
                         </div>

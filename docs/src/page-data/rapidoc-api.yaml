@@ -91,14 +91,6 @@ Attributes:
         allowed: ['true', 'false']
         description: Automatically loads default Open Sans font from Google Fonts CDN. Set to "false" for air-gapped, offline, or enterprise intranet environments.
         default: true
-      - name: regular-font
-        description: Font family name(s) for headings and standard body copy.
-        default: >
-          <span style="font-family: Nunito; font-size:13px"> Open Sans, Avenir, Segoe UI, Arial, sans-serif </span>
-      - name: mono-font
-        description: Font family name(s) for code snippets, JSON payloads, and monospace parameters.
-        default: >
-          <span style="font-family: Nunito; font-size:13px"> Monaco, 'Andale Mono', 'Roboto Mono', 'Consolas', monospace </span>
       - name: css-file & css-classes
         hidden: true
         description: >

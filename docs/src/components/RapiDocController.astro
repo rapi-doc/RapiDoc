@@ -701,6 +701,20 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
           const val = linkBtn.getAttribute('data-val') ?? '';
           const target = getTarget();
           if (target && attr) {
+            if (attr === 'regular-font') {
+              if (val === '') {
+                target.style.removeProperty('--font-sans');
+                target.style.removeProperty('--font-regular');
+              } else {
+                target.style.setProperty('--font-sans', val);
+              }
+            } else if (attr === 'mono-font') {
+              if (val === '') {
+                target.style.removeProperty('--font-mono');
+              } else {
+                target.style.setProperty('--font-mono', val);
+              }
+            }
             if (val === '') {
               target.removeAttribute(attr);
             } else {
@@ -741,6 +755,12 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
                 target.setAttribute(key, String(val));
               }
             });
+          }
+          if (target.hasAttribute('regular-font')) {
+            target.style.setProperty('--font-sans', target.getAttribute('regular-font'));
+          }
+          if (target.hasAttribute('mono-font')) {
+            target.style.setProperty('--font-mono', target.getAttribute('mono-font'));
           }
         } catch (_) {}
 

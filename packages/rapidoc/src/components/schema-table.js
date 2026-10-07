@@ -32,12 +32,13 @@ export default class SchemaTable extends LitElement {
 
   willUpdate(changedProperties) {
     super.willUpdate?.(changedProperties);
-    if (this.config) {
-      this.schemaExpandLevel ??= this.config.schemaExpandLevel;
-      this.schemaDescriptionExpanded ??= this.config.schemaDescriptionExpanded;
-      this.allowSchemaDescriptionExpandToggle ??= this.config.allowSchemaDescriptionExpandToggle;
-      this.schemaHideReadOnly ??= this.config.schemaHideReadOnly;
-      this.schemaHideWriteOnly ??= this.config.schemaHideWriteOnly;
+    if (this.config && changedProperties.has('config')) {
+      if (this.config.schemaExpandLevel !== undefined) this.schemaExpandLevel = this.config.schemaExpandLevel;
+      if (this.config.schemaDescriptionExpanded !== undefined) this.schemaDescriptionExpanded = this.config.schemaDescriptionExpanded;
+      if (this.config.allowSchemaDescriptionExpandToggle !== undefined)
+        this.allowSchemaDescriptionExpandToggle = this.config.allowSchemaDescriptionExpandToggle;
+      if (this.config.schemaHideReadOnly !== undefined) this.schemaHideReadOnly = this.config.schemaHideReadOnly;
+      if (this.config.schemaHideWriteOnly !== undefined) this.schemaHideWriteOnly = this.config.schemaHideWriteOnly;
     }
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) {
       this.schemaExpandLevel = 99999;
@@ -158,10 +159,10 @@ export default class SchemaTable extends LitElement {
         </div>
         <span part="schema-description" class="m-markdown"> ${unsafeHTML(sanitizeHTML(marked(rootDescription)))} </span>
         <div style="border:1px solid var(--light-border-color)">
-          <div style="display:flex; background: var(--bg2); padding:8px 4px; border-bottom:1px solid var(--light-border-color);">
-            <div class="key" style="font-family:var(--font-regular); font-weight:bold; color:var(--fg);">Field</div>
-            <div class="key-type" style="font-family:var(--font-regular); font-weight:bold; color:var(--fg);">Type</div>
-            <div class="key-descr" style="font-family:var(--font-regular); font-weight:bold; color:var(--fg);">Description</div>
+          <div style="display:flex; background: var(--card); padding:8px 4px; border-bottom:1px solid var(--light-border-color);">
+            <div class="key" style="font-family:var(--font-regular); font-weight:bold; color:var(--foreground);">Field</div>
+            <div class="key-type" style="font-family:var(--font-regular); font-weight:bold; color:var(--foreground);">Type</div>
+            <div class="key-descr" style="font-family:var(--font-regular); font-weight:bold; color:var(--foreground);">Description</div>
           </div>
           ${this.renderAST(this.data)}
         </div>
