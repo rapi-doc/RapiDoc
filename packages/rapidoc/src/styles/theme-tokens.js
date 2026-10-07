@@ -229,8 +229,8 @@ export default css`
     --muted: #f4f4f5;
     --muted-foreground: #71717a;
     --border: #e4e4e7;
-    --input-background: color-mix(in srgb, var(--background) 95%, var(--foreground));
-    --input-border: color-mix(in srgb, var(--border) 60%, var(--background));
+    --input-background: color-mix(in srgb, var(--background) 94%, var(--foreground));
+    --input-border: color-mix(in srgb, var(--border) 80%, var(--foreground));
     --input: var(--input-background);
     --primary: #d97706;
     --primary-foreground: #ffffff;
@@ -262,8 +262,8 @@ export default css`
       --muted: #f4f4f5;
       --muted-foreground: #71717a;
       --border: #e4e4e7;
-      --input-background: color-mix(in srgb, var(--background) 95%, var(--foreground));
-      --input-border: color-mix(in srgb, var(--border) 60%, var(--background));
+      --input-background: color-mix(in srgb, var(--background) 94%, var(--foreground));
+      --input-border: color-mix(in srgb, var(--border) 80%, var(--foreground));
       --input: var(--input-background);
       --primary: #d97706;
       --primary-foreground: #ffffff;
@@ -329,8 +329,8 @@ export default css`
     --muted: oklch(0.9846 0.0017 247.8389);
     --muted-foreground: oklch(0.551 0.0234 264.3637);
     --border: oklch(0.9276 0.0058 264.5313);
-    --input-background: color-mix(in srgb, var(--background) 95%, var(--foreground));
-    --input-border: color-mix(in srgb, var(--border) 60%, var(--background));
+    --input-background: color-mix(in srgb, var(--background) 94%, var(--foreground));
+    --input-border: color-mix(in srgb, var(--border) 80%, var(--foreground));
     --input: var(--input-background);
     --primary: oklch(0.7686 0.1647 70.0804);
     --primary-foreground: oklch(0 0 0);
@@ -415,8 +415,8 @@ export default css`
       --muted: oklch(0.9846 0.0017 247.8389);
       --muted-foreground: oklch(0.551 0.0234 264.3637);
       --border: oklch(0.9276 0.0058 264.5313);
-      --input-background: color-mix(in srgb, var(--background) 95%, var(--foreground));
-      --input-border: color-mix(in srgb, var(--border) 60%, var(--background));
+      --input-background: color-mix(in srgb, var(--background) 94%, var(--foreground));
+      --input-border: color-mix(in srgb, var(--border) 80%, var(--foreground));
       --input: var(--input-background);
       --primary: oklch(0.7686 0.1647 70.0804);
       --primary-foreground: oklch(0 0 0);
