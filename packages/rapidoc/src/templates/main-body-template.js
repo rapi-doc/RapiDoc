@@ -26,7 +26,7 @@ export default function mainBodyTemplate(isMini = false, pathsExpanded = false) 
   if (this.resolvedSpec.specLoadError) {
     return html` <div
       id="spec-not-found"
-      style="display:flex; align-items:center; justify-content: center; border:1px dashed var(--border-color); padding:12px; overflow-wrap: anywhere; font-size:var(--font-size-small); color:var(--red); font-family:var(--font-mono)"
+      style="display:flex; align-items:center; justify-content: center; border:1px dashed var(--border); padding:12px; overflow-wrap: anywhere; font-size:var(--font-size-small); color:var(--red); font-family:var(--font-mono)"
     >
       ${this.resolvedSpec.info.description}
     </div>`;

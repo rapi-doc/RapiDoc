@@ -29,12 +29,8 @@ export function formDataParamAsObjectTemplate(fieldName, fieldSchema, mimeType) 
   );
 
   return html`
-    <div
-      part="tab-panel"
-      class="tab-panel row"
-      style="min-height:220px; border-left: 6px solid var(--light-border-color); align-items: stretch;"
-    >
-      <div style="width:24px; background:var(--light-border-color)">
+    <div part="tab-panel" class="tab-panel row" style="min-height:220px; border-left: 6px solid var(--border); align-items: stretch;">
+      <div style="width:24px; background:var(--border)">
         <div
           class="row"
           style="flex-direction:row-reverse; width:160px; height:24px; transform:rotate(270deg) translateX(-160px); transform-origin:top left; display:block;"

@@ -70,9 +70,9 @@ function jsonSchemaBodyTemplate() {
         return html`<section
           id="${jSchemaBody.elementId}"
           class="json-schema-and-example regular-font"
-          style="display:flex; flex-direction: column; border:1px solid var(--border-color); margin-bottom:32px; border-top: 5px solid var(--border-color)"
+          style="display:flex; flex-direction: column; border:1px solid var(--border); margin-bottom:32px; border-top: 5px solid var(--border)"
         >
-          <div style="padding:16px; border-bottom: 1px solid var(--border-color)">
+          <div style="padding:16px; border-bottom: 1px solid var(--border)">
             <div style="font-size:var(--font-size-small); font-weight:bold">${jSchemaBody.name}</div>
             <span class="json-schema-description m-markdown ">${unsafeHTML(sanitizeHTML(marked(jSchemaBody.description || '')))}</span>
           </div>
@@ -90,7 +90,7 @@ function jsonSchemaBodyTemplate() {
             </div>
             <div
               class="json-schema-example-panel"
-              style="width:400px; background: var(--input-bg); padding:16px 0 16px 16px; border-left: 1px dashed var(--border-color);"
+              style="width:400px; background: var(--input); padding:16px 0 16px 16px; border-left: 1px dashed var(--border);"
             >
               ${
                 examplesObj.length > 1
@@ -132,7 +132,7 @@ export default function jsonSchemaViewerTemplate(isMini = false) {
     if (isMini) {
       return html`
         <div
-          style="display:flex; align-items:center; border:1px dashed var(--border-color); height:42px; padding:5px; font-size:var(--font-size-small); color:var(--red); font-family:var(--font-mono)"
+          style="display:flex; align-items:center; border:1px dashed var(--border); height:42px; padding:5px; font-size:var(--font-size-small); color:var(--red); font-family:var(--font-mono)"
         >
           ${this.resolvedSpec.info.description}
         </div>

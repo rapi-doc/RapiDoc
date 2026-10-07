@@ -15,7 +15,7 @@ export default css`
 
   .endpoint-head .descr {
     font-size: var(--font-size-small);
-    color: var(--light-fg);
+    color: var(--muted-foreground);
     font-weight: 400;
     align-items: center;
     overflow-wrap: break-word;
@@ -33,7 +33,7 @@ export default css`
     border-width: 1px 1px 1px 5px;
     border-style: solid;
     border-color: transparent;
-    border-top-color: var(--light-border-color);
+    border-top-color: var(--border);
     border-radius: min(var(--radius), 1rem);
     display: flex;
     padding: 6px 16px;
@@ -77,7 +77,7 @@ export default css`
 
   .m-endpoint > .endpoint-head.deprecated:hover,
   .m-endpoint > .endpoint-head.deprecated.expanded {
-    border-color: var(--border-color);
+    border-color: var(--border);
     filter: opacity(0.6);
   }
 
@@ -109,12 +109,12 @@ export default css`
   }
 
   .m-endpoint .endpoint-body.deprecated {
-    border-color: var(--border-color);
+    border-color: var(--border);
     filter: opacity(0.6);
   }
 
   .endpoint-head .deprecated {
-    color: var(--light-fg);
+    color: var(--muted-foreground);
     filter: opacity(0.6);
   }
 
@@ -154,7 +154,7 @@ export default css`
     border: 2px solid var(--blue);
   }
   .endpoint-head .method.get.deprecated {
-    border: 2px solid var(--border-color);
+    border: 2px solid var(--border);
   }
   .endpoint-head .method.head,
   .endpoint-head .method.patch,
@@ -168,7 +168,7 @@ export default css`
     align-items: stretch;
     flex-wrap: wrap;
     flex-direction: column;
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid var(--border);
   }
 
   .expanded-req-resp-container {

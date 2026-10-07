@@ -110,7 +110,7 @@ export default class ApiRequest extends LitElement {
           box-shadow: var(--focus-shadow);
         }
         :where(input[type='text'], input[type='password'], select, textarea):focus-visible {
-          border-color: var(--primary-color);
+          border-color: var(--primary);
         }
         tag-input:focus-within {
           outline: 1px solid;
@@ -132,7 +132,7 @@ export default class ApiRequest extends LitElement {
           color: var(--red);
         }
         .param-type {
-          color: var(--light-fg);
+          color: var(--muted-foreground);
           font-family: var(--font-regular);
         }
         .param-constraint {
@@ -641,7 +641,7 @@ export default class ApiRequest extends LitElement {
       const endTime = performance.now();
       responseClone = fetchResponse.clone(); // create a response clone to allow reading response body again (response.json, response.text etc)
       this.responseMessage = html`${fetchResponse.statusText ? `${fetchResponse.statusText}:${fetchResponse.status}` : fetchResponse.status}
-        <div style="color:var(--light-fg)">Took ${Math.round(endTime - startTime)} milliseconds</div>`;
+        <div style="color:var(--muted-foreground)">Took ${Math.round(endTime - startTime)} milliseconds</div>`;
       this.responseUrl = fetchResponse.url;
       const respHeadersObj = {};
       fetchResponse.headers.forEach((hdrVal, hdr) => {

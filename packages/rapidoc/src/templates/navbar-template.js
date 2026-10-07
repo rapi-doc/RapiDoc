@@ -172,9 +172,7 @@ export default function navbarTemplate() {
                         </div>
                         ${
                           this.resolvedSpec.infoDescriptionHeaders.length > 0
-                            ? html`<hr
-                                style="border-top: 1px solid var(--nav-hover-bg-color); border-width:1px 0 0 0; margin: 15px 0 0 0"
-                              />`
+                            ? html`<hr style="border-top: 1px solid var(--muted); border-width:1px 0 0 0; margin: 15px 0 0 0" />`
                             : ''
                         }
                       `
@@ -247,7 +245,7 @@ export default function navbarTemplate() {
               >
                 ${
                   tag.name === 'General ⦂'
-                    ? html`<hr style="border:none; border-top: 1px dotted var(--nav-text-color); opacity:0.3; margin:-1px 0 0 0;" />`
+                    ? html`<hr style="border:none; border-top: 1px dotted var(--muted-foreground); opacity:0.3; margin:-1px 0 0 0;" />`
                     : html`
                         <div
                           class="nav-bar-tag ${this.navActiveItemMarker}"

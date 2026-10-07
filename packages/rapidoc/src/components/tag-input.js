@@ -93,10 +93,10 @@ export default class TagInput extends LitElement {
           outline: none;
           padding: 0;
           border-radius: var(--border-radius);
-          border: 1px solid var(--border-color);
+          border: 1px solid var(--border);
           cursor: text;
           overflow: hidden;
-          background: var(--input-bg);
+          background: var(--input);
         }
         .tag,
         .editor {
@@ -104,7 +104,7 @@ export default class TagInput extends LitElement {
           margin: 2px;
         }
         .tag {
-          border: 1px solid var(--border-color);
+          border: 1px solid var(--border);
           background: var(--muted);
           color: var(--muted-foreground);
           border-radius: var(--border-radius);
@@ -129,7 +129,7 @@ export default class TagInput extends LitElement {
           outline: 1px solid;
         }
         .editor::placeholder {
-          color: var(--placeholder-color);
+          color: var(--muted-foreground);
           opacity: 1;
         }
       `,

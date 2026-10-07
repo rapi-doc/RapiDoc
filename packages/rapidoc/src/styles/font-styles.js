@@ -218,7 +218,7 @@ export default css`
     overflow-x: auto;
     line-height: normal;
     border-radius: var(--card-radius);
-    border: 1px solid var(--code-border-color);
+    border: 1px solid var(--border);
   }
 
   .m-markdown pre {
@@ -276,7 +276,7 @@ export default css`
     border-spacing: 0;
     margin: 10px 0;
     border-collapse: separate;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border);
     border-radius: var(--card-radius);
     font-size: calc(var(--font-size-small) + 1px);
     line-height: calc(var(--font-size-small) + 4px);
@@ -294,7 +294,7 @@ export default css`
   .m-markdown td,
   .m-markdown th {
     vertical-align: top;
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid var(--border);
     line-height: calc(var(--font-size-small) + 4px);
   }
 
@@ -332,10 +332,10 @@ export default css`
   .m-markdown-small blockquote {
     margin-inline-start: 0;
     margin-inline-end: 0;
-    border-inline-start: 3px solid var(--border-color);
+    border-inline-start: 3px solid var(--border);
     padding: 6px 0 6px 6px;
   }
   .m-markdown hr {
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border);
   }
 `;

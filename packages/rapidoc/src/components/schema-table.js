@@ -67,7 +67,7 @@ export default class SchemaTable extends LitElement {
         .table .tr {
           width: calc(100% - 5px);
           padding: 0 0 0 5px;
-          border-bottom: 1px dotted var(--light-border-color);
+          border-bottom: 1px dotted var(--border);
         }
         .table .td {
           padding: 4px 0;
@@ -102,7 +102,7 @@ export default class SchemaTable extends LitElement {
           border: 1px solid transparent;
           display: inline-block;
           margin-left: -16px;
-          color: var(--primary-color);
+          color: var(--primary);
           cursor: pointer;
           font-size: calc(var(--font-size-small) + 4px);
           font-family: var(--font-mono);
@@ -112,7 +112,7 @@ export default class SchemaTable extends LitElement {
           user-select: none;
         }
         .obj-toggle:hover {
-          border-color: var(--primary-color);
+          border-color: var(--primary);
         }
         .tr.expanded .obj-toggle::after {
           content: '-';
@@ -158,8 +158,8 @@ export default class SchemaTable extends LitElement {
           }
         </div>
         <span part="schema-description" class="m-markdown"> ${unsafeHTML(sanitizeHTML(marked(rootDescription)))} </span>
-        <div style="border:1px solid var(--light-border-color)">
-          <div style="display:flex; background: var(--card); padding:8px 4px; border-bottom:1px solid var(--light-border-color);">
+        <div style="border:1px solid var(--border)">
+          <div style="display:flex; background: var(--card); padding:8px 4px; border-bottom:1px solid var(--border);">
             <div class="key" style="font-family:var(--font-regular); font-weight:bold; color:var(--foreground);">Field</div>
             <div class="key-type" style="font-family:var(--font-regular); font-weight:bold; color:var(--foreground);">Type</div>
             <div class="key-descr" style="font-family:var(--font-regular); font-weight:bold; color:var(--foreground);">Description</div>

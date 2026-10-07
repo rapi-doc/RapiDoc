@@ -9,23 +9,20 @@ const basicMiniCode = `<script type="module" src="https://unpkg.com/rapidoc/dist
 
 <rapi-doc-mini
   spec-url="/specs/mock.yaml"
-  theme="dark"
-  bg-color="#1a1a1a"
+  color-scheme="dark"
   paths-expanded="false"
 > </rapi-doc-mini>`;
 
 const matchPathsCode = `<rapi-doc-mini
   spec-url="/specs/mock.yaml"
-  theme="dark"
-  bg-color="#1a1a1a"
+  color-scheme="dark"
   paths-expanded="false"
   match-paths="post /users"
 > </rapi-doc-mini>`;
 
 const regexMatchCode = `<rapi-doc-mini
   spec-url="/specs/mock.yaml"
-  theme="dark"
-  bg-color="#1a1a1a"
+  color-scheme="dark"
   schema-style="table"
   paths-expanded="false"
   match-paths="^get /users/{userId}$|^post /users$"
@@ -34,8 +31,7 @@ const regexMatchCode = `<rapi-doc-mini
 
 const expandedCode = `<rapi-doc-mini
   spec-url="/specs/mock.yaml"
-  theme="dark"
-  bg-color="#1a1a1a"
+  color-scheme="dark"
   schema-style="table"
   layout="column"
   paths-expanded="true"
@@ -45,8 +41,7 @@ const expandedCode = `<rapi-doc-mini
 const microservicesCode = `<!-- Service A: Code Highlighting Service -->
 <rapi-doc-mini
   spec-url="/specs/code-highlight.yaml"
-  theme="dark"
-  bg-color="#1a1a1a"
+  color-scheme="dark"
   match-paths="get /code"
   paths-expanded="false"
 > </rapi-doc-mini>
@@ -54,8 +49,7 @@ const microservicesCode = `<!-- Service A: Code Highlighting Service -->
 <!-- Service B: Store & Inventory Service -->
 <rapi-doc-mini
   spec-url="/specs/petstore.json"
-  theme="dark"
-  bg-color="#1a1a1a"
+  color-scheme="dark"
   match-paths="/store"
   paths-expanded="false"
 > </rapi-doc-mini>`;
@@ -63,16 +57,14 @@ const microservicesCode = `<!-- Service A: Code Highlighting Service -->
 const specNotFoundCode = `<!-- Graceful error rendering when a spec is unavailable or returns 404 -->
 <rapi-doc-mini
   spec-url="/specs/fake-non-existing.json"
-  theme="dark"
-  bg-color="#1a1a1a"
+  color-scheme="dark"
 > </rapi-doc-mini>`;
 
 const customStylingCode = `<!-- Custom width, golden border, table schema, and padding -->
 <rapi-doc-mini
   style="max-width: 650px; width: 100%; border: 2px solid #eab308; border-radius: 8px; padding: 12px; margin: 16px 0;"
   spec-url="/specs/mock.yaml"
-  theme="dark"
-  bg-color="#1a1a1a"
+  color-scheme="dark"
   schema-style="table"
   layout="column"
   paths-expanded="false"
@@ -82,8 +74,7 @@ const customStylingCode = `<!-- Custom width, golden border, table schema, and p
 <rapi-doc-mini
   style="max-width: 650px; width: 100%; border: 1px solid #f87171; border-radius: 6px; padding: 8px; margin: 16px 0;"
   spec-url="/specs/mock.yaml"
-  theme="dark"
-  bg-color="#1a1a1a"
+  color-scheme="dark"
   match-paths="post /users"
   paths-expanded="false"
 > </rapi-doc-mini>`;
@@ -352,9 +343,8 @@ const attributes = [
           <rapi-doc-mini
             class="rd-mini-element"
             spec-url="/specs/mock.yaml"
-            theme="dark"
+            color-scheme="dark"
             paths-expanded="false"
-            bg-color="#1a1a1a"
           > </rapi-doc-mini>
         </div>
       </div>
@@ -383,8 +373,7 @@ const attributes = [
           <rapi-doc-mini
             style="max-width: 650px; width: 100%; border: 2px solid #eab308; border-radius: 8px; padding: 12px; margin: 0 0 24px 0;"
             spec-url="/specs/mock.yaml"
-            theme="dark"
-            bg-color="#1a1a1a"
+            color-scheme="dark"
             schema-style="table"
             layout="column"
             paths-expanded="false"
@@ -398,8 +387,7 @@ const attributes = [
           <rapi-doc-mini
             style="max-width: 650px; width: 100%; border: 1px solid #f87171; border-radius: 6px; padding: 8px; margin: 0 0 24px 0;"
             spec-url="/specs/mock.yaml"
-            theme="dark"
-            bg-color="#1a1a1a"
+            color-scheme="dark"
             match-paths="post /users"
             paths-expanded="false"
           > </rapi-doc-mini>
@@ -430,9 +418,8 @@ const attributes = [
           <rapi-doc-mini
             class="rd-mini-element"
             spec-url="/specs/mock.yaml"
-            theme="dark"
+            color-scheme="dark"
             paths-expanded="false"
-            bg-color="#1a1a1a"
             match-paths="post /users"
           > </rapi-doc-mini>
         </div>
@@ -462,8 +449,7 @@ const attributes = [
           <rapi-doc-mini
             class="rd-mini-element"
             spec-url="/specs/mock.yaml"
-            theme="dark"
-            bg-color="#1a1a1a"
+            color-scheme="dark"
             schema-style="table"
             paths-expanded="false"
             match-paths={`^get /users/{userId}$|^post /users$`}
@@ -496,8 +482,7 @@ const attributes = [
           <rapi-doc-mini
             class="rd-mini-element"
             spec-url="/specs/mock.yaml"
-            theme="dark"
-            bg-color="#1a1a1a"
+            color-scheme="dark"
             schema-style="table"
             sort-endpoints-by="method"
             layout="column"
@@ -531,8 +516,7 @@ const attributes = [
           <rapi-doc-mini
             class="rd-mini-element"
             spec-url="/specs/code-highlight.yaml"
-            theme="dark"
-            bg-color="#1a1a1a"
+            color-scheme="dark"
             schema-style="table"
             layout="column"
             match-paths="get /code"
@@ -547,8 +531,7 @@ const attributes = [
           <rapi-doc-mini
             class="rd-mini-element"
             spec-url="/specs/petstore.json"
-            theme="dark"
-            bg-color="#1a1a1a"
+            color-scheme="dark"
             schema-style="table"
             layout="column"
             match-paths="/store"
@@ -581,8 +564,7 @@ const attributes = [
           <rapi-doc-mini
             class="rd-mini-element"
             spec-url="/specs/fake-non-existing.json"
-            theme="dark"
-            bg-color="#1a1a1a"
+            color-scheme="dark"
           > </rapi-doc-mini>
         </div>
       </div>

@@ -1,6 +1,6 @@
 import { css } from 'lit';
 
-export const THEME_PRESETS = ['default', 'amber', 'graphite', 'modern'];
+export const THEME_PRESETS = ['default', 'amber', 'graphite', 'modern', 'emerald', 'violet', 'rose', 'blue', 'slate'];
 
 /**
  * Checks if a string is a hex or css color rather than a preset name.
@@ -106,27 +106,6 @@ export default css`
     --focus-shadow: 0 0 0 1px transparent, 0 0 0 2px color-mix(in srgb, var(--ring) 40%, transparent);
     --selection-bg: color-mix(in srgb, var(--primary) 25%, transparent);
     --selection-fg: var(--foreground);
-
-    /* Semantic Bridge Mappings (ensures compatibility with existing styles) */
-    --light-bg: var(--card);
-    --light-fg: var(--muted-foreground);
-    --primary-color: var(--primary);
-    --border-color: var(--border);
-    --light-border-color: var(--border);
-    --code-border-color: var(--border);
-    --input-bg: var(--input);
-    --placeholder-color: var(--muted-foreground);
-    --hover-color: var(--muted);
-    --header-bg: var(--background);
-    --header-fg: var(--foreground);
-    --header-color-border: var(--border);
-    --header-color-darker: var(--muted);
-    --nav-bg-color: var(--background);
-    --nav-text-color: var(--muted-foreground);
-    --nav-hover-bg-color: var(--muted);
-    --nav-hover-text-color: var(--foreground);
-    --nav-accent-color: var(--primary);
-    --nav-accent-text-color: var(--primary-foreground);
 
     /* Method colors in nav */
     --nav-get-color: var(--method-get);
@@ -304,20 +283,22 @@ export default css`
      Theme Presets: Brand Accents & Overrides
      ========================================================================= */
 
-  /* 1. DEFAULT (Neutral / Blue Accent) */
+  /* 1. DEFAULT / BLUE (Neutral / Blue Accent) */
   :host([theme='default']),
+  :host([theme='blue']),
   :host(:not([theme])) {
     --primary: #3b82f6;
     --primary-foreground: #ffffff;
     --ring: #3b82f6;
   }
-  :host([theme='default'][color-scheme='light']) {
+  :host([theme='default'][color-scheme='light']),
+  :host([theme='blue'][color-scheme='light']) {
     --primary: #2563eb;
     --primary-foreground: #ffffff;
     --ring: #2563eb;
   }
 
-  /* 2. AMBER (tweakcn Amber Minimal) */
+  /* 2. AMBER (Warm Amber Minimal) */
   :host([theme='amber']),
   :host([theme='amber'][color-scheme='dark']) {
     --background: oklch(0.2046 0 0);
@@ -358,21 +339,60 @@ export default css`
     --ring: #27272a;
   }
 
-  /* 4. MODERN (Clean Contemporary Accent) */
+  /* 4. EMERALD / MODERN (Clean Emerald Accent) */
+  :host([theme='emerald']),
   :host([theme='modern']) {
     --primary: #10b981;
     --primary-foreground: #ffffff;
     --ring: #10b981;
   }
+  :host([theme='emerald'][color-scheme='light']),
   :host([theme='modern'][color-scheme='light']) {
     --primary: #059669;
     --primary-foreground: #ffffff;
     --ring: #059669;
   }
 
+  /* 5. VIOLET (Purple / Indigo Accent) */
+  :host([theme='violet']) {
+    --primary: #8b5cf6;
+    --primary-foreground: #ffffff;
+    --ring: #8b5cf6;
+  }
+  :host([theme='violet'][color-scheme='light']) {
+    --primary: #7c3aed;
+    --primary-foreground: #ffffff;
+    --ring: #7c3aed;
+  }
+
+  /* 6. ROSE (Ruby / Rose Accent) */
+  :host([theme='rose']) {
+    --primary: #f43f5e;
+    --primary-foreground: #ffffff;
+    --ring: #f43f5e;
+  }
+  :host([theme='rose'][color-scheme='light']) {
+    --primary: #e11d48;
+    --primary-foreground: #ffffff;
+    --ring: #e11d48;
+  }
+
+  /* 7. SLATE (Slate / Neutral Grey Accent) */
+  :host([theme='slate']) {
+    --primary: #64748b;
+    --primary-foreground: #ffffff;
+    --ring: #64748b;
+  }
+  :host([theme='slate'][color-scheme='light']) {
+    --primary: #475569;
+    --primary-foreground: #ffffff;
+    --ring: #475569;
+  }
+
   /* System Color Scheme Preset Light Overrides */
   @media (prefers-color-scheme: light) {
-    :host([theme='default'][color-scheme='system']) {
+    :host([theme='default'][color-scheme='system']),
+    :host([theme='blue'][color-scheme='system']) {
       --primary: #2563eb;
       --primary-foreground: #ffffff;
       --ring: #2563eb;
@@ -395,10 +415,26 @@ export default css`
       --primary-foreground: #fafafa;
       --ring: #27272a;
     }
+    :host([theme='emerald'][color-scheme='system']),
     :host([theme='modern'][color-scheme='system']) {
       --primary: #059669;
       --primary-foreground: #ffffff;
       --ring: #059669;
+    }
+    :host([theme='violet'][color-scheme='system']) {
+      --primary: #7c3aed;
+      --primary-foreground: #ffffff;
+      --ring: #7c3aed;
+    }
+    :host([theme='rose'][color-scheme='system']) {
+      --primary: #e11d48;
+      --primary-foreground: #ffffff;
+      --ring: #e11d48;
+    }
+    :host([theme='slate'][color-scheme='system']) {
+      --primary: #475569;
+      --primary-foreground: #ffffff;
+      --ring: #475569;
     }
   }
 `;

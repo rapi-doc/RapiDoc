@@ -9,7 +9,7 @@ export default css`
   }
   .btn-clear-filter {
     margin-left: 5px;
-    color: var(--nav-text-color);
+    color: var(--muted-foreground);
     width: 75px;
     padding: 6px 8px;
   }
@@ -22,12 +22,12 @@ export default css`
     justify-content: center;
     align-items: stretch;
     padding: 8px 16px 12px 16px;
-    background: var(--nav-bg-color);
+    background: var(--background);
     box-sizing: border-box;
     width: 100%;
   }
   .nav-bar-search-container.has-bottom-border {
-    border-bottom: 1px solid var(--nav-hover-bg-color);
+    border-bottom: 1px solid var(--muted);
   }
   .nav-bar-search-input-wrapper {
     display: flex;
@@ -38,10 +38,10 @@ export default css`
   .nav-bar-search-input {
     width: 100%;
     padding: 6px 28px 6px 10px;
-    color: var(--nav-hover-text-color);
-    border: 1px solid var(--nav-accent-color);
+    color: var(--foreground);
+    border: 1px solid var(--primary);
     border-radius: var(--radius);
-    background: var(--nav-hover-bg-color);
+    background: var(--muted);
     font-size: calc(var(--font-size-small) + 1px);
     box-sizing: border-box;
     transition:
@@ -50,8 +50,8 @@ export default css`
   }
   .nav-bar-search-input:focus {
     outline: none;
-    border-color: var(--nav-accent-color);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--nav-accent-color) 25%, transparent);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 25%, transparent);
   }
   .nav-bar-search-icon {
     position: absolute;
@@ -60,13 +60,13 @@ export default css`
     transform: translateY(-50%);
     font-size: var(--font-size-regular);
     cursor: pointer;
-    color: var(--nav-text-color);
+    color: var(--muted-foreground);
     opacity: 0.6;
     user-select: none;
   }
   .nav-bar-search-icon:hover {
     opacity: 1;
-    color: var(--nav-hover-text-color);
+    color: var(--foreground);
   }
   #nav-bar-btn {
     position: absolute;
@@ -78,7 +78,7 @@ export default css`
     height: 50px;
     background: var(--card);
     color: var(--foreground);
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border);
     border-radius: 4px;
     cursor: pointer;
     z-index: 10;
@@ -86,16 +86,16 @@ export default css`
       0 12px 16px 0 rgba(0, 0, 0, 0.24),
       0 17px 50px 0 rgba(0, 0, 0, 0.19);
     &:hover {
-      border-color: var(--primary-color);
-      color: var(--primary-color);
+      border-color: var(--primary);
+      color: var(--primary);
     }
   }
   .nav-bar {
     width: 0;
     height: 100%;
     overflow: hidden;
-    color: var(--nav-text-color);
-    background: var(--nav-bg-color);
+    color: var(--muted-foreground);
+    background: var(--background);
     background-blend-mode: multiply;
     line-height: calc(var(--font-size-small) + 4px);
     position: relative;
@@ -137,7 +137,7 @@ export default css`
     overflow-y: auto;
     overflow-y: overlay;
     scrollbar-width: thin;
-    scrollbar-color: var(--nav-hover-bg-color) transparent;
+    scrollbar-color: var(--muted) transparent;
     scroll-padding-top: 60px;
   }
 
@@ -172,15 +172,15 @@ export default css`
   }
   .nav-bar-expand-all:hover,
   .nav-bar-collapse-all:hover {
-    color: var(--primary-color);
+    color: var(--primary);
   }
 
   .nav-bar-tag-icon {
-    color: var(--nav-text-color);
+    color: var(--muted-foreground);
     font-size: 20px;
   }
   .nav-bar-tag-icon:hover {
-    color: var(--nav-hover-text-color);
+    color: var(--foreground);
   }
   .nav-bar.focused .nav-bar-tag-and-paths.collapsed .nav-bar-tag-icon::after {
     content: '⌵';
@@ -206,12 +206,12 @@ export default css`
     background: transparent;
   }
   .nav-scroll::-webkit-scrollbar-thumb {
-    background: var(--nav-hover-bg-color);
+    background: var(--muted);
   }
 
   .nav-bar-tag {
     font-size: var(--font-size-regular);
-    color: var(--nav-accent-color);
+    color: var(--primary);
     border-inline-start: 4px solid transparent;
     font-weight: bold;
     padding: 15px 15px 15px 10px;
@@ -228,7 +228,7 @@ export default css`
     cursor: pointer;
     width: 100%;
     border: none;
-    color: var(--nav-text-color);
+    color: var(--muted-foreground);
     background: transparent;
     border-inline-start: 4px solid transparent;
   }
@@ -253,7 +253,7 @@ export default css`
     flex-direction: row;
     justify-content: space-between;
     font-size: var(--font-size-small);
-    color: var(--nav-text-color);
+    color: var(--muted-foreground);
     padding: var(--nav-item-padding);
     font-weight: bold;
   }
@@ -261,8 +261,8 @@ export default css`
     cursor: pointer;
   }
   .nav-bar-section.operations:hover {
-    color: var(--nav-hover-text-color);
-    background: var(--nav-hover-bg-color);
+    color: var(--foreground);
+    background: var(--muted);
   }
 
   .nav-bar-section:first-child {
@@ -278,8 +278,8 @@ export default css`
   .nav-bar-tag.left-bar.active,
   .nav-bar-path.left-bar.active,
   .nav-bar-section.left-bar.operations.active {
-    border-inline-start: 4px solid var(--nav-accent-color);
-    color: var(--nav-accent-color);
+    border-inline-start: 4px solid var(--primary);
+    color: var(--primary);
   }
 
   .nav-bar-h1.left-bar.active:hover,
@@ -288,7 +288,7 @@ export default css`
   .nav-bar-tag.left-bar.active:hover,
   .nav-bar-path.left-bar.active:hover,
   .nav-bar-section.left-bar.operations.active:hover {
-    color: var(--nav-accent-color);
+    color: var(--primary);
   }
 
   .nav-bar-h1.colored-block.active,
@@ -297,8 +297,8 @@ export default css`
   .nav-bar-tag.colored-block.active,
   .nav-bar-path.colored-block.active,
   .nav-bar-section.colored-block.operations.active {
-    background: var(--nav-accent-color);
-    color: var(--nav-accent-text-color);
+    background: var(--primary);
+    color: var(--primary-foreground);
   }
 
   .nav-bar-h1.colored-block.active:hover,
@@ -307,8 +307,8 @@ export default css`
   .nav-bar-tag.colored-block.active:hover,
   .nav-bar-path.colored-block.active:hover,
   .nav-bar-section.colored-block.operations.active:hover {
-    background: var(--nav-accent-color);
-    color: var(--nav-accent-text-color);
+    background: var(--primary);
+    color: var(--primary-foreground);
   }
 
   .nav-bar-h1:hover,
@@ -316,7 +316,7 @@ export default css`
   .nav-bar-info:hover,
   .nav-bar-tag:hover,
   .nav-bar-path:hover {
-    color: var(--nav-hover-text-color);
-    background: var(--nav-hover-bg-color);
+    color: var(--foreground);
+    background: var(--muted);
   }
 `;

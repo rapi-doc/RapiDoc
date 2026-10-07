@@ -64,7 +64,7 @@ function endpointHeadTemplate(path, pathsExpanded = false) {
         ${
           path.isWebhook
             ? html`<span
-                style="font-family: var(--font-regular); font-size: var(--); font-size: var(--font-size-small); color:var(--primary-color); margin-left: 16px"
+                style="font-family: var(--font-regular); font-size: var(--font-size-small); color:var(--primary); margin-left: 16px"
               >
                 Webhook</span
               >`
@@ -238,11 +238,9 @@ export default function endpointTemplate(isMini = false, pathsExpanded = false) 
     isMini
       ? ''
       : html`<div style="display:flex; justify-content:flex-end;">
-          <span @click="${(e) => onExpandCollapseAll(e, 'expand-all')}" style="color:var(--primary-color); cursor:pointer;">
-            Expand all
-          </span>
+          <span @click="${(e) => onExpandCollapseAll(e, 'expand-all')}" style="color:var(--primary); cursor:pointer;"> Expand all </span>
           &nbsp;|&nbsp;
-          <span @click="${(e) => onExpandCollapseAll(e, 'collapse-all')}" style="color:var(--primary-color); cursor:pointer;">
+          <span @click="${(e) => onExpandCollapseAll(e, 'collapse-all')}" style="color:var(--primary); cursor:pointer;">
             Collapse all
           </span>
           &nbsp; sections
@@ -282,7 +280,7 @@ export default function endpointTemplate(isMini = false, pathsExpanded = false) 
                     this.requestUpdate();
                   }}"
                 >
-                  <div id="${tag.elementId}" class="sub-title tag" style="color:var(--primary-color)">${tag.displayName || tag.name}</div>
+                  <div id="${tag.elementId}" class="sub-title tag" style="color:var(--primary)">${tag.displayName || tag.name}</div>
                 </div>
                 <div class="section-tag-body">
                   <slot name="${tag.elementId}"></slot>

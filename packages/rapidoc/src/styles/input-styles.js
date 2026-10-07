@@ -168,13 +168,13 @@ export default css`
 
   pre::-webkit-scrollbar-track,
   textarea::-webkit-scrollbar-track {
-    background: var(--input-bg);
+    background: var(--input);
   }
 
   pre::-webkit-scrollbar-thumb,
   textarea::-webkit-scrollbar-thumb {
     border-radius: 2px;
-    background: var(--border-color);
+    background: var(--border);
   }
 
   .link {
@@ -189,8 +189,8 @@ export default css`
   input[type='checkbox'] {
     appearance: none;
     display: inline-block;
-    background: var(--light-bg);
-    border: 1px solid var(--light-bg);
+    background: var(--muted);
+    border: 1px solid var(--border);
     border-radius: 9px;
     cursor: pointer;
     height: 18px;
@@ -207,7 +207,7 @@ export default css`
   input[type='checkbox']:after {
     position: absolute;
     background: var(--background);
-    border: 1px solid var(--light-bg);
+    border: 1px solid var(--border);
     border-radius: 8px;
     content: '';
     top: 0px;

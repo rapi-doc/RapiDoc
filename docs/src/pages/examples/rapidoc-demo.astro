@@ -97,15 +97,8 @@ import '../../styles/rapidoc-demo.css';
       sort-endpoints-by="method"
       heading-text="Demo"
       show-header="false"
-      theme="dark"
-      bg-color="#060913"
-      nav-bg-color="#080d1a"
-      nav-text-color="#94a3b8"
-      nav-hover-bg-color="#111827"
-      nav-hover-text-color="#ffffff"
-      nav-accent-color="#10b981"
-      primary-color="#10b981"
-      text-color="#cbd5e1"
+      color-scheme="dark"
+      theme="#10b981"
     >
       <img id="logo" slot="logo" src="/assets/images/logo-outline.svg" alt="RapiDoc Logo" />
       <img id="nav-logo" slot="nav-logo" src="/assets/images/logo-outline.svg" alt="RapiDoc Logo" />
@@ -248,27 +241,8 @@ import '../../styles/rapidoc-demo.css';
   function applyTheme(themeName) {
     if (!rapiDocE) return;
     const currentPrimary = window.localStorage.getItem('primary-color') || '#10b981';
-    if (themeName === 'dark') {
-      rapiDocE.setAttribute('theme', 'dark');
-      rapiDocE.setAttribute('bg-color', '#060913');
-      rapiDocE.setAttribute('nav-bg-color', '#080d1a');
-      rapiDocE.setAttribute('nav-text-color', '#94a3b8');
-      rapiDocE.setAttribute('nav-hover-bg-color', '#111827');
-      rapiDocE.setAttribute('nav-hover-text-color', '#ffffff');
-      rapiDocE.setAttribute('nav-accent-color', currentPrimary);
-      rapiDocE.setAttribute('primary-color', currentPrimary);
-      rapiDocE.setAttribute('text-color', '#cbd5e1');
-    } else {
-      rapiDocE.setAttribute('theme', 'light');
-      rapiDocE.setAttribute('bg-color', '#ffffff');
-      rapiDocE.setAttribute('nav-bg-color', '#f8fafc');
-      rapiDocE.setAttribute('nav-text-color', '#475569');
-      rapiDocE.setAttribute('nav-hover-bg-color', '#f1f5f9');
-      rapiDocE.setAttribute('nav-hover-text-color', '#0f172a');
-      rapiDocE.setAttribute('nav-accent-color', currentPrimary);
-      rapiDocE.setAttribute('primary-color', currentPrimary);
-      rapiDocE.setAttribute('text-color', '#1e293b');
-    }
+    rapiDocE.setAttribute('color-scheme', themeName);
+    rapiDocE.setAttribute('theme', currentPrimary);
   }
 
   function setAttribute(attr, value) {

@@ -23,16 +23,14 @@ basic:
       validates:
         - regular-font
         - mono-font
-        - font-size
+        - scale
   - theme-n-color:
       title: Theme Modes & Color Palettes
       validates:
         - theme
-        - primary-color
-        - header-color
-        - nav-bg-color
-        - nav-text-color
-        - nav-accent-color
+        - color-scheme
+        - radius
+        - scale
   - search:
       title: Search & Advanced Search Filters
       validates:

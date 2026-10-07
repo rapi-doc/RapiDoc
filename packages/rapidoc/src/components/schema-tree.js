@@ -68,7 +68,7 @@ export default class SchemaTree extends LitElement {
           line-height: calc(var(--font-size-small) + 6px);
         }
         .tree .tr:hover {
-          background: var(--hover-color);
+          background: var(--muted);
         }
         .collapsed-all-descr .tr:not(.expanded-descr) {
           overflow: hidden;
@@ -115,7 +115,7 @@ export default class SchemaTree extends LitElement {
         }
         .inside-bracket.object,
         .inside-bracket.array {
-          border-left: 1px dotted var(--border-color);
+          border-left: 1px dotted var(--border);
         }
         .tr.expanded .open-bracket .open-bracket-collapsed {
           display: none;

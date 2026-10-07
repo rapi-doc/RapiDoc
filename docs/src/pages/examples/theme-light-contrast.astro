@@ -39,7 +39,8 @@ import GlobalLayout from '../../layouts/GlobalLayout.astro';
     <rapi-doc
       id="thedoc"
       spec-url="/specs/petstore.yaml"
-      theme="light"
+      color-scheme="light"
+      theme="#ea580c"
       render-style="read"
       schema-style="tree"
       show-header="false"
@@ -49,14 +50,6 @@ import GlobalLayout from '../../layouts/GlobalLayout.astro';
       allow-authentication="true"
       use-path-in-nav-bar="true"
       show-method-in-nav-bar="as-colored-text"
-      primary-color="#ea580c"
-      bg-color="#ffffff"
-      text-color="#0f172a"
-      nav-bg-color="#f8fafc"
-      nav-text-color="#475569"
-      nav-hover-bg-color="#f1f5f9"
-      nav-hover-text-color="#0f172a"
-      nav-accent-color="#ff7043"
     >
     </rapi-doc>
   </div>
@@ -203,20 +196,19 @@ import GlobalLayout from '../../layouts/GlobalLayout.astro';
     height: 100%;
 
     /* High contrast light custom CSS properties */
-    --bg: #ffffff;
-    --bg2: #f8fafc;
-    --bg3: #f1f5f9;
-    --fg: #0f172a;
-    --fg2: #1e293b;
-    --fg3: #334155;
-    --light-fg: #64748b;
-    --border-color: #cbd5e1;
-    --light-border-color: #e2e8f0;
+    --background: #ffffff;
+    --foreground: #0f172a;
+    --card: #f8fafc;
+    --card-foreground: #0f172a;
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+    --border: #e2e8f0;
+    --input: #ffffff;
+    --primary: #ea580c;
+    --primary-foreground: #ffffff;
+    --ring: #ea580c;
     --code-bg: #f8fafc;
     --code-fg: #0f172a;
-    --input-bg: #ffffff;
-    --primary-color: #ea580c;
-    --primary-color-invert: #ffffff;
     --blue: #0284c7;
     --green: #059669;
     --orange: #ff7043;

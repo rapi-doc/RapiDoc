@@ -944,7 +944,7 @@ function renderSecuritySchemeDetail(andSecurityItem, isMultiple, j) {
   if (andSecurityItem.type === 'oauth2') {
     return html` <div>
       ${isMultiple ? html`<b>${j + 1}.</b> &nbsp;` : 'Needs '}OAuth Token
-      <span style="font-family:var(--font-mono); color:var(--primary-color);">${andSecurityItem.securitySchemeId}</span>
+      <span style="font-family:var(--font-mono); color:var(--primary);">${andSecurityItem.securitySchemeId}</span>
       in <b>Authorization header</b>
       ${scopeHtml}
     </div>`;
@@ -1027,7 +1027,7 @@ export function pathSecurityTemplate(pathSecurity) {
                   ? html`
                       <div
                         class="tooltip-text"
-                        style="position:absolute; color:var(--foreground); top:26px; right:0; border:1px solid var(--border-color); padding:4px 6px; display:block;"
+                        style="position:absolute; color:var(--foreground); top:26px; right:0; border:1px solid var(--border); padding:4px 6px; display:block;"
                       >
                         ${isMultiple ? html`<div>Requires <b>all</b> of the following:</div>` : ''}
                         <div style="padding-left:${isMultiple ? '8px' : '0'};">

@@ -14,7 +14,7 @@ function schemaBodyTemplate(sComponent) {
   return html`<div class="divider"></div>
     <div class="expanded-endpoint-body observe-me ${sComponent.name}" id="cmp--${sComponent.id}">
       <div style="font-weight:bold">
-        ${sComponent.name} <span style="color:var(--light-fg); font-size:var(--font-size-small); font-weight:400;"> Schema </span>
+        ${sComponent.name} <span style="color:var(--muted-foreground); font-size:var(--font-size-small); font-weight:400;"> Schema </span>
       </div>
       ${
         this.schemaStyle === 'table'
@@ -52,7 +52,7 @@ function componentBodyTemplate(sComponent, componentType) {
       ${html`
         <div style="font-weight:bold">
           ${sComponent.name}
-          <span style="color:var(--light-fg); font-size:var(--font-size-small); font-weight:400"> ${componentType} </span>
+          <span style="color:var(--muted-foreground); font-size:var(--font-size-small); font-weight:400"> ${componentType} </span>
         </div>
         ${
           sComponent.component
@@ -76,7 +76,7 @@ export default function componentsTemplate() {
         <div
           id="cmp--${component.name.toLowerCase()}"
           class="regular-font section-gap--read-mode observe-me"
-          style="border-top:1px solid var(--primary-color);"
+          style="border-top:1px solid var(--primary);"
         >
           <div class="title tag">${component.name}</div>
           <div class="regular-font-size">

@@ -74,7 +74,7 @@ The simplest way to use RapiDoc is by embedding the `<rapi-doc>` tag directly in
   <body>
     <rapi-doc
       spec-url="https://petstore.swagger.io/v2/swagger.json"
-      theme="dark"
+      color-scheme="dark"
       render-style="read"
       show-header="true"
       allow-try="true"
@@ -118,7 +118,7 @@ export default function ApiDocs() {
       {/* @ts-ignore custom element JSX declaration */}
       <rapi-doc
         spec-url="https://petstore.swagger.io/v2/swagger.json"
-        theme="dark"
+        color-scheme="dark"
         render-style="view"
         show-header="false"
         style={{ width: '100%', height: '100%', display: 'block' }}
@@ -139,13 +139,13 @@ declare namespace JSX {
     'rapi-doc': React.DetailedHTMLProps<
       React.HTMLAttributes<HTMLElement> & {
         'spec-url'?: string;
-        'theme'?: 'light' | 'dark';
+        'theme'?: string;
+        'color-scheme'?: 'light' | 'dark' | 'system';
+        'radius'?: 'none' | 'sm' | 'md' | 'lg' | 'full';
+        'scale'?: 'sm' | 'default' | 'lg';
         'render-style'?: 'read' | 'view' | 'focused';
         'show-header'?: 'true' | 'false' | boolean;
         'allow-try'?: 'true' | 'false' | boolean;
-        'primary-color'?: string;
-        'bg-color'?: string;
-        'text-color'?: string;
         [key: string]: any;
       },
       HTMLElement
@@ -190,7 +190,7 @@ export default defineConfig({
   <div class="docs-wrapper">
     <rapi-doc
       spec-url="https://petstore.swagger.io/v2/swagger.json"
-      theme="dark"
+      color-scheme="dark"
       render-style="focused"
       style="height: 100vh; width: 100%; display: block;"
     ></rapi-doc>
@@ -233,7 +233,7 @@ import 'rapidoc';
   template: `
     <rapi-doc
       spec-url="https://petstore.swagger.io/v2/swagger.json"
-      theme="dark"
+      color-scheme="dark"
       render-style="view"
       style="height: 100vh; width: 100%; display: block;">
     </rapi-doc>
@@ -251,9 +251,11 @@ Here are the most frequently used attributes when initializing RapiDoc:
 | Attribute | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
 | `spec-url` | `string` | `""` | URL of the OpenAPI / Swagger JSON or YAML specification. |
-| `theme` | `string` | `"light"` | Primary visual mode: `'light'` or `'dark'`. |
+| `theme` | `string` | `"amber"` | Theme palette preset (`amber`, `blue`, `emerald`, `violet`, `rose`, `graphite`, `slate`) or custom `#hex`. |
+| `color-scheme` | `string` | `"dark"` | Color mode: `'dark'`, `'light'`, or `'system'`. |
+| `radius` | `string` | `"sm"` | Corner radius: `'none'`, `'sm'`, `'md'`, `'lg'`, or `'full'`. |
+| `scale` | `string` | `"default"` | Global UI scale: `'sm'`, `'default'`, or `'lg'`. |
 | `render-style` | `string` | `"view"` | Layout mode: `'read'`, `'view'`, or `'focused'`. |
 | `show-header` | `boolean` | `true` | Displays the top navigation bar with search, server selection, and auth controls. |
 | `allow-try` | `boolean` | `true` | Allows developers to execute interactive API requests directly from the UI. |
 | `allow-authentication` | `boolean` | `true` | Shows security and API key authentication panels. |
-| `primary-color` | `string` | `"#ff791a"` | Accent color used for buttons, method badges, and active states. |

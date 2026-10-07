@@ -8,7 +8,7 @@ export default function callbackTemplate(callbacks) {
     <div class="req-res-title" style="margin-top:12px">CALLBACKS</div>
     ${Object.entries(callbacks).map(
       (kv) => html`
-        <div class="tiny-title" style="padding: 12px; border:1px solid var(--light-border-color)">
+        <div class="tiny-title" style="padding: 12px; border:1px solid var(--border)">
           ${kv[0]}
           ${Object.entries(kv[1]).map(
             (pathObj) => html`

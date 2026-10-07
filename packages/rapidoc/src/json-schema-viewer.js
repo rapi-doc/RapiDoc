@@ -110,7 +110,7 @@ export default class JsonSchemaViewer extends LitElement {
           overflow-y: auto;
           overflow-x: hidden;
           scrollbar-width: thin;
-          scrollbar-color: var(--border-color) transparent;
+          scrollbar-color: var(--border) transparent;
         }
         .main-content-inner--view-mode {
           padding: 0 8px;
@@ -123,11 +123,11 @@ export default class JsonSchemaViewer extends LitElement {
           background: transparent;
         }
         .main-content::-webkit-scrollbar-thumb {
-          background: var(--border-color);
+          background: var(--border);
         }
         .main-header {
-          background: var(--header-bg);
-          color: var(--header-fg);
+          background: var(--background);
+          color: var(--foreground);
           width: 100%;
         }
         .header-title {
@@ -135,9 +135,9 @@ export default class JsonSchemaViewer extends LitElement {
           padding: 0 8px;
         }
         input.header-input {
-          background: var(--header-color-darker);
-          color: var(--header-fg);
-          border: 1px solid var(--header-color-border);
+          background: var(--muted);
+          color: var(--foreground);
+          border: 1px solid var(--border);
           flex: 1;
           padding-right: 24px;
           border-radius: 3px;
@@ -149,7 +149,7 @@ export default class JsonSchemaViewer extends LitElement {
           margin: 16px auto 16px auto;
           border: 4px solid var(--muted);
           border-radius: 50%;
-          border-top: 4px solid var(--primary-color);
+          border-top: 4px solid var(--primary);
           width: 36px;
           height: 36px;
           animation: spin 2s linear infinite;

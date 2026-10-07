@@ -47,7 +47,8 @@ import GlobalLayout from '../../layouts/GlobalLayout.astro';
     <rapi-doc
       id="thedoc"
       spec-url="/specs/petstore.yaml"
-      theme="dark"
+      color-scheme="dark"
+      theme="#ff7043"
       render-style="read"
       schema-style="tree"
       show-header="false"
@@ -57,9 +58,6 @@ import GlobalLayout from '../../layouts/GlobalLayout.astro';
       allow-authentication="true"
       use-path-in-nav-bar="true"
       show-method-in-nav-bar="as-colored-text"
-      primary-color="#ff7043"
-      bg-color="#0b0f19"
-      text-color="#f8fafc"
     >
     </rapi-doc>
   </div>
@@ -206,20 +204,19 @@ import GlobalLayout from '../../layouts/GlobalLayout.astro';
     height: 100%;
 
     /* High contrast dark custom CSS properties */
-    --bg: #0b0f19;
-    --bg2: #111827;
-    --bg3: #1f2937;
-    --fg: #f8fafc;
-    --fg2: #f1f5f9;
-    --fg3: #e2e8f0;
-    --light-fg: #94a3b8;
-    --border-color: #334155;
-    --light-border-color: #1e293b;
+    --background: #0b0f19;
+    --foreground: #f8fafc;
+    --card: #111827;
+    --card-foreground: #f1f5f9;
+    --muted: #1f2937;
+    --muted-foreground: #94a3b8;
+    --border: #334155;
+    --input: #111827;
+    --primary: #ff7043;
+    --primary-foreground: #ffffff;
+    --ring: #ff7043;
     --code-bg: #030712;
     --code-fg: #f8fafc;
-    --input-bg: #111827;
-    --primary-color: #ff7043;
-    --primary-color-invert: #ffffff;
     --blue: #38bdf8;
     --green: #34d399;
     --orange: #ff7043;

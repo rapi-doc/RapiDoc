@@ -86,7 +86,7 @@ export default class ApiResponse extends LitElement {
         .read-mode {
           padding-top: 24px;
           margin-top: 12px;
-          border-top: 1px dashed var(--border-color);
+          border-top: 1px dashed var(--border);
         }
       `,
       CustomStyles,
@@ -255,26 +255,26 @@ export default class ApiResponse extends LitElement {
     return html`<div style="padding:16px 0 8px 0" class="resp-headers small-font-size bold-text">RESPONSE HEADERS</div>
       <table
         role="presentation"
-        style="border-collapse: collapse; margin-bottom:16px; border:1px solid var(--border-color); border-radius: var(--card-radius)"
+        style="border-collapse: collapse; margin-bottom:16px; border:1px solid var(--border); border-radius: var(--card-radius)"
         class="small-font-size mono-font"
       >
         ${respHeaders.map(
           (v) =>
             html` <tr>
               <td
-                style="padding:8px; vertical-align: baseline; min-width:120px; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;"
+                style="padding:8px; vertical-align: baseline; min-width:120px; border-top: 1px solid var(--border); text-overflow: ellipsis;"
               >
                 ${v.name || ''}
               </td>
               <td
-                style="padding:4px; vertical-align: baseline; padding:0 5px; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;"
+                style="padding:4px; vertical-align: baseline; padding:0 5px; border-top: 1px solid var(--border); text-overflow: ellipsis;"
               >
                 ${v.schema?.type || ''}
               </td>
-              <td style="padding:8px; vertical-align: baseline; border-top: 1px solid var(--light-border-color);text-overflow: ellipsis;">
+              <td style="padding:8px; vertical-align: baseline; border-top: 1px solid var(--border);text-overflow: ellipsis;">
                 <div class="m-markdown-small regular-font">${unsafeHTML(sanitizeHTML(marked(v.description || '')))}</div>
               </td>
-              <td style="padding:8px; vertical-align: baseline; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;">
+              <td style="padding:8px; vertical-align: baseline; border-top: 1px solid var(--border); text-overflow: ellipsis;">
                 ${v.schema?.example || ''}
               </td>
             </tr>`

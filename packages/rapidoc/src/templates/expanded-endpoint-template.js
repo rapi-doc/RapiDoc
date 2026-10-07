@@ -83,7 +83,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
                           viewBox="0 0 24 24"
                           stroke-width="2"
                           fill="none"
-                          style="stroke:var(--primary-color); vertical-align:top; cursor:pointer"
+                          style="stroke:var(--primary); vertical-align:top; cursor:pointer"
                           @click="${(e) => {
                             expandCollapseTagDescription.call(this, e);
                           }}"
@@ -94,7 +94,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
                         </svg>
                         <div
                           class="tag-description collapsed"
-                          style="max-height:0px; overflow:hidden; margin-top:16px; border:1px solid var(--border-color)"
+                          style="max-height:0px; overflow:hidden; margin-top:16px; border:1px solid var(--border)"
                         >
                           <div class="m-markdown" style="padding:8px">${unsafeHTML(sanitizeHTML(marked(tagDescription)))}</div>
                         </div>`
@@ -126,7 +126,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
           path.isWebhook
             ? html`<span
                 part="section-operation-webhook"
-                style="color:var(--primary-color); font-weight:bold; font-size: var(--font-size-regular);"
+                style="color:var(--primary); font-weight:bold; font-size: var(--font-size-regular);"
               >
                 WEBHOOK
               </span>`
@@ -236,7 +236,7 @@ export default function expandedEndpointTemplate() {
           id="${tag.elementId}"
           part="section-tag"
           class="regular-font section-gap--read-mode observe-me"
-          style="border-top:1px solid var(--primary-color);"
+          style="border-top:1px solid var(--primary);"
         >
           <div class="title tag" part="section-tag-title label-tag-title">${tag.displayName || tag.name}</div>
           <slot name="${tag.elementId}"></slot>
