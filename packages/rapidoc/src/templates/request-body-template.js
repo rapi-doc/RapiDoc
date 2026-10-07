@@ -5,6 +5,7 @@ import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { live } from 'lit/directives/live.js';
 import { repeat } from 'lit/directives/repeat.js';
+import { ifDefined } from 'lit/directives/if-defined.js';
 import { sanitizeHTML } from '../utils/sanitize.js';
 import { marked } from 'marked';
 import { schemaToAST, getTypeInfo, isBinaryFileField, generateExample, normalizeExamples, standardizeExample } from '~/utils/schema-utils';
@@ -510,7 +511,7 @@ ${v.exampleFormat === 'text' ? v.exampleValue : JSON.stringify(v.exampleValue, n
   });
 
   return html`
-    <div class="request-body-container" data-selected-request-body-type="${this.selectedRequestBodyType}">
+    <div class="request-body-container" data-selected-request-body-type="${ifDefined(this.selectedRequestBodyType)}">
       <div class="table-title top-gap row">
         REQUEST BODY ${this.request_body.required ? html`<span class="mono-font" style="color:var(--red)">*</span>` : ''}
         <span style="font-weight:normal; margin-left:5px"> ${this.selectedRequestBodyType}</span>
