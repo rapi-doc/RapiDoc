@@ -13,16 +13,30 @@ export default css`
     text-align: center;
     white-space: nowrap;
     border: 1px solid var(--primary);
-    background: transparent;
+    background: color-mix(in srgb, var(--primary) 12%, transparent);
+    color: var(--primary);
     user-select: none;
     cursor: pointer;
     box-shadow:
       0 1px 3px rgba(0, 0, 0, 0.12),
       0 1px 2px rgba(0, 0, 0, 0.24);
-    transition-duration: 0.2s;
+    transition:
+      background 0.2s ease,
+      color 0.2s ease,
+      border-color 0.2s ease,
+      transform 0.1s ease;
+  }
+  .m-btn:hover {
+    background: color-mix(in srgb, var(--primary) 28%, transparent);
+    color: var(--foreground);
   }
   .m-btn.primary {
     background: var(--primary);
+    color: var(--primary-foreground);
+  }
+  .m-btn.primary:hover {
+    background: var(--primary);
+    filter: brightness(110%);
     color: var(--primary-foreground);
   }
   .m-btn.thin-border {
@@ -39,10 +53,6 @@ export default css`
   }
   .m-btn.circle {
     border-radius: 50%;
-  }
-  .m-btn:hover {
-    background: var(--primary);
-    color: var(--primary-foreground);
   }
   .m-btn.nav {
     border: 1px solid var(--primary);
@@ -90,6 +100,7 @@ export default css`
   }
   button {
     font-family: var(--font-regular);
+    color: var(--foreground);
   }
 
   /* Form Inputs */
