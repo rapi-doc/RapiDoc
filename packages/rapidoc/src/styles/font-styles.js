@@ -218,19 +218,19 @@ export default css`
     overflow-x: auto;
     line-height: normal;
     border-radius: var(--card-radius);
-    border: 1px solid var(--border);
+    border: 1px solid var(--input-border);
   }
 
   .m-markdown pre {
     padding: 12px;
-    background: var(--code-bg);
-    color: var(--code-fg);
+    background: var(--input-background);
+    color: var(--foreground);
   }
 
   .m-markdown-small pre {
     margin-top: 4px;
     padding: 2px 4px;
-    background: var(--muted);
+    background: var(--input-background);
     color: var(--card-foreground);
   }
 

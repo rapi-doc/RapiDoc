@@ -195,7 +195,9 @@ export default css`
     --muted: #27272a;
     --muted-foreground: #a1a1aa;
     --border: #27272a;
-    --input: #18181b;
+    --input-background: color-mix(in srgb, var(--background) 90%, var(--foreground));
+    --input-border: color-mix(in srgb, var(--border) 60%, var(--background));
+    --input: var(--input-background);
     --primary: #f59e0b;
     --primary-foreground: #000000;
     --ring: #f59e0b;
@@ -227,7 +229,9 @@ export default css`
     --muted: #f4f4f5;
     --muted-foreground: #71717a;
     --border: #e4e4e7;
-    --input: #ffffff;
+    --input-background: color-mix(in srgb, var(--background) 95%, var(--foreground));
+    --input-border: color-mix(in srgb, var(--border) 60%, var(--background));
+    --input: var(--input-background);
     --primary: #d97706;
     --primary-foreground: #ffffff;
     --ring: #d97706;
@@ -258,7 +262,9 @@ export default css`
       --muted: #f4f4f5;
       --muted-foreground: #71717a;
       --border: #e4e4e7;
-      --input: #ffffff;
+      --input-background: color-mix(in srgb, var(--background) 95%, var(--foreground));
+      --input-border: color-mix(in srgb, var(--border) 60%, var(--background));
+      --input: var(--input-background);
       --primary: #d97706;
       --primary-foreground: #ffffff;
       --ring: #d97706;
@@ -308,7 +314,9 @@ export default css`
     --muted: oklch(0.2393 0 0);
     --muted-foreground: oklch(0.7155 0 0);
     --border: oklch(0.3715 0 0);
-    --input: oklch(0.3715 0 0);
+    --input-background: color-mix(in srgb, var(--background) 90%, var(--foreground));
+    --input-border: color-mix(in srgb, var(--border) 60%, var(--background));
+    --input: var(--input-background);
     --primary: oklch(0.7686 0.1647 70.0804);
     --primary-foreground: oklch(0 0 0);
     --ring: oklch(0.7686 0.1647 70.0804);
@@ -321,7 +329,9 @@ export default css`
     --muted: oklch(0.9846 0.0017 247.8389);
     --muted-foreground: oklch(0.551 0.0234 264.3637);
     --border: oklch(0.9276 0.0058 264.5313);
-    --input: oklch(0.9276 0.0058 264.5313);
+    --input-background: color-mix(in srgb, var(--background) 95%, var(--foreground));
+    --input-border: color-mix(in srgb, var(--border) 60%, var(--background));
+    --input: var(--input-background);
     --primary: oklch(0.7686 0.1647 70.0804);
     --primary-foreground: oklch(0 0 0);
     --ring: oklch(0.7686 0.1647 70.0804);
@@ -405,7 +415,9 @@ export default css`
       --muted: oklch(0.9846 0.0017 247.8389);
       --muted-foreground: oklch(0.551 0.0234 264.3637);
       --border: oklch(0.9276 0.0058 264.5313);
-      --input: oklch(0.9276 0.0058 264.5313);
+      --input-background: color-mix(in srgb, var(--background) 95%, var(--foreground));
+      --input-border: color-mix(in srgb, var(--border) 60%, var(--background));
+      --input: var(--input-background);
       --primary: oklch(0.7686 0.1647 70.0804);
       --primary-foreground: oklch(0 0 0);
       --ring: oklch(0.7686 0.1647 70.0804);

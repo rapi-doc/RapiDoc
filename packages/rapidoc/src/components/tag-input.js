@@ -93,10 +93,10 @@ export default class TagInput extends LitElement {
           outline: none;
           padding: 0;
           border-radius: var(--border-radius);
-          border: 1px solid var(--border);
+          border: 1px solid var(--input-border);
           cursor: text;
           overflow: hidden;
-          background: var(--input);
+          background: var(--input-background);
         }
         .tag,
         .editor {

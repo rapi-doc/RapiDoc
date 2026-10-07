@@ -39,9 +39,9 @@ export default css`
     width: 100%;
     padding: 6px 28px 6px 10px;
     color: var(--foreground);
-    border: 1px solid var(--primary);
+    border: 1px solid var(--input-border);
     border-radius: var(--radius);
-    background: var(--muted);
+    background: var(--input-background);
     font-size: calc(var(--font-size-small) + 1px);
     box-sizing: border-box;
     transition:

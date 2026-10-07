@@ -19,6 +19,8 @@ export default css`
   }
   .tab-btn {
     border: none;
+    border-radius: 0;
+    corner-shape: square;
     border-bottom: 2px solid transparent;
     color: var(--muted-foreground);
     background: transparent;

@@ -23,6 +23,8 @@ export default css`
     margin: 0.5em 0;
     overflow: auto;
     border-radius: var(--card-radius);
+    background: var(--input-background);
+    border: 1px solid var(--input-border);
   }
 
   /* Inline code */

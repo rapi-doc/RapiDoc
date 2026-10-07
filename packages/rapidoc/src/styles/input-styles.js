@@ -77,12 +77,11 @@ export default css`
   input,
   textarea,
   select,
-  button,
   pre {
     color: var(--foreground);
     outline: none;
-    background: var(--input);
-    border: 1px solid var(--border);
+    background: var(--input-background);
+    border: 1px solid var(--input-border);
     border-radius: var(--radius);
   }
   textarea,
@@ -135,7 +134,8 @@ export default css`
     font-family: var(--font-regular);
     padding: 2px;
     cursor: pointer;
-    border: 1px solid var(--primary);
+    background: var(--input-background);
+    border: 1px solid var(--input-border);
     border-radius: var(--radius);
     min-height: calc(var(--font-size-small) + 1.125rem);
   }
@@ -157,7 +157,7 @@ export default css`
   pre,
   textarea {
     scrollbar-width: thin;
-    scrollbar-color: var(--border) var(--input);
+    scrollbar-color: var(--input-border) var(--input-background);
   }
 
   pre::-webkit-scrollbar,
@@ -168,13 +168,13 @@ export default css`
 
   pre::-webkit-scrollbar-track,
   textarea::-webkit-scrollbar-track {
-    background: var(--input);
+    background: var(--input-background);
   }
 
   pre::-webkit-scrollbar-thumb,
   textarea::-webkit-scrollbar-thumb {
     border-radius: 2px;
-    background: var(--border);
+    background: var(--input-border);
   }
 
   .link {
