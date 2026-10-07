@@ -61,7 +61,7 @@ export const CONTROL_REGISTRY: Record<string, ControlDef> = {
     attr: 'scale',
     label: 'UI Scale',
     tip: 'Global scale for typography and spacing',
-    category: 'appearance',
+    category: 'theming',
     options: [
       { label: 'Compact', rawVal: 'sm' },
       { label: 'Default', rawVal: 'default', isDefault: true },
@@ -457,7 +457,7 @@ export const CATEGORY_TITLES: Record<ControlCategory, string> = {
 export const PRESETS: Record<string, string[]> = {
   all: Object.keys(CONTROL_REGISTRY),
   demo: Object.keys(CONTROL_REGISTRY),
-  minimal: ['render-style', 'schema-style', 'theme'],
+  minimal: ['render-style', 'schema-style', 'theme', 'color-scheme', 'radius', 'scale'],
   colors: ['theme', 'color-scheme', 'radius', 'scale', 'regular-font', 'mono-font'],
   schema: [
     'schema-style',
@@ -494,8 +494,16 @@ export const PRESETS: Record<string, string[]> = {
   none: [],
 };
 
+const ATTRIBUTE_ALIASES: Record<string, string> = {
+  'font-size': 'scale',
+  'primary-color': 'theme',
+  'bg-color': 'color-scheme',
+  'nav-accent-color': 'theme',
+};
+
 export function resolveActiveControls(propControls?: string[], preset: string = 'minimal'): ControlDef[] {
-  const baseList = propControls && propControls.length > 0 ? propControls : PRESETS[preset] || PRESETS.minimal;
+  const rawList = propControls && propControls.length > 0 ? propControls : PRESETS[preset] || PRESETS.minimal;
+  const baseList = rawList.map((k) => ATTRIBUTE_ALIASES[k] || k);
   const activeKeys = Array.from(new Set(baseList));
   return activeKeys.map((k) => CONTROL_REGISTRY[k]).filter((c): c is ControlDef => Boolean(c));
 }

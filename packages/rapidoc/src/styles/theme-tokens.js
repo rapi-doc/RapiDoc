@@ -82,6 +82,7 @@ export default css`
 
     /* Base default radius (sm: 0.25rem = 4px) */
     --radius: 0.25rem;
+    --card-radius: 4px;
     --border-radius: var(--radius);
 
     /* Base scale & fonts */
@@ -178,19 +179,24 @@ export default css`
      ========================================================================= */
   :host([radius='none']) {
     --radius: 0px;
+    --card-radius: 0px;
   }
   :host([radius='sm']),
   :host(:not([radius])) {
     --radius: 0.25rem;
+    --card-radius: 4px;
   }
   :host([radius='md']) {
     --radius: 0.375rem;
+    --card-radius: 4px;
   }
   :host([radius='lg']) {
     --radius: 0.5rem;
+    --card-radius: 6px;
   }
   :host([radius='full']) {
     --radius: 9999px;
+    --card-radius: 6px;
   }
 
   /* =========================================================================

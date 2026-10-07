@@ -201,7 +201,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
               <div class="rd-pretty-settings-list">
                 {/* Segmented Controls (Multi-choice chips or Color swatches) */}
                 {segmentedControls.map(ctrl => {
-                  const isColor = ctrl.attr === 'primary-color' || ctrl.options.some(o => Boolean(o.dotColor));
+                  const isColor = ctrl.attr === 'theme' || ctrl.options.some(o => Boolean(o.dotColor));
 
                   return (
                     <div class="rd-option-card rd-option-card--multi" data-control-attr={ctrl.attr}>

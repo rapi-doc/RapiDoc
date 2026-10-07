@@ -22,11 +22,13 @@ export default css`
     padding: 1em;
     margin: 0.5em 0;
     overflow: auto;
+    border-radius: var(--card-radius);
   }
 
   /* Inline code */
   :not(pre) > code[class*='language-'] {
     white-space: normal;
+    border-radius: var(--card-radius);
   }
 
   /* GitHub Syntax Highlighting (Dark & Light) */

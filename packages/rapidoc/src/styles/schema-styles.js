@@ -92,7 +92,7 @@ export default css`
     font-weight: bold;
     background: var(--primary);
     color: var(--primary-foreground);
-    border-radius: var(--radius);
+    border-radius: var(--card-radius);
     line-height: calc(var(--font-size-small) + 6px);
     padding: 0px 5px;
     margin-bottom: 1px;

@@ -202,7 +202,7 @@ export default css`
   .m-markdown-small code,
   .m-markdown code {
     padding: 1px 6px;
-    border-radius: var(--radius);
+    border-radius: var(--card-radius);
     color: var(--inline-code-fg);
     font-size: calc(var(--font-size-mono));
     line-height: 1.2;
@@ -217,7 +217,7 @@ export default css`
     white-space: pre-wrap;
     overflow-x: auto;
     line-height: normal;
-    border-radius: var(--radius);
+    border-radius: var(--card-radius);
     border: 1px solid var(--code-border-color);
   }
 
@@ -277,7 +277,7 @@ export default css`
     margin: 10px 0;
     border-collapse: separate;
     border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
+    border-radius: var(--card-radius);
     font-size: calc(var(--font-size-small) + 1px);
     line-height: calc(var(--font-size-small) + 4px);
     max-width: 100%;

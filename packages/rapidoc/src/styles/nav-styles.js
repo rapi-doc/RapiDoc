@@ -228,7 +228,6 @@ export default css`
     cursor: pointer;
     width: 100%;
     border: none;
-    border-radius: var(--radius);
     color: var(--nav-text-color);
     background: transparent;
     border-inline-start: 4px solid transparent;
@@ -280,7 +279,16 @@ export default css`
   .nav-bar-path.left-bar.active,
   .nav-bar-section.left-bar.operations.active {
     border-inline-start: 4px solid var(--nav-accent-color);
-    color: var(--nav-hover-text-color);
+    color: var(--nav-accent-color);
+  }
+
+  .nav-bar-h1.left-bar.active:hover,
+  .nav-bar-h2.left-bar.active:hover,
+  .nav-bar-info.left-bar.active:hover,
+  .nav-bar-tag.left-bar.active:hover,
+  .nav-bar-path.left-bar.active:hover,
+  .nav-bar-section.left-bar.operations.active:hover {
+    color: var(--nav-accent-color);
   }
 
   .nav-bar-h1.colored-block.active,
@@ -291,7 +299,16 @@ export default css`
   .nav-bar-section.colored-block.operations.active {
     background: var(--nav-accent-color);
     color: var(--nav-accent-text-color);
-    border-radius: 0;
+  }
+
+  .nav-bar-h1.colored-block.active:hover,
+  .nav-bar-h2.colored-block.active:hover,
+  .nav-bar-info.colored-block.active:hover,
+  .nav-bar-tag.colored-block.active:hover,
+  .nav-bar-path.colored-block.active:hover,
+  .nav-bar-section.colored-block.operations.active:hover {
+    background: var(--nav-accent-color);
+    color: var(--nav-accent-text-color);
   }
 
   .nav-bar-h1:hover,

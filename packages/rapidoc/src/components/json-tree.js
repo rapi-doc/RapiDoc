@@ -47,11 +47,11 @@ export default class JsonTree extends LitElement {
           padding: 0 20px 0 0;
           cursor: pointer;
           border: 1px solid transparent;
-          border-radius: var(--radius);
+          border-radius: var(--card-radius);
         }
         .close-bracket {
           border: 1px solid transparent;
-          border-radius: var(--radius);
+          border-radius: var(--card-radius);
           display: inline-block;
         }
         .open-bracket:hover {

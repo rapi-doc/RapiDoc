@@ -85,6 +85,10 @@ export default css`
     border: 1px solid var(--border);
     border-radius: var(--radius);
   }
+  textarea,
+  pre {
+    border-radius: var(--card-radius);
+  }
   button {
     font-family: var(--font-regular);
   }

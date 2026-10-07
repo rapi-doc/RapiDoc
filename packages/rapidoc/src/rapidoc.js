@@ -338,7 +338,7 @@ export default class RapiDoc extends LitElement {
         }
         .expanded-endpoint-body .tag-description {
           background: var(--code-bg);
-          border-radius: var(--border-radius);
+          border-radius: var(--card-radius);
           transition: max-height 0.2s ease-out;
         }
         .expanded-endpoint-body .tag-icon {

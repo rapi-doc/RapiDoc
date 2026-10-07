@@ -252,7 +252,7 @@ export default class ApiResponse extends LitElement {
     return html`<div style="padding:16px 0 8px 0" class="resp-headers small-font-size bold-text">RESPONSE HEADERS</div>
       <table
         role="presentation"
-        style="border-collapse: collapse; margin-bottom:16px; border:1px solid var(--border-color); border-radius: var(--border-radius)"
+        style="border-collapse: collapse; margin-bottom:16px; border:1px solid var(--border-color); border-radius: var(--card-radius)"
         class="small-font-size mono-font"
       >
         ${respHeaders.map(

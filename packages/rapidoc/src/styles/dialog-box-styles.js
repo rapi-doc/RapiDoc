@@ -13,12 +13,13 @@ export default css`
     background: var(--card);
     padding: 0;
     color: var(--card-foreground);
-    border-radius: var(--radius);
+    border-radius: var(--card-radius);
     max-height: 70vh;
     height: 70vh;
     max-width: 70vw;
     width: 70vw;
     border: 1px solid var(--border);
+    overflow: hidden;
     box-shadow:
       0 14px 28px rgba(0, 0, 0, 0.25),
       0 10px 10px rgba(0, 0, 0, 0.22);
@@ -37,6 +38,8 @@ export default css`
     max-height: 60px;
     border-bottom: 1px solid var(--border);
     overflow: hidden;
+    border-top-left-radius: var(--card-radius);
+    border-top-right-radius: var(--card-radius);
   }
 
   .dialog-box-header button {

@@ -5,7 +5,7 @@ export default css`
     border-spacing: 0;
     border-collapse: separate;
     border: 1px solid var(--border);
-    border-radius: var(--radius);
+    border-radius: var(--card-radius);
     margin: 0;
     max-width: 100%;
     direction: ltr;
