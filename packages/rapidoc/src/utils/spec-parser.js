@@ -593,7 +593,7 @@ function groupByTags(openApiSpec, sortEndpointsBy = 'none', generateMissingTags 
             responses: pathOrHookObj.responses,
             callbacks: pathOrHookObj.callbacks,
             deprecated: pathOrHookObj.deprecated,
-            security: pathOrHookObj.security,
+            security: pathOrHookObj.security ?? openApiSpec.security,
             // commonSummary: commonPathProp.summary,
             // commonDescription: commonPathProp.description,
             xBadges: pathOrHookObj['x-badges'] || undefined,
