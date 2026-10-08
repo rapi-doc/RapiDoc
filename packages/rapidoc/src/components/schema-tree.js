@@ -146,14 +146,13 @@ export default class SchemaTree extends LitElement {
     >
       <div class="toolbar">
         <div class="toolbar-item schema-root-type ${rootType} ">${rootType}</div>
-        ${
-          this.allowSchemaDescriptionExpandToggle === 'true'
-            ? html` <div style="flex:1"></div>
+        ${this.allowSchemaDescriptionExpandToggle === 'true'
+        ? html` <div style="flex:1"></div>
                 <div part="schema-toolbar-item schema-multiline-toggle" class="toolbar-item schema-multiline-toggle">
                   ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'}
                 </div>`
-            : ''
-        }
+        : ''
+      }
       </div>
       <span part="schema-description" class="m-markdown"> ${unsafeHTML(sanitizeHTML(marked(rootDescription)))}</span>
       ${this.renderAST(this.data)}
@@ -239,13 +238,12 @@ export default class SchemaTree extends LitElement {
               <span class="${dataTypeCss}" title="${readWriteTip}">[${itemType}]${readWriteBadge}</span>
             </div>
             <div class="td key-descr">
-              ${
-                hasText
-                  ? html`<span class="m-markdown-small"
+              ${hasText
+            ? html`<span class="m-markdown-small"
                       >${descrExpander} ${unsafeHTML(sanitizeHTML(marked(node.description || items.description)))}</span
                     >`
-                  : ''
-              }
+            : ''
+          }
               ${hasText && hasItemChips ? html`<div class="item-details">${detailChips}</div>` : detailChips}
             </div>
           </div>
@@ -400,18 +398,18 @@ export default class SchemaTree extends LitElement {
         </div>
         <div class="inside-bracket xxx-of-option" style="padding-left:0px;">
           ${node.options?.map(
-            (opt, i) => html`
+        (opt, i) => html`
               <div>
                 <div class="tr expanded xxx-of-option">
                   <div class="td key" style="min-width:${minFieldColWidth}px">
-                    <span class="key-label xxx-of-key">OPTION ${opt.optionIndex || i + 1}</span>
+                    <span class="key-label xxx-of-key">OPT ${opt.optionIndex || i + 1}</span>
                     ${opt.optionTitle ? html`<span class="xxx-of-descr">${opt.optionTitle}</span>` : ''}
                   </div>
                 </div>
                 ${this.renderAST(opt, 'xxx-of-option', schemaLevel, newIndent)}
               </div>
             `
-          )}
+      )}
         </div>
       `;
     }
@@ -457,24 +455,23 @@ export default class SchemaTree extends LitElement {
             </span>
           </div>
           <div class="td key-descr">
-            ${
-              hasText
-                ? html`<span class="m-markdown-small"
+            ${hasText
+          ? html`<span class="m-markdown-small"
                     >${descrExpander}
                     ${unsafeHTML(
-                      sanitizeHTML(
-                        marked(
-                          node.title
-                            ? node.description
-                              ? `<b>${node.title}:</b> ${node.description}`
-                              : `<b>${node.title}</b>`
-                            : node.description
-                        )
-                      )
-                    )}</span
+            sanitizeHTML(
+              marked(
+                node.title
+                  ? node.description
+                    ? `<b>${node.title}:</b> ${node.description}`
+                    : `<b>${node.title}</b>`
+                  : node.description
+              )
+            )
+          )}</span
                   >`
-                : ''
-            }
+          : ''
+        }
             ${hasText && hasDetailChips ? html`<div class="item-details">${detailChips}</div>` : detailChips}
           </div>
         </div>

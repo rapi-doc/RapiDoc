@@ -22,9 +22,20 @@ export default css`
     justify-content: center;
     align-items: stretch;
     padding: 8px 16px 12px 16px;
-    background: var(--background);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     box-sizing: border-box;
     width: 100%;
+    transition:
+      box-shadow 0.2s ease,
+      background 0.2s ease;
+  }
+  @container scroll-state(scrollable: top) {
+    .nav-bar-search-container {
+      box-shadow:
+        0 4px 12px -2px rgba(0, 0, 0, 0.25),
+        0 2px 4px -1px rgba(0, 0, 0, 0.15);
+    }
   }
   .nav-bar-search-container.has-bottom-border {
     border-bottom: 1px solid var(--muted);
@@ -97,6 +108,7 @@ export default css`
     color: var(--muted-foreground);
     background: var(--background);
     background-blend-mode: multiply;
+    border-right: 1px solid var(--border);
     line-height: calc(var(--font-size-small) + 4px);
     position: relative;
     flex-direction: column;
@@ -139,6 +151,7 @@ export default css`
     scrollbar-width: thin;
     scrollbar-color: var(--muted) transparent;
     scroll-padding-top: 60px;
+    container-type: scroll-state;
   }
 
   .nav-bar-tag {

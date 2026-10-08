@@ -1,7 +1,7 @@
 # AGENTS.md — `packages/rapidoc` (Core Library)
 
 ## 1. Package Scope & Identity
-`packages/rapidoc` contains the core RapiDoc custom elements library. It produces the zero-runtime-dependency web component `<rapi-doc>` as well as companion components `<rapi-doc-mini>`, `<json-schema-viewer>`, and `<oauth-receiver>`.
+`packages/rapidoc` contains the core RapiDoc custom elements library. It produces the zero-runtime-dependency web component `<rapi-doc>` as well as companion components `<rapi-doc-mini>` and `<oauth-receiver>`.
 
 - **Package Name**: `rapidoc`
 - **Output Target**: Standalone ES Module bundle at `dist/rapidoc-min.js`
@@ -60,7 +60,6 @@ packages/rapidoc/src/
 │   └── common-utils.js      # General helpers (slugs, sanitization, copy)
 ├── rapidoc.js           # Main <rapi-doc> custom element implementation
 ├── rapidoc-mini.js      # Embedded mini widget (<rapi-doc-mini>)
-├── json-schema-viewer.js# Standalone schema viewer component (<json-schema-viewer>)
 └── oauth-receiver.js    # OAuth 2 redirect receiver element
 ```
 

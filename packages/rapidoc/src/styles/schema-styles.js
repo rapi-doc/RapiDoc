@@ -88,22 +88,25 @@ export default css`
   }
 
   .xxx-of-key {
-    font-size: calc(var(--font-size-small) - 2px);
-    font-weight: bold;
-    background: var(--primary);
-    color: var(--primary-foreground);
-    border-radius: var(--card-radius);
-    line-height: calc(var(--font-size-small) + 6px);
-    padding: 0px 5px;
+    font-size: calc(var(--font-size-small) - 3px);
+    line-height: calc(var(--font-size-small) + 1px);
+    padding: 1px 6px;
+    border-radius: var(--radius);
+    corner-shape: squircle;
+    border: 1px solid var(--primary);
+    background: color-mix(in srgb, var(--primary) 12%, transparent);
+    color: var(--primary);
     margin-bottom: 1px;
     display: inline-block;
+    vertical-align: middle;
   }
 
   .xxx-of-descr {
     font-family: var(--font-regular);
     color: var(--primary);
-    font-size: calc(var(--font-size-small) - 1px);
-    margin-inline-start: 2px;
+    font-size: calc(var(--font-size-small) - 2px);
+    margin-inline-start: 4px;
+    vertical-align: middle;
   }
 
   .stri,
