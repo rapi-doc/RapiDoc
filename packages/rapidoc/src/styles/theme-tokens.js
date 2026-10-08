@@ -106,15 +106,6 @@ export default css`
     --focus-shadow: 0 0 0 1px transparent, 0 0 0 2px color-mix(in srgb, var(--ring) 40%, transparent);
     --selection-bg: color-mix(in srgb, var(--primary) 25%, transparent);
     --selection-fg: var(--foreground);
-
-    /* Method colors in nav */
-    --nav-get-color: var(--method-get);
-    --nav-post-color: var(--method-post);
-    --nav-put-color: var(--method-put);
-    --nav-delete-color: var(--method-delete);
-    --nav-head-color: var(--method-head);
-    --nav-patch-color: var(--method-patch);
-    --nav-options-color: var(--method-options);
   }
 
   /* =========================================================================

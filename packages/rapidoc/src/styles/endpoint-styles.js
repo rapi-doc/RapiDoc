@@ -142,46 +142,50 @@ export default css`
     margin-inline-end: 5px;
   }
   .endpoint-head .method.delete {
-    border: 2px solid var(--red);
+    border: 2px solid var(--method-delete);
   }
   .endpoint-head .method.put {
-    border: 2px solid var(--orange);
+    border: 2px solid var(--method-put);
   }
   .endpoint-head .method.post {
-    border: 2px solid var(--green);
+    border: 2px solid var(--method-post);
   }
   .endpoint-head .method.get {
-    border: 2px solid var(--blue);
+    border: 2px solid var(--method-get);
   }
   .endpoint-head .method.get.deprecated {
     border: 2px solid var(--border);
   }
-  .endpoint-head .method.head,
-  .endpoint-head .method.patch,
+  .endpoint-head .method.head {
+    border: 2px solid var(--method-head);
+  }
+  .endpoint-head .method.patch {
+    border: 2px solid var(--method-patch);
+  }
   .endpoint-head .method.options {
-    border: 2px solid var(--yellow);
+    border: 2px solid var(--method-options);
   }
 
   .head {
-    --method-color: var(--yellow);
+    --method-color: var(--method-head);
   }
   .patch {
-    --method-color: var(--yellow);
+    --method-color: var(--method-patch);
   }
   .options {
-    --method-color: var(--yellow);
+    --method-color: var(--method-options);
   }
   .put {
-    --method-color: var(--orange);
+    --method-color: var(--method-put);
   }
   .post {
-    --method-color: var(--green);
+    --method-color: var(--method-post);
   }
   .get {
-    --method-color: var(--blue);
+    --method-color: var(--method-get);
   }
   .delete {
-    --method-color: var(--red);
+    --method-color: var(--method-delete);
   }
 
   .req-resp-container {

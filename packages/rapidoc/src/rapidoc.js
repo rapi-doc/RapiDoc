@@ -404,21 +404,25 @@ export default class RapiDoc extends LitElement {
         }
 
         .nav-method.as-colored-text.get {
-          color: var(--nav-get-color);
+          color: var(--nav-get-color, var(--method-get));
         }
         .nav-method.as-colored-text.put {
-          color: var(--nav-put-color);
+          color: var(--nav-put-color, var(--method-put));
         }
         .nav-method.as-colored-text.post {
-          color: var(--nav-post-color);
+          color: var(--nav-post-color, var(--method-post));
         }
         .nav-method.as-colored-text.delete {
-          color: var(--nav-delete-color);
+          color: var(--nav-delete-color, var(--method-delete));
         }
-        .nav-method.as-colored-text.head,
-        .nav-method.as-colored-text.patch,
+        .nav-method.as-colored-text.head {
+          color: var(--nav-head-color, var(--method-head));
+        }
+        .nav-method.as-colored-text.patch {
+          color: var(--nav-patch-color, var(--method-patch));
+        }
         .nav-method.as-colored-text.options {
-          color: var(--nav-head-color);
+          color: var(--nav-options-color, var(--method-options));
         }
 
         .nav-method.as-colored-block {
@@ -432,21 +436,25 @@ export default class RapiDoc extends LitElement {
         }
 
         .nav-method.as-colored-block.get {
-          background: var(--blue);
+          background: var(--method-get);
         }
         .nav-method.as-colored-block.put {
-          background: var(--orange);
+          background: var(--method-put);
         }
         .nav-method.as-colored-block.post {
-          background: var(--green);
+          background: var(--method-post);
         }
         .nav-method.as-colored-block.delete {
-          background: var(--red);
+          background: var(--method-delete);
         }
-        .nav-method.as-colored-block.head,
-        .nav-method.as-colored-block.patch,
+        .nav-method.as-colored-block.head {
+          background: var(--method-head);
+        }
+        .nav-method.as-colored-block.patch {
+          background: var(--method-patch);
+        }
         .nav-method.as-colored-block.options {
-          background: var(--yellow);
+          background: var(--method-options);
         }
 
         @container (min-width: 768px) {

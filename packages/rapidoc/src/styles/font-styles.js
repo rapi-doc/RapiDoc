@@ -76,10 +76,14 @@ export default css`
   .method-fg.delete {
     color: var(--method-delete);
   }
-  .method-fg.options,
-  .method-fg.head,
+  .method-fg.head {
+    color: var(--method-head);
+  }
   .method-fg.patch {
     color: var(--method-patch);
+  }
+  .method-fg.options {
+    color: var(--method-options);
   }
 
   h1 {
