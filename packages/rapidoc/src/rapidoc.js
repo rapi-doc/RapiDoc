@@ -62,6 +62,8 @@ export default class RapiDoc extends LitElement {
     this.intersectionObserver = new IntersectionObserver((entries) => {
       this.onIntersect(entries);
     }, intersectionObserverOptions);
+    this._userSetLayout = false;
+    this._isDefaultingLayout = false;
   }
 
   static get properties() {
@@ -566,11 +568,27 @@ export default class RapiDoc extends LitElement {
       });
     }
 
-    if (!this.layout || !'row, column,'.includes(`${this.layout},`)) {
-      this.layout = 'row';
-    }
     if (!this.renderStyle || !'read, view, focused,'.includes(`${this.renderStyle},`)) {
       this.renderStyle = 'focused';
+    }
+
+    if (this.hasAttribute('layout')) {
+      const attrLayout = this.getAttribute('layout');
+      if ('row, column,'.includes(`${attrLayout},`)) {
+        this.layout = attrLayout;
+        this._userSetLayout = true;
+      }
+    }
+
+    if (!this._userSetLayout) {
+      const defaultLayout = this.renderStyle === 'read' || this.renderStyle === 'focused' ? 'column' : 'row';
+      this._isDefaultingLayout = true;
+      this.layout = defaultLayout;
+      this.setAttribute('layout', defaultLayout);
+      this._isDefaultingLayout = false;
+    } else if (!this.layout || !'row, column,'.includes(`${this.layout},`)) {
+      this.layout = this.renderStyle === 'read' || this.renderStyle === 'focused' ? 'column' : 'row';
+      this.setAttribute('layout', this.layout);
     }
     if (!this.schemaStyle || !'tree, table,'.includes(`${this.schemaStyle},`)) {
       this.schemaStyle = 'tree';
@@ -770,6 +788,18 @@ export default class RapiDoc extends LitElement {
     if (this.defaultSchemaTab === 'model') {
       this.defaultSchemaTab = 'schema';
     }
+    if (changedProperties.has('layout') && !this._isDefaultingLayout) {
+      this._userSetLayout = Boolean(this.layout && 'row, column,'.includes(`${this.layout},`));
+    }
+    if (changedProperties.has('renderStyle') && !this._userSetLayout) {
+      const targetLayout = this.renderStyle === 'read' || this.renderStyle === 'focused' ? 'column' : 'row';
+      if (this.layout !== targetLayout) {
+        this._isDefaultingLayout = true;
+        this.layout = targetLayout;
+        this.setAttribute('layout', targetLayout);
+        this._isDefaultingLayout = false;
+      }
+    }
   }
 
   render() {
@@ -862,6 +892,21 @@ export default class RapiDoc extends LitElement {
         }, 0);
       }
     }
+    if (name === 'layout') {
+      if (!this._isDefaultingLayout) {
+        if (newVal !== null && 'row, column,'.includes(`${newVal},`)) {
+          this._userSetLayout = true;
+          this.layout = newVal;
+        } else if (newVal === null) {
+          this._userSetLayout = false;
+          const defaultLayout = this.renderStyle === 'read' || this.renderStyle === 'focused' ? 'column' : 'row';
+          this._isDefaultingLayout = true;
+          this.layout = defaultLayout;
+          this.setAttribute('layout', defaultLayout);
+          this._isDefaultingLayout = false;
+        }
+      }
+    }
     if (name === 'render-style') {
       if (newVal === 'read') {
         window.setTimeout(() => {
@@ -869,6 +914,13 @@ export default class RapiDoc extends LitElement {
         }, 100);
       } else {
         this.intersectionObserver.disconnect();
+      }
+      if (!this._userSetLayout) {
+        const defaultLayout = newVal === 'read' || newVal === 'focused' ? 'column' : 'row';
+        this._isDefaultingLayout = true;
+        this.layout = defaultLayout;
+        this.setAttribute('layout', defaultLayout);
+        this._isDefaultingLayout = false;
       }
     }
     if (name === 'api-key-name' || name === 'api-key-location' || name === 'api-key-value') {

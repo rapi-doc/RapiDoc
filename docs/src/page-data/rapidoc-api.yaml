@@ -151,8 +151,8 @@ Attributes:
         description: >
           Controls the multi-column orientation of request parameters and response panels on desktop screens (>768px).
           In 'row' layout, request and response sections sit side-by-side; in 'column' layout, they stack vertically.
-          Applicable when <span class="mono yellow">render-style="view"</span>.
-        default: row
+          Defaults to 'column' when render-style is 'read' or 'focused', and 'row' when render-style is 'view'.
+        default: column (read, focused) / row (view)
       - name: render-style
         allowed:
           - read
