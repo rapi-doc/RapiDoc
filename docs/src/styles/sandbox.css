@@ -86,6 +86,19 @@ rapi-doc {
   font-size: 14px !important;
 }
 
+.dr-btn.active {
+  color: #38bdf8 !important;
+  background: rgba(56, 189, 248, 0.16) !important;
+  border-color: rgba(56, 189, 248, 0.3) !important;
+  font-weight: 600 !important;
+}
+
+.dr-btn.active:hover {
+  color: #7dd3fc !important;
+  background: rgba(56, 189, 248, 0.28) !important;
+  border-color: rgba(56, 189, 248, 0.5) !important;
+}
+
 /* Segmented 3-Icon Render Style Group */
 .dr-segmented-group {
   display: inline-flex !important;

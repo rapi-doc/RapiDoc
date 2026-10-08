@@ -1,11 +1,11 @@
 openapi: 3.1.0
 info:
-  title: Dry Run Development Spec
+  title: Developer Sandbox for RapiDoc
   version: 1.0.0
   description: |
-    ### ⚡ Developer Sandbox for RapiDoc
-    This spec is loaded by default on the `/dry-run` development page.
-    - Edit `docs/public/dryrun.yaml` in your editor to test changes.
+    ### Developer Sandbox for RapiDoc
+    This spec is loaded by default on the `/sandbox` development page.
+    - Edit `docs/public/sandbox.yaml` in your editor to test changes.
     - Or use the **Live Editor Drawer** on this page to paste any snippet.
     - Spec auto-reloads whenever you switch focus back to this browser tab.
 paths:

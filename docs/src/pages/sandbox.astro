@@ -1,9 +1,10 @@
 ---
 import GoogleAnalytics from '../components/GoogleAnalytics.astro';
+import PrettyRapidocTuner from '../components/PrettyRapidocTuner.astro';
 import '../styles/global.css';
-import '../styles/dry-run.css';
+import '../styles/sandbox.css';
 
-const defaultSpec = '/specs/dryrun.yaml';
+const defaultSpec = '/specs/sandbox.yaml';
 const pageTitle = 'Interactive OpenAPI Spec Sandbox & Live Editor | RapiDoc';
 const pageDescription =
   'Test, edit, and preview OpenAPI 3.x and Swagger 2.0 specs live in your browser using RapiDoc. Upload local files, toggle render styles, and live edit YAML/JSON.';
@@ -49,90 +50,33 @@ const pageDescription =
         <input type="file" id="dr-file-input" accept=".yaml,.yml,.json" style="display: none;" />
       </label>
 
-      <!-- 3. Render Style (3-Icon Segmented Group: Read, View, Focused) -->
-      <div class="dr-segmented-group" id="dr-style-group" role="group" aria-label="Render Style">
-        <button type="button" class="dr-seg-btn active" data-style="read" title="Render Style: Read (Default single-column doc)">
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-          </svg>
-        </button>
-        <button type="button" class="dr-seg-btn" data-style="view" title="Render Style: View (Column layout with sidebar)">
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-            <line x1="9" y1="3" x2="9" y2="21"></line>
-          </svg>
-        </button>
-        <button type="button" class="dr-seg-btn" data-style="focused" title="Render Style: Focused (One endpoint focused)">
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <circle cx="12" cy="12" r="10"></circle>
-            <circle cx="12" cy="12" r="3"></circle>
-            <line x1="12" y1="2" x2="12" y2="5"></line>
-            <line x1="12" y1="19" x2="12" y2="22"></line>
-            <line x1="2" y1="12" x2="5" y2="12"></line>
-            <line x1="19" y1="12" x2="22" y2="12"></line>
-          </svg>
-        </button>
-      </div>
-
-      <!-- 4. Schema Style Toggle (Table vs Tree) -->
-      <button type="button" class="dr-btn dr-btn-icon" id="dr-btn-schema" title="Schema Style: Table (Click to switch to Tree)">
-        <span id="dr-schema-icon">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="18" height="18" rx="2"></rect>
-            <line x1="3" y1="9" x2="21" y2="9"></line>
-            <line x1="3" y1="15" x2="21" y2="15"></line>
-            <line x1="9" y1="3" x2="9" y2="21"></line>
-          </svg>
-        </span>
+      <!-- 3. Tuner -->
+      <button type="button" class="dr-btn" id="dr-btn-tuner" title="Open RapiDoc Tuner (Shortcut: Cmd+K)">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <line x1="4" y1="21" x2="4" y2="14"></line>
+          <line x1="4" y1="10" x2="4" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12" y2="3"></line>
+          <line x1="20" y1="21" x2="20" y2="16"></line>
+          <line x1="20" y1="12" x2="20" y2="3"></line>
+          <line x1="1" y1="14" x2="7" y2="14"></line>
+          <line x1="9" y1="8" x2="15" y2="8"></line>
+          <line x1="17" y1="16" x2="23" y2="16"></line>
+        </svg>
+        <span>Tuner</span>
       </button>
 
-      <!-- 5. Theme Switcher -->
-      <button type="button" class="dr-btn dr-btn-icon" id="dr-btn-theme" title="Switch to Light Theme">
-        <span id="dr-theme-icon">
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-          </svg>
-        </span>
-      </button>
-
-      <!-- 5. Home -->
+      <!-- 4. Home -->
       <a href="/" class="dr-btn dr-btn-icon" title="Return to Home page">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
@@ -145,7 +89,8 @@ const pageDescription =
     <rapi-doc
       id="thedoc"
       spec-url={defaultSpec}
-      theme="dark"
+      color-scheme="dark"
+      theme="amber"
       render-style="read"
       schema-style="table"
       default-schema-tab="example"
@@ -158,11 +103,31 @@ const pageDescription =
     >
     </rapi-doc>
 
+    <!-- Pretty RapiDoc Tuner Drawer -->
+    <PrettyRapidocTuner
+      targetId="thedoc"
+      preset="all"
+      title="RapiDoc Tuner"
+      showEdgeTab={false}
+      initialAttrs={{
+        'color-scheme': 'dark',
+        theme: 'amber',
+        'render-style': 'read',
+        'schema-style': 'table',
+        'default-schema-tab': 'example',
+        'show-header': 'false',
+        'show-info': 'true',
+        'allow-authentication': 'true',
+        'allow-server-selection': 'true',
+        'allow-try': 'true',
+        'sort-endpoints-by': 'path',
+      }}
+    />
+
     <!-- Slide-Over Live Spec Editor Drawer -->
     <aside class="dr-drawer" id="dr-drawer" aria-hidden="true">
       <div class="dr-drawer-header">
         <div class="dr-drawer-title">
-          <span style="font-size: 18px;">📝</span>
           <h4>Live Spec Editor</h4>
           <span class="dr-format-tag" id="dr-format-tag">YAML / JSON</span>
         </div>
@@ -183,6 +148,13 @@ const pageDescription =
         <span class="dr-hint"><kbd>Cmd</kbd> + <kbd>Enter</kbd> to apply</span>
         <div class="dr-drawer-actions">
           <button type="button" class="dr-btn" id="dr-btn-format-json" style="display: none;">Format JSON</button>
+          <button type="button" class="dr-btn" id="dr-btn-reset-drawer" title="Reset editor to original spec text">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+              <path d="M3 3v5h5"></path>
+            </svg>
+            <span>Reset</span>
+          </button>
           <button type="button" class="dr-btn" id="dr-btn-cancel-drawer">Cancel</button>
           <button type="button" class="dr-btn dr-btn-primary" id="dr-btn-apply-drawer">Apply</button>
         </div>
@@ -205,14 +177,17 @@ const pageDescription =
     <script is:inline>
       (function () {
         let rapidocEl;
-        let activeSpecUrl = '/specs/dryrun.yaml';
+        let activeSpecUrl = '/specs/sandbox.yaml';
+        let originalSpecContent = '';
         let isDrawerOpen = false;
         let activeBlobUrl = null;
 
         const floatingBar = document.getElementById('dr-floating-bar');
         const btnEditor = document.getElementById('dr-btn-editor');
+        const btnTuner = document.getElementById('dr-btn-tuner');
         const btnCloseDrawer = document.getElementById('dr-btn-close-drawer');
         const btnCancelDrawer = document.getElementById('dr-btn-cancel-drawer');
+        const btnResetDrawer = document.getElementById('dr-btn-reset-drawer');
         const btnApplyDrawer = document.getElementById('dr-btn-apply-drawer');
         const btnFormatJson = document.getElementById('dr-btn-format-json');
         const drawer = document.getElementById('dr-drawer');
@@ -220,11 +195,6 @@ const pageDescription =
         const errorBanner = document.getElementById('dr-error-banner');
         const formatTag = document.getElementById('dr-format-tag');
         const fileInput = document.getElementById('dr-file-input');
-        const styleBtns = document.querySelectorAll('.dr-seg-btn');
-        const btnSchema = document.getElementById('dr-btn-schema');
-        const schemaIcon = document.getElementById('dr-schema-icon');
-        const btnTheme = document.getElementById('dr-btn-theme');
-        const themeIcon = document.getElementById('dr-theme-icon');
         const dropOverlay = document.getElementById('dr-drop-overlay');
         const toastContainer = document.getElementById('dr-toast-container');
 
@@ -238,93 +208,55 @@ const pageDescription =
 
         async function loadDefaultSpec() {
           try {
-            const res = await fetch(`/specs/dryrun.yaml?_t=${Date.now()}`);
+            const res = await fetch(`/specs/sandbox.yaml?_t=${Date.now()}`);
             if (res.ok) {
-              activeSpecUrl = '/specs/dryrun.yaml';
+              activeSpecUrl = '/specs/sandbox.yaml';
+              originalSpecContent = await res.text();
             } else {
-              activeSpecUrl = '/specs/dryrun.json';
+              activeSpecUrl = '/specs/sandbox.json';
+              const resJson = await fetch(`/specs/sandbox.json?_t=${Date.now()}`);
+              originalSpecContent = await resJson.text();
             }
           } catch {
-            activeSpecUrl = '/specs/dryrun.yaml';
+            activeSpecUrl = '/specs/sandbox.yaml';
+          }
+          if (originalSpecContent) {
+            textarea.value = originalSpecContent;
+            updateFormatTag();
           }
           rapidocEl.loadSpec(`${activeSpecUrl}?_t=${Date.now()}`);
         }
 
         function bindEvents() {
-          const moonSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-        </svg>`;
-
-          const sunSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="5"></circle>
-          <line x1="12" y1="1" x2="12" y2="3"></line>
-          <line x1="12" y1="21" x2="12" y2="23"></line>
-          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-          <line x1="1" y1="12" x2="3" y2="12"></line>
-          <line x1="21" y1="12" x2="23" y2="12"></line>
-          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-        </svg>`;
-
-          // Theme toggle
-          btnTheme.addEventListener('click', () => {
-            const current = rapidocEl.getAttribute('theme') || 'dark';
-            const next = current === 'dark' ? 'light' : 'dark';
-            rapidocEl.setAttribute('theme', next);
-            themeIcon.innerHTML = next === 'dark' ? moonSvg : sunSvg;
-            btnTheme.title = next === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme';
-            showToast(`Theme: ${next}`);
-          });
-
-          // Render Style 3-Icon Group
-          styleBtns.forEach((btn) => {
-            btn.addEventListener('click', () => {
-              const style = btn.getAttribute('data-style');
-              rapidocEl.setAttribute('render-style', style);
-              styleBtns.forEach((b) => b.classList.toggle('active', b === btn));
-              showToast(`Render style: ${style}`);
-            });
-          });
-
-          // Schema Style Toggle (Table vs Tree)
-          const tableSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="18" height="18" rx="2"/>
-          <line x1="3" y1="9" x2="21" y2="9"/>
-          <line x1="3" y1="15" x2="21" y2="15"/>
-          <line x1="9" y1="3" x2="9" y2="21"/>
-        </svg>`;
-
-          const treeSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="6" cy="6" r="3"/>
-          <circle cx="18" cy="18" r="3"/>
-          <circle cx="18" cy="6" r="3"/>
-          <path d="M6 9v9a3 3 0 0 0 3 3h6"/>
-          <line x1="6" y1="12" x2="18" y2="12"/>
-        </svg>`;
-
-          function updateSchemaIcon(style) {
-            if (style === 'tree') {
-              schemaIcon.innerHTML = treeSvg;
-              btnSchema.title = 'Schema Style: Tree (Click to switch to Table)';
-            } else {
-              schemaIcon.innerHTML = tableSvg;
-              btnSchema.title = 'Schema Style: Table (Click to switch to Tree)';
+          // Tuner Drawer Toggle
+          btnTuner?.addEventListener('click', () => {
+            if (isDrawerOpen) {
+              toggleDrawer(false);
             }
-          }
+            if (window.rapidocTuner) {
+              window.rapidocTuner.toggle();
+            } else {
+              const edgeTab = document.querySelector('.rd-pretty-edge-tab');
+              if (edgeTab) {
+                edgeTab.click();
+              } else {
+                window.dispatchEvent(new CustomEvent('rapidoc-tuner:toggle'));
+              }
+            }
+          });
 
-          btnSchema.addEventListener('click', () => {
-            const current = rapidocEl.getAttribute('schema-style') || 'table';
-            const next = current === 'table' ? 'tree' : 'table';
-            rapidocEl.setAttribute('schema-style', next);
-            updateSchemaIcon(next);
-            showToast(`Schema style: ${next}`);
+          window.addEventListener('rapidoc-tuner:opened', () => {
+            btnTuner?.classList.add('active');
+          });
+          window.addEventListener('rapidoc-tuner:closed', () => {
+            btnTuner?.classList.remove('active');
           });
 
           // Drawer
           btnEditor.addEventListener('click', () => toggleDrawer(true));
           btnCloseDrawer.addEventListener('click', () => toggleDrawer(false));
           btnCancelDrawer.addEventListener('click', () => toggleDrawer(false));
+          btnResetDrawer?.addEventListener('click', () => resetEditorContent());
           btnApplyDrawer.addEventListener('click', () => applyDrawer());
           btnFormatJson.addEventListener('click', () => formatJson());
 
@@ -385,16 +317,42 @@ const pageDescription =
           drawer.setAttribute('aria-hidden', String(!isDrawerOpen));
 
           if (isDrawerOpen) {
-            if (!textarea.value.trim() && !activeSpecUrl.startsWith('blob:')) {
-              try {
-                const res = await fetch(`${activeSpecUrl}?_t=${Date.now()}`);
-                if (res.ok) textarea.value = await res.text();
-              } catch (err) {
-                console.error(err);
+            window.rapidocTuner?.close?.();
+            if (!textarea.value.trim()) {
+              if (originalSpecContent) {
+                textarea.value = originalSpecContent;
+              } else if (!activeSpecUrl.startsWith('blob:')) {
+                try {
+                  const res = await fetch(`${activeSpecUrl}?_t=${Date.now()}`);
+                  if (res.ok) {
+                    originalSpecContent = await res.text();
+                    textarea.value = originalSpecContent;
+                  }
+                } catch (err) {
+                  console.error(err);
+                }
               }
             }
             updateFormatTag();
             textarea.focus();
+          }
+        }
+
+        async function resetEditorContent() {
+          if (!originalSpecContent && !activeSpecUrl.startsWith('blob:')) {
+            try {
+              const res = await fetch(`${activeSpecUrl}?_t=${Date.now()}`);
+              if (res.ok) originalSpecContent = await res.text();
+            } catch (err) {
+              console.error(err);
+            }
+          }
+          if (originalSpecContent) {
+            textarea.value = originalSpecContent;
+            errorBanner.style.display = 'none';
+            updateFormatTag();
+            textarea.focus();
+            showToast('Restored original spec text', 'info');
           }
         }
 
@@ -451,6 +409,7 @@ const pageDescription =
           reader.onload = async (e) => {
             const content = e.target.result;
             textarea.value = content;
+            originalSpecContent = content;
             updateFormatTag();
 
             const isJson = file.name.endsWith('.json') || content.trim().startsWith('{');

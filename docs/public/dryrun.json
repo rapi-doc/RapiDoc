@@ -1,7 +1,7 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Dry Run Development Spec (JSON)",
+    "title": "Developer Sandbox for RapiDoc",
     "version": "1.0.0",
     "description": "JSON variant of the developer sandbox spec for testing RapiDoc."
   },
