@@ -164,45 +164,47 @@ export function expandedEndpointBodyTemplate(path, tagName = '', tagDescription 
           : ''
       }
       ${codeSampleTabPanel}
-      <div class="expanded-req-resp-container ${this.layout}-layout">
-        <api-request
-          .config="${this.config}"
-          class="${this.renderStyle}-mode"
-          style="width:100%;"
-          webhook="${path.isWebhook}"
-          method="${path.method}"
-          path="${path.path}"
-          .security="${path.security}"
-          .parameters="${path.parameters}"
-          .request_body="${path.requestBody}"
-          .api_keys="${nonEmptyApiKeys}"
-          .servers="${path.servers}"
-          server-url="${path.servers?.[0]?.url || this.selectedServer?.computedUrl}"
-          fill-request-fields-with-example="${this.fillRequestFieldsWithExample}"
-          allow-try="${this.allowTry}"
-          show-curl-before-try="${this.showCurlBeforeTry}"
-          accept="${accept}"
-          render-style="${this.renderStyle}"
-          schema-style="${this.schemaStyle}"
-          active-schema-tab="${this.defaultSchemaTab}"
-          schema-expand-level="${this.schemaExpandLevel}"
-          schema-description-expanded="${this.schemaDescriptionExpanded}"
-          allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
-          schema-hide-read-only="${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
-          schema-hide-write-only="${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
-          fetch-credentials="${this.fetchCredentials}"
-          exportparts="wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
-          tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-coontent:tab-content, 
-          file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
-          anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
-        >
-        </api-request>
+      <div class="req-resp-container expanded-req-resp-container ${this.layout}-layout" part="section-req-resp-container">
+        <div class="request-panel view-mode-request ${this.renderStyle}-mode ${this.layout}-layout" part="section-request-panel">
+          <api-request
+            .config="${this.config}"
+            class="${this.renderStyle}-mode ${this.layout}-layout"
+            style="width:100%;"
+            webhook="${path.isWebhook}"
+            method="${path.method}"
+            path="${path.path}"
+            .security="${path.security}"
+            .parameters="${path.parameters}"
+            .request_body="${path.requestBody}"
+            .api_keys="${nonEmptyApiKeys}"
+            .servers="${path.servers}"
+            server-url="${path.servers?.[0]?.url || this.selectedServer?.computedUrl}"
+            fill-request-fields-with-example="${this.fillRequestFieldsWithExample}"
+            allow-try="${this.allowTry}"
+            show-curl-before-try="${this.showCurlBeforeTry}"
+            accept="${accept}"
+            render-style="${this.renderStyle}"
+            schema-style="${this.schemaStyle}"
+            active-schema-tab="${this.defaultSchemaTab}"
+            schema-expand-level="${this.schemaExpandLevel}"
+            schema-description-expanded="${this.schemaDescriptionExpanded}"
+            allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
+            schema-hide-read-only="${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
+            schema-hide-write-only="${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
+            fetch-credentials="${this.fetchCredentials}"
+            exportparts="wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
+            tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-coontent:tab-content, 
+            file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
+            anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
+          >
+          </api-request>
 
-        ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
+          ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
+        </div>
 
         <api-response
           .config="${this.config}"
-          class="${this.renderStyle}-mode"
+          class="response-panel ${this.renderStyle}-mode ${this.layout}-layout"
           style="width:100%;"
           webhook="${path.isWebhook}"
           .responses="${path.responses}"

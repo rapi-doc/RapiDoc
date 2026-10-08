@@ -115,9 +115,6 @@ export default class ApiRequest extends LitElement {
         tag-input:focus-within {
           outline: 1px solid;
         }
-        .read-mode {
-          margin-top: 24px;
-        }
         .param-name,
         .param-type {
           margin: 1px 0;

@@ -51,37 +51,41 @@ function endpointHeadTemplate(path, pathsExpanded = false) {
   return html`
     <summary
       @click="${(e) => {
-      toggleExpand.call(this, path, e);
-    }}"
+        toggleExpand.call(this, path, e);
+      }}"
       part="section-endpoint-head-${path.expanded ? 'expanded' : 'collapsed'}"
-      class="endpoint-head ${path.method} ${path.deprecated ? 'deprecated' : ''} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'
-    }"
+      class="endpoint-head ${path.method} ${path.deprecated ? 'deprecated' : ''} ${
+        pathsExpanded || path.expanded ? 'expanded' : 'collapsed'
+      }"
     >
       <div part="section-endpoint-head-method" class="method ${path.method} ${path.deprecated ? 'deprecated' : ''}">${path.method}</div>
       <div part="section-endpoint-head-path" class="path ${path.deprecated ? 'deprecated' : ''}">
         ${path.path}
-        ${path.isWebhook
-      ? html`<span
+        ${
+          path.isWebhook
+            ? html`<span
                 style="font-family: var(--font-regular); font-size: var(--font-size-small); color:var(--primary); margin-left: 16px"
               >
                 Webhook</span
               >`
-      : ''
-    }
+            : ''
+        }
       </div>
-      ${path.deprecated
-      ? html` <span
+      ${
+        path.deprecated
+          ? html` <span
               style="font-size:var(--font-size-small); text-transform:uppercase; font-weight:bold; color:var(--red); margin:2px 0 0 5px;"
             >
               deprecated
             </span>`
-      : ''
-    }
-      ${this.showSummaryWhenCollapsed
-      ? html` <div class="only-large-screen" style="min-width:60px; flex:1"></div>
+          : ''
+      }
+      ${
+        this.showSummaryWhenCollapsed
+          ? html` <div class="only-large-screen" style="min-width:60px; flex:1"></div>
               <div part="section-endpoint-head-description" class="descr">${path.summary || path.shortSummary}</div>`
-      : ''
-    }
+          : ''
+      }
     </summary>
   `;
 }
@@ -110,39 +114,44 @@ function endpointBodyTemplate(path) {
     class="endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}"
   >
     <div class="summary">
-      ${path.summary
-      ? html`<div class="title" part="section-endpoint-body-title">${path.summary}</div>`
-      : path.shortSummary !== path.description
-        ? html`<div class="title" part="section-endpoint-body-title">${path.shortSummary}</div>`
-        : ''
-    }
-      ${path.xBadges && path.xBadges?.length > 0
-      ? html`
+      ${
+        path.summary
+          ? html`<div class="title" part="section-endpoint-body-title">${path.summary}</div>`
+          : path.shortSummary !== path.description
+            ? html`<div class="title" part="section-endpoint-body-title">${path.shortSummary}</div>`
+            : ''
+      }
+      ${
+        path.xBadges && path.xBadges?.length > 0
+          ? html`
               <div style="display:flex; flex-wrap:wrap;font-size: var(--font-size-small);">
                 ${path.xBadges.map((v) =>
-        v.color === 'none'
-          ? ''
-          : html`<span
+                  v.color === 'none'
+                    ? ''
+                    : html`<span
                         part="endpoint-badge"
                         style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:var(--radius);  background: color-mix(in srgb, var(--${v.color}) 20%, transparent); color:var(--${v.color}); border:1px solid var(--${v.color})"
                         >${v.label}</span
                       >`
-      )}
+                )}
               </div>
             `
-      : ''
-    }
-      ${path.description
-      ? html`<div part="section-endpoint-body-description" class="m-markdown">
+          : ''
+      }
+      ${
+        path.description
+          ? html`<div part="section-endpoint-body-description" class="m-markdown">
               ${unsafeHTML(sanitizeHTML(marked(path.description)))}
             </div>`
-      : ''
-    }
-      ${path.externalDocs?.url || path.externalDocs?.description
-      ? html`<div style="background:var(--muted); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--card-radius)">
+          : ''
+      }
+      ${
+        path.externalDocs?.url || path.externalDocs?.description
+          ? html`<div style="background:var(--muted); padding:2px 8px 8px 8px; margin:8px 0; border-radius:var(--card-radius)">
               <div class="m-markdown">${unsafeHTML(sanitizeHTML(marked(path.externalDocs?.description || '')))}</div>
-              ${path.externalDocs?.url
-          ? html`<a
+              ${
+                path.externalDocs?.url
+                  ? html`<a
                       style="font-family:var(--font-mono); font-size:var(--font-size-small)"
                       href="${path.externalDocs?.url}"
                       target="_blank"
@@ -150,16 +159,16 @@ function endpointBodyTemplate(path) {
                       ${path.externalDocs?.url}
                       <div style="transform: rotate(270deg) scale(1.5); display: inline-block; margin-left:5px">⇲</div>
                     </a>`
-          : ''
-        }
+                  : ''
+              }
             </div>`
-      : ''
-    }
+          : ''
+      }
       <slot name="${path.elementId}"></slot>
       ${pathSecurityTemplate.call(this, path.security)} ${codeSampleTabPanel}
     </div>
-    <div class="req-resp-container ${this.layout}-layout">
-      <div style="display:flex; flex-direction:column" class="view-mode-request ${this.layout}-layout">
+    <div class="req-resp-container ${this.layout}-layout" part="section-req-resp-container">
+      <div class="request-panel view-mode-request ${this.layout}-layout" part="section-request-panel">
         <api-request
           .config="${this.config}"
           class="${this.renderStyle}-mode ${this.layout}-layout"
@@ -198,7 +207,8 @@ function endpointBodyTemplate(path) {
 
       <api-response
         .config="${this.config}"
-        class="${this.renderStyle}-mode"
+        class="response-panel ${this.renderStyle}-mode ${this.layout}-layout"
+        part="section-response-panel"
         style="width:100%;"
         webhook="${path.isWebhook}"
         .responses="${path.responses}"
@@ -225,7 +235,8 @@ export default function endpointTemplate(isMini = false, pathsExpanded = false) 
   if (!this.resolvedSpec) {
     return '';
   }
-  return html`${isMini
+  return html`${
+    isMini
       ? ''
       : html`<div style="display:flex; justify-content:flex-end;">
           <span @click="${(e) => onExpandCollapseAll(e, 'expand-all')}" style="color:var(--primary); cursor:pointer;"> Expand all </span>
@@ -235,29 +246,30 @@ export default function endpointTemplate(isMini = false, pathsExpanded = false) 
           </span>
           &nbsp; sections
         </div>`
-    }
+  }
   ${this.resolvedSpec.tags.map(
-      (tag) => html`
-      ${isMini
+    (tag) => html`
+      ${
+        isMini
           ? html`
               <div class="section-tag-body">
                 ${tag.paths
-              .filter((path) => {
-                if (this.searchVal) {
-                  return getMatchedPaths(this.searchVal, path, tag.name);
-                }
-                return true;
-              })
-              .map(
-                (path) =>
-                  html` <section
+                  .filter((path) => {
+                    if (this.searchVal) {
+                      return getMatchedPaths(this.searchVal, path, tag.name);
+                    }
+                    return true;
+                  })
+                  .map(
+                    (path) =>
+                      html` <section
                         id="${path.elementId}"
                         class="m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}"
                       >
                         ${endpointHeadTemplate.call(this, path, pathsExpanded)}
                         ${pathsExpanded || path.expanded ? endpointBodyTemplate.call(this, path) : ''}
                       </section>`
-              )}
+                  )}
               </div>
             `
           : html`
@@ -265,9 +277,9 @@ export default function endpointTemplate(isMini = false, pathsExpanded = false) 
                 <div
                   class="section-tag-header"
                   @click="${() => {
-              tag.expanded = !tag.expanded;
-              this.requestUpdate();
-            }}"
+                    tag.expanded = !tag.expanded;
+                    this.requestUpdate();
+                  }}"
                 >
                   <div id="${tag.elementId}" class="sub-title tag" style="color:var(--primary)">${tag.displayName || tag.name}</div>
                 </div>
@@ -277,15 +289,15 @@ export default function endpointTemplate(isMini = false, pathsExpanded = false) 
                     ${unsafeHTML(sanitizeHTML(marked(tag.description || '')))}
                   </div>
                   ${tag.paths
-              .filter((v) => {
-                if (this.searchVal) {
-                  return getMatchedPaths(this.searchVal, v, tag.name);
-                }
-                return true;
-              })
-              .map(
-                (path) =>
-                  html` <section
+                    .filter((v) => {
+                      if (this.searchVal) {
+                        return getMatchedPaths(this.searchVal, v, tag.name);
+                      }
+                      return true;
+                    })
+                    .map(
+                      (path) =>
+                        html` <section
                           part="section-endpoint"
                           id="${path.elementId}"
                           class="m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}"
@@ -293,11 +305,11 @@ export default function endpointTemplate(isMini = false, pathsExpanded = false) 
                           ${endpointHeadTemplate.call(this, path, pathsExpanded)}
                           ${pathsExpanded || path.expanded ? endpointBodyTemplate.call(this, path) : ''}
                         </section>`
-              )}
+                    )}
                 </div>
               </div>
             `
-        }
+      }
     `
-    )}`;
+  )}`;
 }

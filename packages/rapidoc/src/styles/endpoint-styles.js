@@ -162,6 +162,28 @@ export default css`
     border: 2px solid var(--yellow);
   }
 
+  .head {
+    --method-color: var(--yellow);
+  }
+  .patch {
+    --method-color: var(--yellow);
+  }
+  .options {
+    --method-color: var(--yellow);
+  }
+  .put {
+    --method-color: var(--orange);
+  }
+  .post {
+    --method-color: var(--green);
+  }
+  .get {
+    --method-color: var(--blue);
+  }
+  .delete {
+    --method-color: var(--red);
+  }
+
   .req-resp-container {
     display: flex;
     margin-top: 16px;
@@ -169,27 +191,50 @@ export default css`
     flex-wrap: wrap;
     flex-direction: column;
     border-top: 1px solid var(--border);
+    min-width: 0;
   }
 
   .expanded-req-resp-container {
     display: flex;
+    margin-top: 16px;
+    align-items: stretch;
+    flex-wrap: wrap;
     flex-direction: column;
-    gap: 16px;
+    border-top: none;
     min-width: 0;
   }
 
+  .request-panel,
   .view-mode-request,
-  api-response.view-mode {
-    flex: 1;
+  api-response {
+    flex: 1 1 auto;
     min-height: 100px;
+    min-width: 0;
     padding: 16px 8px;
     overflow: hidden;
-  }
-  .view-mode-request {
-    border-width: 0 0 1px 0;
-    border-style: dashed;
+    box-sizing: border-box;
   }
 
+  /* View Mode: dashed bottom divider when in column layout */
+  .m-endpoint .request-panel,
+  .m-endpoint .view-mode-request {
+    display: flex;
+    flex-direction: column;
+    border-width: 0 0 1px 0;
+    border-style: dashed;
+    border-color: var(--method-color, var(--primary));
+  }
+
+  /* Read & Focused Mode: in column layout there should NOT be any dotted line */
+  .expanded-endpoint-body .request-panel,
+  .expanded-req-resp-container .request-panel {
+    display: flex;
+    flex-direction: column;
+    border: none;
+    border-width: 0;
+  }
+
+  /* Explicit method color assignments for View Mode */
   .head .view-mode-request,
   .patch .view-mode-request,
   .options .view-mode-request {
@@ -222,35 +267,110 @@ export default css`
     .descr .m-markdown-small {
       display: block;
     }
-    .req-resp-container {
+    .req-resp-container,
+    .expanded-req-resp-container {
       flex-direction: var(--layout, row);
       flex-wrap: nowrap;
     }
     :host([layout='column']) .req-resp-container,
-    .req-resp-container.column-layout {
+    :host([layout='column']) .expanded-req-resp-container,
+    .req-resp-container.column-layout,
+    .expanded-req-resp-container.column-layout {
       flex-direction: column !important;
     }
+
+    /* Column layout overrides */
+    :host([layout='column']) .m-endpoint .request-panel,
     :host([layout='column']) .view-mode-request,
+    .m-endpoint .request-panel.column-layout,
     .view-mode-request.column-layout {
       border-width: 0 0 1px 0;
+      padding: 16px 8px;
     }
+    :host([layout='column']) .expanded-endpoint-body .request-panel,
+    :host([layout='column']) .expanded-req-resp-container .request-panel,
+    .expanded-endpoint-body .request-panel.column-layout,
+    .expanded-req-resp-container .request-panel.column-layout {
+      border: none !important;
+      border-width: 0 !important;
+      padding: 16px 8px;
+    }
+
+    :host([layout='row']) .req-resp-container,
     :host([layout='row']) .expanded-req-resp-container,
+    .req-resp-container.row-layout,
     .expanded-req-resp-container.row-layout {
       flex-direction: row;
     }
-    :host([layout='row']) .expanded-req-resp-container > api-request,
-    :host([layout='row']) .expanded-req-resp-container > api-response,
-    .expanded-req-resp-container.row-layout > api-request,
-    .expanded-req-resp-container.row-layout > api-response {
+    :host([layout='row']) .request-panel,
+    :host([layout='row']) .view-mode-request,
+    :host([layout='row']) api-response,
+    .req-resp-container.row-layout .request-panel,
+    .req-resp-container.row-layout .view-mode-request,
+    .req-resp-container.row-layout api-response,
+    .expanded-req-resp-container.row-layout .request-panel,
+    .expanded-req-resp-container.row-layout .view-mode-request,
+    .expanded-req-resp-container.row-layout api-response {
       flex: 1 1 0%;
       min-width: 0;
     }
-    api-response.view-mode {
-      padding: 16px;
-    }
+
+    /* Row layout divider in View Mode: full accent color */
+    :host([layout='row']) .m-endpoint .request-panel.row-layout,
+    :host([layout='row']) .view-mode-request.row-layout,
+    .m-endpoint .request-panel.row-layout,
     .view-mode-request.row-layout {
       border-width: 0 1px 0 0;
-      padding: 16px;
+      border-style: dashed;
+      border-color: var(--method-color, var(--primary));
+      padding: 16px 20px 16px 8px;
+    }
+
+    /* Row layout divider in Read & Focused Mode: light shade of accent color (50% transparency) */
+    :host([layout='row']) .expanded-endpoint-body .request-panel.row-layout,
+    :host([layout='row']) .expanded-req-resp-container.row-layout .request-panel,
+    .expanded-endpoint-body .request-panel.row-layout,
+    .expanded-req-resp-container.row-layout .request-panel {
+      border-width: 0 1px 0 0;
+      border-style: dashed;
+      border-color: color-mix(in srgb, var(--method-color, var(--primary)) 50%, transparent);
+      padding: 16px 20px 16px 8px;
+    }
+
+    /* Direct 50% opacity overrides for Read / Focused Mode */
+    .head .expanded-endpoint-body .request-panel,
+    .head .expanded-req-resp-container .request-panel {
+      border-color: color-mix(in srgb, var(--yellow) 50%, transparent);
+    }
+    .patch .expanded-endpoint-body .request-panel,
+    .patch .expanded-req-resp-container .request-panel {
+      border-color: color-mix(in srgb, var(--yellow) 50%, transparent);
+    }
+    .options .expanded-endpoint-body .request-panel,
+    .options .expanded-req-resp-container .request-panel {
+      border-color: color-mix(in srgb, var(--yellow) 50%, transparent);
+    }
+    .put .expanded-endpoint-body .request-panel,
+    .put .expanded-req-resp-container .request-panel {
+      border-color: color-mix(in srgb, var(--orange) 50%, transparent);
+    }
+    .post .expanded-endpoint-body .request-panel,
+    .post .expanded-req-resp-container .request-panel {
+      border-color: color-mix(in srgb, var(--green) 50%, transparent);
+    }
+    .get .expanded-endpoint-body .request-panel,
+    .get .expanded-req-resp-container .request-panel {
+      border-color: color-mix(in srgb, var(--blue) 50%, transparent);
+    }
+    .delete .expanded-endpoint-body .request-panel,
+    .delete .expanded-req-resp-container .request-panel {
+      border-color: color-mix(in srgb, var(--red) 50%, transparent);
+    }
+
+    :host([layout='row']) api-response,
+    .req-resp-container.row-layout api-response,
+    .expanded-req-resp-container.row-layout api-response {
+      padding: 16px 8px 16px 20px;
     }
     .summary {
       padding: 8px 16px;

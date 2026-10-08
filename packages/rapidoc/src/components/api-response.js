@@ -82,12 +82,6 @@ export default class ApiResponse extends LitElement {
           font-size: var(--font-size-small);
           margin: 0;
         }
-        .focused-mode,
-        .read-mode {
-          padding-top: 24px;
-          margin-top: 12px;
-          border-top: 1px dashed var(--border);
-        }
       `,
       CustomStyles,
     ];

@@ -146,15 +146,16 @@ export default class SchemaTable extends LitElement {
       >
         <div class="toolbar">
           <div class="toolbar-item schema-root-type ${rootType} ">${rootType}</div>
-          ${this.allowSchemaDescriptionExpandToggle === 'true'
-        ? html`
+          ${
+            this.allowSchemaDescriptionExpandToggle === 'true'
+              ? html`
                   <div style="flex:1"></div>
                   <div part="schema-multiline-toggle" class="toolbar-item schema-multiline-toggle">
                     ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'}
                   </div>
                 `
-        : ''
-      }
+              : ''
+          }
         </div>
         <span part="schema-description" class="m-markdown"> ${unsafeHTML(sanitizeHTML(marked(rootDescription)))} </span>
         <div style="border:1px solid var(--border)">
@@ -254,12 +255,13 @@ export default class SchemaTable extends LitElement {
             </div>
             <div class="td key-type ${dataTypeCss}" title="${readWriteTip}">[${itemType}]${readWriteBadge}</div>
             <div class="td key-descr" style="font-size: var(--font-size-small)">
-              ${hasText
-            ? html`<span class="m-markdown-small"
+              ${
+                hasText
+                  ? html`<span class="m-markdown-small"
                       >${descrExpander} ${unsafeHTML(sanitizeHTML(marked(node.description || items.description)))}</span
                     >`
-            : ''
-          }
+                  : ''
+              }
               ${hasText && hasItemChips ? html`<div class="item-details">${detailChips}</div>` : detailChips}
             </div>
           </div>
@@ -277,11 +279,11 @@ export default class SchemaTable extends LitElement {
       const hasChildren =
         items.kind === 'object'
           ? !!(
-            (items.properties && items.properties.length > 0) ||
-            (items.patternProperties && items.patternProperties.length > 0) ||
-            items.additionalProperties ||
-            (items.unions && items.unions.length > 0)
-          )
+              (items.properties && items.properties.length > 0) ||
+              (items.patternProperties && items.patternProperties.length > 0) ||
+              items.additionalProperties ||
+              (items.unions && items.unions.length > 0)
+            )
           : true;
 
       return html`
@@ -299,29 +301,32 @@ export default class SchemaTable extends LitElement {
           </div>
           <div class="td key-type" title="${readWriteTip}">${arrLabel}${readWriteBadge}</div>
           <div class="td key-descr" style="font-size: var(--font-size-small)">
-            ${hasText
-          ? html`<span class="m-markdown-small"
+            ${
+              hasText
+                ? html`<span class="m-markdown-small"
                     >${descrExpander} ${unsafeHTML(sanitizeHTML(marked(node.description || items.description || '')))}</span
                   >`
-          : ''
-        }
+                : ''
+            }
           </div>
         </div>
-        ${hasChildren
-          ? html`
+        ${
+          hasChildren
+            ? html`
                 <div class="object-body">
-                  ${items.kind === 'object'
-              ? html`
+                  ${
+                    items.kind === 'object'
+                      ? html`
                           ${items.properties?.map((p) => this.renderAST(p, 'object', schemaLevel + 1, indentLevel + 1))}
                           ${items.patternProperties?.map((p) => this.renderAST(p, 'object', schemaLevel + 1, indentLevel + 1))}
                           ${items.additionalProperties ? this.renderAST(items.additionalProperties, 'object', schemaLevel + 1, indentLevel + 1) : ''}
                           ${items.unions?.map((u) => this.renderAST(u, 'object', schemaLevel + 1, indentLevel + 1))}
                         `
-              : this.renderAST(items, 'array', schemaLevel + 1, indentLevel + 1)
-            }
+                      : this.renderAST(items, 'array', schemaLevel + 1, indentLevel + 1)
+                  }
                 </div>
               `
-          : ''
+            : ''
         }
       `;
     }
@@ -344,8 +349,9 @@ export default class SchemaTable extends LitElement {
       );
 
       return html`
-        ${node.name
-          ? html`
+        ${
+          node.name
+            ? html`
                 <div
                   class="tr ${isExpanded ? 'expanded' : 'collapsed'} object"
                   data-obj="${node.name}"
@@ -360,19 +366,21 @@ export default class SchemaTable extends LitElement {
                   </div>
                   <div class="td key-type" title="${readWriteTip}">${typeLabel}${readWriteBadge}</div>
                   <div class="td key-descr" style="font-size: var(--font-size-small)">
-                    ${hasText
-              ? html`<span class="m-markdown-small"
+                    ${
+                      hasText
+                        ? html`<span class="m-markdown-small"
                             >${descrExpander} ${unsafeHTML(sanitizeHTML(marked(node.description || '')))}</span
                           >`
-              : ''
-            }
+                        : ''
+                    }
                   </div>
                 </div>
               `
-          : ''
+            : ''
         }
-        ${hasChildren
-          ? html`
+        ${
+          hasChildren
+            ? html`
                 <div class="object-body">
                   ${node.properties?.map((p) => this.renderAST(p, 'object', schemaLevel + 1, indentLevel + (node.name ? 1 : 0)))}
                   ${node.patternProperties?.map((p) => this.renderAST(p, 'object', schemaLevel + 1, indentLevel + (node.name ? 1 : 0)))}
@@ -380,7 +388,7 @@ export default class SchemaTable extends LitElement {
                   ${node.unions?.map((u) => this.renderAST(u, 'object', schemaLevel + 1, indentLevel + (node.name ? 1 : 0)))}
                 </div>
               `
-          : ''
+            : ''
         }
       `;
     }
@@ -408,7 +416,7 @@ export default class SchemaTable extends LitElement {
         </div>
         <div class="object-body">
           ${node.options?.map(
-        (opt, i) => html`
+            (opt, i) => html`
               <div class="tr expanded xxx-of-option" data-obj="OPTION ${opt.optionIndex || i + 1}">
                 <div class="td key" style="padding-left:${leftPadding + 16}px">
                   <span class="xxx-of-key">OPT ${opt.optionIndex || i + 1}</span>
@@ -419,7 +427,7 @@ export default class SchemaTable extends LitElement {
               </div>
               <div class="object-body">${this.renderAST(opt, 'xxx-of-option', schemaLevel + 1, indentLevel + 1)}</div>
             `
-      )}
+          )}
         </div>
       `;
     }
@@ -465,23 +473,24 @@ export default class SchemaTable extends LitElement {
             ${parentType === 'array' ? `[${node.type}]` : node.type}${readWriteBadge}
           </div>
           <div class="td key-descr" style="font-size: var(--font-size-small)">
-            ${hasText
-          ? html`<span class="m-markdown-small"
+            ${
+              hasText
+                ? html`<span class="m-markdown-small"
                     >${descrExpander}
                     ${unsafeHTML(
-            sanitizeHTML(
-              marked(
-                node.title
-                  ? node.description
-                    ? `<b>${node.title}:</b> ${node.description}`
-                    : `<b>${node.title}</b>`
-                  : node.description
-              )
-            )
-          )}</span
+                      sanitizeHTML(
+                        marked(
+                          node.title
+                            ? node.description
+                              ? `<b>${node.title}:</b> ${node.description}`
+                              : `<b>${node.title}</b>`
+                            : node.description
+                        )
+                      )
+                    )}</span
                   >`
-          : ''
-        }
+                : ''
+            }
             ${hasText && hasDetailChips ? html`<div class="item-details">${detailChips}</div>` : detailChips}
           </div>
         </div>
