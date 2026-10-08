@@ -15,7 +15,7 @@ import NavStyles from '~/styles/nav-styles';
 import InfoStyles from '~/styles/info-styles';
 import CustomStyles from '~/styles/custom-styles';
 import DialogBoxStyles from '~/styles/dialog-box-styles';
-import ThemeTokens, { applyCustomTheme } from '~/styles/theme-tokens';
+import ThemeTokens, { applyCustomTheme, normalizeTheme } from '~/styles/theme-tokens';
 
 import { advancedSearch, getMatchedPaths, getMatchedComponents, rapidocApiKey, sleep } from '~/utils/common-utils';
 import ProcessSpec from '~/utils/spec-parser';
@@ -593,9 +593,13 @@ export default class RapiDoc extends LitElement {
     if (!this.schemaStyle || !'tree, table,'.includes(`${this.schemaStyle},`)) {
       this.schemaStyle = 'tree';
     }
-    if (!this.theme) {
-      this.theme = 'amber';
+    const normalizedTheme = normalizeTheme(this.theme);
+    if (normalizedTheme.colorScheme) {
+      this.colorScheme = normalizedTheme.colorScheme;
+      this.setAttribute('color-scheme', normalizedTheme.colorScheme);
     }
+    this.theme = normalizedTheme.theme;
+    this.setAttribute('theme', this.theme);
     if (!this.colorScheme || !'dark, light, system,'.includes(`${this.colorScheme},`)) {
       this.colorScheme = 'dark';
     }
@@ -834,6 +838,15 @@ export default class RapiDoc extends LitElement {
     scheduleHighlight(this.shadowRoot);
 
     if (changedProperties.has('theme')) {
+      const normalizedTheme = normalizeTheme(this.theme);
+      if (normalizedTheme.colorScheme) {
+        this.colorScheme = normalizedTheme.colorScheme;
+        this.setAttribute('color-scheme', normalizedTheme.colorScheme);
+      }
+      if (this.theme !== normalizedTheme.theme) {
+        this.theme = normalizedTheme.theme;
+        this.setAttribute('theme', this.theme);
+      }
       applyCustomTheme(this, this.theme);
     }
 

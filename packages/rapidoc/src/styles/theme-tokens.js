@@ -3,41 +3,72 @@ import { css } from 'lit';
 export const THEME_PRESETS = ['default', 'amber', 'graphite', 'modern', 'emerald', 'violet', 'rose', 'blue', 'slate'];
 
 /**
- * Checks if a string is a hex or css color rather than a preset name.
+ * Checks if a string is a valid hex color code (#rgb, #rrggbb, #rrggbbaa).
+ */
+export function isValidHexColor(color) {
+  if (!color || typeof color !== 'string') return false;
+  return /^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(color.trim());
+}
+
+/**
+ * Checks if a theme is valid: must be from the allowed THEME_PRESETS or a valid hex color code.
+ */
+export function isValidTheme(theme) {
+  if (!theme || typeof theme !== 'string') return false;
+  const trimmed = theme.trim().toLowerCase();
+  return THEME_PRESETS.includes(trimmed) || isValidHexColor(theme);
+}
+
+/**
+ * Normalizes and validates the theme attribute.
+ * Only allowed presets or valid hex color codes are accepted.
+ * If 'light' or 'dark' is provided, it returns fallback theme 'amber' and maps colorScheme.
+ * If any invalid value is provided, it falls back to 'amber'.
+ *
+ * @param {string} theme - The theme value to validate.
+ * @returns {{ theme: string, colorScheme?: 'light' | 'dark' }}
+ */
+export function normalizeTheme(theme) {
+  if (!theme || typeof theme !== 'string') {
+    return { theme: 'amber' };
+  }
+  const trimmed = theme.trim();
+  const lower = trimmed.toLowerCase();
+  if (lower === 'light' || lower === 'dark') {
+    return { theme: 'amber', colorScheme: lower };
+  }
+  if (THEME_PRESETS.includes(lower)) {
+    return { theme: lower };
+  }
+  if (isValidHexColor(trimmed)) {
+    return { theme: trimmed };
+  }
+  return { theme: 'amber' };
+}
+
+/**
+ * Checks if a string is a hex color rather than a preset name.
  */
 export function isCustomColor(color) {
   if (!color || typeof color !== 'string') return false;
   const trimmed = color.trim().toLowerCase();
   if (THEME_PRESETS.includes(trimmed)) return false;
-  return (
-    /^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(trimmed) ||
-    trimmed.startsWith('rgb(') ||
-    trimmed.startsWith('rgba(') ||
-    trimmed.startsWith('hsl(') ||
-    trimmed.startsWith('oklch(')
-  );
+  return isValidHexColor(color);
 }
 
 /**
- * Calculates whether a hex or oklch color is light to set appropriate foreground contrast.
+ * Calculates whether a hex color is light to set appropriate foreground contrast.
  */
 export function isLightColor(color) {
   if (!color || typeof color !== 'string') return false;
-  const trimmed = color.trim();
-  if (trimmed.startsWith('oklch(')) {
-    const match = trimmed.match(/oklch\(\s*([\d.]+)/);
-    if (match) {
-      return parseFloat(match[1]) > 0.6;
-    }
-  }
-  let hex = trimmed.replace(/^#/, '');
+  let hex = color.trim().replace(/^#/, '');
   if (hex.length === 3) {
     hex = hex
       .split('')
       .map((c) => c + c)
       .join('');
   }
-  if (hex.length === 6) {
+  if (hex.length === 6 || hex.length === 8) {
     const r = parseInt(hex.slice(0, 2), 16);
     const g = parseInt(hex.slice(2, 4), 16);
     const b = parseInt(hex.slice(4, 6), 16);
@@ -48,19 +79,20 @@ export function isLightColor(color) {
 }
 
 /**
- * Applies custom brand color to the host element if theme is not a preset name.
+ * Applies custom brand color to the host element if theme is a valid hex color code.
  */
 export function applyCustomTheme(element, themeVal) {
   if (!element || !element.style) return;
-  if (!themeVal || THEME_PRESETS.includes(themeVal.trim().toLowerCase())) {
+  if (!themeVal || THEME_PRESETS.includes(themeVal.trim().toLowerCase()) || !isValidHexColor(themeVal)) {
     element.style.removeProperty('--primary');
     element.style.removeProperty('--ring');
     element.style.removeProperty('--primary-foreground');
     return;
   }
-  element.style.setProperty('--primary', themeVal);
-  element.style.setProperty('--ring', themeVal);
-  const fg = isLightColor(themeVal) ? '#000000' : '#ffffff';
+  const hex = themeVal.trim();
+  element.style.setProperty('--primary', hex);
+  element.style.setProperty('--ring', hex);
+  const fg = isLightColor(hex) ? '#000000' : '#ffffff';
   element.style.setProperty('--primary-foreground', fg);
 }
 
