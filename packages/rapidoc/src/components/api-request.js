@@ -186,7 +186,7 @@ export default class ApiRequest extends LitElement {
         }
 
         .v-tab-btn {
-          font-size: var(--smal-font-size);
+          font-size: var(--font-size-small);
           height: 24px;
           border: none;
           background: none;

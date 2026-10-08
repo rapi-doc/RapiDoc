@@ -99,7 +99,7 @@ export function applyCustomTheme(element, themeVal) {
 export default css`
   :host {
     /* Typography: supports shadcn --font-sans or --font-regular */
-    --font-mono: Monaco, 'Andale Mono', 'Roboto Mono', Consolas, monospace;
+    --font-mono: 'Roboto Mono', Monaco, 'Andale Mono', Consolas, monospace;
     --font-regular: var(--font-sans, 'Open Sans', 'Segoe UI', Tahoma, Arial, sans-serif);
 
     /* Radius & Spacing */
@@ -115,6 +115,22 @@ export default css`
     --nav-width: 18.75rem;
     --nav-item-padding: 0.4375rem 1rem 0.4375rem 0.625rem;
     --nav-logo-max-height: 60px;
+    --resp-area-height: 400px;
+    --layout: row;
+    --table-schema-key-width: 240px;
+    --table-schema-key-text-overflow: ellipsis;
+    --table-schema-key-whitespace: nowrap;
+    --scroll-bar-width: 8px;
+
+    /* Code & Syntax Token Defaults */
+    --code-bg: var(--input-background);
+    --code-fg: var(--foreground);
+    --inline-code-fg: #c4c6d1;
+    --inline-code-bg: #3b3c45;
+    --markdown-fg: #c4c6d1;
+    --code-property-color: var(--syntax-property);
+    --code-keyword-color: var(--syntax-keyword);
+    --code-operator-color: var(--syntax-operator);
 
     /* HTTP Method Badge Tokens */
     --method-get: #3b82f6;
@@ -226,6 +242,25 @@ export default css`
     --primary-foreground: #000000;
     --ring: #f59e0b;
 
+    /* HTTP Method Badge Tokens (Dark Mode: Vibrant on dark surfaces) */
+    --method-get: #5c98f9ff;
+    --method-post: #68cc97;
+    --method-put: #f59e0b;
+    --method-delete: #f75252ff;
+    --method-patch: #8b5cf6;
+    --method-head: #eab308;
+    --method-options: #06b6d4;
+
+    /* General Status & Helpers (Dark Mode) */
+    --blue: #3b82f6;
+    --green: #10b981;
+    --orange: #f59e0b;
+    --red: #ef4444;
+    --purple: #8b5cf6;
+    --yellow: #eab308;
+    --pink: #ec4899;
+    --brown: #d97706;
+
     /* Dark Syntax Highlighting */
     --syntax-comment: #8b949e;
     --syntax-keyword: #ff7b72;
@@ -240,6 +275,16 @@ export default css`
     --syntax-selector: #d2a8ff;
     --syntax-inserted: #7ee787;
     --syntax-deleted: #ff7b72;
+
+    /* Code & Inline Code Tokens (Dark Mode) */
+    --code-bg: var(--input-background);
+    --code-fg: var(--foreground);
+    --inline-code-fg: #c4c6d1;
+    --inline-code-bg: #3b3c45;
+    --markdown-fg: #c4c6d1;
+    --code-property-color: var(--syntax-property);
+    --code-keyword-color: var(--syntax-keyword);
+    --code-operator-color: var(--syntax-operator);
   }
 
   /* =========================================================================
@@ -260,6 +305,25 @@ export default css`
     --primary-foreground: #ffffff;
     --ring: #d97706;
 
+    /* HTTP Method Badge Tokens (Light Mode: High contrast against white) */
+    --method-get: #2563eb;
+    --method-post: #059669;
+    --method-put: #d97706;
+    --method-delete: #dc2626;
+    --method-patch: #7c3aed;
+    --method-head: #b45309;
+    --method-options: #0891b2;
+
+    /* General Status & Helpers (Light Mode: WCAG compliant on light surfaces) */
+    --blue: #2563eb;
+    --green: #059669;
+    --orange: #d97706;
+    --red: #dc2626;
+    --purple: #7c3aed;
+    --yellow: #b45309;
+    --pink: #db2777;
+    --brown: #92400e;
+
     /* Light Syntax Highlighting */
     --syntax-comment: #6e7781;
     --syntax-keyword: #cf222e;
@@ -274,6 +338,16 @@ export default css`
     --syntax-selector: #8250df;
     --syntax-inserted: #116329;
     --syntax-deleted: #cf222e;
+
+    /* Code & Inline Code Tokens (Light Mode) */
+    --code-bg: var(--input-background);
+    --code-fg: var(--foreground);
+    --inline-code-fg: #334155;
+    --inline-code-bg: #e2e8f0;
+    --markdown-fg: #475569;
+    --code-property-color: var(--syntax-property);
+    --code-keyword-color: var(--syntax-keyword);
+    --code-operator-color: var(--syntax-operator);
   }
 
   /* System Color Scheme: Flips to light if OS prefers light */
@@ -293,6 +367,25 @@ export default css`
       --primary-foreground: #ffffff;
       --ring: #d97706;
 
+      /* HTTP Method Badge Tokens (System Light Mode) */
+      --method-get: #2563eb;
+      --method-post: #059669;
+      --method-put: #d97706;
+      --method-delete: #dc2626;
+      --method-patch: #7c3aed;
+      --method-head: #b45309;
+      --method-options: #0891b2;
+
+      /* General Status & Helpers (System Light Mode) */
+      --blue: #2563eb;
+      --green: #059669;
+      --orange: #d97706;
+      --red: #dc2626;
+      --purple: #7c3aed;
+      --yellow: #b45309;
+      --pink: #db2777;
+      --brown: #92400e;
+
       --syntax-comment: #6e7781;
       --syntax-keyword: #cf222e;
       --syntax-operator: #24292f;
@@ -306,6 +399,16 @@ export default css`
       --syntax-selector: #8250df;
       --syntax-inserted: #116329;
       --syntax-deleted: #cf222e;
+
+      /* Code & Inline Code Tokens (System Light Mode) */
+      --code-bg: var(--input-background);
+      --code-fg: var(--foreground);
+      --inline-code-fg: #334155;
+      --inline-code-bg: #e2e8f0;
+      --markdown-fg: #475569;
+      --code-property-color: var(--syntax-property);
+      --code-keyword-color: var(--syntax-keyword);
+      --code-operator-color: var(--syntax-operator);
     }
   }
 
@@ -354,14 +457,14 @@ export default css`
   /* 2. AMBER (Warm Amber Minimal) */
   :host([theme='amber']),
   :host([theme='amber'][color-scheme='dark']) {
-    --background: oklch(0.2046 0 0);
+    --background: oklch(0.2613 0.0134 272.84);
     --foreground: oklch(0.9219 0 0);
     --card: oklch(0.2686 0 0);
     --card-foreground: oklch(0.9219 0 0);
     --muted: oklch(0.2393 0 0);
     --muted-foreground: oklch(0.7155 0 0);
     --border: oklch(0.3715 0 0);
-    --input-background: color-mix(in srgb, var(--background) 50%, #000000);
+    --input-background: color-mix(in srgb, var(--background) 80%, #000000);
     --input-border: color-mix(in srgb, var(--border) 60%, var(--background));
     --input: var(--input-background);
     --primary: oklch(0.7686 0.1647 70.0804);

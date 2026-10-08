@@ -161,26 +161,56 @@ export default css`
   .m-markdown,
   .m-markdown-small {
     display: block;
+    color: var(--markdown-fg, var(--foreground));
   }
 
   .m-markdown p,
   .m-markdown span {
     font-size: var(--font-size-regular);
     line-height: calc(var(--font-size-regular) + 8px);
+    color: inherit;
   }
   .m-markdown li {
     font-size: var(--font-size-regular);
     line-height: calc(var(--font-size-regular) + 10px);
+    margin-block: 4px;
+    color: inherit;
   }
 
   .m-markdown-small p,
-  .m-markdown-small span,
-  .m-markdown-small li {
+  .m-markdown-small span {
     font-size: var(--font-size-small);
     line-height: calc(var(--font-size-small) + 6px);
+    color: inherit;
   }
   .m-markdown-small li {
+    font-size: var(--font-size-small);
     line-height: calc(var(--font-size-small) + 8px);
+    margin-block: 3px;
+    color: inherit;
+  }
+
+  .m-markdown strong,
+  .m-markdown b,
+  .m-markdown-small strong,
+  .m-markdown-small b {
+    color: var(--foreground);
+    font-weight: 600;
+  }
+
+  .m-markdown h1,
+  .m-markdown h2,
+  .m-markdown h3,
+  .m-markdown h4,
+  .m-markdown h5,
+  .m-markdown h6,
+  .m-markdown-small h1,
+  .m-markdown-small h2,
+  .m-markdown-small h3,
+  .m-markdown-small h4,
+  .m-markdown-small h5,
+  .m-markdown-small h6 {
+    color: var(--foreground);
   }
 
   .m-markdown p:not(:first-child) {
@@ -208,12 +238,14 @@ export default css`
     padding: 1px 6px;
     border-radius: var(--card-radius);
     color: var(--inline-code-fg);
+    background-color: var(--inline-code-bg, var(--muted));
     font-size: calc(var(--font-size-mono));
     line-height: 1.2;
   }
 
   .m-markdown-small code {
     font-size: calc(var(--font-size-mono) - 1px);
+    padding: 1px 5px;
   }
 
   .m-markdown-small pre,
@@ -242,6 +274,7 @@ export default css`
   .m-markdown pre code {
     border: none;
     padding: 0;
+    background: transparent;
   }
 
   .m-markdown pre code {
@@ -250,7 +283,7 @@ export default css`
 
   .m-markdown-small pre code {
     color: var(--card-foreground);
-    background: var(--muted);
+    background: transparent;
   }
 
   .m-markdown ul,
