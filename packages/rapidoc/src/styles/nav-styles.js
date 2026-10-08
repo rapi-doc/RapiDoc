@@ -13,29 +13,35 @@ export default css`
     width: 75px;
     padding: 6px 8px;
   }
-  .nav-bar-search-container {
+  .nav-bar-header {
     position: sticky;
     top: 0;
     z-index: 10;
     display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: stretch;
-    padding: 8px 16px 12px 16px;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    flex-direction: column;
     box-sizing: border-box;
     width: 100%;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     transition:
       box-shadow 0.2s ease,
       background 0.2s ease;
   }
   @container scroll-state(scrollable: top) {
-    .nav-bar-search-container {
+    .nav-bar-header {
       box-shadow:
         0 4px 12px -2px rgba(0, 0, 0, 0.25),
         0 2px 4px -1px rgba(0, 0, 0, 0.15);
     }
+  }
+  .nav-bar-search-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: stretch;
+    padding: 8px 16px 12px 16px;
+    box-sizing: border-box;
+    width: 100%;
   }
   .nav-bar-search-container.has-bottom-border {
     border-bottom: 1px solid var(--muted);
@@ -139,7 +145,7 @@ export default css`
     outline-offset: 2px;
   }
   ::slotted([slot='nav-logo']) {
-    height: 60px;
+    max-height: var(--nav-logo-max-height, 60px);
     width: auto;
     padding: 16px 16px 0 16px;
     object-fit: contain;

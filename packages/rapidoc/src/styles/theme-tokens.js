@@ -114,6 +114,7 @@ export default css`
     --font-size-regular: 14px;
     --nav-width: 18.75rem;
     --nav-item-padding: 0.4375rem 1rem 0.4375rem 0.625rem;
+    --nav-logo-max-height: 60px;
 
     /* HTTP Method Badge Tokens */
     --method-get: #3b82f6;

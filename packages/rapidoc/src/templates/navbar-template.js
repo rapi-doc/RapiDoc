@@ -45,8 +45,13 @@ export function navBarClickAndEnterHandler(event) {
     return;
   }
   const navEl = event.target;
-  // Ignore clicks or enter inside the search / filter controls
-  if (navEl.closest('#nav-bar-search') || navEl.closest('#advanced-search-btn') || navEl.closest('[part~="btn-clear-filter"]')) {
+  // Ignore clicks or enter inside the search / filter controls or logo slot
+  if (
+    navEl.closest('#nav-bar-search') ||
+    navEl.closest('#advanced-search-btn') ||
+    navEl.closest('[part~="btn-clear-filter"]') ||
+    navEl.closest('slot[name="nav-logo"]')
+  ) {
     return;
   }
   event.stopPropagation();
@@ -68,13 +73,14 @@ export default function navbarTemplate() {
   const slugger = new Slugger();
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) {
     return html`<nav class="nav-bar" part="section-navbar">
-      <slot name="nav-logo" class="logo"></slot>
+      <div class="nav-bar-header" part="section-navbar-header">
+        <slot name="nav-logo" class="logo"></slot>
+      </div>
     </nav>`;
   }
   return html`
     <button id="nav-bar-btn" part="btn-navbar" class="btn" @click="${this.onOpenNavBarToggle}">☰</button>
     <nav id="nav-bar" class="nav-bar ${this.renderStyle}" part="section-navbar">
-      <slot name="nav-logo" class="logo"></slot>
       <nav
         class="nav-scroll"
         tabindex="-1"
@@ -82,60 +88,63 @@ export default function navbarTemplate() {
         @click="${(e) => navBarClickAndEnterHandler.call(this, e)}"
         @keyup="${(e) => navBarClickAndEnterHandler.call(this, e)}"
       >
-        ${
-          this.allowSearch === 'false' && this.allowAdvancedSearch === 'false'
-            ? ''
-            : html`
-                <div
-                  class="nav-bar-search-container ${this.allowAdvancedSearch === 'false' ? 'has-bottom-border' : ''}"
-                  part="section-navbar-search"
-                >
-                  ${
-                    this.allowSearch === 'false'
-                      ? ''
-                      : html`
-                          <div class="nav-bar-search-input-wrapper">
-                            <input
-                              id="nav-bar-search"
-                              part="textbox textbox-nav-filter"
-                              class="nav-bar-search-input"
-                              type="text"
-                              placeholder="Filter"
-                              @change="${this.onSearchChange}"
-                              spellcheck="false"
-                            />
-                            <div class="nav-bar-search-icon" @click="${this.onSearchChange}">&#x21a9;</div>
-                          </div>
-                          ${
-                            this.searchVal
-                              ? html` <button
-                                  @click="${this.onClearSearch}"
-                                  class="m-btn thin-border btn-clear-filter"
-                                  part="btn btn-outline btn-clear-filter"
-                                >
-                                  CLEAR
-                                </button>`
-                              : ''
-                          }
-                        `
-                  }
-                  ${
-                    this.allowAdvancedSearch === 'false' || this.searchVal
-                      ? ''
-                      : html`
-                          <button
-                            id="advanced-search-btn"
-                            class="m-btn primary"
-                            part="btn btn-fill btn-search"
-                            @click="${this.onShowAdvancedSearchClicked}"
-                          >
-                            SEARCH
-                          </button>
-                        `
-                  }
-                </div>
-              `
-        }
+        <div class="nav-bar-header" part="section-navbar-header">
+          <slot name="nav-logo" class="logo"></slot>
+          ${
+            this.allowSearch === 'false' && this.allowAdvancedSearch === 'false'
+              ? ''
+              : html`
+                  <div
+                    class="nav-bar-search-container ${this.allowAdvancedSearch === 'false' ? 'has-bottom-border' : ''}"
+                    part="section-navbar-search"
+                  >
+                    ${
+                      this.allowSearch === 'false'
+                        ? ''
+                        : html`
+                            <div class="nav-bar-search-input-wrapper">
+                              <input
+                                id="nav-bar-search"
+                                part="textbox textbox-nav-filter"
+                                class="nav-bar-search-input"
+                                type="text"
+                                placeholder="Filter"
+                                @change="${this.onSearchChange}"
+                                spellcheck="false"
+                              />
+                              <div class="nav-bar-search-icon" @click="${this.onSearchChange}">&#x21a9;</div>
+                            </div>
+                            ${
+                              this.searchVal
+                                ? html` <button
+                                    @click="${this.onClearSearch}"
+                                    class="m-btn thin-border btn-clear-filter"
+                                    part="btn btn-outline btn-clear-filter"
+                                  >
+                                    CLEAR
+                                  </button>`
+                                : ''
+                            }
+                          `
+                    }
+                    ${
+                      this.allowAdvancedSearch === 'false' || this.searchVal
+                        ? ''
+                        : html`
+                            <button
+                              id="advanced-search-btn"
+                              class="m-btn primary"
+                              part="btn btn-fill btn-search"
+                              @click="${this.onShowAdvancedSearchClicked}"
+                            >
+                              SEARCH
+                            </button>
+                          `
+                    }
+                  </div>
+                `
+          }
+        </div>
         ${
           this.showInfo === 'false' || !this.resolvedSpec.info
             ? ''

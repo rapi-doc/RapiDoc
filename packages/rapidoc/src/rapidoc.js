@@ -1338,8 +1338,8 @@ export default class RapiDoc extends LitElement {
       // Scroll sidebar only if the active item is out of view
       const navScrollEl = newNavEl.closest('.nav-scroll');
       if (navScrollEl) {
-        const searchContainer = navScrollEl.querySelector('.nav-bar-search-container');
-        const topOffset = searchContainer ? searchContainer.offsetHeight : 0;
+        const headerEl = navScrollEl.querySelector('.nav-bar-header') || navScrollEl.querySelector('.nav-bar-search-container');
+        const topOffset = headerEl ? headerEl.offsetHeight : 0;
 
         if (newNavEl.offsetTop <= topOffset + 30) {
           if (navScrollEl.scrollTop > 0) {
