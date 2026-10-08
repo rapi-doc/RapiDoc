@@ -1,66 +1,108 @@
 ---
 title: Theming Overview & Architecture
-description: Learn how RapiDoc's Shadow DOM encapsulation works, how to use attribute-based styling, and how to configure custom typography.
+description: Learn how RapiDoc's Shadow DOM encapsulation works, how to configure overhauled declarative attributes, brand hex colors, and custom typography.
 ---
 
-import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside, Tabs, TabItem, Card, CardGrid } from '@astrojs/starlight/components';
 
-One of RapiDoc's biggest strengths is its styling model. Because RapiDoc is implemented as a standard Web Component, its internal markup and stylesheet reside inside an **encapsulated Shadow DOM**.
+RapiDoc features a streamlined, token-driven theming architecture inspired by modern design systems. Built as a standard W3C Web Component, its markup and stylesheets reside inside an encapsulated **Shadow DOM**, ensuring that external application styles never clash with your API documentation.
 
 <Aside type="tip" title="Why Shadow DOM Encapsulation Matters">
-  In large web applications, global CSS rules (such as CSS resets, utility frameworks, or third-party component libraries) frequently clash
-  with embedded documentation widgets. With Shadow DOM: - External CSS cannot accidentally break RapiDoc's internal elements. - Internal
-  RapiDoc styles will never bleed out into your parent application.
+  In modern web applications, global CSS rules (such as CSS resets, utility frameworks like Tailwind, or UI library stylesheets) frequently
+  collide with embedded API documentation. With Shadow DOM: - External CSS rules cannot accidentally alter RapiDoc's internal elements. -
+  Internal RapiDoc styles will never leak out into your host application.
 </Aside>
-
-To style RapiDoc, you have two primary mechanisms:
-
-1. **Attribute-based Configuration**: Simple, declarative HTML attributes for colors, fonts, and layout settings.
-2. **CSS Shadow Parts (`::part()`)**: Deep, granular styling using modern CSS pseudo-elements for gradients, borders, and custom UI components.
 
 ---
 
-## 1. Simplified Attribute-Based Theming
+## 1. Streamlined Declarative Attributes
 
-RapiDoc v11 provides a streamlined theming interface powered by semantic design tokens aligned with shadcn/ui. You can customize the entire appearance with just 3 primary attributes:
+RapiDoc consolidates visual customization into four primary attributes:
 
 ```html
-<rapi-doc spec-url="https://api.example.com/openapi.json" theme="amber" color-scheme="dark" radius="sm" scale="default"></rapi-doc>
+<rapi-doc
+  spec-url="https://api.example.com/openapi.json"
+  theme="emerald"
+  color-scheme="dark"
+  radius="md"
+  scale="default"
+  nav-item-spacing="default"
+></rapi-doc>
 ```
 
 ### Core Attribute Reference
 
-| Attribute          | Options                                                                                | Default     | Description                                                                                 |
-| :----------------- | :------------------------------------------------------------------------------------- | :---------- | :------------------------------------------------------------------------------------------ |
-| `theme`            | `amber`, `blue`, `emerald`, `violet`, `rose`, `graphite`, `slate`, `default`, or any `#hex` color | `"amber"`   | Color palette preset matching shadcn/ui themes, or a custom brand color hex/css value.     |
-| `color-scheme`     | `dark`, `light`, `system`                                                              | `"dark"`    | UI color mode. `"system"` automatically matches the user's OS dark/light mode preference.   |
-| `radius`           | `none`, `sm`, `md`, `lg`, `full`                                                       | `"sm"`      | Corner radius scale applied across cards, method badges, buttons, inputs, and dialogs.      |
-| `scale`            | `sm`, `default`, `lg`                                                                  | `"default"` | Component scaling factor adjusting typography, margins, and control heights proportionally. |
-| `nav-item-spacing` | `compact`, `default`, `relaxed`                                                        | `"default"` | Sidebar item vertical density and padding, decoupled from font size scaling.                |
-
-### Custom Brand Colors
-
-You can supply your own brand color directly into the `theme` attribute without configuring multiple color variables:
-
-```html
-<!-- Use your exact corporate brand color -->
-<rapi-doc spec-url="https://api.example.com/openapi.json" theme="#2563eb" color-scheme="dark" radius="md"></rapi-doc>
-```
+| Attribute          | Allowed Values                                                                                             | Default     | Description                                                                                                            |
+| :----------------- | :--------------------------------------------------------------------------------------------------------- | :---------- | :--------------------------------------------------------------------------------------------------------------------- |
+| `theme`            | `amber`, `blue`, `graphite`, `modern`, `emerald`, `violet`, `rose`, `slate`, `default`, or any `#hex` code | `"amber"`   | Color palette preset matching shadcn/ui color tokens, or a custom brand color hex code.                                |
+| `color-scheme`     | `dark`, `light`, `system`                                                                                  | `"dark"`    | Base surface mode. `"system"` automatically tracks the user's OS `prefers-color-scheme` preference.                    |
+| `radius`           | `none`, `sm`, `md`, `lg`, `full`                                                                           | `"sm"`      | Corner radius scale applied across cards, buttons, badges, inputs, and modal dialogs.                                  |
+| `scale`            | `sm`, `default`, `lg`                                                                                      | `"default"` | Proportional scale factor for UI base dimensions, body typography, code blocks, and sidebar width.                     |
+| `nav-item-spacing` | `compact`, `default`, `relaxed`                                                                            | `"default"` | Vertical density and padding of sidebar navigation links, decoupled from font size scaling.                            |
+| `load-fonts`       | `true`, `false`                                                                                            | `"true"`    | When set to `"false"`, prevents automatic loading of Open Sans from Google Fonts (for air-gapped or offline networks). |
 
 ---
 
-## 2. Typography & Custom Web Fonts
+## 2. Custom Brand Hex Colors & Contrast Engine
 
-RapiDoc uses high-quality defaults out of the box:
-
-- **Regular / Sans Font**: `--font-sans` or `--font-regular` (default: `"Open Sans", Avenir, "Segoe UI", Arial, sans-serif`)
-- **Monospace Font**: `--font-mono` (default: `Monaco, "Andale Mono", "Roboto Mono", Consolas, monospace`)
-
-Typography is configured directly via standard CSS custom properties or shadcn theme variables on `<rapi-doc>`:
+You can supply your corporate brand color directly into the `theme` attribute without writing external CSS:
 
 ```html
+<rapi-doc spec-url="https://api.example.com/openapi.json" theme="#2563eb" color-scheme="dark" radius="md"></rapi-doc>
+```
+
+### How the Contrast Engine Works
+
+When a hex color is supplied:
+
+1. **Primary Token**: Sets `--primary` to your exact hex color.
+2. **Focus Ring**: Sets `--ring` to match the brand color.
+3. **Contrast Foregrounds**: Evaluates the perceived luminance (YIQ color space) of your brand color. If your brand color is light, RapiDoc dynamically sets `--primary-foreground: #000000`; if dark, it sets `--primary-foreground: #ffffff`. This guarantees accessible, high-contrast button and badge labels automatically.
+
+---
+
+## 3. UI Geometry: Radius & Scale
+
+### Corner Radius (`radius`)
+
+The `radius` attribute controls roundness across the entire documentation interface:
+
+- `radius="none"`: Sharp 0px corners for brutalist or dense terminal-style layouts.
+- `radius="sm"` _(default)_: Subtle 4px (0.25rem) radius for clean, modern interfaces.
+- `radius="md"`: Balanced 6px (0.375rem) radius matching contemporary web apps.
+- `radius="lg"`: Pronounced 8px (0.5rem) radius for playful, consumer-facing portals.
+- `radius="full"`: Pill-shaped buttons and inputs (9999px) with rounded 8px cards.
+
+### Scaling Factor (`scale`)
+
+The `scale` attribute controls typography, base sizing, and proportional margins:
+
+- `scale="sm"`: Compact scale (13px base font, 17rem sidebar width). Ideal for embedded documentation cards or split-screen consoles.
+- `scale="default"` _(default)_: Standard desktop scale (14px base font, 18.75rem sidebar width). Optimal for full-page documentation portals.
+- `scale="lg"`: Generous scale (16px base font, 21rem sidebar width). Optimal for large monitors, accessibility compliance, and presentations.
+
+### Sidebar Item Density (`nav-item-spacing`)
+
+Adjust sidebar link density without altering the global font size:
+
+- `nav-item-spacing="compact"`: 5px vertical padding for large APIs with hundreds of endpoints.
+- `nav-item-spacing="default"` _(default)_: 7px vertical padding for balanced readability.
+- `nav-item-spacing="relaxed"`: 10px vertical padding for touchscreens and clean navigation.
+
+---
+
+## 4. Typography & Custom Web Fonts
+
+RapiDoc natively supports standard design system typography tokens. You can configure custom fonts by setting CSS variables on `<rapi-doc>`:
+
+- `--font-sans` or `--font-regular`: Primary font family for body text, headings, and navigation links.
+- `--font-mono`: Monospace font family for code blocks, HTTP methods, route paths, and schema models.
+
+<Tabs>
+  <TabItem label="HTML & CSS">
+```html
 <head>
-  <!-- 1. Load Google Fonts in your document head -->
+  <!-- 1. Load your preferred Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -69,47 +111,73 @@ Typography is configured directly via standard CSS custom properties or shadcn t
   />
 
   <style>
-    /* 2. Style typography using standard or shadcn CSS variables */
+    /* 2. Bind typography tokens directly to <rapi-doc> */
     rapi-doc {
       --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
     }
   </style>
+
 </head>
 
 <body>
   <rapi-doc
     spec-url="https://petstore.swagger.io/v2/swagger.json"
-    scale="default"
+    theme="emerald"
+    color-scheme="dark"
+    load-fonts="false"
   ></rapi-doc>
 </body>
 ```
+  </TabItem>
 
-### Scale Presets
-
-The `scale` attribute controls typography, base sizing, and proportional margins:
-
-- `scale="sm"`: Compact scale (13px base), ideal for embedded panels and dense developer portals.
-- `scale="default"`: Balanced standard scale (14px base, standard desktop layout).
-- `scale="lg"`: High-readability scale (15px base), optimal for accessibility and presentation modes.
+  <TabItem label="Tailwind / Framework Global CSS">
+```css
+/* Inherit from parent application font variables */
+rapi-doc {
+  --font-sans: var(--font-inter, sans-serif);
+  --font-mono: var(--font-jetbrains, monospace);
+}
+```
+  </TabItem>
+</Tabs>
 
 ---
 
-## 3. Dynamic Theme Switching at Runtime
+## 5. Dynamic Runtime Theme Switching
 
-Because `<rapi-doc>` is a standard DOM element, you can dynamically switch themes or color schemes at runtime with vanilla JavaScript:
+Because `<rapi-doc>` is a standard DOM element, you can dynamically switch themes, toggle light/dark modes, or adjust scale at runtime using standard JavaScript:
 
 ```javascript
 const doc = document.querySelector('rapi-doc');
 
-// Switch preset and mode
-function applyTheme(preset, isDark) {
-  doc.setAttribute('theme', preset); // 'amber', 'graphite', 'modern', etc.
-  doc.setAttribute('color-scheme', isDark ? 'dark' : 'light');
+// Switch brand preset or custom hex color
+function setBrandColor(themeValue) {
+  doc.setAttribute('theme', themeValue); // e.g., 'violet' or '#2563eb'
 }
 
-// Switch corner radius
-function setRadius(size) {
-  doc.setAttribute('radius', size); // 'none', 'sm', 'md', 'lg', 'full'
+// Toggle between dark and light modes
+function toggleDarkMode() {
+  const current = doc.getAttribute('color-scheme') || 'dark';
+  doc.setAttribute('color-scheme', current === 'dark' ? 'light' : 'dark');
+}
+
+// Adjust corner radius dynamically
+function updateRadius(radiusValue) {
+  doc.setAttribute('radius', radiusValue); // 'none', 'sm', 'md', 'lg', 'full'
 }
 ```
+
+---
+
+## Next Steps
+
+<CardGrid>
+  <Card title="CSS Parts (::part)" icon="seti:css">
+    Pierce the Shadow DOM to customize sidebars, action buttons, and containers with gradients and backdrop filters. [Explore CSS Parts
+    Guide](/docs/theming/css-parts/)
+  </Card>
+  <Card title="Pre-built Themes & Recipes" icon="palette">
+    Copy-paste production presets for Fintech, Cloud, Web3, and Developer Portals. [View Theme Recipes](/docs/theming/prebuilt-themes/)
+  </Card>
+</CardGrid>

@@ -30,6 +30,7 @@ export default defineConfig({
   },
   redirects: {
     '/css': '/guides/css',
+    '/slots': '/guides/slots',
     '/mini': '/guides/mini',
     '/mock': '/guides/mock',
     '/oauth': '/guides/oauth',

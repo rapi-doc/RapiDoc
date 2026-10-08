@@ -7,24 +7,35 @@ import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 import CssPartsCatalog from '../../../components/CssPartsCatalog.astro';
 import CssVariablesCatalog from '../../../components/CssVariablesCatalog.astro';
 
-While standard attributes handle core colors and fonts, modern web applications often demand bespoke layouts—such as custom glassmorphism, multi-stop gradient navigation panels, custom borders, and branded buttons.
+While declarative attributes handle foundational colors and typography, modern web products often demand bespoke styling—such as frosted glass sidebars, multi-stop gradient buttons, custom focus rings, or branded card containers.
 
-Because RapiDoc is implemented as a standard W3C Web Component, standard external CSS selectors cannot pierce the Shadow DOM encapsulation boundary. To provide complete design freedom while preserving stability, RapiDoc exposes **CSS Shadow Parts** (`::part()`) and **CSS Custom Properties** (Variables).
+Because RapiDoc is implemented as a standard W3C Web Component, standard external CSS selectors cannot pierce the Shadow DOM boundary. To give you complete design freedom without sacrificing encapsulation, RapiDoc exposes **CSS Shadow Parts** (`::part()`) and **CSS Custom Properties** (Variables).
 
 ---
 
-## 1. How `::part()` Works
+## 1. How `::part()` Piercing Works
 
-In your parent application stylesheet or `<style>` block, select `<rapi-doc>` followed by `::part(part-name)`:
+In your parent application stylesheet or `<style>` block, target `<rapi-doc>` followed by `::part(part-name)`:
 
 ```css
-/* Target the sidebar navigation panel inside RapiDoc */
+/* Target the navigation sidebar panel inside RapiDoc */
 rapi-doc::part(section-navbar) {
   background: linear-gradient(180deg, #090d16 0%, #030712 100%);
   border-right: 1px solid rgba(56, 189, 248, 0.15);
   box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
 }
+
+/* Target the header wrapper inside the navigation bar */
+rapi-doc::part(section-navbar-header) {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 16px;
+}
 ```
+
+<Aside type="tip" title="CSS Part Chaining & Pseudo-Classes">
+  CSS Shadow Parts support standard CSS pseudo-classes such as `:hover`, `:focus`, and `:active`. For example,
+  `rapi-doc::part(btn-fill):hover` styles the primary action button on hover.
+</Aside>
 
 ---
 
@@ -36,16 +47,24 @@ Below is the complete catalog of all semantic CSS parts exposed by RapiDoc, auto
 
 ---
 
-## 3. CSS Custom Properties (Variables)
+## 3. CSS Custom Properties (Design Tokens)
 
 In addition to Shadow Parts, RapiDoc exposes a comprehensive set of CSS variables on `:host`. You can override these variables on `<rapi-doc>` or any ancestor container in your stylesheet or inline styles:
 
 ```css
 rapi-doc {
-  --radius: 8px;
-  --font-mono: 'JetBrains Mono', monospace;
-  --primary: #10b981;
+  /* Override surface tokens */
   --background: #0b1121;
+  --foreground: #f8fafc;
+  --card: #0f172a;
+  --border: #1e293b;
+
+  /* Override typography tokens */
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Override radius token */
+  --radius: 8px;
 }
 ```
 
@@ -55,12 +74,12 @@ Below is the complete catalog of CSS custom properties exposed by RapiDoc:
 
 ---
 
-## 4. Practical Styling Recipes
+## 4. Production Styling Recipes
 
 ### Recipe 1: Frosted Glass Sidebar with Neon Accents
 
 ```css
-/* Add modern backdrop blur and subtle border */
+/* Frosted glass backdrop blur on sidebar */
 rapi-doc::part(section-navbar) {
   background: rgba(10, 15, 26, 0.85);
   backdrop-filter: blur(16px);
@@ -68,11 +87,17 @@ rapi-doc::part(section-navbar) {
   border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* Style the filter input inside the sidebar */
+/* Sidebar header area (wrapping logo & search) */
+rapi-doc::part(section-navbar-header) {
+  padding: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Real-time search filter input inside sidebar */
 rapi-doc::part(textbox-nav-filter) {
   background: rgba(15, 23, 42, 0.6);
   border: 1px solid rgba(56, 189, 248, 0.2);
-  border-radius: 8px;
+  border-radius: var(--radius);
   color: #f8fafc;
   padding: 8px 12px;
 }
@@ -83,18 +108,22 @@ rapi-doc::part(textbox-nav-filter):focus {
 }
 ```
 
-### Recipe 2: Custom "TRY" and Action Buttons
+### Recipe 2: Gradient Action Buttons & "TRY" Triggers
 
 ```css
-/* Style primary action buttons with vibrant gradient and glow */
+/* Base button enhancements */
+rapi-doc::part(btn) {
+  border-radius: var(--radius);
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Primary filled buttons (TRY execution, copy, search) */
 rapi-doc::part(btn-fill) {
   background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
   color: #ffffff;
-  font-weight: 600;
   border: none;
-  border-radius: 8px;
   padding: 8px 16px;
-  transition: all 0.2s ease;
   box-shadow: 0 4px 12px rgba(6, 182, 212, 0.25);
 }
 
@@ -104,7 +133,27 @@ rapi-doc::part(btn-fill):hover {
 }
 ```
 
-<Aside type="tip" title="Combining Attributes, Variables, and CSS Parts">
-  The recommended architecture is setting your foundational colors and typography using HTML attributes and CSS variables, and reserving
-  `::part()` for high-impact visual customizations such as gradients, backdrop filters, and custom container borders.
+### Recipe 3: Custom Server Environment Panel
+
+```css
+/* Server selector container */
+rapi-doc::part(section-servers) {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: var(--card-radius);
+  padding: 16px 20px;
+}
+
+/* Selected base URL indicator */
+rapi-doc::part(label-selected-server) {
+  color: #38bdf8;
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+```
+
+<Aside type="tip" title="Recommended Architecture">
+  The recommended workflow is setting foundational colors and typography using declarative HTML attributes (`theme`, `color-scheme`,
+  `radius`, `scale`), and reserving `::part()` for high-impact visual customizations such as gradients, backdrop filters, and custom
+  container borders.
 </Aside>

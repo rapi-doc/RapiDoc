@@ -1,0 +1,379 @@
+---
+import GlobalLayout from '../../layouts/GlobalLayout.astro';
+import SiteNavbar from '../../components/SiteNavbar.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import { stylingData } from '../../page-data/styling-data';
+import '../../styles/styling.css';
+
+const slotsData = stylingData.slots;
+const totalSlots = slotsData.length;
+
+const multiSlotRecipeCode = `<rapi-doc
+  spec-url="https://petstore.swagger.io/v2/swagger.json"
+  theme="emerald"
+  color-scheme="dark"
+  radius="md"
+>
+  <!-- 1. System announcement banner (unnamed default slot) -->
+  <div style="background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 12px 20px; margin: 16px 24px;">
+    <strong style="color: #34d399;">🚀 API v3.0 Live in Production:</strong>
+    <span style="color: #e2e8f0; margin-left: 6px;">New webhooks and streaming endpoints are now available.</span>
+  </div>
+
+  <!-- 2. Custom brand logo in top utility header -->
+  <div slot="logo" style="display: flex; align-items: center; gap: 8px;">
+    <img src="/assets/images/logo.png" width="30" height="30" alt="Acme Logo" />
+    <span style="font-size: 18px; font-weight: 700; color: #fff; letter-spacing: -0.02em;">Acme Cloud</span>
+  </div>
+
+  <!-- 3. Action button slot in header -->
+  <div slot="header">
+    <a href="https://github.com/org/repo" target="_blank" style="color: #94a3b8; text-decoration: none; padding: 6px 14px; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 13px; font-weight: 500;">
+      GitHub SDK ↗
+    </a>
+  </div>
+
+  <!-- 4. Sidebar wordmark branding (sticky top of navbar) -->
+  <div slot="nav-logo" style="padding: 12px 16px; font-weight: 800; font-size: 16px; color: #10b981; letter-spacing: -0.01em;">
+    ACME API PORTAL
+  </div>
+
+  <!-- 5. Custom Auth guidance inside Security dialog -->
+  <div slot="auth" style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;">
+    <p style="margin: 0; font-size: 13px; color: #cbd5e1;">
+      🔑 <strong>Need an API Key?</strong> Generate sandboxed tokens in the
+      <a href="https://dashboard.acme.corp" target="_blank" style="color: #38bdf8; font-weight: 600;">Developer Console</a>.
+    </p>
+  </div>
+
+  <!-- 6. Corporate legal footer -->
+  <footer slot="footer" style="text-align: center; padding: 32px 24px; color: #64748b; font-size: 13px; border-top: 1px solid rgba(255,255,255,0.06); margin-top: 48px;">
+    © 2026 Acme Cloud Corp. All rights reserved. •
+    <a href="/terms" style="color: #94a3b8; text-decoration: none; margin: 0 6px;">Terms of Service</a> •
+    <a href="/privacy" style="color: #94a3b8; text-decoration: none; margin: 0 6px;">Privacy Policy</a>
+  </footer>
+</rapi-doc>`;
+
+const tagSlotSnippet = `<!-- Inject targeted notes underneath a specific tag group -->
+<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json">
+  <div slot="tag--Pet" style="padding: 12px 16px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; margin: 12px 0;">
+    <strong style="color: #34d399;">Pet Operations Notice:</strong>
+    <span style="color: #cbd5e1;"> All pet IDs must conform to valid UUID v4 strings.</span>
+  </div>
+</rapi-doc>`;
+
+const endpointSlotSnippet = `<!-- Inject custom guidance inside an individual endpoint card -->
+<rapi-doc spec-url="https://petstore.swagger.io/v2/swagger.json">
+  <div slot="get-/pet/-petId-" style="padding: 10px 14px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 6px; margin: 10px 0;">
+    💡 <strong>Edge Caching:</strong> Responses for this GET operation are cached at Cloudflare edge nodes for 60 seconds.
+  </div>
+</rapi-doc>`;
+---
+
+<GlobalLayout
+  title="Named HTML Slots & Custom UI Injection Guide | RapiDoc"
+  description="Inject custom HTML markup, brand logos, corporate announcement banners, auth guidance, and footers into RapiDoc's Shadow DOM using standard Web Component slots."
+  keywords="RapiDoc slots, Web Component slot, OpenAPI custom HTML, Swagger logo slot, Shadow DOM slot injection"
+>
+  <div class="ambient-glow glow-emerald"></div>
+  <div class="ambient-glow glow-indigo"></div>
+  <div class="ambient-glow glow-cyan"></div>
+
+  <SiteNavbar activePage="guides" />
+
+  <main class="rd-styling-main">
+    <header class="rd-styling-hero">
+      <div class="rd-badge-pill">
+        <span class="rd-badge-pulse"></span>
+        <span class="rd-badge-text">Web Component Extension Points</span>
+      </div>
+
+      <h1 class="rd-page-title">
+        Named HTML Slots & <span class="text-gradient">Custom UI Injection</span>
+      </h1>
+
+      <p class="rd-page-subtitle">
+        Because RapiDoc is encapsulated in a Shadow DOM, external DOM elements cannot be arbitrarily injected into its tree.
+        Standard Web Component <code>&lt;slot&gt;</code> elements expose designated insertion zones where you can inject custom HTML markup directly into RapiDoc's internal layout.
+      </p>
+
+      <div class="rd-stats-bar">
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">{totalSlots}</span>
+          <span class="rd-stat-label">Slot Insertion Zones</span>
+        </div>
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">100%</span>
+          <span class="rd-stat-label">W3C Web Component Standard</span>
+        </div>
+        <div class="rd-stat-card">
+          <span class="rd-stat-value">Zero</span>
+          <span class="rd-stat-label">CSS Hacks Required</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Visual Architecture Wireframe Blueprint -->
+    <section class="rd-section-block" id="blueprint">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Layout Blueprint</div>
+        <h2 class="rd-section-title">Physical Slot Placement Architecture</h2>
+        <p class="rd-section-desc">
+          Inspect the visual map below to see exactly where each named slot renders within RapiDoc's user interface.
+        </p>
+      </div>
+
+      <div class="rd-slot-wireframe-card">
+        <div class="rd-wireframe-header">
+          <span class="wireframe-badge">Visual Blueprint</span>
+          <span class="wireframe-title">RapiDoc Shadow DOM Slot Insertion Zones</span>
+        </div>
+        <div class="rd-wireframe-diagram">
+          <!-- Top Utility Bar -->
+          <div class="wf-row wf-header-bar">
+            <div class="wf-zone wf-zone-logo">
+              <span class="wf-slot-tag">slot="logo"</span>
+              <span class="wf-slot-note">Brand Logo / Icon link</span>
+            </div>
+            <div class="wf-zone wf-zone-spec">
+              <span class="wf-static-label">spec-url input / search</span>
+            </div>
+            <div class="wf-zone wf-zone-header">
+              <span class="wf-slot-tag">slot="header"</span>
+              <span class="wf-slot-note">Action buttons, repo links, dark mode triggers</span>
+            </div>
+          </div>
+
+          <!-- Unnamed Default Slot Notice -->
+          <div class="wf-row wf-default-zone">
+            <div class="wf-zone wf-zone-default">
+              <span class="wf-slot-tag">&lt;element&gt; (unnamed default slot)</span>
+              <span class="wf-slot-note">Broadcast announcements, system maintenance alerts, migration banners</span>
+            </div>
+          </div>
+
+          <!-- Main Layout Body -->
+          <div class="wf-body-split">
+            <!-- Sidebar (read mode) -->
+            <div class="wf-col wf-sidebar">
+              <div class="wf-zone wf-zone-nav-logo">
+                <span class="wf-slot-tag">slot="nav-logo"</span>
+                <span class="wf-slot-note">Sidebar top wordmark & branding</span>
+              </div>
+              <div class="wf-zone wf-zone-nav-list">
+                <span class="wf-static-label">Sidebar Navigation Links</span>
+              </div>
+            </div>
+
+            <!-- Content Canvas -->
+            <div class="wf-col wf-canvas">
+              <div class="wf-zone wf-zone-overview">
+                <span class="wf-slot-tag">slot="overview"</span>
+                <span class="wf-slot-note">Under API title in Overview</span>
+              </div>
+              <div class="wf-zone wf-zone-servers">
+                <span class="wf-slot-tag">slot="servers"</span>
+                <span class="wf-slot-note">Server configuration card</span>
+              </div>
+              <div class="wf-zone wf-zone-auth">
+                <span class="wf-slot-tag">slot="auth"</span>
+                <span class="wf-slot-note">Security modal / Auth guidance</span>
+              </div>
+              <div class="wf-zone wf-zone-ops">
+                <span class="wf-slot-tag">slot="operations-top"</span>
+                <span class="wf-slot-note">Header above all endpoints</span>
+              </div>
+              <div class="wf-row wf-ops-sub">
+                <div class="wf-zone wf-zone-tag">
+                  <span class="wf-slot-tag">slot="tag--{'{name}'}"</span>
+                  <span class="wf-slot-note">Under specific tag group</span>
+                </div>
+                <div class="wf-zone wf-zone-endpoint">
+                  <span class="wf-slot-tag">slot="{'{method}-{path}'}"</span>
+                  <span class="wf-slot-note">Inside operation card</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer Bar -->
+          <div class="wf-row wf-footer-bar">
+            <div class="wf-zone wf-zone-footer">
+              <span class="wf-slot-tag">slot="footer"</span>
+              <span class="wf-slot-note">Corporate copyright, privacy policies, legal notices, contact info</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Multi-Slot Implementation Recipe -->
+    <section class="rd-section-block" id="implementation">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Implementation Recipe</div>
+        <h2 class="rd-section-title">Production Portal with Custom Slots</h2>
+        <p class="rd-section-desc">
+          Combine un-slotted announcement banners with targeted <code class="mono-code">slot="logo"</code>, <code class="mono-code">slot="nav-logo"</code>, <code class="mono-code">slot="header"</code>, and <code class="mono-code">slot="footer"</code> elements.
+        </p>
+      </div>
+
+      <div class="rd-recipe-card rd-mb-40">
+        <div class="rd-recipe-top">
+          <div class="rd-recipe-header-text">
+            <div class="rd-recipe-tag">Interactive Blueprint</div>
+            <h3 class="rd-recipe-heading">Full Portal Slot Composition</h3>
+            <p class="rd-recipe-text">
+              Pass arbitrary HTML elements (images, buttons, alerts, links) directly as child elements of <code class="mono-code">&lt;rapi-doc&gt;</code>.
+            </p>
+          </div>
+          <div class="rd-recipe-action">
+            <a href="/examples/slots" target="_blank" class="rd-btn rd-btn-primary">
+              <span>Launch Interactive Slots Demo</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14m-7-7 7 7-7 7" />
+              </svg>
+            </a>
+          </div>
+        </div>
+        <div class="rd-recipe-split">
+          <div class="rd-screenshot-frame">
+            <div class="rd-frame-header">
+              <span class="frame-dot red"></span>
+              <span class="frame-dot yellow"></span>
+              <span class="frame-dot green"></span>
+              <span class="frame-title">Live Slots Output</span>
+            </div>
+            <div class="rd-screenshot-body">
+              <img src="/assets/images/theme/rapidoc-slots.png" alt="RapiDoc Web Component Slots Example" />
+            </div>
+          </div>
+          <div class="rd-recipe-code">
+            <CodeBlock code={multiSlotRecipeCode} lang="html" filename="multi-slot-portal.html" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dynamic Tag & Operation Slots -->
+    <section class="rd-section-block" id="dynamic-slots">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Dynamic Slots</div>
+        <h2 class="rd-section-title">Tag-Specific & Endpoint-Specific Slots</h2>
+        <p class="rd-section-desc">
+          In addition to structural container slots, RapiDoc provisions dynamic slot names for every tag group and operation based on its OpenAPI element identifiers.
+        </p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 32px;">
+        <!-- Tag Slot -->
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 14px;">
+          <h3 style="font-size: 17px; font-weight: 700; color: #fff; margin: 0; display: flex; align-items: center; gap: 8px;">
+            <span>Targeting Tag Groups:</span>
+            <code style="color: #38bdf8; font-size: 14px;">slot="tag--{'{name}'}"</code>
+          </h3>
+          <p style="font-size: 13.5px; color: #94a3b8; line-height: 1.6; margin: 0;">
+            Inject domain notices, common authentication headers, or SDK snippets directly underneath a specific OpenAPI tag heading.
+          </p>
+          <div style="margin-top: auto;">
+            <CodeBlock code={tagSlotSnippet} lang="html" filename="tag-slot.html" />
+          </div>
+        </div>
+
+        <!-- Endpoint Slot -->
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 14px;">
+          <h3 style="font-size: 17px; font-weight: 700; color: #fff; margin: 0; display: flex; align-items: center; gap: 8px;">
+            <span>Targeting Operations:</span>
+            <code style="color: #38bdf8; font-size: 14px;">slot="{'{method}-{path}'}"</code>
+          </h3>
+          <p style="font-size: 13.5px; color: #94a3b8; line-height: 1.6; margin: 0;">
+            Inject live status callouts, edge caching hints, or code generation widgets directly inside an individual endpoint card.
+          </p>
+          <div style="margin-top: auto;">
+            <CodeBlock code={endpointSlotSnippet} lang="html" filename="endpoint-slot.html" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Complete Slots Reference Table -->
+    <section class="rd-section-block" id="reference">
+      <div class="rd-section-header">
+        <div class="rd-section-badge">Reference Guide</div>
+        <h2 class="rd-section-title">Complete Slots Reference Catalog</h2>
+        <p class="rd-section-desc">
+          Review all available slot identifiers, physical locations, and recommended use cases. Click any pill to copy the slot attribute.
+        </p>
+      </div>
+
+      <div class="rd-table-wrapper">
+        <table class="rd-catalog-table">
+          <thead>
+            <tr>
+              <th class="col-slot-name">Slot Name</th>
+              <th class="col-slot-placement">Physical Placement</th>
+              <th class="col-slot-desc">Description & Common Use Cases</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              slotsData.map((slot) => (
+                <tr class="rd-catalog-row">
+                  <td class="col-slot-name">
+                    <button class="rd-copy-pill" data-copy={`slot="${slot.name}"`} title="Click to copy slot attribute">
+                      <code>{slot.name}</code>
+                      <svg class="copy-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                      </svg>
+                    </button>
+                  </td>
+                  <td class="col-slot-placement">
+                    <span class="rd-placement-badge">{slot.placement}</span>
+                  </td>
+                  <td class="col-slot-desc">{slot.description}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Cross Navigation Banner -->
+    <section class="rd-section-block" style="text-align: center; background: rgba(15,23,42,0.6); border: 1px solid rgba(16,185,129,0.3); border-radius: 16px; padding: 40px 24px; margin-top: 48px;">
+      <h3 style="font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 10px;">Looking for CSS Shadow Parts or Themes?</h3>
+      <p style="color: #94a3b8; max-width: 600px; margin: 0 auto 20px; font-size: 14px; line-height: 1.6;">
+        Explore our Custom CSS guide to style internal elements with W3C Shadow Parts, or check out our Themes guide for built-in color presets and design tokens.
+      </p>
+      <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+        <a href="/guides/css" class="rd-action-primary" style="display: inline-flex; align-items: center; gap: 8px; background: #10b981; color: #fff; padding: 10px 22px; border-radius: 8px; font-weight: 600; text-decoration: none;">
+          <span>Custom CSS & Shadow Parts Guide</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+        <a href="/guides/theme" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #f8fafc; padding: 10px 22px; border-radius: 8px; font-weight: 600; text-decoration: none;">
+          <span>Themes & Brand Colors Guide</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    document.addEventListener('click', (e) => {
+      const copyBtn = (e.target as HTMLElement).closest('.rd-copy-pill') as HTMLElement | null;
+      if (!copyBtn) return;
+      const textToCopy = copyBtn.getAttribute('data-copy');
+      if (!textToCopy) return;
+
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        copyBtn.classList.add('copied');
+        setTimeout(() => {
+          copyBtn.classList.remove('copied');
+        }, 1800);
+      });
+    });
+  </script>
+
+  <SiteFooter />
+</GlobalLayout>

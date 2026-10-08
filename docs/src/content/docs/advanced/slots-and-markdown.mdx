@@ -1,6 +1,6 @@
 ---
-title: HTML Slots & Markdown Injection
-description: Inject custom HTML, logos, and auth notices using Web Component slots, and embed interactive HTML inside OpenAPI markdown descriptions.
+title: HTML Slots & Custom UI
+description: Inject custom HTML, brand logos, auth notices, and footers into RapiDoc's layout using Web Component slots.
 ---
 
 import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
@@ -9,7 +9,7 @@ RapiDoc provides built-in extension points through standard Web Component `<slot
 
 ---
 
-## 1. Web Component Named Slots
+## Web Component Named Slots
 
 Because `<rapi-doc>` is a custom element encapsulated in a Shadow DOM, external DOM elements cannot be arbitrarily injected into its tree. Standard Web Component `<slot>` elements expose designated insertion zones where you can target specific internal locations using the HTML `slot="..."` attribute.
 
@@ -94,7 +94,7 @@ The table below outlines all available slot locations defined in RapiDoc's layou
 | `{method}-{path}` | Inside specific operation card             | Custom HTML injected into a single endpoint section. Format as `{method}-{path}` with hyphens (e.g. `slot="get-/pet/-petId-"`).                                               |
 
 <Aside type="tip" title="Interactive Blueprint">
-  You can explore an interactive blueprint of all slot insertion zones on the [Advanced Styling Page](/styling#slots) or test live slot
+  You can explore an interactive blueprint of all slot insertion zones in the [Named HTML Slots Guide](/guides/slots) or test live slot
   behaviors in the [Interactive Slots Demo](/examples/slots).
 </Aside>
 
@@ -120,42 +120,4 @@ In addition to structural container slots, RapiDoc automatically provisions dyna
 <Aside type="tip" title="Deep Linking & ID Generation">
   For a comprehensive breakdown of how IDs are constructed and how to build internal Markdown cross-references and deep links, see our
   dedicated [Markdown Links & Deep Navigation Guide](/docs/advanced/linking-and-navigation).
-</Aside>
-
----
-
-## 2. Embedding HTML in OpenAPI Markdown
-
-RapiDoc's markdown engine parses standard HTML5 markup embedded directly within OpenAPI description fields (`info.description`, tag descriptions, operation descriptions, parameter schemas). This enables API authors to enrich specifications with interactive badges, collapsible accordions, warning callouts, and embedded media:
-
-```yaml
-openapi: 3.0.0
-info:
-  title: Payments Gateway API
-  version: 2.1.0
-  description: |
-    Welcome to the Payment Gateway API.
-
-    <div style="display: flex; gap: 12px; margin: 16px 0;">
-      <a href="https://status.payments.com" style="background: #10b981; color: #fff; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 600;">
-        🟢 Systems Operational
-      </a>
-      <a href="https://github.com/company/sdks" style="background: #1e293b; color: #38bdf8; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 600;">
-        📦 Download Official SDKs
-      </a>
-    </div>
-
-    <details style="margin: 16px 0; padding: 12px; background: #0f172a; border-radius: 6px; border: 1px solid #334155;">
-      <summary style="cursor: pointer; font-weight: 600; color: #38bdf8;">Rate Limiting & Tier Quotas</summary>
-      <p style="margin: 8px 0 0; font-size: 13px; color: #cbd5e1;">
-        Production environments permit up to 10,000 requests per minute per API token. Sandbox environments are throttled to 100 requests per minute.
-      </p>
-    </details>
-
-    Use this API to process credit card payments, authorize refunds, and manage subscriptions.
-```
-
-<Aside type="tip" title="Custom Code Highlighting">
-  Any fenced code blocks (```python, ```typescript, etc.) inside markdown descriptions are automatically syntax-highlighted by RapiDoc using
-  its built-in code engine.
 </Aside>
