@@ -72,7 +72,7 @@ export const CONTROL_REGISTRY: Record<string, ControlDef> = {
     type: 'segmented',
     attr: 'layout',
     label: 'Req/Res Layout',
-    tip: 'Request and response layout arrangement in read mode',
+    tip: 'Request and response layout: row (side-by-side) or column (stacked)',
     category: 'appearance',
     options: [
       { label: 'Row', rawVal: 'row', isDefault: true },

@@ -13,7 +13,6 @@ interface Props {
   tuckedRight?: boolean;
   controllerTitle?: string;
   showController?: boolean;
-  showBackPill?: boolean;
   controllerSize?: 'small' | 'medium' | 'large' | (string & {}) | number;
   showMethods?: boolean;
   controller?: 'default' | 'pretty' | 'hud' | 'drawer' | ((_props: any) => any);
@@ -31,7 +30,6 @@ const {
   tuckedRight,
   controllerTitle,
   showController = true,
-  showBackPill,
   controllerSize,
   showMethods,
   controller,
@@ -50,7 +48,6 @@ const {
   tuckedRight={tuckedRight}
   controllerTitle={controllerTitle}
   showController={showController}
-  showBackPill={showBackPill}
   controllerSize={controllerSize}
   showMethods={showMethods}
   controller={controller}

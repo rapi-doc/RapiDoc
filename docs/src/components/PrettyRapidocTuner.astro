@@ -422,7 +422,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
 </div>
 
 <script is:inline>
-  (function initPrettyRapiDocControllers() {
+  (function initPrettyRapidocTuners() {
     function setupController(root) {
       if (root.__rdPrettyInitialized) return;
       root.__rdPrettyInitialized = true;
@@ -577,7 +577,11 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
           const val = input.value ?? '';
           if (!attr) return;
 
-          const currentVal = target.getAttribute(attr);
+          let currentVal = target.getAttribute(attr);
+          if (attr === 'layout' && (currentVal === null || currentVal === '')) {
+            const currentRenderStyle = target.getAttribute('render-style') || target.renderStyle || 'focused';
+            currentVal = currentRenderStyle === 'read' || currentRenderStyle === 'focused' ? 'column' : 'row';
+          }
           let isMatching = false;
 
           if (currentVal !== null && currentVal !== '') {
@@ -659,6 +663,13 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
               target.removeAttribute(attr);
             } else {
               target.setAttribute(attr, val);
+            }
+            if (attr === 'render-style') {
+              const syncLayout = val === 'read' || val === 'focused' ? 'column' : 'row';
+              target.setAttribute('layout', syncLayout);
+              if ('layout' in target) {
+                target.layout = syncLayout;
+              }
             }
             syncControllerState();
           }
@@ -793,7 +804,7 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
 
 <style is:global>
   /* ==========================================================================
-     PrettyRapiDocController Component Styling
+     PrettyRapidocTuner Component Styling
      Scoped to .rd-pretty-controller-root and .rd-pretty-drawer
      ========================================================================== */
 

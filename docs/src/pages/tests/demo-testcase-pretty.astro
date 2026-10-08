@@ -1,15 +1,15 @@
 ---
 import TestCaseLayout from '../../layouts/TestCaseLayout.astro';
-import PrettyRapiDocController from '../../components/PrettyRapiDocController.astro';
+import PrettyRapidocTuner from '../../components/PrettyRapidocTuner.astro';
 ---
 
 <TestCaseLayout
   title="Pretty Test Harness Demo | RapiDoc"
-  description="Demonstrates using PrettyRapiDocController in TestCaseLayout with custom test action slot."
+  description="Demonstrates using PrettyRapidocTuner in TestCaseLayout with custom test action slot."
   specUrl="/specs-test/petstore.yaml"
   preset="all"
   tuckedRight={false}
-  controller={PrettyRapiDocController}
+  controller={PrettyRapidocTuner}
   controllerSize="large"
   rapidocProps={{
     'render-style': 'read',
@@ -22,7 +22,7 @@ import PrettyRapiDocController from '../../components/PrettyRapiDocController.as
     theme: 'emerald',
   }}
 >
-  <!-- Custom test action button injected into the PrettyRapiDocController via slot="controller" -->
+  <!-- Custom test action button injected into the PrettyRapidocTuner via slot="controller" -->
   <button
     slot="controller"
     type="button"

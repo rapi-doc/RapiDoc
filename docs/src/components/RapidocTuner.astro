@@ -332,7 +332,7 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
 </aside>
 
 <script is:inline>
-  (function initRapiDocController() {
+  (function initRapidocTuner() {
     function setupController(hud) {
       if (hud.__rdInitialized) return;
       hud.__rdInitialized = true;
@@ -617,7 +617,11 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
           const val = btn.getAttribute('data-val') ?? '';
           if (!attr) return;
 
-          const currentVal = target.getAttribute(attr);
+          let currentVal = target.getAttribute(attr);
+          if (attr === 'layout' && (currentVal === null || currentVal === '')) {
+            const currentRenderStyle = target.getAttribute('render-style') || target.renderStyle || 'focused';
+            currentVal = currentRenderStyle === 'read' || currentRenderStyle === 'focused' ? 'column' : 'row';
+          }
           let isMatching = false;
 
           if (currentVal !== null && currentVal !== '') {
@@ -719,6 +723,13 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
               target.removeAttribute(attr);
             } else {
               target.setAttribute(attr, val);
+            }
+            if (attr === 'render-style') {
+              const syncLayout = val === 'read' || val === 'focused' ? 'column' : 'row';
+              target.setAttribute('layout', syncLayout);
+              if ('layout' in target) {
+                target.layout = syncLayout;
+              }
             }
             syncControllerState();
           }
@@ -1498,12 +1509,6 @@ const initialAttrsJson = JSON.stringify(initialAttrs);
     overflow-y: auto !important;
     padding: 1.1em 1.25em !important;
     gap: 1.1em !important;
-  }
-
-  /* Automatically shift Back to Showcase button left when controller is tucked right */
-  body:has(.rd-controller-hud.is-tucked-right:not(.is-collapsed)) .rd-floating-pill-container {
-    right: 32em !important;
-    transition: right 0.25s ease;
   }
 
   /* Collapsed trigger when Tucked to Right (Docked Edge Tab on Right edge) */

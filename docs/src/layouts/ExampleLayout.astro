@@ -1,9 +1,8 @@
 ---
 import '../styles/examples.css';
 import GlobalLayout from '../layouts/GlobalLayout.astro';
-import Icon from '../components/Icon.astro';
-import RapiDocController from '../components/RapiDocController.astro';
-import PrettyRapiDocController from '../components/PrettyRapiDocController.astro';
+import RapidocTuner from '../components/RapidocTuner.astro';
+import PrettyRapidocTuner from '../components/PrettyRapidocTuner.astro';
 import { getSpecUrl } from '../utils/getSpecUrl';
 import { exampleListData } from '../page-data/example-list';
 import { testListData } from '../page-data/tests';
@@ -20,7 +19,6 @@ interface Props {
   tuckedRight?: boolean;
   controllerTitle?: string;
   showController?: boolean;
-  showBackPill?: boolean;
   controllerSize?: 'small' | 'medium' | 'large' | (string & {}) | number;
   showMethods?: boolean;
   controller?: 'default' | 'pretty' | 'hud' | 'drawer' | ((_props: any) => any);
@@ -38,23 +36,20 @@ const {
   tuckedRight,
   controllerTitle,
   showController,
-  showBackPill = true,
   controllerSize = 'medium',
   showMethods,
   controller = 'default',
 } = Astro.props;
 
-let ControllerComponent: any = RapiDocController;
+let ControllerComponent: any = RapidocTuner;
 if (controller === 'pretty' || controller === 'drawer') {
-  ControllerComponent = PrettyRapiDocController;
+  ControllerComponent = PrettyRapidocTuner;
 } else if (typeof controller !== 'string' && controller) {
   ControllerComponent = controller;
 }
 
 const pathname = Astro.url.pathname;
 const isTest = pathname.startsWith('/tests');
-const backUrl = isTest ? '/tests' : '/examples';
-const backText = isTest ? 'Back to Tests' : 'Back to Examples';
 
 // Extract slug (e.g. /examples/render-read/ -> render-read)
 const segments = pathname.replace(/\/+$/, '').split('/').filter(Boolean);
@@ -132,18 +127,6 @@ if (propPreset === 'auto' || (!propPreset && shouldShowController)) {
   <slot slot="script" name="script" />
   <!-- allows to attach script into this slot which is further slotted into the script section of GlobalLayout -->
 
-  <!-- Floating quick return link back to Tests or Examples hub -->
-  {
-    showBackPill && (
-      <aside class="rd-floating-pill-container" aria-label="Navigation return">
-        <a href={backUrl} class="rd-floating-pill">
-          <Icon name="arrow-left" size={13} />
-          <span>{backText}</span>
-        </a>
-      </aside>
-    )
-  }
-
   {
     autoRenderRapiDoc ? (
       <rapi-doc id={rapidocProps?.id || 'thedoc'} spec-url={finalSpecUrl} {...rapidocProps}>
@@ -171,40 +154,4 @@ if (propPreset === 'auto' || (!propPreset && shouldShowController)) {
       </ControllerComponent>
     )
   }
-
-  <style>
-    .rd-floating-pill-container {
-      position: fixed;
-      top: 14px;
-      right: 18px;
-      z-index: 99999;
-      pointer-events: none;
-    }
-    .rd-floating-pill {
-      pointer-events: auto;
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 6px 14px;
-      border-radius: 9999px;
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      color: #94a3b8;
-      font-size: 12.5px;
-      font-weight: 600;
-      text-decoration: none;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
-    .rd-floating-pill:hover {
-      color: #fff;
-      border-color: rgba(16, 185, 129, 0.5);
-      background: rgba(15, 23, 42, 0.95);
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
-    }
-  </style>
 </GlobalLayout>
