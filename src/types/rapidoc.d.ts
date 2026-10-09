@@ -175,6 +175,8 @@ export interface RapiDocElement extends RapiDocCallableElement {
     deprecated?: boolean | undefined;
   }[];
   matchPaths?: string;
+  searchVal?: string;
+  removeEndpointsWithBadgeLabelAs?: string;
   onAdvancedSearch: (event: Event, value: number) => void;
   onOpenSearchDialog: (event: CustomEvent<HTMLElement>) => void;
   showAdvancedSearchDialog?: boolean;

@@ -58,9 +58,6 @@ export default class SchemaTree extends LitElement {
       .tree .key {
         max-width: 300px;
       }
-      .key.deprecated .key-label {
-        color: var(--red);
-      }
       .tr.expanded:hover > .td.key > .open-bracket {
         color: var(--primary-color);
       }
@@ -131,7 +128,7 @@ export default class SchemaTree extends LitElement {
     `;
   }
 
-  generateTree(data: ObjectNotationSchema, dataType = 'object', arrayType = '', key = '', description = '', schemaLevel = 0, indentLevel = 0, readOrWrite = ''): TemplateResult<any> | undefined {
+  generateTree(data: ObjectNotationSchema, dataType = 'object', arrayType = '', key = '', description = '', schemaLevel = 0, indentLevel = 0, readOrWrite = '', isDeprecated = false): TemplateResult<any> | undefined {
     if (this.schemaHideReadOnly === 'true') {
       if (dataType === 'array') {
         if (readOrWrite === 'readonly') {
@@ -222,15 +219,18 @@ export default class SchemaTree extends LitElement {
     }
     if (typeof data === 'object') {
       return html`
-        <div class="tr ${schemaLevel < this.schemaExpandLevel || data['::type']?.startsWith('xxx-of') ? 'expanded' : 'collapsed'} ${data['::type'] || 'no-type-info'}" title="${data['::deprecated'] ? 'Deprecated' : ''}">
-          <div class="td key ${data['::deprecated'] ? 'deprecated' : ''}" style='min-width:${minFieldColWidth}px'>
+        <div class="tr ${schemaLevel < this.schemaExpandLevel || data['::type']?.startsWith('xxx-of') ? 'expanded' : 'collapsed'} ${data['::type'] || 'no-type-info'}${data['::nullable'] ? ' nullable' : ''}" title="${(isDeprecated || data['::deprecated']) ? 'Deprecated' : ''}">
+          <div class="td key ${(isDeprecated || data['::deprecated']) ? 'deprecated' : ''}" style='min-width:${minFieldColWidth}px'>
             ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION')
               ? html`<span class='key-label xxx-of-key'> ${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>`
               : keyLabel === '::props' || keyLabel === '::ARRAY~OF'
                 ? ''
                 : schemaLevel > 0
                   ? html`<span class="key-label" title="${readOrWrite === 'readonly' ? 'Read-Only' : readOrWrite === 'writeonly' ? 'Write-Only' : ''}">
-                      ${data['::deprecated'] ? '✗' : ''}
+                      ${(isDeprecated || data['::deprecated'])
+                        ? html`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--red); margin-right:-6px"><path d="M2 2L8 8M2 8L8 2"/></svg>`
+                        : ''
+                      }
                       ${keyLabel.replace(/\*$/, '')}${keyLabel.endsWith('*') ? html`<span style="color:var(--red)">*</span>` : ''}${readOrWrite === 'readonly' ? html` 🆁` : readOrWrite === 'writeonly' ? html` 🆆` : readOrWrite}:
                     </span>`
                   : ''
@@ -241,10 +241,10 @@ export default class SchemaTree extends LitElement {
         </div>
         <div class='inside-bracket ${data['::type'] || 'no-type-info'}' style='padding-left:${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' ? 0 : leftPadding}px;'>
           ${Array.isArray(data) && data[0]
-            ? html`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, data[0]['::readwrite'])}`
+            ? html`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, data[0]['::readwrite'], (isDeprecated || data[0]['::deprecated']))}`
             : html`
               ${Object.keys(data).map((dataKey) => html`
-                ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite', '::dataTypeLabel'].includes(dataKey)
+                ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite', '::dataTypeLabel', '::nullable'].includes(dataKey)
                   ? (data[dataKey] as ObjectNotationSchema)['::type'] === 'array' || (data[dataKey] as ObjectNotationSchema)['::type'] === 'object'
                     ? html`${this.generateTree(
                       ((data[dataKey] as ObjectNotationSchema)['::type'] === 'array' ? (data[dataKey] as ObjectNotationSchema)['::props'] : (data[dataKey])) as ObjectNotationSchema,
@@ -255,6 +255,7 @@ export default class SchemaTree extends LitElement {
                         newSchemaLevel,
                         newIndentLevel,
                         (data[dataKey] as ObjectNotationSchema)['::readwrite'] ? (data[dataKey] as ObjectNotationSchema)['::readwrite'] : '',
+                        (isDeprecated || (data[dataKey] as ObjectNotationSchema)['::deprecated']),
                       )}`
                     : ''
                   : html`${this.generateTree(
@@ -266,6 +267,7 @@ export default class SchemaTree extends LitElement {
                     newSchemaLevel,
                     newIndentLevel,
                     (data[dataKey] as ObjectNotationSchema)['::readwrite'] ? (data[dataKey] as ObjectNotationSchema)['::readwrite'] : '',
+                    (isDeprecated || (data[dataKey] as ObjectNotationSchema)['::deprecated']),
                   )}`
                 }
               `)}
@@ -310,8 +312,11 @@ export default class SchemaTree extends LitElement {
 
     return html`
       <div class = "tr primitive" title="${deprecated ? 'Deprecated' : ''}">
-        <div class="td key ${deprecated}" style='min-width:${minFieldColWidth}px'>
-          ${deprecated ? html`<span style='color:var(--red);'>✗</span>` : ''}
+        <div class="td key ${isDeprecated || deprecated}" style='min-width:${minFieldColWidth}px'>
+          ${isDeprecated || deprecated
+            ? html`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--red); margin-right:-6px"><path d="M2 2L8 8M2 8L8 2"/></svg>`
+            : ''
+          }
           ${keyLabel.endsWith('*')
             ? html`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>:`
             : key.startsWith('::OPTION')

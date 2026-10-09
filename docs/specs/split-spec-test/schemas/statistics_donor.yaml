@@ -1,0 +1,63 @@
+type: object
+properties:
+  id:
+    description: Unique ID of a specific donation.
+    type: integer
+    format: int64
+    required: true
+    example: 4452
+  amount:
+    description: |
+      Amount of donated ISK.
+
+      Due to the Decimal data type of this property in the database, the representation is
+      `string` and not `float`.
+    type: string
+    required: true
+    example: 5000000000
+  donated_at:
+    description: Timestamp when the donation was made.
+    type: string
+    format: date-time
+    required: true
+    example: "2023-09-01T10:46:34.000Z"
+  corporation_donation:
+    description: |
+      If the donation has been made on behalf of a corporation, this flag is set to `true`.
+      Usually individual players donate ISK, but if the money comes from a corporate wallet, this
+      flag indicates it and the character is just the executor, not the donor.
+    type: boolean
+    example: false
+  character_id:
+    description: An EVE character ID
+    type: integer
+    format: int64
+    required: true
+    example: 96293852
+  character_name:
+    description: The character’s name
+    type: string
+    required: true
+    example: "Sky Diamond"
+  corporation_id:
+    description: The character’s corporation ID
+    type: integer
+    format: int64
+    required: true
+    example: 98372649
+  corporation_name:
+    description: The character’s corporation name
+    type: string
+    required: true
+    example: "Signal Cartel"
+  alliance_id:
+    description: The character’s alliance ID
+    type: integer
+    format: int64
+    required: true
+    example: 99005130
+  alliance_name:
+    description: The character’s alliance name
+    type: string
+    required: true
+    example: "EvE-Scout Enclave"

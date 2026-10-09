@@ -1,0 +1,3464 @@
+openapi: 3.1.0
+info:
+  title: Testing Large Split Spec
+  version: 1.0.0
+tags:
+  - name: Allison
+    description: |
+      The endpoints in this group are used for our Discord bot Allison to interact with the API.
+      These endpoints require an API key for authentication and are for Allison only.
+  - name: Authentication
+    description: |
+      These endpoints provide the logic for the browser to establish a session which is authenticated via EVE-SSO.
+      The browser will get a session cookie, which later on is required to access the private endpoints of the API.
+      These endpoints are supposed to be referenced in a browser by linking directly to these addresses.
+  - name: Claims
+    description: |
+      Claims serve as a coordination mechanism for scanning activities.
+      By 'claiming' a signature, a pilot can reserve it for their exclusive work, preventing potential overlap
+      with other pilots.
+  - name: Healthcheck
+    description: |
+      The health check endpoint offers a straightforward method for assessing the API's overall availability.
+  - name: Observations
+    description: |
+      Endpoints within this category offer a complete set of functionalities for listing, creating, updating, and
+      deleting observation records for objects we track, e.g. storms or Tom's Shuttle.
+  - name: Properties
+    description: |
+      Properties function as a key-value storage system, allowing the frontend to save individual user preferences
+      such as themes, screen layouts and so on.
+  - name: Routes
+    description: |
+      Routing endpoints supply comprehensive routing data tailored for a range of specific scenarios.
+  - name: Signatures
+    description: |
+      Endpoints within this category offer a complete set of functionalities for listing, creating, updating, and
+      retiring signatures.
+  - name: Statistics
+    description: |
+      These endpoints supply our public website with a diverse array of valuable data, while also facilitating the
+      payout process for our active pilots within Signal Cartel.
+  - name: Systems
+    description: |
+      This endpoint provides information about systems.
+  - name: Users
+    description: |
+      These endpoints deliver details regarding the current session and in-game status of pilots.
+  - name: Wormhole Types
+    description: |
+      This endpoint provides information about static wormhole type data.
+paths:
+  /v2/auth/callback:
+    get:
+      operationId: authCallback
+      tags:
+        - Authentication
+      summary: Callback
+      description: |
+        Callback for the EVE-SSO login process.
+
+        The client gets redirected to this endpoint during the EVE-SSO login process.
+        It should never be called directly.
+      x-badges:
+        - color: orange
+          label: private
+      responses:
+        '302':
+          description: Redirect to the `return_to` destination which was specified at the [login endpoint](#get-/v2/auth/login).
+  /v2/auth/login:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/query_return_to'
+      operationId: authLogin
+      tags:
+        - Authentication
+      summary: Login
+      description: |
+        Initiate the EVE-SSO login process and create a server-side session for
+        the user.
+
+        This endpoint has to be called directly and does not support cross-origin resource sharing (CORS).
+      x-badges:
+        - color: orange
+          label: private
+      responses:
+        '302':
+          description: Redirect to EVE-SSO to handle the login.
+        '400':
+          $ref: '#/components/responses/400'
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/auth/login/director:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/query_return_to'
+      operationId: authLoginDirector
+      tags:
+        - Authentication
+      summary: Director Login
+      description: |
+        Initiate the EVE-SSO login process and create a server-side session for
+        the user.
+
+        This login is used specifically for the Alliance directors, so the API gets access to
+        a refresh token, which can be stored in the database to access ESI endpoints which
+        require specific permissions, such as `/corporations/{corporation_id}/members/` and
+        `/characters/{character_id}/wallet/journal/`.
+
+        This endpoint has to be called directly and does not support cross-origin resource sharing (CORS).
+      x-badges:
+        - color: orange
+          label: private
+      responses:
+        '302':
+          description: Redirect to EVE-SSO to handle the login.
+        '400':
+          $ref: '#/components/responses/400'
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/auth/logout:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/query_return_to'
+      operationId: authLogout
+      tags:
+        - Authentication
+      summary: Logout
+      description: |
+        Destroy the session in the backend and delete the session cookie.
+
+        This endpoint has to be called directly and does not support cross-origin resource sharing (CORS).
+      x-badges:
+        - color: orange
+          label: private
+      responses:
+        '302':
+          description: Redirect to a page showing the successful logout status.
+        '400':
+          $ref: '#/components/responses/400'
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/health:
+    get:
+      operationId: health
+      tags:
+        - Healthcheck
+      summary: Healthcheck
+      description: Report the process health to the Azure App Service environment.
+      x-badges:
+        - color: green
+          label: public
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/health'
+              example:
+                api_version: v2.0.41
+  /v2/private/allison/cachedump:
+    get:
+      operationId: allisonCacheDump
+      parameters:
+        - $ref: '#/components/parameters/query_dump_type'
+      security:
+        - allison-auth: []
+      tags:
+        - Allison
+      summary: Cache Dump
+      description: |
+        This endpoint is used for development and debugging reasons only.
+
+        It allows to dump the in-memory caches of the API.
+      x-badges:
+        - color: orange
+          label: private
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/dump_claims'
+                  - $ref: '#/components/schemas/dump_graph'
+                  - $ref: '#/components/schemas/dump_observations'
+                  - $ref: '#/components/schemas/dump_performance_log'
+                  - $ref: '#/components/schemas/dump_signatures'
+                  - $ref: '#/components/schemas/dump_users'
+                  - $ref: '#/components/schemas/dump_users_location'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+  /v2/private/allison/logs:
+    get:
+      operationId: allisonLogs
+      security:
+        - allison-auth: []
+      tags:
+        - Allison
+      summary: Logs
+      description: |
+        Provide the logs to Allison for easier access. The endpoint keeps a limited number of log lines available,
+        delivers all of them when this endpoint is called and empties the buffer afterwards.
+      x-badges:
+        - color: orange
+          label: private
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+              example:
+                - '[ 2023-09-06T07:36:34.143 ] info Prisma info: "Starting a mysql pool with 3 connections."'
+                - '[ 2023-09-06T07:36:34.566 ] info Loaded 0 claims.'
+                - '[ 2023-09-06T07:36:36.139 ] info 7805 systems loaded into memory.'
+                - '[ 2023-09-06T07:36:36.247 ] info 98 wormholetypes loaded into memory.'
+                - '[ 2023-09-06T07:36:36.268 ] info Loaded 0 signatures.'
+                - '[ 2023-09-06T07:36:40.055 ] info 5214 routing nodes loaded into memory.'
+                - '[ 2023-09-06T07:36:40.061 ] info 13768 routing edges loaded into memory.'
+                - '[ 2023-09-06T07:36:40.071 ] info Server version 2.0.38 started on port 8080.'
+        '401':
+          $ref: '#/components/responses/401'
+  /v2/private/allison/maintenance:
+    patch:
+      operationId: allisonMaintenance
+      security:
+        - allison-auth: []
+      tags:
+        - Allison
+      summary: Maintenance
+      description: |
+        When turned on, the API switches into maintenance mode and only Allison endpoints will keep responding to queries.
+        All other queries to the API will return status `503`. Internal intervals will also be shut down.
+
+        This endpoint is only used manually for maintenance or emergency reasons.
+      x-badges:
+        - color: orange
+          label: private
+      requestBody:
+        description: When mode is `on`, maintenance mode is turned on.
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: '#/components/schemas/toggle_switch'
+      responses:
+        '204':
+          description: Mode has been set to the provided mode.
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+  /v2/private/allison/signaturedump:
+    get:
+      operationId: allisonSignatureDump
+      parameters:
+        - $ref: '#/components/parameters/query_timestamp'
+        - $ref: '#/components/parameters/query_export_mode'
+      security:
+        - allison-auth: []
+      tags:
+        - Allison
+      summary: Signature Dump
+      description: |
+        This endpoint is used for development and debugging only.
+
+        It allows to list all signatures which were available at a certain time in the past and
+        returns them as ready to use database statements to import them into the development
+        system.
+
+        It also allows to modify the timestamps of the signatures so the system now shows the
+        exact same data as at that time in the past.
+      x-badges:
+        - color: orange
+          label: private
+        - color: red
+          label: experimental
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+  /v2/private/allison/status:
+    get:
+      operationId: allisonStatus
+      security:
+        - allison-auth: []
+      tags:
+        - Allison
+      summary: Status
+      description: |
+        This endpoint is used to allow an easy way to check the overall status of the API.
+      x-badges:
+        - color: orange
+          label: private
+      responses:
+        '200':
+          description: Current status of the API.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/status'
+        '401':
+          $ref: '#/components/responses/401'
+  /v2/private/allison/topscanners:
+    get:
+      operationId: allisonTopScanner
+      security:
+        - allison-auth: []
+      tags:
+        - Allison
+      summary: Top Scanner
+      description: |
+        This endpoint returns the scanners with the most completed signatures during the past day
+        for Thera and Turnur.
+
+        Statistics are calculated based on the last complete 24-hour period, running from
+        11:00 on one day to 11:00 the following day.
+      x-badges:
+        - color: orange
+          label: private
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/topscanner'
+              example:
+                - character_id: 96293852
+                  character_name: Sky Diamond
+                  scans: 5
+                  system_name: Thera
+                - character_id: 2114254786
+                  character_name: Tekufah
+                  scans: 23
+                  system_name: Turnur
+        '401':
+          $ref: '#/components/responses/401'
+  /v2/private/allison/topstormchasers:
+    get:
+      operationId: allisonTopStormChasers
+      security:
+        - allison-auth: []
+      tags:
+        - Allison
+      summary: Top Storm Chasers
+      description: |
+        This endpoint returns the storm chasers during the last period, sorted by the number of
+        their actions.
+
+        Statistics are calculated based on the last complete 24-hour period, running from
+        11:00 on one day to 11:00 the following day.
+      x-badges:
+        - color: orange
+          label: private
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                array:
+                  item:
+                    $ref: ../../schemas/topstormchaser.yaml
+              example:
+                character_id: 96293852
+                character_name: Sky Diamond
+                reports: 12
+        '401':
+          $ref: '#/components/responses/401'
+  /v2/private/claims:
+    get:
+      operationId: getClaimsCollection
+      parameters:
+        - $ref: '#/components/parameters/query_system_name_required'
+      tags:
+        - Claims
+      summary: List claims
+      description: |
+        List all resources in the `claims` collection filtered by `system-name`.
+      x-badges:
+        - color: orange
+          label: private
+      security:
+        - eve-sso:
+            - user
+      responses:
+        '200':
+          description: List of signatures which are currently claimed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/claims'
+              example:
+                - signature_id: 1420
+                  exprites_at: '2023-09-25T12:18:47.000Z'
+                - signature_id: 1421
+                  exprites_at: '2023-09-25T13:34:13.000Z'
+        '401':
+          $ref: '#/components/responses/401'
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/private/claims/{signature-id}:
+    parameters:
+      - $ref: '#/components/parameters/path_signature_id'
+    get:
+      operationId: getClaimsResource
+      tags:
+        - Claims
+      summary: Lookup Claim
+      description: Check if there is a claim for `signatureId`.
+      x-badges:
+        - color: orange
+          label: private
+      security:
+        - eve-sso:
+            - user
+      responses:
+        '200':
+          description: |
+            Return the claim.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/claim'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '503':
+          $ref: '#/components/responses/503'
+    put:
+      operationId: putClaimsResource
+      tags:
+        - Claims
+      summary: Claim Signature
+      description: |
+        Obtain a claim on `signature-id` for the current user. A signature that
+        has an active claim cannot be assigned to another pilot to work on.
+      x-badges:
+        - color: orange
+          label: private
+      security:
+        - eve-sso:
+            - user
+      responses:
+        '204':
+          $ref: '#/components/responses/204'
+        '401':
+          $ref: '#/components/responses/401'
+        '409':
+          $ref: '#/components/responses/409'
+        '503':
+          $ref: '#/components/responses/503'
+    delete:
+      operationId: deleteClaimsResource
+      tags:
+        - Claims
+      summary: Release Signature
+      description: |
+        Release a claim on `signature-id` held by the current user. Once a claim
+        is released, the `signature-id` will be available for another user to
+        claim.
+      x-badges:
+        - color: orange
+          label: private
+      security:
+        - eve-sso:
+            - user
+      responses:
+        '204':
+          $ref: '#/components/responses/204'
+        '401':
+          $ref: '#/components/responses/401'
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/private/properties:
+    get:
+      operationId: getUserProperties
+      tags:
+        - Properties
+      summary: Get Properties
+      description: |
+        Return all properties for the current user, e.g. dark mode on/off, order
+        of table columns, whatever the frontend would like to store per user
+        across sessions.
+      x-badges:
+        - color: orange
+          label: private
+      security:
+        - eve-sso:
+            - user
+      responses:
+        '200':
+          description: A HashMap of properties, may be empty.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/properties'
+        '401':
+          $ref: '#/components/responses/401'
+        '503':
+          $ref: '#/components/responses/503'
+    put:
+      operationId: setUserProperties
+      tags:
+        - Properties
+      summary: Replace Properties
+      description: |
+        Replace all properties for the current user.
+      x-badges:
+        - color: orange
+          label: private
+      security:
+        - eve-sso:
+            - user
+      requestBody:
+        description: |
+          Request body should be a HashMap of properties to set.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/properties'
+        required: true
+      responses:
+        '200':
+          description: |
+            Existing properties resource has been replaced. The full set of
+            properties for the current user will be returned in the response
+            body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/properties'
+        '201':
+          description: |
+            New properties resource has been created. The full set of properties
+            for the current user will be returned in the response body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/properties'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '503':
+          $ref: '#/components/responses/503'
+    patch:
+      operationId: patchUserProperties
+      tags:
+        - Properties
+      summary: Patch Properties
+      description: |
+        Update properties present in the request body. To remove a property,
+        pass `null` as the value.
+      x-badges:
+        - color: orange
+          label: private
+      security:
+        - eve-sso:
+            - user
+      requestBody:
+        description: |
+          Request body should be a HashMap of properties that should be updated.
+          Pass `null` for properties that should be deleted.
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: '#/components/schemas/properties'
+            example:
+              dark-mode: 'on'
+              timezone: null
+        required: true
+      responses:
+        '200':
+          description: |
+            Properties resource has been patched. The full set of properties for
+            the current user will be returned in the response body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/properties'
+              example:
+                dark-mode: 'on'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/private/signatures:
+    get:
+      operationId: getSignatures
+      parameters:
+        - $ref: '#/components/parameters/query_system_name_required'
+      tags:
+        - Signatures
+      summary: List Open Signatures
+      description: |
+        List all currently open `signatures`. A `signature`
+        is considered "open" if it has not expired or been deleted.
+      x-badges:
+        - color: orange
+          label: private
+      security:
+        - eve-sso:
+            - user
+      responses:
+        '200':
+          description: A list of `signatures`, may be empty.
+          headers:
+            X-Last-Signaleer-Hub-Interaction:
+              description: |
+                The last time one of our scouts interacted with our private Hub Scan Tool, which is the backend data input
+                system used to keep our wormhole signature information up to date.
+
+                When there was no interaction since system startup, this value is 1970-01-01T00:00:00.000Z
+              schema:
+                type: string
+                format: date-time
+                example: '2023-12-05T11:41:45.000Z'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/signatures_representation'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '503':
+          $ref: '#/components/responses/503'
+    post:
+      operationId: addSignatures
+      parameters:
+        - $ref: '#/components/parameters/query_system_name_required'
+      tags:
+        - Signatures
+      summary: Bulk Add Signatures
+      x-badges:
+        - color: orange
+          label: private
+      description: |
+        This endpoint facilitates the bulk addition and modification of signatures based on data of the in-game
+        Probe Scan Window.
+
+        1. **Skipping Existing Signatures with Defined Types**:
+          - If a signature already exists in the system and has a `signature_type` other than "unknown", the signature
+          will not be processed or altered.
+
+        2. **Updating 'Unknown' Signatures**:
+          - If the system already has a signature with a `signature_type` of "unknown", and a new entry for the same
+          signature is provided with a defined `signature_type`, the signature in the system will be updated to the
+          new type.
+
+        3. **Creating Nonexistent Signatures**:
+          - For any signatures provided in the request that do not already exist in the system, they will be newly
+          created and added.
+
+        4. **Transactional Safety and Error Handling**:
+          - This endpoint is designed with an atomic transactional approach. If any part of the bulk operation encounters
+          an error, no changes will be committed. The entire operation will be reverted and an error message will be
+          returned.
+      security:
+        - eve-sso:
+            - user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/signatures_psw'
+      responses:
+        '200':
+          description: |
+            The response body will include full representations of all active
+            signatures in the system, may be empty.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/signatures_representation'
+        '400':
+          description: |
+            There was an error with the content or formatting of the request
+            body. None of the provided signatures have been added to the system.
+        '401':
+          description: This endpoint requires authentication
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/private/signatures/{signature-id}:
+    parameters:
+      - $ref: '#/components/parameters/path_signature_id'
+    patch:
+      operationId: patchSignature
+      tags:
+        - Signatures
+      summary: Patch Signature
+      description: |
+        Patch a signature with the data present in the request body.
+
+        The example data shows all possible properties which can be patched.
+      x-badges:
+        - color: orange
+          label: private
+      security:
+        - eve-sso:
+            - user
+      requestBody:
+        description: |
+          The request body should include all properties of the signature that
+          need to be updated.
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: '#/components/schemas/signature_modification'
+      responses:
+        '200':
+          description: |
+            Following a successful patch, the updated resource representation is
+            returned in the response body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/signature_representation'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '503':
+          $ref: '#/components/responses/503'
+    delete:
+      operationId: Delete Signature
+      tags:
+        - Signatures
+      summary: Delete Signature
+      description: |
+        Delete the signature corresponding to `signature-id`. This operation is
+        a "soft-delete", and the resource is not actually removed from the data
+        store. Soft deleted resources are not included in responses to the GET
+        endpoints for the `signature` collection.
+      x-badges:
+        - color: orange
+          label: private
+      security:
+        - eve-sso:
+            - user
+      responses:
+        '204':
+          description: The resource has been deleted.
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/private/signatures/{signature-id}/type:
+    parameters:
+      - $ref: '#/components/parameters/path_signature_id'
+    put:
+      operationId: putSignature
+      tags:
+        - Signatures
+      summary: Switch Signature Type
+      description: |
+        Switch the type of the signature (`signature_type`) and change the "state" of the signature.
+
+        The behaviour is identical to [Bulk Add Signatures](#post-/v2/private/signatures) as long as
+        the type is "unknown", except that it can change the signature type of a single signature later on.
+
+        If the current type is "wormhole", all data except create data, update data and the comment
+        get purged.
+
+        When the signature type is set to "wormhole", the signature can be modified via
+        [Patch Signature](#patch-/v2/private/signatures/-signature-id-) later on.
+      x-badges:
+        - color: orange
+          label: private
+      security:
+        - eve-sso:
+            - user
+      requestBody:
+        description: |
+          The request body contains the new `signature_type`.
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: '#/components/schemas/signature_type_change'
+      responses:
+        '200':
+          description: |
+            Following a successful put, the updated resource representation is
+            returned in the response body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/signature_representation'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/private/statistics/auditlog:
+    get:
+      operationId: listStatisticsAuditLog
+      tags:
+        - Statistics
+      summary: List Audit-Log
+      description: |
+        When a signature gets modified, a record is created for insights into the state of the system.
+      security:
+        - eve-sso:
+            - user
+      responses:
+        '200':
+          description: |
+            An array of objects, where each object is on audit-log record.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/statistics_auditlog'
+        '400':
+          $ref: '#/components/responses/400'
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/private/statistics/leaderboard:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/query_precision'
+        - $ref: '#/components/parameters/query_system_name_optional'
+      operationId: listStatisticsLeaderboard
+      tags:
+        - Statistics
+      summary: List leaderboard statistics
+      description: |
+        Calculate the leaderboard for the provided period of time.
+      security:
+        - eve-sso:
+            - user
+      responses:
+        '200':
+          description: |
+            An object containing data per participating pilot.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/statistics_leaderboard'
+        '400':
+          $ref: '#/components/responses/400'
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/private/statistics/payouts/scans:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/query_date_start'
+        - $ref: '#/components/parameters/query_date_end'
+        - $ref: '#/components/parameters/query_budget'
+      operationId: listStatisticsPayoutsScans
+      tags:
+        - Statistics
+      summary: List payout scan statistics
+      description: |
+        Calculate the distribution of payouts for a specified timeframe and budget. Pilots earn payouts
+        per completed signature.
+      x-badges:
+        - color: orange
+          label: private
+      security:
+        - eve-sso:
+            - admin
+      responses:
+        '200':
+          description: |
+            An object containing data per participating pilot.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/statistics_payouts'
+        '400':
+          $ref: '#/components/responses/400'
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/private/statistics/payouts/storms:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/query_date_start'
+        - $ref: '#/components/parameters/query_date_end'
+        - $ref: '#/components/parameters/query_budget'
+      operationId: listStatisticsPayoutsStorms
+      tags:
+        - Statistics
+      summary: List payout storm statistics
+      description: |
+        Calculate the distribution of payouts for a specified timeframe and budget. Pilots earn payouts
+        per observed storm.
+      x-badges:
+        - color: orange
+          label: private
+      security:
+        - eve-sso:
+            - admin
+      responses:
+        '200':
+          description: |
+            An object containing data per participating pilot.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/statistics_payouts'
+        '400':
+          $ref: '#/components/responses/400'
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/private/observations:
+    get:
+      operationId: listObservationsPrivate
+      parameters:
+        - $ref: '#/components/parameters/query_latest'
+        - $ref: '#/components/parameters/query_observation_type'
+      tags:
+        - Observations
+      summary: List Private Observations Records
+      description: |
+        List observation records for all objects we track.
+      x-badges:
+        - color: orange
+          label: private
+      security:
+        - esrc-auth: []
+      responses:
+        '200':
+          description: A list of `observations`.
+          content:
+            application/json:
+              schema:
+                array: null
+                items:
+                  $ref: '#/components/schemas/observation_representation'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '503':
+          $ref: '#/components/responses/503'
+    post:
+      operationId: addObservationRecord
+      tags:
+        - Observations
+      summary: Add Observations Record
+      description: |
+        This endpoint adds a new observation record.
+        This can be done by either providing the system by name or by ID.
+      security:
+        - esrc-auth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/observation_create_by_id'
+                - $ref: '#/components/schemas/observation_create_by_name'
+      responses:
+        '200':
+          description: |
+            The response body will return the added observation record.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/observation_representation'
+        '400':
+          description: |
+            There was an error with the content or formatting of the request
+            body. No modifications have been made.
+        '401':
+          description: This endpoint requires authentication
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/private/observations/{observation-id}:
+    parameters:
+      - $ref: '#/components/parameters/path_observation_id'
+    delete:
+      operationId: deleteObservationRecord
+      tags:
+        - Observations
+      summary: Delete Observation Record
+      description: |
+        Delete a specific observation record.
+      x-badges:
+        - color: orange
+          label: private
+      security:
+        - esrc-auth: []
+      responses:
+        '204':
+          $ref: '#/components/responses/204'
+        '401':
+          $ref: '#/components/responses/401'
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/private/users/corporation:
+    get:
+      operationId: getUsersCorporation
+      tags:
+        - Users
+      summary: Corporation Users
+      description: |
+        Provide the names of all Signal Cartel members.
+      x-badges:
+        - color: orange
+          label: private
+      security:
+        - eve-sso:
+            - user
+      responses:
+        '200':
+          description: Expected response to a valid request
+          headers:
+            Cache-Control:
+              description: The TTL for this resource is 6 hours
+              schema:
+                type: string
+                example: max-age=21600
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+              example:
+                - Mzsbi Haev
+                - Samari Arila Enaka
+                - Sky Diamond
+                - Tamayo
+        '401':
+          $ref: '#/components/responses/401'
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/private/users/current:
+    get:
+      operationId: getUsersCurrent
+      tags:
+        - Users
+      summary: Users Profile
+      description: |
+        Provide the profile of the user. In case the pilot is online and undocked, `system` provides
+        their current location.
+
+        The online status gets updated every 60 seconds, while location gets updated every 5 seconds.
+
+        If the frontend wants to work with the pilots location, it should fetch this endpoint every 5 seconds,
+        otherwise, for [`/v2/private/users/online`](#get-/v2/private/users/online) to work properly,
+        it should fetch it every 60 seconds.
+      x-badges:
+        - color: orange
+          label: private
+      security:
+        - eve-sso:
+            - user
+      responses:
+        '200':
+          description: Expected response to a valid request
+          headers:
+            Cache-Control:
+              description: The TTL for this resource is 5 seconds
+              schema:
+                type: string
+                example: max-age=5
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/users_current'
+              example:
+                character_id: 96293852
+                character_name: Sky Diamond
+                online: true
+                roles:
+                  - admin
+                  - user
+                signatures_last_update: '2023-12-05T14:31:45.342Z'
+                system:
+                  system_id: 30005221
+                  system_name: Zoohen
+                  region_id: 10000067
+                  region_name: Genesis
+                  system_class: hs
+                  security_status: 0.5
+        '401':
+          $ref: '#/components/responses/401'
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/private/users/online:
+    get:
+      operationId: getUsersOnlineStatus
+      tags:
+        - Users
+      summary: Users Online Status
+      description: |
+        Show the status of all pilots online at the moment, which means they have been
+        online while in Thera or Turnur during the last 15 minutes.
+
+        This is supposed to provide an indicator for pilots so they know who's potentially working
+        on signatures at the same time.
+      x-badges:
+        - color: orange
+          label: private
+      security:
+        - eve-sso:
+            - user
+      responses:
+        '200':
+          description: Expected response to a valid request
+          headers:
+            Cache-Control:
+              description: The TTL for this resource is 60 seconds
+              schema:
+                type: string
+                example: max-age=60
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/users_online'
+              example:
+                - character_id: 96293852
+                  character_name: Sky Diamond
+                  system:
+                    system_id: 30002086
+                    system_name: Turnur
+                    region_id: 10000042
+                    region_name: Metropolis
+                    system_class: ls
+                    security_status: 0.4
+                - character_id: 2119526651
+                  character_name: Okamainen al'Anzomi
+                  system:
+                    system_id: 30002086
+                    system_name: Turnur
+                    region_id: 10000042
+                    region_name: Metropolis
+                    system_class: ls
+                    security_status: 0.4
+        '401':
+          $ref: '#/components/responses/401'
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/public/routes:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/query_from_system'
+        - $ref: '#/components/parameters/query_to_system'
+        - $ref: '#/components/parameters/query_routing_preference'
+      operationId: routeSinglePublic
+      tags:
+        - Routes
+      summary: Route from A to B
+      description: |
+        Calculate the route from system A to B. In case there are shortcuts through wormhole connections,
+        those are used, unless you set `prefer_safer` to `true`.
+      x-badges:
+        - color: green
+          label: public
+      responses:
+        '200':
+          description: The calculated route and its details.
+          headers:
+            Cache-Control:
+              description: The TTL for this resource is 300 seconds
+              schema:
+                type: string
+                example: max-age=300
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes'
+              example:
+                - from: Zoohen
+                  to: Serren
+                  jumps: 1
+                  route:
+                    - system_id: 30005221
+                      system_name: Zoohen
+                      region_id: 10000067
+                      region_name: Genesis
+                      system_class: hs
+                      security_status: 0.5
+                    - system_id: 30005222
+                      system_name: Serren
+                      region_id: 10000067
+                      region_name: Genesis
+                      system_class: hs
+                      security_status: 0.5
+        '400':
+          $ref: '#/components/responses/400'
+        '503':
+          $ref: '#/components/responses/503'
+    post:
+      operationId: routeMultiplePublic
+      tags:
+        - Routes
+      summary: Multi target routing
+      description: |
+        Calculate the routes from system A to a maximum of 250 different systems.
+        Duplicates in the target systems get removed.
+        In case there are shortcuts through wormhole connections, those are used, unless you set
+        `prefer_safer` to `true`.
+      x-badges:
+        - color: green
+          label: public
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/route_request'
+      responses:
+        '200':
+          description: The calculated routes and their details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes'
+              example:
+                - from: Zoohen
+                  to: Bania
+                  jumps: 2
+                  route:
+                    - system_id: 30005221
+                      system_name: Zoohen
+                      region_id: 10000067
+                      region_name: Genesis
+                      system_class: hs
+                      security_status: 0.5
+                    - system_id: 30005289
+                      system_name: Nasreri
+                      region_id: 10000067
+                      region_name: Genesis
+                      system_class: hs
+                      security_status: 0.5
+                    - system_id: 30005294
+                      system_name: Bania
+                      region_id: 10000067
+                      region_name: Genesis
+                      system_class: hs
+                      security_status: 0.5
+                - from: Zoohen
+                  to: Serren
+                  jumps: 1
+                  route:
+                    - system_id: 30005221
+                      system_name: Zoohen
+                      region_id: 10000067
+                      region_name: Genesis
+                      system_class: hs
+                      security_status: 0.5
+                    - system_id: 30005222
+                      system_name: Serren
+                      region_id: 10000067
+                      region_name: Genesis
+                      system_class: hs
+                      security_status: 0.5
+        '400':
+          $ref: '#/components/responses/400'
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/public/routes/highsec:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/query_from_system'
+      operationId: routeHighSecPublic
+      tags:
+        - Routes
+      summary: Routes to high-sec
+      description: |
+        Calculate up to five routes to the closest high-sec systems from the provided system.
+        The routing algorithm removes all routes which have overlapping routes, e.g. if
+        e.g. in route A->B->C systems B and C would be high-sec systems, A->B would be returned,
+        while A->B->C would be omitted.
+      x-badges:
+        - color: green
+          label: public
+      responses:
+        '200':
+          description: The five shortest routes and their details.
+          headers:
+            Cache-Control:
+              description: The TTL for this resource is 300 seconds
+              schema:
+                type: string
+                example: max-age=300
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes'
+              example:
+                - from: Straloin
+                  to: Ondree
+                  jumps: 1
+                  route:
+                    - system_id: 30003607
+                      system_name: Straloin
+                      region_id: 10000044
+                      region_name: Solitude
+                      system_class: ls
+                      security_status: 0.2
+                    - system_id: 30003603
+                      system_name: Ondree
+                      region_id: 10000044
+                      region_name: Solitude
+                      system_class: hs
+                      security_status: 0.5
+                - from: Straloin
+                  to: Eggheron
+                  jumps: 2
+                  route:
+                    - system_id: 30003607
+                      system_name: Straloin
+                      region_id: 10000044
+                      region_name: Solitude
+                      system_class: ls
+                      security_status: 0.2
+                    - system_id: 30003606
+                      system_name: Toustain
+                      region_id: 10000044
+                      region_name: Solitude
+                      system_class: ls
+                      security_status: 0.4
+                    - system_id: 30003605
+                      system_name: Eggheron
+                      region_id: 10000044
+                      region_name: Solitude
+                      system_class: hs
+                      security_status: 0.5
+        '400':
+          $ref: '#/components/responses/400'
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/public/routes/joveobservatories:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/query_from_system'
+        - $ref: '#/components/parameters/query_routing_preference'
+      operationId: routeJoveObservatoriesPublic
+      tags:
+        - Routes
+      summary: Routes to Jove Observatories
+      description: |
+        Calculate five shortest routes from the source system to Jove Observatories.
+      x-badges:
+        - color: green
+          label: public
+      responses:
+        '200':
+          description: A calculated route for each Jove Observatory.
+          headers:
+            Cache-Control:
+              description: The TTL for this resource is 300 seconds
+              schema:
+                type: string
+                example: max-age=300
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes'
+        '400':
+          $ref: '#/components/responses/400'
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/public/routes/signatures:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/query_from_system'
+        - $ref: '#/components/parameters/query_system_name_required'
+        - $ref: '#/components/parameters/query_routing_preference'
+      operationId: routeSignaturesPublic
+      tags:
+        - Routes
+      summary: Routes to all signatures
+      description: |
+        Calculate the routes from the source system to all currently known signatures in Thera or Turnur.
+      x-badges:
+        - color: green
+          label: public
+      responses:
+        '200':
+          description: A calculated route for each currently valid signature.
+          headers:
+            Cache-Control:
+              description: The TTL for this resource is 300 seconds
+              schema:
+                type: string
+                example: max-age=300
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/routes'
+        '400':
+          $ref: '#/components/responses/400'
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/public/signatures:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/query_system_name_optional'
+        - name: examples
+          in: query
+          description: |
+            Optional parameter which generates a randomly created result for testing.
+            -1 means the number of returned elements is also random, otherwise it specifies the number of
+            signatures to create.
+
+            ATTENTION: This is available on non-production system only!
+          required: false
+          schema:
+            type: integer
+            minimum: -1
+            maximum: 25
+      operationId: listSignaturesPublic
+      tags:
+        - Signatures
+      summary: List Public Signatures
+      description: |
+        List all public resources in the `signatures` collection. A `signature`
+        is considered "public" if it has been fully scanned and has not expired
+        or been deleted.
+
+        **NOTES**:
+        - The EOL status of a signature can be determined by its `expires_at` property. If this drops
+          below 4 hours, the wormhole is getting close to its end of life.
+        - To locate the entrance and exit of the wormhole, `wh_exits_outward` can be used. When set to `true`,
+          the wormhole type is on the hub's side (Thera or Turnur) and K162 can be found on the outside.
+      x-badges:
+        - color: green
+          label: public
+      responses:
+        '200':
+          description: A list of `signature` resources, may be empty.
+          headers:
+            Cache-Control:
+              description: The TTL for this resource is 300 seconds
+              schema:
+                type: string
+                example: max-age=300
+            X-Last-Signaleer-Hub-Interaction:
+              description: |
+                The last time one of our scouts interacted with our private Hub Scan Tool, which is the backend data input
+                system used to keep our wormhole signature information up to date.
+
+                When there was no interaction since system startup, this value is 1970-01-01T00:00:00.000Z
+              schema:
+                type: string
+                format: date-time
+                example: '2023-12-05T11:41:45.000Z'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/signatures_representation'
+        '400':
+          $ref: '#/components/responses/400'
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/public/statistics/donations:
+    get:
+      operationId: listStatisticsDonations
+      tags:
+        - Statistics
+      summary: List donation statistics
+      description: |
+        List statistics about donations made to EvE-Scout for providing the service.
+
+        It lists the pilots and corporations who donated as well as the "daily goals" which shows the
+        amount of donations we need to keep the service up and running.
+      x-badges:
+        - color: green
+          label: public
+      responses:
+        '200':
+          description: |
+            An object containing the daily goals per day and the all donors for the past 30 days.
+          headers:
+            Cache-Control:
+              description: The TTL for this resource is 3600 seconds
+              schema:
+                type: string
+                example: max-age=3600
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/statistics_donations'
+        '400':
+          $ref: '#/components/responses/400'
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/public/statistics/scans:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/query_precision'
+        - $ref: '#/components/parameters/query_system_name_optional'
+        - name: examples
+          in: query
+          description: |
+            Optional parameter which generates a randomly created result for testing.
+
+            ATTENTION: This is available on non-production system only!
+          required: false
+          schema:
+            type: boolean
+          example: true
+      operationId: listStatisticsScans
+      tags:
+        - Statistics
+      summary: List scanning statistics
+      description: |
+        List how many signatures and wormholes specifically have been scanned in Thera and Turnur by
+        our pilots to provide this service.
+      x-badges:
+        - color: green
+          label: public
+      responses:
+        '200':
+          description: |
+            A list of `scans` by date. If the precision is `weekly` or `monthly` the date is that of the first
+            day of the week or month.
+          headers:
+            Cache-Control:
+              description: The TTL for this resource is 3600 seconds
+              schema:
+                type: string
+                example: max-age=3600
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/statistics_scans'
+        '400':
+          $ref: '#/components/responses/400'
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/private/statistics/track/connection_loss:
+    post:
+      operationId: postConnectionLoss
+      tags:
+        - Statistics
+      summary: Track connection loss
+      description: |
+        If a client loses connection to the API, the loss of connection gets tracked via this endpoint.
+      x-badges:
+        - color: orange
+          label: private
+      responses:
+        '204':
+          $ref: '#/components/responses/204'
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/public/systems:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/query_limit'
+        - $ref: '#/components/parameters/query_string'
+        - $ref: '#/components/parameters/query_space'
+      operationId: listSystemsPublic
+      tags:
+        - Systems
+      summary: List systems
+      description: |
+        List all systems filtered by the specified parameters
+      x-badges:
+        - color: green
+          label: public
+      responses:
+        '200':
+          description: A list of `system` resources, may be empty.
+          headers:
+            Cache-Control:
+              description: The TTL for this resource is 86400 seconds
+              schema:
+                type: string
+                example: max-age=86400
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/systems'
+        '400':
+          $ref: '#/components/responses/400'
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/public/observations:
+    get:
+      operationId: listObservationsPublic
+      tags:
+        - Observations
+      summary: List Public Observations Records
+      description: |
+        List observation records for all objects we track
+      x-badges:
+        - color: green
+          label: public
+      responses:
+        '200':
+          description: |
+            A list of `observation` resources, it will always have the latest data for each of the objects we track.
+          headers:
+            Cache-Control:
+              description: The TTL for this resource is 3600 seconds
+              schema:
+                type: string
+                example: max-age=3600
+          content:
+            application/json:
+              schema:
+                array: null
+                items:
+                  $ref: '#/components/schemas/observation_representation'
+        '400':
+          $ref: '#/components/responses/400'
+        '503':
+          $ref: '#/components/responses/503'
+  /v2/public/wormholetypes:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/query_limit'
+        - $ref: '#/components/parameters/query_identifier'
+        - $ref: '#/components/parameters/query_source'
+        - $ref: '#/components/parameters/query_target'
+        - $ref: '#/components/parameters/query_edge'
+      operationId: listWormholeTypesPublic
+      tags:
+        - Wormhole Types
+      summary: List wormhole types
+      description: |
+        List all wormhole types filtered by the specified parameters. If more than one filter at a time
+        is provided, they will be applied one after the other (AND).
+      x-badges:
+        - color: green
+          label: public
+      responses:
+        '200':
+          description: A list of `wormhole type` resources, may be empty.
+          headers:
+            Cache-Control:
+              description: The TTL for this resource is 86400 seconds
+              schema:
+                type: string
+                example: max-age=86400
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/wormholetypes'
+        '400':
+          $ref: '#/components/responses/400'
+        '503':
+          $ref: '#/components/responses/503'
+components:
+  schemas:
+    dump_claims:
+      type: array
+      items:
+        type: object
+        properties:
+          cache_key:
+            description: |
+              Unique key of the object in the cache.
+            type: string
+          ttl:
+            description: |
+              Remaining Time To Live (TTL) of the cache object in milliseconds.
+            type: number
+          id:
+            description: |
+              A unique, numeric ID assigned to each claim.
+            type: integer
+            format: int64
+            example: 815
+          signature_id:
+            description: |
+              A unique, numeric ID assigned to this signature when it was added
+              to the system. This is used for PATCH and DELETE operations.
+            type: integer
+            format: int64
+            example: 1420
+          character_id:
+            description: |
+              The in-game character ID of the user that completed scanning for
+              this signature.
+            type: integer
+            format: int64
+            example: 96293852
+          expires_at:
+            description: |
+              The time when the signature will expire.
+            type: string
+            example: '2023-11-12T09:23:44.000Z'
+    dump_graph:
+      type: object
+      description: |
+        The response for this dump is not in any way complete or well described since it is the raw
+        `export()` of the graphology serialization call.
+
+        All properties listed below are in
+      properties:
+        options:
+          type: object
+        attributes:
+          type: object
+        nodes:
+          type: array
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+        edges:
+          type: array
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+              source:
+                type: string
+              target:
+                type: string
+              attributes:
+                type: object
+    observation_type:
+      description: The type of the observation.
+      type: string
+      enum:
+        - electric_a
+        - electric_b
+        - exotic_a
+        - exotic_b
+        - gamma_a
+        - gamma_b
+        - plasma_a
+        - plasma_b
+        - toms_shuttle
+      example: gamma_a
+    dump_observations:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            description: |
+              A unique, numeric ID assigned to this observation record when it was added
+              to the system. This is used for operations addressing a single record.
+            type: integer
+            format: int64
+            example: 4711
+          created_at:
+            description: |
+              The date and time when this observation record was initially created.
+            type: string
+            example: '2023-11-03T11:52:00.000Z'
+          created_by_id:
+            description: |
+              The in-game character ID of the user that initially added this
+              record.
+            type: integer
+            format: int64
+            example: 2119526651
+          system_id:
+            description: |
+              The in-game ID of the system the observed object is located in.
+            type: integer
+            format: int32
+            example: 30000021
+          observation_type:
+            $ref: '#/components/schemas/observation_type'
+          observed_in_person:
+            description: |
+              Flag indicating whether this record was observed in person.
+            type: boolean
+    dump_performance_log:
+      type: array
+      items:
+        type: object
+        properties:
+          method:
+            description: |
+              HTTP method for this data point, like GET, POST etc.
+            type: string
+          path:
+            description: |
+              URI of the endpoint of this data point.
+            type: string
+          status:
+            description: |
+              HTTP status code for this data point.
+            type: integer
+            format: int32
+            example: 200
+          count:
+            description: |
+              Number of times this data point has been called.
+            type: integer
+            format: int32
+            example: 24
+          transaction_time:
+            description: |
+              Transaction time of this endpoint for all its calls in milliseconds.
+            type: integer
+            format: int32
+            example: 3742
+    dump_signatures:
+      type: array
+      items:
+        type: object
+        properties:
+          cache_key:
+            description: |
+              Unique key of the object in the cache.
+            type: string
+          ttl:
+            description: |
+              Remaining Time To Live (TTL) of the cache object in milliseconds.
+            type: number
+          id:
+            description: |
+              A unique, numeric ID assigned to this signature when it was added
+              to the system. This is used for PATCH and DELETE operations.
+            type: integer
+            format: int64
+            example: 1420
+          created_by_id:
+            description: |
+              The in-game character ID of the user that initially added this
+              signature.
+            type: integer
+            format: int64
+            example: 2119526651
+          updated_by_id:
+            description: |
+              The in-game character ID of the user that last updated this
+              signature.
+            type: integer
+            format: int64
+            example: 96293852
+          completed_by_id:
+            description: |
+              The in-game character ID of the user that completed scanning for
+              this signature.
+            type: integer
+            format: int64
+            example: 96293852
+          deleted_by_id:
+            description: |
+              The in-game character ID of the user that deleted this signature.
+            type: integer
+            format: int64
+            example: 96293852
+          wh_type:
+            description: |
+              The in-game wormhole entrance type (e.g., not `K162`).
+            type: string
+            example: E587
+          signature_type:
+            description: |
+              The type of signature; this value corresponds to the `Group` column
+              in the probe scan window (PSW). Clients will need to convert localized
+              `Group` labels to one of these values.
+            type: string
+            enum:
+              - combat
+              - data
+              - gas
+              - relic
+              - wormhole
+              - unknown
+            example: unknown
+          out_system_id:
+            description: |
+              The in-game ID of the system being scanned. This will correspond
+              to either `Thera` or `Turner`.
+            type: integer
+            format: int32
+            enum:
+              - 31000005
+              - 30002086
+            example: 31000005
+          out_signature:
+            description: |
+              The in-game ID of the wormhole entrance or exit that exists in the
+              system being scanned. This value corresponds to the `ID` column in
+              the probe scan window (psw).
+            type: string
+            example: EOQ-660
+          in_system_id:
+            description: |
+              The in-game ID of the system on the other side of the wormhole from
+              the system being scanned.
+            type: integer
+            format: int32
+            example: 30000848
+          in_region_id:
+            description: |
+              The in-game ID of the region on the other side of the wormhole from
+              the system being scanned.
+            type: integer
+            format: int64
+            example: 10000010
+          in_region_name:
+            description: |
+              The region on the other side of the wormhole from the system being
+              scanned.
+            type: string
+            example: Tribute
+          in_signature:
+            description: |
+              The in-game ID of the wormhole entrance or exit that exists on the
+              other side of the wormhole from the system being scanned. This value
+              corresponds to the `ID` column in the probe scan window (psw).
+            type: string
+            example: EOQ-660
+          comment:
+            description: |
+              Comment field allowing the scanner to make notes. This can be up to
+              512 characters long.
+            type: string
+            example: Here there be dragons.
+          completed:
+            description: |
+              Flag indicating whether or not this signature has been completely
+              scanned.
+            type: boolean
+          deleted:
+            description: |
+              Flag indicating whether or not this signature has been deleted.
+            type: boolean
+          expired:
+            description: |
+              Flag indicating whether or not this signature has expired.
+            type: boolean
+          completed_at:
+            description: |
+              The date and time when scanning for this signature was completed.
+            type: string
+            example: '2023-03-26T12:42:37.000Z'
+          created_at:
+            description: |
+              The date and time when this signature was initially added to the
+              system.
+            type: string
+            example: '2023-03-26T12:34:00.000Z'
+          deleted_at:
+            description: |
+              The date and time when this signature was marked as deleted.
+            type: string
+            example: '2023-03-26T12:34:00.000Z'
+          expires_at:
+            description: |
+              The time when the signature will expire.
+            type: string
+            example: '2023-03-27T12:42:37.000Z'
+          updated_at:
+            description: |
+              The date and time when this signature was last updated.
+            type: string
+            example: '2023-03-26T12:42:37.000Z'
+          wh_exits_outward:
+            description: |
+              If set to `true`, it's expected that the assigned wormhole type is on the Thera/Turnur
+              side of the signature and K162 is on the other side of the signature.
+            type: boolean
+            example: false
+    dump_users:
+      type: array
+      items:
+        type: object
+        properties:
+          cache_key:
+            description: |
+              Unique key of the object in the cache.
+            type: string
+          ttl:
+            description: |
+              Remaining Time To Live (TTL) of the cache object in milliseconds.
+            type: number
+          character_name:
+            description: |
+              The in-game character name of the user that initially added this
+              signature.
+            type: string
+            example: Okamainen al'Anzomi
+    dump_users_location:
+      type: array
+      items:
+        type: object
+        properties:
+          cache_key:
+            description: |
+              Unique key of the object in the cache.
+            type: string
+          ttl:
+            description: |
+              Remaining Time To Live (TTL) of the cache object in milliseconds.
+            type: number
+          solar_system_id:
+            description: |
+              The in-game ID of the system the user is in.
+            type: integer
+            format: int32
+          station_id:
+            description: |
+              The in-game ID of the station the user is in.
+            type: integer
+            format: int32
+          structure_id:
+            description: |
+              The in-game ID of the structure the user is in.
+            type: integer
+            format: int32
+    toggle_switch:
+      type: object
+      properties:
+        mode:
+          description: When mode is `on`, maintenance mode is turned on.
+          type: string
+          example: 'on'
+          enum:
+            - 'on'
+            - 'off'
+    status:
+      type: object
+      properties:
+        app_last_start:
+          type: string
+          format: date-time
+          description: Timestamp when the app last started.
+          example: '2023-10-01T09:28:34.000Z'
+        donation_last_run:
+          type: string
+          format: date-time
+          description: Timestamp when the donation import was running the last time.
+          example: '2023-10-01T09:28:34.000Z'
+        donation_last_update:
+          type: string
+          format: date-time
+          description: Timestamp when new donations have been imported the last time.
+          example: '2023-10-01T09:28:34.000Z'
+        maintenance:
+          type: boolean
+          description: When `true`, the API currently is in maintenance mode.
+          example: false
+        memory_array_buffers:
+          type: number
+          description: |
+            `arrayBuffers` refers to memory allocated for `ArrayBuffers` and `SharedArrayBuffers`,
+            including all Node.js Buffers. This is also included in the `external` value.
+            When Node.js is used as an embedded library, this value may be `0` because allocations for
+            `ArrayBuffers` may not be tracked in that case.
+
+            Data is represented in MB.
+          example: 2.6
+        memory_external:
+          type: number
+          description: |
+            `external` refers to the memory usage of C++ objects bound to JavaScript objects managed by V8.
+
+            Data is represented in MB.
+          example: 6.87
+        memory_heap_total:
+          type: number
+          description: |
+            `heapTotal` and `heapUsed` refer to V8's memory usage.
+
+            Data is represented in MB.
+          example: 99.84
+        memory_heap_used:
+          type: number
+          description: |
+            `heapTotal` and `heapUsed` refer to V8's memory usage.
+
+            Data is represented in MB.
+          example: 79.11
+        memory_rss:
+          type: number
+          description: |
+            Resident Set Size, is the amount of space occupied in the main memory device (that is a subset
+            of the total allocated memory) for the process, including all C++ and JavaScript objects and code.
+
+            Data is represented in MB.
+          example: 229.61
+        node_version:
+          type: string
+          description: null
+          example: v20.5.0
+        token_eve_scout:
+          type: boolean
+          description: When `true`, the stored refresh token for EvE-Scout is valid and an access token can be created.
+          example: false
+        token_signal_cartel:
+          type: boolean
+          description: When `true`, the stored refresh token for Signal Cartel is valid and an access token can be created.
+          example: false
+    topscanner:
+      type: object
+      properties:
+        character_id:
+          description: An EVE character ID
+          type: integer
+          format: int64
+          required: true
+          example: 96293852
+        character_name:
+          description: The character’s name
+          type: string
+          required: true
+          example: Sky Diamond
+        wormholes_completed:
+          description: Number of completed wormhole signatures
+          type: number
+        system_name:
+          description: The system name for which this data has been calculated
+          type: string
+          enum:
+            - thera
+            - turnur
+    properties:
+      type: object
+      additionalProperties:
+        type: string
+      example:
+        dark-mode: 'on'
+        timezone: America/New_York
+    system_class:
+      type: string
+      enum:
+        - c1
+        - c2
+        - c3
+        - c4
+        - c5
+        - c6
+        - c10
+        - c11
+        - c12
+        - c13
+        - c14
+        - c15
+        - c16
+        - c17
+        - c18
+        - c25
+        - drone
+        - exit
+        - hs
+        - jove
+        - ls
+        - ns
+        - unknown
+      example: c12
+    signature_representation:
+      description: Wormhole Signature returned by the by the API
+      type: object
+      required:
+        - id
+        - created_at
+        - created_by_id
+        - created_by_name
+        - completed
+        - expires_at
+        - signature_type
+        - out_system_id
+        - out_system_name
+        - out_signature
+      properties:
+        id:
+          description: |
+            A unique, numeric ID assigned to this signature when it was added
+            to the system. This is used for PATCH and DELETE operations.
+          type: integer
+          format: int64
+          example: 1420
+        created_at:
+          description: |
+            The date and time when this signature was initially added to the
+            system.
+          type: string
+          example: '2023-03-26T12:34:00.000Z'
+        created_by_id:
+          description: |
+            The in-game character ID of the user that initially added this
+            signature.
+          type: integer
+          format: int64
+          example: 2119526651
+        created_by_name:
+          description: |
+            The in-game character name of the user that initially added this
+            signature.
+          type: string
+          example: Okamainen al'Anzomi
+        updated_at:
+          description: |
+            The date and time when this signature was last updated.
+          type: string
+          example: '2023-03-26T12:42:37.000Z'
+        updated_by_id:
+          description: |
+            The in-game character ID of the user that last updated this
+            signature.
+          type: integer
+          format: int64
+          example: 96293852
+        updated_by_name:
+          description: |
+            The in-game character name of the user that last updated this
+            signature.
+          type: string
+          example: Sky Diamond
+        completed_at:
+          description: |
+            The date and time when scanning for this signature was completed.
+          type: string
+          example: '2023-03-26T12:42:37.000Z'
+        completed_by_id:
+          description: |
+            The in-game character ID of the user that completed scanning for
+            this signature.
+          type: integer
+          format: int64
+          example: 96293852
+        completed_by_name:
+          description: |
+            The in-game character name of the user that completed scanning for
+            this signature.
+          type: string
+          example: Sky Diamond
+        completed:
+          description: |
+            Flag indicating whether or not this signature has been completely
+            scanned.
+          type: boolean
+        wh_exits_outward:
+          description: |
+            If set to `true`, it's expected that the assigned wormhole type is on the Thera/Turnur
+            side of the signature and K162 is on the other side of the signature.
+          type: boolean
+          example: false
+        wh_type:
+          description: |
+            The in-game wormhole entrance type (e.g., not `K162`).
+          type: string
+          example: E587
+        max_ship_size:
+          description: |
+            The maximum amount of mass that can transit a wormhole in one go.
+          type: string
+          enum:
+            - small
+            - medium
+            - large
+            - xlarge
+            - capital
+            - unknown
+          example: xlarge
+        expires_at:
+          description: |
+            The time when the signature will expire.
+          type: string
+          example: '2023-03-27T12:42:37.000Z'
+        remaining_hours:
+          description: |
+            The remaining hours between now and the expiry time of the signature.
+          type: integer
+          example: 5
+        signature_type:
+          description: |
+            The type of signature; this value corresponds to the `Group` column
+            in the probe scan window (PSW). Clients will need to convert localized
+            `Group` labels to one of these values.
+          type: string
+          enum:
+            - combat
+            - data
+            - gas
+            - relic
+            - wormhole
+            - unknown
+          example: unknown
+        out_system_id:
+          description: |
+            The in-game ID of the system being scanned. This will correspond
+            to either `Thera` or `Turner`.
+          type: integer
+          format: int32
+          enum:
+            - 31000005
+            - 30002086
+          example: 31000005
+        out_system_name:
+          description: |
+            The name of the system being scanned.
+          type: string
+          enum:
+            - Thera
+            - Turnur
+          example: Thera
+        out_signature:
+          description: |
+            The in-game ID of the wormhole entrance or exit that exists in the
+            system being scanned. This value corresponds to the `ID` column in
+            the probe scan window (psw).
+          type: string
+          example: EOQ-660
+        in_system_id:
+          description: |
+            The in-game ID of the system on the other side of the wormhole from
+            the system being scanned.
+          type: integer
+          format: int32
+          example: 30000848
+        in_system_class:
+          $ref: '#/components/schemas/system_class'
+        in_system_name:
+          description: |
+            The name of the system on the other side of the wormhole from the
+            system being scanned.
+          type: string
+          example: M-OEE8
+        in_region_id:
+          description: |
+            The in-game ID of the region on the other side of the wormhole from
+            the system being scanned.
+          type: integer
+          format: int64
+          example: 10000010
+        in_region_name:
+          description: |
+            The region on the other side of the wormhole from the system being
+            scanned.
+          type: string
+          example: Tribute
+        in_signature:
+          description: |
+            The in-game ID of the wormhole entrance or exit that exists on the
+            other side of the wormhole from the system being scanned. This value
+            corresponds to the `ID` column in the probe scan window (psw).
+          type: string
+          example: EOQ-660
+        comment:
+          description: |
+            Comment field allowing the scanner to make notes. This can be up to
+            512 characters long.
+          type: string
+          example: Here there be dragons.
+    signatures_representation:
+      type: array
+      items:
+        $ref: '#/components/schemas/signature_representation'
+    signature_psw:
+      description: |
+        Data available in the probe scan window (PSW), which is used to create new signatures.
+      type: object
+      required:
+        - out_signature
+        - signature_type
+      properties:
+        out_signature:
+          description: The signature itself.
+          type: string
+          example: NBY-045
+        signature_type:
+          description: The type of the signature.
+          type: string
+          enum:
+            - combat
+            - data
+            - gas
+            - relic
+            - unknown
+            - wormhole
+          example: wormhole
+    signatures_psw:
+      type: array
+      items:
+        $ref: '#/components/schemas/signature_psw'
+    signature_modification:
+      description: Modify an already existing signature. One or more of the properties may be present.
+      type: object
+      properties:
+        comment:
+          description: Internal comment for this signature, in case pilots have some special information to share.
+          type: string
+          example: Here there be dragons.
+        in_signature:
+          description: The signature itself.
+          type: string
+          example: TFO-265
+        in_system_name:
+          description: The system in which the signature is found.
+          type: string
+          example: Zoohen
+        set_eol:
+          description: If set to `true`, the signatures expiry time will be recalculated (4h from now)
+          type: boolean
+          example: false
+        wh_exits_outward:
+          description: |
+            If set to `true`, it's expected that the assigned wormhole type is on the Thera/Turnur
+            side of the signature and K162 is on the other side of the signature.
+          type: boolean
+          example: false
+        wh_type:
+          description: The wormhole type for this signature.
+          type: string
+          example: C140
+    signature_type_change:
+      description: Change the signature type of an existing signature.
+      type: object
+      properties:
+        signature_type:
+          description: The type of the signature.
+          type: string
+          enum:
+            - combat
+            - data
+            - gas
+            - relic
+            - unknown
+            - wormhole
+    statistics_auditlog_record:
+      type: object
+      properties:
+        action:
+          description: |
+            The action of the log record.
+          type: string
+          enum:
+            - complete
+            - create
+            - delete
+            - expire
+            - update
+          example: create
+        initialized:
+          description: |
+            Flag indicating whether the record has been created on system startup
+          type: boolean
+          example: true
+        timestamp:
+          description: |
+            The date and time when this audit-log record was created.
+          type: string
+          example: '2023-03-26T12:34:00.000Z'
+        uuid:
+          description: |
+            Unique identifier for each record.
+          type: string
+          example: 6ebb0db7-427e-4777-8a2c-d34502ae835e
+        character_id:
+          description: |
+            The in-game character ID of the user that initially added this
+            signature.
+          type: integer
+          format: int64
+          example: 2119526651
+        character_name:
+          description: |
+            The in-game character name of the user that initially added this
+            signature.
+          type: string
+          example: Okamainen al'Anzomi
+        signature_id:
+          description: |
+            A unique, numeric ID assigned to this signature when it was added
+            to the system. This is used for PATCH and DELETE operations.
+          type: integer
+          format: int64
+          example: 1420
+        signature_type:
+          description: |
+            The type of signature; this value corresponds to the `Group` column
+            in the probe scan window (PSW). Clients will need to convert localized
+            `Group` labels to one of these values.
+          type: string
+          enum:
+            - combat
+            - data
+            - gas
+            - relic
+            - wormhole
+            - unknown
+          example: unknown
+        in_signature:
+          description: |
+            The in-game ID of the wormhole entrance or exit that exists on the
+            other side of the wormhole from the system being scanned. This value
+            corresponds to the `ID` column in the probe scan window (psw).
+          type: string
+          example: EOQ-660
+        out_signature:
+          description: |
+            The in-game ID of the wormhole entrance or exit that exists in the
+            system being scanned. This value corresponds to the `ID` column in
+            the probe scan window (psw).
+          type: string
+          example: EOQ-660
+        out_system_id:
+          description: |
+            The in-game ID of the system being scanned. This will correspond
+            to either `Thera` or `Turner`.
+          type: integer
+          format: int32
+          enum:
+            - 31000005
+            - 30002086
+          example: 31000005
+    statistics_auditlog:
+      type: array
+      items:
+        $ref: '#/components/schemas/statistics_auditlog_record'
+    statistics_leaderboard:
+      type: array
+      items:
+        type: object
+        properties:
+          date:
+            description: Date of the data point; if the precision is not daily, it's the first day of the week or month.
+            type: string
+            format: date
+            required: true
+            example: '2023-11-22'
+          pilots:
+            type: array
+            items:
+              type: object
+              properties:
+                character_id:
+                  description: An EVE character ID
+                  type: integer
+                  format: int64
+                  required: true
+                  example: 96293852
+                character_name:
+                  description: The character’s name
+                  type: string
+                  required: true
+                  example: Sky Diamond
+                signatures:
+                  description: Number of signatures scanned during the timespan, including wormholes.
+                  type: integer
+                  format: int64
+                  required: true
+                  example: 47
+                wormholes:
+                  description: Number of wormhole signatures scanned during the timespan.
+                  type: integer
+                  format: int64
+                  required: true
+                  example: 14
+                wormholes_completed:
+                  description: Number of wormhole signatures completed during the timespan.
+                  type: integer
+                  format: int64
+                  required: true
+                  example: 14
+    statistics_payouts_pilot:
+      type: object
+      properties:
+        amount:
+          description: Amount of earned ISK.
+          type: number
+          format: float
+          required: true
+          example: 17857142
+        character_id:
+          description: An EVE character ID
+          type: integer
+          format: int64
+          required: true
+          example: 93027866
+        character_name:
+          description: The character’s name
+          type: string
+          required: true
+          example: Das d'Alembert
+        streak:
+          description: |
+            Number of uninterrupted weeks the pilot participated in scanning this hub with at least one
+            completed wormhole.
+          type: number
+          format: int64
+          required: true
+          example: 74
+        storms:
+          description: Number of storms the pilot observed. (optional)
+          type: number
+          format: int64
+          required: true
+          example: 4
+        wormholes:
+          description: Number of wormhole signatures the pilot completed. (optional)
+          type: number
+          format: int64
+          required: true
+          example: 23
+        percent:
+          description: Percent of completed wormhole signatures during the period.
+          type: number
+          format: float
+          required: true
+          example: 17.5
+    statistics_payouts_pilots:
+      type: array
+      items:
+        $ref: '#/components/schemas/statistics_payouts_pilot'
+    statistics_payout_statistics:
+      type: object
+      properties:
+        wormholes:
+          description: Number of scanned wormhole connections.
+          type: number
+          format: integer
+          example: 214
+        signatures:
+          description: Number of scanned cosmic signatures including wormholes.
+          type: number
+          format: integer
+          example: 743
+        connections_to_hs:
+          description: How many wormholes led to high-sec.
+          type: number
+          format: integer
+          example: 36
+        connections_to_ls:
+          description: How many wormholes led to low-sec.
+          type: number
+          format: integer
+          example: 45
+        connections_to_ns:
+          description: How many wormholes led to null-sec.
+          type: number
+          format: integer
+          example: 25
+        connections_to_jspace:
+          description: How many wormholes led to j-space.
+          type: number
+          format: integer
+          example: 67
+    statistics_payouts_hub:
+      type: object
+      properties:
+        system_name:
+          description: Name of the hub, the payouts are calculated for.
+          type: string
+          enum:
+            - thera
+            - turnur
+          example: turnur
+        payouts:
+          description: The payouts per pilot.
+          $ref: '#/components/schemas/statistics_payouts_pilots'
+        statistics:
+          description: |
+            The statistics going along for the time period (optional).
+            Statistics are only available for scan payouts.
+          $ref: '#/components/schemas/statistics_payout_statistics'
+    statistics_payouts:
+      type: array
+      items:
+        description: The payouts for Thera.
+        $ref: '#/components/schemas/statistics_payouts_hub'
+    observation_category:
+      description: The category of the observation.
+      type: string
+      enum:
+        - storm
+        - space_oddity
+      example: storm
+    observation_representation:
+      description: Observations record
+      type: object
+      properties:
+        id:
+          description: |
+            A unique, numeric ID assigned to this observation record when it was added
+            to the system. This is used for operations addressing a single record.
+          type: integer
+          format: int64
+          example: 4711
+        created_at:
+          description: |
+            The date and time when this observation record was initially created.
+          type: string
+          example: '2023-11-03T11:52:00.000Z'
+        created_by_id:
+          description: |
+            The in-game character ID of the user that initially added this
+            record.
+          type: integer
+          format: int64
+          example: 2119526651
+        created_by_name:
+          description: |
+            The in-game character name of the user that initially added this
+            record.
+          type: string
+          example: Okamainen al'Anzomi
+        observation_type:
+          $ref: '#/components/schemas/observation_type'
+        observation_category:
+          $ref: '#/components/schemas/observation_category'
+        display_name:
+          description: |
+            A name for the observation which can be displayed to users.
+          type: string
+          example: Tom's Shuttle
+        observed_in_person:
+          description: |
+            Flag indicating whether this record was observed in person.
+          type: boolean
+        hours_in_system:
+          description: |
+            Hours the observed object has been in the system.
+          type: integer
+          example: 5
+        system_id:
+          description: |
+            The in-game ID of the system the observed object is located in.
+          type: integer
+          format: int32
+          example: 30000021
+        system_name:
+          description: |
+            The name of the system.
+          type: string
+          example: Kuharah
+        region_id:
+          description: |
+            The in-game ID of the region the observed object is in.
+          type: integer
+          format: int64
+          example: 10000070
+        region_name:
+          description: |
+            The region name where the observed object is in.
+          type: string
+          example: Pochven
+    observation_create_by_id:
+      description: |
+        Data required to create a new tracking record.
+      type: object
+      properties:
+        character_id:
+          description: An EVE character ID
+          type: integer
+          format: int64
+          example: 96293852
+        observation_type:
+          $ref: '#/components/schemas/observation_type'
+        observed_in_person:
+          description: |
+            Flag indicating whether the tracked object was observed in person.
+          type: boolean
+        system_id:
+          description: |
+            The in-game ID of the system the tracked object is located in.
+          type: integer
+          format: int32
+          example: 30000021
+    observation_create_by_name:
+      description: |
+        Data required to create a new tracking record.
+      type: object
+      properties:
+        character_id:
+          description: An EVE character ID
+          type: integer
+          format: int64
+          example: 96293852
+        observation_type:
+          $ref: '#/components/schemas/observation_type'
+        observed_in_person:
+          description: |
+            Flag indicating whether the tracked object was observed in person.
+          type: boolean
+        system_name:
+          description: |
+            The name of the system the tracked object is located in.
+          type: string
+          example: D61A-G
+    public_system:
+      type: object
+      properties:
+        jove_observatory:
+          type: boolean
+          required: false
+        region_id:
+          type: integer
+          format: int64
+          required: true
+          example: 10000067
+        region_name:
+          type: string
+          required: true
+          example: Genesis
+        security_status:
+          type: number
+          format: float
+          required: true
+          example: 0.5
+        system_class:
+          required: true
+          $ref: '#/components/schemas/system_class'
+        system_id:
+          type: integer
+          format: int64
+          required: true
+          example: 30005221
+        system_name:
+          type: string
+          required: true
+          example: Zoohen
+    users_current:
+      type: object
+      properties:
+        character_id:
+          type: integer
+          format: int64
+        character_name:
+          type: string
+        signatures_last_update:
+          description: |
+            Timestamp when signatures were last updated.
+
+            This timestamp is not connected to the user but it's supposed to provide an indicator when the user requires
+            a signature data update.
+          type: string
+          format: date-time
+        roles:
+          description: Roles the current user has assigned
+          type: array
+          items:
+            type: string
+        online:
+          type: boolean
+        system:
+          allOf:
+            - $ref: '#/components/schemas/public_system'
+          nullable: true
+    users_online:
+      type: array
+      items:
+        type: object
+        properties:
+          character_id:
+            type: integer
+            description: |
+              The in-game character ID of the user.
+          character_name:
+            type: string
+            description: |
+              The in-game character name of the user.
+          system:
+            $ref: '#/components/schemas/public_system'
+    route_systems:
+      type: array
+      items:
+        $ref: '#/components/schemas/public_system'
+    route:
+      type: object
+      properties:
+        from:
+          type: string
+          description: |
+            Source system name of the route
+        to:
+          type: string
+          description: |
+            Target system name of the route
+        jumps:
+          type: integer
+          example: 3
+        signature_id:
+          description: |
+            The unique, numeric signature ID.
+
+            This property is only present for routes created by
+            [/v2/public/routes/signatures](#get-/v2/public/routes/signatures) and contain the signature ID
+            the route is for.
+          type: integer
+          format: int64
+          example: 1420
+          nullable: true
+        route:
+          $ref: '#/components/schemas/route_systems'
+    routes:
+      type: array
+      items:
+        $ref: '#/components/schemas/route'
+    route_request:
+      type: object
+      properties:
+        from:
+          type: string
+          description: Source system name of the route
+          example: Zoohen
+        to:
+          type: array
+          items:
+            type: string
+          description: List of target system names
+          example:
+            - Jita
+            - Gelhan
+            - Thera
+            - Saisio
+        prefer_safer:
+          type: boolean
+          description: Preference for a safer route; if set, the routing will stay in high-sec if possible.
+    statistics_donor:
+      type: object
+      properties:
+        id:
+          description: Unique ID of a specific donation.
+          type: integer
+          format: int64
+          required: true
+          example: 4452
+        amount:
+          description: |
+            Amount of donated ISK.
+
+            Due to the Decimal data type of this property in the database, the representation is
+            `string` and not `float`.
+          type: string
+          required: true
+          example: 5000000000
+        donated_at:
+          description: Timestamp when the donation was made.
+          type: string
+          format: date-time
+          required: true
+          example: '2023-09-01T10:46:34.000Z'
+        corporation_donation:
+          description: |
+            If the donation has been made on behalf of a corporation, this flag is set to `true`.
+            Usually individual players donate ISK, but if the money comes from a corporate wallet, this
+            flag indicates it and the character is just the executor, not the donor.
+          type: boolean
+          example: false
+        character_id:
+          description: An EVE character ID
+          type: integer
+          format: int64
+          required: true
+          example: 96293852
+        character_name:
+          description: The character’s name
+          type: string
+          required: true
+          example: Sky Diamond
+        corporation_id:
+          description: The character’s corporation ID
+          type: integer
+          format: int64
+          required: true
+          example: 98372649
+        corporation_name:
+          description: The character’s corporation name
+          type: string
+          required: true
+          example: Signal Cartel
+        alliance_id:
+          description: The character’s alliance ID
+          type: integer
+          format: int64
+          required: true
+          example: 99005130
+        alliance_name:
+          description: The character’s alliance name
+          type: string
+          required: true
+          example: EvE-Scout Enclave
+    statistics_donors:
+      type: array
+      items:
+        $ref: '#/components/schemas/statistics_donor'
+    statistics_daily_goal:
+      type: object
+      properties:
+        date:
+          description: Date of the data point
+          type: string
+          format: date
+          required: true
+          example: '2023-09-01'
+        donations:
+          description: Sum of all donations on this day in ISK.
+          type: number
+          format: float
+          required: true
+          example: 500000000
+        rolling_avg_30:
+          description: The 30 days rolling average of the daily donations.
+          type: number
+          format: float
+          required: true
+          example: 65000
+        percentage:
+          description: Percentage of daily donation goal reached on this day.
+          type: number
+          format: float
+          required: true
+          example: 25
+    statistics_daily_goals:
+      type: object
+      properties:
+        goal:
+          description: Daily ISK goal for donations.
+          type: number
+          format: float
+          example: 2000000000
+        timeline:
+          description: The daily goals of the past 30 days.
+          type: array
+          items:
+            $ref: '#/components/schemas/statistics_daily_goal'
+    statistics_donations:
+      type: object
+      properties:
+        donors:
+          description: The donors of the last 30 days.
+          $ref: '#/components/schemas/statistics_donors'
+        daily_goals:
+          description: The daily goals of the last 30 days.
+          $ref: '#/components/schemas/statistics_daily_goals'
+    statistics_scan:
+      type: object
+      properties:
+        date:
+          description: Date of the data point; if the precision is not daily, it's the first day of the week or month.
+          type: string
+          format: date
+          required: true
+          example: '2023-09-01'
+        signatures:
+          description: Number of signatures scanned during the timespan, including wormholes.
+          type: integer
+          format: int64
+          required: true
+          example: 47
+        wormholes:
+          description: Number of wormhole signatures scanned during the timespan.
+          type: integer
+          format: int64
+          required: true
+          example: 14
+    statistics_scans:
+      type: array
+      items:
+        $ref: '#/components/schemas/statistics_scan'
+    systems:
+      type: array
+      items:
+        $ref: '#/components/schemas/public_system'
+    public_wormhole:
+      type: object
+      required:
+        - comment_public
+        - identifier
+        - mass_regeneration
+        - max_jump_mass
+        - max_stable_mass
+        - max_stable_time
+        - possible_static
+        - signature_level
+        - source
+        - target_system_class
+        - type_id
+        - wandering_only
+      properties:
+        comment_public:
+          description: Comment explaining specific details about this wormhole type
+          type: string
+        identifier:
+          description: Identifier of the wormhole
+          type: string
+        mass_regeneration:
+          description: The amount of mass a wormhole regenerates per cycle
+          type: number
+        max_jump_mass:
+          description: The maximum amount of mass that can transit a wormhole in one go
+          type: number
+        max_stable_mass:
+          description: The maximum amount of mass a wormhole can transit before collapsing
+          type: number
+        max_stable_time:
+          description: The maximum amount of time a wormhole will stay open (in minutes)
+          type: number
+        possible_static:
+          type: boolean
+        signature_level:
+          type: array
+          items:
+            type: number
+        source:
+          type: array
+          items:
+            $ref: '#/components/schemas/system_class'
+        target_system_class:
+          description: Target system class
+          $ref: '#/components/schemas/system_class'
+        type_id:
+          type: number
+        wandering_only:
+          type: boolean
+    wormholetypes:
+      type: array
+      items:
+        $ref: '#/components/schemas/public_wormhole'
+    topstormchaser:
+      type: object
+      properties:
+        character_id:
+          description: An EVE character ID
+          type: integer
+          format: int64
+          required: true
+          example: 96293852
+        character_name:
+          description: The character’s name
+          type: string
+          required: true
+          example: Sky Diamond
+        storms_reported:
+          description: Number of storm reports
+          type: number
+  parameters:
+    query_return_to:
+      name: return_to
+      in: query
+      description: |
+        Return to this URI following the login process. An optional `status`
+        query string parameter will be added to this URL if there is a
+        problem during login (`status=failed_login`) or logout has been called (`status=logout`).
+
+        Please note, that the URI has to be fully qualified and the hostname has to be one
+        of our supported origins as for the CORS calls. Otherwise the default URIs will be used
+        which just show a simple "ok" text.
+      required: true
+      schema:
+        type: string
+        format: uri
+      example: https://therascan.info/postlogin
+    query_dump_type:
+      name: dump_type
+      in: query
+      description: Which cache should be dumped.
+      required: true
+      schema:
+        type: string
+        enum:
+          - claims
+          - graph
+          - observations
+          - performance_log
+          - signatures
+          - users
+          - users_location_l1
+          - users_location_l2
+      example: signatures
+    query_timestamp:
+      name: timestamp
+      in: query
+      description: Timestamp in the past to analyze.
+      required: true
+      schema:
+        type: string
+        format: timestamp
+      example: '2023-09-29T10:07:24.213Z'
+    query_export_mode:
+      name: export_mode
+      in: query
+      description: |
+        Mode of the data export.
+
+        **original**
+        All timestamps stay as is, data is not modified.
+
+        **transform**
+        All timestamps get adjusted so the data set will be usable right now. All flags will be reset properly
+        so systems are not deleted and not expired.
+      required: true
+      schema:
+        type: string
+        enum:
+          - original
+          - transform
+      example: original
+    query_system_name_required:
+      name: system_name
+      in: query
+      description: Filter by system name, MUST be one of "thera" or "turnur".
+      required: true
+      schema:
+        type: string
+        enum:
+          - thera
+          - turnur
+      example: turnur
+    path_signature_id:
+      name: signature-id
+      in: path
+      description: |
+        The signature ID uniquely identifies a signature in the database. This
+        is NOT the in-game signature name, e.g., `ABC-123`, as those are not
+        guaranteed to be unique.
+      required: true
+      schema:
+        type: integer
+        format: int64
+      example: 1420
+    query_precision:
+      name: period
+      in: query
+      description: |
+        Specify the precision which the statistics should be delivered in.
+
+        **daily**
+          - Data of the last 30 days
+
+        **weekly**
+          - Data of the last 26 weeks
+
+        **monthly**
+          - Data of the last 12 months
+      required: true
+      schema:
+        type: string
+        enum:
+          - daily
+          - weekly
+          - monthly
+      example: daily
+    query_system_name_optional:
+      name: system_name
+      in: query
+      description: Filter by system name, MUST be one of "thera" or "turnur", if provided.
+      required: false
+      schema:
+        type: string
+        enum:
+          - thera
+          - turnur
+      example: turnur
+    query_date_start:
+      name: date_start
+      in: query
+      description: Start of the timeframe to analyze formatted YYYY-MM-DD.
+      required: true
+      schema:
+        type: string
+        format: date
+      example: '2023-09-13'
+    query_date_end:
+      name: date_end
+      in: query
+      description: End of the timeframe to analyze formatted YYYY-MM-DD.
+      required: true
+      schema:
+        type: string
+        format: date
+      example: '2023-09-13'
+    query_budget:
+      name: budget
+      in: query
+      description: The budget to be distributed in ISK.
+      required: true
+      schema:
+        type: integer
+        format: int64
+        minimum: 1000000
+        maximum: 1000000000000
+        example: 1000000000
+    query_latest:
+      name: latest
+      in: query
+      description: If set to `true` only the latest record per object is returned.
+      schema:
+        type: boolean
+      example: true
+    query_observation_type:
+      name: tracking_type
+      in: query
+      description: Filter objects to a specific tracking type.
+      schema:
+        $ref: '#/components/schemas/observation_type'
+    path_observation_id:
+      name: tracking-id
+      in: path
+      description: |
+        The tracking-id uniquely identifies a tracking data record in the database.
+      required: true
+      schema:
+        type: integer
+        format: int64
+      example: 4711
+    query_from_system:
+      name: from
+      in: query
+      description: System name where the route starts.
+      required: true
+      schema:
+        type: string
+      example: Zoohen
+    query_to_system:
+      name: to
+      in: query
+      description: System name where the route goes to.
+      required: true
+      schema:
+        type: string
+      example: Jita
+    query_routing_preference:
+      name: preference
+      in: query
+      description: |
+        Set the preference on how the route will be calculated. If not specified, it will default to `safer`.
+
+        Route Preference (note that wormholes are always included):
+
+        **safer**
+        Use high security space (0.5 to 1.0) where possible
+
+        **shortest**
+        Use the shortest possible route regardless of system security status
+
+        **shortest-gates**
+        Use the shortest possible route with a preference towards using gates
+      required: false
+      schema:
+        type: string
+        enum:
+          - prefer-safer
+          - shortest
+          - shortest-gates
+      example: prefer-safer
+    query_limit:
+      name: limit
+      in: query
+      description: |
+        Limit the number of returned results to this number of elements.
+        Must be an integer greater than 0.
+      required: false
+      schema:
+        type: number
+      example: 5
+    query_string:
+      name: query
+      in: query
+      description: The search query to match against the beginning of the name.
+      required: true
+      schema:
+        type: string
+      example: z
+    query_space:
+      name: space
+      in: query
+      description: Filter systems for k- or j-space
+      required: false
+      schema:
+        type: string
+        enum:
+          - k-space
+          - j-space
+      example: k-space
+    query_identifier:
+      name: identifier
+      in: query
+      description: The search query to match against the beginning of the identifier.
+      required: false
+      schema:
+        type: string
+      example: z
+    query_source:
+      name: source
+      in: query
+      description: The filter matching the source system class.
+      required: false
+      schema:
+        $ref: '#/components/schemas/system_class'
+    query_target:
+      name: target
+      in: query
+      description: The filter matching the target system class.
+      required: false
+      schema:
+        $ref: '#/components/schemas/system_class'
+    query_edge:
+      name: edge
+      in: query
+      description: The filter matching the source or target system class.
+      required: false
+      schema:
+        $ref: '#/components/schemas/system_class'
+  securitySchemes:
+    allison-auth:
+      type: apiKey
+      in: header
+      name: x-allison-auth
+    esrc-auth:
+      type: apiKey
+      in: header
+      name: x-esrc-auth
+    eve-sso:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://login.eveonline.com/v2/oauth/authorize
+          tokenUrl: https://login.eveonline.com/v2/oauth/token
+          scopes:
+            publicData: Allows access to public data.
+            esi-location.read_location.v1: Allows reading of a character's active ship location.
+  responses:
+    '204':
+      description: No Content
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    '401':
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    '404':
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    '409':
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    '503':
+      description: Service Unavailable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'

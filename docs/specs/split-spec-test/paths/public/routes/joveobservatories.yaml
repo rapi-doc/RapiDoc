@@ -1,0 +1,29 @@
+get:
+  parameters:
+    - $ref: "../../../parameters/query_from_system.yaml"
+    - $ref: "../../../parameters/query_routing_preference.yaml"
+  operationId: routeJoveObservatoriesPublic
+  tags: [Routes]
+  summary: Routes to Jove Observatories
+  description: |
+    Calculate five shortest routes from the source system to Jove Observatories.
+  x-badges:
+    - color: green
+      label: "public"
+  responses:
+    "200":
+      description: A calculated route for each Jove Observatory.
+      headers:
+        Cache-Control:
+          description: "The TTL for this resource is 300 seconds"
+          schema:
+            type: string
+            example: "max-age=300"
+      content:
+        application/json:
+          schema:
+            $ref: "../../../schemas/routes.yaml"
+    "400":
+      $ref: "../../../responses/400.yaml"
+    "503":
+      $ref: "../../../responses/503.yaml"

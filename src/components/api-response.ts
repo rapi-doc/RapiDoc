@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
-import { schemaInObjectNotation, generateExample, ObjectNotationSchema } from '../utils/schema-utils';
+import { schemaInObjectNotation, generateExample, standardizeExample, ObjectNotationSchema } from '../utils/schema-utils';
 import FontStyles from '../styles/font-styles';
 import FlexStyles from '../styles/flex-styles';
 import TableStyles from '../styles/table-styles';
@@ -129,7 +129,7 @@ export default class ApiResponse extends LitElement {
       </div>
       <div>
         ${this.responseTemplate()}
-      <div>  
+      </div>  
     </div>  
     `;
   }
@@ -160,8 +160,8 @@ export default class ApiResponse extends LitElement {
         const respExamples = generateExample(
           mimeRespObj.schema as RapiDocSchema,
           mimeResp,
-          mimeRespObj.examples as RapiDocExamples,
-          mimeRespObj.example,
+          standardizeExample(mimeRespObj.examples) as RapiDocExamples,
+          standardizeExample(mimeRespObj.example),
           this.callback === 'true' || this.webhook === 'true' ? false : true, // eslint-disable-line no-unneeded-ternary
           this.callback === 'true' || this.webhook === 'true' ? true : false, // eslint-disable-line no-unneeded-ternary
           mimeResp.includes('json') ? 'json' : 'text',
@@ -204,10 +204,9 @@ export default class ApiResponse extends LitElement {
                   ${respStatus} 
                 </button>`
               }`)
-          }`
+          }</div>`
         : html`<span>${Object.keys(this.responses)[0]}</span>`
       }
-      </div>
 
       ${Object.keys(this.responses).map((status) => html`
         <div style = 'display: ${status === this.selectedStatus ? 'block' : 'none'}' >
@@ -221,10 +220,10 @@ export default class ApiResponse extends LitElement {
           ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 0
             ? ''
             : html`  
-              <div class="tab-panel col">
-                <div class="tab-buttons row" @click="${(e: MouseEvent) => { if ((e.target as HTMLElement).tagName.toLowerCase() === 'button') { this.activeSchemaTab = (e.target as HTMLElement).dataset.tab as "example" | "schema"; } }}" >
-                  <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example' part="btn-tab">EXAMPLE </button>
-                  <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' part="btn-tab">SCHEMA</button>
+              <div part="tab-panel" class="tab-panel col">
+                <div part="tab-btn-row" class="tab-buttons row" @click="${(e: MouseEvent) => { if ((e.target as HTMLElement).tagName.toLowerCase() === 'button') { this.activeSchemaTab = (e.target as HTMLElement).dataset.tab as "example" | "schema"; } }}" >
+                  <button part="tab-btn" class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
+                  <button part="tab-btn" class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
                   <div style="flex:1"></div>
                   ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1
                     ? html`<span class='small-font-size gray-text' style='align-self:center; margin-top:8px;'> ${Object.keys(this.mimeResponsesForEachStatus[status])[0]} </span>`
@@ -232,16 +231,16 @@ export default class ApiResponse extends LitElement {
                   }
                 </div>
                 ${this.activeSchemaTab === 'example'
-                  ? html`<div class ='tab-content col' style = 'flex:1;'>
+                  ? html`<div part="tab-content" class ='tab-content col' style = 'flex:1;'>
                       ${this.selectedMimeType && this.mimeExampleTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
                     </div>`
-                  : html`<div class ='tab-content col' style = 'flex:1;'>
+                  : html`<div part="tab-content" class ='tab-content col' style = 'flex:1;'>
                       ${this.selectedMimeType && this.mimeSchemaTemplate(this.mimeResponsesForEachStatus[status][this.selectedMimeType])}
                     </div>`
                 }
               </div>
             `
-          }`)
+          }</div>`)
         }
     `;
   }

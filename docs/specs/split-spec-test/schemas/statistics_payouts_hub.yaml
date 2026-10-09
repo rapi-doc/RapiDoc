@@ -1,0 +1,17 @@
+type: object
+properties:
+  system_name:
+    description: Name of the hub, the payouts are calculated for.
+    type: string
+    enum:
+      - thera
+      - turnur
+    example: turnur
+  payouts:
+    description: The payouts per pilot.
+    $ref: "./statistics_payouts_pilots.yaml"
+  statistics:
+    description: |
+      The statistics going along for the time period (optional).
+      Statistics are only available for scan payouts.
+    $ref: "./statistics_payout_statistics.yaml"

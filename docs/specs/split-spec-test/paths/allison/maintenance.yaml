@@ -1,0 +1,27 @@
+patch:
+  operationId: allisonMaintenance
+  security:
+    - allison-auth: []
+  tags: [Allison]
+  summary: Maintenance
+  description: |
+    When turned on, the API switches into maintenance mode and only Allison endpoints will keep responding to queries.
+    All other queries to the API will return status `503`. Internal intervals will also be shut down.
+
+    This endpoint is only used manually for maintenance or emergency reasons.
+  x-badges:
+    - color: orange
+      label: "private"
+  requestBody:
+    description: When mode is `on`, maintenance mode is turned on.
+    content:
+      application/merge-patch+json:
+        schema:
+          $ref: "../../schemas/toggle_switch.yaml"
+  responses:
+    "204":
+      description: Mode has been set to the provided mode.
+    "400":
+      $ref: "../../responses/400.yaml"
+    "401":
+      $ref: "../../responses/401.yaml"

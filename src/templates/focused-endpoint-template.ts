@@ -41,7 +41,7 @@ function defaultContentTemplate(this: RapiDocElement) {
 /* eslint-disable indent */
 function focusedTagBodyTemplate(this: RapiDocElement, tag: RapiDocTag) {
   return html`
-    <h1 id="${tag.elementId}">${tag.displayName}</h1>
+    <h1 id="${tag.elementId}">${tag.displayName || tag.name}</h1>
     ${this.onNavTagClick === 'show-description' && tag.description
       ? html`
         <div class="m-markdown">

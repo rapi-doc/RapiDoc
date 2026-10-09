@@ -1,0 +1,26 @@
+type: object
+properties:
+  date:
+    description: Date of the data point
+    type: string
+    format: date
+    required: true
+    example: 2023-09-01
+  donations:
+    description: Sum of all donations on this day in ISK.
+    type: number
+    format: float
+    required: true
+    example: 500000000
+  rolling_avg_30:
+    description: The 30 days rolling average of the daily donations.
+    type: number
+    format: float
+    required: true
+    example: 65000
+  percentage:
+    description: Percentage of daily donation goal reached on this day.
+    type: number
+    format: float
+    required: true
+    example: 25

@@ -1,0 +1,92 @@
+get:
+  operationId: getSignatures
+  parameters:
+    - $ref: "../../parameters/query_system_name_required.yaml"
+  tags: [Signatures]
+  summary: List Open Signatures
+  description: |
+    List all currently open `signatures`. A `signature`
+    is considered "open" if it has not expired or been deleted.
+  x-badges:
+    - color: orange
+      label: "private"
+  security:
+    - eve-sso: [user]
+  responses:
+    "200":
+      description: A list of `signatures`, may be empty.
+      headers:
+        X-Last-Signaleer-Hub-Interaction:
+          description: |
+            The last time one of our scouts interacted with our private Hub Scan Tool, which is the backend data input
+            system used to keep our wormhole signature information up to date.
+
+            When there was no interaction since system startup, this value is 1970-01-01T00:00:00.000Z
+          schema:
+            type: string
+            format: date-time
+            example: "2023-12-05T11:41:45.000Z"
+      content:
+        application/json:
+          schema:
+            $ref: "../../schemas/signatures_representation.yaml"
+    "400":
+      $ref: "../../responses/400.yaml"
+    "401":
+      $ref: "../../responses/401.yaml"
+    "503":
+      $ref: "../../responses/503.yaml"
+post:
+  operationId: addSignatures
+  parameters:
+    - $ref: "../../parameters/query_system_name_required.yaml"
+  tags: [Signatures]
+  summary: Bulk Add Signatures
+  x-badges:
+    - color: orange
+      label: "private"
+  description: |
+    This endpoint facilitates the bulk addition and modification of signatures based on data of the in-game
+    Probe Scan Window.
+
+    1. **Skipping Existing Signatures with Defined Types**:
+      - If a signature already exists in the system and has a `signature_type` other than "unknown", the signature
+      will not be processed or altered.
+
+    2. **Updating 'Unknown' Signatures**:
+      - If the system already has a signature with a `signature_type` of "unknown", and a new entry for the same
+      signature is provided with a defined `signature_type`, the signature in the system will be updated to the
+      new type.
+
+    3. **Creating Nonexistent Signatures**:
+      - For any signatures provided in the request that do not already exist in the system, they will be newly
+      created and added.
+
+    4. **Transactional Safety and Error Handling**:
+      - This endpoint is designed with an atomic transactional approach. If any part of the bulk operation encounters
+      an error, no changes will be committed. The entire operation will be reverted and an error message will be
+      returned.
+  security:
+    - eve-sso: [user]
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: "../../schemas/signatures_psw.yaml"
+  responses:
+    "200":
+      description: |
+        The response body will include full representations of all active
+        signatures in the system, may be empty.
+      content:
+        application/json:
+          schema:
+            $ref: "../../schemas/signatures_representation.yaml"
+    "400":
+      description: |
+        There was an error with the content or formatting of the request
+        body. None of the provided signatures have been added to the system.
+    "401":
+      description: This endpoint requires authentication
+    "503":
+      $ref: "../../responses/503.yaml"

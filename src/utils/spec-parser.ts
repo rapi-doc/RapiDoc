@@ -23,7 +23,10 @@ export default async function ProcessSpec(
   attrApiKey = '',
   attrApiKeyLocation = '',
   attrApiKeyValue = '',
-  serverUrl = ''
+  serverUrl = '',
+  matchPaths = '',
+  matchType = '',
+  removeEndpointsWithBadgeLabelAs = ''
 ): Promise<ResolvedSpec | undefined> {
   let jsonParsedSpec: DocumentModifiedByRapiDoc | undefined;
   try {
@@ -70,7 +73,12 @@ export default async function ProcessSpec(
         specMeta.spec.tags ||
         specMeta.spec.paths)
     ) {
-      jsonParsedSpec = specMeta.spec;
+      jsonParsedSpec = filterPaths(
+        specMeta.spec as DocumentModifiedByRapiDoc,
+        matchPaths,
+        matchType,
+        removeEndpointsWithBadgeLabelAs
+      );
       this.dispatchEvent(
         new CustomEvent('before-render', { detail: { spec: jsonParsedSpec } })
       );
@@ -195,7 +203,11 @@ export default async function ProcessSpec(
 
   // Servers
   let servers: DocumentModifiedByRapiDoc['servers'] = [];
-  if (jsonParsedSpec?.servers && Array.isArray(jsonParsedSpec.servers)) {
+  if (
+    jsonParsedSpec?.servers &&
+    Array.isArray(jsonParsedSpec.servers) &&
+    jsonParsedSpec.servers.length > 0
+  ) {
     jsonParsedSpec.servers.forEach((server) => {
       let computedUrl = server.url.trim();
       if (
@@ -247,6 +259,70 @@ export default async function ProcessSpec(
     servers,
   };
   return parsedSpec;
+}
+
+function filterPaths(
+  openApiObject: DocumentModifiedByRapiDoc,
+  matchPaths = '',
+  matchType = '',
+  removeEndpointsWithBadgeLabelAs = ''
+): DocumentModifiedByRapiDoc {
+  const filteredPaths: Record<string, any> = {};
+
+  // Convert the removeEndpointsWithBadgeLabelAs to an array if provided
+  const labelsToRemove = removeEndpointsWithBadgeLabelAs
+    .split(',')
+    .map((label) => label.trim().toLowerCase())
+    .filter(Boolean);
+
+  // Helper function to check if a path should be included based on matchPaths
+  function pathMatches(pathsKey: string, httpMethod: string) {
+    if (!matchPaths) {
+      return true; // If no matchPaths provided, include everything
+    }
+    const fullPath = `${httpMethod} ${pathsKey}`.toLowerCase(); // Construct "method path" string
+    if (matchType === 'regex') {
+      const regex = new RegExp(matchPaths, 'i');
+      return regex.test(matchPaths.toLowerCase());
+    }
+    return fullPath.includes(matchPaths.toLowerCase());
+  }
+
+  // Helper function to check if the badges contain any label that needs to be removed
+  function containsLabelToRemove(badges: { label: string }[]) {
+    return badges.some((badge) =>
+      labelsToRemove.includes(badge?.label.toLowerCase())
+    );
+  }
+
+  // Loop through the paths in the openApiObject
+  Object.entries(openApiObject.paths || {}).forEach(([pathsKey, methods]) => {
+    const filteredMethods: Record<string, any> = {};
+
+    Object.entries(methods || {}).forEach(([httpMethod, methodDetails]) => {
+      const badges = (methodDetails as any)?.['x-badges'];
+
+      // Filter by matchPaths
+      if (pathMatches(pathsKey, httpMethod)) {
+        if (badges && Array.isArray(badges)) {
+          // Filter out based on removeEndpointsWithBadgeLabelAs
+          if (!containsLabelToRemove(badges)) {
+            filteredMethods[httpMethod] = methodDetails;
+          }
+        } else {
+          // No badges present, include the method
+          filteredMethods[httpMethod] = methodDetails;
+        }
+      }
+    });
+
+    if (Object.keys(filteredMethods).length > 0) {
+      filteredPaths[pathsKey] = filteredMethods;
+    }
+  });
+
+  openApiObject.paths = filteredPaths;
+  return openApiObject;
 }
 
 function getHeadersFromMarkdown(
@@ -370,7 +446,9 @@ function groupByTags(
     'options',
   ]; // this is also used for ordering endpoints by methods
   const tags: RapiDocTag[] =
-    openApiSpec.tags && Array.isArray(openApiSpec.tags)
+    openApiSpec.tags &&
+    Array.isArray(openApiSpec.tags) &&
+    openApiSpec.tags.length > 0
       ? openApiSpec.tags.map((tag) => ({
           show: true,
           elementId: `tag--${tag.name.replace(invalidCharsRegEx, '-')}`,
@@ -421,7 +499,7 @@ function groupByTags(
                 pathTags.push(pathOrHookNameKey);
               } else {
                 // firstWordEndIndex -= 1;
-                pathTags.push(pathOrHookNameKey.substr(0, firstWordEndIndex));
+                pathTags.push(pathOrHookNameKey.substring(0, firstWordEndIndex));
               }
             } else {
               pathTags.push('General ⦂');

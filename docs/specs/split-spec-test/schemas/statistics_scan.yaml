@@ -1,0 +1,20 @@
+type: object
+properties:
+  date:
+    description: Date of the data point; if the precision is not daily, it's the first day of the week or month.
+    type: string
+    format: date
+    required: true
+    example: 2023-09-01
+  signatures:
+    description: Number of signatures scanned during the timespan, including wormholes.
+    type: integer
+    format: int64
+    required: true
+    example: 47
+  wormholes:
+    description: Number of wormhole signatures scanned during the timespan.
+    type: integer
+    format: int64
+    required: true
+    example: 14

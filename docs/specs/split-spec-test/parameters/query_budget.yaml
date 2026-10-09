@@ -1,0 +1,10 @@
+name: budget
+in: query
+description: The budget to be distributed in ISK.
+required: true
+schema:
+  type: integer
+  format: int64
+  minimum: 1000000
+  maximum: 1000000000000
+  example: 1000000000

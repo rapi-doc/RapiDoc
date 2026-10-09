@@ -1,0 +1,35 @@
+type: array
+items:
+  type: object
+  properties:
+    id:
+      description: |
+        A unique, numeric ID assigned to this observation record when it was added
+        to the system. This is used for operations addressing a single record.
+      type: integer
+      format: int64
+      example: 4711
+    created_at:
+      description: |
+        The date and time when this observation record was initially created.
+      type: string
+      example: "2023-11-03T11:52:00.000Z"
+    created_by_id:
+      description: |
+        The in-game character ID of the user that initially added this
+        record.
+      type: integer
+      format: int64
+      example: 2119526651
+    system_id:
+      description: |
+        The in-game ID of the system the observed object is located in.
+      type: integer
+      format: int32
+      example: 30000021
+    observation_type:
+      $ref: "./observation_type.yaml"
+    observed_in_person:
+      description: |
+        Flag indicating whether this record was observed in person.
+      type: boolean

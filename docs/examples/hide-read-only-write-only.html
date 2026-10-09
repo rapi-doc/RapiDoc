@@ -1,23 +1,14 @@
 <!doctype html>
   <head>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src='https://www.googletagmanager.com/gtag/js?id=UA-132775238-1'></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+    <script src="./load-rapidoc-and-other-common-scripts.js"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'UA-132775238-1');
-    </script>
-    <meta charset='utf-8'>
-    <meta name='viewport' content='width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes'>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;600&family=Roboto+Mono&display=swap" rel="stylesheet">
-    <script type='text/javascript' src='../rapidoc-min.js'></script>
-    <script>
-      function getRapiDoc(){
+      function getRapiDoc() {
         return document.getElementById("thedoc");
       }
 
-      function toggleSchemaStyle () {
+      function toggleSchemaStyle() {
         if (getRapiDoc().getAttribute('schema-style') === 'table') {
           getRapiDoc().setAttribute('schema-style', 'tree');
         } else {
@@ -40,16 +31,13 @@
         if (optionsStr.trim() === '') {
           getRapiDoc().removeAttribute('schema-hide-read-only');
           getRapiDoc().connectedCallback();
-        }
-        else {
+        } else {
           getRapiDoc().setAttribute('schema-hide-read-only', optionsStr);
         }
       }
 
-      function toggleNeverHideReadOnly(neverBox)
-      {
+      function toggleNeverHideReadOnly(neverBox) {
         const options = document.getElementsByClassName('read-only-option');
-
         if (neverBox.checked) {
           Array.prototype.forEach.call(options, function (el) {
             el.checked = false;
@@ -61,8 +49,7 @@
         }
       }
 
-      function toggleNeverHideWriteOnly(neverBox)
-      {
+      function toggleNeverHideWriteOnly(neverBox) {
         if (neverBox.checked) {
           getRapiDoc().setAttribute('schema-hide-write-only', 'never');
         } else {
@@ -71,49 +58,36 @@
         }
       }
     </script>
-    <style>
-      .btn{
-        width: 70px;
-        height: 70px;
-        background-color: #47AFE8;
-        color: #fff;
-        font-size: 12px;
-        display: block;
-        border: none;
-        margin: 2px;
-        border-radius: 2px;
-        cursor:pointer;
-        outline:none;
-      }
-      rapi-doc{
-        width:100%;
-      }
-    </style>
   </head>
   <body>
     <rapi-doc spec-url="../specs/readOnly-writeOnly.json"
       id="thedoc"
       show-info = "false"
       show-header = "false"
-      render-style = "read"
-      allow-try = "false"
-      schema-style = "table"
-      regular-font = 'Open Sans'
-      mono-font = "Roboto Mono"
       allow-authentication = "false"
-      sort-endpoints-by="summary"
+      allow-server-selection = 'false'
+      allow-try = "false"
+      default-schema-tab = "schema"
+      schema-style = "table"
     >
-      <div style="display:flex; margin:10px; justify-content:center;flex-wrap: wrap;">
-        <button class="btn" onclick="toggleSchemaStyle()">Toggle Schema Style</button>
+      <div style="display:flex; margin:10px 24px; justify-content:center;flex-wrap: wrap;">
+        <button class="btn" style="width:150px" onclick="toggleSchemaStyle()">Toggle Schema Style</button>
       </div>
-      <div style="display:flex; margin:10px; flex-direction: column;"><strong>Hide ReadOnly properties:</strong>
-        <div><input type="checkbox" id="read-only-never" onclick="toggleNeverHideReadOnly(this)" /><label for="read-only-never">Never</label></div>
-        <div><input type="checkbox" class="read-only-option" id="read-only-post" value="post" onclick="toggleReadOnly('post')" /><label for="read-only-post">POST</label></div>
-        <div><input type="checkbox" class="read-only-option" id="read-only-put" value="put" onclick="toggleReadOnly('put')" /><label for="read-only-put">PUT</label></div>
-        <div><input type="checkbox" class="read-only-option" id="read-only-patch" value="patch" onclick="toggleReadOnly('patch')" /><label for="read-only-patch">PATCH</label></div>
-      </div>
-      <div style="display:flex; margin:10px; flex-direction: column;"><strong>Hide WriteOnly properties:</strong>
-        <div><input type="checkbox" id="write-only-never" onclick="toggleNeverHideWriteOnly(this)" /><label for="write-only-never">Never</label></div>
+      <div style="display: flex; margin:10px 24px; flex-direction: column;">
+        <strong>Hide ReadOnly properties:</strong>
+        <div>
+          <input type="checkbox" id="read-only-never" onclick="toggleNeverHideReadOnly(this)" /><label for="read-only-never">Never</label>
+          <input type="checkbox" class="read-only-option" id="read-only-post" value="post" onclick="toggleReadOnly('post')" /><label for="read-only-post">POST</label>
+          <input type="checkbox" class="read-only-option" id="read-only-put" value="put" onclick="toggleReadOnly('put')" /><label for="read-only-put">PUT</label>
+          <input type="checkbox" class="read-only-option" id="read-only-patch" value="patch" onclick="toggleReadOnly('patch')" /><label for="read-only-patch">PATCH</label>
+        </div>
+      </div>  
+      
+      <div style="display:flex; margin:10px 24px; flex-direction: column;">
+        <strong>Hide WriteOnly properties:</strong>
+        <div>
+          <input type="checkbox" id="write-only-never" onclick="toggleNeverHideWriteOnly(this)" /><label for="write-only-never">Never</label>
+        </div>
       </div>
     </rapi-doc>
   </body>

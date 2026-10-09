@@ -1,0 +1,63 @@
+parameters:
+  - $ref: "../../../parameters/path_signature_id.yaml"
+patch:
+  operationId: patchSignature
+  tags: [Signatures]
+  summary: Patch Signature
+  description: |
+    Patch a signature with the data present in the request body.
+
+    The example data shows all possible properties which can be patched.
+  x-badges:
+    - color: orange
+      label: "private"
+  security:
+    - eve-sso: [user]
+  requestBody:
+    description: |
+      The request body should include all properties of the signature that
+      need to be updated.
+    content:
+      application/merge-patch+json:
+        schema:
+          $ref: "../../../schemas/signature_modification.yaml"
+  responses:
+    "200":
+      description: |
+        Following a successful patch, the updated resource representation is
+        returned in the response body.
+      content:
+        application/json:
+          schema:
+            $ref: "../../../schemas/signature_representation.yaml"
+    "400":
+      $ref: "../../../responses/400.yaml"
+    "401":
+      $ref: "../../../responses/401.yaml"
+    "404":
+      $ref: "../../../responses/404.yaml"
+    "503":
+      $ref: "../../../responses/503.yaml"
+delete:
+  operationId: Delete Signature
+  tags: [Signatures]
+  summary: Delete Signature
+  description: |
+    Delete the signature corresponding to `signature-id`. This operation is
+    a "soft-delete", and the resource is not actually removed from the data
+    store. Soft deleted resources are not included in responses to the GET
+    endpoints for the `signature` collection.
+  x-badges:
+    - color: orange
+      label: "private"
+  security:
+    - eve-sso: [user]
+  responses:
+    "204":
+      description: The resource has been deleted.
+    "401":
+      $ref: "../../../responses/401.yaml"
+    "404":
+      $ref: "../../../responses/404.yaml"
+    "503":
+      $ref: "../../../responses/503.yaml"

@@ -1,0 +1,59 @@
+get:
+  parameters:
+    - $ref: "../../parameters/query_system_name_optional.yaml"
+    - name: examples
+      in: query
+      description: |
+        Optional parameter which generates a randomly created result for testing.
+        -1 means the number of returned elements is also random, otherwise it specifies the number of
+        signatures to create.
+
+        ATTENTION: This is available on non-production system only!
+      required: false
+      schema:
+        type: integer
+        minimum: -1
+        maximum: 25
+  operationId: listSignaturesPublic
+  tags: [Signatures]
+  summary: List Public Signatures
+  description: |
+    List all public resources in the `signatures` collection. A `signature`
+    is considered "public" if it has been fully scanned and has not expired
+    or been deleted.
+
+    **NOTES**:
+    - The EOL status of a signature can be determined by its `expires_at` property. If this drops
+      below 4 hours, the wormhole is getting close to its end of life.
+    - To locate the entrance and exit of the wormhole, `wh_exits_outward` can be used. When set to `true`,
+      the wormhole type is on the hub's side (Thera or Turnur) and K162 can be found on the outside.
+  x-badges:
+    - color: green
+      label: "public"
+  responses:
+    "200":
+      description: A list of `signature` resources, may be empty.
+      headers:
+        Cache-Control:
+          description: "The TTL for this resource is 300 seconds"
+          schema:
+            type: string
+            example: "max-age=300"
+        X-Last-Signaleer-Hub-Interaction:
+          description: |
+            The last time one of our scouts interacted with our private Hub Scan Tool, which is the backend data input
+            system used to keep our wormhole signature information up to date.
+
+            When there was no interaction since system startup, this value is 1970-01-01T00:00:00.000Z
+          schema:
+            type: string
+            format: date-time
+            example: "2023-12-05T11:41:45.000Z"
+      content:
+        application/json:
+          schema:
+            $ref: "../../schemas/signatures_representation.yaml"
+    "400":
+      $ref: "../../responses/400.yaml"
+    "503":
+      $ref: "../../responses/503.yaml"

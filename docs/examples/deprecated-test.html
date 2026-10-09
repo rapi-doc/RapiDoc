@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+    <script src="./load-rapidoc-and-other-common-scripts.js"></script>
+  </head>
+  <body>
+    <rapi-doc spec-url="../specs/deprecated-test.yaml"
+      id = "thedoc"
+      show-header = "false"
+      show-info = "false"
+      allow-server-selection = "false"
+      allow-authentication = "false" 
+      render-style = "read"
+    > 
+      <div slot="nav-logo" style="width:100%; display: flex; flex-direction:column;">
+        <div style="text-align: center; padding: 0 0 12px 0; color:#47AFE8"> Schema Display Style </div>
+        <div style="display: flex;justify-content: center; margin: 2px 0">
+          <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('schema-style', 'tree')" >Tree</button>
+          <button class='btn medium' onclick="document.getElementById('thedoc').setAttribute('schema-style', 'table')" >Table</button>
+        </div>
+      </div>
+  </rapi-doc>
+  </body>
+</html>

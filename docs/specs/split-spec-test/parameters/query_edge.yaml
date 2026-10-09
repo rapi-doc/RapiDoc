@@ -1,0 +1,6 @@
+name: edge
+in: query
+description: The filter matching the source or target system class.
+required: false
+schema:
+  $ref: "../schemas/system_class.yaml"

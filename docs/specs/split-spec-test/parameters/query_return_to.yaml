@@ -1,0 +1,15 @@
+name: return_to
+in: query
+description: |
+  Return to this URI following the login process. An optional `status`
+  query string parameter will be added to this URL if there is a
+  problem during login (`status=failed_login`) or logout has been called (`status=logout`).
+
+  Please note, that the URI has to be fully qualified and the hostname has to be one
+  of our supported origins as for the CORS calls. Otherwise the default URIs will be used
+  which just show a simple "ok" text.
+required: true
+schema:
+  type: string
+  format: uri
+example: https://therascan.info/postlogin

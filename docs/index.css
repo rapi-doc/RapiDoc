@@ -45,8 +45,8 @@ h1,h2,h3 {
 
 .mono, code { font-family: 'Roboto Mono', monospace; }
 .bold { font-weight:700; }
-.right{ text-align: right; }
-.left{ text-align: left; }
+.right { text-align: right; }
+.left { text-align: left; }
 .gray { color:#777; }
 .dark-gray { color:#444; }
 .light-gray { color:#aaa; }
@@ -248,9 +248,9 @@ h1,h2,h3 {
 .btn {
   width: 90px;
   height: 32px;
-  padding:2px;
-  font-size:13px;
-  background-color: DodgerBlue;
+  padding: 2px;
+  font-size: 13px;
+  background-color: #008CBA;
   color: #fff;
   border: none;
   margin: 0 2px;
@@ -265,6 +265,12 @@ h1,h2,h3 {
 .btn.small {
   width: 60px;
   height: 24px
+}
+.btn.square {
+  width: 70px;
+  height: 70px;
+  font-size: 12px;
+  line-height: normal;
 }
 
 .txt{

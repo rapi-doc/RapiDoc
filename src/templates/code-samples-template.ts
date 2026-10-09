@@ -8,7 +8,7 @@ import { RapiDocXCodeSample } from '@rapidoc-types';
 export default function codeSamplesTemplate(xCodeSamples: RapiDocXCodeSample[]) {
   return html`
   <section class="table-title" style="margin-top:24px;">CODE SAMPLES</div>
-  <div class="tab-panel col"
+  <div part="tab-panel" class="tab-panel col"
     @click="${
       (e: MouseEvent) => {
         if (!(e.target as HTMLDivElement).classList.contains('tab-btn')) { return; }
@@ -20,8 +20,8 @@ export default function codeSamplesTemplate(xCodeSamples: RapiDocXCodeSample[]) 
         tabContents.forEach((tabBodyEl) => { tabBodyEl.style.display = (tabBodyEl.dataset.tab === clickedTab ? 'block' : 'none'); });
       }
     }">
-    <div class="tab-buttons row" style="width:100;">
-      ${xCodeSamples.map((v, i) => html`<button class="tab-btn ${i === 0 ? 'active' : ''}" data-tab = '${v.lang}${i}' part="btn-tab"> ${v.label || v.lang} </button>`)}
+    <div part="tab-btn-row" class="tab-buttons row" style="width:100;">
+      ${xCodeSamples.map((v, i) => html`<button part="tab-btn" class="tab-btn ${i === 0 ? 'active' : ''}" data-tab = '${v.lang}${i}'> ${v.label || v.lang} </button>`)}
     </div>
     ${xCodeSamples.map((v, i) => html`
       <div class="tab-content m-markdown" style= "display:${i === 0 ? 'block' : 'none'}" data-tab = '${v.lang}${i}'>

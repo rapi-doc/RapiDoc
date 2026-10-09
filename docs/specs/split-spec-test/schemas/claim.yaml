@@ -1,0 +1,13 @@
+type: object
+properties:
+  signature_id:
+    description: |
+      The unique, numeric signature ID.
+    type: integer
+    format: int64
+    example: 1420
+  expires_at:
+    type: date
+    description: |
+      Timestamp when this claim will expire.
+    example: "2023-09-27T12:45:11.000Z"

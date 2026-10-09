@@ -1,0 +1,10 @@
+name: space
+in: query
+description: Filter systems for k- or j-space
+required: false
+schema:
+  type: string
+  enum:
+    - k-space
+    - j-space
+example: k-space

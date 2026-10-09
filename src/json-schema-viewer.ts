@@ -151,6 +151,7 @@ export default class JsonSchemaViewer extends LitElement implements RapiDocJSONS
       InfoStyles,
       css`
       :host {
+        all: initial;
         display:flex;
         flex-direction: column;
         min-width:360px;
@@ -163,6 +164,7 @@ export default class JsonSchemaViewer extends LitElement implements RapiDocJSONS
         color:var(--fg);
         background-color:var(--bg);
         font-family:var(--font-regular);
+        container-type: inline-size;
       }
       .body {
         display:flex;
@@ -228,11 +230,11 @@ export default class JsonSchemaViewer extends LitElement implements RapiDocJSONS
         height: 36px;
         animation: spin 2s linear infinite;
       }
-      @media only screen and (min-width: 768px) {
+      @container (min-width: 768px) {
         .only-large-screen{
           display:block;
         }
-        .only-large-screen-flex{
+        .only-large-screen-flex {
           display:flex;
         }
       }`,
@@ -354,6 +356,9 @@ export default class JsonSchemaViewer extends LitElement implements RapiDocJSONS
         this.sortTags === 'true',
         this.sortSchemas === 'true',
         this.getAttribute('sort-endpoints-by') as 'method' | 'summary' | 'path' | 'none' | '',
+        this.getAttribute('match-paths') as string,
+        this.getAttribute('match-type') as string,
+        this.getAttribute('remove-endpoints-with-badge-label-as') as string,
       );
       this.loading = false;
       this.afterSpecParsedAndValidated(spec);

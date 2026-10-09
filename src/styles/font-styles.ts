@@ -1,14 +1,14 @@
 import { css } from 'lit';
 
 export default css`
-  .hover-bg:hover{
+  .hover-bg:hover {
     background: var(--bg3);
   }
   ::selection {
     background: var(--selection-bg);
     color: var(--selection-fg);
   }
-  .regular-font{ 
+  .regular-font { 
     font-family:var(--font-regular); 
   }
   .mono-font { 
@@ -18,7 +18,7 @@ export default css`
     font-size: calc(var(--font-size-small) + 18px);
     font-weight: normal 
   }
-  .sub-title{ font-size: 20px;}
+  .sub-title{ font-size: 20px; }
   .req-res-title {
     font-family: var(--font-regular);
     font-size: calc(var(--font-size-small) + 4px);
@@ -33,11 +33,11 @@ export default css`
   .regular-font-size { font-size: var(--font-size-regular); }
   .small-font-size { font-size: var(--font-size-small); }
   .upper { text-transform: uppercase; }
-  .primary-text{ color: var(--primary-color); }
+  .primary-text { color: var(--primary-color); }
   .bold-text { font-weight:bold; }
   .gray-text { color: var(--light-fg); }
-  .red-text {color: var(--red)}
-  .blue-text {color: var(--blue)}
+  .red-text { color: var(--red) }
+  .blue-text { color: var(--blue) }
   .multiline {
     overflow: scroll;
     max-height: var(--resp-area-height, 400px);
@@ -53,14 +53,14 @@ export default css`
     color: var(--yellow); 
   }
 
-  h1{ font-family:var(--font-regular); font-size:28px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
-  h2{ font-family:var(--font-regular); font-size:24px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
-  h3{ font-family:var(--font-regular); font-size:18px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
-  h4{ font-family:var(--font-regular); font-size:16px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
-  h5{ font-family:var(--font-regular); font-size:14px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
-  h6{ font-family:var(--font-regular); font-size:14px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
+  h1 { font-family:var(--font-regular); font-size:28px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
+  h2 { font-family:var(--font-regular); font-size:24px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
+  h3 { font-family:var(--font-regular); font-size:18px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
+  h4 { font-family:var(--font-regular); font-size:16px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
+  h5 { font-family:var(--font-regular); font-size:14px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
+  h6 { font-family:var(--font-regular); font-size:14px; padding-top: 10px; letter-spacing:normal; font-weight:normal; }
 
-  h1,h2,h3,h4,h5,h5{
+  h1,h2,h3,h4,h5,h5 {
     margin-block-end: 0.2em;
   }
   p { margin-block-start: 0.5em; }

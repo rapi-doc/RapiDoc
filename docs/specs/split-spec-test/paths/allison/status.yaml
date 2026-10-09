@@ -1,0 +1,20 @@
+get:
+  operationId: allisonStatus
+  security:
+    - allison-auth: []
+  tags: [Allison]
+  summary: Status
+  description: |
+    This endpoint is used to allow an easy way to check the overall status of the API.
+  x-badges:
+    - color: orange
+      label: "private"
+  responses:
+    "200":
+      description: Current status of the API.
+      content:
+        application/json:
+          schema:
+            $ref: "../../schemas/status.yaml"
+    "401":
+      $ref: "../../responses/401.yaml"

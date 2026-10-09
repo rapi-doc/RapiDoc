@@ -1,0 +1,8 @@
+type: object
+properties:
+  donors:
+    description: The donors of the last 30 days.
+    $ref: "./statistics_donors.yaml"
+  daily_goals:
+    description: The daily goals of the last 30 days.
+    $ref: "./statistics_daily_goals.yaml"

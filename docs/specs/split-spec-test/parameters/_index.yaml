@@ -1,0 +1,40 @@
+signatureId:
+  $ref: "./path_signature_id.yaml"
+queryBudget:
+  $ref: "./query_budget.yaml"
+queryDateEnd:
+  $ref: "./query_date_end.yaml"
+queryDateStart:
+  $ref: "./query_date_start.yaml"
+queryDumpType:
+  $ref: "./query_dump_type.yaml"
+queryEdge:
+  $ref: "./query_edge.yaml"
+queryFromSystem:
+  $ref: "./query_from_system.yaml"
+queryIdentifier:
+  $ref: "./query_identifier.yaml"
+queryLatest:
+  $ref: "./query_latest.yaml"
+queryLimit:
+  $ref: "./query_limit.yaml"
+queryPrecision:
+  $ref: "./query_precision.yaml"
+queryRoutingPreference:
+  $ref: "./query_routing_preference.yaml"
+queryReturnTo:
+  $ref: "./query_return_to.yaml"
+querySource:
+  $ref: "./query_source.yaml"
+querySpace:
+  $ref: "./query_space.yaml"
+queryString:
+  $ref: "./query_string.yaml"
+queryTarget:
+  $ref: "./query_target.yaml"
+queryToSystem:
+  $ref: "./query_to_system.yaml"
+systemName:
+  $ref: "./query_system_name_required.yaml"
+trackingType:
+  $ref: "./query_observation_type.yaml"

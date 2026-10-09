@@ -1,0 +1,26 @@
+type: string
+enum:
+  - c1
+  - c2
+  - c3
+  - c4
+  - c5
+  - c6
+  - c10
+  - c11
+  - c12
+  - c13
+  - c14
+  - c15
+  - c16
+  - c17
+  - c18
+  - c25
+  - drone
+  - exit
+  - hs
+  - jove
+  - ls
+  - ns
+  - unknown
+example: c12

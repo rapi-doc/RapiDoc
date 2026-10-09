@@ -1,22 +1,18 @@
 <!doctype html>
 <html>
   <head>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;600&family=Roboto+Mono&display=swap" rel="stylesheet">
-    <script type="module" src="../rapidoc-min.js"></script>
-    <style>
-      rapi-doc{
-        width:100%;
-      }
-    </style>
+    <script src="./load-rapidoc-and-other-common-scripts.js"></script>
   </head>
   <body>
-    <rapi-doc id="thedoc" render-style = "read" allow-try="false" allow-authentication = "false" regular-font="Open Sans" mono-font = "Roboto Mono"> </rapi-doc>
-    
+    <rapi-doc id="thedoc" 
+      render-style = "read" 
+      allow-try="false"
+      allow-authentication = "false" 
+    > </rapi-doc>
     <script>
-      document.addEventListener('DOMContentLoaded', (event) => {
+      document.addEventListener('readystatechange', (event) => {
         let docEl = document.getElementById("thedoc");
         let strSpec = `
         {

@@ -29,7 +29,7 @@ export default css`
   flex-wrap:nowrap;
   word-break:break-word;
 }
-::slotted([slot=nav-logo]){
+::slotted([slot=nav-logo]) {
   padding:16px 16px 0 16px;
 }
 .nav-scroll {

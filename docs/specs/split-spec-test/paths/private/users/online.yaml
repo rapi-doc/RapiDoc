@@ -1,0 +1,61 @@
+get:
+  operationId: getUsersOnlineStatus
+  tags: [Users]
+  summary: Users Online Status
+  description: |
+    Show the status of all pilots online at the moment, which means they have been
+    online while in Thera or Turnur during the last 15 minutes.
+
+    This is supposed to provide an indicator for pilots so they know who's potentially working
+    on signatures at the same time.
+  x-badges:
+    - color: orange
+      label: "private"
+  security:
+    - eve-sso: [user]
+  responses:
+    "200":
+      description: Expected response to a valid request
+      headers:
+        Cache-Control:
+          description: "The TTL for this resource is 60 seconds"
+          schema:
+            type: string
+            example: "max-age=60"
+      content:
+        application/json:
+          schema:
+            $ref: "../../../schemas/users_online.yaml"
+          example:
+            [
+              {
+                "character_id": 96293852,
+                "character_name": "Sky Diamond",
+                "system":
+                  {
+                    "system_id": 30002086,
+                    "system_name": "Turnur",
+                    "region_id": 10000042,
+                    "region_name": "Metropolis",
+                    "system_class": "ls",
+                    "security_status": 0.4,
+                  },
+              },
+              {
+                "character_id": 2119526651,
+                "character_name": "Okamainen al'Anzomi",
+                "system":
+                  {
+                    "system_id": 30002086,
+                    "system_name": "Turnur",
+                    "region_id": 10000042,
+                    "region_name": "Metropolis",
+                    "system_class": "ls",
+                    "security_status": 0.4,
+                  },
+              },
+            ]
+    "401":
+      $ref: "../../../responses/401.yaml"
+    "503":
+      $ref: "../../../responses/503.yaml"

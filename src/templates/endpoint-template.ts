@@ -6,7 +6,7 @@ import '~/components/api-response';
 import codeSamplesTemplate from './code-samples-template';
 import callbackTemplate from './callback-template';
 import { pathSecurityTemplate } from './security-scheme-template';
-import { pathIsInSearch, rapidocApiKey } from '../utils/common-utils';
+import { getMatchedPaths, rapidocApiKey } from '../utils/common-utils';
 import { RapiDocElement, RapiDocPath } from '@rapidoc-types';
 
 function toggleExpand(this: RapiDocElement, path: RapiDocPath) {
@@ -93,7 +93,7 @@ function endpointBodyTemplate(this: RapiDocElement, path: RapiDocPath) {
   <div part="section-endpoint-body-${path.expanded ? 'expanded' : 'collapsed'}" class='endpoint-body ${path.method} ${path.deprecated ? 'deprecated' : ''}'>
     <div class="summary">
       ${path.summary
-        ? html`<div class="title" part="section-endpoint-body-title">${path.summary}<div>`
+        ? html`<div class="title" part="section-endpoint-body-title">${path.summary}</div>`
         : path.shortSummary !== path.description
           ? html`<div class="title" part="section-endpoint-body-title">${path.shortSummary}</div>`
           : ''
@@ -102,7 +102,9 @@ function endpointBodyTemplate(this: RapiDocElement, path: RapiDocPath) {
         ? html`
           <div style="display:flex; flex-wrap:wrap;font-size: var(--font-size-small);">
             ${path.xBadges.map((v) => (
-                html`<span part="endpoint-badge" style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`
+                v.color === 'none'
+                  ? ''
+                  : html`<span part="endpoint-badge" style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`
               ))
             }
           </div>
@@ -154,11 +156,10 @@ function endpointBodyTemplate(this: RapiDocElement, path: RapiDocPath) {
           schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
           schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
           fetch-credentials = "${this.fetchCredentials}"
-          exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, 
-                         btn-clear:btn-clear, btn-clear-resp:btn-clear-resp, file-input:file-input, textbox:textbox, 
-                         textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, anchor:anchor, 
-                         anchor-param-example:anchor-param-example, schema-description:schema-description, 
-                         schema-multiline-toggle:schema-multiline-toggle select:select, btn-tab:btn-tab"
+          exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
+            tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-coontent:tab-content, 
+            file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
+            anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle, select:select"
           > </api-request>
 
           ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
@@ -178,21 +179,21 @@ function endpointBodyTemplate(this: RapiDocElement, path: RapiDocPath) {
           schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
           schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
           selected-status = "${Object.keys(path.responses || {})[0] || ''}"
-          exportparts = "btn:btn, btn-fill:btn-fill, btn-copy:btn-copy, btn-outline:btn-outline, btn-try:btn-try, 
-                        file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, 
-                        textarea-param:textarea-param, anchor:anchor, anchor-param-example:anchor-param-example, 
-                        btn-clear-resp:btn-clear-resp, schema-description:schema-description, 
-                        schema-multiline-toggle:schema-multiline-toggle, btn-tab:btn-tab"
+          exportparts = "btn:btn, btn-fill:btn-fill, btn-copy:btn-copy, btn-outline:btn-outline, btn-try:btn-try, file-input:file-input, 
+            textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, anchor:anchor, anchor-param-example:anchor-param-example, btn-clear-resp:btn-clear-resp,
+            tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-coontent:tab-content, 
+            schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
         > </api-response>
       </div>
   </div>`;
 }
 
-export default function endpointTemplate(this: RapiDocElement, showExpandCollapse = true, showTags = true, pathsExpanded = false) {
+export default function endpointTemplate(this: RapiDocElement, isMini = false, pathsExpanded = false) {
   if (!this.resolvedSpec) { return ''; }
   return html`
-    ${showExpandCollapse
-      ? html`
+    ${isMini
+      ? ''
+      : html`
         <div style="display:flex; justify-content:flex-end;"> 
           <span @click="${(e: MouseEvent) => onExpandCollapseAll(e, 'expand-all')}" style="color:var(--primary-color); cursor:pointer;">
             Expand all
@@ -203,23 +204,37 @@ export default function endpointTemplate(this: RapiDocElement, showExpandCollaps
           </span> 
           &nbsp; sections
         </div>`
-      : ''
     }
     ${this.resolvedSpec.tags?.map((tag) => html`
-      ${showTags
-        ? html` 
+      ${isMini
+        ? html`
+          <div class='section-tag-body'>
+          ${tag.paths.filter((path) => {
+            if (this.searchVal) {
+              return getMatchedPaths(this.searchVal, path, tag.name);
+            }
+            return true;
+            }).map((path) => html`
+            <section id='${path.elementId}' class='m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
+              ${endpointHeadTemplate.call(this, path, pathsExpanded)}      
+              ${pathsExpanded || path.expanded ? endpointBodyTemplate.call(this, path) : ''}
+            </section>`)
+          }
+          </div>
+        `
+        : html` 
           <div class='regular-font section-gap section-tag ${tag.expanded ? 'expanded' : 'collapsed'}'> 
             <div class='section-tag-header' @click="${() => { tag.expanded = !tag.expanded; this.requestUpdate(); }}">
-              <div id='${tag.elementId}' class="sub-title tag" style="color:var(--primary-color)">${tag.displayName}</div>
+              <div id='${tag.elementId}' class="sub-title tag" style="color:var(--primary-color)">${tag.displayName || tag.name}</div>
             </div>
             <div class='section-tag-body'>
               <slot name="${tag.elementId}"></slot>
               <div class="regular-font regular-font-size m-markdown" style="padding-bottom:12px">
                 ${unsafeHTML(marked(tag.description || ''))}
               </div>
-              ${(tag.paths as RapiDocPath[]).filter((v) => {
-                if (this.matchPaths) {
-                  return pathIsInSearch(this.matchPaths, v, this.matchType);
+              ${tag.paths.filter((v) => {
+                if (this.searchVal) {
+                  return getMatchedPaths(this.searchVal, v, tag.name);
                 }
                 return true;
                 }).map((path) => html`
@@ -229,20 +244,6 @@ export default function endpointTemplate(this: RapiDocElement, showExpandCollaps
                 </section>`)
               }
             </div>
-          </div>`
-        : html`
-          <div class='section-tag-body'>
-          ${(tag.paths as RapiDocPath[]).filter((v) => {
-            if (this.matchPaths) {
-              return pathIsInSearch(this.matchPaths, v, this.matchType);
-            }
-            return true;
-            }).map((path) => html`
-            <section id='${path.elementId}' class='m-endpoint regular-font ${path.method} ${pathsExpanded || path.expanded ? 'expanded' : 'collapsed'}'>
-              ${endpointHeadTemplate.call(this, path, pathsExpanded)}      
-              ${pathsExpanded || path.expanded ? endpointBodyTemplate.call(this, path) : ''}
-            </section>`)
-          }
           </div>
         `
       }

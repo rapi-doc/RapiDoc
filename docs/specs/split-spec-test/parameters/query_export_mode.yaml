@@ -1,0 +1,18 @@
+name: export_mode
+in: query
+description: |
+  Mode of the data export.
+
+  **original**
+  All timestamps stay as is, data is not modified.
+
+  **transform**
+  All timestamps get adjusted so the data set will be usable right now. All flags will be reset properly
+  so systems are not deleted and not expired.
+required: true
+schema:
+  type: string
+  enum:
+    - original
+    - transform
+example: original

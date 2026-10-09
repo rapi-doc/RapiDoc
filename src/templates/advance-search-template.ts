@@ -16,6 +16,7 @@ export default function searchByPropertiesModalTemplate(this: RapiDocElement) {
     >
       <span class="advanced-search-options">
         <input
+          id="input-advanced-search-dialog"
           style="width:100%; padding-right:20px;"
           type="text"
           part="textbox textbox-search-dialog"
@@ -55,7 +56,7 @@ export default function searchByPropertiesModalTemplate(this: RapiDocElement) {
         tabindex = '0'
         @click="${
           (e: MouseEvent) => {
-            this.matchPaths = ''; // clear quick filter if applied
+            this.searchVal = ''; // clear quick filter if applied
             this.showAdvancedSearchDialog = false; // Hide Search Dialog
             this.requestUpdate();
             this.scrollToEventTarget(e, true);

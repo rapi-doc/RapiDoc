@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+    <script src="./load-rapidoc-and-other-common-scripts.js"></script>
+  </head>
+  <body>
+    <rapi-doc id = "thedoc"
+      spec-url="../specs/filter-test.yaml" 
+      show-header = "false"
+      show-info = "true"
+      allow-server-selection="false"
+      allow-authentication = "false"
+      render-style = "read"
+      use-path-in-nav-bar = "true"
+      show-method-in-nav-bar = "as-colored-text"
+      match-paths=""
+      match-type="includes"
+      remove-endpoints-with-badge-label-as=""
+    > 
+    <div slot="operations-top" style="display: flex;justify-content: center; margin: 16px">
+      <table style="margin:16px">
+        <tr>
+          <td>
+            complete or partial paths eg: <span class="nono bold">public-path</span>
+          </td>
+          <td>
+            <input id='match-by-path' 
+              class='txt' 
+              value="/public" 
+              type='text' 
+              placeholder='get /public' 
+              spellcheck= "false"
+              style="width:100px"
+            > 
+          </td>
+          <td>
+            <button class='btn' style="width:170px" onclick='applyFilter("match-by-path")'>Show Only Matching Paths</button>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <span>Comma separated badge labels to remove eg: <span class="nono bold">internal,admin-use-only</span></span>
+          </td>
+          <td>
+            <input id='remove-by-badge' 
+              class='txt' 
+              value="internal" 
+              type='text' 
+              placeholder= "internal,admin-use-only"
+              spellcheck="false"
+              style="width:100px"
+            > 
+          </td>
+          <td>
+            <button class='btn' style="width:170px" onclick='applyFilter("remove-by-badge")'>Remove Matching Badges</button>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </rapi-doc>
+  <script>
+    function applyFilter(filterType) {
+      const docEl = document.getElementById('thedoc');
+      const filterText = document.getElementById(filterType).value || "";
+      if (filterType === 'match-by-path') {
+        docEl.setAttribute('remove-endpoints-with-badge-label-as', "");
+        docEl.setAttribute('match-paths', filterText);
+      } else {
+        docEl.setAttribute('remove-endpoints-with-badge-label-as', filterText);
+        docEl.setAttribute('match-paths', "");
+      }
+    }
+  </script>  
+  </body>
+</html>

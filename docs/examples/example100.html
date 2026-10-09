@@ -1,36 +1,11 @@
 <!doctype html>
 <html>
   <head>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-132775238-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'UA-132775238-1');
-    </script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+    <script src="./load-rapidoc-and-other-common-scripts.js"></script>
     <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;600&family=Roboto+Mono&display=swap" rel="stylesheet">
-    <style>
-      .btn{
-        width: 70px;
-        height: 70px;
-        background-color: #47AFE8;
-        color: #fff;
-        font-size: 12px;
-        display: block;
-        border: none;
-        margin: 2px;
-        border-radius: 2px;
-        cursor:pointer;
-        outline:none;
-      }
-      rapi-doc{
-        width:100%;
-      }
-    </style>
     <script type="module" src="../rapidoc-min.js"></script>
     <script>
       function getRapiDoc(){
@@ -137,20 +112,20 @@
   <body>
     <rapi-doc id="thedoc" spec-url="https://petstore.swagger.io/v2/swagger.json" mono-font = "Roboto Mono"> 
       <div style="display:flex; margin:10px; justify-content:center;flex-wrap: wrap;">
-        <button class="btn" onclick="changeAttr('header-color')">Change Header Color</button>
-        <button class="btn" onclick="changeRenderStyle()">Render Style</button>
-        <button class="btn" onclick="changeAttr('heading-text')">Change Heading Text</button>
-        <button class="btn" onclick="changeLogo()">Change Logo</button>
-        <button class="btn" onclick="changeFont()">Change Font</button>
-        <button class="btn" onclick="toggleAttr('show-header')">Toggle Header</button>
-        <button class="btn" onclick="toggleAttr('show-info')">Toggle Info Section</button>
-        <button class="btn" onclick="toggleAttr('allow-authentication')">Toggle Auth Section</button>
-        <button class="btn" onclick="toggleAttr('allow-try')">Toggle Try mode</button>
-        <button class="btn" onclick="toggleTheme()">Change Theme</button>
-        <button class="btn" onclick="changeAttr('spec-url')">Change Spec URL</button>
-        <button class="btn" onclick="toggleAttr('allow-search')">Toggle Search</button>
-        <button class="btn" onclick="toggleAttr('allow-spec-url-load')">Toggle Spec URL Load</button>
-        <button class="btn" onclick="toggleAttr('allow-spec-file-load')">Toggle Spec File Load</button>
+        <button class="btn square" onclick="changeAttr('header-color')">Change Header Color</button>
+        <button class="btn square" onclick="changeRenderStyle()">Render Style</button>
+        <button class="btn square" onclick="changeAttr('heading-text')">Change Heading Text</button>
+        <button class="btn square" onclick="changeLogo()">Change Logo</button>
+        <button class="btn square" onclick="changeFont()">Change Font</button>
+        <button class="btn square" onclick="toggleAttr('show-header')">Toggle Header</button>
+        <button class="btn square" onclick="toggleAttr('show-info')">Toggle Info Section</button>
+        <button class="btn square" onclick="toggleAttr('allow-authentication')">Toggle Auth Section</button>
+        <button class="btn square" onclick="toggleAttr('allow-try')">Toggle Try mode</button>
+        <button class="btn square" onclick="toggleTheme()">Change Theme</button>
+        <button class="btn square" onclick="changeAttr('spec-url')">Change Spec URL</button>
+        <button class="btn square" onclick="toggleAttr('allow-search')">Toggle Search</button>
+        <button class="btn square" onclick="toggleAttr('allow-spec-url-load')">Toggle Spec URL Load</button>
+        <button class="btn square" onclick="toggleAttr('allow-spec-file-load')">Toggle Spec File Load</button>
       </div>
     </rapi-doc>
   </body>

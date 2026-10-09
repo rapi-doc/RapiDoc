@@ -1,0 +1,30 @@
+openapi: 3.1.0
+paths:
+  '/users':
+    post:
+      summary: user
+      description: User.
+      operationId: createUser
+      requestBody:
+        description: Updated user object
+        content:
+          application/json:
+            schema:
+              description: Full Name Description (overrides generic `fullName` description).
+              $ref: '#/components/schemas/fullName'
+        required: true
+components:
+  schemas:
+    name:
+      type: string
+      description: Generic `name` Description 
+    fullName:
+      type: object
+      description: Generic `fullName` Description 
+      properties:
+        firstName:
+          $ref: "#/components/schemas/name"
+          description: firstName Description (overrides generic `name` description).
+        lastName:
+          $ref: "#/components/schemas/name"
+          description: lastName Description (overrides generic `name` description).

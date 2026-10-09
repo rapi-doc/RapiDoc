@@ -103,7 +103,7 @@ export default class JsonTree extends LitElement {
 
   generateTree(data: any, isLast = false): TemplateResult<1> {
     if (data === null) {
-      return html`<div class="null" style="display:inline;">null</div>`;
+      return html`<span class="null">null</span>${isLast ? '' : ','}`;
     }
     if (typeof data === 'object' && (data instanceof Date === false)) {
       const detailType = Array.isArray(data) ? 'array' : 'pure_object';

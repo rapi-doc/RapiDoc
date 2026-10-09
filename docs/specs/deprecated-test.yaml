@@ -1,0 +1,78 @@
+openapi: 3.1.0
+info:
+  title: test
+  version: '1.0'
+servers:
+  - url: 'http://localhost:3000'
+paths:
+  /regular-path:
+    get:
+      summary: Non Deprecated path
+  /deprecated-path:
+    get:
+      summary: Deprecated path
+      deprecated: true
+      parameters:
+        - name: query-param
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: query-param-deprecated
+          in: query
+          deprecated: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Test
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  f1-string:
+                    type: string
+                  f1-string-deprecated:
+                    type: string
+                    deprecated: true
+                  f2-obj-array:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Foo'
+                  f2-obj-array-deprecated:
+                    type: array
+                    deprecated: true
+                    items:
+                      $ref: '#/components/schemas/Foo'
+                  f3-int-array:
+                    type: array
+                    items:
+                      type: integer
+                  f3-int-array-deprecated:
+                    type: array
+                    deprecated: true
+                    items:
+                      type: integer
+                  f4-object:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                  f4-object-deprecated:
+                    type: object
+                    deprecated: true
+                    properties:
+                      id:
+                        type: string
+
+      operationId: get-test
+      description: Test
+components:
+  schemas:
+    Foo:
+      title: Foo
+      type: object
+      properties:
+        id:
+          type: string

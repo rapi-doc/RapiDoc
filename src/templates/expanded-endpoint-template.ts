@@ -90,7 +90,9 @@ export function expandedEndpointBodyTemplate(this: RapiDocElement, path: RapiDoc
           ? html`
             <div style="display:flex; flex-wrap:wrap; margin-bottom: -24px; font-size: var(--font-size-small);">
               ${path.xBadges.map((v) => (
-                  html`<span style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`
+                v.color === 'none'
+                  ? ''
+                  : html`<span style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`
                 ))
               }
             </div>
@@ -152,11 +154,10 @@ export function expandedEndpointBodyTemplate(this: RapiDocElement, path: RapiDoc
           schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
           schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
           fetch-credentials = "${this.fetchCredentials}"
-          exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, 
-                        btn-clear:btn-clear, btn-clear-resp:btn-clear-resp, file-input:file-input, textbox:textbox, 
-                        textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, anchor:anchor, 
-                        anchor-param-example:anchor-param-example, schema-description:schema-description, select:select, 
-                        schema-multiline-toggle:schema-multiline-toggle, btn-tab:btn-tab"
+          exportparts = "wrap-request-btn:wrap-request-btn, btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
+            tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-coontent:tab-content, 
+            file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
+            anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle, select:select"
         > </api-request>
 
         ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
@@ -175,9 +176,9 @@ export function expandedEndpointBodyTemplate(this: RapiDocElement, path: RapiDoc
           schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
           schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
           selected-status = "${Object.keys(path.responses || {})[0] || ''}"
-          exportparts = "btn:btn, btn-response-status:btn-response-status, 
-                        btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy, 
-                        schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle, btn-tab:btn-tab"
+          exportparts = "btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
+            tab-panel:tab-panel, tab-btn:tab-btn, tab-btn-row:tab-btn-row, tab-coontent:tab-content, 
+            schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
         > </api-response>
       </div>
     </div>
@@ -189,7 +190,7 @@ export default function expandedEndpointTemplate(this: RapiDocElement) {
   return html`
   ${this.resolvedSpec?.tags?.map((tag) => html`
     <section id="${tag.elementId}" part="section-tag" class="regular-font section-gap--read-mode observe-me" style="border-top:1px solid var(--primary-color);">
-      <div class="title tag" part="section-tag-title label-tag-title">${tag.displayName}</div>
+      <div class="title tag" part="section-tag-title label-tag-title">${tag.displayName || tag.name}</div>
       <slot name="${tag.elementId}"></slot>
       <div class="regular-font-size">
       ${

@@ -209,20 +209,67 @@ export function getTypeInfo(schema: OpenAPIV3.ReferenceObject | RapiDocSchema) {
   return info;
 }
 
-export function nestExampleIfPresent(
-  example?: boolean | number | string | undefined | any
-) {
-  if (typeof example === 'boolean' || typeof example === 'number') {
-    return {
-      Example: { value: `${example}` },
-    };
+/**
+ *
+ * @param {*} ex  if the value
+ *  - Is an Object with 'value' property  like
+ *      { 'value': 'example_val1', 'description': 'some description' }
+ *    Returns >>>
+ *      {
+ *        'Example': { 'value' : 'example_val1', 'description': 'some description' },
+ *      }
+ *  - Is an object where each key represents a valid example object (i,e has a value property)
+ *      {
+ *        'example1': { 'value' : 'example_val1', 'description': 'some description' },
+ *        'example2': { 'value' : 'example_val2', 'description': 'some other description' },
+ *        'invalid':  { 'description': 'invalid example object without any value property' }
+ *      }
+ *    Returns >>>
+ *      {
+ *        'example1': { 'value' : 'example_val1', 'description': 'some description' },
+ *        'example2': { 'value' : 'example_val2', 'description': 'some other description' }
+ *      }
+ *      if none of the keys represents an object with 'value' property then return undefined
+ *  - Is an array of premitive values
+ *      ['example_val1', 'example_val2']
+ *    Returns >>>
+ *      {
+ *         'Example1': {value:'value1'}
+ *         'Example2': {value:'value2'}
+ *      }
+ *  - Is a premitive value
+ *      'example_val1'
+ *    Returns >>>
+ *      {
+ *        'Example': { 'value': 'example_val1' }
+ *      }
+ *  - Is undefined
+ *    returns undefined
+ * @returns
+ */
+
+export function standardizeExample(ex?: any): RapiDocExamples | undefined {
+  if (typeof ex === 'object' && !Array.isArray(ex)) {
+    if (ex.value !== undefined) {
+      // Case 1: Single object with 'value' property
+      return { Example: { ...ex } } as RapiDocExamples;
+    }
+    // Case 2: Object where each key is an object with a 'value' property
+    const filteredEntries = Object.entries(ex).filter(([_, obj]) => (obj as any).value !== undefined); // eslint-disable-line
+    // If no valid entries found, return JSON.stringify of the input
+    if (filteredEntries.length === 0) {
+      return undefined;
+    }
+    return Object.fromEntries(filteredEntries) as RapiDocExamples;
+  } if (Array.isArray(ex)) {
+    // Case 3: Array of primitive values
+    return ex.reduce((acc: Record<string, any>, value: unknown, index: number) => {
+      acc[`Example${index + 1}`] = { value };
+      return acc;
+    }, {});
   }
-  if (example === '') {
-    return {
-      Example: { value: '' },
-    };
-  }
-  return example ? { Example: { value: example } } : example;
+  // Case 4: Single primitive value
+  return ex ? ({ Example: { value: ex } } as unknown as RapiDocExamples) : undefined;
 }
 
 export interface NormalizedExample {
@@ -411,7 +458,7 @@ export function getSampleValueByType(schemaObj: RapiDocSchema) {
     if (schemaObj.pattern) {
       try {
         return new RandExp(schemaObj.pattern).gen();
-      } catch (error) {
+      } catch {
         return schemaObj.pattern;
       }
     }
@@ -442,12 +489,9 @@ export function getSampleValueByType(schemaObj: RapiDocSchema) {
         case 'ipv6':
           return '2001:0db8:5b96:0000:0000:426f:8e17:642a';
         case 'uuid':
-          return [
-            u.substr(0, 8),
-            u.substr(8, 4),
-            `4000-8${u.substr(13, 3)}`,
-            u.substr(16, 12),
-          ].join('-');
+          return [u.substring(0, 8), u.substring(8, 12), `4000-8${u.substring(13, 16)}`, u.substring(16, 28)].join('-');
+        case 'byte':
+          return 'ZXhhbXBsZQ=='; // 'example' base64 encoded. See https://spec.openapis.org/oas/v3.0.0#data-types
         default:
           return '';
       }
@@ -1261,8 +1305,8 @@ export function schemaInObjectNotation(
 export function generateExample(
   schema: RapiDocSchema,
   mimeType: string,
-  examples: RapiDocExamples | undefined = undefined,
-  example = '',
+  examples: RapiDocExamples | undefined = {},
+  example: any = {},
   includeReadOnly = true,
   includeWriteOnly = true,
   outputType = 'json',
@@ -1289,7 +1333,7 @@ export function generateExample(
               const fixedJsonString = examples[eg].value;
               egContent = JSON.parse(fixedJsonString);
               egFormat = 'json';
-            } catch (err) {
+            } catch {
               egFormat = 'text';
               egContent = examples[eg].value;
             }
@@ -1326,7 +1370,7 @@ export function generateExample(
         try {
           egContent = JSON.parse(example);
           egFormat = 'json';
-        } catch (err) {
+        } catch {
           egFormat = 'text';
           egContent = example;
         }

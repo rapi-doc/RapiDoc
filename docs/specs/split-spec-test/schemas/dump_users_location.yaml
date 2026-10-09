@@ -1,0 +1,27 @@
+type: array
+items:
+  type: object
+  properties:
+    cache_key:
+      description: |
+        Unique key of the object in the cache.
+      type: string
+    ttl:
+      description: |
+        Remaining Time To Live (TTL) of the cache object in milliseconds.
+      type: number
+    solar_system_id:
+      description: |
+        The in-game ID of the system the user is in.
+      type: integer
+      format: int32
+    station_id:
+      description: |
+        The in-game ID of the station the user is in.
+      type: integer
+      format: int32
+    structure_id:
+      description: |
+        The in-game ID of the structure the user is in.
+      type: integer
+      format: int32

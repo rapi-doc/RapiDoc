@@ -27,6 +27,7 @@ paths:
           example: my-id
           schema:
             type: string
+            format: uuid
         - name: height
           in: query
           description: height (in inches)
@@ -215,8 +216,8 @@ components:
           type: string
           minLength: 1
     Id:
-      type: integer
-      format: int64
+      type: string
+      format: uuid
       readOnly: true
     Tag:
       type: object

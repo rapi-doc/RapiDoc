@@ -3,6 +3,9 @@ import { css } from 'lit';
 export default css`
 
 *, *:before, *:after { box-sizing: border-box; }
+:host {
+  container-type: inline-size;
+}
 
 .tr {
   display: flex;
@@ -81,13 +84,13 @@ export default css`
   margin-left: 2px;
 }
 
-.stri, .string, .uri, .url, .byte, .bina, .date, .pass, .ipv4, .ipv4, .uuid, .emai, .host {color:var(--green);}
-.inte, .numb, .number, .int6, .int3, .floa, .doub, .deci .blue {color:var(--blue);}
-.null {color:var(--red);}
-.bool, .boolean{color:var(--orange)}
-.enum {color:var(--purple)}
-.cons {color:var(--purple)}
-.recu {color:var(--brown)}
+.stri, .string, .uri, .url, .byte, .bina, .date, .pass, .ipv4, .ipv4, .uuid, .emai, .host { color:var(--green); }
+.inte, .numb, .number, .int6, .int3, .floa, .doub, .deci .blue { color:var(--blue); }
+.null { color:var(--red); }
+.bool, .boolean { color:var(--orange) }
+.enum { color:var(--purple) }
+.cons { color:var(--purple) }
+.recu { color:var(--brown) }
 .toolbar {
   display:flex;
   width:100%;
@@ -107,11 +110,11 @@ export default css`
 }
 .toolbar-item:first-of-type { margin:0 2px 0 0;}
 
-@media only screen and (min-width: 500px) {
+@container (min-width: 500px) {
   .key-descr {
     display: block;
   }
-  .expanded-descr .key-descr{
+  .expanded-descr .key-descr {
     display: block;
   }
 }

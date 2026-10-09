@@ -1,0 +1,11 @@
+name: signature-id
+in: path
+description: |
+  The signature ID uniquely identifies a signature in the database. This
+  is NOT the in-game signature name, e.g., `ABC-123`, as those are not
+  guaranteed to be unique.
+required: true
+schema:
+  type: integer
+  format: int64
+example: 1420

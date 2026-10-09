@@ -1,0 +1,6 @@
+type: object
+additionalProperties:
+  type: string
+example:
+  dark-mode: on
+  timezone: America/New_York

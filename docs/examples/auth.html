@@ -1,23 +1,12 @@
 <!doctype html>
 <html>
   <head>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-132775238-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'UA-132775238-1');
-    </script>
-
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
-    <script type="module" src="../rapidoc-min.js"></script>
+    <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;600&family=Roboto+Mono&display=swap" rel="stylesheet">
     <style>
       .size { width: 100px; height: 30px;  font-size:13px; margin: 0 2px; padding: 0 8px; border-radius: 2px; outline:none; color: #fff;}
-      .btn { background-color: #2069e0; cursor:pointer; border: 1px solid transparent;}
       .txt {background-color: #2e2e2e; border: 1px solid #2069e0;}
       .table{ border:1px solid #444; border-collapse: collapse;}
       .table td{ font-size:12px; font-family: 'Roboto Mono'; border: 1px solid #444; padding:8px;}
@@ -26,21 +15,19 @@
         background-color: #222;
         border: 1px solid #2069e0;
       }
-      rapi-doc{
-        width:100%;
-      }
     </style>
   </head>
   <body>
     <rapi-doc id="thedoc"
-    spec-url="../specs/auth.yaml"
-    show-info = "true"
-    theme = "dark"
-    render-style="read" 
-    show-header="false" 
+      spec-url="../specs/auth.yaml"
+      show-info = "false"
+      show-header = "false"
+      allow-server-selection = "true"
+      allow-authentication = "true" 
+      render-style="read" 
     >
       <div slot='operations-top'>
-        <div style="font-size:14px; border:0; background-color: #282828; border-radius:4px; padding:16px; margin:16px 75px">
+        <div style="font-size:14px; border:0; border-radius:4px; padding:16px; margin:16px 75px">
           <h3>Programmatically Applying Security and Setting a API Server</h3>
           <div style="color:#777"> 
             *This section is not RapiDoc generated. It is user injected HTML/JS into a <span style="font-family:'Roboto Mono'"> &lt;slot&gt;</span> element to demonstrate how to programatically apply security keys
@@ -49,8 +36,8 @@
           <div style="margin:24px 0 8px 0">
             RapiDoc provides you with two helper methods which you can use to supply security keys programatically. You can use one of these method based on the security scheme type
           </div>
-          <table class="table" style="border:1px solid #444; font-family:'Roboto Mono'">
-            <tr><th>SCHEME-TYPE</th><th>METHOD USED TO UPDATE</th></tr>
+          <table class="table" style="border:1px solid #444; font-family:'Roboto Mono';">
+            <tr> <th>SCHEME-TYPE</th><th>METHOD USED TO UPDATE</th></tr>
             <tr> <td>basic</td><td>setHttpUserNameAndPassword('http-basic', 'newUserName', 'newPassword')</td></tr>
             <tr> <td>other than basic</td><td style="border-bottom: 1px dashed #383838;" rowspan="3">setApiKey('api_key1', 'newApiToken')</td></tr>
           </table>
@@ -80,7 +67,7 @@
                 <input class='size txt' id='http-security-scheme-id' value="http-basic" type='text' placeholder='Security Scheme ID' spellcheck='false' style="width:120px"> 
                 <input class='size txt' id='http-username' type='text' value="new-username"  placeholder='User name' spellcheck='false' > 
                 <input class='size txt' id='http-password' type='text' value="new-pwd"  placeholder='Password' spellcheck='false' > 
-                <button class='size btn' onclick='setSecurity(event, "http")'>Apply</button>
+                <button class='size btn' style="display: inline;" onclick='setSecurity(event, "http")'>Apply</button>
               </td>
             </tr>
             <tr>
@@ -95,7 +82,7 @@
                 </select>
 
                 <input class='size txt' id='api-key-value' type='text' value="new-token"  placeholder='API Key Value' spellcheck='false' > 
-                <button class='size btn' onclick='setSecurity(event, "apikey")'>Apply</button>
+                <button class='size btn' style="display: inline;" onclick='setSecurity(event, "apikey")'>Apply</button>
               </td>
             </tr>
             <tr>
@@ -112,7 +99,7 @@
               <td>
                 <input class='size txt' id='server-url' value="https://reqres.in/api/" type='text' placeholder='A Valid server url thats defined in this spec' spellcheck='false' style="width:290px"> 
               </td>
-              <td colspan="2"><button class='size btn' style="width:110px" onclick='setApiServer(event)'>Set API Server</button></td>
+              <td colspan="2"><button class='size btn' style="width:110px; display: inline;" onclick='setApiServer(event)'>Set API Server</button></td>
             </tr>  
           </table>
         </div>

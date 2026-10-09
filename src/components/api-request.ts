@@ -2,6 +2,7 @@ import { LitElement, html, css, TemplateResult } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { guard } from 'lit/directives/guard.js'; // eslint-disable-line import/extensions
 import { live } from 'lit/directives/live.js'; // eslint-disable-line import/extensions
+import { ifDefined } from 'lit/directives/if-defined.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
 import formatXml from 'xml-but-prettier';
 import Prism from 'prismjs';
@@ -20,7 +21,7 @@ import { schemaInObjectNotation,
   normalizeExamples,
   getSchemaFromParam,
   json2xml,
-  nestExampleIfPresent,
+  standardizeExample,
   anyExampleWithSummaryOrDescription, 
   NormalizedExample
 } from '../utils/schema-utils';
@@ -161,6 +162,9 @@ export default class ApiRequest extends LitElement {
       TabStyles,
       PrismStyles,
       css`
+        :host {
+          container-type: inline-size;
+        }
         *, *:before, *:after { box-sizing: border-box; }
         :where(button, input[type="checkbox"], [tabindex="0"]):focus-visible { box-shadow: var(--focus-shadow); }
         :where(input[type="text"], input[type="password"], select, textarea):focus-visible { border-color: var(--primary-color); }
@@ -245,13 +249,13 @@ export default class ApiRequest extends LitElement {
           opacity: 1;
         }
 
-        @media only screen and (min-width: 768px) {
+        @container (min-width: 768px) {
           .textarea {
             padding:8px;
           }
         }
 
-        @media only screen and (max-width: 470px) {
+        @container (max-width: 470px) {
           .hide-in-small-screen {
             display:none;
           }
@@ -415,7 +419,7 @@ export default class ApiRequest extends LitElement {
       let paramStyle = 'form';
       let paramExplode = true;
       let paramAllowReserved = false;
-      if (paramType === 'query') {
+      if (paramType === 'query' || paramType === 'header' || paramType === 'path') {
         if (param.style && 'form spaceDelimited pipeDelimited'.includes(param.style)) {
           paramStyle = param.style;
         } else if (serializeStyle) {
@@ -430,12 +434,12 @@ export default class ApiRequest extends LitElement {
       }
       // openapi 3.1.0 spec based examples (which must be Object(string : { value:any, summary?: string, description?: string})
       const example = normalizeExamples(
-        (param.examples
-          || nestExampleIfPresent(param.example)
-          || nestExampleIfPresent(mimeTypeElem?.example)
-          || mimeTypeElem?.examples
-          || nestExampleIfPresent(paramSchema.examples)
-          || nestExampleIfPresent(paramSchema.example)
+        (standardizeExample(param.examples)
+          || standardizeExample(param.example)
+          || standardizeExample(mimeTypeElem?.example)
+          || standardizeExample(mimeTypeElem?.examples)
+          || standardizeExample(paramSchema.examples)
+          || standardizeExample(paramSchema.example)
         ),
         paramSchema.type,
       );
@@ -443,8 +447,8 @@ export default class ApiRequest extends LitElement {
         example.exampleVal = generateExample(
           declaredParamSchema,
           serializeStyle || 'json',
-          undefined,
-          '',
+          {},
+          {},
           this.callback === 'true' || this.webhook === 'true' ? true : false, // eslint-disable-line no-unneeded-ternary
           this.callback === 'true' || this.webhook === 'true' ? false : true, // eslint-disable-line no-unneeded-ternary
           'text',
@@ -456,7 +460,10 @@ export default class ApiRequest extends LitElement {
       <tr title="${param.deprecated ? 'Deprecated' : ''}"> 
         <td rowspan="${this.allowTry === 'true' ? '1' : '2'}" style="vertical-align:middle; width:${labelColWidth}; min-width:100px;">
           <div class="param-name ${param.deprecated ? 'deprecated' : ''}" >
-            ${param.deprecated ? html`<span style='color:var(--red);'>✗</span>` : ''}
+            ${param.deprecated
+              ? html`<svg viewBox="0 0 10 10" width="10" height="10" style="stroke:var(--red); margin-right:-6px"><path d="M2 2L8 8M2 8L8 2"/></svg>`
+              : ''
+            }
             ${param.required ? html`<span style='color:var(--red)'>*</span>` : ''}
             ${param.name}
           </div>
@@ -473,6 +480,7 @@ export default class ApiRequest extends LitElement {
               ${paramSchema.type === 'array'
                 ? html`
                   <tag-input class="request-param" 
+                    id = "tag-input-request-param-${param.name}"
                     style = "width:100%" 
                     data-ptype = "${paramType}"
                     data-pname = "${param.name}"
@@ -491,19 +499,19 @@ export default class ApiRequest extends LitElement {
                   </tag-input>`
                 : paramSchema.type === 'object'
                   ? html`
-                    <div class="tab-panel col" style="border-width:0 0 1px 0;">
-                      <div class="tab-buttons row" @click="${(e: MouseEvent) => {
+                    <div part="tab-panel" class="tab-panel col" style="border-width:0 0 1px 0;">
+                      <div part="tab-btn-row" class="tab-buttons row" @click="${(e: MouseEvent) => {
                         if ((e.target as HTMLElement).tagName.toLowerCase() === 'button') {
                           const newState = { ...this.activeParameterSchemaTabs };
                           newState[param.name] = (e.target as HTMLElement).dataset.tab;
                           this.activeParameterSchemaTabs = newState;
                         }
                       }}">
-                        <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] === 'example' ? 'active' : ''}" data-tab = 'example' part="btn-tab">EXAMPLE </button>
-                        <button class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab = 'schema' part="btn-tab">SCHEMA</button>
+                        <button part="tab-btn" class="tab-btn ${this.activeParameterSchemaTabs[param.name] === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
+                        <button part="tab-btn" class="tab-btn ${this.activeParameterSchemaTabs[param.name] !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
                       </div>
                       ${this.activeParameterSchemaTabs[param.name] === 'example'
-                        ? html`<div class="tab-content col">
+                        ? html`<div part="tab-content" class="tab-content col">
                           <textarea 
                             class = "textarea request-param"
                             part = "textarea textarea-param"
@@ -524,7 +532,7 @@ export default class ApiRequest extends LitElement {
                           ></textarea>
                         </div>`
                         : html`
-                          <div class="tab-content col">
+                          <div part="tab-content" class="tab-content col">
                             <schema-tree
                               class = 'json'
                               style = 'display: block'
@@ -544,6 +552,7 @@ export default class ApiRequest extends LitElement {
                     </div>`
                   : html`
                     <input type="${paramSchema.format === 'password' ? 'password' : 'text'}" spellcheck="false" style="width:100%" 
+                      id="input-request-param-${param.name}"
                       class="request-param"
                       part="textbox textbox-param"
                       data-ptype="${paramType}"
@@ -705,8 +714,8 @@ export default class ApiRequest extends LitElement {
           reqBodyExamples = generateExample(
             reqBody.schema as RapiDocSchema,
             reqBody.mimeType,
-            reqBody.examples as RapiDocExamples,
-            reqBody.example,
+            standardizeExample(reqBody.examples) as RapiDocExamples,
+            standardizeExample(reqBody.example),
             this.callback === 'true' || this.webhook === 'true' ? true : false, // eslint-disable-line no-unneeded-ternary
             this.callback === 'true' || this.webhook === 'true' ? false : true, // eslint-disable-line no-unneeded-ternary
             'text',
@@ -789,7 +798,7 @@ export default class ApiRequest extends LitElement {
         if (reqBody.mimeType === this.selectedRequestBodyType) {
           reqBodyFileInputHtml = html`
             <div class = "small-font-size bold-text row">
-              <input type="file" part="file-input" style="max-width:100%" class="request-body-param-file" data-ptype="${reqBody.mimeType}" spellcheck="false" />
+              <input id="input-request-body-param-file" type="file" part="file-input" style="max-width:100%" class="request-body-param-file" data-ptype="${reqBody.mimeType}" spellcheck="false" />
             </div>  
           `;
         }
@@ -844,13 +853,13 @@ export default class ApiRequest extends LitElement {
         
         ${(this.selectedRequestBodyType.includes('json') || this.selectedRequestBodyType.includes('xml') || this.selectedRequestBodyType.includes('text') || this.selectedRequestBodyType.includes('jose'))
           ? html`
-            <div class="tab-panel col" style="border-width:0 0 1px 0;">
-              <div class="tab-buttons row" @click="${(e: MouseEvent) => { if ((e.target as HTMLElement).tagName.toLowerCase() === 'button') { this.activeSchemaTab = (e.target as HTMLElement).dataset.tab; } }}">
-                <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example' part="btn-tab">EXAMPLE</button>
-                <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' part="btn-tab">SCHEMA</button>
+            <div part="tab-panel" class="tab-panel col" style="border-width:0 0 1px 0;">
+              <div part="tab-btn-row" class="tab-buttons row" @click="${(e: MouseEvent) => { if ((e.target as HTMLElement).tagName.toLowerCase() === 'button') { this.activeSchemaTab = (e.target as HTMLElement).dataset.tab; } }}">
+                <button part="tab-btn" class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE</button>
+                <button part="tab-btn" class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema'>SCHEMA</button>
               </div>
-              ${html`<div class="tab-content col" style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'};"> ${reqBodyExampleHtml}</div>`}
-              ${html`<div class="tab-content col" style="display:${this.activeSchemaTab === 'example' ? 'none' : 'block'};"> ${reqBodySchemaHtml}</div>`}
+              ${html`<div part="tab-content" class="tab-content col" style="display:${this.activeSchemaTab === 'example' ? 'block' : 'none'};"> ${reqBodyExampleHtml}</div>`}
+              ${html`<div part="tab-content" class="tab-content col" style="display:${this.activeSchemaTab === 'example' ? 'none' : 'block'};"> ${reqBodySchemaHtml}</div>`}
             </div>`
           : html`  
             ${reqBodyFileInputHtml}
@@ -866,8 +875,8 @@ export default class ApiRequest extends LitElement {
     const formdataPartExample = generateExample(
       fieldSchema,
       'json',
-      fieldSchema.examples as RapiDocExamples,
-      fieldSchema.example,
+      standardizeExample(fieldSchema.examples) as RapiDocExamples,
+      standardizeExample(fieldSchema.example),
       this.callback === 'true' || this.webhook === 'true' ? true : false, // eslint-disable-line no-unneeded-ternary
       this.callback === 'true' || this.webhook === 'true' ? false : true, // eslint-disable-line no-unneeded-ternary
       'text',
@@ -875,7 +884,7 @@ export default class ApiRequest extends LitElement {
     );
 
     return html`
-      <div class="tab-panel row" style="min-height:220px; border-left: 6px solid var(--light-border-color); align-items: stretch;">
+      <div part="tab-panel" class="tab-panel row" style="min-height:220px; border-left: 6px solid var(--light-border-color); align-items: stretch;">
         <div style="width:24px; background-color:var(--light-border-color)">
           <div class="row" style="flex-direction:row-reverse; width:160px; height:24px; transform:rotate(270deg) translateX(-160px); transform-origin:top left; display:block;" @click="${(e: MouseEvent) => {
           if ((e.target as HTMLElement).classList.contains('v-tab-btn')) {
@@ -916,7 +925,7 @@ export default class ApiRequest extends LitElement {
       ${html`
         <div class="tab-content col" data-tab = 'schema' style="display:${this.activeSchemaTab !== 'example' ? 'block' : 'none'}; padding-left:5px; width:100%;"> 
           <schema-tree
-            .data = '${formdataPartSchema}'
+            .data = "${formdataPartSchema}"
             schema-expand-level = "${this.schemaExpandLevel}"
             schema-description-expanded = "${this.schemaDescriptionExpanded}"
             allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
@@ -1080,7 +1089,7 @@ export default class ApiRequest extends LitElement {
   curlSyntaxTemplate(display = 'flex') {
     return html`
       <div class="col m-markdown" style="flex:1; display:${display}; position:relative; max-width: 100%;">
-        <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e: MouseEvent) => { copyToClipboard(this.curlSyntax.replace(/\\$/, ''), e); }}' part="btn btn-copy"> Copy </button>
+        <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e: MouseEvent) => { copyToClipboard(this.curlSyntax.trim().replace(/\\$/, ''), e); }}' part="btn btn-copy"> Copy </button>
         <pre style="white-space:pre"><code>${unsafeHTML(Prism.highlight(this.curlSyntax.trim().replace(/\\$/, ''), Prism.languages.shell, 'shell'))}</code></pre>
       </div>
       `;
@@ -1112,22 +1121,22 @@ export default class ApiRequest extends LitElement {
         <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
       </div>
       ${this.responseStatus !== 'success' ? '': html`
-        <div class="tab-panel col" style="border-width:0 0 1px 0;">
-          <div id="tab_buttons" class="tab-buttons row" @click="${(e: MouseEvent) => {
+        <div part="tab-panel" class="tab-panel col" style="border-width:0 0 1px 0;">
+          <div id="tab_buttons" part="tab-btn-row" class="tab-buttons row" @click="${(e: MouseEvent) => {
               if ((e.target as HTMLElement).classList.contains('tab-btn') === false) { return; }
               this.activeResponseTab = (e.target as HTMLElement).dataset.tab as "response" | "headers" | "curl" | undefined;
           }}">
-            <button class="tab-btn ${this.activeResponseTab === 'response' ? 'active' : ''}" data-tab = 'response' part="btn-tab"> RESPONSE</button>
-            <button class="tab-btn ${this.activeResponseTab === 'headers' ? 'active' : ''}"  data-tab = 'headers' part="btn-tab"> RESPONSE HEADERS</button>
+            <button part="tab-btn" class="tab-btn ${this.activeResponseTab === 'response' ? 'active' : ''}" data-tab = 'response'> RESPONSE</button>
+            <button part="tab-btn" class="tab-btn ${this.activeResponseTab === 'headers' ? 'active' : ''}"  data-tab = 'headers'> RESPONSE HEADERS</button>
             ${this.showCurlBeforeTry === 'true'
               ? ''
-              : html`<button class="tab-btn ${this.activeResponseTab === 'curl' ? 'active' : ''}" data-tab = 'curl' part="btn-tab">CURL</button>`}
+              : html`<button part="tab-btn" class="tab-btn ${this.activeResponseTab === 'curl' ? 'active' : ''}" data-tab = 'curl'>CURL</button>`}
           </div>
           ${this.responseIsBlob
             ? html`
-              <div class="tab-content col" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};">
+              <div part="tab-content" class="tab-content col" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};">
                 ${this.responseBlobType === 'image'
-                  ? html`<img style="max-height:var(--resp-area-height, 400px); object-fit:contain;" class="mar-top-8" src="${this.responseBlobUrl}"></img>`
+                  ? html`<img style="max-height:var(--resp-area-height, 400px); object-fit:contain;" class="mar-top-8" src="${ifDefined(this.responseBlobUrl)}"></img>`
                   : ''
                 }  
                 <button class="m-btn thin-border mar-top-8" style="width:135px" @click='${() => { downloadResource(this.responseBlobUrl, this.respContentDisposition); }}' part="btn btn-outline">
@@ -1139,12 +1148,12 @@ export default class ApiRequest extends LitElement {
                 }
               </div>`
             : html`
-              <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};" >
+              <div part="tab-content" class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};" >
                 <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${(e: MouseEvent) => { copyToClipboard(this.responseText, e); }}' part="btn btn-copy"> Copy </button>
                 <pre style="white-space:pre; min-height:50px; height:var(--resp-area-height, 400px); resize:vertical; overflow:auto">${responseContent}</pre>
               </div>`
           }
-          <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};" >
+          <div part="tab-content" class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};" >
             <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e: MouseEvent) => { copyToClipboard(this.responseHeaders, e); }}' part="btn btn-copy"> Copy </button>
             <pre style="white-space:pre"><code>${unsafeHTML(Prism.highlight(this.responseHeaders, Prism.languages.css, 'css'))}</code></pre>
           </div>
@@ -1154,18 +1163,8 @@ export default class ApiRequest extends LitElement {
   }
 
   apiCallTemplate() {
-    let selectServerDropdownHtml: string | TemplateResult<1> = '';
-
-    if (this.servers && this.servers.length > 0) {
-      selectServerDropdownHtml = html`
-        <select style="min-width:100px;" @change='${(e: MouseEvent) => { this.serverUrl = (e.target as HTMLInputElement).value; }}' part="select">
-          ${this.servers.map((v) => html`<option value = "${v.url}"> ${v.url} - ${v.description} </option>`)}
-        </select>
-      `;
-    }
     const selectedServerHtml = html`
       <div style="display:flex; flex-direction:column;">
-        ${selectServerDropdownHtml}
         ${this.serverUrl
           ? html`
             <div style="display:flex; align-items:baseline;">
@@ -1195,7 +1194,7 @@ export default class ApiRequest extends LitElement {
                       : `${this.api_keys.length} API keys applied`
                     } 
                   </div>`
-                : html`<div class="gray-text">Required  <span style="color:var(--red)">(None Applied)</span>`
+                : html`<div class="gray-text">Required  <span style="color:var(--red)">(None Applied)</span> </div>`
               }`
             : html`<span class="gray-text"> Not Required </span>`
           }
@@ -1335,7 +1334,7 @@ export default class ApiRequest extends LitElement {
               }
             }
           }
-        } catch (err) {
+        } catch {
           console.error('RapiDoc: unable to parse %s into object', el.value); // eslint-disable-line no-console
         }
         if (queryParam.toString()) {
@@ -1373,7 +1372,7 @@ export default class ApiRequest extends LitElement {
 
   buildFetchHeaders(requestPanelEl: HTMLElement): Headers {
     const respEl: ApiResponse = this.closest('.expanded-req-resp-container, .req-resp-container')?.getElementsByTagName('api-response')[0] as ApiResponse;
-    const headerParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='header']")] as HTMLInputElement[];
+    const headerParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='header'], [data-ptype='header-object']")] as HTMLInputElement[];
     const requestBodyContainerEl = requestPanelEl.querySelector('.request-body-container') as HTMLElement;
     const acceptHeader = respEl?.selectedMimeType;
     const reqHeaders = new Headers();
@@ -1394,7 +1393,38 @@ export default class ApiRequest extends LitElement {
     // Add Header Params
     headerParamEls.map((el) => {
       if (el.value) {
-        reqHeaders.append(el.dataset.pname as string, el.value);
+        if (el.dataset.ptype === 'header-object') {
+          /* CONVERT
+            a header value from below object style
+              {
+                "key1": "val1",
+                "key2": {
+                  "key2_1": "val2_1",
+                  "key2_2": {
+                    "key2_2_1": "val2_2_1"
+                  }
+                },
+                "key3": "val3"
+              };
+
+            TO >>>
+              key1=val1, key2={"key2_1":"val2_1","key2_2":{"key2_2_1":"val2_2_1"}}, key3=val3
+          */
+          const headerObjVal = JSON.parse(el.value.replace(/\n/g, '').trim());
+          const firstLevelKeySeparator = el.dataset.paramSerializeExplode === 'true' ? '=' : ',';
+          const headerStrVal = Object.keys(headerObjVal)
+            .map((key) => {
+              const value = headerObjVal[key];
+              if (typeof value === 'object') {
+                return `${key}${firstLevelKeySeparator}${JSON.stringify(value)}`;
+              }
+              return `${key}${firstLevelKeySeparator}${value}`;
+            })
+            .join(',');
+          reqHeaders.append(el.dataset.pname as string, headerStrVal);
+        } else {
+          reqHeaders.append(el.dataset.pname as string, el.value);
+        }
       }
     });
 
@@ -1406,7 +1436,6 @@ export default class ApiRequest extends LitElement {
         reqHeaders.append('Content-Type', requestBodyType as string);
       }
     }
-
     return reqHeaders;
   }
 
@@ -1552,11 +1581,12 @@ export default class ApiRequest extends LitElement {
         respHeadersObj[hdr] = hdrVal;
         this.responseHeaders = `${this.responseHeaders}${hdr}: ${hdrVal}\n`;
       });
-      const contentType = fetchResponse.headers.get('content-type');
+      let contentType = fetchResponse.headers.get('content-type');
       const respEmpty = (await fetchResponse.clone().text()).length === 0;
       if (respEmpty) {
         this.responseText = '';
       } else if (contentType) {
+        contentType = contentType.split(';')[0].trim();
         if (contentType === 'application/x-ndjson') {
           this.responseText = await fetchResponse.text();
         } else if (contentType.includes('json')) {
@@ -1594,8 +1624,21 @@ export default class ApiRequest extends LitElement {
           }
         }
         if (this.responseIsBlob) {
-          const contentDisposition = fetchResponse.headers.get('content-disposition');
-          this.respContentDisposition = contentDisposition ? contentDisposition.split('filename=')[1].replace(/"|'/g, '') : 'filename';
+          const contentDisposition = fetchResponse.headers.get('content-disposition') || '';
+          let filenameFromContentDeposition = 'filename';
+          if (contentDisposition) {
+            const filenameStarRegexMatch = contentDisposition.match(/filename\*=\s*UTF-8''([^;]+)/); // Support Headers like >>> Content-Disposition: attachment; filename*=UTF-8''example%20file.pdf
+            if (filenameStarRegexMatch) {
+              filenameFromContentDeposition = decodeURIComponent(filenameStarRegexMatch[1]); // the filename* format in the Content-Disposition header follows RFC 5987, which allows encoding non-ASCII characters using percent encoding. so example%20file.pdf becomes example file.pdf
+            } else {
+              // Fallback to the regular filename format
+              const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/); // Content-Disposition: attachment; filename=example.pdf
+              if (filenameMatch) {
+                filenameFromContentDeposition = filenameMatch[1];
+              }
+            }
+          }
+          this.respContentDisposition = filenameFromContentDeposition;
           respBlob = await fetchResponse.blob();
           this.responseBlobUrl = URL.createObjectURL(respBlob);
         }
@@ -1689,7 +1732,7 @@ export default class ApiRequest extends LitElement {
       fetchHeaders.set(key, tempHeaderArray.join(', '));
     });
 
-    curlHeaders = Array.from(fetchHeaders).map(([key, value]) => ` -H "${key}: ${value}"`).join('\\\n');
+    curlHeaders = Array.from(fetchHeaders).map(([key, value]) => ` -H '${key}: ${value}'`).join('\\\n');
     if (curlHeaders) {
       curlHeaders = `${curlHeaders} \\\n`;
     }
@@ -1721,7 +1764,7 @@ export default class ApiRequest extends LitElement {
         if (requestBodyType.includes('json')) {
           try {
             curlData = ` -d '${JSON.stringify(JSON.parse(exampleTextAreaEl.value))}' \\\n`;
-          } catch (err) {
+          } catch {
             // Ignore.
           }
         }

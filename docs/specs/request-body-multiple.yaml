@@ -4,6 +4,40 @@ info:
   description:  Request Body
   version: 1.0.0
 paths:
+  /request-body-as-string:
+    post:
+      summary: Test RequestBody as string
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: string
+            examples:
+              - one
+              - two  
+
+  /request-body-as-integer:
+    post:
+      summary: Test RequestBody as integer
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: integer
+            examples:
+              - 1
+              - 2  
+  /test-request-as-array-of-string:
+    post:
+      summary: Test RequestBody as array of string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+              
   /item-price:
     post:
       summary: Multiple Request body

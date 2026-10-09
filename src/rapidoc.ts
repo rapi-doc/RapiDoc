@@ -23,7 +23,7 @@ import NavStyles from './styles/nav-styles';
 import InfoStyles from './styles/info-styles';
 import CustomStyles from './styles/custom-styles';
 // import { expandCollapseNavBarTag } from '@/templates/navbar-template';
-import { advancedSearch, pathIsInSearch, componentIsInSearch, rapidocApiKey, sleep } from './utils/common-utils';
+import { advancedSearch, getMatchedPaths, getMatchedComponents, rapidocApiKey, sleep } from './utils/common-utils';
 import ProcessSpec from './utils/spec-parser';
 import mainBodyTemplate from './templates/main-body-template';
 import { applyApiKey, onClearAllApiKeys } from './templates/security-scheme-template';
@@ -261,6 +261,9 @@ export default class RapiDoc extends LitElement implements RapiDocElement {
   @property({ type: String, attribute: 'match-type' })
   public matchType?: string; 
 
+  @property({ type: String, attribute: 'remove-endpoints-with-badge-label-as' })
+  public removeEndpointsWithBadgeLabelAs?: string;
+
   // Internal Properties
   // indicates spec is being loaded
   
@@ -271,6 +274,9 @@ export default class RapiDoc extends LitElement implements RapiDocElement {
   @property({ type: String },)
   public focusedElementId?: string;
   
+  @property({ type: String })
+  public searchVal?: string;
+
   @property({ type: Boolean })
   public showAdvancedSearchDialog?: boolean;
   
@@ -314,6 +320,7 @@ export default class RapiDoc extends LitElement implements RapiDocElement {
       InfoStyles,
       css`
       :host {
+        all: initial;
         display:flex;
         flex-direction: column;
         min-width:360px;
@@ -326,10 +333,11 @@ export default class RapiDoc extends LitElement implements RapiDocElement {
         color:var(--fg);
         background-color:var(--bg);
         font-family:var(--font-regular);
+        container-type: inline-size;
       }
       :where(button, input[type="checkbox"], [tabindex="0"]):focus-visible { box-shadow: var(--focus-shadow); }
       :where(input[type="text"], input[type="password"], select, textarea):focus-visible { border-color: var(--primary-color); }
-    .body {
+      .body {
         display:flex;
         height:100%;
         width:100%;
@@ -374,11 +382,11 @@ export default class RapiDoc extends LitElement implements RapiDocElement {
         cursor: n-resize;
         padding: 12px 0;
       }
-      .collapsed .section-tag-header:hover{
+      .collapsed .section-tag-header:hover {
         cursor: s-resize;
       }
 
-      .section-tag-header:hover{
+      .section-tag-header:hover {
         background-image: linear-gradient(to right, rgba(0,0,0,0), var(--border-color), rgba(0,0,0,0));
       }
 
@@ -413,7 +421,7 @@ export default class RapiDoc extends LitElement implements RapiDocElement {
         margin-left:5px; 
       }
       .only-large-screen-flex,
-      .only-large-screen{
+      .only-large-screen {
         display:none;
       }
       .tag.title {
@@ -533,15 +541,15 @@ export default class RapiDoc extends LitElement implements RapiDocElement {
         background-color: var(--yellow); 
       }
 
-      @media only screen and (min-width: 768px) {
+      @container (min-width: 768px) {
         .nav-bar {
           width: 260px;
           display:flex;
         }
-        .only-large-screen{
+        .only-large-screen {
           display:block;
         }
-        .only-large-screen-flex{
+        .only-large-screen-flex {
           display:flex;
         }
         .section-gap { 
@@ -559,7 +567,7 @@ export default class RapiDoc extends LitElement implements RapiDocElement {
         }
       }
 
-      @media only screen and (min-width: 1024px) {
+      @container (min-width: 1024px) {
         .nav-bar {
           width: ${unsafeCSS(this.fontSize === 'default' ? '300px' : this.fontSize === 'large' ? '315px' : '330px')};
           display:flex;
@@ -671,9 +679,11 @@ export default class RapiDoc extends LitElement implements RapiDocElement {
     if (!this.showComponents || !'true false'.includes(this.showComponents)) { this.showComponents = 'false'; }
     if (!this.infoDescriptionHeadingsInNavBar || !'true, false,'.includes(`${this.infoDescriptionHeadingsInNavBar},`)) { this.infoDescriptionHeadingsInNavBar = 'false'; }
     if (!this.fetchCredentials || !'omit, same-origin, include,'.includes(`${this.fetchCredentials},`)) { this.fetchCredentials = ''; }
-    if (!this.matchType || !'includes regex'.includes(this.matchType)) { this.matchType = 'includes'; }
     if (!this.scrollBehavior || !'smooth, auto,'.includes(`${this.scrollBehavior},`)) { this.scrollBehavior = 'auto'; }
 
+    if (!this.matchType || !'includes regex'.includes(this.matchType)) { this.matchType = 'includes'; }
+    if (!this.matchPaths) { this.matchPaths = ''; }
+    if (!this.removeEndpointsWithBadgeLabelAs) { this.removeEndpointsWithBadgeLabelAs = ''; }
     if (!this.showAdvancedSearchDialog) { this.showAdvancedSearchDialog = false; }
 
     if (!this.cssFile) { this.cssFile = null; }
@@ -735,6 +745,13 @@ export default class RapiDoc extends LitElement implements RapiDocElement {
           if (this.gotoPath && !window.location.hash) {
             this.scrollToPath(this.gotoPath);
           }
+        }, 0);
+      }
+    }
+    if (name === 'match-paths' || name === 'match-type' || name === 'remove-endpoints-with-badge-label-as') {
+      if (oldVal !== newVal) {
+        window.setTimeout(async () => {
+          await this.loadSpec(this.specUrl as string);
         }, 0);
       }
     }
@@ -829,18 +846,17 @@ export default class RapiDoc extends LitElement implements RapiDocElement {
   }
 
   onSearchChange(e: Event) {
-    this.matchPaths = (e.target as HTMLInputElement).value;
-    this.resolvedSpec?.tags?.forEach((tag) => tag.paths.filter((v) => {
-      if (this.matchPaths) {
-        // v.expanded = false;
-        if (pathIsInSearch(this.matchPaths, v, this.matchType)) {
+    this.searchVal = (e.target as HTMLInputElement).value;
+    this.resolvedSpec?.tags?.forEach((tag) => tag.paths.filter((path) => {
+      if (this.searchVal) {
+        if (getMatchedPaths(this.searchVal, path, tag.name)) {
           tag.expanded = true;
         }
       }
     }));
     this.resolvedSpec?.components?.forEach((component) => component.subComponents.filter((v) => {
       v.expanded = false;
-      if (!this.matchPaths || componentIsInSearch(this.matchPaths, v)) {
+      if (getMatchedComponents(this.searchVal as string, v)) {
         v.expanded = true;
       }
     }));
@@ -850,7 +866,7 @@ export default class RapiDoc extends LitElement implements RapiDocElement {
   onClearSearch() {
     const searchEl = this.shadowRoot?.getElementById('nav-bar-search') as HTMLInputElement;
     searchEl.value = '';
-    this.matchPaths = '';
+    this.searchVal = '';
     this.resolvedSpec?.components?.forEach((component) => component.subComponents.filter((v) => {
       v.expanded = true;
     }));
@@ -875,7 +891,7 @@ export default class RapiDoc extends LitElement implements RapiDocElement {
     if (!specUrl) {
       return;
     }
-    this.matchPaths = '';
+    this.searchVal = '';
     try {
       this.resolvedSpec = {
         specLoadError: false,
@@ -895,6 +911,9 @@ export default class RapiDoc extends LitElement implements RapiDocElement {
         this.getAttribute('api-key-location') as string,
         this.getAttribute('api-key-value') as string,
         this.getAttribute('server-url') as string,
+        this.matchPaths as string,
+        this.matchType as string,
+        this.removeEndpointsWithBadgeLabelAs as string,
       );
       this.loading = false;
       this.afterSpecParsedAndValidated(spec);

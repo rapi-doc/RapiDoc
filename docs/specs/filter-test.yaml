@@ -1,0 +1,73 @@
+openapi: 3.0.0
+info:
+  title: Filtering Endpoints
+  description: |
+    Test case to check if the Endpoints are removed using `match-paths` and `remove-endpoints-with-badge-label-as` attributes
+
+    ```html
+      <!-- Only loads the paths which has `users` in it -->
+      <rapi-doc spec-url = "..." match-paths = "users" />
+
+      <!-- Only loads the paths that matches `get /users` so `post /users` wont be loaded -->
+      <rapi-doc spec-url = "..." match-paths = "get /users" />
+
+      <!-- loads the paths using regex matches `^get /users/|^put /users/$` (starts with 'get /users' or 'put /users') -->
+      <rapi-doc spec-url = "..." match-paths = "^get /users|^put /users" match-type = "regex"/>
+
+      <!-- Removes the paths which has badge lable `internal` or `admin-use-only` -->
+      <rapi-doc spec-url = "..." remove-endpoints-with-badge-label-as = "internal,admin-use-only"/>
+    ```   
+paths:
+  /internal-path-1:
+    get:
+      x-badges:
+      - color: red
+        label: Internal
+      - color: blue
+        label: Beta
+    put:
+      x-badges:
+      - color: red
+        label: Internal
+      - color: green
+        label: Core
+  /internal-path-2:
+    get:
+      x-badges:
+      - color: red
+        label: Internal
+    post:
+      x-badges:
+      - color: red
+        label: Internal
+      - color: green
+        label: Core
+  /public-path-1:
+    get:
+      summary: An Endpoint with no badge
+  /public-path-2:
+    get:
+      x-badges:
+      - color: green
+        label: Preffered
+  /admin-use-only-path-1:
+    get:
+      summary: Slow API for Admin's use only
+      description: Contains a badge `admin-use-only` and `Slow` but notice that `admin-use-only` do not show up in the UI as the badge-color is set to `none`
+      x-badges:
+      - color: none
+        label: admin-use-only
+      - color: orange
+        label: Slow
+  /admin-use-only-path-2:
+    get:
+      summary: Slow API for Admin's use only
+      description: Contains a badge `admin-use-only` and `Slow` but notice that `admin-use-only` do not show up in the UI as the badge-color is set to `none`
+      x-badges:
+      - color: none
+        label: admin-use-only
+      - color: orange
+        label: Slow
+  /no-badges-path:
+    get:
+      summary: Endpoint with No badges

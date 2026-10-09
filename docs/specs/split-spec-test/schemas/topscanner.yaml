@@ -1,0 +1,22 @@
+type: object
+properties:
+  character_id:
+    description: An EVE character ID
+    type: integer
+    format: int64
+    required: true
+    example: 96293852
+  character_name:
+    description: The character’s name
+    type: string
+    required: true
+    example: "Sky Diamond"
+  wormholes_completed:
+    description: Number of completed wormhole signatures
+    type: number
+  system_name:
+    description: The system name for which this data has been calculated
+    type: string
+    enum:
+      - thera
+      - turnur

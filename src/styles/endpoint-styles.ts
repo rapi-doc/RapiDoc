@@ -1,8 +1,11 @@
 import { css } from 'lit';
 
 export default css`
+:host {
+  container-type: inline-size;
+}
 .only-large-screen { display:none; }
-.endpoint-head .path{
+.endpoint-head .path {
   display: flex;
   font-family:var(--font-mono);
   font-size: var(--font-size-small);
@@ -21,7 +24,7 @@ export default css`
   display:none;
 }
 
-.m-endpoint.expanded{margin-bottom:16px; }
+.m-endpoint.expanded { margin-bottom:16px; }
 .m-endpoint > .endpoint-head{
   border-width:1px 1px 1px 5px;
   border-style:solid;
@@ -33,7 +36,7 @@ export default css`
   cursor: pointer;
 }
 .m-endpoint > .endpoint-head.put:hover,
-.m-endpoint > .endpoint-head.put.expanded{
+.m-endpoint > .endpoint-head.put.expanded {
   border-color:var(--orange); 
   background-color:var(--light-orange); 
 }
@@ -78,20 +81,20 @@ export default css`
 }
 .m-endpoint .endpoint-body.delete{ border-color:var(--red); }
 .m-endpoint .endpoint-body.put{ border-color:var(--orange); }
-.m-endpoint .endpoint-body.post{border-color:var(--green);}
-.m-endpoint .endpoint-body.get{ border-color:var(--blue); }
+.m-endpoint .endpoint-body.post { border-color:var(--green); }
+.m-endpoint .endpoint-body.get { border-color:var(--blue); }
 .m-endpoint .endpoint-body.head,
 .m-endpoint .endpoint-body.patch,
 .m-endpoint .endpoint-body.options { 
   border-color:var(--yellow); 
 }
 
-.m-endpoint .endpoint-body.deprecated{ 
+.m-endpoint .endpoint-body.deprecated { 
   border-color:var(--border-color);
   filter:opacity(0.6);
 }
 
-.endpoint-head .deprecated{
+.endpoint-head .deprecated {
   color: var(--light-fg);
   filter:opacity(0.6);
 }
@@ -99,13 +102,13 @@ export default css`
 .summary{
   padding:8px 8px;
 }
-.summary .title{
+.summary .title {
   font-size:calc(var(--font-size-regular) + 2px);
   margin-bottom: 6px;
   word-break: break-all;
 }
 
-.endpoint-head .method{
+.endpoint-head .method {
   padding:2px 5px;
   vertical-align: middle;
   font-size:var(--font-size-small);
@@ -169,7 +172,7 @@ api-response.view-mode {
   border-color:var(--red); 
 }
 
-@media only screen and (min-width: 1024px) {
+@container (min-width: 1024px) {
   .only-large-screen { display:block; }
   .endpoint-head .path{
     font-size: var(--font-size-regular);

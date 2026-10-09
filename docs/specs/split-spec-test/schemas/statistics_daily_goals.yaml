@@ -1,0 +1,12 @@
+type: object
+properties:
+  goal:
+    description: Daily ISK goal for donations.
+    type: number
+    format: float
+    example: 2000000000
+  timeline:
+    description: The daily goals of the past 30 days.
+    type: array
+    items:
+      $ref: "./statistics_daily_goal.yaml"

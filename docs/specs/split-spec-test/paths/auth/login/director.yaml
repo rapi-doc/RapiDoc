@@ -1,0 +1,26 @@
+get:
+  parameters:
+    - $ref: "../../../parameters/query_return_to.yaml"
+  operationId: authLoginDirector
+  tags: [Authentication]
+  summary: Director Login
+  description: |
+    Initiate the EVE-SSO login process and create a server-side session for
+    the user.
+
+    This login is used specifically for the Alliance directors, so the API gets access to
+    a refresh token, which can be stored in the database to access ESI endpoints which
+    require specific permissions, such as `/corporations/{corporation_id}/members/` and
+    `/characters/{character_id}/wallet/journal/`.
+
+    This endpoint has to be called directly and does not support cross-origin resource sharing (CORS).
+  x-badges:
+    - color: orange
+      label: "private"
+  responses:
+    "302":
+      description: Redirect to EVE-SSO to handle the login.
+    "400":
+      $ref: "../../../responses/400.yaml"
+    "503":
+      $ref: "../../../responses/503.yaml"

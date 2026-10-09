@@ -1,31 +1,18 @@
 <!doctype html>
 <html>
   <head>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-132775238-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'UA-132775238-1');
-    </script>
-
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;600&family=Roboto+Mono&display=swap" rel="stylesheet">
-    <script type="module" src="../rapidoc-min.js"></script>
+    <script src="./load-rapidoc-and-other-common-scripts.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
   </head>
+
   <body>
     <rapi-doc id="thedoc"
       spec-url = "../specs/slots.yaml" 
-      render-style = "view" 
-      theme="light" 
       show-header="false"
-      regular-font = 'Open Sans'
-      mono-font = 'Roboto Mono'
-      primary-color="#f54c47"
+      render-style = "read"
     > 
       <p style="margin:0; padding:16px 36px; background-color:tomato; color:#fff; text-align:center;" > 
         <b> default</b> slot | <span style="font-size:12px"> A good place to provide internal and external links, Sign In buttons etc</span>

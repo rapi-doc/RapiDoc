@@ -139,7 +139,7 @@ async function fetchAccessToken(this: RapiDocCallableElement, tokenUrl: string, 
       }
       return false;
     }
-  } catch (err) {
+  } catch {
     if (respDisplayEl) {
       respDisplayEl.innerHTML = '<span style="color:var(--red)">Failed to get access token</span>';
     }
@@ -330,8 +330,8 @@ function oAuthFlowTemplate(this: RapiDocCallableElement, flowName: 'authorizatio
           ${flowName === 'password'
             ? html`
               <div style="margin:5px 0">
-                <input type="text" value = "" placeholder="username" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} api-key-user" part="textbox textbox-username">
-                <input type="password" value = "" placeholder="password" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} api-key-password" style = "margin:0 5px;" part="textbox textbox-password">
+                <input type="text" value = "" placeholder="username" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} api-key-user" part="textbox textbox-username" id="input-${securitySchemeId}-${flowName}-api-key-user">
+                <input type="password" value = "" placeholder="password" spellcheck="false" class="oauth2 ${flowName} ${securitySchemeId} api-key-password" style = "margin:0 5px;" part="textbox textbox-password" id="input-${securitySchemeId}-${flowName}-api-key-password">
               </div>`
             : ''
           }
@@ -351,6 +351,7 @@ function oAuthFlowTemplate(this: RapiDocCallableElement, flowName: 'authorizatio
             ${flowName === 'authorizationCode' || flowName === 'clientCredentials' || flowName === 'password'
               ? html`
                 <input
+                  id="${securitySchemeId}-${flowName}-oauth-client-secret"
                   type="password" part="textbox textbox-auth-client-secret"
                   value = "${clientSecret || ''}" placeholder="client-secret" spellcheck="false"
                   class="oauth2 ${flowName} ${securitySchemeId}
@@ -420,7 +421,9 @@ export default function securitySchemeTemplate(this: RapiDocCallableElement) {
     ${this.resolvedSpec.securitySchemes && this.resolvedSpec.securitySchemes.length > 0
       ? html`
         <table role="presentation" id="auth-table" class='m-table padded-12' style="width:100%;">
-          ${this.resolvedSpec.securitySchemes.map((v) => html`
+          ${this.resolvedSpec.securitySchemes
+          .filter((v) => v.type)
+          .map((v) => html`
             <tr id="security-scheme-${v.securitySchemeId}" class="${v.type.toLowerCase()}">
               <td style="max-width:500px; overflow-wrap: break-word;">
                 <div style="line-height:28px; margin-bottom:5px;">
@@ -441,7 +444,7 @@ export default function securitySchemeTemplate(this: RapiDocCallableElement) {
                   : ''
                 }
 
-                ${(v.type === 'apiKey') || (v.type === 'http' && v.scheme === 'bearer')
+                ${(v.type.toLowerCase() === 'apikey') || (v.type.toLowerCase() === 'http' && (v as { scheme?: string }).scheme?.toLowerCase() === 'bearer')
                   ? html`
                     <div style="margin-bottom:5px">
                       ${v.type === 'apiKey'
@@ -452,7 +455,7 @@ export default function securitySchemeTemplate(this: RapiDocCallableElement) {
                     <div style="max-height:28px;">
                       ${v.type === 'apiKey' && v.in !== 'cookie'
                         ? html`
-                          <input type = "text" value = "${v.value}" class="${v.type} ${v.securitySchemeId} api-key-input" placeholder = "api-token" spellcheck = "false">
+                          <input type = "text" value = "${v.value}" class="${v.type} ${v.securitySchemeId} api-key-input" placeholder = "api-token" spellcheck = "false" id = "${v.type}-${v.securitySchemeId}-api-key-input">
                           <button class="m-btn thin-border" style = "margin-left:5px;"
                             part = "btn btn-outline"
                             @click="${() => { onApiKeyChange.call(this, v.securitySchemeId); }}">
@@ -463,14 +466,14 @@ export default function securitySchemeTemplate(this: RapiDocCallableElement) {
                     </div>`
                   : ''
                 }
-                ${v.type === 'http' && v.scheme === 'basic'
+                ${v.type.toLowerCase() === 'http' && (v as { scheme?: string }).scheme?.toLowerCase() === 'basic'
                   ? html`
                     <div style="margin-bottom:5px">
                       Send <code>Authorization</code> in <code>header</code> containing the word <code>Basic</code> followed by a space and a base64 encoded string of <code>username:password</code>.
                     </div>
                     <div>
-                      <input type="text" value = "${v.user}" placeholder="username" spellcheck="false" class="${v.type} ${v.securitySchemeId} api-key-user" style="width:100px">
-                      <input type="password" value = "${v.password}" placeholder="password" spellcheck="false" class="${v.type} ${v.securitySchemeId} api-key-password" style = "width:100px; margin:0 5px;">
+                      <input type="text" value = "${v.user}" placeholder="username" spellcheck="false" class="${v.type} ${v.securitySchemeId} api-key-user" style="width:100px" id = "input-${v.type}-${v.securitySchemeId}-api-key-user">
+                      <input type="password" value = "${v.password}" placeholder="password" spellcheck="false" class="${v.type} ${v.securitySchemeId} api-key-password" style = "width:100px; margin:0 5px;" id = "input-${v.type}-${v.securitySchemeId}-api-key-password">
                       <button class="m-btn thin-border"
                         @click="${() => { onApiKeyChange.call(this, v.securitySchemeId); }}"
                         part = "btn btn-outline"
@@ -626,6 +629,7 @@ export function pathSecurityTemplate(this: RapiDocCallableElement, pathSecurity:
           }
         `)
         }
+      </div>
       </div>
     `;
   }

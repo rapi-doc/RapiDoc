@@ -1,0 +1,61 @@
+get:
+  operationId: listObservationsPrivate
+  parameters:
+    - $ref: "../../parameters/query_latest.yaml"
+    - $ref: "../../parameters/query_observation_type.yaml"
+  tags: [Observations]
+  summary: List Private Observations Records
+  description: |
+    List observation records for all objects we track.
+  x-badges:
+    - color: orange
+      label: "private"
+  security:
+    - esrc-auth: []
+  responses:
+    "200":
+      description: A list of `observations`.
+      content:
+        application/json:
+          schema:
+            array:
+            items:
+              $ref: "../../schemas/observation_representation.yaml"
+    "400":
+      $ref: "../../responses/400.yaml"
+    "401":
+      $ref: "../../responses/401.yaml"
+    "503":
+      $ref: "../../responses/503.yaml"
+post:
+  operationId: addObservationRecord
+  tags: [Observations]
+  summary: Add Observations Record
+  description: |
+    This endpoint adds a new observation record.
+    This can be done by either providing the system by name or by ID.
+  security:
+    - esrc-auth: []
+  requestBody:
+    content:
+      application/json:
+        schema:
+          oneOf:
+            - $ref: "../../schemas/observation_create_by_id.yaml"
+            - $ref: "../../schemas/observation_create_by_name.yaml"
+  responses:
+    "200":
+      description: |
+        The response body will return the added observation record.
+      content:
+        application/json:
+          schema:
+            $ref: "../../schemas/observation_representation.yaml"
+    "400":
+      description: |
+        There was an error with the content or formatting of the request
+        body. No modifications have been made.
+    "401":
+      description: This endpoint requires authentication
+    "503":
+      $ref: "../../responses/503.yaml"

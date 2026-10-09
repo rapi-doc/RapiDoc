@@ -1,22 +1,12 @@
 <!doctype html>
   <head>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src='https://www.googletagmanager.com/gtag/js?id=UA-132775238-1'></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'UA-132775238-1');
-    </script>
-    <meta charset='utf-8'>
-    <meta name='viewport' content='width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes'>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;600&family=Roboto+Mono&display=swap" rel="stylesheet">
-    <script type='text/javascript' src='../rapidoc-min.js'></script>
-
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
     <!-- Code Highlight -->
     <link rel="stylesheet" href="../prismjs/prism.css">
     <script src="../prismjs/prism.js"></script>
-
+    
+    <script src="./load-rapidoc-and-other-common-scripts.js"></script>
     <script>
       function getRapiDoc(){
         return document.getElementById("thedoc");
@@ -33,11 +23,9 @@
       function setSchemaAttr(attrName, attrValue) {
         getRapiDoc().setAttribute(attrName, attrValue);
       }
-
-
     </script>
     <style>
-      .btn{
+      .btn {
         width: 180px;
         height: 40px;
         background-color: #0184cb;
@@ -47,32 +35,27 @@
         outline:none;
       }
 
-      table{
+      table {
+        font-family: 'Lato', 'Open Sans', sans-serif;
         border-collapse: collapse;
         border-radius: 12px;
       }
       th, td { 
         padding: 8px;
       }
-
-      rapi-doc { 
-        width:100%;
-      }
     </style>
   </head>
   <body>
     <rapi-doc spec-url="../specs/schema-read-and-write-only.yaml"
       id="thedoc"
-      show-info = "false"
       show-header = "false"
+      show-info = "false"
+      allow-server-selection	= "false"
+      allow-authentication = "false"
       render-style = "read"
       allow-try = "false"
       schema-style = "table"
-      regular-font = 'Open Sans'
-      mono-font = "Roboto Mono"
-      allow-authentication = "false"
-      allow-server-selection	= "false"
-      sort-endpoints-by="summary"
+      default-schema-tab="schema"
     >
     <span slot="operations-top" >
       <div style="font-size:13px; margin:16px; padding:16px; background-color:#444; color:#fff; border-radius:4px" >
@@ -96,35 +79,45 @@
           </div>
           <div>
             <b> ATTRIBUTES </b><br/>
-            <table style = "border:1px solid #aaa; margin-top:8px; font-family:Consolas, Monaco, 'Andale Mono', monospace;" >
+            <table style = "border:1px solid #aaa; margin-top:8px; " >
               <tr style = "border-top:1px solid #aaa;">
-                <td> schema-hide-read-only </td> 
-                <td> 
+                <td class= "mono" style="width:175px"> schema-hide-read-only </td> 
+                <td style="width:95px"> 
                   <span>
                     <input type="radio" id="default" name="readonly" value="default" onclick="setSchemaAttr('schema-hide-read-only', this.value)">
                     <label for="default">default</label>
                   </span>
-                  <span style = "margin-left:16px">
+                  <br/>
+                  <span>
                     <input type="radio" id="never" name="readonly" value="never" onclick="setSchemaAttr('schema-hide-read-only', this.value)">
                     <label for="never">never</label>
                   </span>
                 </td>
+                <td rowspan="2" style="border-left: 1px solid #aaa;">By default 
+                  <ul>
+                    <li>If a schema is used in Request all the read-only properties are hidden</li>
+                    <li>If a schema is used in Response all the write-only properties are hidden</li>
+                    <li>In Case of WEBHOOKS and CALLBACKS the behavior is opposite</li>
+                    <li>You may use the attributes on the left to define alternative behavior</li>
+                  </ul>
+                </td>
               </tr>
               <tr style = "border-top:1px solid #aaa;">
-                <td> schema-hide-write-only </td> 
+                <td class= "mono"> schema-hide-write-only </td> 
                 <td> 
                   <span>
                     <input type="radio" id="default" name="writeonly" value="default" onclick="setSchemaAttr('schema-hide-write-only', this.value)" >
                     <label for="default">default</label>
                   </span>
-                  <span style="margin-left:16px">
+                  <br/>
+                  <span>
                     <input type="radio" id="never" name="writeonly" value="never" onclick="setSchemaAttr('schema-hide-write-only', this.value)">
                     <label for="never">never</label>
                   </span>
                 </td>
               </tr>
               <tr style = "border-top:3px solid #aaa;">
-                <td colspan="2" style="text-align: center;"> 
+                <td colspan="3" style="text-align: center;"> 
                   <button class="btn" onclick="toggleSchemaStyle()">Toggle Schema Style</button>
                 </td>
               </tr>

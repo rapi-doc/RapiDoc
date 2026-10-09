@@ -1,7 +1,7 @@
 import { css } from 'lit';
 
 export default css`
-.row, .col{
+.row, .col {
   display:flex;
 } 
 .row {
